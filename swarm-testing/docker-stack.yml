@@ -1,0 +1,16 @@
+---
+
+version: "3"
+
+services:
+  s3:
+    image: scality/s3server
+    ports:
+      - "8000"
+
+  lb:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - "./nginx.conf:/etc/nginx/nginx.conf:ro"
