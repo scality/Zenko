@@ -9,8 +9,9 @@ services:
       - "8000"
 
   lb:
-    image: nginx:alpine
+    image: scality/nginx-lb
     ports:
       - "80:80"
-    volumes:
-      - "./nginx.conf:/etc/nginx/nginx.conf:ro"
+    environment:
+      LISTEN_PORT: 80
+      UPSTREAM_SERVER: s3
