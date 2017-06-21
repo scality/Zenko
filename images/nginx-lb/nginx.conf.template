@@ -4,14 +4,14 @@ events {
 }
 
 http {
-    upstream s3 {
-        server s3:8000;
+    upstream backend {
+        server ${UPSTREAM_SERVER};
     }
 
     server {
-        listen 80;
+        listen ${LISTEN_PORT};
         location / {
-            proxy_pass http://s3;
+            proxy_pass http://backend;
 
             proxy_request_buffering off;
             proxy_buffering off;

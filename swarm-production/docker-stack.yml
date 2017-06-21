@@ -1,0 +1,109 @@
+---
+
+version: "3"
+
+services:
+  s3-data:
+    image: scality/s3server
+    ports:
+      - "9990"
+    networks:
+      - backend
+    environment:
+      S3DATAPATH: /data
+      LISTEN_ADDR: 0.0.0.0
+    volumes:
+      - "s3-data:/data:rw"
+    command: npm run start_dataserver
+    deploy:
+      placement:
+        constraints:
+          - node.labels.io.zenko.type == storage
+
+  s3-metadata:
+    image: scality/s3server
+    ports:
+      - "9991"
+    networks:
+      - backend
+    environment:
+      S3METADATAPATH: /metadata
+      LISTEN_ADDR: 0.0.0.0
+    volumes:
+      - 's3-metadata:/metadata:rw'
+    command: npm run start_mdserver
+    deploy:
+      placement:
+        constraints:
+          - node.labels.io.zenko.type == storage
+
+  s3-front:
+    image: scality/s3server
+    ports:
+      - "8000"
+    networks:
+      - backend
+      - frontend-dmz
+    environment:
+      SCALITY_ACCESS_KEY_ID: deploy-specific-access-key
+      SCALITY_SECRET_ACCESS_KEY: deploy-specific-secret-key
+      DATA_HOST: s3-data
+      METADATA_HOST: s3-metadata
+      REDIS_HOST: cache
+      HOST_NAME: zenko
+    command: npm run start_s3server
+    depends_on:
+      - s3-data
+      - s3-metadata
+      - cache
+    deploy:
+      mode: replicated
+      update_config:
+        parallelism: 1
+        delay: "10s"
+        monitor: "5s"
+
+  cache:
+    image: redis:alpine
+    ports:
+      - "6379"
+    networks:
+      - backend
+
+  lb:
+    image: scality/nginx-lb
+    ports:
+      - "80:80"
+    environment:
+      LISTEN_PORT: 80
+      UPSTREAM_SERVER: "s3-front:8000"
+    networks:
+      - frontend
+      - frontend-dmz
+    depends_on:
+      - s3-front
+    deploy:
+      mode: global
+      update_config:
+        parallelism: 1
+        delay: "10s"
+        monitor: "5s"
+
+networks:
+  backend:
+  frontend:
+  frontend-dmz:
+
+volumes:
+  s3-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /data
+  s3-metadata:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /metadata
