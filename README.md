@@ -1,10 +1,40 @@
 # Zenko
+
 Because everyone should be in control of their data.
 
-##
-This repository will include installation resources to deploy the full Zenko stack over different orchestration systems.
-We will start with docker swarm but others like kubernetes will follow.
-The stack is commposed of ngninx, S3 server, utapi, dmd, redis all magically configured to talk to each other.
-There must be a testing swarm yml as well as a production swarm yml that includes HA and asks for pre-existing volumes.
+
+## [May I offer you some lovely documentation?](TODO:DOCUMENTATION_LINK_HERE)
+
+
+## Contributing
+
+In order to contribute, please follow the
+[Contributing Guidelines](
+https://github.com/scality/Guidelines/blob/master/CONTRIBUTING.md).
+
+## Overview
+
+This repository will include installation resources to deploy the full Zenko
+stack over different orchestration systems.
+
+We started with [Docker Swarm](https://docs.docker.com/engine/swarm/) but others
+like [Kubernetes](https://kubernetes.io/) will follow.
+
+The stack is composed of:
+- [nginx](https://nginx.org/en/),
+- [Scality S3 server](https://github.com/scality/S3),
+- [data and metadata deamon (dmd)](http://s3-server.readthedocs.io/en/latest/ARCHITECTURE/#data-metadata-daemon-architecture-and-operational-guide),
+- [redis](https://redis.io/)
+- all magically configured to talk to each other.
+
+## [Testing Zenko with Docker Swarm](./swarm-testing)
+
+Simple Zenko setup for quick testing with non-production data
+
+## [Zenko in production with Docker Swarm](./swarm-production)
+
+- Includes high availability (HA)
+- Asks for pre-existing volumes
+
 
 Example installer repo: https://github.com/hashicorp/terraform/tree/master/examples
