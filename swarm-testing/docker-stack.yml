@@ -14,4 +14,4 @@ services:
       - "80:80"
     environment:
       LISTEN_PORT: 80
-      UPSTREAM_SERVER: s3
+      UPSTREAM_SERVER: s3:8000
