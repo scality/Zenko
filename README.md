@@ -2,9 +2,7 @@
 
 ![Zenko logo](docs/zenko.io-logo-color-cmyk.png)
 
-Zenko is  [Scality](http://www.scality.com/)’s Open Source Multi-Cloud Data Controller
-Zenko lets you be in control of your data and leverage the efficiency
-of private and public clouds.
+Zenko is  [Scality](http://www.scality.com/)’s Open Source Multi-Cloud Data Controller.
 
 Learn more at  [Zenko.io](http://www.zenko.io/)
 
