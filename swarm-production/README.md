@@ -2,7 +2,6 @@
 
 This docker service stack describes a simple Zenko production setup, including:
 
-* Host filesystem-based, easy to back up volumes for data and metadata
 * Load balancer (nginx-based) on all nodes of the swarm
 * Multi-tiered networks (user-facing, DMZ and backend services)
 * Thanks to Docker Swarm and its overlay network, virtual ips and scheduler,
@@ -57,53 +56,10 @@ map[io.zenko.type:storage]
 Note that if this step is not performed, some services in the stack will stay
 pending and will never be scheduled.
 
-### Storage Directories On The Storage Node
+### Storage Volumes
 
-Once the node has been selected and configured with the `io.zenko.type` label,
-we need to create the directories that will hold the data and metadata for the
-s3 service.
-
-```shell
-$ ssh root@s3-node-zenko-swarm-1.na.scality.cloud mkdir /data /metadata
-```
-
-The metadata and data containers will fail to start if this step is not
-performed.
-
-This could be done automatically on stack deployment using traditional docker
-volumes, but we chose to make it a manual step with regular directories instead
-of docker stack-managed volumes. The main reasons for this choice are:
-
-* To make backup with traditional (non container-aware) backup tools easier.
-* To avoid scheduling mistakes (such as the `io.zenko.type` node label ending
-  up on the wrong node) causing buckets and data being written to the wrong
-  node host.
-* To avoid any risk of stack deletion/renaming removing the data at the same
-  time.
-
-#### (Optional) Customizing where data is stored
-
-Alternatively, if you wish to store the data and metadata in another directory
-(say `/tank` where your SSD array is mounted for example), the `volumes`
-section of the `docker-stack.yml` file can be updated to look something like:
-
-```yaml
-volumes:
-  s3-data:
-      ...
-      device: /tank/zenko/data
-  s3-metadata:
-      ...
-      device: /tank/zenko/metadata
-```
-
-Again, these directories should be created before deploying the stack.
-
-NFS exports can also be used as volumes. See [Volume creation
-docs](https://docs.docker.com/engine/reference/commandline/volume_create/#driver-specific-options)
-and [Volume Configuration
-Reference](https://docs.docker.com/compose/compose-file/#volume-configuration-reference)
-for more information.
+Volumes are automatically created by Docker Swarm as needed. Be aware that
+deleting the stack from the swarm will also delete the data.
 
 ### Access and Secret Keys
 
