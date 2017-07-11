@@ -2,8 +2,11 @@
 
 ![Zenko logo](docs/zenko.io-logo-color-cmyk.png)
 
-Because everyone should be in control of their data.
-Learn more at  [Zenko.io](https://www.zenko.io/)
+Zenko is  [Scality](http://www.scality.com/)’s Open Source Multi-Cloud Data Controller
+Zenko lets you be in control of your data and leverage the efficiency
+of private and public clouds.
+
+Learn more at  [Zenko.io](http://www.zenko.io/)
 
 ## Contributing
 
