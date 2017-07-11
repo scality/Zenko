@@ -1,10 +1,12 @@
 # Zenko
 
-![Zenko logo](docs/zenko.io-logo-color-cmyk.png)
+![Zenko logo](res/zenko.io-logo-color-cmyk.png)
 
 Zenko is  [Scality](http://www.scality.com/)’s Open Source Multi-Cloud Data Controller.
 
 Learn more at  [Zenko.io](http://www.zenko.io/)
+
+## [May I offer you some lovely documentation?](http://zenko.readthedocs.io)
 
 ## Contributing
 
@@ -35,6 +37,3 @@ Simple Zenko setup for quick testing with non-production data
 
 - Includes high availability (HA)
 - Asks for pre-existing volumes
-
-
-Example installer repo: https://github.com/hashicorp/terraform/tree/master/examples
