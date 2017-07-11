@@ -1,10 +1,9 @@
 # Zenko
 
+![Zenko logo](docs/zenko.io-logo-color-cmyk.png)
+
 Because everyone should be in control of their data.
-
-
-## [May I offer you some lovely documentation?](TODO:DOCUMENTATION_LINK_HERE)
-
+Learn more at  [Zenko.io](https://www.zenko.io/)
 
 ## Contributing
 
