@@ -96,14 +96,4 @@ networks:
 
 volumes:
   s3-data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /data
   s3-metadata:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /metadata
