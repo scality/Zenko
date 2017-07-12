@@ -63,10 +63,10 @@ deleting the stack from the swarm will also delete the data.
 
 ### Access and Secret Keys
 
-The default access and secret key pair is `deploy-specific-access-key` /
-`deploy-specific-secret-key`. Changing them is a must, and can be done by
+The default access and secret key pair is `deployment-specific-access-key` /
+`deployment-specific-secret-key`. Changing them is a must, and can be done by
 updating the `SCALITY_ACCESS_KEY_ID` and `SCALITY_SECRET_ACCESS_KEY` environment
-variables in the `docker-stack.yml` file.
+variables in the `secrets.txt` file.
 
 ## Deploying
 
@@ -108,8 +108,8 @@ Note that because of how endpoint host name matching works, at the moment the
 shown below.
 
 ```shell
-$ export AWS_ACCESS_KEY_ID=deploy-specific-access-key
-$ export AWS_SECRET_ACCESS_KEY=deploy-specific-secret-key
+$ export AWS_ACCESS_KEY_ID=deployment-specific-access-key
+$ export AWS_SECRET_ACCESS_KEY=deployment-specific-secret-key
 $ echo $(docker node inspect -f '{{ .Status.Addr }}' s3-node-zenko-swarm-3.na.scality.cloud) zenko >> /etc/hosts
 $ aws s3 --endpoint http://zenko mb s3://bucket1 --region=us-east-1
 make_bucket: bucket1
@@ -123,7 +123,6 @@ $ aws s3 --endpoint http://zenko ls s3://bucket1
 
 ## Further improvements
 
-* Use docker secrets for access/secret keys, and require docker 1.13
 * Make endpoint name configurable (HOST_MAME env var)
 * Allow using an external environment vars file
 * Include a log collection and visualization component
