@@ -68,6 +68,16 @@ The default access and secret key pair is `deployment-specific-access-key` /
 updating the `SCALITY_ACCESS_KEY_ID` and `SCALITY_SECRET_ACCESS_KEY` environment
 variables in the `secrets.txt` file.
 
+### Endpoint Name
+
+By default the endpoint name is `zenko`, you may change this to the host name
+presented to your clients (for example `s3.mydomain.com`) by exporting the
+`ENDPOINT` environment variable prior to deploying:
+
+```shell
+$ export ENDPOINT=s3.mydomain.com
+```
+
 ## Deploying
 
 Deploy the stack:
@@ -102,15 +112,13 @@ Using [awscli](https://aws.amazon.com/cli/), we can perform S3 operations
 on our Zenko stack. Since the load balancer container is deployed in `global`
 mode, we can use any of the swarm nodes as the endpoint.
 
-Note that because of how endpoint host name matching works, at the moment the
-`Host` header for the http requests needs to match the configured hostname
-`zenko`. An easy way of doing this is to add it to the `/etc/hosts` file as
-shown below.
+Note that here we are using the default `zenko` host name, you should use
+the `ENDPOINT` variable configured above if applicable, or whatever the
+`hostname -f` command returns.
 
 ```shell
 $ export AWS_ACCESS_KEY_ID=deployment-specific-access-key
 $ export AWS_SECRET_ACCESS_KEY=deployment-specific-secret-key
-$ echo $(docker node inspect -f '{{ .Status.Addr }}' s3-node-zenko-swarm-3.na.scality.cloud) zenko >> /etc/hosts
 $ aws s3 --endpoint http://zenko mb s3://bucket1 --region=us-east-1
 make_bucket: bucket1
 $ aws s3 --endpoint http://zenko ls
@@ -123,7 +131,6 @@ $ aws s3 --endpoint http://zenko ls s3://bucket1
 
 ## Further improvements
 
-* Make endpoint name configurable (HOST_MAME env var)
 * Allow using an external environment vars file
 * Include a log collection and visualization component
 * Include healthchecks in the `scality/s3server` image

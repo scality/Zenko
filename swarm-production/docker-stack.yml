@@ -48,7 +48,7 @@ services:
       DATA_HOST: s3-data
       METADATA_HOST: s3-metadata
       REDIS_HOST: cache
-      ENDPOINT: ${ENDPOINT:-zenko}
+      ENDPOINT: "${ENDPOINT:-zenko}"
     secrets:
       - s3-credentials
     command: npm run start_s3server
