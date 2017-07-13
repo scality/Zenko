@@ -4,6 +4,8 @@ events {
 }
 
 http {
+    proxy_cache off;
+
     upstream backend {
         server ${UPSTREAM_SERVER};
     }

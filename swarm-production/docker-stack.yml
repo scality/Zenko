@@ -1,6 +1,6 @@
 ---
 
-version: "3"
+version: "3.1"
 
 services:
   s3-data:
@@ -45,12 +45,12 @@ services:
       - backend
       - frontend-dmz
     environment:
-      SCALITY_ACCESS_KEY_ID: deploy-specific-access-key
-      SCALITY_SECRET_ACCESS_KEY: deploy-specific-secret-key
       DATA_HOST: s3-data
       METADATA_HOST: s3-metadata
       REDIS_HOST: cache
-      HOST_NAME: zenko
+      ENDPOINT: "${ENDPOINT:-zenko}"
+    secrets:
+      - s3-credentials
     command: npm run start_s3server
     depends_on:
       - s3-data
@@ -97,3 +97,7 @@ networks:
 volumes:
   s3-data:
   s3-metadata:
+
+secrets:
+  s3-credentials:
+    file: ./secrets.txt
