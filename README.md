@@ -4,6 +4,8 @@
 
 Zenko is  [Scality](http://www.scality.com/)’s Open Source Multi-Cloud Data Controller.
 
+Zenko's goal is to provide a unifed namespace, access API and search capabilities to data stored locally using Docker volumes or Scality RING or in public cloud storage services like [Amazon S3](https://aws.amazon.com/s3), or [Microsfot Azure Blob storage](https://azure.microsoft.com/en-us/services/storage/blobs/).
+
 Learn more at  [Zenko.io](http://www.zenko.io/)
 
 ## [May I offer you some lovely documentation?](http://zenko.readthedocs.io)
