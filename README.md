@@ -27,7 +27,7 @@ like [Kubernetes](https://kubernetes.io/) will follow.
 The stack is composed of:
 - [nginx](https://nginx.org/en/),
 - [Scality S3 server](https://github.com/scality/S3),
-- [data and metadata deamon (dmd)](http://s3-server.readthedocs.io/en/latest/ARCHITECTURE/#data-metadata-daemon-architecture-and-operational-guide),
+- [data and metadata daemon (dmd)](http://s3-server.readthedocs.io/en/latest/ARCHITECTURE/#data-metadata-daemon-architecture-and-operational-guide),
 - [redis](https://redis.io/)
 - all magically configured to talk to each other.
 
