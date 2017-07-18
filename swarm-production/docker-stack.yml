@@ -71,7 +71,7 @@ services:
       - backend
 
   lb:
-    image: scality/nginx-lb
+    image: zenko/loadbalancer
     ports:
       - "80:80"
     environment:
