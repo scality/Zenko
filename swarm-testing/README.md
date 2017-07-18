@@ -16,7 +16,7 @@ Deploy the stack:
 ```
 $ docker stack deploy -c docker-stack.yml zenko-testing
 ID            NAME              MODE        REPLICAS  IMAGE
-5s5ny9y859sj  zenko-testing_lb  replicated  1/1       nginx:alpine
+5s5ny9y859sj  zenko-testing_lb  replicated  1/1       zenko/loadbalancer:latest
 ei95xqodynoc  zenko-testing_s3  replicated  1/1       scality/s3server:latest
 ```
 
@@ -25,7 +25,7 @@ Check that the services are up:
 ```
 $ docker stack services zenko-testing
 ID            NAME              MODE        REPLICAS  IMAGE
-5s5ny9y859sj  zenko-testing_lb  replicated  1/1       nginx:alpine
+5s5ny9y859sj  zenko-testing_lb  replicated  1/1       zenko/loadbalancer:latest
 ei95xqodynoc  zenko-testing_s3  replicated  1/1       scality/s3server:latest
 ```
 
@@ -45,5 +45,5 @@ $ aws s3 --endpoint http://localhost ls
 $ aws s3 --endpoint http://localhost cp README.md s3://bucket1
 upload: ./README.md to s3://bucket1/README.md
 $ aws s3 --endpoint http://localhost ls s3://bucket1
-2017-06-15 17:36:10       1484 README.md
+2017-06-15 17:36:10       1510 README.md
 ```
