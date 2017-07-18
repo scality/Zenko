@@ -115,6 +115,8 @@ mode, we can use any of the swarm nodes as the endpoint.
 Note that here we are using the default `zenko` host name, you should use
 the `ENDPOINT` variable configured above if applicable, or whatever the
 `hostname -f` command returns.
+ > IMPORTANT: when using default port 80, it should never be specified after the
+ > endpoint address. If using a custom port, it must be specified.
 
 ```shell
 $ export AWS_ACCESS_KEY_ID=deployment-specific-access-key
