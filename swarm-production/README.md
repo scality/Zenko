@@ -99,7 +99,7 @@ Check that the services are up:
 ```shell
 $ docker stack services zenko-prod
 ID            NAME                    MODE        REPLICAS  IMAGE
-jf5fv54vqda2  zenko-prod_lb           global      5/5       scality/nginx-lb:latest
+jf5fv54vqda2  zenko-prod_lb           global      5/5       zenko/loadbalancer:latest
 pc23nsleqpme  zenko-prod_cache        replicated  1/1       redis:alpine
 w47r55ja7k4d  zenko-prod_s3-metadata  replicated  1/1       scality/s3server:latest
 wa7aqx3n1ytq  zenko-prod_s3-data      replicated  1/1       scality/s3server:latest
@@ -128,7 +128,7 @@ $ aws s3 --endpoint http://zenko ls
 $ aws s3 --endpoint http://zenko cp README.md s3://bucket1
 upload: ./README.md to s3://bucket1/README.md
 $ aws s3 --endpoint http://zenko ls s3://bucket1
-2017-06-20 00:12:53       6712 README.md
+2017-06-20 00:12:53       5052 README.md
 ```
 
 ## Further improvements
