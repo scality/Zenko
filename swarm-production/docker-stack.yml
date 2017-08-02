@@ -29,6 +29,7 @@ services:
     environment:
       S3METADATAPATH: /metadata
       LISTEN_ADDR: 0.0.0.0
+      RECORDLOG_ENABLED: "true"
     volumes:
       - 's3-metadata:/metadata:rw'
     command: npm run start_mdserver
