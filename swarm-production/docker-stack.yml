@@ -6,7 +6,7 @@ services:
   s3-data:
     image: scality/s3server
     ports:
-      - "9990"
+      - "9991"
     networks:
       - backend
     environment:
@@ -23,7 +23,7 @@ services:
   s3-metadata:
     image: scality/s3server
     ports:
-      - "9991"
+      - "9990:9990"
     networks:
       - backend
     environment:
@@ -38,7 +38,7 @@ services:
           - node.labels.io.zenko.type == storage
 
   s3-front:
-    image: scality/s3server
+    image: 127.0.0.1:5000/s3server
     ports:
       - "8000"
     networks:
@@ -49,6 +49,7 @@ services:
       METADATA_HOST: s3-metadata
       REDIS_HOST: cache
       ENDPOINT: "${ENDPOINT:-zenko}"
+      RECORDLOG_ENABLED: "true"
     secrets:
       - s3-credentials
     command: npm run start_s3server
