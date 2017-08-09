@@ -6,7 +6,7 @@ services:
   s3-data:
     image: scality/s3server
     ports:
-      - "9990"
+      - "9991"
     networks:
       - backend
     environment:
@@ -23,7 +23,7 @@ services:
   s3-metadata:
     image: scality/s3server
     ports:
-      - "9991"
+      - "9990"
     networks:
       - backend
     environment:
