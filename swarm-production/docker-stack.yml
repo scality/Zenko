@@ -41,6 +41,7 @@ services:
     image: scality/s3server
     ports:
       - "8000"
+      - "8100:8100"
     networks:
       - backend
       - frontend-dmz
