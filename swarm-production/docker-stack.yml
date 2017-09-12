@@ -3,6 +3,106 @@
 version: "3.1"
 
 services:
+  livy:
+    image: scality/clueso-livy:0.4.0
+    volumes:
+      - /home/scality/alexenv/logs/livy:/apps/livy/logs
+      - /home/scality/alexenv/conf/log4j.properties:/apps/livy/conf/log4j.properties
+      - /home/scality/alexenv/conf/livy.conf:/apps/livy/conf/livy.conf
+      - /home/scality/alexenv/conf/livy-env.sh:/apps/livy/conf/livy-env.sh
+      - /home/scality/alexenv/spark_builds/spark-2.1.1-bin-spark-2.1.1_2.10:/apps/spark-2.1.1_2.10
+      - /home/scality/alexenv/jars:/apps/spark-modules
+    ports:
+      - "8998:8998"
+      - "4040:4040"
+      - "5005:5005"
+    depends_on:
+      - kafka
+      - spark-master
+      - graphite
+    networks:
+      - frontend
+    deploy:
+      placement:
+        constraints:
+          - node.labels.io.zenko.type == livy
+
+  spark-master:
+    #image: bde2020/spark-master:2.1.1-hadoop2.7
+    image: scality/spark-master:hadoop2.8
+    hostname: spark-master
+    depends_on:
+      - kafka
+      - graphite
+    ports:
+      - "8080:8080"
+      - "7077:7077"
+    #environment:
+    #  - INIT_DAEMON_STEP=setup_spark
+    networks:
+      - frontend
+    deploy:
+      placement:
+        constraints:
+          - node.labels.io.zenko.type == livy
+
+  spark-worker:
+    #image: bde2020/spark-worker:2.1.1-hadoop2.7
+    image: scality/spark-worker:hadoop2.8
+    depends_on:
+      - spark-master
+      - kafka
+      - graphite
+    #ports:
+    #  - "8081:8081"
+    environment:
+      - "SPARK_MASTER=spark://spark-master:7077"
+    networks:
+      - frontend
+    deploy:
+      replicas: 8
+ #     placement:
+ #       constraints:
+ #         - node.labels.io.zenko.type == livy
+ 
+  graphite:
+    image: kamon/grafana_graphite
+    ports:
+      - '8000:80'
+      - '8081:81'
+      - '8125:8125/udp'
+      - '8126:8126'
+      - '2003:2003'
+      - '2004:2004'
+      - '7002:7002'
+      - '3000:3000'
+    networks:
+      - frontend
+    volumes:
+      - /home/scality/alexenv/docker-grafana-graphite/data/whisper:/opt/graphite/storage/whisper
+      - /home/scality/alexenv/docker-grafana-graphite/data/grafana:/opt/grafana/data
+      - /home/scality/alexenv/docker-grafana-graphite/log/graphite:/opt/graphite/storage/log
+    deploy:
+      placement:
+        constraints:
+          - node.labels.io.zenko.type == livy
+
+  kafka:
+    image: spotify/kafka
+    ports:
+      - "9092:9092"
+      - "2181:2181"
+    environment:
+      - "ADVERTISED_HOST=kafka"
+      - "ADVERTISED_PORT=9092"
+    networks:
+      - frontend
+# please remove assignment below before commit TODO 
+    deploy:
+      placement:
+        constraints:
+          - node.labels.io.zenko.type == livy
+
   s3-data:
     image: 127.0.0.1:5000/s3server
     ports:
@@ -44,6 +144,7 @@ services:
       - "8000"
     networks:
       - backend
+      - frontend
       - frontend-dmz
     environment:
       DATA_HOST: s3-data
