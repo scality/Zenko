@@ -1,6 +1,6 @@
 ---
 
-version: "3.1"
+version: "3.3"
 
 services:
 
@@ -9,6 +9,8 @@ services:
     ports:
       - "19998:19998"
       - "19999:19999"
+    networks:
+      - frontend
     environment:
       ALLUXIO_UNDERFS_ADDRESS: /underStorage
       ALLUXIO_MASTER_HOSTNAME: alluxio-master
@@ -28,7 +30,7 @@ services:
     environment:
       ALLUXIO_UNDERFS_ADDRESS: /underStorage
       ALLUXIO_MASTER_HOSTNAME: alluxio-master
-    #  ALLUXIO_WORKER_MEMORY_SIZE: 8GB
+      ALLUXIO_WORKER_MEMORY_SIZE: 8GB
       ALLUXIO_WORKER_DATA_SERVER_DOMAIN_SOCKET_ADDRESS: /opt/domain/d
     volumes:
       - /home/scality/alexenv/alluxio-working-dir/underStorage:/underStorage
