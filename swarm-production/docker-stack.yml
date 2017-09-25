@@ -3,8 +3,52 @@
 version: "3.1"
 
 services:
+
+  alluxio-master:
+    image: 127.0.0.1:5000/alluxio:latest
+    ports:
+      - "19998:19998"
+      - "19999:19999"
+    environment:
+      ALLUXIO_UNDERFS_ADDRESS: /underStorage
+      ALLUXIO_MASTER_HOSTNAME: alluxio-master
+    volumes:
+      - /home/scality/alexenv/alluxio-working-dir/underStorage:/underStorage
+    command: master
+    deploy:
+      placement:
+        constraints:
+          - node.labels.io.zenko.type == livy
+
+
+  alluxio-worker:
+    image: 127.0.0.1:5000/alluxio:latest
+    depends_on:
+      - alluxio-master
+    environment:
+      ALLUXIO_UNDERFS_ADDRESS: /underStorage
+      ALLUXIO_MASTER_HOSTNAME: alluxio-master
+    #  ALLUXIO_WORKER_MEMORY_SIZE: 8GB
+      ALLUXIO_WORKER_DATA_SERVER_DOMAIN_SOCKET_ADDRESS: /opt/domain/d
+    volumes:
+      - /home/scality/alexenv/alluxio-working-dir/underStorage:/underStorage
+      - /home/scality/alexenv/alluxio-working-dir/tmp/domain:/opt/domain
+      - alluxio-worker-vol:/dev/shm
+    ports:
+      - "30000"
+    command: worker
+    shm_size: 3g
+    networks:
+      - frontend
+    deploy:
+      resources:
+        mem_limit: 500000000
+      placement:
+        constraints:
+          - node.labels.io.zenko.type == livy
+
   livy:
-    image: scality/clueso-livy:0.4.0
+    image: 127.0.0.1:5000/scality/clueso-livy:0.4.0
     volumes:
       - /home/scality/alexenv/logs/livy:/apps/livy/logs
       - /home/scality/alexenv/conf/log4j.properties:/apps/livy/conf/log4j.properties
@@ -12,16 +56,25 @@ services:
       - /home/scality/alexenv/conf/livy-env.sh:/apps/livy/conf/livy-env.sh
       - /home/scality/alexenv/spark_builds/spark-2.1.1-bin-spark-2.1.1_2.10:/apps/spark-2.1.1_2.10
       - /home/scality/alexenv/jars:/apps/spark-modules
+      - /home/scality/alexenv/ignite-livy:/ignite
+      - /home/scality/alexenv/spark_builds/spark-imgs/worker/spark-env.sh:/apps/spark/conf/spark-env.sh
     ports:
       - "8998:8998"
-      - "4040:4040"
+      - "4040-4056:4040-4056"
       - "5005:5005"
+    expose:
+      - "10800"
+      - "11211"
+      - "47400-47500"
+      - "47100"
     depends_on:
       - kafka
       - spark-master
       - graphite
     networks:
       - frontend
+    environment:
+      IGNITE_HOME: /ignite
     deploy:
       placement:
         constraints:
@@ -29,7 +82,7 @@ services:
 
   spark-master:
     #image: bde2020/spark-master:2.1.1-hadoop2.7
-    image: scality/spark-master:hadoop2.8
+    image: 127.0.0.1:5000/scality/spark-master:hadoop2.8
     hostname: spark-master
     depends_on:
       - kafka
@@ -48,7 +101,8 @@ services:
 
   spark-worker:
     #image: bde2020/spark-worker:2.1.1-hadoop2.7
-    image: scality/spark-worker:hadoop2.8
+    #image: 127.0.0.1:5000/scality/spark-worker:hadoop2.8
+    image: 127.0.0.1:5000/scality/spark-worker:hadoop2.8-ignite
     depends_on:
       - spark-master
       - kafka
@@ -56,14 +110,16 @@ services:
     #ports:
     #  - "8081:8081"
     environment:
-      - "SPARK_MASTER=spark://spark-master:7077"
+      SPARK_MASTER: spark://spark-master:7077
+      CLUSTER_DNS: tasks.spark-worker
+      INIT_REPLICATE: 1
     networks:
       - frontend
     deploy:
       replicas: 8
- #     placement:
- #       constraints:
- #         - node.labels.io.zenko.type == livy
+      placement:
+        constraints:
+          - node.labels.io.zenko.type != livy
  
   graphite:
     image: kamon/grafana_graphite
@@ -200,6 +256,11 @@ networks:
 volumes:
   s3-data:
   s3-metadata:
+
+  alluxio-worker-vol:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 
 secrets:
   s3-credentials:
