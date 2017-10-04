@@ -5,7 +5,7 @@ version: "3.3"
 services:
 
   alluxio-master:
-    image: 127.0.0.1:5000/alluxio:latest
+    image: scality/alluxio:latest
     ports:
       - "19998:19998"
       - "19999:19999"
@@ -50,7 +50,7 @@ services:
 #          - node.labels.io.zenko.type == livy
 
   livy:
-    image: 127.0.0.1:5000/scality/clueso-livy:0.4.0-alluxio
+    image: scality/clueso-livy:0.4.0-alluxio
     volumes:
       - /home/scality/alexenv/logs/livy:/apps/livy/logs
       - /home/scality/alexenv/conf/log4j.properties:/apps/livy/conf/log4j.properties
@@ -84,7 +84,7 @@ services:
 
   spark-master:
     #image: bde2020/spark-master:2.1.1-hadoop2.7
-    image: 127.0.0.1:5000/scality/spark-master:hadoop2.8
+    image: scality/spark-master:hadoop2.8
     hostname: spark-master
     depends_on:
       - kafka
@@ -104,7 +104,7 @@ services:
   spark-worker:
     #image: bde2020/spark-worker:2.1.1-hadoop2.7
     #image: 127.0.0.1:5000/scality/spark-worker:hadoop2.8-ignite
-    image: 127.0.0.1:5000/scality/spark-worker:hadoop2.8-alluxio
+    image: scality/spark-worker:hadoop2.8-alluxio
     #image: 127.0.0.1:5000/scality/spark-worker:hadoop2.8
     depends_on:
       - spark-master
@@ -131,7 +131,7 @@ services:
 #          - node.labels.io.zenko.type == livy
  
   graphite:
-    image: kamon/grafana_graphite
+    image: scality/grafana_graphite
     ports:
       - '8000:80'
       - '8081:81'
