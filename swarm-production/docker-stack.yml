@@ -15,7 +15,7 @@ services:
       ALLUXIO_UNDERFS_ADDRESS: /underStorage
       ALLUXIO_MASTER_HOSTNAME: alluxio-master
     volumes:
-      - /home/centos/zenko-mounts/alluxio-working-dir/underStorage:/underStorage
+      - /home/centos/alexenv/alluxio-working-dir/underStorage:/underStorage
     command: master
     deploy:
       placement:
@@ -52,12 +52,12 @@ services:
   livy:
     image: scality/clueso-livy:0.4.0-alluxio
     volumes:
-      - /home/centos/zenko-mounts/logs/livy:/apps/livy/logs
-      - /home/centos/zenko-mounts/conf/log4j.properties:/apps/livy/conf/log4j.properties
-      - /home/centos/zenko-mounts/conf/livy.conf:/apps/livy/conf/livy.conf
-      - /home/centos/zenko-mounts/conf/livy-env.sh:/apps/livy/conf/livy-env.sh
-      - /home/centos/zenko-mounts/spark_builds/spark-2.1.1-bin-spark-2.1.1_2.10:/apps/spark-2.1.1_2.10
-      - /home/centos/zenko-mounts/jars:/apps/spark-modules
+      - /home/centos/alexenv/logs/livy:/apps/livy/logs
+      - /home/centos/alexenv/conf/log4j.properties:/apps/livy/conf/log4j.properties
+      - /home/centos/alexenv/conf/livy.conf:/apps/livy/conf/livy.conf
+      - /home/centos/alexenv/conf/livy-env.sh:/apps/livy/conf/livy-env.sh
+      - /home/centos/alexenv/spark_builds/spark-2.1.1-bin-spark-2.1.1_2.10:/apps/spark-2.1.1_2.10
+      - /home/centos/alexenv/jars:/apps/spark-modules
     #  - /home/scality/alexenv/ignite-livy:/ignite
     #  - /home/scality/alexenv/spark_builds/spark-imgs/worker/spark-env.sh:/apps/spark/conf/spark-env.sh
     ports:
@@ -144,9 +144,9 @@ services:
     networks:
       - frontend
     volumes:
-      - /home/centos/zenko-mounts/docker-grafana-graphite/data/whisper:/opt/graphite/storage/whisper
-      - /home/centos/zenko-mounts/docker-grafana-graphite/data/grafana:/opt/grafana/data
-      - /home/centos/zenko-mounts/docker-grafana-graphite/log/graphite:/opt/graphite/storage/log
+      - /home/centos/alexenv/docker-grafana-graphite/data/whisper:/opt/graphite/storage/whisper
+      - /home/centos/alexenv/docker-grafana-graphite/data/grafana:/opt/grafana/data
+      - /home/centos/alexenv/docker-grafana-graphite/log/graphite:/opt/graphite/storage/log
     deploy:
       placement:
         constraints:
