@@ -12,10 +12,14 @@ services:
     networks:
       - frontend
     environment:
-      ALLUXIO_UNDERFS_ADDRESS: /underStorage
+      ALLUXIO_UNDERFS_ADDRESS: s3a://METADATA/alluxio
+      #  testing for now. use swarm secrets?
+      AWS_ACCESS_KEY_ID: accessKey1
+      AWS_SECRET_KEY: verySecretKey1
       ALLUXIO_MASTER_HOSTNAME: alluxio-master
+      ALLUXIO_UNDERFS_S3_ENDPOINT: http://lb
     volumes:
-      - /home/centos/alexenv/alluxio-working-dir/underStorage:/underStorage
+     - /home/centos/alexenv/conf/alluxio-site.properties:/opt/conf/alluxio-site.properties
     command: master
     deploy:
       placement:
@@ -116,12 +120,17 @@ services:
      # - "30000"
     volumes:
       - alluxio-worker-vol:/dev/shm
+      - /home/centos/alexenv/conf/alluxio-site.properties:/opt/conf/alluxio-site.properties
     environment:
       SPARK_MASTER: spark://tasks.spark-master:7077
       CLUSTER_DNS: tasks.spark-worker
       INIT_REPLICATE: 1
-      ALLUXIO_UNDERFS_ADDRESS: /underStorage
+      ALLUXIO_UNDERFS_ADDRESS: s3a://METADATA/alluxio
+      #  testing for now. use swarm secrets?
+      AWS_ACCESS_KEY_ID: accessKey1
+      AWS_SECRET_KEY: verySecretKey1
       ALLUXIO_MASTER_HOSTNAME: tasks.alluxio-master
+      ALLUXIO_UNDERFS_S3_ENDPOINT: http://lb
     networks:
       - frontend
     deploy:
