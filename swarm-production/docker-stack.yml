@@ -18,6 +18,7 @@ services:
       AWS_SECRET_KEY: verySecretKey1
       ALLUXIO_MASTER_HOSTNAME: alluxio-master
       ALLUXIO_UNDERFS_S3_ENDPOINT: http://lb
+      ALLUXIO_UNDERFS_S3A_LIST_OBJECTS_V1: "true"
     volumes:
      - /home/centos/alexenv/conf/alluxio-site.properties:/opt/conf/alluxio-site.properties
     command: master
@@ -131,6 +132,7 @@ services:
       AWS_SECRET_KEY: verySecretKey1
       ALLUXIO_MASTER_HOSTNAME: tasks.alluxio-master
       ALLUXIO_UNDERFS_S3_ENDPOINT: http://lb
+      ALLUXIO_UNDERFS_S3A_LIST_OBJECTS_V1: "true"
     networks:
       - frontend
     deploy:
