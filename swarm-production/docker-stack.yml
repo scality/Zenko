@@ -22,6 +22,8 @@ services:
     volumes:
      - /home/centos/alexenv/conf/alluxio-site.properties:/opt/conf/alluxio-site.properties
     command: master
+    depends_on:
+      - lb
     deploy:
       placement:
         constraints:
@@ -116,6 +118,7 @@ services:
       - kafka
       - graphite
       - alluxio-master
+      - lb
     #ports:
      # - "8081:8081"
      # - "30000"
