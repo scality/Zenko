@@ -3,7 +3,7 @@
 version: "3.1"
 
 services:
-  s3-data:
+  cloudserver-data:
     image: scality/s3server
     ports:
       - "9991"
@@ -13,14 +13,15 @@ services:
       S3DATAPATH: /data
       LISTEN_ADDR: 0.0.0.0
     volumes:
-      - "s3-data:/data:rw"
+      - "cloudserver-data:/data:rw"
     command: npm run start_dataserver
     deploy:
+      mode: replicated
       placement:
         constraints:
           - node.labels.io.zenko.type == storage
 
-  s3-metadata:
+  cloudserver-metadata:
     image: scality/s3server
     ports:
       - "9990"
@@ -29,15 +30,17 @@ services:
     environment:
       S3METADATAPATH: /metadata
       LISTEN_ADDR: 0.0.0.0
+      RECORDLOG_ENABLED: 1
     volumes:
-      - 's3-metadata:/metadata:rw'
+      - 'cloudserver-metadata:/metadata:rw'
     command: npm run start_mdserver
     deploy:
+      mode: replicated
       placement:
         constraints:
           - node.labels.io.zenko.type == storage
 
-  s3-front:
+  cloudserver-front:
     image: scality/s3server
     ports:
       - "8000"
@@ -45,16 +48,16 @@ services:
       - backend
       - frontend-dmz
     environment:
-      DATA_HOST: s3-data
-      METADATA_HOST: s3-metadata
+      DATA_HOST: cloudserver-data
+      METADATA_HOST: cloudserver-metadata
       REDIS_HOST: cache
       ENDPOINT: "${ENDPOINT:-zenko}"
     secrets:
       - s3-credentials
     command: npm run start_s3server
     depends_on:
-      - s3-data
-      - s3-metadata
+      - cloudserver-data
+      - cloudserver-metadata
       - cache
     deploy:
       mode: replicated
@@ -76,12 +79,12 @@ services:
       - "80:80"
     environment:
       LISTEN_PORT: 80
-      UPSTREAM_SERVER: "s3-front:8000"
+      UPSTREAM_SERVER: "cloudserver-front:8000"
     networks:
       - frontend
       - frontend-dmz
     depends_on:
-      - s3-front
+      - cloudserver-front
     deploy:
       mode: global
       update_config:
@@ -89,14 +92,73 @@ services:
         delay: "10s"
         monitor: "5s"
 
+  zookeeper:
+    image: zookeeper
+    ports:
+      - "2181"
+    networks:
+      - backend
+    volumes:
+      - "zookeeper-datalog:/datalog:rw"
+      - "zookeeper-data:/data:rw"
+    deploy:
+      mode: replicated
+      placement:
+        constraints:
+          - node.labels.io.zenko.type == storage
+
+  kafka:
+    image: jonathangramain/kafka
+    ports:
+      - "9092"
+    networks:
+      - backend
+    volumes:
+      - "kafka-data:/data:rw"
+    depends_on:
+      - zookeeper
+    deploy:
+      mode: replicated
+      placement:
+        constraints:
+          - node.labels.io.zenko.type == storage
+
+  backbeat-populator:
+    image: jonathangramain/backbeat
+    networks:
+      - backend
+    command: npm run queue_populator
+    depends_on:
+      - zookeeper
+      - kafka
+      - cloudserver-metadata
+    deploy:
+      mode: replicated
+
+  async-replication:
+    image: jonathangramain/backbeat
+    networks:
+      - backend
+    command: npm run queue_processor
+    depends_on:
+      - kafka
+      - cloudserver-front
+    deploy:
+      mode: replicated
+    secrets:
+      s3-credentials
+
 networks:
   backend:
   frontend:
   frontend-dmz:
 
 volumes:
-  s3-data:
-  s3-metadata:
+  cloudserver-data:
+  cloudserver-metadata:
+  zookeeper-datalog:
+  zookeeper-data:
+  kafka-data:
 
 secrets:
   s3-credentials:
