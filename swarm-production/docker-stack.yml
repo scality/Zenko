@@ -4,58 +4,6 @@ version: "3.3"
 
 services:
 
-  alluxio-master:
-    image: scality/alluxio:latest
-    ports:
-      - "19998:19998"
-      - "19999:19999"
-    networks:
-      - frontend
-    environment:
-      ALLUXIO_UNDERFS_ADDRESS: s3a://METADATA/alluxio
-      #  testing for now. use swarm secrets?
-      AWS_ACCESS_KEY_ID: accessKey1
-      AWS_SECRET_KEY: verySecretKey1
-      ALLUXIO_MASTER_HOSTNAME: alluxio-master
-      ALLUXIO_UNDERFS_S3_ENDPOINT: http://lb
-      ALLUXIO_UNDERFS_S3A_LIST_OBJECTS_V1: "true"
-    volumes:
-     - /home/centos/alexenv/conf/alluxio-site.properties:/opt/conf/alluxio-site.properties
-    command: master
-    depends_on:
-      - lb
-    deploy:
-      placement:
-        constraints:
-          - node.labels.io.zenko.type == livy
-
-
-#  alluxio-worker:
-#    image: 127.0.0.1:5000/alluxio:latest
-#    depends_on:
-#      - alluxio-master
-#    environment:
-#      ALLUXIO_UNDERFS_ADDRESS: /underStorage
-#      ALLUXIO_MASTER_HOSTNAME: alluxio-master
-#      ALLUXIO_WORKER_MEMORY_SIZE: 8GB
-#      ALLUXIO_WORKER_DATA_SERVER_DOMAIN_SOCKET_ADDRESS: /opt/domain/d
-#    volumes:
-#      - /home/scality/alexenv/alluxio-working-dir/underStorage:/underStorage
-#      - /home/scality/alexenv/alluxio-working-dir/tmp/domain:/opt/domain
-#      - alluxio-worker-vol:/dev/shm
-#    ports:
-#      - "30000"
-#    command: worker
-#    shm_size: 3g
-#    networks:
-#      - frontend
-#    deploy:
-#      resources:
-#        mem_limit: 500000000
-#      placement:
-#        constraints:
-#          - node.labels.io.zenko.type == livy
-
   livy:
     image: scality/clueso-livy:0.4.0-alluxio
     volumes:
@@ -90,17 +38,18 @@ services:
           - node.labels.io.zenko.type == livy
 
   spark-master:
-    #image: bde2020/spark-master:2.1.1-hadoop2.7
     image: scality/spark-master:hadoop2.8
     hostname: spark-master
     depends_on:
       - kafka
       - graphite
+      - lb
     ports:
       - "8080:8080"
       - "7077:7077"
-    #environment:
-    #  - INIT_DAEMON_STEP=setup_spark
+    environment:
+      AWS_ACCESS_KEY_ID: accessKey1
+      AWS_SECRET_KEY: verySecretKey1 
     networks:
       - frontend
     deploy:
@@ -109,40 +58,21 @@ services:
           - node.labels.io.zenko.type == livy
 
   spark-worker:
-    #image: bde2020/spark-worker:2.1.1-hadoop2.7
-    #image: 127.0.0.1:5000/scality/spark-worker:hadoop2.8-ignite
     image: scality/spark-worker:hadoop2.8-alluxio
-    #image: 127.0.0.1:5000/scality/spark-worker:hadoop2.8
     depends_on:
       - spark-master
       - kafka
       - graphite
-      - alluxio-master
       - lb
-    #ports:
-     # - "8081:8081"
-     # - "30000"
     volumes:
-      - alluxio-worker-vol:/dev/shm
-      - /home/centos/alexenv/conf/alluxio-site.properties:/opt/conf/alluxio-site.properties
     environment:
       SPARK_MASTER: spark://tasks.spark-master:7077
       CLUSTER_DNS: tasks.spark-worker
       INIT_REPLICATE: 1
-      ALLUXIO_UNDERFS_ADDRESS: s3a://METADATA/alluxio
-      #  testing for now. use swarm secrets?
-      AWS_ACCESS_KEY_ID: accessKey1
-      AWS_SECRET_KEY: verySecretKey1
-      ALLUXIO_MASTER_HOSTNAME: tasks.alluxio-master
-      ALLUXIO_UNDERFS_S3_ENDPOINT: http://lb
-      ALLUXIO_UNDERFS_S3A_LIST_OBJECTS_V1: "true"
     networks:
       - frontend
     deploy:
       replicas: 4
-#      placement:
-#        constraints:
-#          - node.labels.io.zenko.type == livy
  
   graphite:
     image: scality/grafana_graphite
@@ -279,11 +209,6 @@ networks:
 volumes:
   s3-data:
   s3-metadata:
-
-  alluxio-worker-vol:
-    driver_opts:
-      type: tmpfs
-      device: tmpfs
 
 secrets:
   s3-credentials:
