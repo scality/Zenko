@@ -7,14 +7,6 @@ services:
   livy:
     image: scality/clueso-livy:0.4.0-alluxio
     volumes:
-      - /home/centos/alexenv/logs/livy:/apps/livy/logs
-      - /home/centos/alexenv/conf/log4j.properties:/apps/livy/conf/log4j.properties
-      - /home/centos/alexenv/conf/livy.conf:/apps/livy/conf/livy.conf
-      - /home/centos/alexenv/conf/livy-env.sh:/apps/livy/conf/livy-env.sh
-      - /home/centos/alexenv/spark_builds/spark-2.1.1-bin-spark-2.1.1_2.10:/apps/spark-2.1.1_2.10
-      - /home/centos/alexenv/jars:/apps/spark-modules
-    #  - /home/scality/alexenv/ignite-livy:/ignite
-    #  - /home/scality/alexenv/spark_builds/spark-imgs/worker/spark-env.sh:/apps/spark/conf/spark-env.sh
     ports:
       - "8998:8998"
       - "4040-4056:4040-4056"
@@ -36,6 +28,10 @@ services:
       placement:
         constraints:
           - node.labels.io.zenko.type == livy
+    logging:
+       options:
+         max-size: "1g"
+         max-file: "5"
 
   spark-master:
     image: scality/spark-master:hadoop2.8
@@ -88,9 +84,6 @@ services:
     networks:
       - frontend
     volumes:
-      - /home/centos/alexenv/docker-grafana-graphite/data/whisper:/opt/graphite/storage/whisper
-      - /home/centos/alexenv/docker-grafana-graphite/data/grafana:/opt/grafana/data
-      - /home/centos/alexenv/docker-grafana-graphite/log/graphite:/opt/graphite/storage/log
     deploy:
       placement:
         constraints:
