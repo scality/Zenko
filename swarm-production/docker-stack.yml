@@ -5,8 +5,7 @@ version: "3.3"
 services:
 
   livy:
-    image: scality/clueso-livy:0.4.0-alluxio
-    volumes:
+    image: scality/clueso-livy:0.4.0
     ports:
       - "8998:8998"
       - "4040-4056:4040-4056"
@@ -24,6 +23,7 @@ services:
       - frontend
     environment:
       IGNITE_HOME: /ignite
+    command: start
     deploy:
       placement:
         constraints:
@@ -54,13 +54,12 @@ services:
           - node.labels.io.zenko.type == livy
 
   spark-worker:
-    image: scality/spark-worker:hadoop2.8-alluxio
+    image: scality/spark-worker:hadoop2.8
     depends_on:
       - spark-master
       - kafka
       - graphite
       - lb
-    volumes:
     environment:
       SPARK_MASTER: spark://tasks.spark-master:7077
       CLUSTER_DNS: tasks.spark-worker
@@ -83,7 +82,6 @@ services:
       - '3000:3000'
     networks:
       - frontend
-    volumes:
     deploy:
       placement:
         constraints:
