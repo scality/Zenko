@@ -22,15 +22,14 @@ services:
     networks:
       - backend
       - frontend-dmz
-    command: start
     deploy:
       placement:
         constraints:
           - node.labels.io.zenko.type == livy
-    logging:
-       options:
-         max-size: "1g"
-         max-file: "5"
+    #logging:
+     #  options:
+      #   max-size: "1g"
+       #  max-file: "5"
 
   spark-master:
     image: scality/spark-master:hadoop2.8
