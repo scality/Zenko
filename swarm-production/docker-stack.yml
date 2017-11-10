@@ -4,7 +4,7 @@ version: "3.3"
 
 services:
 
-  livy:
+  cluseo-livy:
     image: scality/clueso-livy:0.4.0
     ports:
       - "8998:8998"
@@ -21,19 +21,19 @@ services:
       - graphite
     networks:
       - frontend
-    environment:
-      IGNITE_HOME: /ignite
     command: start
+    # just for testing
     deploy:
       placement:
         constraints:
           - node.labels.io.zenko.type == livy
+    # need to add this to any containers that have log output
     logging:
        options:
          max-size: "1g"
          max-file: "5"
 
-  spark-master:
+  clueso-spark-master:
     image: scality/spark-master:hadoop2.8
     hostname: spark-master
     depends_on:
@@ -53,7 +53,7 @@ services:
         constraints:
           - node.labels.io.zenko.type == livy
 
-  spark-worker:
+  clueso-spark-worker:
     image: scality/spark-worker:hadoop2.8
     depends_on:
       - spark-master
@@ -63,13 +63,14 @@ services:
     environment:
       SPARK_MASTER: spark://tasks.spark-master:7077
       CLUSTER_DNS: tasks.spark-worker
+      # need to figure out what this does. remove?
       INIT_REPLICATE: 1
     networks:
       - frontend
     deploy:
-      replicas: 4
+      mode: global
  
-  graphite:
+  clueso-graphite:
     image: scality/grafana_graphite
     ports:
       - '8000:80'
@@ -87,7 +88,8 @@ services:
         constraints:
           - node.labels.io.zenko.type == livy
 
-  kafka:
+# replace this with the kafka we have pushed on dockerhub (used in federation)
+  backbeat-kafka:
     image: spotify/kafka
     ports:
       - "9092:9092"
@@ -102,6 +104,10 @@ services:
       placement:
         constraints:
           - node.labels.io.zenko.type == livy
+
+
+  # add backbeat-populator
+  # uses my branch for now (one stream)
 
   s3-data:
     image: 127.0.0.1:5000/s3server
@@ -201,6 +207,15 @@ volumes:
   s3-data:
   s3-metadata:
 
+# need to add credentials for clueso
 secrets:
   s3-credentials:
     file: ./secrets.txt
+
+# NEED TO CLEAN UP NETWORKS
+# have ui's go through the load balancer so have everything go on backend except expose ui's
+#ui goes on frontend-dmz
+# talk to Rached -- why s3front on frontend
+
+# should not have to expose all of these ports. the networks should handle the communication/ports
+
