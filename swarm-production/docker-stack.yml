@@ -20,9 +20,8 @@ services:
       - spark-master
       - graphite
     networks:
-      - frontend
-    environment:
-      IGNITE_HOME: /ignite
+      - backend
+      - frontend-dmz
     command: start
     deploy:
       placement:
@@ -47,7 +46,8 @@ services:
       AWS_ACCESS_KEY_ID: accessKey1
       AWS_SECRET_KEY: verySecretKey1 
     networks:
-      - frontend
+      - backend
+      - frontend-dmz
     deploy:
       placement:
         constraints:
@@ -65,7 +65,7 @@ services:
       CLUSTER_DNS: tasks.spark-worker
       INIT_REPLICATE: 1
     networks:
-      - frontend
+      - backend
     deploy:
       replicas: 4
  
@@ -81,7 +81,7 @@ services:
       - '7002:7002'
       - '3000:3000'
     networks:
-      - frontend
+      - backend
     deploy:
       placement:
         constraints:
@@ -96,7 +96,7 @@ services:
       - "ADVERTISED_HOST=kafka"
       - "ADVERTISED_PORT=9092"
     networks:
-      - frontend
+      - backend
 # please remove assignment below before commit TODO 
     deploy:
       placement:
