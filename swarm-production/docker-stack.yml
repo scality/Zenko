@@ -10,11 +10,10 @@ services:
       - "8998:8998"
       - "4040-4056:4040-4056"
       - "5005:5005"
-    expose:
-      - "10800"
-      - "11211"
-      - "47400-47500"
-      - "47100"
+      - "10800:10800"
+      - "11211:11211"
+      - "47400-47500:47400-47500"
+      - "47100:47100"
     depends_on:
       - kafka
       - spark-master
@@ -32,7 +31,7 @@ services:
        #  max-file: "5"
 
   spark-master:
-    image: scality/spark-master:hadoop2.8
+    image: scality/clueso-spark-master:hadoop2.8
     hostname: spark-master
     depends_on:
       - kafka
@@ -43,7 +42,7 @@ services:
       - "7077:7077"
     environment:
       AWS_ACCESS_KEY_ID: accessKey1
-      AWS_SECRET_KEY: verySecretKey1 
+      AWS_SECRET_ACCESS_KEY: verySecretKey1 
     networks:
       - backend
       - frontend-dmz
@@ -53,15 +52,15 @@ services:
           - node.labels.io.zenko.type == livy
 
   spark-worker:
-    image: scality/spark-worker:hadoop2.8
+    image: scality/clueso-spark-worker:hadoop2.8
     depends_on:
       - spark-master
       - kafka
       - graphite
       - lb
     environment:
-      SPARK_MASTER: spark://tasks.spark-master:7077
-      CLUSTER_DNS: tasks.spark-worker
+      SPARK_MASTER: "spark://spark-master:7077"
+      CLUSTER_DNS: spark-worker
       INIT_REPLICATE: 1
     networks:
       - backend
@@ -69,7 +68,8 @@ services:
       replicas: 4
  
   graphite:
-    image: scality/grafana_graphite
+    image: scality/clueso-grafana-graphite
+    hostname: graphite
     ports:
       - '8000:80'
       - '8081:81'
@@ -103,7 +103,7 @@ services:
           - node.labels.io.zenko.type == livy
 
   s3-data:
-    image: 127.0.0.1:5000/s3server
+    image: scality/s3server:clueso
     ports:
       - "9991:9991"
     networks:
@@ -120,7 +120,7 @@ services:
           - node.labels.io.zenko.type == storage
 
   s3-metadata:
-    image: 127.0.0.1:5000/s3server
+    image: scality/s3server:clueso
     ports:
       - "9990:9990"
     networks:
@@ -138,7 +138,7 @@ services:
           - node.labels.io.zenko.type == storage
 
   s3-front:
-    image: 127.0.0.1:5000/s3server
+    image: scality/s3server:clueso
     ports:
       - "8000"
     networks:
