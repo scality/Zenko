@@ -10,10 +10,11 @@ services:
       - "8998:8998"
       - "4040-4056:4040-4056"
       - "5005:5005"
-      - "10800:10800"
-      - "11211:11211"
-      - "47400-47500:47400-47500"
-      - "47100:47100"
+    expose:
+      - "10800"
+      - "11211"
+      - "47400-47500"
+      - "47100"
     depends_on:
       - kafka
       - spark-master
@@ -59,7 +60,7 @@ services:
       - graphite
       - lb
     environment:
-      SPARK_MASTER: "spark://spark-master:7077"
+      SPARK_MASTER: spark://spark-master:7077
       CLUSTER_DNS: spark-worker
       INIT_REPLICATE: 1
     networks:
@@ -69,7 +70,6 @@ services:
  
   graphite:
     image: scality/clueso-grafana-graphite
-    hostname: graphite
     ports:
       - '8000:80'
       - '8081:81'
@@ -86,11 +86,28 @@ services:
         constraints:
           - node.labels.io.zenko.type == livy
 
+  zookeeper:
+    image: zookeeper
+    ports:
+      - '2181'
+    networks:
+      - backend
+    volumes:
+      - "zookeeper-datalog:/datalog:rw"
+      - "zookeeper-data:/data:rw"
+    deploy:
+      mode: replicated
+      placement:
+        constraints:
+          - node.labels.io.zenko.type == storage
+
   kafka:
     image: spotify/kafka
     ports:
       - "9092:9092"
       - "2181:2181"
+    volumes:
+      - "kafka-data:/data:rw"
     environment:
       - "ADVERTISED_HOST=kafka"
       - "ADVERTISED_PORT=9092"
@@ -102,22 +119,34 @@ services:
         constraints:
           - node.labels.io.zenko.type == livy
 
-  s3-data:
-    image: scality/s3server:clueso
-    ports:
-      - "9991:9991"
+  backbeat:
+    image: scality/backbeat:clueso
     networks:
       - backend
-    environment:
-      S3DATAPATH: /data
-      LISTEN_ADDR: 0.0.0.0
-    volumes:
-      - "s3-data:/data:rw"
-    command: npm run start_dataserver
+    command: npm run queue_populator
+    depends_on:
+       - zookeeper
+       - kafka
+       - s3-front
     deploy:
-      placement:
-        constraints:
-          - node.labels.io.zenko.type == storage
+      mode: replicated
+ 
+  s3-data:
+     image: scality/s3server:clueso
+     ports:
+       - "9991:9991"
+     networks:
+       - backend
+     environment:
+       S3DATAPATH: /data
+       LISTEN_ADDR: 0.0.0.0
+     volumes:
+       - "s3-data:/data:rw"
+     command: npm run start_dataserver
+     deploy:
+       placement:
+         constraints:
+           - node.labels.io.zenko.type == storage
 
   s3-metadata:
     image: scality/s3server:clueso
@@ -199,6 +228,9 @@ networks:
 volumes:
   s3-data:
   s3-metadata:
+  kafka-data:
+  zookeeper-data:
+  zookeeper-datalog:
 
 secrets:
   s3-credentials:
