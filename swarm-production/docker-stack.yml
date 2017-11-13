@@ -70,6 +70,7 @@ services:
  
   graphite:
     image: scality/clueso-grafana-graphite
+    hostname: graphite
     ports:
       - '8000:80'
       - '8081:81'
@@ -88,6 +89,7 @@ services:
 
   zookeeper:
     image: zookeeper
+    hostname: zookeeper
     ports:
       - '2181'
     networks:
@@ -102,7 +104,7 @@ services:
           - node.labels.io.zenko.type == storage
 
   kafka:
-    image: spotify/kafka
+    image: scality/kafka:clueso
     ports:
       - "9092:9092"
       - "2181:2181"
