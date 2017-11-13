@@ -44,6 +44,8 @@ services:
     environment:
       AWS_ACCESS_KEY_ID: accessKey1
       AWS_SECRET_ACCESS_KEY: verySecretKey1 
+    secrets:
+      - s3-credentials
     networks:
       - backend
       - frontend-dmz
