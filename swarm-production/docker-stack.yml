@@ -6,11 +6,13 @@ services:
 
   livy:
     image: scality/clueso-livy:0.4.0
+    hostname: livy
     ports:
       - "8998:8998"
       - "4040-4056:4040-4056"
       - "5005:5005"
     expose:
+      - "8998"
       - "10800"
       - "11211"
       - "47400-47500"
@@ -67,12 +69,12 @@ services:
       INIT_REPLICATE: 1
     networks:
       - backend
+      - frontend-dmz
     deploy:
       replicas: 4
  
   graphite:
     image: scality/clueso-grafana-graphite
-    hostname: graphite
     ports:
       - '8000:80'
       - '8081:81'
@@ -96,9 +98,11 @@ services:
       - '2181'
     networks:
       - backend
-    volumes:
-      - "zookeeper-datalog:/datalog:rw"
-      - "zookeeper-data:/data:rw"
+    #volumes:
+     # - "zookeeper-datalog:/datalog:rw"
+     # - "zookeeper-data:/data:rw"
+    environment:
+      - "ZOO_MAX_CLIENT_CNXNS=240"
     deploy:
       mode: replicated
       placement:
@@ -107,16 +111,19 @@ services:
 
   kafka:
     image: scality/kafka:clueso
+    hostname: kafka
     ports:
-      - "9092:9092"
-      - "2181:2181"
-    volumes:
-      - "kafka-data:/data:rw"
+      - "9092"
+     # - "2181:2181"
+   # volumes:
+    #  - "kafka-data:/data:rw"
     environment:
       - "ADVERTISED_HOST=kafka"
       - "ADVERTISED_PORT=9092"
     networks:
       - backend
+    depends_on:
+      - zookeeper
 # please remove assignment below before commit TODO 
     deploy:
       placement:
@@ -129,6 +136,7 @@ services:
       - backend
     command: npm run queue_populator
     depends_on:
+       - spark-master
        - zookeeper
        - kafka
        - s3-front
