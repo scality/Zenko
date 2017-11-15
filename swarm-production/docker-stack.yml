@@ -21,17 +21,33 @@ services:
           - node.labels.io.zenko.type == storage
 
   s3-metadata:
-    image: scality/s3server
+    image: zenko/metadata
     ports:
       - "9990"
     networks:
       - backend
     environment:
-      S3METADATAPATH: /metadata
+      MONGO_HOST: mongo
       LISTEN_ADDR: 0.0.0.0
+    command: npm start
     volumes:
-      - 's3-metadata:/metadata:rw'
-    command: npm run start_mdserver
+      - "s3-metadata:/data/db:rw" # for disk stats
+    depends_on:
+      - mongo
+    deploy:
+      placement:
+        constraints:
+          - node.labels.io.zenko.type == storage
+
+  mongo:
+    image: mongo:3.4.10
+    ports:
+        - "27017:27017" #mapping for UI access
+    networks:
+      - backend
+      - frontend-dmz
+    volumes:
+      - "s3-metadata:/data/db:rw"
     deploy:
       placement:
         constraints:
