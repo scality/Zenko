@@ -114,7 +114,6 @@ services:
     hostname: kafka
     ports:
       - "9092"
-     # - "2181:2181"
    # volumes:
     #  - "kafka-data:/data:rw"
     environment:
@@ -140,6 +139,7 @@ services:
        - zookeeper
        - kafka
        - s3-front
+       - s3-metadata
     deploy:
       mode: replicated
  
