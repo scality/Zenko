@@ -69,6 +69,7 @@ services:
       INIT_REPLICATE: 1
     networks:
       - backend
+      - frontend-dmz
     deploy:
       replicas: 4
  
