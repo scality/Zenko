@@ -90,29 +90,12 @@ services:
         constraints:
           - node.labels.io.zenko.type == livy
 
-  zookeeper:
-    image: zookeeper
-    hostname: zookeeper
-    ports:
-      - '2181'
-    networks:
-      - backend
-    #volumes:
-     # - "zookeeper-datalog:/datalog:rw"
-     # - "zookeeper-data:/data:rw"
-    environment:
-      - "ZOO_MAX_CLIENT_CNXNS=240"
-    deploy:
-      mode: replicated
-      placement:
-        constraints:
-          - node.labels.io.zenko.type == storage
-
   kafka:
     image: scality/kafka:clueso
     hostname: kafka
     ports:
       - "9092"
+      - "2181"
    # volumes:
     #  - "kafka-data:/data:rw"
     environment:
@@ -120,27 +103,31 @@ services:
       - "ADVERTISED_PORT=9092"
     networks:
       - backend
-    depends_on:
-      - zookeeper
-# please remove assignment below before commit TODO 
+    command:  /usr/bin/supervisord -c /etc/supervisor/supervisord.conf -n
     deploy:
       placement:
         constraints:
-          - node.labels.io.zenko.type == livy
+          - node.labels.io.zenko.type == storage
 
   backbeat:
     image: scality/backbeat:clueso
     networks:
       - backend
-    command: npm run queue_populator
+    command: /usr/bin/supervisord -c /etc/supervisor/supervisord.conf -n
     depends_on:
        - spark-master
        - zookeeper
        - kafka
        - s3-front
        - s3-metadata
+ #   deploy:
+ #    mode: replicated
+ # please remove assignment below before commit TODO 
     deploy:
-      mode: replicated
+      placement:
+        constraints:
+          - node.labels.io.zenko.type == livy
+
  
   s3-data:
      image: scality/s3server:clueso

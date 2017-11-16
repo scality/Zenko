@@ -1,0 +1,66 @@
+{
+    "zookeeper": {
+        "connectionString": "kafka:2181/backbeat"
+    },
+    "kafka": {
+        "hosts": "kafka:9092"
+    },
+    "extensions": {
+        "replication": {
+            "source": {
+                "transport": "http",
+                "s3": {
+                    "host": "127.0.0.1",
+                    "port": 8000
+                },
+                "auth": {
+                    "type": "account",
+                    "account": "bart",
+                    "vault": {
+                        "host": "127.0.0.1",
+                        "port": 8500,
+                        "adminPort": 8600
+                    }
+                },
+                "logSource": "dmd",
+                "bucketd": {
+                    "host": "127.0.0.1",
+                    "port": 9000
+                },
+                "dmd": {
+                    "host": "s3-metadata",
+                    "port": 9990
+                }
+            },
+            "destination": {
+                "transport": "http",
+                "bootstrapList": [
+                    { "site": "sf", "servers": ["127.0.0.1:8443"]}
+                ],
+                "certFilePaths": {
+                    "key": "ssl/key.pem",
+                    "cert": "ssl/cert.crt",
+                    "ca": "ssl/ca.crt"
+                },
+                "auth": {
+                    "type": "account",
+                    "account": "lisa"
+                }
+            },
+            "topic": "backbeat-replication",
+            "queuePopulator": {
+                "cronRule": "*/5 * * * * *",
+                "batchMaxRead": 10000,
+                "zookeeperPath": "/replication-populator"
+            },
+            "queueProcessor": {
+                "groupId": "backbeat-replication-group",
+                "retryTimeoutS": 300
+            }
+        }
+    },
+    "log": {
+        "logLevel": "info",
+        "dumpLevel": "error"
+    }
+}
