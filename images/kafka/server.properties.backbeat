@@ -5,6 +5,7 @@
 # The id of the broker. This must be set to a unique integer for each broker.
 broker.id=0
 
+auto.create.topics.enable=true
 # Switch to enable topic deletion or not, default value is false
 #delete.topic.enable=true
 
@@ -101,7 +102,7 @@ log.retention.check.interval.ms=300000
 # server. e.g. "127.0.0.1:3000,127.0.0.1:3001,127.0.0.1:3002".
 # You can also append an optional chroot string to the urls to specify the
 # root directory for all kafka znodes.
-zookeeper.connect=localhost:2181/backbeat
+zookeeper.connect=localhost:2181
 
 # Timeout in ms for connecting to zookeeper
 zookeeper.connection.timeout.ms=6000

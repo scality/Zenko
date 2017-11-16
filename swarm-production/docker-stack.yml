@@ -116,7 +116,6 @@ services:
     command: /usr/bin/supervisord -c /etc/supervisor/supervisord.conf -n
     depends_on:
        - spark-master
-       - zookeeper
        - kafka
        - s3-front
        - s3-metadata
