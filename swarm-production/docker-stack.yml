@@ -64,19 +64,18 @@ services:
       - graphite
       - lb
     environment:
-      SPARK_MASTER: spark://spark-master:7077
+      SPARK_MASTER_HOST: spark://spark-master:7077
       CLUSTER_DNS: spark-worker
       INIT_REPLICATE: 1
     networks:
       - backend
-      - frontend-dmz
     deploy:
       replicas: 4
  
   graphite:
     image: scality/clueso-grafana-graphite
     ports:
-      - '8000:80'
+      - '8001:80'
       - '8081:81'
       - '8125:8125/udp'
       - '8126:8126'
