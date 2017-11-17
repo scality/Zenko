@@ -24,10 +24,6 @@ services:
     networks:
       - backend
       - frontend-dmz
-    deploy:
-      placement:
-        constraints:
-          - node.labels.io.zenko.type == livy
     #logging:
      #  options:
       #   max-size: "1g"
@@ -43,18 +39,11 @@ services:
     ports:
       - "8080:8080"
       - "7077:7077"
-    environment:
-      AWS_ACCESS_KEY_ID: accessKey1
-      AWS_SECRET_ACCESS_KEY: verySecretKey1 
     secrets:
       - s3-credentials
     networks:
       - backend
       - frontend-dmz
-    deploy:
-      placement:
-        constraints:
-          - node.labels.io.zenko.type == livy
 
   spark-worker:
     image: scality/clueso-spark-worker:hadoop2.8
@@ -86,10 +75,6 @@ services:
       - '3000:3000'
     networks:
       - backend
-    deploy:
-      placement:
-        constraints:
-          - node.labels.io.zenko.type == livy
 
   kafka:
     image: scality/kafka:clueso
@@ -99,16 +84,12 @@ services:
       - "2181"
    # volumes:
     #  - "kafka-data:/data:rw"
+    #  - "kafka-datalog:/datalog:rw"
     environment:
       - "ADVERTISED_HOST=kafka"
       - "ADVERTISED_PORT=9092"
     networks:
       - backend
-    command:  /usr/bin/supervisord -c /etc/supervisor/supervisord.conf -n
-    deploy:
-      placement:
-        constraints:
-          - node.labels.io.zenko.type == storage
 
   backbeat:
     image: scality/backbeat:clueso
@@ -120,14 +101,10 @@ services:
        - kafka
        - s3-front
        - s3-metadata
- #   deploy:
- #    mode: replicated
- # please remove assignment below before commit TODO 
     deploy:
       placement:
         constraints:
-          - node.labels.io.zenko.type == livy
-
+          - node.labels.io.zenko.type == storage
  
   s3-data:
      image: scality/s3server:clueso
@@ -227,8 +204,7 @@ volumes:
   s3-data:
   s3-metadata:
   kafka-data:
-  zookeeper-data:
-  zookeeper-datalog:
+  kafka-datalog:
 
 secrets:
   s3-credentials:
