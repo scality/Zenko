@@ -5,7 +5,7 @@ version: "3.3"
 services:
 
   livy:
-    image: scality/clueso-livy:0.4.0
+    image: scality/clueso-livy:latest
     hostname: livy
     ports:
       - "8998:8998"
@@ -18,9 +18,7 @@ services:
       - "47400-47500"
       - "47100"
     depends_on:
-      - kafka
       - spark-master
-      - graphite
     networks:
       - backend
       - frontend-dmz
@@ -28,7 +26,7 @@ services:
      #  options:
       #   max-size: "1g"
        #  max-file: "5"
-
+ 
   spark-master:
     image: scality/clueso-spark-master:hadoop2.8
     hostname: spark-master
@@ -46,12 +44,9 @@ services:
       - frontend-dmz
 
   spark-worker:
-    image: scality/clueso-spark-worker:hadoop2.8
+    image: scality/clueso-spark-worker
     depends_on:
       - spark-master
-      - kafka
-      - graphite
-      - lb
     environment:
       SPARK_MASTER_HOST: spark://spark-master:7077
       CLUSTER_DNS: spark-worker
@@ -90,7 +85,11 @@ services:
       - "ADVERTISED_PORT=9092"
     networks:
       - backend
-
+    deploy:
+      placement:
+        constraints:
+          - node.labels.io.zenko.type == storage
+ 
   backbeat:
     image: scality/backbeat:clueso
     networks:
@@ -101,10 +100,6 @@ services:
        - kafka
        - s3-front
        - s3-metadata
-    deploy:
-      placement:
-        constraints:
-          - node.labels.io.zenko.type == storage
  
   s3-data:
      image: scality/s3server:clueso

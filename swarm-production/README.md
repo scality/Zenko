@@ -4,6 +4,7 @@ This docker service stack describes a simple Zenko production setup, including:
 
 * Load balancer (nginx-based) on all nodes of the swarm
 * Multi-tiered networks (user-facing, DMZ and backend services)
+* Bucket Search Functionality
 * Thanks to Docker Swarm and its overlay network, virtual ips and scheduler,
   high availability and service resiliency (storage node excluded).
 
