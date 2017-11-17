@@ -130,9 +130,9 @@ upload: ./README.md to s3://bucket1/README.md
 $ aws s3 --endpoint http://zenko ls s3://bucket1
 2017-06-20 00:12:53       5052 README.md
 ```
-
+### Clueso Search
 Clueso search can be tested using either from the S3-frontend container or using the tools at:
-[S3 branch]: https://github.com/scality/S3/tree/ft/clueso-alluxio
+[S3 branch](https://github.com/scality/S3/tree/ft/clueso-alluxio)
 ```shell
 $ aws s3api put-object --bucket bucket1 --key key1 --endpoint-url http://127.0.0.1 --metadata "color=blue"
 $ aws s3api put-object --bucket bucket1 --key key2 --endpoint-url http://127.0.0.1 --metadata "color=red"
