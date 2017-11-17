@@ -131,15 +131,30 @@ $ aws s3 --endpoint http://zenko ls s3://bucket1
 2017-06-20 00:12:53       5052 README.md
 ```
 ### Clueso Search
-Clueso search can be tested using either from the S3-frontend container or using the tools at:
+Clueso search can be tested from within the S3-frontend container or using the tools at:
 [S3 branch](https://github.com/scality/S3/tree/ft/clueso-alluxio)
-```shell
-$ aws s3api put-object --bucket bucket1 --key key1 --endpoint-url http://127.0.0.1 --metadata "color=blue"
-$ aws s3api put-object --bucket bucket1 --key key2 --endpoint-url http://127.0.0.1 --metadata "color=red"
-$ aws s3api put-object --bucket bucket1 --key key3 --endpoint-url http://127.0.0.1 --metadata "color=blue"
 
+First, from your machine (not within the S3 Docker), create some objects:
+
+```shell
+$ aws s3api put-object --bucket bucket1 --key findme1 --endpoint-url http://127.0.0.1 --metadata "color=blue"
+$ aws s3api put-object --bucket bucket1 --key leaveMeAlone2 --endpoint-url http://127.0.0.1 --metadata "color=red"
+$ aws s3api put-object --bucket bucket1 --key findme2 --endpoint-url http://127.0.0.1 --metadata "color=blue"
+```
+
+From within the S3 repo (either in the container or externally on your machine)
+
+```shell
 $ bin/search_bucket.js -a accessKey1 -k verySecretKey1 -b bucket1 -q "userMd.\`x-amz-meta-color\`=\"blue\"" -h 127.0.0.1 -p 80
 ```
+If within the S3 Docker container, use port 8000.
+
+You can see the Spark UI at port 8080
+Check out the Livy UI at port 8998
+
+To confirm that your ingestion pipeline (a.k.a. Clueso-Backbeat) is running, put an object into S3 and then list the METADATA bucket. You should see parquet files listed in METADATA/landing/.
+
+
 
 ## Further improvements
 
