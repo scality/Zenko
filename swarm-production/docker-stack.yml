@@ -5,7 +5,7 @@ version: "3.3"
 services:
 
   livy:
-    image: scality/clueso-livy:0.4.0
+    image: scality/clueso-livy:latest
     hostname: livy
     ports:
       - "8998:8998"
@@ -18,9 +18,7 @@ services:
       - "47400-47500"
       - "47100"
     depends_on:
-      - kafka
       - spark-master
-      - graphite
     networks:
       - backend
       - frontend-dmz
@@ -46,12 +44,9 @@ services:
       - frontend-dmz
 
   spark-worker:
-    image: scality/clueso-spark-worker:hadoop2.8
+    image: scality/clueso-spark-worker:latest
     depends_on:
       - spark-master
-      - kafka
-      - graphite
-      - lb
     environment:
       SPARK_MASTER_HOST: spark://spark-master:7077
       CLUSTER_DNS: spark-worker
