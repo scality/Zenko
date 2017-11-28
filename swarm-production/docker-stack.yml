@@ -5,7 +5,7 @@ version: "3.3"
 services:
 
   livy:
-    image: scality/clueso-livy:latest
+    image: scality/clueso-livy
     hostname: livy
     ports:
       - "8998:8998"
@@ -26,7 +26,7 @@ services:
      #  options:
       #   max-size: "1g"
        #  max-file: "5"
- 
+
   spark-master:
     image: scality/clueso-spark-master:hadoop2.8
     hostname: spark-master
@@ -100,6 +100,10 @@ services:
        - kafka
        - s3-front
        - s3-metadata
+    deploy:
+      placement:
+        constraints:
+          - node.labels.io.zenko.type == storage
  
   s3-data:
      image: scality/s3server:clueso
