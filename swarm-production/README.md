@@ -104,6 +104,27 @@ pc23nsleqpme  zenko-prod_cache        replicated  1/1       redis:alpine
 w47r55ja7k4d  zenko-prod_s3-metadata  replicated  1/1       scality/s3server:latest
 wa7aqx3n1ytq  zenko-prod_s3-data      replicated  1/1       scality/s3server:latest
 wo0jej0s18m8  zenko-prod_s3-front     replicated  4/4       scality/s3server:latest
+[...]
+```
+
+Note that by default the stack will register itself at the
+[Zenko Orbit](https://www.zenko.io/admin) portal
+and upload anonymous stats. Zenko Orbit allows easy configuration of users,
+remote storage locations, replication and more, as well as instance monitoring.
+
+To get your instance's identifier and claim it in the portal, issue this command:
+```shell
+$ docker service logs zenko-prod_s3-front | grep -i instance
+zenko-prod_s3-front.1.khz73ag06k2k@moby    | {"name":"S3","time":1512424260154,"req_id":"115779d9564e960048a5","level":"info","message":"this deployment's Instance ID is ce1bcdb7-8e30-4e3f-b7a2-9424078c9159","hostname":"843d31bf15f0","pid":28}
+```
+
+If you would like to opt out of the remote management and monitoring, before
+deploying you can export this environment variable:
+
+```shell
+$ export REMOTE_MANAGEMENT_DISABLE=1
+$ docker stack deploy -c docker-stack.yml zenko-prod
+[...]
 ```
 
 ## Testing
