@@ -5,7 +5,7 @@ version: "3.3"
 services:
 
   livy:
-    image: scality/clueso-livy
+    image: scality/clueso-livy:test
     hostname: livy
     ports:
       - "8998:8998"
@@ -28,7 +28,7 @@ services:
        #  max-file: "5"
 
   spark-master:
-    image: scality/clueso-spark-master:hadoop2.8
+    image: scality/clueso-spark-master:test
     hostname: spark-master
     depends_on:
       - kafka
@@ -42,9 +42,13 @@ services:
     networks:
       - backend
       - frontend-dmz
-
+    deploy:
+      placement:
+        constraints:
+          - node.labels.io.zenko.type == storage
+ 
   spark-worker:
-    image: scality/clueso-spark-worker
+    image: scality/clueso-spark-worker:test
     depends_on:
       - spark-master
     environment:
