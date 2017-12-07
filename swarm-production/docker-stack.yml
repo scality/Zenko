@@ -99,7 +99,7 @@ services:
     environment:
       KAFKA_ADVERTISED_PORT: 9092
       KAFKA_ADVERTISED_HOST_NAME: queue
-      KAFKA_CREATE_TOPICS: 'backbeat-replication:1:1'
+      KAFKA_CREATE_TOPICS: 'backbeat:1:1'
       KAFKA_ZOOKEEPER_CONNECT: 'quorum:2181'
     ports:
       - 9092
