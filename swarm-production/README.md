@@ -61,7 +61,25 @@ pending and will never be scheduled.
 Volumes are automatically created by Docker Swarm as needed. Be aware that
 deleting the stack from the swarm will also delete the data.
 
+### Zenko Orbit
+
+Note that by default the stack will register itself at the
+[Zenko Orbit](https://www.zenko.io/admin) portal
+and upload anonymous stats. Zenko Orbit allows easy configuration of users,
+remote storage locations, replication and more, as well as instance monitoring.
+
+If you would like to opt out of the remote management and monitoring, before
+deploying you can export this environment variable:
+
+```shell
+$ export REMOTE_MANAGEMENT_DISABLE=1
+$ docker stack deploy -c docker-stack.yml zenko-prod
+[...]
+```
+
 ### Access and Secret Keys
+
+SKIP THIS STEP IF YOU ARE USING ZENKO ORBIT 
 
 The default access and secret key pair is `deployment-specific-access-key` /
 `deployment-specific-secret-key`. Changing them is a must, and can be done by
@@ -69,6 +87,8 @@ updating the `SCALITY_ACCESS_KEY_ID` and `SCALITY_SECRET_ACCESS_KEY` environment
 variables in the `secrets.txt` file.
 
 ### Endpoint Name
+
+SKIP THIS STEP IF YOU ARE USING ZENKO ORBIT 
 
 By default the endpoint name is `zenko`, you may change this to the host name
 presented to your clients (for example `s3.mydomain.com`) by exporting the
@@ -107,25 +127,15 @@ wo0jej0s18m8  zenko-prod_s3-front     replicated  4/4       scality/s3server:lat
 [...]
 ```
 
-Note that by default the stack will register itself at the
-[Zenko Orbit](https://www.zenko.io/admin) portal
-and upload anonymous stats. Zenko Orbit allows easy configuration of users,
-remote storage locations, replication and more, as well as instance monitoring.
+## USING ZENKO ORBIT
 
-To get your instance's identifier and claim it in the portal, issue this command:
+To get your instance's Zenko Orbit identifier and claim it in the portal, issue this command:
 ```shell
 $ docker service logs zenko-prod_s3-front | grep -i instance
 zenko-prod_s3-front.1.khz73ag06k2k@moby    | {"name":"S3","time":1512424260154,"req_id":"115779d9564e960048a5","level":"info","message":"this deployment's Instance ID is ce1bcdb7-8e30-4e3f-b7a2-9424078c9159","hostname":"843d31bf15f0","pid":28}
 ```
 
-If you would like to opt out of the remote management and monitoring, before
-deploying you can export this environment variable:
-
-```shell
-$ export REMOTE_MANAGEMENT_DISABLE=1
-$ docker stack deploy -c docker-stack.yml zenko-prod
-[...]
-```
+Go to [Zenko Orbit](https://www.zenko.io/admin) to manage your deployment through a nifty UI.
 
 ## Testing
 
