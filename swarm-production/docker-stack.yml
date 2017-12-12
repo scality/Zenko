@@ -42,10 +42,6 @@ services:
     networks:
       - backend
       - frontend-dmz
-    deploy:
-      placement:
-        constraints:
-          - node.labels.io.zenko.type == storage
  
   spark-worker:
     image: scality/clueso-spark-worker:test
@@ -63,6 +59,8 @@ services:
  
   graphite:
     image: scality/clueso-grafana-graphite
+    depends_on:
+      - spark-master
     ports:
       - '8001:80'
       - '8081:81'
