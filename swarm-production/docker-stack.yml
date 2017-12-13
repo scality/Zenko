@@ -101,6 +101,8 @@ services:
       KAFKA_ADVERTISED_HOST_NAME: queue
       KAFKA_CREATE_TOPICS: 'backbeat-replication:1:1'
       KAFKA_ZOOKEEPER_CONNECT: 'quorum:2181'
+      KAFKA_HEAP_OPTS: '-Xmx512M'
+      KAFKA_LOG_DIRS: /kafka/kafka-logs
     ports:
       - 9092
     networks:
