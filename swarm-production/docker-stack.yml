@@ -206,7 +206,7 @@ services:
           - node.labels.io.zenko.type == storage
 
   backbeat-producer:
-    image: 'zenko/backbeat:pensieve-2'
+    image: 'zenko/backbeat:lhs-pensieve-2'
     command: npm run queue_populator
     environment:
       ZOOKEEPER_AUTO_CREATE_NAMESPACE: 1
