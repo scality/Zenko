@@ -129,7 +129,7 @@ services:
       - frontend-dmz
 
   spark-worker:
-    image: scality/clueso-spark-worker
+    image: scality/clueso-spark-worker:pensieve
     depends_on:
       - spark-master
     environment:
