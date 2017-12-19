@@ -95,7 +95,7 @@ services:
         monitor: "5s"
 
   livy:
-    image: scality/clueso-livy
+    image: scality/clueso-livy:pensieve
     hostname: livy
     ports:
       - "8998:8998"
@@ -114,7 +114,7 @@ services:
       - frontend-dmz
 
   spark-master:
-    image: scality/clueso-spark-master
+    image: scality/clueso-spark-master:pensieve
     hostname: spark-master
     depends_on:
       - queue
