@@ -51,7 +51,7 @@ services:
       REDIS_HOST: cache
       ENDPOINT: "${ENDPOINT:-zenko}"
       ## Temp change to dev endpoint for Clueso testing
-      MANAGEMENT_ENDPOINT: 'https://dev.private.zenko.io'
+      MANAGEMENT_ENDPOINT: 'https://api-dev.private.zenko.io'
       REMOTE_MANAGEMENT_DISABLE: "${REMOTE_MANAGEMENT_DISABLE:-0}"
     secrets:
       - s3-credentials
