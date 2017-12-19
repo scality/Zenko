@@ -50,7 +50,8 @@ services:
       METADATA_HOST: s3-metadata
       REDIS_HOST: cache
       ENDPOINT: "${ENDPOINT:-zenko}"
-      MANAGEMENT_ENDPOINT: 'https://api.zenko.io'
+      ## Temp change to dev endpoint for Clueso testing
+      MANAGEMENT_ENDPOINT: 'https://dev.private.zenko.io'
       REMOTE_MANAGEMENT_DISABLE: "${REMOTE_MANAGEMENT_DISABLE:-0}"
     secrets:
       - s3-credentials
