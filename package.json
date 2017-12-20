@@ -1,0 +1,28 @@
+{
+  "name": "zenko",
+  "version": "1.0.0",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "cd tests/ && mocha -t 90000 clueso-tests/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scality/Zenko.git"
+  },
+  "author": "",
+  "license": "",
+  "bugs": {
+    "url": "https://github.com/scality/Zenko/issues"
+  },
+  "homepage": "https://github.com/scality/Zenko#readme",
+  "devDependencies": {
+    "aws-sdk": "^2.169.0",
+    "eslint": "2.13.1",
+    "eslint-config-airbnb": "6.2.0",
+    "eslint-config-scality": "scality/Guidelines",
+    "mocha": "^4.0.1"
+  }
+}
