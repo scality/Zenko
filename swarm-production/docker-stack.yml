@@ -122,6 +122,8 @@ services:
     ports:
       - "8080:8080"
       - "7077:7077"
+    volumes:
+      - "heapdumps:/clueso/heapdumps:rw"
     secrets:
       - s3-credentials
     networks:
@@ -147,7 +149,7 @@ services:
     depends_on:
       - spark-master
     ports:
-      - '8001:80'
+      - '8005:80'
       - '8081:81'
       - '8125:8125/udp'
       - '8126:8126'
@@ -262,6 +264,7 @@ volumes:
   queue-journal:
   quorum-data:
   quorum-datalog:
+  heapdumps:
 
 secrets:
   s3-credentials:
