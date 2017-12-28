@@ -1,30 +1,11 @@
-const assert = require('assert');
 const s3Client = require('../utils/s3SDK');
+const runAndCheckSearch = require('../utils/helpers').runAndCheckSearch;
 
 const objectKey = 'findMe';
 const hiddenKey = 'leaveMeAlone';
 const userMetadata = {
     food: 'pizza' };
 
-function runAndCheckSearch(bucketName, encodedSearch, keyToFind, done) {
-    const searchRequest = s3Client.listObjects({ Bucket: bucketName });
-    searchRequest.on('build', () => {
-        searchRequest.httpRequest.path =
-        `${searchRequest.httpRequest.path}?search=${encodedSearch}`;
-    });
-    searchRequest.on('success', res => {
-        if (keyToFind) {
-            assert(res.data.Contents[0], 'should be Contents listed');
-            assert.strictEqual(res.data.Contents[0].Key, keyToFind);
-            assert.strictEqual(res.data.Contents.length, 1);
-        } else {
-            assert.strictEqual(res.data.Contents.length, 0);
-        }
-        return done();
-    });
-    searchRequest.on('error', done);
-    searchRequest.send();
-}
 
 describe('Basic search', () => {
     const bucketName = `basicsearchmebucket${Date.now()}`;
@@ -63,20 +44,23 @@ describe('Basic search', () => {
 
     it('should list object with searched for system metadata', done => {
         const encodedSearch = encodeURIComponent(`key="${objectKey}"`);
-        return runAndCheckSearch(bucketName, encodedSearch, objectKey, done);
+        return runAndCheckSearch(s3Client, bucketName,
+            encodedSearch, objectKey, done);
     });
 
     it('should list object with searched for user metadata', done => {
         const encodedSearch =
             encodeURIComponent('userMd.\`x-amz-meta-food\`' +
             `="${userMetadata.food}"`);
-        return runAndCheckSearch(bucketName, encodedSearch, objectKey, done);
+        return runAndCheckSearch(s3Client, bucketName, encodedSearch,
+            objectKey, done);
     });
 
     it('should return empty listing when no object has user md', done => {
         const encodedSearch =
         encodeURIComponent('userMd.\`x-amz-meta-food\`="nosuchfood"');
-        return runAndCheckSearch(bucketName, encodedSearch, null, done);
+        return runAndCheckSearch(s3Client, bucketName,
+            encodedSearch, null, done);
     });
 });
 
@@ -92,6 +76,7 @@ describe('Search when no objects in bucket', () => {
 
     it('should return empty listing when no objects in bucket', done => {
         const encodedSearch = encodeURIComponent(`key="${objectKey}"`);
-        return runAndCheckSearch(bucketName, encodedSearch, null, done);
+        return runAndCheckSearch(s3Client, bucketName,
+            encodedSearch, null, done);
     });
 });
