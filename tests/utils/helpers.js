@@ -1,4 +1,18 @@
 const assert = require('assert');
+const async = require('async');
+
+function _deleteVersionList(s3Client, versionList, bucket, callback) {
+    if (versionList === undefined || versionList.length === 0) {
+        return callback();
+    }
+    const params = { Bucket: bucket, Delete: { Objects: [] } };
+    versionList.forEach(version => {
+        params.Delete.Objects.push({
+            Key: version.Key, VersionId: version.VersionId });
+    });
+
+    return s3Client.deleteObjects(params, callback);
+}
 
 const testUtils = {};
 
@@ -21,6 +35,27 @@ testUtils.runAndCheckSearch = (s3Client, bucketName, encodedSearch,
     });
     searchRequest.on('error', done);
     searchRequest.send();
+};
+
+testUtils.removeAllVersions = (s3Client, bucket, callback) => {
+    async.waterfall([
+        cb => s3Client.listObjectVersions({ Bucket: bucket }, cb),
+        (data, cb) => _deleteVersionList(s3Client, data.DeleteMarkers, bucket,
+            err => cb(err, data)),
+        (data, cb) => _deleteVersionList(s3Client, data.Versions, bucket,
+            err => cb(err, data)),
+        (data, cb) => {
+            if (data.IsTruncated) {
+                const params = {
+                    Bucket: bucket,
+                    KeyMarker: data.NextKeyMarker,
+                    VersionIdMarker: data.NextVersionIdMarker,
+                };
+                return this.removeAllVersions(params, cb);
+            }
+            return cb();
+        },
+    ], callback);
 };
 
 module.exports = testUtils;

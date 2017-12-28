@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/scality/Zenko#readme",
   "devDependencies": {
+    "async": "^2.6.0",
     "aws-sdk": "^2.169.0",
     "eslint": "2.13.1",
     "eslint-config-airbnb": "6.2.0",
