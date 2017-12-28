@@ -1,0 +1,209 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: s3-data-pv
+  labels:
+    type: local
+spec:
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /opt/data/s3-data-pv
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: s3-metadata-pv
+  labels:
+    type: local
+spec:
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /opt/data/s3-metadata-pv
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: s3-data
+spec:
+  ports:
+    - port: 9992
+  selector:
+    app: s3-data
+    tier: backend
+  clusterIP: None
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: s3-data-pv-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: s3-data
+spec:
+  selector:
+    matchLabels:
+      app: s3-data
+      tier: backend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: s3-data
+        tier: backend
+    spec:
+      containers:
+      - image: zenko/cloudserver:pensieve-0
+        name: s3-data
+        env:
+        - name: S3DATAPATH
+          value: /data
+        - name: LISTEN_ADDR
+          value: 0.0.0.0
+        args: ["npm", "run", "start_dataserver"]
+        ports:
+        - containerPort: 9992
+          name: s3-data
+        volumeMounts:
+        - name: s3-data-persistent-storage
+          mountPath: /data
+      volumes:
+      - name: s3-data-persistent-storage
+        persistentVolumeClaim:
+          claimName: s3-data-pv-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: s3-metadata
+spec:
+  ports:
+    - port: 9993
+  selector:
+    app: s3-metadata
+    tier: backend
+  clusterIP: None
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: s3-metadata-pv-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: s3-metadata
+spec:
+  selector:
+    matchLabels:
+      app: s3-metadata
+      tier: backend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: s3-metadata
+        tier: backend
+    spec:
+      containers:
+      - image: zenko/cloudserver:pensieve-0
+        name: s3-metadata
+        env:
+        - name: S3METADATAPATH
+          value: /metadata
+        - name: LISTEN_ADDR
+          value: 0.0.0.0
+        - name: RECORDLOG_ENABLED
+          value: "true"
+        - name: DEBUG
+          value: "socket.io*"
+        args: ["npm", "run", "start_mdserver"]
+        ports:
+        - containerPort: 9993
+          name: s3-metadata
+        volumeMounts:
+        - name: s3-metadata-persistent-storage
+          mountPath: /metadata
+      volumes:
+      - name: s3-metadata-persistent-storage
+        persistentVolumeClaim:
+          claimName: s3-metadata-pv-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: s3-front
+spec:
+  ports:
+    - port: 8001
+  selector:
+    app: s3-front
+    tier: frontend-dmz
+  clusterIP: None
+---
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: s3-front
+spec:
+  selector:
+    matchLabels:
+      app: s3-front
+      tier: frontend-dmz
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: s3-front
+        tier: frontend-dmz
+    spec:
+      containers:
+      - image: zenko/cloudserver:pensieve-0
+        name: s3-front
+        env:
+        - name: DATA_HOST
+          value: s3-data
+        - name: METADATA_HOST
+          value: s3-metadata
+        - name: REDIS_HOST
+          value: cache
+        - name: ENDPOINT
+          value: "${ENDPOINT:-zenko}"
+        - name: MANAGEMENT_ENDPOINT
+          value: "https://api.zenko.io"
+        - name: REMOTE_MANAGEMENT_DISABLE
+          value: "1"
+        args: ["npm", "run", "start_s3server"]
+#        args: ["npm", "run", "mem_backend"]
+        ports:
+        - containerPort: 8001
+          name: s3-front
+        volumeMounts:
+        - name: s3-creds
+          mountPath: /run/secrets
+      volumes:
+      - name: s3-creds
+        secret:
+          secretName: s3-creds
