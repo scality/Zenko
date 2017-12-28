@@ -6,7 +6,8 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "cd tests/ && mocha -t 90000 clueso-tests/"
+    "test": "cd tests/ && mocha -t 90000 clueso-tests/",
+    "lint": "eslint $(git ls-files '*.js')"
   },
   "repository": {
     "type": "git",
