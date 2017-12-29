@@ -3,8 +3,8 @@ const runAndCheckSearch = require('../utils/helpers').runAndCheckSearch;
 
 const objectKey = 'findMe';
 const hiddenKey = 'leaveMeAlone';
-const userMetadata = {
-    food: 'pizza' };
+const userMetadata = { food: 'pizza' };
+const updatedUserMetadata = { food: 'cake' };
 
 
 describe('Basic search', () => {
@@ -61,6 +61,25 @@ describe('Basic search', () => {
         encodeURIComponent('userMd.\`x-amz-meta-food\`="nosuchfood"');
         return runAndCheckSearch(s3Client, bucketName,
             encodedSearch, null, done);
+    });
+
+    describe('search when overwrite object', () => {
+        before(done => {
+            s3Client.putObject({ Bucket: bucketName, Key: objectKey,
+                Metadata: updatedUserMetadata }, err => {
+                // give ingestion pipeline some time
+                setTimeout(() => done(err), 35000);
+            });
+        });
+
+        it('should list object with searched for updated user metadata',
+            done => {
+                const encodedSearch =
+                encodeURIComponent('userMd.\`x-amz-meta-food\`' +
+                `="${updatedUserMetadata.food}"`);
+                return runAndCheckSearch(s3Client, bucketName, encodedSearch,
+                objectKey, done);
+            });
     });
 });
 
