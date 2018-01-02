@@ -393,73 +393,73 @@ spec:
         - name: quorum-datalog-persistent-storage
           persistentVolumeClaim:
             claimName: quorum-datalog-pv-claim
-  ---
-  apiVersion: v1
-  kind: Service
-  metadata:
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: queue
+  labels:
     name: queue
-    labels:
-      name: queue
-  spec:
-    ports:
-    - port: 9092
-      name: kafka-port
-      protocol: TCP
-    selector:
-      app: queue
-      id: "1"
-      tier: backend
-    type: LoadBalancer
-  ---
-  apiVersion: v1
-  kind: PersistentVolumeClaim
-  metadata:
-    name: queue-journal-pv-claim
-  spec:
-    accessModes:
-      - ReadWriteOnce
-    resources:
-      requests:
-        storage: 15Gi
-  ---
-  kind: Deployment
-  apiVersion: extensions/v1beta1
-  metadata:
-    name: queue
-  spec:
-    template:
-      metadata:
-        labels:
-          app: queue
-          id: "1"
-      spec:
-        containers:
-        - name: queue
-          image: wurstmeister/kafka:1.0.0
-          ports:
-          - containerPort: 9092
-          env:
-          - name: KAFKA_ADVERTISED_PORT
-            value: "9092"
-          - name: KAFKA_ADVERTISED_HOST_NAME
-            value: queue
-          - name: KAFKA_CREATE_TOPICS
-            value: "backbeat-replication:1:1"
-          - name: KAFKA_ZOOKEEPER_CONNECT
-            value: "quorum:2181"
-          - name: KAFKA_BROKER_ID
-            value: "1"
-          - name: KAFKA_HEAP_OPTS
-            value: "-Xmx512M"
-          - name: KAFKA_LOG_DIRS 
-            value: "/kafka/kafka-logs"
-          volumeMounts:
-            - name: queue-journal-persistent-storage
-              mountPath: /kafka
-        volumes:
+spec:
+  ports:
+  - port: 9092
+    name: kafka-port
+    protocol: TCP
+  selector:
+    app: queue
+    id: "1"
+    tier: backend
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: queue-journal-pv-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 15Gi
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: queue
+spec:
+  template:
+    metadata:
+      labels:
+        app: queue
+        id: "1"
+    spec:
+      containers:
+      - name: queue
+        image: wurstmeister/kafka:1.0.0
+        ports:
+        - containerPort: 9092
+        env:
+        - name: KAFKA_ADVERTISED_PORT
+          value: "9092"
+        - name: KAFKA_ADVERTISED_HOST_NAME
+          value: queue
+        - name: KAFKA_CREATE_TOPICS
+          value: "backbeat-replication:1:1"
+        - name: KAFKA_ZOOKEEPER_CONNECT
+          value: "quorum:2181"
+        - name: KAFKA_BROKER_ID
+          value: "1"
+        - name: KAFKA_HEAP_OPTS
+          value: "-Xmx512M"
+        - name: KAFKA_LOG_DIRS 
+          value: "/kafka/kafka-logs"
+        volumeMounts:
           - name: queue-journal-persistent-storage
-            persistentVolumeClaim:
-              claimName: queue-journal-pv-claim
+            mountPath: /kafka
+      volumes:
+        - name: queue-journal-persistent-storage
+          persistentVolumeClaim:
+            claimName: queue-journal-pv-claim
 ---
 apiVersion: v1
 kind: Service
