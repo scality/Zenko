@@ -468,6 +468,8 @@ metadata:
   labels:
     name: backbeat-producer
 spec:
+  ports: 
+    - port: 9092
   selector:
     app: backbeat-producer
     tier: backend
@@ -477,10 +479,17 @@ apiVersion: apps/v1beta2
 metadata:
   name: backbeat-producer
 spec:
+  selector:
+    matchLabels:
+      app: backbeat-producer
+      tier: backend
+  strategy:
+    type: Recreate
   template:
     metadata:
       labels:
         app: backbeat-producer
+        tier: backend
     spec:
       containers:
       - name: backbeat-producer
