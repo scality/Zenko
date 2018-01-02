@@ -461,39 +461,39 @@ spec:
             persistentVolumeClaim:
               claimName: queue-journal-pv-claim
 ---
-  apiVersion: v1
-  kind: Service
-  metadata:
+apiVersion: v1
+kind: Service
+metadata:
+  name: backbeat-producer
+  labels:
     name: backbeat-producer
-    labels:
-      name: backbeat-producer
-  spec:
-    selector:
-      app: backbeat-producer
-      tier: backend
-  ---
-  kind: Deployment
-  apiVersion: apps/v1beta2
-  metadata:
-    name: backbeat-producer
-  spec:
-    template:
-      metadata:
-        labels:
-          app: backbeat-producer
-      spec:
-        containers:
-        - name: backbeat-producer
-          image: zenko/backbeat:pensieve-2
-          env:
-          - name: ZOOKEEPER_AUTO_CREATE_NAMESPACE
-            value: "1"
-          - name: ZOOKEEPER_CONNECTION_STRING
-            value: "quorum:2181"
-          - name: KAFKA_HOSTS
-            value: "queue:9092"
-          - name: QUEUE_POPULATOR_DMD_HOST
-            value: "s3-metadata"
-          - name: QUEUE_POPULATOR_DMD_PORT
-            value: "9993"
-          args: ["npm", "run", "queue_populator"]
+spec:
+  selector:
+    app: backbeat-producer
+    tier: backend
+---
+kind: Deployment
+apiVersion: apps/v1beta2
+metadata:
+  name: backbeat-producer
+spec:
+  template:
+    metadata:
+      labels:
+        app: backbeat-producer
+    spec:
+      containers:
+      - name: backbeat-producer
+        image: zenko/backbeat:pensieve-2
+        env:
+        - name: ZOOKEEPER_AUTO_CREATE_NAMESPACE
+          value: "1"
+        - name: ZOOKEEPER_CONNECTION_STRING
+          value: "quorum:2181"
+        - name: KAFKA_HOSTS
+          value: "queue:9092"
+        - name: QUEUE_POPULATOR_DMD_HOST
+          value: "s3-metadata"
+        - name: QUEUE_POPULATOR_DMD_PORT
+          value: "9993"
+        args: ["npm", "run", "queue_populator"]
