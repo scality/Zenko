@@ -219,7 +219,7 @@ spec:
       targetPort: 80
   selector:
     app: zenko-prod-lb
-    tier: lb
+    tier: frontend-dmz
     type: LoadBalancer
 ---
 kind: Deployment
@@ -230,14 +230,14 @@ spec:
   selector:
     matchLabels:
       app: zenko-prod-lb
-      tier: lb
+      tier: frontend-dmz
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
         app: zenko-prod-lb
-        tier: lb
+        tier: frontend-dmz
     spec:
       containers:
       - image: zenko/loadbalancer
@@ -247,3 +247,35 @@ spec:
           value: "80"
         - name: UPSTREAM_SERVER
           value: "s3-front:8001"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cache
+spec:
+  ports:
+    - port: 6379
+  selector:
+    app: cache
+    tier: backend
+---
+kind: Deployment
+apiVersion: apps/v1beta2
+metadata:
+  name: cache
+spec:
+  selector:
+    matchLabels:
+      app: cache
+      tier: backend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: cache
+        tier: backend
+    spec:
+      containers:
+      - image: redis:alpine
+        name: cache
