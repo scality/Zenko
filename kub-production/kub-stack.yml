@@ -34,7 +34,7 @@ metadata:
     type: local
 spec:
   capacity:
-    storage: 20Gi
+    storage: 10Gi
   accessModes:
     - ReadWriteOnce
   hostPath:
@@ -48,7 +48,7 @@ metadata:
     type: local
 spec:
   capacity:
-    storage: 20Gi
+    storage: 10Gi
   accessModes:
     - ReadWriteOnce
   hostPath:
@@ -62,7 +62,7 @@ metadata:
     type: local
 spec:
   capacity:
-    storage: 20Gi
+    storage: 15Gi
   accessModes:
     - ReadWriteOnce
   hostPath:
@@ -352,7 +352,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 20Gi
+      storage: 10Gi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -363,7 +363,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 20Gi
+      storage: 10Gi
 ---
 kind: Deployment
 apiVersion: extensions/v1beta1
@@ -420,7 +420,7 @@ spec:
       - ReadWriteOnce
     resources:
       requests:
-        storage: 20Gi
+        storage: 15Gi
   ---
   kind: Deployment
   apiVersion: extensions/v1beta1
