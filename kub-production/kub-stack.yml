@@ -207,3 +207,43 @@ spec:
       - name: s3-creds
         secret:
           secretName: s3-creds
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zenko-prod-lb
+spec:
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  selector:
+    app: zenko-prod-lb
+    tier: lb
+    type: LoadBalancer
+---
+kind: Deployment
+apiVersion: apps/v1beta2
+metadata:
+  name: zenko-prod-lb
+spec:
+  selector:
+    matchLabels:
+      app: zenko-prod-lb
+      tier: lb
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: zenko-prod-lb
+        tier: lb
+    spec:
+      containers:
+      - image: zenko/loadbalancer
+        name: zenko-prod-lb
+        env:
+        - name: LISTEN_PORT
+          value: "80"
+        - name: UPSTREAM_SERVER
+          value: "s3-front:8001"
