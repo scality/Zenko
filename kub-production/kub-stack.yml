@@ -27,6 +27,34 @@ spec:
     path: /opt/data/s3-metadata-pv
 ---
 apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: quorum-data-pv
+  labels:
+    type: local
+spec:
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /opt/data/quorum-data-pv
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: quorum-datalog-pv
+  labels:
+    type: local
+spec:
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /opt/data/quorum-datalog-pv
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: s3-data
@@ -279,3 +307,74 @@ spec:
       containers:
       - image: redis:alpine
         name: cache
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: quorum
+  labels:
+    app: quorum
+spec:
+  ports:
+  - name: client
+    port: 2181
+    protocol: TCP
+  - name: follower
+    port: 2888
+    protocol: TCP
+  - name: leader
+    port: 3888
+    protocol: TCP
+  selector:
+    app: quorum
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: quorum-data-pv-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: quorum-datalog-pv-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: quorum
+spec:
+  template:
+    metadata:
+      labels:
+        app: quorum
+        tier: backend
+    spec:
+      containers:
+      - name: quorum
+        image: zookeeper:3.4.11
+        ports:
+        - containerPort: 2181
+        volumeMounts:
+          - name: quorum-data-persistent-storage
+            mountPath: /data
+          - name: quorum-datalog-persistent-storage
+            mountPath: /datalog
+      volumes:
+        - name: quorum-persistent-storage
+          persistentVolumeClaim:
+            claimName: quorum-data-pv-claim
+        - name: quorumlog-persistent-storage
+          persistentVolumeClaim:
+            claimName: quorum-datalog-pv-claim
