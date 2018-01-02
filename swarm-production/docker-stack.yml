@@ -144,7 +144,7 @@ services:
     deploy:
       replicas: 1
 
-  graphana:
+  graphite:
     image: scality/clueso-grafana-graphite
     depends_on:
       - spark-master
