@@ -6,6 +6,7 @@ kubectl delete service cache
 kubectl delete service quorum
 kubectl delete service queue
 kubectl delete service backbeat-producer
+kubectl delete service backbeat-consumer
 kubectl delete deployment s3-data
 kubectl delete deployment s3-metadata
 kubectl delete deployment s3-front
@@ -14,6 +15,7 @@ kubectl delete deployment cache
 kubectl delete deployment quorum
 kubectl delete deployment queue
 kubectl delete deployment backbeat-producer
+kubectl delete deployment backbeat-consumer
 kubectl delete pv s3-data-pv
 kubectl delete pv s3-metadata-pv
 kubectl delete pv quorum-data-pv

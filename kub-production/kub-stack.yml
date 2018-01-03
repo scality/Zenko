@@ -470,6 +470,7 @@ metadata:
 spec:
   ports: 
     - port: 9092
+    - port: 2181
   selector:
     app: backbeat-producer
     tier: backend
@@ -506,3 +507,64 @@ spec:
         - name: QUEUE_POPULATOR_DMD_PORT
           value: "9993"
         args: ["npm", "run", "queue_populator"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backbeat-consumer
+  labels:
+    name: backbeat-consumer
+spec:
+  ports: 
+    - port: 9092
+    - port: 2181
+  selector:
+    app: backbeat-consumer
+    tier: backend
+---
+kind: Deployment
+apiVersion: apps/v1beta2
+metadata:
+  name: backbeat-consumer
+spec:
+  selector:
+    matchLabels:
+      app: backbeat-consumer
+      tier: backend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: backbeat-consumer
+        tier: backend
+    spec:
+      containers:
+      - name: backbeat-consumer
+        image: zenko/backbeat:pensieve-2
+        env:
+        - name: ZOOKEEPER_AUTO_CREATE_NAMESPACE
+          value: "1"
+        - name: ZOOKEEPER_CONNECTION_STRING
+          value: "quorum:2181"
+        - name: KAFKA_HOSTS
+          value: "queue:9092"
+        - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_TYPE
+          value: service
+        - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_ACCOUNT
+          value: service-replication
+        - name: EXTENSIONS_REPLICATION_SOURCE_S3_HOST
+          value: zenko-cloudserver-replicator
+        - name: EXTENSIONS_REPLICATION_SOURCE_S3_PORT
+          value: "8001"
+        - name: EXTENSIONS_REPLICATION_DEST_AUTH_TYPE
+          value: service
+        - name: EXTENSIONS_REPLICATION_DEST_AUTH_ACCOUNT
+          value: service-replication
+        - name: EXTENSIONS_REPLICATION_DEST_BOOTSTRAPLIST
+          value: "zenko-cloudserver-replicator:8001"
+        - name: QUEUE_POPULATOR_DMD_HOST
+          value: "s3-metadata"
+        - name: QUEUE_POPULATOR_DMD_PORT
+          value: "9993"
+        args: ["npm", "run", "queue_processor"]
