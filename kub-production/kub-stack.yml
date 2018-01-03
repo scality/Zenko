@@ -470,7 +470,6 @@ metadata:
 spec:
   ports: 
     - port: 9092
-    - port: 2181
   selector:
     app: backbeat-producer
     tier: backend
@@ -517,7 +516,6 @@ metadata:
 spec:
   ports: 
     - port: 9092
-    - port: 2181
   selector:
     app: backbeat-consumer
     tier: backend
