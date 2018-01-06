@@ -67,8 +67,9 @@ describe('Basic search', () => {
         before(done => {
             s3Client.putObject({ Bucket: bucketName, Key: objectKey,
                 Metadata: updatedUserMetadata }, err => {
-                // give ingestion pipeline some time
-                setTimeout(() => done(err), 35000);
+                // give ingestion pipeline some time and make sure
+                // cache expires (60 second cache expiry)
+                setTimeout(() => done(err), 75000);
             });
         });
 

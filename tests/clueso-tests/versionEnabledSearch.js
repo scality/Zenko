@@ -55,9 +55,10 @@ describe('Search in version enabled bucket', () => {
             s3Client.putObject({ Bucket: bucketName,
                 Key: masterKey, Metadata: updatedMetadata },
                     err => {
-                    // give ingestion pipeline some time
-                    setTimeout(() => done(err), 35000);
-            });
+                // give ingestion pipeline some time and make sure
+                // cache expires (60 second cache expiry)
+                        setTimeout(() => done(err), 75000);
+                    });
         });
 
         it('should list just master object with updated metadata', done => {
