@@ -99,7 +99,7 @@ services:
     environment:
       KAFKA_ADVERTISED_PORT: 9092
       KAFKA_ADVERTISED_HOST_NAME: queue
-      KAFKA_CREATE_TOPICS: 'backbeat-replication:1:1'
+      KAFKA_CREATE_TOPICS: 'backbeat:1:1'
       KAFKA_ZOOKEEPER_CONNECT: 'quorum:2181'
       KAFKA_HEAP_OPTS: '-Xmx512M'
       KAFKA_LOG_DIRS: /kafka/kafka-logs
@@ -135,7 +135,7 @@ services:
           - node.labels.io.zenko.type == storage
 
   backbeat-producer:
-    image: 'zenko/backbeat:pensieve-2'
+    image: 'zenko/backbeat:pensieve-3'
     command: npm run queue_populator
     environment:
       ZOOKEEPER_AUTO_CREATE_NAMESPACE: 1
@@ -154,7 +154,7 @@ services:
       replicas: 1
 
   backbeat-consumer:
-    image: 'zenko/backbeat:pensieve-2'
+    image: 'zenko/backbeat:pensieve-3'
     command: npm run queue_processor
     environment:
       ZOOKEEPER_AUTO_CREATE_NAMESPACE: 1
