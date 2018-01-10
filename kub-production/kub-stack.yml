@@ -199,8 +199,6 @@ metadata:
 spec:
   ports:
     - port: 8001
-  type: ExternalName
-    - externalName: "zenko-cloudserver-replicator"
   selector:
     app: s3-front
     tier: frontend-dmz
@@ -554,7 +552,7 @@ spec:
         - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_ACCOUNT
           value: service-replication
         - name: EXTENSIONS_REPLICATION_SOURCE_S3_HOST
-          value: zenko-cloudserver-replicator
+          value: s3-front
         - name: EXTENSIONS_REPLICATION_SOURCE_S3_PORT
           value: "8001"
         - name: EXTENSIONS_REPLICATION_DEST_AUTH_TYPE
@@ -562,7 +560,7 @@ spec:
         - name: EXTENSIONS_REPLICATION_DEST_AUTH_ACCOUNT
           value: service-replication
         - name: EXTENSIONS_REPLICATION_DEST_BOOTSTRAPLIST
-          value: "zenko-cloudserver-replicator:8001"
+          value: "s3-front:8001"
         - name: QUEUE_POPULATOR_DMD_HOST
           value: "s3-metadata"
         - name: QUEUE_POPULATOR_DMD_PORT
