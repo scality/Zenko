@@ -199,6 +199,8 @@ metadata:
 spec:
   ports:
     - port: 8001
+  type: ExternalName
+    - externalName: "zenko-cloudserver-replicator"
   selector:
     app: s3-front
     tier: frontend-dmz
