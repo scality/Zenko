@@ -321,14 +321,7 @@ metadata:
     app: quorum
 spec:
   ports:
-  - name: client
     port: 2181
-    protocol: TCP
-  - name: follower
-    port: 2888
-    protocol: TCP
-  - name: leader
-    port: 3888
     protocol: TCP
   selector:
     app: quorum
@@ -392,6 +385,8 @@ metadata:
 spec:
   ports:
   - port: 9092
+    targetPort: 9092
+    protocol: TCP
   selector:
     app: queue
     tier: backend
