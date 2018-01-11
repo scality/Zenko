@@ -109,7 +109,7 @@ spec:
         tier: backend
     spec:
       containers:
-      - image: zenko/cloudserver:pensieve-0
+      - image: zenko/cloudserver-front:pensieve-0
         name: s3-data
         env:
         - name: S3DATAPATH
@@ -169,7 +169,7 @@ spec:
         tier: backend
     spec:
       containers:
-      - image: zenko/cloudserver:pensieve-0
+      - image: zenko/cloudserver-front:pensieve-0
         name: s3-metadata
         env:
         - name: S3METADATAPATH
@@ -195,35 +195,35 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: cloudserver
+  name: cloudserver-front
 spec:
   ports:
-    - port: 8002
+    - port: 8001
   selector:
-    app: cloudserver
+    app: cloudserver-front
     tier: backend
   clusterIP: None
 ---
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
-  name: cloudserver
+  name: cloudserver-front
 spec:
   selector:
     matchLabels:
-      app: cloudserver
+      app: cloudserver-front
       tier: backend
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: cloudserver
+        app: cloudserver-front
         tier: backend
     spec:
       containers:
-      - image: zenko/cloudserver:pensieve-0
-        name: cloudserver
+      - image: zenko/cloudserver-front:pensieve-0
+        name: cloudserver-front
         env:
         - name: DATA_HOST
           value: s3-data
@@ -239,8 +239,8 @@ spec:
           value: "0"
         args: ["npm", "run", "start_s3server"]
         ports:
-        - containerPort: 8002
-          name: cloudserver
+        - containerPort: 8001
+          name: cloudserver-front
 ---
 apiVersion: v1
 kind: Service
@@ -280,7 +280,7 @@ spec:
         - name: LISTEN_PORT
           value: "80"
         - name: UPSTREAM_SERVER
-          value: "cloudserver:8002"
+          value: "cloudserver-front:8001"
 ---
 apiVersion: v1
 kind: Service
@@ -544,15 +544,15 @@ spec:
         - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_ACCOUNT
           value: service-replication
         - name: EXTENSIONS_REPLICATION_SOURCE_S3_HOST
-          value: "cloudserver"
+          value: "cloudserver-front"
         - name: EXTENSIONS_REPLICATION_SOURCE_S3_PORT
-          value: "8002"
+          value: "8001"
         - name: EXTENSIONS_REPLICATION_DEST_AUTH_TYPE
           value: service
         - name: EXTENSIONS_REPLICATION_DEST_AUTH_ACCOUNT
           value: service-replication
         - name: EXTENSIONS_REPLICATION_DEST_BOOTSTRAPLIST
-          value: "cloudserver:8002"
+          value: "cloudserver-front:8001"
         - name: QUEUE_POPULATOR_DMD_HOST
           value: "s3-metadata"
         - name: QUEUE_POPULATOR_DMD_PORT
