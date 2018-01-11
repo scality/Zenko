@@ -29,6 +29,20 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
+  name: s3-front-pv
+  labels:
+    type: local
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /opt/data/s3-front-pv
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
   name: quorum-data-pv
   labels:
     type: local
@@ -90,6 +104,17 @@ spec:
   resources:
     requests:
       storage: 20Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: s3-front-pv-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
 ---
 apiVersion: apps/v1beta2
 kind: Deployment
@@ -204,6 +229,17 @@ spec:
     tier: backend
   clusterIP: None
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: s3-front-pv-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
@@ -245,10 +281,15 @@ spec:
         volumeMounts:
         - name: s3-creds
           mountPath: /run/secrets
+        - name: s3-front-persistent-storage
+          mountPath: /test
       volumes:
       - name: s3-creds
         secret:
           secretName: s3-creds
+      - name: s3-front-persistent-storage
+        persistentVolumeClaim:
+          claimName: s3-front-pv-claim
 ---
 apiVersion: v1
 kind: Service
@@ -552,7 +593,7 @@ spec:
         - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_ACCOUNT
           value: service-replication
         - name: EXTENSIONS_REPLICATION_SOURCE_S3_HOST
-          value: zenko-cloudserver-replicator
+          value: "s3-front"
         - name: EXTENSIONS_REPLICATION_SOURCE_S3_PORT
           value: "8001"
         - name: EXTENSIONS_REPLICATION_DEST_AUTH_TYPE
