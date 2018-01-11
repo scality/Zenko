@@ -29,20 +29,6 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: s3-front-pv
-  labels:
-    type: local
-spec:
-  capacity:
-    storage: 5Gi
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: /opt/data/s3-front-pv
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
   name: quorum-data-pv
   labels:
     type: local
@@ -209,46 +195,35 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: s3-front
+  name: cloudserver
 spec:
   ports:
-    - port: 8001
+    - port: 8002
   selector:
-    app: s3-front
+    app: cloudserver
     tier: backend
   clusterIP: None
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: s3-front-pv-claim
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 5Gi
 ---
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
-  name: s3-front
+  name: cloudserver
 spec:
   selector:
     matchLabels:
-      app: s3-front
+      app: cloudserver
       tier: backend
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: s3-front
+        app: cloudserver
         tier: backend
     spec:
       containers:
       - image: zenko/cloudserver:pensieve-0
-        name: s3-front
+        name: cloudserver
         env:
         - name: DATA_HOST
           value: s3-data
@@ -261,24 +236,11 @@ spec:
         - name: MANAGEMENT_ENDPOINT
           value: "https://api.zenko.io"
         - name: REMOTE_MANAGEMENT_DISABLE
-          value: "1"
+          value: "0"
         args: ["npm", "run", "start_s3server"]
-#        args: ["npm", "run", "mem_backend"]
         ports:
-        - containerPort: 8001
-          name: s3-front
-        volumeMounts:
-        - name: s3-creds
-          mountPath: /run/secrets
-        - name: s3-front-persistent-storage
-          mountPath: /test
-      volumes:
-      - name: s3-creds
-        secret:
-          secretName: s3-creds
-      - name: s3-front-persistent-storage
-        persistentVolumeClaim:
-          claimName: s3-front-pv-claim
+        - containerPort: 8002
+          name: cloudserver
 ---
 apiVersion: v1
 kind: Service
@@ -318,7 +280,7 @@ spec:
         - name: LISTEN_PORT
           value: "80"
         - name: UPSTREAM_SERVER
-          value: "s3-front:8001"
+          value: "cloudserver:8002"
 ---
 apiVersion: v1
 kind: Service
@@ -582,15 +544,15 @@ spec:
         - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_ACCOUNT
           value: service-replication
         - name: EXTENSIONS_REPLICATION_SOURCE_S3_HOST
-          value: "s3-front"
+          value: "cloudserver"
         - name: EXTENSIONS_REPLICATION_SOURCE_S3_PORT
-          value: "8001"
+          value: "8002"
         - name: EXTENSIONS_REPLICATION_DEST_AUTH_TYPE
           value: service
         - name: EXTENSIONS_REPLICATION_DEST_AUTH_ACCOUNT
           value: service-replication
         - name: EXTENSIONS_REPLICATION_DEST_BOOTSTRAPLIST
-          value: "s3-front:8001"
+          value: "cloudserver:8002"
         - name: QUEUE_POPULATOR_DMD_HOST
           value: "s3-metadata"
         - name: QUEUE_POPULATOR_DMD_PORT
