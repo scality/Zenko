@@ -240,7 +240,6 @@ spec:
         args: ["npm", "run", "start_s3server"]
         ports:
         - containerPort: 8001
-          name: cloudserver-front
 ---
 apiVersion: v1
 kind: Service
