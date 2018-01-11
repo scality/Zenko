@@ -201,7 +201,7 @@ spec:
     - port: 8001
   selector:
     app: s3-front
-    tier: frontend-dmz
+    tier: backend
   clusterIP: None
 ---
 apiVersion: apps/v1beta2
@@ -212,14 +212,14 @@ spec:
   selector:
     matchLabels:
       app: s3-front
-      tier: frontend-dmz
+      tier: backend
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
         app: s3-front
-        tier: frontend-dmz
+        tier: backend
     spec:
       containers:
       - image: zenko/cloudserver:pensieve-0
@@ -261,7 +261,7 @@ spec:
       targetPort: 80
   selector:
     app: zenko-prod-lb
-    tier: frontend-dmz
+    tier: backend
     type: LoadBalancer
 ---
 kind: Deployment
@@ -272,14 +272,14 @@ spec:
   selector:
     matchLabels:
       app: zenko-prod-lb
-      tier: frontend-dmz
+      tier: backend
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
         app: zenko-prod-lb
-        tier: frontend-dmz
+        tier: backend
     spec:
       containers:
       - image: zenko/loadbalancer
@@ -560,7 +560,7 @@ spec:
         - name: EXTENSIONS_REPLICATION_DEST_AUTH_ACCOUNT
           value: service-replication
         - name: EXTENSIONS_REPLICATION_DEST_BOOTSTRAPLIST
-          value: "zenko-cloudserver-replicator:8001"
+          value: "s3-front:8001"
         - name: QUEUE_POPULATOR_DMD_HOST
           value: "s3-metadata"
         - name: QUEUE_POPULATOR_DMD_PORT
