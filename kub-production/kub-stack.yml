@@ -321,8 +321,8 @@ metadata:
     app: quorum
 spec:
   ports:
-    port: 2181
-    protocol: TCP
+    - port: 2181
+      protocol: TCP
   selector:
     app: quorum
     tier: backend
@@ -428,7 +428,7 @@ spec:
         - name: KAFKA_ADVERTISED_HOST_NAME
           value: queue
         - name: KAFKA_CREATE_TOPICS
-          value: "backbeat-replication:1:1"
+          value: "backbeat-replication"
         - name: KAFKA_ZOOKEEPER_CONNECT
           value: "quorum:2181"
         - name: KAFKA_HEAP_OPTS
