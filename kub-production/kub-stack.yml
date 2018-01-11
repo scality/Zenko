@@ -109,7 +109,7 @@ spec:
         tier: backend
     spec:
       containers:
-      - image: zenko/cloudserver-front:pensieve-0
+      - image: zenko/cloudserver:pensieve-0
         name: s3-data
         env:
         - name: S3DATAPATH
@@ -169,7 +169,7 @@ spec:
         tier: backend
     spec:
       containers:
-      - image: zenko/cloudserver-front:pensieve-0
+      - image: zenko/cloudserver:pensieve-0
         name: s3-metadata
         env:
         - name: S3METADATAPATH
@@ -222,7 +222,7 @@ spec:
         tier: backend
     spec:
       containers:
-      - image: zenko/cloudserver-front:pensieve-0
+      - image: zenko/cloudserver:pensieve-0
         name: cloudserver-front
         env:
         - name: DATA_HOST

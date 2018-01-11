@@ -1,6 +1,6 @@
 kubectl delete service s3-data
 kubectl delete service s3-metadata
-kubectl delete service s3-front
+kubectl delete service cloudserver-front
 kubectl delete service zenko-prod-lb
 kubectl delete service cache
 kubectl delete service quorum
@@ -9,7 +9,7 @@ kubectl delete service backbeat-producer
 kubectl delete service backbeat-consumer
 kubectl delete deployment s3-data
 kubectl delete deployment s3-metadata
-kubectl delete deployment s3-front
+kubectl delete deployment cloudserver-front
 kubectl delete deployment zenko-prod-lb
 kubectl delete deployment cache
 kubectl delete deployment quorum
