@@ -34,14 +34,16 @@ spec:
           # Using TCP readiness checks for now
           # HTTP ones require a response code [200, 400(, and `GET /` returns
           # 400. Need a specific healthz route.
-          livenessProbe:
-            tcpSocket:
-              port: s3-data
-            initialDelaySeconds: 5
-          readinessProbe:
-            tcpSocket:
-              port: s3-data
-            initialDelaySeconds: 5
+          # TODO Disable probes for now, until spawn-up can be handled by an
+          # init container to preprovision a directory tree on the storage.
+          #livenessProbe:
+          #  tcpSocket:
+          #    port: s3-data
+          #  initialDelaySeconds: 5
+          #readinessProbe:
+          #  tcpSocket:
+          #    port: s3-data
+          #  initialDelaySeconds: 5
           resources:
 {{ toYaml .Values.resources | indent 12 }}
     {{- if .Values.nodeSelector }}
