@@ -1,0 +1,41 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "backbeat-producer.fullname" . }}
+  labels:
+    app: {{ template "backbeat-producer.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "backbeat-producer.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: ["npm", "run", "queue_populator"]
+          env:
+            - name: ZOOKEEPER_AUTO_CREATE_NAMESPACE
+              value: "1"
+            - name: ZOOKEEPER_CONNECTION_STRING
+              value: "{{- printf "%s-zookeeper-0.%s-zookeeper:2181" .Release.Name .Release.Name | trunc 63 | trimSuffix "-" -}}"
+            - name: KAFKA_HOSTS
+              value: "{{- printf "%s-kafka-0.%s-kafka:9092" .Release.Name .Release.Name | trunc 63 | trimSuffix "-" -}}"
+            - name: QUEUE_POPULATOR_DMD_HOST
+              value: "{{- printf "%s-s3-metadata" .Release.Name | trunc 63 | trimSuffix "-" -}}"
+            - name: QUEUE_POPULATOR_DMD_PORT
+              value: "9993"
+          # TODO livenessProbe:
+          # TODO readinessProbe:
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+    {{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+    {{- end }}
