@@ -1,0 +1,102 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ template "zookeeper.fullname" . }}
+  labels:
+    app: {{ template "zookeeper.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ template "zookeeper.name" . }}
+      release: {{ .Release.Name }}
+  serviceName: {{ template "zookeeper.fullname" . }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ template "zookeeper.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 2181
+          volumeMounts:
+            - name: {{ template "zookeeper.fullname" . }}-data
+              mountPath: /data
+            - name: {{ template "zookeeper.fullname" . }}-datalog
+              mountPath: /datalog
+          #livenessProbe:
+          #  httpGet:
+          #    path: /
+          #    port: {{ .Values.service.internalPort }}
+          #readinessProbe:
+          #  httpGet:
+          #    path: /
+          #    port: {{ .Values.service.internalPort }}
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+    {{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+    {{- end }}
+
+  volumeClaimTemplates:
+  - metadata:
+      name: {{ template "zookeeper.fullname" . }}-data
+      annotations:
+      {{- if .Values.persistentVolume.data.annotations }}
+{{ toYaml .Values.persistentVolume.data.annotations | indent 4 }}
+      {{- end }}
+      labels:
+        app: {{ template "zookeeper.name" . }}
+        chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+        release: {{ .Release.Name }}
+        heritage: {{ .Release.Service }}
+    spec:
+      accessModes:
+{{- range .Values.persistentVolume.data.accessModes }}
+        - {{ . | quote }}
+{{- end }}
+      resources:
+        requests:
+          storage: {{ .Values.persistentVolume.data.size | quote }}
+{{- if .Values.persistentVolume.data.storageClass }}
+{{- if (eq "-" .Values.persistentVolume.data.storageClass) }}
+      storageClassName: ""
+{{- else }}
+      storageClassName: "{{ .Values.persistentVolume.data.storageClass }}"
+{{- end }}
+{{- end }}
+  - metadata:
+      name: {{ template "zookeeper.fullname" . }}-datalog
+      annotations:
+      {{- if .Values.persistentVolume.datalog.annotations }}
+{{ toYaml .Values.persistentVolume.datalog.annotations | indent 4 }}
+      {{- end }}
+      labels:
+        app: {{ template "zookeeper.name" . }}
+        chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+        release: {{ .Release.Name }}
+        heritage: {{ .Release.Service }}
+    spec:
+      accessModes:
+{{- range .Values.persistentVolume.datalog.accessModes }}
+        - {{ . | quote }}
+{{- end }}
+      resources:
+        requests:
+          storage: {{ .Values.persistentVolume.datalog.size | quote }}
+{{- if .Values.persistentVolume.datalog.storageClass }}
+{{- if (eq "-" .Values.persistentVolume.datalog.storageClass) }}
+      storageClassName: ""
+{{- else }}
+      storageClassName: "{{ .Values.persistentVolume.datalog.storageClass }}"
+{{- end }}
+{{- end }}
