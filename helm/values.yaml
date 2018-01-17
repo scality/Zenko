@@ -1,0 +1,16 @@
+# Default values for zenko.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+ingress:
+  enabled: false
+  # Used to create an Ingress record.
+  hosts:
+    - zenko.example.com
+  annotations:
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  tls:
+    # Secrets must be manually created in the namespace.
+    # - secretName: zenko-tls
+    #   hosts:
+    #     - zenko.example.com
