@@ -15,6 +15,14 @@ spec:
         app: {{ template "s3-data.name" . }}
         release: {{ .Release.Name }}
     spec:
+      initContainers:
+        - name: {{ .Chart.Name }}-init
+          image: busybox
+          command: ['sh', '-x', '-c', 'if ! test -d /data/3511; then for i in `seq 1 3511`; do mkdir -p /data/$i; done; fi']
+          volumeMounts:
+            - name: persistent-storage
+              mountPath: /data
+
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
