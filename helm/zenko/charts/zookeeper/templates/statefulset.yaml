@@ -28,18 +28,21 @@ spec:
           ports:
             - containerPort: 2181
           volumeMounts:
-            - name: {{ template "zookeeper.fullname" . }}-data
+            - name: data
               mountPath: /data
-            - name: {{ template "zookeeper.fullname" . }}-datalog
+            - name: datalog
               mountPath: /datalog
-          #livenessProbe:
-          #  httpGet:
-          #    path: /
-          #    port: {{ .Values.service.internalPort }}
-          #readinessProbe:
-          #  httpGet:
-          #    path: /
-          #    port: {{ .Values.service.internalPort }}
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - 'echo ruok | nc localhost 2181 | grep ^imok$ > /dev/null'
+            initialDelaySeconds: 40 # Allow 10s to join the ensemble
+          livenessProbe:
+            tcpSocket:
+              port: 2181
+            initialDelaySeconds: 30
           resources:
 {{ toYaml .Values.resources | indent 12 }}
     {{- if .Values.nodeSelector }}
@@ -49,7 +52,7 @@ spec:
 
   volumeClaimTemplates:
   - metadata:
-      name: {{ template "zookeeper.fullname" . }}-data
+      name: data
       annotations:
       {{- if .Values.persistentVolume.data.annotations }}
 {{ toYaml .Values.persistentVolume.data.annotations | indent 4 }}
@@ -75,7 +78,7 @@ spec:
 {{- end }}
 {{- end }}
   - metadata:
-      name: {{ template "zookeeper.fullname" . }}-datalog
+      name: datalog
       annotations:
       {{- if .Values.persistentVolume.datalog.annotations }}
 {{ toYaml .Values.persistentVolume.datalog.annotations | indent 4 }}
