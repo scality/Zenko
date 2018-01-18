@@ -5,7 +5,7 @@ This is a [Helm] Chart for [Scality] [Zenko]. To get started, you'll need a
 Controller running, run something like
 
 ```shell
-$ helm install --name zenko --set ingress.enabled=true --set ingress.hosts[0]=zenko.local zenko
+$ helm install --name zenko --set ingress.enabled=true --set ingress.hosts[0]=zenko.local --set cloudserver-front.endpoint=zenko.local zenko
 ```
 
 See `values.yml` for more options.
