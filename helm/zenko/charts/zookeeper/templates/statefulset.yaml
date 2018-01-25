@@ -1,105 +1,96 @@
-apiVersion: apps/v1
+apiVersion: apps/v1beta1
 kind: StatefulSet
 metadata:
   name: {{ template "zookeeper.fullname" . }}
   labels:
-    app: {{ template "zookeeper.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    app: {{ include "zookeeper.name" . | quote }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service | quote }}
 spec:
-  selector:
-    matchLabels:
-      app: {{ template "zookeeper.name" . }}
-      release: {{ .Release.Name }}
-  serviceName: {{ template "zookeeper.fullname" . }}
-  replicas: 1
+  serviceName: {{ template "zookeeper.fullname" . }}-headless
+  replicas: {{ .Values.servers }}
   template:
     metadata:
       labels:
-        app: {{ template "zookeeper.name" . }}
-        release: {{ .Release.Name }}
+        app: {{ include "zookeeper.name" . | quote }}
+        release: {{ .Release.Name | quote }}
     spec:
-      terminationGracePeriodSeconds: 10
+{{- if .Values.affinity }}
+      affinity:
+{{ toYaml .Values.affinity | indent 8 }}
+{{- end }}
       containers:
-        - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - containerPort: 2181
-          volumeMounts:
-            - name: data
-              mountPath: /data
-            - name: datalog
-              mountPath: /datalog
-          readinessProbe:
-            exec:
-              command:
-                - /bin/sh
-                - -c
-                - 'echo ruok | nc localhost 2181 | grep ^imok$ > /dev/null'
-            initialDelaySeconds: 40 # Allow 10s to join the ensemble
-          livenessProbe:
-            tcpSocket:
-              port: 2181
-            initialDelaySeconds: 30
-          resources:
-{{ toYaml .Values.resources | indent 12 }}
-    {{- if .Values.nodeSelector }}
-      nodeSelector:
-{{ toYaml .Values.nodeSelector | indent 8 }}
-    {{- end }}
-
+      - name: {{ template "zookeeper.name" . }}-server
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        image: "{{ .Values.Image }}:{{ .Values.ImageTag }}"
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+        ports:
+        - containerPort: {{ .Values.clientPort }}
+          name: client
+        - containerPort: {{ .Values.serverPort }}
+          name: server
+        - containerPort: {{ .Values.leaderElectionPort }}
+          name: leader-election
+        env:
+        - name : ZK_REPLICAS
+          value: "{{ .Values.servers }}"
+        - name : ZK_HEAP_SIZE
+          value: "{{ .Values.heap }}"
+        - name : ZK_TICK_TIME
+          value: "{{ .Values.tickTimeMs }}"
+        - name : ZK_INIT_LIMIT
+          value: "{{ .Values.initTicks }}"
+        - name : ZK_SYNC_LIMIT
+          value: "{{ .Values.syncTicks }}"
+        - name : ZK_MAX_CLIENT_CNXNS
+          value: "{{ .Values.clientCnxns }}"
+        - name: ZK_SNAP_RETAIN_COUNT
+          value: "{{ .Values.snapRetain }}"
+        - name: ZK_PURGE_INTERVAL
+          value: "{{ .Values.purgeHours }}"
+        - name: ZK_LOG_LEVEL
+          value: {{ .Values.logLevel }}
+        - name: ZK_CLIENT_PORT
+          value: "{{ .Values.clientPort }}"
+        - name: ZK_SERVER_PORT
+          value: "{{ .Values.serverPort }}"
+        - name: ZK_ELECTION_PORT
+          value: "{{ .Values.leaderElectionPort }}"
+        command:
+        - sh
+        - -c
+        - zkGenConfig.sh && exec zkServer.sh start-foreground
+        readinessProbe:
+          exec:
+            command:
+            - "zkOk.sh"
+          initialDelaySeconds: {{ .Values.probeInitialDelaySeconds }}
+          timeoutSeconds: {{ .Values.probeTimeoutSeconds }}
+        livenessProbe:
+          exec:
+            command:
+            - "zkOk.sh"
+          initialDelaySeconds: {{ .Values.probeInitialDelaySeconds }}
+          timeoutSeconds: {{ .Values.probeTimeoutSeconds }}
+        volumeMounts:
+        - name: datadir
+          mountPath: /var/lib/zookeeper
+          subPath: data
+      {{- if eq .Values.security.enabled true }}
+      securityContext:
+        runAsUser: {{ .Values.security.runAsUser }}
+        fsGroup: {{ .Values.security.fsGroup }}
+      {{- end }}
   volumeClaimTemplates:
   - metadata:
-      name: data
-      annotations:
-      {{- if .Values.persistentVolume.data.annotations }}
-{{ toYaml .Values.persistentVolume.data.annotations | indent 4 }}
-      {{- end }}
-      labels:
-        app: {{ template "zookeeper.name" . }}
-        chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
+      name: datadir
     spec:
-      accessModes:
-{{- range .Values.persistentVolume.data.accessModes }}
-        - {{ . | quote }}
-{{- end }}
+      accessModes: [ "ReadWriteOnce" ]
       resources:
         requests:
-          storage: {{ .Values.persistentVolume.data.size | quote }}
-{{- if .Values.persistentVolume.data.storageClass }}
-{{- if (eq "-" .Values.persistentVolume.data.storageClass) }}
-      storageClassName: ""
-{{- else }}
-      storageClassName: "{{ .Values.persistentVolume.data.storageClass }}"
-{{- end }}
-{{- end }}
-  - metadata:
-      name: datalog
-      annotations:
-      {{- if .Values.persistentVolume.datalog.annotations }}
-{{ toYaml .Values.persistentVolume.datalog.annotations | indent 4 }}
+          storage: {{ .Values.storage }}
+      {{- if .Values.storageClass }}
+      storageClassName: {{ .Values.storageClass | quote }}
       {{- end }}
-      labels:
-        app: {{ template "zookeeper.name" . }}
-        chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
-    spec:
-      accessModes:
-{{- range .Values.persistentVolume.datalog.accessModes }}
-        - {{ . | quote }}
-{{- end }}
-      resources:
-        requests:
-          storage: {{ .Values.persistentVolume.datalog.size | quote }}
-{{- if .Values.persistentVolume.datalog.storageClass }}
-{{- if (eq "-" .Values.persistentVolume.datalog.storageClass) }}
-      storageClassName: ""
-{{- else }}
-      storageClassName: "{{ .Values.persistentVolume.datalog.storageClass }}"
-{{- end }}
-{{- end }}
