@@ -1,6 +1,11 @@
 # Default values for cloudserver-front.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+orbit:
+  enabled: false
+  endpoint: https://api.zenko.io
+# When 'orbit.enabled' is 'true', these aren't used, please use
+# https://zenko.io to manage your deployment
 endpoint: zenko.local
 credentials:
   keyId: deployment-specific-access-key

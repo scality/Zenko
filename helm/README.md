@@ -10,7 +10,24 @@ $ helm install --name zenko --set ingress.enabled=true --set ingress.hosts[0]=ze
 
 See `values.yml` for more options.
 
+One option to highlight is the ability to enabled [Orbit] integration (which is
+disabled by default) and set a custom Orbit API endpoint (for development
+purposes). Use
+
+```shell
+--set cloudserver-front.orbit.enabled=true
+```
+
+and
+
+```shell
+--set cloudserver-front.orbit.endpoint=https://dev.zenko.io
+```
+
+accordingly.
+
 [Helm]: https://helm.sh
 [Scality]: https://scality.com
 [Zenko]: https://zenko.io
 [Kubernetes]: https://kubernetes.io
+[Orbit]: https://admin.zenko.io/user

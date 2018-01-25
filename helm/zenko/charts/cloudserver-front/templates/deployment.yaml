@@ -28,8 +28,12 @@ spec:
               value: "{{- printf "%s-%s" .Release.Name "s3-metadata" | trunc 63 | trimSuffix "-" -}}"
             - name: REDIS_HOST
               value: "{{- printf "%s-%s" .Release.Name "redis" | trunc 63 | trimSuffix "-" -}}"
+{{- if .Values.orbit.enabled }}
+            - name: REMOTE_MANAGEMENT_DISABLE
+              value: "0"
             - name: MANAGEMENT_ENDPOINT
-              value: "https://api.zenko.io"
+              value: "{{- .Values.orbit.endpoint -}}"
+{{- else }}
             - name: REMOTE_MANAGEMENT_DISABLE
               value: "1"
             - name: ENDPOINT
@@ -44,6 +48,7 @@ spec:
                 secretKeyRef:
                   name: {{ template "cloudserver-front.fullname" . }}
                   key: secretKey
+{{- end }}
 
           args: ['npm', 'run', 'start_s3server']
           #livenessProbe:
