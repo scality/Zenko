@@ -33,7 +33,16 @@ DOCKER_DIR := ${BASE_DIR_HELM}/$$(word 2,$${IMAGE_SPLIT})/$(IMAGE_SEP_DIR)/$$(la
 endef
 
 define image_to_tag
-IMAGE_TAG := $$(subst /,-,$(1))
+IMAGE_SPLIT := $$(subst /, ,$(1))
+HELM_CHART := $$(strip $$(word 1,$$(IMAGE_SPLIT)))
+IMAGE_DIR := $$(strip $$(word 2,$$(IMAGE_SPLIT)))
+# If helm chart name is included in image name, only keep image name
+# else composes helm chart with image name joined by a '-'
+ifeq ($$(subst $$(HELM_CHART),,$$(IMAGE_DIR)),$$(IMAGE_DIR))
+  IMAGE_TAG := $$(subst /,-,$(1))
+else
+  IMAGE_TAG := $$(IMAGE_DIR)
+endif
 ifeq ($(DOCKER_REPOSITORY),)
   TAG := $$(IMAGE_TAG)
 else
@@ -49,7 +58,7 @@ ${DOCKER_BUILD_TARGETS}:
 	@echo "=================================================="
 	@echo "Building ${IMAGE} (Tagged: ${TAG})"
 	@echo "=================================================="
-	@docker build ${DOCKER_DIR} -t ${TAG} || true
+	@docker build ${DOCKER_DIR} -t ${TAG}
 
 docker-build: ${DOCKER_BUILD_TARGETS}
 
