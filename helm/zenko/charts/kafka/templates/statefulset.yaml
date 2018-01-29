@@ -31,9 +31,9 @@ spec:
             - name: KAFKA_ADVERTISED_HOST_NAME
               value: "{{ template "kafka.fullname" . }}-0.{{ template "kafka.fullname" . }}"
             - name: KAFKA_CREATE_TOPICS
-              value: "backbeat-replication"
+              value: "backbeat:1:1"
             - name: KAFKA_ZOOKEEPER_CONNECT
-              value: "{{- printf "%s-zookeeper-0.%s-zookeeper:2181" .Release.Name .Release.Name | trunc 63 | trimSuffix "-" -}}"
+              value: "{{- printf "%s-zookeeper:2181" .Release.Name | trunc 63 | trimSuffix "-" -}}"
             - name: KAFKA_HEAP_OPTS
               value: "-Xmx512M"
             - name: KAFKA_LOG_DIRS
