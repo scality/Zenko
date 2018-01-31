@@ -31,41 +31,28 @@ spec:
         resources:
 {{ toYaml .Values.resources | indent 10 }}
         ports:
-        - containerPort: {{ .Values.clientPort }}
+        - containerPort: 2181
           name: client
-        - containerPort: {{ .Values.serverPort }}
+        - containerPort: 2888
           name: server
-        - containerPort: {{ .Values.leaderElectionPort }}
+        - containerPort: 3888
           name: leader-election
         env:
-        - name : ZK_REPLICAS
+        - name : ZOO_REPLICAS
           value: "{{ .Values.servers }}"
-        - name : ZK_HEAP_SIZE
+        - name : ZOO_HEAP_SIZE
           value: "{{ .Values.heap }}"
-        - name : ZK_TICK_TIME
+        - name : ZOO_TICK_TIME
           value: "{{ .Values.tickTimeMs }}"
-        - name : ZK_INIT_LIMIT
+        - name : ZOO_INIT_LIMIT
           value: "{{ .Values.initTicks }}"
-        - name : ZK_SYNC_LIMIT
+        - name : ZOO_SYNC_LIMIT
           value: "{{ .Values.syncTicks }}"
-        - name : ZK_MAX_CLIENT_CNXNS
+        - name : ZOO_MAX_CLIENT_CNXNS
           value: "{{ .Values.clientCnxns }}"
-        - name: ZK_SNAP_RETAIN_COUNT
-          value: "{{ .Values.snapRetain }}"
-        - name: ZK_PURGE_INTERVAL
-          value: "{{ .Values.purgeHours }}"
-        - name: ZK_LOG_LEVEL
-          value: {{ .Values.logLevel }}
-        - name: ZK_CLIENT_PORT
-          value: "{{ .Values.clientPort }}"
-        - name: ZK_SERVER_PORT
-          value: "{{ .Values.serverPort }}"
-        - name: ZK_ELECTION_PORT
-          value: "{{ .Values.leaderElectionPort }}"
-        command:
-        - sh
-        - -c
-        - zkGenConfig.sh && exec zkServer.sh start-foreground
+        args:
+        - zkServer.sh
+        - start-foreground
         readinessProbe:
           exec:
             command:

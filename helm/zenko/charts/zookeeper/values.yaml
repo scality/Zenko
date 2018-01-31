@@ -14,9 +14,6 @@ resources:
 heap: "2G"
 storage: "50Gi"
 # storageClass: default
-serverPort: 2888
-leaderElectionPort: 3888
-clientPort: 2181
 imagePullPolicy: "Always"
 tickTimeMs: 2000
 initTicks: 10
