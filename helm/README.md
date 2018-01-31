@@ -26,8 +26,19 @@ and
 
 accordingly.
 
+Prometheus Monitoring
+---------------------
+[Prometheus] is deployed as part of this stack. If you want to access its
+built-in web UI, you may want to create an `Ingress` object. To do so
+automatically, use something like
+
+```shell
+--set prometheus.server.ingress.enabled=true --set prometheus.server.ingress.hosts[0]=prometheus.local
+```
+
 [Helm]: https://helm.sh
 [Scality]: https://scality.com
 [Zenko]: https://zenko.io
 [Kubernetes]: https://kubernetes.io
 [Orbit]: https://admin.zenko.io/user
+[Prometheus]: https://prometheus.io

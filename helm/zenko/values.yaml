@@ -26,3 +26,19 @@ cloudserver-front:
   credentials:
     keyId: deployment-specific-access-key
     secretKey: deployment-specific-secret-key
+
+prometheus:
+  rbac:
+    create: true
+
+  alertmanager:
+    enabled: false
+
+  kubeStateMetrics:
+    enabled: false
+
+  nodeExporter:
+    enabled: false
+
+  pushgateway:
+    enabled: false
