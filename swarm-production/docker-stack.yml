@@ -2,7 +2,7 @@ version: "3.4"
 
 services:
   s3-data:
-    image: zenko/cloudserver:pensieve-1
+    image: zenko/cloudserver:pensieve-2
     ports:
       - "9992"
     networks:
@@ -19,7 +19,7 @@ services:
           - node.labels.io.zenko.type == storage
 
   s3-metadata:
-    image: zenko/cloudserver:pensieve-1
+    image: zenko/cloudserver:pensieve-2
     ports:
       - "9993"
     networks:
@@ -37,7 +37,7 @@ services:
           - node.labels.io.zenko.type == storage
 
   s3-front:
-    image: zenko/cloudserver:pensieve-1
+    image: zenko/cloudserver:pensieve-2
     ports:
       - "8001"
     networks:
@@ -91,85 +91,12 @@ services:
         delay: "10s"
         monitor: "5s"
 
-  livy:
-    image: scality/clueso-livy:pensieve
-    hostname: livy
-    ports:
-      - "8998:8998"
-      # so that each spawned session can have an app ui, open range
-      - "4040-4049:4040-4049"
-    depends_on:
-      - spark-master
-    networks:
-      - backend
-      # need so can contact lb to get parquet files on search
-      - frontend-dmz
-
-  spark-master:
-    image: scality/clueso-spark-master:pensieve
-    hostname: spark-master
-    depends_on:
-      - queue
-      - graphite
-      - lb
-    ports:
-      # master ui:
-      - "8080:8080"
-      # ingestion pipeline app ui:
-      - "4050:4050"
-      # landing populator app ui:
-      - "4051:4051"
-      # storage info tool app ui
-      - "4052:4052"
-      # compactor tool app ui
-      - "4053:4053"
-    volumes:
-      - "heapdumps:/clueso/heapdumps:rw"
-    secrets:
-      - s3-credentials
-    networks:
-      - backend
-      # need so can contact lb to create METADATA bucket
-      - frontend-dmz
-
-  spark-worker:
-    image: scality/clueso-spark-worker:pensieve
-    depends_on:
-      - spark-master
-    environment:
-      SPARK_MASTER_HOST: spark://spark-master:7077
-      CLUSTER_DNS: spark-worker
-      INIT_REPLICATE: 1
-    networks:
-      - backend
-      # need so can contact lb to get parquet files on search
-      - frontend-dmz
-    deploy:
-      replicas: 1
-
-  graphite:
-    image: scality/clueso-grafana-graphite
-    depends_on:
-      - spark-master
-    ports:
-      - '8005:80'
-      - '8081:81'
-      - '3000:3000'
-    networks:
-      - backend
-    volumes:
-      - "grafana-data:/opt/grafana/data:rw"
-    deploy:
-      placement:
-        constraints:
-          - node.labels.io.zenko.type == storage
-
   queue:
     image: 'wurstmeister/kafka:1.0.0'
     environment:
       KAFKA_ADVERTISED_PORT: 9092
       KAFKA_ADVERTISED_HOST_NAME: queue
-      KAFKA_CREATE_TOPICS: 'backbeat:1:1'
+      KAFKA_CREATE_TOPICS: 'backbeat-replication:1:1'
       KAFKA_ZOOKEEPER_CONNECT: 'quorum:2181'
       KAFKA_HEAP_OPTS: '-Xmx512M'
       KAFKA_LOG_DIRS: /kafka/kafka-logs
@@ -205,7 +132,7 @@ services:
           - node.labels.io.zenko.type == storage
 
   backbeat-producer:
-    image: 'zenko/backbeat:pensieve-3'
+    image: 'zenko/backbeat:pensieve-4'
     command: npm run queue_populator
     environment:
       ZOOKEEPER_AUTO_CREATE_NAMESPACE: 1
@@ -224,7 +151,7 @@ services:
       replicas: 1
 
   backbeat-consumer:
-    image: 'zenko/backbeat:pensieve-3'
+    image: 'zenko/backbeat:pensieve-4'
     command: npm run queue_processor
     environment:
       ZOOKEEPER_AUTO_CREATE_NAMESPACE: 1
@@ -258,11 +185,9 @@ networks:
 volumes:
   s3-data:
   s3-metadata:
-  grafana-data:
   queue-journal:
   quorum-data:
   quorum-datalog:
-  heapdumps:
 
 secrets:
   s3-credentials:
