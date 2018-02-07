@@ -34,7 +34,11 @@ spec:
         - name: FULL_NAME
           value: {{ template "mongodb-replicaset.fullname" . }}
         - name: REPLICAS
+        {{- if .Values.global.mongodbBackend.enabled }}
+          value: "{{ .Values.global.mongodbBackend.replicas }}"
+        {{- else }}
           value: "{{ .Values.replicas }}"
+        {{- end }}
       volumeMounts:
         - name: tools
           mountPath: /tools

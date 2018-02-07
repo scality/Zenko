@@ -9,7 +9,11 @@ metadata:
   name: {{ template "mongodb-replicaset.fullname" . }}
 spec:
   serviceName: {{ template "mongodb-replicaset.fullname" . }}
+{{- if .Values.global.mongodbBackend.enabled }}
+  replicas: {{ .Values.global.mongodbBackend.replicas }}
+{{- else }}
   replicas: {{ .Values.replicas }}
+{{- end }}
   template:
     metadata:
       labels:
@@ -50,7 +54,11 @@ spec:
                   apiVersion: v1
                   fieldPath: metadata.namespace
             - name: REPLICA_SET
+            {{- if .Values.global.mongodbBackend.enabled }}
+              value: {{ .Values.global.mongodbBackend.replicaSet }}
+            {{- else }}
               value: {{ .Values.replicaSet }}
+            {{- end }}
           {{- if .Values.auth.enabled }}
             - name: AUTH
               value: "true"
@@ -87,7 +95,11 @@ spec:
           imagePullPolicy: "{{ .Values.image.pullPolicy }}"
           ports:
             - name: peer
+            {{- if .Values.global.mongodbBackend.enabled }}
+              containerPort: {{ .Values.global.mongodbBackend.port }}
+            {{- else }}
               containerPort: {{ .Values.port }}
+            {{- end }}
           resources:
 {{ toYaml .Values.resources | indent 12 }}
           command:

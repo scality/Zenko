@@ -18,7 +18,11 @@ spec:
   clusterIP: None
   ports:
     - name: peer
+    {{- if .Values.global.mongodbBackend.enabled }}
+      port: {{ .Values.global.mongodbBackend.port }}
+    {{- else }}
       port: {{ .Values.port }}
+    {{- end }}
   selector:
     app: {{ template "mongodb-replicaset.name" . }}
     release: {{ .Release.Name }}
