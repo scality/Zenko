@@ -18,7 +18,7 @@ spec:
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/path: "/"
-        prometheus.io/port: "1234"
+        prometheus.io/port: "9141"
     spec:
 {{- if .Values.affinity }}
       affinity:
