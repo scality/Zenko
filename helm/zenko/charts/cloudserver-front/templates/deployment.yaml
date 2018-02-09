@@ -28,6 +28,16 @@ spec:
               value: "{{- printf "%s-%s" .Release.Name "s3-metadata" | trunc 63 | trimSuffix "-" -}}"
             - name: REDIS_HOST
               value: "{{- printf "%s-%s" .Release.Name "redis" | trunc 63 | trimSuffix "-" -}}"
+{{- if .Values.global.mongodbBackend.enabled }}
+            - name: S3METADATA
+              value: "mongodb"
+            - name: MONGODB_HOST
+              value: "{{ .Release.Name }}-mongodb-replicaset"
+            - name: MONGODB_PORT
+              value: "{{ .Values.global.mongodbBackend.port }}"
+            - name: MONGODB_RS
+              value: "{{ .Values.global.mongodbBackend.replicaSet }}"
+{{- end}}
 {{- if .Values.orbit.enabled }}
             - name: REMOTE_MANAGEMENT_DISABLE
               value: "0"
