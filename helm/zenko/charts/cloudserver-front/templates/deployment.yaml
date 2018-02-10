@@ -31,10 +31,8 @@ spec:
 {{- if .Values.global.mongodbBackend.enabled }}
             - name: S3METADATA
               value: "mongodb"
-            - name: MONGODB_HOST
-              value: "{{ .Release.Name }}-mongodb-replicaset"
-            - name: MONGODB_PORT
-              value: "{{ .Values.global.mongodbBackend.port }}"
+            - name: MONGODB_HOSTS
+              value: "{{ .Release.Name }}-mongodb-replicaset-0.{{ .Release.Name }}-mongodb-replicaset:27017,{{ .Release.Name }}-mongodb-replicaset-1.{{ .Release.Name }}-mongodb-replicaset:27017,{{ .Release.Name }}-mongodb-replicaset-2.{{ .Release.Name }}-mongodb-replicaset:27017"
             - name: MONGODB_RS
               value: "{{ .Values.global.mongodbBackend.replicaSet }}"
 {{- end}}

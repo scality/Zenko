@@ -12,7 +12,7 @@ resources:
     cpu: 1
     memory: 4Gi
 heap: "2G"
-storage: "50Gi"
+storage: "10Gi"
 # storageClass: default
 imagePullPolicy: "Always"
 tickTimeMs: 2000
@@ -28,8 +28,8 @@ security:
   enabled: false
   runAsUser: 1000
   fsGroup: 1000
-Image: gcr.io/google_samples/k8szk
-ImageTag: v3
+Image: zenko/zenko-zookeeper 
+ImageTag: 0.0.2 
 
 # Affinities to add to the worker pods.
 # Useful if you prefer to run workers on non-spot instances, for example
