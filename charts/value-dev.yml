@@ -1,8 +1,8 @@
-zookeeper:
+zenko-zookeeper:
   Image: localhost:5000/zookeeper
   ImageTag: latest
   storageClass: local-storage
-  storage: 20G
+  storage: 10G
 
 kafka:
   persistentVolume:

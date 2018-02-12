@@ -24,7 +24,7 @@ spec:
             - name: ZOOKEEPER_AUTO_CREATE_NAMESPACE
               value: "1"
             - name: ZOOKEEPER_CONNECTION_STRING
-              value: "{{- printf "%s-zookeeper-0.%s-zookeeper:2181" .Release.Name .Release.Name | trunc 63 | trimSuffix "-" -}}"
+              value: "{{- printf "%s-zenko-zookeeper:2181" .Release.Name | trunc 63 | trimSuffix "-" -}}"
             - name: KAFKA_HOSTS
               value: "{{- printf "%s-kafka-0.%s-kafka:9092" .Release.Name .Release.Name | trunc 63 | trimSuffix "-" -}}"
             - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_TYPE

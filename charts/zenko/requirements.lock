@@ -1,0 +1,6 @@
+dependencies:
+- name: zenko-zookeeper
+  repository: https://scality.github.io/zenko-zookeeper/charts
+  version: 0.0.3
+digest: sha256:f9d1eb319d39426ff2f32b26bf84a10fee9412a542af244abc7778e11497043b
+generated: 2018-02-13T00:06:35.371260113+01:00

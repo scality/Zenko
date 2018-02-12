@@ -33,7 +33,7 @@ spec:
             - name: KAFKA_CREATE_TOPICS
               value: "backbeat:1:1"
             - name: KAFKA_ZOOKEEPER_CONNECT
-              value: "{{- printf "%s-zookeeper:2181" .Release.Name | trunc 63 | trimSuffix "-" -}}"
+              value: "{{- printf "%s-zenko-zookeeper:2181" .Release.Name | trunc 63 | trimSuffix "-" -}}"
             - name: KAFKA_HEAP_OPTS
               value: "-Xmx512M"
             - name: KAFKA_LOG_DIRS

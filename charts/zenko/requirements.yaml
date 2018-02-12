@@ -1,0 +1,5 @@
+dependencies:
+# Upstream `zenko-*` Charts
+- name: zenko-zookeeper
+  version: "0.0.3"
+  repository: "https://scality.github.io/zenko-zookeeper/charts"

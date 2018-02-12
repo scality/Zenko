@@ -1,8 +1,28 @@
 Zenko Helm Chart
 ================
 This is a [Helm] Chart for [Scality] [Zenko]. To get started, you'll need a
-[Kubernetes] cluster, initialized with Helm. Then, assuming you have an Ingress
-Controller running, run something like
+[Kubernetes] cluster, initialized with Helm.
+
+First, retrieve all dependencies:
+
+```shell
+$ helm repo add zenko-zookeeper https://scality.github.io/zenko-zookeeper/charts
+"zenko-zookeeper" has been added to your repositories
+
+$ helm dependency build zenko/
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "zenko-zookeeper" chart repository
+...Successfully got an update from the "stable" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 1 charts
+Downloading zenko-zookeeper from repo https://scality.github.io/zenko-zookeeper/charts
+Deleting outdated charts
+```
+
+Note: in released versions of Zenko and the Chart, these upstream Charts will
+be embedded in the package created by `helm package`.
+
+Then, assuming you have an Ingress Controller running, run something like
 
 ```shell
 $ helm install --name zenko --set ingress.enabled=true --set ingress.hosts[0]=zenko.local --set cloudserver-front.endpoint=zenko.local zenko
