@@ -5,5 +5,8 @@ dependencies:
 - name: prometheus
   repository: https://kubernetes-charts.storage.googleapis.com/
   version: 5.0.2
-digest: sha256:4f32566c7575a0717bbd5d06b6cf6cca7a5ad21934d63a0fbcec7bcd1e66871f
-generated: 2018-02-13T00:08:20.433235561+01:00
+- name: backbeat-consumer
+  repository: file://../backbeat-consumer
+  version: 0.1.0
+digest: sha256:b5c6fb91cc06865c0718e8e7352d5028bff9126bd4c539456f816d3618eca602
+generated: 2018-02-13T00:10:17.403587031+01:00

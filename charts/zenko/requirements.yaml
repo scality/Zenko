@@ -8,3 +8,8 @@ dependencies:
 - name: prometheus
   version: "5.0.2"
   repository: "https://kubernetes-charts.storage.googleapis.com/"
+
+# Charts managed in this repository
+- name: backbeat-consumer
+  version: "0.1.0"
+  repository: "file://../backbeat-consumer"
