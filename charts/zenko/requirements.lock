@@ -14,5 +14,8 @@ dependencies:
 - name: kafka
   repository: file://../kafka
   version: 0.1.0
-digest: sha256:95c38af8d6872408de848a4b21369841e98ca8008248e3c7d8b361f8d2d685a5
-generated: 2018-02-13T00:11:40.900292805+01:00
+- name: redis
+  repository: file://../redis
+  version: 0.1.0
+digest: sha256:0ea9edeebbeab0a639556d6b76b5bd21b510931148319acd21b533c64cf8f018
+generated: 2018-02-13T00:12:07.859546899+01:00
