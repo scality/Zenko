@@ -3,3 +3,8 @@ dependencies:
 - name: zenko-zookeeper
   version: "0.0.3"
   repository: "https://scality.github.io/zenko-zookeeper/charts"
+
+# Upstream Kubernetes Charts
+- name: prometheus
+  version: "5.0.2"
+  repository: "https://kubernetes-charts.storage.googleapis.com/"
