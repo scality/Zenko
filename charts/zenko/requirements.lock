@@ -20,5 +20,8 @@ dependencies:
 - name: s3-data
   repository: file://../s3-data
   version: 0.1.0
-digest: sha256:845765a13bd29ddf9d412b78b1ebff698628bd54992de744d22847842c5fe817
-generated: 2018-02-13T00:12:39.827960203+01:00
+- name: s3-metadata
+  repository: file://../s3-metadata
+  version: 0.1.0
+digest: sha256:238c7c555afd7dd4eb95b67e5822d028fc69d4817c2a02f2eb63672bb6018ac1
+generated: 2018-02-13T00:13:02.828238126+01:00
