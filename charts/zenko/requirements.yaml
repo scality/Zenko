@@ -13,3 +13,6 @@ dependencies:
 - name: backbeat-consumer
   version: "0.1.0"
   repository: "file://../backbeat-consumer"
+- name: backbeat-producer
+  version: "0.1.0"
+  repository: "file://../backbeat-producer"

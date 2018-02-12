@@ -8,5 +8,8 @@ dependencies:
 - name: backbeat-consumer
   repository: file://../backbeat-consumer
   version: 0.1.0
-digest: sha256:b5c6fb91cc06865c0718e8e7352d5028bff9126bd4c539456f816d3618eca602
-generated: 2018-02-13T00:10:17.403587031+01:00
+- name: backbeat-producer
+  repository: file://../backbeat-producer
+  version: 0.1.0
+digest: sha256:2a8ec3c03ca50949c3ba0bc5ce9f49c3dcd40916d25fb557c83d3b3e9c8b2aeb
+generated: 2018-02-13T00:11:15.292464721+01:00
