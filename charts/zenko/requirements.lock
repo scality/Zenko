@@ -11,5 +11,8 @@ dependencies:
 - name: backbeat-producer
   repository: file://../backbeat-producer
   version: 0.1.0
-digest: sha256:2a8ec3c03ca50949c3ba0bc5ce9f49c3dcd40916d25fb557c83d3b3e9c8b2aeb
-generated: 2018-02-13T00:11:15.292464721+01:00
+- name: kafka
+  repository: file://../kafka
+  version: 0.1.0
+digest: sha256:95c38af8d6872408de848a4b21369841e98ca8008248e3c7d8b361f8d2d685a5
+generated: 2018-02-13T00:11:40.900292805+01:00
