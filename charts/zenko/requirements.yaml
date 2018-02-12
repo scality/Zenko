@@ -22,3 +22,6 @@ dependencies:
 - name: redis
   version: "0.1.0"
   repository: "file://../redis"
+- name: s3-data
+  version: "0.1.0"
+  repository: "file://../s3-data"

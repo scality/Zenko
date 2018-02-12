@@ -17,5 +17,8 @@ dependencies:
 - name: redis
   repository: file://../redis
   version: 0.1.0
-digest: sha256:0ea9edeebbeab0a639556d6b76b5bd21b510931148319acd21b533c64cf8f018
-generated: 2018-02-13T00:12:07.859546899+01:00
+- name: s3-data
+  repository: file://../s3-data
+  version: 0.1.0
+digest: sha256:845765a13bd29ddf9d412b78b1ebff698628bd54992de744d22847842c5fe817
+generated: 2018-02-13T00:12:39.827960203+01:00
