@@ -8,6 +8,9 @@ dependencies:
 - name: prometheus
   version: "5.0.2"
   repository: "https://kubernetes-charts.storage.googleapis.com/"
+- name: mongodb-replicaset
+  version: "2.1.4"
+  repository: "https://kubernetes-charts.storage.googleapis.com/"
 
 # Charts managed in this repository
 - name: backbeat-consumer

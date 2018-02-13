@@ -5,6 +5,9 @@ dependencies:
 - name: prometheus
   repository: https://kubernetes-charts.storage.googleapis.com/
   version: 5.0.2
+- name: mongodb-replicaset
+  repository: https://kubernetes-charts.storage.googleapis.com/
+  version: 2.1.4
 - name: backbeat-consumer
   repository: file://../backbeat-consumer
   version: 0.1.0
@@ -23,5 +26,5 @@ dependencies:
 - name: s3-metadata
   repository: file://../s3-metadata
   version: 0.1.0
-digest: sha256:238c7c555afd7dd4eb95b67e5822d028fc69d4817c2a02f2eb63672bb6018ac1
-generated: 2018-02-13T00:13:02.828238126+01:00
+digest: sha256:78e51691f5de0100a8f98ff9ebf5b4511be9e6505f70ac5833e6540a559dffc3
+generated: 2018-02-13T03:00:56.19060462+01:00
