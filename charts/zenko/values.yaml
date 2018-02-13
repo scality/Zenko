@@ -1,0 +1,48 @@
+# Default values for zenko.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+ingress:
+  enabled: false
+  # Used to create an Ingress record.
+  # This must match the 'cloudserver-front' 'endpoint', unless your client
+  # supports different hostnames.
+  hosts:
+    - zenko.local
+  annotations:
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  tls:
+    # Secrets must be manually created in the namespace.
+    # - secretName: zenko-tls
+    #   hosts:
+    #     - zenko.example.com
+
+cloudserver-front:
+  orbit:
+    enabled: false
+  # When 'orbit.enabled' is 'true', these aren't used, please use
+  # https://zenko.io to manage your deployment
+  endpoint: zenko.local
+  credentials:
+    keyId: deployment-specific-access-key
+    secretKey: deployment-specific-secret-key
+
+prometheus:
+  rbac:
+    create: true
+
+  alertmanager:
+    enabled: false
+
+  kubeStateMetrics:
+    enabled: false
+
+  nodeExporter:
+    enabled: false
+
+  pushgateway:
+    enabled: false
+
+mongodb-replicaset:
+  replicaSet: rs0
+  replicas: 5

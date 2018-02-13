@@ -1,0 +1,33 @@
+dependencies:
+- name: zenko-zookeeper
+  repository: https://scality.github.io/zenko-zookeeper/charts
+  version: 0.0.4
+- name: prometheus
+  repository: https://kubernetes-charts.storage.googleapis.com/
+  version: 5.0.2
+- name: mongodb-replicaset
+  repository: https://kubernetes-charts.storage.googleapis.com/
+  version: 2.1.4
+- name: backbeat-consumer
+  repository: file://../backbeat-consumer
+  version: 0.1.0
+- name: backbeat-producer
+  repository: file://../backbeat-producer
+  version: 0.1.0
+- name: kafka
+  repository: file://../kafka
+  version: 0.1.0
+- name: redis
+  repository: file://../redis
+  version: 0.1.0
+- name: s3-data
+  repository: file://../s3-data
+  version: 0.1.0
+- name: s3-metadata
+  repository: file://../s3-metadata
+  version: 0.1.0
+- name: cloudserver-front
+  repository: file://../cloudserver-front
+  version: 0.1.0
+digest: sha256:a2408b08ffe8f5dd21dc618a56f7d40839bd4d942ea548e2578a529c94b71590
+generated: 2018-02-13T19:00:25.220844727+01:00

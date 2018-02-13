@@ -1,0 +1,33 @@
+zenko-zookeeper:
+  Image: localhost:5000/zookeeper
+  ImageTag: latest
+  storageClass: local-storage
+  storage: 10G
+
+kafka:
+  persistentVolume:
+    enabled: true
+    storageClass: local-storage
+    size: 20G
+
+s3-data:
+  persistentVolume:
+    enabled: true
+    storageClass: local-storage
+    size: 20G
+    accessModes:
+    - ReadWriteOnce
+
+s3-metadata:
+  persistentVolume:
+    enabled: true
+    storageClass: local-storage
+    size: 20G
+
+prometheus:
+  server:
+    persistentVolume:
+      storageClass: local-storage
+  alertmanager:
+    persistentVolume:
+      storageClass: local-storage
