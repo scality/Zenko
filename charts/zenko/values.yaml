@@ -27,10 +27,6 @@ cloudserver-front:
     keyId: deployment-specific-access-key
     secretKey: deployment-specific-secret-key
 
-  mongodb:
-    enabled: true
-    replicaSet: rs0
-
 prometheus:
   rbac:
     create: true

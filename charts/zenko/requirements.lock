@@ -26,5 +26,8 @@ dependencies:
 - name: s3-metadata
   repository: file://../s3-metadata
   version: 0.1.0
-digest: sha256:78e51691f5de0100a8f98ff9ebf5b4511be9e6505f70ac5833e6540a559dffc3
-generated: 2018-02-13T03:00:56.19060462+01:00
+- name: cloudserver-front
+  repository: file://../cloudserver-front
+  version: 0.1.0
+digest: sha256:e3f0d6f407a9cb5cb2721767f36658161aa6985af4d8ed0192961a47e1aad4b1
+generated: 2018-02-13T03:02:36.283554382+01:00
