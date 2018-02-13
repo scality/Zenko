@@ -13,8 +13,8 @@ credentials:
 
 replicaCount: 1
 image:
-  repository: zenko/cloudserver:0.1.0
-  tag: pensieve-0
+  repository: zenko/cloudserver
+  tag: 0.1.4
   pullPolicy: IfNotPresent
 service:
   name: cloudserver-front
