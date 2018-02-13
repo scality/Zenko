@@ -27,6 +27,10 @@ cloudserver-front:
     keyId: deployment-specific-access-key
     secretKey: deployment-specific-secret-key
 
+  mongodb:
+    enabled: true
+    replicaSet: rs0
+
 prometheus:
   rbac:
     create: true
@@ -43,15 +47,6 @@ prometheus:
   pushgateway:
     enabled: false
 
-global:
-  # These setting get passed to the mongodb-replicaset helm
-  # Along with the Cloud Server front end for proper communication
-  mongodbBackend: 
-    enabled: true
-    replicaSet: rs0
-    # The 'rs0' is the default mongo replicaset name
-    replicas: 5
-    # The number of replicas to have in the cluster
-    port: 27107
-    # The default port number used by mongo
-
+mongodb-replicaset:
+  replicaSet: rs0
+  replicas: 5
