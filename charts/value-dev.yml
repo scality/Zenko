@@ -1,6 +1,4 @@
 zenko-zookeeper:
-  Image: localhost:5000/zookeeper
-  ImageTag: latest
   storageClass: local-storage
   storage: 10G
 
@@ -31,3 +29,7 @@ prometheus:
   alertmanager:
     persistentVolume:
       storageClass: local-storage
+
+mongodb-replicaset:
+  persistentVolume:
+    storageClass: local-storage
