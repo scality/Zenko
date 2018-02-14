@@ -1,6 +1,4 @@
 zenko-zookeeper:
-  Image: localhost:5000/zookeeper
-  ImageTag: latest
   storageClass: local-storage
   storage: 10G
 
