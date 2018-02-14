@@ -28,6 +28,6 @@ dependencies:
   version: 0.1.0
 - name: cloudserver-front
   repository: file://../cloudserver-front
-  version: 0.1.0
-digest: sha256:a2408b08ffe8f5dd21dc618a56f7d40839bd4d942ea548e2578a529c94b71590
-generated: 2018-02-13T19:00:25.220844727+01:00
+  version: 0.1.1
+digest: sha256:94fd970d92765fc99eccf8c86967012ca1b03f2e045ea3ca1e6269d0ead2f1c6
+generated: 2018-02-14T23:37:27.217465335+01:00
