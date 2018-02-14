@@ -29,3 +29,7 @@ prometheus:
   alertmanager:
     persistentVolume:
       storageClass: local-storage
+
+mongodb-replicaset:
+  persistentVolume:
+    storageClass: local-storage
