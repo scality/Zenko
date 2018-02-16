@@ -7,7 +7,7 @@ dependencies:
   version: 5.0.2
 - name: mongodb-replicaset
   repository: https://kubernetes-charts.storage.googleapis.com/
-  version: 2.1.4
+  version: 2.2.1
 - name: backbeat-consumer
   repository: file://../backbeat-consumer
   version: 0.1.0
@@ -29,5 +29,5 @@ dependencies:
 - name: cloudserver-front
   repository: file://../cloudserver-front
   version: 0.1.1
-digest: sha256:94fd970d92765fc99eccf8c86967012ca1b03f2e045ea3ca1e6269d0ead2f1c6
-generated: 2018-02-14T23:37:27.217465335+01:00
+digest: sha256:50f63911fcd9da59da49b0f0ae4a2daa73c439b347346f6a152cbf6d26520b5d
+generated: 2018-02-15T17:30:00.708295741-08:00

@@ -9,7 +9,7 @@ dependencies:
   version: "5.0.2"
   repository: "https://kubernetes-charts.storage.googleapis.com/"
 - name: mongodb-replicaset
-  version: "2.1.4"
+  version: "2.2.1"
   repository: "https://kubernetes-charts.storage.googleapis.com/"
 
 # Charts managed in this repository
