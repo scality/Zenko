@@ -46,8 +46,3 @@ prometheus:
 mongodb-replicaset:
   replicaSet: rs0
   replicas: 5
-  image:
-    tag: 3.6.2
-  configmap:
-    net:
-      bindIp: 0.0.0.0
