@@ -1,6 +1,11 @@
 zenko-zookeeper:
-  storageClass: local-storage
-  storage: 10G
+  storage:
+    data:
+      storageClass: local-storage
+      size: 1Gi
+    log:
+      storageClass: local-storage
+      size: 10Gi
 
 kafka:
   persistentVolume:

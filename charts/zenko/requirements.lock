@@ -1,7 +1,7 @@
 dependencies:
 - name: zenko-zookeeper
   repository: https://scality.github.io/zenko-zookeeper/charts
-  version: 0.0.4
+  version: 0.0.5
 - name: prometheus
   repository: https://kubernetes-charts.storage.googleapis.com/
   version: 5.0.2
@@ -29,5 +29,5 @@ dependencies:
 - name: cloudserver-front
   repository: file://../cloudserver-front
   version: 0.1.1
-digest: sha256:50f63911fcd9da59da49b0f0ae4a2daa73c439b347346f6a152cbf6d26520b5d
-generated: 2018-02-15T17:30:00.708295741-08:00
+digest: sha256:d60c934dbc5f173080b5cdca456438d833f1c7a9ecf6b4362297c3c83ff10b02
+generated: 2018-02-16T18:28:51.966113922-08:00
