@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "zenko-grafana.fullname" . }}-provisioning-datasources
+  labels:
+    app: {{ template "zenko-grafana.name" . }}
+    chart: {{ template "zenko-grafana.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  {{ .Release.Name }}-prometheus-server.yaml: |-
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        access: proxy
+        orgId: 1
+        url: http://{{ .Release.Name }}-prometheus-server:80
+        isDefault: true
+        version: 1
+        editable: false
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "zenko-grafana.fullname" . }}-provisioning-dashboards
+  labels:
+    app: {{ template "zenko-grafana.name" . }}
+    chart: {{ template "zenko-grafana.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  default.yaml: |
+    apiVersion: 1
+    providers:
+      - name: 'default'
+        orgId: 1
+        folder: ''
+        type: file
+        options:
+          path: /etc/grafana/dashboards
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "zenko-grafana.fullname" . }}-dashboards
+  labels:
+    app: {{ template "zenko-grafana.name" . }}
+    chart: {{ template "zenko-grafana.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+{{ (.Files.Glob "dashboards/*.json").AsConfig | indent 2 }}
