@@ -1,14 +1,4 @@
 {
-  "__inputs": [
-    {
-      "name": "DS_PROM",
-      "label": "prom",
-      "description": "Prometheus Data Source",
-      "type": "datasource",
-      "pluginId": "prometheus",
-      "pluginName": "Prometheus"
-    }
-  ],
   "__requires": [
     {
       "type": "panel",
@@ -62,7 +52,7 @@
             "rgba(237, 129, 40, 0.89)",
             "rgba(50, 172, 45, 0.97)"
           ],
-          "datasource": "${DS_PROM}",
+          "datasource": "Prometheus",
           "decimals": 0,
           "editable": true,
           "error": false,
@@ -142,7 +132,7 @@
             "rgba(237, 129, 40, 0.89)",
             "rgba(50, 172, 45, 0.97)"
           ],
-          "datasource": "${DS_PROM}",
+          "datasource": "Prometheus",
           "decimals": 0,
           "editable": true,
           "error": false,
@@ -225,7 +215,7 @@
             "rgba(237, 129, 40, 0.89)",
             "rgba(245, 54, 54, 0.9)"
           ],
-          "datasource": "${DS_PROM}",
+          "datasource": "Prometheus",
           "decimals": 0,
           "editable": true,
           "error": false,
@@ -302,7 +292,7 @@
         {
           "aliasColors": {},
           "bars": false,
-          "datasource": "${DS_PROM}",
+          "datasource": "Prometheus",
           "editable": true,
           "error": false,
           "fill": 1,
@@ -382,7 +372,7 @@
         {
           "aliasColors": {},
           "bars": false,
-          "datasource": "${DS_PROM}",
+          "datasource": "Prometheus",
           "decimals": 2,
           "editable": true,
           "error": false,
@@ -485,7 +475,7 @@
             "max": "#BF1B00"
           },
           "bars": false,
-          "datasource": "${DS_PROM}",
+          "datasource": "Prometheus",
           "editable": true,
           "error": false,
           "fill": 1,
@@ -574,7 +564,7 @@
         {
           "aliasColors": {},
           "bars": false,
-          "datasource": "${DS_PROM}",
+          "datasource": "Prometheus",
           "editable": true,
           "error": false,
           "fill": 1,
@@ -667,7 +657,7 @@
         {
           "aliasColors": {},
           "bars": false,
-          "datasource": "${DS_PROM}",
+          "datasource": "Prometheus",
           "editable": true,
           "error": false,
           "fill": 7,
@@ -748,7 +738,7 @@
         {
           "aliasColors": {},
           "bars": false,
-          "datasource": "${DS_PROM}",
+          "datasource": "Prometheus",
           "editable": true,
           "error": false,
           "fill": 7,
@@ -840,7 +830,7 @@
             "reclaims": "#3F6833"
           },
           "bars": false,
-          "datasource": "${DS_PROM}",
+          "datasource": "Prometheus",
           "editable": true,
           "error": false,
           "fill": 1,
@@ -933,7 +923,7 @@
         {
           "aliasColors": {},
           "bars": false,
-          "datasource": "${DS_PROM}",
+          "datasource": "Prometheus",
           "editable": true,
           "error": false,
           "fill": 8,
@@ -1046,7 +1036,7 @@
     "list": [
       {
         "current": {},
-        "datasource": "${DS_PROM}",
+        "datasource": "Prometheus",
         "hide": 0,
         "includeAll": false,
         "multi": false,
