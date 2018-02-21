@@ -4,7 +4,7 @@ dependencies:
   version: 0.0.6
 - name: prometheus
   repository: https://kubernetes-charts.storage.googleapis.com/
-  version: 5.0.2
+  version: 5.3.1
 - name: mongodb-replicaset
   repository: https://kubernetes-charts.storage.googleapis.com/
   version: 2.2.1
@@ -26,5 +26,5 @@ dependencies:
 - name: cloudserver-front
   repository: file://../cloudserver-front
   version: 0.1.2
-digest: sha256:7982c051d8f3df74f8e8bb677a483fe26dc556233e1c6756dc31c13a9b308ee9
-generated: 2018-02-21T14:33:30.939990933-08:00
+digest: sha256:d2936f642e0627aaf88d530a8066831a9bd5dd336ac21b2e6caef9c08910272b
+generated: 2018-02-21T14:37:04.606440758-08:00

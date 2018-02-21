@@ -6,7 +6,7 @@ dependencies:
 
 # Upstream Kubernetes Charts
 - name: prometheus
-  version: "5.0.2"
+  version: "5.3.1"
   repository: "https://kubernetes-charts.storage.googleapis.com/"
 - name: mongodb-replicaset
   version: "2.2.1"
