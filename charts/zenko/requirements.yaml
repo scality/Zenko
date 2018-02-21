@@ -1,7 +1,7 @@
 dependencies:
 # Upstream `zenko-*` Charts
 - name: zenko-zookeeper
-  version: "0.0.4"
+  version: "0.0.6"
   repository: "https://scality.github.io/zenko-zookeeper/charts"
 
 # Upstream Kubernetes Charts
