@@ -56,9 +56,21 @@ automatically, use something like
 --set prometheus.server.ingress.enabled=true --set prometheus.server.ingress.hosts[0]=prometheus.local
 ```
 
+Grafana Dashboards
+------------------
+[Grafana] is deployed as part of this stack, including integration with the
+Prometheus service and several default dashboards. If you want to access its web
+UI, you may want to create an `Ingress` object. To do so automatically, use
+something like
+
+```shell
+--set zenko-grafana.ingress.enabled=true --set zenko-grafana.ingress.hosts[0]=grafana.local
+```
+
 [Helm]: https://helm.sh
 [Scality]: https://scality.com
 [Zenko]: https://zenko.io
 [Kubernetes]: https://kubernetes.io
 [Orbit]: https://admin.zenko.io/user
 [Prometheus]: https://prometheus.io
+[Grafana]: https://grafana.com

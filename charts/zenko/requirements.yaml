@@ -31,3 +31,6 @@ dependencies:
 - name: cloudserver-front
   version: "0.1.2"
   repository: "file://../cloudserver-front"
+- name: zenko-grafana
+  version: "0.1.0"
+  repository: "file://../zenko-grafana"

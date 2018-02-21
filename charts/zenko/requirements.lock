@@ -26,5 +26,8 @@ dependencies:
 - name: cloudserver-front
   repository: file://../cloudserver-front
   version: 0.1.2
-digest: sha256:d2936f642e0627aaf88d530a8066831a9bd5dd336ac21b2e6caef9c08910272b
-generated: 2018-02-21T14:37:04.606440758-08:00
+- name: zenko-grafana
+  repository: file://../zenko-grafana
+  version: 0.1.0
+digest: sha256:e6ea1c839dd189a24690ebe85bddafc2fb14ffea6471bb26fd501f60b6016036
+generated: 2018-02-21T14:49:14.511663302-08:00
