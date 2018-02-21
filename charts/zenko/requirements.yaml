@@ -28,9 +28,6 @@ dependencies:
 - name: s3-data
   version: "0.1.0"
   repository: "file://../s3-data"
-- name: s3-metadata
-  version: "0.1.0"
-  repository: "file://../s3-metadata"
 - name: cloudserver-front
   version: "0.1.1"
   repository: "file://../cloudserver-front"
