@@ -46,3 +46,10 @@ prometheus:
 mongodb-replicaset:
   replicaSet: rs0
   replicas: 5
+
+redis:
+  usePassword: false
+  persistence:
+    enabled: false
+  metrics:
+    enabled: true
