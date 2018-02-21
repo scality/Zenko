@@ -4,10 +4,13 @@ dependencies:
   version: 0.0.6
 - name: prometheus
   repository: https://kubernetes-charts.storage.googleapis.com/
-  version: 5.0.2
+  version: 5.3.1
 - name: mongodb-replicaset
   repository: https://kubernetes-charts.storage.googleapis.com/
   version: 2.2.1
+- name: redis
+  repository: https://kubernetes-charts.storage.googleapis.com/
+  version: 1.1.12
 - name: backbeat-consumer
   repository: file://../backbeat-consumer
   version: 0.1.0
@@ -17,14 +20,11 @@ dependencies:
 - name: kafka
   repository: file://../kafka
   version: 0.1.0
-- name: redis
-  repository: file://../redis
-  version: 0.1.0
 - name: s3-data
   repository: file://../s3-data
   version: 0.1.0
 - name: cloudserver-front
   repository: file://../cloudserver-front
   version: 0.1.2
-digest: sha256:25f99c64f1d99acda83f049411973dcfcb82acf5da39c08e3640b8a7f4a02095
-generated: 2018-02-20T20:25:24.498337235-08:00
+digest: sha256:d2936f642e0627aaf88d530a8066831a9bd5dd336ac21b2e6caef9c08910272b
+generated: 2018-02-21T14:37:04.606440758-08:00
