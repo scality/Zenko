@@ -12,6 +12,10 @@ credentials:
   keyId: deployment-specific-access-key
   secretKey: deployment-specific-secret-key
 
+logging:
+   # Options: info, debug, trace
+   level: info
+
 mongodb:
   enabled: true
   replicaSet: rs0
