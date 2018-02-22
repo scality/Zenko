@@ -4,11 +4,15 @@ metadata:
   name: {{ template "cloudserver-front.fullname" . }}
   labels:
     app: {{ template "cloudserver-front.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    chart: {{ template "cloudserver-front.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
   replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "cloudserver-front.name" . }}
+      release: {{ .Release.Name }}
   template:
     metadata:
       labels:
@@ -20,7 +24,8 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: {{ .Values.service.internalPort }}
+            - name: http
+              containerPort: 8001
           env:
             - name: DATA_HOST
               value: "{{- printf "%s-%s" .Release.Name "s3-data" | trunc 63 | trimSuffix "-" -}}"
@@ -57,19 +62,26 @@ spec:
                   name: {{ template "cloudserver-front.fullname" . }}
                   key: secretKey
 {{- end }}
-
           args: ['npm', 'run', 'start_s3server']
           #livenessProbe:
           #  httpGet:
           #    path: /
-          #    port: {{ .Values.service.internalPort }}
+          #    port: http
           #readinessProbe:
           #  httpGet:
           #    path: /
-          #    port: {{ .Values.service.internalPort }}
+          #    port: http
           resources:
 {{ toYaml .Values.resources | indent 12 }}
-    {{- if .Values.nodeSelector }}
+    {{- with .Values.nodeSelector }}
       nodeSelector:
-{{ toYaml .Values.nodeSelector | indent 8 }}
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
     {{- end }}

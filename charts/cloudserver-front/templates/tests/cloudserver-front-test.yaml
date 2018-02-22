@@ -14,7 +14,7 @@ spec:
     command:
       - sh
       - -c
-      - "echo \"${{ .Release.Name | upper }}_CLOUDSERVER_FRONT_SERVICE_HOST {{ .Values.endpoint }}\" >> /etc/hosts && aws s3 --endpoint-url=http://{{ .Values.endpoint }}:${{ .Release.Name | upper }}_CLOUDSERVER_FRONT_SERVICE_PORT_CLOUDSERVER_FRONT --region=us-east-1 ls"
+      - "echo \"${{ .Release.Name | upper }}_CLOUDSERVER_FRONT_SERVICE_HOST {{ .Values.endpoint }}\" >> /etc/hosts && aws s3 --endpoint-url=http://{{ .Values.endpoint }}:${{ .Release.Name | upper }}_CLOUDSERVER_FRONT_SERVICE_PORT_HTTP --region=us-east-1 ls"
     env:
       - name: AWS_ACCESS_KEY_ID
         valueFrom:
