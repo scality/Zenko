@@ -32,7 +32,7 @@ spec:
             - name: METADATA_HOST
               value: "{{- printf "%s-%s" .Release.Name "s3-metadata" | trunc 63 | trimSuffix "-" -}}"
             - name: REDIS_HOST
-              value: {{ template "redis.fullname" . }}
+              value: "{{- printf "%s-%s" .Release.Name "redis" | trunc 63 | trimSuffix "-" -}}"
 {{- if .Values.mongodb.enabled }}
             - name: S3METADATA
               value: "mongodb"
