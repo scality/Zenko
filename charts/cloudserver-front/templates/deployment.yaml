@@ -63,14 +63,10 @@ spec:
                   key: secretKey
 {{- end }}
           args: ['npm', 'run', 'start_s3server']
-          #livenessProbe:
-          #  httpGet:
-          #    path: /
-          #    port: http
-          #readinessProbe:
-          #  httpGet:
-          #    path: /
-          #    port: http
+          livenessProbe:
+            httpGet:
+              path: /_/healthcheck/deep
+              port: http
           resources:
 {{ toYaml .Values.resources | indent 12 }}
     {{- with .Values.nodeSelector }}
