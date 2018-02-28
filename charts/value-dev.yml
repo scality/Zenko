@@ -1,41 +1,15 @@
 zenko-zookeeper:
-  storage:
-    data:
-      storageClass: local-storage
-      size: 1Gi
-    log:
-      storageClass: local-storage
-      size: 10Gi
 
 kafka:
   persistentVolume:
     enabled: true
-    storageClass: local-storage
-    size: 20G
 
 s3-data:
   persistentVolume:
     enabled: true
-    storageClass: local-storage
-    size: 20G
     accessModes:
     - ReadWriteOnce
 
 s3-metadata:
   persistentVolume:
     enabled: true
-    storageClass: local-storage
-    size: 20G
-
-prometheus:
-  server:
-    persistentVolume:
-      storageClass: local-storage
-  alertmanager:
-    persistentVolume:
-      storageClass: local-storage
-
-mongodb-replicaset:
-  replicas: 3
-  persistentVolume:
-    storageClass: local-storage
