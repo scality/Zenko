@@ -2,7 +2,7 @@ version: "3.4"
 
 services:
   s3-data:
-    image: zenko/cloudserver:pensieve-1
+    image: zenko/cloudserver:pensieve-2
     ports:
       - "9992"
     networks:
@@ -19,7 +19,7 @@ services:
           - node.labels.io.zenko.type == storage
 
   s3-metadata:
-    image: zenko/cloudserver:pensieve-1
+    image: zenko/cloudserver:pensieve-2
     ports:
       - "9993"
     networks:
@@ -37,7 +37,7 @@ services:
           - node.labels.io.zenko.type == storage
 
   s3-front:
-    image: zenko/cloudserver:pensieve-1
+    image: zenko/cloudserver:pensieve-2
     ports:
       - "8001"
     networks:
