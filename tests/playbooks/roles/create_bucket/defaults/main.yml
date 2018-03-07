@@ -1,0 +1,3 @@
+debug: False
+
+s3_endpoint: http://localhost:8001/

@@ -1,0 +1,12 @@
+{
+  "Role": "source_role_arn,destination_role_arn",
+  "Rules": [
+    {
+      "Prefix": "",
+      "Status": "Enabled",
+      "Destination": {
+        "Bucket": "arn:aws:s3:::destinationbucket"
+      }
+    }
+  ]
+}

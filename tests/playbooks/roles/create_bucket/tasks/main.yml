@@ -1,0 +1,26 @@
+- name: 'evaluates environment variable if needed'
+  command: echo {{ s3_endpoint }}
+  register: url_envvar
+  changed_when: False
+  check_mode: False
+  when: s3_endpoint|search('\${\w+}')
+
+- name: 'compute s3 endpoint'
+  set_fact:
+    _s3_endpoint: >-
+        {%- if not url_envvar|skipped -%}
+            {{ url_envvar.stdout|trim }}
+        {%- else -%}
+            {{ s3_endpoint }}
+        {%- endif -%}
+
+- name: 'create bucket {{ bucket_name }} on {{ _s3_endpoint }}'
+  s3_bucket:
+    name: '{{ bucket_name }}'
+    aws_access_key: '{{ aws_access_key|default(omit) }}'
+    aws_secret_key: '{{ aws_secret_key|default(omit) }}'
+    s3_url: '{{ _s3_endpoint }}'
+    versioning: '{{ bucket_versioning|default(omit) }}'
+    region: '{{ s3_region|default(omit) }}'
+    ceph: True
+    state: '{{ bucket_state|default("present") }}'

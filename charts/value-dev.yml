@@ -1,5 +1,3 @@
-zenko-zookeeper:
-
 kafka:
   persistentVolume:
     enabled: true

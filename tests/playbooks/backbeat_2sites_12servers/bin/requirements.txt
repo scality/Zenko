@@ -1,0 +1,3 @@
+botocore >= 1.5.53
+argparse >= 1.4.0
+#urllib >= 1.21.1

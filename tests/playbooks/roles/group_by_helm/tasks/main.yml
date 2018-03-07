@@ -1,0 +1,40 @@
+- name: 'group by release'
+  group_by:
+    key: release_{{ labels.release|default }}
+
+- name: 'group by app'
+  group_by:
+    key: app_{{ labels.app|default }}
+
+- name: 'detect test ids'
+  set_fact:
+    test_id_list: >-
+      [ {%- for pod in groups.all
+            if pod.startswith('zenko-test-') -%}
+               "{{ pod|regex_replace('zenko-test-(\w+)-.*', '\1') }}",
+        {%- endfor -%} ]
+  run_once: True
+
+- debug:
+    var=test_id_list
+  when: debug|bool
+  run_once: True
+
+- assert:
+    that:
+      - test_id_list|unique|length == 1
+  run_once: True
+
+- name: 'select test_id'
+  set_fact:
+    test_id: '{{ test_id_list|first }}'
+  run_once: True
+
+- name: 'compute zenko test group base on test_id'
+  add_host:
+    group: 'zenko-test'
+    name: '{{ item }}'
+  changed_when: False
+  check_mode: False
+  with_inventory_hostnames:
+    - release_zenko-test-{{ test_id }}

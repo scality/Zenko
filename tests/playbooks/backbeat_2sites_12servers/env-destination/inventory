@@ -1,0 +1,78 @@
+# -------------------------------------------
+# This is the base inventory file
+# --------------------------------------------
+# HOW TO DEPLOY DECOUPLED MONOSITE
+# replace serverX.example.com by the 7 IPs
+# of your servers
+# For a two metadata clusters
+# replace server[6-10].example.com
+# by the IPs of your second clusters
+# You can add more cluster by adding servers
+# by 5
+# -------------------------------------------
+
+[stateless]
+
+
+# Here we define the map for S3 and Vault
+[map]
+src6
+src7
+src8
+src9
+src10 
+
+# Here you defined the actives hosts which will run metadata
+[stateful]
+# For more clusters add a multiple of 5hosts
+# server6.example.com
+# server7.example.com
+# server8.example.com
+# server9.example.com
+# server10.example.com
+
+[stateful:children]
+map
+
+# Its different variables
+[map:vars]
+# Mandatory:
+# Says that the hosts in this group will run a map docker
+env_metadata_bucket_is_map=True
+env_metadata_vault_is_map=True
+
+# Here are the node used to run metadata for S3
+[runners_metadata:children]
+stateful
+
+# Here are rthe runners for S3/Vault/BucketD
+[runners_s3:children]
+stateful
+
+# Here are the node used to run metadata for vault
+[runners_metadata_vault:children]
+map
+
+# Kibana will be available at
+# http://server1.example.com:5601/ or
+# http://server2.example.com:5601/
+[loggers:children]
+# Define here the ELK server groups 
+# (ideally ELK should run on different servers
+# than the stateful or stateless containers)
+stateful
+
+# OPTIONAL
+# cosbench will be available at
+# http://server6.example.com:19088/controller/index.html
+[cosbench_controller]
+src6
+
+# OPTIONAL
+# By placing the cosbench drivers
+# on the same machines as the S3 runners
+# it is possible to use localhost
+# as the endpoint in your cosbench workload.
+[cosbench_drivers:children]
+stateful
+

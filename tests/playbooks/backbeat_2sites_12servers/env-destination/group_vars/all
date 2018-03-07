@@ -1,0 +1,86 @@
+---
+
+namespace: 'scality'
+container_name_suffix: ''
+
+# this is now silently added by
+# https://github.com/scality/HOMER/pull/51
+# env_user:
+#   uid: 1000
+#   gid: 1000
+
+env_metadata_replication_group_id: RG002
+
+env_host_data: /opt/scality/s3-destination/data
+env_host_logs: /opt/log-destination
+
+# this is left to be set when the playbooks are run
+# env_metadata_force_leader_on_site: minority
+# be careful
+env_metadata_backup_to_location: us-east-1
+
+location_constraints:
+  legacy:
+    type: scality
+    connector:
+      sproxyd:
+        bootstrap_list:
+          - ring_node_ip_0
+          - ring_node_ip_1
+          - ring_node_ip_2
+          - ring_node_ip_3
+          - ring_node_ip_4
+  us-east-1:
+    type: scality
+    connector:
+      sproxyd:
+        bootstrap_list:
+          - ring_node_ip_0
+          - ring_node_ip_1
+          - ring_node_ip_2
+          - ring_node_ip_3
+          - ring_node_ip_4
+
+env_s3:
+  rest_endpoints:
+    127.0.0.1: us-east-1
+    localhost: us-east-1
+    node1-sitea-actif: us-east-1
+    node2-sitea-actif: us-east-1
+    node3-sitea-actif: us-east-1
+    node4-siteb-active: us-east-1
+    node5-siteb-active: us-east-1
+    node6-siteb-standby: us-east-1
+    node1: us-east-1
+    node2: us-east-1
+    node4: us-east-1
+    node5: us-east-1
+    node6: us-east-1
+  enable_utilization_api: no 
+
+env_healthcheck_allow_ips:
+  - '{{ inventory_hostname }}'
+
+env_logger:
+  max_index_size_gb: 1
+  es_heap_size_gb: 1
+  level: debug
+  dump_level: error
+
+env_nfsd:
+  enabled: no
+
+# without explicitly enabling this
+# the script will prevent backbeat to run
+# see https://github.com/scality/HOMER/commit/21d2bdc474d4cb22e66f036b7ee0e44b296bfb74#diff-4ca90aefb96b3acd0a0efb8dcff2ee3eR135
+run_backbeat_queue: True
+
+env_metadata_extraenv: 'METADATA_BACKUP_DISABLE="yes"'
+env_s3_extraenv: 'MPU_TESTING=yes'
+
+env_replication_endpoints:
+   - site: STANDARD
+     servers:
+       - undefined.endpoint:9080
+
+

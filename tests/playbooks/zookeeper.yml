@@ -1,0 +1,7 @@
+- import_playbook: groups_kubernetes.yml
+
+- hosts: zenko-test:&app_zenko-zookeeper
+  gather_facts: False
+  tasks:
+    - raw: cat /data/myid
+      register: zookeeper_id

@@ -1,0 +1,50 @@
+- hosts: all
+  gather_facts: False
+  tasks:
+    - raw: apt-get update && apt-get -y install python
+#    - copy:
+#        src: backbeat_2sites_12servers
+#        dest: .
+
+    - apt:
+        name: '{{ item }}'
+        state: present
+      with_items:
+        - python-pip
+        - python-boto
+
+- hosts: all
+  gather_facts: False
+  tags:
+    - test_rep
+  vars:
+    aws_access_key: deployment-specific-access-key
+    aws_secret_key: deployment-specific-secret-key
+  roles:
+    - role: create_bucket
+      bucket_name: foo
+      bucket_versioning: True
+
+    - role: create_bucket
+      bucket_name: foo
+      bucket_versioning: True
+      s3_endpoint: >-
+        http://${S3_DEST_{{ lookup('env', 'TEST_ID')|upper }}_CLOUDSERVER_FRONT_PORT_8001_TCP_ADDR}:8001
+
+  tasks:
+    - command: >-
+        python ./backbeat_2sites_12servers/bin/replication.py
+        -s foo
+        -sak deployment-specific-access-key
+        -ssk deployment-specific-secret-key
+        -ss3e http://localhost:8001
+        -siame http://localhost:8001
+        -d foo
+        -dak deployment-specific-access-key
+        -dsk deployment-specific-secret-key
+        -ds3e http://${S3_DEST_{{ lookup('env', 'TEST_ID')|upper }}_CLOUDSERVER_FRONT_PORT_8001_TCP_ADDR}:8001
+        -diame http://${S3_DEST_{{ lookup('env', 'TEST_ID')|upper }}_CLOUDSERVER_FRONT_PORT_8001_TCP_ADDR}:8001
+      register: replication_py
+
+    - debug:
+        var: replication_py

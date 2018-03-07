@@ -1,0 +1,10 @@
+- hosts: all
+  gather_facts: False
+  roles:
+    # Make groups of pod by release, application
+    - role: group_by_helm
+
+  tasks:
+    - debug: var=groups
+      when: debug|default|bool
+      run_once: True

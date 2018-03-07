@@ -1,0 +1,4 @@
+ansible
+pytz
+pytest
+kubernetes
