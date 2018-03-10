@@ -91,79 +91,6 @@ services:
         delay: "10s"
         monitor: "5s"
 
-  livy:
-    image: scality/clueso-livy:pensieve
-    hostname: livy
-    ports:
-      - "8998:8998"
-      # so that each spawned session can have an app ui, open range
-      - "4040-4049:4040-4049"
-    depends_on:
-      - spark-master
-    networks:
-      - backend
-      # need so can contact lb to get parquet files on search
-      - frontend-dmz
-
-  spark-master:
-    image: scality/clueso-spark-master:pensieve
-    hostname: spark-master
-    depends_on:
-      - queue
-      - graphite
-      - lb
-    ports:
-      # master ui:
-      - "8080:8080"
-      # ingestion pipeline app ui:
-      - "4050:4050"
-      # landing populator app ui:
-      - "4051:4051"
-      # storage info tool app ui
-      - "4052:4052"
-      # compactor tool app ui
-      - "4053:4053"
-    volumes:
-      - "heapdumps:/clueso/heapdumps:rw"
-    secrets:
-      - s3-credentials
-    networks:
-      - backend
-      # need so can contact lb to create METADATA bucket
-      - frontend-dmz
-
-  spark-worker:
-    image: scality/clueso-spark-worker:pensieve
-    depends_on:
-      - spark-master
-    environment:
-      SPARK_MASTER_HOST: spark://spark-master:7077
-      CLUSTER_DNS: spark-worker
-      INIT_REPLICATE: 1
-    networks:
-      - backend
-      # need so can contact lb to get parquet files on search
-      - frontend-dmz
-    deploy:
-      replicas: 1
-
-  graphite:
-    image: scality/clueso-grafana-graphite
-    depends_on:
-      - spark-master
-    ports:
-      - '8005:80'
-      - '8081:81'
-      - '3000:3000'
-    networks:
-      - backend
-    volumes:
-      - "grafana-data:/opt/grafana/data:rw"
-    deploy:
-      placement:
-        constraints:
-          - node.labels.io.zenko.type == storage
-
   queue:
     image: 'wurstmeister/kafka:1.0.0'
     environment:
@@ -258,11 +185,9 @@ networks:
 volumes:
   s3-data:
   s3-metadata:
-  grafana-data:
   queue-journal:
   quorum-data:
   quorum-datalog:
-  heapdumps:
 
 secrets:
   s3-credentials:
