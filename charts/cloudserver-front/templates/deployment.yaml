@@ -29,7 +29,7 @@ spec:
             - name: REDIS_HOST
               value: {{ template "redis.fullname" . }}
             - name: ENDPOINT
-              value: {{ .Values.endpoint }}
+              value: "{{ .Release.Name }}-cloudserver-front,{{ .Values.endpoint }}"
 {{- if .Values.mongodb.enabled }}
             - name: S3METADATA
               value: "mongodb"
