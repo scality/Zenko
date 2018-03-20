@@ -1,7 +1,8 @@
 Zenko Helm Chart
 ================
 This is a [Helm] Chart for [Scality] [Zenko]. To get started, you'll need a
-[Kubernetes] cluster, initialized with Helm.
+[Kubernetes] cluster, initialized with Helm. Checkout the [minikube](./minikube.md) for 
+a local or single machine deployment.
 
 First, retrieve all dependencies:
 
