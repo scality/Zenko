@@ -139,11 +139,6 @@ Go to [Zenko Orbit](https://www.zenko.io/admin) to manage your deployment throug
 
 ## Testing
 
-To use the `tests` folder, update the credentiasl in `Zenko/tests/utils/s3SDK.js`
-with credentials generated in Zenko Orbit.
-Install node modules with `npm install`
-Then, simply run `npm test`.
-
 Using [awscli](https://aws.amazon.com/cli/), we can perform S3 operations
 on our Zenko stack. Since the load balancer container is deployed in `global`
 mode, we can use any of the swarm nodes as the endpoint.
@@ -166,26 +161,6 @@ upload: ./README.md to s3://bucket1/README.md
 $ aws s3 --endpoint http://zenko ls s3://bucket1
 2017-06-20 00:12:53       5052 README.md
 ```
-
-### Clueso Search
-Clueso search can be tested from within the S3-frontend container.
-
-First, from your machine (not within the S3 Docker), create some objects:
-
-```shell
-$ aws s3api put-object --bucket bucket1 --key findme1 --endpoint-url http://127.0.0.1 --metadata "color=blue"
-$ aws s3api put-object --bucket bucket1 --key leaveMeAlone2 --endpoint-url http://127.0.0.1 --metadata "color=red"
-$ aws s3api put-object --bucket bucket1 --key findme2 --endpoint-url http://127.0.0.1 --metadata "color=blue"
-```
-
-From within the S3-frontend container:
-
-```shell
-$ bin/search_bucket.js -a accessKey1 -k verySecretKey1 -b bucket1 -q "userMd.\`x-amz-meta-color\`=\"blue\"" -h 127.0.0.1 -p 8000
-```
-
-You can see the Spark Master UI at port 8080
-Check out the Livy UI at port 8998
 
 ## Further improvements
 
