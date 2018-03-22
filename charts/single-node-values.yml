@@ -1,0 +1,20 @@
+ingress:
+  enabled: true
+  hosts:
+    - ""
+cloudserver-front:
+  orbit:
+    enabled: false
+
+zenko-zookeeper:
+  servers: 1
+  resources:
+    requests:
+      cpu: 500m
+      memory: 256Mi
+  heap: "256M"
+
+mongodb-replicaset:
+  replicaSet: rs0
+  replicas: 3
+
