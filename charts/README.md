@@ -46,6 +46,37 @@ and
 
 accordingly.
 
+Autoscaling
+-----------
+This Chart can be configured to deploy a `HorizontalPodAutoscaler` for
+`cloudserver-front`. This is disabled by default.
+
+As an example, to set up autoscaling based on CPU consumption, you need to
+configure the amount of CPU a single `cloudserver-front` Pod requests, e.g.
+
+```shell
+--set cloudserver-front.resources.requests.cpu=1
+```
+
+to request 1 CPU to be allocated.
+
+Next, enable autoscaling using
+
+```shell
+--set cloudserver-front.autoscaling.enabled=true
+```
+
+This will scale up (and down) between 1 and 16 replicas, with 80% CPU
+consumption as the per-Pod target.
+
+These default can be adapted using
+
+```shell
+--set cloudserver-front.autoscaling.config.minReplicas=...
+--set cloudserver-front.autoscaling.config.maxReplicas==...
+--set cloudserver-front.autoscaling.config.targetCPUUtilizationPercentage=...
+```
+
 Prometheus Monitoring
 ---------------------
 [Prometheus] is deployed as part of this stack. If you want to access its
