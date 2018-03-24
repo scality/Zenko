@@ -36,5 +36,6 @@ prometheus:
       storageClass: local-storage
 
 mongodb-replicaset:
+  replicas: 3
   persistentVolume:
     storageClass: local-storage
