@@ -51,3 +51,12 @@ resources: {}
   # requests:
   #  cpu: 100m
   #  memory: 128Mi
+
+autoscaling:
+  enabled: false
+  config:
+    minReplicas: 1
+    maxReplicas: 16
+    # Note: when setting this, a `resources.request.cpu` is required. You
+    # likely want to set it to `1` or some lower value.
+    targetCPUUtilizationPercentage: 80
