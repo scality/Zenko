@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ .Release.Name }}-credentials-test"
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+  - name: {{ .Release.Name }}-s3-basic-test
+    image: {{ .Values.test_image }}
+    env:
+      - name: AWS_ACCESS_KEY_ID
+        valueFrom:
+          secretKeyRef:
+            name: {{ .Release.Name }}-cloudserver-front
+            key: keyId
+      - name: AWS_SECRET_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            name: {{ .Release.Name }}-cloudserver-front
+            key: secretKey
+    command: ["sh", "-c", "/home/aws/aws/env/bin/aws s3api list-buckets --endpoint-url http://${ {{- .Release.Name | upper | replace "-" "_" }}_CLOUDSERVER_FRONT_PORT_8001_TCP_ADDR}:8001"]
+  restartPolicy: Never
