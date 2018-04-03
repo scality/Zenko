@@ -1,0 +1,6 @@
+name: zenko
+title: Zenko Stack
+version: '1.0'
+start_page: ROOT:README.adoc
+nav:
+- modules/ROOT/nav.adoc

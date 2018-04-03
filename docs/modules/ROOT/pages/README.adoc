@@ -1,0 +1,58 @@
+[[zenko]]
+Zenko
+-----
+
+image:res/zenko.io-logo-color-cmyk.png[Zenko logo]
+
+Zenko is http://www.scality.com/[Scality]’s Open Source Multi-Cloud Data
+Controller.
+
+Zenko's goal is to provide a unifed namespace, access API and search
+capabilities to data stored locally using Docker volumes or Scality RING
+or in public cloud storage services like
+https://aws.amazon.com/s3[Amazon S3], or
+https://azure.microsoft.com/en-us/services/storage/blobs/[Microsoft
+Azure Blob storage].
+
+Learn more at http://www.zenko.io/[Zenko.io]
+
+[[may-i-offer-you-some-lovely-documentation]]
+http://zenko.readthedocs.io[May I offer you some lovely documentation?]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[[contributing]]
+Contributing
+~~~~~~~~~~~~
+
+In order to contribute, please follow the
+https://github.com/scality/Guidelines/blob/master/CONTRIBUTING.md[Contributing
+Guidelines].
+
+[[overview]]
+Overview
+~~~~~~~~
+
+This repository will include installation resources to deploy the full
+Zenko stack over different orchestration systems.
+
+We started with https://docs.docker.com/engine/swarm/[Docker Swarm] but
+others like https://kubernetes.io/[Kubernetes] will follow.
+
+The stack is composed of: - https://nginx.org/en/[nginx], -
+https://github.com/scality/S3[Scality S3 server], -
+http://s3-server.readthedocs.io/en/latest/ARCHITECTURE/#data-metadata-daemon-architecture-and-operational-guide[data
+and metadata deamon (dmd)], - https://redis.io/[redis] - all magically
+configured to talk to each other.
+
+[[testing-zenko-with-docker-swarm]]
+link:./swarm-testing[Testing Zenko with Docker Swarm]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Simple Zenko setup for quick testing with non-production data
+
+[[zenko-in-production-with-docker-swarm]]
+link:./swarm-production[Zenko in production with Docker Swarm]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Includes high availability (HA)
+* Asks for pre-existing volumes
