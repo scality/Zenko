@@ -1,5 +1,8 @@
 # Zenko Swarm Stack
 
+Note: this stack has switched metadata engine to mongodb, updating from a previous
+version will initialize and use a new database instead of using your existing data.
+
 This docker service stack describes a simple Zenko production setup, including:
 
 * Load balancer (nginx-based) on all nodes of the swarm
@@ -104,28 +107,44 @@ Deploy the stack:
 
 ```shell
 $ docker stack deploy -c docker-stack.yml zenko-prod
+Creating network zenko-prod_frontend
 Creating network zenko-prod_backend
 Creating network zenko-prod_frontend-dmz
-Creating network zenko-prod_frontend
-Creating service zenko-prod_lb
-Creating service zenko-prod_s3-data
-Creating service zenko-prod_s3-metadata
+Creating secret zenko-prod_s3-credentials
+Creating service zenko-prod_quorum
+Creating service zenko-prod_mongodb
+Creating service zenko-prod_queue
 Creating service zenko-prod_s3-front
+Creating service zenko-prod_lb
+Creating service zenko-prod_backbeat-consumer
+Creating service zenko-prod_backbeat-api
+Creating service zenko-prod_s3-data
+Creating service zenko-prod_backbeat-producer
 Creating service zenko-prod_cache
+Creating service zenko-prod_mongodb-init
 ```
 
 Check that the services are up:
 
 ```shell
 $ docker stack services zenko-prod
-ID            NAME                    MODE        REPLICAS  IMAGE
-jf5fv54vqda2  zenko-prod_lb           global      5/5       zenko/loadbalancer:latest
-pc23nsleqpme  zenko-prod_cache        replicated  1/1       redis:alpine
-w47r55ja7k4d  zenko-prod_s3-metadata  replicated  1/1       scality/s3server:latest
-wa7aqx3n1ytq  zenko-prod_s3-data      replicated  1/1       scality/s3server:latest
-wo0jej0s18m8  zenko-prod_s3-front     replicated  4/4       scality/s3server:latest
+ID                  NAME                           MODE                REPLICAS            IMAGE                          PORTS
+1j8jb41llhtm        zenko-prod_s3-data             replicated          1/1                 zenko/cloudserver:pensieve-3   *:30010->9991/tcp
+3y7vayna97bt        zenko-prod_s3-front            replicated          1/1                 zenko/cloudserver:pensieve-3   *:30009->8000/tcp
+957xksl0cbge        zenko-prod_mongodb-init        replicated          0/1                 mongo:3.6.3-jessie
+cn0v7cf2jxkb        zenko-prod_queue               replicated          1/1                 wurstmeister/kafka:1.0.0       *:30008->9092/tcp
+jjx9oabeugx1        zenko-prod_mongodb             replicated          1/1                 mongo:3.6.3-jessie             *:30007->27017/tcp
+o530bkuognu5        zenko-prod_lb                  global              1/1                 zenko/loadbalancer:latest      *:80->80/tcp
+r69lgbue0o3o        zenko-prod_backbeat-api        replicated          1/1                 zenko/backbeat:pensieve-4
+ut0ssvmi10tx        zenko-prod_backbeat-consumer   replicated          1/1                 zenko/backbeat:pensieve-4
+vj2fr90qviho        zenko-prod_cache               replicated          1/1                 redis:alpine                   *:30011->6379/tcp
+vqmkxu7yo859        zenko-prod_quorum              replicated          1/1                 zookeeper:3.4.11               *:30006->2181/tcp
+y7tt98x7jdl9        zenko-prod_backbeat-producer   replicated          1/1                 zenko/backbeat:pensieve-4
 [...]
 ```
+
+Note that having 0 replicas of the mongodb-init service is fine, since it is
+expected to execute successfully only once to initialize the mongodb replicaset.
 
 ## USING ZENKO ORBIT
 
@@ -191,5 +210,5 @@ Check out the Livy UI at port 8998
 
 * Allow using an external environment vars file
 * Include a log collection and visualization component
-* Include healthchecks in the `scality/s3server` image
+* Include healthchecks in the `zenko/cloudserverserver` image
 * Explain how to scale/troubleshoot services and replace the storage node
