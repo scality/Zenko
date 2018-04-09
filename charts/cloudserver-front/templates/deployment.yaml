@@ -1,0 +1,75 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "cloudserver-front.fullname" . }}
+  labels:
+    app: {{ template "cloudserver-front.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "cloudserver-front.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.internalPort }}
+          env:
+            - name: DATA_HOST
+              value: "{{- printf "%s-%s" .Release.Name "s3-data" | trunc 63 | trimSuffix "-" -}}"
+            - name: METADATA_HOST
+              value: "{{- printf "%s-%s" .Release.Name "s3-metadata" | trunc 63 | trimSuffix "-" -}}"
+            - name: REDIS_HOST
+              value: {{ template "redis.fullname" . }}
+            - name: ENDPOINT
+              value: "{{ .Release.Name }}-cloudserver-front,{{ .Values.endpoint }}"
+{{- if .Values.mongodb.enabled }}
+            - name: S3METADATA
+              value: "mongodb"
+            - name: MONGODB_HOSTS
+              value: "{{ .Release.Name }}-mongodb-replicaset-0.{{ .Release.Name }}-mongodb-replicaset:27017,{{ .Release.Name }}-mongodb-replicaset-1.{{ .Release.Name }}-mongodb-replicaset:27017,{{ .Release.Name }}-mongodb-replicaset-2.{{ .Release.Name }}-mongodb-replicaset:27017"
+            - name: MONGODB_RS
+              value: "{{ default "rs0" .Values.mongodb.replicaSet }}"
+{{- end}}
+{{- if .Values.orbit.enabled }}
+            - name: REMOTE_MANAGEMENT_DISABLE
+              value: "0"
+            - name: MANAGEMENT_ENDPOINT
+              value: "{{- .Values.orbit.endpoint -}}"
+{{- else }}
+            - name: REMOTE_MANAGEMENT_DISABLE
+              value: "1"
+            - name: SCALITY_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "cloudserver-front.fullname" . }}
+                  key: keyId
+            - name: SCALITY_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "cloudserver-front.fullname" . }}
+                  key: secretKey
+{{- end }}
+
+          args: ['npm', 'run', 'start_s3server']
+          #livenessProbe:
+          #  httpGet:
+          #    path: /
+          #    port: {{ .Values.service.internalPort }}
+          #readinessProbe:
+          #  httpGet:
+          #    path: /
+          #    port: {{ .Values.service.internalPort }}
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+    {{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+    {{- end }}

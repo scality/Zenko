@@ -1,0 +1,87 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: {{ template "kafka.fullname" . }}
+  labels:
+    app: {{ template "kafka.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ template "kafka.name" . }}
+      release: {{ .Release.Name }}
+  serviceName: {{ template "kafka.fullname" . }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ template "kafka.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: KAFKA_ADVERTISED_PORT
+              value: "9092"
+            - name: KAFKA_ADVERTISED_HOST_NAME
+              value: "{{ template "kafka.fullname" . }}-0.{{ template "kafka.fullname" . }}"
+            - name: KAFKA_CREATE_TOPICS
+              value: "backbeat:1:1"
+            - name: KAFKA_ZOOKEEPER_CONNECT
+              value: "{{- printf "%s-zenko-zookeeper:2181" .Release.Name | trunc 63 | trimSuffix "-" -}}"
+            - name: KAFKA_HEAP_OPTS
+              value: "-Xmx512M"
+            - name: KAFKA_LOG_DIRS
+              value: "/kafka/kafka-logs"
+          ports:
+            - containerPort: 9092
+          volumeMounts:
+            - name: {{ template "kafka.fullname" . }}
+              mountPath: /kafka
+          #livenessProbe:
+          #  httpGet:
+          #    path: /
+          #    port: {{ .Values.service.internalPort }}
+          #readinessProbe:
+          #  httpGet:
+          #    path: /
+          #    port: {{ .Values.service.internalPort }}
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+    {{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+    {{- end }}
+
+  volumeClaimTemplates:
+  - metadata:
+      name: {{ template "kafka.fullname" . }}
+      annotations:
+      {{- if .Values.persistentVolume.annotations }}
+{{ toYaml .Values.persistentVolume.annotations | indent 4 }}
+      {{- end }}
+      labels:
+        app: {{ template "kafka.name" . }}
+        chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+        release: {{ .Release.Name }}
+        heritage: {{ .Release.Service }}
+    spec:
+      accessModes:
+{{- range .Values.persistentVolume.accessModes }}
+        - {{ . | quote }}
+{{- end }}
+      resources:
+        requests:
+          storage: {{ .Values.persistentVolume.size | quote }}
+{{- if .Values.persistentVolume.storageClass }}
+{{- if (eq "-" .Values.persistentVolume.storageClass) }}
+      storageClassName: ""
+{{- else }}
+      storageClassName: "{{ .Values.persistentVolume.storageClass }}"
+{{- end }}
+{{- end }}

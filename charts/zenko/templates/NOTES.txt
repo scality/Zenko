@@ -1,0 +1,6 @@
+{{- if .Values.ingress.enabled }}
+Get the application URL by running these commands:
+{{- range .Values.ingress.hosts }}
+  http://{{ . }}
+{{- end }}
+{{- end }}

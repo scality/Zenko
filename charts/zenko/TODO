@@ -1,0 +1,4 @@
+- Turn Redis into a Pod, not a Deployment: may not be replicated (to be validated)
+- Turn s3-metadata into a Pod, not a Deployment: may not be replicated (to be validated)
+- Use HTTP health checks
+- Validate s3-data can be replicated

@@ -1,0 +1,66 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "s3-data.fullname" . }}
+  labels:
+    app: {{ template "s3-data.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "s3-data.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      initContainers:
+        - name: {{ .Chart.Name }}-init
+          image: busybox
+          command: ['sh', '-x', '-c', 'if ! test -d /data/3511; then for i in `seq 1 3511`; do mkdir -p /data/$i; done; fi']
+          volumeMounts:
+            - name: persistent-storage
+              mountPath: /data
+
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: S3DATAPATH
+              value: /data
+            - name: LISTEN_ADDR
+              value: 0.0.0.0
+          args: ['npm', 'run', 'start_dataserver']
+          ports:
+            - name: s3-data
+              containerPort: {{ .Values.service.internalPort }}
+          volumeMounts:
+            - name: persistent-storage
+              mountPath: /data
+          # Using TCP readiness checks for now
+          # HTTP ones require a response code [200, 400(, and `GET /` returns
+          # 400. Need a specific healthz route.
+          livenessProbe:
+            tcpSocket:
+              port: s3-data
+            initialDelaySeconds: 5
+          readinessProbe:
+            tcpSocket:
+              port: s3-data
+            initialDelaySeconds: 5
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+    {{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+    {{- end }}
+      volumes:
+        - name: persistent-storage
+      {{- if .Values.persistentVolume.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ if .Values.persistentVolume.existingClaim }}{{ .Values.persistentVolume.existingClaim }}{{- else }}{{ template "s3-data.fullname" . }}{{- end }}
+      {{- else }}
+          emptyDir: {}
+      {{- end }}
