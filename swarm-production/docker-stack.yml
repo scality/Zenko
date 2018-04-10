@@ -56,7 +56,7 @@ services:
         monitor: "5s"
 
   mongodb:
-    image: mongo:3.6.3-jessie
+    image: mongo:3.4.14-jessie
     volumes:
       - 'mongodb-data:/data/db'
     networks:
@@ -72,7 +72,7 @@ services:
           - node.labels.io.zenko.type == storage
 
   mongodb-init:
-    image: mongo:3.6.3-jessie
+    image: mongo:3.4.14-jessie
     networks:
       - backend
     command: >-
