@@ -23,7 +23,7 @@ dependencies:
   version: "0.1.0"
   repository: "file://../backbeat-producer"
 - name: kafka
-  version: "0.1.0"
+  version: "0.1.1"
   repository: "file://../kafka"
 - name: s3-data
   version: "0.1.0"
