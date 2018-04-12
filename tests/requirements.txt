@@ -4,6 +4,10 @@
 #
 #    make requirements.txt
 #
+apipkg==1.4 \
+    --hash=sha256:2e38399dbe842891fe85392601aab8f40a8f4cc5a9053c326de35a1cc0297ac6 \
+    --hash=sha256:65d2aa68b28e7d31233bb2ba8eb31cda40e4671f8ac2d6b241e358c9652a74b9 \
+    # via execnet
 attrs==17.4.0 \
     --hash=sha256:1c7960ccfd6a005cd9f7ba884e6316b5e430a3f1a6c37c5f87d8b43f83b54ec9 \
     --hash=sha256:a17a9573a6f475c99b551c0e0a812707ddda1ec9653bed04c13841404ed6f450 \
@@ -20,6 +24,10 @@ docutils==0.14 \
     --hash=sha256:51e64ef2ebfb29cae1faa133b3710143496eca21c530f3f71424d77687764274 \
     --hash=sha256:7a4bd47eaf6596e1295ecb11361139febe29b084a87bf005bf899f9a42edc3c6 \
     # via botocore
+execnet==1.5.0 \
+    --hash=sha256:a7a84d5fa07a089186a329528f127c9d73b9de57f1a1131b82bb5320ee651f6a \
+    --hash=sha256:fc155a6b553c66c838d1a22dba1dc9f5f505c43285a878c6f74a79c024750b83 \
+    # via pytest-xdist
 jmespath==0.9.3 \
     --hash=sha256:6a81d4c9aa62caf061cb517b4d9ad1dd300374cd4706997aff9cd6aedd61fc64 \
     --hash=sha256:f11b4461f425740a1d908e9a3f7365c3d2e569f6ca68a2ff8bc5bcd9676edd63 \
@@ -38,9 +46,16 @@ py==1.5.3 \
     --hash=sha256:29c9fab495d7528e80ba1e343b958684f4ace687327e6f789a94bf3d1915f881 \
     --hash=sha256:983f77f3331356039fdd792e9220b7b8ee1aa6bd2b25f567a963ff1de5a64f6a \
     # via pytest
+pytest-forked==0.2 \
+    --hash=sha256:e4500cd0509ec4a26535f7d4112a8cc0f17d3a41c29ffd4eab479d2a55b30805 \
+    --hash=sha256:f275cb48a73fc61a6710726348e1da6d68a978f0ec0c54ece5a5fae5977e5a08 \
+    # via pytest-xdist
 pytest-runner==4.2 \
     --hash=sha256:d23f117be39919f00dd91bffeb4f15e031ec797501b717a245e377aee0f577be \
     --hash=sha256:d987fec1e31287592ffe1cb823a8c613c533db4c6aaca0ee1191dbc91e2fcc61
+pytest-xdist==1.22.2 \
+    --hash=sha256:be2662264b035920ba740ed6efb1c816a83c8a22253df7766d129f6a7bfdbd35 \
+    --hash=sha256:e8f5744acc270b3e7d915bdb4d5f471670f049b6fbd163d4cbd52203b075d30f
 pytest==3.5.0 \
     --hash=sha256:6266f87ab64692112e5477eba395cfedda53b1933ccd29478e671e73b420c19c \
     --hash=sha256:fae491d1874f199537fd5872b5e1f0e74a009b979df9d53d1553fd03da1703e1
