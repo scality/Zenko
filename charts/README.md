@@ -30,9 +30,9 @@ $ helm install --name zenko --set ingress.enabled=true --set ingress.hosts[0]=ze
 
 See `values.yml` for more options.
 
-One option to highlight is the ability to enabled [Orbit] integration (which is
-disabled by default) and set a custom Orbit API endpoint (for development
-purposes). 
+One option to highlight is the ability to enable integration with the
+[Orbit] management UI (which is disabled by default) and set a custom
+Orbit API endpoint (for development purposes). 
 
 To enable Orbit use:
 
