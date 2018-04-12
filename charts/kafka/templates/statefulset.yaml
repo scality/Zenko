@@ -13,7 +13,7 @@ spec:
       app: {{ template "kafka.name" . }}
       release: {{ .Release.Name }}
   serviceName: {{ template "kafka.fullname" . }}
-  replicas: 1
+  replicas: {{ .Values.replicas }}
   template:
     metadata:
       labels:
