@@ -47,6 +47,11 @@ mongodb-replicaset:
   replicaSet: rs0
   replicas: 5
 
+kafka:
+  replicas: 5
+  prometheusExport:
+    enabled: true
+
 redis:
   usePassword: false
   persistence:

@@ -20,7 +20,7 @@ replicaCount: 1
 
 image:
   repository: zenko/cloudserver
-  tag: 0.1.5
+  tag: 0.1.7
   pullPolicy: IfNotPresent
 
 service:
@@ -59,3 +59,12 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+autoscaling:
+  enabled: false
+  config:
+    minReplicas: 1
+    maxReplicas: 16
+    # Note: when setting this, a `resources.request.cpu` is required. You
+    # likely want to set it to `1` or some lower value.
+    targetCPUUtilizationPercentage: 80

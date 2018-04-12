@@ -14,7 +14,7 @@ service:
 persistentVolume:
   enabled: true
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   annotations: {}
   existingClaim: ""
   size: 10Gi

@@ -31,6 +31,8 @@ spec:
               value: "{{- printf "%s-%s" .Release.Name "s3-data" | trunc 63 | trimSuffix "-" -}}"
             - name: REDIS_HOST
               value: "{{- printf "%s-%s" .Release.Name "redis" | trunc 63 | trimSuffix "-" -}}"
+            - name: ENDPOINT
+              value: "{{ .Release.Name }}-cloudserver-front,{{ .Values.endpoint }}"
 {{- if .Values.mongodb.enabled }}
             - name: S3METADATA
               value: "mongodb"
@@ -47,8 +49,6 @@ spec:
 {{- else }}
             - name: REMOTE_MANAGEMENT_DISABLE
               value: "1"
-            - name: ENDPOINT
-              value: {{ .Values.endpoint }}
             - name: SCALITY_ACCESS_KEY_ID
               valueFrom:
                 secretKeyRef:
