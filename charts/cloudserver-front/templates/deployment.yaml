@@ -33,6 +33,8 @@ spec:
               value: "{{- printf "%s-%s" .Release.Name "redis" | trunc 63 | trimSuffix "-" -}}"
             - name: LOG_LEVEL
               value: {{ .Values.logging.level }}
+            - name: ENDPOINT
+              value: "{{ .Release.Name }}-cloudserver-front,{{ .Values.endpoint }}"
 {{- if .Values.mongodb.enabled }}
             - name: S3METADATA
               value: "mongodb"
@@ -49,8 +51,6 @@ spec:
 {{- else }}
             - name: REMOTE_MANAGEMENT_DISABLE
               value: "1"
-            - name: ENDPOINT
-              value: {{ .Values.endpoint }}
             - name: SCALITY_ACCESS_KEY_ID
               valueFrom:
                 secretKeyRef:

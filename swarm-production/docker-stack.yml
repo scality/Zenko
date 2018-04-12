@@ -2,9 +2,9 @@ version: "3.4"
 
 services:
   s3-data:
-    image: zenko/cloudserver:pensieve-1
+    image: zenko/cloudserver:pensieve-3
     ports:
-      - "9992"
+      - 9991
     networks:
       - backend
     environment:
@@ -18,28 +18,10 @@ services:
         constraints:
           - node.labels.io.zenko.type == storage
 
-  s3-metadata:
-    image: zenko/cloudserver:pensieve-1
-    ports:
-      - "9993"
-    networks:
-      - backend
-    environment:
-      S3METADATAPATH: /metadata
-      LISTEN_ADDR: 0.0.0.0
-      RECORDLOG_ENABLED: "true"
-    volumes:
-      - 's3-metadata:/metadata:rw'
-    command: npm run start_mdserver
-    deploy:
-      placement:
-        constraints:
-          - node.labels.io.zenko.type == storage
-
   s3-front:
-    image: zenko/cloudserver:pensieve-1
+    image: zenko/cloudserver:pensieve-3
     ports:
-      - "8001"
+      - 8000
     networks:
       backend:
         aliases:
@@ -47,23 +29,60 @@ services:
       frontend-dmz:
     environment:
       DATA_HOST: s3-data
-      METADATA_HOST: s3-metadata
       REDIS_HOST: cache
       ENDPOINT: "${ENDPOINT:-zenko}"
       REMOTE_MANAGEMENT_DISABLE: "${REMOTE_MANAGEMENT_DISABLE:-0}"
+      S3METADATA: mongodb
+      MONGODB_HOSTS: 'mongodb:27017'
+      MONGODB_RS: rs0
+      CRR_METRICS_HOST: backbeat-api
+      CRR_METRICS_PORT: 8900
     secrets:
       - s3-credentials
-    command: npm run start_s3server
-    depends_on:
-      - s3-data
-      - s3-metadata
-      - cache
+    command: >-
+      dockerize
+        -timeout 90s
+        -wait tcp://s3-data:9991
+        -wait tcp://backbeat-api:8900
+        -wait tcp://cache:6379
+        -wait tcp://mongodb:27017
+        --
+      npm run start_s3server
     deploy:
       mode: replicated
       update_config:
         parallelism: 1
         delay: "10s"
         monitor: "5s"
+
+  mongodb:
+    image: mongo:3.6.3-jessie
+    volumes:
+      - 'mongodb-data:/data/db'
+    networks:
+      - backend
+    ports:
+      - 27017
+    command: mongod --replSet rs0
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.io.zenko.type == storage
+
+  mongodb-init:
+    image: mongo:3.6.3-jessie
+    networks:
+      - backend
+    command: >-
+      mongo 'mongodb:27017' --eval
+        "rs.initiate({ _id : 'rs0', members: [ { _id: 0, host: 'mongodb:27017' } ] })"
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
 
   cache:
     image: redis:alpine
@@ -78,7 +97,7 @@ services:
       - "80:80"
     environment:
       LISTEN_PORT: 80
-      UPSTREAM_SERVER: "s3-front:8001"
+      UPSTREAM_SERVER: "s3-front:8000"
     networks:
       - frontend
       - frontend-dmz
@@ -91,85 +110,12 @@ services:
         delay: "10s"
         monitor: "5s"
 
-  livy:
-    image: scality/clueso-livy:pensieve
-    hostname: livy
-    ports:
-      - "8998:8998"
-      # so that each spawned session can have an app ui, open range
-      - "4040-4049:4040-4049"
-    depends_on:
-      - spark-master
-    networks:
-      - backend
-      # need so can contact lb to get parquet files on search
-      - frontend-dmz
-
-  spark-master:
-    image: scality/clueso-spark-master:pensieve
-    hostname: spark-master
-    depends_on:
-      - queue
-      - graphite
-      - lb
-    ports:
-      # master ui:
-      - "8080:8080"
-      # ingestion pipeline app ui:
-      - "4050:4050"
-      # landing populator app ui:
-      - "4051:4051"
-      # storage info tool app ui
-      - "4052:4052"
-      # compactor tool app ui
-      - "4053:4053"
-    volumes:
-      - "heapdumps:/clueso/heapdumps:rw"
-    secrets:
-      - s3-credentials
-    networks:
-      - backend
-      # need so can contact lb to create METADATA bucket
-      - frontend-dmz
-
-  spark-worker:
-    image: scality/clueso-spark-worker:pensieve
-    depends_on:
-      - spark-master
-    environment:
-      SPARK_MASTER_HOST: spark://spark-master:7077
-      CLUSTER_DNS: spark-worker
-      INIT_REPLICATE: 1
-    networks:
-      - backend
-      # need so can contact lb to get parquet files on search
-      - frontend-dmz
-    deploy:
-      replicas: 1
-
-  graphite:
-    image: scality/clueso-grafana-graphite
-    depends_on:
-      - spark-master
-    ports:
-      - '8005:80'
-      - '8081:81'
-      - '3000:3000'
-    networks:
-      - backend
-    volumes:
-      - "grafana-data:/opt/grafana/data:rw"
-    deploy:
-      placement:
-        constraints:
-          - node.labels.io.zenko.type == storage
-
   queue:
     image: 'wurstmeister/kafka:1.0.0'
     environment:
       KAFKA_ADVERTISED_PORT: 9092
       KAFKA_ADVERTISED_HOST_NAME: queue
-      KAFKA_CREATE_TOPICS: 'backbeat:1:1'
+      KAFKA_CREATE_TOPICS: 'backbeat-replication:1:1,backbeat-replication-status:1:1,backbeat-metrics:1:1'
       KAFKA_ZOOKEEPER_CONNECT: 'quorum:2181'
       KAFKA_HEAP_OPTS: '-Xmx512M'
       KAFKA_LOG_DIRS: /kafka/kafka-logs
@@ -179,8 +125,6 @@ services:
       - backend
     volumes:
       - "queue-journal:/kafka:rw"
-    depends_on:
-      - quorum
     deploy:
       mode: replicated
       replicas: 1
@@ -205,27 +149,63 @@ services:
           - node.labels.io.zenko.type == storage
 
   backbeat-producer:
-    image: 'zenko/backbeat:pensieve-3'
-    command: npm run queue_populator
+    image: 'zenko/backbeat:pensieve-4'
+    command: >-
+      dockerize
+        -timeout 90s
+        -wait tcp://quorum:2181
+        -wait tcp://queue:9092
+        -wait tcp://mongodb:27017
+        --
+      npm run queue_populator
     environment:
       ZOOKEEPER_AUTO_CREATE_NAMESPACE: 1
       ZOOKEEPER_CONNECTION_STRING: 'quorum:2181'
       KAFKA_HOSTS: 'queue:9092'
-      QUEUE_POPULATOR_DMD_HOST: 's3-metadata'
-      QUEUE_POPULATOR_DMD_PORT: 9993
+      MONGODB_HOSTS: 'mongodb:27017'
+      MONGODB_RS: 'rs0'
+      REDIS_HOST: cache
+      REDIS_PORT: 6379
     networks:
       - backend
-    depends_on:
-      - quorum
-      - queue
-      - s3-metadata
+    deploy:
+      mode: replicated
+      replicas: 1
+
+  backbeat-api:
+    image: 'zenko/backbeat:pensieve-4'
+    command: >-
+      dockerize
+        -timeout 90s
+        -wait tcp://cache:6379
+        -wait tcp://quorum:2181
+        -wait tcp://queue:9092
+        --
+      npm start
+    environment:
+      ZOOKEEPER_AUTO_CREATE_NAMESPACE: 1
+      ZOOKEEPER_CONNECTION_STRING: 'quorum:2181'
+      KAFKA_HOSTS: 'queue:9092'
+      REDIS_HOST: cache
+      REDIS_PORT: 6379
+      HEALTHCHECKS_ALLOWFROM: '0.0.0.0/0'
+    networks:
+      - backend
     deploy:
       mode: replicated
       replicas: 1
 
   backbeat-consumer:
-    image: 'zenko/backbeat:pensieve-3'
-    command: npm run queue_processor
+    image: 'zenko/backbeat:pensieve-4'
+    command: >-
+      dockerize
+        -timeout 90s
+        -wait tcp://quorum:2181
+        -wait tcp://queue:9092
+        -wait tcp://zenko-cloudserver-replicator:8000
+        -wait tcp://mongodb:27017
+        --
+      npm run queue_processor
     environment:
       ZOOKEEPER_AUTO_CREATE_NAMESPACE: 1
       ZOOKEEPER_CONNECTION_STRING: 'quorum:2181'
@@ -233,19 +213,14 @@ services:
       EXTENSIONS_REPLICATION_SOURCE_AUTH_TYPE: 'service'
       EXTENSIONS_REPLICATION_SOURCE_AUTH_ACCOUNT: 'service-replication'
       EXTENSIONS_REPLICATION_SOURCE_S3_HOST: 'zenko-cloudserver-replicator'
-      EXTENSIONS_REPLICATION_SOURCE_S3_PORT: 8001
+      EXTENSIONS_REPLICATION_SOURCE_S3_PORT: 8000
       EXTENSIONS_REPLICATION_DEST_AUTH_TYPE: 'service'
       EXTENSIONS_REPLICATION_DEST_AUTH_ACCOUNT: 'service-replication'
-      EXTENSIONS_REPLICATION_DEST_BOOTSTRAPLIST: 'zenko-cloudserver-replicator:8001'
-      QUEUE_POPULATOR_DMD_HOST: 's3-metadata'
-      QUEUE_POPULATOR_DMD_PORT: 9993
+      EXTENSIONS_REPLICATION_DEST_BOOTSTRAPLIST: 'zenko-cloudserver-replicator:8000'
+      MONGODB_HOSTS: 'mongodb:27017'
+      MONGODB_RS: 'rs0'
     networks:
       - backend
-    depends_on:
-      - quorum
-      - queue
-      - s3-metadata
-      - s3-front
     deploy:
       mode: replicated
       replicas: 1
@@ -257,12 +232,10 @@ networks:
 
 volumes:
   s3-data:
-  s3-metadata:
-  grafana-data:
+  mongodb-data:
   queue-journal:
   quorum-data:
   quorum-datalog:
-  heapdumps:
 
 secrets:
   s3-credentials:

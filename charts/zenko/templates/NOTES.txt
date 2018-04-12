@@ -1,6 +1,10 @@
 {{- if .Values.ingress.enabled }}
-Get the application URL by running these commands:
+Access the Zenko endpoint from this URL:
 {{- range .Values.ingress.hosts }}
+  {{- if not . }}
+  connect using your kubernetes host IP
+  {{- else }}
   http://{{ . }}
+  {{- end }}
 {{- end }}
 {{- end }}
