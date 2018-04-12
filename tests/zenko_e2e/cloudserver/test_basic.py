@@ -14,12 +14,12 @@ def client():
 
 
 @pytest.mark.nondestructive
-@pytest.mark.validation
+@pytest.mark.conformance
 def test_list_buckets(client):
     assert 'Buckets' in client.list_buckets()
 
 
-@pytest.mark.validation
+@pytest.mark.conformance
 def test_create_bucket(client):
     response = client.create_bucket(Bucket='zenko-e2e')
     assert 'Location' in response
