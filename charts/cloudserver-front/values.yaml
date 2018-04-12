@@ -1,6 +1,7 @@
 # Default values for cloudserver-front.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+
 orbit:
   enabled: false
   endpoint: https://api.zenko.io
@@ -11,35 +12,40 @@ credentials:
   keyId: deployment-specific-access-key
   secretKey: deployment-specific-secret-key
 
+logging:
+   # Options: info, debug, trace
+   level: info
+
 mongodb:
   enabled: true
   replicaSet: rs0
 
 replicaCount: 1
+
 image:
   repository: zenko/cloudserver
   tag: 0.1.7
   pullPolicy: IfNotPresent
+
 service:
-  name: cloudserver-front
   type: ClusterIP
-  externalPort: 8001
-  internalPort: 8001
+  port: 80
+
 ingress:
   enabled: false
-  # Used to create an Ingress record.
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  path: /
   # This must match 'endpoint', unless your client supports different
   # hostnames.
   hosts:
     - zenko.local
-  annotations:
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  tls:
-    # Secrets must be manually created in the namespace.
-    # - secretName: chart-example-tls
-    #   hosts:
-    #     - chart-example.local
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
@@ -51,6 +57,12 @@ resources: {}
   # requests:
   #  cpu: 100m
   #  memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
 
 autoscaling:
   enabled: false
