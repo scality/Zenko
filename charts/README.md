@@ -87,6 +87,18 @@ automatically, use something like
 --set prometheus.server.ingress.enabled=true --set prometheus.server.ingress.hosts[0]=prometheus.local
 ```
 
+Validating your deployment
+--------------------------
+To run some validation tests on your deployment, a test-suite is shipped with
+the Zenko Chart. This suite can be invoked by running
+
+```shell
+$ helm test $RELEASE_NAME --cleanup
+```
+
+where `$RELEASE_NAME` must be replaced by the name you picked for the Helm
+release, e.g. `zenko` in the example above.
+
 [Helm]: https://helm.sh
 [Scality]: https://scality.com
 [Zenko]: https://zenko.io
