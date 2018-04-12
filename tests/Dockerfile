@@ -10,5 +10,4 @@ ADD . .
 
 USER nobody:nogroup
 
-# Disable cache to run in a read-only container
-ENTRYPOINT ["pytest", "-p", "no:cacheprovider"]
+ENTRYPOINT ["./docker-entrypoint.sh"]
