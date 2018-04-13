@@ -46,6 +46,8 @@ py==1.5.3 \
     --hash=sha256:29c9fab495d7528e80ba1e343b958684f4ace687327e6f789a94bf3d1915f881 \
     --hash=sha256:983f77f3331356039fdd792e9220b7b8ee1aa6bd2b25f567a963ff1de5a64f6a \
     # via pytest
+pytest-dotenv==0.1.0 \
+    --hash=sha256:1bdf1bd8a7e1f018f07d2840c0b5564a43e9dcb779bf10f01f4d21f4a6e0cd74
 pytest-forked==0.2 \
     --hash=sha256:e4500cd0509ec4a26535f7d4112a8cc0f17d3a41c29ffd4eab479d2a55b30805 \
     --hash=sha256:f275cb48a73fc61a6710726348e1da6d68a978f0ec0c54ece5a5fae5977e5a08 \
@@ -63,6 +65,10 @@ python-dateutil==2.6.1 \
     --hash=sha256:891c38b2a02f5bb1be3e4793866c8df49c7d19baabf9c1bad62547e0b4866aca \
     --hash=sha256:95511bae634d69bc7329ba55e646499a842bc4ec342ad54a8cdb65645a0aad3c \
     # via botocore
+python-dotenv==0.8.2 \
+    --hash=sha256:4965ed170bf51c347a89820e8050655e9c25db3837db6602e906b6d850fad85c \
+    --hash=sha256:509736185257111613009974e666568a1b031b028b61b500ef1ab4ee780089d5 \
+    # via pytest-dotenv
 s3transfer==0.1.13 \
     --hash=sha256:90dc18e028989c609146e241ea153250be451e05ecc0c2832565231dacdf59c1 \
     --hash=sha256:c7a9ec356982d5e9ab2d4b46391a7d6a950e2b04c472419f5fdec70cc0ada72f \

@@ -1,6 +1,8 @@
 *.pyc
 *~
 
+.env
+
 .eggs/
 .pytest_cache/
 .tox/
