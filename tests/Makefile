@@ -3,6 +3,7 @@ DOCKER_IMAGE_TAG := latest
 
 DOCKER := docker
 PIP_COMPILE := pip-compile
+TOX := tox
 
 DOCKER_IMAGE := $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)
 
@@ -23,3 +24,7 @@ container-run:
 		$(DOCKER_ARGS) \
 		$(DOCKER_IMAGE) $(PYTEST_ARGS)
 .PHONY: container-run
+
+lint:
+	@$(TOX)
+.PHONY: lint
