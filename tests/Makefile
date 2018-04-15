@@ -4,6 +4,7 @@ DOCKER_IMAGE_TAG := latest
 DOCKER := docker
 PIP_COMPILE := pip-compile
 TOX := tox
+KUBECTL := kubectl
 
 DOCKER_IMAGE := $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)
 
@@ -24,6 +25,27 @@ container-run:
 		$(DOCKER_ARGS) \
 		$(DOCKER_IMAGE) $(PYTEST_ARGS)
 .PHONY: container-run
+
+kubernetes-run: SHELL := bash
+kubernetes-run:
+	@source .env && \
+	set -u && \
+	$(KUBECTL) --namespace=$${K8S_NAMESPACE} run --attach --rm --restart=Never \
+		--image=docker.io/zenko/zenko-e2e:test-e2e \
+		zenko-e2e \
+		--env ZENKO_HELM_RELEASE=$${ZENKO_HELM_RELEASE} \
+		--env AWS_ACCESS_KEY_ID=$${AWS_ACCESS_KEY_ID} \
+		--env AWS_SECRET_ACCESS_KEY=$${AWS_SECRET_ACCESS_KEY} \
+		$(KUBECTL_ARGS) -- $(PYTEST_ARGS)
+.PHONY: kubernetes-run
+
+kubernetes-run-nondestructive: PYTEST_ARGS := $(PYTEST_ARGS) -m nondestructive
+kubernetes-run-nondestructive: kubernetes-run
+.PHONY: kubernetes-run-nondestructive
+
+kubernetes-run-conformance: PYTEST_ARGS := $(PYTEST_ARGS) -m conformance
+kubernetes-run-conformance: kubernetes-run
+.PHONY: kubernetes-run-conformance
 
 lint:
 	@$(TOX)
