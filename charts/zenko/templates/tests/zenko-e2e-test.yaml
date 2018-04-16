@@ -11,6 +11,8 @@ spec:
     image: "{{ .Values.e2e.image.repository }}:{{ .Values.e2e.image.tag }}"
     args: ["-m", "nondestructive"]
     env:
+      - name: ZENKO_K8S_NAMESPACE
+        value: {{ .Release.Namespace | quote }}
       - name: ZENKO_HELM_RELEASE
         value: {{ .Release.Name | quote }}
       - name: AWS_ACCESS_KEY_ID

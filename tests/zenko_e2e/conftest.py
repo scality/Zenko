@@ -43,7 +43,7 @@ def zenko_s3_client():
 
     url = os.getenv('CLOUDSERVER_FRONT_ENDPOINT')
     if not url:
-        raise RuntimeError('Unable to determine Cloudserver endpoint')
+        url = 'http://{}-cloudserver-front:80'.format(zenko_helm_release())
 
     return boto3.client(
         service_name='s3',
@@ -57,6 +57,6 @@ def prometheus_client():
 
     url = os.getenv('PROMETHEUS_ENDPOINT')
     if not url:
-        raise RuntimeError('Unable to determine Prometheus endpoint')
+        url = 'http://{}-prometheus-server:80'.format(zenko_helm_release())
 
     return zenko_e2e.prometheus.client.PrometheusClient(prometheus_url=url)
