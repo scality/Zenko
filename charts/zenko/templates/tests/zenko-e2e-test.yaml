@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ .Release.Name }}-zenko-e2e-test"
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+  - name: {{ .Release.Name }}-zenko-e2e-test
+    imagePullPolicy: {{ .Values.e2e.image.pullPolicy | quote }}
+    image: "{{ .Values.e2e.image.repository }}:{{ .Values.e2e.image.tag }}"
+    args: ["-m", "nondestructive"]
+    env:
+      - name: ZENKO_K8S_NAMESPACE
+        value: {{ .Release.Namespace | quote }}
+      - name: ZENKO_HELM_RELEASE
+        value: {{ .Release.Name | quote }}
+      - name: AWS_ACCESS_KEY_ID
+        value: {{ index .Values "cloudserver-front" "credentials" "keyId" }}
+      - name: AWS_SECRET_ACCESS_KEY
+        value: {{ index .Values "cloudserver-front" "credentials" "secretKey" }}
+      - name: NUM_CPUS
+        valueFrom:
+          resourceFieldRef:
+            containerName: {{ .Release.Name }}-zenko-e2e-test
+            resource: requests.cpu
+    resources:
+      requests:
+        cpu: 4
+  restartPolicy: Never

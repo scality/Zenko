@@ -1,0 +1,13 @@
+*.pyc
+*~
+
+.env
+
+.eggs/
+.pytest_cache/
+.tox/
+__pycache__/
+build/
+dist/
+venv/
+zenko_e2e.egg-info/

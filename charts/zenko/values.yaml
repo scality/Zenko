@@ -17,6 +17,14 @@ ingress:
     #   hosts:
     #     - zenko.example.com
 
+# Configuration of the E2E tests
+e2e:
+  image:
+    repository: docker.io/zenko/zenko-e2e
+    tag: latest
+    pullPolicy: Always
+
+
 cloudserver-front:
   orbit:
     enabled: false
