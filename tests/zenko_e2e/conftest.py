@@ -14,15 +14,17 @@ SERVICEACCOUNT_PATH = '/var/run/secrets/kubernetes.io/serviceaccount'
 @pytest.fixture(scope='session')
 def k8s_namespace():
     '''Kubernetes namespace in which we run'''
+    nsenv = os.getenv('ZENKO_K8S_NAMESPACE')
+    if nsenv:
+        return nsenv
+
     try:
         with open(os.path.join(SERVICEACCOUNT_PATH, 'namespace'), 'r') as nsfd:
             return nsfd.read()
     except IOError:
-        nsenv = os.getenv('ZENKO_K8S_NAMESPACE')
-        if nsenv:
-            return nsenv
+        pass
 
-    raise RuntimeError('Unable to determine K8s namespace')
+    raise RuntimeError('Unable to determine Zenko K8s namespace')
 
 
 @pytest.fixture(scope='session')
@@ -41,7 +43,7 @@ def zenko_s3_client():
 
     url = os.getenv('CLOUDSERVER_FRONT_ENDPOINT')
     if not url:
-        url = 'http://{}-cloudserver-front:80'.format(zenko_helm_release())
+        raise RuntimeError('Unable to determine Cloudserver endpoint')
 
     return boto3.client(
         service_name='s3',
@@ -55,6 +57,6 @@ def prometheus_client():
 
     url = os.getenv('PROMETHEUS_ENDPOINT')
     if not url:
-        url = 'http://{}-prometheus-server:80'.format(zenko_helm_release())
+        raise RuntimeError('Unable to determine Prometheus endpoint')
 
     return zenko_e2e.prometheus.client.PrometheusClient(prometheus_url=url)

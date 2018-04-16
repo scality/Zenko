@@ -30,12 +30,14 @@ kubernetes-run: SHELL := bash
 kubernetes-run:
 	@source .env && \
 	set -u && \
-	$(KUBECTL) --namespace=$${K8S_NAMESPACE} run --attach --rm --restart=Never \
+	$(KUBECTL) --namespace=$${ZENKO_K8S_NAMESPACE} run --attach --rm --restart=Never \
 		--image=docker.io/zenko/zenko-e2e:test-e2e \
 		zenko-e2e \
 		--env ZENKO_HELM_RELEASE=$${ZENKO_HELM_RELEASE} \
 		--env AWS_ACCESS_KEY_ID=$${AWS_ACCESS_KEY_ID} \
 		--env AWS_SECRET_ACCESS_KEY=$${AWS_SECRET_ACCESS_KEY} \
+		--env CLOUDSERVER_FRONT_ENDPOINT=$${CLOUDSERVER_FRONT_ENDPOINT} \
+		--env PROMETHEUS_ENDPOINT=$${PROMETHEUS_ENDPOINT} \
 		$(KUBECTL_ARGS) -- $(PYTEST_ARGS)
 .PHONY: kubernetes-run
 
