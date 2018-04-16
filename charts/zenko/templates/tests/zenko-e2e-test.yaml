@@ -7,8 +7,8 @@ metadata:
 spec:
   containers:
   - name: {{ .Release.Name }}-zenko-e2e-test
-    imagePullPolicy: "Always"
-    image: "docker.io/zenko/zenko-e2e:test-e2e"
+    imagePullPolicy: {{ .Values.e2e.image.pullPolicy | quote }}
+    image: "{{ .Values.e2e.image.repository }}:{{ .Values.e2e.image.tag }}"
     args: ["-m", "nondestructive"]
     env:
       - name: ZENKO_HELM_RELEASE
