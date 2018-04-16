@@ -1,5 +1,5 @@
 DOCKER_IMAGE_NAME := docker.io/zenko/zenko-e2e
-DOCKER_IMAGE_TAG := test-e2e
+DOCKER_IMAGE_TAG := latest
 
 DOCKER := docker
 PIP_COMPILE := pip-compile
