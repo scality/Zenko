@@ -1,5 +1,5 @@
-DOCKER_IMAGE_NAME := zenko-e2e
-DOCKER_IMAGE_TAG := latest
+DOCKER_IMAGE_NAME := docker.io/zenko/zenko-e2e
+DOCKER_IMAGE_TAG := test-e2e
 
 DOCKER := docker
 PIP_COMPILE := pip-compile
@@ -31,7 +31,7 @@ kubernetes-run:
 	@source .env && \
 	set -u && \
 	$(KUBECTL) --namespace=$${ZENKO_K8S_NAMESPACE} run --attach --rm --restart=Never \
-		--image=docker.io/zenko/zenko-e2e:test-e2e \
+		--image=$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG) \
 		zenko-e2e \
 		--env ZENKO_HELM_RELEASE=$${ZENKO_HELM_RELEASE} \
 		--env AWS_ACCESS_KEY_ID=$${AWS_ACCESS_KEY_ID} \
