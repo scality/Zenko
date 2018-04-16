@@ -2,7 +2,6 @@ DOCKER_IMAGE_NAME := docker.io/zenko/zenko-e2e
 DOCKER_IMAGE_TAG := latest
 
 DOCKER := docker
-PIP_COMPILE := pip-compile
 TOX := tox
 KUBECTL := kubectl
 
@@ -12,8 +11,8 @@ DOCKER_ARGS :=
 PYTEST_ARGS :=
 DOTENV := $(PWD)/.env
 
-requirements.txt: setup.cfg setup.py Makefile
-	@env CUSTOM_COMPILE_COMMAND="$(MAKE) requirements.txt" $(PIP_COMPILE) --index --emit-trusted-host --annotate --upgrade --generate-hashes
+requirements.txt: setup.cfg setup.py tox.ini
+	@env CUSTOM_COMPILE_COMMAND="$(MAKE) requirements.txt" $(TOX) -e pip-compile
 
 container-image:
 	@$(DOCKER) build -t $(DOCKER_IMAGE) .
