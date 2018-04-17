@@ -16,6 +16,8 @@ logging:
    # Options: info, debug, trace
    level: info
 
+allowHealthchecksFrom: '0.0.0.0/0'
+
 mongodb:
   enabled: true
   replicaSet: rs0
@@ -24,7 +26,7 @@ replicaCount: 1
 
 image:
   repository: zenko/cloudserver
-  tag: 0.1.7
+  tag: 0.1.9
   pullPolicy: IfNotPresent
 
 service:
