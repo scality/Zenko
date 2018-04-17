@@ -25,7 +25,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: 8001
+              containerPort: 8000
           env:
             - name: DATA_HOST
               value: "{{- printf "%s-%s" .Release.Name "s3-data" | trunc 63 | trimSuffix "-" -}}"
@@ -35,6 +35,8 @@ spec:
               value: {{ .Values.logging.level }}
             - name: ENDPOINT
               value: "{{ .Release.Name }}-cloudserver-front,{{ .Values.endpoint }}"
+            - name: HEALTHCHECKS_ALLOWFROM
+              value: "{{ .Values.allowHealthchecksFrom }}"
 {{- if .Values.mongodb.enabled }}
             - name: S3METADATA
               value: "mongodb"
