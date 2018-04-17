@@ -4,13 +4,13 @@
 replicaCount: 1
 image:
   repository: zenko/cloudserver
-  tag: pensieve-0
+  tag: 0.1.9
   pullPolicy: IfNotPresent
 service:
   name: s3-data
   type: ClusterIP
-  internalPort: 9992
-  externalPort: 9992
+  internalPort: 9991
+  externalPort: 9991
 persistentVolume:
   enabled: true
   accessModes:
@@ -19,6 +19,7 @@ persistentVolume:
   existingClaim: ""
   size: 10Gi
   # storageClass: "-"
+allowHealthchecksFrom: '0.0.0.0/0'
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

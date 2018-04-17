@@ -32,6 +32,8 @@ spec:
               value: /data
             - name: LISTEN_ADDR
               value: 0.0.0.0
+            - name: HEALTHCHECKS_ALLOWFROM
+              value: "{{ .Values.allowHealthchecksFrom }}"
           args: ['npm', 'run', 'start_dataserver']
           ports:
             - name: s3-data
