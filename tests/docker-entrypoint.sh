@@ -16,4 +16,4 @@ else
 fi
 
 # Disable cache to run in a read-only container
-exec pytest -p no:cacheprovider "${PYTEST_XDIST_ARGS}" "$@"
+exec pytest -p no:cacheprovider -ra "${PYTEST_XDIST_ARGS}" "$@"
