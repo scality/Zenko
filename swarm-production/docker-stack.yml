@@ -2,7 +2,7 @@ version: "3.4"
 
 services:
   s3-data:
-    image: zenko/cloudserver:pensieve-3
+    image: zenko/cloudserver:pensieve-4
     ports:
       - 9991
     networks:
@@ -19,7 +19,7 @@ services:
           - node.labels.io.zenko.type == storage
 
   s3-front:
-    image: zenko/cloudserver:pensieve-3
+    image: zenko/cloudserver:pensieve-4
     ports:
       - 8000
     networks:
@@ -149,7 +149,7 @@ services:
           - node.labels.io.zenko.type == storage
 
   backbeat-producer:
-    image: 'zenko/backbeat:pensieve-4'
+    image: 'zenko/backbeat:pensieve-5'
     command: >-
       dockerize
         -timeout 90s
@@ -173,7 +173,7 @@ services:
       replicas: 1
 
   backbeat-api:
-    image: 'zenko/backbeat:pensieve-4'
+    image: 'zenko/backbeat:pensieve-5'
     command: >-
       dockerize
         -timeout 90s
@@ -196,7 +196,7 @@ services:
       replicas: 1
 
   backbeat-consumer:
-    image: 'zenko/backbeat:pensieve-4'
+    image: 'zenko/backbeat:pensieve-5'
     command: >-
       dockerize
         -timeout 90s
