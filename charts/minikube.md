@@ -11,7 +11,7 @@ start minikube with at least version 1.9 of kubernetes and perferably with 4GB o
 default value of 2GB should work, we recommend 4GB or more) and enable the minikube ingress addon for communication.
 ```shell
 minikube start --kubernetes-version=v1.9.0 --memory 4096
-minikube addon enable ingress
+minikube addons enable ingress
 ```
 ###### For installations requiring Role Based Access Control see [RBAC](#installation-using-rbac)
 
