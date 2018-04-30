@@ -22,6 +22,8 @@ spec:
           command: ["/usr/src/app/docker-entrypoint.sh"]
           args: ["npm", "run", "queue_processor"]
           env:
+            - name: REMOTE_MANAGEMENT_DISABLE
+              value: "{{- if .Values.orbit.enabled }}0{{- else }}1{{- end }}"
             - name: ZOOKEEPER_AUTO_CREATE_NAMESPACE
               value: "1"
             - name: ZOOKEEPER_CONNECTION_STRING
