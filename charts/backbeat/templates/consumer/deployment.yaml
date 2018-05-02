@@ -1,18 +1,18 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: {{ template "backbeat-consumer.fullname" . }}
+  name: {{ template "backbeat.fullname" . }}-consumer
   labels:
-    app: {{ template "backbeat-consumer.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    app: {{ template "backbeat.name" . }}
+    chart: {{ template "backbeat.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.consumer.replicaCount }}
   template:
     metadata:
       labels:
-        app: {{ template "backbeat-consumer.name" . }}
+        app: {{ template "backbeat.name" . }}
         release: {{ .Release.Name }}
     spec:
       containers:
@@ -20,7 +20,7 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["/usr/src/app/docker-entrypoint.sh"]
-          args: ["npm", "run", "queue_processor", "zenko"] 
+          args: ["npm", "run", "queue_processor", "zenko"]
           env:
             - name: ZOOKEEPER_AUTO_CREATE_NAMESPACE
               value: "1"
@@ -51,8 +51,16 @@ spec:
           # TODO livenessProbe:
           # TODO readinessProbe:
           resources:
-{{ toYaml .Values.resources | indent 12 }}
-    {{- if .Values.nodeSelector }}
+{{ toYaml .Values.consumer.resources | indent 12 }}
+    {{- with .Values.consumer.nodeSelector }}
       nodeSelector:
-{{ toYaml .Values.nodeSelector | indent 8 }}
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.consumer.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.consumer.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
     {{- end }}

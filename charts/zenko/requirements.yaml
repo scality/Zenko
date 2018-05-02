@@ -16,12 +16,9 @@ dependencies:
   repository: "https://kubernetes-charts.storage.googleapis.com/"
 
 # Charts managed in this repository
-- name: backbeat-consumer
+- name: backbeat
   version: "0.1.0"
-  repository: "file://../backbeat-consumer"
-- name: backbeat-producer
-  version: "0.1.0"
-  repository: "file://../backbeat-producer"
+  repository: "file://../backbeat"
 - name: kafka
   version: "0.1.1"
   repository: "file://../kafka"
