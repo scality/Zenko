@@ -1,14 +1,15 @@
 ### Requirements
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
-- [minikube](https://github.com/kubernetes/minikube/#installation)
+- [minikube](https://github.com/kubernetes/minikube/#installation) v0.25
   - [virtualbox](https://www.virtualbox.org/wiki/Downloads)
-- [helm](https://github.com/kubernetes/helm#install)
+- [helm](https://github.com/kubernetes/helm#install) v2.8.2
 - [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 
 The following assumes you have minikube (which requires virtualbox or other virtualization options),
 kubectl, and helm installed (see links above). Once minikube, kubectl, and helm are installed, 
 start minikube with at least version 1.9 of kubernetes and perferably with 4GB of RAM (although the
 default value of 2GB should work, we recommend 4GB or more) and enable the minikube ingress addon for communication.
+#### NOTE the listed versions are known to be working properly as some edge release versions may have issues properly deploying
 ```shell
 minikube start --kubernetes-version=v1.9.0 --memory 4096
 minikube addons enable ingress
