@@ -9,6 +9,7 @@ The following assumes you have minikube (which requires virtualbox or other virt
 kubectl, and helm installed (see links above). Once minikube, kubectl, and helm are installed, 
 start minikube with at least version 1.9 of kubernetes and perferably with 4GB of RAM (although the
 default value of 2GB should work, we recommend 4GB or more) and enable the minikube ingress addon for communication.
+#### NOTE the listed versions are known to be working properly as some edge release versions may have issues properly deploying
 ```shell
 minikube start --kubernetes-version=v1.9.0 --memory 4096
 minikube addons enable ingress
