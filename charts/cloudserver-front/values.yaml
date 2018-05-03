@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 
 orbit:
-  enabled: false
+  enabled: true
   endpoint: https://api.zenko.io
 # When 'orbit.enabled' is 'true', these aren't used, please use
 # https://zenko.io to manage your deployment
