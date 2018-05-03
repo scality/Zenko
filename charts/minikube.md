@@ -1,8 +1,8 @@
 ### Requirements
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
-- [minikube](https://github.com/kubernetes/minikube/#installation)
+- [minikube](https://github.com/kubernetes/minikube/#installation) v0.25
   - [virtualbox](https://www.virtualbox.org/wiki/Downloads)
-- [helm](https://github.com/kubernetes/helm#install)
+- [helm](https://github.com/kubernetes/helm#install) v2.8.2
 - [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 
 The following assumes you have minikube (which requires virtualbox or other virtualization options),
