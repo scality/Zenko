@@ -2,9 +2,6 @@ ingress:
   enabled: true
   hosts:
     - ""
-cloudserver-front:
-  orbit:
-    enabled: true
 
 zenko-zookeeper:
   servers: 1

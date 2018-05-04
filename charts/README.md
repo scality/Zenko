@@ -35,10 +35,10 @@ One option to highlight is the ability to enable integration with the
 [Orbit] management UI (which is disabled by default) and set a custom
 Orbit API endpoint (for development purposes). 
 
-To enable Orbit use:
+To disable Orbit use:
 
 ```shell
---set cloudserver-front.orbit.enabled=true
+--set cloudserver-front.orbit.enabled=false
 ```
 
 If a custom Orbit endpoint is required use:
