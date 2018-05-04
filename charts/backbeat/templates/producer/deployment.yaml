@@ -1,18 +1,18 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: {{ template "backbeat-producer.fullname" . }}
+  name: {{ template "backbeat.fullname" . }}-producer
   labels:
-    app: {{ template "backbeat-producer.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    app: {{ template "backbeat.name" . }}
+    chart: {{ template "backbeat.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.producer.replicaCount }}
   template:
     metadata:
       labels:
-        app: {{ template "backbeat-producer.name" . }}
+        app: {{ template "backbeat.name" . }}
         release: {{ .Release.Name }}
     spec:
       containers:
@@ -36,8 +36,16 @@ spec:
           # TODO livenessProbe:
           # TODO readinessProbe:
           resources:
-{{ toYaml .Values.resources | indent 12 }}
-    {{- if .Values.nodeSelector }}
+{{ toYaml .Values.producer.resources | indent 12 }}
+    {{- with .Values.producer.nodeSelector }}
       nodeSelector:
-{{ toYaml .Values.nodeSelector | indent 8 }}
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.producer.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.producer.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
     {{- end }}
