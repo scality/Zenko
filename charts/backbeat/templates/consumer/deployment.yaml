@@ -35,13 +35,13 @@ spec:
             - name: EXTENSIONS_REPLICATION_SOURCE_S3_HOST
               value: "{{- printf "%s-cloudserver-front" .Release.Name | trunc 63 | trimSuffix "-" -}}"
             - name: EXTENSIONS_REPLICATION_SOURCE_S3_PORT
-              value: "8001"
+              value: "80"
             - name: EXTENSIONS_REPLICATION_DEST_AUTH_TYPE
               value: service
             - name: EXTENSIONS_REPLICATION_DEST_AUTH_ACCOUNT
               value: service-replication
             - name: EXTENSIONS_REPLICATION_DEST_BOOTSTRAPLIST
-              value: "{{- printf "%s-cloudserver-front:8001" .Release.Name | trunc 63 | trimSuffix "-" -}}"
+              value: "{{- printf "%s-cloudserver-front:80" .Release.Name | trunc 63 | trimSuffix "-" -}}"
             - name: QUEUE_POPULATOR_DMD_HOST
               value: "{{- printf "%s-s3-metadata" .Release.Name | trunc 63 | trimSuffix "-" -}}"
             - name: QUEUE_POPULATOR_DMD_PORT
