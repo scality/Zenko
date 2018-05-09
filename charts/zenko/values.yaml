@@ -53,10 +53,10 @@ prometheus:
 
 mongodb-replicaset:
   replicaSet: rs0
-  replicas: 5
+  replicas: 3
 
 kafka:
-  replicas: 5
+  replicas: 3
   prometheusExport:
     enabled: true
 
