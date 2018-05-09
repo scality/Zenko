@@ -19,3 +19,7 @@ mongodb-replicaset:
   replicaSet: rs0
   replicas: 3
 
+redis-ha:
+  replicas:
+    servers: 1
+    sentinels: 1

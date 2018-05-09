@@ -67,7 +67,7 @@ zenko-queue:
     "auto.create.topics.enable": true     # - enable auto creation of topic on the server
     "min.insync.replicas": 2              # - min number of replicas that must acknowledge a write
   prometheus:
-    jmx: 
+    jmx:
       enabled: true
     kafka:
       enabled: true
@@ -88,3 +88,10 @@ redis:
     enabled: false
   metrics:
     enabled: true
+
+redis-ha:
+  rbac:
+    create: true
+  replicas:
+    servers: 3
+    sentinels: 3

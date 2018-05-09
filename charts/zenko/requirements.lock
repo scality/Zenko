@@ -14,6 +14,9 @@ dependencies:
 - name: zookeeper
   repository: http://storage.googleapis.com/kubernetes-charts-incubator
   version: 1.0.0
+- name: redis-ha
+  repository: https://kubernetes-charts.storage.googleapis.com/
+  version: 2.1.2
 - name: backbeat
   repository: file://../backbeat
   version: 0.1.0
@@ -23,5 +26,5 @@ dependencies:
 - name: cloudserver-front
   repository: file://../cloudserver-front
   version: 0.1.4
-digest: sha256:5f8749b142c214886ed8e9856772ebb12b173e2c05544854ef585b919ceffc39
-generated: 2018-05-16T13:51:44.863302-07:00
+digest: sha256:4fbe68bcb4a27d60e6a2a66dfe8584738a8cd89a42ce120adffce7186f2212cf
+generated: 2018-05-17T14:35:52.598131847-07:00
