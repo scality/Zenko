@@ -11,6 +11,8 @@ DOCKER_ARGS :=
 PYTEST_ARGS :=
 DOTENV := $(PWD)/.env
 
+HELM_TEST_PODS := {range .items[?(@.metadata.annotations.helm\.sh\/hook)]}{@.metadata.name}{"\n"}{end}
+
 requirements.txt: setup.cfg setup.py tox.ini
 	@env CUSTOM_COMPILE_COMMAND="$(MAKE) requirements.txt" $(TOX) -e pip-compile
 
@@ -48,6 +50,16 @@ kubernetes-run-nondestructive: kubernetes-run
 kubernetes-run-conformance: PYTEST_ARGS := $(PYTEST_ARGS) -m conformance
 kubernetes-run-conformance: kubernetes-run
 .PHONY: kubernetes-run-conformance
+
+helm-test:
+	@helm test $(ZENKO_HELM_RELEASE) || HELM_FAIL=1; \
+	(kubectl -n $(ZENKO_K8S_NAMESPACE) get pods -o jsonpath='$(HELM_TEST_PODS)') | \
+	while read -r pod; do \
+	  echo "$${pod} Logs:"; echo; \
+	  kubectl -n $(ZENKO_K8S_NAMESPACE) logs $${pod}; \
+	  kubectl -n $(ZENKO_K8S_NAMESPACE) delete pod $${pod}; \
+	done; \
+	exit $${HELM_FAIL}
 
 lint:
 	@$(TOX)

@@ -1,0 +1,76 @@
+version: "0.2"
+
+branches:
+  default:
+    stage: "pre-merge"
+
+stages:
+  pre-merge:
+    worker: &pod
+      type: kube_pod
+      path: eve/workers/zenko.yaml
+    steps:
+    - TriggerStages:
+        name: trigger all the tests
+        stage_names:
+        - helm_test_kube_1.9.6
+
+  helm_test_kube_1.9.6:
+    worker:
+      <<: *pod
+      service:
+        requests:
+          version: "1.9.6"
+        namespaces:
+        - "testNamespace"    # <<< the default namespace for that stage
+    steps:
+    - Git: &git_pull
+        name: git pull
+        repourl: "%(prop:git_reference)s"
+        mode: full
+        method: clobber
+        retryFetch: true
+        haltOnFailure: true
+    - ShellCommand: &install_tiller
+        name: install helm (tiller into kubernetes)
+        command: >-
+          helm init --wait
+        haltOnFailure: true
+        env:
+          TILLER_NAMESPACE: '%(prop:testNamespace)s'
+    - ShellCommand:
+        name: Install needed repo
+        command: >
+          helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
+        haltOnFailure: true
+        env:
+          TILLER_NAMESPACE: '%(prop:testNamespace)s'
+    - ShellCommand:
+        name: Retrieve dependency
+        command: >-
+           helm dep build charts/zenko
+        haltOnFailure: true
+        env:
+          TILLER_NAMESPACE: '%(prop:testNamespace)s'
+    - ShellCommand:
+        name: Install Zenko !
+        command: >-
+          helm upgrade zenko-test --namespace %(prop:testNamespace)s
+          --install charts/zenko --wait
+          --set prometheus.rbac.create=false
+          --set zenko-queue.rbac.enabled=false
+          --set redis-ha.rbac.create=false
+        haltOnFailure: true
+        env:
+          TILLER_NAMESPACE: '%(prop:testNamespace)s'
+    - ShellCommand:
+        name: Test zenko
+        command: |-
+          sleep 90
+          make helm-test
+        workdir: build/tests
+        haltOnFailure: true
+        env:
+          TILLER_NAMESPACE: '%(prop:testNamespace)s'
+          ZENKO_K8S_NAMESPACE: '%(prop:testNamespace)s'
+          ZENKO_HELM_RELEASE: 'zenko-test'
