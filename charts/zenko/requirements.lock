@@ -1,7 +1,4 @@
 dependencies:
-- name: zenko-zookeeper
-  repository: https://scality.github.io/zenko-zookeeper/charts
-  version: 0.0.7
 - name: prometheus
   repository: https://kubernetes-charts.storage.googleapis.com/
   version: 5.3.1
@@ -11,17 +8,20 @@ dependencies:
 - name: redis
   repository: https://kubernetes-charts.storage.googleapis.com/
   version: 1.1.12
+- name: kafka
+  repository: http://storage.googleapis.com/kubernetes-charts-incubator
+  version: 0.7.1
+- name: zookeeper
+  repository: http://storage.googleapis.com/kubernetes-charts-incubator
+  version: 1.0.0
 - name: backbeat
   repository: file://../backbeat
   version: 0.1.0
-- name: kafka
-  repository: file://../kafka
-  version: 0.1.1
 - name: s3-data
   repository: file://../s3-data
   version: 0.1.0
 - name: cloudserver-front
   repository: file://../cloudserver-front
   version: 0.1.4
-digest: sha256:cf5fa335902dd3b827ed3fd6921d3415a81537d0ea3ca0b92b131078528f45e4
-generated: 2018-05-02T23:18:38.627300269+02:00
+digest: sha256:5f8749b142c214886ed8e9856772ebb12b173e2c05544854ef585b919ceffc39
+generated: 2018-05-16T13:51:44.863302-07:00

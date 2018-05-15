@@ -1,9 +1,4 @@
 dependencies:
-# Upstream `zenko-*` Charts
-- name: zenko-zookeeper
-  version: "0.0.7"
-  repository: "https://scality.github.io/zenko-zookeeper/charts"
-
 # Upstream Kubernetes Charts
 - name: prometheus
   version: "5.3.1"
@@ -14,14 +9,20 @@ dependencies:
 - name: redis
   version: "1.1.12"
   repository: "https://kubernetes-charts.storage.googleapis.com/"
+- name: kafka
+  version: "0.7.1"
+  repository: "http://storage.googleapis.com/kubernetes-charts-incubator"
+  alias: zenko-queue
+- name: zookeeper
+  version: "1.0.0" 
+  repository: "http://storage.googleapis.com/kubernetes-charts-incubator"
+  alias: zenko-quorum
+
 
 # Charts managed in this repository
 - name: backbeat
   version: "0.1.0"
   repository: "file://../backbeat"
-- name: kafka
-  version: "0.1.1"
-  repository: "file://../kafka"
 - name: s3-data
   version: "0.1.0"
   repository: "file://../s3-data"

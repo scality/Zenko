@@ -24,9 +24,9 @@ spec:
             - name: ZOOKEEPER_AUTO_CREATE_NAMESPACE
               value: "1"
             - name: ZOOKEEPER_CONNECTION_STRING
-              value: "{{- printf "%s-zenko-zookeeper:2181" .Release.Name | trunc 63 | trimSuffix "-" -}}"
+              value: "{{- printf "%s-zenko-quorum:2181" .Release.Name | trunc 63 | trimSuffix "-" -}}"
             - name: KAFKA_HOSTS
-              value: "{{- printf "%s-kafka-0.%s-kafka:9092" .Release.Name .Release.Name | trunc 63 | trimSuffix "-" -}}"
+              value: "{{- printf "%s-zenko-queue:9092" .Release.Name | trunc 63 | trimSuffix "-" -}}"
             - name: MONGODB_HOSTS
               value: "{{ .Release.Name }}-mongodb-replicaset-0.{{ .Release.Name }}-mongodb-replicaset:27017,{{ .Release.Name }}-mongodb-replicaset-1.{{ .Release.Name }}-mongodb-replicaset:27017,{{ .Release.Name }}-mongodb-replicaset-2.{{ .Release.Name }}-mongodb-replicaset:27017"
           # TODO livenessProbe:
