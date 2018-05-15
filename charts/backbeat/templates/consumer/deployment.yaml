@@ -42,10 +42,6 @@ spec:
               value: service-replication
             - name: EXTENSIONS_REPLICATION_DEST_BOOTSTRAPLIST
               value: "{{- printf "%s-cloudserver-front:80" .Release.Name | trunc 63 | trimSuffix "-" -}}"
-            - name: QUEUE_POPULATOR_DMD_HOST
-              value: "{{- printf "%s-s3-metadata" .Release.Name | trunc 63 | trimSuffix "-" -}}"
-            - name: QUEUE_POPULATOR_DMD_PORT
-              value: "9993"
             - name: MONGODB_HOSTS
               value: "{{ .Release.Name }}-mongodb-replicaset-0.{{ .Release.Name }}-mongodb-replicaset:27017,{{ .Release.Name }}-mongodb-replicaset-1.{{ .Release.Name }}-mongodb-replicaset:27017,{{ .Release.Name }}-mongodb-replicaset-2.{{ .Release.Name }}-mongodb-replicaset:27017"
           # TODO livenessProbe:
