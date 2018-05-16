@@ -5,18 +5,21 @@ This is a [Helm] Chart for [Scality] [Zenko]. To get started, you'll need a
 a local or single machine deployment.
 
 First, retrieve all dependencies:
-
 ```shell
-$ helm repo add zenko-zookeeper https://scality.github.io/zenko-zookeeper/charts
-"zenko-zookeeper" has been added to your repositories
+$ helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
+"incubator" has been added to your repositories
 
 $ helm dependency build zenko/
 Hang tight while we grab the latest from your chart repositories...
-...Successfully got an update from the "zenko-zookeeper" chart repository
+...Successfully got an update from the "incubator" chart repository
 ...Successfully got an update from the "stable" chart repository
 Update Complete. ⎈Happy Helming!⎈
-Saving 1 charts
-Downloading zenko-zookeeper from repo https://scality.github.io/zenko-zookeeper/charts
+Saving 8 charts
+Downloading prometheus from repo https://kubernetes-charts.storage.googleapis.com/
+Downloading mongodb-replicaset from repo https://kubernetes-charts.storage.googleapis.com/
+Downloading redis from repo https://kubernetes-charts.storage.googleapis.com/
+Downloading kafka from repo http://storage.googleapis.com/kubernetes-charts-incubator
+Downloading zookeeper from repo http://storage.googleapis.com/kubernetes-charts-incubator
 Deleting outdated charts
 ```
 
