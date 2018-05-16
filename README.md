@@ -21,10 +21,7 @@ https://github.com/scality/Guidelines/blob/master/CONTRIBUTING.md).
 This repository will include installation resources to deploy the full Zenko
 stack over different orchestration systems.
 
-We started with [Docker Swarm](https://docs.docker.com/engine/swarm/) and 
-[Helm charts](https://github.com/scality/Zenko/blob/master/charts/README.md) for 
-[Kubernetes](https://github.com/scality/metal-k8s). 
-The following information is about the Docker Swarm setup.
+We started with [Docker Swarm](https://docs.docker.com/engine/swarm/) and [Helm charts](https://github.com/scality/Zenko/blob/master/charts/README.md) for [Kubernetes](https://kubernetes.io/). The following information is about the Docker Swarm setup.
 
 The stack is composed of:
 - [nginx](https://nginx.org/en/),
