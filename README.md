@@ -18,26 +18,35 @@ https://github.com/scality/Guidelines/blob/master/CONTRIBUTING.md).
 
 ## Overview
 
-This repository will include installation resources to deploy the full Zenko
+This repository includes installation resources to deploy the full Zenko
 stack over different orchestration systems.
 
-We started with [Docker Swarm](https://docs.docker.com/engine/swarm/) and 
-[Helm charts](https://github.com/scality/Zenko/blob/master/charts/README.md) for 
-[Kubernetes](https://github.com/scality/metal-k8s). 
-The following information is about the Docker Swarm setup.
+Currently we have [Kubernetes](https://kubernetes.io/) and [Docker Swarm](https://docs.docker.com/engine/swarm/).
+
+### Zenko Stack
 
 The stack is composed of:
-- [nginx](https://nginx.org/en/),
-- [Scality S3 server](https://github.com/scality/S3),
-- [data and metadata deamon (dmd)](http://s3-server.readthedocs.io/en/latest/ARCHITECTURE/#data-metadata-daemon-architecture-and-operational-guide),
+- [nginx](https://nginx.org/en/)
+- [Zenko Cloudserver](https://github.com/scality/S3)
+- [Zenko Backbeat Async Replication Engine](https://github.com/scality/backbeat)
+- [MongoDB](https://www.mongodb.com)
 - [redis](https://redis.io/)
 - all magically configured to talk to each other.
 
-## [Testing Zenko with Docker Swarm](./swarm-testing)
+## Testing Zenko
 
 Simple Zenko setup for quick testing with non-production data
 
-## [Zenko in production with Docker Swarm](./swarm-production)
+[Zenko Single Node Kubernetes](./charts/minikube.md)
+
+[Zenko Docker Swarm Testing](./swarm-testing)
+
+## Zenko in production
 
 - Includes high availability (HA)
 - Asks for pre-existing volumes
+
+[Zenko Kubernetes Helm Chart deployment](./charts)
+   - [Deploying a HA Kubernetes cluster](https://github.com/scality/metal-k8s)
+
+[Zenko Docker Swarm HA Deployment](./swarm-production)
