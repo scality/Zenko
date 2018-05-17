@@ -55,10 +55,32 @@ mongodb-replicaset:
   replicaSet: rs0
   replicas: 3
 
-kafka:
+zenko-queue:
+## Extensive list of configurables can be found here:
+## https://github.com/kubernetes/charts/blob/master/incubator/kafka/values.yaml
   replicas: 3
-  prometheusExport:
+  rbac:
     enabled: true
+  configurationOverrides:
+    "offsets.topic.replication.factor": 3 # - replication factor for the offsets topic
+    "num.partitions": 1                   # - default number of log partitions per topic
+    "auto.create.topics.enable": true     # - enable auto creation of topic on the server
+    "min.insync.replicas": 2              # - min number of replicas that must acknowledge a write
+  prometheus:
+    jmx: 
+      enabled: true
+    kafka:
+      enabled: true
+zookeeper:
+  enabled: false # Disables zenko-queue from deploying its own quorum
+
+zenko-quorum:
+## Extensive list of configurables can be found here:
+## https://github.com/kubernetes/charts/blob/master/incubator/zookeeper/values.yaml
+  replicaCount: 3
+  exporters:
+    jmx:
+      enabled: true
 
 redis:
   usePassword: false
