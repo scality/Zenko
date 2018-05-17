@@ -1,0 +1,31 @@
+{{- if .Values.bootstrapList -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-backbeat-configmap
+  labels:
+    app: {{ template "backbeat.name" . }}
+    chart: {{ template "backbeat.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  bootstrapList: |-
+      {{ range $index, $location := .Values.bootstrapList }}
+      {{- if $index -}},{{- end -}}
+      { "site": "{{ $location.site }}", "type": "{{ $location.type}}" }
+      {{- end }}
+  accounts: |-
+      {{ range $index, $account := .Values.s3Accounts }}
+      {{- if $index -}},{{- end -}}
+      {
+        "name": "{{ $account.name }}",
+        "arn": "{{ printf "arn:aws:iam::%s:root" (12 | randNumeric) }}",
+        "canonicalID": "http://acs.zenko.io/accounts/service/replication",
+        "displayName": "{{ $account.name }}",
+        "keys": {
+            "access": "{{ $account.keyId }}",
+            "secret": "{{ $account.secretKey }}"
+        }
+      }
+      {{- end }}
+{{- end -}}

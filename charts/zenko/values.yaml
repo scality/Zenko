@@ -27,13 +27,70 @@ e2e:
 
 cloudserver-front:
   orbit:
-    enabled: true
+    enabled: false
   # When 'orbit.enabled' is 'true', these aren't used, please use
   # https://zenko.io to manage your deployment
   endpoint: zenko.local
   credentials:
     keyId: deployment-specific-access-key
     secretKey: deployment-specific-secret-key
+  # set locations and disable orbit to use locally defined locations
+  # and replication sites
+  locationConstraints:
+    # required default location
+    us-east-1:
+      type: file
+      legacyAwsBehavior: true
+    # awsbackend:
+    #   type: aws_s3
+    #   legacyAwsBehavior: true
+    #   details:
+    #     bucketMatch: true
+    #     awsEndpoint: s3.amazonaws.com
+    #     bucketName: bucketName
+    #     credentials:
+    #       accessKey: accessKey
+    #       secretKey: secretKey
+    # azurebackend:
+    #   type: azure
+    #   legacyAwsBehavior: true
+    #   details:
+    #     azureStorageEndpoint: https://accountName.blob.core.fake.net/
+    #     azureStorageAccountName: accountName
+    #     azureStorageAccessKey: accessKey
+    #     azureContainerName: containerName
+    # gcpbackend:
+    #   type: gcp
+    #   legacyAwsBehavior: true
+    #   details:
+    #     bucketMatch: false
+    #     gcpEndpoint: storage.googleapis.com
+    #     bucketName: gcpBucketName
+    #     mpuBucketName: gcpBucketNameMpu
+    #     credentials:
+    #       accessKey: accessKey
+    #       secretKey: secretKey
+  replicationEndpoints:
+    # - awsbackend
+    # - azurebackend
+    # - gcpbackend
+
+backbeat:
+  orbit:
+    enabled: false
+  # replication site bootstrap list
+  bootstrapList:
+    # - site: awsbackend
+    #   type: aws_s3
+    # - site: azurebackend
+    #   type: azure
+    # - site: gcpbackend
+    #   type: gcp
+  # cloudserver account to use for performing replication commands
+  s3Accounts:
+    # - name: Replication
+    #   keyId: deployment-specific-access-key
+    #   secretKey: deployment-specific-secret-key
 
 prometheus:
   rbac:

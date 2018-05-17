@@ -1,0 +1,66 @@
+{{- if .Values.locationConstraints -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-cloudserver-front-configmap
+  labels:
+    app: {{ template "cloudserver-front.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  locationConfig: |-
+    {{ $last := keys .Values.locationConstraints | sortAlpha | first -}}
+    {
+      {{ range $index, $location := .Values.locationConstraints }}
+      {{- if ne $index $last -}},{{- end -}}
+      "{{$index}}": {
+        "type": "{{ $location.type }}",
+        "legacyAwsBehavior": {{ $location.legacyAwsBehavior }},
+        "details": {
+          {{- if eq $location.type "aws_s3" }}
+            "bucketMatch": {{ $location.details.bucketMatch }},
+            "https": {{ $location.details.https | default true }},
+            "awsEndpoint": "{{ $location.details.awsEndpoint }}",
+            "bucketName": "{{ $location.details.bucketName }}",
+            {{- if $location.details.serverSideEncryption }}
+            "serverSideEncryption": {{$location.details.serverSideEncryption | default false}},
+            {{- end }}
+            "credentials": {
+              "accessKey": "{{ $location.details.credentials.accessKey }}",
+              "secretKey": "{{ $location.details.credentials.secretKey }}"
+            }
+          {{- else if eq $location.type "azure" }}
+            "bucketMatch": {{ $location.details.bucketMatch }},
+            "azureStorageEndpoint": "{{ $location.details.azureStorageEndpoint }}",
+            "azureStorageAccountName": "{{ $location.details.azureStorageAccountName }}",
+            "azureStorageAccessKey": "{{ $location.details.azureStorageAccessKey }}",
+            "azureContainerName": "{{ $location.details.azureContainerName }}"
+          {{- else if eq $location.type "gcp" }}
+            "bucketMatch": {{ $location.details.bucketMatch }},
+            "https": {{ $location.details.https | default true }},
+            "gcpEndpoint": "{{ $location.details.gcpEndpoint }}",
+            "bucketName": "{{ $location.details.bucketName }}",
+            "mpuBucketName": "{{ $location.details.mpuBucketName }}",
+            "credentials": {
+              "accessKey": "{{ $location.details.credentials.accessKey }}",
+              "secretKey": "{{ $location.details.credentials.secretKey }}"
+            }
+          {{- end }}
+        }
+      }
+      {{- end }}
+    }
+  {{ if .Values.replicationEndpoints }}
+  replicationInfo: |-
+    [
+      {{- range $index, $locName := .Values.replicationEndpoints -}}
+      {{- if $index -}},{{- end -}}
+      {{- $loc := index $.Values.locationConstraints $locName }}
+      {{- if $loc }}
+      { "site": "{{ $locName }}", "type": "{{ $loc.type }}" }
+      {{- end }}
+      {{- end }}
+    ]
+  {{- end }}
+{{- end -}}

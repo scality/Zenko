@@ -19,6 +19,12 @@ spec:
         app: {{ template "cloudserver-front.name" . }}
         release: {{ .Release.Name }}
     spec:
+      {{- if .Values.locationConstraints }}
+      volumes:
+        - name: location-config
+          configMap:
+            name: {{ .Release.Name }}-cloudserver-front-configmap
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -26,6 +32,11 @@ spec:
           ports:
             - name: http
               containerPort: 8000
+          {{- if .Values.locationConstraints }}
+          volumeMounts:
+            - name: location-config
+              mountPath: /etc/config
+          {{- end}}
           env:
             - name: DATA_HOST
               value: "{{- printf "%s-%s" .Release.Name "s3-data" | trunc 63 | trimSuffix "-" -}}"
@@ -69,6 +80,14 @@ spec:
                 secretKeyRef:
                   name: {{ template "cloudserver-front.fullname" . }}
                   key: secretKey
+          {{- if .Values.locationConstraints }}
+            - name: S3_LOCATION_FILE
+              value: "/etc/config/locationConfig"
+            {{- if .Values.replicationEndpoints }}
+            - name: S3_REPLICATION_FILE
+              value: "/etc/config/replicationInfo"
+            {{- end }}
+          {{- end}}
 {{- end }}
           args: ['npm', 'run', 'start_s3server']
           livenessProbe:

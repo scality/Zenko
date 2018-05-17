@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 
 orbit:
-  enabled: true
+  enabled: false
   endpoint: https://api.zenko.io
 # When 'orbit.enabled' is 'true', these aren't used, please use
 # https://zenko.io to manage your deployment
@@ -16,6 +16,7 @@ logging:
    # Options: info, debug, trace
    level: info
 
+
 allowHealthchecksFrom: '0.0.0.0/0'
 
 mongodb:
@@ -25,8 +26,8 @@ mongodb:
 replicaCount: 1
 
 image:
-  repository: zenko/cloudserver
-  tag: 0.1.9
+  repository: arekisannda/cloudserver
+  tag: latest
   pullPolicy: IfNotPresent
 
 service:
