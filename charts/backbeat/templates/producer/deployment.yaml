@@ -15,6 +15,15 @@ spec:
         app: {{ template "backbeat.name" . }}
         release: {{ .Release.Name }}
     spec:
+      initContainers:
+      - name: check-dependencies-readiness
+        image: gcr.io/google_samples/k8szk:v3
+        env:
+          - name: QUORUM_HOST
+            value: "{{ .Release.Name }}-zenko-quorum"
+        command: ['sh', '-c',
+          'until echo dump | nc $QUORUM_HOST 2181 | grep brokers;
+          do echo waiting for zenko-quorum and zenko-queue; sleep 5; done;']
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
