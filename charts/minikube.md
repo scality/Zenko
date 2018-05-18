@@ -6,7 +6,7 @@
 - [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 
 The following assumes you have minikube (which requires virtualbox or other virtualization options),
-kubectl, and helm installed (see links above). Once minikube, kubectl, and helm are installed, 
+kubectl, and helm installed (see links above). Once minikube, kubectl, and helm are installed,
 start minikube with at least version 1.9 of kubernetes and perferably with 4GB of RAM (although the
 default value of 2GB should work, we recommend 4GB or more) and enable the minikube ingress addon for communication.
 #### NOTE the listed versions are known to be working properly as some edge release versions may have issues properly deploying
@@ -16,7 +16,7 @@ minikube addons enable ingress
 ```
 ###### For installations requiring Role Based Access Control see [RBAC](#installation-using-rbac)
 
-Once minikube has started, run the helm initialization. 
+Once minikube has started, run the helm initialization.
 ```
 helm init --wait
 ```
@@ -53,6 +53,7 @@ With your dependencies built, you can run the following shell command to deploy 
 helm install --name zenko \
   --set prometheus.rbac.create=false \
   --set zenko-queue.rbac.enabled=false \
+  --set redis-ha.rbac.create=false \
   -f single-node-values.yml zenko
 ```
 #### NOTE that Orbit is enabled by default with these values
@@ -63,7 +64,7 @@ minikube dashboard
 ```
 #### NOTE that once you helm install, it may take several minutes for all the pods to load and stabilize
 
-The endpoint can now be accessed via the kubernetes cluster ip (run ```minikube ip``` to display the cluster ip) 
+The endpoint can now be accessed via the kubernetes cluster ip (run ```minikube ip``` to display the cluster ip)
 
 
 ## Installation Using RBAC
