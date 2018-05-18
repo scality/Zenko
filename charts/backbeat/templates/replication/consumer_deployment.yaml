@@ -20,7 +20,7 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["/usr/src/app/docker-entrypoint.sh"]
-          args: ["npm", "run", "queue_processor", "zenko"]
+          args: ["npm", "run", "queue_processor"]
           env:
             - name: ZOOKEEPER_AUTO_CREATE_NAMESPACE
               value: "1"
