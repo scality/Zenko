@@ -31,18 +31,19 @@ api:
   tolerations: []
   affinity: {}
 
-consumer:
-  replicaCount: 1
+replication:
+  consumer:
+    replicaCount: 1
 
-  resources: {}
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
 
-producer:
-  replicaCount: 1
+  producer:
+    replicaCount: 1
 
-  resources: {}
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}

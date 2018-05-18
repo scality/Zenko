@@ -8,7 +8,7 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
-  replicas: {{ .Values.consumer.replicaCount }}
+  replicas: {{ .Values.replication.consumer.replicaCount }}
   template:
     metadata:
       labels:
@@ -53,16 +53,16 @@ spec:
           # TODO livenessProbe:
           # TODO readinessProbe:
           resources:
-{{ toYaml .Values.consumer.resources | indent 12 }}
-    {{- with .Values.consumer.nodeSelector }}
+{{ toYaml .Values.replication.consumer.resources | indent 12 }}
+    {{- with .Values.replication.consumer.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
     {{- end }}
-    {{- with .Values.consumer.affinity }}
+    {{- with .Values.replication.consumer.affinity }}
       affinity:
 {{ toYaml . | indent 8 }}
     {{- end }}
-    {{- with .Values.consumer.tolerations }}
+    {{- with .Values.replication.consumer.tolerations }}
       tolerations:
 {{ toYaml . | indent 8 }}
     {{- end }}
