@@ -1,25 +1,26 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: {{ template "backbeat.fullname" . }}-producer
+  name: {{ template "backbeat.fullname" . }}-consumer
   labels:
-    app: {{ template "backbeat.name" . }}
+    app: {{ template "backbeat.name" . }}-replication
     chart: {{ template "backbeat.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
-  replicas: {{ .Values.producer.replicaCount }}
+  replicas: {{ .Values.consumer.replicaCount }}
   template:
     metadata:
       labels:
-        app: {{ template "backbeat.name" . }}
+        app: {{ template "backbeat.name" . }}-replication
         release: {{ .Release.Name }}
     spec:
       containers:
-        - name: {{ .Chart.Name }}
+        - name: {{ template "backbeat.fullname" . }}-consumer
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          args: ["npm", "run", "queue_populator"]
+          command: ["/usr/src/app/docker-entrypoint.sh"]
+          args: ["npm", "run", "queue_processor", "zenko"]
           env:
             - name: ZOOKEEPER_AUTO_CREATE_NAMESPACE
               value: "1"
@@ -27,21 +28,35 @@ spec:
               value: "{{- printf "%s-zenko-quorum:2181" .Release.Name | trunc 63 | trimSuffix "-" -}}"
             - name: KAFKA_HOSTS
               value: "{{- printf "%s-zenko-queue:9092" .Release.Name | trunc 63 | trimSuffix "-" -}}"
+            - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_TYPE
+              value: service
+            - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_ACCOUNT
+              value: service-replication
+            - name: EXTENSIONS_REPLICATION_SOURCE_S3_HOST
+              value: "{{- printf "%s-cloudserver-front" .Release.Name | trunc 63 | trimSuffix "-" -}}"
+            - name: EXTENSIONS_REPLICATION_SOURCE_S3_PORT
+              value: "80"
+            - name: EXTENSIONS_REPLICATION_DEST_AUTH_TYPE
+              value: service
+            - name: EXTENSIONS_REPLICATION_DEST_AUTH_ACCOUNT
+              value: service-replication
+            - name: EXTENSIONS_REPLICATION_DEST_BOOTSTRAPLIST
+              value: "{{- printf "%s-cloudserver-front:80" .Release.Name | trunc 63 | trimSuffix "-" -}}"
             - name: MONGODB_HOSTS
               value: "{{ .Release.Name }}-mongodb-replicaset-0.{{ .Release.Name }}-mongodb-replicaset:27017,{{ .Release.Name }}-mongodb-replicaset-1.{{ .Release.Name }}-mongodb-replicaset:27017,{{ .Release.Name }}-mongodb-replicaset-2.{{ .Release.Name }}-mongodb-replicaset:27017"
           # TODO livenessProbe:
           # TODO readinessProbe:
           resources:
-{{ toYaml .Values.producer.resources | indent 12 }}
-    {{- with .Values.producer.nodeSelector }}
+{{ toYaml .Values.consumer.resources | indent 12 }}
+    {{- with .Values.consumer.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
     {{- end }}
-    {{- with .Values.producer.affinity }}
+    {{- with .Values.consumer.affinity }}
       affinity:
 {{ toYaml . | indent 8 }}
     {{- end }}
-    {{- with .Values.producer.tolerations }}
+    {{- with .Values.consumer.tolerations }}
       tolerations:
 {{ toYaml . | indent 8 }}
     {{- end }}
