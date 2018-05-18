@@ -8,7 +8,7 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
-  replicas: {{ .Values.producer.replicaCount }}
+  replicas: {{ .Values.replication.producer.replicaCount }}
   template:
     metadata:
       labels:
@@ -38,16 +38,16 @@ spec:
           # TODO livenessProbe:
           # TODO readinessProbe:
           resources:
-{{ toYaml .Values.producer.resources | indent 12 }}
-    {{- with .Values.producer.nodeSelector }}
+{{ toYaml .Values.replication.producer.resources | indent 12 }}
+    {{- with .Values.replication.producer.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
     {{- end }}
-    {{- with .Values.producer.affinity }}
+    {{- with .Values.replication.producer.affinity }}
       affinity:
 {{ toYaml . | indent 8 }}
     {{- end }}
-    {{- with .Values.producer.tolerations }}
+    {{- with .Values.replication.producer.tolerations }}
       tolerations:
 {{ toYaml . | indent 8 }}
     {{- end }}
