@@ -47,3 +47,12 @@ replication:
     nodeSelector: {}
     tolerations: []
     affinity: {}
+
+  status:
+    replicaCount: 1
+    
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+    
