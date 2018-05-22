@@ -3,9 +3,6 @@ dependencies:
 - name: prometheus
   version: "5.3.1"
   repository: "https://kubernetes-charts.storage.googleapis.com/"
-- name: mongodb-replicaset
-  version: "2.2.1"
-  repository: "https://kubernetes-charts.storage.googleapis.com/"
 - name: redis
   version: "1.1.12"
   repository: "https://kubernetes-charts.storage.googleapis.com/"
@@ -20,6 +17,9 @@ dependencies:
 
 
 # Charts managed in this repository
+- name: mongodb-replicaset
+  version: "2.2.1"
+  repository: "file://../mongodb-replicaset"
 - name: backbeat
   version: "0.1.0"
   repository: "file://../backbeat"

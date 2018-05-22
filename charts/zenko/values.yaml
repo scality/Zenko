@@ -2,7 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 ingress:
-  enabled: false
+  enabled: true
   # Used to create an Ingress record.
   # This must match the 'cloudserver-front' 'endpoint', unless your client
   # supports different hostnames.

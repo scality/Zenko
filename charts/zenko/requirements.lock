@@ -2,9 +2,6 @@ dependencies:
 - name: prometheus
   repository: https://kubernetes-charts.storage.googleapis.com/
   version: 5.3.1
-- name: mongodb-replicaset
-  repository: https://kubernetes-charts.storage.googleapis.com/
-  version: 2.2.1
 - name: redis
   repository: https://kubernetes-charts.storage.googleapis.com/
   version: 1.1.12
@@ -14,6 +11,9 @@ dependencies:
 - name: zookeeper
   repository: http://storage.googleapis.com/kubernetes-charts-incubator
   version: 1.0.0
+- name: mongodb-replicaset
+  repository: file://../mongodb-replicaset
+  version: 2.2.1
 - name: backbeat
   repository: file://../backbeat
   version: 0.1.0
@@ -23,5 +23,5 @@ dependencies:
 - name: cloudserver-front
   repository: file://../cloudserver-front
   version: 0.1.4
-digest: sha256:5f8749b142c214886ed8e9856772ebb12b173e2c05544854ef585b919ceffc39
-generated: 2018-05-16T13:51:44.863302-07:00
+digest: sha256:b06a67658494849dc88def77347744bbede0288d792e57e74c45a06636c218d0
+generated: 2018-05-22T14:07:07.04221-07:00
