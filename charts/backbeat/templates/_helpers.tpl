@@ -43,4 +43,4 @@ name: KAFKA_HOSTS
 value: "{{- printf "%s-zenko-queue:9092" .Release.Name | trunc 63 | trimSuffix "-" -}}"
 name: REDIS_HOST
 value: "{{- printf "%s-%s" .Release.Name "redis" | trunc 63 | trimSuffix "-" -}}"
-{{- end- }}
+{{- end -}}

@@ -18,7 +18,7 @@ spec:
       containers:
         - name: {{ template "backbeat.fullname" . }}-consumer
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          imagePullPolicy: "{{ .Values.image.pullPolicy }}
           command: ["/usr/src/app/docker-entrypoint.sh"]
           args: ["npm", "run", "queue_processor"]
           env:
@@ -31,9 +31,7 @@ spec:
             - name: REDIS_HOST
               value: "{{- printf "%s-%s" .Release.Name "redis" | trunc 63 | trimSuffix "-" -}}"
           {{ template "backbeat.common" . | indent 12 }}
-          {{- range $key, $value := .Values.env }}
-            - name: {{ $key | upper | replace "." "_" }}
-              value: {{ $value | quote }}
+
           {{- end }}
           {{- range $key, $value := .Values.replication.consumer.env }}
             - name: {{ $key | upper | replace "." "_" }}
