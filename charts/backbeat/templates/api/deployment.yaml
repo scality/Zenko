@@ -24,20 +24,15 @@ spec:
             - name: api
               containerPort: 8900
           env:
-            - name: REMOTE_MANAGEMENT_DISABLE
-              value: "{{- if .Values.orbit.enabled }}0{{- else }}1{{- end }}"
-            - name: ZOOKEEPER_AUTO_CREATE_NAMESPACE
-              value: "1"
-            - name: ZOOKEEPER_CONNECTION_STRING
-              value: "{{- printf "%s-zenko-quorum:2181" .Release.Name | trunc 63 | trimSuffix "-" -}}"
-            - name: KAFKA_HOSTS
-              value: "{{- printf "%s-zenko-queue:9092" .Release.Name | trunc 63 | trimSuffix "-" -}}"
-            - name: REDIS_HOST
-              value: "{{- printf "%s-%s" .Release.Name "redis" | trunc 63 | trimSuffix "-" -}}"
-            - name: REDIS_PORT
-              value: "6379"
-            - name: HEALTHCHECKS_ALLOWFROM
-              value: '0.0.0.0/0'
+          {{ template "backbeat.common" . | indent 12 }}
+          {{- range $key, $value := .Values.env }}
+            - name: {{ $key | upper | replace "." "_" }}
+              value: {{ $value | quote }}
+          {{- end }}
+          {{- range $key, $value := .Values.api.env }}
+            - name: {{ $key | upper | replace "." "_" }}
+              value: {{ $value | quote }}
+          {{- end }}
           livenessProbe:
             httpGet:
               path: /_/healthcheck

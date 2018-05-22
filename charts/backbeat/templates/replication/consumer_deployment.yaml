@@ -22,34 +22,23 @@ spec:
           command: ["/usr/src/app/docker-entrypoint.sh"]
           args: ["npm", "run", "queue_processor"]
           env:
-            - name: REMOTE_MANAGEMENT_DISABLE
-              value: "{{- if .Values.orbit.enabled }}0{{- else }}1{{- end }}"
-            - name: ZOOKEEPER_AUTO_CREATE_NAMESPACE
-              value: "1"
-            - name: ZOOKEEPER_CONNECTION_STRING
-              value: "{{- printf "%s-zenko-quorum:2181" .Release.Name | trunc 63 | trimSuffix "-" -}}"
-            - name: KAFKA_HOSTS
-              value: "{{- printf "%s-zenko-queue:9092" .Release.Name | trunc 63 | trimSuffix "-" -}}"
-            - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_TYPE
-              value: service
-            - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_ACCOUNT
-              value: service-replication
             - name: EXTENSIONS_REPLICATION_SOURCE_S3_HOST
               value: "{{- printf "%s-cloudserver-front" .Release.Name | trunc 63 | trimSuffix "-" -}}"
-            - name: EXTENSIONS_REPLICATION_SOURCE_S3_PORT
-              value: "80"
-            - name: EXTENSIONS_REPLICATION_DEST_AUTH_TYPE
-              value: service
-            - name: EXTENSIONS_REPLICATION_DEST_AUTH_ACCOUNT
-              value: service-replication
             - name: EXTENSIONS_REPLICATION_DEST_BOOTSTRAPLIST
               value: "{{- printf "%s-cloudserver-front:80" .Release.Name | trunc 63 | trimSuffix "-" -}}"
             - name: MONGODB_HOSTS
               value: "{{ .Release.Name }}-mongodb-replicaset-0.{{ .Release.Name }}-mongodb-replicaset:27017,{{ .Release.Name }}-mongodb-replicaset-1.{{ .Release.Name }}-mongodb-replicaset:27017,{{ .Release.Name }}-mongodb-replicaset-2.{{ .Release.Name }}-mongodb-replicaset:27017"
             - name: REDIS_HOST
               value: "{{- printf "%s-%s" .Release.Name "redis" | trunc 63 | trimSuffix "-" -}}"
-            - name: REDIS_PORT
-              value: "6379"
+          {{ template "backbeat.common" . | indent 12 }}
+          {{- range $key, $value := .Values.env }}
+            - name: {{ $key | upper | replace "." "_" }}
+              value: {{ $value | quote }}
+          {{- end }}
+          {{- range $key, $value := .Values.replication.consumer.env }}
+            - name: {{ $key | upper | replace "." "_" }}
+              value: {{ $value | quote }}
+          {{- end }}
           # TODO livenessProbe:
           # TODO readinessProbe:
           resources:

@@ -8,12 +8,26 @@ image:
   repository: zenko/backbeat
   tag: 0.2.1
   pullPolicy: IfNotPresent
+## The connection values are used to connect Backbeat to the queue and quorum. They are
+## automatically templated with the designate release name(e.g. When installed with release
+## name 'dev-testing', the queue would get templated to 'dev-testing-zenko-queue:9092').
+## The external option is for specifying an external queue and quorum outside the scope of kubernetes
+connection:
+  queue: 'zenko-queue:2181'
+  quorum: 'zenko-quorum:9092'
+  external: false
+## Environment variables global to all backbeat pods
+env:
+  ZOOKEEPER_AUTO_CREATE_NAMESPACE: 1
+  REDIS_PORT: 6379
 
 api:
   replicaCount: 1
   service:
     name: backbeat-api
     type: ClusterIP
+  env:
+    HEALTHCHECKS_ALLOWFROM: '0.0.0.0/0'
 
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
@@ -34,6 +48,13 @@ api:
 replication:
   consumer:
     replicaCount: 1
+    env: 
+      EXTENSIONS_REPLICATION_SOURCE_AUTH_TYPE: service
+      EXTENSIONS_REPLICATION_SOURCE_AUTH_ACCOUNT: service-replication
+      EXTENSIONS_REPLICATION_SOURCE_S3_PORT: 80
+      EXTENSIONS_REPLICATION_DEST_AUTH_TYPE: service
+      EXTENSIONS_REPLICATION_DEST_AUTH_ACCOUNT: service-replication
+
 
     resources: {}
     nodeSelector: {}
@@ -42,7 +63,8 @@ replication:
 
   producer:
     replicaCount: 1
-
+    env: {}
+    
     resources: {}
     nodeSelector: {}
     tolerations: []
