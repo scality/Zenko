@@ -14,10 +14,12 @@ dependencies:
   repository: "http://storage.googleapis.com/kubernetes-charts-incubator"
   alias: zenko-queue
 - name: zookeeper
-  version: "1.0.0" 
+  version: "1.0.0"
   repository: "http://storage.googleapis.com/kubernetes-charts-incubator"
   alias: zenko-quorum
-
+- name: redis-ha
+  version: "2.1.2"
+  repository: "https://kubernetes-charts.storage.googleapis.com/"
 
 # Charts managed in this repository
 - name: backbeat
