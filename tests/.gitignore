@@ -11,3 +11,4 @@ build/
 dist/
 venv/
 zenko_e2e.egg-info/
+.secrets.env

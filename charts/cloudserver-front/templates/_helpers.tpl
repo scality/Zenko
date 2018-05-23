@@ -30,3 +30,11 @@ Create chart name and version as used by the chart label.
 {{- define "cloudserver-front.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
+
+
+{{/*
+Create the orbit management endpoint when running in ci mode
+*/}}
+{{- define "cloudserver-front.ci_endpoint" -}}
+{{- printf "http://%s-orbit-simulator:4222" .Values.ci.orbit_ns -}}
+{{- end -}}

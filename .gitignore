@@ -4,3 +4,6 @@ node_modules
 # Logs
 logs
 *.log
+tests/artifacts
+**/.venv
+**/.vscode
