@@ -9,22 +9,80 @@ spec:
   - name: {{ .Release.Name }}-zenko-e2e-test
     imagePullPolicy: {{ .Values.e2e.image.pullPolicy | quote }}
     image: "{{ .Values.e2e.image.repository }}:{{ .Values.e2e.image.tag }}"
-    args: ["-m", "nondestructive"]
+    # args: ["-m", "nondestructive"]
+    resources:
+      requests:
+        cpu: 1
     env:
       - name: ZENKO_K8S_NAMESPACE
         value: {{ .Release.Namespace | quote }}
       - name: ZENKO_HELM_RELEASE
         value: {{ .Release.Name | quote }}
-      - name: AWS_ACCESS_KEY_ID
-        value: {{ index .Values "cloudserver-front" "credentials" "keyId" }}
-      - name: AWS_SECRET_ACCESS_KEY
-        value: {{ index .Values "cloudserver-front" "credentials" "secretKey" }}
       - name: NUM_CPUS
         valueFrom:
           resourceFieldRef:
             containerName: {{ .Release.Name }}-zenko-e2e-test
             resource: requests.cpu
-    resources:
-      requests:
-        cpu: 4
+      - name: AWS_GCP_BACKEND_ACCESS_KEY
+        value: '{{ .Values.ci.AWS_GCP_BACKEND_ACCESS_KEY }}'
+      - name: AWS_GCP_BACKEND_ACCESS_KEY_2
+        value: '{{ .Values.ci.AWS_GCP_BACKEND_ACCESS_KEY_2 }}'
+      - name: AWS_GCP_BACKEND_SECRET_KEY
+        value: '{{ .Values.ci.AWS_GCP_BACKEND_SECRET_KEY }}'
+      - name: AWS_GCP_BACKEND_SECRET_KEY_2
+        value: '{{ .Values.ci.AWS_GCP_BACKEND_SECRET_KEY_2 }}'
+      - name: AWS_S3_BACKBEAT_ACCESS_KEY
+        value: '{{ .Values.ci.AWS_S3_BACKBEAT_ACCESS_KEY }}'
+      - name: AWS_S3_BACKBEAT_SECRET_KEY
+        value: '{{ .Values.ci.AWS_S3_BACKBEAT_SECRET_KEY }}'
+      - name: AWS_S3_BACKBEAT_BUCKET_NAME
+        value: '{{ .Values.ci.AWS_S3_BACKBEAT_BUCKET_NAME }}'
+      - name: AWS_S3_BACKEND_ACCESS_KEY
+        value: '{{ .Values.ci.AWS_S3_BACKEND_ACCESS_KEY }}'
+      - name: AWS_S3_BACKEND_ACCESS_KEY_2
+        value: '{{ .Values.ci.AWS_S3_BACKEND_ACCESS_KEY_2 }}'
+      - name: AWS_S3_BACKEND_SECRET_KEY
+        value: '{{ .Values.ci.AWS_S3_BACKEND_SECRET_KEY }}'
+      - name: AWS_S3_BACKEND_SECRET_KEY_2
+        value: '{{ .Values.ci.AWS_S3_BACKEND_SECRET_KEY_2 }}'
+      - name: AWS_S3_BUCKET_NAME
+        value: '{{ .Values.ci.AWS_S3_BUCKET_NAME }}'
+      - name: AWS_S3_BUCKET_NAME_2
+        value: '{{ .Values.ci.AWS_S3_BUCKET_NAME_2 }}'
+      - name: AZURE_BACKBEAT_CONTAINER_NAME
+        value: '{{ .Values.ci.AZURE_BACKBEAT_CONTAINER_NAME }}'
+      - name: AZURE_BACKEND_ACCESS_KEY
+        value: '{{ .Values.ci.AZURE_BACKEND_ACCESS_KEY }}'
+      - name: AZURE_BACKEND_ACCESS_KEY_2
+        value: '{{ .Values.ci.AZURE_BACKEND_ACCESS_KEY_2 }}'
+      - name: AZURE_BACKEND_ACCOUNT_NAME
+        value: '{{ .Values.ci.AZURE_BACKEND_ACCOUNT_NAME }}'
+      - name: AZURE_BACKEND_ACCOUNT_NAME_2
+        value: '{{ .Values.ci.AZURE_BACKEND_ACCOUNT_NAME_2 }}'
+      - name: AZURE_BACKEND_CONTAINER_NAME
+        value: '{{ .Values.ci.AZURE_BACKEND_CONTAINER_NAME }}'
+      - name: AZURE_BACKEND_CONTAINER_NAME_2
+        value: '{{ .Values.ci.AZURE_BACKEND_CONTAINER_NAME_2 }}'
+      - name: AZURE_BACKEND_ENDPOINT
+        value: '{{ .Values.ci.AZURE_BACKEND_ENDPOINT }}'
+      - name: AZURE_BACKEND_ENDPOINT_2
+        value: '{{ .Values.ci.AZURE_BACKEND_ENDPOINT_2 }}'
+      - name: GCP_BUCKET_NAME
+        value: '{{ .Values.ci.GCP_BUCKET_NAME }}'
+      - name: GCP_BUCKET_NAME_2
+        value: '{{ .Values.ci.GCP_BUCKET_NAME_2 }}'
+      - name: GCP_CRR_BUCKET_NAME
+        value: '{{ .Values.ci.GCP_CRR_BUCKET_NAME }}'
+      - name: GCP_CRR_MPU_BUCKET_NAME
+        value: '{{ .Values.ci.GCP_CRR_MPU_BUCKET_NAME }}'
+      - name: GCP_MPU_BUCKET_NAME
+        value: '{{ .Values.ci.GCP_MPU_BUCKET_NAME }}'
+      - name: GCP_MPU_BUCKET_NAME_2
+        value: '{{ .Values.ci.GCP_MPU_BUCKET_NAME_2 }}'
+      - name: AZURE_BACKBEAT_SRC_CONTAINER_NAME
+        value: '{{ .Values.ci.AZURE_BACKBEAT_SRC_CONTAINER_NAME }}'
+      - name: AWS_S3_BACKBEAT_SRC_BUCKET_NAME
+        value: '{{ .Values.ci.AWS_S3_BACKBEAT_SRC_BUCKET_NAME }}'
+      - name: GCP_CRR_SRC_BUCKET_NAME
+        value: '{{ .Values.ci.GCP_CRR_SRC_BUCKET_NAME }}'
   restartPolicy: Never
