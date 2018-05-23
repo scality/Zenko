@@ -1,0 +1,60 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "backbeat.fullname" . }}-status
+  labels:
+    app: {{ template "backbeat.name" . }}-replication
+    chart: {{ template "backbeat.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replication.status.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "backbeat.name" . }}-replication
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: replication-status
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/usr/src/app/docker-entrypoint.sh"]
+          args: ["npm", "run", "replication_status_processor"]
+          env:
+            - name: REMOTE_MANAGEMENT_DISABLE
+              value: "{{- if .Values.orbit.enabled }}0{{- else }}1{{- end }}"
+            - name: ZOOKEEPER_AUTO_CREATE_NAMESPACE
+              value: "1"
+            - name: ZOOKEEPER_CONNECTION_STRING
+              value: "{{- printf "%s-zenko-quorum:2181" .Release.Name | trunc 63 | trimSuffix "-" -}}"
+            - name: KAFKA_HOSTS
+              value: "{{- printf "%s-zenko-queue:9092" .Release.Name | trunc 63 | trimSuffix "-" -}}"
+            - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_TYPE
+              value: service
+            - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_ACCOUNT
+              value: service-replication
+            - name: EXTENSIONS_REPLICATION_SOURCE_S3_HOST
+              value: "{{- printf "%s-cloudserver-front" .Release.Name | trunc 63 | trimSuffix "-" -}}"
+            - name: EXTENSIONS_REPLICATION_SOURCE_S3_PORT
+              value: "80"
+            - name: REDIS_HOST
+              value: "{{- printf "%s-%s" .Release.Name "redis" | trunc 63 | trimSuffix "-" -}}"
+            - name: REDIS_PORT
+              value: "6379"
+          # TODO livenessProbe:
+          # TODO readinessProbe:
+          resources:
+{{ toYaml .Values.replication.status.resources | indent 12 }}
+    {{- with .Values.replication.status.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.replication.status.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.replication.status.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
