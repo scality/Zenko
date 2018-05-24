@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "zenko-test-pod"
+spec:
+  containers:
+  - name: aggressor
+    image: zenko/zenko-releng:0.0.7
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        cpu: "1"
+        memory: 2Gi
+    command: ["/bin/sh", "-c", "buildbot-worker create-worker . ${BUILDMASTER}:${BUILDMASTER_PORT} ${WORKERNAME} ${WORKERPASS} && buildbot-worker start --nodaemon"]
