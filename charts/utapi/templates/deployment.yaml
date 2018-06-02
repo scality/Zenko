@@ -1,0 +1,40 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "utapi.fullname" . }}
+  labels:
+    app: {{ template "utapi.name" . }}
+    chart: {{ template "utapi.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "utapi.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ template "utapi.fullname" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: ["npm", "start"]
+          ports:
+            - name: api
+              containerPort: 8100
+          env:
+            - name: REMOTE_MANAGEMENT_DISABLE
+              value: "{{- if .Values.orbit.enabled }}0{{- else }}1{{- end }}"
+            - name: REDIS_HOST
+              value: "{{- printf "%s-%s" .Release.Name "redis-ha-master-svc" | trunc 63 | trimSuffix "-" -}}"
+            - name: REDIS_PORT
+              value: "6379"
+            - name: HEALTHCHECKS_ALLOWFROM
+              value: "{{ .Values.allowHealthchecksFrom }}"
+          livenessProbe:
+            httpGet:
+              path: /_/healthcheck
+              port: api
+
+
