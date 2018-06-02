@@ -36,5 +36,3 @@ spec:
             httpGet:
               path: /_/healthcheck
               port: api
-
-
