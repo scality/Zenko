@@ -33,6 +33,13 @@ image:
   tag: 0.2.1
   pullPolicy: IfNotPresent
 
+proxy:
+  # If you want to use an HTTP proxy, add the respective endpoints after
+  # 'http:' and/or 'https:'. If the HTTP proxy endpoint is set but the HTTPS
+  # one isn't, the HTTP proxy will be used for HTTPS traffic as well.
+  http: ""
+  https: ""
+
 service:
   type: ClusterIP
   port: 80

@@ -43,6 +43,21 @@ spec:
               value: "{{ .Release.Name }}-cloudserver-front,{{ .Values.endpoint }}"
             - name: HEALTHCHECKS_ALLOWFROM
               value: "{{ .Values.allowHealthchecksFrom }}"
+{{- if .Values.proxy.http }}
+            - name: http_proxy
+              value: "{{ .Values.proxy.http }}"
+            - name: HTTP_PROXY
+              value: "{{ .Values.proxy.http }}"
+            - name: https_proxy
+              value: "{{- if .Values.proxy.https }}{{ .Values.proxy.https }}{{- else }}{{ .Values.proxy.http }}{{- end }}"
+            - name: HTTPS_PROXY
+              value: "{{- if .Values.proxy.https }}{{ .Values.proxy.https }}{{- else }}{{ .Values.proxy.http }}{{- end }}"
+{{- else if .Values.proxy.https }}
+            - name: https_proxy
+              value: "{{ .Values.proxy.https }}"
+            - name: HTTPS_PROXY
+              value: "{{ .Values.proxy.https }}"
+{{- end }}
 {{- if .Values.mongodb.enabled }}
             - name: S3METADATA
               value: "mongodb"
