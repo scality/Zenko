@@ -26,5 +26,8 @@ dependencies:
 - name: cloudserver-front
   repository: file://../cloudserver-front
   version: 0.1.4
-digest: sha256:4fbe68bcb4a27d60e6a2a66dfe8584738a8cd89a42ce120adffce7186f2212cf
-generated: 2018-05-24T17:41:45.543504677-07:00
+- name: zenko-filer
+  repository: file://../zenko-filer
+  version: 0.1.0
+digest: sha256:208435872c10660819bb35f155fac56abada13890d44c12f01aaa2eadb74232e
+generated: 2018-06-26T18:28:59.261108105-07:00

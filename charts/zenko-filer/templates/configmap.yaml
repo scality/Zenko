@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "zenko-filer.fullname" . }}-configmap
+  labels:
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    app: {{ template "zenko-filer.name" . }}
+data:
+  nfsd.conf: |
+{{ .Files.Get "nfsd.conf" | indent 4 }}
