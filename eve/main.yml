@@ -40,6 +40,7 @@ stages:
         name: trigger all the tests
         stage_names:
         - helm_test_kube_1.9.6
+        - cosbench
 
   helm_test_kube_1.9.6:
     worker: &helm-worker
@@ -140,20 +141,8 @@ stages:
         command: |-
           apk --update upgrade
           apk --update add curl
-    - Git: &git_pull
-        name: git pull
-        repourl: "%(prop:git_reference)s"
-        mode: full
-        method: clobber
-        retryFetch: true
-        haltOnFailure: true
-    - ShellCommand: &install_tiller
-        name: install helm (tiller into kubernetes)
-        command: >-
-          helm init --wait
-        haltOnFailure: true
-        env:
-          <<: *global_env
+    - Git: *git_pull
+    - ShellCommand: *install_tiller
     - ShellCommand:
         name: Install needed helm repos
         command: |-
