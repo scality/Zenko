@@ -54,8 +54,15 @@ spec:
 {{- if .Values.orbit.enabled }}
             - name: REMOTE_MANAGEMENT_DISABLE
               value: "0"
+{{- if .Values.ci.enabled }}
+            - name: MANAGEMENT_ENDPOINT
+              value: {{ template "cloudserver-front.ci_endpoint" . }}
+            - name: MANAGEMENT_MODE
+              value: poll
+{{- else }}
             - name: MANAGEMENT_ENDPOINT
               value: "{{- .Values.orbit.endpoint -}}"
+{{ end }}
 {{- else }}
             - name: REMOTE_MANAGEMENT_DISABLE
               value: "1"
