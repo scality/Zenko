@@ -83,7 +83,7 @@ stages:
           helm upgrade ciutil
           --install orbit-simulator/charts/orbit-simulator
           --set simulator.shim.cloudserver_release=$(echo ${ZENKO_HELM_RELEASE})
-          --wait $(./ci_env.sh ci)
+          --wait $(./ci_env.sh set)
         workdir: build/eve/workers
         haltOnFailure: true
         env:
@@ -118,15 +118,21 @@ stages:
           --set cloudserver-front.image.pullPolicy=Always
           --set cloudserver-front.ci.enabled=true
           --timeout 600
-          --wait $(./eve/workers/ci_env.sh ci)
+          --wait $(./eve/workers/ci_env.sh set)
         haltOnFailure: true
         env:
           <<: *global_env
-    - ShellCommand:
+    - ShellCommandWithSecrets:
         name: Test zenko
-        command: |-
-          sleep 90
-          make helm-test
+        command: >-
+          sleep 90 &&
+          make end2end
+        workdir: build/tests
+        env:
+          <<: *global_env
+    - ShellCommand:
+        name: Dump logs
+        command: make dump-logs
         workdir: build/tests
         env:
           <<: *global_env

@@ -24,7 +24,6 @@ e2e:
     tag: latest
     pullPolicy: Always
 
-
 cloudserver-front:
   orbit:
     enabled: true

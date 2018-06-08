@@ -12,7 +12,6 @@ DOCKER_ARGS :=
 PYTEST_ARGS :=
 DOTENV := $(PWD)/.env
 HELM_TEST_PODS := {range .items[?(@.metadata.annotations.helm\.sh\/hook)]}{@.metadata.name}{"\n"}{end}
-DUMP_LOGS := {{range .items}}{{$$pod := .metadata.name}}{{range .spec.containers}}kubectl logs {{$$pod}} -c {{.name}} | tee {{.name}}-{{$$pod}}.log{{"\n"}}{{end}}{{end}}
 
 artifacts:
 	@mkdir -p $@
@@ -24,23 +23,19 @@ simulator-run:
 	@echo "Starting orbit-simulator..."
 	@$(HELM) install --name ciutil \
 	--set simulator.shim.cloudserver_release=$(ZENKO_HELM_RELEASE) \
-	$(shell source $(DOTENV) && ../eve/workers/ci_env.sh ci) \
+	$(shell source $(DOTENV) && ../eve/workers/ci_env.sh set) \
 	orbit-simulator/orbit-simulator --wait
 .PHONY: simulator
 
 zenko-run: | simulator-run
 	@$(HELM) install --name $(ZENKO_HELM_RELEASE) \
-		$(shell source $(DOTENV) && ../eve/workers/ci_env.sh ci) \
+		$(shell source $(DOTENV) && ../eve/workers/ci_env.sh set) \
 		--set prometheus.rbac.create=false \
 		--set zenko-queue.rbac.enabled=false \
 		--set redis-ha.rbac.create=false \
 		-f ../charts/single-node-values.yml \
 		../charts/zenko/
 .PHONY: zenko-run
-
-dump-logs:
-	kubectl get pods -n $(ZENKO_K8S_NAMESPACE) -o go-template --template "$(DUMP_LOGS)" | \
-	xargs -n 1 -d '\n' sh -c
 
 container-image:
 	@$(DOCKER) build -t $(DOCKER_IMAGE) .
@@ -78,24 +73,27 @@ kubernetes-run-conformance: kubernetes-run
 .PHONY: kubernetes-run-conformance
 
 helm-test: | artifacts
-	@helm test $(ZENKO_HELM_RELEASE) || HELM_FAIL=1; \
+	@helm test $(ZENKO_HELM_RELEASE)
+.PHONY: helm-test
+
+end2end: | artifacts
+	$(KUBECTL) run zenko-e2e --image=$(DOCKER_IMAGE) --rm \
+	--restart=Never --namespace $(ZENKO_K8S_NAMESPACE) --attach=True \
+	$(shell ../eve/workers/ci_env.sh env);
+.PHONY: end2end
+
+dump-logs:
 	(kubectl  -n $(ZENKO_K8S_NAMESPACE) get pods -o go-template --template '{{range .items}}{{$$pod := .metadata.name}}{{range .spec.containers}}"kubectl logs {{$$pod}} -c {{.name}} > artifacts/{{.name}}-{{$$pod}}.log"{{"\n"}}{{end}}{{end}}') | xargs -n 1 -r sh -c;  \
 	(kubectl -n $(ZENKO_K8S_NAMESPACE) get pods -o jsonpath='$(HELM_TEST_PODS)') | \
 	while read -r pod; do \
 		kubectl -n $(ZENKO_K8S_NAMESPACE) logs $${pod}; \
-		kubectl -n $(ZENKO_K8S_NAMESPACE) delete pod $${pod}; \
-	done; \
-	exit $${HELM_FAIL}
-
-dumps-logs:
+	done;
+.PHONY: dump-logs
 
 cleanup:
 
-run-all: | helm-test dump-logs cleanup
+run-all: | helm-test end2end dump-logs cleanup
 
-
-	#   echo "$${pod} Logs:"; echo; \
-	#   kubectl -n $(ZENKO_K8S_NAMESPACE) logs $${pod} | tee artifacts/$${pod}.log;
 lint:
 	@$(TOX)
 .PHONY: lint
