@@ -1,30 +1,31 @@
 # Zenko Swarm Stack
 
-Note: this stack has switched metadata engine to mongodb, updating from a previous
-version will initialize and use a new database instead of using your existing data.
+**Note:** This stack has switched its metadata engine to MongoDB. Updating from
+a previous version will initialize and use a new database instead of using your
+existing data.
 
-This docker service stack describes a simple Zenko production setup, including:
+This Docker service stack describes a simple Zenko production setup, including:
 
-* Load balancer (nginx-based) on all nodes of the swarm
+* An nginx-based load balancer on all nodes of the swarm
 * Multi-tiered networks (user-facing, DMZ and backend services)
-* Thanks to Docker Swarm and its overlay network, virtual ips and scheduler,
+* Thanks to Docker Swarm and its overlay network, virtual ips and a scheduler,
   high availability and service resiliency (storage node excluded).
 
 ## Preparing
 
 ### Swarm
 
-Swarm mode needs to be enabled on the local docker daemon. See
+Swarm mode must be enabled on the local Docker daemon. See
 [this tutorial](https://docs.docker.com/engine/swarm/swarm-tutorial/)
-for more information on Swarm mode.
+for more on Swarm mode.
 
 ### Storage Node Selection
 
-Since we are using direct filesystem storage, no replication of the actual data
-happens, so one specific node in the swarm needs to be selected for storage.
+Because we are using direct filesystem storage, there is no replication of the
+actual data. One specific node in the swarm must be selected for storage.
 
-This storage node will be responsible for the data so the storage directories
-should be placed on fast, reliable disks. A backup/restore policy is also highly
+As this storage node is responsible for the data, it's best to put the storage
+directories on fast, reliable disks. A backup/restore policy is also highly
 recommended.
 
 From a manager node, locate the node that will host the data and metadata:
@@ -39,10 +40,9 @@ ng8quztnef0r1x90le4d6lssj    s3-node-zenko-swarm-1.na.scality.cloud  Ready   Act
 w43z9jeujmolyoic5ivd5tft4 *  s3-node-zenko-swarm-0.na.scality.cloud  Ready   Active        Leader
 ```
 
-Here we will choose the host `s3-node-zenko-swarm-1.na.scality.cloud` with ID
-`ng8quztnef0r1x90le4d6lssj`. Then to ensure that Docker Swarm only schedules the
-persistent containers to this particular node, assign label `io.zenko.type` with
-value `storage` to the node:
+Here, we choose the host `s3-node-zenko-swarm-1.na.scality.cloud` with ID
+`ng8quztnef0r1x90le4d6lssj`. To ensure that Docker Swarm only schedules persistent containers to this node, assign the `io.zenko.type` label with
+the value `storage` to the node:
 
 ```shell
 $ docker node update --label-add io.zenko.type=storage ng8quztnef0r1x90le4d6lssj
@@ -56,20 +56,19 @@ $ docker node inspect ng8quztnef0r1x90le4d6lssj -f '{{ .Spec.Labels }}'
 map[io.zenko.type:storage]
 ```
 
-Note that if this step is not performed, some services in the stack will stay
-pending and will never be scheduled.
+**Note:** If you don't do this step, some services in the stack will remain pending and will never be scheduled.
 
 ### Storage Volumes
 
-Volumes are automatically created by Docker Swarm as needed. Be aware that
-deleting the stack from the swarm will also delete the data.
+Volumes are automatically created by Docker Swarm as needed.
+
+**Note:** _Deleting the stack from the swarm also deletes the data._
 
 ### Zenko Orbit
 
-Note that by default the stack will register itself at the
-[Zenko Orbit](https://www.zenko.io/admin) portal
-and upload anonymous stats. Zenko Orbit allows easy configuration of users,
-remote storage locations, replication and more, as well as instance monitoring.
+By default, the stack registers itself at the
+[Zenko Orbit](https://www.zenko.io/admin) portal and uploads anonymous stats. Zenko Orbit allows easy configuration of users, remote storage locations,
+replication and more, as well as instance monitoring.
 
 If you would like to opt out of the remote management and monitoring, before
 deploying you can export this environment variable:
