@@ -1,8 +1,8 @@
 # Zenko Swarm Stack
 
-**Note:** This stack has switched its metadata engine to MongoDB. Updating from
-a previous version will initialize and use a new database instead of using your
-existing data.
+**Note:** This stack's metadata engine has been switched to MongoDB. Updating
+from a previous version initializes and puts into use a new database instead of
+using your existing data.
 
 This Docker service stack describes a simple Zenko production setup, including:
 
@@ -56,7 +56,8 @@ $ docker node inspect ng8quztnef0r1x90le4d6lssj -f '{{ .Spec.Labels }}'
 map[io.zenko.type:storage]
 ```
 
-**Note:** If you don't do this step, some services in the stack will remain pending and will never be scheduled.
+**Note:** If you skip this step, some services in the stack will remain
+pending and will never be scheduled.
 
 ### Storage Volumes
 
@@ -70,8 +71,7 @@ By default, the stack registers itself at the
 [Zenko Orbit](https://www.zenko.io/admin) portal and uploads anonymous stats. Zenko Orbit allows easy configuration of users, remote storage locations,
 replication and more, as well as instance monitoring.
 
-If you would like to opt out of the remote management and monitoring, before
-deploying you can export this environment variable:
+To opt out of remote management and monitoring, export this environment variable before deployment:
 
 ```shell
 $ export REMOTE_MANAGEMENT_DISABLE=1
@@ -81,26 +81,26 @@ $ docker stack deploy -c docker-stack.yml zenko-prod
 
 ### Access and Secret Keys
 
-SKIP THIS STEP IF YOU ARE USING ZENKO ORBIT
+SKIP THIS STEP IF YOU ARE USING ZENKO ORBIT.
 
 The default access and secret key pair is `deployment-specific-access-key` /
-`deployment-specific-secret-key`. Changing them is a must, and can be done by
-updating the `SCALITY_ACCESS_KEY_ID` and `SCALITY_SECRET_ACCESS_KEY` environment
+`deployment-specific-secret-key`. You must change them. Do this by updating
+the `SCALITY_ACCESS_KEY_ID` and `SCALITY_SECRET_ACCESS_KEY` environment
 variables in the `secrets.txt` file.
 
 ### Endpoint Name
 
-SKIP THIS STEP IF YOU ARE USING ZENKO ORBIT
+SKIP THIS STEP IF YOU ARE USING ZENKO ORBIT.
 
-By default the endpoint name is `zenko`, you may change this to the host name
-presented to your clients (for example `s3.mydomain.com`) by exporting the
-`ENDPOINT` environment variable prior to deploying:
+By default, the endpoint name is `zenko`. You can change this to the host name
+presented to your clients (for example, `s3.mydomain.com`) by exporting the
+`ENDPOINT` environment variable before deployment:
 
 ```shell
 $ export ENDPOINT=s3.mydomain.com
 ```
 
-## Deploying
+## Deployment
 
 Deploy the stack:
 
@@ -142,35 +142,37 @@ y7tt98x7jdl9        zenko-prod_backbeat-producer   replicated          1/1      
 [...]
 ```
 
-Note that having 0 replicas of the mongodb-init service is fine, since it is
-expected to execute successfully only once to initialize the mongodb replicaset.
+**Note:** Having 0 replicas of the mongodb-init service is fine, because it is
+expected to execute successfully only once to initialize the mongodb replica
+set.
 
-## USING ZENKO ORBIT
+## Using Zenko Orbit
 
 To get your instance's Zenko Orbit identifier and claim it in the portal, issue this command:
+
 ```shell
-$ docker service logs zenko-prod_s3-front | grep -i instance
-zenko-prod_s3-front.1.khz73ag06k2k@moby    | {"name":"S3","time":1512424260154,"req_id":"115779d9564e960048a5","level":"info","message":"this deployment's Instance ID is ce1bcdb7-8e30-4e3f-b7a2-9424078c9159","hostname":"843d31bf15f0","pid":28}
+$ docker service logs zenko-prod_s3-front | grep -i instance \
+  zenko-prod_s3-front.1.khz73ag06k2k@moby | {"name":"S3","time":1512424260154,\
+  "req_id":"115779d9564e960048a5","level":"info","message":"this deployment's \
+   Instance ID is ce1bcdb7-8e30-4e3f-b7a2-9424078c9159","hostname": \
+   "843d31bf15f0", "pid":28}
 ```
 
 Go to [Zenko Orbit](https://www.zenko.io/admin) to manage your deployment through a nifty UI.
 
 ## Testing
 
-To use the `tests` folder, update the credentiasl in `Zenko/tests/utils/s3SDK.js`
-with credentials generated in Zenko Orbit.
-Install node modules with `npm install`
-Then, simply run `npm test`.
+To use the `tests` folder, update the credentials in  `Zenko/tests/utils/s3SDK.js` with credentials generated in Zenko Orbit.
+Install node modules with `npm install`. Then, run `npm test`.
 
-Using [awscli](https://aws.amazon.com/cli/), we can perform S3 operations
-on our Zenko stack. Since the load balancer container is deployed in `global`
+You can use [awscli](https://aws.amazon.com/cli/) to perform S3 operations
+on the Zenko stack. Because the load balancer container is deployed in `global`
 mode, we can use any of the swarm nodes as the endpoint.
 
-Note that here we are using the default `zenko` host name, you should use
-the `ENDPOINT` variable configured above if applicable, or whatever the
-`hostname -f` command returns.
- > IMPORTANT: when using default port 80, it should never be specified after the
- > endpoint address. If using a custom port, it must be specified.
+For the default `zenko` host name, substitute either the `ENDPOINT` variable configured above (if applicable), or whatever the `hostname -f` command returns.
+
+ > **IMPORTANT:** When default port 80 is in use, it must never be specified
+ > after the endpoint address. Any custom port in use must be specified.
 
 ```shell
 $ export AWS_ACCESS_KEY_ID=deployment-specific-access-key
@@ -186,6 +188,7 @@ $ aws s3 --endpoint http://zenko ls s3://bucket1
 ```
 
 ### Clueso Search
+
 Clueso search can be tested from within the S3-frontend container.
 
 First, from your machine (not within the S3 Docker), create some objects:
@@ -202,12 +205,12 @@ From within the S3-frontend container:
 $ bin/search_bucket.js -a accessKey1 -k verySecretKey1 -b bucket1 -q "userMd.\`x-amz-meta-color\`=\"blue\"" -h 127.0.0.1 -p 8000
 ```
 
-You can see the Spark Master UI at port 8080
-Check out the Livy UI at port 8998
+You can see the Spark Master UI at port 8080. Check out the Livy UI at port
+8998.
 
-## Further improvements
+## Further Improvements
 
-* Allow using an external environment vars file
-* Include a log collection and visualization component
-* Include healthchecks in the `zenko/cloudserverserver` image
-* Explain how to scale/troubleshoot services and replace the storage node
+* Allow use of an external environment vars file.
+* Include a log collection and visualization component.
+* Include health checks in the `zenko/cloudserverserver` image.
+* Explain how to scale/troubleshoot services and replace the storage node.
