@@ -13,9 +13,9 @@ models:
       ZENKO_HELM_RELEASE: 'zenko-test'
       ZENKO_K8S_NAMESPACE: '%(prop:testNamespace)s'
       TILLER_NAMESPACE: '%(prop:testNamespace)s'
-      AWS_S3_BUCKET_NAME: ci-zenko-aws-target-bucket
+      AWS_S3_BUCKET_NAME: zenko-aws-target-bucket
       AWS_S3_BUCKET_NAME_2: zenko-aws-target-bucket-2
-      AWS_S3_BACKBEAT_BUCKET_NAME: ci-zenko-aws-crr-target-bucket
+      AWS_S3_BACKBEAT_BUCKET_NAME: zenko-aws-crr-target-bucket
       AWS_S3_BACKBEAT_SRC_BUCKET_NAME: zenko-aws-crr-src-bucket
       AZURE_BACKEND_CONTAINER_NAME: zenko-azure-target-bucket
       AZURE_BACKEND_CONTAINER_NAME_2: zenko-azure-target-bucket-2

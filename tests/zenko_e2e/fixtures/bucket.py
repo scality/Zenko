@@ -52,8 +52,8 @@ def digital_ocean_target_bucket(digital_ocean_resource):
 	util.cleanup_bucket(bucket, delete_bucket= False)
 
 @pytest.fixture(scope = 'session')
-def aws_crr_target_bucket(aws_resource):
-	bucket = create_bucket(aws_resource, conf.AWS_CRR_TARGET_BUCKET)
+def aws_crr_target_bucket(aws_crr_resource):
+	bucket = create_bucket(aws_crr_resource, conf.AWS_CRR_TARGET_BUCKET)
 	yield bucket
 	util.cleanup_bucket(bucket, delete_bucket= False)
 
@@ -179,42 +179,42 @@ def digital_ocean_loc_bucket(zenko_bucket):
 @pytest.fixture(scope = 'function')
 def aws_crr_bucket(zenko_resource):
 	bucket = create_bucket(zenko_resource, conf.AWS_CRR_SRC_BUCKET)
-	bucket.create()
+	util.bucket_safe_create(bucket)
 	yield bucket
 	util.cleanup_bucket(bucket, delete_bucket = False)
 
 @pytest.fixture(scope = 'function')
 def gcp_crr_bucket(zenko_resource):
 	bucket = create_bucket(zenko_resource, conf.GCP_CRR_SRC_BUCKET)
-	bucket.create()
+	util.bucket_safe_create(bucket)
 	yield bucket
 	util.cleanup_bucket(bucket, delete_bucket = False)
 
 @pytest.fixture(scope = 'function')
 def azure_crr_bucket(zenko_resource):
 	bucket = create_bucket(zenko_resource, conf.AZURE_CRR_SRC_BUCKET)
-	bucket.create()
+	util.bucket_safe_create(bucket)
 	yield bucket
 	util.cleanup_bucket(bucket, delete_bucket = False)
 
 @pytest.fixture(scope = 'function')
 def wasabi_crr_bucket(zenko_resource):
 	bucket = create_bucket(zenko_resource, conf.WASABI_CRR_SRC_BUCKET)
-	bucket.create()
+	util.bucket_safe_create(bucket)
 	yield bucket
 	util.cleanup_bucket(bucket, delete_bucket = False)
 
 @pytest.fixture(scope = 'function')
 def digital_ocean_crr_bucket(zenko_resource):
 	bucket = create_bucket(zenko_resource, conf.DO_CRR_SRC_BUCKET)
-	bucket.create()
+	util.bucket_safe_create(bucket)
 	yield bucket
 	util.cleanup_bucket(bucket, delete_bucket = False)
 
 @pytest.fixture(scope = 'function')
 def muti_crr_bucket(zenko_resource):
 	bucket = create_bucket(zenko_resource, conf.MULTI_CRR_SRC_BUCKET)
-	bucket.create()
+	util.bucket_safe_create(bucket)
 	yield bucket
 	util.cleanup_bucket(bucket, delete_bucket = False)
 
@@ -226,7 +226,8 @@ def muti_crr_bucket(zenko_resource):
 def encrypted_bucket(aws_endpoint_resource, s3auth):
 	name = util.gen_bucket_name()
 	ep = '%s/%s/'%(conf.ZENKO_ENDPOINT, name)
-	resp = requests.put(ep, auth=s3auth, verify = conf.VERIFY_CERTIFICATES)
+	headers = { 'x-amz-scal-server-side-encryption': 'AES256' }
+	resp = requests.put(ep, auth=s3auth, headers = headers, verify = conf.VERIFY_CERTIFICATES)
 	bucket = create_bucket(aws_endpoint_resource, name)
 	yield bucket
 	util.cleanup_bucket(bucket)

@@ -7,6 +7,16 @@ import zenko_e2e.conf as conf
 
 _log = logging.getLogger('util.bucket')
 
+def bucket_safe_create(bucket):
+	try:
+		bucket.create()
+	except bucket.meta.client.exceptions.BucketAlreadyOwnedByYou:
+		print('Bucket %s already exists!'%bucket.name)
+	except Exception as e:
+		print('Error creating bucket %s'%bucket.name)
+		logging.exception(e)
+		raise e
+
 def gen_bucket_name(root = 'zenko-test-bucket'):
 	return '%s-%s'%(root, uuid.uuid4().hex)
 
