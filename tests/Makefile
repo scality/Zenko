@@ -12,6 +12,11 @@ DOCKER_ARGS :=
 PYTEST_ARGS :=
 DOTENV := $(PWD)/.env
 HELM_TEST_PODS := {range .items[?(@.metadata.annotations.helm\.sh\/hook)]}{@.metadata.name}{"\n"}{end}
+E2E_POD := zenko-e2e
+-include .local.make
+
+ZENKO_PRESENT := $(shell $(HELM) list -q | grep $(ZENKO_HELM_RELEASE) | wc -l | xargs -i test "0" -eq "{}" && echo "build")
+ORBIT_PRESENT := $(shell $(HELM) list -q | grep $(ORBIT_HELM_RELEASE) | wc -l | xargs -i test "0" -eq "{}" && echo "build")
 
 artifacts:
 	@mkdir -p $@
@@ -19,23 +24,37 @@ artifacts:
 requirements.txt: setup.cfg setup.py tox.ini
 	@env CUSTOM_COMPILE_COMMAND="$(MAKE) requirements.txt" $(TOX) -e pip-compile
 
+ifeq ($(ORBIT_PRESENT), build)
 simulator-run:
+	@if [ ! -d ./orbit-simulator ]; then \
+	git clone git@github.com:scality/orbit-simulator.git orbit-simulator; \
+	fi
 	@echo "Starting orbit-simulator..."
-	@$(HELM) install --name ciutil \
+	@$(HELM) upgrade $(ORBIT_HELM_RELEASE) \
+	--install  orbit-simulator/charts/orbit-simulator \
 	--set simulator.shim.cloudserver_release=$(ZENKO_HELM_RELEASE) \
-	$(shell source $(DOTENV) && ../eve/workers/ci_env.sh set) \
-	orbit-simulator/orbit-simulator --wait
+	$(shell source $(DOTENV) && ../eve/workers/ci_env.sh set) --wait
 .PHONY: simulator
+else
+simulator-run:
+	@echo "orbit-simulator already running!"
+endif
 
+ifeq ($(ZENKO_PRESENT), build)
 zenko-run: | simulator-run
-	@$(HELM) install --name $(ZENKO_HELM_RELEASE) \
+	@$(HELM) upgrade --install $(ZENKO_HELM_RELEASE) \
 		$(shell source $(DOTENV) && ../eve/workers/ci_env.sh set) \
 		--set prometheus.rbac.create=false \
 		--set zenko-queue.rbac.enabled=false \
 		--set redis-ha.rbac.create=false \
+		--set cloudserver-front.ci.enabled=true \
 		-f ../charts/single-node-values.yml \
-		../charts/zenko/
+		../charts/zenko/ --wait
 .PHONY: zenko-run
+else
+zenko-run: | simulator-run
+	@echo "zenko is already running!"
+endif
 
 container-image:
 	@$(DOCKER) build -t $(DOCKER_IMAGE) .
@@ -51,7 +70,7 @@ container-run:
 kubernetes-run: SHELL := bash
 kubernetes-run:
 	@source .env && \
-	set -u && \
+	@set -u && \
 	$(KUBECTL) --namespace=$${ZENKO_K8S_NAMESPACE} run --attach --rm --restart=Never \
 		--image=$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG) \
 		zenko-e2e \
@@ -76,10 +95,17 @@ helm-test: | artifacts
 	@helm test $(ZENKO_HELM_RELEASE)
 .PHONY: helm-test
 
+ifeq ($(E2E_LOCAL), true)
 end2end: | artifacts
-	$(KUBECTL) run zenko-e2e --image=$(DOCKER_IMAGE) --rm \
+	$(KUBECTL) run $(E2E_POD) --image=$(DOCKER_IMAGE) --rm \
+	--restart=Never --namespace $(ZENKO_K8S_NAMESPACE) --attach=True \
+	$(shell source $(DOTENV) && ../eve/workers/ci_env.sh env);
+else
+end2end: | artifacts
+	$(KUBECTL) run $(E2E_POD) --image=$(DOCKER_IMAGE) --rm \
 	--restart=Never --namespace $(ZENKO_K8S_NAMESPACE) --attach=True \
 	$(shell ../eve/workers/ci_env.sh env);
+endif
 .PHONY: end2end
 
 dump-logs:
@@ -91,8 +117,13 @@ dump-logs:
 .PHONY: dump-logs
 
 cleanup:
+	@rm -rf artifacts/*
+	@($(KUBECTL) get pod -o=custom-columns=NAME:.metadata.name --no-headers=true) | \
+	grep $(E2E_POD) | xargs -r kubectl delete pod
 
 run-all: | helm-test end2end dump-logs cleanup
+
+local-run: | cleanup zenko-run end2end dump-logs
 
 lint:
 	@$(TOX)

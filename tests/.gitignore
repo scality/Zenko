@@ -12,3 +12,6 @@ dist/
 venv/
 zenko_e2e.egg-info/
 .secrets.env
+.local.env
+.local.make
+orbit-simulator/
