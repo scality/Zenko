@@ -31,3 +31,8 @@ dependencies:
 - name: cloudserver-front
   version: "0.1.4"
   repository: "file://../cloudserver-front"
+
+# Upstream `zenko-*` Charts
+- name: cosbench
+  version: "0.0.6"
+  repository: "https://scality.github.io/zenko-cosbench/charts"
