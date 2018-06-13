@@ -187,9 +187,9 @@ $ aws s3 --endpoint http://zenko ls s3://bucket1
 2017-06-20 00:12:53       5052 README.md
 ```
 
-### Clueso Search
+### Metadata Search
 
-Clueso search can be tested from within the S3-frontend container.
+Metadata search can be tested from within the S3-frontend container.
 
 First, from your machine (not within the S3 Docker), create some objects:
 
@@ -204,9 +204,6 @@ From within the S3-frontend container:
 ```shell
 $ bin/search_bucket.js -a accessKey1 -k verySecretKey1 -b bucket1 -q "userMd.\`x-amz-meta-color\`=\"blue\"" -h 127.0.0.1 -p 8000
 ```
-
-You can see the Spark Master UI at port 8080. Check out the Livy UI at port
-8998.
 
 ## Further Improvements
 
