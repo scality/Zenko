@@ -1,13 +1,13 @@
 # Zenko Quick Testing Swarm Stack
 
-This docker service stack describes a simple Zenko setup for quick testing
+This Docker service stack describes a simple Zenko setup for quick testing
 with non-production data.
 
 ## Preparing
 
-Swarm mode needs to be enabled on the local docker daemon. See
+Swarm mode must be enabled on the local Docker daemon. See
 [this tutorial](https://docs.docker.com/engine/swarm/swarm-tutorial/)
-for more information on Swarm mode.
+for more on Swarm mode.
 
 ## Deploying
 
@@ -31,10 +31,12 @@ ei95xqodynoc  zenko-testing_s3  replicated  1/1       scality/s3server:latest
 
 ## Testing
 
-Using [awscli](https://aws.amazon.com/cli/), we can perform S3 operations
-on our Zenko stack:
- > IMPORTANT: when using default port 80, it should never be specified after the
- > endpoint address. If using a custom port, it must be specified.
+You can use [awscli](https://aws.amazon.com/cli/) to perform S3 operations
+on your Zenko stack:
+
+ > **IMPORTANT:** When default port 80 is in use, it must never be specified
+ > after the endpoint address. Any custom port in use must be specified.
+
 ```
 $ export AWS_ACCESS_KEY_ID=accessKey1
 $ export AWS_SECRET_ACCESS_KEY=verySecretKey1

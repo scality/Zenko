@@ -1,11 +1,13 @@
 Zenko Helm Chart
 ================
-This is a [Helm] Chart for [Scality] [Zenko]. To get started, you'll need a
-[Kubernetes] cluster, initialized with Helm. Checkout the [minikube](./minikube.md) for 
-a local or single machine deployment.
+
+This is a [Helm] Chart for [Scality]'s [Zenko] multi-cloud controller. To get
+started, you'll need a [Kubernetes] cluster, initialized with Helm. Check out
+[minikube](./minikube.md) for a local or single-machine deployment.
 
 First, retrieve all dependencies:
-```shell
+
+```console
 $ helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
 "incubator" has been added to your repositories
 
@@ -23,59 +25,57 @@ Downloading zookeeper from repo http://storage.googleapis.com/kubernetes-charts-
 Deleting outdated charts
 ```
 
-Note: in released versions of Zenko and the Chart, these upstream Charts will
-be embedded in the package created by `helm package`.
+**Note:** In released versions of Zenko and the Chart, these upstream charts
+are embedded in the package created by `helm package`.
 
-Then, assuming you have an Ingress Controller running, run something like
+Then, assuming you have an ingress controller running, run something like:
 
 ```shell
-$ helm install --name zenko --set ingress.enabled=true --set ingress.hosts[0]=zenko.local --set cloudserver-front.endpoint=zenko.local zenko
+$ helm install --name zenko --set ingress.enabled=true \
+--set ingress.hosts[0]=zenko.local \
+--set cloudserver-front.endpoint=zenko.local zenko
 ```
+
+You can disable integration with the [Orbit] management UI (enabled by default).
 
 See `values.yml` for more options.
 
-One option to highlight is the ability to enable integration with the
-[Orbit] management UI (which is disabled by default) and set a custom
-Orbit API endpoint (for development purposes). 
-
-To disable Orbit use:
+To disable Orbit, use:
 
 ```shell
 --set cloudserver-front.orbit.enabled=false
 ```
 
-If a custom Orbit endpoint is required use:
+If a custom Orbit endpoint is required, use:
 
 ```shell
 --set cloudserver-front.orbit.endpoint=https://dev.zenko.io
 ```
 
-accordingly.
-
 Autoscaling
 -----------
-This Chart can be configured to deploy a `HorizontalPodAutoscaler` for
+
+This chart can be configured to deploy a `HorizontalPodAutoscaler` for
 `cloudserver-front`. This is disabled by default.
 
-As an example, to set up autoscaling based on CPU consumption, you need to
-configure the amount of CPU a single `cloudserver-front` Pod requests, e.g.
+To set up autoscaling based on CPU consumption, configure the amount of CPU a
+single `cloudserver-front` Pod requests. For example, to request one CPU to be
+allocated:
 
 ```shell
 --set cloudserver-front.resources.requests.cpu=1
 ```
 
-to request 1 CPU to be allocated.
-
-Next, enable autoscaling using
+Next, enable autoscaling using:
 
 ```shell
 --set cloudserver-front.autoscaling.enabled=true
 ```
 
-This will scale up (and down) between 1 and 16 replicas, with 80% CPU
+This scales up (and down) between 1 and 16 replicas, with 80% CPU
 consumption as the per-Pod target.
 
-These default can be adapted using
+These defaults can be modified using:
 
 ```shell
 --set cloudserver-front.autoscaling.config.minReplicas=...
@@ -85,25 +85,26 @@ These default can be adapted using
 
 Prometheus Monitoring
 ---------------------
-[Prometheus] is deployed as part of this stack. If you want to access its
-built-in web UI, you may want to create an `Ingress` object. To do so
-automatically, use something like
+
+[Prometheus] is deployed as part of this stack. To access its built-in web UI,
+create an `Ingress` object. To do so automatically, use something like
 
 ```shell
 --set prometheus.server.ingress.enabled=true --set prometheus.server.ingress.hosts[0]=prometheus.local
 ```
 
-Validating your deployment
+Validating Your Deployment
 --------------------------
-To run some validation tests on your deployment, a test-suite is shipped with
-the Zenko Chart. This suite can be invoked by running
+
+A test suite is shipped with the Zenko Chart to help you run validation tests on
+your deployment. Invoke this suite by running:
 
 ```shell
 $ helm test $RELEASE_NAME --cleanup
 ```
 
-where `$RELEASE_NAME` must be replaced by the name you picked for the Helm
-release, e.g. `zenko` in the example above.
+where `$RELEASE_NAME` is replaced by the name you picked for the Helm release;
+`zenko` in the example above.
 
 [Helm]: https://helm.sh
 [Scality]: https://scality.com
