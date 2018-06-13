@@ -17,10 +17,10 @@ def format_json(tpl, asString = True, **kwargs):
 
 def mark_test(name):
 	head = ' Starting %s '%name
-	print('\n' + '=' * 35 + head + '=' * 35)
+	print('\n' + '=' * 35 + head + '=' * 35, flush = True)
 
 def remark(text):
-	print('\n' + '=' * 35 + text + '=' * 35)
+	print('\n' + '=' * 35 + text + '=' * 35, flush = True)
 
 
 def pretty_print_POST(req):

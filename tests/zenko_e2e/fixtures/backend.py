@@ -28,6 +28,11 @@ def aws_resource():
                 aws_secret_access_key = conf.AWS_SECRET_KEY).resource('s3')
 
 @pytest.fixture(scope = 'session')
+def aws_crr_resource():
+	return Session(aws_access_key_id = conf.AWS_BACKBEAT_ACCESS_KEY,
+                aws_secret_access_key = conf.AWS_BACKBEAT_SECRET_KEY).resource('s3')
+
+@pytest.fixture(scope = 'session')
 def gcp_resource():
 	sesh = Session(aws_access_key_id = conf.GCP_ACCESS_KEY,
                 aws_secret_access_key = conf.GCP_SECRET_KEY)
