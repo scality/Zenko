@@ -1,88 +1,93 @@
-# General support information
+# General Support Information
 
-GitHub Issues are **reserved** for actionable bug reports (including
-documentation inaccuracies), and feature requests.
-**All questions** (regarding configuration, usecases, performance, community,
-events, setup and usage recommendations, among other things) should be asked on
+GitHub issues are reserved for actionable bug reports (including documentation
+issues), and feature requests.
+
+**All questions** regarding configuration, use cases, performance, community,
+events, setup and usage recommendations, among other things should be asked on
 the **[Zenko Forum](http://forum.zenko.io/)**.
 
-> Questions opened as GitHub issues will systematically be closed, and moved to
-> the [Zenko Forum](http://forum.zenko.io/).
+_Questions opened as GitHub issues will be summarily closed and moved to the
+[Zenko Forum](http://forum.zenko.io/)._
+
+
+## Avoid Duplication
+
+Before reporting a new issue or requesting a feature, please search the issue
+list for this repository to ensure the issue has not already been opened (Use
+the search bar and select "Issues" on the left pane after searching). If the
+issue has already been raised, do not open a new issue. Add a comment to the
+existing issue instead.
 
 --------------------------------------------------------------------------------
 
-## Avoiding duplicates
+## Bug Report Information
 
-When reporting a new issue/requesting a feature, make sure that we do not have
-any duplicates already open:
-
-- search the issue list for this repository (use the search bar, select
-  "Issues" on the left pane after searching);
-- if there is a duplicate, please do not open your issue, and add a comment
-  to the existing issue instead.
-
---------------------------------------------------------------------------------
-
-## Bug report information
-
-(delete this section (everything between the lines) if you're not reporting a
-bug but requesting a feature)
+If you are reporting a bug, provide the information described here. If you are
+requesting a new feature, delete this section (to the next line).
 
 ### Description
 
-Briefly describe the problem you are having in a few paragraphs.
+Briefly describe the problem you are having.
 
-### Steps to reproduce the issue
+### Steps to Reproduce the Issue
 
-Please provide steps to reproduce, including full log output
+Provide steps to reproduce the issue, including the full log output.
 
-### Actual result
+### Actual Results
 
-Describe the results you received
+Describe the results you received.
 
-### Expected result
+### Expected Results
 
-Describe the results you expected
+Describe the results you expected.
 
-### Additional information
+### Additional Information
 
-- Node.js version,
-- Docker version,
-- npm version,
-- distribution/OS,
-- optional: anything else you deem helpful to us.
+Let us know how your deployed example is configured. Tell us your:
+
+- Node.js version
+- Docker version
+- npm version
+- Distribution/OS
+
+Include anything else you think will help us resolve the issue.
 
 --------------------------------------------------------------------------------
 
-## Feature Request
+## Feature Requests
 
-(delete this section (everything between the lines) if you're not requesting
-a feature but reporting a bug)
+If you are requesting a new feature, delete the previous section (Bug Report
+Information) and provide the information described here.
 
 ### Proposal
 
-Describe the feature
+Describe the feature you want.
 
-### Current behavior
+### Current Behavior
 
-What currently happens
+Tell us what the program s doing now that you want to change.
 
-### Desired behavior
+### Desired Behavior
 
-What you would like to happen
+Tell us what you want the program to do.
 
-### Usecase
+### Use Cases
 
-Please provide usecases for changing the current behavior
+Please provide use cases for changing the program's current behavior. Tell us
+the starting state for the desired new feature (i.e., what screen or process
+step you want to start from), the steps you'd like to follow (or avoid!), and
+the results you want.
 
-### Additional information
+### Additional Information
 
-- Is this request for your company? Y/N
-  - If Y: Company name:
-  - Are you using any Scality Enterprise Edition products (RING, Zenko EE)? Y/N
+To serve you better, we'd like to know a little more about you (if you don't
+mind our asking...)
+
+- Is this request for your company?
+  - If it is, for which company?
+  - Is your company using any Scality Enterprise Edition products (RING, Zenko
+    EE)?
 - Are you willing to contribute this feature yourself?
-- Position/Title:
+- What is your position or title?
 - How did you hear about us?
-
---------------------------------------------------------------------------------
-
