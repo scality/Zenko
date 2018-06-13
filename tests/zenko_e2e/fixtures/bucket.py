@@ -37,7 +37,7 @@ def gcp_target_bucket(gcp_resource):
 def azure_target_bucket(azure_resource):
 	bucket =  create_bucket(azure_resource, conf.AZURE_TARGET_BUCKET)
 	yield bucket
-	util.cleanup_bucket(bucket, delete_bucket= False)
+	util.cleanup_azure_bucket(bucket, delete_bucket= False)
 
 @pytest.fixture(scope = 'session')
 def wasabi_target_bucket(wasabi_resource):
@@ -67,7 +67,7 @@ def gcp_crr_target_bucket(gcp_resource):
 def azure_crr_target_bucket(azure_resource):
 	bucket = create_bucket(azure_resource, conf.AZURE_CRR_TARGET_BUCKET)
 	yield bucket
-	util.cleanup_bucket(bucket, delete_bucket= False)
+	util.cleanup_azure_bucket(bucket, delete_bucket= False)
 
 @pytest.fixture(scope = 'session')
 def wasabi_crr_target_bucket(wasabi_resource):

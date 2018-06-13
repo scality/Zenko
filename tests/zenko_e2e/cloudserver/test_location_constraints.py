@@ -25,7 +25,6 @@ def test_gcp_storage(gcp_loc_bucket, gcp_target_bucket, testfile):
 	)
 	assert util.check_object('gcp-test', testfile, gcp_loc_bucket, gcp_target_bucket)
 
-@pytest.mark.skip(reason ='Not implemented in CI')
 @pytest.mark.conformance
 def test_azure_storage(azure_loc_bucket, azure_target_bucket, testfile):
 	util.mark_test('AZURE STORAGE LOCATION CONSTRAINT')
@@ -35,7 +34,7 @@ def test_azure_storage(azure_loc_bucket, azure_target_bucket, testfile):
 	)
 	assert util.check_object('azure-test', testfile, azure_loc_bucket, azure_target_bucket)
 
-@pytest.mark.skip(reason ='Not implemented in CI')
+@pytest.mark.skip(reason ='Wasabi Not implemented in CI')
 @pytest.mark.conformance
 def test_wasabi_storage(wasabi_loc_bucket, wasabi_target_bucket, testfile):
 	util.mark_test('WASABI STORAGE LOCATION CONSTRAINT')
