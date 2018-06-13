@@ -13,6 +13,7 @@ PYTEST_ARGS :=
 DOTENV := $(PWD)/.env
 HELM_TEST_PODS := {range .items[?(@.metadata.annotations.helm\.sh\/hook)]}{@.metadata.name}{"\n"}{end}
 E2E_POD := zenko-e2e
+ORBIT_HELM_RELEASE := ciutil
 -include .local.make
 
 ZENKO_PRESENT := $(shell $(HELM) list -q | grep $(ZENKO_HELM_RELEASE) | wc -l | xargs -i test "0" -eq "{}" && echo "build")
