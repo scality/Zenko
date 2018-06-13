@@ -1,3 +1,10 @@
-.env
-local.make
-artifacts/
+**/.env
+**/.local.make
+**/.local.env
+**/artifacts/
+**/.secrets.env
+**/.venv
+**/.eggs
+**/.pytest_cache
+**/artifacts/
+**/__pycache__/
