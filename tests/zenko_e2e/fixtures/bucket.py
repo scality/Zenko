@@ -4,6 +4,7 @@ import zenko_e2e.util as util
 import requests
 import re
 import warnings
+from awsauth import S3Auth
 
 '''
 This module contains all boto3 Buckets created from the various backends or zenko itself
@@ -223,11 +224,12 @@ def muti_crr_bucket(zenko_resource):
 
 
 @pytest.fixture(scope = 'function')
-def encrypted_bucket(aws_endpoint_resource, s3auth):
+def encrypted_bucket(aws_endpoint_resource):
+	auth = S3Auth(conf.ZENKO_ACCESS_KEY, conf.ZENKO_SECRET_KEY, service_url = conf.ZENKO_AWS_ENDPOINT)
 	name = util.gen_bucket_name()
-	ep = '%s/%s/'%(conf.ZENKO_ENDPOINT, name)
+	ep = '%s/%s/'%(conf.ZENKO_AWS_ENDPOINT, name)
 	headers = { 'x-amz-scal-server-side-encryption': 'AES256' }
-	resp = requests.put(ep, auth=s3auth, headers = headers, verify = conf.VERIFY_CERTIFICATES)
+	resp = requests.put(ep, auth=auth, headers = headers, verify = conf.VERIFY_CERTIFICATES)
 	bucket = create_bucket(aws_endpoint_resource, name)
 	yield bucket
 	util.cleanup_bucket(bucket)
