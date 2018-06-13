@@ -6,6 +6,8 @@ import pytest
 from awsauth import S3Auth
 import configparser
 import os.path
+from azure.storage.blob import BlockBlobService
+from zenko_e2e.util import AzureResource
 
 '''
 This Module contains pytest fixtures relating to the various backends zenko supports.
@@ -41,9 +43,12 @@ def gcp_resource():
 
 @pytest.fixture(scope = 'session')
 def azure_resource():
-	s =  Session(aws_access_key_id = conf.AZURE_ACCESS_KEY,
-                aws_secret_access_key = conf.AZURE_SECRET_KEY)
-	return s.resource('s3', endpoint_url = conf.AZURE_ENDPOINT)
+	return AzureResource(
+		BlockBlobService(
+			account_name = conf.AZURE_ACCESS_KEY,
+			account_key = conf.AZURE_SECRET_KEY
+		)
+	)
 
 @pytest.fixture(scope = 'session')
 def wasabi_resource():
