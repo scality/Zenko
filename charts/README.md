@@ -31,12 +31,12 @@ are embedded in the package created by `helm package`.
 Then, assuming you have an ingress controller running, run something like:
 
 ```shell
-$ helm install --name zenko --set ingress.enabled=true --set ingress.hosts[0]=zenko.local --set cloudserver-front.endpoint=zenko.local zenko
+$ helm install --name zenko --set ingress.enabled=true \
+--set ingress.hosts[0]=zenko.local \
+--set cloudserver-front.endpoint=zenko.local zenko
 ```
 
-One noteworthy option is to enable integration with the [Orbit] management UI
-(disabled by default) and set a custom Orbit API endpoint (for development
-purposes).
+You can disable integration with the [Orbit] management UI (enabled by default).
 
 See `values.yml` for more options.
 
