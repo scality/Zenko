@@ -41,7 +41,7 @@ ZENKO_ENDPOINT = get_env('CLOUDSERVER_FRONT_ENDPOINT', 'http://%s-cloudserver-fr
 ZENKO_VAULT_ENDPOINT = get_env('ZENKO_VAULT_ENDPOINT', 'http://zenko.test:8600')
 ORBIT_ENDPOINT = get_env('ORBIT_ENDPOINT', 'http://ciutil-orbit-simulator:4222')
 
-ZENKO_ROOT_ENDPOINT = '-orbit-sim-ep'
+ZENKO_ROOT_ENDPOINT = get_env('ZENKO_ROOT_ENDPOINT', '-orbit-sim-ep')
 # The endpoints configured with a default location
 ZENKO_AWS_ENDPOINT = get_env('ZENKO_AWS_ENDPOINT', 'http://aws%s'%ZENKO_ROOT_ENDPOINT)
 ZENKO_GCP_ENDPOINT = get_env('ZENKO_GCP_ENDPOINT',  'http://gcp%s'%ZENKO_ROOT_ENDPOINT)
