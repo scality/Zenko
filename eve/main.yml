@@ -118,7 +118,7 @@ stages:
           --set redis-ha.serviceAccount.name=default
           --set cloudserver-front.image.pullPolicy=Always
           --set cloudserver-front.ci.enabled=true
-          --timeout 600
+          --timeout 700
           --wait $(./eve/workers/ci_env.sh set)
         haltOnFailure: true
         env:
