@@ -9,10 +9,17 @@ metadata:
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+{{- if or .Values.ingress.max_body_size .Values.ingress.annotations }}
   annotations:
+{{- if .Values.ingress.max_body_size }}
+    nginx.ingress.kubernetes.io/proxy-body-size: {{ .Values.ingress.max_body_size | quote }}
+{{- end }}
+{{- if .Values.ingress.annotations }}
     {{- range $key, $value := .Values.ingress.annotations }}
-      {{ $key }}: {{ $value | quote }}
+    {{ $key }}: {{ $value | quote }}
     {{- end }}
+{{- end }}
+{{- end }}
 spec:
   rules:
     {{- range $host := .Values.ingress.hosts }}

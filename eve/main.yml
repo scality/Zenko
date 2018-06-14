@@ -100,6 +100,7 @@ stages:
         command: >-
           helm upgrade zenko-test --namespace %(prop:testNamespace)s
           --install charts/zenko
+          --set ingress.enabled=true
           --set prometheus.rbac.create=false
           --set prometheus.serviceAccounts.alertmanager.create=false
           --set prometheus.serviceAccounts.kubeStateMetrics.create=false
