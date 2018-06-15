@@ -2,7 +2,6 @@ import zenko_e2e.conf as conf
 from ..fixtures import *
 import logging
 
-@pytest.mark.skip(reason ='Not implemented in CI')
 @pytest.mark.conformance
 def test_mpu_aws(aws_ep_bucket, aws_target_bucket, mpufile):
 	util.mark_test('AWS MPU UPLOAD')
@@ -14,7 +13,6 @@ def test_mpu_aws(aws_ep_bucket, aws_target_bucket, mpufile):
 	util.remark('Done uploading file, downloading and checking hash')
 	assert util.check_object('aws-mpu', mpufile, aws_ep_bucket, aws_target_bucket)
 
-@pytest.mark.skip(reason ='Not implemented in CI')
 @pytest.mark.conformance
 def test_mpu_gcp(gcp_ep_bucket, gcp_target_bucket, mpufile):
 	util.mark_test('GCP MPU UPLOAD')
@@ -24,9 +22,8 @@ def test_mpu_gcp(gcp_ep_bucket, gcp_target_bucket, mpufile):
 		Key = 'gcp-mpu'
 	)
 	util.remark('Done uploading file, downloading and checking hash')
-	assert util.check_object('gcp-test', mpufile, gcp_ep_bucket, gcp_target_bucket)
+	assert util.check_object('gcp-mpu', mpufile, gcp_ep_bucket, gcp_target_bucket)
 
-@pytest.mark.skip(reason ='Not implemented in CI')
 @pytest.mark.conformance
 def test_mpu_azure(azure_ep_bucket, azure_target_bucket, mpufile):
 	util.mark_test('AZURE MPU UPLOAD')
@@ -36,9 +33,9 @@ def test_mpu_azure(azure_ep_bucket, azure_target_bucket, mpufile):
 		Key = 'azure-mpu'
 	)
 	util.remark('Done uploading file, downloading and checking hash')
-	assert util.check_object('azure-test', mpufile, azure_ep_bucket, azure_target_bucket)
+	assert util.check_object('azure-mpu', mpufile, azure_ep_bucket, azure_target_bucket)
 
-@pytest.mark.skip(reason ='Not implemented in CI')
+@pytest.mark.skip(reason ='Wasabi not implemented in CI')
 @pytest.mark.conformance
 def test_mpu_wasabi(wasabi_ep_bucket, wasabi_target_bucket, mpufile):
 	util.mark_test('WASABI MPU UPLOAD')

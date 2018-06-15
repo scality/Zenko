@@ -13,5 +13,5 @@ def emptyfile(): # O bytes
 	return b''
 
 @pytest.fixture(scope = 'session')
-def mpufile(): # 1 GB
-	return b'0' * ( 1024 ** 3 )
+def mpufile(): # 100 MB
+	return b'0' * ( 1024 ** 2 * 100 )
