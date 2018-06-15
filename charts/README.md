@@ -40,17 +40,6 @@ You can disable integration with the [Orbit] management UI (enabled by default).
 
 See `values.yml` for more options.
 
-To disable Orbit, use:
-
-```shell
---set cloudserver-front.orbit.enabled=false
-```
-
-If a custom Orbit endpoint is required, use:
-
-```shell
---set cloudserver-front.orbit.endpoint=https://dev.zenko.io
-```
 
 Autoscaling
 -----------
@@ -105,6 +94,22 @@ $ helm test $RELEASE_NAME --cleanup
 
 where `$RELEASE_NAME` is replaced by the name you picked for the Helm release;
 `zenko` in the example above.
+
+Advanced Features
+-----------------
+
+To disable Orbit, use:
+
+```shell
+--set cloudserver-front.orbit.enabled=false
+```
+
+If a custom Orbit endpoint is required, use:
+
+```shell
+--set cloudserver-front.orbit.endpoint=https://dev.zenko.io
+```
+
 
 [Helm]: https://helm.sh
 [Scality]: https://scality.com
