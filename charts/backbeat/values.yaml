@@ -6,8 +6,12 @@ orbit:
 
 image:
   repository: zenko/backbeat
-  tag: 0.2.2
+  tag: 0.2.4
   pullPolicy: IfNotPresent
+
+logging:
+   # Options: info, debug, trace
+   level: info
 
 api:
   replicaCount: 1
@@ -30,6 +34,44 @@ api:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+
+lifecycle:
+  conductor:
+    cronRule: "0 */5 * * * *"
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+
+  consumer:
+    replicaCount: 1
+    group: backbeat-lifecycle-consumer-group
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+
+  producer:
+    replicaCount: 1
+    group: backbeat-lifecycle-producer-group
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+
+  zookeeper:
+    path: "/lifecycle"
+    backlog_metrics:
+      path: "/lifecycle/run/backlog-metrics"
+      interval: 60
+
+  rules:
+    expiration:
+      enabled: True
+    noncurrentVersionExpiration:
+      enabled: True
+    abortIncompleteMPU:
+      enabled: True
 
 replication:
   consumer:
