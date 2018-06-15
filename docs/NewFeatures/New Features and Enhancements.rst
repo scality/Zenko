@@ -1,2 +1,0 @@
-New Features and Enhancements
-=============================
