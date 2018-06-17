@@ -119,24 +119,7 @@ stages:
         command: >-
           helm upgrade zenko-test --namespace %(prop:testNamespace)s
           --install charts/zenko
-          --set ingress.enabled=true
-          --set prometheus.rbac.create=false
-          --set prometheus.serviceAccounts.alertmanager.create=false
-          --set prometheus.serviceAccounts.kubeStateMetrics.create=false
-          --set prometheus.serviceAccounts.nodeExporter.create=false
-          --set prometheus.serviceAccounts.pushgateway.create=false
-          --set prometheus.serviceAccounts.server.create=false
-          --set prometheus.serviceAccounts.alertmanager.name=default
-          --set prometheus.serviceAccounts.kubeStateMetrics.name=default
-          --set prometheus.serviceAccounts.nodeExporter.name=default
-          --set prometheus.serviceAccounts.pushgateway.name=default
-          --set prometheus.serviceAccounts.server.name=default
-          --set zenko-queue.rbac.enabled=false
-          --set redis-ha.rbac.create=false
-          --set redis-ha.serviceAccount.create=false
-          --set redis-ha.serviceAccount.name=default
-          --set cloudserver-front.image.pullPolicy=Always
-          --set cloudserver-front.ci.enabled=true
+          -f eve/ci-values.yml
           --timeout 700
           --wait $(./eve/workers/ci_env.sh set)
         haltOnFailure: true
@@ -156,33 +139,17 @@ stages:
       - ShellCommandWithSecrets: *start_orbit_simulator
       - ShellCommand: *helm_build_dep
       - ShellCommandWithSecrets:
-          name: Install Zenko !
+          name: Install Nightly Zenko !
           command: >-
             helm upgrade zenko-test --namespace %(prop:testNamespace)s
             --install charts/zenko
-            --set prometheus.rbac.create=false
-            --set prometheus.serviceAccounts.alertmanager.create=false
-            --set prometheus.serviceAccounts.kubeStateMetrics.create=false
-            --set prometheus.serviceAccounts.nodeExporter.create=false
-            --set prometheus.serviceAccounts.pushgateway.create=false
-            --set prometheus.serviceAccounts.server.create=false
-            --set prometheus.serviceAccounts.alertmanager.name=default
-            --set prometheus.serviceAccounts.kubeStateMetrics.name=default
-            --set prometheus.serviceAccounts.nodeExporter.name=default
-            --set prometheus.serviceAccounts.pushgateway.name=default
-            --set prometheus.serviceAccounts.server.name=default
-            --set zenko-queue.rbac.enabled=false
-            --set redis-ha.rbac.create=false
-            --set redis-ha.serviceAccount.create=false
-            --set redis-ha.serviceAccount.name=default
-            --set cloudserver-front.image.pullPolicy=Always
+            -f eve/ci-values.yml
             --set cloudserver-front.image.tag=nightly
             --set cloudserver-front.image.repository=%(secret:private_registry_url)s/zenko/cloudserver
             --set backbeat.image.tag=nightly
             --set backbeat.image.repository=%(secret:private_registry_url)s/zenko/backbeat
             --set s3-data.image.tag=nightly
             --set s3-data.image.repository=%(secret:private_registry_url)s/zenko/cloudserver
-            --set cloudserver-front.ci.enabled=true
             --timeout 600
             --wait $(./eve/workers/ci_env.sh set)
           haltOnFailure: true
