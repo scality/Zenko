@@ -612,4 +612,4 @@ in GA), you may encounter some issues.
                {%- set node = ((pv.spec.nodeAffinity.required.nodeSelectorTerms|first).matchExpressions
                     |first)['values']|first -%}
                {%- set _ = released_pv.setdefault(node, []).append(pv) -%}
-         {%- endfor -%}
+          {%- endfor -%}
