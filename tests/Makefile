@@ -1,5 +1,5 @@
 DOCKER_IMAGE_NAME := docker.io/zenko/zenko-e2e
-DOCKER_IMAGE_TAG := latest
+DOCKER_IMAGE_TAG := edge
 
 DOCKER := docker
 TOX := tox

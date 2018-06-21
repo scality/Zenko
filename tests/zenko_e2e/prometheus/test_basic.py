@@ -1,8 +1,8 @@
 import pytest
-
+from .. import conf
 from zenko_e2e.conftest import zenko_helm_release
 
-@pytest.mark.skip('Waiting for PIPDEP-538')
+# @pytest.mark.skip('Waiting for PIPDEP-538')
 @pytest.mark.nondestructive
 @pytest.mark.conformance
 def test_prometheus_healthy(prometheus_client):
@@ -13,12 +13,12 @@ def test_prometheus_healthy(prometheus_client):
 SERVICE = 'kubernetes-service-endpoints'
 POD = 'kubernetes-pods'
 
-@pytest.mark.skip('Waiting for PIPDEP-538')
+# @pytest.mark.skip('Waiting for PIPDEP-538')
 @pytest.mark.nondestructive
 @pytest.mark.conformance
 @pytest.mark.parametrize('job,name', [
-    (SERVICE, 'zenko1-redis'),
-    (POD, '{}-zenko-zookeeper-0'.format(zenko_helm_release())),
+    (SERVICE, 'redis'),
+    (POD, '{}-zenko-quorum-0'.format(zenko_helm_release())),
     ])
 def test_prometheus_targets(prometheus_client, k8s_namespace,
                             zenko_helm_release, job, name):
