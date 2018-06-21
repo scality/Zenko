@@ -105,6 +105,7 @@ else
 end2end: | artifacts
 	$(KUBECTL) run $(E2E_POD) --image=$(DOCKER_IMAGE) --rm \
 	--restart=Never --namespace $(ZENKO_K8S_NAMESPACE) --attach=True \
+	--image-pull-policy=Always \
 	$(shell ../eve/workers/ci_env.sh env);
 endif
 .PHONY: end2end
