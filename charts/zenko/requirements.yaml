@@ -1,8 +1,5 @@
 dependencies:
 # Upstream Kubernetes Charts
-- name: mongodb-replicaset
-  version: "2.2.1"
-  repository: "https://kubernetes-charts.storage.googleapis.com/"
 - name: kafka
   version: "0.7.1"
   repository: "http://storage.googleapis.com/kubernetes-charts-incubator"
@@ -13,7 +10,7 @@ dependencies:
   alias: zenko-quorum
 - name: redis-ha
   version: "3.0.0"
-  repository: "https://scality.github.io/charts/"
+  repository: "https://scality.github.io/Zenko/"
 - name: grafana
   version: "1.11.6"
   repository: "https://kubernetes-charts.storage.googleapis.com/"
@@ -37,3 +34,7 @@ dependencies:
   version: "8.0.0-Z"
   repository: "file://../prometheus"
   condition: prometheus.enabled
+- name: mongodb-replicaset
+  version: "3.5.2-Z"
+  repository: "file://../mongodb-replicaset"
+
