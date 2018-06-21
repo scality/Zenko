@@ -95,7 +95,7 @@ spec:
           args: ['npm', 'run', 'start_s3server']
           livenessProbe:
             httpGet:
-              path: /_/healthcheck/deep
+              path: /_/healthcheck
               port: http
           resources:
 {{ toYaml .Values.resources | indent 12 }}
