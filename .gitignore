@@ -7,3 +7,5 @@ logs
 tests/artifacts
 **/.venv
 **/.vscode
+
+.tox/
