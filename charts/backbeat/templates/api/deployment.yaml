@@ -38,6 +38,12 @@ spec:
               value: "6379"
             - name: HEALTHCHECKS_ALLOWFROM
               value: '0.0.0.0/0'
+            - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_ACCOUNT
+              value: service-replication
+            - name: EXTENSIONS_REPLICATION_DEST_BOOTSTRAPLIST
+              value: "{{- printf "%s-cloudserver-front:80" .Release.Name | trunc 63 | trimSuffix "-" -}}"
+            - name: MONGODB_HOSTS
+              value: "{{ .Release.Name }}-mongodb-replicaset-0.{{ .Release.Name }}-mongodb-replicaset:27017,{{ .Release.Name }}-mongodb-replicaset-1.{{ .Release.Name }}-mongodb-replicaset:27017,{{ .Release.Name }}-mongodb-replicaset-2.{{ .Release.Name }}-mongodb-replicaset:27017"
           livenessProbe:
             httpGet:
               path: /_/healthcheck
