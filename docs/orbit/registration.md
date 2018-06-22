@@ -95,14 +95,14 @@ or to install now. Feel free to take the tour to discover all of Orbit's
 capabilities, or hit "Install Now" if you can't wait!
 You will land on this page:
 
-![Orbit Setup Page](../res/orbit_setup_page.jpeg)
+![Orbit Setup Page](orbit_setup_page.jpeg)
 
 Hit "Register My Instance"
 
 On this page, put your instance ID in the left box, and choose your instance
 friendly name in the right box, then simply hit "Submit Now"
 
-![Orbit Registration Page](../res/orbit_registration_page.jpeg)
+![Orbit Registration Page](orbit_registration_page.jpeg)
 
 You're all set! Enjoy Orbit and Zenko, and reach out on the
 [forum](https://forum.zenko.io) if you need anything!
@@ -132,14 +132,14 @@ or to install now. Feel free to take the tour to discover all of Orbit's
 capabilities, or hit "Install Now" if you can't wait!
 You will land on this page:
 
-![Orbit Setup Page](../res/orbit_setup_page.jpeg)
+![Orbit Setup Page](orbit_setup_page.jpeg)
 
 Hit "Register My Instance"
 
 On this page, put your instance ID in the left box, and choose your instance
 friendly name in the right box, then simply hit "Submit Now"
 
-![Orbit Registration Page](../res/orbit_registration_page.jpeg)
+![Orbit Registration Page](orbit_registration_page.jpeg)
 
 You're all set! Enjoy Orbit and Zenko, and reach out on the
 [forum](https://forum.zenko.io) if you need anything!

@@ -101,7 +101,7 @@ html_static_path = ['_static']
 #
 # html_sidebars = {}
 
-html_logo = '../res/zenko.io-logo-stacked-purple-cmyk.png'
+html_logo = '_static/zenko.io-logo-stacked-purple-cmyk.png'
 
 # -- Options for HTMLHelp output ---------------------------------------------
 

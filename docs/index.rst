@@ -11,6 +11,5 @@ Zenko
    :caption: Documentation
 
    root
-   swarm-testing
-   swarm-production
-   orbit_registration
+   deployment/index
+   orbit/registration
