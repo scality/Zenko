@@ -28,7 +28,6 @@ def test_gcp_1_1(gcp_crr_bucket, gcp_crr_target_bucket, testfile):
 	)
 	assert util.check_object('gcp-crr-test', testfile, gcp_crr_bucket, gcp_crr_target_bucket, timeout = 30)
 
-@pytest.mark.skip(reason ='Not implemented in tests')
 @pytest.mark.conformance
 def test_azure_1_1(azure_crr_bucket, azure_crr_target_bucket, testfile):
 	util.mark_test('AZURE 1-1 REPLICATION')
@@ -37,7 +36,8 @@ def test_azure_1_1(azure_crr_bucket, azure_crr_target_bucket, testfile):
 		Key = 'azure-crr-test'
 	)
 	assert util.check_object('azure-crr-test', testfile, azure_crr_bucket, azure_crr_target_bucket, timeout = 30)
-@pytest.mark.skip(reason ='Not implemented in CI')
+
+@pytest.mark.skip(reason ='Wasabi not implemented in CI')
 @pytest.mark.conformance
 def test_wasabi_1_1(wasabi_crr_bucket, wasabi_crr_target_bucket, testfile):
 	util.mark_test('AZURE 1-1 REPLICATION')

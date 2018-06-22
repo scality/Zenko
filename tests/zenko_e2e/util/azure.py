@@ -59,7 +59,7 @@ class AzureBucket:
 		return ObjectStub('suspend')
 
 	def  delete_blob(self, name):
-		self._service.delete_blob(self._name, name, delete_snapshots = True)
+		self._service.delete_blob(self._name, name)
 
 def cleanup_azure_bucket(bucket, replicated = False, delete_bucket = True):
 	blobs = list(bucket.objects.all())
