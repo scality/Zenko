@@ -30,3 +30,12 @@ Create chart name and version as used by the chart label.
 {{- define "backbeat.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
+
+{{/*
+Create the default mongodb replicaset hosts string
+*/}}
+{{- define "backbeat.mongodb-hosts" -}}
+{{- $count := (atoi (printf "%d" (int64 .Values.mongodb.replicas))) -}}
+{{- $release := .Release.Name -}}
+{{- range $v := until $count }}{{ $release }}-mongodb-replicaset-{{ $v }}.{{ $release }}-mongodb-replicaset:27017{{ if ne $v (sub $count 1) }},{{- end -}}{{- end -}}
+{{- end -}}

@@ -13,6 +13,9 @@ logging:
    # Options: info, debug, trace
    level: info
 
+mongodb:
+  replicas: 3
+
 api:
   replicaCount: 1
   service:

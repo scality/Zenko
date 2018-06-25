@@ -38,3 +38,12 @@ Create the orbit management endpoint when running in ci mode
 {{- define "cloudserver-front.ci_endpoint" -}}
 {{- printf "http://%s-orbit-simulator:4222" .Values.ci.orbit_ns -}}
 {{- end -}}
+
+{{/*
+Create the default mongodb replicaset hosts string
+*/}}
+{{- define "cloudserver-front.mongodb-hosts" -}}
+{{- $count := (atoi (printf "%d" (int64 .Values.mongodb.replicas))) -}}
+{{- $release := .Release.Name -}}
+{{- range $v := until $count }}{{ $release }}-mongodb-replicaset-{{ $v }}.{{ $release }}-mongodb-replicaset:27017{{ if ne $v (sub $count 1) }},{{- end -}}{{- end -}}
+{{- end -}}
