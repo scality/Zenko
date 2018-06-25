@@ -97,6 +97,7 @@ These preparatory steps let you access the virtual environment
 
     $ cd metal-k8s
     $ make shell
+
 The command line enters a virtual environment containing all tools
 required to perform the remaining steps.
 
@@ -612,4 +613,4 @@ in GA), you may encounter some issues.
                {%- set node = ((pv.spec.nodeAffinity.required.nodeSelectorTerms|first).matchExpressions
                     |first)['values']|first -%}
                {%- set _ = released_pv.setdefault(node, []).append(pv) -%}
-          {%- endfor -%}
+           {%- endfor -%}
