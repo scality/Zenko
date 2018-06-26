@@ -52,8 +52,14 @@ spec:
               value: "{{- printf "%s-%s" .Release.Name "redis-ha-master-svc" | trunc 63 | trimSuffix "-" -}}"
             - name: REDIS_PORT
               value: "6379"
-          # TODO livenessProbe:
-          # TODO readinessProbe:
+          livenessProbe:
+            httpGet:
+              path: /_/health/liveness
+              port: 4042
+          readinessProbe:
+            httpGet:
+              path: /_/health/readiness
+              port: 4042
           resources:
 {{ toYaml .Values.replication.consumer.resources | indent 12 }}
     {{- with .Values.replication.consumer.nodeSelector }}

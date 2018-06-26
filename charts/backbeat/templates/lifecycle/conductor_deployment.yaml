@@ -48,6 +48,14 @@ spec:
               value: "{{ .Values.lifecycle.rules.noncurrentVersionExpiration.enabled }}"
             - name: EXTENSIONS_LIFECYCLE_RULES_ABORT_INCOMPLETE_MPU_ENABLED
               value: "{{ .Values.lifecycle.rules.abortIncompleteMPU.enabled }}"
+          livenessProbe:
+            httpGet:
+              path: /_/health/liveness
+              port: 4042
+          readinessProbe:
+            httpGet:
+              path: /_/health/readiness
+              port: 4042
           resources:
 {{ toYaml .Values.lifecycle.conductor.resources | indent 12 }}
     {{- with .Values.lifecycle.conductor.nodeSelector }}
