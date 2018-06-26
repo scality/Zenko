@@ -61,7 +61,6 @@ ZENKO_WASABI_ENDPOINT = get_env(
 ZENKO_DO_ENDPOINT = get_env(
     'ZENKO_DO_ENDPOINT', 'http://do%s' % ZENKO_ROOT_ENDPOINT)
 
-
 # Sets whether to verify ssl certicates of remote services
 VERIFY_CERTIFICATES = get_env('VERIFY_CERTIFICATES', False)
 

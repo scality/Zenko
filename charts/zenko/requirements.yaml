@@ -20,6 +20,10 @@ dependencies:
 - name: redis-ha
   version: "2.2.0"
   repository: "https://kubernetes-charts.storage.googleapis.com/"
+- name: grafana
+  version: "1.11.6"
+  repository: "https://kubernetes-charts.storage.googleapis.com/"
+  condition: grafana.enabled
 
 # Charts managed in this repository
 - name: backbeat

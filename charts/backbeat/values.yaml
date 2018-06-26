@@ -28,6 +28,10 @@ api:
   service:
     name: backbeat-api
     type: ClusterIP
+    annotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "8000"
+      prometheus.io/path: "/_/monitoring/metrics"
 
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
