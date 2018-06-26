@@ -97,7 +97,6 @@ These preparatory steps let you access the virtual environment
 
     $ cd metal-k8s
     $ make shell
-
 The command line enters a virtual environment containing all tools
 required to perform the remaining steps.
 
