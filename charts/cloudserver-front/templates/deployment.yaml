@@ -62,7 +62,7 @@ spec:
             - name: S3METADATA
               value: "mongodb"
             - name: MONGODB_HOSTS
-              value: "{{ .Release.Name }}-mongodb-replicaset-0.{{ .Release.Name }}-mongodb-replicaset:27017,{{ .Release.Name }}-mongodb-replicaset-1.{{ .Release.Name }}-mongodb-replicaset:27017,{{ .Release.Name }}-mongodb-replicaset-2.{{ .Release.Name }}-mongodb-replicaset:27017"
+              value: "{{ template "cloudserver-front.mongodb-hosts" . }}"
             - name: MONGODB_RS
               value: "{{ default "rs0" .Values.mongodb.replicaSet }}"
 {{- end}}

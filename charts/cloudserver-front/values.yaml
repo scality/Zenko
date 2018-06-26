@@ -25,6 +25,7 @@ allowHealthchecksFrom: '0.0.0.0/0'
 mongodb:
   enabled: true
   replicaSet: rs0
+  replicas: 3
 
 replicaCount: 1
 

@@ -1,25 +1,35 @@
+nodeCount: &nodeCount 1
+
 ingress:
   enabled: true
   hosts:
     - ""
 
+cloudserver-front:
+  mongodb:
+    replicas: *nodeCount
+
+backbeat:
+  mongodb:
+    replicas: *nodeCount
+
 zenko-queue:
-  replicas: 1
+  replicas: *nodeCount
   kafkaHeapOptions: "-Xms256M"
   configurationOverrides:
-    "offsets.topic.replication.factor": 1
-    "min.insync.replicas": 1
+    "offsets.topic.replication.factor": *nodeCount
+    "min.insync.replicas": *nodeCount
 
 zenko-quorum:
-  replicaCount: 1
+  replicaCount: *nodeCount
   env:
     ZK_HEAP_SIZE: "256M"
 
 mongodb-replicaset:
   replicaSet: rs0
-  replicas: 3
+  replicas: *nodeCount
 
 redis-ha:
   replicas:
-    servers: 1
-    sentinels: 1
+    servers: *nodeCount
+    sentinels: *nodeCount
