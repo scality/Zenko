@@ -60,12 +60,12 @@ spec:
               value: "{{ .Values.lifecycle.rules.abortIncompleteMPU.enabled }}"
           livenessProbe:
             httpGet:
-              path: /_/health/liveness
-              port: 4042
+              path: {{ .Values.health.path.liveness}}
+              port: {{ .Values.health.port }}
           readinessProbe:
             httpGet:
-              path: /_/health/readiness
-              port: 4042
+              path: {{ .Values.health.path.readiness }}
+              port: {{ .Values.health.port }}
           resources:
 {{ toYaml .Values.lifecycle.producer.resources | indent 12 }}
     {{- with .Values.lifecycle.producer.nodeSelector }}

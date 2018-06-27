@@ -39,12 +39,12 @@ spec:
               value: {{ .Values.logging.level }}
           livenessProbe:
             httpGet:
-              path: /_/health/liveness
-              port: 4042
+              path: {{ .Values.health.path.liveness}}
+              port: {{ .Values.health.port }}
           readinessProbe:
             httpGet:
-              path: /_/health/readiness
-              port: 4042
+              path: {{ .Values.health.path.readiness }}
+              port: {{ .Values.health.port }}
           resources:
 {{ toYaml .Values.replication.producer.resources | indent 12 }}
     {{- with .Values.replication.producer.nodeSelector }}

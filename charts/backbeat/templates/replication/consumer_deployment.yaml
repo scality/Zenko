@@ -54,12 +54,12 @@ spec:
               value: "6379"
           livenessProbe:
             httpGet:
-              path: /_/health/liveness
-              port: 4042
+              path: {{ .Values.health.path.liveness}}
+              port: {{ .Values.health.port }}
           readinessProbe:
             httpGet:
-              path: /_/health/readiness
-              port: 4042
+              path: {{ .Values.health.path.readiness }}
+              port: {{ .Values.health.port }}
           resources:
 {{ toYaml .Values.replication.consumer.resources | indent 12 }}
     {{- with .Values.replication.consumer.nodeSelector }}
