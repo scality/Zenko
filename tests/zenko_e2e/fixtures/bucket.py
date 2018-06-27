@@ -245,13 +245,30 @@ def muti_crr_bucket(zenko_resource):
 
 @pytest.fixture(scope='function')
 def encrypted_bucket(aws_endpoint_resource):
-    auth = S3Auth(conf.ZENKO_ACCESS_KEY, conf.ZENKO_SECRET_KEY,
+    auth = S3Auth(conf.ZENKO_ACCESS_KEY,
+                  conf.ZENKO_SECRET_KEY,
                   service_url=conf.ZENKO_AWS_ENDPOINT)
     name = util.gen_bucket_name()
-    endp = '%s/%s/' % (conf.ZENKO_AWS_ENDPOINT, name)
+    url = '%s/%s/' % (conf.ZENKO_AWS_ENDPOINT, name)
     headers = {'x-amz-scal-server-side-encryption': 'AES256'}
-    requests.put(endp, auth=auth, headers=headers,
+    requests.put(url, auth=auth, headers=headers,
                  verify=conf.VERIFY_CERTIFICATES)
     bucket = create_bucket(aws_endpoint_resource, name)
     yield bucket
     util.cleanup_bucket(bucket)
+
+
+@pytest.fixture(scope='function')
+def transient_src_bucket(zenko_resource):
+    bucket = create_bucket(zenko_resource, conf.TRANSIENT_SRC_BUCKET)
+    util.bucket_safe_create(bucket)
+    yield bucket
+    util.cleanup_bucket(bucket, delete_bucket=False)
+
+
+@pytest.fixture(scope='session')
+def transient_target_bucket(aws_resource):
+    bucket = create_bucket(aws_resource, conf.AWS_CRR_TARGET_BUCKET)
+    util.bucket_safe_create(bucket)
+    yield bucket
+    util.cleanup_bucket(bucket, delete_bucket=False)

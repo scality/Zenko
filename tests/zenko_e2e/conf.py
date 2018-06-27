@@ -78,7 +78,7 @@ GCP_BACKEND = get_env('GCP_BACKEND', 'gcpbackend')
 AZURE_BACKEND = get_env('AZURE_BACKEND', 'azurebackend')
 WASABI_BACKEND = get_env('WASABI_BACKEND', 'wasabibackend')
 DO_BACKEND = get_env('DO_BACKEND', 'dobackend')
-
+TRANSIENT_BACKEND = get_env('TRANSIENT_BACKEND', 'transientbackend')
 AWS_CRR_BACKEND = get_env('AWS_CRR_BACKEND', 'awsbackend-crr')
 GCP_CRR_BACKEND = get_env('GCP_CRR_BACKEND', 'gcpbackend-crr')
 AZURE_CRR_BACKEND = get_env('AZURE_CRR_BACKEND', 'azurebackend-crr')
@@ -135,6 +135,9 @@ ZENKO_REPL_BUCKETS = [
     DO_CRR_SRC_BUCKET,
     MULTI_CRR_SRC_BUCKET
 ]
+
+TRANSIENT_SRC_BUCKET = get_env('TRANSIENT_SRC_BUCKET',
+                               'ci-zenko-transient-src-bucket')
 
 BACKBEAT_METRICS_ENDPOINT = get_env(
     'BACKBEAT_METRICS_ENDPOINT', 'https://zenko.test:')
