@@ -46,8 +46,14 @@ spec:
               value: "6379"
             - name: LOG_LEVEL
               value: {{ .Values.logging.level }}
-          # TODO livenessProbe:
-          # TODO readinessProbe:
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.health.path.liveness}}
+              port: {{ .Values.health.port }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.health.path.readiness }}
+              port: {{ .Values.health.port }}
           resources:
 {{ toYaml .Values.replication.status.resources | indent 12 }}
     {{- with .Values.replication.status.nodeSelector }}
