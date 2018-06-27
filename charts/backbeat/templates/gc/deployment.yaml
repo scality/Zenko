@@ -36,8 +36,14 @@ spec:
               value: "80"
             - name: MONGODB_HOSTS
               value: "{{ .Release.Name }}-mongodb-replicaset-0.{{ .Release.Name }}-mongodb-replicaset:27017,{{ .Release.Name }}-mongodb-replicaset-1.{{ .Release.Name }}-mongodb-replicaset:27017,{{ .Release.Name }}-mongodb-replicaset-2.{{ .Release.Name }}-mongodb-replicaset:27017"
-          # TODO livenessProbe:
-          # TODO readinessProbe:
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.health.path.liveness}}
+              port: {{ .Values.health.port }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.health.path.readiness }}
+              port: {{ .Values.health.port }}
           resources:
 {{ toYaml .Values.garbageCollector.consumer.resources | indent 12 }}
     {{- with .Values.garbageCollector.consumer.nodeSelector }}
