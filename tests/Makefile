@@ -61,6 +61,10 @@ container-image:
 	@$(DOCKER) build -t $(DOCKER_IMAGE) .
 .PHONY: container-image
 
+container-push:
+	@$(DOCKER) push $(DOCKER_IMAGE)
+.PHONY: container-push
+
 container-run:
 	@$(DOCKER) run -t --rm --read-only --mount type=tmpfs,tmpfs-size=64M,destination=/tmp \
 		-v $(DOTENV):/usr/src/zenko-e2e/.env:ro \

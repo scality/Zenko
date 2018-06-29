@@ -5,6 +5,13 @@ branches:
     stage: "pre-merge"
 
 models:
+  - Git: &git_pull
+      name: git pull
+      repourl: "%(prop:git_reference)s"
+      mode: full
+      method: clobber
+      retryFetch: true
+      haltOnFailure: true
   - Upload: &upload_artifacts
       source: tests/artifacts
       urls:
@@ -21,6 +28,7 @@ models:
       AZURE_BACKEND_CONTAINER_NAME_2: ci-zenko-azure-target-bucket-2
       AZURE_BACKBEAT_CONTAINER_NAME: ci-zenko-azure-crr-target-bucket
       AZURE_BACKBEAT_SRC_CONTAINER_NAME: ci-zenko-azure-crr-src-bucket
+      E2E_DOCKER_IMAGE_NAME: '%(secret:private_registry_url)s/zenko/zenko-e2e'
       GCP_BUCKET_NAME: ci-zenko-gcp-target-bucket
       GCP_MPU_BUCKET_NAME: ci-zenko-gcp-mpu-bucket
       GCP_BUCKET_NAME_2: ci-zenko-gcp-target-bucket-2
@@ -66,7 +74,8 @@ models:
       name: Test zenko
       command: >-
         sleep 90 &&
-        make end2end
+        make DOCKER_IMAGE_NAME=$E2E_DOCKER_IMAGE_NAME
+        DOCKER_IMAGE_TAG='%(prop:commit_short_revision)s' end2end
       workdir: build/tests
       env:
         <<: *global_env
@@ -76,13 +85,6 @@ models:
       workdir: build/tests
       env:
         <<: *global_env
-  - Git: &git_pull
-      name: git pull
-      repourl: "%(prop:git_reference)s"
-      mode: full
-      method: clobber
-      retryFetch: true
-      haltOnFailure: true
 
 stages:
   pre-merge:
@@ -93,7 +95,36 @@ stages:
     - TriggerStages:
         name: trigger all the tests
         stage_names:
+        - build-e2e
         - helm_test_kube_1.9.6
+
+  build-e2e:
+    worker: *pod
+    steps: &build_e2e
+    - Git: *git_pull
+    - ShellCommand:
+        name: Private Registry Login
+        command: >
+          docker login
+          -u '%(secret:private_registry_username)s'
+          -p '%(secret:private_registry_password)s'
+          '%(secret:private_registry_url)s'
+    - ShellCommand:
+        name: build end2end image
+        command: >-
+          make DOCKER_IMAGE_NAME=$E2E_DOCKER_IMAGE_NAME
+          DOCKER_IMAGE_TAG='%(prop:commit_short_revision)s' container-image
+        workdir: build/tests
+        env:
+          <<: *global_env
+    - ShellCommand:
+        name: push end2end image
+        command: >-
+          make DOCKER_IMAGE_NAME=$E2E_DOCKER_IMAGE_NAME
+          DOCKER_IMAGE_TAG='%(prop:commit_short_revision)s' container-push
+        workdir: build/tests
+        env:
+          <<: *global_env
 
   helm_test_kube_1.9.6:
     worker: &kube_cluster
@@ -117,7 +148,7 @@ stages:
     - ShellCommandWithSecrets:
         name: Install Zenko !
         command: >-
-          helm upgrade zenko-test --namespace %(prop:testNamespace)s
+          helm upgrade $ZENKO_HELM_RELEASE --namespace %(prop:testNamespace)s
           --install charts/zenko
           -f eve/ci-values.yml
           --timeout 700
@@ -130,6 +161,16 @@ stages:
     - Upload: *upload_artifacts
 
   latest:
+    worker:
+      type: local
+    steps:
+    - TriggerStages:
+        name: trigger all the tests
+        stage_names:
+        - build-e2e
+        - test-latest-components
+
+  test-latest-components:
     worker: *kube_cluster
     steps:
       - ShellCommand: *fix_curl
@@ -161,7 +202,7 @@ stages:
       - ShellCommandWithSecrets:
           name: Install Latest Zenko !
           command: >-
-            helm upgrade zenko-test --namespace %(prop:testNamespace)s
+            helm upgrade $ZENKO_HELM_RELEASE --namespace %(prop:testNamespace)s
             --install charts/zenko
             -f eve/ci-values.yml
             --set cloudserver-front.image.tag='%(prop:cloudserver_sha1)s'
