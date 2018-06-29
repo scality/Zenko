@@ -1,6 +1,6 @@
 from boto3 import Session
 from botocore.handlers import set_list_objects_encoding_type_url
-
+from botocore.client import Config
 import zenko_e2e.conf as conf
 import pytest
 from awsauth import S3Auth
@@ -13,6 +13,9 @@ from zenko_e2e.util import AzureResource
 This Module contains pytest fixtures relating to the various backends zenko supports.
 All boto3 Sessions and Resources are created in the module.
 '''
+
+
+boto_config = Config(connect_timeout=5, retries={'max_attempts': 0})
 
 
 @pytest.fixture

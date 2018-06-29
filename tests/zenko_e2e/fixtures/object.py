@@ -3,6 +3,10 @@ import zenko_e2e.conf as conf
 import zenko_e2e.util as util
 
 @pytest.fixture
+def objkey():
+	return util.make_name('test-object')
+
+@pytest.fixture
 def empty_object(zenko_bucket):
 	zenko_bucket.create()
 	name = util.gen_bucket_name('test-object')
