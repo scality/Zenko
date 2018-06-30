@@ -6,7 +6,7 @@ orbit:
 
 image:
   repository: zenko/backbeat
-  tag: 8.0.1
+  tag: 8.0.1-rc1
   pullPolicy: IfNotPresent
 
 logging:
