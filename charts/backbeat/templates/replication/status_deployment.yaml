@@ -41,7 +41,7 @@ spec:
             - name: EXTENSIONS_REPLICATION_SOURCE_S3_PORT
               value: "80"
             - name: REDIS_HOST
-              value: "{{- printf "%s-%s" .Release.Name "redis" | trunc 63 | trimSuffix "-" -}}"
+              value: "{{- printf "%s-%s" .Release.Name "redis-ha-master-svc" | trunc 63 | trimSuffix "-" -}}"
             - name: REDIS_PORT
               value: "6379"
             - name: REDIS_LOCALCACHE_HOST
