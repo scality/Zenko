@@ -4,7 +4,7 @@ import xml.etree.ElementTree as ET
 import re
 
 @pytest.mark.conformance
-def test_set_metadata(empty_object, testfile):
+def test_set_metadata(empty_object, testfile, objkey):
 	util.mark_test('SET METADATA')
 	assert empty_object.put(
 			Body = testfile,
@@ -23,7 +23,7 @@ def test_get_metadata(metadata_object):
 		assert resp['Metadata'].get(k, None) == v
 
 @pytest.mark.conformance
-def test_set_get_metadata(empty_object, testfile):
+def test_set_get_metadata(empty_object, testfile, objkey):
 	util.mark_test('SET & GET METADATA')
 	empty_object.put(
 		Body = testfile,
