@@ -32,6 +32,10 @@ spec:
               value: "{{- printf "%s-zenko-quorum:2181" .Release.Name | trunc 63 | trimSuffix "-" -}}"
             - name: KAFKA_HOSTS
               value: "{{- printf "%s-zenko-queue:9092" .Release.Name | trunc 63 | trimSuffix "-" -}}"
+            - name: EXTENSIONS_REPLICATION_SOURCE_S3_HOST
+              value: "{{- printf "%s-cloudserver-front" .Release.Name | trunc 63 | trimSuffix "-" -}}"
+            - name: EXTENSIONS_REPLICATION_SOURCE_S3_PORT
+              value: "80"
             - name: REDIS_HOST
               value: "{{- printf "%s-%s" .Release.Name "redis-ha-master-svc" | trunc 63 | trimSuffix "-" -}}"
             - name: REDIS_PORT
