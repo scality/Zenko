@@ -5,8 +5,8 @@ orbit:
   enabled: true
 
 image:
-  repository: zenko/backbeat
-  tag: 8.0.1
+  repository: arekisannda/backbeat
+  tag: test-8.0.1
   pullPolicy: IfNotPresent
 
 logging:

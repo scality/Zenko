@@ -30,8 +30,8 @@ mongodb:
 replicaCount: 1
 
 image:
-  repository: zenko/cloudserver
-  tag: 0.2.3
+  repository: arekisannda/cloudserver
+  tag: test-8.0.1
   pullPolicy: IfNotPresent
 
 proxy:
