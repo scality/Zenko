@@ -37,6 +37,8 @@ cloudserver-front:
     secretKey: deployment-specific-secret-key
 
 backbeat:
+  ingestion:
+    enabled: false
   mongodb:
     replicas: *nodeCount
 

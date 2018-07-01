@@ -6,7 +6,7 @@ orbit:
 
 image:
   repository: zenko/backbeat
-  tag: 8.0.1
+  tag: 8.0.2
   pullPolicy: IfNotPresent
 
 logging:
@@ -14,6 +14,7 @@ logging:
    level: info
 
 mongodb:
+  replicaSet: rs0
   replicas: 3
 
 health:
@@ -43,6 +44,23 @@ api:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+
+ingestion:
+  enabled: false
+  consumer:
+    replicaCount: 1
+
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+  producer:
+    replicaCount: 1
+
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
 
 lifecycle:
   conductor:
