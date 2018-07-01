@@ -1,0 +1,122 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ template "zenko-filer.fullname" . }}
+  labels:
+    app: {{ template "zenko-filer.name" . }}
+    chart: {{ template "zenko-filer.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "zenko-filer.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      labels:
+        app: {{ template "zenko-filer.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Values.nfsd.name }}
+          image: "{{ .Values.nfsd.image.repository }}:{{ .Values.nfsd.image.tag }}"
+          imagePullPolicy: {{ .Values.nfsd.image.pullPolicy }}
+          ports:
+            - name: nfs
+              containerPort: 2049
+          volumeMounts:
+            - name: portmap-data
+              mountPath: /run
+            - name: metadata-data
+              mountPath: /conf
+            - name: nfsd-config
+              mountPath: /template
+          env:
+            - name: CONFIGURATION_DIRECTORY
+              value: "/conf"
+            - name: CONFIGURATION_TEMPLATE
+              value: "/template/nfsd.conf"
+            - name: ZENKO_MD_HOST
+              value: "127.0.0.1"
+            - name: ZENKO_MD_PORT
+              value: "9000"
+            - name: REDIS_SENTINEL_BOOTSTRAP
+              value: "{{- printf "%s-%s:26379" .Release.Name "redis-ha-sentinel" | trunc 63 | trimSuffix "-" -}}"
+            - name: REDIS_CLUSTER_NAME
+              value: "mymaster"
+            - name: NFSD_LOG_FILE
+              value: "/logs/scality-nfsd.log"
+          args: ['scality.nfsd', '-N', 'INFO', '-F', '-f', '/conf/scality-nfsd.conf', '-L', '/dev/stdout']
+          # TODO: livenessProbe:
+          # TODO: readinessProbe:
+        - name: "{{ .Values.md.name }}"
+          image: "{{ .Values.md.image.repository }}:{{ .Values.md.image.tag }}"
+          imagePullPolicy: {{ .Values.md.image.pullPolicy }}
+          ports:
+            - name: zenko-md
+              containerPort: 9000
+          env:
+            - name: MDP_BIND_ADDRESS
+              value: "0.0.0.0"
+            - name: MDP_LISTEN_PORT
+              value: "9000"
+            - name: MDP_WORKERS
+              value: "4"
+            - name: LOG_LEVEL
+              value: "INFO"
+            - name: S3METADATA
+              value: "mongodb"
+            - name: MONGODB_HOSTS
+              value: "{{ template "zenko-filer.mongodb-hosts" . }}"
+            - name: MONGODB_RS
+              value: "rs0"
+            - name: MONGODB_DATABASE
+              value: "metadata"
+          args: ['npm', 'start']
+          livenessProbe:
+            httpGet:
+              port: zenko-md
+              path: /default/metadataInformation
+          readinessProbe:
+            httpGet:
+              port: zenko-md
+              path: /default/bucket/PENSIEVE
+        - name: "{{ .Values.portmap.name }}"
+          image: "{{ .Values.portmap.image.repository }}:{{ .Values.portmap.image.tag }}"
+          imagePullPolicy: {{ .Values.portmap.image.pullPolicy }}
+          ports:
+            - name: rpcbind
+              containerPort: 111
+            - name: rpcbind-udp
+              containerPort: 111
+              protocol: UDP
+          volumeMounts:
+            - name: portmap-data
+              mountPath: /run
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+      volumes:
+        - name: nfsd-config
+          configMap:
+            defaultMode: 0755
+            name: {{ template "zenko-filer.fullname" . }}-configmap
+        - name: metadata-data
+          emptyDir: {}
+        - name: portmap-data
+          emptyDir: {}

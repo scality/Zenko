@@ -40,6 +40,11 @@ backbeat:
   mongodb:
     replicas: *nodeCount
 
+zenko-filer:
+  enabled: false
+  mongodb:
+    replicas: *nodeCount
+
 prometheus:
   rbac:
     create: true
