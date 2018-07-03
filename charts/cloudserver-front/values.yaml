@@ -9,6 +9,8 @@ ci:
 orbit:
   enabled: true
   endpoint: https://api.zenko.io
+  pushEndpoint: https://push.api.zenko.io
+  mode: push
 # When 'orbit.enabled' is 'true', these aren't used, please use
 # https://zenko.io to manage your deployment
 endpoint: zenko.local
