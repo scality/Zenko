@@ -49,8 +49,23 @@ To disable Orbit, use:
 If a custom Orbit endpoint is required, use:
 
 ```shell
---set cloudserver-front.orbit.endpoint=https://dev.zenko.io
+--set cloudserver-front.orbit.endpoint=https://custom.orbit.endpoint
+--set cloudserver-front.orbit.pushEndpoint=https://custom.push.orbit.endpoint
 ```
+
+and if `poll` mode is needed, use:
+```shell
+--set cloudserver-front.orbit.mode=poll
+```
+
+**Note:** `poll` mode should only be used when long-lived websocket connections
+are not available. In `poll` mode:
+
++ `orbit.pushEndpoint` setting will be ignored
++ Interactive features such as Multicloud Browser, Metadata Search, CRR object
+  status and CRR object retry will not be available
++ Configuration updates may take up to a minute to propagate
++ Statistics reports are sent less frequently
 
 Autoscaling
 -----------

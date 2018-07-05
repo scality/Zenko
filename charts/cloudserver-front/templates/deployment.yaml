@@ -77,6 +77,10 @@ spec:
 {{- else }}
             - name: MANAGEMENT_ENDPOINT
               value: "{{- .Values.orbit.endpoint -}}"
+            - name: MANAGEMENT_MODE
+              value: "{{- .Values.orbit.mode -}}"
+            - name: PUSH_ENDPOINT
+              value: "{{- .Values.orbit.pushEndpoint -}}"
 {{ end }}
 {{- else }}
             - name: REMOTE_MANAGEMENT_DISABLE
