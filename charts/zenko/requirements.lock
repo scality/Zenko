@@ -16,7 +16,7 @@ dependencies:
   version: 1.0.0
 - name: redis-ha
   repository: https://kubernetes-charts.storage.googleapis.com/
-  version: 2.1.2
+  version: 2.2.0
 - name: backbeat
   repository: file://../backbeat
   version: 0.1.0
@@ -29,5 +29,5 @@ dependencies:
 - name: zenko-filer
   repository: file://../zenko-filer
   version: 0.1.0
-digest: sha256:208435872c10660819bb35f155fac56abada13890d44c12f01aaa2eadb74232e
-generated: 2018-06-26T18:28:59.261108105-07:00
+digest: sha256:f0fcebee5ee9f6aef743fad7aed2f727245bcbb623da54ecd79f338d6db91be4
+generated: 2018-07-05T11:58:39.501020056-07:00
