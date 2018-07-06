@@ -57,6 +57,8 @@ spec:
               value: "{{ .Values.proxy.https }}"
             - name: HTTPS_PROXY
               value: "{{ .Values.proxy.https }}"
+            - name: HTTPS_PROXY_CERTIFICATE
+              value: "/ssl/ca.crt"
 {{- end }}
 {{- if .Values.mongodb.enabled }}
             - name: S3METADATA
@@ -101,6 +103,12 @@ spec:
             httpGet:
               path: /_/healthcheck
               port: http
+          volumeMounts:
+            {{- if .Values.proxy.https }}
+            - name: proxy-cert
+              mountPath: "/ssl"
+              readOnly: true
+            {{- end }}
           resources:
 {{ toYaml .Values.resources | indent 12 }}
     {{- with .Values.nodeSelector }}
@@ -115,3 +123,9 @@ spec:
       tolerations:
 {{ toYaml . | indent 8 }}
     {{- end }}
+      volumes:
+        {{- if .Values.proxy.https }}
+        - name: proxy-cert
+          secret:
+            secretName: {{ template "cloudserver-front.fullname" . }}-proxy
+        {{- end }}

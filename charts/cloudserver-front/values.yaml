@@ -33,13 +33,15 @@ replicaCount: 1
 
 image:
   repository: zenko/cloudserver
-  tag: 8.0.3
+  tag: 8.0.4
   pullPolicy: IfNotPresent
 
 proxy:
   # If you want to use an HTTP proxy, add the respective endpoints after
   # 'http:' and/or 'https:'. If the HTTP proxy endpoint is set but the HTTPS
   # one isn't, the HTTP proxy will be used for HTTPS traffic as well.
+  # Additionally, if the HTTPS proxy is set, you will need to provide an
+  # ssl certificate in a file named 'ca.crt' at the root path of this chart.
   http: ""
   https: ""
 
