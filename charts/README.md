@@ -121,6 +121,33 @@ $ helm test $RELEASE_NAME --cleanup
 where `$RELEASE_NAME` is replaced by the name you picked for the Helm release;
 `zenko` in the example above.
 
+Upgrading Your Deployment
+-------------------------
+
+To upgrade an existing Zenko installation to the latest version or simply change deployment
+configuration, you will need to run the following commands. This assumes that your release
+name is `zenko` and that you have previously cloned the repository. 
+
+```shell
+$ cd Zenko/charts
+$ git pull
+$ helm dependency build ./zenko
+$ helm upgrade zenko ./zenko
+```
+
+You may want to run an upgrade simulation, something highly recommended in production environments. 
+For example: 
+
+```shell
+$ helm upgrade zenko ./zenko --dry-run --debug
+```
+
+**Note:** In a production environment you may want to take neccessary additional steps to validate
+the upgrade before proceeding with the upgrade. Running the upgrade with the `--dry-run` flag will
+simulate and try to validate a compatible upgrade. Running with the `--debug` will output all the
+templated values and deployment configurations that will be installed. These are just basic validations
+but upgrade implications should be fully taken into account by you and/or your Kubernetes administrator. 
+
 [Helm]: https://helm.sh
 [Scality]: https://scality.com
 [Zenko]: https://zenko.io
