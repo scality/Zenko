@@ -10,7 +10,6 @@ logging.basicConfig(level=logging.INFO,
                     datefmt='%S')
 
 
-@pytest.mark.skip(reason='Test not behaving properly')
 @pytest.mark.conformance
 def test_aws_1_1(aws_crr_bucket, aws_crr_target_bucket, testfile, objkey):
     util.mark_test('AWS 1-1 REPLICATION')
@@ -23,7 +22,6 @@ def test_aws_1_1(aws_crr_bucket, aws_crr_target_bucket, testfile, objkey):
         objkey, testfile, aws_crr_bucket, aws_crr_target_bucket, timeout=30)
 
 
-@pytest.mark.skip(reason='Test not behaving properly')
 @pytest.mark.conformance
 def test_gcp_1_1(gcp_crr_bucket, gcp_crr_target_bucket, testfile, objkey):
     util.mark_test('GCP 1-1 REPLICATION')
@@ -35,7 +33,6 @@ def test_gcp_1_1(gcp_crr_bucket, gcp_crr_target_bucket, testfile, objkey):
         objkey, testfile, gcp_crr_bucket, gcp_crr_target_bucket, timeout=30)
 
 
-@pytest.mark.skip(reason='Test not behaving properly')
 @pytest.mark.conformance
 def test_azure_1_1(
         azure_crr_bucket, azure_crr_target_bucket, testfile, objkey):
