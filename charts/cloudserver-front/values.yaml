@@ -9,6 +9,9 @@ orbit:
   mode: push
 # When 'orbit.enabled' is 'true', these aren't used, please use
 # https://zenko.io to manage your deployment
+storageLimit:
+  # This allows you to manage storage limits from Orbit
+  enabled: true
 endpoint: zenko.local
 credentials:
   keyId: deployment-specific-access-key
@@ -29,7 +32,7 @@ replicaCount: 1
 
 image:
   repository: zenko/cloudserver
-  tag: 8.0.4
+  tag: 8.0.5
   pullPolicy: IfNotPresent
 
 proxy:
