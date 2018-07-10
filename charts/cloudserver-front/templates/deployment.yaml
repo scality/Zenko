@@ -47,6 +47,10 @@ spec:
               value: "{{ .Release.Name }}-cloudserver-front,{{ .Values.endpoint }}"
             - name: HEALTHCHECKS_ALLOWFROM
               value: "{{ .Values.allowHealthchecksFrom }}"
+{{- if .Values.storageLimit.enabled }}
+            - name: STORAGE_LIMIT_ENABLED
+              value: "true"
+{{- end }}
 {{- if .Values.proxy.http }}
             - name: http_proxy
               value: "{{ .Values.proxy.http }}"
