@@ -1,4 +1,3 @@
-
 ingress:
   enabled: true
 
@@ -36,5 +35,6 @@ redis-ha:
 cloudserver-front:
   image:
     pullPolicy: Always
-  ci:
-    enabled: true
+  orbit:
+    endpoint: "http://ciutil-orbit-simulator:4222"
+    mode: "poll"
