@@ -8,7 +8,7 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
-  type: {{ .Values.nfsd.service.type }}
+  type: {{ .Values.service.type }}
   ports:
     - name: nfs
       port: 2049
