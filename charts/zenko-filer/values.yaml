@@ -3,28 +3,29 @@
 # Declare variables to be passed into your templates.
 replicaCount: 1
 
+service:
+  type: NodePort
+
 nfsd:
   name: "zenko-nfsd"
   image:
     repository: zenko/zenko-nfsd
-    tag: edge
+    tag: 8.0.0
     pullPolicy: IfNotPresent
   loglevel: INFO
-  service:
-    type: ClusterIP
 
 md:
   name: "zenko-md"
   image:
     repository: zenko/zenko-md
-    tag: edge
+    tag: 8.0.0
     pullPolicy: IfNotPresent
 
 portmap:
   name: "portmap"
   image:
     repository: zenko/portmap
-    tag: edge
+    tag: 8.0.0
     pullPolicy: IfNotPresent
 
 mongodb:
