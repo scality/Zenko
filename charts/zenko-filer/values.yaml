@@ -10,7 +10,7 @@ nfsd:
   name: "zenko-nfsd"
   image:
     repository: zenko/zenko-nfsd
-    tag: 8.0.0
+    tag: 8.0.1-RC2
     pullPolicy: IfNotPresent
   loglevel: INFO
 

@@ -32,7 +32,7 @@ replicaCount: 1
 
 image:
   repository: zenko/cloudserver
-  tag: 8.0.5
+  tag: 8.0.6-RC2
   pullPolicy: IfNotPresent
 
 proxy:
