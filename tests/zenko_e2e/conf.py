@@ -285,7 +285,8 @@ METADATA_EXAMPLE2 = {
 }
 
 
-EXPIRY_DELTA = timedelta(minutes=1)
+EXPIRY_DELTA = timedelta(seconds=30)
+EXPIRY_INTERVAL = timedelta(minutes=2)
 
 EXPIRY_RULE = {
     'Rules': [{

@@ -45,12 +45,8 @@ ifeq ($(ZENKO_PRESENT), build)
 zenko-run: | simulator-run
 	@$(HELM) upgrade --install $(ZENKO_HELM_RELEASE) \
 		$(shell source $(DOTENV) && ../eve/workers/ci_env.sh set) \
-		--set prometheus.rbac.create=false \
-		--set zenko-queue.rbac.enabled=false \
-		--set redis-ha.rbac.create=false \
-		--set cloudserver-front.ci.enabled=true \
-		-f ../charts/single-node-values.yml \
-		../charts/zenko/ --wait --timeout 600
+		-f local-values.yml \
+		../charts/zenko/ --wait --timeout 1200
 .PHONY: zenko-run
 else
 zenko-run: | simulator-run

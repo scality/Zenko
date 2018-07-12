@@ -1,5 +1,9 @@
+nodeCount: &nodeCount 1
+
 ingress:
   enabled: true
+  hosts:
+    - ""
 
 prometheus:
   rbac:
@@ -21,16 +25,15 @@ prometheus:
       name: default
       create: false
 
-zenko-queue:
-  rbac:
-    enabled: false
-
 redis-ha:
   rbac:
     create: false
   serviceAccount:
     create: false
     name: default
+  replicas:
+    servers: *nodeCount
+    sentinels: *nodeCount
 
 cloudserver-front:
   image:
@@ -38,8 +41,35 @@ cloudserver-front:
   orbit:
     endpoint: "http://ciutil-orbit-simulator:4222"
     mode: "poll"
+  mongodb:
+    replicas: *nodeCount
+
 
 backbeat:
+  mongodb:
+    replicas: *nodeCount
   lifecycle:
     conductor:
       cronRule: "0 */1 * * * *"
+
+zenko-filer:
+  mongodb:
+    replicas: *nodeCount
+
+zenko-queue:
+  rbac:
+      enabled: false
+  replicas: *nodeCount
+  kafkaHeapOptions: "-Xms256M"
+  configurationOverrides:
+    "offsets.topic.replication.factor": *nodeCount
+    "min.insync.replicas": *nodeCount
+
+zenko-quorum:
+  replicaCount: *nodeCount
+  env:
+    ZK_HEAP_SIZE: "256M"
+
+mongodb-replicaset:
+  replicaSet: rs0
+  replicas: *nodeCount
