@@ -69,6 +69,8 @@ spec:
               value: "{{ .Values.proxy.https }}"
             - name: HTTPS_PROXY
               value: "{{ .Values.proxy.https }}"
+{{- end }}
+{{- if .Values.proxy.caCert }}
             - name: NODE_EXTRA_CA_CERTS
               value: "/ssl/ca.crt"
 {{- end }}
@@ -109,7 +111,7 @@ spec:
               path: /_/healthcheck
               port: http
           volumeMounts:
-            {{- if .Values.proxy.https }}
+            {{- if .Values.proxy.caCert }}
             - name: proxy-cert
               mountPath: "/ssl"
               readOnly: true
@@ -129,7 +131,7 @@ spec:
 {{ toYaml . | indent 8 }}
     {{- end }}
       volumes:
-        {{- if .Values.proxy.https }}
+        {{- if .Values.proxy.caCert }}
         - name: proxy-cert
           secret:
             secretName: {{ template "cloudserver-front.fullname" . }}-proxy
