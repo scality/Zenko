@@ -15,6 +15,10 @@ spec:
       release: {{ .Release.Name }}
   template:
     metadata:
+      annotations:
+        {{- if .Values.proxy.https }}
+        checksum/config: {{ include (print $.Template.BasePath "/certificate.yaml") . | sha256sum }}
+        {{- end }}
       labels:
         app: {{ template "cloudserver-front.name" . }}
         release: {{ .Release.Name }}
@@ -66,6 +70,8 @@ spec:
             - name: HTTPS_PROXY
               value: "{{ .Values.proxy.https }}"
             - name: HTTPS_PROXY_CERTIFICATE
+              value: "/ssl/ca.crt"
+            - name: NODE_EXTRA_CA_CERTS
               value: "/ssl/ca.crt"
 {{- end }}
 {{- if .Values.mongodb.enabled }}
