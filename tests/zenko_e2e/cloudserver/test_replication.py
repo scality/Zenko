@@ -10,40 +10,45 @@ logging.basicConfig(level=logging.INFO,
                     datefmt='%S')
 
 
+@pytest.mark.parametrize('datafile', [testfile, mpufile])
 @pytest.mark.conformance
-def test_aws_1_1(aws_crr_bucket, aws_crr_target_bucket, testfile, objkey):
+def test_aws_1_1(aws_crr_bucket, aws_crr_target_bucket, objkey, datafile):
     util.mark_test('AWS 1-1 REPLICATION')
+    data = datafile()
     aws_crr_bucket.put_object(
-        Body=testfile,
+        Body=data,
         Key=objkey
     )
-    print(aws_crr_bucket.name)
     assert util.check_object(
-        objkey, testfile, aws_crr_bucket, aws_crr_target_bucket, timeout=30)
+        objkey, data, aws_crr_bucket, aws_crr_target_bucket, timeout=30)
 
 
+@pytest.mark.parametrize('datafile', [testfile, mpufile])
 @pytest.mark.conformance
-def test_gcp_1_1(gcp_crr_bucket, gcp_crr_target_bucket, testfile, objkey):
+def test_gcp_1_1(gcp_crr_bucket, gcp_crr_target_bucket, objkey, datafile):
     util.mark_test('GCP 1-1 REPLICATION')
+    data = datafile()
     gcp_crr_bucket.put_object(
-        Body=testfile,
+        Body=data,
         Key=objkey
     )
     assert util.check_object(
-        objkey, testfile, gcp_crr_bucket, gcp_crr_target_bucket, timeout=30)
+        objkey, data, gcp_crr_bucket, gcp_crr_target_bucket, timeout=30)
 
 
+@pytest.mark.parametrize('datafile', [testfile, mpufile])
 @pytest.mark.conformance
 def test_azure_1_1(
-        azure_crr_bucket, azure_crr_target_bucket, testfile, objkey):
+        azure_crr_bucket, azure_crr_target_bucket, objkey, datafile):
     util.mark_test('AZURE 1-1 REPLICATION')
+    data = datafile()
     azure_crr_bucket.put_object(
-        Body=testfile,
+        Body=data,
         Key=objkey
     )
     assert util.check_object(
         objkey,
-        testfile,
+        data,
         azure_crr_bucket,
         azure_crr_target_bucket,
         timeout=30)
