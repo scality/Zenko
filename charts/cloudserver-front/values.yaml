@@ -39,10 +39,12 @@ proxy:
   # If you want to use an HTTP proxy, add the respective endpoints after
   # 'http:' and/or 'https:'. If the HTTP proxy endpoint is set but the HTTPS
   # one isn't, the HTTP proxy will be used for HTTPS traffic as well.
-  # Additionally, if the HTTPS proxy is set, you will need to provide an
-  # ssl certificate in a file named 'ca.crt' at the root path of this chart.
+  # Additionally you can pass a CA certifcate that will be added to the trusted
+  # certs. If the proxy URL is configured and caCert is true, helm
+  # will look for a file named 'ca.crt' at the root path of this chart.
   http: ""
   https: ""
+  caCert: false
 
 service:
   type: ClusterIP

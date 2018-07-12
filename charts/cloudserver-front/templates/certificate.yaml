@@ -1,4 +1,4 @@
-{{- if .Values.proxy.https -}}
+{{- if .Values.proxy.caCert -}}
 apiVersion: v1
 kind: Secret
 metadata:
