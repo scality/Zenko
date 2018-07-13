@@ -3,6 +3,7 @@ import uuid
 import hashlib
 import tempfile
 import time
+from boto3.s3.transfer import TransferConfig
 import zenko_e2e.conf as conf
 
 _log = logging.getLogger('util.bucket')  # pylint: disable=invalid-name
@@ -127,3 +128,16 @@ def cleanup_bucket(bucket, replicated=False, delete_bucket=True): # noqa pylint:
             key_marker = version_list['NextKeyMarker']
     if delete_bucket:
         bucket.delete()
+
+
+UPLOAD_CONFIG = TransferConfig(multipart_threshold=10 * 1024 * 1024)  # 10MB
+
+
+def upload_object(bucket, key, data, **kwargs):
+    with tempfile.TemporaryFile() as upload:
+        upload.write(data)
+        upload.seek(0)
+        return bucket.upload_fileobj(upload,
+                                     key,
+                                     Config=UPLOAD_CONFIG,
+                                     ExtraArgs=kwargs)
