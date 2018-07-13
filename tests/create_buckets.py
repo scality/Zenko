@@ -4,7 +4,10 @@ from kubernetes import client, config
 import time
 import sys
 import os
+import logging
 
+logging.basicConfig(level=logging.INFO)
+_log = logging.getLogger('create_buckets')
 
 def get_env(key, default=None, error=False):
     if not error:
@@ -16,9 +19,9 @@ def bucket_safe_create(bucket):
     try:
         bucket.create()
     except bucket.meta.client.exceptions.BucketAlreadyOwnedByYou:
-        print('Bucket %s already exists!' % bucket.name)
+        _log.info('Bucket %s already exists!' % bucket.name)
     except Exception as exp:  # pylint: disable=broad-except
-        print('Error creating bucket %s - %s' % (bucket.name, str(exp)))
+        _log.info('Error creating bucket %s - %s' % (bucket.name, str(exp)))
         raise exp
 
 
@@ -48,7 +51,7 @@ s3client = s.resource('s3',
                       endpoint_url=ZENKO_ENDPOINT,
                       verify=VERIFY_CERTIFICATES)
 
-print('Creating testing buckets...')
+_log.info('Creating testing buckets...')
 timeout = time.time() + TIMEOUT
 backoff = 1
 created = False
@@ -59,19 +62,22 @@ while time.time() < timeout:
         created = True
         break
     except Exception:
-        print('Failed to create buckets, backing off and trying again')
+        _log.warn('Failed to create buckets, backing off and trying again')
         time.sleep(backoff)
         backoff = backoff ** 2
 
 if not created:
-    print('Failed to create buckets and %i secs has elasped!' % TIMEOUT)
+    _log.critical('Failed to create buckets and %i secs has elasped!' % TIMEOUT)
     sys.exit(1)
 else:
-    print('Created buckets')
+    _log.info('Created buckets')
 # Wait for all containers to become ready
 config.load_incluster_config()
 
 v1 = client.CoreV1Api()
+
+delete_opt = client.V1DeleteOptions()
+delete_opt.grace_period_seconds = 0
 
 timeout = time.time() + TIMEOUT
 while time.time() < timeout:
@@ -80,7 +86,10 @@ while time.time() < timeout:
     for i in ret.items:
         for container in i.status.container_statuses:
             if not container.ready:
-                print('%s is not ready' % container.name)
+                if container.state.waiting and \
+                    container.state.waiting.reason == 'CrashLoopBackOff':
+                    _log.info('%s is in CrashLoopBackOff, restarting.' % container.name)
+                    v1.delete_namespaced_pod(i.metadata.name, K8S_NAMESPACE, delete_opt)
                 passed = False
                 break
         if not passed:
@@ -91,5 +100,5 @@ while time.time() < timeout:
         break
 
 if not passed:
-    print('Containers have not become ready and TIMEOUT has elasped')
+    _log.info('Containers have not become ready and TIMEOUT has elasped')
     sys.exit(1)
