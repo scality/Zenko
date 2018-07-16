@@ -1,4 +1,4 @@
-{{- if .Values.orbit.enabled -}}
+{{- if .Values.global.orbit.enabled -}}
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -33,7 +33,7 @@ spec:
               containerPort: 8000
 {{ include "cloudserver.env" . | indent 10 }}
             - name: MANAGEMENT_MODE
-              value: "{{- .Values.orbit.managerMode -}}"
+              value: "{{- .Values.global.orbit.managerMode -}}"
             {{- range $key, $value := .Values.env }}
             - name: {{ $key | upper | replace "." "_" }}
               value: {{ $value | quote }}

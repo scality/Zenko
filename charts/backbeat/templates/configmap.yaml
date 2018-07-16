@@ -1,0 +1,50 @@
+{{- if not .Values.global.orbit.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-backbeat-configmap
+  labels:
+    app: {{ template "backbeat.name" . }}
+    chart: {{ template "backbeat.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  authdata.json: |-
+    {
+      "accounts": [
+        {
+          {{ $id := randNumeric 12 }}
+          "name": "Lifecycle",
+          "arn": "{{ printf "arn:aws:iam::%s:root" $id }}",
+          "canonicalID": "http://acs.zenko.io/accounts/service/lifecycle",
+          "displayName": "Lifecycle",
+          "keys": {
+            "access": "",
+            "secret": ""
+          }
+        },
+        {
+          {{ $id := randNumeric 12 }}
+          "name": "Replication",
+          "arn": "{{ printf "arn:aws:iam::%s:root" $id }}",
+          "canonicalID": "http://acs.zenko.io/accounts/service/replication",
+          "displayName": "Replication",
+          "keys": {
+            "access": "",
+            "secret": ""
+          }
+        }
+      ]
+    }
+  {{- if .Values.global.replicationEndpoints }}
+  bootstrapList: |-
+      {{ $last := .Values.global.replicationEndpoints | sortAlpha | last -}}
+      {{ range $index, $location := .Values.global.replicationEndpoints }}
+      {
+          "site": "{{ $location }}",
+          "type": "{{ index $.Values "global" "locationConstraints" $location "type" }}"
+      }
+      {{- if ne $location $last -}},{{- end -}}
+      {{- end }}
+  {{- end }}
+{{- end }}

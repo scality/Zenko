@@ -25,7 +25,7 @@ spec:
               containerPort: 8900
           env:
             - name: REMOTE_MANAGEMENT_DISABLE
-              value: "{{- if .Values.orbit.enabled }}0{{- else }}1{{- end }}"
+              value: "{{- if .Values.global.orbit.enabled }}0{{- else }}1{{- end }}"
             - name: ZOOKEEPER_AUTO_CREATE_NAMESPACE
               value: "1"
             - name: ZOOKEEPER_CONNECTION_STRING

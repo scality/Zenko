@@ -1,0 +1,77 @@
+{{- if not .Values.global.orbit.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-cloudserver-configmap
+  labels:
+    app: {{ template "cloudserver.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+{{- if .Values.global.locationConstraints }}
+  locationConfig: |-
+    {{ $last := keys .Values.global.locationConstraints | sortAlpha | last }}
+    {
+      "us-east-1": {
+        "type": "file",
+        "objectId": "us-east-1",
+        "legacyAwsBehavior": {{ default true }},
+        "details": {}
+      }
+      {{- if $last -}},{{- end -}}
+      {{ range $index, $location := .Values.global.locationConstraints }}
+      "{{ $index }}": {
+        "type": "{{ $location.type }}",
+        "objectId": "{{ $index }}",
+        "legacyAwsBehavior": {{ $location.legacyAwsBehavior }},
+        "details": {
+          {{- if eq $location.type "aws_s3" }}
+            "bucketMatch": {{ $location.details.bucketMatch }},
+            "https": {{ $location.details.https | default true }},
+            "awsEndpoint": "{{ $location.details.awsEndpoint }}",
+            "bucketName": "{{ $location.details.bucketName }}",
+            {{- if $location.details.serverSideEncryption }}
+            "serverSideEncryption": {{$location.details.serverSideEncryption | default false}},
+            {{- end }}
+            "credentials": {
+              "accessKey": "{{ $location.details.credentials.accessKey }}",
+              "secretKey": "{{ $location.details.credentials.secretKey }}"
+            }
+          {{- else if eq $location.type "azure" }}
+            "bucketMatch": {{ $location.details.bucketMatch }},
+            "azureStorageEndpoint": "{{ $location.details.azureStorageEndpoint }}",
+            "azureStorageAccountName": "{{ $location.details.azureStorageAccountName }}",
+            "azureStorageAccessKey": "{{ $location.details.azureStorageAccessKey }}",
+            "azureContainerName": "{{ $location.details.azureContainerName }}"
+          {{- else if eq $location.type "gcp" }}
+            "bucketMatch": {{ $location.details.bucketMatch }},
+            "https": {{ $location.details.https | default true }},
+            "gcpEndpoint": "{{ $location.details.gcpEndpoint }}",
+            "bucketName": "{{ $location.details.bucketName }}",
+            "mpuBucketName": "{{ $location.details.mpuBucketName }}",
+            "credentials": {
+              "accessKey": "{{ $location.details.credentials.accessKey }}",
+              "secretKey": "{{ $location.details.credentials.secretKey }}"
+            }
+          {{- end }}
+        }
+      }
+      {{- if ne $index $last -}},{{- end }}
+      {{- end }}
+    }
+{{ if .Values.global.replicationEndpoints }}
+  replicationInfo: |-
+    [
+      {{ $last := keys .Values.global.locationConstraints | sortAlpha | last -}}
+      {{- range $index, $locName := .Values.global.locationConstraints }}
+      {
+        "site": "{{ $index }}",
+        "type": "{{ $locName.type }}"
+      }
+      {{- if ne $index $last -}},{{- end -}}
+      {{- end }}
+    ]
+{{- end }}
+{{- end }}
+{{- end -}}
