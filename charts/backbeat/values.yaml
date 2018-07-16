@@ -74,17 +74,17 @@ lifecycle:
     tolerations: []
     affinity: {}
 
-  consumer:
+  objectProcessor:
     replicaCount: 1
-    group: backbeat-lifecycle-consumer-group
+    group: backbeat-lifecycle-object-processor-group
     resources: {}
     nodeSelector: {}
     tolerations: []
     affinity: {}
 
-  producer:
+  bucketProcessor:
     replicaCount: 1
-    group: backbeat-lifecycle-producer-group
+    group: backbeat-lifecycle-bucket-processor-group
     resources: {}
     nodeSelector: {}
     tolerations: []
