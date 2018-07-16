@@ -26,8 +26,8 @@ dependencies:
 - name: cloudserver-front
   repository: file://../cloudserver-front
   version: 0.1.4
-- name: zenko-filer
-  repository: file://../zenko-filer
+- name: zenko-nfs
+  repository: file://../zenko-nfs
   version: 0.1.0
-digest: sha256:f0fcebee5ee9f6aef743fad7aed2f727245bcbb623da54ecd79f338d6db91be4
-generated: 2018-07-05T11:58:39.501020056-07:00
+digest: sha256:eb5b34f8de5d13331fb212b4cbd8df7b6a1a52f4fada8fdbbc3b36386eb6b721
+generated: 2018-07-16T13:25:41.520205959-07:00

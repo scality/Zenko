@@ -52,7 +52,7 @@ backbeat:
     conductor:
       cronRule: "0 */1 * * * *"
 
-zenko-filer:
+zenko-nfs:
   mongodb:
     replicas: *nodeCount
 

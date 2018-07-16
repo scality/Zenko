@@ -42,7 +42,7 @@ backbeat:
   mongodb:
     replicas: *nodeCount
 
-zenko-filer:
+zenko-nfs:
   enabled: false
   mongodb:
     replicas: *nodeCount

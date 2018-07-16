@@ -1,24 +1,24 @@
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
-  name: {{ template "zenko-filer.fullname" . }}
+  name: {{ template "zenko-nfs.fullname" . }}
   labels:
-    app: {{ template "zenko-filer.name" . }}
-    chart: {{ template "zenko-filer.chart" . }}
+    app: {{ template "zenko-nfs.name" . }}
+    chart: {{ template "zenko-nfs.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ template "zenko-filer.name" . }}
+      app: {{ template "zenko-nfs.name" . }}
       release: {{ .Release.Name }}
   template:
     metadata:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
       labels:
-        app: {{ template "zenko-filer.name" . }}
+        app: {{ template "zenko-nfs.name" . }}
         release: {{ .Release.Name }}
     spec:
       containers:
@@ -71,7 +71,7 @@ spec:
             - name: S3METADATA
               value: "mongodb"
             - name: MONGODB_HOSTS
-              value: "{{ template "zenko-filer.mongodb-hosts" . }}"
+              value: "{{ template "zenko-nfs.mongodb-hosts" . }}"
             - name: MONGODB_RS
               value: "rs0"
             - name: MONGODB_DATABASE
@@ -115,7 +115,7 @@ spec:
         - name: nfsd-config
           configMap:
             defaultMode: 0755
-            name: {{ template "zenko-filer.fullname" . }}-configmap
+            name: {{ template "zenko-nfs.fullname" . }}-configmap
         - name: metadata-data
           emptyDir: {}
         - name: portmap-data

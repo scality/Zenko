@@ -31,7 +31,7 @@ dependencies:
 - name: cloudserver-front
   version: "0.1.4"
   repository: "file://../cloudserver-front"
-- name: zenko-filer
+- name: zenko-nfs
   version: "0.1.0"
-  repository: "file://../zenko-filer"
-  condition: zenko-filer.enabled
+  repository: "file://../zenko-nfs"
+  condition: zenko-nfs.enabled
