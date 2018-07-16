@@ -152,6 +152,9 @@ pytest-dotenv==0.1.0 \
 pytest-forked==0.2 \
     --hash=sha256:e4500cd0509ec4a26535f7d4112a8cc0f17d3a41c29ffd4eab479d2a55b30805 \
     --hash=sha256:f275cb48a73fc61a6710726348e1da6d68a978f0ec0c54ece5a5fae5977e5a08
+pytest-rerunfailures==4.1 \
+    --hash=sha256:be6bf93ed618c8899aeb6721c24f8009c769879a3b4931e05650f3c173ec17c5 \
+    --hash=sha256:deeecaa0765038107eccbdeacaacdff186331d4958f417d132c490735398ca22
 pytest-runner==4.2 \
     --hash=sha256:d23f117be39919f00dd91bffeb4f15e031ec797501b717a245e377aee0f577be \
     --hash=sha256:d987fec1e31287592ffe1cb823a8c613c533db4c6aaca0ee1191dbc91e2fcc61
