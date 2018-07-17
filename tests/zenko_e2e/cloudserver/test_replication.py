@@ -55,7 +55,7 @@ def test_azure_1_1(
 @pytest.mark.conformance
 def test_wasabi_1_1(wasabi_crr_bucket,
                     wasabi_crr_target_bucket, objkey, datafile):
-    util.mark_test('AZURE 1-1 REPLICATION')
+    util.mark_test('WASABI 1-1 REPLICATION')
     data = datafile()
     util.upload_object(wasabi_crr_bucket, objkey, data)
     assert util.check_object(
