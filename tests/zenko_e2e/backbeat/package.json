@@ -1,0 +1,22 @@
+{
+  "name": "Test-dependencies",
+  "engines": {
+    "node": "6.9.5"
+  },
+  "version": "1.0.0-zenko",
+  "description": "Test dependencies",
+  "main": "",
+  "repository": "",
+  "keywords": [
+    "test"
+  ],
+  "dependencies": {
+    "async": "2.1.2",
+    "aws-sdk": "2.28.0",
+    "mocha": "2.3.4"
+  },
+  "scripts": {
+    "test_crr": "mocha -t 10000 --recursive tests/crr"
+  },
+  "author": ""
+}
