@@ -1,6 +1,6 @@
 -include .local.make
 DOCKER_IMAGE_NAME := docker.io/zenko/zenko-e2e
-DOCKER_IMAGE_TAG := latest
+DOCKER_IMAGE_TAG := edge
 
 DOCKER := docker
 TOX := tox
@@ -105,6 +105,7 @@ else
 end2end: | artifacts
 	$(KUBECTL) run $(E2E_POD) --image=$(DOCKER_IMAGE) --rm \
 	--restart=Never --namespace $(ZENKO_K8S_NAMESPACE) --attach=True \
+	--image-pull-policy=Always \
 	$(shell ../eve/workers/ci_env.sh env);
 endif
 .PHONY: end2end
