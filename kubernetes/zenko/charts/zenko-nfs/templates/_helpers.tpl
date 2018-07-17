@@ -39,3 +39,9 @@ Create the default mongodb replicaset hosts string
 {{- $release := .Release.Name -}}
 {{- range $v := until $count }}{{ $release }}-mongodb-replicaset-{{ $v }}.{{ $release }}-mongodb-replicaset:27017{{ if ne $v (sub $count 1) }},{{- end -}}{{- end -}}
 {{- end -}}
+{{/*
+Side band protocol ports definition
+*/}}
+{{- define "zenko-nfs.port.rquotad" }}875{{ end -}}
+{{- define "zenko-nfs.port.mountd"  }}876{{ end -}}
+{{- define "zenko-nfs.port.nlm"     }}877{{ end -}}
