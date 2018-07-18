@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "zenko-filer.fullname" . }}
+  name: {{ template "zenko-nfs.fullname" . }}
   labels:
-    app: {{ template "zenko-filer.name" . }}
-    chart: {{ template "zenko-filer.chart" . }}
+    app: {{ template "zenko-nfs.name" . }}
+    chart: {{ template "zenko-nfs.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
@@ -18,5 +18,5 @@ spec:
       port: 111
       protocol: UDP
   selector:
-    app: {{ template "zenko-filer.name" . }}
+    app: {{ template "zenko-nfs.name" . }}
     release: {{ .Release.Name }}
