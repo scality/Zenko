@@ -1,14 +1,14 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: {{ template "backbeat.fullname" . }}-producer
+  name: {{ template "backbeat.fullname" . }}-replication-populator
   labels:
     app: {{ template "backbeat.name" . }}-replication
     chart: {{ template "backbeat.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
-  replicas: {{ .Values.replication.producer.replicaCount }}
+  replicas: {{ .Values.replication.populator.replicaCount }}
   template:
     metadata:
       labels:
@@ -16,7 +16,7 @@ spec:
         release: {{ .Release.Name }}
     spec:
       containers:
-        - name: {{ template "backbeat.fullname" . }}-producer
+        - name: replication-populator
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           args: ["npm", "run", "queue_populator"]
@@ -50,16 +50,16 @@ spec:
               path: {{ .Values.health.path.readiness }}
               port: {{ .Values.health.port }}
           resources:
-{{ toYaml .Values.replication.producer.resources | indent 12 }}
-    {{- with .Values.replication.producer.nodeSelector }}
+{{ toYaml .Values.replication.populator.resources | indent 12 }}
+    {{- with .Values.replication.populator.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
     {{- end }}
-    {{- with .Values.replication.producer.affinity }}
+    {{- with .Values.replication.populator.affinity }}
       affinity:
 {{ toYaml . | indent 8 }}
     {{- end }}
-    {{- with .Values.replication.producer.tolerations }}
+    {{- with .Values.replication.populator.tolerations }}
       tolerations:
 {{ toYaml . | indent 8 }}
     {{- end }}

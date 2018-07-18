@@ -101,7 +101,7 @@ lifecycle:
       enabled: True
 
 replication:
-  consumer:
+  dataProcessor:
     replicaCount: 1
 
     resources: {}
@@ -109,7 +109,7 @@ replication:
     tolerations: []
     affinity: {}
 
-  producer:
+  populator:
     replicaCount: 1
 
     resources: {}
@@ -117,7 +117,7 @@ replication:
     tolerations: []
     affinity: {}
 
-  status:
+  statusProcessor:
     replicaCount: 1
 
     resources: {}
