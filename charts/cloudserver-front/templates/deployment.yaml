@@ -74,14 +74,12 @@ spec:
             - name: NODE_EXTRA_CA_CERTS
               value: "/ssl/ca.crt"
 {{- end }}
-{{- if .Values.mongodb.enabled }}
             - name: S3METADATA
               value: "mongodb"
             - name: MONGODB_HOSTS
               value: "{{ template "cloudserver-front.mongodb-hosts" . }}"
             - name: MONGODB_RS
               value: "{{ default "rs0" .Values.mongodb.replicaSet }}"
-{{- end}}
 {{- if .Values.orbit.enabled }}
             - name: REMOTE_MANAGEMENT_DISABLE
               value: "0"
