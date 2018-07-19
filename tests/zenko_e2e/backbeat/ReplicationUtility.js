@@ -217,7 +217,7 @@ class ReplicationUtility {
                 };
                 return this.s3.completeMultipartUpload(params, next);
             },
-        ], err => {
+        ], (err, data) => {
             if (err) {
                 return this.s3.abortMultipartUpload({
                     Bucket: bucketName,
@@ -225,7 +225,7 @@ class ReplicationUtility {
                     UploadId: uploadId,
                 }, () => cb(err));
             }
-            return cb();
+            return cb(null, data);
         });
     }
 
