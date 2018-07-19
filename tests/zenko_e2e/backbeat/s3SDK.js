@@ -1,8 +1,8 @@
 const S3 = require('aws-sdk').S3;
 
 const scalityS3Client = new S3({
-    accessKeyId: process.env.ZENKO_BACKBEAT_ACCESS_KEY,
-    secretAccessKey: process.env.ZENKO_BACKBEAT_SECRET_KEY,
+    accessKeyId: process.env.ZENKO_STORAGE_ACCOUNT_ACCESS_KEY,
+    secretAccessKey: process.env.ZENKO_STORAGE_ACCOUNT_SECRET_KEY,
     sslEnabled: false,
     endpoint: 'http://zenko.local',
     apiVersions: { s3: '2006-03-01' },
@@ -20,8 +20,8 @@ const scalityS3Client = new S3({
 });
 
 const awsS3Client = new S3({
-    accessKeyId: process.env.AWS_S3_BACKBEAT_ACCESS_KEY,
-    secretAccessKey: process.env.AWS_S3_BACKBEAT_SECRET_KEY,
+    accessKeyId: process.env.AWS_S3_BACKEND_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_S3_BACKEND_SECRET_KEY,
     sslEnabled: true,
     endpoint: 'https://s3.amazonaws.com',
     apiVersions: { s3: '2006-03-01' },
