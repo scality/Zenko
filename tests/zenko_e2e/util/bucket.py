@@ -4,6 +4,8 @@ import hashlib
 import tempfile
 import time
 from boto3.s3.transfer import TransferConfig
+import requests
+from awsauth import S3Auth
 import zenko_e2e.conf as conf
 
 _log = logging.getLogger('util.bucket')  # pylint: disable=invalid-name
@@ -141,3 +143,19 @@ def upload_object(bucket, key, data, **kwargs):
                                      key,
                                      Config=UPLOAD_CONFIG,
                                      ExtraArgs=kwargs)
+
+
+def get_from_preferred_read(bucket, key, location):
+    auth = S3Auth(conf.ZENKO_ACCESS_KEY,
+                  conf.ZENKO_SECRET_KEY,
+                  service_url=conf.ZENKO_ENDPOINT)
+    url = '%s/%s/%s' % (conf.ZENKO_ENDPOINT, bucket, key)
+    headers = {'x-amz-location-constraint': location}
+    resp = requests.get(url, headers=headers,
+                        auth=auth,
+                        verify=conf.VERIFY_CERTIFICATES)
+    if resp.status_code == 200:
+        return resp.content
+    print('Get from preferred read returned status code %s with body %s' %
+          (resp.status_code, resp.content))
+    return None
