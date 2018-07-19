@@ -1,0 +1,6 @@
+cloudserver-front:
+  env:
+    CI: true
+    MPU_TESTING: yes
+    S3DATA: multiple
+    S3_END_TO_END: true

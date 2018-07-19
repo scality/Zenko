@@ -46,6 +46,8 @@ proxy:
   https: ""
   caCert: false
 
+env: {}
+
 service:
   type: ClusterIP
   port: 80

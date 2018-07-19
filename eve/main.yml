@@ -165,6 +165,32 @@ stages:
         env:
           <<: *global_env
     - ShellCommandWithSecrets: *test_zenko
+    - ShellCommandWithSecrets:
+        name: Upgrade Zenko
+        command: >-
+          helm upgrade $ZENKO_HELM_RELEASE charts/zenko
+          --namespace %(prop:testNamespace)s
+          -f eve/ci-values.yml
+          -f eve/ft-values.yml
+          --timeout 200
+          --wait
+        haltOnFailure: true
+        env:
+          <<: *global_env
+    - ShellCommand:
+        name: Wait for cloudserver
+        command: sleep 30
+    - ShellCommandWithSecrets:
+        name: Zenko Functional Tests
+        command: |-
+          CLOUDSERVER_POD=$(kubectl get pods --no-headers=true -o custom-columns=:metadata.name | grep cloudserver-front)
+          kubectl exec $CLOUDSERVER_POD -- bash -c "npm run install_ft_deps"
+          kubectl exec $CLOUDSERVER_POD -- bash -c "apt-get update"
+          kubectl exec $CLOUDSERVER_POD -- bash -c "apt-get install build-essential -y"
+          kubectl exec $CLOUDSERVER_POD -- bash -c "npm run ft_awssdk_versioning"
+    - ShellCommand:
+        name: wait
+        command: sleep 3600
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
 

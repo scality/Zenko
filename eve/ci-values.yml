@@ -33,6 +33,13 @@ redis-ha:
     name: default
 
 cloudserver-front:
+  resources:     
+    limits:      
+      cpu: 2     
+      memory: 8Gi
+    requests:    
+      cpu: 2  
+      memory: 8Gi
   image:
     pullPolicy: Always
   orbit:

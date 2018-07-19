@@ -31,6 +31,10 @@ spec:
             - name: http
               containerPort: 8000
           env:
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $key | upper | replace "." "_" }}
+              value: {{ $value | quote }}
+            {{- end }}
             - name: DATA_HOST
               value: "{{- printf "%s-%s" .Release.Name "s3-data" | trunc 63 | trimSuffix "-" -}}"
             - name: REDIS_HOST
