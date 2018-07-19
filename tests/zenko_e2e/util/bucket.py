@@ -48,9 +48,9 @@ def get_object_hash(bucket, key, timeout=0, backoff=5, _timestamp=None):
                 bucket.name, key)
             _log.exception(exp)
             return None
-        time.sleep(backoff)
-        return get_object_hash(bucket, key, timeout,
-                               _timestamp=_timestamp, backoff=backoff)
+    time.sleep(backoff)
+    return get_object_hash(bucket, key, timeout,
+                           _timestamp=_timestamp, backoff=backoff)
 
 
 def check_object(key, data, local, *args, timeout=0, backoff=5):
