@@ -10,20 +10,18 @@ logging.basicConfig(level=logging.INFO,
                     datefmt='%S')
 
 
+@pytest.mark.flaky(reruns=3)
 @pytest.mark.parametrize('datafile', [testfile, mpufile])
 @pytest.mark.conformance
 def test_aws_1_1(aws_crr_bucket, aws_crr_target_bucket, objkey, datafile):
     util.mark_test('AWS 1-1 REPLICATION')
     data = datafile()
     util.upload_object(aws_crr_bucket, objkey, data)
-    aws_crr_bucket.put_object(
-        Body=data,
-        Key=objkey
-    )
     assert util.check_object(
-        objkey, data, aws_crr_bucket, aws_crr_target_bucket, timeout=30)
+        objkey, data, aws_crr_bucket, aws_crr_target_bucket, timeout=120)
 
 
+@pytest.mark.flaky(reruns=3)
 @pytest.mark.parametrize('datafile', [testfile, mpufile])
 @pytest.mark.conformance
 def test_gcp_1_1(gcp_crr_bucket, gcp_crr_target_bucket, objkey, datafile):
@@ -31,7 +29,7 @@ def test_gcp_1_1(gcp_crr_bucket, gcp_crr_target_bucket, objkey, datafile):
     data = datafile()
     util.upload_object(gcp_crr_bucket, objkey, data)
     assert util.check_object(
-        objkey, data, gcp_crr_bucket, gcp_crr_target_bucket, timeout=30)
+        objkey, data, gcp_crr_bucket, gcp_crr_target_bucket, timeout=120)
 
 
 @pytest.mark.flaky(reruns=3)
@@ -43,11 +41,7 @@ def test_azure_1_1(
     data = datafile()
     util.upload_object(azure_crr_bucket, objkey, data)
     assert util.check_object(
-        objkey,
-        data,
-        azure_crr_bucket,
-        azure_crr_target_bucket,
-        timeout=30)
+        objkey, data, azure_crr_bucket, azure_crr_target_bucket, timeout=120)
 
 
 @pytest.mark.skip(reason='Wasabi not implemented in CI')
