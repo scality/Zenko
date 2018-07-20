@@ -24,6 +24,11 @@ prometheus:
 zenko-queue:
   rbac:
     enabled: false
+  configurationOverrides:
+    "offsets.topic.replication.factor": 1 # - replication factor for the offsets topic
+    "num.partitions": 1                   # - default number of log partitions per topic
+    "auto.create.topics.enable": true     # - enable auto creation of topic on the server
+    "min.insync.replicas": 1              # - min number of replicas that must acknowledge a write
 
 redis-ha:
   rbac:
