@@ -5,8 +5,9 @@ const fs = require('fs');
 
 const { scalityS3Client, awsS3Client } = require('./s3SDK');
 
-const srcLocation = process.env.AWS_SOURCE_LOCATION;
-const destLocation = process.env.AWS_DESTINATION_LOCATION;
+const srcLocation = process.env.AWS_S3_BACKEND_SOURCE_LOCATION;
+const destAWSLocation = process.env.AWS_S3_BACKEND_DESTINATION_LOCATION;
+const destAzureLocation = process.env.AZURE_BACKEND_DESTINATION_LOCATION;
 const REPLICATION_TIMEOUT = 10000;
 
 class ReplicationUtility {
@@ -37,6 +38,11 @@ class ReplicationUtility {
                 versionInfo.VersionId, next), cb);
     }
 
+    _deleteBlobList(blobList, containerName, cb) {
+        async.each(blobList, (blob, next) =>
+            this.deleteBlob(containerName, blob.name, undefined, next), cb);
+    }
+
     _setS3Client(s3Client) {
         this.s3 = s3Client;
         return this;
@@ -63,6 +69,20 @@ class ReplicationUtility {
                 next => this._deleteVersionList(versions, bucketName, next),
             ], err => cb(err));
         });
+    }
+
+    deleteAllBlobs(containerName, keyPrefix, cb) {
+        const options = { include: 'metadata' };
+        this.azure.listBlobsSegmented(containerName, null, options,
+            (err, result, response) => {
+                if (err) {
+                    return cb(err);
+                }
+                // Only delete the blobs put by the current test.
+                const filteredEntries = result.entries.filter(entry =>
+                    entry.name.startsWith(keyPrefix));
+                return this._deleteBlobList(filteredEntries, containerName, cb);
+            });
     }
 
     putObject(bucketName, objectName, content, cb) {
@@ -315,6 +335,24 @@ class ReplicationUtility {
         }, cb);
     }
 
+    getBlobToText(containerName, blob, cb) {
+        this.azure.getBlobToText(containerName, blob, cb);
+    }
+
+    getBlob(containerName, blob, cb) {
+        const request = this.azure.createReadStream(containerName, blob);
+        const data = [];
+        let totalLength = 0;
+        request.on('data', chunk => {
+            totalLength += chunk.length;
+            data.push(chunk);
+        });
+        request.on('end', () => {
+            cb(null, Buffer.concat(data, totalLength))
+        });
+        request.on('error', err => cb(err));
+    }
+
     createBucket(bucketName, cb) {
         this.s3.createBucket({ Bucket: bucketName }, cb);
     }
@@ -437,6 +475,10 @@ class ReplicationUtility {
         }, cb);
     }
 
+    deleteBlob(containerName, blob, options, cb) {
+        this.azure.deleteBlob(containerName, blob, options, cb);
+    }
+
     // Continue getting head object while the status is PENDING or PROCESSING.
     waitUntilReplicated(bucketName, key, versionId, cb) {
         let status;
@@ -461,8 +503,8 @@ class ReplicationUtility {
     // Continue getting object while the object exists.
     waitUntilDeleted(bucketName, key, client, cb) {
         let objectExists;
-        const method = 'getObject';
-        const expectedCode = 'NoSuchKey';
+        const method = client === 'azure' ? 'getBlobToText' : 'getObject';
+        const expectedCode = client === 'azure' ? 'BlobNotFound' : 'NoSuchKey';
         return async.doWhilst(callback =>
             this[method](bucketName, key, err => {
                 if (err && err.code !== expectedCode) {
@@ -495,9 +537,9 @@ class ReplicationUtility {
                 destData.ContentLength);
             this._compareObjectBody(srcData.Body, destData.Body);
             const srcUserMD = srcData.Metadata;
-            assert.strictEqual(srcUserMD[`${destLocation}-version-id`],
+            assert.strictEqual(srcUserMD[`${destAWSLocation}-version-id`],
                 destData.VersionId);
-            assert.strictEqual(srcUserMD[`${destLocation}-replication-status`],
+            assert.strictEqual(srcUserMD[`${destAWSLocation}-replication-status`],
                 'COMPLETED');
             const destUserMD = destData.Metadata;
             assert.strictEqual(destUserMD['scal-version-id'],
@@ -515,6 +557,81 @@ class ReplicationUtility {
             return cb();
         });
     }
+
+    compareObjectsAzure(srcBucket, containerName, key, cb) {
+        return async.series([
+            next => this.waitUntilReplicated(srcBucket, key, undefined, next),
+            next => this.getObject(srcBucket, key, next),
+            next => this.azure.getBlobProperties(containerName,
+                `${srcBucket}/${key}`, next),
+            next => this.getBlob(containerName,
+                `${srcBucket}/${key}`, next),
+        ], (err, data) => {
+            if (err) {
+                return cb(err);
+            }
+            const srcData = data[1];
+            const destProperties = data[2];
+            const destPropResult = destProperties[0];
+            const destPropResponse = destProperties[1];
+            const destDataBuf = data[3];
+            assert.strictEqual(srcData.ReplicationStatus, 'COMPLETED');
+            // Azure does not have versioning so there is no version metadata
+            // from Azure to set on the source.
+            assert.strictEqual(
+                srcData.Metadata[`${destAzureLocation}-replication-status`],
+                'COMPLETED');
+            assert.strictEqual(
+                destPropResult.metadata['scal_replication_status'], 'REPLICA');
+            assert.strictEqual(
+                destPropResult.metadata['scal_version_id'], srcData.VersionId);
+            assert.strictEqual(
+                destPropResponse.headers['x-ms-meta-scal_replication_status'],
+                'REPLICA');
+            assert.strictEqual(
+                destPropResponse.headers['x-ms-meta-scal_version_id'],
+                srcData.VersionId);
+            this._compareObjectBody(srcData.Body, destDataBuf);
+            return cb();
+        });
+    }
+
+    compareAzureObjectProperties(srcBucket, containerName, key, cb) {
+        return async.series([
+            next => this.waitUntilReplicated(srcBucket, key, undefined, next),
+            next => this.getHeadObject(srcBucket, key, next),
+            next => this.azure.getBlobProperties(containerName,
+                `${srcBucket}/${key}`, next),
+        ], (err, data) => {
+            if (err) {
+                return cb(err);
+            }
+            const srcData = data[1];
+            const destData = data[2];
+            const destResult = destData[0];
+            const destResponse = destData[1];
+            const { contentSettings } = destResult;
+            const { headers } = destResponse;
+            let expectedVal = srcData.Metadata.customkey;
+            assert.strictEqual(expectedVal,
+                destResult.metadata['customkey']);
+            assert.strictEqual(expectedVal,
+                headers['x-ms-meta-customkey']);
+            expectedVal = srcData.ContentType;
+            assert.strictEqual(expectedVal, contentSettings.contentType);
+            assert.strictEqual(expectedVal, headers['content-type']);
+            expectedVal = srcData.CacheControl;
+            assert.strictEqual(expectedVal, contentSettings.cacheControl);
+            assert.strictEqual(expectedVal, headers['cache-control']);
+            expectedVal = srcData.ContentEncoding;
+            assert.strictEqual(expectedVal, contentSettings.contentEncoding);
+            assert.strictEqual(expectedVal, headers['content-encoding']);
+            expectedVal = srcData.ContentLanguage;
+            assert.strictEqual(expectedVal, contentSettings.contentLanguage);
+            assert.strictEqual(expectedVal, headers['content-language']);
+            return cb();
+        });
+    };
 
     compareACLsAWS(srcBucket, destBucket, key, cb) {
         return async.series([
@@ -551,6 +668,35 @@ class ReplicationUtility {
             const destData = data[2];
             // Version IDs will differ in the response, so just compare tag set.
             assert.deepStrictEqual(srcData.TagSet, destData.TagSet);
+            return cb();
+        });
+    }
+
+    compareObjectTagsAzure(srcBucket, destContainer, key, scalityVersionId,
+        cb) {
+        return async.series([
+            next => this.waitUntilReplicated(srcBucket, key, scalityVersionId,
+                next),
+            next => this.getObjectTagging(srcBucket, key, scalityVersionId,
+                next),
+            next => this.azure.getBlobMetadata(destContainer,
+                `${srcBucket}/${key}`, next),
+        ], (err, data) => {
+            if (err) {
+                return cb(err);
+            }
+            const srcData = data[1];
+            const destData = data[2];
+            const destTagSet = [];
+            const destTags = destData[0].metadata.tags;
+            if (destTags) {
+                const parsedTags = JSON.parse(destTags);
+                Object.keys(parsedTags).forEach(key => destTagSet.push({
+                    Key: key,
+                    Value: parsedTags[key],
+                }));
+            }
+            assert.deepStrictEqual(srcData.TagSet, destTagSet);
             return cb();
         });
     }

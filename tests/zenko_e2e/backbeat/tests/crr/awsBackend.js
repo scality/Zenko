@@ -9,7 +9,7 @@ const scalityUtils = new ReplicationUtility(scalityS3Client);
 const awsUtils = new ReplicationUtility(awsS3Client);
 const srcBucket = `source-bucket-${Date.now()}`;
 const destBucket = process.env.AWS_S3_BACKBEAT_BUCKET_NAME;
-const destLocation = process.env.AWS_DESTINATION_LOCATION;
+const destLocation = process.env.AWS_S3_BACKEND_DESTINATION_LOCATION;
 const hex = crypto.createHash('md5')
     .update(Math.random().toString())
     .digest('hex');

@@ -10,47 +10,72 @@
    ```
 
 2. Create an account using Orbit.
-3. Export the access key and secret key of that account:
+3. Export the access key and secret key of that account (for example, in
+   `.secrets.env`):
 
 ```
-export ZENKO_BACKBEAT_ACCESS_KEY=<access-key>
-export ZENKO_BACKBEAT_SECRET_KEY=<secret-key>
+export ZENKO_STORAGE_ACCOUNT_ACCESS_KEY=<zenko-access-key>
+export ZENKO_STORAGE_ACCOUNT_SECRET_KEY=<zenko-secret-key>
 ```
 
-3. Install node and npm.
-4. Navigate to `Zenko/tests/zenko_e2e/backbeat`.
-5. Install node modules: `npm i`.
+4. Install node and npm.
+5. Navigate to `Zenko/tests/zenko_e2e/backbeat`.
+6. Install node modules: `npm i`.
 
 ### Tests for CRR to AWS:
 
-1. Create a bucket on AWS `<destination-bucket-name>` with versioning enabled.
-2. In Orbit, create an AWS location `<destination-location-name>` with an AWS
-   `<destination-bucket-name>`.
-3. In Orbit, create an AWS location `<source-location-name>`.
-4. Export the access key, secret key, AWS bucket name, and AWS location:
+1. Create a bucket on AWS `<destination-aws-bucket-name>` with versioning
+   enabled.
+2. In Orbit, create an AWS storage location `<destination-aws-location-name>`
+   with an AWS bucket `<destination-aws-bucket-name>`.
+3. In Orbit, create an AWS location `<source-aws-location-name>`.
+4. Create a container on Azure `<destination-azure-container-name>`.
+5. In Orbit, create an Azure storage location
+   `<destination-azure-location-name>` with an Azure container `<destination-azure-container-name>`.
+6. Export the keys, bucket name, container name, and storage location names
+   (for example, in `.env` and `.secrets.env`):
 
 ```
-export AWS_S3_BACKBEAT_ACCESS_KEY=<access-key>
-export AWS_S3_BACKBEAT_SECRET_KEY=<secret-key>
-export AWS_S3_BACKBEAT_BUCKET_NAME=<destination-bucket-name>
-export AWS_DESTINATION_LOCATION=<destination-location-name>
-export AWS_SOURCE_LOCATION=<source-location-name>
+export AWS_S3_BACKEND_ACCESS_KEY=<aws-access-key>
+export AWS_S3_BACKEND_SECRET_KEY=<aws-secret-key>
+export AWS_S3_BACKBEAT_BUCKET_NAME=<destination-aws-bucket-name>
+export AWS_S3_BACKEND_DESTINATION_LOCATION=<destination-aws-location-name>
+export AWS_S3_BACKEND_SOURCE_LOCATION=<source-aws-location-name>
+export AZURE_BACKEND_ACCOUNT_NAME=<azure-account-name>
+export AZURE_BACKEND_ACCESS_KEY=<azure-access-key>
+export AZURE_BACKEND_ENDPOINT=<azure-endpoint>
+export AZURE_BACKBEAT_CONTAINER_NAME=<destination-azure-container-name>
+export AZURE_BACKEND_DESTINATION_LOCATION=<destination-azure-location-name>
 ```
 
-5. Run the test suite: `npm run test_crr`.
+7. If using `*.env` files, source the files:
+
+```
+source .env && source .secrets.env
+```
+
+8. Run the test suite: `npm run test_crr`.
 
 ### Tests for Backbeat API:
 
-1. Create a bucket on AWS `<destination-bucket-name>` with versioning enabled.
-2. In Orbit, create an AWS location `<destination-location-name>` with an AWS
-   `<destination-bucket-name>`.
-3. Export the access key, secret key, AWS bucket name, and AWS location:
+1. Create a bucket on AWS `<destination-aws-bucket-name>` with versioning
+   enabled.
+2. In Orbit, create an AWS location `<destination-aws-location-name>` with an
+   AWS bucket `<destination-aws-bucket-name>`.
+3. Export the keys, AWS bucket name, and AWS location (for example, in `.env`
+   and `.secrets.env`):
 
 ```
-export AWS_S3_BACKBEAT_ACCESS_KEY=<access-key>
-export AWS_S3_BACKBEAT_SECRET_KEY=<secret-key>
-export AWS_S3_BACKBEAT_BUCKET_NAME=<destination-bucket-name>
-export AWS_DESTINATION_LOCATION=<destination-location-name>
+export AWS_S3_BACKEND_ACCESS_KEY=<aws-access-key>
+export AWS_S3_BACKEND_SECRET_KEY=<aws-secret-key>
+export AWS_S3_BACKBEAT_BUCKET_NAME=<destination-aws-bucket-name>
+export AWS_S3_BACKEND_DESTINATION_LOCATION=<destination-aws-location-name>
 ```
 
-4. Run the test suite: `npm run test_api`.
+4. If using `*.env` files, source the files:
+
+```
+source .env && source .secrets.env
+```
+
+5. Run the test suite: `npm run test_api`.
