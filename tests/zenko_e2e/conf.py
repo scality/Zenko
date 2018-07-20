@@ -42,7 +42,7 @@ if K8S_NAMESPACE is None:
 ZENKO_HELM_RELEASE = os.getenv('ZENKO_HELM_RELEASE', None)
 
 ZENKO_ENDPOINT = get_env('CLOUDSERVER_FRONT_ENDPOINT',
-                         'http://%s-cloudserver-front:80' % ZENKO_HELM_RELEASE)
+                         'http://%s-cloudserver:80' % ZENKO_HELM_RELEASE)
 ZENKO_VAULT_ENDPOINT = get_env('ZENKO_VAULT_ENDPOINT',
                                'http://zenko.test:8600')
 ORBIT_ENDPOINT = get_env('ORBIT_ENDPOINT',

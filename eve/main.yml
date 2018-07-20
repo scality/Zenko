@@ -214,8 +214,8 @@ stages:
             helm upgrade $ZENKO_HELM_RELEASE --namespace %(prop:testNamespace)s
             --install charts/zenko
             -f eve/ci-values.yml
-            --set cloudserver-front.image.tag='%(prop:cloudserver_sha1)s'
-            --set cloudserver-front.image.repository=%(secret:private_registry_url)s/zenko/cloudserver
+            --set cloudserver.image.tag='%(prop:cloudserver_sha1)s'
+            --set cloudserver.image.repository=%(secret:private_registry_url)s/zenko/cloudserver
             --set backbeat.image.tag='%(prop:backbeat_sha1)s'
             --set backbeat.image.repository=%(secret:private_registry_url)s/zenko/backbeat
             --set s3-data.image.tag='%(prop:cloudserver_sha1)s'

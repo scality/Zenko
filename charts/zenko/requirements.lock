@@ -26,8 +26,8 @@ dependencies:
 - name: s3-data
   repository: file://../s3-data
   version: 0.1.0
-- name: cloudserver-front
-  repository: file://../cloudserver-front
+- name: cloudserver
+  repository: file://../cloudserver
   version: 0.1.4
 - name: zenko-nfs
   repository: file://../zenko-nfs

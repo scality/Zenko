@@ -1,17 +1,17 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: {{ template "cloudserver-front.fullname" . }}
+  name: {{ template "cloudserver.fullname" . }}
   labels:
-    app: {{ template "cloudserver-front.name" . }}
-    chart: {{ template "cloudserver-front.chart" . }}
+    app: {{ template "cloudserver.name" . }}
+    chart: {{ template "cloudserver.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ template "cloudserver-front.name" . }}
+      app: {{ template "cloudserver.name" . }}
       release: {{ .Release.Name }}
   template:
     metadata:
@@ -20,7 +20,7 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/certificate.yaml") . | sha256sum }}
         {{- end }}
       labels:
-        app: {{ template "cloudserver-front.name" . }}
+        app: {{ template "cloudserver.name" . }}
         release: {{ .Release.Name }}
     spec:
       containers:
@@ -30,7 +30,7 @@ spec:
           ports:
             - name: http
               containerPort: 8000
-{{ include "cloudserver-front.env" . | indent 10 }}
+{{ include "cloudserver.env" . | indent 10 }}
             {{- if .Values.orbit.enabled }}
             - name: MANAGEMENT_MODE
               value: "{{- .Values.orbit.workerMode -}}"
@@ -70,5 +70,5 @@ spec:
         {{- if .Values.proxy.caCert }}
         - name: proxy-cert
           secret:
-            secretName: {{ template "cloudserver-front.fullname" . }}-proxy
+            secretName: {{ template "cloudserver.fullname" . }}-proxy
         {{- end }}

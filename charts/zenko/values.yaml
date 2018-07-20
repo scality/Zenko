@@ -10,7 +10,7 @@ nodeCount: &nodeCount 3
 ingress:
   enabled: false
   # Used to create an Ingress record.
-  # This must match the 'cloudserver-front' 'endpoint', unless your client
+  # This must match the 'cloudserver' 'endpoint', unless your client
   # supports different hostnames.
   hosts:
     - zenko.local
@@ -24,7 +24,7 @@ ingress:
     #   hosts:
     #     - zenko.example.com
 
-cloudserver-front:
+cloudserver:
   mongodb:
     replicas: *nodeCount
   orbit:

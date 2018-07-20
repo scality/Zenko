@@ -33,7 +33,7 @@ Then, assuming you have an ingress controller running, run something like:
 ```shell
 $ helm install --name zenko --set ingress.enabled=true \
 --set ingress.hosts[0]=zenko.local \
---set cloudserver-front.endpoint=zenko.local zenko
+--set cloudserver.endpoint=zenko.local zenko
 ```
 
 You can disable integration with the [Orbit] management UI (enabled by default).
@@ -43,19 +43,19 @@ See `values.yml` for more options.
 To disable Orbit, use:
 
 ```shell
---set cloudserver-front.orbit.enabled=false
+--set cloudserver.orbit.enabled=false
 ```
 
 If a custom Orbit endpoint is required, use:
 
 ```shell
---set cloudserver-front.orbit.endpoint=https://custom.orbit.endpoint
---set cloudserver-front.orbit.pushEndpoint=https://custom.push.orbit.endpoint
+--set cloudserver.orbit.endpoint=https://custom.orbit.endpoint
+--set cloudserver.orbit.pushEndpoint=https://custom.push.orbit.endpoint
 ```
 
 and if `poll` mode is needed, use:
 ```shell
---set cloudserver-front.orbit.mode=poll
+--set cloudserver.orbit.mode=poll
 ```
 
 **Note:** `poll` mode should only be used when long-lived websocket connections
@@ -71,20 +71,20 @@ Autoscaling
 -----------
 
 This chart can be configured to deploy a `HorizontalPodAutoscaler` for
-`cloudserver-front`. This is disabled by default.
+`cloudserver`. This is disabled by default.
 
 To set up autoscaling based on CPU consumption, configure the amount of CPU a
-single `cloudserver-front` Pod requests. For example, to request one CPU to be
+single `cloudserver` Pod requests. For example, to request one CPU to be
 allocated:
 
 ```shell
---set cloudserver-front.resources.requests.cpu=1
+--set cloudserver.resources.requests.cpu=1
 ```
 
 Next, enable autoscaling using:
 
 ```shell
---set cloudserver-front.autoscaling.enabled=true
+--set cloudserver.autoscaling.enabled=true
 ```
 
 This scales up (and down) between 1 and 16 replicas, with 80% CPU
@@ -93,9 +93,9 @@ consumption as the per-Pod target.
 These defaults can be modified using:
 
 ```shell
---set cloudserver-front.autoscaling.config.minReplicas=...
---set cloudserver-front.autoscaling.config.maxReplicas==...
---set cloudserver-front.autoscaling.config.targetCPUUtilizationPercentage=...
+--set cloudserver.autoscaling.config.minReplicas=...
+--set cloudserver.autoscaling.config.maxReplicas==...
+--set cloudserver.autoscaling.config.targetCPUUtilizationPercentage=...
 ```
 
 Prometheus Monitoring

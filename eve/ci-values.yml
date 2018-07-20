@@ -32,7 +32,7 @@ redis-ha:
     create: false
     name: default
 
-cloudserver-front:
+cloudserver:
   image:
     pullPolicy: Always
   orbit:

@@ -1,4 +1,4 @@
-{{- define "cloudserver-front.env" }}
+{{- define "cloudserver.env" }}
 env:
   - name: DATA_HOST
     value: "{{- printf "%s-%s" .Release.Name "s3-data" | trunc 63 | trimSuffix "-" -}}"
@@ -17,7 +17,7 @@ env:
   - name: LOG_LEVEL
     value: {{ .Values.logging.level }}
   - name: ENDPOINT
-    value: "{{ .Release.Name }}-cloudserver-front,{{ .Values.endpoint }}"
+    value: "{{ .Release.Name }}-cloudserver,{{ .Values.endpoint }}"
   - name: HEALTHCHECKS_ALLOWFROM
     value: "{{ .Values.allowHealthchecksFrom }}"
   {{- if .Values.storageLimit.enabled }}
@@ -46,7 +46,7 @@ env:
   - name: S3METADATA
     value: "mongodb"
   - name: MONGODB_HOSTS
-    value: "{{ template "cloudserver-front.mongodb-hosts" . }}"
+    value: "{{ template "cloudserver.mongodb-hosts" . }}"
   - name: MONGODB_RS
     value: "{{ default "rs0" .Values.mongodb.replicaSet }}"
   {{- if .Values.orbit.enabled }}
@@ -62,12 +62,12 @@ env:
   - name: SCALITY_ACCESS_KEY_ID
     valueFrom:
       secretKeyRef:
-        name: {{ template "cloudserver-front.fullname" . }}
+        name: {{ template "cloudserver.fullname" . }}
         key: keyId
   - name: SCALITY_SECRET_ACCESS_KEY
     valueFrom:
       secretKeyRef:
-        name: {{ template "cloudserver-front.fullname" . }}
+        name: {{ template "cloudserver.fullname" . }}
         key: secretKey
   {{- end }}
 {{- end }}

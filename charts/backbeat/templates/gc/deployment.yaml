@@ -31,7 +31,7 @@ spec:
             - name: EXTENSIONS_GC_AUTH_ACCOUNT
               value: service-gc
             - name: S3_HOST
-              value: "{{- printf "%s-cloudserver-front" .Release.Name | trunc 63 | trimSuffix "-" -}}"
+              value: "{{- printf "%s-cloudserver" .Release.Name | trunc 63 | trimSuffix "-" -}}"
             - name: S3_PORT
               value: "80"
             - name: MONGODB_HOSTS

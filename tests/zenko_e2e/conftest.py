@@ -43,7 +43,7 @@ def zenko_s3_client():
 
     url = os.getenv('CLOUDSERVER_FRONT_ENDPOINT')
     if not url:
-        url = 'http://{}-cloudserver-front:80'.format(zenko_helm_release())
+        url = 'http://{}-cloudserver:80'.format(zenko_helm_release())
 
     return boto3.client(
         service_name='s3',

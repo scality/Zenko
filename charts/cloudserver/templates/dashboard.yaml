@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "cloudserver.fullname" . }}-grafana-dashboard
+  labels:
+    app: {{ template "cloudserver.name" . }}
+    chart: {{ template "cloudserver.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    grafana-dashboard: "true"
+data:
+{{ (.Files.Glob "dashboards/cloudserver.json").AsConfig | indent 4 }}

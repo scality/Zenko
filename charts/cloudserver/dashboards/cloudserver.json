@@ -107,7 +107,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "time() - (process_start_time_seconds{app=\"cloudserver-front\"})",
+          "expr": "time() - (process_start_time_seconds{app=\"cloudserver\"})",
           "format": "time_series",
           "intervalFactor": 1,
           "refId": "A"
@@ -227,7 +227,7 @@
     },
     {
       "aliasColors": {
-        "nodejs_external_memory_bytes{app=\"cloudserver-front\",instance=\"10.1.3.124:8000\",job=\"kubernetes-pods\",kubernetes_namespace=\"default\",kubernetes_pod_name=\"zenko-cloudserver-front-6f9b58659-2tvng\",pod_template_hash=\"295614215\",release=\"zenko\"}": "#e5ac0e"
+        "nodejs_external_memory_bytes{app=\"cloudserver\",instance=\"10.1.3.124:8000\",job=\"kubernetes-pods\",kubernetes_namespace=\"default\",kubernetes_pod_name=\"zenko-cloudserver-6f9b58659-2tvng\",pod_template_hash=\"295614215\",release=\"zenko\"}": "#e5ac0e"
       },
       "bars": false,
       "dashLength": 10,
@@ -313,7 +313,7 @@
     },
     {
       "aliasColors": {
-        "nodejs_active_requests_total{app=\"cloudserver-front\",instance=\"10.1.3.124:8000\",job=\"kubernetes-pods\",kubernetes_namespace=\"default\",kubernetes_pod_name=\"zenko-cloudserver-front-6f9b58659-2tvng\",pod_template_hash=\"295614215\",release=\"zenko\"}": "#ef843c"
+        "nodejs_active_requests_total{app=\"cloudserver\",instance=\"10.1.3.124:8000\",job=\"kubernetes-pods\",kubernetes_namespace=\"default\",kubernetes_pod_name=\"zenko-cloudserver-6f9b58659-2tvng\",pod_template_hash=\"295614215\",release=\"zenko\"}": "#ef843c"
       },
       "bars": false,
       "dashLength": 10,
@@ -400,7 +400,7 @@
     },
     {
       "aliasColors": {
-        "nodejs_active_handles_total{app=\"cloudserver-front\",instance=\"10.1.3.124:8000\",job=\"kubernetes-pods\",kubernetes_namespace=\"default\",kubernetes_pod_name=\"zenko-cloudserver-front-6f9b58659-2tvng\",pod_template_hash=\"295614215\",release=\"zenko\"}": "#d683ce"
+        "nodejs_active_handles_total{app=\"cloudserver\",instance=\"10.1.3.124:8000\",job=\"kubernetes-pods\",kubernetes_namespace=\"default\",kubernetes_pod_name=\"zenko-cloudserver-6f9b58659-2tvng\",pod_template_hash=\"295614215\",release=\"zenko\"}": "#d683ce"
       },
       "bars": false,
       "dashLength": 10,
@@ -488,7 +488,7 @@
     },
     {
       "aliasColors": {
-        "nodejs_heap_size_total_bytes{app=\"cloudserver-front\",instance=\"10.1.3.124:8000\",job=\"kubernetes-pods\",kubernetes_namespace=\"default\",kubernetes_pod_name=\"zenko-cloudserver-front-6f9b58659-2tvng\",pod_template_hash=\"295614215\",release=\"zenko\"}": "#65c5db"
+        "nodejs_heap_size_total_bytes{app=\"cloudserver\",instance=\"10.1.3.124:8000\",job=\"kubernetes-pods\",kubernetes_namespace=\"default\",kubernetes_pod_name=\"zenko-cloudserver-6f9b58659-2tvng\",pod_template_hash=\"295614215\",release=\"zenko\"}": "#65c5db"
       },
       "bars": false,
       "dashLength": 10,
@@ -587,7 +587,7 @@
     },
     {
       "aliasColors": {
-        "process_resident_memory_bytes{app=\"cloudserver-front\",instance=\"10.1.3.124:8000\",job=\"kubernetes-pods\",kubernetes_namespace=\"default\",kubernetes_pod_name=\"zenko-cloudserver-front-6f9b58659-2tvng\",pod_template_hash=\"295614215\",release=\"zenko\"}": "#447ebc"
+        "process_resident_memory_bytes{app=\"cloudserver\",instance=\"10.1.3.124:8000\",job=\"kubernetes-pods\",kubernetes_namespace=\"default\",kubernetes_pod_name=\"zenko-cloudserver-6f9b58659-2tvng\",pod_template_hash=\"295614215\",release=\"zenko\"}": "#447ebc"
       },
       "bars": false,
       "dashLength": 10,
@@ -625,7 +625,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "process_resident_memory_bytes{app=\"cloudserver-front\"}",
+          "expr": "process_resident_memory_bytes{app=\"cloudserver\"}",
           "format": "time_series",
           "intervalFactor": 1,
           "refId": "A"
@@ -673,7 +673,7 @@
     },
     {
       "aliasColors": {
-        "process_virtual_memory_bytes{app=\"cloudserver-front\",instance=\"10.1.3.124:8000\",job=\"kubernetes-pods\",kubernetes_namespace=\"default\",kubernetes_pod_name=\"zenko-cloudserver-front-6f9b58659-2tvng\",pod_template_hash=\"295614215\",release=\"zenko\"}": "#e24d42"
+        "process_virtual_memory_bytes{app=\"cloudserver\",instance=\"10.1.3.124:8000\",job=\"kubernetes-pods\",kubernetes_namespace=\"default\",kubernetes_pod_name=\"zenko-cloudserver-6f9b58659-2tvng\",pod_template_hash=\"295614215\",release=\"zenko\"}": "#e24d42"
       },
       "bars": false,
       "dashLength": 10,
@@ -711,7 +711,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "process_virtual_memory_bytes{app=\"cloudserver-front\"}",
+          "expr": "process_virtual_memory_bytes{app=\"cloudserver\"}",
           "format": "time_series",
           "intervalFactor": 1,
           "refId": "A"
@@ -760,7 +760,7 @@
     },
     {
       "aliasColors": {
-        "process_heap_bytes{app=\"cloudserver-front\",instance=\"10.1.3.124:8000\",job=\"kubernetes-pods\",kubernetes_namespace=\"default\",kubernetes_pod_name=\"zenko-cloudserver-front-6f9b58659-2tvng\",pod_template_hash=\"295614215\",release=\"zenko\"}": "#ba43a9"
+        "process_heap_bytes{app=\"cloudserver\",instance=\"10.1.3.124:8000\",job=\"kubernetes-pods\",kubernetes_namespace=\"default\",kubernetes_pod_name=\"zenko-cloudserver-6f9b58659-2tvng\",pod_template_hash=\"295614215\",release=\"zenko\"}": "#ba43a9"
       },
       "bars": false,
       "dashLength": 10,
@@ -859,7 +859,7 @@
     },
     {
       "aliasColors": {
-        "process_cpu_seconds_total{app=\"cloudserver-front\",instance=\"10.1.3.124:8000\",job=\"kubernetes-pods\",kubernetes_namespace=\"default\",kubernetes_pod_name=\"zenko-cloudserver-front-6f9b58659-2tvng\",pod_template_hash=\"295614215\",release=\"zenko\"}": "#9ac48a"
+        "process_cpu_seconds_total{app=\"cloudserver\",instance=\"10.1.3.124:8000\",job=\"kubernetes-pods\",kubernetes_namespace=\"default\",kubernetes_pod_name=\"zenko-cloudserver-6f9b58659-2tvng\",pod_template_hash=\"295614215\",release=\"zenko\"}": "#9ac48a"
       },
       "bars": false,
       "dashLength": 10,
@@ -899,7 +899,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "process_cpu_seconds_total{app=\"cloudserver-front\"}",
+          "expr": "process_cpu_seconds_total{app=\"cloudserver\"}",
           "format": "time_series",
           "intervalFactor": 1,
           "refId": "A"
@@ -949,7 +949,7 @@
     },
     {
       "aliasColors": {
-        "process_cpu_user_seconds_total{app=\"cloudserver-front\",instance=\"10.1.3.124:8000\",job=\"kubernetes-pods\",kubernetes_namespace=\"default\",kubernetes_pod_name=\"zenko-cloudserver-front-6f9b58659-2tvng\",pod_template_hash=\"295614215\",release=\"zenko\"}": "#ef843c"
+        "process_cpu_user_seconds_total{app=\"cloudserver\",instance=\"10.1.3.124:8000\",job=\"kubernetes-pods\",kubernetes_namespace=\"default\",kubernetes_pod_name=\"zenko-cloudserver-6f9b58659-2tvng\",pod_template_hash=\"295614215\",release=\"zenko\"}": "#ef843c"
       },
       "bars": false,
       "dashLength": 10,
@@ -987,7 +987,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "process_cpu_user_seconds_total{app=\"cloudserver-front\"}",
+          "expr": "process_cpu_user_seconds_total{app=\"cloudserver\"}",
           "format": "time_series",
           "intervalFactor": 1,
           "refId": "A"
@@ -1035,7 +1035,7 @@
     },
     {
       "aliasColors": {
-        "process_cpu_system_seconds_total{app=\"cloudserver-front\",instance=\"10.1.3.124:8000\",job=\"kubernetes-pods\",kubernetes_namespace=\"default\",kubernetes_pod_name=\"zenko-cloudserver-front-6f9b58659-2tvng\",pod_template_hash=\"295614215\",release=\"zenko\"}": "#70dbed"
+        "process_cpu_system_seconds_total{app=\"cloudserver\",instance=\"10.1.3.124:8000\",job=\"kubernetes-pods\",kubernetes_namespace=\"default\",kubernetes_pod_name=\"zenko-cloudserver-6f9b58659-2tvng\",pod_template_hash=\"295614215\",release=\"zenko\"}": "#70dbed"
       },
       "bars": false,
       "dashLength": 10,
@@ -1073,7 +1073,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "process_cpu_system_seconds_total{app=\"cloudserver-front\"}",
+          "expr": "process_cpu_system_seconds_total{app=\"cloudserver\"}",
           "format": "time_series",
           "intervalFactor": 1,
           "refId": "A"
