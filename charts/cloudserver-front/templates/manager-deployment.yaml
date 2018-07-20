@@ -1,14 +1,15 @@
+{{- if .Values.orbit.enabled -}}
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: {{ template "cloudserver-front.fullname" . }}
+  name: {{ template "cloudserver-front.fullname" . }}-manager
   labels:
     app: {{ template "cloudserver-front.name" . }}
     chart: {{ template "cloudserver-front.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: 1
   selector:
     matchLabels:
       app: {{ template "cloudserver-front.name" . }}
@@ -24,19 +25,15 @@ spec:
         release: {{ .Release.Name }}
     spec:
       containers:
-        - name: {{ .Chart.Name }}
+        - name: manager
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
               containerPort: 8000
 {{ include "cloudserver-front.env" . | indent 10 }}
-            {{- if .Values.orbit.enabled }}
             - name: MANAGEMENT_MODE
-              value: "{{- .Values.orbit.workerMode -}}"
-            - name: PUSH_STATS
-              value: "false"
-            {{- end }}
+              value: "{{- .Values.orbit.managerMode -}}"
             {{- range $key, $value := .Values.env }}
             - name: {{ $key | upper | replace "." "_" }}
               value: {{ $value | quote }}
@@ -72,3 +69,4 @@ spec:
           secret:
             secretName: {{ template "cloudserver-front.fullname" . }}-proxy
         {{- end }}
+{{- end}}
