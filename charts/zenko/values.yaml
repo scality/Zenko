@@ -48,6 +48,7 @@ zenko-nfs:
     replicas: *nodeCount
 
 prometheus:
+  enabled: true
   rbac:
     create: true
   alertmanager:
