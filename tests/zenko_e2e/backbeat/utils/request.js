@@ -1,12 +1,18 @@
 const http = require('http');
+const aws4 = require('aws4');
 
 const DEFAULT_HOST = 'zenko.local';
 const DEFAULT_PORT = '80';
 
+const accessKeyId = process.env.ZENKO_BACKBEAT_ACCESS_KEY;
+const secretAccessKey = process.env.ZENKO_BACKBEAT_SECRET_KEY;
+
 const defaultOptions = {
     host: DEFAULT_HOST,
     port: DEFAULT_PORT,
+    service: 's3',
 };
+const credentials = { accessKeyId, secretAccessKey };
 
 function getResponseBody(res, cb) {
     res.setEncoding('utf8');
@@ -30,10 +36,12 @@ function getResponseBody(res, cb) {
  * @return {undefined}
  */
 function makeGETRequest(path, cb) {
-    const options = Object.assign({}, defaultOptions, {
+    let options = Object.assign({}, defaultOptions, {
         method: 'GET',
         path,
     });
+    options = aws4.sign(options, credentials);
+
     const req = http.request(options, res => cb(null, res));
     req.on('error', err => cb(err));
     req.end();
@@ -47,10 +55,12 @@ function makeGETRequest(path, cb) {
  * @return {undefined}
  */
 function makePOSTRequest(path, body, cb) {
-    const options = Object.assign({}, defaultOptions, {
+    let options = Object.assign({}, defaultOptions, {
         method: 'POST',
         path,
     });
+    options = aws4.sign(options, credentials);
+
     const req = http.request(options, res => cb(null, res));
     req.on('error', err => cb(err));
     req.end(body);
