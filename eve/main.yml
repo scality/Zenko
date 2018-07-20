@@ -154,7 +154,7 @@ stages:
           helm upgrade $ZENKO_HELM_RELEASE --namespace %(prop:testNamespace)s
           --install charts/zenko
           -f eve/ci-values.yml
-          --timeout 700
+          --timeout 800
           --wait $(./eve/workers/ci_env.sh set)
         haltOnFailure: true
         env:
@@ -214,7 +214,7 @@ stages:
             --set backbeat.image.repository=%(secret:private_registry_url)s/zenko/backbeat
             --set s3-data.image.tag='%(prop:cloudserver_sha1)s'
             --set s3-data.image.repository=%(secret:private_registry_url)s/zenko/cloudserver
-            --timeout 1700
+            --timeout 800
             --wait $(./eve/workers/ci_env.sh set)
           haltOnFailure: true
           env:

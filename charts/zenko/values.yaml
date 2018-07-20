@@ -108,6 +108,7 @@ redis-ha:
 grafana:
   enabled: true
   sidecar:
+    image: zenko/grafana-sidecar:latest
     datasources:
       enabled: true
       # Every config map with the following label will be used as datasource. By default,
