@@ -43,3 +43,6 @@ backbeat:
   lifecycle:
     conductor:
       cronRule: "0 */1 * * * *"
+
+grafana:
+  enabled: false

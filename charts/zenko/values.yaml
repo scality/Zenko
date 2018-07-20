@@ -48,6 +48,7 @@ zenko-nfs:
     replicas: *nodeCount
 
 prometheus:
+  enabled: true
   rbac:
     create: true
   alertmanager:
@@ -103,3 +104,17 @@ redis-ha:
   replicas:
     servers: *nodeCount
     sentinels: *nodeCount
+
+grafana:
+  enabled: true
+  sidecar:
+    datasources:
+      enabled: true
+      # Every config map with the following label will be used as datasource. By default,
+      # promtheus is set as datasource under zenko/templates/datasources.yaml
+      label: grafana-datasource
+    dashboards:
+      enabled: true
+      # Likewise, every config map with the following label will be used as a source for
+      # a dashboard.
+      label: grafana-dashboard

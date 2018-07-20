@@ -49,6 +49,10 @@ proxy:
 service:
   type: ClusterIP
   port: 80
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8000"
+    prometheus.io/path: "/_/monitoring/metrics"
 
 ingress:
   enabled: false
