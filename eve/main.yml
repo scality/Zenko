@@ -61,6 +61,7 @@ models:
         helm upgrade ciutil
         --install orbit-simulator/charts/orbit-simulator
         --set simulator.shim.cloudserver_release=$(echo ${ZENKO_HELM_RELEASE})
+        --set simulator.shim.cloudserver_pod="cloudserver"
         --wait $(./ci_env.sh set)
       workdir: build/eve/workers
       haltOnFailure: true
