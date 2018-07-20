@@ -2,7 +2,7 @@
 *~
 
 .env
-
+gcp_key.json
 .eggs/
 .pytest_cache/
 .tox/

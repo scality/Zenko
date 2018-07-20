@@ -31,8 +31,13 @@ export ZENKO_STORAGE_ACCOUNT_SECRET_KEY=<zenko-secret-key>
 3. In Orbit, create an AWS location `<source-aws-location-name>`.
 4. Create a container on Azure `<destination-azure-container-name>`.
 5. In Orbit, create an Azure storage location
-   `<destination-azure-location-name>` with an Azure container `<destination-azure-container-name>`.
-6. Export the keys, bucket name, container name, and storage location names
+   `<destination-azure-location-name>` with an Azure container
+   `<destination-azure-container-name>`.
+6. Create a bucket on GCP `<destination-gcp-bucket-name>`.
+7. In Orbit, create a GCP storage location
+  `<destination-gcp-location-name>` with an GCP bucket
+  `<destination-gcp-bucket-name>`.
+8. Export the keys, bucket name, container name, and storage location names
    (for example, in `.env` and `.secrets.env`):
 
 ```
@@ -46,15 +51,30 @@ export AZURE_BACKEND_ACCESS_KEY=<azure-access-key>
 export AZURE_BACKEND_ENDPOINT=<azure-endpoint>
 export AZURE_BACKBEAT_CONTAINER_NAME=<destination-azure-container-name>
 export AZURE_BACKEND_DESTINATION_LOCATION=<destination-azure-location-name>
+export GCP_CRR_BUCKET_NAME=<destination-gcp-bucket-name>
+export GCP_BACKEND_DESTINATION_LOCATION=<destination-gcp-location-name>
+export GCP_BACKEND_PRIVATE_KEY=<gcp-private-key>
+export GCP_BACKEND_CLIENT_EMAIL=<gcp-client-email>
 ```
 
-7. If using `*.env` files, source the files:
+9. If using `*.env` files, source the files:
 
 ```
 source .env && source .secrets.env
 ```
 
-8. Run the test suite: `npm run test_crr`.
+10. Create the GCP credential file in `Zenko/tests/zenko_e2e/backbeat`:
+
+```
+cat >gcp_key.json <<EOF
+{
+  "private_key": "${GCP_BACKEND_PRIVATE_KEY}",
+  "client_email": "${GCP_BACKEND_CLIENT_EMAIL}"
+}
+EOF
+```
+
+9. Run the test suite: `npm run test_crr`.
 
 ### Tests for Backbeat API:
 
