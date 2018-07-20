@@ -45,4 +45,10 @@ backbeat:
       cronRule: "0 */1 * * * *"
 
 grafana:
-  enabled: false
+  rbac:
+    create: false
+    pspEnabled: false
+  serviceAccount:
+    create: false
+  adminUser: admin
+  adminPassword: strongpassword

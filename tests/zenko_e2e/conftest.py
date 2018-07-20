@@ -71,7 +71,7 @@ def grafana_client():
         user = 'admin'
     password = os.getenv('GRAFANA_PASSWORD')
     if not password:
-        password = 'admin'
+        password = 'strongpassword'
     url = os.getenv('GRAFANA_ENDPOINT')
     if not url:
         url = 'http://{}-grafana:80'.format(zenko_helm_release())
