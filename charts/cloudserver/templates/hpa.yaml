@@ -2,9 +2,9 @@
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ template "cloudserver-front.fullname" . }}
+  name: {{ template "cloudserver.fullname" . }}
   labels:
-    app: {{ template "cloudserver-front.name" . }}
+    app: {{ template "cloudserver.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -12,6 +12,6 @@ spec:
   scaleTargetRef:
     apiVersion: extensions/v1beta1
     kind: Deployment
-    name: {{ template "cloudserver-front.fullname" . }}
+    name: {{ template "cloudserver.fullname" . }}
 {{ toYaml .Values.autoscaling.config | indent 2 }}
 {{- end -}}

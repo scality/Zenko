@@ -1,4 +1,4 @@
-# Default values for cloudserver-front.
+# Default values for cloudserver.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -6,12 +6,14 @@ orbit:
   enabled: true
   endpoint: https://api.zenko.io
   pushEndpoint: https://push.api.zenko.io
-  mode: push
+  managerMode: push
+  workerMode: poll
+  storageLimit:
+  # This allows you to manage storage limits from Orbit
+    enabled: true
+
 # When 'orbit.enabled' is 'true', these aren't used, please use
 # https://zenko.io to manage your deployment
-storageLimit:
-  # This allows you to manage storage limits from Orbit
-  enabled: true
 endpoint: zenko.local
 credentials:
   keyId: deployment-specific-access-key
@@ -23,12 +25,17 @@ logging:
 
 allowHealthchecksFrom: '0.0.0.0/0'
 
+env: {}
+
 mongodb:
-  enabled: true
   replicaSet: rs0
   replicas: 3
 
-replicaCount: 1
+# When Orbit is enabled, there will be an additional fully stateless replica
+# added which serves as the "manager" for reporting metrics. For example,
+# with a "replicaCount: 2" and Orbit management enabled, there would be a
+# total of 3 pods deployed (2 worker replicas + 1 manager). 
+replicaCount: 2
 
 image:
   repository: zenko/cloudserver

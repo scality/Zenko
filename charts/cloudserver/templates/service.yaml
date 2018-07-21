@@ -5,10 +5,10 @@ metadata:
   annotations:
 {{ toYaml .Values.service.annotations | indent 4 }}
   {{- end }}
-  name: {{ template "cloudserver-front.fullname" . }}
+  name: {{ template "cloudserver.fullname" . }}
   labels:
-    app: {{ template "cloudserver-front.name" . }}
-    chart: {{ template "cloudserver-front.chart" . }}
+    app: {{ template "cloudserver.name" . }}
+    chart: {{ template "cloudserver.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
@@ -19,5 +19,5 @@ spec:
       protocol: TCP
       name: http
   selector:
-    app: {{ template "cloudserver-front.name" . }}
+    app: {{ template "cloudserver.name" . }}
     release: {{ .Release.Name }}

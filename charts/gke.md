@@ -85,12 +85,12 @@ instance](../docs/orbit_registration.md):
 
 ```shell
 $ kubectl logs $(kubectl get pods --no-headers=true -o \
-custom-columns=:metadata.name | grep cloudserver-front) | grep \
+custom-columns=:metadata.name | grep cloudserver) | grep \
 Instance | tail -n 1
 ```
 
 The output will look something like this:
 
 ```
-{"name":"S3","time":1529101607249,"req_id":"9089628bad40b9a255fd","level":"info","message":"this deployment's Instance ID is 6075357a-b08d-419e-9af8-cc9f391ca8e2","hostname":"zenko-cloudserver-front-f74d8c48c-dt6fc","pid":23}
+{"name":"S3","time":1529101607249,"req_id":"9089628bad40b9a255fd","level":"info","message":"this deployment's Instance ID is 6075357a-b08d-419e-9af8-cc9f391ca8e2","hostname":"zenko-cloudserver-f74d8c48c-dt6fc","pid":23}
 ```

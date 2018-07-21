@@ -35,7 +35,7 @@ redis-ha:
     servers: *nodeCount
     sentinels: *nodeCount
 
-cloudserver-front:
+cloudserver:
   image:
     pullPolicy: Always
   orbit:

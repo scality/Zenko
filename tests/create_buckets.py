@@ -30,7 +30,7 @@ TIMEOUT = 120  # 2 Minutes
 K8S_NAMESPACE = os.getenv('ZENKO_K8S_NAMESPACE')
 ZENKO_HELM_RELEASE = os.getenv('ZENKO_HELM_RELEASE')
 ZENKO_ENDPOINT = get_env('CLOUDSERVER_FRONT_ENDPOINT',
-                         'http://%s-cloudserver-front:80' % ZENKO_HELM_RELEASE)
+                         'http://%s-cloudserver:80' % ZENKO_HELM_RELEASE)
 VERIFY_CERTIFICATES = get_env('VERIFY_CERTIFICATES', False)
 
 ZENKO_ACCESS_KEY = get_env('ZENKO_ACCESS_KEY')

@@ -26,11 +26,11 @@ dependencies:
 - name: s3-data
   repository: file://../s3-data
   version: 0.1.0
-- name: cloudserver-front
-  repository: file://../cloudserver-front
+- name: cloudserver
+  repository: file://../cloudserver
   version: 0.1.4
 - name: zenko-nfs
   repository: file://../zenko-nfs
   version: 0.1.0
-digest: sha256:58d2980bd815a4436418757c1980a68cee1a3c7673db39885a1b96f7cde5be90
-generated: 2018-07-19T17:38:40.289106392-07:00
+digest: sha256:5f39dededbbb0dcee5b08e2902027e21ccfb0d104ad7a5d1fa51321ec6911a23
+generated: 2018-07-20T16:19:36.688649833-07:00

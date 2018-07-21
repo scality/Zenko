@@ -5,7 +5,7 @@ ingress:
   hosts:
     - ""
 
-cloudserver-front:
+cloudserver:
   mongodb:
     replicas: *nodeCount
 
