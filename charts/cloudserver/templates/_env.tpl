@@ -20,7 +20,7 @@ env:
     value: "{{ .Release.Name }}-cloudserver,{{ .Values.endpoint }}"
   - name: HEALTHCHECKS_ALLOWFROM
     value: "{{ .Values.allowHealthchecksFrom }}"
-  {{- if .Values.storageLimit.enabled }}
+  {{- if .Values.orbit.storageLimit.enabled }}
   - name: STORAGE_LIMIT_ENABLED
     value: "true"
   {{- end }}

@@ -8,11 +8,12 @@ orbit:
   pushEndpoint: https://push.api.zenko.io
   managerMode: push
   workerMode: poll
+  storageLimit:
+  # This allows you to manage storage limits from Orbit
+    enabled: true
+
 # When 'orbit.enabled' is 'true', these aren't used, please use
 # https://zenko.io to manage your deployment
-storageLimit:
-  # This allows you to manage storage limits from Orbit
-  enabled: true
 endpoint: zenko.local
 credentials:
   keyId: deployment-specific-access-key
