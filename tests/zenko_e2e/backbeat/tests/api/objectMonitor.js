@@ -5,6 +5,7 @@ const { series, waterfall, doWhilst } = require('async');
 
 const { scalityS3Client, awsS3Client } = require('../../s3SDK');
 const ReplicationUtility = require('../../ReplicationUtility');
+const { makeGETRequest, getResponseBody } = require('../../utils/request');
 
 const scalityUtils = new ReplicationUtility(scalityS3Client);
 const awsUtils = new ReplicationUtility(awsS3Client);
@@ -16,7 +17,6 @@ const hex = crypto.createHash('md5')
     .digest('hex');
 const keyPrefix = `${srcBucket}/${hex}`;
 const key = `${keyPrefix}/object-to-replicate-${Date.now()}`;
-const bbEndpoint = 'http://zenko.local/_/backbeat/api';
 const REPLICATION_TIMEOUT = 300000;
 
 describe('API Route: /_/backbeat/api/metrics/crr/<site-name>/progress/' +
@@ -42,23 +42,27 @@ describe('API Route: /_/backbeat/api/metrics/crr/<site-name>/progress/' +
             scalityUtils.waitUntilReplicated(srcBucket, key, undefined, err =>
                 next(err, data)),
         (data, next) => {
-            const endpoint = `${bbEndpoint}/metrics/crr/${destLocation}` +
+            const path = `/_/backbeat/api/metrics/crr/${destLocation}` +
                 `/progress/${srcBucket}/${key}?versionId=${data.VersionId}`;
-            request(endpoint, (err, res, body) => {
+            makeGETRequest(path, (err, res) => {
                 if (err) {
                     return next(err);
                 }
                 assert.strictEqual(res.statusCode, 200);
-                const parsedBody = JSON.parse(body);
-                assert.deepStrictEqual(parsedBody, {
-                    description: 'Number of bytes to be replicated ' +
-                        '(pending), number of bytes transferred to the ' +
-                        'destination (completed), and percentage of the ' +
-                        'object that has completed replication (progress)',
-                    pending: 0,
-                    completed: 1,
-                    progress: '100%' })
-                return next();
+                getResponseBody(res, (err, body) => {
+                    if (err) {
+                        return next(err);
+                    }
+                    assert.deepStrictEqual(body, {
+                        description: 'Number of bytes to be replicated ' +
+                            '(pending), number of bytes transferred to the ' +
+                            'destination (completed), and percentage of the ' +
+                            'object that has completed replication (progress)',
+                        pending: 0,
+                        completed: 1,
+                        progress: '100%' })
+                    return next();
+                });
             });
         },
     ], done));
@@ -66,23 +70,27 @@ describe('API Route: /_/backbeat/api/metrics/crr/<site-name>/progress/' +
     it('should monitor part uploads of an MPU object', done => waterfall([
         next => scalityUtils.completeMPUAWS(srcBucket, key, 50, next),
         (data, next) => {
-            const endpoint = `${bbEndpoint}/metrics/crr/${destLocation}` +
+            const path = `/_/backbeat/api//metrics/crr/${destLocation}` +
                 `/progress/${srcBucket}/${key}?versionId=${data.VersionId}`;
             const responses = [];
             let progress = '0%';
             return doWhilst(callback =>
-                request(endpoint, (err, res, body) => {
+                makeGETRequest(path, (err, res) => {
                     if (err) {
                         return callback(err);
                     }
                     assert.strictEqual(res.statusCode, 200);
-                    const parsedBody = JSON.parse(body);
-                    progress = parsedBody.progress;
-                    responses.push(parsedBody);
-                    if (progress !== '100%') {
-                        return setTimeout(callback, 50);
-                    }
-                    return callback();
+                    getResponseBody(res, (err, body) => {
+                        if (err) {
+                            return callback(err);
+                        }
+                        progress = body.progress;
+                        responses.push(body);
+                        if (progress !=- '100%') {
+                            return setTimeout(callback, 50);
+                        }
+                        return callback();
+                    });
                 }),
             () => (progress !== '100%'), err => {
                 if (err) {
