@@ -73,6 +73,10 @@ models:
       haltOnFailure: true
       env:
         <<: *global_env
+  - ShellCommand: &helm_lint
+      name: Lint charts
+      command: helm lint charts/*
+      haltOnFailure: true
   - ShellCommandWithSecrets: &test_zenko
       name: Test zenko
       command: >-
@@ -148,6 +152,7 @@ stages:
     - ShellCommand: *helm_repos
     - ShellCommandWithSecrets: *start_orbit_simulator
     - ShellCommand: *helm_build_dep
+    - ShellCommand: *helm_lint
     - ShellCommandWithSecrets:
         name: Install Zenko !
         command: >-
@@ -202,6 +207,7 @@ stages:
             git ls-remote git@github.com:scality/backbeat.git
             --branch '%(prop:backbeat_branch)s' | cut -c1-7
       - ShellCommand: *helm_build_dep
+      - ShellCommand: *helm_lint
       - ShellCommandWithSecrets:
           name: Install Latest Zenko !
           command: >-
