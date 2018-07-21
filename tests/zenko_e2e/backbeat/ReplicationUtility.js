@@ -8,6 +8,7 @@ const { scalityS3Client, awsS3Client } = require('./s3SDK');
 const srcLocation = process.env.AWS_S3_BACKEND_SOURCE_LOCATION;
 const destAWSLocation = process.env.AWS_S3_BACKEND_DESTINATION_LOCATION;
 const destAzureLocation = process.env.AZURE_BACKEND_DESTINATION_LOCATION;
+const destGCPLocation = process.env.GCP_BACKEND_DESTINATION_LOCATION;
 const REPLICATION_TIMEOUT = 10000;
 
 class ReplicationUtility {
@@ -83,6 +84,11 @@ class ReplicationUtility {
                     entry.name.startsWith(keyPrefix));
                 return this._deleteBlobList(filteredEntries, containerName, cb);
             });
+    }
+
+    deleteAllFiles(bucketName, filePrefix, cb) {
+        const bucket = this.gcpStorage.bucket(bucketName);
+        bucket.deleteFiles({ prefix: filePrefix }, cb);
     }
 
     putObject(bucketName, objectName, content, cb) {
@@ -264,6 +270,16 @@ class ReplicationUtility {
             true, false, cb);
     }
 
+    completeMPUGCP(bucketName, objectName, howManyParts, cb) {
+        this.genericCompleteMPU(bucketName, objectName, howManyParts, true,
+            false, false, cb);
+    }
+
+    completeMPUGCPWithProperties(bucketName, objectName, howManyParts, cb) {
+        this.genericCompleteMPU(bucketName, objectName, howManyParts, true,
+            true, false, cb);
+    }
+
     completeMPUWithPartCopy(bucketName, objectName, copySource, byteRange,
         howManyParts, cb) {
         let uploadId;
@@ -351,6 +367,18 @@ class ReplicationUtility {
             cb(null, Buffer.concat(data, totalLength))
         });
         request.on('error', err => cb(err));
+    }
+
+    getMetadata(bucketName, fileName, cb) {
+        const bucket = this.gcpStorage.bucket(bucketName);
+        const file = bucket.file(fileName);
+        file.getMetadata(cb);
+    }
+
+    download(bucketName, fileName, cb) {
+        const bucket = this.gcpStorage.bucket(bucketName);
+        const file = bucket.file(fileName);
+        file.download(cb);
     }
 
     createBucket(bucketName, cb) {
@@ -596,6 +624,38 @@ class ReplicationUtility {
         });
     }
 
+    compareObjectsGCP(srcBucket, destBucket, key, cb) {
+        return async.series({
+            wait: next =>
+                this.waitUntilReplicated(srcBucket, key, undefined, next),
+            srcData: next => this.getObject(srcBucket, key, next),
+            destMetadata: next => this.getMetadata(destBucket,
+                `${srcBucket}/${key}`, next),
+            destData: next => this.download(destBucket,
+                `${srcBucket}/${key}`, next),
+        }, (err, data) => {
+            if (err) {
+                return cb(err);
+            }
+            const { srcData, destMetadata, destData } = data;
+            assert.strictEqual(srcData.ReplicationStatus, 'COMPLETED');
+            assert.strictEqual(srcData.ContentLength, destMetadata[0].size);
+            const srcUserMD = srcData.Metadata;
+            const destUserMD = destMetadata[0].metadata;
+            assert.strictEqual(
+                srcUserMD[`${destGCPLocation}-replication-status`],
+                'COMPLETED');
+            assert.strictEqual(srcUserMD[`${destGCPLocation}-version-id`],
+                destMetadata[0].generation);
+            assert.strictEqual(destUserMD['scal-replication-status'],
+                'REPLICA');
+            assert.strictEqual(destUserMD['scal-version-id'],
+                srcData.VersionId);
+            this._compareObjectBody(srcData.Body, destData);
+            return cb();
+        });
+    }
+
     compareAzureObjectProperties(srcBucket, containerName, key, cb) {
         return async.series([
             next => this.waitUntilReplicated(srcBucket, key, undefined, next),
@@ -629,6 +689,36 @@ class ReplicationUtility {
             expectedVal = srcData.ContentLanguage;
             assert.strictEqual(expectedVal, contentSettings.contentLanguage);
             assert.strictEqual(expectedVal, headers['content-language']);
+            return cb();
+        });
+    };
+
+    compareGCPObjectProperties(srcBucket, destBucket, file, cb) {
+        return async.series({
+            wait: next =>
+                this.waitUntilReplicated(srcBucket, file, undefined, next),
+            srcData: next => this.getHeadObject(srcBucket, file, next),
+            destData: next => this.getMetadata(destBucket,
+                `${srcBucket}/${file}`, next),
+        }, (err, data) => {
+            if (err) {
+                return cb(err);
+            }
+            const { srcData, destData } = data;
+            const destProperties = destData[0];
+            const destMetadata = destProperties.metadata;
+            let expectedVal = srcData.Metadata.customkey;
+            assert.strictEqual(expectedVal, destMetadata['customkey']);
+            expectedVal = srcData.ContentType;
+            assert.strictEqual(expectedVal, destProperties.contentType);
+            expectedVal = srcData.CacheControl;
+            assert.strictEqual(expectedVal, destProperties.cacheControl);
+            expectedVal = srcData.ContentEncoding;
+            assert.strictEqual(expectedVal, destProperties.contentEncoding);
+            expectedVal = srcData.ContentDisposition;
+            assert.strictEqual(expectedVal, destProperties.contentDisposition);
+            expectedVal = srcData.ContentLanguage;
+            assert.strictEqual(expectedVal, destProperties.contentLanguage);
             return cb();
         });
     };
@@ -695,6 +785,38 @@ class ReplicationUtility {
                     Key: key,
                     Value: parsedTags[key],
                 }));
+            }
+            assert.deepStrictEqual(srcData.TagSet, destTagSet);
+            return cb();
+        });
+    }
+
+    compareObjectTagsGCP(srcBucket, destContainer, file, scalityVersionId, cb) {
+        return async.series({
+            wait: next =>
+                this.waitUntilReplicated(srcBucket, file, scalityVersionId,
+                    next),
+            srcData: next => this.getObjectTagging(srcBucket, file,
+                scalityVersionId, next),
+            destData: next => this.getMetadata(destContainer,
+                `${srcBucket}/${file}`, next),
+        }, (err, data) => {
+            if (err) {
+                return cb(err);
+            }
+            const { srcData, destData } = data;
+            const destTags = destData[0].metadata;
+            const destTagSet = [];
+            if (destTags) {
+                Object.keys(destTags).forEach(key => {
+                    const tag = key.split('aws-tag-')[1];
+                    if (tag) {
+                        destTagSet.push({
+                            Key: tag,
+                            Value: destTags[key],
+                        })
+                    }
+                });
             }
             assert.deepStrictEqual(srcData.TagSet, destTagSet);
             return cb();
