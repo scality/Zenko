@@ -188,9 +188,6 @@ stages:
           kubectl exec $CLOUDSERVER_POD -- bash -c "apt-get update"
           kubectl exec $CLOUDSERVER_POD -- bash -c "apt-get install build-essential -y"
           kubectl exec $CLOUDSERVER_POD -- bash -c "npm run ft_awssdk_versioning"
-    - ShellCommand:
-        name: wait
-        command: sleep 3600
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
 
