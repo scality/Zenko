@@ -92,7 +92,20 @@ nodeSelector: {}
 
 tolerations: []
 
-affinity: {}
+# These default settings are for a "soft" anti affinity scheduling
+# where the deployment of replicas will try to be scheduled on different
+# nodes in the cluster. This can be customized to user specific values.
+# https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+affinity: |
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 5
+      podAffinityTerm:
+        topologyKey: "kubernetes.io/hostname"
+        labelSelector:
+          matchLabels:
+            app: {{ template "cloudserver.name" . }}
+            release: {{ .Release.Name | quote }}
 
 autoscaling:
   enabled: false
