@@ -8,3 +8,5 @@
 **/.pytest_cache
 **/artifacts/
 **/__pycache__/
+**/orbit-simulator/
+**/.tox

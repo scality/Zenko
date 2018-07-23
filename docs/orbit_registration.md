@@ -26,7 +26,7 @@ While the tunnel is up and running, access the dashboard at
 
 #### Option A: from the CloudServer logs
 
-From the dashboard, click on the cloudserver-front service, and then on one of
+From the dashboard, click on the cloudserver service, and then on one of
 the pods running for that service. On the top right menu, click "Logs", and then
 do a search of "instance ID" - you should find a line in the logs giving you a
 long string of random characters: this is your instance id, copy it. If you

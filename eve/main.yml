@@ -5,6 +5,13 @@ branches:
     stage: "pre-merge"
 
 models:
+  - Git: &git_pull
+      name: git pull
+      repourl: "%(prop:git_reference)s"
+      mode: full
+      method: clobber
+      retryFetch: true
+      haltOnFailure: true
   - Upload: &upload_artifacts
       source: tests/artifacts
       urls:
@@ -13,22 +20,79 @@ models:
       ZENKO_HELM_RELEASE: 'zenko-test'
       ZENKO_K8S_NAMESPACE: '%(prop:testNamespace)s'
       TILLER_NAMESPACE: '%(prop:testNamespace)s'
-      AWS_S3_BUCKET_NAME: zenko-aws-target-bucket
-      AWS_S3_BUCKET_NAME_2: zenko-aws-target-bucket-2
-      AWS_S3_BACKBEAT_BUCKET_NAME: zenko-aws-crr-target-bucket
-      AWS_S3_BACKBEAT_SRC_BUCKET_NAME: zenko-aws-crr-src-bucket
-      AZURE_BACKEND_CONTAINER_NAME: zenko-azure-target-bucket
-      AZURE_BACKEND_CONTAINER_NAME_2: zenko-azure-target-bucket-2
-      AZURE_BACKBEAT_CONTAINER_NAME: zenko-azure-crr-target-bucket
-      AZURE_BACKBEAT_SRC_CONTAINER_NAME: zenko-azure-crr-src-bucket
-      GCP_BUCKET_NAME: zenko-gcp-target-bucket
-      GCP_MPU_BUCKET_NAME: zenko-gcp-mpu-bucket
-      GCP_BUCKET_NAME_2: zenko-gcp-target-bucket-2
-      GCP_MPU_BUCKET_NAME_2: zenko-gcp-mpu-bucket-2
-      GCP_CRR_BUCKET_NAME: zenko-gcp-crr-target-bucket
-      GCP_CRR_SRC_BUCKET_NAME: zenko-gcp-crr-src-bucket
-      GCP_CRR_MPU_BUCKET_NAME: zenko-gcp-crr-mpu-bucket
-      MULTI_CRR_SRC_BUCKET: zenko-multi-crr-src-bucket
+      AWS_S3_BUCKET_NAME: ci-zenko-aws-target-bucket
+      AWS_S3_BUCKET_NAME_2: ci-zenko-aws-target-bucket-2
+      AWS_S3_BACKBEAT_BUCKET_NAME: ci-zenko-aws-crr-target-bucket
+      AWS_S3_BACKBEAT_SRC_BUCKET_NAME: ci-zenko-aws-crr-src-bucket
+      AZURE_BACKEND_CONTAINER_NAME: ci-zenko-azure-target-bucket
+      AZURE_BACKEND_CONTAINER_NAME_2: ci-zenko-azure-target-bucket-2
+      AZURE_BACKBEAT_CONTAINER_NAME: ci-zenko-azure-crr-target-bucket
+      AZURE_BACKBEAT_SRC_CONTAINER_NAME: ci-zenko-azure-crr-src-bucket
+      E2E_DOCKER_IMAGE_NAME: '%(secret:private_registry_url)s/zenko/zenko-e2e'
+      GCP_BUCKET_NAME: ci-zenko-gcp-target-bucket
+      GCP_MPU_BUCKET_NAME: ci-zenko-gcp-mpu-bucket
+      GCP_BUCKET_NAME_2: ci-zenko-gcp-target-bucket-2
+      GCP_MPU_BUCKET_NAME_2: ci-zenko-gcp-mpu-bucket-2
+      GCP_CRR_BUCKET_NAME: ci-zenko-gcp-crr-target-bucket
+      GCP_CRR_SRC_BUCKET_NAME: ci-zenko-gcp-crr-src-bucket
+      GCP_CRR_MPU_BUCKET_NAME: ci-zenko-gcp-crr-mpu-bucket
+      MULTI_CRR_SRC_BUCKET: ci-zenko-multi-crr-src-bucket
+      TRANSIENT_SRC_BUCKET: ci-zenko-transient-src-bucket
+      ZENKO_ACCESS_KEY: HEYIMAACCESSKEY
+      ZENKO_SECRET_KEY: loOkAtMEImASecRetKEy123=
+  - ShellCommand: &install_tiller
+      name: install helm (tiller into kubernetes)
+      command: >-
+        helm init --wait
+      haltOnFailure: true
+      env:
+        <<: *global_env
+  - ShellCommand: &helm_repos
+      name: Install needed helm repos
+      command: |-
+        helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
+      haltOnFailure: true
+      env:
+        TILLER_NAMESPACE: '%(prop:testNamespace)s'
+  - ShellCommandWithSecrets: &start_orbit_simulator
+      name: Start orbit simulator
+      command: >-
+        git clone git@github.com:scality/orbit-simulator.git &&
+        helm upgrade ciutil
+        --install orbit-simulator/charts/orbit-simulator
+        --set simulator.shim.cloudserver_release=$(echo ${ZENKO_HELM_RELEASE})
+        --set simulator.shim.cloudserver_pod="cloudserver"
+        --wait $(./ci_env.sh set)
+      workdir: build/eve/workers
+      haltOnFailure: true
+      env:
+        <<: *global_env
+  - ShellCommand: &helm_build_dep
+      name: Retrieve dependency
+      command: >-
+         helm dep build charts/zenko
+      haltOnFailure: true
+      env:
+        <<: *global_env
+  - ShellCommand: &helm_lint
+      name: Lint charts
+      command: helm lint charts/*
+      haltOnFailure: true
+  - ShellCommandWithSecrets: &test_zenko
+      name: Test zenko
+      command: >-
+        sleep 90 &&
+        make DOCKER_IMAGE_NAME=$E2E_DOCKER_IMAGE_NAME
+        DOCKER_IMAGE_TAG='%(prop:commit_short_revision)s' end2end
+      workdir: build/tests
+      env:
+        <<: *global_env
+  - ShellCommand: &dump_logs
+      name: Dump logs
+      command: make dump-logs
+      workdir: build/tests
+      env:
+        <<: *global_env
 
 stages:
   pre-merge:
@@ -39,10 +103,39 @@ stages:
     - TriggerStages:
         name: trigger all the tests
         stage_names:
+        - build-e2e
         - helm_test_kube_1.9.6
 
+  build-e2e:
+    worker: *pod
+    steps: &build_e2e
+    - Git: *git_pull
+    - ShellCommand:
+        name: Private Registry Login
+        command: >
+          docker login
+          -u '%(secret:private_registry_username)s'
+          -p '%(secret:private_registry_password)s'
+          '%(secret:private_registry_url)s'
+    - ShellCommand:
+        name: build end2end image
+        command: >-
+          make DOCKER_IMAGE_NAME=$E2E_DOCKER_IMAGE_NAME
+          DOCKER_IMAGE_TAG='%(prop:commit_short_revision)s' container-image
+        workdir: build/tests
+        env:
+          <<: *global_env
+    - ShellCommand:
+        name: push end2end image
+        command: >-
+          make DOCKER_IMAGE_NAME=$E2E_DOCKER_IMAGE_NAME
+          DOCKER_IMAGE_TAG='%(prop:commit_short_revision)s' container-push
+        workdir: build/tests
+        env:
+          <<: *global_env
+
   helm_test_kube_1.9.6:
-    worker:
+    worker: &kube_cluster
       <<: *pod
       service:
         requests:
@@ -50,91 +143,89 @@ stages:
         namespaces:
         - "testNamespace"    # <<< the default namespace for that stage
     steps:
-    - ShellCommand:
+    - ShellCommand: &fix_curl # Workaround, to be removed
         name: Install curl
         command: |-
           apk --update upgrade
           apk --update add curl
-    - Git: &git_pull
-        name: git pull
-        repourl: "%(prop:git_reference)s"
-        mode: full
-        method: clobber
-        retryFetch: true
-        haltOnFailure: true
-    - ShellCommand: &install_tiller
-        name: install helm (tiller into kubernetes)
-        command: >-
-          helm init --wait
-        haltOnFailure: true
-        env:
-          <<: *global_env
-    - ShellCommand:
-        name: Install needed helm repos
-        command: |-
-          helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
-        haltOnFailure: true
-        env:
-          TILLER_NAMESPACE: '%(prop:testNamespace)s'
-    - ShellCommandWithSecrets:
-        name: Start orbit simulator
-        command: >-
-          git clone git@github.com:scality/orbit-simulator.git &&
-          helm upgrade ciutil
-          --install orbit-simulator/charts/orbit-simulator
-          --set simulator.shim.cloudserver_release=$(echo ${ZENKO_HELM_RELEASE})
-          --wait $(./ci_env.sh set)
-        workdir: build/eve/workers
-        haltOnFailure: true
-        env:
-          <<: *global_env
-    - ShellCommand:
-        name: Retrieve dependency
-        command: >-
-           helm dep build charts/zenko
-        haltOnFailure: true
-        env:
-          <<: *global_env
+    - Git: *git_pull
+    - ShellCommand: *install_tiller
+    - ShellCommand: *helm_repos
+    - ShellCommandWithSecrets: *start_orbit_simulator
+    - ShellCommand: *helm_build_dep
+    - ShellCommand: *helm_lint
     - ShellCommandWithSecrets:
         name: Install Zenko !
         command: >-
-          helm upgrade zenko-test --namespace %(prop:testNamespace)s
+          helm upgrade $ZENKO_HELM_RELEASE --namespace %(prop:testNamespace)s
           --install charts/zenko
-          --set ingress.enabled=true
-          --set prometheus.rbac.create=false
-          --set prometheus.serviceAccounts.alertmanager.create=false
-          --set prometheus.serviceAccounts.kubeStateMetrics.create=false
-          --set prometheus.serviceAccounts.nodeExporter.create=false
-          --set prometheus.serviceAccounts.pushgateway.create=false
-          --set prometheus.serviceAccounts.server.create=false
-          --set prometheus.serviceAccounts.alertmanager.name=default
-          --set prometheus.serviceAccounts.kubeStateMetrics.name=default
-          --set prometheus.serviceAccounts.nodeExporter.name=default
-          --set prometheus.serviceAccounts.pushgateway.name=default
-          --set prometheus.serviceAccounts.server.name=default
-          --set zenko-queue.rbac.enabled=false
-          --set redis-ha.rbac.create=false
-          --set redis-ha.serviceAccount.create=false
-          --set redis-ha.serviceAccount.name=default
-          --set cloudserver-front.image.pullPolicy=Always
-          --set cloudserver-front.ci.enabled=true
-          --timeout 700
+          -f eve/ci-values.yml
+          --timeout 800
           --wait $(./eve/workers/ci_env.sh set)
         haltOnFailure: true
         env:
           <<: *global_env
-    - ShellCommandWithSecrets:
-        name: Test zenko
-        command: >-
-          sleep 90 &&
-          make end2end
-        workdir: build/tests
-        env:
-          <<: *global_env
-    - ShellCommand:
-        name: Dump logs
-        command: make dump-logs
-        workdir: build/tests
-        env:
-          <<: *global_env
+    - ShellCommandWithSecrets: *test_zenko
+    - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
+
+  latest:
+    worker:
+      type: local
+    steps:
+    - TriggerStages:
+        name: trigger all the tests
+        stage_names:
+        - build-e2e
+        - test-latest-components
+
+  test-latest-components:
+    worker: *kube_cluster
+    steps:
+      - ShellCommand: *fix_curl
+      - Git: *git_pull
+      - ShellCommand: *install_tiller
+      - ShellCommand: *helm_repos
+      - ShellCommandWithSecrets: *start_orbit_simulator
+      - SetProperty:
+          name: set cloudserver branch
+          property: cloudserver_branch
+          value: development/8.0
+      - SetProperty:
+          name: set backbeat branch
+          property: backbeat_branch
+          value: development/8.0
+      - SetPropertyFromCommand:
+          name: retrieve cloudserver latest sha1
+          property: cloudserver_sha1
+          command: >-
+            git ls-remote git@github.com:scality/s3.git
+            --branch '%(prop:cloudserver_branch)s' | cut -c1-7
+      - SetPropertyFromCommand:
+          name: retrieve backbeat latest sha1
+          property: backbeat_sha1
+          command: >-
+            git ls-remote git@github.com:scality/backbeat.git
+            --branch '%(prop:backbeat_branch)s' | cut -c1-7
+      - ShellCommand: *helm_build_dep
+      - ShellCommand: *helm_lint
+      - ShellCommandWithSecrets:
+          name: Install Latest Zenko !
+          command: >-
+            helm upgrade $ZENKO_HELM_RELEASE --namespace %(prop:testNamespace)s
+            --install charts/zenko
+            -f eve/ci-values.yml
+            --set cloudserver.image.tag='%(prop:cloudserver_sha1)s'
+            --set cloudserver.image.repository=%(secret:private_registry_url)s/zenko/cloudserver
+            --set backbeat.image.tag='%(prop:backbeat_sha1)s'
+            --set backbeat.image.repository=%(secret:private_registry_url)s/zenko/backbeat
+            --set s3-data.image.tag='%(prop:cloudserver_sha1)s'
+            --set s3-data.image.repository=%(secret:private_registry_url)s/zenko/cloudserver
+            --timeout 800
+            --wait $(./eve/workers/ci_env.sh set)
+          haltOnFailure: true
+          env:
+            <<: *global_env
+      - ShellCommandWithSecrets: *test_zenko
+      - ShellCommand: *dump_logs
+      - Upload: *upload_artifacts

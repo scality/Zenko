@@ -22,5 +22,4 @@ class PrometheusClient(object):
         assert resp.status_code == 200
         body = resp.json()
         assert body['status'] == 'success'
-
         return body['data']

@@ -1,0 +1,60 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "backbeat.fullname" . }}-gc-consumer
+  labels:
+    app: {{ template "backbeat.name" . }}-gc
+    chart: {{ template "backbeat.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.garbageCollector.consumer.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "backbeat.name" . }}-gc
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: gc-consumer
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/usr/src/app/docker-entrypoint.sh"]
+          args: ["npm", "run", "garbage_collector"]
+          env:
+            - name: REMOTE_MANAGEMENT_DISABLE
+              value: "{{- if .Values.orbit.enabled }}0{{- else }}1{{- end }}"
+            - name: KAFKA_HOSTS
+              value: "{{- printf "%s-zenko-queue:9092" .Release.Name | trunc 63 | trimSuffix "-" -}}"
+            - name: EXTENSIONS_GC_AUTH_TYPE
+              value: service
+            - name: EXTENSIONS_GC_AUTH_ACCOUNT
+              value: service-gc
+            - name: S3_HOST
+              value: "{{- printf "%s-cloudserver" .Release.Name | trunc 63 | trimSuffix "-" -}}"
+            - name: S3_PORT
+              value: "80"
+            - name: MONGODB_HOSTS
+              value: "{{ template "backbeat.mongodb-hosts" . }}"
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.health.path.liveness}}
+              port: {{ .Values.health.port }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.health.path.readiness }}
+              port: {{ .Values.health.port }}
+          resources:
+{{ toYaml .Values.garbageCollector.consumer.resources | indent 12 }}
+    {{- with .Values.garbageCollector.consumer.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.garbageCollector.consumer.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.garbageCollector.consumer.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}

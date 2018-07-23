@@ -1,3 +1,12 @@
+ <h1 align="center">Quickstart</h1> 
+
+<p align="center">
+  <img width="600" src="../assets/minikube-demo.svg">
+</p>
+
+<p align="center">Watch the video on: https://asciinema.org/a/8N4cyoM8Om9FmZo8ZKnYFC5Wp
+</p>
+
 ### Requirements
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
 - [minikube](https://github.com/kubernetes/minikube/#installation) v0.25

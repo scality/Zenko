@@ -6,14 +6,32 @@ orbit:
 
 image:
   repository: zenko/backbeat
-  tag: 0.2.2
+  tag: 8.0.5-RC2
   pullPolicy: IfNotPresent
+
+logging:
+   # Options: info, debug, trace
+   level: info
+
+mongodb:
+  replicaSet: rs0
+  replicas: 3
+
+health:
+  port: 4042
+  path:
+    liveness: /_/health/liveness
+    readiness: /_/health/readiness
 
 api:
   replicaCount: 1
   service:
     name: backbeat-api
     type: ClusterIP
+    annotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "8000"
+      prometheus.io/path: "/_/monitoring/metrics"
 
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
@@ -31,7 +49,8 @@ api:
   tolerations: []
   affinity: {}
 
-replication:
+ingestion:
+  enabled: false
   consumer:
     replicaCount: 1
 
@@ -39,7 +58,6 @@ replication:
     nodeSelector: {}
     tolerations: []
     affinity: {}
-
   producer:
     replicaCount: 1
 
@@ -48,11 +66,74 @@ replication:
     tolerations: []
     affinity: {}
 
-  status:
-    replicaCount: 1
-    
+lifecycle:
+  conductor:
+    cronRule: "0 */5 * * * *"
     resources: {}
     nodeSelector: {}
     tolerations: []
     affinity: {}
-    
+
+  consumer:
+    replicaCount: 1
+    group: backbeat-lifecycle-consumer-group
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+
+  producer:
+    replicaCount: 1
+    group: backbeat-lifecycle-producer-group
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+
+  zookeeper:
+    path: "/lifecycle"
+    backlog_metrics:
+      path: "/lifecycle/run/backlog-metrics"
+      interval: 60
+
+  rules:
+    expiration:
+      enabled: True
+    noncurrentVersionExpiration:
+      enabled: True
+    abortIncompleteMPU:
+      enabled: True
+
+replication:
+  dataProcessor:
+    replicaCount: 1
+
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+
+  populator:
+    replicaCount: 1
+
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+
+  statusProcessor:
+    replicaCount: 1
+
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+
+garbageCollector:
+  consumer:
+    replicaCount: 1
+
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}

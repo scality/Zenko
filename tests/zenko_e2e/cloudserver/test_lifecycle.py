@@ -1,18 +1,22 @@
-from ..fixtures import *
-import zenko_e2e.conf as conf
 import time
-import logging
+from datetime import datetime
+from ..fixtures import *
+from .. import conf
 
 
-@pytest.mark.skip(reason = 'This test requires manual work to complete')
-def test_expiration(expiring_bucket, testfile):
-	util.mark_test('LIFECYCLE EXPIRATION')
-	expiry, bucket = expiring_bucket
-	bucket.put_object(
-		Body = testfile,
-		Key = 'expire-test'
-	)
-	print(bucket.name)
-	assert util.check_object('expire-test', testfile, bucket)
-	time.sleep(conf.EXPIRY_DELTA.total_seconds() + 10)
-	assert not util.check_object('expire-test', testfile, bucket)
+def test_expiration(expiring_bucket, testfile, objkey):
+    util.mark_test('LIFECYCLE EXPIRATION')
+    expiry, bucket = expiring_bucket  # pylint: disable=unused-variable
+    bucket.put_object(
+        Body=testfile,
+        Key=objkey
+    )
+    wait_time = 0
+    now = datetime.utcnow()
+    if expiry > now:
+        wait_time = expiry - now
+    wait_time += conf.EXPIRY_INTERVAL
+    print('Waiting %i secs for lifecyle to run' % wait_time.total_seconds())
+    assert util.check_object(objkey, testfile, bucket)
+    time.sleep(wait_time.total_seconds())
+    assert not util.check_object(objkey, testfile, bucket)

@@ -3,6 +3,7 @@ dependencies:
 - name: prometheus
   version: "5.3.1"
   repository: "https://kubernetes-charts.storage.googleapis.com/"
+  condition: prometheus.enabled
 - name: mongodb-replicaset
   version: "2.2.1"
   repository: "https://kubernetes-charts.storage.googleapis.com/"
@@ -18,8 +19,12 @@ dependencies:
   repository: "http://storage.googleapis.com/kubernetes-charts-incubator"
   alias: zenko-quorum
 - name: redis-ha
-  version: "2.1.2"
+  version: "2.2.0"
   repository: "https://kubernetes-charts.storage.googleapis.com/"
+- name: grafana
+  version: "1.11.6"
+  repository: "https://kubernetes-charts.storage.googleapis.com/"
+  condition: grafana.enabled
 
 # Charts managed in this repository
 - name: backbeat
@@ -28,6 +33,10 @@ dependencies:
 - name: s3-data
   version: "0.1.0"
   repository: "file://../s3-data"
-- name: cloudserver-front
+- name: cloudserver
   version: "0.1.4"
-  repository: "file://../cloudserver-front"
+  repository: "file://../cloudserver"
+- name: zenko-nfs
+  version: "0.1.0"
+  repository: "file://../zenko-nfs"
+  condition: zenko-nfs.enabled

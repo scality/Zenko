@@ -6,7 +6,7 @@ import boto3
 import pytest
 
 import zenko_e2e.prometheus.client
-
+import zenko_e2e.grafana.client
 
 SERVICEACCOUNT_PATH = '/var/run/secrets/kubernetes.io/serviceaccount'
 
@@ -43,7 +43,7 @@ def zenko_s3_client():
 
     url = os.getenv('CLOUDSERVER_FRONT_ENDPOINT')
     if not url:
-        url = 'http://{}-cloudserver-front:80'.format(zenko_helm_release())
+        url = 'http://{}-cloudserver:80'.format(zenko_helm_release())
 
     return boto3.client(
         service_name='s3',
@@ -60,3 +60,21 @@ def prometheus_client():
         url = 'http://{}-prometheus-server:80'.format(zenko_helm_release())
 
     return zenko_e2e.prometheus.client.PrometheusClient(prometheus_url=url)
+
+
+@pytest.fixture(scope='session')
+def grafana_client():
+    '''A Grafana client for the Grafana server deployed with Zenko'''
+
+    user = os.getenv('GRAFANA_USER')
+    if not user:
+        user = 'admin'
+    password = os.getenv('GRAFANA_PASSWORD')
+    if not password:
+        password = 'strongpassword'
+    url = os.getenv('GRAFANA_ENDPOINT')
+    if not url:
+        url = 'http://{}-grafana:80'.format(zenko_helm_release())
+
+    return zenko_e2e.grafana.client.GrafanaClient(
+        user=user, password=password, endpoint=url)

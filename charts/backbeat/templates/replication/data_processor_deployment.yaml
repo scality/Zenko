@@ -1,0 +1,80 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "backbeat.fullname" . }}-replication-data-processor
+  labels:
+    app: {{ template "backbeat.name" . }}-replication
+    chart: {{ template "backbeat.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replication.dataProcessor.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "backbeat.name" . }}-replication
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: replication-data-processor
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/usr/src/app/docker-entrypoint.sh"]
+          args: ["npm", "run", "queue_processor"]
+          env:
+            - name: REMOTE_MANAGEMENT_DISABLE
+              value: "{{- if .Values.orbit.enabled }}0{{- else }}1{{- end }}"
+            - name: ZOOKEEPER_AUTO_CREATE_NAMESPACE
+              value: "1"
+            - name: ZOOKEEPER_CONNECTION_STRING
+              value: "{{- printf "%s-zenko-quorum:2181" .Release.Name | trunc 63 | trimSuffix "-" -}}"
+            - name: KAFKA_HOSTS
+              value: "{{- printf "%s-zenko-queue:9092" .Release.Name | trunc 63 | trimSuffix "-" -}}"
+            - name: LOG_LEVEL
+              value: {{ .Values.logging.level }}
+            - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_TYPE
+              value: service
+            - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_ACCOUNT
+              value: service-replication
+            - name: EXTENSIONS_REPLICATION_SOURCE_S3_HOST
+              value: "{{- printf "%s-cloudserver" .Release.Name | trunc 63 | trimSuffix "-" -}}"
+            - name: EXTENSIONS_REPLICATION_SOURCE_S3_PORT
+              value: "80"
+            - name: EXTENSIONS_REPLICATION_DEST_AUTH_TYPE
+              value: service
+            - name: EXTENSIONS_REPLICATION_DEST_AUTH_ACCOUNT
+              value: service-replication
+            - name: EXTENSIONS_REPLICATION_DEST_BOOTSTRAPLIST
+              value: "{{- printf "%s-cloudserver:80" .Release.Name | trunc 63 | trimSuffix "-" -}}"
+            - name: MONGODB_HOSTS
+              value: "{{ template "backbeat.mongodb-hosts" . }}"
+            - name: REDIS_HOST
+              value: "{{- printf "%s-%s" .Release.Name "redis-ha-master-svc" | trunc 63 | trimSuffix "-" -}}"
+            - name: REDIS_PORT
+              value: "6379"
+            - name: REDIS_LOCALCACHE_HOST
+              value: "{{- printf "%s-%s" .Release.Name "redis" | trunc 63 | trimSuffix "-" -}}"
+            - name: REDIS_LOCALCACHE_PORT
+              value: "6379"
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.health.path.liveness}}
+              port: {{ .Values.health.port }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.health.path.readiness }}
+              port: {{ .Values.health.port }}
+          resources:
+{{ toYaml .Values.replication.dataProcessor.resources | indent 12 }}
+    {{- with .Values.replication.dataProcessor.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.replication.dataProcessor.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.replication.dataProcessor.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}

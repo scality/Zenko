@@ -1,0 +1,30 @@
+{{- if .Values.orbit.enabled }}
+{{- else }}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ .Release.Name }}-cloudserver-test"
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+  - name: {{ .Release.Name }}-cloudserver-test
+    imagePullPolicy: "IfNotPresent"
+    image: "docker.io/mesosphere/aws-cli:1.14.5"
+    command:
+      - sh
+      - -c
+      - "echo \"${{ .Release.Name | upper }}_CLOUDSERVER_FRONT_SERVICE_HOST {{ .Values.endpoint }}\" >> /etc/hosts && aws s3 --endpoint-url=http://{{ .Values.endpoint }}:${{ .Release.Name | upper }}_CLOUDSERVER_FRONT_SERVICE_PORT_HTTP --region=us-east-1 ls"
+    env:
+      - name: AWS_ACCESS_KEY_ID
+        valueFrom:
+          secretKeyRef:
+            name: {{ template "cloudserver.fullname" . }}
+            key: keyId
+      - name: AWS_SECRET_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            name: {{ template "cloudserver.fullname" . }}
+            key: secretKey
+  restartPolicy: Never
+{{- end }}

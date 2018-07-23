@@ -1,10 +1,16 @@
 # Default values for zenko.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+
+# By default, MongoDB, Redis-HA, Zenko-Queue, and Zenko-Quorum
+# will use this value for their replica count. Typically, this
+# is equivalent to the number of nodes in a Kubernetes Cluster.
+nodeCount: &nodeCount 3
+
 ingress:
   enabled: false
   # Used to create an Ingress record.
-  # This must match the 'cloudserver-front' 'endpoint', unless your client
+  # This must match the 'cloudserver' 'endpoint', unless your client
   # supports different hostnames.
   hosts:
     - zenko.local
@@ -18,7 +24,9 @@ ingress:
     #   hosts:
     #     - zenko.example.com
 
-cloudserver-front:
+cloudserver:
+  mongodb:
+    replicas: *nodeCount
   orbit:
     enabled: true
   # When 'orbit.enabled' is 'true', these aren't used, please use
@@ -28,30 +36,38 @@ cloudserver-front:
     keyId: deployment-specific-access-key
     secretKey: deployment-specific-secret-key
 
+backbeat:
+  ingestion:
+    enabled: false
+  mongodb:
+    replicas: *nodeCount
+
+zenko-nfs:
+  enabled: false
+  mongodb:
+    replicas: *nodeCount
+
 prometheus:
+  enabled: true
   rbac:
     create: true
-
   alertmanager:
     enabled: false
-
   kubeStateMetrics:
     enabled: false
-
   nodeExporter:
     enabled: false
-
   pushgateway:
     enabled: false
 
 mongodb-replicaset:
   replicaSet: rs0
-  replicas: 3
+  replicas: *nodeCount
 
 zenko-queue:
 ## Extensive list of configurables can be found here:
 ## https://github.com/kubernetes/charts/blob/master/incubator/kafka/values.yaml
-  replicas: 3
+  replicas: *nodeCount
   rbac:
     enabled: true
   configurationOverrides:
@@ -70,7 +86,7 @@ zookeeper:
 zenko-quorum:
 ## Extensive list of configurables can be found here:
 ## https://github.com/kubernetes/charts/blob/master/incubator/zookeeper/values.yaml
-  replicaCount: 3
+  replicaCount: *nodeCount
   exporters:
     jmx:
       enabled: true
@@ -86,5 +102,20 @@ redis-ha:
   rbac:
     create: true
   replicas:
-    servers: 3
-    sentinels: 3
+    servers: *nodeCount
+    sentinels: *nodeCount
+
+grafana:
+  enabled: true
+  sidecar:
+    image: zenko/grafana-sidecar:latest
+    datasources:
+      enabled: true
+      # Every config map with the following label will be used as datasource. By default,
+      # promtheus is set as datasource under zenko/templates/datasources.yaml
+      label: grafana-datasource
+    dashboards:
+      enabled: true
+      # Likewise, every config map with the following label will be used as a source for
+      # a dashboard.
+      label: grafana-dashboard

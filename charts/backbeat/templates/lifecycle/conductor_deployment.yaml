@@ -1,0 +1,72 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "backbeat.fullname" . }}-lifecycle-conductor
+  labels:
+    app: {{ template "backbeat.name" . }}-lifecycle
+    chart: {{ template "backbeat.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ template "backbeat.name" . }}-lifecycle
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: conductor
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/usr/src/app/docker-entrypoint.sh"]
+          args: ["npm", "run", "lifecycle_conductor"]
+          env:
+            - name: ZOOKEEPER_AUTO_CREATE_NAMESPACE
+              value: "1"
+            - name: ZOOKEEPER_CONNECTION_STRING
+              value: "{{- printf "%s-zenko-quorum:2181" .Release.Name | trunc 63 | trimSuffix "-" -}}"
+            - name: KAFKA_HOSTS
+              value: "{{- printf "%s-zenko-queue:9092" .Release.Name | trunc 63 | trimSuffix "-" -}}"
+            - name: LOG_LEVEL
+              value: {{ .Values.logging.level }}
+            - name: EXTENSIONS_LIFECYCLE_ZOOKEEPER_PATH
+              value: "{{ .Values.lifecycle.zookeeper.path }}"
+            - name: EXTENSIONS_LIFECYCLE_BACKLOG_METRICS_ZKPATH
+              value: "{{ .Values.lifecycle.zookeeper.backlog_metrics.path }}"
+            - name: EXTENSIONS_LIFECYCLE_BACKLOG_METRICS_INTERVALS
+              value: "{{ .Values.lifecycle.zookeeper.backlog_metrics.interval }}"
+            - name: EXTENSIONS_LIFECYCLE_BUCKET_TASK_TOPIC
+              value: backbeat-lifecycle-bucket-tasks
+            - name: EXTENSIONS_LIFECYCLE_OBJECT_TASK_TOPIC
+              value: backbeat-lifecycle-object-tasks
+            - name: EXTENSIONS_LIFECYCLE_CONDUCTOR_CRONRULE
+              value: "{{ .Values.lifecycle.conductor.cronRule }}"
+            - name: EXTENSIONS_LIFECYCLE_RULES_EXPIRATION_ENABLED
+              value: "{{ .Values.lifecycle.rules.expiration.enabled }}"
+            - name: EXTENSIONS_LIFECYCLE_RULES_NC_VERSION_EXPIRATION_ENABLED
+              value: "{{ .Values.lifecycle.rules.noncurrentVersionExpiration.enabled }}"
+            - name: EXTENSIONS_LIFECYCLE_RULES_ABORT_INCOMPLETE_MPU_ENABLED
+              value: "{{ .Values.lifecycle.rules.abortIncompleteMPU.enabled }}"
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.health.path.liveness}}
+              port: {{ .Values.health.port }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.health.path.readiness }}
+              port: {{ .Values.health.port }}
+          resources:
+{{ toYaml .Values.lifecycle.conductor.resources | indent 12 }}
+    {{- with .Values.lifecycle.conductor.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.lifecycle.conductor.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.lifecycle.conductor.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}

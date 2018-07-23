@@ -1,0 +1,14 @@
+{{- if .Values.proxy.caCert -}}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ template "cloudserver.fullname" . }}-proxy
+  labels:
+    app: {{ template "cloudserver.name" . }}
+    chart: {{ template "cloudserver.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+type: Opaque
+data:
+{{ (.Files.Glob "ca.crt").AsSecrets | indent 2 }}
+{{- end }}

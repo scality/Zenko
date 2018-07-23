@@ -16,15 +16,21 @@ dependencies:
   version: 1.0.0
 - name: redis-ha
   repository: https://kubernetes-charts.storage.googleapis.com/
-  version: 2.1.2
+  version: 2.2.0
+- name: grafana
+  repository: https://kubernetes-charts.storage.googleapis.com/
+  version: 1.11.6
 - name: backbeat
   repository: file://../backbeat
   version: 0.1.0
 - name: s3-data
   repository: file://../s3-data
   version: 0.1.0
-- name: cloudserver-front
-  repository: file://../cloudserver-front
+- name: cloudserver
+  repository: file://../cloudserver
   version: 0.1.4
-digest: sha256:4fbe68bcb4a27d60e6a2a66dfe8584738a8cd89a42ce120adffce7186f2212cf
-generated: 2018-05-24T17:41:45.543504677-07:00
+- name: zenko-nfs
+  repository: file://../zenko-nfs
+  version: 0.1.0
+digest: sha256:5f39dededbbb0dcee5b08e2902027e21ccfb0d104ad7a5d1fa51321ec6911a23
+generated: 2018-07-20T16:19:36.688649833-07:00

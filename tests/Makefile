@@ -1,3 +1,4 @@
+-include .local.make
 DOCKER_IMAGE_NAME := docker.io/zenko/zenko-e2e
 DOCKER_IMAGE_TAG := latest
 
@@ -14,7 +15,6 @@ DOTENV := $(PWD)/.env
 HELM_TEST_PODS := {range .items[?(@.metadata.annotations.helm\.sh\/hook)]}{@.metadata.name}{"\n"}{end}
 E2E_POD := zenko-e2e
 ORBIT_HELM_RELEASE := ciutil
--include .local.make
 
 ZENKO_PRESENT := $(shell $(HELM) list -q | grep $(ZENKO_HELM_RELEASE) | wc -l | xargs -i test "0" -eq "{}" && echo "build")
 ORBIT_PRESENT := $(shell $(HELM) list -q | grep $(ORBIT_HELM_RELEASE) | wc -l | xargs -i test "0" -eq "{}" && echo "build")
@@ -45,12 +45,8 @@ ifeq ($(ZENKO_PRESENT), build)
 zenko-run: | simulator-run
 	@$(HELM) upgrade --install $(ZENKO_HELM_RELEASE) \
 		$(shell source $(DOTENV) && ../eve/workers/ci_env.sh set) \
-		--set prometheus.rbac.create=false \
-		--set zenko-queue.rbac.enabled=false \
-		--set redis-ha.rbac.create=false \
-		--set cloudserver-front.ci.enabled=true \
-		-f ../charts/single-node-values.yml \
-		../charts/zenko/ --wait
+		-f local-values.yml \
+		../charts/zenko/ --wait --timeout 1200
 .PHONY: zenko-run
 else
 zenko-run: | simulator-run
@@ -60,6 +56,10 @@ endif
 container-image:
 	@$(DOCKER) build -t $(DOCKER_IMAGE) .
 .PHONY: container-image
+
+container-push:
+	@$(DOCKER) push $(DOCKER_IMAGE)
+.PHONY: container-push
 
 container-run:
 	@$(DOCKER) run -t --rm --read-only --mount type=tmpfs,tmpfs-size=64M,destination=/tmp \
@@ -81,6 +81,7 @@ kubernetes-run:
 		--env AWS_SECRET_ACCESS_KEY=$${AWS_SECRET_ACCESS_KEY} \
 		--env CLOUDSERVER_FRONT_ENDPOINT=$${CLOUDSERVER_FRONT_ENDPOINT:-} \
 		--env PROMETHEUS_ENDPOINT=$${PROMETHEUS_ENDPOINT:-} \
+		--env GRAFANA_ENDPOINT=$${GRAFANA_ENDPOINT:-} \
 		$(KUBECTL_ARGS) -- $(PYTEST_ARGS)
 .PHONY: kubernetes-run
 
@@ -110,7 +111,7 @@ endif
 .PHONY: end2end
 
 dump-logs:
-	(kubectl  -n $(ZENKO_K8S_NAMESPACE) get pods -o go-template --template '{{range .items}}{{$$pod := .metadata.name}}{{range .spec.containers}}"kubectl logs {{$$pod}} -c {{.name}} > artifacts/{{.name}}-{{$$pod}}.log"{{"\n"}}{{end}}{{end}}') | xargs -n 1 -r sh -c;  \
+	@(kubectl  -n $(ZENKO_K8S_NAMESPACE) get pods -o go-template --template '{{range .items}}{{$$pod := .metadata.name}}{{range .spec.containers}}"kubectl logs {{$$pod}} -c {{.name}} > artifacts/{{.name}}-{{$$pod}}.log"{{"\n"}}{{end}}{{end}}') | xargs -n 1 -r sh -c;  \
 	(kubectl -n $(ZENKO_K8S_NAMESPACE) get pods -o jsonpath='$(HELM_TEST_PODS)') | \
 	while read -r pod; do \
 		kubectl -n $(ZENKO_K8S_NAMESPACE) logs $${pod}; \

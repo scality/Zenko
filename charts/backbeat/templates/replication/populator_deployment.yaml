@@ -1,0 +1,65 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "backbeat.fullname" . }}-replication-populator
+  labels:
+    app: {{ template "backbeat.name" . }}-replication
+    chart: {{ template "backbeat.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replication.populator.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "backbeat.name" . }}-replication
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: replication-populator
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: ["npm", "run", "queue_populator"]
+          env:
+            - name: REMOTE_MANAGEMENT_DISABLE
+              value: "{{- if .Values.orbit.enabled }}0{{- else }}1{{- end }}"
+            - name: ZOOKEEPER_AUTO_CREATE_NAMESPACE
+              value: "1"
+            - name: ZOOKEEPER_CONNECTION_STRING
+              value: "{{- printf "%s-zenko-quorum:2181" .Release.Name | trunc 63 | trimSuffix "-" -}}"
+            - name: KAFKA_HOSTS
+              value: "{{- printf "%s-zenko-queue:9092" .Release.Name | trunc 63 | trimSuffix "-" -}}"
+            - name: MONGODB_HOSTS
+              value: "{{ template "backbeat.mongodb-hosts" . }}"
+            - name: REDIS_HOST
+              value: "{{- printf "%s-%s" .Release.Name "redis-ha-master-svc" | trunc 63 | trimSuffix "-" -}}"
+            - name: REDIS_PORT
+              value: "6379"
+            - name: REDIS_LOCALCACHE_HOST
+              value: "{{- printf "%s-%s" .Release.Name "redis" | trunc 63 | trimSuffix "-" -}}"
+            - name: REDIS_LOCALCACHE_PORT
+              value: "6379"
+            - name: LOG_LEVEL
+              value: {{ .Values.logging.level }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.health.path.liveness}}
+              port: {{ .Values.health.port }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.health.path.readiness }}
+              port: {{ .Values.health.port }}
+          resources:
+{{ toYaml .Values.replication.populator.resources | indent 12 }}
+    {{- with .Values.replication.populator.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.replication.populator.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.replication.populator.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}

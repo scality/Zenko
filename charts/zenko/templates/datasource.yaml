@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "zenko.fullname" . }}-grafana-datasource
+  labels:
+    app: {{ template "zenko.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    grafana-datasource: "true"
+data:
+  datasource.yaml: |-
+    apiVersion: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      url: http://{{ .Release.Name }}-prometheus-server
+      access: proxy
+      isDefault: true
+      editable: false
