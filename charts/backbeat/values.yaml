@@ -6,7 +6,7 @@ orbit:
 
 image:
   repository: zenko/backbeat
-  tag: 8.0.5-RC2
+  tag: 8.0.6-RC3
   pullPolicy: IfNotPresent
 
 logging:
@@ -74,17 +74,17 @@ lifecycle:
     tolerations: []
     affinity: {}
 
-  consumer:
+  objectProcessor:
     replicaCount: 1
-    group: backbeat-lifecycle-consumer-group
+    group: backbeat-lifecycle-object-processor-group
     resources: {}
     nodeSelector: {}
     tolerations: []
     affinity: {}
 
-  producer:
+  bucketProcessor:
     replicaCount: 1
-    group: backbeat-lifecycle-producer-group
+    group: backbeat-lifecycle-bucket-processor-group
     resources: {}
     nodeSelector: {}
     tolerations: []

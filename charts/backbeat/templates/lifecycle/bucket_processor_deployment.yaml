@@ -1,14 +1,14 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: {{ template "backbeat.fullname" . }}-lifecycle-producer
+  name: {{ template "backbeat.fullname" . }}-lifecycle-bucket-processor
   labels:
     app: {{ template "backbeat.name" . }}-lifecycle
     chart: {{ template "backbeat.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
-  replicas: {{ .Values.lifecycle.producer.replicaCount }}
+  replicas: {{ .Values.lifecycle.bucketProcessor.replicaCount }}
   template:
     metadata:
       labels:
@@ -16,11 +16,11 @@ spec:
         release: {{ .Release.Name }}
     spec:
       containers:
-        - name: producer
+        - name: bucket-processor
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["/usr/src/app/docker-entrypoint.sh"]
-          args: ["npm", "run", "lifecycle_producer"]
+          args: ["npm", "run", "lifecycle_bucket_processor"]
           env:
             - name: ZOOKEEPER_AUTO_CREATE_NAMESPACE
               value: "1"
@@ -50,8 +50,8 @@ spec:
               value: backbeat-lifecycle-bucket-tasks
             - name: EXTENSIONS_LIFECYCLE_OBJECT_TASK_TOPIC
               value: backbeat-lifecycle-object-tasks
-            - name: EXTENSIONS_LIFECYCLE_PRODUCER_GROUP_ID
-              value: "{{ .Values.lifecycle.producer.group }}"
+            - name: EXTENSIONS_LIFECYCLE_BUCKET_PROCESSOR_GROUP_ID
+              value: "{{ .Values.lifecycle.bucketProcessor.group }}"
             - name: EXTENSIONS_LIFECYCLE_RULES_EXPIRATION_ENABLED
               value: "{{ .Values.lifecycle.rules.expiration.enabled }}"
             - name: EXTENSIONS_LIFECYCLE_RULES_NC_VERSION_EXPIRATION_ENABLED
@@ -67,16 +67,16 @@ spec:
               path: {{ .Values.health.path.readiness }}
               port: {{ .Values.health.port }}
           resources:
-{{ toYaml .Values.lifecycle.producer.resources | indent 12 }}
-    {{- with .Values.lifecycle.producer.nodeSelector }}
+{{ toYaml .Values.lifecycle.bucketProcessor.resources | indent 12 }}
+    {{- with .Values.lifecycle.bucketProcessor.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
     {{- end }}
-    {{- with .Values.lifecycle.producer.affinity }}
+    {{- with .Values.lifecycle.bucketProcessor.affinity }}
       affinity:
 {{ toYaml . | indent 8 }}
     {{- end }}
-    {{- with .Values.lifecycle.producer.tolerations }}
+    {{- with .Values.lifecycle.bucketProcessor.tolerations }}
       tolerations:
 {{ toYaml . | indent 8 }}
     {{- end }}
