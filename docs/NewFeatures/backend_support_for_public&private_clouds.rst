@@ -9,7 +9,7 @@ the site level to the following supported private and public clouds: 
 -  Amazon S3-based public clouds:
 
    -  Amazon Simple Storage Service
-   -  Digital Ocean Spaces
+   -  DigitalOcean Spaces
    -  Wasabi
 
 -  Amazon-S3-based private clouds:
