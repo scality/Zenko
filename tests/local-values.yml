@@ -40,7 +40,8 @@ cloudserver:
     pullPolicy: Always
   orbit:
     endpoint: "http://ciutil-orbit-simulator:4222"
-    mode: "poll"
+    workerMode: "poll"
+    managerMode: "poll"
   mongodb:
     replicas: *nodeCount
 
@@ -73,3 +74,12 @@ zenko-quorum:
 mongodb-replicaset:
   replicaSet: rs0
   replicas: *nodeCount
+
+grafana:
+  rbac:
+    create: false
+    pspEnabled: false
+  serviceAccount:
+    create: false
+  adminUser: admin
+  adminPassword: strongpassword
