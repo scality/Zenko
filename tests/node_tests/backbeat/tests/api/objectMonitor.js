@@ -3,9 +3,9 @@ const crypto = require('crypto');
 const request = require('request');
 const { series, waterfall, doWhilst } = require('async');
 
-const { scalityS3Client, awsS3Client } = require('../../s3SDK');
+const { scalityS3Client, awsS3Client } = require('../../../s3SDK');
 const ReplicationUtility = require('../../ReplicationUtility');
-const { makeGETRequest, getResponseBody } = require('../../utils/request');
+const { makeGETRequest, getResponseBody } = require('../../../utils/request');
 
 const scalityUtils = new ReplicationUtility(scalityS3Client);
 const awsUtils = new ReplicationUtility(awsS3Client);

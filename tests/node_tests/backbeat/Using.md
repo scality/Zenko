@@ -33,7 +33,7 @@
     ```
 
 5. Install node and npm.
-6. Navigate to `Zenko/tests/zenko_e2e/backbeat`.
+6. Navigate to `Zenko/tests/node_tests/backbeat`.
 7. Install node modules: `npm i`.
 
 ### Tests for CRR to AWS:

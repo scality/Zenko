@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const async = require('async');
 const fs = require('fs');
 
-const { scalityS3Client, awsS3Client } = require('./s3SDK');
+const { scalityS3Client, awsS3Client } = require('../s3SDK');
 
 const srcLocation = process.env.AWS_S3_BACKEND_SOURCE_LOCATION;
 const destAWSLocation = process.env.AWS_S3_BACKEND_DESTINATION_LOCATION;

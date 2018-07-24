@@ -2,10 +2,10 @@ const assert = require('assert');
 const crypto = require('crypto');
 const { doWhilst, series } = require('async');
 
-const { scalityS3Client, awsS3Client } = require('../../s3SDK');
+const { scalityS3Client, awsS3Client } = require('../../../s3SDK');
 const sharedBlobSvc = require('../../azureSDK');
 const ReplicationUtility = require('../../ReplicationUtility');
-const { makeGETRequest, getResponseBody } = require('../../utils/request');
+const { makeGETRequest, getResponseBody } = require('../../../utils/request');
 
 const scalityUtils = new ReplicationUtility(scalityS3Client, sharedBlobSvc);
 const awsUtils = new ReplicationUtility(awsS3Client);

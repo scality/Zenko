@@ -134,7 +134,7 @@ stages:
         name: trigger all the tests
         stage_names:
         - build-e2e
-        - build-backbeat-e2e
+        - build-node-e2e
         - test-zenko
 
   build-e2e:
@@ -165,7 +165,7 @@ stages:
         env:
           <<: [*docker_env, *k8s_env]
 
-  build-backbeat-e2e:
+  build-node-e2e:
     worker: *pod
     steps:
       - Git: *git_pull
@@ -176,11 +176,11 @@ stages:
           env:
             GCP_BACKEND_SERVICE_KEY: '%(secret:gcp_backend_service_key)s'
             GCP_BACKEND_SERVICE_EMAIL: '%(secret:gcp_backend_service_email)s'
-          workdir: build/tests/backbeat
+          workdir: build/tests/node_tests
       - ShellCommand:
           name: build backbeat e2e image
           command: docker build -t "$BACKBEAT_DOCKER_IMAGE_NAME:%(prop:commit_short_revision)s" --no-cache .
-          workdir: build/tests/backbeat
+          workdir: build/tests/node_tests
           env:
             <<: *docker_env
       - ShellCommand:
@@ -206,7 +206,7 @@ stages:
     - Git: *git_pull
     - ShellCommand: *install_tiller
     - ShellCommand:
-        name: Instal base64
+        name: Install base64
         command: apk --update add coreutils
     - ShellCommand: *helm_repos
     - ShellCommand: *start_orbit_simulator

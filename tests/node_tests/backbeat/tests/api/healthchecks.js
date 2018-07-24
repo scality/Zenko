@@ -1,6 +1,6 @@
 const assert = require('assert');
 
-const { makeGETRequest, getResponseBody } = require('../../utils/request');
+const { makeGETRequest, getResponseBody } = require('../../../utils/request');
 
 const REPLICATION_TIMEOUT = 300000;
 

@@ -2,7 +2,7 @@ const assert = require('assert');
 const crypto = require('crypto');
 const { series } = require('async');
 
-const { scalityS3Client } = require('../../s3SDK');
+const { scalityS3Client } = require('../../../s3SDK');
 const gcpStorage = require('../../gcpStorage');
 const ReplicationUtility = require('../../ReplicationUtility');
 

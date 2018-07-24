@@ -1,6 +1,6 @@
 const assert = require('assert');
 const { makeGETRequest, makePOSTRequest, getResponseBody } =
-    require('./utils/request');
+    require('../utils/request');
 
 class BackbeatAPIUtility {
     getReplicationStatus(locationName, cb) {
