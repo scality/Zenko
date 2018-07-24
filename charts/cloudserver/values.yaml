@@ -34,7 +34,7 @@ mongodb:
 # When Orbit is enabled, there will be an additional fully stateless replica
 # added which serves as the "manager" for reporting metrics. For example,
 # with a "replicaCount: 2" and Orbit management enabled, there would be a
-# total of 3 pods deployed (2 worker replicas + 1 manager). 
+# total of 3 pods deployed (2 worker replicas + 1 manager).
 replicaCount: 2
 
 image:
@@ -49,6 +49,8 @@ proxy:
   # Additionally you can pass a CA certifcate that will be added to the trusted
   # certs. If the proxy URL is configured and caCert is true, helm
   # will look for a file named 'ca.crt' at the root path of this chart.
+  # Note: To avoid unexpected behavior, only specify one of "http" or "https"
+  # proxy options.
   http: ""
   https: ""
   caCert: false
