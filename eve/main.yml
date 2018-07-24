@@ -161,7 +161,7 @@ stages:
           --install charts/zenko
           -f eve/ci-values.yml
           --timeout 800
-          --wait $(./eve/workers/ci_env.sh set)
+          $(./eve/workers/ci_env.sh set)
         haltOnFailure: true
         env:
           <<: *global_env
@@ -222,7 +222,7 @@ stages:
             --set s3-data.image.tag='%(prop:cloudserver_sha1)s'
             --set s3-data.image.repository=%(secret:private_registry_url)s/zenko/cloudserver
             --timeout 800
-            --wait $(./eve/workers/ci_env.sh set)
+            $(./eve/workers/ci_env.sh set)
           haltOnFailure: true
           env:
             <<: *global_env
