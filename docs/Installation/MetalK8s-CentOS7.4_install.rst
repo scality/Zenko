@@ -429,7 +429,8 @@ Follow these steps to install Zenko with Orbit and Ingress.
 
   ::
 
-      $ kubectl logs my-zenko-cloudserver-front-<id> | grep 'Instance ID' \
+      $ kubectl logs my-zenko-cloudserver-front-<id> | grep 'Instance ID'
+
       {"name":"S3","time":1526463653301,"req_id":"761468e4d04c8166a15c",\
       "level":"info","message":"this deployment's Instance ID is \
       **9839271a-c666-4507-b272-e0086ac5b6ee**","hostname":"my-zenko-\
