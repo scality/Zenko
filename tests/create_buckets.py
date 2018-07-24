@@ -24,8 +24,39 @@ def bucket_safe_create(bucket):
         _log.info('Error creating bucket %s - %s' % (bucket.name, str(exp)))
         raise exp
 
+def wait_for_pods(delete, timeout):
+    _log.info('Waiting for Zenko services to stabilize')
+    config.load_incluster_config()
+    v1 = client.CoreV1Api()
+    delete_opt = client.V1DeleteOptions()
+    delete_opt.grace_period_seconds = 0
+    
+    timeout = time.time() + timeout
+    while time.time() < timeout:
+        ret = v1.list_namespaced_pod(K8S_NAMESPACE)
+        passed = True
+        for i in ret.items:
+            if i.status.container_statuses:
+                for container in i.status.container_statuses:
+                    if not container.ready:
+                        if delete and container.state.waiting and \
+                            container.state.waiting.reason == 'CrashLoopBackOff':
+                            _log.info('%s is in CrashLoopBackOff, restarting.' % container.name)
+                            v1.delete_namespaced_pod(i.metadata.name, K8S_NAMESPACE, delete_opt)
+                        passed = False
+        if not passed:
+            time.sleep(1)
+        else:
+            break
 
-TIMEOUT = 120  # 2 Minutes
+    if not passed:
+      _log.info('Containers have not become ready and %d has elasped' % timeout)
+      sys.exit(1)
+    else:
+      _log.info('Zenko services have stabilized successfully')
+ 
+
+TIMEOUT = get_env('INSTALL_TIMEOUT') or 240  # 4 Minutes
 
 K8S_NAMESPACE = os.getenv('ZENKO_K8S_NAMESPACE')
 ZENKO_HELM_RELEASE = os.getenv('ZENKO_HELM_RELEASE')
@@ -51,7 +82,8 @@ s = Session(aws_access_key_id=ZENKO_ACCESS_KEY,
 s3client = s.resource('s3',
                       endpoint_url=ZENKO_ENDPOINT,
                       verify=VERIFY_CERTIFICATES)
-
+  
+# Create buckets
 _log.info('Creating testing buckets...')
 timeout = time.time() + TIMEOUT
 backoff = 1
@@ -72,32 +104,6 @@ if not created:
     sys.exit(1)
 else:
     _log.info('Created buckets')
+
 # Wait for all containers to become ready
-config.load_incluster_config()
-
-v1 = client.CoreV1Api()
-
-delete_opt = client.V1DeleteOptions()
-delete_opt.grace_period_seconds = 0
-
-timeout = time.time() + TIMEOUT
-while time.time() < timeout:
-    ret = v1.list_namespaced_pod(K8S_NAMESPACE)
-    passed = True
-    for i in ret.items:
-        if i.status.container_statuses:
-            for container in i.status.container_statuses:
-                if not container.ready:
-                    if container.state.waiting and \
-                        container.state.waiting.reason == 'CrashLoopBackOff':
-                        _log.info('%s is in CrashLoopBackOff, restarting.' % container.name)
-                        v1.delete_namespaced_pod(i.metadata.name, K8S_NAMESPACE, delete_opt)
-                    passed = False
-    if not passed:
-        time.sleep(1)
-    else:
-        break
-
-if not passed:
-    _log.info('Containers have not become ready and TIMEOUT has elasped')
-    sys.exit(1)
+wait_for_pods(False, TIMEOUT)
