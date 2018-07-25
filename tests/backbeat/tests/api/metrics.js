@@ -27,7 +27,7 @@ function makeDelayedGETRequest(endpoint, cb) {
     }, 5000);
 }
 
-describe('Backbeat replication metrics', function dF() {
+describe.skip('Backbeat replication metrics', function dF() {
     this.timeout(REPLICATION_TIMEOUT);
     const roleArn = 'arn:aws:iam::root:role/s3-replication-role';
 

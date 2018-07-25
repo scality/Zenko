@@ -4,7 +4,7 @@ const scalityS3Client = new S3({
     accessKeyId: process.env.ZENKO_STORAGE_ACCOUNT_ACCESS_KEY,
     secretAccessKey: process.env.ZENKO_STORAGE_ACCOUNT_SECRET_KEY,
     sslEnabled: false,
-    endpoint: 'http://zenko.local',
+    endpoint: process.env.CLOUDSERVER_ENDPOINT,
     apiVersions: { s3: '2006-03-01' },
     signatureCache: false,
     signatureVersion: 'v4',
