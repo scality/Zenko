@@ -46,6 +46,7 @@ models:
       GCP_CRR_SRC_BUCKET_NAME: ci-zenko-gcp-crr-src-bucket
       GCP_MPU_BUCKET_NAME: ci-zenko-gcp-mpu-bucket
       GCP_MPU_BUCKET_NAME_2: ci-zenko-gcp-mpu-bucket-2
+      INSTALL_TIMEOUT: "400"
       MULTI_CRR_SRC_BUCKET: ci-zenko-multi-crr-src-bucket
       TRANSIENT_SRC_BUCKET: ci-zenko-transient-src-bucket
       ZENKO_ACCESS_KEY: HEYIMAACCESSKEY
@@ -109,9 +110,9 @@ models:
   - ShellCommand: &run_zenko_e2e
       name: Test zenko
       command: >-
-        sleep 90 &&
         make DOCKER_IMAGE_NAME=$E2E_DOCKER_IMAGE_NAME
         DOCKER_IMAGE_TAG='%(prop:commit_short_revision)s' end2end
+        || (echo "Tests have failed" ; kubectl get pods -L redis-role ; exit 1) >&2 
       workdir: build/tests
       env:
         <<: *global_env
@@ -213,7 +214,6 @@ stages:
           helm upgrade $ZENKO_HELM_RELEASE --namespace %(prop:testNamespace)s
           --install charts/zenko
           -f eve/ci-values.yml
-          --timeout 700
         haltOnFailure: true
         env:
           <<: *k8s_env
@@ -296,7 +296,6 @@ stages:
             --set backbeat.image.repository=%(secret:private_registry_url)s/zenko/backbeat
             --set s3-data.image.tag='%(prop:cloudserver_sha1)s'
             --set s3-data.image.repository=%(secret:private_registry_url)s/zenko/cloudserver
-            --timeout 800
           haltOnFailure: true
           env:
             <<: *k8s_env
