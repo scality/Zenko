@@ -515,4 +515,3 @@ describe('Replication with AWS backend: source AWS location', function() {
             undefined, next),
     ], done));
 });
-

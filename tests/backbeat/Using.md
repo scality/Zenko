@@ -53,8 +53,8 @@ export AZURE_BACKBEAT_CONTAINER_NAME=<destination-azure-container-name>
 export AZURE_BACKEND_DESTINATION_LOCATION=<destination-azure-location-name>
 export GCP_CRR_BUCKET_NAME=<destination-gcp-bucket-name>
 export GCP_BACKEND_DESTINATION_LOCATION=<destination-gcp-location-name>
-export GCP_BACKEND_PRIVATE_KEY=<gcp-private-key>
-export GCP_BACKEND_CLIENT_EMAIL=<gcp-client-email>
+export GCP_BACKEND_SERVICE_KEY=<gcp-private-key>
+export GCP_BACKEND_SERVICE_EMAIL=<gcp-client-email>
 ```
 
 9. If using `*.env` files, source the files:
@@ -68,8 +68,8 @@ source .env && source .secrets.env
 ```
 cat >gcp_key.json <<EOF
 {
-  "private_key": "${GCP_BACKEND_PRIVATE_KEY}",
-  "client_email": "${GCP_BACKEND_CLIENT_EMAIL}"
+  "private_key": "${GCP_BACKEND_SERVICE_KEY}",
+  "client_email": "${GCP_BACKEND_SERVICE_EMAIL}"
 }
 EOF
 ```

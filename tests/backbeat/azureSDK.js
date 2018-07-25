@@ -1,7 +1,7 @@
 const azure = require('azure-storage');
 
-const storageAccount = process.env.AZURE_BACKBEAT_ACCOUNT_NAME;
-const storageAccessKey = process.env.AZURE_BACKBEAT_ACCESS_KEY;
+const storageAccount = process.env.AZURE_BACKEND_ACCOUNT_NAME;
+const storageAccessKey = process.env.AZURE_BACKEND_ACCESS_KEY;
 const storageEndpoint = process.env.AZURE_BACKBEAT_ENDPOINT;
 
 const sharedBlobSvc =

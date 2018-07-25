@@ -21,15 +21,15 @@ class ReplicationUtility {
     _compareObjectBody(body1, body2) {
         const digest1 = crypto.createHash('md5').update(body1).digest('hex');
         const digest2 = crypto.createHash('md5').update(body2).digest('hex');
-        if (digest1 !== digest2) {
-            // dump data for later investigation
-            const filePrefix = `${process.env.CIRCLE_ARTIFACTS}/` +
-                      `genericStaas_backbeat_md5_mismatch_body`;
-            fs.writeFileSync(`${filePrefix}1.bin`, body1);
-            fs.writeFileSync(`${filePrefix}2.bin`, body2);
-            console.error('md5 mismatch: data dumped in ' +
-                          `${filePrefix}{1,2}.bin`);
-        }
+        // if (digest1 !== digest2) {
+        //     // dump data for later investigation
+        //     const filePrefix = `${process.env.CIRCLE_ARTIFACTS}/` +
+        //               `genericStaas_backbeat_md5_mismatch_body`;
+        //     fs.writeFileSync(`${filePrefix}1.bin`, body1);
+        //     fs.writeFileSync(`${filePrefix}2.bin`, body2);
+        //     console.error('md5 mismatch: data dumped in ' +
+        //                   `${filePrefix}{1,2}.bin`);
+        // }
         assert.strictEqual(digest1, digest2);
     }
 
