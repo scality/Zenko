@@ -17,29 +17,43 @@ models:
       urls:
         - "*"
   - env: &global_env
-      ZENKO_HELM_RELEASE: 'zenko-test'
-      ZENKO_K8S_NAMESPACE: '%(prop:testNamespace)s'
-      TILLER_NAMESPACE: '%(prop:testNamespace)s'
-      AWS_S3_BUCKET_NAME: ci-zenko-aws-target-bucket
-      AWS_S3_BUCKET_NAME_2: ci-zenko-aws-target-bucket-2
+      AWS_GCP_BACKEND_ACCESS_KEY: '%(secret:aws_gcp_backend_access_key)s'
+      AWS_GCP_BACKEND_ACCESS_KEY_2: '%(secret:aws_gcp_backend_access_key_2)s'
+      AWS_GCP_BACKEND_SECRET_KEY: '%(secret:aws_gcp_backend_secret_key)s'
+      AWS_GCP_BACKEND_SECRET_KEY_2: '%(secret:aws_gcp_backend_secret_key_2)s'
       AWS_S3_BACKBEAT_BUCKET_NAME: ci-zenko-aws-crr-target-bucket
       AWS_S3_BACKBEAT_SRC_BUCKET_NAME: ci-zenko-aws-crr-src-bucket
-      AZURE_BACKEND_CONTAINER_NAME: ci-zenko-azure-target-bucket
-      AZURE_BACKEND_CONTAINER_NAME_2: ci-zenko-azure-target-bucket-2
+      AWS_S3_BACKEND_ACCESS_KEY: '%(secret:aws_s3_backend_access_key)s'
+      AWS_S3_BACKEND_ACCESS_KEY_2: '%(secret:aws_s3_backend_access_key_2)s'
+      AWS_S3_BACKEND_SECRET_KEY: '%(secret:aws_s3_backend_secret_key)s'
+      AWS_S3_BACKEND_SECRET_KEY_2: '%(secret:aws_s3_backend_secret_key_2)s'
+      AWS_S3_BUCKET_NAME: ci-zenko-aws-target-bucket
+      AWS_S3_BUCKET_NAME_2: ci-zenko-aws-target-bucket-2
       AZURE_BACKBEAT_CONTAINER_NAME: ci-zenko-azure-crr-target-bucket
       AZURE_BACKBEAT_SRC_CONTAINER_NAME: ci-zenko-azure-crr-src-bucket
+      AZURE_BACKEND_ACCESS_KEY: '%(secret:azure_backend_access_key)s'
+      AZURE_BACKEND_ACCESS_KEY_2: '%(secret:azure_backend_access_key_2)s'
+      AZURE_BACKEND_ACCOUNT_NAME: '%(secret:azure_backend_account_name)s'
+      AZURE_BACKEND_ACCOUNT_NAME_2: '%(secret:azure_backend_account_name_2)s'
+      AZURE_BACKEND_CONTAINER_NAME: ci-zenko-azure-target-bucket
+      AZURE_BACKEND_CONTAINER_NAME_2: ci-zenko-azure-target-bucket-2
+      AZURE_BACKEND_ENDPOINT: '%(secret:azure_backend_endpoint)s'
+      AZURE_BACKEND_ENDPOINT_2: '%(secret:azure_backend_endpoint_2)s'
       E2E_DOCKER_IMAGE_NAME: '%(secret:private_registry_url)s/zenko/zenko-e2e'
       BACKBEAT_DOCKER_IMAGE_NAME: '%(secret:private_registry_url)s/zenko/backbeat-e2e'
       GCP_BUCKET_NAME: ci-zenko-gcp-target-bucket
-      GCP_MPU_BUCKET_NAME: ci-zenko-gcp-mpu-bucket
       GCP_BUCKET_NAME_2: ci-zenko-gcp-target-bucket-2
-      GCP_MPU_BUCKET_NAME_2: ci-zenko-gcp-mpu-bucket-2
       GCP_CRR_BUCKET_NAME: ci-zenko-gcp-crr-target-bucket
-      GCP_CRR_SRC_BUCKET_NAME: ci-zenko-gcp-crr-src-bucket
       GCP_CRR_MPU_BUCKET_NAME: ci-zenko-gcp-crr-mpu-bucket
+      GCP_CRR_SRC_BUCKET_NAME: ci-zenko-gcp-crr-src-bucket
+      GCP_MPU_BUCKET_NAME: ci-zenko-gcp-mpu-bucket
+      GCP_MPU_BUCKET_NAME_2: ci-zenko-gcp-mpu-bucket-2
       MULTI_CRR_SRC_BUCKET: ci-zenko-multi-crr-src-bucket
+      TILLER_NAMESPACE: '%(prop:testNamespace)s'
       TRANSIENT_SRC_BUCKET: ci-zenko-transient-src-bucket
       ZENKO_ACCESS_KEY: HEYIMAACCESSKEY
+      ZENKO_HELM_RELEASE: 'zenko-test'
+      ZENKO_K8S_NAMESPACE: '%(prop:testNamespace)s'
       ZENKO_SECRET_KEY: loOkAtMEImASecRetKEy123=
       ZENKO_STORAGE_ACCOUNT_ACCESS_KEY: HEYIMAACCESSKEY
       ZENKO_STORAGE_ACCOUNT_SECRET_KEY: loOkAtMEImASecRetKEy123=
@@ -62,7 +76,7 @@ models:
       haltOnFailure: true
       env:
         TILLER_NAMESPACE: '%(prop:testNamespace)s'
-  - ShellCommandWithSecrets: &start_orbit_simulator
+  - ShellCommand: &start_orbit_simulator
       name: Start orbit simulator
       command: >-
         git clone git@github.com:scality/orbit-simulator.git &&
@@ -81,7 +95,11 @@ models:
       haltOnFailure: true
       env:
         <<: *global_env
-  - ShellCommandWithSecrets: &run_zenko_e2e
+  - ShellCommand: &helm_lint
+      name: Lint charts
+      command: helm lint charts/*
+      haltOnFailure: true
+  - ShellCommand: &run_zenko_e2e
       name: Test zenko
       command: >-
         sleep 90 &&
@@ -172,9 +190,10 @@ stages:
     - Git: *git_pull
     - ShellCommand: *install_tiller
     - ShellCommand: *helm_repos
-    - ShellCommandWithSecrets: *start_orbit_simulator
+    - ShellCommand: *start_orbit_simulator
     - ShellCommand: *helm_build_dep
-    - ShellCommandWithSecrets:
+    - ShellCommand: *helm_lint
+    - ShellCommand:
         name: Install Zenko !
         command: >-
           helm upgrade $ZENKO_HELM_RELEASE --namespace %(prop:testNamespace)s
@@ -185,8 +204,8 @@ stages:
         haltOnFailure: true
         env:
           <<: *global_env
-    - ShellCommandWithSecrets: *run_zenko_e2e
-    - ShellCommandWithSecrets:
+    - ShellCommand: *run_zenko_e2e
+    - ShellCommand:
         name: Run backbeat crr tests
         command: >-
           kubectl run zenko-backbeat-e2e --image=$BACKBEAT_DOCKER_IMAGE_NAME:%(prop:commit_short_revision)s
@@ -197,7 +216,7 @@ stages:
         workdir: build/tests
         env:
           <<: *global_env
-    - ShellCommandWithSecrets:
+    - ShellCommand:
         name: Run backbeat api tests
         command: >-
           kubectl run zenko-backbeat-e2e --image=$BACKBEAT_DOCKER_IMAGE_NAME:%(prop:commit_short_revision)s
@@ -229,7 +248,7 @@ stages:
       - Git: *git_pull
       - ShellCommand: *install_tiller
       - ShellCommand: *helm_repos
-      - ShellCommandWithSecrets: *start_orbit_simulator
+      - ShellCommand: *start_orbit_simulator
       - SetProperty:
           name: set cloudserver branch
           property: cloudserver_branch
@@ -251,7 +270,8 @@ stages:
             git ls-remote git@github.com:scality/backbeat.git
             --branch '%(prop:backbeat_branch)s' | cut -c1-7
       - ShellCommand: *helm_build_dep
-      - ShellCommandWithSecrets:
+      - ShellCommand: *helm_lint
+      - ShellCommand:
           name: Install Latest Zenko !
           command: >-
             helm upgrade $ZENKO_HELM_RELEASE --namespace %(prop:testNamespace)s
@@ -268,6 +288,6 @@ stages:
           haltOnFailure: true
           env:
             <<: *global_env
-      - ShellCommandWithSecrets: *run_zenko_e2e
+      - ShellCommand: *run_zenko_e2e
       - ShellCommand: *dump_logs
       - Upload: *upload_artifacts
