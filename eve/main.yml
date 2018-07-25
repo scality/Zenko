@@ -112,7 +112,7 @@ models:
       command: >-
         make DOCKER_IMAGE_NAME=$E2E_DOCKER_IMAGE_NAME
         DOCKER_IMAGE_TAG='%(prop:commit_short_revision)s' end2end
-        || (echo "Tests have failed" ; kubectl get pods -L redis-role ; exit 1) >&2 
+        || (echo "Tests have failed" ; kubectl get pods -L redis-role ; exit 1) >&2
       workdir: build/tests
       env:
         <<: *global_env
@@ -169,10 +169,6 @@ stages:
     steps:
       - Git: *git_pull
       - ShellCommand: *private_registry_login
-      # - ShellCommand:
-      #     name: Insert GCP key
-      #     command: >-
-      #       cat '{"private_key": "%(secret:gcp_backend_service_key)s", "client_email": "$(secret:gcp_backend_service_email)s"}'
       - ShellCommand:
           name: build backbeat e2e image
           command: docker build -t "$BACKBEAT_DOCKER_IMAGE_NAME:%(prop:commit_short_revision)s" --no-cache .
@@ -238,6 +234,18 @@ stages:
           --env CLOUDSERVER_ENDPOINT="http://$ZENKO_HELM_RELEASE-cloudserver:80"
           --env CLOUDSERVER_HOST="$ZENKO_HELM_RELEASE-cloudserver"
           -- npm run test_api
+        workdir: build/tests
+        env:
+          <<: *global_env
+    - ShellCommand:
+        name: Run backbeat pause/resume tests
+        command: >-
+          kubectl run zenko-backbeat-e2e --image=$BACKBEAT_DOCKER_IMAGE_NAME:%(prop:commit_short_revision)s
+          --rm --restart=Never --namespace $ZENKO_K8S_NAMESPACE --attach=True
+          $(../eve/workers/ci_env.sh env)
+          --env CLOUDSERVER_ENDPOINT="http://$ZENKO_HELM_RELEASE-cloudserver:80"
+          --env CLOUDSERVER_HOST="$ZENKO_HELM_RELEASE-cloudserver"
+          -- npm run test_crr_pause_resume
         workdir: build/tests
         env:
           <<: *global_env

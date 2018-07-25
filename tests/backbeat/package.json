@@ -20,7 +20,8 @@
   },
   "scripts": {
     "test_crr": "mocha -t 10000 --recursive tests/crr",
-    "test_api": "mocha -t 10000 --recursive tests/api"
+    "test_api": "mocha -t 10000 --recursive tests/api",
+    "test_crr_pause_resume": "mocha -t 10000 --recursive tests/crr-pause-resume"
   },
   "author": ""
 }
