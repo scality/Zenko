@@ -19,8 +19,30 @@ const keyPrefix = `${srcBucket}/${hex}`;
 const key = `${keyPrefix}/object-to-replicate-${Date.now()}`;
 const REPLICATION_TIMEOUT = 300000;
 
-describe.skip('API Route: /_/backbeat/api/metrics/crr/<site-name>/progress/' +
-    '<bucket>/<key>?versionId=<version-id>', function() {
+function getAndCheckResponse(path, expectedBody, cb) {
+    let shouldContinue = false;
+    return doWhilst(next =>
+        makeGETRequest(path, (err, res) => {
+            if (err) {
+                return next(err);
+            }
+            assert.strictEqual(res.statusCode, 200);
+            getResponseBody(res, (err, body) => {
+                if (err) {
+                    return next(err);
+                }
+                shouldContinue =
+                    JSON.stringify(body) !== JSON.stringify(expectedBody);
+                if (shouldContinue) {
+                    return setTimeout(next, 2000);
+                }
+                return next();
+            });
+        }),
+    () => shouldContinue, cb);
+}
+
+describe('Backbeat object monitor CRR metrics', function() {
     this.timeout(REPLICATION_TIMEOUT);
     let roleArn = 'arn:aws:iam::root:role/s3-replication-role';
 
@@ -44,33 +66,23 @@ describe.skip('API Route: /_/backbeat/api/metrics/crr/<site-name>/progress/' +
         (data, next) => {
             const path = `/_/backbeat/api/metrics/crr/${destLocation}` +
                 `/progress/${srcBucket}/${key}?versionId=${data.VersionId}`;
-            makeGETRequest(path, (err, res) => {
-                if (err) {
-                    return next(err);
-                }
-                assert.strictEqual(res.statusCode, 200);
-                getResponseBody(res, (err, body) => {
-                    if (err) {
-                        return next(err);
-                    }
-                    assert.deepStrictEqual(body, {
-                        description: 'Number of bytes to be replicated ' +
-                            '(pending), number of bytes transferred to the ' +
-                            'destination (completed), and percentage of the ' +
-                            'object that has completed replication (progress)',
-                        pending: 0,
-                        completed: 1,
-                        progress: '100%' })
-                    return next();
-                });
-            });
+            const expectedBody = {
+                description: 'Number of bytes to be replicated (pending), ' +
+                    'number of bytes transferred to the destination ' +
+                    '(completed), and percentage of the object that has ' +
+                    'completed replication (progress)',
+                pending: 0,
+                completed: 1,
+                progress: '100%',
+            };
+            return getAndCheckResponse(path, expectedBody, next);
         },
     ], done));
 
     it('should monitor part uploads of an MPU object', done => waterfall([
         next => scalityUtils.completeMPUAWS(srcBucket, key, 50, next),
         (data, next) => {
-            const path = `/_/backbeat/api//metrics/crr/${destLocation}` +
+            const path = `/_/backbeat/api/metrics/crr/${destLocation}` +
                 `/progress/${srcBucket}/${key}?versionId=${data.VersionId}`;
             const responses = [];
             let progress = '0%';
@@ -86,7 +98,7 @@ describe.skip('API Route: /_/backbeat/api/metrics/crr/<site-name>/progress/' +
                         }
                         progress = body.progress;
                         responses.push(body);
-                        if (progress !=- '100%') {
+                        if (progress !== '100%') {
                             return setTimeout(callback, 50);
                         }
                         return callback();
@@ -122,4 +134,28 @@ describe.skip('API Route: /_/backbeat/api/metrics/crr/<site-name>/progress/' +
             });
         },
     ], done));
+
+    it('should monitor the average throughput for a 10 byte object', done => {
+         // Use a new key since we don't want to track the previous operations.
+        const throughputKey = `${key}-throughput`;
+        return waterfall([
+            next =>
+                scalityUtils.putObject(srcBucket, throughputKey,
+                    Buffer.alloc(10), next),
+            (data, next) =>
+                scalityUtils.waitUntilReplicated(srcBucket, throughputKey,
+                    undefined, err => next(err, data)),
+            (data, next) => {
+                const path = `/_/backbeat/api/metrics/crr/${destLocation}` +
+                    `/throughput/${srcBucket}/${throughputKey}` +
+                    `?versionId=${data.VersionId}`;
+                const expectedBody = {
+                    description: 'Current throughput for object replication ' +
+                        'in bytes/sec (throughput)',
+                    throughput: '0.01',
+                };
+                return getAndCheckResponse(path, expectedBody, next);
+            },
+        ], done);
+    });
 });
