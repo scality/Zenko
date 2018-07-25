@@ -236,7 +236,7 @@ def digital_ocean_crr_bucket(zenko_resource):
 
 
 @pytest.fixture(scope='function')
-def muti_crr_bucket(zenko_resource):
+def multi_crr_bucket(zenko_resource):
     bucket = create_bucket(zenko_resource, conf.MULTI_CRR_SRC_BUCKET)
     util.bucket_safe_create(bucket)
     yield bucket

@@ -60,7 +60,6 @@ def test_wasabi_1_1(wasabi_crr_bucket,
         timeout=30)
 
 
-@pytest.mark.skip(reason='Not implemented in CI')
 @pytest.mark.parametrize('datafile', [testfile, mpufile])
 @pytest.mark.conformance
 def test_multi_1_M(  # pylint: disable=invalid-name, too-many-arguments
@@ -73,9 +72,9 @@ def test_multi_1_M(  # pylint: disable=invalid-name, too-many-arguments
     util.mark_test("MULTI 1-M REPLICATION")
     data = datafile()
     util.upload_object(multi_crr_bucket, objkey, data)
-    assert util.check_object(objkey, testfile,
+    assert util.check_object(objkey, data,
                              multi_crr_bucket,
                              aws_crr_target_bucket,
                              gcp_crr_target_bucket,
                              azure_crr_target_bucket,
-                             timeout=30)
+                             timeout=120)
