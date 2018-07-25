@@ -95,7 +95,7 @@ describe.skip('Replication with GCP backend', function() {
         }),
     ], done));
 
-    it.skip('should replicate object tags of the latest version', done =>
+    it('should replicate object tags of the latest version', done =>
     series([
         next => utils.putObject(srcBucket, file, Buffer.alloc(1), next),
         next => utils.compareObjectsGCP(srcBucket, destBucket, file, next),
@@ -104,7 +104,7 @@ describe.skip('Replication with GCP backend', function() {
             undefined, next),
     ], done));
 
-    it.skip('should replicate deleting object tags of the latest version',
+    it('should replicate deleting object tags of the latest version',
     done => series([
         next => utils.putObject(srcBucket, file, Buffer.alloc(1), next),
         next => utils.compareObjectsGCP(srcBucket, destBucket, file, next),
