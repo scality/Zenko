@@ -44,6 +44,8 @@ cloudserver:
     endpoint: "http://ciutil-orbit-simulator:4222"
     managerMode: "poll"
   replicaCount: 0
+  env:
+    MPU_TESTING: 'yes'
 
 backbeat:
   lifecycle:
