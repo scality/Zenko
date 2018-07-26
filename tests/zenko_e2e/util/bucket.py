@@ -107,7 +107,9 @@ def cleanup_bucket(bucket, replicated=False, delete_bucket=True): # noqa pylint:
             objects = []
             versions = version_list['Versions']
             for v in versions:  # pylint: disable=invalid-name
-                objects.append({'VersionId': v['VersionId'], 'Key': v['Key']})
+                if v['Key'].startswith(conf.OBJ_PREFIX):
+                    objects.append(
+                        {'VersionId': v['VersionId'], 'Key': v['Key']})
             response = client.delete_objects(
                 Bucket=bucket_name, Delete={'Objects': objects})
             print(response)
@@ -118,7 +120,9 @@ def cleanup_bucket(bucket, replicated=False, delete_bucket=True): # noqa pylint:
             objects = []
             delete_markers = version_list['DeleteMarkers']
             for d in delete_markers:  # pylint: disable=invalid-name
-                objects.append({'VersionId': d['VersionId'], 'Key': d['Key']})
+                if d['Key'].startswith(conf.OBJ_PREFIX):
+                    objects.append(
+                        {'VersionId': d['VersionId'], 'Key': d['Key']})
             response = client.delete_objects(
                 Bucket=bucket_name, Delete={'Objects': objects})
             print(response)

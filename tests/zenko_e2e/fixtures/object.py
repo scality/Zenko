@@ -3,16 +3,15 @@ import zenko_e2e.conf as conf
 import zenko_e2e.util as util
 
 
-@pytest.fixture
+@pytest.fixture(scope='function')
 def objkey():
-    return util.make_name('test-object')
+    return '/'.join([conf.OBJ_PREFIX, util.make_name('test-object')])
 
 
 @pytest.fixture
-def empty_object(zenko_bucket):
+def empty_object(zenko_bucket, objkey):
     zenko_bucket.create()
-    name = util.gen_bucket_name('test-object')
-    return zenko_bucket.Object(name)
+    return zenko_bucket.Object(objkey)
 
 
 @pytest.fixture
@@ -27,8 +26,8 @@ def metadata_object(empty_object, emptyfile):
 @pytest.fixture
 def metadata_multi(zenko_bucket, emptyfile):
     zenko_bucket.create()
-    name1 = util.gen_bucket_name('test-object')
-    name2 = util.gen_bucket_name('test-object')
+    name1 = objkey()
+    name2 = objkey()
     obj1 = zenko_bucket.Object(name1)
     obj2 = zenko_bucket.Object(name2)
     obj1.put(
