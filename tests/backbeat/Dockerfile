@@ -5,5 +5,3 @@ ADD ./ /tests/
 WORKDIR /tests
 RUN chmod +x gcp_shim.sh
 RUN npm install
-
-ENTRYPOINT [ "/tests/gcp_shim.sh" ]
