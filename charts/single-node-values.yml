@@ -10,6 +10,19 @@ cloudserver:
     replicas: *nodeCount
 
 backbeat:
+  replication:
+    dataProcessor:
+      replicaCount: *nodeCount
+    statusProcessor:
+      replicaCount: *nodeCount
+  lifecycle:
+    bucketProcessor:
+      replicaCount: *nodeCount
+    objectProcessor:
+      replicaCount: *nodeCount
+  garbageCollector:
+    consumer:
+      replicaCount: *nodeCount
   mongodb:
     replicas: *nodeCount
 
