@@ -1,5 +1,6 @@
 import os
 from datetime import timedelta
+import uuid
 import requests
 
 
@@ -26,6 +27,8 @@ def strip_port(url):
 def baseurl(url):
     return strip_port(strip_proto(url))
 
+
+OBJ_PREFIX = '-'.join(['test', uuid.uuid4().hex])
 
 SERVICEACCOUNT_PATH = '/var/run/secrets/kubernetes.io/serviceaccount'
 
