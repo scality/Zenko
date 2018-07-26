@@ -21,6 +21,7 @@
   "scripts": {
     "test_crr": "mocha --exit -t 10000 --recursive tests/crr",
     "test_api": "mocha --exit -t 10000 --recursive tests/api",
+    "test_retry": "mocha --exit -t 10000 --recursive tests/retry",
     "test_crr_pause_resume": "mocha --exit -t 10000 --recursive tests/crr-pause-resume"
   },
   "author": ""
