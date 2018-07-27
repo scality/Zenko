@@ -42,10 +42,10 @@ spec:
               value: {{ $value | quote }}
             {{- end }}
           args: ['npm', 'run', 'start_s3server']
-          livenessProbe:
-            httpGet:
-              path: /_/healthcheck
-              port: http
+          # livenessProbe:
+          #   httpGet:
+          #     path: /_/healthcheck
+          #     port: http
           volumeMounts:
             {{- if .Values.proxy.caCert }}
             - name: proxy-cert
