@@ -46,7 +46,6 @@ models:
       GCP_CRR_SRC_BUCKET_NAME: ci-zenko-gcp-crr-src-bucket
       GCP_MPU_BUCKET_NAME: ci-zenko-gcp-mpu-bucket
       GCP_MPU_BUCKET_NAME_2: ci-zenko-gcp-mpu-bucket-2
-      INSTALL_TIMEOUT: "600"
       MULTI_CRR_SRC_BUCKET: ci-zenko-multi-crr-src-bucket
       TRANSIENT_SRC_BUCKET: ci-zenko-transient-src-bucket
       ZENKO_ACCESS_KEY: HEYIMAACCESSKEY
@@ -66,6 +65,7 @@ models:
       ZENKO_HELM_RELEASE: 'zenko-test'
       ZENKO_K8S_NAMESPACE: '%(prop:testNamespace)s'
       TILLER_NAMESPACE: '%(prop:testNamespace)s'
+      INSTALL_TIMEOUT: "600"
 
   - env: &global_env # contains all env values
       <<: [*secrets_env, *docker_env, *k8s_env]
