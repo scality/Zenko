@@ -55,8 +55,7 @@ def wait_for_pods(delete, timeout):
     else:
       _log.info('Zenko services have stabilized successfully')
  
-
-TIMEOUT = get_env('INSTALL_TIMEOUT') or 240  # 4 Minutes
+TIMEOUT = int(get_env('INSTALL_TIMEOUT'))
 
 K8S_NAMESPACE = os.getenv('ZENKO_K8S_NAMESPACE')
 ZENKO_HELM_RELEASE = os.getenv('ZENKO_HELM_RELEASE')
