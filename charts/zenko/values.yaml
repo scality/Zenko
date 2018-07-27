@@ -25,6 +25,8 @@ ingress:
     #     - zenko.example.com
 
 cloudserver:
+  replicaCount: *nodeCount
+  replicaFactor: 10
   mongodb:
     replicas: *nodeCount
   orbit:
