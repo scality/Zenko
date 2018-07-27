@@ -40,10 +40,6 @@ spec:
               value: "{{- printf "%s-%s" .Release.Name "redis-ha-master-svc" | trunc 63 | trimSuffix "-" -}}"
             - name: REDIS_PORT
               value: "6379"
-            - name: REDIS_LOCALCACHE_HOST
-              value: "{{- printf "%s-%s" .Release.Name "redis" | trunc 63 | trimSuffix "-" -}}"
-            - name: REDIS_LOCALCACHE_PORT
-              value: "6379"
             - name: HEALTHCHECKS_ALLOWFROM
               value: '0.0.0.0/0'
             - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_ACCOUNT

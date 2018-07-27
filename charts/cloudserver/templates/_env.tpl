@@ -3,7 +3,7 @@ env:
   - name: DATA_HOST
     value: "{{- printf "%s-%s" .Release.Name "s3-data" | trunc 63 | trimSuffix "-" -}}"
   - name: REDIS_HOST
-    value: "{{- printf "%s-%s" .Release.Name "redis" | trunc 63 | trimSuffix "-" -}}"
+    value: "{{- printf "%s-%s" .Release.Name "redis-ha-master-svc" | trunc 63 | trimSuffix "-" -}}"
   - name: REDIS_PORT
     value: "6379"
   - name: REDIS_HA_HOST

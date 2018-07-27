@@ -112,13 +112,6 @@ zenko-quorum:
     jmx:
       enabled: true
 
-redis:
-  usePassword: false
-  persistence:
-    enabled: false
-  metrics:
-    enabled: true
-
 redis-ha:
   redis_image: zenko/redis-ha:4.0.10-r1
   rbac:
