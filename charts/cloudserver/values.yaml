@@ -31,11 +31,12 @@ mongodb:
   replicaSet: rs0
   replicas: 3
 
-# When Orbit is enabled, there will be an additional fully stateless replica
-# added which serves as the "manager" for reporting metrics. For example,
-# with a "replicaCount: 2" and Orbit management enabled, there would be a
-# total of 3 pods deployed (2 worker replicas + 1 manager).
-replicaCount: 2
+# Replication factor will deploy n * replicaCount for deployments that need
+# not only HA but high performance and throughput. When Orbit is enabled, there 
+# will be an additional stateless single manager pod deployed which serves as the 
+# "manager" for reporting metrics. This manager pod currently cannot scale replicas.
+replicaCount: 3
+replicaFactor: 1
 
 image:
   repository: zenko/cloudserver

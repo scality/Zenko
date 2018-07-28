@@ -8,7 +8,7 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ template "cloudserver.replicaFactor" . }}
   selector:
     matchLabels:
       app: {{ template "cloudserver.name" . }}
