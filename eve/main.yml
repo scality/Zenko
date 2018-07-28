@@ -170,6 +170,13 @@ stages:
       - Git: *git_pull
       - ShellCommand: *private_registry_login
       - ShellCommand:
+          name: Write out GCP key
+          command: sh gcp_shim.sh
+          env:
+            GCP_BACKEND_SERVICE_KEY: '%(secret:gcp_backend_service_key)s'
+            GCP_BACKEND_SERVICE_EMAIL: '%(secret:gcp_backend_service_email)s'
+          workdir: build/tests/backbeat
+      - ShellCommand:
           name: build backbeat e2e image
           command: docker build -t "$BACKBEAT_DOCKER_IMAGE_NAME:%(prop:commit_short_revision)s" --no-cache .
           workdir: build/tests/backbeat
