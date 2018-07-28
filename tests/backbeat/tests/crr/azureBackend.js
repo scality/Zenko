@@ -102,7 +102,7 @@ describe('Replication with Azure backend', function() {
             }),
     ], done));
 
-    it.skip('should replicate object tags of the latest version', done =>
+    it('should replicate object tags of the latest version', done =>
     series([
         next => utils.putObject(srcBucket, key, Buffer.alloc(1), next),
         next => utils.compareObjectsAzure(srcBucket, destContainer, key, next),
@@ -111,7 +111,7 @@ describe('Replication with Azure backend', function() {
             undefined, next),
     ], done));
 
-    it.skip('should replicate deleting object tags of the latest version',
+    it('should replicate deleting object tags of the latest version',
     done => series([
         next => utils.putObject(srcBucket, key, Buffer.alloc(1), next),
         next => utils.compareObjectsAzure(srcBucket, destContainer, key, next),

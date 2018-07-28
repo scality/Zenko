@@ -110,7 +110,7 @@ describe('Replication with AWS backend', function() {
         ], done)));
 
     // Object ACLs would not be applicable on AWS.
-    it.skip('should not replicate object ACL', done => series([
+    it('should not replicate object ACL', done => series([
         next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next),
         next => scalityUtils.compareACLsAWS(srcBucket, destBucket, key, next),
         next => scalityUtils.putObjectACL(srcBucket, key, next),
@@ -128,7 +128,7 @@ describe('Replication with AWS backend', function() {
         next => awsUtils.assertNoObject(destBucket, key, next),
     ], done));
 
-    it.skip('should replicate object tags of the latest version', done => series([
+    it('should replicate object tags of the latest version', done => series([
         next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next),
         next => scalityUtils.compareObjectsAWS(srcBucket, destBucket, key,
             undefined, next),
@@ -137,7 +137,7 @@ describe('Replication with AWS backend', function() {
             undefined, undefined, next),
     ], done));
 
-    it.skip('should replicate object tags of a previous version', done => {
+    it('should replicate object tags of a previous version', done => {
         let firstVersionScality = null;
         let firstVersionAWS = null;
         return series([
@@ -165,7 +165,7 @@ describe('Replication with AWS backend', function() {
         ], done);
     });
 
-    it.skip('should replicate deleting object tags of the latest version',
+    it('should replicate deleting object tags of the latest version',
     done => series([
         next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next),
         next => scalityUtils.compareObjectsAWS(srcBucket, destBucket, key,
@@ -179,7 +179,7 @@ describe('Replication with AWS backend', function() {
             undefined, undefined, next),
     ], done));
 
-    it.skip('should replicate deleting object tags of a previous version',
+    it('should replicate deleting object tags of a previous version',
     done => {
         let firstVersionScality = null;
         let firstVersionAWS = null;
@@ -212,7 +212,7 @@ describe('Replication with AWS backend', function() {
         ], done);
     });
 
-    it.skip('should replicate object tags of the latest MPU version', done =>
+    it('should replicate object tags of the latest MPU version', done =>
     series([
         next => scalityUtils.completeMPUAWS(srcBucket, key, 2, next),
         next => scalityUtils.compareObjectsAWS(srcBucket, destBucket, key,
@@ -222,6 +222,10 @@ describe('Replication with AWS backend', function() {
             undefined, undefined, next),
     ], done));
 
+    // this test should work in general but with current
+    // implementation it's racy since there's a possibility that the
+    // COMPLETED replication status may be set before tags are
+    // replicated, so skip it for now
     it.skip('should replicate object tags of an MPU version when tagging is ' +
     'put before replication is complete', done =>
         series([
@@ -234,7 +238,7 @@ describe('Replication with AWS backend', function() {
                 key, undefined, undefined, next),
         ], done));
 
-    it.skip('should replicate object tags of a previous MPU version', done => {
+    it('should replicate object tags of a previous MPU version', done => {
         let firstVersionScality = null;
         let firstVersionAWS = null;
         return series([
@@ -260,7 +264,7 @@ describe('Replication with AWS backend', function() {
         ], done);
     });
 
-    it.skip('should replicate deleting object tags of the latest MPU version',
+    it('should replicate deleting object tags of the latest MPU version',
     done => series([
         next => scalityUtils.completeMPUAWS(srcBucket, key, 2, next),
         next => scalityUtils.compareObjectsAWS(srcBucket, destBucket, key,
@@ -274,6 +278,10 @@ describe('Replication with AWS backend', function() {
             undefined, undefined, next),
     ], done));
 
+    // this test should work in general but with current
+    // implementation it's racy since there's a possibility that the
+    // COMPLETED replication status may be set before tags are
+    // replicated, so skip it for now
     it.skip('should replicate object tags of an MPU version when tagging is ' +
     'put and then deleted before replication is complete', done =>
         series([
@@ -288,7 +296,7 @@ describe('Replication with AWS backend', function() {
                 key, undefined, undefined, next),
         ], done));
 
-    it.skip('should replicate deleting object tags of a previous MPU version',
+    it('should replicate deleting object tags of a previous MPU version',
     done => {
         let firstVersionScality = null;
         let firstVersionAWS = null;
@@ -306,8 +314,6 @@ describe('Replication with AWS backend', function() {
                 return next();
             }),
             next => scalityUtils.completeMPUAWS(srcBucket, key, 2, next),
-            next => scalityUtils.compareObjectsAWS(srcBucket, destBucket, key,
-                undefined, next),
             next => scalityUtils.compareObjectsAWS(srcBucket, destBucket, key,
                 undefined, next),
             next => scalityUtils.putObjectTagging(srcBucket, key,
