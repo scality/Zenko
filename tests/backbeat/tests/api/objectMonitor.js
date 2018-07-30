@@ -1,6 +1,5 @@
 const assert = require('assert');
 const crypto = require('crypto');
-const request = require('request');
 const { series, waterfall, doWhilst } = require('async');
 
 const { scalityS3Client, awsS3Client } = require('../../s3SDK');
@@ -27,7 +26,7 @@ function getAndCheckResponse(path, expectedBody, cb) {
                 return next(err);
             }
             assert.strictEqual(res.statusCode, 200);
-            getResponseBody(res, (err, body) => {
+            return getResponseBody(res, (err, body) => {
                 if (err) {
                     return next(err);
                 }
@@ -42,9 +41,9 @@ function getAndCheckResponse(path, expectedBody, cb) {
     () => shouldContinue, cb);
 }
 
-describe('Backbeat object monitor CRR metrics', function() {
+describe('Backbeat object monitor CRR metrics', function f() {
     this.timeout(REPLICATION_TIMEOUT);
-    let roleArn = 'arn:aws:iam::root:role/s3-replication-role';
+    const roleArn = 'arn:aws:iam::root:role/s3-replication-role';
 
     beforeEach(done => series([
         next => scalityUtils.createVersionedBucket(srcBucket, next),
@@ -92,7 +91,7 @@ describe('Backbeat object monitor CRR metrics', function() {
                         return callback(err);
                     }
                     assert.strictEqual(res.statusCode, 200);
-                    getResponseBody(res, (err, body) => {
+                    return getResponseBody(res, (err, body) => {
                         if (err) {
                             return callback(err);
                         }
@@ -136,7 +135,7 @@ describe('Backbeat object monitor CRR metrics', function() {
     ], done));
 
     it('should monitor the average throughput for a 10 byte object', done => {
-         // Use a new key since we don't want to track the previous operations.
+        // Use a new key since we don't want to track the previous operations.
         const throughputKey = `${key}-throughput`;
         return waterfall([
             next =>

@@ -11,14 +11,19 @@
     "test"
   ],
   "dependencies": {
+    "@google-cloud/storage": "^1.6.0",
     "async": "2.1.2",
     "aws-sdk": "2.28.0",
     "azure-storage": "^2.10.0",
-    "@google-cloud/storage": "^1.6.0",
+    "eslint": "^5.2.0",
+    "eslint-config-airbnb": "^6.2.0",
+    "eslint-config-scality": "scality/Guidelines#development/8.0",
     "mocha": "^5.2.0",
     "request": "^2.87.0"
   },
   "scripts": {
+    "lint": "eslint .",
+    "lint_md": "mdlint Using.md",
     "test_crr": "mocha --exit -t 10000 --recursive tests/crr",
     "test_api": "mocha --exit -t 10000 --recursive tests/api",
     "test_retry": "mocha --exit -t 10000 --recursive tests/retry",

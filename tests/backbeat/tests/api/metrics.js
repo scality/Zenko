@@ -32,7 +32,7 @@ function getAndCheckResponse(path, expectedBody, cb) {
                 return next(err);
             }
             assert.strictEqual(res.statusCode, 200);
-            getResponseBody(res, (err, body) => {
+            return getResponseBody(res, (err, body) => {
                 if (err) {
                     return next(err);
                 }
@@ -68,7 +68,7 @@ describe('Backbeat replication metrics route validation', function dF() {
                         assert(body[type]);
                         assert(body[type].description);
                         assert(body[type].results);
-                        const keys = Object.keys(body[type].results)
+                        const keys = Object.keys(body[type].results);
                         assert(keys.includes('count'));
                         assert(keys.includes('size'));
                     });
@@ -91,25 +91,24 @@ describe('Backbeat replication metrics route validation', function dF() {
         `${pathPrefix}/all/throughput`,
         `${pathPrefix}/${destAWSLocation}/throughput`,
         `${pathPrefix}/${destAzureLocation}/throughput`,
-    ].forEach(path => {
+    ].forEach(path =>
         it(`should get responses for metric path: ${path}`,
-        done => {
-            makeGETRequest(path, (err, res) => {
-                assert.ifError(err);
-                assert.equal(res.statusCode, 200);
-                getResponseBody(res, (err, body) => {
-                    const type = Object.keys(body)[0];
-                    const data = body[type];
-                    assert(data.description);
-                    assert(data.results);
-                    const resultKeys = Object.keys(data.results);
-                    assert(resultKeys.includes('count'));
-                    assert(resultKeys.includes('size'));
-                    return done()
+            done => {
+                makeGETRequest(path, (err, res) => {
+                    assert.ifError(err);
+                    assert.equal(res.statusCode, 200);
+                    getResponseBody(res, (err, body) => {
+                        const type = Object.keys(body)[0];
+                        const data = body[type];
+                        assert(data.description);
+                        assert(data.results);
+                        const resultKeys = Object.keys(data.results);
+                        assert(resultKeys.includes('count'));
+                        assert(resultKeys.includes('size'));
+                        return done();
+                    });
                 });
-            });
-        });
-    });
+            }));
 });
 
 describe('Backbeat replication metrics data', function dF() {

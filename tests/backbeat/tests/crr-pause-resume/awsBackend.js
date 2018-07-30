@@ -1,6 +1,6 @@
 const assert = require('assert');
 const crypto = require('crypto');
-const  { series, parallel, timesSeries, each } = require('async');
+const { series } = require('async');
 
 const { scalityS3Client, awsS3Client } = require('../../s3SDK');
 const ReplicationUtility = require('../../ReplicationUtility');
@@ -29,9 +29,9 @@ const REPLICATION_TIMEOUT = 300000;
 // check that the object DNE due to the replication pause, and not because
 // the tests checked before replication was complete.
 
-describe('Replication Pause-Resume with AWS backend', function() {
+describe('Replication Pause-Resume with AWS backend', function f() {
     this.timeout(REPLICATION_TIMEOUT);
-    let roleArn = 'arn:aws:iam::root:role/s3-replication-role';
+    const roleArn = 'arn:aws:iam::root:role/s3-replication-role';
 
     beforeEach(done => series([
         next => scalityUtils.createVersionedBucket(srcBucket, next),
@@ -96,15 +96,13 @@ describe('Replication Pause-Resume with AWS backend', function() {
     ], done));
 
     it('should get 404 error in data for status of non-existent location',
-        done => {
-        return backbeatAPIUtils.getReplicationStatus('non-existent-location',
+        done => backbeatAPIUtils.getReplicationStatus('non-existent-location',
             (err, data) => {
-            assert.ifError(err);
-            assert.strictEqual(data.code, 404);
-            assert.strictEqual(data.RouteNotFound, true);
-            return done();
-        });
-    });
+                assert.ifError(err);
+                assert.strictEqual(data.code, 404);
+                assert.strictEqual(data.RouteNotFound, true);
+                return done();
+            }));
 
     it('should be able to set a CRR resume schedule', done => series([
         next => backbeatAPIUtils.pauseReplication(null, next),
@@ -119,15 +117,15 @@ describe('Replication Pause-Resume with AWS backend', function() {
         next => setTimeout(next, 5000),
         next => backbeatAPIUtils.getReplicationResumeSchedule(destLocation,
             (err, data) => {
-            assert.ifError(err);
-            assert(data[destLocation]);
-            const requestTimeMs = Date.now();
-            const resumeTime = new Date(data[destLocation]);
-            const resumeTimeMs = resumeTime.getTime();
-            const timediff = resumeTimeMs - requestTimeMs;
-            const hrdiff = (timediff/1000)/3600;
-            assert.strictEqual(Math.round(hrdiff), 1);
-            return next();
-        }),
+                assert.ifError(err);
+                assert(data[destLocation]);
+                const requestTimeMs = Date.now();
+                const resumeTime = new Date(data[destLocation]);
+                const resumeTimeMs = resumeTime.getTime();
+                const timediff = resumeTimeMs - requestTimeMs;
+                const hrdiff = (timediff / 1000) / 3600;
+                assert.strictEqual(Math.round(hrdiff), 1);
+                return next();
+            }),
     ], done));
 });

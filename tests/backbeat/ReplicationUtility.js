@@ -1,7 +1,6 @@
 const assert = require('assert');
 const crypto = require('crypto');
 const async = require('async');
-const fs = require('fs');
 
 const { scalityS3Client, awsS3Client } = require('./s3SDK');
 
@@ -9,7 +8,6 @@ const srcLocation = process.env.AWS_S3_BACKEND_SOURCE_LOCATION;
 const destAWSLocation = process.env.AWS_S3_BACKEND_DESTINATION_LOCATION;
 const destAzureLocation = process.env.AZURE_BACKEND_DESTINATION_LOCATION;
 const destGCPLocation = process.env.GCP_BACKEND_DESTINATION_LOCATION;
-const REPLICATION_TIMEOUT = 10000;
 
 class ReplicationUtility {
     constructor(s3, azure, gcpStorage) {
@@ -21,15 +19,6 @@ class ReplicationUtility {
     _compareObjectBody(body1, body2) {
         const digest1 = crypto.createHash('md5').update(body1).digest('hex');
         const digest2 = crypto.createHash('md5').update(body2).digest('hex');
-        // if (digest1 !== digest2) {
-        //     // dump data for later investigation
-        //     const filePrefix = `${process.env.CIRCLE_ARTIFACTS}/` +
-        //               `genericStaas_backbeat_md5_mismatch_body`;
-        //     fs.writeFileSync(`${filePrefix}1.bin`, body1);
-        //     fs.writeFileSync(`${filePrefix}2.bin`, body2);
-        //     console.error('md5 mismatch: data dumped in ' +
-        //                   `${filePrefix}{1,2}.bin`);
-        // }
         assert.strictEqual(digest1, digest2);
     }
 
@@ -75,7 +64,7 @@ class ReplicationUtility {
     deleteAllBlobs(containerName, keyPrefix, cb) {
         const options = { include: 'metadata' };
         this.azure.listBlobsSegmented(containerName, null, options,
-            (err, result, response) => {
+            (err, result) => {
                 if (err) {
                     return cb(err);
                 }
@@ -157,7 +146,7 @@ class ReplicationUtility {
         this.s3.putObject({
             Bucket: bucketName,
             Key: objectName,
-            Metadata: { 'customKey': 'customValue' },
+            Metadata: { customKey: 'customValue' },
             ContentType: 'image/png',
             CacheControl: 'test-cache-control',
             ContentDisposition: 'test-content-disposition',
@@ -185,10 +174,10 @@ class ReplicationUtility {
         const initiateMPUParams = {
             Bucket: bucketName,
             Key: objectName,
-        }
+        };
         if (hasOptionalFields) {
             Object.assign(initiateMPUParams, {
-                Metadata: { 'customKey': 'customValue' },
+                Metadata: { customKey: 'customValue' },
                 ContentType: 'image/png',
                 CacheControl: 'test-cache-control',
                 ContentDisposition: 'test-content-disposition',
@@ -198,13 +187,13 @@ class ReplicationUtility {
         }
         return async.waterfall([
             next => this.s3.createMultipartUpload(initiateMPUParams,
-            (err, data) => {
-                if (err) {
-                    return next(err);
-                }
-                uploadId = data.UploadId;
-                return next();
-            }),
+                (err, data) => {
+                    if (err) {
+                        return next(err);
+                    }
+                    uploadId = data.UploadId;
+                    return next();
+                }),
             next =>
                 async.mapLimit(partNumbers, 10, (partNumber, callback) => {
                     const uploadPartParams = {
@@ -364,7 +353,7 @@ class ReplicationUtility {
             data.push(chunk);
         });
         request.on('end', () => {
-            cb(null, Buffer.concat(data, totalLength))
+            cb(null, Buffer.concat(data, totalLength));
         });
         request.on('error', err => cb(err));
     }
@@ -409,7 +398,7 @@ class ReplicationUtility {
                 Bucket: bucketName,
                 VersioningConfiguration: {
                     Status: 'Enabled',
-                }
+                },
             }, next),
         ], err => cb(err));
     }
@@ -615,7 +604,8 @@ class ReplicationUtility {
             const srcUserMD = srcData.Metadata;
             assert.strictEqual(srcUserMD[`${destAWSLocation}-version-id`],
                 destData.VersionId);
-            assert.strictEqual(srcUserMD[`${destAWSLocation}-replication-status`],
+            assert.strictEqual(
+                srcUserMD[`${destAWSLocation}-replication-status`],
                 'COMPLETED');
             const destUserMD = destData.Metadata;
             assert.strictEqual(destUserMD['scal-version-id'],
@@ -644,7 +634,7 @@ class ReplicationUtility {
             next => this.compareObjectsGCP(srcBucket, gcpDestBucket, key,
                 next),
         ], cb);
-    };
+    }
 
     compareObjectsAzure(srcBucket, containerName, key, cb) {
         return async.series([
@@ -670,9 +660,9 @@ class ReplicationUtility {
                 srcData.Metadata[`${destAzureLocation}-replication-status`],
                 'COMPLETED');
             assert.strictEqual(
-                destPropResult.metadata['scal_replication_status'], 'REPLICA');
+                destPropResult.metadata.scal_replication_status, 'REPLICA');
             assert.strictEqual(
-                destPropResult.metadata['scal_version_id'], srcData.VersionId);
+                destPropResult.metadata.scal_version_id, srcData.VersionId);
             assert.strictEqual(
                 destPropResponse.headers['x-ms-meta-scal_replication_status'],
                 'REPLICA');
@@ -739,7 +729,7 @@ class ReplicationUtility {
             const { headers } = destResponse;
             let expectedVal = srcData.Metadata.customkey;
             assert.strictEqual(expectedVal,
-                destResult.metadata['customkey']);
+                destResult.metadata.customkey);
             assert.strictEqual(expectedVal,
                 headers['x-ms-meta-customkey']);
             expectedVal = srcData.ContentType;
@@ -756,7 +746,7 @@ class ReplicationUtility {
             assert.strictEqual(expectedVal, headers['content-language']);
             return cb();
         });
-    };
+    }
 
     compareGCPObjectProperties(srcBucket, destBucket, file, cb) {
         return async.series({
@@ -773,7 +763,7 @@ class ReplicationUtility {
             const destProperties = destData[0];
             const destMetadata = destProperties.metadata;
             let expectedVal = srcData.Metadata.customkey;
-            assert.strictEqual(expectedVal, destMetadata['customkey']);
+            assert.strictEqual(expectedVal, destMetadata.customkey);
             expectedVal = srcData.ContentType;
             assert.strictEqual(expectedVal, destProperties.contentType);
             expectedVal = srcData.CacheControl;
@@ -786,7 +776,7 @@ class ReplicationUtility {
             assert.strictEqual(expectedVal, destProperties.contentLanguage);
             return cb();
         });
-    };
+    }
 
     compareACLsAWS(srcBucket, destBucket, key, cb) {
         return async.series([
@@ -811,9 +801,10 @@ class ReplicationUtility {
             next => this.waitUntilReplicated(srcBucket, key, scalityVersionId,
                 next),
             next => this.getObjectTagging(srcBucket, key, scalityVersionId,
-               next),
+                next),
             next => this._setS3Client(awsS3Client)
-               .getObjectTagging(destBucket, `${srcBucket}/${key}`, AWSVersionId, next),
+                .getObjectTagging(destBucket, `${srcBucket}/${key}`,
+                    AWSVersionId, next),
         ], (err, data) => {
             this._setS3Client(scalityS3Client);
             if (err) {
@@ -879,7 +870,7 @@ class ReplicationUtility {
                         destTagSet.push({
                             Key: tag,
                             Value: destTags[key],
-                        })
+                        });
                     }
                 });
             }

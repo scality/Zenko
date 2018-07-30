@@ -31,30 +31,27 @@ function checkMetrics(prevBacklog, prevCompletions, prevFailures, body) {
 }
 
 function performRetries(keys, done) {
+    let postBody;
     return series([
-       next => awsUtils.deleteVersionedBucket(destFailBucket, next),
-       next => times(keys.length, (n, cb) =>
-           scalityUtils.putObject(srcBucket, keys[n], Buffer.alloc(1),
+        next => awsUtils.deleteVersionedBucket(destFailBucket, next),
+        next => times(keys.length, (n, cb) =>
+            scalityUtils.putObject(srcBucket, keys[n], Buffer.alloc(1),
                 cb),
         next),
         next => times(keys.length, (n, cb) =>
             scalityUtils.waitWhilePendingCRR(srcBucket, keys[n], cb),
         next),
         next => times(keys.length, (n, cb) =>
-            scalityUtils.getHeadObject(srcBucket, keys[n],
-            (err, data) => {
+            scalityUtils.getHeadObject(srcBucket, keys[n], (err, data) => {
                 if (err) {
-                   return cb(err);
+                    return cb(err);
                 }
-                const { ReplicationStatus, Metadata, VersionId } = data;
-                versionId = VersionId;
+                const { ReplicationStatus, Metadata } = data;
                 assert.strictEqual(ReplicationStatus, 'FAILED');
                 assert.strictEqual(
-                   Metadata[`${destFailLocation}-replication-status`],
-                   'FAILED');
-                setTimeout(function () {
-                    return cb();
-                }, 5000)
+                    Metadata[`${destFailLocation}-replication-status`],
+                    'FAILED');
+                return setTimeout(cb, 5000);
             }),
         next),
         next => makeGETRequest('/_/backbeat/api/crr/failed',
@@ -70,7 +67,7 @@ function performRetries(keys, done) {
         next => makePOSTRequest('/_/backbeat/api/crr/failed', postBody,
             (err, res) => {
                 assert.ifError(err);
-                return getResponseBody(res, (err, body) => {
+                return getResponseBody(res, err => {
                     assert.ifError(err);
                     return next();
                 });
@@ -85,7 +82,7 @@ function performRetries(keys, done) {
     ], done);
 }
 
-describe('Backbeat replication retry', function() {
+describe('Backbeat replication retry', function f() {
     this.timeout(REPLICATION_TIMEOUT);
     const roleArn = 'arn:aws:iam::root:role/s3-replication-role';
 
@@ -101,19 +98,16 @@ describe('Backbeat replication retry', function() {
             `${srcBucket}/${keyPrefix}`, next),
     ], done));
 
-    [1, 2, 128].forEach(N => {
+    [1, 2, 128].forEach(N =>
         it(`should retry ${N} failed object(s)`, done => {
-            let versionId;
-            let postBody;
             const keys = [];
             for (let i = 0; i < N; i++) {
                 keys.push(`${key}-${i}`);
             }
             return performRetries(keys, done);
-        });
-    });
+        }));
 
-    it('should get correct CRR metrics when a retry occurs', function(done) {
+    it('should get correct CRR metrics when a retry occurs', function f(done) {
         this.retries(2); // Test is dependent on metrics not expiring.
         const path = `/_/backbeat/api/metrics/crr/${destFailLocation}`;
         let prevBacklog;

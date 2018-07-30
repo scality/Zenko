@@ -223,6 +223,16 @@ stages:
           <<: *k8s_env
     - ShellCommand: *run_zenko_e2e
     - ShellCommand:
+        name: Lint backbeat test files
+        command: >-
+          kubectl run zenko-backbeat-e2e --image=$BACKBEAT_DOCKER_IMAGE_NAME:%(prop:commit_short_revision)s
+          --rm --restart=Never --namespace $ZENKO_K8S_NAMESPACE --attach=True
+          $(../eve/workers/ci_env.sh env)
+          -- npm run lint && npm run lint_md
+        workdir: build
+        env:
+          <<: *global_env
+    - ShellCommand:
         name: Run backbeat crr tests
         command: >-
           kubectl run zenko-backbeat-e2e --image=$BACKBEAT_DOCKER_IMAGE_NAME:%(prop:commit_short_revision)s

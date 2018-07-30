@@ -35,8 +35,7 @@ class BackbeatAPIUtility {
         let requestBody;
         if (locationName && (schedule === false)) {
             path = `${path}/${locationName}`;
-        }
-        else if (locationName && hoursScheduled) {
+        } else if (locationName && hoursScheduled) {
             path = `${path}/${locationName}/schedule`;
             requestBody = JSON.stringify({ hours: hoursScheduled });
         }

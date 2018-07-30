@@ -8,6 +8,7 @@
     ```
     <kube-node-ip> zenko.local
     ```
+
    If you are ssh-ed into one of the kube servers or doing a port-forward to a
    remote kube instance, the `kube-node-ip` value will be `127.0.0.1`
 
@@ -36,7 +37,7 @@
 6. Navigate to `Zenko/tests/zenko_e2e/backbeat`.
 7. Install node modules: `npm i`.
 
-### Tests for CRR to AWS:
+### Tests for CRR to AWS
 
 1. Create a bucket on AWS `<destination-aws-bucket-name>` with versioning
    enabled.
@@ -88,9 +89,9 @@
     EOF
     ```
 
-9. Run the test suite: `npm run test_crr`.
+11. Run the test suite: `npm run test_crr`.
 
-### Tests for Backbeat API and CRR Pause Resume:
+### Tests for Backbeat API and CRR Pause Resume
 
 1. Create a bucket on AWS `<destination-aws-bucket-name>` with versioning
    enabled.
@@ -134,24 +135,24 @@
 3. Export the keys, AWS bucket name, and AWS location (for example, in `.env`
    and `.secrets.env`):
 
-```
-export AWS_S3_BACKEND_ACCESS_KEY=<aws-access-key>
-export AWS_S3_BACKEND_SECRET_KEY=<aws-secret-key>
-export AWS_S3_FAIL_BACKBEAT_BUCKET_NAME=<destination-fail-aws-bucket-name>
-export AWS_S3_FAIL_BACKEND_DESTINATION_LOCATION=<destination-fail-aws-bucket-name>
-```
+    ```
+    export AWS_S3_BACKEND_ACCESS_KEY=<aws-access-key>
+    export AWS_S3_BACKEND_SECRET_KEY=<aws-secret-key>
+    export AWS_S3_FAIL_BACKBEAT_BUCKET_NAME=<destination-fail-aws-bucket-name>
+    export AWS_S3_FAIL_BACKEND_DESTINATION_LOCATION=<destination-fail-aws-bucket-name>
+    ```
 
 4. If using `*.env` files, source the files:
 
-```
-source .env && source .secrets.env
-```
+    ```
+    source .env && source .secrets.env
+    ```
 
-6. Update the backbeat configuration properties as such:
+5. Update the backbeat configuration properties as such:
 
-```
-extensions.replication.queueProcessor.retryTimeoutS: 1
-extensions.replication.replicationStatusProcessor.retryTimeoutS: 1
-```
+    ```
+    extensions.replication.queueProcessor.retryTimeoutS: 1
+    extensions.replication.replicationStatusProcessor.retryTimeoutS: 1
+    ```
 
-7. Run the test suite: `npm run test_retry`.
+6. Run the test suite: `npm run test_retry`.
