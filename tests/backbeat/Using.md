@@ -2,25 +2,39 @@
 
 ## Steps
 
-1. In the hosts file `/etc/hosts` map `127.0.0.1` to `zenko.local`. For example,
-   by adding the line:
+1. In the hosts file `/etc/hosts` map the ip of the kube node you are testing
+   with to `zenko.local`. For example, by adding the line:
 
-   ```
-   127.0.0.1 zenko.local
-   ```
+    ```
+    <kube-node-ip> zenko.local
+    ```
+   If you are ssh-ed into one of the kube servers or doing a port-forward to a
+   remote kube instance, the `kube-node-ip` value will be `127.0.0.1`
 
-2. Create an account using Orbit.
-3. Export the access key and secret key of that account (for example, in
+2. Find the Zenko service endpoint for S3 calls to Cloudserver by running:
+
+    ```
+    kubectl get services
+    ```
+   Look for the service named `zenko-cloudserver`, the value under `NAME`
+   should be set as the Zenko endpoint for testing:
+
+    ```
+    export CLOUDSERVER_ENDPOINT=<zenko-cloudserver-name>
+    ```
+
+3. Create an account using Orbit.
+4. Export the access key and secret key of that account (for example, in
    `.secrets.env`):
 
-```
-export ZENKO_STORAGE_ACCOUNT_ACCESS_KEY=<zenko-access-key>
-export ZENKO_STORAGE_ACCOUNT_SECRET_KEY=<zenko-secret-key>
-```
+    ```
+    export ZENKO_STORAGE_ACCOUNT_ACCESS_KEY=<zenko-access-key>
+    export ZENKO_STORAGE_ACCOUNT_SECRET_KEY=<zenko-secret-key>
+    ```
 
-4. Install node and npm.
-5. Navigate to `Zenko/tests/zenko_e2e/backbeat`.
-6. Install node modules: `npm i`.
+5. Install node and npm.
+6. Navigate to `Zenko/tests/zenko_e2e/backbeat`.
+7. Install node modules: `npm i`.
 
 ### Tests for CRR to AWS:
 
@@ -40,43 +54,43 @@ export ZENKO_STORAGE_ACCOUNT_SECRET_KEY=<zenko-secret-key>
 8. Export the keys, bucket name, container name, and storage location names
    (for example, in `.env` and `.secrets.env`):
 
-```
-export AWS_S3_BACKEND_ACCESS_KEY=<aws-access-key>
-export AWS_S3_BACKEND_SECRET_KEY=<aws-secret-key>
-export AWS_S3_BACKBEAT_BUCKET_NAME=<destination-aws-bucket-name>
-export AWS_S3_BACKEND_DESTINATION_LOCATION=<destination-aws-location-name>
-export AWS_S3_BACKEND_SOURCE_LOCATION=<source-aws-location-name>
-export AZURE_BACKEND_ACCOUNT_NAME=<azure-account-name>
-export AZURE_BACKEND_ACCESS_KEY=<azure-access-key>
-export AZURE_BACKEND_ENDPOINT=<azure-endpoint>
-export AZURE_BACKBEAT_CONTAINER_NAME=<destination-azure-container-name>
-export AZURE_BACKEND_DESTINATION_LOCATION=<destination-azure-location-name>
-export GCP_CRR_BUCKET_NAME=<destination-gcp-bucket-name>
-export GCP_BACKEND_DESTINATION_LOCATION=<destination-gcp-location-name>
-export GCP_BACKEND_SERVICE_KEY=<gcp-private-key>
-export GCP_BACKEND_SERVICE_EMAIL=<gcp-client-email>
-```
+    ```
+    export AWS_S3_BACKEND_ACCESS_KEY=<aws-access-key>
+    export AWS_S3_BACKEND_SECRET_KEY=<aws-secret-key>
+    export AWS_S3_BACKBEAT_BUCKET_NAME=<destination-aws-bucket-name>
+    export AWS_S3_BACKEND_DESTINATION_LOCATION=<destination-aws-location-name>
+    export AWS_S3_BACKEND_SOURCE_LOCATION=<source-aws-location-name>
+    export AZURE_BACKEND_ACCOUNT_NAME=<azure-account-name>
+    export AZURE_BACKEND_ACCESS_KEY=<azure-access-key>
+    export AZURE_BACKEND_ENDPOINT=<azure-endpoint>
+    export AZURE_BACKBEAT_CONTAINER_NAME=<destination-azure-container-name>
+    export AZURE_BACKEND_DESTINATION_LOCATION=<destination-azure-location-name>
+    export GCP_CRR_BUCKET_NAME=<destination-gcp-bucket-name>
+    export GCP_BACKEND_DESTINATION_LOCATION=<destination-gcp-location-name>
+    export GCP_BACKEND_SERVICE_KEY=<gcp-private-key>
+    export GCP_BACKEND_SERVICE_EMAIL=<gcp-client-email>
+    ```
 
 9. If using `*.env` files, source the files:
 
-```
-source .env && source .secrets.env
-```
+    ```
+    source .env && source .secrets.env
+    ```
 
 10. Create the GCP credential file in `Zenko/tests/zenko_e2e/backbeat`:
 
-```
-cat >gcp_key.json <<EOF
-{
-  "private_key": "${GCP_BACKEND_SERVICE_KEY}",
-  "client_email": "${GCP_BACKEND_SERVICE_EMAIL}"
-}
-EOF
-```
+    ```
+    cat >gcp_key.json <<EOF
+    {
+      "private_key": "${GCP_BACKEND_SERVICE_KEY}",
+      "client_email": "${GCP_BACKEND_SERVICE_EMAIL}"
+    }
+    EOF
+    ```
 
 9. Run the test suite: `npm run test_crr`.
 
-### Tests for Backbeat API:
+### Tests for Backbeat API and CRR Pause Resume:
 
 1. Create a bucket on AWS `<destination-aws-bucket-name>` with versioning
    enabled.
@@ -85,17 +99,18 @@ EOF
 3. Export the keys, AWS bucket name, and AWS location (for example, in `.env`
    and `.secrets.env`):
 
-```
-export AWS_S3_BACKEND_ACCESS_KEY=<aws-access-key>
-export AWS_S3_BACKEND_SECRET_KEY=<aws-secret-key>
-export AWS_S3_BACKBEAT_BUCKET_NAME=<destination-aws-bucket-name>
-export AWS_S3_BACKEND_DESTINATION_LOCATION=<destination-aws-location-name>
-```
+    ```
+    export AWS_S3_BACKEND_ACCESS_KEY=<aws-access-key>
+    export AWS_S3_BACKEND_SECRET_KEY=<aws-secret-key>
+    export AWS_S3_BACKBEAT_BUCKET_NAME=<destination-aws-bucket-name>
+    export AWS_S3_BACKEND_DESTINATION_LOCATION=<destination-aws-location-name>
+    ```
 
 4. If using `*.env` files, source the files:
 
-```
-source .env && source .secrets.env
-```
+    ```
+    source .env && source .secrets.env
+    ```
 
-5. Run the test suite: `npm run test_api`.
+5. Run the test suite: `npm run test_api` for API tests, or
+   `npm run test_crr_pause_resume` for CRR pause and resume tests.
