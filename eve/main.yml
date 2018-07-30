@@ -56,6 +56,7 @@ models:
       AWS_S3_BACKEND_DESTINATION_LOCATION: awsbackendmismatch
       AZURE_BACKEND_DESTINATION_LOCATION: azurebackendmismatch
       GCP_BACKEND_DESTINATION_LOCATION: gcpbackendmismatch
+      LOCATION_QUOTA_BACKEND: quotabackend
 
   - env: &docker_env # contains values for build test images
       E2E_DOCKER_IMAGE_NAME: '%(secret:private_registry_url)s/zenko/zenko-e2e'
@@ -254,6 +255,18 @@ stages:
           --env CLOUDSERVER_ENDPOINT="http://$ZENKO_HELM_RELEASE-cloudserver:80"
           --env CLOUDSERVER_HOST="$ZENKO_HELM_RELEASE-cloudserver"
           -- npm run test_crr_pause_resume
+        workdir: build/tests
+        env:
+          <<: *global_env
+    - ShellCommand:
+        name: Run location quota tests
+        command: >-
+          kubectl run zenko-node-e2e --image=$BACKBEAT_DOCKER_IMAGE_NAME:%(prop:commit_short_revision)s
+          --rm --restart=Never --namespace $ZENKO_K8S_NAMESPACE --attach=True
+          $(../eve/workers/ci_env.sh env)
+          --env CLOUDSERVER_ENDPOINT="http://$ZENKO_HELM_RELEASE-cloudserver:80"
+          --env CLOUDSERVER_HOST="$ZENKO_HELM_RELEASE-cloudserver"
+          -- npm run test_location_quota
         workdir: build/tests
         env:
           <<: *global_env
