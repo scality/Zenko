@@ -93,6 +93,8 @@ models:
         helm upgrade ciutil
         --install orbit-simulator/charts/orbit-simulator
         --set simulator.shim.cloudserver_release=$(echo ${ZENKO_HELM_RELEASE})
+        --set simulator.image.repository=docker.io/dorakorpar/orbsim
+        --set simulator.image.tag=fixswagup
         --wait $(./ci_env.sh set)
       workdir: build/eve/workers
       haltOnFailure: true
