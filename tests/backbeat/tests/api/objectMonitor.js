@@ -19,7 +19,7 @@ const keyPrefix = `${srcBucket}/${hex}`;
 const key = `${keyPrefix}/object-to-replicate-${Date.now()}`;
 const REPLICATION_TIMEOUT = 300000;
 
-describe('API Route: /_/backbeat/api/metrics/crr/<site-name>/progress/' +
+describe.skip('API Route: /_/backbeat/api/metrics/crr/<site-name>/progress/' +
     '<bucket>/<key>?versionId=<version-id>', function() {
     this.timeout(REPLICATION_TIMEOUT);
     let roleArn = 'arn:aws:iam::root:role/s3-replication-role';
