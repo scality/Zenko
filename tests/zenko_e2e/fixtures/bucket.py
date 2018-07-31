@@ -33,7 +33,7 @@ def aws_target_bucket(aws_resource):
 def gcp_target_bucket(gcp_resource):
     bucket = create_bucket(gcp_resource, conf.GCP_TARGET_BUCKET)
     yield bucket
-    util.cleanup_bucket(bucket, delete_bucket=False)
+    util.cleanup_gcp_bucket(bucket, delete_bucket=False)
 
 
 @pytest.fixture(scope='session')
@@ -68,7 +68,7 @@ def aws_crr_target_bucket(aws_crr_resource):
 def gcp_crr_target_bucket(gcp_resource):
     bucket = create_bucket(gcp_resource, conf.GCP_CRR_TARGET_BUCKET)
     yield bucket
-    util.cleanup_bucket(bucket, delete_bucket=False)
+    util.cleanup_gcp_bucket(bucket, delete_bucket=False)
 
 
 @pytest.fixture(scope='session')
