@@ -15,8 +15,8 @@ dependencies:
   repository: http://storage.googleapis.com/kubernetes-charts-incubator
   version: 1.0.0
 - name: redis-ha
-  repository: https://kubernetes-charts.storage.googleapis.com/
-  version: 2.2.0
+  repository: https://scality.github.io/charts/
+  version: 3.0.0
 - name: grafana
   repository: https://kubernetes-charts.storage.googleapis.com/
   version: 1.11.6
@@ -32,5 +32,5 @@ dependencies:
 - name: zenko-nfs
   repository: file://../zenko-nfs
   version: 0.1.0
-digest: sha256:5f39dededbbb0dcee5b08e2902027e21ccfb0d104ad7a5d1fa51321ec6911a23
-generated: 2018-07-20T16:19:36.688649833-07:00
+digest: sha256:58316cdaff3444bd0acb53ca7bd0f0a94409766190184a407fd121a38adbeb75
+generated: 2018-07-31T15:20:32.061652742-07:00

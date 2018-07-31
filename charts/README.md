@@ -11,17 +11,26 @@ First, retrieve all dependencies:
 $ helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
 "incubator" has been added to your repositories
 
+$ helm repo add scality https://scality.github.io/charts/
+"scality" has been added to your repositories
+
 $ helm dependency build zenko/
 Hang tight while we grab the latest from your chart repositories...
+...Unable to get an update from the "local" chart repository (http://127.0.0.1:8879/charts):
+	Get http://127.0.0.1:8879/charts/index.yaml: dial tcp 127.0.0.1:8879: connect: connection refused
+...Successfully got an update from the "scality" chart repository
 ...Successfully got an update from the "incubator" chart repository
+...Successfully got an update from the "coreos" chart repository
 ...Successfully got an update from the "stable" chart repository
 Update Complete. ⎈Happy Helming!⎈
-Saving 8 charts
+Saving 11 charts
 Downloading prometheus from repo https://kubernetes-charts.storage.googleapis.com/
 Downloading mongodb-replicaset from repo https://kubernetes-charts.storage.googleapis.com/
 Downloading redis from repo https://kubernetes-charts.storage.googleapis.com/
 Downloading kafka from repo http://storage.googleapis.com/kubernetes-charts-incubator
 Downloading zookeeper from repo http://storage.googleapis.com/kubernetes-charts-incubator
+Downloading redis-ha from repo https://scality.github.io/charts/
+Downloading grafana from repo https://kubernetes-charts.storage.googleapis.com/
 Deleting outdated charts
 ```
 
