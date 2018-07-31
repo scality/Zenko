@@ -521,7 +521,7 @@ Follow these steps to install Zenko with Ingress.
       name: NO_PROXY
       value: localhost,127.0.0.1,10.*
 
-3. Perform the following Helm installation from the charts directory:
+3. Perform the following Helm installation from the charts directory
 
    ::
 
@@ -529,7 +529,7 @@ Follow these steps to install Zenko with Ingress.
 
    If the command is successful, the output from Helm is extensive.
 
-4. To follow how K8s is creating pods required for Zenko, use the command:
+4. To follow how K8s is creating pods required for Zenko, use the command
 
    ::
 
@@ -540,7 +540,37 @@ Follow these steps to install Zenko with Ingress.
    behavior, because there is no launch order between pods. After a few
    minutes, all pods will enter Running mode.
 
-5. To register your Zenko instance to Orbit, get your Cloudserver’s name:
+5. Give the system about ten minutes to stabilize; then run the following
+   command
+
+   ::
+
+    $ kubectl get pods -L redis-role -l app=redis-ha
+
+   This returns information on the roles of the redis servers in the system.
+   For a three-node test system, this output looks like:
+
+   ::
+
+    NAME                                         READY     STATUS    RESTARTS   AGE       REDIS-ROLE
+    zenko-redis-ha-sentinel-878f46c4b-5d6mv   1/1       Running   1          4d        sentinel
+    zenko-redis-ha-sentinel-878f46c4b-l2b88   1/1       Running   1          4d        sentinel
+    zenko-redis-ha-sentinel-878f46c4b-xwpxx   1/1       Running   1          4d        sentinel
+    zenko-redis-ha-server-68d7b8b557-6tsj8    1/1       Running   1          4d        slave
+    zenko-redis-ha-server-68d7b8b557-9x92m    1/1       Running   1          4d        master
+    zenko-redis-ha-server-68d7b8b557-xghhf    1/1       Running   1          4d        slave
+
+   If the ha-servers show more than one running master, kill all but one master
+   using the command:
+
+   ::
+
+    $ kubectl delete <zenko>-redis-ha-server-<1234567890>-<xyz123>
+
+   where <zenko> is the installed name. Invoke the full pod name, including the
+   uniquely identifying installation and instance hashes.
+
+6. To register your Zenko instance to Orbit, get your Cloudserver’s name
 
    ::
 
@@ -571,7 +601,7 @@ Follow these steps to install Zenko with Ingress.
 6. Open https://admin.zenko.io/user in a web browser. You may be prompted to
    authenticate through Google.
 
-7. Click the button to **Register My Instance**.
+7. Click the **Register My Instance** button.
 
 8. Paste the instance ID into the Instance ID dialog. Name the instance what
    you will.
