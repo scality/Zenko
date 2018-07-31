@@ -129,9 +129,9 @@ def cleanup_bucket(bucket, replicated=False, delete_bucket=True): # noqa pylint:
         except BaseException:
             pass
 
-        is_truncated = version_list['IsTruncated']
+        is_truncated = version_list.get('IsTruncated')
         if is_truncated:
-            key_marker = version_list['NextKeyMarker']
+            key_marker = version_list.get('NextKeyMarker')
     if delete_bucket:
         bucket.delete()
 
