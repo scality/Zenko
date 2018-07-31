@@ -7,7 +7,7 @@ orbit:
   endpoint: https://api.zenko.io
   pushEndpoint: https://push.api.zenko.io
   managerMode: push
-  workerMode: poll
+  workerMode: push
   storageLimit:
   # This allows you to manage storage limits from Orbit
     enabled: true
@@ -32,8 +32,8 @@ mongodb:
   replicas: 3
 
 # Replication factor will deploy n * replicaCount for deployments that need
-# not only HA but high performance and throughput. When Orbit is enabled, there 
-# will be an additional stateless single manager pod deployed which serves as the 
+# not only HA but high performance and throughput. When Orbit is enabled, there
+# will be an additional stateless single manager pod deployed which serves as the
 # "manager" for reporting metrics. This manager pod currently cannot scale replicas.
 replicaCount: 3
 replicaFactor: 1
