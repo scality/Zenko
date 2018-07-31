@@ -136,6 +136,14 @@ def cleanup_bucket(bucket, replicated=False, delete_bucket=True): # noqa pylint:
         bucket.delete()
 
 
+def cleanup_gcp_bucket(bucket, delete_bucket=False):
+    for obj in bucket.objects.all():
+        if obj.key.startswith(conf.OBJ_PREFIX):
+            obj.delete()
+    if delete_bucket:
+        bucket.delete()
+
+
 UPLOAD_CONFIG = TransferConfig(multipart_threshold=10 * 1024 * 1024)  # 10MB
 
 
