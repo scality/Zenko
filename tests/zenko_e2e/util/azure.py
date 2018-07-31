@@ -1,3 +1,4 @@
+from .. import conf
 
 
 class ObjectStub:  # pylint: disable=too-few-public-methods
@@ -67,6 +68,7 @@ class AzureBucket:
 def cleanup_azure_bucket(bucket, delete_bucket=True):
     blobs = list(bucket.objects.all())
     for blob in blobs:
-        bucket.delete_blob(blob.name)
+        if blob.name.startswith(conf.OBJ_PREFIX):
+            bucket.delete_blob(blob.name)
     if delete_bucket:
         bucket.delete()
