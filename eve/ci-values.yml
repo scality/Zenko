@@ -37,12 +37,14 @@ redis-ha:
     create: false
     name: default
 
-cloudserver:
-  image:
-    pullPolicy: Always
+global:
   orbit:
     endpoint: "http://ciutil-orbit-simulator:4222"
     managerMode: "poll"
+
+cloudserver:
+  image:
+    pullPolicy: Always
   replicaCount: 0
   env:
     MPU_TESTING: 'yes'

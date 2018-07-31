@@ -2,22 +2,61 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-orbit:
-  enabled: true
-  endpoint: https://api.zenko.io
-  pushEndpoint: https://push.api.zenko.io
-  managerMode: push
-  workerMode: push
-  storageLimit:
-  # This allows you to manage storage limits from Orbit
+global:
+  orbit:
     enabled: true
+    endpoint: https://api.zenko.io
+    pushEndpoint: https://push.api.zenko.io
+    managerMode: push
+    workerMode: push
+    storageLimit:
+      # This allows you to manage storage limits from Orbit
+      enabled: true
 
-# When 'orbit.enabled' is 'true', these aren't used, please use
-# https://zenko.io to manage your deployment
+  # When 'orbit.enabled' is 'true', these aren't used, please use
+  # https://zenko.io to manage your deployment
+  locationConstraints: {}
+    # awsbackend:
+    #   type: aws_s3
+    #   legacyAwsBehavior: true
+    #   details:
+    #     bucketMatch: true
+    #     awsEndpoint: s3.amazonaws.com
+    #     bucketName:
+    #     credentials:
+    #       accessKey:
+    #       secretKey:
+    # azurebackend:
+    #   type: azure
+    #   legacyAwsBehavior: true
+    #   details:
+    #     bucketMatch: false
+    #     azureStorageEndpoint: https://example.blob.core.windows.net
+    #     azureStorageAccountName:
+    #     azureStorageAccessKey:
+    #     azureContainerName:
+    # gcpbackend:
+    #   type: gcp
+    #   legacyAwsBehavior: true
+    #   details:
+    #     bucketMatch: false
+    #     gcpEndpoint: storage.googleapis.com
+    #     bucketName:
+    #     mpuBucketName:
+    #     credentials:
+    #       accessKey:
+    #       secretKey:
+  replicationEndpoints: []
+    # - awsbackend
+    # - azurebackend
+    # - gcpbackend
+
 endpoint: zenko.local
-credentials:
-  keyId: deployment-specific-access-key
-  secretKey: deployment-specific-secret-key
+
+users: {}
+  # accountName:
+    # access:
+    # secret:
 
 logging:
    # Options: info, debug, trace

@@ -3,7 +3,7 @@ nodeCount: &nodeCount 1
 ingress:
   enabled: true
   hosts:
-    - ""
+    - "zenko.local"
 
 cloudserver:
   mongodb:

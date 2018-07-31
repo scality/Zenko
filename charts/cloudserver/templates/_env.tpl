@@ -20,7 +20,7 @@ env:
     value: "{{ .Release.Name }}-cloudserver,{{ .Values.endpoint }}"
   - name: HEALTHCHECKS_ALLOWFROM
     value: "{{ .Values.allowHealthchecksFrom }}"
-  {{- if .Values.orbit.storageLimit.enabled }}
+  {{- if .Values.global.orbit.storageLimit.enabled }}
   - name: STORAGE_LIMIT_ENABLED
     value: "true"
   {{- end }}
@@ -49,25 +49,25 @@ env:
     value: "{{ template "cloudserver.mongodb-hosts" . }}"
   - name: MONGODB_RS
     value: "{{ default "rs0" .Values.mongodb.replicaSet }}"
-  {{- if .Values.orbit.enabled }}
+  {{- if .Values.global.orbit.enabled }}
   - name: REMOTE_MANAGEMENT_DISABLE
     value: "0"
   - name: MANAGEMENT_ENDPOINT
-    value: "{{- .Values.orbit.endpoint -}}"
+    value: "{{- .Values.global.orbit.endpoint -}}"
   - name: PUSH_ENDPOINT
-    value: "{{- .Values.orbit.pushEndpoint -}}"
+    value: "{{- .Values.global.orbit.pushEndpoint -}}"
   {{- else }}
   - name: REMOTE_MANAGEMENT_DISABLE
     value: "1"
-  - name: SCALITY_ACCESS_KEY_ID
-    valueFrom:
-      secretKeyRef:
-        name: {{ template "cloudserver.fullname" . }}
-        key: keyId
-  - name: SCALITY_SECRET_ACCESS_KEY
-    valueFrom:
-      secretKeyRef:
-        name: {{ template "cloudserver.fullname" . }}
-        key: secretKey
+  - name: S3AUTH_CONFIG
+    value: "/data/authdata.json"
+  {{- if .Values.global.locationConstraints }}
+  - name: S3_LOCATION_FILE
+    value: "/etc/config/locationConfig"
+  {{- if .Values.global.replicationEndpoints }}
+  - name: S3_REPLICATION_FILE
+    value: "/etc/config/replicationInfo"
+  {{- end }}
+  {{- end }}
   {{- end }}
 {{- end }}

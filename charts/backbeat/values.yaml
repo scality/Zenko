@@ -1,8 +1,12 @@
 # Default values for backbeat.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-orbit:
-  enabled: true
+
+global:
+  orbit:
+    enabled: true
+  locationConstraints: {}
+  replicationEndpoints: []
 
 image:
   repository: zenko/backbeat

@@ -11,6 +11,10 @@ spec:
   replicas: {{ .Values.replication.populator.replicaCount }}
   template:
     metadata:
+      {{- if not .Values.global.orbit.enabled }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      {{- end }}
       labels:
         app: {{ template "backbeat.name" . }}-replication
         release: {{ .Release.Name }}
@@ -21,14 +25,30 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           args: ["npm", "run", "queue_populator"]
           env:
-            - name: REMOTE_MANAGEMENT_DISABLE
-              value: "{{- if .Values.orbit.enabled }}0{{- else }}1{{- end }}"
             - name: ZOOKEEPER_AUTO_CREATE_NAMESPACE
               value: "1"
             - name: ZOOKEEPER_CONNECTION_STRING
               value: "{{- printf "%s-zenko-quorum:2181" .Release.Name | trunc 63 | trimSuffix "-" -}}"
             - name: KAFKA_HOSTS
               value: "{{- printf "%s-zenko-queue:9092" .Release.Name | trunc 63 | trimSuffix "-" -}}"
+            {{- if .Values.global.orbit.enabled }}
+            - name: REMOTE_MANAGEMENT_DISABLE
+              value: "0"
+            {{ else }}
+            - name: REMOTE_MANAGEMENT_DISABLE
+              value: "1"
+            # Do we need this below?
+            - name: EXTENSIONS_REPLICATION_DEST_BOOTSTRAPLIST
+              value: "{{- printf "%s-cloudserver:80" .Release.Name | trunc 63 | trimSuffix "-" -}}"
+            {{- if .Values.global.locationConstraints }}
+            - name: EXTENSIONS_REPLICATION_DEST_BOOTSTRAPLIST_MORE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-backbeat-configmap
+                  key: bootstrapList
+            {{- end }}
+            ####################
+            {{- end }}
             - name: MONGODB_HOSTS
               value: "{{ template "backbeat.mongodb-hosts" . }}"
             - name: REDIS_HOST
