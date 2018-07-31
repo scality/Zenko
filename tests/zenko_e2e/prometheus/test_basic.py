@@ -13,6 +13,7 @@ SERVICE = 'kubernetes-service-endpoints'
 POD = 'kubernetes-pods'
 
 
+@pytest.mark.skip("Broken")
 @pytest.mark.nondestructive
 @pytest.mark.conformance
 @pytest.mark.parametrize('job,name', [
