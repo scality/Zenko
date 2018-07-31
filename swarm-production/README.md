@@ -41,7 +41,8 @@ w43z9jeujmolyoic5ivd5tft4 *  s3-node-zenko-swarm-0.na.scality.cloud  Ready   Act
 ```
 
 Here, we choose the host `s3-node-zenko-swarm-1.na.scality.cloud` with ID
-`ng8quztnef0r1x90le4d6lssj`. To ensure that Docker Swarm only schedules persistent containers to this node, assign the `io.zenko.type` label with
+`ng8quztnef0r1x90le4d6lssj`. To ensure that Docker Swarm only schedules
+persistent containers to this node, assign the `io.zenko.type` label with
 the value `storage` to the node:
 
 ```shell
@@ -68,10 +69,12 @@ Volumes are automatically created by Docker Swarm as needed.
 ### Zenko Orbit
 
 By default, the stack registers itself at the
-[Zenko Orbit](https://www.zenko.io/admin) portal and uploads anonymous stats. Zenko Orbit allows easy configuration of users, remote storage locations,
+[Zenko Orbit](https://www.zenko.io/admin) portal and uploads anonymous stats.
+Zenko Orbit allows easy configuration of users, remote storage locations,
 replication and more, as well as instance monitoring.
 
-To opt out of remote management and monitoring, export this environment variable before deployment:
+To opt out of remote management and monitoring, export this environment
+variable before deployment:
 
 ```shell
 $ export REMOTE_MANAGEMENT_DISABLE=1
@@ -148,7 +151,8 @@ set.
 
 ## Using Zenko Orbit
 
-To get your instance's Zenko Orbit identifier and claim it in the portal, issue this command:
+To get your instance's Zenko Orbit identifier and claim it in the portal,
+issue this command:
 
 ```shell
 $ docker service logs zenko-prod_s3-front | grep -i instance \
@@ -158,18 +162,21 @@ $ docker service logs zenko-prod_s3-front | grep -i instance \
    "843d31bf15f0", "pid":28}
 ```
 
-Go to [Zenko Orbit](https://www.zenko.io/admin) to manage your deployment through a nifty UI.
+Go to [Zenko Orbit](https://www.zenko.io/admin) to manage your deployment
+through a nifty UI.
 
 ## Testing
 
-To use the `tests` folder, update the credentials in  `Zenko/tests/utils/s3SDK.js` with credentials generated in Zenko Orbit.
+To use the `tests` folder, update the credentials in
+`Zenko/tests/utils/s3SDK.js` with credentials generated in Zenko Orbit.
 Install node modules with `npm install`. Then, run `npm test`.
 
 You can use [awscli](https://aws.amazon.com/cli/) to perform S3 operations
 on the Zenko stack. Because the load balancer container is deployed in `global`
 mode, we can use any of the swarm nodes as the endpoint.
 
-For the default `zenko` host name, substitute either the `ENDPOINT` variable configured above (if applicable), or whatever the `hostname -f` command returns.
+For the default `zenko` host name, substitute either the `ENDPOINT` variable
+configured above (if applicable), or whatever the `hostname -f` command returns.
 
  > **IMPORTANT:** When default port 80 is in use, it must never be specified
  > after the endpoint address. Any custom port in use must be specified.
@@ -202,7 +209,7 @@ $ aws s3api put-object --bucket bucket1 --key findme2 --endpoint-url http://127.
 From within the S3-frontend container:
 
 ```shell
-$ bin/search_bucket.js -a accessKey1 -k verySecretKey1 -b bucket1 -q "userMd.\`x-amz-meta-color\`=\"blue\"" -h 127.0.0.1 -p 8000
+$ bin/search_bucket.js -a accessKey1 -k verySecretKey1 -b bucket1 -q \ "userMd.\`x-amz-meta-color\`=\"blue\"" -h 127.0.0.1 -p 8000
 ```
 
 ## Further Improvements
