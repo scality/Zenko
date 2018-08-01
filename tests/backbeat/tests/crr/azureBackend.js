@@ -24,6 +24,7 @@ const REPLICATION_TIMEOUT = 300000;
 
 describe('Replication with Azure backend', function() {
     this.timeout(REPLICATION_TIMEOUT);
+    this.retries(3);
     let roleArn = 'arn:aws:iam::root:role/s3-replication-role';
 
     beforeEach(done => series([

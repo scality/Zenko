@@ -11,10 +11,34 @@ spec:
   replicas: {{ .Values.replication.dataProcessor.replicaCount }}
   template:
     metadata:
+      {{- if not .Values.global.orbit.enabled }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      {{- end }}
       labels:
         app: {{ template "backbeat.name" . }}-replication
         release: {{ .Release.Name }}
     spec:
+      {{- if not .Values.global.orbit.enabled }}
+      initContainers:
+        - name: backbeat-accounts
+          image: "zenko/tools:latest"
+          command:
+            - "sh"
+          args:
+            - "-c"
+            - |
+              set -e
+              set -x
+              jq -s '. as [$ACCS, $KEYS] | $ACCS.accounts | map(.keys={ access: $KEYS[.name].access, secret: $KEYS[.name].secret} ) | { accounts: . }' /accounts/authdata.json /credentials/credentials.json > /data/authdata.json
+          volumeMounts:
+            - name: accounts
+              mountPath: /accounts
+            - name: credentials
+              mountPath: /credentials
+            - name: auth-config
+              mountPath: /data
+      {{- end }}
       containers:
         - name: replication-data-processor
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -22,8 +46,6 @@ spec:
           command: ["/usr/src/app/docker-entrypoint.sh"]
           args: ["npm", "run", "queue_processor"]
           env:
-            - name: REMOTE_MANAGEMENT_DISABLE
-              value: "{{- if .Values.orbit.enabled }}0{{- else }}1{{- end }}"
             - name: ZOOKEEPER_AUTO_CREATE_NAMESPACE
               value: "1"
             - name: ZOOKEEPER_CONNECTION_STRING
@@ -32,20 +54,44 @@ spec:
               value: "{{- printf "%s-zenko-queue:9092" .Release.Name | trunc 63 | trimSuffix "-" -}}"
             - name: LOG_LEVEL
               value: {{ .Values.logging.level }}
-            - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_TYPE
-              value: service
-            - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_ACCOUNT
-              value: service-replication
             - name: EXTENSIONS_REPLICATION_SOURCE_S3_HOST
               value: "{{- printf "%s-cloudserver" .Release.Name | trunc 63 | trimSuffix "-" -}}"
             - name: EXTENSIONS_REPLICATION_SOURCE_S3_PORT
               value: "80"
+            - name: EXTENSIONS_REPLICATION_DEST_BOOTSTRAPLIST
+              value: "{{- printf "%s-cloudserver:80" .Release.Name | trunc 63 | trimSuffix "-" -}}"
+            {{- if .Values.global.orbit.enabled }}
+            - name: REMOTE_MANAGEMENT_DISABLE
+              value: "0"
+            - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_TYPE
+              value: service
+            - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_ACCOUNT
+              value: service-replication
             - name: EXTENSIONS_REPLICATION_DEST_AUTH_TYPE
               value: service
             - name: EXTENSIONS_REPLICATION_DEST_AUTH_ACCOUNT
               value: service-replication
-            - name: EXTENSIONS_REPLICATION_DEST_BOOTSTRAPLIST
-              value: "{{- printf "%s-cloudserver:80" .Release.Name | trunc 63 | trimSuffix "-" -}}"
+            {{ else }}
+            - name: REMOTE_MANAGEMENT_DISABLE
+              value: "1"
+            - name: S3AUTH_CONFIG
+              value: "/data/authdata.json"
+            - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_TYPE
+              value: account
+            - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_ACCOUNT
+              value: Replication
+            - name: EXTENSIONS_REPLICATION_DEST_AUTH_TYPE
+              value: account
+            - name: EXTENSIONS_REPLICATION_DEST_AUTH_ACCOUNT
+              value: Replication
+            {{- if .Values.global.replicationEndpoints }}
+            - name: EXTENSIONS_REPLICATION_DEST_BOOTSTRAPLIST_MORE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-backbeat-configmap
+                  key: bootstrapList
+            {{- end }}
+            {{- end }}
             - name: MONGODB_HOSTS
               value: "{{ template "backbeat.mongodb-hosts" . }}"
             - name: REDIS_HOST
@@ -64,6 +110,11 @@ spec:
             httpGet:
               path: {{ .Values.health.path.readiness }}
               port: {{ .Values.health.port }}
+          {{- if not .Values.global.orbit.enabled }}
+          volumeMounts:
+            - name: auth-config
+              mountPath: /data
+          {{- end}}
           resources:
 {{ toYaml .Values.replication.dataProcessor.resources | indent 12 }}
     {{- with .Values.replication.dataProcessor.nodeSelector }}
@@ -78,3 +129,14 @@ spec:
       tolerations:
 {{ toYaml . | indent 8 }}
     {{- end }}
+      volumes:
+        {{- if not .Values.global.orbit.enabled }}
+        - name: auth-config
+          emptyDir: {}
+        - name: accounts
+          configMap:
+            name: {{ template "backbeat.fullname" . }}-configmap
+        - name: credentials
+          secret:
+            secretName: {{ .Release.Name }}-service-secrets
+        {{- end }}

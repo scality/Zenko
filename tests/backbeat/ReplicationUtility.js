@@ -586,6 +586,18 @@ class ReplicationUtility {
         });
     }
 
+    compareObjectsOneToMany(srcBucket, awsDestBucket, destContainer,
+        gcpDestBucket, key, cb) {
+        return async.parallel([
+            next => this.compareObjectsAWS(srcBucket, awsDestBucket, key,
+                undefined, next),
+            next => this.compareObjectsAzure(srcBucket, destContainer, key,
+                next),
+            next => this.compareObjectsGCP(srcBucket, gcpDestBucket, key,
+                next),
+        ], cb);
+    };
+
     compareObjectsAzure(srcBucket, containerName, key, cb) {
         return async.series([
             next => this.waitUntilReplicated(srcBucket, key, undefined, next),
@@ -651,6 +663,11 @@ class ReplicationUtility {
                 'REPLICA');
             assert.strictEqual(destUserMD['scal-version-id'],
                 srcData.VersionId);
+            // Zero-byte object condition.
+            if (srcData.Body.length === 0) {
+                assert.deepStrictEqual(destData, []);
+                return cb();
+            }
             this._compareObjectBody(srcData.Body, destData);
             return cb();
         });

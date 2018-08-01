@@ -1,5 +1,4 @@
-{{- if .Values.orbit.enabled }}
-{{- else }}
+{{- if not .Values.global.orbit.enabled }}
 apiVersion: v1
 kind: Pod
 metadata:

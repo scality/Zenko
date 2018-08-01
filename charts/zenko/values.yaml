@@ -24,19 +24,25 @@ ingress:
     #   hosts:
     #     - zenko.example.com
 
+global:
+  orbit:
+    enabled: true
+    endpoint: https://api.zenko.io
+    # When 'orbit.enabled' is 'true', these aren't used, please use
+    # https://zenko.io to manage your deployment
+  locationConstraints: {}
+  replicationEndpoints: []
+
 cloudserver:
   replicaCount: *nodeCount
   replicaFactor: 10
   mongodb:
     replicas: *nodeCount
-  orbit:
-    enabled: true
-  # When 'orbit.enabled' is 'true', these aren't used, please use
-  # https://zenko.io to manage your deployment
   endpoint: zenko.local
-  credentials:
-    keyId: deployment-specific-access-key
-    secretKey: deployment-specific-secret-key
+  users: {}
+    # accountName:
+      # access:
+      # secret:
 
 backbeat:
   replication:
@@ -114,6 +120,7 @@ redis:
     enabled: true
 
 redis-ha:
+  redis_image: zenko/redis-ha:4.0.10-r1
   rbac:
     create: true
   replicas:

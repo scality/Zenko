@@ -81,6 +81,7 @@ models:
       name: Install needed helm repos
       command: |-
         helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
+        helm repo add scality https://scality.github.io/charts
       haltOnFailure: true
       env:
         <<: *k8s_env

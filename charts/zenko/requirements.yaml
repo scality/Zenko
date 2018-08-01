@@ -19,8 +19,8 @@ dependencies:
   repository: "http://storage.googleapis.com/kubernetes-charts-incubator"
   alias: zenko-quorum
 - name: redis-ha
-  version: "2.2.0"
-  repository: "https://kubernetes-charts.storage.googleapis.com/"
+  version: "3.0.0"
+  repository: "https://scality.github.io/charts/"
 - name: grafana
   version: "1.11.6"
   repository: "https://kubernetes-charts.storage.googleapis.com/"
