@@ -17,7 +17,7 @@ persistentVolume:
     - ReadWriteOnce
   annotations: {}
   existingClaim: ""
-  size: 100Gi
+  size: 10Gi
   # storageClass: "-"
 allowHealthchecksFrom: '0.0.0.0/0'
 
