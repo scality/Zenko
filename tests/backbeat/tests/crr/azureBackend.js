@@ -34,9 +34,9 @@ describe('Replication with Azure backend', function() {
     ], done));
 
     afterEach(done => series([
-        next => utils.deleteVersionedBucket(srcBucket, next),
         next => utils.deleteAllBlobs(destContainer, `${srcBucket}/${keyPrefix}`,
             next),
+        next => utils.deleteVersionedBucket(srcBucket, next),
     ], done));
 
     it('should replicate an object', done => series([

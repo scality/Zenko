@@ -547,6 +547,54 @@ class ReplicationUtility {
         () => objectExists, cb);
     }
 
+    // Continue getting head object while any backend status is PENDING.
+    waitWhilePendingCRR(bucketName, key, cb) {
+        let shouldContinue;
+        return async.doWhilst(callback =>
+            this.s3.headObject({
+                Bucket: bucketName,
+                Key: key,
+            }, (err, data) => {
+                if (err) {
+                    return callback(err);
+                }
+                const statuses = [];
+                // We cannot rely on the global status for one-to-many, so check
+                // each of the destination statuses.
+                Object.keys(data.Metadata).forEach(key => {
+                    if (key.includes('replication-status')) {
+                        statuses.push(data.Metadata[key]);
+                    }
+                });
+                shouldContinue = statuses.includes('PENDING');
+                if (shouldContinue) {
+                    return setTimeout(callback, 2000);
+                }
+                return callback();
+            }),
+        () => shouldContinue, cb);
+    }
+
+    // Continue getting head object while the replication status is FAILED.
+    waitWhileFailedCRR(bucketName, key, cb) {
+        let shouldContinue;
+        return async.doWhilst(callback =>
+            this.s3.headObject({
+                Bucket: bucketName,
+                Key: key,
+            }, (err, data) => {
+                if (err) {
+                    return callback(err);
+                }
+                shouldContinue = data.ReplicationStatus === 'FAILED';
+                if (shouldContinue) {
+                    return setTimeout(callback, 2000);
+                }
+                return callback();
+            }),
+        () => shouldContinue, cb);
+    }
+
     compareObjectsAWS(srcBucket, destBucket, key, optionalField, cb) {
         return async.series([
             next => this.waitUntilReplicated(srcBucket, key, undefined, next),
