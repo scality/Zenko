@@ -50,8 +50,6 @@ Sizing
 
 Sizing for Metal K8s
 --------------------
-To perform functional tests using a Scality cloud lab, divide these
-requirements by two.
 
 -  Cores
 
@@ -64,7 +62,7 @@ requirements by two.
    -  4 GB for etcd
    -  8 GB for master
    -  8 GB for node
-      
+
 -  Storage (for the system)
 
    -  20 GB for the root filesystem
@@ -138,96 +136,103 @@ and their basic configuration, including masters, etcds, and nodes.
 
 To specify the machines on which the Ansible_-based deployment system shall
 install MetalK8s, you must provide an *inventory*. This inventory contains a
-*hosts* file that lists all hosts in the cluster and *kube-node.yml*, a script
-that contains configuration information.
+*hosts* file that lists all hosts in the cluster and *kube-node.yml*, a
+configuration file.
 
 .. _Ansible: https://www.ansible.com
 
 To create an inventory:
 
-  1. Log in to the master machine and navigate to the metal-k8s repo.
+1. Log in to the master machine and navigate to the metal-k8s repo.
 
-  2. Create a directory inside the metal-k8s directory (for example,
-     :file:`inventory/quickstart-cluster`) in which the inventory will
-     be stored. Change to that directory.
+2. Create a directory inside the metal-k8s directory (for example,
+   :file:`inventory/quickstart-cluster`) in which the inventory will
+   be stored. Change to that directory.
 
-     .. code-block:: shell
+   .. code-block:: shell
 
-       $ cd metal-k8s
-       $ mkdir -p inventory/quickstart-cluster
-       $ cd inventory/quickstart-cluster/
+     $ cd metal-k8s
+     $ mkdir -p inventory/quickstart-cluster
+     $ cd inventory/quickstart-cluster/
 
-  3. Create the :file:`hosts` file, which lists all hosts.
+3. Create the :file:`hosts` file, which lists all hosts.
 
-     .. code-block:: ini
+   .. code-block:: ini
 
-        node-01 ansible_host=10.0.0.1 ansible_user=centos
-        node-02 ansible_host=10.0.0.2 ansible_user=centos
-        node-03 ansible_host=10.0.0.3 ansible_user=centos
+     node-01 ansible_host=10.0.0.1 ansible_user=centos
+     node-02 ansible_host=10.0.0.2 ansible_user=centos
+     node-03 ansible_host=10.0.0.3 ansible_user=centos
+     node-04 ansible_host=10.0.0.4 ansible_user=centos
+     node-05 ansible_host=10.0.0.5 ansible_user=centos
 
-        [kube-master]
-        node-01
-        node-02
-        node-03
+     [kube-master]
+     node-01
+     node-02
+     node-03
+     node-04
+     node-05
 
-        [etcd]
-        node-01
-        node-02
-        node-03
+     [etcd]
+     node-01
+     node-02
+     node-03
+     node-04
+     node-05
+   
+     [kube-node]
+     node-01
+     node-02
+     node-03
+     node-04
+     node-05
+   
+     [k8s-cluster:children]
+     kube-node
+     kube-master
 
-        [kube-node]
-        node-01
-        node-02
-        node-03
+   Change the host names, IP addresses, and user names to conform to your infrastructure.
+   For example, if your servers are named "server1", "server2", and "server3", copy the code block
+   above and replace ALL instances of "node-0" with "server".
 
-        [k8s-cluster:children]
-        kube-node
-        kube-master
+4. Create a :file:`group_vars` subdirectory in the directory you created in
+   step 2 (the same directory as the :file:`hosts` file).
 
-     Change the host names, IP addresses, and user names to conform to
-     your infrastructure. For example, if your servers are named "server1",
-     "server2", and "server3", copy the code block above and replace ALL
-     instances of "node-0" with "server".
+   .. code-block:: shell
 
-  4. Create a :file:`group_vars` subdirectory in the directory you created in
-     step 2 (the same directory as the :file:`hosts` file).
+    $ mkdir group_vars ; cd group_vars
 
-     .. code-block:: shell
+5. Create a file, :file:`kube-node.yml`, in the :file:`group_vars`
+   subdirectory of the inventory. This file declares how to set up storage
+   (in the default configuration) on hosts in the *kube-node* group; that is,
+   hosts on which pods shall be scheduled:
 
-      $ mkdir group_vars ; cd group_vars
+   .. code-block:: yaml
 
-  5. Create a file, :file:`kube-node.yml`, in the :file:`group_vars`
-     subdirectory of the inventory. This file declares how to set up storage
-     (in the default configuration) on hosts in the *kube-node* group; that is,
-     hosts on which Pods shall be scheduled:
+     metalk8s_lvm_default_vg: False
+     metalk8s_lvm_vgs: ['vg_metalk8s']
+     metalk8s_lvm_drives_vg_metalk8s: ['/dev/vdb']
+     metalk8s_lvm_lvs_vg_metalk8s:
+      lv01:
+        size: 52G
+      lv02:
+        size: 52G
+      lv03:
+        size: 52G
+      lv04:
+        size: 11G
+      lv05:
+        size: 11G
+      lv06:
+        size: 11G
+      lv07:
+        size: 5G
+      lv08:
+        size: 5G
 
-     .. code-block:: yaml
-
-      metalk8s_lvm_default_vg: False
-      metalk8s_lvm_vgs: ['kubevg']
-      metalk8s_lvm_drives_kubevg: ['/dev/vdb']
-      metalk8s_lvm_lvs_kubevg:
-       lv01:
-         size: 52G
-       lv02:
-         size: 52G
-       lv03:
-         size: 52G
-       lv04:
-         size: 11G
-       lv05:
-         size: 11G
-       lv06:
-         size: 11G
-       lv07:
-         size: 5G
-       lv08:
-         size: 5G
-
-     In this example, every *kube-node* host is assumed to have a disk
-     available as :file:`/dev/vdb` that can be used to set up Kubernetes
-     *PersistentVolumes*. For more information about storage, see
-     :doc:`../architecture/storage`.
+   In this example, every *kube-node* host is assumed to have a disk
+   available as :file:`/dev/vdb` that can be used to set up Kubernetes
+   *PersistentVolumes*. For more information about storage, see
+   :doc:`../architecture/storage`.
 
 
 Enter the MetalK8s Virtual Environment Shell
@@ -237,11 +242,11 @@ To install MetalK8s, you must issue commands from within a virtual shell.
 The following steps ensure you can access the virtual environment.
 
 1. Install python-virtualenv:
-   ::
 
-   $ yum install python-virtualenv
+ ::
 
-   Your CentOS image may already have this virtualenv preinstalled.
+  $ yum install python-virtualenv
+  Your CentOS image may already have this virtualenv preinstalled.
 
 2. To install a supported version of Ansible and its dependencies, along with
    some Kubernetes tools (:program:`kubectl` and :program:`helm`), MetalK8s
@@ -249,23 +254,24 @@ The following steps ensure you can access the virtual environment.
    To enter this environment, run ``make shell`` (this takes a few seconds
    when first run).
 
-  .. code::
+ ::
 
-    $ cd metal-k8s
-    $ make shell
-    Creating virtualenv...
-    Installing Python dependencies...
-    Downloading kubectl...
-    Downloading Helm...
-    Launching MetalK8s shell environment. Run 'exit' to quit.
-    (metal-k8s) $
+  $ cd metal-k8s
+  $ make shell
+  Creating virtualenv...
+  Installing Python dependencies...
+  Downloading kubectl...
+  Downloading Helm...
+  Launching MetalK8s shell environment. Run 'exit' to quit.
+  (metal-k8s) $
+
 
 Deploy the Cluster
 ==================
 
 Run the following command to deploy the cluster::
 
-    (metal-k8s) $ ansible-playbook -i inventory/quickstart-cluster -b playbooks/deploy.yml
+  (metal-k8s) $ ansible-playbook -i inventory/quickstart-cluster -b playbooks/deploy.yml
 
 Deployment takes about a half hour.
 
@@ -278,19 +284,23 @@ credentials to access the cluster. Export this location in the shell to give
 the :program:`kubectl` and :program:`helm` tools the correct paths and
 credentials to contact the cluster *kube-master* nodes::
 
-    (metal-k8s) $ export KUBECONFIG=`pwd`/inventory/quickstart-cluster/artifacts/admin.conf
+  (metal-k8s) $ export KUBECONFIG=`pwd`/inventory/quickstart-cluster/artifacts/admin.conf
 
 If your system can reach port *6443* on the first *kube-master* node, you can
 
-* List the nodes::
+* List the nodes
 
-    (metal-k8s) $ kubectl get nodes
-    NAME        STATUS    ROLES            AGE       VERSION
-    node-01     Ready     master,node      1m        v1.10.4
-    node-02     Ready     master,node      1m        v1.10.4
-    node-03     Ready     master,node      1m        v1.10.4
+::
 
-* List all pods::
+   (metal-k8s) $ kubectl get nodes
+   NAME        STATUS    ROLES            AGE       VERSION
+   node-01     Ready     master,node      1m        v1.10.4
+   node-02     Ready     master,node      1m        v1.10.4
+   node-03     Ready     master,node      1m        v1.10.4
+
+* List all pods
+
+  ::
 
     (metal-k8s) $ kubectl get pods --all-namespaces
     NAMESPACE      NAME                                                   READY     STATUS      RESTARTS   AGE
@@ -342,9 +352,11 @@ these dashboards:
 
 2. Copy the credentials in
    :file:`inventory/quickstart-cluster/artifacts/admin.conf` to your local
-   machine. Export this path locally with::
+   machine. Export this path locally with
 
-     $ export KUBECONFIG=`pwd`/inventory/quickstart-cluster/artifacts/admin.conf
+   ::
+
+   $ export KUBECONFIG=`pwd`/inventory/quickstart-cluster/artifacts/admin.conf
 
 3. On your cluster, open port 6443 for remote access to cluster services.
 
@@ -352,27 +364,27 @@ these dashboards:
    the Kubernetes cluster. While this tunnel is up and running, the following
    tools are available:
 
-+-------------------------+---------------------------------------------------------+-------------------------------------------------------------------------------------------------+---------------------------------------+
-| Service                 | Role                                                    | Link                                                                                            | Notes                                 |
-+=========================+=========================================================+=================================================================================================+=======================================+
-| `Kubernetes dashboard`_ |A general purpose, web-based UI for Kubernetes clusters  | http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/ | Username: kube                        |
-|                         |                                                         |                                                                                                 |                                       |
-|                         |                                                         |                                                                                                 | Password: See inventory/quickstart-   |
-|                         |                                                         |                                                                                                 | cluster/credentials/kube_user.creds   |
-|                         |                                                         |                                                                                                 | in the Kubernetes host.               |
-+-------------------------+---------------------------------------------------------+-------------------------------------------------------------------------------------------------+---------------------------------------+
-| `Grafana`_              | Monitoring dashboards for cluster services              | http://localhost:8001/api/v1/namespaces/kube-ops/services/kube-prometheus-grafana:http/proxy/   |                                       |
-+-------------------------+---------------------------------------------------------+-------------------------------------------------------------------------------------------------+---------------------------------------+
-| `Cerebro`_              | An administration and monitoring console for            | http://localhost:8001/api/v1/namespaces/kube-ops/services/cerebro:http/proxy/                   | When accessing Cerebro, connect it to |
-|                         | Elasticsearch clusters                                  |                                                                                                 | http://elasticsearch:9200 to operate  |
-|                         |                                                         |                                                                                                 | the MetalK8s Elasticsearch cluster.   |
-+-------------------------+---------------------------------------------------------+-------------------------------------------------------------------------------------------------+---------------------------------------+
-| `Kibana`_               | A search console for logs indexed in Elasticsearch      | http://localhost:8001/api/v1/namespaces/kube-ops/services/http:kibana:/proxy/                   | When accessing Kibana for the first   |
-|                         |                                                         |                                                                                                 | time, set up an *index pattern* for   |
-|                         |                                                         |                                                                                                 | the ``logstash-*`` index, using the   |
-|                         |                                                         |                                                                                                 | ``@timestamp`` field as *Time Filter  |
-|                         |                                                         |                                                                                                 | field name*.                          |
-+-------------------------+---------------------------------------------------------+-------------------------------------------------------------------------------------------------+---------------------------------------+
+   +-------------------------+---------------------------------------------------------+-------------------------------------------------------------------------------------------------+---------------------------------------+
+   | Service                 | Role                                                    | Link                                                                                            | Notes                                 |
+   +=========================+=========================================================+=================================================================================================+=======================================+
+   | `Kubernetes dashboard`_ |A general purpose, web-based UI for Kubernetes clusters  | http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/ | Username: kube                        |
+   |                         |                                                         |                                                                                                 |                                       |
+   |                         |                                                         |                                                                                                 | Password: See inventory/quickstart-   |
+   |                         |                                                         |                                                                                                 | cluster/credentials/kube_user.creds   |
+   |                         |                                                         |                                                                                                 | in the Kubernetes host.               |
+   +-------------------------+---------------------------------------------------------+-------------------------------------------------------------------------------------------------+---------------------------------------+
+   | `Grafana`_              | Monitoring dashboards for cluster services              | http://localhost:8001/api/v1/namespaces/kube-ops/services/kube-prometheus-grafana:http/proxy/   |                                       |
+   +-------------------------+---------------------------------------------------------+-------------------------------------------------------------------------------------------------+---------------------------------------+
+   | `Cerebro`_              | An administration and monitoring console for            | http://localhost:8001/api/v1/namespaces/kube-ops/services/cerebro:http/proxy/                   | When accessing Cerebro, connect it to |
+   |                         | Elasticsearch clusters                                  |                                                                                                 | http://elasticsearch:9200 to operate  |
+   |                         |                                                         |                                                                                                 | the MetalK8s Elasticsearch cluster.   |
+   +-------------------------+---------------------------------------------------------+-------------------------------------------------------------------------------------------------+---------------------------------------+
+   | `Kibana`_               | A search console for logs indexed in Elasticsearch      | http://localhost:8001/api/v1/namespaces/kube-ops/services/http:kibana:/proxy/                   | When accessing Kibana for the first   |
+   |                         |                                                         |                                                                                                 | time, set up an *index pattern* for   |
+   |                         |                                                         |                                                                                                 | the ``logstash-*`` index, using the   |
+   |                         |                                                         |                                                                                                 | ``@timestamp`` field as *Time Filter  |
+   |                         |                                                         |                                                                                                 | field name*.                          |
+   +-------------------------+---------------------------------------------------------+-------------------------------------------------------------------------------------------------+---------------------------------------+
 
 See :doc:`../architecture/cluster-services` for more about these services
 and their configuration, or review the host sites for these projects.
@@ -390,12 +402,16 @@ Installing Zenko
 Get Ready
 *********
 
-1. Remaining in the MetalK8s virtual shell, change to the directory from which
-   you will deploy Zenko:
+1. If you are in the MetalK8s virtual shell, stay in it. Change to the
+   directory from which you will deploy Zenko:
 
    ::
 
-   $ cd
+    $ cd
+
+   If you are not installing from MetalK8s, follow the instructions
+   in ../../charts/gke.md to install Helm on your cluster.
+
 
 2. Initialize Helm:
 
@@ -420,15 +436,11 @@ Get Ready
 
    Helm can now install applications on the Kubernetes cluster.
 
-3. Declare the ZooKeeper repository:
+3. Add the Scality repo to the Helm charts:
 
    ::
 
-      $ helm repo add zenko-zookeeper https://scality.github.io/zenko-zookeeper/charts
-      "zenko-zookeeper" has been added to your repositories
-
-      $ helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
-      "incubator" has been added to your repositories
+    $ helm repo add scality https://scality.github.io/charts/
 
 4. Clone the latest Zenko version:
 
@@ -457,19 +469,22 @@ Get Ready
 Install Zenko
 *************
 
-Helm installs Zenko components using the YAML-based charts and templates
-built in the last step. Helm follows charts for Backbeat, Cloudserver,
-S3 Data, Zenko, and Zenko NFS. Each of these components is represented in the
-zenko/charts directory, and for each component there is a Chart.yaml file and
-a values.yaml file. Helm reads the Chart.yaml file to establish basic
-installation attributes such as name and version number, and reads the values
-file for instructions on how to deploy and configure the component. Though
-manually editing the default settings in values.yaml is possible, it is much
-better to write configuration changes and options to
-:file:`Zenko/charts/options.yml`, which Helm uses to overwrite the default
-settings presented in the charts.
+Helm installs Zenko components using the charts assembled in the last step.
+Helm follows charts for Backbeat, CloudServer, S3 Data, Zenko, and Zenko NFS.
+Each of these components is represented in the zenko/charts directory, and for
+each component there is a Chart.yaml file and a values.yaml file. Helm reads
+the Chart.yaml file to establish basic installation attributes such as name
+and version number, and reads the values file for instructions on how to deploy
+and configure the component. Though manually editing the default settings in
+values.yaml is possible, it is much better to write configuration changes and
+options to :file:`Zenko/charts/options.yml`, which Helm can use to overwrite
+the default settings presented in the charts.
 
 Follow these steps to install Zenko with Ingress.
+
+(**Note:** The following example is for a configuration usingthe NGINX ingress
+controller. If you are using a different ingress controller, substitute
+parameters as appropriate.)
 
 1. Create an options.yml file in Zenko/charts/ to store deployment parameters.
    Enter the following parameters:
@@ -486,41 +501,26 @@ Follow these steps to install Zenko with Ingress.
 
     cloudserver:
      endpoint: "zenko.local"
-     autoscaling: "true"
-       config:
-         minReplicas: 1
-         maxReplicas: 16
-         targetCPUUtilizationPercentage: 80
-     resources:
-       requests:
-         cpu: 1
 
-   You can edit these parameters, using each component’s Charts.yaml file
+   You can edit these parameters, using each component’s values.yaml file
    as your guide. Save this file.
 
-2. If your Zenko instance is behind a proxy, you must append the following
-   lines to the options.yml file, substituting your proxies' IP addresses
+2. If your Zenko instance is behind a proxy, append the following
+   lines to the options.yml file, substituting your proxy’s IP addresses
    and port assignments:
 
    ::
-    env:
-      name: https_proxy
-      value: http://user;pass@<proxy-ip>:<proxy-port>
 
-      name: http_proxy
-      value: http://user;pass@<proxy-ip>:<proxy-port>
+      proxy:
+      http: ""
+      https: ""
+        caCert: false
 
-      name: HTTPS_PROXY
-      value: http://user;pass@<proxy-ip>:<proxy-port>
+   If the HTTP proxy endpoint is set and the HTTPS one is not, the
+   HTTP proxy will be used for HTTPS traffic as well.
 
-      name: HTTP_PROXY
-      value: http://user;pass@<proxy-ip>:<proxy-port>
-
-      name: no_proxy
-      value: localhost,127.0.0.1,10.*
-
-      name: NO_PROXY
-      value: localhost,127.0.0.1,10.*
+   **Note:** To avoid unexpected behavior, only specify one of the
+   "http" or "https" proxy options.
 
 3. Perform the following Helm installation from the charts directory
 
@@ -530,19 +530,19 @@ Follow these steps to install Zenko with Ingress.
 
    If the command is successful, the output from Helm is extensive.
 
-4. To follow how K8s is creating pods required for Zenko, use the command
+4. To see K8s’s progress creating pods for Zenko, the command:
 
    ::
 
     $ kubectl get pods -n default -o wide
 
-   This displays a view of pod creation. For a few minutes after the Helm
-   install, some pods will show CrashLoopBackOff issues. This is expected
-   behavior, because there is no launch order between pods. After a few
-   minutes, all pods will enter Running mode.
+   This returns a snapshot of pod creation. For a few minutes after the
+   Helm install, some pods will show CrashLoopBackOff issues. This is
+   expected behavior, because there is no launch order between pods.
+   After a few minutes, all pods will enter Running mode.
 
-
-5. To register your Zenko instance to Orbit, get your Cloudserver’s name:
+5. To register your Zenko instance for Orbit access, get your
+   CloudServer’s name
 
    ::
 
@@ -550,7 +550,7 @@ Follow these steps to install Zenko with Ingress.
     my-zenko-cloudserver-76f657695-j25wq              1/1   Running   0       3m
     my-zenko-cloudserver-manager-c76d6f96f-qrb9d      1/1   Running   0       3m
 
-   Then grab your Cloudserver’s logs with the command:
+   Then grab your CloudServer’s logs with the command:
 
    ::
 
