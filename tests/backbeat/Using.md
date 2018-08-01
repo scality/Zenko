@@ -96,21 +96,31 @@
    enabled.
 2. In Orbit, create an AWS location `<destination-aws-location-name>` with an
    AWS bucket `<destination-aws-bucket-name>`.
-3. Export the keys, AWS bucket name, and AWS location (for example, in `.env`
+3. Create a container on Azure `<destination-azure-container-name>`.
+4. In Orbit, create an Azure storage location
+  `<destination-azure-location-name>` with an Azure container
+  `<destination-azure-container-name>`.
+5. Export the keys, AWS bucket name, and AWS location (for example, in `.env`
    and `.secrets.env`):
 
     ```
+    export CLOUDSERVER_HOST=<zenko-cloudserver-name>
     export AWS_S3_BACKEND_ACCESS_KEY=<aws-access-key>
     export AWS_S3_BACKEND_SECRET_KEY=<aws-secret-key>
     export AWS_S3_BACKBEAT_BUCKET_NAME=<destination-aws-bucket-name>
     export AWS_S3_BACKEND_DESTINATION_LOCATION=<destination-aws-location-name>
+    export AZURE_BACKEND_ACCOUNT_NAME=<azure-account-name>
+    export AZURE_BACKEND_ACCESS_KEY=<azure-access-key>
+    export AZURE_BACKEND_ENDPOINT=<azure-endpoint>
+    export AZURE_BACKBEAT_CONTAINER_NAME=<destination-azure-container-name>
+    export AZURE_BACKEND_DESTINATION_LOCATION=<destination-azure-location-name>
     ```
 
-4. If using `*.env` files, source the files:
+6. If using `*.env` files, source the files:
 
     ```
     source .env && source .secrets.env
     ```
 
-5. Run the test suite: `npm run test_api` for API tests, or
+7. Run the test suite: `npm run test_api` for API tests, or
    `npm run test_crr_pause_resume` for CRR pause and resume tests.
