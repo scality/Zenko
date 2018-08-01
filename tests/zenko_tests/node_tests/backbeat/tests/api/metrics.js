@@ -24,7 +24,7 @@ const destKeyPrefix = `${srcBucket}/${keyPrefix}`;
 
 const REPLICATION_TIMEOUT = 300000;
 
-function getAndCheckResponse(path, expectedBody, cb) {
+function getAndCheckResponse(path, expected, cb) {
     let shouldContinue = false;
     return doWhilst(next =>
         makeGETRequest(path, (err, res) => {
@@ -36,9 +36,26 @@ function getAndCheckResponse(path, expectedBody, cb) {
                 if (err) {
                     return next(err);
                 }
-                shouldContinue =
-                    JSON.stringify(body) !== JSON.stringify(expectedBody);
-                return setTimeout(next, 2000);
+                let data = body[expected.type].results;
+                if (typeof data.count !== 'number') {
+                    data.count = parseFloat(data.count);
+                    data.size = parseFloat(data.size);
+                }
+                const overExpected = (data.count > expected.maxCount ||
+                    data.size > expected.maxSize);
+                if (overExpected) {
+                    return next(new Error('metrics data exceeds expected'));
+                }
+                const withinRange = (expected.minCount >= data.count &&
+                    data.count <= expected.maxCount &&
+                    expected.minSize >= data.size &&
+                    data.size <= expected.maxSize);
+
+                shouldContinue = !withinRange;
+                if (shouldContinue) {
+                    return setTimeout(next, 2000);
+                }
+                return next();
             });
         }),
     () => shouldContinue, cb);
@@ -105,7 +122,7 @@ describe('Backbeat replication metrics route validation', function dF() {
                     const resultKeys = Object.keys(data.results);
                     assert(resultKeys.includes('count'));
                     assert(resultKeys.includes('size'));
-                    return done()
+                    return done();
                 });
             });
         });
@@ -130,27 +147,16 @@ describe('Backbeat replication metrics data', function dF() {
         next => scalityUtils.deleteVersionedBucket(srcBucket, next),
     ], done));
 
-    it.skip('should report metrics when replication occurs', done => {
+    it('should report metrics when replication occurs', done => {
+        let prevBacklog;
         let prevCompletions;
         let prevThroughput;
         series([
-            next => {
-                // first wait for any previous backlog to complete
-                const expectedBody = {
-                    backlog: {
-                        description: 'Number of incomplete replication ' +
-                        'operations (count) and number of incomplete bytes ' +
-                        'transferred (size)',
-                        results: { count: 0, size: 0 },
-                    },
-                };
-                getAndCheckResponse(`${pathPrefix}/all/backlog`, expectedBody,
-                    next);
-            },
             next => makeGETRequest(`${pathPrefix}/all`, (err, res) => {
                 assert.ifError(err);
                 getResponseBody(res, (err, body) => {
                     assert.ifError(err);
+                    prevBacklog = body.backlog.results;
                     prevCompletions = body.completions.results;
                     prevThroughput = body.throughput.results;
                     next();
@@ -162,40 +168,34 @@ describe('Backbeat replication metrics data', function dF() {
             next => scalityUtils.waitUntilReplicated(srcBucket, key, undefined,
                 next),
             next => {
-                const expectedBody = {
-                    completions: {
-                        description: 'Number of completed replication ' +
-                        'operations (count) and number of bytes transferred ' +
-                        '(size) in the last 900 seconds',
-                        results: {
-                            count: prevCompletions.count + 2,
-                            size: prevCompletions.size + 200,
-                        },
-                    },
+                const minCount = prevCompletions.count + 2;
+                const minSize = prevCompletions.size + 200;
+                const expectedResult = {
+                    type: 'completions',
+                    minCount,
+                    maxCount: minCount + prevBacklog.count,
+                    minSize,
+                    maxSize: minSize + prevBacklog.size,
                 };
-                // Just make sure completions has been incremented. We know if
-                // completions matches, all other data should be as well
+                // Just make sure completions has been incremented by given
+                // sizes
                 getAndCheckResponse(`${pathPrefix}/all/completions`,
-                    expectedBody, next);
+                    expectedResult, next);
             },
             next => {
-                const expectedBody = {
-                    throughput: {
-                        description: 'Current throughput for replication ' +
-                        'operations in ops/sec (count) and bytes/sec (size) ' +
-                        'in the last 900 seconds',
-                        results: {
-                            count: (parseFloat(prevThroughput.count) +
-                                (2 / 900)).toFixed(2),
-                            size: (parseFloat(prevThroughput.size) +
-                                (200 / 900)).toFixed(2),
-                        },
-                    },
+                const minCount = parseFloat(prevThroughput.count + (2 / 900));
+                const minSize = parseFloat(prevThroughput.size + (200 / 900));
+                const expectedResult = {
+                    type: 'throughput',
+                    minCount,
+                    maxCount: minCount + parseFloat(prevBacklog.count),
+                    minSize,
+                    maxSize: minSize + parseFloat(prevBacklog.size),
                 };
                 // Just make sure completions has been incremented. We know if
                 // completions matches, all other data should be as well
                 getAndCheckResponse(`${pathPrefix}/all/throughput`,
-                    expectedBody, next);
+                    expectedResult, next);
             },
         ], done);
     });
