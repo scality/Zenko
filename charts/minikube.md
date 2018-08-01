@@ -51,7 +51,6 @@ Update Complete. ⎈Happy Helming!⎈
 Saving 8 charts
 Downloading prometheus from repo https://kubernetes-charts.storage.googleapis.com/
 Downloading mongodb-replicaset from repo https://kubernetes-charts.storage.googleapis.com/
-Downloading redis from repo https://kubernetes-charts.storage.googleapis.com/
 Downloading kafka from repo http://storage.googleapis.com/kubernetes-charts-incubator
 Downloading zookeeper from repo http://storage.googleapis.com/kubernetes-charts-incubator
 Deleting outdated charts
@@ -154,7 +153,6 @@ Update Complete. ⎈Happy Helming!⎈
 Saving 8 charts
 Downloading prometheus from repo https://kubernetes-charts.storage.googleapis.com/
 Downloading mongodb-replicaset from repo https://kubernetes-charts.storage.googleapis.com/
-Downloading redis from repo https://kubernetes-charts.storage.googleapis.com/
 Downloading kafka from repo http://storage.googleapis.com/kubernetes-charts-incubator
 Downloading zookeeper from repo http://storage.googleapis.com/kubernetes-charts-incubator
 Deleting outdated charts

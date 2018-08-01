@@ -16,7 +16,6 @@ POD = 'kubernetes-pods'
 @pytest.mark.nondestructive
 @pytest.mark.conformance
 @pytest.mark.parametrize('job,name', [
-    (SERVICE, '{}-redis'.format(zenko_helm_release())),
     (SERVICE, '{}-cloudserver'.format(zenko_helm_release())),
     (POD, '{}-zenko-queue-0'.format(zenko_helm_release())),
 ])

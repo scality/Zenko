@@ -5,9 +5,6 @@ dependencies:
 - name: mongodb-replicaset
   repository: https://kubernetes-charts.storage.googleapis.com/
   version: 2.2.1
-- name: redis
-  repository: https://kubernetes-charts.storage.googleapis.com/
-  version: 1.1.12
 - name: kafka
   repository: http://storage.googleapis.com/kubernetes-charts-incubator
   version: 0.7.1
@@ -32,5 +29,5 @@ dependencies:
 - name: zenko-nfs
   repository: file://../zenko-nfs
   version: 0.1.0
-digest: sha256:58316cdaff3444bd0acb53ca7bd0f0a94409766190184a407fd121a38adbeb75
-generated: 2018-07-31T15:20:32.061652742-07:00
+digest: sha256:363af8dcefc419dfc07445ad68e8c558c43db53fe92dbbf83f59bbb7dde6c94e
+generated: 2018-07-31T17:10:52.83952767-07:00
