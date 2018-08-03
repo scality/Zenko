@@ -86,6 +86,8 @@ prometheus:
 mongodb-replicaset:
   replicaSet: rs0
   replicas: *nodeCount
+  metrics:
+    enabled: true
 
 zenko-queue:
 ## Extensive list of configurables can be found here:
