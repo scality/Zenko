@@ -507,6 +507,20 @@ class ReplicationUtility {
         this.azure.deleteBlob(containerName, blob, options, cb);
     }
 
+    expectReplicationStatus(bucketName, key, versionId, expectedStatus, cb) {
+        this.s3.headObject({
+            Bucket: bucketName,
+            Key: key,
+            VersionId: versionId,
+        }, (err, data) => {
+            if (err) {
+                return cb(err);
+            }
+            assert.strictEqual(data.ReplicationStatus, expectedStatus);
+            return cb();
+        });
+    }
+
     // Continue getting head object while the status is PENDING or PROCESSING.
     waitUntilReplicated(bucketName, key, versionId, cb) {
         let status;
