@@ -379,11 +379,7 @@ these dashboards:
    |                         | Elasticsearch clusters                                  |                                                                                                 | http://elasticsearch:9200 to operate  |
    |                         |                                                         |                                                                                                 | the MetalK8s Elasticsearch cluster.   |
    +-------------------------+---------------------------------------------------------+-------------------------------------------------------------------------------------------------+---------------------------------------+
-   | `Kibana`_               | A search console for logs indexed in Elasticsearch      | http://localhost:8001/api/v1/namespaces/kube-ops/services/http:kibana:/proxy/                   | When accessing Kibana for the first   |
-   |                         |                                                         |                                                                                                 | time, set up an *index pattern* for   |
-   |                         |                                                         |                                                                                                 | the ``logstash-*`` index, using the   |
-   |                         |                                                         |                                                                                                 | ``@timestamp`` field as *Time Filter  |
-   |                         |                                                         |                                                                                                 | field name*.                          |
+   | `Kibana`_               | A search console for logs indexed in Elasticsearch      | http://localhost:8001/api/v1/namespaces/kube-ops/services/http:kibana:/proxy/                   |                                       |
    +-------------------------+---------------------------------------------------------+-------------------------------------------------------------------------------------------------+---------------------------------------+
 
 See :doc:`../architecture/cluster-services` for more about these services
