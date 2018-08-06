@@ -1,0 +1,68 @@
+apiVersion: v1
+entries:
+  mongodb-replicaset:
+  - appVersion: "3.4"
+    created: 2018-08-06T18:16:04.155321432-07:00
+    description: NoSQL document-oriented database that stores JSON-like documents
+      with dynamic schemas, simplifying the integration of data in content-driven
+      applications.
+    digest: 03f6b822643e8fc63ce45a978729280e7132fbf7852ea99baf5635aa29660dab
+    home: https://github.com/mongodb/mongo
+    icon: https://webassets.mongodb.com/_com_assets/cms/mongodb-logo-rgb-j6w271g1xn.jpg
+    maintainers:
+    - email: ramanathana@google.com
+      name: foxish
+    - email: unguiculus@gmail.com
+      name: unguiculus
+    name: mongodb-replicaset
+    sources:
+    - https://github.com/mongodb/mongo
+    - https://github.com/percona/mongodb_exporter
+    urls:
+    - https://scality.github.com/Zenko/mongodb-replicaset-3.5.2.tgz
+    version: 3.5.2
+  redis-ha:
+  - appVersion: 4.0.9-r0
+    created: 2018-08-06T18:16:04.155942057-07:00
+    description: Highly available Redis cluster with multiple sentinels and standbys.
+    digest: 689865a0fbc7572d0a06595d712281465d0ee6f9ef275677f62fa7096d0066af
+    engine: gotpl
+    home: http://redis.io/
+    icon: https://upload.wikimedia.org/wikipedia/en/thumb/6/6b/Redis_Logo.svg/1200px-Redis_Logo.svg.png
+    keywords:
+    - redis
+    - keyvalue
+    - database
+    maintainers:
+    - email: ikaboubi@gmail.com
+      name: smileisak
+    - email: ianmaddox@google.com
+      name: ianmaddox
+    - email: bzumhagen@gmail.com
+      name: Ben Zumhagen
+    name: redis-ha
+    sources:
+    - https://github.com/bzumhagen/docker-images/tree/master/redis
+    urls:
+    - https://scality.github.com/Zenko/redis-ha-3.0.0.tgz
+    version: 3.0.0
+  zenko:
+  - apiVersion: v1
+    created: 2018-08-06T18:16:04.1618265-07:00
+    description: Zenko is an open source multi-cloud data controller
+    digest: 507e7808a82950de94515947150bcb8a4e4a3e4fe97e3695aa321914b65862b6
+    home: https://github.com/scality/Zenko
+    keywords:
+    - s3-compatible
+    - replication
+    - nfs
+    - cloud-storage
+    name: zenko
+    sources:
+    - https://github.com/scality/Zenko
+    - https://github.com/scality/S3
+    - https://github.com/scality/backbeat
+    urls:
+    - https://scality.github.com/Zenko/zenko-0.9.0.tgz
+    version: 0.9.0
+generated: 2018-08-06T18:16:04.153658662-07:00
