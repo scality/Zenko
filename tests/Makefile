@@ -133,7 +133,7 @@ endif
 install-helm-repos:
 ifndef NO_INSTALL
 	$(V)$(HELM) repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator && \
-	$(HELM) repo add scality https://scality.github.io/charts
+	$(HELM) repo add scality https://scality.github.io/Zenko
 endif
 .PHONY: install-helm-repos
 

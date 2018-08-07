@@ -440,7 +440,7 @@ Get Ready
 
    ::
 
-    $ helm repo add scality https://scality.github.io/charts/
+    $ helm repo add scality https://scality.github.io/Zenko/
 
 4. Clone the latest Zenko version:
 

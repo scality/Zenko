@@ -43,6 +43,9 @@ Once you have the repo cloned you can retrieve all dependencies:
 $ helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
 "incubator" has been added to your repositories
 
+$  helm repo add scality https://scality.github.io/Zenko/
+"scality" has been added to your repositories
+
 $ helm dependency build zenko/
 Hang tight while we grab the latest from your chart repositories...
 ...Successfully got an update from the "incubator" chart repository

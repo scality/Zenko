@@ -3,7 +3,8 @@ Zenko Helm Chart
 
 This is a [Helm] Chart for [Scality]'s [Zenko] multi-cloud controller. To get
 started, you'll need a [Kubernetes] cluster, initialized with Helm. Check out
-[minikube](./minikube.md) for a local or single-machine deployment.
+[minikube](./minikube.md) for a local or single-machine deployment. The below
+assumes you have cloned the Zenko repository and already `cd` into this directory.
 
 First, retrieve all dependencies:
 
@@ -11,7 +12,7 @@ First, retrieve all dependencies:
 $ helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
 "incubator" has been added to your repositories
 
-$ helm repo add scality https://scality.github.io/charts/
+$ helm repo add scality https://scality.github.io/Zenko/
 "scality" has been added to your repositories
 
 $ helm dependency build zenko/
@@ -28,7 +29,7 @@ Downloading prometheus from repo https://kubernetes-charts.storage.googleapis.co
 Downloading mongodb-replicaset from repo https://kubernetes-charts.storage.googleapis.com/
 Downloading kafka from repo http://storage.googleapis.com/kubernetes-charts-incubator
 Downloading zookeeper from repo http://storage.googleapis.com/kubernetes-charts-incubator
-Downloading redis-ha from repo https://scality.github.io/charts/
+Downloading redis-ha from repo https://scality.github.io/Zenko/
 Downloading grafana from repo https://kubernetes-charts.storage.googleapis.com/
 Deleting outdated charts
 ```
