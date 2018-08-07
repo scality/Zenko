@@ -178,14 +178,14 @@ To create an inventory:
      node-03
      node-04
      node-05
-   
+    
      [kube-node]
      node-01
      node-02
      node-03
      node-04
      node-05
-   
+
      [k8s-cluster:children]
      kube-node
      kube-master
@@ -212,22 +212,22 @@ To create an inventory:
      metalk8s_lvm_vgs: ['vg_metalk8s']
      metalk8s_lvm_drives_vg_metalk8s: ['/dev/vdb']
      metalk8s_lvm_lvs_vg_metalk8s:
-      lv01:
-        size: 52G
-      lv02:
-        size: 52G
-      lv03:
-        size: 52G
-      lv04:
-        size: 11G
-      lv05:
-        size: 11G
-      lv06:
-        size: 11G
-      lv07:
-        size: 5G
-      lv08:
-        size: 5G
+       lv01:
+         size: 52G
+       lv02:
+         size: 52G
+       lv03:
+         size: 52G
+       lv04:
+         size: 11G
+       lv05:
+         size: 11G
+       lv06:
+         size: 11G
+       lv07:
+         size: 5G
+       lv08:
+         size: 5G
 
    In this example, every *kube-node* host is assumed to have a disk
    available as :file:`/dev/vdb` that can be used to set up Kubernetes
