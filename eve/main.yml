@@ -2,7 +2,7 @@ version: "0.2"
 
 branches:
   default:
-    stage: "pre-merge"
+    stage: "cosbench-latest"
 
 models:
   - Git: &git_pull
@@ -70,6 +70,8 @@ models:
       LOCATION_QUOTA_BACKEND: quotabackend
       GCP_BACKEND_SERVICE_KEY: '%(secret:gcp_backend_service_key)s'
       GCP_BACKEND_SERVICE_EMAIL: '%(secret:gcp_backend_service_email)s'
+      COSBENCH_NIGHLTY_SERVICE_ACCOUNT: '%(secret:cosbenchNightlyServiceAccount)s'
+      COSBENCH_SPREADSHEET_ID: '%(secret:cosbenchSpreadsheetID)s'
 
   - env: &docker_env # contains values for build test images
 
