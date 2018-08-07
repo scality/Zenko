@@ -12,11 +12,11 @@ cluster operation. If you can set up a Kubernetes cluster on your own, review
 the **General Cluster Requirements** and skip to **Installing Zenko**, below.
 
 Otherwise, you can set up a cluster quickly using MetalK8s_, Scality's
-open-source Kubernetes cluster project, as described in "Setting Up a Metal K8s
+open-source Kubernetes cluster project, as described in "Setting Up a MetalK8s
 Cluster," below.
 
 The following section describes general cluster requirements, which are tested
-on Metal K8s. Because MetalK8s is designed to operate without support from
+on MetalK8s. Because MetalK8s is designed to operate without support from
 public cloud resources, the following sizing requirements are assumed good for
 other cloud Kubernetes deployments, where such resources are preinstalled and
 available on demand.
@@ -33,14 +33,12 @@ Setting up a testing cluster requires at least three machines (these can be
 VMs) running CentOS_ 7.4 (The recommended mimimum for Zenko production service
 is five server nodes with three masters/etcds, but for testing and
 familiarization, three masters and three nodes is fine). You must have SSH
-access to these machines and they must have SSH access to each other. (You
-can copy SSH credentials from one machine to the next and log in once to
-ensure each machine has been added to the others' recognized hosts lists).
+access to these machines and the deployment machine must have SSH access to the
+others (each machine must be added to the deployment machine's known hosts).
 Each machine acting as a Kubernetes_ node must also have at least one disk
 available to provision storage volumes.
 
-
-.. _MetalK8s: https://github.com/scality/metal-k8s/
+.. _MetalK8s: https://github.com/scality/metalk8s/
 .. _CentOS: https://www.centos.org
 .. _Kubernetes: https://kubernetes.io
 
@@ -48,7 +46,7 @@ available to provision storage volumes.
 Sizing
 ======
 
-Sizing for Metal K8s
+Sizing for MetalK8s
 --------------------
 
 -  Cores
@@ -93,7 +91,7 @@ All servers must be in CentOS 7.4, and accessible with ssh.
 Proxies
 =======
 
-If you are behind a proxy, add the following lines to your local machine’s
+If your cluster is behind a proxy, add the following lines to each machine’s
 /etc/environment file:
 
 ::
@@ -103,55 +101,55 @@ If you are behind a proxy, add the following lines to your local machine’s
     no_proxy=localhost,127.0.0.1,10.*
 
 ******************************
-Setting Up a Metal K8s Cluster
+Setting Up a MetalK8s Cluster
 ******************************
 
-MetalK8s provides a stable, easy-to-deploy base for you to test Zenko in a
-live Kubernetes cluster environment.
+You can deploy Zenko using any Kubernetes engine, but Scality’s MetalK8s
+provides a stable, easy-to-deploy base for you to test Zenko in a live
+Kubernetes cluster environment.
 
 
 Clone or Copy the MetalK8s Git Repo
 ===================================
 
 Either log in to your primary machine (any of the nodes can be the primary)
-and clone the metal-k8s repo directly from GitHub:
+and clone the MetalK8s repo directly from GitHub:
 
 .. code-block:: shell
 
-   $ git clone https://github.com/scality/metal-k8s
+   $ git clone https://github.com/scality/metalk8s
 
-or put the metal-k8s project onto the machine using sftp:
+or put the MetalK8s project onto the machine using sftp:
 
 .. code-block:: shell
 
-  $ sftp centos@10.0.0.1
-  Connected to 10.0.0.1
-  sftp> put -r metal-k8s
+   $ sftp centos@10.0.0.1
+   Connected to 10.0.0.1
+   sftp> put -r metalk8s
 
 Define an Inventory
 ===================
 
-Each server must be configured in an inventory file that identifies servers
-and their basic configuration, including masters, etcds, and nodes.
-
-To specify the machines on which the Ansible_-based deployment system shall
-install MetalK8s, you must provide an *inventory*. This inventory contains a
-*hosts* file that lists all hosts in the cluster and *kube-node.yml*, a
-configuration file.
+Each server must be configured in an inventory that identifies servers and
+their basic configuration, including masters, etcds, and nodes. You must create
+an inventory to specify the machines on which the Ansible_-based deployment
+system shall install MetalK8s. The inventory contains a *hosts* file, which
+lists all hosts in the cluster, and, in a group_vars/ subdirectory, the
+*kube-node.yml* configuration file.
 
 .. _Ansible: https://www.ansible.com
 
 To create an inventory:
 
-1. Log in to the master machine and navigate to the metal-k8s repo.
+1. Log in to the master machine and navigate to the MetalK8s repo.
 
-2. Create a directory inside the metal-k8s directory (for example,
+2. Create a directory inside the metalk8s directory (for example,
    :file:`inventory/quickstart-cluster`) in which the inventory will
    be stored. Change to that directory.
 
    .. code-block:: shell
 
-     $ cd metal-k8s
+     $ cd metalk8s
      $ mkdir -p inventory/quickstart-cluster
      $ cd inventory/quickstart-cluster/
 
@@ -178,21 +176,22 @@ To create an inventory:
      node-03
      node-04
      node-05
-   
+
      [kube-node]
      node-01
      node-02
      node-03
      node-04
      node-05
-   
+
      [k8s-cluster:children]
      kube-node
      kube-master
 
-   Change the host names, IP addresses, and user names to conform to your infrastructure.
-   For example, if your servers are named "server1", "server2", and "server3", copy the code block
-   above and replace ALL instances of "node-0" with "server".
+   Change the host names, IP addresses, and user names to conform to your
+   infrastructure. For example, if your servers are named "server1", "server2",
+   and "server3", copy the code block above and replace ALL instances of
+   "node-0" with "server".
 
 4. Create a :file:`group_vars` subdirectory in the directory you created in
    step 2 (the same directory as the :file:`hosts` file).
@@ -208,8 +207,6 @@ To create an inventory:
 
    .. code-block:: yaml
 
-     metalk8s_lvm_default_vg: False
-     metalk8s_lvm_vgs: ['vg_metalk8s']
      metalk8s_lvm_drives_vg_metalk8s: ['/dev/vdb']
      metalk8s_lvm_lvs_vg_metalk8s:
       lv01:
@@ -229,7 +226,7 @@ To create an inventory:
       lv08:
         size: 5G
 
-   In this example, every *kube-node* host is assumed to have a disk
+   In this example, every kube-node host is assumed to have a disk
    available as :file:`/dev/vdb` that can be used to set up Kubernetes
    *PersistentVolumes*. For more information about storage, see
    :doc:`../architecture/storage`.
@@ -238,32 +235,24 @@ To create an inventory:
 Enter the MetalK8s Virtual Environment Shell
 ============================================
 
-To install MetalK8s, you must issue commands from within a virtual shell.
-The following steps ensure you can access the virtual environment.
+To install MetalK8s, you must issue Ansible commands from within a virtual
+shell.
 
-1. Install python-virtualenv:
-
- ::
-
-  $ yum install python-virtualenv
-  Your CentOS image may already have this virtualenv preinstalled.
-
-2. To install a supported version of Ansible and its dependencies, along with
-   some Kubernetes tools (:program:`kubectl` and :program:`helm`), MetalK8s
-   provides a :program:`make` target that installs these in a local environment.
-   To enter this environment, run ``make shell`` (this takes a few seconds
-   when first run).
+To install a supported version of Ansible and its dependencies, along with
+some Kubernetes tools (:program:`kubectl` and :program:`helm`), MetalK8s
+provides a :program:`make` target that installs these in a local environment.
+To enter this environment, run ``make shell`` (this takes a few seconds
+when first run).
 
  ::
 
-  $ cd metal-k8s
   $ make shell
   Creating virtualenv...
   Installing Python dependencies...
   Downloading kubectl...
   Downloading Helm...
   Launching MetalK8s shell environment. Run 'exit' to quit.
-  (metal-k8s) $
+  (metalk8s) $
 
 
 Deploy the Cluster
@@ -271,7 +260,7 @@ Deploy the Cluster
 
 Run the following command to deploy the cluster::
 
-  (metal-k8s) $ ansible-playbook -i inventory/quickstart-cluster -b playbooks/deploy.yml
+  (metalk8s) $ ansible-playbook -i inventory/quickstart-cluster -b playbooks/deploy.yml
 
 Deployment takes about a half hour.
 
@@ -284,15 +273,15 @@ credentials to access the cluster. Export this location in the shell to give
 the :program:`kubectl` and :program:`helm` tools the correct paths and
 credentials to contact the cluster *kube-master* nodes::
 
-  (metal-k8s) $ export KUBECONFIG=`pwd`/inventory/quickstart-cluster/artifacts/admin.conf
+  (metalk8s) $ export KUBECONFIG=`pwd`/inventory/quickstart-cluster/artifacts/admin.conf
 
 If your system can reach port *6443* on the first *kube-master* node, you can
 
 * List the nodes
 
-::
+  ::
 
-   (metal-k8s) $ kubectl get nodes
+   (metalk8s) $ kubectl get nodes
    NAME        STATUS    ROLES            AGE       VERSION
    node-01     Ready     master,node      1m        v1.10.4
    node-02     Ready     master,node      1m        v1.10.4
@@ -302,7 +291,7 @@ If your system can reach port *6443* on the first *kube-master* node, you can
 
   ::
 
-    (metal-k8s) $ kubectl get pods --all-namespaces
+    (metalk8s) $ kubectl get pods --all-namespaces
     NAMESPACE      NAME                                                   READY     STATUS      RESTARTS   AGE
     kube-ingress   nginx-ingress-controller-9d8jh                         1/1       Running     0          1m
     kube-ingress   nginx-ingress-controller-d7vvg                         1/1       Running     0          1m
@@ -324,7 +313,7 @@ If your system can reach port *6443* on the first *kube-master* node, you can
 
 * Or list all deployed Helm_ applications::
 
-    (metal-k8s) $ helm list
+    (metalk8s) $ helm list
     NAME                  REVISION  UPDATED                   STATUS    CHART                         NAMESPACE
     cerebro               1         Tue Jul 24 22:52:18 2018  DEPLOYED  cerebro-0.3.0                 kube-ops
     elasticsearch         1         Tue Jul 24 22:51:23 2018  DEPLOYED  elasticsearch-1.3.0           kube-ops
@@ -346,11 +335,7 @@ Cluster Services
 Services to operate and monitor your MetalK8s cluster are provided. To access
 these dashboards:
 
-1. Make sure kubectl is installed on your local machine::
-
-   $ yum install kubectl
-
-2. Copy the credentials in
+1. Copy the credentials in
    :file:`inventory/quickstart-cluster/artifacts/admin.conf` to your local
    machine. Export this path locally with
 
@@ -358,9 +343,9 @@ these dashboards:
 
    $ export KUBECONFIG=`pwd`/inventory/quickstart-cluster/artifacts/admin.conf
 
-3. On your cluster, open port 6443 for remote access to cluster services.
+2. On your cluster, open port 6443 for remote access to cluster services.
 
-4. Run ``kubectl proxy`` from your local machine. This opens a tunnel to
+3. Run ``kubectl proxy`` from your local machine. This opens a tunnel to
    the Kubernetes cluster. While this tunnel is up and running, the following
    tools are available:
 
@@ -375,19 +360,11 @@ these dashboards:
    +-------------------------+---------------------------------------------------------+-------------------------------------------------------------------------------------------------+---------------------------------------+
    | `Grafana`_              | Monitoring dashboards for cluster services              | http://localhost:8001/api/v1/namespaces/kube-ops/services/kube-prometheus-grafana:http/proxy/   |                                       |
    +-------------------------+---------------------------------------------------------+-------------------------------------------------------------------------------------------------+---------------------------------------+
-   | `Cerebro`_              | An administration and monitoring console for            | http://localhost:8001/api/v1/namespaces/kube-ops/services/cerebro:http/proxy/                   | When accessing Cerebro, connect it to |
-   |                         | Elasticsearch clusters                                  |                                                                                                 | http://elasticsearch:9200 to operate  |
-   |                         |                                                         |                                                                                                 | the MetalK8s Elasticsearch cluster.   |
+   | `Cerebro`_              | An administration and monitoring console for            | http://localhost:8001/api/v1/namespaces/kube-ops/services/cerebro:http/proxy/                   |                                       |
+   |                         | Elasticsearch clusters                                  |                                                                                                 |                                       |
    +-------------------------+---------------------------------------------------------+-------------------------------------------------------------------------------------------------+---------------------------------------+
-   | `Kibana`_               | A search console for logs indexed in Elasticsearch      | http://localhost:8001/api/v1/namespaces/kube-ops/services/http:kibana:/proxy/                   | When accessing Kibana for the first   |
-   |                         |                                                         |                                                                                                 | time, set up an *index pattern* for   |
-   |                         |                                                         |                                                                                                 | the ``logstash-*`` index, using the   |
-   |                         |                                                         |                                                                                                 | ``@timestamp`` field as *Time Filter  |
-   |                         |                                                         |                                                                                                 | field name*.                          |
+   | `Kibana`_               | A search console for logs indexed in Elasticsearch      | http://localhost:8001/api/v1/namespaces/kube-ops/services/http:kibana:/proxy/                   |                                       |
    +-------------------------+---------------------------------------------------------+-------------------------------------------------------------------------------------------------+---------------------------------------+
-
-See :doc:`../architecture/cluster-services` for more about these services
-and their configuration, or review the host sites for these projects.
 
 .. _Kubernetes dashboard: https://github.com/kubernetes/dashboard
 .. _Grafana: https://grafana.com
@@ -417,7 +394,7 @@ Get Ready
 
    ::
 
-    (metal-k8s) [centos@node01 ~]$ helm init
+    (metalk8s) [centos@node01 ~]$ helm init
     Creating /home/centos/.helm
     Creating /home/centos/.helm/repository
     Creating /home/centos/.helm/repository/cache
@@ -432,17 +409,24 @@ Get Ready
     Warning: Tiller is already installed in the cluster.
     (Use --client-only to suppress this message, or --upgrade to upgrade Tiller to the current version.)
     Happy Helming!
-    (metal-k8s) [centos@node01 ~]$
+    (metalk8s) [centos@node01 ~]$
 
    Helm can now install applications on the Kubernetes cluster.
 
-3. Add the Scality repo to the Helm charts:
+3. Retrieve all dependencies.
+
+   ::
+
+    $ helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
+
+
+4. Add the Scality repo to the Helm charts:
 
    ::
 
     $ helm repo add scality https://scality.github.io/charts/
 
-4. Clone the latest Zenko version:
+5. Clone the latest Zenko version:
 
    ::
 
@@ -454,7 +438,7 @@ Get Ready
     Receiving objects: 100% (4335/4335), 1.25 MiB | 0 bytes/s, done.
     Resolving deltas: 100% (2841/2841), done.
 
-5. Build all dependencies and make the package:
+6. Build all dependencies and make the package:
 
    ::
 
