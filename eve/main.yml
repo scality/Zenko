@@ -16,6 +16,17 @@ models:
       source: tests/artifacts
       urls:
         - "*"
+  - ShellCommand: &private_registry_login
+      name: Private Registry Login
+      command: >
+        docker login
+        -u '%(secret:private_registry_username)s'
+        -p '%(secret:private_registry_password)s'
+        '%(secret:private_registry_url)s'
+  - ShellCommand: &helm_lint
+      name: Lint charts
+      command: helm lint charts/*
+      haltOnFailure: true
   - env: &secrets_env # contains values used for test config
       AWS_GCP_BACKEND_ACCESS_KEY: '%(secret:aws_gcp_backend_access_key)s'
       AWS_GCP_BACKEND_ACCESS_KEY_2: '%(secret:aws_gcp_backend_access_key_2)s'
@@ -57,73 +68,25 @@ models:
       AZURE_BACKEND_DESTINATION_LOCATION: azurebackendmismatch
       GCP_BACKEND_DESTINATION_LOCATION: gcpbackendmismatch
       LOCATION_QUOTA_BACKEND: quotabackend
+      GCP_BACKEND_SERVICE_KEY: '%(secret:gcp_backend_service_key)s'
+      GCP_BACKEND_SERVICE_EMAIL: '%(secret:gcp_backend_service_email)s'
 
   - env: &docker_env # contains values for build test images
+
       E2E_DOCKER_IMAGE_NAME: '%(secret:private_registry_url)s/zenko/zenko-e2e'
       BACKBEAT_DOCKER_IMAGE_NAME: '%(secret:private_registry_url)s/zenko/backbeat-e2e'
+      IMAGE_REGISTRY: '%(secret:private_registry_url)s'
+      TAG_OVERRIDE: '%(prop:commit_short_revision)s'
 
   - env: &k8s_env # containes values for running helm and kubectl
       ZENKO_HELM_RELEASE: 'zenko-test'
       ZENKO_K8S_NAMESPACE: '%(prop:testNamespace)s'
       TILLER_NAMESPACE: '%(prop:testNamespace)s'
+      HELM_NAMESPACE: '%(prop:testNamespace)s'
       INSTALL_TIMEOUT: "600"
 
   - env: &global_env # contains all env values
       <<: [*secrets_env, *docker_env, *k8s_env]
-
-  - ShellCommand: &install_tiller
-      name: install helm (tiller into kubernetes)
-      command: >-
-        helm init --wait
-      haltOnFailure: true
-      env:
-        <<: *k8s_env
-  - ShellCommand: &helm_repos
-      name: Install needed helm repos
-      command: |-
-        helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
-        helm repo add scality https://scality.github.io/charts
-      haltOnFailure: true
-      env:
-        <<: *k8s_env
-  - ShellCommand: &start_orbit_simulator
-      name: Start orbit simulator
-      command: >-
-        git clone git@github.com:scality/orbit-simulator.git &&
-        helm upgrade ciutil
-        --install orbit-simulator/charts/orbit-simulator
-        --set simulator.shim.cloudserver_release=$(echo ${ZENKO_HELM_RELEASE})
-        --wait $(./ci_env.sh set)
-      workdir: build/eve/workers
-      haltOnFailure: true
-      env:
-        <<: [*k8s_env, *secrets_env]
-  - ShellCommand: &helm_build_dep
-      name: Retrieve dependency
-      command: >-
-         helm dep build charts/zenko
-      haltOnFailure: true
-      env:
-        <<: *k8s_env
-  - ShellCommand: &helm_lint
-      name: Lint charts
-      command: helm lint charts/*
-      haltOnFailure: true
-  - ShellCommand: &run_zenko_e2e
-      name: Test zenko
-      command: >-
-        make DOCKER_IMAGE_NAME=$E2E_DOCKER_IMAGE_NAME
-        DOCKER_IMAGE_TAG='%(prop:commit_short_revision)s' end2end
-        || (echo "Tests have failed" ; kubectl get pods -L redis-role ; exit 1) >&2
-      workdir: build/tests
-      env:
-        <<: *global_env
-  - ShellCommand: &dump_logs
-      name: Dump logs
-      command: make dump-logs
-      workdir: build/tests
-      env:
-        <<: *k8s_env
 
 stages:
   pre-merge:
@@ -134,61 +97,7 @@ stages:
     - TriggerStages:
         name: trigger all the tests
         stage_names:
-        - build-e2e
-        - build-node-e2e
         - test-zenko
-
-  build-e2e:
-    worker: *pod
-    steps: &build_e2e
-    - Git: *git_pull
-    - ShellCommand: &private_registry_login
-        name: Private Registry Login
-        command: >
-          docker login
-          -u '%(secret:private_registry_username)s'
-          -p '%(secret:private_registry_password)s'
-          '%(secret:private_registry_url)s'
-    - ShellCommand:
-        name: build end2end image
-        command: >-
-          make DOCKER_IMAGE_NAME=$E2E_DOCKER_IMAGE_NAME
-          DOCKER_IMAGE_TAG='%(prop:commit_short_revision)s' container-image
-        workdir: build/tests
-        env:
-          <<: [*docker_env, *k8s_env]
-    - ShellCommand:
-        name: push end2end image
-        command: >-
-          make DOCKER_IMAGE_NAME=$E2E_DOCKER_IMAGE_NAME
-          DOCKER_IMAGE_TAG='%(prop:commit_short_revision)s' container-push
-        workdir: build/tests
-        env:
-          <<: [*docker_env, *k8s_env]
-
-  build-node-e2e:
-    worker: *pod
-    steps:
-      - Git: *git_pull
-      - ShellCommand: *private_registry_login
-      - ShellCommand:
-          name: Write out GCP key
-          command: sh gcp_shim.sh
-          env:
-            GCP_BACKEND_SERVICE_KEY: '%(secret:gcp_backend_service_key)s'
-            GCP_BACKEND_SERVICE_EMAIL: '%(secret:gcp_backend_service_email)s'
-          workdir: build/tests/node_tests
-      - ShellCommand:
-          name: build backbeat e2e image
-          command: docker build -t "$BACKBEAT_DOCKER_IMAGE_NAME:%(prop:commit_short_revision)s" --no-cache .
-          workdir: build/tests/node_tests
-          env:
-            <<: *docker_env
-      - ShellCommand:
-          name: push backbeat e2e image
-          command: docker push "$BACKBEAT_DOCKER_IMAGE_NAME:%(prop:commit_short_revision)s"
-          env:
-            <<: *docker_env
 
   test-zenko:
     worker: &kube_cluster
@@ -199,135 +108,39 @@ stages:
         namespaces:
         - "testNamespace"    # <<< the default namespace for that stage
     steps:
-    - ShellCommand: &fix_curl # Workaround, to be removed
-        name: Install curl
-        command: |-
-          apk --update upgrade
-          apk --update add curl
     - Git: *git_pull
-    - ShellCommand: *install_tiller
+    - ShellCommand: *private_registry_login
     - ShellCommand:
-        name: Install base64
-        command: apk --update add coreutils
-    - ShellCommand: *helm_repos
-    - ShellCommand: *start_orbit_simulator
-    - ShellCommand: *helm_build_dep
-    - ShellCommand: *helm_lint
-    - ShellCommand:
-        name: Install Zenko !
-        command: >-
-          helm upgrade $ZENKO_HELM_RELEASE --namespace %(prop:testNamespace)s
-          --install charts/zenko
-          -f eve/ci-values.yml
-        haltOnFailure: true
-        env:
-          <<: *k8s_env
-    - ShellCommand: *run_zenko_e2e
-    - ShellCommand:
-        name: Run backbeat crr tests
-        command: >-
-          kubectl run zenko-backbeat-e2e --image=$BACKBEAT_DOCKER_IMAGE_NAME:%(prop:commit_short_revision)s
-          --rm --restart=Never --namespace $ZENKO_K8S_NAMESPACE --attach=True
-          $(../eve/workers/ci_env.sh env)
-          --env CLOUDSERVER_ENDPOINT="http://$ZENKO_HELM_RELEASE-cloudserver:80"
-          -- npm run test_crr
+        name: Setup Zenko and run end to end tests
+        command: make -e test
         workdir: build/tests
         env:
           <<: *global_env
-    - ShellCommand:
-        name: Run backbeat api tests
-        command: >-
-          kubectl run zenko-backbeat-e2e --image=$BACKBEAT_DOCKER_IMAGE_NAME:%(prop:commit_short_revision)s
-          --rm --restart=Never --namespace $ZENKO_K8S_NAMESPACE --attach=True
-          $(../eve/workers/ci_env.sh env)
-          --env CLOUDSERVER_ENDPOINT="http://$ZENKO_HELM_RELEASE-cloudserver:80"
-          --env CLOUDSERVER_HOST="$ZENKO_HELM_RELEASE-cloudserver"
-          -- npm run test_api
-        workdir: build/tests
-        env:
-          <<: *global_env
-    - ShellCommand:
-        name: Run backbeat pause/resume tests
-        command: >-
-          kubectl run zenko-backbeat-e2e --image=$BACKBEAT_DOCKER_IMAGE_NAME:%(prop:commit_short_revision)s
-          --rm --restart=Never --namespace $ZENKO_K8S_NAMESPACE --attach=True
-          $(../eve/workers/ci_env.sh env)
-          --env CLOUDSERVER_ENDPOINT="http://$ZENKO_HELM_RELEASE-cloudserver:80"
-          --env CLOUDSERVER_HOST="$ZENKO_HELM_RELEASE-cloudserver"
-          -- npm run test_crr_pause_resume
-        workdir: build/tests
-        env:
-          <<: *global_env
-    - ShellCommand:
-        name: Run location quota tests
-        command: >-
-          kubectl run zenko-node-e2e --image=$BACKBEAT_DOCKER_IMAGE_NAME:%(prop:commit_short_revision)s
-          --rm --restart=Never --namespace $ZENKO_K8S_NAMESPACE --attach=True
-          $(../eve/workers/ci_env.sh env)
-          --env CLOUDSERVER_ENDPOINT="http://$ZENKO_HELM_RELEASE-cloudserver:80"
-          --env CLOUDSERVER_HOST="$ZENKO_HELM_RELEASE-cloudserver"
-          -- npm run test_location_quota
-        workdir: build/tests
-        env:
-          <<: *global_env
-    - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
 
-  latest:
-    worker:
-      type: local
-    steps:
-    - TriggerStages:
-        name: trigger all the tests
-        stage_names:
-        - build-e2e
-        - test-latest-components
-
-  test-latest-components:
+  test-latest-zenko:
     worker: *kube_cluster
     steps:
-      - ShellCommand: *fix_curl
       - Git: *git_pull
-      - ShellCommand: *install_tiller
-      - ShellCommand: *helm_repos
-      - ShellCommand: *start_orbit_simulator
-      - SetProperty:
-          name: set cloudserver branch
-          property: cloudserver_branch
-          value: development/8.0
-      - SetProperty:
-          name: set backbeat branch
-          property: backbeat_branch
-          value: development/8.0
-      - SetPropertyFromCommand:
-          name: retrieve cloudserver latest sha1
-          property: cloudserver_sha1
-          command: >-
-            git ls-remote git@github.com:scality/s3.git
-            --branch '%(prop:cloudserver_branch)s' | cut -c1-7
-      - SetPropertyFromCommand:
-          name: retrieve backbeat latest sha1
-          property: backbeat_sha1
-          command: >-
-            git ls-remote git@github.com:scality/backbeat.git
-            --branch '%(prop:backbeat_branch)s' | cut -c1-7
-      - ShellCommand: *helm_build_dep
-      - ShellCommand: *helm_lint
+      - ShellCommand: *private_registry_login
       - ShellCommand:
-          name: Install Latest Zenko !
-          command: >-
-            helm upgrade $ZENKO_HELM_RELEASE --namespace %(prop:testNamespace)s
-            --install charts/zenko
-            -f eve/ci-values.yml
-            --set cloudserver.image.tag='%(prop:cloudserver_sha1)s'
-            --set cloudserver.image.repository=%(secret:private_registry_url)s/zenko/cloudserver
-            --set backbeat.image.tag='%(prop:backbeat_sha1)s'
-            --set backbeat.image.repository=%(secret:private_registry_url)s/zenko/backbeat
-            --set s3-data.image.tag='%(prop:cloudserver_sha1)s'
-            --set s3-data.image.repository=%(secret:private_registry_url)s/zenko/cloudserver
-          haltOnFailure: true
+          name: Setup latest Zenko and run end to end tests
+          command: make -e test-latest
+          workdir: build/tests
           env:
-            <<: *k8s_env
-      - ShellCommand: *run_zenko_e2e
-      - ShellCommand: *dump_logs
+            <<: *global_env
+      - Upload: *upload_artifacts
+
+  cosbench-latest:
+    worker: *kube_cluster
+    steps:
+      - Git: *git_pull
+      - ShellCommand: *private_registry_login
+      - ShellCommand:
+          name: Setup and run benchmarks
+          command: make -e test-cosbench && make -e dump-logs
+          workdir: build/tests
+          maxTime: 43200
+          env:
+            <<: *global_env
       - Upload: *upload_artifacts
