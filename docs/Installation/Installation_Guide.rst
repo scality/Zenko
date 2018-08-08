@@ -112,14 +112,11 @@ Kubernetes cluster environment.
 Clone or Copy the MetalK8s Git Repo
 ===================================
 
-Either log in to your primary machine (any of the nodes can be the primary)
-and clone the MetalK8s repo directly from GitHub:
+Download the latest stable MetalK8s repo from:
 
-.. code-block:: shell
+https://github.com/scality/metalk8s/releases
 
-   $ git clone https://github.com/scality/metalk8s
-
-or put the MetalK8s project onto the machine using sftp:
+Put this repo onto your installation master:
 
 .. code-block:: shell
 
@@ -484,7 +481,7 @@ parameters as appropriate.)
       -  zenko.local
 
     cloudserver:
-     endpoint: "zenko.local"
+       endpoint: "zenko.local"
 
    You can edit these parameters, using each component’s values.yaml file
    as your guide. Save this file.
