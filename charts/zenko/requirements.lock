@@ -19,15 +19,15 @@ dependencies:
   version: 1.11.6
 - name: backbeat
   repository: file://../backbeat
-  version: 0.1.0
+  version: 1.0.0
 - name: s3-data
   repository: file://../s3-data
-  version: 0.1.0
+  version: 1.0.0
 - name: cloudserver
   repository: file://../cloudserver
-  version: 0.1.4
+  version: 1.0.0
 - name: zenko-nfs
   repository: file://../zenko-nfs
-  version: 0.1.0
-digest: sha256:363af8dcefc419dfc07445ad68e8c558c43db53fe92dbbf83f59bbb7dde6c94e
-generated: 2018-07-31T17:10:52.83952767-07:00
+  version: 1.0.0
+digest: sha256:01deadb5cb0675967edb7da841ce812d8bff7596c201332adc57e6a3b220001a
+generated: 2018-08-08T11:00:44.084505512-07:00
