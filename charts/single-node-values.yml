@@ -6,6 +6,8 @@ ingress:
     - "zenko.local"
 
 cloudserver:
+  replicaCount: *nodeCount
+  replicaFactor: *nodeCount
   mongodb:
     replicas: *nodeCount
 
