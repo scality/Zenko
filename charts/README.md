@@ -116,6 +116,19 @@ create an `Ingress` object. To do so automatically, use something like
 --set prometheus.server.ingress.enabled=true --set prometheus.server.ingress.hosts[0]=prometheus.local
 ```
 
+Grafana Dashboards
+---------------------
+
+[Grafana] is deployed as a dependency of the Zenko chart. To access its
+built-in web UI, you can expose its service through any method that your
+platform supports. For example, if your Kubernetes cluster has an ingress
+controller running, you can expose the service by creating an `Ingress` object.
+To do so automatically during installation, use something like:
+
+```shell
+--set grafana.ingress.enabled=true --set grafana.ingress.hosts[0]=grafana.local
+```
+
 Validating Your Deployment
 --------------------------
 
@@ -134,7 +147,7 @@ Upgrading Your Deployment
 
 To upgrade an existing Zenko installation to the latest version or simply change deployment
 configuration, you will need to run the following commands. This assumes that your release
-name is `zenko` and that you have previously cloned the repository. 
+name is `zenko` and that you have previously cloned the repository.
 
 ```shell
 $ cd Zenko/charts
@@ -143,8 +156,8 @@ $ helm dependency build ./zenko
 $ helm upgrade zenko ./zenko
 ```
 
-You may want to run an upgrade simulation, something highly recommended in production environments. 
-For example: 
+You may want to run an upgrade simulation, something highly recommended in production environments.
+For example:
 
 ```shell
 $ helm upgrade zenko ./zenko --dry-run --debug
@@ -154,7 +167,7 @@ $ helm upgrade zenko ./zenko --dry-run --debug
 the upgrade before proceeding with the upgrade. Running the upgrade with the `--dry-run` flag will
 simulate and try to validate a compatible upgrade. Running with the `--debug` will output all the
 templated values and deployment configurations that will be installed. These are just basic validations
-but upgrade implications should be fully taken into account by you and/or your Kubernetes administrator. 
+but upgrade implications should be fully taken into account by you and/or your Kubernetes administrator.
 
 [Helm]: https://helm.sh
 [Scality]: https://scality.com
@@ -162,3 +175,4 @@ but upgrade implications should be fully taken into account by you and/or your K
 [Kubernetes]: https://kubernetes.io
 [Orbit]: https://admin.zenko.io/user
 [Prometheus]: https://prometheus.io
+[Grafana]: https://grafana.com
