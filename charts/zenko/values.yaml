@@ -80,6 +80,8 @@ prometheus:
     enabled: false
   pushgateway:
     enabled: false
+  server:
+    replicaCount: 2
 
 mongodb-replicaset:
   replicaSet: rs0
