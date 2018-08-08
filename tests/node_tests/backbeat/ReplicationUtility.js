@@ -520,6 +520,8 @@ class ReplicationUtility {
                     return callback(err);
                 }
                 status = data.ReplicationStatus;
+                assert.notStrictEqual(status, 'FAILED',
+                    `Unexpected CRR failure occurred: ${JSON.stringify(data)}`);
                 if (status === 'PENDING' || status === 'PROCESSING') {
                     return setTimeout(callback, 2000);
                 }
