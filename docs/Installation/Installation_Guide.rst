@@ -283,6 +283,8 @@ If your system can reach port *6443* on the first *kube-master* node, you can
    node-01     Ready     master,node      1m        v1.10.4
    node-02     Ready     master,node      1m        v1.10.4
    node-03     Ready     master,node      1m        v1.10.4
+   node-04     Ready     master,node      1m        v1.10.4
+   node-05     Ready     master,node      1m        v1.10.4
 
 * List all pods
 
@@ -330,15 +332,15 @@ Cluster Services
 ----------------
 
 Services to operate and monitor your MetalK8s cluster are provided. To access
-these dashboards:
+these remote services from your local machine:
 
 1. Copy the credentials in
    :file:`inventory/quickstart-cluster/artifacts/admin.conf` to your local
-   machine. Export this path locally with
+   machine at ~/.kube . Export this path locally with
 
    ::
 
-   $ export KUBECONFIG=`pwd`/inventory/quickstart-cluster/artifacts/admin.conf
+    $ export KUBECONFIG="~/.kube/admin.conf"
 
 2. On your cluster, open port 6443 for remote access to cluster services.
 
@@ -481,7 +483,7 @@ parameters as appropriate.)
       -  zenko.local
 
     cloudserver:
-       endpoint: "zenko.local"
+      endpoint: "zenko.local"
 
    You can edit these parameters, using each component’s values.yaml file
    as your guide. Save this file.
