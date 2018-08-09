@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "redis-ha.fullname" . }}-configmap
+  labels:
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    app: {{ template "redis-ha.fullname" . }}
+data:
+  redis.conf: |
+    dir /data
+    maxmemory {{ .Values.redis.maxMemory }}
+    maxmemory-policy {{ .Values.redis.maxMemoryPolicy }}
+    min-slaves-max-lag {{ .Values.redis.minSlavesMaxLag }}
+    min-slaves-to-write {{ .Values.redis.minSlavesToWrite }}
+    repl-diskless-sync {{ .Values.redis.disklessReplication }}
+    rdbcompression yes
+    rdbchecksum yes
+    {{ .Values.redis.rdbBackups }}
+    {{ .Values.redis.addionalConfig }}
+    #slaveof {{ template "redis-ha.fullname" . }}-0.{{ template "redis-ha.fullname" . }} 6379
+
+  sentinel.conf: |
+    sentinel monitor {{ .Values.redis.masterGroupName }} {{ template "redis-ha.fullname" . }}-0.{{ template "redis-ha.fullname" . }} 6379 {{ .Values.sentinel.quorum }}
+    sentinel down-after-milliseconds {{ .Values.redis.masterGroupName }} {{ .Values.sentinel.downAfterMilliseconds }}
+    sentinel failover-timeout {{ .Values.redis.masterGroupName }} {{ .Values.sentinel.failoverTimeout }}
+    sentinel parallel-syncs {{ .Values.redis.masterGroupName }} {{ .Values.sentinel.parallelSyncs }}
+    {{ .Values.sentinel.addionalConfig }}

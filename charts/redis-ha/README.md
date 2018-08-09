@@ -41,17 +41,6 @@ $ helm delete <chart-name>
 
 The command removes all the Kubernetes components associated with the chart and deletes the release.
 
-## Appliance mode
-
-This chart can be used to launch Redis in a black box appliance mode that you can think of like a managed service. To run as an appliance, change the service type for the master and slave LBs to enable local access from within the K8S cluster.
-
-To launch in VPC-only appliance mode, set appliance.serviceType to "LoadBalancer". If using appliance mode in Google Cloud, set appliance.annotations to:
-`cloud.google.com/load-balancer-type:Internal`
-
-```bash
-$ helm install \
-  --set="servers.annotations.cloud\.google\.com/load-balancer-type=Internal,servers.serviceType=LoadBalancer" \
-    stable/redis-ha
 ```
 
 ## Configuration
