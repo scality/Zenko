@@ -110,14 +110,12 @@ describe('Replication with AWS backend', function() {
                                                      next),
         ], done)));
 
-    // Object ACLs would not be applicable on AWS: they should not
-    // trigger a replication task at all (i.e. stay in COMPLETED status)
+    // Object ACLs would not be applicable on AWS.
     it('should not replicate object ACL', done => series([
         next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next),
         next => scalityUtils.compareACLsAWS(srcBucket, destBucket, key, next),
         next => scalityUtils.putObjectACL(srcBucket, key, next),
-        next => scalityUtils.expectReplicationStatus(srcBucket, key, undefined,
-                                                     'COMPLETED', next),
+        next => scalityUtils.compareACLsAWS(srcBucket, destBucket, key, next),
     ], done));
 
     it('should put delete marker on destination bucket when deleting the ' +
