@@ -25,15 +25,15 @@ dependencies:
 
 # Charts managed in this repository
 - name: backbeat
-  version: "0.1.0"
+  version: "1.0.0"
   repository: "file://../backbeat"
 - name: s3-data
-  version: "0.1.0"
+  version: "1.0.0"
   repository: "file://../s3-data"
 - name: cloudserver
-  version: "0.1.4"
+  version: "1.0.0"
   repository: "file://../cloudserver"
 - name: zenko-nfs
-  version: "0.1.0"
+  version: "1.0.0"
   repository: "file://../zenko-nfs"
   condition: zenko-nfs.enabled
