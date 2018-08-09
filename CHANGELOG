@@ -1,0 +1,125 @@
+v. 8.0.0-beta
+~~~~~~~~~~~~~
+
+Backend Support for Public and Private Clouds
+=============================================
+
+Zenko supports multiple-cloud storage operations natively using the Amazon
+Simple Storage Service (S3) protocol. Once a site has been integrated to
+the S3 protocol, Zenko handles S3 API calls and can replicate stored data at
+the site level to the following supported private and public clouds: 
+
+-  Amazon S3-based public clouds:
+
+   -  Amazon Simple Storage Service
+   -  Digital Ocean Spaces
+   -  Wasabi
+
+-  Amazon-S3-based private clouds:
+
+   - Scality RING S3 Connector
+
+-  Other public clouds:
+
+   -  Google Cloud Storage
+   -  Microsoft Azure Storage
+
+Other cloud storage services are being validated.
+
+CRR Retry
+=========
+
+As with any large data transfers over public infrastructure,
+cross-region replication operations are imperfect and can suffer
+failure. In early releases, CRR operations did not fail gracefully--sometimes
+requiring repetition of an entire CRR operation. With v. 1.0, Zenko provides
+a way to monitor CRR operations, retrieve a list of failed operations,
+and retry specific operations on failure.
+
+If a CRR request fails, CRR Retry provides a list of all failed CRR
+requests, formatted similarly to S3’s List Object API response. Users can
+select failed CRR requests to retry by specifying the bucket, key,
+version ID and storage class for each listed CRR request failure.
+
+CRR Retry is accessible using a RESTful API call to the Backbeat
+component.
+
+S3 Cross-Region Replication (CRR) Statistics
+============================================
+
+This feature enables replication status tracking. The replication system
+exposes metrics through a REST API to monitor the replication of
+pending, processing, and completed objects. It returns the number of
+errors that occurred during replication, the current throughput—in
+operations per second or replicating objects per second—and the number
+of total MB completing per second. A health check system has also been
+implemented to monitor the replication components.
+
+Lifecycle Expiration Policies
+=============================
+
+Cloud users can apply lifecycle expiration rules (specified in Amazon’s
+`AWS S3 API <https://docs.aws.amazon.com/AmazonS3/latest/API/Welcome.html>`__)
+to buckets managed through Zenko. These rules are triggered after a defined
+time has passed since the object’s creation. Zenko supports expiration of
+versioned or non-versioned objects, when a defined number of days have
+passed since those objects’ creation. This enables automatic deletion of
+older versions of versioned objects to reclaim storage space.
+
+Several Zenko components are used in lifecycle management. Most rely on Kafka
+and ZooKeeper to pass state to each other.
+
+Bucket lifecycle characteristics inhere to each bucket. Zenko’s lifecycle
+management feature enforces, but does not set these characteristics. When
+lifecycle expiration is enabled, the host cloud enforces buckets’ lifecycle
+rules. If CRR operation is enabled, Zenko replicates the expiration rules to
+all backup clouds.
+
+To configure bucket lifecycle, follow the AWS S3 Lifecycle Configuration
+Element syntax described in
+`https://docs.aws.amazon.com/AmazonS3/latest/dev/intro-lifecycle-rules.html
+<https://docs.aws.amazon.com/AmazonS3/latest/dev/intro-lifecycle-rules.html>`__.
+
+    **Note:** Lifecycle management rules conform to the S3 lifecycle management
+    syntax for expiration policies described at
+    https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lifecycle-mgmt.html.
+    *Lifecycle actions are currently constrained to expiration actions,
+    and not transition actions.* Files that exceed a preconfigured
+    temporal threshold (for example, 90 days) are “expired” and deleted
+    from the bucket on which they are stored. At present, files
+    exceeding a preset date *cannot be transitioned* to STANDARD\_IA or
+    GLACIER storage classes.
+
+Metadata Search
+===============
+
+Zenko offers users the ability to perform S3 database searches through a
+graphical search tool or from the command line.
+
+The S3 Search tool extends the existing GET Bucket S3 API, introducing a
+custom Zenko query string parameter, “search.” S3 Search complies with
+AWS S3 search syntax with certain noteworthy differences: S3 Search is
+MongoDB-native, and addresses the S3 search through queries encapsulated
+in a SQL WHERE predicate. S3 Search uses Perl-Compatible Regular
+Expression (PCRE) search syntax. The search parameter is a pseudo-SQL
+WHERE clause that supports basic SQL operators, allowing a range or
+simple and complex SQL-like queries.
+
+One-to-Many Replication (CRR)
+=============================
+
+One-to-many replication (also called “Cross-Region Replication” or
+CRR) is a bucket-level configuration that enables automatic,
+asynchronous copying of objects across buckets in different RINGs or
+clouds.
+
+Zenko enables workflows from on-premise to cloud, simplifying access to
+data independent of location, and provides a policy-based management
+framework for moving and replicating data. Using one-to-many replication
+makes it possible to replicate data from on-premise data centers to
+several cloud-based storage backends, or from one cloud to many.
+
+One-to-many CRR employs a common abstraction, providing a single common
+API for multiple (heterogeneous) cloud APIs. In other words, Zenko maps
+the AWS bucket and object model onto the underlying cloud by mapping S3
+API calls to native API calls for each cloud.
