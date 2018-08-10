@@ -28,6 +28,6 @@ dependencies:
   version: 1.0.0
 - name: prometheus
   repository: file://../prometheus
-  version: 7.0.0
-digest: sha256:8bbe44131c274cbf6c1c47882866a6a497378fd012f5317c309451f3a60c5f3c
-generated: 2018-08-13T16:27:22.127843431-07:00
+  version: 8.0.0-Z
+digest: sha256:feac3aa58086d411dd80d97da32e6cf50137438e48a39113063d1c05aab81519
+generated: 2018-08-13T13:34:49.14432289-07:00

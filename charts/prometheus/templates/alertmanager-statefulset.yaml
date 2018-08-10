@@ -1,6 +1,6 @@
 {{- if .Values.alertmanager.enabled -}}
-apiVersion: extensions/v1beta1
-kind: Deployment
+apiVersion: apps/v1beta2
+kind: StatefulSet
 metadata:
   labels:
     app: {{ template "prometheus.name" . }}
@@ -10,11 +10,12 @@ metadata:
     release: {{ .Release.Name }}
   name: {{ template "prometheus.alertmanager.fullname" . }}
 spec:
+  serviceName: {{ template "prometheus.alertmanager.fullname" . }}
+  selector:
+    matchLabels:
+      app: {{ template "prometheus.name" . }}
+      release: {{ .Release.Name }}
   replicas: {{ .Values.alertmanager.replicaCount }}
-  {{- if .Values.server.strategy }}
-  strategy:
-{{ toYaml .Values.server.strategy | indent 4 }}
-  {{- end }}
   template:
     metadata:
     {{- if .Values.alertmanager.podAnnotations }}
@@ -101,11 +102,29 @@ spec:
         - name: config-volume
           configMap:
             name: {{ if .Values.alertmanager.configMapOverrideName }}{{ .Release.Name }}-{{ .Values.alertmanager.configMapOverrideName }}{{- else }}{{ template "prometheus.alertmanager.fullname" . }}{{- end }}
+{{- if .Values.alertmanager.persistentVolume.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: storage-volume
+        {{- if .Values.alertmanager.persistentVolume.annotations }}
+        annotations:
+{{ toYaml .Values.alertmanager.persistentVolume.annotations | indent 10 }}
+        {{- end }}
+      spec:
+        accessModes:
+{{ toYaml .Values.alertmanager.persistentVolume.accessModes | indent 10 }}
+        resources:
+          requests:
+            storage: "{{ .Values.alertmanager.persistentVolume.size }}"
+      {{- if .Values.server.persistentVolume.storageClass }}
+      {{- if (eq "-" .Values.server.persistentVolume.storageClass) }}
+        storageClassName: ""
+      {{- else }}
+        storageClassName: "{{ .Values.alertmanager.persistentVolume.storageClass }}"
+      {{- end }}
+      {{- end }}
+{{- else }}
         - name: storage-volume
-        {{- if .Values.alertmanager.persistentVolume.enabled }}
-          persistentVolumeClaim:
-            claimName: {{ if .Values.alertmanager.persistentVolume.existingClaim }}{{ .Values.alertmanager.persistentVolume.existingClaim }}{{- else }}{{ template "prometheus.alertmanager.fullname" . }}{{- end }}
-        {{- else }}
           emptyDir: {}
-        {{- end -}}
+{{- end }}
 {{- end }}

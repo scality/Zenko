@@ -94,10 +94,6 @@ alertmanager:
     #     hosts:
     #       - alertmanager.domain.com
 
-  ## Alertmanager Deployment Strategy type
-  # strategy:
-  #   type: Recreate
-
   ## Node tolerations for alertmanager scheduling to nodes with taints
   ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
   ##
@@ -133,11 +129,6 @@ alertmanager:
     ## alertmanager data Persistent Volume Claim annotations
     ##
     annotations: {}
-
-    ## alertmanager data Persistent Volume existing claim name
-    ## Requires alertmanager.persistentVolume.enabled: true
-    ## If defined, PVC must be created manually before volume will be bound
-    existingClaim: ""
 
     ## alertmanager data Persistent Volume mount root path
     ##
@@ -185,7 +176,10 @@ alertmanager:
   service:
     annotations: {}
     labels: {}
-    clusterIP: ""
+
+    # Exposed as a headless service:
+    # https://kubernetes.io/docs/concepts/services-networking/service/#headless-services
+    clusterIP: None
 
     ## Enabling peer mesh service end points for enabling the HA alert manager
     ## Ref: https://github.com/prometheus/alertmanager/blob/master/README.md
@@ -542,10 +536,6 @@ server:
     #     hosts:
     #       - prometheus.domain.com
 
-  ## Server Deployment Strategy type
-  # strategy:
-  #   type: Recreate
-
   ## Node tolerations for server scheduling to nodes with taints
   ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
   ##
@@ -581,11 +571,6 @@ server:
     ## Prometheus server data Persistent Volume annotations
     ##
     annotations: {}
-
-    ## Prometheus server data Persistent Volume existing claim name
-    ## Requires server.persistentVolume.enabled: true
-    ## If defined, PVC must be created manually before volume will be bound
-    existingClaim: ""
 
     ## Prometheus server data Persistent Volume mount root path
     ##
@@ -634,7 +619,10 @@ server:
   service:
     annotations: {}
     labels: {}
-    clusterIP: ""
+
+    # Exposed as a headless service:
+    # https://kubernetes.io/docs/concepts/services-networking/service/#headless-services
+    clusterIP: None
 
     ## List of IP addresses at which the Prometheus server service is available
     ## Ref: https://kubernetes.io/docs/user-guide/services/#external-ips

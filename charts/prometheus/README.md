@@ -112,7 +112,6 @@ Parameter | Description | Default
 `alertmanager.persistentVolume.enabled` | If true, alertmanager will create a Persistent Volume Claim | `true`
 `alertmanager.persistentVolume.accessModes` | alertmanager data Persistent Volume access modes | `[ReadWriteOnce]`
 `alertmanager.persistentVolume.annotations` | Annotations for alertmanager Persistent Volume Claim | `{}`
-`alertmanager.persistentVolume.existingClaim` | alertmanager data Persistent Volume existing claim name | `""`
 `alertmanager.persistentVolume.mountPath` | alertmanager data Persistent Volume mount root path | `/data`
 `alertmanager.persistentVolume.size` | alertmanager data Persistent Volume size | `2Gi`
 `alertmanager.persistentVolume.storageClass` | alertmanager data Persistent Volume Storage Class | `unset`
@@ -237,13 +236,12 @@ Parameter | Description | Default
 `server.persistentVolume.enabled` | If true, Prometheus server will create a Persistent Volume Claim | `true`
 `server.persistentVolume.accessModes` | Prometheus server data Persistent Volume access modes | `[ReadWriteOnce]`
 `server.persistentVolume.annotations` | Prometheus server data Persistent Volume annotations | `{}`
-`server.persistentVolume.existingClaim` | Prometheus server data Persistent Volume existing claim name | `""`
 `server.persistentVolume.mountPath` | Prometheus server data Persistent Volume mount root path | `/data`
 `server.persistentVolume.size` | Prometheus server data Persistent Volume size | `8Gi`
 `server.persistentVolume.storageClass` | Prometheus server data Persistent Volume Storage Class |  `unset`
 `server.persistentVolume.subPath` | Subdirectory of Prometheus server data Persistent Volume to mount | `""`
 `server.podAnnotations` | annotations to be added to Prometheus server pods | `{}`
-`server.deploymentAnnotations` | annotations to be added to Prometheus server deployment | `{}'
+`server.statefulsetAnnotations` | annotations to be added to Prometheus server stateful set | `{}'
 `server.replicaCount` | desired number of Prometheus server pods | `1`
 `server.resources` | Prometheus server resource requests and limits | `{}`
 `server.securityContext` | Custom [security context](https://kubernetes.io/docs/tasks/configure-pod-container/security-context/) for server containers | `{}`

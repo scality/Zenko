@@ -34,6 +34,6 @@ dependencies:
   repository: "file://../zenko-nfs"
   condition: zenko-nfs.enabled
 - name: prometheus
-  version: "7.0.0"
+  version: "8.0.0-Z"
   repository: "file://../prometheus"
   condition: prometheus.enabled
