@@ -43,6 +43,12 @@ env:
   - name: NODE_EXTRA_CA_CERTS
     value: "/ssl/ca.crt"
   {{- end }}
+  {{- if .Values.proxy.no_proxy }}
+  - name: no_proxy
+    value: "{{ .Values.proxy.no_proxy }}"
+  - name: NO_PROXY
+    value: "{{ .Values.proxy.no_proxy }}"
+  {{- end }}
   - name: S3METADATA
     value: "mongodb"
   - name: MONGODB_HOSTS

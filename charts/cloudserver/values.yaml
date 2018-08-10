@@ -91,9 +91,11 @@ proxy:
   # will look for a file named 'ca.crt' at the root path of this chart.
   # Note: To avoid unexpected behavior, only specify one of "http" or "https"
   # proxy options.
+  # If you have exceptions to proxification you can use the no_proxy variable.
   http: ""
   https: ""
   caCert: false
+  no_proxy: ""
 
 service:
   type: ClusterIP
