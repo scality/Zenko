@@ -1,7 +1,4 @@
 dependencies:
-- name: prometheus
-  repository: https://kubernetes-charts.storage.googleapis.com/
-  version: 5.3.1
 - name: mongodb-replicaset
   repository: https://kubernetes-charts.storage.googleapis.com/
   version: 2.2.1
@@ -29,5 +26,8 @@ dependencies:
 - name: zenko-nfs
   repository: file://../zenko-nfs
   version: 1.0.0
-digest: sha256:01deadb5cb0675967edb7da841ce812d8bff7596c201332adc57e6a3b220001a
-generated: 2018-08-08T11:00:44.084505512-07:00
+- name: prometheus
+  repository: file://../prometheus
+  version: 8.0.0-Z
+digest: sha256:feac3aa58086d411dd80d97da32e6cf50137438e48a39113063d1c05aab81519
+generated: 2018-08-13T13:34:49.14432289-07:00
