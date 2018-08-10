@@ -121,9 +121,7 @@ redis-ha:
   redis_image: zenko/redis-ha:4.0.10-r1
   rbac:
     create: true
-  replicas:
-    servers: *nodeCount
-    sentinels: *nodeCount
+  replicas: *nodeCount
 
 grafana:
   enabled: true

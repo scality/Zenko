@@ -5,9 +5,6 @@ dependencies:
 - name: zookeeper
   repository: http://storage.googleapis.com/kubernetes-charts-incubator
   version: 1.0.0
-- name: redis-ha
-  repository: https://scality.github.io/Zenko/
-  version: 3.0.0
 - name: grafana
   repository: https://kubernetes-charts.storage.googleapis.com/
   version: 1.11.6
@@ -29,5 +26,8 @@ dependencies:
 - name: mongodb-replicaset
   repository: file://../mongodb-replicaset
   version: 3.5.2-Z
-digest: sha256:749f5cf6f55854facabeff78a5c419e5b25a415ac51a5737fa29c8c6cd545f28
-generated: 2018-08-15T14:53:11.104369668-07:00
+- name: redis-ha
+  repository: file://../redis-ha
+  version: 3.0.0-Z
+digest: sha256:9273f39715c42455987c1eb9b3a5f531e71817bfced0a604b3bc4a62eb60beb6
+generated: 2018-08-15T15:03:08.843065926-07:00

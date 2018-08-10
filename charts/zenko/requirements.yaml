@@ -8,9 +8,6 @@ dependencies:
   version: "1.0.0"
   repository: "http://storage.googleapis.com/kubernetes-charts-incubator"
   alias: zenko-quorum
-- name: redis-ha
-  version: "3.0.0"
-  repository: "https://scality.github.io/Zenko/"
 - name: grafana
   version: "1.11.6"
   repository: "https://kubernetes-charts.storage.googleapis.com/"
@@ -37,5 +34,8 @@ dependencies:
 - name: mongodb-replicaset
   version: "3.5.2-Z"
   repository: "file://../mongodb-replicaset"
+- name: redis-ha
+  version: "3.0.0-Z"
+  repository: "file://../redis-ha"
   condition: redis-ha.enabled
 
