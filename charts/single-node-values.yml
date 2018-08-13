@@ -52,3 +52,7 @@ redis-ha:
   replicas:
     servers: *nodeCount
     sentinels: *nodeCount
+
+prometheus:
+  server:
+    replicaCount: 1
