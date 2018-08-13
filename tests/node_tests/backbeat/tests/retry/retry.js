@@ -2,10 +2,10 @@ const assert = require('assert');
 const crypto = require('crypto');
 const { series, parallel, times, timesSeries, doWhilst } = require('async');
 
-const { scalityS3Client, awsS3Client } = require('../../s3SDK');
+const { scalityS3Client, awsS3Client } = require('../../../s3SDK');
 const ReplicationUtility = require('../../ReplicationUtility');
 const { makeGETRequest, makePOSTRequest, getResponseBody } =
-    require('../../utils/request');
+    require('../../../utils/request');
 
 const scalityUtils = new ReplicationUtility(scalityS3Client);
 const awsUtils = new ReplicationUtility(awsS3Client);

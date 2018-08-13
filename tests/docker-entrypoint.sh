@@ -6,7 +6,7 @@ set -o pipefail
 
 # Lint tests
 pip install tox
-make lint
+make lint-e2e
 
 # Use `nproc` to figure out how many CPUs are available, also in a container
 # environment. The `auto` discovery of `pytest-xdist` uses the number of host
