@@ -27,7 +27,7 @@ installImage:
 # Specs for the MongoDB image
 image:
   repository: mongo
-  tag: 3.6
+  tag: 3.4
   pullPolicy: IfNotPresent
 
 # Additional environment variables to be set in the container
