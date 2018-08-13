@@ -35,8 +35,6 @@ spec:
 {{ toYaml .Values.podAnnotations | indent 8 }}
       {{- end }}
     spec:
-      securityContext:
-{{ toYaml .Values.securityContext | indent 8 }}
       initContainers:
         - name: copy-config
           image: busybox
@@ -47,6 +45,8 @@ spec:
             - |
               set -e
               set -x
+
+              chown -R {{ .Values.securityContext.runAsUser }}:{{ .Values.securityContext.fsGroup }} /data/db
 
               cp /configdb-readonly/mongod.conf /data/configdb/mongod.conf
 
@@ -66,6 +66,8 @@ spec:
               mountPath: /configdb-readonly
             - name: configdir
               mountPath: /data/configdb
+            - name: datadir
+              mountPath: /data/db
           {{- if .Values.tls.enabled }}
             - name: ca
               mountPath: /ca-readonly
@@ -83,6 +85,8 @@ spec:
             - name: workdir
               mountPath: /work-dir
         - name: bootstrap
+          securityContext:
+{{ toYaml .Values.securityContext | indent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           command:
             - /work-dir/peer-finder
@@ -137,6 +141,8 @@ spec:
               mountPath: /data/db
       containers:
         - name: {{ template "mongodb-replicaset.name" . }}
+          securityContext:
+{{ toYaml .Values.securityContext | indent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: "{{ .Values.image.pullPolicy }}"
         {{- if .Values.extraVars }}
