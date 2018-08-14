@@ -1,9 +1,5 @@
 dependencies:
 # Upstream Kubernetes Charts
-- name: prometheus
-  version: "5.3.1"
-  repository: "https://kubernetes-charts.storage.googleapis.com/"
-  condition: prometheus.enabled
 - name: mongodb-replicaset
   version: "2.2.1"
   repository: "https://kubernetes-charts.storage.googleapis.com/"
@@ -37,3 +33,7 @@ dependencies:
   version: "1.0.0"
   repository: "file://../zenko-nfs"
   condition: zenko-nfs.enabled
+- name: prometheus
+  version: "8.0.0-Z"
+  repository: "file://../prometheus"
+  condition: prometheus.enabled
