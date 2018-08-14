@@ -48,6 +48,10 @@ mongodb-replicaset:
   replicaSet: rs0
   replicas: *nodeCount
 
+prometheus:
+  server:
+    replicaCount: 1
+
 redis-ha:
   replicas:
     servers: *nodeCount
