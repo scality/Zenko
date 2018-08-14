@@ -1,3 +1,4 @@
+VERBOSE=True
 ifndef VERBOSE
 V=@
 endif
