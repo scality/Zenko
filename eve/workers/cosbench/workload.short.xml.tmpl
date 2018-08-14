@@ -15,12 +15,12 @@
         <!-- Write 0 Byte -->
         <workstage name="write_0B_1T">
             <work name="write_0B_1T" workers="1" runtime="300" division="object">
-                <operation type="write" ratio="100" config="sizes=c(0)MB;containers=r(1,1);objects=r(100000,200000);"/>
+                <operation type="write" ratio="100" config="sizes=c(0)MB;containers=r(1,1);objects=r(100001,200000);"/>
             </work>
         </workstage>
         <workstage name="write_0B_256T">
             <work name="write_0B_256T" workers="256" runtime="300" division="object">
-                <operation type="write" ratio="100" config="sizes=c(0)MB;containers=r(1,1);objects=r(100000,200000);"/>
+                <operation type="write" ratio="100" config="sizes=c(0)MB;containers=r(1,1);objects=r(100001,200000);"/>
             </work>
         </workstage>
 
@@ -40,20 +40,20 @@
         <workstage name="mixed_0B_1T">
             <work name="mixed_0B_1T" workers="1" runtime="300" division="object">
                 <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
-                <operation type="write" ratio="50" config="sizes=c(0)MB;containers=r(1,1);objects=r(100000,200000);"/>
+                <operation type="write" ratio="50" config="sizes=c(0)MB;containers=r(1,1);objects=r(100001,200000);"/>
             </work>
         </workstage>
         <workstage name="mixed_0B_256T">
             <work name="mixed_0B_256T" workers="256" runtime="300" division="object">
                 <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
-                <operation type="write" ratio="50" config="sizes=c(0)MB;containers=r(1,1);objects=r(100000,200000);"/>
+                <operation type="write" ratio="50" config="sizes=c(0)MB;containers=r(1,1);objects=r(100001,200000);"/>
             </work>
         </workstage>
 
         <!-- Clean Up Stage -->
         <workstage name="cleanup">
         <work type="cleanup" workers="1024" config="containers=r(1,1);objects=r(1,100000)" />
-        <work type="cleanup" workers="1024" config="containers=r(1,1);objects=r(100000,200000)" />
+        <work type="cleanup" workers="1024" config="containers=r(1,1);objects=r(100001,200000)" />
         </workstage>
 
         <!-- Disposal Stage -->
