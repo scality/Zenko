@@ -5,7 +5,6 @@ metadata:
   labels:
 {{ include "labels.standard" . | indent 4 }}
   annotations:
-    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
   {{- if .Values.serviceAnnotations }}
 {{ toYaml .Values.serviceAnnotations | indent 4 }}
   {{- end }}

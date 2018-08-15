@@ -6,23 +6,26 @@ image: redis
 tag: 4.0.11-stretch
 ## replicas number for each component
 replicas: 3
+podManagementPolicy: OrderedReady # Cannot change after first release
 
 ## Redis specific configuration options
 redis:
   port: 6379
   masterGroupName: mymaster
-  minSlavesToWrite: 1
-  minSlavesMaxLag: 5   # Value in seconds
   auth: false          # Not yet implemented - Configures redis with AUTH (requirepass & masterauth conf params)
-  maxMemory: "0"       # Max memory to use for each redis instance. Default is unlimited.
-  maxMemoryPolicy: "volatile-lru"  # Max memory policy to use for each redis instance. Default is volatile-lru.
-  # Determines if scheduled RDB backups are created. Default is false.
-  # Please note that local (on-disk) RDBs will still be created when re-syncing with a new slave. The only way to prevent this is to enable diskless replication.
-  rdbBackups: "save 60 1"
-  # When enabled, directly sends the RDB over the wire to slaves, without using the disk as intermediate storage. Default is false.
-  disklessReplication: "yes"
-  additionalConfig: ""
-
+  # Any additional redis conf settings can be set as key value pairs as seen below
+  config:
+    min-slaves-to-write: 1
+    min-slaves-max-lag: 5   # Value in seconds
+    maxmemory: "0"       # Max memory to use for each redis instance. Default is unlimited.
+    maxmemory-policy: "volatile-lru"  # Max memory policy to use for each redis instance. Default is volatile-lru.
+    # Determines if scheduled RDB backups are created. Default is false.
+    # Please note that local (on-disk) RDBs will still be created when re-syncing with a new slave. The only way to prevent this is to enable diskless replication.
+    save: "60 1"
+    # When enabled, directly sends the RDB over the wire to slaves, without using the disk as intermediate storage. Default is false.
+    repl-diskless-sync: "yes"
+    rdbcompression: "yes"
+    rdbchecksum: "yes"
 
   resources:
       requests:
@@ -34,11 +37,11 @@ redis:
 ## Sentinel specific configuration options
 sentinel:
   port: 26379
-  downAfterMilliseconds: 10000
-  failoverTimeout: 180000 # Value in milliseconds
-  parallelSyncs: 5
   quorum: 2
-  additionalConfig: ""
+  config:
+    down-after-milliseconds: 10000
+    failover-timeout: 180000 # Value in milliseconds
+    parallel-syncs: 5
  
   resources:
       requests:
@@ -59,15 +62,6 @@ nodeSelector: {}
 podAnnotations: {}
 extraLabels: {}
 tolerations: []
-sentinelAffinity: |
-   podAntiAffinity:
-     requiredDuringSchedulingIgnoredDuringExecution:
-     - labelSelector:
-         matchLabels:
-           app: {{ template "redis-ha.name" . }}
-           release: {{ .Release.Name | quote }}
-           component: sentinel
-       topologyKey: kubernetes.io/hostname
 affinity: |
   podAntiAffinity:
     requiredDuringSchedulingIgnoredDuringExecution:

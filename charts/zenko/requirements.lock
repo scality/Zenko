@@ -29,5 +29,5 @@ dependencies:
 - name: mongodb-replicaset
   repository: file://../mongodb-replicaset
   version: 3.5.2-Z
-digest: sha256:85a849baa5675f3ec85df49bc8e8d193d4de1c5759c6d035ec7f26566d551f9a
-generated: 2018-08-13T18:40:25.379809693-07:00
+digest: sha256:749f5cf6f55854facabeff78a5c419e5b25a415ac51a5737fa29c8c6cd545f28
+generated: 2018-08-15T14:53:11.104369668-07:00

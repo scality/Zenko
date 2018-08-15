@@ -1,7 +1,7 @@
-apiVersion: apps/v1beta2
+apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ template "redis-ha.fullname" . }}
+  name: {{ template "redis-ha.fullname" . }}-server
   labels:
     name: {{ template "redis-ha.fullname" . }}
     release: {{ .Release.Name }}
@@ -13,7 +13,7 @@ spec:
   serviceName: {{ template "redis-ha.fullname" . }}
   replicas: {{ .Values.replicas }}
   updateStrategy:
-    type: OnDelete
+    type: RollingUpdate
   template:
     metadata:
       annotations:
@@ -42,35 +42,12 @@ spec:
         image: {{ .Values.image }}:{{ .Values.tag }}
         command:
           - "bash"
-        args:
-          - "-c"
-          - |
-            MASTER=`redis-cli -h {{ template "redis-ha.fullname" . }} -p {{ .Values.sentinel.port }} sentinel get-master-addr-by-name {{ .Values.redis.masterGroupName }} | grep -E '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'`
-            set -ex
-            if [[ ! -f /data/conf/redis.conf && ! -f /data/conf/sentinel.conf ]]; then
-                echo "No redis config found!"
-                mkdir -p /data/conf/
-                echo "Copying base config.."
-
-                cp /readonly-config/redis.conf /data/conf/redis.conf
-                cp /readonly-config/sentinel.conf /data/conf/sentinel.conf
-                chown -R {{ .Values.securityContext.runAsUser }}:{{ .Values.securityContext.fsGroup }} /data/
-   
-                if [[ "$HOSTNAME" != '{{ template "redis-ha.fullname" . }}-0' ]]; then
-                    echo "Copying slave config.."
-                    sed -i 's/#slaveof/slaveof/' /data/conf/redis.conf
-                    #cat /readonly-config/slave.conf >> /data/conf/redis.conf
-                fi
-            elif [[ "$MASTER" != "" ]]; then
-                echo "Found existing redis master, updating config"
-                sed -i "s/^.*slaveof.*/slaveof ${MASTER} 6379/" /data/conf/redis.conf
-                sed -i "s/^.*sentinel monitor.*/sentinel monitor {{ .Values.redis.masterGroupName }} ${MASTER} 6379 {{ .Values.sentinel.quorum }}/" /data/conf/redis.conf
-            else
-                echo "Updating configs"
-                # Need to update configs from values when updated
-                # echo "updating sentinel config"
-                # grep -v /readonly-config/sentinel.conf -e "sentinel monitor" 
-            fi
+          - "/readonly-config/init.bash"
+        env:
+          - name: POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
         volumeMounts:
           - name: config
             mountPath: /readonly-config
@@ -89,13 +66,18 @@ spec:
         livenessProbe:
           exec:
             command: ["redis-cli", "ping"]
-          initialDelaySeconds: 5
+          initialDelaySeconds: 15
+          periodSeconds: 5
+        readiness:
+          exec:
+            command: ["redis-cli", "ping"]
+          initialDelaySeconds: 15
           periodSeconds: 5
         resources:
 {{ toYaml .Values.redis.resources | indent 10 }}
         ports:
           - name: redis
-            containerPort: 6379
+            containerPort: {{ .Values.redis.port }}
         volumeMounts:
           - mountPath: /data
             name: data
@@ -109,14 +91,19 @@ spec:
           - /data/conf/sentinel.conf
         livenessProbe:
           exec:
-            command: ["redis-cli", "ping"]
-          initialDelaySeconds: 5
+            command: ["redis-cli", "-p", "{{ .Values.sentinel.port }}", "ping"]
+          initialDelaySeconds: 15
+          periodSeconds: 5
+        readiness:
+          exec:
+            command: ["redis-cli", "-p", "{{ .Values.sentinel.port }}", "ping"]
+          initialDelaySeconds: 15
           periodSeconds: 5
         resources:
 {{ toYaml .Values.sentinel.resources | indent 10 }}
         ports:
           - name: sentinel
-            containerPort: 26379
+            containerPort: {{ .Values.sentinel.port }}
         volumeMounts:
           - mountPath: /data
             name: data
@@ -148,7 +135,6 @@ spec:
       {{- end }}
       {{- end }}
 {{- else }}
-      volumes:
-      - name: data
-        emptyDir: {}
+        - name: data
+          emptyDir: {}
 {{- end }}

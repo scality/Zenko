@@ -117,6 +117,7 @@ zenko-quorum:
       enabled: true
 
 redis-ha:
+  enabled: true
   redis_image: zenko/redis-ha:4.0.10-r1
   rbac:
     create: true

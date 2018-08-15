@@ -37,4 +37,5 @@ dependencies:
 - name: mongodb-replicaset
   version: "3.5.2-Z"
   repository: "file://../mongodb-replicaset"
+  condition: redis-ha.enabled
 
