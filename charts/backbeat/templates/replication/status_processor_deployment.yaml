@@ -54,7 +54,7 @@ spec:
               value: Replication
             {{- end }}
             - name: REDIS_HOST
-              value: "{{- printf "%s-%s" .Release.Name "redis-ha-master-svc" | trunc 63 | trimSuffix "-" -}}"
+              value: "{{- printf "%s-%s" .Release.Name "redis-ha" | trunc 63 | trimSuffix "-" -}}"
             - name: REDIS_PORT
               value: "6379"
             - name: LOG_LEVEL
