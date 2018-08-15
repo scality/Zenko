@@ -492,29 +492,29 @@ parameters as appropriate.)
    ::
 
     ingress:
-     enabled: "true"
-     annotations:
-       nginx.ingress.kubernetes.io/proxy-body-size: 0
-
-    hosts:
-      -  zenko.local
+      enabled: "true"
+      annotations:
+        nginx.ingress.kubernetes.io/proxy-body-size: 0
+      hosts:
+        - zenko.local
 
     cloudserver:
-     endpoint: "zenko.local"
+      endpoint: "zenko.local"
 
    You can edit these parameters, using each component’s values.yaml file
    as your guide. Save this file.
 
 2. If your Zenko instance is behind a proxy, append the following
-   lines to the options.yml file, substituting your proxy’s IP addresses
-   and port assignments:
+   lines to the options.yml file, under the section **cloudserver**, substituting
+   your proxy’s IP addresses and port assignments:
 
    ::
 
       proxy:
-      http: ""
-      https: ""
+        http: ""
+        https: ""
         caCert: false
+        no_proxy: ""
 
    If the HTTP proxy endpoint is set and the HTTPS one is not, the
    HTTP proxy will be used for HTTPS traffic as well.
