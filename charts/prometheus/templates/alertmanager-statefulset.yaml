@@ -16,6 +16,7 @@ spec:
       app: {{ template "prometheus.name" . }}
       release: {{ .Release.Name }}
   replicas: {{ .Values.alertmanager.replicaCount }}
+  podManagementPolicy: Parallel
   template:
     metadata:
     {{- if .Values.alertmanager.podAnnotations }}

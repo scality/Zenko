@@ -176,10 +176,7 @@ alertmanager:
   service:
     annotations: {}
     labels: {}
-
-    # Exposed as a headless service:
-    # https://kubernetes.io/docs/concepts/services-networking/service/#headless-services
-    clusterIP: None
+    clusterIP: ""
 
     ## Enabling peer mesh service end points for enabling the HA alert manager
     ## Ref: https://github.com/prometheus/alertmanager/blob/master/README.md
@@ -195,6 +192,16 @@ alertmanager:
     servicePort: 80
     # nodePort: 30000
     type: ClusterIP
+
+  headless:
+    annotations: {}
+    labels: {}
+
+    ## Enabling peer mesh service end points for enabling the HA alert manager
+    ## Ref: https://github.com/prometheus/alertmanager/blob/master/README.md
+    # enableMeshPeer : true
+
+    servicePort: 80
 
 ## Monitors ConfigMap changes and POSTs to a URL
 ## Ref: https://github.com/jimmidyson/configmap-reload
@@ -619,10 +626,7 @@ server:
   service:
     annotations: {}
     labels: {}
-
-    # Exposed as a headless service:
-    # https://kubernetes.io/docs/concepts/services-networking/service/#headless-services
-    clusterIP: None
+    clusterIP: ""
 
     ## List of IP addresses at which the Prometheus server service is available
     ## Ref: https://kubernetes.io/docs/user-guide/services/#external-ips
@@ -633,6 +637,11 @@ server:
     loadBalancerSourceRanges: []
     servicePort: 80
     type: ClusterIP
+
+  headless:
+    annotations: {}
+    labels: {}
+    servicePort: 80
 
   ## Prometheus server pod termination grace period
   ##

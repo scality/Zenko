@@ -57,7 +57,7 @@ def prometheus_client():
 
     url = os.getenv('PROMETHEUS_ENDPOINT')
     if not url:
-        url = 'http://{}-prometheus-server:9090'.format(zenko_helm_release())
+        url = 'http://{}-prometheus-server:80'.format(zenko_helm_release())
 
     return zenko_e2e.prometheus.client.PrometheusClient(prometheus_url=url)
 
