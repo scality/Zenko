@@ -242,7 +242,9 @@ trigger-cosbench:
 
 get-cosbench-results: | artifacts
 	$(V)$(KUBECTL) cp $(HELM_NAMESPACE)/$(COSBENCH_POD):archive/w1-workload1/w1-workload1.csv ./artifacts/workload.csv && \
-	cp ./artifacts/workload.csv ../eve/workers/cosbench/workload.csv
+	ls -R ./artifacts && \
+	cp ./artifacts/workload.csv ../eve/workers/cosbench/workload.csv && \
+	ls -R ../eve/workers/cosbench/
 
 upload-cosbench-results: | get-cosbench-results
 	$(V)$(DOCKER) build --no-cache -t $(COSBENCH_RUNNER_IMAGE) ../eve/workers/cosbench/ && \

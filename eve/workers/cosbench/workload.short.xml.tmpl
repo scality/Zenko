@@ -13,7 +13,7 @@
         </workstage>
 
         <!-- Write 0 Byte -->
-        <workstage name="write_0B_1T">
+        <!-- <workstage name="write_0B_1T">
             <work name="write_0B_1T" workers="1" runtime="300" division="object">
                 <operation type="write" ratio="100" config="sizes=c(0)MB;containers=r(1,1);objects=r(100001,200000);"/>
             </work>
@@ -22,10 +22,10 @@
             <work name="write_0B_256T" workers="256" runtime="300" division="object">
                 <operation type="write" ratio="100" config="sizes=c(0)MB;containers=r(1,1);objects=r(100001,200000);"/>
             </work>
-        </workstage>
+        </workstage> -->
 
         <!-- Read 0 Bytes -->
-        <workstage name="read_0B_1T">
+        <!-- <workstage name="read_0B_1T">
             <work name="read_0B_1T" workers="1" runtime="300" division="object">
                 <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
             </work>
@@ -34,10 +34,10 @@
             <work name="read_0B_256T" workers="256" runtime="300" division="object">
                 <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
             </work>
-        </workstage>
+        </workstage> -->
 
         <!-- Mixed 0B -->
-        <workstage name="mixed_0B_1T">
+        <!-- <workstage name="mixed_0B_1T">
             <work name="mixed_0B_1T" workers="1" runtime="300" division="object">
                 <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
                 <operation type="write" ratio="50" config="sizes=c(0)MB;containers=r(1,1);objects=r(100001,200000);"/>
@@ -48,7 +48,7 @@
                 <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
                 <operation type="write" ratio="50" config="sizes=c(0)MB;containers=r(1,1);objects=r(100001,200000);"/>
             </work>
-        </workstage>
+        </workstage> -->
 
         <!-- Clean Up Stage -->
         <workstage name="cleanup">
