@@ -18,6 +18,7 @@ POD = 'kubernetes-pods'
 @pytest.mark.parametrize('job,name', [
     (SERVICE, '{}-cloudserver'.format(zenko_helm_release())),
     (POD, '{}-zenko-queue-0'.format(zenko_helm_release())),
+    (POD, '{}-mongodb-replicaset-0'.format(zenko_helm_release())),
 ])
 def test_prometheus_targets(prometheus_client, k8s_namespace,
                             zenko_helm_release, job, name):
