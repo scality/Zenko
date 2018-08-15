@@ -1,9 +1,5 @@
 dependencies:
 # Upstream Kubernetes Charts
-- name: kafka
-  version: "0.7.1"
-  repository: "http://storage.googleapis.com/kubernetes-charts-incubator"
-  alias: zenko-queue
 - name: zookeeper
   version: "1.0.0"
   repository: "http://storage.googleapis.com/kubernetes-charts-incubator"
@@ -38,3 +34,7 @@ dependencies:
   version: "1.11.6-Z"
   repository: "file://../grafana"
   condition: grafana.enabled
+- name: kafka
+  version: "0.7.1-Z"
+  repository: "file://../kafka"
+  alias: zenko-queue
