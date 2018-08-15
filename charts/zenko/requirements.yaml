@@ -1,11 +1,4 @@
 dependencies:
-# Upstream Kubernetes Charts
-- name: zookeeper
-  version: "1.0.0"
-  repository: "http://storage.googleapis.com/kubernetes-charts-incubator"
-  alias: zenko-quorum
-
-# Charts managed in this repository
 - name: backbeat
   version: "1.0.0"
   repository: "file://../backbeat"
@@ -38,3 +31,7 @@ dependencies:
   version: "0.7.1-Z"
   repository: "file://../kafka"
   alias: zenko-queue
+- name: zookeeper
+  version: "1.0.0-Z"
+  repository: "file://../zookeeper"
+  alias: zenko-quorum
