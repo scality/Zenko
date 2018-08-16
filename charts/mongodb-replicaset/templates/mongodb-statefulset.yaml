@@ -77,6 +77,8 @@ spec:
               mountPath: /keydir-readonly
           {{- end }}
         - name: install
+          securityContext:
+{{ toYaml .Values.securityContext | indent 12 }}
           image: "{{ .Values.installImage.repository }}:{{ .Values.installImage.tag }}"
           args:
             - --work-dir=/work-dir
