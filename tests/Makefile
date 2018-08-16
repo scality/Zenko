@@ -74,7 +74,7 @@ lint-e2e:
 lint-node-e2e:
 
 lint:
-	$(V)$(HELM) lint ../charts/*
+	$(V)$(HELM) lint ../kubernetes/zenko/charts/* && $(HELM) lint ../kubernetes/zenko/
 
 build-e2e:
 	$(V)$(DOCKER) build -t $(E2E_IMAGE) . && \
@@ -159,7 +159,7 @@ install-zenko:
 ifndef NO_INSTALL
 	$(HELM) upgrade $(ZENKO_HELM_RELEASE) \
 		--namespace $(HELM_NAMESPACE) \
-		--install ../charts \
+		--install ../kubernetes/zenko \
 		-f ../eve/ci-values.yml
 endif
 .PHONY: install-zenko
@@ -168,7 +168,7 @@ install-latest-zenko:
 ifndef NO_INSTALL
 	$(HELM) upgrade $(ZENKO_HELM_RELEASE) \
 		--namespace $(HELM_NAMESPACE) \
-		--install ../charts \
+		--install ../kubernetes/zenko \
 		-f ../eve/ci-values.yml \
         --set cloudserver.image.repository=$(IMAGE_REGISTRY)/zenko/cloudserver \
         --set-string cloudserver.image.tag='$(CLOUDSERVER_TAG)' \

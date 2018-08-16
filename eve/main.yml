@@ -25,7 +25,9 @@ models:
         '%(secret:private_registry_url)s'
   - ShellCommand: &helm_lint
       name: Lint charts
-      command: helm lint charts/*
+      command: >
+        helm lint kubernetes/zenko/ &&
+        helm lint kubernetes/zenko/charts/*
       haltOnFailure: true
   - ShellCommand: &dump_logs
       name: Dump zenko logs
