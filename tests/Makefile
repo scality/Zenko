@@ -157,20 +157,18 @@ install-cosbench:
 
 install-zenko:
 ifndef NO_INSTALL
-	$(V)$(HELM) dependency build ../charts/zenko && \
 	$(HELM) upgrade $(ZENKO_HELM_RELEASE) \
 		--namespace $(HELM_NAMESPACE) \
-		--install ../charts/zenko/ \
+		--install ../charts \
 		-f ../eve/ci-values.yml
 endif
 .PHONY: install-zenko
 
 install-latest-zenko:
 ifndef NO_INSTALL
-	$(V)$(HELM) dependency build ../charts/zenko && \
 	$(HELM) upgrade $(ZENKO_HELM_RELEASE) \
 		--namespace $(HELM_NAMESPACE) \
-		--install ../charts/zenko/ \
+		--install ../charts \
 		-f ../eve/ci-values.yml \
         --set cloudserver.image.repository=$(IMAGE_REGISTRY)/zenko/cloudserver \
         --set-string cloudserver.image.tag='$(CLOUDSERVER_TAG)' \

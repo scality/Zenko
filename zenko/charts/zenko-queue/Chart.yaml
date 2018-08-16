@@ -8,7 +8,7 @@ keywords:
 - kafka
 - zookeeper
 - kafka statefulset
-name: kafka
+name: zenko-queue
 sources:
 - https://github.com/kubernetes/charts/tree/master/incubator/zookeeper
 - https://github.com/Yolean/kubernetes-kafka
