@@ -88,6 +88,10 @@ mongodb-replicaset:
   replicas: *nodeCount
   metrics:
     enabled: true
+  securityContext:
+    runAsUser: 1000
+    fsGroup: 1000
+    runAsNonRoot: true  
 
 zenko-queue:
 ## Extensive list of configurables can be found here:
