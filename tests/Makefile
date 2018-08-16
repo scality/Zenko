@@ -222,8 +222,8 @@ test-node: | build-node-e2e
 		-- ./npm_chain.sh test_crr test_api test_crr_pause_resume test_location_quota
 .PHONY: test-node
 
-test: | install-common install-zenko test-e2e test-node dump-logs
-test-latest: | install-common get-latest-commit install-latest-zenko test-e2e test-node dump-logs
+test: | install-common install-zenko test-e2e test-node
+test-latest: | install-common get-latest-commit install-latest-zenko test-e2e test-node
 .PHONY: test test-latest
 test-local:
 	make NO_SIM=true NO_INSTALL=true -e test
