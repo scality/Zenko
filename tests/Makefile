@@ -255,6 +255,7 @@ upload-cosbench-results: | get-cosbench-results
 		--attach=True \
 		--restart=Never \
 		--namespace=$(HELM_NAMESPACE) \
+		--image-pull-policy="Always" \
 		--env COSBENCH_NIGHTLY_SERVICE_ACCOUNT='$(shell echo '$(COSBENCH_NIGHLTY_SERVICE_ACCOUNT)' | tr -d '\n')' \
 		--env COSBENCH_SPREADSHEET_ID='$(shell echo '$(COSBENCH_SPREADSHEET_ID)' | tr -d '\n')' \
 		-- python insert_data.py
