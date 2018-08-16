@@ -1,19 +1,4 @@
 dependencies:
-# Upstream Kubernetes Charts
-- name: kafka
-  version: "0.7.1"
-  repository: "http://storage.googleapis.com/kubernetes-charts-incubator"
-  alias: zenko-queue
-- name: zookeeper
-  version: "1.0.0"
-  repository: "http://storage.googleapis.com/kubernetes-charts-incubator"
-  alias: zenko-quorum
-- name: grafana
-  version: "1.11.6"
-  repository: "https://kubernetes-charts.storage.googleapis.com/"
-  condition: grafana.enabled
-
-# Charts managed in this repository
 - name: backbeat
   version: "1.0.0"
   repository: "file://../backbeat"
@@ -38,4 +23,15 @@ dependencies:
   version: "3.0.0-Z"
   repository: "file://../redis-ha"
   condition: redis-ha.enabled
-
+- name: grafana
+  version: "1.11.6-Z"
+  repository: "file://../grafana"
+  condition: grafana.enabled
+- name: kafka
+  version: "0.7.1-Z"
+  repository: "file://../zenko-queue"
+  alias: zenko-queue
+- name: zookeeper
+  version: "1.0.0-Z"
+  repository: "file://../zenko-quorum"
+  alias: zenko-quorum
