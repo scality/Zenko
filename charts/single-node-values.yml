@@ -49,9 +49,7 @@ mongodb-replicaset:
   replicas: *nodeCount
 
 redis-ha:
-  replicas:
-    servers: *nodeCount
-    sentinels: *nodeCount
+  replicas: *nodeCount
 
 prometheus:
   server:
