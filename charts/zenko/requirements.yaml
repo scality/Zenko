@@ -29,9 +29,9 @@ dependencies:
   condition: grafana.enabled
 - name: kafka
   version: "0.7.1-Z"
-  repository: "file://../kafka"
+  repository: "file://../zenko-queue"
   alias: zenko-queue
 - name: zookeeper
   version: "1.0.0-Z"
-  repository: "file://../zookeeper"
+  repository: "file://../zenko-quorum"
   alias: zenko-quorum
