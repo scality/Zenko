@@ -62,6 +62,8 @@ BACKBEAT_BRANCH := development/8.0
 BACKBEAT_IMAGE_NAME := backbeat
 BACKBEAT_IMAGE := $(IMAGE_REGISTRY)/$(IMAGE_REPO)/$(BACKBEAT_IMAGE_NAME)
 
+NODE_TEST_TAGS := not:flaky
+
 artifacts:
 	@mkdir -p $@
 
@@ -217,11 +219,16 @@ test-node: | build-node-e2e
 		--rm --restart=Never --namespace $(HELM_NAMESPACE) --attach=True \
 		$(shell ../eve/workers/ci_env.sh env) \
 		--env CLOUDSERVER_ENDPOINT="http://$(ZENKO_HELM_RELEASE)-cloudserver:80" \
+		--env MOCHA_TAGS="$(NODE_TEST_TAGS)" \
 		-- ./npm_chain.sh test_crr test_api test_crr_pause_resume test_location_quota
 .PHONY: test-node
 
-test: | install-common install-zenko test-e2e test-node
-test-latest: | install-common get-latest-commit install-latest-zenko test-e2e test-node
+test-node-flaky:
+	$(eval NODE_TEST_TAGS = is:flaky)
+	$(call test-node)
+
+test: | install-common install-zenko test-e2e test-node dump-logs
+test-latest: | install-common get-latest-commit install-latest-zenko test-e2e test-node-flaky dump-logs
 .PHONY: test test-latest
 test-local:
 	make NO_SIM=true NO_INSTALL=true -e test
