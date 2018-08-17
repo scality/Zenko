@@ -11,11 +11,12 @@
     "test"
   ],
   "dependencies": {
+    "@google-cloud/storage": "^1.6.0",
     "async": "2.1.2",
     "aws-sdk": "2.28.0",
     "azure-storage": "^2.10.0",
-    "@google-cloud/storage": "^1.6.0",
     "mocha": "^5.2.0",
+    "mocha-tags": "^1.0.1",
     "request": "^2.87.0"
   },
   "scripts": {
