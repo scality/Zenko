@@ -2,6 +2,8 @@
 ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
 ##
 
+enabled: true
+
 image: redis
 tag: 4.0.11-stretch
 ## replicas number for each component
@@ -42,7 +44,7 @@ sentinel:
     down-after-milliseconds: 10000
     failover-timeout: 180000 # Value in milliseconds
     parallel-syncs: 5
- 
+
   resources:
       requests:
         memory: 200Mi

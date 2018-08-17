@@ -1,3 +1,4 @@
+{{- if .Values.enabled -}}
 apiVersion: v1
 kind: Service
 metadata:
@@ -19,7 +20,8 @@ spec:
   - name: sentinel
     port: {{ .Values.sentinel.port }}
     protocol: TCP
-    targetPort: sentinel 
+    targetPort: sentinel
   selector:
     release: {{ .Release.Name }}
     app: {{ template "redis-ha.name" . }}
+{{- end }}

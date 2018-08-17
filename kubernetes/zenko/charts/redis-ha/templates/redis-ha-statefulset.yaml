@@ -1,3 +1,4 @@
+{{- if .Values.enabled -}}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -135,4 +136,5 @@ spec:
 {{- else }}
         - name: data
           emptyDir: {}
+{{- end }}
 {{- end }}

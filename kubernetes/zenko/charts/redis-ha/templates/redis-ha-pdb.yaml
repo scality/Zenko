@@ -1,3 +1,4 @@
+{{- if .Values.enabled -}}
 apiVersion: policy/v1beta1
 kind: PodDisruptionBudget
 metadata:
@@ -9,3 +10,4 @@ spec:
     matchLabels:
       release: {{ .Release.Name }}
 {{ toYaml .Values.podDisruptionBudget | indent 2 }}
+{{- end }}

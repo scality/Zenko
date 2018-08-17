@@ -1,3 +1,4 @@
+{{- if .Values.enabled -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -109,4 +110,4 @@ data:
     echo "{{ .Values.redis.masterGroupName }}" > /data/conf/group_name
     chown -R {{ .Values.securityContext.runAsUser }}:{{ .Values.securityContext.fsGroup }} /data/
     echo "Ready..."
-
+{{- end }}
