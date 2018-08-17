@@ -96,7 +96,10 @@ class ReplicationUtility {
             Bucket: bucketName,
             Key: objectName,
             Body: content,
-        }, cb);
+        }, (err, data) => {
+            console.log('err putting obj via s3', err);
+            return cb(err, data);
+        });
     }
 
     putObjectWithContentType(bucketName, objectName, content, cb) {
@@ -172,7 +175,10 @@ class ReplicationUtility {
             Bucket: bucketName,
             CopySource: copySource,
             Key: objectName,
-        }, cb);
+        }, (err, data) => {
+            console.log('err copy object via s3', err);
+            return cb(err, data);
+        });
     }
 
     genericCompleteMPU(bucketName, objectName, howManyParts, isExternalBackend,
@@ -200,6 +206,7 @@ class ReplicationUtility {
             next => this.s3.createMultipartUpload(initiateMPUParams,
             (err, data) => {
                 if (err) {
+                    console.log('err creating mpu', err);
                     return next(err);
                 }
                 uploadId = data.UploadId;
@@ -218,12 +225,14 @@ class ReplicationUtility {
                     return this.s3.uploadPart(uploadPartParams,
                         (err, data) => {
                             if (err) {
+                                console.log('err uploading part', err);
                                 return callback(err);
                             }
                             return callback(null, data.ETag);
                         });
                 }, (err, results) => {
                     if (err) {
+                        console.log('map limit error uploading parts', err);
                         return next(err);
                     }
                     ETags = results;
@@ -245,6 +254,7 @@ class ReplicationUtility {
             },
         ], (err, data) => {
             if (err) {
+                console.log('err completing mpu,  ', err);
                 return this.s3.abortMultipartUpload({
                     Bucket: bucketName,
                     Key: objectName,
@@ -291,6 +301,7 @@ class ReplicationUtility {
                 Key: objectName,
             }, (err, data) => {
                 if (err) {
+                    console.log('err creating mpu copy', err);
                     return next(err);
                 }
                 uploadId = data.UploadId;
@@ -310,12 +321,14 @@ class ReplicationUtility {
                     return this.s3.uploadPartCopy(uploadPartCopyParams,
                         (err, data) => {
                             if (err) {
+                                console.log('err upload part copy', err);
                                 return callback(err);
                             }
                             return callback(null, data.ETag);
                         });
                 }, (err, results) => {
                     if (err) {
+                        console.log('err mapilmit part copy', err);
                         return next(err);
                     }
                     ETags = results;
@@ -334,6 +347,7 @@ class ReplicationUtility {
             }, next),
         ], err => {
             if (err) {
+                console.log('failed complete mpu part copy', err);
                 return this.s3.abortMultipartUpload({
                     Bucket: bucketName,
                     Key: objectName,
@@ -613,11 +627,21 @@ class ReplicationUtility {
 
     compareObjectsAWS(srcBucket, destBucket, key, optionalField, cb) {
         return async.series([
-            next => this.waitUntilReplicated(srcBucket, key, undefined, next),
-            next => this.getObject(srcBucket, key, next),
+            next => this.waitUntilReplicated(srcBucket, key, undefined, err => {
+                console.log('compareObjectsAWS:waitUntilReplicated', err);
+                return next(err);
+            }),
+            next => this.getObject(srcBucket, key, (err, data) => {
+                console.log('compareObjectsAWS:getObject', err, data);
+                return next(err, data);
+            }),
             next => this._setS3Client(awsS3Client)
-                .getObject(destBucket, `${srcBucket}/${key}`, next),
+                .getObject(destBucket, `${srcBucket}/${key}`, (err, data) => {
+                    console.log('compareObjectsAWS:getObject', err, data);
+                    return next(err, data);
+                }),
         ], (err, data) => {
+            console.log('data from  compareObjectsAWS', data);
             this._setS3Client(scalityS3Client);
             if (err) {
                 return cb(err);
@@ -654,26 +678,48 @@ class ReplicationUtility {
         gcpDestBucket, key, cb) {
         return async.parallel([
             next => this.compareObjectsAWS(srcBucket, awsDestBucket, key,
-                undefined, next),
+                undefined, err => {
+                    console.log('err comparing to AWS', err);
+                    return next(err);
+                }),
             next => this.compareObjectsAzure(srcBucket, destContainer, key,
-                next),
+                err => {
+                    console.log('err comparing to Azure', err);
+                    return next(err);
+                }),
             next => this.compareObjectsGCP(srcBucket, gcpDestBucket, key,
-                next),
+                err => {
+                    console.log('err comparing to GCP', err);
+                    return next(err);
+                }),
         ], cb);
     };
 
     compareObjectsAzure(srcBucket, containerName, key, cb) {
         return async.series([
-            next => this.waitUntilReplicated(srcBucket, key, undefined, next),
-            next => this.getObject(srcBucket, key, next),
+            next => this.waitUntilReplicated(srcBucket, key, undefined, err => {
+                console.log('compareObjectsAzure:waitUntilReplicated', err);
+                return next(err);
+            }),
+            next => this.getObject(srcBucket, key, (err, data) => {
+                console.log('compareObjectsAzure:getObject', err, data);
+                return next(err, data);
+            }),
             next => this.azure.getBlobProperties(containerName,
-                `${srcBucket}/${key}`, next),
+                `${srcBucket}/${key}`, (err, data) => {
+                    console.log('compareObjectsAzure:getBlobProperties', err, data);
+                    return next(err, data);
+                }),
             next => this.getBlob(containerName,
-                `${srcBucket}/${key}`, next),
+                `${srcBucket}/${key}`, (err, data) => {
+                    console.log('compareObjectsAzure:getBlob', err, data);
+                    return next(err, data);
+                }),
         ], (err, data) => {
             if (err) {
                 return cb(err);
             }
+            console.log('data from compareObjectsAzure', data);
             const srcData = data[1];
             const destProperties = data[2];
             const destPropResult = destProperties[0];
@@ -703,16 +749,29 @@ class ReplicationUtility {
     compareObjectsGCP(srcBucket, destBucket, key, cb) {
         return async.series({
             wait: next =>
-                this.waitUntilReplicated(srcBucket, key, undefined, next),
-            srcData: next => this.getObject(srcBucket, key, next),
+                this.waitUntilReplicated(srcBucket, key, undefined, err => {
+                    console.log('compareObjectsGCP:waitUntilReplicated', err);
+                    return next(err);
+                }),
+            srcData: next => this.getObject(srcBucket, key, (err, data) => {
+                console.log('compareObjectsGCP:getObject', err, data);
+                return next(err, data);
+            }),
             destMetadata: next => this.getMetadata(destBucket,
-                `${srcBucket}/${key}`, next),
+                `${srcBucket}/${key}`, (err, data) => {
+                    console.log('compareObjectsGCP:getMetadata', err, data);
+                    return next(err, data);
+                }),
             destData: next => this.download(destBucket,
-                `${srcBucket}/${key}`, next),
+                `${srcBucket}/${key}`, (err, data) => {
+                    console.log('compareObjectsGCP:download', err, data);
+                    return next(err, data);
+                }),
         }, (err, data) => {
             if (err) {
                 return cb(err);
             }
+            console.log('data from compareObjectsGCP', data);
             const { srcData, destMetadata, destData } = data;
             assert.strictEqual(srcData.ReplicationStatus, 'COMPLETED');
             assert.strictEqual(srcData.ContentLength, destMetadata[0].size);

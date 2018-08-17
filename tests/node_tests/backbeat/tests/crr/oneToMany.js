@@ -26,7 +26,6 @@ const REPLICATION_TIMEOUT = 300000;
 describe('Replication with AWS, Azure, and GCP backends (one-to-many)',
 function() {
     this.timeout(REPLICATION_TIMEOUT);
-    this.retries(3);
     const roleArn = 'arn:aws:iam::root:role/s3-replication-role';
     const storageClass =
         `${destAWSLocation},${destAzureLocation},${destGCPLocation}`;
@@ -50,20 +49,38 @@ function() {
             next => utils.putBucketReplicationMultipleBackend(
                 this.currentTest.srcBucket, 'placeholder', roleArn,
                 storageClass, next),
-        ], done);
+        ], (err, res) => {
+            console.log('err, res for the beforeEach with srcbucket', this.currentTest.srcBucket, err, res);
+            return done();
+        });
     });
 
     afterEach(function afterEachF(done) {
         return series([
             next => awsUtils.deleteAllVersions(awsDestBucket,
-                this.currentTest.destKeyPrefix, next),
+                this.currentTest.destKeyPrefix, err => {
+                    console.log('delete all versions, err', err);
+                    return next(err);
+                }),
             next => utils.deleteAllBlobs(destContainer,
-                this.currentTest.destKeyPrefix, next),
+                this.currentTest.destKeyPrefix, (err) => {
+                    console.log('delete all blobs', err);
+                    return next(err);
+                }),
             next => utils.deleteAllFiles(gcpDestBucket,
-                this.currentTest.destKeyPrefix, next),
+                this.currentTest.destKeyPrefix, (err) => {
+                    console.log('delete all gcp files err', err);
+                    return next(err);
+                }),
             next => utils.deleteVersionedBucket(
-                this.currentTest.srcBucket, next),
-        ], done);
+                this.currentTest.srcBucket, (err) => {
+                    console.log('delte the versioned bucket', err);
+                    return next(err);
+                }),
+        ], (err, res) => {
+            console.log('err, res for the afterEach with srcbucket', this.currentTest.srcBucket, err, res);
+            return done();
+        });
     });
 
     it('should replicate an object',function itF(done) {
@@ -125,7 +142,7 @@ function() {
     [undefined,
     `0-${1024 * 1024 * 5}`,
     `${1024 * 1024 * 2}-${1024 * 1024 * 7}`].forEach(range =>
-        it.skip('should replicate a MPU with parts copied from another MPU ' +
+        it('should replicate a MPU with parts copied from another MPU ' +
         `with byte range '${range}' for each part`, function itF(done) {
             return series([
                 next => utils.completeMPUAWS(this.test.srcBucket,
