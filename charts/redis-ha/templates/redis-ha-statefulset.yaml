@@ -3,13 +3,12 @@ kind: StatefulSet
 metadata:
   name: {{ template "redis-ha.fullname" . }}-server
   labels:
-    name: {{ template "redis-ha.fullname" . }}
-    release: {{ .Release.Name }}
-    app: {{ template "redis-ha.fullname" . }}
+{{ include "labels.standard" . | indent 4 }}
 spec:
   selector:
     matchLabels:
-{{ include "labels.standard" . | indent 6 }}
+      release: {{ .Release.Name }}
+      app: {{ template "redis-ha.name" . }}
   serviceName: {{ template "redis-ha.fullname" . }}
   replicas: {{ .Values.replicas }}
   updateStrategy:
@@ -22,10 +21,8 @@ spec:
 {{ toYaml .Values.podAnnotations . | indent 8 }}
       {{- end }}
       labels:
-{{ include "labels.standard" . | indent 8 }}
-      {{- if .Values.extraLabels }}
-{{ toYaml .Values.extraLabels | indent 8 }}
-      {{- end }}
+        release: {{ .Release.Name }}
+        app: {{ template "redis-ha.name" . }}
     spec:
       {{- if .Values.nodeSelector }}
       nodeSelector:
