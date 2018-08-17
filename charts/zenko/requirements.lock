@@ -19,7 +19,7 @@ dependencies:
   version: 3.5.3-Z
 - name: redis-ha
   repository: file://../redis-ha
-  version: 3.0.0-Z
+  version: 3.0.1-Z
 - name: grafana
   repository: file://../grafana
   version: 1.11.6-Z
@@ -29,5 +29,5 @@ dependencies:
 - name: zookeeper
   repository: file://../zenko-quorum
   version: 1.0.0-Z
-digest: sha256:ea905dc1b9d70750b88be8af1b74f715380758766b9668a7f8ea696a7e74444a
-generated: 2018-08-16T11:18:47.994842466-07:00
+digest: sha256:18e412339304c981f2fc038683270549e85c44c90b37dd4507438de189be73f7
+generated: 2018-08-17T12:28:19.584402697-07:00

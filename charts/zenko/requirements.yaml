@@ -20,7 +20,7 @@ dependencies:
   version: "3.5.3-Z"
   repository: "file://../mongodb-replicaset"
 - name: redis-ha
-  version: "3.0.0-Z"
+  version: "3.0.1-Z"
   repository: "file://../redis-ha"
   condition: redis-ha.enabled
 - name: grafana
