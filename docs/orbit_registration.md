@@ -1,8 +1,8 @@
 # Registering a Zenko Instance on Orbit Management UI
 
 This section of documentation will help you register your Zenko instance on
-Orbit, for either [minikube](../charts/minikube.md)-based or
-[MetalK8s](../charts/README.md)-based or
+Orbit, for either [minikube](../kubernetes/zenko/minikube.md)-based or
+[MetalK8s](../kubernetes/zenko/README.md)-based or
 [Docker Swarm](./swarm_production_link)-based deployments.
 
 ## Minikube and MetalK8s (and other Kubernetes-based deployments)

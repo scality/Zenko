@@ -1,12 +1,3 @@
- <h1 align="center">Quickstart</h1> 
-
-<p align="center">
-  <img width="600" src="../assets/minikube-demo.svg">
-</p>
-
-<p align="center">Watch the video on: https://asciinema.org/a/8N4cyoM8Om9FmZo8ZKnYFC5Wp
-</p>
-
 ### Requirements
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
 - [minikube](https://github.com/kubernetes/minikube/#installation) v0.25
@@ -31,35 +22,13 @@ $ helm init --wait
 ```
 #### Older versions of helm may not work with the --wait flag
 
-Clone the repo and go into the charts directory
+Clone the repo and go into the kubernetes directory
 ```shell
 $ git clone https://github.com/scality/Zenko.git
-$ cd ./Zenko/charts
+$ cd ./Zenko/kubernetes
 ```
 
-Once you have the repo cloned you can retrieve all dependencies:
-
-```shell
-$ helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
-"incubator" has been added to your repositories
-
-$  helm repo add scality https://scality.github.io/Zenko/
-"scality" has been added to your repositories
-
-$ helm dependency build zenko/
-Hang tight while we grab the latest from your chart repositories...
-...Successfully got an update from the "incubator" chart repository
-...Successfully got an update from the "stable" chart repository
-Update Complete. ⎈Happy Helming!⎈
-Saving 8 charts
-Downloading prometheus from repo https://kubernetes-charts.storage.googleapis.com/
-Downloading mongodb-replicaset from repo https://kubernetes-charts.storage.googleapis.com/
-Downloading kafka from repo http://storage.googleapis.com/kubernetes-charts-incubator
-Downloading zookeeper from repo http://storage.googleapis.com/kubernetes-charts-incubator
-Deleting outdated charts
-```
-
-With your dependencies built, you can run the following shell command to deploy a single node zenko stack with orbit enabled.
+Then you can run the following shell command to deploy a single node zenko stack with orbit enabled.
 ```shell
 $ helm install --name zenko \
   --set prometheus.rbac.create=false \
@@ -137,31 +106,13 @@ $ kubectl create clusterrolebinding add-on-cluster-admin --clusterrole=cluster-a
 $ helm init --service-account tiller --wait
 ```
 
-Clone the repo and go into the charts directory
+Clone the repo and go into the kubernetes directory
 ```shell
 $ git clone https://github.com/scality/Zenko.git
-$ cd ./Zenko/charts
+$ cd ./Zenko/kubernetes
 ```
 
-Once you have the repo cloned you can retrieve all dependencies:
-```shell
-$ helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
-"incubator" has been added to your repositories
-
-$ helm dependency build zenko/
-Hang tight while we grab the latest from your chart repositories...
-...Successfully got an update from the "incubator" chart repository
-...Successfully got an update from the "stable" chart repository
-Update Complete. ⎈Happy Helming!⎈
-Saving 8 charts
-Downloading prometheus from repo https://kubernetes-charts.storage.googleapis.com/
-Downloading mongodb-replicaset from repo https://kubernetes-charts.storage.googleapis.com/
-Downloading kafka from repo http://storage.googleapis.com/kubernetes-charts-incubator
-Downloading zookeeper from repo http://storage.googleapis.com/kubernetes-charts-incubator
-Deleting outdated charts
-```
-
-With your dependencies built, you can run the following shell command to deploy a single node zenko stack with orbit enabled.
+Then you can run the following shell command to deploy a single node zenko stack with orbit enabled.
 ```shell
 $ helm install --name zenko -f single-node-values.yml zenko
 ```

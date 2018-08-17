@@ -6,38 +6,7 @@ started, you'll need a [Kubernetes] cluster, initialized with Helm. Check out
 [minikube](./minikube.md) for a local or single-machine deployment. The below
 assumes you have cloned the Zenko repository and already `cd` into this directory.
 
-First, retrieve all dependencies:
-
-```console
-$ helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
-"incubator" has been added to your repositories
-
-$ helm repo add scality https://scality.github.io/Zenko/
-"scality" has been added to your repositories
-
-$ helm dependency build zenko/
-Hang tight while we grab the latest from your chart repositories...
-...Unable to get an update from the "local" chart repository (http://127.0.0.1:8879/charts):
-	Get http://127.0.0.1:8879/charts/index.yaml: dial tcp 127.0.0.1:8879: connect: connection refused
-...Successfully got an update from the "scality" chart repository
-...Successfully got an update from the "incubator" chart repository
-...Successfully got an update from the "coreos" chart repository
-...Successfully got an update from the "stable" chart repository
-Update Complete. ⎈Happy Helming!⎈
-Saving 11 charts
-Downloading prometheus from repo https://kubernetes-charts.storage.googleapis.com/
-Downloading mongodb-replicaset from repo https://kubernetes-charts.storage.googleapis.com/
-Downloading kafka from repo http://storage.googleapis.com/kubernetes-charts-incubator
-Downloading zookeeper from repo http://storage.googleapis.com/kubernetes-charts-incubator
-Downloading redis-ha from repo https://scality.github.io/Zenko/
-Downloading grafana from repo https://kubernetes-charts.storage.googleapis.com/
-Deleting outdated charts
-```
-
-**Note:** In released versions of Zenko and the Chart, these upstream charts
-are embedded in the package created by `helm package`.
-
-Then, assuming you have an ingress controller running, run something like:
+Assuming you have an ingress controller running, run something like:
 
 ```shell
 $ helm install --name zenko --set ingress.enabled=true \
@@ -120,7 +89,7 @@ create an `Ingress` object. To do so automatically, use something like
 Grafana Dashboards
 ---------------------
 
-[Grafana] is deployed as a dependency of the Zenko chart. To access its
+[Grafana] is deployed as a part of the Zenko chart. To access its
 built-in web UI, you can expose its service through any method that your
 platform supports. For example, if your Kubernetes cluster has an ingress
 controller running, you can expose the service by creating an `Ingress` object.
@@ -151,9 +120,8 @@ configuration, you will need to run the following commands. This assumes that yo
 name is `zenko` and that you have previously cloned the repository.
 
 ```shell
-$ cd Zenko/charts
+$ cd Zenko/kubernetes
 $ git pull
-$ helm dependency build ./zenko
 $ helm upgrade zenko ./zenko
 ```
 

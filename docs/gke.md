@@ -43,33 +43,14 @@ $ helm init --service-account tiller --wait
 ```
 ## Install Zenko
 
-1. Clone Zenko's repo and navigate to the Zenko/charts directory:
+1. Clone Zenko's repo and navigate to the Zenko/kubernetes directory:
 
 ```shell
 $ git clone https://github.com/scality/Zenko.git
-$ cd ./Zenko/charts
+$ cd ./Zenko/kubernetes
 ```
 
-2. Retrieve all dependencies:
-
-```shell
-$ helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
-"incubator" has been added to your repositories
-
-$ helm dependency build zenko/
-Hang tight while we grab the latest from your chart repositories...
-...Successfully got an update from the "incubator" chart repository
-...Successfully got an update from the "stable" chart repository
-Update Complete. ⎈Happy Helming!⎈
-Saving 8 charts
-Downloading prometheus from repo https://kubernetes-charts.storage.googleapis.com/
-Downloading mongodb-replicaset from repo https://kubernetes-charts.storage.googleapis.com/
-Downloading kafka from repo http://storage.googleapis.com/kubernetes-charts-incubator
-Downloading zookeeper from repo http://storage.googleapis.com/kubernetes-charts-incubator
-Deleting outdated charts
-```
-
-3. Run the following shell command to deploy a three-node Zenko stack with
+2. Run the following shell command to deploy a three-node Zenko stack with
 Orbit enabled.
 
 
