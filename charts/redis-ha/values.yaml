@@ -11,7 +11,7 @@ podManagementPolicy: Parallel # Cannot change after first release
 ## Redis specific configuration options
 redis:
   port: 6379
-  masterGroupName: mymaster
+  masterGroupName: zenko
   auth: false          # Not yet implemented - Configures redis with AUTH (requirepass & masterauth conf params)
   # Any additional redis conf settings can be set as key value pairs as seen below
   config:
