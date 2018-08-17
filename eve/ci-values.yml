@@ -41,11 +41,13 @@ global:
   orbit:
     endpoint: "http://ciutil-orbit-simulator:4222"
     managerMode: "poll"
+    workerMode: "poll"
 
 cloudserver:
   image:
     pullPolicy: Always
-  replicaCount: 0
+  replicaCount: 10
+  replicaFactor: 1
   env:
     MPU_TESTING: 'yes'
 

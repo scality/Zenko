@@ -96,9 +96,8 @@ models:
 
 stages:
   pre-merge:
-    worker: &pod
-      type: kube_pod
-      path: eve/workers/zenko.yaml
+    worker:
+      type: local
     steps:
     - TriggerStages:
         name: trigger all the tests
@@ -107,7 +106,8 @@ stages:
 
   test-zenko:
     worker: &kube_cluster
-      <<: *pod
+      type: kube_pod
+      path: eve/workers/zenko.yaml
       service:
         requests:
           version: "1.9.6"
