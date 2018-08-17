@@ -48,6 +48,7 @@ cloudserver:
   replicaCount: 0
   env:
     MPU_TESTING: 'yes'
+    PUSH_STATS: 'false'
 
 backbeat:
   lifecycle:
