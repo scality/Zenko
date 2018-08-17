@@ -122,6 +122,9 @@ stages:
           workdir: build/tests
           env:
             <<: *global_env
+      - ShellCommand:
+          name: sleepy time
+          command: sleep 2000
       - ShellCommand: *dump_logs
       - Upload: *upload_artifacts
 
