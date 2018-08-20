@@ -228,7 +228,7 @@ test-node-flaky:
 	$(call test-node)
 
 test: | install-common install-zenko test-e2e test-node dump-logs
-test-latest: | install-common get-latest-commit install-latest-zenko test-e2e test-node-flaky dump-logs
+test-latest: | install-common get-latest-commit install-latest-zenko test-e2e test-node test-node-flaky dump-logs
 .PHONY: test test-latest
 test-local:
 	make NO_SIM=true NO_INSTALL=true -e test
