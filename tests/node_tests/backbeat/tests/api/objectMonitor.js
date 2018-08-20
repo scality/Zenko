@@ -43,7 +43,7 @@ function getAndCheckResponse(path, expectedBody, cb) {
     () => shouldContinue, cb);
 }
 
-tags('flaky')
+tags('flaky') // Tracking via ZENKO-1022
 .describe('Backbeat object monitor CRR metrics', function() {
     this.timeout(REPLICATION_TIMEOUT);
     let roleArn = 'arn:aws:iam::root:role/s3-replication-role';
