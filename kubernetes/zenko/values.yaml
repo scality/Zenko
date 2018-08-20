@@ -84,7 +84,7 @@ prometheus:
     replicaCount: 2
 
 mongodb-replicaset:
-  replicaSet: rs0
+  replicaSetName: rs0
   replicas: *nodeCount
   metrics:
     enabled: true
