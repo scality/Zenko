@@ -8,7 +8,6 @@ image: redis
 tag: 4.0.11-stretch
 ## replicas number for each component
 replicas: 3
-podManagementPolicy: Parallel # Cannot change after first release
 
 ## Redis specific configuration options
 redis:

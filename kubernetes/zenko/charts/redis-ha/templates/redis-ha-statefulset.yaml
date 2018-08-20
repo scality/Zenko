@@ -12,7 +12,7 @@ spec:
       app: {{ template "redis-ha.name" . }}
   serviceName: {{ template "redis-ha.fullname" . }}
   replicas: {{ .Values.replicas }}
-  podManagementPolicy: {{ .Values.podManagementPolicy }}
+  podManagementPolicy: OrderedReady
   updateStrategy:
     type: RollingUpdate
   template:
