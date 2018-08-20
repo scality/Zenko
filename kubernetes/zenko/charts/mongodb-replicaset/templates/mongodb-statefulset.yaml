@@ -46,8 +46,6 @@ spec:
               set -e
               set -x
 
-              chown -R {{ .Values.securityContext.runAsUser }}:{{ .Values.securityContext.fsGroup }} /data/db
-
               cp /configdb-readonly/mongod.conf /data/configdb/mongod.conf
 
             {{- if .Values.tls.enabled }}
@@ -77,8 +75,6 @@ spec:
               mountPath: /keydir-readonly
           {{- end }}
         - name: install
-          securityContext:
-{{ toYaml .Values.securityContext | indent 12 }}
           image: "{{ .Values.installImage.repository }}:{{ .Values.installImage.tag }}"
           args:
             - --work-dir=/work-dir
@@ -87,8 +83,6 @@ spec:
             - name: workdir
               mountPath: /work-dir
         - name: bootstrap
-          securityContext:
-{{ toYaml .Values.securityContext | indent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           command:
             - /work-dir/peer-finder
@@ -141,6 +135,22 @@ spec:
               mountPath: /data/configdb
             - name: datadir
               mountPath: /data/db
+        - name: permissions
+          image: busybox
+          command:
+            - "sh"
+          args:
+            - "-c"
+            - |
+              set -e
+              set -x
+
+              chown -R "{{ .Values.securityContext.runAsUser }}:{{ .Values.securityContext.fsGroup }}" /data/configdb /data/db
+          volumeMounts:
+             - name: configdir
+               mountPath: /data/configdb
+             - name: datadir
+               mountPath: /data/db
       containers:
         - name: {{ template "mongodb-replicaset.name" . }}
           securityContext:
