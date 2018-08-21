@@ -4,7 +4,7 @@ kind: Deployment
 metadata:
   name: {{ template "cloudserver.fullname" . }}-manager
   labels:
-    app: {{ template "cloudserver.name" . }}
+    app: {{ template "cloudserver.name" . }}-manager
     chart: {{ template "cloudserver.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -12,7 +12,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ template "cloudserver.name" . }}
+      app: {{ template "cloudserver.name" . }}-manager
       release: {{ .Release.Name }}
   template:
     metadata:
@@ -21,7 +21,7 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/certificate.yaml") . | sha256sum }}
         {{- end }}
       labels:
-        app: {{ template "cloudserver.name" . }}
+        app: {{ template "cloudserver.name" . }}-manager
         release: {{ .Release.Name }}
     spec:
       containers:
