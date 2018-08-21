@@ -1,6 +1,7 @@
 const assert = require('assert');
 const crypto = require('crypto');
 const async = require('async');
+const tags = require('mocha-tags');
 
 const { scalityS3Client } = require('../../s3SDK');
 const QuotaUtility = require('../QuotaUtility');
@@ -10,7 +11,8 @@ const bucket = `quota-bucket-${Date.now()}`;
 
 const scalityS3 = new QuotaUtility(scalityS3Client);
 
-describe('Location storage quota', () => {
+tags('flaky') // Tracking via ZENKO-1034
+.describe('Location storage quota', () => {
     beforeEach(function beFn(done) {
         this.timeout(50000);
         async.series([
