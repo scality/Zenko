@@ -627,21 +627,12 @@ class ReplicationUtility {
 
     compareObjectsAWS(srcBucket, destBucket, key, optionalField, cb) {
         return async.series([
-            next => this.waitUntilReplicated(srcBucket, key, undefined, err => {
-                console.log('compareObjectsAWS:waitUntilReplicated', err);
-                return next(err);
-            }),
-            next => this.getObject(srcBucket, key, (err, data) => {
-                console.log('compareObjectsAWS:getObject', err, data);
-                return next(err, data);
-            }),
+            next => this.waitUntilReplicated(srcBucket, key, undefined, next),
+            next => this.getObject(srcBucket, key, next),
             next => this._setS3Client(awsS3Client)
-                .getObject(destBucket, `${srcBucket}/${key}`, (err, data) => {
-                    console.log('compareObjectsAWS:getObject', err, data);
-                    return next(err, data);
-                }),
+                .getObject(destBucket, `${srcBucket}/${key}`, next),
         ], (err, data) => {
-            console.log('data from  compareObjectsAWS', data);
+            console.log('compareObjectsAWS', err, data);
             this._setS3Client(scalityS3Client);
             if (err) {
                 return cb(err);
@@ -697,29 +688,17 @@ class ReplicationUtility {
 
     compareObjectsAzure(srcBucket, containerName, key, cb) {
         return async.series([
-            next => this.waitUntilReplicated(srcBucket, key, undefined, err => {
-                console.log('compareObjectsAzure:waitUntilReplicated', err);
-                return next(err);
-            }),
-            next => this.getObject(srcBucket, key, (err, data) => {
-                console.log('compareObjectsAzure:getObject', err, data);
-                return next(err, data);
-            }),
+            next => this.waitUntilReplicated(srcBucket, key, undefined, next),
+            next => this.getObject(srcBucket, key, next),
             next => this.azure.getBlobProperties(containerName,
-                `${srcBucket}/${key}`, (err, data) => {
-                    console.log('compareObjectsAzure:getBlobProperties', err, data);
-                    return next(err, data);
-                }),
+                `${srcBucket}/${key}`, next),
             next => this.getBlob(containerName,
-                `${srcBucket}/${key}`, (err, data) => {
-                    console.log('compareObjectsAzure:getBlob', err, data);
-                    return next(err, data);
-                }),
+                `${srcBucket}/${key}`, next),
         ], (err, data) => {
+            console.log('compareObjectsAzure err and data', err, data);
             if (err) {
                 return cb(err);
             }
-            console.log('data from compareObjectsAzure', data);
             const srcData = data[1];
             const destProperties = data[2];
             const destPropResult = destProperties[0];
@@ -749,25 +728,14 @@ class ReplicationUtility {
     compareObjectsGCP(srcBucket, destBucket, key, cb) {
         return async.series({
             wait: next =>
-                this.waitUntilReplicated(srcBucket, key, undefined, err => {
-                    console.log('compareObjectsGCP:waitUntilReplicated', err);
-                    return next(err);
-                }),
-            srcData: next => this.getObject(srcBucket, key, (err, data) => {
-                console.log('compareObjectsGCP:getObject', err, data);
-                return next(err, data);
-            }),
+                this.waitUntilReplicated(srcBucket, key, undefined, next),
+            srcData: next => this.getObject(srcBucket, key, next),
             destMetadata: next => this.getMetadata(destBucket,
-                `${srcBucket}/${key}`, (err, data) => {
-                    console.log('compareObjectsGCP:getMetadata', err, data);
-                    return next(err, data);
-                }),
+                `${srcBucket}/${key}`, next),
             destData: next => this.download(destBucket,
-                `${srcBucket}/${key}`, (err, data) => {
-                    console.log('compareObjectsGCP:download', err, data);
-                    return next(err, data);
-                }),
+                `${srcBucket}/${key}`, next),
         }, (err, data) => {
+            console.log('compareObjectsGCP, ', err, data);
             if (err) {
                 return cb(err);
             }
