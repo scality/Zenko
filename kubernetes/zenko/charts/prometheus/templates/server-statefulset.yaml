@@ -19,7 +19,7 @@ spec:
       app: {{ template "prometheus.name" . }}
       release: {{ .Release.Name }}
   replicas: {{ .Values.server.replicaCount }}
-  podManagementPolicy: Parallel
+  podManagementPolicy: {{ .Values.server.podManagementPolicy }}
   template:
     metadata:
     {{- if .Values.server.podAnnotations }}
@@ -146,7 +146,7 @@ spec:
     {{- end }}
     {{- if .Values.server.affinity }}
       affinity:
-{{ toYaml .Values.server.affinity | indent 8 }}
+{{ tpl .Values.server.affinity . | indent 8 }}
     {{- end }}
       terminationGracePeriodSeconds: {{ .Values.server.terminationGracePeriodSeconds }}
       volumes:
