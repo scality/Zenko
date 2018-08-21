@@ -9,5 +9,6 @@ spec:
   selector:
     matchLabels:
       release: {{ .Release.Name }}
+      app: {{ template "redis-ha.name" . }}
 {{ toYaml .Values.podDisruptionBudget | indent 2 }}
 {{- end }}
