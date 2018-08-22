@@ -96,6 +96,8 @@ prometheus:
 mongodb-replicaset:
   replicaSetName: rs0
   replicas: *nodeCount
+  podDisruptionBudget:
+    maxUnavailable: 1
   metrics:
     enabled: true
   securityContext:
