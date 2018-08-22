@@ -5,6 +5,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: {{ template "s3-data.fullname" . }}
   annotations:
+    "helm.sh/resource-policy": keep
   {{- if .Values.persistentVolume.annotations }}
 {{ toYaml .Values.persistentVolume.annotations | indent 4 }}
   {{- end }}
