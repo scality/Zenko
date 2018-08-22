@@ -118,6 +118,7 @@ Parameter | Description | Default
 `alertmanager.persistentVolume.subPath` | Subdirectory of alertmanager data Persistent Volume to mount | `""`
 `alertmanager.podAnnotations` | annotations to be added to alertmanager pods | `{}`
 `alertmanager.replicaCount` | desired number of alertmanager pods | `1`
+`alertmanager.podManagementPolicy` | podManagementPolicy of the statefulset | `OrderedReady`
 `alertmanager.priorityClassName` | alertmanager priorityClassName | `nil`
 `alertmanager.resources` | alertmanager pod resource requests & limits | `{}`
 `alertmanager.securityContext` | Custom [security context](https://kubernetes.io/docs/tasks/configure-pod-container/security-context/) for Alert Manager containers | `{}`
@@ -246,6 +247,7 @@ Parameter | Description | Default
 `server.podAnnotations` | annotations to be added to Prometheus server pods | `{}`
 `server.statefulsetAnnotations` | annotations to be added to Prometheus server stateful set | `{}'
 `server.replicaCount` | desired number of Prometheus server pods | `1`
+`server.podManagementPolicy` | podManagementPolicy of the statefulset | `OrderedReady`
 `server.resources` | Prometheus server resource requests and limits | `{}`
 `server.securityContext` | Custom [security context](https://kubernetes.io/docs/tasks/configure-pod-container/security-context/) for server containers | `{}`
 `server.service.annotations` | annotations for Prometheus server service | `{}`

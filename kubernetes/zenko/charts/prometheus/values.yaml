@@ -158,6 +158,8 @@ alertmanager:
 
   replicaCount: 1
 
+  podManagementPolicy: OrderedReady
+
   ## alertmanager resource requests and limits
   ## Ref: http://kubernetes.io/docs/user-guide/compute-resources/
   ##
@@ -607,6 +609,8 @@ server:
     # iam.amazonaws.com/role: prometheus
 
   replicaCount: 1
+
+  podManagementPolicy: OrderedReady
 
   ## Prometheus server resource requests and limits
   ## Ref: http://kubernetes.io/docs/user-guide/compute-resources/

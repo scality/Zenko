@@ -69,7 +69,6 @@ zenko-nfs:
     replicas: *nodeCount
 
 prometheus:
-  enabled: true
   rbac:
     create: true
   alertmanager:
@@ -82,6 +81,17 @@ prometheus:
     enabled: false
   server:
     replicaCount: 2
+    affinity: |
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 5
+          podAffinityTerm:
+            topologyKey: "kubernetes.io/hostname"
+            labelSelector:
+              matchLabels:
+                app: {{ template "prometheus.name" . }}
+                release: {{ .Release.Name | quote }}
+                component: server
 
 mongodb-replicaset:
   replicaSetName: rs0
@@ -128,7 +138,6 @@ redis-ha:
   replicas: *nodeCount
 
 grafana:
-  enabled: true
   sidecar:
     image: zenko/grafana-sidecar:latest
     datasources:
