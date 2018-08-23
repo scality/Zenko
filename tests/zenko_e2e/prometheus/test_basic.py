@@ -17,6 +17,7 @@ POD = 'kubernetes-pods'
 @pytest.mark.conformance
 @pytest.mark.parametrize('job,name', [
     (SERVICE, '{}-cloudserver'.format(zenko_helm_release())),
+    (SERVICE, '{}-backbeat-api'.format(zenko_helm_release())),
     (POD, '{}-zenko-queue-0'.format(zenko_helm_release())),
     (POD, '{}-mongodb-replicaset-0'.format(zenko_helm_release())),
 ])
