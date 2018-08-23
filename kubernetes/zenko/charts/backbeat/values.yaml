@@ -39,7 +39,7 @@ api:
     type: ClusterIP
     annotations:
       prometheus.io/scrape: "true"
-      prometheus.io/port: "8000"
+      prometheus.io/port: "8900"
       prometheus.io/path: "/_/monitoring/metrics"
 
   resources: {}
