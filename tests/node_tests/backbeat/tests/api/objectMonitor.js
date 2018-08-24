@@ -2,7 +2,6 @@ const assert = require('assert');
 const crypto = require('crypto');
 const request = require('request');
 const { series, waterfall, doWhilst } = require('async');
-const tags = require('mocha-tags');
 
 const { scalityS3Client, awsS3Client } = require('../../../s3SDK');
 const ReplicationUtility = require('../../ReplicationUtility');
@@ -43,8 +42,7 @@ function getAndCheckResponse(path, expectedBody, cb) {
     () => shouldContinue, cb);
 }
 
-tags('flaky') // Tracking via ZENKO-1022
-.describe('Backbeat object monitor CRR metrics', function() {
+describe('Backbeat object monitor CRR metrics', function() {
     this.timeout(REPLICATION_TIMEOUT);
     let roleArn = 'arn:aws:iam::root:role/s3-replication-role';
 
