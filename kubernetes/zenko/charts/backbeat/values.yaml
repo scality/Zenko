@@ -10,7 +10,7 @@ global:
 
 image:
   repository: zenko/backbeat
-  tag: 8.0.8-RC5
+  tag: 8.0.9-RC6
   pullPolicy: IfNotPresent
 
 logging:
