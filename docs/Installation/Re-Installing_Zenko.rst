@@ -6,7 +6,7 @@ Re-Installing Zenko
 If you are installing Zenko on a fresh cluster, the instructions provided in
 the `Installation Guide <./installation_guide.html>`_ are sufficient. If, however,
 you are reinstalling Zenko on an existing cluster (while assessing or testing
-Zenko, for example), you must perform the following additional step.
+Zenko, for example), you must perform the following additional steps.
 
 Destroy All Volumes
 +++++++++++++++++++
@@ -64,3 +64,50 @@ in the zenko-quorum logs.
   2018-07-04 01:01:12,108 [myid:2] - WARN  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:NIOServerCnxn@373] - Exception causing close of session 0x0 due to java.io.IOException: ZooKeeperServer not running
   2018-07-04 01:01:12,109 [myid:2] - INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:NIOServerCnxn@1044] - Closed socket connection for client /10.233.114.70:45648 (no session established for client)
   2018-07-04 01:01:12,712 [myid:2] - INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:NIOServerCnxnFactory@192] - Accepted socket connection from /10.233.114.70:45656
+
+Purge Old Objects
++++++++++++++++++
+Before reinstalling Zenko, remove the following files, packages, options, and
+settings.
+
+* Files and Directories:
+
+  - /etc/yum.repos.d/prometheus-rpm.repo
+  - /etc/yum.repos.d/docker.repo
+  - /etc/yum_docker.conf
+  - /usr/local/bin/ {calicoctl,etcd,etcdctl,helm,kubectl,kubelet}
+  - /usr/local/bin/kubernetes-scripts
+  - /var/lib/kubelet
+  - /var/lib/fluent-bit
+  - /var/lib/prometheus
+  - /var/lib/dockershim/
+  - /var/lib/cni
+  - /etc/cni/net.d/
+  - /opt/cni/bin
+  - /etc/modules-load.d/kube_proxy-ipvs.conf
+  - /etc/modules-load.d/kubespray-br_netfilter.conf
+  - /etc/modprobe.d/ansible-hardening-disable-dccp.conf
+  - /etc/modprobe.d/ansible-hardening-disable-usb-storage.conf
+  - /etc/docker
+  - /mnt/kubevg/* # for 0.2.0
+  - /mnt/vg_metalk8s/* # for 1.0.0
+  - /home/kube
+
+* Packages:
+
+  - docker-ce
+  - docker-ce-selinux
+  - node_exporter
+
+
+* sysctl Options:
+
+  - net.bridge.bridge-nf-call-iptables
+  - net.bridge.bridge-nf-call-arptables
+  - net.bridge.bridge-nf-call-ip6tables
+
+* Revert to Original Values:
+
+  - /etc/ssh/sshd_config
+  - /etc/group # remove group kube, etcd, prometheus
+  - /etc/passwd # remove user kube-cert, docker, etcd, prometheus
