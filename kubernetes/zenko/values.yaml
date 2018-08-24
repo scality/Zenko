@@ -103,7 +103,7 @@ mongodb-replicaset:
   securityContext:
     runAsUser: 1000
     fsGroup: 1000
-    runAsNonRoot: true  
+    runAsNonRoot: true
 
 zenko-queue:
 ## Extensive list of configurables can be found here:
@@ -141,7 +141,7 @@ redis-ha:
 
 grafana:
   sidecar:
-    image: zenko/grafana-sidecar:latest
+    image: zenko/grafana-sidecar:0.1
     datasources:
       enabled: true
       # Every config map with the following label will be used as datasource. By default,
