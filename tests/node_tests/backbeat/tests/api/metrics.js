@@ -63,7 +63,7 @@ describe('Backbeat replication metrics route validation', function dF() {
                 getResponseBody(res, (err, body) => {
                     assert.ifError(err);
                     const metricTypes = ['backlog', 'completions',
-                        'throughput', 'failures'];
+                        'throughput', 'failures', 'pending'];
                     metricTypes.forEach(type => {
                         assert(body[type]);
                         assert(body[type].description);
@@ -91,6 +91,9 @@ describe('Backbeat replication metrics route validation', function dF() {
         `${pathPrefix}/all/throughput`,
         `${pathPrefix}/${destAWSLocation}/throughput`,
         `${pathPrefix}/${destAzureLocation}/throughput`,
+        `${pathPrefix}/all/pending`,
+        `${pathPrefix}/${destAWSLocation}/pending`,
+        `${pathPrefix}/${destAzureLocation}/pending`,
     ].forEach(path => {
         it(`should get responses for metric path: ${path}`,
         done => {

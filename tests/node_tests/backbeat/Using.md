@@ -5,23 +5,26 @@
 1. In the hosts file `/etc/hosts` map the ip of the kube node you are testing
    with to `zenko.local`. For example, by adding the line:
 
-    ```
-    <kube-node-ip> zenko.local
-    ```
+   ```
+   <kubernetes-IP> zenko.local
+   ```
+
    If you are ssh-ed into one of the kube servers or doing a port-forward to a
    remote kube instance, the `kube-node-ip` value will be `127.0.0.1`
 
 2. Find the Zenko service endpoint for S3 calls to Cloudserver by running:
 
-    ```
-    kubectl get services
-    ```
-   Look for the service named `zenko-cloudserver`, the value under `NAME`
-   should be set as the Zenko endpoint for testing:
+   ```
+   kubectl get services
+   ```
 
-    ```
-    export CLOUDSERVER_ENDPOINT=<zenko-cloudserver-name>
-    ```
+   Look for the service named `zenko-cloudserver`, the value under `NAME` should
+   be set as the Zenko endpoint for testing:
+
+   ```
+   export CLOUDSERVER_ENDPOINT=http://<zenko-cloudserver-IP>
+   export CLOUDSERVER_HOST=<zenko-cloudserver-IP>
+   ```
 
 3. Create an account using Orbit.
 4. Export the access key and secret key of that account (for example, in

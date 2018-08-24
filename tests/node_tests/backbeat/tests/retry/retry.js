@@ -18,16 +18,19 @@ const hex = crypto.createHash('md5')
     .digest('hex');
 const keyPrefix = `${srcBucket}/${hex}`;
 const key = `object-to-replicate-${Date.now()}`;
-const REPLICATION_TIMEOUT = 1200000;
+const REPLICATION_TIMEOUT = 300000;
 
-function checkMetrics(prevBacklog, prevCompletions, prevFailures, body) {
-    const { backlog, completions, failures } = body;
+function checkMetrics(prevBacklog, prevCompletions, prevFailures, prevPending,
+    body) {
+    const { backlog, completions, failures, pending } = body;
     assert.strictEqual((backlog.results.count - prevBacklog.count), 0);
     assert.strictEqual((backlog.results.size - prevBacklog.size), 0);
     assert.strictEqual((completions.results.count - prevCompletions.count), 1);
     assert.strictEqual((completions.results.size - prevCompletions.size), 1);
     assert.strictEqual((failures.results.count - prevFailures.count), 0);
     assert.strictEqual((failures.results.size - prevFailures.size), 0);
+    assert.strictEqual((pending.results.count - prevPending.count), 0);
+    assert.strictEqual((pending.results.size - prevPending.size), 0);
 }
 
 function performRetries(keys, done) {
@@ -119,6 +122,7 @@ describe('Backbeat replication retry', function() {
         let prevBacklog;
         let prevCompletions;
         let prevFailures;
+        let prevPending;
         return series([
             next => makeGETRequest(path, (err, res) => {
                 assert.ifError(err);
@@ -128,6 +132,7 @@ describe('Backbeat replication retry', function() {
                     prevBacklog = body.backlog.results;
                     prevCompletions = body.completions.results;
                     prevFailures = body.failures.results;
+                    prevPending = body.pending.results;
                     return next();
                 });
             }),
@@ -155,7 +160,7 @@ describe('Backbeat replication retry', function() {
                                 return setTimeout(callback, 2000);
                             }
                             checkMetrics(prevBacklog, prevCompletions,
-                                prevFailures, body);
+                                prevFailures, prevPending, body);
                             return callback();
                         });
                     }),
