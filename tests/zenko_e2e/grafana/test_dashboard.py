@@ -4,6 +4,7 @@ import pytest
 GRAFANA_DASHBOARDS = [
     'cloudserver',
     'backbeat',
+    'mongodb',
 ]
 
 
