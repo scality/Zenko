@@ -220,14 +220,14 @@ test-node: | build-node-e2e
 		$(shell ../eve/workers/ci_env.sh env) \
 		--env CLOUDSERVER_ENDPOINT="http://$(ZENKO_HELM_RELEASE)-cloudserver:80" \
 		--env MOCHA_TAGS="$(NODE_TEST_TAGS)" \
-		-- ./npm_chain.sh test_crr test_api test_crr_pause_resume test_location_quota
+		-- ./npm_chain.sh  test_api test_location_quota
 .PHONY: test-node
 
 test-node-flaky:
 	$(eval NODE_TEST_TAGS = is:flaky)
 	$(call test-node)
 
-test: | install-common install-zenko test-e2e test-node dump-logs
+test: | install-common install-zenko wait-for-zenko test-node dump-logs
 test-latest: | install-common get-latest-commit install-latest-zenko test-e2e test-node test-node-flaky dump-logs
 .PHONY: test test-latest
 test-local:
