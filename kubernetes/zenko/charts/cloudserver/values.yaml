@@ -83,8 +83,8 @@ replicaCount: 3
 replicaFactor: 1
 
 image:
-  repository: tmacro/cloudserver
-  tag: wip6
+  repository: arekisannda/cloudserver
+  tag: zenko-1013-4
   pullPolicy: IfNotPresent
 
 proxy:
