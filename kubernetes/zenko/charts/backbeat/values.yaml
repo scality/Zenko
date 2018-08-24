@@ -9,8 +9,8 @@ global:
   replicationEndpoints: []
 
 image:
-  repository: zenko/backbeat
-  tag: 8.0.8-RC5
+  repository: tmacro/backbeat
+  tag: wip4
   pullPolicy: IfNotPresent
 
 logging:
@@ -19,6 +19,11 @@ logging:
 
 mongodb:
   replicaSet: rs0
+  replicas: 3
+
+redis:
+  sentinel:
+    name: zenko
   replicas: 3
 
 health:

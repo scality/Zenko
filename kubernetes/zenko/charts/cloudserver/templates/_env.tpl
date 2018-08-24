@@ -6,10 +6,10 @@ env:
     value: "{{- printf "%s-%s" .Release.Name "redis-ha" | trunc 63 | trimSuffix "-" -}}"
   - name: REDIS_PORT
     value: "6379"
-  - name: REDIS_HA_HOST
-    value: "{{- printf "%s-%s" .Release.Name "redis-ha" | trunc 63 | trimSuffix "-" -}}"
-  - name: REDIS_HA_PORT
-    value: "6379"
+  - name: REDIS_SENTINELS
+    value: "{{ template "backbeat.redis-hosts" . }}"
+  - name: REDIS_HA_NAME
+    value: "{{ .Values.redis.sentinel.name }}"
   - name: CRR_METRICS_HOST
     value: "{{- printf "%s-%s" .Release.Name "backbeat-api" | trunc 63 | trimSuffix "-" -}}"
   - name: CRR_METRICS_PORT
