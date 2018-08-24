@@ -53,10 +53,10 @@ spec:
             - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_ACCOUNT
               value: Replication
             {{- end }}
-            - name: REDIS_HOST
-              value: "{{- printf "%s-%s" .Release.Name "redis-ha" | trunc 63 | trimSuffix "-" -}}"
-            - name: REDIS_PORT
-              value: "6379"
+            - name: REDIS_SENTINELS
+              value: "{{ template "backbeat.redis-hosts" . }}"
+            - name: REDIS_HA_NAME
+              value: "{{ .Values.redis.sentinel.name }}"
             - name: LOG_LEVEL
               value: {{ .Values.logging.level }}
           livenessProbe:

@@ -21,6 +21,11 @@ mongodb:
   replicaSet: rs0
   replicas: 3
 
+redis:
+  sentinel:
+    name: zenko
+  replicas: 3
+
 health:
   port: 4042
   path:
