@@ -70,6 +70,11 @@ mongodb:
   replicaSet: rs0
   replicas: 3
 
+redis:
+  sentinel:
+    name: zenko
+  replicas: 3
+
 # Replication factor will deploy n * replicaCount for deployments that need
 # not only HA but high performance and throughput. When Orbit is enabled, there
 # will be an additional stateless single manager pod deployed which serves as the
@@ -79,7 +84,7 @@ replicaFactor: 1
 
 image:
   repository: zenko/cloudserver
-  tag: 8.0.10-RC5
+  tag: 8.0.11-RC6
   pullPolicy: IfNotPresent
 
 proxy:
