@@ -25,8 +25,16 @@ models:
         '%(secret:private_registry_url)s'
   - ShellCommand: &helm_lint
       name: Lint charts
-      command: helm lint charts/*
+      command: >
+        helm lint kubernetes/zenko/ &&
+        helm lint kubernetes/zenko/charts/*
       haltOnFailure: true
+  - ShellCommand: &dump_logs
+      name: Dump zenko logs
+      command: make -e dump-logs
+      workdir: build/tests
+      env:
+        HELM_NAMESPACE: '%(prop:testNamespace)s'
   - env: &secrets_env # contains values used for test config
       AWS_GCP_BACKEND_ACCESS_KEY: '%(secret:aws_gcp_backend_access_key)s'
       AWS_GCP_BACKEND_ACCESS_KEY_2: '%(secret:aws_gcp_backend_access_key_2)s'
@@ -108,15 +116,16 @@ stages:
         namespaces:
         - "testNamespace"    # <<< the default namespace for that stage
     steps:
-    - Git: *git_pull
-    - ShellCommand: *private_registry_login
-    - ShellCommand:
-        name: Setup Zenko and run end to end tests
-        command: make -e test
-        workdir: build/tests
-        env:
-          <<: *global_env
-    - Upload: *upload_artifacts
+      - Git: *git_pull
+      - ShellCommand: *private_registry_login
+      - ShellCommand:
+          name: Setup Zenko and run end to end tests
+          command: make -e test
+          workdir: build/tests
+          env:
+            <<: *global_env
+      - ShellCommand: *dump_logs
+      - Upload: *upload_artifacts
 
   test-latest-zenko:
     worker: *kube_cluster
@@ -129,6 +138,7 @@ stages:
           workdir: build/tests
           env:
             <<: *global_env
+      - ShellCommand: *dump_logs
       - Upload: *upload_artifacts
 
   cosbench-latest:
@@ -138,9 +148,10 @@ stages:
       - ShellCommand: *private_registry_login
       - ShellCommand:
           name: Setup and run benchmarks
-          command: make -e test-cosbench && make -e dump-logs
+          command: make -e test-cosbench
           workdir: build/tests
           maxTime: 43200
           env:
             <<: *global_env
+      - ShellCommand: *dump_logs
       - Upload: *upload_artifacts

@@ -62,6 +62,8 @@ BACKBEAT_BRANCH := development/8.0
 BACKBEAT_IMAGE_NAME := backbeat
 BACKBEAT_IMAGE := $(IMAGE_REGISTRY)/$(IMAGE_REPO)/$(BACKBEAT_IMAGE_NAME)
 
+NODE_TEST_TAGS := not:flaky
+
 artifacts:
 	@mkdir -p $@
 
@@ -74,7 +76,7 @@ lint-e2e:
 lint-node-e2e:
 
 lint:
-	$(V)$(HELM) lint ../charts/*
+	$(V)$(HELM) lint ../kubernetes/zenko/charts/* && $(HELM) lint ../kubernetes/zenko/
 
 build-e2e:
 	$(V)$(DOCKER) build -t $(E2E_IMAGE) . && \
@@ -157,20 +159,18 @@ install-cosbench:
 
 install-zenko:
 ifndef NO_INSTALL
-	$(V)$(HELM) dependency build ../charts/zenko && \
 	$(HELM) upgrade $(ZENKO_HELM_RELEASE) \
 		--namespace $(HELM_NAMESPACE) \
-		--install ../charts/zenko/ \
+		--install ../kubernetes/zenko \
 		-f ../eve/ci-values.yml
 endif
 .PHONY: install-zenko
 
 install-latest-zenko:
 ifndef NO_INSTALL
-	$(V)$(HELM) dependency build ../charts/zenko && \
 	$(HELM) upgrade $(ZENKO_HELM_RELEASE) \
 		--namespace $(HELM_NAMESPACE) \
-		--install ../charts/zenko/ \
+		--install ../kubernetes/zenko \
 		-f ../eve/ci-values.yml \
         --set cloudserver.image.repository=$(IMAGE_REGISTRY)/zenko/cloudserver \
         --set-string cloudserver.image.tag='$(CLOUDSERVER_TAG)' \
@@ -219,11 +219,16 @@ test-node: | build-node-e2e
 		--rm --restart=Never --namespace $(HELM_NAMESPACE) --attach=True \
 		$(shell ../eve/workers/ci_env.sh env) \
 		--env CLOUDSERVER_ENDPOINT="http://$(ZENKO_HELM_RELEASE)-cloudserver:80" \
+		--env MOCHA_TAGS="$(NODE_TEST_TAGS)" \
 		-- ./npm_chain.sh test_crr test_api test_crr_pause_resume test_location_quota
 .PHONY: test-node
 
+test-node-flaky:
+	$(eval NODE_TEST_TAGS = is:flaky)
+	$(call test-node)
+
 test: | install-common install-zenko test-e2e test-node dump-logs
-test-latest: | install-common get-latest-commit install-latest-zenko test-e2e test-node dump-logs
+test-latest: | install-common get-latest-commit install-latest-zenko test-e2e test-node test-node-flaky dump-logs
 .PHONY: test test-latest
 test-local:
 	make NO_SIM=true NO_INSTALL=true -e test

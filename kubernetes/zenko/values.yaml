@@ -1,0 +1,154 @@
+# Default values for zenko.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# By default, MongoDB, Redis-HA, Zenko-Queue, and Zenko-Quorum
+# will use this value for their replica count. Typically, this
+# is equivalent to the number of nodes in a Kubernetes Cluster.
+nodeCount: &nodeCount 3
+
+ingress:
+  enabled: false
+  # Used to create an Ingress record.
+  # This must match the 'cloudserver' 'endpoint', unless your client
+  # supports different hostnames.
+  hosts:
+    - zenko.local
+  max_body_size: 100m
+  annotations:
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  tls:
+    # Secrets must be manually created in the namespace.
+    # - secretName: zenko-tls
+    #   hosts:
+    #     - zenko.example.com
+
+global:
+  orbit:
+    enabled: true
+    endpoint: https://api.zenko.io
+    # When 'orbit.enabled' is 'true', these aren't used, please use
+    # https://zenko.io to manage your deployment
+  locationConstraints: {}
+  replicationEndpoints: []
+
+cloudserver:
+  replicaCount: *nodeCount
+  replicaFactor: 10
+  mongodb:
+    replicas: *nodeCount
+  endpoint: zenko.local
+  users: {}
+    # accountName:
+      # access:
+      # secret:
+
+backbeat:
+  replication:
+    dataProcessor:
+      replicaCount: *nodeCount
+    statusProcessor:
+      replicaCount: *nodeCount
+  lifecycle:
+    bucketProcessor:
+      replicaCount: *nodeCount
+    objectProcessor:
+      replicaCount: *nodeCount
+  garbageCollector:
+    consumer:
+      replicaCount: *nodeCount
+  ingestion:
+    enabled: false
+  mongodb:
+    replicas: *nodeCount
+
+zenko-nfs:
+  enabled: false
+  mongodb:
+    replicas: *nodeCount
+
+prometheus:
+  rbac:
+    create: true
+  alertmanager:
+    enabled: false
+  kubeStateMetrics:
+    enabled: false
+  nodeExporter:
+    enabled: false
+  pushgateway:
+    enabled: false
+  server:
+    replicaCount: 2
+    affinity: |
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 5
+          podAffinityTerm:
+            topologyKey: "kubernetes.io/hostname"
+            labelSelector:
+              matchLabels:
+                app: {{ template "prometheus.name" . }}
+                release: {{ .Release.Name | quote }}
+                component: server
+
+mongodb-replicaset:
+  replicaSetName: rs0
+  replicas: *nodeCount
+  podDisruptionBudget:
+    maxUnavailable: 1
+  metrics:
+    enabled: true
+  securityContext:
+    runAsUser: 1000
+    fsGroup: 1000
+    runAsNonRoot: true  
+
+zenko-queue:
+## Extensive list of configurables can be found here:
+## https://github.com/kubernetes/charts/blob/master/incubator/kafka/values.yaml
+  replicas: *nodeCount
+  rbac:
+    enabled: true
+  configurationOverrides:
+    "offsets.topic.replication.factor": 3 # - replication factor for the offsets topic
+    "num.partitions": *nodeCount          # - default number of log partitions per topic
+    "auto.create.topics.enable": true     # - enable auto creation of topic on the server
+    "min.insync.replicas": 2              # - min number of replicas that must acknowledge a write
+  prometheus:
+    jmx:
+      enabled: true
+    kafka:
+      enabled: true
+zookeeper:
+  enabled: false # Disables zenko-queue from deploying its own quorum
+
+zenko-quorum:
+## Extensive list of configurables can be found here:
+## https://github.com/kubernetes/charts/blob/master/incubator/zookeeper/values.yaml
+  replicaCount: *nodeCount
+  exporters:
+    jmx:
+      enabled: true
+
+redis-ha:
+  enabled: true
+  redis_image: zenko/redis-ha:4.0.10-r1
+  rbac:
+    create: true
+  replicas: *nodeCount
+
+grafana:
+  sidecar:
+    image: zenko/grafana-sidecar:latest
+    datasources:
+      enabled: true
+      # Every config map with the following label will be used as datasource. By default,
+      # promtheus is set as datasource under zenko/templates/datasources.yaml
+      label: grafana-datasource
+    dashboards:
+      enabled: true
+      # Likewise, every config map with the following label will be used as a source for
+      # a dashboard.
+      label: grafana-dashboard

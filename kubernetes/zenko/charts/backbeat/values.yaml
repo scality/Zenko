@@ -1,0 +1,143 @@
+# Default values for backbeat.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+global:
+  orbit:
+    enabled: true
+  locationConstraints: {}
+  replicationEndpoints: []
+
+image:
+  repository: zenko/backbeat
+  tag: 8.0.8-RC5
+  pullPolicy: IfNotPresent
+
+logging:
+   # Options: info, debug, trace
+   level: info
+
+mongodb:
+  replicaSet: rs0
+  replicas: 3
+
+health:
+  port: 4042
+  path:
+    liveness: /_/health/liveness
+    readiness: /_/health/readiness
+
+api:
+  replicaCount: 1
+  service:
+    name: backbeat-api
+    type: ClusterIP
+    annotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "8000"
+      prometheus.io/path: "/_/monitoring/metrics"
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #  cpu: 100m
+    #  memory: 128Mi
+    # requests:
+    #  cpu: 100m
+    #  memory: 128Mi
+
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+ingestion:
+  enabled: false
+  consumer:
+    replicaCount: 1
+
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+  producer:
+    replicaCount: 1
+
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+
+lifecycle:
+  conductor:
+    cronRule: "0 */5 * * * *"
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+
+  objectProcessor:
+    replicaCount: 1
+    group: backbeat-lifecycle-object-processor-group
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+
+  bucketProcessor:
+    replicaCount: 1
+    group: backbeat-lifecycle-bucket-processor-group
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+
+  zookeeper:
+    path: "/lifecycle"
+    backlog_metrics:
+      path: "/lifecycle/run/backlog-metrics"
+      interval: 60
+
+  rules:
+    expiration:
+      enabled: True
+    noncurrentVersionExpiration:
+      enabled: True
+    abortIncompleteMPU:
+      enabled: True
+
+replication:
+  dataProcessor:
+    replicaCount: 1
+
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+
+  populator:
+    replicaCount: 1
+
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+
+  statusProcessor:
+    replicaCount: 1
+
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+
+garbageCollector:
+  consumer:
+    replicaCount: 1
+
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}

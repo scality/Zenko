@@ -1,0 +1,56 @@
+nodeCount: &nodeCount 1
+
+ingress:
+  enabled: true
+  hosts:
+    - "zenko.local"
+
+cloudserver:
+  replicaCount: *nodeCount
+  replicaFactor: *nodeCount
+  mongodb:
+    replicas: *nodeCount
+
+backbeat:
+  replication:
+    dataProcessor:
+      replicaCount: *nodeCount
+    statusProcessor:
+      replicaCount: *nodeCount
+  lifecycle:
+    bucketProcessor:
+      replicaCount: *nodeCount
+    objectProcessor:
+      replicaCount: *nodeCount
+  garbageCollector:
+    consumer:
+      replicaCount: *nodeCount
+  mongodb:
+    replicas: *nodeCount
+
+zenko-nfs:
+  mongodb:
+    replicas: *nodeCount
+
+zenko-queue:
+  replicas: *nodeCount
+  kafkaHeapOptions: "-Xms256M"
+  configurationOverrides:
+    "offsets.topic.replication.factor": *nodeCount
+    "min.insync.replicas": *nodeCount
+
+zenko-quorum:
+  replicaCount: *nodeCount
+  env:
+    ZK_HEAP_SIZE: "256M"
+
+mongodb-replicaset:
+  replicaSet: rs0
+  replicas: *nodeCount
+
+redis-ha:
+  replicas: *nodeCount
+
+prometheus:
+  server:
+    replicaCount: 1
