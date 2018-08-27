@@ -8,7 +8,7 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
-  replicas: {{ .Values.replication.dataProcessor.replicaCount }}
+  replicas: {{ template "backbeat.replication.dataProcessor.replicaCount" . }}
   template:
     metadata:
       {{- if not .Values.global.orbit.enabled }}

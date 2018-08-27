@@ -143,6 +143,8 @@ spec:
         - name: KAFKA_LOG_DIRS
           value: {{ printf "%s/%s" .Values.persistence.mountPath .Values.logSubPath | quote }}
         {{- end }}
+        - name: KAFKA_NUM_PARTITIONS
+          value: {{ include "kafka.num.partitions" . | quote }}
         {{- range $key, $value := .Values.configurationOverrides }}
         - name: {{ printf "KAFKA_%s" $key | replace "." "_" | upper | quote }}
           value: {{ $value | quote }}

@@ -116,6 +116,7 @@ lifecycle:
 replication:
   dataProcessor:
     replicaCount: 1
+    replicaFactor: 1
 
     resources: {}
     nodeSelector: {}

@@ -25,6 +25,14 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- end -}}
 
 {{/*
+Create the default number of Kafka partitions.
+*/}}
+{{- define "kafka.num.partitions" -}}
+{{- $num := mul .Values.partitionFactor .Values.partitionCount -}}
+{{- printf "%d" $num -}}
+{{- end -}}
+
+{{/*
 Form the Zookeeper URL. If zookeeper is installed as part of this chart, use k8s service discovery,
 else use user-provided URL
 */}}
