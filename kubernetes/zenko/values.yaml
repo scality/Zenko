@@ -113,9 +113,10 @@ zenko-queue:
     enabled: true
   configurationOverrides:
     "offsets.topic.replication.factor": 3 # - replication factor for the offsets topic
-    "num.partitions": *nodeCount          # - default number of log partitions per topic
     "auto.create.topics.enable": true     # - enable auto creation of topic on the server
     "min.insync.replicas": 2              # - min number of replicas that must acknowledge a write
+  partitionCount: *nodeCount
+  partitionFactor: 2
   prometheus:
     jmx:
       enabled: true

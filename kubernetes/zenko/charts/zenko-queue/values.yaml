@@ -122,6 +122,11 @@ external:
     imageTag: "0.4"
     imagePullPolicy: "IfNotPresent"
 
+## The number of partitions is equal to partitionCount times partitionFactor.
+##
+partitionCount: 1
+partitionFactor: 1
+
 ## Configuration Overrides. Specify any Kafka settings you would like set on the StatefulSet
 ## here in map format, as defined in the official docs.
 ## ref: https://kafka.apache.org/documentation/#brokerconfigs
