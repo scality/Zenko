@@ -48,6 +48,7 @@ backbeat:
   replication:
     dataProcessor:
       replicaCount: *nodeCount
+      replicaFactor: 2
     statusProcessor:
       replicaCount: *nodeCount
   lifecycle:

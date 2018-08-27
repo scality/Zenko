@@ -54,6 +54,8 @@ cloudserver:
     PUSH_STATS: 'false'
 
 backbeat:
+  replication:
+    replicaFactor: 2
   lifecycle:
     conductor:
       cronRule: "0 */1 * * * *"
