@@ -7,6 +7,9 @@
 # is equivalent to the number of nodes in a Kubernetes Cluster.
 nodeCount: &nodeCount 3
 
+# Factor of Backbeat Replication Data Processors and Kafka partitions.
+crrParallelism: &crrParallelism 2
+
 ingress:
   enabled: false
   # Used to create an Ingress record.
@@ -48,7 +51,7 @@ backbeat:
   replication:
     dataProcessor:
       replicaCount: *nodeCount
-      replicaFactor: 2
+      replicaFactor: *crrParallelism
     statusProcessor:
       replicaCount: *nodeCount
   lifecycle:
@@ -117,7 +120,7 @@ zenko-queue:
     "auto.create.topics.enable": true     # - enable auto creation of topic on the server
     "min.insync.replicas": 2              # - min number of replicas that must acknowledge a write
   partitionCount: *nodeCount
-  partitionFactor: 2
+  partitionFactor: *crrParallelism
   prometheus:
     jmx:
       enabled: true
