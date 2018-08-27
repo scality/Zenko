@@ -1,5 +1,6 @@
 const assert = require('assert');
 const crypto = require('crypto');
+const tags = require('mocha-tags');
 const { series, parallel } = require('async');
 
 const { scalityS3Client, awsS3Client } = require('../../../s3SDK');
@@ -28,7 +29,8 @@ const copySource = `/${srcBucket}/${key}`;
 const REPLICATION_TIMEOUT = 300000;
 
 
-describe('Replication with AWS, Azure, and GCP backends (one-to-many)',
+tags('flaky') // Tracking via ZENKO-1004
+.describe('Replication with AWS, Azure, and GCP backends (one-to-many)',
 function() {
     this.timeout(REPLICATION_TIMEOUT);
     this.retries(3);
