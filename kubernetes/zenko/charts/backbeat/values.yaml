@@ -3,6 +3,7 @@
 # Declare variables to be passed into your templates.
 
 global:
+  nodeCount: 3
   orbit:
     enabled: true
   locationConstraints: {}
@@ -19,17 +20,23 @@ logging:
 
 mongodb:
   replicaSet: rs0
-  replicas: 3
+  replicas:
 
 redis:
   sentinel:
     name: zenko
-  replicas: 3
+  replicas:
 
 health:
   port: 4042
   path:
     liveness: /_/health/readiness
+
+queue:
+  replicas:
+
+quorum:
+  replicas:
 
 api:
   replicaCount: 1

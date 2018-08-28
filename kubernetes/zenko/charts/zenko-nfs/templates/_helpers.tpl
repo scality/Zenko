@@ -35,7 +35,7 @@ Create chart name and version as used by the chart label.
 Create the default mongodb replicaset hosts string
 */}}
 {{- define "zenko-nfs.mongodb-hosts" -}}
-{{- $count := (atoi (printf "%d" (int64 .Values.mongodb.replicas))) -}}
+{{- $count := (int .Values.mongodb.replicas) | default  (int .Values.global.nodeCount) -}}
 {{- $release := .Release.Name -}}
 {{- range $v := until $count }}{{ $release }}-mongodb-replicaset-{{ $v }}.{{ $release }}-mongodb-replicaset:27017{{ if ne $v (sub $count 1) }},{{- end -}}{{- end -}}
 {{- end -}}

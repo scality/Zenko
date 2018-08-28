@@ -35,7 +35,7 @@ Create chart name and version as used by the chart label.
 Create the default mongodb replicaset hosts string
 */}}
 {{- define "cloudserver.mongodb-hosts" -}}
-{{- $count := (atoi (printf "%d" (int64 .Values.mongodb.replicas))) -}}
+{{- $count := (int (default .Values.global.nodeCount .Values.mongodb.replicas)) -}}
 {{- $release := .Release.Name -}}
 {{- range $v := until $count }}{{ $release }}-mongodb-replicaset-{{ $v }}.{{ $release }}-mongodb-replicaset:27017{{ if ne $v (sub $count 1) }},{{- end -}}{{- end -}}
 {{- end -}}
@@ -44,7 +44,7 @@ Create the default mongodb replicaset hosts string
 Increases the number of cloudserver replicas by the replicaFactor value
 */}}
 {{- define "cloudserver.replicaFactor" -}}
-{{- $factor := mul .Values.replicaFactor .Values.replicaCount -}}
+{{- $factor := mul .Values.replicaFactor (default .Values.global.nodeCount .Values.replicaCount) -}}
 {{- printf "%d" $factor }}
 {{- end -}}
 
@@ -52,7 +52,7 @@ Increases the number of cloudserver replicas by the replicaFactor value
 Create the default redis sentinels hosts string
 */}}
 {{- define "cloudserver.redis-hosts" -}}
-{{- $count := (int .Values.redisha.replicas) -}}
+{{- $count := (int (default .Values.global.nodeCount .Values.redis.replicas)) -}}
 {{- $release := .Release.Name -}}
 {{- range $v := until $count }}{{ $release }}-redis-ha-server-{{ $v }}.{{ $release }}-redis-ha:26379{{ if ne $v (sub $count 1) }},{{- end -}}{{- end -}}
 {{- end -}}

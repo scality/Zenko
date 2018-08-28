@@ -29,9 +29,9 @@ spec:
             - name: ZOOKEEPER_AUTO_CREATE_NAMESPACE
               value: "1"
             - name: ZOOKEEPER_CONNECTION_STRING
-              value: "{{- printf "%s-zenko-quorum:2181" .Release.Name | trunc 63 | trimSuffix "-" -}}"
+              value: "{{ template "backbeat.quorum-hosts" . }}"
             - name: KAFKA_HOSTS
-              value: "{{- printf "%s-zenko-queue:9092" .Release.Name | trunc 63 | trimSuffix "-" -}}"
+              value: "{{ template "backbeat.queue-hosts" . }}"
             - name: MONGODB_HOSTS
               value: "{{ template "backbeat.mongodb-hosts" . }}"
             - name: EXTENSIONS_REPLICATION_SOURCE_S3_HOST
