@@ -61,10 +61,6 @@ spec:
             httpGet:
               path: {{ .Values.health.path.liveness}}
               port: {{ .Values.health.port }}
-          readinessProbe:
-            httpGet:
-              path: {{ .Values.health.path.readiness }}
-              port: {{ .Values.health.port }}
           resources:
 {{ toYaml .Values.replication.populator.resources | indent 12 }}
     {{- with .Values.replication.populator.nodeSelector }}

@@ -29,8 +29,7 @@ redis:
 health:
   port: 4042
   path:
-    liveness: /_/health/liveness
-    readiness: /_/health/readiness
+    liveness: /_/health/readiness
 
 api:
   replicaCount: 1

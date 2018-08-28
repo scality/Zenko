@@ -43,10 +43,6 @@ spec:
             httpGet:
               path: {{ .Values.health.path.liveness }}
               port: {{ .Values.health.port }}
-          readinessProbe:
-            httpGet:
-              path: {{ .Values.health.path.readiness }}
-              port: {{ .Values.health.port }}
           resources:
 {{ toYaml .Values.ingestion.producer.resources | indent 12 }}
     {{- with .Values.ingestion.producer.nodeSelector }}
