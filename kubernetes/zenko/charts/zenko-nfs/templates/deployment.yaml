@@ -46,9 +46,9 @@ spec:
             - name: ZENKO_MD_PORT
               value: "9000"
             - name: REDIS_SENTINEL_BOOTSTRAP
-              value: "{{- printf "%s-%s:26379" .Release.Name "redis-ha-sentinel" | trunc 63 | trimSuffix "-" -}}"
+              value: "{{- printf "%s-%s:26379" .Release.Name "redis-ha" | trunc 63 | trimSuffix "-" -}}"
             - name: REDIS_CLUSTER_NAME
-              value: "mymaster"
+              value: "zenko"
             - name: NFSD_LOG_FILE
               value: "/logs/scality-nfsd.log"
           args: ['scality.nfsd', '-N', 'INFO', '-F', '-f', '/conf/scality-nfsd.conf', '-L', '/dev/stdout']
