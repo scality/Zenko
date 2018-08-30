@@ -15,6 +15,7 @@ backbeat:
   replication:
     dataProcessor:
       replicaCount: *nodeCount
+      replicaFactor: 1
     statusProcessor:
       replicaCount: *nodeCount
   lifecycle:
@@ -37,7 +38,36 @@ zenko-queue:
   kafkaHeapOptions: "-Xms256M"
   configurationOverrides:
     "offsets.topic.replication.factor": *nodeCount
+    "auto.create.topics.enable": false
     "min.insync.replicas": *nodeCount
+  topics:
+    - name: backbeat-gc
+      partitions: *nodeCount
+      replicationFactor: 1
+    - name: backbeat-ingestion
+      partitions: *nodeCount
+      replicationFactor: 1
+    - name: backbeat-lifecycle-object-tasks
+      partitions: *nodeCount
+      replicationFactor: 1
+    - name: backbeat-lifecycle-bucket-tasks
+      partitions: *nodeCount
+      replicationFactor: 1
+    - name: backbeat-metrics
+      partitions: *nodeCount
+      replicationFactor: 1
+    - name: backbeat-replication
+      partitions: *nodeCount
+      replicationFactor: 1
+    - name: backbeat-replication-status
+      partitions: *nodeCount
+      replicationFactor: 1
+    - name: backbeat-replication-failed
+      partitions: *nodeCount
+      replicationFactor: 1
+    - name: backbeat-sanitycheck
+      partitions: *nodeCount
+      replicationFactor: 1
 
 zenko-quorum:
   replicaCount: *nodeCount

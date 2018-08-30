@@ -162,7 +162,7 @@ ifndef NO_INSTALL
 	$(HELM) upgrade $(ZENKO_HELM_RELEASE) \
 		--namespace $(HELM_NAMESPACE) \
 		--install ../kubernetes/zenko \
-		-f ../eve/ci-values.yml
+		-f ../eve/ci-values.yaml
 endif
 .PHONY: install-zenko
 
@@ -171,7 +171,7 @@ ifndef NO_INSTALL
 	$(HELM) upgrade $(ZENKO_HELM_RELEASE) \
 		--namespace $(HELM_NAMESPACE) \
 		--install ../kubernetes/zenko \
-		-f ../eve/ci-values.yml \
+		-f ../eve/ci-values.yaml \
         --set cloudserver.image.repository=$(IMAGE_REGISTRY)/zenko/cloudserver \
         --set-string cloudserver.image.tag='$(CLOUDSERVER_TAG)' \
         --set backbeat.image.repository=$(IMAGE_REGISTRY)/zenko/backbeat \
