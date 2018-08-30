@@ -119,15 +119,11 @@ zenko-queue:
     "offsets.topic.replication.factor": 3 # - replication factor for the offsets topic
     "auto.create.topics.enable": true     # - enable auto creation of topic on the server
     "min.insync.replicas": 2              # - min number of replicas that must acknowledge a write
-  partitionCount: *nodeCount
-  partitionFactor: *crrParallelism
   prometheus:
     jmx:
       enabled: true
     kafka:
       enabled: true
-zookeeper:
-  enabled: false # Disables zenko-queue from deploying its own quorum
 
 zenko-quorum:
 ## Extensive list of configurables can be found here:
