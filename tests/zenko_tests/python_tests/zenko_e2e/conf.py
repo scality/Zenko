@@ -101,9 +101,9 @@ GCP_TARGET_BUCKET = get_env('GCP_BUCKET_NAME', 'zenko-gcp-target-bucket')
 AZURE_TARGET_BUCKET = get_env(
     'AZURE_BUCKET_NAME', 'zenko-azure-target-bucket')
 WASABI_TARGET_BUCKET = get_env(
-    'WASABI_TARGET_BUCKET', 'zenko-wasabi-target-bucket')
+    'WASABI_BUCKET_NAME', 'zenko-wasabi-target-bucket')
 DO_TARGET_BUCKET = get_env(
-    'DO_TARGET_BUCKET', 'zenko-digitalocean-target-bucket')
+    'DO_BUCKET_NAME', 'zenko-digitalocean-target-bucket')
 
 # The target buckets configured for CR replication
 AWS_CRR_TARGET_BUCKET = get_env(
@@ -113,9 +113,9 @@ GCP_CRR_TARGET_BUCKET = get_env(
 AZURE_CRR_TARGET_BUCKET = get_env(
     'AZURE_CRR_BUCKET_NAME', 'zenko-azure-crr-target-bucket')
 WASABI_CRR_TARGET_BUCKET = get_env(
-    'WASABI_TARGET_BUCKET', 'zenko-wasabi-crr-target-bucket')
+    'WASABI_CRR_BUCKET_NAME', 'zenko-wasabi-crr-target-bucket')
 DO_CRR_TARGET_BUCKET = get_env(
-    'DO_TARGET_BUCKET', 'zenko-digitalocean-crr-target-bucket')
+    'DO_CRR_BUCKET_BUCKET_NAME', 'zenko-digitalocean-crr-target-bucket')
 
 AWS_CRR_SRC_BUCKET = get_env(
     'AWS_CRR_SRC_BUCKET_NAME', 'zenko-aws-crr-src-bucket')
