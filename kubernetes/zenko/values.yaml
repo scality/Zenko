@@ -116,6 +116,7 @@ zenko-queue:
     "offsets.topic.replication.factor": 3 # - replication factor for the offsets topic
     "auto.create.topics.enable": false    # - enable auto creation of topic on the server
     "min.insync.replicas": 2              # - min number of replicas that must acknowledge a write
+    "message.max.bytes": "5000000"        # - the largest record batch size allowed
   prometheus:
     jmx:
       enabled: true
