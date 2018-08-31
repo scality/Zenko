@@ -2,7 +2,7 @@ version: "3.4"
 
 services:
   s3-data:
-    image: zenko/cloudserver:pensieve-4
+    image: zenko/cloudserver:8.0.11-RC6
     ports:
       - 9991
     networks:
@@ -19,7 +19,7 @@ services:
           - node.labels.io.zenko.type == storage
 
   s3-front:
-    image: zenko/cloudserver:pensieve-4
+    image: gguiulfo/cloudserver:swarm
     ports:
       - 8000
     networks:
@@ -43,7 +43,6 @@ services:
       dockerize
         -timeout 90s
         -wait tcp://s3-data:9991
-        -wait tcp://backbeat-api:8900
         -wait tcp://cache:6379
         -wait tcp://mongodb:27017
         --
@@ -149,7 +148,7 @@ services:
           - node.labels.io.zenko.type == storage
 
   backbeat-producer:
-    image: 'zenko/backbeat:pensieve-5'
+    image: 'zenko/backbeat:8.0.9-RC6'
     command: >-
       dockerize
         -timeout 90s
@@ -173,19 +172,22 @@ services:
       replicas: 1
 
   backbeat-api:
-    image: 'zenko/backbeat:pensieve-5'
+    image: 'zenko/backbeat:8.0.9-RC6'
     command: >-
       dockerize
         -timeout 90s
+        -wait tcp://s3-front:8000
         -wait tcp://cache:6379
         -wait tcp://quorum:2181
         -wait tcp://queue:9092
+        -wait tcp://mongodb:27017
         --
       npm start
     environment:
       ZOOKEEPER_AUTO_CREATE_NAMESPACE: 1
       ZOOKEEPER_CONNECTION_STRING: 'quorum:2181'
       KAFKA_HOSTS: 'queue:9092'
+      MONGODB_HOSTS: 'mongodb:27017'
       REDIS_HOST: cache
       REDIS_PORT: 6379
       HEALTHCHECKS_ALLOWFROM: '0.0.0.0/0'
@@ -196,7 +198,7 @@ services:
       replicas: 1
 
   backbeat-consumer:
-    image: 'zenko/backbeat:pensieve-5'
+    image: 'zenko/backbeat:8.0.9-RC6'
     command: >-
       dockerize
         -timeout 90s
