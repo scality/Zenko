@@ -32,16 +32,13 @@ function getAndCheckResponse(path, expectedBody, cb) {
                 return next(err);
             }
             assert.strictEqual(res.statusCode, 200);
-            getResponseBody(res, (err, body) => {
+            return getResponseBody(res, (err, body) => {
                 if (err) {
                     return next(err);
                 }
                 shouldContinue =
                     JSON.stringify(body) !== JSON.stringify(expectedBody);
-                if (shouldContinue) {
-                    return setTimeout(next, 2000);
-                }
-                return next();
+                return setTimeout(next, 2000);
             });
         }),
     () => shouldContinue, cb);
