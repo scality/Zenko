@@ -5,6 +5,20 @@ import time
 import sys
 import os
 import logging
+import re
+
+IGNORED_PODS = [
+    r'.+queue-config'
+]
+
+IGNORED_PODS = [re.compile(x) for x in IGNORED_PODS]
+
+def is_ignored(name):
+    for ignored in IGNORED_PODS:
+        if ignored.search(name):
+            return True
+    return False
+
 
 logging.basicConfig(level=logging.INFO)
 _log = logging.getLogger('create_buckets')
@@ -30,7 +44,7 @@ def wait_for_pods(delete, timeout):
     v1 = client.CoreV1Api()
     delete_opt = client.V1DeleteOptions()
     delete_opt.grace_period_seconds = 0
-    
+
     timeout = time.time() + timeout
     while time.time() < timeout:
         ret = v1.list_namespaced_pod(K8S_NAMESPACE)
@@ -38,7 +52,9 @@ def wait_for_pods(delete, timeout):
         for i in ret.items:
             if i.status.container_statuses:
                 for container in i.status.container_statuses:
-                    if not container.ready:
+                    if is_ignored(container.name):
+                        continue
+                    elif not container.ready:
                         if delete and container.state.waiting and \
                             container.state.waiting.reason == 'CrashLoopBackOff':
                             _log.info('%s is in CrashLoopBackOff, restarting.' % container.name)
@@ -54,7 +70,7 @@ def wait_for_pods(delete, timeout):
       sys.exit(1)
     else:
       _log.info('Zenko services have stabilized successfully')
- 
+
 TIMEOUT = int(get_env('INSTALL_TIMEOUT'))
 
 K8S_NAMESPACE = os.getenv('ZENKO_K8S_NAMESPACE')
@@ -81,7 +97,7 @@ s = Session(aws_access_key_id=ZENKO_ACCESS_KEY,
 s3client = s.resource('s3',
                       endpoint_url=ZENKO_ENDPOINT,
                       verify=VERIFY_CERTIFICATES)
-  
+
 # Create buckets
 _log.info('Creating testing buckets...')
 timeout = time.time() + TIMEOUT
