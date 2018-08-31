@@ -102,10 +102,6 @@ spec:
             httpGet:
               path: {{ .Values.health.path.liveness}}
               port: {{ .Values.health.port }}
-          readinessProbe:
-            httpGet:
-              path: {{ .Values.health.path.readiness }}
-              port: {{ .Values.health.port }}
           {{- if not .Values.global.orbit.enabled }}
           volumeMounts:
             - name: auth-config
