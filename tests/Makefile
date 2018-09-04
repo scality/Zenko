@@ -29,27 +29,22 @@ COSBENCH_HELM_RELEASE := zenko-cosbench
 IMAGE_REGISTRY := docker.io
 IMAGE_REPO := zenko
 E2E_IMAGE_NAME := zenko-e2e
-NODE_E2E_IMAGE_NAME := node-e2e
 COSBENCH_RUNNER_IMAGE_NAME := cosbench-runner
 
 E2E_POD := zenko-e2e
-NODE_E2E_POD := zenko-node-e2e
 COSBENCH_RUNNER_POD := cosbench-runner
 
 # Set a default tag,
 # but allow us to set all of them using TAG_OVERRIDE
 ifeq ($(TAG_OVERRIDE),)
 E2E_IMAGE_TAG := latest
-NODE_E2E_IMAGE_TAG := latest
 COSBENCH_RUNNER_IMAGE_TAG := latest
 else
 E2E_IMAGE_TAG := $(TAG_OVERRIDE)
-NODE_E2E_IMAGE_TAG := $(TAG_OVERRIDE)
 COSBENCH_RUNNER_IMAGE_TAG := $(TAG_OVERRIDE)
 endif
 
 E2E_IMAGE := $(IMAGE_REGISTRY)/$(IMAGE_REPO)/$(E2E_IMAGE_NAME):$(E2E_IMAGE_TAG)
-NODE_E2E_IMAGE := $(IMAGE_REGISTRY)/$(IMAGE_REPO)/$(NODE_E2E_IMAGE_NAME):$(NODE_E2E_IMAGE_TAG)
 COSBENCH_RUNNER_IMAGE := $(IMAGE_REGISTRY)/$(IMAGE_REPO)/$(COSBENCH_RUNNER_IMAGE_NAME):$(COSBENCH_RUNNER_IMAGE_TAG)
 
 CLOUDSERVER_REPO := https://github.com/scality/cloudserver.git
@@ -70,24 +65,15 @@ artifacts:
 builddir:
 	@mkdir -p build
 
-lint-e2e:
-	$(V)$(TOX)
-
-lint-node-e2e:
-
 lint:
 	$(V)$(HELM) lint ../kubernetes/zenko/charts/* && $(HELM) lint ../kubernetes/zenko/
+.PHONY: lint
 
-build-e2e:
-	$(V)$(DOCKER) build -t $(E2E_IMAGE) . && \
+build-tests:
+	$(V)cd zenko_tests/node_tests && sh gcp_shim.sh
+	$(V)$(DOCKER) build -t $(E2E_IMAGE) zenko_tests/ && \
 	$(DOCKER) push $(E2E_IMAGE)
-.PHONY: build-e2e
-
-build-node-e2e:
-	$(V)cd node_tests && sh gcp_shim.sh
-	$(V)$(DOCKER) build -t $(NODE_E2E_IMAGE) node_tests/ && \
-	$(DOCKER) push $(NODE_E2E_IMAGE)
-.PHONY: build-node-e2e
+.PHONY: build-test
 
 build-cosbench-runner:
 	$(V)$(AWK) -f ../eve/workers/cosbench/tmpl.awk \
@@ -122,7 +108,6 @@ build-latest-backbeat: | get-backbeat-commit builddir
 	$(DOCKER) push $(BACKBEAT_IMAGE):$(BACKBEAT_TAG)
 .PHONY: build-latest-backbeat
 
-build: | build-e2e build-node-e2e
 build-latest: | build-latest-backbeat build-latest-cloudserver
 .PHONY: build build-latest
 
@@ -141,8 +126,9 @@ endif
 
 install-orbit-simulator: | builddir
 ifndef NO_SIM
-	$(V)$(GIT) clone git@github.com:scality/orbit-simulator.git build/orbit-simulator && \
+	$(V)$(GIT) clone -b test/tmacro-edge-image git@github.com:scality/orbit-simulator.git build/orbit-simulator && \
 	$(HELM) upgrade ciutil \
+		--namespace $(HELM_NAMESPACE) \
         --install build/orbit-simulator/charts/orbit-simulator \
         --set simulator.shim.cloudserver_release=$(ZENKO_HELM_RELEASE) \
         --wait $(shell ../eve/workers/ci_env.sh set)
@@ -166,7 +152,7 @@ ifndef NO_INSTALL
 endif
 .PHONY: install-zenko
 
-install-latest-zenko:
+install-latest-zenko: | build-latest
 ifndef NO_INSTALL
 	$(HELM) upgrade $(ZENKO_HELM_RELEASE) \
 		--namespace $(HELM_NAMESPACE) \
@@ -185,7 +171,7 @@ endif
 install-common: | install-tiller install-helm-repos install-orbit-simulator
 .PHONY: install-common
 
-wait-for-zenko: | build-e2e
+wait-for-zenko: | build-tests
 	$(V)$(KUBECTL) run zenko-waiter \
 		--image $(E2E_IMAGE) \
 		--rm \
@@ -204,36 +190,32 @@ dump-logs: | artifacts
 	done;
 .PHONY: dump-logs
 
-test-e2e: | build-e2e
+run-tests: | build-tests
 	$(V)$(KUBECTL) run $(E2E_POD) \
 		--rm \
 		--restart=Never \
 		--attach=True \
 		--image=$(E2E_IMAGE)  \
 		--namespace $(HELM_NAMESPACE) \
-		$(shell ../eve/workers/ci_env.sh env) || (echo "Tests have failed" ; kubectl get pods -L redis-role ; exit 1) >&2
-.PHONY: test-e2e
-
-test-node: | build-node-e2e
-	$(V)$(KUBECTL) run $(NODE_E2E_POD)-crr --image=$(NODE_E2E_IMAGE) \
-		--rm --restart=Never --namespace $(HELM_NAMESPACE) --attach=True \
-		$(shell ../eve/workers/ci_env.sh env) \
-		--env CLOUDSERVER_ENDPOINT="http://$(ZENKO_HELM_RELEASE)-cloudserver:80" \
 		--env MOCHA_TAGS="$(NODE_TEST_TAGS)" \
-		-- ./npm_chain.sh test_crr test_api test_crr_pause_resume test_location_quota
-.PHONY: test-node
+		--env CLOUDSERVER_ENDPOINT="http://$(ZENKO_HELM_RELEASE)-cloudserver:80" \
+		$(shell ../eve/workers/ci_env.sh env) || (echo "Tests have failed" ; kubectl get pods -L redis-role ; exit 1) >&2
+.PHONY: run-tests
 
-test-node-flaky:
+test-flaky:
 	$(eval NODE_TEST_TAGS = is:flaky)
-	$(call test-node)
+	$(call run-tests)
+.PHONY: test-flaky
 
-test: | install-common install-zenko test-e2e test-node dump-logs
-test-latest: | install-common get-latest-commit install-latest-zenko test-e2e test-node test-node-flaky dump-logs
+test: | install-common install-zenko run-tests dump-logs
+test-latest: | install-common install-latest-zenko run-tests test-flaky dump-logs
 .PHONY: test test-latest
+
 test-local:
 	make NO_SIM=true NO_INSTALL=true -e test
 test-latest-local:
 	make NO_SIM=true NO_INSTALL=true -e test-latest
+.PHONY: test-local test-latest-local
 
 trigger-cosbench:
 	$(eval COSBENCH_POD := $(shell kubectl get pods | awk '/cosbench-controller/{print $$1}'))
@@ -246,10 +228,12 @@ trigger-cosbench:
 		--namespace=$(HELM_NAMESPACE) \
 		--env COSBENCH_IP=$(COSBENCH_IP) \
 		-- trigger_run.sh
+.PHONY: trigger-cosbench
 
 get-cosbench-results: | artifacts
 	$(V)$(KUBECTL) cp $(HELM_NAMESPACE)/$(COSBENCH_POD):archive/ ./artifacts && \
 	cp ./artifacts/w*-workload*.csv ../eve/workers/cosbench/workload.csv
+.PHONY: get-cosbench-results
 
 upload-cosbench-results: | get-cosbench-results
 	$(V)$(DOCKER) build --no-cache -t $(COSBENCH_RUNNER_IMAGE) ../eve/workers/cosbench/ && \
@@ -261,6 +245,7 @@ upload-cosbench-results: | get-cosbench-results
 		--restart=Never \
 		--namespace=$(HELM_NAMESPACE) \
 		-- python insert_data.py
+.PHONY: upload-cosbench-results
 
 test-cosbench: | install-common get-latest-commit install-latest-zenko install-cosbench build-cosbench-runner wait-for-zenko trigger-cosbench upload-cosbench-results
 .PHONY: test-cosbench
