@@ -86,7 +86,7 @@ buckets = [
     get_env('AWS_CRR_SRC_BUCKET_NAME', 'zenko-aws-crr-src-bucket'),
     get_env('GCP_CRR_SRC_BUCKET_NAME', 'zenko-gcp-crr-src-bucket'),
     get_env('AZURE_CRR_SRC_BUCKET_NAME', 'zenko-azure-crr-src-bucket'),
-    get_env('WASABI_CRR_SRC_BUCKET', 'zenko-wasabi-crr-src-bucket'),
+    get_env('WASABI_CRR_SRC_BUCKET_NAME', 'zenko-wasabi-crr-src-bucket'),
     get_env('DO_CRR_SRC_BUCKET_NAME', 'zenko-do-crr-src-bucket'),
     get_env('MULTI_CRR_SRC_BUCKET_NAME', 'zenko-multi-crr-src-bucket'),
     get_env('TRANSIENT_SRC_BUCKET_NAME', 'ci-zenko-transient-src-bucket')

@@ -126,7 +126,7 @@ endif
 
 install-orbit-simulator: | builddir
 ifndef NO_SIM
-	$(V)$(GIT) clone -b test/tmacro-edge-image git@github.com:scality/orbit-simulator.git build/orbit-simulator && \
+	$(V)$(GIT) clone git@github.com:scality/orbit-simulator.git build/orbit-simulator && \
 	$(HELM) upgrade ciutil \
 		--namespace $(HELM_NAMESPACE) \
         --install build/orbit-simulator/charts/orbit-simulator \
