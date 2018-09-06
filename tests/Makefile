@@ -13,7 +13,6 @@ DOCKER_ARGS :=
 PYTEST_ARGS :=
 DOTENV := $(PWD)/.env
 
-
 BUILDDIR := build
 # These are for dumping logs, but they're really long so store them as variables
 E2E_LOG_PODS := {range .items[?(@.metadata.annotations.helm\.sh\/hook)]}{@.metadata.name}{"\n"}{end}
@@ -140,6 +139,8 @@ install-cosbench:
 	$(HELM) upgrade $(COSBENCH_HELM_RELEASE) \
 		--namespace $(HELM_NAMESPACE) \
 		--install build/zenko-cosbench/charts/zenko-cosbench \
+		--set controller.logLevel=TRACE \
+		--set driver.logLevel=TRACE \
 		--wait
 .PHONY: install-cosbench
 
@@ -158,11 +159,11 @@ ifndef NO_INSTALL
 		--namespace $(HELM_NAMESPACE) \
 		--install ../kubernetes/zenko \
 		-f ../eve/ci-values.yaml \
-        --set cloudserver.image.repository=$(IMAGE_REGISTRY)/zenko/cloudserver \
-        --set-string cloudserver.image.tag='$(CLOUDSERVER_TAG)' \
-        --set backbeat.image.repository=$(IMAGE_REGISTRY)/zenko/backbeat \
+        --set backbeat.image.repository=$(BACKBEAT_IMAGE) \
         --set-string backbeat.image.tag='$(BACKBEAT_TAG)' \
-        --set s3-data.image.repository=$(IMAGE_REGISTRY)/zenko/cloudserver \
+        --set cloudserver.image.repository=$(CLOUDSERVER_IMAGE) \
+        --set-string cloudserver.image.tag='$(CLOUDSERVER_TAG)' \
+        --set s3-data.image.repository=$(CLOUDSERVER_IMAGE) \
         --set-string s3-data.image.tag='$(CLOUDSERVER_TAG)'
 endif
 .PHONY: install-latest-zenko
@@ -179,7 +180,7 @@ wait-for-zenko: | build-tests
 		--restart=Never \
 		--namespace=$(HELM_NAMESPACE) \
 		$(shell ../eve/workers/ci_env.sh env) \
-		--command -- python create_buckets.py || (echo "Zenko has failed to stabilize" ; kubectl get pods -L redis-role ; exit 1) >&2
+		--command -- python3 create_buckets.py || (echo "Zenko has failed to stabilize" ; kubectl get pods -L redis-role ; exit 1) >&2
 .PHONY: wait-for-zenko
 
 dump-logs: | artifacts
@@ -231,9 +232,10 @@ trigger-cosbench:
 .PHONY: trigger-cosbench
 
 get-cosbench-results: | artifacts
-	$(V)$(KUBECTL) cp $(HELM_NAMESPACE)/$(COSBENCH_POD):archive/ ./artifacts && \
-	cp ./artifacts/w*-workload*.csv ../eve/workers/cosbench/workload.csv
-.PHONY: get-cosbench-results
+	$(V)$(KUBECTL) cp $(HELM_NAMESPACE)/$(COSBENCH_POD):archive/w1-workload1/w1-workload1.csv ./artifacts/workload.csv && \
+	ls -R ./artifacts && \
+	cp ./artifacts/workload.csv ../eve/workers/cosbench/workload.csv && \
+	ls -R ../eve/workers/cosbench/
 
 upload-cosbench-results: | get-cosbench-results
 	$(V)$(DOCKER) build --no-cache -t $(COSBENCH_RUNNER_IMAGE) ../eve/workers/cosbench/ && \
@@ -244,6 +246,9 @@ upload-cosbench-results: | get-cosbench-results
 		--attach=True \
 		--restart=Never \
 		--namespace=$(HELM_NAMESPACE) \
+		--image-pull-policy="Always" \
+		--env COSBENCH_NIGHTLY_SERVICE_ACCOUNT='$(shell echo '$(COSBENCH_NIGHTLY_SERVICE_ACCOUNT)' | tr -d '\n')' \
+		--env COSBENCH_SPREADSHEET_ID='$(shell echo '$(COSBENCH_SPREADSHEET_ID)' | tr -d '\n')' \
 		-- python insert_data.py
 .PHONY: upload-cosbench-results
 

@@ -1,0 +1,570 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<workload name="workload1" description="Metadata (0 byte objects) sample benchmark for s3">
+    <storage type="s3" config="accesskey={{ACCESS_KEY}};secretkey={{SECRET_KEY}};endpoint={{ENDPOINT}};path_style_access=true" />
+    <workflow>
+        <!-- Initialization: Create 2 buckets -->
+        <workstage name="init">
+        <work type="init" workers="1" config="containers=r(1,1)" />
+        </workstage>
+
+        <!-- Create 0 Byte Objects -->
+        <workstage name="prepare">
+            <work type="prepare" workers="512" config="containers=r(1,1);objects=r(1,100000);sizes=c(0)MB;" />
+        </workstage>
+
+        <!-- Write 0 Byte -->
+        <workstage name="write_0B_1T">
+            <work name="write_0B_1T" workers="1" runtime="5" division="object">
+                <operation type="write" ratio="100" config="sizes=c(0)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="write_0B_2T">
+            <work name="write_0B_2T" workers="2" runtime="5" division="object">
+                <operation type="write" ratio="100" config="sizes=c(0)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="write_0B_4T">
+            <work name="write_0B_3T" workers="4" runtime="5" division="object">
+                <operation type="write" ratio="100" config="sizes=c(0)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="write_0B_8T">
+            <work name="write_0B_8T" workers="8" runtime="5" division="object">
+                <operation type="write" ratio="100" config="sizes=c(0)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="write_0B_16T">
+            <work name="write_0B_16T" workers="16" runtime="5" division="object">
+                <operation type="write" ratio="100" config="sizes=c(0)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="write_0B_32T">
+            <work name="write_0B_32T" workers="32" runtime="5" division="object">
+                <operation type="write" ratio="100" config="sizes=c(0)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="write_0B_64T">
+            <work name="write_0B_64T" workers="64" runtime="5" division="object">
+                <operation type="write" ratio="100" config="sizes=c(0)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="write_0B_128T">
+            <work name="write_0B_128T" workers="128" runtime="5" division="object">
+                <operation type="write" ratio="100" config="sizes=c(0)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="write_0B_256T">
+            <work name="write_0B_256T" workers="256" runtime="5" division="object">
+                <operation type="write" ratio="100" config="sizes=c(0)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="write_0B_512T">
+            <work name="write_0B_512T" workers="512" runtime="5" division="object">
+                <operation type="write" ratio="100" config="sizes=c(0)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="write_0B_1024T">
+            <work name="write_0B_1024T" workers="1024" runtime="5" division="object">
+                <operation type="write" ratio="100" config="sizes=c(0)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+
+        <!-- Read 0 Bytes -->
+        <workstage name="read_0B_1T">
+            <work name="read_0B_1T" workers="1" runtime="5" division="object">
+                <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="read_0B_2T">
+            <work name="read_0B_2T" workers="2" runtime="5" division="object">
+                <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="read_0B_4T">
+            <work name="read_0B_4T" workers="4" runtime="5" division="object">
+                <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="read_0B_8T">
+            <work name="read_0B_8T" workers="8" runtime="5" division="object">
+                <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="read_0B_16T">
+            <work name="read_0B_16T" workers="16" runtime="5" division="object">
+                <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="read_0B_32T">
+            <work name="read_0B_32T" workers="32" runtime="5" division="object">
+                <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="read_0B_64T">
+            <work name="read_0B_64T" workers="64" runtime="5" division="object">
+                <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="read_0B_128T">
+            <work name="read_0B_128T" workers="128" runtime="5" division="object">
+                <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="read_0B_256T">
+            <work name="read_0B_256T" workers="256" runtime="5" division="object">
+                <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="read_0B_512T">
+            <work name="read_0B_512T" workers="512" runtime="5" division="object">
+                <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="read_0B_1024T">
+            <work name="read_0B_1024T" workers="1024" runtime="5" division="object">
+                <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+
+        <!-- Mixed 0B -->
+        <workstage name="mixed_0B_1T">
+            <work name="mixed_0B_1T" workers="1" runtime="5" division="object">
+                <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
+                <operation type="write" ratio="50" config="sizes=c(0)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="mixed_0B_2T">
+            <work name="mixed_0B_2T" workers="2" runtime="5" division="object">
+                <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
+                <operation type="write" ratio="50" config="sizes=c(0)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="mixed_0B_4T">
+            <work name="mixed_0B_4T" workers="4" runtime="5" division="object">
+                <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
+                <operation type="write" ratio="50" config="sizes=c(0)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="mixed_0B_8T">
+            <work name="mixed_0B_8T" workers="8" runtime="5" division="object">
+                <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
+                <operation type="write" ratio="50" config="sizes=c(0)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="mixed_0B_16T">
+            <work name="mixed_0B_16T" workers="16" runtime="5" division="object">
+                <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
+                <operation type="write" ratio="50" config="sizes=c(0)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="mixed_0B_32T">
+            <work name="mixed_0B_32T" workers="32" runtime="5" division="object">
+                <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
+                <operation type="write" ratio="50" config="sizes=c(0)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="mixed_0B_64T">
+            <work name="mixed_0B_64T" workers="64" runtime="5" division="object">
+                <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
+                <operation type="write" ratio="50" config="sizes=c(0)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="mixed_0B_128T">
+            <work name="mixed_0B_128T" workers="128" runtime="5" division="object">
+                <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
+                <operation type="write" ratio="50" config="sizes=c(0)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="mixed_0B_256T">
+            <work name="mixed_0B_256T" workers="256" runtime="5" division="object">
+                <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
+                <operation type="write" ratio="50" config="sizes=c(0)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="mixed_0B_512T">
+            <work name="mixed_0B_512T" workers="512" runtime="5" division="object">
+                <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
+                <operation type="write" ratio="50" config="sizes=c(0)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="mixed_0B_1024T">
+            <work name="mixed_0B_1024T" workers="1024" runtime="5" division="object">
+                <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
+                <operation type="write" ratio="50" config="sizes=c(0)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+
+        <!-- Write 1MB -->
+        <workstage name="write_1MB_1T">
+            <work name="write_1MB_1T" workers="1" runtime="5" division="object">
+                <operation type="write" ratio="100" config="sizes=c(1)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="write_1MB_2T">
+            <work name="write_1MB_1T" workers="2" runtime="5" division="object">
+                <operation type="write" ratio="100" config="sizes=c(1)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="write_1MB_4T">
+            <work name="write_1MB_1T" workers="4" runtime="5" division="object">
+                <operation type="write" ratio="100" config="sizes=c(1)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="write_1MB_8T">
+            <work name="write_1MB_1T" workers="8" runtime="5" division="object">
+                <operation type="write" ratio="100" config="sizes=c(1)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="write_1MB_16T">
+            <work name="write_1MB_16T" workers="16" runtime="5" division="object">
+                <operation type="write" ratio="100" config="sizes=c(1)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="write_1MB_32T">
+            <work name="write_1MB_32T" workers="32" runtime="5" division="object">
+                <operation type="write" ratio="100" config="sizes=c(1)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="write_1MB_64T">
+            <work name="write_1MB_64T" workers="64" runtime="5" division="object">
+                <operation type="write" ratio="100" config="sizes=c(1)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="write_1MB_128T">
+            <work name="write_1MB_128T" workers="128" runtime="5" division="object">
+                <operation type="write" ratio="100" config="sizes=c(1)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="write_1MB_256T">
+            <work name="write_1MB_256T" workers="256" runtime="5" division="object">
+                <operation type="write" ratio="100" config="sizes=c(1)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="write_1MB_512T">
+            <work name="write_1MB_512T" workers="512" runtime="5" division="object">
+                <operation type="write" ratio="100" config="sizes=c(1)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="write_1MB_1024T">
+            <work name="write_1MB_1024T" workers="1024" runtime="5" division="object">
+                <operation type="write" ratio="100" config="sizes=c(1)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+
+        <!-- Read 1MB -->
+        <workstage name="read_1MB_1T">
+            <work name="read_1MB_1T" workers="1" runtime="5" division="object">
+                <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="read_1MB_2T">
+            <work name="read_1MB_1T" workers="2" runtime="5" division="object">
+                <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="read_1MB_4T">
+            <work name="read_1MB_1T" workers="4" runtime="5" division="object">
+                <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="read_1MB_8T">
+            <work name="read_1MB_1T" workers="8" runtime="5" division="object">
+                <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="read_1MB_16T">
+            <work name="read_1MB_16T" workers="16" runtime="5" division="object">
+                <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="read_1MB_32T">
+            <work name="read_1MB_32T" workers="32" runtime="5" division="object">
+                <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="read_1MB_64T">
+            <work name="read_1MB_64T" workers="64" runtime="5" division="object">
+                <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="read_1MB_128T">
+            <work name="read_1MB_128T" workers="128" runtime="5" division="object">
+                <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="read_1MB_256T">
+            <work name="read_1MB_256T" workers="256" runtime="5" division="object">
+                <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="read_1MB_512T">
+            <work name="read_1MB_512T" workers="512" runtime="5" division="object">
+                <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="read_1MB_1024T">
+            <work name="read_1MB_1024T" workers="1024" runtime="5" division="object">
+                <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+
+        <!-- Mixed 1MB -->
+        <workstage name="mixed_1MB_1T">
+            <work name="mixed_1MB_1T" workers="1" runtime="5" division="object">
+                <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
+                <operation type="write" ratio="50" config="sizes=c(1)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="mixed_1MB_2T">
+            <work name="mixed_1MB_1T" workers="2" runtime="5" division="object">
+                <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
+                <operation type="write" ratio="50" config="sizes=c(1)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="mixed_1MB_4T">
+            <work name="mixed_1MB_1T" workers="4" runtime="5" division="object">
+                <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
+                <operation type="write" ratio="50" config="sizes=c(1)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="mixed_1MB_8T">
+            <work name="mixed_1MB_1T" workers="8" runtime="5" division="object">
+                <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
+                <operation type="write" ratio="50" config="sizes=c(1)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="mixed_1MB_16T">
+            <work name="mixed_1MB_16T" workers="16" runtime="5" division="object">
+                <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
+                <operation type="write" ratio="50" config="sizes=c(1)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="mixed_1MB_32T">
+            <work name="mixed_1MB_32T" workers="32" runtime="5" division="object">
+                <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
+                <operation type="write" ratio="50" config="sizes=c(1)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="mixed_1MB_64T">
+            <work name="mixed_1MB_64T" workers="64" runtime="5" division="object">
+                <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
+                <operation type="write" ratio="50" config="sizes=c(1)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="mixed_1MB_128T">
+            <work name="mixed_1MB_128T" workers="128" runtime="5" division="object">
+                <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
+                <operation type="write" ratio="50" config="sizes=c(1)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="mixed_1MB_256T">
+            <work name="mixed_1MB_256T" workers="256" runtime="5" division="object">
+                <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
+                <operation type="write" ratio="50" config="sizes=c(1)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="mixed_1MB_512T">
+            <work name="mixed_1MB_512T" workers="512" runtime="5" division="object">
+                <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
+                <operation type="write" ratio="50" config="sizes=c(1)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="mixed_1MB_1024T">
+            <work name="mixed_1MB_1024T" workers="1024" runtime="5" division="object">
+                <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
+                <operation type="write" ratio="50" config="sizes=c(1)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+
+        <!-- Write 10MB -->
+        <workstage name="write_10MB_1T">
+            <work name="write_10MB_1T" workers="1" runtime="5" division="object">
+                <operation type="write" ratio="100" config="sizes=c(10)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="write_10MB_2T">
+            <work name="write_10MB_1T" workers="2" runtime="5" division="object">
+                <operation type="write" ratio="100" config="sizes=c(10)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="write_10MB_4T">
+            <work name="write_10MB_1T" workers="4" runtime="5" division="object">
+                <operation type="write" ratio="100" config="sizes=c(10)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="write_10MB_8T">
+            <work name="write_10MB_1T" workers="8" runtime="5" division="object">
+                <operation type="write" ratio="100" config="sizes=c(10)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="write_10MB_16T">
+            <work name="write_10MB_16T" workers="16" runtime="5" division="object">
+                <operation type="write" ratio="100" config="sizes=c(10)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="write_10MB_32T">
+            <work name="write_10MB_32T" workers="32" runtime="5" division="object">
+                <operation type="write" ratio="100" config="sizes=c(10)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="write_10MB_64T">
+            <work name="write_10MB_64T" workers="64" runtime="5" division="object">
+                <operation type="write" ratio="100" config="sizes=c(10)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="write_10MB_128T">
+            <work name="write_10MB_128T" workers="128" runtime="5" division="object">
+                <operation type="write" ratio="100" config="sizes=c(10)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="write_10MB_256T">
+            <work name="write_10MB_256T" workers="256" runtime="5" division="object">
+                <operation type="write" ratio="100" config="sizes=c(10)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="write_10MB_512T">
+            <work name="write_10MB_512T" workers="512" runtime="5" division="object">
+                <operation type="write" ratio="100" config="sizes=c(10)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="write_10MB_1024T">
+            <work name="write_10MB_1024T" workers="1024" runtime="5" division="object">
+                <operation type="write" ratio="100" config="sizes=c(10)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <!-- Read 10MB -->
+        <workstage name="read_10MB_1T">
+            <work name="read_10MB_1T" workers="1" runtime="5" division="object">
+                <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="read_10MB_2T">
+            <work name="read_10MB_1T" workers="2" runtime="5" division="object">
+                <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="read_10MB_4T">
+            <work name="read_10MB_1T" workers="4" runtime="5" division="object">
+                <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="read_10MB_8T">
+            <work name="read_10MB_1T" workers="8" runtime="5" division="object">
+                <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="read_10MB_16T">
+            <work name="read_10MB_16T" workers="16" runtime="5" division="object">
+                <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="read_10MB_32T">
+            <work name="read_10MB_32T" workers="32" runtime="5" division="object">
+                <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="read_10MB_64T">
+            <work name="read_10MB_64T" workers="64" runtime="5" division="object">
+                <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="read_10MB_128T">
+            <work name="read_10MB_128T" workers="128" runtime="5" division="object">
+                <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="read_10MB_256T">
+            <work name="read_10MB_256T" workers="256" runtime="5" division="object">
+                <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="read_10MB_512T">
+            <work name="read_10MB_512T" workers="512" runtime="5" division="object">
+                <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="read_10MB_1024T">
+            <work name="read_10MB_1024T" workers="1024" runtime="5" division="object">
+                <operation type="read" ratio="100" config="containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+
+        <!-- Mixed 10MB -->
+        <workstage name="mixed_10MB_1T">
+            <work name="mixed_10MB_1T" workers="1" runtime="5" division="object">
+                <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
+                <operation type="write" ratio="50" config="sizes=c(10)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="mixed_10MB_2T">
+            <work name="mixed_10MB_1T" workers="2" runtime="5" division="object">
+                <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
+                <operation type="write" ratio="50" config="sizes=c(10)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="mixed_10MB_4T">
+            <work name="mixed_10MB_1T" workers="4" runtime="5" division="object">
+                <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
+                <operation type="write" ratio="50" config="sizes=c(10)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="mixed_10MB_8T">
+            <work name="mixed_10MB_1T" workers="8" runtime="5" division="object">
+                <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
+                <operation type="write" ratio="50" config="sizes=c(10)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="mixed_10MB_16T">
+            <work name="mixed_10MB_16T" workers="16" runtime="5" division="object">
+                <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
+                <operation type="write" ratio="50" config="sizes=c(10)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="mixed_10MB_32T">
+            <work name="mixed_10MB_32T" workers="32" runtime="5" division="object">
+                <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
+                <operation type="write" ratio="50" config="sizes=c(10)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="mixed_10MB_64T">
+            <work name="mixed_10MB_64T" workers="64" runtime="5" division="object">
+                <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
+                <operation type="write" ratio="50" config="sizes=c(10)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="mixed_10MB_128T">
+            <work name="mixed_10MB_128T" workers="128" runtime="5" division="object">
+                <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
+                <operation type="write" ratio="50" config="sizes=c(10)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="mixed_10MB_256T">
+            <work name="mixed_10MB_256T" workers="256" runtime="5" division="object">
+                <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
+                <operation type="write" ratio="50" config="sizes=c(10)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="mixed_10MB_512T">
+            <work name="mixed_10MB_512T" workers="512" runtime="5" division="object">
+                <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
+                <operation type="write" ratio="50" config="sizes=c(10)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+        <workstage name="mixed_10MB_1024T">
+            <work name="mixed_10MB_1024T" workers="1024" runtime="5" division="object">
+                <operation type="read" ratio="50" config="containers=r(1,1);objects=r(1,100000);"/>
+                <operation type="write" ratio="50" config="sizes=c(10)MB;containers=r(1,1);objects=r(1,100000);"/>
+            </work>
+        </workstage>
+
+        <!-- Clean Up Stage -->
+        <workstage name="cleanup">
+        <work type="cleanup" workers="512" config="containers=r(1,1);objects=r(1,100000)" />
+        </workstage>
+
+        <!-- Disposal Stage -->
+        <workstage name="dispose">
+        <work type="dispose" workers="1" config="containers=r(1,1)" />
+        </workstage>
+    </workflow>
+</workload>
