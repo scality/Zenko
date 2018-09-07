@@ -14,4 +14,4 @@ sources:
 - https://github.com/Yolean/kubernetes-kafka
 - https://github.com/confluentinc/cp-docker-images
 - https://github.com/apache/kafka
-version: 0.9.1-Z
+version: 0.9.2-Z
