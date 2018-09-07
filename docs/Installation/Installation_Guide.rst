@@ -4,8 +4,9 @@
    subdirectory
    Todo
 
+==================
 Installation Guide
-++++++++++++++++++
+==================
 
 While it is possible to run Zenko on a single machine, it's designed for
 cluster operation. If you can set up a Kubernetes cluster on your own, review
@@ -31,10 +32,7 @@ Setting up a testing cluster requires at least three machines (these can be
 VMs) running CentOS_ 7.4 (or higher)(The recommended mimimum for Zenko
 production service is five server nodes with three masters/etcds, but for
 testing and familiarization, three masters and three nodes is fine). You must
-have SSH
-access to these machines and they must have SSH access to each other. (You
-can copy SSH credentials from one machine to the next and log in once to
-ensure each machine has been added to the others' recognized hosts lists).
+have SSH access to these machines and they must have SSH access to each other.
 Each machine acting as a Kubernetes_ node must also have at least one disk
 available to provision storage volumes.
 
@@ -76,13 +74,15 @@ Reserve the following resources for each node.
 
    -  200 GB persistent volume per node minimum
 
-      **Note:** This requirement is for storage, not for the system device.
-      You may have to attach a separate storage volume to your cloud server
-      instance. Storage volumes must match or exceed the maximum anticipated
-      demand. Once set, the cluster cannot be resized without redefining new
-      volumes.
+   .. note::
 
-All servers must be in CentOS 7.4 or later, and must be ssh-accessible.
+    This requirement is for storage, not for the system device.
+    You may have to attach a separate storage volume to your cloud server
+    instance. Storage volumes must match or exceed the maximum anticipated
+    demand. Once set, the cluster cannot be resized without redefining new
+    volumes.
+
+All servers must run CentOS 7.4 or later, and must be ssh-accessible.
 
 Proxies
 =======
@@ -99,26 +99,23 @@ If you are behind a proxy, add the following lines to your local machine’s
 Installing Zenko
 ################
 
+=======
 Set up a cluster of five nodes conforming to the specifications listed above.
 If you are using MetalK8s, do this by downloading the latest stable MetalK8s
 source code from the MetalK8s releases page: 
 https://github.com/scality/metalk8s/releases. Follow the Quickstart guide
 (in docs/usage/quickstart.rst) to install MetalK8s on your cluster.
 
-Use a Fresh Cluster
-===================
-
-If you are installing Zenko on a fresh cluster, the following instructions
-are sufficient. If, however, you are reinstalling Zenko on an existing cluster
-(while assessing or testing Zenko, for example), it is a best practice to use
-a fresh cluster.
 
 Get Ready
 *********
 
+.. note ::
+
+   It is a best practice to install Zenko on a fresh cluster.
+
 1. If you are using MetalK8s, use the MetalK8s virtual shell. Change to the
    directory from which you will deploy Zenko:
-
    ::
 
     $ cd
@@ -127,7 +124,6 @@ Get Ready
    Zenko/docs/gke.md to install Helm on your cluster.
 
 2. Initialize Helm:
-
    ::
 
     (metal-k8s) [centos@node01 ~]$ helm init
@@ -150,7 +146,6 @@ Get Ready
    Helm can now install applications on the Kubernetes cluster.
 
 3. Clone the latest Zenko version:
-
    ::
 
     $ git clone https://github.com/scality/Zenko.git
@@ -166,24 +161,25 @@ Install Zenko
 
 Helm installs Zenko using packages of Kubernetes resource definitions known as
 charts. These charts, which Helm follows for each Zenko component, can be found
-under kubernetes/zenko/charts. For each component there is a Chart.yaml file
-and a values.yaml file. Helm reads the Chart.yaml file to establish such basic
-installation attributes as name and version number, and reads the values file
-for instructions on how to deploy and configure the component. Though manually
-editing the default settings in values.yaml is possible, it is much better to
-write configuration changes and options to
-:file:`Zenko/kubernetes/charts/options.yml`, which Helm can use to
+under zenko/kubernetes/zenko/charts. For each component there is a Chart.yaml
+file and a values.yaml file. Helm reads the Chart.yaml file to establish such
+basic installation attributes as name and version number, and reads the values
+file for instructions on how to deploy and configure the component. Though
+manually editing the default settings in values.yaml is possible, it is much
+better to write configuration changes and options to
+:file:`zenko/kubernetes/zenko/options.yml`, which Helm can use to
 overwrite the default settings presented in the charts.
 
 Follow these steps to install Zenko with Ingress.
 
-(**Note:** The following example is for a configuration usingthe NGINX ingress
-controller. If you are using a different ingress controller, substitute
-parameters as appropriate.)
+.. Note::
+
+   The following example is for a configuration using the NGINX ingress
+   controller. If you are using a different ingress controller, substitute
+   parameters as appropriate.
 
 1. Create an options.yml file in Zenko/kubernetes/ to store deployment
    parameters. Enter the following parameters:
-
    ::
 
     ingress:
@@ -199,10 +195,13 @@ parameters as appropriate.)
    You can edit these parameters, using each component’s values.yaml file
    as your guide. Save this file.
 
-2. If your Zenko instance is behind a proxy, add the following
-   lines to the options.yml file, substituting your proxy’s IP addresses and
-   port assignments:
+2. To configure the ingress controller for HTTPS, go to “`Configuring HTTPS_
+   Ingress for Zenko`_” for additional terms to add to this chart.
 
+.. _HTTPS: ./configure_ingress
+
+3. If your Zenko instance is behind a proxy, add the following lines to the
+   options.yml file, entering your proxy’s IP addresses and port assignments:
    ::
 
     cloudserver:
@@ -212,22 +211,22 @@ parameters as appropriate.)
         caCert: false
         no_proxy: ""
 
-   If the HTTP proxy endpoint is set and the HTTPS one is not, the
-   HTTP proxy will be used for HTTPS traffic as well.
+   If the HTTP proxy endpoint is set and the HTTPS one is not, the HTTP proxy
+   will be used for HTTPS traffic as well.
 
-   **Note:** To avoid unexpected behavior, only specify one of the
-   "http" or "https" proxy options.
+.. note::
 
-3. Perform the following Helm installation from the kubernetes directory
+    To avoid unexpected behavior, only specify one of the "http" or
+    "https" proxy options.
 
+4. Perform the following Helm installation from the kubernetes directory
    ::
 
     $ helm install --name my-zenko -f options.yml zenko
 
    If the command is successful, the output from Helm is extensive.
 
-4. To see K8s’s progress creating pods for Zenko, the command:
-
+5. To see K8s’s progress creating pods for Zenko, the command:
    ::
 
     $ kubectl get pods -n default -o wide
@@ -237,9 +236,8 @@ parameters as appropriate.)
    expected behavior, because there is no launch order between pods.
    After a few minutes, all pods will enter Running mode.
 
-5. To register your Zenko instance for Orbit access, get your
+6. To register your Zenko instance for Orbit access, get your
    CloudServer’s name
-
    ::
 
     $ kubectl get -n default pods | grep cloudserver
@@ -247,14 +245,12 @@ parameters as appropriate.)
     my-zenko-cloudserver-manager-c76d6f96f-qrb9d      1/1   Running   0       3m
 
    Then grab your CloudServer’s logs with the command:
-
    ::
 
      $ kubectl logs my-zenko-cloudserver-<id> | grep 'Instance ID'
 
 
    Using the present sample values, this command returns:
-
    ::
 
      $ kubectl logs my-zenko-cloudserver-76f657695-j25wq | grep 'Instance ID'
@@ -266,12 +262,12 @@ parameters as appropriate.)
 
    Copy the instance ID.
 
-6. Open https://admin.zenko.io/user in a web browser. You may be prompted to
+7. Open https://admin.zenko.io/user in a web browser. You may be prompted to
    authenticate through Google.
 
-7. Click the **Register My Instance** button.
+8. Click the **Register My Instance** button.
 
-8. Paste the instance ID into the Instance ID dialog. Name the instance what
+9. Paste the instance ID into the Instance ID dialog. Name the instance what
    you will.
 
 Your instance is registered.
