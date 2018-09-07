@@ -108,6 +108,5 @@ data:
         update_config
     fi
     echo "{{ .Values.redis.masterGroupName }}" > /data/conf/group_name
-    chown -R {{ .Values.securityContext.runAsUser }}:{{ .Values.securityContext.fsGroup }} /data/
     echo "Ready..."
 {{- end }}
