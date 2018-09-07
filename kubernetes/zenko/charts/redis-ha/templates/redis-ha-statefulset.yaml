@@ -67,7 +67,7 @@ spec:
             command: ["redis-cli", "ping"]
           initialDelaySeconds: 15
           periodSeconds: 5
-        readiness:
+        readinessProbe:
           exec:
             command: ["redis-cli", "ping"]
           initialDelaySeconds: 15
@@ -93,7 +93,7 @@ spec:
             command: ["redis-cli", "-p", "{{ .Values.sentinel.port }}", "ping"]
           initialDelaySeconds: 15
           periodSeconds: 5
-        readiness:
+        readinessProbe:
           exec:
             command: ["redis-cli", "-p", "{{ .Values.sentinel.port }}", "ping"]
           initialDelaySeconds: 15
