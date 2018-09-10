@@ -1,4 +1,4 @@
-.. spelling::
+m+.. spelling::
 
    Quickstart
    subdirectory
@@ -31,9 +31,8 @@ Setting up a testing cluster requires at least three machines (these can be
 VMs) running CentOS_ 7.4 (or higher)(The recommended mimimum for Zenko
 production service is five server nodes with three masters/etcds, but for
 testing and familiarization, three masters and three nodes is fine). You must
-have SSH
-access to these machines and they must have SSH access to each other. (You
-can copy SSH credentials from one machine to the next and log in once to
+have SSH access to these machines and they must have SSH access to each other.
+(You can copy SSH credentials from one machine to the next and log in once to
 ensure each machine has been added to the others' recognized hosts lists).
 Each machine acting as a Kubernetes_ node must also have at least one disk
 available to provision storage volumes.
@@ -82,7 +81,7 @@ Reserve the following resources for each node.
       demand. Once set, the cluster cannot be resized without redefining new
       volumes.
 
-All servers must be in CentOS 7.4 or later, and must be ssh-accessible.
+All servers must run CentOS 7.4 or later, and must be ssh-accessible.
 
 Proxies
 =======
@@ -171,7 +170,7 @@ overwrite the default settings presented in the charts.
 
 Follow these steps to install Zenko with Ingress.
 
-(**Note:** The following example is for a configuration usingthe NGINX ingress
+(**Note:** The following example is for a configuration using the NGINX ingress
 controller. If you are using a different ingress controller, substitute
 parameters as appropriate.)
 
@@ -193,7 +192,12 @@ parameters as appropriate.)
    You can edit these parameters, using each component’s values.yaml file
    as your guide. Save this file.
 
-2. If your Zenko instance is behind a proxy, add the following
+2. To configure the ingress controller for HTTPS, go to “Configuring HTTPS_
+   Ingress for Zenko”. There will be additional terms to add to this chart.
+
+.. _HTTPS: ./configure_ingress
+
+3. If your Zenko instance is behind a proxy, add the following
    lines to the options.yml file, substituting your proxy’s IP addresses and
    port assignments:
 
@@ -212,7 +216,7 @@ parameters as appropriate.)
    **Note:** To avoid unexpected behavior, only specify one of the
    "http" or "https" proxy options.
 
-3. Perform the following Helm installation from the kubernetes directory
+4. Perform the following Helm installation from the kubernetes directory
 
    ::
 
@@ -220,7 +224,7 @@ parameters as appropriate.)
 
    If the command is successful, the output from Helm is extensive.
 
-4. To see K8s’s progress creating pods for Zenko, the command:
+5. To see K8s’s progress creating pods for Zenko, the command:
 
    ::
 
@@ -231,7 +235,7 @@ parameters as appropriate.)
    expected behavior, because there is no launch order between pods.
    After a few minutes, all pods will enter Running mode.
 
-5. To register your Zenko instance for Orbit access, get your
+6. To register your Zenko instance for Orbit access, get your
    CloudServer’s name
 
    ::
@@ -260,12 +264,12 @@ parameters as appropriate.)
 
    Copy the instance ID.
 
-6. Open https://admin.zenko.io/user in a web browser. You may be prompted to
+7. Open https://admin.zenko.io/user in a web browser. You may be prompted to
    authenticate through Google.
 
-7. Click the **Register My Instance** button.
+8. Click the **Register My Instance** button.
 
-8. Paste the instance ID into the Instance ID dialog. Name the instance what
+9. Paste the instance ID into the Instance ID dialog. Name the instance what
    you will.
 
 Your instance is registered.

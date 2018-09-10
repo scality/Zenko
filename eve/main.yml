@@ -1,7 +1,9 @@
 version: "0.2"
 
 branches:
-  default:
+  improvement/doc*:
+    stage: "docs"
+  feature/*, improvement/*, bugfix/*, w/*, q/*, hotfix/*:
     stage: "pre-merge"
 
 models:
@@ -100,6 +102,13 @@ models:
       <<: [*secrets_env, *docker_env, *k8s_env]
 
 stages:
+  docs:
+    worker:
+      type: local
+    steps:
+      - ShellCommand:
+          command: echo test
+
   pre-merge:
     worker:
       type: local
