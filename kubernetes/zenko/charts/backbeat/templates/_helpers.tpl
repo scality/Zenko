@@ -35,16 +35,34 @@ Create chart name and version as used by the chart label.
 Create the default mongodb replicaset hosts string
 */}}
 {{- define "backbeat.mongodb-hosts" -}}
-{{- $count := (atoi (printf "%d" (int64 .Values.mongodb.replicas))) -}}
+{{- $count := (int ( default .Values.global.nodeCount .Values.mongodb.replicas)) -}}
 {{- $release := .Release.Name -}}
 {{- range $v := until $count }}{{ $release }}-mongodb-replicaset-{{ $v }}.{{ $release }}-mongodb-replicaset:27017{{ if ne $v (sub $count 1) }},{{- end -}}{{- end -}}
+{{- end -}}
+
+{{/*
+Create default queue hosts string
+*/}}
+{{- define "backbeat.queue-hosts" -}}
+{{- $count := (int (default .Values.global.nodeCount .Values.queue.replicas)) -}}
+{{- $release := .Release.Name -}}
+{{- range $v := until $count }}{{ $release }}-zenko-queue-{{ $v }}.{{ $release }}-zenko-queue-headless:9092{{ if ne $v (sub $count 1) }},{{- end -}}{{- end -}}
+{{- end -}}
+
+{{/*
+Create default quorum hosts string
+*/}}
+{{- define "backbeat.quorum-hosts" -}}
+{{- $count := (int (default .Values.global.nodeCount .Values.quorum.replicas)) -}}
+{{- $release := .Release.Name -}}
+{{- range $v := until $count }}{{ $release }}-zenko-quorum-{{ $v }}.{{ $release }}-zenko-quorum-headless:2181{{ if ne $v (sub $count 1) }},{{- end -}}{{- end -}}
 {{- end -}}
 
 {{/*
 Create the default redis sentinels hosts string
 */}}
 {{- define "backbeat.redis-hosts" -}}
-{{- $count := (int .Values.redis.replicas) -}}
+{{- $count := (int (default .Values.global.nodeCount .Values.redis.replicas)) -}}
 {{- $release := .Release.Name -}}
 {{- range $v := until $count }}{{ $release }}-redis-ha-server-{{ $v }}.{{ $release }}-redis-ha:26379{{ if ne $v (sub $count 1) }},{{- end -}}{{- end -}}
 {{- end -}}
@@ -53,6 +71,6 @@ Create the default redis sentinels hosts string
 Create the default replicaCount for backbeat replication data processors
 */}}
 {{- define "backbeat.replication.dataProcessor.replicaCount" -}}
-{{- $count := mul .Values.replication.dataProcessor.replicaFactor .Values.replication.dataProcessor.replicaCount -}}
+{{- $count := mul .Values.replication.dataProcessor.replicaFactor (default .Values.global.nodeCount .Values.replication.dataProcessor.replicaCount) -}}
 {{- printf "%d" $count }}
 {{- end -}}

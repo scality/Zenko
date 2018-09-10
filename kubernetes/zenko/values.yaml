@@ -1,11 +1,18 @@
 # Default values for zenko.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-
-# By default, MongoDB, Redis-HA, Zenko-Queue, and Zenko-Quorum
-# will use this value for their replica count. Typically, this
-# is equivalent to the number of nodes in a Kubernetes Cluster.
-nodeCount: &nodeCount 3
+global:
+  # By default, MongoDB, Redis-HA, Zenko-Queue, and Zenko-Quorum
+  # will use this value for their replica count. Typically, this
+  # is equivalent to the number of nodes in a Kubernetes Cluster.
+  nodeCount: &nodeCount 3
+  orbit:
+    enabled: true
+    endpoint: https://api.zenko.io
+    # When 'orbit.enabled' is 'true', these aren't used, please use
+    # https://zenko.io to manage your deployment
+  locationConstraints: {}
+  replicationEndpoints: []
 
 ingress:
   enabled: false
@@ -24,20 +31,9 @@ ingress:
     #   hosts:
     #     - zenko.example.com
 
-global:
-  orbit:
-    enabled: true
-    endpoint: https://api.zenko.io
-    # When 'orbit.enabled' is 'true', these aren't used, please use
-    # https://zenko.io to manage your deployment
-  locationConstraints: {}
-  replicationEndpoints: []
-
 cloudserver:
   replicaCount: *nodeCount
   replicaFactor: 10
-  mongodb:
-    replicas: *nodeCount
   endpoint: zenko.local
   users: {}
     # accountName:
@@ -61,13 +57,9 @@ backbeat:
       replicaCount: *nodeCount
   ingestion:
     enabled: false
-  mongodb:
-    replicas: *nodeCount
 
 zenko-nfs:
   enabled: false
-  mongodb:
-    replicas: *nodeCount
 
 prometheus:
   rbac:

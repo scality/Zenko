@@ -3,6 +3,7 @@
 # Declare variables to be passed into your templates.
 
 global:
+  nodeCount: 3
   orbit:
     enabled: true
     endpoint: https://api.zenko.io
@@ -68,18 +69,15 @@ env: {}
 
 mongodb:
   replicaSet: rs0
-  replicas: 3
 
 redis:
   sentinel:
     name: zenko
-  replicas: 3
 
 # Replication factor will deploy n * replicaCount for deployments that need
 # not only HA but high performance and throughput. When Orbit is enabled, there
 # will be an additional stateless single manager pod deployed which serves as the
 # "manager" for reporting metrics. This manager pod currently cannot scale replicas.
-replicaCount: 3
 replicaFactor: 1
 
 image:
