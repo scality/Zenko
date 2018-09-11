@@ -2,4 +2,4 @@ apiVersion: v1
 appVersion: "8.0.12"
 description: A Helm chart for Zenko Backbeat
 name: backbeat
-version: 1.0.0-RC6
+version: 1.0.0-RC7
