@@ -1,6 +1,7 @@
 const assert = require('assert');
 const crypto = require('crypto');
 const { doWhilst, series } = require('async');
+const Redis = require('ioredis');
 
 const { scalityS3Client, awsS3Client } = require('../../../s3SDK');
 const sharedBlobSvc = require('../../azureSDK');
@@ -26,6 +27,8 @@ const REPLICATION_TIMEOUT = 300000;
 
 function getAndCheckResponse(path, expectedBody, cb) {
     let shouldContinue = false;
+    process.stdout.write('\nExpect:\n')
+    process.stdout.write(JSON.stringify(expectedBody));
     return doWhilst(next =>
         makeGETRequest(path, (err, res) => {
             if (err) {
@@ -36,6 +39,8 @@ function getAndCheckResponse(path, expectedBody, cb) {
                 if (err) {
                     return next(err);
                 }
+                process.stdout.write('\nAttempt:\n')
+                process.stdout.write(JSON.stringify(body));
                 shouldContinue =
                     JSON.stringify(body) !== JSON.stringify(expectedBody);
                 return setTimeout(next, 2000);
@@ -105,9 +110,23 @@ describe('Backbeat replication metrics route validation', function dF() {
                     const resultKeys = Object.keys(data.results);
                     assert(resultKeys.includes('count'));
                     assert(resultKeys.includes('size'));
-                    return done()
+                    return done();
                 });
             });
+        });
+    });
+
+    it('TESTING REDIS', done => {
+        const redis = new Redis();
+        redis.keys('*', (err, res) => {
+            if (err) {
+                process.stdout.write('\nERRROR\n')
+                process.stdout.write(JSON.stringify(err));
+            } else {
+                process.stdout.write('\nRES:\n');
+                process.stdout.write(JSON.stringify(res));
+            }
+            done()
         });
     });
 });
@@ -131,6 +150,7 @@ describe('Backbeat replication metrics data', function dF() {
     ], done));
 
     it.skip('should report metrics when replication occurs', done => {
+        let prevBacklog;
         let prevCompletions;
         let prevThroughput;
         series([
@@ -151,6 +171,7 @@ describe('Backbeat replication metrics data', function dF() {
                 assert.ifError(err);
                 getResponseBody(res, (err, body) => {
                     assert.ifError(err);
+                    prevBacklog = body.backlog.results;
                     prevCompletions = body.completions.results;
                     prevThroughput = body.throughput.results;
                     next();
@@ -162,40 +183,33 @@ describe('Backbeat replication metrics data', function dF() {
             next => scalityUtils.waitUntilReplicated(srcBucket, key, undefined,
                 next),
             next => {
-                const expectedBody = {
-                    completions: {
-                        description: 'Number of completed replication ' +
-                        'operations (count) and number of bytes transferred ' +
-                        '(size) in the last 900 seconds',
-                        results: {
-                            count: prevCompletions.count + 2,
-                            size: prevCompletions.size + 200,
-                        },
-                    },
+                const minCount = prevCompletions.count + 2;
+                const minSize = prevCompletions.size + 200;
+                const expectedResult = {
+                    type: 'completions',
+                    minCount,
+                    maxCount: minCount + prevBacklog.count,
+                    minSize,
+                    maxSize: minSize + prevBacklog.size,
                 };
-                // Just make sure completions has been incremented. We know if
-                // completions matches, all other data should be as well
+                // Just check if completions has incremented by given sizes
                 getAndCheckResponse(`${pathPrefix}/all/completions`,
-                    expectedBody, next);
+                    expectedResult, next);
             },
             next => {
-                const expectedBody = {
-                    throughput: {
-                        description: 'Current throughput for replication ' +
-                        'operations in ops/sec (count) and bytes/sec (size) ' +
-                        'in the last 900 seconds',
-                        results: {
-                            count: (parseFloat(prevThroughput.count) +
-                                (2 / 900)).toFixed(2),
-                            size: (parseFloat(prevThroughput.size) +
-                                (200 / 900)).toFixed(2),
-                        },
-                    },
+                const minCount = parseFloat(prevThroughput.count + (2 / 900));
+                const minSize = parseFloat(prevThroughput.size + (200 / 900));
+                const expectedResult = {
+                    type: 'throughput',
+                    minCount,
+                    maxCount: minCount + parseFloat(prevBacklog.count),
+                    minSize,
+                    maxSize: minSize + parseFloat(prevBacklog.size),
                 };
-                // Just make sure completions has been incremented. We know if
+                // Just check if completions has been incremented. We know if
                 // completions matches, all other data should be as well
                 getAndCheckResponse(`${pathPrefix}/all/throughput`,
-                    expectedBody, next);
+                    expectedResult, next);
             },
         ], done);
     });
