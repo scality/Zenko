@@ -7,7 +7,7 @@ env:
   - name: REDIS_PORT
     value: "6379"
   - name: REDIS_SENTINELS
-    value: "{{ template "backbeat.redis-hosts" . }}"
+    value: "{{ template "cloudserver.redis-hosts" . }}"
   - name: REDIS_HA_NAME
     value: "{{ .Values.redis.sentinel.name }}"
   - name: CRR_METRICS_HOST
