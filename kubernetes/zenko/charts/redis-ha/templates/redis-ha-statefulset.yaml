@@ -34,17 +34,47 @@ spec:
       tolerations:
 {{ toYaml .Values.tolerations | indent 8 }}
       {{- end }}
+      {{- if eq .Values.podAntiAffinity "hard" }}
       affinity:
-{{ tpl .Values.affinity . | indent 8 }}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                app: {{ template "redis-ha.name" . }}
+                release: {{ .Release.Name }}
+                component: server
+            topologyKey: kubernetes.io/hostname
+      {{- else if eq .Values.podAntiAffinity "soft" }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: {{ template "redis-ha.name" . }}
+                  release: {{ .Release.Name }}
+                  component: server
+              topologyKey: kubernetes.io/hostname
+      {{- end }}
       securityContext:
 {{ toYaml .Values.securityContext | indent 8 }}
       initContainers:
       - name: config-init
-        image: {{ .Values.image }}:{{ .Values.tag }}
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
         command:
-          - "bash"
-          - "/readonly-config/init.bash"
+          - bash
+        args:
+          - /readonly-config/init.bash
         env:
+{{- if .Values.auth }}
+          - name: AUTH
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "redis-ha.fullname" . }}
+                key: auth
+{{- end }}
           - name: POD_IP
             valueFrom:
               fieldRef:
@@ -57,7 +87,8 @@ spec:
             mountPath: /data
       containers:
       - name: redis
-        image: {{ .Values.image }}:{{ .Values.tag }}
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
         command:
           - redis-server
         args:
@@ -81,7 +112,8 @@ spec:
           - mountPath: /data
             name: data
       - name: sentinel
-        image: {{ .Values.image }}:{{ .Values.tag }}
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
         command:
           - redis-sentinel
         args:

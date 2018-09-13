@@ -161,10 +161,10 @@ zenko-quorum:
 
 redis-ha:
   enabled: true
-  redis_image: zenko/redis-ha:4.0.10-r1
-  rbac:
-    create: true
   replicas: *nodeCount
+  redis:
+    masterGroupName: zenko
+  podAntiAffinity: hard
 
 grafana:
   sidecar:
