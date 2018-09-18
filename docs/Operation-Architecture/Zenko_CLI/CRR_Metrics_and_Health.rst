@@ -44,9 +44,24 @@ To show all metrics for all sites, set {{location-name}} to “all”.
 | All Metrics | Returns a collection of all     | http://zenko.local/_/backbeat/api/metrics/crr/{{location-name}}            |
 |             | metrics listed below.           |                                                                            |
 +-------------+---------------------------------+----------------------------------------------------------------------------+
+| Pending     | Returns pending replication     | http://zenko.local/\_/backbeat/api/metrics/crr/{{location-name}}/pending   |
+|             | in number of objects and number |                                                                            |
+|             | of total bytes. The bytes total |                                                                            |
+|             | represents data only and does   |                                                                            |
+|             | not include the size of         |                                                                            |
+|             | metadata.                       |                                                                            |
+|             |                                 |                                                                            |
+|             | Pending replication represents  |                                                                            |
+|             | the objects that have been      |                                                                            |
+|             | queued up to be replicated to   |                                                                            |
+|             | another site, but the           |                                                                            |
+|             | replication task has not yet    |                                                                            |
+|             | been completed or failed for    |                                                                            |
+|             | that object.                    |                                                                            |
++-------------+---------------------------------+----------------------------------------------------------------------------+
 | Backlog     | Returns the replication backlog | http://zenko.local/\_/backbeat/api/metrics/crr/{{location-name}}/backlog   |
 |             | in number of objects and number |                                                                            |
-|             | of total MB. The MB total       |                                                                            |
+|             | of total bytes. The bytes total |                                                                            |
 |             | represents data only and does   |                                                                            |
 |             | not include the size of         |                                                                            |
 |             | metadata.                       |                                                                            |
@@ -56,27 +71,28 @@ To show all metrics for all sites, set {{location-name}} to “all”.
 |             | queued up to be replicated to   |                                                                            |
 |             | another site, but the           |                                                                            |
 |             | replication task has not yet    |                                                                            |
-|             | been completed for that object. |                                                                            |
+|             | been completed or failed for    |                                                                            |
+|             | that object.                    |                                                                            |
 +-------------+---------------------------------+----------------------------------------------------------------------------+
-| Completions | Returns the replication         | http://zenko.local/_/backbeat/api/metrics/crr/{location-name}/completions/ |
+| Completions | Returns the replication         | http://zenko.local/_/backbeat/api/metrics/crr/{location-name}/completions  |
 |             | completions in number of objects|                                                                            |
-|             | and number of total MB          |                                                                            |
-|             | transferred. The MB total       |                                                                            |
+|             | and number of total bytes       |                                                                            |
+|             | transferred. The bytes total    |                                                                            |
 |             | represents data only and        |                                                                            |
 |             | does not include the size of    |                                                                            |
 |             | metadata.                       |                                                                            |
 |             |                                 |                                                                            |
 |             | Completions are only collected  |                                                                            |
 |             | up to an \`EXPIRY\` time, which |                                                                            |
-|             | is set to a default of 15       |                                                                            |
-|             | minutes.                        |                                                                            |
+|             | is set to a default of 24       |                                                                            |
+|             | hours.                          |                                                                            |
 +-------------+---------------------------------+----------------------------------------------------------------------------+
 | Throughput  | Returns the current throughput  | http://zenko.local/_/backbeat/api/metrics/crr/{{location-name}}/throughput |
 |             | in number of operations per     |                                                                            |
 |             | second (or number of objects    |                                                                            |
 |             | replicating per second) and     |                                                                            |
-|             | number of total MB completing   |                                                                            |
-|             | per second.                     |                                                                            |
+|             | number of total bytes           |                                                                            |
+|             | completing per second.          |                                                                            |
 +-------------+---------------------------------+----------------------------------------------------------------------------+
 
 Replication Status
@@ -88,11 +104,11 @@ PROCESSING to COMPLETED or FAILED.
 
 **ReplicationStatus**
 
--  PENDING: CRR to all backends is in progress.
+-  PENDING: CRR to all backends is pending.
 -  PROCESSING: At least one backend has completed and is waiting for
    other backend(s) to finish.
 -  COMPLETED: All backends report a completed status.
--  FAILED: At least one backend failed
+-  FAILED: At least one backend failed.
 
 Each backend’s replication status is reported as user metadata.
 
@@ -250,15 +266,27 @@ Healthcheck Request:
       }
     ]
 
+Pending Request:
+
+::
+
+    "pending":{
+      "description":"Number of pending replication operations (count) and bytes (size)",
+      "results":{
+        "count":0,
+        "size":0
+      }
+    }
+
 Backlog Request:
 
 ::
 
     "backlog":{
-      "description":"Number of incomplete replication operation (count) and number of incomplete MB transferred (size)",
+      "description":"Number of incomplete replication operations (count) and number of incomplete bytes transferred (size)",
       "results":{
-        "count":4,
-        "size":"6.12"
+        "count":0,
+        "size":0
       }
     }
 
@@ -267,10 +295,10 @@ Completions Request:
 ::
 
     "completions":{
-      "description":"Number of completed replication operations (count) and number of MB transferred (size) in the last 900 seconds",
+      "description":"Number of completed replication operations (count) and number of bytes transferred (size) in the last 86400 seconds",
       "results":{
-        "count":31,
-        "size":"47.04"
+        "count":0,
+        "size":0
       }
     }
 
@@ -279,7 +307,7 @@ Throughput Request:
 ::
 
     "throughput":{
-      "description":"Current throughput for replication operations in ops/sec (count) and MB/sec (size)",
+      "description":"Current throughput for replication operations in ops/sec (count) and bytes/sec (size) in the last 900 seconds",
       "results":{
         "count":"0.00",
         "size":"0.00"
