@@ -99,6 +99,11 @@ If you are behind a proxy, add the following lines to your local machine’s
 Installing Zenko
 ################
 
+Set up a cluster of five nodes conforming to the specifications listed above.
+If you are using MetalK8s, do this by cloning the MetalK8s repo from
+https://github.com/scality/metalk8s. Follow the Quickstart guide (in
+docs/usage/quickstart.rst) to install Kubernetes on your cluster.
+
 Use a Fresh Cluster
 ===================
 
