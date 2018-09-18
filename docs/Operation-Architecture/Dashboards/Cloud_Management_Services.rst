@@ -1,11 +1,12 @@
 Cloud Management Services
 =========================
 
-Zenko operates in the context of a Kubernetes cluster. This provides
-numerous opportunities to interact with third-party systems for
-monitoring and managing the cluster and the data Zenko manages there.
+Zenko operates in the context of a Kubernetes cluster. In combination
+with MetalK8s this provides numerous opportunities to interact with
+third-party systems for monitoring and managing the cluster and the
+data Zenko manages there.
 
-The following default Zenko services offer dashboard access to help you
+The following default MetalK8s services offer dashboard access to help you
 understand what’s going on in your cluster:
 
 -  `Kubernetes`_
@@ -15,7 +16,7 @@ understand what’s going on in your cluster:
 
 While these projects are independent of Zenko, and their operation
 exceeds scope for this document, this section offers a description of
-how to access them from Zenko.
+how to access them from a cluster deployed via MetalK8s.
 
 Next: `Accessing Cloud Dashboards`_
 

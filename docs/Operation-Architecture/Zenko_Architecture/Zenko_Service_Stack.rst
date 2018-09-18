@@ -52,7 +52,7 @@ The UI runs in the cloud and is hosted by Scality.
 
 CLI
 
-CloudServer accepts commands from command-line interfaces.
+CloudServer accepts requests from command-line interfaces such as aws-cli.
 
 NFS
 
@@ -76,8 +76,8 @@ This service provides SMB support.
 
 Local storage
 
-For locally attached storage, S3 data is used on an external NFS mount
-point.
+For locally attached storage, S3 data is the default local storage that
+can be backed by an external NFS mount point.
 
 Local RING / sproxyd
 
@@ -86,7 +86,8 @@ to an sproxyd RING.
 
 Semi-Structured Data (and MD) Analytics (Spark)
 
-Advanced big-data analytics on data (with S3) and metadata.
+Advanced big-data analytics on data can be done via Spark integrations with
+Cloudserver.
 
 These services and their likely use cases are described in the sections
 that follow.

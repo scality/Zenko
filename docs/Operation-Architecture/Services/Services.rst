@@ -1,7 +1,7 @@
 Services
 ========
 
-Zenko Enterprise offers the following services as Backbeat extensions:
+Zenko offers the following services as Backbeat extensions:
 
 -  `Replication Services`_
 -  `Lifecycle Service`_

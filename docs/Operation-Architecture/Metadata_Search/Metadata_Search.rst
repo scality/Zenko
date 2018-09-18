@@ -28,7 +28,7 @@ The search process is as follows:
    ::
 
        GET /bucketname?search=key%3Dsearch-item HTTP/1.1
-       Host: 127.0.0.1:8000
+       Host: zenko.local:80
        Date: Wed, 18 Oct 2018 17:50:00 GMT
        Authorization: <authorization string>
 
