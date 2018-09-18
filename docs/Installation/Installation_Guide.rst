@@ -100,9 +100,10 @@ Installing Zenko
 ################
 
 Set up a cluster of five nodes conforming to the specifications listed above.
-If you are using MetalK8s, do this by cloning the MetalK8s repo from
-https://github.com/scality/metalk8s. Follow the Quickstart guide (in
-docs/usage/quickstart.rst) to install Kubernetes on your cluster.
+If you are using MetalK8s, do this by downloading the latest stable MetalK8s
+source code from the MetalK8s releases page: 
+https://github.com/scality/metalk8s/releases. Follow the Quickstart guide
+(in docs/usage/quickstart.rst) to install MetalK8s on your cluster.
 
 Use a Fresh Cluster
 ===================
