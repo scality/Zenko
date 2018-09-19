@@ -1,0 +1,58 @@
+{{- if not .Values.global.orbit.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "cloudserver.fullname" . }}-accounts
+  labels:
+    app: {{ template "cloudserver.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  authdata.json: |-
+    {
+      "accounts": [
+        {
+          {{ $id := randNumeric 12 }}
+          "name": "Lifecycle",
+          "email": "inspector@replication.info",
+          "arn": "{{ printf "arn:aws:iam::%s:root" $id }}",
+          "canonicalID": "http://acs.zenko.io/accounts/service/lifecycle",
+          "shortid": "{{ $id }}",
+          "keys": [{
+            "access": "",
+            "secret": ""
+          }]
+        },
+        {
+          {{ $id := randNumeric 12 }}
+          "name": "Replication",
+          "email": "inspector@lifecycle.info",
+          "arn": "{{ printf "arn:aws:iam::%s:root" $id }}",
+          "canonicalID": "http://acs.zenko.io/accounts/service/replication",
+          "shortid": "{{ $id }}",
+          "keys": [{
+            "access": "",
+            "secret": ""
+          }]
+        }
+        {{ $last := keys .Values.users | sortAlpha | last }}
+        {{- if $last -}},{{- end -}}
+        {{ range $user, $creds := .Values.users }}
+        {
+          {{ $id := randNumeric 12 }}
+          "name": "{{ $user }}",
+          "email": "{{ $user }}@zenko.info",
+          "arn": "{{ printf "arn:aws:iam::%s:root" $id }}",
+          "canonicalID": "{{ $user }}-canonicalID",
+          "shortid": "{{ $id }}",
+          "keys": [{
+            "access": "",
+            "secret": ""
+          }]
+        }
+        {{- if ne $user $last -}},{{- end }}
+        {{- end }}
+      ]
+    }
+{{- end }}

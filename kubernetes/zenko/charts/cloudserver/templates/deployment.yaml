@@ -1,0 +1,125 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "cloudserver.fullname" . }}
+  labels:
+    app: {{ template "cloudserver.name" . }}
+    chart: {{ template "cloudserver.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ template "cloudserver.replicaFactor" . }}
+  selector:
+    matchLabels:
+      app: {{ template "cloudserver.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      annotations:
+        {{- if .Values.proxy.https }}
+        checksum/config: {{ include (print $.Template.BasePath "/certificate.yaml") . | sha256sum }}
+        {{- end }}
+        {{- if not .Values.global.orbit.enabled }}
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/accounts.yaml") . | sha256sum }}
+        {{- end }}
+      labels:
+        app: {{ template "cloudserver.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      {{- if not .Values.global.orbit.enabled }}
+      initContainers:
+        - name: cloudserver-accounts
+          image: "zenko/tools:latest"
+          command:
+            - "sh"
+          args:
+            - "-c"
+            - |
+              set -e
+              set -x
+              jq -s '.[0] * .[1]' /user-credentials/credentials.json /service-credentials/credentials.json > /data/credentials.json
+              jq -s '. as [$ACCS, $KEYS] | $ACCS.accounts | map(.keys[0]={ access: $KEYS[.name].access, secret: $KEYS[.name].secret} ) | { accounts: . }' /accounts/authdata.json /data/credentials.json > /data/authdata.json
+          volumeMounts:
+            - name: accounts
+              mountPath: /accounts
+            - name: service-credentials
+              mountPath: /service-credentials
+            - name: user-credentials
+              mountPath: /user-credentials
+            - name: auth-config
+              mountPath: /data
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8000
+{{ include "cloudserver.env" . | indent 10 }}
+            {{- if .Values.global.orbit.enabled }}
+            - name: MANAGEMENT_MODE
+              value: "{{- .Values.global.orbit.workerMode -}}"
+            - name: PUSH_STATS
+              value: "false"
+            {{- end }}
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $key | upper | replace "." "_" }}
+              value: {{ $value | quote }}
+            {{- end }}
+          args: ['npm', 'run', 'start_s3server']
+          livenessProbe:
+            httpGet:
+              path: /_/healthcheck
+              port: http
+          volumeMounts:
+            {{- if .Values.proxy.caCert }}
+            - name: proxy-cert
+              mountPath: "/ssl"
+              readOnly: true
+            {{- end }}
+            {{- if not .Values.global.orbit.enabled }}
+            {{- if .Values.global.locationConstraints }}
+            - name: location-config
+              mountPath: /etc/config
+            - name: auth-config
+              mountPath: /data
+            {{- end}}
+            {{- end }}
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+      affinity:
+{{ tpl .Values.affinity . | indent 8 }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+      volumes:
+        {{- if .Values.proxy.caCert }}
+        - name: proxy-cert
+          secret:
+            secretName: {{ template "cloudserver.fullname" . }}-proxy
+        {{- end }}
+        {{- if not .Values.global.orbit.enabled }}
+        {{- if .Values.global.locationConstraints }}
+        - name: location-config
+          configMap:
+            name: {{ template "cloudserver.fullname" . }}-configmap
+        {{- end }}
+        - name: auth-config
+          emptyDir: {}
+        - name: accounts
+          configMap:
+            name: {{ template "cloudserver.fullname" . }}-accounts
+        - name: service-credentials
+          secret:
+            secretName: {{ .Release.Name }}-service-secrets
+        - name: user-credentials
+          secret:
+            secretName: {{ template "cloudserver.fullname" . }}-user-secrets
+        {{- end }}

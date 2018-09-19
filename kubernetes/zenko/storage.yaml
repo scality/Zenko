@@ -1,0 +1,83 @@
+## These values can be used to override the storage and persistence options
+## of all the stateful charts used in Zenko. While all the options listed
+## are default values, this file can be changed and applied at chart
+## installation time by specifying `-f storage.yaml`. 
+
+mongodb-replicaset:
+  ## Note: number of PVs required is `nodeCount`
+  persistentVolume:
+    enabled: true
+    ## mongodb-replicaset data Persistent Volume Storage Class
+    ## If defined, storageClassName: <storageClass>
+    ## If set to "-", storageClassName: "", which disables dynamic provisioning
+    ## If undefined (the default) or set to null, no storageClassName spec is
+    ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+    ##   GKE, AWS & OpenStack)
+    ##
+    storageClass: null
+    ## Must match those of existing PV or dynamic provisioner
+    ## Ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
+    ##
+    accessModes:
+      - ReadWriteOnce
+    size: 10Gi
+    annotations: {}
+
+prometheus:
+  server:
+    ## Note: number of PVs required is 2 by default
+    persistentVolume:
+      enabled: true
+      accessModes:
+        - ReadWriteOnce
+      annotations: {}
+      mountPath: /data
+      size: 8Gi
+      storageClass: null
+      ## Subdirectory of Prometheus server data Persistent Volume to mount
+      ## Useful if the volume's root directory is not empty
+      ##
+      subPath: ""
+
+redis-ha:
+  ## Note: number of PVs required is `nodeCount`
+  persistentVolume:
+    enabled: true
+    storageClass: null
+    accessModes:
+      - ReadWriteOnce
+    size: 10Gi
+    annotations: {}
+
+s3-data:
+  ## Note: number of PVs required is 1
+  persistentVolume:
+    enabled: true
+    accessModes:
+      - ReadWriteOnce
+    annotations: {}
+    existingClaim: ""
+    size: 10Gi
+    storageClass: null
+ 
+zenko-queue:
+  ## Note: number of PVs required is `nodeCount`
+  persistence:
+    enabled: true
+    ## The size of the PersistentVolume to allocate to each Kafka Pod in the StatefulSet. For
+    ## production servers this number should likely be much larger.
+    ##
+    size: "1Gi"
+    ## The location within the Kafka container where the PV will mount its storage and Kafka will
+    ## store its logs.
+    ##
+    mountPath: "/opt/kafka/data"
+    storageClass: null
+
+zenko-quorum:
+  ## Note: number of PVs required is `nodeCount`
+  persistence:
+    enabled: true
+    storageClass: null
+    accessMode: ReadWriteOnce
+    size: 5Gi

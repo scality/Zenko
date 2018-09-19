@@ -43,7 +43,7 @@ all magically configured to talk to each other.
 
 Simple Zenko setup for quick testing with non-production data:
 
-- [Zenko Single-Node Kubernetes](./charts/minikube.md)
+- [Zenko Single-Node Kubernetes](./kubernetes/zenko/minikube.md)
 - [Zenko Docker Swarm Testing](./swarm-testing)
 
 ## Zenko in Production
@@ -51,7 +51,7 @@ Simple Zenko setup for quick testing with non-production data:
 - Includes high availability (HA)
 - Asks for pre-existing volumes
 
-[Zenko Kubernetes Helm Chart deployment](./charts)
+[Zenko Kubernetes Helm Chart deployment](./kubernetes)
 
 [Deploying a HA Kubernetes cluster](https://github.com/scality/metal-k8s)
 
