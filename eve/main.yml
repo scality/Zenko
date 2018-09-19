@@ -130,11 +130,31 @@ stages:
       path: eve/workers/zenko.yaml
     steps:
     - TriggerStages:
+        name: Build documentation
+        haltOnFailure: true
+        stage_names:
+        - build-doc
+    - TriggerStages:
         name: trigger all the tests
         stage_names:
         - build-e2e
         - build-backbeat-e2e
         - test-zenko
+
+  build-doc:
+    worker:
+      type: kube_pod
+      path: eve/workers/doc-builder.yaml
+      images:
+        doc-builder:
+          context: '.'
+          dockerfile: docs/Dockerfile
+    steps:
+    - Git: *git_pull
+    - ShellCommand:
+        name: 'Build doc'
+        haltOnFailure: true
+        command: tox --workdir /tmp/tox -e docs -- html latexpdf
 
   build-e2e:
     worker: *pod
