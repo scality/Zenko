@@ -53,9 +53,11 @@ bucket:
 -  GET Bucket Lifecycle
 -  DELETE Bucket Lifecycle
 
-.. tip:: See the `AWS S3
-API Reference <https://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketOps.html>`__
-for protocol-level formatting details.
+   .. tip::
+
+      See the `AWS S3
+      API Reference <https://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketOps.html>`__
+      for protocol-level formatting details.
 
 These calls manage bucket attributes related to lifecycle behavior,
 which are stored as part of bucket metadata.

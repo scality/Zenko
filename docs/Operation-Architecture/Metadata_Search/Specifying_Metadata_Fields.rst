@@ -40,3 +40,9 @@ For example:
  ::
 
    tags.type = color
+
+
+Next: `Differences from SQL`_
+
+
+.. _`Differences from SQL`: Differences_from_SQL.html

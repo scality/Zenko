@@ -76,11 +76,13 @@ Reserve the following resources for each node.
 
    -  200 GB persistent volume per node minimum
 
-      **Note:** This requirement is for storage, not for the system device.
-      You may have to attach a separate storage volume to your cloud server
-      instance. Storage volumes must match or exceed the maximum anticipated
-      demand. Once set, the cluster cannot be resized without redefining new
-      volumes.
+   .. Note::
+
+    This requirement is for storage, not for the system device.
+    You may have to attach a separate storage volume to your cloud server
+    instance. Storage volumes must match or exceed the maximum anticipated
+    demand. Once set, the cluster cannot be resized without redefining new
+    volumes.
 
 All servers must be in CentOS 7.4 or later, and must be ssh-accessible.
 
@@ -101,17 +103,13 @@ Installing Zenko
 
 Set up a cluster of five nodes conforming to the specifications listed above.
 If you are using MetalK8s, do this by downloading the latest stable MetalK8s
-source code from the MetalK8s releases page: 
+source code from the MetalK8s releases page:
 https://github.com/scality/metalk8s/releases. Follow the Quickstart guide
 (in docs/usage/quickstart.rst) to install MetalK8s on your cluster.
 
-Use a Fresh Cluster
-===================
+.. note::
 
-If you are installing Zenko on a fresh cluster, the following instructions
-are sufficient. If, however, you are reinstalling Zenko on an existing cluster
-(while assessing or testing Zenko, for example), it is a best practice to use
-a fresh cluster.
+   It is a best practice to install Zenko on a fresh cluster.
 
 Get Ready
 *********
@@ -177,9 +175,11 @@ overwrite the default settings presented in the charts.
 
 Follow these steps to install Zenko with Ingress.
 
-(**Note:** The following example is for a configuration usingthe NGINX ingress
-controller. If you are using a different ingress controller, substitute
-parameters as appropriate.)
+.. Note::
+
+   The following example is for a configuration using the NGINX ingress
+   controller. If you are using a different ingress controller, substitute
+   parameters as appropriate.)
 
 1. Create an options.yml file in Zenko/kubernetes/ to store deployment
    parameters. Enter the following parameters:

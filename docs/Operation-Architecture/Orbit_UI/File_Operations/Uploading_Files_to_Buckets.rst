@@ -17,14 +17,19 @@ at least one bucket.
    operating system (Windows Explorer, OS X, Linux desktop) or by
    clicking the **Upload Objects** button.
 
-   | .. note:: Browsers may limit the ability to upload directories.
-     Uploading a directory may require that you recursively zip the
-     directory and upload it as a single file, or access Zenko through a
-     cloud storage browser such as Cyberduck.
+|  .. note::
 
-.. note:: Object key name lengths are limited to 915 single-byte
-characters (109 fewer than the 1024 one-byte characters permitted in the
-AWS specification).
+      Browsers may limit the ability to upload directories.
+      Uploading a directory may require that you recursively zip the
+      directory and upload it as a single file, or access Zenko through a
+      cloud storage browser such as Cyberduck.
+
+
+   .. note::
+      
+      Object key name lengths are limited to 915 single-byte
+      characters (109 fewer than the 1024 one-byte characters permitted in the
+      AWS specification).
 
 `Go back`_
 

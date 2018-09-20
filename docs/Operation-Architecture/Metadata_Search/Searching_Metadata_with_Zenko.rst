@@ -17,14 +17,9 @@ by
 -  Making an Auth V4-signed HTTP request to Zenko as described in
    `HTTP Search Requests`_.
 
-.. include:: Using_search_bucket.rst
-
-
-`Go back to Metadata Search`_
 
 `Go back to Services`_
 
-.. _`Go back to Metadata Search`: Metadata_Search.html
 .. _`Go back to Services`: ../Services/Services.html
 .. _`Searching Metadata from Orbit`: ../Orbit_UI/Searching_Metadata_from_Orbit.html
 .. _`Using search_bucket`: Using_search_bucket.html
