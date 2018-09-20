@@ -23,8 +23,8 @@ at least one bucket.
      cloud storage browser such as Cyberduck.
 
 .. note:: Object key name lengths are limited to 915 single-byte
-characters (109 fewer than the 1024 one-byte characters permitted in the
-AWS specification).
+  characters (109 fewer than the 1024 one-byte characters permitted in the
+  AWS specification).
 
 `Go back`_
 

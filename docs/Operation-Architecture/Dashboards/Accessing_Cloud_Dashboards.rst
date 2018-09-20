@@ -38,6 +38,8 @@ For MetalK8s deployments, if the Kubernetes dashboard is visible, you
 can also access the other Kubernetes-dependent services Zenko offers as
 part of its default stack.
 
+.. _Troubleshooting Cloud Dashboards:
+
 Troubleshooting Cloud Dashboards
 --------------------------------
 

@@ -9,9 +9,10 @@ You can use Orbit to manage the following advanced workflows:
 
 .. toctree::
    :maxdepth: 1
-      Setting Up Replication <Orbit_UI/Advanced_Workflows/Setting_Up_CRR>
-      CRR Pause and Resume <Orbit_UI/Zenko_CLI/CRR Pause & Resume>
-      Searching Metadata <Orbit_UI/Searching_Metadata>
+
+   Setting Up Replication <Setting_Up_CRR>
+   CRR Pause and Resume <../../Zenko_CLI/CRR_Pause_&_Resume>
+   Searching Metadata <../Searching_Metadata_from_Orbit>
 
 
 `Go back`_
