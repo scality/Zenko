@@ -41,6 +41,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.ifconfig',
     'sphinxcontrib.spelling',
+    'sphinxcontrib.inkscapeconverter',
 ]
 
 # Add any paths that contain templates here, relative to this directory.

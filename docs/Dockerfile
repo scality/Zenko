@@ -10,6 +10,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get install --no-install-recommends -y \
         enchant \
         git \
+        inkscape \
         latexmk \
         make \
         python2.7 \

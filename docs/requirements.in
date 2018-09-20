@@ -1,3 +1,4 @@
 Sphinx >= 1.7.5
 sphinxcontrib-spelling >= 4.2.0
 recommonmark >= 0.4.0
+sphinxcontrib-svg2pdfconverter >= 0.1.0

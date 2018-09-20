@@ -85,6 +85,9 @@ sphinx==1.8.0 \
 sphinxcontrib-spelling==4.2.0 \
     --hash=sha256:44a9445b237ade895ae1fccbe6f41422489b1ffb2a026c1b78b0c1c1c229f9bf \
     --hash=sha256:e25182225d8380c886000e544024f8513a2e7dad130f8297b8c23db80e31b6ed
+sphinxcontrib-svg2pdfconverter==0.1.0 \
+    --hash=sha256:0305a0b432d6c562a7820ef218704c17545ad8031984a52dc223c438e75b7ba9 \
+    --hash=sha256:f621745ea8c36c4a526bc99267a3ecf874f3363453e4573a73bf477534565a7a
 sphinxcontrib-websupport==1.1.0 \
     --hash=sha256:68ca7ff70785cbe1e7bccc71a48b5b6d965d79ca50629606c7861a21b206d9dd \
     --hash=sha256:9de47f375baf1ea07cdb3436ff39d7a9c76042c10a769c52353ec46e4e8fc3b9 \
