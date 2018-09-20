@@ -30,10 +30,11 @@ General Cluster Requirements
 ****************************
 
 Setting up a testing cluster requires at least three machines (these can be
-VMs) running CentOS_ 7.4 (or higher)(The recommended mimimum for Zenko
+VMs) running CentOS_ 7.4 or higher (The recommended mimimum for Zenko
 production service is five server nodes with three masters/etcds, but for
 testing and familiarization, three masters and three nodes is fine). You must
 have SSH access to these machines and they must have SSH access to each other.
+
 Each machine acting as a Kubernetes_ node must also have at least one disk
 available to provision storage volumes.
 
@@ -55,7 +56,7 @@ tested.
 
 Reserve the following resources for each node.
 
--  Cores per server (2 vcpu = 1 core)
+-  Cores per server
 
    - 24 vCPU minimum
    - 32 vCPU medium load
@@ -73,19 +74,49 @@ Reserve the following resources for each node.
 
 -  Storage
 
-   -  1 TB persistent volume per node
+   -  1 TB persistent volume per node minimum
+
 
       .. note::
 
-        This requirement is for storage, not for the system device. This
-        storage requirement depends on the sizing of different components and
+        This requirement is for storage, not for the system device. Storage
+        requirements depend on the sizing of different components and
         anticipated use. You may have to attach a separate storage volume to
-        each cloud server instance. Storage volumes must match or exceed the
-        maximum anticipated demand. Once set, the cluster cannot be resized
-        without redefining new volumes.
+        each cloud server instance.
 
 
 All servers must run CentOS 7.4 or later, and must be ssh-accessible.
+
+Custom Sizing
+=============
+
+The default persistent volume sizing requirements are sufficient for a
+conventional deployment. Your requirements may vary, based on total data
+managed and total number of objects managed.
+
+.. Important::
+
+   Persistent volume storage  must match or exceed the maximum
+   anticipated demand. Once set, the cluster cannot be resized
+   without redefining new volumes.
+
+To size your deployment, review the default values in
+Zenko/kubernetes/zenko/values.yaml. This file reserves space for each component
+in the build. This is the baseline build, which Helm will install unless
+instructed otherwise.
+
+Next, review the values discussed in Zenko/kubernetes/zenko/storage.yaml.
+The storage.yaml file contains sizing instructions and settings that, when
+specified in a Helm installation, override the default values expressed in the
+values.yaml file. To override default values using storage.yaml, use the
+following addendum to the helm install invocation at Zenko deployment.
+
+``
+$ helm install [other options] -f storage.yaml
+``
+
+How much persistent volume space is required is calculable based on total data
+managed, total objects managed, and other factors. See storage.yaml for details.
 
 Proxies
 =======
@@ -101,6 +132,41 @@ If you are behind a proxy, add the following lines to your local machine’s
 
 Installing Zenko
 ################
+
+Set up a cluster of five nodes conforming to the specifications listed above.
+If you are using MetalK8s, do this by downloading the latest stable MetalK8s
+source code from the MetalK8s releases page:
+https://github.com/scality/metalk8s/releases. Follow the Quickstart guide
+(in docs/usage/quickstart.rst) to install MetalK8s on your cluster.
+
+When building your cluster, take sizing into account. If you are deploying
+non-default sizing, make sure your volume sizing is sufficient. For MetalK8s,
+you *must* size the volumes in the inventory during setup in
+metalk8s/inventory/group_vars/kube-node.yml.
+
+For a default sizing, paste the following into kube-node.yml:
+
+.. code-block:: yaml
+		
+  metalk8s_lvm_default_vg: False
+  metalk8s_lvm_vgs: ['vg_metalk8s']
+  metalk8s_lvm_drives_vg_metalk8s: ['/dev/vdb']
+  metalk8s_lvm_lvs_vg_metalk8s:
+    lv01:
+      size: 125G
+    lv02:
+      size: 125G
+    lv03:
+      size: 125G
+    lv04:
+      size: 62G
+    lv05:
+      size: 62G
+
+For custom sizing, increase these base numbers.
+
+For non-MetalK8s deployments, follow your vendor or community’s instructions for
+configuring persistent voloumes at 500 Gi/node.
 
 
 Get Ready
