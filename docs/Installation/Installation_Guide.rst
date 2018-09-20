@@ -99,7 +99,6 @@ If you are behind a proxy, add the following lines to your local machine’s
 Installing Zenko
 ################
 
-=======
 Set up a cluster of five nodes conforming to the specifications listed above.
 If you are using MetalK8s, do this by downloading the latest stable MetalK8s
 source code from the MetalK8s releases page: 
@@ -195,10 +194,8 @@ Follow these steps to install Zenko with Ingress.
    You can edit these parameters, using each component’s values.yaml file
    as your guide. Save this file.
 
-2. To configure the ingress controller for HTTPS, go to “`Configuring HTTPS_
-   Ingress for Zenko`_” for additional terms to add to this chart.
-
-.. _HTTPS: ./configure_ingress
+2. To configure the ingress controller for HTTPS, go to
+   “:doc:`configure_ingress`” for additional terms to add to this chart.
 
 3. If your Zenko instance is behind a proxy, add the following lines to the
    options.yml file, entering your proxy’s IP addresses and port assignments:

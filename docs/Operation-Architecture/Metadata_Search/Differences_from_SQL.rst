@@ -30,7 +30,7 @@ but they differ in that:
       ``+``, ``-``, ``%``, ``^``, ``/``, ``*``, and ``!``
 
 Using Regular Expressions in Metadata Search
---------------------------------------
+--------------------------------------------
 
 -  Regular expressions used in metadata search differ from SQL in that wild
    cards are represented with ``.*`` instead of ``%``.
