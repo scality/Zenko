@@ -143,22 +143,22 @@ metalk8s/inventory/group_vars/kube-node.yml.
 
 For a default sizing, paste the following into kube-node.yml:
 
-``
-metalk8s_lvm_default_vg: False
-metalk8s_lvm_vgs: ['vg_metalk8s']
-metalk8s_lvm_drives_vg_metalk8s: ['/dev/vdb']
-metalk8s_lvm_lvs_vg_metalk8s:
-  lv01:
-    size: 125G
-  lv02:
-    size: 125G
-  lv03:
-    size: 125G
-  lv04:
-    size: 62G
-  lv05:
-    size: 62G
-``
+.. code-block:: yaml
+		
+  metalk8s_lvm_default_vg: False
+  metalk8s_lvm_vgs: ['vg_metalk8s']
+  metalk8s_lvm_drives_vg_metalk8s: ['/dev/vdb']
+  metalk8s_lvm_lvs_vg_metalk8s:
+    lv01:
+      size: 125G
+    lv02:
+      size: 125G
+    lv03:
+      size: 125G
+    lv04:
+      size: 62G
+    lv05:
+      size: 62G
 
 For custom sizing, increase these base numbers.
 
