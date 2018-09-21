@@ -29,6 +29,12 @@ spec:
           ports:
             - name: nfs
               containerPort: 2049
+            - name: mountd
+              containerPort: {{ template "zenko-nfs.port.mountd" . }}
+            - name: rquotad
+              containerPort: {{ template "zenko-nfs.port.rquotad" . }}
+            - name: nlm
+              containerPort: {{ template "zenko-nfs.port.nlm" . }}
           volumeMounts:
             - name: portmap-data
               mountPath: /run
@@ -46,11 +52,17 @@ spec:
             - name: ZENKO_MD_PORT
               value: "9000"
             - name: REDIS_SENTINEL_BOOTSTRAP
-              value: "{{- printf "%s-%s:26379" .Release.Name "redis-ha-sentinel" | trunc 63 | trimSuffix "-" -}}"
+              value: "{{- printf "%s-%s:26379" .Release.Name "redis-ha" | trunc 63 | trimSuffix "-" -}}"
             - name: REDIS_CLUSTER_NAME
-              value: "mymaster"
+              value: "zenko"
             - name: NFSD_LOG_FILE
               value: "/logs/scality-nfsd.log"
+            - name: SERVICE_PORT_MOUNTD
+              value: "{{ template "zenko-nfs.port.mountd" . }}"
+            - name: SERVICE_PORT_RQUOTAD
+              value: "{{ template "zenko-nfs.port.rquotad" . }}"
+            - name: SERVICE_PORT_NLM
+              value: "{{ template "zenko-nfs.port.nlm" . }}"
           args: ['scality.nfsd', '-N', 'INFO', '-F', '-f', '/conf/scality-nfsd.conf', '-L', '/dev/stdout']
           # TODO: livenessProbe:
           # TODO: readinessProbe:

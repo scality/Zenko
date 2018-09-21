@@ -10,7 +10,7 @@ global:
 
 image:
   repository: zenko/backbeat
-  tag: 8.0.8-RC5
+  tag: 8.0.16
   pullPolicy: IfNotPresent
 
 logging:
@@ -21,11 +21,15 @@ mongodb:
   replicaSet: rs0
   replicas: 3
 
+redis:
+  sentinel:
+    name: zenko
+  replicas: 3
+
 health:
   port: 4042
   path:
-    liveness: /_/health/liveness
-    readiness: /_/health/readiness
+    liveness: /_/health/readiness
 
 api:
   replicaCount: 1
@@ -34,7 +38,7 @@ api:
     type: ClusterIP
     annotations:
       prometheus.io/scrape: "true"
-      prometheus.io/port: "8000"
+      prometheus.io/port: "8900"
       prometheus.io/path: "/_/monitoring/metrics"
 
   resources: {}
@@ -111,6 +115,7 @@ lifecycle:
 replication:
   dataProcessor:
     replicaCount: 1
+    replicaFactor: 1
 
     resources: {}
     nodeSelector: {}

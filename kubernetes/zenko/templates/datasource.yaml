@@ -14,7 +14,7 @@ data:
     datasources:
     - name: Prometheus
       type: prometheus
-      url: http://{{ .Release.Name }}-prometheus-server:9090
+      url: http://{{ .Release.Name }}-prometheus-server:80
       access: proxy
       isDefault: true
       editable: false

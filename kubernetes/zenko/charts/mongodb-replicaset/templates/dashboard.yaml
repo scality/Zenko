@@ -1,0 +1,14 @@
+{{- if .Values.metrics.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "mongodb-replicaset.fullname" . }}-dashboard
+  labels:
+    app: {{ template "mongodb-replicaset.name" . }}
+    chart: {{ template "mongodb-replicaset.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    grafana-dashboard: "true"
+data:
+{{ (.Files.Glob "dashboards/mongodb-replicaset.json").AsConfig | indent 4 }}
+{{- end }}

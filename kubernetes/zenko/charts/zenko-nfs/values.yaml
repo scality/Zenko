@@ -7,7 +7,7 @@ enabled: true
 replicaCount: 1
 
 service:
-  type: NodePort
+  type: ClusterIP
 
 nfsd:
   name: "zenko-nfsd"

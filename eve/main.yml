@@ -36,28 +36,44 @@ models:
       env:
         HELM_NAMESPACE: '%(prop:testNamespace)s'
   - env: &secrets_env # contains values used for test config
-      AWS_GCP_BACKEND_ACCESS_KEY: '%(secret:aws_gcp_backend_access_key)s'
-      AWS_GCP_BACKEND_ACCESS_KEY_2: '%(secret:aws_gcp_backend_access_key_2)s'
-      AWS_GCP_BACKEND_SECRET_KEY: '%(secret:aws_gcp_backend_secret_key)s'
-      AWS_GCP_BACKEND_SECRET_KEY_2: '%(secret:aws_gcp_backend_secret_key_2)s'
-      AWS_S3_BACKBEAT_BUCKET_NAME: ci-zenko-aws-crr-target-bucket
-      AWS_S3_BACKBEAT_SRC_BUCKET_NAME: ci-zenko-aws-crr-src-bucket
-      AWS_S3_BACKEND_ACCESS_KEY: '%(secret:aws_s3_backend_access_key)s'
-      AWS_S3_BACKEND_ACCESS_KEY_2: '%(secret:aws_s3_backend_access_key_2)s'
-      AWS_S3_BACKEND_SECRET_KEY: '%(secret:aws_s3_backend_secret_key)s'
-      AWS_S3_BACKEND_SECRET_KEY_2: '%(secret:aws_s3_backend_secret_key_2)s'
-      AWS_S3_BUCKET_NAME: ci-zenko-aws-target-bucket
-      AWS_S3_BUCKET_NAME_2: ci-zenko-aws-target-bucket-2
-      AZURE_BACKBEAT_CONTAINER_NAME: ci-zenko-azure-crr-target-bucket
-      AZURE_BACKBEAT_SRC_CONTAINER_NAME: ci-zenko-azure-crr-src-bucket
-      AZURE_BACKEND_ACCESS_KEY: '%(secret:azure_backend_access_key)s'
-      AZURE_BACKEND_ACCESS_KEY_2: '%(secret:azure_backend_access_key_2)s'
-      AZURE_BACKEND_ACCOUNT_NAME: '%(secret:azure_backend_account_name)s'
-      AZURE_BACKEND_ACCOUNT_NAME_2: '%(secret:azure_backend_account_name_2)s'
-      AZURE_BACKEND_CONTAINER_NAME: ci-zenko-azure-target-bucket
-      AZURE_BACKEND_CONTAINER_NAME_2: ci-zenko-azure-target-bucket-2
+      AWS_ACCESS_KEY: '%(secret:aws_s3_backend_access_key)s'
+      AWS_SECRET_KEY: '%(secret:aws_s3_backend_secret_key)s'
+      AWS_ACCESS_KEY_2: '%(secret:aws_s3_backend_access_key_2)s'
+      AWS_SECRET_KEY_2: '%(secret:aws_s3_backend_secret_key_2)s'
+
+      GCP_ACCESS_KEY: '%(secret:aws_gcp_backend_access_key)s'
+      GCP_SECRET_KEY: '%(secret:aws_gcp_backend_secret_key)s'
+      GCP_ACCESS_KEY_2: '%(secret:aws_gcp_backend_access_key_2)s'
+      GCP_SECRET_KEY_2: '%(secret:aws_gcp_backend_secret_key_2)s'
+
+      AZURE_ACCOUNT_NAME: '%(secret:azure_backend_account_name)s'
       AZURE_BACKEND_ENDPOINT: '%(secret:azure_backend_endpoint)s'
+      AZURE_SECRET_KEY: '%(secret:azure_backend_access_key)s'
+      AZURE_ACCOUNT_NAME_2: '%(secret:azure_backend_account_name_2)s'
       AZURE_BACKEND_ENDPOINT_2: '%(secret:azure_backend_endpoint_2)s'
+      AZURE_SECRET_KEY_2: '%(secret:azure_backend_access_key_2)s'
+      ZENKO_ACCESS_KEY: HEYIMAACCESSKEY
+      ZENKO_SECRET_KEY: loOkAtMEImASecRetKEy123=
+      AWS_BACKEND_SOURCE_LOCATION: awsbackend
+      AWS_BACKEND_DESTINATION_LOCATION: awsbackendmismatch
+      GCP_BACKEND_DESTINATION_LOCATION: gcpbackendmismatch
+      AZURE_BACKEND_DESTINATION_LOCATION: azurebackendmismatch
+      LOCATION_QUOTA_BACKEND: quotabackend
+      GCP_BACKEND_SERVICE_KEY: '%(secret:gcp_backend_service_key)s'
+      GCP_BACKEND_SERVICE_EMAIL: '%(secret:gcp_backend_service_email)s'
+      COSBENCH_NIGHTLY_SERVICE_ACCOUNT: '%(secret:cosbenchNightlyServiceAccount)s'
+      COSBENCH_SPREADSHEET_ID: '%(secret:cosbenchSpreadsheetID)s'
+
+      AWS_BUCKET_NAME: ci-zenko-aws-target-bucket
+      AWS_BUCKET_NAME_2: ci-zenko-aws-target-bucket-2
+      AWS_CRR_BUCKET_NAME: ci-zenko-aws-crr-target-bucket
+      AWS_CRR_SRC_BUCKET_NAME: ci-zenko-aws-crr-src-bucket
+
+      AZURE_BUCKET_NAME: ci-zenko-azure-target-bucket
+      AZURE_BUCKET_NAME_2: ci-zenko-azure-target-bucket-2
+      AZURE_CRR_BUCKET_NAME: ci-zenko-azure-crr-target-bucket
+      AZURE_CRR_SRC_BUCKET_NAME: ci-zenko-azure-crr-src-bucket
+
       GCP_BUCKET_NAME: ci-zenko-gcp-target-bucket
       GCP_BUCKET_NAME_2: ci-zenko-gcp-target-bucket-2
       GCP_CRR_BUCKET_NAME: ci-zenko-gcp-crr-target-bucket
@@ -65,22 +81,10 @@ models:
       GCP_CRR_SRC_BUCKET_NAME: ci-zenko-gcp-crr-src-bucket
       GCP_MPU_BUCKET_NAME: ci-zenko-gcp-mpu-bucket
       GCP_MPU_BUCKET_NAME_2: ci-zenko-gcp-mpu-bucket-2
-      MULTI_CRR_SRC_BUCKET: ci-zenko-multi-crr-src-bucket
-      TRANSIENT_SRC_BUCKET: ci-zenko-transient-src-bucket
-      ZENKO_ACCESS_KEY: HEYIMAACCESSKEY
-      ZENKO_SECRET_KEY: loOkAtMEImASecRetKEy123=
-      ZENKO_STORAGE_ACCOUNT_ACCESS_KEY: HEYIMAACCESSKEY
-      ZENKO_STORAGE_ACCOUNT_SECRET_KEY: loOkAtMEImASecRetKEy123=
-      AWS_S3_BACKEND_SOURCE_LOCATION: awsbackend
-      AWS_S3_BACKEND_DESTINATION_LOCATION: awsbackendmismatch
-      AZURE_BACKEND_DESTINATION_LOCATION: azurebackendmismatch
-      GCP_BACKEND_DESTINATION_LOCATION: gcpbackendmismatch
-      LOCATION_QUOTA_BACKEND: quotabackend
-      GCP_BACKEND_SERVICE_KEY: '%(secret:gcp_backend_service_key)s'
-      GCP_BACKEND_SERVICE_EMAIL: '%(secret:gcp_backend_service_email)s'
+      MULTI_CRR_SRC_BUCKET_NAME: ci-zenko-multi-crr-src-bucket
+      TRANSIENT_SRC_BUCKET_NAME: ci-zenko-transient-src-bucket
 
   - env: &docker_env # contains values for build test images
-
       E2E_DOCKER_IMAGE_NAME: '%(secret:private_registry_url)s/zenko/zenko-e2e'
       BACKBEAT_DOCKER_IMAGE_NAME: '%(secret:private_registry_url)s/zenko/backbeat-e2e'
       IMAGE_REGISTRY: '%(secret:private_registry_url)s'
@@ -88,9 +92,8 @@ models:
 
   - env: &k8s_env # containes values for running helm and kubectl
       ZENKO_HELM_RELEASE: 'zenko-test'
-      ZENKO_K8S_NAMESPACE: '%(prop:testNamespace)s'
-      TILLER_NAMESPACE: '%(prop:testNamespace)s'
       HELM_NAMESPACE: '%(prop:testNamespace)s'
+      TILLER_NAMESPACE: '%(prop:testNamespace)s'
       INSTALL_TIMEOUT: "600"
 
   - env: &global_env # contains all env values
@@ -98,18 +101,38 @@ models:
 
 stages:
   pre-merge:
-    worker: &pod
-      type: kube_pod
-      path: eve/workers/zenko.yaml
+    worker:
+      type: local
     steps:
+    - TriggerStages:
+        name: Build documentation
+        haltOnFailure: true
+        stage_names:
+        - build-doc
     - TriggerStages:
         name: trigger all the tests
         stage_names:
         - test-zenko
 
+  build-doc:
+    worker:
+      type: kube_pod
+      path: eve/workers/doc-builder.yaml
+      images:
+        doc-builder:
+          context: '.'
+          dockerfile: docs/Dockerfile
+    steps:
+    - Git: *git_pull
+    - ShellCommand:
+        name: 'Build doc'
+        haltOnFailure: true
+        command: tox --workdir /tmp/tox -e docs -- html latexpdf
+
   test-zenko:
     worker: &kube_cluster
-      <<: *pod
+      type: kube_pod
+      path: eve/workers/zenko.yaml
       service:
         requests:
           version: "1.9.6"
@@ -120,7 +143,7 @@ stages:
       - ShellCommand: *private_registry_login
       - ShellCommand:
           name: Setup Zenko and run end to end tests
-          command: make -e test
+          command: make -e VERBOSE=1 test
           workdir: build/tests
           env:
             <<: *global_env

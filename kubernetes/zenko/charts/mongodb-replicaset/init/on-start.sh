@@ -102,7 +102,7 @@ fi
 log "Peers: ${peers[*]}"
 
 log "Starting a MongoDB instance..."
-mongod --config /data/configdb/mongod.conf --dbpath=/data/db --replSet="$replica_set" --port=27017 "${auth_args[@]}" --bind_ip=0.0.0.0 &
+mongod --config /data/configdb/mongod.conf --dbpath=/data/db --replSet="$replica_set" --port=27017 "${auth_args[@]}" --bind_ip=0.0.0.0 > /work-dir/bootstrap.log &
 
 log "Waiting for MongoDB to be ready..."
 until mongo "${ssl_args[@]}" --eval "db.adminCommand('ping')"; do
@@ -117,7 +117,11 @@ for peer in "${peers[@]}"; do
     if mongo admin --host "$peer" "${admin_creds[@]}" "${ssl_args[@]}" --eval "rs.isMaster()" | grep '"ismaster" : true'; then
         log "Found master: $peer"
         log "Adding myself ($service_name) to replica set..."
-        mongo admin --host "$peer" "${admin_creds[@]}" "${ssl_args[@]}" --eval "rs.add('$service_name')"
+        if mongo admin --host "$peer" "${admin_creds[@]}" "${ssl_args[@]}" --eval "rs.add('$service_name')" | grep 'Quorum check failed'; then
+            log 'Quorum check failed, unable to join replicaset. Exiting prematurely.'
+            shutdown_mongo
+            exit 1
+        fi
 
         sleep 3
 

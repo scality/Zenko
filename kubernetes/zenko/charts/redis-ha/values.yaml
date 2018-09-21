@@ -4,18 +4,20 @@
 
 enabled: true
 
-image: redis
-tag: 4.0.11-stretch
+image:
+  repository: redis
+  tag: 4.0.11-stretch
+  pullPolicy: IfNotPresent
 ## replicas number for each component
 replicas: 3
 
 ## Redis specific configuration options
 redis:
   port: 6379
-  masterGroupName: zenko
-  auth: false          # Not yet implemented - Configures redis with AUTH (requirepass & masterauth conf params)
-  # Any additional redis conf settings can be set as key value pairs as seen below
+  masterGroupName: mymaster
   config:
+    ## Additional redis conf options can be added below
+    ## For all available options see http://download.redis.io/redis-stable/redis.conf
     min-slaves-to-write: 1
     min-slaves-max-lag: 5   # Value in seconds
     maxmemory: "0"       # Max memory to use for each redis instance. Default is unlimited.
@@ -29,27 +31,28 @@ redis:
     rdbchecksum: "yes"
 
   resources:
-      requests:
-        memory: 200Mi
-        cpu: 100m
-      limits:
-        memory: 700Mi
+    requests:
+      memory: 200Mi
+      cpu: 100m
 
 ## Sentinel specific configuration options
 sentinel:
   port: 26379
   quorum: 2
   config:
+    ## Additional sentinel conf options can be added below
+    ## For all available options see http://download.redis.io/redis-stable/sentinel.conf
     down-after-milliseconds: 10000
-    failover-timeout: 180000 # Value in milliseconds
+    ## Failover timeout value in milliseconds
+    failover-timeout: 180000
     parallel-syncs: 5
 
   resources:
-      requests:
-        memory: 200Mi
-        cpu: 100m
-      limits:
-        memory: 200Mi
+    requests:
+      memory: 200Mi
+      cpu: 100m
+    limits:
+      memory: 200Mi
 
 securityContext:
   runAsUser: 1000
@@ -59,27 +62,14 @@ securityContext:
 ## Node labels, affinity, and tolerations for pod assignment
 ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
 ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#taints-and-tolerations-beta-feature
-nodeSelector: {}
-podAnnotations: {}
-extraLabels: {}
-tolerations: []
-affinity: |
-  podAntiAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-    - labelSelector:
-        matchLabels:
-          app: {{ template "redis-ha.name" . }}
-          release: {{ .Release.Name | quote }}
-      topologyKey: kubernetes.io/hostname
+## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+podAntiAffinity: soft
 
 podDisruptionBudget:
   maxUnavailable: 1
 
-## Redis password - Not implemented
-## Defaults to a random 10-character alphanumeric string if not set and auth is true
-## ref: https://github.com/kubernetes/charts/blob/master/stable/redis-ha/templates/redis-auth-secret.yaml
-##
-## redisPassword:
+# redisPassword:
+auth: false
 
 persistentVolume:
   enabled: true

@@ -48,3 +48,11 @@ Increases the number of cloudserver replicas by the replicaFactor value
 {{- printf "%d" $factor }}
 {{- end -}}
 
+{{/*
+Create the default redis sentinels hosts string
+*/}}
+{{- define "cloudserver.redis-hosts" -}}
+{{- $count := (int .Values.redis.replicas) -}}
+{{- $release := .Release.Name -}}
+{{- range $v := until $count }}{{ $release }}-redis-ha-server-{{ $v }}.{{ $release }}-redis-ha:26379{{ if ne $v (sub $count 1) }},{{- end -}}{{- end -}}
+{{- end -}}
