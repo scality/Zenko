@@ -84,7 +84,7 @@ replicaFactor: 1
 
 image:
   repository: zenko/cloudserver
-  tag: 8.0.16
+  tag: 8.0.17
   pullPolicy: IfNotPresent
 
 proxy:
