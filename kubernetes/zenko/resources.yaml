@@ -64,13 +64,11 @@ prometheus:
    resources: {}
 
 redis-ha:
-  server:
+  redis:
     resources:
       requests:
         memory: 200Mi
         cpu: 100m
-      limits:
-        memory: 700Mi
   sentinel:
     resources:
       requests:
