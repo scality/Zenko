@@ -1,0 +1,17 @@
+apiVersion: v1
+appVersion: 4.1.2
+description: Apache Kafka is publish-subscribe messaging rethought as a distributed
+  commit log.
+home: https://kafka.apache.org/
+icon: https://kafka.apache.org/images/logo.png
+keywords:
+- kafka
+- zookeeper
+- kafka statefulset
+name: zenko-queue
+sources:
+- https://github.com/kubernetes/charts/tree/master/incubator/zookeeper
+- https://github.com/Yolean/kubernetes-kafka
+- https://github.com/confluentinc/cp-docker-images
+- https://github.com/apache/kafka
+version: 0.9.3-Z

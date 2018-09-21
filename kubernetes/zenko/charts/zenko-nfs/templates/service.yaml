@@ -1,0 +1,42 @@
+{{- if .Values.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "zenko-nfs.fullname" . }}
+  labels:
+    app: {{ template "zenko-nfs.name" . }}
+    chart: {{ template "zenko-nfs.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - name: rpcbind-udp
+      port: 111
+      protocol: UDP
+    - name: rpcbind
+      port: 111
+    - name: nfs-udp
+      port: 2049
+      protocol: UDP
+    - name: nfs
+      port: 2049
+    - name: rquotad-udp
+      port: {{ template "zenko-nfs.port.rquotad" . }}
+      protocol: UDP
+    - name: rquotad
+      port: {{ template "zenko-nfs.port.rquotad" . }}
+    - name: mountd-udp
+      port: {{ template "zenko-nfs.port.mountd" . }}
+      protocol: UDP
+    - name: mountd
+      port: {{ template "zenko-nfs.port.mountd" . }}
+    - name: nlm-udp
+      port: {{ template "zenko-nfs.port.nlm" . }}
+      protocol: UDP
+    - name: nlm
+      port: {{ template "zenko-nfs.port.nlm" . }}
+  selector:
+    app: {{ template "zenko-nfs.name" . }}
+    release: {{ .Release.Name }}
+{{- end }}
