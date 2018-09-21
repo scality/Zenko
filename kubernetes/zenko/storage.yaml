@@ -26,7 +26,7 @@ mongodb-replicaset:
     ##
     accessModes:
       - ReadWriteOnce
-    size: 10Gi
+    size: 50Gi
     annotations: {}
 
 prometheus:
@@ -76,7 +76,7 @@ s3-data:
       - ReadWriteOnce
     annotations: {}
     existingClaim: ""
-    size: 10Gi
+    size: 90Gi
     storageClass: null
  
 zenko-queue:
@@ -90,7 +90,7 @@ zenko-queue:
     ## The size of the PersistentVolume to allocate to each Kafka Pod in the
     ## StatefulSet. For production servers this should be much larger.
     ##
-    size: "1Gi"
+    size: 20Gi
     ## The location within the Kafka container where the PV will mount its
     ## storage and Kafka will store its logs.
     ##
