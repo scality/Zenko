@@ -4,7 +4,7 @@
 replicaCount: 1
 image:
   repository: zenko/cloudserver
-  tag: 8.0.16
+  tag: 8.0.17
   pullPolicy: IfNotPresent
 service:
   name: s3-data
@@ -17,7 +17,7 @@ persistentVolume:
     - ReadWriteOnce
   annotations: {}
   existingClaim: ""
-  size: 10Gi
+  size: 90Gi
   # storageClass: "-"
 allowHealthchecksFrom: '0.0.0.0/0'
 
