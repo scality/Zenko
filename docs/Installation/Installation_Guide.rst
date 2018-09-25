@@ -4,9 +4,9 @@
    subdirectory
    Todo
 
-==================
+
 Installation Guide
-==================
+++++++++++++++++++
 
 While it is possible to run Zenko on a single machine, it's designed for
 cluster operation. If you can set up a Kubernetes cluster on your own, review
@@ -24,6 +24,7 @@ available on demand.
 
 Setting Up a Cluster
 ####################
+
 
 General Cluster Requirements
 ****************************
@@ -46,7 +47,7 @@ it.
 .. _Kubernetes: https://kubernetes.io
 
 Sizing
-======
+******
 
 The following sizes for Zenko instances have been tested on live systems using
 MetalK8s, which adds some overhead. If you are running a different Kubernetes
@@ -166,10 +167,6 @@ For custom sizing, increase these base numbers.
 For non-MetalK8s deployments, follow your vendo or community’s instructions for
 configuring persistent voloumes at 500 Gi/node.
 
-.. note::
-
-   It is a best practice to install Zenko on a fresh cluster.
-
 
 Get Ready
 *********
@@ -209,16 +206,11 @@ Get Ready
 
    Helm can now install applications on the Kubernetes cluster.
 
-3. Clone the latest Zenko version:
-   ::
+3. Go to https://github.com/Scality/Zenko/releases and download the latest
+    stable version of Zenko.
 
-    $ git clone https://github.com/scality/Zenko.git
-    Cloning into 'Zenko'...
-    remote: Counting objects: 4335, done.
-    remote: Compressing objects: 100% (10/10), done.
-    remote: Total 4335 (delta 1), reused 4 (delta 0), pack-reused 4325
-    Receiving objects: 100% (4335/4335), 1.25 MiB | 0 bytes/s, done.
-    Resolving deltas: 100% (2841/2841), done.
+4. Unzip or gunzip the file you just downloaded and change to the top-level
+    (Zenko) directory.
 
 Install Zenko
 *************
@@ -236,7 +228,7 @@ overwrite the default settings presented in the charts.
 
 Follow these steps to install Zenko with Ingress.
 
-.. Note::
+.. note::
 
    The following example is for a configuration using the NGINX ingress
    controller. If you are using a different ingress controller, substitute
@@ -298,24 +290,56 @@ Follow these steps to install Zenko with Ingress.
    expected behavior, because there is no launch order between pods.
    After a few minutes, all pods will enter Running mode.
 
-6. To register your Zenko instance for Orbit access, get your
+
+6.  After installing or upgrading Zenko, some pods, which have done their work
+     successfully, may linger in an Error or Completed state. For example:
+
+     ::
+
+       zenko-zenko-queue-config-abea05e0-7qp7d            0/1     Error       0     4m
+       zenko-zenko-queue-config-abea05e0-7wwsv            0/1     Error       0     4m
+       zenko-zenko-queue-config-abea05e0-88wgb            0/1     Error       0     4m
+       zenko-zenko-queue-config-abea05e0-cg5b5            0/1     Error       0     4m
+       zenko-zenko-queue-config-abea05e0-dwzw8            0/1     Error       0     7m
+       zenko-zenko-queue-config-abea05e0-q94cc            0/1     Error       0     4m
+       zenko-zenko-queue-config-abea05e0-s2f8x            0/1     Completed   0     4m
+       zenko-zenko-queue-config-abea05e0-vkv65            0/1     Error       0     4m
+
+     Verify that:
+
+     * All pods are running (as described in the previous step).
+
+     * One of the pods shows a "Completed" state.
+
+     Once these criteria are satisfied, delete these configuration pods by
+     deleting the job that spawned them.
+
+     ::
+
+       $ kubectl get jobs
+       NAME                                  DESIRED   SUCCESSFUL   AGE
+       zenko-zenko-queue-config-a86a68e3     1         1            8m
+
+       $ kubectl delete jobs zenko-zenko-queue-config-a86a68e3
+       job.batch "zenko-zenko-queue-config-a86a68e3" deleted
+
+7. To register your Zenko instance for Orbit access, get your
    CloudServer’s name
    ::
 
-    $ kubectl get -n default pods | grep cloudserver
-    my-zenko-cloudserver-76f657695-j25wq              1/1   Running   0       3m
+    $ kubectl get -n default pods | grep cloudserver-manager
     my-zenko-cloudserver-manager-c76d6f96f-qrb9d      1/1   Running   0       3m
 
    Then grab your CloudServer’s logs with the command:
    ::
 
-     $ kubectl logs my-zenko-cloudserver-<id> | grep 'Instance ID'
+     $ kubectl logs my-zenko-cloudserver-manager-<id> | grep 'Instance ID'
 
 
    Using the present sample values, this command returns:
    ::
 
-     $ kubectl logs my-zenko-cloudserver-76f657695-j25wq | grep 'Instance ID'
+     $ kubectl logs my-zenko-cloudserver-manager-76f657695-j25wq | grep 'Instance ID'
 
      {"name":"S3","time":1532632170292,"req_id":"effb63b7e94aa902711d",\
      "level":"info","message":"this deployment's Instance ID is \
@@ -324,12 +348,12 @@ Follow these steps to install Zenko with Ingress.
 
    Copy the instance ID.
 
-7. Open https://admin.zenko.io/user in a web browser. You may be prompted to
+8. Open https://admin.zenko.io/user in a web browser. You may be prompted to
    authenticate through Google.
 
-8. Click the **Register My Instance** button.
+9. Click the **Register My Instance** button.
 
-9. Paste the instance ID into the Instance ID dialog. Name the instance what
-   you will.
+10. Paste the instance ID into the Instance ID dialog. Name the instance what
+    you will.
 
-Your instance is registered.
+    Your instance is registered.
