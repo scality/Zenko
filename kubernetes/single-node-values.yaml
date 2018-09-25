@@ -11,6 +11,10 @@ cloudserver:
   mongodb:
     replicas: *nodeCount
 
+s3-data:
+  persistentVolume:
+    size: 10Gi
+
 backbeat:
   replication:
     dataProcessor:
@@ -69,6 +73,8 @@ zenko-queue:
     - name: backbeat-sanitycheck
       partitions: *nodeCount
       replicationFactor: 1
+  persistence:
+    size: 5Gi
 
 zenko-quorum:
   replicaCount: *nodeCount
@@ -78,6 +84,8 @@ zenko-quorum:
 mongodb-replicaset:
   replicaSet: rs0
   replicas: *nodeCount
+  persistentVolume:
+    size: 10Gi
 
 redis-ha:
   replicas: *nodeCount

@@ -1,10 +1,16 @@
-## These values can be used to override the storage and persistence options
-## of all the stateful charts used in Zenko. While all the options listed
-## are default values, this file can be changed and applied at chart
-## installation time by specifying `-f storage.yaml`. 
+## These values can be used to override the storage and persistence options of
+## all the stateful charts used in Zenko. While all the options listed are the
+## default values, this file can be changed and applied only at chart
+## installation time by specifying `-f storage.yaml`. Values cannot be changed
+## post installation.
 
 mongodb-replicaset:
-  ## Note: number of PVs required is `nodeCount`
+  ## Notes:
+  ##   - number of PVs required is `nodeCount`
+  ##   - Sizing is generally based off max object counts
+  ##     e.g. (Number of objects * 0.01) MB is typically used for sizing
+  ##     objects with the default amount of metadata
+  ##
   persistentVolume:
     enabled: true
     ## mongodb-replicaset data Persistent Volume Storage Class
@@ -20,12 +26,17 @@ mongodb-replicaset:
     ##
     accessModes:
       - ReadWriteOnce
-    size: 10Gi
+    size: 50Gi
     annotations: {}
 
 prometheus:
   server:
-    ## Note: number of PVs required is 2 by default
+    ## Notes:
+    ##   - number of PVs required is 2 by default
+    ##   - This is used for storing application level metrics
+    ##   - Retention policies will attempt to keep 15 days worth of metrics
+    ##     if the volume isn't full
+    ##
     persistentVolume:
       enabled: true
       accessModes:
@@ -40,7 +51,10 @@ prometheus:
       subPath: ""
 
 redis-ha:
-  ## Note: number of PVs required is `nodeCount`
+  ## Notes:
+  ##   - number of PVs required is `nodeCount`
+  ##   - in-memory key-value store vital to the replication services
+  ##
   persistentVolume:
     enabled: true
     storageClass: null
@@ -50,32 +64,44 @@ redis-ha:
     annotations: {}
 
 s3-data:
-  ## Note: number of PVs required is 1
+  ## Notes: 
+  ##   - number of PVs required is 1
+  ##   - this storage is used for the Zenko transient source (data that can be
+  ##     stored locally prior to replication to an external resource)
+  ##   - storing files locally on Zenko is mostly limited by the s3-data volume
+  ##
   persistentVolume:
     enabled: true
     accessModes:
       - ReadWriteOnce
     annotations: {}
     existingClaim: ""
-    size: 10Gi
+    size: 90Gi
     storageClass: null
  
 zenko-queue:
-  ## Note: number of PVs required is `nodeCount`
+  ## Notes:
+  ##   - number of PVs required is `nodeCount`
+  ##   - Rention is 7 days by default which will generally use at least 300MB
+  ##     per pod for lighter work loads
+  ##
   persistence:
     enabled: true
-    ## The size of the PersistentVolume to allocate to each Kafka Pod in the StatefulSet. For
-    ## production servers this number should likely be much larger.
+    ## The size of the PersistentVolume to allocate to each Kafka Pod in the
+    ## StatefulSet. For production servers this should be much larger.
     ##
-    size: "1Gi"
-    ## The location within the Kafka container where the PV will mount its storage and Kafka will
-    ## store its logs.
+    size: 20Gi
+    ## The location within the Kafka container where the PV will mount its
+    ## storage and Kafka will store its logs.
     ##
     mountPath: "/opt/kafka/data"
     storageClass: null
 
 zenko-quorum:
-  ## Note: number of PVs required is `nodeCount`
+  ## Notes:
+  ##   - number of PVs required is `nodeCount`
+  ##   - disk performance is vital here and SSD drives are highly recommended
+  ##
   persistence:
     enabled: true
     storageClass: null
