@@ -17,7 +17,6 @@ by
 -  Making an Auth V4-signed HTTP request to Zenko as described in
    `HTTP Search Requests`_.
 
-
 `Go back to Services`_
 
 .. _`Go back to Services`: ../Services/Services.html

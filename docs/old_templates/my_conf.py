@@ -16,15 +16,11 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
-import datetime
-
 # -- Project information -----------------------------------------------------
 
-now = datetime.datetime.now()
-project = 'Zenko Installation Guide'
-# copyright = '2009–"%s", Scality, Inc.'%(now.year)
+project = 'Zenko Operations Guide'
 copyright = '2018, Scality, Inc.'
-author = 'Scality Technical Publications'
+author = 'Technical Publications'
 
 # The short X.Y version
 version = '1.0'
@@ -42,11 +38,11 @@ release = '1.0'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-        'sphinx.ext.autosectionlabel',
-	'sphinx.ext.todo',
-        'sphinx.ext.ifconfig',
-	'sphinxcontrib.spelling',
-#	'sphinxcontrib.inkscapeconverter',
+            'sphinx.ext.todo',
+            'sphinx.ext.ifconfig',
+            'sphinxcontrib.spelling',
+            'sphinxcontrib.inkscapeconverter',
+            'sphinx.ext.autosectionlabel',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -70,7 +66,7 @@ master_doc = 'index'
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
 
-# language = none
+language = None
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -96,7 +92,12 @@ html_theme = 'classic'
 # documentation.
 #
 html_theme_options = {
+#    'googlewebfont': True ,
+#    'relatedbgcolor': '#201921' ,
+#    'googlewebfont_url': 'http://fonts.googleapis.com/css?family=Roboto' ,
+#    'googlewebfont_url': 'http://fonts.googleapis.com/css?family=Oswald' ,
     'stickysidebar': True ,
+#    'collapsiblesidebar': True,
     'footerbgcolor': '#201921',
     'footertextcolor': '#FFFFFF',
     'sidebarlinkcolor': '#FFFFFF',
@@ -110,6 +111,7 @@ html_theme_options = {
     'codebgcolor': '#F2F2F2' ,
     'bodyfont': 'Roboto' ,
     'headfont': 'Oswald' ,
+#    'headlink': '#201921'
 }
 
 # add logo  (your logo goes in _static directory)
@@ -157,26 +159,26 @@ latex_elements = {
 
     # Latex figure (float) alignment
     #
-     'figure_align': 'hb',
+    # 'figure_align': 'htbp',
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
-
 latex_documents = [
     (master_doc, 'ZenkoOperationsGuide.tex', 'Zenko Operations Guide Documentation',
-     author, 'Scality Technical Publications'),
+     'Tech Pubs', 'manual'),
 ]
+
 
 # -- Options for manual page output ------------------------------------------
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-# man_pages = [
-#    (master_doc, 'zenkooperationsguide', 'Zenko Operations Guide Documentation',
-#     [author], 1)
-#]
+man_pages = [
+    (master_doc, 'zenkooperationsguide', 'Zenko Operations Guide Documentation',
+     [author], 1)
+]
 
 
 # -- Options for Texinfo output ----------------------------------------------
@@ -185,15 +187,16 @@ latex_documents = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'ZenkoInstallationGuide', 'Zenko Installation Guide',
-     author, 'Scality Technical Publications', 'Zenko multicloud server'),
+    (master_doc, 'ZenkoOperationsGuide', 'Zenko Operations Guide Documentation',
+     author, 'ZenkoOperationsGuide', 'One line description of project.',
+     'Miscellaneous'),
 ]
 
 
 # -- Options for Epub output -------------------------------------------------
 
 # Bibliographic Dublin Core info.
-# epub_title = project
+epub_title = project
 
 # The unique identifier of the text. This can be a ISBN number
 # or the project homepage.
@@ -205,7 +208,7 @@ texinfo_documents = [
 # epub_uid = ''
 
 # A list of files that should not be packed into the epub file.
-# epub_exclude_files = ['search.html']
+epub_exclude_files = ['search.html']
 
 
 #def setup(app):
@@ -213,9 +216,3 @@ texinfo_documents = [
 
 def setup(app):
         app.add_stylesheet('css/custom.css')
-
-# -- Options for todo extension ----------------------------------------------
-
-# If true, `todo` and `todoList` produce output, else they produce nothing.
-
-todo_include_todos = False
