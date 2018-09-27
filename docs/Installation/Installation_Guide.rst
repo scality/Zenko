@@ -73,15 +73,16 @@ Reserve the following resources for each node.
 
 -  Storage
 
-   -  200 GB persistent volume per node minimum
+   -  1 TB persistent volume per node
 
-   .. Note::
+      .. note::
 
-    This requirement is for storage, not for the system device.
-    You may have to attach a separate storage volume to your cloud server
-    instance. Storage volumes must match or exceed the maximum anticipated
-    demand. Once set, the cluster cannot be resized without redefining new
-    volumes.
+        This requirement is for storage, not for the system device. This
+        storage requirement depends on the sizing of different components and
+        anticipated use. You may have to attach a separate storage volume to
+        each cloud server instance. Storage volumes must match or exceed the
+        maximum anticipated demand. Once set, the cluster cannot be resized
+        without redefining new volumes.
 
 All servers must run CentOS 7.4 or later, and must be ssh-accessible.
 
@@ -117,7 +118,7 @@ Get Ready
    directory from which you will deploy Zenko:
    ::
 
-    $ cd
+    (metal-k8s) $ cd /path/to/installation
 
    If you are not installing from MetalK8s, follow the instructions in
    Zenko/docs/gke.md to install Helm on your cluster.
@@ -125,7 +126,7 @@ Get Ready
 2. Initialize Helm:
    ::
 
-    (metal-k8s) [centos@node01 ~]$ helm init
+    (metal-k8s) $ helm init
     Creating /home/centos/.helm
     Creating /home/centos/.helm/repository
     Creating /home/centos/.helm/repository/cache
@@ -140,7 +141,7 @@ Get Ready
     Warning: Tiller is already installed in the cluster.
     (Use --client-only to suppress this message, or --upgrade to upgrade Tiller to the current version.)
     Happy Helming!
-    (metal-k8s) [centos@node01 ~]$
+    (metal-k8s) $
 
    Helm can now install applications on the Kubernetes cluster.
 
@@ -171,6 +172,7 @@ Follow these steps to install Zenko with Ingress.
    The following example is for a configuration using the NGINX ingress
    controller. If you are using a different ingress controller, substitute
    parameters as appropriate.
+
 
 1. Create an options.yml file in Zenko/kubernetes/ to store deployment
    parameters. Enter the following parameters:
@@ -206,10 +208,11 @@ Follow these steps to install Zenko with Ingress.
    If the HTTP proxy endpoint is set and the HTTPS one is not, the HTTP proxy
    will be used for HTTPS traffic as well.
 
-.. note::
+  .. note::
 
-    To avoid unexpected behavior, only specify one of the "http" or
-    "https" proxy options.
+   To avoid unexpected behavior, only specify one of the
+   "http" or "https" proxy options.
+
 
 4. Perform the following Helm installation from the kubernetes directory
    ::
