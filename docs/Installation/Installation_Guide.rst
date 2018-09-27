@@ -196,7 +196,7 @@ Get Ready
 
    ::
 
-       (metal-k8s) $ cd /path/to/installation
+    (metal-k8s) $ cd /path/to/installation
 
    If you are not installing from MetalK8s, follow the instructions in
    Zenko/docs/gke.md to install Helm on your cluster.
@@ -248,9 +248,10 @@ charts.
 Follow these steps to install Zenko with Ingress.
 
 .. note::
-    The following example is for a configuration using the NGINX ingress
-    controller. If you are using a different ingress controller, substitute
-    parameters as appropriate.
+
+   The following example is for a configuration using the NGINX ingress
+   controller. If you are using a different ingress controller, substitute
+   parameters as appropriate.
 
 #. Create an options.yml file in Zenko/kubernetes/ to store deployment
    parameters. Enter the following parameters:
@@ -299,7 +300,6 @@ Follow these steps to install Zenko with Ingress.
 
       To avoid unexpected behavior, only specify one of the “http” or “https”
       proxy options.
-#. Perform the following Helm installation from the kubernetes directory:
 
 #. Perform the following Helm installation from the kubernetes directory:
 
