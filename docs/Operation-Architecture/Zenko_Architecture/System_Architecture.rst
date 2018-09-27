@@ -18,8 +18,9 @@ orchestration and Prometheus for monitoring. Zenko is deployed using
 MetalK8s either on-premises or in the cloud, or with a cloud Kubernetes
 framework (such as GKE, AKS, EKS, or Kops).
 
+
 Zenko Services Stack
-====================
+++++++++++++++++++++
 
 The following diagram summarizes the Zenko cloud architecture:
 
@@ -112,10 +113,5 @@ to emergent conditions.
 
 .. _`Go back`: Architecture.html
 
-
 .. |image0| image:: ../Resources/Images/Zenko_hi-level.svg
-   :class: SeventyFivePercent
-.. |image1| image:: ../Resources/Images/Zenko_arch_NoNFS.svg
-   :class: OneHundredPercent
-.. |image2| image:: ../Resources/Images/Zenko_cluster_NoNFS.svg
    :class: SeventyFivePercent
