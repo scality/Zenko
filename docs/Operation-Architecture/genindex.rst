@@ -10,7 +10,6 @@ Index
       Conceptual Framework <Introduction/Conceptual_Framework>
    Architecture <Zenko_Architecture/Architecture>
       System Architecture <Zenko_Architecture/System_Architecture>
-         Basics <Zenko_Architecture/Basics>
          Zenko Services Stack <Zenko_Architecture/Zenko_Service_Stack>
          Zenko Cluster Topology <Zenko_Architecture/Zenko_Cluster_Topology>
       Software Architecture <Zenko_Architecture/Software_Architecture>
@@ -27,7 +26,6 @@ Index
          S3 Data Service <Zenko_Architecture/S3_Data>
     Services <Services/Services>
       Replication Service <Services/Replication_Service>
-         Transient Source Replication <Services/Transient_Source_Replication>
       Lifecycle Management <Services/Lifecycle_Management_Service>
       Metadata Search <Metadata_Search/Metadata_Search>
          Searching Metadata with Zenko <Metadata_Search/Searching_Metadata_with_Zenko>
