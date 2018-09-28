@@ -19,6 +19,7 @@ resources are preinstalled and available on demand.
 Setting Up a Cluster
 --------------------
 
+
 General Cluster Requirements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -61,15 +62,16 @@ Reserve the following resources for each node.
 
    -  120 GB SSD (boot drive)
    -  80 GB SSD
-
--  Storage
-
    -  1 TB persistent volume per node
 
-This requirement is for storage, not for the system device. Storage requirements
-depend on the sizing of different components and anticipated use. You may have
-to attach a separate storage volume to each cloud server instance. Storage
-volumes must match or exceed the maximum anticipated demand.
+      .. note::
+
+        This requirement is for storage, not for the system device. This
+        storage requirement depends on the sizing of different components and
+        anticipated use. You may have to attach a separate storage volume to
+        each cloud server instance. Storage volumes must match or exceed the
+        maximum anticipated demand. Once set, the cluster cannot be resized
+        without redefining new volumes.
 
 All servers must run CentOS 7.4 or later, and must be ssh-accessible.
 
@@ -188,37 +190,31 @@ Get Ready
 #. Initialize Helm:
 
    ::
-
-       (metal-k8s) $ helm init
-       Creating /home/centos/.helm
-       Creating /home/centos/.helm/repository
-       Creating /home/centos/.helm/repository/cache
-       Creating /home/centos/.helm/repository/local
-       Creating /home/centos/.helm/plugins
-       Creating /home/centos/.helm/starters
-       Creating /home/centos/.helm/cache/archive
-       Creating /home/centos/.helm/repository/repositories.yaml
-       Adding stable repo with URL: https://kubernetes-charts.storage.googleapis.com
-       Adding local repo with URL: http://127.0.0.1:8879/charts
-       $HELM_HOME has been configured at /home/centos/.helm.
-       Warning: Tiller is already installed in the cluster.
-       (Use --client-only to suppress this message, or --upgrade to upgrade Tiller to the current version.)
-       Happy Helming!
-       (metal-k8s) $
+ 
+    (metal-k8s) $ helm init
+    Creating /home/centos/.helm
+    Creating /home/centos/.helm/repository
+    Creating /home/centos/.helm/repository/cache
+    Creating /home/centos/.helm/repository/local
+    Creating /home/centos/.helm/plugins
+    Creating /home/centos/.helm/starters
+    Creating /home/centos/.helm/cache/archive
+    Creating /home/centos/.helm/repository/repositories.yaml
+    Adding stable repo with URL: https://kubernetes-charts.storage.googleapis.com
+    Adding local repo with URL: http://127.0.0.1:8879/charts
+    $HELM_HOME has been configured at /home/centos/.helm.
+    Warning: Tiller is already installed in the cluster.
+    (Use --client-only to suppress this message, or --upgrade to upgrade Tiller to the current version.)
+    Happy Helming!
+    (metal-k8s) $
 
    Helm can now install applications on the Kubernetes cluster.
 
-#. Clone the latest Zenko version:
+3. Go to https://github.com/Scality/Zenko/releases and download the latest
+    stable version of Zenko.
 
-   ::
-
-       $ git clone https://github.com/scality/Zenko.git
-       Cloning into 'Zenko'...
-       remote: Counting objects: 4335, done.
-       remote: Compressing objects: 100% (10/10), done.
-       remote: Total 4335 (delta 1), reused 4 (delta 0), pack-reused 4325
-       Receiving objects: 100% (4335/4335), 1.25 MiB | 0 bytes/s, done.
-       Resolving deltas: 100% (2841/2841), done.
+4. Unzip or gunzip the file you just downloaded and change to the top-level
+    (Zenko) directory.
 
 Install Zenko
 ~~~~~~~~~~~~~
@@ -238,6 +234,7 @@ charts.
 Follow these steps to install Zenko with Ingress.
 
 .. note::
+
     The following example is for a configuration using the NGINX ingress
     controller. If you are using a different ingress controller, substitute
     parameters as appropriate.
@@ -286,11 +283,9 @@ Follow these steps to install Zenko with Ingress.
    proxy will be used for HTTPS traffic as well.
 
    .. note::
+   
       To avoid unexpected behavior, only specify one of the “http” or “https”
       proxy options.
-
-4.  Perform the following Helm installation from the kubernetes
-    directory:
 
     ::
 
@@ -304,41 +299,43 @@ Follow these steps to install Zenko with Ingress.
 
         $ kubectl get pods -n default -o wide
 
-    This returns a snapshot of pod creation. For a few minutes after the Helm
-    install, some pods will show CrashLoopBackOff issues. This behavior is
-    expected, because there is no launch order between pods. After a few
+    returns a snapshot of pod creation. For a few minutes after Helm
+    installs Zenko, some pods will show CrashLoopBackOff issues. This behavior
+    is expected, because there is no launch order between pods. After a few
     minutes the cluster will stabilize as all pods enter the Running state.
 
-6.  After installing or upgrading Zenko, some pods that have completed their
-    work successfully may linger in an Error or Completed state. For example:
+6.  After installing or upgrading Zenko, some configuration  pods that have 
+    completed their work successfully may linger in an Error or Completed state.
+    For example:
+    
+     ::
 
-    ::
+       zenko-zenko-queue-config-abea05e0-7qp7d            0/1     Error       0     4m
+       zenko-zenko-queue-config-abea05e0-7wwsv            0/1     Error       0     4m
+       zenko-zenko-queue-config-abea05e0-88wgb            0/1     Error       0     4m
+       zenko-zenko-queue-config-abea05e0-cg5b5            0/1     Error       0     4m
+       zenko-zenko-queue-config-abea05e0-dwzw8            0/1     Error       0     7m
+       zenko-zenko-queue-config-abea05e0-q94cc            0/1     Error       0     4m
+       zenko-zenko-queue-config-abea05e0-s2f8x            0/1     Completed   0     4m
+       zenko-zenko-queue-config-abea05e0-vkv65            0/1     Error       0     4m
 
-        zenko-zenko-queue-config-abea05e0-7qp7d            0/1     Error       0     4m
-        zenko-zenko-queue-config-abea05e0-7wwsv            0/1     Error       0     4m
-        zenko-zenko-queue-config-abea05e0-88wgb            0/1     Error       0     4m
-        zenko-zenko-queue-config-abea05e0-cg5b5            0/1     Error       0     4m
-        zenko-zenko-queue-config-abea05e0-dwzw8            0/1     Error       0     7m
-        zenko-zenko-queue-config-abea05e0-q94cc            0/1     Error       0     4m
-        zenko-zenko-queue-config-abea05e0-s2f8x            0/1     Completed   0     4m
-        zenko-zenko-queue-config-abea05e0-vkv65            0/1     Error       0     4m
+     Verify that:
 
-    Before deleting these pods, verify that:
+     * All pods are running (as described in the previous step).
 
-   -  All pods are running (as described in the previous step).
-   -  One of the zenko-queue-config pods shows a "Completed" state.
+     * One of the pods shows a "Completed" state.
 
-   Once these criteria are satisfied, delete these configuration pods
-   by deleting the job that spawned them.
+     Once these criteria are satisfied, delete these configuration pods by
+     deleting the job that spawned them.
 
-    ::
+     ::
 
-        $ kubectl get jobs
-        NAME                                  DESIRED   SUCCESSFUL   AGE
-        zenko-zenko-queue-config-a86a68e3     1         1            8m
+       $ kubectl get jobs
+       NAME                                  DESIRED   SUCCESSFUL   AGE
+       zenko-zenko-queue-config-a86a68e3     1         1            8m
 
-        $ kubectl delete jobs zenko-zenko-queue-config-a86a68e3
-        job.batch "zenko-zenko-queue-config-a86a68e3" deleted
+       $ kubectl delete jobs zenko-zenko-queue-config-a86a68e3
+       job.batch "zenko-zenko-queue-config-a86a68e3" deleted
 
 7.  To register your Zenko instance for Orbit access, get your
     CloudServer’s name:

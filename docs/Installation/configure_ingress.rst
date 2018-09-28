@@ -1,6 +1,6 @@
-===================================
++++++++++++++++++++++++++++++++++++
 Configuring HTTPS Ingress for Zenko
-===================================
++++++++++++++++++++++++++++++++++++
 
 If your Kubernetes cluster uses NGINX for ingress control, use the following
 guidelines to configure HTTPS support. From the Zenko/kubernetes/zenko
@@ -9,12 +9,12 @@ directory:
 1. Generate the certificate.
    ::
 
-   $ openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /tmp/tls.key -out /tmp/tls.crt -subj "/CN=zenko.local"
+    $ openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /tmp/tls.key -out /tmp/tls.crt -subj "/CN=zenko.local"
 
 2. Store the certificate in a Kubernetes secret.
    ::
 
-   $ kubectl create secret tls zenko-tls --key /tmp/tls.key --cert /tmp/tls.crt
+    $ kubectl create secret tls zenko-tls --key /tmp/tls.key --cert /tmp/tls.crt
 
 3. Set Zenko chart values in options.yml to resemble:
    ::
