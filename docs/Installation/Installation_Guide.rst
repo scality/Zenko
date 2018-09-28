@@ -299,6 +299,7 @@ Follow these steps to install Zenko with Ingress.
 
       To avoid unexpected behavior, only specify one of the “http” or “https”
       proxy options.
+#. Perform the following Helm installation from the kubernetes directory:
 
 #. Perform the following Helm installation from the kubernetes directory:
 
@@ -323,7 +324,7 @@ Follow these steps to install Zenko with Ingress.
     completed their work successfully may linger in an Error or Completed state.
     For example:
 
-     ::
+    ::
 
         zenko-zenko-queue-config-abea05e0-7qp7d            0/1     Error       0     4m
         zenko-zenko-queue-config-abea05e0-7wwsv            0/1     Error       0     4m
