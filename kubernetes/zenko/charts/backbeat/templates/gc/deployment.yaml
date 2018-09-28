@@ -41,6 +41,7 @@ spec:
             httpGet:
               path: {{ .Values.health.path.liveness}}
               port: {{ .Values.health.port }}
+            initialDelaySeconds: {{ .Values.health.initialDelaySeconds }}
           resources:
 {{ toYaml .Values.garbageCollector.consumer.resources | indent 12 }}
     {{- with .Values.garbageCollector.consumer.nodeSelector }}

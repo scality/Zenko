@@ -64,6 +64,12 @@ logging:
 
 allowHealthchecksFrom: '0.0.0.0/0'
 
+health:
+  port: http
+  path:
+    liveness: /_/healthcheck
+  initialDelaySeconds: 120
+
 env: {}
 
 mongodb:

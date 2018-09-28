@@ -52,6 +52,7 @@ spec:
             httpGet:
               path: /_/healthcheck
               port: api
+            initialDelaySeconds: {{ .Values.health.initialDelaySeconds }}
           # TODO readinessProbe:
           resources:
 {{ toYaml .Values.api.resources | indent 12 }}

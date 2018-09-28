@@ -71,8 +71,9 @@ spec:
           args: ['npm', 'run', 'start_s3server']
           livenessProbe:
             httpGet:
-              path: /_/healthcheck
-              port: http
+              path: {{ .Values.health.path.liveness}}
+              port: {{ .Values.health.port }}
+            initialDelaySeconds: {{ .Values.health.initialDelaySeconds }}
           volumeMounts:
             {{- if .Values.proxy.caCert }}
             - name: proxy-cert

@@ -53,6 +53,7 @@ spec:
             httpGet:
               path: {{ .Values.health.path.liveness}}
               port: {{ .Values.health.port }}
+            initialDelaySeconds: {{ .Values.health.initialDelaySeconds }}
           resources:
 {{ toYaml .Values.lifecycle.conductor.resources | indent 12 }}
     {{- with .Values.lifecycle.conductor.nodeSelector }}

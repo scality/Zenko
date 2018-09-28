@@ -30,6 +30,7 @@ health:
   port: 4042
   path:
     liveness: /_/health/readiness
+  initialDelaySeconds: 120
 
 api:
   replicaCount: 1
