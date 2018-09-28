@@ -1,6 +1,6 @@
 # Zenko
 
-![Zenko logo](res/zenko.io-logo-color-cmyk.png)
+![Zenko logo](res/zenko.io-logo-wide-bw.png)
 
 Zenko is  [Scality](http://www.scality.com/)’s open source multi-cloud data
 controller.
@@ -13,7 +13,7 @@ or [Google Cloud Storage](https://cloud.google.com/storage/).
 
 Learn more at  [Zenko.io](http://www.zenko.io/).
 
-## [May I offer you some lovely documentation?](http://zenko.readthedocs.io)
+## [Full Documentation](http://zenko.readthedocs.io)
 
 ## Contributing
 
@@ -37,7 +37,7 @@ The stack consists of:
 - [MongoDB](https://www.mongodb.com)
 - [redis](https://redis.io/)
 
-all magically configured to talk to each other.
+all configured to talk to each other.
 
 ## Testing Zenko
 
