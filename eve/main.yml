@@ -127,7 +127,7 @@ stages:
     - ShellCommand:
         name: 'Build doc'
         haltOnFailure: true
-        command: tox --workdir /tmp/tox -e docs -- html latexpdf
+        command: tox --workdir /tmp/tox -e docs -- html # latexpdf
 
   test-zenko:
     worker: &kube_cluster
