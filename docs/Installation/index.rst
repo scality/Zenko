@@ -8,5 +8,4 @@ MetalK8s, a Kubernetes engine that is optimized for the Zenko use case.
 .. toctree::
   :maxdepth: 2
 
-  Installation_Guide
-    configure_ingress
+  Installation Guide<Installation_Guide>
