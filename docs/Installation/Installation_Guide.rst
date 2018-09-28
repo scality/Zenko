@@ -11,7 +11,7 @@ Otherwise, you can set up a cluster quickly using
 open-source Kubernetes cluster project, as described in :ref:`Get Ready`.
 
 The following section describes general cluster requirements, which are
-tested on Metal K8s. Because MetalK8s is designed to operate without
+tested on MetalK8s. Because MetalK8s is designed to operate without
 support from public cloud resources, the following sizing requirements
 are assumed good for other cloud Kubernetes deployments, where such
 resources are preinstalled and available on demand.
@@ -62,6 +62,9 @@ Reserve the following resources for each node.
 
    -  120 GB SSD (boot drive)
    -  80 GB SSD
+
+- Storage
+
    -  1 TB persistent volume per node
 
       .. note::
@@ -82,9 +85,11 @@ The default persistent volume sizing requirements are sufficient for a
 conventional deployment. Your requirements may vary, based on total data
 managed and total number of objects managed.
 
-Persistent volume storage must match or exceed the maximum anticipated
-demand. Once set, the cluster cannot be resized without redefining new
-volumes.
+.. Important::
+
+   Persistent volume storage must match or exceed the maximum anticipated
+   demand. Once set, the cluster cannot be resized without redefining new
+   volumes.
 
 To size your deployment, review the default values in
 Zenko/kubernetes/zenko/values.yaml. This file reserves space for each
@@ -190,7 +195,7 @@ Get Ready
 #. Initialize Helm:
 
    ::
- 
+
     (metal-k8s) $ helm init
     Creating /home/centos/.helm
     Creating /home/centos/.helm/repository
@@ -210,10 +215,10 @@ Get Ready
 
    Helm can now install applications on the Kubernetes cluster.
 
-3. Go to https://github.com/Scality/Zenko/releases and download the latest
+#. Go to https://github.com/Scality/Zenko/releases and download the latest
     stable version of Zenko.
 
-4. Unzip or gunzip the file you just downloaded and change to the top-level
+#. Unzip or gunzip the file you just downloaded and change to the top-level
     (Zenko) directory.
 
 Install Zenko
@@ -279,13 +284,14 @@ Follow these steps to install Zenko with Ingress.
            caCert: false
            no_proxy: ""
 
-   If the HTTP proxy endpoint is set and the HTTPS one is not, the HTTP
-   proxy will be used for HTTPS traffic as well.
+   If the HTTP proxy endpoint is set and the HTTPS proxy endpoint is not, the
+   HTTP proxy will be used for HTTPS traffic as well.
 
    .. note::
-   
+
       To avoid unexpected behavior, only specify one of the “http” or “https”
       proxy options.
+#. Perform the following Helm installation from the kubernetes directory:
 
     ::
 
@@ -293,7 +299,7 @@ Follow these steps to install Zenko with Ingress.
 
     If the command is successful, the output from Helm is extensive.
 
-5.  To see K8s’s progress creating pods for Zenko, the command:
+#.  To see K8s’s progress creating pods for Zenko, the command
 
     ::
 
@@ -304,10 +310,10 @@ Follow these steps to install Zenko with Ingress.
     is expected, because there is no launch order between pods. After a few
     minutes the cluster will stabilize as all pods enter the Running state.
 
-6.  After installing or upgrading Zenko, some configuration  pods that have 
+#.  After installing or upgrading Zenko, some configuration pods that have
     completed their work successfully may linger in an Error or Completed state.
     For example:
-    
+
      ::
 
        zenko-zenko-queue-config-abea05e0-7qp7d            0/1     Error       0     4m
@@ -321,9 +327,9 @@ Follow these steps to install Zenko with Ingress.
 
      Verify that:
 
-     * All pods are running (as described in the previous step).
+     * All other pods are running (as described in the previous step).
 
-     * One of the pods shows a "Completed" state.
+     * One of the zenko-queue-config pods shows a "Completed" state.
 
      Once these criteria are satisfied, delete these configuration pods by
      deleting the job that spawned them.
@@ -337,7 +343,7 @@ Follow these steps to install Zenko with Ingress.
        $ kubectl delete jobs zenko-zenko-queue-config-a86a68e3
        job.batch "zenko-zenko-queue-config-a86a68e3" deleted
 
-7.  To register your Zenko instance for Orbit access, get your
+#.  To register your Zenko instance for Orbit access, get your
     CloudServer’s name:
 
     ::
