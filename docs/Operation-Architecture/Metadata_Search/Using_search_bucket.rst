@@ -47,12 +47,9 @@ http://zenko.local:80 and contains the bucket ``zenkobucket``.
 
        $ node bin/search_bucket -a <AccessKey1> -k <verySecretKey1> -b zenkobucket -q "tags.type=color" -h zenko.local -p 80
 
-.. include:: Specifying_Metadata_Fields.rst
-
 Next: `Search Tool Characteristics`_
 
 `Go back`_
-
 
 .. _`Search Tool Characteristics`: Search_Tool_Characteristics.html
 .. _`Go back`: Metadata_Search.html
