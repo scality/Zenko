@@ -10,10 +10,7 @@ Index
       Conceptual Framework <Introduction/Conceptual_Framework>
    Architecture <Zenko_Architecture/Architecture>
       System Architecture <Zenko_Architecture/System_Architecture>
-<<<<<<< HEAD
-=======
          Zenko Services Stack <Zenko_Architecture/Zenko_Service_Stack>
->>>>>>> 3c7d2da75e5ecdac81167849cd63ba2919dd8488
          Zenko Cluster Topology <Zenko_Architecture/Zenko_Cluster_Topology>
       Software Architecture <Zenko_Architecture/Software_Architecture>
          Orbit <Zenko_Architecture/Orbit>

@@ -18,7 +18,6 @@ orchestration and Prometheus for monitoring. Zenko is deployed using
 MetalK8s either on-premises or in the cloud, or with a cloud Kubernetes
 framework (such as GKE, AKS, EKS, or Kops).
 
-
 Zenko Services Stack
 ++++++++++++++++++++
 
