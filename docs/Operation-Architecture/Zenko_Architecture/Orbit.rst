@@ -20,7 +20,7 @@ Orbit offers the following features:
    -  Microsoft Azure Blob
    -  Wasabi Cloud
    -  DigitalOcean Object Storage
-   -  Local transient/cache storage (NFS or RING)
+   -  Local transient/cache storage (RING)
 
 -  Lifecycle management (health status, key metrics/KPIs) for Zenko instances
 -  Workflow configuration and monitoring (for CRR and Lifecycle
