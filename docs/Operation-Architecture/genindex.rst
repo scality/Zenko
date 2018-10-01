@@ -11,7 +11,6 @@ Index
    Architecture <Zenko_Architecture/Architecture>
       System Architecture <Zenko_Architecture/System_Architecture>
          Basics <Zenko_Architecture/Basics>
-         Zenko Services Stack <Zenko_Architecture/Zenko_Service_Stack>
          Zenko Cluster Topology <Zenko_Architecture/Zenko_Cluster_Topology>
       Software Architecture <Zenko_Architecture/Software_Architecture>
          Orbit <Zenko_Architecture/Orbit>
