@@ -37,7 +37,7 @@ at least one disk available to provision storage volumes.
    machines on it.
 
 Sizing
-******
+^^^^^^
 
 The following sizes for Zenko instances have been tested on live systems
 using MetalK8s, which adds some overhead. If you are running a different
@@ -67,10 +67,14 @@ Reserve the following resources for each node.
 
    -  1 TB persistent volume per node
 
-This requirement is for storage, not for the system device. Storage requirements
-depend on the sizing of different components and anticipated use. You may have
-to attach a separate storage volume to each cloud server instance. Storage
-volumes must match or exceed the maximum anticipated demand.
+      .. note::
+
+        This requirement is for storage, not for the system device. This
+        storage requirement depends on the sizing of different components and
+        anticipated use. You may have to attach a separate storage volume to
+        each cloud server instance. Storage volumes must match or exceed the
+        maximum anticipated demand. Once set, the cluster cannot be resized
+        without redefining new volumes.
 
 All servers must run CentOS 7.4 or later, and must be ssh-accessible.
 
@@ -192,8 +196,7 @@ Get Ready
 
    ::
 
-    (metal-k8s) $ cd /path/to/installation
-
+       (metal-k8s) $ cd /path/to/installation
 
    If you are not installing from MetalK8s, follow the instructions in
    Zenko/docs/gke.md to install Helm on your cluster.
@@ -246,9 +249,9 @@ Follow these steps to install Zenko with Ingress.
 
 .. note::
 
-   The following example is for a configuration using the NGINX ingress
-   controller. If you are using a different ingress controller, substitute
-   parameters as appropriate.
+    The following example is for a configuration using the NGINX ingress
+    controller. If you are using a different ingress controller, substitute
+    parameters as appropriate.
 
 #. Create an options.yml file in Zenko/kubernetes/ to store deployment
    parameters. Enter the following parameters:
@@ -298,8 +301,7 @@ Follow these steps to install Zenko with Ingress.
       To avoid unexpected behavior, only specify one of the “http” or “https”
       proxy options.
 
-4.  Perform the following Helm installation from the kubernetes
-    directory:
+#. Perform the following Helm installation from the kubernetes directory:
 
     ::
 
@@ -313,11 +315,10 @@ Follow these steps to install Zenko with Ingress.
 
         $ kubectl get pods -n default -o wide
 
-    returns a snapshot of pod creation. For a few minutes after the Helm
-    install, some pods will show CrashLoopBackOff issues. This behavior is
-    expected, because there is no launch order between pods. After a few
+    returns a snapshot of pod creation. For a few minutes after Helm
+    installs Zenko, some pods will show CrashLoopBackOff issues. This behavior
+    is expected, because there is no launch order between pods. After a few
     minutes the cluster will stabilize as all pods enter the Running state.
-
 
 #.  After installing or upgrading Zenko, some configuration pods that have
     completed their work successfully may linger in an Error or Completed state.
