@@ -84,7 +84,7 @@ replicaFactor: 1
 
 image:
   repository: dorakorpar/cloudserver
-  tag: listv2-3
+  tag: listv2-5
   pullPolicy: IfNotPresent
 
 proxy:

@@ -4,7 +4,7 @@
 replicaCount: 1
 image:
   repository: dorakorpar/cloudserver
-  tag: listv2-3
+  tag: listv2-5
   pullPolicy: IfNotPresent
 service:
   name: s3-data
