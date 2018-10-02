@@ -83,8 +83,8 @@ replicaCount: 3
 replicaFactor: 1
 
 image:
-  repository: zenko/cloudserver
-  tag: 8.0.17
+  repository: dorakorpar/cloudserver
+  tag: listv2
   pullPolicy: IfNotPresent
 
 proxy:
