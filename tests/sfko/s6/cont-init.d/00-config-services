@@ -1,0 +1,7 @@
+#!/usr/bin/with-contenv sh
+
+if [ "$MODE" == "proxy" ]; then
+    rm -rf /etc/services.d/sfko
+elif [ "$MODE" != "proxy" ]; then
+    rm -rf /etc/services.d/zitm
+fi

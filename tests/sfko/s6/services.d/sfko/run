@@ -1,0 +1,4 @@
+#!/usr/bin/with-contenv sh
+
+cd /usr/bin/sfko
+su-exec sfko python run.py

@@ -1,0 +1,3 @@
+#!bin/sh
+
+chown -R sfko:sfko /config

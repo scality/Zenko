@@ -1,0 +1,80 @@
+#!/bin/sh
+
+SCRIPT="$0"
+BIN_DIR="$(dirname "$SCRIPT")"
+
+get_env() {
+    if [ -n "$1" ]; then
+        echo "$1"
+    else
+        echo "$2"
+    fi
+}
+
+export REPO="$(get_env $REPO zenko)"
+export IMAGE="$(get_env $IMAGE sfko)"
+export TAG="$(get_env $TAG)"
+
+export BUILD_DOCKER="yes"
+export BUILD_PYPI="yes"
+export SHOULD_BUMP="yes"
+export TO_BUMP=""
+export DEV_BUILD=""
+export LATEST_BUILD=""
+
+if [ "$1" = "chain-from-release" ]; then
+    SHOULD_BUMP="yes"
+    shift
+fi
+
+
+while [ -n "$1" ]; do
+    case "$1" in
+        "--no-bump")
+            SHOULD_BUMP=""
+            ;;
+        'latest')
+            LATEST_BUILD="yes"
+            ;;
+        'dev')
+            DEV_BUILD="yes"
+            ;;
+        "patch")
+            TO_BUMP="patch"
+            ;;
+        "minor")
+            TO_BUMP="minor"
+            ;;
+        "major")
+            TO_BUMP="major"
+            ;;
+        "--no-pypi")
+            BUILD_PYPI=""
+            ;;
+        "--no-docker")
+            BUILD_DOCKER=""
+            ;;
+        "*")
+            usage
+            ;;
+    esac
+    shift
+done
+
+
+if [ -n "$LATEST_BUILD" -o -n "$DEV_BUILD" ]; then
+    SHOULD_BUMP=""
+    TO_BUMP=""
+fi
+
+if [ -n "$DEV_BUILD" ]; then
+    TAG="dev"
+fi
+
+if [ -n "$LATEST_BUILD" ]; then
+    TAG="latest"
+fi
+
+if [ -z "$SHOULD_BUMP" -a -z "$DEV_BUILD" -a -z "$LATEST_BUILD" ]; then
+    TAG="latest"
+fi
