@@ -9,6 +9,7 @@ Zenko consists of several microservices. Among these are:
    Orbit
    CloudServer
    Backbeat
+   Kubernetes
    ZooKeeper
    Kafka
    MongoDB
