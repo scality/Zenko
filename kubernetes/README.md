@@ -76,6 +76,37 @@ These defaults can be modified using:
 --set cloudserver.autoscaling.config.targetCPUUtilizationPercentage=...
 ```
 
+Pod Disruption Budgets
+----------------------
+
+Zenko relies on several stateful services that require a minimum number of pods
+to function properly as highly available services. This allows for resilency to
+many types of outage scenarios. Pod disruption budgets allow for configuration
+of how many pods of a given application can safely fail and continue to operate
+normally before Kubernetes disables access to the service.
+
+The following installed applications allow for configuring disruption budgets:
+  - Mongodb
+  - Redis
+  - Zenko-Quorum
+
+By default, a 3 node cluster will configure a `maxUnavailable` budget of 1.
+However in larger clusters, this can be increased to match the level of high
+availablity you may need or support. 
+
+For example, if you are planning on deploying a 5 node cluster you can have up
+to 2 `maxUnavailable` pods per application. In addition to configuring your node
+count at install time, you should also configure the pod disruiption budgets.
+
+```shell
+--set-string mongodb-replicaset.podDisruptionBudget.maxUnavailable=2
+--set-string redis-ha.podDisruptionBudget.maxUnavailable=2
+--set-string zenko-quorum.podDisruptionBudget.maxUnavailable=2
+```
+
+NOTE: Pod disruption budgets are immutable after install, please take your
+environment needs into consideration prior to installation.
+
 Prometheus Monitoring
 ---------------------
 
