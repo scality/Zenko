@@ -121,7 +121,6 @@ You can also search the following tags as you have defined them
 -  tags: { }
 -  x-amz-meta
 
-.. include:: Specifying_Metadata_Fields.rst
 
 Next: `Differences from SQL`_
 

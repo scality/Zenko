@@ -2,7 +2,7 @@ System Architecture
 ===================
 
 Basics
-++++++
+------
 
 Zenko provides a layer that mediates between a user or configured
 storage frontend and one or several storage backends.
@@ -19,7 +19,7 @@ MetalK8s either on-premises or in the cloud, or with a cloud Kubernetes
 framework (such as GKE, AKS, EKS, or Kops).
 
 Zenko Services Stack
-====================
+--------------------
 
 The following diagram summarizes the Zenko cloud architecture:
 
@@ -82,7 +82,7 @@ These services and their likely use cases are described in the sections
 that follow.
 
 Zenko Cluster Topology
-++++++++++++++++++++++
+----------------------
 
 To operate reliably, Zenko must operate on a cluster of at least three
 physical or virtual servers running CentOS 7.4 and either have access to
