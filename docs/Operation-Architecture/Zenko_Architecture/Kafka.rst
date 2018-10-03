@@ -17,6 +17,4 @@ instructions are stored in a stable, non-volatile system (not, for
 instance, in a fugitive database, such as Redis) that is also not
 enduring (once completed, the job information is not preserved).
 
-`Go back`_
 
-.. _`Go back`: Software_Architecture.html

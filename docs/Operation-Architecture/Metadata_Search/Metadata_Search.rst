@@ -11,6 +11,17 @@ Zenko metadata searches can be performed from the command line or from
 the Orbit graphical user interface. Both searches use a common SQL-like
 syntax to drive a MongoDB search.
 
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+
+    Searching Metadata with Zenko <Searching_Metadata_with_Zenko>
+    Search Tool Characteristics <Search_Tool_Characteristics>
+    Using search_bucket <Using_search_bucket>
+    HTTP Search Requests <HTTP_Search_Requests>
+    Specifying Metadata Fields <Specifying_Metadata_Fields>
+    Differences from SQL <Differences_from_SQL>
+
 Design
 ++++++
 
@@ -73,9 +84,6 @@ The search process is as follows:
            </Contents>
        </ListBucketResult>
 
-*  Next: `Searching Metadata with Zenko`_
 
-`Go back`_
 
-.. _`Go back`: ../Services/Services.html
 .. _`Searching Metadata with Zenko`: Searching_Metadata_with_Zenko.html

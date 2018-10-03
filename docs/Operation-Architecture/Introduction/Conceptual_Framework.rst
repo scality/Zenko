@@ -29,9 +29,3 @@ In addition to replication, Zenko provides bucket lifecycle (expiration)
 management and other tools to manage data easily in a multi-cloud
 environment.
 
-`Go back`_
-
-`Go home`_
-
-.. _`Go back`: About_Zenko.html
-.. _`Go home`: index.html 

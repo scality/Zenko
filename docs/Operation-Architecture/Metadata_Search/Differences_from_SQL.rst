@@ -55,10 +55,7 @@ substring “helloworld”
     "/.*helloworld.*/i"
 
 
-Next: `HTTP Search Requests`_
 
-`Go back`_
 
 
 .. _`HTTP Search Requests`: HTTP_Search_Requests.html
-.. _`Go back`: Search_Tool_Characteristics.html

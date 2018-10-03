@@ -12,7 +12,5 @@ In addition to the options on the left navigation pane, you can click
 the **View More Statistics** button to see more statistics about
 buckets, objects, and resources.
 
-`Go back`_
 
 .. |image0| image:: ../Resources/Images/Orbit_Screencaps/Orbit_dashboard.png
-.. _`Go back`: Using_Orbit.html

@@ -22,6 +22,4 @@ MongoDB is essential to the following Zenko features:
 -  Metrics collection
 -  Queue population
 
-`Go back`_
 
-.. _`Go back`: Software_Architecture.html

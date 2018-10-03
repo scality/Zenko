@@ -7,7 +7,7 @@
  * :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
- */
+ *
 
 @import url("basic.css");
 
@@ -16,7 +16,7 @@
 body {
     font-family: Roboto;
     font-size: 100%;
-#    background-color: #11303d;
+    background-color: #201921;
     color: #000;
     margin: 0;
     padding: 0;
@@ -42,7 +42,7 @@ div.body {
 }
 
 div.footer {
-    color: #ffffff;
+    color: #FFFFFF;
     width: 100%;
     padding: 9px 0 9px 0;
     text-align: center;
@@ -50,14 +50,14 @@ div.footer {
 }
 
 div.footer a {
-    color: #ffffff;
+    color: #FFFFFF;
     text-decoration: underline;
 }
 
 div.related {
     background-color: #201921;
     line-height: 30px;
-    color: #ffffff;
+    color: #FFFFFF;
 }
 
 div.related a {
@@ -159,9 +159,9 @@ div.body h4,
 div.body h5,
 div.body h6 {
     font-family: Oswald;
-    background-color: #201921;
+    background-color: #FFFFFF;
     font-weight: normal;
-    color: #FFFFFF;
+    color: #201921;
     border-bottom: 1px solid #ccc;
     margin: 20px -20px 10px -20px;
     padding: 3px 0 3px 10px;
@@ -175,19 +175,19 @@ div.body h5 { font-size: 110%; }
 div.body h6 { font-size: 100%; }
 
 a.headerlink {
-    color: #201921;
+    color: #c60f0f;
     font-size: 0.8em;
     padding: 0 4px 0 4px;
     text-decoration: none;
 }
 
 a.headerlink:hover {
-    background-color: #201921;
+    background-color: #c60f0f;
     color: white;
 }
 
 div.body p, div.body dd, div.body li, div.body blockquote {
-    text-align: left;
+    text-align: justify;
     line-height: 130%;
 }
 
@@ -227,7 +227,6 @@ div.warning {
 }
 
 p.admonition-title {
-    font-family: Oswald;
     display: inline;
 }
 
@@ -237,12 +236,12 @@ p.admonition-title:after {
 
 pre {
     padding: 5px;
-    background-color: #F2F2F2;
-    color: #FFFFFF;
+/*    background-color: #F2F2F2;
+    color: #333333;
     line-height: 120%;
     border: 1px solid #ac9;
     border-left: none;
-    border-right: none;
+    border-right: none;*/
 }
 
 code {
@@ -269,8 +268,8 @@ th {
 
 div.viewcode-block:target {
     background-color: #f4debf;
-    border-top: 1px solid #ac9;
-    border-bottom: 1px solid #ac9;
+/*    border-top: 1px solid #ac9;
+    border-bottom: 1px solid #ac9;*/
 }
 
 div.code-block-caption {

@@ -25,9 +25,7 @@ Adding a New User
 
   A **Copy** button is included in the user interface for your convenience.
 
-`Go back`_
 
-.. _`Go back`: User_Management_Tasks.html
 
 .. |image0| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_user_create_enter_username.png
    :class: FiftyPercent
