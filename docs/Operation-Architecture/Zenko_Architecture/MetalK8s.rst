@@ -33,6 +33,4 @@ at: \ https://metal-k8s.readthedocs.io/. Installation instructions
 specific to deploying MetalK8s for Zenko are included in the Zenko
 Installation Guide documentation, in the Zenko Git repository.
 
-`Go back`_
 
-.. _`Go back`: Software_Architecture.html

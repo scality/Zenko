@@ -38,6 +38,8 @@ For MetalK8s deployments, if the Kubernetes dashboard is visible, you
 can also access the other Kubernetes-dependent services Zenko offers as
 part of its default stack.
 
+.. _Troubleshooting\ Cloud\ Dashboards:
+
 Troubleshooting Cloud Dashboards
 --------------------------------
 
@@ -161,12 +163,9 @@ Kubernetes engines may employ different authentication strategies. For
 any such problems, request help from the Kubernetes vendor or community
 you have chosen.
 
-`Go back`_
-
-Next: `Kubernetes Dashboard`_
 
 
-.. _`Go back`: Cloud_Management_Services.html
+
 .. _`Kubernetes Dashboard`: Kubernetes_Dashboard.html
 
 .. |image0| image:: ../Resources/Images/Orbit_Screencaps/kubernetes_dashboard_login.png

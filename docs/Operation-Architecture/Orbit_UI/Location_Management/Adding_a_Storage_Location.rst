@@ -36,9 +36,7 @@ Storage Locations dialog:
     For release GA 1.0, Zenko has been capped at 1024 objects. Upward revision of
     this cap is planned for subsequent product revisions.
 
-`Go back`_
 
-.. _`Go back`: Location_Management.html
 
 .. |image0| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_Storage_Locations.png
 .. |image1| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_Add_New_Storage_Location.png

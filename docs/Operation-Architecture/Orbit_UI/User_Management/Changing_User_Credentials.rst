@@ -3,7 +3,7 @@ Changing User Credentials
 
 To change a user’s credentials (public/private key pair) from Orbit.
 
-#. Look for the user’s name in the **SETTINGS**\ pane.
+#. Look for the user’s name in the **SETTINGS** pane.
 
    |image0|
 
@@ -20,9 +20,7 @@ To change a user’s credentials (public/private key pair) from Orbit.
 
    The user’s public key remains unchanged.
 
-`Go back`_
 
-.. _`Go back`: User_Management_Tasks.html 
 
 .. |image0| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_User_Remove.png
    :class: OneHundredPercent

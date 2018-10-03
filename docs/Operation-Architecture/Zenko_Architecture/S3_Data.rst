@@ -14,6 +14,4 @@ The S3 Data service is available for testing purposes only. It can
 become unreliable under heavy loads. For production systems, it must be
 backed by a replicated local data store.
 
-`Go back`_
 
-.. _`Go back`: Software_Architecture.html

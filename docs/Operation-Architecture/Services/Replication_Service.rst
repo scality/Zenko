@@ -42,6 +42,4 @@ in the Kafka queue to delete the transient source buffer. The Garbage
 Collector service is invoked and deletes files meeting the job
 description.
 
-`Go back`_
 
-.. _`Go back`: Services.html

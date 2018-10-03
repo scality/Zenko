@@ -34,9 +34,6 @@ https://www.zenko.io/ and following the instructions for `Setting Up Orbit`_.
 
 For a full walk-through of these features, see `Using Orbit`_.
 
-`Go Back`_
-
-.. _`Go Back`: Software_Architecture.html
 .. _`Try Zenko`: https://admin.zenko.io/user
 .. _`Setting Up Orbit`: ../Orbit_UI/Setting_Up_Orbit/Setting_Up_Orbit.html
 .. _`Using Orbit`: ../Orbit_UI/Using_Orbit.html

@@ -44,9 +44,7 @@ your data. To set up a Sandbox instance:
    Zenko in action.
 
 
-`Go back`_
 
-.. _`Go back`: Setting_Up_Orbit.html
 
 
 .. |image0| image:: ../../Resources/Images/Orbit_Screencaps/Zenko.io_screen.png

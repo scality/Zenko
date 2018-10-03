@@ -2,25 +2,19 @@ Object Lifecycle Management
 ===========================
 
 Cloud users can apply lifecycle rules (specified in Amazon’s `AWS S3
-API <https://docs.aws.amazon.com/AmazonS3/latest/API/Welcome.html>`__) to
+API <https://docs.aws.amazon.com/AmazonS3/latest/API/Welcome.html>`__) to
 buckets managed through Zenko. These rules are triggered after a defined
 time has passed since the object’s creation. Zenko supports expiration
 of versioned or non-versioned objects, when a defined number of days has
 passed since those objects’ creation. This enables automatic deletion of
 older versions of versioned objects to reclaim storage space.
 
-The lifecycle management implementation in Zenko comprises several
-components. Most rely on Kafka and ZooKeeper to pass state to each
-other.
-
 Installation
 ------------
 
 Lifecycle management is part of Backbeat configuration and is installed
-with Backbeat.
-
-Lifecycle management is enabled by default. Lifecycle management can be
-disabled in the Zenko deployment configuration files.
+with Backbeat. It is enabled by default, and can be disabled in the Zenko
+deployment configuration files.
 
 Operation
 ---------
@@ -30,8 +24,8 @@ syntax described at
 https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lifecycle-mgmt.html.
 Zenko lifecycle actions are constrained to expiration actions, and not
 transition actions. Files that exceed a preconfigured temporal threshold
-(for example, 90 days) are “expired” and deleted from the bucket on
-which they are stored.
+(for example, 90 days) are expired and deleted from the bucket in which
+they are stored.
 
 Bucket lifecycle characteristics inhere to the bucket: Zenko’s lifecycle
 management feature does not set lifecycle characteristics, but does
@@ -39,7 +33,7 @@ enforce them. When lifecycle management is enabled, the host cloud
 enforces buckets’ lifecycle rules. If CRR operation is enabled, Zenko
 replicates the expiration to all backup clouds.
 
-To configure bucket lifecycle, follow the AWS S3 Lifecycle Configuration
+To configure bucket lifecycle, follow the AWS S3 Lifecycle Configuration
 Element syntax described in
 `https://docs.aws.amazon.com/AmazonS3/latest/dev/intro-lifecycle-rules.html. <https://docs.aws.amazon.com/AmazonS3/latest/dev/intro-lifecycle-rules.html>`__
 
@@ -54,11 +48,9 @@ bucket:
 -  DELETE Bucket Lifecycle
 
    .. tip::
-
-      See the `AWS S3
-      API Reference <https://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketOps.html>`__
+   
+      See the `AWS S3 API Reference <https://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketOps.html>`__
       for protocol-level formatting details.
-
 
 These calls manage bucket attributes related to lifecycle behavior,
 which are stored as part of bucket metadata.
@@ -74,10 +66,10 @@ for more examples and explanations on lifecycle rules.
    https://docs.aws.amazon.com/AmazonS3/latest/dev/set-lifecycle-cli.htm\ l
    for examples).
 
-  .. note::
+   .. note::
 
-     The “Rules” section is an array that can hold multiple
-     rules.
+      The “Rules” section is an array that can hold multiple
+      rules.
 
 #. Use the aws s3api to set the JSON lifecycle rule on a bucket,
    zenko-bucket.
@@ -95,10 +87,8 @@ for more examples and explanations on lifecycle rules.
 Once the lifecycle rules on the bucket are set, the rules apply to all
 objects in the specified bucket.
 
-`Go back to Advanced Workflows`_
+.. toctree::
+  :maxdepth: 1
+  :hidden:
 
-`Go back to CRR Retry`_
-
-.. _`Go back to Advanced Workflows`: ../Orbit_UI/Advanced_Workflows/Advanced_Workflows.html
-
-.. _`Go back to CRR Retry`: ../Zenko_CLI/CRR_Retry.html
+  lifecycle_expiration_policies

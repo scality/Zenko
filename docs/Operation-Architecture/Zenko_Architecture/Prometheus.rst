@@ -12,6 +12,4 @@ metrics. Its primary use in Zenko is to gather monitoring data from
 Zenko services, nodes, and clusters. This information is then sent to
 Grafana for dashboard-style display.
 
-`Go back`_
 
-.. _`Go back`: Software_Architecture.html

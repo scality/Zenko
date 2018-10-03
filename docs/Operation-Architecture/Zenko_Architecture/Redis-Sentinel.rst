@@ -14,6 +14,4 @@ between two or more services. Information stored in Redis can be
 written, accessed, rewritten, and destroyed faster and more easily than
 with a full-featured database.
 
-`Go back`_
 
-.. _`Go back`: Software_Architecture.html

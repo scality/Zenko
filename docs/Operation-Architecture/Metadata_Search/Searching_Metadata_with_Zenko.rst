@@ -15,9 +15,8 @@ by
    `Scality/S3 <https://github.com/scality/S3>`__ GitHub repository) as
    described in `Using search_bucket`_.
 -  Making an Auth V4-signed HTTP request to Zenko as described in
-   `HTTP Search Requests`_.
+   `HTTP Search Requests`_.
 
-`Go back to Services`_
 
 .. _`Go back to Services`: ../Services/Services.html
 .. _`Searching Metadata from Orbit`: ../Orbit_UI/Searching_Metadata_from_Orbit.html

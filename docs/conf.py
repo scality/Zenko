@@ -16,15 +16,11 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
-import datetime
-
 # -- Project information -----------------------------------------------------
 
-now = datetime.datetime.now()
-project = 'Zenko Installation Guide'
-# copyright = '2009–"%s", Scality, Inc.'%(now.year)
+project = 'Zenko Documentation Stack'
 copyright = '2018, Scality, Inc.'
-author = 'Scality Technical Publications'
+author = 'Technical Publications'
 
 # The short X.Y version
 version = '1.0'
@@ -41,12 +37,15 @@ release = '1.0'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
+
+autosectionlabel_prefix_document = True
+
 extensions = [
-        'sphinx.ext.autosectionlabel',
-	'sphinx.ext.todo',
-        'sphinx.ext.ifconfig',
-	'sphinxcontrib.spelling',
-#	'sphinxcontrib.inkscapeconverter',
+            'sphinx.ext.todo',
+            'sphinx.ext.ifconfig',
+            'sphinxcontrib.spelling',
+            'sphinxcontrib.inkscapeconverter',
+            'sphinx.ext.autosectionlabel',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -70,7 +69,7 @@ master_doc = 'index'
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
 
-# language = none
+language = None
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -86,8 +85,8 @@ pygments_style = 'sphinx'
 
 # -- Options for HTML output -------------------------------------------------
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
+# The theme to use for HTML and HTML Help pages.  See the
+# documentation for a list of builtin themes.
 
 html_theme = 'classic'
 
@@ -157,27 +156,25 @@ latex_elements = {
 
     # Latex figure (float) alignment
     #
-     'figure_align': 'hb',
+    # 'figure_align': 'htbp',
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
-
 latex_documents = [
     (master_doc, 'ZenkoOperationsGuide.tex', 'Zenko Operations Guide Documentation',
-     author, 'Scality Technical Publications'),
+     'Tech Pubs', 'manual'),
 ]
 
 # -- Options for manual page output ------------------------------------------
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-# man_pages = [
-#    (master_doc, 'zenkooperationsguide', 'Zenko Operations Guide Documentation',
-#     [author], 1)
-#]
-
+man_pages = [
+    (master_doc, 'zenkooperationsguide', 'Zenko Operations Guide Documentation',
+     [author], 1)
+]
 
 # -- Options for Texinfo output ----------------------------------------------
 
@@ -185,8 +182,9 @@ latex_documents = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'ZenkoInstallationGuide', 'Zenko Installation Guide',
-     author, 'Scality Technical Publications', 'Zenko multicloud server'),
+    (master_doc, 'ZenkoOperationsGuide', 'Zenko Operations Guide Documentation',
+     author, 'ZenkoOperationsGuide', 'One line description of project.',
+     'Miscellaneous'),
 ]
 
 
@@ -212,10 +210,4 @@ texinfo_documents = [
 #        app.add_stylesheet('_static/style.css')
 
 def setup(app):
-        app.add_stylesheet('css/custom.css')
-
-# -- Options for todo extension ----------------------------------------------
-
-# If true, `todo` and `todoList` produce output, else they produce nothing.
-
-todo_include_todos = False
+        app.add_stylesheet('custom.css')
