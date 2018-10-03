@@ -10,8 +10,6 @@ Index
       Conceptual Framework <Introduction/Conceptual_Framework>
    Architecture <Zenko_Architecture/Architecture>
       System Architecture <Zenko_Architecture/System_Architecture>
-         Zenko Services Stack <Zenko_Architecture/Zenko_Service_Stack>
-         Zenko Cluster Topology <Zenko_Architecture/Zenko_Cluster_Topology>
       Software Architecture <Zenko_Architecture/Software_Architecture>
          Orbit <Zenko_Architecture/Orbit>
          CloudServer <Zenko_Architecture/CloudServer>
@@ -71,7 +69,10 @@ Index
          CRR Metrics and Health <Zenko_CLI/CRR_Metrics_and_Health>
          CRR Retry <Zenko_CLI/CRR_Retry>
          CRR Pause and Resume <Zenko_CLI/CRR_Pause_&_Resume>
-         Object Lifecycle Management <Lifecycle_Management/Object_Lifecycle_Management>
+         CRR Statistics <Zenko_CLI/CRR_statistics>
+	 Object Lifecycle Management <Lifecycle_Management/Object_Lifecycle_Management>
+
+
 
 Navigation
 ==========
