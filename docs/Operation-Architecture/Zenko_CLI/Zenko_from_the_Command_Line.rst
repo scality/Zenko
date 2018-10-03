@@ -1,19 +1,28 @@
+.. toctree::
+   :maxdepth: 2
+
+   CRR Metrics and Health <CRR_Metrics_and_Health>
+   CRR Retry <CRR_Retry>
+   CRR Pause and Resume <CRR_Pause_&_Resume>
+   CRR Statistics<CRR_statistics>
+   Object Lifecycle Management <../Lifecycle_Management/Object_Lifecycle_Management>
+
 Zenko from the Command Line
 ===========================
 
 S3 API
 ------
 
-Zenko supports a limited set of S3 API commands. For a comprehensive
+Zenko supports a limited set of S3 API commands. For a comprehensive
 listing of supported S3 commands, see the *Scality Zenko Enterprise Reference
 Manual (v. 1.0)*.
 
 Setup
 ~~~~~
 
-To access Zenko’s AWS S3 API, you must perform the following setup
+To access Zenko’s AWS S3 API, you must perform the following setup
 tasks. In the present example, server 1 is modified to be the
-AWS gateway.
+AWS gateway.
 
 #. Using SSH, open any server in a running Zenko instance.
 
@@ -21,7 +30,7 @@ AWS gateway.
 
        $ ssh centos@10.0.0.1
 
-#. Install the EPEL  libraries.
+#. Install the EPEL libraries.
 
    ::
 
