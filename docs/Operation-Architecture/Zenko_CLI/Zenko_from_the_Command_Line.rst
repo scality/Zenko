@@ -1,15 +1,23 @@
-.. toctree::
-   :maxdepth: 2
+Zenko from the Command Line
+===========================
 
-   CRR Metrics and Health <CRR_Metrics_and_Health>
+Zenko supports command-line interactions for a limited set of Amazon
+S3 API calls and to access its own Backbeat server.
+
+Enabling command-line interactions enables programmatic access to
+the following features:
+
+.. toctree::
+   :maxdepth: 1
+
+   CRR Metrics and Healthcheck <CRR_Metrics_and_Health>
    CRR Retry <CRR_Retry>
    CRR Pause and Resume <CRR_Pause_&_Resume>
    CRR Statistics<CRR_statistics>
    Object Lifecycle Management <../Lifecycle_Management/Object_Lifecycle_Management>
 
-Zenko from the Command Line
-===========================
-
+Accessing Zenko from the command line requires the following setup tasks.
+   
 S3 API
 ------
 
@@ -126,6 +134,9 @@ troubleshooting only.
    Opening the Backbeat API has security implications. Don’t expose the
    Backbeat port unless you know what you’re doing.
 
+ 
+
+   
 `Go Back`_
 
 Next: `CRR Metrics and Healthcheck`_
