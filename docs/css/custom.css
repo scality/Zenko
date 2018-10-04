@@ -75,7 +75,7 @@ div.sphinxsidebar h3 {
 
 /* Changes color of note admonition box */
 div.note {
-    background-color: #ff9b3b;
+    background-color: #eeeeff;
     border: 1px solid #ff9b3b;
 }
 
@@ -89,6 +89,11 @@ div.important {
 div.warning {
     background-color: #ffc6ba;
     border: 1px solid #ffc6ba;
+}
+
+/* Changes the color of the Tip admonition box */
+div.note {
+    background-color: #eeffee;
 }
 
 /* Changes the table header color to be gray */

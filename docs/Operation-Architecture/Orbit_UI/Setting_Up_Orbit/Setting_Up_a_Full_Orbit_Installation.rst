@@ -31,8 +31,10 @@ Orbit.
 
    |image3|
 
-   .. tip:: To find your Instance ID, use the kubectl commands in the
-     “Install Zenko” section of the Installation Guide.
+   .. tip::
+
+      To find your Instance ID, use the kubectl commands in the
+      “Install Zenko” section of the Installation Guide.
 
 `Go back`_
 

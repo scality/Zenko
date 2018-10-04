@@ -1,5 +1,3 @@
-
-=============================
 Lifecycle Expiration Policies
 =============================
 
@@ -27,7 +25,7 @@ lifecycle expiration is enabled, the host cloud enforces buckets’ lifecycle
 rules. If CRR operation is enabled, Zenko replicates the expiration rules to
 all backup clouds.
 
-To configure bucket lifecycle, follow the AWS S3 Lifecycle Configuration
+To configure bucket lifecycle, follow the AWS S3 Lifecycle Configuration
 Element syntax described in
 `https://docs.aws.amazon.com/AmazonS3/latest/dev/intro-lifecycle-rules.html
 <https://docs.aws.amazon.com/AmazonS3/latest/dev/intro-lifecycle-rules.html>`__.

@@ -157,7 +157,7 @@ div.body h3,
 div.body h4,
 div.body h5,
 div.body h6 {
-    font-family: Oswald, Arian Narrow Bold;
+    font-family: Oswald, Arial Narrow Bold;
     background-color: #FFFFFF;
     font-weight: normal;
     color: #201921;
@@ -222,6 +222,11 @@ div.topic {
 
 div.warning {
     background-color: #ffe4e4;
+    border: 1px solid #f66;
+}
+
+div.tip {
+    background-color: #eeffee;
     border: 1px solid #f66;
 }
 

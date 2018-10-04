@@ -9,3 +9,5 @@ tests/artifacts
 **/.vscode
 
 .tox/
+
+*_build

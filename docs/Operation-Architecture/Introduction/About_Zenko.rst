@@ -25,8 +25,8 @@ APIs to help customize, automate, and improve interactions with Zenko.
 .. toctree::
   :maxdepth: 2
 
-     <backend_support_for_public&private_clouds>
-     <Conceptual_Framework>
+     Conceptual Framework <Conceptual_Framework>
+     Supported Public and Private Clouds <supported_clouds>
 
 `Go back`_
 

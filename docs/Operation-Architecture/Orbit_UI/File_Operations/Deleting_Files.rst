@@ -16,10 +16,16 @@ To delete files from a selected bucket:
 
 #. The file is deleted from the bucket.
 
-   .. note::
+   .. important::
 
-    Directories cannot be deleted using this method unless they
-    are empty.
+      If versioning is enabled (the recommended configuration for
+      AWS nodes) deleting from the Orbit UI deletes the most
+      recent version of the object only. This results in a condition
+      where the bucket appears empty, but continues to contain
+      previous versions of the deleted object. This prevents the
+      bucket from being deleted, because it is not empty. To completely
+      delete an object and its version history requires entering
+      the CLI commands described below.
 
 `Go back`_
 
