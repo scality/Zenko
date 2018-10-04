@@ -121,8 +121,6 @@ You can also search the following tags as you have defined them
 -  tags: { }
 -  x-amz-meta
 
+Next: `Differences from SQL`_
 
-Next: `Specifying Metadata Fields`_
-
-
-.. _`Specifying Metadata Fields`: Specifying_Metadata_Fields.html
+.. _`Differences from SQL`: Differences_from_SQL.html
