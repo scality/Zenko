@@ -98,6 +98,8 @@ spec:
               value: "{{ template "backbeat.redis-hosts" . }}"
             - name: REDIS_HA_NAME
               value: "{{ .Values.redis.sentinel.name }}"
+            - name: EXTENSIONS_REPLICATION_QUEUE_PROCESSOR_RETRY_TIMEOUT_S
+              value: "{{ .Values.replication.dataProcessor.retryTimeoutS }}"
           livenessProbe:
             httpGet:
               path: {{ .Values.health.path.liveness}}
