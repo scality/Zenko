@@ -1,14 +1,18 @@
 Architecture
 ============
 
-This section describes Zenko architecture in two respects:
+This section describes Zenko's system architecture (the physical and
+virtual environments on which Zenko operates) and software architecture
+(the concatenation of microservices that Zenko comprises).
 
-* `System architecture`_, the physical and virtual environments on which Zenko
-  can operate, and
-* `Software architecture`_, the software objects that Zenko comprises.
+  .. toctree::
+   :maxdepth: 1
 
+    System Architecture<System_Architecture>
+    Software Architecture<Software_Architecture>
+  
 `Go Back`_
 
 .. _Go Back: ../index.html
-.. _`System architecture`: System_Architecture.html
-.. _`Software architecture`: Software_Architecture.html
+
+

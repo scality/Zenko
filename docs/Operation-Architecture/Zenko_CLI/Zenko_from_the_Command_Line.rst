@@ -1,19 +1,36 @@
 Zenko from the Command Line
 ===========================
 
+Zenko supports command-line interactions for a limited set of Amazon
+S3 API calls and to access its own Backbeat server.
+
+Enabling command-line interactions enables programmatic access to
+the following features:
+
+.. toctree::
+   :maxdepth: 1
+
+   CRR Metrics and Healthcheck <CRR_Metrics_and_Health>
+   CRR Retry <CRR_Retry>
+   CRR Pause and Resume <CRR_Pause_&_Resume>
+   CRR Statistics<CRR_statistics>
+   Object Lifecycle Management <../Lifecycle_Management/Object_Lifecycle_Management>
+
+Accessing Zenko from the command line requires the following setup tasks.
+   
 S3 API
 ------
 
-Zenko supports a limited set of S3 API commands. For a comprehensive
+Zenko supports a limited set of S3 API commands. For a comprehensive
 listing of supported S3 commands, see the *Scality Zenko Enterprise Reference
 Manual (v. 1.0)*.
 
 Setup
 ~~~~~
 
-To access Zenko’s AWS S3 API, you must perform the following setup
+To access Zenko’s AWS S3 API, you must perform the following setup
 tasks. In the present example, server 1 is modified to be the
-AWS gateway.
+AWS gateway.
 
 #. Using SSH, open any server in a running Zenko instance.
 
@@ -21,7 +38,7 @@ AWS gateway.
 
        $ ssh centos@10.0.0.1
 
-#. Install the EPEL  libraries.
+#. Install the EPEL libraries.
 
    ::
 
@@ -117,6 +134,9 @@ troubleshooting only.
    Opening the Backbeat API has security implications. Don’t expose the
    Backbeat port unless you know what you’re doing.
 
+ 
+
+   
 `Go Back`_
 
 Next: `CRR Metrics and Healthcheck`_
