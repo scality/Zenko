@@ -49,6 +49,7 @@ backbeat:
     dataProcessor:
       replicaCount: *nodeCount
       replicaFactor: 2
+      retryTimeoutS: 300
     statusProcessor:
       replicaCount: *nodeCount
   lifecycle:

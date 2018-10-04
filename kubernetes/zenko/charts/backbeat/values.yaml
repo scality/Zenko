@@ -121,6 +121,7 @@ replication:
     nodeSelector: {}
     tolerations: []
     affinity: {}
+    retryTimeoutS: 300
 
   populator:
     replicaCount: 1
