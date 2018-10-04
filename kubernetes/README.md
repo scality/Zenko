@@ -3,7 +3,7 @@ Zenko Helm Chart
 
 This is a [Helm] Chart for [Scality]'s [Zenko] multi-cloud controller. To get
 started, you'll need a [Kubernetes] cluster, initialized with Helm. Check out
-[minikube](./minikube.md) for a local or single-machine deployment. The below
+[minikube](../docs/minikube.md) for a local or single-machine deployment. The below
 assumes you have cloned the Zenko repository and already `cd` into this directory.
 
 Assuming you have an ingress controller running, run something like:
