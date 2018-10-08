@@ -1,14 +1,15 @@
 Software Architecture
 =====================
 
-Zenko is composed of several microservices. Among these are: 
+Zenko consists of several microservices. Among these are:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    Orbit
    CloudServer
    Backbeat
+   Kubernetes
    ZooKeeper
    Kafka
    MongoDB

@@ -23,7 +23,7 @@ AWS to AWS Replication
 
    |image2|
 
-#. With the AWS target now visible, enter the flow at `Setting Up Replication`.
+#. With the AWS target now visible, enter the flow at `Setting Up Replication`_.
 
 `Go back`_
 
