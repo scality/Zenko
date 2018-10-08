@@ -28,6 +28,14 @@ To access these operations: 
 
 For each file, you can Download_, `View Info`_, or Delete_.
 
+.. toctree::
+   :maxdepth: 1
+
+     Uploading Files <Uploading_Files_to_Buckets>
+     Viewing Files <Viewing_File_Info>
+     Downloading Files <Downloading_a_File>
+     Deleting Files <Deleting_Files>
+
 `Go back`_
 
 .. _Download: Downloading_a_File.html

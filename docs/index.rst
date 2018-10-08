@@ -11,13 +11,5 @@ Zenko
    :glob:
    :caption: Documentation
 
-   root
-   swarm-testing
-   swarm-production
-   orbit_registration
-
-   minikube
-
    Installation/*
-   NewFeatures/*
    Operation-Architecture/*

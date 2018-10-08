@@ -9,3 +9,6 @@ tests/artifacts
 **/.vscode
 
 .tox/
+
+*_build
+docs/_templates/page.html_orig
