@@ -217,13 +217,13 @@ Install Zenko
 
 Helm installs Zenko using packages of Kubernetes resource definitions known as
 charts. These charts, which Helm follows for each Zenko component, can be found
-under zenko/kubernetes/zenko/charts. For each component there is a Chart.yaml
+under Zenko/kubernetes/zenko/charts. For each component there is a Chart.yaml
 file and a values.yaml file. Helm reads the Chart.yaml file to establish such
 basic installation attributes as name and version number, and reads the values
 file for instructions on how to deploy and configure the component. Though
 manually editing the default settings in values.yaml is possible, it is much
 better to write configuration changes and options to
-:file:`zenko/kubernetes/zenko/options.yml`, which Helm can use to
+:file:`Zenko/kubernetes/zenko/options.yaml`, which Helm can use to
 overwrite the default settings presented in the charts.
 
 Follow these steps to install Zenko with Ingress.
@@ -235,7 +235,7 @@ Follow these steps to install Zenko with Ingress.
    parameters as appropriate.
 
 
-1. Create an options.yml file in Zenko/kubernetes/ to store deployment
+1. Create an options.yaml file in Zenko/kubernetes/ to store deployment
    parameters. Enter the following parameters:
    ::
 
@@ -256,7 +256,7 @@ Follow these steps to install Zenko with Ingress.
    “:doc:`configure_ingress`” for additional terms to add to this chart.
 
 3. If your Zenko instance is behind a proxy, add the following lines to the
-   options.yml file, entering your proxy’s IP addresses and port assignments:
+   options.yaml file, entering your proxy’s IP addresses and port assignments:
    ::
 
     cloudserver:
@@ -278,7 +278,7 @@ Follow these steps to install Zenko with Ingress.
 4. Perform the following Helm installation from the kubernetes directory
    ::
 
-    $ helm install --name my-zenko -f options.yml zenko
+    $ helm install --name my-zenko -f options.yaml zenko
 
    If the command is successful, the output from Helm is extensive.
 
