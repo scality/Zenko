@@ -26,6 +26,7 @@ spec:
 {{ toYaml .Values.extraLabels | indent 8 }}
 {{- end }}
       annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/mongodb-mongodb-configmap.yaml") . | sha256sum }}
       {{- if .Values.metrics.prometheusServiceDiscovery }}
         prometheus.io/scrape: "true"
         prometheus.io/port: {{ .Values.metrics.port | quote }}
@@ -35,6 +36,8 @@ spec:
 {{ toYaml .Values.podAnnotations | indent 8 }}
       {{- end }}
     spec:
+      securityContext:
+{{ toYaml .Values.securityContext | indent 8 }}
       initContainers:
         - name: copy-config
           image: busybox
@@ -64,8 +67,6 @@ spec:
               mountPath: /configdb-readonly
             - name: configdir
               mountPath: /data/configdb
-            - name: datadir
-              mountPath: /data/db
           {{- if .Values.tls.enabled }}
             - name: ca
               mountPath: /ca-readonly
@@ -135,26 +136,8 @@ spec:
               mountPath: /data/configdb
             - name: datadir
               mountPath: /data/db
-        - name: permissions
-          image: busybox
-          command:
-            - "sh"
-          args:
-            - "-c"
-            - |
-              set -e
-              set -x
-
-              chown -R "{{ .Values.securityContext.runAsUser }}:{{ .Values.securityContext.fsGroup }}" /data/configdb /data/db
-          volumeMounts:
-             - name: configdir
-               mountPath: /data/configdb
-             - name: datadir
-               mountPath: /data/db
       containers:
         - name: {{ template "mongodb-replicaset.name" . }}
-          securityContext:
-{{ toYaml .Values.securityContext | indent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: "{{ .Values.image.pullPolicy }}"
         {{- if .Values.extraVars }}
@@ -162,7 +145,7 @@ spec:
 {{ toYaml .Values.extraVars | indent 12 }}
         {{- end }}
           ports:
-            - name: peer
+            - name: mongodb
               containerPort: 27017
           resources:
 {{ toYaml .Values.resources | indent 12 }}
@@ -173,6 +156,7 @@ spec:
             - --dbpath=/data/db
             - --replSet={{ .Values.replicaSetName }}
             - --port=27017
+            - --bind_ip=0.0.0.0
           {{- if .Values.auth.enabled }}
             - --auth
             - --keyFile=/data/configdb/key.txt
@@ -269,7 +253,8 @@ spec:
           ports:
             - name: metrics
               containerPort: {{ .Values.metrics.port  }}
-          resources: {{ toYaml .Values.metrics.resources | indent 12 }}
+          resources:
+{{ toYaml .Values.metrics.resources | indent 12 }}
           livenessProbe:
             exec:
               command:
