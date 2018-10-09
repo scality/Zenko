@@ -110,9 +110,9 @@ specified in a Helm installation, override the default values expressed in the
 values.yaml file. To override default values using storage.yaml, use the
 following addendum to the helm install invocation at Zenko deployment.
 
-``
-$ helm install [other options] -f storage.yaml
-``
+.. code-block:: bash
+  
+  $ helm install [other options] -f storage.yaml
 
 How much persistent volume space is required is calculable based on total data
 managed, total objects managed, and other factors. See storage.yaml for details.
@@ -172,6 +172,54 @@ configuring persistent voloumes at 500 Gi/node.
 
    It is a best practice to install Zenko on a fresh cluster.
 
+Pod Disruption Budgets
+**********************
+
+Zenko relies on several stateful services that require a minimum number
+of pods to function with high availability, with resilence under many
+outage scenarios. Pod disruption budgets set how many pods of a given
+application can safely fail and continue to operate normally before
+Kubernetes disables access to the service.
+
+.. note::
+
+   If you are installing Zenko in a high-availability production environment,
+   set a pod disruption budget. If you are installing a basic Zenko deployment
+   (for testing or familiarization, for instance) you can skip this step.
+
+The following installed applications allow for configuring disruption
+budgets:
+
+- MongoDB
+- Redis
+- Zenko-Quorum
+
+In a three-node cluster, Zenko configures a ``maxUnavailable`` budget
+of 1 by default. However in larger clusters, this should be increased to
+match the level of high availablity required. For example, a five-node
+cluster can have up to two ``maxUnavailable`` pods per application.
+
+In addition to configuring the node count at install time, you should
+also configure the pod disruption budgets. This is an example for
+configuring the budgets for a five-node installation.
+
+.. code-block:: yaml
+
+  mongodb-replicaset:
+    podDisruptionBudget:
+      maxUnavailable: 2
+  redis-ha:
+    podDisruptionBudget:
+      maxUnavailable: 2
+  zenko-quorum:
+    podDisruptionBudget:
+      maxUnavailable: 2
+
+.. note::
+
+    Once installed, pod disruption budgets cannot be changed.
+    Consider your environment requirements before installing Zenko.
+
 Get Ready
 *********
 
@@ -211,6 +259,7 @@ Get Ready
 
 4. Unzip or gunzip the file you just downloaded and change to the top-level
     (Zenko) directory.
+
 
 Install Zenko
 *************
