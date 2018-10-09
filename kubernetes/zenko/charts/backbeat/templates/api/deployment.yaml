@@ -19,6 +19,7 @@ spec:
         - name: {{ template "backbeat.fullname" . }}-api
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          terminationMessagePolicy: FallbackToLogsOnError
           args: ["npm", "start"]
           ports:
             - name: api

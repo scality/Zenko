@@ -43,6 +43,7 @@ spec:
         - name: replication-data-processor
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          terminationMessagePolicy: FallbackToLogsOnError
           command: ["/usr/src/app/docker-entrypoint.sh"]
           args: ["npm", "run", "queue_processor"]
           env:

@@ -21,6 +21,7 @@ spec:
         - name: ingestion-producer
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          terminationMessagePolicy: FallbackToLogsOnError
           args: ["npm", "run", "ingestion_populator"]
           env:
             - name: REMOTE_MANAGEMENT_DISABLE

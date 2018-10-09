@@ -23,6 +23,7 @@ spec:
         - name: replication-populator
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          terminationMessagePolicy: FallbackToLogsOnError
           args: ["npm", "run", "queue_populator"]
           env:
             - name: ZOOKEEPER_AUTO_CREATE_NAMESPACE

@@ -20,6 +20,7 @@ spec:
         - name: conductor
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          terminationMessagePolicy: FallbackToLogsOnError
           command: ["/usr/src/app/docker-entrypoint.sh"]
           args: ["npm", "run", "lifecycle_conductor"]
           env:
