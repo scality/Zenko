@@ -149,6 +149,7 @@ ifndef NO_INSTALL
 	$(HELM) upgrade $(ZENKO_HELM_RELEASE) \
 		--namespace $(HELM_NAMESPACE) \
 		--install ../kubernetes/zenko \
+                $(HELM_INSTALL_OVERRIDES) \
 		-f ../eve/ci-values.yaml
 endif
 .PHONY: install-zenko
@@ -218,6 +219,15 @@ test-latest-local:
 	make NO_SIM=true NO_INSTALL=true -e test-latest
 .PHONY: test-local test-latest-local
 
+test-upgrade: install-tiller
+	git checkout 1.0.0 && \
+	make HELM_INSTALL_OVERRIDES="--wait" install-zenko && \
+	git checkout development/1.0 && \
+	make HELM_INSTALL_OVERRIDES="--wait" install-zenko && \
+	git checkout development/1.1 && \
+	make HELM_INSTALL_OVERRIDES="--wait" install-zenko
+.PHONY: test-upgrade
+
 trigger-cosbench:
 	$(eval COSBENCH_POD := $(shell kubectl get pods | awk '/cosbench-controller/{print $$1}'))
 	$(eval COSBENCH_IP := $(shell kubectl describe pod $(COSBENCH_POD) | awk '/IP:\s*[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/{print $$2}'))
@@ -254,3 +264,5 @@ upload-cosbench-results: | get-cosbench-results
 
 test-cosbench: | install-common get-latest-commit install-latest-zenko install-cosbench build-cosbench-runner wait-for-zenko trigger-cosbench upload-cosbench-results
 .PHONY: test-cosbench
+
+

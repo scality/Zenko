@@ -113,6 +113,7 @@ stages:
         name: trigger all the tests
         stage_names:
         - test-zenko
+        - test-upgrade
 
   build-doc:
     worker:
@@ -149,6 +150,17 @@ stages:
             <<: *global_env
       - ShellCommand: *dump_logs
       - Upload: *upload_artifacts
+
+  test-upgrade:
+    worker: *kube_cluster
+    steps:
+      - Git: *git_pull
+      - ShellCommand:
+          name: Test upgrade
+          command: make -e test-upgrade
+          workdir: build/tests
+          env:
+            <<: *global_env
 
   test-latest-zenko:
     worker: *kube_cluster
