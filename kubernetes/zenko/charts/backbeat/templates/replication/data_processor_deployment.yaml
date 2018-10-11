@@ -98,8 +98,45 @@ spec:
               value: "{{ template "backbeat.redis-hosts" . }}"
             - name: REDIS_HA_NAME
               value: "{{ .Values.redis.sentinel.name }}"
-            - name: EXTENSIONS_REPLICATION_QUEUE_PROCESSOR_RETRY_TIMEOUT_S
-              value: "{{ .Values.replication.dataProcessor.retryTimeoutS }}"
+            # AWS_S3 retry config
+            - name: EXTENSIONS_REPLICATION_QUEUE_PROCESSOR_AWS_S3_RETRY_TIMEOUT_S
+              value: "{{ .Values.replication.dataProcessor.aws_s3.retry.timeoutS }}"
+            - name: EXTENSIONS_REPLICATION_QUEUE_PROCESSOR_AWS_S3_RETRY_MAX_RETRIES
+              value: "{{ .Values.replication.dataProcessor.aws_s3.retry.maxRetries }}"
+            - name: EXTENSIONS_REPLICATION_QUEUE_PROCESSOR_AWS_S3_RETRY_BACKOFF_MIN
+              value: "{{ .Values.replication.dataProcessor.aws_s3.retry.maxRetries }}"
+            - name: EXTENSIONS_REPLICATION_QUEUE_PROCESSOR_AWS_S3_RETRY_BACKOFF_MAX
+              value: "{{ .Values.replication.dataProcessor.aws_s3.retry.maxRetries }}"
+            - name: EXTENSIONS_REPLICATION_QUEUE_PROCESSOR_AWS_S3_RETRY_BACKOFF_JITTER
+              value: "{{ .Values.replication.dataProcessor.aws_s3.retry.maxRetries }}"
+            - name: EXTENSIONS_REPLICATION_QUEUE_PROCESSOR_AWS_S3_RETRY_BACKOFF_FACTOR
+              value: "{{ .Values.replication.dataProcessor.aws_s3.retry.maxRetries }}"
+              # AZURE retry config
+            - name: EXTENSIONS_REPLICATION_QUEUE_PROCESSOR_AZURE_RETRY_TIMEOUT_S
+              value: "{{ .Values.replication.dataProcessor.azure.retry.timeoutS }}"
+            - name: EXTENSIONS_REPLICATION_QUEUE_PROCESSOR_AZURE_RETRY_MAX_RETRIES
+              value: "{{ .Values.replication.dataProcessor.azure.retry.maxRetries }}"
+            - name: EXTENSIONS_REPLICATION_QUEUE_PROCESSOR_AZURE_RETRY_BACKOFF_MIN
+              value: "{{ .Values.replication.dataProcessor.azure.retry.maxRetries }}"
+            - name: EXTENSIONS_REPLICATION_QUEUE_PROCESSOR_AZURE_RETRY_BACKOFF_MAX
+              value: "{{ .Values.replication.dataProcessor.azure.retry.maxRetries }}"
+            - name: EXTENSIONS_REPLICATION_QUEUE_PROCESSOR_AZURE_RETRY_BACKOFF_JITTER
+              value: "{{ .Values.replication.dataProcessor.azure.retry.maxRetries }}"
+            - name: EXTENSIONS_REPLICATION_QUEUE_PROCESSOR_AZURE_RETRY_BACKOFF_FACTOR
+              value: "{{ .Values.replication.dataProcessor.azure.retry.maxRetries }}"
+              # GCP retry config
+            - name: EXTENSIONS_REPLICATION_QUEUE_PROCESSOR_GCP_RETRY_TIMEOUT_S
+              value: "{{ .Values.replication.dataProcessor.gcp.retry.timeoutS }}"
+            - name: EXTENSIONS_REPLICATION_QUEUE_PROCESSOR_GCP_RETRY_MAX_RETRIES
+              value: "{{ .Values.replication.dataProcessor.gcp.retry.maxRetries }}"
+            - name: EXTENSIONS_REPLICATION_QUEUE_PROCESSOR_GCP_RETRY_BACKOFF_MIN
+              value: "{{ .Values.replication.dataProcessor.gcp.retry.maxRetries }}"
+            - name: EXTENSIONS_REPLICATION_QUEUE_PROCESSOR_GCP_RETRY_BACKOFF_MAX
+              value: "{{ .Values.replication.dataProcessor.gcp.retry.maxRetries }}"
+            - name: EXTENSIONS_REPLICATION_QUEUE_PROCESSOR_GCP_RETRY_BACKOFF_JITTER
+              value: "{{ .Values.replication.dataProcessor.gcp.retry.maxRetries }}"
+            - name: EXTENSIONS_REPLICATION_QUEUE_PROCESSOR_GCP_RETRY_BACKOFF_FACTOR
+              value: "{{ .Values.replication.dataProcessor.gcp.retry.maxRetries }}"
           livenessProbe:
             httpGet:
               path: {{ .Values.health.path.liveness}}
