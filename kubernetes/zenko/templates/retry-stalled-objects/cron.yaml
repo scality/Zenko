@@ -1,0 +1,47 @@
+{{- if .Values.maintenance.stalled.enabled -}}
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ .Release.Name }}-retry-stalled-objects
+  labels:
+    app: {{ template "zenko.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  schedule: "{{ .Values.maintenance.stalled.schedule }}"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 0
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: utils
+            image: {{ .Values.maintenance.stalled.image.repository }}:{{ .Values.maintenance.stalled.image.tag }}
+            imagePullPolicy: {{ .Values.maintenance.stalled.image.pullPolicy }}
+            command: ["/bin/bash"]
+            args:
+            - -c
+            - node stalled.js 
+            env:
+            - name: ENDPOINT
+              value: "{{ .Release.Name }}-cloudserver"
+            - name: ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-retry-stalled-secrets
+                  key: accesskey
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-retry-stalled-secrets
+                  key: secretkey
+            - name: MONGODB_REPLICASET
+              value: "{{ template "zenko.mongodb-hosts" . }}"
+            - name: DRY_RUN
+              value: "false"
+{{- end -}}
