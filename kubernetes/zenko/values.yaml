@@ -7,21 +7,6 @@
 # is equivalent to the number of nodes in a Kubernetes Cluster.
 nodeCount: &nodeCount 3
 
-maintenance:
-  stalled:
-  ## Enables a retry CronJob that will automatically retry CRR objects stuck
-  ## in pending state. For Orbit enabled installs, Zenko will need to be
-  ## registered and account credentials (secretKey and accessKey) will need to
-  ## be provisioned prior to enabling this maintenance feature.
-    enabled: false
-    schedule: "*/10 * * * *"
-    accessKey:
-    secretKey:
-    image:
-      repository: zenko/s3utils
-      tag: 0.2
-      pullPolicy: IfNotPresent
-
 ingress:
   enabled: false
   # Used to create an Ingress record.
@@ -47,6 +32,25 @@ global:
     # https://zenko.io to manage your deployment
   locationConstraints: {}
   replicationEndpoints: []
+
+maintenance:
+  # Enables a retry CronJobs that will attempt to retry CRR objects stuck in
+  # pending or failed state based off the specified schedule. For Orbit enabled
+  # installs, Zenko will need to be registered and account credentials
+  # (secretKey and accessKey) will need to be provisioned prior to enabling this
+  # maintenance feature.
+  enabled: false
+  accessKey:
+  secretKey:
+  successfulJobsHistory: 1
+  retryFailed:
+    schedule: "*/10 * * * *"
+  retryPending:
+    schedule: "*/10 * * * *"
+  image:
+    repository: zenko/s3utils
+    tag: 0.3
+    pullPolicy: IfNotPresent
 
 cloudserver:
   replicaCount: *nodeCount
