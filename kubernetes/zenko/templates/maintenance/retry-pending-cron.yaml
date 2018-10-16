@@ -2,12 +2,9 @@
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
-  name: {{ template "zenko.fullname" . }}-retry-pending
+  name: {{ template "zenko.retry" . }}-pending
   labels:
-    app: {{ template "zenko.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+{{ include "zenko.labels.standard" . | indent 4 }}
 spec:
   schedule: "{{ .Values.maintenance.retryPending.schedule }}"
   concurrencyPolicy: Forbid
@@ -21,8 +18,8 @@ spec:
           restartPolicy: OnFailure
           containers:
           - name: pending
-            image: {{ .Values.maintenance.image.repository }}:{{ .Values.maintenance.image.tag }}
-            imagePullPolicy: {{ .Values.maintenance.image.pullPolicy }}
+            image: {{ .Values.maintenance.s3UtilsImage.repository }}:{{ .Values.maintenance.s3UtilsImage.tag }}
+            imagePullPolicy: {{ .Values.maintenance.s3UtilsImage.pullPolicy }}
             command: ["/bin/bash"]
             args:
             - -c
@@ -33,12 +30,12 @@ spec:
             - name: ACCESS_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ template "zenko.fullname" . }}-retry-secrets
+                  name: {{ template "zenko.retry" . }}
                   key: accesskey
             - name: SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ template "zenko.fullname" . }}-retry-secrets
+                  name: {{ template "zenko.retry" . }}
                   key: secretkey
             - name: MONGODB_REPLICASET
               value: "{{ template "zenko.mongodb-hosts" . }}"

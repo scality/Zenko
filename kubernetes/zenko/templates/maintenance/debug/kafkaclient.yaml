@@ -1,14 +1,20 @@
-{{- if .Values.maintenance.debug -}}
+{{- if .Values.maintenance.debug.enabled -}}
 apiVersion: v1
 kind: Pod
 metadata:
-  name: {{ template "zenko.fullname" . }}-debug-kafka-client
+  name: {{ template "zenko.debug" . }}-kafka-client
+  labels:
+{{ include "zenko.labels.standard" . | indent 4 }}
 spec:
   containers:
-  - name: kafka
-    image: solsson/kafka:0.11.0.0
+  - name: kafkaclient
+    image: {{ .Values.maintenance.kafkaClientImage.repository }}:{{ .Values.maintenance.kafkaClientImage.tag }}
+    imagePullPolicy: {{ .Values.maintenance.kafkaClientImage.pullPolicy }}
     command:
       - sh
       - -c
       - "exec tail -f /dev/null"
+    env:
+    - name: ZOOKEEPER_URL
+      value: "{{ .Release.Name }}-zenko-quorum:2181"
 {{- end -}}

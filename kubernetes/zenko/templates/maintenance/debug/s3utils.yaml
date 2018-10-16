@@ -1,15 +1,32 @@
-{{- if .Values.maintenance.debug -}}
+{{- if .Values.maintenance.debug.enabled -}}
 apiVersion: v1
 kind: Pod
 metadata:
-  name: {{ template "zenko.fullname" . }}-debug-s3utils
+  name: {{ template "zenko.debug" . }}-s3utils
+  labels:
+{{ include "zenko.labels.standard" . | indent 4 }}
 spec:
   containers:
   - name: utils
-    image: {{ .Values.maintenance.image.repository }}:{{ .Values.maintenance.image.tag }}
-    imagePullPolicy: {{ .Values.maintenance.image.pullPolicy }}
+    image: {{ .Values.maintenance.s3UtilsImage.repository }}:{{ .Values.maintenance.s3UtilsImage.tag }}
+    imagePullPolicy: {{ .Values.maintenance.s3UtilsImage.pullPolicy }}
     command:
       - sh
       - -c
       - "exec tail -f /dev/null"
+    env:
+    - name: ENDPOINT
+      value: "{{ .Release.Name }}-cloudserver"
+    - name: ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: {{ template "zenko.debug" . }}
+          key: accesskey
+    - name: SECRET_KEY
+      valueFrom:
+        secretKeyRef:
+          name: {{ template "zenko.debug" . }}
+          key: secretkey
+    - name: MONGODB_REPLICASET
+      value: "{{ template "zenko.mongodb-hosts" . }}"
 {{- end -}}
