@@ -51,6 +51,7 @@ maintenance:
     repository: zenko/s3utils
     tag: 0.3
     pullPolicy: IfNotPresent
+  debug: false
 
 cloudserver:
   replicaCount: *nodeCount
