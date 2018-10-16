@@ -1,0 +1,14 @@
+{{- if .Values.maintenance.debug -}}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ template "zenko.fullname" . }}-debug-kafka-client
+spec:
+  containers:
+  - name: kafka
+    image: solsson/kafka:0.11.0.0
+    command:
+      - sh
+      - -c
+      - "exec tail -f /dev/null"
+{{- end -}}
