@@ -142,6 +142,9 @@ stages:
       - Git: *git_pull
       - ShellCommand: *private_registry_login
       - ShellCommand:
+          name: debug
+          command: sleep 1000
+      - ShellCommand:
           name: Setup Zenko and run end to end tests
           command: make -e VERBOSE=1 test
           workdir: build/tests
