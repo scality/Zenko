@@ -55,14 +55,16 @@ maintenance:
     enabled: false
     accessKey: ""
     secretKey: ""
-  s3UtilsImage:
-    repository: zenko/s3utils
-    tag: 0.3
-    pullPolicy: IfNotPresent
-  kafkaClientImage:
-    repository: solsson/kafka
-    tag: 0.11.0.0
-    pullPolicy: IfNotPresent
+  s3Utils:
+    image:
+      repository: zenko/s3utils
+      tag: 0.3
+      pullPolicy: IfNotPresent
+  kafkaClient:
+    image:
+      repository: solsson/kafka
+      tag: 0.11.0.0
+      pullPolicy: IfNotPresent
 
 cloudserver:
   replicaCount: *nodeCount

@@ -39,6 +39,4 @@ spec:
                   key: secretkey
             - name: MONGODB_REPLICASET
               value: "{{ template "zenko.mongodb-hosts" . }}"
-            - name: DRY_RUN
-              value: "false"
 {{- end -}}
