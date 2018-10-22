@@ -27,18 +27,7 @@ def has_status(requests, code = 200):
 
 def _check_backend_key(bucket, key, cloud):
     delete_key, requests = get_requests(bucket, key, cloud)
-    passed = True
-    if not requests:
-        passed = False
-    else:
-        has_200 = False
-        for req in requests:
-            if req.status == 200:
-                has_200 = True
-        if not has_200:
-            passed = False
-    if not passed:
-        _log.error('%s/%s failed to be uploaded to the backend!'%(bucket, key))
+    passed = requests and any(req.status == 200 for req in requests)
     # delete_key()
     return passed
 
@@ -123,18 +112,19 @@ def _check_gcp_mpu(bucket, key, cloud='gcp'):
         passed = False
     return passed
 
+
+_check_mpu_func = {
+    BackendType.AWS: _check_aws_mpu,
+    BackendType.GCP; _check_gcp_mpu
+}
+
 @register_check('check-mpu')
 def check_mpu(bucket_conf, objs):
-    return False
-    if bucket_conf.backend.type is BackendType.AWS:
-        for bucket, key in objs.objects:
-            if not _check_aws_mpu(bucket, key, bucket_conf.backend.type.friendly()):
-                return False
-    elif bucket_conf.backend.type is BackendType.GCP:
-        for bucket, key in objs.objects:
-            if not _check_gcp_mpu(bucket, key, bucket_conf.backend.type.friendly()):
-                return False
-    return True
+    func = _check_mpu_func[bucket.backend.type]
+    for bucket, key in objs.objects:
+        if not func(bucket, key, bucket_conf.backend.type.friendly()):
+            return False
+
 
 @register_check('check-etag-mpu')
 def check_etag_mpu(bucket_conf, objs):

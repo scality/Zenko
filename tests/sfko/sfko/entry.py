@@ -13,7 +13,7 @@ _log = Log('entry')
 def get_args():
     parser = argparse.ArgumentParser(
         prog=config.meta.app,
-        description='I am become death, destoyer of clusters.',
+        description='I am become death, destroyer of clusters.',
         epilog='If no options are provided %(prog)s will start in standalone mode')
 
     parser.add_argument('-c', '--controller', action='store_true', help='Start %(prog)s in controller mode')

@@ -32,7 +32,7 @@ case "$1" in
         python setup.py sdist 2>"$PIPE" 1>"$PIPE" &
         ;;
     *)
-        echo "You must provided either --build or --tag"
+        echo "You must provide either --build or --tag"
         exit 1
         ;;
 esac

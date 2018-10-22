@@ -34,7 +34,7 @@ class Scheduler(Thread):
 _RESULTS_SCHEDULER = Scheduler()
 
 __hour, __minute = config.results.schedule.split(':')
-_RESULTS_SCHED_TIME = datetime.time(hour=int(__hour), minute=int(__minute))
+_results_clock_time = datetime.time(hour=int(__hour), minute=int(__minute))
 
 def _get_next_schedule():
     now = datetime.datetime.now()
@@ -128,8 +128,6 @@ def push_to_chat(results):
                 failed += 1
     if failed == 0:
         color = 'green'
-    elif failed/len(results) < 0.5:
-        color = 'yellow'
     else:
         color = 'red'
     if lines:

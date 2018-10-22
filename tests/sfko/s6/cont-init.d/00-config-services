@@ -2,6 +2,6 @@
 
 if [ "$MODE" == "proxy" ]; then
     rm -rf /etc/services.d/sfko
-elif [ "$MODE" != "proxy" ]; then
+else
     rm -rf /etc/services.d/zitm
 fi

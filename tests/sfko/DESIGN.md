@@ -82,7 +82,7 @@ Groups test parameters together to form a unique combination of worload/config
 
 * Failure tests
     * Incomplete uploads (kill upload ??)
-    * Node node failures (openstack api)
+    * Node failures (openstack api)
     * Pod failures (k8s api)
     * Network (iptables)
 

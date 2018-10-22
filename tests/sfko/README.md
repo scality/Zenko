@@ -113,7 +113,7 @@ client		# A high level boto3 Bucket client
 A `Backend` has the following attributes
 
 ```
-name	# Human freindly name for this backend
+name	# Human friendly name for this backend
 type	# A constant describing this backends type
 bucket	# The cloudside bucket for this backend
 ```

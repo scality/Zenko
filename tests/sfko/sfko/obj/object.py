@@ -1,4 +1,5 @@
 import hashlib
+import os
 import uuid
 from binascii import unhexlify
 
@@ -37,12 +38,12 @@ class FakeFile:
             return self._readbytes(self._size - self._pos)
         return self._readbytes(num)
 
-    def seek(self, offset, from_what = 0):
-        if from_what == 0:
+    def seek(self, offset, from_what = os.SEEK_SET):
+        if from_what == os.SEEK_SET:
             self._pos = offset
-        elif from_what == 1:
+        elif from_what == os.SEEK_CUR:
             self._pos += offset
-        elif from_what == 2:
+        elif from_what == os.SEEK_END:
             self._pos = self._size - offset
         return self._pos
 
@@ -105,15 +106,6 @@ class ObjectProxy:
     @property
     def client(self):
         return self._resource.meta.client
-
-    @property
-    def hash(self):
-        if self._hash is None:
-            hasher = hashlib.md5()
-            hasher.update(self._file().read())
-            self._hash = hasher.hexdigest()
-            return self._hash
-        return self._hash
 
     def _report_etag(self, etag):
         if self._etag is None:
