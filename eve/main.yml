@@ -27,7 +27,8 @@ models:
       name: Lint charts
       command: >
         helm lint kubernetes/zenko/ &&
-        helm lint kubernetes/zenko/charts/*
+        helm lint kubernetes/zenko/charts/* &&
+        helm lint kubernetes/cosmos
       haltOnFailure: true
   - ShellCommand: &dump_logs
       name: Dump zenko logs
@@ -149,6 +150,10 @@ stages:
             <<: *global_env
       - ShellCommand: *dump_logs
       - Upload: *upload_artifacts
+      - ShellCommand:
+          name: Validate cosmos chart
+          command: helm template kubernetes/cosmos
+          workdir: build
 
   test-latest-zenko:
     worker: *kube_cluster

@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ template "cosmos.fullname" . }}
+  labels:
+    app: {{ template "cosmos.name" . }}
+    chart: {{ template "cosmos.chart" . }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: {{ .Values.persistentVolume.size }}
+  nfs:
+    path: {{ .Values.persistentVolume.path }}
+    server: {{ .Values.persistentVolume.server }}
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: {{ template "cosmos.fullname" . }}

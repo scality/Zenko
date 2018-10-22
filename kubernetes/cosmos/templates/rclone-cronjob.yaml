@@ -1,0 +1,44 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ template "cosmos.rclone.fullname" . }}
+  labels:
+    app: {{ template "cosmos.name" . }}
+    chart: {{ template "cosmos.chart" . }}
+    component: rclone
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  schedule: "{{ .Values.rclone.schedule }}"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: {{ .Values.rclone.successfulJobsHistory }}
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    backoffLimit: 1
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: {{ .Chart.Name }}
+            image: "{{ .Values.rclone.image.repository }}:{{ .Values.rclone.image.tag }}"
+            imagePullPolicy: {{ .Values.rclone.image.pullPolicy }}
+            env:
+              - name: MOUNT_PATH
+                value: /data
+            command:
+              - sh
+              - -c
+              - "exec rclone copy . cloudserver:{{ template "cosmos.bucket" . }} --s3-region {{ .Values.rclone.remote.region }} -v --md-only"
+            volumeMounts:
+              - name: rclone-config
+                mountPath: /root/.config/rclone
+              - name: backend-storage
+                mountPath: /data
+          volumes:
+          - name: rclone-config
+            configMap:
+              name: {{ template "cosmos.rclone.fullname" . }}
+          - name: backend-storage
+            persistentVolumeClaim:
+              claimName: {{ template "cosmos.fullname" . }}
