@@ -3,7 +3,7 @@
 ```
 usage: sfko [-h] [-c] [-w]
 
-I am become death, destoyer of clusters.
+I am become death, destroyer of clusters.
 
 optional arguments:
   -h, --help        show this help message and exit
