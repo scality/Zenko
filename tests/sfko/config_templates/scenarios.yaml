@@ -1,0 +1,138 @@
+---
+clouds:
+  AWS: &AWS 1
+  GCP: &GCP 2
+  AZR: &AZR 3
+  S3C: &S3C 4
+  SPD: &SPD 5
+  ZNK: &ZNK 6
+
+scenarios:
+  - name: Write 0B
+    required:
+      buckets:
+        - clouds:
+          - *AWS
+          - *GCP
+          # - *AZR
+    objects:
+      count: 1000000
+      size: 0B
+    tests:
+      - put
+    checks:
+      - check-backend
+      - check-etag
+
+  - name: Write 512K
+    required:
+      buckets:
+        - clouds:
+          - *AWS
+          - *GCP
+          # - *AZR
+    objects:
+      count: 500000
+      size: 512K
+    tests:
+      - put
+    checks:
+      - check-backend
+      - check-etag
+
+  - name: Write 1MB
+    required:
+      buckets:
+        - clouds:
+          - *AWS
+          - *GCP
+          # - *AZR
+    objects:
+      count: 50000
+      size: 1M
+    tests:
+      - put
+    checks:
+      - check-backend
+      - check-etag
+
+  - name: Write 10M
+    required:
+      buckets:
+        - clouds:
+          - *AWS
+          - *GCP
+          # - *AZR
+    objects:
+      count: 10000
+      size: 10M
+    tests:
+      - put
+    checks:
+      - check-backend
+      - check-etag
+
+  - name: Write 100M
+    required:
+      buckets:
+        - clouds:
+          - *AWS
+          - *GCP
+          # - *AZR
+    objects:
+      count: 1000
+      size: 100M
+    tests:
+      - put-mpu
+    checks:
+      - check-mpu
+      - check-etag-mpu
+
+  # - name: Write 100G
+  #   required:
+  #     buckets:
+  #       - clouds:
+  #         - *AWS
+  #         - *GCP
+  #         - *AZR
+  #   objects:
+  #     count: 10
+  #     size: 100G
+  #   tests:
+  #     - mpu
+  #   checks:
+  #     - check-backend
+
+  - name: Replicate 0B
+    required:
+      buckets:
+        - replication:
+            - *AWS
+            - *GCP
+            # - *AZR
+          clouds:
+            - *AWS
+    objects:
+      count: 1000000
+      size: 0B
+    tests:
+      - put-replication
+    checks:
+      - check-replication
+
+  - name: Replicate 10M
+    required:
+      buckets:
+        - replication:
+            - *AWS
+            - *GCP
+            # - *AZR
+          clouds:
+            - *AWS
+    objects:
+      count: 10000
+      size: 10M
+    tests:
+      - put-replication
+    checks:
+      - check-replication-mpu

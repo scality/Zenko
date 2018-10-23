@@ -1,0 +1,5 @@
+#!/bin/sh
+
+mkdir -p /config
+cp -n /usr/bin/sfko/config_templates/* /config/
+chown -R sfko:sfko /config
