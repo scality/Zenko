@@ -23,6 +23,7 @@ spec:
         - name: replication-status-processor
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          terminationMessagePolicy: FallbackToLogsOnError
           command: ["/usr/src/app/docker-entrypoint.sh"]
           args: ["npm", "run", "replication_status_processor"]
           env:
