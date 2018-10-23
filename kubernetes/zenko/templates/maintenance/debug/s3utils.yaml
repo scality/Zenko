@@ -1,15 +1,46 @@
-{{- if .Values.maintenance.debug -}}
-apiVersion: v1
-kind: Pod
+{{- if .Values.maintenance.debug.enabled -}}
+apiVersion: apps/v1beta2
+kind: Deployment
 metadata:
-  name: {{ template "zenko.fullname" . }}-debug-s3utils
+  name: {{ include "zenko.debug" . }}-s3utils
+  labels:
+    app.kubernetes.io/name: {{ include "zenko.name" . }}
+    helm.sh/chart: {{ include "zenko.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
-  containers:
-  - name: utils
-    image: {{ .Values.maintenance.image.repository }}:{{ .Values.maintenance.image.tag }}
-    imagePullPolicy: {{ .Values.maintenance.image.pullPolicy }}
-    command:
-      - sh
-      - -c
-      - "exec tail -f /dev/null"
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "zenko.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "zenko.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: utils
+        image: {{ .Values.maintenance.s3Utils.image.repository }}:{{ .Values.maintenance.s3Utils.image.tag }}
+        imagePullPolicy: {{ .Values.maintenance.s3Utils.image.pullPolicy }}
+        command:
+          - sh
+          - -c
+          - "exec tail -f /dev/null"
+        env:
+        - name: ENDPOINT
+          value: "{{ .Release.Name }}-cloudserver"
+        - name: ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "zenko.debug" . }}
+              key: accesskey
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "zenko.debug" . }}
+              key: secretkey
+        - name: MONGODB_REPLICASET
+          value: "{{ template "zenko.mongodb-hosts" . }}"
 {{- end -}}

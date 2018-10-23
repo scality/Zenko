@@ -1,14 +1,34 @@
-{{- if .Values.maintenance.debug -}}
-apiVersion: v1
-kind: Pod
+{{- if .Values.maintenance.debug.enabled -}}
+apiVersion: apps/v1beta2
+kind: Deployment
 metadata:
-  name: {{ template "zenko.fullname" . }}-debug-kafka-client
+  name: {{ include "zenko.debug" . }}-kafka-client
+  labels:
+    app.kubernetes.io/name: {{ include "zenko.name" . }}
+    helm.sh/chart: {{ include "zenko.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
-  containers:
-  - name: kafka
-    image: solsson/kafka:0.11.0.0
-    command:
-      - sh
-      - -c
-      - "exec tail -f /dev/null"
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "zenko.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "zenko.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: kafkaclient
+        image: {{ .Values.maintenance.kafkaClient.image.repository }}:{{ .Values.maintenance.kafkaClient.image.tag }}
+        imagePullPolicy: {{ .Values.maintenance.kafkaClient.image.pullPolicy }}
+        command:
+          - sh
+          - -c
+          - "exec tail -f /dev/null"
+        env:
+        - name: ZOOKEEPER_URL
+          value: "{{ .Release.Name }}-zenko-quorum:2181"
 {{- end -}}

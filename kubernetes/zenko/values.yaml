@@ -40,18 +40,31 @@ maintenance:
   # (secretKey and accessKey) will need to be provisioned prior to enabling this
   # maintenance feature.
   enabled: false
-  accessKey:
-  secretKey:
+  accessKey: ""
+  secretKey: ""
   successfulJobsHistory: 1
   retryFailed:
     schedule: "*/10 * * * *"
   retryPending:
     schedule: "*/10 * * * *"
-  image:
-    repository: zenko/s3utils
-    tag: 0.3
-    pullPolicy: IfNotPresent
-  debug: false
+  debug:
+    # This provisions a pod with utilities to help debug Zenko from within the
+    # cluster. Credentials can be added here that will be applied to the pods
+    # environment variables and can be used for debugging but not necessary to
+    # instanciate the pod.
+    enabled: false
+    accessKey: ""
+    secretKey: ""
+  s3Utils:
+    image:
+      repository: zenko/s3utils
+      tag: 0.3
+      pullPolicy: IfNotPresent
+  kafkaClient:
+    image:
+      repository: solsson/kafka
+      tag: 0.11.0.0
+      pullPolicy: IfNotPresent
 
 cloudserver:
   replicaCount: *nodeCount
