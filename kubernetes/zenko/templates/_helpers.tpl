@@ -28,3 +28,12 @@ Create the default url for the backbeat quorum service
 {{- $zookeeperConnectOverride := index .Values "configurationOverrides" "zookeeper.connect" -}}
 {{- default $zookeeperConnect $zookeeperConnectOverride -}}
 {{- end -}}
+
+{{/*
+Create the default mongodb replicaset hosts string
+*/}}
+{{- define "zenko.mongodb-hosts" -}}
+{{- $count := (int (.Values.nodeCount)) -}}
+{{- $release := .Release.Name -}}
+{{- range $v := until $count }}{{ $release }}-mongodb-replicaset-{{ $v }}.{{ $release }}-mongodb-replicaset:27017{{ if ne $v (sub $count 1) }},{{- end -}}{{- end -}}
+{{- end -}}
