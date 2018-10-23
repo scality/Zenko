@@ -2,7 +2,7 @@ const assert = require('assert');
 const crypto = require('crypto');
 const async = require('async');
 
-const { scalityS3Client } = require('../../s3SDK');
+const { scalityS3Client } = require('../../../s3SDK');
 const QuotaUtility = require('../QuotaUtility');
 
 const TEN_MB_BYTES = 10485760;

@@ -1,0 +1,47 @@
+{{- if .Values.maintenance.enabled -}}
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ template "zenko.fullname" . }}-retry-failed
+  labels:
+    app: {{ template "zenko.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  schedule: "{{ .Values.maintenance.retryFailed.schedule }}"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: {{ .Values.maintenance.successfulJobsHistory }}
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: failed
+            image: {{ .Values.maintenance.image.repository }}:{{ .Values.maintenance.image.tag }}
+            imagePullPolicy: {{ .Values.maintenance.image.pullPolicy }}
+            command: ["/bin/bash"]
+            args:
+            - -c
+            - node autoRetryFailedCRR.js 
+            env:
+            - name: ENDPOINT
+              value: "{{ .Release.Name }}-cloudserver"
+            - name: ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "zenko.fullname" . }}-retry-secrets
+                  key: accesskey
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "zenko.fullname" . }}-retry-secrets
+                  key: secretkey
+            - name: MONGODB_REPLICASET
+              value: "{{ template "zenko.mongodb-hosts" . }}"
+            - name: DRY_RUN
+              value: "false"
+{{- end -}}

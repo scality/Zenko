@@ -150,11 +150,4 @@ export AWS_S3_FAIL_BACKEND_DESTINATION_LOCATION=<destination-fail-aws-bucket-nam
 source .env && source .secrets.env
 ```
 
-6. Update the backbeat configuration properties as such:
-
-```
-extensions.replication.queueProcessor.retryTimeoutS: 1
-extensions.replication.replicationStatusProcessor.retryTimeoutS: 1
-```
-
-7. Run the test suite: `npm run test_retry`.
+5. Run the test suite: `npm run test_retry`.

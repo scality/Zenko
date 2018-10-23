@@ -120,7 +120,7 @@ How much persistent volume space is required is calculable based on
 total data managed, total objects managed, and other factors. See
 storage.yaml for details.
 
-All servers must run CentOS 7.4 or later, and must be ssh-accessible.
+All servers must run CentOS 7.4 or later, and must be SSH-accessible.
 
 Proxies
 ^^^^^^^
@@ -194,6 +194,70 @@ Get Ready
 
        $ export KUBECONFIG=/path/to/admin.conf
 
+Pod Disruption Budgets
+^^^^^^^^^^^^^^^^^^^^^^
+
+Zenko relies on several stateful services that require a minimum number
+of pods to function with high availability, with resilience under many
+outage scenarios. Pod disruption budgets set how many pods of a given
+application can safely fail and continue to operate normally before
+Kubernetes disables access to the service.
+
+#. If you are using MetalK8s, use the MetalK8s virtual shell. If you are
+   not in the MetalK8s virtual shell, export the path to your Kubernetes
+   admin.conf file.
+
+   From the Kubernetes directory, find admin.conf with
+
+    ::
+
+      $ find ./ -name admin.conf
+
+   This returns the path to admin.conf.
+
+  Export the path to the shell environment.
+
+    ::
+
+      $ export KUBECONFIG=/path/to/admin.conf
+
+   If you are installing Zenko in a high-availability production environment,
+   set a pod disruption budget. If you are installing a basic Zenko deployment
+   (for testing or familiarization, for instance) you can skip this step.
+
+The following installed applications allow for configuring disruption
+budgets:
+
+- MongoDB
+- Redis
+- Zenko-Quorum
+
+In a three-node cluster, Zenko configures a ``maxUnavailable`` budget
+of 1 by default. However in larger clusters, this could be increased to
+match the level of high availablity required. For example, a five-node
+cluster can have up to two ``maxUnavailable`` pods per application.
+
+In addition to configuring the node count at install time, you should
+also configure the pod disruption budgets. This is an example for
+configuring the budgets for a five-node installation.
+
+.. code-block:: yaml
+
+  mongodb-replicaset:
+    podDisruptionBudget:
+      maxUnavailable: 2
+  redis-ha:
+    podDisruptionBudget:
+      maxUnavailable: 2
+  zenko-quorum:
+    podDisruptionBudget:
+      maxUnavailable: 2
+
+.. note::
+
+    Once installed, pod disruption budgets cannot be changed.
+    Consider your environment requirements before installing Zenko.
+
 #. Change to the directory from which you will deploy Zenko:
 
    ::
@@ -232,20 +296,19 @@ Get Ready
 #. Unzip or gunzip the file you just downloaded and change to the top-level
     (Zenko) directory.
 
-Install Zenko
-~~~~~~~~~~~~~
 
-Helm installs Zenko using packages of Kubernetes resource definitions
-known as charts. These charts, which Helm follows for each Zenko
-component, can be found under zenko/kubernetes/zenko/charts. For each
-component there is a Chart.yaml file and a values.yaml file. Helm reads
-the Chart.yaml file to establish such basic installation attributes as
-name and version number, and reads the values file for instructions on
-how to deploy and configure the component. Though manually editing the
-default settings in values.yaml is possible, it is much better to write
-configuration changes and options to zenko/kubernetes/zenko/options.yml,
-which Helm can use to overwrite the default settings presented in the
-charts.
+Install Zenko
+
+Helm installs Zenko using packages of Kubernetes resource definitions known as
+charts. These charts, which Helm follows for each Zenko component, can be found
+under Zenko/kubernetes/zenko/charts. For each component there is a Chart.yaml
+file and a values.yaml file. Helm reads the Chart.yaml file to establish such
+basic installation attributes as name and version number, and reads the values
+file for instructions on how to deploy and configure the component. Though
+manually editing the default settings in values.yaml is possible, it is much
+better to write configuration changes and options to
+:file:`Zenko/kubernetes/zenko/options.yaml`, which Helm can use to
+overwrite the default settings presented in the charts.
 
 Follow these steps to install Zenko with Ingress.
 
@@ -282,9 +345,8 @@ Follow these steps to install Zenko with Ingress.
 #. To configure the ingress controller for HTTPS, go to :ref:`Configuring
    HTTPS Ingress for Zenko` for additional terms to add to this chart.
 
-#. If your Zenko instance is behind a proxy, add the following lines to
-   the options.yml file, entering your proxy’s IP addresses and port
-   assignments:
+#. If your Zenko instance is behind a proxy, add the following lines to the
+   options.yaml file, entering your proxy’s IP addresses and port assignments:
 
    ::
 
@@ -358,7 +420,7 @@ Follow these steps to install Zenko with Ingress.
     CloudServer’s name:
 
     ::
-   
+
          $ kubectl get -n default pods | grep cloudserver
          my-zenko-cloudserver-76f657695-c64nc              1/1   Running   0       3m
 
