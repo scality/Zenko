@@ -8,7 +8,8 @@ import logging
 import re
 
 IGNORED_PODS = [
-    r'.+queue-config'
+    r'.+queue-config',
+    r'.+bootstrap',
 ]
 
 IGNORED_PODS = [re.compile(x) for x in IGNORED_PODS]

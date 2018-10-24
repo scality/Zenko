@@ -1,0 +1,17 @@
+name: zenko-queue-manager
+version: 1.0.0
+appVersion: 1.0.0
+kubeVersion: "^1.8.0-0"
+description: A tool for managing Apache Kafka.
+home: https://github.com/yahoo/kafka-manager
+icon: https://kafka.apache.org/images/logo.png
+sources:
+  - https://github.com/yahoo/kafka-manager
+keywords:
+- kafka
+- zookeeper
+- kafka-manager
+maintainers:
+- name: giacomoguiulfo
+  email: giacomoguiulfo@gmail.com
+engine: gotpl

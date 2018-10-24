@@ -1,6 +1,6 @@
 name: zenko
-version: 1.0.0-hotfix.1
-appVersion: 1.0.0-hotfix.1
+version: 1.0.1
+appVersion: 1.0.1
 kubeVersion: "^1.8.0-0"
 description: Zenko is the open source multi-cloud data controller
 home: https://www.zenko.io/
