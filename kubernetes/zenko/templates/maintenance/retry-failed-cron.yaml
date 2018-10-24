@@ -2,12 +2,9 @@
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
-  name: {{ template "zenko.fullname" . }}-retry-failed
+  name: {{ template "zenko.retry" . }}-failed
   labels:
-    app: {{ template "zenko.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+{{ include "zenko.labels.standard" . | indent 4 }}
 spec:
   schedule: "{{ .Values.maintenance.retryFailed.schedule }}"
   concurrencyPolicy: Forbid
@@ -21,8 +18,8 @@ spec:
           restartPolicy: OnFailure
           containers:
           - name: failed
-            image: {{ .Values.maintenance.image.repository }}:{{ .Values.maintenance.image.tag }}
-            imagePullPolicy: {{ .Values.maintenance.image.pullPolicy }}
+            image: {{ .Values.maintenance.s3UtilsImage.repository }}:{{ .Values.maintenance.s3UtilsImage.tag }}
+            imagePullPolicy: {{ .Values.maintenance.s3UtilsImage.pullPolicy }}
             command: ["/bin/bash"]
             args:
             - -c
@@ -33,15 +30,13 @@ spec:
             - name: ACCESS_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ template "zenko.fullname" . }}-retry-secrets
+                  name: {{ template "zenko.retry" . }}
                   key: accesskey
             - name: SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ template "zenko.fullname" . }}-retry-secrets
+                  name: {{ template "zenko.retry" . }}
                   key: secretkey
             - name: MONGODB_REPLICASET
               value: "{{ template "zenko.mongodb-hosts" . }}"
-            - name: DRY_RUN
-              value: "false"
 {{- end -}}
