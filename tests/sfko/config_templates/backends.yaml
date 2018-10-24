@@ -1,0 +1,78 @@
+---
+clouds:
+  AWS: &AWS 1
+  GCP: &GCP 2
+  AZR: &AZR 3
+  S3C: &S3C 4
+  SPD: &SPD 5
+  ZNK: &ZNK 6
+
+backends:
+  - name: aws1
+    type: *AWS
+    secret: AWS
+    bucket: my-bucket
+  # - name: aws2
+  #   type: *AWS
+  #   secret: AWS
+  #   bucket: my-bucket
+  # - name: aws3
+  #   type: *AWS
+  #   secret: AWS
+  #   bucket: my-bucket
+  - name: gcp1
+    type: *GCP
+    secret: GCP
+    bucket: my-bucket
+  - name: local1
+    type: *ZNK
+    secret: ZNK
+    bucket: null
+  - name: local2
+    type: *ZNK
+    secret: ZNK
+    bucket: null
+  # - name: gcp2
+  #   type: *GCP
+  #   secret: GCP
+  #   bucket: my-bucket
+  # - name: gcp3
+  #   type: *GCP
+  #   secret: GCP
+  #   bucket: my-bucket
+  # - name: azure1
+  #   type: *AZR
+  #   secret: AZR
+  #   bucket: my-bucket
+  # - name: azure2
+  #   type: *AZR
+  #   secret: AZR
+  #   bucket: my-bucket
+  # - name: azure3
+  #   type: *AZR
+  #   secret: AZR
+  #   bucket: my-bucket
+  # - name: s3c1
+  #   type: *S3C
+  #   secret: S3C
+  #   bucket: my-bucket
+  # - name: s3c2
+  #   type: *S3C
+  #   secret: S3C
+  #   bucket: my-bucket
+  # - name: s3c3
+  #   type: *S3C
+  #   secret: S3C
+  #   bucket: my-bucket
+  # - name: sproxyd1
+  #   type: *SPD
+  #   secret: SPD
+  #   bucket: my-bucket
+  # - name: sproxyd2
+  #   type: *SPD
+  #   secret: SPD
+  #   bucket: my-bucket
+  # - name: sproxyd3
+  #   type: *SPD
+  #   secret: SPD
+  #   bucket: my-bucket

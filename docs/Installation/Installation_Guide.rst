@@ -298,6 +298,7 @@ configuring the budgets for a five-node installation.
 
 
 Install Zenko
+~~~~~~~~~~~~~
 
 Helm installs Zenko using packages of Kubernetes resource definitions known as
 charts. These charts, which Helm follows for each Zenko component, can be found
