@@ -7,7 +7,7 @@ review the :ref:`General Cluster Requirements` and skip to
 :ref:`Installing Your Zenko Instance`.
 
 Otherwise, you can set up a cluster quickly using
-`MetalK8s <https://github.com/scality/metal-k8s/>`__, Scality’s
+`MetalK8s <https://github.com/scality/metalk8s/>`__, Scality’s
 open-source Kubernetes cluster project, as described in :ref:`Get Ready`.
 
 The following section describes general cluster requirements, which are
@@ -298,6 +298,7 @@ configuring the budgets for a five-node installation.
 
 
 Install Zenko
+~~~~~~~~~~~~~
 
 Helm installs Zenko using packages of Kubernetes resource definitions known as
 charts. These charts, which Helm follows for each Zenko component, can be found
