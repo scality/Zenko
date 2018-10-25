@@ -47,11 +47,9 @@ In the following examples, Zenko is accessible on endpoint
 
        $ node bin/search_bucket -a <AccessKey1> -k <verySecretKey1> -b zenkobucket -q "tags.type=color" -h zenko.local -p 80
 
-
-Next: `HTTP Search Requests`_
+Next: `Search Tool Characteristics`_
 
 `Go back`_
 
-
-.. _`HTTP Search Requests`: HTTP_Search_Requests.html
+.. _`Search Tool Characteristics`: Search_Tool_Characteristics.html
 .. _`Go back`: Metadata_Search.html
