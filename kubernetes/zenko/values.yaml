@@ -216,3 +216,9 @@ grafana:
       # Likewise, every config map with the following label will be used as a source for
       # a dashboard.
       label: grafana-dashboard
+
+zenko-queue-manager:
+  zkHosts: "{{ .Release.Name }}-zenko-quorum-headless:2181"
+  clusters:
+    - name: "zenko-queue-cluster"
+      tuning: {}
