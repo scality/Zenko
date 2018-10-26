@@ -1,3 +1,5 @@
+.. _Installing Zenko:
+
 Installing Zenko
 ################
 
@@ -80,6 +82,8 @@ Get Ready
 
 4. Unzip or gunzip the file you just downloaded and change to the top-level
    (Zenko) directory.
+
+.. _Install Zenko:
 
 Install Zenko
 *************
