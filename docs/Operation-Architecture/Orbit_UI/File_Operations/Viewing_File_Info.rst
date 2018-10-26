@@ -39,9 +39,7 @@ To view information about a file
    Because other backends may not support the S3 tagging structure,
    operations that use these tags must be performed using Zenko.
 
-`Go back`_
 
-.. _`Go back`: File_Operations.html
 
 .. |image0| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_file_operations_popup.png
 .. |image1| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_add-edit_metadata.png

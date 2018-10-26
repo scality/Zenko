@@ -1,0 +1,265 @@
+/* Styles by chris.tingom@scality.com Hello and thanks for all the fish! */
+
+
+div.highlight {
+    background-color: #E6E6E6;
+}
+
+.highlight {
+    background-color: #E6E6E6;
+}
+    
+div.document {
+    background-color: #201921;
+    margin: 0px auto 0 auto;
+    width: 1180px;
+}
+
+/* Background Color */
+body {
+    background-color: #201921;
+    font-family: 'Roboto';
+    font-size: 10pt;
+    text-align: Left;
+  }
+
+div.related {
+    background-color: #201921;
+    line-height: 50px;
+    color: #FFFFFF;
+}
+
+/* Related items */
+div.related li {
+    display: none;
+}
+
+/* Padding at the top */
+div.body {
+    margin-top: 0px;
+    padding: 34px 40px 20px 40px;
+}
+
+/* Link Colors */
+a:visited {
+    color: #ff9b3b;
+    text-decoration: none;
+}
+
+a {
+    color: #f54f29;
+    text-decoration: none;
+}
+
+/* Text align left instead of Justify text */
+
+div.body p {
+    text-align: left;
+}
+
+/* Headline styles */
+div.body h1, div.body h2, div.body h3, div.body h4, div.body h5, div.body h6 {
+    font-family: Oswald, Arial Narrow;
+    background-color: #FFFFFF;
+    font-weight: 600;
+    color: #000;
+    border-bottom: 1px solid #ccc;
+    margin: 20px -20px 10px 0px;
+    padding: 3px 0 3px 0px;
+}
+
+/* Padding on items on left sidebar */
+div.sphinxsidebar h3 {
+    font-family: Oswald, Arial Narrow;
+    color: #FFFFFF;
+    font-size: 1.4em;
+    font-weight: normal;
+    margin: 0px;
+    padding: 10px 0px;
+}
+
+/* Changes color of warning note box */
+div.warning {
+    background-color: #ff9b3b;
+    border: 1px solid #e55529;
+}
+
+/* Changes the table header color to be gray */
+th {
+    background-color: #eaeaea;
+}
+
+/* Width of sidebar content */
+div.sphinxsidebarwrapper {
+    padding: 10px 10px 0 10px;
+    background-color: '#201921';
+}
+
+/* Sidebar margin */
+div.sphinxsidebar {
+    top: 11px;
+}
+
+div.sphinxsidebar a
+  {
+  color: '#FFFFFF';
+  }
+
+div.sphinxsidebar input
+  {
+    border: 1px solid '#FFFFFF';
+  }
+
+p topless
+  {
+      color: '#FFFFFF';
+      background-color: '#201921';
+  }
+
+p.admonition-title
+  {
+    font-family: 'Oswald';
+    display: inline;
+  }
+
+div.body dd
+  {
+    text-align: left;
+  }
+  
+div.body li
+  {
+    text-align: left;
+  }
+
+div.body blockquote
+  {
+    text-align: left;
+  }
+
+pre
+  {   font-size: 8pt;
+      font-family: 'Courier', 'CourierNew', 'monospace' ; 
+/*      margin-left: 18pt;*/
+      color: '#000000';
+      background-color: '#F2F2F2'
+      border-bottom: none;      
+      border-top: none;
+      border-left: none;
+      border-right: none;
+  }
+
+a.reference-internal
+  {
+    color: '#FFFFFF'
+  }
+
+/* h2
+  {
+    font-size: 16pt;
+    font-family: 'Oswald SemiBold';
+  }
+
+
+h3
+  {
+    font-size: 14pt;
+    font-family: 'Oswald SemiBold';
+  }
+
+h4
+  {
+    font-size: 1em;
+    font-family: 'Oswald SemiBold';
+  }
+
+h5
+  {
+    font-style: italic;
+    font-family: 'Oswald SemiBold';
+  }
+
+h6
+  {
+    font-variant: small-caps;
+    font-family: 'Oswald SemiBold';
+  }
+*/
+img
+  {
+    align: center
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+  }
+
+
+img.FiftyPercent
+  {
+    max-width: 50%;
+  }
+
+
+img.OneHundredPercent
+  {
+    max-width: 100%;
+/*    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;*/
+  }
+
+img.SeventyFivePercent
+  {
+    align: center;
+    max-width: 75%;
+  /*      padding-left: 10px;
+      padding-right: 10px;
+      display: block;
+      padding-top: 5px;
+      padding-bottom: 5px;*/
+    }
+
+div.footer
+  {
+    background-color: #201921;
+  }
+
+td ul
+{
+    margin-left: 0;
+}
+
+/* Changes color of note admonition box */
+div.note {
+    background-color: #eeeeff;
+    border: 1px solid #aeaee2;
+}
+
+/* Changes color of important note box */
+div.important {
+    background-color: #ffffe0;
+    border: 1px solid #ffdc50;
+}
+
+/* Changes the color of the Tip admonition box */
+div.tip {
+    background-color: #eeffee;
+    border: 1px solid #93d893;
+}
+
+/* H1 */
+div.body h1 {
+    margin-top: 0;
+    font-size: 222%;
+}
+
+td pre {
+    border: none;
+    valign: top;
+    background-color: e6e6e6;
+}
+table.docutils td, table.docutils th {
+    border-top: 1px solid #aaa;
+}

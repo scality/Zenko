@@ -7,6 +7,4 @@ To download a file from a selected bucket:
 #. Click **Download**.
 #. The file download is directed to the local browser.
 
-`Go back`_
 
-.. _`Go back`: File_Operations.html

@@ -132,7 +132,6 @@ use cases.
     | nodejs\_heap\_space\_size\_used\_bytes        | Process heap space size used from node.js in bytes        |
     +-----------------------------------------------+-----------------------------------------------------------+
 
-
    **Table: Cloud Server General Metrics**
     +--------------------------------------+--------------------------------------+
     | Metric                               | Description                          |
@@ -161,9 +160,6 @@ use cases.
     | cloud\_server\_http\_response\_size\_bytes           | The HTTP response sizes in bytes          |
     +------------------------------------------------------+-------------------------------------------+
 
-  
-`Go back`_
 
-.. _`Go back`: Software_Architecture.html
 
 .. |image0| image:: ../Resources/Images/CloudServer.svg

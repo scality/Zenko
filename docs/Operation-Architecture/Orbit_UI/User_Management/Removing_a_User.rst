@@ -14,9 +14,7 @@ Removing a User
 
 #. The user’s access key is revoked.
 
-`Go back`_
 
-.. _`Go back`: User_Management_Tasks.html
 
 .. |image0| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_User_Remove_Name.png
    :class: OneHundredPercent

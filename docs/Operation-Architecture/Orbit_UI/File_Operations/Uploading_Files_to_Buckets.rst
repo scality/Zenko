@@ -32,9 +32,7 @@ at least one bucket.
       AWS specification).
 
 
-`Go back`_
 
-.. _`Go back`: File_Operations.html
 
 .. |image0| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_multicloud_browser_with_values.png
 .. |image1| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_upload_objects.png

@@ -36,9 +36,7 @@ Orbit.
       To find your Instance ID, use the kubectl commands in the
       “Install Zenko” section of the Installation Guide.
 
-`Go back`_
 
-.. _`Go back`: Setting_Up_Orbit.html
 
 
 .. |image0| image:: ../../Resources/Images/Orbit_Screencaps/google_login.png

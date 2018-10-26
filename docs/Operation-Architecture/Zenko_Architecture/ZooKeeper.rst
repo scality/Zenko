@@ -8,6 +8,4 @@ engine, storing information generated and required by Kafka in a
 Kafka-friendly Java-based context. Backbeat also uses ZooKeeper to store
 and maintain some state information (oplogs).
 
-`Go back`_
 
-.. _`Go back`: Software_Architecture.html

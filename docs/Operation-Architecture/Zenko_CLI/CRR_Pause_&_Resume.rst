@@ -8,7 +8,7 @@ present. This is particularly useful when the user knows a destination
 location will be down and wants to schedule a time to resume CRR.
 
 CRR pause and resume is accessible via the Backbeat API and documented
-in the
+in the Zenko Reference Guide.
 
 API calls for this feature include:
 
@@ -24,10 +24,5 @@ API calls for this feature include:
 This feature is implemented in the API and accessible from the command
 line. An Orbit implementation is under development.
 
-`Go Back`_
-
-Next: `CRR Retry`_
-
-.. _`Go Back`: CRR_Metrics_and_Health.html
 
 .. _`CRR Retry`: CRR_Retry.html
