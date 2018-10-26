@@ -30,11 +30,8 @@ These requests, sent to the Backbeat endpoints, return members stored in
 changes the object's metadata “FAILED” status to “PENDING”, which queues them to
 be retried by the replication processor.
 
-`Go back`_
-
-Next: `Object Lifecycle Management`_
 
 
-.. _`Go back`: CRR_Pause_&_Resume.html
+
 
 .. _`Object Lifecycle Management`: ../Lifecycle_Management/Object_Lifecycle_Management.html

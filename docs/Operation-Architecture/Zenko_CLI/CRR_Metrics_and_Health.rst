@@ -31,7 +31,7 @@ To show all metrics for all sites, set {{location-name}} to “all”.
 +-------------+---------------------------------+----------------------------------------------------------------------------+
 | Type        | Description                     |  Example URL                                                               |
 +=============+=================================+============================================================================+
-| Healthcheck | This basic health check returns | http://zenko.local/_/backbeat/api/healthcheck                              |
+| Healthcheck | This basic health check returns | \http://zenko.local/_/backbeat/api/healthcheck                             |
 |             | details on the health of Kafka  |                                                                            |
 |             | and its topics.                 |                                                                            |
 |             |                                 |                                                                            |
@@ -41,10 +41,10 @@ To show all metrics for all sites, set {{location-name}} to “all”.
 |             | key:value objects, detailed in  |                                                                            |
 |             | section 15.2.                   |                                                                            |
 +-------------+---------------------------------+----------------------------------------------------------------------------+
-| All Metrics | Returns a collection of all     | http://zenko.local/_/backbeat/api/metrics/crr/{{location-name}}            |
+| All Metrics | Returns a collection of all     | \http://zenko.local/_/backbeat/api/metrics/crr/{{location-name}}           |
 |             | metrics listed below.           |                                                                            |
 +-------------+---------------------------------+----------------------------------------------------------------------------+
-| Pending     | Returns pending replication     | http://zenko.local/\_/backbeat/api/metrics/crr/{{location-name}}/pending   |
+| Pending     | Returns pending replication     | \http://zenko.local/\_/backbeat/api/metrics/crr/{{location-name}}/pending  |
 |             | in number of objects and number |                                                                            |
 |             | of total bytes. The bytes total |                                                                            |
 |             | represents data only and does   |                                                                            |
@@ -59,7 +59,7 @@ To show all metrics for all sites, set {{location-name}} to “all”.
 |             | been completed or failed for    |                                                                            |
 |             | that object.                    |                                                                            |
 +-------------+---------------------------------+----------------------------------------------------------------------------+
-| Backlog     | Returns the replication backlog | http://zenko.local/\_/backbeat/api/metrics/crr/{{location-name}}/backlog   |
+| Backlog     | Returns the replication backlog | \http://zenko.local/\_/backbeat/api/metrics/crr/{{location-name}}/backlog  |
 |             | in number of objects and number |                                                                            |
 |             | of total bytes. The bytes total |                                                                            |
 |             | represents data only and does   |                                                                            |
@@ -74,7 +74,7 @@ To show all metrics for all sites, set {{location-name}} to “all”.
 |             | been completed or failed for    |                                                                            |
 |             | that object.                    |                                                                            |
 +-------------+---------------------------------+----------------------------------------------------------------------------+
-| Completions | Returns the replication         | http://zenko.local/_/backbeat/api/metrics/crr/{location-name}/completions  |
+| Completions | Returns the replication         | \http://zenko.local/_/backbeat/api/metrics/crr/{location-name}/completions |
 |             | completions in number of objects|                                                                            |
 |             | and number of total bytes       |                                                                            |
 |             | transferred. The bytes total    |                                                                            |
@@ -87,7 +87,7 @@ To show all metrics for all sites, set {{location-name}} to “all”.
 |             | is set to a default of 24       |                                                                            |
 |             | hours.                          |                                                                            |
 +-------------+---------------------------------+----------------------------------------------------------------------------+
-| Throughput  | Returns the current throughput  | http://zenko.local/_/backbeat/api/metrics/crr/{{location-name}}/throughput |
+| Throughput  | Returns the current throughput  | \http://zenko.local/_/backbeat/api/metrics/crr/{{location-name}}/throughput|
 |             | in number of operations per     |                                                                            |
 |             | second (or number of objects    |                                                                            |
 |             | replicating per second) and     |                                                                            |
@@ -314,9 +314,6 @@ Throughput Request:
       }
     }
 
-`Go back`_
 
-Next: `CRR Pause and Resume`_
 
-.. _`Go back`: Zenko_from_the_Command_Line.html
 .. _`CRR Pause and Resume`: CRR_Pause_&_Resume.html

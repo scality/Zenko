@@ -18,9 +18,7 @@ duration is configurable.
 Escape this screen by clicking the back arrow or an item in the
 navigation pane.
 
-`Go back`_
 
 .. |image0| image:: ../Resources/Images/Orbit_Screencaps/Orbit_Statistics.png
    :class: OneHundredPercent
 
-.. _`Go back`: Using_Orbit.html

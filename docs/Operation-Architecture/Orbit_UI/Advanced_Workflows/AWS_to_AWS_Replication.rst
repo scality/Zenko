@@ -23,11 +23,9 @@ AWS to AWS Replication
 
    |image2|
 
-#. With the AWS target now visible, enter the flow at `Setting Up Replication`.
+#. With the AWS target now visible, enter the flow at `Setting Up Replication`_.
 
-`Go back`_
 
-.. _`Go back`: Advanced_Workflows.html
 .. _`Setting Up Replication`: Setting_Up_CRR.html
 
 .. |image0| image:: ../../Resources/Images/Orbit_Screencaps/aws_versioning_enabled.png

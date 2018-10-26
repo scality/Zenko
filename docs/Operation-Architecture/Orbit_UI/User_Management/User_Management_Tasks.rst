@@ -13,6 +13,4 @@ altogether.
    Change User Credentials <Changing_User_Credentials>
    Remove a User <Removing_a_User>
 
-`Go back`_
 
-.. _`Go back`: ../Using_Orbit.html

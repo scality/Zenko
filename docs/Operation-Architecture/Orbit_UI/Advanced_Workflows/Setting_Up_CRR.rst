@@ -44,6 +44,4 @@ the replication.
 .. |image2| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_replication_success.png
    :class: OneHundredPercent
 
-`Go back`_
 
-.. _`Go back`: Advanced_Workflows.html

@@ -28,6 +28,4 @@ transfer to another account, is not a best practice. Forgetting the
 instance does not stop the secure channel, which is needed for normal
 operation.
 
-`Go back`_
 
-.. _`Go back`: Using_Orbit.html
