@@ -8,6 +8,4 @@ Orbit makes available the following bucket tasks.
    Create a Bucket <Create_a_bucket>
    View Bucket Info <View_Bucket_Info>
 
-..`Go back`_
 
-.. _`Go back`: ../Using_Orbit.html

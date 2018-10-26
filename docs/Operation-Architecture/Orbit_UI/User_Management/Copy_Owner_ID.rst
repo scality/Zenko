@@ -17,9 +17,7 @@ this string.
    transferred to the clipboard. The Zenko UI does not offer
    notification of this transfer.
 
-`Go back`_
 
-.. _`Go back`: User_Management_Tasks.html
  
 
 .. |image0| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_bucket_canonical_ID.png

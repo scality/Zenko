@@ -22,6 +22,4 @@ when an object expires it sends instructions through Kafka topics
 instructing Lifecycle to delete the relevant objects, using the
 CloudServer API.
 
-`Go back`_
 
-.. _`Go back`: Services.html

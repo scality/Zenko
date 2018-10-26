@@ -14,10 +14,9 @@ kubectl commands.
 Kubernetes is a Google-hosted open-source container management project,
 which you can find at https://kubernetes.io/.
 
-If your kubectl is properly configured, you will find your Kubernetes
-dashboard at
-http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/.
-If this doesn't work, see :ref:`Troubleshooting Cloud Dashboards`.
+If kubectl is properly configured, you will find the Kubernetes dashboard
+at http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/ .
+If this doesn't work, see :ref:`Troubleshooting\ Cloud\ Dashboards`.
 
 To access the Kubernetes dashboard, you must have a kubectl proxy
 established, and you must export the path to KUBECONFIG as your local
@@ -25,11 +24,6 @@ environment variable. Scality offers detailed instructions for setting
 up Kubernetes proxying in the MetalK8s Quickstart. These instructions
 may prove useful to non-MetalK8s installations as well.
 
-`Go back`_
-
-Next: `Grafana`_
-
-.. _`Go back`: Accessing_Cloud_Dashboards.html
 .. _`Grafana`: Grafana.html
 
 .. |image0| image:: ../Resources/Images/Orbit_Screencaps/kubernetes_dashboard.png

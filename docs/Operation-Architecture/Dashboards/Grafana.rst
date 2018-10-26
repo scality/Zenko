@@ -128,12 +128,6 @@ and Kubernetes services: 
 Access platform-level Grafana using this URL:
 http://localhost:8001/api/v1/namespaces/kube-ops/services/kube-prometheus-grafana:http/proxy/?orgId=1
 
-`Go back`_
-
-Next: Kibana_
-
-.. _`Go back`: Kubernetes_Dashboard.html
-.. _`Kibana`: Kibana.html
 
 .. |image0| image:: ../Resources/Images/Orbit_Screencaps/Grafana_login_app-level.png
    :class: OneHundredPercent

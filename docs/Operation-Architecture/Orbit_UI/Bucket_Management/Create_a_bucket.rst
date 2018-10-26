@@ -42,6 +42,4 @@ To create a bucket:
    :class: FiftyPercent
 
 
-`Go back`_
 
-.. _`Go back`: Bucket_Management_Tasks.html

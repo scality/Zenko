@@ -30,6 +30,4 @@ under development.
 Backbeat is an open-source project. You can learn more about it at its
 home repository: \ https://github.com/scality/backbeat.
 
-`Go back`_
 
-.. _`Go back`: Software_Architecture.html
