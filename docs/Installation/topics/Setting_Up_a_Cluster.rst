@@ -8,6 +8,8 @@ other cloud Kubernetes deployments, where such resources are preinstalled and
 available on demand.
 
 
+.. _General Cluster Requirements:
+
 General Cluster Requirements
 ****************************
 

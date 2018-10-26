@@ -4,7 +4,7 @@ Installation Guide
 While it is possible to run Zenko on a single machine, it’s designed for
 cluster operation. If you can set up a Kubernetes cluster on your own,
 review the :ref:`General Cluster Requirements` and skip to
-:ref:`Installing Your Zenko Instance`.
+:ref:`Installing Zenko`.
 
 Otherwise, you can set up a cluster quickly using
 `MetalK8s <https://github.com/scality/metalk8s/>`__, Scality's open-source
