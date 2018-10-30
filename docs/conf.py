@@ -18,9 +18,9 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'Zenko Documentation Stack'
+project = 'Zenko Documentation'
 copyright = '2018, Scality, Inc.'
-author = 'Technical Publications'
+author = 'Scality Technical Publications'
 
 # The short X.Y version
 version = '1.0'
@@ -113,7 +113,7 @@ html_theme_options = {
 
 # add logo  (your logo goes in _static directory)
 
-html_logo = '_static/Scality Logo Horizontal White.png'
+html_logo = '_static/Zenko-Logo-Wide-white-on-sitegray.png'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -129,6 +129,7 @@ html_static_path = ['_static']
 # default: ``['localtoc.html', 'relations.html', 'sourcelink.html',
 # 'searchbox.html']``.
 #
+
 # html_sidebars = {}
 
 
@@ -183,8 +184,8 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'ZenkoOperationsGuide', 'Zenko Operations Guide Documentation',
-     author, 'ZenkoOperationsGuide', 'One line description of project.',
-     'Miscellaneous'),
+    'Scality Technical Publications', 'Zenko Operations Guide', 'Operation and Architecture Guide',
+     'manual'),
 ]
 
 
