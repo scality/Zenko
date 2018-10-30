@@ -8,7 +8,11 @@ import logging
 import re
 
 IGNORED_PODS = [
-    r'.+queue-config'
+    r'.+queue-config',
+    r'.+failed',
+    r'.+pending',
+    r'.+kafkaclient',
+    r'.+utils'
 ]
 
 IGNORED_PODS = [re.compile(x) for x in IGNORED_PODS]
