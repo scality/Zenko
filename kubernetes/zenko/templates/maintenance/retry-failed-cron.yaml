@@ -18,8 +18,8 @@ spec:
           restartPolicy: OnFailure
           containers:
           - name: failed
-            image: {{ .Values.maintenance.s3UtilsImage.repository }}:{{ .Values.maintenance.s3UtilsImage.tag }}
-            imagePullPolicy: {{ .Values.maintenance.s3UtilsImage.pullPolicy }}
+            image: {{ .Values.maintenance.s3Utils.image.repository }}:{{ .Values.maintenance.s3Utils.image.tag }}
+            imagePullPolicy: {{ .Values.maintenance.s3Utils.image.pullPolicy }}
             command: ["/bin/bash"]
             args:
             - -c
