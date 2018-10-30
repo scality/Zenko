@@ -1,6 +1,15 @@
 ingress:
   enabled: true
 
+maintenance:
+  enabled: true
+  accessKey: HEYIMAACCESSKEY
+  secretKey: loOkAtMEImASecRetKEy123=
+  debug:
+    enabled: true
+  accessKey: HEYIMAACCESSKEY
+  secretKey: loOkAtMEImASecRetKEy123=
+
 prometheus:
   rbac:
     create: false

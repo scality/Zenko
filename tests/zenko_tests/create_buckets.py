@@ -10,6 +10,10 @@ import re
 IGNORED_PODS = [
     r'.+queue-config',
     r'.+bootstrap',
+    r'.+failed',
+    r'.+pending',
+    r'.+kafkaclient',
+    r'.+utils'
 ]
 
 IGNORED_PODS = [re.compile(x) for x in IGNORED_PODS]
