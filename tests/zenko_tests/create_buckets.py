@@ -60,6 +60,7 @@ def wait_for_pods(delete, timeout):
                     if is_ignored(container.name):
                         continue
                     elif not container.ready:
+                        _log.info('%s container is not ready.' % container.name)
                         if delete and container.state.waiting and \
                             container.state.waiting.reason == 'CrashLoopBackOff':
                             _log.info('%s is in CrashLoopBackOff, restarting.' % container.name)
