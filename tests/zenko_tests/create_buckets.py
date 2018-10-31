@@ -10,8 +10,8 @@ import re
 IGNORED_PODS = [
     r'.+queue-config',
     r'.+bootstrap',
-    r'.+failed',
-    r'.+pending',
+    r'failed',
+    r'pending',
     r'.+kafkaclient',
     r'.+utils'
 ]
@@ -21,9 +21,10 @@ IGNORED_PODS = [re.compile(x) for x in IGNORED_PODS]
 def is_ignored(name):
     for ignored in IGNORED_PODS:
         if ignored.search(name):
+            _log.info('%s is being ignored' % name)
             return True
+        _log.info('%s not being ignored' % name)
     return False
-
 
 logging.basicConfig(level=logging.INFO)
 _log = logging.getLogger('create_buckets')
