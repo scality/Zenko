@@ -18,8 +18,8 @@ div.document {
 /* Background Color */
 body {
     background-color: #201921;
-    font-family: 'Roboto';
-    font-size: 10pt;
+    font-family: 'Roboto', 'Arial', 'Helvetica','sans-serif';
+/*    font-size: 10pt;*/
     text-align: Left;
   }
 
@@ -59,7 +59,7 @@ div.body p {
 
 /* Headline styles */
 div.body h1, div.body h2, div.body h3, div.body h4, div.body h5, div.body h6 {
-    font-family: Oswald, Arial Narrow;
+    font-family: 'Oswald', 'Arial Narrow','Helvetica Narrow','sans-serif';
     background-color: #FFFFFF;
     font-weight: 600;
     color: #000;
@@ -70,7 +70,7 @@ div.body h1, div.body h2, div.body h3, div.body h4, div.body h5, div.body h6 {
 
 /* Padding on items on left sidebar */
 div.sphinxsidebar h3 {
-    font-family: Oswald, Arial Narrow;
+    font-family: 'Oswald', 'Arial Narrow','Helvetica Narrow','sans-serif';
     color: #FFFFFF;
     font-size: 1.4em;
     font-weight: normal;
