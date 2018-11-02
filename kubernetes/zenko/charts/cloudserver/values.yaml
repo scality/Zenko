@@ -50,6 +50,17 @@ global:
     # - awsbackend
     # - azurebackend
     # - gcpbackend
+  externalBackends:
+    aws_s3:
+      keepAlive: false
+      keepAliveMsecs: 1000
+      maxFreeSockets: 256
+      maxSockets: null
+    gcp:
+      keepAlive: true
+      keepAliveMsecs: 1000
+      maxFreeSockets: 256
+      maxSockets: null
 
 endpoint: zenko.local
 
