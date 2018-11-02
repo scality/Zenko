@@ -76,6 +76,11 @@ cloudserver:
     # accountName:
       # access:
       # secret:
+  # externalBackends:
+  #   aws_s3:
+  #     keepAlive: false
+  #   gcp:
+  #     keepAlive: true
 
 backbeat:
   replication:
