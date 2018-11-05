@@ -20,6 +20,22 @@ env:
     value: "{{ .Release.Name }}-cloudserver,{{ .Values.endpoint }}"
   - name: HEALTHCHECKS_ALLOWFROM
     value: "{{ .Values.allowHealthchecksFrom }}"
+  - name: AWS_S3_HTTPAGENT_KEEPALIVE
+    value: "{{ .Values.externalBackends.aws_s3.keepAlive }}"
+  - name: AWS_S3_HTTPAGENT_KEEPALIVE_MS
+    value: "{{ .Values.externalBackends.aws_s3.keepAliveMsecs }}"
+  - name: AWS_S3_HTTPAGENT_KEEPALIVE_MAX_SOCKETS
+    value: "{{ .Values.externalBackends.aws_s3.maxSockets }}"
+  - name: AWS_S3_HTTPAGENT_KEEPALIVE_MAX_FREE_SOCKETS
+    value: "{{ .Values.externalBackends.aws_s3.maxFreeSockets }}"
+  - name: GCP_HTTPAGENT_KEEPALIVE
+    value: "{{ .Values.externalBackends.gcp.keepAlive }}"
+  - name: GCP_HTTPAGENT_KEEPALIVE_MS
+    value: "{{ .Values.externalBackends.gcp.keepAliveMsecs }}"
+  - name: GCP_HTTPAGENT_KEEPALIVE_MAX_SOCKETS
+    value: "{{ .Values.externalBackends.gcp.maxSockets }}"
+  - name: GCP_HTTPAGENT_KEEPALIVE_MAX_FREE_SOCKETS
+    value: "{{ .Values.externalBackends.gcp.maxFreeSockets }}"
   {{- if .Values.global.orbit.storageLimit.enabled }}
   - name: STORAGE_LIMIT_ENABLED
     value: "true"
