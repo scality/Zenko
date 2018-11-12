@@ -58,6 +58,13 @@ def digital_ocean_target_bucket(digital_ocean_resource):
 
 
 @pytest.fixture(scope='session')
+def ceph_target_bucket(ceph_resource):
+    bucket = create_bucket(ceph_resource, conf.CEPH_TARGET_BUCKET)
+    yield bucket
+    util.cleanup_bucket(bucket, delete_bucket=False)
+
+
+@pytest.fixture(scope='session')
 def aws_crr_target_bucket(aws_crr_resource):
     bucket = create_bucket(aws_crr_resource, conf.AWS_CRR_TARGET_BUCKET)
     yield bucket
@@ -88,6 +95,13 @@ def wasabi_crr_target_bucket(wasabi_resource):
 @pytest.fixture(scope='session')
 def digital_crr_ocean_bucket(digital_ocean_resource):
     bucket = create_bucket(digital_ocean_resource, conf.DO_CRR_TARGET_BUCKET)
+    yield bucket
+    util.cleanup_bucket(bucket, delete_bucket=False)
+
+
+@pytest.fixture(scope='session')
+def ceph_crr_target_bucket(ceph_resource):
+    bucket = create_bucket(ceph_resource, conf.CEPH_CRR_TARGET_BUCKET)
     yield bucket
     util.cleanup_bucket(bucket, delete_bucket=False)
 
@@ -145,6 +159,15 @@ def digital_ocean_ep_bucket(digital_ocean_endpoint_resource):
     yield bucket
     util.cleanup_bucket(bucket)
 
+
+@pytest.fixture
+def ceph_ep_bucket(ceph_endpoint_resource):
+    name = util.gen_bucket_name()
+    bucket = create_bucket(ceph_endpoint_resource, name)
+    yield bucket
+    util.cleanup_bucket(bucket)
+
+
 # These buckets are configured using a LocationConstraint to each backend
 
 
@@ -192,6 +215,15 @@ def digital_ocean_loc_bucket(zenko_bucket):
     )
     return zenko_bucket
 
+
+@pytest.fixture
+def ceph_loc_bucket(zenko_bucket):
+    loc_config = {'LocationConstraint': conf.CEPH_BACKEND}
+    zenko_bucket.create(
+        CreateBucketConfiguration=loc_config
+    )
+    return zenko_bucket
+
 # These are bucket in zenko with replication enabled
 
 
@@ -230,6 +262,14 @@ def wasabi_crr_bucket(zenko_resource):
 @pytest.fixture(scope='function')
 def digital_ocean_crr_bucket(zenko_resource):
     bucket = create_bucket(zenko_resource, conf.DO_CRR_SRC_BUCKET)
+    util.bucket_safe_create(bucket)
+    yield bucket
+    util.cleanup_bucket(bucket, delete_bucket=False)
+
+
+@pytest.fixture(scope='function')
+def ceph_crr_bucket(zenko_resource):
+    bucket = create_bucket(zenko_resource, conf.CEPH_CRR_SRC_BUCKET)
     util.bucket_safe_create(bucket)
     yield bucket
     util.cleanup_bucket(bucket, delete_bucket=False)

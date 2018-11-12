@@ -81,6 +81,11 @@ models:
       GCP_CRR_SRC_BUCKET_NAME: ci-zenko-gcp-crr-src-bucket
       GCP_MPU_BUCKET_NAME: ci-zenko-gcp-mpu-bucket
       GCP_MPU_BUCKET_NAME_2: ci-zenko-gcp-mpu-bucket-2
+
+      CEPH_BUCKET_NAME: ci-zenko-ceph-target-bucket
+      CEPH_CRR_SRC_BUCKET_NAME: ci-zenko-ceph-crr-src-bucket
+      CEPH_CRR_BUCKET_NAME: ci-zenko-ceph-crr-target-bucket
+
       MULTI_CRR_SRC_BUCKET_NAME: ci-zenko-multi-crr-src-bucket
       TRANSIENT_SRC_BUCKET_NAME: ci-zenko-transient-src-bucket
 

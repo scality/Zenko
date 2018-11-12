@@ -12,6 +12,7 @@ RUN apk add -U \
     libffi-dev \
     python3-dev \
     musl-dev \
+    curl \
     openssl-dev && \
     mkdir -p /usr/local/bin/tests/node_tests
 
@@ -27,8 +28,8 @@ RUN python3 -m pip install -r /tmp/requirements.txt tox kubernetes && \
     rm -rf /tmp/npm-* && \
     rm -rf /var/cache/apk/*
 
-COPY ./node_tests/npm_chain.sh ./docker-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/npm_chain.sh /usr/local/bin/docker-entrypoint.sh
+COPY ./node_tests/npm_chain.sh ./docker-entrypoint.sh ./wait_for_ceph.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/npm_chain.sh /usr/local/bin/docker-entrypoint.sh /usr/local/bin/wait_for_ceph.sh
 
 # Copy Tests
 COPY . /usr/local/bin/tests/

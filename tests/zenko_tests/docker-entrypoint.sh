@@ -13,6 +13,9 @@ enter_and_run() {
     cd "$old_cwd"
 }
 
+echo 'Waiting for ceph'
+sh wait_for_ceph.sh zenko-ceph-ceph-in-a-box
+
 # Setup our environment
 python3 create_buckets.py
 if [ "$?" -ne "0" ]; then
