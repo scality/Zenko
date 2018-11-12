@@ -1,20 +1,20 @@
-FROM hseeberger/scala-sbt
+FROM openjdk:8u131-jdk AS build
 
-ENV KM_VERSION=1.3.3.18
+ENV KAFKA_MANAGER_VERSION=1.3.3.18
 
-WORKDIR /tmp
+RUN wget "https://github.com/yahoo/kafka-manager/archive/${KAFKA_MANAGER_VERSION}.tar.gz" \
+    && tar -xzf ${KAFKA_MANAGER_VERSION}.tar.gz \
+    && cd /kafka-manager-${KAFKA_MANAGER_VERSION} \
+    && echo 'scalacOptions ++= Seq("-Xmax-classfile-name", "200")' >> build.sbt \
+    && ./sbt clean dist \
+    && unzip -d ./builded ./target/universal/kafka-manager-${KAFKA_MANAGER_VERSION}.zip \
+    && mv -T ./builded/kafka-manager-${KAFKA_MANAGER_VERSION} /opt/kafka-manager
 
-RUN wget https://github.com/yahoo/kafka-manager/archive/${KM_VERSION}.tar.gz && \
-    tar xvf ${KM_VERSION}.tar.gz && \
-    cd kafka-manager-${KM_VERSION} && \
-    sbt clean dist
+FROM openjdk:8u131-jre-alpine
 
-WORKDIR /opt
-
-RUN unzip -d . /tmp/kafka-manager-${KM_VERSION}/target/universal/kafka-manager-${KM_VERSION}.zip && \
-    rm -fr /tmp/${KM_VERSION}.tar.gz /tmp/kafka-manager-${KM_VERSION}
-
-WORKDIR /opt/kafka-manager-${KM_VERSION}
+RUN apk update && apk add bash
+COPY --from=build /opt/kafka-manager /opt/kafka-manager
+WORKDIR /opt/kafka-manager
 
 EXPOSE 9000
 ENTRYPOINT ["./bin/kafka-manager","-Dconfig.file=conf/application.conf"]
