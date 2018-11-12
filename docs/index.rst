@@ -7,9 +7,8 @@ Zenko
 =====
 
 .. toctree::
-   :maxdepth: 1
-   :glob:
-   :caption: Documentation
+   :maxdepth: 2
 
-   Installation/*
-   Operation-Architecture/*
+   Installation/index
+   Operation-Architecture/index
+   Reference/index
