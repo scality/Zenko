@@ -18,7 +18,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'Zenko Documentation Stack'
+project = 'Zenko'
 copyright = '2018, Scality, Inc.'
 author = 'Technical Publications'
 
@@ -45,7 +45,7 @@ extensions = [
             'sphinx.ext.ifconfig',
             'sphinxcontrib.spelling',
             'sphinxcontrib.inkscapeconverter',
-            'sphinx.ext.autosectionlabel',
+#            'sphinx.ext.autosectionlabel',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -113,7 +113,7 @@ html_theme_options = {
 
 # add logo  (your logo goes in _static directory)
 
-html_logo = '_static/Scality Logo Horizontal White.png'
+html_logo = '_static/Zenko-Logo-Wide-white-on-sitegray.png'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
