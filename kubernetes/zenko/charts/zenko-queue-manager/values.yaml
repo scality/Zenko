@@ -15,7 +15,7 @@ serviceAccount:
 ##
 image:
   repository: zenko/kafka-manager
-  tag: 1.0.0
+  tag: 1.3.3.18
   pullPolicy: IfNotPresent
 
 ## Kafka-manager zookeeper hosts. Default to localhost:2181 or
