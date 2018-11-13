@@ -12,7 +12,7 @@ RUN wget "https://github.com/yahoo/kafka-manager/archive/${KAFKA_MANAGER_VERSION
 
 FROM openjdk:8u131-jre-alpine
 
-RUN apk update && apk add bash
+RUN apk update && apk add bash curl
 COPY --from=build /opt/kafka-manager /opt/kafka-manager
 WORKDIR /opt/kafka-manager
 
