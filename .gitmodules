@@ -1,0 +1,3 @@
+[submodule "images/rclone/rclone"]
+	path = images/rclone/rclone
+	url = https://github.com/ncw/rclone
