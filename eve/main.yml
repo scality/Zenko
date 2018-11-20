@@ -183,3 +183,30 @@ stages:
             <<: *global_env
       - ShellCommand: *dump_logs
       - Upload: *upload_artifacts
+
+  fuzz-listing:
+    worker: *kube_cluster
+    steps:
+      - Git: *git_pull
+      - ShellCommand: *private_registry_login
+      - ShellCommand:
+          name: Setup Zenko and run versioned bucket test
+          command: make -e test-listing
+          workdir: build/tests
+          maxTime: 43200
+          timeout: 43200
+          env:
+            S3_FUZZER: enabled
+            ZENKO_BUCKET: fuzzbucket-ver
+            <<: *global_env
+      - ShellCommand:
+          name: Run unversioned bucket test
+          command: make -e run-listing-fuzzer
+          workdir: build/tests
+          maxTime: 43200
+          env:
+            ZENKO_BUCKET: fuzzbucket-nonver
+            VERSIONED: disabled
+            <<: *global_env
+      - ShellCommand: *dump_logs
+      - Upload: *upload_artifacts

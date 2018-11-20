@@ -34,6 +34,7 @@ COSBENCH_RUNNER_IMAGE_NAME := cosbench-runner
 E2E_POD := zenko-e2e
 COSBENCH_RUNNER_POD := cosbench-runner
 CEPH_WAITER_POD := ceph-waiter
+S3FUZZ_POD := s3fuzz-runner
 
 # Set a default tag,
 # but allow us to set all of them using TAG_OVERRIDE
@@ -177,6 +178,16 @@ ifndef NO_INSTALL
 endif
 .PHONY: install-latest-zenko
 
+wait-for-zenko: | build-tests
+	$(V)$(KUBECTL) run zenko-waiter \
+		--image $(E2E_IMAGE) \
+		--rm \
+		--attach=True \
+		--restart=Never \
+		--namespace=$(HELM_NAMESPACE) \
+		$(shell ../eve/workers/ci_env.sh env) \
+		--command -- python3 create_buckets.py || (echo "Zenko has failed to stabilize" ; kubectl get pods -L redis-role ; exit 1) >&2
+.PHONY: wait-for-zenko
 
 wait-for-ceph: | build-tests
 	$(V)echo "Waiting for ceph..."
@@ -212,6 +223,27 @@ run-tests: | build-tests
 		--env CLOUDSERVER_ENDPOINT="http://$(ZENKO_HELM_RELEASE)-cloudserver:80" \
 		$(shell ../eve/workers/ci_env.sh env) || (echo "Tests have failed" ; kubectl get pods -L redis-role ; exit 1) >&2
 .PHONY: run-tests
+
+run-listing-fuzzer:
+	$(V)$(KUBECTL) run $(S3FUZZ_POD) \
+		--rm \
+		--restart=Never \
+		--attach=True \
+		--image=zenko/s3fuzz:latest \
+		--namespace $(HELM_NAMESPACE) \
+		--env ZENKO_HOST="http://$(ZENKO_HELM_RELEASE)-cloudserver:80" \
+		--env COUNT=1 \
+		--env SEED=$(shell date '+%s') \
+		--env ZENKO_BUCKET=$(ZENKO_BUCKET) \
+		--env AWS_BUCKET=ci-zenko-s3-fuzzer \
+		--env VERSIONED=$(VERSIONED) \
+		--env ANTITIMEOUT=1 \
+		--env NO_SERVICES=1 \
+		$(shell ../eve/workers/ci_env.sh env)
+.PHONY: run-listing-fuzzer
+
+test-listing: | install-common get-latest-commit install-zenko wait-for-zenko run-listing-fuzzer
+.PHONY: test-listing
 
 test-flaky:
 	$(eval NODE_TEST_TAGS = is:flaky)
