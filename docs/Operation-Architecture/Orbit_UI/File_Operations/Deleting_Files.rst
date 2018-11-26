@@ -1,20 +1,23 @@
-Deleting Files
-==============
+Deleting Objects
+================
 
-To delete files from a selected bucket:
+To delete objects from a selected bucket:
 
-#. Click the check box next to each file to be deleted. The number of
-   files to be deleted is indicated in the top bar of the file list.
+#. Click the check box next to each object to be deleted. The number 
+   of objects to be deleted is indicated in the top bar of the file 
+   list.
 
    |image0|
 
 #. Click the **Delete** button.
+
    |image1|
+
 #. Orbit requests confirmation of the deletion.
 
    |image2|
 
-#. The file is deleted from the bucket.
+#. The object is deleted from the bucket.
 
    .. important::
 
@@ -30,67 +33,65 @@ To delete files from a selected bucket:
 Deleting Versioned Objects
 --------------------------
 
-To completely delete a versioned object, you must issue S3 API commands
+Deleting versioned objects is difficult because cloud servers are biased towards
+preserving data. While this is useful, it can become problematic when large 
+numbers of objects are under management (during stress testing, for example).
+
+To completely delete a versioned object, you must issue S3 API commands
 from the command line.
 
-If you have not already done so, follow the instructions at “Zenko from
-the Command Line,” on page 1 to configure one of your nodes to accept
-AWS S3 CLI commands.
+If you have not already done so, follow the instructions at
+:ref:`Zenko from the Command Line` to configure one of your nodes to accept
+AWS S3 CLI commands.
 
-From your server node,
+Zenko provides command-line scripts that enable removing versioned objects 
+completely (both removing the object data and its object ID from the namespace).
 
-#. List object versions:
+The cleanupBuckets.js script is available in the s3utils pod. 
 
-   ::
+Run it as follows:
 
-     $ aws s3api list-object-versions --bucket <bucket> --endpoint-url http://<zenko.endpoint.url> --profile <aws-profile>
+  #. Enable the s3utils pod with::
 
-   The ``--profile`` option is only required if you have set up more
-   than the default profile. Check this from your Zenko node with
-   ``cat ~/.aws/credentials``. If only the ``[default]`` profile is
-   returned, omit the ``--profile`` option.
+     $ kubectl run s3utils --image=zenko/s3utils:0.5 -it bash
 
-   The above command returns the object’s version ID and key.
+     .. tip::
 
-   ::
+	The s3utils pod is disabled by default. You can also enable it 
+	by adding the following to the options file and upgrading your Zenko deployment::
 
-     {
-       "DeleteMarkers": [
-          {
-             "Owner": {
-                "DisplayName": "user",
-                "ID": "e25bcaf4c8ed41aba50891a671e68d76eddb405bd620252075388c340925c77e"
-             },
-             "IsLatest": true,
-             "VersionId": "39383436323730383139313839343939393939395247303031202032302e30",
-             "Key": "file.txt",
-             "LastModified": "2018-09-18T17:30:08.103Z"
-          }
-       ]
-     }
+	  maintenance:
+	    debug:
+	      enabled: true
+	      # An access/secret key to access Zenko that will be used to configure the s3utils pod
+	      accessKey: <access-key>
+	      secretKey: <secret-key>
 
-#. To delete object versions, use the command:
+  #. Exec into the pod. First grep for your s3utils pod::
 
-    ::
+       $ kubectl get pods | grep s3utils
+       myzenko-zenko-debug-s3utils-7f77f9b5b9-627gz   1/1  Running   0   31m
 
-       $ aws s3api delete-object --bucket <bucket-name> --version-id <versionID> --key <key> --endpoint-url http://<zenko.endpoint.url> --profile <aws-profile>
+     Then exec into the pod::
 
-    which in the present example returns:
+       $ kubectl exec -it myzenko-zenko-debug-s3utils-7f77f9b5b9-627gz bash
 
-    ::
+  #. Run the cleanup script with::
 
-       {
-         "VersionId": "39383436323730383139313839343939393939395247303031202032302e30"
-       }
+     $ node cleanupBuckets.js <bucket1> <bucket2> ...
 
-#. With all object versions in the bucket thus deleted, you can delete
-   the bucket from the command line with:
+On versioned buckets, this script deletes current and archived
+versions, deletes markers, and aborts any ongoing multipart uploads. 
+
+Buckets are cleaned up (emptied of all objects and versions), but not deleted.
+With all object versions in a bucket thus deleted, you can delete the bucket
+from the command line with:
 
      ::
 
        $ aws s3api delete-bucket --bucket <bucket-name> --endpoint-url http://<zenko.endpoint.url>
 
-   or delete the bucket using the Orbit Multicloud Browser.
+or delete the bucket using the Orbit Multicloud Browser.
 
 .. |image0| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_file_delete.png
 .. |image1| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_file_delete_button.png

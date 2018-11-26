@@ -1,3 +1,5 @@
+.. _Zenko from the Command Line:
+
 Zenko from the Command Line
 ===========================
 
@@ -7,7 +9,7 @@ S3 API calls and to access its own Backbeat server.
 Enabling command-line interactions enables programmatic access to
 the following features:
 
-.. toctree::
+ .. toctree::
    :maxdepth: 1
 
    CRR Metrics and Healthcheck <CRR_Metrics_and_Health>
