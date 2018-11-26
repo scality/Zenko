@@ -51,8 +51,26 @@ The cleanupBuckets.js script is available in the s3utils pod.
 
 Run it as follows:
 
-  # Exec into the pod with ``kubectl exec -it s3utils bash``
-  # Run the cleanup script with ``node cleanupBuckets.js <bucket1> <bucket2> ...``
+  #. Enable the s3utils pod with::
+
+     $ kubectl run s3utils --image=zenko/s3utils:0.5 -it bash
+
+     .. tip::
+
+	The s3utils pod is disabled by default. You can also enable it 
+	by adding the following to the options file::
+
+	  maintenance:
+	    debug:
+	      enabled: true
+
+  #. Exec into the pod with::
+
+     $ kubectl exec -it s3utils bash
+
+  #. Run the cleanup script with::
+
+     $ node cleanupBuckets.js <bucket1> <bucket2> ...
 
 On versioned buckets, this script deletes current and archived
 versions, deletes markers, and aborts any ongoing multipart uploads. 
