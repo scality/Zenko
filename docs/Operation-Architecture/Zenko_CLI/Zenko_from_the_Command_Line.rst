@@ -1,3 +1,5 @@
+.. _Zenko from the Command Line:
+
 Zenko from the Command Line
 ===========================
 
