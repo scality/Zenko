@@ -69,7 +69,11 @@ Run it as follows:
 
   #. Exec into the pod with::
 
-     $ kubectl exec -it s3utils bash
+     # First grep for your s3utils pod
+     $ kubectl get pods | grep s3utils
+     myzenko-zenko-debug-s3utils-7f77f9b5b9-627gz   1/1  Running   0   31m
+     # Then exec into the pod
+     $ kubectl exec -it myzenko-zenko-debug-s3utils-7f77f9b5b9-627gz bash
 
   #. Run the cleanup script with::
 
