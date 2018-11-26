@@ -63,6 +63,9 @@ Run it as follows:
 	  maintenance:
 	    debug:
 	      enabled: true
+	      # An access/secret key to access Zenko that will be used to configure the s3utils pod
+	      accessKey: <access-key>
+	      secretKey: <secret-key>
 
   #. Exec into the pod with::
 
