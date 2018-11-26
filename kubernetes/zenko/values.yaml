@@ -81,7 +81,10 @@ backbeat:
   replication:
     dataProcessor:
       replicaCount: *nodeCount
-      replicaFactor: 2
+      # If replicaFactor is increased, make sure to increase the
+      # number of partitions for "backbeat-replication" topic
+      # accordingly
+      replicaFactor: 1
     statusProcessor:
       replicaCount: *nodeCount
   lifecycle:
