@@ -18,8 +18,7 @@ div.document {
 /* Background Color */
 body {
     background-color: #201921;
-    font-family: 'Roboto';
-    font-size: 10pt;
+    font-family: 'Roboto', 'Arial', 'Helvetica','sans-serif';
     text-align: Left;
   }
 
@@ -59,7 +58,7 @@ div.body p {
 
 /* Headline styles */
 div.body h1, div.body h2, div.body h3, div.body h4, div.body h5, div.body h6 {
-    font-family: Oswald, Arial Narrow;
+    font-family: 'Oswald', 'Arial Narrow','Helvetica Narrow','sans-serif';
     background-color: #FFFFFF;
     font-weight: 600;
     color: #000;
@@ -70,7 +69,7 @@ div.body h1, div.body h2, div.body h3, div.body h4, div.body h5, div.body h6 {
 
 /* Padding on items on left sidebar */
 div.sphinxsidebar h3 {
-    font-family: Oswald, Arial Narrow;
+    font-family: 'Oswald', 'Arial Narrow','Helvetica Narrow','sans-serif';
     color: #FFFFFF;
     font-size: 1.4em;
     font-weight: normal;
@@ -140,7 +139,6 @@ div.body blockquote
 pre
   {   font-size: 8pt;
       font-family: 'Courier', 'CourierNew', 'monospace' ; 
-/*      margin-left: 18pt;*/
       color: '#000000';
       background-color: '#F2F2F2'
       border-bottom: none;      
@@ -154,37 +152,6 @@ a.reference-internal
     color: '#FFFFFF'
   }
 
-/* h2
-  {
-    font-size: 16pt;
-    font-family: 'Oswald SemiBold';
-  }
-
-
-h3
-  {
-    font-size: 14pt;
-    font-family: 'Oswald SemiBold';
-  }
-
-h4
-  {
-    font-size: 1em;
-    font-family: 'Oswald SemiBold';
-  }
-
-h5
-  {
-    font-style: italic;
-    font-family: 'Oswald SemiBold';
-  }
-
-h6
-  {
-    font-variant: small-caps;
-    font-family: 'Oswald SemiBold';
-  }
-*/
 img
   {
     align: center
@@ -204,21 +171,12 @@ img.FiftyPercent
 img.OneHundredPercent
   {
     max-width: 100%;
-/*    padding-left: 10px;
-    padding-right: 10px;
-    padding-top: 5px;
-    padding-bottom: 5px;*/
   }
 
 img.SeventyFivePercent
   {
     align: center;
     max-width: 75%;
-  /*      padding-left: 10px;
-      padding-right: 10px;
-      display: block;
-      padding-top: 5px;
-      padding-bottom: 5px;*/
     }
 
 div.footer
