@@ -1,5 +1,7 @@
-/* Styles by chris.tingom@scality.com Hello and thanks for all the fish! */
+@import url('https://fonts.googleapis.com/css?family=Oswald');
+@import url('https://fonts.googleapis.com/css?family=Roboto');
 
+/* Styles by chris.tingom@scality.com Hello and thanks for all the fish! */
 
 div.highlight {
     background-color: #E6E6E6;
@@ -15,13 +17,12 @@ div.document {
     width: 1180px;
 }
 
-/* Background Color */
+/* Background Color 
 body {
     background-color: #201921;
-    font-family: 'Roboto';
-    font-size: 10pt;
-    text-align: Left;
+    text-align: left;
   }
+*/
 
 div.related {
     background-color: #201921;
@@ -59,7 +60,7 @@ div.body p {
 
 /* Headline styles */
 div.body h1, div.body h2, div.body h3, div.body h4, div.body h5, div.body h6 {
-    font-family: Oswald, Arial Narrow;
+    font-family: Oswald, "Arial Narrow", "Helvetica Narrow", sans-serif;
     background-color: #FFFFFF;
     font-weight: 600;
     color: #000;
@@ -70,7 +71,7 @@ div.body h1, div.body h2, div.body h3, div.body h4, div.body h5, div.body h6 {
 
 /* Padding on items on left sidebar */
 div.sphinxsidebar h3 {
-    font-family: Oswald, Arial Narrow;
+    font-family: Oswald, "Arial Narrow", "Helvetica Narrow", sans-serif;
     color: #FFFFFF;
     font-size: 1.4em;
     font-weight: normal;
@@ -84,15 +85,25 @@ div.warning {
     border: 1px solid #e55529;
 }
 
+div.admonition.warning a:visited {
+    color: #3F5952;
+    text-decoration: none;
+}
 /* Changes the table header color to be gray */
-th {
-    background-color: #eaeaea;
+table.docutils th {
+  background-color: #eaeaea;
+}
+
+table caption {
+    font-weight: bold;
+    text-align: left;
+    margin-top: 20px;
 }
 
 /* Width of sidebar content */
 div.sphinxsidebarwrapper {
     padding: 10px 10px 0 10px;
-    background-color: '#201921';
+    background-color: #201921;
 }
 
 /* Sidebar margin */
@@ -130,6 +141,7 @@ div.body dd
 div.body li
   {
     text-align: left;
+    margin-left: 1em;
   }
 
 div.body blockquote
@@ -138,11 +150,12 @@ div.body blockquote
   }
 
 pre
-  {   font-size: 8pt;
-      font-family: 'Courier', 'CourierNew', 'monospace' ; 
+  {   font-size: 90%;
+      font-family: Courier, "Courier New", monospace ; 
 /*      margin-left: 18pt;*/
+      margin-top: 0pt;
       color: '#000000';
-      background-color: '#F2F2F2'
+      background-color: '#F2F2F2';
       border-bottom: none;      
       border-top: none;
       border-left: none;
@@ -226,10 +239,15 @@ div.footer
     background-color: #201921;
   }
 
-td ul
-{
-    margin-left: 0;
+td ul {
+   margin-left: 1em;
 }
+
+td ul li
+{
+    margin-left: 1em;
+}
+
 
 /* Changes color of note admonition box */
 div.note {
@@ -251,7 +269,6 @@ div.tip {
 
 /* H1 */
 div.body h1 {
-    margin-top: 0;
     font-size: 222%;
 }
 
@@ -259,7 +276,18 @@ td pre {
     border: none;
     valign: top;
     background-color: e6e6e6;
+    margin-top: 0;
 }
 table.docutils td, table.docutils th {
     border-top: 1px solid #aaa;
+}
+
+code {
+    font-family: Courier, "Courier New", monospace;
+    font-size: 90%;
+    background-color: inherit;
+}
+
+ol ol {
+    list-style-type: lower-alpha;
 }

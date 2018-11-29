@@ -18,8 +18,8 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'Zenko Documentation Stack'
-copyright = '2018, Scality, Inc.'
+project = 'Zenko'
+copyright = '2018, Scality, Inc'
 author = 'Technical Publications'
 
 # The short X.Y version
@@ -75,9 +75,7 @@ language = None
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '0_Front_Matter',
-'Configuring_S3_Service', 'List_and_Retrigger_Failed_Tasks',
-'Connect_to_a_Zenko_Instance_Account', ]
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 # The name of the Pygments (syntax highlighting) style to use.
 
@@ -105,7 +103,7 @@ html_theme_options = {
     'relbarbgcolor': '#201921',
     'relbartextcolor': '#FFFFFF',
     'headbgcolor': '#FFFFFF',
-    'headtextcolor': '#201921',
+    'headtextcolor': '#000000',
     'codebgcolor': '#F2F2F2' ,
     'bodyfont': 'Roboto' ,
     'headfont': 'Oswald' ,
