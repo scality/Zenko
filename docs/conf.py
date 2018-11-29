@@ -18,7 +18,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'Zenko Documentation Stack'
+project = 'Zenko'
 copyright = '2018, Scality, Inc.'
 author = 'Technical Publications'
 
@@ -45,7 +45,7 @@ extensions = [
             'sphinx.ext.ifconfig',
             'sphinxcontrib.spelling',
             'sphinxcontrib.inkscapeconverter',
-            'sphinx.ext.autosectionlabel',
+#            'sphinx.ext.autosectionlabel',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
