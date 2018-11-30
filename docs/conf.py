@@ -1,4 +1,3 @@
-#
 # Configuration file for the Sphinx documentation builder.
 #
 # This file does only contain a selection of the most common options. For a
@@ -19,7 +18,7 @@
 
 project = 'Zenko'
 copyright = '2018, Scality, Inc'
-author = 'Technical Publications'
+author = 'Scality Technical Publications'
 
 # The short X.Y version
 version = '1.0'
@@ -126,8 +125,8 @@ html_static_path = ['_static']
 # default: ``['localtoc.html', 'relations.html', 'sourcelink.html',
 # 'searchbox.html']``.
 #
-# html_sidebars = {}
 
+# html_sidebars = {}
 
 # -- Options for HTMLHelp output ---------------------------------------------
 
@@ -180,8 +179,8 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'ZenkoOperationsGuide', 'Zenko Operations Guide Documentation',
-     author, 'ZenkoOperationsGuide', 'One line description of project.',
-     'Miscellaneous'),
+    'Scality Technical Publications', 'Zenko Operations Guide', 'Operation and Architecture Guide',
+     'manual'),
 ]
 
 

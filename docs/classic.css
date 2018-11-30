@@ -9,11 +9,12 @@
  *
  *
 
+@import url("basic.css");
+
 * -- page layout ----------------------------------------------------------- */
 
 body {
-    font-family: Roboto, Arial, Helvetica, sans-serif;
-    font-size: 100%;
+    font-family: 'Roboto', 'Arial', 'Helvetica', 'sans-serif';
     text-align: left;
     background-color: #201921;
     color: #000;
@@ -64,7 +65,7 @@ div.related a {
 }
 
 div.sphinxsidebar {
-    font-family: Oswald, "Arial Narrow", "Helvetica Narrow", sans-serif;
+    font-family: 'Oswald', 'Arial Narrow', 'Helvetica Narrow', 'sans-serif';
     color: #FFFFFF;
     top: 30px;
     bottom: 0;
@@ -153,9 +154,8 @@ div.body h3,
 div.body h4,
 div.body h5,
 div.body h6 {
-    font-family: Oswald, "Arial Narrow", "Helvetica Narrow", sans-serif;
+    font-family: 'Oswald', 'Arial Narrow', 'Helvetica Narrow', 'sans-serif';
     background-color: #FFFFFF;
-/*    font-weight: 600;*/
     color: #000000;
     border-bottom: 1px solid #ccc;
     margin: 20px -20px 10px 0px;
@@ -182,7 +182,6 @@ a.headerlink:hover {
 }
 
 div.body p, div.body dd, div.body li, div.body blockquote {
-/*    text-align: justify;*/
     line-height: 130%;
 }
 
@@ -258,7 +257,7 @@ th {
 }
 
 .viewcode-back {
-    font-family: Roboto;
+    font-family: 'Courier New','Courier','monospace';
 }
 
 div.viewcode-block:target {
