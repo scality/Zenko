@@ -42,6 +42,10 @@ spec:
             - name: MONGODB_DATABASE
               value: "mongodb"
             #######
+            - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_TYPE
+              value: service
+            - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_ACCOUNT
+              value: service-replication
             - name: REDIS_SENTINELS
               value: "{{ template "backbeat.redis-hosts" . }}"
             - name: REDIS_HA_NAME
