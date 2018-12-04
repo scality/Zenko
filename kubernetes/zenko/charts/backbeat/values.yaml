@@ -9,13 +9,13 @@ global:
   replicationEndpoints: []
 
 image:
-  repository: zenko/backbeat
-  tag: 8.1.0
-  pullPolicy: IfNotPresent
+  repository: philipyoo/backbeat
+  tag: 4.0.1
+  pullPolicy: Always
 
 logging:
    # Options: info, debug, trace
-   level: info
+   level: debug
 
 mongodb:
   replicaSet: rs0
@@ -58,7 +58,7 @@ api:
   affinity: {}
 
 ingestion:
-  enabled: false
+  enabled: true
   consumer:
     replicaCount: 1
 

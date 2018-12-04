@@ -68,7 +68,7 @@ maintenance:
 
 cloudserver:
   replicaCount: *nodeCount
-  replicaFactor: 10
+  replicaFactor: 1
   mongodb:
     replicas: *nodeCount
   endpoint: zenko.local
@@ -96,7 +96,7 @@ backbeat:
     consumer:
       replicaCount: *nodeCount
   ingestion:
-    enabled: false
+    enabled: true
   mongodb:
     replicas: *nodeCount
 
