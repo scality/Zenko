@@ -41,6 +41,14 @@ spec:
               value: "{{ default "rs0" .Values.mongodb.replicaSet }}"
             - name: MONGODB_DATABASE
               value: "mongodb"
+            #######
+            - name: REDIS_SENTINELS
+              value: "{{ template "backbeat.redis-hosts" . }}"
+            - name: REDIS_HA_NAME
+              value: "{{ .Values.redis.sentinel.name }}"
+            ## To consider adding: kafka topic name, group id,
+            ##   retry times (not used atm)
+            #######
           livenessProbe:
             httpGet:
               path: {{ .Values.health.path.liveness }}
