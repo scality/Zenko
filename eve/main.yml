@@ -1,8 +1,8 @@
 version: "0.2"
 
 branches:
-  default:
-    stage: "pre-merge"
+  feature/*, improvement/*, bugfix/*, w/*, q/*, hotfix/*:
+    stage: pre-merge
 
 models:
   - Git: &git_pull
@@ -104,15 +104,16 @@ stages:
     worker:
       type: local
     steps:
-    - TriggerStages:
-        name: Build documentation
-        haltOnFailure: true
-        stage_names:
-        - build-doc
+   # - TriggerStages:
+   #     name: Build documentation
+   #     haltOnFailure: true
+   #     stage_names:
+   #     - build-doc
     - TriggerStages:
         name: trigger all the tests
         stage_names:
-        - test-zenko
+        #- online-zenko
+        - offline-zenko
 
   build-doc:
     worker:
@@ -129,13 +130,77 @@ stages:
         haltOnFailure: true
         command: tox --workdir /tmp/tox -e docs -- html # latexpdf
 
-  test-zenko:
+  offline-zenko:
+    worker:
+      type: kube_pod
+      path: eve/workers/zenko.yaml
+    steps:
+    - Git: *git_pull
+    - ShellCommand:
+        name: Kubeconfig
+        command: |
+          set -ex
+          rm -rf /root/.kube
+          mkdir -p /root/.kube
+          echo "$CI_KUBECONFIG" | envsubst > /root/.kube/config
+          head /root/.kube/config
+          sleep 5
+        env:
+          CI_KUBECONFIG: '%(secret:openstack_cluster_conf)s'
+          NAMESPACE: '%(prop:workername)s'
+    - ShellCommand:
+        name: Create namespace
+        command: |
+          if ping -q -w 1 -s 1 $CLUSTER_IP ; then
+            sleep 5
+            echo $KUBECONFIG
+            ls ~/.kube
+            kubectl config view
+            KUBECONFIG=$KUBECONFIG
+            kubectl config get-contexts --kubeconfig $KUBECONFIG
+            kubectl config use-context admin-cluster.local || exit 1
+            kubectl get ns
+            kubectl create namespace '%(prop:workername)s'
+            kubectl create rolebinding view-configmap \
+            --clusterrole=cluster-admin \
+            --serviceaccount='%(prop:workername)s:default' \
+            --namespace='%(prop:workername)s'
+          else
+            apk add bind-tools
+            dig +short myip.opendns.com @resolver1.opendns.com
+            exit 1
+          fi
+        env:
+          KUBECONFIG: /root/.kube/config
+          CLUSTER_IP: '%(secret:openstack_cluster_ip)s'
+    - ShellCommand:
+        name: Setup and run e2e
+        command: make -e VERBOSE=1 test || (sleep 600 ; exit 1)
+        workdir: build/tests
+        env:
+          <<: [*secrets_env, *docker_env]
+          KUBECONFIG: /root/.kube/config
+          ZENKO_HELM_RELEASE: 'zenko-offline'
+          HELM_NAMESPACE: '%(prop:workername)s'
+          TILLER_NAMESPACE: '%(prop:workername)s'
+          INSTALL_TIMEOUT: "600"
+    - ShellCommand:
+        name: Cleanup
+        command: |
+          kubectl delete namespace '%(prop:workername)s'
+          helm delete $ZENKO_HELM_RELEASE --tiller-namespace $HELM_NAMESPACE
+        env:
+          KUBECONFIG: /root/.kube/config
+          ZENKO_HELM_RELEASE: 'zenko-offline'
+          HELM_NAMESPACE: '%(prop:workername)s'
+
+  online-zenko:
     worker: &kube_cluster
       type: kube_pod
       path: eve/workers/zenko.yaml
       service:
         requests:
-          version: "1.9.6"
+          version: "1.10.4"
         namespaces:
         - "testNamespace"    # <<< the default namespace for that stage
     steps:
