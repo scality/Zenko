@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "cosmos.rclone.fullname" . }}
+  labels:
+    app: {{ template "cosmos.name" . }}
+    chart: {{ template "cosmos.chart" . }}
+    component: rclone
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+data:
+  rclone.conf: |-
+    [cloudserver]
+    type = s3
+    provider = Other
+    env_auth = true
+    access_key_id = {{ .Values.rclone.remote.accessKey }}
+    secret_access_key = {{ .Values.rclone.remote.secretKey }}
+    endpoint = {{ .Values.rclone.remote.endpoint }}
+    location_constraint = {{ .Values.rclone.remote.region }}
+

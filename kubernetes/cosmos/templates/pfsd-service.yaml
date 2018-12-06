@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "cosmos.pfsd.fullname" . }}
+  labels:
+    app: {{ template "cosmos.name" . }}
+    chart: {{ template "cosmos.chart" . }}
+    component: pfsd
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  type: {{ .Values.pfsd.service.type }}
+  ports:
+    - port: {{ .Values.pfsd.service.port }}
+      targetPort: pfs
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ template "cosmos.name" . }}
+    component: pfsd
+    release: {{ .Release.Name }}

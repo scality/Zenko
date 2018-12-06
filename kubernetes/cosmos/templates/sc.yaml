@@ -1,0 +1,12 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ template "cosmos.fullname" . }}
+  labels:
+    app: {{ template "cosmos.name" . }}
+    chart: {{ template "cosmos.chart" . }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+provisioner: kubernetes.io/no-provisioner
+reclaimPolicy: Retain
+volumeBindingMode: WaitForFirstConsumer

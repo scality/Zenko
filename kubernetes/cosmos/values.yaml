@@ -1,0 +1,48 @@
+pfsd:
+  name: pfsd
+
+  replicaCount: 1
+
+  image:
+    repository: zenko/cloudserver
+    tag: 8.1.3
+    pullPolicy: IfNotPresent
+
+  service:
+    type: ClusterIP
+    port: 80
+
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+rclone:
+  name: rclone
+
+  image:
+    repository: zenko/rclone
+    tag: 1.45
+    pullPolicy: IfNotPresent
+
+  schedule: "0 */12 * * *"
+  successfulJobsHistory: 1
+
+  remote:
+    accessKey: my-access-key
+    secretKey: my-secret-key
+    endpoint: http://cloudserver
+    region: pfsd-1
+    bucket: pfsd-1
+
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+persistentVolume:
+  server: 10.100.1.42
+  path: /data
+  accessModes:
+    - ReadWriteMany
+  size: 1Gi
