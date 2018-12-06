@@ -15,7 +15,6 @@
 
 body {
     font-family: 'Roboto', 'Arial', 'Helvetica', 'sans-serif';
-/*    font-size: 100%;*/
     text-align: left;
     background-color: #201921;
     color: #000;
@@ -157,7 +156,6 @@ div.body h5,
 div.body h6 {
     font-family: 'Oswald', 'Arial Narrow', 'Helvetica Narrow', 'sans-serif';
     background-color: #FFFFFF;
-/*    font-weight: 600;*/
     color: #000000;
     border-bottom: 1px solid #ccc;
     margin: 20px -20px 10px 0px;
@@ -184,7 +182,6 @@ a.headerlink:hover {
 }
 
 div.body p, div.body dd, div.body li, div.body blockquote {
-/*    text-align: justify;*/
     line-height: 130%;
 }
 
