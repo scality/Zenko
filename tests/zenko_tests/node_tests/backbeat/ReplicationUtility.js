@@ -139,7 +139,7 @@ class ReplicationUtility {
         this.s3.putObject({
             Bucket: bucketName,
             Key: objectName,
-            ContentEncoding: 'test-content-encoding',
+            ContentEncoding: 'ascii',
             Body: content,
         }, cb);
     }
@@ -161,7 +161,7 @@ class ReplicationUtility {
             ContentType: 'image/png',
             CacheControl: 'test-cache-control',
             ContentDisposition: 'test-content-disposition',
-            ContentEncoding: 'test-content-encoding',
+            ContentEncoding: 'ascii',
             ContentLanguage: 'test-content-language',
             Body: content,
         }, cb);
@@ -192,7 +192,7 @@ class ReplicationUtility {
                 ContentType: 'image/png',
                 CacheControl: 'test-cache-control',
                 ContentDisposition: 'test-content-disposition',
-                ContentEncoding: 'test-content-encoding',
+                ContentEncoding: 'ascii',
                 ContentLanguage: 'test-content-language',
             });
         }

@@ -89,7 +89,7 @@ DO_CRR_BACKEND = get_env('DO_CRR_BACKEND', 'dobackend-crr')
 
 # The endpoints to feed boto3 sdk
 GCP_ENDPOINT = get_env('GCP_ENDPOINT', 'https://storage.googleapis.com')
-AZURE_ENDPOINT = get_env('AZURE_ENDPOINT', 'http://azure.test:9000')
+AZURE_ENDPOINT = get_env('AZURE_BACKEND_ENDPOINT', None)
 WASABI_ENDPOINT = get_env('ZENKO_WASABI_ENDPOINT', 'https://s3.wasabisys.com')
 DO_ENDPOINT = get_env('DO_ENDPOINT', 'https://nyc3.digitaloceanspaces.com')
 

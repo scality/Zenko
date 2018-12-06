@@ -52,7 +52,8 @@ def azure_resource():
     return AzureResource(
         BlockBlobService(
             account_name=conf.AZURE_ACCESS_KEY,
-            account_key=conf.AZURE_SECRET_KEY
+            account_key=conf.AZURE_SECRET_KEY,
+            custom_domain=conf.AZURE_ENDPOINT
         )
     )
 
