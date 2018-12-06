@@ -138,6 +138,11 @@ ifndef NO_SIM
 endif
 .PHONY: install-orbit-simulator
 
+install-mocks:
+	$(V)$(KUBECTL) create -f ../eve/workers/mocks/azure-mock.yaml \
+		--namespace $(HELM_NAMESPACE)
+.PHONY: install-mocks
+
 install-cosbench:
 	$(V)$(GIT) clone git@github.com:scality/zenko-cosbench.git build/zenko-cosbench && \
 	cd build/zenko-cosbench && \

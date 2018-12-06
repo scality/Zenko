@@ -53,7 +53,14 @@ models:
       command: make -e dump-logs
       workdir: build/tests
       env:
-        HELM_NAMESPACE: '%(prop:testNamespace)s'
+        HELM_NAMESPACE: '%(prop:workername)s'
+  - ShellCommand: &start-mocks
+      name: Start external service mocks
+      command: make -e install-mocks
+      workdir: build/tests
+      env:
+        HELM_NAMESPACE: '%(prop:workername)s'
+
   - env: &secrets_env # contains values used for test config
       AWS_ACCESS_KEY: '%(secret:aws_s3_backend_access_key)s'
       AWS_SECRET_KEY: '%(secret:aws_s3_backend_secret_key)s'
@@ -68,6 +75,7 @@ models:
       AZURE_ACCOUNT_NAME: '%(secret:azure_backend_account_name)s'
       AZURE_BACKEND_ENDPOINT: '%(secret:azure_backend_endpoint)s'
       AZURE_SECRET_KEY: '%(secret:azure_backend_access_key)s'
+
       AZURE_ACCOUNT_NAME_2: '%(secret:azure_backend_account_name_2)s'
       AZURE_BACKEND_ENDPOINT_2: '%(secret:azure_backend_endpoint_2)s'
       AZURE_SECRET_KEY_2: '%(secret:azure_backend_access_key_2)s'
@@ -107,6 +115,11 @@ models:
 
       MULTI_CRR_SRC_BUCKET_NAME: ci-zenko-multi-crr-src-bucket
       TRANSIENT_SRC_BUCKET_NAME: ci-zenko-transient-src-bucket
+
+  - env: &mock_env
+      AZURE_ACCOUNT_NAME: devstoreaccount1
+      AZURE_BACKEND_ENDPOINT: http://azure-mock/devstoreaccount1
+      AZURE_SECRET_KEY: Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==
 
   - env: &docker_env # contains values for build test images
       E2E_DOCKER_IMAGE_NAME: '%(secret:private_registry_url)s/zenko/zenko-e2e'
@@ -173,12 +186,13 @@ stages:
     - Git: *git_pull
     - ShellCommand: *private_registry_login
     - ShellCommand: *k8s_setup
+    - ShellCommand: *start-mocks
     - ShellCommand:
         name: Setup and run e2e
         command: make -e VERBOSE=1 test
         workdir: build/tests
         env:
-          <<: [*secrets_env, *docker_env]
+          <<: [*mock_env, *secrets_env, *docker_env]
           KUBECONFIG: /root/.kube/config
           ZENKO_HELM_RELEASE: 'zenko-offline'
           HELM_NAMESPACE: '%(prop:workername)s'
@@ -256,6 +270,11 @@ stages:
         maxTime: 43200
         env:
           <<: *global_env
+          KUBECONFIG: /root/.kube/config
+          ZENKO_HELM_RELEASE: 'zenko-offline'
+          HELM_NAMESPACE: '%(prop:workername)s'
+          TILLER_NAMESPACE: '%(prop:workername)s'
+          INSTALL_TIMEOUT: "600"
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
     - ShellCommand: *k8s_cleanup
