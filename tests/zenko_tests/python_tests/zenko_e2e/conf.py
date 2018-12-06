@@ -63,6 +63,8 @@ ZENKO_WASABI_ENDPOINT = get_env(
     'ZENKO_WASABI_ENDPOINT', 'http://wasabi%s' % ZENKO_ROOT_ENDPOINT)
 ZENKO_DO_ENDPOINT = get_env(
     'ZENKO_DO_ENDPOINT', 'http://do%s' % ZENKO_ROOT_ENDPOINT)
+ZENKO_CEPH_ENDPOINT = get_env(
+    'ZENKO_CEPH_ENDPOINT', 'http://ceph%s' % ZENKO_ROOT_ENDPOINT)
 
 # Sets whether to verify ssl certicates of remote services
 VERIFY_CERTIFICATES = get_env('VERIFY_CERTIFICATES', False)
@@ -80,18 +82,21 @@ GCP_BACKEND = get_env('GCP_BACKEND', 'gcpbackend')
 AZURE_BACKEND = get_env('AZURE_BACKEND', 'azurebackend')
 WASABI_BACKEND = get_env('WASABI_BACKEND', 'wasabibackend')
 DO_BACKEND = get_env('DO_BACKEND', 'dobackend')
+CEPH_BACKEND = get_env('CEPH_BACKEND', 'cephbackend')
 TRANSIENT_BACKEND = get_env('TRANSIENT_BACKEND', 'transientbackend')
 AWS_CRR_BACKEND = get_env('AWS_CRR_BACKEND', 'awsbackend-crr')
 GCP_CRR_BACKEND = get_env('GCP_CRR_BACKEND', 'gcpbackend-crr')
 AZURE_CRR_BACKEND = get_env('AZURE_CRR_BACKEND', 'azurebackend-crr')
 WASABI_CRR_BACKEND = get_env('WASABI_CRR_BACKEND', 'wasabibackend-crr')
 DO_CRR_BACKEND = get_env('DO_CRR_BACKEND', 'dobackend-crr')
+CEPH_CRR_BACKEND = get_env('CEPH_CRR_BACKEND', 'cephbackendreplication')
 
 # The endpoints to feed boto3 sdk
 GCP_ENDPOINT = get_env('GCP_ENDPOINT', 'https://storage.googleapis.com')
 AZURE_ENDPOINT = get_env('AZURE_ENDPOINT', 'http://azure.test:9000')
 WASABI_ENDPOINT = get_env('ZENKO_WASABI_ENDPOINT', 'https://s3.wasabisys.com')
 DO_ENDPOINT = get_env('DO_ENDPOINT', 'https://nyc3.digitaloceanspaces.com')
+CEPH_ENDPOINT = get_env('CEPH_ENDPOINT', 'http://zenko-ceph-ceph-in-a-box')
 
 
 # This is the bucket the various cloud backends target
@@ -104,7 +109,8 @@ WASABI_TARGET_BUCKET = get_env(
     'WASABI_BUCKET_NAME', 'zenko-wasabi-target-bucket')
 DO_TARGET_BUCKET = get_env(
     'DO_BUCKET_NAME', 'zenko-digitalocean-target-bucket')
-
+CEPH_TARGET_BUCKET = get_env(
+    'CEPH_BUCKET_NAME', 'zenko-ceph-target-bucket')
 # The target buckets configured for CR replication
 AWS_CRR_TARGET_BUCKET = get_env(
     'AWS_CRR_BUCKET_NAME', 'zenko-aws-crr-target-bucket')
@@ -116,7 +122,8 @@ WASABI_CRR_TARGET_BUCKET = get_env(
     'WASABI_CRR_BUCKET_NAME', 'zenko-wasabi-crr-target-bucket')
 DO_CRR_TARGET_BUCKET = get_env(
     'DO_CRR_BUCKET_NAME', 'zenko-digitalocean-crr-target-bucket')
-
+CEPH_CRR_TARGET_BUCKET = get_env(
+    'CEPH_CRR_BUCKET_NAME', 'zenko-digitalocean-crr-target-bucket')
 AWS_CRR_SRC_BUCKET = get_env(
     'AWS_CRR_SRC_BUCKET_NAME', 'zenko-aws-crr-src-bucket')
 GCP_CRR_SRC_BUCKET = get_env(
@@ -124,8 +131,10 @@ GCP_CRR_SRC_BUCKET = get_env(
 AZURE_CRR_SRC_BUCKET = get_env(
     'AZURE_CRR_SRC_BUCKET_NAME', 'zenko-azure-crr-src-bucket')
 WASABI_CRR_SRC_BUCKET = get_env(
-    'WASABI_CRR_SRC_BUCKET', 'zenko-wasabi-crr-src-bucket')
+    'WASABI_CRR_SRC_BUCKET_NAME', 'zenko-wasabi-crr-src-bucket')
 DO_CRR_SRC_BUCKET = get_env('DO_CRR_SRC_BUCKET', 'zenko-do-crr-src-bucket')
+CEPH_CRR_SRC_BUCKET = get_env(
+    'CEPH_CRR_SRC_BUCKET_NAME', 'zenko-ceph-crr-src-bucket')
 MULTI_CRR_SRC_BUCKET = get_env(
     'MULTI_CRR_SRC_BUCKET_NAME', 'zenko-multi-crr-src-bucket')
 
@@ -161,6 +170,9 @@ GCP_SECRET_KEY = get_env('GCP_SECRET_KEY', error=True)
 
 AZURE_ACCESS_KEY = get_env('AZURE_ACCOUNT_NAME', error=True)
 AZURE_SECRET_KEY = get_env('AZURE_SECRET_KEY', error=True)
+
+CEPH_ACCESS_KEY = get_env('CEPH_ACCESS_KEY', 'accessKey1')
+CEPH_SECRET_KEY = get_env('CEPH_SECRET_KEY', 'verySecretKey1')
 
 ZENKO_ACCESS_KEY = get_env('ZENKO_ACCESS_KEY')
 ZENKO_SECRET_KEY = get_env('ZENKO_SECRET_KEY')

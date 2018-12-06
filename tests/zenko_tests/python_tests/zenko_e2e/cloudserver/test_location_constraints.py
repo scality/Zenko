@@ -44,6 +44,18 @@ def test_azure_storage(
         objkey, testfile, azure_loc_bucket, azure_target_bucket)
 
 
+@pytest.mark.conformance
+def test_ceph_storage(
+        ceph_loc_bucket, ceph_target_bucket, testfile, objkey):
+    util.mark_test('CEPH STORAGE LOCATION CONSTRAINT')
+    ceph_loc_bucket.put_object(
+        Body=testfile,
+        Key=objkey
+    )
+    assert util.check_object(
+        objkey, testfile, ceph_loc_bucket, ceph_target_bucket)
+
+
 @pytest.mark.skip(reason='Wasabi Not implemented in CI')
 @pytest.mark.conformance
 def test_wasabi_storage(

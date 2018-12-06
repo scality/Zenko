@@ -23,6 +23,7 @@ HELM_NAMESPACE := testnamespace
 ZENKO_HELM_RELEASE := zenko-test
 ORBIT_HELM_RELEASE := ciutil
 COSBENCH_HELM_RELEASE := zenko-cosbench
+CEPH_HELM_RELEASE := zenko-ceph
 
 # Defaults for our test images
 IMAGE_REGISTRY := docker.io
@@ -32,6 +33,7 @@ COSBENCH_RUNNER_IMAGE_NAME := cosbench-runner
 
 E2E_POD := zenko-e2e
 COSBENCH_RUNNER_POD := cosbench-runner
+CEPH_WAITER_POD := ceph-waiter
 
 # Set a default tag,
 # but allow us to set all of them using TAG_OVERRIDE
@@ -144,6 +146,13 @@ install-cosbench:
 		--wait
 .PHONY: install-cosbench
 
+install-ceph:
+	$(HELM) upgrade $(CEPH_HELM_RELEASE) \
+		--namespace $(HELM_NAMESPACE) \
+		--install ../eve/workers/ceph/chart \
+		--wait
+.PHONY: install-ceph
+
 install-zenko:
 ifndef NO_INSTALL
 	$(HELM) upgrade $(ZENKO_HELM_RELEASE) \
@@ -168,20 +177,21 @@ ifndef NO_INSTALL
 endif
 .PHONY: install-latest-zenko
 
-# Target to install common components need for all tests
-install-common: | install-tiller install-helm-repos install-orbit-simulator
-.PHONY: install-common
 
-wait-for-zenko: | build-tests
-	$(V)$(KUBECTL) run zenko-waiter \
+wait-for-ceph: | build-tests
+	$(V)echo "Waiting for ceph..."
+	$(V)$(KUBECTL) $(CEPH_WAITER_POD) \
 		--image $(E2E_IMAGE) \
 		--rm \
 		--attach=True \
 		--restart=Never \
 		--namespace=$(HELM_NAMESPACE) \
-		$(shell ../eve/workers/ci_env.sh env) \
-		--command -- python3 create_buckets.py || (echo "Zenko has failed to stabilize" ; kubectl get pods -L redis-role ; exit 1) >&2
-.PHONY: wait-for-zenko
+		--command -- sh wait_for_ceph.sh || (echo "Ceph has failed to come up!"; exit 1) >&2
+.PHONY: wait-for-ceph
+
+# Target to install common components need for all tests
+install-common: | install-tiller install-helm-repos install-orbit-simulator install-ceph
+.PHONY: install-common
 
 dump-logs: | artifacts
 	$(V)(kubectl  -n $(HELM_NAMESPACE) get pods -o go-template --template '$(ZENKO_PODS)') | xargs -n 1 -r sh -c;  \

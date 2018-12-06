@@ -51,6 +51,18 @@ def test_azure_storage(azure_ep_bucket, azure_target_bucket, testfile, objkey):
         objkey, testfile, azure_ep_bucket, azure_target_bucket)
 
 
+@pytest.mark.conformance
+def test_ceph_storage(ceph_ep_bucket, ceph_target_bucket, testfile, objkey):
+    util.mark_test('CEPH STORAGE DEFAULT EP LOCATION')
+    ceph_ep_bucket.create()
+    ceph_ep_bucket.put_object(
+        Body=testfile,
+        Key=objkey
+    )
+    assert util.check_object(
+        objkey, testfile, ceph_ep_bucket, ceph_target_bucket)
+
+
 @pytest.mark.skip(reason='Wasabi Not implemented in CI')
 @pytest.mark.conformance
 def test_wasabi_storage(

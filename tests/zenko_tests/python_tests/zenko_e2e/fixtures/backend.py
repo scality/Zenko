@@ -70,6 +70,13 @@ def digital_ocean_resource():
 
 
 @pytest.fixture(scope='session')
+def ceph_resource():
+    sesh = Session(aws_access_key_id=conf.CEPH_ACCESS_KEY,
+                   aws_secret_access_key=conf.CEPH_SECRET_KEY)
+    return sesh.resource('s3', endpoint_url=conf.CEPH_ENDPOINT)
+
+
+@pytest.fixture(scope='session')
 def zenko_resource():
     sesh = Session(aws_access_key_id=conf.ZENKO_ACCESS_KEY,
                    aws_secret_access_key=conf.ZENKO_SECRET_KEY)
@@ -114,4 +121,12 @@ def digital_ocean_endpoint_resource():
     sesh = Session(aws_access_key_id=conf.ZENKO_ACCESS_KEY,
                    aws_secret_access_key=conf.ZENKO_SECRET_KEY)
     return sesh.resource('s3', endpoint_url=conf.ZENKO_DO_ENDPOINT,
+                         verify=conf.VERIFY_CERTIFICATES)
+
+
+@pytest.fixture(scope='session')
+def ceph_endpoint_resource():
+    sesh = Session(aws_access_key_id=conf.ZENKO_ACCESS_KEY,
+                   aws_secret_access_key=conf.ZENKO_SECRET_KEY)
+    return sesh.resource('s3', endpoint_url=conf.ZENKO_CEPH_ENDPOINT,
                          verify=conf.VERIFY_CERTIFICATES)
