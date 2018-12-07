@@ -98,6 +98,12 @@ buckets = [
     get_env('CEPH_CRR_SRC_BUCKET_NAME', 'ci-zenko-ceph-crr-src-bucket')
 ]
 
+if get_env('S3_FUZZER') is not None:
+    buckets += [
+        'fuzzbucket-ver',
+        'fuzzbucket-nonver'
+    ]
+
 s = Session(aws_access_key_id=ZENKO_ACCESS_KEY,
             aws_secret_access_key=ZENKO_SECRET_KEY)
 s3client = s.resource('s3',
@@ -125,6 +131,11 @@ if not created:
     sys.exit(1)
 else:
     _log.info('Created buckets')
+
+if get_env('S3_FUZZER') is not None:
+    _log.info('Enabling version for s3://fuzzbucket-ver')
+    bkt = s3client.Bucket('fuzzbucket-ver').Versioning().enable()
+
 
 # Wait for all containers to become ready
 wait_for_pods(False, TIMEOUT)
