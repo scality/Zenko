@@ -139,6 +139,9 @@ endif
 
 install-cosbench:
 	$(V)$(GIT) clone git@github.com:scality/zenko-cosbench.git build/zenko-cosbench && \
+	cd build/zenko-cosbench && \
+	git checkout f195f9ac57704b8923bde7fb6ed2095c2d95dc71 && \
+	cd ../.. && \
 	$(HELM) upgrade $(COSBENCH_HELM_RELEASE) \
 		--namespace $(HELM_NAMESPACE) \
 		--install build/zenko-cosbench/charts/zenko-cosbench \
