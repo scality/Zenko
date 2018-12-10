@@ -46,6 +46,8 @@ spec:
               value: service
             - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_ACCOUNT
               value: service-replication
+            - name: EXTENSIONS_REPLICATION_DEST_BOOTSTRAPLIST
+              value: "{{- printf "%s-cloudserver:80" .Release.Name | trunc 63 | trimSuffix "-" -}}"
             - name: REDIS_SENTINELS
               value: "{{ template "backbeat.redis-hosts" . }}"
             - name: REDIS_HA_NAME
