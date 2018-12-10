@@ -97,6 +97,8 @@ backbeat:
       replicaCount: *nodeCount
   ingestion:
     enabled: true
+    consumer:
+      replicaCount: *nodeCount
   mongodb:
     replicas: *nodeCount
 
