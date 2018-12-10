@@ -39,8 +39,8 @@ spec:
               value: "{{ template "backbeat.mongodb-hosts" . }}"
             - name: MONGODB_RS
               value: "{{ default "rs0" .Values.mongodb.replicaSet }}"
-            - name: MONGODB_DATABASE
-              value: "mongodb"
+            # - name: MONGODB_DATABASE
+            #   value: "mongodb"
             #######
             - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_TYPE
               value: service
