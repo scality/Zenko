@@ -161,6 +161,17 @@ stages:
           workdir: build
 
   test-latest-zenko:
+    worker:
+      type: local
+    steps:
+      - TriggerStages:
+          name: Trigger latest builds
+          haltOnFailure: true
+          stage_names:
+            - test-latest-1.0.x
+            - test-latest-1.1.x
+
+  test-latest-1.0.x:
     worker: *kube_cluster
     steps:
       - Git: *git_pull
@@ -170,6 +181,24 @@ stages:
           command: make -e test-latest
           workdir: build/tests
           env:
+            BACKBEAT_BRANCH: development/8.0
+            CLOUDSERVER_BRANCH: development/8.0
+            <<: *global_env
+      - ShellCommand: *dump_logs
+      - Upload: *upload_artifacts
+
+  test-latest-1.1.x:
+    worker: *kube_cluster
+    steps:
+      - Git: *git_pull
+      - ShellCommand: *private_registry_login
+      - ShellCommand:
+          name: Setup latest Zenko and run end to end tests
+          command: make -e test-latest
+          workdir: build/tests
+          env:
+            BACKBEAT_BRANCH: development/8.1
+            CLOUDSERVER_BRANCH: development/8.1
             <<: *global_env
       - ShellCommand: *dump_logs
       - Upload: *upload_artifacts
