@@ -201,27 +201,37 @@ class SubmitTestStage(Stage):
                             )
 
     def Execute(self, env):
-        self.logger.debug('Enqueing work for execution')
-        for ops in iter_chunk(self._build_work(env), chunksize=100):
-            env.task_queue.put(*ops)
+        self.logger.info('Enqueing work for execution')
+        env.task_queue.roll_epoch()
+        for ops in iter_chunk(self._build_work(env), chunksize=500):
+            env.task_queue.add_task(*ops)
         return env
 
 @register_stage(pipeline='controller')
 class WaitForCompletionStage(Stage):
     def Execute(self, env):
-        self.logger.info('Waiting for work completion')
+        self.logger.info(
+            'Waiting for work completion, %i in queue, %i pending'%(
+                env.task_queue.qsize,
+                env.task_queue.pending
+            )
+        )
         while True:
-            left = env.task_queue.wait_until_done(timeout=60)
-            if left is True:
+            if env.task_queue.complete(timeout=60):
                 break
-            self.logger.info('Waiting for work completion, %i remaining'%left)
+            self.logger.info(
+                'Waiting for work completion, %i in queue, %i pending'%(
+                    env.task_queue.qsize,
+                    env.task_queue.pending
+                )
+            )
         return env
 
 @register_stage(pipeline='controller')
 class CheckWorkSuccessStage(Stage):
     def Execute(self, env):
         failed = False
-        for task, result in env.results_queue.get_iter(block=False):
+        for task, result in env.task_queue.iter_results():
             if result is not True:
                 env.failed_tests.append(
                     (
@@ -337,8 +347,7 @@ class CleanupBucketStage(Stage):
 class WaitForTaskStage(Router):
     _PIPELINE = TestPipeline
     def Execute(self, env):
-        for done, task in env.task_queue.get_iter():
-            print(task)
+        for epoch, task in env.task_queue.iter_tasks(block=True):
             self.logger.debug('Got task for execution %s'%(task,))
             task_env = Environment(
                 op=register.get_op(task.type, task.name),
@@ -346,6 +355,5 @@ class WaitForTaskStage(Router):
                 objects=[FakeObjectProxy(env.zenko, task.bucket, task.key, task.size)]
             )
             self.Route(task_env)
-            env.results_queue.put(task, not env.StopProcessing)
-            done()
+            env.task_queue.add_result(epoch, task, not env.StopProcessing)
         return env

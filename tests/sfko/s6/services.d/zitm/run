@@ -10,6 +10,7 @@ if [ -z "$PROXY_MODE" -o "$PROXY_MODE" != "web" ]; then
     PROXY_BIN='mitmdump'
 elif [ "$PROXY_MODE" = "web" ]; then
     PROXY_BIN="mitmweb"
+    PROXY_OPTS="$PROXY_OPTS --web-iface 0.0.0.0"
 fi
 
 su-exec sfko "$PROXY_BIN" $PROXY_OPTS

@@ -115,7 +115,7 @@ def _check_gcp_mpu(bucket, key, cloud='gcp'):
 
 _check_mpu_func = {
     BackendType.AWS: _check_aws_mpu,
-    BackendType.GCP; _check_gcp_mpu
+    BackendType.GCP: _check_gcp_mpu
 }
 
 @register_check('check-mpu')
