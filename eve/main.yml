@@ -200,6 +200,8 @@ stages:
         command: |
           kubectl delete namespace '%(prop:worker_uuid)s'
           helm delete $ZENKO_HELM_RELEASE --tiller-namespace $HELM_NAMESPACE
+        alwaysRun: true
+        sigtermTime: 1200
         env:
           KUBECONFIG: /root/.kube/config
           ZENKO_HELM_RELEASE: 'zenko-offline'
