@@ -35,10 +35,11 @@ prometheus:
       name: default
       create: false
     server:
-      persistentVolume:
-        enabled: false
       name: default
       create: false
+  server:
+    persistentVolume:
+      enabled: false
 
 zenko-queue:
   persistence:
