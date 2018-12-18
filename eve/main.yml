@@ -173,28 +173,39 @@ stages:
         env:
           KUBECONFIG: /root/.kube/config
           CLUSTER_IP: '%(secret:openstack_cluster_ip)s'
-    - ShellCommand: *private_registry_login
+    - ShellCommand:
+        name: docker hub login
+        command: docker login -u "%(secret:dockerhub_rw_username)s" -p "%(secret:dockerhub_rw_password)s"
+        env:
+          LANG: 'C.UTF-8'
+          CHARSET: UTF-8
+        usePTY: true
     - ShellCommand:
         name: Cluster Login registry
-        command: |
-          kubectl create secret docker-registry registry \
-          --docker-username="%(secret:private_registry_username)s" \
-          --docker-password="%(secret:private_registry_password)s" \
-          --docker-server="%(secret:private_registry_url)s" \
-          --docker-email="%(secret:private_registry_email)s"
-          kubectl patch serviceaccount default \
-            -p '{"imagePullSecrets": [{"name": "registry"}]}'
+        command: >-
+          kubectl create secret docker-registry registry
+          --docker-username="${DOCKER_REGISTRY_USERNAME}"
+          --docker-password="${DOCKER_REGISTRY_PASSWORD}"
+          --docker-server="${DOCKER_REGISTRY_URL}"
+          --docker-email="${DOCKER_REGISTRY_EMAIL}"
+          && kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name": "registry"}]}'
+        env:
+          DOCKER_REGISTRY_USERNAME: "%(secret:private_registry_username)s"
+          DOCKER_REGISTRY_PASSWORD: "%(secret:private_registry_password)s"
+          DOCKER_REGISTRY_URL: "%(secret:private_registry_url)s"
+          DOCKER_REGISTRY_EMAIL: "%(secret:private_registry_email)s"
     - ShellCommand:
         name: Setup and run e2e
         command: make -e VERBOSE=1 test || (sleep 600 ; exit 1)
         workdir: build/tests
         env:
-          <<: [*secrets_env, *docker_env]
+          <<: [*secrets_env]
           KUBECONFIG: /root/.kube/config
           ZENKO_HELM_RELEASE: 'zenko-offline'
           HELM_NAMESPACE: '%(prop:worker_uuid)s'
           TILLER_NAMESPACE: '%(prop:worker_uuid)s'
           INSTALL_TIMEOUT: "600"
+          TAG_OVERRIDE: "%(prop:commit_short_revision)s"
     - ShellCommand:
         name: Cleanup
         command: |
