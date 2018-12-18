@@ -10,6 +10,14 @@ maintenance:
   accessKey: HEYIMAACCESSKEY
   secretKey: loOkAtMEImASecRetKEy123=
 
+s3-data:
+  persistentVolume:
+    enabled: false
+
+mongodb-replicaset:
+  persistentVolume:
+    enabled: false
+
 prometheus:
   rbac:
     create: false
@@ -29,8 +37,13 @@ prometheus:
     server:
       name: default
       create: false
+  server:
+    persistentVolume:
+      enabled: false
 
 zenko-queue:
+  persistence:
+    enabled: false
   rbac:
     enabled: false
   configurationOverrides:
@@ -67,7 +80,13 @@ zenko-queue:
       partitions: 1
       replicationFactor: 1
 
+zenko-quorum:
+  persistence:
+    enabled: false
+
 redis-ha:
+  persistentVolume:
+    enabled: false
   rbac:
     create: false
   serviceAccount:
@@ -97,6 +116,8 @@ backbeat:
       cronRule: "0 */1 * * * *"
 
 grafana:
+  persistentVolume:
+    enabled: false
   rbac:
     create: false
     pspEnabled: false
