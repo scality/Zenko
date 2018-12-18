@@ -173,6 +173,17 @@ stages:
         env:
           KUBECONFIG: /root/.kube/config
           CLUSTER_IP: '%(secret:openstack_cluster_ip)s'
+    - ShellCommand: *private_registry_login
+    - ShellCommand:
+        name: Cluster Login registry
+        command: |
+          kubectl create secret docker-registry registry \
+          --docker-username="%(secret:private_registry_username)s" \
+          --docker-password="%(secret:private_registry_password)s" \
+          --docker-server="%(secret:private_registry_url)s" \
+          --docker-email="%(secret:private_registry_email)s"
+          kubectl patch serviceaccount default \
+            -p '{"imagePullSecrets": [{"name": "registry"}]}'
     - ShellCommand:
         name: Setup and run e2e
         command: make -e VERBOSE=1 test || (sleep 600 ; exit 1)
