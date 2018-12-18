@@ -147,7 +147,7 @@ stages:
           sleep 5
         env:
           CI_KUBECONFIG: '%(secret:openstack_cluster_conf)s'
-          NAMESPACE: '%(prop:workername)s'
+          NAMESPACE: '%(prop:worker_uuid)s'
     - ShellCommand:
         name: Create namespace
         command: |
@@ -160,11 +160,11 @@ stages:
             kubectl config get-contexts --kubeconfig $KUBECONFIG
             kubectl config use-context admin-cluster.local || exit 1
             kubectl get ns
-            kubectl create namespace '%(prop:workername)s'
+            kubectl create namespace '%(prop:worker_uuid)s'
             kubectl create rolebinding view-configmap \
             --clusterrole=cluster-admin \
-            --serviceaccount='%(prop:workername)s:default' \
-            --namespace='%(prop:workername)s'
+            --serviceaccount='%(prop:worker_uuid)s:default' \
+            --namespace='%(prop:worker_uuid)s'
           else
             apk add bind-tools
             dig +short myip.opendns.com @resolver1.opendns.com
@@ -181,18 +181,18 @@ stages:
           <<: [*secrets_env, *docker_env]
           KUBECONFIG: /root/.kube/config
           ZENKO_HELM_RELEASE: 'zenko-offline'
-          HELM_NAMESPACE: '%(prop:workername)s'
-          TILLER_NAMESPACE: '%(prop:workername)s'
+          HELM_NAMESPACE: '%(prop:worker_uuid)s'
+          TILLER_NAMESPACE: '%(prop:worker_uuid)s'
           INSTALL_TIMEOUT: "600"
     - ShellCommand:
         name: Cleanup
         command: |
-          kubectl delete namespace '%(prop:workername)s'
+          kubectl delete namespace '%(prop:worker_uuid)s'
           helm delete $ZENKO_HELM_RELEASE --tiller-namespace $HELM_NAMESPACE
         env:
           KUBECONFIG: /root/.kube/config
           ZENKO_HELM_RELEASE: 'zenko-offline'
-          HELM_NAMESPACE: '%(prop:workername)s'
+          HELM_NAMESPACE: '%(prop:worker_uuid)s'
 
   online-zenko:
     worker: &kube_cluster
