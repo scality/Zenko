@@ -85,6 +85,10 @@ div.warning {
     border: 1px solid #e55529;
 }
 
+div.admonition.warning a:visited {
+    color: #3F5952;
+    text-decoration: none;
+}
 /* Changes the table header color to be gray */
 table.docutils th {
   background-color: #eaeaea;
