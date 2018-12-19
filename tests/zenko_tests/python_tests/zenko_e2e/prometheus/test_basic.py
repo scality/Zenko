@@ -48,6 +48,21 @@ def test_prometheus_targets(prometheus_client, k8s_namespace,
         raise ValueError('Unknown value for `job`: {}'.format(job))
 
     results = list(results)
-
+    info = """
+           --- DEBUG_INFO ---
+           SERVICE: %s
+           prometheus_client: %s
+           namespace: %s
+           release: %s
+           job: %s
+           name: %s
+           """ % (
+               SERVICE,  # noqa: E126
+               prometheus_client,  # noqa: E126
+               k8s_namespace,  # noqa: E126
+               zenko_helm_release,  # noqa: E126
+               job,  # noqa: E126
+               name)  # noqa: E126
+    print(info)
     assert results != []
     assert all(result['health'] == 'up' for result in results)
