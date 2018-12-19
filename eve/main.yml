@@ -183,9 +183,10 @@ stages:
     - ShellCommand:
         name: Cluster Login registry
         command: >-
+          echo '${DOCKER_REGISTRY_PASSWORD}' > service-account.json
           kubectl create secret docker-registry registry
           --docker-username="${DOCKER_REGISTRY_USERNAME}"
-          --docker-password="${DOCKER_REGISTRY_PASSWORD}"
+          --docker-password="$(cat service-account.json)"
           --docker-server="${DOCKER_REGISTRY_URL}"
           --docker-email="${DOCKER_REGISTRY_EMAIL}"
           && kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name": "registry"}]}'
@@ -199,13 +200,12 @@ stages:
         command: make -e VERBOSE=1 test || (sleep 600 ; exit 1)
         workdir: build/tests
         env:
-          <<: [*secrets_env]
+          <<: [*secrets_env, *docker_env]
           KUBECONFIG: /root/.kube/config
           ZENKO_HELM_RELEASE: 'zenko-offline'
           HELM_NAMESPACE: '%(prop:worker_uuid)s'
           TILLER_NAMESPACE: '%(prop:worker_uuid)s'
           INSTALL_TIMEOUT: "600"
-          TAG_OVERRIDE: "%(prop:commit_short_revision)s"
     - ShellCommand:
         name: Cleanup
         command: |
