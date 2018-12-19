@@ -9,6 +9,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get update && \
     apt-get install --no-install-recommends -y \
         enchant \
+        emacs \
         git \
         inkscape \
         latexmk \
@@ -20,6 +21,8 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         texlive-latex-extra \
         texlive-latex-recommended \
         tox \
+        vim \
+        xindy \
         && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
