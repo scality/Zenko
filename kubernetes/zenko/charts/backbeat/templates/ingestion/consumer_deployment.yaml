@@ -42,6 +42,10 @@ spec:
             # - name: MONGODB_DATABASE
             #   value: "mongodb"
             #######
+            - name: EXTENSIONS_INGESTION_AUTH_TYPE
+              value: service
+            - name: EXTENSIONS_INGESTION_AUTH_ACCOUNT
+              value: service-md-ingestion
             - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_TYPE
               value: service
             - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_ACCOUNT
