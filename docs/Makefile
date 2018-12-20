@@ -9,7 +9,7 @@ SOURCEDIR     = .
 BUILDDIR      = _build
 
 
-ROOTDIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+ROOTDIR:=$(subst $() $(),\\\ , shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 DOCKER=docker
 BUILDERNAME=zenko-docs
 BUILDERIMAGE="$(ROOTDIR)/.."
@@ -23,7 +23,7 @@ build:
 	@$(DOCKER) build -t $(BUILDERNAME):latest -f $(BUILDERDOCKERFILE) $(BUILDERIMAGE)
 
 shell: build
-	@$(DOCKER) run -it --rm -v $(ROOTDIR)/..:$(BUILDERHOME) --entrypoint=bash $(BUILDERNAME)
+	@$(DOCKER) run -it --rm -v "$(ROOTDIR)/..:$(BUILDERHOME)" --entrypoint=bash $(BUILDERNAME)
 
 # Put it first so that "make" without argument is like "make help".
 help:
