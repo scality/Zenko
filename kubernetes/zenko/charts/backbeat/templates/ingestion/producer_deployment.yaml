@@ -51,10 +51,6 @@ spec:
               value: "{{- printf "%s-cloudserver:80" .Release.Name | trunc 63 | trimSuffix "-" -}}"
             - name: EXTENSIONS_REPLICATION_SOURCE_S3_PORT
               value: "80"
-            - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_TYPE
-              value: service
-            - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_ACCOUNT
-              value: service-replication
             ## To consider adding: kafka topic name, group id
             ######
           livenessProbe:

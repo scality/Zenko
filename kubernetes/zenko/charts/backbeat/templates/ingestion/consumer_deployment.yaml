@@ -46,10 +46,6 @@ spec:
               value: service
             - name: EXTENSIONS_INGESTION_AUTH_ACCOUNT
               value: service-md-ingestion
-            - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_TYPE
-              value: service
-            - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_ACCOUNT
-              value: service-replication
             - name: EXTENSIONS_REPLICATION_DEST_BOOTSTRAPLIST
               value: "{{- printf "%s-cloudserver:80" .Release.Name | trunc 63 | trimSuffix "-" -}}"
             - name: REDIS_SENTINELS
