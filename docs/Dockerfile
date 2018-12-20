@@ -8,6 +8,7 @@ FROM docker.io/ubuntu:18.04
 RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get update && \
     apt-get install --no-install-recommends -y \
+        curl \
         enchant \
         emacs \
         git \
@@ -21,6 +22,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         texlive-latex-extra \
         texlive-latex-recommended \
         tox \
+        texlive-xetex \
         vim \
         xindy \
         && \
