@@ -4,7 +4,7 @@
 replicaCount: 1
 image:
   repository: philipyoo/s3
-  tag: 3.0.1
+  tag: 3.0.3
   pullPolicy: IfNotPresent
 service:
   name: s3-data
