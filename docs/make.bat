@@ -35,15 +35,17 @@ REM 	echo.http://sphinx-doc.org/
 REM 	exit /b 1
 REM )
 
-%SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS%
-goto end
-
-:help
-%SPHINXBUILD% -M help %SOURCEDIR% %BUILDDIR% %SPHINXOPTS%
 
 :shell
 	%DOCKER% build -t %BUILDERNAME%:latest -f %BUILDERDOCKERFILE% %BUILDERIMAGE%
 	%DOCKER% run -it --rm -v %~dp0\..:%BUILDERHOME% --entrypoint=bash %BUILDERNAME%
 
+
+%SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS%
+goto end
+
+:help
+
+%SPHINXBUILD% -M help %SOURCEDIR% %BUILDDIR% %SPHINXOPTS%
 :end
 popd
