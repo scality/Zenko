@@ -38,7 +38,7 @@ REM )
 
 :shell
 	%DOCKER% build -t %BUILDERNAME%:latest -f %BUILDERDOCKERFILE% %BUILDERIMAGE%
-	%DOCKER% run -it --rm -v %~dp0\..:%BUILDERHOME% --entrypoint=bash %BUILDERNAME%
+	%DOCKER% run -it --rm -v "%~dp0\..:%BUILDERHOME%" --entrypoint=bash %BUILDERNAME%
 
 
 %SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS%
