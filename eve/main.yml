@@ -133,7 +133,18 @@ stages:
     - ShellCommand:
         name: 'Build doc'
         haltOnFailure: true
-        command: tox --workdir /tmp/tox -e docs -- html # latexpdf
+        command: |-
+          tox --workdir /tmp/tox -e docs -- html BUILDDIR="%(prop:builddir)s/build/artifacts"
+          # Building the latex twice to catch up the reference
+          tox --workdir /tmp/tox -e docs -- latexpdf BUILDDIR="%(prop:builddir)s/build/artifacts"
+          tox --workdir /tmp/tox -e docs -- latexpdf BUILDDIR="%(prop:builddir)s/build/artifacts"
+
+    - Upload:
+        name: Upload documentation
+        source: 'artifacts'
+        urls:
+          - "html/index.html"
+          - "latex/*.pdf"
 
   test-zenko:
     worker: &kube_cluster
