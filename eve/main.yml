@@ -151,12 +151,6 @@ stages:
     - ShellCommand:
         name: Create namespace
         command: |
-          if ping -q -w 1 -s 1 $CLUSTER_IP ; then
-            sleep 5
-            echo $KUBECONFIG
-            ls ~/.kube
-            kubectl config view
-            KUBECONFIG=$KUBECONFIG
             kubectl config get-contexts --kubeconfig $KUBECONFIG
             kubectl config use-context admin-cluster.local || exit 1
             kubectl get ns
@@ -165,11 +159,6 @@ stages:
             --clusterrole=cluster-admin \
             --serviceaccount='%(prop:workername)s:default' \
             --namespace='%(prop:workername)s'
-          else
-            apk add bind-tools
-            dig +short myip.opendns.com @resolver1.opendns.com
-            exit 1
-          fi
         env:
           KUBECONFIG: /root/.kube/config
           CLUSTER_IP: '%(secret:openstack_cluster_ip)s'
@@ -193,9 +182,7 @@ stages:
           INSTALL_TIMEOUT: "600"
     - ShellCommand:
         name: Cleanup
-        command: |
-          kubectl delete namespace '%(prop:workername)s'
-          helm delete $ZENKO_HELM_RELEASE --tiller-namespace $HELM_NAMESPACE
+        command: kubectl delete namespace '%(prop:workername)s'
         alwaysRun: true
         sigtermTime: 1200
         env:
