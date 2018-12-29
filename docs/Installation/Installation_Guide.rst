@@ -17,5 +17,4 @@ Kubernetes cluster project, as described in "`Setting Up a MetalK8s Cluster`_".
    topics/Installing_Zenko
    topics/configure_ingress
 
-
 .. _`Setting Up a MetalK8s Cluster`: ./topics/Setting_Up_a_Cluster.html
