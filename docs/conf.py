@@ -128,6 +128,9 @@ html_static_path = ['_static']
 
 # html_sidebars = {}
 
+html_show_sphinx = False
+html_show_source = False
+
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
@@ -203,9 +206,6 @@ texinfo_documents = [
 # A list of files that should not be packed into the epub file.
 # epub_exclude_files = ['search.html']
 
-
-#def setup(app):
-#        app.add_stylesheet('_static/style.css')
 
 def setup(app):
         app.add_stylesheet('custom.css')

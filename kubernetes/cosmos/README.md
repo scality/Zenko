@@ -34,14 +34,14 @@ The command removes all the Kubernetes components associated with the chart and 
 
 ## Configuration
 
-The following table lists the configurable parameters of the Prisma chart and their default values.
+The following table lists the configurable parameters of the Cosmos chart and their default values.
 
 | Parameter              | Description                             | Default                      |
 | ---------------------- | --------------------------------------- | ---------------------------- |
 | `pfsd.name` | Name of the pfsd component | `pfsd` |
 | `pfsd.replicaCount` | Number of pfsd replicas| `1` |
-| `pfsd.image.repository` | Pfsd image repository  | `gguiulfo/pfsd` |
-| `pfsd.image.tag` | Pfsd image tag | `0.1` |
+| `pfsd.image.repository` | Pfsd image repository  | `zenko/cloudserver` |
+| `pfsd.image.tag` | Pfsd image tag | `8.1.4` |
 | `pfsd.image.pullPolicy` | Pfsd image pull policy | `IfNotPresent` |
 | `pfsd.service.type` | Pfsd service type | `ClusterIP` |
 | `pfsd.service.port` | Pfsd service port | `80` |
@@ -50,8 +50,8 @@ The following table lists the configurable parameters of the Prisma chart and th
 | `pfsd.tolerations` | Node taints to tolerate | `[[` |
 | `pfsd.affinity` | Pfsd pod affinity | `{}` |
 | `rclone.name` | Name of the rclone component | `rclone` |
-| `rclone.image.repository` | rclone image repository | `gguiulfo/rclone` |
-| `rclone.image.tag` | rclone image tag | `0.2` |
+| `rclone.image.repository` | rclone image repository | `zenko/rclone` |
+| `rclone.image.tag` | rclone image tag | `1.45` |
 | `rclone.image.pullPolicy` | rclone image pull policy | `IfNotPresent` |
 | `rclone.schedule` | rclone CronJob schedule | `*/10 * * * *` |
 | `rclone.successfulJobsHistory` | rclone CronJob successful job history | `1` |

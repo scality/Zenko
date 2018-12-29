@@ -15,5 +15,6 @@ spec:
   nfs:
     path: {{ .Values.persistentVolume.path }}
     server: {{ .Values.persistentVolume.server }}
+    readOnly: {{ .Values.persistentVolume.readOnly }}
   persistentVolumeReclaimPolicy: Retain
   storageClassName: {{ template "cosmos.fullname" . }}

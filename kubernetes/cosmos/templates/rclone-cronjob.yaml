@@ -18,7 +18,7 @@ spec:
     spec:
       template:
         spec:
-          restartPolicy: Never
+          restartPolicy: OnFailure
           containers:
           - name: {{ .Chart.Name }}
             image: "{{ .Values.rclone.image.repository }}:{{ .Values.rclone.image.tag }}"
