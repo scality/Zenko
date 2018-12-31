@@ -15,7 +15,7 @@ Before installing this chart, you must either have a Zenko or a standalone Cloud
 To install the chart with the release name `my-release`:
 
 ```console
-$ helm install --name my-release ./cosmos
+$ helm install --name my-release .
 ```
 
 The command deploys Cosmos on the Kubernetes cluster in the default configuration. The [configuration](#configuration) section lists the parameters that can be configured during installation.
@@ -55,7 +55,7 @@ The following table lists the configurable parameters of the Cosmos chart and th
 | `rclone.image.pullPolicy` | rclone image pull policy | `IfNotPresent` |
 | `rclone.schedule` | rclone CronJob schedule | `*/10 * * * *` |
 | `rclone.successfulJobsHistory` | rclone CronJob successful job history | `1` |
-| `rclone.remote.accessKey` | Remote backendj access key | `my-access-key` |
+| `rclone.remote.accessKey` | Remote backend access key | `my-access-key` |
 | `rclone.remote.secretKey` | Remote backend secret key | `my-secret-key` |
 | `rclone.remote.endpoint` | Remote endpoint | `http://cloudserver.local` |
 | `rclone.remote.region` | Remote region | `us-east-1` |
@@ -65,26 +65,81 @@ The following table lists the configurable parameters of the Cosmos chart and th
 | `rclone.affinity` | rclone pod affinity | `{}` |
 | `persistentVolume.enabled` | If true, enable persistentVolume | `true` |
 | `persistentVolume.accessModes` | Persistent Volume access modes | `ReadWriteMany` |
-| `persistentVolume.existingClaim` | Exsisting clame name | `""` |
+| `persistentVolume.existingClaim` | Existing claim name | `""` |
 | `persistentVolume.storageClass` | Persistent Volume storage class | `cosmos` |
 | `persistentVolume.size` | Persistent Volume size | `1Gi` |
+| `persistentVolume.readOnly` | If true, the Persistent Volume will be read-only | `false` |
 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example,
 
 ```console
-$ helm install ./cosmos --name my-release \
+$ helm install . --name my-release \
     --set pfsd.replicaCount=3
 ```
 
 Alternatively, a YAML file that specifies the values for the above parameters can be provided while installing the chart. For example,
 
 ```console
-$ helm install ./cosmos --name my-release -f values.yaml
+$ helm install . --name my-release -f values.yaml
 ```
 
 > **Tip**: You can use the default [values.yaml](values.yaml)
 
-## Installing the Chart with a Cloudserver instance
+## Installing the chart with a Zenko instance
+
+In order to configure Cosmos with a Zenko instance, you will need to perform the following steps in [Orbit](https://admin.zenko.io):
+
+1. Create a storage location of type "NFS Mount".
+
+2. Create a bucket within this location constraint.
+
+3. Create a user for Cosmos.
+
+4. Use information from the previous steps to configure instance-specific Cosmos values. Export the following variables with appropriate values entered:
+
+```bash
+# Values from Orbit
+export ACCESS_KEY=<your-cosmos-user-access-key>
+export SECRET_KEY=<your-cosmos-user-secret-key>
+export NFS_BUCKET=<your-cosmos-bucket-name>
+export NFS_LOCATION=<your-nfs-mount-location-name>
+
+# Values of your NFS mount point
+export NFS_HOST=<your-nfs-server-host>
+export NFS_EXPORT_PATH=<your-nfs-server-path>
+
+# Cloudserver endpoint (assuming it's running on the same namespace)
+export CLOUDSERVER_ENDPOINT=$(kubectl get svc -l app=cloudserver -o jsonpath='{.items[*].metadata.name}')
+```
+
+5. Create a proper Cosmos configuration file.
+
+```bash
+$ cat << EOF > custom-values.yaml
+rclone:
+  remote:
+    accessKey: ${ACCESS_KEY}
+    secretKey: ${SECRET_KEY}
+    endpoint: ${CLOUDSERVER_ENDPOINT}
+    region: ${NFS_LOCATION}
+    bucket: ${NFS_BUCKET}
+
+persistentVolume:
+  server: ${NFS_HOST}
+  path: ${NFS_EXPORT_PATH}
+EOF
+```
+
+6. Install Cosmos.
+
+```bash
+$ helm install --name ${NFS_LOCATION} . -f custom-values.yaml
+```
+
+> **Note**: The release name of your Cosmos installation *must* be the same as your *NFS Mount* location name.
+Also, your release name (and location name) should NOT be named "cosmos".
+
+## Installing the chart with a standalone Cloudserver instance
 
 > **Note**: For the purpose of this example, it is assumed that the Cloudserver installation release is `cloudserver`.
 Also, step 1 can be skipped. It is only there to prevent mistyping common variable names.
@@ -127,7 +182,7 @@ EOF
 helm upgrade cloudserver . -f locationValues.yaml
 ```
 
-4. Configure the Cosmos rclone's remote values.
+4. Configure the Cosmos values.
 
 ```bash
 $ cat << EOF > remoteValues.yaml
