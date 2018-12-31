@@ -1,0 +1,142 @@
+\usepackage{fontspec}    % To use fonts.
+\usepackage{xunicode}    % For Unicode support.
+\usepackage{polyglossia} % For multilingual typesetting.
+\usepackage{wallpaper}   % For the background image in the title page.
+\usepackage{xcolor}      % To play with color.
+\usepackage{array}       % To define new column types.
+\usepackage{colortbl}    % For table header background color.
+\usepackage{geometry}    % For margins of title page.
+\usepackage{fancyhdr}    % To customize the footer.
+\usepackage{calc}        % To compute logo's offset in the footer.
+\usepackage{setspace}    % For interline spacing in title page.
+
+\usepackage{sphinx}
+
+% Paragraph columns with various alignment.
+\newcolumntype{X}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{Y}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{Z}[1]{>{\raggedleft\arraybackslash}p{#1}}
+
+% Orange for the title on the front page.
+\definecolor{titlecol}{RGB}{254, 154, 58}
+
+% Use Roboto as default font.
+\setmainfont[Path=./,
+             UprightFont=Roboto-Regular,
+             ItalicFont=Roboto-Italic,
+             BoldFont=Roboto-Bold,
+             BoldItalicFont=Roboto-BoldItalic,
+             Ligatures=TeX]{Roboto}
+
+% Add definitions for the Oswald font.
+\newfontfamily\oswald[Path=./,
+                      UprightFont=Oswald-Regular,
+                      ItalicFont=Oswald-LightItalic,
+                      BoldFont=Oswald-Bold,
+                      BoldItalicFont=Oswald-BoldItalic,
+                      Ligatures=TeX]{Oswald}
+
+% Customize the table header (use Roboto Bold, grey background).
+\newfontfamily\robotobf[Path=./,Ligatures=TeX]{Roboto-Bold.ttf}
+\definecolor{tblhdr}{HTML}{EAEAEA}
+\protected\def\sphinxstyletheadfamily{\cellcolor{tblhdr}\robotobf}
+
+% Customize the Sphinx style.
+\sphinxsetup{
+    % Use Oswald for titles.
+    HeaderFamily=\oswald,
+    % Use black for titles and ToC.
+    TitleColor={rgb}{0, 0, 0},
+    InnerLinkColor={rgb}{0, 0, 0},
+    % Colors for the admonition frames' border
+    noteborder=1pt,
+    noteBorderColor={HTML}{0099c1},
+    tipborder=1pt,
+    tipBorderColor={HTML}{00D100},
+    warningborder=1pt,
+    warningBorderColor={HTML}{FF1A1A},
+    importantborder=1pt,
+    importantBorderColor={HTML}{E5E500},
+}
+
+% Fix the title of the table of contents.
+\addto\captionsenglish{\renewcommand{\contentsname}{Table of Contents}}
+
+% Redefine the \maketitle command to customize the front page.
+\renewcommand{\maketitle}{
+    \begin{titlepage}
+
+        % Redefine the margins for the title page.
+        \newgeometry{top=2.75cm, bottom=2.75cm, left=0.75cm, right=0.75cm}
+
+        % For PDF information dictionary (copied from sphinxmanual.cls).
+        \begingroup
+            \def\endgraf{ }\def\and{\& }%
+            \pdfstringdefDisableCommands{\def\\{, }}% overwrite hyperref setup
+            \hypersetup{pdfauthor={\@author}, pdftitle={\@title}}%
+        \endgroup
+
+        \ThisCenterWallPaper{1}{${cover}}
+
+        \null
+        \vspace{${title_voffset}}
+        \begin{minipage}{0.43\textwidth}
+            \begin{spacing}{2.25}
+                \raggedright
+                {\fontsize{30pt}{36pt}{\fontspec{Oswald-Bold.ttf}
+                    \textcolor{titlecol}{${title}}
+                    \textcolor{white}{v${version}}
+                }}
+            \end{spacing}
+        \end{minipage}
+    \end{titlepage}
+
+    % Restore original margins.
+    \restoregeometry
+}
+
+% To remove fancyhdr warning "\headheight is too small"
+\setlength{\headheight}{15.2pt}
+
+% Override Sphinx footers.
+\makeatletter
+    \newlength{\footheight}
+
+    % Update the footer for the primary pagestyle for text.
+    \fancypagestyle{normal}{
+        % Clear existing footer.
+        \fancyfoot{}
+
+        \settoheight{\footheight}{${copyright}}
+
+        \fancyfoot[ER]{
+            ${copyright}
+            \raisebox{.5\footheight-.5\height}{\includegraphics{${logo}}}
+        }
+        \fancyfoot[OL]{
+            \raisebox{.5\footheight-.5\height}{\includegraphics{${logo}}}
+            ${copyright}
+        }
+        \fancyfoot[EL,OR]{\thepage}
+    }
+    % Ditto for the first page of a chapter.
+    \fancypagestyle{plain}{
+        % Clear existing footer.
+        \fancyfoot{}
+        % No header.
+        \fancyhead{}
+        \renewcommand{\headrulewidth}{0pt}
+
+        \settoheight{\footheight}{${copyright}}
+
+        \fancyfoot[ER]{
+            ${copyright}
+            \raisebox{.5\footheight-.5\height}{\includegraphics{${logo}}}
+        }
+        \fancyfoot[OL]{
+            \raisebox{.5\footheight-.5\height}{\includegraphics{${logo}}}
+            ${copyright}
+        }
+        \fancyfoot[EL,OR]{\thepage}
+    }
+\makeatother
