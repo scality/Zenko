@@ -20,8 +20,8 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Zenko Reference Guide'
-copyright = '2018, Tech Pubs'
-author = 'Tech Pubs'
+copyright = '2019, Scality, Inc'
+author = 'Scality Technical Publications'
 
 # The short X.Y version
 version = ''
