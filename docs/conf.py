@@ -186,6 +186,7 @@ texinfo_documents = [
      'manual'),
 ]
 
+latex_engine = 'xelatex'
 
 # -- Options for Epub output -------------------------------------------------
 
