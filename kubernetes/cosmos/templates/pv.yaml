@@ -12,9 +12,6 @@ spec:
   - ReadWriteMany
   capacity:
     storage: {{ .Values.persistentVolume.size }}
-  nfs:
-    path: {{ .Values.persistentVolume.path }}
-    server: {{ .Values.persistentVolume.server }}
-    readOnly: {{ .Values.persistentVolume.readOnly }}
+{{ toYaml .Values.persistentVolume.volumeConfig | indent 2 }}
   persistentVolumeReclaimPolicy: Retain
   storageClassName: {{ template "cosmos.fullname" . }}

@@ -41,9 +41,14 @@ rclone:
   affinity: {}
 
 persistentVolume:
-  server: 10.100.1.42
-  path: /data
+  volumeConfig:
+    nfs:
+      server: 10.100.1.42
+      path: /data
+      readOnly: false
+    mountOptions: []
+    # - hard
+    # - nfsvers=4.1
   accessModes:
     - ReadWriteMany
   size: 1Gi
-  readOnly: false
