@@ -30,6 +30,10 @@ spec:
           env:
             - name: S3DATAPATH
               value: /data
+            - name: S3DATA_NOSYNC
+              value: {{ .Values.noSync | quote }}
+            - name: S3DATA_NOCACHE
+              value: {{ .Values.noCache | quote }}
             - name: LISTEN_ADDR
               value: 0.0.0.0
             - name: HEALTHCHECKS_ALLOWFROM
