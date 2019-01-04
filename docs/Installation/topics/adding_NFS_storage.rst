@@ -71,7 +71,7 @@ and their default values.
    +------------------------------------+---------------------------------------+------------------------------+
    | ``rclone.image.pullPolicy``        | rclone image pull policy              | ``IfNotPresent``             |
    +------------------------------------+---------------------------------------+------------------------------+
-   | ``rclone.schedule``                | rclone CronJob schedule               | ``*/10 * * * *``             |
+   | ``rclone.schedule``                | rclone CronJob schedule               | ``0 */12 * * *``             |
    +------------------------------------+---------------------------------------+------------------------------+
    | ``rclone.successfulJobsHistory``   | rclone CronJob successful job history | ``1``                        |
    +------------------------------------+---------------------------------------+------------------------------+
@@ -91,13 +91,13 @@ and their default values.
    +------------------------------------+---------------------------------------+------------------------------+
    | ``rclone.affinity``                | rclone pod affinity                   | ``{}``                       |
    +------------------------------------+---------------------------------------+------------------------------+
-   | ``persistentVolume.enabled``       | If true, enable persistentVolume      | ``true``                     |
+   | ``persistentVolume.enabled``       | If true, enable persistentVolume      | ``false``                    |
+   +------------------------------------+---------------------------------------+------------------------------+
+   | ``persistentVolume.volumeConfig``  | Specify volume type and mount options | ``{}``                       |
    +------------------------------------+---------------------------------------+------------------------------+
    | ``persistentVolume.accessModes``   | Persistent volume access modes        | ``ReadWriteMany``            |
    +------------------------------------+---------------------------------------+------------------------------+
    | ``persistentVolume.existingClaim`` | Name of existing claim                | ``""``                       |
-   +------------------------------------+---------------------------------------+------------------------------+
-   | ``persistentVolume.storageClass``  | Persistent volume storage class       | ``cosmos``                   |
    +------------------------------------+---------------------------------------+------------------------------+
    | ``persistentVolume.size``          | Persistent volume size                | ``1Gi``                      |
    +------------------------------------+---------------------------------------+------------------------------+
@@ -167,8 +167,15 @@ from `Orbit <https://admin.zenko.io>`_.
            bucket: ${NFS_BUCKET}
  
        persistentVolume:
-         server: ${NFS_HOST}
-         path: ${NFS_EXPORT_PATH}
+         enabled: true
+         volumeConfig:
+           nfs:
+             server: ${NFS_HOST}
+             path: ${NFS_EXPORT_PATH}
+             readOnly: false
+           # Any valid nfs mount option can be listed here
+           mountOptions:
+             - nfsvers=3
        EOF
   
 6. Install Cosmos.
@@ -241,8 +248,16 @@ Installing the Chart with a Standalone Cloudserver Instance
           bucket: my-nfs-bucket # Bucket will be created if not present
 
       persistentVolume:
-        server: 10.100.1.42 # IP address of your NFS server
-        path: /data # NFS export
+        enabled: true
+        volumeConfig:
+          nfs:
+            server: 10.100.1.42 # IP address of your NFS server
+            path: /data # NFS export
+            readOnly: false
+          # Any valid nfs mount option can be listed here
+          mountOptions:
+            - nfsvers=3
+      persistentVolume:
       EOF
 
 5. Install Cosmos.

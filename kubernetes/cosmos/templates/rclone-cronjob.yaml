@@ -40,5 +40,9 @@ spec:
             configMap:
               name: {{ template "cosmos.rclone.fullname" . }}
           - name: backend-storage
+{{- if .Values.persistentVolume.enabled }}
             persistentVolumeClaim:
               claimName: {{ template "cosmos.fullname" . }}
+{{- else }}
+            emptyDir: {}
+{{- end }}

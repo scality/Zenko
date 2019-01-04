@@ -63,7 +63,7 @@ The following table lists the configurable parameters of the Cosmos chart and th
 | `rclone.nodeSelector` | Node labels for rclone pod assignment | `{}` |
 | `rclone.tolerations` | Node taints to tolerate | `[]` |
 | `rclone.affinity` | rclone pod affinity | `{}` |
-| `persistentVolume.enabled` | If true, enable persistentVolume | `true` |
+| `persistentVolume.enabled` | If true, enable persistentVolume | `false` |
 | `persistentVolume.accessModes` | Persistent Volume access modes | `ReadWriteMany` |
 | `persistentVolume.existingClaim` | Existing claim name | `""` |
 | `persistentVolume.storageClass` | Persistent Volume storage class | `cosmos` |
@@ -125,8 +125,15 @@ rclone:
     bucket: ${NFS_BUCKET}
 
 persistentVolume:
-  server: ${NFS_HOST}
-  path: ${NFS_EXPORT_PATH}
+  enabled: true
+  volumeConfig:
+    nfs:
+      server: ${NFS_HOST}
+      path: ${NFS_EXPORT_PATH}
+      readOnly: false
+    # Any valid nfs mount option can be listed here
+    mountOptions:
+      - nfsvers=3
 EOF
 ```
 
@@ -195,8 +202,11 @@ rclone:
     bucket: my-nfs-bucket # Bucket will be created if not present
 
 persistentVolume:
-  server: 10.100.1.42 # IP of your NFS server
-  path: /data # NFS export
+  enabled: true
+  volueConfig:
+    nfs:
+      server: 10.100.1.42 # IP of your NFS server
+      path: /data # NFS export
 EOF
 ```
 

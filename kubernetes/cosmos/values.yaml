@@ -2,6 +2,7 @@ pfsd:
   name: pfsd
 
   replicaCount: 1
+  readOnly: false
 
   image:
     repository: zenko/cloudserver
@@ -41,9 +42,16 @@ rclone:
   affinity: {}
 
 persistentVolume:
-  server: 10.100.1.42
-  path: /data
+  enabled: false
+  volumeConfig:
+    ## Example NFS config
+    # nfs:
+    #   server: 10.100.1.42
+    #   path: /data
+    #   readOnly: false
+    # mountOptions:
+    # - hard
+    # - nfsvers=4.1
   accessModes:
     - ReadWriteMany
   size: 1Gi
-  readOnly: false
