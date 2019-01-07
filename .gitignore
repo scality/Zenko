@@ -12,4 +12,4 @@ tests/artifacts
 
 *_build
 docs/_templates/page.html_orig
-
+*.pyc
