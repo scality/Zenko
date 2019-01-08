@@ -109,7 +109,7 @@ export NFS_HOST=<your-nfs-server-host>
 export NFS_EXPORT_PATH=<your-nfs-server-path>
 
 # Cloudserver endpoint (assuming it's running on the same namespace)
-export CLOUDSERVER_ENDPOINT=$(kubectl get svc -l app=cloudserver -o jsonpath='{.items[*].metadata.name}')
+export CLOUDSERVER_ENDPOINT="http://$(kubectl get svc -l app=cloudserver -o jsonpath='{.items[*].metadata.name}')"
 ```
 
 5. Create a proper Cosmos configuration file.
@@ -224,5 +224,5 @@ purpose of syncing metadata. The time at which this job runs can be configured t
 jobs at will with the following command:
 
 ```sh
-kubectl create my-job-name --from=cronjob/my-release-cosmos-rclone
+kubectl create job my-job-name --from=cronjob/my-release-cosmos-rclone
 ```

@@ -151,7 +151,7 @@ from `Orbit <https://admin.zenko.io>`_.
       export NFS_EXPORT_PATH=<your-nfs-server-path>
  
       # Cloudserver endpoint (assuming it's running on the same namespace)
-      export CLOUDSERVER_ENDPOINT=$(kubectl get svc -l app=cloudserver -o jsonpath='{.items[*].metadata.name}')
+      export CLOUDSERVER_ENDPOINT="http://$(kubectl get svc -l app=cloudserver -o jsonpath='{.items[*].metadata.name}')"
  
 5. Create a Cosmos configuration file.
  
@@ -277,7 +277,7 @@ You can also create jobs manually with the command:
 
 .. code:: bash
 
-    $ kubectl create my-job-name --from=cronjob/my-release-cosmos-rclone
+    $ kubectl create job my-job-name --from=cronjob/my-release-cosmos-rclone
 
 Uninstalling the Chart
 ----------------------
