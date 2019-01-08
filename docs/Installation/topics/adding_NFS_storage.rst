@@ -266,14 +266,13 @@ Installing the Chart with a Standalone Cloudserver Instance
 
       $ helm install --name ${COSMOS_RELEASE_NAME} . -f remoteValues.yaml
 
-rclone Cron Job
----------------
+Manually Trigger Sync
+---------------------
 
-This chart deploys a Kubernetes cron job, which periodically launches
-rclone jobs to sync metadata. To configure when this job runs, edit 
-the rclone.schedule field in the values.yaml file.
-
-You can also create jobs manually with the command:
+This chart deploys a Kubernetes CronJob, which periodically launches
+rclone jobs to sync metadata. The job schedule can be configured with
+the ``rclone.schedule`` field in the ``values.yaml`` file. However, to
+to manually trigger the job run the following command:
 
 .. code:: bash
 
