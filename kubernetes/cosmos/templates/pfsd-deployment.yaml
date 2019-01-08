@@ -34,6 +34,10 @@ spec:
           env:
             - name: PFSD_READONLY
               value: {{ .Values.pfsd.readOnly | quote }}
+            - name: PFSD_NOSYNC
+              value: {{ .Values.pfsd.noSync | quote }}
+            - name: PFSD_NOCACHE
+              value: {{ .Values.pfsd.noCache | quote }}
             - name: PFSD_MOUNT_PATH
               value: /data
             - name: LISTEN_ADDR
