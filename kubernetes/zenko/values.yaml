@@ -203,6 +203,14 @@ redis-ha:
   replicas: *nodeCount
   redis:
     masterGroupName: zenko
+    config:
+      save: "60 1"
+      stop-writes-on-bgsave-error: "yes"
+      slave-serve-stale-data: "yes"
+  sentinel:
+    config:
+      down-after-milliseconds: 5000
+      failover-timeout: 60000
 
 grafana:
   sidecar:
