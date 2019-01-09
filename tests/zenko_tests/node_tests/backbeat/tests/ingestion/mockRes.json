@@ -1,0 +1,181 @@
+{
+    "responses": {
+        "/_/healthcheck": {
+            "resType": "healthcheck",
+            "name": "ok"
+        },
+        "/default/bucket/users..bucket": {
+            "resType": "objectList",
+            "name": "empty"
+        },
+        "/default/attributes/bucket1": {
+            "resType": "bucketMD",
+            "content-type": "application/json",
+            "name": "bucket1"
+        },
+        "/default/attributes/bucket2": {
+            "resType": "error",
+            "name": "NoSuchBucket"
+        },
+        "/_/metadata/default/bucket/bucket1/object1": {
+            "resType": "objectMD",
+            "name": "object1"
+        },
+        "/_/metadata/default/bucket/bucket2/object2": {
+            "resType": "objectMD",
+            "name": "object2"
+        },
+        "/_/metadata/default/attributes/bucket1": {
+            "resType": "bucketMD",
+            "name": "bucket1"
+        },
+        "/_/metadata/default/attributes/bucket2": {
+            "resType": "bucketMD",
+            "name": "bucket2"
+        }
+    },
+    "healthcheck": {
+        "ok": {}
+    },
+    "objectList": {
+        "empty": {
+            "Contents": []
+        }
+    },
+    "objectMD": {
+        "object1": {
+            "key": "object1",
+            "value": {
+                "owner-display-name": "test_1518720219",
+                "owner-id": "94224c921648ada653f584f3caf42654ccf3f1cbd2e569a24e88eb460f2f84d8",
+                "content-length": 0,
+                "content-md5": "d41d8cd98f00b204e9800998ecf8427e",
+                "x-amz-version-id": "null",
+                "x-amz-server-version-id": "",
+                "x-amz-storage-class": "STANDARD",
+                "x-amz-server-side-encryption": "",
+                "x-amz-server-side-encryption-aws-kms-key-id": "",
+                "x-amz-server-side-encryption-customer-algorithm": "",
+                "x-amz-website-redirect-location": "",
+                "acl": {
+                    "Canned": "private",
+                    "FULL_CONTROL": [],
+                    "WRITE_ACP": [],
+                    "READ": [],
+                    "READ_ACP": []
+                },
+                "key": "",
+                "location": null,
+                "isDeleteMarker": false,
+                "tags": {},
+                "replicationInfo": {
+                    "status": "",
+                    "backends": [],
+                    "content": [],
+                    "destination": "",
+                    "storageClass": "",
+                    "role": "",
+                    "storageType": "",
+                    "dataStoreVersionId": ""
+                },
+                "dataStoreName": "us-east-1",
+                "last-modified": "2018-02-16T22:43:37.174Z",
+                "md-model-version": 3
+            }
+        },
+        "object2": {
+            "key": "object2",
+            "value": {
+                "owner-display-name": "test_1518720219",
+                "owner-id": "94224c921648ada653f584f3caf42654ccf3f1cbd2e569a24e88eb460f2f84d8",
+                "content-length": 0,
+                "content-md5": "d41d8cd98f00b204e9800998ecf8427e",
+                "x-amz-version-id": "null",
+                "x-amz-server-version-id": "",
+                "x-amz-storage-class": "STANDARD",
+                "x-amz-server-side-encryption": "",
+                "x-amz-server-side-encryption-aws-kms-key-id": "",
+                "x-amz-server-side-encryption-customer-algorithm": "",
+                "x-amz-website-redirect-location": "",
+                "acl": {
+                    "Canned": "private",
+                    "FULL_CONTROL": [],
+                    "WRITE_ACP": [],
+                    "READ": [],
+                    "READ_ACP": []
+                },
+                "key": "",
+                "location": null,
+                "isDeleteMarker": false,
+                "tags": {},
+                "replicationInfo": {
+                    "status": "",
+                    "backends": [],
+                    "content": [],
+                    "destination": "",
+                    "storageClass": "",
+                    "role": "",
+                    "storageType": "",
+                    "dataStoreVersionId": ""
+                },
+                "dataStoreName": "us-east-1",
+                "last-modified": "2018-02-16T22:43:37.174Z",
+                "md-model-version": 3
+            }
+        }
+    },
+    "bucketMD": {
+        "bucket1": {
+            "acl": {
+                "Canned": "private",
+                "FULL_CONTROL": [],
+                "WRITE": [],
+                "WRITE_ACP": [],
+                "READ": [],
+                "READ_ACP": []
+            },
+            "name": "bucket1",
+            "owner": "94224c921648ada653f584f3caf42654ccf3f1cbd2e569a24e88eb460f2f84d8",
+            "ownerDisplayName": "test_1518720219",
+            "creationDate": "2018-02-16T21:55:16.415Z",
+            "mdBucketModelVersion": 5,
+            "transient": false,
+            "deleted": false,
+            "serverSideEncryption": null,
+            "versioningConfiguration": null,
+            "locationConstraint": "us-east-1",
+            "websiteConfiguration": null,
+            "replicationConfiguration": null,
+            "cors": null,
+            "lifecycleConfiguration": null,
+            "uid": null
+        },
+        "bucket2": {
+            "_acl": {
+                "Canned": "private",
+                "FULL_CONTROL": [],
+                "WRITE": [],
+                "WRITE_ACP": [],
+                "READ": [],
+                "READ_ACP": []
+            },
+            "_name": "bucket2",
+            "_owner": "94224c921648ada653f584f3caf42654ccf3f1cbd2e569a24e88eb460f2f84d8",
+            "_ownerDisplayName": "test_1518720219",
+            "_creationDate": "2018-02-16T21:55:16.415Z",
+            "_mdBucketModelVersion": 5,
+            "_transient": false,
+            "_deleted": false,
+            "_serverSideEncryption": null,
+            "_versioningConfiguration": null,
+            "_locationConstraint": "us-east-1",
+            "_websiteConfiguration": null,
+            "_replicationConfiguration": null,
+            "_cors": null,
+            "_lifecycleConfiguration": null,
+            "_uid": null
+        }
+    },
+    "bucketList": [ "bucket1", "bucket2" ],
+    "raftLogs": []
+}

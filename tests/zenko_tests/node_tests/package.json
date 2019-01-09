@@ -12,6 +12,7 @@
   ],
   "dependencies": {
     "@google-cloud/storage": "^1.6.0",
+    "arsenal": "scality/Arsenal#a9297e7",
     "async": "2.1.2",
     "aws-sdk": "2.28.0",
     "azure-storage": "^2.10.0",
