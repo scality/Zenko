@@ -200,11 +200,9 @@ zenko-quorum:
       enabled: true
 
 redis-ha:
-  enabled: true
   replicas: *nodeCount
   redis:
     masterGroupName: zenko
-  podAntiAffinity: hard
 
 grafana:
   sidecar:
