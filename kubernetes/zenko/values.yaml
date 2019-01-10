@@ -187,6 +187,9 @@ zenko-queue:
     - name: backbeat-replication-failed
       partitions: *nodeCount
       replicationFactor: 3
+    - name: backbeat-data-mover
+      partitions: *nodeCount
+      replicationFactor: 3
     - name: backbeat-sanitycheck
       partitions: 1
       replicationFactor: 3
