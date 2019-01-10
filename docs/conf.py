@@ -26,7 +26,7 @@ import scaldoc.resources
 # -- Project information -----------------------------------------------------
 
 project = 'Zenko'
-copyright = '2018, Scality, Inc'
+copyright = '2019, Scality, Inc'
 author = 'Scality Technical Publications'
 
 # The short X.Y version
