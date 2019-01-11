@@ -39,7 +39,7 @@ data:
   init.sh: |
     HOSTNAME="$(hostname)"
     INDEX="${HOSTNAME##*-}"
-    MASTER="$(redis-cli -h {{ template "redis-ha.fullname" . }} -p {{ .Values.sentinel.port }} sentinel get-master-addr-by-name {{ .Values.redis.masterGroupName }} | grep -E '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')"
+    MASTER="$(timeout -t 3 redis-cli -h {{ template "redis-ha.fullname" . }} -p {{ .Values.sentinel.port }} sentinel get-master-addr-by-name {{ .Values.redis.masterGroupName }} | grep -E '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')"
     MASTER_GROUP="{{ .Values.redis.masterGroupName }}"
     QUORUM="{{ .Values.sentinel.quorum }}"
     REDIS_CONF=/data/conf/redis.conf
