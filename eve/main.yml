@@ -1,8 +1,8 @@
 version: "0.2"
 
 branches:
-  default:
-    stage: "pre-merge"
+  feature/*, improvement/*, bugfix/*, w/*, q/*, hotfix/*:
+    stage: pre-merge
 
 models:
   - Git: &git_pull
@@ -12,6 +12,24 @@ models:
       method: clobber
       retryFetch: true
       haltOnFailure: true
+  - ShellCommand: &k8s_setup
+      name: setup k8s env
+      command: eve/scripts/setup-k8s.sh
+      env:
+        CI_KUBECONFIG: '%(secret:openstack_cluster_conf)s'
+        NAMESPACE: '%(prop:workername)s'
+        KUBECONFIG: /root/.kube/config
+        CLUSTER_IP: '%(secret:openstack_cluster_ip)s'
+      haltOnFailure: true
+  - ShellCommand: &k8s_cleanup
+      name: Cleanup
+      command: kubectl delete namespace '%(prop:workername)s'
+      alwaysRun: true
+      sigtermTime: 1200
+      env:
+        KUBECONFIG: /root/.kube/config
+        ZENKO_HELM_RELEASE: 'zenko-offline'
+        HELM_NAMESPACE: '%(prop:workername)s'
   - Upload: &upload_artifacts
       source: tests/artifacts
       urls:
@@ -112,7 +130,7 @@ stages:
     - TriggerStages:
         name: trigger all the tests
         stage_names:
-        - test-zenko
+        - online-zenko
 
   build-doc:
     worker:
@@ -140,52 +158,58 @@ stages:
           - "html/index.html"
           - "latex/*.pdf"
 
-  test-zenko:
+  online-zenko:
     worker: &kube_cluster
       type: kube_pod
       path: eve/workers/zenko.yaml
-      service:
-        requests:
-          version: "1.9.6"
-        namespaces:
-        - "testNamespace"    # <<< the default namespace for that stage
     steps:
-      - Git: *git_pull
-      - ShellCommand: *private_registry_login
-      - ShellCommand:
-          name: Setup Zenko and run end to end tests
-          command: make -e VERBOSE=1 test
-          workdir: build/tests
-          env:
-            <<: *global_env
-      - ShellCommand: *dump_logs
-      - Upload: *upload_artifacts
+    - Git: *git_pull
+    - ShellCommand: *private_registry_login
+    - ShellCommand: *k8s_setup
+    - ShellCommand:
+        name: Setup and run e2e
+        command: make -e VERBOSE=1 test
+        workdir: build/tests
+        env:
+          <<: [*secrets_env, *docker_env]
+          KUBECONFIG: /root/.kube/config
+          ZENKO_HELM_RELEASE: 'zenko-offline'
+          HELM_NAMESPACE: '%(prop:workername)s'
+          TILLER_NAMESPACE: '%(prop:workername)s'
+          INSTALL_TIMEOUT: "600"
+    - ShellCommand: *dump_logs
+    - Upload: *upload_artifacts
+    - ShellCommand: *k8s_cleanup
 
   test-latest-zenko:
     worker: *kube_cluster
     steps:
-      - Git: *git_pull
-      - ShellCommand: *private_registry_login
-      - ShellCommand:
-          name: Setup latest Zenko and run end to end tests
-          command: make -e test-latest
-          workdir: build/tests
-          env:
-            <<: *global_env
-      - ShellCommand: *dump_logs
-      - Upload: *upload_artifacts
+    - Git: *git_pull
+    - ShellCommand: *private_registry_login
+    - ShellCommand: *k8s_setup
+    - ShellCommand:
+        name: Setup latest Zenko and run end to end tests
+        command: make -e test-latest
+        workdir: build/tests
+        env:
+          <<: *global_env
+    - ShellCommand: *dump_logs
+    - Upload: *upload_artifacts
+    - ShellCommand: *k8s_cleanup
 
   cosbench-latest:
     worker: *kube_cluster
     steps:
-      - Git: *git_pull
-      - ShellCommand: *private_registry_login
-      - ShellCommand:
-          name: Setup and run benchmarks
-          command: make -e test-cosbench
-          workdir: build/tests
-          maxTime: 43200
-          env:
-            <<: *global_env
-      - ShellCommand: *dump_logs
-      - Upload: *upload_artifacts
+    - Git: *git_pull
+    - ShellCommand: *private_registry_login
+    - ShellCommand: *k8s_setup
+    - ShellCommand:
+        name: Setup and run benchmarks
+        command: make -e test-cosbench
+        workdir: build/tests
+        maxTime: 43200
+        env:
+          <<: *global_env
+    - ShellCommand: *dump_logs
+    - Upload: *upload_artifacts
+    - ShellCommand: *k8s_cleanup
