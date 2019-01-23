@@ -52,30 +52,33 @@ headers common to all responses (refer :ref:`Common Response Headers`).
 
 **Response Elements**
 
-The GET Object Tagging operation can return the following XML elements
+The GET Object Tagging operation can return the following XML elements
 of the response (includes XML containers):
 
-+---------+-----------+----------------------------------+
-| Element | Type      | Description                      |
-+=========+===========+==================================+
-| Tagging | container | Container for the TagSet element |
-+---------+-----------+----------------------------------+
-| TagSet  | container | Contains the tag set             |
-|         |           |                                  |
-|         |           | Ancestors: Tagging               |
-+---------+-----------+----------------------------------+
-| Tag     | container | Contains the tag information     |
-|         |           |                                  |
-|         |           | Ancestors: TagSet                |
-+---------+-----------+----------------------------------+
-| Key     | String    | Name of the tag                  |
-|         |           |                                  |
-|         |           | Ancestors: Tag                   |
-+---------+-----------+----------------------------------+
-| Value   | string    | Value of the tag                 |
-|         |           |                                  |
-|         |           | Ancestors: Tag                   |
-+---------+-----------+----------------------------------+
+.. tabularcolumns:: X{0.15\textwidth}X{0.15\textwidth}X{0.65\textwidth}
+.. table::
+
+   +---------+-----------+----------------------------------+
+   | Element | Type      | Description                      |
+   +=========+===========+==================================+
+   | Tagging | container | Container for the TagSet element |
+   +---------+-----------+----------------------------------+
+   | TagSet  | container | Contains the tag set             |
+   |         |           |                                  |
+   |         |           | Ancestors: Tagging               |
+   +---------+-----------+----------------------------------+
+   | Tag     | container | Contains the tag information     |
+   |         |           |                                  |
+   |         |           | Ancestors: TagSet                |
+   +---------+-----------+----------------------------------+
+   | Key     | String    | Name of the tag                  |
+   |         |           |                                  |
+   |         |           | Ancestors: Tag                   |
+   +---------+-----------+----------------------------------+
+   | Value   | string    | Value of the tag                 |
+   |         |           |                                  |
+   |         |           | Ancestors: Tag                   |
+   +---------+-----------+----------------------------------+
 
 Examples
 --------

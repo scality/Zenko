@@ -14,7 +14,7 @@ information, refer to :ref:`GET Object Tagging`.
 For tagging related restrictions related to characters and encodings,
 refer to `Tag
 Restrictions <http://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/allocation-tag-restrictions.html>`__
-in the AWS Billing and Cost Management User Guide. Note that S3 limits
+in the *AWS Billing and Cost Management User Guide*. Note that S3 limits
 the maximum number of tags to 10 tags per object.
 
 To use this operation, you must have permission to perform the
@@ -60,27 +60,30 @@ Content-MD5 is a required header for this operation.
 
 **Request Elements**
 
-+---------+-----------+----------------------------------+--------------------------+
-| Element | Type      | Description                      | Required                 |
-+=========+===========+==================================+==========================+
-| Tagging | container | Container for the TagSet element | Yes                      |
-+---------+-----------+----------------------------------+--------------------------+
-| TagSet  | container | Contains the tag set             | Yes                      |
-|         |           |                                  |                          |
-|         |           | Ancestors: Tagging               |                          |
-+---------+-----------+----------------------------------+--------------------------+
-| Tag     | container | Contains the tag information     | No                       |
-|         |           |                                  |                          |
-|         |           | Ancestors: TagSet                |                          |
-+---------+-----------+----------------------------------+--------------------------+
-| Key     | String    | Name of the tag                  | Yes, if Tag is specified |
-|         |           |                                  |                          |
-|         |           | Ancestors: Tag                   |                          |
-+---------+-----------+----------------------------------+--------------------------+
-| Value   | string    | Value of the tag                 | No                       |
-|         |           |                                  |                          |
-|         |           | Ancestors: Tag                   |                          |
-+---------+-----------+----------------------------------+--------------------------+
+.. tabularcolumns:: X{0.10\textwidth}X{0.10\textwidth}X{0.35\textwidth}X{0.30\textwidth}
+.. table::
+
+   +---------+-----------+----------------------------------+------------------+
+   | Element | Type      | Description                      | Required         |
+   +=========+===========+==================================+==================+
+   | Tagging | container | Container for the TagSet element | Yes              |
+   +---------+-----------+----------------------------------+------------------+
+   | TagSet  | container | Contains the tag set             | Yes              |
+   |         |           |                                  |                  |
+   |         |           | Ancestors: Tagging               |                  |
+   +---------+-----------+----------------------------------+------------------+
+   | Tag     | container | Contains the tag information     | No               |
+   |         |           |                                  |                  |
+   |         |           | Ancestors: TagSet                |                  |
+   +---------+-----------+----------------------------------+------------------+
+   | Key     | string    | Name of the tag                  | Yes, if Tag is   |
+   |         |           |                                  | specified        |
+   |         |           | Ancestors: Tag                   |                  |
+   +---------+-----------+----------------------------------+------------------+
+   | Value   | string    | Value of the tag                 | No               |
+   |         |           |                                  |                  |
+   |         |           | Ancestors: Tag                   |                  |
+   +---------+-----------+----------------------------------+------------------+
 
 Responses
 ---------

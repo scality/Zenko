@@ -9,14 +9,13 @@ S3 API calls and to access its own Backbeat server.
 Enabling command-line interactions enables programmatic access to
 the following features:
 
- .. toctree::
-   :maxdepth: 1
+.. toctree:: 
+   :maxdepth: 2 
 
-   CRR Metrics and Healthcheck <CRR_Metrics_and_Health>
-   CRR Retry <CRR_Retry>
-   CRR Pause and Resume <CRR_Pause_&_Resume>
-   CRR Statistics<CRR_statistics>
-   Object Lifecycle Management <../Lifecycle_Management/Object_Lifecycle_Management>
+   CRR_Metrics_and_Health
+   CRR_Retry
+   CRR_Pause_&_Resume
+   CRR_statistics
 
 Accessing Zenko from the command line requires the following setup tasks.
    

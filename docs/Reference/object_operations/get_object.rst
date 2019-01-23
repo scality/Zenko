@@ -43,50 +43,42 @@ overridden using these parameters is a subset of the headers that Zenko Enterpri
   with an Authorization header or a pre-signed URL. They cannot be used
   with an unsigned (anonymous) request.
 
-+-----------------------+-----------------------+-------------------------+
-| Parameter             | Type                  | Description             |
-+=======================+=======================+=========================+
-| response-content-type | string                | Sets the                |
-|                       |                       | ``Content-Type``        |
-|                       |                       | header of the           |
-|                       |                       | response                |
-|                       |                       |                         |
-|                       |                       | Default: None           |
-+-----------------------+-----------------------+-------------------------+
-| response-content-lang | string                | Sets the                |
-| uage                  |                       | ``Content-Language``    |
-|                       |                       | header of the           |
-|                       |                       | response                |
-|                       |                       |                         |
-|                       |                       | Default: None           |
-+-----------------------+-----------------------+-------------------------+
-| response-expires      | string                | Sets the ``Expires``    |
-|                       |                       | header of the           |
-|                       |                       | response                |
-|                       |                       |                         |
-|                       |                       | Default: None           |
-+-----------------------+-----------------------+-------------------------+
-| response-cache-contro | string                | Sets the                |
-| l                     |                       | ``Cache-Control``       |
-|                       |                       | header of the           |
-|                       |                       | response                |
-|                       |                       |                         |
-|                       |                       | Default: None           |
-+-----------------------+-----------------------+-------------------------+
-| response-content-disp | string                | Sets the                |
-| osition               |                       | ``Content-Disposition`` |
-|                       |                       | header of the           |
-|                       |                       | response                |
-|                       |                       |                         |
-|                       |                       | Default: None           |
-+-----------------------+-----------------------+-------------------------+
-| response-content-enco | string                | Sets the                |
-| ding                  |                       | ``Content-Encoding``    |
-|                       |                       | header of the           |
-|                       |                       | response                |
-|                       |                       |                         |
-|                       |                       | Default: None           |
-+-----------------------+-----------------------+-------------------------+
+.. tabularcolumns:: X{0.30\textwidth}X{0.10\textwidth}X{0.55\textwidth}
+.. table::
+
+   +---------------------------+--------+--------------------------------------+
+   | Parameter                 | Type   | Description                          |
+   +===========================+========+======================================+
+   | response-content-type     | string | Sets the ``Content-Type`` header of  |
+   |                           |        | the response                         |
+   |                           |        |                                      |
+   |                           |        | Default: None                        |
+   +---------------------------+--------+--------------------------------------+
+   | response-content-language | string | Sets the ``Content-Language`` header |
+   |                           |        | of the response                      |
+   |                           |        |                                      |
+   |                           |        | Default: None                        |
+   +---------------------------+--------+--------------------------------------+
+   | response-expires          | string | Sets the ``Expires`` header of the   |
+   |                           |        | response                             |
+   |                           |        |                                      |
+   |                           |        | Default: None                        |
+   +---------------------------+--------+--------------------------------------+
+   | response-cache-control    | string | Sets the ``Cache-Control`` header of |
+   |                           |        | the response                         |
+   |                           |        |                                      |
+   |                           |        | Default: None                        |
+   +---------------------------+--------+--------------------------------------+
+   | response-content-\        | string | Sets the ``Content-Disposition``     |
+   | disposition               |        | header of the response               |
+   |                           |        |                                      |
+   |                           |        | Default: None                        |
+   +---------------------------+--------+--------------------------------------+
+   | response-content-encoding | string | Sets the ``Content-Encoding`` header |
+   |                           |        | of the response                      |
+   |                           |        |                                      |
+   |                           |        | Default: None                        |
+   +---------------------------+--------+--------------------------------------+
 
 **Additional Parameters**
 
@@ -109,58 +101,61 @@ The GET Object operation can use a number of optional request headers in
 addition to those that are common to all operations (refer to :ref:`Common
 Request Headers`).
 
-+-----------------------+-----------------------+-----------------------+
-| Header                | Type                  | Description           |
-+=======================+=======================+=======================+
-| If-Modified-Since     | string                | Return the object     |
-|                       |                       | only if it has been   |
-|                       |                       | modified since the    |
-|                       |                       | specified time,       |
-|                       |                       | otherwise return a    |
-|                       |                       | ``304`` (not          |
-|                       |                       | modified)             |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-|                       |                       |                       |
-|                       |                       | Constraints: None     |
-+-----------------------+-----------------------+-----------------------+
-| If-Unmodified-Since   | string                | Return the object     |
-|                       |                       | only if it has not    |
-|                       |                       | been modified since   |
-|                       |                       | the specified time,   |
-|                       |                       | otherwise return a    |
-|                       |                       | ``412`` (precondition |
-|                       |                       | failed)               |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-|                       |                       |                       |
-|                       |                       | Constraints: None     |
-+-----------------------+-----------------------+-----------------------+
-| If-Match              | string                | Return the object     |
-|                       |                       | only if its entity    |
-|                       |                       | tag (ETag) is the     |
-|                       |                       | same as the one       |
-|                       |                       | specified; otherwise, |
-|                       |                       | return a ``412``      |
-|                       |                       | (precondition failed) |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-|                       |                       |                       |
-|                       |                       | Constraints: None     |
-+-----------------------+-----------------------+-----------------------+
-| If-None-Match         | string                | Return the object     |
-|                       |                       | only if its entity    |
-|                       |                       | tag (ETag) is         |
-|                       |                       | different from the    |
-|                       |                       | one specified;        |
-|                       |                       | otherwise, return a   |
-|                       |                       | ``304`` (not          |
-|                       |                       | modified)             |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-|                       |                       |                       |
-|                       |                       | Constraints: None     |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: X{0.20\textwidth}X{0.10\textwidth}X{0.65\textwidth}
+.. table::
+
+   +-----------------------+-----------------------+-----------------------+
+   | Header                | Type                  | Description           |
+   +=======================+=======================+=======================+
+   | If-Modified-Since     | string                | Return the object     |
+   |                       |                       | only if it has been   |
+   |                       |                       | modified since the    |
+   |                       |                       | specified time,       |
+   |                       |                       | otherwise return a    |
+   |                       |                       | ``304`` (not          |
+   |                       |                       | modified)             |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   |                       |                       |                       |
+   |                       |                       | Constraints: None     |
+   +-----------------------+-----------------------+-----------------------+
+   | If-Unmodified-Since   | string                | Return the object     |
+   |                       |                       | only if it has not    |
+   |                       |                       | been modified since   |
+   |                       |                       | the specified time,   |
+   |                       |                       | otherwise return a    |
+   |                       |                       | ``412`` (precondition |
+   |                       |                       | failed)               |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   |                       |                       |                       |
+   |                       |                       | Constraints: None     |
+   +-----------------------+-----------------------+-----------------------+
+   | If-Match              | string                | Return the object     |
+   |                       |                       | only if its entity    |
+   |                       |                       | tag (ETag) is the     |
+   |                       |                       | same as the one       |
+   |                       |                       | specified; otherwise, |
+   |                       |                       | return a ``412``      |
+   |                       |                       | (precondition failed) |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   |                       |                       |                       |
+   |                       |                       | Constraints: None     |
+   +-----------------------+-----------------------+-----------------------+
+   | If-None-Match         | string                | Return the object     |
+   |                       |                       | only if its entity    |
+   |                       |                       | tag (ETag) is         |
+   |                       |                       | different from the    |
+   |                       |                       | one specified;        |
+   |                       |                       | otherwise, return a   |
+   |                       |                       | ``304`` (not          |
+   |                       |                       | modified)             |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   |                       |                       |                       |
+   |                       |                       | Constraints: None     |
+   +-----------------------+-----------------------+-----------------------+
 
 **Request Elements**
 
@@ -171,59 +166,61 @@ Responses
 
 **Response Headers**
 
-+-----------------------+-----------------------+-----------------------+
-| Header                | Type                  | Description           |
-+=======================+=======================+=======================+
-| x-amz-delete-marker   | Boolean               | Specifies whether the |
-|                       |                       | object retrieved was  |
-|                       |                       | (true) or was not     |
-|                       |                       | (false) a delete      |
-|                       |                       | marker. If  false,    |
-|                       |                       | the response header   |
-|                       |                       | does not appear in    |
-|                       |                       | the response.         |
-|                       |                       |                       |
-|                       |                       | Valid Values:         |
-|                       |                       |  ``true``  \|         |
-|                       |                       |  ``false``            |
-|                       |                       |                       |
-|                       |                       | Default:  ``false``   |
-+-----------------------+-----------------------+-----------------------+
-| x-amz-meta-\*         | string                | Headers starting with |
-|                       |                       | this prefix are       |
-|                       |                       | user-defined          |
-|                       |                       | metadata, each of     |
-|                       |                       | which is stored and   |
-|                       |                       | returned as a set of  |
-|                       |                       | key-value pairs.      |
-|                       |                       | Zenko Enterprise does |
-|                       |                       | not validate or       |
-|                       |                       | interpret             |
-|                       |                       | user-defined          |
-|                       |                       | metadata.             |
-+-----------------------+-----------------------+-----------------------+
-| x-amz-version-id      | string                | Returns the version   |
-|                       |                       | ID of the retrieved   |
-|                       |                       | object if it has a    |
-|                       |                       | unique version ID     |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-+-----------------------+-----------------------+-----------------------+
-| x-amz-website         | string                | When a bucket is      |
-| -redirect-location    |                       | configured as a       |
-|                       |                       | website, this         |
-|                       |                       | metadata can be set   |
-|                       |                       | on the object so the  |
-|                       |                       | website endpoint will |
-|                       |                       | evaluate the request  |
-|                       |                       | for the object as a   |
-|                       |                       | 301 redirect to       |
-|                       |                       | another object in the |
-|                       |                       | same bucket or an     |
-|                       |                       | external URL.         |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: X{0.25\textwidth}X{0.10\textwidth}X{0.60\textwidth}
+.. table::
+
+   +-----------------------+-----------------------+-----------------------+
+   | Header                | Type                  | Description           |
+   +=======================+=======================+=======================+
+   | x-amz-delete-marker   | Boolean               | Specifies whether the |
+   |                       |                       | object retrieved was  |
+   |                       |                       | (true) or was not     |
+   |                       |                       | (false) a delete      |
+   |                       |                       | marker. If false,     |
+   |                       |                       | the response header   |
+   |                       |                       | does not appear in    |
+   |                       |                       | the response.         |
+   |                       |                       |                       |
+   |                       |                       | Valid Values:         |
+   |                       |                       | ``true`` \| ``false`` |
+   |                       |                       |                       |
+   |                       |                       | Default: ``false``    |
+   +-----------------------+-----------------------+-----------------------+
+   | x-amz-meta-\*         | string                | Headers starting with |
+   |                       |                       | this prefix are       |
+   |                       |                       | user-defined          |
+   |                       |                       | metadata, each of     |
+   |                       |                       | which is stored and   |
+   |                       |                       | returned as a set of  |
+   |                       |                       | key-value pairs.      |
+   |                       |                       | Zenko Enterprise does |
+   |                       |                       | not validate or       |
+   |                       |                       | interpret             |
+   |                       |                       | user-defined          |
+   |                       |                       | metadata.             |
+   +-----------------------+-----------------------+-----------------------+
+   | x-amz-version-id      | string                | Returns the version   |
+   |                       |                       | ID of the retrieved   |
+   |                       |                       | object if it has a    |
+   |                       |                       | unique version ID     |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   +-----------------------+-----------------------+-----------------------+
+   | x-amz-website\        | string                | When a bucket is      |
+   | -redirect-location    |                       | configured as a       |
+   |                       |                       | website, this         |
+   |                       |                       | metadata can be set   |
+   |                       |                       | on the object so the  |
+   |                       |                       | website endpoint will |
+   |                       |                       | evaluate the request  |
+   |                       |                       | for the object as a   |
+   |                       |                       | 301 redirect to       |
+   |                       |                       | another object in the |
+   |                       |                       | same bucket or an     |
+   |                       |                       | external URL.         |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   +-----------------------+-----------------------+-----------------------+
 
 **Response Elements**
 

@@ -89,30 +89,24 @@ header and specify the canned ACL name as its value.
   Other access control specific headers cannot be used when the x-amz-acl
   header is in use.
 
-+-----------------------+-----------------------+-----------------------+
-| Header                | Type                  | Description           |
-+=======================+=======================+=======================+
-| x-amz-acl             | string                | Sets the ACL of the   |
-|                       |                       | object using the      |
-|                       |                       | specified canned ACL. |
-|                       |                       |                       |
-|                       |                       | Default: ``private``  |
-|                       |                       |                       |
-|                       |                       | Valid Values:         |
-|                       |                       | ``private`` \|        |
-|                       |                       | ``public-read`` \|    |
-|                       |                       | ``public-read-write`` |
-|                       |                       | \|                    |
-|                       |                       | ``authenticated-read` |
-|                       |                       | `                     |
-|                       |                       | \|                    |
-|                       |                       | ``bucket-owner-read`` |
-|                       |                       | \|                    |
-|                       |                       | ``bucket-owner-full-c |
-|                       |                       | ontrol``              |
-|                       |                       |                       |
-|                       |                       | Constrains: None      |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: X{0.15\textwidth}X{0.10\textwidth}X{0.70\textwidth}
+.. table::
+
+   +-----------+--------+------------------------------------------------------+
+   | Header    | Type   | Description                                          |
+   +===========+========+======================================================+
+   | x-amz-acl | string | Sets the ACL of the object using the specified       |
+   |           |        | canned ACL.                                          |
+   |           |        |                                                      |
+   |           |        | Default: ``private``                                 |
+   |           |        |                                                      |
+   |           |        | Valid Values: ``private`` \| ``public-read`` \|      |
+   |           |        | ``public-read-write`` \| ``authenticated-read`` \|   |
+   |           |        | ``bucket-owner-read`` \| ``bucket-owner-full-        |
+   |           |        | control``                                            |
+   |           |        |                                                      |
+   |           |        | Constraints: None                                    |
+   +-----------+--------+------------------------------------------------------+
 
 *Explicitly Specifying Grantee Access Permissions*
 
@@ -127,41 +121,40 @@ or groups.
   ACL-specific headers negates the use of the x-amz-acl header to set a
   canned ACL.
 
-+-----------------------+-----------------------+-----------------------+
-| Header                | Type                  | Description           |
-+=======================+=======================+=======================+
-| x-amz-grant-read      | string                | Allows grantee to     |
-|                       |                       | read the object data  |
-|                       |                       | and its metadata      |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-|                       |                       |                       |
-|                       |                       | Constraints: None     |
-+-----------------------+-----------------------+-----------------------+
-| x-amz-grant-read-acp  | string                | Allows grantee to     |
-|                       |                       | read the object ACL   |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-|                       |                       |                       |
-|                       |                       | Constraints: None     |
-+-----------------------+-----------------------+-----------------------+
-| x-amz-grant-write-acp | string                | Allows grantee to     |
-|                       |                       | write the ACL for the |
-|                       |                       | applicable object     |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-|                       |                       |                       |
-|                       |                       | Constraints: None     |
-+-----------------------+-----------------------+-----------------------+
-| x-amz-grant-full-cont | string                | Allows grantee the    |
-| rol                   |                       | READ, READ_ACP, and   |
-|                       |                       | WRITE_ACP permissions |
-|                       |                       | on the object         |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-|                       |                       |                       |
-|                       |                       | Constraints: None     |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: X{0.30\textwidth}X{0.10\textwidth}X{0.55\textwidth}
+.. table::
+
+   +--------------------------+--------+---------------------------------------+
+   | Header                   | Type   | Description                           |
+   +==========================+========+=======================================+
+   | x-amz-grant-read         | string | Allows grantee to read the object     |
+   |                          |        | data and its metadata                 |
+   |                          |        |                                       |
+   |                          |        | Default: None                         |
+   |                          |        |                                       |
+   |                          |        | Constraints: None                     |
+   +--------------------------+--------+---------------------------------------+
+   | x-amz-grant-read-acp     | string | Allows grantee to read the object ACL |
+   |                          |        |                                       |
+   |                          |        | Default: None                         |
+   |                          |        |                                       |
+   |                          |        | Constraints: None                     |
+   +--------------------------+--------+---------------------------------------+
+   | x-amz-grant-write-acp    | string | Allows grantee to write the ACL for   |
+   |                          |        | the applicable object                 |
+   |                          |        |                                       |
+   |                          |        | Default: None                         |
+   |                          |        |                                       |
+   |                          |        | Constraints: None                     |
+   +--------------------------+--------+---------------------------------------+
+   | x-amz-grant-full-control | string | Allows grantee the  READ, READ_ACP,   |
+   |                          |        | and WRITE_ACP permissions on the      |
+   |                          |        | object                                |
+   |                          |        |                                       |
+   |                          |        | Default: None                         |
+   |                          |        |                                       |
+   |                          |        | Constraints: None                     |
+   +--------------------------+--------+---------------------------------------+
 
 For each header, the value is a comma-separated list of one or more
 grantees. Each grantee is specified as a ``type=value`` pair, where the
@@ -184,41 +177,35 @@ permission to two accounts identified by their email addresses:
 If the request body is used to specify an ACL, the following elements
 must be used.
 
-+-----------------------+-----------------------+-----------------------+
-| Element               | Type                  | Description           |
-+=======================+=======================+=======================+
-| AccessControlList     | container             | Container for Grant,  |
-|                       |                       | Grantee, and          |
-|                       |                       | Permission            |
-+-----------------------+-----------------------+-----------------------+
-| AccessControlPolicy   | string                | Contains the elements |
-|                       |                       | that set the ACL      |
-|                       |                       | permissions for an    |
-|                       |                       | object per grantee    |
-+-----------------------+-----------------------+-----------------------+
-| DisplayName           | string                | Screen name of the    |
-|                       |                       | bucket owner          |
-+-----------------------+-----------------------+-----------------------+
-| Grant                 | container             | Container for the     |
-|                       |                       | grantee and his or    |
-|                       |                       | her permissions       |
-+-----------------------+-----------------------+-----------------------+
-| Grantee               | string                | The subject whose     |
-|                       |                       | permissions are being |
-|                       |                       | set                   |
-+-----------------------+-----------------------+-----------------------+
-| ID                    | string                | ID of the bucket      |
-|                       |                       | owner, or the ID of   |
-|                       |                       | the grantee           |
-+-----------------------+-----------------------+-----------------------+
-| Owner                 | container             | Container for the     |
-|                       |                       | bucket owner’s        |
-|                       |                       | display name and ID   |
-+-----------------------+-----------------------+-----------------------+
-| Permission            | string                | Specifies the         |
-|                       |                       | permission given to   |
-|                       |                       | the grantee           |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: X{0.25\textwidth}X{0.10\textwidth}X{0.60\textwidth}
+.. table::
+
+   +---------------------+-----------+-----------------------------------------+
+   | Element             | Type      | Description                             |
+   +=====================+===========+=========================================+
+   | AccessControlList   | container | Container for Grant, Grantee, and       |
+   |                     |           | Permission                              |
+   +---------------------+-----------+-----------------------------------------+
+   | AccessControlPolicy | string    | Contains the elements that set the ACL  |
+   |                     |           | permissions for an object per grantee   |
+   +---------------------+-----------+-----------------------------------------+
+   | DisplayName         | string    | Screen name of the bucket owner         |
+   +---------------------+-----------+-----------------------------------------+
+   | Grant               | container | Container for the grantee and his or    |
+   |                     |           | her permissions                         |
+   +---------------------+-----------+-----------------------------------------+
+   | Grantee             | string    | The subject whose permissions are being |
+   |                     |           | set                                     |
+   +---------------------+-----------+-----------------------------------------+
+   | ID                  | string    | ID of the bucket owner, or the ID of    |
+   |                     |           | the grantee                             |
+   +---------------------+-----------+-----------------------------------------+
+   | Owner               | container | Container for the bucket owner’s        |
+   |                     |           | display name and ID                     |
+   +---------------------+-----------+-----------------------------------------+
+   | Permission          | string    | Specifies the permission given to the   |
+   |                     |           | the grantee                             |
+   +---------------------+-----------+-----------------------------------------+
 
 .. note::
 
@@ -263,16 +250,17 @@ Implementation of the PUT Object ACL operation can include the following
 response header in addition to the response headers common to all
 responses (refer to :ref:`Common Response Headers`).
 
-+-----------------------+-----------------------+-----------------------+
-| Header                | Type                  | Description           |
-+=======================+=======================+=======================+
-| x-amz-version-id      | string                | Returns the version   |
-|                       |                       | ID of the retrieved   |
-|                       |                       | object if it has a    |
-|                       |                       | unique version ID.    |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: X{0.20\textwidth}X{0.10\textwidth}X{0.65\textwidth}
+.. table::
+
+   +------------------+--------+-----------------------------------------------+
+   | Header           | Type   | Description                                   |
+   +==================+========+===============================================+
+   | x-amz-version-id | string | Returns the version  ID of the retrieved      |
+   |                  |        | object if it has a unique version ID.         |
+   |                  |        |                                               |
+   |                  |        | Default: None                                 |
+   +------------------+--------+-----------------------------------------------+
 
 **Response Elements**
 

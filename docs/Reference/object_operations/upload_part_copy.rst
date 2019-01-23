@@ -49,199 +49,136 @@ The Upload Part operation can use a number of optional request headers
 in addition to those that are common to all operations (refer to :ref:`Common
 Request Headers`).
 
-+-----------------------+-----------------------+-----------------------+
-| Header                | Type                  | Description           |
-+=======================+=======================+=======================+
-| x-amz-copy-source     | String                | The name of the       |
-|                       |                       | source bucket and the |
-|                       |                       | source object key     |
-|                       |                       | name separated by a   |
-|                       |                       | slash ('/').          |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-+-----------------------+-----------------------+-----------------------+
-| x-amz-copy-source-ran | Integer               | The range of bytes to |
-| ge                    |                       | copy from the source  |
-|                       |                       | object. The range     |
-|                       |                       | value must use the    |
-|                       |                       | form                  |
-|                       |                       | bytes=first-last,     |
-|                       |                       | where the first and   |
-|                       |                       | last are the          |
-|                       |                       | zero-based byte       |
-|                       |                       | offsets to copy       |
-|                       |                       | (e.g., bytes=0-9      |
-|                       |                       | indicates copying the |
-|                       |                       | first ten bytes of    |
-|                       |                       | the source).          |
-|                       |                       |                       |
-|                       |                       | x-amz-copy-source-ran |
-|                       |                       | ge                    |
-|                       |                       | is not required when  |
-|                       |                       | copying an entire     |
-|                       |                       | source object.        |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: X{0.30\textwidth}X{0.10\textwidth}X{0.55\textwidth}
+.. table::
+   
+   +-------------------------+-----------------------+-------------------------+
+   | Header                  | Type                  | Description             |
+   +=========================+=======================+=========================+
+   | x-amz-copy-source       | String                | The name of the         |
+   |                         |                       | source bucket and the   |
+   |                         |                       | source object key       |
+   |                         |                       | name separated by a     |
+   |                         |                       | slash ('/').            |
+   |                         |                       |                         |
+   |                         |                       | Default: None           |
+   +-------------------------+-----------------------+-------------------------+
+   | x-amz-copy-source-range | Integer               | The range of bytes to   |
+   |                         |                       | copy from the source    |
+   |                         |                       | object. The range       |
+   |                         |                       | value must use the      |
+   |                         |                       | form                    |
+   |                         |                       | bytes=first-last,       |
+   |                         |                       | where the first and     |
+   |                         |                       | last are the            |
+   |                         |                       | zero-based byte         |
+   |                         |                       | offsets to copy         |
+   |                         |                       | (e.g., bytes=0-9        |
+   |                         |                       | indicates copying the   |
+   |                         |                       | first ten bytes of      |
+   |                         |                       | the source).            |
+   |                         |                       |                         |
+   |                         |                       | x-amz-copy-source-range |
+   |                         |                       |                         |
+   |                         |                       | is not required when    |
+   |                         |                       | copying an entire       |
+   |                         |                       | source object.          |
+   |                         |                       |                         |
+   |                         |                       | Default: None           |
+   +-------------------------+-----------------------+-------------------------+
 
 The following conditional headers are based on the object that the
 x-amz-copy-source header specifies.
 
-+-----------------------+-----------------------+-----------------------+
-| Header                | Type                  | Description           |
-+=======================+=======================+=======================+
-| x-amz-copy-source-if- | String                | Perform a copy if the |
-| match                 |                       | source object entity  |
-|                       |                       | tag (ETag) matches    |
-|                       |                       | the specified value.  |
-|                       |                       | If the value does not |
-|                       |                       | match, Zenko          |
-|                       |                       | Enterprise returns an |
-|                       |                       | HTTP status code      |
-|                       |                       | ``412 Precondition Fa |
-|                       |                       | iled``                |
-|                       |                       | error.                |
-|                       |                       |                       |
-|                       |                       | **Note**: If both the |
-|                       |                       | x-amz-copy-source-if- |
-|                       |                       | match                 |
-|                       |                       | and                   |
-|                       |                       | x-amz-copy-source-if- |
-|                       |                       | unmodified-since      |
-|                       |                       | headers are present   |
-|                       |                       | in the request as     |
-|                       |                       | follows:              |
-|                       |                       |                       |
-|                       |                       | x-amz-copy-source-if- |
-|                       |                       | match                 |
-|                       |                       | condition evaluates   |
-|                       |                       | to true, and;         |
-|                       |                       | x-amz-copy-source-if- |
-|                       |                       | unmodified-since      |
-|                       |                       | condition evaluates   |
-|                       |                       | to false;             |
-|                       |                       | then, S3 returns      |
-|                       |                       | ``200 OK`` and copies |
-|                       |                       | the data.             |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-+-----------------------+-----------------------+-----------------------+
-| x-amz-copy-source-if- | String                | Perform a copy if the |
-| none-match            |                       | source object entity  |
-|                       |                       | tag (ETag) is         |
-|                       |                       | different than the    |
-|                       |                       | value specified using |
-|                       |                       | this header. If the   |
-|                       |                       | values match,         |
-|                       |                       | Zenko Enterprise      |
-|                       |                       | returns an HTTP       |
-|                       |                       | status code           |
-|                       |                       | ``412 Precondition    |
-|                       |                       | Failed`` error.       |
-|                       |                       |                       |
-|                       |                       | **Note**: If both the |
-|                       |                       | x-amz-copy-source-if- |
-|                       |                       | none-match            |
-|                       |                       | and                   |
-|                       |                       | x-amz-copy-source-if- |
-|                       |                       | unmodified-since      |
-|                       |                       | headers are present   |
-|                       |                       | in the request as     |
-|                       |                       | follows:              |
-|                       |                       |                       |
-|                       |                       | x-amz-copy-source-if- |
-|                       |                       | none-match            |
-|                       |                       | condition evaluates   |
-|                       |                       | to false, and;        |
-|                       |                       | x-amz-copy-source-if- |
-|                       |                       | unmodified-since      |
-|                       |                       | condition evaluates   |
-|                       |                       | to true;              |
-|                       |                       | then, S3 returns      |
-|                       |                       | ``412 Precondition Fa |
-|                       |                       | iled``                |
-|                       |                       | response code.        |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-+-----------------------+-----------------------+-----------------------+
-| x-amz-copy-source-if- | String                | Perform a copy if the |
-| unmodified-since      |                       | source object is not  |
-|                       |                       | modified after the    |
-|                       |                       | time specified using  |
-|                       |                       | this header. If the   |
-|                       |                       | source object is      |
-|                       |                       | modified, S3          |
-|                       |                       | Connector returns an  |
-|                       |                       | HTTP status code      |
-|                       |                       | ``412 Precondition Fa |
-|                       |                       | iled``                |
-|                       |                       | error.                |
-|                       |                       |                       |
-|                       |                       | **Note**: If both the |
-|                       |                       | x-amz-copy-source-if- |
-|                       |                       | match                 |
-|                       |                       | and                   |
-|                       |                       | x-amz-copy-source-if- |
-|                       |                       | unmodified-since      |
-|                       |                       | headers are present   |
-|                       |                       | in the request as     |
-|                       |                       | follows:              |
-|                       |                       |                       |
-|                       |                       | x-amz-copy-source-if- |
-|                       |                       | match                 |
-|                       |                       | condition evaluates   |
-|                       |                       | to true, and;         |
-|                       |                       | x-amz-copy-source-if- |
-|                       |                       | unmodified-since      |
-|                       |                       | condition evaluates   |
-|                       |                       | to false;             |
-|                       |                       | then, S3 returns      |
-|                       |                       | ``200 OK`` and copies |
-|                       |                       | the data.             |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-+-----------------------+-----------------------+-----------------------+
-| x-amz-copy-source-if- | String                | Perform a copy if the |
-| modified-since        |                       | source object is      |
-|                       |                       | modified after the    |
-|                       |                       | time specified using  |
-|                       |                       | the                   |
-|                       |                       | x-amz-copy-source-if- |
-|                       |                       | modified-since        |
-|                       |                       | header. If the source |
-|                       |                       | object is not         |
-|                       |                       | modified, S3          |
-|                       |                       | Connector returns an  |
-|                       |                       | HTTP status code      |
-|                       |                       | ``412 precondition fa |
-|                       |                       | iled``                |
-|                       |                       | error.                |
-|                       |                       |                       |
-|                       |                       | **Note**: If both the |
-|                       |                       | x-amz-copy-source-if- |
-|                       |                       | none-match            |
-|                       |                       | and                   |
-|                       |                       | x-amz-copy-source-if- |
-|                       |                       | unmodified-since      |
-|                       |                       | headers are present   |
-|                       |                       | in the request as     |
-|                       |                       | follows:              |
-|                       |                       |                       |
-|                       |                       | x-amz-copy-source-if- |
-|                       |                       | none-match            |
-|                       |                       | condition evaluates   |
-|                       |                       | to false, and;        |
-|                       |                       | x-amz-copy-source-if- |
-|                       |                       | unmodified-since      |
-|                       |                       | condition evaluates   |
-|                       |                       | to true;              |
-|                       |                       | then, S3 returns      |
-|                       |                       | ``412 Precondition Fa |
-|                       |                       | iled``                |
-|                       |                       | response code.        |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: X{0.30\textwidth}X{0.10\textwidth}X{0.45\textwidth}
+.. table::
+   :class: longtable
+
+   +-----------------------+--------+-------------------------------------------+
+   | Header                | Type   | Description                               |
+   +=======================+========+===========================================+
+   | x-amz-copy-source-\   | String | Perform a copy if the source object       |
+   | if-match              |        | entity tag (ETag) matches the specified   |
+   |                       |        | value. If the value does not match, Zenko |
+   |                       |        | Enterprise returns an HTTP status code    |
+   |                       |        | ``412 Precondition Failed`` error.        |
+   |                       |        |                                           |
+   |                       |        | **Note**: If both the                     |
+   |                       |        | x-amz-copy-source-if-match                |
+   |                       |        | and x-amz-copy-source-if-unmodified-since |
+   |                       |        | headers are present in the request as     |
+   |                       |        | follows:                                  |
+   |                       |        |                                           |
+   |                       |        | x-amz-copy-source-if-match                |
+   |                       |        | condition evaluates to true, and;         |
+   |                       |        | x-amz-copy-source-if-unmodified-since     |
+   |                       |        | condition evaluates to false; then, S3    |
+   |                       |        | returns ``200 OK`` and copies the data.   |
+   |                       |        |                                           |
+   |                       |        | Default: None                             |
+   +-----------------------+--------+-------------------------------------------+
+   | x-amz-copy-source-\   | String | Perform a copy if the source object       |
+   | if-none-match         |        | entity tag (ETag) is different than the   |
+   |                       |        | value specified using this header. If the |
+   |                       |        | values match, Zenko returns an HTTP       |
+   |                       |        | status code ``412 Precondition Failed``   |
+   |                       |        | error.                                    |
+   |                       |        |                                           |
+   |                       |        | **Note**: If both the x-amz-copy-source-\ |
+   |                       |        | if-none-match and x-amz-copy-source-if-\  |
+   |                       |        | unmodified-since headers are present in   |
+   |                       |        | the request as follows:                   |
+   |                       |        |                                           |
+   |                       |        | x-amz-copy-source-if-none-match condition |
+   |                       |        | evaluates to false, and                   |
+   |                       |        | x-amz-copy-source-if-unmodified-since     |
+   |                       |        | condition evaluates to true; then, S3     |
+   |                       |        | returns ``412 Precondition Failed``       |
+   |                       |        | response code.                            |
+   |                       |        |                                           |
+   |                       |        | Default: None                             |
+   +-----------------------+--------+-------------------------------------------+
+   | x-amz-copy-source-\   | String | Perform a copy if the source object is    |
+   | if-unmodified-since   |        | not modified after the time specified     |
+   |                       |        | using this header. If the source object   |
+   |                       |        | is modified, S3Connector returns an HTTP  |
+   |                       |        | status code, ``412 Precondition Failed``  |
+   |                       |        | error.                                    |
+   |                       |        |                                           |
+   |                       |        | **Note**: If both the x-amz-copy-source-\ |
+   |                       |        | if-match and x-amz-copy-source-if-\       |
+   |                       |        | unmodified-since headers are present in   |
+   |                       |        | the request as follows:                   |
+   |                       |        |                                           |
+   |                       |        | x-amz-copy-source-if-match condition      |
+   |                       |        | evaluates to true, and; x-amz-copy-\      |
+   |                       |        | source-if-unmodified-since condition      |
+   |                       |        | evaluates to false; then, S3 returns      |
+   |                       |        | ``200 OK`` and copies the data.           |
+   |                       |        |                                           |
+   |                       |        | Default: None                             |
+   +-----------------------+--------+-------------------------------------------+
+   | x-amz-copy-source-\   | String | Perform a copy if the source object is    |
+   | if-modified-since     |        | modified after the time specified using   |
+   |                       |        | the x-amz-copy-source-if-modified-since   |
+   |                       |        | header. If the source object is not       |
+   |                       |        | modified, S3 Connector returns an HTTP    |
+   |                       |        | status code, ``412 precondition failed``  |
+   |                       |        | error.                                    |
+   |                       |        |                                           |
+   |                       |        | **Note**: If both the x-amz-copy-source-\ |
+   |                       |        | if-none-match and x-amz-copy-source-if-\  |
+   |                       |        | unmodified-since headers are present in   |
+   |                       |        | the request as follows:                   |
+   |                       |        |                                           |
+   |                       |        | x-amz-copy-source-if-none-match condition |
+   |                       |        | evaluates to false, and x-amz-copy-\      |
+   |                       |        | source-if-unmodified-since condition      |
+   |                       |        | evaluates to true, then S3 returns        |
+   |                       |        | ``412 Precondition Failed`` response code.|
+   |                       |        |                                           |
+   |                       |        | Default: None                             |
+   +-----------------------+--------+-------------------------------------------+
 
 *Server-Side Encryption-Specific Request Headers*
 
@@ -250,86 +187,56 @@ customer-provided encryption key, it is necessary to use the following
 headers providing encryption information so that Zenko Enterprise can decrypt the object
 for copying.
 
-+-------------------------+-----------------------+-----------------------+
-| Header                  | Type                  | Description           |
-+=========================+=======================+=======================+
-| x-amz-copy-source​      | String                | Specifies algorithm   |
-| -server-side​           |                       | to use when           |
-| -​encryption            |                       | decrypting the source |
-| -customer               |                       | object.               |
-| -algorithm              |                       |                       |
-|                         |                       | Default: None         |
-|                         |                       |                       |
-|                         |                       | Valid Values:         |
-|                         |                       | ``AES256``            |
-|                         |                       |                       |
-|                         |                       | Constraints: Must be  |
-|                         |                       | accompanied by a      |
-|                         |                       | valid                 |
-|                         |                       | x-amz-copy-source-ser |
-|                         |                       | ver-side-encryption-c |
-|                         |                       | ustomer-key           |
-|                         |                       | and                   |
-|                         |                       | x-amz-copy-source-ser |
-|                         |                       | ver-side-encryption-c |
-|                         |                       | ustomer-key-MD5       |
-|                         |                       | headers.              |
-+-------------------------+-----------------------+-----------------------+
-| x-amz-copy-source       | String                | Specifies the         |
-| -server-side            |                       | customer provided     |
-| ​-encryption​-customer  |                       | base-64 encoded       |
-| -key                    |                       | encryption key for S3 |
-|                         |                       | Connector to          |
-|                         |                       | use to decrypt the    |
-|                         |                       | source object. The    |
-|                         |                       | encryption key        |
-|                         |                       | provided in this      |
-|                         |                       | header must be one    |
-|                         |                       | that was used when    |
-|                         |                       | the source object was |
-|                         |                       | created.              |
-|                         |                       |                       |
-|                         |                       | Default: None         |
-|                         |                       |                       |
-|                         |                       | Constraints: Must be  |
-|                         |                       | accompanied by a      |
-|                         |                       | valid                 |
-|                         |                       | x-amz-copy-source-ser |
-|                         |                       | ver-side-encryption-c |
-|                         |                       | ustomer-algorithm     |
-|                         |                       | and                   |
-|                         |                       | x-amz-copy-source-ser |
-|                         |                       | ver-side-encryption-c |
-|                         |                       | ustomer-key-MD5       |
-|                         |                       | headers.              |
-+-------------------------+-----------------------+-----------------------+
-| x-amz-copy-source       | String                | Specifies the         |
-| -server-side​           |                       | base64-encoded        |
-| -encryption​-customer   |                       | 128-bit MD5 digest of |
-| -key-MD5                |                       | the encryption key    |
-|                         |                       | according to RFC      |
-|                         |                       | 1321. Zenko           |
-|                         |                       | Enterprise uses this  |
-|                         |                       | header for a message  |
-|                         |                       | integrity check to    |
-|                         |                       | ensure the encryption |
-|                         |                       | key was transmitted   |
-|                         |                       | without error.        |
-|                         |                       |                       |
-|                         |                       | Default: None         |
-|                         |                       |                       |
-|                         |                       | Constraints: Must be  |
-|                         |                       | accompanied by a      |
-|                         |                       | valid                 |
-|                         |                       | x-amz-copy-source-ser |
-|                         |                       | ver-side-encryption-c |
-|                         |                       | ustomer-algorithm     |
-|                         |                       | and                   |
-|                         |                       | x-amz-copy-source-ser |
-|                         |                       | ver-side-encryption-c |
-|                         |                       | ustomer-key           |
-|                         |                       | headers.              |
-+-------------------------+-----------------------+-----------------------+
+.. tabularcolumns:: X{0.30\textwidth}X{0.10\textwidth}X{0.50\textwidth}
+.. table::
+
+   +---------------------------+--------+--------------------------------------+
+   | Header                    | Type   | Description                          |
+   +===========================+========+======================================+
+   | x-amz-copy-source-\       | string | Specifies algorithm to use when      |
+   | server-side-encryption-\  |        | decrypting the source object.        | 
+   | customer-algorithm        |        |                                      |
+   |                           |        | Default: None                        |
+   |                           |        |                                      |
+   |                           |        | Valid Values: ``AES256``             |
+   |                           |        |                                      |
+   |                           |        | Constraints: Must be accompanied by  |
+   |                           |        | a valid x-amz-copy-source-server-\   |
+   |                           |        | side-encryption-customer-key and     |
+   |                           |        | x-amz-copy-source-server-side-\      |
+   |                           |        | encryption-customer-key-MD5 headers. |
+   +---------------------------+--------+--------------------------------------+
+   | x-amz-copy-source-\       | string | Specifies the customer-provided      |
+   | server-side-encryption-\  |        | base-64 encoded encryption key for   |
+   | customer-key              |        | S3 Connector to use to decrypt the   |
+   |                           |        | source object. The encryption key    |
+   |                           |        | provided in this header must be one  |
+   |                           |        | that was used when the source object |
+   |                           |        | was created.                         |
+   |                           |        |                                      |
+   |                           |        | Default: None                        |
+   |                           |        |                                      |
+   |                           |        | Constraints: Must be accompanied by  |
+   |                           |        | a valid x-amz-copy-source-server-\   |
+   |                           |        | side-encryption-customer-algorithm   |
+   |                           |        | and x-amz-copy-source-server-side-\  |
+   |                           |        | encryption-customer-key-MD5 headers. |
+   +---------------------------+--------+--------------------------------------+
+   | x-amz-copy-source-\       | string | Specifies the base64-encoded 128-bit |
+   | server-side-encryption-\  |        | MD5 digest of the encryption key     |
+   | customer-key-MD5          |        | according to RFC 1321. Zenko uses    |
+   |                           |        | this header for a message integrity  |
+   |                           |        | check to ensure the encryption key   |
+   |                           |        | was transmitted without error.       |
+   |                           |        |                                      |
+   |                           |        | Default: None                        |
+   |                           |        |                                      |
+   |                           |        | Constraints: Must be accompanied by  |
+   |                           |        | a valid x-amz-copy-source-server-\   |
+   |                           |        | side-encryption-customer-algorithm   |
+   |                           |        | and x-amz-copy-source-server-side-\  |
+   |                           |        | encryption-customer-key headers.     |
+   +---------------------------+--------+--------------------------------------+
 
 **Request Elements**
 
@@ -363,91 +270,97 @@ Implementation of the Upload Part - Copy operation can include the
 following response headers in addition to the response headers that are
 common to all operations (refer to :ref:`Common Response Headers`).
 
-+-----------------------+-----------------------+-----------------------+
-| Header                | Type                  | Description           |
-+=======================+=======================+=======================+
-| x-amz-copy-source     | String                | The version of the    |
-| -version-id           |                       | source object that    |
-|                       |                       | was copied, if you    |
-|                       |                       | have enabled          |
-|                       |                       | versioning on the     |
-|                       |                       | source bucket.        |
-+-----------------------+-----------------------+-----------------------+
-| x-amz-server-side​    | String                | If you specified      |
-| -encryption           |                       | server-side           |
-|                       |                       | encryption either     |
-|                       |                       | with an AWS KMS or    |
-|                       |                       | Amazon S3-managed     |
-|                       |                       | encryption key in     |
-|                       |                       | your initiate         |
-|                       |                       | multipart upload      |
-|                       |                       | request, the response |
-|                       |                       | includes this header. |
-|                       |                       | It confirms the       |
-|                       |                       | encryption algorithm  |
-|                       |                       | that Amazon S3 used   |
-|                       |                       | to encrypt the        |
-|                       |                       | object.               |
-+-----------------------+-----------------------+-----------------------+
-| x-amz-server-side​    | String                | If the                |
-| -encryption-aws-kms   |                       | x-amz-server-side-enc |
-| -key-id               |                       | ryption               |
-|                       |                       | is present and has    |
-|                       |                       | the value of aws:kms, |
-|                       |                       | this header specifies |
-|                       |                       | the ID of the AWS Key |
-|                       |                       | Management Service    |
-|                       |                       | (KMS) master          |
-|                       |                       | encryption key that   |
-|                       |                       | was used for the      |
-|                       |                       | object.               |
-+-----------------------+-----------------------+-----------------------+
-| x-amz-server-side​    | String                | If server-side        |
-| -encryption-customer  |                       | encryption with       |
-| -algorithm            |                       | customer-provided     |
-|                       |                       | encryption keys       |
-|                       |                       | encryption was        |
-|                       |                       | requested, the        |
-|                       |                       | response will include |
-|                       |                       | this header           |
-|                       |                       | confirming the        |
-|                       |                       | encryption algorithm  |
-|                       |                       | used.                 |
-|                       |                       |                       |
-|                       |                       | Valid Values:         |
-|                       |                       | ``AES256``            |
-+-----------------------+-----------------------+-----------------------+
-| x-amz-server-side​    | String                | If server-side        |
-| -encryption-customer  |                       | encryption with       |
-| -key-MD5              |                       | customer-provided     |
-|                       |                       | encryption keys       |
-|                       |                       | encryption was        |
-|                       |                       | requested, the        |
-|                       |                       | response includes     |
-|                       |                       | this header to        |
-|                       |                       | provide roundtrip     |
-|                       |                       | message integrity     |
-|                       |                       | verification of the   |
-|                       |                       | customer-provided     |
-|                       |                       | encryption key.       |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: X{0.30\textwidth}X{0.10\textwidth}X{0.50\textwidth}
+.. table::
+
+   +-----------------------+-----------------------+-----------------------+
+   | Header                | Type                  | Description           |
+   +=======================+=======================+=======================+
+   | x-amz-copy-source-\   | string                | The version of the    |
+   | version-id            |                       | source object that    |
+   |                       |                       | was copied, if you    |
+   |                       |                       | have enabled          |
+   |                       |                       | versioning on the     |
+   |                       |                       | source bucket.        |
+   +-----------------------+-----------------------+-----------------------+
+   | x-amz-server-side-\   | string                | If you specified      |
+   | encryption            |                       | server-side           |
+   |                       |                       | encryption either     |
+   |                       |                       | with an AWS KMS or    |
+   |                       |                       | Amazon S3-managed     |
+   |                       |                       | encryption key in     |
+   |                       |                       | your initiate         |
+   |                       |                       | multipart upload      |
+   |                       |                       | request, the response |
+   |                       |                       | includes this header. |
+   |                       |                       | It confirms the       |
+   |                       |                       | encryption algorithm  |
+   |                       |                       | that Amazon S3 used   |
+   |                       |                       | to encrypt the        |
+   |                       |                       | object.               |
+   +-----------------------+-----------------------+-----------------------+
+   | x-amz-server-side-\   | string                | If the                |
+   | encryption-aws-kms-\  |                       | x-amz-server-side-\   |
+   | key-id                |                       | encryption            |
+   |                       |                       | is present and has    |
+   |                       |                       | the value of aws:kms, |
+   |                       |                       | this header specifies |
+   |                       |                       | the ID of the AWS Key |
+   |                       |                       | Management Service    |
+   |                       |                       | (KMS) master          |
+   |                       |                       | encryption key that   |
+   |                       |                       | was used for the      |
+   |                       |                       | object.               |
+   +-----------------------+-----------------------+-----------------------+
+   | x-amz-server-side-\   | string                | If server-side        |
+   | encryption-customer-\ |                       | encryption with       |
+   | algorithm             |                       | customer-provided     |
+   |                       |                       | encryption keys       |
+   |                       |                       | encryption was        |
+   |                       |                       | requested, the        |
+   |                       |                       | response will include |
+   |                       |                       | this header           |
+   |                       |                       | confirming the        |
+   |                       |                       | encryption algorithm  |
+   |                       |                       | used.                 |
+   |                       |                       |                       |
+   |                       |                       | Valid Values:         |
+   |                       |                       | ``AES256``            |
+   +-----------------------+-----------------------+-----------------------+
+   | x-amz-server-side-\   | string                | If server-side        |
+   | encryption-customer-\ |                       | encryption with       |
+   | key-MD5               |                       | customer-provided     |
+   |                       |                       | encryption keys       |
+   |                       |                       | encryption was        |
+   |                       |                       | requested, the        |
+   |                       |                       | response includes     |
+   |                       |                       | this header to        |
+   |                       |                       | provide roundtrip     |
+   |                       |                       | message integrity     |
+   |                       |                       | verification of the   |
+   |                       |                       | customer-provided     |
+   |                       |                       | encryption key.       |
+   +-----------------------+-----------------------+-----------------------+
 
 **Response Elements**
 
-The Upload Part - Copy operation can return the following XML elements
+The Upload Part - Copy operation can return the following XML elements
 of the response (includes XML containers):
 
-+----------------+-----------+----------------------------------------------+
-| Element        | Type      | Description                                  |
-+================+===========+==============================================+
-| CopyPartResult | container | Container for all response elements.         |
-|                |           |                                              |
-|                |           | Ancestor: None                               |
-+----------------+-----------+----------------------------------------------+
-| ETag           | string    | Returns the Etag of the new part.            |
-+----------------+-----------+----------------------------------------------+
-| LastModified   | string    | Returns the date the part was last modified. |
-+----------------+-----------+----------------------------------------------+
+.. tabularcolumns:: X{0.20\textwidth}X{0.10\textwidth}X{0.65\textwidth}
+.. table::
+
+   +----------------+-----------+----------------------------------------------+
+   | Element        | Type      | Description                                  |
+   +================+===========+==============================================+
+   | CopyPartResult | container | Container for all response elements.         |
+   |                |           |                                              |
+   |                |           | Ancestor: None                               |
+   +----------------+-----------+----------------------------------------------+
+   | ETag           | string    | Returns the Etag of the new part.            |
+   +----------------+-----------+----------------------------------------------+
+   | LastModified   | string    | Returns the date the part was last modified. |
+   +----------------+-----------+----------------------------------------------+
 
 .. warning::
 
@@ -459,19 +372,22 @@ of the response (includes XML containers):
 
 **Special Errors**
 
-+-----------------------------------+-----------------------------------+
-| Error                             | Description                       |
-+===================================+===================================+
-| NoSuchUpload error (HTTP 404 Not  | The specified multipart upload    |
-| Found status code)                | does not exist. The upload ID     |
-|                                   | might be invalid, or the          |
-|                                   | multipart upload might have been  |
-|                                   | aborted or completed.             |
-+-----------------------------------+-----------------------------------+
-| InvalidRequest (HTTP 400 Bad      | The specified copy source is not  |
-| Request status code)              | supported as a byte-range copy    |
-|                                   | source.                           |
-+-----------------------------------+-----------------------------------+
+.. tabularcolumns:: X{0.45\textwidth}X{0.50\textwidth}
+.. table::
+
+   +-----------------------------------+-----------------------------------+
+   | Error                             | Description                       |
+   +===================================+===================================+
+   | NoSuchUpload error (HTTP 404 Not  | The specified multipart upload    |
+   | Found status code)                | does not exist. The upload ID     |
+   |                                   | might be invalid, or the          |
+   |                                   | multipart upload might have been  |
+   |                                   | aborted or completed.             |
+   +-----------------------------------+-----------------------------------+
+   | InvalidRequest (HTTP 400 Bad      | The specified copy source is not  |
+   | Request status code)              | supported as a byte-range copy    |
+   |                                   | source.                           |
+   +-----------------------------------+-----------------------------------+
 
 Examples
 --------
@@ -537,10 +453,10 @@ Upload` request.
 
 *Response Sample B*
 
-..note::
+.. note::
 
-  The Request Sample B response structure is similar to the one specified
-  in Response Sample A.
+   The Request Sample B response structure is similar to the one specified
+   in Response Sample A.
 
 *Request Sample C*
 

@@ -32,109 +32,112 @@ Requests
 The GET Bucket Object Versions operation can use the following optional
 parameters to return a subset of objects in a bucket:
 
-+-----------------------+-----------------------+-----------------------+
-| Parameter             | Type                  | Description           |
-+=======================+=======================+=======================+
-| delimiter             | string                | Character used to     |
-|                       |                       | group keys            |
-|                       |                       |                       |
-|                       |                       | All keys that contain |
-|                       |                       | the same string       |
-|                       |                       | between the prefix,   |
-|                       |                       | if specified, and the |
-|                       |                       | first occurrence of   |
-|                       |                       | the delimiter after   |
-|                       |                       | the prefix are        |
-|                       |                       | grouped under a       |
-|                       |                       | single result         |
-|                       |                       | element,              |
-|                       |                       | CommonPrefixes. If    |
-|                       |                       | prefix is not         |
-|                       |                       | specified, then the   |
-|                       |                       | substring starts at   |
-|                       |                       | the beginning of the  |
-|                       |                       | key. The keys that    |
-|                       |                       | are grouped under     |
-|                       |                       | CommonPrefixes result |
-|                       |                       | element are not       |
-|                       |                       | returned elsewhere in |
-|                       |                       | the response.         |
-+-----------------------+-----------------------+-----------------------+
-| encoding-type         | string                | Encodes keys with the |
-|                       |                       | method specified.     |
-|                       |                       | Since XML 1.0 parsers |
-|                       |                       | cannot parse certain  |
-|                       |                       | characters that may   |
-|                       |                       | be included in an     |
-|                       |                       | object key, the keys  |
-|                       |                       | in the response can   |
-|                       |                       | be encoded to ensure  |
-|                       |                       | they are legible.     |
-|                       |                       | Encoding is not set   |
-|                       |                       | by default. Currently |
-|                       |                       | the only valid value  |
-|                       |                       | is ``url``.           |
-+-----------------------+-----------------------+-----------------------+
-| key-marker            | string                | Specifies the key in  |
-|                       |                       | the bucket to start   |
-|                       |                       | listing from. Also,   |
-|                       |                       | refer to              |
-|                       |                       | version-id-marker.    |
-+-----------------------+-----------------------+-----------------------+
-| max-keys              | string                | Sets the maximum      |
-|                       |                       | number of keys        |
-|                       |                       | returned in the       |
-|                       |                       | response body. The    |
-|                       |                       | response might        |
-|                       |                       | contain fewer keys,   |
-|                       |                       | but will never        |
-|                       |                       | contain more. If      |
-|                       |                       | additional keys       |
-|                       |                       | satisfy the search    |
-|                       |                       | criteria, but were    |
-|                       |                       | not returned because  |
-|                       |                       | max-keys was          |
-|                       |                       | exceeded, the         |
-|                       |                       | response contains     |
-|                       |                       | <isTruncated>true</is |
-|                       |                       | Truncated>.           |
-|                       |                       | To return the         |
-|                       |                       | additional keys,      |
-|                       |                       | refer to key-marker   |
-|                       |                       | and                   |
-|                       |                       | version-id-marker.    |
-|                       |                       |                       |
-|                       |                       | Default: 1000         |
-+-----------------------+-----------------------+-----------------------+
-| prefix                | string                | Use this parameter to |
-|                       |                       | select only keys that |
-|                       |                       | begin with the        |
-|                       |                       | specified prefix. Use |
-|                       |                       | prefixes to separate  |
-|                       |                       | a bucket into         |
-|                       |                       | different groupings   |
-|                       |                       | of keys. (Use prefix  |
-|                       |                       | to make groups in the |
-|                       |                       | same way a folder is  |
-|                       |                       | used in a file        |
-|                       |                       | system.) Use prefix   |
-|                       |                       | with delimiter to     |
-|                       |                       | roll up numerous      |
-|                       |                       | objects into a single |
-|                       |                       | result under          |
-|                       |                       | CommonPrefixes.       |
-+-----------------------+-----------------------+-----------------------+
-| version-id-marker     | string                | Specifies the object  |
-|                       |                       | version to start      |
-|                       |                       | listing from. Also,   |
-|                       |                       | refer to key-marker.  |
-|                       |                       |                       |
-|                       |                       | Valid Values: Valid   |
-|                       |                       | version ID \| Default |
-|                       |                       |                       |
-|                       |                       | Constraint: May not   |
-|                       |                       | be an empty string    |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: X{0.20\textwidth}X{0.10\textwidth}X{0.65\textwidth}
+.. table::
+
+   +-----------------------+-----------------------+-----------------------+
+   | Parameter             | Type                  | Description           |
+   +=======================+=======================+=======================+
+   | delimiter             | string                | Character used to     |
+   |                       |                       | group keys            |
+   |                       |                       |                       |
+   |                       |                       | All keys that contain |
+   |                       |                       | the same string       |
+   |                       |                       | between the prefix,   |
+   |                       |                       | if specified, and the |
+   |                       |                       | first occurrence of   |
+   |                       |                       | the delimiter after   |
+   |                       |                       | the prefix are        |
+   |                       |                       | grouped under a       |
+   |                       |                       | single result         |
+   |                       |                       | element,              |
+   |                       |                       | CommonPrefixes. If    |
+   |                       |                       | prefix is not         |
+   |                       |                       | specified, then the   |
+   |                       |                       | substring starts at   |
+   |                       |                       | the beginning of the  |
+   |                       |                       | key. The keys that    |
+   |                       |                       | are grouped under     |
+   |                       |                       | CommonPrefixes result |
+   |                       |                       | element are not       |
+   |                       |                       | returned elsewhere in |
+   |                       |                       | the response.         |
+   +-----------------------+-----------------------+-----------------------+
+   | encoding-type         | string                | Encodes keys with the |
+   |                       |                       | method specified.     |
+   |                       |                       | Since XML 1.0 parsers |
+   |                       |                       | cannot parse certain  |
+   |                       |                       | characters that may   |
+   |                       |                       | be included in an     |
+   |                       |                       | object key, the keys  |
+   |                       |                       | in the response can   |
+   |                       |                       | be encoded to ensure  |
+   |                       |                       | they are legible.     |
+   |                       |                       | Encoding is not set   |
+   |                       |                       | by default. Currently |
+   |                       |                       | the only valid value  |
+   |                       |                       | is ``url``.           |
+   +-----------------------+-----------------------+-----------------------+
+   | key-marker            | string                | Specifies the key in  |
+   |                       |                       | the bucket to start   |
+   |                       |                       | listing from. Also,   |
+   |                       |                       | refer to              |
+   |                       |                       | version-id-marker.    |
+   +-----------------------+-----------------------+-----------------------+
+   | max-keys              | string                | Sets the maximum      |
+   |                       |                       | number of keys        |
+   |                       |                       | returned in the       |
+   |                       |                       | response body. The    |
+   |                       |                       | response might        |
+   |                       |                       | contain fewer keys,   |
+   |                       |                       | but will never        |
+   |                       |                       | contain more. If      |
+   |                       |                       | additional keys       |
+   |                       |                       | satisfy the search    |
+   |                       |                       | criteria, but were    |
+   |                       |                       | not returned because  |
+   |                       |                       | max-keys was          |
+   |                       |                       | exceeded, the         |
+   |                       |                       | response contains     |
+   |                       |                       | <isTruncated>true</is |
+   |                       |                       | Truncated>.           |
+   |                       |                       | To return the         |
+   |                       |                       | additional keys,      |
+   |                       |                       | refer to key-marker   |
+   |                       |                       | and                   |
+   |                       |                       | version-id-marker.    |
+   |                       |                       |                       |
+   |                       |                       | Default: 1000         |
+   +-----------------------+-----------------------+-----------------------+
+   | prefix                | string                | Use this parameter to |
+   |                       |                       | select only keys that |
+   |                       |                       | begin with the        |
+   |                       |                       | specified prefix. Use |
+   |                       |                       | prefixes to separate  |
+   |                       |                       | a bucket into         |
+   |                       |                       | different groupings   |
+   |                       |                       | of keys. (Use prefix  |
+   |                       |                       | to make groups in the |
+   |                       |                       | same way a folder is  |
+   |                       |                       | used in a file        |
+   |                       |                       | system.) Use prefix   |
+   |                       |                       | with delimiter to     |
+   |                       |                       | roll up numerous      |
+   |                       |                       | objects into a single |
+   |                       |                       | result under          |
+   |                       |                       | CommonPrefixes.       |
+   +-----------------------+-----------------------+-----------------------+
+   | version-id-marker     | string                | Specifies the object  |
+   |                       |                       | version to start      |
+   |                       |                       | listing from. Also,   |
+   |                       |                       | refer to key-marker.  |
+   |                       |                       |                       |
+   |                       |                       | Valid Values: Valid   |
+   |                       |                       | version ID \| Default |
+   |                       |                       |                       |
+   |                       |                       | Constraint: May not   |
+   |                       |                       | be an empty string    |
+   +-----------------------+-----------------------+-----------------------+
 
 **Request Headers**
 
@@ -158,199 +161,203 @@ Headers`).
 **Response Elements**
 
 The GET Bucket Object Versions operation can return the following
-XML elements in the response:
+XML elements in the response:
 
-+-----------------------+-----------------------+-----------------------+
-| Element               | Type                  | Description           |
-+=======================+=======================+=======================+
-| DeleteMarker          | Container             | Container for an      |
-|                       |                       | object that is a      |
-|                       |                       | delete marker         |
-|                       |                       |                       |
-|                       |                       | Children: Key,        |
-|                       |                       | VersionId, IsLatest,  |
-|                       |                       | LastModified, Owner   |
-|                       |                       |                       |
-|                       |                       | Ancestor:             |
-|                       |                       | ListVersionsResult    |
-+-----------------------+-----------------------+-----------------------+
-| DisplayName           | string                | Object owner’s name   |
-|                       |                       |                       |
-|                       |                       | Ancestor:             |
-|                       |                       | ListVersionsResult.Ve |
-|                       |                       | rsion.Owner           |
-|                       |                       | \|                    |
-|                       |                       | ListVersionsResult.De |
-|                       |                       | leteMarker.Owner      |
-+-----------------------+-----------------------+-----------------------+
-| Encoding-Type         | string                | Encoding type used by |
-|                       |                       | Zenko Enterprise to   |
-|                       |                       | encode object key     |
-|                       |                       | names in the XML      |
-|                       |                       | response.             |
-|                       |                       |                       |
-|                       |                       | If encoding-type      |
-|                       |                       | request parameter is  |
-|                       |                       | specified, S3         |
-|                       |                       | Connector includes    |
-|                       |                       | this element in the   |
-|                       |                       | response, and returns |
-|                       |                       | encoded key name      |
-|                       |                       | values in the         |
-|                       |                       | following response    |
-|                       |                       | elements:             |
-|                       |                       |                       |
-|                       |                       | KeyMarker,            |
-|                       |                       | NextKeyMarker,        |
-|                       |                       | Prefix, Key, and      |
-|                       |                       | Delimiter.            |
-+-----------------------+-----------------------+-----------------------+
-| ETag                  | string                | The entity tag is an  |
-|                       |                       | MD5 hash of the       |
-|                       |                       | object. The ETag      |
-|                       |                       | reflects changes only |
-|                       |                       | to the contents of an |
-|                       |                       | object, not its       |
-|                       |                       | metadata.             |
-|                       |                       |                       |
-|                       |                       | Ancestor:             |
-|                       |                       | ListVersionsResult.Ve |
-|                       |                       | rsion                 |
-+-----------------------+-----------------------+-----------------------+
-| ID                    | string                | Object owner’s ID     |
-|                       |                       |                       |
-|                       |                       | Ancestor:             |
-|                       |                       | ListVersionsResult.Ve |
-|                       |                       | rsion.Owner           |
-|                       |                       | \|                    |
-|                       |                       | ListVersionsResult.De |
-|                       |                       | leteMarker.Owner      |
-+-----------------------+-----------------------+-----------------------+
-| IsLatest              | Boolean               | Specifies whether the |
-|                       |                       | object is (true) or   |
-|                       |                       | not (false) the       |
-|                       |                       | current version of an |
-|                       |                       | object                |
-+-----------------------+-----------------------+-----------------------+
-| IsTruncated           | Boolean               | Indicates whether     |
-|                       |                       | (true) or not (false) |
-|                       |                       | all results matching  |
-|                       |                       | the search criteria   |
-|                       |                       | were returned. All of |
-|                       |                       | the results may not   |
-|                       |                       | be returned if the    |
-|                       |                       | number of results     |
-|                       |                       | exceeds that          |
-|                       |                       | specified by MaxKeys. |
-|                       |                       | If the results were   |
-|                       |                       | truncated, it is      |
-|                       |                       | possible to make a    |
-|                       |                       | follow-up paginated   |
-|                       |                       | request using the     |
-|                       |                       | NextKeyMarker and     |
-|                       |                       | NextVersionIdMarker   |
-|                       |                       | response parameters   |
-|                       |                       | as a starting place   |
-|                       |                       | in another request to |
-|                       |                       | return the rest of    |
-|                       |                       | the results.          |
-|                       |                       |                       |
-|                       |                       | Ancestor:             |
-|                       |                       | ListVersionResult     |
-+-----------------------+-----------------------+-----------------------+
-| Key                   | string                | The object’s key      |
-|                       |                       |                       |
-|                       |                       | Ancestor:             |
-|                       |                       | ListVersionsResult.Ve |
-|                       |                       | rsion                 |
-|                       |                       | \|                    |
-|                       |                       | ListVersionsResult.De |
-|                       |                       | leteMarker            |
-+-----------------------+-----------------------+-----------------------+
-| KeyMarker             | string                | Marks the last key    |
-|                       |                       | returned in a         |
-|                       |                       | truncated response    |
-|                       |                       |                       |
-|                       |                       | Ancestor:             |
-|                       |                       | ListVersionsResult    |
-+-----------------------+-----------------------+-----------------------+
-| LastModified          | date                  | Date and time the     |
-|                       |                       | object was last       |
-|                       |                       | modified              |
-|                       |                       |                       |
-|                       |                       | Ancestor:             |
-|                       |                       | ListVersionsResult.Ve |
-|                       |                       | rsion                 |
-|                       |                       | \|                    |
-|                       |                       | ListVersionsResult.De |
-|                       |                       | leteMarker            |
-+-----------------------+-----------------------+-----------------------+
-| ListVersionsResult    | container             | Container of the      |
-|                       |                       | result                |
-+-----------------------+-----------------------+-----------------------+
-| MaxKeys               | string                | The maximum number of |
-|                       |                       | objects to return     |
-|                       |                       |                       |
-|                       |                       | Default: 1000         |
-|                       |                       |                       |
-|                       |                       | Ancestor:             |
-|                       |                       | ListVersionsResult    |
-+-----------------------+-----------------------+-----------------------+
-| Name                  | string                | Bucket owner’s name   |
-+-----------------------+-----------------------+-----------------------+
-| NextKeyMarker         | string                | When the number of    |
-|                       |                       | responses exceeds the |
-|                       |                       | value of MaxKeys,     |
-|                       |                       | NextKeyMarker         |
-|                       |                       | specifies the first   |
-|                       |                       | key not returned that |
-|                       |                       | satisfies the search  |
-|                       |                       | criteria. Use this    |
-|                       |                       | value for the         |
-|                       |                       | key-marker request    |
-|                       |                       | parameter in a        |
-|                       |                       | subsequent request    |
-+-----------------------+-----------------------+-----------------------+
-| NextVersionIdMarker   | string                | When the number of    |
-|                       |                       | responses exceeds the |
-|                       |                       | value of MaxKeys,     |
-|                       |                       | NextVersionIdMarker   |
-|                       |                       | specifies the first   |
-|                       |                       | object version not    |
-|                       |                       | returned that         |
-|                       |                       | satisfies the search  |
-|                       |                       | criteria. Use this    |
-|                       |                       | value for the         |
-|                       |                       | version-id-marker     |
-|                       |                       | request parameter in  |
-|                       |                       | a subsequent request. |
-|                       |                       |                       |
-|                       |                       | Ancestor:             |
-|                       |                       | ListVersionResult     |
-+-----------------------+-----------------------+-----------------------+
-| Owner                 | string                | Bucket owner          |
-+-----------------------+-----------------------+-----------------------+
-| Prefix                | string                | Selects objects that  |
-|                       |                       | start with the value  |
-|                       |                       | supplied by this      |
-|                       |                       | parameter.            |
-+-----------------------+-----------------------+-----------------------+
-| Size                  | string                | Size in bytes of the  |
-|                       |                       | object                |
-+-----------------------+-----------------------+-----------------------+
-| StorageClass          | string                | Always STANDARD       |
-+-----------------------+-----------------------+-----------------------+
-| Version               | container             | Container of version  |
-|                       |                       | information           |
-+-----------------------+-----------------------+-----------------------+
-| VersionId             | string                | Version ID of an      |
-|                       |                       | object                |
-+-----------------------+-----------------------+-----------------------+
-| VersionIdMarker       | string                | Marks the last        |
-|                       |                       | version of the key    |
-|                       |                       | returned in a         |
-|                       |                       | truncated response    |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: X{0.20\textwidth}X{0.10\textwidth}X{0.65\textwidth}
+.. table::
+   :class: longtable
+   
+   +-----------------------+-----------------------+-----------------------+
+   | Element               | Type                  | Description           |
+   +=======================+=======================+=======================+
+   | DeleteMarker          | container             | Container for an      |
+   |                       |                       | object that is a      |
+   |                       |                       | delete marker         |
+   |                       |                       |                       |
+   |                       |                       | Children: Key,        |
+   |                       |                       | VersionId, IsLatest,  |
+   |                       |                       | LastModified, Owner   |
+   |                       |                       |                       |
+   |                       |                       | Ancestor:             |
+   |                       |                       | ListVersionsResult    |
+   +-----------------------+-----------------------+-----------------------+
+   | DisplayName           | string                | Object owner's name   |
+   |                       |                       |                       |
+   |                       |                       | Ancestor:             |
+   |                       |                       | ListVersionsResult.Ve |
+   |                       |                       | rsion.Owner           |
+   |                       |                       | \|                    |
+   |                       |                       | ListVersionsResult.De |
+   |                       |                       | leteMarker.Owner      |
+   +-----------------------+-----------------------+-----------------------+
+   | Encoding-Type         | string                | Encoding type used by |
+   |                       |                       | Zenko Enterprise to   |
+   |                       |                       | encode object key     |
+   |                       |                       | names in the XML      |
+   |                       |                       | response.             |
+   |                       |                       |                       |
+   |                       |                       | If encoding-type      |
+   |                       |                       | request parameter is  |
+   |                       |                       | specified, S3         |
+   |                       |                       | Connector includes    |
+   |                       |                       | this element in the   |
+   |                       |                       | response, and returns |
+   |                       |                       | encoded key name      |
+   |                       |                       | values in the         |
+   |                       |                       | following response    |
+   |                       |                       | elements:             |
+   |                       |                       |                       |
+   |                       |                       | KeyMarker,            |
+   |                       |                       | NextKeyMarker,        |
+   |                       |                       | Prefix, Key, and      |
+   |                       |                       | Delimiter.            |
+   +-----------------------+-----------------------+-----------------------+
+   | ETag                  | string                | The entity tag is an  |
+   |                       |                       | MD5 hash of the       |
+   |                       |                       | object. The ETag      |
+   |                       |                       | reflects changes only |
+   |                       |                       | to the contents of an |
+   |                       |                       | object, not its       |
+   |                       |                       | metadata.             |
+   |                       |                       |                       |
+   |                       |                       | Ancestor:             |
+   |                       |                       | ListVersionsResult.Ve |
+   |                       |                       | rsion                 |
+   +-----------------------+-----------------------+-----------------------+
+   | ID                    | string                | Object owner's ID     |
+   |                       |                       |                       |
+   |                       |                       | Ancestor:             |
+   |                       |                       | ListVersionsResult.Ve |
+   |                       |                       | rsion.Owner           |
+   |                       |                       | \|                    |
+   |                       |                       | ListVersionsResult.De |
+   |                       |                       | leteMarker.Owner      |
+   +-----------------------+-----------------------+-----------------------+
+   | IsLatest              | Boolean               | Specifies whether the |
+   |                       |                       | object is (true) or   |
+   |                       |                       | not (false) the       |
+   |                       |                       | current version of an |
+   |                       |                       | object                |
+   +-----------------------+-----------------------+-----------------------+
+   | IsTruncated           | Boolean               | Indicates whether     |
+   |                       |                       | (true) or not (false) |
+   |                       |                       | all results matching  |
+   |                       |                       | the search criteria   |
+   |                       |                       | were returned. All of |
+   |                       |                       | the results may not   |
+   |                       |                       | be returned if the    |
+   |                       |                       | number of results     |
+   |                       |                       | exceeds that          |
+   |                       |                       | specified by MaxKeys. |
+   |                       |                       | If the results were   |
+   |                       |                       | truncated, it is      |
+   |                       |                       | possible to make a    |
+   |                       |                       | follow-up paginated   |
+   |                       |                       | request using the     |
+   |                       |                       | NextKeyMarker and     |
+   |                       |                       | NextVersionIdMarker   |
+   |                       |                       | response parameters   |
+   |                       |                       | as a starting place   |
+   |                       |                       | in another request to |
+   |                       |                       | return the rest of    |
+   |                       |                       | the results.          |
+   |                       |                       |                       |
+   |                       |                       | Ancestor:             |
+   |                       |                       | ListVersionResult     |
+   +-----------------------+-----------------------+-----------------------+
+   | Key                   | string                | The object's key      |
+   |                       |                       |                       |
+   |                       |                       | Ancestor:             |
+   |                       |                       | ListVersionsResult.Ve |
+   |                       |                       | rsion                 |
+   |                       |                       | \|                    |
+   |                       |                       | ListVersionsResult.De |
+   |                       |                       | leteMarker            |
+   +-----------------------+-----------------------+-----------------------+
+   | KeyMarker             | string                | Marks the last key    |
+   |                       |                       | returned in a         |
+   |                       |                       | truncated response    |
+   |                       |                       |                       |
+   |                       |                       | Ancestor:             |
+   |                       |                       | ListVersionsResult    |
+   +-----------------------+-----------------------+-----------------------+
+   | LastModified          | date                  | Date and time the     |
+   |                       |                       | object was last       |
+   |                       |                       | modified              |
+   |                       |                       |                       |
+   |                       |                       | Ancestor:             |
+   |                       |                       | ListVersionsResult.Ve |
+   |                       |                       | rsion                 |
+   |                       |                       | \|                    |
+   |                       |                       | ListVersionsResult.De |
+   |                       |                       | leteMarker            |
+   +-----------------------+-----------------------+-----------------------+
+   | ListVersionsResult    | container             | Container of the      |
+   |                       |                       | result                |
+   +-----------------------+-----------------------+-----------------------+
+   | MaxKeys               | string                | The maximum number of |
+   |                       |                       | objects to return     |
+   |                       |                       |                       |
+   |                       |                       | Default: 1000         |
+   |                       |                       |                       |
+   |                       |                       | Ancestor:             |
+   |                       |                       | ListVersionsResult    |
+   +-----------------------+-----------------------+-----------------------+
+   | Name                  | string                | Bucket owner's name   |
+   +-----------------------+-----------------------+-----------------------+
+   | NextKeyMarker         | string                | When the number of    |
+   |                       |                       | responses exceeds the |
+   |                       |                       | value of MaxKeys,     |
+   |                       |                       | NextKeyMarker         |
+   |                       |                       | specifies the first   |
+   |                       |                       | key not returned that |
+   |                       |                       | satisfies the search  |
+   |                       |                       | criteria. Use this    |
+   |                       |                       | value for the         |
+   |                       |                       | key-marker request    |
+   |                       |                       | parameter in a        |
+   |                       |                       | subsequent request    |
+   +-----------------------+-----------------------+-----------------------+
+   | NextVersionIdMarker   | string                | When the number of    |
+   |                       |                       | responses exceeds the |
+   |                       |                       | value of MaxKeys,     |
+   |                       |                       | NextVersionIdMarker   |
+   |                       |                       | specifies the first   |
+   |                       |                       | object version not    |
+   |                       |                       | returned that         |
+   |                       |                       | satisfies the search  |
+   |                       |                       | criteria. Use this    |
+   |                       |                       | value for the         |
+   |                       |                       | version-id-marker     |
+   |                       |                       | request parameter in  |
+   |                       |                       | a subsequent request. |
+   |                       |                       |                       |
+   |                       |                       | Ancestor:             |
+   |                       |                       | ListVersionResult     |
+   +-----------------------+-----------------------+-----------------------+
+   | Owner                 | string                | Bucket owner          |
+   +-----------------------+-----------------------+-----------------------+
+   | Prefix                | string                | Selects objects that  |
+   |                       |                       | start with the value  |
+   |                       |                       | supplied by this      |
+   |                       |                       | parameter.            |
+   +-----------------------+-----------------------+-----------------------+
+   | Size                  | string                | Size in bytes of the  |
+   |                       |                       | object                |
+   +-----------------------+-----------------------+-----------------------+
+   | StorageClass          | string                | Always STANDARD       |
+   +-----------------------+-----------------------+-----------------------+
+   | Version               | container             | Container of version  |
+   |                       |                       | information           |
+   +-----------------------+-----------------------+-----------------------+
+   | VersionId             | string                | Version ID of an      |
+   |                       |                       | object                |
+   +-----------------------+-----------------------+-----------------------+
+   | VersionIdMarker       | string                | Marks the last        |
+   |                       |                       | version of the key    |
+   |                       |                       | returned in a         |
+   |                       |                       | truncated response    |
+   +-----------------------+-----------------------+-----------------------+
 
 Examples
 --------

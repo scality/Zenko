@@ -28,7 +28,7 @@ Requests
 
   The possible options for a LocationConstraint are configured in the
   env_s3 setting of the S3 Configuration. For more information, refer to
-  "Modifying the Group Variables (all) File" in the *Installation Guide*.
+  "Modifying the Group Variables (all) File" in the *Installation Guide*.
 
 If the Host header of a PUT Bucket request does not match any of the
 rest endpoints in your configuration, and a region is not specified in
@@ -53,30 +53,23 @@ permissions.
 Zenko Enterprise supports a set of canned ACLs, each with a predefined set of grantees
 and permissions.
 
-+-----------------------+-----------------------+-----------------------+
-| Header                | Type                  | Description           |
-+=======================+=======================+=======================+
-| x-amz-acl             | string                | The canned ACL to     |
-|                       |                       | apply to the bucket   |
-|                       |                       | being created         |
-|                       |                       |                       |
-|                       |                       | Default: ``private``  |
-|                       |                       |                       |
-|                       |                       | Valid Values:         |
-|                       |                       | ``private`` \|        |
-|                       |                       | ``public-read`` \|    |
-|                       |                       | ``public-read-write`` |
-|                       |                       | \|                    |
-|                       |                       | ``authenticated-read` |
-|                       |                       | `                     |
-|                       |                       | \|                    |
-|                       |                       | ``bucket-owner-read`` |
-|                       |                       | \|                    |
-|                       |                       | ``bucket-owner-full-c |
-|                       |                       | ontrol``              |
-|                       |                       |                       |
-|                       |                       | Constraints: None     |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: X{0.15\textwidth}X{0.15\textwidth}X{0.65\textwidth}
+.. table::
+
+   +-----------+--------+------------------------------------------------------+
+   | Header    | Type   | Description                                          |
+   +===========+========+======================================================+
+   | x-amz-acl | string | The canned ACL to apply to the bucket being created  |
+   |           |        |                                                      |
+   |           |        | Default: ``private``                                 |
+   |           |        |                                                      |
+   |           |        | Valid Values: ``private`` \|  ``public-read`` \|     |
+   |           |        | ``public-read-write`` \| ``authenticated-read`` \|   |
+   |           |        | ``bucket-owner-read`` \|                             |
+   |           |        | ``bucket-owner-full-control``                        | 
+   |           |        |                                                      |
+   |           |        | Constraints: None                                    |
+   +-----------+--------+------------------------------------------------------+
 
 *Explicitly Specifying Access Permissions*
 
@@ -87,61 +80,64 @@ permissions Zenko supports in an ACL.
 In the header value, specify a list of grantees who get the specific
 permission.
 
-+-----------------------+-----------------------+-----------------------+
-| Header                | Type                  | Description           |
-+=======================+=======================+=======================+
-| x-amz-grant-read      | string                | Allows grantee to     |
-|                       |                       | list the objects in   |
-|                       |                       | the bucket            |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-|                       |                       |                       |
-|                       |                       | Constraints: None     |
-+-----------------------+-----------------------+-----------------------+
-| x-amz-grant-write     | string                | Allows grantee to     |
-|                       |                       | create, overwrite,    |
-|                       |                       | and delete any object |
-|                       |                       | in the bucket         |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-|                       |                       |                       |
-|                       |                       | Constraints: None     |
-+-----------------------+-----------------------+-----------------------+
-| x-amz-grant-read-acp  | string                | Allows grantee to     |
-|                       |                       | read the bucket ACL   |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-|                       |                       |                       |
-|                       |                       | Constraints: None     |
-+-----------------------+-----------------------+-----------------------+
-| x-amz-grant-write-acp | string                | Allows grantee to     |
-|                       |                       | write the ACL for the |
-|                       |                       | applicable bucket     |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-|                       |                       |                       |
-|                       |                       | Constraints: None     |
-+-----------------------+-----------------------+-----------------------+
-| x-amz-grant-full-cont | string                | Allows grantee READ,  |
-| rol                   |                       | WRITE, READ_ACP, and  |
-|                       |                       | WRITE_ACP permissions |
-|                       |                       | on the ACL            |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-|                       |                       |                       |
-|                       |                       | Constraints: None     |
-+-----------------------+-----------------------+-----------------------+
-| x-amz-scal-server-sid | string                | Special optional      |
-| e-encryption          |                       | header, specifies     |
-|                       |                       | that the source       |
-|                       |                       | object is to be       |
-|                       |                       | encrypted.            |
-|                       |                       |                       |
-|                       |                       | Default: AES256       |
-|                       |                       |                       |
-|                       |                       | Constraints: Must be  |
-|                       |                       | AES256.               |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: X{0.30\textwidth}X{0.15\textwidth}X{0.50\textwidth}
+.. table::
+
+   +-----------------------+-----------------------+-----------------------+
+   | Header                | Type                  | Description           |
+   +=======================+=======================+=======================+
+   | x-amz-grant-read      | string                | Allows grantee to     |
+   |                       |                       | list the objects in   |
+   |                       |                       | the bucket            |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   |                       |                       |                       |
+   |                       |                       | Constraints: None     |
+   +-----------------------+-----------------------+-----------------------+
+   | x-amz-grant-write     | string                | Allows grantee to     |
+   |                       |                       | create, overwrite,    |
+   |                       |                       | and delete any object |
+   |                       |                       | in the bucket         |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   |                       |                       |                       |
+   |                       |                       | Constraints: None     |
+   +-----------------------+-----------------------+-----------------------+
+   | x-amz-grant-read-acp  | string                | Allows grantee to     |
+   |                       |                       | read the bucket ACL   |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   |                       |                       |                       |
+   |                       |                       | Constraints: None     |
+   +-----------------------+-----------------------+-----------------------+
+   | x-amz-grant-write-acp | string                | Allows grantee to     |
+   |                       |                       | write the ACL for the |
+   |                       |                       | applicable bucket     |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   |                       |                       |                       |
+   |                       |                       | Constraints: None     |
+   +-----------------------+-----------------------+-----------------------+
+   | x-amz-grant-full-\    | string                | Allows grantee READ,  |
+   | control               |                       | WRITE, READ_ACP, and  |
+   |                       |                       | WRITE_ACP permissions |
+   |                       |                       | on the ACL            |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   |                       |                       |                       |
+   |                       |                       | Constraints: None     |
+   +-----------------------+-----------------------+-----------------------+
+   | x-amz-scal-server-\   | string                | Special optional      |
+   | side-encryption       |                       | header, specifies     |
+   |                       |                       | that the source       |
+   |                       |                       | object is to be       |
+   |                       |                       | encrypted.            |
+   |                       |                       |                       |
+   |                       |                       | Default: AES256       |
+   |                       |                       |                       |
+   |                       |                       | Constraints: Must be  |
+   |                       |                       | AES256.               |
+   +-----------------------+-----------------------+-----------------------+
 
 Each grantee is specified as a ``type=value`` pair, where the type can
 be one any one of the following:
@@ -162,17 +158,18 @@ permission to the accounts identified by their email addresses:
 
 The PUT Bucket operation can request the following items:
 
-+-----------------------+-----------------------+-----------------------+
-| Element               | Type                  | Description           |
-+=======================+=======================+=======================+
-| CreateBucketConfigura | container             | Container for bucket  |
-| tion                  |                       | configuration         |
-|                       |                       | settings              |
-+-----------------------+-----------------------+-----------------------+
-| LocationConstraint    | enum                  | Specifies where the   |
-|                       |                       | bucket will be        |
-|                       |                       | created               |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: X{0.30\textwidth}X{0.15\textwidth}X{0.50\textwidth}
+.. table::
+
+   +---------------------------+-----------+-----------------------------------+
+   | Element                   | Type      | Description                       |
+   +===========================+===========+===================================+
+   | CreateBucketConfiguration | container | Container for bucket              |
+   |                           |           | configuration settings            |
+   +---------------------------+-----------+-----------------------------------+
+   | LocationConstraint        | enum      | Specifies where the bucket will   |
+   |                           |           | be created                        |
+   +---------------------------+-----------+-----------------------------------+
 
 Responses
 ---------

@@ -34,56 +34,59 @@ Requests
 The List Parts operation’s GET implementation uses fixed parameters to
 return a subset of a bucket’s objects.
 
-+-----------------------+-----------------------+-----------------------+
-| Parameter             | Type                  | Description           |
-+=======================+=======================+=======================+
-| encoding-type         | string                | Requests that         |
-|                       |                       | Zenko Enterprise      |
-|                       |                       | encode the response   |
-|                       |                       | and specifies the     |
-|                       |                       | encoding method to    |
-|                       |                       | use. An object key    |
-|                       |                       | can contain any       |
-|                       |                       | Unicode character;    |
-|                       |                       | however, XML 1.0      |
-|                       |                       | parser cannot parse   |
-|                       |                       | some characters, such |
-|                       |                       | as characters with an |
-|                       |                       | ASCII value from 0 to |
-|                       |                       | 10. For characters    |
-|                       |                       | that are not          |
-|                       |                       | supported in XML 1.0, |
-|                       |                       | you can add this      |
-|                       |                       | parameter to request  |
-|                       |                       | that Zenko Enterprise |
-|                       |                       | encode the keys       |
-|                       |                       | in the response.      |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-+-----------------------+-----------------------+-----------------------+
-| uploadID              | string                | Upload ID identifying |
-|                       |                       | the multipart upload  |
-|                       |                       | whose parts are being |
-|                       |                       | listed                |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-+-----------------------+-----------------------+-----------------------+
-| max-parts             | string                | Sets the maximum      |
-|                       |                       | number of parts to    |
-|                       |                       | return in the         |
-|                       |                       | response body         |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-+-----------------------+-----------------------+-----------------------+
-| part-number-marker    | string                | Specifies the part    |
-|                       |                       | after which listing   |
-|                       |                       | should begin. Only    |
-|                       |                       | parts with higher     |
-|                       |                       | part numbers will be  |
-|                       |                       | listed.               |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: X{0.20\textwidth}X{0.10\textwidth}X{0.65\textwidth}
+.. table::
+
+   +-----------------------+-----------------------+-----------------------+
+   | Parameter             | Type                  | Description           |
+   +=======================+=======================+=======================+
+   | encoding-type         | string                | Requests that         |
+   |                       |                       | Zenko Enterprise      |
+   |                       |                       | encode the response   |
+   |                       |                       | and specifies the     |
+   |                       |                       | encoding method to    |
+   |                       |                       | use. An object key    |
+   |                       |                       | can contain any       |
+   |                       |                       | Unicode character;    |
+   |                       |                       | however, XML 1.0      |
+   |                       |                       | parser cannot parse   |
+   |                       |                       | some characters, such |
+   |                       |                       | as characters with an |
+   |                       |                       | ASCII value from 0 to |
+   |                       |                       | 10. For characters    |
+   |                       |                       | that are not          |
+   |                       |                       | supported in XML 1.0, |
+   |                       |                       | you can add this      |
+   |                       |                       | parameter to request  |
+   |                       |                       | that Zenko Enterprise |
+   |                       |                       | encode the keys       |
+   |                       |                       | in the response.      |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   +-----------------------+-----------------------+-----------------------+
+   | uploadID              | string                | Upload ID identifying |
+   |                       |                       | the multipart upload  |
+   |                       |                       | whose parts are being |
+   |                       |                       | listed                |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   +-----------------------+-----------------------+-----------------------+
+   | max-parts             | string                | Sets the maximum      |
+   |                       |                       | number of parts to    |
+   |                       |                       | return in the         |
+   |                       |                       | response body         |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   +-----------------------+-----------------------+-----------------------+
+   | part-number-marker    | string                | Specifies the part    |
+   |                       |                       | after which listing   |
+   |                       |                       | should begin. Only    |
+   |                       |                       | parts with higher     |
+   |                       |                       | part numbers will be  |
+   |                       |                       | listed.               |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   +-----------------------+-----------------------+-----------------------+
 
 **Request Headers**
 
@@ -104,111 +107,111 @@ by Zenko Enterprise (refer to :ref:`Common Response Headers`).
 
 **Response Elements**
 
-The List Parts operation can return the following XML elements of the
+The List Parts operation can return the following XML elements of the
 response (includes XML containers):
 
-+-----------------------+-----------------------+-----------------------+
-| Element               | Type                  | Description           |
-+=======================+=======================+=======================+
-| ListPartsResult       | container             | Container for the     |
-|                       |                       | response              |
-+-----------------------+-----------------------+-----------------------+
-| Bucket                | string                | Name of the bucket to |
-|                       |                       | which the multipart   |
-|                       |                       | upload was initiated  |
-+-----------------------+-----------------------+-----------------------+
-| Encoding-Type         | string                | Encoding type used by |
-|                       |                       | Zenko Enterprise      |
-|                       |                       | to encode object key  |
-|                       |                       | names in the XML      |
-|                       |                       | response              |
-|                       |                       |                       |
-|                       |                       | If                    |
-|                       |                       | the encoding-type     |
-|                       |                       | request               |
-|                       |                       | parameter is          |
-|                       |                       | specified, S3         |
-|                       |                       | Connector includes    |
-|                       |                       | this element in the   |
-|                       |                       | response, and returns |
-|                       |                       | encoded key name      |
-|                       |                       | values in             |
-|                       |                       | the Key element.      |
-+-----------------------+-----------------------+-----------------------+
-| Key                   | string                | Object key for which  |
-|                       |                       | the multipart upload  |
-|                       |                       | was initiated         |
-+-----------------------+-----------------------+-----------------------+
-| UploadId              | string                | Upload ID identifying |
-|                       |                       | the multipart upload  |
-|                       |                       | whose parts are being |
-|                       |                       | listed                |
-+-----------------------+-----------------------+-----------------------+
-| Initiator             | container             | Container element     |
-|                       |                       | that identifies who   |
-|                       |                       | initiated the         |
-|                       |                       | multipart upload      |
-+-----------------------+-----------------------+-----------------------+
-| ID                    | string                | User ID               |
-+-----------------------+-----------------------+-----------------------+
-| DisplayName           | string                | Principal’s name      |
-+-----------------------+-----------------------+-----------------------+
-| Owner                 | container             | Container element     |
-|                       |                       | that identifies the   |
-|                       |                       | object owner, after   |
-|                       |                       | the object is created |
-+-----------------------+-----------------------+-----------------------+
-| PartNumberMarker      | integer               | Part number after     |
-|                       |                       | which listing begins  |
-+-----------------------+-----------------------+-----------------------+
-| NextPartNumberMarker  | integer               | When a list is        |
-|                       |                       | truncated, this       |
-|                       |                       | element specifies the |
-|                       |                       | last part in the      |
-|                       |                       | list, as well as the  |
-|                       |                       | value to use for      |
-|                       |                       | the part-number-marke |
-|                       |                       | r request             |
-|                       |                       | parameter in a        |
-|                       |                       | subsequent request.   |
-+-----------------------+-----------------------+-----------------------+
-| MaxParts              | integer               | Maximum number of     |
-|                       |                       | parts allowed in the  |
-|                       |                       | response              |
-+-----------------------+-----------------------+-----------------------+
-| IsTruncated           | Boolean               | Indicates whether the |
-|                       |                       | returned list of      |
-|                       |                       | parts is truncated.   |
-|                       |                       | A true value          |
-|                       |                       | indicates that the    |
-|                       |                       | list was truncated. A |
-|                       |                       | list can be truncated |
-|                       |                       | if the number of      |
-|                       |                       | parts exceeds the     |
-|                       |                       | limit returned in     |
-|                       |                       | the MaxParts element. |
-+-----------------------+-----------------------+-----------------------+
-| Part                  | string                | Container for         |
-|                       |                       | elements related to a |
-|                       |                       | particular part. A    |
-|                       |                       | response can contain  |
-|                       |                       | zero or more          |
-|                       |                       | Part elements.        |
-+-----------------------+-----------------------+-----------------------+
-| PartNumber            | integer               | Part number           |
-|                       |                       | identifying the part  |
-+-----------------------+-----------------------+-----------------------+
-| LastModified          | date                  | Date and time at      |
-|                       |                       | which the part was    |
-|                       |                       | uploaded              |
-+-----------------------+-----------------------+-----------------------+
-| ETag                  | string                | Entity tag returned   |
-|                       |                       | when the part was     |
-|                       |                       | uploaded              |
-+-----------------------+-----------------------+-----------------------+
-| Size                  | integer               | Size of the uploaded  |
-|                       |                       | part data             |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: X{0.25\textwidth}X{0.10\textwidth}X{0.60\textwidth}
+.. table::
+
+   +-----------------------+-----------------------+-----------------------+
+   | Element               | Type                  | Description           |
+   +=======================+=======================+=======================+
+   | ListPartsResult       | container             | Container for the     |
+   |                       |                       | response              |
+   +-----------------------+-----------------------+-----------------------+
+   | Bucket                | string                | Name of the bucket to |
+   |                       |                       | which the multipart   |
+   |                       |                       | upload was initiated  |
+   +-----------------------+-----------------------+-----------------------+
+   | Encoding-Type         | string                | Encoding type used by |
+   |                       |                       | Zenko Enterprise      |
+   |                       |                       | to encode object key  |
+   |                       |                       | names in the XML      |
+   |                       |                       | response              |
+   |                       |                       |                       |
+   |                       |                       | If the encoding-type  |
+   |                       |                       | request parameter is  |
+   |                       |                       | specified, S3         |
+   |                       |                       | Connector includes    |
+   |                       |                       | this element in the   |
+   |                       |                       | response, and returns |
+   |                       |                       | encoded key name      |
+   |                       |                       | values in             |
+   |                       |                       | the Key element.      |
+   +-----------------------+-----------------------+-----------------------+
+   | Key                   | string                | Object key for which  |
+   |                       |                       | the multipart upload  |
+   |                       |                       | was initiated         |
+   +-----------------------+-----------------------+-----------------------+
+   | UploadId              | string                | Upload ID identifying |
+   |                       |                       | the multipart upload  |
+   |                       |                       | whose parts are being |
+   |                       |                       | listed                |
+   +-----------------------+-----------------------+-----------------------+
+   | Initiator             | container             | Container element     |
+   |                       |                       | that identifies who   |
+   |                       |                       | initiated the         |
+   |                       |                       | multipart upload      |
+   +-----------------------+-----------------------+-----------------------+
+   | ID                    | string                | User ID               |
+   +-----------------------+-----------------------+-----------------------+
+   | DisplayName           | string                | Principal’s name      |
+   +-----------------------+-----------------------+-----------------------+
+   | Owner                 | container             | Container element     |
+   |                       |                       | that identifies the   |
+   |                       |                       | object owner, after   |
+   |                       |                       | the object is created |
+   +-----------------------+-----------------------+-----------------------+
+   | PartNumberMarker      | integer               | Part number after     |
+   |                       |                       | which listing begins  |
+   +-----------------------+-----------------------+-----------------------+
+   | NextPartNumberMarker  | integer               | When a list is        |
+   |                       |                       | truncated, this       |
+   |                       |                       | element specifies the |
+   |                       |                       | last part in the      |
+   |                       |                       | list, as well as the  |
+   |                       |                       | value to use for the  |
+   |                       |                       | part-number-marker    |
+   |                       |                       | request parameter in  |  
+   |                       |                       | a subsequent request. |
+   +-----------------------+-----------------------+-----------------------+
+   | MaxParts              | integer               | Maximum number of     |
+   |                       |                       | parts allowed in the  |
+   |                       |                       | response              |
+   +-----------------------+-----------------------+-----------------------+
+   | IsTruncated           | Boolean               | Indicates whether the |
+   |                       |                       | returned list of      |
+   |                       |                       | parts is truncated.   |
+   |                       |                       | A “true” value        |
+   |                       |                       | indicates that the    |
+   |                       |                       | list was truncated. A |
+   |                       |                       | list can be truncated |
+   |                       |                       | if the number of      |
+   |                       |                       | parts exceeds the     |
+   |                       |                       | limit returned in     |
+   |                       |                       | the MaxParts element. |
+   +-----------------------+-----------------------+-----------------------+
+   | Part                  | string                | Container for         |
+   |                       |                       | elements related to a |
+   |                       |                       | particular part. A    |
+   |                       |                       | response can contain  |
+   |                       |                       | zero or more          |
+   |                       |                       | Part elements.        |
+   +-----------------------+-----------------------+-----------------------+
+   | PartNumber            | integer               | Part number           |
+   |                       |                       | identifying the part  |
+   +-----------------------+-----------------------+-----------------------+
+   | LastModified          | date                  | Date and time at      |
+   |                       |                       | which the part was    |
+   |                       |                       | uploaded              |
+   +-----------------------+-----------------------+-----------------------+
+   | ETag                  | string                | Entity tag returned   |
+   |                       |                       | when the part was     |
+   |                       |                       | uploaded              |
+   +-----------------------+-----------------------+-----------------------+
+   | Size                  | integer               | Size of the uploaded  |
+   |                       |                       | part data             |
+   +-----------------------+-----------------------+-----------------------+
 
 Examples
 --------

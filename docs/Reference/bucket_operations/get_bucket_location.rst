@@ -49,27 +49,29 @@ headers that are common to all operations (refer to :ref:`Common Response Header
 
 **Response Elements**
 
-The GET Bucket Location operation can return the following XML elements
+The GET Bucket Location operation can return the following XML elements
 in the response:
 
-+-----------------------+-----------------------+-----------------------+
-| Element               | Type                  | Description           |
-+=======================+=======================+=======================+
-| LocationConstraint    | String                | Specifies the         |
-|                       |                       | location of the       |
-|                       |                       | bucket. The           |
-|                       |                       | LocationConstraint    |
-|                       |                       | parameter is          |
-|                       |                       | configured in the     |
-|                       |                       | env_s3 setting of the |
-|                       |                       | S3 Configuration. For |
-|                       |                       | more information,     |
-|                       |                       | refer to “Modifying   |
-|                       |                       | the Group Variables   |
-|                       |                       | (all) File” in        |
-|                       |                       | Zenko Enterprise      |
-|                       |                       | Installation.         |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: X{0.20\textwidth}X{0.10\textwidth}X{0.65\textwidth}
+.. table::
+   
+   +-----------------------+-----------------------+-----------------------+
+   | Element               | Type                  | Description           |
+   +=======================+=======================+=======================+
+   | LocationConstraint    | String                | Specifies the         |
+   |                       |                       | location of the       |
+   |                       |                       | bucket. The           |
+   |                       |                       | LocationConstraint    |
+   |                       |                       | parameter is          |
+   |                       |                       | configured in the     |
+   |                       |                       | env_s3 setting of the |
+   |                       |                       | S3 Configuration. For |
+   |                       |                       | more information,     |
+   |                       |                       | refer to “Modifying   |
+   |                       |                       | the Group Variables   |
+   |                       |                       | (all) File” in        |
+   |                       |                       | Zenko Installation.   |
+   +-----------------------+-----------------------+-----------------------+
 
 Examples
 --------

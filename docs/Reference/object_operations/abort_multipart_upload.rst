@@ -61,15 +61,18 @@ The Abort Multipart Upload operation does not return response elements.
 
 **Special Errors**
 
-+-----------------------------------+-----------------------------------+
-| Error                             | Description                       |
-+===================================+===================================+
-| NoSuchUpload error (HTTP 404 Not  | Occurs when an invalid upload ID  |
-| Found status code)                | is provided in the Upload Part    |
-|                                   | request, or when a multipart      |
-|                                   | upload has already been either    |
-|                                   | completed or aborted.             |
-+-----------------------------------+-----------------------------------+
+.. tabularcolumns:: X{0.35\textwidth}X{0.60\textwidth}
+.. table::
+
+   +----------------------------------+-----------------------------------+
+   | Error                            | Description                       |
+   +==================================+===================================+
+   | NoSuchUpload error               | Occurs when an invalid upload ID  |
+   | (HTTP 404 NotFound status code)  | is provided in the Upload Part    |
+   |                                  | request, or when a multipart      |
+   |                                  | upload has already been either    |
+   |                                  | completed or aborted.             |
+   +----------------------------------+-----------------------------------+
 
 Examples
 --------

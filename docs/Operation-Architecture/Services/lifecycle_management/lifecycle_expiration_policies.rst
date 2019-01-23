@@ -28,8 +28,7 @@ all backup clouds.
 
 To configure bucket lifecycle, follow the AWS S3 Lifecycle Configuration
 Element syntax described in
-`https://docs.aws.amazon.com/AmazonS3/latest/dev/intro-lifecycle-rules.html
-<https://docs.aws.amazon.com/AmazonS3/latest/dev/intro-lifecycle-rules.html>`__.
+`https://docs.aws.amazon.com/AmazonS3/latest/dev/intro-lifecycle-rules.html <https://docs.aws.amazon.com/AmazonS3/latest/dev/intro-lifecycle-rules.html>`__.
 
 .. note::
 

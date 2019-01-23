@@ -22,4 +22,7 @@ when an object expires it sends instructions through Kafka topics
 instructing Lifecycle to delete the relevant objects, using the
 CloudServer API.
 
+.. toctree::
+   :maxdepth: 1
 
+   Lifecycle Expiration Policies<lifecycle_expiration_policies>

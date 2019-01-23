@@ -30,7 +30,7 @@ Requests
 
 **Request Parameters**
 
-The DELETE Object operation does not use Request Parameters.
+The DELETE Object operation does not use Request Parameters.
 
 **Request Headers**
 
@@ -39,50 +39,53 @@ that are common to all operations (refer to :ref:`Common Request Headers`).
 
 **Request Elements**
 
-The DELETE Object operation does not use request elements.
+The DELETE Object operation does not use request elements.
 
 Responses
 ---------
 
 **Response Headers**
 
-Implementation of the DELETE Object operation can include the following
+Implementation of the DELETE Object operation can include the following
 response headers in addition to the response headers that are common to
 all operations (refer to :ref:`Common Response Headers`).
 
-+-----------------------+-----------------------+-----------------------+
-| Header                | Type                  | Description           |
-+=======================+=======================+=======================+
-| x-amz-delete-marker   | Boolean               | Valid Values:         |
-|                       |                       | ``true`` \| ``false`` |
-|                       |                       |                       |
-|                       |                       | Returns ``true`` if a |
-|                       |                       | delete marker was     |
-|                       |                       | created by the delete |
-|                       |                       | operation. If a       |
-|                       |                       | specific version was  |
-|                       |                       | deleted, returns      |
-|                       |                       | ``true`` if the       |
-|                       |                       | deleted version was a |
-|                       |                       | delete marker.        |
-|                       |                       |                       |
-|                       |                       | Default: ``false``    |
-+-----------------------+-----------------------+-----------------------+
-| x-amz-version-id      | string                | Returns the version   |
-|                       |                       | ID of the delete      |
-|                       |                       | marker created as a   |
-|                       |                       | result of the DELETE  |
-|                       |                       | operation. If a       |
-|                       |                       | specific object       |
-|                       |                       | version is deleted,   |
-|                       |                       | the value returned by |
-|                       |                       | this header is the    |
-|                       |                       | version ID of the     |
-|                       |                       | object version        |
-|                       |                       | deleted.              |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: X{0.25\textwidth}X{0.10\textwidth}X{0.60\textwidth}
+.. table::
+ 
+   +-----------------------+-----------------------+-----------------------+
+   | Header                | Type                  | Description           |
+   +=======================+=======================+=======================+
+   | x-amz-delete-marker   | Boolean               | Valid Values:         |
+   |                       |                       | ``true`` \| ``false`` |
+   |                       |                       |                       |
+   |                       |                       | Returns ``true`` if a |
+   |                       |                       | delete marker was     |
+   |                       |                       | created by the delete |
+   |                       |                       | operation. If a       |
+   |                       |                       | specific version was  |
+   |                       |                       | deleted, returns      |
+   |                       |                       | ``true`` if the       |
+   |                       |                       | deleted version was a |
+   |                       |                       | delete marker.        |
+   |                       |                       |                       |
+   |                       |                       | Default: ``false``    |
+   +-----------------------+-----------------------+-----------------------+
+   | x-amz-version-id      | string                | Returns the version   |
+   |                       |                       | ID of the delete      |
+   |                       |                       | marker created as a   |
+   |                       |                       | result of the DELETE  |
+   |                       |                       | operation. If a       |
+   |                       |                       | specific object       |
+   |                       |                       | version is deleted,   |
+   |                       |                       | the value returned by |
+   |                       |                       | this header is the    |
+   |                       |                       | version ID of the     |
+   |                       |                       | object version        |
+   |                       |                       | deleted.              |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   +-----------------------+-----------------------+-----------------------+
 
 **Response Elements**
 

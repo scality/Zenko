@@ -35,9 +35,10 @@ replicates the expiration to all backup clouds.
 
 To configure bucket lifecycle, follow the AWS S3 Lifecycle Configuration
 Element syntax described in
-`https://docs.aws.amazon.com/AmazonS3/latest/dev/intro-lifecycle-rules.html. <https://docs.aws.amazon.com/AmazonS3/latest/dev/intro-lifecycle-rules.html>`__
+`https://docs.aws.amazon.com/AmazonS3/latest/dev/intro-lifecycle-rules.html
+<https://docs.aws.amazon.com/AmazonS3/latest/dev/intro-lifecycle-rules.html>`__.
 
-Zenko API Calls
+Zenko API Calls
 ---------------
 
 The Zenko API provides three calls to manage lifecycle properties per
@@ -58,8 +59,8 @@ which are stored as part of bucket metadata.
 Setting Up Using the AWS s3api CLI
 ----------------------------------
 
-See `https://docs.aws.amazon.com/AmazonS3/latest/dev/life
-cycle-configuration-examples.html <https://docs.aws.amazon.com/AmazonS3/latest/dev/lifecycle-configuration-examples.html>`__
+See `https://docs.aws.amazon.com/AmazonS3/latest/dev/lifecycle-configuration-examples.html 
+<https://docs.aws.amazon.com/AmazonS3/latest/dev/lifecycle-configuration-examples.html>`__
 for more examples and explanations on lifecycle rules.
 
 #. Create a JSON file defining the bucket lifecycle rules (see
@@ -87,8 +88,3 @@ for more examples and explanations on lifecycle rules.
 Once the lifecycle rules on the bucket are set, the rules apply to all
 objects in the specified bucket.
 
-.. toctree::
-  :maxdepth: 1
-  :hidden:
-
-  lifecycle_expiration_policies

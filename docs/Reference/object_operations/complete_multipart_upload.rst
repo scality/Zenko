@@ -60,24 +60,23 @@ that are common to all operations (refer to :ref:`Common Request Headers`).
 
 **Request Elements**
 
-+-----------------------+-----------------------+-----------------------+
-| Element               | Type                  | Description           |
-+=======================+=======================+=======================+
-| CompleteMultipartUplo | container             | Container for the     |
-| ad                    |                       | request               |
-+-----------------------+-----------------------+-----------------------+
-| Part                  | container             | Container for         |
-|                       |                       | elements related to a |
-|                       |                       | particular previously |
-|                       |                       | uploaded part         |
-+-----------------------+-----------------------+-----------------------+
-| PartNumber            | integer               | Part number that      |
-|                       |                       | identifies the part   |
-+-----------------------+-----------------------+-----------------------+
-| ETag                  | string                | Entity tag returned   |
-|                       |                       | when the part was     |
-|                       |                       | uploaded              |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: X{0.30\textwidth}X{0.15\textwidth}X{0.50\textwidth}
+.. table::
+
+   +-------------------------+-----------+-------------------------------------+
+   | Element                 | Type      | Description                         |
+   +=========================+===========+=====================================+
+   | CompleteMultipartUpload | container | Container for the request           |
+   +-------------------------+-----------+-------------------------------------+
+   | Part                    | container | Container for elements related to a |
+   |                         |           | particular previously uploaded part |
+   +-------------------------+-----------+-------------------------------------+
+   | PartNumber              | integer   | Part number that identifies the     |
+   |                         |           | part                                |
+   +-------------------------+-----------+-------------------------------------+
+   | ETag                    | string    | Entity tag returned when the part   |
+   |                         |           | was uploaded                        |
+   +-------------------------+-----------+-------------------------------------+
 
 Responses
 ---------
@@ -88,87 +87,84 @@ Implementation of the Complete Multipart Upload operation can include
 the following response header in addition to the response headers common
 to all responses (refer to :ref:`Common Response Headers`).
 
-+-----------------------+-----------------------+-----------------------+
-| Header                | Type                  | Description           |
-+=======================+=======================+=======================+
-| x-amz-version-id      | string                | Returns the version   |
-|                       |                       | ID of the retrieved   |
-|                       |                       | object if it has a    |
-|                       |                       | unique version ID     |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: X{0.20\textwidth}X{0.10\textwidth}X{0.65\textwidth}
+.. table::
+
+   +-----------------------+-----------------------+-----------------------+
+   | Header                | Type                  | Description           |
+   +=======================+=======================+=======================+
+   | x-amz-version-id      | string                | Returns the version   |
+   |                       |                       | ID of the retrieved   |
+   |                       |                       | object if it has a    |
+   |                       |                       | unique version ID     |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   +-----------------------+-----------------------+-----------------------+
 
 **Response Elements**
 
 The Complete Multipart Upload operation can return the following
-XML elements of the response (includes XML containers):
+XML elements of the response (includes XML containers):
 
-+-----------------------+-----------------------+-----------------------+
-| Element               | Type                  | Description           |
-+=======================+=======================+=======================+
-| CompleteMultipartUplo | container             | Container for the     |
-| adResult              |                       | response              |
-+-----------------------+-----------------------+-----------------------+
-| Location              | URI                   | The URI that          |
-|                       |                       | identifies the newly  |
-|                       |                       | created object        |
-+-----------------------+-----------------------+-----------------------+
-| Bucket                | string                | The name of the       |
-|                       |                       | bucket that contains  |
-|                       |                       | the newly created     |
-|                       |                       | object                |
-+-----------------------+-----------------------+-----------------------+
-| Key                   | string                | The object key of the |
-|                       |                       | newly created object  |
-+-----------------------+-----------------------+-----------------------+
-| ETag                  | string                | Entity tag that       |
-|                       |                       | identifies the newly  |
-|                       |                       | created object’s      |
-|                       |                       | data. Objects with    |
-|                       |                       | different object data |
-|                       |                       | will have different   |
-|                       |                       | entity tags. The      |
-|                       |                       | entity tag is an      |
-|                       |                       | opaque string. The    |
-|                       |                       | entity tag may or may |
-|                       |                       | not be an MD5 digest  |
-|                       |                       | of the object data.   |
-|                       |                       | If the entity tag is  |
-|                       |                       | not an MD5 digest of  |
-|                       |                       | the object data, it   |
-|                       |                       | will contain one or   |
-|                       |                       | more nonhexadecimal   |
-|                       |                       | characters and/or     |
-|                       |                       | will consist of less  |
-|                       |                       | than 32 or more than  |
-|                       |                       | 32 hexadecimal        |
-|                       |                       | digits.               |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: X{0.35\textwidth}X{0.10\textwidth}X{0.50\textwidth}
+.. table::
+
+   +---------------------------+-----------+-----------------------------------+
+   | Element                   | Type      | Description                       |
+   +===========================+===========+===================================+
+   | CompleteMultipartUpload\  | container | Container for the response        |
+   | Result                    |           |                                   |
+   +---------------------------+-----------+-----------------------------------+
+   | Location                  | URI       | The URI that identifies the newly |
+   |                           |           | created object                    | 
+   +---------------------------+-----------+-----------------------------------+
+   | Bucket                    | string    | The name of the bucket that       |
+   |                           |           | contains the newly created object |
+   +---------------------------+-----------+-----------------------------------+
+   | Key                       | string    | The object key of the newly       |
+   |                           |           | created object                    |
+   +---------------------------+-----------+-----------------------------------+
+   | ETag                      | string    | Entity tag that identifies the    |
+   |                           |           | newly created object’s data.      |
+   |                           |           | Objects with different object     |
+   |                           |           | data will have different entity   |
+   |                           |           | tags. The entity tag is an opaque |
+   |                           |           | string. The entity tag may or may |
+   |                           |           | not be an MD5 digest of the       |
+   |                           |           | object data. If the entity tag is |
+   |                           |           | not an MD5 digest of the object   |
+   |                           |           | data, it will contain one or more |
+   |                           |           | non-hexadecimal characters and/or |
+   |                           |           | will consist of less than 32 or   |
+   |                           |           | more than 32 hexadecimal digits.  |
+   +---------------------------+-----------+-----------------------------------+
 
 **Special Errors**
 
-+-----------------------------------+-----------------------------------+
-| Error                             | Description                       |
-+===================================+===================================+
-| EntityTooSmall (HTTP 400 Bad      | Occurs when an a proposed upload  |
-| Request status code)              | is smaller than the minimum       |
-|                                   | allowed object size. Each part    |
-|                                   | must be at least 5MB in size,     |
-|                                   | except the last part.             |
-+-----------------------------------+-----------------------------------+
-| invalidPart (HTTP 400 Bad Request | One or more of the specified      |
-| status code)                      | parts could not be found          |
-+-----------------------------------+-----------------------------------+
-| invalidPartOrder (HTTP 400 Bad    | The parts were not listed in      |
-| Request status code)              | ascending order                   |
-+-----------------------------------+-----------------------------------+
-| NoSuchUpload error (HTTP 404 Not  | Occurs when an invalid upload ID  |
-| Found status code)                | is provided in the Upload Part    |
-|                                   | request, or when a multipart      |
-|                                   | upload has already been either    |
-|                                   | completed or aborted.             |
-+-----------------------------------+-----------------------------------+
+.. tabularcolumns:: X{0.45\textwidth}X{0.50\textwidth}
+.. table::
+
+   +-----------------------------------+-----------------------------------+
+   | Error                             | Description                       |
+   +===================================+===================================+
+   | EntityTooSmall (HTTP 400 Bad      | Occurs when an a proposed upload  |
+   | Request status code)              | is smaller than the minimum       |
+   |                                   | allowed object size. Each part    |
+   |                                   | must be at least 5MB in size,     |
+   |                                   | except the last part.             |
+   +-----------------------------------+-----------------------------------+
+   | invalidPart (HTTP 400 Bad Request | One or more of the specified      |
+   | status code)                      | parts could not be found          |
+   +-----------------------------------+-----------------------------------+
+   | invalidPartOrder (HTTP 400 Bad    | The parts were not listed in      |
+   | Request status code)              | ascending order                   |
+   +-----------------------------------+-----------------------------------+
+   | NoSuchUpload error (HTTP 404 Not  | Occurs when an invalid upload ID  |
+   | Found status code)                | is provided in the Upload Part    |
+   |                                   | request, or when a multipart      |
+   |                                   | upload has already been either    |
+   |                                   | completed or aborted.             |
+   +-----------------------------------+-----------------------------------+
 
 Examples
 --------

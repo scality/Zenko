@@ -13,18 +13,21 @@ The Sandbox is a great place to learn how Orbit will help you manage
 your data. To set up a Sandbox instance:
 
 #. Open `https://Zenko.io <https://zenko.io/>`__, and click **Try
-   Zenko** |image0|
+   Zenko** 
+
+   |image0|
+
 #. The Welcome dialog displays:
 
-   |image1|  
+   |image1|
 
    Click **Install now**.
 
-#. The REGISTER AN INSTANCE screen displays:
+#. The REGISTER AN INSTANCE screen displays:
 
-   |image2| 
+   |image2|
 
-   Choose the Sandbox option (**Next: Let's do this!**)
+   Choose the Sandbox option (**Next: Let's do this!**)
 
 #. The **Last Step: Create Your Zenko Sandbox** screen displays:
 

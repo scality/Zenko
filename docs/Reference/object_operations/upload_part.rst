@@ -49,67 +49,70 @@ The Upload Part operation can use a number of optional request headers
 in addition to those that are common to all operations (refer to :ref:`Common
 Request Headers`).
 
-+-----------------------+-----------------------+-----------------------+
-| Header                | Type                  | Description           |
-+=======================+=======================+=======================+
-| Content-Length        | integer               | The size of the       |
-|                       |                       | object, in bytes      |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-|                       |                       |                       |
-|                       |                       | Constraints: None     |
-+-----------------------+-----------------------+-----------------------+
-| Content-MD5           | string                | The base64-encoded    |
-|                       |                       | 128-bit MD5 digest of |
-|                       |                       | the message (without  |
-|                       |                       | the headers)          |
-|                       |                       | according to RFC      |
-|                       |                       | 1864. This header can |
-|                       |                       | be used as a message  |
-|                       |                       | integrity check to    |
-|                       |                       | verify that the data  |
-|                       |                       | is the same data that |
-|                       |                       | was originally sent.  |
-|                       |                       | Although it is        |
-|                       |                       | optional, the use of  |
-|                       |                       | the Content-MD5       |
-|                       |                       | mechanism is          |
-|                       |                       | recommended as an     |
-|                       |                       | end-to-end integrity  |
-|                       |                       | check.                |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-|                       |                       |                       |
-|                       |                       | Constraints: None     |
-+-----------------------+-----------------------+-----------------------+
-| Expect                | string                | When your application |
-|                       |                       | uses                  |
-|                       |                       | ``100-continue``, it  |
-|                       |                       | does not send the     |
-|                       |                       | request body until it |
-|                       |                       | receives an           |
-|                       |                       | acknowledgment. If    |
-|                       |                       | the message is        |
-|                       |                       | rejected based on the |
-|                       |                       | headers, the body of  |
-|                       |                       | the message is not    |
-|                       |                       | sent.                 |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-|                       |                       |                       |
-|                       |                       | Valid Values:         |
-|                       |                       | ``100-continue``      |
-|                       |                       |                       |
-|                       |                       | Constraints: None     |
-+-----------------------+-----------------------+-----------------------+
-| Expires               | string                | The date and time at  |
-|                       |                       | which the object is   |
-|                       |                       | no longer cacheable.  |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-|                       |                       |                       |
-|                       |                       | Constraints: None     |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: X{0.20\textwidth}X{0.10\textwidth}X{0.65\textwidth}
+.. table::
+
+   +-----------------------+-----------------------+-----------------------+
+   | Header                | Type                  | Description           |
+   +=======================+=======================+=======================+
+   | Content-Length        | integer               | The size of the       |
+   |                       |                       | object, in bytes      |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   |                       |                       |                       |
+   |                       |                       | Constraints: None     |
+   +-----------------------+-----------------------+-----------------------+
+   | Content-MD5           | string                | The base64-encoded    |
+   |                       |                       | 128-bit MD5 digest of |
+   |                       |                       | the message (without  |
+   |                       |                       | the headers)          |
+   |                       |                       | according to RFC      |
+   |                       |                       | 1864. This header can |
+   |                       |                       | be used as a message  |
+   |                       |                       | integrity check to    |
+   |                       |                       | verify that the data  |
+   |                       |                       | is the same data that |
+   |                       |                       | was originally sent.  |
+   |                       |                       | Although it is        |
+   |                       |                       | optional, the use of  |
+   |                       |                       | the Content-MD5       |
+   |                       |                       | mechanism is          |
+   |                       |                       | recommended as an     |
+   |                       |                       | end-to-end integrity  |
+   |                       |                       | check.                |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   |                       |                       |                       |
+   |                       |                       | Constraints: None     |
+   +-----------------------+-----------------------+-----------------------+
+   | Expect                | string                | When your application |
+   |                       |                       | uses                  |
+   |                       |                       | ``100-continue``, it  |
+   |                       |                       | does not send the     |
+   |                       |                       | request body until it |
+   |                       |                       | receives an           |
+   |                       |                       | acknowledgment. If    |
+   |                       |                       | the message is        |
+   |                       |                       | rejected based on the |
+   |                       |                       | headers, the body of  |
+   |                       |                       | the message is not    |
+   |                       |                       | sent.                 |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   |                       |                       |                       |
+   |                       |                       | Valid Values:         |
+   |                       |                       | ``100-continue``      |
+   |                       |                       |                       |
+   |                       |                       | Constraints: None     |
+   +-----------------------+-----------------------+-----------------------+
+   | Expires               | string                | The date and time at  |
+   |                       |                       | which the object is   |
+   |                       |                       | no longer cacheable.  |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   |                       |                       |                       |
+   |                       |                       | Constraints: None     |
+   +-----------------------+-----------------------+-----------------------+
 
 **Request Elements**
 
@@ -129,15 +132,18 @@ The Upload Part operation does not return response elements.
 
 **Special Errors**
 
-+-----------------------------------+-----------------------------------+
-| Error                             | Description                       |
-+===================================+===================================+
-| NoSuchUpload error                | Occurs when an invalid upload ID  |
-| (HTTP 404 Not Found status code)  | is provided in the Upload Part    |
-|                                   | request, or when a multipart      |
-|                                   | upload has already been either    |
-|                                   | completed or aborted.             |
-+-----------------------------------+-----------------------------------+
+.. tabularcolumns:: X{0.30\textwidth}X{0.65\textwidth}
+.. table::
+
+   +-----------------------------------+-----------------------------------+
+   | Error                             | Description                       |
+   +===================================+===================================+
+   | NoSuchUpload error                | Occurs when an invalid upload ID  |
+   | (HTTP 404 Not Found status code)  | is provided in the Upload Part    |
+   |                                   | request, or when a multipart      |
+   |                                   | upload has already been either    |
+   |                                   | completed or aborted.             |
+   +-----------------------------------+-----------------------------------+
 
 Examples
 --------

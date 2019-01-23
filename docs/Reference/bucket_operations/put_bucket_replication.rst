@@ -3,7 +3,7 @@
 PUT Bucket Replication
 ======================
 
-In a versioning-enabled bucket, The PUT Bucket Replication operation
+In a versioning-enabled bucket, The PUT Bucket Replication operation
 creates a new replication configuration, or replaces an existing one.
 
 Requests
@@ -29,24 +29,22 @@ The PUT Bucket Replication operation does not use Request Parameters.
 
 **Request Headers**
 
-+-----------------------+-----------------------+-----------------------+
-| Name                  | Type                  | Required              |
-+=======================+=======================+=======================+
-| Content-MD5           | The base64-encoded    | Yes                   |
-|                       | 128-bit MD5 digest of |                       |
-|                       | the data; must be     |                       |
-|                       | used as a message     |                       |
-|                       | integrity check to    |                       |
-|                       | verify that the       |                       |
-|                       | request body was not  |                       |
-|                       | corrupted in transit. |                       |
-|                       | For more information, |                       |
-|                       | go to RFC 1864.       |                       |
-|                       |                       |                       |
-|                       | Type: String          |                       |
-|                       |                       |                       |
-|                       | Default: None         |                       |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: X{0.15\textwidth}X{0.65\textwidth}X{0.15\textwidth}
+.. table::
+
+   +-------------+--------------------------------------------------+----------+
+   | Name        | Type                                             | Required |
+   +=============+==================================================+==========+
+   | Content-MD5 | The base64-encoded 128-bit MD5 digest of the     | Yes      |
+   |             | data; must be used as a message integrity check  |          |
+   |             | to verify that the request body was not          |          |
+   |             | corrupted in transit. For more information, see  |          |
+   |             | RFC 1864.                                        |          |
+   |             |                                                  |          |
+   |             | Type: String                                     |          |
+   |             |                                                  |          |
+   |             | Default: None                                    |          |
+   +-------------+--------------------------------------------------+----------+
 
 Request Body
 ~~~~~~~~~~~~
@@ -73,9 +71,9 @@ and replicate these objects into the target bucket.
            <ID>Rule-1</ID>
            <Status>rule-status</Status>
            <Prefix>key-prefix</Prefix>
-           <Destination>        
+           <Destination>
               <Bucket>arn:aws:s3:::bucket-name</Bucket>
-              <StorageClass>optional-destination-storage-class-override</StorageClass>          
+              <StorageClass>optional-destination-storage-class-override</StorageClass>
            </Destination>
        </Rule>
        <Rule>
@@ -88,158 +86,111 @@ and replicate these objects into the target bucket.
 The following table describes the XML elements in the replication
 configuration:
 
-+-----------------------+-----------------------+-----------------------+
-| Name                  | Type                  | Required              |
-+=======================+=======================+=======================+
-| ReplicationConfigurat | Container for         | Yes                   |
-| ion                   | replication rules. Up |                       |
-|                       | to 1,000 rules can be |                       |
-|                       | added. Total          |                       |
-|                       | replication           |                       |
-|                       | configuration size    |                       |
-|                       | can be up to 2 MB.    |                       |
-|                       |                       |                       |
-|                       | Type: Container       |                       |
-|                       |                       |                       |
-|                       | Children: Rule        |                       |
-|                       |                       |                       |
-|                       | Ancestor: None        |                       |
-+-----------------------+-----------------------+-----------------------+
-| Role                  | Amazon Resource Name  | Yes                   |
-|                       | (ARN) of an IAM role  |                       |
-|                       | for Amazon S3 to      |                       |
-|                       | assume when           |                       |
-|                       | replicating the       |                       |
-|                       | objects.              |                       |
-|                       |                       |                       |
-|                       | Type: String          |                       |
-|                       |                       |                       |
-|                       | Ancestor: Rule        |                       |
-+-----------------------+-----------------------+-----------------------+
-| Rule                  | Container for         | Yes                   |
-|                       | information about a   |                       |
-|                       | particular            |                       |
-|                       | replication rule.     |                       |
-|                       | Replication           |                       |
-|                       | configuration must    |                       |
-|                       | have at least one     |                       |
-|                       | rule and can contain  |                       |
-|                       | up to 1,000 rules.    |                       |
-|                       |                       |                       |
-|                       | Type: Container       |                       |
-|                       |                       |                       |
-|                       | Ancestor:             |                       |
-|                       | ReplicationConfigurat |                       |
-|                       | ion                   |                       |
-+-----------------------+-----------------------+-----------------------+
-| ID                    | Unique identifier for | No                    |
-|                       | the rule. The value   |                       |
-|                       | cannot be longer than |                       |
-|                       | 255 characters.       |                       |
-|                       |                       |                       |
-|                       | Type: String          |                       |
-|                       |                       |                       |
-|                       | Ancestor: Rule        |                       |
-+-----------------------+-----------------------+-----------------------+
-| Status                | The rule is ignored   | Yes                   |
-|                       | if status is not      |                       |
-|                       | Enabled.              |                       |
-|                       |                       |                       |
-|                       | Type: String          |                       |
-|                       |                       |                       |
-|                       | Ancestor: Rule        |                       |
-|                       |                       |                       |
-|                       | Valid values:         |                       |
-|                       | Enabled, Disabled.    |                       |
-+-----------------------+-----------------------+-----------------------+
-| Prefix                | Object keyname prefix | Yes                   |
-|                       | identifying one or    |                       |
-|                       | more objects to which |                       |
-|                       | the rule applies.     |                       |
-|                       | Maximum prefix length |                       |
-|                       | can be up to 1,024    |                       |
-|                       | characters.           |                       |
-|                       | Overlapping prefixes  |                       |
-|                       | are not supported.    |                       |
-|                       |                       |                       |
-|                       | Type: String          |                       |
-|                       |                       |                       |
-|                       | Ancestor: Rule        |                       |
-+-----------------------+-----------------------+-----------------------+
-| Destination           | Container for         | Yes                   |
-|                       | destination           |                       |
-|                       | information.          |                       |
-|                       |                       |                       |
-|                       | Type: Container       |                       |
-|                       |                       |                       |
-|                       | Ancestor: Rule        |                       |
-+-----------------------+-----------------------+-----------------------+
-| Bucket                | Amazon resource name  | Yes                   |
-|                       | (ARN) of the bucket   |                       |
-|                       | where Amazon S3 is to |                       |
-|                       | store replicas of the |                       |
-|                       | object identified by  |                       |
-|                       | the rule.             |                       |
-|                       |                       |                       |
-|                       | If there are multiple |                       |
-|                       | rules in the          |                       |
-|                       | replication           |                       |
-|                       | configuration, note   |                       |
-|                       | that all these rules  |                       |
-|                       | must specify the same |                       |
-|                       | bucket as the         |                       |
-|                       | destination. That is, |                       |
-|                       | replication           |                       |
-|                       | configuration can     |                       |
-|                       | replicate objects     |                       |
-|                       | only to one           |                       |
-|                       | destination bucket.   |                       |
-|                       |                       |                       |
-|                       | Type: String          |                       |
-|                       |                       |                       |
-|                       | Ancestor: Destination |                       |
-+-----------------------+-----------------------+-----------------------+
-| StorageClass          | Optional destination  | N                     |
-|                       | storage class         |                       |
-|                       | override to use when  |                       |
-|                       | replicating objects.  |                       |
-|                       | If not specified,     |                       |
-|                       | Amazon S3 uses the    |                       |
-|                       | storage class of the  |                       |
-|                       | source object to      |                       |
-|                       | create object         |                       |
-|                       | replica.              |                       |
-|                       | Type: String          |                       |
-|                       |                       |                       |
-|                       | Ancestor: Destination |                       |
-|                       |                       |                       |
-|                       | Default: Storage      |                       |
-|                       | class of the source   |                       |
-|                       | object.               |                       |
-|                       |                       |                       |
-|                       | Valid Values:         |                       |
-|                       | STANDARD \|           |                       |
-|                       | STANDARD_IA \|        |                       |
-|                       | REDUCED_REDUNDANCY    |                       |
-|                       |                       |                       |
-|                       | Constraints: GLACIER  |                       |
-|                       | cannot be specified   |                       |
-|                       | as the storage class, |                       |
-|                       | though objects can be |                       |
-|                       | transitioned to the   |                       |
-|                       | GLACIER storage class |                       |
-|                       | using lifecycle       |                       |
-|                       | configuration (refer  |                       |
-|                       | to `Object Lifecycle  |                       |
-|                       | Management <http://do |                       |
-|                       | cs.aws.amazon.com/Ama |                       |
-|                       | zonS3/latest/dev/obje |                       |
-|                       | ct-lifecycle-mgmt.htm |                       |
-|                       | l>`__                 |                       |
-|                       | in the Amazon Simple  |                       |
-|                       | Storage Service (S3)  |                       |
-|                       | documentation).       |                       |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: X{0.30\textwidth}X{0.55\textwidth}l
+.. table::
+   :class: longtable
+
+   +--------------------------+------------------------------------------------+----------+
+   | Name                     | Type                                           | Required |
+   +==========================+================================================+==========+
+   | ReplicationConfiguration | Container for replication rules. Up to 1,000   | Yes      |
+   |                          | rules can be added. Total replication          |          |
+   |                          | configuration size can be up to 2 MB.          |          |
+   |                          |                                                |          |
+   |                          | Type: Container                                |          |
+   |                          |                                                |          |
+   |                          | Children: Rule                                 |          |
+   |                          |                                                |          |
+   |                          | Ancestor: None                                 |          |
+   +--------------------------+------------------------------------------------+----------+
+   | Role                     | Amazon Resource Name (ARN) of an IAM role for  | Yes      |
+   |                          | Amazon S3 to assume when replicating the       |          |
+   |                          | objects.                                       |          |
+   |                          |                                                |          |
+   |                          | Type: String                                   |          |
+   |                          |                                                |          |
+   |                          | Ancestor: Rule                                 |          |
+   +--------------------------+------------------------------------------------+----------+
+   | Rule                     | Container for information about a particular   | Yes      |
+   |                          | replication rule. Replication configuration    |          |
+   |                          | must have at least one rule and can contain    |          |
+   |                          | up to 1,000 rules.                             |          |
+   |                          |                                                |          |
+   |                          | Type: Container                                |          |
+   |                          |                                                |          |
+   |                          | Ancestor: ReplicationConfiguration             |          |
+   +--------------------------+------------------------------------------------+----------+
+   | ID                       | Unique identifier for the rule. The value      | No       |
+   |                          | cannot be longer than 255 characters.          |          |
+   |                          |                                                |          |
+   |                          | Type: String                                   |          |
+   |                          |                                                |          |
+   |                          | Ancestor: Rule                                 |          |
+   +--------------------------+------------------------------------------------+----------+
+   | Status                   | The rule is ignored if status is not Enabled.  | Yes      |
+   |                          |                                                |          |
+   |                          | Type: String                                   |          |
+   |                          |                                                |          |
+   |                          | Ancestor: Rule                                 |          |
+   |                          |                                                |          |
+   |                          | Valid values: Enabled, Disabled                |          |
+   +--------------------------+------------------------------------------------+----------+
+   | Prefix                   | Object keyname prefix identifying one or more  | Yes      |
+   |                          | more objects to which the rule applies.        |          |
+   |                          |                                                |          |
+   |                          | Maximum prefix length can be up to 1,024       |          |
+   |                          | characters. Overlapping prefixes are not       |          |
+   |                          | supported.                                     |          |
+   |                          |                                                |          |
+   |                          | Type: String                                   |          |
+   |                          |                                                |          |
+   |                          | Ancestor: Rule                                 |          |
+   +--------------------------+------------------------------------------------+----------+
+   | Destination              | Container for destination information.         | Yes      |
+   |                          |                                                |          |
+   |                          | Type: Container                                |          |
+   |                          |                                                |          |
+   |                          | Ancestor: Rule                                 |          |
+   +--------------------------+------------------------------------------------+----------+
+   | Bucket                   | Amazon resource name (ARN) of the bucket where | Yes      |
+   |                          | Amazon S3 is to store replicas of the object   |          |
+   |                          | identified by the rule.                        |          |
+   |                          |                                                |          |
+   |                          | If there are multiple rules in the replication |          |
+   |                          | configuration, all these rules must specify    |          |
+   |                          | the same bucket as the destination. That is,   |          |
+   |                          | replication configuration can replicate        |          |
+   |                          | objects only to one destination bucket.        |          |
+   |                          |                                                |          |
+   |                          | Type: String                                   |          |
+   |                          |                                                |          |
+   |                          | Ancestor: Destination                          |          |
+   +--------------------------+------------------------------------------------+----------+
+   | StorageClass             | Optional destination storage class override to | No       |
+   |                          | use when replicating objects. If this element  |          | 
+   |                          | is not specified, Amazon S3 uses the storage   |          |
+   |                          | class of the source object to create object    |          |
+   |                          | replica.                                       |          |
+   |                          |                                                |          |
+   |                          | Type: String                                   |          |
+   |                          |                                                |          |
+   |                          | Ancestor: Destination                          |          |
+   |                          |                                                |          |
+   |                          | Default: Storage class of the source object.   |          |
+   |                          |                                                |          |
+   |                          | Valid Values: STANDARD \| STANDARD_IA \|       |          |
+   |                          | REDUCED_REDUNDANCY                             |          |
+   |                          |                                                |          |
+   |                          | Constraints: GLACIER cannot be specified as    |          |
+   |                          | the storage class, though objects can be       |          |
+   |                          | transitioned to the GLACIER storage class      |          |
+   |                          | using lifecycle configuration (see             |          |
+   |                          | `Object Lifecycle Management                   |          |
+   |                          | <http://docs.aws.amazon.com/AmazonS3/latest/   |          |
+   |                          | dev/object-lifecycle-mgmt.html>`__             |          |
+   |                          | in the Amazon Simple Storage Service (S3)      |          |
+   |                          | documentation).                                |          |
+   +--------------------------+------------------------------------------------+----------+
 
 **Response Headers**
 
@@ -250,7 +201,7 @@ common to most responses.
 
 This implementation of the operation does not return response elements.
 
-**Special Errors**
+**Special Errors**
 
 This implementation of the operation does not return special errors.
 

@@ -32,79 +32,83 @@ Requests
 The GET Bucket (List Objects) operation can use the following optional
 parameters to return a subset of objects in a bucket:
 
-+-----------------------+-----------------------+-----------------------+
-| Parameter             | Type                  | Description           |
-+=======================+=======================+=======================+
-| delimiter             | string                | Character used to     |
-|                       |                       | group keys            |
-|                       |                       |                       |
-|                       |                       | All keys that contain |
-|                       |                       | the same string       |
-|                       |                       | between the prefix,   |
-|                       |                       | if specified, and the |
-|                       |                       | first occurrence of   |
-|                       |                       | the delimiter after   |
-|                       |                       | the prefix are        |
-|                       |                       | grouped under a       |
-|                       |                       | single result         |
-|                       |                       | element,              |
-|                       |                       | CommonPrefixes. If    |
-|                       |                       | prefix is not         |
-|                       |                       | specified, then the   |
-|                       |                       | substring starts at   |
-|                       |                       | the beginning of the  |
-|                       |                       | key. The keys that    |
-|                       |                       | are grouped under     |
-|                       |                       | CommonPrefixes result |
-|                       |                       | element are not       |
-|                       |                       | returned elsewhere in |
-|                       |                       | the response.         |
-+-----------------------+-----------------------+-----------------------+
-| encoding-type         | string                | Encodes keys with the |
-|                       |                       | method specified.     |
-|                       |                       | Since XML 1.0 parsers |
-|                       |                       | cannot parse certain  |
-|                       |                       | characters that may   |
-|                       |                       | be included in an     |
-|                       |                       | object key, the keys  |
-|                       |                       | can be encoded in the |
-|                       |                       | response to ensure    |
-|                       |                       | they are legible.     |
-|                       |                       | Encoding is not set   |
-|                       |                       | by default. Currently |
-|                       |                       | the only valid value  |
-|                       |                       | is ``url``.           |
-+-----------------------+-----------------------+-----------------------+
-| marker                | integer               | Specifies the key to  |
-|                       |                       | start with when       |
-|                       |                       | listing objects in a  |
-|                       |                       | bucket. Zenko         |
-|                       |                       | Enterprise            |
-|                       |                       | returns object keys   |
-|                       |                       | in UTF-8 binary       |
-|                       |                       | order, starting with  |
-|                       |                       | key after the marker  |
-|                       |                       | in order.             |
-+-----------------------+-----------------------+-----------------------+
-| max-keys              | string                | Limits the number of  |
-|                       |                       | keys included in the  |
-|                       |                       | list. Default is      |
-|                       |                       | 1000. The IsTruncated |
-|                       |                       | element returns true  |
-|                       |                       | if the search         |
-|                       |                       | criteria results for  |
-|                       |                       | the request exceed    |
-|                       |                       | the value set for the |
-|                       |                       | max-keys parameter.   |
-+-----------------------+-----------------------+-----------------------+
-| prefix                | string                | Specifies a string    |
-|                       |                       | that must be present  |
-|                       |                       | at the beginning of a |
-|                       |                       | key in order for the  |
-|                       |                       | key to be included in |
-|                       |                       | the GET Bucket        |
-|                       |                       | response list.        |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: llL
+.. table::
+   :widths: auto
+
+   +-----------------------+-----------------------+-----------------------+
+   | Parameter             | Type                  | Description           |
+   +=======================+=======================+=======================+
+   | delimiter             | string                | Character used to     |
+   |                       |                       | group keys            |
+   |                       |                       |                       |
+   |                       |                       | All keys that contain |
+   |                       |                       | the same string       |
+   |                       |                       | between the prefix,   |
+   |                       |                       | if specified, and the |
+   |                       |                       | first occurrence of   |
+   |                       |                       | the delimiter after   |
+   |                       |                       | the prefix are        |
+   |                       |                       | grouped under a       |
+   |                       |                       | single result         |
+   |                       |                       | element,              |
+   |                       |                       | CommonPrefixes. If    |
+   |                       |                       | prefix is not         |
+   |                       |                       | specified, then the   |
+   |                       |                       | substring starts at   |
+   |                       |                       | the beginning of the  |
+   |                       |                       | key. The keys that    |
+   |                       |                       | are grouped under     |
+   |                       |                       | CommonPrefixes result |
+   |                       |                       | element are not       |
+   |                       |                       | returned elsewhere in |
+   |                       |                       | the response.         |
+   +-----------------------+-----------------------+-----------------------+
+   | encoding-type         | string                | Encodes keys with the |
+   |                       |                       | method specified.     |
+   |                       |                       | Since XML 1.0 parsers |
+   |                       |                       | cannot parse certain  |
+   |                       |                       | characters that may   |
+   |                       |                       | be included in an     |
+   |                       |                       | object key, the keys  |
+   |                       |                       | can be encoded in the |
+   |                       |                       | response to ensure    |
+   |                       |                       | they are legible.     |
+   |                       |                       | Encoding is not set   |
+   |                       |                       | by default. Currently |
+   |                       |                       | the only valid value  |
+   |                       |                       | is ``url``.           |
+   +-----------------------+-----------------------+-----------------------+
+   | marker                | integer               | Specifies the key to  |
+   |                       |                       | start with when       |
+   |                       |                       | listing objects in a  |
+   |                       |                       | bucket. Zenko         |
+   |                       |                       | Enterprise            |
+   |                       |                       | returns object keys   |
+   |                       |                       | in UTF-8 binary       |
+   |                       |                       | order, starting with  |
+   |                       |                       | key after the marker  |
+   |                       |                       | in order.             |
+   +-----------------------+-----------------------+-----------------------+
+   | max-keys              | string                | Limits the number of  |
+   |                       |                       | keys included in the  |
+   |                       |                       | list. Default is      |
+   |                       |                       | 1000. The IsTruncated |
+   |                       |                       | element returns true  |
+   |                       |                       | if the search         |
+   |                       |                       | criteria results for  |
+   |                       |                       | the request exceed    |
+   |                       |                       | the value set for the |
+   |                       |                       | max-keys parameter.   |
+   +-----------------------+-----------------------+-----------------------+
+   | prefix                | string                | Specifies a string    |
+   |                       |                       | that must be present  |
+   |                       |                       | at the beginning of a |
+   |                       |                       | key in order for the  |
+   |                       |                       | key to be included in |
+   |                       |                       | the GET Bucket        |
+   |                       |                       | response list.        |
+   +-----------------------+-----------------------+-----------------------+
 
 **Request Headers**
 
@@ -128,153 +132,154 @@ Headers`).
 **Response Elements**
 
 The GET Bucket (List Objects) operation can return the following
-XML elements in the response:
+XML elements in the response:
 
-+-----------------------+-----------------------+-----------------------+
-| Element               | Type                  | Description           |
-+=======================+=======================+=======================+
-| Contents              | XML metadata          | Metadata about each   |
-|                       |                       | object returned       |
-+-----------------------+-----------------------+-----------------------+
-| CommonPrefixes        | string                | A response can        |
-|                       |                       | contain               |
-|                       |                       | CommonPrefixes only   |
-|                       |                       | if Delimiter is       |
-|                       |                       | specified. When that  |
-|                       |                       | is the case,          |
-|                       |                       | CommonPrefixes contai |
-|                       |                       | ns                    |
-|                       |                       | all (if there are     |
-|                       |                       | any) keys between     |
-|                       |                       | Prefix and the next   |
-|                       |                       | occurrence of the     |
-|                       |                       | string specified      |
-|                       |                       | by Delimiter. In      |
-|                       |                       | effect, CommonPrefixe |
-|                       |                       | s lists               |
-|                       |                       | keys that act like    |
-|                       |                       | subdirectories in the |
-|                       |                       | directory specified   |
-|                       |                       | by Prefix. All of the |
-|                       |                       | keys rolled up in a   |
-|                       |                       | common prefix count   |
-|                       |                       | as a single return    |
-|                       |                       | when calculating the  |
-|                       |                       | number of returns.    |
-|                       |                       | Refer to MaxKeys.     |
-+-----------------------+-----------------------+-----------------------+
-| Delimiter             | string                | Causes keys that      |
-|                       |                       | contain the same      |
-|                       |                       | string between the    |
-|                       |                       | prefix and the first  |
-|                       |                       | occurrence of the     |
-|                       |                       | delimiter to be       |
-|                       |                       | rolled up into a      |
-|                       |                       | single result element |
-|                       |                       | in                    |
-|                       |                       | the CommonPrefixes co |
-|                       |                       | llection.             |
-|                       |                       | These rolled-up keys  |
-|                       |                       | are not returned      |
-|                       |                       | elsewhere in the      |
-|                       |                       | response. Each rolled |
-|                       |                       | up result counts as   |
-|                       |                       | only one return       |
-|                       |                       | against               |
-|                       |                       | the MaxKeys value.    |
-+-----------------------+-----------------------+-----------------------+
-| DisplayName           | string                | Object owner’s name   |
-+-----------------------+-----------------------+-----------------------+
-| Encoding-Type         | string                | Encoding type used by |
-|                       |                       | Zenko Enterprise to   |
-|                       |                       | encode object key     |
-|                       |                       | names in the XML      |
-|                       |                       | response.             |
-|                       |                       |                       |
-|                       |                       | If                    |
-|                       |                       | encoding-type request |
-|                       |                       | parameter is          |
-|                       |                       | specified, Zenko      |
-|                       |                       | includes this element |
-|                       |                       | in the response, and  |
-|                       |                       | returns encoded key   |
-|                       |                       | name values in the    |
-|                       |                       | following response    |
-|                       |                       | elements:             |
-|                       |                       | Delimiter, Marker, Pr |
-|                       |                       | efix, NextMarker, Key |
-+-----------------------+-----------------------+-----------------------+
-| ETag                  | string                | The entity tag is an  |
-|                       |                       | MD5 hash of the       |
-|                       |                       | object. The ETag only |
-|                       |                       | reflects changes to   |
-|                       |                       | the contents of an    |
-|                       |                       | object, not its       |
-|                       |                       | metadata.             |
-+-----------------------+-----------------------+-----------------------+
-| ID                    | string                | Object owner’s ID     |
-+-----------------------+-----------------------+-----------------------+
-| IsTruncated           | Boolean               | Specifies whether     |
-|                       |                       | (true) or not (false) |
-|                       |                       | all of the results    |
-|                       |                       | were returned. All of |
-|                       |                       | the results may not   |
-|                       |                       | be returned if the    |
-|                       |                       | number of results     |
-|                       |                       | exceeds that          |
-|                       |                       | specified by MaxKeys. |
-+-----------------------+-----------------------+-----------------------+
-| Key                   | string                | The object’s key      |
-+-----------------------+-----------------------+-----------------------+
-| LastModified          | date                  | Date and time the     |
-|                       |                       | object was last       |
-|                       |                       | modified              |
-+-----------------------+-----------------------+-----------------------+
-| Marker                | string                | Indicates where in    |
-|                       |                       | the bucket listing    |
-|                       |                       | begins; Marker is     |
-|                       |                       | included in the       |
-|                       |                       | response if it was    |
-|                       |                       | sent with the request |
-+-----------------------+-----------------------+-----------------------+
-| MaxKeys               | string                | The maximum number of |
-|                       |                       | keys returned in the  |
-|                       |                       | response body         |
-+-----------------------+-----------------------+-----------------------+
-| Name                  | string                | Name of the bucket    |
-+-----------------------+-----------------------+-----------------------+
-| NextMarker            | string                | When response is      |
-|                       |                       | truncated             |
-|                       |                       | (the IsTruncated elem |
-|                       |                       | ent                   |
-|                       |                       | value in the response |
-|                       |                       | is true), the key     |
-|                       |                       | name can be used in   |
-|                       |                       | this field            |
-|                       |                       | as marker in the      |
-|                       |                       | subsequent request to |
-|                       |                       | get next set of       |
-|                       |                       | objects. Zenko lists  |
-|                       |                       | objects in UTF-8      |
-|                       |                       | binary order.         |
-|                       |                       |                       |
-|                       |                       | Note that Zenko       |
-|                       |                       | returns the           |
-|                       |                       | NextMarker only if a  |
-|                       |                       | Delimiter request     |
-|                       |                       | parameter is          |
-|                       |                       | specified (which runs |
-|                       |                       | counter to the AWS    |
-|                       |                       | practice).            |
-+-----------------------+-----------------------+-----------------------+
-| Owner                 | string                | Bucket owner          |
-+-----------------------+-----------------------+-----------------------+
-| Prefix                | string                | Keys that begin with  |
-|                       |                       | the indicated prefix  |
-+-----------------------+-----------------------+-----------------------+
-| Size                  | string                | Size in bytes of the  |
-|                       |                       | object                |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: llX{0.65\textwidth}
+.. table::
+   :class: longtable
+
+   +-----------------------+-----------------------+-----------------------+
+   | Element               | Type                  | Description           |
+   +=======================+=======================+=======================+
+   | Contents              | XML metadata          | Metadata about each   |
+   |                       |                       | object returned       |
+   +-----------------------+-----------------------+-----------------------+
+   | CommonPrefixes        | string                | A response can        |
+   |                       |                       | contain               |
+   |                       |                       | CommonPrefixes only   |
+   |                       |                       | if Delimiter is       |
+   |                       |                       | specified. When that  |
+   |                       |                       | is the case,          |
+   |                       |                       | CommonPrefixes        |
+   |                       |                       | contains all (if      |
+   |                       |                       | there are any) keys   |
+   |                       |                       | between Prefix and    |
+   |                       |                       | the next occurrence   |
+   |                       |                       | of the string         |
+   |                       |                       | specified by          |
+   |                       |                       | Delimiter. In effect, |
+   |                       |                       | CommonPrefixes lists  |
+   |                       |                       | keys that act like    |
+   |                       |                       | subdirectories in the |
+   |                       |                       | directory specified   |
+   |                       |                       | by Prefix. All of the |
+   |                       |                       | keys rolled up in a   |
+   |                       |                       | common prefix count   |
+   |                       |                       | as a single return    |
+   |                       |                       | when calculating the  |
+   |                       |                       | number of returns.    |
+   |                       |                       | Refer to MaxKeys.     |
+   +-----------------------+-----------------------+-----------------------+
+   | Delimiter             | string                | Causes keys that      |
+   |                       |                       | contain the same      |
+   |                       |                       | string between the    |
+   |                       |                       | prefix and the first  |
+   |                       |                       | occurrence of the     |
+   |                       |                       | delimiter to be       |
+   |                       |                       | rolled up into a      |
+   |                       |                       | single result element |
+   |                       |                       | in  CommonPrefixes    |
+   |                       |                       | the collection.       |
+   |                       |                       | These rolled-up keys  |
+   |                       |                       | are not returned      |
+   |                       |                       | elsewhere in the      |
+   |                       |                       | response. Each rolled |
+   |                       |                       | up result counts as   |
+   |                       |                       | only one return       |
+   |                       |                       | against the MaxKeys   |
+   |                       |                       | value.                |
+   +-----------------------+-----------------------+-----------------------+
+   | DisplayName           | string                | Object owner's name   |
+   +-----------------------+-----------------------+-----------------------+
+   | Encoding-Type         | string                | Encoding type used by |
+   |                       |                       | Zenko Enterprise to   |
+   |                       |                       | encode object key     |
+   |                       |                       | names in the XML      |
+   |                       |                       | response.             |
+   |                       |                       |                       |
+   |                       |                       | If encoding-type      |
+   |                       |                       | request parameter is  |
+   |                       |                       | specified, Zenko      |
+   |                       |                       | includes this element |
+   |                       |                       | in the response, and  |
+   |                       |                       | returns encoded key   |
+   |                       |                       | name values in the    |
+   |                       |                       | following response    |
+   |                       |                       | elements: Delimiter,  |
+   |                       |                       | Marker, Prefix,       |
+   |                       |                       | NextMarker, Key       |
+   +-----------------------+-----------------------+-----------------------+
+   | ETag                  | string                | The entity tag is an  |
+   |                       |                       | MD5 hash of the       |
+   |                       |                       | object. The ETag only |
+   |                       |                       | reflects changes to   |
+   |                       |                       | the contents of an    |
+   |                       |                       | object, not its       |
+   |                       |                       | metadata.             |
+   +-----------------------+-----------------------+-----------------------+
+   | ID                    | string                | Object owner's ID     |
+   +-----------------------+-----------------------+-----------------------+
+   | IsTruncated           | Boolean               | Specifies whether     |
+   |                       |                       | (true) or not (false) |
+   |                       |                       | all of the results    |
+   |                       |                       | were returned. All of |
+   |                       |                       | the results may not   |
+   |                       |                       | be returned if the    |
+   |                       |                       | number of results     |
+   |                       |                       | exceeds that          |
+   |                       |                       | specified by MaxKeys. |
+   +-----------------------+-----------------------+-----------------------+
+   | Key                   | string                | The object's key      |
+   |                       |                       | specified by MaxKeys. |
+   +-----------------------+-----------------------+-----------------------+
+   | LastModified          | date                  | Date and time the     |
+   |                       |                       | object was last       |
+   |                       |                       | modified              |
+   +-----------------------+-----------------------+-----------------------+
+   | Marker                | string                | Indicates where in    |
+   |                       |                       | the bucket listing    |
+   |                       |                       | begins; Marker is     |
+   |                       |                       | included in the       |
+   |                       |                       | response if it was    |
+   |                       |                       | sent with the request |
+   +-----------------------+-----------------------+-----------------------+
+   | MaxKeys               | string                | The maximum number of |
+   |                       |                       | keys returned in the  |
+   |                       |                       | response body         |
+   +-----------------------+-----------------------+-----------------------+
+   | Name                  | string                | Name of the bucket    |
+   +-----------------------+-----------------------+-----------------------+
+   | NextMarker            | string                | When response is      |
+   |                       |                       | truncated (the        |
+   |                       |                       | (IsTruncated element  |
+   |                       |                       | value in the response |
+   |                       |                       | is true), the key     |
+   |                       |                       | name can be used in   |
+   |                       |                       | this field as marker  |
+   |                       |                       | as marker in the      |
+   |                       |                       | subsequent request to |
+   |                       |                       | get next set of       |
+   |                       |                       | objects. Zenko lists  |
+   |                       |                       | objects in UTF-8      |
+   |                       |                       | binary order.         |
+   |                       |                       |                       |
+   |                       |                       | Note that Zenko       |
+   |                       |                       | returns the           |
+   |                       |                       | NextMarker only if a  |
+   |                       |                       | Delimiter request     |
+   |                       |                       | parameter is          |
+   |                       |                       | specified (which runs |
+   |                       |                       | counter to AWS        |
+   |                       |                       | practice).            |
+   +-----------------------+-----------------------+-----------------------+
+   | Owner                 | string                | Bucket owner          |
+   +-----------------------+-----------------------+-----------------------+
+   | Prefix                | string                | Keys that begin with  |
+   |                       |                       | the indicated prefix  |
+   +-----------------------+-----------------------+-----------------------+
+   | Size                  | string                | Size in bytes of the  |
+   |                       |                       | object                |
+   +-----------------------+-----------------------+-----------------------+
 
 Examples
 --------

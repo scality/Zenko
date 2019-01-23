@@ -51,26 +51,24 @@ Headers`).
 
 The PUT Bucket operation can request the following items:
 
-+-----------------------+-----------------------+-----------------------+
-| Element               | Type                  | Description           |
-+=======================+=======================+=======================+
-| Status                | enum                  | Sets the versioning   |
-|                       |                       | state of the bucket.  |
-|                       |                       |                       |
-|                       |                       | Valid Values:         |
-|                       |                       | Suspended \| Enabled  |
-|                       |                       |                       |
-|                       |                       | Ancestor:             |
-|                       |                       | VersioningConfigurati |
-|                       |                       | on                    |
-+-----------------------+-----------------------+-----------------------+
-| VersioningConfigurati | container             | Container for setting |
-| on                    |                       | the versioning state. |
-|                       |                       |                       |
-|                       |                       | Children: Status      |
-|                       |                       |                       |
-|                       |                       | Ancestor: none        |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: X{0.25\textwidth}X{0.15\textwidth}X{0.55\textwidth}
+.. table::
+
+   +---------------+-----------+---------------------------------------------+
+   | Element       | Type      | Description                                 |
+   +===============+===========+=============================================+
+   | Status        | enum      | Sets the versioning state of the bucket.    |
+   |               |           |                                             |
+   |               |           | Valid Values: Suspended \| Enabled          |
+   |               |           |                                             |
+   |               |           | Ancestor: VersioningConfiguration           |
+   +---------------+-----------+---------------------------------------------+
+   | Versioning\   | container | Container for setting the versioning state. |
+   | Configuration |           |                                             | 
+   |               |           | Children: Status                            |
+   |               |           |                                             |
+   |               |           | Ancestor: none                              |
+   +---------------+-----------+---------------------------------------------+
 
 Responses
 ---------
@@ -99,7 +97,7 @@ Examples
    Authorization: {{authorization string}}
    Content-Type: text/plain
    Content-Length: 124
-    
+   
    <VersioningConfiguration xmlns="http://s3.scality.com/doc/2006-03-01/">
    <Status>Enabled</Status>
    </VersioningConfiguration>
@@ -125,7 +123,7 @@ Examples
    Authorization: {{authorization string}}
    Content-Type: text/plain
    Content-Length: 124
-    
+  
    <VersioningConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
    <Status>Suspended</Status>
    </VersioningConfiguration>

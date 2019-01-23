@@ -42,8 +42,7 @@ the request headers:
 
 .. note::
 
-  It is not possible to both use a canned ACL and explicitly specify
-  access permissions.
+   You cannot both use a canned ACL and explicitly specify access permissions.
 
 Requests
 --------
@@ -67,188 +66,192 @@ The PUT Object operation can use a number of optional request headers in
 addition to those that are common to all operations (refer to :ref:`Common
 Request Headers`).
 
-+-----------------------+-----------------------+-----------------------+
-| Header                | Type                  | Description           |
-+=======================+=======================+=======================+
-| Cache-Control         | string                | Can be used to        |
-|                       |                       | specify caching       |
-|                       |                       | behavior along the    |
-|                       |                       | request/reply chain   |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-|                       |                       |                       |
-|                       |                       | Constraints: None     |
-+-----------------------+-----------------------+-----------------------+
-| Content-Disposition   | string                | Specifies             |
-|                       |                       | presentational        |
-|                       |                       | information for the   |
-|                       |                       | object                |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-|                       |                       |                       |
-|                       |                       | Constraints: None     |
-+-----------------------+-----------------------+-----------------------+
-| Content-Encoding      | string                | Specifies what        |
-|                       |                       | content encodings     |
-|                       |                       | have been applied to  |
-|                       |                       | the object and the    |
-|                       |                       | decoding mechanisms   |
-|                       |                       | that must be applied  |
-|                       |                       | to obtain the         |
-|                       |                       | media-type referenced |
-|                       |                       | by the Content-Type   |
-|                       |                       | header field          |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-|                       |                       |                       |
-|                       |                       | Constraints: None     |
-+-----------------------+-----------------------+-----------------------+
-| Content-Length        | string                | The size of the       |
-|                       |                       | object, in bytes.     |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-|                       |                       |                       |
-|                       |                       | Constraints: None     |
-+-----------------------+-----------------------+-----------------------+
-| Content-MD5           | string                | The base64-encoded    |
-|                       |                       | 128-bit MD5 digest of |
-|                       |                       | the message (without  |
-|                       |                       | the headers)          |
-|                       |                       | according to RFC      |
-|                       |                       | 1864. This header can |
-|                       |                       | be used as a message  |
-|                       |                       | integrity check to    |
-|                       |                       | verify that the data  |
-|                       |                       | is the same data that |
-|                       |                       | was originally sent.  |
-|                       |                       | Although it is        |
-|                       |                       | optional, the use of  |
-|                       |                       | the Content-MD5       |
-|                       |                       | mechanism is          |
-|                       |                       | recommended as an     |
-|                       |                       | end-to-end integrity  |
-|                       |                       | check.                |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-|                       |                       |                       |
-|                       |                       | Constraints: None     |
-+-----------------------+-----------------------+-----------------------+
-| Content-Type          | string                | A standard MIME type  |
-|                       |                       | describing the format |
-|                       |                       | of the contents       |
-|                       |                       |                       |
-|                       |                       | Default:              |
-|                       |                       | binary/octet-stream   |
-|                       |                       |                       |
-|                       |                       | Valid Values:         |
-|                       |                       | MIME types            |
-|                       |                       |                       |
-|                       |                       | Constraints: None     |
-+-----------------------+-----------------------+-----------------------+
-| Expect                | string                | When the application  |
-|                       |                       | uses                  |
-|                       |                       | ``100-continue``, it  |
-|                       |                       | does not send the     |
-|                       |                       | request body until it |
-|                       |                       | receives an           |
-|                       |                       | acknowledgment. If    |
-|                       |                       | the message is        |
-|                       |                       | rejected based on the |
-|                       |                       | headers, the body of  |
-|                       |                       | the message is not    |
-|                       |                       | sent.                 |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-|                       |                       |                       |
-|                       |                       | Valid Values:         |
-|                       |                       | ``100-continue``      |
-|                       |                       |                       |
-|                       |                       | Constraints: None     |
-+-----------------------+-----------------------+-----------------------+
-| Expires               | string                | The date and time at  |
-|                       |                       | which the object is   |
-|                       |                       | no longer cacheable   |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-|                       |                       |                       |
-|                       |                       | Constraints: None     |
-+-----------------------+-----------------------+-----------------------+
-| x-amz-meta-\*         | string                | Headers starting with |
-|                       |                       | this prefix are       |
-|                       |                       | user-defined          |
-|                       |                       | metadata, each of     |
-|                       |                       | which is stored and   |
-|                       |                       | returned as a set of  |
-|                       |                       | key-value pairs.      |
-|                       |                       | Zenko Enterprise does |
-|                       |                       | not validate or       |
-|                       |                       | interpret             |
-|                       |                       | user-defined          |
-|                       |                       | metadata. Within the  |
-|                       |                       | PUT request header,   |
-|                       |                       | the user-defined      |
-|                       |                       | metadata is limited   |
-|                       |                       | in size to 2 KB.      |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-|                       |                       |                       |
-|                       |                       | Constraints: None     |
-+-----------------------+-----------------------+-----------------------+
-| x-amz-meta-scal-locat | string                | Setting this heading  |
-| ion-constraint        |                       | with a                |
-|                       |                       | locationConstraint on |
-|                       |                       | a PUT request defines |
-|                       |                       | where the object will |
-|                       |                       | be saved. If no       |
-|                       |                       | header is sent with a |
-|                       |                       | PUT object request,   |
-|                       |                       | the location          |
-|                       |                       | constraint of the     |
-|                       |                       | bucket will determine |
-|                       |                       | where the data is     |
-|                       |                       | saved. If the bucket  |
-|                       |                       | has no location       |
-|                       |                       | constraint, the       |
-|                       |                       | endpoint of the PUT   |
-|                       |                       | request will be used  |
-|                       |                       | to determine          |
-|                       |                       | location. Within the  |
-|                       |                       | PUT request header,   |
-|                       |                       | the user-defined      |
-|                       |                       | metadata is limited   |
-|                       |                       | in size to 2 KB.      |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-|                       |                       |                       |
-|                       |                       | Constraints: The      |
-|                       |                       | value must be a       |
-|                       |                       | location constraint   |
-|                       |                       | listed in             |
-|                       |                       | locationConfig.json.  |
-+-----------------------+-----------------------+-----------------------+
-| x-amz-website         | string                | When a bucket is      |
-| -redirect-location    |                       | configured as a       |
-|                       |                       | website, this         |
-|                       |                       | metadata can be set   |
-|                       |                       | on the object so the  |
-|                       |                       | website endpoint will |
-|                       |                       | evaluate the request  |
-|                       |                       | for the object as a   |
-|                       |                       | 301 redirect to       |
-|                       |                       | another object in the |
-|                       |                       | same bucket or an     |
-|                       |                       | external URL.         |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-|                       |                       |                       |
-|                       |                       | Constraints: The      |
-|                       |                       | value must be         |
-|                       |                       | prefixed by, "/",     |
-|                       |                       | "http://" or          |
-|                       |                       | "https://". The       |
-|                       |                       | length of the value   |
-|                       |                       | is limited to 2 KB.   |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: X{0.25\textwidth}lX{0.60\textwidth}
+.. table::
+   :class: longtable
+
+   +-----------------------+-----------------------+-----------------------+
+   | Header                | Type                  | Description           |
+   +=======================+=======================+=======================+
+   | Cache-Control         | string                | Can be used to        |
+   |                       |                       | specify caching       |
+   |                       |                       | behavior along the    |
+   |                       |                       | request/reply chain   |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   |                       |                       |                       |
+   |                       |                       | Constraints: None     |
+   +-----------------------+-----------------------+-----------------------+
+   | Content-Disposition   | string                | Specifies             |
+   |                       |                       | presentational        |
+   |                       |                       | information for the   |
+   |                       |                       | object                |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   |                       |                       |                       |
+   |                       |                       | Constraints: None     |
+   +-----------------------+-----------------------+-----------------------+
+   | Content-Encoding      | string                | Specifies what        |
+   |                       |                       | content encodings     |
+   |                       |                       | have been applied to  |
+   |                       |                       | the object and the    |
+   |                       |                       | decoding mechanisms   |
+   |                       |                       | that must be applied  |
+   |                       |                       | to obtain the         |
+   |                       |                       | media-type referenced |
+   |                       |                       | by the Content-Type   |
+   |                       |                       | header field          |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   |                       |                       |                       |
+   |                       |                       | Constraints: None     |
+   +-----------------------+-----------------------+-----------------------+
+   | Content-Length        | string                | The size of the       |
+   |                       |                       | object, in bytes.     |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   |                       |                       |                       |
+   |                       |                       | Constraints: None     |
+   +-----------------------+-----------------------+-----------------------+
+   | Content-MD5           | string                | The base64-encoded    |
+   |                       |                       | 128-bit MD5 digest of |
+   |                       |                       | the message (without  |
+   |                       |                       | the headers)          |
+   |                       |                       | according to RFC      |
+   |                       |                       | 1864. This header can |
+   |                       |                       | be used as a message  |
+   |                       |                       | integrity check to    |
+   |                       |                       | verify that the data  |
+   |                       |                       | is the same data that |
+   |                       |                       | was originally sent.  |
+   |                       |                       | Although it is        |
+   |                       |                       | optional, the use of  |
+   |                       |                       | the Content-MD5       |
+   |                       |                       | mechanism is          |
+   |                       |                       | recommended as an     |
+   |                       |                       | end-to-end integrity  |
+   |                       |                       | check.                |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   |                       |                       |                       |
+   |                       |                       | Constraints: None     |
+   +-----------------------+-----------------------+-----------------------+
+   | Content-Type          | string                | A standard MIME type  |
+   |                       |                       | describing the format |
+   |                       |                       | of the contents       |
+   |                       |                       |                       |
+   |                       |                       | Default:              |
+   |                       |                       | binary/octet-stream   |
+   |                       |                       |                       |
+   |                       |                       | Valid Values:         |
+   |                       |                       | MIME types            |
+   |                       |                       |                       |
+   |                       |                       | Constraints: None     |
+   +-----------------------+-----------------------+-----------------------+
+   | Expect                | string                | When the application  |
+   |                       |                       | uses                  |
+   |                       |                       | ``100-continue``, it  |
+   |                       |                       | does not send the     |
+   |                       |                       | request body until it |
+   |                       |                       | receives an           |
+   |                       |                       | acknowledgment. If    |
+   |                       |                       | the message is        |
+   |                       |                       | rejected based on the |
+   |                       |                       | headers, the body of  |
+   |                       |                       | the message is not    |
+   |                       |                       | sent.                 |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   |                       |                       |                       |
+   |                       |                       | Valid Values:         |
+   |                       |                       | ``100-continue``      |
+   |                       |                       |                       |
+   |                       |                       | Constraints: None     |
+   +-----------------------+-----------------------+-----------------------+
+   | Expires               | string                | The date and time at  |
+   |                       |                       | which the object is   |
+   |                       |                       | no longer cacheable   |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   |                       |                       |                       |
+   |                       |                       | Constraints: None     |
+   +-----------------------+-----------------------+-----------------------+
+   | x-amz-meta-\*         | string                | Headers starting with |
+   |                       |                       | this prefix are       |
+   |                       |                       | user-defined          |
+   |                       |                       | metadata, each of     |
+   |                       |                       | which is stored and   |
+   |                       |                       | returned as a set of  |
+   |                       |                       | key-value pairs.      |
+   |                       |                       | Zenko Enterprise does |
+   |                       |                       | not validate or       |
+   |                       |                       | interpret             |
+   |                       |                       | user-defined          |
+   |                       |                       | metadata. Within the  |
+   |                       |                       | PUT request header,   |
+   |                       |                       | the user-defined      |
+   |                       |                       | metadata is limited   |
+   |                       |                       | in size to 2 KB.      |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   |                       |                       |                       |
+   |                       |                       | Constraints: None     |
+   +-----------------------+-----------------------+-----------------------+
+   | x-amz-meta-scal-\     | string                | Setting this heading  |
+   | location-constraint   |                       | with a                |
+   |                       |                       | locationConstraint on |
+   |                       |                       | a PUT request defines |
+   |                       |                       | where the object will |
+   |                       |                       | be saved. If no       |
+   |                       |                       | header is sent with a |
+   |                       |                       | PUT object request,   |
+   |                       |                       | the location          |
+   |                       |                       | constraint of the     |
+   |                       |                       | bucket will determine |
+   |                       |                       | where the data is     |
+   |                       |                       | saved. If the bucket  |
+   |                       |                       | has no location       |
+   |                       |                       | constraint, the       |
+   |                       |                       | endpoint of the PUT   |
+   |                       |                       | request will be used  |
+   |                       |                       | to determine          |
+   |                       |                       | location. Within the  |
+   |                       |                       | PUT request header,   |
+   |                       |                       | the user-defined      |
+   |                       |                       | metadata is limited   |
+   |                       |                       | in size to 2 KB.      |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   |                       |                       |                       |
+   |                       |                       | Constraints: The      |
+   |                       |                       | value must be a       |
+   |                       |                       | location constraint   |
+   |                       |                       | listed in             |
+   |                       |                       | locationConfig.json.  |
+   +-----------------------+-----------------------+-----------------------+
+   | x-amz-website-\       | string                | When a bucket is      |
+   | redirect-location     |                       | configured as a       |
+   |                       |                       | website, this         |
+   |                       |                       | metadata can be set   |
+   |                       |                       | on the object so the  |
+   |                       |                       | website endpoint will |
+   |                       |                       | evaluate the request  |
+   |                       |                       | for the object as a   |
+   |                       |                       | 301 redirect to       |
+   |                       |                       | another object in the |
+   |                       |                       | same bucket or an     |
+   |                       |                       | external URL.         |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   |                       |                       |                       |
+   |                       |                       | Constraints: The      |
+   |                       |                       | value must be         |
+   |                       |                       | prefixed by, "/",     |
+   |                       |                       | "http://" or          |
+   |                       |                       | "https://". The       |
+   |                       |                       | length of the value   |
+   |                       |                       | is limited to 2 KB.   |
+   +-----------------------+-----------------------+-----------------------+
 
 In addition, access control-related headers can be used with this
 operation. By default, all objects are private: only the owner has full
@@ -261,30 +264,24 @@ used to create the Access Control List (ACL) on the object.
 Zenko Enterprise supports a set of canned ACLs, each of which has a predefined set of
 grantees and permissions.
 
-+-----------------------+-----------------------+-----------------------+
-| Header                | Type                  | Description           |
-+=======================+=======================+=======================+
-| x-amz-acl             | string                | The canned ACL to     |
-|                       |                       | apply to the bucket   |
-|                       |                       | you are creating      |
-|                       |                       |                       |
-|                       |                       | Default: ``private``  |
-|                       |                       |                       |
-|                       |                       | Valid Values:         |
-|                       |                       | ``private`` \|        |
-|                       |                       | ``public-read`` \|    |
-|                       |                       | ``public-read-write`` |
-|                       |                       | \|                    |
-|                       |                       | ``authenticated-read` |
-|                       |                       | `                     |
-|                       |                       | \|                    |
-|                       |                       | ``bucket-owner-read`` |
-|                       |                       | \|                    |
-|                       |                       | ``bucket-owner-full-c |
-|                       |                       | ontrol``              |
-|                       |                       |                       |
-|                       |                       | Constrains: None      |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: X{0.20\textwidth}X{0.10\textwidth}X{0.65\textwidth}
+.. table::
+
+   +-----------+-----------+---------------------------------------------------+
+   | Header    | Type      | Description                                       |
+   +===========+===========+===================================================+
+   | x-amz-acl | string    | The canned ACL to apply to the bucket you are     |
+   |           |           | creating                                          |
+   |           |           |                                                   |
+   |           |           | Default: ``private``                              |
+   |           |           |                                                   |
+   |           |           | Valid Values: ``private`` \| ``public-read`` \|   |
+   |           |           | ``public-read-write``  \|                         |
+   |           |           | ``authenticated-read`` \| ``bucket-owner-read``   |
+   |           |           | \| ``bucket-owner-full-control``                  |
+   |           |           |                                                   |
+   |           |           | Constrainst: None                                 |
+   +-----------+-----------+---------------------------------------------------+
 
 *Explicitly Specifying Access Permissions*
 
@@ -295,41 +292,44 @@ permissions Zenko Enterprise supports in an ACL.
 In the header value, specify a list of grantees who get the specific
 permission.
 
-+-----------------------+-----------------------+-----------------------+
-| Header                | Type                  | Description           |
-+=======================+=======================+=======================+
-| x-amz-grant-read      | string                | Allows grantee to     |
-|                       |                       | read the object data  |
-|                       |                       | and its metadata      |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-|                       |                       |                       |
-|                       |                       | Constraints: None     |
-+-----------------------+-----------------------+-----------------------+
-| x-amz-grant-read-acp  | string                | Allows grantee to     |
-|                       |                       | read the object ACL   |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-|                       |                       |                       |
-|                       |                       | Constraints: None     |
-+-----------------------+-----------------------+-----------------------+
-| x-amz-grant-write-acp | string                | Allows grantee to     |
-|                       |                       | write the ACL for the |
-|                       |                       | applicable object     |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-|                       |                       |                       |
-|                       |                       | Constraints: None     |
-+-----------------------+-----------------------+-----------------------+
-| x-amz-grant-full-cont | string                | Allows grantee the    |
-| rol                   |                       | READ, READ_ACP, and   |
-|                       |                       | WRITE_ACP permissions |
-|                       |                       | on the object         |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-|                       |                       |                       |
-|                       |                       | Constraints: None     |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: X{0.30\textwidth}X{0.10\textwidth}X{0.55\textwidth}
+.. table::
+
+   +-----------------------+-----------------------+-----------------------+
+   | Header                | Type                  | Description           |
+   +=======================+=======================+=======================+
+   | x-amz-grant-read      | string                | Allows grantee to     |
+   |                       |                       | read the object data  |
+   |                       |                       | and its metadata      |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   |                       |                       |                       |
+   |                       |                       | Constraints: None     |
+   +-----------------------+-----------------------+-----------------------+
+   | x-amz-grant-read-acp  | string                | Allows grantee to     |
+   |                       |                       | read the object ACL   |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   |                       |                       |                       |
+   |                       |                       | Constraints: None     |
+   +-----------------------+-----------------------+-----------------------+
+   | x-amz-grant-write-acp | string                | Allows grantee to     |
+   |                       |                       | write the ACL for the |
+   |                       |                       | applicable object     |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   |                       |                       |                       |
+   |                       |                       | Constraints: None     |
+   +-----------------------+-----------------------+-----------------------+
+   | x-amz-grant-full-\    | string                | Allows grantee the    |
+   | control               |                       | READ, READ_ACP, and   |
+   |                       |                       | WRITE_ACP permissions |
+   |                       |                       | on the object         |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   |                       |                       |                       |
+   |                       |                       | Constraints: None     |
+   +-----------------------+-----------------------+-----------------------+
 
 Each grantee is specified as a ``type=value`` pair, where the type can
 be one any one of the following:
@@ -355,11 +355,14 @@ The PUT Object operation uses the x-amz-version-id response header in
 addition to response headers that are common to all operations (refer to
 :ref:`Common Response Headers`).
 
-+------------------+--------+------------------------+
-| Header           | Type   | Description            |
-+==================+========+========================+
-| x-amz-version-id | string | Version of the object. |
-+------------------+--------+------------------------+
+.. tabularcolumns:: X{0.20\textwidth}X{0.15\textwidth}X{0.60\textwidth}
+.. table::
+
+   +------------------+--------+------------------------+
+   | Header           | Type   | Description            |
+   +==================+========+========================+
+   | x-amz-version-id | string | Version of the object. |
+   +------------------+--------+------------------------+
 
 **Response Elements**
 

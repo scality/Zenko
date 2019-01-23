@@ -41,52 +41,55 @@ headers that are common to all operations (refer to :ref:`Common Response Header
 
 **Response Elements**
 
-The GET Bucket ACL operation can return the following XML elements of
+The GET Bucket ACL operation can return the following XML elements of
 the response (includes XML containers):
 
-+-----------------------+-----------------------+-----------------------+
-| Element               | Type                  | Description           |
-+=======================+=======================+=======================+
-| AccessControlList     | container             | Container for ACL     |
-|                       |                       | information           |
-+-----------------------+-----------------------+-----------------------+
-| AccessControlPolicy   | container             | Container for the     |
-|                       |                       | response              |
-+-----------------------+-----------------------+-----------------------+
-| DisplayName           | string                | Bucket owner’s        |
-|                       |                       | display name;         |
-|                       |                       | returned only if the  |
-|                       |                       | owner’s e-mail        |
-|                       |                       | address (or the forum |
-|                       |                       | name, if configured)  |
-|                       |                       | can be determined     |
-|                       |                       | from the ID           |
-+-----------------------+-----------------------+-----------------------+
-| Grant                 | container             | Container for Grantee |
-|                       |                       | and Permission        |
-+-----------------------+-----------------------+-----------------------+
-| Grantee               | container             | Container for         |
-|                       |                       | DisplayName and ID of |
-|                       |                       | the person being      |
-|                       |                       | granted permissions   |
-+-----------------------+-----------------------+-----------------------+
-| ID                    | string                | Bucket owner’s user   |
-|                       |                       | ID                    |
-+-----------------------+-----------------------+-----------------------+
-| Owner                 | container             | Container for bucket  |
-|                       |                       | owner information     |
-+-----------------------+-----------------------+-----------------------+
-| Permission            | string                | Permission given to   |
-|                       |                       | the Grantee for       |
-|                       |                       | bucket                |
-|                       |                       |                       |
-|                       |                       | Valid Values:         |
-|                       |                       | ``FULL_CONTROL`` \|   |
-|                       |                       | ``WRITE`` \|          |
-|                       |                       | ``WRITE_ACP`` \|      |
-|                       |                       | ``READ`` \|           |
-|                       |                       | ``READ_ACP``          |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: X{0.20\textwidth}X{0.15\textwidth}X{0.60\textwidth}
+.. table::
+
+   +-----------------------+-----------------------+-----------------------+
+   | Element               | Type                  | Description           |
+   +=======================+=======================+=======================+
+   | AccessControlList     | container             | Container for ACL     |
+   |                       |                       | information           |
+   +-----------------------+-----------------------+-----------------------+
+   | AccessControlPolicy   | container             | Container for the     |
+   |                       |                       | response              |
+   +-----------------------+-----------------------+-----------------------+
+   | DisplayName           | string                | Bucket owner’s        |
+   |                       |                       | display name;         |
+   |                       |                       | returned only if the  |
+   |                       |                       | owner’s e-mail        |
+   |                       |                       | address (or the forum |
+   |                       |                       | name, if configured)  |
+   |                       |                       | can be determined     |
+   |                       |                       | from the ID           |
+   +-----------------------+-----------------------+-----------------------+
+   | Grant                 | container             | Container for Grantee |
+   |                       |                       | and Permission        |
+   +-----------------------+-----------------------+-----------------------+
+   | Grantee               | container             | Container for         |
+   |                       |                       | DisplayName and ID of |
+   |                       |                       | the person being      |
+   |                       |                       | granted permissions   |
+   +-----------------------+-----------------------+-----------------------+
+   | ID                    | string                | Bucket owner’s user   |
+   |                       |                       | ID                    |
+   +-----------------------+-----------------------+-----------------------+
+   | Owner                 | container             | Container for bucket  |
+   |                       |                       | owner information     |
+   +-----------------------+-----------------------+-----------------------+
+   | Permission            | string                | Permission given to   |
+   |                       |                       | the Grantee for       |
+   |                       |                       | bucket                |
+   |                       |                       |                       |
+   |                       |                       | Valid Values:         |
+   |                       |                       | ``FULL_CONTROL`` \|   |
+   |                       |                       | ``WRITE`` \|          |
+   |                       |                       | ``WRITE_ACP`` \|      |
+   |                       |                       | ``READ`` \|           |
+   |                       |                       | ``READ_ACP``          |
+   +-----------------------+-----------------------+-----------------------+
 
 Examples
 --------

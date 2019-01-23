@@ -1,7 +1,7 @@
 Backbeat Routes
 ===============
 
-Basic healthcheck
+Basic Healthcheck
 -----------------
 
 **Route:**/_/backbeat/api/healthcheck

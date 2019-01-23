@@ -10,20 +10,23 @@ return the versioning state of a bucket.
 
   Only the bucket owner can retrieve the versioning state of a bucket.
 
-+-----------------------------------+-------------------------------------------------------------------------------+
-| Versioning State                  | Response                                                                      |
-+===================================+===============================================================================+
-| versioning is enabled on a bucket | | ``<VersioningConfiguration xmlns="http://s3.scality.com/doc/2006-03-01/">`` |
-|                                   | |  ``<Status>Enabled</Status>``                                               |
-|                                   | | ``</VersioningConfiguration>``                                              |
-+-----------------------------------+-------------------------------------------------------------------------------+
-| versioning is suspended on a      | | ``<VersioningConfiguration xmlns="http://s3.scality.com/doc/2006-03-01/">`` |
-| bucket                            | |  ``<Status>Suspended</Status>``                                             |
-|                                   | | ``</VersioningConfiguration>``                                              |
-+-----------------------------------+-------------------------------------------------------------------------------+
-| versioning has not been enabled   | ``<VersioningConfiguration xmlns="http://s3.scality.com/doc/2006-03-01/"/>``  |
-| (or suspended) on a bucket        |                                                                               |
-+-----------------------------------+-------------------------------------------------------------------------------+
+.. tabularcolumns:: X{0.25\textwidth}X{0.70\textwidth}
+.. table::
+
+   +-----------------------------------+------------------------------------------------------------------------------+
+   | Versioning State                  | Response                                                                     |
+   +===================================+==============================================================================+
+   | Versioning is enabled on a bucket | ``<VersioningConfiguration xmlns="http://s3.scality.com/doc/2006-03-01/">``  |
+   |                                   | ``<Status>Enabled</Status>``                                                 |
+   |                                   | ``</VersioningConfiguration>``                                               |
+   +-----------------------------------+------------------------------------------------------------------------------+
+   | Versioning is suspended on a      | ``<VersioningConfiguration xmlns="http://s3.scality.com/doc/2006-03-01/">``  |
+   | bucket                            | ``<Status>Suspended</Status>``                                               |
+   |                                   | ``</VersioningConfiguration>``                                               |
+   +-----------------------------------+------------------------------------------------------------------------------+
+   | Versioning has not been enabled   | ``<VersioningConfiguration xmlns="http://s3.scality.com/doc/2006-03-01/"/>`` |
+   | (or suspended) on a bucket        |                                                                              |
+   +-----------------------------------+------------------------------------------------------------------------------+
 
 Requests
 --------
@@ -62,23 +65,21 @@ following response elements.
 
 **Response Elements**
 
-+-----------------------+-----------------------+-----------------------+
-| Element               | Type                  | Description           |
-+=======================+=======================+=======================+
-| Status                | enum                  | The versioning state  |
-|                       |                       | of the bucket.        |
-|                       |                       |                       |
-|                       |                       | Valid Values:         |
-|                       |                       | Disabled \| Enabled   |
-|                       |                       |                       |
-|                       |                       | Ancestors:            |
-|                       |                       | VersioningConfigurati |
-|                       |                       | on                    |
-+-----------------------+-----------------------+-----------------------+
-| VersioningConfigurati | Container             | Container for the     |
-| on                    |                       | status response       |
-|                       |                       | element.              |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: X{0.30\textwidth}X{0.20\textwidth}X{0.45\textwidth}
+.. table::
+
+   +-------------------------+-----------+-------------------------------------+
+   | Element                 | Type      | Description                         |
+   +=========================+===========+=====================================+
+   | Status                  | enum      | The versioning state of the bucket. |
+   |                         |           |                                     |
+   |                         |           | Valid Values:  Disabled \| Enabled  |
+   |                         |           |                                     |
+   |                         |           | Ancestors: VersioningConfiguration  |
+   +-------------------------+-----------+-------------------------------------+
+   | VersioningConfiguration | Container | Container for the status response   |
+   |                         |           | element.                            |
+   +-------------------------+-----------+-------------------------------------+
 
 Examples
 --------

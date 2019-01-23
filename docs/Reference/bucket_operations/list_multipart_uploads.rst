@@ -40,141 +40,145 @@ The List Multipart Uploads operation’s implementation of GET uses
 certain parameters to return a subset of the ongoing multipart uploads
 in a bucket.
 
-+-----------------------+-----------------------+-----------------------+
-| Parameter             | Type                  | Description           |
-+=======================+=======================+=======================+
-| delimiter             | string                | Character used to     |
-|                       |                       | group keys.           |
-|                       |                       |                       |
-|                       |                       | All keys that contain |
-|                       |                       | the same string       |
-|                       |                       | between the prefix,   |
-|                       |                       | if specified, and the |
-|                       |                       | first occurrence of   |
-|                       |                       | the delimiter after   |
-|                       |                       | the prefix are        |
-|                       |                       | grouped under a       |
-|                       |                       | single result         |
-|                       |                       | element,              |
-|                       |                       | CommonPrefixes. If    |
-|                       |                       | prefix is not         |
-|                       |                       | specified, then the   |
-|                       |                       | substring starts at   |
-|                       |                       | the beginning of the  |
-|                       |                       | key. The keys that    |
-|                       |                       | are grouped under     |
-|                       |                       | CommonPrefixes result |
-|                       |                       | element are not       |
-|                       |                       | returned elsewhere in |
-|                       |                       | the response.         |
-+-----------------------+-----------------------+-----------------------+
-| encoding-type         | string                | Requests that S3      |
-|                       |                       | Connector encode the  |
-|                       |                       | response and          |
-|                       |                       | specifies the         |
-|                       |                       | encoding method to    |
-|                       |                       | use.                  |
-|                       |                       |                       |
-|                       |                       | An object key can     |
-|                       |                       | contain any Unicode   |
-|                       |                       | character; however,   |
-|                       |                       | XML 1.0 parser cannot |
-|                       |                       | parse some            |
-|                       |                       | characters, such as   |
-|                       |                       | characters with an    |
-|                       |                       | ASCII value from 0 to |
-|                       |                       | 10. For characters    |
-|                       |                       | that are not          |
-|                       |                       | supported in XML 1.0, |
-|                       |                       | add this parameter to |
-|                       |                       | request that S3       |
-|                       |                       | Connector encode the  |
-|                       |                       | keys in the response. |
-|                       |                       |                       |
-|                       |                       | **Note**: The only    |
-|                       |                       | valid value           |
-|                       |                       | for the encoding-type |
-|                       |                       | parameter is ``url``. |
-|                       |                       |                       |
-|                       |                       | Default: None         |
-+-----------------------+-----------------------+-----------------------+
-| max-uploads           | integer               | Sets the maximum      |
-|                       |                       | number of multipart   |
-|                       |                       | uploads, from 1 to    |
-|                       |                       | 1,000, to return in   |
-|                       |                       | the response body.    |
-|                       |                       | 1,000 is the maximum  |
-|                       |                       | number of uploads     |
-|                       |                       | that can be returned  |
-|                       |                       | in a response.        |
-|                       |                       |                       |
-|                       |                       | Default: 1,000        |
-+-----------------------+-----------------------+-----------------------+
-| key-marker            | string                | Together with         |
-|                       |                       | upload-id-marker, the |
-|                       |                       | key-marker parameter  |
-|                       |                       | specifies the         |
-|                       |                       | multipart upload      |
-|                       |                       | after which listing   |
-|                       |                       | should begin.         |
-|                       |                       |                       |
-|                       |                       | If upload-id-marker   |
-|                       |                       | is not specified,     |
-|                       |                       | only the keys         |
-|                       |                       | lexicographically     |
-|                       |                       | greater than the      |
-|                       |                       | specified key-marker  |
-|                       |                       | will be included in   |
-|                       |                       | the list. If          |
-|                       |                       | upload-id-marker is   |
-|                       |                       | specified, any        |
-|                       |                       | multipart uploads for |
-|                       |                       | a key equal to the    |
-|                       |                       | key-marker might also |
-|                       |                       | be included, provided |
-|                       |                       | those multipart       |
-|                       |                       | uploads have upload   |
-|                       |                       | IDs lexicographically |
-|                       |                       | greater than the      |
-|                       |                       | specified             |
-|                       |                       | upload-id-marker.     |
-+-----------------------+-----------------------+-----------------------+
-| prefix                | string                | Lists in-progress     |
-|                       |                       | uploads only for      |
-|                       |                       | those keys that begin |
-|                       |                       | with the specified    |
-|                       |                       | prefix. This          |
-|                       |                       | parameter can be used |
-|                       |                       | to separate a bucket  |
-|                       |                       | into different        |
-|                       |                       | grouping of keys. To  |
-|                       |                       | illustrate, prefixes  |
-|                       |                       | can be used to make   |
-|                       |                       | groups, similar to    |
-|                       |                       | the manner in which a |
-|                       |                       | folder is used in a   |
-|                       |                       | file system.          |
-+-----------------------+-----------------------+-----------------------+
-| upload-id-marker      | string                | Together with         |
-|                       |                       | key-marker, specifies |
-|                       |                       | the multipart upload  |
-|                       |                       | after which listing   |
-|                       |                       | should begin. If      |
-|                       |                       | key-marker is not     |
-|                       |                       | specified, the        |
-|                       |                       | parameter is ignored. |
-|                       |                       | Otherwise, any        |
-|                       |                       | multipart uploads for |
-|                       |                       | a key equal to the    |
-|                       |                       | key-marker might be   |
-|                       |                       | included in the list  |
-|                       |                       | only if they have an  |
-|                       |                       | upload ID             |
-|                       |                       | lexicographically     |
-|                       |                       | greater than the      |
-|                       |                       | specified             |
-|                       |                       | upload-id-marker.     |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: X{0.15\textwidth}lX{0.65\textwidth}
+.. table::
+   :class: longtable
+   
+   +-----------------------+-----------------------+-----------------------+
+   | Parameter             | Type                  | Description           |
+   +=======================+=======================+=======================+
+   | delimiter             | string                | Character used to     |
+   |                       |                       | group keys.           |
+   |                       |                       |                       |
+   |                       |                       | All keys that contain |
+   |                       |                       | the same string       |
+   |                       |                       | between the prefix,   |
+   |                       |                       | if specified, and the |
+   |                       |                       | first occurrence of   |
+   |                       |                       | the delimiter after   |
+   |                       |                       | the prefix are        |
+   |                       |                       | grouped under a       |
+   |                       |                       | single result         |
+   |                       |                       | element,              |
+   |                       |                       | CommonPrefixes. If    |
+   |                       |                       | prefix is not         |
+   |                       |                       | specified, then the   |
+   |                       |                       | substring starts at   |
+   |                       |                       | the beginning of the  |
+   |                       |                       | key. The keys that    |
+   |                       |                       | are grouped under     |
+   |                       |                       | CommonPrefixes result |
+   |                       |                       | element are not       |
+   |                       |                       | returned elsewhere in |
+   |                       |                       | the response.         |
+   +-----------------------+-----------------------+-----------------------+
+   | encoding-type         | string                | Requests that S3      |
+   |                       |                       | Connector encode the  |
+   |                       |                       | response and          |
+   |                       |                       | specifies the         |
+   |                       |                       | encoding method to    |
+   |                       |                       | use.                  |
+   |                       |                       |                       |
+   |                       |                       | An object key can     |
+   |                       |                       | contain any Unicode   |
+   |                       |                       | character; however,   |
+   |                       |                       | XML 1.0 parser cannot |
+   |                       |                       | parse some            |
+   |                       |                       | characters, such as   |
+   |                       |                       | characters with an    |
+   |                       |                       | ASCII value from 0 to |
+   |                       |                       | 10. For characters    |
+   |                       |                       | that are not          |
+   |                       |                       | supported in XML 1.0, |
+   |                       |                       | add this parameter to |
+   |                       |                       | request that S3       |
+   |                       |                       | Connector encode the  |
+   |                       |                       | keys in the response. |
+   |                       |                       |                       |
+   |                       |                       | **Note**: The only    |
+   |                       |                       | valid value           |
+   |                       |                       | for the encoding-type |
+   |                       |                       | parameter is ``url``. |
+   |                       |                       |                       |
+   |                       |                       | Default: None         |
+   +-----------------------+-----------------------+-----------------------+
+   | max-uploads           | integer               | Sets the maximum      |
+   |                       |                       | number of multipart   |
+   |                       |                       | uploads, from 1 to    |
+   |                       |                       | 1,000, to return in   |
+   |                       |                       | the response body.    |
+   |                       |                       | 1,000 is the maximum  |
+   |                       |                       | number of uploads     |
+   |                       |                       | that can be returned  |
+   |                       |                       | in a response.        |
+   |                       |                       |                       |
+   |                       |                       | Default: 1,000        |
+   +-----------------------+-----------------------+-----------------------+
+   | key-marker            | string                | Together with         |
+   |                       |                       | upload-id-marker, the |
+   |                       |                       | key-marker parameter  |
+   |                       |                       | specifies the         |
+   |                       |                       | multipart upload      |
+   |                       |                       | after which listing   |
+   |                       |                       | should begin.         |
+   |                       |                       |                       |
+   |                       |                       | If upload-id-marker   |
+   |                       |                       | is not specified,     |
+   |                       |                       | only the keys         |
+   |                       |                       | lexicographically     |
+   |                       |                       | greater than the      |
+   |                       |                       | specified key-marker  |
+   |                       |                       | will be included in   |
+   |                       |                       | the list. If          |
+   |                       |                       | upload-id-marker is   |
+   |                       |                       | specified, any        |
+   |                       |                       | multipart uploads for |
+   |                       |                       | a key equal to the    |
+   |                       |                       | key-marker might also |
+   |                       |                       | be included, provided |
+   |                       |                       | those multipart       |
+   |                       |                       | uploads have upload   |
+   |                       |                       | IDs lexicographically |
+   |                       |                       | greater than the      |
+   |                       |                       | specified             |
+   |                       |                       | upload-id-marker.     |
+   +-----------------------+-----------------------+-----------------------+
+   | prefix                | string                | Lists in-progress     |
+   |                       |                       | uploads only for      |
+   |                       |                       | those keys that begin |
+   |                       |                       | with the specified    |
+   |                       |                       | prefix. This          |
+   |                       |                       | parameter can be used |
+   |                       |                       | to separate a bucket  |
+   |                       |                       | into different        |
+   |                       |                       | grouping of keys. To  |
+   |                       |                       | illustrate, prefixes  |
+   |                       |                       | can be used to make   |
+   |                       |                       | groups, similar to    |
+   |                       |                       | the manner in which a |
+   |                       |                       | folder is used in a   |
+   |                       |                       | file system.          |
+   +-----------------------+-----------------------+-----------------------+
+   | upload-id-marker      | string                | Together with         |
+   |                       |                       | key-marker, specifies |
+   |                       |                       | the multipart upload  |
+   |                       |                       | after which listing   |
+   |                       |                       | should begin. If      |
+   |                       |                       | key-marker is not     |
+   |                       |                       | specified, the        |
+   |                       |                       | parameter is ignored. |
+   |                       |                       | Otherwise, any        |
+   |                       |                       | multipart uploads for |
+   |                       |                       | a key equal to the    |
+   |                       |                       | key-marker might be   |
+   |                       |                       | included in the list  |
+   |                       |                       | only if they have an  |
+   |                       |                       | upload ID             |
+   |                       |                       | lexicographically     |
+   |                       |                       | greater than the      |
+   |                       |                       | specified             |
+   |                       |                       | upload-id-marker.     |
+   +-----------------------+-----------------------+-----------------------+
 
 **Request Headers**
 
@@ -197,185 +201,162 @@ supported by Zenko Enterprise (refer to :ref:`Common Response Headers`).
 **Response Elements**
 
 The List Multipart Uploads operation can return the following
-XML elements of the response (includes XML containers):
+XML elements of the response (includes XML containers):
 
-+-----------------------+-----------------------+-----------------------+
-| Element               | Type                  | Description           |
-+=======================+=======================+=======================+
-| ListMultipartUploadsR | container             | Container for the     |
-| esult                 |                       | response              |
-+-----------------------+-----------------------+-----------------------+
-| Bucket                | string                | Name of the bucket to |
-|                       |                       | which the multipart   |
-|                       |                       | upload was initiated  |
-+-----------------------+-----------------------+-----------------------+
-| KeyMarker             | string                | The key at or after   |
-|                       |                       | which the listing     |
-|                       |                       | began                 |
-+-----------------------+-----------------------+-----------------------+
-| UploadIdMarker        | string                | Upload ID after which |
-|                       |                       | listing began         |
-+-----------------------+-----------------------+-----------------------+
-| NextKeyMarker         | string                | When a list is        |
-|                       |                       | truncated,            |
-|                       |                       | NextKeyMarker         |
-|                       |                       | specifies the value   |
-|                       |                       | that should be used   |
-|                       |                       | for the key-marker    |
-|                       |                       | request parameter in  |
-|                       |                       | a subsequent request. |
-+-----------------------+-----------------------+-----------------------+
-| NextUploadIDMarker    | string                | When a list is        |
-|                       |                       | truncated,            |
-|                       |                       | NextUploadIDMarker    |
-|                       |                       | specifies the value   |
-|                       |                       | that should be used   |
-|                       |                       | for the               |
-|                       |                       | upload-id-marker      |
-|                       |                       | request parameter in  |
-|                       |                       | a subsequent request. |
-+-----------------------+-----------------------+-----------------------+
-| Encoding-Type         | string                | Encoding type used by |
-|                       |                       | Zenko Enterprise to   |
-|                       |                       | encode object key     |
-|                       |                       | names in the XML      |
-|                       |                       | response.             |
-|                       |                       |                       |
-|                       |                       | If the encoding-type  |
-|                       |                       | request parameter is  |
-|                       |                       | specified, S3         |
-|                       |                       | Connector includes    |
-|                       |                       | this element in the   |
-|                       |                       | response, and returns |
-|                       |                       | encoded key name      |
-|                       |                       | values in the         |
-|                       |                       | following elements:   |
-|                       |                       | Delimiter, KeyMarker, |
-|                       |                       | Prefix, NextKeyMarker,|
-|                       |                       | and Key.              |
-+-----------------------+-----------------------+-----------------------+
-| MaxUploads            | integer               | Maximum number of     |
-|                       |                       | multipart uploads     |
-|                       |                       | that could have been  |
-|                       |                       | included in the       |
-|                       |                       | response              |
-+-----------------------+-----------------------+-----------------------+
-| IsTruncated           | Boolean               | Indicates whether the |
-|                       |                       | returned list of      |
-|                       |                       | multipart uploads is  |
-|                       |                       | truncated.            |
-|                       |                       | A true value          |
-|                       |                       | indicates that the    |
-|                       |                       | list was truncated. A |
-|                       |                       | list can be truncated |
-|                       |                       | if the number of      |
-|                       |                       | multipart uploads     |
-|                       |                       | exceeds the limit     |
-|                       |                       | returned in           |
-|                       |                       | the MaxUploads elemen |
-|                       |                       | t.                    |
-+-----------------------+-----------------------+-----------------------+
-| Upload                | container             | Container for         |
-|                       |                       | elements related to a |
-|                       |                       | particular multipart  |
-|                       |                       | upload                |
-|                       |                       |                       |
-|                       |                       | A response can        |
-|                       |                       | contain zero or more  |
-|                       |                       | Upload elements.      |
-+-----------------------+-----------------------+-----------------------+
-| Key                   | integer               | Key of the object for |
-|                       |                       | which the multipart   |
-|                       |                       | upload was initiated  |
-+-----------------------+-----------------------+-----------------------+
-| UploadID              | integer               | Upload ID that        |
-|                       |                       | identifies the        |
-|                       |                       | multipart upload      |
-+-----------------------+-----------------------+-----------------------+
-| Initiator             | container             | Identifies the party  |
-|                       |                       | who initiated the     |
-|                       |                       | multipart upload      |
-|                       |                       |                       |
-|                       |                       | ID: Initiation User   |
-|                       |                       | ID                    |
-|                       |                       |                       |
-|                       |                       | DisplayName: Name of  |
-|                       |                       | request initiating    |
-|                       |                       | party                 |
-+-----------------------+-----------------------+-----------------------+
-| Owner                 | container             | Container element     |
-|                       |                       | that identifies the   |
-|                       |                       | object owner, after   |
-|                       |                       | the object is created |
-|                       |                       |                       |
-|                       |                       | ID: Object owner User |
-|                       |                       | ID                    |
-|                       |                       |                       |
-|                       |                       | DisplayName: Name of  |
-|                       |                       | object owner          |
-+-----------------------+-----------------------+-----------------------+
-| Initiated             | date                  | Date and time at      |
-|                       |                       | which the multipart   |
-|                       |                       | upload was initiated  |
-+-----------------------+-----------------------+-----------------------+
-| ListMultipartUploadsR | string                | When a prefix is      |
-| esult.Prefix          |                       | provided in the       |
-|                       |                       | request, this field   |
-|                       |                       | contains the          |
-|                       |                       | specified prefix. The |
-|                       |                       | result contains only  |
-|                       |                       | keys starting with    |
-|                       |                       | the specified prefix. |
-+-----------------------+-----------------------+-----------------------+
-| Delimiter             | string                | Contains the          |
-|                       |                       | delimiter specified   |
-|                       |                       | in the request        |
-|                       |                       |                       |
-|                       |                       | If a delimiter is not |
-|                       |                       | specified in the      |
-|                       |                       | request, this element |
-|                       |                       | is absent from the    |
-|                       |                       | response.             |
-+-----------------------+-----------------------+-----------------------+
-| CommonPrefixes        | container             | If a delimiter is     |
-|                       |                       | specified in the      |
-|                       |                       | request, then the     |
-|                       |                       | result returns each   |
-|                       |                       | distinct key prefix   |
-|                       |                       | containing the        |
-|                       |                       | delimiter in a        |
-|                       |                       | CommonPrefixes        |
-|                       |                       | element. The distinct |
-|                       |                       | key prefixes are      |
-|                       |                       | returned in the       |
-|                       |                       | Prefix child element. |
-+-----------------------+-----------------------+-----------------------+
-| CommonPrefixes.Prefix | string                | If the request does   |
-|                       |                       | not include the       |
-|                       |                       | Prefix parameter,     |
-|                       |                       | then                  |
-|                       |                       | CommonPrefixes.Prefix |
-|                       |                       | shows only the        |
-|                       |                       | substring of the key  |
-|                       |                       | that precedes the     |
-|                       |                       | first occurrence of   |
-|                       |                       | the delimiter         |
-|                       |                       | character. These keys |
-|                       |                       | are not returned      |
-|                       |                       | anywhere else in the  |
-|                       |                       | response.             |
-|                       |                       |                       |
-|                       |                       | If the request        |
-|                       |                       | includes the Prefix   |
-|                       |                       | parameter, then       |
-|                       |                       | CommonPrefixes.Prefix |
-|                       |                       | shows the substring   |
-|                       |                       | of the key from the   |
-|                       |                       | beginning to the      |
-|                       |                       | first occurrence of   |
-|                       |                       | the delimiter after   |
-|                       |                       | the prefix.           |
-+-----------------------+-----------------------+-----------------------+
+.. tabularcolumns:: X{0.35\textwidth}lX{0.50\textwidth}
+.. table::
+   :class: longtable
+
+   +-----------------------------------+-----------+---------------------------+
+   | Element                           | Type      | Description               |
+   +===================================+===========+===========================+
+   | ListMultipartUploadsResult        | container | Container for the         |
+   |                                   |           | response                  |
+   +-----------------------------------+-----------+---------------------------+
+   | Bucket                            | string    | Name of the bucket to     |
+   |                                   |           | which the multipart       |
+   |                                   |           | upload was initiated      |
+   +-----------------------------------+-----------+---------------------------+
+   | KeyMarker                         | string    | The key at or after which |
+   |                                   |           | the listing began         |
+   +-----------------------------------+-----------+---------------------------+
+   | UploadIdMarker                    | string    | Upload ID after which     |
+   |                                   |           | listing began             |
+   +-----------------------------------+-----------+---------------------------+
+   | NextKeyMarker                     | string    | When a list is truncated, |
+   |                                   |           | NextKeyMarker specifies   |
+   |                                   |           | the value that should be  |
+   |                                   |           | used for the key-marker   |
+   |                                   |           | request parameter in a    |
+   |                                   |           | subsequent request.       |
+   +-----------------------------------+-----------+---------------------------+
+   | NextUploadIDMarker                | string    | When a list is truncated, |
+   |                                   |           | NextUploadIDMarker        |
+   |                                   |           | specifies the value that  |
+   |                                   |           | should be used for the    |
+   |                                   |           | upload-id-marker request  |
+   |                                   |           | parameter in a subsequent |
+   |                                   |           | request.                  |
+   +-----------------------------------+-----------+---------------------------+
+   | Encoding-Type                     | string    | Encoding type used by     |
+   |                                   |           | Zenko to encode object    |
+   |                                   |           | key names in the XML      |
+   |                                   |           | response.                 |
+   |                                   |           |                           |
+   |                                   |           | If the encoding-type      |
+   |                                   |           | request parameter is      |
+   |                                   |           | specified, S3 Connector   |
+   |                                   |           | includes this element in  |
+   |                                   |           | the response, and returns |
+   |                                   |           | encoded key name values   |
+   |                                   |           | in the following          |
+   |                                   |           | elements: Delimiter,      |
+   |                                   |           | KeyMarker, Prefix,        |
+   |                                   |           | NextKeyMarker, and Key.   |
+   +-----------------------------------+-----------+---------------------------+
+   | MaxUploads                        | integer   | Maximum number of         |
+   |                                   |           | multipart uploads that    |
+   |                                   |           | that could have been      |
+   |                                   |           | included in the response  |
+   +-----------------------------------+-----------+---------------------------+
+   | IsTruncated                       | Boolean   | Indicates whether the     |
+   |                                   |           | returned list of          |
+   |                                   |           | multipart uploads is      |
+   |                                   |           | truncated.                |
+   |                                   |           |                           |
+   |                                   |           | A true value indicates    |
+   |                                   |           | that the list was         |
+   |                                   |           | truncated. A list can be  |
+   |                                   |           | truncated if the number   |
+   |                                   |           | of multipart uploads      |
+   |                                   |           | exceeds the limit         |
+   |                                   |           | returned in the           |
+   |                                   |           | MaxUploads element.       |
+   +-----------------------------------+-----------+---------------------------+
+   | Upload                            | container | Container for elements    |
+   |                                   |           | related to a particular   |
+   |                                   |           | multipart upload. A       |
+   |                                   |           | response can contain zero |
+   |                                   |           | or more Upload elements.  |
+   +-----------------------------------+-----------+---------------------------+
+   | Key                               | integer   | Key of the object for     |
+   |                                   |           | which the multipart       |
+   |                                   |           | upload was initiated      |
+   +-----------------------------------+-----------+---------------------------+
+   | UploadID                          | integer   | Upload ID that identifies |
+   |                                   |           | the multipart upload      |      
+   +-----------------------------------+-----------+---------------------------+
+   | Initiator                         | container | Identifies the party that |
+   |                                   |           | initiated the multipart   |
+   |                                   |           | upload                    |
+   |                                   |           |                           |
+   |                                   |           | ID: Initiation User ID    |
+   |                                   |           |                           |
+   |                                   |           | DisplayName: Name of      |
+   |                                   |           | party initiating request  |
+   +-----------------------------------+-----------+---------------------------+
+   | Owner                             | container | Container element that    |
+   |                                   |           | identifies the object     |
+   |                                   |           | owner, after the object   |
+   |                                   |           | is created                |
+   |                                   |           |                           |
+   |                                   |           | ID: Object owner User ID  |
+   |                                   |           |                           |
+   |                                   |           | DisplayName: Name of      |
+   |                                   |           | object owner              |
+   +-----------------------------------+-----------+---------------------------+
+   | Initiated                         | date      | Date and time the         |
+   |                                   |           | multipart upload was      |
+   |                                   |           | initiated                 |
+   +-----------------------------------+-----------+---------------------------+
+   | ListMultipartUploadsResult.Prefix | string    | When a prefix is provided |
+   |                                   |           | in the request, this      |
+   |                                   |           | field contains the        |
+   |                                   |           | specified prefix. The     |
+   |                                   |           | result contains only keys |
+   |                                   |           | starting with the         |
+   |                                   |           | specified prefix.         |
+   +-----------------------------------+-----------+---------------------------+
+   | Delimiter                         | string    | Contains the delimiter    |
+   |                                   |           | specified in the request  |
+   |                                   |           |                           |
+   |                                   |           | If a delimiter is not     |
+   |                                   |           | specified in the request, |
+   |                                   |           | this element is absent    |
+   |                                   |           | from the response.        |
+   +-----------------------------------+-----------+---------------------------+
+   | CommonPrefixes                    | container | If a delimiter is         |
+   |                                   |           | specified in the request, |
+   |                                   |           | then the result returns   |
+   |                                   |           | each distinct key prefix  |
+   |                                   |           | containing the delimiter  |
+   |                                   |           | in a CommonPrefixes       |
+   |                                   |           | element. The distinct key |
+   |                                   |           | prefixes are returned in  |
+   |                                   |           | the Prefix child element. |
+   +-----------------------------------+-----------+---------------------------+
+   | CommonPrefixes.Prefix             | string    | If the request does not   |
+   |                                   |           | include the Prefix        |
+   |                                   |           | parameter, then           |
+   |                                   |           | CommonPrefixes.Prefix     |
+   |                                   |           | shows only the substring  |
+   |                                   |           | of the key that precedes  |
+   |                                   |           | the first occurrence of   |
+   |                                   |           | the delimiter character.  |
+   |                                   |           | These keys are not        |
+   |                                   |           | returned anywhere else in |
+   |                                   |           | the response.             |
+   |                                   |           |                           |
+   |                                   |           | If the request includes   |
+   |                                   |           | the Prefix parameter,     |
+   |                                   |           | CommonPrefixes.Prefix     |
+   |                                   |           | shows the substring of    |
+   |                                   |           | the key from the          |
+   |                                   |           | beginning to the first    |
+   |                                   |           | occurrence of the         |
+   |                                   |           | the delimiter after the   |
+   |                                   |           | prefix.                   |
+   +-----------------------------------+-----------+---------------------------+
 
 Examples
 --------

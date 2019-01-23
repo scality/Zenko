@@ -28,72 +28,75 @@ backend’s defined type (aws\_s3 or azure, for example).
 
 To show all metrics for all sites, set {{location-name}} to “all”.
 
-+-------------+---------------------------------+----------------------------------------------------------------------------+
-| Type        | Description                     |  Example URL                                                               |
-+=============+=================================+============================================================================+
-| Healthcheck | This basic health check returns | \http://zenko.local/_/backbeat/api/healthcheck                             |
-|             | details on the health of Kafka  |                                                                            |
-|             | and its topics.                 |                                                                            |
-|             |                                 |                                                                            |
-|             | If there is no HTTP response    |                                                                            |
-|             | error, the structure of the     |                                                                            |
-|             | response is an array of three   |                                                                            |
-|             | key:value objects, detailed in  |                                                                            |
-|             | section 15.2.                   |                                                                            |
-+-------------+---------------------------------+----------------------------------------------------------------------------+
-| All Metrics | Returns a collection of all     | \http://zenko.local/_/backbeat/api/metrics/crr/{{location-name}}           |
-|             | metrics listed below.           |                                                                            |
-+-------------+---------------------------------+----------------------------------------------------------------------------+
-| Pending     | Returns pending replication     | \http://zenko.local/\_/backbeat/api/metrics/crr/{{location-name}}/pending  |
-|             | in number of objects and number |                                                                            |
-|             | of total bytes. The bytes total |                                                                            |
-|             | represents data only and does   |                                                                            |
-|             | not include the size of         |                                                                            |
-|             | metadata.                       |                                                                            |
-|             |                                 |                                                                            |
-|             | Pending replication represents  |                                                                            |
-|             | the objects that have been      |                                                                            |
-|             | queued up to be replicated to   |                                                                            |
-|             | another site, but the           |                                                                            |
-|             | replication task has not yet    |                                                                            |
-|             | been completed or failed for    |                                                                            |
-|             | that object.                    |                                                                            |
-+-------------+---------------------------------+----------------------------------------------------------------------------+
-| Backlog     | Returns the replication backlog | \http://zenko.local/\_/backbeat/api/metrics/crr/{{location-name}}/backlog  |
-|             | in number of objects and number |                                                                            |
-|             | of total bytes. The bytes total |                                                                            |
-|             | represents data only and does   |                                                                            |
-|             | not include the size of         |                                                                            |
-|             | metadata.                       |                                                                            |
-|             |                                 |                                                                            |
-|             | Replication backlog represents  |                                                                            |
-|             | the objects that have been      |                                                                            |
-|             | queued up to be replicated to   |                                                                            |
-|             | another site, but the           |                                                                            |
-|             | replication task has not yet    |                                                                            |
-|             | been completed or failed for    |                                                                            |
-|             | that object.                    |                                                                            |
-+-------------+---------------------------------+----------------------------------------------------------------------------+
-| Completions | Returns the replication         | \http://zenko.local/_/backbeat/api/metrics/crr/{location-name}/completions |
-|             | completions in number of objects|                                                                            |
-|             | and number of total bytes       |                                                                            |
-|             | transferred. The bytes total    |                                                                            |
-|             | represents data only and        |                                                                            |
-|             | does not include the size of    |                                                                            |
-|             | metadata.                       |                                                                            |
-|             |                                 |                                                                            |
-|             | Completions are only collected  |                                                                            |
-|             | up to an \`EXPIRY\` time, which |                                                                            |
-|             | is set to a default of 24       |                                                                            |
-|             | hours.                          |                                                                            |
-+-------------+---------------------------------+----------------------------------------------------------------------------+
-| Throughput  | Returns the current throughput  | \http://zenko.local/_/backbeat/api/metrics/crr/{{location-name}}/throughput|
-|             | in number of operations per     |                                                                            |
-|             | second (or number of objects    |                                                                            |
-|             | replicating per second) and     |                                                                            |
-|             | number of total bytes           |                                                                            |
-|             | completing per second.          |                                                                            |
-+-------------+---------------------------------+----------------------------------------------------------------------------+
+.. tabularcolumns:: X{0.15\textwidth}X{0.40\textwidth}X{0.30\textwidth}
+.. table::
+
+   +-------------+---------------------------------+----------------------------------------------+
+   | Type        | Description                     |  Example URL                                 |
+   +=============+=================================+==============================================+
+   | Healthcheck | This basic health check returns | \http://zenko.local/_/backbeat/              |
+   |             | details on the health of Kafka  | api/healthcheck                              |
+   |             | and its topics.                 |                                              |
+   |             |                                 |                                              |
+   |             | If there is no HTTP response    |                                              |
+   |             | error, the structure of the     |                                              |
+   |             | response is an array of three   |                                              |
+   |             | key:value objects, detailed in  |                                              |
+   |             | section 15.2.                   |                                              |
+   +-------------+---------------------------------+----------------------------------------------+
+   | All Metrics | Returns a collection of all     | \http://zenko.local/_/backbeat/              |
+   |             | metrics listed below.           | api/metrics/crr/{{location-name}}            |                         
+   +-------------+---------------------------------+----------------------------------------------+
+   | Pending     | Returns pending replication     | \http://zenko.local/\_/backbeat/             |
+   |             | in number of objects and number | api/metrics/crr/{{location-name}}/pending    |
+   |             | of total bytes. The bytes total |                                              |
+   |             | represents data only and does   |                                              |
+   |             | not include the size of         |                                              |
+   |             | metadata.                       |                                              |
+   |             |                                 |                                              |
+   |             | Pending replication represents  |                                              |
+   |             | the objects that have been      |                                              |
+   |             | queued up to be replicated to   |                                              |
+   |             | another site, but the           |                                              |
+   |             | replication task has not yet    |                                              |
+   |             | been completed or failed for    |                                              |
+   |             | that object.                    |                                              |
+   +-------------+---------------------------------+----------------------------------------------+
+   | Backlog     | Returns the replication backlog | \http://zenko.local/\_/backbeat/             |
+   |             | in number of objects and number | api/metrics/crr/{{location-name}}/backlog    |
+   |             | of total bytes. The bytes total |                                              |
+   |             | represents data only and does   |                                              |
+   |             | not include the size of         |                                              |
+   |             | metadata.                       |                                              |
+   |             |                                 |                                              |
+   |             | Replication backlog represents  |                                              |
+   |             | the objects that have been      |                                              |
+   |             | queued up to be replicated to   |                                              |
+   |             | another site, but the           |                                              |
+   |             | replication task has not yet    |                                              |
+   |             | been completed or failed for    |                                              |
+   |             | that object.                    |                                              |
+   +-------------+---------------------------------+----------------------------------------------+
+   | Completions | Returns the replication         | \http://zenko.local/_/backbeat/              |
+   |             | completions in number of objects| api/metrics/crr/{location-name}/completions  |
+   |             | and number of total bytes       |                                              |
+   |             | transferred. The bytes total    |                                              |
+   |             | represents data only and        |                                              |
+   |             | does not include the size of    |                                              |
+   |             | metadata.                       |                                              |
+   |             |                                 |                                              |
+   |             | Completions are only collected  |                                              |
+   |             | up to an \`EXPIRY\` time, which |                                              |
+   |             | is set to a default of 24       |                                              |
+   |             | hours.                          |                                              |
+   +-------------+---------------------------------+----------------------------------------------+
+   | Throughput  | Returns the current throughput  | \http://zenko.local/_/backbeat/              |
+   |             | in number of operations per     | api/metrics/crr/{{location-name}}/throughput |
+   |             | second (or number of objects    |                                              |
+   |             | replicating per second) and     |                                              |
+   |             | number of total bytes           |                                              |
+   |             | completing per second.          |                                              |
+   +-------------+---------------------------------+----------------------------------------------+
 
 Replication Status
 ------------------
@@ -193,21 +196,24 @@ The internalConnections object key nominates an object consisting of three keys:
 Status Code Responses
 ---------------------
 
-+----------+-------------------------------------------------------------------+
-| Response | Details                                                           |
-+==========+===================================================================+
-| 200      | OK: success                                                       |
-+----------+-------------------------------------------------------------------+
-| 403      | AccessDenied: request IP address does not have access             |
-+----------+-------------------------------------------------------------------+
-| 404      | RouteNotFound: invalid route given                                |
-+----------+-------------------------------------------------------------------+
-| 405      | MethodNotAllowed: the HTTP verb must be a GET                     |
-+----------+-------------------------------------------------------------------+
-| 500      | InternalError: Can be caused by one of several internal components|
-|          | (i.e. the api server, Kafka, Zookeeper, or one of the Producers   |
-|          | for a topic)                                                      |
-+----------+-------------------------------------------------------------------+
+.. tabularcolumns:: X{0.10\textwidth}X{0.85\textwidth}
+.. table::
+
+   +----------+--------------------------------------------------------------------+
+   | Response | Details                                                            |
+   +==========+====================================================================+
+   | 200      | OK: success                                                        |
+   +----------+--------------------------------------------------------------------+
+   | 403      | AccessDenied: request IP address does not have access              |
+   +----------+--------------------------------------------------------------------+
+   | 404      | RouteNotFound: invalid route given                                 |
+   +----------+--------------------------------------------------------------------+
+   | 405      | MethodNotAllowed: the HTTP verb must be a GET                      |
+   +----------+--------------------------------------------------------------------+
+   | 500      | InternalError: Can be caused by one of several internal components |
+   |          | (i.e. the api server, Kafka, Zookeeper, or one of the Producers    |
+   |          | for a topic)                                                       |
+   +----------+--------------------------------------------------------------------+
 
 Example Responses
 -----------------

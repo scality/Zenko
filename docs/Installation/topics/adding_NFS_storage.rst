@@ -35,8 +35,8 @@ Parameters
 The following table lists the Cosmos chart’s configurable parameters
 and their default values.
 
+.. tabularcolumns:: X{0.32\textwidth}X{0.32\textwidth}X{0.32\textwidth}
 .. table::
-   :widths: auto
 
    +------------------------------------+---------------------------------------+------------------------------+
    | Parameter                          | Description                           | Default                      |

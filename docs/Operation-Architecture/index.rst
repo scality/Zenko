@@ -14,7 +14,7 @@ buckets—to other supported clouds, such as Google Cloud Platform
 (GCP) or Microsoft Azure.
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    About Zenko<Introduction/About_Zenko>
    Architecture<Zenko_Architecture/Architecture>
