@@ -128,11 +128,11 @@ stages:
     worker:
       type: local
     steps:
-    - TriggerStages:
-        name: Build documentation
-        haltOnFailure: true
-        stage_names:
-        - build-doc
+#    - TriggerStages:
+#        name: Build documentation
+#        haltOnFailure: true
+#        stage_names:
+#        - build-doc
     - TriggerStages:
         name: trigger all the tests
         stage_names:
@@ -175,7 +175,7 @@ stages:
     - ShellCommand: *k8s_setup
     - ShellCommand:
         name: Setup and run e2e
-        command: make -e VERBOSE=1 test
+        command:  make -e VERBOSE=1 test
         workdir: build/tests
         env:
           <<: [*secrets_env, *docker_env]
@@ -184,6 +184,12 @@ stages:
           HELM_NAMESPACE: '%(prop:workername)s'
           TILLER_NAMESPACE: '%(prop:workername)s'
           INSTALL_TIMEOUT: "600"
+    - ShellCommand:
+        name: sleep
+        command: sleep 7200
+        maxTime: 7200
+        timeout: 7200
+        alwaysRun: True
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
     - ShellCommand: *k8s_cleanup
