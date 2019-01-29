@@ -1,14 +1,11 @@
 import json
-import time
 from collections import namedtuple
 from functools import partial
-from threading import Event, Thread
 
 from redis import StrictRedis
 
 from .conf import config
 from .log import Log
-from .mapping import get_keys
 
 _log = Log('util.redis')
 
@@ -102,126 +99,3 @@ def get_pending_replication(bucket = None, key = None, cloud = None):
 
 def count_pending_replication(*args, **kwargs):
     return len(get_pending_replication(*args, **kwargs))
-
-class RedisQueue(object):
-    """Simple Queue with Redis Backend"""
-    def __init__(self, name, namespace='queue'):
-        """The default connection parameters are: host='localhost', port=6379, db=0"""
-        self._redis= build_redis_client()
-        self.key = '%s:%s' %(namespace, name)
-
-    def qsize(self):
-        """Return the approximate size of the queue."""
-        return self._redis.llen(self.key)
-
-    def empty(self):
-        """Return True if the queue is empty, False otherwise."""
-        return self.qsize() == 0
-
-    def wait_for_empty(self, poll=2, timeout=0):
-        timedout = time.time() + timeout
-        while timeout == 0 or time.time() <= timedout:
-            if self.empty():
-                return True
-            if timeout == 0:
-                time.sleep(poll)
-                continue
-            elif time.time() + poll > timedout:
-                time.sleep(timedout - time.time())
-            else:
-                time.sleep(poll)
-        return self.qsize()
-
-    def put(self, *args):
-        """Put item into the queue."""
-        _log.debug('Publishing to %s %s'%(self.key, str(args)))
-        self._redis.rpush(self.key, *args)
-
-    def get(self, block=True, timeout=None):
-        """Remove and return an item from the queue.
-
-        If optional args block is true and timeout is None (the default), block
-        if necessary until an item is available."""
-        if block:
-            item = self._redis.blpop(self.key, timeout=timeout)
-        else:
-            item = self._redis.lpop(self.key)
-        if item and block:
-            item = item[1]
-        _log.debug('Received msg from %s %s'%(self.key, str(item)))
-        return item
-
-    def get_nowait(self):
-        """Equivalent to get(False)."""
-        return self.get(False)
-
-    def get_iter(self, **kwargs):
-        while True:
-            val = self.get(**kwargs)
-            if val is None:
-                break
-            yield val
-
-
-class TaskQueue(RedisQueue):
-    def put(self, *args):
-        tasks = [get_keys(o, *Task._fields) for o in args]
-        super().put(*(json.dumps(t) for t in tasks))
-
-    def get(self, **kwargs):
-        val = super().get(**kwargs)
-        if val is not None:
-            task = json.loads(val)
-            return Task(**task)
-
-
-class ResultsQueue(RedisQueue):
-    def put(self, task, completed):
-        super().put(json.dumps((task._asdict(), completed)))
-
-    def get(self, **kwargs):
-        val = super().get(**kwargs)
-        if val is not None:
-            task, completed = json.loads(val)
-            return Task(**task), completed
-
-
-class PendingTaskQueue(TaskQueue):
-    def __init__(self, name, namespace='queue'):
-        self._pending_key = '%s:pending:%s'%(namespace, name)
-        super().__init__('todo:%s'%name)
-
-    def _incr(self):
-        self._redis.incr(self._pending_key)
-
-    def _decr(self):
-        self._redis.decr(self._pending_key)
-
-    def get(self, **kwargs):
-        item = super().get(**kwargs)
-        self._incr()
-        return self._decr, item
-
-    def done(self):
-        return self.pending() == 0
-
-    def pending(self):
-        val = self._redis.get(self._pending_key)
-        return 0 if val is None else int(val)
-
-    def wait_until_done(self, poll=2, timeout=0):
-        ret = self.wait_for_empty(poll=poll, timeout=timeout)
-        if ret is not True:
-            return ret
-        timedout = time.time() + timeout
-        while timeout == 0 or time.time() <= timedout:
-            if self.done():
-                return True
-            if timeout == 0:
-                time.sleep(poll)
-                continue
-            elif time.time() + poll > timedout:
-                time.sleep(timedout - time.time())
-            else:
-                time.sleep(poll)
-        return self.pending()

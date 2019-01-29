@@ -1,7 +1,7 @@
 from .util import log
 from .util.conf import config
 
-__version__ = '0.1.3'
+__version__ = '0.1.4'
 
 log.setupLogging('SFKO', __version__, **config.logging._asdict())
 

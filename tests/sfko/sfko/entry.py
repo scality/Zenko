@@ -6,7 +6,7 @@ from .execute import Execute as ExecuteStages
 from .report import init_scheduler
 from .util.conf import config
 from .util.log import Log
-from .util.redis import PendingTaskQueue, ResultsQueue
+from .util.queue import TaskQueue
 
 _log = Log('entry')
 
@@ -22,9 +22,8 @@ def get_args():
 
 
 def _build_queues():
-    tq = PendingTaskQueue('task')
-    rq = ResultsQueue('results')
-    return dict(task_queue=tq, results_queue=rq)
+    tq = TaskQueue('tasks')
+    return dict(task_queue=tq)
 
 def start_distributed(mode):
     _log.info('----- Starting in %s mode -----'%mode)

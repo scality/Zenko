@@ -67,7 +67,11 @@ APP_DEFAULTS = {
     },
     'results': {
         'enabled': True,
-        'schedule': '23:59'
+        'schedule': '23:59',
+        'hipchat': {
+            'room': None,
+            'token': None
+        }
     }
 }
 
