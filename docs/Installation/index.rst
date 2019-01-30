@@ -1,12 +1,17 @@
-Installing Zenko
-================
-
-Zenko runs natively in a Kubernetes cluster. Much of the complexity of
-installing Zenko involves deploying a suitable cluster. Scality supports
-MetalK8s, a Kubernetes engine that is optimized for the Zenko use case.
+Installation Guide
+==================
 
 .. toctree::
-  :maxdepth: 2
+   :maxdepth: 1
 
-  Installation_Guide
+   topics/Setting_Up_a_Cluster
+   topics/Installing_Zenko
+   topics/configure_ingress
+   topics/adding_NFS_storage
+   topics/adding_CIFS_storage
+
+.. _`Setting Up a MetalK8s Cluster`: ./topics/Setting_Up_a_Cluster.html
+
+
+
 

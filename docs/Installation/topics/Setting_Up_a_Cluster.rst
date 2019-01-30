@@ -1,12 +1,24 @@
+.. _Setting Up a Cluster:
+
 Setting Up a Cluster
 ####################
+
+While it is possible to run Zenko on a single machine, it’s designed for
+Kubernetes cluster operation. If you can set up a Kubernetes cluster on 
+your own, review the :ref:`General Cluster Requirements` and skip to
+:ref:`Installing Zenko`.
+
+Much of the complexity of installing Zenko involves deploying a suitable
+cluster. Scality supports MetalK8s, a Kubernetes engine that is optimized
+for the Zenko use case. You can set up a cluster quickly using
+`MetalK8s <https://github.com/scality/metalk8s/>`__, Scality's open-source
+Kubernetes cluster project.
 
 The following section describes general cluster requirements, which are tested
 on MetalK8s. Because MetalK8s is designed to operate without support from
 public cloud resources, the following sizing requirements are assumed good for
 other cloud Kubernetes deployments, where such resources are preinstalled and
 available on demand.
-
 
 .. _General Cluster Requirements:
 

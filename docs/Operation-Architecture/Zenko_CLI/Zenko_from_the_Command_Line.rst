@@ -9,16 +9,17 @@ S3 API calls and to access its own Backbeat server.
 Enabling command-line interactions enables programmatic access to
 the following features:
 
-.. toctree:: 
-   :maxdepth: 2 
+.. toctree::
+   :maxdepth: 2
 
-   CRR_Metrics_and_Health
-   CRR_Retry
-   CRR_Pause_&_Resume
-   CRR_statistics
+   CRR Metrics and Healthcheck <CRR_Metrics_and_Health>
+   CRR Retry <CRR_Retry>
+   CRR Pause and Resume <CRR_Pause_&_Resume>
+   CRR Statistics <CRR_statistics>
+   Object Lifecycle Management <Object_Lifecycle_Management>
 
 Accessing Zenko from the command line requires the following setup tasks.
-   
+
 S3 API
 ------
 
@@ -75,7 +76,7 @@ AWS gateway.
        10.0.0.5 node-05 node-05.cluster.local
        # Ansible inventory hosts END
 
-#. Retrieve your Zenko access key ID and Zenko secret access key.
+#. Retrieve your Zenko access key ID and Zenko secret access key.
 
 #. Configure AWS using these keys.
 
@@ -89,7 +90,7 @@ AWS gateway.
 
    Leave the Default region name and output format fields blank.
 
-#. Enter a test AWS command.
+#. Enter a test AWS command.
 
    ::
 
@@ -135,5 +136,5 @@ troubleshooting only.
 
    Opening the Backbeat API has security implications. Don’t expose the
    Backbeat port unless you know what you’re doing.
-   
+
 .. _`CRR Metrics and Healthcheck`: CRR_Metrics_and_Health.html

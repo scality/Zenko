@@ -14,6 +14,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         git \
         inkscape \
         latexmk \
+	less \
         make \
         python2.7 \
         python3-buildbot-worker \
