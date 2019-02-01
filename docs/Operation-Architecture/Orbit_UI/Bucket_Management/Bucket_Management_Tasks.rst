@@ -7,5 +7,5 @@ Orbit makes available the following bucket tasks.
 
    Create a Bucket <Create_a_bucket>
    View Bucket Info <View_Bucket_Info>
-   Object Lifecycle Management <Object_Lifecycle_Management>
+   Lifecycle Management <Lifecycle_Management>
 
