@@ -26,17 +26,6 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.ftpd.image.repository }}:{{ .Values.ftpd.image.tag }}"
           imagePullPolicy: {{ .Values.ftpd.image.pullPolicy }}
-          ports:
-            - name: ftp
-              containerPort: 21
-              protocol: TCP
-{{- $passive_start := int .Values.ftpd.ftp.passive.start -}}
-{{- $passive_end := int .Values.ftpd.ftp.passive.end -}}
-{{ range $i := untilStep $passive_start $passive_end 1 }}
-            - name: ftp-passive-{{ $i }}
-              containerPort: {{ $i }}
-              protocol: TCP
-{{- end -}}
           env:
             - name: FTP_SERVER_NAME
               value: {{ .Values.ftpd.ftp.servername }}
@@ -54,3 +43,14 @@ spec:
               value: {{ .Values.ftpd.remote.secretKey }}
             - name: AWS_ENDPOINT
               value: {{ .Values.ftpd.remote.endpoint }}
+          ports:
+            - name: ftp
+              containerPort: 21
+              protocol: TCP
+{{- $passive_start := int .Values.ftpd.ftp.passive.start -}}
+{{- $passive_end := int .Values.ftpd.ftp.passive.end -}}
+{{ range $i := untilStep $passive_start $passive_end 1 }}
+            - name: ftp-passive-{{ $i }}
+              containerPort: {{ $i }}
+              protocol: TCP
+{{- end -}}
