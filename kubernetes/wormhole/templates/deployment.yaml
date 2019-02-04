@@ -44,9 +44,9 @@ spec:
             - name: AWS_ENDPOINT
               value: {{ .Values.ftpd.remote.endpoint }}
             - name: PASSIVE_PORT_START
-              value: {{ .Values.ftpd.ftp.passive.start }}
+              value: "{{ .Values.ftpd.ftp.passive.start }}"
             - name: PASSIVE_PORT_END
-              value: {{ .Values.ftpd.ftp.passive.end }}
+              value: "{{ .Values.ftpd.ftp.passive.end }}"
           ports:
             - name: ftp
               containerPort: 2121
