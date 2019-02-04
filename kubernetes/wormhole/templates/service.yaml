@@ -10,6 +10,10 @@ metadata:
     release: {{ .Release.Name }}
 spec:
   type: {{ .Values.ftpd.service.type }}
+  selector:
+    app: {{ template "wormhole.name" . }}
+    component: ftpd
+    release: {{ .Release.Name }}
   ports:
     - port: {{ .Values.ftpd.service.port }}
       targetPort: {{ .Values.ftpd.service.port }}
@@ -22,8 +26,4 @@ spec:
       targetPort: {{ $i }}
       port: {{ $i }}
       protocol: TCP
-{{- end -}}
-  selector:
-    app: {{ template "wormhole.name" . }}
-    component: ftpd
-    release: {{ .Release.Name }}
+{{- end }}
