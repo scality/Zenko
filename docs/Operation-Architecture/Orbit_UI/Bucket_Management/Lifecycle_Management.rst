@@ -12,15 +12,15 @@ Object Lifecycle Management
 
    |image1|
 
-#. Choose a bucket and pick **Add New Rule**
+#. Choose a bucket and pick **Add New Rule > Expiration**
 #. The **Add New Rule** dialog appears:
 
    |image2|
 
-   Enter a name for the rule. You may enter a distinct directory or
-   subdirectory to which the rule applies. Enter an expiration time span
-   and a deletion time span. These follow the bucket and enforce
-   expiration and deletion.
+   You may enter a distinct directory or subdirectory to which the rule applies.
+   Enter an expiration time span and a deletion time span.
+   These follow the bucket and enforce expiration and deletion.
+   You may also add a comment about this expiration rule. 
 
    Click **Save**.
 
@@ -43,4 +43,3 @@ page 1.
    :class: FiftyPercent
 .. |image3| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_lifecycle_rule_success.png
    :class: OneHundredPercent
-
