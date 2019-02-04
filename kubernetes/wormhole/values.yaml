@@ -1,0 +1,32 @@
+ftpd:
+  name: ftpd
+  replicaCount: 1
+
+  image:
+    repository: tmacro/ftp-bridge
+    tag: latest
+    pullPolicy: Always
+
+  remote:
+    accessKey: my-access-key
+    secretKey: my-secret-key
+    endpoint: http://cloudserver
+    region: us-east-1
+    bucket: ftp-ingest
+
+  ftp:
+    username:
+    password:
+    servername: scality-wormhole
+    passive:
+      start: 40000
+      end: 40250
+
+  service:
+    type: ClusterIP
+    port: 21
+
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}

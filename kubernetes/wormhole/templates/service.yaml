@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "wormhole.ftpd.fullname" . }}
+  labels:
+    app: {{ template "wormhole.name" . }}
+    chart: {{ template "wormhole.chart" . }}
+    component: ftpd
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  type: {{ .Values.ftpd.service.type }}
+  ports:
+    - port: {{ .Values.ftpd.service.port }}
+      targetPort: {{ .Values.ftpd.service.port }}
+      protocol: TCP
+      name: ftp
+{{- $passive_start := int .Values.ftpd.ftp.passive.start -}}
+{{- $passive_end := int .Values.ftpd.ftp.passive.end -}}
+{{ range $i := untilStep $passive_start $passive_end 1 }}
+    - name: ftp-passive-{{ $i }}
+      targetPort: {{ $i }}
+      port: {{ $i }}
+      protocol: TCP
+{{- end -}}
+  selector:
+    app: {{ template "wormhole.name" . }}
+    component: ftpd
+    release: {{ .Release.Name }}
