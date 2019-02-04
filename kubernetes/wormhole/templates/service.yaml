@@ -22,7 +22,7 @@ spec:
 {{- $passive_start := int .Values.ftpd.ftp.passive.start -}}
 {{- $passive_end := int .Values.ftpd.ftp.passive.end -}}
 {{ range $i := untilStep $passive_start $passive_end 1 }}
-    - name: ftp-passive-{{ $i }}
+    - name: passive-{{ $i }}
       targetPort: {{ $i }}
       port: {{ $i }}
       protocol: TCP
