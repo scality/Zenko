@@ -23,7 +23,7 @@ ftpd:
       end: 40250
 
   service:
-    type: ClusterIP
+    type: NodePort
     port: 21
 
   resources: {}
