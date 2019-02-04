@@ -25,5 +25,6 @@ spec:
     - name: passive-{{ $i }}
       targetPort: {{ $i }}
       port: {{ $i }}
+      nodePort: {{ $i }}
       protocol: TCP
 {{- end }}
