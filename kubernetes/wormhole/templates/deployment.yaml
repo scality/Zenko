@@ -48,7 +48,7 @@ spec:
             - name: PASSIVE_PORT_END
               value: "{{ .Values.ftpd.ftp.passive.end }}"
             - name: FORCE_PATHSTYLE
-              value: true
+              value: "true"
           ports:
             - name: ftp
               containerPort: 21
