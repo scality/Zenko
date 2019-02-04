@@ -28,7 +28,7 @@ models:
       sigtermTime: 1200
       env:
         KUBECONFIG: /root/.kube/config
-        ZENKO_HELM_RELEASE: 'zenko-offline'
+        ZENKO_HELM_RELEASE: 'zenko-off'
         HELM_NAMESPACE: '%(prop:workername)s'
   - Upload: &upload_artifacts
       source: tests/artifacts
@@ -194,7 +194,7 @@ stages:
         env:
           <<: [*mock_env, *secrets_env, *docker_env]
           KUBECONFIG: /root/.kube/config
-          ZENKO_HELM_RELEASE: 'zenko-offline'
+          ZENKO_HELM_RELEASE: 'zenko-off'
           HELM_NAMESPACE: '%(prop:workername)s'
           TILLER_NAMESPACE: '%(prop:workername)s'
           INSTALL_TIMEOUT: "600"
@@ -271,7 +271,7 @@ stages:
         env:
           <<: *global_env
           KUBECONFIG: /root/.kube/config
-          ZENKO_HELM_RELEASE: 'zenko-offline'
+          ZENKO_HELM_RELEASE: 'zenko-off'
           HELM_NAMESPACE: '%(prop:workername)s'
           TILLER_NAMESPACE: '%(prop:workername)s'
           INSTALL_TIMEOUT: "600"
