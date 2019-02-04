@@ -47,7 +47,7 @@ spec:
               value: "{{ .Values.ftpd.ftp.passive.start }}"
             - name: PASSIVE_PORT_END
               value: "{{ .Values.ftpd.ftp.passive.end }}"
-            - name: FORCE_PATHSTYLE
+            - name: FORCE_PATH_STYLE
               value: "true"
           ports:
             - name: ftp
