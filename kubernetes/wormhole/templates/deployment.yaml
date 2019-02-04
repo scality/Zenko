@@ -47,6 +47,8 @@ spec:
               value: "{{ .Values.ftpd.ftp.passive.start }}"
             - name: PASSIVE_PORT_END
               value: "{{ .Values.ftpd.ftp.passive.end }}"
+            - name: FORCE_PATHSTYLE
+              value: true
           ports:
             - name: ftp
               containerPort: 21
@@ -55,7 +57,6 @@ spec:
 {{- $passive_end := int .Values.ftpd.ftp.passive.end -}}
 {{ range $i := untilStep $passive_start $passive_end 1 }}
             - name: passive-{{ $i }}
-              targetPort: {{ $i }}
               containerPort: {{ $i }}
               protocol: TCP
 {{- end -}}

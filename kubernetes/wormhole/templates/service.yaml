@@ -24,7 +24,7 @@ spec:
 {{- $passive_end := int .Values.ftpd.ftp.passive.end -}}
 {{ range $i := untilStep $passive_start $passive_end 1 }}
     - name: passive-{{ $i }}
-      targetPort: {{ $i }}
+      targetPort: passive-{{ $i }}
       port: {{ $i }}
       nodePort: {{ $i }}
       protocol: TCP
