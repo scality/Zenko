@@ -18,6 +18,7 @@ spec:
     - port: {{ .Values.ftpd.service.port }}
       targetPort: {{ .Values.ftpd.service.port }}
       protocol: TCP
+      nodePort: 32021
       name: ftp
 {{- $passive_start := int .Values.ftpd.ftp.passive.start -}}
 {{- $passive_end := int .Values.ftpd.ftp.passive.end -}}

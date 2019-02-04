@@ -19,8 +19,8 @@ ftpd:
     password:
     servername: scality-wormhole
     passive:
-      start: 40000
-      end: 40250
+      start: 32022
+      end: 32075
 
   service:
     type: NodePort
