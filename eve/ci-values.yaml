@@ -109,6 +109,7 @@ cloudserver:
   env:
     MPU_TESTING: 'yes'
     PUSH_STATS: 'false'
+    CI_CEPH: 'true'
     CI: 'true'
     S3_END_TO_END: 'true'
 

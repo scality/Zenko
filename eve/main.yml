@@ -230,11 +230,14 @@ stages:
       - ShellCommand: *k8s_setup
       - ShellCommand:
           name: Setup latest Zenko and run end to end tests
-          command: make -e test-latest
+          command: make -e VERBOSE=1 test-latest
           workdir: build/tests
           env:
             BACKBEAT_BRANCH: development/8.0
             CLOUDSERVER_BRANCH: development/8.0
+            PYTHON_ARGS: "-k 'not ceph'"
+            HELM_NAMESPACE: '%(prop:workername)s'
+            TILLER_NAMESPACE: '%(prop:workername)s'
             <<: *global_env
       - ShellCommand: *dump_logs
       - Upload: *upload_artifacts
@@ -253,6 +256,8 @@ stages:
         env:
           BACKBEAT_BRANCH: development/8.1
           CLOUDSERVER_BRANCH: development/8.1
+          HELM_NAMESPACE: '%(prop:workername)s'
+          TILLER_NAMESPACE: '%(prop:workername)s'
           <<: *global_env
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
