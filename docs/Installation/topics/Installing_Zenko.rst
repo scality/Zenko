@@ -36,7 +36,7 @@ For a default sizing, paste the following into kube-node.yml:
 For custom sizing, increase these base numbers.
 
 For non-MetalK8s deployments, follow your vendor or community’s instructions for
-configuring persistent voloumes at 500 Gi/node.
+configuring persistent volumes at 500 Gi/node.
 
 
 .. note::
