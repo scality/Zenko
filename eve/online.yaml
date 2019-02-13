@@ -1,0 +1,6 @@
+global:
+  orbit:
+    endpoint: "http://ciutil-orbit-simulator:4222"
+    managerMode: "poll"
+    workerMode: "poll"
+

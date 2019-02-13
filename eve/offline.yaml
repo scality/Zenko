@@ -1,0 +1,155 @@
+global:
+  orbit:
+    enabled: false
+  locationConstraints:
+    awsbackend:
+      type: aws_s3
+      legacyAwsBehavior: false
+      details:
+        bucketMatch: true
+        bucketName: $AWS_BUCKET_NAME
+        https: true
+        awsEndpoint: s3.amazonaws.com
+        credentials:
+          accessKey: $AWS_ACCESS_KEY
+          secretKey: $AWS_SECRET_KEY
+    awsbackend2:
+      type: aws_s3
+      legacyAwsBehavior: false
+      details:
+        bucketMatch: false
+        bucketName: $AWS_BUCKET_NAME_2
+        awsEndpoint: s3.amazonaws.com
+        credentials:
+          accessKey: $AWS_ACCESS_KEY_2
+          secretKey: $AWS_SECRET_KEY_2
+    awsbackendmismatch:
+      type: aws_s3
+      legacyAwsBehavior: true
+      details:
+        bucketMatch: false
+        bucketName: $AWS_CRR_BUCKET_NAME
+        awsEndpoint: s3.amazonaws.com
+        credentials:
+          accessKey: $AWS_ACCESS_KEY
+          secretKey: $AWS_SECRET_KEY
+    awsbackendencryption:
+      type: aws_s3
+      legacyAwsBehavior: true
+      details:
+        bucketMatch: true
+        bucketName: $AWS_BUCKET_NAME
+        awsEndpoint: s3.amazonaws.com
+        serverSideEncryption: true
+        credentials:
+          accessKey: $AWS_ACCESS_KEY
+          secretKey: $AWS_SECRET_KEY
+    us-east-2:
+      type: aws_s3
+      legacyAwsBehavior: true
+      details:
+        bucketMatch: true
+        bucketName: $AWS_CRR_BUCKET_NAME
+        awsEndpoint: s3.amazonaws.com
+        credentials:
+          accessKey: $AWS_CRR_ACCESS_KEY
+          secretKey: $AWS_CRR_SECRET_KEY
+    azurebackend:
+      type: azure
+      legacyAwsBehavior: true
+      details:
+        bucketMatch: true
+        azureContainerName: $AZURE_BUCKET_NAME
+        azureStorageEndpoint: $AZURE_BACKEND_ENDPOINT
+        azureStorageAccountName: $AZURE_ACCOUNT_NAME
+        azureStorageAccessKey: $AZURE_SECRET_KEY
+    azurebackend2:
+      type: azure
+      legacyAwsBehavior: true
+      details:
+        bucketMatch: true
+        azureContainerName: $AZURE_BUCKET_NAME_2
+        azureStorageEndpoint: $AZURE_BACKEND_ENDPOINT_2
+        azureStorageAccountName: $AZURE_ACCOUNT_NAME_2
+        azureStorageAccessKey: $AZURE_SECRET_KEY_2
+    azurebackendmismatch:
+      type: azure
+      legacyAwsBehavior: true
+      details:
+        bucketMatch: true
+        azureContainerName: $AZURE_CRR_BUCKET_NAME
+        azureStorageEndpoint: $AZURE_BACKEND_ENDPOINT
+        azureStorageAccountName: $AZURE_ACCOUNT_NAME
+        azureStorageAccessKey: $AZURE_SECRET_KEY
+    azurebackendreplication:
+      type: azure
+      legacyAwsBehavior: true
+      details:
+        bucketMatch: true
+        azureContainerName: $AZURE_CRR_BUCKET_NAME
+        azureStorageEndpoint: $AZURE_BACKEND_ENDPOINT
+        azureStorageAccountName: $AZURE_ACCOUNT_NAME
+        azureStorageAccessKey: $AZURE_SECRET_KEY
+    gcpbackend:
+      type: gcp
+      legacyAwsBehavior: true
+      details:
+        bucketMatch: true
+        bucketName: $GCP_BUCKET_NAME
+        mpuBucketName: $GCP_MPU_BUCKET_NAME
+        endpoint: storage.googleapis.com
+        credentials:
+          accessKey: $GCP_ACCESS_KEY
+          secretKey: $GCP_SECRET_KEY
+    gcpbackendmismatch:
+      type: gcp
+      legacyAwsBehavior: true
+      details:
+        bucketMatch: false
+        bucketName: $GCP_CRR_BUCKET_NAME
+        mpuBucketName: $GCP_MPU_BUCKET_NAME
+        endpoint: storage.googleapis.com
+        credentials:
+          accessKey: $GCP_ACCESS_KEY
+          secretKey: $GCP_SECRET_KEY
+    gcpbackend2:
+      type: gcp
+      legacyAwsBehavior: true
+      details:
+        bucketMatch: true
+        bucketName: $GCP_BUCKET_NAME_2
+        mpuBucketName: $GCP_MPU_BUCKET_NAME_2
+        endpoint: storage.googleapis.com
+        credentials:
+          accessKey: $GCP_ACCESS_KEY_2
+          secretKey: $GCP_SECRET_KEY_2
+    gcpbackendreplication:
+      type: gcp
+      legacyAwsBehavior: true
+      details:
+        bucketMatch: true
+        bucketName: $GCP_CRR_BUCKET_NAME
+        mpuBucketName: $GCP_CRR_MPU_BUCKET_NAME
+        endpoint: storage.googleapis.com
+        credentials:
+          accessKey: $GCP_ACCESS_KEY
+          secretKey: $GCP_SECRET_KEY
+    transientbackend:
+      type: file
+      legacyAwsBehavior: false
+      isTransient: true
+      details: {}
+    quotabackend:
+      type: file
+      legacyAwsBehavior: true
+      sizeLimitGB: 1
+      objectId: fcf24630-d55b-4993-9927-438a581f6d08
+      details: {}
+  replicationEndpoints:
+    - azurebackendreplication
+    - gcpbackendreplication
+    - awsbackendreplication
+    - transientsource
+    - onetomanyreplication
+cloudserver:
+  endpoint: zenko.local
