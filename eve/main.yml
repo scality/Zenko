@@ -238,6 +238,7 @@ stages:
             <<: *global_env
       - ShellCommand: *dump_logs
       - Upload: *upload_artifacts
+      - ShellCommand: *k8s_cleanup
 
   test-latest-1.1.x:
     worker: *kube_cluster
