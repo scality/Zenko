@@ -131,6 +131,8 @@ prometheus:
                 component: server
 
 mongodb-replicaset:
+  image:
+    tag: 3.6.8
   replicaSetName: rs0
   replicas: *nodeCount
   podDisruptionBudget:
