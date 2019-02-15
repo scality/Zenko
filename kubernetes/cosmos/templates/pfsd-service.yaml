@@ -1,7 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
+  {{- if .Values.pfsd.service.name }}
+  name: {{ .Values.pfsd.service.name }}
+  {{- else }}
   name: {{ template "cosmos.pfsd.fullname" . }}
+  {{- end }}
   labels:
     app: {{ template "cosmos.name" . }}
     chart: {{ template "cosmos.chart" . }}

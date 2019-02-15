@@ -14,8 +14,5 @@ data:
     type = s3
     provider = Other
     env_auth = true
-    access_key_id = {{ .Values.rclone.remote.accessKey }}
-    secret_access_key = {{ .Values.rclone.remote.secretKey }}
     endpoint = {{ .Values.rclone.remote.endpoint }}
     location_constraint = {{ .Values.rclone.remote.region }}
-
