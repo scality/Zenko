@@ -10,7 +10,9 @@ pfsd:
     pullPolicy: IfNotPresent
 
   service:
-    name: ""
+    ## Override the generated service name.
+    # name: ""
+
     type: ClusterIP
     port: 80
 
@@ -44,10 +46,13 @@ rclone:
 
   remote:
     credentials:
-      existingSercret: ""
+      ## Specify an existing secret to get credentials from.
+      # existingSercret: ""
 
+      ## Otherwise use the following credentials.
       accessKey: my-access-key
       secretKey: my-secret-key
+
     endpoint: http://zenko-cloudserver
     region: mynfs
     bucket: newbucket

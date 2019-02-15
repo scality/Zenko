@@ -1,0 +1,19 @@
+apiVersion: zenko.io/v1alpha1
+kind: Cosmos
+metadata:
+  name: example-cosmos
+spec:
+  rclone:
+    schedule: "0 */12 * * *"
+    remote:
+      credentials:
+        accessKey: "myAccessKey"
+        secretKey: "mySecretKey"
+      endpoint: "10.100.42.1:8000"
+      region: "us-east-1"
+      bucket: "s3bucket"
+  backend:
+    type: "nfs"
+    server: 10.100.1.42
+    path: /data
+    options: ""
