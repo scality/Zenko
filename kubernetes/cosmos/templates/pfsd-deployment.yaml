@@ -71,7 +71,7 @@ spec:
     {{- end }}
       volumes:
         - name: backend-storage
-{{- if .Values.persistentVolume.enabled }}
+{{- if not (eq .Values.backend.type "ftp") }}
           persistentVolumeClaim:
             claimName: {{ template "cosmos.fullname" . }}
 {{- else }}

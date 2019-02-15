@@ -1,4 +1,4 @@
-{{- if .Values.persistentVolume.enabled }}
+{{- if not (eq .Values.backend.type "ftp") }}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -12,8 +12,14 @@ spec:
   accessModes:
   - ReadWriteMany
   capacity:
-    storage: {{ .Values.persistentVolume.size }}
-{{ toYaml .Values.persistentVolume.volumeConfig | indent 2 }}
+    storage: "1Gi"
+  nfs:
+    server: {{ .Values.backend.server }}
+    path: {{ .Values.backend.path }}
+    mountOptions:
+    {{- range split "," .Values.backend.options }}
+    - {{ . }}
+    {{- end }}
   persistentVolumeReclaimPolicy: Retain
   storageClassName: {{ template "cosmos.fullname" . }}
 {{- end }}

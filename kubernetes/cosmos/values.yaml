@@ -10,6 +10,7 @@ pfsd:
     pullPolicy: IfNotPresent
 
   service:
+    name: ""
     type: ClusterIP
     port: 80
 
@@ -37,32 +38,28 @@ rclone:
     tag: 1.45
     pullPolicy: IfNotPresent
 
+  suspend: true
   schedule: "0 */12 * * *"
   successfulJobsHistory: 1
 
   remote:
-    accessKey: my-access-key
-    secretKey: my-secret-key
-    endpoint: http://cloudserver
-    region: pfsd-1
-    bucket: pfsd-1
+    credentials:
+      existingSercret: ""
+
+      accessKey: my-access-key
+      secretKey: my-secret-key
+    endpoint: http://zenko-cloudserver
+    region: mynfs
+    bucket: newbucket
 
   resources: {}
   nodeSelector: {}
   tolerations: []
   affinity: {}
 
-persistentVolume:
-  enabled: false
-  volumeConfig:
-    ## Example NFS config
-    # nfs:
-    #   server: 10.100.1.42
-    #   path: /data
-    #   readOnly: false
-    # mountOptions:
-    # - hard
-    # - nfsvers=4.1
-  accessModes:
-    - ReadWriteMany
-  size: 1Gi
+backend:
+  ## One of [nfs, smb, ftp]
+  type: nfs
+  server: 10.100.1.28
+  path: /data
+  options: "hard,nfsvers=4.1"
