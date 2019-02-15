@@ -1,0 +1,49 @@
+{{- if and (not .Values.global.orbit.enabled) (or .Values.global.createBuckets .Values.global.replicationConfig) -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ template "zenko.fullname" . }}-init
+  labels:
+{{ include "zenko.labels.standard" . | indent 4 }}
+spec:
+  template:
+    metadata:
+      labels:
+        app: {{ template "zenko.fullname" . }}
+        release: {{ .Release.Name }}
+    spec:
+      restartPolicy: OnFailure
+      containers:
+{{- if .Values.global.createBuckets -}}
+      - name: bucket-init
+        image: {{ .Values.maintenance.s3Utils.image.repository }}:{{ .Values.maintenance.s3Utils.image.tag }}
+        imagePullPolicy: {{ .Values.maintenance.s3Utils.image.pullPolicy }}
+        command: ["/bin/bash"]
+        args:
+        - -c
+        - node createBuckets.js $BUCKETS
+        env:
+        - name: BUCKETS
+          value: {{ template "zenko.create-buckets" . }}
+        - name: ENDPOINT
+          value: "{{ .Release.Name }}-cloudserver"
+        - name: ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "zenko.retry" . }}
+              key: accesskey
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "zenko.retry" . }}
+              key: secretkey
+{{- end }}
+{{- if .Values.global.replicationConfig -}}
+      - name: replication-init
+        image: {{ .Values.backbeat.image.repository }}:{{ .Values.backbeat.image.tag }}
+        imagePullPolicy: {{ .Values.backbeat.image.pullPolicy }}
+        command: node
+        args:
+        - bin/replication.js
+{{- end }}
+{{- end }}

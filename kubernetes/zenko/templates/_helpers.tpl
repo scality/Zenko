@@ -81,3 +81,21 @@ Create the default mongodb replicaset hosts string
 {{- $release := .Release.Name -}}
 {{- range $v := until $count }}{{ $release }}-mongodb-replicaset-{{ $v }}.{{ $release }}-mongodb-replicaset:27017{{ if ne $v (sub $count 1) }},{{- end -}}{{- end -}}
 {{- end -}}
+
+{{/*
+Generate bucket creation list
+*/}}
+{{- define "zenko.create-buckets-og" -}}
+{{- $buckets := list -}}
+{{- range $bucket := .Values.global.createBuckets -}}
+{{- printf "%s:%s" (index . "name") (index . "location") | append $buckets}},
+{{- end }}
+{{- join "," $buckets }}
+{{- end -}}
+
+{{- define "zenko.create-buckets" -}}
+{{- $buckets := .Values.global.createBuckets -}}
+{{- range $index, $bucket := .Values.global.createBuckets -}}
+{{- printf "%s-%s" .name .location -}}{{- if slice $buckets (add $index 1) -}}{{- printf "," -}}{{- end -}}
+{{- end -}}
+{{- end -}}

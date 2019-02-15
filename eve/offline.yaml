@@ -2,6 +2,8 @@ global:
   orbit:
     enabled: false
   locationConstraints:
+    scality-us-west-1:
+      type: file
     awsbackend:
       type: aws_s3
       legacyAwsBehavior: false
@@ -145,11 +147,59 @@ global:
       sizeLimitGB: 1
       objectId: fcf24630-d55b-4993-9927-438a581f6d08
       details: {}
+  createBuckets:
+    - name: $AZURE_CRR_SRC_BUCKET_NAME
+      location: scality-us-west-1
+    - name: $GCP_CRR_SRC_BUCKET_NAME
+      location: scality-us-west-1
+    - name: $AWS_CRR_SRC_BUCKET_NAME
+      location: scality-us-west-1
+    - name: $TRANSIENT_SRC_BUCKET_NAME
+      location: transientbackend
+    - name: $MULTI_CRR_SRC_BUCKET_NAME
+      location: scality-us-west-1
   replicationEndpoints:
     - azurebackendreplication
     - gcpbackendreplication
-    - awsbackendreplication
-    - transientsource
-    - onetomanyreplication
+    - us-east-2
+  replicationConfig:
+    azurebackendreplication:
+      source:
+        bucketName: $AZURE_CRR_SRC_BUCKET_NAME
+        location: scality-us-west-1
+      destination:
+        locations:
+          - name: azurebackendreplication
+    gcpbackendreplication:
+      source:
+        bucketName: $GCP_CRR_SRC_BUCKET_NAME
+        location: scality-us-west-1
+      destination:
+        locations:
+          - name: gcpbackendreplication
+    awsbackendreplication:
+      source:
+        bucketName: $AWS_CRR_SRC_BUCKET_NAME
+        location: scality-us-west-1
+      destination:
+        locations:
+          - name: us-east-2
+    transientsource:
+      source:
+        bucketName: $TRANSIENT_SRC_BUCKET_NAME
+        location: transientbackend
+      destination:
+        preferred_read_location: us-east-2
+        locations:
+          - name: us-east-2
+    onetomanyreplication:
+      source:
+        bucketName: $MULTI_CRR_SRC_BUCKET_NAME
+        location: scality-us-west-1
+      destination:
+        locations:
+          - name: us-east-2
+          - name: azurebackendreplication
+          - name: gcpbackendreplication
 cloudserver:
   endpoint: zenko.local
