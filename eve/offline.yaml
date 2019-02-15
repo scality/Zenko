@@ -169,21 +169,21 @@ global:
         location: scality-us-west-1
       destination:
         locations:
-          - name: azurebackendreplication
+          - azurebackendreplication
     gcpbackendreplication:
       source:
         bucketName: $GCP_CRR_SRC_BUCKET_NAME
         location: scality-us-west-1
       destination:
         locations:
-          - name: gcpbackendreplication
+          - gcpbackendreplication
     awsbackendreplication:
       source:
         bucketName: $AWS_CRR_SRC_BUCKET_NAME
         location: scality-us-west-1
       destination:
         locations:
-          - name: us-east-2
+          - us-east-2
     transientsource:
       source:
         bucketName: $TRANSIENT_SRC_BUCKET_NAME
@@ -191,15 +191,15 @@ global:
       destination:
         preferred_read_location: us-east-2
         locations:
-          - name: us-east-2
+          - us-east-2
     onetomanyreplication:
       source:
         bucketName: $MULTI_CRR_SRC_BUCKET_NAME
         location: scality-us-west-1
       destination:
         locations:
-          - name: us-east-2
-          - name: azurebackendreplication
-          - name: gcpbackendreplication
+          - us-east-2
+          - azurebackendreplication
+          - gcpbackendreplication
 cloudserver:
   endpoint: zenko.local

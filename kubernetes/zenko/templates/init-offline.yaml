@@ -1,4 +1,4 @@
-{{- if and (not .Values.global.orbit.enabled) (or .Values.global.createBuckets .Values.global.replicationConfig) -}}
+{{- if and (not .Values.global.orbit.enabled) .Values.global.createBuckets -}}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -14,7 +14,6 @@ spec:
     spec:
       restartPolicy: OnFailure
       containers:
-{{- if .Values.global.createBuckets -}}
       - name: bucket-init
         image: {{ .Values.maintenance.s3Utils.image.repository }}:{{ .Values.maintenance.s3Utils.image.tag }}
         imagePullPolicy: {{ .Values.maintenance.s3Utils.image.pullPolicy }}
@@ -37,13 +36,4 @@ spec:
             secretKeyRef:
               name: {{ template "zenko.retry" . }}
               key: secretkey
-{{- end }}
-{{- if .Values.global.replicationConfig -}}
-      - name: replication-init
-        image: {{ .Values.backbeat.image.repository }}:{{ .Values.backbeat.image.tag }}
-        imagePullPolicy: {{ .Values.backbeat.image.pullPolicy }}
-        command: node
-        args:
-        - bin/replication.js
-{{- end }}
 {{- end }}
