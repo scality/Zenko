@@ -15,7 +15,6 @@ type CosmosInterface interface {
 	Update(*v1alpha1.Cosmos) (*v1alpha1.Cosmos, error)
 	Delete(name string, options *metav1.DeleteOptions) error
 	Watch(opts metav1.ListOptions) (watch.Interface, error)
-	// ...
 }
 
 type CosmosClient struct {

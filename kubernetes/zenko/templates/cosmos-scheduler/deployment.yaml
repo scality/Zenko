@@ -1,0 +1,42 @@
+{{- if .Values.cosmos.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "cosmos-scheduler.fullname" . }}
+  labels:
+    app: {{ template "cosmos-scheduler.name" . }}
+    chart: {{ template "zenko.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ template "cosmos-scheduler.name" . }}
+      name: {{ template "cosmos-scheduler.fullname" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "cosmos-scheduler.name" . }}
+        name: {{ template "cosmos-scheduler.fullname" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: {{ template "cosmos-operator.fullname" . }}
+        image: "{{ .Values.cosmos.scheduler.image.repository }}:{{ .Values.cosmos.scheduler.image.tag }}"
+        imagePullPolicy: {{ .Values.cosmos.scheduler.image.pullPolicy }}
+        env:
+        - name: NAMESPACE
+          value: "{{ .Values.cosmos.scheduler.namespace }}"
+        - name: INGESTION_SCHEDULE
+          value: "{{ .Values.cosmos.scheduler.schedule }}"
+        - name: CLOUDSERVER_ENDPOINT
+          value: "http://{{ .Release.Name }}-cloudserver"
+        - name: MONGODB_HOSTS
+          value: "{{ template "zenko.mongodb-hosts" . }}"
+        - name: STORAGE_CLASS
+          value: "{{ template "cosmos-operator.storageclass" . }}"
+        resources:
+{{ toYaml .Values.cosmos.scheduler.resources | indent 10 }}
+{{- end -}}

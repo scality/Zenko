@@ -114,7 +114,7 @@ cosmos:
   operator:
     image:
       repository: zenko/cosmos-operator
-      tag: 0.1.0
+      tag: 0.2.0
       pullPolicy: IfNotPresent
     resources:
       limits:
@@ -123,6 +123,19 @@ cosmos:
       requests:
         cpu: 50m
         memory: 64Mi
+  scheduler:
+    image:
+      repository: zenko/cosmos-scheduler
+      tag: 0.1.0
+      pullPolicy: IfNotPresent
+
+    namespace: default
+    schedule: "* */12 * * *"
+
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
 
 zenko-nfs:
   enabled: false

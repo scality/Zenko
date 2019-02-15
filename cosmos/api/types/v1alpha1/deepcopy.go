@@ -8,10 +8,26 @@ func (in *Cosmos) DeepCopyInto(out *Cosmos) {
 	out.TypeMeta = in.TypeMeta
 	out.ObjectMeta = in.ObjectMeta
 	out.Spec = CosmosSpec{
-		Pfsd:    in.Spec.Pfsd,
-		Rclone:  in.Spec.Rclone,
-		Backend: in.Spec.Backend,
-		// TODO: Make this more deep
+		FullnameOverride: in.Spec.FullnameOverride,
+		Rclone: CosmosRcloneSpec{
+			Schedule: in.Spec.Rclone.Schedule,
+			Remote: CosmosRcloneRemoteSpec{
+				Endpoint: in.Spec.Rclone.Remote.Endpoint,
+				Region:   in.Spec.Rclone.Remote.Region,
+				Bucket:   in.Spec.Rclone.Remote.Bucket,
+			},
+		},
+		PersistentVolume: CosmosPersistentVolumeSpec{
+			Enabled:      in.Spec.PersistentVolume.Enabled,
+			StorageClass: in.Spec.PersistentVolume.StorageClass,
+			VolumeConfig: CosmosVolumeConfigSpec{
+				NFS: CosmosNFSSpec{
+					Path:         in.Spec.PersistentVolume.VolumeConfig.NFS.Path,
+					Server:       in.Spec.PersistentVolume.VolumeConfig.NFS.Server,
+					MountOptions: in.Spec.PersistentVolume.VolumeConfig.NFS.MountOptions,
+				},
+			},
+		},
 	}
 }
 
