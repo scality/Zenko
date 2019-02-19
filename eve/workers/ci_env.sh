@@ -66,4 +66,9 @@ FLAGS="\
 --$CLI_FLAG ${CI_PREFIX}CLOUDSERVER_ENDPOINT=http://$ZENKO_HELM_RELEASE-cloudserver:80 \
 --$CLI_FLAG ${CI_PREFIX}CLOUDSERVER_HOST=$ZENKO_HELM_RELEASE-cloudserver"
 
+# Optional variable that only need to be passed if set
+if [ -n "$PYTHON_ARGS" ]; then
+    FLAGS="$FLAGS --$CLI_FLAG ${CI_PREFIX}PYTHON_ARGS=\"$PYTHON_ARGS\""
+fi
+
 echo "$FLAGS"
