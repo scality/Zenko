@@ -203,3 +203,7 @@ global:
           - gcpbackendreplication
 cloudserver:
   endpoint: zenko.local
+  users:
+    account1:
+      access: $ZENKO_ACCESS_KEY
+      secret: $ZENKO_SECRET_KEY

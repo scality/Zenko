@@ -1,6 +1,255 @@
+ingress:
+  enabled: true
+
+maintenance:
+  # Both options are enabled to test templating
+  enabled: true
+  retryFailed:
+    schedule: "* 23 * * *"
+  retryPending:
+    schedule: "* 23 * * *"
+  debug:
+    enabled: true
+
+cosmos:
+  ci: true
+  storageClass: ci-zenko
+  rbac:
+    namespaced: true
+  operator:
+    image:
+      pullPolicy: Always
+  scheduler:
+    image:
+      pullPolicy: Always
+
+s3-data:
+  persistentVolume:
+    enabled: false
+  resources:
+    requests:
+      cpu: 150m
+      memory: 256Mi
+    limits:
+      cpu: 150m
+      memory: 256Mi
+
+
+mongodb-replicaset:
+  persistentVolume:
+    enabled: false
+  init:
+    timeout: 60
+  resources:
+    limits:
+      cpu: 100m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 512Mi
+  metrics:
+    resources:
+      requests:
+        cpu: 25m
+        memory: 32Mi
+      limits:
+        cpu: 25m
+        memory: 32Mi
+
+prometheus:
+  rbac:
+    create: false
+  serviceAccounts:
+    alertmanager:
+      name: default
+      create: false
+    nodeExporter:
+      name: default
+      create: false
+    kubeStateMetrics:
+      name: default
+      create: false
+    pushgateway:
+      name: default
+      create: false
+    server:
+      name: default
+      create: false
+  server:
+    persistentVolume:
+      enabled: false
+    resources:
+      limits:
+        cpu: 50m
+        memory: 64Mi
+      requests:
+        cpu: 50m
+        memory: 64Mi
+
+zenko-queue:
+  persistence:
+    enabled: false
+  rbac:
+    enabled: false
+  resources:
+    limits:
+      cpu: 250m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 1Gi
+
+zenko-quorum:
+  persistence:
+    enabled: false
+  resources:
+    limits:
+      cpu: 75m
+      memory: 1Gi
+    requests:
+      cpu: 75m
+      memory: 1Gi
+  env:
+    ZK_HEAP_SIZE: 1G
+
+redis-ha:
+  persistentVolume:
+    enabled: false
+  rbac:
+    create: false
+  serviceAccount:
+    create: false
+    name: default
+  redis:
+    resources:
+      limits:
+        memory: 64Mi
+        cpu: 50m
+      requests:
+        memory: 64Mi
+        cpu: 50m
+  sentinel:
+    resources:
+      limits:
+        cpu: 50m
+        memory: 32Mi
+      requests:
+        cpu: 50m
+        memory: 32Mi
 global:
   orbit:
     endpoint: "http://ciutil-orbit-simulator:4222"
     managerMode: "poll"
     workerMode: "poll"
 
+cloudserver:
+  image:
+    pullPolicy: Always
+  replicaCount: 3
+  replicaFactor: 1
+  env:
+    MPU_TESTING: 'yes'
+    PUSH_STATS: 'false'
+    CI_CEPH: 'true'
+    CI: 'true'
+    S3_END_TO_END: 'true'
+  affinity: ""
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+  manager:
+    resources:
+      limits:
+        cpu: 250m
+        memory: 384Mi
+      requests:
+        cpu: 250m
+        memory: 384Mi
+
+backbeat:
+  image:
+    pullPolicy: Always
+  api:
+    resources:
+      limits:
+        cpu: 350m
+        memory: 384Mi
+      requests:
+        cpu: 350m
+        memory: 384Mi
+  replication:
+    dataProcessor:
+      resources:
+        limits:
+          cpu: 250m
+          memory: 768Mi
+        requests:
+          cpu: 250m
+          memory: 768Mi
+    populator:
+      resources: &backbeat
+        limits:
+          cpu: 175m
+          memory: 256Mi
+        requests:
+          cpu: 175m
+          memory: 256Mi
+
+    statusProcessor:
+      resources: &backbeat
+    retry:
+      aws_s3:
+        timeoutS: 900
+        maxRetries: 5
+        backoff:
+          min: 2000
+          max: 10000
+          jitter: 0.1
+          factor: 1.5
+      azure:
+        timeoutS: 900
+        maxRetries: 5
+        backoff:
+          min: 2000
+          max: 10000
+          jitter: 0.1
+          factor: 1.5
+      gcp:
+        timeoutS: 900
+        maxRetries: 5
+        backoff:
+          min: 2000
+          max: 10000
+          jitter: 0.1
+          factor: 1.5
+  lifecycle:
+    conductor:
+      cronRule: "* * * * *"
+      resources: *backbeat
+    objectProcessor:
+      resources: *backbeat
+    bucketProcessor:
+      resources: *backbeat
+  ingestion:
+    consumer:
+      resources: *backbeat
+    producer:
+      resources: *backbeat
+  garbageCollector:
+    consumer:
+      resources: *backbeat
+
+grafana:
+  persistentVolume:
+    enabled: false
+  rbac:
+    create: false
+    pspEnabled: false
+  serviceAccount:
+    create: false
+  adminUser: admin
+  adminPassword: strongpassword
