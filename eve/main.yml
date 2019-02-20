@@ -277,9 +277,7 @@ stages:
   node-tests-01: *online-zenko
   node-tests-02: *online-zenko
   offline-zenko:
-    worker: &kube_cluster
-      type: kube_pod
-      path: eve/workers/zenko.yaml
+    worker: *kube_cluster
     steps:
     - Git: *git_pull
     - ShellCommand: *private_registry_login
