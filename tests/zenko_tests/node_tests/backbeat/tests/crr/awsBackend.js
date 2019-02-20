@@ -126,6 +126,7 @@ describe('Replication with AWS backend', function() {
         next => scalityUtils.compareObjectsAWS(srcBucket, destBucket, key,
             undefined, next),
         next => scalityUtils.deleteObject(srcBucket, key, null, next),
+        next => scalityUtils.waitUntilDeleted(srcBucket, key, 's3', next),
         next => scalityUtils.assertNoObject(srcBucket, key, next),
         next => awsUtils.waitUntilDeleted(destBucket, key, 's3', next),
         next => awsUtils.assertNoObject(destBucket, key, next),

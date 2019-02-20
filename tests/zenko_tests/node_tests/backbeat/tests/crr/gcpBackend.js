@@ -89,6 +89,7 @@ tags('flaky') // Tracking via ZENKO-1277
         next => utils.putObject(srcBucket, file, Buffer.alloc(1), next),
         next => utils.compareObjectsGCP(srcBucket, destBucket, file, next),
         next => utils.deleteObject(srcBucket, file, null, next),
+        next => utils.waitUntilDeleted(srcBucket, file, 'gcp', next),
         next => utils.assertNoObject(srcBucket, file, next),
         next => utils.waitUntilDeleted(destBucket, file, 'gcp', next),
         next => utils.getMetadata(destBucket, `${srcBucket}/${file}`, err => {
