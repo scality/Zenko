@@ -39,7 +39,7 @@ In the following examples, Zenko is accessible on endpoint
 
    ::
 
-       $ node bin/search_bucket -a <AccessKey1> -k <verySecretKey1> -b zenkobucket -q "x-amz-meta-color=blue" -h zenko.loca -p 80
+       $ node bin/search_bucket -a <AccessKey1> -k <verySecretKey1> -b zenkobucket -q "x-amz-meta-color=blue" -h zenko.local -p 80
 
 -  The search for objects tagged with “\ ``type=color``\ ”:
 
