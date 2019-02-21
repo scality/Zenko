@@ -27,10 +27,6 @@ spec:
           env:
             - name: REMOTE_MANAGEMENT_DISABLE
               value: "{{- if .Values.global.orbit.enabled }}0{{- else }}1{{- end }}"
-            - name: ZOOKEEPER_AUTO_CREATE_NAMESPACE
-              value: "1"
-            - name: ZOOKEEPER_CONNECTION_STRING
-              value: "{{- printf "%s-zenko-quorum:2181" .Release.Name | trunc 63 | trimSuffix "-" -}}"
             - name: KAFKA_HOSTS
               value: "{{- printf "%s-zenko-queue:9092" .Release.Name | trunc 63 | trimSuffix "-" -}}"
             - name: LOG_LEVEL
@@ -39,8 +35,18 @@ spec:
               value: "{{ template "backbeat.mongodb-hosts" . }}"
             - name: MONGODB_RS
               value: "{{ default "rs0" .Values.mongodb.replicaSet }}"
-            - name: MONGODB_DATABASE
-              value: "mongodb"
+            - name: EXTENSIONS_INGESTION_AUTH_TYPE
+              value: service
+            - name: EXTENSIONS_INGESTION_AUTH_ACCOUNT
+              value: service-md-ingestion
+            - name: REDIS_SENTINELS
+              value: "{{ template "backbeat.redis-hosts" . }}"
+            - name: REDIS_HA_NAME
+              value: "{{ .Values.redis.sentinel.name }}"
+            - name: S3_HOST
+              value: "{{- printf "%s-cloudserver" .Release.Name | trunc 63 | trimSuffix "-" -}}"
+            - name: S3_PORT
+              value: "80"
           livenessProbe:
             httpGet:
               path: {{ .Values.health.path.liveness }}
