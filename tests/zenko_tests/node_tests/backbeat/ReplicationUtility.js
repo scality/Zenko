@@ -904,7 +904,7 @@ class ReplicationUtility {
         });
     }
 
-    assertNoObject(bucketName, key, cb) { 
+    assertNoObject(bucketName, key, cb) {
         this.getObject(bucketName, key, err => {
             assert(err);
             assert.strictEqual(err.code, 'NoSuchKey');
