@@ -32,9 +32,9 @@ spec:
               value: "{{- printf "%s-zenko-queue:9092" .Release.Name | trunc 63 | trimSuffix "-" -}}"
             - name: MONGODB_HOSTS
               value: "{{ template "backbeat.mongodb-hosts" . }}"
-            - name: S3_HOST
+            - name: CLOUDSERVER_HOST
               value: "{{- printf "%s-cloudserver" .Release.Name | trunc 63 | trimSuffix "-" -}}"
-            - name: S3_PORT
+            - name: CLOUDSERVER_PORT
               value: "80"
             - name: LOG_LEVEL
               value: {{ .Values.logging.level }}
