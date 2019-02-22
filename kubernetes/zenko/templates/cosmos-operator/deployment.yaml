@@ -1,3 +1,4 @@
+{{- if .Values.cosmos.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -39,3 +40,4 @@ spec:
               value: {{ template "cosmos-operator.fullname" . }}
           resources:
 {{ toYaml .Values.resources | indent 12 }}
+{{- end -}}

@@ -1,3 +1,4 @@
+{{- if .Values.cosmos.enabled }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -46,3 +47,4 @@ rules:
   - cronjobs
   verbs:
   - "*"
+{{- end -}}

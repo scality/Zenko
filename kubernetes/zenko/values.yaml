@@ -103,6 +103,7 @@ backbeat:
     replicas: *nodeCount
 
 cosmos:
+  enabled: true
   namespace: default
   operator:
     image:
