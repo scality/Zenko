@@ -14,6 +14,7 @@ spec:
       bucket: "s3bucket"
   backend:
     type: "nfs"
+    storageClass: "my-storage-class"
     server: 10.100.1.42
     path: /data
     options: ""

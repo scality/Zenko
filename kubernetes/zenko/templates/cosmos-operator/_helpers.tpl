@@ -14,3 +14,10 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- $name := default "cosmos-operator" .Values.cosmos.nameOverride -}}
 {{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
+
+{{/*
+Create storage class name to be used by cosmos components
+*/}}
+{{- define "cosmos-operator.storageclass" -}}
+{{- printf "%s-remote-storage" (include "cosmos-operator.fullname" . ) -}}
+{{- end -}}

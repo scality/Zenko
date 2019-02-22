@@ -13,10 +13,6 @@ rules:
   - persistentvolumes
   verbs:
   - "*"
-- apiGroups: ["storage.k8s.io"]
-  resources: ["storageclasses"]
-  verbs:
-  - "*"
 - apiGroups: [""]
   resources: ["events"]
   verbs: ["list", "watch", "create", "update", "patch"]
