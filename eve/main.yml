@@ -129,8 +129,8 @@ models:
 
   - env: &k8s_env # containes values for running helm and kubectl
       ZENKO_HELM_RELEASE: 'zenko-test'
-      HELM_NAMESPACE: '%(prop:testNamespace)s'
-      TILLER_NAMESPACE: '%(prop:testNamespace)s'
+      HELM_NAMESPACE: '%(prop:workername)s'
+      TILLER_NAMESPACE: '%(prop:workername)s'
       INSTALL_TIMEOUT: "600"
 
   - env: &global_env # contains all env values
