@@ -1,6 +1,5 @@
-+++++++++++++++++++++++++++++++++++
 Configuring HTTPS Ingress for Zenko
-+++++++++++++++++++++++++++++++++++
+===================================
 
 If your Kubernetes cluster uses NGINX for ingress control, use the following
 guidelines to configure HTTPS support. From the Zenko/kubernetes/zenko
@@ -35,3 +34,27 @@ directory:
    ::
 
      $ helm upgrade --install -f options.yaml zenko .
+
+Ports
+-----
+
+Zenko operates in the context of a Kubernetes cluster. Ingress and egress 
+from the cluster are configured in the base setup of the cluster, using the 
+conventional web protocols for secure and insecure transactions: HTTPS and 
+HTTP over ports 443 and 80, respectively. 
+
+Zenko can use either or both protocols to allow ingress/egress. If ingress 
+is enabled, port 80 is used, unless SSL is configured. If SSL is configured,
+then port 443 is required.
+
+For other Kubernetes platforms, discuss the configuration with your vendor.
+
+.. table:: 
+
+   +-------+-------------------+
+   | Port  | Protocol          |
+   +=======+===================+
+   | 80    | HTTP              |
+   +-------+-------------------+
+   | 443   | HTTPS             |
+   +-------+-------------------+
