@@ -40,7 +40,7 @@ rclone:
     tag: 1.45
     pullPolicy: IfNotPresent
 
-  suspend: true
+  suspend: false
   schedule: "0 */12 * * *"
   successfulJobsHistory: 1
 
@@ -62,9 +62,19 @@ rclone:
   tolerations: []
   affinity: {}
 
-backend:
-  ## One of [nfs, smb, ftp]
-  type: nfs
-  server: 10.100.1.28
-  path: /data
-  options: "hard,nfsvers=4.1"
+persistentVolume:
+  enabled: false
+  # Specifiy a existing storage class to use
+  # storageClass:
+  volumeConfig:
+    ## Example NFS config
+    # nfs:
+    #   server: 10.100.1.42
+    #   path: /data
+    #   readOnly: false
+    # mountOptions:
+    # - hard
+    # - nfsvers=4.1
+  accessModes:
+    - ReadWriteMany
+  size: 1Gi

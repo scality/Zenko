@@ -82,3 +82,10 @@ Define the fully qualified name for the rclone's remote secret.
 {{- printf "%s" (include "cosmos.rclone.fullname" .) -}}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Create storage class name
+*/}}
+{{- define "cosmos.storageclass.name" -}}
+{{- default (include "cosmos.fullname" . ) .Values.persistentVolume.storageClass -}}
+{{- end -}}

@@ -1,4 +1,4 @@
-{{- if not (eq .Values.backend.type "ftp") }}
+{{- if and .Values.persistentVolume.enabled (not .Values.persistentVolume.storageClass) }}
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:

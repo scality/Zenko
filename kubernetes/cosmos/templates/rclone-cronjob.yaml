@@ -51,7 +51,7 @@ spec:
             configMap:
               name: {{ template "cosmos.rclone.fullname" . }}
           - name: backend-storage
-{{- if not (eq .Values.backend.type "ftp") }}
+{{- if .Values.persistentVolume.enabled }}
             persistentVolumeClaim:
               claimName: {{ template "cosmos.fullname" . }}
 {{- else }}

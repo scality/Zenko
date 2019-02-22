@@ -1,4 +1,4 @@
-{{- if not (eq .Values.backend.type "ftp") }}
+{{- if .Values.persistentVolume.enabled }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -10,9 +10,11 @@ metadata:
     release: {{ .Release.Name }}
 spec:
   accessModes:
-    - ReadWriteMany
+{{- range .Values.persistentVolume.accessModes }}
+    - {{ . | quote }}
+{{- end }}
   resources:
     requests:
-      storage: "1Gi"
-  storageClassName: {{ template "cosmos.fullname" . }}
+      storage: {{ .Values.persistentVolume.size | quote }}
+  storageClassName: {{ template "cosmos.storageclass.name" . }}
 {{- end }}
