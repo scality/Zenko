@@ -52,7 +52,7 @@ models:
       command: make -e dump-logs
       workdir: build/tests
       env:
-        HELM_NAMESPACE: '%(prop:testNamespace)s'
+        HELM_NAMESPACE: '%(prop:workername)s'
   - env: &secrets_env # contains values used for test config
       AWS_ACCESS_KEY: '%(secret:aws_s3_backend_access_key)s'
       AWS_SECRET_KEY: '%(secret:aws_s3_backend_secret_key)s'
@@ -110,8 +110,8 @@ models:
 
   - env: &k8s_env # containes values for running helm and kubectl
       ZENKO_HELM_RELEASE: 'zenko-test'
-      HELM_NAMESPACE: '%(prop:testNamespace)s'
-      TILLER_NAMESPACE: '%(prop:testNamespace)s'
+      HELM_NAMESPACE: '%(prop:workername)s'
+      TILLER_NAMESPACE: '%(prop:workername)s'
       INSTALL_TIMEOUT: "600"
 
   - env: &global_env # contains all env values
