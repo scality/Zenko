@@ -32,9 +32,9 @@ spec:
               value: service
             - name: EXTENSIONS_GC_AUTH_ACCOUNT
               value: service-gc
-            - name: S3_HOST
+            - name: CLOUDSERVER_HOST
               value: "{{- printf "%s-cloudserver" .Release.Name | trunc 63 | trimSuffix "-" -}}"
-            - name: S3_PORT
+            - name: CLOUDSERVER_PORT
               value: "80"
             - name: MONGODB_HOSTS
               value: "{{ template "backbeat.mongodb-hosts" . }}"

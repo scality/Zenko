@@ -43,9 +43,9 @@ spec:
               value: "{{ template "backbeat.redis-hosts" . }}"
             - name: REDIS_HA_NAME
               value: "{{ .Values.redis.sentinel.name }}"
-            - name: S3_HOST
+            - name: CLOUDSERVER_HOST
               value: "{{- printf "%s-cloudserver" .Release.Name | trunc 63 | trimSuffix "-" -}}"
-            - name: S3_PORT
+            - name: CLOUDSERVER_PORT
               value: "80"
           livenessProbe:
             httpGet:
