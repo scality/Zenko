@@ -45,13 +45,11 @@ rclone:
   successfulJobsHistory: 1
 
   remote:
-    credentials:
-      ## Specify an existing secret to get credentials from.
-      # existingSercret: ""
-
-      ## Otherwise use the following credentials.
-      accessKey: my-access-key
-      secretKey: my-secret-key
+    ## Specify an existing secret to get credentials from.
+    # existingSercret: ""
+    ## Otherwise use the following credentials.
+    accessKey: my-access-key
+    secretKey: my-secret-key
 
     endpoint: http://zenko-cloudserver
     region: mynfs

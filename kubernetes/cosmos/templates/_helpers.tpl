@@ -76,8 +76,8 @@ Create a fully qualified name for the bucket to create.
 Define the fully qualified name for the rclone's remote secret.
 */}}
 {{- define "cosmos.rclone.secret.name" -}}
-{{- if .Values.rclone.remote.credentials.existingSecret -}}
-{{- printf "%s" .Values.rclone.remote.credentials.existingSecret -}}
+{{- if .Values.rclone.remote.existingSecret -}}
+{{- printf "%s" .Values.rclone.remote.existingSecret -}}
 {{- else -}}
 {{- printf "%s" (include "cosmos.rclone.fullname" .) -}}
 {{- end -}}
