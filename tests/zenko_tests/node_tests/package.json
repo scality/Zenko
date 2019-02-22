@@ -13,7 +13,7 @@
   "dependencies": {
     "@google-cloud/storage": "^1.6.0",
     "async": "2.1.2",
-    "aws-sdk": "2.28.0",
+    "aws-sdk": "2.60.0",
     "azure-storage": "^2.10.0",
     "mocha": "^5.2.0",
     "mocha-tags": "^1.0.1",
@@ -24,6 +24,7 @@
     "test_api": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --recursive backbeat/tests/api",
     "test_retry": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --recursive backbeat/tests/retry",
     "test_crr_pause_resume": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --recursive backbeat/tests/crr-pause-resume",
+    "test_lifecycle": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --recursive backbeat/tests/lifecycle",
     "test_location_quota": "mocha --tags ${MOCHA_TAGS} -exit -t 10000 --recursive cloudserver/locationQuota/tests",
     "test_bucket_get_v2": "mocha --tags ${MOCHA_TAGS} -exit -t 10000 --recursive cloudserver/bucketGetV2/tests"
   },
