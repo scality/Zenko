@@ -104,6 +104,8 @@ backbeat:
 
 cosmos:
   enabled: true
+  ## Specify an existing storageClass to use
+  # storageClass:
   namespace: default
   operator:
     image:
