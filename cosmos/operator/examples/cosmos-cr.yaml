@@ -5,16 +5,22 @@ metadata:
 spec:
   rclone:
     schedule: "0 */12 * * *"
+    readOnly: false
     remote:
-      credentials:
-        accessKey: "myAccessKey"
-        secretKey: "mySecretKey"
+      accessKey: "myAccessKey"
+      secretKey: "mySecretKey"
       endpoint: "10.100.42.1:8000"
       region: "us-east-1"
       bucket: "s3bucket"
-  backend:
-    type: "nfs"
-    storageClass: "my-storage-class"
-    server: 10.100.1.42
-    path: /data
-    options: ""
+  persistentValue:
+    enabled: true
+    storageClass: my-storage-class
+    volumeConfig:
+      nfs:
+       server: 10.100.1.42
+       path: /data
+       mountOptions:
+       - nfsvers=4.1
+       - ro
+    accessModes:
+      - ReadOnlyMany
