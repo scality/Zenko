@@ -242,16 +242,19 @@ run-listing-fuzzer:
 		--restart=Never \
 		--attach=True \
 		--image=zenko/s3fuzz:latest \
+		--image-pull-policy="Always" \
 		--namespace $(HELM_NAMESPACE) \
-		--env ZENKO_HOST="http://$(ZENKO_HELM_RELEASE)-cloudserver:80" \
-		--env COUNT=1 \
-		--env SEED=$(shell date '+%s') \
-		--env ZENKO_BUCKET=$(ZENKO_BUCKET) \
-		--env AWS_BUCKET=ci-zenko-s3-fuzzer \
-		--env VERSIONED=$(VERSIONED) \
-		--env ANTITIMEOUT=1 \
-		--env NO_SERVICES=1 \
-		$(shell ../eve/workers/ci_env.sh env)
+		--env S3FUZZ_ZENKO_HOST="http://$(ZENKO_HELM_RELEASE)-cloudserver:80" \
+		--env S3FUZZ_ROUNDS=1 \
+		--env S3FUZZ_SEED=$(shell date '+%s') \
+		--env S3FUZZ_VERSIONED=$(VERSIONED) \
+		--env S3FUZZ_ZENKO_ACCESS_KEY=$(ZENKO_ACCESS_KEY) \
+		--env S3FUZZ_ZENKO_SECRET_KEY=$(ZENKO_SECRET_KEY) \
+		--env S3FUZZ_ZENKO_BUCKET=$(S3FUZZ_ZENKO_BUCKET) \
+		--env S3FUZZ_AWS_ACCESS_KEY=$(AWS_ACCESS_KEY) \
+		--env S3FUZZ_AWS_SECRET_KEY=$(AWS_SECRET_KEY) \
+		--env S3FUZZ_AWS_BUCKET=$(S3FUZZ_AWS_BUCKET) \
+		--env NO_SERVICES=1
 .PHONY: run-listing-fuzzer
 
 test-listing: | install-common get-latest-commit install-zenko wait-for-zenko run-listing-fuzzer
