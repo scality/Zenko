@@ -106,7 +106,11 @@ cosmos:
   enabled: true
   ## Specify an existing storageClass to use
   # storageClass:
-  namespace: default
+  rbac:
+    create: true
+    ## If set to true creates role and role binding instead of
+    ## default clusterrole and clusterrole binding
+    namespaced: false
   operator:
     image:
       repository: zenko/cosmos-operator

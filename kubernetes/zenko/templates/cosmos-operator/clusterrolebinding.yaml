@@ -1,4 +1,4 @@
-{{- if .Values.cosmos.enabled }}
+{{- if and .Values.cosmos.enabled (not .Values.cosmos.rbac.namespaced) }}
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -11,7 +11,7 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: {{ template "cosmos-operator.fullname" . }}
-  namespace: {{ .Values.cosmos.namespace | quote }}
+  namespace: {{ .Release.Namespace }}
 roleRef:
   kind: ClusterRole
   name: {{ template "cosmos-operator.fullname" . }}

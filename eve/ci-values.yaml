@@ -10,6 +10,10 @@ maintenance:
   accessKey: HEYIMAACCESSKEY
   secretKey: loOkAtMEImASecRetKEy123=
 
+cosmos:
+  rbac:
+    namespaced: true
+
 s3-data:
   persistentVolume:
     enabled: false
