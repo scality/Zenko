@@ -11,7 +11,10 @@ maintenance:
   secretKey: loOkAtMEImASecRetKEy123=
 
 cosmos:
+  ci: true
+  storageClass: ci-zenko
   rbac:
+    enabled: false
     namespaced: true
 
 s3-data:
