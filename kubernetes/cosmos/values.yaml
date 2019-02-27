@@ -62,8 +62,10 @@ rclone:
 
 persistentVolume:
   enabled: false
-  # Specifiy a existing storage class to use
+  ## Specifiy a existing storage class to use
   # storageClass:
+  ## Specify existing PVC to use
+  # existingClaim:
   volumeConfig:
     ## Example NFS config
     # nfs:
