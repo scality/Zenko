@@ -48,6 +48,7 @@ Get Ready
 
 1. If you are using MetalK8s, use the MetalK8s virtual shell. Change to the
    directory from which you will deploy Zenko:
+
    ::
 
     (metal-k8s) $ cd /path/to/installation
@@ -55,7 +56,12 @@ Get Ready
    If you are not installing from MetalK8s, follow the instructions in
    Zenko/docs/gke.md to install Helm on your cluster.
 
-2. Initialize Helm:
+2. If Helm is not already installed on the machine from which you will be 
+   conducting the deployment, install it as described at: 
+   https://github.com/helm/helm#Install
+
+3. Initialize Helm:
+   
    ::
 
     (metal-k8s) $ helm init
@@ -77,10 +83,10 @@ Get Ready
 
    Helm can now install applications on the Kubernetes cluster.
 
-3. Go to https://github.com/Scality/Zenko/releases and download the latest
+4. Go to https://github.com/Scality/Zenko/releases and download the latest
    stable version of Zenko.
 
-4. Unzip or gunzip the file you just downloaded and change to the top-level
+5. Unzip or gunzip the file you just downloaded and change to the top-level
    (Zenko) directory.
 
 .. _Install Zenko:
@@ -155,6 +161,13 @@ Follow these steps to install Zenko with Ingress.
 
    If the command is successful, the output from Helm is extensive.
 
+   .. note::
+      
+      The installation name must consist solely of alphanumeric characters
+      and hypens. The name must start with an alphabetic character, and can
+      end with alphabetic or numeric characters. Punctuation marks, including
+      periods, are not permitted. 
+
 5. To see K8s’s progress creating pods for Zenko, the command:
    ::
 
@@ -184,7 +197,7 @@ Follow these steps to install Zenko with Ingress.
 
      * All pods are running (as described in the previous step).
 
-     * One of the pods shows a "Completed" state.
+     * At least one pod shows a "Completed" state.
 
      Once these criteria are satisfied, delete these configuration pods by
      deleting the job that spawned them.
@@ -196,14 +209,16 @@ Follow these steps to install Zenko with Ingress.
        zenko-zenko-queue-config-a86a68e3     1         1            8m
 
        $ kubectl delete jobs zenko-zenko-queue-config-a86a68e3
+
        job.batch "zenko-zenko-queue-config-a86a68e3" deleted
 
 7. To register your Zenko instance for Orbit access, get your
    CloudServer’s name
    ::
 
-    $ kubectl get -n default pods | grep cloudserver-manager
-    my-zenko-cloudserver-manager-c76d6f96f-qrb9d      1/1   Running   0       3m
+     $ kubectl get -n default pods | grep cloudserver-manager
+
+     my-zenko-cloudserver-manager-76f657695-j25wq      1/1   Running   0       3m
 
    Then grab your CloudServer’s logs with the command:
    ::
