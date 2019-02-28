@@ -1,4 +1,4 @@
-{{- if .Values.persistentVolume.enabled }}
+{{- if and .Values.persistentVolume.enabled (not .Values.persistentVolume.existingClaim) }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -16,5 +16,5 @@ spec:
   resources:
     requests:
       storage: {{ .Values.persistentVolume.size | quote }}
-  storageClassName: {{ template "cosmos.fullname" . }}
+  storageClassName: {{ template "cosmos.storageclass.name" . }}
 {{- end }}

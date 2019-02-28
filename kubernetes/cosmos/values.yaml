@@ -10,6 +10,9 @@ pfsd:
     pullPolicy: IfNotPresent
 
   service:
+    ## Override the generated service name.
+    # name: ""
+
     type: ClusterIP
     port: 80
 
@@ -37,15 +40,20 @@ rclone:
     tag: 1.45
     pullPolicy: IfNotPresent
 
+  suspend: false
   schedule: "0 */12 * * *"
   successfulJobsHistory: 1
 
   remote:
+    ## Specify an existing secret to get credentials from.
+    # existingSercret: ""
+    ## Otherwise use the following credentials.
     accessKey: my-access-key
     secretKey: my-secret-key
-    endpoint: http://cloudserver
-    region: pfsd-1
-    bucket: pfsd-1
+
+    endpoint: http://zenko-cloudserver
+    region: mynfs
+    bucket: newbucket
 
   resources: {}
   nodeSelector: {}
@@ -54,6 +62,10 @@ rclone:
 
 persistentVolume:
   enabled: false
+  ## Specifiy a existing storage class to use
+  # storageClass:
+  ## Specify existing PVC to use
+  # existingClaim:
   volumeConfig:
     ## Example NFS config
     # nfs:

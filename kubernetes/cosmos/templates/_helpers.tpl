@@ -66,9 +66,26 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- end -}}
 
 {{/*
-Create a fully qualified pfsd name.
-We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+Create a fully qualified name for the bucket to create.
 */}}
 {{- define "cosmos.bucket" -}}
 {{- default (include "cosmos.fullname" .) .Values.rclone.remote.bucket -}}
+{{- end -}}
+
+{{/*
+Define the fully qualified name for the rclone's remote secret.
+*/}}
+{{- define "cosmos.rclone.secret.name" -}}
+{{- if .Values.rclone.remote.existingSecret -}}
+{{- printf "%s" .Values.rclone.remote.existingSecret -}}
+{{- else -}}
+{{- printf "%s" (include "cosmos.rclone.fullname" .) -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Create storage class name
+*/}}
+{{- define "cosmos.storageclass.name" -}}
+{{- default (include "cosmos.fullname" . ) .Values.persistentVolume.storageClass -}}
 {{- end -}}

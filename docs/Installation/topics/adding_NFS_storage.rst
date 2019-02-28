@@ -75,6 +75,8 @@ and their default values.
    +------------------------------------+---------------------------------------+------------------------------+
    | ``rclone.successfulJobsHistory``   | rclone CronJob successful job history | ``1``                        |
    +------------------------------------+---------------------------------------+------------------------------+
+   | ``rclone.remote.existingSecret``   | Specify secret to use for credentials | ``{}``                       |
+   +------------------------------------+---------------------------------------+------------------------------+
    | ``rclone.remote.accessKey``        | Remote backend access key             | ``my-access-key``            |
    +------------------------------------+---------------------------------------+------------------------------+
    | ``rclone.remote.secretKey``        | Remote backend secret key             | ``my-secret-key``            |

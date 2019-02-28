@@ -73,7 +73,7 @@ spec:
         - name: backend-storage
 {{- if .Values.persistentVolume.enabled }}
           persistentVolumeClaim:
-            claimName: {{ template "cosmos.fullname" . }}
+            claimName: {{ default (include "cosmos.fullname" .) .Values.persistentVolume.existingClaim }}
 {{- else }}
           emptyDir: {}
 {{- end }}

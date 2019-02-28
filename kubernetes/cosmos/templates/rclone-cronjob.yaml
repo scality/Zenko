@@ -9,7 +9,8 @@ metadata:
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
 spec:
-  schedule: "{{ .Values.rclone.schedule }}"
+  suspend: {{ .Values.rclone.suspend }}
+  schedule: {{ .Values.rclone.schedule | quote }}
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: {{ .Values.rclone.successfulJobsHistory }}
   failedJobsHistoryLimit: 3
@@ -26,10 +27,20 @@ spec:
             env:
               - name: MOUNT_PATH
                 value: /data
+              - name: AWS_ACCESS_KEY_ID
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ template "cosmos.rclone.secret.name" . }}
+                    key: accessKey
+              - name: AWS_SECRET_ACCESS_KEY
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ template "cosmos.rclone.secret.name" . }}
+                    key: secretKey
             command:
               - sh
               - -c
-              - "exec rclone copy . cloudserver:{{ template "cosmos.bucket" . }} --s3-region {{ .Values.rclone.remote.region }} -v --md-only"
+              - "exec rclone sync . cloudserver:{{ template "cosmos.bucket" . }} --s3-region {{ .Values.rclone.remote.region }} -v --md-only"
             volumeMounts:
               - name: rclone-config
                 mountPath: /root/.config/rclone
@@ -42,7 +53,7 @@ spec:
           - name: backend-storage
 {{- if .Values.persistentVolume.enabled }}
             persistentVolumeClaim:
-              claimName: {{ template "cosmos.fullname" . }}
+              claimName: {{ default (include "cosmos.fullname" .) .Values.persistentVolume.existingClaim }}
 {{- else }}
             emptyDir: {}
 {{- end }}
