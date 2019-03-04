@@ -1,0 +1,19 @@
+{{- if .Values.cosmos.enabled }}
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ template "cosmos-operator.fullname" . }}
+  labels:
+    app: {{ template "cosmos-operator.name" . }}
+    chart: {{ template "zenko.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+subjects:
+- kind: ServiceAccount
+  name: {{ template "cosmos-operator.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: Role
+  name: {{ template "cosmos-operator.fullname" . }}
+  apiGroup: rbac.authorization.k8s.io
+{{- end -}}

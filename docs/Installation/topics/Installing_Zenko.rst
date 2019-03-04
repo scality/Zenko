@@ -135,7 +135,8 @@ Follow these steps to install Zenko with Ingress.
    “:doc:`configure_ingress`” for additional terms to add to this chart.
 
 3. If your Zenko instance is behind a proxy, add the following lines to the
-   options.yml file, entering your proxy’s IP addresses and port assignments:
+   options.yml file:
+
    ::
 
     cloudserver:
@@ -145,13 +146,26 @@ Follow these steps to install Zenko with Ingress.
         caCert: false
         no_proxy: ""
 
+   Enter your proxy’s full server address, including the protocol and port.
+
+   For example: 
+
+   ::
+
+    cloudserver:
+      proxy:
+        http: "http://proxy.example.com:80"
+        https: ""
+        caCert: false
+        no_proxy: "localhost,127.0.0.1,10.*"
+
    If the HTTP proxy endpoint is set and the HTTPS one is not, the HTTP proxy
    will be used for HTTPS traffic as well.
 
   .. note::
 
-   To avoid unexpected behavior, only specify one of the
-   "http" or "https" proxy options.
+     To avoid unexpected behavior, specify only one of the
+     "http" or "https" proxy options.
 
 
 4. Perform the following Helm installation from the kubernetes directory

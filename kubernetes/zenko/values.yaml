@@ -102,6 +102,28 @@ backbeat:
   mongodb:
     replicas: *nodeCount
 
+cosmos:
+  enabled: true
+  ## Specify an existing storageClass to use
+  # storageClass:
+  rbac:
+    create: true
+    ## If set to true creates role and role binding instead of
+    ## default clusterrole and clusterrole binding
+    namespaced: false
+  operator:
+    image:
+      repository: zenko/cosmos-operator
+      tag: 0.1.0
+      pullPolicy: IfNotPresent
+    resources:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 50m
+        memory: 64Mi
+
 zenko-nfs:
   enabled: false
   mongodb:

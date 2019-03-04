@@ -1,4 +1,4 @@
-{{- if .Values.persistentVolume.enabled }}
+{{- if and .Values.persistentVolume.enabled (not .Values.persistentVolume.existingClaim) }}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -15,5 +15,5 @@ spec:
     storage: {{ .Values.persistentVolume.size }}
 {{ toYaml .Values.persistentVolume.volumeConfig | indent 2 }}
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: {{ template "cosmos.fullname" . }}
+  storageClassName: {{ template "cosmos.storageclass.name" . }}
 {{- end }}

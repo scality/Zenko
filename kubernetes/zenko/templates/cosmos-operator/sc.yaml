@@ -1,11 +1,11 @@
-{{- if and .Values.persistentVolume.enabled (not .Values.persistentVolume.storageClass) }}
+{{- if and .Values.cosmos.enabled (not .Values.cosmos.storageClass) }}
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: {{ template "cosmos.fullname" . }}
+  name: {{ template "cosmos-operator.storageclass" . }}
   labels:
-    app: {{ template "cosmos.name" . }}
-    chart: {{ template "cosmos.chart" . }}
+    app: {{ template "cosmos-operator.name" . }}
+    chart: {{ template "zenko.chart" . }}
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
 provisioner: kubernetes.io/no-provisioner

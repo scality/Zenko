@@ -1,0 +1,43 @@
+{{- if .Values.cosmos.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "cosmos-operator.fullname" . }}
+  labels:
+    app: {{ template "cosmos-operator.name" . }}
+    chart: {{ template "zenko.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ template "cosmos-operator.name" . }}
+      name: {{ template "cosmos-operator.fullname" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "cosmos-operator.name" . }}
+        name: {{ template "cosmos-operator.fullname" . }}
+        release: {{ .Release.Name }}
+    spec:
+      serviceAccountName: {{ template "cosmos-operator.fullname" . }}
+      containers:
+        - name: {{ template "cosmos-operator.fullname" . }}
+          image: "{{ .Values.cosmos.operator.image.repository }}:{{ .Values.cosmos.operator.image.tag }}"
+          imagePullPolicy: {{ .Values.cosmos.operator.image.pullPolicy }}
+          env:
+            - name: WATCH_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: {{ template "cosmos-operator.fullname" . }}
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+{{- end -}}

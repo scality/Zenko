@@ -1,0 +1,20 @@
+{{- if and .Values.cosmos.enabled (not .Values.cosmos.rbac.namespaced) }}
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ template "cosmos-operator.fullname" . }}
+  labels:
+    app: {{ template "cosmos-operator.name" . }}
+    chart: {{ template "zenko.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+rules:
+- apiGroups: [""]
+  resources:
+  - persistentvolumes
+  verbs:
+  - "*"
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["list", "watch", "create", "update", "patch"]
+{{- end -}}
