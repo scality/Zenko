@@ -3,8 +3,11 @@ apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
   name: cosmoses.zenko.io
-  annotations:
-    "helm.sh/hook": crd-install
+  labels:
+    app: {{ template "cosmos-operator.name" . }}
+    chart: {{ template "zenko.chart" . }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
 spec:
   group: zenko.io
   names:
