@@ -114,11 +114,11 @@ to emergent conditions.
 
 
 
-.. |image0| image:: ../Resources/Images/Zenko_hi-level.svg
+.. |image0| image:: ../Resources/Images/Zenko_hi-level.*
    :class: SeventyFivePercent
 
-.. |image1| image:: ../Resources/Images/Zenko_arch_NoNFS.svg
+.. |image1| image:: ../Resources/Images/Zenko_arch_NoNFS.*
    :class: SeventyFivePercent
 
-.. |image2| image:: ../Resources/Images/Zenko_arch_NoNFS.svg
+.. |image2| image:: ../Resources/Images/Zenko_cluster_NoNFS.*
    :class: SeventyFivePercent
