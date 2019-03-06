@@ -60,6 +60,28 @@ models:
       workdir: build/tests
       env:
         HELM_NAMESPACE: '%(prop:workername)s'
+  - SetPropertyFromCommand: &notify-build-start
+      name: Save the timestamp from our start message, for editing later
+      property: report_build_msg_ts
+      command: python report.py --notify
+      workdir: build/tests
+      env:
+        SLACK_TOKEN: '%(secret:report_slack_auth_token)s'
+        BUILD_NAME: '%(prop:report_build_name)s'
+        BUILD_NUMBER: '%(prop:bootstrap)s'
+  - ShellCommand: &trigger-build-reporter
+      name: Trigger the report-test stage in a seperate build
+      command: python report.py --trigger
+      workdir: build/tests
+      alwaysRun: true
+      env:
+        SLACK_TOKEN: '%(secret:report_slack_auth_token)s'
+        EVE_TOKEN: '%(secret:report_github_auth_token)s'
+        BUILD_NAME: '%(prop:report_build_name)s'
+        BUILD_NUMBER: '%(prop:bootstrap)s'
+        BUILD_STAGE: report-build-end
+        BUILD_REPO: zenko
+        BUILD_MSG_TS: '%(prop:report_build_msg_ts)s'
 
   - env: &secrets_env # contains values used for test config
       AWS_ACCESS_KEY: '%(secret:aws_s3_backend_access_key)s'
@@ -215,12 +237,18 @@ stages:
     worker:
       type: local
     steps:
+      - Git: *git_pull
+      - SetProperty:
+          property: report_build_name
+          value: 'NightlyBuild'
+      - SetPropertyFromCommand: *notify-build-start
       - TriggerStages:
           name: Trigger latest builds
           haltOnFailure: true
           stage_names:
             - test-latest-1.0.x
             - test-latest-1.1.x
+      - ShellCommand: *trigger-build-reporter
 
   test-latest-1.0.x:
     worker: *kube_cluster
@@ -312,3 +340,52 @@ stages:
             <<: *global_env
       - ShellCommand: *dump_logs
       - Upload: *upload_artifacts
+
+  # dummy-stage:
+  #   worker:
+  #     type: local
+  #   steps:
+      # - Git: *git_pull
+      # - SetProperty:
+      #     property: report_build_name
+      #     value: 'NightlyFooBarRun'
+      # - SetPropertyFromCommand:
+      #     name: Save the timestamp from our start message, for editing later
+      #     property: report_build_msg_ts
+      #     command: python report.py --notify
+      #     workdir: build/tests
+      #     env:
+      #       SLACK_TOKEN: '%(secret:report_slack_auth_token)s'
+      #       BUILD_NAME: '%(prop:report_build_name)s'
+      #       BUILD_NUMBER: '%(prop:bootstrap)s'
+      # - ShellCommand:
+      #     name: Trigger the report-test stage in a seperate build
+      #     command: python report.py --trigger
+      #     workdir: build/tests
+      #     env:
+      #       SLACK_TOKEN: '%(secret:report_slack_auth_token)s'
+      #       EVE_TOKEN: '%(secret:report_github_auth_token)s'
+      #       BUILD_NAME: '%(prop:report_build_name)s'
+      #       BUILD_NUMBER: '%(prop:bootstrap)s'
+      #       BUILD_STAGE: report-build-end
+      #       BUILD_REPO: zenko
+      #       BUILD_MSG_TS: '%(prop:report_build_msg_ts)s'
+
+      # - ShellCommand:
+      #     command: sleep 5
+  report-build-end:
+    worker:
+      type: local
+    steps:
+      - Git: *git_pull
+      - ShellCommand:
+          name: 'Send a Slack notification to #sf-devops'
+          command: python report.py --report
+          workdir: build/tests
+          env:
+            SLACK_TOKEN: '%(secret:report_slack_auth_token)s'
+            EVE_TOKEN: '%(secret:report_github_auth_token)s'
+            BUILD_NAME: '%(prop:report_build_name)s'
+            BUILD_NUMBER: '%(prop:report_build_number)s'
+            BUILD_MSG_TS: '%(prop:report_build_msg_ts)s'
+            BUILD_REPO: zenko
