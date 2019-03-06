@@ -60,6 +60,28 @@ models:
       workdir: build/tests
       env:
         HELM_NAMESPACE: '%(prop:workername)s'
+  - SetPropertyFromCommand: &notify-build-start
+      name: Save the timestamp from our start message, for editing later
+      property: report_build_msg_ts
+      command: python report.py --notify
+      workdir: build/tests
+      env:
+        SLACK_TOKEN: '%(secret:report_slack_auth_token)s'
+        BUILD_NAME: '%(prop:report_build_name)s'
+        BUILD_NUMBER: '%(prop:bootstrap)s'
+  - ShellCommand: &trigger-build-reporter
+      name: Trigger the report-test stage in a seperate build
+      command: python report.py --trigger
+      workdir: build/tests
+      alwaysRun: true
+      env:
+        SLACK_TOKEN: '%(secret:report_slack_auth_token)s'
+        EVE_TOKEN: '%(secret:report_github_auth_token)s'
+        BUILD_NAME: '%(prop:report_build_name)s'
+        BUILD_NUMBER: '%(prop:bootstrap)s'
+        BUILD_STAGE: report-build-end
+        BUILD_REPO: zenko
+        BUILD_MSG_TS: '%(prop:report_build_msg_ts)s'
 
   - env: &secrets_env # contains values used for test config
       AWS_ACCESS_KEY: '%(secret:aws_s3_backend_access_key)s'
@@ -215,12 +237,18 @@ stages:
     worker:
       type: local
     steps:
+      - Git: *git_pull
+      - SetProperty:
+          property: report_build_name
+          value: 'Nightly Build'
+      - SetPropertyFromCommand: *notify-build-start
       - TriggerStages:
           name: Trigger latest builds
           haltOnFailure: true
           stage_names:
             - test-latest-1.0.x
             - test-latest-1.1.x
+      - ShellCommand: *trigger-build-reporter
 
   test-latest-1.0.x:
     worker: *kube_cluster
@@ -269,6 +297,10 @@ stages:
     - Git: *git_pull
     - ShellCommand: *private_registry_login
     - ShellCommand: *k8s_setup
+    - SetProperty:
+        property: report_build_name
+        value: 'Nightly Cosbench'
+    - SetPropertyFromCommand: *notify-build-start
     - ShellCommand:
         name: Setup and run benchmarks
         command: make -e test-cosbench
@@ -283,38 +315,61 @@ stages:
           INSTALL_TIMEOUT: "600"
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
+    - ShellCommand: *trigger-build-reporter
     - ShellCommand: *k8s_cleanup
 
   fuzz-listing:
     worker: *kube_cluster
     steps:
+    - Git: *git_pull
+    - ShellCommand: *private_registry_login
+    - ShellCommand: *k8s_setup
+    - SetProperty:
+        property: report_build_name
+        value: 'Nightly Listing Fuzzer'
+    - SetPropertyFromCommand: *notify-build-start
+    - ShellCommand:
+        name: Setup Zenko and run versioned bucket test
+        command: make -e VERBOSE=1 test-listing
+        workdir: build/tests
+        maxTime: 43200
+        timeout: 43200
+        env:
+          <<: *global_env
+          VERSIONED: enabled
+          S3FUZZ_ZENKO_BUCKET: fuzzbucket-ver
+          S3FUZZ_AWS_BUCKET: ci-zenko-s3-fuzzer-versioned
+          HELM_NAMESPACE: '%(prop:workername)s'
+          TILLER_NAMESPACE: '%(prop:workername)s'
+    - ShellCommand:
+        name: Run unversioned bucket test
+        command: make -e VERBOSE=1 run-listing-fuzzer
+        workdir: build/tests
+        maxTime: 43200
+        env:
+          <<: *global_env
+          S3FUZZ_ZENKO_BUCKET: fuzzbucket-nonver
+          S3FUZZ_AWS_BUCKET: ci-zenko-s3-fuzzer
+          HELM_NAMESPACE: '%(prop:workername)s'
+          TILLER_NAMESPACE: '%(prop:workername)s'
+    - ShellCommand: *dump_logs
+    - Upload: *upload_artifacts
+    - ShellCommand: *k8s_cleanup
+    - ShellCommand: *trigger-build-reporter
+
+  report-build-end:
+    worker:
+      type: local
+    steps:
       - Git: *git_pull
-      - ShellCommand: *private_registry_login
-      - ShellCommand: *k8s_setup
       - ShellCommand:
-          name: Setup Zenko and run versioned bucket test
-          command: make -e VERBOSE=1 test-listing
+          name: 'Send a Slack notification to #sf-devops'
+          command: python report.py --report
           workdir: build/tests
-          maxTime: 43200
-          timeout: 43200
           env:
-            <<: *global_env
-            VERSIONED: enabled
-            S3FUZZ_ZENKO_BUCKET: fuzzbucket-ver
-            S3FUZZ_AWS_BUCKET: ci-zenko-s3-fuzzer-versioned
-            HELM_NAMESPACE: '%(prop:workername)s'
-            TILLER_NAMESPACE: '%(prop:workername)s'
-      - ShellCommand:
-          name: Run unversioned bucket test
-          command: make -e VERBOSE=1 run-listing-fuzzer
-          workdir: build/tests
-          maxTime: 43200
-          env:
-            <<: *global_env
-            S3FUZZ_ZENKO_BUCKET: fuzzbucket-nonver
-            S3FUZZ_AWS_BUCKET: ci-zenko-s3-fuzzer
-            HELM_NAMESPACE: '%(prop:workername)s'
-            TILLER_NAMESPACE: '%(prop:workername)s'
-      - ShellCommand: *dump_logs
-      - Upload: *upload_artifacts
-      - ShellCommand: *k8s_cleanup
+            SLACK_TOKEN: '%(secret:report_slack_auth_token)s'
+            EVE_TOKEN: '%(secret:report_github_auth_token)s'
+            BUILD_NAME: '%(prop:report_build_name)s'
+            BUILD_NUMBER: '%(prop:report_build_number)s'
+            BUILD_MSG_TS: '%(prop:report_build_msg_ts)s'
+            BUILD_REPO: zenko
