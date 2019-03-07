@@ -17,4 +17,5 @@ spec:
     requests:
       storage: {{ .Values.persistentVolume.size | quote }}
   storageClassName: {{ template "cosmos.storageclass.name" . }}
+  volumeName: {{ template "cosmos.fullname" . }}
 {{- end }}

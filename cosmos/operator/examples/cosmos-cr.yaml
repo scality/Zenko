@@ -19,8 +19,6 @@ spec:
       nfs:
        server: 10.100.1.42
        path: /data
-       mountOptions:
-       - nfsvers=4.1
-       - ro
+       mountOptions: "nfsvers=4.1,ro"
     accessModes:
       - ReadOnlyMany

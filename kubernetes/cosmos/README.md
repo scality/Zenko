@@ -134,8 +134,7 @@ persistentVolume:
       path: ${NFS_EXPORT_PATH}
       readOnly: false
     # Any valid nfs mount option can be listed here
-    mountOptions:
-      - nfsvers=3
+    mountOptions: "nfsvers=3,rw"
 EOF
 ```
 
@@ -209,6 +208,8 @@ persistentVolume:
     nfs:
       server: 10.100.1.42 # IP of your NFS server
       path: /data # NFS export
+    # Any valid nfs mount option can be listed here
+    mountOptions: "nfsvers=3,rw"
 EOF
 ```
 
