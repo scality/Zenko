@@ -176,8 +176,7 @@ from `Orbit <https://admin.zenko.io>`_.
              path: ${NFS_EXPORT_PATH}
              readOnly: false
            # Any valid nfs mount option can be listed here
-           mountOptions:
-             - nfsvers=3
+           mountOptions: "nfsvers=3,rw"
        EOF
   
 6. Install Cosmos.
@@ -257,8 +256,7 @@ Installing the Chart with a Standalone Cloudserver Instance
             path: /data # NFS export
             readOnly: false
           # Any valid nfs mount option can be listed here
-          mountOptions:
-            - nfsvers=3
+          mountOptions: "nfsvers=3,rw"
       persistentVolume:
       EOF
 
