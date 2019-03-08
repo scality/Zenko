@@ -4,10 +4,7 @@ kind: PersistentVolume
 metadata:
   name: {{ template "cosmos.fullname" . }}
   labels:
-    app: {{ template "cosmos.name" . }}
-    chart: {{ template "cosmos.chart" . }}
-    heritage: {{ .Release.Service }}
-    release: {{ .Release.Name }}
+{{ include "cosmos.labels" . | indent 4 }}
 spec:
   accessModes:
   - ReadWriteMany

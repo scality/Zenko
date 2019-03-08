@@ -90,6 +90,7 @@ Create storage class name
 {{- default (include "cosmos.fullname" . ) .Values.persistentVolume.storageClass -}}
 {{- end -}}
 
+{{/*
 The standard labels are frequently used in metadata.
 */ -}}
 {{- define "cosmos.labels" -}}
