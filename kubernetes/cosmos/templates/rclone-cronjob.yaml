@@ -3,11 +3,8 @@ kind: CronJob
 metadata:
   name: {{ template "cosmos.rclone.fullname" . }}
   labels:
-    app: {{ template "cosmos.name" . }}
-    chart: {{ template "cosmos.chart" . }}
     component: rclone
-    heritage: {{ .Release.Service }}
-    release: {{ .Release.Name }}
+{{ include "cosmos.labels" . | indent 4 }}
 spec:
   suspend: {{ .Values.rclone.suspend }}
   schedule: {{ .Values.rclone.schedule | quote }}
@@ -18,7 +15,13 @@ spec:
     backoffLimit: 1
     spec:
       template:
+        metadata:
+          labels:
+            component: rclone
+{{ include "cosmos.labels" . | indent 12 }}
         spec:
+{{- template "cosmos.rclone.job" . }}
+{{- define "cosmos.rclone.job" }}
           restartPolicy: OnFailure
           containers:
           - name: {{ .Chart.Name }}
@@ -56,4 +59,23 @@ spec:
               claimName: {{ default (include "cosmos.fullname" .) .Values.persistentVolume.existingClaim }}
 {{- else }}
             emptyDir: {}
+{{- end }}
+{{- end -}}
+{{- if .Values.rclone.initialIngestion }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ template "cosmos.rclone.fullname" . }}-initial-ingest
+  labels:
+    component: rclone
+{{ include "cosmos.labels" . | indent 4 }}
+spec:
+  template:
+    metadata:
+      labels:
+        component: rclone
+{{ include "cosmos.labels" . | indent 8 }}
+    spec:
+{{- template "cosmos.rclone.job" . }}
 {{- end }}
