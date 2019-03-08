@@ -30,9 +30,9 @@ copyright = '2019, Scality, Inc'
 author = 'Scality Technical Publications'
 
 # The short X.Y version
-version = '1.0'
+version = '1.1'
 # The full version, including alpha/beta/rc tags
-release = '1.0'
+release = '1.1'
 
 
 # -- General configuration ---------------------------------------------------
@@ -137,6 +137,8 @@ html_favicon = '_static/favicon.ico'
 # default: ``['localtoc.html', 'relations.html', 'sourcelink.html',
 # 'searchbox.html']``.
 #
+
+html_last_updated_fmt = '%B %d, %Y'
 
 html_sidebars = {
      '**': ['globaltoc.html', 'searchbox.html'],
