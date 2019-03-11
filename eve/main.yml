@@ -89,6 +89,10 @@ models:
       AWS_ACCESS_KEY_2: '%(secret:aws_s3_backend_access_key_2)s'
       AWS_SECRET_KEY_2: '%(secret:aws_s3_backend_secret_key_2)s'
 
+      RING_S3C_ACCESS_KEY: '%(secret:ring_s3c_backend_access_key)s'
+      RING_S3C_SECRET_KEY: '%(secret:ring_s3c_backend_secret_key)s'
+      RING_S3C_ENDPOINT: '%(secret:ring_s3c_backend_endpoint)s'
+
       GCP_ACCESS_KEY: '%(secret:aws_gcp_backend_access_key)s'
       GCP_SECRET_KEY: '%(secret:aws_gcp_backend_secret_key)s'
       GCP_ACCESS_KEY_2: '%(secret:aws_gcp_backend_access_key_2)s'
@@ -134,6 +138,8 @@ models:
       CEPH_BUCKET_NAME: ci-zenko-ceph-target-bucket
       CEPH_CRR_SRC_BUCKET_NAME: ci-zenko-ceph-crr-src-bucket
       CEPH_CRR_BUCKET_NAME: ci-zenko-ceph-crr-target-bucket
+
+      RING_S3C_BACKEND_SOURCE_LOCATION: rings3cbackendingestion
 
       MULTI_CRR_SRC_BUCKET_NAME: ci-zenko-multi-crr-src-bucket
       TRANSIENT_SRC_BUCKET_NAME: ci-zenko-transient-src-bucket
