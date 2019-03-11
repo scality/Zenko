@@ -9,9 +9,9 @@ global:
   replicationEndpoints: []
 
 image:
-  repository: zenko/backbeat
-  tag: 8.1.1
-  pullPolicy: IfNotPresent
+  repository: jonathangramain/backbeat
+  tag: 8.1.0-ZENKO-419
+  pullPolicy: Always
 
 logging:
    # Options: info, debug, trace
