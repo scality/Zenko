@@ -39,5 +39,5 @@ spec:
             - name: OPERATOR_NAME
               value: {{ template "cosmos-operator.fullname" . }}
           resources:
-{{ toYaml .Values.resources | indent 12 }}
+{{ toYaml .Values.cosmos.operator.resources | indent 12 }}
 {{- end -}}
