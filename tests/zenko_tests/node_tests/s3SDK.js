@@ -36,4 +36,18 @@ const awsS3Client = new S3({
     httpOptions: { timeout: 0 },
 });
 
-module.exports = { scalityS3Client, awsS3Client };
+const ringS3Client = new S3({
+    accessKeyId: process.env.RING_S3C_ACCESS_KEY,
+    secretAccessKey: process.env.RING_S3C_SECRET_KEY,
+    sslEnabled: false,
+    endpoint: process.env.RING_S3C_ENDPOINT,
+    apiVersions: { s3: '2006-03-01' },
+    signatreCache: false,
+    signatureVersion: 'v4',
+    region: 'us-east-1',
+    s3ForcePathStyle: true,
+    maxRetries: 0,
+    httpOptions: { timeout: 0 },
+});
+
+module.exports = { scalityS3Client, awsS3Client, ringS3Client };
