@@ -95,7 +95,9 @@ buckets = [
     get_env('DO_CRR_SRC_BUCKET_NAME', 'zenko-do-crr-src-bucket'),
     get_env('MULTI_CRR_SRC_BUCKET_NAME', 'zenko-multi-crr-src-bucket'),
     get_env('TRANSIENT_SRC_BUCKET_NAME', 'ci-zenko-transient-src-bucket'),
-    get_env('CEPH_CRR_SRC_BUCKET_NAME', 'ci-zenko-ceph-crr-src-bucket')
+    get_env('CEPH_CRR_SRC_BUCKET_NAME', 'ci-zenko-ceph-crr-src-bucket'),
+    get_env('RING_S3C_INGESTION_SRC_BUCKET_NAME',
+        'ci-zenko-ring-s3c-ingestion-src-bucket')
 ]
 
 if get_env('S3_FUZZER') is not None:
