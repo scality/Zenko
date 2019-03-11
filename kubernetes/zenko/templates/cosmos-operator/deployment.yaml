@@ -22,7 +22,9 @@ spec:
         name: {{ template "cosmos-operator.fullname" . }}
         release: {{ .Release.Name }}
     spec:
-      serviceAccountName: {{ template "cosmos-operator.fullname" . }}
+      {{- if .Values.cosmos.rbac.create }}
+      serviceAccountName: {{ template "cosmos-operator.fullname"  . }}
+      {{- end }}
       containers:
         - name: {{ template "cosmos-operator.fullname" . }}
           image: "{{ .Values.cosmos.operator.image.repository }}:{{ .Values.cosmos.operator.image.tag }}"

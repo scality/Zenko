@@ -22,12 +22,14 @@ rules:
   - secrets
   verbs:
   - '*'
+{{- if not .Values.cosmos.rbac.namespaced }}
 - apiGroups:
   - ""
   resources:
   - namespaces
   verbs:
   - get
+{{- end }}
 - apiGroups:
   - apps
   resources:

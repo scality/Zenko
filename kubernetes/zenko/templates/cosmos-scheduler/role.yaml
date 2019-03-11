@@ -1,0 +1,24 @@
+{{- if and .Values.cosmos.enabled .Values.cosmos.rbac.create }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ template "cosmos-scheduler.fullname" . }}
+  labels:
+    app: {{ template "cosmos-scheduler.name" . }}
+    chart: {{ template "zenko.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - '*'
+- apiGroups:
+  - zenko.io
+  resources:
+  - '*'
+  verbs:
+  - '*'
+{{- end -}}

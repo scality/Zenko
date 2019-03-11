@@ -14,7 +14,7 @@ cosmos:
   ci: true
   storageClass: ci-zenko
   rbac:
-    enabled: false
+    create: false
     namespaced: true
 
 s3-data:
