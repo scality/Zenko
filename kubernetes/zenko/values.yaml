@@ -96,7 +96,7 @@ backbeat:
     consumer:
       replicaCount: *nodeCount
   ingestion:
-    enabled: false
+    enabled: true
     consumer:
       replicaCount: *nodeCount
   mongodb:
@@ -129,7 +129,7 @@ cosmos:
       tag: 0.1.0
       pullPolicy: IfNotPresent
 
-    ## A namespace to watch can be specified otherwise will default to the 
+    ## A namespace to watch can be specified otherwise will default to the
     ## installed namespace
     # namespace: default
     schedule: "* */12 * * *"

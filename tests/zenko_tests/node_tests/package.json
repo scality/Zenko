@@ -25,6 +25,7 @@
     "test_retry": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --recursive backbeat/tests/retry",
     "test_crr_pause_resume": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --recursive backbeat/tests/crr-pause-resume",
     "test_lifecycle": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --recursive backbeat/tests/lifecycle",
+    "test_ingestion_s3c": "mocha --tags ${MOCHA_TAGS} --exit -t 300000 --recursive backbeat/tests/ingestion",
     "test_location_quota": "mocha --tags ${MOCHA_TAGS} -exit -t 10000 --recursive cloudserver/locationQuota/tests",
     "test_bucket_get_v2": "mocha --tags ${MOCHA_TAGS} -exit -t 10000 --recursive cloudserver/bucketGetV2/tests"
   },
