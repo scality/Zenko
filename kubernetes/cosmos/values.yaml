@@ -34,6 +34,8 @@ pfsd:
 
 rclone:
   name: rclone
+  command: sync
+  mdOnly: true
 
   image:
     repository: zenko/rclone
@@ -45,7 +47,22 @@ rclone:
   schedule: "0 */12 * * *"
   successfulJobsHistory: 1
 
-  remote:
+  ## Specify source details
+  ## Currently only local fs via PersistentVolumes is supported
+  source:
+    type: local
+    nounc: true
+    copy_links: false
+
+  ## Specify destination details
+  ## Currently only local s3 compatible is supported
+  destination:
+    type: s3
+    ## Provider can be AWS or Other
+    provider: Other
+    ## Using env_auth will configure secrets for accessKey/secretKeys
+    env_auth: true
+    acl: bucket-owner-full-control
     ## Specify an existing secret to get credentials from.
     # existingSercret: ""
     ## Otherwise use the following credentials.
@@ -55,6 +72,16 @@ rclone:
     endpoint: http://zenko-cloudserver
     region: mynfs
     bucket: newbucket
+
+  ## Any valid rclone cli option can be passed as a key:value pair
+  options:
+    ## These values are optimized for higher throughput however if needed they
+    ## can be modified for specific workloads or commented out all together
+    ## if necessary and will revert to the defaults
+    cache-workers: 32 # Default is 4
+    s3-upload-concurrency: 32 # Default is 2
+    transfers: 32 # Default is 4
+    checkers: 64 # Default 8
 
   resources: {}
   nodeSelector: {}

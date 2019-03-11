@@ -57,11 +57,12 @@ The following table lists the configurable parameters of the Cosmos chart and th
 | `rclone.suspend` | Enables/disables the cronjob | `false` |
 | `rclone.schedule` | rclone CronJob schedule | `*/10 * * * *` |
 | `rclone.successfulJobsHistory` | rclone CronJob successful job history | `1` |
-| `rclone.remote.exisitingSecret` | Specify an existing secret to use for credentials | `{}` |
-| `rclone.remote.accessKey` | Remote backend access key | `my-access-key` |
-| `rclone.remote.secretKey` | Remote backend secret key | `my-secret-key` |
-| `rclone.remote.endpoint` | Remote endpoint | `http://cloudserver.local` |
-| `rclone.remote.region` | Remote region | `us-east-1` |
+| `rclone.destination.exisitingSecret` | Specify an existing secret to use for credentials | `{}` |
+| `rclone.destination.accessKey` | Remote backend access key | `my-access-key` |
+| `rclone.destination.secretKey` | Remote backend secret key | `my-secret-key` |
+| `rclone.destination.endpoint` | Remote endpoint | `http://cloudserver.local` |
+| `rclone.destination.region` | Remote region | `us-east-1` |
+| `rclone.options` | rclone cli options as key:value pair | `see values.yaml` |
 | `rclone.resources` | rclone resource requests and limits | `{}` |
 | `rclone.nodeSelector` | Node labels for rclone pod assignment | `{}` |
 | `rclone.tolerations` | Node taints to tolerate | `[]` |
@@ -120,7 +121,7 @@ export CLOUDSERVER_ENDPOINT="http://$(kubectl get svc -l app=cloudserver -o json
 ```bash
 $ cat << EOF > custom-values.yaml
 rclone:
-  remote:
+  destination:
     accessKey: ${ACCESS_KEY}
     secretKey: ${SECRET_KEY}
     endpoint: ${CLOUDSERVER_ENDPOINT}
@@ -196,7 +197,7 @@ helm upgrade cloudserver . -f locationValues.yaml
 ```bash
 $ cat << EOF > remoteValues.yaml
 rclone:
-  remote:
+  destination:
     accessKey: my-access-key
     secretKey: my-secret-key
     endpoint: http://cloudserver

@@ -7,10 +7,8 @@ metadata:
 {{ include "cosmos.labels" . | indent 4 }}
 data:
   rclone.conf: |-
-    [cloudserver]
-    type = s3
-    provider = Other
-    env_auth = true
-    endpoint = {{ .Values.rclone.remote.endpoint }}
-    location_constraint = {{ .Values.rclone.remote.region }}
-    acl = bucket-owner-full-control
+    [source]
+{{ include "cosmos.rclone.configmap" .Values.rclone.source | indent 4 }}
+    [destination]
+{{- $dst := merge (default .Values.rclone.destination .Values.rclone.remote) .Values.rclone.destination }}
+{{ include "cosmos.rclone.configmap" $dst | indent 4 }}
