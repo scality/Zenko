@@ -3,11 +3,8 @@ kind: ConfigMap
 metadata:
   name: {{ template "cosmos.rclone.fullname" . }}
   labels:
-    app: {{ template "cosmos.name" . }}
-    chart: {{ template "cosmos.chart" . }}
     component: rclone
-    heritage: {{ .Release.Service }}
-    release: {{ .Release.Name }}
+{{ include "cosmos.labels" . | indent 4 }}
 data:
   rclone.conf: |-
     [cloudserver]

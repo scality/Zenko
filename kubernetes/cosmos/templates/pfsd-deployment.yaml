@@ -3,11 +3,8 @@ kind: Deployment
 metadata:
   name: {{ template "cosmos.pfsd.fullname" . }}
   labels:
-    app: {{ template "cosmos.name" . }}
-    chart: {{ template "cosmos.chart" . }}
     component: pfsd
-    heritage: {{ .Release.Service }}
-    release: {{ .Release.Name }}
+{{ include "cosmos.labels" . | indent 4 }}
 spec:
   replicas: {{ .Values.pfsd.replicaCount }}
   selector:
@@ -18,9 +15,8 @@ spec:
   template:
     metadata:
       labels:
-        app: {{ template "cosmos.name" . }}
         component: pfsd
-        release: {{ .Release.Name }}
+{{ include "cosmos.labels" . | indent 8 }}
     spec:
       containers:
         - name: {{ .Chart.Name }}

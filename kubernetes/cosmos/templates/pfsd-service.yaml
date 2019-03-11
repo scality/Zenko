@@ -7,11 +7,8 @@ metadata:
   name: {{ template "cosmos.pfsd.fullname" . }}
   {{- end }}
   labels:
-    app: {{ template "cosmos.name" . }}
-    chart: {{ template "cosmos.chart" . }}
     component: pfsd
-    heritage: {{ .Release.Service }}
-    release: {{ .Release.Name }}
+{{ include "cosmos.labels" . | indent 4 }}
 spec:
   type: {{ .Values.pfsd.service.type }}
   ports:

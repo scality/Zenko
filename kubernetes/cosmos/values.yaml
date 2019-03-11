@@ -40,6 +40,7 @@ rclone:
     tag: 1.45
     pullPolicy: IfNotPresent
 
+  initialIngestion: true
   suspend: false
   schedule: "0 */12 * * *"
   successfulJobsHistory: 1
