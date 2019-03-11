@@ -95,7 +95,6 @@ tags('flaky') // Tracking via ZENKO-1036
         next => utils.putObject(srcBucket, key, Buffer.alloc(1), next),
         next => utils.compareObjectsAzure(srcBucket, destContainer, key, next),
         next => utils.deleteObject(srcBucket, key, null, next),
-        next => utils.assertNoObject(srcBucket, key, next),
         next => utils.waitUntilDeleted(destContainer, `${srcBucket}/${key}`,
             'azure', next),
         next => utils.getBlobToText(destContainer, `${srcBucket}/${key}`,
