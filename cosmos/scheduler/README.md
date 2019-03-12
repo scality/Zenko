@@ -34,7 +34,7 @@ The following environment variables can be set to customize the Scheduler's beha
 `NAMESPACE` | `default` | The Kubernetes namespace to create resources |
 `MONGODB_HOSTS` | `localhost:27017` | The MongoDB hosts Url to connect to |
 `CLOUDSERVER_ENDPOINT` | `localhost:8000` | The Cloudserver service endpoint |
-`STORAGE_CLASS` | `localhost:27017` | The Storage Class to use for Cosmos PVs |
+`STORAGE_CLASS` | `my-storage-class` | The Storage Class to use for Cosmos PVs |
 `INGESTION_SCHEDULE` | `* */12 * * *` | The Cosmos CronJob default ingestion schedule |
 
 ## Development
