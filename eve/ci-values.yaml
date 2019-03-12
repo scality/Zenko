@@ -83,6 +83,9 @@ zenko-queue:
     - name: backbeat-replication-failed
       partitions: 1
       replicationFactor: 1
+    - name: backbeat-data-mover
+      partitions: 1
+      replicationFactor: 1
     - name: backbeat-sanitycheck
       partitions: 1
       replicationFactor: 1
@@ -125,7 +128,7 @@ backbeat:
     replicaFactor: 2
   lifecycle:
     conductor:
-      cronRule: "0 */1 * * * *"
+      cronRule: "*/5 * * * * *"
 
 grafana:
   persistentVolume:
