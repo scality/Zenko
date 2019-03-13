@@ -17,9 +17,6 @@ lifecycle adds a delete marker automatically when a rule expiring a current
 version is triggered, such as when a user deletes an object without first
 specifying a version ID.
 
-Several Zenko components are used in lifecycle management. Most rely on Kafka
-and ZooKeeper to pass state to each other.
-
 Bucket lifecycle characteristics inhere to each bucket. Zenko’s lifecycle
 management feature enforces, but does not set these characteristics. When
 lifecycle expiration is enabled, the host cloud enforces buckets’ lifecycle
@@ -37,7 +34,7 @@ Element syntax described in
    https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lifecycle-mgmt.html.
    *Lifecycle actions are currently constrained to expiration actions,
    and not transition actions.* Files that exceed a preconfigured
-   temporal threshold (for example, 90 days) are “expired” and deleted
+   temporal threshold (for example, 90 days) are “expired” and deleted
    from the bucket on which they are stored. At present, files
-   exceeding a preset date *cannot be transitioned* to STANDARD\_IA or
+   exceeding a preset date *cannot be transitioned* to STANDARD\_IA or
    GLACIER storage classes.
