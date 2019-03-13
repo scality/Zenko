@@ -1,45 +1,39 @@
 Object Lifecycle Management
 ===========================
 
-**Prerequisite:** You must have established at least one bucket.
+Orbit enables you to set policies that manage lifecycle events in selected
+buckets. 
 
-#. From anywhere in Orbit, click the **WORKFLOWS > Bucket
-   Lifecycle** tab in the left navbar.
+From the Bucket Lifecycle selector on the Zenko sidebar menu, you can select,
+then create lifecycle transition or lifecycle expiration policies for objects
+in buckets. These transition (move) or expire (delete) objects that match your
+criteria based on a timespan you set. In other words, Zenko reviews when a set
+number of days has passed since an object or type of object was last touched,
+and either moves such objects to a different storage site (transitions it) or 
+deletes (expires) them. You can create rules to transition objects themselves, 
+or if versioning is enabled, to transition object versions.
 
-   |image0|
+This facility offers responsiveness to needs for data freshness and economy. 
+You can, for example, store job information for ongoing customer interactions
+on a local RING. After a customer stops making demands for immediate (low-
+latency) support, information pertaining to their purchase order transitions
+from the company RING to a public cloud. Latency may increase, but cloud data
+storage costs may be reduced. After a few months, if the data on the public
+cloud is not accessed, it can either be transitioned to another cloud or 
+deleted (expired). 
 
-#. The **Bucket Lifecycle** screen displays.
+Orbit supports most of the Amazon S3 lifecycle management command set; 
+however, the following transition rules can only be defined using API calls.
 
-   |image1|
+   * Filtering by object tag
+   * Using the Date field (GMT ISO 8601 format)
+   * Setting the Days field to zero
+   * Setting a custom ID
 
-#. Choose a bucket and pick **Add New Rule > Expiration**
-#. The **Add New Rule** dialog appears:
+See :ref: 'bucket_lifecycle_operations'
 
-   |image2|
+.. toctree::
+   :maxdepth: 1
 
-   You may enter a distinct directory or subdirectory to which the rule applies.
-   Enter an expiration time span and a deletion time span.
-   These follow the bucket and enforce expiration and deletion.
-   You may also add a comment about this expiration rule.
-
-   Click **Save**.
-
-#. The new rule is displayed:
-
-   |image3|
-
-   Zenko will enforce these rules on this bucket. If replication is
-   configured, any change of state to objects in this bucket can be
-   replicated to buckets on other clouds.
-
-Versioning logic precludes simply deleting an object: that day’s object
-is deleted, but all others remain. See warning at “Deleting Files,” on
-page 1.
-
-.. |image0| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_lifecycle_select.png
-.. |image1| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_lifecycle_bucket_select.png
-   :class: OneHundredPercent
-.. |image2| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_lifecycle_add_rule.png
-   :class: FiftyPercent
-.. |image3| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_lifecycle_rule_success.png
-   :class: OneHundredPercent
+   Object Lifecycles: Transition <Lifecycle_Management-Transition.rst>
+   Object Lifecycles: Expiration <Lifecycle_Management-Expiration.rst>
