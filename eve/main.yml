@@ -158,7 +158,7 @@ stages:
       path: eve/workers/doc-builder.yaml
       images:
         doc-builder:
-          context: '.'
+          context: 'docs'
           dockerfile: docs/Dockerfile
     steps:
     - Git: *git_pull
@@ -170,6 +170,7 @@ stages:
           # Building the latex twice to catch up the reference
           tox --workdir /tmp/tox -e docs -- latexpdf BUILDDIR="%(prop:builddir)s/build/artifacts"
           tox --workdir /tmp/tox -e docs -- latexpdf BUILDDIR="%(prop:builddir)s/build/artifacts"
+        workdir: build/docs
 
     - Upload:
         name: Upload documentation
