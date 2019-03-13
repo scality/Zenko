@@ -1,3 +1,5 @@
+.. _bucket_lifecycle_operations:
+
 Bucket Lifecycle Operations
 ===========================
 
