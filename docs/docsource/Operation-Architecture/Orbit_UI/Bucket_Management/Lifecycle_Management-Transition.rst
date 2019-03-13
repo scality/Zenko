@@ -1,8 +1,24 @@
 Object Lifecycle Management: Transition
 =======================================
 
+Object lifecycle transition policies enable you to change the location of an
+object or object type based on its age.
+
+Transition policies do not fully transition non-versioned sources. For such 
+sources, the object is copied to the destination, but it is not removed from 
+the source. For example, if a user sets a policy to transition an object from
+Azure (source) to AWS S3, the object is copied from Azure to AWS S3, but not
+removed from Azure.
+
+This affects Azure, and--if the source is non-versioned--AWS S3, GCP, and 
+S3C-RING. RING with sproxyd is supported, whether the Zenko bucket is 
+versioned or not.
+
+Establishing a Lifecycle Transition Policy
+------------------------------------------
+
 **Prerequisite:** You must have established a bucket to transition data from,
-and another bucket to send transitioned data to.
+and a location to send transitioned data to.
 
 To establish a lifecycle transition rule:
 
@@ -28,7 +44,7 @@ To establish a lifecycle transition rule:
       :scale: 75 %
       :align: center
 
-   You may name a directory or subdirectory to which the rule applies. Enter
+   You may specify an prefix to identify objects to which the rule applies. Enter
    a time span after the object's current version was last modified and specify
    a location to which it shall be moved. You can also add a comment about the
    transition rule.
