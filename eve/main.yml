@@ -293,22 +293,28 @@ stages:
       - ShellCommand: *k8s_setup
       - ShellCommand:
           name: Setup Zenko and run versioned bucket test
-          command: make -e test-listing
+          command: make -e VERBOSE=1 test-listing
           workdir: build/tests
           maxTime: 43200
           timeout: 43200
           env:
-            S3_FUZZER: enabled
-            ZENKO_BUCKET: fuzzbucket-ver
             <<: *global_env
+            VERSIONED: enabled
+            S3FUZZ_ZENKO_BUCKET: fuzzbucket-ver
+            S3FUZZ_AWS_BUCKET: ci-zenko-s3-fuzzer-versioned
+            HELM_NAMESPACE: '%(prop:workername)s'
+            TILLER_NAMESPACE: '%(prop:workername)s'
       - ShellCommand:
           name: Run unversioned bucket test
-          command: make -e run-listing-fuzzer
+          command: make -e VERBOSE=1 run-listing-fuzzer
           workdir: build/tests
           maxTime: 43200
           env:
-            ZENKO_BUCKET: fuzzbucket-nonver
-            VERSIONED: disabled
             <<: *global_env
+            S3FUZZ_ZENKO_BUCKET: fuzzbucket-nonver
+            S3FUZZ_AWS_BUCKET: ci-zenko-s3-fuzzer
+            HELM_NAMESPACE: '%(prop:workername)s'
+            TILLER_NAMESPACE: '%(prop:workername)s'
       - ShellCommand: *dump_logs
       - Upload: *upload_artifacts
+      - ShellCommand: *k8s_cleanup
