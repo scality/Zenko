@@ -241,7 +241,7 @@ stages:
       - Git: *git_pull
       - SetProperty:
           property: report_build_name
-          value: 'Nightly Build'
+          value: 'Nightly-Build'
       - SetPropertyFromCommand: *notify-build-start
       - TriggerStages:
           name: Trigger latest builds
@@ -300,7 +300,7 @@ stages:
     - ShellCommand: *k8s_setup
     - SetProperty:
         property: report_build_name
-        value: 'Nightly Cosbench'
+        value: 'Nightly-Cosbench'
     - SetPropertyFromCommand: *notify-build-start
     - ShellCommand:
         name: Setup and run benchmarks
@@ -327,7 +327,7 @@ stages:
     - ShellCommand: *k8s_setup
     - SetProperty:
         property: report_build_name
-        value: 'Nightly Listing Fuzzer'
+        value: 'Nightly-Listing-Fuzzer'
     - SetPropertyFromCommand: *notify-build-start
     - ShellCommand:
         name: Setup Zenko and run versioned bucket test
