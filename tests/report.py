@@ -33,8 +33,8 @@ API_FRAGMENT = '/api/v%d/%s'
 EVE_URL = EVE_BASE_URL%BUILD_REPO
 
 SLACK_API_BASE = 'https://slack.com/api/%s'
-SLACK_CHAN = 'CFYM0GWJ0' # Dev channel
-# SLACK_CHAN = 'CFCCE4X7F' # sf-devops
+# SLACK_CHAN = 'CFYM0GWJ0' # Dev channel
+SLACK_CHAN = 'CFCCE4X7F' # sf-devops
 
 def get_args():
     parser = argparse.ArgumentParser(
@@ -103,7 +103,8 @@ class EveClient:
         try:
             res = session.open(req)
         except urllib2.HTTPError as excp:
-            return {}
+            print str(excp)
+            return {'error':True}
         if is_json:
             return json.loads(res.read())
         return res.read()
@@ -326,7 +327,10 @@ if __name__ == '__main__':
     eve = EveClient(EVE_TOKEN)
     if args.trigger:
         print 'Triggering monitor build...'
-        eve.trigger_build()
+        if eve.trigger_build() is not None:
+            print 'Monitor build started successfully.'
+        else:
+            print 'Monitor build failed to start!'
     elif args.report:
         print 'Waiting for build %s to finish...'%BUILD_NUMBER
         status = eve.check_status(buildnum=BUILD_NUMBER)
