@@ -17,7 +17,7 @@ const hex = crypto.createHash('md5')
     .digest('hex');
 const keyPrefix = `${srcBucket}/${hex}`;
 const key = `${keyPrefix}/object-to-replicate-${Date.now()}`;
-const REPLICATION_TIMEOUT = 300000;
+const REPLICATION_TIMEOUT = 600000;
 
 function getAndCheckResponse(path, expectedBody, cb) {
     let shouldContinue = false;
