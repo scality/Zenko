@@ -32,13 +32,14 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 
 WORKDIR /usr/src/zenko
 
-RUN mkdir docs
+RUN mkdir docsource
 
 COPY tox.ini .
-COPY docs/requirements.txt docs/
+
+COPY ./docsource/* docsource/
 
 RUN tox --workdir /tmp/tox --notest -e docs && \
-    rm -rf ~/.cache/pip
-
+     rm -rf ~/.cache/pip
+ 
 ENTRYPOINT ["tox", "--workdir", "/tmp/tox", "-e", "docs", "--"]
 CMD ["html"]

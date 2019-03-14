@@ -18,7 +18,6 @@ BUILDERHOME=/usr/src/zenko
 .PHONY: build shell help Makefile
 
 build:
-	@echo $(ROOTDIR) $(BUILDERIMAGE)
 	@$(DOCKER) build -t $(BUILDERNAME):latest -f $(BUILDERDOCKERFILE) $(BUILDERIMAGE)
 
 shell: build
