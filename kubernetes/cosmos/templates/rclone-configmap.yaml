@@ -13,3 +13,4 @@ data:
     env_auth = true
     endpoint = {{ .Values.rclone.remote.endpoint }}
     location_constraint = {{ .Values.rclone.remote.region }}
+    acl = bucket-owner-full-control
