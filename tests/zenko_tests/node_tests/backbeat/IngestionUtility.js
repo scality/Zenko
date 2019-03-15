@@ -18,6 +18,7 @@ class IngestionUtility {
 
 
     _deleteVersionList(versionList, bucketName, cb) {
+        console.log('delete versionList', cb);
         async.each(versionList, (versionInfo, next) =>
             this.deleteObject(bucketName, versionInfo.Key,
                 versionInfo.VersionId, next), cb);
@@ -33,7 +34,7 @@ class IngestionUtility {
     }
 
     deleteObject(bucketName, key, versionId, cb) {
-        console.log('deleting  object');
+        console.log('deleting  object', cb);
         this.s3.deleteObject({
             Bucket: bucketName,
             Key: key,
