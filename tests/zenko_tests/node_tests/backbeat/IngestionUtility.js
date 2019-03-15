@@ -18,48 +18,78 @@ class IngestionUtility {
 
 
     _deleteVersionList(versionList, bucketName, cb) {
-        console.log('delete versionList', cb);
-        async.each(versionList, (versionInfo, next) =>
-            this.deleteObject(bucketName, versionInfo.Key,
-                versionInfo.VersionId, next), cb);
+        async.each(versionList, (versionInfo, next) => {
+            return this.deleteObject(bucketName, versionInfo.Key,
+                versionInfo.VersionId, next), (err, data) => {
+                    console.log('err deleting versionList', err);
+                    return next(err, data);
+                };
+        }, cb);
     }
 
     putObject(bucketName, objectName, content, cb) {
-        console.log('putting object');
         this.s3.putObject({
             Bucket: bucketName,
             Key: objectName,
             Body: content,
-        }, cb);
+        }, (err, data) => {
+            console.log('putting object', bucketName, objectName, err);
+            return cb(err, data);
+        });
+    }
+
+    putObjectTagging(bucketName, key, versionId, cb) {
+        this.s3.putObjectTagging({
+            Bucket: bucketName,
+            Key: key,
+            VersionId: versionId,
+            Tagging: {
+                TagSet: [
+                    {
+                        Key: 'object-tag-key',
+                        Value: 'object-tag-value',
+                    },
+                ],
+            },
+        }, (err, data) => {
+            console.log('putObjectTagging', bucketName, key, data);
+            return cb(err, data);
+        });
     }
 
     deleteObject(bucketName, key, versionId, cb) {
-        console.log('deleting  object', cb);
         this.s3.deleteObject({
             Bucket: bucketName,
             Key: key,
             VersionId: versionId,
-        }, cb);
+        }, (err, data) => {
+            console.log('deleting  object', bucketName, key, versionId, err);
+            return cb(err, data);
+        });
     }
 
     getSourceObject(bucketName, objName, cb) {
-        console.log('getting source object');
         this.ringS3C.getObject({
             Bucket: bucketName,
             Key: objName,
-        }, cb);
+        }, (err, data) => {
+            console.log('getting source object', bucketName, objName, err);
+            return cb(err, data);
+        });
     }
 
     getDestObject(bucketName, objName, cb) {
-        console.log('getting dest object');
         this.s3.getObject({
             Bucket: bucketName,
             Key: objName,
-        }, cb);
+        }, (err, data) => {
+            console.log('getting dest object', bucketName, objName);
+            return cb(err, data);
+        });
     }
 
     createIngestionBucket(bucketName, ingestionSrcLocation, cb) {
-        console.log('creating ingestion bucket', cb);
+        console.log('creating ingestion bucket', bucketName, ingestionSrcLocation);
         async.series([
             next => this.s3.createBucket({
                 Bucket: bucketName,
@@ -77,7 +107,7 @@ class IngestionUtility {
     }
 
     waitUntilIngested(bucketName, key, versionId, cb) {
-        console.log('getting object');
+        console.log('getting object', bucketName, key, versionId);
         let status;
         const expectedCode = 'NoSuchKey';
         return async.doWhilst(callback =>
@@ -98,7 +128,7 @@ class IngestionUtility {
     }
 
     waitUntilDeleted(bucketName, key, cb) {
-        console.log('waiting for deletion');
+        console.log('waiting for deletion', bucketName, key);
         let objectExists;
         const expectedCode = 'NoSuchKey';
         return async.doWhilst(callback =>
@@ -120,7 +150,7 @@ class IngestionUtility {
 
     deleteAllVersions(bucketName, keyPrefix, cb) {
         this.s3.listObjectVersions({ Bucket: bucketName }, (err, data) => {
-            console.log('list  object versions');
+            console.log('list object versions', bucketName, keyPrefix, err);
             if (err) {
                 return cb(err);
             }
@@ -142,9 +172,10 @@ class IngestionUtility {
         });
     }
 
-    deleteVersionedBucket(bucketName, cb) {
+    deleteVersionedBucket(bucketName, keyPrefix, cb) {
+        console.log('deleting versioned  bucket', bucketName);
         return async.series([
-            next => this.deleteAllVersions(bucketName, undefined, next),
+            next => this.deleteAllVersions(bucketName, keyPrefix, next),
             next => this.s3.deleteBucket({ Bucket: bucketName }, next),
         ], err => cb(err));
     }
@@ -174,6 +205,14 @@ class IngestionUtility {
             return cb();
         });
     }
+    //
+    // compareObjectTagsRINGS3C(srcBucket, destBucket, key, zenkoVersionId,
+    //     s3cVersionId, cb) {
+    //     return async.series([
+    //         next => this.waitUntilIngested(srcBucket, key, zenkoVersionId, next),
+    //         next => this.
+    //     ])
+    // }
 }
 
 module.exports = IngestionUtility;
