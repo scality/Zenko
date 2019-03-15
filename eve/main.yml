@@ -171,42 +171,10 @@ stages:
       type: local
     steps:
     - TriggerStages:
-        name: Build documentation
-        haltOnFailure: true
-        stage_names:
-        - build-doc
-    - TriggerStages:
         name: trigger all the tests
         stage_names:
         - online-zenko
         - test-cosmos
-
-  build-doc:
-    worker:
-      type: kube_pod
-      path: eve/workers/doc-builder.yaml
-      images:
-        doc-builder:
-          context: 'docs'
-          dockerfile: docs/Dockerfile
-    steps:
-    - Git: *git_pull
-    - ShellCommand:
-        name: 'Build doc'
-        haltOnFailure: true
-        command: |-
-          tox --workdir /tmp/tox -e docs -- html BUILDDIR="%(prop:builddir)s/build/artifacts"
-          # Building the latex twice to catch up the reference
-          tox --workdir /tmp/tox -e docs -- latexpdf BUILDDIR="%(prop:builddir)s/build/artifacts"
-          tox --workdir /tmp/tox -e docs -- latexpdf BUILDDIR="%(prop:builddir)s/build/artifacts"
-        workdir: build/docs
-
-    - Upload:
-        name: Upload documentation
-        source: 'artifacts'
-        urls:
-          - "html/index.html"
-          - "latex/*.pdf"
 
   online-zenko:
     worker: &kube_cluster
@@ -254,30 +222,8 @@ stages:
           name: Trigger latest builds
           haltOnFailure: true
           stage_names:
-            - test-latest-1.0.x
             - test-latest-1.1.x
       - ShellCommand: *trigger-build-reporter
-
-  test-latest-1.0.x:
-    worker: *kube_cluster
-    steps:
-      - Git: *git_pull
-      - ShellCommand: *private_registry_login
-      - ShellCommand: *k8s_setup
-      - ShellCommand:
-          name: Setup latest Zenko and run end to end tests
-          command: make -e VERBOSE=1 test-latest
-          workdir: build/tests
-          env:
-            BACKBEAT_BRANCH: development/8.0
-            CLOUDSERVER_BRANCH: development/8.0
-            PYTHON_ARGS: "-k 'not ceph'"
-            HELM_NAMESPACE: '%(prop:workername)s'
-            TILLER_NAMESPACE: '%(prop:workername)s'
-            <<: *global_env
-      - ShellCommand: *dump_logs
-      - Upload: *upload_artifacts
-      - ShellCommand: *k8s_cleanup
 
   test-latest-1.1.x:
     worker: *kube_cluster
