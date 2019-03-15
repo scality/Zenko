@@ -152,7 +152,7 @@ models:
 
   - env: &docker_env # contains values for build test images
       E2E_DOCKER_IMAGE_NAME: '%(secret:private_registry_url)s/zenko/zenko-e2e'
-      BACKBEAT_DOCKER_IMAGE_NAME: 'jianqinwang/backbeat:e2e'
+      BACKBEAT_DOCKER_IMAGE_NAME: '%(secret:private_registry_url)s/zenko/backbeat-e2e'
       IMAGE_REGISTRY: '%(secret:private_registry_url)s'
       TAG_OVERRIDE: '%(prop:commit_short_revision)s'
 

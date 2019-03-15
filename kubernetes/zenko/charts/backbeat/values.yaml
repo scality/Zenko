@@ -9,9 +9,9 @@ global:
   replicationEndpoints: []
 
 image:
-  repository: jianqinwang/backbeat
-  tag: e2e
-  pullPolicy: Always
+  repository: zenko/backbeat
+  tag: 8.1.2
+  pullPolicy: IfNotPresent
 
 logging:
    # Options: info, debug, trace
