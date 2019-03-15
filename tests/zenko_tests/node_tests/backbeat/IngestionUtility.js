@@ -59,21 +59,30 @@ class IngestionUtility {
     }
 
     createIngestionBucket(bucketName, ingestionSrcLocation, cb) {
-        console.log('creating ingestion bucket');
+        console.log('creating ingestion bucket', cb);
         async.waterfall([
             next => this.s3.createBucket({
                 Bucket: bucketName,
                 CreateBucketConfiguration: {
                     LocationConstraint: `${ingestionSrcLocation}:ingest`,
                 },
-            }, next),
+            }, (err,  data) => {
+                console.log('next createBucket', next);
+                return next(err, data);
+            }),
             next => this.s3.putBucketVersioning({
                 Bucket: bucketName,
                 VersioningConfiguration: {
                     Status: 'Enabled',
                 },
-            }, next),
-        ], cb);
+            }, (err, data) => {
+                console.log('next put versioning', next);
+                return next(err, data);
+            }),
+        ], err => {
+            console.log('cb i s', cb);
+            return cb(err);
+        });
     }
 
     waitUntilIngested(bucketName, key, versionId, cb) {
