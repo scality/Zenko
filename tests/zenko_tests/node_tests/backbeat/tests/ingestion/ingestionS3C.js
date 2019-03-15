@@ -9,7 +9,6 @@ const scalityUtils = new IngestionUtility(scalityS3Client, ringS3Client);
 const ringS3CUtils = new IngestionUtility(ringS3Client);
 const ingestionSrcBucket = process.env.RING_S3C_INGESTION_SRC_BUCKET_NAME;
 const srcLocation = process.env.RING_S3C_BACKEND_SOURCE_LOCATION;
-const ingestionDestBucket = `ingestion-dest-bucket-${Date.now()}`;
 const hex = crypto.createHash('md5')
     .update(Math.random().toString())
     .digest('hex');
@@ -23,6 +22,8 @@ const INGESTION_TIMEOUT = 30000;
 
 describe('Ingestion from RING S3C to Zenko', function() {
     describe('Ingesting existing data from RING S3C bucket', () => {
+        const ingestionDestBucket = `ingestion-dest-bucket-${Date.now()}`;
+
         afterEach(done => async.series([
             next => scalityUtils.deleteVersionedBucket(ingestionDestBucket, next),
             next => ringS3CUtils.deleteAllVersions(ingestionSrcBucket, undefined,
@@ -37,8 +38,10 @@ describe('Ingestion from RING S3C to Zenko', function() {
                 ingestionDestBucket, key, next),
         ], done));
     });
-    
+
     describe('OOB updates for RING S3C bucket', () => {
+        const ingestionDestBucket = `ingestion-dest-bucket-${Date.now()}`;
+
         beforeEach(done => scalityUtils.createIngestionBucket(
             ingestionDestBucket, srcLocation, done));
 
