@@ -24,6 +24,7 @@ class IngestionUtility {
     }
 
     putObject(bucketName, objectName, content, cb) {
+        console.log('putting object');
         this.s3.putObject({
             Bucket: bucketName,
             Key: objectName,
@@ -32,6 +33,7 @@ class IngestionUtility {
     }
 
     deleteObject(bucketName, key, versionId, cb) {
+        console.log('deleting  object');
         this.s3.deleteObject({
             Bucket: bucketName,
             Key: key,
@@ -40,6 +42,7 @@ class IngestionUtility {
     }
 
     getSourceObject(bucketName, objName, cb) {
+        console.log('getting source object');
         this.ringS3C.getObject({
             Bucket: bucketName,
             Key: objName,
@@ -47,6 +50,7 @@ class IngestionUtility {
     }
 
     getDestObject(bucketName, objName, cb) {
+        console.log('getting dest object');
         this.s3.getObject({
             Bucket: bucketName,
             Key: objName,
@@ -54,6 +58,7 @@ class IngestionUtility {
     }
 
     createIngestionBucket(bucketName, ingestionSrcLocation, cb) {
+        console.log('creating ingestion bucket');
         async.waterfall([
             next => this.s3.createBucket({
                 Bucket: bucketName,
@@ -71,6 +76,7 @@ class IngestionUtility {
     }
 
     waitUntilIngested(bucketName, key, versionId, cb) {
+        console.log('getting object');
         let status;
         const expectedCode = 'NoSuchKey';
         return async.doWhilst(callback =>
@@ -91,6 +97,7 @@ class IngestionUtility {
     }
 
     waitUntilDeleted(bucketName, key, cb) {
+        console.log('waiting for deletion');
         let objectExists;
         const expectedCode = 'NoSuchKey';
         return async.doWhilst(callback =>
@@ -112,6 +119,7 @@ class IngestionUtility {
 
     deleteAllVersions(bucketName, keyPrefix, cb) {
         this.s3.listObjectVersions({ Bucket: bucketName }, (err, data) => {
+            console.log('list  object versions');
             if (err) {
                 return cb(err);
             }
