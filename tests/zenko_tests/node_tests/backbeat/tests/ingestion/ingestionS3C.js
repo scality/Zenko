@@ -22,13 +22,13 @@ const keyutf8 = `${keyPrefix}/%EA%9D%8崰㈌㒈保轖䳷䀰⺩ቆ楪僷ꈅꓜ퇬
 const INGESTION_TIMEOUT = 30000;
 
 describe('Ingestion from RING S3C to Zenko', function() {
-    afterEach(done => async.series([
-        next => scalityUtils.deleteVersionedBucket(ingestionDestBucket, next),
-        next => ringS3CUtils.deleteAllVersions(ingestionSrcBucket, undefined,
-            next),
-    ], done));
-
     describe('Ingesting existing data from RING S3C bucket', () => {
+        afterEach(done => async.series([
+            next => scalityUtils.deleteVersionedBucket(ingestionDestBucket, next),
+            next => ringS3CUtils.deleteAllVersions(ingestionSrcBucket, undefined,
+                next),
+        ], done));
+
         it('should ingest 0-byte objects', done => async.series([
             next => ringS3CUtils.putObject(ingestionSrcBucket, key, null, next),
             next => scalityUtils.createIngestionBucket(ingestionDestBucket,
@@ -37,22 +37,22 @@ describe('Ingestion from RING S3C to Zenko', function() {
                 ingestionDestBucket, key, next),
         ], done));
     });
-    //
-    // describe('OOB updates for RING S3C bucket', () => {
-    //     beforeEach(done => scalityUtils.createIngestionBucket(
-    //         ingestionDestBucket, srcLocation, done));
-    //
-    //     afterEach(done => async.series([
-    //         next => scalityUtils.deleteVersionedBucket(ingestionDestBucket, next),
-    //         next => ringS3CUtils.deleteAllVersions(ingestionSrcBucket, undefined,
-    //             next),
-    //     ], done));
-    //
-    //     it('should receive OOB update with 0-byte object', done =>
-    //     async.series([
-    //         next => ringS3CUtils.putObject(ingestionSrcBucket, key, null, next),
-    //         next => scalityUtils.compareObjectsRINGS3C(ingestionSrcBucket,
-    //             ingestionDestBucket, key, next),
-    //     ], done));
-    // });
+    
+    describe('OOB updates for RING S3C bucket', () => {
+        beforeEach(done => scalityUtils.createIngestionBucket(
+            ingestionDestBucket, srcLocation, done));
+
+        afterEach(done => async.series([
+            next => scalityUtils.deleteVersionedBucket(ingestionDestBucket, next),
+            next => ringS3CUtils.deleteAllVersions(ingestionSrcBucket, undefined,
+                next),
+        ], done));
+
+        it('should receive OOB update with 0-byte object', done =>
+        async.series([
+            next => ringS3CUtils.putObject(ingestionSrcBucket, key, null, next),
+            next => scalityUtils.compareObjectsRINGS3C(ingestionSrcBucket,
+                ingestionDestBucket, key, next),
+        ], done));
+    });
 });
