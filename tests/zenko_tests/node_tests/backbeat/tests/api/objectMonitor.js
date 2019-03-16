@@ -59,7 +59,7 @@ describe('Backbeat object monitor CRR metrics', function() {
         next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next),
         (data, next) =>
             scalityUtils.waitUntilReplicated(srcBucket, key, undefined, err =>
-                next(err, data)),
+                next(err, data), true),
         (data, next) => {
             const path = `/_/backbeat/api/metrics/crr/${destLocation}` +
                 `/progress/${srcBucket}/${key}?versionId=${data.VersionId}`;

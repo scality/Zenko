@@ -522,7 +522,7 @@ class ReplicationUtility {
     }
 
     // Continue getting head object while the status is PENDING or PROCESSING.
-    waitUntilReplicated(bucketName, key, versionId, cb) {
+    waitUntilReplicated(bucketName, key, versionId, cb, flag) {
         let status;
         return async.doWhilst(callback =>
             this.s3.headObject({
@@ -530,6 +530,16 @@ class ReplicationUtility {
                 Key: key,
                 VersionId: versionId,
             }, (err, data) => {
+                if (flag) {
+                    process.stdout.write('\n---------\n')
+                    process.stdout.write(`${key} ${versionId}\n`)
+                    if (err) {
+                        process.stdout.write('err on head object\n');
+                    } else {
+                        process.stdout.write('-> NO err on head object\n')
+                    }
+                    console.log()
+                }
                 if (err) {
                     return callback(err);
                 }
