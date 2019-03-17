@@ -21,7 +21,7 @@ const REPLICATION_TIMEOUT = 300000;
 
 function getAndCheckResponse(path, expectedBody, cb, flag) {
     let shouldContinue = false;
-    return doWhilst(next =>
+    return doWhilst(next => 
         makeGETRequest(path, (err, res) => {
             if (err) {
                 return next(err);
