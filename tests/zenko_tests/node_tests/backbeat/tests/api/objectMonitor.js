@@ -19,7 +19,7 @@ const keyPrefix = `${srcBucket}/${hex}`;
 const key = `${keyPrefix}/object-to-replicate-${Date.now()}`;
 const REPLICATION_TIMEOUT = 600000;
 
-function getAndCheckResponse(path, expectedBody, cb) {
+function getAndCheckResponse(path, expectedBody, cb, flag) {
     let shouldContinue = false;
     return doWhilst(next =>
         makeGETRequest(path, (err, res) => {
@@ -27,10 +27,14 @@ function getAndCheckResponse(path, expectedBody, cb) {
                 return next(err);
             }
             assert.strictEqual(res.statusCode, 200);
+            if (flag) {
+                process.stdout.write(`CHECK RES: ${res.statusCode}\n`)
+            }
             return getResponseBody(res, (err, body) => {
                 if (err) {
                     return next(err);
                 }
+                process.stdout.write(`RESPONSE: ${JSON.stringify(body)}\n`)
                 shouldContinue =
                     JSON.stringify(body) !== JSON.stringify(expectedBody);
                 return setTimeout(next, 2000);
@@ -72,7 +76,7 @@ describe('Backbeat object monitor CRR metrics', function() {
                 completed: 1,
                 progress: '100%',
             };
-            return getAndCheckResponse(path, expectedBody, next);
+            return getAndCheckResponse(path, expectedBody, next, true);
         },
     ], done));
 
