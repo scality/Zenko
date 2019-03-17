@@ -21,7 +21,8 @@ const REPLICATION_TIMEOUT = 300000;
 
 function getAndCheckResponse(path, expectedBody, cb, flag) {
     let shouldContinue = false;
-    return doWhilst(next => 
+    let pendingStatus = true;
+    return doWhilst(next =>
         makeGETRequest(path, (err, res) => {
             if (err) {
                 return next(err);
@@ -40,12 +41,22 @@ function getAndCheckResponse(path, expectedBody, cb, flag) {
                 if (body.pending < 0) {
                     process.stdout.write('PENDING went negative!\n')
                     shouldContinue = false;
+                    pendingStatus = false;
                     return next(err);
                 }
                 return setTimeout(next, 2000);
             });
         }),
-    () => shouldContinue, cb);
+    () => shouldContinue,
+    err => {
+        if (err) {
+            return cb(err);
+        }
+        if (shouldContinue === false && pendingStatus === false) {
+            return cb(new Error('Pending went negative!!');
+        }
+        return cb();
+    });
 }
 
 describe('Backbeat object monitor CRR metrics', function() {
