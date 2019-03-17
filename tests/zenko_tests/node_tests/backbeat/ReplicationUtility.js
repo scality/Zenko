@@ -537,6 +537,7 @@ class ReplicationUtility {
                         process.stdout.write('err on head object\n');
                     } else {
                         process.stdout.write('-> NO err on head object\n')
+                        process.stdout.write(`Status: ${data.ReplicationStatus}\n`)
                     }
                     console.log()
                 }
