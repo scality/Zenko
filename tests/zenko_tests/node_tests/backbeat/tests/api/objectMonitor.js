@@ -53,7 +53,7 @@ function getAndCheckResponse(path, expectedBody, cb, flag) {
             return cb(err);
         }
         if (shouldContinue === false && pendingStatus === false) {
-            return cb(new Error('Pending went negative!!');
+            return cb(new Error('Pending went negative!!'));
         }
         return cb();
     });
