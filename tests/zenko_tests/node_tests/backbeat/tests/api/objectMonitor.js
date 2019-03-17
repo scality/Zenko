@@ -39,6 +39,7 @@ function getAndCheckResponse(path, expectedBody, cb, flag) {
                     JSON.stringify(body) !== JSON.stringify(expectedBody);
                 if (body.pending < 0) {
                     process.stdout.write('PENDING went negative!\n')
+                    shouldContinue = false;
                     return next(err);
                 }
                 return setTimeout(next, 2000);
