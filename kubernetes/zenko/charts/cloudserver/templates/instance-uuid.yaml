@@ -1,0 +1,16 @@
+{{ if .Release.IsInstall }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ template "cloudserver.fullname" . }}-uuid
+  labels:
+    app: {{ template "cloudserver.name" . }}
+    chart: {{ template "cloudserver.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+  annotations:
+    "helm.sh/hook": pre-install
+type: Opaque
+stringData:
+    uuid: '{{ randAlphaNum 7 }}'
+{{ end }}

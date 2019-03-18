@@ -69,6 +69,11 @@ spec:
             - name: {{ $key | upper | replace "." "_" }}
               value: {{ $value | quote }}
             {{- end }}
+            - name: CLOUDSERVER_UUID
+              valueFrom:
+                secretFromRef:
+                    name: {{ template "cloudserver.fullname" . }}-uuid
+                    key: uuid
           args: ['npm', 'run', 'start_s3server']
           livenessProbe:
             httpGet:
