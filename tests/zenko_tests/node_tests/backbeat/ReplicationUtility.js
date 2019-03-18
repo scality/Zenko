@@ -417,6 +417,10 @@ class ReplicationUtility {
     deleteVersionedBucket(bucketName, cb) {
         return async.series([
             next => this.deleteAllVersions(bucketName, undefined, next),
+            next => this.s3.listObjectVersions({ Bucket: bucketName }, (err, data) => {
+                console.log('list should be empty,', err, data);
+                return next();
+            }),
             next => this.s3.deleteBucket({ Bucket: bucketName }, next),
         ], err => cb(err));
     }
