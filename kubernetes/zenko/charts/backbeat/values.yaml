@@ -10,7 +10,7 @@ global:
 
 image:
   repository: philipyoo/backbeat
-  tag: 0.1.6
+  tag: 0.1.3.2
   pullPolicy: IfNotPresent
 
 logging:
