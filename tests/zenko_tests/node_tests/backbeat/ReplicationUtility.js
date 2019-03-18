@@ -34,9 +34,12 @@ class ReplicationUtility {
     }
 
     _deleteVersionList(versionList, bucketName, cb) {
-        async.each(versionList, (versionInfo, next) =>
-            this.deleteObject(bucketName, versionInfo.Key,
-                versionInfo.VersionId, next), cb);
+        console.log('version list is', versionList);
+        async.each(versionList, (versionInfo, next) => {
+            console.log('deleting object', versionInfo);
+            return this.deleteObject(bucketName, versionInfo.Key,
+                versionInfo.VersionId, next);
+            }, cb);
     }
 
     _deleteBlobList(blobList, containerName, cb) {
