@@ -82,6 +82,7 @@ models:
         BUILD_STAGE: report-build-end
         BUILD_REPO: zenko
         BUILD_MSG_TS: '%(prop:report_build_msg_ts)s'
+        BUILD_BRANCH: '%(prop:branch)s'
 
   - env: &secrets_env # contains values used for test config
       AWS_ENDPOINT: https://s3.amazonaws.com
@@ -261,7 +262,21 @@ stages:
           stage_names:
             - test-latest-1.0.x
             - test-latest-1.1.x
-      - ShellCommand: *trigger-build-reporter
+      - ShellCommand:
+          name: Trigger the report-test stage in a seperate build
+          command: python report.py --trigger
+          workdir: build/tests
+          alwaysRun: true
+          env:
+            SLACK_TOKEN: '%(secret:report_slack_auth_token)s'
+            EVE_TOKEN: '%(secret:report_github_auth_token)s'
+            BUILD_NAME: '%(prop:report_build_name)s'
+            BUILD_NUMBER: '%(prop:bootstrap)s'
+            BUILD_STAGE: report-build-end
+            BUILD_REPO: zenko
+            BUILD_MSG_TS: '%(prop:report_build_msg_ts)s'
+            BUILD_BRANCH: '%(prop:branch)s'
+            CROSSPOST_TO_HIPPO: 'true'
 
   test-latest-1.0.x:
     worker: *kube_cluster
@@ -386,3 +401,4 @@ stages:
             BUILD_NUMBER: '%(prop:report_build_number)s'
             BUILD_MSG_TS: '%(prop:report_build_msg_ts)s'
             BUILD_REPO: zenko
+            CROSSPOST_TO_HIPPO: '%(prop:crosspost-to-hippo)s'
