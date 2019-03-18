@@ -3,39 +3,12 @@ const async = require('async');
 const crypto = require('crypto');
 
 const { scalityS3Client, ringS3Client } = require('../s3SDK');
+const ReplicationUtility = require('./ReplicationUtility');
 
-class IngestionUtility {
+class IngestionUtility extends ReplicationUtility {
     constructor(s3, ringS3C) {
-        this.s3 = s3;
+        super(s3);
         this.ringS3C = ringS3C;
-    }
-
-    _compareObjectBody(body1, body2) {
-        const digest1 = crypto.createHash('md5').update(body1).digest('hex');
-        const digest2 = crypto.createHash('md5').update(body2).digest('hex');
-        assert.strictEqual(digest1, digest2);
-    }
-
-
-    _deleteVersionList(versionList, bucketName, cb) {
-        async.each(versionList, (versionInfo, next) => {
-            return this.deleteObject(bucketName, versionInfo.Key,
-                versionInfo.VersionId, next), (err, data) => {
-                    console.log('err deleting versionList', err);
-                    return next(err, data);
-                };
-        }, cb);
-    }
-
-    putObject(bucketName, objectName, content, cb) {
-        this.s3.putObject({
-            Bucket: bucketName,
-            Key: objectName,
-            Body: content,
-        }, (err, data) => {
-            console.log('putting object', bucketName, objectName, err);
-            return cb(err, data);
-        });
     }
 
     putObjectTagging(bucketName, key, versionId, cb) {
@@ -53,17 +26,6 @@ class IngestionUtility {
             },
         }, (err, data) => {
             console.log('putObjectTagging', bucketName, key, data);
-            return cb(err, data);
-        });
-    }
-
-    deleteObject(bucketName, key, versionId, cb) {
-        this.s3.deleteObject({
-            Bucket: bucketName,
-            Key: key,
-            VersionId: versionId,
-        }, (err, data) => {
-            console.log('deleting  object', bucketName, key, versionId, err);
             return cb(err, data);
         });
     }
@@ -146,38 +108,6 @@ class IngestionUtility {
                 return setTimeout(callback, 2000);
             }),
         () => objectExists, cb);
-    }
-
-    deleteAllVersions(bucketName, keyPrefix, cb) {
-        this.s3.listObjectVersions({ Bucket: bucketName }, (err, data) => {
-            console.log('list object versions', bucketName, keyPrefix, err);
-            if (err) {
-                return cb(err);
-            }
-            let versions = data.Versions;
-            let deleteMarkers = data.DeleteMarkers;
-            // If replicating to a multiple backend bucket, we only want to
-            // remove versions that we have put with our tests.
-            if (keyPrefix) {
-                versions = versions.filter(version =>
-                    version.Key.startsWith(keyPrefix));
-                deleteMarkers = deleteMarkers.filter(marker =>
-                    marker.Key.startsWith(keyPrefix));
-            }
-            return async.series([
-                next => this._deleteVersionList(deleteMarkers, bucketName,
-                    next),
-                next => this._deleteVersionList(versions, bucketName, next),
-            ], err => cb(err));
-        });
-    }
-
-    deleteVersionedBucket(bucketName, keyPrefix, cb) {
-        console.log('deleting versioned  bucket', bucketName);
-        return async.series([
-            next => this.deleteAllVersions(bucketName, keyPrefix, next),
-            next => this.s3.deleteBucket({ Bucket: bucketName }, next),
-        ], err => cb(err));
     }
 
     compareObjectsRINGS3C(srcBucket, destBucket, key, cb) {
