@@ -61,7 +61,7 @@ describe('Ingestion from RING S3C to Zenko', function() {
             ], done);
         });
 
-        it('should ingest object tags', function itF(done) {
+        it.skip('should ingest object tags', function itF(done) {
             return async.series([
                 next => ringS3CUtils.putObject(ingestionSrcBucket,
                     this.test.key, Buffer.alloc(1), next),
