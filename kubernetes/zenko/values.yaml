@@ -32,6 +32,9 @@ global:
     # https://zenko.io to manage your deployment
   locationConstraints: {}
   replicationEndpoints: []
+  # Replication group id is used in generating version ids for objects,
+  # recommended to be alphanumeric and of 7 characters length
+  # replicationGroupId: ''
 
 maintenance:
   # Enables a retry CronJobs that will attempt to retry CRR objects stuck in

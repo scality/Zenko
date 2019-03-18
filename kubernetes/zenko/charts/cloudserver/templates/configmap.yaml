@@ -1,4 +1,3 @@
-{{- if not .Values.global.orbit.enabled -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -9,6 +8,10 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
+{{- if .Values.global.replicationGroupId -}}
+  replicationGroupId: "{{ .Values.global.replicationGroupId }}"
+{{- end }}
+{{- if not .Values.global.orbit.enabled -}}
 {{- if .Values.global.locationConstraints }}
   locationConfig: |-
     {{ $last := keys .Values.global.locationConstraints | sortAlpha | last }}
