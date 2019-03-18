@@ -1,0 +1,5 @@
+#!/usr/bin/with-contenv sh
+
+mkdir -p /tmp/mongod
+
+exec mongod --dbpath /tmp/mongod

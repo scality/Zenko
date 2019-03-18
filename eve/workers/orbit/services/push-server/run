@@ -1,0 +1,5 @@
+#!/usr/bin/with-contenv sh
+
+cd /go/src/${PACKAGE}
+
+exec ./pensieve-push-server
