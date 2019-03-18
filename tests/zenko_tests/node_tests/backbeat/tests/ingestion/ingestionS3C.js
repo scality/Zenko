@@ -32,8 +32,7 @@ describe('Ingestion from RING S3C to Zenko', function() {
         afterEach(function afterEach(done) {
             return async.series([
                 next => scalityUtils.deleteVersionedBucket(
-                    this.currentTest.ingestionDestBucket,
-                    undefined, next),
+                    this.currentTest.ingestionDestBucket, next),
                 next => ringS3CUtils.deleteAllVersions(ingestionSrcBucket,
                     this.currentTest.keyPrefix, next),
             ], done);
@@ -95,7 +94,7 @@ describe('Ingestion from RING S3C to Zenko', function() {
 
         after(done => async.series([
             next => scalityUtils.deleteVersionedBucket(ingestionDestBucket,
-                undefined, next),
+                next),
             next => ringS3CUtils.deleteAllVersions(ingestionSrcBucket, keyPrefix,
                 next),
         ], done));
