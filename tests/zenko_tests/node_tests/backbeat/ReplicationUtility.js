@@ -35,6 +35,9 @@ class ReplicationUtility {
 
     _deleteVersionList(versionList, bucketName, cb) {
         console.log('version list is', versionList);
+        if (versionList.length < 1) {
+            return cb();
+        }
         const params = {
             Bucket: bucketName,
             Delete: {
