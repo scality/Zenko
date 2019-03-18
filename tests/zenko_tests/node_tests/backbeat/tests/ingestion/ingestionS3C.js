@@ -22,11 +22,11 @@ describe('Ingestion from RING S3C to Zenko', function() {
                 .update(Math.random().toString())
                 .digest('hex');
             this.currentTest.ingestionDestBucket =
-                `ingestion-dest-bucket-${Date.now()}`;
+                `ingestion-dest-bucket-${hex}`;
             this.currentTest.keyPrefix =
                 `${ingestionSrcBucket}/${hex}`;
             this.currentTest.key =
-                `${this.currentTest.keyPrefix}/object-to-ingest-${Date.now()}`;
+                `${this.currentTest.keyPrefix}/object-to-ingest-${hex}-${Date.now()}`;
         });
 
         afterEach(function afterEach(done) {
