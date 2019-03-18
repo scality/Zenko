@@ -72,16 +72,34 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{/*
 Create a fully qualified name for the bucket to create.
 */}}
-{{- define "cosmos.bucket" -}}
-{{- default (include "cosmos.fullname" .) .Values.rclone.remote.bucket -}}
+{{- define "cosmos.dst" -}}
+{{- $dst := merge (default .Values.rclone.destination .Values.rclone.remote) .Values.rclone.destination -}}
+{{- default (include "cosmos.fullname" .) $dst.bucket -}}
+{{- end -}}
+
+{{/*
+Create a name for the bucket to create.
+*/}}
+{{- define "cosmos.src" -}}
+{{- default "/data" .bucket -}}
+{{- end -}}
+
+{{/*
+Generate config map from values passed while omitting secrets 
+*/}}
+{{- define "cosmos.rclone.configmap" -}}
+{{- range $key, $value := omit . "accessKey" "secretKey" "existingSecret" -}}
+{{ $key }} = {{ $value }}
+{{ end }}
 {{- end -}}
 
 {{/*
 Define the fully qualified name for the rclone's remote secret.
 */}}
 {{- define "cosmos.rclone.secret.name" -}}
-{{- if .Values.rclone.remote.existingSecret -}}
-{{- printf "%s" .Values.rclone.remote.existingSecret -}}
+{{- $dst := merge (default .Values.rclone.destination .Values.rclone.remote) .Values.rclone.destination -}}
+{{- if $dst.existingSecret -}}
+{{- printf "%s" $dst.existingSecret -}}
 {{- else -}}
 {{- printf "%s" (include "cosmos.rclone.fullname" .) -}}
 {{- end -}}

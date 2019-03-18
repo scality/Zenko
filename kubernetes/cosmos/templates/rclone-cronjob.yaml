@@ -29,7 +29,7 @@ spec:
             imagePullPolicy: {{ .Values.rclone.image.pullPolicy }}
             env:
               - name: MOUNT_PATH
-                value: /data
+                value: {{ template "cosmos.src" .Values.rclone.source }}
               - name: AWS_ACCESS_KEY_ID
                 valueFrom:
                   secretKeyRef:
@@ -41,14 +41,25 @@ spec:
                     name: {{ template "cosmos.rclone.secret.name" . }}
                     key: secretKey
             command:
-              - sh
-              - -c
-              - "exec rclone sync . cloudserver:{{ template "cosmos.bucket" . }} --s3-region {{ .Values.rclone.remote.region }} -v --md-only"
+              - rclone
+            args:
+              - {{ .Values.rclone.command }}
+              - source:{{ template "cosmos.src" .Values.rclone.source }}
+              - destination:{{ template "cosmos.dst" . }}
+              {{- $dst := merge (default .Values.rclone.destination .Values.rclone.remote) .Values.rclone.destination }}
+              - --s3-region={{ $dst.region }}
+              {{- range $key, $value := .Values.rclone.options }}
+              - --{{ $key }}{{ if $value }}={{ $value }}{{ end }}
+              {{- end }}
+              {{- if .Values.rclone.mdOnly }}
+              - --md-only
+              {{- end }}
+              - -v
             volumeMounts:
               - name: rclone-config
                 mountPath: /root/.config/rclone
               - name: backend-storage
-                mountPath: /data
+                mountPath: {{ template "cosmos.src" . }}
           volumes:
           - name: rclone-config
             configMap:
