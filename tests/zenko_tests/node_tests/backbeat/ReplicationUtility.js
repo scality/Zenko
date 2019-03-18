@@ -507,7 +507,10 @@ class ReplicationUtility {
             Bucket: bucketName,
             Key: key,
             VersionId: versionId,
-        }, cb);
+        }, (err, data) => {
+            console.log('err, data in deleting object', err, data);
+            return cb(err, data);
+        });
     }
 
     deleteBlob(containerName, blob, options, cb) {
