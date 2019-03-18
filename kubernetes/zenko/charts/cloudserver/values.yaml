@@ -96,9 +96,9 @@ replicaCount: 3
 replicaFactor: 1
 
 image:
-  repository: jonathangramain/cloudserver
-  tag: 8.1.0-ZENKO-419
-  pullPolicy: Always
+  repository: dorakorpar/cloudserver
+  tag: bb-fix2
+  pullPolicy: IfNotPresent
 
 proxy:
   # If you want to use an HTTP proxy, add the respective endpoints after
