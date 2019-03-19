@@ -1,0 +1,63 @@
+{{- if and .Release.IsUpgrade .Values.maintenance.upgradeMongo -}}
+{{- $mongoValues := index .Values "mongodb-replicaset" -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ template "zenko.fullname" . }}-mongo-capabilities
+  labels:
+    component: maintenance
+{{ include "zenko.labels.standard" . | indent 4 }}
+spec:
+  template:
+    metadata:
+      labels:
+        component: maintenance
+        app: {{ template "zenko.name" . }}
+        release: {{ .Release.Name | quote }}
+    spec:
+      restartPolicy: OnFailure
+      initContainers:
+      - name: wait
+        image: {{ .Values.maintenance.s3Utils.image.repository }}:{{ .Values.maintenance.s3Utils.image.tag }}
+        imagePullPolicy: {{ .Values.maintenance.s3Utils.image.pullPolicy }}
+        command: ["/bin/bash"]
+        args:
+        - -exc
+        - |
+          for i in $(seq 0 {{ sub .Values.nodeCount 1 }}); do
+              version=$(mongo --quiet {{ .Release.Name }}-mongodb-replicaset-$i.{{ .Release.Name }}-mongodb-replicaset --eval 'db.version()')
+              if [ "$version" != '{{ $mongoValues.image.tag }}' ] ; then
+                  echo "Mongodb pod $i is still on $version and needs to be upgrade, exiting"
+                  echo "Waiting and exiting"
+                  sleep 60
+                  exit 1
+              fi
+              echo "Found version $version"
+          done
+      containers:
+      - name: upgrade
+        image: {{ .Values.maintenance.s3Utils.image.repository }}:{{ .Values.maintenance.s3Utils.image.tag }}
+        imagePullPolicy: {{ .Values.maintenance.s3Utils.image.pullPolicy }}
+        command: ["/usr/bin/mongo"]
+        args:
+        - --host={{ template "zenko.mongodb-hosts" . }}
+        - --quiet
+        - |
+           --eval=
+           version = db.adminCommand({ getParameter: 1, featureCompatibilityVersion: 1 }).featureCompatibilityVersion.version;
+           members = rs.status().members;
+           if (version === '3.4'){
+               for (member in members){
+                   state = members[member].stateStr;
+                   name = members[member].name;
+                   print("Checking", name, state);
+                   if (state !== 'PRIMARY' && state !== 'SECONDARY'){
+                       print(name, "not ready state:", state);
+                       quit(1);
+                   }
+                   sleep(10000);
+               }
+               db.adminCommand({ setFeatureCompatibilityVersion: "3.6" });
+           }
+           print("Finished successfully! Compatibility set to version", version);
+{{- end }}
