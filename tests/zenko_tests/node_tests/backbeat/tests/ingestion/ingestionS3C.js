@@ -33,7 +33,10 @@ describe.only('Ingesting existing data from RING S3C bucket', () => {
                 this.currentTest.ingestionDestBucket, next),
             next => ringS3CUtils.deleteAllVersions(ingestionSrcBucket,
                 this.currentTest.keyPrefix, next),
-        ], done);
+        ], (err, data) => {
+            console.log('err in cleanup AfterEach', err, data);
+            return done(err, data);
+        });
     });
 
     it('should ingest an object', function itF(done) {
