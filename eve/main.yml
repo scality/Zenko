@@ -23,7 +23,7 @@ models:
       haltOnFailure: true
   - ShellCommand: &k8s_cleanup
       name: Cleanup
-      command: kubectl delete namespace '%(prop:workername)s'
+      command: kubectl delete namespace '%(prop:workername)s' --wait
       alwaysRun: true
       sigtermTime: 1200
       env:
