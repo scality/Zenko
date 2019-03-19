@@ -19,7 +19,7 @@ Requests
            
 **Request Parameters**
 
-The PUT Bucket operation does not use Request Parameters.
+The GET Bucket operation does not use request parameters.
 
 **Request Headers**
 
@@ -89,7 +89,7 @@ This implementation of GET returns the following response elements.
    |                          |                                                |
    |                          | Ancestor: Rule                                 |
    |                          |                                                |
-   |                          | Valid values: Enabled, Disabled.               |
+   |                          | Valid values: Enabled, Disabled                |
    +--------------------------+------------------------------------------------+
    | Prefix                   | Object keyname prefix identifying one or more  |
    |                          | objects to which the rule applies. Maximum     |
@@ -121,27 +121,28 @@ This implementation of GET returns the following response elements.
    |                          | Ancestor: Destination                          |
    +--------------------------+------------------------------------------------+
    | StorageClass             | Optional destination storage class override    |
-   |                          | to use when replicating objects. If not        |
-   |                          | specified, Amazon S3 uses the storage class of |
-   |                          | the source object to create object replica.    |
+   |                          | to use when replicating objects. If this       |
+   |			      | element is not specified, Zenko uses the       |
+   |			      | source object's storage class to create an     |
+   |   			      | object replica.                                |
+   |                          |                                                |
+   |			      | Zenko reinterprets this S3 call not as a       |
+   |                          | service quality directive, but as a service    |
+   |                          | locator. In other words, where Amazon S3 uses  |
+   |                          | this directive to define a location by quality |
+   |                          | of service (e.g., STANDARD or GLACIER), Zenko  | 
+   |                          | uses it to direct replication to a location.   |
+   |                          | The quality of service is determined and the   | 
+   |			      |	replication destination is configured by the   |
+   |                          | user.                                          |
    |                          |                                                |
    |                          | Type: String                                   |
    |                          |                                                |
    |                          | Ancestor: Destination                          |
    |                          |                                                |
-   |                          | Default: Storage class of the source object.   |
+   |                          | Default: Storage class of the source object    |
    |                          |                                                |
-   |                          | Valid Values: STANDARD \| STANDARD_IA \|       |
-   |                          | REDUCED_REDUNDANCY                             |
-   |                          |                                                |
-   |                          | GLACIER cannot be specified as the storage     |
-   |                          | class, though objects can be transitioned to   |
-   |                          | the GLACIER storage class using lifecycle      |
-   |                          | configuration (refer to `Object Lifecycle      |
-   |                          | Management <http://docs.aws.amazon.com/        |
-   |                          | AmazonS3/latest/dev/object-lifecycle-mgmt.     |
-   |                          | html>`__ in the Amazon Simple Storage Service  |
-   |                          | Service (S3) documentation).                   |
+   |                          | Valid Values: Any defined Zenko location       |
    +--------------------------+------------------------------------------------+
 
 **Special Errors**
@@ -153,8 +154,8 @@ This implementation of GET returns the following response elements.
    | Name               | Description     | HTTP Status     | SOAP Fault      |
    |                    |                 | Code            | Code Prefix     |
    +====================+=================+=================+=================+
-   | NoSuchReplica-     | The replication | 404 Not Found   | Client          |
-   | tionConfiguration  | configuration   |                 |                 |
+   | NoSuchReplication\ | The replication | 404 Not Found   | Client          |
+   | Configuration      | configuration   |                 |                 |
    |                    | does not exist. |                 |                 |
    +--------------------+-----------------+-----------------+-----------------+
 
@@ -173,12 +174,12 @@ information set for the examplebucket bucket.
    Authorization: signatureValue
 
 The following sample response shows that replication is enabled on the
-bucket, and the empty prefix indicates that S3 will replicate all
+bucket, and the empty prefix indicates that Zenko will replicate all
 objects created in the examplebucket bucket. The Destination element
-shows the target bucket where S3 creates the object replicas and the
-storage class (STANDARD_IA) that S3 will use when creating replicas.
+shows the target bucket where Zenko creates the object replicas and the
+storage class (AzureCloud) that Zenko uses when creating replicas.
 
-S3 will assume the specified role to replicate objects on behalf of the
+Zenko assumes the specified role to replicate objects on behalf of the
 bucket owner.
 
 .. code::
@@ -198,7 +199,7 @@ bucket owner.
        <Prefix></Prefix>
        <Destination>
          <Bucket>arn:aws:s3:::exampletargetbucket</Bucket>
-         <StorageClass>STANDARD_IA</StorageClass>
+         <StorageClass>AzureCloud</StorageClass>
        </Destination>
      </Rule>
      <Role>arn:aws:iam::35667example:role/CrossRegionReplicationRoleForS3</Role>
