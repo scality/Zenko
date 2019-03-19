@@ -47,7 +47,7 @@ describe('Ingestion from RING S3C to Zenko', function() {
             ], done);
         });
 
-        it('should ingest a 0-byte object', function itF(done) {
+        it.only('should ingest a 0-byte object', function itF(done) {
             return async.series([
                 next => ringS3CUtils.putObject(ingestionSrcBucket,
                     this.test.key, null, next),
