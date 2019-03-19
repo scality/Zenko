@@ -17,13 +17,14 @@ const INGESTION_TIMEOUT = 30000;
 
 describe.only('Ingesting existing data from RING S3C bucket', () => {
 
-    beforeEach(function beforeEachF() {
+    beforeEach(function beforeEachF(done) {
         this.currentTest.ingestionDestBucket =
             `ingestion-dest-bucket-${uuid()}`;
         this.currentTest.keyPrefix =
             `${ingestionSrcBucket}/${uuid()}`;
         this.currentTest.key =
             `${this.currentTest.keyPrefix}/object-to-ingest-${uuid()}`;
+        return done();
     });
 
     afterEach(function afterEach(done) {
@@ -41,6 +42,7 @@ describe.only('Ingesting existing data from RING S3C bucket', () => {
                 this.test.key, Buffer.alloc(1), next),
             next => scalityUtils.createIngestionBucket(
                 this.test.ingestionDestBucket, location, next),
+            next => setTimeout(next, 5000),
             next => scalityUtils.compareObjectsRINGS3C(ingestionSrcBucket,
                 this.test.ingestionDestBucket, this.test.key, next),
         ], done);
@@ -52,6 +54,7 @@ describe.only('Ingesting existing data from RING S3C bucket', () => {
                 this.test.key, null, next),
             next => scalityUtils.createIngestionBucket(
                 this.test.ingestionDestBucket, location, next),
+            next => setTimeout(next, 5000),
             next => scalityUtils.compareObjectsRINGS3C(ingestionSrcBucket,
                 this.test.ingestionDestBucket, this.test.key, next),
         ], done);
