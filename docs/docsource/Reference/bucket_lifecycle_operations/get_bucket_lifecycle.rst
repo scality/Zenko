@@ -188,7 +188,7 @@ elements.
    |                                   |                                   |
    |                                   | **Type:** String                  |
    |                                   |                                   |
-   |                                   | **Valid values:** true or false   |
+   |                                   | **Valid Values:** true or false   |
    |                                   |                                   |
    |                                   | **Ancestor:** Expiration          |
    +-----------------------------------+-----------------------------------+
@@ -264,20 +264,34 @@ elements.
    |                                   |                                   |
    |                                   | **Ancestor:** Rule                |
    |                                   |                                   |
-   |                                   | **Valid values:** Enabled or      |
+   |                                   | **Valid Values:** Enabled or      |
    |                                   | Disabled                          |
    +-----------------------------------+-----------------------------------+
    | StorageClass                      | Specifies the storage class to    |
    |                                   | which you want to transition the  |
    |                                   | object.                           |
+   |				       | 				   |
+   |				       | Zenko reinterprets this S3 call   |
+   |				       | not as a service quality   	   |
+   |				       | directive, but as a service 	   |
+   |                          	       | locator. In other words, where    |
+   |                          	       | Amazon S3 uses this directive to  |
+   |				       | define a location by quality of   |
+   |                          	       | service (e.g., STANDARD or   	   |
+   |				       | GLACIER), Zenko uses it to direct |
+   |				       | replication to a location.   	   |
+   |                          	       | The quality of service is 	   |
+   |				       | determined and the replication    |
+   |				       | destination is configured by the  |
+   |				       | user.                             |
    |                                   |                                   |
    |                                   | **Type:** String                  |
    |                                   |                                   |
    |                                   | **Ancestor:** Transition and      |
    |                                   | NoncurrentVersionTransition       |
    |                                   |                                   |
-   |                                   | **Valid values:** STANDARD,       |
-   |                                   | STANDARD_IA, or GLACIER           |
+   |                                   | **Valid Values:** Any defined 	   |
+   |				       | destination name      		   |
    +-----------------------------------+-----------------------------------+
    | Tag                               | Container listing the tag key and |
    |                                   | value used to filter objects to   |
@@ -322,14 +336,14 @@ elements.
 .. tabularcolumns:: X{0.28\textwidth}X{0.27\textwidth}X{0.20\textwidth}X{0.20\textwidth}
 .. table::
 
-   +-----------------+-----------------+-----------------+-----------------+
-   | Error Code      | Description     | HTTP Status     | SOAP Fault      |
-   |                 |                 | Code            | Code Prefix     |
-   +=================+=================+=================+=================+
-   | NoSuchLifecycle | The lifecycle   | 404 Not Found   | Client          |
-   | Configuration   | configuration   |                 |                 |
-   |                 | does not exist. |                 |                 |
-   +-----------------+-----------------+-----------------+-----------------+
+   +------------------+-----------------+-----------------+-----------------+
+   | Error Code       | Description     | HTTP Status     | SOAP Fault      |
+   |                  |                 | Code            | Code Prefix     |
+   +==================+=================+=================+=================+
+   | NoSuchLifecycle\ | The lifecycle   | 404 Not Found   | Client          |
+   | Configuration    | configuration   |                 |                 |
+   |                  | does not exist. |                 |                 |
+   +------------------+-----------------+-----------------+-----------------+
 
 **Examples**
 
@@ -350,9 +364,9 @@ configurations from a specified bucket.
 The following is a sample response that shows a prefix of “projectdocs/”
 filter and multiple lifecycle configurations for these objects.
 
--  Transition to STANDARD_IA after 30 days
+-  Transition to wasabi_cloud after 30 days
 
--  Transition to GLACIER after 365 days
+-  Transition to iron_mount after 365 days
 
 -  Expire after 3,650 days
 
@@ -377,11 +391,11 @@ filter and multiple lifecycle configurations for these objects.
       <Status>Enabled</Status>
       <Transition>
         <Days>30</Days>
-        <StorageClass>STANDARD_IA</StorageClass>
+        <StorageClass>wasabi_cloud</StorageClass>
       </Transition>
       <Transition>
         <Days>365</Days>
-        <StorageClass>GLACIER</StorageClass>
+        <StorageClass>iron_mount</StorageClass>
       </Transition>
       <Expiration>
         <Days>3650</Days>

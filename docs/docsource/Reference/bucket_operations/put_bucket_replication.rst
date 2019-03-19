@@ -58,10 +58,10 @@ status, and details about the destination.
 The destination details include the bucket in which to store replicas
 and optional storage classes to use to store the replicas.
 
-S3 acts only on rules with the status Enabled. The configuration also
-identifies an IAM role for S3 to assume for copying objects. This role
+Zenko only acts on rules with an Enabled status. The configuration also
+identifies an IAM role for Zenko to assume for copying objects. This role
 must have sufficient permissions to read objects from the source bucket
-and replicate these objects into the target bucket.
+and replicate these objects to the target bucket.
 
 .. code::
 
@@ -104,8 +104,7 @@ configuration:
    |                          | Ancestor: None                                 |          |
    +--------------------------+------------------------------------------------+----------+
    | Role                     | Amazon Resource Name (ARN) of an IAM role for  | Yes      |
-   |                          | Amazon S3 to assume when replicating the       |          |
-   |                          | objects.                                       |          |
+   |                          | Zenko to assume when replicating the objects.  |          |
    |                          |                                                |          |
    |                          | Type: String                                   |          |
    |                          |                                                |          |
@@ -153,7 +152,7 @@ configuration:
    |                          | Ancestor: Rule                                 |          |
    +--------------------------+------------------------------------------------+----------+
    | Bucket                   | Amazon resource name (ARN) of the bucket where | Yes      |
-   |                          | Amazon S3 is to store replicas of the object   |          |
+   |                          | Zenko is to store replicas of the object       |          |
    |                          | identified by the rule.                        |          |
    |                          |                                                |          |
    |                          | If there are multiple rules in the replication |          |
@@ -168,9 +167,19 @@ configuration:
    +--------------------------+------------------------------------------------+----------+
    | StorageClass             | Optional destination storage class override to | No       |
    |                          | use when replicating objects. If this element  |          | 
-   |                          | is not specified, Amazon S3 uses the storage   |          |
+   |                          | is not specified, Zenko uses the storage       |          |
    |                          | class of the source object to create object    |          |
    |                          | replica.                                       |          |
+   |			      |						       |	  |
+   |                          | Zenko reinterprets this S3 call not as a       |	  |
+   |                          | service quality directive, but as a service    |	  |
+   |                          | locator. In other words, where Amazon S3 uses  |	  |
+   |                          | this directive to define a location by quality |	  |
+   |                          | of service (e.g., STANDARD or GLACIER), Zenko  |	  |
+   |                          | uses it to direct replication to a location.   |	  |
+   |                          | The quality of service is determined and the   |	  |
+   |                          | replication destination is configured by the   |	  |
+   |                          | user.                                          |	  |
    |                          |                                                |          |
    |                          | Type: String                                   |          |
    |                          |                                                |          |
@@ -178,18 +187,7 @@ configuration:
    |                          |                                                |          |
    |                          | Default: Storage class of the source object.   |          |
    |                          |                                                |          |
-   |                          | Valid Values: STANDARD \| STANDARD_IA \|       |          |
-   |                          | REDUCED_REDUNDANCY                             |          |
-   |                          |                                                |          |
-   |                          | Constraints: GLACIER cannot be specified as    |          |
-   |                          | the storage class, though objects can be       |          |
-   |                          | transitioned to the GLACIER storage class      |          |
-   |                          | using lifecycle configuration (see             |          |
-   |                          | `Object Lifecycle Management                   |          |
-   |                          | <http://docs.aws.amazon.com/AmazonS3/latest/   |          |
-   |                          | dev/object-lifecycle-mgmt.html>`__             |          |
-   |                          | in the Amazon Simple Storage Service (S3)      |          |
-   |                          | documentation).                                |          |
+   |                          | Valid Values: Any defined destination name     |	  |
    +--------------------------+------------------------------------------------+----------+
 
 **Response Headers**

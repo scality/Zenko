@@ -305,7 +305,7 @@ configuration:
    |                       |                       |                       |
    |                       | **Type:** String      |                       |
    |                       |                       |                       |
-   |                       | **Valid values:**     |                       |
+   |                       | **Valid Values:**     |                       |
    |                       | true or false         |                       |
    |                       |                       |                       |
    |                       | **Ancestor:**         |                       |
@@ -360,13 +360,11 @@ configuration:
    | Transition            | transition rule that  | action is present in  |
    |                       | describes when        | the Rule.             |
    |                       | noncurrent objects    |                       |
-   |                       | transition to the     |                       |
-   |                       | STANDARD_IA or        |                       |
-   |                       | GLACIER storage       |                       |
-   |                       | class.                |                       |
+   |                       | transition to another |			   |
+   |			   | storage class 	   |			   |
+   |			   | (location).           |                       |
    |                       |                       |                       |
-   |                       | You set this          |                       |
-   |                       | lifecycle             |                       |
+   |                       | Set this lifecycle    |                       |
    |                       | configuration action  |                       |
    |                       | on a bucket that has  |                       |
    |                       | versioning enabled    |                       |
@@ -424,25 +422,24 @@ configuration:
    |                       |                       |                       |
    |                       | **Ancestor:** Rule    |                       |
    |                       |                       |                       |
-   |                       | **Valid values:**     |                       |
+   |                       | **Valid Values:**     |                       |
    |                       | Enabled or Disabled.  |                       |
    +-----------------------+-----------------------+-----------------------+
    | StorageClass          | Specifies the storage | Yes                   |
-   |                       | class to which you    |                       |
-   |                       | want the object to    | This element is       |
-   |                       | transition.           | required only if you  |
-   |                       |                       | specify one or both   |
-   |                       | **Type:** String      | its ancestors.        |
+   |                       | class (Zenko  	   | 			   |
+   |			   | location) to which	   | This element is       |
+   |			   | you want the object   | required only if you  |
+   |                       | to transition.        | specify one or both   |
+   |                       |                       | its ancestors.        |
+   |                       | **Type:** String      | 	 		   |
    |                       |                       |                       |
    |                       | **Ancestor:**         |                       |
    |                       | Transition and        |                       |
    |                       | NoncurrentVersion\    |                       |
    |                       | Transition            |                       |
    |                       |                       |                       |
-   |                       | **Valid values:**     |                       |
-   |                       | STANDARD,             |                       |
-   |                       | STANDARD_IA, or       |                       |
-   |                       | GLACIER               |                       |
+   |                       | **Valid Values:**     |                       |
+   |                       | Any defined location  |			   |
    +-----------------------+-----------------------+-----------------------+
    | Tag                   | Container for         | No                    |
    |                       | specifying a tag key  |                       |
@@ -592,7 +589,7 @@ The following lifecycle configuration specifies two rules, each with one
 action.
 
 -  The Transition action specifies objects with the “documents/” prefix
-      to transition to the GLACIER storage class 30 days after creation.
+      to transition to the Wasbi_cloud storage class 30 days after creation.
 
 -  The Expiration action specifies objects with the “logs/” prefix to be
       deleted 365 days after creation.
@@ -608,7 +605,7 @@ action.
       <Status>Enabled</Status>
       <Transition>
         <Days>30</Days>
-        <StorageClass>GLACIER</StorageClass>
+        <StorageClass>Wasabi_cloud</StorageClass>
       </Transition>
     </Rule>
     <Rule>
@@ -645,7 +642,7 @@ preceding lifecycle configuration to the “examplebucket” bucket.
       <Status>Enabled</Status>
       <Transition>
         <Days>30</Days>
-        <StorageClass>GLACIER</StorageClass>
+        <StorageClass>Wasabi_cloud</StorageClass>
       </Transition>
     </Rule>
       <Rule>
@@ -683,7 +680,7 @@ versioning-enabled or versioning is suspended:
 
 -  The NoncurrentVersionTransition action specifies non-current versions
       of objects with the “documents/” prefix to transition to the
-      GLACIER storage class 30 days after they become non-current.
+      Wasabi_cloud storage class 30 days after they become non-current.
 
 .. code::
 
@@ -706,7 +703,7 @@ versioning-enabled or versioning is suspended:
       <Status>Enabled</Status>
       <NoncurrentVersionTransition>
         <NoncurrentDays>30</NoncurrentDays>
-        <StorageClass>GLACIER</StorageClass>
+        <StorageClass>Wasabi_cloud</StorageClass>
       </NoncurrentVersionTransition>
     </Rule>
   </LifeCycleConfiguration>
@@ -742,7 +739,7 @@ preceding lifecycle configuration to the \`examplebucket\` bucket.
       <Status>Enabled</Status>
       <NoncurrentVersionTransition>
         <NoncurrentDays>0</NoncurrentDays>
-        <StorageClass>GLACIER</StorageClass>
+        <StorageClass>Wasabi_cloud</StorageClass>
       </NoncurrentVersionTransition>
     </Rule>
   </LifeCycleConfiguration>
