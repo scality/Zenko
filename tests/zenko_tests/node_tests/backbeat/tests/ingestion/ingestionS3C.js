@@ -47,7 +47,7 @@ describe('Ingestion from RING S3C to Zenko', function() {
             ], done);
         });
 
-        it.only('should ingest a 0-byte object', function itF(done) {
+        it('should ingest a 0-byte object', function itF(done) {
             return async.series([
                 next => ringS3CUtils.putObject(ingestionSrcBucket,
                     this.test.key, null, next),
@@ -76,6 +76,13 @@ describe('Ingestion from RING S3C to Zenko', function() {
     });
 
     describe('OOB updates for RING S3C bucket', () => {
+        console.log("I'M NOT SUPPOSED TO BE HERE BUT OK");
+        console.log("I'M NOT SUPPOSED TO BE HERE BUT OK");
+        console.log("I'M NOT SUPPOSED TO BE HERE BUT OK");
+        console.log("I'M NOT SUPPOSED TO BE HERE BUT OK");
+        console.log("I'M NOT SUPPOSED TO BE HERE BUT OK");
+        console.log("I'M NOT SUPPOSED TO BE HERE BUT OK");
+        console.log("I'M NOT SUPPOSED TO BE HERE BUT OK");
         const hex = crypto.createHash('md5')
             .update(Math.random().toString())
             .digest('hex');
