@@ -29,6 +29,13 @@ describe.only('Ingesting existing data from RING S3C bucket', () => {
 
     afterEach(function afterEach(done) {
         return async.series([
+            next => ringS3CUtils.s3.listObjectVersions({
+                Bucket: ingestionSrcBucket,
+                Prefix: this.currentTest.keyPrefix,
+            }, (err, data) => {
+                console.log('objects on rings3c', err, data);
+                return next();
+            }),
             next => scalityUtils.deleteVersionedBucket(
                 this.currentTest.ingestionDestBucket, next),
             next => ringS3CUtils.deleteAllVersions(ingestionSrcBucket,
