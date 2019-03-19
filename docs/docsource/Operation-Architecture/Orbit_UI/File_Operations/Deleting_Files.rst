@@ -1,3 +1,5 @@
+.. _deleting-objects:
+
 Deleting Objects
 ================
 

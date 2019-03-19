@@ -38,6 +38,18 @@ Element syntax described in
 `https://docs.aws.amazon.com/AmazonS3/latest/dev/intro-lifecycle-rules.html
 <https://docs.aws.amazon.com/AmazonS3/latest/dev/intro-lifecycle-rules.html>`__.
 
+.. note:: To implement the S3 API effectively in a cross-cloud context, Zenko
+   reinterprets S3's ``<StorageClass>`` object somewhat differently from how
+   AWS defines it. Where Amazon uses StorageClass to indicate various
+   proprietary Amazon storage locations that can be described by their quality
+   of service, Zenko uses this parameter to identify cloud service locations
+   by a user-defined name. So, instead of using 
+   ``<StorageClass>GLACIER<\StorageClass>`` for inexpensive, high-latency
+   storage, the Zenko user must define a cloud location with satisfactory
+   storage and pricing requirements and use that cloud location as the target
+   cloud storage location. Zenko reads and writes to this location based on
+   the StorageClass tag definition.
+
 Zenko API Calls
 ---------------
 
@@ -50,7 +62,7 @@ bucket:
 
    .. tip::
    
-      See the `AWS S3 API Reference <https://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketOps.html>`__
+      See the `AWS S3 API Reference <https://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketOps.html>`__
       for protocol-level formatting details.
 
 These calls manage bucket attributes related to lifecycle behavior,
@@ -64,7 +76,7 @@ See `https://docs.aws.amazon.com/AmazonS3/latest/dev/lifecycle-configuration-exa
 for more examples and explanations on lifecycle rules.
 
 #. Create a JSON file defining the bucket lifecycle rules (see
-   https://docs.aws.amazon.com/AmazonS3/latest/dev/set-lifecycle-cli.htm\ l
+   https://docs.aws.amazon.com/AmazonS3/latest/dev/set-lifecycle-cli.html
    for examples).
 
    .. note::
@@ -77,7 +89,7 @@ for more examples and explanations on lifecycle rules.
 
    ::
 
-       $ aws s3api put-bucket-lifecycle-configuration --bucket zenko-bucket --lifecycle-configuration file://expire.json
+       $ aws s3api put-bucket-lifecycle-configuration --bucket zenko-bucket --lifecycle-configuration file://lifecycle_config.json
 
    You can confirm that the rule has been set with
 
@@ -87,4 +99,3 @@ for more examples and explanations on lifecycle rules.
 
 Once the lifecycle rules on the bucket are set, the rules apply to all
 objects in the specified bucket.
-
