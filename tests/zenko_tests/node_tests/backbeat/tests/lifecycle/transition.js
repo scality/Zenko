@@ -36,6 +36,28 @@ function compareTransitionedData(cb) {
     });
 };
 
+function compareTransitionedMetaData(cb) {
+    return series([
+        next => cloudServer.getObjectTagging(next),
+        next => cloudServer.headObject(next),
+        next => cloudServer.putBucketLifecycleConfiguration(new Date(), next),
+        next => cloudServer.waitUntilTransitioned(next),
+        next => s3.getObjectTagging(next),
+        next => cloudServer.getObjectTagging(next),
+        next => s3.headObject(next),
+        next => cloudServer.headObject(next),
+    ], (err, data) => {
+        if (err) {
+            return cb(err);
+        }
+        assert.deepStrictEqual(data[4].TagSet, data[0].TagSet);
+        assert.deepStrictEqual(data[5].TagSet, data[0].TagSet);
+        assert.deepStrictEqual(data[6].Metadata, data[1].Metadata);
+        assert.deepStrictEqual(data[7].Metadata, data[1].Metadata);
+        return cb();
+    });
+};
+
 describe('transition to AWS backend', function() {
     this.timeout(LIFECYCLE_TIMEOUT);
 
@@ -50,6 +72,14 @@ describe('transition to AWS backend', function() {
         it('should transition an object', done => series([
             next => cloudServer.putObject(Buffer.alloc(1), next),
             next => compareTransitionedData(next),
+        ], done));
+
+        it('should transition an object with metadata', done => series([
+            next => cloudServer.putObjectWithUserMetadata(
+                srcBucket, key, Buffer.alloc(0), next),
+            next => cloudServer.putObjectTagging(
+                srcBucket, key, undefined, next),
+            next => compareTransitionedMetaData(next),
         ], done));
     });
 

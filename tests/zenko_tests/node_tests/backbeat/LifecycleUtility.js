@@ -43,6 +43,20 @@ class LifecycleUtility extends ReplicationUtility {
         }, cb);
     }
 
+    getObjectTagging(cb) {
+        this.s3.getObjectTagging({
+            Bucket: this.bucket,
+            Key: this.key,
+        }, cb);
+    }
+
+    headObject(cb) {
+        this.s3.headObject({
+            Bucket: this.bucket,
+            Key: this.key,
+        }, cb);
+    }
+
     clearBucket(cb) {
         this.deleteAllVersions(this.bucket, this.keyPrefix, cb);
     }
