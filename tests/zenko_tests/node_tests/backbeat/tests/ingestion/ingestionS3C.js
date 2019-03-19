@@ -1,6 +1,7 @@
 const assert = require('assert');
 const crypto = require('crypto');
 const async = require('async');
+const uuid = require('uuid/v4');
 
 const { scalityS3Client, ringS3Client } = require('../../../s3SDK');
 const IngestionUtility = require('../../IngestionUtility');
@@ -18,15 +19,12 @@ describe('Ingestion from RING S3C to Zenko', function() {
     describe.only('Ingesting existing data from RING S3C bucket', () => {
 
         beforeEach(function beforeEachF() {
-            const hex = crypto.createHash('md5')
-                .update(Math.random().toString())
-                .digest('hex');
             this.currentTest.ingestionDestBucket =
-                `ingestion-dest-bucket-${hex}`;
+                `ingestion-dest-bucket-${uuid()}`;
             this.currentTest.keyPrefix =
-                `${ingestionSrcBucket}/${hex}`;
+                `${ingestionSrcBucket}/${uuid()}`;
             this.currentTest.key =
-                `${this.currentTest.keyPrefix}/object-to-ingest-${hex}-${Date.now()}`;
+                `${this.currentTest.keyPrefix}/object-to-ingest-${uuid()}`;
         });
 
         afterEach(function afterEach(done) {
