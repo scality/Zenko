@@ -8,7 +8,7 @@ const IngestionUtility = require('../../IngestionUtility');
 
 const scalityUtils = new IngestionUtility(scalityS3Client, ringS3Client);
 const ringS3CUtils = new IngestionUtility(ringS3Client);
-const ingestionSrcBucket = process.env.RING_S3C_INGESTION_SRC_BUCKET_NAME;
+const ingestionSrcBucket = `ingestion-${process.env.HELM_NAMESPACE}`;
 const srcLocation = process.env.RING_S3C_BACKEND_SOURCE_LOCATION;
 const location = `${srcLocation}:ingest`;
 // eslint-disable-next-line
