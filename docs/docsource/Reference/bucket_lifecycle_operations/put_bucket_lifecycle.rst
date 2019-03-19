@@ -29,24 +29,19 @@ The PUT Bucket Lifecycle operation does not use request parameters.
 .. tabularcolumns:: X{0.20\textwidth}X{0.65\textwidth}X{0.10\textwidth}
 .. table::   
 
-   +-----------------------+-----------------------+-----------------------+
-   | Name                  | Type                  | Required              |
-   +=======================+=======================+=======================+
-   | Content MD-5          | The base64-encoded    | Yes                   |
-   |                       | 128-bit MD5 digest of |                       |
-   |                       | the data; must be     |                       |
-   |                       | used as a message     |                       |
-   |                       | integrity check to    |                       |
-   |                       | verify that the       |                       |
-   |                       | request body was not  |                       |
-   |                       | corrupted in transit. |                       |
-   |                       | For more information, |                       |
-   |                       | go to RFC 1864.       |                       |
-   |                       |                       |                       |
-   |                       | **Type:** String      |                       |
-   |                       |                       |                       |
-   |                       | **Default:** None     |                       |
-   +-----------------------+-----------------------+-----------------------+
+   +--------------+-------------------------------------------------+----------+
+   | Name         | Type                                            | Required |
+   +==============+=================================================+==========+
+   | Content MD-5 | The base64-encoded 128-bit MD5 digest of the    | Yes      |
+   |              | data; must be used as a message integrity check |          |
+   |              | to verify that the request body was not         | 	       |
+   |              | corrupted in transit. For more information, see | 	       |
+   |              | RFC 1864.                                       | 	       |
+   |              |                                                 | 	       |
+   |              | **Type:** String                                | 	       |
+   |              |                                                 | 	       |
+   |              | **Default:** None                               | 	       |
+   +--------------+-------------------------------------------------+----------+
 
 **Request Body**
 
@@ -135,9 +130,9 @@ configuration:
    |                       | **Ancestor:** Rule    |                       |
    +-----------------------+-----------------------+-----------------------+
    | Date                  | Date when action      | Yes, if Days and      |
-   |                       | should occur. The     | ExpiredObjectDeleteMa |
-   |                       | date value must       | rker                  |
-   |                       | conform to the ISO    | are absent.           |
+   |                       | should occur. The     | ExpiredObjectDelete\  |
+   |                       | date value must       | Marker are absent.    |
+   |                       | conform to the ISO    |                       |
    |                       | 8601 format.          |                       |
    |                       |                       |                       |
    |                       | **Type:** String      |                       |
@@ -147,9 +142,9 @@ configuration:
    |                       | Transition            |                       |
    +-----------------------+-----------------------+-----------------------+
    | Days                  | Specifies the number  | Yes, if Date and      |
-   |                       | of days after object  | ExpiredObjectDeleteMa |
-   |                       | creation when the     | rker                  |
-   |                       | specific rule action  | are absent.           |
+   |                       | of days after object  | ExpiredObjectDelete\  |
+   |                       | creation when the     | Marker are absent.    |
+   |                       | specific rule action  |                       |
    |                       | takes effect.         |                       |
    |                       |                       |                       |
    |                       | **Type:** Nonnegative |                       |
@@ -287,12 +282,11 @@ configuration:
    |                       |                       |                       |
    |                       | **Ancestor:** None    |                       |
    +-----------------------+-----------------------+-----------------------+
-   | ExpiredObjectDelete\  | On a versioning-      | Yes, if Date and Days |
-   | Marker                | -enabled or           | are absent.           |
-   |                       | versioning-suspended  |                       |
-   |                       | bucket, you can add   |                       |
-   |                       | this element in the   |                       |
-   |                       | lifecycle             |                       |
+   | ExpiredObjectDelete\  | On a versioning-ena\  | Yes, if Date and Days |
+   | Marker                | bled or versioning-\  | are absent.           |
+   |                       | suspended bucket, you |                       |
+   |                       | can add this element  |                       |
+   |                       | in the lifecycle      |                       |
    |                       | configuration to      |                       |
    |                       | delete expired object |                       |
    |                       | delete markers.       |                       |
@@ -580,8 +574,7 @@ Responses
 **Response Headers**
 
 Implementation of the PUT Bucket Lifecycle operation uses only response
-headers that are common to most responses (refer to :ref:`Common Response
-Headers`).
+headers that are common to most responses (see :ref:`Common Response Headers`).
 
 **Response Elements**
 
