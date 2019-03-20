@@ -15,10 +15,11 @@ the site level to the following supported private and public clouds:
 -  Amazon-S3-based private clouds:
 
    - Scality RING S3 Connector
+   - Red Hat Ceph RADOS Gateway
 
 -  Other public clouds:
 
-   -  Google Cloud Storage
-   -  Microsoft Azure Storage
+   - Google Cloud Storage
+   - Microsoft Azure Storage
 
 Other cloud storage services are being validated.
