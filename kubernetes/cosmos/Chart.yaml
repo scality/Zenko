@@ -2,4 +2,4 @@ apiVersion: v1
 appVersion: "1.0"
 description: A Helm chart for Cosmos
 name: cosmos
-version: 0.3.0
+version: 1.1.0-alpha.0
