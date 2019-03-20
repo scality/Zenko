@@ -5,7 +5,8 @@ Bucket Operations
    :maxdepth: 1
 
    put_bucket
-   get_bucket_(list_objects)
+   get_bucket_list_objects
+   get_bucket_list_objects_v2
    delete_bucket
    put_bucket_versioning
    get_bucket_versioning
