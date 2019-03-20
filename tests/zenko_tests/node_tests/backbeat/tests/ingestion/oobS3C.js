@@ -29,7 +29,7 @@ describe('OOB updates for RING S3C bucket', () => {
     afterEach(done => async.series([
         next => ringS3CUtils.deleteAllVersions(ingestionSrcBucket, KEY_PREFIX,
             next),
-        next => scalityUtils.waitUntilEmpty(INGESTION_DEST_BUCKET, next);
+        next => scalityUtils.waitUntilEmpty(INGESTION_DEST_BUCKET, next),
         next => scalityUtils.deleteVersionedBucket(INGESTION_DEST_BUCKET,
             next),
     ], done));
