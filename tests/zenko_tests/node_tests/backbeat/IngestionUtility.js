@@ -85,10 +85,12 @@ class IngestionUtility extends ReplicationUtility {
                 if (err) {
                     return cb(err);
                 }
-                let versionLength = data.Versions.length();
-                let deleteLength = data.DeleteMarkers.length();
+                console.log('data.versions', data.Versions);
+                console.log('delete marker', data.DeleteMarkers);
+                let versionLength = data.Versions.length;
+                let deleteLength = data.DeleteMarkers.length;
                 objectsExist = (versionLength + deleteLength) === 0;
-                if (!objectExists) {
+                if (!objectsExist) {
                     return callback();
                 }
                 return setTimeout(callback, 2000);
