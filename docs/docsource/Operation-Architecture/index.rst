@@ -21,4 +21,4 @@ buckets—to other supported clouds, such as Google Cloud Platform
    Services<Services/Services>
    Using Orbit<Orbit_UI/Using_Orbit>
    Cloud Management Services<Dashboards/Cloud_Management_Services>
-   Zenko from the Command Line<Zenko_CLI/Zenko_from_the_Command_Line>
+   Zenko from the Command Line<Zenko_CLI/index>
