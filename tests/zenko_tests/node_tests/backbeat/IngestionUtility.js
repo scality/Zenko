@@ -78,6 +78,24 @@ class IngestionUtility extends ReplicationUtility {
         () => !status, cb);
     }
 
+    waitUntilEmpty(bucketName, cb) {
+        let objectsExist;
+        return async.doWhilst(callback =>
+            this.s3.listObjectVersions({ Bucket: bucketName }, (err, data) => {
+                if (err) {
+                    return cb(err);
+                }
+                let versionLength = data.Versions.length();
+                let deleteLength = data.DeleteMarkers.length();
+                objectsExist = (versionLength + deleteLength) === 0;
+                if (!objectExists) {
+                    return callback();
+                }
+                return setTimeout(callback, 2000);
+            }),
+        () => objectsExist, cb);
+    }
+
     waitUntilDeleted(bucketName, key, cb) {
         let objectExists;
         const expectedCode = 'NoSuchKey';

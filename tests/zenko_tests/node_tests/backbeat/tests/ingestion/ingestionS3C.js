@@ -25,11 +25,12 @@ describe('Ingesting existing data from RING S3C bucket', () => {
         OBJ_KEY = `${KEY_PREFIX}/object-to-ingest-${uuid()}`;
     });
 
-    afterEach(done => async.parallel([
-        next => scalityUtils.deleteVersionedBucket(
-            INGESTION_DEST_BUCKET, next),
+    afterEach(done => async.series([
         next => ringS3CUtils.deleteAllVersions(ingestionSrcBucket,
             null, next),
+        next => scalityUtils.waitUntilEmpty(INGESTION_DEST_BUCKET, next);
+        next => scalityUtils.deleteVersionedBucket(
+            INGESTION_DEST_BUCKET, next),
     ], done));
 
     it('should ingest an object', done => {
