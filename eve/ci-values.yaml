@@ -119,6 +119,8 @@ cloudserver:
     S3_END_TO_END: 'true'
 
 backbeat:
+  image:
+    pullPolicy: Always
   replication:
     replicaFactor: 2
   lifecycle:
