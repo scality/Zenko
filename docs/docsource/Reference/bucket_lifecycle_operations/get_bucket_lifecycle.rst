@@ -366,7 +366,7 @@ filter and multiple lifecycle configurations for these objects.
 
 -  Transition to wasabi_cloud after 30 days
 
--  Transition to iron_mount after 365 days
+-  Transition to azure_cold_storage after 365 days
 
 -  Expire after 3,650 days
 
@@ -395,7 +395,7 @@ filter and multiple lifecycle configurations for these objects.
       </Transition>
       <Transition>
         <Days>365</Days>
-        <StorageClass>iron_mount</StorageClass>
+        <StorageClass>azure_cold_storage</StorageClass>
       </Transition>
       <Expiration>
         <Days>3650</Days>
