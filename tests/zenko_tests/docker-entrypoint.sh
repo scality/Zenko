@@ -23,7 +23,6 @@ if [ "$?" -ne "0" ]; then
 fi
 
 # Run the tests
-enter_and_run python_tests "./run.sh $PYTHON_ARGS"
-enter_and_run node_tests "npm_chain.sh test_crr test_api test_crr_pause_resume test_location_quota test_bucket_get_v2"
+enter_and_run node_tests "npm_chain.sh test_ingestion_oob_s3c"
 
 exit "$EXIT_STATUS"
