@@ -128,7 +128,7 @@ endif
 
 install-orbit-simulator: | builddir
 ifndef NO_SIM
-	$(V)$(GIT) clone git@github.com:scality/orbit-simulator.git build/orbit-simulator && \
+	$(V)$(GIT) clone git@github.com:scality/orbit-simulator.git build/orbit-simulator -b feature/ZENKO-1614-aws-mocks && \
 	$(HELM) upgrade ciutil \
 		--namespace $(HELM_NAMESPACE) \
         --tiller-namespace $(HELM_NAMESPACE) \
