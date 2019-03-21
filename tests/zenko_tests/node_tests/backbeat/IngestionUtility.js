@@ -42,20 +42,12 @@ class IngestionUtility extends ReplicationUtility {
     }
 
     createIngestionBucket(bucketName, ingestionSrcLocation, cb) {
-        async.series([
-            next => this.s3.createBucket({
-                Bucket: bucketName,
-                CreateBucketConfiguration: {
-                    LocationConstraint: `${ingestionSrcLocation}:ingest`,
-                },
-            }, next),
-            next => this.s3.putBucketVersioning({
-                Bucket: bucketName,
-                VersioningConfiguration: {
-                    Status: 'Enabled',
-                },
-            }, next),
-        ], cb);
+        this.s3.createBucket({
+            Bucket: bucketName,
+            CreateBucketConfiguration: {
+                LocationConstraint: `${ingestionSrcLocation}:ingest`,
+            },
+        }, cb);
     }
 
     waitUntilIngested(bucketName, key, versionId, cb) {
@@ -69,7 +61,7 @@ class IngestionUtility extends ReplicationUtility {
                 if (err && err.code !== expectedCode) {
                     return callback(err);
                 }
-                status = err === null;
+                status = !err;
                 if (!status) {
                     return setTimeout(callback, 2000);
                 }
@@ -94,26 +86,6 @@ class IngestionUtility extends ReplicationUtility {
                 return setTimeout(callback, 2000);
             }),
         () => !objectsEmpty, cb);
-    }
-
-    waitUntilDeleted(bucketName, key, cb) {
-        let objectExists;
-        const expectedCode = 'NoSuchKey';
-        return async.doWhilst(callback =>
-            this.s3.getObject({
-                Buckekt: bucketName,
-                Key: key,
-            }, err => {
-                if (err && err.code !== expectedCode) {
-                    return callback(err);
-                }
-                objectExists = err === null;
-                if (!objectExists) {
-                    return callback();
-                }
-                return setTimeout(callback, 2000);
-            }),
-        () => objectExists, cb);
     }
 
     compareObjectsRINGS3C(srcBucket, destBucket, key, cb) {

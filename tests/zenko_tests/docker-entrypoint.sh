@@ -24,6 +24,6 @@ fi
 
 # Run the tests
 enter_and_run python_tests "./run.sh $PYTHON_ARGS"
-enter_and_run node_tests "npm_chain.sh test_crr test_api test_crr_pause_resume test_location_quota test_bucket_get_v2 test_ingestion_s3c test_oob_s3c"
+enter_and_run node_tests "npm_chain.sh test_crr test_api test_crr_pause_resume test_location_quota test_bucket_get_v2 test_ingestion_oob_s3c"
 
 exit "$EXIT_STATUS"
