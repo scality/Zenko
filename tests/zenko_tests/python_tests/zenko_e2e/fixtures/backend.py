@@ -26,15 +26,17 @@ def s3auth():
 
 @pytest.fixture(scope='session')
 def aws_resource():
-    return Session(aws_access_key_id=conf.AWS_ACCESS_KEY,
+    sesh = Session(aws_access_key_id=conf.AWS_ACCESS_KEY,
                    aws_secret_access_key=conf.AWS_SECRET_KEY).resource('s3')
+    return sesh.resource('s3', endpoint_url=conf.AWS_ENDPOINT)
 
 
 @pytest.fixture(scope='session')
 def aws_crr_resource():
-    return Session(
+    sesh = Session(
         aws_access_key_id=conf.AWS_BACKBEAT_ACCESS_KEY,
         aws_secret_access_key=conf.AWS_BACKBEAT_SECRET_KEY).resource('s3')
+    return sesh.resource('s3', endpoint_url=conf.AWS_ENDPOINT)
 
 
 @pytest.fixture(scope='session')

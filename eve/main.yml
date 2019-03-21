@@ -143,6 +143,12 @@ models:
       AZURE_BACKEND_ENDPOINT: http://azure-mock/devstoreaccount1
       AZURE_SECRET_KEY: Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==
 
+      AWS_ENDPOINT: http://aws-mock
+      AWS_ACCESS_KEY: accessKey1
+      AWS_SECRET_KEY: verySecretKey1
+      AWS_ACCESS_KEY_2: accessKey2
+      AWS_SECRET_KEY_2: verySecretKey2
+
   - env: &docker_env # contains values for build test images
       E2E_DOCKER_IMAGE_NAME: '%(secret:private_registry_url)s/zenko/zenko-e2e'
       BACKBEAT_DOCKER_IMAGE_NAME: '%(secret:private_registry_url)s/zenko/backbeat-e2e'

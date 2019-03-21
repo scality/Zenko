@@ -139,7 +139,9 @@ endif
 .PHONY: install-orbit-simulator
 
 install-mocks:
-	$(V)$(KUBECTL) create -f ../eve/workers/mocks/azure-mock.yaml \
+	$(V)$(KUBECTL) create \
+                -f ../eve/workers/mocks/azure-mock.yaml \
+                -f ../eve/workers/mocks/aws-mock.yaml \
 		--namespace $(HELM_NAMESPACE)
 .PHONY: install-mocks
 
