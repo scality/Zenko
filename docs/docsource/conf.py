@@ -141,7 +141,7 @@ html_favicon = '_static/favicon.ico'
 html_last_updated_fmt = '%B %d, %Y'
 
 html_sidebars = {
-     '**': ['globaltoc.html', 'searchbox.html'],
+     '**': ['globaltoc.html', 'relations.html', 'searchbox.html'],
 }
 
 html_show_sphinx = False

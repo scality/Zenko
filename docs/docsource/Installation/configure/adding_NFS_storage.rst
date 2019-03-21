@@ -190,7 +190,7 @@ from `Orbit <https://admin.zenko.io>`_.
       $ helm install --name ${NFS_LOCATION} . -f custom-values.yaml
   
    .. Important:: 
-      Your Cosmos installation’s release name *must* match your NFS Mount 
+      Your Cosmos installation’s release name *must* match your NFS mount 
       location name. Do not name the release or the location “cosmos”.
 
 
@@ -273,11 +273,12 @@ Installing the Chart with a Standalone Cloudserver Instance
 Manually Trigger Sync
 ---------------------
 
-This chart deploys a Kubernetes Job at install to immediately begin a metadata
-sync. Additionally, a Kubernetes CronJob is deployed, which periodically
-launches rclone jobs to sync any additional metadata changes. The job schedule
-can be configured with the ``rclone.schedule`` field in the ``values.yaml``
-file. However, to manually trigger the job run the following command:
+This chart deploys a Kubernetes Job object at install to immediately begin a 
+metadata sync. Additionally, a Kubernetes CronJob object is deployed, which 
+periodically launches rclone jobs to sync any additional metadata changes. The 
+job schedule can be configured with the ``rclone.schedule`` field in the 
+``values.yaml`` file. However, to manually trigger the job, run the following 
+command:
 
 .. code:: bash
 

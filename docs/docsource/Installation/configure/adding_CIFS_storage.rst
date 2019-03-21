@@ -4,7 +4,7 @@ Adding CIFS/SMB Storage
 Cosmos CIFS/SMB Use Case
 ------------------------
 
-By design, storage backend integration into Zenko and Cloudserver are
+By design, storage backend integration into Zenko and Cloudserver is
 only limited by the type of volumes supported by Kubernetes.
 Fortunately, Kubernetes supports “FlexVolume” drivers that allow for
 custom volume driver integration into the Kubernetes ecosystem. This
@@ -109,10 +109,10 @@ steps in `Orbit <https://admin.zenko.io>`__:
 
 8. Manually Trigger Sync (optional)
 
-   This chart deploys a Kubernetes CronJob, which periodically launches
+   This chart deploys a Kubernetes CronJob object, which periodically launches
    rclone jobs to sync metadata. The job schedule can be configured with
    the ``rclone.schedule`` field in the ``values.yaml`` file. However, to
-   to manually trigger the job run the following command:
+   to manually trigger the job, run the following command:
 
    .. code:: bash
 

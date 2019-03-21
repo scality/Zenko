@@ -2,16 +2,10 @@ Installation Guide
 ==================
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
-   topics/Setting_Up_a_Cluster
-   topics/Installing_Zenko
-   topics/configure_ingress
-   topics/adding_NFS_storage
-   topics/adding_CIFS_storage
-
-.. _`Setting Up a MetalK8s Cluster`: ./topics/Setting_Up_a_Cluster.html
-
-
+   prepare/index
+   install/index
+   configure/index
 
 
