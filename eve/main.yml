@@ -1,8 +1,10 @@
 version: "0.2"
 
 branches:
-  documentation/*, feature/*, improvement/*, bugfix/*, w/*, q/*, hotfix/*:
+  feature/*, improvement/*, bugfix/*, w/*, q/*, hotfix/*:
     stage: pre-merge
+  documentation/*:
+    stage: build-doc, pre-merge
 
 models:
   - Git: &git_pull
@@ -150,6 +152,10 @@ stages:
           # Building the latex twice to catch up the reference
           tox --workdir /tmp/tox -e docs -- latexpdf BUILDDIR="%(prop:builddir)s/build/artifacts"
           tox --workdir /tmp/tox -e docs -- latexpdf BUILDDIR="%(prop:builddir)s/build/artifacts"
+    - ShellCommand:
+        name: Check commits for files changed outside of docs
+        haltOnFailure: true
+        command: ./eve/scripts/only-docs.sh
 
     - Upload:
         name: Upload documentation
