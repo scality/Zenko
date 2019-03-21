@@ -7,7 +7,7 @@ logs
 tests/artifacts
 **/.venv
 **/.vscode
-
+.DS_Store
 .tox/
 
 *_build
