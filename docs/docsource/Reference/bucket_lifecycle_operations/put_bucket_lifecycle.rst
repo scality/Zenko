@@ -29,24 +29,19 @@ The PUT Bucket Lifecycle operation does not use request parameters.
 .. tabularcolumns:: X{0.20\textwidth}X{0.65\textwidth}X{0.10\textwidth}
 .. table::   
 
-   +-----------------------+-----------------------+-----------------------+
-   | Name                  | Type                  | Required              |
-   +=======================+=======================+=======================+
-   | Content MD-5          | The base64-encoded    | Yes                   |
-   |                       | 128-bit MD5 digest of |                       |
-   |                       | the data; must be     |                       |
-   |                       | used as a message     |                       |
-   |                       | integrity check to    |                       |
-   |                       | verify that the       |                       |
-   |                       | request body was not  |                       |
-   |                       | corrupted in transit. |                       |
-   |                       | For more information, |                       |
-   |                       | go to RFC 1864.       |                       |
-   |                       |                       |                       |
-   |                       | **Type:** String      |                       |
-   |                       |                       |                       |
-   |                       | **Default:** None     |                       |
-   +-----------------------+-----------------------+-----------------------+
+   +--------------+-------------------------------------------------+----------+
+   | Name         | Type                                            | Required |
+   +==============+=================================================+==========+
+   | Content MD-5 | The base64-encoded 128-bit MD5 digest of the    | Yes      |
+   |              | data; must be used as a message integrity check |          |
+   |              | to verify that the request body was not         | 	       |
+   |              | corrupted in transit. For more information, see | 	       |
+   |              | RFC 1864.                                       | 	       |
+   |              |                                                 | 	       |
+   |              | **Type:** String                                | 	       |
+   |              |                                                 | 	       |
+   |              | **Default:** None                               | 	       |
+   +--------------+-------------------------------------------------+----------+
 
 **Request Body**
 
@@ -135,9 +130,9 @@ configuration:
    |                       | **Ancestor:** Rule    |                       |
    +-----------------------+-----------------------+-----------------------+
    | Date                  | Date when action      | Yes, if Days and      |
-   |                       | should occur. The     | ExpiredObjectDeleteMa |
-   |                       | date value must       | rker                  |
-   |                       | conform to the ISO    | are absent.           |
+   |                       | should occur. The     | ExpiredObjectDelete\  |
+   |                       | date value must       | Marker are absent.    |
+   |                       | conform to the ISO    |                       |
    |                       | 8601 format.          |                       |
    |                       |                       |                       |
    |                       | **Type:** String      |                       |
@@ -147,9 +142,9 @@ configuration:
    |                       | Transition            |                       |
    +-----------------------+-----------------------+-----------------------+
    | Days                  | Specifies the number  | Yes, if Date and      |
-   |                       | of days after object  | ExpiredObjectDeleteMa |
-   |                       | creation when the     | rker                  |
-   |                       | specific rule action  | are absent.           |
+   |                       | of days after object  | ExpiredObjectDelete\  |
+   |                       | creation when the     | Marker are absent.    |
+   |                       | specific rule action  |                       |
    |                       | takes effect.         |                       |
    |                       |                       |                       |
    |                       | **Type:** Nonnegative |                       |
@@ -287,12 +282,11 @@ configuration:
    |                       |                       |                       |
    |                       | **Ancestor:** None    |                       |
    +-----------------------+-----------------------+-----------------------+
-   | ExpiredObjectDelete\  | On a versioning-      | Yes, if Date and Days |
-   | Marker                | -enabled or           | are absent.           |
-   |                       | versioning-suspended  |                       |
-   |                       | bucket, you can add   |                       |
-   |                       | this element in the   |                       |
-   |                       | lifecycle             |                       |
+   | ExpiredObjectDelete\  | On a versioning-ena\  | Yes, if Date and Days |
+   | Marker                | bled or versioning-\  | are absent.           |
+   |                       | suspended bucket, you |                       |
+   |                       | can add this element  |                       |
+   |                       | in the lifecycle      |                       |
    |                       | configuration to      |                       |
    |                       | delete expired object |                       |
    |                       | delete markers.       |                       |
@@ -311,7 +305,7 @@ configuration:
    |                       |                       |                       |
    |                       | **Type:** String      |                       |
    |                       |                       |                       |
-   |                       | **Valid values:**     |                       |
+   |                       | **Valid Values:**     |                       |
    |                       | true or false         |                       |
    |                       |                       |                       |
    |                       | **Ancestor:**         |                       |
@@ -366,13 +360,11 @@ configuration:
    | Transition            | transition rule that  | action is present in  |
    |                       | describes when        | the Rule.             |
    |                       | noncurrent objects    |                       |
-   |                       | transition to the     |                       |
-   |                       | STANDARD_IA or        |                       |
-   |                       | GLACIER storage       |                       |
-   |                       | class.                |                       |
+   |                       | transition to another |			   |
+   |			   | storage class 	   |			   |
+   |			   | (location).           |                       |
    |                       |                       |                       |
-   |                       | You set this          |                       |
-   |                       | lifecycle             |                       |
+   |                       | Set this lifecycle    |                       |
    |                       | configuration action  |                       |
    |                       | on a bucket that has  |                       |
    |                       | versioning enabled    |                       |
@@ -430,25 +422,24 @@ configuration:
    |                       |                       |                       |
    |                       | **Ancestor:** Rule    |                       |
    |                       |                       |                       |
-   |                       | **Valid values:**     |                       |
+   |                       | **Valid Values:**     |                       |
    |                       | Enabled or Disabled.  |                       |
    +-----------------------+-----------------------+-----------------------+
    | StorageClass          | Specifies the storage | Yes                   |
-   |                       | class to which you    |                       |
-   |                       | want the object to    | This element is       |
-   |                       | transition.           | required only if you  |
-   |                       |                       | specify one or both   |
-   |                       | **Type:** String      | its ancestors.        |
+   |                       | class (Zenko  	   | 			   |
+   |			   | location) to which	   | This element is       |
+   |			   | you want the object   | required only if you  |
+   |                       | to transition.        | specify one or both   |
+   |                       |                       | its ancestors.        |
+   |                       | **Type:** String      | 	 		   |
    |                       |                       |                       |
    |                       | **Ancestor:**         |                       |
    |                       | Transition and        |                       |
    |                       | NoncurrentVersion\    |                       |
    |                       | Transition            |                       |
    |                       |                       |                       |
-   |                       | **Valid values:**     |                       |
-   |                       | STANDARD,             |                       |
-   |                       | STANDARD_IA, or       |                       |
-   |                       | GLACIER               |                       |
+   |                       | **Valid Values:**     |                       |
+   |                       | Any defined location  |			   |
    +-----------------------+-----------------------+-----------------------+
    | Tag                   | Container for         | No                    |
    |                       | specifying a tag key  |                       |
@@ -580,8 +571,7 @@ Responses
 **Response Headers**
 
 Implementation of the PUT Bucket Lifecycle operation uses only response
-headers that are common to most responses (refer to :ref:`Common Response
-Headers`).
+headers that are common to most responses (see :ref:`Common Response Headers`).
 
 **Response Elements**
 
@@ -599,7 +589,7 @@ The following lifecycle configuration specifies two rules, each with one
 action.
 
 -  The Transition action specifies objects with the “documents/” prefix
-      to transition to the GLACIER storage class 30 days after creation.
+      to transition to the Wasbi_cloud storage class 30 days after creation.
 
 -  The Expiration action specifies objects with the “logs/” prefix to be
       deleted 365 days after creation.
@@ -615,7 +605,7 @@ action.
       <Status>Enabled</Status>
       <Transition>
         <Days>30</Days>
-        <StorageClass>GLACIER</StorageClass>
+        <StorageClass>Wasabi_cloud</StorageClass>
       </Transition>
     </Rule>
     <Rule>
@@ -652,7 +642,7 @@ preceding lifecycle configuration to the “examplebucket” bucket.
       <Status>Enabled</Status>
       <Transition>
         <Days>30</Days>
-        <StorageClass>GLACIER</StorageClass>
+        <StorageClass>Wasabi_cloud</StorageClass>
       </Transition>
     </Rule>
       <Rule>
@@ -690,7 +680,7 @@ versioning-enabled or versioning is suspended:
 
 -  The NoncurrentVersionTransition action specifies non-current versions
       of objects with the “documents/” prefix to transition to the
-      GLACIER storage class 30 days after they become non-current.
+      Wasabi_cloud storage class 30 days after they become non-current.
 
 .. code::
 
@@ -713,7 +703,7 @@ versioning-enabled or versioning is suspended:
       <Status>Enabled</Status>
       <NoncurrentVersionTransition>
         <NoncurrentDays>30</NoncurrentDays>
-        <StorageClass>GLACIER</StorageClass>
+        <StorageClass>Wasabi_cloud</StorageClass>
       </NoncurrentVersionTransition>
     </Rule>
   </LifeCycleConfiguration>
@@ -749,7 +739,7 @@ preceding lifecycle configuration to the \`examplebucket\` bucket.
       <Status>Enabled</Status>
       <NoncurrentVersionTransition>
         <NoncurrentDays>0</NoncurrentDays>
-        <StorageClass>GLACIER</StorageClass>
+        <StorageClass>Wasabi_cloud</StorageClass>
       </NoncurrentVersionTransition>
     </Rule>
   </LifeCycleConfiguration>
