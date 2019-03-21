@@ -139,8 +139,15 @@ endif
 .PHONY: install-orbit-simulator
 
 install-mocks:
-	$(V)$(KUBECTL) create -f ../eve/workers/mocks/azure-mock.yaml \
+	$(V)$(KUBECTL) create \
+		-f ../eve/workers/mocks/azure-mock.yaml \
+		-f ../eve/workers/mocks/aws-mock.yaml \
+		--namespace $(HELM_NAMESPACE) && \
+	$(KUBECTL) create \
+		configmap aws-mock \
+		--from-file=../eve/workers/mocks/aws/mock-metadata.tar.gz \
 		--namespace $(HELM_NAMESPACE)
+
 .PHONY: install-mocks
 
 install-cosbench:

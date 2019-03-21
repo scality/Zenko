@@ -84,6 +84,7 @@ models:
         BUILD_MSG_TS: '%(prop:report_build_msg_ts)s'
 
   - env: &secrets_env # contains values used for test config
+      AWS_ENDPOINT: https://s3.amazonaws.com
       AWS_ACCESS_KEY: '%(secret:aws_s3_backend_access_key)s'
       AWS_SECRET_KEY: '%(secret:aws_s3_backend_secret_key)s'
       AWS_ACCESS_KEY_2: '%(secret:aws_s3_backend_access_key_2)s'
@@ -142,6 +143,13 @@ models:
       AZURE_ACCOUNT_NAME: devstoreaccount1
       AZURE_BACKEND_ENDPOINT: http://azure-mock/devstoreaccount1
       AZURE_SECRET_KEY: Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==
+
+      AWS_ENDPOINT: http://aws-mock
+      AWS_ACCESS_KEY: accessKey1
+      AWS_SECRET_KEY: verySecretKey1
+      AWS_ACCESS_KEY_2: accessKey2
+      AWS_SECRET_KEY_2: verySecretKey2
+      VERIFY_CERTIFICATES: "false"
 
   - env: &docker_env # contains values for build test images
       E2E_DOCKER_IMAGE_NAME: '%(secret:private_registry_url)s/zenko/zenko-e2e'
