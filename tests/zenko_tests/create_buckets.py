@@ -36,6 +36,7 @@ def get_env(key, default=None, error=False):
 
 def bucket_safe_create(bucket):
     try:
+        _log.info('Creating bucket %s' % bucket.name)
         bucket.create()
     except bucket.meta.client.exceptions.BucketAlreadyOwnedByYou:
         _log.info('Bucket %s already exists!' % bucket.name)
@@ -86,7 +87,10 @@ VERIFY_CERTIFICATES = get_env('VERIFY_CERTIFICATES', False)
 
 ZENKO_ACCESS_KEY = get_env('ZENKO_ACCESS_KEY')
 ZENKO_SECRET_KEY = get_env('ZENKO_SECRET_KEY')
-
+RING_S3C_ACCESS_KEY = get_env('RING_S3C_ACCESS_KEY')
+RING_S3C_SECRET_KEY = get_env('RING_S3C_SECRET_KEY')
+RING_S3C_INGESTION_SRC_BUCKET_NAME = get_env('RING_S3C_INGESTION_SRC_BUCKET_NAME')
+RING_S3C_ENDPOINT = get_env('RING_S3C_ENDPOINT')
 buckets = [
     get_env('AWS_CRR_SRC_BUCKET_NAME', 'zenko-aws-crr-src-bucket'),
     get_env('GCP_CRR_SRC_BUCKET_NAME', 'zenko-gcp-crr-src-bucket'),
@@ -110,7 +114,19 @@ s3client = s.resource('s3',
                       endpoint_url=ZENKO_ENDPOINT,
                       verify=VERIFY_CERTIFICATES)
 
+s3c = Session(aws_access_key_id=RING_S3C_ACCESS_KEY,
+            aws_secret_access_key=RING_S3C_SECRET_KEY)
+ring_s3c_client = s3c.resource('s3', endpoint_url=RING_S3C_ENDPOINT,
+                      verify=VERIFY_CERTIFICATES)
+
 # Create buckets
+
+## Creating S3C buckets
+_log.info('Creating S3C buckets...')
+bucket_safe_create(ring_s3c_client.Bucket(RING_S3C_INGESTION_SRC_BUCKET_NAME))
+ring_s3c_client.Bucket(RING_S3C_INGESTION_SRC_BUCKET_NAME).Versioning().enable()
+
+## Creating Zenko buckets
 _log.info('Creating testing buckets...')
 timeout = time.time() + TIMEOUT
 backoff = 1
@@ -131,6 +147,7 @@ if not created:
     sys.exit(1)
 else:
     _log.info('Created buckets')
+
 
 if get_env('S3_FUZZER') is not None:
     _log.info('Enabling version for s3://fuzzbucket-ver')
