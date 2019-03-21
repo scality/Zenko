@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: aws-mock
+spec:
+  selector:
+    name: aws-mock
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: aws-mock-pod
+  labels:
+    name: aws-mock
+spec:
+  initContainers:
+  - image: zenko/cloudserver:latest
+    name: setup
+    imagePullPolicy: Always
+    command: ["tar", "-xvf", "/static-config/mock-metadata.tar.gz", "-C", "/usr/src/app"]
+    volumeMounts:
+    - name: configmap
+      mountPath: /static-config
+    - name: metadata
+      mountPath: /usr/src/app/localMetadata
+  containers:
+  - image: zenko/cloudserver:latest
+    name: aws-mock
+    ports:
+      - containerPort: 80
+    env:
+    - name: REMOTE_MANAGEMENT_DISABLE
+      value: "1"
+    - name: ENDPOINT
+      value: "aws-mock"
+    ports:
+    - name: http
+      containerPort: 8000
+    volumeMounts:
+    - name: metadata
+      mountPath: /usr/src/app/localMetadata
+  volumes:
+  - name: metadata
+    emptyDir: {}
+  - name: configmap
+    configMap:
+      name: aws-mock  
