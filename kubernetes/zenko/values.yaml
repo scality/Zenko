@@ -58,7 +58,7 @@ maintenance:
   s3Utils:
     image:
       repository: zenko/s3utils
-      tag: 0.3
+      tag: v0.8
       pullPolicy: IfNotPresent
   kafkaClient:
     image:
