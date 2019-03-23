@@ -14,9 +14,13 @@ Orbit offers the following features:
 -  Login and authentication
 -  Cloud “location” and credential management for:
 
-   -  Scality RING
+   -  Zenko local filesystem
+   -  Scality RING with SOFS
+   -  Scality RING with S3 Connector
    -  AWS S3
+   -  Ceph RADOS Gateway
    -  Google Cloud Storage (GCS)
+   -  NFS 
    -  Microsoft Azure Blob
    -  Wasabi Cloud
    -  DigitalOcean Object Storage

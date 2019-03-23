@@ -2,9 +2,8 @@ Operation and Architecture Guide
 ================================
 
 Zenko is Scality’s multi-cloud storage controller. It provides a single
-point of integration, using Amazon S3, the *de facto* industry standard
-cloud storage protocol, and enables backup, transfer, or data replication
-across private and public clouds.
+point of integration, using the Amazon S3 cloud storage API, and enables
+backup, transfer, or data replication across private and public clouds.
 
 Using Zenko, you can store to a Scality RING storage device, and
 automatically back up to one or several public clouds. Alternatively,

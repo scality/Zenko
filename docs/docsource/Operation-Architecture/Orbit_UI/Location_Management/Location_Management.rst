@@ -3,7 +3,7 @@ Location Management
 
 Users save data to files, which are stored in buckets. Buckets are
 stored in locations, which correspond (quite roughly) to a service and a
-region, such as AWS us-east-1, or GCP europe-west1. Before you can
+region, such as AWS us-east-1, or GCP europe-west1. Before you can
 establish a location in Orbit, you must have an established account with
 at least one cloud storage service provider.
 
@@ -31,9 +31,13 @@ notice.
 
    https://wasabi.com/s3-compatible-cloud-storage/
 
+-  Red Hat Ceph Storage
+
+   https://access.redhat.com/documentation/en-us/red_hat_ceph_storage
+
 It is important to maintain carefully all identifying account
-information from your cloud service, such as user names, access keys,
-and secret keys.
+information from your cloud service, such as user names, passwords, 
+access keys, and secret keys.
 
 You can:
 

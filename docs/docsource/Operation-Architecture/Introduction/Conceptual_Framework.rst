@@ -6,12 +6,12 @@ control, manage, replicate, and visualize data in a multi-cloud context.
 
 Fundamental building blocks of Zenko’s replication framework are the
 bucket, the location, and the cloud service. End users (people or
-services) store data as files in buckets. Administrators are free to
+services) store data as files in buckets. Administrators are free to
 configure and name buckets as they please—to the admin, buckets are
 essentially tenants aggregated in a cloud storage deployment. From an
 end user’s perspective, a bucket simply appears as a networked storage
-location, for example, “accounting,” “bioinformatics-lab,”
-“daily-video-01-07-2019,” or any other organizational unit that makes
+location, for example, “accounting,” “bioinformatics-lab,”
+“daily-video-backup,” or any other organizational unit that makes
 sense.
 
 Zenko fetches buckets from one location—a Scality RING private cloud,
@@ -22,7 +22,7 @@ other public or private clouds for storage redundancy, rate-shopping, or
 other purposes. Zenko manages the complexities and discontinuities
 between the native Amazon S3 cloud storage protocol, and other popular
 cloud protocols, such as Google Cloud and Microsoft Azure storage, and
-manages a unified name space to retrieve data seamlessly from all managed
+manages a unified namespace to retrieve data seamlessly from all managed
 cloud locations.
 
 In addition to replication, Zenko provides bucket lifecycle (expiration)

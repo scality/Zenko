@@ -7,7 +7,7 @@ available at https://www.zenko.io/ under “Try Zenko”.
 **Prerequisites**
 
 -  A web-connected browser
--  One or more cloud storage targets (AWS, RING, GCP, Azure)
+-  One or more cloud storage targets (AWS, RING, GCP, Azure, etc.)
 
 The Sandbox is a great place to learn how Orbit will help you manage
 your data. To set up a Sandbox instance:
