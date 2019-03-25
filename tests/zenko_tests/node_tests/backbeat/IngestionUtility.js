@@ -11,33 +11,19 @@ class IngestionUtility extends ReplicationUtility {
         this.ringS3C = ringS3C;
     }
 
-    putObjectTagging(bucketName, key, versionId, cb) {
-        this.s3.putObjectTagging({
-            Bucket: bucketName,
-            Key: key,
-            VersionId: versionId,
-            Tagging: {
-                TagSet: [
-                    {
-                        Key: 'object-tag-key',
-                        Value: 'object-tag-value',
-                    },
-                ],
-            },
-        }, cb);
-    }
-
-    getSourceObject(bucketName, objName, cb) {
+    getSourceObject(bucketName, objName, versionId, cb) {
         this.ringS3C.getObject({
             Bucket: bucketName,
             Key: objName,
+            VersionId: versionId,
         }, cb);
     }
 
-    getDestObject(bucketName, objName, cb) {
+    getDestObject(bucketName, objName, versionId, cb) {
         this.s3.getObject({
             Bucket: bucketName,
             Key: objName,
+            VersionId: versionId,
         }, cb);
     }
 
@@ -45,8 +31,20 @@ class IngestionUtility extends ReplicationUtility {
         this.s3.createBucket({
             Bucket: bucketName,
             CreateBucketConfiguration: {
-                LocationConstraint: `${ingestionSrcLocation}:ingest`,
+                LocationConstraint: ingestionSrcLocation,
             },
+        }, cb);
+    }
+
+    putObjectWithProperties(bucketName, objectName, content, cb) {
+        this.s3.putObject({
+            Bucket: bucketName,
+            Key: objectName,
+            ContentType: 'image/png',
+            CacheControl: 'test-cache-control',
+            ContentDisposition: 'test-content-disposition',
+            ContentEncoding: 'ascii',
+            Body: content,
         }, cb);
     }
 
@@ -57,6 +55,7 @@ class IngestionUtility extends ReplicationUtility {
             this.s3.headObject({
                 Bucket: bucketName,
                 Key: key,
+                VersionId: versionId,
             }, err => {
                 if (err && err.code !== expectedCode) {
                     return callback(err);
@@ -68,6 +67,22 @@ class IngestionUtility extends ReplicationUtility {
                 return callback();
             }),
         () => !status, cb);
+    }
+
+    waitUntilTagsIngested(bucketName, key, versionId, cb) {
+        let tagsExist;
+        return async.doWhilst(callback =>
+            this.getObjectTagging(bucketName, key, versionId, (err, data) => {
+                if (err) {
+                    return callback(err);
+                }
+                tagsExist = data.TagSet.length > 0;
+                if (tagsExist) {
+                    return callback();
+                }
+                return setTimeout(callback, 2000);
+            }),
+        () => !tagsExist, cb);
     }
 
     waitUntilEmpty(bucketName, cb) {
@@ -88,12 +103,12 @@ class IngestionUtility extends ReplicationUtility {
         () => !objectsEmpty, cb);
     }
 
-    compareObjectsRINGS3C(srcBucket, destBucket, key, cb) {
+    compareObjectsRINGS3C(srcBucket, destBucket, key, versionId, optionalFields, cb) {
         return async.series([
-            next => this.waitUntilIngested(destBucket, key, undefined,
+            next => this.waitUntilIngested(destBucket, key, versionId,
                 next),
-            next => this.getSourceObject(srcBucket, key, next),
-            next => this.getDestObject(destBucket, key, next),
+            next => this.getSourceObject(srcBucket, key, versionId, next),
+            next => this.getDestObject(destBucket, key, versionId, next),
         ], (err, data) => {
             if (err) {
                 return cb(err);
@@ -109,22 +124,26 @@ class IngestionUtility extends ReplicationUtility {
             assert.strictEqual(srcData.VersionId, destData.VersionId);
             assert.strictEqual(srcData.LastModified.toString(),
                 destData.LastModified.toString());
-            if (srcData.WebsiteRedirectLocation) {
-                assert.strictEqual(srcData.WebsiteRedirectLocation,
-                    destData.WebsiteRedirectLocation);
+            if (optionalFields) {
+                optionalFields.forEach(field => {
+                    if(field === 'Metadata') {
+                        assert.strictEqual(srcData.customKey, destData.customKey);
+                    } else {
+                        assert.strictEqual(srcData[field], destData[field]);
+                    }
+                });
             }
             return cb();
         });
     }
 
-    compareObjectTagsRINGS3C(srcBucket, destBucket, key, zenkoVersionId,
-        s3cVersionId, cb) {
+    compareObjectTagsRINGS3C(srcBucket, destBucket, key, versionId, cb) {
         return async.series([
-            next => this.waitUntilIngested(srcBucket, key, zenkoVersionId, next),
-            next => this._setS3Client(this.ringS3C).getObjectTagging(srcBucket,
-                key, zenkoVersionId, next),
-            next => this._setS3Client(this.s3).getObjectTagging(destBucket, key,
-                zenkoVersionId, next),
+            next => this.waitUntilTagsIngested(destBucket, key, versionId, next),
+            next => this._setS3Client(ringS3Client).getObjectTagging(srcBucket,
+                key, versionId, next),
+            next => this._setS3Client(scalityS3Client).getObjectTagging(destBucket, key,
+                versionId, next),
         ], (err, data) => {
             if (err) {
                 return cb(err);
@@ -132,6 +151,7 @@ class IngestionUtility extends ReplicationUtility {
             const srcData = data[1];
             const destData = data[2];
             assert.deepStrictEqual(srcData.TagSet, destData.TagSet);
+            assert.strictEqual(srcData.VersionId, destData.VersionId);
             return cb();
         });
     }
