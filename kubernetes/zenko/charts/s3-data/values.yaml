@@ -4,7 +4,7 @@
 replicaCount: 1
 image:
   repository: zenko/cloudserver
-  tag: 8.1.5
+  tag: 8.1.4
   pullPolicy: IfNotPresent
 service:
   name: s3-data
