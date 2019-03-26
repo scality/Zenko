@@ -19,11 +19,14 @@ const scalityS3Client = new S3({
     httpOptions: { timeout: 0 },
 });
 
+const verifyCerts = process.env.VERIFY_CERTIFICATES ?
+                      process.env.VERIFY_CERTIFICATES : true;
+
 const awsS3Client = new S3({
     accessKeyId: process.env.AWS_ACCESS_KEY,
     secretAccessKey: process.env.AWS_SECRET_KEY,
-    sslEnabled: true,
-    endpoint: 'https://s3.amazonaws.com',
+    sslEnabled: verifyCerts,
+    endpoint: process.env.AWS_ENDPOINT,
     apiVersions: { s3: '2006-03-01' },
     signatureCache: false,
     signatureVersion: 'v4',

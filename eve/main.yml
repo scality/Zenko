@@ -54,6 +54,7 @@ models:
       env:
         HELM_NAMESPACE: '%(prop:workername)s'
   - env: &secrets_env # contains values used for test config
+      AWS_ENDPOINT: https://s3.amazonaws.com
       AWS_ACCESS_KEY: '%(secret:aws_s3_backend_access_key)s'
       AWS_SECRET_KEY: '%(secret:aws_s3_backend_secret_key)s'
       AWS_ACCESS_KEY_2: '%(secret:aws_s3_backend_access_key_2)s'
@@ -123,13 +124,10 @@ stages:
       type: local
     steps:
     - TriggerStages:
-        name: Build documentation
+        name: trigger all the tests
         haltOnFailure: true
         stage_names:
         - build-doc
-    - TriggerStages:
-        name: trigger all the tests
-        stage_names:
         - online-zenko
 
   build-doc:
@@ -210,6 +208,11 @@ stages:
         maxTime: 43200
         env:
           <<: *global_env
+          KUBECONFIG: /root/.kube/config
+          ZENKO_HELM_RELEASE: 'zenko-offline'
+          HELM_NAMESPACE: '%(prop:workername)s'
+          TILLER_NAMESPACE: '%(prop:workername)s'
+          INSTALL_TIMEOUT: "600"
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
     - ShellCommand: *k8s_cleanup
