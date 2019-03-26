@@ -1,5 +1,5 @@
-Zenko Enterprise API Knowledge Primers
-======================================
+Zenko API Knowledge Primers
+===========================
 
 .. toctree::
    :maxdepth: 2

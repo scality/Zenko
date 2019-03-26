@@ -1,7 +1,7 @@
 Introduction
 ============
 
-The Zenko Enterprise application programming interface’s operations are explained and detailed herein, their
+The Zenko application programming interface’s operations are explained and detailed herein, their
 parameters, responses, and errors.
 
 .. toctree::

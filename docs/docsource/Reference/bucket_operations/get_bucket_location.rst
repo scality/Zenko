@@ -11,7 +11,7 @@ LocationConstraint request parameter in a PUT Bucket request. Refer to :ref:`PUT
 
   The possible options for a LocationConstraint are configured in the
   env_s3 setting of the S3 Configuration. For more information, refer to
-  “Modifying the Group Variables (all) File” in Zenko Enterprise Installation.
+  “Modifying the Group Variables (all) File” in Zenko Installation.
 
 Requests
 --------

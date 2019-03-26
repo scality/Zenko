@@ -120,9 +120,8 @@ responses (refer to :ref:`Common Response Headers`).
    |                       |                       | which is stored and   |
    |                       |                       | returned as a set of  |
    |                       |                       | key-value pairs.      |
-   |                       |                       | Zenko Enterprise does |
-   |                       |                       | not validate or       |
-   |                       |                       | interpret             |
+   |                       |                       | Zenko does not        |
+   |                       |                       | validate or interpret |
    |                       |                       | user-defined          |
    |                       |                       | metadata.             |
    +-----------------------+-----------------------+-----------------------+

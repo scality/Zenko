@@ -11,13 +11,13 @@ on GET). In contrast, AWS SSE is quite intrusive, as it requires special
 headers on all Object create calls, including Object Put, Object Copy,
 Object Post, and Multi Part Upload requests.
 
-Zenko Enterprise bucket encryption is similar to SSE-C in how it integrates with the Key
+Zenko bucket encryption is similar to SSE-C in how it integrates with the Key
 Management Service (KMS). Scality requires that customers provide the
 KMS, which is responsible for generating encryption keys on PUT calls
 and for retrieving the same encryption key on GET calls. In this manner,
-Zenko Enterprise does not store encryption keys.
+Zenko does not store encryption keys.
 
-Also, Zenko Enterprise uses standard OpenSSL, 256-bit encryption libraries to perform the
+Also, Zenko uses standard OpenSSL, 256-bit encryption libraries to perform the
 actual payload encryption/decryption. This also supports the Intel
 AES-NI CPU acceleration library, making encryption nearly as fast as
 non-encrypted performance.

@@ -65,7 +65,7 @@ grantee permissions.
 
 *Specifying a Canned ACL*
 
-Zenko Enterprise supports a set of canned ACLs, each of which has a predefined set of
+Zenko supports a set of canned ACLs, each of which has a predefined set of
 grantees and permissions.
 
 To grant access permissions by specifying canned ACLs, use the following
@@ -98,8 +98,8 @@ header and specify the canned ACL name as its value.
 *Explicitly Specifying Grantee Access Permissions*
 
 A set of x-amz-grant-permission headers is available for explicitly
-granting individualized bucket access permissions to specific Zenko Enterprise accounts
-or groups. Each of these headers maps to specific permissions the Zenko Enterprise
+granting individualized bucket access permissions to specific Zenko accounts
+or groups. Each of these headers maps to specific permissions the Zenko
 supports in an ACL.
 
 .. note::
@@ -160,7 +160,7 @@ type can be one any one of the following:
 
 For example, the following x-amz-grant-write header grants create,
 overwrite, and delete objects permission to a LogDelivery group
-predefined by Zenko Enterprise and two accounts identified by their email addresses.
+predefined by Zenko and two accounts identified by their email addresses.
 
 .. code::
 
@@ -169,7 +169,7 @@ predefined by Zenko Enterprise and two accounts identified by their email addres
 .. note::
 
   Though cited here for purposes of example, the LogDelivery group
-  permission is not currently being used by Zenko Enterprise.
+  permission is not currently being used by Zenko.
 
 Request Elements
 ~~~~~~~~~~~~~~~~
@@ -335,9 +335,9 @@ following grants.
 The request sample uses ACL-specific request headers to grant the
 following permissions:
 
--  Write permission to the Zenko Enterprise LogDelivery group and an account identified
+-  Write permission to the Zenko LogDelivery group and an account identified
    by the email xyz@scality.com
--  Read permission to the Zenko Enterprise AllUsers group
+-  Read permission to the Zenko AllUsers group
 
 *Request Sample*
 

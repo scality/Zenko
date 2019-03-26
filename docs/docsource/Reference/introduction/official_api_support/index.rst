@@ -1,7 +1,7 @@
 Official API Support
 ====================
 
-The supported S3 API commands for Zenko Enterprise for the current
+The supported S3 API commands for Zenko for the current
 release are detailed herein.
 
 .. toctree::

@@ -3,7 +3,7 @@
 Bucket Website Specification
 ============================
 
-Scality Zenko Enterprise implements the `AWS S3 Bucket Website
+Scality Zenko implements the `AWS S3 Bucket Website
 APIs <http://docs.aws.amazon.com/AmazonS3/latest/dev/WebsiteHosting.html>`__
 per the AWS specifications. This makes the objects accessible through a
 bucket website.
@@ -28,10 +28,10 @@ Using Bucket Websites
 
 To experience bucket website behavior, a user must make a request to a bucket website endpoint rather than the usual REST endpoints. Refer to `Website Endpoints <https://docs.aws.amazon.com/AmazonS3/latest/dev/WebsiteEndpoints.html>`_ for the difference in response from a bucket endpoint versus the usual REST endpoint.
 
-To set up Zenko Enterprise with website endpoints, in Federation env_s3 should have a
+To set up Zenko with website endpoints, in Federation env_s3 should have a
 website_endpoints section that contains a list of all desired website
 endpoints (e.g., s3-website.scality.example.com). Thus, if a user has a
-bucket foo, a bucket website request to Zenko Enterprise would be made to
+bucket foo, a bucket website request to Zenko would be made to
 foo.s3-website.scality.example.com.
 
 .. note::
@@ -40,5 +40,5 @@ foo.s3-website.scality.example.com.
   that the ACL of such an object must be public-read. This ACL can be set
   when the object is originally put or through a :ref:`PUT Object
   ACL` call. The AWS instructions for setting up bucket websites suggest using a bucket
-  policy to set all objects to public, but Zenko Enterprise does not yet implement bucket
+  policy to set all objects to public, but Zenko does not yet implement bucket
   policies so this option is not available.

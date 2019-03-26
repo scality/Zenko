@@ -1,7 +1,7 @@
 Specifying an ACL
 =================
 
-Using Zenko Enterprise, an ACL can be set at the creation point of a bucket or object.
+Using Zenko, an ACL can be set at the creation point of a bucket or object.
 An ACL can also be applied to an existing bucket or object.
 
 .. tabularcolumns:: X{0.32\textwidth}X{0.63\textwidth}

@@ -12,7 +12,9 @@ object. To return a different version, use the versionId subresource.
 
 .. tip::
 
-  If the current version of the object is a delete marker, Zenko Enterprise behaves as if the object was deleted and includes x-amz-delete-marker: true in the response.
+  If the current version of the object is a delete marker, Zenko behaves
+  as if the object was deleted and includes x-amz-delete-marker: true in
+  the response.
 
 Requests
 --------
@@ -33,7 +35,8 @@ Values for a set of response headers can be overridden in the GET Object
 response using the query parameters listed in the following table. These
 response header values are sent only on a successful request, one in
 which a status code *200 OK* is returned. The set of headers that can be
-overridden using these parameters is a subset of the headers that Zenko Enterprise accepts when an object is created, including ``Content-Type``,
+overridden using these parameters is a subset of the headers that Zenko
+accepts when an object is created, including ``Content-Type``,
 ``Content-Language``, ``Expires``, ``Cache-Control``,
 ``Content-Disposition``, and ``Content-Encoding``.
 
@@ -193,11 +196,9 @@ Responses
    |                       |                       | which is stored and   |
    |                       |                       | returned as a set of  |
    |                       |                       | key-value pairs.      |
-   |                       |                       | Zenko Enterprise does |
-   |                       |                       | not validate or       |
-   |                       |                       | interpret             |
-   |                       |                       | user-defined          |
-   |                       |                       | metadata.             |
+   |                       |                       | Zenko does not        |
+   |                       |                       | validate or interpret |
+   |                       |                       | user-defined metadata.|
    +-----------------------+-----------------------+-----------------------+
    | x-amz-version-id      | string                | Returns the version   |
    |                       |                       | ID of the retrieved   |
@@ -355,7 +356,7 @@ bytes of an object.
 
   .. note::
 
-    Zenko Enterprise does not support retrieving multiple ranges of data per GET request.
+    Zenko does not support retrieving multiple ranges of data per GET request.
 
 *Response Sample*
 

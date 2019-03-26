@@ -1,7 +1,7 @@
 HTTP Protocols
 ==============
 
-Zenko Enterprise uses HTTP protocols as defined by RFC 2616. REST operations consist of
+Zenko uses HTTP protocols as defined by RFC 2616. REST operations consist of
 sending HTTP requests to Zenko, which returns HTTP responses. These HTTP
 requests contain a request method, a URI with an optional query string,
 headers, and a body. The responses contain status codes, headers, and

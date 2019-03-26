@@ -7,7 +7,7 @@ The Complete Multipart Upload operation is the last step in the
 multipart upload of a large object, pulling together previously uploaded
 parts, called only after a multipart upload is initiated and all of the
 relevant parts have been uploaded (refer to :ref:`Upload Part`).
-Upon receiving the Complete Multipart Upload request, Zenko Enterprise concatenates all
+Upon receiving the Complete Multipart Upload request, Zenko concatenates all
 the parts in ascending order by part number to create a new object.
 
 The parts list must be provided for a Complete Multipart Upload request.
@@ -16,9 +16,9 @@ part number and ETag header value are provided for each part (both of
 which were returned with the successful uploading of the part).
 
 Processing of a Complete Multipart Upload request can take several
-minutes to complete. Once Zenko Enterprise begins processing the request, it sends an
+minutes to complete. Once Zenko begins processing the request, it sends an
 HTTP response header that specifies a ``200 OK`` response. While
-processing is in progress, Zenko Enterprise periodically sends whitespace characters to
+processing is in progress, Zenko periodically sends whitespace characters to
 keep the connection from timing out. Because a request could fail after
 the initial response has been sent, it is important to check the
 response body to determine whether the request succeeded.

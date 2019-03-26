@@ -3,15 +3,17 @@
 Multi-Object Delete
 ===================
 
-The Multi-Object Delete operation enables the deletion of multiple
-objects from a bucket using a single HTTP request. If object keys to be deleted are known, this operation provides a suitable alternative to sending individual delete requests, reducing per-request overhead. Refer to :ref:`DELETE Object`.
+The Multi-Object Delete operation enables the deletion of multiple objects from
+a bucket using a single HTTP request. If object keys to be deleted are known,
+this operation provides a suitable alternative to sending individual delete 
+requests, reducing per-request overhead. Refer to :ref:`DELETE Object`.
 
 The Multi-Object Delete request contains a list of up to 1000 keys that
 can be deleted. In the XML, provide the object key names. Optionally,
 provide version ID to delete a specific version of the object from a
-versioning-enabled bucket. For each key, Zenko Enterprise performs a delete operation and
+versioning-enabled bucket. For each key, Zenko performs a delete operation and
 returns the result of that delete, success or failure, in the response.
-If the object specified in the request is not found, Zenko Enterprise returns the result
+If the object specified in the request is not found, Zenko returns the result
 as deleted.
 
 The Multi-Object Delete operation supports two modes for the
@@ -173,11 +175,10 @@ of the response:
    +-----------------------+-----------------------+-----------------------+
    | VersionId             | String                | Version ID of the     |
    |                       |                       | versioned object      |
-   |                       |                       | Zenko Enterprise      |
-   |                       |                       | attempted to delete.  |
-   |                       |                       | includes this element |
-   |                       |                       | only in case of a     |
-   |                       |                       | versioned-delete      |
+   |                       |                       | Zenko attempted to    |
+   |                       |                       | delete. Includes this |
+   |                       |                       | element only in case  |
+   |                       |                       | of a versioned-delete |
    |                       |                       | request.              |
    |                       |                       |                       |
    |                       |                       | Ancestor: Deleted or  |
@@ -215,8 +216,7 @@ of the response:
    |                       |                       | Multi-Object Delete   |
    |                       |                       | either creates or     |
    |                       |                       | deletes a delete      |
-   |                       |                       | marker, Zenko         |
-   |                       |                       | Enterprise returns    |
+   |                       |                       | marker, Zenko returns |
    |                       |                       | this element in       |
    |                       |                       | response with the     |
    |                       |                       | version ID of the     |
@@ -264,7 +264,7 @@ of the response:
    |                       |                       | failed delete         |
    |                       |                       | operation that        |
    |                       |                       | describes the object  |
-   |                       |                       | that Zenko Enterprise |
+   |                       |                       | that Zenko    	   |
    |                       |                       | attempted to          |
    |                       |                       | delete and the error  |
    |                       |                       | it encountered.       |
@@ -277,8 +277,8 @@ of the response:
    |                       |                       | Message               |
    +-----------------------+-----------------------+-----------------------+
    | Key                   | String                | Key for the object    |
-   |                       |                       | Zenko Enterprise      |
-   |                       |                       | attempted to delete   |
+   |                       |                       | Zenko attempted to	   |
+   |                       |                       | delete         	   |
    |                       |                       |                       |
    |                       |                       | Ancestor: Error       |
    +-----------------------+-----------------------+-----------------------+
@@ -337,8 +337,8 @@ object).
 *Response Sample*
 
 The response includes a DeleteResult element that includes a Deleted
-element for the item that Zenko Enterprise successfully deleted and an Error element that
-Zenko Enterprise did not delete because the user didn’t have permission to delete the
+element for the item that Zenko successfully deleted and an Error element that
+Zenko did not delete because the user didn’t have permission to delete the
 object.
 
 .. code::
@@ -368,7 +368,7 @@ object.
 **Deleting Object from a Versioned Bucket**
 
 In deleting an item from a versioning enabled bucket, all versions of
-that object remain in the bucket; however, Zenko Enterprise inserts a delete marker.
+that object remain in the bucket; however, Zenko inserts a delete marker.
 
 The following scenarios describe the behavior of a Multi-Object Delete
 request when versioning is enabled for a bucket.
@@ -394,7 +394,7 @@ As shown, the Multi-Object Delete request specifies only one key.
      </Object>
    </Delete>
 
-As versioning is enabled on the bucket, Zenko Enterprise does not delete the object,
+As versioning is enabled on the bucket, Zenko does not delete the object,
 instead adding a delete marker. The response indicates that a delete
 marker was added (the DeleteMarker element in the response has a value
 of true) and the version number of the added delete marker.
@@ -445,8 +445,8 @@ of an object.
    </Object>
    </Delete>
 
-In this case, Zenko Enterprise deletes the specific object version from the bucket and
-returns the following response. In the response, Zenko Enterprise returns the key and
+In this case, Zenko deletes the specific object version from the bucket and
+returns the following response. In the response, Zenko returns the key and
 version ID of the deleted object.
 
 .. code::
@@ -472,9 +472,9 @@ version ID of the deleted object.
 **Scenario 3: Versioned Delete of a Delete Marker**
 
 In the preceding example, the request refers to a delete marker (in lieu
-of an object), then Zenko Enterprise deletes the delete marker. The effect of this
+of an object), then Zenko deletes the delete marker. The effect of this
 operation is to make the object reappear in the bucket. The response
-returned by Zenko Enterprise indicates the deleted delete marker (DeleteMarker element
+returned by Zenko indicates the deleted delete marker (DeleteMarker element
 with value true) and the version ID of the delete marker.
 
 .. code::
@@ -499,7 +499,7 @@ with value true) and the version ID of the delete marker.
    </Deleted>
    </DeleteResult>
 
-In general, when a Multi-Object Delete request results in Zenko Enterprise either adding
+In general, when a Multi-Object Delete request results in Zenko either adding
 a delete marker or removing a delete marker, the response returns the
 following elements:
 

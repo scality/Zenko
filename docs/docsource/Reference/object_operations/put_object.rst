@@ -8,7 +8,7 @@ a bucket is necessary to add an object to it).
 
 .. note::
 
-  Zenko Enterprise never adds partial objects; if a success response is received, Zenko Enterprise added the
+  Zenko never adds partial objects; if a success response is received, Zenko added the
   entire object to the bucket.
 
 Object locking is not supported. If an object with the same name is
@@ -183,9 +183,8 @@ Request Headers`).
    |                       |                       | which is stored and   |
    |                       |                       | returned as a set of  |
    |                       |                       | key-value pairs.      |
-   |                       |                       | Zenko Enterprise does |
-   |                       |                       | not validate or       |
-   |                       |                       | interpret             |
+   |                       |                       | Zenko does not        |
+   |                       |                       | validate or interpret |
    |                       |                       | user-defined          |
    |                       |                       | metadata. Within the  |
    |                       |                       | PUT request header,   |
@@ -261,7 +260,7 @@ used to create the Access Control List (ACL) on the object.
 
 *Specifying a Canned ACL*
 
-Zenko Enterprise supports a set of canned ACLs, each of which has a predefined set of
+Zenko supports a set of canned ACLs, each of which has a predefined set of
 grantees and permissions.
 
 .. tabularcolumns:: X{0.20\textwidth}X{0.10\textwidth}X{0.65\textwidth}
@@ -286,8 +285,8 @@ grantees and permissions.
 *Explicitly Specifying Access Permissions*
 
 A set of headers is available for explicitly granting access permissions
-to specific Zenko Enterprise accounts or groups, each of which maps to specific
-permissions Zenko Enterprise supports in an ACL.
+to specific Zenko accounts or groups, each of which maps to specific
+permissions Zenko supports in an ACL.
 
 In the header value, specify a list of grantees who get the specific
 permission.

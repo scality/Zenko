@@ -63,7 +63,7 @@ two ways to grant the permissions using the request headers:
 -  Specify access permissions explicitly using thex-amz-grant-read,
    x-amz-grant-read-acp, x-amz-grant-write-acp, and
    x-amz-grant-full-control headers. These headers map to the set of
-   permissions Zenko Enterprise supports in an ACL.
+   permissions Zenko supports in an ACL.
 
 .. note::
 
@@ -142,13 +142,12 @@ headers in addition to those that are common to all operations (refer to
    |                       |        | location metadata from the source is not |
    |                       |        | copied. If you specify this metadata     |
    |                       |        | explicitly in the copy request, Zenko    |
-   |                       |        | Enterprise adds this metadata to the     |
-   |                       |        | the resulting object. If you specify     |
-   |                       |        | headers in the request specifying any    |
-   |                       |        | user-defined metadata, the connector     |
-   |                       |        | ignores these headers. To use new        |
-   |                       |        | user-defined metadata, REPLACE must be   |
-   |                       |        | selected.                                |
+   |                       |        | adds this metadata to the resulting      |
+   |                       |        | object. If you specify headers in the    |
+   |			   |	    | request specifying any user-defined      |
+   |			   |	    | metadata, the connector ignores these    |
+   |			   |	    | headers. To use new user-defined 	       |
+   |			   |	    | metadata, REPLACE must be selected.      |
    |                       |        |                                          |
    |                       |        | If replaced, all original metadata is    |
    |                       |        | replaced by the specified metadata.      |
@@ -235,7 +234,7 @@ headers:
 
 -  Consideration 1: If both of thex-amz-copy-source-if-match and
    x-amz-copy-source-if-unmodified-since headers are present in the
-   request as follows, Zenko Enterprise returns 200 OK and copies the data:
+   request as follows, Zenko returns 200 OK and copies the data:
 
    .. code::
 
@@ -244,7 +243,7 @@ headers:
 
 -  Consideration 2: If both of the x-amz-copy-source-if-none-match and
    x-amz-copy-source-if-modified-since headers are present in the
-   request as follows, Zenko Enterprise returns a 412 Precondition Failed response code:
+   request as follows, Zenko returns a 412 Precondition Failed response code:
 
    .. code::
 
@@ -261,7 +260,7 @@ information, refer to :ref:`ACL (Access Control List)`.
 
 *Specifying a Canned ACL*
 
-Zenko Enterprise supports a set of predefined ACLs, each of which has a predefined set of
+Zenko supports a set of predefined ACLs, each of which has a predefined set of
 grantees and permissions.
 
 To grant access permissions by specifying canned ACLs, use the x-amz-acl
@@ -293,12 +292,12 @@ header and specify the canned ACL name as its value.
 *Explicitly Specifying Grantee Access Permissions*
 
 A set of headers is available for explicitly granting access permissions
-to specific Zenko Enterprise accounts or groups.
+to specific Zenko accounts or groups.
 
 .. note::
 
   Each of the x-amz-grant-permission headers maps to specific permissions
-  the Zenko Enterprise supports in an ACL. Please also note that the use of any of these
+  the Zenko supports in an ACL. Please also note that the use of any of these
   ACL-specific headers negates the use of the x-amz-acl header to set a
   canned ACL.
 
@@ -383,73 +382,72 @@ all responses (refer to :ref:`Common Response Headers`).
 .. tabularcolumns:: X{0.30\textwidth}X{0.10\textwidth}X{0.55\textwidth}
 .. table::
 
-   +-----------------------+-----------------------+-----------------------+
-   | Header                | Type                  | Description           |
-   +=======================+=======================+=======================+
-   | x-amz-copy-source-\   | string                | Returns the version   |
-   | version-id            |                       | ID of the retrieved   |
-   |                       |                       | object if it has a    |
-   |                       |                       | unique version ID.    |
-   +-----------------------+-----------------------+-----------------------+
-   | x-amz-server-side-\   | string                | If server-side        |
-   | encryption            |                       | encryption is         |
-   |                       |                       | specified either with |
-   |                       |                       | an AWS KMS or         |
-   |                       |                       | Zenko Enterprise-     |
-   |                       |                       | managed encryption    |
-   |                       |                       | key in the copy       |
-   |                       |                       | request, the response |
-   |                       |                       | includes this header, |
-   |                       |                       | confirming the        |
-   |                       |                       | encryption algorithm  |
-   |                       |                       | that was used to      |
-   |                       |                       | encrypt the object.   |
-   +-----------------------+-----------------------+-----------------------+
-   | x-amz-server-side-\   | string                | If the                |
-   | encryption-aws-kms-\  |                       | x-amz-server-side-\   |
-   | key-id                |                       | encryption            |
-   |                       |                       | is present and has    |
-   |                       |                       | the value of aws:kms, |
-   |                       |                       | this header specifies |
-   |                       |                       | the ID of the AWS Key |
-   |                       |                       | Management Service    |
-   |                       |                       | (KMS) master          |
-   |                       |                       | encryption key that   |
-   |                       |                       | was used for the      |
-   |                       |                       | object.               |
-   +-----------------------+-----------------------+-----------------------+
-   | x-amz-server-side-\   | string                | If server-side        |
-   | encryption-customer-\ |                       | encryption with       |
-   | algorithm             |                       | customer-provided     |
-   |                       |                       | encryption keys       |
-   |                       |                       | (SSE-C) encryption    |
-   |                       |                       | was requested, the    |
-   |                       |                       | response will include |
-   |                       |                       | this header           |
-   |                       |                       | confirming the        |
-   |                       |                       | encryption algorithm  |
-   |                       |                       | used for the          |
-   |                       |                       | destination object.   |
-   |                       |                       |                       |
-   |                       |                       | Valid Values:         |
-   |                       |                       | ``AES256``            |
-   +-----------------------+-----------------------+-----------------------+
-   | x-amz-server-side-\   | string                | If SSE-C encryption   |
-   | encryption-customer-\ |                       | was requested, the    |
-   | key-MD5               |                       | response includes     |
-   |                       |                       | this header to        |
-   |                       |                       | provide roundtrip     |
-   |                       |                       | message integrity     |
-   |                       |                       | verification of the   |
-   |                       |                       | customer-provided     |
-   |                       |                       | encryption key used   |
-   |                       |                       | to encrypt the        |
-   |                       |                       | destination object.   |
-   +-----------------------+-----------------------+-----------------------+
-   | x-amz-version-id      | string                | Version of the copied |
-   |                       |                       | object in the         |
-   |                       |                       | destination bucket.   |
-   +-----------------------+-----------------------+-----------------------+
+   +-----------------------+-----------------------+------------------------+
+   | Header                | Type                  | Description            |
+   +=======================+=======================+========================+
+   | x-amz-copy-source-\   | string                | Returns the version    |
+   | version-id            |                       | ID of the retrieved    |
+   |                       |                       | object if it has a     |
+   |                       |                       | unique version ID.     |
+   +-----------------------+-----------------------+------------------------+
+   | x-amz-server-side-\   | string                | If server-side         |
+   | encryption            |                       | encryption is          |
+   |                       |                       | specified either with  |
+   |                       |                       | an AWS KMS or          |
+   |                       |                       | Zenko-managed          |
+   |                       |                       | encryption key in the  |
+   |                       |                       | copy request, the      |
+   |                       |                       | response includes this |
+   |                       |                       | header, confirming the |
+   |                       |                       | encryption algorithm   |
+   |                       |                       | that was used to       |
+   |                       |                       | encrypt the object.    |
+   +-----------------------+-----------------------+------------------------+
+   | x-amz-server-side-\   | string                | If the                 |
+   | encryption-aws-kms-\  |                       | x-amz-server-side-\    |
+   | key-id                |                       | encryption             |
+   |                       |                       | is present and has     |
+   |                       |                       | the value of aws:kms,  |
+   |                       |                       | this header specifies  |
+   |                       |                       | the ID of the AWS Key  |
+   |                       |                       | Management Service     |
+   |                       |                       | (KMS) master           |
+   |                       |                       | encryption key that    |
+   |                       |                       | was used for the       |
+   |                       |                       | object.                |
+   +-----------------------+-----------------------+------------------------+
+   | x-amz-server-side-\   | string                | If server-side         |
+   | encryption-customer-\ |                       | encryption with        |
+   | algorithm             |                       | customer-provided      |
+   |                       |                       | encryption keys        |
+   |                       |                       | (SSE-C) encryption     |
+   |                       |                       | was requested, the     |
+   |                       |                       | response will include  |
+   |                       |                       | this header            |
+   |                       |                       | confirming the         |
+   |                       |                       | encryption algorithm   |
+   |                       |                       | used for the           |
+   |                       |                       | destination object.    |
+   |                       |                       |                        |
+   |                       |                       | Valid Values:          |
+   |                       |                       | ``AES256``             |
+   +-----------------------+-----------------------+------------------------+
+   | x-amz-server-side-\   | string                | If SSE-C encryption    |
+   | encryption-customer-\ |                       | was requested, the     |
+   | key-MD5               |                       | response includes      |
+   |                       |                       | this header to         |
+   |                       |                       | provide roundtrip      |
+   |                       |                       | message integrity      |
+   |                       |                       | verification of the    |
+   |                       |                       | customer-provided      |
+   |                       |                       | encryption key used    |
+   |                       |                       | to encrypt the         |
+   |                       |                       | destination object.    |
+   +-----------------------+-----------------------+------------------------+
+   | x-amz-version-id      | string                | Version of the copied  |
+   |                       |                       | object in the          |
+   |                       |                       | destination bucket.    |
+   +-----------------------+-----------------------+------------------------+
 
 **Response Elements**
 
