@@ -191,9 +191,8 @@ XML elements in the response:
    |                       |                       | leteMarker.Owner      |
    +-----------------------+-----------------------+-----------------------+
    | Encoding-Type         | string                | Encoding type used by |
-   |                       |                       | Zenko Enterprise to   |
-   |                       |                       | encode object key     |
-   |                       |                       | names in the XML      |
+   |                       |                       | Zenko to encode object|
+   |                       |                       | key names in the XML  |
    |                       |                       | response.             |
    |                       |                       |                       |
    |                       |                       | If encoding-type      |

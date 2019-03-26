@@ -196,7 +196,7 @@ Responses
 **Response Headers**
 
 The List Multipart Uploads uses only the common response headers
-supported by Zenko Enterprise (refer to :ref:`Common Response Headers`).
+supported by Zenko (refer to :ref:`Common Response Headers`).
 
 **Response Elements**
 

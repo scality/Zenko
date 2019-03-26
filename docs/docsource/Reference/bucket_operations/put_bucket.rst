@@ -50,7 +50,7 @@ permissions.
 
 *Specifying a Canned ACL*
 
-Zenko Enterprise supports a set of canned ACLs, each with a predefined set of grantees
+Zenko supports a set of canned ACLs, each with a predefined set of grantees
 and permissions.
 
 .. tabularcolumns:: X{0.15\textwidth}X{0.15\textwidth}X{0.65\textwidth}

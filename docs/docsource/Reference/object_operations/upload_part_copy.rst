@@ -18,7 +18,7 @@ The minimum allowable part size for a multipart upload is 5 MB.
   information, refer to :ref:`Upload Part`.
 
 A multipart upload must be initiated before uploading any part. In
-response to the initiate request, Zenko Enterprise returns a unique identifier — the
+response to the initiate request, Zenko returns a unique identifier — the
 *upload ID* — that must be included in the upload part request.
 
 Requests
@@ -100,8 +100,8 @@ x-amz-copy-source header specifies.
    | x-amz-copy-source-\   | String | Perform a copy if the source object       |
    | if-match              |        | entity tag (ETag) matches the specified   |
    |                       |        | value. If the value does not match, Zenko |
-   |                       |        | Enterprise returns an HTTP status code    |
-   |                       |        | ``412 Precondition Failed`` error.        |
+   |                       |        | returns an HTTP status code ``412         |
+   |                       |        | Precondition Failed`` error.              |
    |                       |        |                                           |
    |                       |        | **Note**: If both the                     |
    |                       |        | x-amz-copy-source-if-match                |
@@ -184,7 +184,7 @@ x-amz-copy-source header specifies.
 
 If the source object is encrypted using server-side encryption with a
 customer-provided encryption key, it is necessary to use the following
-headers providing encryption information so that Zenko Enterprise can decrypt the object
+headers providing encryption information so that Zenko can decrypt the object
 for copying.
 
 .. tabularcolumns:: X{0.30\textwidth}X{0.10\textwidth}X{0.50\textwidth}
@@ -249,9 +249,9 @@ If a bucket has versioning enabled, it is possible to have multiple
 versions of the same object. By default, x-amz-copy-source identifies
 the current version of the object to copy. If the current version is a
 delete marker and a versionId is not specified in the x-amz-copy-source,
-Zenko Enterprise returns a 404 error, because the object does not exist. If versionId is
+Zenko returns a 404 error, because the object does not exist. If versionId is
 specified in the x-amz-copy-source and the versionId is a delete marker,
-Zenko Enterprise returns an HTTP 400 error, because a delete marker cannot be specified
+Zenko returns an HTTP 400 error, because a delete marker cannot be specified
 as a version for the x-amz-copy-source.
 
 Optionally, a specific version of the source object to copy can be

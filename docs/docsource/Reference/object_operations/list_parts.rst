@@ -37,56 +37,54 @@ return a subset of a bucket’s objects.
 .. tabularcolumns:: X{0.20\textwidth}X{0.10\textwidth}X{0.65\textwidth}
 .. table::
 
-   +-----------------------+-----------------------+-----------------------+
-   | Parameter             | Type                  | Description           |
-   +=======================+=======================+=======================+
-   | encoding-type         | string                | Requests that         |
-   |                       |                       | Zenko Enterprise      |
-   |                       |                       | encode the response   |
-   |                       |                       | and specifies the     |
-   |                       |                       | encoding method to    |
-   |                       |                       | use. An object key    |
-   |                       |                       | can contain any       |
-   |                       |                       | Unicode character;    |
-   |                       |                       | however, XML 1.0      |
-   |                       |                       | parser cannot parse   |
-   |                       |                       | some characters, such |
-   |                       |                       | as characters with an |
-   |                       |                       | ASCII value from 0 to |
-   |                       |                       | 10. For characters    |
-   |                       |                       | that are not          |
-   |                       |                       | supported in XML 1.0, |
-   |                       |                       | you can add this      |
-   |                       |                       | parameter to request  |
-   |                       |                       | that Zenko Enterprise |
-   |                       |                       | encode the keys       |
-   |                       |                       | in the response.      |
-   |                       |                       |                       |
-   |                       |                       | Default: None         |
-   +-----------------------+-----------------------+-----------------------+
-   | uploadID              | string                | Upload ID identifying |
-   |                       |                       | the multipart upload  |
-   |                       |                       | whose parts are being |
-   |                       |                       | listed                |
-   |                       |                       |                       |
-   |                       |                       | Default: None         |
-   +-----------------------+-----------------------+-----------------------+
-   | max-parts             | string                | Sets the maximum      |
-   |                       |                       | number of parts to    |
-   |                       |                       | return in the         |
-   |                       |                       | response body         |
-   |                       |                       |                       |
-   |                       |                       | Default: None         |
-   +-----------------------+-----------------------+-----------------------+
-   | part-number-marker    | string                | Specifies the part    |
-   |                       |                       | after which listing   |
-   |                       |                       | should begin. Only    |
-   |                       |                       | parts with higher     |
-   |                       |                       | part numbers will be  |
-   |                       |                       | listed.               |
-   |                       |                       |                       |
-   |                       |                       | Default: None         |
-   +-----------------------+-----------------------+-----------------------+
+   +--------------------+-----------------------+------------------------+
+   | Parameter          | Type                  | Description            |
+   +====================+=======================+========================+
+   | encoding-type      | string                | Requests that          |
+   |                    |                       | Zenko encode the       |
+   |                    |                       | response and specifies |
+   |                    |                       | the encoding method    |
+   |                    |                       | to use. An object key  |
+   |                    |                       | can contain any        |
+   |                    |                       | Unicode character;     |
+   |                    |                       | however, XML 1.0       |
+   |                    |                       | parser cannot parse    |
+   |                    |                       | some characters, such  |
+   |                    |                       | as characters with an  |
+   |                    |                       | ASCII value from 0 to  |
+   |                    |                       | 10. For characters     |
+   |                    |                       | that are not           |
+   |                    |                       | supported in XML 1.0,  |
+   |                    |                       | you can add this       |
+   |                    |                       | parameter to request   |
+   |                    |                       | that Zenko encode the  |
+   |                    |                       | keys in the response.  |
+   |                    |                       |                        |
+   |                    |                       | Default: None          |
+   +--------------------+-----------------------+------------------------+
+   | uploadID           | string                | Upload ID identifying  |
+   |                    |                       | the multipart upload   |
+   |                    |                       | whose parts are being  |
+   |                    |                       | listed                 |
+   |                    |                       |                        |
+   |                    |                       | Default: None          |
+   +--------------------+-----------------------+------------------------+
+   | max-parts          | string                | Sets the maximum       |
+   |                    |                       | number of parts to     |
+   |                    |                       | return in the          |
+   |                    |                       | response body          |
+   |                    |                       |                        |
+   |                    |                       | Default: None          |
+   +--------------------+-----------------------+------------------------+
+   | part-number-marker | string                | Specifies the part     |
+   |                    |                       | after which listing    |
+   |                    |                       | should begin. Only     |
+   |                    |                       | parts with higher      |
+   |                    |                       | part numbers will be   |
+   |                    |                       | listed.                |
+   |                    |                       |                        |
+   |                    |                       | Default: None          |
+   +--------------------+-----------------------+------------------------+
 
 **Request Headers**
 
@@ -103,7 +101,7 @@ Responses
 **Response Headers**
 
 The List Parts operation uses only the common response headers supported
-by Zenko Enterprise (refer to :ref:`Common Response Headers`).
+by Zenko (refer to :ref:`Common Response Headers`).
 
 **Response Elements**
 
@@ -124,9 +122,8 @@ response (includes XML containers):
    |                       |                       | upload was initiated  |
    +-----------------------+-----------------------+-----------------------+
    | Encoding-Type         | string                | Encoding type used by |
-   |                       |                       | Zenko Enterprise      |
-   |                       |                       | to encode object key  |
-   |                       |                       | names in the XML      |
+   |                       |                       | Zenko to encode object|
+   |                       |                       | key names in the XML  |
    |                       |                       | response              |
    |                       |                       |                       |
    |                       |                       | If the encoding-type  |

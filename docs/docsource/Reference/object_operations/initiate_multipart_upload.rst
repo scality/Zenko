@@ -91,7 +91,7 @@ request headers in addition to those that are common to all operations
    |                       |                       | binary/octet-stream   |
    |                       |                       |                       |
    |                       |                       | Valid Values:         |
-   |                       |                       | MIME types            |
+   |                       |                       | MIME types            |
    |                       |                       |                       |
    |                       |                       | Constraints: None     |
    +-----------------------+-----------------------+-----------------------+
@@ -110,9 +110,8 @@ request headers in addition to those that are common to all operations
    |                       |                       | which is stored and   |
    |                       |                       | returned as a set of  |
    |                       |                       | key-value pairs.      |
-   |                       |                       | Zenko Enterprise does |
-   |                       |                       | not validate or       |
-   |                       |                       | interpret             |
+   |                       |                       | Zenko does not        |
+   |                       |                       | validate or interpret |
    |                       |                       | user-defined          |
    |                       |                       | metadata. Within the  |
    |                       |                       | PUT request header,   |
@@ -156,7 +155,7 @@ the Access Control List (ACL) on the object.
 
 *Specifying a Canned ACL*
 
-Zenko Enterprise supports a set of canned ACLs, each of which has a predefined set of
+Zenko supports a set of canned ACLs, each of which has a predefined set of
 grantees and permissions.
 
 .. tabularcolumns:: X{0.15\textwidth}X{0.10\textwidth}X{0.70\textwidth}
@@ -181,8 +180,8 @@ grantees and permissions.
 *Explicitly Specifying Access Permissions*
 
 A set of headers is available for explicitly granting access permissions
-to specific accounts or groups, each of which maps to specific Zenko Enterprise
-permissions Zenko Enterprise supports in an ACL.
+to specific accounts or groups, each of which maps to specific Zenko
+permissions Zenko supports in an ACL.
 
 In the header value, specify a list of grantees who get the specific
 permission.
@@ -251,7 +250,7 @@ Responses
 **Response Headers**
 
 The Initiate Multipart Upload operation may include any of the common
-response headers supported by the Zenko Enterprise (refer to :ref:`Common Response Headers`).
+response headers supported by the Zenko (refer to :ref:`Common Response Headers`).
 
 **Response Elements**
 

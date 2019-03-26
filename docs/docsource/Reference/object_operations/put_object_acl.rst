@@ -78,7 +78,7 @@ grantee permissions.
 
 *Specifying a Canned ACL*
 
-Zenko Enterprise supports a set of canned ACLs, each of which has a predefined set of
+Zenko supports a set of canned ACLs, each of which has a predefined set of
 grantees and permissions.
 
 To grant access permissions by specifying canned ACLs, use the x-amz-acl
@@ -111,13 +111,13 @@ header and specify the canned ACL name as its value.
 *Explicitly Specifying Grantee Access Permissions*
 
 A set of x-amz-grant-permission headers is available for explicitly
-granting individualized object access permissions to specific Zenko Enterprise accounts
+granting individualized object access permissions to specific Zenko accounts
 or groups.
 
 .. note::
 
   Each of the x-amz-grant-permission headers maps to specific permissions
-  the Zenko Enterprise supports in an ACL. Please also note that the use of any of these
+  the Zenko supports in an ACL. Please also note that the use of any of these
   ACL-specific headers negates the use of the x-amz-acl header to set a
   canned ACL.
 

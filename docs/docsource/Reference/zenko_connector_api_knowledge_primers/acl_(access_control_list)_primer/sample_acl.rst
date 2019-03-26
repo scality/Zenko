@@ -2,7 +2,7 @@ Sample ACL
 ==========
 
 The ACL on a bucket identifies the resource owner and a set of grants.
-The format is the XML representation of an ACL in the Zenko Enterprise API. The bucket
+The format is the XML representation of an ACL in the Zenko API. The bucket
 owner has FULL_CONTROL of the resource. In addition, the ACL shows how
 permissions are granted on a resource to two accounts, identified by
 canonical user ID, and two of the predefined Amazon S3 groups.

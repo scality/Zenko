@@ -83,7 +83,6 @@ parameters to return a subset of objects in a bucket:
    |                       |                       | start with when       |
    |                       |                       | listing objects in a  |
    |                       |                       | bucket. Zenko         |
-   |                       |                       | Enterprise            |
    |                       |                       | returns object keys   |
    |                       |                       | in UTF-8 binary       |
    |                       |                       | order, starting with  |
@@ -192,9 +191,8 @@ XML elements in the response:
    | DisplayName           | string                | Object owner's name   |
    +-----------------------+-----------------------+-----------------------+
    | Encoding-Type         | string                | Encoding type used by |
-   |                       |                       | Zenko Enterprise to   |
-   |                       |                       | encode object key     |
-   |                       |                       | names in the XML      |
+   |                       |                       | Zenko to encode object|
+   |                       |                       | key names in the XML  |
    |                       |                       | response.             |
    |                       |                       |                       |
    |                       |                       | If encoding-type      |
@@ -402,7 +400,7 @@ The following GET request specifies the delimiter parameter with value
    Authorization: {{authorizationString}}
 
 The key greatshot.raw does not contain the delimiter character, and
-Zenko Enterprise returns it in the Contents element in the response. However, all other
+Zenko returns it in the Contents element in the response. However, all other
 keys contain the delimiter character. Zenko groups these keys and return a
 single CommonPrefixes element with the common prefix value
 ``photographs/``, which is a substring from the beginning of these keys
@@ -442,7 +440,7 @@ The following GET request specifies the delimiter parameter with value
    Date: Wed, 01 Mar  2006 12:00:00 GMT
    Authorization: {{authorizationString}}
 
-In response, Zenko Enterprise returns only the keys that start with the specified prefix.
+In response, Zenko returns only the keys that start with the specified prefix.
 Further, it uses the delimiter character to group keys that contain the
 same substring until the first occurrence of the delimiter character
 after the specified prefix. For each such key group Zenko returns one

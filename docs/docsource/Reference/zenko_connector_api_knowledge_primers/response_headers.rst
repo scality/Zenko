@@ -1,7 +1,7 @@
 Response Headers
 ================
 
-All Zenko Enterprise response headers are listed on separate lines.
+All Zenko response headers are listed on separate lines.
 
 .. _Common Response Headers:
 
@@ -110,7 +110,7 @@ Common Response Headers
    |                       |                       | versioning is         |
    |                       |                       | enabled, generates a  |
    |                       |                       | URL-ready hex string  |
-   |                       |                       | Zenko Enterprise      |
+   |                       |                       | Zenko                 |
    |                       |                       | to identify objects   |
    |                       |                       | added to a bucket. An |
    |                       |                       | example:              |

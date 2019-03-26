@@ -3,12 +3,12 @@
 Bucket CORS Specification
 =========================
 
-Zenko Enterprise implements the `AWS S3 Bucket CORS APIs <http://docs.aws.amazon.com/AmazonS3/latest/dev/cors.html>`__.
+Zenko implements the `AWS S3 Bucket CORS APIs <http://docs.aws.amazon.com/AmazonS3/latest/dev/cors.html>`__.
 
 Preflight CORS Requests
 -----------------------
 
-A preflight request with the HTTP OPTIONS method can be made against Zenko Enterprise to
+A preflight request with the HTTP OPTIONS method can be made against Zenko to
 determine whether CORS requests are permitted on a bucket before sending
 the actual request. (For detailed information on the preflight request
 and response, refer to `OPTIONS
