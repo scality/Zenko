@@ -5,7 +5,7 @@ metadata:
 spec:
   selector:
     name: aws-mock
-  type: ClusterIP
+  clusterIP: None
   ports:
     - name: http
       port: 80
@@ -14,10 +14,12 @@ spec:
 apiVersion: v1
 kind: Pod
 metadata:
-  name: aws-mock-pod
+  name: aws-mock-1
   labels:
     name: aws-mock
 spec:
+  hostname: ci-zenko-aws-target-bucket
+  subdomain: aws-mock
   initContainers:
   - image: zenko/cloudserver:latest
     name: setup
@@ -31,8 +33,6 @@ spec:
   containers:
   - image: zenko/cloudserver:latest
     name: aws-mock
-    ports:
-      - containerPort: 80
     env:
     - name: REMOTE_MANAGEMENT_DISABLE
       value: "1"
@@ -49,4 +49,84 @@ spec:
     emptyDir: {}
   - name: configmap
     configMap:
-      name: aws-mock  
+      name: aws-mock
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: aws-mock-2
+  labels:
+    name: aws-mock
+spec:
+  hostname: ci-zenko-aws-target-bucket-2
+  subdomain: aws-mock
+  initContainers:
+  - image: zenko/cloudserver:latest
+    name: setup
+    imagePullPolicy: Always
+    command: ["tar", "-xvf", "/static-config/mock-metadata.tar.gz", "-C", "/usr/src/app"]
+    volumeMounts:
+    - name: configmap
+      mountPath: /static-config
+    - name: metadata
+      mountPath: /usr/src/app/localMetadata
+  containers:
+  - image: zenko/cloudserver:latest
+    name: aws-mock
+    env:
+    - name: REMOTE_MANAGEMENT_DISABLE
+      value: "1"
+    - name: ENDPOINT
+      value: "aws-mock"
+    ports:
+    - name: http
+      containerPort: 8000
+    volumeMounts:
+    - name: metadata
+      mountPath: /usr/src/app/localMetadata
+  volumes:
+  - name: metadata
+    emptyDir: {}
+  - name: configmap
+    configMap:
+      name: aws-mock
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: aws-mock-3
+  labels:
+    name: aws-mock
+spec:
+  hostname: ci-zenko-aws-crr-target-bucket
+  subdomain: aws-mock
+  initContainers:
+  - image: zenko/cloudserver:latest
+    name: setup
+    imagePullPolicy: Always
+    command: ["tar", "-xvf", "/static-config/mock-metadata.tar.gz", "-C", "/usr/src/app"]
+    volumeMounts:
+    - name: configmap
+      mountPath: /static-config
+    - name: metadata
+      mountPath: /usr/src/app/localMetadata
+  containers:
+  - image: zenko/cloudserver:latest
+    name: aws-mock
+    env:
+    - name: REMOTE_MANAGEMENT_DISABLE
+      value: "1"
+    - name: ENDPOINT
+      value: "aws-mock"
+    ports:
+    - name: http
+      containerPort: 8000
+    volumeMounts:
+    - name: metadata
+      mountPath: /usr/src/app/localMetadata
+  volumes:
+  - name: metadata
+    emptyDir: {}
+  - name: configmap
+    configMap:
+      name: aws-mock

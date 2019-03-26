@@ -116,7 +116,7 @@ models:
       AZURE_BACKEND_ENDPOINT: http://azure-mock/devstoreaccount1
       AZURE_SECRET_KEY: Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==
 
-      AWS_ENDPOINT: http://aws-mock
+      AWS_ENDPOINT: http://aws-mock:8000
       AWS_ACCESS_KEY: accessKey1
       AWS_SECRET_KEY: verySecretKey1
       AWS_ACCESS_KEY_2: accessKey2

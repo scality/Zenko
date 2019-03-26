@@ -1,4 +1,5 @@
 from botocore.handlers import set_list_objects_encoding_type_url
+from botocore.client import Config
 from boto3 import Session
 import pytest
 from azure.storage.blob import BlockBlobService  # noqa pylint: disable=no-name-in-module
@@ -29,6 +30,7 @@ def aws_resource():
     sesh = Session(aws_access_key_id=conf.AWS_ACCESS_KEY,
                    aws_secret_access_key=conf.AWS_SECRET_KEY)
     return sesh.resource('s3', endpoint_url=conf.AWS_ENDPOINT,
+                         config=Config(s3={'addressing_style': 'path'}),
                          verify=conf.VERIFY_CERTIFICATES)
 
 
@@ -38,6 +40,7 @@ def aws_crr_resource():
         aws_access_key_id=conf.AWS_BACKBEAT_ACCESS_KEY,
         aws_secret_access_key=conf.AWS_BACKBEAT_SECRET_KEY)
     return sesh.resource('s3', endpoint_url=conf.AWS_ENDPOINT,
+                         config=Config(s3={'addressing_style': 'path'}),
                          verify=conf.VERIFY_CERTIFICATES)
 
 
