@@ -38,6 +38,8 @@ spec:
       value: "1"
     - name: ENDPOINT
       value: "aws-mock"
+    - name: S3BACKEND
+      value: file
     ports:
     - name: http
       containerPort: 8000
