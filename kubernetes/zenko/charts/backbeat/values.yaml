@@ -9,8 +9,8 @@ global:
   replicationEndpoints: []
 
 image:
-  repository: zenko/backbeat
-  tag: 8.1.5
+  repository: rahulpadigela/backbeat
+  tag: dockerfilerevert
   pullPolicy: IfNotPresent
 
 logging:
