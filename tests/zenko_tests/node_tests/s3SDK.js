@@ -20,7 +20,7 @@ const scalityS3Client = new S3({
 });
 
 const verifyCerts = process.env.VERIFY_CERTIFICATES ?
-                      process.env.VERIFY_CERTIFICATES : true
+                      process.env.VERIFY_CERTIFICATES : true;
 
 const awsS3Client = new S3({
     accessKeyId: process.env.AWS_ACCESS_KEY,
