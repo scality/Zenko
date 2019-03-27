@@ -128,7 +128,9 @@ stages:
         haltOnFailure: true
         stage_names:
         - build-doc
-        - online-zenko
+        - python-tests
+        - node-tests-01
+        - node-tests-02
 
   build-doc:
     worker:
@@ -156,17 +158,20 @@ stages:
           - "html/index.html"
           - "latex/*.pdf"
 
-  online-zenko:
+  online-zenko: &online-zenko
     worker: &kube_cluster
       type: kube_pod
       path: eve/workers/zenko.yaml
+      vars:
     steps:
     - Git: *git_pull
     - ShellCommand: *private_registry_login
     - ShellCommand: *k8s_setup
     - ShellCommand:
         name: Setup and run e2e
-        command: make -e VERBOSE=1 test
+        command: |
+          sh ../eve/scripts/only-docs.sh
+          make -e VERBOSE=1 test
         workdir: build/tests
         env:
           <<: [*secrets_env, *docker_env]
@@ -178,6 +183,10 @@ stages:
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
     - ShellCommand: *k8s_cleanup
+
+  python-tests: *online-zenko
+  node-tests-01: *online-zenko
+  node-tests-02: *online-zenko
 
   test-latest-zenko:
     worker: *kube_cluster

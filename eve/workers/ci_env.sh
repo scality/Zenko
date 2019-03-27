@@ -6,6 +6,7 @@ if [ "$1" == "env" ]; then
   printf -- "\
 --env ZENKO_HELM_RELEASE=$ZENKO_HELM_RELEASE \
 --env HELM_NAMESPACE=$HELM_NAMESPACE \
+--env STAGE=$STAGE \
 --env NUM_CPUS=1 \
 --env INSTALL_TIMEOUT=$INSTALL_TIMEOUT "
 
