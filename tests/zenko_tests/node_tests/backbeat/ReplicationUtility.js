@@ -216,7 +216,7 @@ class ReplicationUtility {
                 return next();
             }),
             next =>
-                async.mapLimit(partNumbers, 10, (partNumber, callback) => {
+                async.mapLimit(partNumbers, 2, (partNumber, callback) => {
                     const uploadPartParams = {
                         Bucket: bucketName,
                         Key: objectName,
@@ -307,7 +307,7 @@ class ReplicationUtility {
                 return next();
             }),
             next =>
-                async.mapLimit(partNumbers, 10, (partNumber, callback) => {
+                async.mapLimit(partNumbers, 2, (partNumber, callback) => {
                     const uploadPartCopyParams = {
                         Bucket: bucketName,
                         CopySource: copySource,
