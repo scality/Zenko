@@ -1,3 +1,5 @@
+.. _configure_ingress:
+
 Configuring HTTPS Ingress for Zenko
 ===================================
 
