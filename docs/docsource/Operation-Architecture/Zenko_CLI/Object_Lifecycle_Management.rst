@@ -3,11 +3,11 @@ Object Lifecycle Management
 
 Cloud users can apply lifecycle rules (specified in Amazon’s `AWS S3
 API <https://docs.aws.amazon.com/AmazonS3/latest/API/Welcome.html>`__) to
-buckets managed through Zenko. These rules are triggered after a defined
-time has passed since the object’s creation. Zenko supports expiration
-of versioned or non-versioned objects, when a defined number of days has
-passed since those objects’ creation. This enables automatic deletion of
-older versions of versioned objects to reclaim storage space.
+buckets managed through Zenko. These rules are triggered after a defined time
+has passed since the object’s last modification. Zenko supports expiration of
+versioned or non-versioned objects, when a defined number of days has passed
+since those objects’ creation. This enables automatic deletion of older
+versions of versioned objects to reclaim storage space.
 
 Installation
 ------------
@@ -91,7 +91,7 @@ for more examples and explanations on lifecycle rules.
 
        $ aws s3api put-bucket-lifecycle-configuration --bucket zenko-bucket --lifecycle-configuration file://lifecycle_config.json
 
-   You can confirm that the rule has been set with
+   You can confirm that the rule has been set with:
 
    ::
 

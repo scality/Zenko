@@ -1,6 +1,12 @@
 Object Lifecycle Management: Expiration
 =======================================
 
+Object lifecycle expiration policies enable you to delete an object or 
+object type based on its age.
+
+Establishing an Object Expiration Policy
+----------------------------------------
+
 **Prerequisite:** You must have established at least one bucket.
 
 #. From anywhere in Orbit, click the **WORKFLOWS > Bucket Lifecycle** tab in 
@@ -35,9 +41,7 @@ Object Lifecycle Management: Expiration
 
    |image4|
 
-   Zenko will enforce these rules on this bucket. If replication is
-   configured, any change of state to objects in this bucket can be
-   replicated to buckets on other clouds.
+   Zenko will enforce these rules on this bucket. 
 
 Versioning logic precludes simply deleting an object: that day’s object
 is deleted, but earlier versions remain. See warning at 
