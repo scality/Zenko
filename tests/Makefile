@@ -145,7 +145,7 @@ install-cosbench:
 		--wait
 .PHONY: install-cosbench
 
-install-zenko:
+install-zenko: | install-tiller
 ifndef NO_INSTALL
 	$(HELM) upgrade $(ZENKO_HELM_RELEASE) \
 		--namespace $(HELM_NAMESPACE) \
@@ -210,7 +210,11 @@ test-flaky:
 	$(call run-tests)
 .PHONY: test-flaky
 
-test: | install-common install-zenko run-tests dump-logs
+ifeq ($(DOCS_ONLY),)
+test: | install-zenko install-common run-tests dump-logs
+else
+test:
+endif
 test-latest: | install-common install-latest-zenko run-tests test-flaky dump-logs
 .PHONY: test test-latest
 
