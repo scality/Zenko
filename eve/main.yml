@@ -179,13 +179,10 @@ stages:
       type: local
     steps:
     - TriggerStages:
-        name: Build documentation
+        name: trigger all the tests
         haltOnFailure: true
         stage_names:
         - build-doc
-    - TriggerStages:
-        name: trigger all the tests
-        stage_names:
         - online-zenko
         - test-cosmos
 
