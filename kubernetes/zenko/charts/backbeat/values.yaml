@@ -10,7 +10,7 @@ global:
 
 image:
   repository: rahulpadigela/backbeat
-  tag: dockerfilerevert-1
+  tag: dockerfilerevert-2
   pullPolicy: IfNotPresent
 
 logging:
