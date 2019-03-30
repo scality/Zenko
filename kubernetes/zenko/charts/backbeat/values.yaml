@@ -76,7 +76,7 @@ ingestion:
 
 lifecycle:
   conductor:
-    cronRule: "0 */5 * * * *"
+    cronRule: "0 */6 * * *"
     resources: {}
     nodeSelector: {}
     tolerations: []
