@@ -128,7 +128,7 @@ backbeat:
     replicaFactor: 2
   lifecycle:
     conductor:
-      cronRule: "*/5 * * * * *"
+      cronRule: "* * * * *"
 
 grafana:
   persistentVolume:
