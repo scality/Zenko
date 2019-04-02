@@ -80,6 +80,11 @@ spec:
               mountPath: "/ssl"
               readOnly: true
             {{- end }}
+            {{- if .Values.kmip.enabled }}
+            - name: kmip-cert
+              mountPath: "/ssl-kmip"
+              readOnly: true
+            {{- end }}
             {{- if not .Values.global.orbit.enabled }}
             {{- if .Values.global.locationConstraints }}
             - name: location-config
@@ -105,6 +110,11 @@ spec:
         - name: proxy-cert
           secret:
             secretName: {{ template "cloudserver.fullname" . }}-proxy
+        {{- end }}
+        {{- if .Values.kmip.enabled }}
+        - name: kmip-cert
+          secret:
+            secretName: {{ template "cloudserver.fullname" . }}-kmip-cert
         {{- end }}
         {{- if not .Values.global.orbit.enabled }}
         {{- if .Values.global.locationConstraints }}

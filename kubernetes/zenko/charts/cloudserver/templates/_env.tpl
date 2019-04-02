@@ -92,4 +92,24 @@ env:
   {{- end }}
   {{- end }}
   {{- end }}
+  {{- if .Values.kmip.enabled }}
+  - name: S3KMS
+    value: kmip
+  - name: S3KMIP_PORT
+    value: "{{ .Values.kmip.port }}"
+  - name: S3KMIP_HOSTS
+    value: "{{ join "," .Values.kmip.hosts }}"
+  - name: S3KMIP_COMPOUND_CREATE
+    value: "{{ .Values.kmip.compoundCreate }}"
+  - name: S3KMIP_BUCKET_ATTRIBUTE_NAME
+    value:  "{{ .Values.kmip.bucketAttributeName }}"
+  - name: S3KMIP_PIPELINE_DEPTH
+    value: "{{ .Values.kmip.pipelineDepth }}"
+  - name: S3KMIP_KEY
+    value: /ssl-kmip/kmip-key.pem
+  - name: S3KMIP_CERT
+    value: /ssl-kmip/kmip-cert.pem
+  - name: S3KMIP_CA
+    value: /ssl-kmip/kmip-ca.pem
+  {{- end }}
 {{- end }}

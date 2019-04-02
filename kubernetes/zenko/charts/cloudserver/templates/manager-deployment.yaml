@@ -50,6 +50,11 @@ spec:
               mountPath: "/ssl"
               readOnly: true
             {{- end }}
+            {{- if .Values.kmip.enabled }}
+            - name: kmip-cert
+              mountPath: "/ssl-kmip"
+              readOnly: true
+            {{- end }}
           resources:
 {{ toYaml .Values.resources | indent 12 }}
     {{- with .Values.nodeSelector }}
@@ -67,5 +72,10 @@ spec:
         - name: proxy-cert
           secret:
             secretName: {{ template "cloudserver.fullname" . }}-proxy
+        {{- end }}
+        {{- if .Values.kmip.enabled }}
+        - name: kmip-cert
+          secret:
+            secretName: {{ template "cloudserver.fullname" . }}-kmip-cert
         {{- end }}
 {{- end}}
