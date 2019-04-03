@@ -13,3 +13,8 @@ def prometheus_client():
         url = 'http://{}-prometheus-server:80'.format(conf.ZENKO_HELM_RELEASE)
 
     return zenko_e2e.prometheus.client.PrometheusClient(prometheus_url=url)
+
+
+@pytest.fixture
+def namespace():
+    return conf.K8S_NAMESPACE

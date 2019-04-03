@@ -224,6 +224,17 @@ def ceph_loc_bucket(zenko_bucket):
     )
     return zenko_bucket
 
+
+@pytest.fixture(scope='function')
+def nfs_loc_bucket(zenko_resource):
+    nfs_ingest = conf.NFS_BACKEND + ':ingest'
+    loc_config = {'LocationConstraint': nfs_ingest}
+    bucket = create_bucket(zenko_resource, conf.NFS_BACKEND)
+    bucket.create(
+        CreateBucketConfiguration=loc_config
+    )
+    return bucket
+
 # These are bucket in zenko with replication enabled
 
 

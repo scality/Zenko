@@ -19,6 +19,11 @@ def vault():
         'iam', endpoint_url=conf.ZENKO_VAULT_ENDPOINT)
 
 
+@pytest.fixture
+def nfs_loc():
+    return conf.NFS_BACKEND
+
+
 @pytest.fixture(scope='session')
 def s3auth():
     return S3Auth(conf.ZENKO_ACCESS_KEY, conf.ZENKO_SECRET_KEY)

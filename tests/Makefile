@@ -128,11 +128,13 @@ endif
 
 install-orbit-simulator: | builddir
 ifndef NO_SIM
-	$(V)$(GIT) clone git@github.com:scality/orbit-simulator.git build/orbit-simulator && \
+	$(V)$(GIT) clone git@github.com:scality/orbit-simulator.git build/orbit-simulator -b feature/ZENKO-1507-add-nfs-location && \
 	$(HELM) upgrade ciutil \
 		--namespace $(HELM_NAMESPACE) \
         --tiller-namespace $(HELM_NAMESPACE) \
         --install build/orbit-simulator/charts/orbit-simulator \
+		--set simulator.image.repository=ssalaues/orbit-sim \
+		--set simulator.image.tag=nfs \
         --set simulator.shim.cloudserver_release=$(ZENKO_HELM_RELEASE) \
         --wait $(shell ../eve/workers/ci_env.sh set)
 endif
@@ -240,7 +242,11 @@ clean-s3c: | build-tests
 		--namespace=$(HELM_NAMESPACE) \
 		$(shell ../eve/workers/ci_env.sh env) \
 		--command -- python3 cleans3c.py || (echo "Zenko has failed to cleanup s3c" ; kubectl get pods -L redis-role ; exit 1) >&2
-.PHONY: clean-s3c
+
+clean-cosmos: | build-tests
+	$(V)$(KUBECTL) delete cosmos $(NFS_BACKEND) \
+
+.PHONY: clean-s3c clean-cosmos
 
 run-tests: | build-tests
 	$(V)$(KUBECTL) run $(E2E_POD) \
@@ -283,7 +289,7 @@ test-flaky:
 	$(call run-tests)
 .PHONY: test-flaky
 
-test: | install-common install-zenko run-tests clean-s3c dump-logs
+test: | install-common install-zenko run-tests clean-s3c clean-cosmos dump-logs
 test-latest: | install-common install-latest-zenko run-tests test-flaky clean-s3c dump-logs
 .PHONY: test test-latest
 
