@@ -240,7 +240,11 @@ clean-s3c: | build-tests
 		--namespace=$(HELM_NAMESPACE) \
 		$(shell ../eve/workers/ci_env.sh env) \
 		--command -- python3 cleans3c.py || (echo "Zenko has failed to cleanup s3c" ; kubectl get pods -L redis-role ; exit 1) >&2
-.PHONY: clean-s3c
+
+clean-cosmos: | build-tests
+	$(V)$(KUBECTL) delete cosmos $(NFS_BACKEND) \
+
+.PHONY: clean-s3c clean-cosmos
 
 run-tests: | build-tests
 	$(V)$(KUBECTL) run $(E2E_POD) \
@@ -283,7 +287,7 @@ test-flaky:
 	$(call run-tests)
 .PHONY: test-flaky
 
-test: | install-common install-zenko run-tests clean-s3c dump-logs
+test: | install-common install-zenko run-tests clean-s3c clean-cosmos dump-logs
 test-latest: | install-common install-latest-zenko run-tests test-flaky clean-s3c dump-logs
 .PHONY: test test-latest
 

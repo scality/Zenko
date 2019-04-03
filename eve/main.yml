@@ -23,10 +23,13 @@ models:
       haltOnFailure: true
   - ShellCommand: &k8s_cleanup
       name: Cleanup
-      command: kubectl delete namespace '%(prop:workername)s' --wait
+      command: |
+        kubectl delete cosmos $NFS_BACKEND
+        kubectl delete namespace '%(prop:workername)s' --wait
       alwaysRun: true
       sigtermTime: 1200
       env:
+        NFS_BACKEND: 'nfs-backend-%(prop:bootstrap)s'
         KUBECONFIG: /root/.kube/config
         ZENKO_HELM_RELEASE: 'zenko-offline'
         HELM_NAMESPACE: '%(prop:workername)s'
@@ -146,6 +149,9 @@ models:
 
       MULTI_CRR_SRC_BUCKET_NAME: ci-zenko-multi-crr-src-bucket
       TRANSIENT_SRC_BUCKET_NAME: ci-zenko-transient-src-bucket
+
+      NFS_SERVER: '%(secret:nfs_backend_endpoint)s'
+      NFS_BACKEND: 'nfs-backend-%(prop:bootstrap)s'
 
   - env: &mock_env
       AZURE_ACCOUNT_NAME: devstoreaccount1
