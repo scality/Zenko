@@ -34,6 +34,8 @@ spec:
     ports:
       - containerPort: 80
     env:
+    - name: LOG_LEVEL
+      value: trace
     - name: REMOTE_MANAGEMENT_DISABLE
       value: "1"
     - name: ENDPOINT
