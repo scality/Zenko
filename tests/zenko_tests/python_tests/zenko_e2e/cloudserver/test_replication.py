@@ -18,7 +18,7 @@ def test_aws_1_1(aws_crr_bucket, aws_crr_target_bucket, objkey, datafile):
     data = datafile()
     util.upload_object(aws_crr_bucket, objkey, data)
     assert util.check_object(
-        objkey, data, aws_crr_bucket, aws_crr_target_bucket, timeout=120)
+        objkey, data, aws_crr_bucket, aws_crr_target_bucket, timeout=300)
 
 
 @pytest.mark.flaky(reruns=3)
@@ -29,7 +29,7 @@ def test_gcp_1_1(gcp_crr_bucket, gcp_crr_target_bucket, objkey, datafile):
     data = datafile()
     util.upload_object(gcp_crr_bucket, objkey, data)
     assert util.check_object(
-        objkey, data, gcp_crr_bucket, gcp_crr_target_bucket, timeout=120)
+        objkey, data, gcp_crr_bucket, gcp_crr_target_bucket, timeout=300)
 
 
 @pytest.mark.flaky(reruns=3)
@@ -41,7 +41,7 @@ def test_azure_1_1(
     data = datafile()
     util.upload_object(azure_crr_bucket, objkey, data)
     assert util.check_object(
-        objkey, data, azure_crr_bucket, azure_crr_target_bucket, timeout=120)
+        objkey, data, azure_crr_bucket, azure_crr_target_bucket, timeout=300)
 
 
 @pytest.mark.parametrize('datafile', [testfile, mpufile])
@@ -52,7 +52,7 @@ def test_ceph_1_1(
     data = datafile()
     util.upload_object(ceph_crr_bucket, objkey, data)
     assert util.check_object(
-        objkey, data, ceph_crr_bucket, ceph_crr_target_bucket, timeout=120)
+        objkey, data, ceph_crr_bucket, ceph_crr_target_bucket, timeout=300)
 
 
 @pytest.mark.skip(reason='Wasabi not implemented in CI')
@@ -89,4 +89,4 @@ def test_multi_1_M(  # pylint: disable=invalid-name, too-many-arguments
                              aws_crr_target_bucket,
                              gcp_crr_target_bucket,
                              azure_crr_target_bucket,
-                             timeout=120)
+                             timeout=300)
