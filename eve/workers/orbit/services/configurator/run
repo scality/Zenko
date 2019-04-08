@@ -1,0 +1,6 @@
+#!/usr/bin/with-contenv sh
+
+config_mongo.sh
+
+touch /tmp/hold_open
+tail -f /tmp/hold_open
