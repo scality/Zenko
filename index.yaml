@@ -2,7 +2,7 @@ apiVersion: v1
 entries:
   mongodb-replicaset:
   - appVersion: "3.4"
-    created: 2019-03-04T16:08:20.339851691-08:00
+    created: 2019-04-09T15:15:46.840744424-07:00
     description: NoSQL document-oriented database that stores JSON-like documents
       with dynamic schemas, simplifying the integration of data in content-driven
       applications.
@@ -19,11 +19,11 @@ entries:
     - https://github.com/mongodb/mongo
     - https://github.com/percona/mongodb_exporter
     urls:
-    - mongodb-replicaset-3.5.2.tgz
+    - https://scality.github.com/Zenko/mongodb-replicaset-3.5.2.tgz
     version: 3.5.2
   redis-ha:
   - appVersion: 4.0.9-r0
-    created: 2019-03-04T16:08:20.340928571-08:00
+    created: 2019-04-09T15:15:46.841410628-07:00
     description: Highly available Redis cluster with multiple sentinels and standbys.
     digest: 689865a0fbc7572d0a06595d712281465d0ee6f9ef275677f62fa7096d0066af
     engine: gotpl
@@ -44,11 +44,30 @@ entries:
     sources:
     - https://github.com/bzumhagen/docker-images/tree/master/redis
     urls:
-    - redis-ha-3.0.0.tgz
+    - https://scality.github.com/Zenko/redis-ha-3.0.0.tgz
     version: 3.0.0
   zenko:
+  - appVersion: 1.1.0-alpha.0
+    created: 2019-04-09T15:15:46.903276111-07:00
+    description: Zenko is the open source multi-cloud data controller
+    digest: b198bbd21a6162a5a2a2b2b42d3ee10c7584e826e02aff5a23534511c22d58cf
+    engine: gotpl
+    home: https://www.zenko.io/
+    icon: https://rawgit.com/scality/Zenko/development/0.9/res/zenko.io-logo-color-cmyk.png
+    kubeVersion: '>=1.11.3'
+    maintainers:
+    - name: giacomoguiulfo
+    - name: ssalaues
+    - name: tmacro
+    name: zenko
+    sources:
+    - https://github.com/Scality/Zenko
+    tillerVersion: '>=2.9.1'
+    urls:
+    - https://scality.github.com/Zenko/zenko-1.1.0-alpha.0.tgz
+    version: 1.1.0-alpha.0
   - appVersion: 1.0.2
-    created: 2019-03-04T16:08:20.406002654-08:00
+    created: 2019-04-09T15:15:46.895451818-07:00
     description: Zenko is the open source multi-cloud data controller
     digest: cc9b64d4b604ca1f2e793f2e479c04d675a9febabc90ba3270ff8e50f18f78a7
     engine: gotpl
@@ -64,10 +83,10 @@ entries:
     - https://github.com/Scality/Zenko
     tillerVersion: '>=2.8.0'
     urls:
-    - zenko-1.0.2.tgz
+    - https://scality.github.com/Zenko/zenko-1.0.2.tgz
     version: 1.0.2
   - appVersion: 1.0.2-hotfix.1
-    created: 2019-03-04T16:08:20.39707902-08:00
+    created: 2019-04-09T15:15:46.88853583-07:00
     description: Zenko is the open source multi-cloud data controller
     digest: 43d6b5c62759fddeb8d22ca4b66950a13568dbce88c5b48d55787af6b27905eb
     engine: gotpl
@@ -83,10 +102,10 @@ entries:
     - https://github.com/Scality/Zenko
     tillerVersion: '>=2.8.0'
     urls:
-    - zenko-1.0.2-hotfix.1.tgz
+    - https://scality.github.com/Zenko/zenko-1.0.2-hotfix.1.tgz
     version: 1.0.2-hotfix.1
   - appVersion: 1.0.1
-    created: 2019-03-04T16:08:20.387346405-08:00
+    created: 2019-04-09T15:15:46.880510231-07:00
     description: Zenko is the open source multi-cloud data controller
     digest: 5fea014827a8b4764fbd480f8d76e7fbc7b8fb05c8c992eed6b8e3340d6bfbe8
     engine: gotpl
@@ -102,10 +121,10 @@ entries:
     - https://github.com/Scality/Zenko
     tillerVersion: '>=2.8.0'
     urls:
-    - zenko-1.0.1.tgz
+    - https://scality.github.com/Zenko/zenko-1.0.1.tgz
     version: 1.0.1
   - appVersion: 1.0.0
-    created: 2019-03-04T16:08:20.378528206-08:00
+    created: 2019-04-09T15:15:46.874658035-07:00
     description: Zenko is the open source multi-cloud data controller
     digest: e5b4f6c1416287d9801d60f4bb52dc394aff8fceed71450781889631b85216ae
     engine: gotpl
@@ -121,10 +140,10 @@ entries:
     - https://github.com/Scality/Zenko
     tillerVersion: '>=2.8.0'
     urls:
-    - zenko-1.0.0.tgz
+    - https://scality.github.com/Zenko/zenko-1.0.0.tgz
     version: 1.0.0
   - appVersion: 1.0.0-hotfix.1
-    created: 2019-03-04T16:08:20.36443688-08:00
+    created: 2019-04-09T15:15:46.864749843-07:00
     description: Zenko is the open source multi-cloud data controller
     digest: 852209066acd3a9563ca590977fa03663e10c2266589ba0655d5d4c79a265c66
     engine: gotpl
@@ -140,10 +159,10 @@ entries:
     - https://github.com/Scality/Zenko
     tillerVersion: '>=2.8.0'
     urls:
-    - zenko-1.0.0-hotfix.1.tgz
+    - https://scality.github.com/Zenko/zenko-1.0.0-hotfix.1.tgz
     version: 1.0.0-hotfix.1
   - appVersion: 1.0.0-RC5
-    created: 2019-03-04T16:08:20.355417585-08:00
+    created: 2019-04-09T15:15:46.85634645-07:00
     description: Zenko is the open source multi-cloud data controller
     digest: 63d782a7da3f01f1702eae7b41f92196ecf6d10bcd3390145f6708962423f2f1
     engine: gotpl
@@ -159,10 +178,10 @@ entries:
     - https://github.com/Scality/Zenko
     tillerVersion: '>=2.8.0'
     urls:
-    - zenko-1.0.0-RC5.tgz
+    - https://scality.github.com/Zenko/zenko-1.0.0-RC5.tgz
     version: 1.0.0-RC5
   - apiVersion: v1
-    created: 2019-03-04T16:08:20.348289288-08:00
+    created: 2019-04-09T15:15:46.849478204-07:00
     description: Zenko is an open source multi-cloud data controller
     digest: 507e7808a82950de94515947150bcb8a4e4a3e4fe97e3695aa321914b65862b6
     home: https://github.com/scality/Zenko
@@ -177,6 +196,6 @@ entries:
     - https://github.com/scality/S3
     - https://github.com/scality/backbeat
     urls:
-    - zenko-0.9.0.tgz
+    - https://scality.github.com/Zenko/zenko-0.9.0.tgz
     version: 0.9.0
-generated: 2019-03-04T16:08:20.338255662-08:00
+generated: 2019-04-09T15:15:46.839308877-07:00
