@@ -96,8 +96,8 @@ replicaCount: 3
 replicaFactor: 1
 
 image:
-  repository: zenko/cloudserver
-  tag: 8.1.9
+  repository: dorakorpar/cloudserver
+  tag: metastore
   pullPolicy: IfNotPresent
 
 proxy:
