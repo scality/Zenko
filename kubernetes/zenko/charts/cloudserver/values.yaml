@@ -97,7 +97,7 @@ replicaFactor: 1
 
 image:
   repository: dorakorpar/cloudserver
-  tag: metastore
+  tag: metastore2
   pullPolicy: IfNotPresent
 
 proxy:
