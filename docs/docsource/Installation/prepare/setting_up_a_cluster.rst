@@ -6,12 +6,20 @@ Setting Up a Cluster
 While running Zenko on a single machine is desirable for certain use cases,
 a clustered operating environment is required for high-availability deployments.
 If you can set up a Kubernetes cluster on your own, review the :ref:`General
-Cluster Requirements` and skip to :ref:`Install_Zenko`.
+Cluster Requirements` and skip to :ref:`Install_Zenko`. Otherwise, download
+MetalK8s and follow its instructions (or review the requirements and
+instructions in Zenko/docs/gke.md) to establish a working Kubernetes instance
+on your cluster.
+
+.. note: 
+   
+   Zenko 1.1 will not install with a Kubernetes instance older than version
+   1.11.3. Scality recommends MetalK8s 1.1, which installs Kubernetes v. 1.11.3.
 
 Most of the complexity of installing Zenko on a cluster involves deploying the
 cluster istelf. Scality supports MetalK8s_, an open source Kubernetes engine
 optimized for the Zenko use case. The following section describes general
-cluster requirements, which have been tested on MetalK8s. Because MetalK8s is
+cluster requirements that have been tested on MetalK8s. Because MetalK8s is
 designed to operate without support from public cloud resources, the following
 sizing requirements are assumed sufficient for hosted cloud Kubernetes 
 clusters, where such resources are available on demand.
