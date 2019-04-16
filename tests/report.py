@@ -15,6 +15,22 @@ from collections import defaultdict
 
 random.seed()
 
+TRUTHY = [
+	'true',
+	'on',
+	'yes',
+	't',
+	'enabled',
+	'enable',
+]
+
+# Convert a env var to a boolean
+def is_env_flag_set(key):
+	val = os.environ.get(key, None)
+	if val is None:
+		return False
+	return val.strip().lower() in TRUTHY
+
 # Some constants
 SLACK_API_BASE = 'https://slack.com/api/%s'
 SLACK_CHAN_DEVOPS = 'CFCCE4X7F' #sf-devops
@@ -34,7 +50,7 @@ BUILD_MSG_TS = os.environ.get('BUILD_MSG_TS')
 if BUILD_MSG_TS is not None and BUILD_MSG_TS.strip() == '':
     BUILD_MSG_TS = None
 # This tells us if failures should be crossposted
-CROSSPOST_TO_HIPPO = os.environ.get('CROSSPOST_TO_HIPPO', '').strip() != ''
+CROSSPOST_TO_HIPPO = is_env_flag_set('CROSSPOST_TO_HIPPO')
 
 # And finally load our tokens
 SLACK_TOKEN = os.environ.get('SLACK_TOKEN', '')
@@ -53,7 +69,7 @@ args = get_args()
 
 class Retry(Exception):
     def __init__(self, err=None):
-        super().__init__('Retry')
+        super(Retry, self).__init__('Retry')
         self.err = err
 
 def retry(msg, sleep=None, retries=3):
