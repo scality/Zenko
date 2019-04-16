@@ -12,7 +12,8 @@ CloudServer is deployed in a Docker container.
 Overview
 --------
 
-|image0|
+.. image:: ../Resources/Images/CloudServer.svg
+   :align: center
 
 .. tabularcolumns:: X{0.20\textwidth}X{0.65\textwidth}
 .. table::
@@ -170,4 +171,4 @@ use cases.
    | cloud\_server\_http\_response\_size\_bytes | The HTTP response sizes in bytes          |
    +--------------------------------------------+-------------------------------------------+
 
-.. |image0| image:: ../Resources/Images/CloudServer.svg
+

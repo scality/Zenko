@@ -25,10 +25,10 @@
      id="style401"
      type="text/css"><![CDATA[
 		.st1 {fill:#ffffff;stroke:#000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.25}
-		.st2 {fill:#000000;font-family:Calibri;font-size:0.666664em}
+		.st2 {fill:#000000;font-family:Helvetica;font-size:0.666664em}
 		.st3 {font-size:1em}
 		.st4 {fill:none;stroke:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.75}
-		.st5 {fill:#000000;font-family:Calibri;font-size:0.833336em}
+		.st5 {fill:#000000;font-family:Helvetica;font-size:0.833336em}
 		.st6 {marker-end:url(#mrkr13-30);marker-start:url(#mrkr13-28);stroke:#000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.25}
 		.st7 {fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1;stroke-width:0.14792899408284}
 		.st8 {fill:#ffffff}
@@ -114,7 +114,7 @@
          width="54"
          y="769.5"
          x="0" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7.99996805px;font-family:Helvetica;fill:#000000"
          id="text421"
          v:langID="1033"
          class="st2"
@@ -140,7 +140,7 @@
          width="54"
          y="769.5"
          x="0" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7.99996805px;font-family:Helvetica;fill:#000000"
          id="text432"
          v:langID="1033"
          class="st2"
@@ -171,7 +171,7 @@
          width="54"
          y="769.5"
          x="0" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7.99996805px;font-family:Helvetica;fill:#000000"
          id="text443"
          v:langID="1033"
          class="st2"
@@ -202,7 +202,7 @@
          width="162"
          y="769.5"
          x="0" /><text
-         style="font-size:10.00003242px;font-family:Calibri;fill:#000000"
+         style="font-size:10.00003242px;font-family:Helvetica;fill:#000000"
          id="text452"
          v:langID="1033"
          class="st5"
@@ -228,7 +228,7 @@
          width="54"
          y="769.5"
          x="0" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7.99996805px;font-family:Helvetica;fill:#000000"
          id="text463"
          v:langID="1033"
          class="st2"
@@ -259,7 +259,7 @@
          width="54"
          y="769.5"
          x="0" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7.5px;font-family:Helvetica;fill:#000000"
          id="text472"
          v:langID="1033"
          class="st2"
@@ -428,7 +428,7 @@
          width="54.5625"
          y="774"
          x="0" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7.99996805px;font-family:Helvetica;fill:#000000"
          id="text513"
          v:langID="1033"
          class="st2"
@@ -454,7 +454,7 @@
          width="31.5"
          y="780.75"
          x="0" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7.99996805px;font-family:Helvetica;fill:#000000"
          id="text522"
          v:langID="1033"
          class="st2"
@@ -480,7 +480,7 @@
          width="31.5"
          y="780.75"
          x="0" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7.99996805px;font-family:Helvetica;fill:#000000"
          id="text531"
          v:langID="1033"
          class="st2"
@@ -506,7 +506,7 @@
          width="54"
          y="769.5"
          x="0" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7.99996805px;font-family:Helvetica;fill:#000000"
          id="text540"
          v:langID="1033"
          class="st2"
@@ -532,7 +532,7 @@
          width="54"
          y="769.5"
          x="0" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7.99996805px;font-family:Helvetica;fill:#000000"
          id="text549"
          v:langID="1033"
          class="st2"
@@ -558,7 +558,7 @@
          width="54"
          y="769.5"
          x="0" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7.99996805px;font-family:Helvetica;fill:#000000"
          id="text558"
          v:langID="1033"
          class="st2"
@@ -590,7 +590,7 @@
          y="778.20001"
          x="27.6348"
          v:rectContext="textBkgnd" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7px;font-family:Helvetica;fill:#000000"
          id="text569"
          v:langID="1033"
          class="st2"
@@ -664,7 +664,7 @@
          width="36.5625"
          y="780.75"
          x="0" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7.99996805px;font-family:Helvetica;fill:#000000"
          id="text586"
          v:langID="1033"
          class="st2"
@@ -738,7 +738,7 @@
          width="31.5"
          y="774"
          x="0" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7.99996805px;font-family:Helvetica;fill:#000000"
          id="text603"
          v:langID="1033"
          class="st2"
@@ -812,7 +812,7 @@
          width="36.5625"
          y="780.75"
          x="0" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7.99996805px;font-family:Helvetica;fill:#000000"
          id="text620"
          v:langID="1033"
          class="st2"
@@ -886,7 +886,7 @@
          width="72"
          y="769.5"
          x="0" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7.99996805px;font-family:Helvetica;fill:#000000"
          id="text639"
          v:langID="1033"
          class="st2"
@@ -979,7 +979,7 @@
            width="51.75"
            y="765"
            x="0" /><text
-           style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+           style="font-size:7.99996805px;font-family:Helvetica;fill:#000000"
            id="text663"
            v:langID="1033"
            class="st2"
@@ -1021,7 +1021,7 @@
          y="778.20001"
          x="19.207001"
          v:rectContext="textBkgnd" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7px;font-family:Helvetica;fill:#000000"
          id="text680"
          v:langID="1033"
          class="st2"
@@ -1053,7 +1053,7 @@
          y="778.20001"
          x="-39.498001"
          v:rectContext="textBkgnd" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7px;font-family:Helvetica;fill:#000000"
          id="text691"
          v:langID="1033"
          class="st2"
@@ -1097,7 +1097,7 @@
          y="796.20001"
          x="32.174099"
          v:rectContext="textBkgnd" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7px;font-family:Helvetica;fill:#000000"
          id="text707"
          v:langID="1033"
          class="st2"
@@ -1129,7 +1129,7 @@
          y="778.20001"
          x="6.1057501"
          v:rectContext="textBkgnd" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7px;font-family:Helvetica;fill:#000000"
          id="text718"
          v:langID="1033"
          class="st2"
@@ -1178,7 +1178,7 @@
          y="787.20001"
          x="12.7032"
          v:rectContext="textBkgnd" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7px;font-family:Helvetica;fill:#000000"
          id="text739"
          v:langID="1033"
          class="st2"
@@ -1212,7 +1212,7 @@
          y="781.57501"
          x="4.01578"
          v:rectContext="textBkgnd" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7px;font-family:Helvetica;fill:#000000"
          id="text750"
          v:langID="1033"
          class="st2"
@@ -1243,7 +1243,7 @@
          y="787.20001"
          x="40.0784"
          v:rectContext="textBkgnd" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7px;font-family:Helvetica;fill:#000000"
          id="text761"
          v:langID="1033"
          class="st2"

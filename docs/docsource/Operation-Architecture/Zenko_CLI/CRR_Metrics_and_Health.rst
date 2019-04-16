@@ -320,6 +320,4 @@ Throughput Request:
       }
     }
 
-
-
 .. _`CRR Pause and Resume`: CRR_Pause_&_Resume.html

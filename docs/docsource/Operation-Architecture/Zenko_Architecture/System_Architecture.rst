@@ -7,8 +7,9 @@ Basics
 Zenko provides a layer that mediates between a user or configured
 storage frontend and one or several storage backends.
 
-|image0|
-
+.. image:: ../Resources/Images/Zenko_hi-level.*
+   :align: center
+   
 Zenko may use a transient source, which enables it to write once to a
 master (local) storage cloud, then replicate the stored data to other
 clouds without incurring egress fees from the primary storage cloud.
@@ -24,8 +25,9 @@ Zenko Services Stack
 
 The following diagram summarizes the Zenko cloud architecture:
 
-|image1|
-
+.. image:: ../Resources/Images/Zenko_arch_NoNFS.*
+   :align: center
+ 
 The Zenko instance depicted above presents an idealized representation
 of Zenko’s structure. Several complexities are elided for clarity.
 
@@ -86,39 +88,29 @@ that follow.
 Zenko Cluster Topology
 ----------------------
 
-To operate reliably, Zenko must operate on a cluster of at least three
-physical or virtual servers running CentOS 7.4 and either have access to
-a virtual Kubernetes instance (EKM, GKM, or AKM) or to an instance of
-MetalK8s installed and running on each server.
+To operate with high availability, Zenko must operate on a cluster of at 
+least three physical or virtual servers running CentOS 7.4 and either have
+access to a virtual Kubernetes instance (EKM, GKM, or AKM) or to an instance 
+of MetalK8s installed and running on each server.
 
-Zenko is highly available. Load balancing, failover, and service
-management are handled dynamically in real time by Kubernetes. This
-dramatically improves several aspects of service management, creating a
-fast, robust, self-healing, flexible, scalable system. From the user’s
-perspective, Zenko is functionally a single instance that obscures the
-services and servers behind it.
+When run in a cluster configuration, Zenko is highly available. Load
+balancing, failover, and service management are handled dynamically in
+real time by Kubernetes. This dramatically improves several aspects of
+service management, creating a fast, robust, self-healing, flexible,
+scalable system. From the user’s perspective, Zenko is functionally a
+single instance that obscures the services and servers behind it.
 
-|image2|
+.. image:: ../Resources/Images/Zenko_cluster_NoNFS.*
+   :align: center
 
-The minimum test configuration is a cluster of three servers, as
-depicted above. Five servers is the recommended minimum service
-deployment. In actual practice, each server can dynamically deploy up to
-ten CloudServer instances, making for a default maximum of 50
-CloudServer instances, plus one master. Kubernetes sets the current
+A basic test configuration—a cluster of three servers—is depicted 
+above. Five servers is the recommended minimum service deployment for
+high availability. In actual practice, each server can dynamically 
+deploy up to ten CloudServer instances, making for a default maximum of 
+50 CloudServer instances, plus one master. Kubernetes sets the current
 upper boundary, defined by the number of pods (including service
-pods) that can be run, at 100 pods. The Zenko instance that manages all
+pods) that can be run, at 100 pods. The Zenko instance that manages all
 these CloudServers spans all deployed and functioning servers, managing
-a common name space of data and associated metadata, with Kubernetes
+a common namespace of data and associated metadata, with Kubernetes
 managing individual servers, spinning services up and down in response
 to emergent conditions.
-
-
-
-.. |image0| image:: ../Resources/Images/Zenko_hi-level.svg
-   :class: SeventyFivePercent
-
-.. |image1| image:: ../Resources/Images/Zenko_arch_NoNFS.svg
-   :class: SeventyFivePercent
-
-.. |image2| image:: ../Resources/Images/Zenko_arch_NoNFS.svg
-   :class: SeventyFivePercent
