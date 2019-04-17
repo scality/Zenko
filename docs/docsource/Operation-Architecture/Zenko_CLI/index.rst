@@ -12,11 +12,12 @@ the following features:
 .. toctree::
    :maxdepth: 2
 
-   CRR Metrics and Healthcheck <CRR_Metrics_and_Health>
-   CRR Retry <CRR_Retry>
-   CRR Pause and Resume <CRR_Pause_&_Resume>
-   CRR Statistics <CRR_statistics>
-   Object Lifecycle Management <Object_Lifecycle_Management>
+   CRR Metrics and Healthcheck<CRR_Metrics_and_Health>
+   CRR Retry<CRR_Retry>
+   CRR Pause and Resume<CRR_Pause_&_Resume>
+   CRR Statistics<CRR_statistics>
+   Object Lifecycle Management<Object_Lifecycle_Management>
+   Monitoring NFS/SOFS Ingestion<Monitoring_NFS-SOFS_Ingestion>
 
 Accessing Zenko from the command line requires the following setup tasks.
 
