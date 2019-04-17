@@ -2,11 +2,11 @@ ingress:
   enabled: true
 
 maintenance:
-  enabled: true
+  enabled: false
   accessKey: HEYIMAACCESSKEY
   secretKey: loOkAtMEImASecRetKEy123=
   debug:
-    enabled: true
+    enabled: false
   accessKey: HEYIMAACCESSKEY
   secretKey: loOkAtMEImASecRetKEy123=
 
