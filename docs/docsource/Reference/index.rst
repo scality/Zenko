@@ -1,3 +1,5 @@
+.. _Reference:
+
 Reference Guide
 ===============
 

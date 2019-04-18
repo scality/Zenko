@@ -99,3 +99,44 @@ for more examples and explanations on lifecycle rules.
 
 Once the lifecycle rules on the bucket are set, the rules apply to all
 objects in the specified bucket.
+
+.. _Lifecycle Queries:
+
+Querying Lifecycle Events
+-------------------------
+
+You can access the storage location of transitioned object data by
+viewing the object's metadata, for example by making a HEAD request.
+
+Querying the CloudServer requires an active kubectl session with the
+Zenko controller and S3 API functionality configured as described in
+:ref:`S3 API config`. Once this is configured, use the head-object command
+as described in
+https://docs.aws.amazon.com/cli/latest/reference/s3api/head-object.html.
+
+For example:
+
+.. code::
+   
+   $ aws s3api head-object --bucket <bucket-name> --key <key-name> --endpoint <endpoint-url>
+
+returns:
+
+.. code::
+
+   {
+      "AcceptRanges": "bytes",
+      "ContentType": "application/octet-stream",
+      "LastModified": "Tue, 16 Apr 2019 22:12:33 GMT",
+      "ContentLength": 1,
+      "ETag": "\"e358efa489f58062f10dd7316b65649e\"",
+      "StorageClass": "aws-storage-location",
+      "Metadata": {}
+   }
+
+The returned information describes the <key-name> object in the <bucket-name>
+bucket. The StorageClass information indicates the object has transitioned to
+a storage location named "aws-storage-location", as defined by the Zenko user.
+
+After an expiration event, the object is deleted, and no metadata can be
+queried. The object metadata is not found. 
