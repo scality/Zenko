@@ -36,12 +36,12 @@ spec:
               value: {{ .Values.logging.level }}
             - name: COLLECT_DEFAULT_METRICS_INTERVAL_MS
               value: {{ quote .Values.monitoring.collectDefaultMetricsIntervalMs }}
+            - name: KAFKA_BACKLOG_METRICS_ZKPATH
+              value: "{{ .Values.kafka.backlog_metrics.path }}"
+            - name: KAFKA_BACKLOG_METRICS_INTERVALS
+              value: "{{ .Values.kafka.backlog_metrics.interval }}"
             - name: EXTENSIONS_LIFECYCLE_ZOOKEEPER_PATH
               value: "{{ .Values.lifecycle.zookeeper.path }}"
-            - name: EXTENSIONS_LIFECYCLE_BACKLOG_METRICS_ZKPATH
-              value: "{{ .Values.lifecycle.zookeeper.backlog_metrics.path }}"
-            - name: EXTENSIONS_LIFECYCLE_BACKLOG_METRICS_INTERVALS
-              value: "{{ .Values.lifecycle.zookeeper.backlog_metrics.interval }}"
             - name: EXTENSIONS_LIFECYCLE_BUCKET_TASK_TOPIC
               value: backbeat-lifecycle-bucket-tasks
             - name: EXTENSIONS_LIFECYCLE_OBJECT_TASK_TOPIC
