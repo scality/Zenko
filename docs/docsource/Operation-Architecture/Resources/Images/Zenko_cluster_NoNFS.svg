@@ -29,22 +29,22 @@
 		.st3 {fill:#d8d8d8;stroke:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.25}
 		.st4 {fill:none;stroke:#000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.25}
 		.st5 {fill:none;stroke:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.25}
-		.st6 {fill:#000000;font-family:Calibri;font-size:0.75em}
+		.st6 {fill:#000000;font-family:Helvetica;font-size:0.75em}
 		.st7 {marker-end:url(#mrkr13-20);stroke:#000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.25}
 		.st8 {fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1;stroke-width:0.14792899408284}
-		.st9 {fill:#000000;font-family:Calibri;font-size:0.666664em}
+		.st9 {fill:#000000;font-family:Helvetica;font-size:0.666664em}
 		.st10 {font-size:1em}
-		.st11 {fill:#000000;font-family:Calibri;font-size:0.833336em}
+		.st11 {fill:#000000;font-family:Helvetica;font-size:0.833336em}
 		.st12 {marker-end:url(#mrkr13-132);marker-start:url(#mrkr13-130);stroke:#000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.25}
 		.st13 {fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1;stroke-width:0.090252707581227}
-		.st14 {fill:#000000;font-family:Calibri;font-size:1.00001em}
+		.st14 {fill:#000000;font-family:Helvetica;font-size:1.00001em}
 		.st15 {fill:#bfbfbf;stroke:none;stroke-linecap:butt;stroke-width:1}
 		.st16 {stroke:#ffffff;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.25}
 		.st17 {fill:#bfbfbf}
 		.st18 {fill:#ffffff;stroke:#ffffff;stroke-linecap:butt;stroke-width:0.1875}
-		.st19 {fill:#000000;font-family:Oswald SemiBold;font-size:0.666664em}
-		.st20 {fill:#000000;font-family:Oswald SemiBold;font-size:1.00001em}
-		.st21 {fill:#ffffff;font-family:Calibri;font-size:1.00001em}
+		.st19 {fill:#000000;font-family:Helvetica;font-size:0.666664em}
+		.st20 {fill:#000000;font-family:Helvetica;font-size:1.00001em}
+		.st21 {fill:#ffffff;font-family:Helvetica;font-size:1.00001em}
 		.st22 {fill:none;fill-rule:evenodd;font-size:12px;overflow:visible;stroke-linecap:square;stroke-miterlimit:3}
 	]]></style><defs
      id="Markers"><g
@@ -238,7 +238,7 @@
          width="81"
          y="781"
          x="0" /><text
-         style="font-size:9px;font-family:Calibri;fill:#000000"
+         style="font-size:9px;font-family:Helvetica;fill:#000000"
          id="text550"
          v:langID="1033"
          class="st6"
@@ -295,7 +295,7 @@
          width="45"
          y="769.5"
          x="0" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7.99996805px;font-family:Helvetica;fill:#000000"
          id="text576"
          v:langID="1033"
          class="st9"
@@ -340,7 +340,7 @@
          width="45"
          y="781"
          x="0" /><text
-         style="font-size:10.00003242px;font-family:Calibri;fill:#000000"
+         style="font-size:10.00003242px;font-family:Helvetica;fill:#000000"
          id="text590"
          v:langID="1033"
          class="st11"
@@ -368,7 +368,7 @@
          width="45"
          y="769.5"
          x="0" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7.99996805px;font-family:Helvetica;fill:#000000"
          id="text601"
          v:langID="1033"
          class="st9"
@@ -401,7 +401,7 @@
          width="45"
          y="769.5"
          x="0" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7.99996805px;font-family:Helvetica;fill:#000000"
          id="text612"
          v:langID="1033"
          class="st9"
@@ -446,7 +446,7 @@
          width="57.375"
          y="781"
          x="0" /><text
-         style="font-size:9px;font-family:Calibri;fill:#000000"
+         style="font-size:9px;font-family:Helvetica;fill:#000000"
          id="text626"
          v:langID="1033"
          class="st6"
@@ -515,7 +515,7 @@
          width="51.75"
          y="781"
          x="0" /><text
-         style="font-size:9px;font-family:Calibri;fill:#000000"
+         style="font-size:9px;font-family:Helvetica;fill:#000000"
          id="text655"
          v:langID="1033"
          class="st6"
@@ -572,7 +572,7 @@
          width="45"
          y="769.5"
          x="0" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7.99996805px;font-family:Helvetica;fill:#000000"
          id="text681"
          v:langID="1033"
          class="st9"
@@ -605,7 +605,7 @@
          width="45"
          y="769.5"
          x="0" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7.99996805px;font-family:Helvetica;fill:#000000"
          id="text692"
          v:langID="1033"
          class="st9"
@@ -638,7 +638,7 @@
          width="45"
          y="769.5"
          x="0" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7.99996805px;font-family:Helvetica;fill:#000000"
          id="text703"
          v:langID="1033"
          class="st9"
@@ -671,7 +671,7 @@
          width="45"
          y="769.5"
          x="0" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7.99996805px;font-family:Helvetica;fill:#000000"
          id="text714"
          v:langID="1033"
          class="st9"
@@ -704,7 +704,7 @@
          width="45"
          y="769.5"
          x="0" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7.99996805px;font-family:Helvetica;fill:#000000"
          id="text725"
          v:langID="1033"
          class="st9"
@@ -737,7 +737,7 @@
          width="45"
          y="769.5"
          x="0" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7.99996805px;font-family:Helvetica;fill:#000000"
          id="text736"
          v:langID="1033"
          class="st9"
@@ -784,7 +784,7 @@
          width="37.6875"
          y="781"
          x="0" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7.99996805px;font-family:Helvetica;fill:#000000"
          id="text750"
          v:langID="1033"
          class="st9"
@@ -812,7 +812,7 @@
          width="37.6875"
          y="781"
          x="0" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7.99996805px;font-family:Helvetica;fill:#000000"
          id="text759"
          v:langID="1033"
          class="st9"
@@ -838,7 +838,7 @@
          width="62.4375"
          y="769.5"
          x="0" /><text
-         style="font-size:10.00003242px;font-family:Calibri;fill:#000000"
+         style="font-size:10.00003242px;font-family:Helvetica;fill:#000000"
          id="text770"
          v:langID="1033"
          class="st11"
@@ -1023,7 +1023,7 @@
          width="55.9687"
          y="774"
          x="0" /><text
-         style="font-size:12.00012016px;font-family:Calibri;fill:#000000"
+         style="font-size:12.00012016px;font-family:Helvetica;fill:#000000"
          id="text808"
          v:langID="1033"
          class="st14"
@@ -1049,7 +1049,7 @@
          width="62.4375"
          y="774"
          x="0" /><text
-         style="font-size:12.00012016px;font-family:Calibri;fill:#000000"
+         style="font-size:12.00012016px;font-family:Helvetica;fill:#000000"
          id="text817"
          v:langID="1033"
          class="st14"
@@ -1156,7 +1156,7 @@
          width="51.75"
          y="776.25"
          x="0" /><text
-         style="font-size:7.99996805px;font-family:Calibri;fill:#000000"
+         style="font-size:7.99996805px;font-family:Helvetica;fill:#000000"
          id="text871"
          v:langID="1033"
          class="st9"
@@ -1208,7 +1208,7 @@
            width="27"
            y="781"
            x="0" /><text
-           style="font-size:7.99996805px;font-family:'Oswald SemiBold';fill:#000000"
+           style="font-size:7.99996805px;font-family:'Helvetica';fill:#000000"
            id="text895"
            v:langID="1033"
            class="st19"
@@ -1256,7 +1256,7 @@
          width="27"
          y="781"
          x="0" /><text
-         style="font-size:7.99996805px;font-family:'Oswald SemiBold';fill:#000000"
+         style="font-size:7.99996805px;font-family:'Helvetica';fill:#000000"
          id="text918"
          v:langID="1033"
          class="st19"
@@ -1304,7 +1304,7 @@
          width="27"
          y="781"
          x="0" /><text
-         style="font-size:7.99996805px;font-family:'Oswald SemiBold';fill:#000000"
+         style="font-size:7.99996805px;font-family:'Helvetica';fill:#000000"
          id="text940"
          v:langID="1033"
          class="st19"
@@ -1330,7 +1330,7 @@
          width="62.4375"
          y="774"
          x="0" /><text
-         style="font-size:12.00012016px;font-family:'Oswald SemiBold';fill:#000000"
+         style="font-size:12.00012016px;font-family:'Helvetica';fill:#000000"
          id="text949"
          v:langID="1033"
          class="st20"
@@ -1389,12 +1389,12 @@
            width="62.4375"
            y="774"
            x="0" /><text
-           style="font-size:12.00012016px;font-family:Calibri;fill:#ffffff"
+           style="font-size:11.5px;font-family:Helvetica;fill:#ffffff"
            id="text969"
            v:langID="1033"
            class="st21"
            y="786.59998"
-           x="19.65"><v:paragraph
+           x="19.5"><v:paragraph
    v:horizAlign="1" /><v:tabList />AWS</text>
 </g></g><g
        transform="translate(439.234,-461.25)"
