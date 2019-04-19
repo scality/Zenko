@@ -11,12 +11,12 @@ how file systems are sharded, indexed, and distributed in in MetalK8s,
 Scality’s free Kubernetes server.
 
 If you have deployed Zenko using a MetalK8s cluster, use the following
-URL to access the MetalK8s dashboard:
+URL to access the MetalK8s dashboard:
 
 `http://localhost:8001/api/v1/namespaces/kube-ops/services/cerebro:http/proxy/#/overview?host=Metal
 K8s <http://localhost:8001/api/v1/namespaces/kube-ops/services/cerebro:http/proxy/#/overview?host=MetalK8s>`__
 
-With a kubectl proxy running, use the following URL to access the
+With a kubectl proxy running, use the following URL to access the
 Cerebro dashboard:
 
 http://localhost:8001/api/v1/namespaces/kube-ops/services/cerebro:http/proxy/#/connect
@@ -24,15 +24,7 @@ http://localhost:8001/api/v1/namespaces/kube-ops/services/cerebro:http/proxy/#/c
 Cerebro ships with MetalK8s. If you elect to run other Kubernetes
 implementations, you will probably have access to other tools that do
 the same or similar work, but you may want to install Cerebro. It’s
-hosted at: \ https://github.com/lmenezes/cerebro.
-
-`Go back to Kibana`_
-
-`Go back to Cloud Management Services`_
-
-
-.. _`Go back to Kibana`: Kibana.html
-.. _`Go back to Cloud Management Services`: Cloud_Management_Services.html
+hosted at: \ https://github.com/lmenezes/cerebro.
 
 
 .. |image0| image:: ../Resources/Images/Orbit_Screencaps/Cerebro_dashboard.png

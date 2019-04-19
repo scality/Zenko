@@ -10,7 +10,7 @@ To access cloud management dashboards,
 #. Make sure the path to the cluster’s configuration file is exported to
    the environment. For a MetalK8s installation, open another
    command-line interface and export the path to the configuration file
-   with the following command: 
+   with the following command:
 
    ::
 
@@ -51,12 +51,14 @@ failure when accessing cloud dashboards.
 The dashboards to control, monitor, and adjust your Kubernetes cluster
 and Zenko instance are available when the following conditions are met:
 
--  The cluster is operating
--  The appropriate ports on the cluster are open
--  You have the correct credentials
+-  The cluster is operating.
+-  The appropriate ports on the cluster are open.
 -  Your local environment has access to the admin.conf file, which is
-   also stored on the cluster
--  There is an open kubectl proxy session
+   also stored on the cluster.
+-  Cluster ingress is configured correctly and identified accurately
+   on the local machine.
+-  There is an open kubectl proxy session.
+-  You have the correct credentials.
 
 Cluster Is Up
 ~~~~~~~~~~~~~
@@ -72,12 +74,11 @@ current status, enter:
 
     $ kubectl get pods
 
-If you want to find one particular pod, you can filter your results with
-grep. For example, to find backbeat-api status, enter:
+To find backbeat-api status, enter:
 
 ::
 
-    $ kubectl get pods | grep -i api
+    $ kubectl get pods -l app=backbeat-api
 
 The filtered result is:
 
@@ -97,7 +98,7 @@ Ports Are Open
 Make sure each node is configured with ports 6443, 80, and 443 open and
 accessible to incoming traffic from your local machine.
 
-KUBECONFIG Environment Variable is Correctly Set
+KUBECONFIG Environment Variable is Correctly Set
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you are in the ``make shell`` virtual environment from which you
@@ -111,22 +112,22 @@ To see whether this is set properly in your environment, enter
 
 ::
 
-    $ env | grep KUBE
+    $ env | grep KUBE
 
-If the KUBECONFIG environment variable is set, the response shows a path; for
+If the KUBECONFIG environment variable is set, the response shows a path; for
 example:
 
 ::
 
     KUBECONFIG=/home/username/metalk8s/admin.conf
 
-If KUBECONFIG is not set (that is, the ``env`` command shows no result for
+If KUBECONFIG is not set (that is, the ``env`` command shows no result for
 KUBECONFIG), you must export the path. Once you find the path to admin.conf,
 export it with:
 
 ::
 
-    $ export KUBECONFIG=/path/to/admin.conf
+    $ export KUBECONFIG=/path/to/admin.conf
 
 The admin.conf in the local client device must match the admin.conf file
 in the Kubernetes cluster. For MetalK8s, this is defined in the inventory at
@@ -137,6 +138,8 @@ Windows users may experience trouble if the admin.conf file is installed
 in a user’s personal directory. Windows may inject a space in the user
 name, which breaks the path. If you use a Windows machine, make sure
 admin.conf resides in a path that contains no spaces.
+
+.. _kubectl_proxy:
 
 Proxy Is On
 ~~~~~~~~~~~
@@ -162,8 +165,6 @@ cluster, make sure your browser is not presenting old credentials. Other
 Kubernetes engines may employ different authentication strategies. For
 any such problems, request help from the Kubernetes vendor or community
 you have chosen.
-
-
 
 
 .. _`Kubernetes Dashboard`: Kubernetes_Dashboard.html
