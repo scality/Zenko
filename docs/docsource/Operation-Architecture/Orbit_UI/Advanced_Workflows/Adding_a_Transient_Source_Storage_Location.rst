@@ -1,3 +1,5 @@
+.. _transient-source:
+
 Adding a Transient Source Storage Location
 ==========================================
 
@@ -5,10 +7,12 @@ Adding a transient source storage location is quite similar to adding
 any other storage location, but for a few particulars.
 
 A transient source location is a temporary buffer to which data is
-stored and from which data is replicated. Only Scality RING with sproxyd
-supports the transient source replication feature. Data written to the
-transient source location can be replicated to any cloud service
-supported by Zenko.
+stored and from which data is replicated. Scality RING with sproxyd is
+the only production-ready environment that supports transient source
+replication feature (the Zenko Local environment also supports this
+feature, but is suitable for testing purposes only). Data written to
+the transient source location can be replicated to any cloud service
+Zenko supports.
 
 To deploy a transient source storage location:
 
@@ -21,20 +25,25 @@ To deploy a transient source storage location:
 #. Enter the **Location Name** and from the **Location Type** drop-down
    list, select **Scality RING with Sproxyd Connector**.
 
-   |image1|
+   .. image:: ../../Resources/Images/Orbit_Screencaps/Add_New_Storage_Location_RING_sproxyd.png
+      :width: 50%
+      :align: center
 
-#. Enter the Location Details ( Bootstrap List, Proxy Path, and
+
+#. Enter the Location Details (Bootstrap List, Proxy Path, and
    Replication Factor for Small Objects). Click **Advanced Options**,
    raising the Advanced Options pane.
 
-   |image2|
+   .. image:: ../../Resources/Images/Orbit_Screencaps/Add_New_Storage_Location_RING_advanced_options.png
+      :width: 50%
+      :align: center
 
-#. To create a transient source you must check the **Delete objects
-   after successful replication** option.You can also set the **Limit
-   total size in this location to** parameter to a reasonable size that
-   conforms to the anticipated size of files, peak demand, and estimated
-   throughput of the slowest cloud to which you intend to replicate
-   data.
+#. To create a transient source, check the **Delete objects after
+   successful replication** option. You can also set the **Limit total
+   size in this location to** parameter to a reasonable size that
+   conforms to the anticipated size of files, peak demand, and
+   estimated throughput of the slowest cloud to which you intend to
+   replicate data.
 
 #. Click **Save**. The transient source location is established.
 
@@ -55,7 +64,3 @@ metadata in the S3 protocol.
 
 .. |image0| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_Storage_Locations.png
    :class: OneHundredPercent
-.. |image1| image:: ../../Resources/Images/Orbit_Screencaps/Add_New_Storage_Location_RING_sproxyd.png
-   :class: FiftyPercent
-.. |image2| image:: ../../Resources/Images/Orbit_Screencaps/Add_New_Storage_Location_RING_advanced_options.png
-   :class: FiftyPercent
