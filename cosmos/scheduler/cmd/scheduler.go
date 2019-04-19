@@ -53,17 +53,15 @@ func (s *Scheduler) configureIngestionSecret() error {
 	if err != nil {
 		return err
 	}
-	if secret != "" {
-		s.SecretName = secret
+	if secret["accessKey"] != nil {
 		log.Println("ingestion credentials secret found")
 		return nil
 	}
 	log.Println("ingestion secret not found")
-	secret, err = s.createIngestionSecret()
+	err = s.createIngestionSecret()
 	if err != nil {
 		return err
 	}
-	s.SecretName = secret
 	log.Println("ingestion secret created successfully")
 	return nil
 }
@@ -147,28 +145,26 @@ func (s *Scheduler) watchOverlayUpdates() (chan interface{}, error) {
 	return ch, nil
 }
 
-func (s *Scheduler) getIngestionSecret() (string, error) {
+func (s *Scheduler) getIngestionSecret() (map[string][]byte, error) {
 	secrets, err := s.KubeClientset.CoreV1().
-		Secrets(s.Namespace).
-		List(metav1.ListOptions{LabelSelector: "ingestionCredentials=true"})
+		Secrets(s.Namespace).Get(s.SecretName, metav1.GetOptions{})
 	if err != nil {
-		return "", nil
+		return nil, nil
 	}
-	if len(secrets.Items) > 0 {
-		return secrets.Items[0].Name, nil
+	if len(secrets.Data) > 0 {
+		return secrets.Data, nil
 	}
-	return "", nil
+	return nil, nil
 }
 
-func (s *Scheduler) createIngestionSecret() (string, error) {
+func (s *Scheduler) createIngestionSecret() error {
 	accessKey, secretKey, err := s.Pensieve.GetServiceAccountCredentials("md-ingestion")
 	if err != nil {
-		return "", err
+		return err
 	}
-	secret, err := s.KubeClientset.CoreV1().Secrets(s.Namespace).Create(&v1.Secret{
+	_, err = s.KubeClientset.CoreV1().Secrets(s.Namespace).Create(&v1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			// TODO: Make this name depend on the release name.
-			Name:      "cosmos-metadata-ingestion",
+			Name:      s.SecretName,
 			Namespace: s.Namespace,
 			Labels: map[string]string{
 				"ingestionCredentials": "true",
@@ -181,9 +177,9 @@ func (s *Scheduler) createIngestionSecret() (string, error) {
 		},
 	})
 	if err != nil {
-		return "", err
+		return err
 	}
-	return secret.Name, nil
+	return nil
 }
 
 func (s *Scheduler) getCosmosLocationBson() (bson.A, error) {

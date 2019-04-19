@@ -40,6 +40,8 @@ spec:
           {{- end }}
         - name: INGESTION_SCHEDULE
           value: "{{ .Values.cosmos.scheduler.schedule }}"
+        - name: INGESTION_SECRET_NAME
+          value: {{ .Release.Name }}-metadata-ingestion
         - name: CLOUDSERVER_ENDPOINT
           value: "http://{{ .Release.Name }}-cloudserver"
         - name: MONGODB_HOSTS

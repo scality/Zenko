@@ -40,6 +40,9 @@ func init() {
 
 	viper.SetDefault("ingestion_schedule", "* */12 * * *")
 	viper.BindEnv("ingestion_schedule")
+
+	viper.SetDefault("ingestion_secret_name", "cosmos-metadata-ingestion")
+	viper.BindEnv("ingestion_secret_name")
 }
 
 func main() {
@@ -77,6 +80,7 @@ func main() {
 		Namespace:         viper.GetString("namespace"),
 		Cloudserver:       viper.GetString("cloudserver_endpoint"),
 		StorageClass:      viper.GetString("storage_class"),
+		SecretName:        viper.GetString("ingestion_secret_name"),
 		IngestionSchedule: viper.GetString("ingestion_schedule"),
 		MongodbClient:     mongoClient,
 	}).Run()
