@@ -219,7 +219,7 @@ func (s *Scheduler) applyChanges(bucket *BucketTransaction) {
 		s.CreateCosmosFromLocation(location, bucket.FullDocument.Value.Name)
 	} else if bucket.OperationType == "replace" && bucket.FullDocument.Value.Deleted == true {
 		log.Println("deleting cosmos for bucket:", bucket.FullDocument.Value.Name)
-		err := s.KubeAlpha.Cosmoses(s.Namespace).Delete(bucket.FullDocument.Value.LocationConstraint+"-"+bucket.FullDocument.Value.Name, &metav1.DeleteOptions{})
+		err := s.KubeAlpha.Cosmoses(s.Namespace).Delete(bucket.FullDocument.Value.LocationConstraint, &metav1.DeleteOptions{})
 		if err != nil {
 			log.Println(err)
 			return

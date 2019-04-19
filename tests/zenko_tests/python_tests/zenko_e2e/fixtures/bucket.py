@@ -229,7 +229,7 @@ def ceph_loc_bucket(zenko_bucket):
 def nfs_loc_bucket(zenko_resource):
     nfs_ingest = conf.NFS_BACKEND + ':ingest'
     loc_config = {'LocationConstraint': nfs_ingest}
-    bucket = create_bucket(zenko_resource, conf.NFS_BACKEND)
+    bucket = create_bucket(zenko_resource, conf.NFS_TARGET_BUCKET)
     bucket.create(
         CreateBucketConfiguration=loc_config
     )

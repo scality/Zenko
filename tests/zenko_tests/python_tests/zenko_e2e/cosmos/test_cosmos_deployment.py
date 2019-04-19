@@ -18,7 +18,7 @@ MD5_HASHES = {
 }
 
 
-INGESTION_SUFFIX = '-cosmos-rclone-initial-ingest'
+INGESTION_JOB = '{}-cosmos-rclone-initial-ingest'
 
 
 @pytest.fixture
@@ -34,7 +34,7 @@ def kube_batch(kube):
 @pytest.mark.conformance
 def test_cosmos_nfs_ingestion(nfs_loc, nfs_loc_bucket, kube_batch, timeout=60):
     util.mark_test('SOFS-NFS INGESTION')
-    job_name = nfs_loc + INGESTION_SUFFIX
+    job_name = INGESTION_JOB.format(nfs_loc)
     _timestamp = time.time()
 
     while time.time() - _timestamp < timeout:
