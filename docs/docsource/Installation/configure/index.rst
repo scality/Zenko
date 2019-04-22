@@ -8,6 +8,7 @@ Optional configurations are available once Zenko has been installed.
 .. toctree::
    :maxdepth: 2 
 
+   configuring_zenko
    adding_CIFS_storage
    adding_NFS_storage
-   configure_ingress
+   configuring_ingress

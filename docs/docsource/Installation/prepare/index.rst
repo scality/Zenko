@@ -27,5 +27,5 @@ You will manage and reconfigure Zenko using Helm commands.
    sizing
    configure_logical_volumes
    proxies
-
+   preconfiguring_zenko
 

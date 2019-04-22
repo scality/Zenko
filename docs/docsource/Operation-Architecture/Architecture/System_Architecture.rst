@@ -16,9 +16,9 @@ clouds without incurring egress fees from the primary storage cloud.
 
 Zenko uses agile application frameworks such as Kubernetes for
 orchestration and Prometheus for monitoring. Zenko is deployed using
-MetalK8s either on-premises or in the cloud, or with a cloud Kubernetes
-framework (such as GKE, AKS, EKS, or Kops).
-
+Kubernetes either on-premises or remotely, or using a cloud Kubernetes
+framework (such as GKE, AKS, EKS, or Kops). Scality supports MetalK8s
+as the "native" Kubernetes for Zenko installations. 
 
 Zenko Services Stack
 --------------------
@@ -114,3 +114,4 @@ these CloudServers spans all deployed and functioning servers, managing
 a common namespace of data and associated metadata, with Kubernetes
 managing individual servers, spinning services up and down in response
 to emergent conditions.
+
