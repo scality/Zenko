@@ -7,4 +7,4 @@ Installation Guide
    prepare/index
    install/index
    configure/index
-   upgrade/upgrading_zenko
+   upgrade/upgrade_zenko

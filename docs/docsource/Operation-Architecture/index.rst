@@ -15,9 +15,9 @@ buckets—to other supported clouds, such as Google Cloud Platform
 .. toctree::
    :maxdepth: 2
 
-   About Zenko<Introduction/About_Zenko>
-   Architecture<Zenko_Architecture/Architecture>
+   About Zenko<Introduction/index>
+   Architecture<Architecture/index>
    Services<Services/Services>
-   Using Orbit<Orbit_UI/Using_Orbit>
+   Using Orbit<Orbit_UI/index>
    Cloud Management Services<Dashboards/Cloud_Management_Services>
    Zenko from the Command Line<Zenko_CLI/index>

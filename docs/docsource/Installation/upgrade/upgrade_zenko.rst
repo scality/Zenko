@@ -1,5 +1,5 @@
-Upgrading Zenko
-===============
+Upgrade
+=======
 
 Once a Zenko instance is up and running, you can upgrade it with a
 simple Helm command. 
@@ -42,12 +42,27 @@ Upgrading
 
 To upgrade Zenko: 
 
+#. Back up your existing Zenko directory.
+
+   ::
+
+   $ cp -r Zenko Zenko-backup
+
 #. Download the latest stable version (.zip or .tar.gz) from
    https://github.com/scality/Zenko/releases
 
 #. Unpack the .zip or .tar.gz file and navigate to Zenko/kubernetes/. 
 
-#. Enter this Helm commamnd, inserting your Zenko server's release name
+#. Copy Zenko/kubernetes/zenko/options.yaml from your existing Zenko 
+   source directory to the same directory in the new Zenko source.  
+
+#. If you have modified the node count from the default value of 3,
+   go to Zenko/kubernetes/zenko/values.yaml in the new Zenko source and
+   edit the nodeCount value to match the existing nodeCount value. 
+
+#. From the kubernetes/ directory of the new Zenko source, enter this
+   Helm command, inserting your Zenko server's name:
+
    :: 
 
       $ helm upgrade {{zenko-server-name}} ./zenko

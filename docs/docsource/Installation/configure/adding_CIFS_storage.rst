@@ -1,3 +1,5 @@
+.. _adding_CIFS_storage:
+
 Adding CIFS/SMB Storage
 =======================
 

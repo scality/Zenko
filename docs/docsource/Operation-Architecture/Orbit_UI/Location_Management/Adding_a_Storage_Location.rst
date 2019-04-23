@@ -11,31 +11,37 @@ Storage Locations dialog:
 
    |image1|  
 
-#.
-
    a. Enter a location name in the **Location Name** field using
       lowercase letters, numbers, and dashes.
 
       .. note::
 
-       Capital letters, spaces, and punctuation and diacritical
-       marks will result in an error message.
+         Capital letters, spaces, and punctuation or diacritical
+         marks will result in an error message.
 
    b. Select a location type from the **Location Type** pull-down menu.
-      You can choose Amazon S3, DigitalOcean Spaces, Google Cloud
-      Storage, Microsoft Azure Blob Storage, NFS Mount, Scality RING
-      with S3 Connector, Scality RING with sproxyd Connector, Wasabi, 
-      Ceph RADOS Gateway, or a Zenko Local Filesystem.
+      You can choose:
+
+      * Amazon S3
+      * DigitalOcean Spaces
+      * Wasabi
+      * Google Cloud Storage
+      * Microsoft Azure Blob Storage
+      * NFS Mount
+      * Scality RING with S3 Connector
+      * Scality RING with sproxyd Connector
+      * Ceph RADOS Gateway
+      * A Zenko local filesystem.
 
 #. Each storage location type has its own requirements. No security is
-   required for a local file system, but all clouds require
+   required for a local file system, but all public clouds require
    authentication information.
 
   .. note::
 
-    For release GA 1.0, Zenko has been capped at 1024 objects. Upward revision of
-    this cap is planned for subsequent product revisions.
-
+    Google Cloud Platform's unique architecture demands Zenko apply a
+    1024-part cap. For all other backends, Zenko caps the number of
+    parts at 10,000.
 
 
 .. |image0| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_Storage_Locations.png

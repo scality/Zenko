@@ -1,11 +1,20 @@
 Adding NFS Storage Locations with Cosmos
 ========================================
 
-The Cosmos storage backend for Cloudserver enables you to manage data
-stored on a filesystem and on other storage platforms.
+Zenko uses the Cosmos service to provide NFS protocol access. As of version
+1.1, Zenko supports NFS access with Cosmos as a preconfigured feature. For most
+users, the default Cosmos installation offers sufficient configurability through
+the Orbit user interface. 
+
+Some users may require greater configurability of the Cosmos NFS service 
+and will need to configure Cosmos manually. These instructions are offered
+for such users. 
 
 Cosmos bootstraps onto a `Kubernetes <http://kubernetes.io>`__
-cluster using the `Helm <https://helm.sh>`__ package manager.
+cluster using the `Helm <https://helm.sh>`__ package manager. Source files
+for custom Cosmos installations are located in the Zenko/kubernetes/cosmos
+directory. The primary method for customization is to write or change 
+parameters in the values.yaml chart located there. 
 
 Prerequisites
 -------------
