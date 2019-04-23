@@ -1,6 +1,13 @@
 Adding NFS Storage Locations with Cosmos
 ========================================
 
+The Cosmos storage backend for CloudServer enables you to manage data
+stored on a filesystem and on other storage platforms. Cosmos is a
+microservice that translates between CloudServer and the NFS and
+CIFS/SMB protocols. When CloudServer receives a request for NFS or
+CIFS/SMB service, it sends an API request to Cosmos, which translates
+the request into the desired output.
+
 Zenko uses the Cosmos service to provide NFS protocol access. As of version
 1.1, Zenko supports NFS access with Cosmos as a preconfigured feature. For most
 users, the default Cosmos installation offers sufficient configurability through
@@ -20,10 +27,10 @@ Prerequisites
 -------------
 
 Before installing this chart, you must have either a Zenko or
-standalone Cloudserver instance running.
+standalone CloudServer instance running under Kubernetes.
 
-Installing the Chart
---------------------
+Deploy Cosmos
+-------------
 
 To install the chart with the release name “my-release”:
 
@@ -39,7 +46,7 @@ parameters that can be configured during installation.
 
 
 Parameters
-----------
+~~~~~~~~~~
 
 The following table lists the Cosmos chart’s configurable parameters
 and their default values.
@@ -47,78 +54,78 @@ and their default values.
 .. tabularcolumns:: X{0.32\textwidth}X{0.32\textwidth}X{0.32\textwidth}
 .. table::
 
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | Parameter                             | Description                           | Default                      |
-   +=======================================+=======================================+==============================+
-   | ``pfsd.name``                         | Name of the pfsd component            | ``pfsd``                     |
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | ``pfsd.replicaCount``                 | Number of pfsd replicas               | ``1``                        |
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | ``pfsd.image.repository``             | pfsd image repository                 | ``zenko/pfsd``               |
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | ``pfsd.image.tag``                    | pfsd image tag                        | ``0.1``                      |
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | ``pfsd.image.pullPolicy``             | pfsd image pull policy                | ``IfNotPresent``             |
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | ``pfsd.service.type``                 | pfsd service type                     | ``ClusterIP``                |
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | ``pfsd.service.port``                 | pfsd service port                     | ``80``                       |
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | ``pfsd.resources``                    | pfsd resource requests and limits     | ``{}``                       |
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | ``pfsd.nodeSelector``                 | Node labels for pfsd pod assignment   | ``{}``                       |
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | ``pfsd.tolerations``                  | Node taints to tolerate               | ``[]``                       |
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | ``pfsd.affinity``                     | pfsd pod affinity                     | ``{}``                       |
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | ``rclone.name``                       | Name of the rclone component          | ``rclone``                   |
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | ``rclone.image.repository``           | rclone image repository               | ``zenko/rclone``             |
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | ``rclone.image.tag``                  | rclone image tag                      | ``0.2``                      |
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | ``rclone.image.pullPolicy``           | rclone image pull policy              | ``IfNotPresent``             |
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | ``rclone.initialIngestion``           | launches a post-install ingestion job | ``true``                     |
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | ``rclone.schedule``                   | rclone CronJob schedule               | ``0 */12 * * *``             |
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | ``rclone.successfulJobsHistory``      | rclone CronJob successful job history | ``1``                        |
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | ``rclone.destination.existingSecret`` | Specify secret to use for credentials | ``{}``                       |
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | ``rclone.destination.accessKey``      | Remote backend access key             | ``my-access-key``            |
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | ``rclone.destination.secretKey``      | Remote backend secret key             | ``my-secret-key``            |
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | ``rclone.destination.endpoint``       | Remote endpoint                       | ``http://cloudserver.local`` |
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | ``rclone.destination.region``         | Remote region                         | ``us-east-1``                |
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | ``rclone.options``                    | rclone cli options as key:value pair  | ``see values.yaml``          |
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | ``rclone.resources``                  | rclone resource requests and limits   | ``{}``                       |
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | ``rclone.nodeSelector``               | Node labels for rclone pod assignment | ``{}``                       |
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | ``rclone.tolerations``                | Node taints to tolerate               | ``[]``                       |
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | ``rclone.affinity``                   | rclone pod affinity                   | ``{}``                       |
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | ``persistentVolume.enabled``          | If true, enable persistentVolume      | ``false``                    |
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | ``persistentVolume.volumeConfig``     | Specify volume type and mount options | ``{}``                       |
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | ``persistentVolume.accessModes``      | Persistent volume access modes        | ``ReadWriteMany``            |
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | ``persistentVolume.existingClaim``    | Name of existing claim                | ``""``                       |
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | ``persistentVolume.size``             | Persistent volume size                | ``1Gi``                      |
-   +---------------------------------------+---------------------------------------+------------------------------+
-   | ``persistentVolume.readOnly``         | If true, persistent volume will be    | ``false``                    |
-   |                                       | read-only                             |                              |
-   +---------------------------------------+---------------------------------------+------------------------------+
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | Parameter                         | Description                           | Default                      |
+   +===================================+=======================================+==============================+
+   | pfsd.name                         | Name of the pfsd component            | ``pfsd``                     |
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | pfsd.replicaCount                 | Number of pfsd replicas               | ``1``                        |
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | pfsd.image.repository             | pfsd image repository                 | ``zenko/pfsd``               |
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | pfsd.image.tag                    | pfsd image tag                        | ``0.1``                      |
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | pfsd.image.pullPolicy             | pfsd image pull policy                | ``IfNotPresent``             |
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | pfsd.service.type                 | pfsd service type                     | ``ClusterIP``                |
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | pfsd.service.port                 | pfsd service port                     | ``80``                       |
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | pfsd.resources                    | pfsd resource requests and limits     | ``{}``                       |
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | pfsd.nodeSelector                 | Node labels for pfsd pod assignment   | ``{}``                       |
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | pfsd.tolerations                  | Node taints to tolerate               | ``[]``                       |
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | pfsd.affinity                     | pfsd pod affinity                     | ``{}``                       |
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | rclone.name                       | Name of the rclone component          | ``rclone``                   |
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | rclone.image.repository           | rclone image repository               | ``zenko/rclone``             |
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | rclone.image.tag                  | rclone image tag                      | ``0.2``                      |
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | rclone.image.pullPolicy           | rclone image pull policy              | ``IfNotPresent``             |
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | rclone.initialIngestion           | launches a post-install ingestion job | ``true``                     |
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | rclone.schedule                   | rclone CronJob schedule               | ``0 */12 * * *``             |
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | rclone.successfulJobsHistory      | rclone CronJob successful job history | ``1``                        |
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | rclone.destination.existingSecret | Specify secret to use for credentials | ``{}``                       |
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | rclone.destination.accessKey      | Remote backend access key             | ``my-access-key``            |
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | rclone.destination.secretKey      | Remote backend secret key             | ``my-secret-key``            |
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | rclone.destination.endpoint       | Remote endpoint                       | ``http://cloudserver.local`` |
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | rclone.destination.region         | Remote region                         | ``us-east-1``                |
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | rclone.options                    | rclone cli options as key:value pair  | ``see values.yaml``          |
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | rclone.resources                  | rclone resource requests and limits   | ``{}``                       |
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | rclone.nodeSelector               | Node labels for rclone pod assignment | ``{}``                       |
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | rclone.tolerations                | Node taints to tolerate               | ``[]``                       |
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | rclone.affinity                   | rclone pod affinity                   | ``{}``                       |
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | persistentVolume.enabled          | If true, enable persistentVolume      | ``false``                    |
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | persistentVolume.volumeConfig     | Specify volume type and mount options | ``{}``                       |
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | persistentVolume.accessModes      | Persistent volume access modes        | ``ReadWriteMany``            |
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | persistentVolume.existingClaim    | Name of existing claim                | ``""``                       |
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | persistentVolume.size             | Persistent volume size                | ``1Gi``                      |
+   +-----------------------------------+---------------------------------------+------------------------------+
+   | persistentVolume.readOnly         | If true, persistent volume will be    | ``false``                    |
+   |                                   | read-only                             |                              |
+   +-----------------------------------+---------------------------------------+------------------------------+
 
 Specify each parameter using the ``--set key=value[,key=value]``
 argument to ``helm install``. For example,
@@ -134,25 +141,34 @@ parameters can be provided while installing the chart. For example,
 
     $ helm install . --name my-release -f values.yaml
 
-.. Tip:: Use the default values.yaml file from the Zenko
-	 source at ~/Zenko/kubernetes/cosmos/values.yaml
+.. Tip:: 
 
-Installing the Chart with a Zenko Instance
-------------------------------------------
+      Use the default values.yaml file from the Zenko
+      source at ~/Zenko/kubernetes/cosmos/values.yaml
+
+Configure Cosmos on a Zenko Instance
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  
 To configure Cosmos on a Zenko instance, perform the following steps
 from `Orbit <https://admin.zenko.io>`_.
  
-1. Create a storage location of type "NFS Mount".
+#. From `Orbit <https://admin.zenko.io/user>`__, create an NFS mount storage
+   location (see "Adding a Storage Location" in *Zenko Operation and
+   Architecture*.)
  
-2. Create a bucket within this location constraint.
- 
-3. Create a user for Cosmos.
- 
-4.  Use information from the previous steps to configure instance-
-    specific Cosmos values. Export the following variables with 
-    appropriate values entered:
- 
+#. Copy and save the location name.
+
+#. Create a bucket in this location.
+
+#. Copy and save the bucket name.
+
+#. Create a storage account for the bucket.
+
+#. Copy and save the storage account's access and secret keys.
+
+#. Open the Kubernetes master from the command line. Export the
+   following variables, entering information from the previous steps:
+
    .. code:: bash
 
       # Values from Orbit
@@ -168,7 +184,7 @@ from `Orbit <https://admin.zenko.io>`_.
       # Cloudserver endpoint (assuming it's running on the same namespace)
       export CLOUDSERVER_ENDPOINT="http://$(kubectl get svc -l app=cloudserver -o jsonpath='{.items[*].metadata.name}')"
  
-5. Create a Cosmos configuration file.
+#. Create a Cosmos configuration file.
  
    .. code:: bash
  
@@ -198,15 +214,15 @@ from `Orbit <https://admin.zenko.io>`_.
 
       $ helm install --name ${NFS_LOCATION} . -f custom-values.yaml
   
-   .. Important:: 
+   .. important:: 
       Your Cosmos installation’s release name *must* match your NFS mount 
       location name. Do not name the release or the location “cosmos”.
 
 
-Installing the Chart with a Standalone Cloudserver Instance
------------------------------------------------------------
+Configure Cosmos on a Standalone CloudServer
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. Note:: This example assumes the Cloudserver installation
+.. Note:: This example assumes the CloudServer installation
    release is named “cloudserver”. 
 
 1. Export common variables between both charts.
@@ -242,13 +258,13 @@ Installing the Chart with a Standalone Cloudserver Instance
                 port: 80
       EOF
 
-3. Upgrade the cloudserver chart using the ``locationValues.yaml`` file.
+#. Upgrade the CloudServer chart using the ``locationValues.yaml`` file.
 
    .. code:: bash
  
       $ helm upgrade cloudserver . -f locationValues.yaml
 
-4. Configure Cosmos values.
+#. Configure Cosmos values.
 
    .. code:: bash
 
@@ -273,28 +289,27 @@ Installing the Chart with a Standalone Cloudserver Instance
       persistentVolume:
       EOF
 
-5. Install Cosmos.
+#. Install Cosmos.
 
    .. code:: bash
 
       $ helm install --name ${COSMOS_RELEASE_NAME} . -f destinationValues.yaml
 
-Manually Trigger Sync
----------------------
+#. Manually trigger sync (optional)
 
-This chart deploys a Kubernetes Job object at install to immediately begin a 
-metadata sync. Additionally, a Kubernetes CronJob object is deployed, which 
-periodically launches rclone jobs to sync any additional metadata changes. The 
-job schedule can be configured with the ``rclone.schedule`` field in the 
-``values.yaml`` file. However, to manually trigger the job, run the following 
-command:
+   This chart deploys a Kubernetes Job object at installation to
+   begin a metadata sync immediately. Additionally, a Kubernetes
+   CronJob object is deployed, which periodically launches rclone jobs
+   to sync any additional metadata changes. The job schedule can be
+   configured with the rclone.schedule field in the values.yaml file. 
+   To trigger the job manually, run the following command:
 
-.. code:: bash
+   .. code:: bash
 
-    $ kubectl create job my-job-name --from=cronjob/my-release-cosmos-rclone
+      $ kubectl create job my-job-name --from=cronjob/my-release-cosmos-rclone
 
-Uninstalling the Chart
-----------------------
+Uninstalling a Deployment
+-------------------------
 
 To uninstall/delete the “my-release” deployment:
 
