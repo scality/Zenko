@@ -15,6 +15,9 @@ cosmos:
   storageClass: ci-zenko
   rbac:
     namespaced: true
+  scheduler:
+    image:
+      pullPolicy: Always
 
 s3-data:
   persistentVolume:

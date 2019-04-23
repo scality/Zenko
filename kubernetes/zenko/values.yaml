@@ -126,7 +126,7 @@ cosmos:
   scheduler:
     image:
       repository: zenko/cosmos-scheduler
-      tag: 0.1.0
+      tag: 0.1.1
       pullPolicy: IfNotPresent
 
     ## A namespace to watch can be specified otherwise will default to the
@@ -136,8 +136,8 @@ cosmos:
 
     resources:
       limits:
-        cpu: 500m
-        memory: 512Mi
+        cpu: 50m
+        memory: 64Mi
 
 zenko-nfs:
   enabled: false
