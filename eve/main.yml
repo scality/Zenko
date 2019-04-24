@@ -231,7 +231,7 @@ stages:
           INSTALL_TIMEOUT: "600"
     - ShellCommand:
         name: Hold oooooooon!
-        command: watch -t -n 5 echo 'paused!'
+        command: watch -t -n 60 echo 'paused!'
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
     - ShellCommand: *k8s_cleanup
