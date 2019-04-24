@@ -2,13 +2,14 @@ ingress:
   enabled: true
 
 maintenance:
+  # Both options are enabled to test templating
   enabled: true
-  accessKey: HEYIMAACCESSKEY
-  secretKey: loOkAtMEImASecRetKEy123=
+  retryFailed:
+    schedule: "* 23 * * *"
+  retryPending:
+    schedule: "* 23 * * *"
   debug:
     enabled: true
-  accessKey: HEYIMAACCESSKEY
-  secretKey: loOkAtMEImASecRetKEy123=
 
 s3-data:
   persistentVolume:
@@ -46,39 +47,6 @@ zenko-queue:
     enabled: false
   rbac:
     enabled: false
-  configurationOverrides:
-    "offsets.topic.replication.factor": 1 # - replication factor for the offsets topic
-    "auto.create.topics.enable": false    # - enable auto creation of topic on the server
-    "min.insync.replicas": 1              # - min number of replicas that must acknowledge a write
-    "message.max.bytes": "5000000"        # - the largest record batch size allowed
-  topics:
-    - name: backbeat-gc
-      partitions: 1
-      replicationFactor: 1
-    - name: backbeat-ingestion
-      partitions: 1
-      replicationFactor: 1
-    - name: backbeat-lifecycle-object-tasks
-      partitions: 1
-      replicationFactor: 1
-    - name: backbeat-lifecycle-bucket-tasks
-      partitions: 1
-      replicationFactor: 1
-    - name: backbeat-metrics
-      partitions: 1
-      replicationFactor: 1
-    - name: backbeat-replication
-      partitions: 1
-      replicationFactor: 1
-    - name: backbeat-replication-status
-      partitions: 1
-      replicationFactor: 1
-    - name: backbeat-replication-failed
-      partitions: 1
-      replicationFactor: 1
-    - name: backbeat-sanitycheck
-      partitions: 1
-      replicationFactor: 1
 
 zenko-quorum:
   persistence:
