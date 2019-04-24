@@ -219,6 +219,9 @@ stages:
     - ShellCommand: *k8s_setup
     - ShellCommand: *start-mocks
     - ShellCommand:
+        name: Hold oooooooon!
+        command: sleep 43200
+    - ShellCommand:
         name: Setup and run e2e
         command: make -e VERBOSE=1 test
         workdir: build/tests
