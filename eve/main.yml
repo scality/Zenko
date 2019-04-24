@@ -219,9 +219,6 @@ stages:
     - ShellCommand: *k8s_setup
     - ShellCommand: *start-mocks
     - ShellCommand:
-        name: Hold oooooooon!
-        command: watch -t -n 5 echo 'paused!'
-    - ShellCommand:
         name: Setup and run e2e
         command: make -e VERBOSE=1 test
         workdir: build/tests
@@ -232,6 +229,9 @@ stages:
           HELM_NAMESPACE: '%(prop:workername)s'
           TILLER_NAMESPACE: '%(prop:workername)s'
           INSTALL_TIMEOUT: "600"
+    - ShellCommand:
+        name: Hold oooooooon!
+        command: watch -t -n 5 echo 'paused!'
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
     - ShellCommand: *k8s_cleanup
