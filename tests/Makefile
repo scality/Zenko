@@ -210,7 +210,11 @@ test-flaky:
 	$(call run-tests)
 .PHONY: test-flaky
 
+ifeq ($(DOCS_ONLY),)
 test: | install-common install-zenko run-tests dump-logs
+else
+test:
+endif
 test-latest: | install-common install-latest-zenko run-tests test-flaky dump-logs
 .PHONY: test test-latest
 
