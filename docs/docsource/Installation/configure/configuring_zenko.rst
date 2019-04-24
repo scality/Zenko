@@ -58,8 +58,11 @@ Cosmos mirrors data based on a cron-like schedule. To modify this cron
 interval, descend into the YAML structure as follows:
 
    #. Review the cosmos block in kubernetes/zenko/cosmos/values.yaml.
-   #. Copy the salient hierarchy to options.yml::
-      
+
+   #. Copy the relevant hierarchy to options.yml:
+
+      .. code::   
+
          cosmos:
             scheduler:
 	       schedule: "* */12 * * *"
@@ -77,6 +80,7 @@ The one setting that cannot be modified in the options.yml file is nodeCount.
 To change the node count:
 
    #. Open Zenko/kubernetes/zenko/values.yaml
+
    #. Change the nodeCount value only. 
 
 Pushing Modifications to Zenko

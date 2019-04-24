@@ -3,12 +3,13 @@
 Monitoring NFS/SOFS Ingestion
 =============================
 
-Zenko 1.1 implements an NFS feature that relies on ingesting the
-namespace of the RING's Scale-Out File System (SOFS). For this
-release, the only available metrics reside in log files. SOFS metadata
-ingestion runs on a cron schedule, and users can make a query against
-Cosmos on the kubectl location to discover how and when scheduled NFS
-activities have been executed.
+Zenko 1.1 implements an NFS feature that ingests the NFS file
+hierarchy that the RING's Scale-Out File System (SOFS) projects. For
+this release, the only available metrics for NFS/SOFS ingestion
+operations reside in log files. SOFS metadata ingestion runs on a cron
+schedule, and users can make a query against Cosmos on the kubectl
+location to discover how and when scheduled NFS activities have been
+executed.
 
 To find the relevant Cosmos pods, enter:
 

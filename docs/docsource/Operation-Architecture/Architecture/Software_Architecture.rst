@@ -10,10 +10,10 @@ Zenko consists of several microservices. Among these are:
    CloudServer
    Backbeat
    Kubernetes
+   Cosmos
    ZooKeeper
    Kafka
    MongoDB
-   MetalK8s
    Prometheus
    Redis-Sentinel
    S3_Data
