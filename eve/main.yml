@@ -220,7 +220,7 @@ stages:
     - ShellCommand: *start-mocks
     - ShellCommand:
         name: Hold oooooooon!
-        command: sleep 43200
+        command: watch -t -n 5 echo 'paused!'
     - ShellCommand:
         name: Setup and run e2e
         command: make -e VERBOSE=1 test
