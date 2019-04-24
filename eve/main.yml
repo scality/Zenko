@@ -170,7 +170,7 @@ stages:
     - ShellCommand:
         name: Setup and run e2e
         command: |
-          sh ../eve/scripts/only-docs.sh
+          . ../eve/scripts/only-docs.sh
           make -e VERBOSE=1 test
         workdir: build/tests
         env:
