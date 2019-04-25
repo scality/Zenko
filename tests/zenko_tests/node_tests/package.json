@@ -17,10 +17,15 @@
     "azure-storage": "^2.10.0",
     "mocha": "^5.2.0",
     "mocha-tags": "^1.0.1",
+    "npm-run-all": "~4.0.2",
     "request": "^2.87.0"
   },
   "scripts": {
-    "test_crr": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --recursive backbeat/tests/crr",
+    "test_aws_crr": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 backbeat/tests/crr/awsBackend.js",
+    "test_azure_crr": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 backbeat/tests/crr/azureBackend.js",
+    "test_gcp_crr": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 backbeat/tests/crr/gcpBackend.js",
+    "test_one_to_many": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 backbeat/tests/crr/oneToMany.js",
+    "test_crr": "npm-run-all test_aws_crr test_azure_crr test_gcp_crr test_one_to_many",
     "test_api": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --recursive backbeat/tests/api",
     "test_retry": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --recursive backbeat/tests/retry",
     "test_crr_pause_resume": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --recursive backbeat/tests/crr-pause-resume",

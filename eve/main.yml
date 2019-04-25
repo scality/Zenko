@@ -190,8 +190,10 @@ stages:
         haltOnFailure: true
         stage_names:
         - build-doc
-        - online-zenko
         - test-cosmos
+        - python-tests
+        - node-tests-01
+        - node-tests-02
 
   build-doc:
     worker:
@@ -220,10 +222,22 @@ stages:
           - "html/index.html"
           - "latex/*.pdf"
 
-  online-zenko:
+  test-cosmos:
+    worker:
+      type: kube_pod
+      path: eve/workers/zenko.yaml
+    steps:
+      - Git: *git_pull
+      - ShellCommand:
+          name: Validate cosmos chart
+          command: helm template kubernetes/cosmos
+          workdir: build
+
+  online-zenko: &online-zenko
     worker: &kube_cluster
       type: kube_pod
       path: eve/workers/zenko.yaml
+      vars:
     steps:
     - Git: *git_pull
     - ShellCommand: *private_registry_login
@@ -231,7 +245,9 @@ stages:
     - ShellCommand: *start-mocks
     - ShellCommand:
         name: Setup and run e2e
-        command: make -e VERBOSE=1 test
+        command: |
+          . ../eve/scripts/only-docs.sh
+          make -e VERBOSE=1 test
         workdir: build/tests
         env:
           <<: [*mock_env, *secrets_env, *docker_env]
@@ -244,14 +260,9 @@ stages:
     - Upload: *upload_artifacts
     - ShellCommand: *k8s_cleanup
 
-  test-cosmos:
-    worker: *kube_cluster
-    steps:
-      - Git: *git_pull
-      - ShellCommand:
-          name: Validate cosmos chart
-          command: helm template kubernetes/cosmos
-          workdir: build
+  python-tests: *online-zenko
+  node-tests-01: *online-zenko
+  node-tests-02: *online-zenko
 
   test-latest-zenko:
     worker:

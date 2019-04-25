@@ -170,7 +170,7 @@ install-ceph:
 		--wait
 .PHONY: install-ceph
 
-install-zenko:
+install-zenko: | install-tiller
 ifndef NO_INSTALL
 	$(HELM) upgrade $(ZENKO_HELM_RELEASE) \
 		--namespace $(HELM_NAMESPACE) \
@@ -231,7 +231,7 @@ dump-logs: | artifacts
 	done;
 .PHONY: dump-logs
 
-clean-s3c: | build-tests
+clean-s3c:
 	$(V)$(KUBECTL) run zenko-cleanup \
 		--image $(E2E_IMAGE) \
 		--rm \
@@ -241,10 +241,12 @@ clean-s3c: | build-tests
 		$(shell ../eve/workers/ci_env.sh env) \
 		--command -- python3 cleans3c.py || (echo "Zenko has failed to cleanup s3c" ; kubectl get pods -L redis-role ; exit 1) >&2
 
-clean-cosmos: | build-tests
-	$(V)$(KUBECTL) delete cosmos $(NFS_BACKEND) \
+clean-cosmos:
+	$(V)$(KUBECTL) delete cosmos $(NFS_BACKEND)
 
-.PHONY: clean-s3c clean-cosmos
+clean: | clean-s3c clean-cosmos
+
+.PHONY: clean-s3c clean-cosmos clean
 
 run-tests: | build-tests
 	$(V)$(KUBECTL) run $(E2E_POD) \
@@ -287,8 +289,12 @@ test-flaky:
 	$(call run-tests)
 .PHONY: test-flaky
 
-test: | install-common install-zenko run-tests clean-s3c clean-cosmos dump-logs
-test-latest: | install-common install-latest-zenko run-tests test-flaky clean-s3c dump-logs
+ifeq ($(DOCS_ONLY),)
+test: | install-zenko install-common run-tests dump-logs
+else
+test:
+endif
+test-latest: | install-common install-latest-zenko run-tests test-flaky dump-logs
 .PHONY: test test-latest
 
 test-local:
