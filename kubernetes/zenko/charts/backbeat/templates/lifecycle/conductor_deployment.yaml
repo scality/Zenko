@@ -15,6 +15,8 @@ spec:
       labels:
         app: {{ template "backbeat.name" . }}-lifecycle
         release: {{ .Release.Name }}
+      annotations:
+{{ toYaml .Values.monitoring.annotations | indent 8 }}
     spec:
       containers:
         - name: conductor
@@ -32,6 +34,8 @@ spec:
               value: "{{- printf "%s-zenko-queue:9092" .Release.Name | trunc 63 | trimSuffix "-" -}}"
             - name: LOG_LEVEL
               value: {{ .Values.logging.level }}
+            - name: COLLECT_DEFAULT_METRICS_INTERVAL_MS
+              value: {{ quote .Values.monitoring.collectDefaultMetricsIntervalMs }}
             - name: EXTENSIONS_LIFECYCLE_ZOOKEEPER_PATH
               value: "{{ .Values.lifecycle.zookeeper.path }}"
             - name: EXTENSIONS_LIFECYCLE_BACKLOG_METRICS_ZKPATH

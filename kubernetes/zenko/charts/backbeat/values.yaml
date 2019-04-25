@@ -31,6 +31,13 @@ health:
   path:
     liveness: /_/health/readiness
 
+monitoring:
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "4042"
+    prometheus.io/path: "/_/monitoring/metrics"
+  collectDefaultMetricsIntervalMs: 10000
+
 api:
   replicaCount: 1
   service:

@@ -15,6 +15,8 @@ spec:
       labels:
         app: {{ template "backbeat.name" . }}-gc
         release: {{ .Release.Name }}
+      annotations:
+{{ toYaml .Values.monitoring.annotations | indent 8 }}
     spec:
       containers:
         - name: gc-consumer
@@ -38,6 +40,8 @@ spec:
               value: "80"
             - name: MONGODB_HOSTS
               value: "{{ template "backbeat.mongodb-hosts" . }}"
+            - name: COLLECT_DEFAULT_METRICS_INTERVAL_MS
+              value: {{ quote .Values.monitoring.collectDefaultMetricsIntervalMs }}
           livenessProbe:
             httpGet:
               path: {{ .Values.health.path.liveness}}

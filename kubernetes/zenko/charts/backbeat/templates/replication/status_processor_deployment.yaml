@@ -18,6 +18,8 @@ spec:
       labels:
         app: {{ template "backbeat.name" . }}-replication
         release: {{ .Release.Name }}
+      annotations:
+{{ toYaml .Values.monitoring.annotations | indent 8 }}
     spec:
       containers:
         - name: replication-status-processor
@@ -60,6 +62,8 @@ spec:
               value: "{{ .Values.redis.sentinel.name }}"
             - name: LOG_LEVEL
               value: {{ .Values.logging.level }}
+            - name: COLLECT_DEFAULT_METRICS_INTERVAL_MS
+              value: {{ quote .Values.monitoring.collectDefaultMetricsIntervalMs }}
           livenessProbe:
             httpGet:
               path: {{ .Values.health.path.liveness}}

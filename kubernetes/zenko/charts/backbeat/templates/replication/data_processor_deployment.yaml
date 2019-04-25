@@ -18,6 +18,8 @@ spec:
       labels:
         app: {{ template "backbeat.name" . }}-replication
         release: {{ .Release.Name }}
+      annotations:
+{{ toYaml .Values.monitoring.annotations | indent 8 }}
     spec:
       {{- if not .Values.global.orbit.enabled }}
       initContainers:
@@ -57,6 +59,8 @@ spec:
               value: {{ .Values.logging.level }}
             - name: UV_THREADPOOL_SIZE
               value: "64"
+            - name: COLLECT_DEFAULT_METRICS_INTERVAL_MS
+              value: {{ quote .Values.monitoring.collectDefaultMetricsIntervalMs }}
             - name: EXTENSIONS_REPLICATION_SOURCE_S3_HOST
               value: "{{- printf "%s-cloudserver" .Release.Name | trunc 63 | trimSuffix "-" -}}"
             - name: EXTENSIONS_REPLICATION_SOURCE_S3_PORT
