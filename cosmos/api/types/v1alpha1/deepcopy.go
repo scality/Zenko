@@ -11,10 +11,10 @@ func (in *Cosmos) DeepCopyInto(out *Cosmos) {
 		FullnameOverride: in.Spec.FullnameOverride,
 		Rclone: CosmosRcloneSpec{
 			Schedule: in.Spec.Rclone.Schedule,
-			Remote: CosmosRcloneRemoteSpec{
-				Endpoint: in.Spec.Rclone.Remote.Endpoint,
-				Region:   in.Spec.Rclone.Remote.Region,
-				Bucket:   in.Spec.Rclone.Remote.Bucket,
+			Destination: CosmosRcloneDestinationSpec{
+				Endpoint: in.Spec.Rclone.Destination.Endpoint,
+				Region:   in.Spec.Rclone.Destination.Region,
+				Bucket:   in.Spec.Rclone.Destination.Bucket,
 			},
 		},
 		PersistentVolume: CosmosPersistentVolumeSpec{
@@ -24,8 +24,8 @@ func (in *Cosmos) DeepCopyInto(out *Cosmos) {
 				NFS: CosmosNFSSpec{
 					Path:         in.Spec.PersistentVolume.VolumeConfig.NFS.Path,
 					Server:       in.Spec.PersistentVolume.VolumeConfig.NFS.Server,
-					MountOptions: in.Spec.PersistentVolume.VolumeConfig.NFS.MountOptions,
 				},
+				MountOptions: in.Spec.PersistentVolume.VolumeConfig.MountOptions,
 			},
 		},
 	}

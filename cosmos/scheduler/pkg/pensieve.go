@@ -209,27 +209,27 @@ func (pensieve *Helper) queryID(id string) *mongo.SingleResult {
 
 // NFSLocation represents a storage location of type NFS.s
 type NFSLocation struct {
-	Proto   string
-	Version string
 	IPAddr  string
 	Path    string
-	Options string
+	Options []string
 }
 
 // NewNFSLocation returns a *NFSLocation the corresponds to the given endpoint.
 // It assumes that the endpoint is properly formed.
+// Example given endpoint: "tcp+v3://10.10.4.15/ci?ro,async"
 func NewNFSLocation(endpoint string) *NFSLocation {
+	var options []string
+	options = append(options, "proto="+endpoint[:3],"nfsvers="+endpoint[5:6],)
 	ipStart := strings.Index(endpoint, "//") + 2
 	ipEnd := strings.Index(endpoint[ipStart:], "/") + len(endpoint[:ipStart])
-	optionsStart := strings.Index(endpoint, "?")
-	if optionsStart < 0 {
-		optionsStart = len(endpoint)
+	optionsStart := len(endpoint)
+	if strings.Contains(endpoint, "?") {
+	    optionsStart = strings.Index(endpoint, "?")
+		options = append(options, strings.SplitN(endpoint[optionsStart+1:], ",", strings.Index(endpoint, "?"))...)
 	}
 	return &NFSLocation{
-		Proto:   endpoint[:3],
-		Version: endpoint[4:6],
 		IPAddr:  endpoint[ipStart:ipEnd],
 		Path:    endpoint[ipEnd:optionsStart],
-		Options: endpoint[optionsStart:],
+		Options: options,
 	}
 }

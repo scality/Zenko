@@ -239,7 +239,7 @@ func (s *Scheduler) CreateCosmosFromLocation(location *pensieve.Location, bucket
 			FullnameOverride: location.Name,
 			Rclone: v1alpha1.CosmosRcloneSpec{
 				Schedule: s.IngestionSchedule,
-				Remote: v1alpha1.CosmosRcloneRemoteSpec{
+				Destination: v1alpha1.CosmosRcloneDestinationSpec{
 					Endpoint:       s.Cloudserver,
 					Region:         location.Name,
 					Bucket:         bucket,
@@ -253,8 +253,8 @@ func (s *Scheduler) CreateCosmosFromLocation(location *pensieve.Location, bucket
 					NFS: v1alpha1.CosmosNFSSpec{
 						Path:         nfs.Path,
 						Server:       nfs.IPAddr,
-						MountOptions: nfs.Options,
 					},
+					MountOptions: nfs.Options,
 				},
 			},
 		},

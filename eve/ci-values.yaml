@@ -16,6 +16,9 @@ cosmos:
   storageClass: ci-zenko
   rbac:
     namespaced: true
+  operator:
+    image:
+      pullPolicy: Always
   scheduler:
     image:
       pullPolicy: Always
