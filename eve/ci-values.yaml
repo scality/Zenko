@@ -119,6 +119,8 @@ cloudserver:
     S3_END_TO_END: 'true'
 
 backbeat:
+  logging:
+    level: trace
   image:
     pullPolicy: Always
   replication:
