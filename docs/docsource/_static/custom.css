@@ -1,5 +1,7 @@
-@import url('https://fonts.googleapis.com/css?family=Oswald');
-@import url('https://fonts.googleapis.com/css?family=Roboto');
+@import url('fonts.googleapis.com/css?family=Oswald');
+@import url('fonts.googleapis.com/css?family=Roboto');
+
+@import url(fonts.googleapis.com/css?family=Roboto:400,400italic,500,500italic,700,700italic,900,900italic,300italic,300,100italic,100);
 
 /* Styles by chris.tingom@scality.com Hello and thanks for all the fish! */
 
@@ -162,6 +164,14 @@ pre
       border-right: none;
   }
 
+strong {
+   font-weight: bold;
+}
+
+div.strong {
+   font-weight: bold;
+}
+
 a.reference-internal
   {
     color: '#FFFFFF'
@@ -172,7 +182,6 @@ a.reference-internal
     font-size: 16pt;
     font-family: 'Oswald SemiBold';
   }
-
 
 h3
   {
@@ -291,3 +300,4 @@ code {
 ol ol {
     list-style-type: lower-alpha;
 }
+
