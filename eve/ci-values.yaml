@@ -123,7 +123,7 @@ backbeat:
     level: trace
   image:
     repository: zenko/backbeat
-    tag: 8.1.5
+    tag: 8.1.6
     pullPolicy: Always
   replication:
     replicaFactor: 2
