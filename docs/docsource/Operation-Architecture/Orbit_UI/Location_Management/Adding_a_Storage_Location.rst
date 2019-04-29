@@ -1,3 +1,5 @@
+.. _orbit_add_location:
+
 Adding a Storage Location
 =========================
 

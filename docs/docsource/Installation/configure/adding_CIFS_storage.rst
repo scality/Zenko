@@ -3,27 +3,30 @@
 Adding CIFS/SMB Storage
 =======================
 
-Cosmos CIFS/SMB Use Case
-------------------------
+With optional configuration, Zenko supports inputs from SMB/CIFS
+servers. Zenko polls these servers on a cron schedule. When it finds a
+change of state in any file, Zenko updates its namespace and mirrors
+the changes to the configfured cloud backend(s). You must configure
+Cosmos to implement this feature for CIFS/SMB. 
 
-By design, storage backend integration into Zenko and Cloudserver is
-only limited by the type of volumes supported by Kubernetes.
-Fortunately, Kubernetes supports “FlexVolume” drivers that allow for
-custom volume driver integration into the Kubernetes ecosystem. This
-guide uses the Azure CIFS/SMB FlexVolume driver for Kubernetes. For
-more information on the driver, see:
-https://github.com/Azure/kubernetes-volume-drivers/tree/master/flexvolume/smb
+The default Zenko installation deploys Cosmos with NFS support
+only. Configuring Cosmos to use SMB/CIFs or both NFS and SMB/CIFS
+requires configuring Cosmos for each as described here.
 
-CIFS/SMB Install on MetalK8s
-----------------------------
+.. note::
 
-This section shows how Cosmos can be adapted to use alternative backends
-through the flexibility of Kubernetes.
+   By design, storage backend integration into Zenko and CloudServer
+   is limited only by the type of volumes supported by Kubernetes.
+   Kubernetes supports FlexVolume drivers that allow for custom volume
+   driver integration into the Kubernetes ecosystem. This guide uses
+   the Azure CIFS/SMB FlexVolume driver for Kubernetes. For more
+   information on the driver, see:
+   https://github.com/Azure/kubernetes-volume-drivers/tree/master/flexvolume/smb
 
-Install Dependencies and FlexVolume Driver on Every MetalK8s VM
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Install Dependencies and FlexVolume Driver
+------------------------------------------
 
-Copy the following commands and run them with root or sudo privileges.
+Copy the following commands.
 
 .. code:: bash
 
@@ -35,26 +38,38 @@ Copy the following commands and run them with root or sudo privileges.
    wget -O $PLUGINS/smb https://raw.githubusercontent.com/Azure/kubernetes-volume-drivers/master/flexvolume/smb/deployment/smb-flexvol-installer/smb
    chmod a+x $PLUGINS/smb
 
-Usage with Cosmos Integration
------------------------------
+For each Kubernetes node in the cluster, access the node (ssh in) and run 
+the copied commands as root, or copy them to a script and run it with sudo
+privileges.
 
-Installing the Chart with a Zenko Instance
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-To configure Cosmos with a Zenko instance, perform the following
-steps in `Orbit <https://admin.zenko.io>`__:
+Configure Cosmos
+----------------
 
-1. Create a storage location of type “NFS Mount”.
+To configure Cosmos with a Zenko instance:
 
-   In the CIFS/SMB use case, the NFS protocol and NFS version are ignored
-   and all configuration is done via the config file below.
+#. From `Orbit <https://admin.zenko.io/user>`__, create an NFS mount storage
+   location (see "Adding a Storage Location" in *Zenko Operation and 
+   Architecture*.)
 
-2. Create a bucket within this location constraint.
+   .. note:: 
 
-3. Create a user for Cosmos.
+      In the CIFS/SMB use case, the NFS protocol and NFS version are ignored
+      and all configuration is through the config file below.
 
-4. Use information from the previous steps to configure instance-specific 
-   Cosmos values. Export the following variables with appropriate values
-   entered:
+#. Copy and save the location name.
+
+#. Create a bucket in this location. At the **Location Constraint**
+   prompt, you will see two instances of the NFS server. Select the NFS
+   server at the desired location that has **Mirror mode** enabled.
+
+#. Copy and save the bucket name.
+
+#. Create a storage account for the bucket.
+
+#. Copy and save the storage account's access and secret keys.
+
+#. Open the Kubernetes master from the command line. Export the
+   following variables, entering information from the previous steps:
 
    .. code:: bash
 
@@ -68,16 +83,16 @@ steps in `Orbit <https://admin.zenko.io>`__:
       export SMB_HOST=<your-smb-host>
       export SMB_PATH=<your-smb-path>
 
-      # Cloudserver endpoint (assuming it's running on the same namespace)
+      # Cloudserver endpoint (assuming it is running on the same namespace)
       export CLOUDSERVER_ENDPOINT="http://$(kubectl get svc -l app=cloudserver -o jsonpath='{.items[*].metadata.name}')"
 
-5. Create a secret to store the CIFS/SMB account name and password.
+#. Create a secret to store the CIFS/SMB account name and password:
 
    .. code:: bash
 
       $ kubectl create secret generic smbcreds --from-literal username='<USERNAME>' --from-literal password='<PASSWORD>' --type="microsoft.com/smb"
-
-6. Create a Cosmos configuration file.
+      
+#. Create a Cosmos configuration file:
 
    .. code:: bash
 
@@ -103,18 +118,18 @@ steps in `Orbit <https://admin.zenko.io>`__:
               mountoptions: "vers=3.0,dir_mode=0777,file_mode=0777"
       EOF
 
-7. Install Cosmos
+#. Install Cosmos
 
    .. code:: bash
 
       $ helm install --name ${SMB_LOCATION} . -f cifs-custom-values.yaml
 
-8. Manually Trigger Sync (optional)
+#. Manually trigger sync (optional)
 
    This chart deploys a Kubernetes CronJob object, which periodically launches
    rclone jobs to sync metadata. The job schedule can be configured with
-   the ``rclone.schedule`` field in the ``values.yaml`` file. However, to
-   to manually trigger the job, run the following command:
+   the ``rclone.schedule`` field in the ``values.yaml`` file. To trigger the
+   job manually, run the following command:
 
    .. code:: bash
 
