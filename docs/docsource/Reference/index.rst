@@ -11,6 +11,7 @@ Reference Guide
    bucket_website_operations/index
    bucket_cors_operations/index
    bucket_lifecycle_operations/index
+   bucket_ingestion_metrics/index
    object_operations/index
    backbeat/index
    zenko_connector_api_knowledge_primers/index
