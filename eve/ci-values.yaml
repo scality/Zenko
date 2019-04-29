@@ -122,9 +122,37 @@ backbeat:
   logging:
     level: trace
   image:
+    repository: zenko/backbeat
+    tag: 8.1.2
     pullPolicy: Always
   replication:
     replicaFactor: 2
+    retry:
+      aws_s3:
+        timeoutS: 900
+        maxRetries: 5
+        backoff:
+          min: 2000
+          max: 10000
+          jitter: 0.1
+          factor: 1.5
+      azure:
+        timeoutS: 900
+        maxRetries: 5
+        backoff:
+          min: 2000
+          max: 10000
+          jitter: 0.1
+          factor: 1.5
+      gcp:
+        timeoutS: 900
+        maxRetries: 5
+        backoff:
+          min: 2000
+          max: 10000
+          jitter: 0.1
+          factor: 1.5
+
   lifecycle:
     conductor:
       cronRule: "* * * * *"
