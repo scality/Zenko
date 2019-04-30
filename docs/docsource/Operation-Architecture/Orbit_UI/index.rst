@@ -16,7 +16,7 @@ Orbit topics:
     The Dashboard<Dashboard>
     Statistics<Statistics>
     User Management<User_Management/User_Management_Tasks>
-    Location Management<Location_Management/Location_Management>
+    Location Management<Location_Management/index>
     Bucket Management<Bucket_Management/Bucket_Management_Tasks>
     File Operations<File_Operations/File_Operations>
     Searching Metadata with Zenko<../Metadata_Search/Searching_Metadata_with_Zenko>
