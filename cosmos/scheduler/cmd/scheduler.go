@@ -30,10 +30,6 @@ type Scheduler struct {
 // Run starts the Cosmos Scheduler
 func (s *Scheduler) Run() {
 	log.Println("starting cosmos scheduler")
-	err := s.configureIngestionSecret()
-	if err != nil {
-		log.Panicln(err.Error())
-	}
 	quit := make(chan bool)
 	overlayUpdates, err := s.watchOverlayUpdates()
 	if err != nil {
@@ -53,20 +49,33 @@ func (s *Scheduler) configureIngestionSecret() error {
 	if err != nil {
 		return err
 	}
-	if secret["accessKey"] != nil {
-		log.Println("ingestion credentials secret found")
-		return nil
-	}
-	log.Println("ingestion secret not found")
-	err = s.createIngestionSecret()
+	accessKey, secretKey, err := s.Pensieve.GetServiceAccountCredentials("md-ingestion")
 	if err != nil {
 		return err
 	}
-	log.Println("ingestion secret created successfully")
+	if secret == nil {
+		log.Println("creating ingestion secret")
+		err = s.ingestionSecret(accessKey, secretKey, false)
+		if err != nil {
+			return err
+		}
+		log.Println("ingestion secret created successfully")
+	} else if string(secret["accessKey"]) != accessKey || string(secret["secretKey"]) != secretKey {
+		log.Println("ingestion credentials changed, updating secret")
+		err = s.ingestionSecret(accessKey, secretKey, true)
+		if err != nil {
+			return err
+		}
+		log.Println("ingestion credentials successfully patched")
+	}
 	return nil
 }
 
 func (s *Scheduler) run(quit chan bool) error {
+	err := s.configureIngestionSecret()
+	if err != nil {
+		log.Panicln(err.Error())
+	}
 	locationBson, err := s.getCosmosLocationBson()
 	if err != nil {
 		return err
@@ -157,12 +166,8 @@ func (s *Scheduler) getIngestionSecret() (map[string][]byte, error) {
 	return nil, nil
 }
 
-func (s *Scheduler) createIngestionSecret() error {
-	accessKey, secretKey, err := s.Pensieve.GetServiceAccountCredentials("md-ingestion")
-	if err != nil {
-		return err
-	}
-	_, err = s.KubeClientset.CoreV1().Secrets(s.Namespace).Create(&v1.Secret{
+func (s *Scheduler) ingestionSecret(accessKey string, secretKey string, patch bool) error {
+	kubeSecret := &v1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      s.SecretName,
 			Namespace: s.Namespace,
@@ -175,10 +180,22 @@ func (s *Scheduler) createIngestionSecret() error {
 			"accessKey": []byte(accessKey),
 			"secretKey": []byte(secretKey),
 		},
-	})
-	if err != nil {
-		return err
 	}
+	if patch {
+		_, err := s.KubeClientset.CoreV1().Secrets(s.Namespace).Update(kubeSecret)
+		if err != nil {
+			log.Println("error updating secret", err)
+			return err
+		}
+	} else {
+		_, err := s.KubeClientset.CoreV1().Secrets(s.Namespace).Create(kubeSecret)
+		if err != nil {
+			log.Println("error creating secret", err)
+			return err
+		}
+	}
+
+
 	return nil
 }
 
@@ -239,7 +256,7 @@ func (s *Scheduler) CreateCosmosFromLocation(location *pensieve.Location, bucket
 			FullnameOverride: location.Name,
 			Rclone: v1alpha1.CosmosRcloneSpec{
 				Schedule: s.IngestionSchedule,
-				Remote: v1alpha1.CosmosRcloneRemoteSpec{
+				Destination: v1alpha1.CosmosRcloneDestinationSpec{
 					Endpoint:       s.Cloudserver,
 					Region:         location.Name,
 					Bucket:         bucket,
@@ -253,8 +270,8 @@ func (s *Scheduler) CreateCosmosFromLocation(location *pensieve.Location, bucket
 					NFS: v1alpha1.CosmosNFSSpec{
 						Path:         nfs.Path,
 						Server:       nfs.IPAddr,
-						MountOptions: nfs.Options,
 					},
+					MountOptions: nfs.Options,
 				},
 			},
 		},

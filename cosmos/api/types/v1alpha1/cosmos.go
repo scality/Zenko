@@ -23,11 +23,11 @@ type CosmosSpec struct {
 }
 
 type CosmosRcloneSpec struct {
-	Schedule string                 `json:"schedule"`
-	Remote   CosmosRcloneRemoteSpec `json:"remote"`
+	Schedule    string                      `json:"schedule"`
+	Destination CosmosRcloneDestinationSpec `json:"destination"`
 }
 
-type CosmosRcloneRemoteSpec struct {
+type CosmosRcloneDestinationSpec struct {
 	Endpoint       string `json:"endpoint"`
 	Region         string `json:"region"`
 	Bucket         string `json:"bucket"`
@@ -41,11 +41,11 @@ type CosmosPersistentVolumeSpec struct {
 }
 
 type CosmosVolumeConfigSpec struct {
-	NFS CosmosNFSSpec `json:"nfs"`
+	NFS          CosmosNFSSpec `json:"nfs"`
+	MountOptions []string      `json:"mountOptions"`
 }
 
 type CosmosNFSSpec struct {
 	Path         string `json:"path"`
 	Server       string `json:"server"`
-	MountOptions string `json:"mountOptions"`
 }

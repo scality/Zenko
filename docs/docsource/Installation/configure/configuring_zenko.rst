@@ -5,16 +5,16 @@ Configuring Zenko
 
 Zenko is readily configurable using Helm to pass values set in Helm charts. 
 Helm charts are stored in Zenko/kubernetes/zenko/ and its subdirectories.
-Helm charts are YAML files with configurable values and in a Zenko deployment, 
-reconfiguration, or upgrade, Helm reads in the following order:
+Helm charts are YAML files with configurable values. In a Zenko deployment, 
+reconfiguration, or upgrade, Helm reads charts in the following order:
 
-   #. Base settings for Zenko microservices (for example, Grafana settings,
-      written to Zenko/kubernetes/zenko/charts/grafana/values.yaml).
-   #. Base settings for Zenko. These settings override the base microservice 
-      settings, and are found in Zenko/kubernetes/zenko/values.yaml.
-   #. Custom settings, which you can write to an options.yaml file. Settings
-      written to this file override settings read from the preceding
-      values.yaml file.
+#. Base settings for Zenko microservices (for example, Grafana settings,
+   written to Zenko/kubernetes/zenko/charts/grafana/values.yaml).
+#. Base settings for Zenko. These settings override the base microservice 
+   settings, and are found in Zenko/kubernetes/zenko/values.yaml.
+#. Custom settings, which you can write to an options.yaml file. Settings
+   written to this file override settings read from the preceding
+   values.yaml file.
 
 Zenko's charts are populated by default to provide a stable, feature-rich
 deployment. It is easiest and safest to deploy Zenko using these default 
@@ -42,17 +42,17 @@ options.yml.*
 Zenko provides outward-facing NFS service using Cosmos, which is enabled by
 default. To deactivate Cosmos:
 
-   #. Open kubernetes/zenko/cosmos/values.yaml with read-only access
-      and review the cosmos block.
-   #. Copy the block title declaration and the subsequent line::
+#. Open kubernetes/zenko/cosmos/values.yaml with read-only access
+   and review the cosmos block.
+#. Copy the block title declaration and the subsequent line::
 
-         cosmos:
-            enabled: true
+      cosmos:
+         enabled: true
 
-   #. Open (or create) Zenko/kubernetes/zenko/options.yml and paste the
-      block you copied there. 
+#. Open (or create) Zenko/kubernetes/zenko/options.yml and paste the
+   block you copied there. 
       
-   #. Change the value of ``enabled`` to ``false``.
+#. Change the value of ``enabled`` to ``false``.
 
 Cosmos mirrors data based on a cron-like schedule. To modify this cron
 interval, descend into the YAML structure as follows:
@@ -65,9 +65,9 @@ interval, descend into the YAML structure as follows:
 
          cosmos:
             scheduler:
-	       schedule: "* */12 * * *"
+      	       schedule: "* */12 * * *"
 
-   #. Edit the schedule to suit your requirements.
+#. Edit the schedule to suit your requirements.
 
 .. tip:: If you are comfortable with JSON or SOAP objects, you will find YAML to
    	 be logically similar. If you have problems with YAML, check the

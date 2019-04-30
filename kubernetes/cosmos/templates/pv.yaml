@@ -10,18 +10,7 @@ spec:
   - ReadWriteMany
   capacity:
     storage: {{ .Values.persistentVolume.size }}
-{{- if .Values.persistentVolume.volumeConfig.nfs }}
-  nfs:
-{{ toYaml .Values.persistentVolume.volumeConfig.nfs | indent 4 }}
-{{- if .Values.persistentVolume.volumeConfig.mountOptions }}
-  mountOptions:
-  {{- range split "," .Values.persistentVolume.volumeConfig.mountOptions }}
-  - {{ . }}
-  {{- end }}
-{{- end }}
-{{- else }}
 {{ toYaml .Values.persistentVolume.volumeConfig | indent 2 }}
-{{- end }}
   persistentVolumeReclaimPolicy: Retain
   storageClassName: {{ template "cosmos.storageclass.name" . }}
 {{- end }}
