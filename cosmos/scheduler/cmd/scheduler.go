@@ -37,22 +37,19 @@ func (s *Scheduler) Run() {
 		return
 	}
 	for {
-		go s.run(quit)
+		go s.watchBucketUpdates(quit)
 		<-overlayUpdates
-		log.Println("got an overlay update")
+		log.Println("received an overlay update")
 		quit <- true
 	}
 }
 
 func (s *Scheduler) configureIngestionSecret() error {
-	secret, err := s.getIngestionSecret()
-	if err != nil {
-		return err
-	}
 	accessKey, secretKey, err := s.Pensieve.GetServiceAccountCredentials("md-ingestion")
 	if err != nil {
 		return err
 	}
+	secret := s.getIngestionSecret()
 	if secret == nil {
 		log.Println("creating ingestion secret")
 		err = s.ingestionSecret(accessKey, secretKey, false)
@@ -67,15 +64,13 @@ func (s *Scheduler) configureIngestionSecret() error {
 			return err
 		}
 		log.Println("ingestion credentials successfully patched")
+	}  else {
+		log.Println("found existing up-to-date ingestion secret")
 	}
 	return nil
 }
 
-func (s *Scheduler) run(quit chan bool) error {
-	err := s.configureIngestionSecret()
-	if err != nil {
-		log.Panicln(err.Error())
-	}
+func (s *Scheduler) watchBucketUpdates(quit chan bool) error {
 	locationBson, err := s.getCosmosLocationBson()
 	if err != nil {
 		return err
@@ -149,21 +144,27 @@ func (s *Scheduler) watchOverlayUpdates() (chan interface{}, error) {
 			if err := cur.Err(); err != nil {
 				log.Println(err)
 			}
+			err := s.configureIngestionSecret()
+			if err != nil {
+				close(ch)
+				cur.Close(ctx)
+				log.Panicln(err.Error())
+			}
 		}
 	}()
 	return ch, nil
 }
 
-func (s *Scheduler) getIngestionSecret() (map[string][]byte, error) {
+func (s *Scheduler) getIngestionSecret() (map[string][]byte) {
 	secrets, err := s.KubeClientset.CoreV1().
 		Secrets(s.Namespace).Get(s.SecretName, metav1.GetOptions{})
 	if err != nil {
-		return nil, nil
+		return nil
 	}
 	if len(secrets.Data) > 0 {
-		return secrets.Data, nil
+		return secrets.Data
 	}
-	return nil, nil
+	return nil
 }
 
 func (s *Scheduler) ingestionSecret(accessKey string, secretKey string, patch bool) error {
@@ -194,8 +195,6 @@ func (s *Scheduler) ingestionSecret(accessKey string, secretKey string, patch bo
 			return err
 		}
 	}
-
-
 	return nil
 }
 
@@ -226,31 +225,57 @@ type BucketTransaction struct {
 }
 
 func (s *Scheduler) applyChanges(bucket *BucketTransaction) {
-	if bucket.OperationType == "insert" {
+	location, err := s.Pensieve.GetLocationWithName(bucket.FullDocument.Value.LocationConstraint)
+    if err != nil {
+		log.Println("error getting location", err)
+	} 
+	switch bucket.OperationType {
+	case "insert" :
 		log.Println("creating cosmos for bucket:", bucket.FullDocument.Value.Name)
-		location, err := s.Pensieve.GetLocationWithName(bucket.FullDocument.Value.LocationConstraint)
+		err = s.createCosmosFromLocation(location, bucket.FullDocument.Value.Name)
 		if err != nil {
-			log.Println(err)
-			return
+			log.Println("failed to create cosmos with error:", err)
 		}
-		s.CreateCosmosFromLocation(location, bucket.FullDocument.Value.Name)
-	} else if bucket.OperationType == "replace" && bucket.FullDocument.Value.Deleted == true {
-		log.Println("deleting cosmos for bucket:", bucket.FullDocument.Value.Name)
-		err := s.KubeAlpha.Cosmoses(s.Namespace).Delete(bucket.FullDocument.Value.LocationConstraint, &metav1.DeleteOptions{})
-		if err != nil {
-			log.Println(err)
-			return
+	case "replace":
+	    if bucket.FullDocument.Value.Deleted == true && s.checkForCosmos(location, bucket.FullDocument.Value.Name) {
+			log.Println("deleting cosmos for bucket:", bucket.FullDocument.Value.Name)
+			err := s.KubeAlpha.Cosmoses(s.Namespace).Delete(bucket.FullDocument.Value.LocationConstraint, &metav1.DeleteOptions{})
+			if err != nil {
+				log.Println(err)
+			}
+		} else {
+			log.Println("received delete request but no cosmos created for bucket:", bucket.FullDocument.Value.Name)
 		}
 	}
+	return
 }
 
-// CreateCosmosFromLocation creates a new Cosmos CR using data from a
+// Check for existing Cosmos on specified location labeled with the given bucket.
+// Currently only 1 ingestion bucket is supported per location
+func (s *Scheduler) checkForCosmos(location *pensieve.Location, bucket string) bool {
+	cosmos, err := s.KubeAlpha.Cosmoses(s.Namespace).List(metav1.ListOptions{
+		LabelSelector: "bucket="+bucket,
+		Limit: 1,
+	})
+	if err != nil {
+		log.Println("error checking cosmos:", err)
+	} else if len(cosmos.Items) > 0 && cosmos.Items[0].Name == location.Name {
+		log.Println("cosmos name:", cosmos.Items[0].Name)
+		return true
+	}
+	return false
+}
+
+// createCosmosFromLocation creates a new Cosmos CR using data from a
 // *MongodbURL.Location. It assumes the location to be of type "NFS".
-func (s *Scheduler) CreateCosmosFromLocation(location *pensieve.Location, bucket string) error {
+func (s *Scheduler) createCosmosFromLocation(location *pensieve.Location, bucket string) error {
 	nfs := pensieve.NewNFSLocation(location.Details.Endpoint)
 	_, err := s.KubeAlpha.Cosmoses(s.Namespace).Create(&v1alpha1.Cosmos{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: location.Name,
+			Labels: map[string]string{
+				"bucket": bucket,
+			},
 		},
 		Spec: v1alpha1.CosmosSpec{
 			FullnameOverride: location.Name,
