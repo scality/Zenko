@@ -229,9 +229,6 @@ stages:
           HELM_NAMESPACE: '%(prop:workername)s'
           TILLER_NAMESPACE: '%(prop:workername)s'
           INSTALL_TIMEOUT: "600"
-    - ShellCommand:
-        name: Hold oooooooon!
-        command: watch -t -n 60 echo 'paused!'
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
     - ShellCommand: *k8s_cleanup
