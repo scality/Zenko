@@ -8,7 +8,14 @@ maintenance:
   debug:
     enabled: true
   accessKey: HEYIMAACCESSKEY
-secretKey: loOkAtMEImASecRetKEy123=
+  secretKey: loOkAtMEImASecRetKEy123=
+
+cosmos:
+  ci: true
+  storageClass: ci-zenko
+  rbac:
+    create: false
+    namespaced: true
 
 s3-data:
   persistentVolume:
