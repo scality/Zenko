@@ -1,75 +1,93 @@
-### Requirements
+# Deploying and Configuring Minikube
+
+## Requirements
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
-- [minikube](https://github.com/kubernetes/minikube/#installation) v0.25
-  - [virtualbox](https://www.virtualbox.org/wiki/Downloads)
-- [helm](https://github.com/kubernetes/helm#install) v2.8.2
+- [minikube](https://github.com/kubernetes/minikube/#installation) v1.0.1
+- [virtualbox](https://www.virtualbox.org/wiki/Downloads)
+- [helm](https://github.com/kubernetes/helm#install) v2.9.1
 - [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 
-The following assumes you have minikube (which requires virtualbox or other virtualization options),
-kubectl, and helm installed (see links above). Once minikube, kubectl, and helm are installed,
-start minikube with at least version 1.9 of kubernetes and perferably with 4GB of RAM (although the
-default value of 2GB should work, we recommend 4GB or more) and enable the minikube ingress addon for communication.
-#### NOTE the listed versions are known to be working properly as some edge release versions may have issues properly deploying
+The following assumes you have Minikube (which requires VirtualBox or
+other virtualization options), kubectl, and Helm installed (see links
+above). Once Minikube, kubectl, and Helm are installed, start Minikube
+with at least version 1.11.6 of Kubernetes and perferably with 4 GB of
+RAM (although the default value of 2 GB should work, we recommend 4 GB
+or more) and enable the Minikube ingress addon for communication.
+
+**NOTE:** The listed versions are known to work. Some edge release versions may have issues properly deploying.
+
+## Start Minikube and Helm
+
+To install Minikube with role-based access control (RBAC), go to
+[Installation with RBAC](#Installation with RBAC)
+
+Otherwise:
+
 ```shell
-$ minikube start --kubernetes-version=v1.9.0 --memory 4096
+$ minikube start --kubernetes-version=v1.11.6 --memory 4096
 $ minikube addons enable ingress
 ```
-###### For installations requiring Role Based Access Control see [RBAC](#installation-using-rbac)
 
-Once minikube has started, run the helm initialization.
+Once Minikube has started, initialize Helm.
+
 ```
 $ helm init --wait
 ```
-#### Older versions of helm may not work with the --wait flag
 
-Clone the repo and go into the kubernetes directory
+Clone the repo and go into the kubernetes directory:
+
 ```shell
 $ git clone https://github.com/scality/Zenko.git
 $ cd ./Zenko/kubernetes
 ```
+## Deploy Zenko
 
-Then you can run the following shell command to deploy a single node zenko stack with orbit enabled.
+Run the following shell command to deploy a single-node Zenko stack with Orbit enabled.
 ```shell
 $ helm install --name zenko \
   --set prometheus.rbac.create=false \
   --set zenko-queue.rbac.enabled=false \
   --set redis-ha.rbac.create=false \
-  -f single-node-values.yml zenko
+  -f single-node-values.yaml zenko
 ```
-#### NOTE that Orbit is enabled by default with these values
+**NOTE:** Orbit is enabled with these values by default.
 
-To view the Kubernetes dashboard type the following and will launch the dashboard in your default browser:
+## Launch Kubernetes
+
+Enter the following command to launch the Kubernetes dashboard in your default browser:
 ```shell
 $ minikube dashboard
 ```
-#### NOTE that once you helm install, it may take several minutes for all the pods to load and stabilize
+**NOTE:** Once you install Helm, it may take several minutes for all the pods to load and stabilize.
 
-The endpoint can now be accessed via the kubernetes cluster ip (run
-```minikube ip``` to display the cluster ip). As mentioned above, Orbit remote
-management is enabled for your minikube deployment, so you may now
+The endpoint can now be accessed via the Kubernetes cluster ip (run
+`minikube ip` to display the cluster ip). With Orbit remote
+management now enabled for your Minikube deployment, you can
 [register your instance](../docs/orbit_registration.md).
 
-## Testing your deployment
+## Edit /etc/hosts
 
-To test your minikube deployment, please refer to our client configuration guide,
-from our CloudServer documentation. By default, minikube only exposes SSL port
-443, so you'll want to ask your client/app to use SSL. However, since minikube
-uses a self-signed certificate, you may get security error. You can either
-configure minikube to use a trusted certificate, or simply ignore the
+Write Minikube's IP address to the hosts table on your local machine.
+
+`$ sudo cat '192.168.99.100 minikube'> /etc/hosts`
+
+**NOTE:** Aliasing a domain name to the Minikube IP can reduce the likelihood
+of typographical errors in further configurations, such as Orbit endpoint
+configuration.
+
+## Test Your Deployment
+
+To test your Minikube deployment, run the example below. By default, Minikube
+only exposes SSL port 443, so set your client/app to use SSL. Because Minikube
+uses a self-signed certificate, you may get a security error. If so, either
+configure Minikube to use a trusted certificate or simply ignore the
 certificate.
 
-> NOTE: In this example, we alias a "domain name" to the minikube IP; we
-> recommend doing this as it avoids using IPs directly for further configuration
-> (e.g.: Orbit endpoint configuration), which leads to typo-like mistakes more
-> often than human-readable aliases/domain names.
-
-See the example below:
 
 ```shell
 $ cat /etc/hosts
-127.0.0.1   localhost
-127.0.1.1   machine
-
+127.0.0.1      localhost
+127.0.1.1      machine
 192.168.99.100 minikube
 
 $ cat ~/.s3cfg
@@ -86,17 +104,17 @@ $ s3cmd ls  --no-check-certificate
 $
 ```
 
-If you get an empty response to your first list, it means communication went
-through properly with Zenko hosted in minikube.
-To perform more complex operations, you will need to configure your Zenko
-cluster; to do so, the easiest is to
-[register your instance](../docs/orbit_registation.md) on Orbit.
-If you get errors, please reach out on the [forum](https://forum.zenko.io/).
+If you receive the depicted empty response to your first `ls`, communication
+with Zenko hosted in Minikube was successful. To perform more complex
+operations, configure your Zenko cluster by
+[registering your instance](../docs/orbit_registation.md) on Orbit.
+If you get errors, reach out to the [Zenko forum](https://forum.zenko.io/).
 
-## Installation Using RBAC
-Some users might prefer testing with Role Based Access Control for development purposes and to
-test features that are often enabled in production environments. To run a minikube environment
-with RBAC enabled
+## Installation with RBAC
+
+To test with role-based access control for development or to test features
+often enabled in production environments, run a Minikube environment with RBAC
+enabled.
 
 ```shell
 $ minikube start --kubernetes-version=v1.9.0 --memory 4096 --extra config=apiserver.Authorization.Mode=RBAC
@@ -106,13 +124,14 @@ $ kubectl create clusterrolebinding add-on-cluster-admin --clusterrole=cluster-a
 $ helm init --service-account tiller --wait
 ```
 
-Clone the repo and go into the kubernetes directory
+Clone the repo and go into the kubernetes directory.
+
 ```shell
 $ git clone https://github.com/scality/Zenko.git
 $ cd ./Zenko/kubernetes
 ```
 
-Then you can run the following shell command to deploy a single node zenko stack with orbit enabled.
+Run the following shell command to deploy a single-node Zenko stack with Orbit enabled.
 ```shell
-$ helm install --name zenko -f single-node-values.yml zenko
+$ helm install --name zenko -f single-node-values.yaml zenko
 ```
