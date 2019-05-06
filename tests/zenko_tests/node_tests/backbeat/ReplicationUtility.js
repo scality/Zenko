@@ -354,10 +354,11 @@ class ReplicationUtility {
         });
     }
 
-    getObject(bucketName, objName, cb) {
+    getObject(bucketName, objName, versionId, cb) {
         this.s3.getObject({
             Bucket: bucketName,
             Key: objName,
+            VersionId: versionId,
         }, cb);
     }
 
@@ -621,19 +622,19 @@ class ReplicationUtility {
         () => shouldContinue, cb);
     }
 
-    compareObjectsAWS(srcBucket, destBucket, key, optionalField, cb) {
-        return async.series([
-            next => this.waitUntilReplicated(srcBucket, key, undefined, next),
-            next => this.getObject(srcBucket, key, next),
-            next => this._setS3Client(awsS3Client)
-                .getObject(destBucket, `${srcBucket}/${key}`, next),
-        ], (err, data) => {
+    compareObjectsAWS(srcBucket, destBucket, key, optionalField, versionId, cb) {
+        return async.waterfall([
+            next => this.waitUntilReplicated(srcBucket, key, versionId, next),
+            next => this.getObject(srcBucket, key, versionId, next),
+            (srcObj, next) => this._setS3Client(awsS3Client)
+                .getObject(destBucket, `${srcBucket}/${key}`,
+                srcObj.Metadata[`${destAWSLocation}-version-id`],
+                (err, data) => next(err, srcObj, data)),
+        ], (err, srcData, destData) => {
             this._setS3Client(scalityS3Client);
             if (err) {
                 return cb(err);
             }
-            const srcData = data[1];
-            const destData = data[2];
             assert.strictEqual(srcData.ReplicationStatus, 'COMPLETED');
             assert.strictEqual(srcData.ContentLength,
                 destData.ContentLength);
@@ -656,7 +657,7 @@ class ReplicationUtility {
                 assert.strictEqual(srcData[optionalField],
                     destData[optionalField]);
             }
-            return cb();
+            return cb(null, destData.VersionId);
         });
     }
 
@@ -672,9 +673,9 @@ class ReplicationUtility {
         ], cb);
     };
 
-    compareObjectsAzure(srcBucket, containerName, key, cb) {
+    compareObjectsAzure(srcBucket, containerName, key, versionId, cb) {
         return async.series([
-            next => this.waitUntilReplicated(srcBucket, key, undefined, next),
+            next => this.waitUntilReplicated(srcBucket, key, versionId, next),
             next => this.getObject(srcBucket, key, next),
             next => this.azure.getBlobProperties(containerName,
                 `${srcBucket}/${key}`, next),
@@ -814,9 +815,9 @@ class ReplicationUtility {
         });
     };
 
-    compareACLsAWS(srcBucket, destBucket, key, cb) {
+    compareACLsAWS(srcBucket, destBucket, key, versionId, cb) {
         return async.series([
-            next => this.waitUntilReplicated(srcBucket, key, undefined, next),
+            next => this.waitUntilReplicated(srcBucket, key, versionId, next),
             next => this.getObjectACL(srcBucket, key, next),
             next => this._setS3Client(awsS3Client)
                 .getObjectACL(destBucket, `${srcBucket}/${key}`, next),

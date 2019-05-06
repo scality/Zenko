@@ -1,6 +1,6 @@
 const assert = require('assert');
 const crypto = require('crypto');
-const { series, parallel, timesSeries, each } = require('async');
+const { series, parallel, timesSeries, each, waterfall } = require('async');
 
 const { scalityS3Client, awsS3Client } = require('../../../s3SDK');
 const ReplicationUtility = require('../../ReplicationUtility');
@@ -40,71 +40,74 @@ describe('Replication with AWS backend', function() {
             `${srcBucket}/${keyPrefix}`, next),
     ], done));
 
-    it('should replicate an object', done => series([
+    it('should replicate an object', done => waterfall([
         next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next),
-        next => scalityUtils.compareObjectsAWS(srcBucket, destBucket, key,
-            undefined, next),
+        (obj, next) => scalityUtils.compareObjectsAWS(srcBucket, destBucket, key,
+            undefined, obj.VersionId, next),
     ], done));
 
-    it('should replicate a zero byte object', done => series([
+    it('should replicate a zero byte object', done => waterfall([
         next => scalityUtils.putObject(srcBucket, key, undefined, next),
-        next => scalityUtils.compareObjectsAWS(srcBucket, destBucket, key,
-            undefined, next),
+        (obj, next) => scalityUtils.compareObjectsAWS(srcBucket, destBucket, key,
+            undefined, obj.VersionId, next),
     ], done));
 
     // AWS documentation: the name for a key is a sequence of Unicode characters
     // whose UTF-8 encoding is at most 1024 bytes long.
-    it.skip('should replicate an object with UTF-8 encoding', done => series([
+    it.skip('should replicate an object with UTF-8 encoding', done => waterfall([
         next => scalityUtils.putObject(srcBucket, keyutf8, Buffer.alloc(1),
             next),
-        next => scalityUtils.compareObjectsAWS(srcBucket, destBucket, keyutf8,
-            undefined, next),
+        (obj, next) => scalityUtils.compareObjectsAWS(srcBucket, destBucket, keyutf8,
+            undefined, obj.VersionId, next),
     ], done));
 
-    it('should replicate a copied object', done => series([
+    it('should replicate a copied object', done => waterfall([
         next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next),
-        next => scalityUtils.copyObject(srcBucket, copySource, copyKey, next),
-        next => scalityUtils.compareObjectsAWS(srcBucket, destBucket, copyKey,
-            undefined, next),
+        (obj, next) => scalityUtils.copyObject(srcBucket, copySource, copyKey,
+            (err, data) => {
+                return next(err, obj, data);
+        }),
+        (obj, copy, next) => scalityUtils.compareObjectsAWS(srcBucket, destBucket,
+            copyKey, undefined, obj.VersionId, err => next(err, copy)),
         // avoid a race with cleanup by ensuring everything is replicated
-        next => scalityUtils.waitUntilReplicated(srcBucket, key, undefined,
-                                                 next),
+        (copy, next) => scalityUtils.waitUntilReplicated(srcBucket, key, undefined,
+            copy.VersionId, next),
     ], done));
 
-    it('should replicate a MPU object: single 0 byte part', done => series([
+    it('should replicate a MPU object: single 0 byte part', done => waterfall([
         next => scalityUtils.completeSinglePartMPU(srcBucket, key, 0, next),
-        next => scalityUtils.compareObjectsAWS(srcBucket, destBucket, key,
-            undefined, next),
+        (mpu, next) => scalityUtils.compareObjectsAWS(srcBucket, destBucket, key,
+            undefined, mpu.VersionId, next),
     ], done));
 
-    it('should replicate a MPU object: single 1 byte part', done => series([
+    it('should replicate a MPU object: single 1 byte part', done => waterfall([
         next => scalityUtils.completeSinglePartMPU(srcBucket, key, 1, next),
-        next => scalityUtils.compareObjectsAWS(srcBucket, destBucket, key,
-            undefined, next),
+        (mpu, next) => scalityUtils.compareObjectsAWS(srcBucket, destBucket, key,
+            undefined, mpu.VersionId, next),
     ], done));
 
-    it('should replicate a MPU object: 2 parts', done => series([
+    it('should replicate a MPU object: 2 parts', done => waterfall([
         next => scalityUtils.completeMPUAWS(srcBucket, key, 2, next),
-        next => scalityUtils.compareObjectsAWS(srcBucket, destBucket, key,
-            undefined, next),
+        (mpu, next) => scalityUtils.compareObjectsAWS(srcBucket, destBucket, key,
+            undefined, mpu.VersionId, next),
     ], done));
 
-    it('should replicate a MPU object: 10 parts', done => series([
+    it('should replicate a MPU object: 10 parts', done => waterfall([
         next => scalityUtils.completeMPUAWS(srcBucket, key, 10, next),
-        next => scalityUtils.compareObjectsAWS(srcBucket, destBucket, key,
-            undefined, next),
+        (mpu, next) => scalityUtils.compareObjectsAWS(srcBucket, destBucket, key,
+            undefined, mpu.VersionId, next),
     ], done));
 
     [undefined,
     `0-${1024 * 1024 * 5}`,
     `${1024 * 1024 * 2}-${1024 * 1024 * 7}`].forEach(range =>
         it('should replicate a MPU with parts copied from another MPU with ' +
-        `byte range '${range}' for each part`, done => series([
-            next => scalityUtils.completeMPUAWS(srcBucket, key, 2, next),
+        `byte range '${range}' for each part`, done => waterfall([
+            next => scalityUtils.completeMPUAWS(srcBucket, key, 2, err => next(err)),
             next => scalityUtils.completeMPUWithPartCopy(srcBucket, copyKey,
                 copySource, range, 2, next),
-            next => scalityUtils.compareObjectsAWS(srcBucket, destBucket,
-                copyKey, undefined, next),
+            (mpu, next) => scalityUtils.compareObjectsAWS(srcBucket, destBucket,
+                copyKey, undefined, mpu.VersionId, err => next(err)),
             // avoid a race with cleanup by ensuring everything is replicated
             next => scalityUtils.waitUntilReplicated(srcBucket, key, undefined,
                                                      next),
@@ -112,43 +115,44 @@ describe('Replication with AWS backend', function() {
 
     // Object ACLs would not be applicable on AWS: they should not
     // trigger a replication task at all (i.e. stay in COMPLETED status)
-    it('should not replicate object ACL', done => series([
+    it('should not replicate object ACL', done => waterfall([
         next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next),
-        next => scalityUtils.compareACLsAWS(srcBucket, destBucket, key, next),
-        next => scalityUtils.putObjectACL(srcBucket, key, next),
-        next => scalityUtils.expectReplicationStatus(srcBucket, key, undefined,
+        (obj, next) => scalityUtils.compareACLsAWS(srcBucket, destBucket, key, obj.VersionId,
+            err => next(err, obj)),
+        (obj, next) => scalityUtils.putObjectACL(srcBucket, key, err => next(err, obj)),
+        (obj, next) => scalityUtils.expectReplicationStatus(srcBucket, key, obj.VersionId,
                                                      'COMPLETED', next),
     ], done));
 
     it('should put delete marker on destination bucket when deleting the ' +
-    'source object', done => series([
+    'source object', done => waterfall([
         next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next),
-        next => scalityUtils.compareObjectsAWS(srcBucket, destBucket, key,
-            undefined, next),
-        next => scalityUtils.deleteObject(srcBucket, key, null, next),
+        (obj, next) => scalityUtils.compareObjectsAWS(srcBucket, destBucket, key,
+            undefined, obj.VersionId, err => next(err, obj)),
+        (obj, next) => scalityUtils.deleteObject(srcBucket, key, obj.VersionId, next),
         next => awsUtils.waitUntilDeleted(destBucket, key, 's3', next),
         next => awsUtils.assertNoObject(destBucket, key, next),
     ], done));
 
-    it('should replicate object tags of the latest version', done => series([
+    it('should replicate object tags of the latest version', done => waterfall([
         next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next),
-        next => scalityUtils.compareObjectsAWS(srcBucket, destBucket, key,
-            undefined, next),
-        next => scalityUtils.putObjectTagging(srcBucket, key, undefined, next),
-        next => scalityUtils.compareObjectTagsAWS(srcBucket, destBucket, key,
-            undefined, undefined, next),
+        (obj, next) => scalityUtils.compareObjectsAWS(srcBucket, destBucket, key,
+            undefined, obj.VersionId, err => next(err, obj)),
+        (obj, next) => scalityUtils.putObjectTagging(srcBucket, key, obj.VersionId, next),
+        (tagObj, next) => scalityUtils.compareObjectTagsAWS(srcBucket, destBucket, key,
+            undefined, tagObj.VersionId, next),
     ], done));
 
     it('should replicate object tags of a previous version', done => {
         let firstVersionScality = null;
         let firstVersionAWS = null;
-        return series([
+        return waterfall([
             next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1),
                 next),
-            next => scalityUtils.compareObjectsAWS(srcBucket, destBucket, key,
-                undefined, next),
+            (obj, next) => scalityUtils.compareObjectsAWS(srcBucket, destBucket, key,
+                undefined, obj.VersionId, next),
             next => awsUtils.getHeadObject(destBucket, `${srcBucket}/${key}`,
-        (err, data) => {
+                (err, data) => {
                 if (err) {
                     return next(err);
                 }
