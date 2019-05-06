@@ -1,12 +1,13 @@
 const assert = require('assert');
 const crypto = require('crypto');
 const async = require('async');
+const uuidV4 = require('uuid/v4');
 
 const { scalityS3Client } = require('../../../s3SDK');
 const QuotaUtility = require('../QuotaUtility');
 
 const TEN_MB_BYTES = 10485760;
-const bucket = `quota-bucket-${Date.now()}`;
+const bucket = `quota-bucket-${uuidV4()}`;
 
 const scalityS3 = new QuotaUtility(scalityS3Client);
 

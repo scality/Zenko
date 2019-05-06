@@ -3,7 +3,7 @@ const async = require('async');
 const assert = require('assert');
 
 const quotaLocation = process.env.LOCATION_QUOTA_BACKEND;
-const quotaSize= 1;
+const quotaSize= 0.1;
 
 class QuotaUtility {
     constructor(s3) {
@@ -70,7 +70,7 @@ class QuotaUtility {
     }
 
     /**
-     * fillBucket - fills bucket to 99% of location quota
+     * fillBucket - fills bucket to 95% of location quota
      * with multiple 10MB objects
      * @param {string} bucketName - name of bucket
      * @param {function} cb - callback function
@@ -79,7 +79,7 @@ class QuotaUtility {
     fillBucket(bucketName, cb) {
         const bodySize = 10485760;
         const body = Buffer.alloc(bodySize);
-        const numberObjs = Math.ceil((this._gbToBytes(quotaSize) * 0.99) / bodySize);
+        const numberObjs = Math.ceil((this._gbToBytes(quotaSize) * 0.95) / bodySize);
         const hex = crypto.createHash('md5')
             .update(Math.random().toString()).digest('hex');
         async.times(numberObjs, (n, next) => {
