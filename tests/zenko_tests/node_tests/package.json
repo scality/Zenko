@@ -1,7 +1,7 @@
 {
   "name": "Test-dependencies",
   "engines": {
-    "node": "6.9.5"
+    "node": ">=6.9.5"
   },
   "version": "1.0.0-zenko",
   "description": "Test dependencies",
