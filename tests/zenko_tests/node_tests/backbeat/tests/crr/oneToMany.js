@@ -75,24 +75,4 @@ function() {
         next => utils.compareObjectsOneToMany(srcBucket, awsDestBucket,
             destContainer, gcpDestBucket, key, next),
     ], done));
-
-    it('should replicate a MPU object: 10 parts', done => series([
-        next => utils.completeMPUAWS(srcBucket, key, 10, next),
-        next => utils.compareObjectsOneToMany(srcBucket, awsDestBucket,
-            destContainer, gcpDestBucket, key, next),
-    ], done));
-
-    [undefined,
-    `0-${1024 * 1024 * 5}`,
-    `${1024 * 1024 * 2}-${1024 * 1024 * 7}`].forEach(range =>
-        it('should replicate a MPU with parts copied from another MPU with ' +
-        `byte range '${range}' for each part`, done => series([
-            next => utils.completeMPUAWS(srcBucket, key, 2, next),
-            next => utils.completeMPUWithPartCopy(srcBucket, copyKey,
-                copySource, range, 2, next),
-            next => utils.compareObjectsOneToMany(srcBucket, awsDestBucket,
-                destContainer, gcpDestBucket, copyKey, next),
-            // avoid a race with cleanup by ensuring everything is replicated
-            next => utils.waitUntilReplicated(srcBucket, key, undefined, next),
-        ], done)));
 });
