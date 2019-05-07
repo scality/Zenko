@@ -21,16 +21,16 @@
     "request": "^2.87.0"
   },
   "scripts": {
-    "test_aws_crr": "jest -t 10000 backbeat/tests/crr/awsBackend.js",
-    "test_azure_crr": "jest -t 10000 backbeat/tests/crr/azureBackend.js",
-    "test_gcp_crr": "jest -t 10000 backbeat/tests/crr/gcpBackend.js",
-    "test_one_to_many": "jest -t 10000 backbeat/tests/crr/oneToMany.js",
+    "test_aws_crr": "jest backbeat/tests/crr/awsBackend.js",
+    "test_azure_crr": "jest backbeat/tests/crr/azureBackend.js",
+    "test_gcp_crr": "jest backbeat/tests/crr/gcpBackend.js",
+    "test_one_to_many": "jest backbeat/tests/crr/oneToMany.js",
     "test_crr": "npm-run-all test_aws_crr test_azure_crr test_gcp_crr test_one_to_many",
-    "test_api": "jest -t 10000 backbeat/tests/api",
-    "test_retry": "jest -t 10000 backbeat/tests/retry",
-    "test_crr_pause_resume": "jest -t 10000 backbeat/tests/crr-pause-resume",
-    "test_location_quota": "jest -exit -t 10000 cloudserver/locationQuota/tests",
-    "test_bucket_get_v2": "jest -exit -t 10000 cloudserver/bucketGetV2/tests"
+    "test_api": "jest backbeat/tests/api",
+    "test_retry": "jest backbeat/tests/retry",
+    "test_crr_pause_resume": "jest backbeat/tests/crr-pause-resume",
+    "test_location_quota": "jest cloudserver/locationQuota/tests",
+    "test_bucket_get_v2": "jest cloudserver/bucketGetV2/tests"
   },
   "author": ""
 }
