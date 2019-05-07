@@ -14,6 +14,7 @@ def test_mpu_aws(aws_ep_bucket, aws_target_bucket, mpufile, objkey):
         objkey, mpufile, aws_ep_bucket, aws_target_bucket)
 
 
+@pytest.mark.skip(reason='test case covered')
 @pytest.mark.flaky(reruns=3)
 @pytest.mark.conformance
 def test_mpu_gcp(gcp_ep_bucket, gcp_target_bucket, mpufile, objkey):
