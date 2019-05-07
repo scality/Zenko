@@ -258,7 +258,7 @@ run-tests: | build-tests
 		--attach=True \
 		--image=$(E2E_IMAGE)  \
 		--namespace $(HELM_NAMESPACE) \
-		--limits='cpu=500m,memory=1.5Gi' \
+		--limits='cpu=500m,memory=2Gi' \
 		--requests='cpu=250m,memory=512Mi' \
 		--env MOCHA_TAGS="$(NODE_TEST_TAGS)" \
 		--env CLOUDSERVER_ENDPOINT="http://$(ZENKO_HELM_RELEASE)-cloudserver:80" \
