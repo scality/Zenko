@@ -11,7 +11,7 @@ def test_mpu_aws(aws_ep_bucket, aws_target_bucket, mpufile, objkey):
     util.upload_object(aws_ep_bucket, objkey, mpufile)
     util.remark('Done uploading file, downloading and checking hash')
     assert util.check_object(
-        objkey, mpufile, aws_ep_bucket, aws_target_bucket, timeout=60)
+        objkey, mpufile, aws_ep_bucket, aws_target_bucket)
 
 
 @pytest.mark.flaky(reruns=3)
@@ -22,7 +22,7 @@ def test_mpu_gcp(gcp_ep_bucket, gcp_target_bucket, mpufile, objkey):
     util.upload_object(gcp_ep_bucket, objkey, mpufile)
     util.remark('Done uploading file, downloading and checking hash')
     assert util.check_object(
-        objkey, mpufile, gcp_ep_bucket, gcp_target_bucket, timeout=60)
+        objkey, mpufile, gcp_ep_bucket, gcp_target_bucket)
 
 
 @pytest.mark.flaky(reruns=3)
@@ -33,7 +33,7 @@ def test_mpu_azure(azure_ep_bucket, azure_target_bucket, mpufile, objkey):
     util.upload_object(azure_ep_bucket, objkey, mpufile)
     util.remark('Done uploading file, downloading and checking hash')
     assert util.check_object(
-        objkey, mpufile, azure_ep_bucket, azure_target_bucket, timeout=60)
+        objkey, mpufile, azure_ep_bucket, azure_target_bucket)
 
 
 @pytest.mark.conformance
@@ -43,7 +43,7 @@ def test_mpu_ceph(ceph_ep_bucket, ceph_target_bucket, mpufile, objkey):
     util.upload_object(ceph_ep_bucket, objkey, mpufile)
     util.remark('Done uploading file, downloading and checking hash')
     assert util.check_object(
-        objkey, mpufile, ceph_ep_bucket, ceph_target_bucket, timeout=60)
+        objkey, mpufile, ceph_ep_bucket, ceph_target_bucket)
 
 
 @pytest.mark.skip(reason='Wasabi not implemented in CI')
