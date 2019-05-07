@@ -210,6 +210,7 @@ class ReplicationUtility {
             next => this.s3.createMultipartUpload(initiateMPUParams,
             (err, data) => {
                 if (err) {
+                    console.log('err creating mpu', err);
                     return next(err);
                 }
                 uploadId = data.UploadId;
@@ -228,6 +229,7 @@ class ReplicationUtility {
                     return this.s3.uploadPart(uploadPartParams,
                         (err, data) => {
                             if (err) {
+                                console.log('err upload part', err);
                                 return callback(err);
                             }
                             return callback(null, data.ETag);
