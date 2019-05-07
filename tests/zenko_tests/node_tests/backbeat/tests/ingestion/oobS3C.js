@@ -100,6 +100,8 @@ describe('OOB updates for RING S3C bucket', () => {
     });
 
     it('should ingest an MPU object: 2 parts', done => {
+        console.log('INGESTION_DEST_BUCKET', INGESTION_DEST_BUCKET);
+        console.log('OBJ_KEY', OBJ_KEY);
         return async.waterfall([
             next => ringS3CUtils.completeMPUAWS(ingestionSrcBucket, OBJ_KEY, 2, next),
             (mpuData, next) => scalityUtils.compareObjectsRINGS3C(ingestionSrcBucket,
