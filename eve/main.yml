@@ -35,7 +35,7 @@ models:
   - Upload: &upload_artifacts
       source: tests/artifacts
       urls:
-        - "*"
+        - "*.tar.gz"
   - ShellCommand: &private_registry_login
       name: Private Registry Login
       command: >

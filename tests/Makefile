@@ -227,8 +227,10 @@ dump-logs: | artifacts
 	$(V)(kubectl  -n $(HELM_NAMESPACE) get pods -o go-template --template '$(ZENKO_PODS)') | xargs -n 1 -r sh -c;  \
 	(kubectl -n $(HELM_NAMESPACE) get pods -o jsonpath='$(E2E_LOG_PODS)') | \
 	while read -r pod; do \
+		kubectl -n $(HELM_NAMESPACE) logs $${pod} --previous=true; \
 		kubectl -n $(HELM_NAMESPACE) logs $${pod}; \
 	done;
+	tar -czvf ./artifacts/$(HELM_NAMESPACE).tar.gz ./artifacts
 .PHONY: dump-logs
 
 clean-s3c:
