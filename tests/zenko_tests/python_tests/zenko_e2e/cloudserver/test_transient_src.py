@@ -11,7 +11,7 @@ def test_transient_src(transient_src_bucket, transient_target_bucket,
     util.mark_test('TRANSIENT SOURCE')
     util.upload_object(transient_src_bucket, objkey, testfile)
     assert util.check_object(
-        objkey, testfile, transient_target_bucket, timeout=300)
+        objkey, testfile, transient_target_bucket, tries=2)
     then = datetime.utcnow()
     passed = False
     while datetime.utcnow() - then < TIMEOUT:

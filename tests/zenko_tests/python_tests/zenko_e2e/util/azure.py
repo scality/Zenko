@@ -1,18 +1,24 @@
+# pylint: disable=invalid-name,too-few-public-methods,unused-argument
+import io
+import time
+from botocore.exceptions import WaiterError
+
 from .. import conf
 
 
-class ObjectStub:  # pylint: disable=too-few-public-methods
-    def __init__(self, k, v=None):
-        def func(*args, **kwargs):  # pylint: disable=unused-argument
+class ObjectStub:
+    def __init__(self, **kwargs):
+        def func(*args, **kwargs):
             pass
-        setattr(self, k, v if v is not None else func)
+        for k, v in kwargs.items():
+            setattr(self, k, v if v is not None else func)
 
 
-class AzureResource:  # pylint: disable=too-few-public-methods
+class AzureResource:
     def __init__(self, service):
         self._service = service
 
-    def Bucket(self, name):  # pylint: disable=invalid-name
+    def Bucket(self, name):
         return AzureBucket(self._service, name)
 
 
@@ -31,7 +37,7 @@ class AzureBucket:
     def delete(self):
         return self._service.delete_container(self._name)
 
-    def put_object(self, Key=None, Body=None):  # pylint: disable=invalid-name
+    def put_object(self, Key=None, Body=None):
         if Key is None or Body is None:
             raise Exception
         return self._service.create_blob_from_bytes(
@@ -56,13 +62,44 @@ class AzureBucket:
     def objects(self):
         def func():
             return self._service.list_blobs(self._name)
-        return ObjectStub('all', func)
+        return ObjectStub(all=func)
 
-    def Versioning(self):  # pylint: disable=invalid-name, no-self-use
-        return ObjectStub('suspend')
+    def Versioning(self):  # pylint: disable=no-self-use
+        return ObjectStub(suspend=None)
 
     def delete_blob(self, name):
         self._service.delete_blob(self._name, name)
+
+    def Object(self, key):
+        def upload_fileobj(data, **kwargs):
+            return self._service.create_blob_from_bytes(
+                self._name,
+                key,
+                data.read()
+            )
+
+        def get():
+            blob = self._service.get_blob_to_bytes(
+                self._name,
+                key
+            )
+            return dict(Body=io.BytesIO(blob.content))
+
+        def wait_until_exists(**kwargs):
+            for _ in range(20):
+                if self._service.exists(self._name, key):
+                    return True
+                time.sleep(5)
+            raise WaiterError('BlobNotFound', 'Max tries reached (20)', '')
+
+        obj = ObjectStub(
+            upload_fileobj=upload_fileobj,
+            get=get,
+            wait_until_exists=wait_until_exists,
+            reload=None
+        )
+        obj.version_id = None  # pylint: disable=attribute-defined-outside-init
+        return obj
 
 
 def cleanup_azure_bucket(bucket, delete_bucket=True):

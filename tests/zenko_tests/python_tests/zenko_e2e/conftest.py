@@ -1,8 +1,12 @@
+# flake8: noqa
+# pylint: disable=wrong-import-position
 import os
 import os.path
 
-import boto3
 
+
+# NOTE These are import here to allow us to install the logging filters above
+import boto3
 import pytest
 
 import zenko_e2e.prometheus.client

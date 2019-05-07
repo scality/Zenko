@@ -18,7 +18,7 @@ def test_aws_1_1(aws_crr_bucket, aws_crr_target_bucket, objkey, datafile):
     data = datafile()
     util.upload_object(aws_crr_bucket, objkey, data)
     assert util.check_object(
-        objkey, data, aws_crr_bucket, aws_crr_target_bucket, timeout=300)
+        objkey, data, aws_crr_bucket, [aws_crr_target_bucket])
 
 
 @pytest.mark.flaky(reruns=3)
@@ -29,7 +29,7 @@ def test_gcp_1_1(gcp_crr_bucket, gcp_crr_target_bucket, objkey, datafile):
     data = datafile()
     util.upload_object(gcp_crr_bucket, objkey, data)
     assert util.check_object(
-        objkey, data, gcp_crr_bucket, gcp_crr_target_bucket, timeout=300)
+        objkey, data, gcp_crr_bucket, [gcp_crr_target_bucket])
 
 
 @pytest.mark.flaky(reruns=3)
@@ -41,7 +41,7 @@ def test_azure_1_1(
     data = datafile()
     util.upload_object(azure_crr_bucket, objkey, data)
     assert util.check_object(
-        objkey, data, azure_crr_bucket, azure_crr_target_bucket, timeout=300)
+        objkey, data, azure_crr_bucket, [azure_crr_target_bucket])
 
 
 @pytest.mark.parametrize('datafile', [testfile, mpufile])
@@ -50,9 +50,15 @@ def test_ceph_1_1(
         ceph_crr_bucket, ceph_crr_target_bucket, objkey, datafile):
     util.mark_test('CEPH 1-1 REPLICATION')
     data = datafile()
-    util.upload_object(ceph_crr_bucket, objkey, data)
+    success, ver_id = util.upload_object(ceph_crr_bucket, objkey, data)
+    assert success
     assert util.check_object(
-        objkey, data, ceph_crr_bucket, ceph_crr_target_bucket, timeout=300)
+        objkey,
+        data,
+        ceph_crr_bucket,
+        [ceph_crr_target_bucket],
+        version_id=ver_id
+    )
 
 
 @pytest.mark.skip(reason='Wasabi not implemented in CI')
@@ -67,8 +73,7 @@ def test_wasabi_1_1(wasabi_crr_bucket,
         objkey,
         testfile,
         wasabi_crr_bucket,
-        wasabi_crr_target_bucket,
-        timeout=30)
+        wasabi_crr_target_bucket)
 
 
 @pytest.mark.flaky(reruns=1)
@@ -86,7 +91,7 @@ def test_multi_1_M(  # pylint: disable=invalid-name, too-many-arguments
     util.upload_object(multi_crr_bucket, objkey, data)
     assert util.check_object(objkey, data,
                              multi_crr_bucket,
-                             aws_crr_target_bucket,
-                             gcp_crr_target_bucket,
-                             azure_crr_target_bucket,
-                             timeout=300)
+                             [
+                                 aws_crr_target_bucket,
+                                 gcp_crr_target_bucket,
+                                 azure_crr_target_bucket])
