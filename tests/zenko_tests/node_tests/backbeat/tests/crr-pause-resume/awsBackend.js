@@ -29,7 +29,7 @@ const REPLICATION_TIMEOUT = 300000;
 // check that the object DNE due to the replication pause, and not because
 // the tests checked before replication was complete.
 
-describe('Replication Pause-Resume with AWS backend', function() {
+describe('Replication Pause-Resume with AWS backend', () => {
     this.timeout(REPLICATION_TIMEOUT);
     let roleArn = 'arn:aws:iam::root:role/s3-replication-role';
 
@@ -45,9 +45,9 @@ describe('Replication Pause-Resume with AWS backend', function() {
             `${srcBucket}/${keyPrefix}`, next),
     ], done));
 
-    after(done => backbeatAPIUtils.resumeReplication(null, null, null, done));
+    afterAll(done => backbeatAPIUtils.resumeReplication(null, null, null, done));
 
-    it('should pause and resume replication', done => series([
+    test('should pause and resume replication', done => series([
         next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next),
         next => scalityUtils.waitUntilReplicated(srcBucket, key,
             undefined, next),
@@ -75,7 +75,7 @@ describe('Replication Pause-Resume with AWS backend', function() {
             undefined, next),
     ], done));
 
-    it('should pause, resume, get status by location name', done => series([
+    test('should pause, resume, get status by location name', done => series([
         next => backbeatAPIUtils.pauseReplication(destLocation, next),
         next => setTimeout(next, 5000),
         next => backbeatAPIUtils.getReplicationStatus(null, (err, data) => {
@@ -95,7 +95,8 @@ describe('Replication Pause-Resume with AWS backend', function() {
         }),
     ], done));
 
-    it('should get 404 error in data for status of non-existent location',
+    test(
+        'should get 404 error in data for status of non-existent location',
         done => {
         return backbeatAPIUtils.getReplicationStatus('non-existent-location',
             (err, data) => {
@@ -104,9 +105,10 @@ describe('Replication Pause-Resume with AWS backend', function() {
             assert.strictEqual(data.RouteNotFound, true);
             return done();
         });
-    });
+    }
+    );
 
-    it('should be able to set a CRR resume schedule', done => series([
+    test('should be able to set a CRR resume schedule', done => series([
         next => backbeatAPIUtils.pauseReplication(null, next),
         next => setTimeout(next, 5000),
         next => backbeatAPIUtils.getReplicationStatus(null, (err, data) => {

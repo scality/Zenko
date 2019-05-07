@@ -4,10 +4,10 @@ const { makeGETRequest, getResponseBody } = require('../../../utils/request');
 
 const REPLICATION_TIMEOUT = 300000;
 
-describe('Backbeat healthchecks', function dF() {
+describe('Backbeat healthchecks', () => {
     this.timeout(REPLICATION_TIMEOUT);
 
-    it('should get a 200 success response with details on internals', done => {
+    test('should get a 200 success response with details on internals', done => {
         makeGETRequest('/_/backbeat/api/healthcheck', (err, res) => {
             assert.ifError(err);
             assert.equal(res.statusCode, 200);

@@ -51,19 +51,19 @@ function() {
         next => utils.deleteVersionedBucket(srcBucket, next),
     ], done));
 
-    it('should replicate an object', done => series([
+    test('should replicate an object', done => series([
         next => utils.putObject(srcBucket, key, Buffer.alloc(1), next),
         next => utils.compareObjectsOneToMany(srcBucket, awsDestBucket,
             destContainer, gcpDestBucket, key, next),
     ], done));
 
-    it('should replicate a zero byte object', done => series([
+    test('should replicate a zero byte object', done => series([
         next => utils.putObject(srcBucket, key, undefined, next),
         next => utils.compareObjectsOneToMany(srcBucket, awsDestBucket,
             destContainer, gcpDestBucket, key, next),
     ], done));
 
-    it('should replicate a copied object', done => series([
+    test('should replicate a copied object', done => series([
         next => utils.putObject(srcBucket, key, Buffer.alloc(1), next),
         next => utils.copyObject(srcBucket, copySource, copyKey, next),
         next => utils.compareObjectsOneToMany(srcBucket, awsDestBucket,
@@ -72,13 +72,13 @@ function() {
         next => utils.waitUntilReplicated(srcBucket, key, undefined, next),
     ], done));
 
-    it('should replicate a MPU object: 2 parts', done => series([
+    test('should replicate a MPU object: 2 parts', done => series([
         next => utils.completeMPUAWS(srcBucket, key, 2, next),
         next => utils.compareObjectsOneToMany(srcBucket, awsDestBucket,
             destContainer, gcpDestBucket, key, next),
     ], done));
 
-    it('should replicate a MPU object: 10 parts', done => series([
+    test('should replicate a MPU object: 10 parts', done => series([
         next => utils.completeMPUAWS(srcBucket, key, 10, next),
         next => utils.compareObjectsOneToMany(srcBucket, awsDestBucket,
             destContainer, gcpDestBucket, key, next),
@@ -87,7 +87,7 @@ function() {
     [undefined,
     `0-${1024 * 1024 * 5}`,
     `${1024 * 1024 * 2}-${1024 * 1024 * 7}`].forEach(range =>
-        it('should replicate a MPU with parts copied from another MPU with ' +
+        test('should replicate a MPU with parts copied from another MPU with ' +
         `byte range '${range}' for each part`, done => series([
             next => utils.completeMPUAWS(srcBucket, key, 2, next),
             next => utils.completeMPUWithPartCopy(srcBucket, copyKey,

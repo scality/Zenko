@@ -88,7 +88,7 @@ function performRetries(keys, done) {
     ], done);
 }
 
-describe('Backbeat replication retry', function() {
+describe('Backbeat replication retry', () => {
     this.timeout(REPLICATION_TIMEOUT);
     const roleArn = 'arn:aws:iam::root:role/s3-replication-role';
 
@@ -105,7 +105,7 @@ describe('Backbeat replication retry', function() {
     ], done));
 
     [1, 2, 128].forEach(N => {
-        it(`should retry ${N} failed object(s)`, done => {
+        test(`should retry ${N} failed object(s)`, done => {
             let versionId;
             let postBody;
             const keys = [];
@@ -116,7 +116,7 @@ describe('Backbeat replication retry', function() {
         });
     });
 
-    it('should get correct CRR metrics when a retry occurs', function(done) {
+    test('should get correct CRR metrics when a retry occurs', done => {
         this.retries(2); // Test is dependent on metrics not expiring.
         const path = `/_/backbeat/api/metrics/crr/${destFailLocation}`;
         let prevBacklog;

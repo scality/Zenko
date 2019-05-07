@@ -54,7 +54,7 @@ function getAndCheckResponse(path, expectedBody, cb) {
     });
 }
 
-describe('Backbeat object monitor CRR metrics', function() {
+describe('Backbeat object monitor CRR metrics', () => {
     this.timeout(REPLICATION_TIMEOUT);
     let roleArn = 'arn:aws:iam::root:role/s3-replication-role';
 
@@ -70,7 +70,7 @@ describe('Backbeat object monitor CRR metrics', function() {
             `${srcBucket}/${keyPrefix}`, next),
     ], done));
 
-    it('should monitor a 1 byte object', done => waterfall([
+    test('should monitor a 1 byte object', done => waterfall([
         next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next),
         (data, next) =>
             scalityUtils.waitUntilReplicated(srcBucket, key, undefined, err =>
@@ -91,7 +91,7 @@ describe('Backbeat object monitor CRR metrics', function() {
         },
     ], done));
 
-    it('should monitor part uploads of an MPU object', done => waterfall([
+    test('should monitor part uploads of an MPU object', done => waterfall([
         next => scalityUtils.completeMPUAWS(srcBucket, key, 50, next),
         (data, next) => {
             const path = `/_/backbeat/api/metrics/crr/${destLocation}` +
@@ -147,7 +147,7 @@ describe('Backbeat object monitor CRR metrics', function() {
             next),
     ], done));
 
-    it('should monitor the average throughput for a 10 byte object', done => {
+    test('should monitor the average throughput for a 10 byte object', done => {
          // Use a new key since we don't want to track the previous operations.
         const throughputKey = `${key}-throughput`;
         return waterfall([

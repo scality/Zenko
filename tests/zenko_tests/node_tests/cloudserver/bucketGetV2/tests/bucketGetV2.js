@@ -27,7 +27,7 @@ function expectedKeyList(startKey, endKey) {
 }
 
 describe('Bucket GET V2 api', () => {
-    before(done => {
+    beforeAll(done => {
         async.series([
             next => s3.createBucket({ Bucket: bucket }, next),
             next => putObjects(next),
@@ -37,7 +37,7 @@ describe('Bucket GET V2 api', () => {
         });
     });
 
-    after(done => {
+    afterAll(done => {
         async.series([
             next => emptyBucket(next),
             next => s3.deleteBucket({ Bucket: bucket }, next),
@@ -47,7 +47,7 @@ describe('Bucket GET V2 api', () => {
         });
     })
 
-    it('should list objects in V2 format', done => {
+    test('should list objects in V2 format', done => {
         s3.listObjectsV2({ Bucket: bucket }, (err, res) => {
             assert.ifError(err);
             const keyList = [];
@@ -57,7 +57,7 @@ describe('Bucket GET V2 api', () => {
         });
     });
 
-    it('should list only objects after startAfter value', done => {
+    test('should list only objects after startAfter value', done => {
         s3.listObjectsV2({ Bucket: bucket, StartAfter: 'key-7' },
         (err, res) => {
             assert.ifError(err);
@@ -68,7 +68,7 @@ describe('Bucket GET V2 api', () => {
         });
     });
 
-    it('should include NextContinuationToken in truncated response', done => {
+    test('should include NextContinuationToken in truncated response', done => {
         s3.listObjectsV2({ Bucket: bucket, MaxKeys: 5 }, (err, res) => {
             assert.ifError(err);
             assert(res.NextContinuationToken);
@@ -76,7 +76,7 @@ describe('Bucket GET V2 api', () => {
         });
     });
 
-    it('should list objects after continuation token value', done => {
+    test('should list objects after continuation token value', done => {
         async.waterfall([
             next => s3.listObjectsV2({ Bucket: bucket, MaxKeys: 5 }, next),
             (objList, next) => s3.listObjectsV2(
@@ -91,7 +91,7 @@ describe('Bucket GET V2 api', () => {
         });
     });
 
-    it('should ignore startAfter value if both startAfter and ' +
+    test('should ignore startAfter value if both startAfter and ' +
     'continuationToken are included', done => {
         async.waterfall([
             next => s3.listObjectsV2({ Bucket: bucket, MaxKeys: 5 }, next),
@@ -109,12 +109,14 @@ describe('Bucket GET V2 api', () => {
         });
     });
 
-    it('should include Owner in response if fetchOwner is included in request',
-    done => {
-        s3.listObjectsV2({ Bucket: bucket, FetchOwner: true }, (err, res) => {
-            assert.ifError(err);
-            res.Contents.forEach(object => assert(object.Owner));
-            done();
-        });
-    });
+    test(
+        'should include Owner in response if fetchOwner is included in request',
+        done => {
+            s3.listObjectsV2({ Bucket: bucket, FetchOwner: true }, (err, res) => {
+                assert.ifError(err);
+                res.Contents.forEach(object => assert(object.Owner));
+                done();
+            });
+        }
+    );
 });

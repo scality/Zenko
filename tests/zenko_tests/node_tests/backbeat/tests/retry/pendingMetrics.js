@@ -55,26 +55,26 @@ function getPendingPath(location) {
     return `${pathPrefix}/${location}/pending`;
 }
 
-describe('Backbeat API pending metrics', function() {
+describe('Backbeat API pending metrics', () => {
     this.timeout(REPLICATION_TIMEOUT);
     const roleArn = 'arn:aws:iam::root:role/s3-replication-role';
 
     describe('Completed CRR', () => {
         const pendingPath = getPendingPath(destAWSLocation);
 
-        before(done => series([
+        beforeAll(done => series([
             next => scalityUtils.createVersionedBucket(srcBucket, next),
             next => scalityUtils.putBucketReplicationMultipleBackend(srcBucket,
                 'placeholder', roleArn, destAWSLocation, next),
         ], done));
 
-        after(done => series([
+        afterAll(done => series([
             next => awsUtils.deleteAllVersions(awsDestBucket, destKeyPrefix,
                 next),
             next => scalityUtils.deleteVersionedBucket(srcBucket, next),
         ], done));
 
-        it('should get pending bytes while CRR is in progress', done =>
+        test('should get pending bytes while CRR is in progress', done =>
             waterfall([
                 next => scalityUtils.completeMPUAWS(srcBucket, key, 10, next),
                 (data, next) => getAndCheckResponse(pendingPath,
@@ -92,19 +92,19 @@ describe('Backbeat API pending metrics', function() {
         let postBody;
         const pendingPath = getPendingPath(destFailLocation);
 
-        before(done => series([
+        beforeAll(done => series([
             next => scalityUtils.createVersionedBucket(srcBucket, next),
             next => scalityUtils.putBucketReplicationMultipleBackend(srcBucket,
                 destFailBucket, roleArn, destFailLocation, next),
         ], done));
 
-        after(done => parallel([
+        afterAll(done => parallel([
             next => scalityUtils.deleteVersionedBucket(srcBucket, next),
             next => awsUtils.deleteAllVersions(destFailBucket,
                 `${srcBucket}/${keyPrefix}`, next),
         ], done));
 
-        it('should handle pending metrics', done => series([
+        test('should handle pending metrics', done => series([
             next => awsUtils.deleteVersionedBucket(destFailBucket, next),
             next => scalityUtils.completeMPUAWS(srcBucket, key, 10, next),
             next => getAndCheckResponse(pendingPath,

@@ -44,7 +44,7 @@ function getAndCheckResponse(path, expectedBody, cb) {
     () => shouldContinue, cb);
 }
 
-describe('Backbeat replication metrics route validation', function dF() {
+describe('Backbeat replication metrics route validation', () => {
     this.timeout(REPLICATION_TIMEOUT);
     const pathPrefix = '/_/backbeat/api/metrics/crr';
 
@@ -53,7 +53,7 @@ describe('Backbeat replication metrics route validation', function dF() {
         `${pathPrefix}/${destAWSLocation}`,
         `${pathPrefix}/${destAzureLocation}`,
     ].forEach(path => {
-        it(`should return all metrics for path ${path}`, done => {
+        test(`should return all metrics for path ${path}`, done => {
             makeGETRequest(path, (err, res) => {
                 assert.ifError(err);
                 assert.equal(res.statusCode, 200);
@@ -92,8 +92,7 @@ describe('Backbeat replication metrics route validation', function dF() {
         `${pathPrefix}/${destAWSLocation}/pending`,
         `${pathPrefix}/${destAzureLocation}/pending`,
     ].forEach(path => {
-        it(`should get responses for metric path: ${path}`,
-        done => {
+        test(`should get responses for metric path: ${path}`, done => {
             makeGETRequest(path, (err, res) => {
                 assert.ifError(err);
                 assert.equal(res.statusCode, 200);
@@ -112,7 +111,7 @@ describe('Backbeat replication metrics route validation', function dF() {
     });
 });
 
-describe('Backbeat replication metrics data', function dF() {
+describe('Backbeat replication metrics data', () => {
     this.timeout(REPLICATION_TIMEOUT);
     const roleArn = 'arn:aws:iam::root:role/s3-replication-role';
     const storageClass = `${destAWSLocation},${destAzureLocation}`;
@@ -130,7 +129,7 @@ describe('Backbeat replication metrics data', function dF() {
         next => scalityUtils.deleteVersionedBucket(srcBucket, next),
     ], done));
 
-    it.skip('should report metrics when replication occurs', done => {
+    test.skip('should report metrics when replication occurs', done => {
         let prevCompletions;
         let prevThroughput;
         series([

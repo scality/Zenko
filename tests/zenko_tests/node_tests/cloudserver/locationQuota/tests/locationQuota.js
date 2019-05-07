@@ -11,7 +11,7 @@ const bucket = `quota-bucket-${Date.now()}`;
 const scalityS3 = new QuotaUtility(scalityS3Client);
 
 describe('Location storage quota', () => {
-    beforeEach(function beFn(done) {
+    beforeEach(done => {
         this.timeout(50000);
         async.series([
             next => scalityS3.createQuotaBucket(bucket, next),
@@ -27,7 +27,7 @@ describe('Location storage quota', () => {
         scalityS3.deleteQuotaBucket(bucket, done);
     });
 
-    it('should throw error if location quota exceeded on object put', done => {
+    test('should throw error if location quota exceeded on object put', done => {
         const hex = crypto.createHash('md5')
             .update(Math.random().toString()).digest('hex');
         const key = `${bucket}/${hex}/quota-object-exceed-limit${Date.now()}`;
@@ -38,7 +38,7 @@ describe('Location storage quota', () => {
         });
     });
 
-    it('should throw error if location quota exceeded on mpu part put', done => {
+    test('should throw error if location quota exceeded on mpu part put', done => {
         const hex = crypto.createHash('md5')
             .update(Math.random().toString()).digest('hex');
         const key = `${bucket}/${hex}/quota-object-exceed-limit${Date.now()}`;
