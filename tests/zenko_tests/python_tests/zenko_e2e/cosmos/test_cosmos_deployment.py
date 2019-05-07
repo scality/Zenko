@@ -31,8 +31,11 @@ def kube_batch(kube):
     return client.BatchV1Api(kube)
 
 
+# Timeout has been increased to 180 because of setup time but really shouldn't
+# be increased any further. Please investigate possible regressions or test
+# refactor before increasing the timeout any further.
 @pytest.mark.conformance
-def test_cosmos_nfs_ingestion(nfs_loc, nfs_loc_bucket, kube_batch, timeout=60):
+def test_cosmos_nfs_ingest(nfs_loc, nfs_loc_bucket, kube_batch, timeout=180):
     util.mark_test('SOFS-NFS INGESTION')
     job_name = INGESTION_JOB.format(nfs_loc)
     _timestamp = time.time()
