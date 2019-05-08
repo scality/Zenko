@@ -1,0 +1,8 @@
+version: '3'
+services:
+  controller:
+    image: zenko/sfko:latest
+    environment:
+      MODE: proxy
+      REDIS_HOST: ${REDIS_HOST:localhost}
+    restart: unless-stopped

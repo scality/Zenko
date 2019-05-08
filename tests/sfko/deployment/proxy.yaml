@@ -1,0 +1,14 @@
+version: '3'
+services:
+  proxy:
+    image: zenko/sfko:latest
+    environment:
+      MODE: proxy
+      REDIS_HOST: redis
+    restart: unless-stopped
+    ports:
+      - 8080:8080
+  redis:
+    image: redis
+    ports:
+      - 6379:6379

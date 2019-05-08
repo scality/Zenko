@@ -1,0 +1,10 @@
+version: '3'
+services:
+  controller:
+    image: zenko/sfko:latest
+    environment:
+      MODE: worker
+      REDIS_HOST: ${REDIS_HOST:localhost}
+      ZENKO_ACCESS_KEY: ${ZENKO_ACCESS_KEY}
+      ZENKO_SECRET_KEY: ${ZENKO_ACCESS_KEY}
+    restart: unless-stopped

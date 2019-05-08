@@ -12,7 +12,7 @@ def get_chunksize(filesize):
     return ChunksizeAdjuster().adjust_chunksize(DEFAULT_CHUNKSIZE, filesize)
 
 
-# returns the size of the chunk of an mpu (can be smaller than others)
+# returns the size of the last chunk of an mpu (can be smaller than others)
 def _get_last_chunksize(filesize, chunksize, parts):
     return chunksize - ((chunksize * parts) - filesize)
 

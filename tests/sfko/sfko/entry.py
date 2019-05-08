@@ -46,8 +46,9 @@ def entry():
     elif config.mode is not None:
         mode = config.mode
 
-    if not mode == 'worker' and config.results.enabled:
-        init_scheduler()
+    # Disabled until migrated to slack
+    # if not mode == 'worker' and config.results.enabled:
+    #     init_scheduler()
 
     if mode is None:
         start_standalone()
