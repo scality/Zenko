@@ -10,7 +10,7 @@ and to retrieve the entire listing.
 
 **Request**
 
-GET /_/backbeat/api/_/crr/failed?sitename=<site>&marker=<next-marker>
+GET/_/backbeat/api/crr/failed?sitename=<site>&marker=<next-marker>
 
 **Non-truncated Response**
 
@@ -56,7 +56,7 @@ object’s replication status.
 
 .. code::
 
-  GET /_/backbeat/api/_/crr/failed/<bucket>/<key>?versionId=<version-id>
+  GET /_/backbeat/api/crr/failed/<bucket>/<key>?versionId=<version-id>
 
 **Response**
 
@@ -86,7 +86,7 @@ This POST request retries a set of failed operations.
 
 .. code::
 
-  POST /_/backbeat/api/_/crr/failed
+  POST /_/backbeat/api/crr/failed
 
 **Request Body**
 
