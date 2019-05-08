@@ -205,7 +205,7 @@ wait-for-zenko: | build-tests
 		--restart=Never \
 		--namespace=$(HELM_NAMESPACE) \
 		$(shell ../eve/workers/ci_env.sh env) \
-		--command -- python3 create_buckets.py || (echo "Zenko has failed to stabilize" ; kubectl get pods -L redis-role ; exit 1) >&2
+		--command -- python3 create_buckets.py || (echo "Zenko has failed to stabilize" ; kubectl get all ; exit 1) >&2
 .PHONY: wait-for-zenko
 
 wait-for-ceph: | build-tests
@@ -241,7 +241,7 @@ clean-s3c:
 		--restart=Never \
 		--namespace=$(HELM_NAMESPACE) \
 		$(shell ../eve/workers/ci_env.sh env) \
-		--command -- python3 cleans3c.py || (echo "Zenko has failed to cleanup s3c" ; kubectl get pods -L redis-role ; exit 1) >&2
+		--command -- python3 cleans3c.py || (echo "Zenko has failed to cleanup s3c" ; kubectl get all ; exit 1) >&2
 
 clean-cosmos:
 	$(V)$(KUBECTL) delete cosmos $(NFS_BACKEND)
@@ -259,7 +259,7 @@ run-tests: | build-tests
 		--namespace $(HELM_NAMESPACE) \
 		--env MOCHA_TAGS="$(NODE_TEST_TAGS)" \
 		--env CLOUDSERVER_ENDPOINT="http://$(ZENKO_HELM_RELEASE)-cloudserver:80" \
-		$(shell ../eve/workers/ci_env.sh env) || (echo "Tests have failed" ; kubectl get pods -L redis-role ; exit 1) >&2
+		$(shell ../eve/workers/ci_env.sh env) || (echo "Tests have failed" ; kubectl get all ; exit 1) >&2
 .PHONY: run-tests
 
 run-listing-fuzzer:
