@@ -35,6 +35,8 @@ s3-data:
 mongodb-replicaset:
   persistentVolume:
     enabled: false
+  init:
+    timeout: 60
   resources:
     limits:
       cpu: 500m
