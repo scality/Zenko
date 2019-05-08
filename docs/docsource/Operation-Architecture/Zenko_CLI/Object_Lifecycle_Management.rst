@@ -1,3 +1,5 @@
+.. _object_lifecycle:
+
 Object Lifecycle Management
 ===========================
 
@@ -68,8 +70,8 @@ bucket:
 These calls manage bucket attributes related to lifecycle behavior,
 which are stored as part of bucket metadata.
 
-Setting Up Using the AWS s3api CLI
-----------------------------------
+Managing Lifecycle Rules from the S3 API 
+----------------------------------------
 
 See `https://docs.aws.amazon.com/AmazonS3/latest/dev/lifecycle-configuration-examples.html 
 <https://docs.aws.amazon.com/AmazonS3/latest/dev/lifecycle-configuration-examples.html>`__
