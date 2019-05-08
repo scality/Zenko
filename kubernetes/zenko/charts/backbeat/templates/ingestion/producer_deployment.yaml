@@ -46,6 +46,8 @@ spec:
               value: "{{ template "backbeat.redis-hosts" . }}"
             - name: REDIS_HA_NAME
               value: "{{ .Values.redis.sentinel.name }}"
+            - name: QUEUE_POPULATOR_BATCH_MAX_READ
+              value: "1000"
           livenessProbe:
             httpGet:
               path: {{ .Values.health.path.liveness }}
