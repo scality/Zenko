@@ -124,30 +124,30 @@ models:
       AWS_BUCKET_NAME: ci-zenko-aws-target-bucket
       AWS_BUCKET_NAME_2: ci-zenko-aws-target-bucket-2
       AWS_CRR_BUCKET_NAME: ci-zenko-aws-crr-target-bucket
-      AWS_CRR_SRC_BUCKET_NAME: ci-zenko-aws-crr-src-bucket
+      AWS_CRR_SRC_BUCKET_NAME: 'ci-zenko-aws-crr-src-bucket-${STAGE}-%(prop:bootstrap)s'
 
       AZURE_BUCKET_NAME: ci-zenko-azure-target-bucket
       AZURE_BUCKET_NAME_2: ci-zenko-azure-target-bucket-2
       AZURE_CRR_BUCKET_NAME: ci-zenko-azure-crr-target-bucket
-      AZURE_CRR_SRC_BUCKET_NAME: ci-zenko-azure-crr-src-bucket
+      AZURE_CRR_SRC_BUCKET_NAME: 'ci-zenko-azure-crr-src-bucket-${STAGE}-%(prop:bootstrap)s'
 
       GCP_BUCKET_NAME: ci-zenko-gcp-target-bucket
       GCP_BUCKET_NAME_2: ci-zenko-gcp-target-bucket-2
       GCP_CRR_BUCKET_NAME: ci-zenko-gcp-crr-target-bucket
       GCP_CRR_MPU_BUCKET_NAME: ci-zenko-gcp-crr-mpu-bucket
-      GCP_CRR_SRC_BUCKET_NAME: ci-zenko-gcp-crr-src-bucket
+      GCP_CRR_SRC_BUCKET_NAME: 'ci-zenko-gcp-crr-src-bucket-${STAGE}-%(prop:bootstrap)s'
       GCP_MPU_BUCKET_NAME: ci-zenko-gcp-mpu-bucket
       GCP_MPU_BUCKET_NAME_2: ci-zenko-gcp-mpu-bucket-2
 
       CEPH_BUCKET_NAME: ci-zenko-ceph-target-bucket
-      CEPH_CRR_SRC_BUCKET_NAME: ci-zenko-ceph-crr-src-bucket
+      CEPH_CRR_SRC_BUCKET_NAME: 'ci-zenko-ceph-crr-src-bucket-${STAGE}-%(prop:bootstrap)s'
       CEPH_CRR_BUCKET_NAME: ci-zenko-ceph-crr-target-bucket
 
       RING_S3C_BACKEND_SOURCE_LOCATION: rings3cbackendingestion
-      RING_S3C_INGESTION_SRC_BUCKET_NAME: 'ingestion-%(prop:bootstrap)s'
+      RING_S3C_INGESTION_SRC_BUCKET_NAME: 'ingestion-${STAGE}-%(prop:bootstrap)s'
 
-      MULTI_CRR_SRC_BUCKET_NAME: ci-zenko-multi-crr-src-bucket
-      TRANSIENT_SRC_BUCKET_NAME: ci-zenko-transient-src-bucket
+      MULTI_CRR_SRC_BUCKET_NAME: 'ci-zenko-multi-crr-src-bucket-${STAGE}-%(prop:bootstrap)s'
+      TRANSIENT_SRC_BUCKET_NAME: 'ci-zenko-transient-src-bucket-${STAGE}-%(prop:bootstrap)s'
 
       NFS_SERVER: '%(secret:nfs_backend_endpoint)s'
       NFS_BACKEND: 'nfs-%(prop:bootstrap)s'
