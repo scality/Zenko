@@ -38,3 +38,15 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 EOF
 
+## Todo: Add namespace wide quotas
+#echo "Applying namespace quota"
+#cat <<EOF | kubectl apply -f -
+#apiVersion: v1
+#kind: ResourceQuota
+#metadata:
+#  name: quota
+#  namespace: ${NAMESPACE}
+#spec:
+#  hard:
+#    cpu: "10"
+#EOF
