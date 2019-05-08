@@ -1,3 +1,5 @@
+.. _`add new user`:
+
 Adding a New User
 =================
 
