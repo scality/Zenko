@@ -9,8 +9,8 @@ global:
   replicationEndpoints: []
 
 image:
-  repository: zenko/backbeat
-  tag: 8.1.8
+  repository: philipyoo/backbeat
+  tag: hello5
   pullPolicy: IfNotPresent
 
 logging:
