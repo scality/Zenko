@@ -177,6 +177,13 @@ affinity: |
             app: {{ template "cloudserver.name" . }}
             release: {{ .Release.Name | quote }}
 
+# configuration specific to the manager pod
+manager:
+  affinity: {}
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+
 autoscaling:
   enabled: false
   config:
