@@ -1,18 +1,27 @@
-CRR Retry API Definition
-========================
+CRR Retry
+=========
+
+The CRR Retry feature lets users monitor and retry failed CRR operations,
+enabling them to retrieve a list of failed operations and to retry
+specific CRR operations.
+
+CRR Retry API
+-------------
 
 Get All Failed Operations
--------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This GET request retrieves a listing of failed operations at a site. Use
 this operation to learn if any CRR operations have failed at the site,
 and to retrieve the entire listing.
 
-**Request**
+**Request:** 
 
-GET/_/backbeat/api/crr/failed?sitename=<site>&marker=<next-marker>
+.. code::
 
-**Non-truncated Response**
+   GET/_/backbeat/api/crr/failed?sitename=<site>&marker=<next-marker>
+
+**Non-Truncated Response**
 
 .. code::
 
@@ -48,15 +57,17 @@ GET/_/backbeat/api/crr/failed?sitename=<site>&marker=<next-marker>
   }
 
 Get Failed Operations by Objects
---------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This GET request retrieves a listing of all failed operations for a
 specific object version. Use this operation to monitor a specific
 object’s replication status.
 
+**Request:** 
+
 .. code::
 
-  GET /_/backbeat/api/crr/failed/<bucket>/<key>?versionId=<version-id>
+   GET /_/backbeat/api/crr/failed/<bucket>/<key>?versionId=<version-id>
 
 **Response**
 
@@ -80,7 +91,7 @@ object’s replication status.
   not foresee any replication rule including more than 1,000 sites.
 
 Retry Failed Operations
------------------------
+~~~~~~~~~~~~~~~~~~~~~~~
 
 This POST request retries a set of failed operations.
 
