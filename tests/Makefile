@@ -302,7 +302,7 @@ test-flaky:
 .PHONY: test-flaky
 
 ifeq ($(DOCS_ONLY),)
-test: | install-zenko install-common run-tests dump-logs
+test: | install-common install-zenko run-tests dump-logs
 else
 test:
 endif
