@@ -1,4 +1,4 @@
-.. _Monitoring NFS-SOFS Ingestion:
+.. _`Monitoring_NFS-SOFS_Ingestion`:
 
 Monitoring NFS/SOFS Ingestion
 =============================
@@ -50,19 +50,21 @@ yields:
    Transferred:            0 / 0, -
    Elapsed time:  2h48m18.8s
 
+
+.. tabularcolumns:: X{0.20\textwidth}X{0.75\textwidth}
 .. table::
-   
+
    +--------------+------------------------------------------------------------+
    | Response     | Description                                                |
    +==============+============================================================+
    | Transferred  | The byte count of metadata transferred, with data rate in  |
-   | 		  | B/s and a completion time estimate. The Transfered counts  |
-   |		  | are almost always 0 / 0.                                   |
+   | 		  | B/s and a completion time estimate. Transferred counts are |
+   |		  | almost always 0/0.                                         |
    +--------------+------------------------------------------------------------+
    | Errors       | Aggregated error count for the requested job.              |
    +--------------+------------------------------------------------------------+
-   | Checks       | Ingested information / total information yet to be         |
-   | 		  | ingested, plus a percentage expressing this ratio.         |
+   | Checks       | Ingested information/total information to be ingested,     |
+   | 		  | and a percentage expressing this ratio.                    |
    +--------------+------------------------------------------------------------+
    | Elapsed Time | Time spent on the current ingestion cycle.	               |
    +--------------+------------------------------------------------------------+
