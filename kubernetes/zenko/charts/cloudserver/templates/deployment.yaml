@@ -74,6 +74,10 @@ spec:
             httpGet:
               path: /_/healthcheck
               port: http
+          readinessProbe:
+            httpGet:
+              path: /_/healthcheck/deep
+              port: http
           volumeMounts:
             {{- if .Values.proxy.caCert }}
             - name: proxy-cert
