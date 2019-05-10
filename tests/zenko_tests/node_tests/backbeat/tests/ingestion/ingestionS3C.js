@@ -116,7 +116,7 @@ describe('Ingesting existing data from RING S3C bucket', () => {
             }, (err, data) => next(err, zenkoData, data)),
         ], (err, zenkoData, s3cData) => {
             if (err) {
-                return cb(err);
+                return done(err);
             }
             assert.strictEqual(zenkoData.Versions.length, s3cData.Versions.length);
             assert.strictEqual(zenkoData.DeleteMarkers.length, s3cData.DeleteMarkers.length);

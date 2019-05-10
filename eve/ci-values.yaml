@@ -26,10 +26,29 @@ cosmos:
 s3-data:
   persistentVolume:
     enabled: false
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+
 
 mongodb-replicaset:
   persistentVolume:
     enabled: false
+  init:
+    timeout: 60
+  resources:
+    limits:
+      cpu: 500m
+      memory: 4Gi
+    requests:
+      cpu: 125m
+      memory: 128Mi
+  metrics:
+    resources: &exporter
+      requests:
+        cpu: 10m
+        memory: 32Mi
 
 prometheus:
   rbac:
@@ -53,16 +72,39 @@ prometheus:
   server:
     persistentVolume:
       enabled: false
+    resources:
+      limits:
+        cpu: 200m
+        memory: 1Gi
+      requests:
+        cpu: 50m
+        memory: 128Mi
 
 zenko-queue:
   persistence:
     enabled: false
   rbac:
     enabled: false
+  resources:
+    limits:
+      cpu: 300m
+      memory: 1Gi
+    requests:
+      cpu: 200m
+      memory: 128Mi
 
 zenko-quorum:
   persistence:
     enabled: false
+  resources:
+    limits:
+      cpu: 200m
+      memory: 2Gi
+    requests:
+      cpu: 50m
+      memory: 128Mi
+  env:
+    ZK_HEAP_SIZE: 2G
 
 redis-ha:
   persistentVolume:
@@ -72,7 +114,22 @@ redis-ha:
   serviceAccount:
     create: false
     name: default
-
+  redis:
+    resources:
+      limits:
+        memory: 256Mi
+        cpu: 200m
+      requests:
+        memory: 64Mi
+        cpu: 50m
+  sentinel:
+    resources:
+      limits:
+        cpu: 50m
+        memory: 128Mi
+      requests:
+        cpu: 50m
+        memory: 64Mi
 global:
   orbit:
     endpoint: "http://ciutil-orbit-simulator:4222"
@@ -90,12 +147,48 @@ cloudserver:
     CI_CEPH: 'true'
     CI: 'true'
     S3_END_TO_END: 'true'
+  affinity: ""
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 200m
+      memory: 128Mi
+  manager:
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 75m
+        memory: 128Mi
 
 backbeat:
   image:
     pullPolicy: Always
+  api:
+    resources:
+      limits:
+        cpu: 500m
+        memory: 1Gi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
   replication:
-    replicaFactor: 2
+    dataProcessor:
+      resources: &backbeat
+        limits:
+          cpu: 300m
+          memory: 512Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+    populator:
+      resources: *backbeat
+    statusProcessor:
+      resources: *backbeat
     retry:
       aws_s3:
         timeoutS: 900
@@ -124,6 +217,19 @@ backbeat:
   lifecycle:
     conductor:
       cronRule: "* * * * *"
+      resources: *backbeat
+    objectProcessor:
+      resources: *backbeat
+    bucketProcessor:
+      resources: *backbeat
+  ingestion:
+    consumer:
+      resources: *backbeat
+    producer:
+      resources: *backbeat
+  garbageCollector:
+    consumer:
+      resources: *backbeat
 
 grafana:
   persistentVolume:

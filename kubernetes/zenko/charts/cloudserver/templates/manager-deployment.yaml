@@ -56,14 +56,16 @@ spec:
               readOnly: true
             {{- end }}
           resources:
-{{ toYaml .Values.resources | indent 12 }}
-    {{- with .Values.nodeSelector }}
+{{ toYaml .Values.manager.resources | indent 12 }}
+    {{- with .Values.manager.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
     {{- end }}
+    {{- with .Values.manager.affinity }}
       affinity:
-{{ tpl .Values.affinity . | indent 8 }}
-    {{- with .Values.tolerations }}
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.manager.tolerations }}
       tolerations:
 {{ toYaml . | indent 8 }}
     {{- end }}

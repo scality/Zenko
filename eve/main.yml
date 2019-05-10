@@ -17,25 +17,25 @@ models:
       command: eve/scripts/setup-k8s.sh
       env:
         CI_KUBECONFIG: '%(secret:openstack_cluster_conf)s'
-        NAMESPACE: '%(prop:workername)s'
+        NAMESPACE: '${STAGE}-%(prop:bootstrap)s'
         KUBECONFIG: /root/.kube/config
         CLUSTER_IP: '%(secret:openstack_cluster_ip)s'
       haltOnFailure: true
   - ShellCommand: &k8s_cleanup
       name: Cleanup
       command: |
-        kubectl -n '%(prop:workername)s' delete cosmos --all
-        kubectl delete namespace '%(prop:workername)s' --wait
+        kubectl -n ${HELM_NAMESPACE} delete cosmos --all
+        kubectl delete namespace ${HELM_NAMESPACE} --wait
       alwaysRun: true
       sigtermTime: 1200
       env:
         KUBECONFIG: /root/.kube/config
         ZENKO_HELM_RELEASE: 'zenko-offline'
-        HELM_NAMESPACE: '%(prop:workername)s'
+        HELM_NAMESPACE: '${STAGE}-%(prop:bootstrap)s'
   - Upload: &upload_artifacts
       source: tests/artifacts
       urls:
-        - "*"
+        - "*.tar.gz"
   - ShellCommand: &private_registry_login
       name: Private Registry Login
       command: >
@@ -55,13 +55,13 @@ models:
       command: make -e dump-logs
       workdir: build/tests
       env:
-        HELM_NAMESPACE: '%(prop:workername)s'
+        HELM_NAMESPACE: '${STAGE}-%(prop:bootstrap)s'
   - ShellCommand: &start-mocks
       name: Start external service mocks
       command: make -e install-mocks
       workdir: build/tests
       env:
-        HELM_NAMESPACE: '%(prop:workername)s'
+        HELM_NAMESPACE: '${STAGE}-%(prop:bootstrap)s'
   - SetPropertyFromCommand: &notify-build-start
       name: Save the timestamp from our start message, for editing later
       property: report_build_msg_ts
@@ -124,30 +124,30 @@ models:
       AWS_BUCKET_NAME: ci-zenko-aws-target-bucket
       AWS_BUCKET_NAME_2: ci-zenko-aws-target-bucket-2
       AWS_CRR_BUCKET_NAME: ci-zenko-aws-crr-target-bucket
-      AWS_CRR_SRC_BUCKET_NAME: ci-zenko-aws-crr-src-bucket
+      AWS_CRR_SRC_BUCKET_NAME: 'ci-zenko-aws-crr-src-bucket-${STAGE}-%(prop:bootstrap)s'
 
       AZURE_BUCKET_NAME: ci-zenko-azure-target-bucket
       AZURE_BUCKET_NAME_2: ci-zenko-azure-target-bucket-2
       AZURE_CRR_BUCKET_NAME: ci-zenko-azure-crr-target-bucket
-      AZURE_CRR_SRC_BUCKET_NAME: ci-zenko-azure-crr-src-bucket
+      AZURE_CRR_SRC_BUCKET_NAME: 'ci-zenko-azure-crr-src-bucket-${STAGE}-%(prop:bootstrap)s'
 
       GCP_BUCKET_NAME: ci-zenko-gcp-target-bucket
       GCP_BUCKET_NAME_2: ci-zenko-gcp-target-bucket-2
       GCP_CRR_BUCKET_NAME: ci-zenko-gcp-crr-target-bucket
       GCP_CRR_MPU_BUCKET_NAME: ci-zenko-gcp-crr-mpu-bucket
-      GCP_CRR_SRC_BUCKET_NAME: ci-zenko-gcp-crr-src-bucket
+      GCP_CRR_SRC_BUCKET_NAME: 'ci-zenko-gcp-crr-src-bucket-${STAGE}-%(prop:bootstrap)s'
       GCP_MPU_BUCKET_NAME: ci-zenko-gcp-mpu-bucket
       GCP_MPU_BUCKET_NAME_2: ci-zenko-gcp-mpu-bucket-2
 
       CEPH_BUCKET_NAME: ci-zenko-ceph-target-bucket
-      CEPH_CRR_SRC_BUCKET_NAME: ci-zenko-ceph-crr-src-bucket
+      CEPH_CRR_SRC_BUCKET_NAME: 'ci-zenko-ceph-crr-src-bucket-${STAGE}-%(prop:bootstrap)s'
       CEPH_CRR_BUCKET_NAME: ci-zenko-ceph-crr-target-bucket
 
       RING_S3C_BACKEND_SOURCE_LOCATION: rings3cbackendingestion
-      RING_S3C_INGESTION_SRC_BUCKET_NAME: 'ingestion-%(prop:bootstrap)s'
+      RING_S3C_INGESTION_SRC_BUCKET_NAME: 'ingestion-${STAGE}-%(prop:bootstrap)s'
 
-      MULTI_CRR_SRC_BUCKET_NAME: ci-zenko-multi-crr-src-bucket
-      TRANSIENT_SRC_BUCKET_NAME: ci-zenko-transient-src-bucket
+      MULTI_CRR_SRC_BUCKET_NAME: 'ci-zenko-multi-crr-src-bucket-${STAGE}-%(prop:bootstrap)s'
+      TRANSIENT_SRC_BUCKET_NAME: 'ci-zenko-transient-src-bucket-${STAGE}-%(prop:bootstrap)s'
 
       NFS_SERVER: '%(secret:nfs_backend_endpoint)s'
       NFS_BACKEND: 'nfs-%(prop:bootstrap)s'
@@ -173,8 +173,8 @@ models:
 
   - env: &k8s_env # containes values for running helm and kubectl
       ZENKO_HELM_RELEASE: 'zenko-test'
-      HELM_NAMESPACE: '%(prop:workername)s'
-      TILLER_NAMESPACE: '%(prop:workername)s'
+      HELM_NAMESPACE: '${STAGE}-%(prop:bootstrap)s'
+      TILLER_NAMESPACE: '${STAGE}-%(prop:bootstrap)s'
       INSTALL_TIMEOUT: "600"
 
   - env: &global_env # contains all env values
@@ -253,8 +253,8 @@ stages:
           <<: [*mock_env, *secrets_env, *docker_env]
           KUBECONFIG: /root/.kube/config
           ZENKO_HELM_RELEASE: 'zenko-offline'
-          HELM_NAMESPACE: '%(prop:workername)s'
-          TILLER_NAMESPACE: '%(prop:workername)s'
+          HELM_NAMESPACE: '${STAGE}-%(prop:bootstrap)s'
+          TILLER_NAMESPACE: '${STAGE}-%(prop:bootstrap)s'
           INSTALL_TIMEOUT: "600"
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
@@ -309,8 +309,8 @@ stages:
             BACKBEAT_BRANCH: development/8.0
             CLOUDSERVER_BRANCH: development/8.0
             PYTHON_ARGS: "-k 'not ceph'"
-            HELM_NAMESPACE: '%(prop:workername)s'
-            TILLER_NAMESPACE: '%(prop:workername)s'
+            HELM_NAMESPACE: '${STAGE}-%(prop:bootstrap)s'
+            TILLER_NAMESPACE: '${STAGE}-%(prop:bootstrap)s'
             <<: *global_env
       - ShellCommand: *dump_logs
       - Upload: *upload_artifacts
@@ -329,8 +329,8 @@ stages:
         env:
           BACKBEAT_BRANCH: development/8.1
           CLOUDSERVER_BRANCH: development/8.1
-          HELM_NAMESPACE: '%(prop:workername)s'
-          TILLER_NAMESPACE: '%(prop:workername)s'
+          HELM_NAMESPACE: '${STAGE}-%(prop:bootstrap)s'
+          TILLER_NAMESPACE: '${STAGE}-%(prop:bootstrap)s'
           <<: *global_env
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
@@ -355,8 +355,8 @@ stages:
           <<: *global_env
           KUBECONFIG: /root/.kube/config
           ZENKO_HELM_RELEASE: 'zenko-offline'
-          HELM_NAMESPACE: '%(prop:workername)s'
-          TILLER_NAMESPACE: '%(prop:workername)s'
+          HELM_NAMESPACE: '${STAGE}-%(prop:bootstrap)s'
+          TILLER_NAMESPACE: '${STAGE}-%(prop:bootstrap)s'
           INSTALL_TIMEOUT: "600"
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
@@ -384,8 +384,8 @@ stages:
           VERSIONED: enabled
           S3FUZZ_ZENKO_BUCKET: fuzzbucket-ver
           S3FUZZ_AWS_BUCKET: ci-zenko-s3-fuzzer-versioned
-          HELM_NAMESPACE: '%(prop:workername)s'
-          TILLER_NAMESPACE: '%(prop:workername)s'
+          HELM_NAMESPACE: '${STAGE}-%(prop:bootstrap)s'
+          TILLER_NAMESPACE: '${STAGE}-%(prop:bootstrap)s'
     - ShellCommand:
         name: Run unversioned bucket test
         command: make -e VERBOSE=1 run-listing-fuzzer
@@ -395,8 +395,8 @@ stages:
           <<: *global_env
           S3FUZZ_ZENKO_BUCKET: fuzzbucket-nonver
           S3FUZZ_AWS_BUCKET: ci-zenko-s3-fuzzer
-          HELM_NAMESPACE: '%(prop:workername)s'
-          TILLER_NAMESPACE: '%(prop:workername)s'
+          HELM_NAMESPACE: '${STAGE}-%(prop:bootstrap)s'
+          TILLER_NAMESPACE: '${STAGE}-%(prop:bootstrap)s'
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
     - ShellCommand: *k8s_cleanup

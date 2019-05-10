@@ -8,7 +8,6 @@ import logging
 import re
 
 IGNORED_PODS = [
-    r'.+queue-config',
     r'.+bootstrap',
     'failed',
     'pending',
@@ -17,6 +16,11 @@ IGNORED_PODS = [
 ]
 
 IGNORED_PODS = [re.compile(x) for x in IGNORED_PODS]
+
+FAIL_STATUS = [
+    'CrashLoopBackOff',
+    'Error',
+]
 
 def is_ignored(name):
     for ignored in IGNORED_PODS:
@@ -49,7 +53,6 @@ def wait_for_pods(delete, timeout):
     config.load_incluster_config()
     v1 = client.CoreV1Api()
     delete_opt = client.V1DeleteOptions()
-    delete_opt.grace_period_seconds = 0
 
     timeout = time.time() + timeout
     while time.time() < timeout:
@@ -60,11 +63,10 @@ def wait_for_pods(delete, timeout):
                 for container in i.status.container_statuses:
                     if is_ignored(container.name):
                         continue
-                    elif not container.ready:
-                        if delete and container.state.waiting and \
-                            container.state.waiting.reason == 'CrashLoopBackOff':
-                            _log.info('%s is in CrashLoopBackOff, restarting.' % container.name)
-                            v1.delete_namespaced_pod(i.metadata.name, K8S_NAMESPACE, delete_opt)
+                    elif not container.ready and container.state.waiting:
+                        if delete and container.state.waiting.reason in FAIL_STATUS:
+                            _log.info('%s is in %s, restarting' % (container.name, container.state.waiting.reason))
+                            v1.delete_namespaced_pod(i.metadata.name, K8S_NAMESPACE, body=delete_opt, grace_period_seconds=0)
                         passed = False
         if not passed:
             time.sleep(1)
@@ -152,7 +154,6 @@ else:
 if get_env('S3_FUZZER') is not None:
     _log.info('Enabling version for s3://fuzzbucket-ver')
     bkt = s3client.Bucket('fuzzbucket-ver').Versioning().enable()
-
 
 # Wait for all containers to become ready
 wait_for_pods(False, TIMEOUT)
