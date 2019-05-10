@@ -50,9 +50,14 @@ def test_ceph_1_1(
         ceph_crr_bucket, ceph_crr_target_bucket, objkey, datafile):
     util.mark_test('CEPH 1-1 REPLICATION')
     data = datafile()
-    util.upload_object(ceph_crr_bucket, objkey, data)
+    success, ver_id = util.upload_object(ceph_crr_bucket, objkey, data)
     assert util.check_object(
-        objkey, data, ceph_crr_bucket, ceph_crr_target_bucket, timeout=300)
+            objkey,
+            data,
+            ceph_crr_bucket,
+            [ceph_crr_target_bucket],
+            version_id=ver_id
+    )
 
 
 @pytest.mark.skip(reason='Wasabi not implemented in CI')
