@@ -40,9 +40,9 @@ describe('Replication with Azure backend', function() {
         next => utils.deleteVersionedBucket(srcBucket, next),
     ], done));
 
-    it('should replicate an object', done => series([
+    it('should replicate an object', done => waterfall([
         next => utils.putObject(srcBucket, key, Buffer.alloc(1), next),
-        next => utils.compareObjectsAzure(srcBucket, destContainer, key, next),
+        (obj, next) => utils.compareObjectsAzure(srcBucket, destContainer, key, obj.VersionId, next),
     ], done));
 
     it('should replicate a zero byte object', done => series([

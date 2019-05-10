@@ -65,10 +65,15 @@ describe('Replication with AWS backend', function() {
         next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next),
         (obj, next) => scalityUtils.copyObject(srcBucket, copySource, copyKey,
             (err, data) => {
+                console.log('copied object');
                 return next(err, obj, data);
         }),
         (obj, copy, next) => scalityUtils.compareObjectsAWS(srcBucket, destBucket,
-            copyKey, undefined, obj.VersionId, err => next(err, copy)),
+            copyKey, undefined, obj.VersionId, err => {
+                console.log('compare objects of original object', obj.Versionid);
+                console.log('err?', err);
+                return next(err, copy);
+            }),
         // avoid a race with cleanup by ensuring everything is replicated
         (copy, next) => scalityUtils.waitUntilReplicated(srcBucket, key, undefined,
             copy.VersionId, next),
@@ -107,7 +112,10 @@ describe('Replication with AWS backend', function() {
             next => scalityUtils.completeMPUWithPartCopy(srcBucket, copyKey,
                 copySource, range, 2, next),
             (mpu, next) => scalityUtils.compareObjectsAWS(srcBucket, destBucket,
-                copyKey, undefined, mpu.VersionId, err => next(err)),
+                copyKey, undefined, mpu.VersionId, err => {
+                    console.log('what');
+                    return next(err);
+                }),
             // avoid a race with cleanup by ensuring everything is replicated
             next => scalityUtils.waitUntilReplicated(srcBucket, key, undefined,
                                                      next),
