@@ -22,6 +22,8 @@ FAIL_STATUS = [
     'Error',
 ]
 
+PASSING_COUNT = 10
+
 def is_ignored(name):
     for ignored in IGNORED_PODS:
         if ignored.search(name):
@@ -54,6 +56,7 @@ def wait_for_pods(delete, timeout):
     v1 = client.CoreV1Api()
     delete_opt = client.V1DeleteOptions()
 
+    passed_count = 0
     timeout = time.time() + timeout
     while time.time() < timeout:
         ret = v1.list_namespaced_pod(K8S_NAMESPACE)
@@ -61,17 +64,19 @@ def wait_for_pods(delete, timeout):
         for i in ret.items:
             if i.status.container_statuses:
                 for container in i.status.container_statuses:
-                    if is_ignored(container.name):
+                    if container.ready or is_ignored(container.name):
                         continue
-                    elif not container.ready and container.state.waiting:
+                    elif container.state.waiting:
                         if delete and container.state.waiting.reason in FAIL_STATUS:
                             _log.info('%s is in %s, restarting' % (container.name, container.state.waiting.reason))
                             v1.delete_namespaced_pod(i.metadata.name, K8S_NAMESPACE, body=delete_opt, grace_period_seconds=0)
                         passed = False
-        if not passed:
-            time.sleep(1)
-        else:
-            break
+                        passed_count = 0
+        if passed:
+            if passed_count >= PASSING_COUNT:
+                break
+            passed_count = passed_count + 1
+        time.sleep(1)
 
     if not passed:
       _log.info('Containers have not become ready and %d has elasped' % timeout)
