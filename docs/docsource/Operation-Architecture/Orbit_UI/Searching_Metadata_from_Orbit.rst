@@ -29,7 +29,7 @@ To search the metadata of files stored in clouds managed by Zenko ,
 
    |image2|
 
-Clicking the arrow icon next to the searchg result takes you to the
+Clicking the arrow icon next to the search result takes you to the
 item’s location in the bucket.
 
 `Go back to Advanced Workflows`_

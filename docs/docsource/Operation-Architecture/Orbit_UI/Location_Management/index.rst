@@ -41,10 +41,6 @@ notice.
 
    https://access.redhat.com/documentation/en-us/red_hat_ceph_storage
 
-It is important to maintain carefully all identifying account
-information from your cloud service, such as user names, passwords, 
-access keys, and secret keys.
-
 See the *Installation and Setup Guide* for advice on sizing, cluster 
 configuration, and other preparations. 
 
