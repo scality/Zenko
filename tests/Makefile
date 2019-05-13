@@ -16,7 +16,7 @@ DOTENV := $(PWD)/.env
 BUILDDIR := build
 # These are for dumping logs, but they're really long so store them as variables
 E2E_LOG_PODS := {range .items[?(@.metadata.annotations.helm\.sh\/hook)]}{@.metadata.name}{"\n"}{end}
-ZENKO_PODS := {{range .items}}{{$$pod := .metadata.name}}{{range .spec.containers}}"kubectl logs {{$$pod}} -c {{.name}} > artifacts/{{.name}}-{{$$pod}}.log"{{"\n"}}{{end}}{{end}}
+ZENKO_PODS := {{range .items}}{{$$pod := .metadata.name}}{{range .spec.containers}}"kubectl logs {{$$pod}} -c {{.name}} >> artifacts/{{.name}}-{{$$pod}}.log"{{"\n"}}{{end}}{{end}}
 
 # Defaults for our test environment
 HELM_NAMESPACE := testnamespace
