@@ -16,7 +16,7 @@ DOTENV := $(PWD)/.env
 BUILDDIR := build
 # These are for dumping logs, but they're really long so store them as variables
 E2E_LOG_PODS := {range .items[?(@.metadata.annotations.helm\.sh\/hook)]}{@.metadata.name}{"\n"}{end}
-ZENKO_PODS := {{range .items}}{{$$pod := .metadata.name}}{{range .spec.containers}}"kubectl logs {{$$pod}} -c {{.name}} >> artifacts/{{.name}}-{{$$pod}}.log"{{"\n"}}{{end}}{{end}}
+ZENKO_PODS := {{range .items}}{{$$pod := .metadata.name}}{{range .spec.containers}}"kubectl logs {{$$pod}} -c {{.name}} --previous=true >> artifacts/{{.name}}-{{$$pod}}.log;kubectl logs {{$$pod}} -c {{.name}} >> artifacts/{{.name}}-{{$$pod}}.log"{{"\n"}}{{end}}{{end}}
 
 # Defaults for our test environment
 HELM_NAMESPACE := testnamespace
@@ -228,12 +228,7 @@ install-common: | install-tiller install-helm-repos install-orbit-simulator inst
 .PHONY: install-common
 
 dump-logs: | artifacts
-	$(V)(kubectl  -n $(HELM_NAMESPACE) get pods -o go-template --template '$(ZENKO_PODS)') | xargs -n 1 -r sh -c;  \
-	(kubectl -n $(HELM_NAMESPACE) get pods -o jsonpath='$(E2E_LOG_PODS)') | \
-	while read -r pod; do \
-		kubectl -n $(HELM_NAMESPACE) logs $${pod} --previous=true; \
-		kubectl -n $(HELM_NAMESPACE) logs $${pod}; \
-	done;
+	$(V)(kubectl  -n $(HELM_NAMESPACE) get pods -o go-template --template '$(ZENKO_PODS)') | xargs -n 1 -r sh -c;
 	tar -czvf ./artifacts/$(HELM_NAMESPACE).tar.gz ./artifacts
 .PHONY: dump-logs
 
