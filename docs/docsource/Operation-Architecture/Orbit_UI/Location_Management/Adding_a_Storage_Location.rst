@@ -1,4 +1,4 @@
-.. _orbit_add_location:
+/.. _orbit_add_location:
 
 Adding a Storage Location
 =========================
@@ -114,7 +114,7 @@ the target cloud.
 
    If the Bucket Match option is set, buckets in the target location
    cannot be used as a CRR destination. Zenko requires the bucket
-   identifier to manage the namespace for CRR. 
+   identifier in order to manage the namespace for CRR. 
 
 Server-Side Encryption
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -137,12 +137,13 @@ broken up, uploaded in parallel chunks, and on a successful upload
 reassembled in the cloud. Zenko manages this complexity, in part, 
 by using a "helper" bucket. 
 
-.. tip::
+.. note::
 
    Google Cloud Storage also imposes a 1024-part cap on objects stored
-   to its locations. For data stored directly to GCP as the primary
-   cloud, Zenko will propagate this limitation forward to any other
-   cloud storage services to which Google data is replicated.
+   to its locations (For all other backends, Zenko caps the number of
+   parts at 10,000). For data stored directly to GCP as the primary
+   cloud, Zenko propagates this limitation forward to any other cloud
+   storage services to which Google data is replicated.
 
 Other Services: Zenko Local, RING/sproxyd, and NFS
 --------------------------------------------------
@@ -213,8 +214,5 @@ See :ref:`transient-source` for details.
    to Amazon S3's.
 
 
-    Google Cloud Platform's unique architecture demands Zenko apply a
-    1024-part cap. For all other backends, Zenko caps the number of
-    parts at 10,000.
 
 

@@ -33,7 +33,7 @@ Orbit offers the following features:
 -  Metadata search
 -  Help and resources
 
-You can test drive Orbit by following the “`Try Zenko`_” link at
+You can test drive Orbit by following the “`Try Zenko`_” link at
 https://www.zenko.io/ and following the instructions for `Setting Up Orbit`_.
 
 For a full walk-through of these features, see `Using Orbit`_.

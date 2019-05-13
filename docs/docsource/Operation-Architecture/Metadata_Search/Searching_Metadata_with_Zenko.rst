@@ -18,7 +18,6 @@ by
    `HTTP Search Requests`_.
 
 
-.. _`Go back to Services`: ../Services/Services.html
 .. _`Searching Metadata from Orbit`: ../Orbit_UI/Searching_Metadata_from_Orbit.html
 .. _`Using search_bucket`: Using_search_bucket.html
 .. _`HTTP Search Requests`: HTTP_Search_Requests.html
