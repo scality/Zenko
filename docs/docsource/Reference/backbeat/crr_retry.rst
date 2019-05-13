@@ -59,9 +59,6 @@ This GET request retrieves a listing of all failed operations for a
 specific object version. Use this operation to monitor a specific
 object’s replication status.
 
-
-
-
 **Request:**   GET /_/backbeat/api/crr/failed/<bucket>/<key>?versionId=<version-id>
 
 **Response**
