@@ -15,7 +15,7 @@ const scalityS3Client = new S3({
     // another request after first request has already deleted parts,
     // causing InvalidPart. Meanwhile, if request takes too long to finish,
     // sdk will create SocketHangUp error before response.
-    maxRetries: 0,
+    maxRetries: 3,
     httpOptions: { timeout: 0 },
 });
 
@@ -32,7 +32,7 @@ const awsS3Client = new S3({
     signatureVersion: 'v4',
     region: 'us-east-1',
     s3ForcePathStyle: true,
-    maxRetries: 0,
+    maxRetries: 3,
     httpOptions: { timeout: 0 },
 });
 
@@ -46,7 +46,7 @@ const ringS3Client = new S3({
     signatureVersion: 'v4',
     region: 'us-east-1',
     s3ForcePathStyle: true,
-    maxRetries: 0,
+    maxRetries: 3,
     httpOptions: { timeout: 0 },
 });
 

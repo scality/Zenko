@@ -544,6 +544,7 @@ class ReplicationUtility {
                     return callback(err);
                 }
                 status = data.ReplicationStatus;
+                console.log('key and status', key, status);
                 assert.notStrictEqual(status, 'FAILED',
                     `Unexpected CRR failure occurred: ${JSON.stringify(data)}`);
                 if (status === 'PENDING' || status === 'PROCESSING') {
