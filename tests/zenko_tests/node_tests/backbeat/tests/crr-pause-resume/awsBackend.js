@@ -19,7 +19,7 @@ const keyPrefix = `${srcBucket}/${hex}`;
 const key = `${keyPrefix}/object-to-replicate-${Date.now()}`;
 const key2 = `${key}-2`;
 // eslint-disable-next-line
-const REPLICATION_TIMEOUT = 300000;
+const REPLICATION_TIMEOUT = 600000;
 
 // NOTE: A setTimeout of 5 seconds is added after each pauseReplication and
 // resumeReplication call, to ensure that any delays introduced from redis
