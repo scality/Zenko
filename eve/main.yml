@@ -295,7 +295,7 @@ stages:
             BUILD_BRANCH: '%(prop:branch)s'
             CROSSPOST_TO_HIPPO: 'true'
 
-  test-latest-1.0.x:
+  test-latest-1-0-x:
     worker: *kube_cluster
     steps:
       - Git: *git_pull
@@ -316,7 +316,7 @@ stages:
       - Upload: *upload_artifacts
       - ShellCommand: *k8s_cleanup
 
-  test-latest-1.1.x:
+  test-latest-1-1-x:
     worker: *kube_cluster
     steps:
     - Git: *git_pull
