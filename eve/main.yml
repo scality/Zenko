@@ -14,11 +14,11 @@ models:
       haltOnFailure: true
   - ShellCommand: &k8s_setup
       name: setup k8s env
-      command: eve/scripts/setup-k8s.sh
+      command: exit 0
       env:
         CI_KUBECONFIG: '%(secret:openstack_cluster_conf)s'
-        NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
-        KUBECONFIG: /root/.kube/config
+        NAMESPACE: '%(prop:workername)s'
+        # KUBECONFIG: /root/.kube/config
         CLUSTER_IP: '%(secret:openstack_cluster_ip)s'
       haltOnFailure: true
   - ShellCommand: &k8s_cleanup
@@ -29,9 +29,9 @@ models:
       alwaysRun: true
       sigtermTime: 1200
       env:
-        KUBECONFIG: /root/.kube/config
+        # KUBECONFIG: /root/.kube/config
         ZENKO_HELM_RELEASE: 'zenko-offline'
-        HELM_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
+        HELM_NAMESPACE: '%(prop:namespace)s'
   - Upload: &upload_artifacts
       source: tests/artifacts
       urls:
@@ -56,13 +56,13 @@ models:
       workdir: build/tests
       alwaysRun: true
       env:
-        HELM_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
+        HELM_NAMESPACE: '%(prop:namespace)s'
   - ShellCommand: &start-mocks
       name: Start external service mocks
       command: make -e install-mocks
       workdir: build/tests
       env:
-        HELM_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
+        HELM_NAMESPACE: '%(prop:namespace)s'
   - SetPropertyFromCommand: &notify-build-start
       name: Save the timestamp from our start message, for editing later
       property: report_build_msg_ts
@@ -174,8 +174,8 @@ models:
 
   - env: &k8s_env # containes values for running helm and kubectl
       ZENKO_HELM_RELEASE: 'zenko-test'
-      HELM_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
-      TILLER_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
+      HELM_NAMESPACE: '%(prop:namespace)s'
+      TILLER_NAMESPACE: '%(prop:namespace)s'
       INSTALL_TIMEOUT: "600"
 
   - env: &global_env # contains all env values
@@ -238,7 +238,12 @@ stages:
     worker: &kube_cluster
       type: kube_pod
       path: eve/workers/zenko.yaml
-      vars:
+      service:                                                         
+        requests:                                                      
+          version: "1.12.7"
+        namespaces:                                                    
+        - "namespace"
+
     steps:
     - Git: *git_pull
     - ShellCommand: *private_registry_login
@@ -254,11 +259,11 @@ stages:
         timeout: 43200
         env:
           <<: [*mock_env, *secrets_env, *docker_env]
-          KUBECONFIG: /root/.kube/config
+          # KUBECONFIG: /root/.kube/config
           ZENKO_HELM_RELEASE: 'zenko-offline'
-          HELM_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
-          TILLER_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
-          INSTALL_TIMEOUT: "600"
+          HELM_NAMESPACE: '%(prop:namespace)s'
+          TILLER_NAMESPACE: '%(prop:namespace)s'
+          INSTALL_TIMEOUT: "1200"
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
     - ShellCommand: *k8s_cleanup
@@ -312,8 +317,8 @@ stages:
             BACKBEAT_BRANCH: development/8.0
             CLOUDSERVER_BRANCH: development/8.0
             PYTHON_ARGS: "-k 'not ceph'"
-            HELM_NAMESPACE: '%(prop:bootstrap)s-latest-1-0'
-            TILLER_NAMESPACE: '%(prop:bootstrap)s-latest-1-0'
+            HELM_NAMESPACE: '%(prop:namespace)s'
+            TILLER_NAMESPACE: '%(prop:namespace)s'
             <<: *global_env
       - ShellCommand: *dump_logs
       - Upload: *upload_artifacts
@@ -332,8 +337,8 @@ stages:
         env:
           BACKBEAT_BRANCH: development/8.1
           CLOUDSERVER_BRANCH: development/8.1
-          HELM_NAMESPACE: '%(prop:bootstrap)s-latest-1-1'
-          TILLER_NAMESPACE: '%(prop:bootstrap)s-latest-1-1'
+          HELM_NAMESPACE: '%(prop:namespace)s'
+          TILLER_NAMESPACE: '%(prop:namespace)s'
           <<: *global_env
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
@@ -356,10 +361,10 @@ stages:
         maxTime: 43200
         env:
           <<: *global_env
-          KUBECONFIG: /root/.kube/config
+          # KUBECONFIG: /root/.kube/config
           ZENKO_HELM_RELEASE: 'zenko-offline'
-          HELM_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
-          TILLER_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
+          HELM_NAMESPACE: '%(prop:namespace)s'
+          TILLER_NAMESPACE: '%(prop:namespace)s'
           INSTALL_TIMEOUT: "600"
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
@@ -387,8 +392,8 @@ stages:
           VERSIONED: enabled
           S3FUZZ_ZENKO_BUCKET: fuzzbucket-ver
           S3FUZZ_AWS_BUCKET: ci-zenko-s3-fuzzer-versioned
-          HELM_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
-          TILLER_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
+          HELM_NAMESPACE: '%(prop:namespace)s'
+          TILLER_NAMESPACE: '%(prop:namespace)s'
     - ShellCommand:
         name: Run unversioned bucket test
         command: make -e VERBOSE=1 run-listing-fuzzer
@@ -398,8 +403,8 @@ stages:
           <<: *global_env
           S3FUZZ_ZENKO_BUCKET: fuzzbucket-nonver
           S3FUZZ_AWS_BUCKET: ci-zenko-s3-fuzzer
-          HELM_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
-          TILLER_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
+          HELM_NAMESPACE: '%(prop:namespace)s'
+          TILLER_NAMESPACE: '%(prop:namespace)s'
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
     - ShellCommand: *k8s_cleanup
