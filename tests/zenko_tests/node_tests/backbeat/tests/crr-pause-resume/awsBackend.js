@@ -47,7 +47,7 @@ describe('Replication Pause-Resume with AWS backend', function() {
 
     after(done => backbeatAPIUtils.resumeReplication(null, null, null, done));
 
-    it.only('should pause and resume replication', done => series([
+    it('should pause and resume replication', done => series([
         next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next),
         next => scalityUtils.waitUntilReplicated(srcBucket, key,
             undefined, next),
