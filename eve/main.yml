@@ -14,7 +14,7 @@ models:
       haltOnFailure: true
   - ShellCommand: &k8s_setup
       name: setup k8s env
-      command: eve/scripts/setup-k8s.sh
+      command: exit 0
       env:
         CI_KUBECONFIG: '%(secret:openstack_cluster_conf)s'
         NAMESPACE: '%(prop:workername)s'
