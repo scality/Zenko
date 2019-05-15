@@ -261,6 +261,10 @@ stages:
           HELM_NAMESPACE: '%(prop:namespace)s'
           TILLER_NAMESPACE: '%(prop:namespace)s'
           INSTALL_TIMEOUT: "600"
+    - ShellCommand:
+        name: sleepy
+        command: sleep 3600
+        alwaysRun: true
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
     - ShellCommand: *k8s_cleanup
