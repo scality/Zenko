@@ -3,8 +3,8 @@
 PUT Bucket Lifecycle
 ====================
 
-The PUT Bucket Lifecycle operation creates a new lifecycle configuration
-or replaces an existing one.
+The PUT Bucket Lifecycle operation creates a new lifecycle configuration or
+replaces an existing one.
 
 Requests
 --------
@@ -317,26 +317,16 @@ configuration:
    |                       | performing the        |                       |
    |                       | associated action.    |                       |
    |                       |                       |                       |
-   |                       | **Type:** Nonnegative |                       |
-   |                       | integer when used     |                       |
-   |                       | with                  |                       |
-   |                       | NoncurrentVersion\    |                       |
-   |                       | Transition,           |                       |
-   |                       | or positive integer   |                       |
-   |                       | when used with        |                       |
-   |                       | NoncurrentVersion\    |                       |
-   |                       | Expiration.           |                       |
+   |                       | **Type:** Positive    |                       |
+   |                       | Integer               |                       |
    |                       |                       |                       |
    |                       | **Ancestor:**         |                       |
    |                       | NoncurrentVersionEx\  |                       |
    |                       | piration              |                       |
-   |                       | or                    |                       |
-   |                       | NoncurrentVersion\    |                       |
-   |                       | Transition            |                       |
    +-----------------------+-----------------------+-----------------------+
    | NoncurrentVersion\    | Specifies when        | Yes, if no other      |
    | Expiration            | noncurrent object     | action is present in  |
-   |                       | versions expire. Upon | the Rule.             |
+   |                       | versions expire. Upon | the rule.             |
    |                       | expiration, the       |                       |
    |                       | noncurrent object     |                       |
    |                       | versions are          |                       |
@@ -353,28 +343,6 @@ configuration:
    |                       |                       |                       |
    |                       | **Children:**         |                       |
    |                       | NoncurrentDays        |                       |
-   |                       |                       |                       |
-   |                       | **Ancestor:** Rule    |                       |
-   +-----------------------+-----------------------+-----------------------+
-   | NoncurrentVersion\    | Container for the     | Yes, if no other      |
-   | Transition            | transition rule that  | action is present in  |
-   |                       | describes when        | the Rule.             |
-   |                       | noncurrent objects    |                       |
-   |                       | transition to another |			   |
-   |			   | storage class 	   |			   |
-   |			   | (location).           |                       |
-   |                       |                       |                       |
-   |                       | Set this lifecycle    |                       |
-   |                       | configuration action  |                       |
-   |                       | on a bucket that has  |                       |
-   |                       | versioning enabled    |                       |
-   |                       | (or suspended).       |                       |
-   |                       |                       |                       |
-   |                       | **Type:** Container   |                       |
-   |                       |                       |                       |
-   |                       | **Children:**         |                       |
-   |                       | NoncurrentDays and    |                       |
-   |                       | StorageClass          |                       |
    |                       |                       |                       |
    |                       | **Ancestor:** Rule    |                       |
    +-----------------------+-----------------------+-----------------------+
@@ -434,8 +402,6 @@ configuration:
    |                       | **Type:** String      | 	 		   |
    |                       |                       |                       |
    |                       | **Ancestor:**         |                       |
-   |                       | Transition and        |                       |
-   |                       | NoncurrentVersion\    |                       |
    |                       | Transition            |                       |
    |                       |                       |                       |
    |                       | **Valid Values:**     |                       |
@@ -670,17 +636,13 @@ The following is a sample response.
 
 *Add lifecycle configuration—bucket versioning is enabled.*
 
-The following lifecycle configuration specifies two rules, each with one
-action to perform. You specify these actions when your bucket is
-versioning-enabled or versioning is suspended:
+The following lifecycle configuration specifies one rule, with one
+action to perform. Specify this action when your bucket is
+versioning-enabled or versioning is suspended.
 
--  The NoncurrentVersionExpiration action specifies non-current versions
-      of objects with the “logs/” prefix to expire 100 days after the
-      objects become non-current.
-
--  The NoncurrentVersionTransition action specifies non-current versions
-      of objects with the “documents/” prefix to transition to the
-      wasabi_cloud storage class 30 days after they become non-current.
+The NoncurrentVersionExpiration action specifies non-current versions
+of objects with the “logs/” prefix to expire 100 days after the
+objects become non-current.
 
 .. code::
 
@@ -694,17 +656,6 @@ versioning-enabled or versioning is suspended:
       <NoncurrentVersionExpiration>
         <NoncurrentDays>100</NoncurrentDays>
       </NoncurrentVersionExpiration>
-    </Rule>
-    <Rule>
-      <ID>TransitionAfterBecomingNonCurrent</ID>
-      <Filter>
-        <Prefix>documents/</Prefix>
-      </Filter>
-      <Status>Enabled</Status>
-      <NoncurrentVersionTransition>
-        <NoncurrentDays>30</NoncurrentDays>
-        <StorageClass>wasabi_cloud</StorageClass>
-      </NoncurrentVersionTransition>
     </Rule>
   </LifeCycleConfiguration>
 
@@ -730,17 +681,6 @@ preceding lifecycle configuration to the \`examplebucket\` bucket.
       <NoncurrentVersionExpiration>
         <NoncurrentDays>1</NoncurrentDays>
       </NoncurrentVersionExpiration>
-    </Rule>
-    <Rule>
-      <ID>TransitionSoonAfterBecomingNonCurrent</ID>
-      <Filter>
-        <Prefix>documents/</Prefix>
-      </Filter>
-      <Status>Enabled</Status>
-      <NoncurrentVersionTransition>
-        <NoncurrentDays>0</NoncurrentDays>
-        <StorageClass>wasabi_cloud</StorageClass>
-      </NoncurrentVersionTransition>
     </Rule>
   </LifeCycleConfiguration>
 

@@ -196,15 +196,10 @@ elements.
    |                                   | object is noncurrent before       |
    |                                   | performing the associated action. |
    |                                   |                                   |
-   |                                   | **Type:** Nonnegative Integer     |
-   |                                   | when used with                    |
-   |                                   | NoncurrentVersionTransition, or   |
-   |                                   | Positive Integer when used with   |
-   |                                   | NoncurrentVersionExpiration       |
+   |                                   | **Type:** Positive integer        |
    |                                   |                                   |
    |                                   | **Ancestor:**                     |
-   |                                   | NoncurrentVersionExpiration or    |
-   |                                   | NoncurrentVersionTransition       |
+   |                                   | NoncurrentVersionExpiration       |
    +-----------------------------------+-----------------------------------+
    | NoncurrentVersionExpiration       | Specifies when noncurrent object  |
    |                                   | versions expire. Upon expiration, |
@@ -219,27 +214,6 @@ elements.
    |                                   | **Type:** Container               |
    |                                   |                                   |
    |                                   | **Children:** NoncurrentDays      |
-   |                                   |                                   |
-   |                                   | **Ancestor:** Rule                |
-   +-----------------------------------+-----------------------------------+
-   | NoncurrentVersionTransition       | Container for the transition rule |
-   |                                   | that describes when noncurrent    |
-   |                                   | objects transition to another     |
-   |                                   | storage class.                    |
-   |                                   |                                   |
-   |                                   | If your bucket is                 |
-   |                                   | versioning-enabled or             |
-   |                                   | versioning-suspended, you can set |
-   |                                   | this action to transition         |
-   |                                   | noncurrent object versions to     |
-   |                                   | another storage class at a        |
-   |                                   | specified period in the object’s  |
-   |                                   | lifetime.                         |
-   |                                   |                                   |
-   |                                   | **Type:** Container               |
-   |                                   |                                   |
-   |                                   | **Children:** NoncurrentDays and  |
-   |                                   | StorageClass                      |
    |                                   |                                   |
    |                                   | **Ancestor:** Rule                |
    +-----------------------------------+-----------------------------------+
@@ -287,8 +261,7 @@ elements.
    |                                   |                                   |
    |                                   | **Type:** String                  |
    |                                   |                                   |
-   |                                   | **Ancestor:** Transition and      |
-   |                                   | NoncurrentVersionTransition       |
+   |                                   | **Ancestor:** Transition          |
    |                                   |                                   |
    |                                   | **Valid Values:** Any defined 	   |
    |				       | destination name      		   |
