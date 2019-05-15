@@ -256,7 +256,7 @@ stages:
         workdir: build/tests
         env:
           <<: [*mock_env, *secrets_env, *docker_env]
-          KUBECONFIG: /root/.kube/config
+          # KUBECONFIG: /root/.kube/config
           ZENKO_HELM_RELEASE: 'zenko-offline'
           HELM_NAMESPACE: '%(prop:namespace)s'
           TILLER_NAMESPACE: '%(prop:namespace)s'
