@@ -17,10 +17,10 @@ echo 'Waiting for ceph'
 sh wait_for_ceph.sh zenko-ceph-ceph-in-a-box
 
 # Setup our environment
-python3 create_buckets.py
-if [ "$?" -ne "0" ]; then
-    exit 1
-fi
+# python3 create_buckets.py
+# if [ "$?" -ne "0" ]; then
+#     exit 1
+# fi
 
 # Run the tests
 echo "Running test stage: $STAGE"
