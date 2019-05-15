@@ -191,8 +191,6 @@ stages:
         stage_names:
         - build-doc
         - test-cosmos
-        - python-tests
-        - node-tests-01
         - node-tests-02
 
   build-doc:
