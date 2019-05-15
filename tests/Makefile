@@ -246,8 +246,7 @@ clean-s3c:
 		--namespace=$(HELM_NAMESPACE) \
 		--limits='cpu=100m,memory=128Mi' \
 		--requests='cpu=50m,memory=64Mi' \
-		$(shell ../eve/workers/ci_env.sh env) \
-		--command -- python3 cleans3c.py || (echo "Zenko has failed to cleanup s3c" ; kubectl get all ; exit 1) >&2
+		$(shell ../eve/workers/ci_env.sh env) || (echo "Zenko has failed to cleanup s3c" ; kubectl get all ; exit 1) >&2
 
 clean-cosmos:
 	$(V)$(KUBECTL) delete cosmos $(NFS_BACKEND)
@@ -267,8 +266,7 @@ run-tests: | build-tests
 		--requests='cpu=250m,memory=512Mi' \
 		--env MOCHA_TAGS="$(NODE_TEST_TAGS)" \
 		--env CLOUDSERVER_ENDPOINT="http://$(ZENKO_HELM_RELEASE)-cloudserver:80" \
-		$(shell ../eve/workers/ci_env.sh env) \
-		-- command -- python3 create_buckets.py || (echo "Tests have failed" ; kubectl get all ; exit 1) >&2
+		$(shell ../eve/workers/ci_env.sh env) || (echo "Tests have failed" ; kubectl get all ; exit 1) >&2
 .PHONY: run-tests
 
 run-listing-fuzzer:
