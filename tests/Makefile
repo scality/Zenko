@@ -115,7 +115,7 @@ build-latest: | build-latest-backbeat build-latest-cloudserver
 
 install-tiller:
 ifndef NO_INSTALL
-	$(V)$(HELM) init --tiller-namespace $(HELM_NAMESPACE) --wait
+	$(V)$(HELM) init --tiller-namespace $(HELM_NAMESPACE) --service-account default --wait
 endif
 .PHONY: install-tiller
 
@@ -252,7 +252,7 @@ clean: | clean-s3c clean-cosmos
 .PHONY: clean-s3c clean-cosmos clean
 
 run-tests: | build-tests
-	$(V)$(KUBECTL) run $(E2E_POD) \
+	@$(V)$(KUBECTL) run $(E2E_POD) \
 		--rm \
 		--restart=Never \
 		--attach=True \
