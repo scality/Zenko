@@ -1,10 +1,10 @@
 const assert = require('assert');
-const crypto = require('crypto');
 const async = require('async');
+const uuidV4 = require('uuid/v4');
 
 const s3 = require('../../../s3SDK').scalityS3Client;
 
-const bucket = `quota-bucket-${Date.now()}`;
+const bucket = `get-v2-bucket-${uuidV4()}`;
 
 function putObjects(cb) {
     async.times(10, (n, next) => {
