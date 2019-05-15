@@ -30,7 +30,7 @@ elif [ "$STAGE" = 'node-tests-01' ]; then
     enter_and_run node_tests "npm_chain.sh test_aws_crr test_api test_location_quota test_bucket_get_v2 test_ingestion_oob_s3c"
     python3 cleans3c.py
 elif [ "$STAGE" = 'node-tests-02' ]; then
-    enter_and_run node_tests "npm_chain.sh test_gcp_crr test_azure_crr test_one_to_many test_lifecycle test_crr_pause_resume"
+    enter_and_run node_tests "npm_chain.sh test_crr_pause_resume"
 else
     enter_and_run python_tests "./run.sh $PYTHON_ARGS"
     # test_crr runs "test_aws_crr test_gcp_crr test_azure_crr test_one_to_many"
