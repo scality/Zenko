@@ -53,9 +53,9 @@ def test_cosmos_nfs_ingest(nfs_loc, nfs_loc_bucket, kube_batch, timeout=180):
         time.sleep(1)
     else:
         _log.error('Initial ingestion did not complete in time')
-    _log.debug("Finished with job status %s", state)
+    _log.info("Finished with job status %s", state)
     assert state
 
     for (key, md5) in MD5_HASHES.items():
-        _log.debug("Checking object %s with hash %s", key, md5)
+        _log.info("Checking object %s with hash %s", key, md5)
         assert util.get_object_hash(nfs_loc_bucket, key) == md5
