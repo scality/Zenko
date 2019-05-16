@@ -260,7 +260,7 @@ stages:
           ZENKO_HELM_RELEASE: 'zenko-offline'
           HELM_NAMESPACE: '%(prop:namespace)s'
           TILLER_NAMESPACE: '%(prop:namespace)s'
-          INSTALL_TIMEOUT: "600"
+          INSTALL_TIMEOUT: "1200"
     - ShellCommand:
         name: sleepy
         command: sleep 3600

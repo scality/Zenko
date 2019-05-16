@@ -13,6 +13,7 @@ maintenance:
 
 cosmos:
   ci: true
+  enabled: false
   storageClass: ci-zenko
   rbac:
     namespaced: true

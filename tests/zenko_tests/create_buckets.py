@@ -121,17 +121,17 @@ s3client = s.resource('s3',
                       endpoint_url=ZENKO_ENDPOINT,
                       verify=VERIFY_CERTIFICATES)
 
-s3c = Session(aws_access_key_id=RING_S3C_ACCESS_KEY,
-            aws_secret_access_key=RING_S3C_SECRET_KEY)
-ring_s3c_client = s3c.resource('s3', endpoint_url=RING_S3C_ENDPOINT,
-                      verify=VERIFY_CERTIFICATES)
-
-# Create buckets
-
-## Creating S3C buckets
-_log.info('Creating S3C buckets...')
-bucket_safe_create(ring_s3c_client.Bucket(RING_S3C_INGESTION_SRC_BUCKET_NAME))
-ring_s3c_client.Bucket(RING_S3C_INGESTION_SRC_BUCKET_NAME).Versioning().enable()
+#s3c = Session(aws_access_key_id=RING_S3C_ACCESS_KEY,
+#            aws_secret_access_key=RING_S3C_SECRET_KEY)
+#ring_s3c_client = s3c.resource('s3', endpoint_url=RING_S3C_ENDPOINT,
+#                      verify=VERIFY_CERTIFICATES)
+#
+## Create buckets
+#
+### Creating S3C buckets
+#_log.info('Creating S3C buckets...')
+#bucket_safe_create(ring_s3c_client.Bucket(RING_S3C_INGESTION_SRC_BUCKET_NAME))
+#ring_s3c_client.Bucket(RING_S3C_INGESTION_SRC_BUCKET_NAME).Versioning().enable()
 
 ## Creating Zenko buckets
 _log.info('Creating testing buckets...')
