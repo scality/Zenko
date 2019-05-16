@@ -18,6 +18,7 @@ const hex = crypto.createHash('md5')
 const keyPrefix = `${srcBucket}/${hex}`;
 const key = `${keyPrefix}/object-to-replicate-${Date.now()}`;
 const key2 = `${key}-2`;
+const key3 = `${key}-3`;
 // eslint-disable-next-line
 const REPLICATION_TIMEOUT = 600000;
 
@@ -59,10 +60,10 @@ describe('Replication Pause-Resume with AWS backend', function() {
             assert.strictEqual(data[destLocation], 'disabled');
             return next();
         }),
-        next => scalityUtils.putObject(srcBucket, `${key2}-where-am-i`, Buffer.alloc(1),
+        next => scalityUtils.putObject(srcBucket, key2, Buffer.alloc(1),
             next),
         next => setTimeout(next, 15000),
-        next => awsUtils.assertNoObject(destBucket, `${key2}-where-am-i`, next),
+        next => awsUtils.assertNoObject(destBucket, key2, next),
         next => backbeatAPIUtils.resumeReplication(null, null, null, next),
         next => setTimeout(next, 5000),
         next => backbeatAPIUtils.getReplicationStatus(null, (err, data) => {
@@ -71,11 +72,14 @@ describe('Replication Pause-Resume with AWS backend', function() {
             assert.strictEqual(data[destLocation], 'enabled');
             return next();
         }),
-        next => scalityUtils.waitUntilReplicated(srcBucket, `${key2}-where-am-i`,
+        next => scalityUtils.waitUntilReplicated(srcBucket, key2,
             undefined, next),
     ], done));
 
     it('should pause, resume, get status by location name', done => series([
+        next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next),
+        next => scalityUtils.waitUntilReplicated(srcBucket, key,
+            undefined, next),
         next => backbeatAPIUtils.pauseReplication(destLocation, next),
         next => setTimeout(next, 5000),
         next => backbeatAPIUtils.getReplicationStatus(null, (err, data) => {
@@ -84,6 +88,10 @@ describe('Replication Pause-Resume with AWS backend', function() {
             assert.strictEqual(data[destLocation], 'disabled');
             return next();
         }),
+        next => scalityUtils.putObject(srcBucket, key3, Buffer.alloc(1),
+        next),
+        next => setTimeout(next, 15000),
+        next => awsUtils.assertNoObject(destBucket, key3, next),
         next => backbeatAPIUtils.resumeReplication(destLocation, false, null,
             next),
         next => setTimeout(next, 5000),
@@ -93,6 +101,8 @@ describe('Replication Pause-Resume with AWS backend', function() {
             assert.strictEqual(data[destLocation], 'enabled');
             return next();
         }),
+        next => scalityUtils.waitUntilReplicated(srcBucket, key3,
+            undefined, next),
     ], done));
 
     it('should get 404 error in data for status of non-existent location',
