@@ -58,6 +58,9 @@ describe('Replication Pause-Resume with AWS backend', function() {
             assert.ifError(err);
             assert(data[destLocation]);
             assert.strictEqual(data[destLocation], 'disabled');
+            console.log('dest location is', destLocation);
+            console.log('data is', data);
+            console.log('timestamp', Date.now());
             return next();
         }),
         next => scalityUtils.putObject(srcBucket, key2, Buffer.alloc(1),
