@@ -1,3 +1,5 @@
+.. _object_lifecycle_mgmt:
+
 Object Lifecycle Management
 ===========================
 

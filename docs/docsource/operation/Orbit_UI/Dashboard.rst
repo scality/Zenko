@@ -8,9 +8,26 @@ On login, the dashboard displays:
 The dashboard provides useful information about ongoing Zenko
 operations, replication status, and cloud server health.
 
-In addition to the options on the left navigation pane, you can click
-the **View More Statistics** button to see more statistics about
-buckets, objects, and resources.
+The Sidebar
+-----------
+
+Visible from all Orbit windows, the sidebar contains navigational
+buttons for:
+
+   * :ref:`Statistics`
+   * :ref:`Location Status <location_status>`
+   * :ref:`Storage Accounts <add_a_new_user>`
+   * :ref:`Storage Locations <orbit_add_location>`
+   * :ref:`Endpoints <endpoint>`
+   * :ref:`Browser <create_a_bucket>`
+   * :ref:`Search <orbit_md_search>`
+   * :ref:`Replication <set_up_crr>`
+   * :ref:`Bucket Lifecycle <object_lifecycle_mgmt>`
+   * :ref:`Settings`
+
+In addition to the options on the left sidebar, you can click
+the :ref:`View More Statistics<Statistics>` button to see more
+statistics about buckets, objects, and resources.
 
 
 .. |image0| image:: ../Resources/Images/Orbit_Screencaps/Orbit_dashboard.png

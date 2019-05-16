@@ -1,15 +1,15 @@
 Viewing Bucket Info
 ===================
 
-**Prerequisite:** To view bucket info, you must already have created at
+**Prerequisite:** To view bucket info, you must already have created at
 least one bucket.
 
 Zenko offers the ability to view bucket details, and to turn Versioning
 on or off.
 
-To access this feature: 
+To access this feature: 
 
-#. Click the **Browser** item in the navigation pane.
+#. Click the **Browser** item in the sidebar.
 #. The Multicloud Browser **Buckets** list displays:
 
    |image0|
@@ -28,7 +28,7 @@ From this panel, you can:
 -  Toggle the **Versioning** feature
 
 For more information on versioning, review the Amazon S3 documentation
-at: \ https://docs.aws.amazon.com/AmazonS3/latest/dev/Versioning.html .
+at: \ https://docs.aws.amazon.com/AmazonS3/latest/dev/Versioning.html .
 Zenko implements S3 logic for versioning.
 
 

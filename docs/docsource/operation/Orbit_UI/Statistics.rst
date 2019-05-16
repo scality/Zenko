@@ -1,3 +1,5 @@
+.. _statistics:
+
 Statistics
 ==========
 
@@ -15,8 +17,7 @@ longevity of these statistics are offered at present; however,
 Prometheus also retains all statistics for 15 days by default. This
 duration is configurable.
 
-Escape this screen by clicking the back arrow or an item in the
-navigation pane.
+Escape this screen by clicking the back arrow or a sidebar button.
 
 
 .. |image0| image:: ../Resources/Images/Orbit_Screencaps/Orbit_Statistics.png

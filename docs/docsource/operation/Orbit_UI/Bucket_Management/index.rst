@@ -1,6 +1,6 @@
 Bucket Management Tasks
 =======================
-Orbit makes available the following bucket tasks.
+Orbit makes available the following bucket management tasks.
 
 .. toctree::
    :maxdepth: 2
