@@ -249,6 +249,8 @@ stages:
           . ../eve/scripts/only-docs.sh
           make -e VERBOSE=1 test
         workdir: build/tests
+        maxTime: 43200
+        timeout: 43200
         env:
           <<: [*mock_env, *secrets_env, *docker_env]
           KUBECONFIG: /root/.kube/config
