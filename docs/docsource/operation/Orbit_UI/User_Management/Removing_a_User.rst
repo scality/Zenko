@@ -1,9 +1,9 @@
 Removing a User
 ===============
 
-#. Click **Settings** in the navigation pane.
+#. Click **Settings** in the sidebar.
 
-#. Scroll to the Storage Account Management pane and select the user to
+#. Scroll to **Storage Account Management** and select the user to
    remove:
 
    |image0|

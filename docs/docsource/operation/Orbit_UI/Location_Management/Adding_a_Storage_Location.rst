@@ -1,15 +1,15 @@
-/.. _orbit_add_location:
+.. _orbit_add_location:
 
 Adding a Storage Location
 =========================
 
-Clicking the **Storage Locations** item in the navigation pane opens the
-Storage Locations dialog:
+Click the **Storage Locations** item in the sidebar to open the
+**Cloud Locations** dialog:
 
 .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_Storage_Locations.png
    :align: center
 
-#. To add a storage location, click **Add New Storage Location**.
+#. To add a storage location, click **Add New**.
 
 #. The **Add New Storage Location** dialog displays:
 
@@ -79,6 +79,8 @@ cloud storage system.
    +---------------+----------+--------+------------+---------+
 
 These configuration options are described below.
+
+.. _endpoint:
 
 Endpoint
 ~~~~~~~~

@@ -100,7 +100,8 @@ You can:
 
 .. toctree::
    :maxdepth: 1
-   
+
+      View Location Status <location_status>
       Add a Storage Location <Adding_a_Storage_Location>
       Add a Transient Source Storage Location <../Advanced_Workflows/Adding_a_Transient_Source_Storage_Location>
 

@@ -5,16 +5,16 @@ Uploading Files to Buckets
 storage account associated with a user name, and you must have created
 at least one bucket.
 
-#. Click the Browser item in the navigation pane. The **Multicloud
-   Browser** window displays:
+#. Click **Browser** in the sidebar to open the **Multicloud Browser**:
    |image0|
+
 #. Double-click the bucket to which you will upload data. The Drag and
    Drop Objects dialog displays:
 
    |image1|
 
 #. You can upload files either by dragging and dropping from the local
-   operating system (Windows Explorer, OS X, Linux desktop) or by
+   operating system (Windows Explorer, OS X, Linux desktop) or by
    clicking the **Upload Objects** button.
 
    .. note::

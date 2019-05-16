@@ -1,17 +1,19 @@
 Setting Up Orbit
 ================
 
-You can set up Orbit in a sandbox demo mode or as a registered
-installation.
+Orbit is a web-based graphical user interface that simplifies Zenko operations.
+You can set up Orbit in a sandbox demo mode or as a registered instance. Once
+Orbit is configured, you can unlink it from a Zenko instance as well.
 
 .. toctree::
   :maxdepth: 1
 
    Setting Up a Sandbox Instance <Setting_up_a_Sandbox_Instance>
    Setting Up a Full Orbit Installation <Setting_Up_a_Full_Orbit_Installation>
+   Unlink Orbit from Zenko <Unlinking_Orbit>   
 
 Registering Orbit to Zenko
-++++++++++++++++++++++++++
+--------------------------
 
 Orbit can be run as a user interface to Zenko no matter where or how
 Zenko is hosted. You can deploy Zenko:
