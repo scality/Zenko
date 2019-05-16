@@ -59,10 +59,10 @@ describe('Replication Pause-Resume with AWS backend', function() {
             assert.strictEqual(data[destLocation], 'disabled');
             return next();
         }),
-        next => scalityUtils.putObject(srcBucket, key2, Buffer.alloc(1),
+        next => scalityUtils.putObject(srcBucket, `${key2}-where-am-i`, Buffer.alloc(1),
             next),
         next => setTimeout(next, 15000),
-        next => awsUtils.assertNoObject(destBucket, key2, next),
+        next => awsUtils.assertNoObject(destBucket, `${key2}-where-am-i`, next),
         next => backbeatAPIUtils.resumeReplication(null, null, null, next),
         next => setTimeout(next, 5000),
         next => backbeatAPIUtils.getReplicationStatus(null, (err, data) => {
@@ -71,7 +71,7 @@ describe('Replication Pause-Resume with AWS backend', function() {
             assert.strictEqual(data[destLocation], 'enabled');
             return next();
         }),
-        next => scalityUtils.waitUntilReplicated(srcBucket, key2,
+        next => scalityUtils.waitUntilReplicated(srcBucket, `${key2}-where-am-i`,
             undefined, next),
     ], done));
 
