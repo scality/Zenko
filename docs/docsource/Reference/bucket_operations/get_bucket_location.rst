@@ -11,7 +11,7 @@ LocationConstraint request parameter in a PUT Bucket request. Refer to
 .. note::
 
   The possible options for a LocationConstraint are configured in the
-  env_s3 setting of the S3 Configuration.
+  env_s3 setting of the S3 configuration.
 
 Requests
 --------
@@ -65,7 +65,7 @@ in the response:
    |                       |                       | parameter is          |
    |                       |                       | configured in the     |
    |                       |                       | env_s3 setting of the |
-   |                       |                       | S3 Configuration.     |
+   |                       |                       | S3 configuration.     |
    +-----------------------+-----------------------+-----------------------+
 
 Examples

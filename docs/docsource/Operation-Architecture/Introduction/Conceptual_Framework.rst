@@ -25,7 +25,6 @@ cloud protocols, such as Google Cloud and Microsoft Azure storage, and
 manages a unified namespace to retrieve data seamlessly from all managed
 cloud locations.
 
-In addition to replication, Zenko provides bucket lifecycle (expiration)
-management and other tools to manage data easily in a multi-cloud
-environment.
-
+In addition to replication, Zenko provides bucket lifecycle management
+(expiration and transition) and other tools to manage data easily in a
+multi-cloud environment.

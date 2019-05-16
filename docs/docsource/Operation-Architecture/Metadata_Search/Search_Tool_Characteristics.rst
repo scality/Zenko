@@ -1,10 +1,10 @@
 Search Tool Characteristics
 ===========================
 
-The S3 Search tool is a Scality-proprietary API extension to the AWS API.
-S3 Search complies with AWS S3 search syntax, with certain noteworthy
+The S3 Search tool is a Scality-proprietary API extension to the AWS API.
+S3 Search complies with AWS S3 search syntax, with certain noteworthy
 differences. S3 Search is MongoDB-native, and addresses the S3 search through
-queries encapsulated in a SQL WHERE predicate. It uses Perl-Compatible Regular
+queries encapsulated in a SQL WHERE predicate. It uses Perl-Compatible Regular
 Expression (PCRE) search syntax.
 
 Syntax
@@ -14,7 +14,7 @@ From the command line, a query must be structured as follows
 
 ::
 
-    $ /bin/search_bucket.js -a {{access key}} -k {{secret key}} -b {{bucket name}} -q {{query {{SQL WHERE clause}} predicate}} -h {{host}} -p {{port}}
+    $ /bin/search_bucket.js -a {{access key}} -k {{secret key}} -b {{bucket name}} -q {{query {{SQL WHERE clause}} predicate}} -h {{host}} -p {{port}}
 
 The access and secret key are the keys for access to the bucket host.
 The host is the host address (IPv4, IPv6 or DNS). All fields must be
