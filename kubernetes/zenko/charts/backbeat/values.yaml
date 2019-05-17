@@ -15,7 +15,7 @@ image:
 
 logging:
    # Options: info, debug, trace
-   level: info
+   level: debug
 
 mongodb:
   replicaSet: rs0
