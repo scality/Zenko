@@ -54,6 +54,7 @@ models:
       name: Dump zenko logs
       command: make -e dump-logs
       workdir: build/tests
+      alwaysRun: true
       env:
         HELM_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
   - ShellCommand: &start-mocks
