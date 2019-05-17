@@ -261,7 +261,7 @@ stages:
           ZENKO_HELM_RELEASE: 'zenko-offline'
           HELM_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
           TILLER_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
-          INSTALL_TIMEOUT: "600"
+          INSTALL_TIMEOUT: "1200"
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
     - ShellCommand: *k8s_cleanup
