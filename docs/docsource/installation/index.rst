@@ -1,4 +1,4 @@
-Installation Guide
+Zenko Installation
 ==================
 
 .. toctree::

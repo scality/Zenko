@@ -1,5 +1,5 @@
-Operation and Architecture Guide
-================================
+Zenko Operation
+===============
 
 Zenko is Scality’s multi-cloud storage controller. It provides a single
 point of integration, using the Amazon S3 cloud storage API, and enables
