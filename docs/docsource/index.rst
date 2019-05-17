@@ -9,6 +9,6 @@ Zenko
 .. toctree::
    :maxdepth: 2
 
-   Installation/index
-   Operation-Architecture/index
-   Reference/index
+   installation/index
+   operation/index
+   reference/index

@@ -1,6 +1,6 @@
 .. _Reference:
 
-Reference Guide
+Zenko Reference
 ===============
 
 .. toctree::

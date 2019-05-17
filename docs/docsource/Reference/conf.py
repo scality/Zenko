@@ -23,7 +23,7 @@ import scaldoc.resources
 
 # -- Project information -----------------------------------------------------
 
-project = 'Zenko Reference Guide'
+project = 'Zenko Reference'
 copyright = '2019, Scality, Inc'
 author = 'Scality Technical Publications'
 
@@ -168,7 +168,7 @@ latex_elements = {
     'preamble': scaldoc.resources.get_latex_preamble(
         cover=os.path.basename(latex_cover),
         logo=os.path.basename(latex_logo),
-        title='Reference Guide',
+        title='Reference',
         title_voffset='85pt',
         version=release,
         copyright=copyright
@@ -186,7 +186,7 @@ latex_additional_files.extend(scaldoc.resources.get_fonts())
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'ZenkoReference.tex', 'Zenko Reference Guide',
+    (master_doc, 'ZenkoReference.tex', 'Zenko Reference',
      'Scality Technical Publications', 'manual'),
 ]
 
@@ -205,7 +205,7 @@ latex_documents = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'ZenkoReference', 'Zenko Reference Guide',
+    (master_doc, 'ZenkoReference', 'Zenko Reference',
      'Scality Technical Publications', 'Zenko Reference', 'Zenko API documentation.',
      'manual'),
 ]
