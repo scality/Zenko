@@ -166,8 +166,7 @@ install-cosbench:
 install-ceph:
 	$(HELM) upgrade $(CEPH_HELM_RELEASE) \
 		--namespace $(HELM_NAMESPACE) \
-		--install ../eve/workers/ceph/chart \
-		--wait
+		--install ../eve/workers/ceph/chart
 .PHONY: install-ceph
 
 install-zenko: | install-tiller
