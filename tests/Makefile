@@ -206,6 +206,7 @@ wait-for-zenko: | build-tests
 		--limits='cpu=100m,memory=128Mi' \
 		$(shell ../eve/workers/ci_env.sh env) \
 		--command -- python3 create_buckets.py || (echo "Zenko has failed to stabilize" ; kubectl get all ; exit 1) >&2
+	$(V)$(KUBECTL) --namespace=$(HELM_NAMESPACE) get pods
 .PHONY: wait-for-zenko
 
 wait-for-ceph: | build-tests
