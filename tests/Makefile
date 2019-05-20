@@ -204,7 +204,6 @@ wait-for-zenko: | build-tests
 		--restart=Never \
 		--namespace=$(HELM_NAMESPACE) \
 		--limits='cpu=100m,memory=128Mi' \
-		--requests='cpu=50m,memory=64Mi' \
 		$(shell ../eve/workers/ci_env.sh env) \
 		--command -- python3 create_buckets.py || (echo "Zenko has failed to stabilize" ; kubectl get all ; exit 1) >&2
 .PHONY: wait-for-zenko
@@ -218,7 +217,6 @@ wait-for-ceph: | build-tests
 		--restart=Never \
 		--namespace=$(HELM_NAMESPACE) \
 		--limits='cpu=100m,memory=128Mi' \
-		--requests='cpu=50m,memory=64Mi' \
 		--command -- sh wait_for_ceph.sh || (echo "Ceph has failed to come up!"; exit 1) >&2
 .PHONY: wait-for-ceph
 
@@ -239,7 +237,6 @@ clean-s3c:
 		--restart=Never \
 		--namespace=$(HELM_NAMESPACE) \
 		--limits='cpu=100m,memory=128Mi' \
-		--requests='cpu=50m,memory=64Mi' \
 		$(shell ../eve/workers/ci_env.sh env) \
 		--command -- python3 cleans3c.py || (echo "Zenko has failed to cleanup s3c" ; kubectl get all ; exit 1) >&2
 
@@ -256,7 +253,6 @@ run-tests: | build-tests
 		--image=$(E2E_IMAGE)  \
 		--namespace $(HELM_NAMESPACE) \
 		--limits='cpu=500m,memory=1.5Gi' \
-		--requests='cpu=250m,memory=512Mi' \
 		--env MOCHA_TAGS="$(NODE_TEST_TAGS)" \
 		--env CLOUDSERVER_ENDPOINT="http://$(ZENKO_HELM_RELEASE)-cloudserver:80" \
 		$(shell ../eve/workers/ci_env.sh env)
@@ -272,7 +268,6 @@ run-listing-fuzzer:
 		--image-pull-policy="Always" \
 		--namespace $(HELM_NAMESPACE) \
 		--limits='cpu=500m,memory=1.5Gi' \
-		--requests='cpu=250m,memory=512Mi' \
 		--env S3FUZZ_ZENKO_HOST="http://$(ZENKO_HELM_RELEASE)-cloudserver:80" \
 		--env S3FUZZ_ROUNDS=1 \
 		--env S3FUZZ_SEED=$(shell date '+%s') \

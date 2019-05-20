@@ -49,12 +49,12 @@ spec:
     - name: metadata
       mountPath: /usr/src/app/localMetadata
     resources:
+      requests:
+        cpu: 1
+        memory: 2Gi
       limits:
         cpu: 1
         memory: 2Gi
-      requests:
-        cpu: 500m
-        memory: 256Mi
   volumes:
   - name: metadata
     emptyDir: {}
