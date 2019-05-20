@@ -27,9 +27,9 @@ s3-data:
   persistentVolume:
     enabled: false
   resources:
-    requests:
-      cpu: 50m
-      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 512Mi
 
 
 mongodb-replicaset:
@@ -41,14 +41,11 @@ mongodb-replicaset:
     limits:
       cpu: 500m
       memory: 4Gi
-    requests:
-      cpu: 125m
-      memory: 256Mi
   metrics:
     resources:
-      requests:
-        cpu: 10m
-        memory: 32Mi
+      limits:
+        cpu: 100m
+        memory: 320Mi
 
 prometheus:
   rbac:
@@ -76,9 +73,6 @@ prometheus:
       limits:
         cpu: 200m
         memory: 1Gi
-      requests:
-        cpu: 50m
-        memory: 128Mi
 
 zenko-queue:
   persistence:
@@ -89,9 +83,6 @@ zenko-queue:
     limits:
       cpu: 300m
       memory: 1Gi
-    requests:
-      cpu: 200m
-      memory: 128Mi
 
 zenko-quorum:
   persistence:
@@ -100,9 +91,6 @@ zenko-quorum:
     limits:
       cpu: 200m
       memory: 2Gi
-    requests:
-      cpu: 50m
-      memory: 128Mi
   env:
     ZK_HEAP_SIZE: 2G
 
@@ -119,17 +107,11 @@ redis-ha:
       limits:
         memory: 256Mi
         cpu: 200m
-      requests:
-        memory: 64Mi
-        cpu: 50m
   sentinel:
     resources:
       limits:
         cpu: 50m
         memory: 128Mi
-      requests:
-        cpu: 50m
-        memory: 64Mi
 global:
   orbit:
     endpoint: "http://ciutil-orbit-simulator:4222"
@@ -152,17 +134,11 @@ cloudserver:
     limits:
       cpu: 500m
       memory: 1Gi
-    requests:
-      cpu: 200m
-      memory: 128Mi
   manager:
     resources:
       limits:
         cpu: 500m
         memory: 512Mi
-      requests:
-        cpu: 75m
-        memory: 128Mi
 
 backbeat:
   image:
@@ -172,9 +148,6 @@ backbeat:
       limits:
         cpu: 500m
         memory: 1Gi
-      requests:
-        cpu: 100m
-        memory: 128Mi
 
   replication:
     dataProcessor:
@@ -190,10 +163,6 @@ backbeat:
         limits:
           cpu: 250m
           memory: 256Mi
-        requests:
-          cpu: 100m
-          memory: 128Mi
-
     statusProcessor:
       resources: *backbeat
     retry:
