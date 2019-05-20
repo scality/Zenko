@@ -194,7 +194,7 @@ wait-for-zenko: | build-tests
 		--restart=Never \
 		--namespace=$(HELM_NAMESPACE) \
 		--limits='cpu=100m,memory=128Mi' \
-		--requests='cpu=50m,memory=64Mi' \
+		--requests='cpu=100m,memory=128Mi' \
 		$(shell ../eve/workers/ci_env.sh env) \
 		--command -- python3 create_buckets.py || (echo "Zenko has failed to stabilize" ; kubectl get all ; exit 1) >&2
 	$(V)$(KUBECTL) --namespace=$(HELM_NAMESPACE) get pods
@@ -211,7 +211,7 @@ run-tests: | build-tests
 		--image=$(E2E_IMAGE)  \
 		--namespace $(HELM_NAMESPACE) \
 		--limits='cpu=500m,memory=1.5Gi' \
-		--requests='cpu=250m,memory=512Mi' \
+		--requests='cpu=500m,memory=1.5Gi' \
 		--env MOCHA_TAGS="$(NODE_TEST_TAGS)" \
 		--env CLOUDSERVER_ENDPOINT="http://$(ZENKO_HELM_RELEASE)-cloudserver:80" \
 		$(shell ../eve/workers/ci_env.sh env)
