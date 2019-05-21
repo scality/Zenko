@@ -278,8 +278,8 @@ stages:
           name: Trigger latest builds
           haltOnFailure: true
           stage_names:
-            - test-latest-1.0.x
-            - test-latest-1.1.x
+            - test-latest-1-0-x
+            - test-latest-1-1-x
       - ShellCommand:
           name: Trigger the report-test stage in a seperate build
           command: python report.py --trigger
