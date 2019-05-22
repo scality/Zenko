@@ -15,18 +15,19 @@ models:
   - ShellCommand: &k8s_setup
       name: setup k8s env
       command: eve/scripts/setup-k8s.sh
+      haltOnFailure: true
       env:
         CI_KUBECONFIG: '%(secret:openstack_cluster_conf)s'
         NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
         KUBECONFIG: /root/.kube/config
         CLUSTER_IP: '%(secret:openstack_cluster_ip)s'
-      haltOnFailure: true
   - ShellCommand: &k8s_cleanup
       name: Cleanup
       command: |
         kubectl -n ${HELM_NAMESPACE} delete cosmos --all
         kubectl delete namespace ${HELM_NAMESPACE} --wait
       alwaysRun: true
+      warnOnFailure: true
       sigtermTime: 1200
       env:
         KUBECONFIG: /root/.kube/config
@@ -55,12 +56,14 @@ models:
       command: make -e dump-logs
       workdir: build/tests
       alwaysRun: true
+      warnOnFailure: true
       env:
         HELM_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
   - ShellCommand: &start-mocks
       name: Start external service mocks
       command: make -e install-mocks
       workdir: build/tests
+      haltOnFailure: true
       env:
         HELM_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
   - SetPropertyFromCommand: &notify-build-start
