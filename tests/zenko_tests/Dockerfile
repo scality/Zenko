@@ -13,7 +13,8 @@ RUN apk add -U \
     python3-dev \
     musl-dev \
     curl \
-    openssl-dev && \
+    openssl-dev \
+    git && \
     mkdir -p /usr/local/bin/tests/node_tests
 
 COPY ./node_tests/package.json ./node_tests/package-lock.json /usr/local/bin/tests/node_tests/
