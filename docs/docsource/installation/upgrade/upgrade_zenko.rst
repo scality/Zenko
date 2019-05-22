@@ -94,19 +94,21 @@ newer features may not function.
 
 To upgrade from 1.0.x to 1.1:
 
-#. Run the typical upgrade command, inserting your Zenko server's release name
+#. Run the upgrade command, inserting your Zenko server's release name and
+   disabling the specific feature that depends on MongoDB 3.6.
    ::
 
-     $ helm upgrade {{zenko-release-name}} ./zenko
+     $ helm upgrade {{zenko-release-name}} ./zenko --set cosmos.enabled=false
 
    If you are using custom values, be sure to reuse the options.yaml file on
    upgrades.
    ::
 
-      $ helm upgrade {{zenko-server-name}} ./zenko -f options.yaml
+      $ helm upgrade {{zenko-server-name}} ./zenko --set cosmos.enabled=false -f options.yaml
 
-#. After the upgrade has stabilized all pod rollouts, run the following
-   command to finalize the MongoDB compatibility upgrade:
+#. After the upgrade has stabilized all pod rollouts and prior functionality
+   is verified, run the following command to finalize the MongoDB compatibility
+   upgrade and enable the Cosmos feature set:
    ::
 
      $ helm upgrade {{zenko-release-name}} ./zenko --set maintenance.upgradeMongo=true -f options.yaml
@@ -119,5 +121,19 @@ To upgrade from 1.0.x to 1.1:
 
    .. note::
 
-      Once this upgrade is complete, the maintenance flag is no
-      longer required for further 1.1.x upgrades.
+      Any upgrade failures will typically show up as an `Error` or `Crash` state
+
+#. You can validate the upgrade was successful by checking the logs. Any errors
+   encountered during the upgrade proceedure would be listed here as well.
+   ::
+
+     $ kubectl logs --selector component=mongodb-upgrade
+       Finished successfully! Compatibility set to version 3.6
+
+#. Once your upgrade is successful, these Zenko upgrade flags should not be
+   need for further 1.1.x upgrades. You can now run the typical upgrade command
+   to ensure the desired 1.1 state
+   ::
+
+     $ helm upgrade {{zenko-release-name}} ./zenko  -f options.yaml
+

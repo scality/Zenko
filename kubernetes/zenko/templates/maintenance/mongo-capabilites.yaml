@@ -3,17 +3,16 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ template "zenko.fullname" . }}-mongo-capabilities
+  name: {{ template "zenko.fullname" . }}-mongodb-upgrade
   labels:
-    component: maintenance
+    component: maintenance-job
 {{ include "zenko.labels.standard" . | indent 4 }}
 spec:
   template:
     metadata:
       labels:
-        component: maintenance
-        app: {{ template "zenko.name" . }}
-        release: {{ .Release.Name | quote }}
+        component: mongodb-upgrade
+{{ include "zenko.labels.standard" . | indent 8 }}
     spec:
       restartPolicy: OnFailure
       initContainers:
@@ -27,7 +26,7 @@ spec:
           for i in $(seq 0 {{ sub .Values.nodeCount 1 }}); do
               version=$(mongo --quiet {{ .Release.Name }}-mongodb-replicaset-$i.{{ .Release.Name }}-mongodb-replicaset --eval 'db.version()')
               if [ "$version" != '{{ $mongoValues.image.tag }}' ] ; then
-                  echo "Mongodb pod $i is still on $version and needs to be upgrade, exiting"
+                  echo "Mongodb pod $i is still on $version and needs to be upgraded, exiting"
                   echo "Waiting and exiting"
                   sleep 60
                   exit 1
@@ -58,6 +57,12 @@ spec:
                    sleep(10000);
                }
                db.adminCommand({ setFeatureCompatibilityVersion: "3.6" });
+               sleep(10000);
+               version = db.adminCommand({ getParameter: 1, featureCompatibilityVersion: 1 }).featureCompatibilityVersion.version;
+               if (version != '3.6'){
+                   print("Unable to upgrade capabilities, manual upgrade may be neccessary");
+                   quit(1);
+               }
            }
            print("Finished successfully! Compatibility set to version", version);
 {{- end }}

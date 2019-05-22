@@ -256,7 +256,8 @@ class EveClient:
 
 
     VARIOUS_REGEX = tuple(re.compile(regex) for regex in [
-        r'Unable to connect to the server: (dial tcp <openstack_cluster_ip>:6443: i/o timeout)'
+        r'Unable to connect to the server: (dial tcp <openstack_cluster_ip>:6443: i/o timeout)',
+        r'INFO:create_buckets:(Containers have not become ready[\w\s]+has elasped)'
     ])
     def various_failures(self, log):
         for regex in self.VARIOUS_REGEX:
@@ -269,7 +270,6 @@ class EveClient:
             log = resp.get('logs')[0]
             ok, resp = self.request('/logs/%s/raw'%log.get('logid'), is_json=False)
             if resp:
-                print(resp)
                 for error in itertools.chain(
                     self.pytest_failures(resp),
                     self.mocha_failures(resp),
@@ -433,7 +433,6 @@ if __name__ == '__main__':
         else:
             failed_tests = defaultdict(list)
             for stage, step in eve.walk_steps(BUILD_NUMBER):
-                print(stage)
                 if not step['results'] == 0:
                     for err in eve.extract_failure(step['buildid'], step['number']):
                         failed_tests[stage].append(err)
@@ -444,4 +443,5 @@ if __name__ == '__main__':
                 bm_hippo.post_failure()
             if len(failed_tests):
                 bm.report_failures(BUILD_NAME, BUILD_NUMBER, failed_tests)
-                bm_hippo.report_failures(BUILD_NAME, BUILD_NUMBER, failed_tests)
+                if CROSSPOST_TO_HIPPO:
+                    bm_hippo.report_failures(BUILD_NAME, BUILD_NUMBER, failed_tests)

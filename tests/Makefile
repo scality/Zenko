@@ -14,9 +14,6 @@ PYTEST_ARGS :=
 DOTENV := $(PWD)/.env
 
 BUILDDIR := build
-# These are for dumping logs, but they're really long so store them as variables
-E2E_LOG_PODS := {range .items[?(@.metadata.annotations.helm\.sh\/hook)]}{@.metadata.name}{"\n"}{end}
-ZENKO_PODS := {{range .items}}{{$$pod := .metadata.name}}{{range .spec.containers}}"kubectl logs {{$$pod}} -c {{.name}} --previous=true >> artifacts/{{.name}}-{{$$pod}}.log;kubectl logs {{$$pod}} -c {{.name}} >> artifacts/{{.name}}-{{$$pod}}.log"{{"\n"}}{{end}}{{end}}
 
 # Defaults for our test environment
 HELM_NAMESPACE := testnamespace
@@ -24,6 +21,9 @@ ZENKO_HELM_RELEASE := zenko-test
 ORBIT_HELM_RELEASE := ciutil
 COSBENCH_HELM_RELEASE := zenko-cosbench
 CEPH_HELM_RELEASE := zenko-ceph
+
+# This is for dumping logs, command is long so storing as a variable
+ZENKO_PODS := {{range .items}}{{$$pod := .metadata.name}}{{range .spec.containers}}"kubectl logs -n $(HELM_NAMESPACE) {{$$pod}} -c {{.name}} --previous=true >> artifacts/{{.name}}-{{$$pod}}.log;kubectl logs -n $(HELM_NAMESPACE) {{$$pod}} -c {{.name}} >> artifacts/{{.name}}-{{$$pod}}.log"{{"\n"}}{{end}}{{end}}
 
 # Defaults for our test images
 IMAGE_REGISTRY := docker.io
@@ -297,11 +297,11 @@ test-flaky:
 .PHONY: test-flaky
 
 ifeq ($(DOCS_ONLY),)
-test: | install-common install-zenko run-tests dump-logs
+test: | install-common install-zenko run-tests
 else
 test:
 endif
-test-latest: | install-common install-latest-zenko run-tests test-flaky dump-logs
+test-latest: | install-common install-latest-zenko run-tests test-flaky
 .PHONY: test test-latest
 
 test-local:
