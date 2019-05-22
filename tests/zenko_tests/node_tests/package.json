@@ -12,13 +12,16 @@
   ],
   "dependencies": {
     "@google-cloud/storage": "^1.6.0",
+    "arsenal": "github:scality/arsenal#c0129eb",
     "async": "2.1.2",
     "aws-sdk": "2.60.0",
     "azure-storage": "^2.10.0",
+    "bucketclient": "scality/bucketclient#5aa99d7",
     "mocha": "^5.2.0",
     "mocha-tags": "^1.0.1",
     "npm-run-all": "~4.0.2",
     "request": "^2.87.0",
+    "sproxydclient": "scality/sproxydclient#45090b7",
     "uuid": "^3.0.1"
   },
   "scripts": {
@@ -33,7 +36,8 @@
     "test_lifecycle": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --recursive backbeat/tests/lifecycle",
     "test_ingestion_oob_s3c": "mocha --tags ${MOCHA_TAGS} --exit -t 300000 --recursive backbeat/tests/ingestion",
     "test_location_quota": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --recursive cloudserver/locationQuota/tests",
-    "test_bucket_get_v2": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --recursive cloudserver/bucketGetV2/tests"
+    "test_bucket_get_v2": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --recursive cloudserver/bucketGetV2/tests",
+    "test_data_backends": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --recursive cloudserver/dataBackends/tests"
   },
   "author": ""
 }
