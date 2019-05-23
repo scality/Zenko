@@ -154,6 +154,8 @@ models:
       NFS_BACKEND: 'nfs-%(prop:bootstrap)s'
       NFS_BUCKET_NAME: 'zenko-nfs-bucket'
 
+      RING_SPROXYD_ENDPOINT: '%(secret:ring_sproxyd_endpoint)s'
+
   - env: &mock_env
       AZURE_ACCOUNT_NAME: devstoreaccount1
       AZURE_BACKEND_ENDPOINT: http://azure-mock/devstoreaccount1
