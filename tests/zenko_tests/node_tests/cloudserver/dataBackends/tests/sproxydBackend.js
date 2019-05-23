@@ -4,20 +4,21 @@ const assert = require('assert');
 // const crypto = require('crypto');
 const uuidV4 = require('uuid/v4');
 
-const mdWrapper = require('arsenal').storage.metadata.MetadataWrapper;
-
+const MongoClientInterface = require('../../../utils/MongoClientInterface');
 const s3 = require('../../../s3SDK').scalityS3Client;
 
 const bucket = `sproxyd-bucket-${uuidV4()}`;
 const key = `sproxyd-key-${uuidV4()}`;
 
 const location = 'ringsproxydbackend';
+const mongo = new MongoClientInterface();
 
 function checkDataStored(cb) {
-    mdWrapper.getObjectMD(bucket, key, {}, log, (err, storedMD) => {
+    mongo.getObject(bucket, key, (err, obj) => {
         assert.ifError(err);
-        console.log(`\n------stored metadata format: ${storedMD}`);
-        return cb();
+        const util = require('util');
+        console.log(`\n-------obj ${util.inspect(obj, false, null)}`);
+        cb();
     });
 }
 
