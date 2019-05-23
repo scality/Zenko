@@ -154,7 +154,7 @@ models:
       NFS_BACKEND: 'nfs-%(prop:bootstrap)s'
       NFS_BUCKET_NAME: 'zenko-nfs-bucket'
 
-      RING_SPROXYD_ENDPOINT: '%(secret:ring_sproxyd_endpoint)s'
+      RING_SPROXYD_ENDPOINT: '%(secret:ring_sproxyd_endpoint1)s'
 
   - env: &mock_env
       AZURE_ACCOUNT_NAME: devstoreaccount1
