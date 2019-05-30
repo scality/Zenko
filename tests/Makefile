@@ -14,15 +14,15 @@ PYTEST_ARGS :=
 DOTENV := $(PWD)/.env
 
 BUILDDIR := build
-# These are for dumping logs, but they're really long so store them as variables
-E2E_LOG_PODS := {range .items[?(@.metadata.annotations.helm\.sh\/hook)]}{@.metadata.name}{"\n"}{end}
-ZENKO_PODS := {{range .items}}{{$$pod := .metadata.name}}{{range .spec.containers}}"kubectl logs {{$$pod}} -c {{.name}} > artifacts/{{.name}}-{{$$pod}}.log"{{"\n"}}{{end}}{{end}}
 
 # Defaults for our test environment
 HELM_NAMESPACE := testnamespace
 ZENKO_HELM_RELEASE := zenko-test
 ORBIT_HELM_RELEASE := ciutil
 COSBENCH_HELM_RELEASE := zenko-cosbench
+
+# This is for dumping logs, command is long so storing as a variable
+ZENKO_PODS := {{range .items}}{{$$pod := .metadata.name}}{{range .spec.containers}}"kubectl logs -n $(HELM_NAMESPACE) {{$$pod}} -c {{.name}} --previous=true >> artifacts/{{.name}}-{{$$pod}}.log;kubectl logs -n $(HELM_NAMESPACE) {{$$pod}} -c {{.name}} >> artifacts/{{.name}}-{{$$pod}}.log ; exit 0"{{"\n"}}{{end}}{{end}}
 
 # Defaults for our test images
 IMAGE_REGISTRY := docker.io
@@ -135,6 +135,18 @@ ifndef NO_SIM
 endif
 .PHONY: install-orbit-simulator
 
+install-mocks:
+	$(V)$(KUBECTL) create \
+		-f ../eve/workers/mocks/azure-mock.yaml \
+		-f ../eve/workers/mocks/aws-mock.yaml \
+		--namespace $(HELM_NAMESPACE) && \
+	$(KUBECTL) create \
+		configmap aws-mock \
+		--from-file=../eve/workers/mocks/aws/mock-metadata.tar.gz \
+		--namespace $(HELM_NAMESPACE)
+
+.PHONY: install-mocks
+
 install-cosbench:
 	$(V)$(GIT) clone git@github.com:scality/zenko-cosbench.git build/zenko-cosbench && \
 	$(HELM) upgrade $(COSBENCH_HELM_RELEASE) \
@@ -181,16 +193,15 @@ wait-for-zenko: | build-tests
 		--attach=True \
 		--restart=Never \
 		--namespace=$(HELM_NAMESPACE) \
+		--limits='cpu=100m,memory=128Mi' \
+		--requests='cpu=50m,memory=64Mi' \
 		$(shell ../eve/workers/ci_env.sh env) \
-		--command -- python3 create_buckets.py || (echo "Zenko has failed to stabilize" ; kubectl get pods -L redis-role ; exit 1) >&2
+		--command -- python3 create_buckets.py || (echo "Zenko has failed to stabilize" ; kubectl get all ; exit 1) >&2
 .PHONY: wait-for-zenko
 
 dump-logs: | artifacts
-	$(V)(kubectl  -n $(HELM_NAMESPACE) get pods -o go-template --template '$(ZENKO_PODS)') | xargs -n 1 -r sh -c;  \
-	(kubectl -n $(HELM_NAMESPACE) get pods -o jsonpath='$(E2E_LOG_PODS)') | \
-	while read -r pod; do \
-		kubectl -n $(HELM_NAMESPACE) logs $${pod}; \
-	done;
+	$(V)(kubectl  -n $(HELM_NAMESPACE) get pods -o go-template --template '$(ZENKO_PODS)') | xargs -n 1 -r sh -c;
+	tar -czvf ./artifacts/$(HELM_NAMESPACE).tar.gz ./artifacts
 .PHONY: dump-logs
 
 run-tests: | build-tests
@@ -200,9 +211,11 @@ run-tests: | build-tests
 		--attach=True \
 		--image=$(E2E_IMAGE)  \
 		--namespace $(HELM_NAMESPACE) \
+		--limits='cpu=500m,memory=1.5Gi' \
+		--requests='cpu=250m,memory=512Mi' \
 		--env MOCHA_TAGS="$(NODE_TEST_TAGS)" \
 		--env CLOUDSERVER_ENDPOINT="http://$(ZENKO_HELM_RELEASE)-cloudserver:80" \
-		$(shell ../eve/workers/ci_env.sh env) || (echo "Tests have failed" ; kubectl get pods -L redis-role ; exit 1) >&2
+		$(shell ../eve/workers/ci_env.sh env) || (echo "Tests have failed" ; kubectl get all ; exit 1) >&2
 .PHONY: run-tests
 
 test-flaky:
@@ -211,11 +224,11 @@ test-flaky:
 .PHONY: test-flaky
 
 ifeq ($(DOCS_ONLY),)
-test: | install-zenko install-common run-tests dump-logs
+test: | install-common install-zenko run-tests
 else
 test:
 endif
-test-latest: | install-common install-latest-zenko run-tests test-flaky dump-logs
+test-latest: | install-common install-latest-zenko run-tests test-flaky
 .PHONY: test test-latest
 
 test-local:
