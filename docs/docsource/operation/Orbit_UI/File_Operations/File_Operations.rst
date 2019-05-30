@@ -10,7 +10,7 @@ the file from the bucket.
 
 To access these operations:
 
-#. Click **Browser** in the navigation pane.
+#. Click **Browser** in the sidebar to open the **Multicloud Browser**.
 #. Double-click the bucket you want to access.
 
    -  If the bucket is empty, Zenko asks you to **Drag and Drop

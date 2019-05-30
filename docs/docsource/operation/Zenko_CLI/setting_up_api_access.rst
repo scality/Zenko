@@ -108,7 +108,7 @@ Where:
 
   * `YourSecretAccessKeyId` is the secret key associated with the requesting
     user ID. It is generated in Orbit when the user account is created (see 
-    :ref:`add new user`). 
+    :ref:`add_a_new_user`). 
 
   * CanonicalizedResource is as described in the
     `AWS documentation`_

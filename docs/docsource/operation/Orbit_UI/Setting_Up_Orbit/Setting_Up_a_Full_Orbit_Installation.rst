@@ -1,3 +1,5 @@
+.. _setting_up_orbit: 
+
 Setting Up a Full Orbit Installation
 ====================================
 
@@ -34,10 +36,7 @@ Orbit.
    .. tip::
 
       To find your Instance ID, use the kubectl commands in the
-      “Install Zenko” section of the Installation Guide.
-
-
-
+      “Install Zenko” section of the Installation Guide.
 
 .. |image0| image:: ../../Resources/Images/Orbit_Screencaps/google_login.png
    :class: FiftyPercent

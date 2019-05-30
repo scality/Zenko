@@ -1,7 +1,9 @@
+.. _set_up_crr:
+
 Setting Up Replication
 ======================
 
-**Prerequisites:** To set up bucket-level CRR using the Orbit UI, you
+**Prerequisites:** To set up bucket-level CRR using the Orbit UI, you
 must have
 
 -  One pre-configured source bucket
