@@ -40,4 +40,4 @@ For a full walk-through of these features, see `Using Orbit`_.
 
 .. _`Try Zenko`: https://admin.zenko.io/user
 .. _`Setting Up Orbit`: ../Orbit_UI/Setting_Up_Orbit/Setting_Up_Orbit.html
-.. _`Using Orbit`: ../Orbit_UI/Using_Orbit.html
+.. _`Using Orbit`: ../Orbit_UI/index.html

@@ -95,6 +95,15 @@ file to find the relevant export path, hostname, and NFS options. Use
 ``nfsstat`` on the NFS host to discover the relevant NFS version and
 protocol.
 
+.. caution::
+
+   Do not configure CRR for NFS mounts unless there is predictable
+   down time for replication. For NFS CRR, Zenko scans the NFS file
+   system, then detects and replicates changes. It assumes the NFS
+   mount is immutable after scanning but before replication is 
+   complete. Changes written after the scan but before replication
+   completes may not be replicated.
+
 
 You can:
 

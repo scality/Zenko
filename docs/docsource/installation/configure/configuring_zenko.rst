@@ -57,9 +57,9 @@ default. To deactivate Cosmos:
 Cosmos mirrors data based on a cron-like schedule. To modify this cron
 interval, descend into the YAML structure as follows:
 
-   #. Review the cosmos block in kubernetes/zenko/cosmos/values.yaml.
+#. Review the cosmos block in kubernetes/zenko/cosmos/values.yaml.
 
-   #. Copy the relevant hierarchy to options.yml:
+#. Copy the relevant hierarchy to options.yml:
 
       .. code::   
 
