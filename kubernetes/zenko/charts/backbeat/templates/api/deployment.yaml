@@ -49,6 +49,8 @@ spec:
               value: "{{- printf "%s-cloudserver:80" .Release.Name | trunc 63 | trimSuffix "-" -}}"
             - name: MONGODB_HOSTS
               value: "{{ template "backbeat.mongodb-hosts" . }}"
+            - name: COLLECT_DEFAULT_METRICS_INTERVAL_MS
+              value: {{ quote .Values.monitoring.collectDefaultMetricsIntervalMs }}
           livenessProbe:
             httpGet:
               path: /_/healthcheck
