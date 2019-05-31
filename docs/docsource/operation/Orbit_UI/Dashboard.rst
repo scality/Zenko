@@ -15,14 +15,14 @@ Visible from all Orbit windows, the sidebar contains navigational
 buttons for:
 
    * :ref:`Statistics`
-   * :ref:`Location Status<location_status>`
+   * :ref:`Location Status <location_status>`
    * :ref:`Storage Accounts <add_a_new_user>`
    * :ref:`Storage Locations <orbit_add_location>`
    * :ref:`Endpoints <endpoint>`
    * :ref:`Browser <create_a_bucket>`
-   * :ref:`Search<orbit_md_search>`
-   * :ref:`Replication<set_up_crr>`
-   * :ref:`Bucket Lifecycle<object_lifecycle_mgmt>`
+   * :ref:`Search <orbit_md_search>`
+   * :ref:`Replication <set_up_crr>`
+   * :ref:`Bucket Lifecycle <object_lifecycle_mgmt>`
    * :ref:`Settings`
 
 In addition to the options on the left sidebar, you can click
