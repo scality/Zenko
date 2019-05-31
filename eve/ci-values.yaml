@@ -43,9 +43,9 @@ mongodb-replicaset:
       memory: 4Gi
     requests:
       cpu: 125m
-      memory: 128Mi
+      memory: 256Mi
   metrics:
-    resources: &exporter
+    resources:
       requests:
         cpu: 10m
         memory: 32Mi
@@ -180,7 +180,7 @@ backbeat:
     dataProcessor:
       resources: &backbeat
         limits:
-          cpu: 300m
+          cpu: 250m
           memory: 512Mi
         requests:
           cpu: 100m

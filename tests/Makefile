@@ -23,7 +23,7 @@ COSBENCH_HELM_RELEASE := zenko-cosbench
 CEPH_HELM_RELEASE := zenko-ceph
 
 # This is for dumping logs, command is long so storing as a variable
-ZENKO_PODS := {{range .items}}{{$$pod := .metadata.name}}{{range .spec.containers}}"kubectl logs -n $(HELM_NAMESPACE) {{$$pod}} -c {{.name}} --previous=true >> artifacts/{{.name}}-{{$$pod}}.log;kubectl logs -n $(HELM_NAMESPACE) {{$$pod}} -c {{.name}} >> artifacts/{{.name}}-{{$$pod}}.log"{{"\n"}}{{end}}{{end}}
+ZENKO_PODS := {{range .items}}{{$$pod := .metadata.name}}{{range .spec.containers}}"kubectl logs -n $(HELM_NAMESPACE) {{$$pod}} -c {{.name}} --previous=true >> artifacts/{{.name}}-{{$$pod}}.log;kubectl logs -n $(HELM_NAMESPACE) {{$$pod}} -c {{.name}} >> artifacts/{{.name}}-{{$$pod}}.log ; exit 0"{{"\n"}}{{end}}{{end}}
 
 # Defaults for our test images
 IMAGE_REGISTRY := docker.io
@@ -166,8 +166,7 @@ install-cosbench:
 install-ceph:
 	$(HELM) upgrade $(CEPH_HELM_RELEASE) \
 		--namespace $(HELM_NAMESPACE) \
-		--install ../eve/workers/ceph/chart \
-		--wait
+		--install ../eve/workers/ceph/chart
 .PHONY: install-ceph
 
 install-zenko: | install-tiller
