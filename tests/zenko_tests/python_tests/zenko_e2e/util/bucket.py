@@ -15,6 +15,8 @@ def bucket_safe_create(bucket):
     try:
         bucket.create()
     except bucket.meta.client.exceptions.BucketAlreadyOwnedByYou:
+        print('Bucket %s already owned by you!' % bucket.name)
+    except bucket.meta.client.exceptions.BucketAlreadyExists:
         print('Bucket %s already exists!' % bucket.name)
     except Exception as exp:  # pylint: disable=broad-except
         print('Error creating bucket %s' % bucket.name)
