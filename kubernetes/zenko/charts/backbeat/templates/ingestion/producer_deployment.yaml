@@ -48,6 +48,8 @@ spec:
               value: "{{ .Values.redis.sentinel.name }}"
             - name: QUEUE_POPULATOR_BATCH_MAX_READ
               value: "1000"
+            - name: UV_THREADPOOL_SIZE
+              value: "64"
           livenessProbe:
             httpGet:
               path: {{ .Values.health.path.liveness }}
