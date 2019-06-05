@@ -11,4 +11,4 @@ def test_crr_retry(aws_crr_bucket, aws_crr_target_bucket, testfile, objkey):
     )
     util.remark('Finished uploading')
     assert util.check_object(
-        objkey, testfile, aws_crr_bucket, aws_crr_target_bucket, timeout=30)
+        objkey, testfile, aws_crr_bucket, aws_crr_target_bucket)
