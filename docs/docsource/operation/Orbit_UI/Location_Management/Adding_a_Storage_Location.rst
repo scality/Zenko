@@ -176,12 +176,15 @@ NFS
 ~~~
 
 Zenko supports replication from NFSv3 and NFSv4 file systems to all
-supported clouds. Because this protocol is not object-based, it does
-not employ namespace metadata or a bucketing schema as modern cloud
-storage protocols do. Thus, many of the advanced metadata-dependent
-features available on cloud services (metadata search, dynamic CRR,
-etc.) are unavailable on NFS. Zenko replicates data from NFS servers
-to cloud storage services using scheduled cron jobs.
+supported clouds. Zenko replicates data from NFS servers to cloud
+storage services using scheduled cron jobs. 
+
+.. note::
+
+   For NFS mounts, Zenko cannot perform data PUT transactions. In
+   other words, data can be written directly to NFS for Zenko to
+   replicate to other backends, but cannot be written to Zenko to
+   replicate to NFS.
 
 Configuring NFS requires you to specify the transfer protocol (TCP or
 UDP), NFS version (v3 or v4), the server location (IP address or URI),
