@@ -1,8 +1,27 @@
+# flake8: noqa
+# pylint: disable=wrong-import-position
+import logging
 import os
 import os.path
 
-import boto3
+class Blacklist(logging.Filter):  # noqa pylint: disable=too-few-public-methods
+    def __init__(self, *blacklist): # pylint: disable=super-init-not-called
+        self.blacklist = [logging.Filter(name) for name in blacklist]
 
+    def filter(self, record):
+        return not any(f.filter(record) for f in self.blacklist)
+
+
+BLACKLIST = [
+    'botocore.vendored.requests.packages.urllib3.connectionpool',
+    'azure.storage.common.storageclient'
+]
+
+for handler in logging.root.handlers:
+    handler.addFilter(Blacklist(*BLACKLIST))
+
+# NOTE These are import here to allow us to install the logging filters above
+import boto3
 import pytest
 
 import zenko_e2e.prometheus.client
