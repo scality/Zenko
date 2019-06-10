@@ -2,6 +2,8 @@
 
 ![Zenko logo](res/zenko.io-logo-wide-bw.png)
 
+[![Documentation Status](https://readthedocs.org/projects/zenko/badge/?version=latest)](https://zenko.readthedocs.io/en/latest/?badge=latest)
+
 Zenko is  [Scality](http://www.scality.com/)’s open source multi-cloud data
 controller.
 
