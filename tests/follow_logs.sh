@@ -38,6 +38,16 @@ done
 echo "Test completed with pod phase: ${TEST_POD_PHASE}"
 if [ ! "${TEST_POD_PHASE}" ] || [ "${TEST_POD_PHASE}" = "Failed" ] || [ "${TEST_POD_PHASE}" = "Unknown" ]; then
 	echo "Tests have failed"
+	echo "=== Dumping kubernetes namespace state ==="
 	kubectl get all
+	echo "=== End of kubernetes namespace state dump ==="
+	echo "Describe each failing container"
+	failing_pods=`kubectl get all | grep 'pod/' | grep -E -v 'Running|Completed' | awk '{ print $1 }'`
+	for POD in $failing_pods; do
+	    echo "=== Dumping description of $POD ==="
+	    kubectl --namespace ${NAMESPACE} describe $POD
+	done
+	echo "=== End of Description dumping ==="
+
 	exit 1
 fi
