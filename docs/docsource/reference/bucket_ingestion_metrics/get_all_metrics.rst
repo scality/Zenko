@@ -10,13 +10,13 @@ transactions are returned as a simple aggregate.
 
 **Endpoint**	 
 
- .. code::
+.. code::
 
-   /_/metrics/ingestion/all	
+   /_/backbeat/api/metrics/ingestion/all	
 
 **Sample Response**		
 
- .. code::			
+.. code::			
 
     {				
      "completions": {		

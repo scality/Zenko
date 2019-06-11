@@ -15,7 +15,7 @@ For example,
 
 .. code::
 
-    $ curl http://zenko-instance.net/_/metrics/ingestion/us-west-video-dailies/all
+    $ curl http://zenko-instance.net/_/backbeat/api/metrics/ingestion/us-west-video-dailies/all
 
 where zenko-instance.net is the Zenko server's URL and us-west-video-dailies		
 is the bucket name (location).

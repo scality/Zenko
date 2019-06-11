@@ -8,7 +8,7 @@ operations per second, over the preceding 15 minutes.
 
 .. code::
 
-   /_/metrics/ingestion/<location>/throughput	
+   /_/backbeat/api/metrics/ingestion/<location>/throughput	
 
 **Sample Response**				
 
