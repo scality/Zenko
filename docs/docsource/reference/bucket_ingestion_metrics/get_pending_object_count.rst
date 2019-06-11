@@ -8,7 +8,7 @@ ingestion.
 
 .. code::
 
-   /_/metrics/ingestion/<location>/pending	
+   /_/backbeat/api/metrics/ingestion/<location>/pending	
 
 **Sample Response**				
 

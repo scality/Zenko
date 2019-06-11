@@ -8,7 +8,7 @@ This request retrieves the number of operations Zenko ingested
 
 .. code::
 
-   /_/metrics/ingestion/<location>/completions	
+   /_/backbeat/api/metrics/ingestion/<location>/completions	
 
 **Sample Response**				
 

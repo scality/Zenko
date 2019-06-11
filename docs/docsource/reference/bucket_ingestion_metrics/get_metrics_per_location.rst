@@ -12,7 +12,7 @@ operations) but constrained to the requested location only.
 
 .. code::
 
-   /_/metrics/ingestion/<location>/all	
+   /_/backbeat/api/metrics/ingestion/<location>/all
 
 **Sample Response**			
 
