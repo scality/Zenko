@@ -15,7 +15,7 @@ This GET request retrieves a listing of failed operations at a site. Use
 this operation to learn if any CRR operations have failed at the site,
 and to retrieve the entire listing.
 
-**Request:** GET /_/backbeat/api/_/crr/failed?sitename=<site>&marker=<next-marker>
+**Request:** GET /_/backbeat/api/crr/failed?sitename=<site>&marker=<next-marker>
 
 **Non-Truncated Response**
 
@@ -59,7 +59,7 @@ This GET request retrieves a listing of all failed operations for a
 specific object version. Use this operation to monitor a specific
 object’s replication status.
 
-**Request:** GET /_/backbeat/api/_/crr/failed/<bucket>/<key>?versionId=<version-id>
+**Request:** GET /_/backbeat/api/crr/failed/<bucket>/<key>?versionId=<version-id>
 
 **Response**
 
@@ -87,7 +87,7 @@ Retry Failed Operations
 
 This POST request retries a set of failed operations.
 
-**Request:** POST /_/backbeat/api/_/crr/failed
+**Request:** POST /_/backbeat/api/crr/failed
 
 **Request Body**
 
