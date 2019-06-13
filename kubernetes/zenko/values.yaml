@@ -33,6 +33,12 @@ global:
   locationConstraints: {}
   replicationEndpoints: []
 
+s3Utils:
+  image:
+    repository: zenko/s3utils
+    tag: v0.8
+    pullPolicy: IfNotPresent
+
 maintenance:
   # Enables a retry CronJobs that will attempt to retry CRR objects stuck in
   # pending or failed state based off the specified schedule. For Orbit enabled
@@ -55,11 +61,6 @@ maintenance:
     enabled: false
     accessKey: ""
     secretKey: ""
-  s3Utils:
-    image:
-      repository: zenko/s3utils
-      tag: v0.8
-      pullPolicy: IfNotPresent
   kafkaClient:
     image:
       repository: solsson/kafka
