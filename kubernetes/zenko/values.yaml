@@ -66,6 +66,13 @@ maintenance:
       repository: solsson/kafka
       tag: 0.11.0.0
       pullPolicy: IfNotPresent
+# Enables reporting cronjobs that are essential for displaying information
+# in Orbit like total number of objects in the namespace
+reporting:
+  enabled: true
+  successfulJobsHistory: 1
+  countItems:
+    schedule: "* */1 * * *"
 
 cloudserver:
   replicaCount: *nodeCount
