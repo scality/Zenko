@@ -204,9 +204,10 @@ wait-for-zenko: | build-tests
 		--restart=Never \
 		--namespace=$(HELM_NAMESPACE) \
 		--limits='cpu=100m,memory=128Mi' \
-		--requests='cpu=50m,memory=64Mi' \
+		--requests='cpu=100m,memory=128Mi' \
 		$(shell ../eve/workers/ci_env.sh env) \
 		--command -- python3 create_buckets.py || (echo "Zenko has failed to stabilize" ; kubectl get all ; exit 1) >&2
+	$(V)$(KUBECTL) --namespace=$(HELM_NAMESPACE) get pods
 .PHONY: wait-for-zenko
 
 wait-for-ceph: | build-tests
@@ -218,7 +219,7 @@ wait-for-ceph: | build-tests
 		--restart=Never \
 		--namespace=$(HELM_NAMESPACE) \
 		--limits='cpu=100m,memory=128Mi' \
-		--requests='cpu=50m,memory=64Mi' \
+		--requests='cpu=100m,memory=128Mi' \
 		--command -- sh wait_for_ceph.sh || (echo "Ceph has failed to come up!"; exit 1) >&2
 .PHONY: wait-for-ceph
 
@@ -239,7 +240,7 @@ clean-s3c:
 		--restart=Never \
 		--namespace=$(HELM_NAMESPACE) \
 		--limits='cpu=100m,memory=128Mi' \
-		--requests='cpu=50m,memory=64Mi' \
+		--requests='cpu=100m,memory=128Mi' \
 		$(shell ../eve/workers/ci_env.sh env) \
 		--command -- python3 cleans3c.py || (echo "Zenko has failed to cleanup s3c" ; kubectl get all ; exit 1) >&2
 
@@ -252,16 +253,15 @@ clean: | clean-s3c clean-cosmos
 
 run-tests: | build-tests
 	$(V)$(KUBECTL) run $(E2E_POD) \
-		--rm \
 		--restart=Never \
-		--attach=True \
 		--image=$(E2E_IMAGE)  \
 		--namespace $(HELM_NAMESPACE) \
 		--limits='cpu=500m,memory=1.5Gi' \
-		--requests='cpu=250m,memory=512Mi' \
+		--requests='cpu=500m,memory=1.5Gi' \
 		--env MOCHA_TAGS="$(NODE_TEST_TAGS)" \
 		--env CLOUDSERVER_ENDPOINT="http://$(ZENKO_HELM_RELEASE)-cloudserver:80" \
-		$(shell ../eve/workers/ci_env.sh env) || (echo "Tests have failed" ; kubectl get all ; exit 1) >&2
+		$(shell ../eve/workers/ci_env.sh env)
+	V=$(V) KUBECTL=$(KUBECTL) E2E_POD=$(E2E_POD) NAMESPACE=$(HELM_NAMESPACE) ./follow_logs.sh
 .PHONY: run-tests
 
 run-listing-fuzzer:
@@ -273,7 +273,7 @@ run-listing-fuzzer:
 		--image-pull-policy="Always" \
 		--namespace $(HELM_NAMESPACE) \
 		--limits='cpu=500m,memory=1.5Gi' \
-		--requests='cpu=250m,memory=512Mi' \
+		--requests='cpu=500m,memory=1.5Gi' \
 		--env S3FUZZ_ZENKO_HOST="http://$(ZENKO_HELM_RELEASE)-cloudserver:80" \
 		--env S3FUZZ_ROUNDS=1 \
 		--env S3FUZZ_SEED=$(shell date '+%s') \
