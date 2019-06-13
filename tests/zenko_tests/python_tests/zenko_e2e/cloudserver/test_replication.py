@@ -10,6 +10,7 @@ logging.basicConfig(level=logging.INFO,
                     datefmt='%S')
 
 
+@pytest.mark.skip(reason='test case covered')
 @pytest.mark.flaky(reruns=3)
 @pytest.mark.parametrize('datafile', [testfile, mpufile])
 @pytest.mark.conformance
@@ -32,6 +33,7 @@ def test_gcp_1_1(gcp_crr_bucket, gcp_crr_target_bucket, objkey, datafile):
         objkey, data, gcp_crr_bucket, gcp_crr_target_bucket, timeout=300)
 
 
+@pytest.mark.skip(reason='test case covered')
 @pytest.mark.flaky(reruns=3)
 @pytest.mark.parametrize('datafile', [testfile, mpufile])
 @pytest.mark.conformance

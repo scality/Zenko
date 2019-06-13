@@ -3,6 +3,7 @@ from ..fixtures import *
 from .. import util
 
 
+@pytest.mark.skip(reason='test case covered')
 @pytest.mark.flaky(reruns=3)
 @pytest.mark.conformance
 def test_mpu_aws(aws_ep_bucket, aws_target_bucket, mpufile, objkey):
@@ -25,6 +26,7 @@ def test_mpu_gcp(gcp_ep_bucket, gcp_target_bucket, mpufile, objkey):
         objkey, mpufile, gcp_ep_bucket, gcp_target_bucket, timeout=60)
 
 
+@pytest.mark.skip(reason='test case covered')
 @pytest.mark.flaky(reruns=3)
 @pytest.mark.conformance
 def test_mpu_azure(azure_ep_bucket, azure_target_bucket, mpufile, objkey):
