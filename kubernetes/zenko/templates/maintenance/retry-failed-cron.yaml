@@ -18,12 +18,12 @@ spec:
           restartPolicy: OnFailure
           containers:
           - name: failed
-            image: {{ .Values.maintenance.s3Utils.image.repository }}:{{ .Values.maintenance.s3Utils.image.tag }}
-            imagePullPolicy: {{ .Values.maintenance.s3Utils.image.pullPolicy }}
+            image: {{ .Values.s3Utils.image.repository }}:{{ .Values.s3Utils.image.tag }}
+            imagePullPolicy: {{ .Values.s3Utils.image.pullPolicy }}
             command: ["/bin/bash"]
             args:
             - -c
-            - node autoRetryFailedCRR.js 
+            - node autoRetryFailedCRR.js
             env:
             - name: ENDPOINT
               value: "{{ .Release.Name }}-cloudserver"

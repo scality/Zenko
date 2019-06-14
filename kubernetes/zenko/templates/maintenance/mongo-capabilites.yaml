@@ -17,8 +17,8 @@ spec:
       restartPolicy: OnFailure
       initContainers:
       - name: wait
-        image: {{ .Values.maintenance.s3Utils.image.repository }}:{{ .Values.maintenance.s3Utils.image.tag }}
-        imagePullPolicy: {{ .Values.maintenance.s3Utils.image.pullPolicy }}
+        image: {{ .Values.s3Utils.image.repository }}:{{ .Values.s3Utils.image.tag }}
+        imagePullPolicy: {{ .Values.s3Utils.image.pullPolicy }}
         command: ["/bin/bash"]
         args:
         - -exc
@@ -35,8 +35,8 @@ spec:
           done
       containers:
       - name: upgrade
-        image: {{ .Values.maintenance.s3Utils.image.repository }}:{{ .Values.maintenance.s3Utils.image.tag }}
-        imagePullPolicy: {{ .Values.maintenance.s3Utils.image.pullPolicy }}
+        image: {{ .Values.s3Utils.image.repository }}:{{ .Values.s3Utils.image.tag }}
+        imagePullPolicy: {{ .Values.s3Utils.image.pullPolicy }}
         command: ["/usr/bin/mongo"]
         args:
         - --host={{ template "zenko.mongodb-hosts" . }}
