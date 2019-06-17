@@ -6,10 +6,10 @@ Setting Up a Cluster
 While running Zenko on a single machine is desirable for certain use cases,
 a clustered operating environment is required for high-availability deployments.
 If you can set up a Kubernetes cluster on your own, review the :ref:`General
-Cluster Requirements` and skip to :ref:`Install_Zenko`. Otherwise, download
-MetalK8s and follow its instructions (or review the requirements and
-instructions in Zenko/docs/gke.md) to establish a working Kubernetes instance
-on your cluster.
+Cluster Requirements` and skip to :ref:`Install_Zenko`. Otherwise, 
+`download MetalK8s <https://github.com/scality/metalk8s/releases>`_
+and follow its instructions (or review the requirements and instructions in 
+Zenko/docs/gke.md) to establish a working Kubernetes instance on your cluster.
 
 .. note: 
    
