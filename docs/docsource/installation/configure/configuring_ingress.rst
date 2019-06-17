@@ -17,10 +17,9 @@ directory:
 
     $ kubectl create secret tls zenko-tls --key /tmp/tls.key --cert /tmp/tls.crt
 
-3. Set Zenko chart values in options.yml to resemble:
-   ::
+3. Set Zenko chart values in options.yaml to resemble::
 
-    ingress:
+     ingress:
        enabled: true
        hosts:
          - zenko.local
@@ -49,14 +48,15 @@ Zenko can use either or both protocols to allow ingress/egress. If ingress
 is enabled, port 80 is used, unless SSL is configured. If SSL is configured,
 then port 443 is required.
 
-For other Kubernetes platforms, discuss the configuration with your vendor.
-
 .. table:: 
 
-   +-------+-------------------+
-   | Port  | Protocol          |
-   +=======+===================+
-   | 80    | HTTP              |
-   +-------+-------------------+
-   | 443   | HTTPS             |
-   +-------+-------------------+
+   +-------+----------+
+   | Port  | Protocol |
+   +=======+==========+
+   | 80    | HTTP     |
+   +-------+----------+
+   | 443   | HTTPS    |
+   +-------+----------+
+
+For non-Scality Kubernetes platforms, discuss the configuration with your 
+vendor or community.

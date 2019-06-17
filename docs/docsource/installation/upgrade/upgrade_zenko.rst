@@ -53,7 +53,7 @@ To upgrade Zenko:
 
 #. Unpack the .zip or .tar.gz file and navigate to Zenko/kubernetes/. 
 
-#. Copy Zenko/kubernetes/zenko/options.yaml from your existing Zenko 
+#. Copy Zenko/kubernetes/zenko/options.yaml from your existing Zenko
    source directory to the same directory in the new Zenko source.  
 
 #. If you have modified the node count from the default value of 3,
@@ -67,10 +67,10 @@ To upgrade Zenko:
 
       $ helm upgrade {{zenko-server-name}} ./zenko
 
-   If you are using custom values, reuse options.yml on upgrades.
+   If you are using custom values, reuse options.yaml on upgrades.
    ::
 
-      $ helm upgrade {{zenko-server-name}} ./zenko -f options.yml
+      $ helm upgrade {{zenko-server-name}} ./zenko -f options.yaml
 
 #. On success, Helm reports:
    :: 
@@ -90,7 +90,8 @@ Upgrading from 1.0.x to 1.1.x
 
 Zenko 1.0.x versions use MongoDB version 3.4, which has been upgraded to 3.6
 in Zenko 1.1.x. Although upgrades using the commands above will work, some
-newer features may not function.
+new features, specifically Cosmos (NFS and CIFS/SMB integration) may not
+function with MongoDB 3.4.
 
 To upgrade from 1.0.x to 1.1:
 
@@ -121,7 +122,7 @@ To upgrade from 1.0.x to 1.1:
 
    .. note::
 
-      Any upgrade failures will typically show up as an `Error` or `Crash` state
+      Upgrade failures typically show up as an "Error" or "Crash" state.
 
 #. You can validate the upgrade was successful by checking the logs. Any errors
    encountered during the upgrade proceedure would be listed here as well.
@@ -131,7 +132,7 @@ To upgrade from 1.0.x to 1.1:
        Finished successfully! Compatibility set to version 3.6
 
 #. Once your upgrade is successful, these Zenko upgrade flags should not be
-   need for further 1.1.x upgrades. You can now run the typical upgrade command
+   needed for further 1.1.x upgrades. You can now run the typical upgrade command
    to ensure the desired 1.1 state
    ::
 

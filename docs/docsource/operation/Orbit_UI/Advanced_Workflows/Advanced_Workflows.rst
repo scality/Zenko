@@ -11,12 +11,12 @@ You can use Orbit to manage the following advanced workflows:
    :maxdepth: 1
    :hidden:
    
-   Setting Up Replication <Setting_Up_CRR>
+   Set Up Replication <set_up_crr>
    AWS-to-AWS Replication <AWS_to_AWS_Replication>
    CRR Pause and Resume <../../Zenko_CLI/CRR_Pause_&_Resume>
    Searching Metadata <../Searching_Metadata_from_Orbit>
 
-.. _fixed: Setting_Up_CRR.html
+.. _fixed: set_up_crr.html
 .. _`transient source`: Adding_a_Transient_Source_Storage_Location.html
 .. _`AWS-to-AWS replication`: AWS_to_AWS_Replication.html
 .. _`metadata searches`: ../Searching_Metadata_from_Orbit.html

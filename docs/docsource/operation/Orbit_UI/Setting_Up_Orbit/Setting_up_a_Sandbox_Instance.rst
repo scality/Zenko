@@ -23,13 +23,13 @@ your data. To set up a Sandbox instance:
 
    Click **Install now**.
 
-#. The REGISTER AN INSTANCE screen displays:
+#. The **REGISTER AN INSTANCE** screen displays:
 
    |image2|
 
    Choose the Sandbox option (**Next: Let's do this!**)
 
-#. The **Last Step: Create Your Zenko Sandbox** screen displays:
+#. The **LAST STEP: CREATE YOUR ZENKO SANDBOX** screen displays:
 
    |image3|
 
@@ -42,13 +42,9 @@ your data. To set up a Sandbox instance:
    You’ve created your sandbox!
 
    The sandbox runs against a Zenko instance hosted by Scality. This is
-   a demonstration instance, limited both in its duration and in the
+   a demonstration instance, limited both in its lifespan and in the
    amount of data it can handle. Nonetheless, you can use it to watch
    Zenko in action.
-
-
-
-
 
 .. |image0| image:: ../../Resources/Images/Orbit_Screencaps/Zenko.io_screen.png
 .. |image1| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_Welcome_screen.png

@@ -1,7 +1,7 @@
 .. _set_up_crr:
 
-Setting Up Replication
-======================
+Set Up Replication
+==================
 
 **Prerequisites:** To set up bucket-level CRR using the Orbit UI, you
 must have
@@ -36,8 +36,8 @@ or delete an existing one.
 
 Replication is not retroactive. In other words, if you have files stored
 in a bucket and you configure that bucket to be replicated, replication
-only occurs to files written to that bucket after you configure and set
-the replication.
+only occurs to files written to that bucket after you have configured
+and set the replication.
 
 .. |image0| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_Replication_New.png
    :class: OneHundredPercent
