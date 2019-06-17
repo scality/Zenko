@@ -25,6 +25,7 @@ type Scheduler struct {
 	MongodbClient     *mongo.Client
 	SecretName        string
 	IngestionSchedule string
+	Ctx               
 }
 
 // Run starts the Cosmos Scheduler
@@ -40,6 +41,7 @@ func (s *Scheduler) Run() {
 		go s.watchBucketUpdates(quit)
 		<-overlayUpdates
 		log.Println("received an overlay update")
+		go s.checkMongoConnection()
 		quit <- true
 	}
 }
@@ -153,6 +155,10 @@ func (s *Scheduler) watchOverlayUpdates() (chan interface{}, error) {
 		}
 	}()
 	return ch, nil
+}
+
+func (s *Scheduler) mongoConnection() {
+	s.MongodbClient.Ping()
 }
 
 func (s *Scheduler) getIngestionSecret() (map[string][]byte) {
