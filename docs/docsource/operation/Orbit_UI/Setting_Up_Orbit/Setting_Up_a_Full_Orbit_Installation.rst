@@ -7,9 +7,8 @@ Orbit can be run as a user interface to Zenko no matter where or how Zenko is
 hosted. You can deploy Zenko in any of the following topologies:
 
 * As a test instance running on a local machine using Minikube
-* On a cloud host using MetalK8s (recommended)
+* On a cloud host using MetalK8s
 * On a cloud host using the host’s native Kubernetes environment (EKS, GKE, AKS).
-
 
 To run a “full” Zenko installation, you must register your Zenko instance to
 Orbit.
@@ -36,7 +35,7 @@ Orbit.
    .. tip::
 
       To find your Instance ID, use the kubectl commands in the
-      “Install Zenko” section of the Installation Guide.
+      “Install Zenko” section of *Zenko Installation*.
 
 .. |image0| image:: ../../Resources/Images/Orbit_Screencaps/google_login.png
    :class: FiftyPercent

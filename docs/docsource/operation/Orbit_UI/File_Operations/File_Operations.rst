@@ -18,9 +18,9 @@ To access these operations:
 
       |image0|
 
-      Clicking the Upload Objects button takes you to your local
-      machine’s file system to pick files to upgrade. Clicking **skip**
-      takes you to the empty bucket.
+      Clicking **Upload Objects** takes you to your local machine’s file
+      system to pick files to upgrade. Clicking **skip** takes you to the
+      empty bucket.
 
    -  Otherwise, the Multicloud Browser displays the bucket’s contents:
 
@@ -32,15 +32,15 @@ For each file, you can Download_, `View Info`_, or Delete_.
    :maxdepth: 1
    :hidden:
 
-     Uploading Files <Uploading_Files_to_Buckets>
-     Viewing Files <Viewing_File_Info>
-     Downloading Files <Downloading_a_File>
-     Deleting Files <Deleting_Files>
+     Upload Files <upload_files_to_buckets>
+     View Files <view_file_info>
+     Download Files <download_a_file>
+     Delete Files <delete_files>
 
 
-.. _Download: Downloading_a_File.html
-.. _`View Info`: Viewing_File_Info.html
-.. _Delete: Deleting_Files.html
+.. _Download: download_a_file.html
+.. _`View Info`: viewing_file_info.html
+.. _Delete: delete_files.html
 
 
 .. |image0| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_upload_objects.png

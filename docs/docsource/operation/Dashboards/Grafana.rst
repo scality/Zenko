@@ -21,16 +21,16 @@ Configuration
 ~~~~~~~~~~~~~
 
 Operating application-level Grafana requires modifications to
-options.yml, and may require further configurations.
+options.yaml, and may require further configurations.
 
 To enable application-level Grafana: 
 
-1. Open the options.yml file for editing. Though it may be located
+1. Open the options.yaml file for editing. Though it may be located
    anywhere in your Zenko directory, if you followed the installation
    instructions closely, you will find it at 
-   Zenko/kubernetes/zenko/options.yml.
+   Zenko/kubernetes/zenko/options.yaml.
 
-2. Add the following block to options.yml:
+2. Add the following block to options.yaml:
    
    ::
 
@@ -52,7 +52,7 @@ To enable application-level Grafana:
       security practice. For higher security deployment, either allow Grafana
       to set its own passwords or have password secrets managed by a
       credentials management service, such as an LDAP secrets manager. This
-      requires adding an LDAP configuration block to options.yml, which exceeds
+      requires adding an LDAP configuration block to options.yaml, which exceeds
       scope for this documentation. **If you allow Grafana to set its own
       credentials using the default configuration, the Grafana credentials will
       be overwritten on every Helm upgrade command.**
@@ -61,7 +61,7 @@ To enable application-level Grafana:
 
    :: 
 
-      $ helm upgrade my-zenko -f options.yml .
+      $ helm upgrade my-zenko -f options.yaml .
 
 4. If you did not configure the adminUser and adminPassword parameters in the
    previous step, Helm wipes the old Grafana instance and creates a new one.

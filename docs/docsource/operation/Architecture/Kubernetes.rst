@@ -18,7 +18,7 @@ MetalK8s
 
 MetalK8s provides a Kubernetes engine that can be hosted on a local or
 virtual machine. Zenko uses Kubernetes to automate the deployment of
-Clouderver instances whenever server operations cross pre-configured
+Cloudserver instances whenever server operations cross pre-configured
 thresholds. Kubernetes reduces the complexity of container service and
 management previously addressed with Docker Swarm. MetalK8s, an
 open-source Scality project, reduces the complexity of deploying

@@ -14,12 +14,12 @@ topology that works best for your organization, use of the Orbit
 graphical user interface beyond 1 TB of data under management, and other
 value-added features Scality elects to offer.
 
-Zenko can be accessed and managed through the Orbit GUI, or using direct
-API calls from the command line. Because Orbit acts as a seamless
-management interface to Zenko, people may confuse the interface
-(Orbit) with the underlying logic (Zenko). You can access Zenko from
-Orbit, or from the command line. Where it makes sense, Scality provides
-APIs to help customize, automate, and improve interactions with Zenko.
+Zenko can be accessed and managed through the Orbit GUI, or using
+direct API calls. Because Orbit acts as a seamless management
+interface to Zenko, people may confuse the interface (Orbit) with the
+underlying logic (Zenko). You can access Zenko from Orbit, or from the
+command line. Where it makes sense, Scality provides APIs to help
+customize, automate, and improve interactions with Zenko.
 
 .. toctree::
   :maxdepth: 2

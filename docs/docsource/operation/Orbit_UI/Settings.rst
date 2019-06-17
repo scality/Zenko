@@ -5,8 +5,8 @@ Settings
 
 The Settings window provides information on the Zenko instance (its name, ID, 
 edition, version and last-modified date), and personal information, such as
-includes whether or not you want to receive news updates and a link to 
-Scality Support for data retrieval or account deletion. 
+whether you want to receive news updates, as well as a link to Scality Support
+for data retrieval or account deletion.
 
 .. image:: ../Resources/Images/Orbit_Screencaps/Settings.png
 

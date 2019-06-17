@@ -1,5 +1,5 @@
-Lifecycle Expiration Policies
-=============================
+Lifecycle Policies
+==================
 
 Cloud users can apply lifecycle expiration or transition rules (specified in 
 Amazon’s `AWS S3 API <https://docs.aws.amazon.com/AmazonS3/latest/API/Welcome.html>`__)
