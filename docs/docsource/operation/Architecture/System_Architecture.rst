@@ -18,7 +18,7 @@ Zenko uses agile application frameworks such as Kubernetes for
 orchestration and Prometheus for monitoring. Zenko is deployed using
 Kubernetes either on-premises or remotely, or using a cloud Kubernetes
 framework (such as GKE, AKS, EKS, or Kops). Scality supports MetalK8s
-as the "native" Kubernetes for Zenko installations. 
+as the reference Kubernetes implementation for Zenko installations.
 
 Zenko Services Stack
 --------------------
@@ -33,13 +33,12 @@ of Zenko’s structure. Several complexities are elided for clarity.
 
 Transient source replication is optional and configurable. Transient
 source storage requires an on-premises RING deployment (with sproxyd).
-A RING can be considered a private cloud.
 
 The central square in this diagram represents the suite of
 interdependent services required to implement a working Zenko instance.
 Deployed, this suite of services is highly available, containerized, and
 under the control of Kubernetes. Kubernetes dynamically creates and
-destroys services to meet demands.
+destroys services in response to demand.
 
 The following table offers brief descriptions of the Zenko components in
 this architecture:

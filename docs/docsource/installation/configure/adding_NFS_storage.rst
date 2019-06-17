@@ -11,17 +11,15 @@ the request into the desired output.
 Zenko uses the Cosmos service to provide NFS protocol access. As of version
 1.1, Zenko supports NFS access with Cosmos as a preconfigured feature. For most
 users, the default Cosmos installation offers sufficient configurability through
-the Orbit user interface. 
+the Orbit user interface. Some users may require greater configurability of the
+Cosmos NFS service and will need to configure Cosmos manually. These
+instructions are offered for such users.
 
-Some users may require greater configurability of the Cosmos NFS service 
-and will need to configure Cosmos manually. These instructions are offered
-for such users. 
-
-Cosmos bootstraps onto a `Kubernetes <http://kubernetes.io>`__
-cluster using the `Helm <https://helm.sh>`__ package manager. Source files
-for custom Cosmos installations are located in the Zenko/kubernetes/cosmos
-directory. The primary method for customization is to write or change 
-parameters in the values.yaml chart located there. 
+Cosmos bootstraps onto a `Kubernetes <http://kubernetes.io>`__ cluster using
+the `Helm <https://helm.sh>`__ package manager. Source files for custom Cosmos
+installations are located in the Zenko/kubernetes/cosmos directory. The primary
+method for customization is to write or change parameters in the values.yaml
+chart located there.
 
 Prerequisites
 -------------
@@ -307,15 +305,3 @@ Configure Cosmos on a Standalone CloudServer
    .. code:: bash
 
       $ kubectl create job my-job-name --from=cronjob/my-release-cosmos-rclone
-
-Uninstalling a Deployment
--------------------------
-
-To uninstall/delete the “my-release” deployment:
-
-.. code:: bash
-
-    $ helm delete my-release
-
-The command removes all Kubernetes components associated with the
-chart and deletes the release.

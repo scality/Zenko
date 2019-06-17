@@ -116,18 +116,19 @@ the target cloud.
 
    If the Bucket Match option is set, buckets in the target location
    cannot be used as a CRR destination. Zenko requires the bucket
-   identifier in order to manage the namespace for CRR. 
+   identifier in order to manage the namespace for replication.
 
 Server-Side Encryption
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Public cloud services use encryption to ensure your credentials and
-transmitted information are protected while in transit. The S3 API
-also offers encryption and key management services to secure
-information while it is stored on AWS drives. If you have already
-created an AWS bucket with server-side encryption enabled (SSE-S3
-protocol), clicking **Server Side Encryption** forces Zenko to include
-``"x-amz-server-side-encryption": "AES256"`` in API calls to AWS.
+Public cloud services use encryption to ensure your credentials and transmitted
+information are protected while in transit. The S3 API also offers encryption
+and key management services to secure information while it is stored on cloud
+drives. Inquire with your cloud vendor to determine whether server-side
+encryption using the x-amz-server-side-encryption API is supported on their
+platform. If you have already created an bucket with server-side encryption
+enabled (SSE-S3 protocol), clicking **Server Side Encryption** forces Zenko to
+include``"x-amz-server-side-encryption": "AES256"`` in API calls to AWS.
 
 Target Helper Bucket for Multi-Part Uploads
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -164,7 +165,7 @@ RING with sproxyd Connector
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The RING maintains stability and redundancy in its object data stores
-by way of a bootstap list. To directly access a RING using sproxyd,
+by way of a bootstrap list. To access a RING directly using sproxyd,
 you must enter at least one bootstrap server; however, more is better.
 This is simply a list of IP addresses for the bootstrap servers in the
 RING. The order of entry is not important: none enjoys a preferred

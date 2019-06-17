@@ -29,10 +29,9 @@ To deploy a transient source storage location:
       :width: 50%
       :align: center
 
-
-#. Enter the Location Details (Bootstrap List, Proxy Path, and
-   Replication Factor for Small Objects). Click **Advanced Options**,
-   raising the Advanced Options pane.
+#. Enter the **Location Details** (**Bootstrap List**, **Proxy Path**,
+   and **Replication Factor for Small Objects**). Click **Advanced Options**,
+   raising the **Advanced Options**.
 
    .. image:: ../../Resources/Images/Orbit_Screencaps/Add_New_Storage_Location_RING_advanced_options.png
       :width: 50%
@@ -54,12 +53,6 @@ Do not update metadata in a transient source object. Changing metadata
 of an object in a transient source bucket will fail. You cannot change
 metadata in the S3 protocol.
 
-`Go back to Location Management`_
-
-`Go back to Advanced Workflows`_
-
-.. _`Go back to Location Management`: ../Location_Management/Location_Management.html
-.. _`Go back to Advanced Workflows`: Advanced_Workflows.html
 .. _`Setting Up Replication`: Setting_Up_CRR.html
 
 .. |image0| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_Storage_Locations.png

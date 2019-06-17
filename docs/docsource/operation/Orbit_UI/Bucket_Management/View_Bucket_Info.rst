@@ -1,5 +1,5 @@
-Viewing Bucket Info
-===================
+View Bucket Info
+================
 
 **Prerequisite:** To view bucket info, you must already have created at
 least one bucket.
@@ -28,12 +28,8 @@ From this panel, you can:
 -  Toggle the **Versioning** feature
 
 For more information on versioning, review the Amazon S3 documentation
-at: \ https://docs.aws.amazon.com/AmazonS3/latest/dev/Versioning.html .
+at: \ https://docs.aws.amazon.com/AmazonS3/latest/dev/Versioning.html.
 Zenko implements S3 logic for versioning.
-
-
-
-
 
 .. |image0| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_multicloud_browser_with_values.png
 .. |image1| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_bucket_view_info.png

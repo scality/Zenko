@@ -114,9 +114,9 @@ Common Response Headers
    |                       |                       | to identify objects   |
    |                       |                       | added to a bucket. An |
    |                       |                       | example:              |
-   |                       |                       | 393939393939393939393 |
-   |                       |                       | 939393939393939393975 |
-   |                       |                       | 6e6437.               |
+   |                       |                       | 39393939393939393939\ |
+   |                       |                       | 39393939393939393939\ |
+   |                       |                       | 756e6437.             |
    |                       |                       |                       |
    |                       |                       | When an object is PUT |
    |                       |                       | in a bucket where     |

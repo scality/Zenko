@@ -53,32 +53,32 @@ The cleanupBuckets.js script is available in the s3utils pod.
 
 Run it as follows:
 
-  #. Enable the s3utils pod with::
+#. Enable the s3utils pod with::
 
-     $ kubectl run s3utils --image=zenko/s3utils:0.5 -it bash
+   $ kubectl run s3utils --image=zenko/s3utils:0.5 -it bash
 
-     .. tip::
+   .. tip::
 
-	The s3utils pod is disabled by default. You can also enable it 
-	by adding the following to the options file and upgrading your Zenko deployment::
+      The s3utils pod is disabled by default. You can also enable it
+      by adding the following to the options file and upgrading your Zenko deployment::
 
-	  maintenance:
-	    debug:
-	      enabled: true
+        maintenance:
+	  debug:
+	    enabled: true
 	      # An access/secret key to access Zenko that will be used to configure the s3utils pod
 	      accessKey: <access-key>
 	      secretKey: <secret-key>
 
-  #. Exec into the pod. First grep for your s3utils pod::
+#. Exec into the pod. First grep for your s3utils pod::
 
-       $ kubectl get pods | grep s3utils
-       myzenko-zenko-debug-s3utils-7f77f9b5b9-627gz   1/1  Running   0   31m
+     $ kubectl get pods | grep s3utils
+     myzenko-zenko-debug-s3utils-7f77f9b5b9-627gz   1/1  Running   0   31m
 
-     Then exec into the pod::
+   Then exec into the pod::
 
-       $ kubectl exec -it myzenko-zenko-debug-s3utils-7f77f9b5b9-627gz bash
+     $ kubectl exec -it myzenko-zenko-debug-s3utils-7f77f9b5b9-627gz bash
 
-  #. Run the cleanup script with::
+#. Run the cleanup script with::
 
      $ node cleanupBuckets.js <bucket1> <bucket2> ...
 
@@ -87,11 +87,9 @@ versions, deletes markers, and aborts any ongoing multipart uploads.
 
 Buckets are cleaned up (emptied of all objects and versions), but not deleted.
 With all object versions in a bucket thus deleted, you can delete the bucket
-from the command line with:
+from the command line with::
 
-     ::
-
-       $ aws s3api delete-bucket --bucket <bucket-name> --endpoint-url http://<zenko.endpoint.url>
+   $ aws s3api delete-bucket --bucket <bucket-name> --endpoint-url http://<zenko.endpoint.url>
 
 or delete the bucket using the Orbit Multicloud Browser.
 

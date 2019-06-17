@@ -13,6 +13,6 @@ Zenko Reference
    bucket_lifecycle_operations/index
    object_operations/index
    backbeat/index
-   zenko_connector_api_knowledge_primers/index
+   zenko_api_primer/index
 
 

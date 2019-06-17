@@ -41,8 +41,8 @@ notice.
 
    https://access.redhat.com/documentation/en-us/red_hat_ceph_storage
 
-See the *Installation and Setup Guide* for advice on sizing, cluster 
-configuration, and other preparations. 
+See *Zenko Installation* for advice on sizing, cluster configuration,
+and other preparations.
 
 Scality RING with S3 Connector
 ------------------------------
@@ -113,5 +113,3 @@ You can:
       View Location Status <location_status>
       Add a Storage Location <Adding_a_Storage_Location>
       Add a Transient Source Storage Location <../Advanced_Workflows/Adding_a_Transient_Source_Storage_Location>
-
-
