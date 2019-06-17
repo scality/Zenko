@@ -22,8 +22,8 @@ spec:
     spec:
       containers:
       - name: utils
-        image: {{ .Values.maintenance.s3Utils.image.repository }}:{{ .Values.maintenance.s3Utils.image.tag }}
-        imagePullPolicy: {{ .Values.maintenance.s3Utils.image.pullPolicy }}
+        image: {{ .Values.s3Utils.image.repository }}:{{ .Values.s3Utils.image.tag }}
+        imagePullPolicy: {{ .Values.s3Utils.image.pullPolicy }}
         command:
           - sh
           - -c

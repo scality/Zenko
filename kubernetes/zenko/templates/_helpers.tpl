@@ -49,6 +49,14 @@ Create a common name for debug resources
 {{- end -}}
 
 {{/*
+Create a common name for reporting resources
+*/}}
+{{- define "zenko.reporting" -}}
+{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- printf "%s-%s-reporting" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
 Disables kafka from deploying it's own zookeeper
 */}}
 {{- define ".Values.zookeeper.enabled" -}}
