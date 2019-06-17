@@ -9,7 +9,7 @@ transmission is stored, cached, read, or readable by Scality systems.
 
 Metrics (and configuration) are stored in Scality systems using
 non-identifiable numbers or encrypted blobs except for the following
-essential name space information
+essential namespace information
 
 -  Bucket names
 -  Remote credential names (secret keys are encrypted such that only the

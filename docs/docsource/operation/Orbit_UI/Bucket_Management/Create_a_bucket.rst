@@ -1,7 +1,7 @@
 .. _create_a_bucket:
 
-Creating a Bucket
-=================
+Create a Bucket
+===============
 
 To create a bucket:
 
@@ -31,9 +31,8 @@ To create a bucket:
 
    |image4|
 
-   .. important:: For buckets hosted on S3 Connector or AWS, you
-      *must* turn versioning on for those buckets before assigning them a
-      location. For these services, assigning a bucket to a location with
+   .. important:: You *must* turn versioning on for cloud-hosted buckets before
+      assigning them a location. Assigning a bucket to a location with
       versioning off will result in errors.
 
 .. |image0| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_bucket_create_multicloud_browser.png
@@ -43,6 +42,3 @@ To create a bucket:
    :class: FiftyPercent
 .. |image4| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_Versioning_ON.png
    :class: FiftyPercent
-
-
-

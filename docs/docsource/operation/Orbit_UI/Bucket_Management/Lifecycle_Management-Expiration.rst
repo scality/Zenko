@@ -9,7 +9,7 @@ Establishing an Object Expiration Policy
 
 **Prerequisite:** You must have established at least one bucket.
 
-#. From anywhere in Orbit, click the **WORKFLOWS > Bucket Lifecycle** tab in 
+#. From anywhere in Orbit, click the **Bucket Lifecycle** tab in 
    the left navbar.
 
    |image0|

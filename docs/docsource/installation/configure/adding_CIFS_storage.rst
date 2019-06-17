@@ -6,7 +6,7 @@ Adding CIFS/SMB Storage
 With optional configuration, Zenko supports inputs from SMB/CIFS
 servers. Zenko polls these servers on a cron schedule. When it finds a
 change of state in any file, Zenko updates its namespace and mirrors
-the changes to the configfured cloud backend(s). You must configure
+the changes to the configured cloud backend(s). You must configure
 Cosmos to implement this feature for CIFS/SMB. 
 
 The default Zenko installation deploys Cosmos with NFS support

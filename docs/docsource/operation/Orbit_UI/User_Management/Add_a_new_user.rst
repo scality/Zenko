@@ -1,7 +1,7 @@
 .. _add_a_new_user:
 
-Adding a New User
-=================
+Add a New User
+==============
 
 #. Click **Storage Accounts** in the sidebar to raise the Storage Accounts window.
 

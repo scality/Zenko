@@ -6,7 +6,7 @@ handling the Amazon S3 protocols.
 
 By providing a free-standing implementation of the S3 API, CloudServer
 offers developers the freedom to build S3 apps and run them either
-on-premises, in the AWS public cloud, or both—with no code changes.
+on-premises, in the AWS public cloud, or both—-with no code changes.
 CloudServer is deployed in a Docker container.
 
 Overview
@@ -18,34 +18,34 @@ Overview
 .. tabularcolumns:: X{0.20\textwidth}X{0.65\textwidth}
 .. table::
 
-   +---------------------+---------------------------------------------------------+
-   | Component           | Description                                             |
-   +=====================+=========================================================+
-   | S3 Routes           | The main S3 service that receives S3-protocol commands. |
-   +---------------------+---------------------------------------------------------+
-   | Backbeat Routes     | A special Backbeat-only S3 service that uses backbeat   |
-   |                     | routes to replicate data to other clouds and update the |
-   |                     | replication status of the local object, while being     |
-   |                     | authenticated as the internal Backbeat service.         |
-   +---------------------+---------------------------------------------------------+
-   | Management Agent    | CloudServer establishes an HTTPS connection to Orbit    |
-   |                     | (API Push Server) and uses polling or websockets. The   |
-   |                     | management agent stores the configuration, an           |
-   |                     | in-memory-only overlay of the configuration, in the     |
-   |                     | Metadata service. The same mechanism retrieves          |
-   |                     | statistics from the Backbeat API and, later, to         |
-   |                     | control the Replication service and do the same with    |
-   |                     | other service components.                               |
-   +---------------------+---------------------------------------------------------+
-   | Prometheus client   | (Not depicted) Monitoring information is maintained in  |
-   |                     | a Prometheus endpoint. Prometheus polls this endpoint   |
-   |                     | for monitoring.                                         |
-   +---------------------+---------------------------------------------------------+
-   | Metadata backend    | A multi-backend interface than can talk to MongoDB.     |
-   +---------------------+---------------------------------------------------------+
-   | Data Backend        | A multi-backend interface than can talk to different    |
-   |                     | clouds while preserving namespace (S3, Azure, GCP).     |
-   +---------------------+---------------------------------------------------------+
+   +------------+--------------------------------------------------------------+
+   | Component  | Description                                                  |
+   +============+==============================================================+
+   | S3 routes  | The main S3 service that receives S3-protocol commands.      |
+   +------------+--------------------------------------------------------------+
+   | Backbeat   | A special Backbeat-only S3 service that uses Backbeat routes |
+   | routes     | to replicate data to other clouds and update the replication |
+   |            | status of the local object, while being authenticated as the |
+   |            | internal Backbeat service.                                   |
+   +------------+--------------------------------------------------------------+
+   | Management | CloudServer establishes an HTTPS connection to Orbit (API    |
+   | agent      | Push Server) and uses polling or websockets. The management  |
+   |            | agent stores the configuration, an in-memory-only overlay of |
+   |            | the configuration, in the Metadata service. The same         |
+   |            | mechanism retrieves statistics from the Backbeat API and,    |
+   |            | later, to control the Replication service and do the same    |
+   |            | with other service components.                               |
+   +------------+--------------------------------------------------------------+
+   | Prometheus | (Not depicted) Monitoring information is maintained in a     |
+   | client     | Prometheus endpoint. Prometheus polls this endpoint for      |
+   |            | monitoring.                                                  |
+   +------------+--------------------------------------------------------------+
+   | Metadata   | A multi-backend interface than can communicate with MongoDB. |
+   | backend    |                                                              |
+   +------------+--------------------------------------------------------------+
+   | Data       | A multi-backend interface than can communicate with          |
+   | backend    | different clouds (S3, Azure, GCP) while preserving namespace.|
+   +------------+--------------------------------------------------------------+
 
 .. note::
 
@@ -94,20 +94,20 @@ use cases.
 
 -  **Healthcheck**
 
-   Currently, a liveness probe calls /\_/healthcheck/deep. Services that
-   expose readiness can also get a readiness probe.
+   Currently, a liveness probe calls ``/\_/healthcheck/deep``. Services
+   that expose readiness can also get a readiness probe.
 
 -  **Metrics Collection**
 
-   These metrics are valid on all NodeJS-based services:
+   These metrics are valid on all Node.js-based services:
 
 .. tabularcolumns:: X{0.45\textwidth}X{0.45\textwidth}
-.. table:: NodeJS Process General Metrics
+.. table:: Node.js Process General Metrics
 
    +-----------------------------------------------+---------------------------------------------------------+
    | Metric                                        | Description                                             |
    +===============================================+=========================================================+
-   | nodejs\_version\_info                         | NodeJS Version info                                     |
+   | nodejs\_version\_info                         | Node.js Version info                                    |
    +-----------------------------------------------+---------------------------------------------------------+
    | nodejs\_heap\_space\_size\_available\_bytes   | Process heap space size available from node.js in bytes |
    +-----------------------------------------------+---------------------------------------------------------+
@@ -115,7 +115,7 @@ use cases.
    +-----------------------------------------------+---------------------------------------------------------+
    | nodejs\_heap\_size\_used\_bytes               | Process heap size used from node.js in bytes            |
    +-----------------------------------------------+---------------------------------------------------------+
-   | nodejs\_external\_memory\_bytes               | Nodejs external memory size in bytes                    |
+   | nodejs\_external\_memory\_bytes               | Node.js external memory size in bytes                   |
    +-----------------------------------------------+---------------------------------------------------------+
    | nodejs\_heap\_space\_size\_total\_bytes       | Process heap space size total from node.js in bytes     |
    +-----------------------------------------------+---------------------------------------------------------+
