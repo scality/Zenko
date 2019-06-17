@@ -18,24 +18,25 @@ reconfiguration, or upgrade, Helm reads charts in the following order:
 
 Zenko's charts are populated by default to provide a stable, feature-rich
 deployment. It is easiest and safest to deploy Zenko using these default 
-settings in a test environment and to adjust settings on a working deployment.
-If your use case requires configuring Zenko before deployment, these
-instructions remain valid.
+settings in a test environment and to adjust settings there for a working
+deployment. If your use case requires configuring Zenko before deployment,
+these instructions will remain valid and portable to the production system.
 
-Modifying options.yml
+Modifying options.yaml
 ----------------------
 
-The options.yml file is not present by default, but you added a simple one
-at Zenko/kubernetes/zenko/options.yml when deploying Zenko. options.yml is 
+The options.yaml file is not present by default, but you added a simple one
+at Zenko/kubernetes/zenko/options.yaml when
+:ref:`deploying Zenko<create_options.yaml>`. options.yaml is
 the best place to make all changes to your configuration (with one 
 exception, nodeCounts). While it is possible to reconfigure any aspect of
 Zenko or its attendant microservices from those services' base settings or in
-the Zenko settings, it is better to confine changes to options.yml. Because
-options.yaml is not a part of the base installation, it cannot be overwritten
+the Zenko settings, it is better to make changes to options.yaml. Because
+options.yaml is not a part of the base installation, it is not overwritten
 on a Zenko version upgrade. Likewise, finding changes written to several 
 values.yaml file locations can become quite difficult and cumbersome. For 
 these reasons, it is a best practice to *confine all modifications to 
-options.yml.*
+options.yaml.*
 
 **Examples:**
 
@@ -47,48 +48,47 @@ default. To deactivate Cosmos:
 #. Copy the block title declaration and the subsequent line::
 
       cosmos:
-         enabled: true
+        enabled: true
 
-#. Open (or create) Zenko/kubernetes/zenko/options.yml and paste the
+#. Open (or create) Zenko/kubernetes/zenko/options.yaml and paste the
    block you copied there. 
-      
 #. Change the value of ``enabled`` to ``false``.
 
 Cosmos mirrors data based on a cron-like schedule. To modify this cron
-interval, descend into the YAML structure as follows:
+interval (for an enabled Cosmos instance), descend into the YAML structure
+as follows:
 
 #. Review the cosmos block in kubernetes/zenko/cosmos/values.yaml.
 
-#. Copy the relevant hierarchy to options.yml:
+#. Copy the relevant hierarchy to options.yaml:
 
-      .. code::   
+   .. code::
 
-         cosmos:
-            scheduler:
-      	       schedule: "* */12 * * *"
+      cosmos:
+        scheduler:
+          schedule: "* */12 * * *"
 
 #. Edit the schedule to suit your requirements.
 
-.. tip:: If you are comfortable with JSON or SOAP objects, you will find YAML to
-   	 be logically similar. If you have problems with YAML, check the
-	 indentation first.
+   .. tip:: If you are comfortable with JSON or SOAP objects, you will find
+      YAML to be logically similar. If you have problems with YAML, check the
+      indentation first.
 
 Modifying values.yaml
 ---------------------
 
-The one setting that cannot be modified in the options.yml file is nodeCount. 
+The one setting that cannot be modified in the options.yaml file is nodeCount. 
 To change the node count:
 
-   #. Open Zenko/kubernetes/zenko/values.yaml
+#. Open Zenko/kubernetes/zenko/values.yaml
 
-   #. Change the nodeCount value only. 
+#. Change the nodeCount value only.
 
 Pushing Modifications to Zenko
 ------------------------------
 
-Once you have entered all changes to options.yml or changed the values.yaml
+Once you have entered all changes to options.yaml or changed the values.yaml
 nodeCount parameter, issue the following command from Zenko/kubernetes/zenko
 to push your changes to the deployed Zenko instance::
 
-   $ helm upgrade {{zenko-server-name}} . -f options.yml
-
+   $ helm upgrade {{zenko-server-name}} . -f options.yaml

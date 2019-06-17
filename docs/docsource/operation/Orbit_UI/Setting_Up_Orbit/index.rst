@@ -19,7 +19,7 @@ Orbit can be run as a user interface to Zenko no matter where or how
 Zenko is hosted. You can deploy Zenko:
 
 -  As a test instance running on a local machine using Minikube
--  On a cloud host using MetalK8s (recommended)
+-  On a cloud host using MetalK8s
 -  On a cloud host using the host’s native Kubernetes environment (EKS,
    GKE, AKS).
 

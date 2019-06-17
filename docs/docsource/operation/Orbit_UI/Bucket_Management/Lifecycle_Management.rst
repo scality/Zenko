@@ -10,8 +10,8 @@ From the Bucket Lifecycle selector on the Zenko sidebar menu, you can select,
 then create lifecycle transition or lifecycle expiration policies for objects
 in buckets. These transition (move) or expire (delete) objects that match your
 criteria based on a timespan you set. In other words, Zenko reviews when a set
-number of days has passed since an object or type of object was last touched,
-and either moves such objects to a different storage site (transitions it) or 
+number of days has passed since an object or type of object was last modified,
+and either moves such objects to a different storage site (transitions them) or
 deletes (expires) them. You can create rules to transition objects themselves, 
 or if versioning is enabled, to transition object versions.
 
@@ -27,12 +27,12 @@ cloud or deleted (expired).
 Orbit supports most of the Amazon S3 lifecycle management command set; 
 however, the following transition rules can only be defined using API calls.
 
-   * Filtering by object tag
-   * Using the Date field (GMT ISO 8601 format)
-   * Setting the Days field to zero
-   * Setting a custom ID
+* Filtering by object tag
+* Using the Date field (GMT ISO 8601 format)
+* Setting the Days field to zero
+* Setting a custom ID
 
-See "Bucket Lifecycle Operations" in the *Reference Guide*.
+See "Bucket Lifecycle Operations" in the *Zenko Reference*.
 
 .. toctree::
    :maxdepth: 1

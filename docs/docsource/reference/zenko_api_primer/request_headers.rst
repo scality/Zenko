@@ -33,7 +33,7 @@ Common Request Headers
    +-----------------+-----------------------------------------------------+
    | Date            | Current date and time according to the requester    |
    |                 | (e.g., Tues, 14 Jun 2011 08:30:00 GMT); either the  |
-   |                 | x-amz-date or the Dateheader must be specified in   |
+   |                 | x-amz-date or the Date header must be specified in  |
    |                 | the Authorization header                            |
    +-----------------+-----------------------------------------------------+
    | Expect          | When an application uses 100-continue, it does not  |
@@ -50,7 +50,7 @@ Common Request Headers
    +-----------------+-----------------------------------------------------+
    | x-amz-date      | The current date and time according to the          |
    |                 | requester(e.g., Wed, 01 Mar 2006 12:00:00 GMT);     |
-   |                 | either the x-amz-date or the Dateheader must be     |
+   |                 | either the x-amz-date or the Date header must be    |
    |                 | specified in the Authorization header (If both      |
    |                 | specified, the value specified for the x-amz-date   |
    |                 | header takes precedence).                           |
