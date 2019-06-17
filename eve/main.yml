@@ -240,7 +240,7 @@ stages:
       path: eve/workers/zenko.yaml
       service:                                                         
         requests:                                                      
-          version: "1.12.7"
+          version: "1.11.7"
         namespaces:                                                    
         - "namespace"
 
