@@ -14,6 +14,7 @@ Zenko Reference
    bucket_ingestion_metrics/index
    object_operations/index
    backbeat/index
+   prometheus/index
    zenko_api_primer/index
 
 
