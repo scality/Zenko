@@ -16,8 +16,11 @@ s3-data:
     enabled: false
   resources:
     requests:
-      cpu: 50m
-      memory: 128Mi
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 200m
+      memory: 512Mi
 
 
 mongodb-replicaset:
@@ -28,13 +31,16 @@ mongodb-replicaset:
       cpu: 500m
       memory: 4Gi
     requests:
-      cpu: 125m
-      memory: 256Mi
+      cpu: 500m
+      memory: 4Gi
   metrics:
     resources:
       requests:
-        cpu: 10m
-        memory: 32Mi
+        cpu: 100m
+        memory: 320Mi
+      limits:
+        cpu: 100m
+        memory: 320Mi
 
 prometheus:
   rbac:
@@ -63,8 +69,8 @@ prometheus:
         cpu: 200m
         memory: 1Gi
       requests:
-        cpu: 50m
-        memory: 128Mi
+        cpu: 200m
+        memory: 1Gi
 
 zenko-queue:
   persistence:
@@ -76,8 +82,8 @@ zenko-queue:
       cpu: 300m
       memory: 1Gi
     requests:
-      cpu: 200m
-      memory: 128Mi
+      cpu: 300m
+      memory: 1Gi
 
 zenko-quorum:
   persistence:
@@ -87,8 +93,8 @@ zenko-quorum:
       cpu: 200m
       memory: 2Gi
     requests:
-      cpu: 50m
-      memory: 128Mi
+      cpu: 200m
+      memory: 2Gi
   env:
     ZK_HEAP_SIZE: 2G
 
@@ -106,8 +112,8 @@ redis-ha:
         memory: 256Mi
         cpu: 200m
       requests:
-        memory: 64Mi
-        cpu: 50m
+        memory: 256Mi
+        cpu: 200m
   sentinel:
     resources:
       limits:
@@ -115,7 +121,7 @@ redis-ha:
         memory: 128Mi
       requests:
         cpu: 50m
-        memory: 64Mi
+        memory: 128Mi
 global:
   orbit:
     endpoint: "http://ciutil-orbit-simulator:4222"
@@ -138,16 +144,16 @@ cloudserver:
       cpu: 500m
       memory: 1Gi
     requests:
-      cpu: 200m
-      memory: 128Mi
+      cpu: 500m
+      memory: 1Gi
   manager:
     resources:
       limits:
         cpu: 500m
         memory: 512Mi
       requests:
-        cpu: 75m
-        memory: 128Mi
+        cpu: 500m
+        memory: 512Mi
 
 backbeat:
   image:
@@ -158,8 +164,8 @@ backbeat:
         cpu: 500m
         memory: 1Gi
       requests:
-        cpu: 100m
-        memory: 128Mi
+        cpu: 500m
+        memory: 1Gi
 
   replication:
     dataProcessor:
@@ -168,16 +174,16 @@ backbeat:
           cpu: 250m
           memory: 1Gi
         requests:
-          cpu: 100m
-          memory: 512Mi
+          cpu: 250m
+          memory: 1Gi
     populator:
       resources: &backbeat
         limits:
           cpu: 250m
           memory: 256Mi
         requests:
-          cpu: 100m
-          memory: 128Mi
+          cpu: 250m
+          memory: 256Mi
 
     statusProcessor:
       resources: *backbeat
