@@ -18,8 +18,13 @@ type CosmosList struct {
 
 type CosmosSpec struct {
 	FullnameOverride string                     `json:"fullnameOverride"`
+	Pfsd             CosmosPfsdSpec             `json:"pfsd"`
 	Rclone           CosmosRcloneSpec           `json:"rclone"`
 	PersistentVolume CosmosPersistentVolumeSpec `json:"persistentVolume"`
+}
+
+type CosmosPfsdSpec struct {
+	ReplicaCount string `json:"replicaCount"`
 }
 
 type CosmosRcloneSpec struct {
