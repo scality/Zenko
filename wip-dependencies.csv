@@ -1,0 +1,83 @@
+Package,Version,Type,Platform,License,Source,Comments,LicenseEncoding
+
+# Kube ?
+nginx,,System,C,,https://github.com/nginx/nginx,Kubernetes ingress,
+
+# Zenko-quorum
+zookeeper,?,System,C,Apache,https://github.com/apache/zookeeper,Zenko Replication Queue Quorum,
+jmx-prometheus-exporter,0.3.0,System,Java,Apache,https://www.github.com/sscaling/docker-jmx-prometheus-exporter,Metrics exporter for Zookeeper to Prometheus,
+zookeeper-exporter,1.1.2,System,Go,MIT,https://github.com/josdotso/zookeeper_exporter/tree/v1.1.2,Metrics exporter for Zookeeper to Prometheus,
+
+# Zenko-queue
+kafka,1.0.0,System,Java,Apache,https://github.com/apache/kafka,Zenko replication queue,
+kubectl,1.6.4,System,,,https://www.github.com/lwolf/kubectl-deployer-docker,Init container for external access to Zenko replication queue,
+kafka-prometheus-jmx-exporter,96d8a72e2bc71575b2fed576a9e8b194ffa9777d,System,Java,Apache,https://github.com/prometheus/jmx_exporter,Metrics exporter for Kafka to Prometheus,
+kafka-exporter,1.2.0,System,Go,Apache,https://github.com/danielqsj/kafka_exporter,Metrics exporter for Kafka to Prometheus,
+
+# NFSd-zenko/zenko-nfsd
+# Could not identify where the image/sources came from. Assuming it comes from scality/nfsd
+libcurl4-gnutls,?,Embedded,?,,?,,
+libjansson,?,Embedded,C,MIT,https://github.com/akheron/jansson,,
+libkrb5,?,Embedded,C,MIT,https://github.com/krb5/krb5,,
+libwbclient,?,Embedded,C,GPL3,https://github.com/samba-team/samba/tree/master/nsswitch/libwbclient,,
+bison,?,System,?,,?,,
+flex,?,System,?,,?,,
+doxygen,?,System,?,,?,,
+libnfsidmap,?,Embedded,C,BSD-3,git://git.linux-nfs.org/projects/steved/libnfsidmap.git,,
+uuid,?,Embedded,C,MIT,https://github.com/ramsey/uuid,,
+libblkid,?,Embedded,C,LGPL2.1,https://github.com/karelzak/util-linux/tree/master/libblkid,,
+libcap,?,Embedded,C,GPL2,https://github.com/mhiramat/libcap,,
+git,?,System,C,LGPL2.1,https://github.com/git/git,Tooling for Zenko,
+libtirpc1,?,Embedded,C,BSD,?,,
+redis-server,?,Embedded,?,BSD-3,?,,
+rpcbind,?,Embedded,C,BSD,?,,
+libev,?,Embedded,C,BSD-2,http://cvs.schmorp.de/libev,,
+hiredis,?,Embedded,C,BSD-3,https://github.com/redis/hiredis,,
+
+# NFSd-zenko/portmap
+# Could not identify where the image/sources came from
+
+# NFSd-zenko/zenko-md
+# N/A except nodejs
+
+# Redis
+redis,4.0.11,System,C,BSD-3,https://github.com/antirez/redis,Zenko Service,
+
+# Prometheus
+prometheus,2.3.2,System,Go,Apache,https://github.com/prometheus/prometheus,Monitoring for Zenko,
+pushgateway,0.5.2,System,Go,Apache,https://github.com/prometheus/pushgateway,Monitoring for Zenko,
+alertmanager,0.15.1,System,Go,Apache,https://www.github.com/prometheus/alertmanager,Monitoring for Zenko,
+configmap-reload,0.2.2,System,Go,Apache,https://github.com/jimmidyson/configmap-reload,Monitoring for Zenko,
+busybox,?,System,,GPL2,https://git.busybox.net/busybox/,Monitoring for Zenko,
+kube-state-metrics,1.3.1,System,Go,Apache,https://github.com/kubernetes/kube-state-metrics,Monitoring for Zenko,
+node-exporter,0.16.0,System,Go,Apache,https://github.com/prometheus/node_exporter,Monitoring for Zenko,
+
+
+# MongoDB
+mongodb-install,0.6,System,?,,?,Kubernetes tooling for setting up the MongoDB replication,
+MongoDB,3.4,System,C++,AGPL3,https://github.com/mongodb/mongo,Replicated MongoDB for Zenko,
+mongodb-exporter,0.6.1,System,?,Apache,https://github.com/percona/mongodb_exporter,Metrics exporter for MongoDB,
+
+
+# Grafana
+grafana,5.1.3,System,TypeScript,Apache,https://github.com/grafana/grafana,Zenko monitoring,
+
+# CloudServer
+curl,7.59.0,System,C,MIT,https://github.com/curl/curl,Tooling for Zenko's Cloudserver,
+
+# Backbeat
+jq,?,System,C,CC3,https://github.com/stedolan/jq,Tooling for Zenko's Backbeat,
+wget,?,System,C,GPL2,http://git.savannah.gnu.org/cgit/wget.git,Install tooling for Zenko's Backbeat,
+dockerize,v0.6.1,System,Go,MIT,https://github.com/jwilder/dockerize,Install tooling for Zenko's Backbeat container image,
+
+# solsson/Kafka:0.11.0.0
+netcat-openbsd,?,System,C,BSD-3,https://github.com/openbsd/src/blob/master/usr.bin/nc/netcat.c,Tooling for Zenko's kafka,
+openjdk,11?,System,Java,GPL3,https://hg.openjdk.java.net/,Runtime library for Zenko's kafka tooling,
+kafka,2.2.1,System,Scala,Apache,https://github.com/apache/kafka,Tooling for Zenko's kafka,
+
+# s3Utils:0.3
+jq,?,System,C,CC3,https://github.com/stedolan/jq,Tooling for Zenko,
+python,?,System,C,PSF2,https://github.com/python/cpython,Tooling for Zenko,
+git,?,System,C,LGPL2.1,https://github.com/git/git,Tooling for Zenko,
+build-essential,?,System,?,,?,Tooling for Zenko,
+vim,?,System,C,VIM,https://github.com/vim/vim,Tooling for Zenko,
