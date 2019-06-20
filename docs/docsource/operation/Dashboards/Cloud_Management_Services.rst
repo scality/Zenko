@@ -17,6 +17,7 @@ you understand and control activities in your cluster:
    Grafana
    Cerebro
    Kibana
+   Prometheus
 
 While these open source projects are independent of Zenko, and their
 operation exceeds scope for this document, the following sections
