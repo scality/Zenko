@@ -6,6 +6,7 @@ import sys
 import os
 import logging
 import re
+import socket
 
 IGNORED_PODS = [
     r'.+bootstrap',
@@ -34,11 +35,20 @@ def is_ignored(name):
 logging.basicConfig(level=logging.INFO)
 _log = logging.getLogger('create_buckets')
 
+def check_port(host, port):
+    check = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        check.connect_ex((host, port))
+        check.close()
+        return True
+    except:
+        check.close()
+        return False
+
 def get_env(key, default=None, error=False):
     if not error:
         return os.environ.get(key, default)
     return os.environ[key]
-
 
 def bucket_safe_create(bucket):
     try:
@@ -48,6 +58,15 @@ def bucket_safe_create(bucket):
     except Exception as exp:  # pylint: disable=broad-except
         _log.info('Error creating bucket %s - %s' % (bucket.name, str(exp)))
         raise exp
+
+def wait_for_services(services, timeout):
+    timeout = time.time() + timeout
+    for service, port in services.items():
+        while time.time() < timeout and not check_port(service, port):
+            time.sleep(10)
+        if time.time() >= timeout:
+            _log.critical('Pod %s failed to stabilize' % service)
+            sys.exit(1)
 
 def wait_for_pods(delete, timeout):
     _log.info('Waiting for Zenko services to stabilize')
@@ -110,6 +129,41 @@ s3client = s.resource('s3',
                       endpoint_url=ZENKO_ENDPOINT,
                       verify=VERIFY_CERTIFICATES)
 
+# Wait for stateful services to stabilize
+redis_host = "%s-redis-ha-server-2.%s-redis-ha.%s.svc.cluster.local" % (
+    ZENKO_HELM_RELEASE,
+    ZENKO_HELM_RELEASE,
+    K8S_NAMESPACE)
+mongo_host = "%s-mongodb-replicaset-2.%s-mongodb-replicaset.%s.svc.cluster.local" % (
+    ZENKO_HELM_RELEASE,
+    ZENKO_HELM_RELEASE,
+    K8S_NAMESPACE)
+quorum_host = "%s-zenko-quorum-2.%s-zenko-quorum-headless.%s.svc.cluster.local" % (
+    ZENKO_HELM_RELEASE,
+    ZENKO_HELM_RELEASE,
+    K8S_NAMESPACE)
+queue_host = "%s-zenko-queue-2.%s-zenko-queue-headless.%s.svc.cluster.local" % (
+    ZENKO_HELM_RELEASE,
+    ZENKO_HELM_RELEASE,
+    K8S_NAMESPACE)
+# These services are in the data path and should be stabilized before attempting
+# any bucket creation
+critical_services = {
+    redis_host: 6379,
+    mongo_host: 27017,
+}
+# These services are core to the entire functionality of Zenko and should be
+# stabilized prior to waiting for the remaining pods
+core_services = {
+    redis_host: 6379,
+    mongo_host: 27017,
+    quorum_host: 2181,
+    queue_host: 9092,
+}
+# Should wait for MongoDB and Redis prior to bucket creation
+_log.info('Waiting for MongoDB and Redis')
+wait_for_services(critical_services, TIMEOUT)
+
 # Create buckets
 _log.info('Creating testing buckets...')
 timeout = time.time() + TIMEOUT
@@ -131,6 +185,10 @@ if not created:
     sys.exit(1)
 else:
     _log.info('Created buckets')
+
+# Pods wont stabilize until all the statefulsets are first stable
+_log.info('Waiting for statefulsets to be available')
+wait_for_services(core_services, TIMEOUT)
 
 # Wait for all containers to become ready
 wait_for_pods(False, TIMEOUT)
