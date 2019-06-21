@@ -46,6 +46,8 @@ spec:
           value: "http://{{ .Release.Name }}-cloudserver"
         - name: MONGODB_HOSTS
           value: "{{ template "zenko.mongodb-hosts" . }}"
+        - name: NODE_COUNT
+          value: "{{ .Values.nodeCount }}"
         - name: STORAGE_CLASS
           value: "{{ template "cosmos-operator.storageclass" . }}"
         resources:

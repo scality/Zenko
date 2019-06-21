@@ -20,6 +20,7 @@ type Scheduler struct {
 	KubeClientset     *kubernetes.Clientset
 	Pensieve          *pensieve.Helper
 	Namespace         string
+	NodeCount         string
 	Cloudserver       string
 	StorageClass      string
 	MongodbClient     *mongo.Client
@@ -279,6 +280,9 @@ func (s *Scheduler) createCosmosFromLocation(location *pensieve.Location, bucket
 		},
 		Spec: v1alpha1.CosmosSpec{
 			FullnameOverride: location.Name,
+			Pfsd: v1alpha1.CosmosPfsdSpec{
+				ReplicaCount: s.NodeCount,
+			},
 			Rclone: v1alpha1.CosmosRcloneSpec{
 				Schedule: s.IngestionSchedule,
 				Destination: v1alpha1.CosmosRcloneDestinationSpec{

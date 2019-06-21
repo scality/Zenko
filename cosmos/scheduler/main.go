@@ -29,6 +29,9 @@ func init() {
 	viper.SetDefault("namespace", "default")
 	viper.BindEnv("namespace")
 
+    viper.SetDefault("node_count", "3")
+    viper.BindEnv("node_count")
+
 	viper.SetDefault("mongodb_hosts", "localhost:27017")
 	viper.BindEnv("mongodb_hosts")
 
@@ -78,6 +81,7 @@ func main() {
 		KubeClientset:     kubeClient,
 		Pensieve:          pensieve.NewHelper(mongoClient.Database(metadataDatabase).Collection(pensieveCollection)),
 		Namespace:         viper.GetString("namespace"),
+		NodeCount:         viper.GetString("node_count"),
 		Cloudserver:       viper.GetString("cloudserver_endpoint"),
 		StorageClass:      viper.GetString("storage_class"),
 		SecretName:        viper.GetString("ingestion_secret_name"),
