@@ -210,8 +210,8 @@ run-tests: | build-tests
 		--restart=Never \
 		--image=$(E2E_IMAGE)  \
 		--namespace $(HELM_NAMESPACE) \
-		--limits='cpu=500m,memory=1.5Gi' \
-		--requests='cpu=500m,memory=1.5Gi' \
+		--limits='cpu=250m,memory=768Mi' \
+		--requests='cpu=250m,memory=768Mi' \
 		--env MOCHA_TAGS="$(NODE_TEST_TAGS)" \
 		--env CLOUDSERVER_ENDPOINT="http://$(ZENKO_HELM_RELEASE)-cloudserver:80" \
 		$(shell ../eve/workers/ci_env.sh env)

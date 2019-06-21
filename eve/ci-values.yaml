@@ -16,11 +16,11 @@ s3-data:
     enabled: false
   resources:
     requests:
-      cpu: 200m
-      memory: 512Mi
+      cpu: 100m
+      memory: 256Mi
     limits:
-      cpu: 200m
-      memory: 512Mi
+      cpu: 100m
+      memory: 256Mi
 
 
 mongodb-replicaset:
@@ -28,19 +28,19 @@ mongodb-replicaset:
     enabled: false
   resources:
     limits:
-      cpu: 500m
-      memory: 4Gi
+      cpu: 100m
+      memory: 512Mi
     requests:
-      cpu: 500m
-      memory: 4Gi
+      cpu: 100m
+      memory: 512Mi
   metrics:
     resources:
       requests:
-        cpu: 100m
-        memory: 320Mi
+        cpu: 25m
+        memory: 32Mi
       limits:
-        cpu: 100m
-        memory: 320Mi
+        cpu: 25m
+        memory: 32Mi
 
 prometheus:
   rbac:
@@ -66,11 +66,11 @@ prometheus:
       enabled: false
     resources:
       limits:
-        cpu: 200m
-        memory: 1Gi
+        cpu: 50m
+        memory: 64Mi
       requests:
-        cpu: 200m
-        memory: 1Gi
+        cpu: 50m
+        memory: 64Mi
 
 zenko-queue:
   persistence:
@@ -79,10 +79,10 @@ zenko-queue:
     enabled: false
   resources:
     limits:
-      cpu: 300m
+      cpu: 250m
       memory: 1Gi
     requests:
-      cpu: 300m
+      cpu: 250m
       memory: 1Gi
 
 zenko-quorum:
@@ -90,13 +90,13 @@ zenko-quorum:
     enabled: false
   resources:
     limits:
-      cpu: 200m
-      memory: 2Gi
+      cpu: 75m
+      memory: 1Gi
     requests:
-      cpu: 200m
-      memory: 2Gi
+      cpu: 75m
+      memory: 1Gi
   env:
-    ZK_HEAP_SIZE: 2G
+    ZK_HEAP_SIZE: 1G
 
 redis-ha:
   persistentVolume:
@@ -109,19 +109,19 @@ redis-ha:
   redis:
     resources:
       limits:
-        memory: 256Mi
-        cpu: 200m
+        memory: 64Mi
+        cpu: 50m
       requests:
-        memory: 256Mi
-        cpu: 200m
+        memory: 64Mi
+        cpu: 50m
   sentinel:
     resources:
       limits:
         cpu: 50m
-        memory: 128Mi
+        memory: 32Mi
       requests:
         cpu: 50m
-        memory: 128Mi
+        memory: 32Mi
 global:
   orbit:
     endpoint: "http://ciutil-orbit-simulator:4222"
@@ -141,19 +141,19 @@ cloudserver:
   affinity: ""
   resources:
     limits:
-      cpu: 500m
-      memory: 1Gi
+      cpu: 250m
+      memory: 512Mi
     requests:
-      cpu: 500m
-      memory: 1Gi
+      cpu: 250m
+      memory: 512Mi
   manager:
     resources:
       limits:
-        cpu: 500m
-        memory: 512Mi
+        cpu: 200m
+        memory: 384Mi
       requests:
-        cpu: 500m
-        memory: 512Mi
+        cpu: 200m
+        memory: 384Mi
 
 backbeat:
   image:
@@ -161,32 +161,31 @@ backbeat:
   api:
     resources:
       limits:
-        cpu: 500m
-        memory: 1Gi
+        cpu: 250m
+        memory: 384Mi
       requests:
-        cpu: 500m
-        memory: 1Gi
-
+        cpu: 250m
+        memory: 384Mi
   replication:
     dataProcessor:
       resources:
         limits:
-          cpu: 250m
+          cpu: 200m
           memory: 1Gi
         requests:
-          cpu: 250m
+          cpu: 200m
           memory: 1Gi
     populator:
       resources: &backbeat
         limits:
-          cpu: 250m
+          cpu: 150m
           memory: 256Mi
         requests:
-          cpu: 250m
+          cpu: 150m
           memory: 256Mi
 
     statusProcessor:
-      resources: *backbeat
+      resources: &backbeat
     retry:
       aws_s3:
         timeoutS: 900
