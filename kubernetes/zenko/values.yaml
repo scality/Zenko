@@ -36,7 +36,7 @@ global:
 s3Utils:
   image:
     repository: zenko/s3utils
-    tag: "1.0" 
+    tag: "1.0"
     pullPolicy: IfNotPresent
 
 maintenance:
@@ -72,7 +72,7 @@ reporting:
   enabled: true
   successfulJobsHistory: 1
   countItems:
-    schedule: "* */1 * * *"
+    schedule: "@hourly"
 
 cloudserver:
   replicaCount: *nodeCount
