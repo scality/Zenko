@@ -36,11 +36,46 @@ Click the **Storage Locations** item in the sidebar to open the
       * Scality RING with S3 Connector
       * Scality RING with sproxyd Connector
       * Ceph RADOS Gateway
-      * A Zenko local filesystem.
+      * A Zenko local filesystem
 
 #. Each storage location type has its own requirements. No security is
    required for a local file system, but all public clouds require
    authentication information.
+
+.. note::
+
+   Adding a location requires credentials (an access key and a secret key). 
+   Though nothing prevents you from using account-level credentials when
+   Zenko requests credentials for a location, it is a best practice to enter
+   credentials specifically generated for this access. In other words, before
+   you add a location, first create a user in that location (an AWS account 
+   or an S3 Connector, for example) for the purpose of Zenko access. Give that
+   Zenko "user" all and only the permissions needed to perform the desired
+   tasks. 
+
+.. tip::
+   
+   When configuring an S3 Connector, assign the following policy to the
+   special zenko-access user to ensure access to the Metadata service and 
+   the ability to perform operations on the bucket:
+
+   ::
+
+      {
+        "Version":"2012-10-17",
+        "Statement":[
+          {
+            "Action":"metadata:*",
+            "Effect":"Allow",
+            "Resource":"*"
+          },
+          {
+            "Action":"s3:*",
+            "Effect":"Allow",
+            "Resource":"*"
+          }
+        ]
+      }
 
 Cloud Storage Locations
 -----------------------
