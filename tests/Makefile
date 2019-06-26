@@ -190,8 +190,10 @@ ifndef NO_INSTALL
         --set backbeat.image.repository=$(BACKBEAT_IMAGE) \
         --set-string backbeat.image.tag='$(BACKBEAT_TAG)' \
         --set cloudserver.image.repository=$(CLOUDSERVER_IMAGE) \
+        --set-string cloudserver.resources.limits.cpu='1' \
         --set-string cloudserver.image.tag='$(CLOUDSERVER_TAG)' \
         --set s3-data.image.repository=$(CLOUDSERVER_IMAGE) \
+        --set-string s3-data.resources.limits.cpu='1' \
         --set-string s3-data.image.tag='$(CLOUDSERVER_TAG)'
 endif
 .PHONY: install-latest-zenko
@@ -256,8 +258,8 @@ run-tests: | build-tests
 		--restart=Never \
 		--image=$(E2E_IMAGE)  \
 		--namespace $(HELM_NAMESPACE) \
-		--limits='cpu=500m,memory=2Gi' \
-		--requests='cpu=500m,memory=1.5Gi' \
+		--limits='cpu=300m,memory=2Gi' \
+		--requests='cpu=300m,memory=2Gi' \
 		--env MOCHA_TAGS="$(NODE_TEST_TAGS)" \
 		--env CLOUDSERVER_ENDPOINT="http://$(ZENKO_HELM_RELEASE)-cloudserver:80" \
 		$(shell ../eve/workers/ci_env.sh env)
