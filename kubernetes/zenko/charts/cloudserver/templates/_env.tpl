@@ -78,6 +78,13 @@ env:
     value: "{{- .Values.global.orbit.endpoint -}}"
   - name: PUSH_ENDPOINT
     value: "{{- .Values.global.orbit.pushEndpoint -}}"
+  {{- else if .Values.vault.enabled }}
+  - name: REMOTE_MANAGEMENT_DISABLE
+    value: "1"
+  - name: S3VAULT
+    value: "scality"
+  - name: VAULTD_HOST
+    value: "{{ .Values.vault.host }}"
   {{- else }}
   - name: REMOTE_MANAGEMENT_DISABLE
     value: "1"
