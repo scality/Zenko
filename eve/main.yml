@@ -313,8 +313,8 @@ stages:
             BACKBEAT_BRANCH: development/8.0
             CLOUDSERVER_BRANCH: development/8.0
             PYTHON_ARGS: "-k 'not ceph'"
-            HELM_NAMESPACE: '%(prop:bootstrap)s-latest-1-0'
-            TILLER_NAMESPACE: '%(prop:bootstrap)s-latest-1-0'
+            HELM_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
+            TILLER_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
             <<: *global_env
       - ShellCommand: *dump_logs
       - Upload: *upload_artifacts
@@ -333,8 +333,8 @@ stages:
         env:
           BACKBEAT_BRANCH: development/8.1
           CLOUDSERVER_BRANCH: development/8.1
-          HELM_NAMESPACE: '%(prop:bootstrap)s-latest-1-1'
-          TILLER_NAMESPACE: '%(prop:bootstrap)s-latest-1-1'
+          HELM_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
+          TILLER_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
           <<: *global_env
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
