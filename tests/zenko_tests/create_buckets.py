@@ -76,8 +76,8 @@ def wait_for_pods(delete, timeout):
     delete_opt = client.V1DeleteOptions()
 
     passed_count = 0
-    timeout = time.time() + timeout
-    while time.time() < timeout:
+    timed_out = time.time() + timeout
+    while time.time() < timed_out:
         ret = v1.list_namespaced_pod(K8S_NAMESPACE)
         passed = True
         for i in ret.items:
@@ -201,7 +201,7 @@ while time.time() < timeout:
         backoff = backoff ** 2
 
 if not created:
-    _log.critical('Failed to create buckets and %i secs has elasped!' % TIMEOUT)
+    _log.critical('Failed to create buckets and %i secs has elapsed!' % TIMEOUT)
     sys.exit(1)
 else:
     _log.info('Created buckets')
