@@ -19,5 +19,6 @@ SMB/CIFS and NFS.
 
    configuring_zenko
    adding_NFS_storage
+   set_up_NFS_for_OOB.rst
    adding_CIFS_storage
    configuring_ingress
