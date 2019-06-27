@@ -4,16 +4,6 @@ Object Lifecycle Management: Transition
 Object lifecycle transition policies enable you to change the location of an
 object or object type based on its age.
 
-Transition policies do not fully transition non-versioned sources. For such 
-sources, the object is copied to the destination, but it is not removed from 
-the source. For example, if a user sets a policy to transition an object from
-Azure (source) to AWS S3, the object is copied from Azure to AWS S3, but not
-removed from Azure.
-
-This affects Azure, and--if the source is non-versioned--AWS S3, GCP, and 
-S3C-RING. RING with sproxyd is supported, whether the Zenko bucket is 
-versioned or not.
-
 Establishing a Lifecycle Transition Policy
 ------------------------------------------
 
