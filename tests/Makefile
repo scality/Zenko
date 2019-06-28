@@ -174,8 +174,8 @@ ifndef NO_INSTALL
 	$(HELM) upgrade $(ZENKO_HELM_RELEASE) \
 		--namespace $(HELM_NAMESPACE) \
 		--install ../kubernetes/zenko \
-        --set cosmos.namespace=$(HELM_NAMESPACE) \
-		-f ../eve/ci-values.yaml
+		-f ../eve/ci-values.yaml \
+	--set cosmos.namespace=$(HELM_NAMESPACE)
 endif
 .PHONY: install-zenko
 
@@ -186,7 +186,7 @@ ifndef NO_INSTALL
                 --tiller-namespace $(HELM_NAMESPACE) \
 		--install ../kubernetes/zenko \
 		-f ../eve/ci-values.yaml \
-        --set cosmos.namespace=$(HELM_NAMESPACE) \
+	--set cosmos.namespace=$(HELM_NAMESPACE) \
         --set backbeat.image.repository=$(BACKBEAT_IMAGE) \
         --set-string backbeat.image.tag='$(BACKBEAT_TAG)' \
         --set cloudserver.image.repository=$(CLOUDSERVER_IMAGE) \
