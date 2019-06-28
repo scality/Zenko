@@ -22,7 +22,10 @@ Add a New User
       user name and any information associated with it will be lost as well.
 
    A **Copy** button is included in the user interface for your convenience.
-
+   
+As the Zenko user, you can create multiple users in the Zenko-managed namespace,
+each with a unique access key and secret key. You can also re-generate 
+access/secret key pairs for any such user.
 
 .. |image0| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_user_create_enter_username.png
    :class: FiftyPercent
