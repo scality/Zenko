@@ -28,10 +28,10 @@ s3-data:
     enabled: false
   resources:
     requests:
-      cpu: 100m
+      cpu: 150m
       memory: 256Mi
     limits:
-      cpu: 100m
+      cpu: 150m
       memory: 256Mi
 
 
@@ -156,18 +156,18 @@ cloudserver:
   affinity: ""
   resources:
     limits:
-      cpu: 250m
+      cpu: 500m
       memory: 512Mi
     requests:
-      cpu: 250m
+      cpu: 500m
       memory: 512Mi
   manager:
     resources:
       limits:
-        cpu: 200m
+        cpu: 250m
         memory: 384Mi
       requests:
-        cpu: 200m
+        cpu: 250m
         memory: 384Mi
 
 backbeat:
@@ -176,27 +176,27 @@ backbeat:
   api:
     resources:
       limits:
-        cpu: 250m
+        cpu: 350m
         memory: 384Mi
       requests:
-        cpu: 250m
+        cpu: 350m
         memory: 384Mi
   replication:
     dataProcessor:
       resources:
         limits:
-          cpu: 200m
-          memory: 1Gi
+          cpu: 250m
+          memory: 768Mi
         requests:
-          cpu: 200m
-          memory: 1Gi
+          cpu: 250m
+          memory: 768Mi
     populator:
       resources: &backbeat
         limits:
-          cpu: 150m
+          cpu: 175m
           memory: 256Mi
         requests:
-          cpu: 150m
+          cpu: 175m
           memory: 256Mi
 
     statusProcessor:

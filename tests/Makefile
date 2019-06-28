@@ -175,7 +175,8 @@ ifndef NO_INSTALL
 		--namespace $(HELM_NAMESPACE) \
 		--install ../kubernetes/zenko \
 		-f ../eve/ci-values.yaml \
-	--set cosmos.namespace=$(HELM_NAMESPACE)
+	--set cosmos.namespace=$(HELM_NAMESPACE) \
+	--set-string cloudserver.replicaCount='1'
 endif
 .PHONY: install-zenko
 
@@ -187,6 +188,7 @@ ifndef NO_INSTALL
 		--install ../kubernetes/zenko \
 		-f ../eve/ci-values.yaml \
 	--set cosmos.namespace=$(HELM_NAMESPACE) \
+	--set-string mongodb-replicaset.resources.limits.cpu='2'\
         --set backbeat.image.repository=$(BACKBEAT_IMAGE) \
         --set-string backbeat.image.tag='$(BACKBEAT_TAG)' \
         --set cloudserver.image.repository=$(CLOUDSERVER_IMAGE) \
