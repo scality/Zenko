@@ -345,5 +345,5 @@ upload-cosbench-results: | get-cosbench-results
 		-- python insert_data.py
 .PHONY: upload-cosbench-results
 
-test-cosbench: | install-common get-latest-commit install-latest-zenko install-cosbench build-cosbench-runner wait-for-zenko trigger-cosbench upload-cosbench-results
+test-cosbench: | install-common get-latest-commit install-latest-zenko install-cosbench build-cosbench-runner wait-for-zenko trigger-cosbench upload-cosbench-results clean-s3c
 .PHONY: test-cosbench
