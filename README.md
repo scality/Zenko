@@ -23,7 +23,7 @@ You can find the roadmap, features in development and bugs for the next release 
 At this time if you have suggestions or questions you can leave the comments on the [forum](https://forum.zenko.io/) or create issues on this repository.
 
 If you'd like to contribute, please review the
-[Contributing Guidelines](https://github.com/scality/Guidelines/blob/master/CONTRIBUTING.md).
+[Contributing Guidelines](https://github.com/scality/Guidelines/blob/development/8.1/CONTRIBUTING.md).
 
 ## Overview
 
