@@ -11,9 +11,9 @@ account’s email address.
 AWS Canonical User ID
 ---------------------
 
-Canonical user IDs are associated with AWS accounts. When an individual
-AWS account is granted permissions by a grant request, a grant entry is
-added to the ACL with that account’s canonical user ID.
+Canonical user IDs are associated with AWS accounts. When an AWS account is
+granted permissions by a grant request, a grant entry is added to the ACL with
+that account’s canonical user ID.
 
 Predefined Amazon S3 Groups
 ---------------------------
@@ -25,35 +25,26 @@ ID.
 .. tabularcolumns:: X{0.20\textwidth}X{0.75\textwidth}
 .. table::
 
-   +-----------------------------------+-----------------------------------+
-   | Authenticated Users               | Represents all authenticated      |
-   |                                   | accounts. Access permission to    |
-   |                                   | this group allows any system      |
-   |                                   | account to access the resource.   |
-   |                                   | However, all requests must be     |
-   |                                   | signed (authenticated).           |
-   |                                   |                                   |
-   |                                   | http://acs.amazonaws.com/groups/g |
-   |                                   | lobal/AuthenticatedUsers          |
-   +-----------------------------------+-----------------------------------+
-   | Public                            | Access permission to this group   |
-   |                                   | allows anyone to access the       |
-   |                                   | resource. The requests can be     |
-   |                                   | signed (authenticated) or         |
-   |                                   | unsigned (anonymous). Unsigned    |
-   |                                   | requests omit the Authentication  |
-   |                                   | header in the request.            |
-   |                                   |                                   |
-   |                                   | http://acs.amazonaws.com/groups/g |
-   |                                   | lobal/AllUsers                    |
-   +-----------------------------------+-----------------------------------+
-   | Log Delivery                      | WRITE permission on a bucket      |
-   |                                   | enables this group to write       |
-   |                                   | server access logs to the bucket. |
-   |                                   |                                   |
-   |                                   | http://acs.amazonaws.com/groups/s |
-   |                                   | 3/LogDelivery                     |
-   +-----------------------------------+-----------------------------------+
+   +---------------+-----------------------------------------------------------+
+   | Authenticated | Represents all authenticated accounts. Access permission  |
+   | Users         | to this group allows any system account to access the     |
+   |               | resource. However, all requests must be signed            |
+   |               | (authenticated).                                          | 
+   |               |                                                           |
+   |               | http://acs.amazonaws.com/groups/global/AuthenticatedUsers |
+   +---------------+-----------------------------------------------------------+
+   | Public        | Access permission to this group allows anyone to access   |
+   |               | the resource. Requests can be signed (authenticated) or   |
+   |               | unsigned (anonymous). Unsigned requests omit the          |
+   |               | Authentication header in the request.                     |
+   |               |                                                           |
+   |               | http://acs.amazonaws.com/groups/global/AllUsers           |
+   +---------------+-----------------------------------------------------------+
+   | Log Delivery  | WRITE permission on a bucket enables this group to write  |
+   |               | server access logs to the bucket.                         |
+   |               |                                                           |
+   |               | http://acs.amazonaws.com/groups/s3/LogDelivery            |
+   +---------------+-----------------------------------------------------------+
 
 .. note::
 

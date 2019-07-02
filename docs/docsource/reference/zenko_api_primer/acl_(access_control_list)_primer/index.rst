@@ -51,4 +51,4 @@ and the permission.
    grantee_eligibility
    grantable_permissions
    specifying_an_acl
-   sample_acl
+
