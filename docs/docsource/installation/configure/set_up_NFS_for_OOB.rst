@@ -1,11 +1,11 @@
 Set Up Out-of-Band Updates from an NFS Mount
 ============================================
 
-Zenko 1.1 allows ingestion and Out-of-Band (OOB) updates from existing NFS
-mount points. This new feature does not copy the files themselves; rather, the
+Zenko 1.1 allows ingestion and Out-of-Band (OOB) updates from existing NFS mount
+points. This new feature does not copy the files themselves; rather, the
 system's attributes are copied to Zenko for data management. Using this
 information, Zenko can act on NFS mounts as it would any other type of bucket,
-thus enabling metadata search, cloud replication, and lifecycle
+thus enabling metadata search, cloud replication, and lifecycle transition or
 expiration. Writes from Zenko users to buckets at NFS locations are not
 permitted.
 

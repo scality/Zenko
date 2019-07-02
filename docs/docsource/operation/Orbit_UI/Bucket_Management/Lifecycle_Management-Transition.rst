@@ -30,7 +30,7 @@ To establish a lifecycle transition rule:
 #. The **Add New Transition Rule** dialog displays:
 
    .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_lifecycle_add_transition_rule.png
-      :scale: 75 %
+      :scale: 50 %
       :align: center
 
    You may specify an prefix to identify objects to which the rule applies. Enter

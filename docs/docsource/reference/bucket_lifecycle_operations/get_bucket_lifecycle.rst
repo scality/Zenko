@@ -325,7 +325,7 @@ configurations from a specified bucket.
 
 *Sample Request*
 
-..code::
+::
 
   GET /?lifecycle HTTP/1.1
   Host: examplebucket.s3.amazonaws.com
