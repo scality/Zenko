@@ -56,7 +56,8 @@ spec:
             port: 8080
             scheme: HTTP
           initialDelaySeconds: 45
-          periodSeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 5
         resources:
 {{ toYaml .Values.cosmos.scheduler.resources | indent 10 }}
 {{- end -}}

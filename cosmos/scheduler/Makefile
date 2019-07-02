@@ -1,5 +1,5 @@
 COSMOS_IMAGE := zenko/cosmos-scheduler
-COSMOS_TAG := 0.2.5
+COSMOS_TAG := 0.3.0
 COSMOS_BINARY := ./scheduler
 
 .PHONY: setup

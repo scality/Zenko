@@ -6,9 +6,10 @@ import (
 	"time"
 	"net/http"
 
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 
 	"github.com/scality/zenko/cosmos/api/types/v1alpha1"
 	clientV1alpha1 "github.com/scality/zenko/cosmos/clientset/v1alpha1"
@@ -32,39 +33,59 @@ type Scheduler struct {
 	IngestionSchedule string
 }
 
+// BucketTransaction is used as the decoded element returned by MongoDB
+type BucketTransaction struct {
+	LocationType  string
+	OperationType string `bson:"operationType"`
+	FullDocument  struct {
+		Value struct {
+			Name               string `bson:"name"`
+			OwnerDisplayName   string `bson:"ownerDisplayName"`
+			Deleted            bool   `bson:"deleted"`
+			LocationConstraint string `bson:"locationConstraint"`
+		} `bson:"value"`
+	} `bson:"fullDocument"`
+}
+
 // Run starts the Cosmos Scheduler
 func (s *Scheduler) Run() {
 	log.Println("starting cosmos scheduler")
+	go s.healthCheckServer()
+
+	// safely create or update secret on startup
+	err := s.configureIngestionSecret(true)
+	if err != nil{
+		log.Fatal("run failed configuring secret: ", err)
+	}
+
 	quit := make(chan bool)
 	overlayUpdates, err := s.watchOverlayUpdates()
 	if err != nil {
-		log.Println(err)
-		return
+		log.Fatal(err)
 	}
-	go s.healthCheckServer()
-	err = s.configureIngestionSecret(true)
-	if err != nil{
-		log.Fatal("error configuring secret:", err)
-	}
+
 	for {
-		go s.watchBucketUpdates(quit)
+		go s.watchBucketUpdates("nfs", quit)
+		// blocks until an overlay update is recieved on the overlayUpdates channel
 		<-overlayUpdates
 		log.Println("received an overlay update")
 		quit <- true
 	}
 }
 
+// healthCheckServer will ping the MongoDB connection on every request recieved
+// at :8080/healthcheck
 func (s *Scheduler) healthCheckServer() {
 	health := func(w http.ResponseWriter, req *http.Request){
 		ctx, cancel := context.WithTimeout(req.Context(), 5*time.Second)
 		defer cancel()
-		err := s.MongodbClient.Ping(ctx, readpref.Secondary())
+		err := s.MongodbClient.Ping(ctx, readpref.Primary())
 		if err != nil {
 			log.Println("MongoDB healthcheck failed:", err)
 			http.Error(w, "Internal error, could not contact MongoDB", 500)
-		} else {
-			w.WriteHeader(http.StatusOK)
+			return
 		}
+		w.WriteHeader(http.StatusOK)
 	}
 	http.HandleFunc("/healthcheck", health)
 	log.Fatal(http.ListenAndServe(":8080", nil))
@@ -76,79 +97,77 @@ func (s *Scheduler) healthCheckServer() {
 func (s *Scheduler) configureIngestionSecret(init bool) error {
 	accessKey, secretKey, err := s.Pensieve.GetServiceAccountCredentials("md-ingestion")
 	if err != nil {
+		log.Println("error getting service account credentials")
 		return err
 	}
 	secret := s.getIngestionSecret()
 	if secret == nil {
 		log.Println("creating ingestion secret")
-		err = s.ingestionSecret(accessKey, secretKey, false)
+		err = s.setIngestionSecret(accessKey, secretKey, false)
 		if err != nil {
+			log.Println("error creating ingestion secret", err)
 			return err
 		}
 		log.Println("ingestion secret created successfully")
 	} else if string(secret["accessKey"]) != accessKey || string(secret["secretKey"]) != secretKey {
 		log.Println("ingestion credentials changed, updating secret")
-		err = s.ingestionSecret(accessKey, secretKey, true)
+		err = s.setIngestionSecret(accessKey, secretKey, true)
 		if err != nil {
+			log.Println("error updating ingestion secret")
 			return err
-		}
+		} 
 		log.Println("ingestion credentials successfully patched")
-	}  else if init {
-		log.Println("found existing up-to-date ingestion secret")
+	} else if init {
+		log.Println("found a valid ingestion secret")
 	}
 	return nil
 }
 
-func (s *Scheduler) watchBucketUpdates(quit chan bool) error {
-	locationBson, err := s.getCosmosLocationBson()
+func (s *Scheduler) watchBucketUpdates(locationType string, quit chan bool) error {
+	locationBson, err := s.getCosmosLocationBson(locationType)
 	if err != nil {
 		return err
 	}
+	// if there are no locations then there are no buckets to watch
 	if len(locationBson) == 0 {
 		return nil
 	}
-	collection := s.MongodbClient.Database("metadata").Collection("__metastore")
-	ctx := context.Background()
-	cur, err := collection.Watch(ctx, mongo.Pipeline{
-		{{"$match", bson.D{
-			{"$or", locationBson},
-			{"fullDocument.value.ingestion.status", "enabled"},
-		}}},
-		{{"$project", bson.D{
-			{"operationType", 1},
-			{"fullDocument.value.ownerDisplayName", 1},
-			{"fullDocument.value.name", 1},
-			{"fullDocument.value.locationConstraint", 1},
-			{"fullDocument.value.deleted", 1},
-		}}},
-	})
-	if err != nil {
-		log.Println(err)
-		return err
-	}
 	ch := make(chan BucketTransaction)
 	go func() {
+		collection := s.MongodbClient.Database("metadata").Collection("__metastore")
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		cur, err := collection.Watch(ctx, mongo.Pipeline{
+			{{"$match", bson.D{
+				{"$or", locationBson},
+				{"fullDocument.value.ingestion.status", "enabled"},
+			}}},
+			{{"$project", bson.D{
+				{"operationType", 1},
+				{"fullDocument.value.ownerDisplayName", 1},
+				{"fullDocument.value.name", 1},
+				{"fullDocument.value.locationConstraint", 1},
+				{"fullDocument.value.deleted", 1},
+			}}},
+		})
 		defer cur.Close(ctx)
-		for {
-			if cur.Next(ctx) {
-				var elem BucketTransaction
-				if err := cur.Decode(&elem); err != nil {
-					log.Println(err)
-					return
-				}
-				ch <- elem
-			} else {
-				if err := cur.Err(); err != nil {
-					log.Println(err)
-				}
-				return
+		if err != nil {
+			log.Fatal("error watching buckets", err)
+		}
+		for cur.Next(ctx) {
+			var elem BucketTransaction
+			if err := cur.Decode(&elem); err != nil {
+				log.Fatal("error decoding bucket", err)
 			}
+			ch <- elem
+		}
+		if err := cur.Err(); err != nil {
+			log.Fatal("cursor error watching buckets: ", err)
 		}
 	}()
 	for {
 		select {
 		case <-quit:
-			cur.Close(ctx)
 			return nil
 		case bucket := <-ch:
 			s.applyChanges(&bucket)
@@ -156,29 +175,30 @@ func (s *Scheduler) watchBucketUpdates(quit chan bool) error {
 	}
 }
 
+
 func (s *Scheduler) watchOverlayUpdates() (chan interface{}, error) {
 	ch := make(chan interface{})
-	collection := s.MongodbClient.Database("metadata").Collection("PENSIEVE")
-	ctx := context.Background()
-	cur, err := collection.Watch(ctx, mongo.Pipeline{})
-	if err != nil {
-		close(ch)
-		return nil, err
-	}
 	go func() {
-		for {
-			if cur.Next(ctx) {
-				ch <- "overlay update"
+		collection := s.MongodbClient.Database("metadata").Collection("PENSIEVE")
+		ctx := context.Background()
+		cur, err := collection.Watch(ctx, mongo.Pipeline{}, options.ChangeStream())
+		defer cur.Close(ctx)
+		if err != nil {
+			log.Fatal("error watching overlays: ", err)
+		}
+
+		log.Println("waiting for overlay updates")
+		// cur.Next is a blocking operation
+		for cur.Next(ctx) {
+			ch <- "overlay update"
+		    if err := cur.Err(); err != nil {
+				log.Fatal("error in cursor:", err)
 			}
-			if err := cur.Err(); err != nil {
-				log.Println(err)
-			}
-			err := s.configureIngestionSecret(false)
-			if err != nil {
-				close(ch)
-				cur.Close(ctx)
-				log.Panicln(err.Error())
-			}
+			// check for any credential updates
+			s.configureIngestionSecret(false)
+		}
+		if err := cur.Err(); err != nil {
+			log.Fatal("cursor error watching overlay updates: ", err)
 		}
 	}()
 	return ch, nil
@@ -196,7 +216,7 @@ func (s *Scheduler) getIngestionSecret() (map[string][]byte) {
 	return nil
 }
 
-func (s *Scheduler) ingestionSecret(accessKey string, secretKey string, patch bool) error {
+func (s *Scheduler) setIngestionSecret(accessKey string, secretKey string, patch bool) error {
 	kubeSecret := &v1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      s.SecretName,
@@ -227,8 +247,8 @@ func (s *Scheduler) ingestionSecret(accessKey string, secretKey string, patch bo
 	return nil
 }
 
-func (s *Scheduler) getCosmosLocationBson() (bson.A, error) {
-	locations, err := s.Pensieve.GetLocationsWithTypes([]string{"nfs"})
+func (s *Scheduler) getCosmosLocationBson(locationType string) (bson.A, error) {
+	locations, err := s.Pensieve.GetLocationsWithTypes([]string{locationType})
 	if err != nil {
 		return nil, err
 	}
@@ -241,18 +261,6 @@ func (s *Scheduler) getCosmosLocationBson() (bson.A, error) {
 	return ret, nil
 }
 
-type BucketTransaction struct {
-	OperationType string `bson:"operationType"`
-	FullDocument  struct {
-		Value struct {
-			Name               string `bson:"name"`
-			OwnerDisplayName   string `bson:"ownerDisplayName"`
-			Deleted            bool   `bson:"deleted"`
-			LocationConstraint string `bson:"locationConstraint"`
-		} `bson:"value"`
-	} `bson:"fullDocument"`
-}
-
 func (s *Scheduler) applyChanges(bucket *BucketTransaction) {
 	location, err := s.Pensieve.GetLocationWithName(bucket.FullDocument.Value.LocationConstraint)
     if err != nil {
@@ -263,17 +271,17 @@ func (s *Scheduler) applyChanges(bucket *BucketTransaction) {
 		log.Println("creating cosmos for bucket:", bucket.FullDocument.Value.Name)
 		err = s.createCosmosFromLocation(location, bucket.FullDocument.Value.Name)
 		if err != nil {
-			log.Println("failed to create cosmos with error:", err)
+			log.Println("failed to create cosmos with error: ", err)
 		}
 	case "replace":
 	    if bucket.FullDocument.Value.Deleted == true && s.checkForCosmos(location, bucket.FullDocument.Value.Name) {
 			log.Println("deleting cosmos for bucket:", bucket.FullDocument.Value.Name)
 			err := s.KubeAlpha.Cosmoses(s.Namespace).Delete(bucket.FullDocument.Value.LocationConstraint, &metav1.DeleteOptions{})
 			if err != nil {
-				log.Println(err)
+				log.Println("failed to delete cosmos with error: ", err)
 			}
 		} else if bucket.FullDocument.Value.Deleted == true {
-			log.Println("received delete request but no cosmos created for bucket:", bucket.FullDocument.Value.Name)
+			log.Println("received delete request but no cosmos created for bucket: ", bucket.FullDocument.Value.Name)
 		}
 	}
 	return
