@@ -193,192 +193,191 @@ common to most responses (see `Common Response Headers`_).
 .. table::
    :class: longtable
 
-   +---------------------------+-----------------------------------------------+
-   | Name                      | Description                                   |
-   +===========================+===============================================+
-   | Contents                  | Metadata about each object returned.          |
-   |                           |                                               |
-   |                           | Type: XML metadata                            |
-   |                           |                                               |
-   |                           | Ancestor: ListBucketResult                    |
-   +---------------------------+-----------------------------------------------+
-   | CommonPrefixes            | All of the keys rolled up into a common       |
-   |                           | prefix count as a single return when          |
-   |                           | calculating the number of returns. See        |
-   |                           | MaxKeys.                                      |
-   |                           |                                               |
-   |                           | * A response can contain ``CommonPrefixes``   |
-   |                           |    only if a delimiter has been specified.    |
-   |                           | * ``CommonPrefixes`` contains any existing    |
-   |                           |   keys between ``Prefix`` and the next        |
-   |                           |   occurrence of the string specified by a     |
-   |                           |   delimiter.                                  |
-   |                           | * ``CommonPrefixes`` lists keys that act like |
-   |                           |   subdirectories in the directory specified   |
-   |                           |   by Prefix.                                  |
-   |                           |                                               |
-   |                           | For example, if the prefix is ``notes/`` and  |
-   |                           | the delimiter is a slash (/), as in           |
-   |                           | ``notes/summer/july``, the common prefix is   |
-   |                           | ``notes/summer/``. All keys that roll up into |
-   |                           | a common prefix count as a single return when |
-   |                           | calculating the number of returns. See        |
-   |                           | MaxKeys.                                      |
-   |                           |                                               |
-   |                           | Type: String                                  |
-   |                           |                                               |
-   |                           | Ancestor: ListBucketResult                    |
-   +---------------------------+-----------------------------------------------+
-   | Delimiter                 | Causes keys containing the same string        |
-   |                           | between the prefix and first occurrence of    |
-   |                           | the delimiter to be rolled up into a single   |
-   |                           | result element in the CommonPrefixes          |
-   |                           | collection. These rolled-up keys are not      |
-   |                           | returned elsewhere in the response. Each      |
-   |                           | rolled-up result counts as only one return    |
-   |                           | against the MaxKeys value.                    |
-   |                           |                                               |
-   |                           | Type: String                                  |
-   |                           |                                               |
-   |                           | Ancestor: ListBucketResult                    |
-   +---------------------------+-----------------------------------------------+
-   | DisplayName               | Object owner's name.                          |
-   |                           |                                               |
-   |                           | Type: String                                  |
-   |                           |                                               |
-   |                           | Ancestor: ListBucketResult.Contents.Owner     |
-   +---------------------------+-----------------------------------------------+
-   | Encoding-Type             | Encoding type used by Zenko to encode object  |
-   |                           | key names in the XML response.                |
-   |                           |                                               |
-   |                           | If you specify encoding-type request          |
-   |                           | parameter, Zenko includes this element in the |
-   |                           | response, and returns encoded key name values |
-   |                           | in the ``Delimiter``, ``Prefix``, ``Key``,    |
-   |                           | and ``StartAfter`` response elements.         |
-   |                           |                                               |
-   |                           | Type: String                                  |
-   |                           |                                               |
-   |                           | Ancestor: ListBucketResult                    |
-   +---------------------------+-----------------------------------------------+
-   | ETag                      | The entity tag is an MD5 hash of the object.  |
-   |                           | ETag reflects only changes to the contents of |
-   |                           | an object, not its metadata.                  |
-   |                           |                                               |
-   |                           | Type: String                                  |
-   |                           |                                               |
-   |                           | Ancestor: ListBucketResult.Contents           |
-   +---------------------------+-----------------------------------------------+
-   | ID                        | Object owner's ID                             |
-   |                           |                                               |
-   |                           | Type: String                                  |
-   |                           |                                               |
-   |                           | Ancestor: ListBucketResult.Contents.Owner     |
-   +---------------------------+-----------------------------------------------+
-   | IsTruncated               | Set to false if all results were returned.    |
-   |                           |                                               |
-   |                           | Set to true if more keys are available to     |
-   |                           | return.                                       |
-   |                           |                                               |
-   |                           | If the number of results exceeds that         |
-   |                           | specified by MaxKeys, all of the results      |
-   |                           | might not be returned.                        |
-   |                           |                                               |
-   |                           | Type: Boolean                                 |
-   |                           |                                               |
-   |                           | Ancestor: ListBucketResult                    |
-   +---------------------------+-----------------------------------------------+
-   | Key                       | The object's key                              |
-   |                           |                                               |
-   |                           | Type: String                                  |
-   |                           |                                               |
-   |                           | Ancestor: ListBucketResult.Contents           |
-   +---------------------------+-----------------------------------------------+
-   | LastModified              | Date and time the object was last modified    |
-   |                           |                                               |
-   |                           | Type: Date                                    |
-   |                           |                                               |
-   |                           | Ancestor: ListBucketResult.Contents           |
-   +---------------------------+-----------------------------------------------+
-   | .. _MaxKeys: MaxKeys      | The maximum number of keys returned in the    | 
-   |                           | response body                                 |
-   |                           |                                               |
-   |                           | Type: String                                  |
-   |                           |                                               |
-   |                           | Ancestor: ListBucketResult                    |
-   +---------------------------+-----------------------------------------------+
-   | Name                      | Name of the bucket                            |
-   |                           |                                               |
-   |                           | Type: String                                  |
-   |                           |                                               |
-   |                           | Ancestor: ListBucketResult                    |
-   +---------------------------+-----------------------------------------------+
-   | Owner                     | Bucket owner                                  |
-   |                           |                                               |
-   |                           | Type: String                                  |
-   |                           |                                               |
-   |                           | Children: DisplayName, ID                     |
-   |                           |                                               |
-   |                           | Ancestor: ListBucketResult.Contents \|        |
-   |                           | CommonPrefixes                                |
-   +---------------------------+-----------------------------------------------+
-   | Prefix                    | Keys that begin with the indicated prefix     |
-   |                           |                                               |
-   |                           | Type: String                                  |
-   |                           |                                               |
-   |                           | Ancestor: ListBucketResult                    |
-   +---------------------------+-----------------------------------------------+
-   | Size                      | Size of the object (in bytes)                 |
-   |                           |                                               |
-   |                           | Type: String                                  |
-   |                           |                                               |
-   |                           | Ancestor: ListBucketResult.Contents           |
-   +---------------------------+-----------------------------------------------+
-   | StorageClass              | STANDARD \| STANDARD_IA \| REDUCED_REDUNDANCY |
-   |                           |                                               |
-   |                           | Type: String                                  |
-   |                           |                                               |
-   |                           | Ancestor: ListBucketResult.Contents           |
-   +---------------------------+-----------------------------------------------+
-   | ContinuationToken         | If ContinuationToken was sent with the        |
-   |                           | request, it is included in the response.      |
-   |                           |                                               |
-   |                           | Type: String                                  |
-   |                           |                                               |
-   |                           | Ancestor: ListBucketResult                    |
-   +---------------------------+-----------------------------------------------+
-   | KeyCount                  | Returns the number of keys included in the    |
-   |                           | response. The value is always less than or    |
-   |                           | equal to the MaxKeys value.                   |
-   |                           |                                               |
-   |                           | Type: String                                  |
-   |                           |                                               |
-   |                           | Ancestor: ListBucketResult                    |
-   +---------------------------+-----------------------------------------------+
-   | .. _NextContinuationToken:| If the response is truncated, Zenko returns   |
-   |    NextContinuationToken  | this parameter with a continuation token.     |
-   |                           | You can specify the token as the              |
-   |                           | continuation-token in your next request to    |
-   |                           | retrieve the next set of keys.                |
-   |                           |                                               |
-   |                           | Type: String                                  |
-   |                           |                                               |
-   |                           | Ancestor: ListBucketResult                    |
-   +---------------------------+-----------------------------------------------+
-   | StartAfter                | If StartAfter was sent with the request, it   |
-   |                           | is included in the response.                  |
-   |                           |                                               |
-   |                           | Type: String                                  |
-   |                           |                                               |
-   |                           | Ancestor: ListBucketResult                    |
-   +---------------------------+-----------------------------------------------+
-
+   +-----------------------------+-----------------------------------------------+
+   | Name                        | Description                                   |
+   +=============================+===============================================+
+   | Contents                    | Metadata about each object returned.          |
+   |                             |                                               |
+   |                             | Type: XML metadata                            |
+   |                             |                                               |
+   |                             | Ancestor: ListBucketResult                    |
+   +-----------------------------+-----------------------------------------------+
+   | CommonPrefixes              | All of the keys rolled up into a common       |
+   |                             | prefix count as a single return when          |
+   |                             | calculating the number of returns. See        |
+   |                             | MaxKeys.                                      |
+   |                             |                                               |
+   |                             | * A response can contain ``CommonPrefixes``   |
+   |                             |    only if a delimiter has been specified.    |
+   |                             | * ``CommonPrefixes`` contains any existing    |
+   |                             |   keys between ``Prefix`` and the next        |
+   |                             |   occurrence of the string specified by a     |
+   |                             |   delimiter.                                  |
+   |                             | * ``CommonPrefixes`` lists keys that act like |
+   |                             |   subdirectories in the directory specified   |
+   |                             |   by Prefix.                                  |
+   |                             |                                               |
+   |                             | For example, if the prefix is ``notes/`` and  |
+   |                             | the delimiter is a slash (/), as in           |
+   |                             | ``notes/summer/july``, the common prefix is   |
+   |                             | ``notes/summer/``. All keys that roll up into |
+   |                             | a common prefix count as a single return when |
+   |                             | calculating the number of returns. See        |
+   |                             | MaxKeys.                                      |
+   |                             |                                               |
+   |                             | Type: String                                  |
+   |                             |                                               |
+   |                             | Ancestor: ListBucketResult                    |
+   +-----------------------------+-----------------------------------------------+
+   | Delimiter                   | Causes keys containing the same string        |
+   |                             | between the prefix and first occurrence of    |
+   |                             | the delimiter to be rolled up into a single   |
+   |                             | result element in the CommonPrefixes          |
+   |                             | collection. These rolled-up keys are not      |
+   |                             | returned elsewhere in the response. Each      |
+   |                             | rolled-up result counts as only one return    |
+   |                             | against the MaxKeys value.                    |
+   |                             |                                               |
+   |                             | Type: String                                  |
+   |                             |                                               |
+   |                             | Ancestor: ListBucketResult                    |
+   +-----------------------------+-----------------------------------------------+
+   | DisplayName                 | Object owner's name.                          |
+   |                             |                                               |
+   |                             | Type: String                                  |
+   |                             |                                               |
+   |                             | Ancestor: ListBucketResult.Contents.Owner     |
+   +-----------------------------+-----------------------------------------------+
+   | Encoding-Type               | Encoding type used by Zenko to encode object  |
+   |                             | key names in the XML response.                |
+   |                             |                                               |
+   |                             | If you specify encoding-type request          |
+   |                             | parameter, Zenko includes this element in the |
+   |                             | response, and returns encoded key name values |
+   |                             | in the ``Delimiter``, ``Prefix``, ``Key``,    |
+   |                             | and ``StartAfter`` response elements.         |
+   |                             |                                               |
+   |                             | Type: String                                  |
+   |                             |                                               |
+   |                             | Ancestor: ListBucketResult                    |
+   +-----------------------------+-----------------------------------------------+
+   | ETag                        | The entity tag is an MD5 hash of the object.  |
+   |                             | ETag reflects only changes to the contents of |
+   |                             | an object, not its metadata.                  |
+   |                             |                                               |
+   |                             | Type: String                                  |
+   |                             |                                               |
+   |                             | Ancestor: ListBucketResult.Contents           |
+   +-----------------------------+-----------------------------------------------+
+   | ID                          | Object owner's ID                             |
+   |                             |                                               |
+   |                             | Type: String                                  |
+   |                             |                                               |
+   |                             | Ancestor: ListBucketResult.Contents.Owner     |
+   +-----------------------------+-----------------------------------------------+
+   | IsTruncated                 | Set to false if all results were returned.    |
+   |                             |                                               |
+   |                             | Set to true if more keys are available to     |
+   |                             | return.                                       |
+   |                             |                                               |
+   |                             | If the number of results exceeds that         |
+   |                             | specified by MaxKeys, all of the results      |
+   |                             | might not be returned.                        |
+   |                             |                                               |
+   |                             | Type: Boolean                                 |
+   |                             |                                               |
+   |                             | Ancestor: ListBucketResult                    |
+   +-----------------------------+-----------------------------------------------+
+   | Key                         | The object's key                              |
+   |                             |                                               |
+   |                             | Type: String                                  |
+   |                             |                                               |
+   |                             | Ancestor: ListBucketResult.Contents           |
+   +-----------------------------+-----------------------------------------------+
+   | LastModified                | Date and time the object was last modified    |
+   |                             |                                               |
+   |                             | Type: Date                                    |
+   |                             |                                               |
+   |                             | Ancestor: ListBucketResult.Contents           |
+   +-----------------------------+-----------------------------------------------+
+   | .. _MaxKeys: MaxKeys        | The maximum number of keys returned in the    | 
+   |                             | response body                                 |
+   |                             |                                               |
+   |                             | Type: String                                  |
+   |                             |                                               |
+   |                             | Ancestor: ListBucketResult                    |
+   +-----------------------------+-----------------------------------------------+
+   | Name                        | Name of the bucket                            |
+   |                             |                                               |
+   |                             | Type: String                                  |
+   |                             |                                               |
+   |                             | Ancestor: ListBucketResult                    |
+   +-----------------------------+-----------------------------------------------+
+   | Owner                       | Bucket owner                                  |
+   |                             |                                               |
+   |                             | Type: String                                  |
+   |                             |                                               |
+   |                             | Children: DisplayName, ID                     |
+   |                             |                                               |
+   |                             | Ancestor: ListBucketResult.Contents \|        |
+   |                             | CommonPrefixes                                |
+   +-----------------------------+-----------------------------------------------+
+   | Prefix                      | Keys that begin with the indicated prefix     |
+   |                             |                                               |
+   |                             | Type: String                                  |
+   |                             |                                               |
+   |                             | Ancestor: ListBucketResult                    |
+   +-----------------------------+-----------------------------------------------+
+   | Size                        | Size of the object (in bytes)                 |
+   |                             |                                               |
+   |                             | Type: String                                  |
+   |                             |                                               |
+   |                             | Ancestor: ListBucketResult.Contents           |
+   +-----------------------------+-----------------------------------------------+
+   | StorageClass                | STANDARD \| STANDARD_IA \| REDUCED_REDUNDANCY |
+   |                             |                                               |
+   |                             | Type: String                                  |
+   |                             |                                               |
+   |                             | Ancestor: ListBucketResult.Contents           |
+   +-----------------------------+-----------------------------------------------+
+   | ContinuationToken           | If ContinuationToken was sent with the        |
+   |                             | request, it is included in the response.      |
+   |                             |                                               |
+   |                             | Type: String                                  |
+   |                             |                                               |
+   |                             | Ancestor: ListBucketResult                    |
+   +-----------------------------+-----------------------------------------------+
+   | KeyCount                    | Returns the number of keys included in the    |
+   |                             | response. The value is always less than or    |
+   |                             | equal to the MaxKeys value.                   |
+   |                             |                                               |
+   |                             | Type: String                                  |
+   |                             |                                               |
+   |                             | Ancestor: ListBucketResult                    |
+   +-----------------------------+-----------------------------------------------+
+   | .. _NextContinuationToken:  | If the response is truncated, Zenko returns   |
+   |                             | this parameter with a continuation token.     |
+   | NextContinuationToken       | You can specify the token as the              |
+   |                             | continuation-token in your next request to    |
+   |                             | retrieve the next set of keys.                |
+   |                             |                                               |
+   |                             | Type: String                                  |
+   |                             |                                               |
+   |                             | Ancestor: ListBucketResult                    |
+   +-----------------------------+-----------------------------------------------+
+   | StartAfter                  | If StartAfter was sent with the request, it   |
+   |                             | is included in the response.                  |
+   |                             |                                               |
+   |                             | Type: String                                  |
+   |                             |                                               |
+   |                             | Ancestor: ListBucketResult                    |
+   +-----------------------------+-----------------------------------------------+
 
 **Special Errors**
 
 This implementation of the operation does not return special errors. For
-general information about Zenko errors and a list of error codes, see
-`Error Responses`_.
+general information about the AWS errors Zenko uses, and a list of error 
+codes, see `Error Responses`_.
 
 Examples
 --------
@@ -660,10 +659,10 @@ request ended.
 
 .. _`Amazon Simple Storage Service Developer Guide`: https://docs.aws.amazon.com/AmazonS3/latest/dev/Welcome.html
 
-.. _`GET Service`: ../service_operations/get_service
+.. _`GET Service`: ../service_operations/get_service.html
 
-.. _`Common Request Headers`: ../s3_connector_api_knowledge_primers/request_headers
+.. _`Common Request Headers`: ../zenko_api_primer/request_headers.html
 
-.. _`Common Response Headers`: ../s3_connector_api_knowledge_primers/response_headers
+.. _`Common Response Headers`: ../zenko_api_primer/response_headers.html
 
 .. _`Error Responses`: https://docs.aws.amazon.com/AmazonS3/latest/API/ErrorResponses.html
