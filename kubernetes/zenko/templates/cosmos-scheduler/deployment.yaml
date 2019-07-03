@@ -26,7 +26,7 @@ spec:
       serviceAccountName: {{ template "cosmos-operator.fullname"  . }}
       {{- end }}
       containers:
-      - name: {{ template "cosmos-operator.fullname" . }}
+      - name: {{ template "cosmos-scheduler.fullname" . }}
         image: "{{ .Values.cosmos.scheduler.image.repository }}:{{ .Values.cosmos.scheduler.image.tag }}"
         imagePullPolicy: {{ .Values.cosmos.scheduler.image.pullPolicy }}
         env:
@@ -50,6 +50,13 @@ spec:
           value: "{{ .Values.nodeCount }}"
         - name: STORAGE_CLASS
           value: "{{ template "cosmos-operator.storageclass" . }}"
+        livenessProbe:
+          httpGet:
+            path: /healthcheck
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 45
+          periodSeconds: 5
         resources:
 {{ toYaml .Values.cosmos.scheduler.resources | indent 10 }}
 {{- end -}}

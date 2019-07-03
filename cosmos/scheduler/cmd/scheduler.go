@@ -3,9 +3,12 @@ package scheduler
 import (
 	"context"
 	"log"
+	"time"
+	"net/http"
 
 	"github.com/mongodb/mongo-go-driver/bson"
 	"github.com/mongodb/mongo-go-driver/mongo"
+	"github.com/mongodb/mongo-go-driver/mongo/readpref"
 	"github.com/scality/zenko/cosmos/api/types/v1alpha1"
 	clientV1alpha1 "github.com/scality/zenko/cosmos/clientset/v1alpha1"
 	"github.com/scality/zenko/cosmos/scheduler/pkg"
@@ -37,12 +40,29 @@ func (s *Scheduler) Run() {
 		log.Println(err)
 		return
 	}
+	go s.healthCheckServer()
 	for {
 		go s.watchBucketUpdates(quit)
 		<-overlayUpdates
 		log.Println("received an overlay update")
 		quit <- true
 	}
+}
+
+func (s *Scheduler) healthCheckServer() {
+	health := func(w http.ResponseWriter, req *http.Request){
+		ctx, cancel := context.WithTimeout(req.Context(), 5*time.Second)
+		defer cancel()
+		err := s.MongodbClient.Ping(ctx, readpref.Nearest())
+		if err != nil {
+			log.Println("MongoDB healthcheck failed:", err)
+			http.Error(w, "Internal error, could not contact MongoDB", 500)
+		} else {
+			w.WriteHeader(http.StatusOK)
+		}
+	}
+	http.HandleFunc("/healthcheck", health)
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
 func (s *Scheduler) configureIngestionSecret() error {
