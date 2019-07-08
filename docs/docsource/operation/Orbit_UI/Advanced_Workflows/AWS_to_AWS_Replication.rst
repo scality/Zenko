@@ -7,23 +7,25 @@ AWS-to-AWS Replication
 
    |image0|
 
-#. From Orbit, **Add a New Storage Location** using the AWS bucket you
-   just created.
+#. From Orbit, open **Storage Location**, click **Add New** and enter
+   information (location name, type, and type-specific options) for the AWS
+   bucket you just created.
 
    |image1|
 
 #. From the Multicloud Browser, create another bucket and set the new
    AWS location as its location constraint.
 
-   If using AWS CLI, set the endpoint as the Zenko deployment, and
-   location constraint as the AWS location.
+   If using AWS CLI, set the endpoint as the Zenko deployment, and location
+   constraint as the AWS location.
 
 #. The bucket created through Zenko appears in the drop-down menu on the
-   Replication page.
+   **Set up bucket replication** dialog box.
 
    |image2|
 
-#. With the AWS target now visible, enter the flow at `Set Up Replication`_.
+#. With the AWS target now visible, enter the flow as described in `Set Up
+   Replication`_.
 
 .. _`Set Up Replication`: set_up_crr.html
 
