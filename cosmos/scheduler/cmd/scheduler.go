@@ -41,6 +41,10 @@ func (s *Scheduler) Run() {
 		return
 	}
 	go s.healthCheckServer()
+	err = s.configureIngestionSecret(true)
+	if err != nil{
+		log.Fatal("error configuring secret:", err)
+	}
 	for {
 		go s.watchBucketUpdates(quit)
 		<-overlayUpdates
@@ -65,7 +69,10 @@ func (s *Scheduler) healthCheckServer() {
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
-func (s *Scheduler) configureIngestionSecret() error {
+// Checks for existing secret and creates one if non existant. If the a configmap
+// exists but does not match the credentials in MongoDB then the secret will be updated.
+// The init bool is used for start up sequences otherwise logging becomes too verbose.
+func (s *Scheduler) configureIngestionSecret(init bool) error {
 	accessKey, secretKey, err := s.Pensieve.GetServiceAccountCredentials("md-ingestion")
 	if err != nil {
 		return err
@@ -85,7 +92,7 @@ func (s *Scheduler) configureIngestionSecret() error {
 			return err
 		}
 		log.Println("ingestion credentials successfully patched")
-	}  else {
+	}  else if init {
 		log.Println("found existing up-to-date ingestion secret")
 	}
 	return nil
@@ -165,7 +172,7 @@ func (s *Scheduler) watchOverlayUpdates() (chan interface{}, error) {
 			if err := cur.Err(); err != nil {
 				log.Println(err)
 			}
-			err := s.configureIngestionSecret()
+			err := s.configureIngestionSecret(false)
 			if err != nil {
 				close(ch)
 				cur.Close(ctx)
@@ -248,7 +255,7 @@ type BucketTransaction struct {
 func (s *Scheduler) applyChanges(bucket *BucketTransaction) {
 	location, err := s.Pensieve.GetLocationWithName(bucket.FullDocument.Value.LocationConstraint)
     if err != nil {
-		log.Println("error getting location", err)
+		log.Println("error getting location:", err)
 	} 
 	switch bucket.OperationType {
 	case "insert" :
@@ -264,7 +271,7 @@ func (s *Scheduler) applyChanges(bucket *BucketTransaction) {
 			if err != nil {
 				log.Println(err)
 			}
-		} else {
+		} else if bucket.FullDocument.Value.Deleted == true {
 			log.Println("received delete request but no cosmos created for bucket:", bucket.FullDocument.Value.Name)
 		}
 	}
