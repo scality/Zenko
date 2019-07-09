@@ -194,7 +194,7 @@ S3, but because it is a Zenko-native filesystem, it shares
 authentication and related credentialing tasks, which are addressed
 elsewhere in the Orbit UI.
 
-For more information, see :ref:`Zenko\ Local`
+For more information, see :ref:`Zenko\ Local`.
 
 RING with sproxyd Connector
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -211,9 +211,9 @@ use DNS or IP address format.
 NFS
 ~~~
 
-Zenko supports replication from NFSv3 and NFSv4 file systems to all
-supported clouds. Zenko replicates data from NFS servers to cloud
-storage services using scheduled cron jobs. 
+Zenko supports out-of-band updates from NFSv3 and NFSv4 file systems. Zenko
+replicates data from NFS servers to cloud storage services using scheduled cron
+jobs.
 
 .. note::
 
@@ -222,11 +222,10 @@ storage services using scheduled cron jobs.
    replicate to other backends, but cannot be written to Zenko to
    replicate to NFS.
 
-Configuring NFS requires you to specify the transfer protocol (TCP or
-UDP), NFS version (v3 or v4), the server location (IP address or URI),
-export path (the path to the NFS mount point on the server to be
-replicated) and the desired NFS options (rw and async are the default
-entries).
+Configuring NFS requires you to specify the transfer protocol (TCP or UDP), NFS
+version (v3 or v4), the server location (IP address or URI), export path (the
+path to the NFS mount point on the server), and the desired NFS options (rw and
+async are the default entries).
 
 Transient Sources
 -----------------
@@ -253,7 +252,3 @@ See :ref:`transient-source` for details.
 .. [#f2] DigitalOcean uses different nomenclature ("Space Name" instead of 
    "bucket name," for example) but its constructs are functionally identical
    to Amazon S3's.
-
-
-
-

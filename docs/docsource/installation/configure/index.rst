@@ -18,7 +18,7 @@ SMB/CIFS and NFS.
    :maxdepth: 2 
 
    configuring_zenko
-   adding_NFS_storage
-   set_up_NFS_for_OOB.rst
-   adding_CIFS_storage
-   configuring_ingress
+   set_up_NFS_for_OOB
+   set_up_CIFS_for_OOB
+   configure_cosmos_for_OOB
+   configure_ingress

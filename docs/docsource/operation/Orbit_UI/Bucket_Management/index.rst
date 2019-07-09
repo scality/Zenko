@@ -1,5 +1,9 @@
 Bucket Management Tasks
 =======================
+
+In Orbit, location operations pertain to data sources, and bucket operations
+pertain to replication targets. 
+
 Orbit makes available the following bucket management tasks.
 
 .. toctree::

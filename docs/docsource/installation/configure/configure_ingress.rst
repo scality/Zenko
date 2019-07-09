@@ -1,7 +1,7 @@
 .. _configure_ingress:
 
-Configuring HTTPS Ingress for Zenko
-===================================
+Configure HTTPS Ingress for Zenko
+=================================
 
 If your Kubernetes cluster uses NGINX for ingress control, use the following
 guidelines to configure HTTPS support. From the Zenko/kubernetes/zenko

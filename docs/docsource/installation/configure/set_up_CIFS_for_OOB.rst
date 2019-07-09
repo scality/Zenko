@@ -1,17 +1,18 @@
 .. _adding_CIFS_storage:
 
-Adding CIFS/SMB Storage
-=======================
+Add Out-of-Band Updates from CIFS/SMB
+=====================================
 
-With optional configuration, Zenko supports inputs from SMB/CIFS
-servers. Zenko polls these servers on a cron schedule. When it finds a
-change of state in any file, Zenko updates its namespace and mirrors
-the changes to the configured cloud backend(s). You must configure
-Cosmos to implement this feature for CIFS/SMB. 
+With optional configuration, Zenko supports out-of-band updates from SMB/CIFS
+servers. Zenko polls these servers on a cron schedule. When it finds a change of
+state in any file, Zenko updates its namespace and mirrors the changes to the
+configured cloud backend(s). You must configure Cosmos to implement this feature
+for CIFS/SMB.
 
-The default Zenko installation deploys Cosmos with NFS support
-only. Configuring Cosmos to use SMB/CIFs or both NFS and SMB/CIFS
-requires configuring Cosmos for each as described here.
+The default Zenko installation deploys Cosmos with NFS support only. Zenko's
+Orbit graphical user interface does not support SMB/CIFS endpoints, which must
+be configured from the CLI. Configuring Cosmos to use SMB/CIFs or both NFS and
+SMB/CIFS requires configuring Cosmos for each as described here.
 
 .. note::
 

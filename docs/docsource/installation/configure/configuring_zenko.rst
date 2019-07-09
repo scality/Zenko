@@ -22,8 +22,8 @@ settings in a test environment and to adjust settings there for a working
 deployment. If your use case requires configuring Zenko before deployment,
 these instructions will remain valid and portable to the production system.
 
-Modifying options.yaml
-----------------------
+Modify options.yaml
+-------------------
 
 The options.yaml file is not present by default, but you added a simple one
 at Zenko/kubernetes/zenko/options.yaml when
@@ -74,8 +74,8 @@ as follows:
       YAML to be logically similar. If you have problems with YAML, check the
       indentation first.
 
-Modifying values.yaml
----------------------
+Modify values.yaml
+------------------
 
 The one setting that cannot be modified in the options.yaml file is nodeCount. 
 To change the node count:
@@ -84,8 +84,8 @@ To change the node count:
 
 #. Change the nodeCount value only.
 
-Pushing Modifications to Zenko
-------------------------------
+Push Modifications to Zenko
+---------------------------
 
 Once you have entered all changes to options.yaml or changed the values.yaml
 nodeCount parameter, issue the following command from Zenko/kubernetes/zenko
