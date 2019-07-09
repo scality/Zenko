@@ -1,12 +1,11 @@
-Adding NFS Storage Locations with Cosmos
-========================================
+Configuring Cosmos for Out-of-Band Updates
+==========================================
 
-The Cosmos storage backend for CloudServer enables you to manage data
-stored on a filesystem and on other storage platforms. Cosmos is a
-microservice that translates between CloudServer and the NFS and
-CIFS/SMB protocols. When CloudServer receives a request for NFS or
-CIFS/SMB service, it sends an API request to Cosmos, which translates
-the request into the desired output.
+The Cosmos storage backend for CloudServer enables you to manage data stored on
+a filesystem and on other storage platforms. Cosmos is a microservice that
+translates between CloudServer and the NFS and CIFS/SMB protocols. When
+CloudServer receives a request for NFS or CIFS/SMB service, it sends an API
+request to Cosmos, which translates the request into the desired output.
 
 Zenko uses the Cosmos service to provide NFS protocol access. As of version
 1.1, Zenko supports NFS access with Cosmos as a preconfigured feature. For most

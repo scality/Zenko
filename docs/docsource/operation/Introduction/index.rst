@@ -25,7 +25,7 @@ customize, automate, and improve interactions with Zenko.
   :maxdepth: 2
 
      Conceptual Framework <Conceptual_Framework>
-     Supported Public and Private Clouds <supported_clouds>
-     Supported Protocols <supported_protocols>
+     Supported Clouds and Services <supported_clouds+services>
+
 
 

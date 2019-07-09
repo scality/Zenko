@@ -89,27 +89,25 @@ user interface.
 NFS Mount
 ---------
 
-Zenko can access information over the NFSv3 and NFSv4 protocols. 
-To configure Zenko to access NFS, review the NFS host's /etc/exports
-file to find the relevant export path, hostname, and NFS options. Use
-``nfsstat`` on the NFS host to discover the relevant NFS version and
-protocol.
+Zenko can access information and file system metadata over the NFSv3 and NFSv4
+protocols.  To configure Zenko to access NFS using out-of-band updates, review
+the NFS host's /etc/exports file to find the relevant export path, hostname, and
+NFS options. Use ``nfsstat`` on the NFS host to discover the relevant NFS
+version and protocol.
 
-.. caution::
+.. important::
 
-   Do not configure CRR for NFS mounts unless there is predictable
-   down time for replication. For NFS CRR, Zenko scans the NFS file
-   system, then detects and replicates changes. It assumes the NFS
-   mount is immutable after scanning but before replication is 
-   complete. Changes written after the scan but before replication
-   completes may not be replicated.
-
+   Do not configure CRR for NFS mounts unless there is predictable down time for
+   replication. For NFS CRR, Zenko scans the NFS file system, then detects and
+   replicates changes. It assumes that the NFS mount does not change after
+   scanning but before replication is complete. Changes written after the scan
+   but before replication completes may not be replicated.
 
 You can:
 
 .. toctree::
    :maxdepth: 1
 
-      View Location Status <location_status>
       Add a Storage Location <Adding_a_Storage_Location>
       Add a Transient Source Storage Location <../Advanced_Workflows/Adding_a_Transient_Source_Storage_Location>
+      View Location Status <location_status>
