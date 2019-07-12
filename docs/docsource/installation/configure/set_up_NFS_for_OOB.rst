@@ -1,7 +1,7 @@
 Set Up Out-of-Band Updates from an NFS Mount
 ============================================
 
-Zenko 1.1 allows ingestion and Out-of-Band (OOB) updates from existing NFS mount
+Zenko 1.1 allows ingestion and out-of-band (OOB) updates from existing NFS mount
 points. This new feature does not copy the files themselves; rather, the
 system's attributes are copied to Zenko for data management. Using this
 information, Zenko can act on NFS mounts as it would any other type of bucket,
@@ -144,4 +144,3 @@ the current workaround is fairly simple.
 #. Delete your previously created bucket and create a new bucket in the same
    mirror-mode location. After creating the new bucket, look for new pods in
    `kubectl get pods`.
-
