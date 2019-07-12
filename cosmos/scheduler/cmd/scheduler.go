@@ -6,9 +6,10 @@ import (
 	"time"
 	"net/http"
 
-	"github.com/mongodb/mongo-go-driver/bson"
-	"github.com/mongodb/mongo-go-driver/mongo"
-	"github.com/mongodb/mongo-go-driver/mongo/readpref"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
+	"go.mongodb.org/mongo-driver/bson"
+
 	"github.com/scality/zenko/cosmos/api/types/v1alpha1"
 	clientV1alpha1 "github.com/scality/zenko/cosmos/clientset/v1alpha1"
 	"github.com/scality/zenko/cosmos/scheduler/pkg"
@@ -57,7 +58,7 @@ func (s *Scheduler) healthCheckServer() {
 	health := func(w http.ResponseWriter, req *http.Request){
 		ctx, cancel := context.WithTimeout(req.Context(), 5*time.Second)
 		defer cancel()
-		err := s.MongodbClient.Ping(ctx, readpref.Nearest())
+		err := s.MongodbClient.Ping(ctx, readpref.Secondary())
 		if err != nil {
 			log.Println("MongoDB healthcheck failed:", err)
 			http.Error(w, "Internal error, could not contact MongoDB", 500)
