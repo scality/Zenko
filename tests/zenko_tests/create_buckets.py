@@ -106,7 +106,7 @@ def wait_for_pods(delete, timeout):
 TIMEOUT = int(get_env('INSTALL_TIMEOUT'))
 
 K8S_NAMESPACE = os.getenv('HELM_NAMESPACE')
-ZENKO_HELM_RELEASE = os.getenv('ZENKO_HELM_RELEASE')
+ZENKO_HELM_RELEASE = get_env('ZENKO_HELM_RELEASE', 'zenko-test')
 ZENKO_ENDPOINT = get_env('CLOUDSERVER_FRONT_ENDPOINT',
                          'http://%s-cloudserver:80' % ZENKO_HELM_RELEASE)
 VERIFY_CERTIFICATES = get_env('VERIFY_CERTIFICATES', False)

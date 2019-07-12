@@ -1,5 +1,9 @@
 #!/bin/sh
 
+if [ -z $ZENKO_HELM_RELEASE ]; then
+    ZENKO_HELM_RELEASE='zenko-test'
+fi
+
 if [ "$1" == "env" ]; then
   CLI_FLAG="env"
   CI_PREFIX=""

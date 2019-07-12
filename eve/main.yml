@@ -24,15 +24,15 @@ models:
   - ShellCommand: &k8s_cleanup
       name: Cleanup
       command: |
-        kubectl -n ${HELM_NAMESPACE} delete cosmos --all
-        kubectl delete namespace ${HELM_NAMESPACE} --wait
+        kubectl -n ${NAMESPACE} delete cosmos --all
+        kubectl delete clusterrolebinding ${NAMESPACE}-cosmos-operator
+        kubectl delete namespace ${NAMESPACE} --wait
       alwaysRun: true
       warnOnFailure: true
       sigtermTime: 1200
       env:
         KUBECONFIG: /root/.kube/config
-        ZENKO_HELM_RELEASE: 'zenko-offline'
-        HELM_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
+        NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
   - Upload: &upload_artifacts
       source: tests/artifacts
       urls:
@@ -176,7 +176,6 @@ models:
       TAG_OVERRIDE: '%(prop:commit_short_revision)s'
 
   - env: &k8s_env # contains values for running helm and kubectl
-      ZENKO_HELM_RELEASE: 'zenko-test'
       HELM_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
       TILLER_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
       INSTALL_TIMEOUT: "600"
@@ -256,7 +255,6 @@ stages:
         env:
           <<: [*mock_env, *secrets_env, *docker_env]
           KUBECONFIG: /root/.kube/config
-          ZENKO_HELM_RELEASE: 'zenko-offline'
           HELM_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
           TILLER_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
           INSTALL_TIMEOUT: "720"
@@ -358,7 +356,6 @@ stages:
         env:
           <<: *global_env
           KUBECONFIG: /root/.kube/config
-          ZENKO_HELM_RELEASE: 'zenko-offline'
           HELM_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
           TILLER_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
           INSTALL_TIMEOUT: "720"

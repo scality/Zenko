@@ -1,5 +1,5 @@
 #!/bin/sh
-set -ex
+set -e
 
 DOCKERCONFIG="$(cat ~/.docker/config.json | base64 | tr -d \\n)"
 
