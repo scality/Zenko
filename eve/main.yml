@@ -1,6 +1,8 @@
 version: "0.2"
 
 branches:
+  user/*:
+    stage: python-tests
   documentation/*, feature/*, improvement/*, bugfix/*, w/*, q/*, hotfix/*:
     stage: pre-merge
 
