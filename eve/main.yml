@@ -258,6 +258,7 @@ stages:
           HELM_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
           TILLER_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
           INSTALL_TIMEOUT: "720"
+          PYTHON_ARGS: "--junit-xml=junit-${STAGE}.xml"
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
     - ShellCommand: *k8s_cleanup
