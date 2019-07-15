@@ -19,4 +19,4 @@ else
 fi
 
 # Disable cache to run in a read-only container
-exec pytest -s -p no:cacheprovider -raR "${PYTEST_XDIST_ARGS}" "$@"
+exec pytest -s -p no:cacheprovider --junit-xml=junit-python-tests.xml -raR "${PYTEST_XDIST_ARGS}" "$@"
