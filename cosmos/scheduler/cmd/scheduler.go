@@ -60,18 +60,14 @@ func (s *Scheduler) Run() {
 		log.Fatal("run failed configuring secret: ", err)
 	}
 
-	quit := make(chan bool)
-	overlayUpdates, err := s.watchOverlayUpdates()
-	if err != nil {
-		log.Fatal(err)
-	}
-
+	overlayUpdates := s.watchOverlayUpdates(context.Background())
 	for {
-		go s.watchBucketUpdates("nfs", quit)
+		ctx, cancel := context.WithCancel(context.Background())
+		go s.watchBucketUpdates(ctx, "location-nfs-mount-v1")
 		// blocks until an overlay update is recieved on the overlayUpdates channel
-		<-overlayUpdates
+		<- overlayUpdates
+		cancel()
 		log.Println("received an overlay update")
-		quit <- true
 	}
 }
 
@@ -125,7 +121,7 @@ func (s *Scheduler) configureIngestionSecret(init bool) error {
 	return nil
 }
 
-func (s *Scheduler) watchBucketUpdates(locationType string, quit chan bool) error {
+func (s *Scheduler) watchBucketUpdates(ctx context.Context, locationType string) error {
 	locationBson, err := s.getCosmosLocationBson(locationType)
 	if err != nil {
 		return err
@@ -135,11 +131,12 @@ func (s *Scheduler) watchBucketUpdates(locationType string, quit chan bool) erro
 		return nil
 	}
 	ch := make(chan BucketTransaction)
+	defer close(ch)
 	go func() {
 		collection := s.MongodbClient.Database(s.Database).Collection("__metastore")
-		ctx, cancel := context.WithCancel(context.Background())
+		watch, cancel := context.WithCancel(ctx)
 		defer cancel()
-		cur, err := collection.Watch(ctx, mongo.Pipeline{
+		cur, err := collection.Watch(watch, mongo.Pipeline{
 			{{"$match", bson.D{
 				{"$or", locationBson},
 				{"fullDocument.value.ingestion.status", "enabled"},
@@ -152,11 +149,11 @@ func (s *Scheduler) watchBucketUpdates(locationType string, quit chan bool) erro
 				{"fullDocument.value.deleted", 1},
 			}}},
 		})
-		defer cur.Close(ctx)
+		defer cur.Close(watch)
 		if err != nil {
 			log.Fatal("error watching buckets", err)
 		}
-		for cur.Next(ctx) {
+		for cur.Next(watch) {
 			var elem BucketTransaction
 			if err := cur.Decode(&elem); err != nil {
 				log.Fatal("error decoding bucket", err)
@@ -164,12 +161,13 @@ func (s *Scheduler) watchBucketUpdates(locationType string, quit chan bool) erro
 			ch <- elem
 		}
 		if err := cur.Err(); err != nil {
-			log.Fatal("cursor error watching buckets: ", err)
+			log.Println("cursor error watching buckets: ", err)
+			return
 		}
 	}()
 	for {
 		select {
-		case <-quit:
+		case <-ctx.Done():
 			return nil
 		case bucket := <-ch:
 			s.applyChanges(&bucket)
@@ -177,12 +175,13 @@ func (s *Scheduler) watchBucketUpdates(locationType string, quit chan bool) erro
 	}
 }
 
-func (s *Scheduler) watchOverlayUpdates() (chan interface{}, error) {
+func (s *Scheduler) watchOverlayUpdates(ctx context.Context) (chan interface{}) {
 	ch := make(chan interface{})
 	go func() {
 		collection := s.Pensieve.GetCollection()
-		ctx := context.Background()
-		cur, err := collection.Watch(ctx,
+		watch, cancel := context.WithCancel(ctx)
+		defer cancel()
+		cur, err := collection.Watch(watch,
 			mongo.Pipeline{
 				{{"$match", bson.D{
 					{"fullDocument._id", primitive.Regex{
@@ -191,18 +190,15 @@ func (s *Scheduler) watchOverlayUpdates() (chan interface{}, error) {
 					}},
 				}}},
 			}, options.ChangeStream())
-		defer cur.Close(ctx)
+		defer cur.Close(watch)
 		if err != nil {
 			log.Fatal("error watching overlays: ", err)
 		}
 
 		log.Println("waiting for overlay updates")
 		// cur.Next is a blocking operation
-		for cur.Next(ctx) {
+		for cur.Next(watch) {
 			ch <- "overlay update"
-		    if err := cur.Err(); err != nil {
-				log.Fatal("error in cursor:", err)
-			}
 			// check for any credential updates
 			s.configureIngestionSecret(false)
 		}
@@ -210,7 +206,7 @@ func (s *Scheduler) watchOverlayUpdates() (chan interface{}, error) {
 			log.Fatal("cursor error watching overlay updates: ", err)
 		}
 	}()
-	return ch, nil
+	return ch
 }
 
 func (s *Scheduler) getIngestionSecret() (map[string][]byte) {
