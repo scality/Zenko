@@ -127,6 +127,9 @@ func (s *Scheduler) configureIngestionSecret(init bool) error {
 	return nil
 }
 
+// watchBucketUpdates will watch for any new "mirror mode" buckets created in the "__metastore".
+// A new bucket created in a supported BucketTransaction.LocationType will send the transaction
+// on the returned channel.
 func (s *Scheduler) watchBucketUpdates(ctx context.Context) (chan BucketTransaction) {
 	ch := make(chan BucketTransaction)
 	go func() {
@@ -167,6 +170,9 @@ func (s *Scheduler) watchBucketUpdates(ctx context.Context) (chan BucketTransact
 	return ch
 }
 
+// watchOverlayUpdates watches for any new configuration overlays inserted into the
+// 'PENSIEVE' collection. It returns a channel interface that will send on every
+// new overlay update recieved.
 func (s *Scheduler) watchOverlayUpdates(ctx context.Context) (chan interface{}) {
 	ch := make(chan interface{})
 	go func() {
@@ -199,6 +205,8 @@ func (s *Scheduler) watchOverlayUpdates(ctx context.Context) (chan interface{}) 
 	return ch
 }
 
+// getIngestionSecret returns a key value map with 'accessKey' and 'secretKey'.
+// The keys are strings and the values are byte arrays.
 func (s *Scheduler) getIngestionSecret() (map[string][]byte) {
 	secrets, err := s.KubeClientset.CoreV1().
 		Secrets(s.Namespace).Get(s.SecretName, metav1.GetOptions{})
@@ -211,6 +219,8 @@ func (s *Scheduler) getIngestionSecret() (map[string][]byte) {
 	return nil
 }
 
+// setIngestionSecret creates or updates a Kubernetes secret from arguments accessKey and secretKey.
+// The bool argument can be used to patch an existing secret.
 func (s *Scheduler) setIngestionSecret(accessKey string, secretKey string, patch bool) error {
 	kubeSecret := &v1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
@@ -295,6 +305,9 @@ func (s *Scheduler) getCosmosLocationBson(locationType string) (bson.A, error) {
 	return ret, nil
 }
 
+// applyChanges will create a new cosmos custom resource based off the given *BucketTransaction. If
+// the *BucketTransaction is in response to a bucket deletion in Zenko, then any existing custom
+// resource labeled with the bucket will be removed.
 func (s *Scheduler) applyChanges(bucket *BucketTransaction) {
 	location, err := s.Pensieve.GetLocationWithName(bucket.FullDocument.Value.LocationConstraint)
     if err != nil {
@@ -321,8 +334,9 @@ func (s *Scheduler) applyChanges(bucket *BucketTransaction) {
 	return
 }
 
-// Check for existing Cosmos on specified location labeled with the given bucket.
-// Currently only 1 ingestion bucket is supported per location
+// checkForCosmos looks for existing Cosmos custom resources on specified
+// *pensieve.Location labeled with the given bucket string. Currently only 1 ingestion
+// bucket is supported per location.
 func (s *Scheduler) checkForCosmos(location *pensieve.Location, bucket string) bool {
 	cosmos, err := s.KubeAlpha.Cosmoses(s.Namespace).List(metav1.ListOptions{
 		LabelSelector: "bucket="+bucket,
@@ -337,7 +351,7 @@ func (s *Scheduler) checkForCosmos(location *pensieve.Location, bucket string) b
 	return false
 }
 
-// createCosmosFromLocation creates a new Cosmos CR using data from a
+// createCosmosFromLocation creates a new Cosmos custom resource using data from a
 // *MongodbURL.Location. It assumes the location to be of type "NFS".
 func (s *Scheduler) createCosmosFromLocation(location *pensieve.Location, bucket string) error {
 	nfs := pensieve.NewNFSLocation(location.Details.Endpoint)
