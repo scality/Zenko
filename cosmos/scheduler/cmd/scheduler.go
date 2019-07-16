@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -176,13 +177,20 @@ func (s *Scheduler) watchBucketUpdates(locationType string, quit chan bool) erro
 	}
 }
 
-
 func (s *Scheduler) watchOverlayUpdates() (chan interface{}, error) {
 	ch := make(chan interface{})
 	go func() {
 		collection := s.Pensieve.GetCollection()
 		ctx := context.Background()
-		cur, err := collection.Watch(ctx, mongo.Pipeline{}, options.ChangeStream())
+		cur, err := collection.Watch(ctx,
+			mongo.Pipeline{
+				{{"$match", bson.D{
+					{"fullDocument._id", primitive.Regex{
+						Pattern: "configuration/overlay/",
+						Options: "m",
+					}},
+				}}},
+			}, options.ChangeStream())
 		defer cur.Close(ctx)
 		if err != nil {
 			log.Fatal("error watching overlays: ", err)
