@@ -265,7 +265,7 @@ stages:
           TILLER_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
           INSTALL_TIMEOUT: "720"
           ARTIFACTS_NAME: '%(prop:artifacts_name)s'
-          PYTHON_ARGS: "--junit-xml=junit-${STAGE}.xml"
+          PYTHON_ARGS: "-k test_cosmos_nfs_ingest --junit-xml=junit-${STAGE}.xml"
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
     - ShellCommand: *k8s_cleanup
