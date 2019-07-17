@@ -9,6 +9,7 @@ Zenko offers the following services as Backbeat extensions:
    Replication Service<Replication_Service>
    Lifecycle Management Service<lifecycle_management/Lifecycle_Management_Service>
    Metadata Search<../Metadata_Search/Metadata_Search>
+   Out-of-Band Updates<out-of-band_updates>
 
 More services are under development.
 

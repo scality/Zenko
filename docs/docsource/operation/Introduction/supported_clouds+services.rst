@@ -41,13 +41,6 @@ metadata from servers using the following protocols:
   configuration process or from the command line. Because NFS does not maintain
   an object-store namespace, Zenko extrapolates one using out-of-band updates.
 
-* Server Message Block/Common Internet File System (SMB/CIFS)
-
-  Zenko has been shown to be able to ingest data and extrapolate metadata out of
-  band from file systems over the SMB protoocol. Support for this requires
-  manual configuration as described in the "Adding CIFS Storage" section of the
-  *Installation Guide*.
-
 Other sources are under development. 
 
 Supported Targets
@@ -72,5 +65,5 @@ private and public clouds:
    * Google Cloud Storage
    * Microsoft Azure Storage
 
-Zenko cannot write to non-object-store endpoints such as SMB or NFS at this
-time.  Other target clouds and services are under development.
+Zenko cannot write to non-object-store endpoints such as NFS at this
+time. Other target clouds and services are under development.

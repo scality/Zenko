@@ -88,10 +88,10 @@ To upgrade Zenko:
 Upgrading from 1.0.x to 1.1.x
 -----------------------------
 
-Zenko 1.0.x versions use MongoDB version 3.4, which has been upgraded to 3.6
-in Zenko 1.1.x. Although upgrades using the commands above will work, some
-new features, specifically Cosmos (NFS and CIFS/SMB integration) may not
-function with MongoDB 3.4.
+Zenko 1.0.x versions use MongoDB version 3.4, which has been upgraded to 3.6 in
+Zenko 1.1.x. Although upgrades using the commands above will work, some new
+features, specifically Cosmos (NFS integration) may not function with MongoDB
+3.4.
 
 To upgrade from 1.0.x to 1.1:
 
