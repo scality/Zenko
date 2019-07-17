@@ -23,8 +23,8 @@ chart located there.
 Prerequisites
 -------------
 
-Before installing this chart, you must have either a Zenko or
-standalone CloudServer instance running under Kubernetes.
+Before installing this chart, you must have either a Zenko or standalone
+CloudServer instance running under Kubernetes.
 
 Deploy Cosmos
 -------------
@@ -36,8 +36,8 @@ To install the chart with the release name “my-release”:
     $ helm install --name my-release .
 
 The command deploys Cosmos on the Kubernetes cluster in the default
-configuration. The Parameters_ section lists 
-parameters that can be configured during installation.
+configuration. The Parameters_ section lists parameters that can be configured
+during installation.
 
 .. Tip:: List all releases using ``helm list``
 
@@ -45,8 +45,8 @@ parameters that can be configured during installation.
 Parameters
 ~~~~~~~~~~
 
-The following table lists the Cosmos chart’s configurable parameters
-and their default values.
+The following table lists the Cosmos chart’s configurable parameters and their
+default values.
 
 .. tabularcolumns:: X{0.32\textwidth}X{0.32\textwidth}X{0.32\textwidth}
 .. table::
@@ -143,19 +143,25 @@ parameters can be provided while installing the chart. For example,
       Use the default values.yaml file from the Zenko
       source at ~/Zenko/kubernetes/cosmos/values.yaml
 
-Configure Cosmos on a Zenko Instance
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- 
-To configure Cosmos on a Zenko instance, perform the following steps
-from `Orbit <https://admin.zenko.io>`_.
- 
+Configure Cosmos
+----------------
+
+To configure Cosmos with a Zenko instance:
+
 #. From `Orbit <https://admin.zenko.io/user>`__, create an NFS mount storage
-   location (see "Adding a Storage Location" in *Zenko Operation and
+   location (see "Adding a Storage Location" in *Zenko Operation and 
    Architecture*.)
- 
+
+   .. note:: 
+
+      In the CIFS/SMB use case, the NFS protocol and NFS version are ignored
+      and all configuration is through the config file below.
+
 #. Copy and save the location name.
 
-#. Create a bucket in this location.
+#. Create a bucket in this location. At the **Location Constraint**
+   prompt, you will see two instances of the NFS server. Select the NFS
+   server at the desired location that has **Mirror mode** enabled.
 
 #. Copy and save the bucket name.
 
@@ -171,136 +177,65 @@ from `Orbit <https://admin.zenko.io>`_.
       # Values from Orbit
       export ACCESS_KEY=<your-cosmos-user-access-key>
       export SECRET_KEY=<your-cosmos-user-secret-key>
-      export NFS_BUCKET=<your-cosmos-bucket-name>
-      export NFS_LOCATION=<your-nfs-mount-location-name>
- 
-      # Values of your NFS mount point
-      export NFS_HOST=<your-nfs-server-host>
-      export NFS_EXPORT_PATH=<your-nfs-server-path>
- 
-      # Cloudserver endpoint (assuming it's running on the same namespace)
+      export SMB_BUCKET=<your-cosmos-bucket-name>
+      export SMB_LOCATION=<your-storage-location-name>
+
+      # Values of your SMB share
+      export SMB_HOST=<your-smb-host>
+      export SMB_PATH=<your-smb-path>
+
+      # Cloudserver endpoint (assuming it is running on the same namespace)
       export CLOUDSERVER_ENDPOINT="http://$(kubectl get svc -l app=cloudserver -o jsonpath='{.items[*].metadata.name}')"
- 
-#. Create a Cosmos configuration file.
- 
-   .. code:: bash
- 
-      $ cat << EOF > custom-values.yaml
-       rclone:
-         destination:
-           accessKey: ${ACCESS_KEY}
-           secretKey: ${SECRET_KEY}
-           endpoint: ${CLOUDSERVER_ENDPOINT}
-           region: ${NFS_LOCATION}
-           bucket: ${NFS_BUCKET}
- 
-       persistentVolume:
-         enabled: true
-         volumeConfig:
-           nfs:
-             server: ${NFS_HOST}
-             path: ${NFS_EXPORT_PATH}
-             readOnly: false
-           # Any valid nfs mount option can be listed here
-           mountOptions: "nfsvers=3,rw"
-       EOF
-  
-6. Install Cosmos.
- 
-   .. code:: bash
 
-      $ helm install --name ${NFS_LOCATION} . -f custom-values.yaml
-  
-   .. important:: 
-      Your Cosmos installation’s release name *must* match your NFS mount 
-      location name. Do not name the release or the location “cosmos”.
-
-
-Configure Cosmos on a Standalone CloudServer
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. Note:: This example assumes the CloudServer installation
-   release is named “cloudserver”. 
-
-1. Export common variables between both charts.
+#. Create a secret to store the CIFS/SMB account name and password:
 
    .. code:: bash
 
-      $ export COSMOS_RELEASE_NAME=blue-sky
-      $ export NFS_LOCATION=nfs-1
-
-2. Configure the Cosmos location constraint in the 
-   ``locationValues.yaml`` file
+      $ kubectl create secret generic smbcreds --from-literal username='<USERNAME>' --from-literal password='<PASSWORD>' --type="microsoft.com/smb"
+      
+#. Create a Cosmos configuration file:
 
    .. code:: bash
 
-      $ cat << EOF > locationValues.yaml
-      api:
-        locationConstraints:
-          # Required default location
-          us-east-1:
-            type: file
-            objectId: us-east-1
-            legacyAwsBehavior: true
-            details: {}
-          # New Location
-          ${NFS_LOCATION}:
-            type: pfs
-            objectId: nfs-1
-            legacyAwsBehavior: true
-            details:
-              bucketMatch: true
-              pfsDaemonEndpoint:
-                host: ${COSMOS_RELEASE_NAME}-cosmos-pfsd
-                port: 80
-      EOF
-
-#. Upgrade the CloudServer chart using the ``locationValues.yaml`` file.
-
-   .. code:: bash
- 
-      $ helm upgrade cloudserver . -f locationValues.yaml
-
-#. Configure Cosmos values.
-
-   .. code:: bash
-
-      $ cat << EOF > destinationValues.yaml
+      $ cat << EOF > cifs-custom-values.yaml
       rclone:
-        destination:
-          accessKey: my-access-key
-          secretKey: my-secret-key
-          endpoint: http://cloudserver
-          region: ${NFS_LOCATION}
-          bucket: my-nfs-bucket # Bucket will be created if not present
+        remote:
+          accessKey: ${ACCESS_KEY}
+          secretKey: ${SECRET_KEY}
+          endpoint: ${CLOUDSERVER_ENDPOINT}
+          region: ${SMB_LOCATION}
+          bucket: ${SMB_BUCKET}
 
       persistentVolume:
         enabled: true
         volumeConfig:
-          nfs:
-            server: 10.100.1.42 # IP address of your NFS server
-            path: /data # NFS export
-            readOnly: false
-          # Any valid nfs mount option can be listed here
-          mountOptions: "nfsvers=3,rw"
-      persistentVolume:
+          flexVolume:
+            driver: "microsoft.com/smb"
+            secretRef:
+              name: smbcreds
+            options:
+              source: "//${SMB_HOST}/${SMB_PATH}"
+              # The mount options can be configured however necessary
+              mountoptions: "vers=3.0,dir_mode=0777,file_mode=0777"
       EOF
 
-#. Install Cosmos.
+#. Install Cosmos
 
    .. code:: bash
 
-      $ helm install --name ${COSMOS_RELEASE_NAME} . -f destinationValues.yaml
+      $ helm install --name ${SMB_LOCATION} . -f cifs-custom-values.yaml
+
+   .. important:: 
+      Your Cosmos installation’s release name *must* match your NFS mount 
+      location name. Do not name the release or the location “cosmos”.
 
 #. Manually trigger sync (optional)
 
-   This chart deploys a Kubernetes Job object at installation to
-   begin a metadata sync immediately. Additionally, a Kubernetes
-   CronJob object is deployed, which periodically launches rclone jobs
-   to sync any additional metadata changes. The job schedule can be
-   configured with the rclone.schedule field in the values.yaml file. 
-   To trigger the job manually, run the following command:
+   This chart deploys a Kubernetes CronJob object, which periodically launches
+   rclone jobs to sync metadata. The job schedule can be configured with
+   the ``rclone.schedule`` field in the ``values.yaml`` file. To trigger the
+   job manually, run the following command:
 
    .. code:: bash
 
-      $ kubectl create job my-job-name --from=cronjob/my-release-cosmos-rclone
+      $ kubectl create job my-job-name --from=cronjob/${SMB_LOCATION}-cosmos-rclone
