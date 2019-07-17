@@ -64,6 +64,10 @@ models:
       env:
         HELM_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
   - env: &secrets_env # contains values used for test config
+      ARTIFACTS_USER: '%(secret:artifacts_user)s'
+      ARTIFACTS_PASSWORD: '%(secret:artifacts_password)s'
+      ARTIFACTS_URL: '%(secret:artifacts_url)s'
+
       AWS_ENDPOINT: https://s3.amazonaws.com
       AWS_ACCESS_KEY: '%(secret:aws_s3_backend_access_key)s'
       AWS_SECRET_KEY: '%(secret:aws_s3_backend_secret_key)s'
@@ -202,6 +206,7 @@ stages:
           HELM_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
           TILLER_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
           INSTALL_TIMEOUT: "600"
+          ARTIFACTS_NAME: '%(prop:artifacts_name)s'
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
     - ShellCommand: *k8s_cleanup
