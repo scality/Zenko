@@ -42,7 +42,7 @@ if K8S_NAMESPACE is None:
         raise RuntimeError('Unable to determine Zenko K8s namespace')
 
 
-ZENKO_HELM_RELEASE = os.getenv('ZENKO_HELM_RELEASE', None)
+ZENKO_HELM_RELEASE = get_env('ZENKO_HELM_RELEASE', 'zenko-test')
 
 ZENKO_ENDPOINT = get_env('CLOUDSERVER_FRONT_ENDPOINT',
                          'http://%s-cloudserver:80' % ZENKO_HELM_RELEASE)

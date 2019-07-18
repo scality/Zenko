@@ -25,4 +25,3 @@ Zenko instance can access and manage these namespaces.
    set_up_NFS_for_OOB
    set_up_CIFS_for_OOB
    configure_cosmos_for_OOB
-

@@ -5,7 +5,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/mongodb/mongo-go-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 
 	"github.com/scality/zenko/cosmos/api/types/v1alpha1"
 	clientV1alpha1 "github.com/scality/zenko/cosmos/clientset/v1alpha1"
@@ -49,12 +51,18 @@ func init() {
 }
 
 func main() {
+	mongoOptions := options.Client()
+	mongoOptions.SetAppName("cosmos-scheduler")
+	mongoOptions.SetReadPreference(readpref.Secondary())
+	mongoOptions.ApplyURI("mongodb://"+viper.GetString("mongodb_hosts"))
+	
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
-	mongoClient, err := mongo.Connect(ctx, "mongodb://"+viper.GetString("mongodb_hosts"))
+	mongoClient, err := mongo.Connect(ctx, mongoOptions)
 	if err != nil {
-		panic(err.Error())
+		log.Fatal("error connecting to MongoDB: ", err.Error())
 	}
+
 	var config *rest.Config
 	kubeconfig := viper.GetString("kubeconfig")
 	if kubeconfig == "" {

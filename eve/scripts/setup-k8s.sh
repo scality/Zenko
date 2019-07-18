@@ -1,5 +1,5 @@
 #!/bin/sh
-set -ex
+set -e
 
 echo "Replacing existing credentials"
 rm -rf /root/.kube
@@ -27,14 +27,14 @@ metadata:
   name: ${NAMESPACE}-cosmos-operator
   labels:
     app: cosmos-operator
-    release: zenko-offline
+    release: zenko-test
 subjects:
 - kind: ServiceAccount
-  name: zenko-offline-cosmos-operator
+  name: zenko-test-cosmos-operator
   namespace: ${NAMESPACE}
 roleRef:
   kind: ClusterRole
-  name: zenko-offline-cosmos-operator
+  name: zenko-test-cosmos-operator
   apiGroup: rbac.authorization.k8s.io
 EOF
 
