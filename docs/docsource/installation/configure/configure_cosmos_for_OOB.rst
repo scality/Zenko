@@ -149,8 +149,7 @@ Configure Cosmos
 To configure Cosmos with a Zenko instance:
 
 #. From `Orbit <https://admin.zenko.io/user>`__, create an NFS mount storage
-   location (see "Adding a Storage Location" in *Zenko Operation and 
-   Architecture*.)
+   location (see "Adding a Storage Location" in *Zenko Operation*.)
 
    .. note:: 
 
@@ -159,9 +158,9 @@ To configure Cosmos with a Zenko instance:
 
 #. Copy and save the location name.
 
-#. Create a bucket in this location. At the **Location Constraint**
-   prompt, you will see two instances of the NFS server. Select the NFS
-   server at the desired location that has **Mirror mode** enabled.
+#. Create a bucket in this location. At the **Location Type** prompt, you will
+   see two instances of the NFS server. Select the NFS server at the desired
+   location that has **Mirror mode** enabled.
 
 #. Copy and save the bucket name.
 
@@ -169,8 +168,10 @@ To configure Cosmos with a Zenko instance:
 
 #. Copy and save the storage account's access and secret keys.
 
-#. Open the Kubernetes master from the command line. Export the
-   following variables, entering information from the previous steps:
+#. Open the Kubernetes master from the command line. Export the following
+   variables, entering information from the previous steps. 
+   
+   For an SMB location:
 
    .. code:: bash
 
@@ -187,6 +188,22 @@ To configure Cosmos with a Zenko instance:
       # Cloudserver endpoint (assuming it is running on the same namespace)
       export CLOUDSERVER_ENDPOINT="http://$(kubectl get svc -l app=cloudserver -o jsonpath='{.items[*].metadata.name}')"
 
+   For an NFS location:
+
+   .. code:: bash
+
+      export ACCESS_KEY=<your-cosmos-user-access-key>
+      export SECRET_KEY=<your-cosmos-user-secret-key>
+      export NFS_BUCKET=<your-cosmos-bucket-name>
+      export NFS_LOCATION=<your-nfs-mount-location-name>
+
+      # Values of your NFS mount point	
+      export NFS_HOST=<your-nfs-server-host>	
+      export NFS_EXPORT_PATH=<your-nfs-server-path>	
+      
+      # Cloudserver endpoint (assuming it is running on the same namespace)
+      export CLOUDSERVER_ENDPOINT="http://$(kubectl get svc -l app=cloudserver -o jsonpath='{.items[*].metadata.name}')"
+
 #. Create a secret to store the CIFS/SMB account name and password:
 
    .. code:: bash
@@ -194,6 +211,8 @@ To configure Cosmos with a Zenko instance:
       $ kubectl create secret generic smbcreds --from-literal username='<USERNAME>' --from-literal password='<PASSWORD>' --type="microsoft.com/smb"
       
 #. Create a Cosmos configuration file:
+
+   For SMB:
 
    .. code:: bash
 
@@ -219,11 +238,44 @@ To configure Cosmos with a Zenko instance:
               mountoptions: "vers=3.0,dir_mode=0777,file_mode=0777"
       EOF
 
+   For NFS:
+
+   .. code:: bash
+
+      $ cat << EOF > destinationvalues.yaml
+      rclone:
+        destination:
+          accessKey: ${ACCESS_KEY}
+          secretKey: ${SECRET_KEY}
+          endpoint: ${CLOUDSERVER_ENDPOINT}
+          region: ${NFS_LOCATION}
+          bucket: ${NFS_BUCKET} # Bucket will be created if not present
+
+      persistentVolume:
+        enabled: true
+        volumeConfig:
+          nfs:
+            server: 10.100.1.42 # IP address of your NFS server
+            path: /data # NFS export
+            readOnly: false
+          # Any valid nfs mount option can be listed here
+          mountOptions: "nfsvers=3,rw"
+      persistentVolume:    
+      EOF
+   
 #. Install Cosmos
+
+   For the SMB values above, run: 
 
    .. code:: bash
 
       $ helm install --name ${SMB_LOCATION} . -f cifs-custom-values.yaml
+
+   For the NFS values above, run:
+
+   .. code:: bash
+
+      $ helm install --name ${COSMOS_RELEASE_NAME} . -f destinationValues.yaml
 
    .. important:: 
       Your Cosmos installation’s release name *must* match your NFS mount 
