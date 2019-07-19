@@ -16,24 +16,26 @@
     "aws-sdk": "2.60.0",
     "azure-storage": "^2.10.0",
     "mocha": "^5.2.0",
+    "mocha-multi-reporters": "^1.1.7",
+    "mocha-junit-reporter": "^1.23.1",
     "mocha-tags": "^1.0.1",
     "npm-run-all": "~4.0.2",
     "request": "^2.87.0",
     "uuid": "^3.0.1"
   },
   "scripts": {
-    "test_aws_crr": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 backbeat/tests/crr/awsBackend.js",
-    "test_azure_crr": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 backbeat/tests/crr/azureBackend.js",
-    "test_gcp_crr": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 backbeat/tests/crr/gcpBackend.js",
-    "test_one_to_many": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 backbeat/tests/crr/oneToMany.js",
+    "test_aws_crr": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --reporter mocha-multi-reporters --reporter-options configFile=config.json  backbeat/tests/crr/awsBackend.js",
+    "test_azure_crr": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --reporter mocha-multi-reporters --reporter-options configFile=config.json  backbeat/tests/crr/azureBackend.js",
+    "test_gcp_crr": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --reporter mocha-multi-reporters --reporter-options configFile=config.json  backbeat/tests/crr/gcpBackend.js",
+    "test_one_to_many": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --reporter mocha-multi-reporters --reporter-options configFile=config.json backbeat/tests/crr/oneToMany.js",
     "test_crr": "npm-run-all test_aws_crr test_azure_crr test_gcp_crr test_one_to_many",
-    "test_api": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --recursive backbeat/tests/api",
-    "test_retry": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --recursive backbeat/tests/retry",
-    "test_crr_pause_resume": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --recursive backbeat/tests/crr-pause-resume",
-    "test_lifecycle": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --recursive backbeat/tests/lifecycle",
-    "test_ingestion_oob_s3c": "mocha --tags ${MOCHA_TAGS} --exit -t 300000 --recursive backbeat/tests/ingestion",
-    "test_location_quota": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --recursive cloudserver/locationQuota/tests",
-    "test_bucket_get_v2": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --recursive cloudserver/bucketGetV2/tests"
+    "test_api": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --reporter mocha-multi-reporters --reporter-options configFile=config.json --recursive backbeat/tests/api",
+    "test_retry": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --reporter mocha-multi-reporters --reporter-options configFile=config.json --recursive backbeat/tests/retry",
+    "test_crr_pause_resume": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --reporter mocha-multi-reporters --reporter-options configFile=config.json --recursive backbeat/tests/crr-pause-resume",
+    "test_lifecycle": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --reporter mocha-multi-reporters --reporter-options configFile=config.json --recursive backbeat/tests/lifecycle",
+    "test_ingestion_oob_s3c": "mocha --tags ${MOCHA_TAGS} --exit -t 300000 --reporter mocha-multi-reporters --reporter-options configFile=config.json --recursive backbeat/tests/ingestion",
+    "test_location_quota": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --reporter mocha-multi-reporters --reporter-options configFile=config.json  --recursive cloudserver/locationQuota/tests",
+    "test_bucket_get_v2": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --reporter mocha-multi-reporters --reporter-options configFile=config.json --recursive cloudserver/bucketGetV2/tests"
   },
   "author": ""
 }
