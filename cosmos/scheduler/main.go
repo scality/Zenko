@@ -21,7 +21,6 @@ import (
 )
 
 const (
-	metadataDatabase   = "metadata"
 	pensieveCollection = "PENSIEVE"
 )
 
@@ -36,6 +35,9 @@ func init() {
 
 	viper.SetDefault("mongodb_hosts", "localhost:27017")
 	viper.BindEnv("mongodb_hosts")
+
+	viper.SetDefault("mongodb_database", "metadata")
+	viper.BindEnv("MONGODB_DATABASE")
 
 	viper.SetDefault("cloudserver_endpoint", "localhost:8000")
 	viper.BindEnv("cloudserver_endpoint")
@@ -62,6 +64,7 @@ func main() {
 	if err != nil {
 		log.Fatal("error connecting to MongoDB: ", err.Error())
 	}
+	pensieveCollection := mongoClient.Database(viper.GetString("mongodb_database")).Collection(pensieveCollection)
 
 	var config *rest.Config
 	kubeconfig := viper.GetString("kubeconfig")
@@ -94,7 +97,8 @@ func main() {
 	(&scheduler.Scheduler{
 		KubeAlpha:         kubeAlpha,
 		KubeClientset:     kubeClient,
-		Pensieve:          pensieve.NewHelper(mongoClient.Database(viper.GetString("mongodb_database")).Collection(pensieveCollection)),
+		Pensieve:          pensieve.NewHelper(pensieveCollection),
+		Database:          viper.GetString("mongodb_database"),
 		Namespace:         viper.GetString("namespace"),
 		NodeCount:         viper.GetString("node_count"),
 		Cloudserver:       viper.GetString("cloudserver_endpoint"),

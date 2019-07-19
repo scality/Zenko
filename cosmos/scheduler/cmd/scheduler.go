@@ -24,6 +24,7 @@ type Scheduler struct {
 	KubeAlpha         *clientV1alpha1.ExampleV1Alpha1Client
 	KubeClientset     *kubernetes.Clientset
 	Pensieve          *pensieve.Helper
+	Database          string
 	Namespace         string
 	NodeCount         string
 	Cloudserver       string
@@ -134,7 +135,7 @@ func (s *Scheduler) watchBucketUpdates(locationType string, quit chan bool) erro
 	}
 	ch := make(chan BucketTransaction)
 	go func() {
-		collection := s.MongodbClient.Database("metadata").Collection("__metastore")
+		collection := s.MongodbClient.Database(s.Database).Collection("__metastore")
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 		cur, err := collection.Watch(ctx, mongo.Pipeline{
@@ -179,7 +180,7 @@ func (s *Scheduler) watchBucketUpdates(locationType string, quit chan bool) erro
 func (s *Scheduler) watchOverlayUpdates() (chan interface{}, error) {
 	ch := make(chan interface{})
 	go func() {
-		collection := s.MongodbClient.Database("metadata").Collection("PENSIEVE")
+		collection := s.Pensieve.GetCollection()
 		ctx := context.Background()
 		cur, err := collection.Watch(ctx, mongo.Pipeline{}, options.ChangeStream())
 		defer cur.Close(ctx)

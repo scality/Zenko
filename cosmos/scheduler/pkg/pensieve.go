@@ -54,6 +54,11 @@ func NewHelper(pensieve *mongo.Collection) *Helper {
 	return &Helper{collection: pensieve}
 }
 
+// GetCollection returns the collection of an instanciated pensieve *Helper
+func (pensieve *Helper) GetCollection() *mongo.Collection {
+	return pensieve.collection
+}
+
 // GetLatestOverlayVersion returns an int representing the latest overlay
 // version or an error.
 func (pensieve *Helper) GetLatestOverlayVersion() (int, error) {
