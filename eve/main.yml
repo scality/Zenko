@@ -151,12 +151,17 @@ stages:
     steps:
     - TriggerStages:
         name: trigger all the tests
-        haltOnFailure: true
         stage_names:
         - build-doc
         - python-tests
         - node-tests-01
         - node-tests-02
+
+    - TriggerStages:
+        name: testrail report
+        stage_names:
+          - testrail-upload
+        alwaysRun: true
 
   build-doc:
     worker:
@@ -256,3 +261,28 @@ stages:
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
     - ShellCommand: *k8s_cleanup
+
+  testrail-upload:
+    worker:
+      type: kube_pod
+      path: eve/workers/testrail/pod.yaml
+      images:
+        testrail: eve/workers/testrail
+    steps:
+      - ShellCommand:
+          name: setup testrail cli
+          command: |-
+            git clone --branch 1.0.0_alpha1 git@bitbucket.org:scality/test_tools.git .
+            pip install -r testrail/requirements.txt
+          warnOnFailure: true
+          flunkOnFailure: false
+
+      - ShellCommand:
+          name: upload reports
+          command: ./testrail.py -r "%(prop:artifacts_private_url)s/junit/" -n "%(prop:bootstrap)s"
+          workdir: build/testrail/
+          env:
+            TESTRAIL_LOGIN: '%(secret:testrail_login)s'
+            TESTRAIL_KEY: '%(secret:testrail_key)s'
+          warnOnFailure: true
+          flunkOnFailure: false
