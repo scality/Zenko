@@ -151,12 +151,17 @@ stages:
     steps:
     - TriggerStages:
         name: trigger all the tests
-        haltOnFailure: true
         stage_names:
         - build-doc
         - python-tests
         - node-tests-01
         - node-tests-02
+
+    - TriggerStages:
+        name: testrail report
+        stage_names:
+          - testrail-upload
+        alwaysRun: true
 
   build-doc:
     worker:
@@ -256,3 +261,17 @@ stages:
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
     - ShellCommand: *k8s_cleanup
+
+  testrail-upload:
+    worker:
+      type: kube_pod
+      path: eve/workers/testrail.yaml
+    steps:
+      - ShellCommand:
+          name: upload reports
+          command: testrail -r "%(prop:artifacts_private_url)s/junit/" -n "%(prop:bootstrap)s"
+          env:
+            TESTRAIL_LOGIN: '%(secret:testrail_login)s'
+            TESTRAIL_KEY: '%(secret:testrail_key)s'
+          warnOnFailure: true
+          flunkOnFailure: false
