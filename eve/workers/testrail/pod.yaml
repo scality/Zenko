@@ -6,7 +6,8 @@ metadata:
 spec:
   containers:
     - name: testrail
-      image: "{{ images.testrail }}"
+      image: registry.oci.scality.net/testrail/testrail:0.0.1-alpha1
+      command: ["/bin/sh", "-c", "buildbot-worker create-worker . ${BUILDMASTER}:${BUILDMASTER_PORT} ${WORKERNAME} ${WORKERPASS} && buildbot-worker start --nodaemon"]
       resources:
         requests:
           cpu: "250m"
