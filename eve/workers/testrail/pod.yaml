@@ -1,0 +1,22 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: worker
+spec:
+  containers:
+    - name: testrail
+      image: "{{ images.testrail }}"
+      resources:
+        requests:
+          cpu: "250m"
+          memory: 1Gi
+        limits:
+          cpu: "1"
+          memory: 1Gi
+      volumeMounts:
+        - name: worker-workspace
+          mountPath: "%(prop:builddir)s"
+  volumes:
+    - name: worker-workspace
+      emptyDir: {}
