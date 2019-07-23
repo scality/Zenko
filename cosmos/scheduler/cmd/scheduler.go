@@ -19,6 +19,9 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 )
+const (
+	nfsLocation = "location-nfs-mount-v1"
+)
 
 // Scheduler represents a Cosmos Scheduler instance
 type Scheduler struct {
@@ -61,13 +64,16 @@ func (s *Scheduler) Run() {
 	}
 
 	overlayUpdates := s.watchOverlayUpdates(context.Background())
+	bucketCh := s.watchBucketUpdates(context.Background())
 	for {
-		ctx, cancel := context.WithCancel(context.Background())
-		go s.watchBucketUpdates(ctx, "location-nfs-mount-v1")
-		// blocks until an overlay update is recieved on the overlayUpdates channel
-		<- overlayUpdates
-		cancel()
-		log.Println("received an overlay update")
+		select {
+		case bucket := <-bucketCh:
+			s.applyChanges(&bucket)
+		case <-overlayUpdates:
+			log.Println("received an overlay update")
+			// check for any credential updates
+			s.configureIngestionSecret(false)
+		}
 	}
 }
 
@@ -121,24 +127,14 @@ func (s *Scheduler) configureIngestionSecret(init bool) error {
 	return nil
 }
 
-func (s *Scheduler) watchBucketUpdates(ctx context.Context, locationType string) error {
-	locationBson, err := s.getCosmosLocationBson(locationType)
-	if err != nil {
-		return err
-	}
-	// if there are no locations then there are no buckets to watch
-	if len(locationBson) == 0 {
-		return nil
-	}
+func (s *Scheduler) watchBucketUpdates(ctx context.Context) (chan BucketTransaction) {
 	ch := make(chan BucketTransaction)
-	defer close(ch)
 	go func() {
 		collection := s.MongodbClient.Database(s.Database).Collection("__metastore")
 		watch, cancel := context.WithCancel(ctx)
 		defer cancel()
 		cur, err := collection.Watch(watch, mongo.Pipeline{
 			{{"$match", bson.D{
-				{"$or", locationBson},
 				{"fullDocument.value.ingestion.status", "enabled"},
 			}}},
 			{{"$project", bson.D{
@@ -153,26 +149,22 @@ func (s *Scheduler) watchBucketUpdates(ctx context.Context, locationType string)
 		if err != nil {
 			log.Fatal("error watching buckets", err)
 		}
+		log.Println("watching for bucket changes")
 		for cur.Next(watch) {
 			var elem BucketTransaction
 			if err := cur.Decode(&elem); err != nil {
 				log.Fatal("error decoding bucket", err)
 			}
-			ch <- elem
+			// check if the bucket change is in a supported cosmos location
+			if s.isCosmosLocation(&elem) {
+				ch <- elem
+			}
 		}
 		if err := cur.Err(); err != nil {
-			log.Println("cursor error watching buckets: ", err)
-			return
+			log.Fatal("cursor error watching buckets: ", err)
 		}
 	}()
-	for {
-		select {
-		case <-ctx.Done():
-			return nil
-		case bucket := <-ch:
-			s.applyChanges(&bucket)
-		}
-	}
+	return ch
 }
 
 func (s *Scheduler) watchOverlayUpdates(ctx context.Context) (chan interface{}) {
@@ -199,8 +191,6 @@ func (s *Scheduler) watchOverlayUpdates(ctx context.Context) (chan interface{}) 
 		// cur.Next is a blocking operation
 		for cur.Next(watch) {
 			ch <- "overlay update"
-			// check for any credential updates
-			s.configureIngestionSecret(false)
 		}
 		if err := cur.Err(); err != nil {
 			log.Fatal("cursor error watching overlay updates: ", err)
@@ -252,6 +242,45 @@ func (s *Scheduler) setIngestionSecret(accessKey string, secretKey string, patch
 	return nil
 }
 
+
+// isCosmosLocation checks if a given BucketTransaction is in a supported
+// Cosmos location type. This will also set the LocationType property of 
+// the BucketTransaction based off the location.LocationType. BucketTransaction
+// is expected to be not nil.
+func (s *Scheduler) isCosmosLocation(bucket *BucketTransaction) (bool) {
+	locationTypes := []string{
+		nfsLocation,
+	}
+	locations, err := s.Pensieve.GetLocationsWithTypes(locationTypes)
+	if err != nil {
+		log.Println("error from getCosmosLocation", err)
+		return false
+	}
+
+	for _, location := range locations {
+		if bucket.FullDocument.Value.LocationConstraint == location.Name {
+			bucket.LocationType = location.LocationType
+			return true
+		}
+	}
+	return false
+}
+
+
+// getCosmosLocation will return a string array of all locations of the given location type.
+func (s *Scheduler) getCosmosLocations(locationType string) ([]string, error) {
+	locations, err := s.Pensieve.GetLocationsWithTypes([]string{locationType})
+	if err != nil {
+		return nil, err
+	}
+	var ret []string
+	for _, location := range locations {
+		ret = append(ret, location.Name)
+	}
+	return ret, nil
+}
+
+// getCosmosLocationBson will return a bson map of all locations of the given location type.
 func (s *Scheduler) getCosmosLocationBson(locationType string) (bson.A, error) {
 	locations, err := s.Pensieve.GetLocationsWithTypes([]string{locationType})
 	if err != nil {
