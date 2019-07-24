@@ -54,6 +54,11 @@ func NewHelper(pensieve *mongo.Collection) *Helper {
 	return &Helper{collection: pensieve}
 }
 
+// GetCollection returns the collection of an instanciated pensieve *Helper
+func (pensieve *Helper) GetCollection() *mongo.Collection {
+	return pensieve.collection
+}
+
 // GetLatestOverlayVersion returns an int representing the latest overlay
 // version or an error.
 func (pensieve *Helper) GetLatestOverlayVersion() (int, error) {
@@ -202,7 +207,7 @@ func decryptKey(secretKey, privateKey string) (string, error) {
 }
 
 func (pensieve *Helper) queryID(id string) *mongo.SingleResult {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 	return pensieve.collection.FindOne(ctx, bson.M{"_id": id})
 }

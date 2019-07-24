@@ -21,7 +21,6 @@ import (
 )
 
 const (
-	metadataDatabase   = "metadata"
 	pensieveCollection = "PENSIEVE"
 )
 
@@ -36,6 +35,9 @@ func init() {
 
 	viper.SetDefault("mongodb_hosts", "localhost:27017")
 	viper.BindEnv("mongodb_hosts")
+
+	viper.SetDefault("mongodb_database", "metadata")
+	viper.BindEnv("MONGODB_DATABASE")
 
 	viper.SetDefault("cloudserver_endpoint", "localhost:8000")
 	viper.BindEnv("cloudserver_endpoint")
@@ -53,8 +55,8 @@ func init() {
 func main() {
 	mongoOptions := options.Client()
 	mongoOptions.SetAppName("cosmos-scheduler")
-	mongoOptions.SetReadPreference(readpref.Secondary())
 	mongoOptions.ApplyURI("mongodb://"+viper.GetString("mongodb_hosts"))
+	mongoOptions.SetReadPreference(readpref.Primary())
 	
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
@@ -62,6 +64,7 @@ func main() {
 	if err != nil {
 		log.Fatal("error connecting to MongoDB: ", err.Error())
 	}
+	pensieveCollection := mongoClient.Database(viper.GetString("mongodb_database")).Collection(pensieveCollection)
 
 	var config *rest.Config
 	kubeconfig := viper.GetString("kubeconfig")
@@ -73,21 +76,29 @@ func main() {
 		config, err = clientcmd.BuildConfigFromFlags("", kubeconfig)
 	}
 	if err != nil {
-		panic(err.Error())
+		log.Fatal("error accessing kubernetes: ", err)
 	}
+
 	err = v1alpha1.AddToScheme(scheme.Scheme)
 	if err != nil {
-		panic(err.Error())
+		log.Fatal("error adding scheme: ", err)
 	}
+
 	kubeAlpha, err := clientV1alpha1.NewForConfig(config)
 	if err != nil {
-		panic(err.Error())
+		log.Fatal("error creating alpha config: ", err)
 	}
+
 	kubeClient, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		log.Fatal("error creating kubernetes client: ", err)
+	}
+
 	(&scheduler.Scheduler{
 		KubeAlpha:         kubeAlpha,
 		KubeClientset:     kubeClient,
-		Pensieve:          pensieve.NewHelper(mongoClient.Database(metadataDatabase).Collection(pensieveCollection)),
+		Pensieve:          pensieve.NewHelper(pensieveCollection),
+		Database:          viper.GetString("mongodb_database"),
 		Namespace:         viper.GetString("namespace"),
 		NodeCount:         viper.GetString("node_count"),
 		Cloudserver:       viper.GetString("cloudserver_endpoint"),
