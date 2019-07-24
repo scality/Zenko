@@ -82,7 +82,9 @@ all future created NFS locations.
        # Run hourly
        schedule: "@hourly"
 
-This does not change the cron schedule on existing NFS locations.
+.. note::
+
+   This does not change the cron schedule on existing NFS locations.
 
 
 Modify Cron on Existing NFS Locations
