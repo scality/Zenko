@@ -7,7 +7,7 @@ into Kubernetes platform (MetalK8s) and Zenko functionality.
 Lifecycle Metrics
 -----------------
 
-The lifecycle trransition policies feature generates useful metrics, currently
+The lifecycle transition policies feature generates useful metrics, currently
 exposed through SoundCloud's Prometheus toolkit. Exposure through the Backbeat
 API is under development.
 
