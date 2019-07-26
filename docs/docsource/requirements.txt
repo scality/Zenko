@@ -4,6 +4,7 @@
 #
 #    tox -e pip-compile
 #
+-e git+https://github.com/scality/sphinx_scality@isabellefix1#egg=sphinx_scality
 alabaster==0.7.12 \
     --hash=sha256:446438bdcca0e05bd45ea2de1668c1d9b032e1a9154c2c259092d77031ddd359 \
     --hash=sha256:a661d72d58e6ea8a57f7a86e37d86716863ee5e92788398526d58b26a4e4dc02 \
@@ -12,9 +13,9 @@ babel==2.7.0 \
     --hash=sha256:af92e6106cb7c55286b25b38ad7695f8b4efb36a90ba483d7f7a6628c46158ab \
     --hash=sha256:e86135ae101e31e2c8ec20a4e0c5220f4eed12487d5cf3f78be7e98d3a57fc28 \
     # via sphinx
-certifi==2019.3.9 \
-    --hash=sha256:59b7658e26ca9c7339e00f8f4636cdfe59d34fa37b9b04f6f9e9926b3cece1a5 \
-    --hash=sha256:b26104d6835d1f5e49452a26eb2ff87fe7090b89dfcaee5ea2212697e1e1d7ae \
+certifi==2019.6.16 \
+    --hash=sha256:046832c04d4e752f37383b628bc601a7ea7211496b4638f6514d0e5b9acc4939 \
+    --hash=sha256:945e3ba63a0b9f577b1395204e13c3a231f9bc0223888be653286534e5873695 \
     # via requests
 chardet==3.0.4 \
     --hash=sha256:84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae \
@@ -24,10 +25,8 @@ commonmark==0.9.0 \
     --hash=sha256:14c3df31e8c9c463377e287b2a1eefaa6019ab97b22dad36e2f32be59d61d68d \
     --hash=sha256:867fc5db078ede373ab811e16b6789e9d033b15ccd7296f370ca52d1ee792ce0 \
     # via recommonmark
-docutils==0.14 \
-    --hash=sha256:02aec4bd92ab067f6ff27a38a38a41173bf01bed8f89157768c1573f53e474a6 \
-    --hash=sha256:51e64ef2ebfb29cae1faa133b3710143496eca21c530f3f71424d77687764274 \
-    --hash=sha256:7a4bd47eaf6596e1295ecb11361139febe29b084a87bf005bf899f9a42edc3c6 \
+docutils==0.15.1.post1 \
+    --hash=sha256:f33ddb723332c6d6b6d99731ee1fc0c35eb4044a2df5cca1c64c8aa78eaf22cb \
     # via recommonmark, sphinx
 future==0.17.1 \
     --hash=sha256:67045236dcfd6816dc439556d009594abf643e5eb48992e36beac09c2ca659b8 \
@@ -87,9 +86,9 @@ pygments==2.4.2 \
     --hash=sha256:71e430bc85c88a430f000ac1d9b331d2407f681d6f6aec95e8bcfbc3df5b0127 \
     --hash=sha256:881c4c157e45f30af185c1ffe8d549d48ac9127433f2c380c24b84572ad66297 \
     # via sphinx
-pyparsing==2.4.0 \
-    --hash=sha256:1873c03321fc118f4e9746baf201ff990ceb915f433f23b395f5580d1840cb2a \
-    --hash=sha256:9b6323ef4ab914af344ba97510e966d64ba91055d6b9afa6b30799340e89cc03 \
+pyparsing==2.4.1.1 \
+    --hash=sha256:43c5486cefefa536c9aab528881c992328f020eefe4f6d06332449c365218580 \
+    --hash=sha256:d6c5ffe9d0305b9b977f7a642d36b9370954d1da7ada4c62393382cbadad4265 \
     # via packaging
 pytz==2019.1 \
     --hash=sha256:303879e36b721603cc54604edcac9d20401bdbe31e1e4fdee5b9f98d5d31dfda \
@@ -105,29 +104,43 @@ requests==2.22.0 \
 six==1.12.0 \
     --hash=sha256:3350809f0555b11f552448330d0b52d5f24c91a322ea4a15ef22629740f3761c \
     --hash=sha256:d16a0141ec1a18405cd4ce8b4613101da75da0e9a7aec5bdd4fa804d0e0eba73 \
-    # via packaging, sphinx, sphinxcontrib-spelling
-snowballstemmer==1.2.1 \
-    --hash=sha256:919f26a68b2c17a7634da993d91339e288964f93c274f1343e3bbbe2096e1128 \
-    --hash=sha256:9f3bcd3c401c3e862ec0ebe6d2c069ebc012ce142cce209c098ccb5b09136e89 \
+    # via packaging, sphinxcontrib-spelling
+snowballstemmer==1.9.0 \
+    --hash=sha256:9f3b9ffe0809d174f7047e121431acf99c89a7040f0ca84f94ba53a498e6d0c9 \
     # via sphinx
-sphinx==1.8.5 \
-    --hash=sha256:9f3e17c64b34afc653d7c5ec95766e03043cc6d80b0de224f59b6b6e19d37c3c \
-    --hash=sha256:c7658aab75c920288a8cf6f09f244c6cfdae30d82d803ac1634d9f223a80ca08
-sphinxcontrib-spelling==4.2.1 \
-    --hash=sha256:7bcbaabef7aa9c176b81d960b20d0f67817ccea5e098968c366d2db4ad76d476 \
-    --hash=sha256:d76b113d538ad55b9e9e5a8e68d3734473926306edfdad3f707cece44d9b5d29
+sphinx==2.1.2 \
+    --hash=sha256:22538e1bbe62b407cf5a8aabe1bb15848aa66bb79559f42f5202bbce6b757a69 \
+    --hash=sha256:f9a79e746b87921cabc3baa375199c6076d1270cee53915dbd24fdbeaaacc427
+sphinxcontrib-applehelp==1.0.1 \
+    --hash=sha256:edaa0ab2b2bc74403149cb0209d6775c96de797dfd5b5e2a71981309efab3897 \
+    --hash=sha256:fb8dee85af95e5c30c91f10e7eb3c8967308518e0f7488a2828ef7bc191d0d5d \
+    # via sphinx
+sphinxcontrib-devhelp==1.0.1 \
+    --hash=sha256:6c64b077937330a9128a4da74586e8c2130262f014689b4b89e2d08ee7294a34 \
+    --hash=sha256:9512ecb00a2b0821a146736b39f7aeb90759834b07e81e8cc23a9c70bacb9981 \
+    # via sphinx
+sphinxcontrib-htmlhelp==1.0.2 \
+    --hash=sha256:4670f99f8951bd78cd4ad2ab962f798f5618b17675c35c5ac3b2132a14ea8422 \
+    --hash=sha256:d4fd39a65a625c9df86d7fa8a2d9f3cd8299a3a4b15db63b50aac9e161d8eff7 \
+    # via sphinx
+sphinxcontrib-jsmath==1.0.1 \
+    --hash=sha256:2ec2eaebfb78f3f2078e73666b1415417a116cc848b72e5172e596c871103178 \
+    --hash=sha256:a9925e4a4587247ed2191a22df5f6970656cb8ca2bd6284309578f2153e0c4b8 \
+    # via sphinx
+sphinxcontrib-qthelp==1.0.2 \
+    --hash=sha256:513049b93031beb1f57d4daea74068a4feb77aa5630f856fcff2e50de14e9a20 \
+    --hash=sha256:79465ce11ae5694ff165becda529a600c754f4bc459778778c7017374d4d406f \
+    # via sphinx
+sphinxcontrib-serializinghtml==1.1.3 \
+    --hash=sha256:c0efb33f8052c04fd7a26c0a07f1678e8512e0faec19f4aa8f2473a8b81d5227 \
+    --hash=sha256:db6615af393650bf1151a6cd39120c29abaf93cc60db8c48eb2dddbfdc3a9768 \
+    # via sphinx
+sphinxcontrib-spelling==4.3.0 \
+    --hash=sha256:0304dac9286378f9c608af8d885a08fe03a9c62b3ebfa8802008018d92371c19 \
+    --hash=sha256:8036f70d92a71690ac27347ab5fbfa19e5d4fda8df24e5a70b5b6e6767fd7f5b
 sphinxcontrib-svg2pdfconverter==0.1.0 \
     --hash=sha256:0305a0b432d6c562a7820ef218704c17545ad8031984a52dc223c438e75b7ba9 \
     --hash=sha256:f621745ea8c36c4a526bc99267a3ecf874f3363453e4573a73bf477534565a7a
-sphinxcontrib-websupport==1.1.2 \
-    --hash=sha256:1501befb0fdf1d1c29a800fdbf4ef5dc5369377300ddbdd16d2cd40e54c6eefc \
-    --hash=sha256:e02f717baf02d0b6c3dd62cf81232ffca4c9d5c331e03766982e3ff9f1d2bc3f \
-    # via sphinx
-typing==3.6.6 \
-    --hash=sha256:4027c5f6127a6267a435201981ba156de91ad0d1d98e9ddc2aa173453453492d \
-    --hash=sha256:57dcf675a99b74d64dacf6fba08fb17cf7e3d5fdff53d4a30ea2a5e7e52543d4 \
-    --hash=sha256:a4c8473ce11a65999c8f59cb093e70686b6c84c98df58c1dae9b3b196089858a \
-    # via sphinx
 urllib3==1.25.3 \
     --hash=sha256:b246607a25ac80bedac05c6f282e3cdaf3afb65420fd024ac94435cabe6e18d1 \
     --hash=sha256:dbe59173209418ae49d485b87d1681aefa36252ee85884c31346debd19463232 \
