@@ -39,7 +39,7 @@ rclone:
 
   image:
     repository: zenko/rclone
-    tag: 1.45
+    tag: 1.45.1
     pullPolicy: IfNotPresent
 
   initialIngestion: true
