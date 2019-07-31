@@ -47,7 +47,6 @@ spec:
               - source:{{ template "cosmos.src" .Values.rclone.source }}
               - destination:{{ template "cosmos.dst" . }}
               {{- $dst := merge (default .Values.rclone.destination .Values.rclone.remote) .Values.rclone.destination }}
-              - --s3-region={{ $dst.region }}
               {{- range $key, $value := .Values.rclone.options }}
               - --{{ $key }}{{ if $value }}={{ $value }}{{ end }}
               {{- end }}
