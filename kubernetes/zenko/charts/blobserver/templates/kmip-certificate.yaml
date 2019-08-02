@@ -1,0 +1,14 @@
+{{- if .Values.kmip.enabled -}}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ template "blobserver.fullname" . }}-kmip-cert
+  labels:
+    app: {{ template "blobserver.name" . }}
+    chart: {{ template "blobserver.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+type: Opaque
+data:
+{{ (.Files.Glob "kmip-*.pem").AsSecrets | indent 2 }}
+{{ end }}

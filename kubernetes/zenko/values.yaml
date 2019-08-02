@@ -8,7 +8,7 @@
 nodeCount: &nodeCount 3
 
 ingress:
-  enabled: false
+  enabled: true
   # Used to create an Ingress record.
   # This must match the 'cloudserver' 'endpoint', unless your client
   # supports different hostnames.
@@ -76,7 +76,7 @@ reporting:
 
 cloudserver:
   replicaCount: *nodeCount
-  replicaFactor: 10
+  replicaFactor: 1
   mongodb:
     replicas: *nodeCount
   endpoint: zenko.local
@@ -84,6 +84,17 @@ cloudserver:
     # accountName:
       # access:
       # secret:
+      #
+      #
+s3-data:
+  persistentVolume:
+    enabled: true
+    accessModes:
+      - ReadWriteOnce
+    annotations: {}
+    existingClaim: ""
+    size: 20Gi
+    storageClass: null
 
 backbeat:
   api:
@@ -234,6 +245,7 @@ mongodb-replicaset:
     runAsNonRoot: true
   persistentVolume:
     size: 50Gi
+
 
 zenko-queue:
 ## Extensive list of configurables can be found here:

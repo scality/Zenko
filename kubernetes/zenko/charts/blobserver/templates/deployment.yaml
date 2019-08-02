@@ -1,0 +1,96 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "blobserver.fullname" . }}
+  labels:
+    app: {{ template "blobserver.name" . }}
+    chart: {{ template "blobserver.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ template "blobserver.replicaFactor" . }}
+  selector:
+    matchLabels:
+      app: {{ template "blobserver.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      annotations:
+        {{- if .Values.proxy.https }}
+        checksum/config: {{ include (print $.Template.BasePath "/certificate.yaml") . | sha256sum }}
+        {{- end }}
+        {{- if not .Values.global.orbit.enabled }}
+        checksum/config: {{ include (print $.Template.BasePath "/configmpa.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/accounts.yaml") . | sha256sum }}
+        {{- end }}
+      labels:
+        app: {{ template "blobserver.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      # no offline mode
+      {{- if .Values.image.privateRegistry }}
+      imagePullSecrets:
+        - name: {{ .Values.image.privateRegistry }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          terminationMessagePolicy: FallbackToLogsOnError
+          ports:
+            - name: http
+              containerPort: 8001
+  {{ include "blobserver.env" . | indent 10 }}
+            {{- if .Values.global.orbit.enabled }}
+            - name: MANAGEMENT_MODE
+              value: "{{- .Values.global.orbit.workerMode -}}"
+            - name: PUSH_STATS
+              value: "false"
+            {{- end }}
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $key | upper | replace "." "_" }}
+              value: {{ $value | quote }}
+            {{- end }}
+          args: ['yarn', 'start']
+          livenessProbe:
+            httpGet:
+              path: /_/healthcheck
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /_/healthcheck/deep
+              port: http
+          volumeMounts:
+            {{- if .Values.proxy.caCert }}
+            - name: proxy-cert
+              mountPath: "/ssl"
+              readOnly: true
+            {{- end }}
+            {{- if .Values.kmip.enabled }}
+            - name:  kip-cert
+              mountPath: "/ssl-kmip"
+              readOnly: true
+            {{- end }}
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+      affinity:
+{{ tpl .Values.affinity . | indent 8 }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+      volumes:
+        {{- if .Values.proxy.caCert }}
+        - name: proxy-cert
+          secret:
+            secretName: {{ template "blobserver.fullname" . }}-proxy
+        {{- end }}
+        {{- if .Values.kmip.enabled }}
+        - name: kmip-cert
+          secret:
+            secretName: {{ template "blobserver.fullname" . }}-kmip-cert
+        {{- end }}

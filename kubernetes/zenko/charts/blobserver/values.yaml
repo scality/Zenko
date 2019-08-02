@@ -1,0 +1,99 @@
+global:
+  orbit:
+    enabled: true
+    endpoint: https://api.zenko.io
+    pushEndpoint: https://push.api.zenko.io
+    workerMode: poll
+
+  locationConstraints: {}
+
+async:
+  successfulJobsHistory: 1
+  deleteContainer:
+    maxRetry: 1
+    maxConcurrentProcs: 10
+    maxConcurrentDeletes: 100
+    schedule: "*/5 * * * *"
+
+externalBackends:
+  aws_s3:
+    keepAlive: false
+    keepAliveMsecs: 1000
+    maxFreeSockets: 256
+    maxSockets: null
+  gcp:
+    keepAlive: true
+    keepAliveMsecs: 1000
+    maxFreeSockets: 256
+    maxSockets: null
+
+endpoint: blobserver.zenko.local
+
+users: {}
+logging:
+  level: info
+
+mongodb:
+  replicaSet: rs0
+  replicas: 3
+
+replicaCount: 3
+replicaFactor: 1
+
+image:
+  repository: registry.oci.scality.net/sf-eng/blobserver
+  tag: demo
+  pullPolicy: Always
+  privateRegistry: scality
+
+kmip:
+  enabled: false
+  port: 5696
+  hosts: []
+  compoundCreate: false
+  bucketAttributeName: ''
+  pipelineDepth: 8
+
+proxy:
+  http: ""
+  https: ""
+  caCert: false
+  no_proxy: ""
+
+ingress:
+  enabled: true
+  annotations: {}
+  path: /
+  hosts:
+    - blobserver.zenko.local
+  tls: []
+
+service:
+  type: ClusterIP
+  port: 80
+
+env: {}
+resources: {}
+nodeSelector: {}
+
+affinity: |
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 5
+      podAffinityTerm:
+        topologyKey: "kubernetes.io/hostname"
+        labelSelector:
+          matchLabels:
+            app: {{ template "blobserver.name" . }}
+            release: {{ .Release.Name | quote }}
+
+autoscaling:
+  enabled: false
+  config:
+    minReplicas: 1
+    maxReplicas: 16
+    # Note: when setting this, a `resources.request.cpu` is required. You
+    # likely want to set it to `1` or some lower value.
+    targetCPUUtilizationPercentage: 80
+
+allowHealthchecksFrom: '0.0.0.0/0'
