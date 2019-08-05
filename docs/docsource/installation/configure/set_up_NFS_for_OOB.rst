@@ -140,7 +140,7 @@ the current workaround is fairly simple.
    $ kubectl delete pod -lapp=cosmos-scheduler --wait
 
    .. note:: Once the command finishes, Kubernetes will take a minute to
-      recreate the pod and establish connections the new connections. Be sure
+      recreate the pod and establish the new connections. Be sure
       the new pod is created before proceeding
 
 #. Delete your previously created bucket and create a new bucket in the same
