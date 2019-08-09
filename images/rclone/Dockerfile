@@ -24,5 +24,6 @@ CMD ["tail -f /dev/null"]
 FROM busybox
 ENV MOUNT_PATH /data
 COPY --from=build /bin/rclone /bin
+COPY --from=build /etc/ssl/certs /etc/ssl/certs
 WORKDIR ${MOUNT_PATH}
 CMD ["rclone"]
