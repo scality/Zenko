@@ -38,7 +38,7 @@ type Location struct {
 	Name         string `bson:"name" json:"name"`
 	ObjectID     string `bson:"objectId" json:"objectId"`
 	Details      struct {
-		Endpoint string `bson:"endpoint" json:"endpoint"`
+		Endpoint  string `bson:"endpoint" json:"endpoint"`
 	}
 }
 

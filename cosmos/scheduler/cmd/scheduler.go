@@ -351,9 +351,19 @@ func (s *Scheduler) checkForCosmos(location *pensieve.Location, bucket string) b
 	return false
 }
 
-// createCosmosFromLocation creates a new Cosmos custom resource using data from a
-// *MongodbURL.Location. It assumes the location to be of type "NFS".
+// createCosmosFromLocation checks the location type and dispatches the proper function to
+// create the custom resource. New location types should be added here and treated accordingly.
 func (s *Scheduler) createCosmosFromLocation(location *pensieve.Location, bucket string) error {
+	switch location.LocationType {
+	case nfsLocation:
+		return s.createCosmosNFSLocation(location, bucket)
+	}
+	return nil
+}
+
+// createCosmosNFSLocation creates a new Cosmos custom resource using data from a
+// *MongodbURL.Location. It assumes the location to be of type "NFS".
+func (s *Scheduler) createCosmosNFSLocation(location *pensieve.Location, bucket string) error {
 	nfs := pensieve.NewNFSLocation(location.Details.Endpoint)
 	_, err := s.KubeAlpha.Cosmoses(s.Namespace).Create(&v1alpha1.Cosmos{
 		ObjectMeta: metav1.ObjectMeta{
