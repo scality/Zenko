@@ -88,18 +88,30 @@ Create a name for the bucket to create.
 Generate config map from values passed while omitting secrets 
 */}}
 {{- define "cosmos.rclone.configmap" -}}
-{{- range $key, $value := omit . "accessKey" "secretKey" "existingSecret" -}}
+{{- range $key, $value := omit . "access_key_id" "secret_access_key" "existingSecret" -}}
 {{ $key }} = {{ $value }}
 {{ end }}
 {{- end -}}
 
 {{/*
-Define the fully qualified name for the rclone's remote secret.
+Define the fully qualified name for the rclone's destination secret.
 */}}
-{{- define "cosmos.rclone.secret.name" -}}
+{{- define "cosmos.rclone.dst.secret.name" -}}
 {{- $dst := merge (default .Values.rclone.destination .Values.rclone.remote) .Values.rclone.destination -}}
 {{- if $dst.existingSecret -}}
 {{- printf "%s" $dst.existingSecret -}}
+{{- else -}}
+{{- printf "%s" (include "cosmos.rclone.fullname" .) -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Define the fully qualified name for the rclone's source secret.
+*/}}
+{{- define "cosmos.rclone.src.secret.name" -}}
+{{- $src := .Values.rclone.source -}}
+{{- if $src.existingSecret -}}
+{{- printf "%s" $src.existingSecret -}}
 {{- else -}}
 {{- printf "%s" (include "cosmos.rclone.fullname" .) -}}
 {{- end -}}

@@ -1,4 +1,5 @@
 pfsd:
+  enabled: true
   name: pfsd
 
   replicaCount: 1
@@ -53,6 +54,8 @@ rclone:
     type: local
     nounc: true
     copy_links: false
+    ## Specify an existing secret to get credentials from.
+    # existingSercret: ""
 
   ## Specify destination details
   ## Currently only local s3 compatible is supported
@@ -66,8 +69,8 @@ rclone:
     ## Specify an existing secret to get credentials from.
     # existingSercret: ""
     ## Otherwise use the following credentials.
-    accessKey: my-access-key
-    secretKey: my-secret-key
+    access_key_id: my-access-key
+    secret_access_key: my-secret-key
 
     endpoint: http://zenko-cloudserver
     region: mynfs

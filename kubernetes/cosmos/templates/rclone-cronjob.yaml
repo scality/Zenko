@@ -30,16 +30,28 @@ spec:
             env:
               - name: MOUNT_PATH
                 value: {{ template "cosmos.src" .Values.rclone.source }}
-              - name: AWS_ACCESS_KEY_ID
+              - name: RCLONE_CONFIG_DESTINATION_ACCESS_KEY_ID
                 valueFrom:
                   secretKeyRef:
-                    name: {{ template "cosmos.rclone.secret.name" . }}
-                    key: accessKey
-              - name: AWS_SECRET_ACCESS_KEY
+                    name: {{ template "cosmos.rclone.dst.secret.name" . }}
+                    key: destinationAccessKey
+              - name: RCLONE_CONFIG_DESTINATION_SECRET_ACCESS_KEY
                 valueFrom:
                   secretKeyRef:
-                    name: {{ template "cosmos.rclone.secret.name" . }}
-                    key: secretKey
+                    name: {{ template "cosmos.rclone.dst.secret.name" . }}
+                    key: destinationSecretKey
+              {{- if not (eq .Values.rclone.source.type "local")}}
+              - name: RCLONE_CONFIG_SOURCE_ACCESS_KEY_ID
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ template "cosmos.rclone.src.secret.name" . }}
+                    key: sourceAccessKey
+              - name: RCLONE_CONFIG_SOURCE_SECRET_ACCESS_KEY
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ template "cosmos.rclone.src.secret.name" . }}
+                    key: sourceSecretKey
+              {{- end }}
             command:
               - rclone
             args:
@@ -71,12 +83,16 @@ spec:
             emptyDir: {}
 {{- end }}
 {{- end -}}
-{{- if .Values.rclone.initialIngestion }}
+{{- if and .Values.rclone.initialIngestion .Release.IsInstall }}
 ---
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: {{ template "cosmos.rclone.fullname" . }}-initial-ingest
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "0"
+    "helm.sh/hook-delete-policy": before-hook-creation
   labels:
     component: rclone
 {{ include "cosmos.labels" . | indent 4 }}

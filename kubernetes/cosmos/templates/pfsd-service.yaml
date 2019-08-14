@@ -1,3 +1,4 @@
+{{- if .Values.pfsd.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -20,3 +21,4 @@ spec:
     app: {{ template "cosmos.name" . }}
     component: pfsd
     release: {{ .Release.Name }}
+{{- end }}

@@ -20,6 +20,8 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 const (
+	dstAccessKey = "destinationAccessKey"
+	dstSecretKey = "destinationSecretKey"
 	nfsLocation = "location-nfs-mount-v1"
 )
 
@@ -113,7 +115,7 @@ func (s *Scheduler) configureIngestionSecret(init bool) error {
 			return err
 		}
 		log.Println("ingestion secret created successfully")
-	} else if string(secret["accessKey"]) != accessKey || string(secret["secretKey"]) != secretKey {
+	} else if string(secret[dstAccessKey]) != accessKey || string(secret[dstSecretKey]) != secretKey {
 		log.Println("ingestion credentials changed, updating secret")
 		err = s.setIngestionSecret(accessKey, secretKey, true)
 		if err != nil {
@@ -232,8 +234,8 @@ func (s *Scheduler) setIngestionSecret(accessKey string, secretKey string, patch
 		},
 		Type: "Opaque",
 		Data: map[string][]byte{
-			"accessKey": []byte(accessKey),
-			"secretKey": []byte(secretKey),
+			dstAccessKey: []byte(accessKey),
+			dstSecretKey: []byte(secretKey),
 		},
 	}
 	if patch {

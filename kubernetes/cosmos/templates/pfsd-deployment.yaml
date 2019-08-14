@@ -1,3 +1,4 @@
+{{- if .Values.pfsd.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -72,4 +73,5 @@ spec:
             claimName: {{ default (include "cosmos.fullname" .) .Values.persistentVolume.existingClaim }}
 {{- else }}
           emptyDir: {}
+{{- end }}
 {{- end }}

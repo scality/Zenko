@@ -4,11 +4,11 @@ Cosmos is a storage backend for Cloudserver that lets you manage data stored on 
 
 ## Introduction
 
-This chart bootstraps a Cosmos deployment on a [Kubernetes](http://kubernetes.io) cluster using the [Helm](https://helm.sh) package manager.
+This chart bootstraps a Cosmos deployment on a [Kubernetes](http://kubernetes.io) cluster using the [Helm](https://helm.sh) package manager. Synchronization is done via a modified [RClone](https://rclone.org) however this chart can be used as a standalone "RClone chart" as well.
 
 ## Prerequisites
 
-Before installing this chart, you must either have a Zenko or a standalone Cloudserver instance running.
+Before installing this chart, you must either have a Zenko or a standalone Cloudserver instance running. For operating only between two remote clouds this is not required.
 
 ## Installing the Chart
 
@@ -39,6 +39,7 @@ The following table lists the configurable parameters of the Cosmos chart and th
 | Parameter              | Description                             | Default                      |
 | ---------------------- | --------------------------------------- | ---------------------------- |
 | `pfsd.name` | Name of the pfsd component | `pfsd` |
+| `pfsd.enabled | Allows the pfsd component to be disabled for cloud only operations | `true` |
 | `pfsd.replicaCount` | Number of pfsd replicas| `1` |
 | `pfsd.image.repository` | Pfsd image repository  | `zenko/cloudserver` |
 | `pfsd.image.tag` | Pfsd image tag | `8.1.5` |
@@ -51,17 +52,21 @@ The following table lists the configurable parameters of the Cosmos chart and th
 | `pfsd.affinity` | Pfsd pod affinity | `{}` |
 | `rclone.name` | Name of the rclone component | `rclone` |
 | `rclone.image.repository` | rclone image repository | `zenko/rclone` |
-| `rclone.image.tag` | rclone image tag | `1.45` |
+| `rclone.image.tag` | rclone image tag | `1.45.1` |
 | `rclone.image.pullPolicy` | rclone image pull policy | `IfNotPresent` |
-| `rclone.initialIngestion` | launches a post-install job to begin ingestion | `true` |
+| `rclone.command` | Defines the rclone command to be used | `sync` |
+| `rclone.mdOnly` | Specifies metadata only operations in which no data is transferred | `true` |
+| `rclone.initialIngestion` | Launches a post-install job to begin ingestion | `true` |
+| `rclone.source.type` | Allows selection of source type | `local` |
+| `rclone.source.exisitingSecret` | Specify an existing secret to use for source credentials | `{}` |
 | `rclone.suspend` | Enables/disables the cronjob | `false` |
 | `rclone.schedule` | rclone CronJob schedule | `*/10 * * * *` |
 | `rclone.successfulJobsHistory` | rclone CronJob successful job history | `1` |
-| `rclone.destination.exisitingSecret` | Specify an existing secret to use for credentials | `{}` |
-| `rclone.destination.accessKey` | Remote backend access key | `my-access-key` |
-| `rclone.destination.secretKey` | Remote backend secret key | `my-secret-key` |
-| `rclone.destination.endpoint` | Remote endpoint | `http://cloudserver.local` |
-| `rclone.destination.region` | Remote region | `us-east-1` |
+| `rclone.destination.exisitingSecret` | Specify an existing secret to use for destination credentials | `{}` |
+| `rclone.destination.access_key_id` | Destination backend access key | `my-access-key` |
+| `rclone.destination.secret_access_key` | Destination backend secret key | `my-secret-key` |
+| `rclone.destination.endpoint` | Destination endpoint | `http://cloudserver.local` |
+| `rclone.destination.region` | Destination region | `us-east-1` |
 | `rclone.options` | rclone cli options as key:value pair | `see values.yaml` |
 | `rclone.resources` | rclone resource requests and limits | `{}` |
 | `rclone.nodeSelector` | Node labels for rclone pod assignment | `{}` |
@@ -122,8 +127,8 @@ export CLOUDSERVER_ENDPOINT="http://$(kubectl get svc -l app=cloudserver -o json
 $ cat << EOF > custom-values.yaml
 rclone:
   destination:
-    accessKey: ${ACCESS_KEY}
-    secretKey: ${SECRET_KEY}
+    access_key_id: ${ACCESS_KEY}
+    secret_access_key: ${SECRET_KEY}
     endpoint: ${CLOUDSERVER_ENDPOINT}
     region: ${NFS_LOCATION}
     bucket: ${NFS_BUCKET}
@@ -139,6 +144,8 @@ persistentVolume:
     mountOptions: "nfsvers=3,rw"
 EOF
 ```
+
+**Note** The `rclone.destination` and `rclone.source` accept any valid RClone config value and will be translated to the rclone.conf at install time.
 
 6. Install Cosmos.
 
