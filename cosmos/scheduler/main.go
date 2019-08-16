@@ -39,7 +39,7 @@ func init() {
 	viper.SetDefault("mongodb_database", "metadata")
 	viper.BindEnv("MONGODB_DATABASE")
 
-	viper.SetDefault("cloudserver_endpoint", "localhost:8000")
+	viper.SetDefault("cloudserver_endpoint", "http://localhost:8000")
 	viper.BindEnv("cloudserver_endpoint")
 
 	viper.SetDefault("storage_class", "my-storage-class")

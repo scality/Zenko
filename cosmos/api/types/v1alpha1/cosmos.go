@@ -24,12 +24,23 @@ type CosmosSpec struct {
 }
 
 type CosmosPfsdSpec struct {
+	Enabled      bool   `json:"enabled"`
 	ReplicaCount string `json:"replicaCount"`
 }
 
 type CosmosRcloneSpec struct {
 	Schedule    string                      `json:"schedule"`
+	Source      CosmosRcloneSourceSpec      `json:"source"`
 	Destination CosmosRcloneDestinationSpec `json:"destination"`
+}
+
+type CosmosRcloneSourceSpec struct {
+	Type           string `json:"type"`
+	Provider       string `json:"provider"`
+	Endpoint       string `json:"endpoint"`
+	Region         string `json:"region"`
+	Bucket         string `json:"bucket"`
+	ExistingSecret string `json:"existingSecret"`
 }
 
 type CosmosRcloneDestinationSpec struct {
