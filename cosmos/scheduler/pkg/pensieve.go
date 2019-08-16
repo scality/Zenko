@@ -39,6 +39,10 @@ type Location struct {
 	ObjectID     string `bson:"objectId" json:"objectId"`
 	Details      struct {
 		Endpoint  string `bson:"endpoint" json:"endpoint"`
+		Bucket    string `bson:"bucketName" json:"bucketName"`
+		Region    string `bson:"region" json:"region"`
+		AccessKey string `bson:"accessKey" json:"accessKey"`
+		SecretKey string `bson:"secretKey" json:"secretKey"`
 	}
 }
 
@@ -187,6 +191,14 @@ func (pensieve *Helper) GetServiceAccountCredentials(name string) (string, strin
 	}
 	return account.AccessKey, secretKey, nil
 
+}
+
+func (pensieve *Helper) DecryptLocationSecretKey(secretKey string) (string, error) {
+	privateKey, err := pensieve.GetInstancePrivateKey()
+	if err != nil {
+		return "", err
+	}
+	return decryptKey(secretKey, privateKey)
 }
 
 func decryptKey(secretKey, privateKey string) (string, error) {

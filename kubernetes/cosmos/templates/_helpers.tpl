@@ -89,8 +89,10 @@ Generate config map from values passed while omitting secrets
 */}}
 {{- define "cosmos.rclone.configmap" -}}
 {{- range $key, $value := omit . "access_key_id" "secret_access_key" "existingSecret" -}}
+{{- if $value }}
 {{ $key }} = {{ $value }}
-{{ end }}
+{{- end }}
+{{- end }}
 {{- end -}}
 
 {{/*

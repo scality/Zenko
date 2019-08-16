@@ -55,7 +55,7 @@ rclone:
     nounc: true
     copy_links: false
     ## Specify an existing secret to get credentials from.
-    # existingSercret: ""
+    # existingSecret: ""
 
   ## Specify destination details
   ## Currently only local s3 compatible is supported
@@ -63,8 +63,6 @@ rclone:
     type: s3
     ## Provider can be AWS or Other
     provider: Other
-    ## Using env_auth will configure secrets for accessKey/secretKeys
-    env_auth: true
     acl: bucket-owner-full-control
     ## Specify an existing secret to get credentials from.
     # existingSercret: ""

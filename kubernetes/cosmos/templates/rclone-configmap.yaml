@@ -8,7 +8,8 @@ metadata:
 data:
   rclone.conf: |-
     [source]
-{{ include "cosmos.rclone.configmap" .Values.rclone.source | indent 4 }}
+{{- include "cosmos.rclone.configmap" .Values.rclone.source | indent 4 }}
+
     [destination]
 {{- $dst := merge (default .Values.rclone.destination .Values.rclone.remote) .Values.rclone.destination }}
-{{ include "cosmos.rclone.configmap" $dst | indent 4 }}
+{{- include "cosmos.rclone.configmap" $dst | indent 4 }}

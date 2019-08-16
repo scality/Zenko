@@ -21,11 +21,12 @@ import (
 )
 const (
 	// Auth data
-	access_key_id = "access_key_id"
+	access_key_id     = "access_key_id"
 	secret_access_key = "secret_access_key"
 
 	// Supported locations
-	nfsLocation = "location-nfs-mount-v1"
+	nfsLocation  = "location-nfs-mount-v1"
+	awsLocation  = "location-aws-s3-v1"
 )
 
 // Scheduler represents a Cosmos Scheduler instance
@@ -85,6 +86,8 @@ func (s *Scheduler) Run() {
 			log.Println("received an overlay update")
 			// check for any credential updates
 			s.configureIngestionSecret(false)
+			// TODO check for location secret updates on overlayUpdate
+			// s.configureLocationSecrets()
 		}
 	}
 }
@@ -269,7 +272,6 @@ func (s *Scheduler) setSecret(secret *Secret, patch bool) error {
 	return nil
 }
 
-
 // isCosmosLocation checks if a given BucketTransaction is in a supported
 // Cosmos location type. This will also set the LocationType property of 
 // the BucketTransaction based off the location.LocationType. BucketTransaction
@@ -277,6 +279,7 @@ func (s *Scheduler) setSecret(secret *Secret, patch bool) error {
 func (s *Scheduler) isCosmosLocation(bucket *BucketTransaction) (bool) {
 	locationTypes := []string{
 		nfsLocation,
+		awsLocation,
 	}
 	locations, err := s.Pensieve.GetLocationsWithTypes(locationTypes)
 	if err != nil {
@@ -340,9 +343,15 @@ func (s *Scheduler) applyChanges(bucket *BucketTransaction) {
 	case "replace":
 	    if bucket.FullDocument.Value.Deleted == true && s.checkForCosmos(location, bucket.FullDocument.Value.Name) {
 			log.Println("deleting cosmos for bucket:", bucket.FullDocument.Value.Name)
-			err := s.KubeAlpha.Cosmoses(s.Namespace).Delete(bucket.FullDocument.Value.LocationConstraint, &metav1.DeleteOptions{})
+			err := s.KubeAlpha.Cosmoses(s.Namespace).Delete(location.Name, &metav1.DeleteOptions{})
 			if err != nil {
 				log.Println("failed to delete cosmos with error: ", err)
+			}
+			if bucket.LocationType != nfsLocation {
+				err = s.KubeClientset.CoreV1().Secrets(s.Namespace).Delete(location.Name, &metav1.DeleteOptions{})
+				if err != nil {
+					log.Println("error deleting cosmos secret ", location.Name, err)
+				}
 			}
 		} else if bucket.FullDocument.Value.Deleted == true {
 			log.Println("received delete request but no cosmos created for bucket: ", bucket.FullDocument.Value.Name)
@@ -374,6 +383,12 @@ func (s *Scheduler) createCosmosFromLocation(location *pensieve.Location, bucket
 	switch location.LocationType {
 	case nfsLocation:
 		return s.createCosmosNFSLocation(location, bucket)
+	case awsLocation:
+		return s.createCosmosAWSLocation(location, bucket)
+	// case cephLocation:
+	// 	return s.createCosmosCephLocation(location, bucket)
+	default:
+		log.Println("location type not supported: ", location.LocationType)
 	}
 	return nil
 }
@@ -392,10 +407,14 @@ func (s *Scheduler) createCosmosNFSLocation(location *pensieve.Location, bucket 
 		Spec: v1alpha1.CosmosSpec{
 			FullnameOverride: location.Name,
 			Pfsd: v1alpha1.CosmosPfsdSpec{
+				Enabled: true,
 				ReplicaCount: s.NodeCount,
 			},
 			Rclone: v1alpha1.CosmosRcloneSpec{
 				Schedule: s.IngestionSchedule,
+				Source: v1alpha1.CosmosRcloneSourceSpec{
+					Type: "local",
+				},
 				Destination: v1alpha1.CosmosRcloneDestinationSpec{
 					Endpoint:       s.Cloudserver,
 					Region:         location.Name,
@@ -412,6 +431,56 @@ func (s *Scheduler) createCosmosNFSLocation(location *pensieve.Location, bucket 
 						Server:       nfs.IPAddr,
 					},
 					MountOptions: nfs.Options,
+				},
+			},
+		},
+	})
+	return err
+}
+
+// createCosmosNFSLocation creates a new Cosmos custom resource using data from a
+// *MongodbURL.Location. It assumes the location to be of type "AWS".
+func (s *Scheduler) createCosmosAWSLocation(location *pensieve.Location, bucket string) error {
+	SecretKey, err := s.Pensieve.DecryptLocationSecretKey(location.Details.SecretKey)
+	if err != nil {
+		log.Println("error decrypting location secret key")
+	}
+	err = s.setSecret(&Secret{
+		Name: location.Name,
+		AccessKey: location.Details.AccessKey,
+		SecretKey: SecretKey,
+	}, false)
+	if err != nil {
+		log.Println("error creating location secret")
+		return err
+	}
+	_, err = s.KubeAlpha.Cosmoses(s.Namespace).Create(&v1alpha1.Cosmos{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: location.Name,
+			Labels: map[string]string{
+				"bucket": bucket,
+			},
+		},
+		Spec: v1alpha1.CosmosSpec{
+			FullnameOverride: location.Name,
+			Pfsd: v1alpha1.CosmosPfsdSpec{
+				Enabled: false,
+			},
+			Rclone: v1alpha1.CosmosRcloneSpec{
+				Schedule: s.IngestionSchedule,
+				Source: v1alpha1.CosmosRcloneSourceSpec{
+					Type: "s3",
+					Provider: "AWS",
+					Endpoint: location.Details.Endpoint,
+					Bucket: location.Details.Bucket,
+					Region: location.Details.Region,
+					ExistingSecret: location.Name,
+				},
+				Destination: v1alpha1.CosmosRcloneDestinationSpec{
+					Endpoint:       s.Cloudserver,
+					Region:         location.Name,
+					Bucket:         bucket,
+					ExistingSecret: s.SecretName,
 				},
 			},
 		},
