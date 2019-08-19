@@ -1,4 +1,4 @@
-.. _orbit_add_location:
+/.. _orbit_add_location:
 
 Adding a Storage Location
 =========================
@@ -164,9 +164,9 @@ location with encryption enabled for all objects stored there. Encryption is set
 at the bucket level, not at the object level. Object encryption is delegated to
 the cloud storage system.
 
-Server-side encryption is based on the x-amz-server-side-encryption API
-call. Inquire with your cloud vendor to determine whether server-side encryption
-using the x-amz-server-side-encryption API is supported on their platform. A
+Server-side encryption is based on the x-amz-server-side-encryption
+header. Inquire with your cloud vendor to determine whether server-side
+encryption using x-amz-server-side-encryption is supported on their platform. A
 table is provided in this document, but vendors' offerings are subject to change
 without notice.
 
