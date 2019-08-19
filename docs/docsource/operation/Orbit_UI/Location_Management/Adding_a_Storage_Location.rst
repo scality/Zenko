@@ -1,4 +1,4 @@
-.. _orbit_add_location:
+/.. _orbit_add_location:
 
 Adding a Storage Location
 =========================
@@ -156,14 +156,25 @@ the target cloud.
 Server-Side Encryption
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Public cloud services use encryption to ensure your credentials and transmitted
-information are protected while in transit. The S3 API also offers encryption
-and key management services to secure information while it is stored on cloud
-drives. Inquire with your cloud vendor to determine whether server-side
-encryption using the x-amz-server-side-encryption API is supported on their
-platform. If you have already created an bucket with server-side encryption
-enabled (SSE-S3 protocol), clicking **Server Side Encryption** forces Zenko to
-include``"x-amz-server-side-encryption": "AES256"`` in API calls to AWS.
+Encryption-based transfer protocols ensure your credentials and transmitted
+information are secure while in transit. The S3 API also offers encryption and
+key management services to protect information stored on cloud drives. From
+Orbit, clicking **Server Side Encryption** when setting up a location creates a
+location with encryption enabled for all objects stored there. Encryption is set
+at the bucket level, not at the object level. Object encryption is delegated to
+the cloud storage system.
+
+Server-side encryption is based on the x-amz-server-side-encryption
+header. Inquire with your cloud vendor to determine whether server-side
+encryption using x-amz-server-side-encryption is supported on their platform. A
+table is provided in this document, but vendors' offerings are subject to change
+without notice.
+
+If you have already created a bucket with server-side encryption enabled (SSE-S3
+protocol), clicking **Server Side Encryption** forces Zenko to include
+``"x-amz-server-side-encryption": "AES256"`` in API calls to the cloud host (AWS
+or a vendor that supports the call). If valid credentials are provided, the cloud
+service provides the objects thus requested. 
 
 Target Helper Bucket for Multi-Part Uploads
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
