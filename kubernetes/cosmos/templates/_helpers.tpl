@@ -101,7 +101,7 @@ Define the fully qualified name for the rclone's destination secret.
 {{- if $dst.existingSecret -}}
 {{- printf "%s" $dst.existingSecret -}}
 {{- else -}}
-{{- printf "%s" (include "cosmos.rclone.fullname" .) -}}
+{{- printf "%s-destination" (include "cosmos.rclone.fullname" .) -}}
 {{- end -}}
 {{- end -}}
 
@@ -113,7 +113,7 @@ Define the fully qualified name for the rclone's source secret.
 {{- if $src.existingSecret -}}
 {{- printf "%s" $src.existingSecret -}}
 {{- else -}}
-{{- printf "%s" (include "cosmos.rclone.fullname" .) -}}
+{{- printf "%s-source" (include "cosmos.rclone.fullname" .) -}}
 {{- end -}}
 {{- end -}}
 

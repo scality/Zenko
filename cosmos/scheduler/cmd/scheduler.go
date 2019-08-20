@@ -20,8 +20,11 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 const (
-	dstAccessKey = "destinationAccessKey"
-	dstSecretKey = "destinationSecretKey"
+	// Auth data
+	access_key_id = "access_key_id"
+	secret_access_key = "secret_access_key"
+
+	// Supported locations
 	nfsLocation = "location-nfs-mount-v1"
 )
 
@@ -52,6 +55,13 @@ type BucketTransaction struct {
 			LocationConstraint string `bson:"locationConstraint"`
 		} `bson:"value"`
 	} `bson:"fullDocument"`
+}
+
+// Secret describes a secret name and associated AccessKey and SecretKey
+type Secret struct {
+	Name      string
+	AccessKey string
+	SecretKey string
 }
 
 // Run starts the Cosmos Scheduler
@@ -106,18 +116,23 @@ func (s *Scheduler) configureIngestionSecret(init bool) error {
 		log.Println("error getting service account credentials")
 		return err
 	}
-	secret := s.getIngestionSecret()
+    ingestionAccount := &Secret{
+		Name: s.SecretName,
+		AccessKey: accessKey,
+		SecretKey: secretKey,
+	}
+	secret := s.getSecret(ingestionAccount)
 	if secret == nil {
 		log.Println("creating ingestion secret")
-		err = s.setIngestionSecret(accessKey, secretKey, false)
+		err = s.setSecret(ingestionAccount, false)
 		if err != nil {
 			log.Println("error creating ingestion secret", err)
 			return err
 		}
 		log.Println("ingestion secret created successfully")
-	} else if string(secret[dstAccessKey]) != accessKey || string(secret[dstSecretKey]) != secretKey {
+	} else if string(secret[access_key_id]) != accessKey || string(secret[secret_access_key]) != secretKey {
 		log.Println("ingestion credentials changed, updating secret")
-		err = s.setIngestionSecret(accessKey, secretKey, true)
+		err = s.setSecret(ingestionAccount, true)
 		if err != nil {
 			log.Println("error updating ingestion secret")
 			return err
@@ -207,11 +222,11 @@ func (s *Scheduler) watchOverlayUpdates(ctx context.Context) (chan interface{}) 
 	return ch
 }
 
-// getIngestionSecret returns a key value map with 'accessKey' and 'secretKey'.
+// getSecret returns a key value map with 'accessKey' and 'secretKey'.
 // The keys are strings and the values are byte arrays.
-func (s *Scheduler) getIngestionSecret() (map[string][]byte) {
+func (s *Scheduler) getSecret(secret *Secret) (map[string][]byte) {
 	secrets, err := s.KubeClientset.CoreV1().
-		Secrets(s.Namespace).Get(s.SecretName, metav1.GetOptions{})
+		Secrets(s.Namespace).Get(secret.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil
 	}
@@ -221,12 +236,12 @@ func (s *Scheduler) getIngestionSecret() (map[string][]byte) {
 	return nil
 }
 
-// setIngestionSecret creates or updates a Kubernetes secret from arguments accessKey and secretKey.
+// setSecret creates or updates a Kubernetes secret based on the type Secret argument.
 // The bool argument can be used to patch an existing secret.
-func (s *Scheduler) setIngestionSecret(accessKey string, secretKey string, patch bool) error {
+func (s *Scheduler) setSecret(secret *Secret, patch bool) error {
 	kubeSecret := &v1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      s.SecretName,
+			Name:      secret.Name,
 			Namespace: s.Namespace,
 			Labels: map[string]string{
 				"ingestionCredentials": "true",
@@ -234,8 +249,8 @@ func (s *Scheduler) setIngestionSecret(accessKey string, secretKey string, patch
 		},
 		Type: "Opaque",
 		Data: map[string][]byte{
-			dstAccessKey: []byte(accessKey),
-			dstSecretKey: []byte(secretKey),
+			access_key_id: []byte(secret.AccessKey),
+			secret_access_key: []byte(secret.SecretKey),
 		},
 	}
 	if patch {

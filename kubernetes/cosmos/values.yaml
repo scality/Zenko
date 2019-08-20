@@ -97,7 +97,7 @@ persistentVolume:
   # storageClass:
   ## Specify existing PVC to use
   # existingClaim:
-  volumeConfig:
+  volumeConfig: {}
     ## Example NFS config
     # nfs:
     #   server: 10.100.1.42

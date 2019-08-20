@@ -34,23 +34,23 @@ spec:
                 valueFrom:
                   secretKeyRef:
                     name: {{ template "cosmos.rclone.dst.secret.name" . }}
-                    key: destinationAccessKey
+                    key: access_key_id
               - name: RCLONE_CONFIG_DESTINATION_SECRET_ACCESS_KEY
                 valueFrom:
                   secretKeyRef:
                     name: {{ template "cosmos.rclone.dst.secret.name" . }}
-                    key: destinationSecretKey
+                    key: secret_access_key
               {{- if not (eq .Values.rclone.source.type "local")}}
               - name: RCLONE_CONFIG_SOURCE_ACCESS_KEY_ID
                 valueFrom:
                   secretKeyRef:
                     name: {{ template "cosmos.rclone.src.secret.name" . }}
-                    key: sourceAccessKey
+                    key: access_key_id
               - name: RCLONE_CONFIG_SOURCE_SECRET_ACCESS_KEY
                 valueFrom:
                   secretKeyRef:
                     name: {{ template "cosmos.rclone.src.secret.name" . }}
-                    key: sourceSecretKey
+                    key: secret_access_key
               {{- end }}
             command:
               - rclone
@@ -83,16 +83,12 @@ spec:
             emptyDir: {}
 {{- end }}
 {{- end -}}
-{{- if and .Values.rclone.initialIngestion .Release.IsInstall }}
+{{- if and .Values.rclone.initialIngestion }}
 ---
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: {{ template "cosmos.rclone.fullname" . }}-initial-ingest
-  annotations:
-    "helm.sh/hook": post-install
-    "helm.sh/hook-weight": "0"
-    "helm.sh/hook-delete-policy": before-hook-creation
   labels:
     component: rclone
 {{ include "cosmos.labels" . | indent 4 }}
