@@ -27,6 +27,7 @@ const (
 	// Supported locations
 	nfsLocation  = "location-nfs-mount-v1"
 	awsLocation  = "location-aws-s3-v1"
+	cephLocation = "location-ceph-radosgw-s3-v1"
 )
 
 // Scheduler represents a Cosmos Scheduler instance
@@ -280,6 +281,7 @@ func (s *Scheduler) isCosmosLocation(bucket *BucketTransaction) (bool) {
 	locationTypes := []string{
 		nfsLocation,
 		awsLocation,
+		cephLocation,
 	}
 	locations, err := s.Pensieve.GetLocationsWithTypes(locationTypes)
 	if err != nil {
@@ -385,8 +387,8 @@ func (s *Scheduler) createCosmosFromLocation(location *pensieve.Location, bucket
 		return s.createCosmosNFSLocation(location, bucket)
 	case awsLocation:
 		return s.createCosmosAWSLocation(location, bucket)
-	// case cephLocation:
-	// 	return s.createCosmosCephLocation(location, bucket)
+	case cephLocation:
+		return s.createCosmosCephLocation(location, bucket)
 	default:
 		log.Println("location type not supported: ", location.LocationType)
 	}
@@ -471,6 +473,56 @@ func (s *Scheduler) createCosmosAWSLocation(location *pensieve.Location, bucket 
 				Source: v1alpha1.CosmosRcloneSourceSpec{
 					Type: "s3",
 					Provider: "AWS",
+					Endpoint: location.Details.Endpoint,
+					Bucket: location.Details.Bucket,
+					Region: location.Details.Region,
+					ExistingSecret: location.Name,
+				},
+				Destination: v1alpha1.CosmosRcloneDestinationSpec{
+					Endpoint:       s.Cloudserver,
+					Region:         location.Name,
+					Bucket:         bucket,
+					ExistingSecret: s.SecretName,
+				},
+			},
+		},
+	})
+	return err
+}
+
+// createCosmosCephLocation creates a new Cosmos custom resource using data from a
+// *MongodbURL.Location. It assumes the location to be of type "Ceph".
+func (s *Scheduler) createCosmosCephLocation(location *pensieve.Location, bucket string) error {
+	SecretKey, err := s.Pensieve.DecryptLocationSecretKey(location.Details.SecretKey)
+	if err != nil {
+		log.Println("error decrypting location secret key")
+	}
+	err = s.setSecret(&Secret{
+		Name: location.Name,
+		AccessKey: location.Details.AccessKey,
+		SecretKey: SecretKey,
+	}, false)
+	if err != nil {
+		log.Println("error creating location secret")
+		return err
+	}
+	_, err = s.KubeAlpha.Cosmoses(s.Namespace).Create(&v1alpha1.Cosmos{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: location.Name,
+			Labels: map[string]string{
+				"bucket": bucket,
+			},
+		},
+		Spec: v1alpha1.CosmosSpec{
+			FullnameOverride: location.Name,
+			Pfsd: v1alpha1.CosmosPfsdSpec{
+				Enabled: false,
+			},
+			Rclone: v1alpha1.CosmosRcloneSpec{
+				Schedule: s.IngestionSchedule,
+				Source: v1alpha1.CosmosRcloneSourceSpec{
+					Type: "s3",
+					Provider: "Ceph",
 					Endpoint: location.Details.Endpoint,
 					Bucket: location.Details.Bucket,
 					Region: location.Details.Region,
