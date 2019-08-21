@@ -83,7 +83,7 @@ spec:
             emptyDir: {}
 {{- end }}
 {{- end -}}
-{{- if and .Values.rclone.initialIngestion }}
+{{- if .Values.rclone.initialIngestion }}
 ---
 apiVersion: batch/v1
 kind: Job
@@ -97,7 +97,8 @@ spec:
     metadata:
       labels:
         component: rclone
-{{ include "cosmos.labels" . | indent 8 }}
+        app: {{ template "cosmos.name" . }}
+        release: {{ .Release.Name | quote }}
     spec:
 {{- template "cosmos.rclone.job" . }}
 {{- end }}
