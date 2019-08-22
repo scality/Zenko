@@ -172,8 +172,11 @@ def ceph_ep_bucket(ceph_endpoint_resource):
 
 
 @pytest.fixture
-def aws_loc_bucket(zenko_bucket):
-    loc_config = {'LocationConstraint': conf.AWS_BACKEND}
+def aws_loc_bucket(zenko_bucket, ingest=False):
+    aws = conf.AWS_BACKEND
+    if ingest:
+        aws = aws + ':ingest'
+    loc_config = {'LocationConstraint': aws}
     zenko_bucket.create(
         CreateBucketConfiguration=loc_config
     )
@@ -216,9 +219,12 @@ def digital_ocean_loc_bucket(zenko_bucket):
     return zenko_bucket
 
 
-@pytest.fixture
-def ceph_loc_bucket(zenko_bucket):
-    loc_config = {'LocationConstraint': conf.CEPH_BACKEND}
+@pytest.fixture()
+def ceph_loc_bucket(zenko_bucket, ingest=False):
+    ceph = conf.CEPH_BACKEND
+    if ingest:
+        ceph = ceph + ':ingest'
+    loc_config = {'LocationConstraint': ceph}
     zenko_bucket.create(
         CreateBucketConfiguration=loc_config
     )
@@ -227,13 +233,13 @@ def ceph_loc_bucket(zenko_bucket):
 
 @pytest.fixture(scope='function')
 def nfs_loc_bucket(zenko_resource):
-    nfs_ingest = conf.NFS_BACKEND + ':ingest'
-    loc_config = {'LocationConstraint': nfs_ingest}
-    bucket = create_bucket(zenko_resource, conf.NFS_TARGET_BUCKET)
-    bucket.create(
+    nfs = conf.NFS_BACKEND + ':ingest'
+    loc_config = {'LocationConstraint': nfs}
+    zenko_bucket = create_bucket(zenko_resource, conf.NFS_TARGET_BUCKET)
+    zenko_bucket.create(
         CreateBucketConfiguration=loc_config
     )
-    return bucket
+    return zenko_bucket
 
 # These are bucket in zenko with replication enabled
 
