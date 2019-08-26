@@ -291,8 +291,8 @@ stages:
           <<: [*mock_env, *secrets_env, *docker_env]
           KUBECONFIG: /root/.kube/config
           ZENKO_HELM_RELEASE: 'zenko-offline'
-          HELM_NAMESPACE: '%(prop:workername)s'
-          TILLER_NAMESPACE: '%(prop:workername)s'
+          HELM_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
+          TILLER_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
           INSTALL_TIMEOUT: "600"
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
