@@ -305,9 +305,9 @@ test-listing: | install-common get-latest-commit install-zenko wait-for-zenko ru
 .PHONY: test-listing
 
 template-yaml:
-	envsubst ../eve/offline.yaml > $(EVE_KUBE_VALUES) \
+	envsubst < ../eve/offline.yaml > offline.yaml \
 	&& ls -la ./ \
-	&& mv $(EVE_KUBE_VALUES) ../eve/offline.yaml
+	&& mv offline.yaml ../eve/offline.yaml
 .PHONY: template-yaml
 
 test-flaky:
