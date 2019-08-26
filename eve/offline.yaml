@@ -11,7 +11,7 @@ global:
         bucketMatch: true
         bucketName: $AWS_BUCKET_NAME
         https: true
-        awsEndpoint: s3.amazonaws.com
+        awsEndpoint: $AWS_ENDPOINT
         credentials:
           accessKey: $AWS_ACCESS_KEY
           secretKey: $AWS_SECRET_KEY
@@ -21,7 +21,7 @@ global:
       details:
         bucketMatch: false
         bucketName: $AWS_BUCKET_NAME_2
-        awsEndpoint: s3.amazonaws.com
+        awsEndpoint: $AWS_ENDPOINT
         credentials:
           accessKey: $AWS_ACCESS_KEY_2
           secretKey: $AWS_SECRET_KEY_2
@@ -31,7 +31,7 @@ global:
       details:
         bucketMatch: false
         bucketName: $AWS_CRR_BUCKET_NAME
-        awsEndpoint: s3.amazonaws.com
+        awsEndpoint: $AWS_ENDPOINT
         credentials:
           accessKey: $AWS_ACCESS_KEY
           secretKey: $AWS_SECRET_KEY
@@ -41,7 +41,7 @@ global:
       details:
         bucketMatch: true
         bucketName: $AWS_BUCKET_NAME
-        awsEndpoint: s3.amazonaws.com
+        awsEndpoint: $AWS_ENDPOINT
         serverSideEncryption: true
         credentials:
           accessKey: $AWS_ACCESS_KEY
@@ -52,7 +52,7 @@ global:
       details:
         bucketMatch: true
         bucketName: $AWS_CRR_BUCKET_NAME
-        awsEndpoint: s3.amazonaws.com
+        awsEndpoint: $AWS_ENDPOINT
         credentials:
           accessKey: $AWS_CRR_ACCESS_KEY
           secretKey: $AWS_CRR_SECRET_KEY

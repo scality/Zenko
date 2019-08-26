@@ -18,7 +18,7 @@ DOTENV := $(PWD)/.env
 ifndef OFFLINE
 EVE_KUBE_VALUES := ../eve/online.yaml
 else
-EVE_KUBE_VALUES := offline.yaml
+EVE_KUBE_VALUES := ../eve/offline.yaml
 endif
 
 BUILDDIR := build
@@ -305,7 +305,9 @@ test-listing: | install-common get-latest-commit install-zenko wait-for-zenko ru
 .PHONY: test-listing
 
 template-yaml:
-	envsubst ../eve/offline.yaml > $(EVE_KUBE_VALUES)
+	envsubst ../eve/offline.yaml > $(EVE_KUBE_VALUES) \
+	&& ls -la ./ \
+	&& mv $(EVE_KUBE_VALUES) ../eve/offline.yaml
 .PHONY: template-yaml
 
 test-flaky:
