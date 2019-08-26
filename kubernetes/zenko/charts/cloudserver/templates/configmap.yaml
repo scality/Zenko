@@ -24,14 +24,16 @@ data:
       "{{ $index }}": {
         "type": "{{ $location.type }}",
         "objectId": "{{ $location.objectId | default $index }}",
-        "legacyAwsBehavior": {{ $location.legacyAwsBehavior }},
+        "legacyAwsBehavior": {{ $location.legacyAwsBehavior | default true }},
         "isTransient": {{ $location.isTransient | default false }},
         {{- if $location.sizeLimitGB -}}"sizeLimitGB": {{ $location.sizeLimitGB }},{{- end -}}
         "details": {
           {{- if eq $location.type "aws_s3" }}
             "bucketMatch": {{ $location.details.bucketMatch }},
-            "https": {{ $location.details.https | default true }},
-            "awsEndpoint": "{{ $location.details.awsEndpoint }}",
+            {{- if $location.details.https }}
+            "https": {{ $location.details.https | default false }},
+            {{- end }}
+            "awsEndpoint": "{{ $location.details.awsEndpoint | default "https://s3.amazon.com" }}",
             "bucketName": "{{ $location.details.bucketName }}",
             {{- if $location.details.serverSideEncryption }}
             "serverSideEncryption": {{$location.details.serverSideEncryption | default false}},

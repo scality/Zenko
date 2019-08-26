@@ -10,7 +10,6 @@ global:
       details:
         bucketMatch: true
         bucketName: $AWS_BUCKET_NAME
-        https: true
         awsEndpoint: $AWS_ENDPOINT
         credentials:
           accessKey: $AWS_ACCESS_KEY
