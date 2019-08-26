@@ -10,6 +10,19 @@ maintenance:
   accessKey: HEYIMAACCESSKEY
   secretKey: loOkAtMEImASecRetKEy123=
 
+
+cosmos:
+  ci: true
+  storageClass: ci-zenko
+  rbac:
+    namespaced: true
+  operator:
+    image:
+      pullPolicy: Always
+  scheduler:
+    image:
+      pullPolicy: Always
+
 s3-data:
   persistentVolume:
     enabled: false
