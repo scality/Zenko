@@ -64,7 +64,7 @@ redis-ha:
     annotations: {}
 
 s3-data:
-  ## Notes: 
+  ## Notes:
   ##   - number of PVs required is 1
   ##   - this storage is used for the Zenko transient source (data that can be
   ##     stored locally prior to replication to an external resource)
@@ -78,7 +78,7 @@ s3-data:
     existingClaim: ""
     size: 90Gi
     storageClass: null
- 
+
 zenko-queue:
   ## Notes:
   ##   - number of PVs required is `nodeCount`
@@ -107,3 +107,12 @@ zenko-quorum:
     storageClass: null
     accessMode: ReadWriteOnce
     size: 5Gi
+
+mgob:
+  persistentVolume:
+    enabled: true
+    storageClass: null
+    accessModes:
+      - ReadWriteOnce
+    size: 10Gi
+    annotations: {}
