@@ -69,11 +69,13 @@ data:
     [
       {{ $last := keys .Values.global.locationConstraints | sortAlpha | last -}}
       {{- range $index, $locName := .Values.global.locationConstraints }}
+      {{- if ne $locName.type  "file" }}
       {
         "site": "{{ $index }}",
         "type": "{{ $locName.type }}"
       }
       {{- if ne $index $last -}},{{- end -}}
+      {{- end }}
       {{- end }}
     ]
 {{- end }}
