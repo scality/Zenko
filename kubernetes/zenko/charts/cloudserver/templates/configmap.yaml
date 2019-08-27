@@ -51,7 +51,7 @@ data:
           {{- else if eq $location.type "gcp" }}
             "bucketMatch": {{ $location.details.bucketMatch }},
             "https": {{ $location.details.https | default true }},
-            "gcpEndpoint": "{{ $location.details.gcpEndpoint }}",
+            "gcpEndpoint": "{{ $location.details.gcpEndpoint | default "storage.googleapis.com" }}",
             "bucketName": "{{ $location.details.bucketName }}",
             "mpuBucketName": "{{ $location.details.mpuBucketName }}",
             "credentials": {
