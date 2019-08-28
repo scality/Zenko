@@ -285,7 +285,7 @@ stages:
     - ShellCommand: *start-mocks
     - ShellCommand:
         name: Setup and run e2e
-        command: make -e VERBOSE=1 test-offline
+        command: make -e VERBOSE=1 test-offline ; sleep 6000
         workdir: build/tests
         env:
           <<: [*mock_env, *secrets_env, *docker_env]
