@@ -282,13 +282,12 @@ stages:
     - Git: *git_pull
     - ShellCommand: *private_registry_login
     - ShellCommand: *k8s_setup
-    - ShellCommand: *start-mocks
     - ShellCommand:
         name: Setup and run e2e
         command: make -e VERBOSE=1 test-offline ; sleep 6000
         workdir: build/tests
         env:
-          <<: [*mock_env, *secrets_env, *docker_env]
+          <<: [*secrets_env, *docker_env]
           KUBECONFIG: /root/.kube/config
           ZENKO_HELM_RELEASE: 'zenko-offline'
           HELM_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
