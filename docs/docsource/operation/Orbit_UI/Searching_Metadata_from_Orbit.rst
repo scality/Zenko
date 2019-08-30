@@ -1,4 +1,4 @@
-.. _orbit_md_search:
+.. _Searching Metadata from Orbit:
 
 Searching Metadata from Orbit
 =============================
@@ -10,9 +10,9 @@ files.
 
 Orbit provides a graphical tool for performing metadata searches, the
 syntax for which is hinted under the search bar itself, but also
-described explicitly in `Searching Metadata with Zenko`_.
+described explicitly in :ref:`Searching Metadata with Zenko`.
 
-To search the metadata of files stored in clouds managed by Zenko ,
+To search the metadata of files stored in clouds managed by Zenko,
 
 #. Click **Search** in the sidebar to raise the **Multicloud Search** window.
 
@@ -23,26 +23,16 @@ To search the metadata of files stored in clouds managed by Zenko ,
    |image1|
 
 #. Enter metadata search terms in the modified NoSQL format described in
-   `Searching Metadata with Zenko`_. Click the magnifying glass icon.
+   :ref:`Searching Metadata with Zenko`. Click the magnifying glass icon.
 
-#. Orbit returns the search results:
+   .. image::  ../Resources/Images/Orbit_Screencaps/metadata_search_results.png
 
-   |image2|
+   Orbit returns the search results.
 
-Clicking the arrow icon next to the search result takes you to the
-item’s location in the bucket.
-
-`Go back to Advanced Workflows`_
-
-`Go back to Searching Metadata with Zenko`_
-
-.. _`Searching Metadata with Zenko`: ../Metadata_Search/Searching_Metadata_with_Zenko.html
-.. _`Go back to Advanced Workflows`: ../Orbit_UI/Advanced_Workflows/Advanced_Workflows.html
-.. _`Go back to Searching Metadata with Zenko`: ../Metadata_Search/Searching_Metadata_with_Zenko.html
+   Clicking the arrow icon next to the search result takes you to the
+   item’s location (directory) in the bucket.
 
 .. |image0| image:: ../Resources/Images/Orbit_Screencaps/Orbit_multicloud_search.png
    :class: OneHundredPercent
 .. |image1| image:: ../Resources/Images/Orbit_Screencaps/Orbit_multicloud_search_bucket_select.png
    :class: FiftyPercent
-.. |image2| image:: ../Resources/Images/Orbit_Screencaps/Orbit_multicloud_search_results.png
-   :class: OneHundredPercent

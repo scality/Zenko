@@ -1,4 +1,4 @@
-.. _crr_pause-resume:
+.. _CRR Pause and Resume:
 
 CRR Pause and Resume
 ====================

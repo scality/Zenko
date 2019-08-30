@@ -5,6 +5,8 @@ Add a New User
 
 #. Click **Storage Accounts** in the sidebar to raise the Storage Accounts window.
 
+   ..  image:: ../../Resources/Images/Orbit_Screencaps/sidebar_storage_accounts_button.png
+   
 #. Enter a new user name in the **Account Name** field and click
    **Generate**.
 
@@ -19,7 +21,7 @@ Add a New User
    .. warning::
 
       You will not get a second chance to copy this key! If you lose the key, the
-      user name and any information associated with it will be lost as well.
+      user name and any information associated with it are lost as well.
 
    A **Copy** button is included in the user interface for your convenience.
    

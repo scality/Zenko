@@ -20,8 +20,8 @@ buttons for:
    * :ref:`Storage Locations <orbit_add_location>`
    * :ref:`Endpoints <endpoint>`
    * :ref:`Browser <create_a_bucket>`
-   * :ref:`Search <orbit_md_search>`
-   * :ref:`Replication <set_up_crr>`
+   * :ref:`Search <Searching Metadata from Orbit>`
+   * :ref:`Replication <Set Up Replication>`
    * :ref:`Bucket Lifecycle <object_lifecycle_mgmt>`
    * :ref:`Settings`
 

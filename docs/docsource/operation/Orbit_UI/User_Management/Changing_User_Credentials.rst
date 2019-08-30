@@ -3,9 +3,13 @@ Changing User Credentials
 
 To change a user’s credentials (public/private key pair) from Orbit:
 
+#. Click the **Storage Accounts** button in the sidebar.
+
+   .. image:: ../../Resources/Images/Orbit_Screencaps/sidebar_storage_accounts_button.png
+
 #. Look for the user’s name in the **STORAGE ACCOUNTS** pane.
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_change_user_credentials.png
+   .. image:: ../../Resources/Images/Orbit_Screencaps/credentialed_user.png
 
 #. Click **Replace**.
 #. Orbit warns you that this could cause problems for the user. Click
@@ -22,5 +26,9 @@ To change a user’s credentials (public/private key pair) from Orbit:
       :scale: 75%
       :align: center
 
-   The user’s public access key remains unchanged.
+   .. warning::
 
+    You will not get a second chance to copy this key! If you lose the key, the
+    user name and any information associated with it are lost as well.
+
+   The user’s public access key remains unchanged.

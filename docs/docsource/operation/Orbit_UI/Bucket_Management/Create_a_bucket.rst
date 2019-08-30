@@ -14,7 +14,7 @@ To create a bucket:
 #. The **Create Bucket** dialog displays:
 
    .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_bucket_create_dialog.png
-      :scale: 75%
+      :width: 75%
       :align: center
 
    Enter the bucket name and location constraint, and click the
@@ -28,13 +28,13 @@ To create a bucket:
    **View Info**. Bucket information displays:
 
    .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_View_Bucket_Info.png
-      :scale: 75%
+      :width: 75%
       :align: center
 
    Toggle **Versioning** ON.
 
    .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_Versioning_ON.png
-      :scale: 75%
+      :width: 75%
       :align: center
 
    .. important:: You *must* turn versioning on for cloud-hosted buckets before

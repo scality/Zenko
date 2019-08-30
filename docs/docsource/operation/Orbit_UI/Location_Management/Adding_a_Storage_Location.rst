@@ -3,13 +3,15 @@
 Adding a Storage Location
 =========================
 
-Click the **Storage Locations** item in the sidebar to open the
-**Cloud Locations** dialog:
+To add a storage location:
 
-.. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_Storage_Locations.png
-   :align: center
+1. Click the **Storage Locations** item in the sidebar to open the
+   **Cloud Locations** window:
 
-#. To add a storage location, click **Add New**.
+   .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_Storage_Locations.png
+      :align: center
+
+#. Click **Add New**.
 
 #. The **Add New Storage Location** dialog displays:
 
@@ -42,22 +44,22 @@ Click the **Storage Locations** item in the sidebar to open the
    required for a local file system, but all public clouds require
    authentication information.
 
-.. note::
+   .. note::
 
-   Adding a location requires credentials (an access key and a secret key). 
-   Though nothing prevents you from using account-level credentials when
-   Zenko requests credentials for a location, it is a best practice to enter
-   credentials specifically generated for this access. In other words, before
-   you add a location, first create a user in that location (an AWS account 
-   or an S3 Connector, for example) for the purpose of Zenko access. Give that
-   Zenko "user" all and only the permissions needed to perform the desired
-   tasks. 
+      Adding a location requires credentials (an access key and a secret key).
+      Though nothing prevents you from using account-level credentials when
+      Zenko requests credentials for a location, it is a best practice to enter
+      credentials specifically generated for this access. In other words, before
+      you add a location, first create a user in that location (an AWS account
+      or an S3 Connector, for example) for the purpose of Zenko access. Give
+      that Zenko "user" all and only the permissions needed to perform the
+      desired tasks.
 
-.. tip::
+   .. tip::
    
-   When configuring an S3 Connector, assign the following policy to the
-   special zenko-access user to ensure access to the Metadata service and 
-   the ability to perform operations on the bucket:
+      When configuring an S3 Connector, assign the following policy to the
+      special zenko-access user to ensure access to the Metadata service and the
+      ability to perform operations on the bucket:
 
    ::
 
@@ -252,7 +254,7 @@ Configuring a location as a transient source requires checking the
 **Delete objects after successful replication** box under the
 **Advanced Options** submenu.
 
-See :ref:`transient-source` for details.
+See :ref:`Adding a Transient Source Storage Location` for details.
 
 .. [#f1] Microsoft's setup procedure is functionally identical to that of AWS
    S3. However, the Microsoft terms, "Azure Account Name" and "Azure Access Key"

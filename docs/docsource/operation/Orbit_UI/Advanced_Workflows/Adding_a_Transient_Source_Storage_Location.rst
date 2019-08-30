@@ -1,29 +1,32 @@
-.. _transient-source:
+.. _Adding a Transient Source Storage Location:
 
 Adding a Transient Source Storage Location
 ==========================================
 
-Adding a transient source storage location is quite similar to adding
-any other storage location, but for a few particulars.
+Adding a transient source storage location is quite similar to adding any other
+storage location, but for a few particulars.
 
-A transient source location is a temporary buffer to which data is
-stored and from which data is replicated. Scality RING with sproxyd is
-the only production-ready environment that supports transient source
-replication feature (the Zenko Local environment also supports this
-feature, but is suitable for testing purposes only). Data written to
-the transient source location can be replicated to any cloud service
-Zenko supports.
+A transient source location is a temporary buffer to which data is stored and
+from which data is replicated. Scality RING with sproxyd is the only
+production-ready environment that supports the transient source replication
+feature (the Zenko Local environment also supports this feature, but is suitable
+for testing purposes only). Data written to the transient source location can be
+replicated to any cloud service Zenko supports.
 
 To deploy a transient source storage location:
 
-#. Open Orbit to a registered Zenko instance:
+#. Click the **Storage Locations** button in the sidebar.
 
-   |image0|
+   .. image:: ../../Resources/Images/Orbit_Screencaps/sidebar_storage_locations_button.png
 
-#. Click **Add New Storage Location**.
+#. The **Cloud Locations** window displays. Click **Add New**. 
 
-#. Enter the **Location Name** and from the **Location Type** drop-down
-   list, select **Scality RING with Sproxyd Connector**.
+   .. image:: ../../Resources/Images/Orbit_Screencaps/cloud_locations_modal.png
+      :width: 75%
+   
+#. The **Add New Storage Location** modal appears. Enter the **Location Name**
+   and from the **Location Type** drop-down list, select **Scality RING with
+   Sproxyd Connector**.
 
    .. image:: ../../Resources/Images/Orbit_Screencaps/Add_New_Storage_Location_RING_sproxyd.png
       :width: 50%
@@ -46,14 +49,12 @@ To deploy a transient source storage location:
 
 #. Click **Save**. The transient source location is established.
 
-#. Go to `Setting Up Replication`_, setting
+#. Go to `Set Up Replication`_, setting
    the transient source as the source bucket.
 
 Do not update metadata in a transient source object. Changing metadata
 of an object in a transient source bucket will fail. You cannot change
 metadata in the S3 protocol.
 
-.. _`Setting Up Replication`: Setting_Up_CRR.html
+.. _`Set Up Replication`: Set_Up_CRR.html
 
-.. |image0| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_Storage_Locations.png
-   :class: OneHundredPercent

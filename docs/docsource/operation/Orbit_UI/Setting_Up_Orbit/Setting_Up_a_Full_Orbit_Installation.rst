@@ -13,11 +13,18 @@ hosted. You can deploy Zenko in any of the following topologies:
 To run a “full” Zenko installation, you must register your Zenko instance to
 Orbit.
 
-#. Go to Zenko.io.
-#. Click **Try It!**
+#. Go to `Zenko.io <https://www.zenko.io/try-zenko/>`_.
+
+#. Click **Register with Google** (Google ID required)
+
 #. Authenticate:
 
    |image0|
+
+#. Click **Install Now**.
+
+   .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_Welcome_screen.png
+      :scale: 75%	      
 
 #. Review and affirm the Privacy Policy:
 
@@ -32,16 +39,16 @@ Orbit.
 
    |image3|
 
-   .. tip::
+.. tip::
 
-      To find your Instance ID, use the kubectl commands in the
-      “Install Zenko” section of *Zenko Installation*.
+   To find your Instance ID, use the
+   :version-ref:`kubectl commands <https://documentation.scality.com/Zenko/{version}/installation/install/Install_Zenko.html#get-instance-id>`
+   from :version-ref:`Zenko Installation <https://documentation.scality.com/Zenko/{version}/installation/index.html>`.
 
 .. |image0| image:: ../../Resources/Images/Orbit_Screencaps/google_login.png
-   :class: FiftyPercent
+   :scale: 75%
 .. |image1| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_setup_Privacy.png
-   :class: OneHundredPercent
+   :scale: 75%
 .. |image2| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_register_my_Instance_detail.png
-   :class: FiftyPercent
 .. |image3| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_setup_Instance_ID.png
-   :class: FiftyPercent
+   :scale: 75%
