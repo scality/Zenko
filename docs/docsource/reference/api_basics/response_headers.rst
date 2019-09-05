@@ -1,12 +1,9 @@
-Response Headers
-================
-
-All Zenko response headers are listed on separate lines.
-
 .. _Common Response Headers:
 
 Common Response Headers
------------------------
+=======================
+
+All Zenko response headers are listed on separate lines.
 
 .. tabularcolumns:: X{0.20\textwidth}X{0.10\textwidth}X{0.65\textwidth}
 .. table::

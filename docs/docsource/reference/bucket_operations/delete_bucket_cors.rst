@@ -9,7 +9,8 @@ for a bucket. This operation requires the S3:PutBucketCORS permission.
 Requests
 --------
 
-**Request Syntax**
+Syntax
+~~~~~~
 
 .. code::
 
@@ -22,35 +23,41 @@ Requests
 
   The Request Syntax illustrates only a portion of the request headers.
 
-**Request Parameters**
+Parameters
+~~~~~~~~~~
 
 The DELETE Bucket CORS operation does not use Request Parameters.
 
-**Request Headers**
+Headers
+~~~~~~~
 
 The DELETE Bucket CORS operation uses only request headers that are
 common to all operations (refer to :ref:`Common Request Headers`).
 
-**Request Elements**
+Elements
+~~~~~~~~
 
 This operation does not use request elements.
 
 Responses
 ---------
 
-**Response Headers**
+Headers
+~~~~~~~
 
-Implementation of the DELETE Bucket CORS operation uses only response
+The DELETE Bucket CORS operation uses only response
 headers that are common to all operations (refer to :ref:`Common Response Headers`).
 
-**Response Elements**
+Elements
+~~~~~~~~
 
 This operation does not use response elements.
 
 Examples
 --------
 
-*Request Sample*
+Request Sample
+~~~~~~~~~~~~~~
 
 .. code::
 
@@ -59,7 +66,8 @@ Examples
    Date: Mon, 15 Feb 2016 15:30:07 GMT
    Authorization: {{authenticationInformation}}
 
-*Request Sample*
+Request Sample
+~~~~~~~~~~~~~~
 
 .. code::
 

@@ -1,6 +1,9 @@
 Object Operations
 =================
 
+This section presents a compendium of available API calls for object operations
+in Zenko.
+
 .. toctree::
    :maxdepth: 1
 

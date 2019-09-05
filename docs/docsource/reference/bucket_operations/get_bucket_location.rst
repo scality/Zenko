@@ -27,7 +27,7 @@ Requests
 
 **Request Parameters**
 
-The GET Bucket Location operation does not use Request Parameters.
+The GET Bucket Location operation does not use request parameters.
 
 **Request Headers**
 

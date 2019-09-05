@@ -39,7 +39,7 @@ The Request Syntax illustrates only a portion of the request headers.
 
 **Request Parameters**
 
-The PUT Bucket Versioning operation does not use Request Parameters.
+The PUT Bucket Versioning operation does not use request parameters.
 
 **Request Headers**
 
