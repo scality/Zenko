@@ -7,3 +7,4 @@ Zenko API Primer
    acl_(access_control_list)_primer/index
    request_headers
    response_headers
+   error_messages
