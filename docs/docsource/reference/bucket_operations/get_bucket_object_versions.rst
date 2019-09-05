@@ -393,7 +393,7 @@ Examples
            <Size>434234</Size>
            <StorageClass>STANDARD</StorageClass>
            <Owner>
-               <ID>75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a</ID>
+               <ID>8b27d4b0fc460740425b9deef56fa1af6245fbcccdda813b691a8fda9be8ff0c</ID>
                <DisplayName>mtd@amazon.com</DisplayName>
            </Owner>
        </Version>
@@ -403,7 +403,7 @@ Examples
            <IsLatest>true</IsLatest>
            <LastModified>2009-11-12T17:50:30.000Z</LastModified>
            <Owner>
-               <ID>75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a</ID>
+               <ID>8b27d4b0fc460740425b9deef56fa1af6245fbcccdda813b691a8fda9be8ff0c</ID>
                <DisplayName>mtd@amazon.com</DisplayName>
            </Owner>
        </DeleteMarker>
@@ -416,7 +416,7 @@ Examples
            <Size>166434</Size>
            <StorageClass>STANDARD</StorageClass>
            <Owner>
-               <ID>75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a</ID>
+               <ID>8b27d4b0fc460740425b9deef56fa1af6245fbcccdda813b691a8fda9be8ff0c</ID>
                <DisplayName>mtd@amazon.com</DisplayName>
            </Owner>
         </Version>
@@ -458,7 +458,7 @@ starting with the value for key-marker.
        <ETag>&quot;396fefef536d5ce46c7537ecf978a360&quot;</ETag>
        <Size>217</Size>
        <Owner>
-         <ID>75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a</ID>
+         <ID>8b27d4b0fc460740425b9deef56fa1af6245fbcccdda813b691a8fda9be8ff0c</ID>
        </Owner>
        <StorageClass>STANDARD</StorageClass>
      </Version>
@@ -468,7 +468,7 @@ starting with the value for key-marker.
        <IsLatest>true</IsLatest>
        <LastModified>2009-12-10T16:38:11.000Z</LastModified>
        <Owner>
-         <ID>75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a</ID>
+         <ID>8b27d4b0fc460740425b9deef56fa1af6245fbcccdda813b691a8fda9be8ff0c</ID>
        </Owner>
      </DeleteMarker>
      <Version>
@@ -479,7 +479,7 @@ starting with the value for key-marker.
        <ETag>&quot;396fefef536d5ce46c7537ecf978a360&quot;</ETag>
        <Size>217</Size>
        <Owner>
-         <ID>75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a</ID>
+         <ID>8b27d4b0fc460740425b9deef56fa1af6245fbcccdda813b691a8fda9be8ff0c</ID>
        </Owner>
        <StorageClass>STANDARD</StorageClass>
      </Version>
@@ -516,7 +516,7 @@ The following GET request returns objects whose keys begin with source.
        <IsLatest>true</IsLatest>
        <LastModified>2009-12-10T16:38:11.000Z</LastModified>
        <Owner>
-         <ID>75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a</ID>
+         <ID>8b27d4b0fc460740425b9deef56fa1af6245fbcccdda813b691a8fda9be8ff0c</ID>
        </Owner>
      </DeleteMarker>
      <Version>
@@ -527,7 +527,7 @@ The following GET request returns objects whose keys begin with source.
        <ETag>&quot;396fefef536d5ce46c7537ecf978a360&quot;</ETag>
        <Size>217</Size>
        <Owner>
-         <ID>75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a</ID>
+         <ID>8b27d4b0fc460740425b9deef56fa1af6245fbcccdda813b691a8fda9be8ff0c</ID>
        </Owner>
        <StorageClass>STANDARD</StorageClass>
      </Version>
@@ -565,7 +565,7 @@ The following GET request returns objects starting at the specified key
        <IsLatest>true</IsLatest>
        <LastModified>2009-12-10T16:38:11.000Z</LastModified>
        <Owner>
-         <ID>75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a</ID>
+         <ID>8b27d4b0fc460740425b9deef56fa1af6245fbcccdda813b691a8fda9be8ff0c</ID>
        </Owner>
      </DeleteMarker>
      <Version>
@@ -576,7 +576,7 @@ The following GET request returns objects starting at the specified key
        <ETag>&quot;396fefef536d5ce46c7537ecf978a360&quot;</ETag>
        <Size>217</Size>
        <Owner>
-         <ID>75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a</ID>
+         <ID>8b27d4b0fc460740425b9deef56fa1af6245fbcccdda813b691a8fda9be8ff0c</ID>
        </Owner>
        <StorageClass>STANDARD</StorageClass>
      </Version>
@@ -619,7 +619,7 @@ specified by version-id-marker.
        <ETag>&quot;396fefef536d5ce46c7537ecf978a360&quot;</ETag>
        <Size>217</Size>
        <Owner>
-         <ID>75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a</ID>
+         <ID>8b27d4b0fc460740425b9deef56fa1af6245fbcccdda813b691a8fda9be8ff0c</ID>
        </Owner>
        <StorageClass>STANDARD</StorageClass>
      </Version>
@@ -631,7 +631,7 @@ specified by version-id-marker.
        <ETag>&quot;396fefef536d5ce46c7537ecf978a360&quot;</ETag>
        <Size>217</Size>
        <Owner>
-         <ID>75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a</ID>
+         <ID>8b27d4b0fc460740425b9deef56fa1af6245fbcccdda813b691a8fda9be8ff0c</ID>
        </Owner>
        <StorageClass>STANDARD</StorageClass>
      </Version>
@@ -742,7 +742,7 @@ the specified delimiter after the prefix.
        <ETag>&quot;d41d8cd98f00b204e9800998ecf8427e&quot;</ETag>
        <Size>0</Size>
        <Owner>
-         <ID>75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a</ID>
+         <ID>8b27d4b0fc460740425b9deef56fa1af6245fbcccdda813b691a8fda9be8ff0c</ID>
          <DisplayName>display-name</DisplayName>
        </Owner>
        <StorageClass>STANDARD</StorageClass>

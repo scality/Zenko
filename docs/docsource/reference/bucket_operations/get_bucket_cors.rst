@@ -9,7 +9,8 @@ information. This operation requires S3:GetBucketCORS permission.
 Requests
 --------
 
-**Request Syntax**
+Syntax
+~~~~~~
 
 .. code::
 
@@ -20,31 +21,36 @@ Requests
 
 .. note::
 
-  The Request Syntax illustrates only a portion of the request headers.
+   The request syntax illustrates only a portion of the request headers.
 
-**Request Parameters**
+Parameters
+~~~~~~~~~~
 
-The GET Bucket CORS operation does not use Request Parameters.
+The GET Bucket CORS operation does not use request parameters.
 
-**Request Headers**
+Headers
+~~~~~~~
 
 The GET Bucket CORS operation uses only request headers that are common
-to all operations (refer to :ref:`Common Request Headers`).
+to all operations (see :ref:`Common Request Headers`).
 
-**Request Elements**
+Elements
+~~~~~~~~
 
-Implementation of the GET Bucket CORS operation does not use request
+The GET Bucket CORS operation does not use request
 elements.
 
 Responses
 ---------
 
-**Response Headers**
+Headers
+~~~~~~~
 
-Implementation of the GET Bucket CORS operation uses only response
-headers that are common to all operations (refer to :ref:`Common Response Headers`).
+The GET Bucket CORS operation uses only response
+headers that are common to all operations (see :ref:`Common Response Headers`).
 
-**Response Elements**
+Elements
+~~~~~~~~
 
 .. tabularcolumns:: llX{0.65\textwidth}
 .. table::
@@ -187,11 +193,13 @@ headers that are common to all operations (refer to :ref:`Common Response Header
 Examples
 --------
 
-**Retrieve CORS Subresource**
+Retrieve CORS Subresource
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This request retrieves the cors subresource of a bucket.
 
-*Request Sample*
+Request Sample
+^^^^^^^^^^^^^^
 
 .. code::
 
@@ -200,7 +208,8 @@ This request retrieves the cors subresource of a bucket.
    Date: Tue, 13 Dec 2011 19:14:42 GMT
    Authorization: {{authenticationInformation}}
 
-*Response Sample*
+Response Sample
+^^^^^^^^^^^^^^^
 
 .. code::
 

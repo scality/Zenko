@@ -1,15 +1,12 @@
-Request Headers
-===============
+.. _Common Request Headers:
+
+Common Request Headers
+======================
 
 All request headers are passed as strings, but are not enclosed in
 quotation marks. They must be listed on separate lines, and each header
 included in the request signature must be followed by a newline marker
 (\n) in the signature string.
-
-.. _Common Request Headers:
-
-Common Request Headers
-----------------------
 
 .. tabularcolumns:: X{0.20\textwidth}X{0.75\textwidth}
 .. table::

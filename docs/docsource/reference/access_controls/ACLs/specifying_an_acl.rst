@@ -4,24 +4,23 @@ Specifying an ACL
 Using Zenko, an ACL can be set at the creation point of a bucket or object.
 An ACL can also be applied to an existing bucket or object.
 
-.. tabularcolumns:: X{0.32\textwidth}X{0.63\textwidth}
+.. tabularcolumns:: X{0.25\textwidth}X{0.70\textwidth}
 .. table::
 
-   +--------------------------------+-----------------------------------+
-   | Set ACL using request headers  | When sending a request to create  |
-   |                                | a resource (bucket or object),    |
-   |                                | set an ACL using the request      |
-   |                                | headers. With these headers, it   |
-   |                                | is possible to either specify a   |
-   |                                | canned ACL or specify grants      |
-   |                                | explicitly (identifying grantee   |
-   |                                | and permissions explicitly).      |
-   +--------------------------------+-----------------------------------+
-   | Set ACL using request body     | When you send a request to set an |
-   |                                | ACL on a existing resource, you   |
-   |                                | can set the ACL either in the     |
-   |                                | request header or in the body.    |
-   +--------------------------------+-----------------------------------+
+   +--------------------------------+------------------------------------------+
+   | Set ACL using request headers  | When sending a request to create a       |
+   |                                | resource (bucket or object), set an ACL  |
+   |                                | using the request headers. With these    |
+   |                                | headers, it is possible to either        |
+   |                                | specify a canned ACL or specify grants   |
+   |                                | explicitly (identifying grantee and      |
+   |                                | permissions explicitly).                 |
+   +--------------------------------+------------------------------------------+
+   | Set ACL using request body     | When you send a request to set an ACL on |
+   |                                | an existing resource, you can set the    |
+   |                                | ACL either in the request header or in   |
+   |                                | the body.                                |
+   +--------------------------------+------------------------------------------+
 
 Sample ACL
 ----------
@@ -35,7 +34,7 @@ canonical user ID, and two of the predefined Amazon S3 groups.
 .. code::
 
    <?xml version="1.0" encoding="UTF-8"?>
-   <AccessControlPolicy xmlns="http://s3.scality.com/doc/2006-03-01/">
+   <AccessControlPolicy xmlns="http://example.com/doc/2006-03-01/">
      <Owner>
        <ID>Owner-canonical-user-ID</ID>
        <DisplayName>display-name</DisplayName>
@@ -67,13 +66,13 @@ canonical user ID, and two of the predefined Amazon S3 groups.
 
        <Grant>
          <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="Group">
-           <URI>http://acs.amazonaws.com/groups/global/AllUsers</URI>
+           <URI>http://acs.example.com/groups/global/AllUsers</URI>
          </Grantee>
          <Permission>READ</Permission>
        </Grant>
        <Grant>
          <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="Group">
-           <URI>http://acs.amazonaws.com/groups/s3/LogDelivery</URI>
+           <URI>http://acs.example.com/groups/s3/LogDelivery</URI>
          </Grantee>
          <Permission>WRITE</Permission>
        </Grant>
