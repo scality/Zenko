@@ -86,6 +86,16 @@ cloudserver:
       # secret:
 
 backbeat:
+  api:
+    autoscaling:
+      enabled: true
+      config:
+        maxReplicas: *nodeCount
+    resources:
+      requests:
+        cpu: 250m
+      limits:
+        cpu: 1
   replication:
     dataProcessor:
       replicaCount: *nodeCount
