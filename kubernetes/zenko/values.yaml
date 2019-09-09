@@ -197,6 +197,7 @@ zenko-queue:
 ## Extensive list of configurables can be found here:
 ## https://github.com/kubernetes/charts/blob/master/incubator/kafka/values.yaml
   replicas: *nodeCount
+  kafkaHeapOptions: "-Xmx6G -Xms1G"
   rbac:
     enabled: true
   configurationOverrides:
