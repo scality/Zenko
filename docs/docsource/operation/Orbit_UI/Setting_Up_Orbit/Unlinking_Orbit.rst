@@ -8,6 +8,8 @@ to unlink a Zenko instance from Orbit. To do this:
 
 #. Click the **Settings** button in the sidebar.
 
+   .. image:: ../../Resources/Images/Orbit_Screencaps/sidebar_settings_button.png
+
 #. Click the **Unlink this Zenko Instance** button.
 
    .. image:: ../../Resources/Images/Orbit_Screencaps/unlink_zenko.png
