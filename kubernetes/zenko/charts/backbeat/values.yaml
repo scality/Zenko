@@ -52,6 +52,14 @@ api:
       prometheus.io/scrape: "true"
       prometheus.io/port: "8900"
       prometheus.io/path: "/_/monitoring/metrics"
+  autoscaling:
+    enabled: false
+    config:
+      minReplicas: 1
+      maxReplicas: 5
+      # Note: when setting this, a `resources.request.cpu` is required. You
+      # likely want to set it to `1` or some lower value.
+      targetCPUUtilizationPercentage: 70
 
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
