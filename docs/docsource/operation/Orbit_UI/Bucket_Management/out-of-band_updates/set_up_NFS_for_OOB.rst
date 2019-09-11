@@ -1,5 +1,5 @@
-Set Up Out-of-Band Updates from an NFS Mount
-============================================
+Out-of-Band Updates from an NFS Mount
+=====================================
 
 Zenko 1.1 allows ingestion and out-of-band (OOB) updates from existing NFS mount
 points. This new feature does not copy the files themselves; rather, the
@@ -27,6 +27,9 @@ To add an NFS location in Orbit, you must have an NFS server endpoint and know
 the export path. You may also apply specific NFS mount options based on your
 environment's requirements. For example, for read-only access to the NFS mount,
 specify the ``ro`` NFS option.
+
+Set Up Out of Band Updates from NFS
+-----------------------------------
 
 #. Create the location in Orbit. Your export path can include specific
    folders. For example, if your root export is /data but you only need Zenko
@@ -88,7 +91,6 @@ all future created NFS locations.
 
    This does not change the cron schedule on existing NFS locations.
 
-
 Modify Cron on Existing NFS Locations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -110,9 +112,7 @@ List Installed NFS Locations
 Because each location is treated as a unique resource, you can list all
 installed locations with the command::
 
-
    $ kubectl get cosmos
-
 
 Managed Resources
 ~~~~~~~~~~~~~~~~~
@@ -129,4 +129,3 @@ nfs resources themselves using kubectl.
 ::
 
    $ kubectl edit cosmos <my-nfs-location-name>
-

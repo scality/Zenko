@@ -21,6 +21,4 @@ access and manage these namespaces.
 
    configuring_zenko
    configure_ingress
-   set_up_S3C_for_OOB
-   set_up_NFS_for_OOB
 

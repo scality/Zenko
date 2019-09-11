@@ -122,38 +122,37 @@ These configuration options are described below.
 Endpoint
 ~~~~~~~~
 
-Some service providers assign fixed endpoints to customers. Others require 
-users to name endpoints. Services for which Zenko requests endpoint names
-may have additional naming requirements. For these requirements, review
-your cloud storage service provider's documentation. 
+Some service providers assign fixed endpoints to customers. Others require users
+to name endpoints. Services for which Zenko requests endpoint names may have
+additional naming requirements. For these requirements, review your cloud
+storage service provider's documentation.
 
 .. note::
 
-   The **Add Storage Location** screen for Wasabi presents an 
-   endpoint field, but it is not yet editable.
+   The **Add Storage Location** screen for Wasabi presents an endpoint field,
+   but it is not yet editable.
 
-For Ceph RADOS Gateway endpoints, you can nominate a secure port, such
-as 443 or 4443. If you do not, the default is port 80. Whichever port
-you assign, make sure it is accessible to Zenko (firewall open, etc.). 
+For Ceph RADOS Gateway endpoints, you can nominate a secure port, such as 443 or
+4443. If you do not, the default is port 80. Whichever port you assign, make
+sure it is accessible to Zenko (firewall open, etc.).
 
 Bucket Match
 ~~~~~~~~~~~~
 
-Zenko provides a "Bucket Match" option for Ceph RADOS Gateway and
-Scality S3 Connector. If this option is left unchecked, Zenko prepends
-a bucket identifier to every object in the target backend's namespace.
-This enables a "bucket of buckets" architecture in which the target
-backend sees and manages only one large bucket and Zenko manages the
-namespace of the "sub-buckets." Clicking the **Bucket Match** box
-deactivates this feature: the prepending of bucket names is defeated,
-and the bucket structure in the host cloud is copied identically to
+Zenko provides a "Bucket Match" option for Ceph RADOS Gateway and Scality S3
+Connector. If this option is left unchecked, Zenko prepends a bucket identifier
+to every object in the target backend's namespace.  This enables a "bucket of
+buckets" architecture in which the target backend sees and manages only one
+large bucket and Zenko manages the namespace of the "sub-buckets." Clicking the
+**Bucket Match** box deactivates this feature: the prepending of bucket names is
+defeated, and the bucket structure in the host cloud is copied identically to
 the target cloud.
 
 .. important::
 
-   If the Bucket Match option is set, buckets in the target location
-   cannot be used as a CRR destination. Zenko requires the bucket
-   identifier in order to manage the namespace for replication.
+   If the Bucket Match option is set, buckets in the target location cannot be
+   used as a CRR destination. Zenko requires the bucket identifier in order to
+   manage the namespace for replication.
 
 Server-Side Encryption
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -181,20 +180,19 @@ service provides the objects thus requested.
 Target Helper Bucket for Multi-Part Uploads
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The Google Cloud Storage solution imposes limitations on uploads that
-require specific workarounds. Among these is a 5 GB hard limit on 
-uploads per command, which requires objects over this limit to be
-broken up, uploaded in parallel chunks, and on a successful upload 
-reassembled in the cloud. Zenko manages this complexity, in part, 
-by using a "helper" bucket. 
+The Google Cloud Storage solution imposes limitations on uploads that require
+specific workarounds. Among these is a 5 GB hard limit on uploads per command,
+which requires objects over this limit to be broken up, uploaded in parallel
+chunks, and on a successful upload reassembled in the cloud. Zenko manages this
+complexity, in part, by using a "helper" bucket.
 
 .. note::
 
-   Google Cloud Storage also imposes a 1024-part cap on objects stored
-   to its locations (For all other backends, Zenko caps the number of
-   parts at 10,000). For data stored directly to GCP as the primary
-   cloud, Zenko propagates this limitation forward to any other cloud
-   storage services to which Google data is replicated.
+   Google Cloud Storage also imposes a 1024-part cap on objects stored to its
+   locations (For all other backends, Zenko caps the number of parts at
+   10,000). For data stored directly to GCP as the primary cloud, Zenko
+   propagates this limitation forward to any other cloud storage services to
+   which Google data is replicated.
 
 Other Services: Zenko Local, RING/sproxyd, and NFS
 --------------------------------------------------
@@ -202,24 +200,22 @@ Other Services: Zenko Local, RING/sproxyd, and NFS
 Zenko Local Filesystem
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Zenko Local Filesystem has similar authentication requirements to AWS
-S3, but because it is a Zenko-native filesystem, it shares
-authentication and related credentialing tasks, which are addressed
-elsewhere in the Orbit UI.
+Zenko Local Filesystem has similar authentication requirements to AWS S3, but
+because it is a Zenko-native filesystem, it shares authentication and related
+credentialing tasks, which are addressed elsewhere in the Orbit UI.
 
-For more information, see :ref:`Zenko\ Local`.
+For more information, see :ref:`Zenko Local`.
 
 RING with sproxyd Connector
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The RING maintains stability and redundancy in its object data stores
-by way of a bootstrap list. To access a RING directly using sproxyd,
-you must enter at least one bootstrap server; however, more is better.
-This is simply a list of IP addresses for the bootstrap servers in the
-RING. The order of entry is not important: none enjoys a preferred
-position. Entries must assign a port number. If a port number is not
-explicitly assigned, Zenko assigns port 8081 by default. Entries can
-use DNS or IP address format.
+The RING maintains stability and redundancy in its object data stores by way of
+a bootstrap list. To access a RING directly using sproxyd, you must enter at
+least one bootstrap server; however, more is better.  This is simply a list of
+IP addresses for the bootstrap servers in the RING. The order of entry is not
+important: none enjoys a preferred position. Entries must assign a port
+number. If a port number is not explicitly assigned, Zenko assigns port 8081 by
+default. Entries can use DNS or IP address format.
 
 NFS
 ~~~
@@ -230,15 +226,24 @@ jobs.
 
 .. note::
 
-   For NFS mounts, Zenko cannot perform data PUT transactions. In
-   other words, data can be written directly to NFS for Zenko to
-   replicate to other backends, but cannot be written to Zenko to
-   replicate to NFS.
+   For NFS mounts, Zenko cannot perform data PUT transactions. In other words,
+   data can be written directly to NFS for Zenko to replicate to other backends,
+   but cannot be written to Zenko to replicate to NFS.
 
 Configuring NFS requires you to specify the transfer protocol (TCP or UDP), NFS
 version (v3 or v4), the server location (IP address or URI), export path (the
 path to the NFS mount point on the server), and the desired NFS options (rw and
 async are the default entries).
+
+AWS
+~~~
+
+Zenko can ingest metadata out of band from AWS in much the same way it can
+ingest out-of-band updates from NFS mounts. AWS metadata is ingested in an
+initial setup, then changes are mapped via a regularly scheduled cron job. Zenko
+develops its own namespace for the Amazon bucket and can perform metadata-\
+related tasks (CRR, metadata search, lifecycle management, etc.) on targets in
+the AWS bucket using this namespace.
 
 Transient Sources
 -----------------

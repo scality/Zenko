@@ -12,7 +12,7 @@ Establishing an Object Expiration Policy
 #. From anywhere in Orbit, click the **Bucket Lifecycle** tab in 
    the left navbar.
 
-   |image0|
+   .. image:: ../../../Resources/Images/Orbit_Screencaps/Orbit_lifecycle_select.png
 
 #. The **Bucket Lifecycle** screen displays.
 
