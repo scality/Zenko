@@ -3,7 +3,7 @@
 GET Bucket (List Objects) Version 2
 ===================================
 
-The Version 2 implementation of the GET operation returns some or all (up to 
+The Version 2 GET operation returns some or all (up to 
 1000) of the objects in a bucket. The request parameters can be used as 
 selection criteria to return a subset of the objects in a bucket. A 200 OK 
 response can contain valid or invalid XML. Design applications to parse the 
@@ -172,11 +172,11 @@ GET Bucket (List Objects) Version 2 uses the following parameters:
 
 **Request Elements**
 
-This implementation of the operation does not use request elements.
+This operation does not use request elements.
 
 **Request Headers**
 
-This implementation of the operation uses only request headers that are common
+This operation uses only request headers that are common
 to all operations (see `Common Request Headers`_).
 
 Responses
@@ -184,7 +184,7 @@ Responses
 
 **Response Headers**
 
-This implementation of the operation uses only response headers that are
+This operation uses only response headers that are
 common to most responses (see `Common Response Headers`_).
 
 **Response Elements**
@@ -375,7 +375,7 @@ common to most responses (see `Common Response Headers`_).
 
 **Special Errors**
 
-This implementation of the operation does not return special errors. For
+This operation does not return special errors. For
 general information about the AWS errors Zenko uses, and a list of error 
 codes, see `Error Responses`_.
 

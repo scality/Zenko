@@ -23,17 +23,17 @@ The GET Bucket operation does not use request parameters.
 
 **Request Headers**
 
-This implementation of the operation uses only request headers that are
+This operation uses only request headers that are
 common to all operations.
 
 Request Elements
 ~~~~~~~~~~~~~~~~
 
-This implementation of the operation does not use request elements.
+This operation does not use request elements.
 
 **Response Headers**
 
-This implementation of the operation uses only response headers that are
+This operation uses only response headers that are
 common to most responses.
 
 **Response Elements**

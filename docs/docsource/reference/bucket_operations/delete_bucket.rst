@@ -25,7 +25,7 @@ Requests
 
 **Request Parameters**
 
-The DELETE Bucket operation does not use Request Parameters.
+The DELETE Bucket operation does not use request parameters.
 
 **Request Headers**
 

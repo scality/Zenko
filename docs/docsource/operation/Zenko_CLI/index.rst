@@ -14,6 +14,7 @@ the following features:
   *  :ref:`crr_pause-resume`
   *  :ref:`object_lifecycle`
   *  :ref:`Monitoring_NFS-SOFS_Ingestion`
+  *  :ref:`Managing Bucket Policies`
 
 To access Zenko from the command line, you must first set up access to 
 `the S3 API <setting_up_api_access.html#setting_up_s3_api_access>`_, 
@@ -31,4 +32,4 @@ or both.
    CRR_Pause_&_Resume
    Object_Lifecycle_Management
    Monitoring_NFS-SOFS_Ingestion
-
+   managing_bucket_policies

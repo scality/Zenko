@@ -31,19 +31,19 @@ ID.
    |               | resource. However, all requests must be signed            |
    |               | (authenticated).                                          | 
    |               |                                                           |
-   |               | http://acs.amazonaws.com/groups/global/AuthenticatedUsers |
+   |               | http://acs.example.com/groups/global/AuthenticatedUsers   |
    +---------------+-----------------------------------------------------------+
    | Public        | Access permission to this group allows anyone to access   |
    |               | the resource. Requests can be signed (authenticated) or   |
    |               | unsigned (anonymous). Unsigned requests omit the          |
    |               | Authentication header in the request.                     |
    |               |                                                           |
-   |               | http://acs.amazonaws.com/groups/global/AllUsers           |
+   |               | http://acs.example.com/groups/global/AllUsers             |
    +---------------+-----------------------------------------------------------+
    | Log Delivery  | WRITE permission on a bucket enables this group to write  |
    |               | server access logs to the bucket.                         |
    |               |                                                           |
-   |               | http://acs.amazonaws.com/groups/s3/LogDelivery            |
+   |               | http://acs.example.com/groups/s3/LogDelivery              |
    +---------------+-----------------------------------------------------------+
 
 .. note::

@@ -24,7 +24,7 @@ Requests
 
 **Request Parameters**
 
-The HEAD Bucket operation does not use Request Parameters.
+The HEAD Bucket operation does not use request parameters.
 
 **Request Headers**
 
