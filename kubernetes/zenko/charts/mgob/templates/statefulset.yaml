@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ template "mgob.fullname" . }}
+spec:
+  serviceName: {{ template "mgob.fullname" . }}
+  replicas: 1
+  selector:
+    matchLabels:
+    {{ include "mgob.role" . | indent 2 }}
+  template:
+    metadata:
+      labels:
+      {{ include "mgob.role" . | indent 2 }}
+      annotations:
+        checksum/config: {{ include "mgob.configMap-rendered" . | sha256sum }}
+    spec:
+      containers:
+      - name: {{ template "mgob.fullname" . }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        env:
+{{- range $envVar := .Values.env }}
+        - name: {{ $envVar.name }}
+          value: {{ $envVar.value }}
+{{- end }}
+        ports:
+        - containerPort: {{ .Values.service.internalPort }}
+          protocol: TCP
+        volumeMounts:
+        - name: mgob-storage
+          mountPath: "/storage"
+        - name: mgob-storage
+          mountPath: "/tmp"
+        - name: mgob-storage
+          mountPath: "/data"
+        - mountPath: "/config/"
+          name: {{ template "mgob.fullname" . }}-configmap
+{{- range $secret := .Values.secret }}
+        - mountPath: "/secret/{{ $secret.name }}"
+          name: {{ $secret.name }}
+{{ end }}
+      volumes:
+        - name: {{ template "mgob.fullname" . }}-configmap
+          configMap:
+            name: {{ template "mgob.fullname" . }}-configmap
+            items:
+{{- range $name, $value := .Values.configMap.plans }}
+            - key: {{ $name }}
+              path: {{ $name }}.yml
+{{ end }}
+{{- range $secret := .Values.secret }}
+        - name: {{ $secret.name }}
+          secret:
+            secretName: {{ $secret.name }}
+{{ end }}
+{{- if .Values.persistentVolume.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: mgob-storage
+        annotations:
+        {{- range $key, $value := .Values.persistentVolume.annotations }}
+          {{ $key }}: {{ $value }}
+        {{- end }}
+      spec:
+        accessModes:
+        {{- range .Values.persistentVolume.accessModes }}
+          - {{ . | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.persistentVolume.size | quote }}
+      {{- if .Values.persistentVolume.storageClass }}
+      {{- if (eq "-" .Values.persistentVolume.storageClass) }}
+        storageClassName: ""
+      {{- else }}
+        storageClassName: "{{ .Values.persistentVolume.storageClass }}"
+      {{- end }}
+      {{- end }}
+{{- else }}
+        - name: mgob-storage
+          emptyDir: {}
+{{- end }}

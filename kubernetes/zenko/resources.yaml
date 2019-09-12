@@ -1,4 +1,4 @@
-## The following values are all the default resource options for all the       
+## The following values are all the default resource options for all the
 ## containers running in pods that get deployed as a part of Zenko. We usually
 ## recommend not to specify default `resources` and to leave this as a conscious
 ## choice for the user. This also increases chances charts run on environments
@@ -46,7 +46,7 @@ backbeat:
   garbageCollector:
     consumer:
       resources: {}
- 
+
 cloudserver:
   resources: {}
 
@@ -57,11 +57,11 @@ mongodb-replicaset:
     resources: {}
 
 prometheus:
- server:
-   resources: {}
+  server:
+    resources: {}
 
- configmapReload:
-   resources: {}
+  configmapReload:
+    resources: {}
 
 redis-ha:
   redis:
@@ -110,3 +110,5 @@ zenko-quorum:
     chroots:
       resources: {}
 
+mgob:
+  resources: {}
