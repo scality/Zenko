@@ -128,21 +128,3 @@ nfs resources themselves using kubectl.
 
    $ kubectl edit cosmos <my-nfs-location-name>
 
-Troubleshooting
----------------
-
-There is a known issue where bucket creation sometimes does not automatically
-start deployment/ingestion. While this will be fixed in the first patch release
-the current workaround is fairly simple.
-
-#. Run the below command to recreate the scheduling pod.::
-  
-   $ kubectl delete pod -lapp=cosmos-scheduler --wait
-
-   .. note:: Once the command finishes, Kubernetes will take a minute to
-      recreate the pod and establish the new connections. Be sure
-      the new pod is created before proceeding
-
-#. Delete your previously created bucket and create a new bucket in the same
-   mirror-mode location. After creating the new bucket, look for new pods in
-   `kubectl get pods`.
