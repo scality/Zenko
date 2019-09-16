@@ -1,36 +1,35 @@
-# Minimal makefile for Sphinx documentation
-#
 
-# You can set these variables from the command line.
-SPHINXOPTS    =
-SPHINXBUILD   = sphinx-build
-SPHINXPROJ    = Zenko
-SOURCEDIR     = .
-BUILDDIR      = _build
+# SPHINXOPTS    =
+# SPHINXBUILD   = sphinx-build
+# SPHINXPROJ    = Zenko
+# SOURCEDIR     = .
+# BUILDDIR      = _build
 
-ROOTDIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+ ROOTDIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+# DOCKER=docker
+# BUILDERNAME=zenko-docs
+BUILDERIMAGE="$(ROOTDIR)"
+# BUILDERDOCKERFILE=./Dockerfile
+# BUILDERHOME=/usr/src/zenko
+
+
 DOCKER=docker
 BUILDERNAME=zenko-docs
-BUILDERIMAGE="$(ROOTDIR)"
-BUILDERDOCKERFILE=./Dockerfile
-BUILDERHOME=/usr/src/zenko
+# BUILDERIMAGE=builder
+BUILDERHOME=/home/docs
 
-.PHONY: build shell help Makefile
+.PHONY: build shell
 
 build:
-	@echo $(ROOTDIR) $(BUILDERIMAGE)
-	@$(DOCKER) build -t $(BUILDERNAME):latest -f $(BUILDERDOCKERFILE) $(BUILDERIMAGE)
+	@$(DOCKER) build -t $(BUILDERNAME):latest $(BUILDERIMAGE)
 
 shell: build
-	@$(DOCKER) run -it --rm -v "$(ROOTDIR):$(BUILDERHOME)" --entrypoint=bash $(BUILDERNAME)
+	@$(DOCKER) run -it --rm -v "$$PWD:$(BUILDERHOME)" $(BUILDERNAME) bash
+        print "BUILDERHOME = $BUILDERHOME"
+        print "BUILDERIMAGE = $BUILDERIMAGE"
 
-# Put it first so that "make" without argument is like "make help".
-help:
-	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
-
-.PHONY: help Makefile
-
-# Catch-all target: route all unknown targets to Sphinx using the new
-# "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
-%: Makefile
-	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+# RING-31480 Workaround: some local environments seems unable to build
+# the pdf with the desired cover.
+# This rule rebuilds the Docker image from scratch to fix the cover issue.
+rebuild:
+	@$(DOCKER) build --no-cache -t $(BUILDERNAME):latest $(BUILDERIMAGE)

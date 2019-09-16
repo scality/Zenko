@@ -63,7 +63,7 @@
 \addto\captionsenglish{\renewcommand{\contentsname}{Table of Contents}}
 
 % Redefine the \maketitle command to customize the front page.
-\renewcommand{\maketitle}{
+\renewcommand{\sphinxmaketitle}{
     \begin{titlepage}
 
         % Redefine the margins for the title page.
@@ -85,7 +85,7 @@
                 \raggedright
                 {\fontsize{30pt}{36pt}{\fontspec{Oswald-Bold.ttf}
                     \textcolor{titlecol}{${title}}
-                    \textcolor{white}{v${version}}
+                    \textcolor{white}{ ${version}}
                 }}
             \end{spacing}
         \end{minipage}
