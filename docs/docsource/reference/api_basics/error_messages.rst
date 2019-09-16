@@ -1,3 +1,5 @@
+.. _error messages:
+
 Error Messages
 ==============
 
@@ -348,18 +350,17 @@ AWS-emulating CloudServer module:
    | MalformedPolicy                   | 400  | This policy contains invalid Json                 |
    +-----------------------------------+------+---------------------------------------------------+
 
-Non-AWS S3 Errors
------------------
+Non-AWS S3 Error Messages
+-------------------------
 
 Zenko also may return the following non-AWS S3 error message during a multipart
 upload:
 
-.. tabularcolumns::lll
 .. table::
 
-   +---------------+------+----------------------------------------------------+
-   | Error         | Code | Description                                        |
-   +===============+======+====================================================+
-   | MPUinProgress | 409  | The bucket you tried to delete has an ongoing      |
-   |               |      | multipart upload.                                  |
-   +---------------+------+----------------------------------------------------+
+   +----------------+------+---------------------------------------------------+
+   | Error          | Code | Description                                       |
+   +================+======+===================================================+
+   | MPUinProgress  | 409  | The bucket you tried to delete has an ongoing     |
+   |                |      | multipart upload.                                 |
+   +----------------+------+---------------------------------------------------+
