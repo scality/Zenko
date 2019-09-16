@@ -91,7 +91,8 @@ describe('Backbeat object monitor CRR metrics', function() {
         },
     ], done));
 
-    it('should monitor part uploads of an MPU object', done => waterfall([
+    // Disabled because the test is flaky. See ZENKO-2104.
+    it.skip('should monitor part uploads of an MPU object', done => waterfall([
         next => scalityUtils.completeMPUAWS(srcBucket, key, 50, next),
         (data, next) => {
             const path = `/_/backbeat/api/metrics/crr/${destLocation}` +

@@ -1,3 +1,5 @@
+.. _backbeat:
+
 Backbeat
 ========
 

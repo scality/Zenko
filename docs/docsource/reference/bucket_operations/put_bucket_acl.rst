@@ -3,10 +3,10 @@
 PUT Bucket ACL
 ==============
 
-The PUT Bucket ACL operation uses the acl subresource to set the
-permissions on an existing bucket using its access control list (ACL).
+The PUT Bucket ACL operation uses the acl subresource to set the permissions on
+an existing bucket using its access control list (ACL).
 
-WRITE_ACP access is required to set the ACL of a bucket.
+WRITE_ACP access is required to set a bucket's ACL.
 
 Bucket permissions are set using one of the following two methods:
 
@@ -15,17 +15,19 @@ Bucket permissions are set using one of the following two methods:
 
 .. Warning::
 
-  Access permission cannot be specified using both the request body and
-  the request headers.
+   Access permission cannot be specified using both the request body and the
+   request headers.
 
 Requests
 --------
 
-**Request Syntax**
+Syntax
+~~~~~~
 
-The Request Syntax that follows is for sending the ACL in the request
-body. If headers will be used to specify the permissions for the bucket,
-the ACL cannot be sent in the request body (refer to :ref:`Common Request Headers` for a list of available headers).
+The request syntax that follows sends the ACL in the request body. If headers
+are used to specify the bucket's permissions, the ACL cannot be sent in the
+request body (see :ref:`Common Request Headers` for a list of available
+headers).
 
 .. code::
 
@@ -51,11 +53,13 @@ the ACL cannot be sent in the request body (refer to :ref:`Common Request Header
      </AccessControlList>
    </AccessControlPolicy>
 
-**Request Parameters**
+Parameters
+~~~~~~~~~~
 
-The PUT Bucket ACL operation does not use Request Parameters.
+The PUT Bucket ACL operation does not use request parameters.
 
-**Request Headers**
+Headers
+~~~~~~~
 
 The PUT Bucket ACL operation can use a number of optional request
 headers in addition to those that are common to all operations (refer to
@@ -63,7 +67,8 @@ headers in addition to those that are common to all operations (refer to
 either to specify a predefined—or *canned*—ACL, or to explicitly specify
 grantee permissions.
 
-*Specifying a Canned ACL*
+Specifying a Canned ACL
+-----------------------
 
 Zenko supports a set of canned ACLs, each of which has a predefined set of
 grantees and permissions.
@@ -95,7 +100,8 @@ header and specify the canned ACL name as its value.
    |           |         | Constraints: None                                   |
    +-----------+---------+-----------------------------------------------------+
 
-*Explicitly Specifying Grantee Access Permissions*
+Explicitly Specifying Grantee Access Permissions
+------------------------------------------------
 
 A set of x-amz-grant-permission headers is available for explicitly
 granting individualized bucket access permissions to specific Zenko accounts
@@ -104,8 +110,8 @@ supports in an ACL.
 
 .. note::
 
-  If an x-amz-acl header is sent all ACL-specific headers are ignored in
-  favor of the canned ACL.
+   If an x-amz-acl header is sent all ACL-specific headers are ignored in
+   favor of the canned ACL.
 
 .. tabularcolumns:: X{0.25\textwidth}X{0.10\textwidth}X{0.60\textwidth}
 .. table::
@@ -164,7 +170,7 @@ predefined by Zenko and two accounts identified by their email addresses.
 
 .. code::
 
-   x-amz-grant-write: uri="http://acs.amazonaws.com/groups/s3/LogDelivery", emailAddress="xyz@scality.com", emailAddress="abc@scality.com"
+   x-amz-grant-write: uri="http://acs.example.com/groups/s3/LogDelivery", emailAddress="xyz@example.com", emailAddress="abc@example.com"
 
 .. note::
 
@@ -212,7 +218,8 @@ must be used.
    |                     |           | grantee.                                |
    +---------------------+-----------+-----------------------------------------+
 
-*Grantee Values*
+Grantee Values
+~~~~~~~~~~~~~~
 
 Specify the person (grantee) to whom access rights are being assigned
 (using request elements):
@@ -238,48 +245,50 @@ Specify the person (grantee) to whom access rights are being assigned
 
    .. code::
 
-      <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="Group"><URI>{{http://acs.s3.scality.com/groups/global/AuthenticatedUsers}}</URI></Grantee>
+      <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="Group"><URI>{{http://acs.example.com/groups/global/AuthenticatedUsers}}</URI></Grantee>
 
 Responses
 ---------
 
-**Response Headers**
+Headers
+~~~~~~~
 
-Implementation of the PUT Bucket ACL operation uses only response
+The PUT Bucket ACL operation uses only response
 headers that are common to all operations (refer to :ref:`Common Response Headers`).
 
-**Response Elements**
+Elements
+~~~~~~~~
 
 The PUT Bucket ACL operation does not return response elements.
 
 Examples
 --------
 
-**Access Permissions Specified in the Body**
+Access Permissions Specified in the Body
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The request sample grants access permission to the existing
-example-bucket bucket, specifying the ACL in the body. In addition to
-granting full control to the bucket owner, the XML specifies the
-following grants.
+The request sample grants access permission to the existing example-bucket
+bucket, specifying the ACL in the body. In addition to granting full control to
+the bucket owner, the XML specifies the following grants.
 
 -  Grant AllUsers group READ permission on the bucket.
 -  Grant the LogDelivery group WRITE permission on the bucket.
--  Grant an AWS account, identified by email address, WRITE_ACP
-   permission.
+-  Grant an AWS account, identified by email address, WRITE_ACP permission.
 -  Grant an AWS account, identified by canonical user ID, READ_ACP
    permission.
 
-*Request Sample*
+Request Sample
+^^^^^^^^^^^^^^
 
 .. code::
 
    PUT ?acl HTTP/1.1
-   Host: example-bucket.s3.scality.com
+   Host: example-bucket.example.com
    Content-Length: 1660
    x-amz-date: Thu, 12 Apr 2012 20:04:21 GMT
    Authorization: {{authorizationString}}
 
-   <AccessControlPolicy xmlns="http://s3.scality.com/doc/2006-03-01/">
+   <AccessControlPolicy xmlns="http://example.com/doc/2006-03-01/">
      <Owner>
        <ID>852b113e7a2f25102679df27bb0ae12b3f85be6BucketOwnerCanonicalUserID</ID>
        <DisplayName>OwnerDisplayName</DisplayName>
@@ -306,7 +315,7 @@ following grants.
        </Grant>
        <Grant>
          <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="AmazonCustomerByEmail">
-           <EmailAddress xmlns="">xyz@amazon.com</EmailAddress>
+           <EmailAddress xmlns="">xyz@example.com</EmailAddress>
          </Grantee>
          <Permission xmlns="">WRITE_ACP</Permission>
        </Grant>
@@ -319,7 +328,8 @@ following grants.
      </AccessControlList>
    </AccessControlPolicy>
 
-*Response Sample*
+Response Sample
+^^^^^^^^^^^^^^^
 
 .. code::
 
@@ -330,28 +340,31 @@ following grants.
    Content-Length: 0
    Server: ScalityS3
 
-**Access Permissions Specified Using Headers**
+Access Permissions Specified Using Headers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The request sample uses ACL-specific request headers to grant the
 following permissions:
 
 -  Write permission to the Zenko LogDelivery group and an account identified
-   by the email xyz@scality.com
+   by the email xyz@example.com
 -  Read permission to the Zenko AllUsers group
 
-*Request Sample*
+Request Sample
+^^^^^^^^^^^^^^
 
 .. code::
 
    PUT ?acl HTTP/1.1
-   Host: example-bucket.s3.scality.com
+   Host: example-bucket.example.com
    x-amz-date: Sun, 29 Apr 2012 22:00:57 GMT
-   x-amz-grant-write: uri="http://acs.s3.scality.com/groups/s3/LogDelivery", emailAddress="xyz@scality.com"
-   x-amz-grant-read: uri="http://acs.s3.scality.com/groups/global/AllUsers"
+   x-amz-grant-write: uri="http://acs.example.com/groups/s3/LogDelivery", emailAddress="xyz@example.com"
+   x-amz-grant-read: uri="http://acs.example.com/groups/global/AllUsers"
    Accept: */*
    Authorization: {{authorizationString}}
 
-*Response Sample*
+Response Sample
+^^^^^^^^^^^^^^^
 
 .. code::
 

@@ -25,7 +25,7 @@ Requests
 
 **Request Parameters**
 
-The PUT Bucket Replication operation does not use Request Parameters.
+The PUT Bucket Replication operation does not use request parameters.
 
 **Request Headers**
 
@@ -192,16 +192,16 @@ configuration:
 
 **Response Headers**
 
-This implementation of the operation uses only response headers that are
+This operation uses only response headers that are
 common to most responses.
 
 **Response Elements**
 
-This implementation of the operation does not return response elements.
+This operation does not return response elements.
 
 **Special Errors**
 
-This implementation of the operation does not return special errors.
+This operation does not return special errors.
 
 **Add Replication Configuration**
 

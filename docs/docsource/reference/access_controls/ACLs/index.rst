@@ -20,7 +20,7 @@ structure).
 .. code::
 
    <?xml version="1.0" encoding="UTF-8"?>
-   <AccessControlPolicy xmlns="http://s3.scality.com/doc/2006-03-01/">
+   <AccessControlPolicy xmlns="http://example.com/doc/2006-03-01/">
      <Owner>
        <ID>*** Owner-Canonical-User-ID ***</ID>
        <DisplayName>owner-display-name</DisplayName>
@@ -51,4 +51,3 @@ and the permission.
    grantee_eligibility
    grantable_permissions
    specifying_an_acl
-

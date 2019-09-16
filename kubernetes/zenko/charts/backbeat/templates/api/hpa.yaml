@@ -1,0 +1,17 @@
+{{- if .Values.api.autoscaling.enabled -}}
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ template "backbeat.fullname" . }}-api
+  labels:
+    app: {{ template "backbeat.name" . }}-api
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  scaleTargetRef:
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    name: {{ template "backbeat.fullname" . }}-api
+{{ toYaml .Values.api.autoscaling.config | indent 2 }}
+{{- end -}}

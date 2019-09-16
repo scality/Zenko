@@ -10,6 +10,9 @@ on or off.
 To access this feature: 
 
 #. Click the **Browser** item in the sidebar.
+
+   .. image:: ../../Resources/Images/Orbit_Screencaps/sidebar_browser_button.png
+
 #. The Multicloud Browser **Buckets** list displays:
 
    |image0|

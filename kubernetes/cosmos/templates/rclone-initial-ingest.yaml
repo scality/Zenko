@@ -1,0 +1,19 @@
+{{- if and .Values.rclone.initialIngestion .Release.IsInstall }}
+---
+apiVersion: v1
+# This template has been changed to a pod to prevent helm from waiting for the
+# post-install job to complete which in some cases can be several hours.
+kind: Pod
+metadata:
+  name: {{ template "cosmos.rclone.fullname" . }}-initial-ingest
+  labels:
+    initial-ingest: {{ template "cosmos.rclone.fullname" . }}
+    component: rclone
+{{ include "cosmos.labels" . | indent 4 }}
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+{{- template "cosmos.rclone.job" . }}
+{{- end }}

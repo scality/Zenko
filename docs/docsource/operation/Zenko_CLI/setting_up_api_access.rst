@@ -1,7 +1,13 @@
 .. _S3 API config:
 
+Zenko API Access
+================
+
+Follow the steps below to set up access to the Zenko S3 API and the Backbeat
+API.
+
 Setting Up S3 API Access
-========================
+------------------------
 
 Zenko supports a limited set of S3 API commands. For a comprehensive
 listing of supported S3 commands, see the *Zenko Reference Guide*.
@@ -78,7 +84,7 @@ Zenko can now respond to the set of S3 commands documented in the
 Reference Guide.
 
 Setting Up Backbeat API Access
-==============================
+------------------------------
 
 Backbeat can be accessed from the command line using calls to CloudServer. 
 These calls must be formatted with authentication as described in this
@@ -155,7 +161,7 @@ certification.
    (size)“,”results”:{“count”:0,“size”:0}}}
 
 Helper Script
--------------
+~~~~~~~~~~~~~
 
 .. note::
 

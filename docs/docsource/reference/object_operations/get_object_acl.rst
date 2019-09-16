@@ -3,7 +3,7 @@
 GET Object ACL
 ==============
 
-The GET Object ACL operation returns an object’s access control list
+The GET Object ACL operation returns an object's access control list
 (ACL) permissions. This operation requires ``READ_ACP`` access to the
 object.
 
@@ -14,7 +14,8 @@ versionId subresource.
 Requests
 --------
 
-**Request Syntax**
+Syntax
+~~~~~~
 
 .. code::
 
@@ -24,25 +25,29 @@ Requests
    Authorization: {{authorizationString}}
    Range:bytes={{byte_range}}
 
-**Request Parameters**
+Parameters
+~~~~~~~~~~
 
 The GET Object ACL operation does not use Request Parameters.
 
-**Request Headers**
+Headers
+~~~~~~~
 
-Implementation of the GET Object ACL operation uses only request headers
+The GET Object ACL operation uses only request headers
 that are common to all operations (refer to :ref:`Common Request Headers`).
 
-**Request Elements**
+Elements
+~~~~~~~~
 
 The GET Object ACL operation does not use request elements.
 
 Responses
 ---------
 
-**Response Headers**
+Headers
+~~~~~~~
 
-Implementation of the GET Object ACL operation can include the following
+The GET Object ACL operation can include the following
 response headers in addition to the response headers common to all
 responses (refer to :ref:`Common Response Headers`).
 
@@ -60,7 +65,8 @@ responses (refer to :ref:`Common Response Headers`).
    |                       |                       | Default: None         |
    +-----------------------+-----------------------+-----------------------+
 
-**Response Elements**
+Elements
+~~~~~~~~
 
 The GET Object ACL operation can return the following XML elements of
 the response (includes XML containers):
@@ -109,21 +115,24 @@ the response (includes XML containers):
 Examples
 --------
 
-The sample illustrated gets the access control permissions for the
+Returning Object Information, Including ACL
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The sample illustrated retrieves the access control permissions for the
 specified file object, greatshot_d.raw:
 
-**Returning Object Information, Including ACL**
-
-*Request Sample*
+Request
+^^^^^^^
 
 .. code::
 
    GET /greatshot_d.raw?acl HTTP/1.1
-   Host: bucket.s3.scality.com
+   Host: bucket.example.com
    Date: Wed, 28 Oct 2009 22:32:00 GMT
    Authorization: {{authorizationString}}
 
-*Response Sample*
+Response
+^^^^^^^^
 
 .. code::
 
@@ -142,32 +151,35 @@ specified file object, greatshot_d.raw:
 
    <AccessControlPolicy>
      <Owner>
-       <ID>75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a</ID>
-       <DisplayName>mtd@scality.com</DisplayName>
+       <ID>8b27d4b0fc460740425b9deef56fa1af6245fbcccdda813b691a8fda9be8ff0c</ID>
+       <DisplayName>user@example.com</DisplayName>
      </Owner>
      <AccessControlList>
        <Grant>
          <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CanonicalUser">
-           <ID>75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a</ID>
-           <DisplayName>mtd@scality.com</DisplayName>
+           <ID>8b27d4b0fc460740425b9deef56fa1af6245fbcccdda813b691a8fda9be8ff0c</ID>
+           <DisplayName>user@example.com</DisplayName>
          </Grantee>
          <Permission>FULL_CONTROL</Permission>
        </Grant>
      </AccessControlList>
    </AccessControlPolicy>
 
-**Getting and Showing the ACL of a Specific Object Version**
+Getting and Showing the ACL of a Specific Object Version
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-*Request Sample*
+Request
+^^^^^^^
 
 .. code::
 
    GET /my-image.jpg?versionId=3/L4kqtJlcpXroDVBH40Nr8X8gdRQBpUMLUo&amp;acl HTTP/1.1
-   Host: {{bucketName}}.s3.scality.com
+   Host: {{bucketName}}.example.com
    Date: Wed, 28 Oct 2009 22:32:00 GMT
    Authorization: {{authorizationString}}
 
-*Response Sample*
+Response
+^^^^^^^^
 
 .. code::
 
@@ -186,14 +198,14 @@ specified file object, greatshot_d.raw:
 
    <AccessControlPolicy>
      <Owner>
-       <ID>75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a</ID>
-       <DisplayName>mdtd@scality.com</DisplayName>
+       <ID>8b27d4b0fc460740425b9deef56fa1af6245fbcccdda813b691a8fda9be8ff0c</ID>
+       <DisplayName>user@example.com</DisplayName>
      </Owner>
      <AccessControlList>
        <Grant>
          <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CanonicalUser">
-           <ID>75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a</ID>
-           <DisplayName>mdtd@scality.com</DisplayName>
+           <ID>8b27d4b0fc460740425b9deef56fa1af6245fbcccdda813b691a8fda9be8ff0c</ID>
+           <DisplayName>user@example.com</DisplayName>
          </Grantee>
          <Permission>FULL_CONTROL</Permission>
        </Grant>

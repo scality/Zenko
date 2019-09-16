@@ -3,9 +3,8 @@
 DELETE Bucket Replication
 =========================
 
-Deletes the replication subresource associated with the specified
-bucket. This operation requires permission for the
-s3:DeleteReplicationConfiguration action.
+Deletes the replication subresource associated with the specified bucket. This
+operation requires permission for the s3:DeleteReplicationConfiguration action.
 
 Requests
 --------
@@ -22,25 +21,25 @@ Requests
 
 **Request Parameters**
 
-The PUT Bucket operation does not use Request Parameters.
+The PUT Bucket operation does not use request parameters.
 
 **Request Headers**
 
-This implementation of the operation uses only request headers that are
+This operation uses only request headers that are
 common to all operations.
 
 **Request Elements**
 
-This implementation of the operation does not use request elements.
+This operation does not use request elements.
 
 **Response Headers**
 
-This implementation of the operation uses only response headers that are
+This operation uses only response headers that are
 common to most responses.
 
 **Response Elements**
 
-This implementation of the operation does not use request elements.
+This operation does not use request elements.
 
 Example
 -------

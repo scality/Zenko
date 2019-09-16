@@ -16,6 +16,10 @@ s3-data:
     size: 10Gi
 
 backbeat:
+  api:
+    autoscaler:
+      enabled: false
+    resources: {}
   replication:
     dataProcessor:
       replicaCount: *nodeCount
