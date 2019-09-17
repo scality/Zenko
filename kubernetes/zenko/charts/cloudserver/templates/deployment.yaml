@@ -16,12 +16,20 @@ spec:
   template:
     metadata:
       annotations:
+        {{- if .Values.metrics.enabled }}
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/_/monitoring/metrics"
+        {{- end }}
         {{- if .Values.proxy.https }}
         checksum/config: {{ include (print $.Template.BasePath "/certificate.yaml") . | sha256sum }}
         {{- end }}
         {{- if not .Values.global.orbit.enabled }}
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         checksum/config: {{ include (print $.Template.BasePath "/accounts.yaml") . | sha256sum }}
+        {{- end }}
+        {{- if .Values.annotations }}
+{{ toYaml .Values.annotations | indent 8 }}
         {{- end }}
       labels:
         app: {{ template "cloudserver.name" . }}
