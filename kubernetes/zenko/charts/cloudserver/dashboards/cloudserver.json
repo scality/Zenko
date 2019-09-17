@@ -1204,8 +1204,8 @@
     ]
   },
   "time": {
-    "from": "2018-08-24T19:23:30.943Z",
-    "to": "2018-08-24T19:33:30.943Z"
+    "from": "now-15m",
+    "to": "now"
   },
   "timepicker": {
     "refresh_intervals": [
