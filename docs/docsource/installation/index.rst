@@ -8,4 +8,4 @@ Zenko Installation
    install/index
    configure/index
    upgrade/upgrade_zenko
-   uninstall
+   uninstall/index
