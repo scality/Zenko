@@ -289,8 +289,8 @@ stages:
           name: Trigger latest builds
           haltOnFailure: true
           stage_names:
-            - test-latest-1-0-x
-            - test-latest-1-1-x
+            - test-latest-1-1
+            - test-latest-1-2
       - ShellCommand:
           name: Trigger the report-test stage in a seperate build
           command: python report.py --trigger
@@ -307,31 +307,17 @@ stages:
             BUILD_BRANCH: '%(prop:branch)s'
             CROSSPOST_TO_HIPPO: 'true'
 
-  test-latest-1-0-x:
+  test-latest: &test-latest
     worker: *kube_cluster
     steps:
-      - Git: *git_pull
-      - ShellCommand: *private_registry_login
-      - ShellCommand: *k8s_setup
-      - ShellCommand:
-          name: Setup latest Zenko and run end to end tests
-          command: make -e VERBOSE=1 test-latest
-          workdir: build/tests
-          env:
-            BACKBEAT_BRANCH: development/8.0
-            CLOUDSERVER_BRANCH: development/8.0
-            PYTHON_ARGS: "-k 'not ceph'"
-            HELM_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
-            TILLER_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
-            <<: *global_env
-      - ShellCommand: *dump_logs
-      - Upload: *upload_artifacts
-      - ShellCommand: *k8s_cleanup
-
-  test-latest-1-1-x:
-    worker: *kube_cluster
-    steps:
+    - SetPropertyFromCommand:
+        name: Set development version
+        property: dev_version
+        command: echo ${STAGE##*-}
     - Git: *git_pull
+    - ShellCommand:
+        name: checkout development branch
+        command: 'git checkout development/1.%(prop:dev_version)s'
     - ShellCommand: *private_registry_login
     - ShellCommand: *k8s_setup
     - ShellCommand:
@@ -339,14 +325,17 @@ stages:
         command: make -e VERBOSE=1 test-latest
         workdir: build/tests
         env:
-          BACKBEAT_BRANCH: development/8.1
-          CLOUDSERVER_BRANCH: development/8.1
+          BACKBEAT_BRANCH: 'development/8.%(prop:dev_version)s'
+          CLOUDSERVER_BRANCH: 'development/8.%(prop:dev_version)s'
           HELM_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
           TILLER_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
           <<: *global_env
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
     - ShellCommand: *k8s_cleanup
+
+  test-latest-1-2: *test-latest
+  test-latest-1-1: *test-latest
 
   cosbench-latest:
     worker: *kube_cluster
