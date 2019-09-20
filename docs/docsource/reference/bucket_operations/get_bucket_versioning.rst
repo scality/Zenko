@@ -31,7 +31,8 @@ return the versioning state of a bucket.
 Requests
 --------
 
-**Request Syntax**
+Syntax
+~~~~~~
 
 .. code::
 
@@ -41,52 +42,56 @@ Requests
    Current-Length: {{length}}
    Authorization: {{authenticationInformation}}
 
-**Request Parameters**
+Parameters
+~~~~~~~~~~
 
 The GET Bucket Versioning operation does not use Request Parameters.
 
-**Request Headers**
+Headers
+~~~~~~~
 
-The GET Bucket Versioning operation uses only request headers that are
-common to all operations (refer to :ref:`Common Request Headers`).
+The GET Bucket Versioning operation uses only request headers that are common to
+all operations (see :ref:`Common Request Headers`).
 
-**Request Elements**
+Elements
+~~~~~~~~
 
-Implementation of the GET Bucket Versioning operation does not use
-request elements.
+The GET Bucket Versioning operation does not use request elements.
 
 Responses
 ---------
 
-**Response Headers**
+Headers
+~~~~~~~
 
-Implementation of the GET Bucket Versioning operation returns the
-following response elements.
+The GET Bucket Versioning operation returns the following response elements.
 
-**Response Elements**
+Elements
+~~~~~~~~
 
 .. tabularcolumns:: X{0.30\textwidth}X{0.20\textwidth}X{0.45\textwidth}
 .. table::
 
-   +-------------------------+-----------+-------------------------------------+
-   | Element                 | Type      | Description                         |
-   +=========================+===========+=====================================+
-   | Status                  | enum      | The versioning state of the bucket. |
-   |                         |           |                                     |
-   |                         |           | Valid Values:  Disabled \| Enabled  |
-   |                         |           |                                     |
-   |                         |           | Ancestors: VersioningConfiguration  |
-   +-------------------------+-----------+-------------------------------------+
-   | VersioningConfiguration | Container | Container for the status response   |
-   |                         |           | element.                            |
-   +-------------------------+-----------+-------------------------------------+
+   +-----------------------------+-----------+-----------------------------------------+
+   | Element                     | Type      | Description                             |
+   +=============================+===========+=========================================+
+   | ``Status``                  | enum      | The versioning state of the bucket.     |
+   |                             |           |                                         |
+   |                             |           | **Valid Values:** Disabled \| Enabled   |
+   |                             |           |                                         |
+   |                             |           | **Ancestors:** VersioningConfiguration  |
+   +-----------------------------+-----------+-----------------------------------------+
+   | ``VersioningConfiguration`` | Container | Container for the status response       |
+   |                             |           | element.                                |
+   +-----------------------------+-----------+-----------------------------------------+
 
 Examples
 --------
 
 The example offered returns the versioning state of myBucket.
 
-*Request Sample*
+Request
+~~~~~~~
 
 .. code::
 
@@ -96,7 +101,8 @@ The example offered returns the versioning state of myBucket.
    Authorization: {{authenticationInformation}}
    Content-Type: text/plain
 
-*Request Sample*
+Response
+~~~~~~~~
 
 .. code::
 

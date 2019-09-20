@@ -9,16 +9,16 @@ objects returned by the GET Bucket operation is limited to 1000, however
 this can be changed via the ``max-keys`` parameter to any number less
 than 1000.
 
-The **Request Parameters** for GET Bucket (List Objects) can be used as
-selection criteria to return a subset of the objects in a bucket. A
-``200 OK`` response can contain valid or invalid XML. So applications
-should be designed to parse the contents of the response and to handle
-it appropriately.
+The request parameters for GET Bucket (List Objects) can be used as selection
+criteria to return a subset of the objects in a bucket. Because a ``200 OK``
+response can contain valid or invalid XML, applications must be designed to
+parse the contents of the response and to handle them appropriately.
 
 Requests
 --------
 
-**Request Syntax**
+Syntax
+~~~~~~
 
 .. code::
 
@@ -27,7 +27,8 @@ Requests
    Date: {{date}}
    Authorization: {{authenticationInformation}}
 
-**Request Parameters**
+Parameters
+~~~~~~~~~~
 
 The GET Bucket (List Objects) operation can use the following optional
 parameters to return a subset of objects in a bucket:
@@ -39,7 +40,7 @@ parameters to return a subset of objects in a bucket:
    +-----------------------+-----------------------+-----------------------+
    | Parameter             | Type                  | Description           |
    +=======================+=======================+=======================+
-   | delimiter             | string                | Character used to     |
+   | ``delimiter``         | string                | Character used to     |
    |                       |                       | group keys            |
    |                       |                       |                       |
    |                       |                       | All keys that contain |
@@ -64,7 +65,7 @@ parameters to return a subset of objects in a bucket:
    |                       |                       | returned elsewhere in |
    |                       |                       | the response.         |
    +-----------------------+-----------------------+-----------------------+
-   | encoding-type         | string                | Encodes keys with the |
+   | ``encoding-type``     | string                | Encodes keys with the |
    |                       |                       | method specified.     |
    |                       |                       | Since XML 1.0 parsers |
    |                       |                       | cannot parse certain  |
@@ -79,7 +80,7 @@ parameters to return a subset of objects in a bucket:
    |                       |                       | the only valid value  |
    |                       |                       | is ``url``.           |
    +-----------------------+-----------------------+-----------------------+
-   | marker                | integer               | Specifies the key to  |
+   | ``marker``            | integer               | Specifies the key to  |
    |                       |                       | start with when       |
    |                       |                       | listing objects in a  |
    |                       |                       | bucket. Zenko         |
@@ -89,7 +90,7 @@ parameters to return a subset of objects in a bucket:
    |                       |                       | key after the marker  |
    |                       |                       | in order.             |
    +-----------------------+-----------------------+-----------------------+
-   | max-keys              | string                | Limits the number of  |
+   | ``max-keys``          | string                | Limits the number of  |
    |                       |                       | keys included in the  |
    |                       |                       | list. Default is      |
    |                       |                       | 1000. The IsTruncated |
@@ -100,7 +101,7 @@ parameters to return a subset of objects in a bucket:
    |                       |                       | the value set for the |
    |                       |                       | max-keys parameter.   |
    +-----------------------+-----------------------+-----------------------+
-   | prefix                | string                | Specifies a string    |
+   | ``prefix``            | string                | Specifies a string    |
    |                       |                       | that must be present  |
    |                       |                       | at the beginning of a |
    |                       |                       | key in order for the  |
@@ -109,26 +110,30 @@ parameters to return a subset of objects in a bucket:
    |                       |                       | response list.        |
    +-----------------------+-----------------------+-----------------------+
 
-**Request Headers**
+Headers
+~~~~~~~
 
-Implementation of the GET Bucket (List Objects) operation uses only
-request headers that are common to all operations (refer to :ref:`Common
-Request Headers`).
+The GET Bucket (List Objects) operation uses only request
+headers that are common to all operations (refer to :ref:`Common Request
+Headers`).
 
-**Request Elements**
+Elements
+~~~~~~~~
 
 The GET Bucket (List Objects) operation does not use request elements.
 
 Responses
 ---------
 
-**Response Headers**
+Headers
+~~~~~~~
 
-Implementation of the GET Bucket (List Objects) operation uses only
+The GET Bucket (List Objects) operation uses only
 response headers that are common to all operations (refer to :ref:`Common Response
 Headers`).
 
-**Response Elements**
+Elements
+~~~~~~~~
 
 The GET Bucket (List Objects) operation can return the following
 XML elements in the response:
@@ -140,10 +145,10 @@ XML elements in the response:
    +-----------------------+-----------------------+-----------------------+
    | Element               | Type                  | Description           |
    +=======================+=======================+=======================+
-   | Contents              | XML metadata          | Metadata about each   |
+   | ``Contents``          | XML metadata          | Metadata about each   |
    |                       |                       | object returned       |
    +-----------------------+-----------------------+-----------------------+
-   | CommonPrefixes        | string                | A response can        |
+   | ``CommonPrefixes``    | string                | A response can        |
    |                       |                       | contain               |
    |                       |                       | CommonPrefixes only   |
    |                       |                       | if Delimiter is       |
@@ -169,7 +174,7 @@ XML elements in the response:
    |                       |                       | number of returns.    |
    |                       |                       | Refer to MaxKeys.     |
    +-----------------------+-----------------------+-----------------------+
-   | Delimiter             | string                | Causes keys that      |
+   | ``Delimiter``         | string                | Causes keys that      |
    |                       |                       | contain the same      |
    |                       |                       | string between the    |
    |                       |                       | prefix and the first  |
@@ -188,9 +193,9 @@ XML elements in the response:
    |                       |                       | against the MaxKeys   |
    |                       |                       | value.                |
    +-----------------------+-----------------------+-----------------------+
-   | DisplayName           | string                | Object owner's name   |
+   | ``DisplayName``       | string                | Object owner's name   |
    +-----------------------+-----------------------+-----------------------+
-   | Encoding-Type         | string                | Encoding type used by |
+   | ``Encoding-Type``     | string                | Encoding type used by |
    |                       |                       | Zenko to encode object|
    |                       |                       | key names in the XML  |
    |                       |                       | response.             |
@@ -207,7 +212,7 @@ XML elements in the response:
    |                       |                       | Marker, Prefix,       |
    |                       |                       | NextMarker, Key       |
    +-----------------------+-----------------------+-----------------------+
-   | ETag                  | string                | The entity tag is an  |
+   | ``ETag``              | string                | The entity tag is an  |
    |                       |                       | MD5 hash of the       |
    |                       |                       | object. The ETag only |
    |                       |                       | reflects changes to   |
@@ -215,9 +220,9 @@ XML elements in the response:
    |                       |                       | object, not its       |
    |                       |                       | metadata.             |
    +-----------------------+-----------------------+-----------------------+
-   | ID                    | string                | Object owner's ID     |
+   | ``ID``                | string                | Object owner's ID     |
    +-----------------------+-----------------------+-----------------------+
-   | IsTruncated           | Boolean               | Specifies whether     |
+   | ``IsTruncated``       | Boolean               | Specifies whether     |
    |                       |                       | (true) or not (false) |
    |                       |                       | all of the results    |
    |                       |                       | were returned. All of |
@@ -227,27 +232,27 @@ XML elements in the response:
    |                       |                       | exceeds that          |
    |                       |                       | specified by MaxKeys. |
    +-----------------------+-----------------------+-----------------------+
-   | Key                   | string                | The object's key      |
+   | ``Key``               | string                | The object's key      |
    |                       |                       | specified by MaxKeys. |
    +-----------------------+-----------------------+-----------------------+
-   | LastModified          | date                  | Date and time the     |
+   | ``LastModified``      | date                  | Date and time the     |
    |                       |                       | object was last       |
    |                       |                       | modified              |
    +-----------------------+-----------------------+-----------------------+
-   | Marker                | string                | Indicates where in    |
+   | ``Marker``            | string                | Indicates where in    |
    |                       |                       | the bucket listing    |
    |                       |                       | begins; Marker is     |
    |                       |                       | included in the       |
    |                       |                       | response if it was    |
    |                       |                       | sent with the request |
    +-----------------------+-----------------------+-----------------------+
-   | MaxKeys               | string                | The maximum number of |
+   | ``MaxKeys``           | string                | The maximum number of |
    |                       |                       | keys returned in the  |
    |                       |                       | response body         |
    +-----------------------+-----------------------+-----------------------+
-   | Name                  | string                | Name of the bucket    |
+   | ``Name``              | string                | Name of the bucket    |
    +-----------------------+-----------------------+-----------------------+
-   | NextMarker            | string                | When response is      |
+   | ``NextMarker``        | string                | When response is      |
    |                       |                       | truncated (the        |
    |                       |                       | (IsTruncated element  |
    |                       |                       | value in the response |
@@ -270,21 +275,23 @@ XML elements in the response:
    |                       |                       | counter to AWS        |
    |                       |                       | practice).            |
    +-----------------------+-----------------------+-----------------------+
-   | Owner                 | string                | Bucket owner          |
+   | ``Owner``             | string                | Bucket owner          |
    +-----------------------+-----------------------+-----------------------+
-   | Prefix                | string                | Keys that begin with  |
+   | ``Prefix``            | string                | Keys that begin with  |
    |                       |                       | the indicated prefix  |
    +-----------------------+-----------------------+-----------------------+
-   | Size                  | string                | Size in bytes of the  |
+   | ``Size``              | string                | Size in bytes of the  |
    |                       |                       | object                |
    +-----------------------+-----------------------+-----------------------+
 
 Examples
 --------
 
-**Getting Objects in the Backup Bucket**
+Getting Objects in the Backup Bucket
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-*Request Sample*
+Request
+```````
 
 .. code::
 
@@ -293,9 +300,11 @@ Examples
    Date: Thu, 31 Mar 2016 15:11:47 GMT
    Authorization: AWS pat:6nYhPMw6boadLgjywjSIyhfwRIA=
 
-**Presenting a Single Object**
+Presenting a Single Object
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-*Response Sample*
+Response
+````````
 
 .. code::
 
@@ -319,11 +328,13 @@ Examples
      <Contents>
      </ListBucketResult>
 
-**Using the max_keys Parameter**
+Using the max_keys Parameter
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 List up to four keys in the demo bucket.
 
-*Request Sample*
+Request
+```````
 
 .. code::
 
@@ -334,7 +345,8 @@ List up to four keys in the demo bucket.
    Date: Tue, 28 Jun 2011 09:27:15 GMT
    Connection: close
 
-*Response Sample*
+Response
+````````
 
 .. code::
 
@@ -377,9 +389,11 @@ List up to four keys in the demo bucket.
       </Contents>
    </ListBucketResult>
 
-**Using Prefix and Delimiter**
+Using Prefix and Delimiter
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-*Request Sample*
+Request
+```````
 
 The following keys are present in the sample bucket:
 
@@ -398,6 +412,9 @@ The following GET request specifies the delimiter parameter with value
    Host: example-bucket.s3.scality.com
    Date: Wed, 01 Mar  2006 12:00:00 GMT
    Authorization: {{authorizationString}}
+
+Response
+````````
 
 The key greatshot.raw does not contain the delimiter character, and
 Zenko returns it in the Contents element in the response. However, all other
@@ -430,6 +447,9 @@ to the first occurrence of the specified delimiter.
      </CommonPrefixes>
    </ListBucketResult>
 
+Request
+```````
+
 The following GET request specifies the delimiter parameter with value
 “/”, and the prefix parameter with value ``photographs/2006/``.
 
@@ -439,6 +459,9 @@ The following GET request specifies the delimiter parameter with value
    Host: example-bucket.s3.scality.com
    Date: Wed, 01 Mar  2006 12:00:00 GMT
    Authorization: {{authorizationString}}
+
+Response
+````````
 
 In response, Zenko returns only the keys that start with the specified prefix.
 Further, it uses the delimiter character to group keys that contain the

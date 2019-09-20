@@ -7,6 +7,7 @@ Zenko Reference
    :maxdepth: 2
 
    introduction/index
+   access_controls/index
    bucket_operations/index
    bucket_website_operations/index
    bucket_cors_operations/index

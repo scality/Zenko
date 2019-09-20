@@ -9,22 +9,22 @@ Backbeat provides a REST API with endpoints for healthcheck, cross-region
 replication (CRR), and metrics. It is also instrumental in garbage collection.
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
-   healthcheck
-   crr_retry
-   pause-resume
-   metrics
+   healthcheck/index
+   crr_retry/index
+   crr_pause_resume/index
+   metrics/index
 
 The Backbeat API provides REST endpoints for these features.
 
-Routes
-------
+Common Request Headers
+----------------------
 
-All Backbeat API endpoints are addressed through the /_/backbeat/api/...
+All Backbeat API endpoints are addressed through the ``/_/backbeat/api/...``
 route with endpoints entered as described in the sections linked above.
 
-Accessing the Backbeat API paths is detailed in *Zenko Operations* in the 
+Accessing the Backbeat API paths is detailed in *Zenko Operation* in the 
 "Backbeat API" section. 
 
 The internal routes presented in the following table are required for
@@ -40,25 +40,26 @@ Response Codes
 Backbeat exposes various metric routes that return a response with an
 HTTP code.
 
-.. tabularcolumns:: X{0.10\textwidth}X{0.85\textwidth}
+.. tabularcolumns:: X{0.30\textwidth}X{0.65\textwidth}
 .. table::
 
-   +----------+----------------------------------------------------------------+
-   | Response | Details                                                        |
-   +==========+================================================================+
-   | 200      | **OK:** Success                                                |
-   +----------+----------------------------------------------------------------+
-   | 403      | **AccessDenied:** Request IP address must be defined in        |
-   |          | conf/config.json in the server.healthChecks.allowFrom field.   |
-   +----------+----------------------------------------------------------------+
-   | 404      | **RouteNotFound:** Route must be valid.                        |
-   +----------+----------------------------------------------------------------+
-   | 405      | **MethodNotAllowed:** The HTTP verb must be a GET.             |
-   +----------+----------------------------------------------------------------+
-   | 500      | **InternalError:** This could be caused by one of several      |
-   |          | components: the api server, Kafka, Zookeeper, Redis, or one    |
-   |          | of the Producers for a topic.                                  |
-   +----------+----------------------------------------------------------------+
+   +--------------------------+------------------------------------------------+
+   | Response                 | Details                                        |
+   +==========================+================================================+
+   | ``200 OK``               | Success                                        |
+   +--------------------------+------------------------------------------------+
+   | ``403 AccessDenied``     | Request IP address must be defined in          |
+   |                          | conf/config.json in the                        |
+   |                          | server.healthChecks.allowFrom field.           |
+   +--------------------------+------------------------------------------------+
+   | ``404 RouteNotFound``    |   Route must be valid.                         |
+   +--------------------------+------------------------------------------------+
+   | ``405 MethodNotAllowed`` | The HTTP verb must be a GET.                   |
+   +--------------------------+------------------------------------------------+
+   | ``500 InternalError``    | This could be caused by one of several         |
+   |                          | components: the api server, Kafka, Zookeeper,  |
+   |                          | Redis, or one of the Producers for a topic.    |
+   +--------------------------+------------------------------------------------+
 
 Replication Status
 ------------------
@@ -66,8 +67,6 @@ Replication Status
 A special status, PROCESSING, supports cross-region replication with a
 multiple-backend topology. Objects in CRR buckets transition from PENDING to
 PROCESSING to COMPLETED or FAILED.
-
-**ReplicationStatus**
 
 -  PENDING: CRR to all backends is pending.
 -  PROCESSING: At least one backend has completed and is waiting for

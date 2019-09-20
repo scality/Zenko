@@ -52,12 +52,12 @@ responses (refer to :ref:`Common Response Headers`).
    +-----------------------+-----------------------+-----------------------+
    | Element               | Type                  | Description           |
    +=======================+=======================+=======================+
-   | x-amz-version-id      | string                | Returns the version   |
+   | ``x-amz-version-id``  | string                | Returns the version   |
    |                       |                       | ID of the retrieved   |
    |                       |                       | object if it has a    |
    |                       |                       | unique version ID     |
    |                       |                       |                       |
-   |                       |                       | Default: None         |
+   |                       |                       | **Default:** None     |
    +-----------------------+-----------------------+-----------------------+
 
 **Response Elements**
@@ -68,43 +68,43 @@ the response (includes XML containers):
 .. tabularcolumns:: X{0.25\textwidth}X{0.10\textwidth}X{0.60\textwidth}
 .. table::   
 
-   +-----------------------+-----------------------+-----------------------+
-   | Element               | Type                  | Description           |
-   +=======================+=======================+=======================+
-   | AccessControlList     | container             | Container for Grant,  |
-   |                       |                       | Grantee, Permission   |
-   +-----------------------+-----------------------+-----------------------+
-   | AccessControlPolicy   | container             | Contains the elements |
-   |                       |                       | that set the ACL      |
-   |                       |                       | permissions for an    |
-   |                       |                       | object per Grantee    |
-   +-----------------------+-----------------------+-----------------------+
-   | DisplayName           | string                | Screen name of the    |
-   |                       |                       | bucket owner          |
-   +-----------------------+-----------------------+-----------------------+
-   | Grant                 | container             | Container for the     |
-   |                       |                       | grantee and his or    |
-   |                       |                       | her permissions       |
-   +-----------------------+-----------------------+-----------------------+
-   | Grantee               | string                | The subject whose     |
-   |                       |                       | permissions are being |
-   |                       |                       | set                   |
-   +-----------------------+-----------------------+-----------------------+
-   | ID                    | string                | ID of the bucket      |
-   |                       |                       | owner, or the ID of   |
-   |                       |                       | the grantee           |
-   +-----------------------+-----------------------+-----------------------+
-   | Owner                 | container             | Container for the     |
-   |                       |                       | bucket owner’s        |
-   |                       |                       | display name and ID   |
-   +-----------------------+-----------------------+-----------------------+
-   | Permission            | string                | Specifies the         |
-   |                       |                       | permission            |
-   |                       |                       | (``FULL_CONTROL``,    |
-   |                       |                       | ``WRITE``,            |
-   |                       |                       | ``READ_ACP``) given   |
-   |                       |                       | to the grantee        |
-   +-----------------------+-----------------------+-----------------------+
+   +-------------------------+-----------------------+-----------------------+
+   | Element                 | Type                  | Description           |
+   +=========================+=======================+=======================+
+   | ``AccessControlList``   | container             | Container for Grant,  |
+   |                         |                       | Grantee, Permission   |
+   +-------------------------+-----------------------+-----------------------+
+   | ``AccessControlPolicy`` | container             | Contains the elements |
+   |                         |                       | that set the ACL      |
+   |                         |                       | permissions for an    |
+   |                         |                       | object per Grantee    |
+   +-------------------------+-----------------------+-----------------------+
+   | ``DisplayName``         | string                | Screen name of the    |
+   |                         |                       | bucket owner          |
+   +-------------------------+-----------------------+-----------------------+
+   | ``Grant``               | container             | Container for the     |
+   |                         |                       | grantee and his or    |
+   |                         |                       | her permissions       |
+   +-------------------------+-----------------------+-----------------------+
+   | ``Grantee``             | string                | The subject whose     |
+   |                         |                       | permissions are being |
+   |                         |                       | set                   |
+   +-------------------------+-----------------------+-----------------------+
+   | ``ID``                  | string                | ID of the bucket      |
+   |                         |                       | owner, or the ID of   |
+   |                         |                       | the grantee           |
+   +-------------------------+-----------------------+-----------------------+
+   | ``Owner``               | container             | Container for the     |
+   |                         |                       | bucket owner’s        |
+   |                         |                       | display name and ID   |
+   +-------------------------+-----------------------+-----------------------+
+   | ``Permission``          | string                | Specifies the         |
+   |                         |                       | permission            |
+   |                         |                       | (``FULL_CONTROL``,    |
+   |                         |                       | ``WRITE``,            |
+   |                         |                       | ``READ_ACP``) given   |
+   |                         |                       | to the grantee        |
+   +-------------------------+-----------------------+-----------------------+
 
 Examples
 --------
