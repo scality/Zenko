@@ -18,7 +18,7 @@ For basic metrics, Backbeat gathers, processes, and exposes six data points:
 Design
 ------
 
-To collect metrics, a separate Kafka Producer and Consumer pair
+To collect metrics, a separate Kafka producer and consumer pair
 (MetricsProducer and MetricsConsumer) using their own Kafka topic
 (default to “backbeat-metrics”) produce their own Kafka entries.
 

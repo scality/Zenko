@@ -19,7 +19,8 @@ object. To return a different version, use the versionId subresource.
 Requests
 --------
 
-**Request Syntax**
+Syntax
+~~~~~~
 
 .. code::
 
@@ -29,7 +30,8 @@ Requests
    Authorization: {{authorizationString}}
    Range:bytes={{byteRange}}
 
-**Request Parameters**
+Parameters
+~~~~~~~~~~
 
 Values for a set of response headers can be overridden in the GET Object
 response using the query parameters listed in the following table. These
@@ -49,48 +51,51 @@ accepts when an object is created, including ``Content-Type``,
 .. tabularcolumns:: X{0.30\textwidth}X{0.10\textwidth}X{0.55\textwidth}
 .. table::
 
-   +---------------------------+--------+--------------------------------------+
-   | Parameter                 | Type   | Description                          |
-   +===========================+========+======================================+
-   | response-content-type     | string | Sets the ``Content-Type`` header of  |
-   |                           |        | the response                         |
-   |                           |        |                                      |
-   |                           |        | Default: None                        |
-   +---------------------------+--------+--------------------------------------+
-   | response-content-language | string | Sets the ``Content-Language`` header |
-   |                           |        | of the response                      |
-   |                           |        |                                      |
-   |                           |        | Default: None                        |
-   +---------------------------+--------+--------------------------------------+
-   | response-expires          | string | Sets the ``Expires`` header of the   |
-   |                           |        | response                             |
-   |                           |        |                                      |
-   |                           |        | Default: None                        |
-   +---------------------------+--------+--------------------------------------+
-   | response-cache-control    | string | Sets the ``Cache-Control`` header of |
-   |                           |        | the response                         |
-   |                           |        |                                      |
-   |                           |        | Default: None                        |
-   +---------------------------+--------+--------------------------------------+
-   | response-content-\        | string | Sets the ``Content-Disposition``     |
-   | disposition               |        | header of the response               |
-   |                           |        |                                      |
-   |                           |        | Default: None                        |
-   +---------------------------+--------+--------------------------------------+
-   | response-content-encoding | string | Sets the ``Content-Encoding`` header |
-   |                           |        | of the response                      |
-   |                           |        |                                      |
-   |                           |        | Default: None                        |
-   +---------------------------+--------+--------------------------------------+
+   +----------------------------------+--------+--------------------------------------+
+   | Parameter                        | Type   | Description                          |
+   +==================================+========+======================================+
+   | ``response-content-type``        | string | Sets the ``Content-Type`` header of  |
+   |                                  |        | the response                         |
+   |                                  |        |                                      |
+   |                                  |        | **Default:** None                    |
+   +----------------------------------+--------+--------------------------------------+
+   | ``response-content-language``    | string | Sets the ``Content-Language`` header |
+   |                                  |        | of the response                      |
+   |                                  |        |                                      |
+   |                                  |        | **Default:** None                    |
+   +----------------------------------+--------+--------------------------------------+
+   | ``response-expires``             | string | Sets the ``Expires`` header of the   |
+   |                                  |        | response                             |
+   |                                  |        |                                      |
+   |                                  |        | **Default:** None                    |
+   +----------------------------------+--------+--------------------------------------+
+   | ``response-cache-control``       | string | Sets the ``Cache-Control`` header of |
+   |                                  |        | the response                         |
+   |                                  |        |                                      |
+   |                                  |        | **Default:** None                    |
+   +----------------------------------+--------+--------------------------------------+
+   | ``response-content-disposition`` | string | Sets the ``Content-Disposition``     |
+   |                                  |        | header of the response               |
+   |                                  |        |                                      |
+   |                                  |        | **Default:** None                    |
+   +----------------------------------+--------+--------------------------------------+
+   | ``response-content-encoding``    | string | Sets the ``Content-Encoding`` header |
+   |                                  |        | of the response                      |
+   |                                  |        |                                      |
+   |                                  |        | **Default:** None                    |
+   +----------------------------------+--------+--------------------------------------+
 
-**Additional Parameters**
+Additional Parameters
+~~~~~~~~~~~~~~~~~~~~~
 
-*Versioning*
+Versioning
+``````````
 
 By default, the GET operation returns the current version of an object.
 To return a different version, use the versionId subresource.
 
-*PartNumber*
+PartNumber
+``````````
 
 The PartNumber parameter requests the part number of the object being
 read. This is a positive integer between 1 and 10,000, and effectively
@@ -98,141 +103,130 @@ performs a “ranged” GET request for the part specified. This is useful
 for downloading just a part of an object that was originally put by
 multipart upload.
 
-**Request Headers**
+Headers
+~~~~~~~
 
 The GET Object operation can use a number of optional request headers in
-addition to those that are common to all operations (refer to :ref:`Common
-Request Headers`).
+addition to those that are common to all operations (see :ref:`Common Request
+Headers`).
 
 .. tabularcolumns:: X{0.20\textwidth}X{0.10\textwidth}X{0.65\textwidth}
 .. table::
 
-   +-----------------------+-----------------------+-----------------------+
-   | Header                | Type                  | Description           |
-   +=======================+=======================+=======================+
-   | If-Modified-Since     | string                | Return the object     |
-   |                       |                       | only if it has been   |
-   |                       |                       | modified since the    |
-   |                       |                       | specified time,       |
-   |                       |                       | otherwise return a    |
-   |                       |                       | ``304`` (not          |
-   |                       |                       | modified)             |
-   |                       |                       |                       |
-   |                       |                       | Default: None         |
-   |                       |                       |                       |
-   |                       |                       | Constraints: None     |
-   +-----------------------+-----------------------+-----------------------+
-   | If-Unmodified-Since   | string                | Return the object     |
-   |                       |                       | only if it has not    |
-   |                       |                       | been modified since   |
-   |                       |                       | the specified time,   |
-   |                       |                       | otherwise return a    |
-   |                       |                       | ``412`` (precondition |
-   |                       |                       | failed)               |
-   |                       |                       |                       |
-   |                       |                       | Default: None         |
-   |                       |                       |                       |
-   |                       |                       | Constraints: None     |
-   +-----------------------+-----------------------+-----------------------+
-   | If-Match              | string                | Return the object     |
-   |                       |                       | only if its entity    |
-   |                       |                       | tag (ETag) is the     |
-   |                       |                       | same as the one       |
-   |                       |                       | specified; otherwise, |
-   |                       |                       | return a ``412``      |
-   |                       |                       | (precondition failed) |
-   |                       |                       |                       |
-   |                       |                       | Default: None         |
-   |                       |                       |                       |
-   |                       |                       | Constraints: None     |
-   +-----------------------+-----------------------+-----------------------+
-   | If-None-Match         | string                | Return the object     |
-   |                       |                       | only if its entity    |
-   |                       |                       | tag (ETag) is         |
-   |                       |                       | different from the    |
-   |                       |                       | one specified;        |
-   |                       |                       | otherwise, return a   |
-   |                       |                       | ``304`` (not          |
-   |                       |                       | modified)             |
-   |                       |                       |                       |
-   |                       |                       | Default: None         |
-   |                       |                       |                       |
-   |                       |                       | Constraints: None     |
-   +-----------------------+-----------------------+-----------------------+
+   +-------------------------+--------+----------------------------------------+
+   | Header                  | Type   | Description                            |
+   +=========================+========+========================================+
+   | ``If-Modified-Since``   | string | Return the object only if it has been  |
+   |                         |        | modified since the specified time,     |
+   |                         |        | otherwise return a ``304`` (not        |
+   |                         |        | modified).                             |
+   |                         |        |                                        |
+   |                         |        | **Default:** None                      |
+   |                         |        |                                        |
+   |                         |        | **Constraints:** None                  |
+   +-------------------------+--------+----------------------------------------+
+   | ``If-Unmodified-Since`` | string | Return the object only if it has not   |
+   |                         |        | been modified since the specified      |
+   |                         |        | time, otherwise return a ``412``       |
+   |                         |        | (precondition failed).                 |
+   |                         |        |                                        |
+   |                         |        | **Default:** None                      |
+   |                         |        |                                        |
+   |                         |        | **Constraints:** None                  |
+   +-------------------------+--------+----------------------------------------+
+   | ``If-Match``            | string | Return the object only if its entity   |
+   |                         |        | tag (ETag) is the same as the one      |
+   |                         |        | specified; otherwise, return a ``412`` |
+   |                         |        | (precondition failed).                 |
+   |                         |        |                                        |
+   |                         |        | **Default:** None                      |
+   |                         |        |                                        |
+   |                         |        | **Constraints:** None                  |
+   +-------------------------+--------+----------------------------------------+
+   | ``If-None-Match``       | string | Return the object only if its entity   |
+   |                         |        | tag (ETag) is different from the one   |
+   |                         |        | specified; otherwise, return a ``304`` |
+   |                         |        | (not modified)                         |
+   |                         |        |                                        |
+   |                         |        | **Default:** None                      |
+   |                         |        |                                        |
+   |                         |        | **Constraints:** None                  |
+   +-------------------------+--------+----------------------------------------+
 
-**Request Elements**
+Elements
+~~~~~~~~
 
 The GET Object operation does not use request elements.
 
 Responses
 ---------
 
-**Response Headers**
+Headers
+~~~~~~~
 
-.. tabularcolumns:: X{0.25\textwidth}X{0.10\textwidth}X{0.60\textwidth}
+.. tabularcolumns:: X{0.35\textwidth}X{0.10\textwidth}X{0.50\textwidth}
 .. table::
 
-   +-----------------------+-----------------------+-----------------------+
-   | Header                | Type                  | Description           |
-   +=======================+=======================+=======================+
-   | x-amz-delete-marker   | Boolean               | Specifies whether the |
-   |                       |                       | object retrieved was  |
-   |                       |                       | (true) or was not     |
-   |                       |                       | (false) a delete      |
-   |                       |                       | marker. If false,     |
-   |                       |                       | the response header   |
-   |                       |                       | does not appear in    |
-   |                       |                       | the response.         |
-   |                       |                       |                       |
-   |                       |                       | Valid Values:         |
-   |                       |                       | ``true`` \| ``false`` |
-   |                       |                       |                       |
-   |                       |                       | Default: ``false``    |
-   +-----------------------+-----------------------+-----------------------+
-   | x-amz-meta-\*         | string                | Headers starting with |
-   |                       |                       | this prefix are       |
-   |                       |                       | user-defined          |
-   |                       |                       | metadata, each of     |
-   |                       |                       | which is stored and   |
-   |                       |                       | returned as a set of  |
-   |                       |                       | key-value pairs.      |
-   |                       |                       | Zenko does not        |
-   |                       |                       | validate or interpret |
-   |                       |                       | user-defined metadata.|
-   +-----------------------+-----------------------+-----------------------+
-   | x-amz-version-id      | string                | Returns the version   |
-   |                       |                       | ID of the retrieved   |
-   |                       |                       | object if it has a    |
-   |                       |                       | unique version ID     |
-   |                       |                       |                       |
-   |                       |                       | Default: None         |
-   +-----------------------+-----------------------+-----------------------+
-   | x-amz-website\        | string                | When a bucket is      |
-   | -redirect-location    |                       | configured as a       |
-   |                       |                       | website, this         |
-   |                       |                       | metadata can be set   |
-   |                       |                       | on the object so the  |
-   |                       |                       | website endpoint will |
-   |                       |                       | evaluate the request  |
-   |                       |                       | for the object as a   |
-   |                       |                       | 301 redirect to       |
-   |                       |                       | another object in the |
-   |                       |                       | same bucket or an     |
-   |                       |                       | external URL.         |
-   |                       |                       |                       |
-   |                       |                       | Default: None         |
-   +-----------------------+-----------------------+-----------------------+
+   +-------------------------------------+---------+---------------------------+
+   | Header                              | Type    | Description               |
+   +=====================================+=========+===========================+
+   | ``x-amz-delete-marker``             | Boolean | Specifies whether the     |
+   |                                     |         | object retrieved was      |
+   |                                     |         | (true) or was not (false) |
+   |                                     |         | a delete marker. If       |
+   |                                     |         | false, the response       |
+   |                                     |         | header does not appear in |
+   |                                     |         | the response.             |
+   |                                     |         |                           |
+   |                                     |         | **Valid Values:**         |
+   |                                     |         | ``true`` \| ``false``     |
+   |                                     |         |                           |
+   |                                     |         | **Default:** ``false``    |
+   +-------------------------------------+---------+---------------------------+
+   | ``x-amz-meta-\*``                   | string  | Headers starting with     |
+   |                                     |         | this prefix are user-\    |
+   |                                     |         | defined metadata, each of |
+   |                                     |         | which is stored and       |
+   |                                     |         | returned as a set of      |
+   |                                     |         | key-value pairs. Zenko    |
+   |                                     |         | does not validate or      |
+   |                                     |         | interpret user-defined    |
+   |                                     |         | metadata.                 |
+   +-------------------------------------+---------+---------------------------+
+   | ``x-amz-version-id``                | string  | Returns the version ID of |
+   |                                     |         | the retrieved object if   |
+   |                                     |         | it has a unique version   |
+   |                                     |         | ID.                       |
+   |                                     |         |                           |
+   |                                     |         | **Default:** None         |
+   +-------------------------------------+---------+---------------------------+
+   | ``x-amz-website-redirect-location`` | string  | When a bucket is          |
+   |                                     |         | configured as a website,  |
+   |                                     |         | this metadata can be set  |
+   |                                     |         | on the object so the      |
+   |                                     |         | website endpoint will     |
+   |                                     |         | evaluate the request for  |
+   |                                     |         | the object as a 301       |
+   |                                     |         | redirect to another       |
+   |                                     |         | object in the same bucket |
+   |                                     |         | or an external URL.       |
+   |                                     |         |                           |
+   |                                     |         | **Default:** None         |
+   +-------------------------------------+---------+---------------------------+
 
-**Response Elements**
+Elements
+~~~~~~~~
 
 The GET Object operation does not return response elements.
 
 Examples
 --------
 
-**Returning the Object "my-document.pdf"**
+Returning the Object "my-document.pdf"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-*Request Sample*
+Request
+```````
 
 .. code::
 
@@ -241,7 +235,8 @@ Examples
    Date: Wed, 28 Oct 2009 22:32:00 GMT
    Authorization: {{authorizationString}}
 
-*Response Sample*
+Response
+````````
 
 .. code::
 
@@ -257,7 +252,7 @@ Examples
    Server: ScalityS3
    [434234 bytes of object data]
 
-*Response Sample if the Latest Object is a Delete Marker*
+*If the Latest Object is a Delete Marker:*
 
 .. code::
 
@@ -273,9 +268,11 @@ Examples
 
 The delete marker returns a 404 Not Found error.
 
-**Getting a Specified Version of an Object**
+Getting a Specified Version of an Object
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-*Request Sample*
+Request
+```````
 
 .. code::
 
@@ -284,7 +281,8 @@ The delete marker returns a 404 Not Found error.
    Date: Wed, 28 Oct 2009 22:32:00 GMT
    Authorization: {{authorizationString}}
 
-*Response Sample*
+Response
+````````
 
 .. code::
 
@@ -301,9 +299,11 @@ The delete marker returns a 404 Not Found error.
    Server: ScalityS3
    [434234 bytes of object data]
 
-**Specifying All Query String Parameters, Overriding Response Header Values**
+Specifying All Query String Parameters, Overriding Response Header Values
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-*Request Sample*
+Request
+```````
 
 .. code::
 
@@ -312,10 +312,11 @@ The delete marker returns a 404 Not Found error.
    Accept: */*
    Authorization: AWS AKIAIOSFODNN7EXAMPLE:aaStE6nKnw8ihhiIdReoXYlMamW=
 
-*Response Sample*
+Response
+````````
 
-In the sample, the header values are set to the values specified in the
-true request.
+In the sample, the header values are set to the values specified in the true
+request.
 
 .. code::
 
@@ -338,9 +339,11 @@ true request.
    Server: ScalityS3
    [object data not shown]
 
-**Request with a Range Header**
+Request with a Range Header
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-*Request Sample*
+Request
+```````
 
 The request specifies the HTTP Range header to retrieve the first 10
 bytes of an object.
@@ -358,7 +361,8 @@ bytes of an object.
 
     Zenko does not support retrieving multiple ranges of data per GET request.
 
-*Response Sample*
+Response
+````````
 
 In the sample, the header values are set to the values specified in the
 true request.

@@ -74,7 +74,8 @@ two ways to grant the permissions using the request headers:
 Requests
 --------
 
-**Request Syntax**
+Syntax
+~~~~~~
 
 The Request Syntax that follows is for sending the ACL in the request
 body. If headers are used to specify the permissions for the object, the
@@ -99,172 +100,174 @@ ACL cannot be sent in the request body (refer to :ref:`Common Request Headers` f
   The syntax shows only a representative sample of the possible request
   headers. For a complete list, refer to :ref:`Common Request Headers`.
 
-**Request Parameters**
+Parameters
+~~~~~~~~~~
 
-The PUT Object - Copy operation does not use Request Parameters.
+The PUT Object - Copy operation does not use request parameters.
 
-**Request Headers**
+Headers
+~~~~~~~
 
-The PUT Object - Copy operation can use a number of optional request
-headers in addition to those that are common to all operations (refer to
-:ref:`Common Request Headers`).
+The PUT Object - Copy operation can use the following optional request headers
+in addition to those that are common to all operations (see :ref:`Common Request
+Headers`).
 
-.. tabularcolumns:: X{0.30\textwidth}lX{0.55\textwidth}
+.. tabularcolumns:: X{0.45\textwidth}X{0.10\textwidth}X{0.40\textwidth}
 .. table::
    :class: longtable
 
-   +-----------------------+--------+------------------------------------------+
-   | Header                | Type   | Description                              |
-   +=======================+========+==========================================+
-   | x-amz-copy-source     | string | The name of the source bucket and key    |
-   |                       |        | name of the source object, separated by  |
-   |                       |        | a slash (/). If versioning is enabled,   |
-   |                       |        | this will copy the latest version of the |
-   |                       |        | key by default. To specify another       |
-   |                       |        | version, append ?versionId={{version     |
-   |                       |        | id}} after the object key.               |
-   |                       |        |                                          |
-   |                       |        | Default: None                            |
-   |                       |        |                                          |
-   |                       |        | Constraints: This string must be         |
-   |                       |        | URL-encoded. Additionally, the source    |
-   |                       |        | bucket must be valid and READ access to  |
-   |                       |        | the valid source object is required.     |
-   +-----------------------+--------+------------------------------------------+
-   | x-amz-metadata-\      | string | Specifies whether the metadata is copied |
-   | directive             |        | from the source object or replaced with  |
-   |                       |        | metadata provided in the request.        |
-   |                       |        |                                          |
-   |                       |        | If copied, the metadata, except for the  |
-   |                       |        | version ID, remains unchanged. In        |
-   |                       |        | addition, the server-side-encryption     |
-   |                       |        | storage-class, and website-redirect-\    |
-   |                       |        | location metadata from the source is not |
-   |                       |        | copied. If you specify this metadata     |
-   |                       |        | explicitly in the copy request, Zenko    |
-   |                       |        | adds this metadata to the resulting      |
-   |                       |        | object. If you specify headers in the    |
-   |			   |	    | request specifying any user-defined      |
-   |			   |	    | metadata, the connector ignores these    |
-   |			   |	    | headers. To use new user-defined 	       |
-   |			   |	    | metadata, REPLACE must be selected.      |
-   |                       |        |                                          |
-   |                       |        | If replaced, all original metadata is    |
-   |                       |        | replaced by the specified metadata.      |
-   |                       |        |                                          |
-   |                       |        | Default: COPY                            |
-   |                       |        |                                          |
-   |                       |        | Valid values: COPY, REPLACE              |
-   |                       |        |                                          |
-   |                       |        | Constraints: Values other than COPY or   |
-   |                       |        | REPLACE result in an immediate 400-based |
-   |                       |        | error response. An object cannot be      |
-   |                       |        | copied to itself unless the              |
-   |                       |        | MetadataDirective header is specified    |
-   |                       |        | and its value set to REPLACE (or, at the |
-   |                       |        | least, some metadata is changed, such as |
-   |                       |        | storage class).                          |
-   +-----------------------+--------+------------------------------------------+
-   | x-amz-copy-source-\   | string | Copies the object if its entity tag      |
-   | if-match              |        | (ETag) matches the specified tag;        |
-   |                       |        | otherwise, the request returns a 412     |
-   |                       |        | HTTP status code error (failed           |
-   |                       |        | precondition).                           |
-   |                       |        |                                          |
-   |                       |        | Default: None                            |
-   |                       |        |                                          |
-   |                       |        | Constraints: Can be used with            |
-   |                       |        | x-amz-copy-source-if-unmodified-since,   |
-   |                       |        | but cannot be used with other            |
-   |                       |        | conditional copy headers.                |
-   +-----------------------+--------+------------------------------------------+
-   | x-amz-copy-source-\   | string | Copies the object if its entity tag      |
-   | if-none-match         |        | (ETag) is different than the specified   |
-   |                       |        | ETag; otherwise, the request returns a   |
-   |                       |        | 412 HTTP status code error (failed       |
-   |                       |        | precondition).                           |
-   |                       |        |                                          |
-   |                       |        | Default: None                            |
-   |                       |        |                                          |
-   |                       |        | Constraints: Can be used with            |
-   |                       |        | x-amz-copy-source-if-modified-since,     |
-   |                       |        | but cannot be used with other            | 
-   |                       |        | conditional copy headers.                |
-   +-----------------------+--------+------------------------------------------+
-   | x-amz-copy-source-\   | string | Copies the object if it hasn't been      |
-   | if-unmodified-since   |        | modified since the specified time;       |
-   |                       |        | otherwise, the request returns a 412     |
-   |                       |        | HTTP status code error (failed           |
-   |                       |        | precondition).                           |
-   |                       |        |                                          |
-   |                       |        | Default: None                            |
-   |                       |        |                                          |
-   |                       |        | Constraints: This must be a valid HTTP   |
-   |                       |        | date. This header can be used with       |
-   |                       |        | x-amz-copy-source-if-match, but cannot   |
-   |                       |        | be used with other conditional copy      |
-   |                       |        | headers.                                 |
-   +-----------------------+--------+------------------------------------------+
-   | x-amz-copy-source-\   | string | Copies the object if it has been         |
-   | if-modified-since     |        | modified since the specified time;       |
-   |                       |        | otherwise, the request returns a 412     |
-   |                       |        | HTTP status code error (failed           |
-   |                       |        | condition).                              |
-   |                       |        |                                          |
-   |                       |        | Default: None                            |
-   |                       |        |                                          |
-   |                       |        | Constraints: This must be a valid HTTP   |
-   |                       |        | date. This header can be used with       |
-   |                       |        | x-amz-copy-source-if-none-match, but     |
-   |                       |        | cannot be used with other conditional    |
-   |                       |        | copy headers.                            |
-   +-----------------------+--------+------------------------------------------+
-   | x-amz-storage-class   | enum   | The default storage class is “Standard.” |
-   |                       |        | Currently, Zenko only suports one level  |
-   |                       |        | level of storage class.                  |
-   |                       |        |                                          |
-   |                       |        | Default: Standard                        |
-   |                       |        |                                          |
-   |                       |        | Valid Values: STANDARD, STANDARD_IA,     |
-   |                       |        | REDUCED_REDUNDANCY                       |
-   +-----------------------+--------+------------------------------------------+
+   +-------------------------------------------+--------+------------------------------------------+
+   | Header                                    | Type   | Description                              |
+   +===========================================+========+==========================================+
+   | ``x-amz-copy-source``                     | string | The name of the source bucket and key    |
+   |                                           |        | name of the source object, separated by  |
+   |                                           |        | a slash (/). If versioning is enabled,   |
+   |                                           |        | this will copy the latest version of the |
+   |                                           |        | key by default. To specify another       |
+   |                                           |        | version, append ?versionId={{version     |
+   |                                           |        | id}} after the object key.               |
+   |                                           |        |                                          |
+   |                                           |        | **Default:** None                        |
+   |                                           |        |                                          |
+   |                                           |        | **Constraints:** This string must be     |
+   |                                           |        | URL-encoded. Additionally, the source    |
+   |                                           |        | bucket must be valid and READ access to  |
+   |                                           |        | the valid source object is required.     |
+   +-------------------------------------------+--------+------------------------------------------+
+   | ``x-amz-metadata-directive``              | string | Specifies whether the metadata is copied |
+   |                                           |        | from the source object or replaced with  |
+   |                                           |        | metadata provided in the request.        |
+   |                                           |        |                                          |
+   |                                           |        | If copied, the metadata, except for the  |
+   |                                           |        | version ID, remains unchanged. In        |
+   |                                           |        | addition, the server-side-encryption     |
+   |                                           |        | storage-class, and website-redirect-\    |
+   |                                           |        | location metadata from the source is not |
+   |                                           |        | copied. If you specify this metadata     |
+   |                                           |        | explicitly in the copy request, Zenko    |
+   |                                           |        | adds this metadata to the resulting      |
+   |                                           |        | object. If you specify headers in the    |
+   |                                           |        | request specifying any user-defined      |
+   |                                           |        | metadata, the connector ignores these    |
+   |                                           |        | headers. To use new user-defined         |
+   |                                           |        | metadata, REPLACE must be selected.      |
+   |                                           |        |                                          |
+   |                                           |        | If replaced, all original metadata is    |
+   |                                           |        | replaced by the specified metadata.      |
+   |                                           |        |                                          |
+   |                                           |        | **Default:** COPY                        |
+   |                                           |        |                                          |
+   |                                           |        | **Valid Values:** COPY, REPLACE          |
+   |                                           |        |                                          |
+   |                                           |        | **Constraints:** Values other than COPY  |
+   |                                           |        | or REPLACE result in an immediate 400-   |
+   |                                           |        | based error response. An object cannot be|
+   |                                           |        | copied to itself unless the              |
+   |                                           |        | MetadataDirective header is specified    |
+   |                                           |        | and its value set to REPLACE (or, at the |
+   |                                           |        | least, some metadata is changed, such as |
+   |                                           |        | storage class).                          |
+   +-------------------------------------------+--------+------------------------------------------+
+   | ``x-amz-copy-source-if-match``            | string | Copies the object if its entity tag      |
+   |                                           |        | (ETag) matches the specified tag;        |
+   |                                           |        | otherwise, the request returns a 412     |
+   |                                           |        | HTTP status code error (failed           |
+   |                                           |        | precondition).                           |
+   |                                           |        |                                          |
+   |                                           |        | **Default:** None                        |
+   |                                           |        |                                          |
+   |                                           |        | **Constraints:** Can be used with        |
+   |                                           |        | x-amz-copy-source-if-unmodified-since,   |
+   |                                           |        | but cannot be used with other            |
+   |                                           |        | conditional copy headers.                |
+   +-------------------------------------------+--------+------------------------------------------+
+   | ``x-amz-copy-source-if-none-match``       | string | Copies the object if its entity tag      |
+   |                                           |        | (ETag) is different than the specified   |
+   |                                           |        | ETag; otherwise, the request returns a   |
+   |                                           |        | 412 HTTP status code error (failed       |
+   |                                           |        | precondition).                           |
+   |                                           |        |                                          |
+   |                                           |        | **Default:** None                        |
+   |                                           |        |                                          |
+   |                                           |        | **Constraints:** Can be used with        |
+   |                                           |        | x-amz-copy-source-if-modified-since,     |
+   |                                           |        | but cannot be used with other            | 
+   |                                           |        | conditional copy headers.                |
+   +-------------------------------------------+--------+------------------------------------------+
+   | ``x-amz-copy-source-if-unmodified-since`` | string | Copies the object if it hasn't been      |
+   |                                           |        | modified since the specified time;       |
+   |                                           |        | otherwise, the request returns a 412     |
+   |                                           |        | HTTP status code error (failed           |
+   |                                           |        | precondition).                           |
+   |                                           |        |                                          |
+   |                                           |        | **Default:** None                        |
+   |                                           |        |                                          |
+   |                                           |        | **Constraints:** This must be a valid    |
+   |                                           |        | HTTP date. This header can be used with  |
+   |                                           |        | x-amz-copy-source-if-match, but cannot   |
+   |                                           |        | be used with other conditional copy      |
+   |                                           |        | headers.                                 |
+   +-------------------------------------------+--------+------------------------------------------+
+   | ``x-amz-copy-source-if-modified-since``   | string | Copies the object if it has been         |
+   |                                           |        | modified since the specified time;       |
+   |                                           |        | otherwise, the request returns a 412     |
+   |                                           |        | HTTP status code error (failed           |
+   |                                           |        | condition).                              |
+   |                                           |        |                                          |
+   |                                           |        | **Default:** None                        |
+   |                                           |        |                                          |
+   |                                           |        | **Constraints:** This must be a valid    |
+   |                                           |        | HTTP date. This header can be used with  |
+   |                                           |        | x-amz-copy-source-if-none-match, but     |
+   |                                           |        | cannot be used with other conditional    |
+   |                                           |        | copy headers.                            |
+   +-------------------------------------------+--------+------------------------------------------+
+   | ``x-amz-storage-class``                   | enum   | The default storage class is “Standard.” |
+   |                                           |        | Currently, Zenko only suports one level  |
+   |                                           |        | level of storage class.                  |
+   |                                           |        |                                          |
+   |                                           |        | **Default:** Standard                    |
+   |                                           |        |                                          |
+   |                                           |        | **Valid Values:** STANDARD, STANDARD_IA, |
+   |                                           |        | REDUCED_REDUNDANCY                       |
+   +-------------------------------------------+--------+------------------------------------------+
 
 Note the following additional considerations about the preceding request
 headers:
 
--  Consideration 1: If both of thex-amz-copy-source-if-match and
-   x-amz-copy-source-if-unmodified-since headers are present in the
-   request as follows, Zenko returns 200 OK and copies the data:
+#. If both of thex-amz-copy-source-if-match and
+   x-amz-copy-source-if-unmodified-since headers are present in the request as
+   follows, Zenko returns 200 OK and copies the data:
 
    .. code::
 
       x-amz-copy-source-if-match condition evaluates to true, and;
       x-amz-copy-source-if-unmodified-since condition evaluates to false;
 
--  Consideration 2: If both of the x-amz-copy-source-if-none-match and
-   x-amz-copy-source-if-modified-since headers are present in the
-   request as follows, Zenko returns a 412 Precondition Failed response code:
+#. If both of the x-amz-copy-source-if-none-match and
+   x-amz-copy-source-if-modified-since headers are present in the request as
+   follows, Zenko returns a 412 Precondition Failed response code:
 
    .. code::
 
       x-amz-copy-source-if-none-match condition evaluates to false, and;
       x-amz-copy-source-if-modified-since condition evaluates to true
 
-Additionally, the following access control-related (ACL) headers can be
-used with the PUT Object - Copy operation. By default, all objects are
-private; only the owner has full access control. When adding a new
-object, it is possible to grant permissions to individual AWS accounts
-or predefined groups defined by Amazon S3. These permissions are then
-added to the Access Control List (ACL) on the object. For more
-information, refer to :ref:`ACL (Access Control List)`.
+Additionally, the following access control-related (ACL) headers can be used
+with the PUT Object - Copy operation. By default, all objects are private; only
+the owner has full access control. When adding a new object, it is possible to
+grant permissions to individual AWS accounts or predefined groups defined by
+Amazon S3. These permissions are then added to the Access Control List (ACL) on
+the object. For more information, refer to :ref:`ACL (Access Control List)`.
 
-*Specifying a Canned ACL*
+Specifying a Canned ACL
+```````````````````````
 
 Zenko supports a set of predefined ACLs, each of which has a predefined set of
 grantees and permissions.
 
-To grant access permissions by specifying canned ACLs, use the x-amz-acl
-header and specify the canned ACL name as its value.
+To grant access permissions by specifying canned ACLs, use the x-amz-acl header
+and specify the canned ACL name as its value.
 
 .. note::
 
@@ -274,89 +277,85 @@ header and specify the canned ACL name as its value.
 .. tabularcolumns:: X{0.15\textwidth}X{0.10\textwidth}X{0.70\textwidth}
 .. table::
 
-   +-----------+--------+------------------------------------------------------+
-   | Header    | Type   | Description                                          |
-   +===========+========+======================================================+
-   | x-amz-acl | string | The canned ACL to apply to the object.               |
-   |           |        |                                                      |
-   |           |        | Default: ``private``                                 |
-   |           |        |                                                      |
-   |           |        | Valid Values: ``private`` \| ``public-read`` \|      |
-   |           |        | ``public-read-write`` \| ``aws-exec-read`` \|        |
-   |           |        | ``authenticated-read`` \| ``bucket-owner-read`` \|   |
-   |           |        | ``bucket-owner-full-control``                        |
-   |           |        |                                                      |
-   |           |        | Constraints: None                                    |
-   +-----------+--------+------------------------------------------------------+
+   +---------------+--------+------------------------------------------------------+
+   | Header        | Type   | Description                                          |
+   +===============+========+======================================================+
+   | ``x-amz-acl`` | string | The canned ACL to apply to the object.               |
+   |               |        |                                                      |
+   |               |        | **Default:** ``private``                             |
+   |               |        |                                                      |
+   |               |        | **Valid Values:** ``private`` \| ``public-read`` \|  |
+   |               |        | ``public-read-write`` \| ``aws-exec-read`` \|        |
+   |               |        | ``authenticated-read`` \| ``bucket-owner-read`` \|   |
+   |               |        | ``bucket-owner-full-control``                        |
+   |               |        |                                                      |
+   |               |        | **Constraints:** None                                |
+   +---------------+--------+------------------------------------------------------+
 
-*Explicitly Specifying Grantee Access Permissions*
+Explicitly Specifying Grantee Access Permissions
+````````````````````````````````````````````````
 
 A set of headers is available for explicitly granting access permissions
-to specific Zenko accounts or groups.
+to specific accounts or groups.
 
 .. note::
 
   Each of the x-amz-grant-permission headers maps to specific permissions
-  the Zenko supports in an ACL. Please also note that the use of any of these
+  that Zenko supports in an ACL. Please also note that the use of any of these
   ACL-specific headers negates the use of the x-amz-acl header to set a
   canned ACL.
 
 .. tabularcolumns:: X{0.25\textwidth}X{0.10\textwidth}X{0.60\textwidth}
 .. table::
 
-   +--------------------------+-----------------------+-----------------------+
-   | Header                   | Type                  | Description           |
-   +==========================+=======================+=======================+
-   | x-amz-grant-read         | string                | Allows grantee to     |
-   |                          |                       | read the object data  |
-   |                          |                       | and its metadata      |
-   |                          |                       |                       |
-   |                          |                       | Default: None         |
-   |                          |                       |                       |
-   |                          |                       | Constraints: None     |
-   +--------------------------+-----------------------+-----------------------+
-   | x-amz-grant-write        | string                | Not applicable. This  |
-   |                          |                       | applies only when     |
-   |                          |                       | granting access       |
-   |                          |                       | permissions on a      |
-   |                          |                       | bucket.               |
-   |                          |                       |                       |
-   |                          |                       | Default: None         |
-   |                          |                       |                       |
-   |                          |                       | Constraints: None     |
-   +--------------------------+-----------------------+-----------------------+
-   | x-amz-grant-read-acp     | string                | Allows grantee to     |
-   |                          |                       | read the object ACL   |
-   |                          |                       |                       |
-   |                          |                       | Default: None         |
-   |                          |                       |                       |
-   |                          |                       | Constraints: None     |
-   +--------------------------+-----------------------+-----------------------+
-   | x-amz-grant-write-acp    | string                | Allows grantee to     |
-   |                          |                       | write the ACL for the |
-   |                          |                       | applicable object     |
-   |                          |                       |                       |
-   |                          |                       | Default: None         |
-   |                          |                       |                       |
-   |                          |                       | Constraints: None     |
-   +--------------------------+-----------------------+-----------------------+
-   | x-amz-grant-full-control | string                | Allows grantee the    |
-   |                          |                       | READ, READ_ACP, and   |
-   |                          |                       | WRITE_ACP permissions |
-   |                          |                       | on the object         |
-   |                          |                       |                       |
-   |                          |                       | Default: None         |
-   |                          |                       |                       |
-   |                          |                       | Constraints: None     |
-   +--------------------------+-----------------------+-----------------------+
+   +------------------------------+--------+----------------------------------+
+   | Header                       | Type   | Description                      |
+   +==============================+========+==================================+
+   | ``x-amz-grant-read``         | string | Allows grantee to read the       |
+   |                              |        | object data and its metadata.    |
+   |                              |        |                                  |
+   |                              |        | **Default:** None                |
+   |                              |        |                                  |
+   |                              |        | **Constraints:** None            |
+   +------------------------------+--------+----------------------------------+
+   | ``x-amz-grant-write``        | string | Not applicable. This applies     |
+   |                              |        | only when granting access        |
+   |                              |        | permissions on a bucket.         |
+   |                              |        |                                  |
+   |                              |        | **Default:** None                |
+   |                              |        |                                  |
+   |                              |        | **Constraints:** None            |
+   +------------------------------+--------+----------------------------------+
+   | ``x-amz-grant-read-acp``     | string | Allows grantee to read the       |
+   |                              |        | object ACL.                      |
+   |                              |        |                                  |
+   |                              |        | **Default:** None                |
+   |                              |        |                                  |
+   |                              |        | **Constraints:** None            |
+   +------------------------------+--------+----------------------------------+
+   | ``x-amz-grant-write-acp``    | string | Allows grantee to write the ACL  |
+   |                              |        | for the applicable object.       |
+   |                              |        |                                  |
+   |                              |        | **Default:** None                |
+   |                              |        |                                  |
+   |                              |        | **Constraints:** None            |
+   +------------------------------+--------+----------------------------------+
+   | ``x-amz-grant-full-control`` | string | Allows grantee the READ,         |
+   |                              |        | READ_ACP, and WRITE_ACP          |
+   |                              |        | permissions on the object.       |
+   |                              |        |                                  |
+   |                              |        | **Default:** None                |
+   |                              |        |                                  |
+   |                              |        | **Constraints:** None            |
+   +------------------------------+--------+----------------------------------+
 
-For each header, the value is a comma-separated list of one or more
-grantees. Each grantee is specified as a ``type=value`` pair, where the
-type can be one any one of the following:
+For each header, the value is a comma-separated list of one or more grantees.
+Each grantee is specified as a ``type=value`` pair, where the type can be
+any one of the following:
 
--  ``emailAddress`` (if value specified is the email address of an
+-  ``emailAddress`` (if the value specified is the email address of an
    account)
--  ``id`` (if value specified is the canonical user ID of an account)
+-  ``id`` (if the value specified is the canonical user ID of an account)
 -  ``uri`` (if granting permission to a predefined group)
 
 For example, the following x-amz-grant-read header grants list objects
@@ -366,90 +365,93 @@ permission to two accounts identified by their email addresses:
 
    x-amz-grant-read:  emailAddress="xyz@scality.com", emailAddress="abc@scality.com"
 
-**Request Elements**
+Elements
+~~~~~~~~
 
-The implementation of the operation does not use Request Parameters.
+The implementation of the operation does not use request Parameters.
 
 Responses
 ---------
 
-**Response Headers**
+Headers
+~~~~~~~
 
-Implementation of the PUT Object - Copy operation can include the
+The PUT Object - Copy operation can include the
 following response headers in addition to the response headers common to
 all responses (refer to :ref:`Common Response Headers`).
 
 .. tabularcolumns:: X{0.30\textwidth}X{0.10\textwidth}X{0.55\textwidth}
 .. table::
 
-   +-----------------------+-----------------------+------------------------+
-   | Header                | Type                  | Description            |
-   +=======================+=======================+========================+
-   | x-amz-copy-source-\   | string                | Returns the version    |
-   | version-id            |                       | ID of the retrieved    |
-   |                       |                       | object if it has a     |
-   |                       |                       | unique version ID.     |
-   +-----------------------+-----------------------+------------------------+
-   | x-amz-server-side-\   | string                | If server-side         |
-   | encryption            |                       | encryption is          |
-   |                       |                       | specified either with  |
-   |                       |                       | an AWS KMS or          |
-   |                       |                       | Zenko-managed          |
-   |                       |                       | encryption key in the  |
-   |                       |                       | copy request, the      |
-   |                       |                       | response includes this |
-   |                       |                       | header, confirming the |
-   |                       |                       | encryption algorithm   |
-   |                       |                       | that was used to       |
-   |                       |                       | encrypt the object.    |
-   +-----------------------+-----------------------+------------------------+
-   | x-amz-server-side-\   | string                | If the                 |
-   | encryption-aws-kms-\  |                       | x-amz-server-side-\    |
-   | key-id                |                       | encryption             |
-   |                       |                       | is present and has     |
-   |                       |                       | the value of aws:kms,  |
-   |                       |                       | this header specifies  |
-   |                       |                       | the ID of the AWS Key  |
-   |                       |                       | Management Service     |
-   |                       |                       | (KMS) master           |
-   |                       |                       | encryption key that    |
-   |                       |                       | was used for the       |
-   |                       |                       | object.                |
-   +-----------------------+-----------------------+------------------------+
-   | x-amz-server-side-\   | string                | If server-side         |
-   | encryption-customer-\ |                       | encryption with        |
-   | algorithm             |                       | customer-provided      |
-   |                       |                       | encryption keys        |
-   |                       |                       | (SSE-C) encryption     |
-   |                       |                       | was requested, the     |
-   |                       |                       | response will include  |
-   |                       |                       | this header            |
-   |                       |                       | confirming the         |
-   |                       |                       | encryption algorithm   |
-   |                       |                       | used for the           |
-   |                       |                       | destination object.    |
-   |                       |                       |                        |
-   |                       |                       | Valid Values:          |
-   |                       |                       | ``AES256``             |
-   +-----------------------+-----------------------+------------------------+
-   | x-amz-server-side-\   | string                | If SSE-C encryption    |
-   | encryption-customer-\ |                       | was requested, the     |
-   | key-MD5               |                       | response includes      |
-   |                       |                       | this header to         |
-   |                       |                       | provide roundtrip      |
-   |                       |                       | message integrity      |
-   |                       |                       | verification of the    |
-   |                       |                       | customer-provided      |
-   |                       |                       | encryption key used    |
-   |                       |                       | to encrypt the         |
-   |                       |                       | destination object.    |
-   +-----------------------+-----------------------+------------------------+
-   | x-amz-version-id      | string                | Version of the copied  |
-   |                       |                       | object in the          |
-   |                       |                       | destination bucket.    |
-   +-----------------------+-----------------------+------------------------+
+   +-----------------------------------------------------+--------+------------------------+
+   | Header                                              | Type   | Description            |
+   +=====================================================+========+========================+
+   | ``x-amz-copy-source-version-id``                    | string | Returns the version    |
+   |                                                     |        | ID of the retrieved    |
+   |                                                     |        | object if it has a     |
+   |                                                     |        | unique version ID.     |
+   +-----------------------------------------------------+--------+------------------------+
+   | ``x-amz-server-side-encryption``                    | string | If server-side         |
+   |                                                     |        | encryption is          |
+   |                                                     |        | specified either with  |
+   |                                                     |        | an AWS KMS or          |
+   |                                                     |        | Zenko-managed          |
+   |                                                     |        | encryption key in the  |
+   |                                                     |        | copy request, the      |
+   |                                                     |        | response includes this |
+   |                                                     |        | header, confirming the |
+   |                                                     |        | encryption algorithm   |
+   |                                                     |        | that was used to       |
+   |                                                     |        | encrypt the object.    |
+   +-----------------------------------------------------+--------+------------------------+
+   | ``x-amz-server-side-encryption-aws-kms-key-id``     | string | If the                 |
+   |                                                     |        | x-amz-server-side-\    |
+   |                                                     |        | encryption             |
+   |                                                     |        | is present and has     |
+   |                                                     |        | the value of aws:kms,  |
+   |                                                     |        | this header specifies  |
+   |                                                     |        | the ID of the AWS Key  |
+   |                                                     |        | Management Service     |
+   |                                                     |        | (KMS) master           |
+   |                                                     |        | encryption key that    |
+   |                                                     |        | was used for the       |
+   |                                                     |        | object.                |
+   +-----------------------------------------------------+--------+------------------------+
+   | ``x-amz-server-side-encryption-customer-algorithm`` | string | If server-side         |
+   |                                                     |        | encryption with        |
+   |                                                     |        | customer-provided      |
+   |                                                     |        | encryption keys        |
+   |                                                     |        | (SSE-C) encryption     |
+   |                                                     |        | was requested, the     |
+   |                                                     |        | response will include  |
+   |                                                     |        | this header            |
+   |                                                     |        | confirming the         |
+   |                                                     |        | encryption algorithm   |
+   |                                                     |        | used for the           |
+   |                                                     |        | destination object.    |
+   |                                                     |        |                        |
+   |                                                     |        | **Valid Values:**      |
+   |                                                     |        | ``AES256``             |
+   +-----------------------------------------------------+--------+------------------------+
+   | ``x-amz-server-side-encryption-customer-key-MD5``   | string | If SSE-C encryption    |
+   |                                                     |        | was requested, the     |
+   |                                                     |        | response includes      |
+   |                                                     |        | this header to         |
+   |                                                     |        | provide roundtrip      |
+   |                                                     |        | message integrity      |
+   |                                                     |        | verification of the    |
+   |                                                     |        | customer-provided      |
+   |                                                     |        | encryption key used    |
+   |                                                     |        | to encrypt the         |
+   |                                                     |        | destination object.    |
+   +-----------------------------------------------------+--------+------------------------+
+   | ``x-amz-version-id``                                | string | Version of the copied  |
+   |                                                     |        | object in the          |
+   |                                                     |        | destination bucket.    |
+   +-----------------------------------------------------+--------+------------------------+
 
-**Response Elements**
+Elements
+~~~~~~~~
 
 .. tabularcolumns:: X{0.20\textwidth}X{0.15\textwidth}X{0.60\textwidth}
 .. table::
@@ -457,12 +459,12 @@ all responses (refer to :ref:`Common Response Headers`).
    +-----------------------+-----------------------+-----------------------+
    | Header                | Type                  | Description           |
    +=======================+=======================+=======================+
-   | CopyObjectResult      | container             | Container for all     |
+   | ``CopyObjectResult``  | container             | Container for all     |
    |                       |                       | response elements.    |
    |                       |                       |                       |
-   |                       |                       | Ancestor: None        |
+   |                       |                       | **Ancestor:** None    |
    +-----------------------+-----------------------+-----------------------+
-   | ETag                  | string                | Returns the ETag of   |
+   | ``ETag``              | string                | Returns the ETag of   |
    |                       |                       | the new object. The   |
    |                       |                       | ETag reflects changes |
    |                       |                       | only to the contents  |
@@ -473,26 +475,28 @@ all responses (refer to :ref:`Common Response Headers`).
    |                       |                       | a successfully copied |
    |                       |                       | object.               |
    |                       |                       |                       |
-   |                       |                       | Ancestor:             |
+   |                       |                       | **Ancestor:**         |
    |                       |                       | ``CopyObjectResult``  |
    +-----------------------+-----------------------+-----------------------+
-   | LastModified          | string                | Returns the date the  |
+   | ``LastModified``      | string                | Returns the date the  |
    |                       |                       | object was last       |
    |                       |                       | modified.             |
    |                       |                       |                       |
-   |                       |                       | Ancestor:             |
+   |                       |                       | **Ancestor:**         |
    |                       |                       | ``CopyObjectResult``  |
    +-----------------------+-----------------------+-----------------------+
 
 Examples
 --------
 
-**Copying a File into a Bucket with a Different Key Name**
+Copying a File into a Bucket with a Different Key Name
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The request sample copies a pdf file into a bucket with a different key
 name.
 
-*Request Sample*
+Request
+```````
 
 .. code::
 
@@ -502,7 +506,8 @@ name.
    x-amz-copy-source: /{{bucketName}}/my-pdf-document.pdf
    Authorization: {{authorizationString}}
 
-*Response Sample*
+Response
+````````
 
 .. code::
 
@@ -526,13 +531,15 @@ x-amz-version-id returns the version ID of the object in the destination
 bucket, and x-amz-copy-source-version-id returns the version ID of the
 source object.
 
-**Copying a Specified Version of an Object**
+Copying a Specified Version of an Object
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The request sample copies a pdf file with a specified version ID and
 copies it into the bucket {{bucketname}} and gives it a different key
 name.
 
-*Request Sample*
+Request
+```````
 
 .. code::
 
@@ -542,7 +549,8 @@ name.
    x-amz-copy-source: /{{bucketName}}/my-pdf-document.pdf?versionId=3/L4kqtJlcpXroDTDmJ+rmSpXd3dIbrHY+MTRCxf3vjVBH40Nr8X8gdRQBpUMLUo
    Authorization: {{authorizationString}}
 
-*Response Sample: Copying a Versioned Object into a Version-Enabled Bucket*
+Response: Copying a Versioned Object to a Version-Enabled Bucket
+````````````````````````````````````````````````````````````````
 
 The response sample shows that an object was copied into a target bucket
 where Versioning is enabled.
@@ -567,7 +575,8 @@ where Versioning is enabled.
       <ETag>"9b2cf535f27731c974343645a3985328"</ETag>
    </CopyObjectResult>
 
-*Response Sample: Copying a Versioned Object into a Version-Suspended Bucket*
+Response: Copying a Versioned Object to a Version-Suspended Bucket
+``````````````````````````````````````````````````````````````````
 
 The response sample shows that an object was copied into a target bucket
 where versioning is suspended. Note that the response header
@@ -591,13 +600,15 @@ x-amz-version-id does not appear.
      <ETag>"9b2cf535f27731c974343645a3985328"</ETag>
    </CopyObjectResult>
 
-**Copying from an Unencrypted Object to an Object Encrypted with Server-Side Encryption, Using Customer-Provided Encryption Keys**
+Copying an Unencrypted Object to a Server-Side Encrypted Object Using Your Encryption Keys
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The request sample specifies the HTTP PUT header to copy an unencrypted
-object to an object encrypted with server-side encryption with
-customer-provided encryption keys (SSE-C).
+The request sample specifies the HTTP PUT header to copy an unencrypted object
+to an object encrypted with server-side encryption with customer-provided
+encryption keys (SSE-C).
 
-*Request Sample*
+Request
+```````
 
 .. code::
 
@@ -623,14 +634,16 @@ customer-provided encryption keys (SSE-C).
    Authorization: {{authorizationString}}
    Date: {{date}}
 
-**Copying from an Object Encrypted with SSE-C to an Object Encrypted with SSE-C**
+Copying from an SSE-C-Encrypted Object to an SSE-C-Encrypted Object 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The request sample specifies the HTTP PUT header to copy an object
-encrypted with server-side encryption with customer-provided encryption
-keys to an object encrypted with server-side encryption with
-customer-provided encryption keys for key rotation.
+The request sample specifies the HTTP PUT header to copy an object encrypted
+with server-side encryption with customer-provided encryption keys to an object
+encrypted with server-side encryption with customer-provided encryption keys for
+key rotation.
 
-*Request Sample*
+Request
+```````
 
 .. code::
 

@@ -3,33 +3,30 @@
 Upload Part
 ===========
 
-Use the Upload Part operation to upload each part of an object being
-saved to storage via a multipart upload. Before you using this
-operation, an :ref:`Initiate Multipart Upload` request must be issued for
-the object, as the upload ID returned by that operation is required for
-the Upload Part operation. Along with the upload ID, a part number must
-also be specified with each Upload Part operation.
+Use the Upload Part operation to upload each part of an object being saved to
+storage via a multipart upload. Before you using this operation, an
+:ref:`Initiate Multipart Upload` request must be issued for the object, as the
+upload ID returned by that operation is required for the Upload Part
+operation. Along with the upload ID, a part number must also be specified with
+each Upload Part operation.
 
-Part numbers can be any number from 1 to 10,000, inclusive. A part
-number uniquely identifies a part and also defines its position within
-the object being created. If a new part is uploaded using the same part
-number that was used with a previous part, the previously uploaded part
-is overwritten.
+Part numbers can be any number from 1 to 10,000, inclusive. A part number
+uniquely identifies a part and also defines its position within the object being
+created. If a new part is uploaded using the same part number that was used with
+a previous part, the previously uploaded part is overwritten.
 
-The largest part size permitted is 5 GB which means that the biggest
-object that can be split is 50 TB (10,000 \* 5 GB). Each part must be at
-least 5 MB in size, except the last part. There is no minimum size
-threshold on the last part of a multipart upload.
-
-Each part must be at least 5 MB in size, except the last part. There is
-no minimum size threshold on the last part of a multipart upload.
+The largest part size permitted is 5 GB which means that the biggest object that
+can be split is 50 TB (10,000 \* 5 GB). Each part must be at least 5 MB in size,
+except the last part. There is no minimum size threshold on the last part of a
+multipart upload.
 
 After all the parts are uploaded, a :ref:`Complete Multipart Upload` request must be issued.
 
 Requests
 --------
 
-**Request Syntax**
+Syntax
+~~~~~~
 
 .. code::
 
@@ -39,15 +36,17 @@ Requests
    Content-Length: Size
    Authorization: {{authorizationString}}
 
-**Request Parameters**
+Parameters
+~~~~~~~~~~
 
-The Upload Part operation does not use Request Parameters.
+The Upload Part operation does not use request parameters.
 
-**Request Headers**
+Headers
+~~~~~~~
 
-The Upload Part operation can use a number of optional request headers
-in addition to those that are common to all operations (refer to :ref:`Common
-Request Headers`).
+The Upload Part operation can use a number of optional request headers in
+addition to those that are common to all operations (see :ref:`Common Request
+Headers`).
 
 .. tabularcolumns:: X{0.20\textwidth}X{0.10\textwidth}X{0.65\textwidth}
 .. table::
@@ -55,14 +54,14 @@ Request Headers`).
    +-----------------------+-----------------------+-----------------------+
    | Header                | Type                  | Description           |
    +=======================+=======================+=======================+
-   | Content-Length        | integer               | The size of the       |
+   | ``Content-Length``    | integer               | The size of the       |
    |                       |                       | object, in bytes      |
    |                       |                       |                       |
-   |                       |                       | Default: None         |
+   |                       |                       | **Default:** None     |
    |                       |                       |                       |
-   |                       |                       | Constraints: None     |
+   |                       |                       | **Constraints:** None |
    +-----------------------+-----------------------+-----------------------+
-   | Content-MD5           | string                | The base64-encoded    |
+   | ``Content-MD5``       | string                | The base64-encoded    |
    |                       |                       | 128-bit MD5 digest of |
    |                       |                       | the message (without  |
    |                       |                       | the headers)          |
@@ -81,11 +80,11 @@ Request Headers`).
    |                       |                       | end-to-end integrity  |
    |                       |                       | check.                |
    |                       |                       |                       |
-   |                       |                       | Default: None         |
+   |                       |                       | **Default:** None     |
    |                       |                       |                       |
-   |                       |                       | Constraints: None     |
+   |                       |                       | **Constraints:** None |
    +-----------------------+-----------------------+-----------------------+
-   | Expect                | string                | When your application |
+   | ``Expect``            | string                | When your application |
    |                       |                       | uses                  |
    |                       |                       | ``100-continue``, it  |
    |                       |                       | does not send the     |
@@ -98,59 +97,65 @@ Request Headers`).
    |                       |                       | the message is not    |
    |                       |                       | sent.                 |
    |                       |                       |                       |
-   |                       |                       | Default: None         |
+   |                       |                       | **Default:** None     |
    |                       |                       |                       |
-   |                       |                       | Valid Values:         |
+   |                       |                       | **Valid Values:**     |
    |                       |                       | ``100-continue``      |
    |                       |                       |                       |
-   |                       |                       | Constraints: None     |
+   |                       |                       | **Constraints:** None |
    +-----------------------+-----------------------+-----------------------+
-   | Expires               | string                | The date and time at  |
+   | ``Expires``           | string                | The date and time at  |
    |                       |                       | which the object is   |
    |                       |                       | no longer cacheable.  |
    |                       |                       |                       |
-   |                       |                       | Default: None         |
+   |                       |                       | **Default:** None     |
    |                       |                       |                       |
-   |                       |                       | Constraints: None     |
+   |                       |                       | **Constraints:** None |
    +-----------------------+-----------------------+-----------------------+
 
-**Request Elements**
+Elements
+~~~~~~~~
 
 The Upload Part operation does not return request elements.
 
 Responses
 ---------
 
-**Response Headers**
+Headers
+~~~~~~~
 
-Implementation of the Upload Part operation uses only response headers
+The Upload Part operation uses only response headers
 that are common to all operations (refer to :ref:`Common Response Headers`).
 
-**Response Elements**
+Elements
+~~~~~~~~
 
 The Upload Part operation does not return response elements.
 
-**Special Errors**
+Special Errors
+~~~~~~~~~~~~~~
 
-.. tabularcolumns:: X{0.30\textwidth}X{0.65\textwidth}
+.. tabularcolumns:: X{0.30\textwidth}X{0.30\textwidth}X{0.35\textwidth}
 .. table::
 
-   +-----------------------------------+-----------------------------------+
-   | Error                             | Description                       |
-   +===================================+===================================+
-   | NoSuchUpload error                | Occurs when an invalid upload ID  |
-   | (HTTP 404 Not Found status code)  | is provided in the Upload Part    |
-   |                                   | request, or when a multipart      |
-   |                                   | upload has already been either    |
-   |                                   | completed or aborted.             |
-   +-----------------------------------+-----------------------------------+
+   +--------------------+--------------------+-----------------------------------+
+   | Error              | HTTP Status Code   | Description                       |
+   +====================+====================+===================================+
+   | ``NoSuchUpload``   | ``404 Not Found``  | Occurs when an invalid upload ID  |
+   |                    |                    | is provided in the Upload Part    |
+   |                    |                    | request, or when a multipart      |
+   |                    |                    | upload has already been either    |
+   |                    |                    | completed or aborted.             |
+   +--------------------+--------------------+-----------------------------------+
 
 Examples
 --------
 
-**PUT Request Uploads a Part in a Multipart Upload**
+PUT Request Uploads a Part in a Multipart Upload
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-*Request Sample*
+Request
+```````
 
 Part 1 of a multipart upload using the upload ID returned by an :ref:`Initiate Multipart Upload` request:
 
@@ -164,10 +169,11 @@ Part 1 of a multipart upload using the upload ID returned by an :ref:`Initiate M
    Authorization: {{authorizationString}}
    ***part data omitted***
 
-*Response Sample*
+Response
+````````
 
-The response includes the ETag header, a value that is needed for
-sending the :ref:`Complete Multipart Upload` request.
+The response includes the ETag header, a value that is needed for sending the
+:ref:`Complete Multipart Upload` request.
 
 .. code::
 

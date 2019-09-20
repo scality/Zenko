@@ -10,7 +10,8 @@ permission to perform the S3:PutLifecycleConfiguration action.
 Requests
 --------
 
-**Request Syntax**
+Syntax
+~~~~~~
 
 .. code::
 
@@ -19,35 +20,41 @@ Requests
   Date: {{date}}
   Authorization: {{authorizationString}
 
-**Request Parameters**
+Parameters
+~~~~~~~~~~
 
 The DELETE Bucket Lifecycle operation does not use request parameters.
 
-**Request Headers**
+Headers
+~~~~~~~
 
 The DELETE Bucket Lifecycle operation uses only request headers that are
 common to all operations (refer to :ref:`Common Request Headers`).
 
-**Request Elements**
+Elements
+~~~~~~~~
 
 The DELETE Bucket Lifecycle operation does not use request elements.
 
 Responses
 ---------
 
-**Response Headers**
+Headers
+~~~~~~~
 
 The DELETE Bucket Lifecycle operation uses only response headers that
 are common to most responses (refer to :ref:`Common Response Headers`).
 
-**Examples**
+Examples
+--------
 
 The following example set shows a DELETE request to delete the lifecycle
 configurations from the specified bucket.
 
 The following is a sample request.
 
-*Request Sample*
+Request
+~~~~~~~
 
 .. code::
 
@@ -56,9 +63,10 @@ The following is a sample request.
   Date: Wed, 14 Dec 2011 05:37:16 GMT
   Authorization: {{signatureValue}}
 
-*Response Sample*
+Response
+~~~~~~~~
 
-The following is a sample response showing a successful “204 No Content”
+The following sample response shows a successful “204 No Content”
 response. Objects in the bucket no longer expire.
 
 .. code::

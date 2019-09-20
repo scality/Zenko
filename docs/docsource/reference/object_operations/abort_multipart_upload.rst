@@ -20,7 +20,8 @@ initiated, no additional parts can be uploaded using that upload ID.
 Requests
 --------
 
-**Request Syntax**
+Syntax
+~~~~~~
 
 An upload ID must be included in the URL query string supplied with the
 DELETE request for the Abort Multipart Upload operation:
@@ -32,54 +33,62 @@ DELETE request for the Abort Multipart Upload operation:
    Date: {{date}}
    Authorization: {{authorizationString}}
 
-**Request Parameters**
+Parameters
+~~~~~~~~~~
 
 The Abort Multipart Upload operation does not use Request Parameters.
 
-**Request Headers**
+Headers
+~~~~~~~
 
-Implementation of the Abort Multipart Upload operation uses only request
+The Abort Multipart Upload operation uses only request
 headers that are common to all operations (refer to :ref:`Common Request
 Headers`).
 
-**Request Elements**
+Elements
+~~~~~~~~
 
 The Abort Multipart Upload operation does not use request elements.
 
 Responses
 ---------
 
-**Response Headers**
+Headers
+~~~~~~~
 
-Implementation of the Abort Multipart Upload operation uses only
+The Abort Multipart Upload operation uses only
 response headers that are common to all operations (refer to :ref:`Common
 Request Headers`).
 
-**Response Elements**
+Elements
+~~~~~~~~
 
 The Abort Multipart Upload operation does not return response elements.
 
-**Special Errors**
+Errors
+~~~~~~
 
 .. tabularcolumns:: X{0.35\textwidth}X{0.60\textwidth}
 .. table::
 
-   +----------------------------------+-----------------------------------+
-   | Error                            | Description                       |
-   +==================================+===================================+
-   | NoSuchUpload error               | Occurs when an invalid upload ID  |
-   | (HTTP 404 NotFound status code)  | is provided in the Upload Part    |
-   |                                  | request, or when a multipart      |
-   |                                  | upload has already been either    |
-   |                                  | completed or aborted.             |
-   +----------------------------------+-----------------------------------+
+   +------------------+-------------------+-----------------------------------+
+   | Error            | HTTP Code         | Description                       |
+   +==================+===================+===================================+
+   | ``NoSuchUpload`` | ``404 Not Found`` | Occurs when an invalid upload ID  |
+   |                  |                   | is provided in the Upload Part    |
+   |                  |                   | request, or when a multipart      |
+   |                  |                   | upload has already been either    |
+   |                  |                   | completed or aborted.             |
+   +------------------+-------------------+-----------------------------------+
 
 Examples
 --------
 
-**Aborting a Multipart Upload Identified by its Upload ID**
+Aborting a Multipart Upload Identified by Its Upload ID
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-*Request Sample*
+Request
+```````
 
 .. code::
 
@@ -88,7 +97,8 @@ Examples
    Date:  Mon, 1 Nov 2010 20:34:56 GMT
    Authorization: {{authorizationString}}
 
-*Response Sample*
+Response
+````````
 
 .. code::
 
