@@ -1,0 +1,68 @@
+# Default values for elasticsearch-curator.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+cronjob:
+  suspend: true
+  # Every 5 minutes
+  schedule: "* 12 * * *"
+  annotations: {}
+
+pod:
+  annotations: {}
+
+image:
+  repository: zenko/burry
+  tag: 0.0.2
+  pullPolicy: IfNotPresent
+
+env: {}
+
+configMap:
+  # Destination where the backup will be uploaded.
+  # 'dest-type' is "s3" for GCP and S3 endpoint, "local" for local storage.
+  destType: "s3"
+  # dest-endpoint' is an s3 endpoint or storage.googleapis.com for GCP.
+  # Leave the below values blank for local stroage
+  destEndpoint: "zenko.local"
+  accessKey: "ABCDEFGHIJKLMNOPQRST"
+  secretKey: "be0da49b599b24115c7f53c92c729cbb2c8a17e5"
+  bucket: "zk-backup-bucket"
+  ssl: "false"
+
+persistentVolume:
+  enabled: true
+  ## Specifiy a existing storage class to use
+  # storageClass:
+  ## Specify existing PVC to use
+  # existingClaim:
+  volumeConfig: {}
+    ## Example NFS config
+    # nfs:
+    #   server: 10.100.1.42
+    #   path: /data
+    #   readOnly: false
+    # mountOptions:
+    # - hard
+    # - nfsvers=4.1
+  accessModes:
+    - ReadWriteOnce
+  size: 1Gi
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #  cpu: 100m
+  #  memory: 128Mi
+  # requests:
+  #  cpu: 100m
+  #  memory: 128Mi
+
+zookeeper:
+  enabled: true
+  ## Leave blank if using zenko-queue
+  url: ""
+  port: 2181
