@@ -1,5 +1,5 @@
-Uninstalling a Zenko Deployment
--------------------------------
+Uninstall
+=========
 
 To uninstall/delete the “my-zenko” deployment:
 
@@ -8,4 +8,4 @@ To uninstall/delete the “my-zenko” deployment:
    $ helm delete my-zenko
 
 The command removes all Kubernetes components associated with the
-chart and deletes the release.
+chart and deletes the deployed instance.
