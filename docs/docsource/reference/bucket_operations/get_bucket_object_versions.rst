@@ -126,7 +126,7 @@ Elements
 The GET Bucket Object Versions operation can return the following
 XML elements in the response:
 
-.. tabularcolumns:: X{0.20\textwidth}X{0.10\textwidth}X{0.65\textwidth}
+.. tabularcolumns:: X{0.25\textwidth}X{0.10\textwidth}X{0.60\textwidth}
 .. table::
    :class: longtable
    

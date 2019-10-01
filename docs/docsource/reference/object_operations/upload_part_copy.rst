@@ -52,7 +52,7 @@ The Upload Part operation can use a number of optional request headers in
 addition to those that are common to all operations (see :ref:`Common Request
 Headers`).
 
-.. tabularcolumns:: X{0.40\textwidth}X{0.10\textwidth}X{0.45\textwidth}
+.. tabularcolumns:: X{0.35\textwidth}X{0.10\textwidth}X{0.50\textwidth}
 .. table::
 
    +-----------------------------+---------+-----------------------------------+
@@ -83,7 +83,7 @@ Headers`).
 The following conditional headers are based on the object specified in the
 x-amz-copy-source header.
 
-.. tabularcolumns:: X{0.30\textwidth}X{0.10\textwidth}X{0.45\textwidth}
+.. tabularcolumns:: X{0.45\textwidth}X{0.10\textwidth}X{0.40\textwidth}
 .. table::
    :class: longtable
 
@@ -183,53 +183,53 @@ encryption information for Zenko to decrypt the object for copying.
 .. tabularcolumns:: X{0.40\textwidth}X{0.10\textwidth}X{0.40\textwidth}
 .. table::
 
-   +-----------------------------------------------------------------+--------+--------------------------------------+
-   | Header                                                          | Type   | Description                          |
-   +=================================================================+========+======================================+
-   | ``x-amz-copy-source-server-side-encryption-customer-algorithm`` | string | Specifies algorithm to use when      |
-   |                                                                 |        | decrypting the source object.        | 
-   |                                                                 |        |                                      |
-   |                                                                 |        | **Default:** None                    |
-   |                                                                 |        |                                      |
-   |                                                                 |        | **Valid Values:** ``AES256``         |
-   |                                                                 |        |                                      |
-   |                                                                 |        | **Constraints:** Must be accompanied |
-   |                                                                 |        | by a valid x-amz-copy-source-server-\|
-   |                                                                 |        | side-encryption-customer-key and     |
-   |                                                                 |        | x-amz-copy-source-server-side-\      |
-   |                                                                 |        | encryption-customer-key-MD5 headers. |
-   +-----------------------------------------------------------------+--------+--------------------------------------+
-   | ``x-amz-copy-source-server-side-encryption-customer-key``       | string | Specifies the customer-provided      |
-   |                                                                 |        | base-64 encoded encryption key for   |
-   |                                                                 |        | S3 Connector to use to decrypt the   |
-   |                                                                 |        | source object. The encryption key    |
-   |                                                                 |        | provided in this header must be one  |
-   |                                                                 |        | that was used when the source object |
-   |                                                                 |        | was created.                         |
-   |                                                                 |        |                                      |
-   |                                                                 |        | **Default:** None                    |
-   |                                                                 |        |                                      |
-   |                                                                 |        | **Constraints:** Must be accompanied |
-   |                                                                 |        | by a valid x-amz-copy-source-server-\|
-   |                                                                 |        | side-encryption-customer-algorithm   |
-   |                                                                 |        | and x-amz-copy-source-server-side-\  |
-   |                                                                 |        | encryption-customer-key-MD5 headers. |
-   +-----------------------------------------------------------------+--------+--------------------------------------+
-   | ``x-amz-copy-source-server-side-encryption-customer-key-MD5``   | string | Specifies the base64-encoded 128-bit |
-   |                                                                 |        | MD5 digest of the encryption key     |
-   |                                                                 |        | according to RFC 1321. Zenko uses    |
-   |                                                                 |        | this header for a message integrity  |
-   |                                                                 |        | check to ensure the encryption key   |
-   |                                                                 |        | was transmitted without error.       |
-   |                                                                 |        |                                      |
-   |                                                                 |        | **Default:** None                    |
-   |                                                                 |        |                                      |
-   |                                                                 |        | **Constraints:** Must be accompanied |
-   |                                                                 |        | by a valid x-amz-copy-source-server-\|
-   |                                                                 |        | side-encryption-customer-algorithm   |
-   |                                                                 |        | and x-amz-copy-source-server-side-\  |
-   |                                                                 |        | encryption-customer-key headers.     |
-   +-----------------------------------------------------------------+--------+--------------------------------------+
+   +-----------------------------------+--------+--------------------------------------+
+   | Header                            | Type   | Description                          |
+   +===================================+========+======================================+
+   | ``x-amz-copy-source-server-side-\ | string | Specifies algorithm to use when      |
+   | encryption-customer-algorithm``   |        | decrypting the source object.        | 
+   |                                   |        |                                      |
+   |                                   |        | **Default:** None                    |
+   |                                   |        |                                      |
+   |                                   |        | **Valid Values:** ``AES256``         |
+   |                                   |        |                                      |
+   |                                   |        | **Constraints:** Must be accompanied |
+   |                                   |        | by a valid x-amz-copy-source-server-\|
+   |                                   |        | side-encryption-customer-key and     |
+   |                                   |        | x-amz-copy-source-server-side-\      |
+   |                                   |        | encryption-customer-key-MD5 headers. |
+   +-----------------------------------+--------+--------------------------------------+
+   | ``x-amz-copy-source-server-side-\ | string | Specifies the customer-provided      |
+   | encryption-customer-key``         |        | base-64 encoded encryption key for   |
+   |                                   |        | S3 Connector to use to decrypt the   |
+   |                                   |        | source object. The encryption key    |
+   |                                   |        | provided in this header must be one  |
+   |                                   |        | that was used when the source object |
+   |                                   |        | was created.                         |
+   |                                   |        |                                      |
+   |                                   |        | **Default:** None                    |
+   |                                   |        |                                      |
+   |                                   |        | **Constraints:** Must be accompanied |
+   |                                   |        | by a valid x-amz-copy-source-server-\|
+   |                                   |        | side-encryption-customer-algorithm   |
+   |                                   |        | and x-amz-copy-source-server-side-\  |
+   |                                   |        | encryption-customer-key-MD5 headers. |
+   +-----------------------------------+--------+--------------------------------------+
+   | ``x-amz-copy-source-server-side-\ | string | Specifies the base64-encoded 128-bit |
+   | encryption-customer-key-MD5``     |        | MD5 digest of the encryption key     |
+   |                                   |        | according to RFC 1321. Zenko uses    |
+   |                                   |        | this header for a message integrity  |
+   |                                   |        | check to ensure the encryption key   |
+   |                                   |        | was transmitted without error.       |
+   |                                   |        |                                      |
+   |                                   |        | **Default:** None                    |
+   |                                   |        |                                      |
+   |                                   |        | **Constraints:** Must be accompanied |
+   |                                   |        | by a valid x-amz-copy-source-server-\|
+   |                                   |        | side-encryption-customer-algorithm   |
+   |                                   |        | and x-amz-copy-source-server-side-\  |
+   |                                   |        | encryption-customer-key headers.     |
+   +-----------------------------------+--------+--------------------------------------+
 
 Elements
 ~~~~~~~~
@@ -264,77 +264,42 @@ The Upload Part - Copy operation can include the following response headers in
 addition to the response headers that are common to all operations (see
 :ref:`Common Response Headers`).
 
-.. tabularcolumns:: X{0.30\textwidth}X{0.10\textwidth}X{0.50\textwidth}
+.. tabularcolumns:: X{0.40\textwidth}X{0.10\textwidth}X{0.45\textwidth}
 .. table::
-   
-   +-----------------------------------------------------+--------+-----------------------+
-   | Header                                              | Type   | Description           |
-   +=====================================================+========+=======================+
-   | ``x-amz-copy-source-version-id``                    | string | The version of the    |
-   |                                                     |        | source object that    |
-   |                                                     |        | was copied, if you    |
-   |                                                     |        | have enabled          |
-   |                                                     |        | versioning on the     |
-   |                                                     |        | source bucket.        |
-   +-----------------------------------------------------+--------+-----------------------+
-   | ``x-amz-server-side-encryption``                    | string | If you specified      |
-   |                                                     |        | server-side           |
-   |                                                     |        | encryption either     |
-   |                                                     |        | with an AWS KMS or    |
-   |                                                     |        | Amazon S3-managed     |
-   |                                                     |        | encryption key in     |
-   |                                                     |        | your initiate         |
-   |                                                     |        | multipart upload      |
-   |                                                     |        | request, the response |
-   |                                                     |        | includes this header. |
-   |                                                     |        | It confirms the       |
-   |                                                     |        | encryption algorithm  |
-   |                                                     |        | that Amazon S3 used   |
-   |                                                     |        | to encrypt the        |
-   |                                                     |        | object.               |
-   +-----------------------------------------------------+--------+-----------------------+
-   | ``x-amz-server-side-encryption-aws-kms-key-id``     | string | If the                |
-   |                                                     |        | x-amz-server-side-\   |
-   |                                                     |        | encryption            |
-   |                                                     |        | is present and has    |
-   |                                                     |        | the value of aws:kms, |
-   |                                                     |        | this header specifies |
-   |                                                     |        | the ID of the AWS Key |
-   |                                                     |        | Management Service    |
-   |                                                     |        | (KMS) master          |
-   |                                                     |        | encryption key that   |
-   |                                                     |        | was used for the      |
-   |                                                     |        | object.               |
-   +-----------------------------------------------------+--------+-----------------------+
-   | ``x-amz-server-side-encryption-customer-algorithm`` | string | If server-side        |
-   |                                                     |        | encryption with       |
-   |                                                     |        | customer-provided     |
-   |                                                     |        | encryption keys       |
-   |                                                     |        | encryption was        |
-   |                                                     |        | requested, the        |
-   |                                                     |        | response will include |
-   |                                                     |        | this header           |
-   |                                                     |        | confirming the        |
-   |                                                     |        | encryption algorithm  |
-   |                                                     |        | used.                 |
-   |                                                     |        |                       |
-   |                                                     |        | **Valid Values:**     |
-   |                                                     |        | ``AES256``            |
-   +-----------------------------------------------------+--------+-----------------------+
-   | ``x-amz-server-side-encryption-customer-key-MD5``   | string | If server-side        |
-   |                                                     |        | encryption with       |
-   |                                                     |        | customer-provided     |
-   |                                                     |        | encryption keys       |
-   |                                                     |        | encryption was        |
-   |                                                     |        | requested, the        |
-   |                                                     |        | response includes     |
-   |                                                     |        | this header to        |
-   |                                                     |        | provide roundtrip     |
-   |                                                     |        | message integrity     |
-   |                                                     |        | verification of the   |
-   |                                                     |        | customer-provided     |
-   |                                                     |        | encryption key.       |
-   +-----------------------------------------------------+--------+-----------------------+
+
+   +----------------------------------+--------+------------------------------------------------+
+   | Header                           | Type   | Description                                    |
+   +==================================+========+================================================+
+   | ``x-amz-copy-source-version-id`` | string | The version of the source object that was      |
+   |                                  |        | copied, if you have enabled versioning on the  |
+   |                                  |        | source bucket.                                 |
+   +----------------------------------+--------+------------------------------------------------+
+   | ``x-amz-server-side-encryption`` | string | If you specified server-side encryption either |
+   |                                  |        | with an AWS KMS or Amazon S3-managed           |
+   |                                  |        | encryption key in your Initiate Multipart      |
+   |                                  |        | Upload request, the response includes this     |
+   |                                  |        | header. It confirms the encryption algorithm   |
+   |                                  |        | that Amazon S3 used to encrypt the object.     |
+   +----------------------------------+--------+------------------------------------------------+
+   | ``x-amz-server-side-encryption-\ | string | If the x-amz-server-side-encryption is present |
+   | aws-kms-key-id``                 |        | and has the value of aws:kms, this header      | 
+   |                                  |        | specifies the ID of the AWS Key Management     |
+   |                                  |        | Service (KMS) master encryption key that was   |
+   |                                  |        | used for the object.                           |
+   +----------------------------------+--------+------------------------------------------------+
+   | ``x-amz-server-side-encryption-\ | string | If server-side encryption with customer-\      |
+   | customer-algorithm``             |        | provided encryption keys is requested, the     |
+   |                                  |        | response includes this header, confirming the  |
+   |                                  |        | encryption algorithm used.                     |
+   |                                  |        |                                                |
+   |                                  |        | **Valid Values:** ``AES256``                   |
+   +----------------------------------+--------+------------------------------------------------+
+   | ``x-amz-server-side-encryption-\ | string | If server-side encryption with customer-\      |
+   | customer-key-MD5``               |        | provided encryption keys was requested, the    |
+   |                                  |        | response includes this header to provide       |
+   |                                  |        | roundtrip message integrity verification of    |
+   |                                  |        | the customer-provided encryption key.          |
+   +----------------------------------+--------+------------------------------------------------+
 
 Elements
 ~~~~~~~~

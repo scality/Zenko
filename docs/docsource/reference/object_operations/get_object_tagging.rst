@@ -78,7 +78,7 @@ response (includes XML containers):
    |             |           |                                  |
    |             |           | **Ancestors:** TagSet            |
    +-------------+-----------+----------------------------------+
-   | ``Key``     | String    | Name of the tag                  |
+   | ``Key``     | string    | Name of the tag                  |
    |             |           |                                  |
    |             |           | **Ancestors:** Tag               |
    +-------------+-----------+----------------------------------+

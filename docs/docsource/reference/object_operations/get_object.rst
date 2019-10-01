@@ -48,7 +48,7 @@ accepts when an object is created, including ``Content-Type``,
   with an Authorization header or a pre-signed URL. They cannot be used
   with an unsigned (anonymous) request.
 
-.. tabularcolumns:: X{0.30\textwidth}X{0.10\textwidth}X{0.55\textwidth}
+.. tabularcolumns:: X{0.35\textwidth}X{0.10\textwidth}X{0.50\textwidth}
 .. table::
 
    +----------------------------------+--------+--------------------------------------+
@@ -110,7 +110,7 @@ The GET Object operation can use a number of optional request headers in
 addition to those that are common to all operations (see :ref:`Common Request
 Headers`).
 
-.. tabularcolumns:: X{0.20\textwidth}X{0.10\textwidth}X{0.65\textwidth}
+.. tabularcolumns:: X{0.25\textwidth}X{0.10\textwidth}X{0.60\textwidth}
 .. table::
 
    +-------------------------+--------+----------------------------------------+
@@ -164,7 +164,7 @@ Responses
 Headers
 ~~~~~~~
 
-.. tabularcolumns:: X{0.35\textwidth}X{0.10\textwidth}X{0.50\textwidth}
+.. tabularcolumns:: X{0.40\textwidth}X{0.10\textwidth}X{0.45\textwidth}
 .. table::
 
    +-------------------------------------+---------+---------------------------+

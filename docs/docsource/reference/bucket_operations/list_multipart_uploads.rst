@@ -42,7 +42,7 @@ The List Multipart Uploads operation’s implementation of GET uses
 certain parameters to return a subset of the ongoing multipart uploads
 in a bucket.
 
-.. tabularcolumns:: X{0.15\textwidth}lX{0.65\textwidth}
+.. tabularcolumns:: X{0.20\textwidth}lX{0.65\textwidth}
 .. table::
    :class: longtable
    

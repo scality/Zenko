@@ -68,11 +68,11 @@ The Abort Multipart Upload operation does not return response elements.
 Errors
 ~~~~~~
 
-.. tabularcolumns:: X{0.35\textwidth}X{0.60\textwidth}
+.. tabularcolumns:: X{0.25\textwidth}X{0.25\textwidth}X{0.45\textwidth}
 .. table::
 
    +------------------+-------------------+-----------------------------------+
-   | Error            | HTTP Code         | Description                       |
+   | Error            | HTTP Status Code  | Description                       |
    +==================+===================+===================================+
    | ``NoSuchUpload`` | ``404 Not Found`` | Occurs when an invalid upload ID  |
    |                  |                   | is provided in the Upload Part    |

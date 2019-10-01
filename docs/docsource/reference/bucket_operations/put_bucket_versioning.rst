@@ -55,7 +55,7 @@ Elements
 
 The PUT Bucket operation can request the following items:
 
-.. tabularcolumns:: X{0.25\textwidth}X{0.15\textwidth}X{0.55\textwidth}
+.. tabularcolumns:: X{0.30\textwidth}X{0.10\textwidth}X{0.55\textwidth}
 .. table::
 
    +-----------------------------+-----------+---------------------------------------------+
@@ -67,7 +67,7 @@ The PUT Bucket operation can request the following items:
    |                             |           |                                             |
    |                             |           | **Ancestor:** VersioningConfiguration       |
    +-----------------------------+-----------+---------------------------------------------+
-   | ``VersioningConfiguration`` | container | Container for setting the versioning state. |
+   | ``VersioningConfiguration`` | container | Container for setting the versioning state  |
    |                             |           |                                             | 
    |                             |           | **Children:** Status                        |
    |                             |           |                                             |

@@ -361,9 +361,11 @@ Elements
    |                            |                                               |
    |                            | **Ancestor:** ListBucketResult                |
    +----------------------------+-----------------------------------------------+
-   | .. _NextContinuationToken: | If the response is truncated, Zenko returns   |
+   | ``NextContinuationToken``  | .. _NextContinuationToken:                    |
+   |                            |                                               |
+   |                            | If the response is truncated, Zenko returns   |
    |                            | this parameter with a continuation token.     |
-   | ``NextContinuationToken``  | You can specify the token as the              |
+   |                            | You can specify the token as the              |
    |                            | continuation-token in your next request to    |
    |                            | retrieve the next set of keys.                |
    |                            |                                               |

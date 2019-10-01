@@ -5,7 +5,7 @@ Common Response Headers
 
 All Zenko response headers are listed on separate lines.
 
-.. tabularcolumns:: X{0.20\textwidth}X{0.10\textwidth}X{0.65\textwidth}
+.. tabularcolumns:: X{0.25\textwidth}X{0.10\textwidth}X{0.60\textwidth}
 .. table::
 
    +--------------------------+---------+--------------------------------------+
@@ -31,7 +31,7 @@ All Zenko response headers are listed on separate lines.
    |                          |         | **Default:** None                    |
    +--------------------------+---------+--------------------------------------+
    | ``Date``                 | string  | Date and time of the response (e.g., |
-   |                          |         |  `` Wed, 01 Mar 2006 12:00:00 GMT``) |
+   |                          |         | ``Wed, 01 Mar 2006 12:00:00 GMT``)   |
    |                          |         |                                      |
    |                          |         | **Default:** None                    |
    +--------------------------+---------+--------------------------------------+

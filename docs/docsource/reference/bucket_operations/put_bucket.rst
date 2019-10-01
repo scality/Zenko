@@ -85,7 +85,7 @@ permissions Zenko supports in an ACL.
 In the header value, specify a list of grantees who get the specific
 permission.
 
-.. tabularcolumns:: X{0.30\textwidth}X{0.15\textwidth}X{0.50\textwidth}
+.. tabularcolumns:: X{0.40\textwidth}X{0.10\textwidth}X{0.45\textwidth}
 .. table::
 
    +----------------------------------------+--------+-----------------------+

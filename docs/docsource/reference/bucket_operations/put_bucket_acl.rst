@@ -188,7 +188,7 @@ must be used.
   If the request body is requested, the request headers cannot be used to
   set an ACL.
 
-.. tabularcolumns:: X{0.20\textwidth}X{0.10\textwidth}X{0.65\textwidth}
+.. tabularcolumns:: X{0.25\textwidth}X{0.10\textwidth}X{0.60\textwidth}
 .. table::
 
    +-------------------------+-----------+-----------------------------------------+

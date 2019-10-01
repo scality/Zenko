@@ -305,7 +305,7 @@ to specific accounts or groups.
   ACL-specific headers negates the use of the x-amz-acl header to set a
   canned ACL.
 
-.. tabularcolumns:: X{0.25\textwidth}X{0.10\textwidth}X{0.60\textwidth}
+.. tabularcolumns:: X{0.30\textwidth}X{0.10\textwidth}X{0.55\textwidth}
 .. table::
 
    +------------------------------+--------+----------------------------------+
@@ -380,8 +380,9 @@ The PUT Object - Copy operation can include the
 following response headers in addition to the response headers common to
 all responses (refer to :ref:`Common Response Headers`).
 
-.. tabularcolumns:: X{0.30\textwidth}X{0.10\textwidth}X{0.55\textwidth}
+.. tabularcolumns:: X{0.57\textwidth}X{0.07\textwidth}X{0.30\textwidth}
 .. table::
+   :class: longtable 
 
    +-----------------------------------------------------+--------+------------------------+
    | Header                                              | Type   | Description            |

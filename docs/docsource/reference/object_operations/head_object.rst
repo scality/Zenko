@@ -40,7 +40,7 @@ Headers
 The HEAD Object operation can use a number of optional request headers
 in addition to those that are common to all operations (refer to :ref:`Common Request Headers`).
 
-.. tabularcolumns:: X{0.25\textwidth}X{0.10\textwidth}X{0.60\textwidth}
+.. tabularcolumns:: X{0.30\textwidth}X{0.10\textwidth}X{0.55\textwidth}
 .. table::
 
    +-------------------------+-----------------------+-----------------------+
@@ -111,7 +111,7 @@ The HEAD Object operation can include the following
 response headers in addition to the response headers common to all
 responses (refer to :ref:`Common Response Headers`).
 
-.. tabularcolumns:: X{0.30\textwidth}X{0.10\textwidth}X{0.55\textwidth}
+.. tabularcolumns:: X{0.40\textwidth}X{0.10\textwidth}X{0.45\textwidth}
 .. table::
 
    +-------------------------------------+---------+-----------------------+

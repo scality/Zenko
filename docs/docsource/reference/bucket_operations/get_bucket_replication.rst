@@ -159,17 +159,17 @@ This implementation of GET returns the following response elements.
 Special Errors
 ~~~~~~~~~~~~~~
 
-.. tabularcolumns:: X{0.25\textwidth}X{0.25\textwidth}X{0.20\textwidth}X{0.20\textwidth}
+.. tabularcolumns:: X{0.40\textwidth}X{0.19\textwidth}X{0.19\textwidth}X{0.19\textwidth}
 .. table::
 
-   +------------------------------------+-----------------+-----------------+-----------------+
-   | Name                               | Description     | HTTP Status     | SOAP Fault      |
-   |                                    |                 | Code            | Code Prefix     |
-   +====================================+=================+=================+=================+
-   | ``NoSuchReplicationConfiguration`` | The replication | 404 Not Found   | Client          |
-   |                                    | configuration   |                 |                 |
-   |                                    | does not exist. |                 |                 |
-   +------------------------------------+-----------------+-----------------+-----------------+
+   +------------------------------------+-----------------+-------------------+-----------------+
+   | Name                               | Description     | HTTP Status       | SOAP Fault      |
+   |                                    |                 | Code              | Code Prefix     |
+   +====================================+=================+===================+=================+
+   | ``NoSuchReplicationConfiguration`` | The replication | ``404 Not Found`` | Client          |
+   |                                    | configuration   |                   |                 |
+   |                                    | does not exist. |                   |                 |
+   +------------------------------------+-----------------+-------------------+-----------------+
 
 Examples
 --------

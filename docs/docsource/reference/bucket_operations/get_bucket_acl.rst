@@ -50,7 +50,7 @@ Elements
 The GET Bucket ACL operation can return the following XML elements in its
 response (includes XML containers):
 
-.. tabularcolumns:: X{0.20\textwidth}X{0.15\textwidth}X{0.60\textwidth}
+.. tabularcolumns:: X{0.25\textwidth}X{0.15\textwidth}X{0.55\textwidth}
 .. table::
 
    +-------------------------+-----------+---------------------------------+
