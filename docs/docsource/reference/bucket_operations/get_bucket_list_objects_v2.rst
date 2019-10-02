@@ -3,7 +3,7 @@
 GET Bucket (List Objects) Version 2
 ===================================
 
-The Version 2 implementation of the GET operation returns some or all (up to 
+The Version 2 GET operation returns some or all (up to 
 1000) of the objects in a bucket. The request parameters can be used as 
 selection criteria to return a subset of the objects in a bucket. A 200 OK 
 response can contain valid or invalid XML. Design applications to parse the 
@@ -34,7 +34,8 @@ Service Developer Guide`_.
 Requests
 --------
 
-**Syntax**
+Syntax
+~~~~~~
 
 .. code::
 
@@ -43,7 +44,8 @@ Requests
    Date: date
    Authorization: authorization string
 
-**Request Parameters**
+Parameters
+~~~~~~~~~~
 
 GET Bucket (List Objects) Version 2 uses the following parameters:
 
@@ -51,343 +53,352 @@ GET Bucket (List Objects) Version 2 uses the following parameters:
 .. table::
    :class: longtable
 
-   +---------------------+---------------------------------------------+----------+
-   | Parameter           | Description                                 | Required |
-   +=====================+=============================================+==========+
-   | delimiter           | A delimiter is a character for grouping     | No       |
-   |                     | keys.                                       |          |
-   |                     |                                             |          |
-   |                     | If specifying a prefix, all keys that       |          |
-   |                     | contain the same string between the prefix  |          |
-   |                     | and the first delimiter occurring after     |          |
-   |                     | the prefix are grouped under a single       |          |
-   |                     | result element, ``CommonPrefixes``.         |          |
-   |                     | If the prefixparameter is not specified,    |          |
-   |                     | the substring starts at the beginning of    |          |
-   |                     | the key. Keys grouped under the             |          |
-   |                     | ``CommonPrefixes`` result element are not   |          |
-   |                     | returned elsewhere in the response.         |          |
-   |                     |                                             |          |
-   |                     | Type: String                                |          |
-   |                     |                                             |          |
-   |                     | Default: None                               |          |
-   +---------------------+---------------------------------------------+----------+
-   | encoding-type       | Requests Zenko to encode the response and   | No       |
-   |                     | specifies the encoding method to use.       |          |
-   |                     |                                             |          |
-   |                     | An object key can contain any Unicode       |          |
-   |                     | character. However, XML 1.0 parsers cannot  |          |
-   |                     | parse some characters, such as characters   |          |
-   |                     | with an ASCII value from 0 to 10. For       |          |
-   |                     | characters not supported in XML 1.0, add    |          |
-   |                     | this parameter to request S3 to encode      |          |
-   |                     | the keys in the response.                   |          |
-   |                     |                                             |          |
-   |                     | Type: String                                |          |
-   |                     |                                             |          |
-   |                     | Default: None                               |          |
-   |                     |                                             |          |
-   |                     | Valid value: ``url``                        |          |
-   +---------------------+---------------------------------------------+----------+
-   | max-keys            | Sets the maximum number of keys returned in | No       |
-   |                     | the response body. To retrieve fewer than   |          |
-   |                     | the default 1,000 keys, add this to the     |          |
-   |                     | request.                                    |          |
-   |                     |                                             |          |
-   |                     | The response may contain fewer than the     |          |
-   |                     | specified value of keys, but never contains |          |
-   |                     | more. If additional keys that satisfy the   |          |
-   |                     | search were not returned because max-keys   |          |
-   |                     | was exceeded, the response contains         |          |
-   |                     | <IsTruncated>true</IsTruncated>. To return  |          |
-   |                     | these additional keys, see                  |          |
-   |                     | NextContinuationToken_.                     |          |
-   |                     |                                             |          |
-   |                     | Type: String                                |          |
-   |                     |                                             |          |
-   |                     | Default: 1000                               |          |
-   +---------------------+---------------------------------------------+----------+
-   | prefix              | Limits the response to keys that begin with | No       |
-   |                     | the specified prefix.                       |          |
-   |                     |                                             |          |
-   |                     | Prefixes can be used to separate a bucket   |          |
-   |                     | into different groupings of keys. (You can  |          |
-   |                     | think of using ``prefix`` to group objects  |          |
-   |                     | as you'd use a folder in a file system.)    |          |
-   |                     |                                             |          |
-   |                     | Type: String                                |          |
-   |                     |                                             |          |
-   |                     | Default: None                               |          |
-   +---------------------+---------------------------------------------+----------+
-   | list-type           | Version 2 of the API requires this          | Yes      |
-   |                     | parameter. Its value must be set to 2.      |          |
-   |                     |                                             |          |
-   |                     | Type: String                                |          |
-   |                     |                                             |          |
-   |                     | Default: Value is always 2.                 |          |
-   +---------------------+---------------------------------------------+----------+
-   | continuation-token  | When the response to this API call is       | No       |
-   |                     | truncated (that is, the ``IsTruncated``     |          |
-   |                     | response element value is true), the        |          |
-   |                     | response also includes the                  |          |
-   |                     | ``NextContinuationToken`` element.          |          |
-   |                     | To list the next set of objects, use the    |          |
-   |                     | ``NextContinuationTokenelement`` in the     |          |
-   |                     | next request as the ``continuation-token``. |          |
-   |                     |                                             |          |
-   |                     | * The continuation token is an opaque value |          |
-   |                     |   that Zenko understands.                   |          |
-   |                     | * Zenko lists objects in UTF-8 character    |          |
-   |                     |   encoding in lexicographic order.          |          |
-   |                     |                                             |          |
-   |                     | Type: String                                |          |
-   |                     |                                             |          |
-   |                     | Default: None                               |          |
-   +---------------------+---------------------------------------------+----------+
-   | fetch-owner         | By default, the API does not return         | No       |
-   |                     | ``Owner`` information in the response.      |          |
-   |                     | To get owner information in the response,   |          |
-   |                     | set this parameter to true.                 |          |
-   |                     |                                             |          |
-   |                     | Type: String                                |          |
-   |                     |                                             |          |
-   |                     | Default: false                              |          |
-   +---------------------+---------------------------------------------+----------+
-   | start-after         | Add this parameter to request the API to    | No       |
-   |                     | return key names after a specific object    |          |
-   |                     | key in your key space. Zenko lists objects  |          |
-   |                     | in UTF-8 character encoding in              |          |
-   |                     | lexicographic order.                        |          |
-   |                     |                                             |          |
-   |                     | This parameter is valid only in a first     |          |
-   |                     | request. If the response is truncated,      |          |
-   |                     | specifying this parameter along with the    |          |
-   |                     | ``continuation-token`` parameter causes S3  |          |
-   |                     | Connector to ignore this parameter.         |          |
-   |                     |                                             |          |
-   |                     | Type: String                                |          |
-   |                     |                                             |          |
-   |                     | Default: None                               |          |
-   +---------------------+---------------------------------------------+----------+
+   +------------------------+---------------------------------------------+----------+
+   | Parameter              | Description                                 | Required |
+   +========================+=============================================+==========+
+   | ``delimiter``          | A delimiter is a character for grouping     | No       |
+   |                        | keys.                                       |          |
+   |                        |                                             |          |
+   |                        | If specifying a prefix, all keys that       |          |
+   |                        | contain the same string between the prefix  |          |
+   |                        | and the first delimiter occurring after     |          |
+   |                        | the prefix are grouped under a single       |          |
+   |                        | result element, ``CommonPrefixes``.         |          |
+   |                        | If the prefixparameter is not specified,    |          |
+   |                        | the substring starts at the beginning of    |          |
+   |                        | the key. Keys grouped under the             |          |
+   |                        | ``CommonPrefixes`` result element are not   |          |
+   |                        | returned elsewhere in the response.         |          |
+   |                        |                                             |          |
+   |                        | **Type:** String                            |          |
+   |                        |                                             |          |
+   |                        | **Default:** None                           |          |
+   +------------------------+---------------------------------------------+----------+
+   | ``encoding-type``      | Requests Zenko to encode the response and   | No       |
+   |                        | specifies the encoding method to use.       |          |
+   |                        |                                             |          |
+   |                        | An object key can contain any Unicode       |          |
+   |                        | character. However, XML 1.0 parsers cannot  |          |
+   |                        | parse some characters, such as characters   |          |
+   |                        | with an ASCII value from 0 to 10. For       |          |
+   |                        | characters not supported in XML 1.0, add    |          |
+   |                        | this parameter to request S3 to encode      |          |
+   |                        | the keys in the response.                   |          |
+   |                        |                                             |          |
+   |                        | **Type:** String                            |          |
+   |                        |                                             |          |
+   |                        | **Default:** None                           |          |
+   |                        |                                             |          |
+   |                        | **Valid value:** ``url``                    |          |
+   +------------------------+---------------------------------------------+----------+
+   | ``max-keys``           | Sets the maximum number of keys returned in | No       |
+   |                        | the response body. To retrieve fewer than   |          |
+   |                        | the default 1,000 keys, add this to the     |          |
+   |                        | request.                                    |          |
+   |                        |                                             |          |
+   |                        | The response may contain fewer than the     |          |
+   |                        | specified value of keys, but never contains |          |
+   |                        | more. If additional keys that satisfy the   |          |
+   |                        | search were not returned because max-keys   |          |
+   |                        | was exceeded, the response contains         |          |
+   |                        | <IsTruncated>true</IsTruncated>. To return  |          |
+   |                        | these additional keys, see                  |          |
+   |                        | NextContinuationToken_.                     |          |
+   |                        |                                             |          |
+   |                        | **Type:** String                            |          |
+   |                        |                                             |          |
+   |                        | **Default:** 1000                           |          |
+   +------------------------+---------------------------------------------+----------+
+   | ``prefix``             | Limits the response to keys that begin with | No       |
+   |                        | the specified prefix.                       |          |
+   |                        |                                             |          |
+   |                        | Prefixes can be used to separate a bucket   |          |
+   |                        | into different groupings of keys. (You can  |          |
+   |                        | think of using ``prefix`` to group objects  |          |
+   |                        | as you'd use a folder in a file system.)    |          |
+   |                        |                                             |          |
+   |                        | **Type:** String                            |          |
+   |                        |                                             |          |
+   |                        | **Default:** None                           |          |
+   +------------------------+---------------------------------------------+----------+
+   | ``list-type``          | Version 2 of the API requires this          | Yes      |
+   |                        | parameter. Its value must be set to 2.      |          |
+   |                        |                                             |          |
+   |                        | **Type:** String                            |          |
+   |                        |                                             |          |
+   |                        | **Default:** Value is always 2.             |          |
+   +------------------------+---------------------------------------------+----------+
+   | ``continuation-token`` | When the response to this API call is       | No       |
+   |                        | truncated (that is, the ``IsTruncated``     |          |
+   |                        | response element value is true), the        |          |
+   |                        | response also includes the                  |          |
+   |                        | ``NextContinuationToken`` element.          |          |
+   |                        | To list the next set of objects, use the    |          |
+   |                        | ``NextContinuationTokenelement`` in the     |          |
+   |                        | next request as the ``continuation-token``. |          |
+   |                        |                                             |          |
+   |                        | * The continuation token is an opaque value |          |
+   |                        |   that Zenko understands.                   |          |
+   |                        | * Zenko lists objects in UTF-8 character    |          |
+   |                        |   encoding in lexicographic order.          |          |
+   |                        |                                             |          |
+   |                        | **Type:** String                            |          |
+   |                        |                                             |          |
+   |                        | **Default:** None                           |          |
+   +------------------------+---------------------------------------------+----------+
+   | ``fetch-owner``        | By default, the API does not return         | No       |
+   |                        | ``Owner`` information in the response.      |          |
+   |                        | To get owner information in the response,   |          |
+   |                        | set this parameter to true.                 |          |
+   |                        |                                             |          |
+   |                        | **Type:** String                            |          |
+   |                        |                                             |          |
+   |                        | **Default:** false                          |          |
+   +------------------------+---------------------------------------------+----------+
+   | ``start-after``        | Add this parameter to request the API to    | No       |
+   |                        | return key names after a specific object    |          |
+   |                        | key in your key space. Zenko lists objects  |          |
+   |                        | in UTF-8 character encoding in              |          |
+   |                        | lexicographic order.                        |          |
+   |                        |                                             |          |
+   |                        | This parameter is valid only in a first     |          |
+   |                        | request. If the response is truncated,      |          |
+   |                        | specifying this parameter along with the    |          |
+   |                        | ``continuation-token`` parameter causes S3  |          |
+   |                        | Connector to ignore this parameter.         |          |
+   |                        |                                             |          |
+   |                        | **Type:** String                            |          |
+   |                        |                                             |          |
+   |                        | **Default:** None                           |          |
+   +------------------------+---------------------------------------------+----------+
 
-**Request Elements**
+Elements
+~~~~~~~~
 
-This implementation of the operation does not use request elements.
+This operation does not use request elements.
 
-**Request Headers**
+Headers
+~~~~~~~
 
-This implementation of the operation uses only request headers that are common
+This operation uses only request headers that are common
 to all operations (see `Common Request Headers`_).
 
 Responses
 ---------
 
-**Response Headers**
+Headers
+~~~~~~~
 
-This implementation of the operation uses only response headers that are
+This operation uses only response headers that are
 common to most responses (see `Common Response Headers`_).
 
-**Response Elements**
+Elements
+~~~~~~~~
 
 .. tabularcolumns:: X{0.25\textwidth}X{0.70\textwidth}
 .. table::
    :class: longtable
 
-   +-----------------------------+-----------------------------------------------+
-   | Name                        | Description                                   |
-   +=============================+===============================================+
-   | Contents                    | Metadata about each object returned.          |
-   |                             |                                               |
-   |                             | Type: XML metadata                            |
-   |                             |                                               |
-   |                             | Ancestor: ListBucketResult                    |
-   +-----------------------------+-----------------------------------------------+
-   | CommonPrefixes              | All of the keys rolled up into a common       |
-   |                             | prefix count as a single return when          |
-   |                             | calculating the number of returns. See        |
-   |                             | MaxKeys.                                      |
-   |                             |                                               |
-   |                             | * A response can contain ``CommonPrefixes``   |
-   |                             |    only if a delimiter has been specified.    |
-   |                             | * ``CommonPrefixes`` contains any existing    |
-   |                             |   keys between ``Prefix`` and the next        |
-   |                             |   occurrence of the string specified by a     |
-   |                             |   delimiter.                                  |
-   |                             | * ``CommonPrefixes`` lists keys that act like |
-   |                             |   subdirectories in the directory specified   |
-   |                             |   by Prefix.                                  |
-   |                             |                                               |
-   |                             | For example, if the prefix is ``notes/`` and  |
-   |                             | the delimiter is a slash (/), as in           |
-   |                             | ``notes/summer/july``, the common prefix is   |
-   |                             | ``notes/summer/``. All keys that roll up into |
-   |                             | a common prefix count as a single return when |
-   |                             | calculating the number of returns. See        |
-   |                             | MaxKeys.                                      |
-   |                             |                                               |
-   |                             | Type: String                                  |
-   |                             |                                               |
-   |                             | Ancestor: ListBucketResult                    |
-   +-----------------------------+-----------------------------------------------+
-   | Delimiter                   | Causes keys containing the same string        |
-   |                             | between the prefix and first occurrence of    |
-   |                             | the delimiter to be rolled up into a single   |
-   |                             | result element in the CommonPrefixes          |
-   |                             | collection. These rolled-up keys are not      |
-   |                             | returned elsewhere in the response. Each      |
-   |                             | rolled-up result counts as only one return    |
-   |                             | against the MaxKeys value.                    |
-   |                             |                                               |
-   |                             | Type: String                                  |
-   |                             |                                               |
-   |                             | Ancestor: ListBucketResult                    |
-   +-----------------------------+-----------------------------------------------+
-   | DisplayName                 | Object owner's name.                          |
-   |                             |                                               |
-   |                             | Type: String                                  |
-   |                             |                                               |
-   |                             | Ancestor: ListBucketResult.Contents.Owner     |
-   +-----------------------------+-----------------------------------------------+
-   | Encoding-Type               | Encoding type used by Zenko to encode object  |
-   |                             | key names in the XML response.                |
-   |                             |                                               |
-   |                             | If you specify encoding-type request          |
-   |                             | parameter, Zenko includes this element in the |
-   |                             | response, and returns encoded key name values |
-   |                             | in the ``Delimiter``, ``Prefix``, ``Key``,    |
-   |                             | and ``StartAfter`` response elements.         |
-   |                             |                                               |
-   |                             | Type: String                                  |
-   |                             |                                               |
-   |                             | Ancestor: ListBucketResult                    |
-   +-----------------------------+-----------------------------------------------+
-   | ETag                        | The entity tag is an MD5 hash of the object.  |
-   |                             | ETag reflects only changes to the contents of |
-   |                             | an object, not its metadata.                  |
-   |                             |                                               |
-   |                             | Type: String                                  |
-   |                             |                                               |
-   |                             | Ancestor: ListBucketResult.Contents           |
-   +-----------------------------+-----------------------------------------------+
-   | ID                          | Object owner's ID                             |
-   |                             |                                               |
-   |                             | Type: String                                  |
-   |                             |                                               |
-   |                             | Ancestor: ListBucketResult.Contents.Owner     |
-   +-----------------------------+-----------------------------------------------+
-   | IsTruncated                 | Set to false if all results were returned.    |
-   |                             |                                               |
-   |                             | Set to true if more keys are available to     |
-   |                             | return.                                       |
-   |                             |                                               |
-   |                             | If the number of results exceeds that         |
-   |                             | specified by MaxKeys, all of the results      |
-   |                             | might not be returned.                        |
-   |                             |                                               |
-   |                             | Type: Boolean                                 |
-   |                             |                                               |
-   |                             | Ancestor: ListBucketResult                    |
-   +-----------------------------+-----------------------------------------------+
-   | Key                         | The object's key                              |
-   |                             |                                               |
-   |                             | Type: String                                  |
-   |                             |                                               |
-   |                             | Ancestor: ListBucketResult.Contents           |
-   +-----------------------------+-----------------------------------------------+
-   | LastModified                | Date and time the object was last modified    |
-   |                             |                                               |
-   |                             | Type: Date                                    |
-   |                             |                                               |
-   |                             | Ancestor: ListBucketResult.Contents           |
-   +-----------------------------+-----------------------------------------------+
-   | .. _MaxKeys: MaxKeys        | The maximum number of keys returned in the    | 
-   |                             | response body                                 |
-   |                             |                                               |
-   |                             | Type: String                                  |
-   |                             |                                               |
-   |                             | Ancestor: ListBucketResult                    |
-   +-----------------------------+-----------------------------------------------+
-   | Name                        | Name of the bucket                            |
-   |                             |                                               |
-   |                             | Type: String                                  |
-   |                             |                                               |
-   |                             | Ancestor: ListBucketResult                    |
-   +-----------------------------+-----------------------------------------------+
-   | Owner                       | Bucket owner                                  |
-   |                             |                                               |
-   |                             | Type: String                                  |
-   |                             |                                               |
-   |                             | Children: DisplayName, ID                     |
-   |                             |                                               |
-   |                             | Ancestor: ListBucketResult.Contents \|        |
-   |                             | CommonPrefixes                                |
-   +-----------------------------+-----------------------------------------------+
-   | Prefix                      | Keys that begin with the indicated prefix     |
-   |                             |                                               |
-   |                             | Type: String                                  |
-   |                             |                                               |
-   |                             | Ancestor: ListBucketResult                    |
-   +-----------------------------+-----------------------------------------------+
-   | Size                        | Size of the object (in bytes)                 |
-   |                             |                                               |
-   |                             | Type: String                                  |
-   |                             |                                               |
-   |                             | Ancestor: ListBucketResult.Contents           |
-   +-----------------------------+-----------------------------------------------+
-   | StorageClass                | STANDARD \| STANDARD_IA \| REDUCED_REDUNDANCY |
-   |                             |                                               |
-   |                             | Type: String                                  |
-   |                             |                                               |
-   |                             | Ancestor: ListBucketResult.Contents           |
-   +-----------------------------+-----------------------------------------------+
-   | ContinuationToken           | If ContinuationToken was sent with the        |
-   |                             | request, it is included in the response.      |
-   |                             |                                               |
-   |                             | Type: String                                  |
-   |                             |                                               |
-   |                             | Ancestor: ListBucketResult                    |
-   +-----------------------------+-----------------------------------------------+
-   | KeyCount                    | Returns the number of keys included in the    |
-   |                             | response. The value is always less than or    |
-   |                             | equal to the MaxKeys value.                   |
-   |                             |                                               |
-   |                             | Type: String                                  |
-   |                             |                                               |
-   |                             | Ancestor: ListBucketResult                    |
-   +-----------------------------+-----------------------------------------------+
-   | .. _NextContinuationToken:  | If the response is truncated, Zenko returns   |
-   |                             | this parameter with a continuation token.     |
-   | NextContinuationToken       | You can specify the token as the              |
-   |                             | continuation-token in your next request to    |
-   |                             | retrieve the next set of keys.                |
-   |                             |                                               |
-   |                             | Type: String                                  |
-   |                             |                                               |
-   |                             | Ancestor: ListBucketResult                    |
-   +-----------------------------+-----------------------------------------------+
-   | StartAfter                  | If StartAfter was sent with the request, it   |
-   |                             | is included in the response.                  |
-   |                             |                                               |
-   |                             | Type: String                                  |
-   |                             |                                               |
-   |                             | Ancestor: ListBucketResult                    |
-   +-----------------------------+-----------------------------------------------+
+   +----------------------------+-----------------------------------------------+
+   | Name                       | Description                                   |
+   +============================+===============================================+
+   | ``Contents``               | Metadata about each object returned.          |
+   |                            |                                               |
+   |                            | **Type:** XML metadata                        |
+   |                            |                                               |
+   |                            | **Ancestor:** ListBucketResult                |
+   +----------------------------+-----------------------------------------------+
+   | ``CommonPrefixes``         | All of the keys rolled up into a common       |
+   |                            | prefix count as a single return when          |
+   |                            | calculating the number of returns. See        |
+   |                            | MaxKeys.                                      |
+   |                            |                                               |
+   |                            | * A response can contain ``CommonPrefixes``   |
+   |                            |    only if a delimiter has been specified.    |
+   |                            | * ``CommonPrefixes`` contains any existing    |
+   |                            |   keys between ``Prefix`` and the next        |
+   |                            |   occurrence of the string specified by a     |
+   |                            |   delimiter.                                  |
+   |                            | * ``CommonPrefixes`` lists keys that act like |
+   |                            |   subdirectories in the directory specified   |
+   |                            |   by Prefix.                                  |
+   |                            |                                               |
+   |                            | For example, if the prefix is ``notes/`` and  |
+   |                            | the delimiter is a slash (/), as in           |
+   |                            | ``notes/summer/july``, the common prefix is   |
+   |                            | ``notes/summer/``. All keys that roll up into |
+   |                            | a common prefix count as a single return when |
+   |                            | calculating the number of returns. See        |
+   |                            | MaxKeys.                                      |
+   |                            |                                               |
+   |                            | **Type:** String                              |
+   |                            |                                               |
+   |                            | **Ancestor:** ListBucketResult                |
+   +----------------------------+-----------------------------------------------+
+   | ``Delimiter``              | Causes keys containing the same string        |
+   |                            | between the prefix and first occurrence of    |
+   |                            | the delimiter to be rolled up into a single   |
+   |                            | result element in the CommonPrefixes          |
+   |                            | collection. These rolled-up keys are not      |
+   |                            | returned elsewhere in the response. Each      |
+   |                            | rolled-up result counts as only one return    |
+   |                            | against the MaxKeys value.                    |
+   |                            |                                               |
+   |                            | **Type:** String                              |
+   |                            |                                               |
+   |                            | **Ancestor:** ListBucketResult                |
+   +----------------------------+-----------------------------------------------+
+   | ``DisplayName``            | Object owner's name.                          |
+   |                            |                                               |
+   |                            | **Type:** String                              |
+   |                            |                                               |
+   |                            | **Ancestor:** ListBucketResult.Contents.Owner |
+   +----------------------------+-----------------------------------------------+
+   | ``Encoding-Type``          | Encoding type used by Zenko to encode object  |
+   |                            | key names in the XML response.                |
+   |                            |                                               |
+   |                            | If you specify encoding-type request          |
+   |                            | parameter, Zenko includes this element in the |
+   |                            | response, and returns encoded key name values |
+   |                            | in the ``Delimiter``, ``Prefix``, ``Key``,    |
+   |                            | and ``StartAfter`` response elements.         |
+   |                            |                                               |
+   |                            | **Type:** String                              |
+   |                            |                                               |
+   |                            | **Ancestor:** ListBucketResult                |
+   +----------------------------+-----------------------------------------------+
+   | ``ETag``                   | The entity tag is an MD5 hash of the object.  |
+   |                            | ETag reflects only changes to the contents of |
+   |                            | an object, not its metadata.                  |
+   |                            |                                               |
+   |                            | **Type:** String                              |
+   |                            |                                               |
+   |                            | **Ancestor:** ListBucketResult.Contents       |
+   +----------------------------+-----------------------------------------------+
+   | ``ID``                     | Object owner's ID                             |
+   |                            |                                               |
+   |                            | **Type:** String                              |
+   |                            |                                               |
+   |                            | **Ancestor:** ListBucketResult.Contents.Owner |
+   +----------------------------+-----------------------------------------------+
+   | ``IsTruncated``            | Set to false if all results were returned.    |
+   |                            |                                               |
+   |                            | Set to true if more keys are available to     |
+   |                            | return.                                       |
+   |                            |                                               |
+   |                            | If the number of results exceeds that         |
+   |                            | specified by MaxKeys, all of the results      |
+   |                            | might not be returned.                        |
+   |                            |                                               |
+   |                            | **Type:** Boolean                             |
+   |                            |                                               |
+   |                            | **Ancestor:** ListBucketResult                |
+   +----------------------------+-----------------------------------------------+
+   | ``Key``                    | The object's key                              |
+   |                            |                                               |
+   |                            | **Type:** String                              |
+   |                            |                                               |
+   |                            | **Ancestor:** ListBucketResult.Contents       |
+   +----------------------------+-----------------------------------------------+
+   | ``LastModified``           | Date and time the object was last modified    |
+   |                            |                                               |
+   |                            | **Type:** Date                                |
+   |                            |                                               |
+   |                            | **Ancestor:** ListBucketResult.Contents       |
+   +----------------------------+-----------------------------------------------+
+   | .. _MaxKeys: ``MaxKeys``   | The maximum number of keys returned in the    | 
+   |                            | response body                                 |
+   |                            |                                               |
+   |                            | **Type:** String                              |
+   |                            |                                               |
+   |                            | **Ancestor:** ListBucketResult                |
+   +----------------------------+-----------------------------------------------+
+   | ``Name``                   | Name of the bucket                            |
+   |                            |                                               |
+   |                            | **Type:** String                              |
+   |                            |                                               |
+   |                            | **Ancestor:** ListBucketResult                |
+   +----------------------------+-----------------------------------------------+
+   | ``Owner``                  | Bucket owner                                  |
+   |                            |                                               |
+   |                            | **Type:** String                              |
+   |                            |                                               |
+   |                            | **Children:** DisplayName, ID                 |
+   |                            |                                               |
+   |                            | **Ancestor:** ListBucketResult.Contents \|    |
+   |                            | CommonPrefixes                                |
+   +----------------------------+-----------------------------------------------+
+   | ``Prefix``                 | Keys that begin with the indicated prefix     |
+   |                            |                                               |
+   |                            | **Type:** String                              |
+   |                            |                                               |
+   |                            | **Ancestor:** ListBucketResult                |
+   +----------------------------+-----------------------------------------------+
+   | ``Size``                   | Size of the object (in bytes)                 |
+   |                            |                                               |
+   |                            | **Type:** String                              |
+   |                            |                                               |
+   |                            | **Ancestor:** ListBucketResult.Contents       |
+   +----------------------------+-----------------------------------------------+
+   | ``StorageClass``           | STANDARD \| STANDARD_IA \| REDUCED_REDUNDANCY |
+   |                            |                                               |
+   |                            | **Type:** String                              |
+   |                            |                                               |
+   |                            | **Ancestor:** ListBucketResult.Contents       |
+   +----------------------------+-----------------------------------------------+
+   | ``ContinuationToken``      | If ContinuationToken was sent with the        |
+   |                            | request, it is included in the response.      |
+   |                            |                                               |
+   |                            | **Type:** String                              |
+   |                            |                                               |
+   |                            | **Ancestor:** ListBucketResult                |
+   +----------------------------+-----------------------------------------------+
+   | ``KeyCount``               | Returns the number of keys included in the    |
+   |                            | response. The value is always less than or    |
+   |                            | equal to the MaxKeys value.                   |
+   |                            |                                               |
+   |                            | **Type:** String                              |
+   |                            |                                               |
+   |                            | **Ancestor:** ListBucketResult                |
+   +----------------------------+-----------------------------------------------+
+   | ``NextContinuationToken``  | .. _NextContinuationToken:                    |
+   |                            |                                               |
+   |                            | If the response is truncated, Zenko returns   |
+   |                            | this parameter with a continuation token.     |
+   |                            | You can specify the token as the              |
+   |                            | continuation-token in your next request to    |
+   |                            | retrieve the next set of keys.                |
+   |                            |                                               |
+   |                            | **Type:** String                              |
+   |                            |                                               |
+   |                            | **Ancestor:** ListBucketResult                |
+   +----------------------------+-----------------------------------------------+
+   | ``StartAfter``             | If StartAfter was sent with the request, it   |
+   |                            | is included in the response.                  |
+   |                            |                                               |
+   |                            | **Type:** String                              |
+   |                            |                                               |
+   |                            | **Ancestor:** ListBucketResult                |
+   +----------------------------+-----------------------------------------------+
 
-**Special Errors**
+Special Errors
+~~~~~~~~~~~~~~
 
-This implementation of the operation does not return special errors. For
+This operation does not return special errors. For
 general information about the AWS errors Zenko uses, and a list of error 
 codes, see `Error Responses`_.
 
 Examples
 --------
 
-**Listing Keys**
+Listing Keys
+~~~~~~~~~~~~
 
 This request returns the objects in BucketName. The request specifies the
 list-type parameter, which indicates version 2 of the API.
 
-*Request Sample*
+Request
+```````
 
 .. code::
 
@@ -397,7 +408,8 @@ list-type parameter, which indicates version 2 of the API.
   Authorization: authorization string
   Content-Type: text/plain
 
-*Response Sample*
+Response
+````````
 
 .. code::
 
@@ -421,13 +433,15 @@ list-type parameter, which indicates version 2 of the API.
      </Contents>
    </ListBucketResult>
 
-**Listing Keys Using the max-keys, prefix, and start-after Parameters**
+Listing Keys Using the max-keys, prefix, and start-after Parameters
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In addition to the list-type parameter that indicates version 2 of the API, the request
 also specifies additional parameters to retrieve up to three keys in the quotes bucket
 that start with E and occur lexicographically after ExampleGuide.pdf.
 
-*Request Sample*
+Request
+```````
 
 .. code::
 
@@ -436,7 +450,8 @@ that start with E and occur lexicographically after ExampleGuide.pdf.
   x-amz-date: 20181108T232933Z
   Authorization: authorization string
 
-*Response Sample*
+Response
+````````
 
 .. code::
 
@@ -467,7 +482,11 @@ that start with E and occur lexicographically after ExampleGuide.pdf.
     </Contents>
   </ListBucketResult>
 
-*Listing Keys Using the prefix and delimiter Parameters*
+Listing Keys Using the prefix and delimiter Parameters
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Request
+```````
 
 This example illustrates the use of the prefix and the delimiter parameters
 in the request. This example assumes the following keys are in your bucket:
@@ -487,12 +506,15 @@ The following GET request specifies the delimiter parameter with value /.
   x-amz-date: 20181108T235931Z
   Authorization: authorization string
 
-The sample.jpg key does not contain the delimiter character, and Zenko
-returns it in the Contents element in the response. However, all other keys
-contain the delimiter character. Zenko groups these keys and returns
-a single ``CommonPrefixes`` element with the prefix value ``photos/``. The
-element is a substring that starts at the beginning of these keys and ends
-at the first occurrence of the specified delimiter.
+Response
+````````
+
+The sample.jpg key does not contain the delimiter character, and Zenko returns
+it in the Contents element in the response. However, all other keys contain the
+delimiter character. Zenko groups these keys and returns a single
+``CommonPrefixes`` element with the prefix value ``photos/``. The element is a
+substring that starts at the beginning of these keys and ends at the first
+occurrence of the specified delimiter.
 
 .. code::
 
@@ -516,6 +538,9 @@ at the first occurrence of the specified delimiter.
      </CommonPrefixes>
    </ListBucketResult>
 
+Request
+```````
+
 The following GET request specifies the delimiter parameter with value /, and
 the prefix parameter with valuephotos/2006/.
 
@@ -526,15 +551,17 @@ the prefix parameter with valuephotos/2006/.
   x-amz-date: 20181108T000433Z
   Authorization: authorization string
 
+Response
+````````
+
 In response, Zenko returns only the keys that start with the specified
-prefix. Further, it uses the delimiter character to group keys that contain
-the same substring until the first occurrence of the delimiter character
-after the specified prefix. For each such key group Zenko returns one
-CommonPrefixes element in the response. The keys grouped under this
-CommonPrefixes element are not returned elsewhere in the response. The value
-returned in the CommonPrefixes element is a substring that starts at the
-beginning of the key and ends at the first occurrence of the specified
-delimiter after the prefix.
+prefix. Further, it uses the delimiter character to group keys that contain the
+same substring until the first occurrence of the delimiter character after the
+specified prefix. For each such key group Zenko returns one CommonPrefixes
+element in the response. The keys grouped under this CommonPrefixes element are
+not returned elsewhere in the response. The value returned in the CommonPrefixes
+element is a substring that starts at the beginning of the key and ends at the
+first occurrence of the specified delimiter after the prefix.
 
 .. code::
 
@@ -561,13 +588,15 @@ delimiter after the prefix.
     </CommonPrefixes>
   </ListBucketResult>
 
-**Using a Continuation Token**
+Using a Continuation Token
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In this example, the initial request returns more than 1000 keys. In
-response to this request, Zenko returns the IsTruncated element
-with the value set to true and with a NextContinuationToken element.
+In this example, the initial request returns more than 1000 keys. In response to
+this request, Zenko returns the IsTruncated element with the value set to true
+and with a NextContinuationToken element.
 
-*Request Sample*
+Request
+```````
 
 .. code::
 
@@ -576,8 +605,8 @@ with the value set to true and with a NextContinuationToken element.
   Date: Thu, 08 Nov 2018 23:17:07 GMT
   Authorization: authorization string
 
-*Response Sample*
-
+Response
+````````
 
 The following is a sample response:
 
@@ -609,6 +638,9 @@ The following is a sample response:
      ...
   </ListBucketResult>
 
+Request
+```````
+
 In the subsequent request, a continuation-token query parameter is included
 in the request with the ``<NextContinuationToken>`` value from the preceding
 response.
@@ -621,6 +653,9 @@ response.
   Host: s3connector.scality.com
   Date: Thu, 08 Nov 2018 23:17:07 GMT
   Authorization: authorization string
+
+Response
+````````
 
 Zenko returns a list of the next set of keys starting where the previous
 request ended.
