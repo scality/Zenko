@@ -19,7 +19,8 @@ permission to others.
 Requests
 --------
 
-**Request Syntax**
+Request
+~~~~~~~
 
 .. code::
 
@@ -28,62 +29,69 @@ Requests
    Date: {{date}}
    Authorization: {{authorizationString}}
 
-**Request Parameters**
+Parameters
+~~~~~~~~~~
 
 The GET Object Tagging operation does not use Request Parameters.
 
-**Request Headers**
+Headers
+~~~~~~~
 
-Implementation of the GET Object Tagging operation uses only request
+The GET Object Tagging operation uses only request
 headers that are common to all operations (refer to :ref:`Common Request
 Headers`).
 
-**Request Elements**
+
+Elements
+~~~~~~~~
 
 The GET Object Tagging operation does not use request elements.
 
 Responses
 ---------
 
-**Response Headers**
+Headers
+~~~~~~~
 
-Implementation of the GET Object Tagging operation uses only response
-headers common to all responses (refer :ref:`Common Response Headers`).
+The GET Object Tagging operation uses only response headers common to all
+responses (see :ref:`Common Response Headers`).
 
-**Response Elements**
+Elements
+~~~~~~~~
 
-The GET Object Tagging operation can return the following XML elements
-of the response (includes XML containers):
+The GET Object Tagging operation can return the following XML elements in its
+response (includes XML containers):
 
 .. tabularcolumns:: X{0.15\textwidth}X{0.15\textwidth}X{0.65\textwidth}
 .. table::
 
-   +---------+-----------+----------------------------------+
-   | Element | Type      | Description                      |
-   +=========+===========+==================================+
-   | Tagging | container | Container for the TagSet element |
-   +---------+-----------+----------------------------------+
-   | TagSet  | container | Contains the tag set             |
-   |         |           |                                  |
-   |         |           | Ancestors: Tagging               |
-   +---------+-----------+----------------------------------+
-   | Tag     | container | Contains the tag information     |
-   |         |           |                                  |
-   |         |           | Ancestors: TagSet                |
-   +---------+-----------+----------------------------------+
-   | Key     | String    | Name of the tag                  |
-   |         |           |                                  |
-   |         |           | Ancestors: Tag                   |
-   +---------+-----------+----------------------------------+
-   | Value   | string    | Value of the tag                 |
-   |         |           |                                  |
-   |         |           | Ancestors: Tag                   |
-   +---------+-----------+----------------------------------+
+   +-------------+-----------+----------------------------------+
+   | Element     | Type      | Description                      |
+   +=============+===========+==================================+
+   | ``Tagging`` | container | Container for the TagSet element |
+   +-------------+-----------+----------------------------------+
+   | ``TagSet``  | container | Contains the tag set             |
+   |             |           |                                  |
+   |             |           | **Ancestors:** Tagging           |
+   +-------------+-----------+----------------------------------+
+   | ``Tag``     | container | Contains the tag information     |
+   |             |           |                                  |
+   |             |           | **Ancestors:** TagSet            |
+   +-------------+-----------+----------------------------------+
+   | ``Key``     | string    | Name of the tag                  |
+   |             |           |                                  |
+   |             |           | **Ancestors:** Tag               |
+   +-------------+-----------+----------------------------------+
+   | ``Value``   | string    | Value of the tag                 |
+   |             |           |                                  |
+   |             |           | **Ancestors:** Tag               |
+   +-------------+-----------+----------------------------------+
 
 Examples
 --------
 
-*Request Sample*
+Request
+~~~~~~~
 
 The following request returns the tag set of the specified object.
 
@@ -94,7 +102,8 @@ The following request returns the tag set of the specified object.
    Date: Wed, 28 Oct 2009 22:32:00 GMT
    Authorization: {{authorizationString}}
 
-*Response Sample*
+Response
+~~~~~~~~
 
 .. code::
 
