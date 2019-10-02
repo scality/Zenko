@@ -5,6 +5,7 @@ GRAFANA_DASHBOARDS = [
     'cloudserver',
     'backbeat',
     'mongodb',
+    'zenko-overview',
 ]
 
 
