@@ -38,7 +38,7 @@
       }
     ]
   },
-  "description": "Prometheus metrics obtained from Cloudserver",
+  "description": "Prometheus metrics obtained from CloudServer",
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
@@ -1233,7 +1233,7 @@
     ]
   },
   "timezone": "",
-  "title": "Cloudserver",
+  "title": "CloudServer",
   "uid": "Ze9RVGDmz",
   "version": 1
 }
