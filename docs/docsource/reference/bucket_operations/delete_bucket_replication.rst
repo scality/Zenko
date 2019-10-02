@@ -3,14 +3,14 @@
 DELETE Bucket Replication
 =========================
 
-Deletes the replication subresource associated with the specified
-bucket. This operation requires permission for the
-s3:DeleteReplicationConfiguration action.
+Deletes the replication subresource associated with the specified bucket. This
+operation requires permission for the s3:DeleteReplicationConfiguration action.
 
 Requests
 --------
 
-**Request Syntax**
+Syntax
+~~~~~~
 
 .. code::
 
@@ -20,34 +20,40 @@ Requests
    Authorization: authorization string (see Authenticating Requests (AWS Signature Version
            4))
 
-**Request Parameters**
+Parameters
+~~~~~~~~~~
 
-The PUT Bucket operation does not use Request Parameters.
+The PUT Bucket operation does not use request parameters.
 
-**Request Headers**
+Headers
+~~~~~~~
 
-This implementation of the operation uses only request headers that are
+This operation uses only request headers that are
 common to all operations.
 
-**Request Elements**
+Elements
+~~~~~~~~
 
-This implementation of the operation does not use request elements.
+This operation does not use request elements.
 
-**Response Headers**
+Responses
+---------
 
-This implementation of the operation uses only response headers that are
-common to most responses.
+Headers
+~~~~~~~
 
-**Response Elements**
+This operation uses only response headers that are common to most responses.
 
-This implementation of the operation does not use request elements.
+Elements
+~~~~~~~~
+
+This operation does not use request elements.
 
 Example
 -------
 
-The following DELETE request deletes the replication subresource from
-the specified bucket. This removes the replication configuration set for
-the bucket.
+The following DELETE request deletes the replication subresource from the
+specified bucket. This removes the replication configuration set for the bucket.
 
 .. code::
 

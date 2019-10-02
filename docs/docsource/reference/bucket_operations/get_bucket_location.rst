@@ -16,7 +16,8 @@ LocationConstraint request parameter in a PUT Bucket request. Refer to
 Requests
 --------
 
-**Request Syntax**
+Syntax
+~~~~~~
 
 .. code::
 
@@ -25,29 +26,34 @@ Requests
    Date: {{date}}
    Authorization: {{authenticationInformation}}
 
-**Request Parameters**
+Parameters
+~~~~~~~~~~
 
-The GET Bucket Location operation does not use Request Parameters.
+The GET Bucket Location operation does not use request parameters.
 
-**Request Headers**
+Headers
+~~~~~~~
 
-Implementation of the GET Bucket Location operation uses only request
+The GET Bucket Location operation uses only request
 headers that are common to all operations (refer to :ref:`Common Request
 Headers`).
 
-**Request Elements**
+Elements
+~~~~~~~~
 
 The GET Bucket Location operation does not use request elements.
 
 Responses
 ---------
 
-**Response Headers**
+Headers
+~~~~~~~
 
-Implementation of the GET Bucket Location operation uses only response
+The GET Bucket Location operation uses only response
 headers that are common to all operations (refer to :ref:`Common Response Headers`).
 
-**Response Elements**
+Elements
+~~~~~~~~
 
 The GET Bucket Location operation can return the following XML elements
 in the response:
@@ -55,23 +61,24 @@ in the response:
 .. tabularcolumns:: X{0.20\textwidth}X{0.10\textwidth}X{0.65\textwidth}
 .. table::
    
-   +-----------------------+-----------------------+-----------------------+
-   | Element               | Type                  | Description           |
-   +=======================+=======================+=======================+
-   | LocationConstraint    | String                | Specifies the         |
-   |                       |                       | location of the       |
-   |                       |                       | bucket. The           |
-   |                       |                       | LocationConstraint    |
-   |                       |                       | parameter is          |
-   |                       |                       | configured in the     |
-   |                       |                       | env_s3 setting of the |
-   |                       |                       | S3 configuration.     |
-   +-----------------------+-----------------------+-----------------------+
+   +------------------------+-----------------------+-----------------------+
+   | Element                | Type                  | Description           |
+   +========================+=======================+=======================+
+   | ``LocationConstraint`` | String                | Specifies the         |
+   |                        |                       | location of the       |
+   |                        |                       | bucket. The           |
+   |                        |                       | LocationConstraint    |
+   |                        |                       | parameter is          |
+   |                        |                       | configured in the     |
+   |                        |                       | env_s3 setting of the |
+   |                        |                       | S3 configuration.     |
+   +------------------------+-----------------------+-----------------------+
 
 Examples
 --------
 
-*Request Sample*
+Request
+~~~~~~~
 
 .. code::
 
@@ -80,7 +87,8 @@ Examples
    Date: Thu, 31 Mar 2016 15:11:47 GMT
    Authorization: AWS pat:6nYhPMw6boadLgjywjSIyhfwRIA=
 
-*Response Sample*
+Response
+~~~~~~~~
 
 .. code::
 

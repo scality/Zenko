@@ -3,16 +3,16 @@
 PUT Bucket Versioning
 =====================
 
-The PUT Bucket Versioning operation uses the versioning subresource to
-set the versioning state of an existing bucket. To set the versioning
-state, you must be the bucket owner.
+The PUT Bucket Versioning operation uses the versioning subresource to set the
+versioning state of an existing bucket. To set the versioning state, you must be
+the bucket owner.
 
 You can set the versioning state with one of the following values:
 
--  **Enabled** — Enables versioning for the objects in the bucket. All
-   objects added to the bucket receive a unique version ID.
--  **Suspended** — Disables versioning for the objects in the bucket.
-   All objects added to the bucket receive the version ID null.
+-  **Enabled** — Enables versioning for the objects in the bucket. All objects
+   added to the bucket receive a unique version ID.
+-  **Suspended** — Disables versioning for the objects in the bucket.  All
+   objects added to the bucket receive the version ID null.
 
 If the versioning state has never been set on a bucket, it has no
 versioning state; a GET versioning request does not return a versioning
@@ -21,7 +21,8 @@ state value.
 Requests
 --------
 
-**Request Syntax**
+Syntax
+~~~~~~
 
 .. code::
 
@@ -37,57 +38,64 @@ Requests
 
 The Request Syntax illustrates only a portion of the request headers.
 
-**Request Parameters**
+Parameters
+~~~~~~~~~~
 
-The PUT Bucket Versioning operation does not use Request Parameters.
+The PUT Bucket Versioning operation does not use request parameters.
 
-**Request Headers**
+Headers
+~~~~~~~
 
-Implementation of the PUT Bucket Versioning operation uses only request
+The PUT Bucket Versioning operation uses only request
 headers that are common to all operations (refer to :ref:`Common Request
 Headers`).
 
-**Request Elements**
+Elements
+~~~~~~~~
 
 The PUT Bucket operation can request the following items:
 
-.. tabularcolumns:: X{0.25\textwidth}X{0.15\textwidth}X{0.55\textwidth}
+.. tabularcolumns:: X{0.30\textwidth}X{0.10\textwidth}X{0.55\textwidth}
 .. table::
 
-   +---------------+-----------+---------------------------------------------+
-   | Element       | Type      | Description                                 |
-   +===============+===========+=============================================+
-   | Status        | enum      | Sets the versioning state of the bucket.    |
-   |               |           |                                             |
-   |               |           | Valid Values: Suspended \| Enabled          |
-   |               |           |                                             |
-   |               |           | Ancestor: VersioningConfiguration           |
-   +---------------+-----------+---------------------------------------------+
-   | Versioning\   | container | Container for setting the versioning state. |
-   | Configuration |           |                                             | 
-   |               |           | Children: Status                            |
-   |               |           |                                             |
-   |               |           | Ancestor: none                              |
-   +---------------+-----------+---------------------------------------------+
+   +-----------------------------+-----------+---------------------------------------------+
+   | Element                     | Type      | Description                                 |
+   +=============================+===========+=============================================+
+   | ``Status``                  | enum      | Sets the versioning state of the bucket.    |
+   |                             |           |                                             |
+   |                             |           | **Valid Values:** Suspended \| Enabled      |
+   |                             |           |                                             |
+   |                             |           | **Ancestor:** VersioningConfiguration       |
+   +-----------------------------+-----------+---------------------------------------------+
+   | ``VersioningConfiguration`` | container | Container for setting the versioning state  |
+   |                             |           |                                             | 
+   |                             |           | **Children:** Status                        |
+   |                             |           |                                             |
+   |                             |           | **Ancestor:** none                          |
+   +-----------------------------+-----------+---------------------------------------------+
 
 Responses
 ---------
 
-**Response Headers**
+Headers
+~~~~~~~
 
-Implementation of the PUT Bucket Versioning operation uses only response
+The PUT Bucket Versioning operation uses only response
 headers that are common to all operations (refer to :ref:`Common Response Headers`).
 
-**Response Elements**
+Elements
+~~~~~~~~
 
 The PUT Bucket Versioning operation does not return response elements.
 
 Examples
 --------
 
-**Enabling Versioning for a Specified Bucket**
+Enabling Versioning for a Specified Bucket
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-*Request Sample*
+Request
+```````
 
 .. code::
 
@@ -102,7 +110,8 @@ Examples
    <Status>Enabled</Status>
    </VersioningConfiguration>
 
-*Response Sample*
+Response
+````````
 
 .. code::
 
@@ -111,9 +120,11 @@ Examples
    x-amz-request-id: 236A8905248E5A01
    Date: Wed, 01 Mar  2006 12:00:00 GMT
 
-**Suspending Versioning for a Specified Bucket**
+Suspending Versioning for a Specified Bucket
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-*Request Sample*
+Request
+```````
 
 .. code::
 
@@ -128,7 +139,8 @@ Examples
    <Status>Suspended</Status>
    </VersioningConfiguration>
 
-*Response Sample*
+Response
+````````
 
 .. code::
 

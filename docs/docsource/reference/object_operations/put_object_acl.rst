@@ -3,38 +3,38 @@
 PUT Object ACL
 ==============
 
-The PUT Object ACL operation uses the acl subresource to set the access
-control list (ACL) permissions for an object that exists in a storage
-system bucket. This operation requires WRITE_ACP permission for the
-object.
+The PUT Object ACL operation uses the acl subresource to set the access control
+list (ACL) permissions for an object that exists in a storage system bucket. 
+This operation requires WRITE_ACP permission for the object.
 
 .. note::
 
-  WRITE_ACP access is required to set the ACL of an object.
+   WRITE_ACP access is required to set the ACL of an object.
 
 Object permissions are set using one of the following two methods:
 
 -  Specifying the ACL in the request body
 -  Specifying permissions using request headers
 
-Depending on the needs of the application, the ACL may be set on an
-object using either the request body or the headers.
+Depending on the needs of the application, the ACL may be set on an object using
+either the request body or the headers.
 
 .. warning::
 
-  Access permission cannot be specified using both the request body and
-  the request headers.
+   Access permission cannot be specified using both the request body and the
+   request headers.
 
-The ACL of an object is set at the object version level. By default, PUT
-sets the ACL of the current version of an object. To set the ACL of a
-different version, use the versionId subresource.
+The ACL of an object is set at the object version level. By default, PUT sets
+the ACL of the current version of an object. To set the ACL of a different
+version, use the versionId subresource.
 
 Requests
 --------
 
-**Request Syntax**
+Syntax
+~~~~~~
 
-The Request Syntax that follows is for sending the ACL in the request
+The request syntax that follows is for sending the ACL in the request
 body. If headers are used to specify the permissions for the object, the
 ACL cannot be sent in the request body (refer to :ref:`Common Request Headers` for a list of available headers).
 
@@ -64,11 +64,13 @@ ACL cannot be sent in the request body (refer to :ref:`Common Request Headers` f
      </AccessControlList>
    </AccessControlPolicy>
 
-**Request Parameters**
+Parameters
+~~~~~~~~~~
 
 The PUT Object ACL operation does not use Request Parameters.
 
-**Request Headers**
+Headers
+~~~~~~~
 
 The PUT Object ACL operation can use a number of optional request
 headers in addition to those that are common to all operations (refer to
@@ -76,7 +78,8 @@ headers in addition to those that are common to all operations (refer to
 either to specify a predefined—or *canned*—ACL, or to explicitly specify
 grantee permissions.
 
-*Specifying a Canned ACL*
+Specifying a Canned ACL
+-----------------------
 
 Zenko supports a set of canned ACLs, each of which has a predefined set of
 grantees and permissions.
@@ -92,23 +95,24 @@ header and specify the canned ACL name as its value.
 .. tabularcolumns:: X{0.15\textwidth}X{0.10\textwidth}X{0.70\textwidth}
 .. table::
 
-   +-----------+--------+------------------------------------------------------+
-   | Header    | Type   | Description                                          |
-   +===========+========+======================================================+
-   | x-amz-acl | string | Sets the ACL of the object using the specified       |
-   |           |        | canned ACL.                                          |
-   |           |        |                                                      |
-   |           |        | Default: ``private``                                 |
-   |           |        |                                                      |
-   |           |        | Valid Values: ``private`` \| ``public-read`` \|      |
-   |           |        | ``public-read-write`` \| ``authenticated-read`` \|   |
-   |           |        | ``bucket-owner-read`` \| ``bucket-owner-full-        |
-   |           |        | control``                                            |
-   |           |        |                                                      |
-   |           |        | Constraints: None                                    |
-   +-----------+--------+------------------------------------------------------+
+   +---------------+--------+------------------------------------------------------+
+   | Header        | Type   | Description                                          |
+   +===============+========+======================================================+
+   | ``x-amz-acl`` | string | Sets the ACL of the object using the specified       |
+   |               |        | canned ACL.                                          |
+   |               |        |                                                      |
+   |               |        | **Default:** ``private``                             |
+   |               |        |                                                      |
+   |               |        | **Valid Values:** ``private`` \| ``public-read`` \|  |
+   |               |        | ``public-read-write`` \| ``authenticated-read`` \|   |
+   |               |        | ``bucket-owner-read`` \| ``bucket-owner-full-        |
+   |               |        | control``                                            |
+   |               |        |                                                      |
+   |               |        | **Constraints:** None                                |
+   +---------------+--------+------------------------------------------------------+
 
-*Explicitly Specifying Grantee Access Permissions*
+Explicitly Specifying Grantee Access Permissions
+------------------------------------------------
 
 A set of x-amz-grant-permission headers is available for explicitly
 granting individualized object access permissions to specific Zenko accounts
@@ -124,37 +128,37 @@ or groups.
 .. tabularcolumns:: X{0.30\textwidth}X{0.10\textwidth}X{0.55\textwidth}
 .. table::
 
-   +--------------------------+--------+---------------------------------------+
-   | Header                   | Type   | Description                           |
-   +==========================+========+=======================================+
-   | x-amz-grant-read         | string | Allows grantee to read the object     |
-   |                          |        | data and its metadata                 |
-   |                          |        |                                       |
-   |                          |        | Default: None                         |
-   |                          |        |                                       |
-   |                          |        | Constraints: None                     |
-   +--------------------------+--------+---------------------------------------+
-   | x-amz-grant-read-acp     | string | Allows grantee to read the object ACL |
-   |                          |        |                                       |
-   |                          |        | Default: None                         |
-   |                          |        |                                       |
-   |                          |        | Constraints: None                     |
-   +--------------------------+--------+---------------------------------------+
-   | x-amz-grant-write-acp    | string | Allows grantee to write the ACL for   |
-   |                          |        | the applicable object                 |
-   |                          |        |                                       |
-   |                          |        | Default: None                         |
-   |                          |        |                                       |
-   |                          |        | Constraints: None                     |
-   +--------------------------+--------+---------------------------------------+
-   | x-amz-grant-full-control | string | Allows grantee the  READ, READ_ACP,   |
-   |                          |        | and WRITE_ACP permissions on the      |
-   |                          |        | object                                |
-   |                          |        |                                       |
-   |                          |        | Default: None                         |
-   |                          |        |                                       |
-   |                          |        | Constraints: None                     |
-   +--------------------------+--------+---------------------------------------+
+   +------------------------------+--------+---------------------------------------+
+   | Header                       | Type   | Description                           |
+   +==============================+========+=======================================+
+   | ``x-amz-grant-read``         | string | Allows grantee to read the object     |
+   |                              |        | data and its metadata                 |
+   |                              |        |                                       |
+   |                              |        | **Default:** None                     |
+   |                              |        |                                       |
+   |                              |        | **Constraints:** None                 |
+   +------------------------------+--------+---------------------------------------+
+   | ``x-amz-grant-read-acp``     | string | Allows grantee to read the object ACL |
+   |                              |        |                                       |
+   |                              |        | **Default:** None                     |
+   |                              |        |                                       |
+   |                              |        | **Constraints:** None                 |
+   +------------------------------+--------+---------------------------------------+
+   | ``x-amz-grant-write-acp``    | string | Allows grantee to write the ACL for   |
+   |                              |        | the applicable object                 |
+   |                              |        |                                       |
+   |                              |        | **Default:** None                     |
+   |                              |        |                                       |
+   |                              |        | **Constraints:** None                 |
+   +------------------------------+--------+---------------------------------------+
+   | ``x-amz-grant-full-control`` | string | Allows grantee the  READ, READ_ACP,   |
+   |                              |        | and WRITE_ACP permissions on the      |
+   |                              |        | object                                |
+   |                              |        |                                       |
+   |                              |        | **Default:** None                     |
+   |                              |        |                                       |
+   |                              |        | **Constraints:** None                 |
+   +------------------------------+--------+---------------------------------------+
 
 For each header, the value is a comma-separated list of one or more
 grantees. Each grantee is specified as a ``type=value`` pair, where the
@@ -170,9 +174,10 @@ permission to two accounts identified by their email addresses:
 
 .. code::
 
-   x-amz-grant-read:  emailAddress="xyz@scality.com", emailAddress="abc@scality.com"
+   x-amz-grant-read:  emailAddress="xyz@example.com", emailAddress="abc@example.com"
 
-**Request Elements**
+Request Elements
+~~~~~~~~~~~~~~~~
 
 If the request body is used to specify an ACL, the following elements
 must be used.
@@ -180,39 +185,40 @@ must be used.
 .. tabularcolumns:: X{0.25\textwidth}X{0.10\textwidth}X{0.60\textwidth}
 .. table::
 
-   +---------------------+-----------+-----------------------------------------+
-   | Element             | Type      | Description                             |
-   +=====================+===========+=========================================+
-   | AccessControlList   | container | Container for Grant, Grantee, and       |
-   |                     |           | Permission                              |
-   +---------------------+-----------+-----------------------------------------+
-   | AccessControlPolicy | string    | Contains the elements that set the ACL  |
-   |                     |           | permissions for an object per grantee   |
-   +---------------------+-----------+-----------------------------------------+
-   | DisplayName         | string    | Screen name of the bucket owner         |
-   +---------------------+-----------+-----------------------------------------+
-   | Grant               | container | Container for the grantee and his or    |
-   |                     |           | her permissions                         |
-   +---------------------+-----------+-----------------------------------------+
-   | Grantee             | string    | The subject whose permissions are being |
-   |                     |           | set                                     |
-   +---------------------+-----------+-----------------------------------------+
-   | ID                  | string    | ID of the bucket owner, or the ID of    |
-   |                     |           | the grantee                             |
-   +---------------------+-----------+-----------------------------------------+
-   | Owner               | container | Container for the bucket owner’s        |
-   |                     |           | display name and ID                     |
-   +---------------------+-----------+-----------------------------------------+
-   | Permission          | string    | Specifies the permission given to the   |
-   |                     |           | the grantee                             |
-   +---------------------+-----------+-----------------------------------------+
+   +-------------------------+-----------+-----------------------------------------+
+   | Element                 | Type      | Description                             |
+   +=========================+===========+=========================================+
+   | ``AccessControlList``   | container | Container for Grant, Grantee, and       |
+   |                         |           | Permission                              |
+   +-------------------------+-----------+-----------------------------------------+
+   | ``AccessControlPolicy`` | string    | Contains the elements that set the ACL  |
+   |                         |           | permissions for an object per grantee   |
+   +-------------------------+-----------+-----------------------------------------+
+   | ``DisplayName``         | string    | Screen name of the bucket owner         |
+   +-------------------------+-----------+-----------------------------------------+
+   | ``Grant``               | container | Container for the grantee and his or    |
+   |                         |           | her permissions                         |
+   +-------------------------+-----------+-----------------------------------------+
+   | ``Grantee``             | string    | The subject whose permissions are being |
+   |                         |           | set                                     |
+   +-------------------------+-----------+-----------------------------------------+
+   | ``ID``                  | string    | ID of the bucket owner, or the ID of    |
+   |                         |           | the grantee                             |
+   +-------------------------+-----------+-----------------------------------------+
+   | ``Owner``               | container | Container for the bucket owner’s        |
+   |                         |           | display name and ID                     |
+   +-------------------------+-----------+-----------------------------------------+
+   | ``Permission``          | string    | Specifies the permission given to the   |
+   |                         |           | the grantee                             |
+   +-------------------------+-----------+-----------------------------------------+
 
 .. note::
 
   If the request body is requested, the request headers cannot be used to
   set an ACL.
 
-*Grantee Values*
+Grantee Values
+--------------
 
 Specify the person (grantee) to whom access rights are being assigned
 (using request elements):
@@ -239,62 +245,66 @@ Specify the person (grantee) to whom access rights are being assigned
 
    .. code::
 
-      <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="Group"><URI>{{http://acs.s3.scality.com/groups/global/AuthenticatedUsers}}</URI></Grantee>
+      <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="Group"><URI>{{http://acs.example.com/groups/global/AuthenticatedUsers}}</URI></Grantee>
 
 Responses
 ---------
 
-**Response Headers**
+Headers
+~~~~~~~
 
-Implementation of the PUT Object ACL operation can include the following
+The PUT Object ACL operation can include the following
 response header in addition to the response headers common to all
 responses (refer to :ref:`Common Response Headers`).
 
 .. tabularcolumns:: X{0.20\textwidth}X{0.10\textwidth}X{0.65\textwidth}
 .. table::
 
-   +------------------+--------+-----------------------------------------------+
-   | Header           | Type   | Description                                   |
-   +==================+========+===============================================+
-   | x-amz-version-id | string | Returns the version  ID of the retrieved      |
-   |                  |        | object if it has a unique version ID.         |
-   |                  |        |                                               |
-   |                  |        | Default: None                                 |
-   +------------------+--------+-----------------------------------------------+
+   +----------------------+--------+-----------------------------------------------+
+   | Header               | Type   | Description                                   |
+   +======================+========+===============================================+
+   | ``x-amz-version-id`` | string | Returns the version  ID of the retrieved      |
+   |                      |        | object if it has a unique version ID.         |
+   |                      |        |                                               |
+   |                      |        | **Default:** None                             |
+   +----------------------+--------+-----------------------------------------------+
 
-**Response Elements**
+Elements
+~~~~~~~~
 
 The PUT Object ACL operation does not return response elements.
 
 Examples
 --------
 
-**Grant Access Permission to an Existing Object**
+Grant Access Permission to an Existing Object
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The request sample grants access permission to an existing object,
 specifying the ACL in the body. In addition to granting full control to
 the object owner, the XML specifies full control to an account
 identified by its canonical user ID.
 
-*Request Sample*
+Request Sample
+^^^^^^^^^^^^^^
 
 .. code::
 
    PUT /my-document.pdf?acl HTTP/1.1
-   Host: {{bucketName}}.s3.scality.com
+   Host: {{bucketName}}.example.com
    Date: Wed, 28 Oct 2009 22:32:00 GMT
    Authorization: {{authorizationString}}
    Content-Length: 124
 
    <AccessControlPolicy>
      <Owner>
-       <ID>75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a</ID>
+       <ID>8b27d4b0fc460740425b9deef56fa1af6245fbcccdda813b691a8fda9be8ff0c</ID>
        <DisplayName>{{customersName}}@scality.com</DisplayName>
      </Owner>
      <AccessControlList>
        <Grant>
          <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CanonicalUser">
-           <ID>75aa57f09aa0c8caeab4f8c24e99d10f8e7faeeExampleCanonicalUserID</ID>
+           <ID>8b27d4b0fc460740425b9deef56fa1af6245fbcExampleCanonicalUserID</ID>
            <DisplayName>{{customersName}}@scality.com</DisplayName>
          </Grantee>
          <Permission>FULL_CONTROL</Permission>
@@ -302,7 +312,8 @@ identified by its canonical user ID.
      </AccessControlList>
    </AccessControlPolicy>
 
-*Response Sample*
+Response Sample
+^^^^^^^^^^^^^^^
 
 .. code::
 
@@ -317,37 +328,40 @@ identified by its canonical user ID.
    Server: ScalityS3
    Setting the AC
 
-**Setting the ACL of a Specified Object Version**
+Setting the ACL of a Specified Object Version
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The request sample sets the ACL on the specified version of the object.
 
-*Request Sample*
+Request Sample
+^^^^^^^^^^^^^^
 
 .. code::
 
    PUT /my-document.pdf?acl&amp;versionId=3HL4kqtJlcpXroDTDmJ+rmSpXd3dIbrHY+MTRCxf3vjVBH40Nrjfkd HTTP/1.1
-   Host: {{bucketName}}.s3.scality.com
+   Host: {{bucketName}}.example.com
    Date: Wed, 28 Oct 2009 22:32:00 GMT
    Authorization: {{authorizationString}}
    Content-Length: 124
 
    <AccessControlPolicy>
      <Owner>
-       <ID>75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a</ID>
-       <DisplayName>mtd@scality.com</DisplayName>
+       <ID>8b27d4b0fc460740425b9deef56fa1af6245fbcccdda813b691a8fda9be8ff0c</ID>
+       <DisplayName>user@example.com</DisplayName>
      </Owner>
      <AccessControlList>
        <Grant>
          <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CanonicalUser">
-           <ID>75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a</ID>
-           <DisplayName>mtd@scality.com</DisplayName>
+           <ID>8b27d4b0fc460740425b9deef56fa1af6245fbcccdda813b691a8fda9be8ff0c</ID>
+           <DisplayName>user@example.com</DisplayName>
          </Grantee>
          <Permission>FULL_CONTROL</Permission>
        </Grant>
      </AccessControlList>
    </AccessControlPolicy>
 
-*Response Sample*
+Response Sample
+^^^^^^^^^^^^^^^
 
 .. code::
 
@@ -361,25 +375,28 @@ The request sample sets the ACL on the specified version of the object.
    Connection: close
    Server: ScalityS3
 
-**Access Permissions Specified Using Headers**
+Access Permissions Specified Using Headers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The request sample uses ACL-specific request header x-amz-acl, and
 specifies a canned ACL (``public_read``) to grant object read access to
 everyone.
 
-*Request Sample*
+Request Sample
+^^^^^^^^^^^^^^
 
 .. code::
 
    PUT ExampleObject.txt?acl HTTP/1.1
-   Host: {{bucketName}}.s3.scality.com
+   Host: {{bucketName}}.example.com
    x-amz-acl: public-read
    Accept: */*
    Authorization: {{authorizationString}}
-   Host: s3.scality.com
+   Host: example.com
    Connection: Keep-Alive
 
-*Response Sample*
+Response Sample
+^^^^^^^^^^^^^^^
 
 .. code::
 
