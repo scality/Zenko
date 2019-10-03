@@ -29,7 +29,7 @@ configMap:
       database: "metadata"
       # params: "--authenticationDatabase admin"
     scheduler:
-      cron: "0 5 * * *"
+      cron: "0 12 * * *"
       retention: 7
       timeout: 60
     ## If you want mongo DB backups to be stored in the cloud,

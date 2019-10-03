@@ -116,3 +116,12 @@ mgob:
       - ReadWriteOnce
     size: 10Gi
     annotations: {}
+
+burry:
+  persistentVolume:
+    enabled: true
+    storageClass: null
+    accessModes:
+      - ReadWriteOnce
+    size: 1Gi
+    annotations: {}

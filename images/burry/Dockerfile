@@ -10,5 +10,8 @@ RUN apk add --no-cache git upx \
 FROM alpine:3.7
 COPY --from=0 /go/src/github.com/mhausenblas/burry.sh/burry.sh /usr/local/bin/burry
 
+VOLUME ["/workdir"]
+
+WORKDIR /workdir
+
 ENTRYPOINT [ "/usr/local/bin/burry" ]
-CMD [ "--help" ]
