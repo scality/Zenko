@@ -10,7 +10,8 @@ permission.
 Requests
 --------
 
-**Request Syntax**
+Syntax
+~~~~~~
 
 .. code::
 
@@ -24,28 +25,33 @@ Requests
 
   The Request Syntax illustrates only a portion of the request headers.
 
-**Request Parameters**
+Parameters
+~~~~~~~~~~
 
 The GET Bucket Website operation does not use Request Parameters.
 
-**Request Headers**
+Headers
+~~~~~~~
 
 The GET Bucket Website operation uses only request headers that are
 common to all operations (refer to :ref:`Common Request Headers`).
 
-**Request Elements**
+Elements
+~~~~~~~~
 
 This operation does not use request elements.
 
 Responses
 ---------
 
-**Response Headers**
+Headers
+~~~~~~~
 
-Implementation of the GET Bucket Website operation uses only response
+The GET Bucket Website operation uses only response
 headers that are common to all operations (refer to :ref:`Common Response Headers`).
 
-**Response Elements**
+Elements
+~~~~~~~~
 
 The PUT Bucket Website response XML includes same elements that were
 uploaded when you configured the bucket as website. For more
@@ -54,7 +60,8 @@ information, refer to :ref:`PUT Bucket Website`.
 Examples
 --------
 
-*Request Sample*
+Request
+~~~~~~~
 
 .. code::
 
@@ -63,7 +70,8 @@ Examples
    Date: Mon, 15 Feb 2016 15:30:07 GMT
    Authorization: {{authenticationInformation}}
 
-*Response Sample*
+Response
+~~~~~~~~
 
 .. code::
 

@@ -59,42 +59,39 @@ Elements
    +-----------------------+-----------------------+-----------------------+
    | Element               | Type                  | Description           |
    +=======================+=======================+=======================+
-   | CORSConfiguration     | Container             | Container for up to   |
+   | ``CORSConfiguration`` | Container             | Container for up to   |
    |                       |                       | 100 CORSRules         |
    |                       |                       | elements.             |
    |                       |                       |                       |
-   |                       |                       | Ancestors: None       |
+   |                       |                       | **Ancestors:** None   |
    +-----------------------+-----------------------+-----------------------+
-   | CORSRule              | Container             | A set of origins and  |
+   | ``CORSRule``          | Container             | A set of origins and  |
    |                       |                       | methods (cross-origin |
    |                       |                       | the access to allow). |
    |                       |                       | Up to 100 rules can   |
    |                       |                       | be added to the       |
    |                       |                       | configuration.        |
    |                       |                       |                       |
-   |                       |                       | Ancestors:            |
+   |                       |                       | **Ancestors:**        |
    |                       |                       | CORSConfiguration     |
    |                       |                       |                       |
-   |                       |                       | Children:             |
+   |                       |                       | **Children:**         |
    |                       |                       | AllowedOrigin,        |
    |                       |                       | AllowedMethod,        |
    |                       |                       | MaxAgeSeconds,        |
    |                       |                       | ExposeHeader, ID.     |
-   |                       |                       |                       |
-   |                       |                       | Ancestor:             |
-   |                       |                       | CORSConfiguration     |
    +-----------------------+-----------------------+-----------------------+
-   | AllowedHeader         | Integer               | Specifies which       |
+   | ``AllowedHeader``     | Integer               | Specifies which       |
    |                       |                       | headers are allowed   |
    |                       |                       | in a pre-flight       |
    |                       |                       | OPTIONS request       |
    |                       |                       | through the           |
-   |                       |                       | Access-Control-Reques |
-   |                       |                       | t-Headers             |
+   |                       |                       | Access-Control-\      |
+   |                       |                       | Request-Headers       |
    |                       |                       | header. Each header   |
    |                       |                       | name specified in the |
-   |                       |                       | Access-Control-Reques |
-   |                       |                       | t-Headers             |
+   |                       |                       | Access-Control-\      |
+   |                       |                       | Request-Headers       |
    |                       |                       | must have a           |
    |                       |                       | corresponding entry   |
    |                       |                       | in the rule. Only the |
@@ -110,9 +107,9 @@ Elements
    |                       |                       | MaxAgeSeconds         |
    |                       |                       | element.              |
    |                       |                       |                       |
-   |                       |                       | Ancestor: CORSRule    |
+   |                       |                       | **Ancestor:** CORSRule|
    +-----------------------+-----------------------+-----------------------+
-   | AllowedMethod         | Enum                  | Identifies an HTTP    |
+   | ``AllowedMethod``     | Enum                  | Identifies an HTTP    |
    |                       |                       | method that the       |
    |                       |                       | domain/origin         |
    |                       |                       | specified in the rule |
@@ -124,9 +121,9 @@ Elements
    |                       |                       | AllowedOrigin         |
    |                       |                       | element.              |
    |                       |                       |                       |
-   |                       |                       | Ancestor: CORSRule    |
+   |                       |                       | **Ancestor:** CORSRule|
    +-----------------------+-----------------------+-----------------------+
-   | AllowedOrigin         | String                | One or more response  |
+   | ``AllowedOrigin``     | String                | One or more response  |
    |                       |                       | headers that users    |
    |                       |                       | are allowed to access |
    |                       |                       | from their            |
@@ -140,20 +137,20 @@ Elements
    |                       |                       | AllowedOrigin         |
    |                       |                       | element. The string   |
    |                       |                       | value can include at  |
-   |                       |                       | most one “*” wildcard |
+   |                       |                       | most one “\*” wildcard|
    |                       |                       | character, for        |
    |                       |                       | example,              |
-   |                       |                       | “http://*.example.com |
-   |                       |                       | ”.                    |
+   |                       |                       | “\http://\*.example.\ |
+   |                       |                       | com”.                 |
    |                       |                       | Also, it is possible  |
    |                       |                       | to specify only “*”   |
    |                       |                       | to allow cross-origin |
    |                       |                       | access for all        |
    |                       |                       | domains/origins.      |
    |                       |                       |                       |
-   |                       |                       | Ancestor: CORSRule    |
+   |                       |                       | **Ancestor:** CORSRule|
    +-----------------------+-----------------------+-----------------------+
-   | ExposeHeader          | String                | One or more headers   |
+   | ``ExposeHeader``      | String                | One or more headers   |
    |                       |                       | in the response that  |
    |                       |                       | users can access from |
    |                       |                       | their applications    |
@@ -164,9 +161,9 @@ Elements
    |                       |                       | ExposeHeader in the   |
    |                       |                       | rule for each header. |
    |                       |                       |                       |
-   |                       |                       | Ancestor: CORSRule    |
+   |                       |                       | **Ancestor:** CORSRule|
    +-----------------------+-----------------------+-----------------------+
-   | ID                    | String                | An optional unique    |
+   | ``ID``                | String                | An optional unique    |
    |                       |                       | identifier for the    |
    |                       |                       | rule. The ID value    |
    |                       |                       | can be up to 255      |
@@ -175,9 +172,9 @@ Elements
    |                       |                       | finding a rule in the |
    |                       |                       | configuration.        |
    |                       |                       |                       |
-   |                       |                       | Ancestor: CORSRule    |
+   |                       |                       | **Ancestor:** CORSRule|
    +-----------------------+-----------------------+-----------------------+
-   | MaxAgeSeconds         | Integer               | The time in seconds   |
+   | ``MaxAgeSeconds``     | Integer               | The time in seconds   |
    |                       |                       | that thse browser is  |
    |                       |                       | to cache the          |
    |                       |                       | preflight response    |
@@ -187,7 +184,7 @@ Elements
    |                       |                       | MaxAgeSeconds         |
    |                       |                       | element.              |
    |                       |                       |                       |
-   |                       |                       | Ancestor: CORSRule    |
+   |                       |                       | **Ancestor:** CORSRule|
    +-----------------------+-----------------------+-----------------------+
 
 Examples
