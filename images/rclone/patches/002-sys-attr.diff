@@ -1,5 +1,5 @@
 diff --git a/backend/amazonclouddrive/amazonclouddrive.go b/backend/amazonclouddrive/amazonclouddrive.go
-index 12858a20..292045be 100644
+index 12858a20e..7d16ba4e5 100644
 --- a/backend/amazonclouddrive/amazonclouddrive.go
 +++ b/backend/amazonclouddrive/amazonclouddrive.go
 @@ -1017,6 +1017,16 @@ func (o *Object) Size() int64 {
@@ -7,7 +7,7 @@ index 12858a20..292045be 100644
  }
  
 +// Meta returns the meta of the file
-+func (o *Object) Meta() map[string]string {
++func (o *Object)  Meta() map[string]*string {
 +	return nil
 +}
 +
@@ -26,7 +26,7 @@ index 12858a20..292045be 100644
 -// SetModTime sets the modification time of the local fs object
 -func (o *Object) SetModTime(modTime time.Time) error {
 +// SetMeta sets the modification time of the local fs object
-+func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]string) error {
++func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]*string) error {
  	// FIXME not implemented
 -	return fs.ErrorCantSetModTime
 +	return fs.ErrorCantSetMeta
@@ -34,7 +34,7 @@ index 12858a20..292045be 100644
  
  // Storable returns a boolean showing whether this object storable
 diff --git a/backend/azureblob/azureblob.go b/backend/azureblob/azureblob.go
-index 9f71653f..bf99351d 100644
+index 28d6d6ff1..2037779fe 100644
 --- a/backend/azureblob/azureblob.go
 +++ b/backend/azureblob/azureblob.go
 @@ -899,6 +899,16 @@ func (o *Object) Size() int64 {
@@ -42,7 +42,7 @@ index 9f71653f..bf99351d 100644
  }
  
 +// Meta returns the meta of the file
-+func (o *Object) Meta() map[string]string {
++func (o *Object) Meta() map[string]*string {
 +	return nil
 +}
 +
@@ -61,12 +61,12 @@ index 9f71653f..bf99351d 100644
 -// SetModTime sets the modification time of the local fs object
 -func (o *Object) SetModTime(modTime time.Time) error {
 +// SetMeta sets the modification time of the local fs object
-+func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]string) error {
++func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]*string) error {
  	// Make sure o.meta is not nil
  	if o.meta == nil {
  		o.meta = make(map[string]string, 1)
 diff --git a/backend/b2/b2.go b/backend/b2/b2.go
-index 77c2c527..04f580e7 100644
+index 77c2c5277..11bec7406 100644
 --- a/backend/b2/b2.go
 +++ b/backend/b2/b2.go
 @@ -1079,6 +1079,16 @@ func (o *Object) Size() int64 {
@@ -74,7 +74,7 @@ index 77c2c527..04f580e7 100644
  }
  
 +// Meta returns the meta of the file
-+func (o *Object) Meta() map[string]string {
++func (o *Object) Meta() map[string]*string {
 +	return nil
 +}
 +
@@ -93,7 +93,7 @@ index 77c2c527..04f580e7 100644
 -// SetModTime sets the modification time of the local fs object
 -func (o *Object) SetModTime(modTime time.Time) error {
 +// SetMeta sets the modification time of the local fs object
-+func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]string) error {
++func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]*string) error {
  	// Not possible with B2
 -	return fs.ErrorCantSetModTime
 +	return fs.ErrorCantSetMeta
@@ -101,7 +101,7 @@ index 77c2c527..04f580e7 100644
  
  // Storable returns if this object is storable
 diff --git a/backend/box/box.go b/backend/box/box.go
-index 1837339a..40c42118 100644
+index 1837339aa..e4ade0b52 100644
 --- a/backend/box/box.go
 +++ b/backend/box/box.go
 @@ -945,6 +945,16 @@ func (o *Object) Size() int64 {
@@ -109,7 +109,7 @@ index 1837339a..40c42118 100644
  }
  
 +// Meta returns the meta of the file
-+func (o *Object) Meta() map[string]string {
++func (o *Object) Meta() map[string]*string {
 +	return nil
 +}
 +
@@ -128,12 +128,12 @@ index 1837339a..40c42118 100644
 -// SetModTime sets the modification time of the local fs object
 -func (o *Object) SetModTime(modTime time.Time) error {
 +// SetMeta sets the modification time of the local fs object
-+func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]string) error {
++func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]*string) error {
  	info, err := o.setModTime(modTime)
  	if err != nil {
  		return err
 diff --git a/backend/cache/cache_internal_test.go b/backend/cache/cache_internal_test.go
-index 3f0a69f6..c78493f8 100644
+index 3f0a69f63..c78493f86 100644
 --- a/backend/cache/cache_internal_test.go
 +++ b/backend/cache/cache_internal_test.go
 @@ -673,7 +673,7 @@ func TestInternalChangeSeenAfterDirCacheFlush(t *testing.T) {
@@ -155,7 +155,7 @@ index 3f0a69f6..c78493f8 100644
  
  	// get a new instance from the cache
 diff --git a/backend/cache/directory.go b/backend/cache/directory.go
-index 877313d5..7f771517 100644
+index 877313d58..8297195cb 100644
 --- a/backend/cache/directory.go
 +++ b/backend/cache/directory.go
 @@ -17,6 +17,7 @@ type Directory struct {
@@ -181,7 +181,7 @@ index 877313d5..7f771517 100644
  }
  
 +// Meta returns the meta of the file
-+func (d *Directory) Meta() map[string]string {
++func (d *Directory) Meta() map[string]*string {
 +	return nil
 +}
 +
@@ -189,7 +189,7 @@ index 877313d5..7f771517 100644
  func (d *Directory) Items() int64 {
  	return d.CacheItems
 diff --git a/backend/cache/object.go b/backend/cache/object.go
-index d468981c..67442a16 100644
+index d468981c5..7b2117975 100644
 --- a/backend/cache/object.go
 +++ b/backend/cache/object.go
 @@ -28,6 +28,7 @@ type Object struct {
@@ -215,7 +215,7 @@ index d468981c..67442a16 100644
 -// SetModTime sets the ModTime of this object
 -func (o *Object) SetModTime(t time.Time) error {
 +// SetMeta sets the ModTime of this object
-+func (o *Object) SetMeta(t time.Time, t2 time.Time, m map[string]string) error {
++func (o *Object) SetMeta(t time.Time, t2 time.Time, m map[string]*string) error {
  	if err := o.refreshFromSource(false); err != nil {
  		return err
  	}
@@ -233,15 +233,15 @@ index d468981c..67442a16 100644
  	fs.Debugf(o, "updated ModTime: %v", t)
  
 diff --git a/backend/drive/drive.go b/backend/drive/drive.go
-index 46cfd362..db607b0b 100644
+index 5b04ad7fa..851308d54 100644
 --- a/backend/drive/drive.go
 +++ b/backend/drive/drive.go
-@@ -2254,6 +2254,30 @@ func (f *Fs) getRemoteInfo(remote string) (info *drive.File, err error) {
+@@ -2251,6 +2251,30 @@ func (f *Fs) getRemoteInfo(remote string) (info *drive.File, err error) {
  	return
  }
  
 +// Meta returns the meta of the file
-+func (o *baseObject) Meta() map[string]string {
++func (o *baseObject) Meta() map[string]*string {
 +	return nil
 +}
 +
@@ -267,19 +267,19 @@ index 46cfd362..db607b0b 100644
  // getRemoteInfoWithExport returns a drive.File and the export settings for the remote
  func (f *Fs) getRemoteInfoWithExport(remote string) (
  	info *drive.File, extension, exportName, exportMimeType string, isDocument bool, err error) {
-@@ -2305,8 +2329,8 @@ func (o *baseObject) ModTime() time.Time {
+@@ -2302,8 +2326,8 @@ func (o *baseObject) ModTime() time.Time {
  	return modTime
  }
  
 -// SetModTime sets the modification time of the drive fs object
 -func (o *baseObject) SetModTime(modTime time.Time) error {
 +// SetMeta sets the modification time of the drive fs object
-+func (o *baseObject) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]string) error {
++func (o *baseObject) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]*string) error {
  	// New metadata
  	updateInfo := &drive.File{
  		ModifiedTime: modTime.Format(timeFormatOut),
 diff --git a/backend/dropbox/dropbox.go b/backend/dropbox/dropbox.go
-index d6b18fdc..cb11f987 100644
+index d6b18fdcf..c196df016 100644
 --- a/backend/dropbox/dropbox.go
 +++ b/backend/dropbox/dropbox.go
 @@ -892,6 +892,16 @@ func (o *Object) Size() int64 {
@@ -287,7 +287,7 @@ index d6b18fdc..cb11f987 100644
  }
  
 +// Meta returns the meta of the file
-+func (o *Object) Meta() map[string]string {
++func (o *Object) Meta() map[string]*string {
 +	return nil
 +}
 +
@@ -308,7 +308,7 @@ index d6b18fdc..cb11f987 100644
  //
  // Commits the datastore
 -func (o *Object) SetModTime(modTime time.Time) error {
-+func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]string) error {
++func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]*string) error {
  	// Dropbox doesn't have a way of doing this so returning this
  	// error will cause the file to be deleted first then
  	// re-uploaded to set the time.
@@ -318,7 +318,7 @@ index d6b18fdc..cb11f987 100644
  
  // Storable returns whether this object is storable
 diff --git a/backend/ftp/ftp.go b/backend/ftp/ftp.go
-index fafe6b70..716e869e 100644
+index fafe6b702..8563f8aa6 100644
 --- a/backend/ftp/ftp.go
 +++ b/backend/ftp/ftp.go
 @@ -612,13 +612,23 @@ func (o *Object) Size() int64 {
@@ -326,7 +326,7 @@ index fafe6b70..716e869e 100644
  }
  
 +// Meta returns the meta of the file
-+func (o *Object) Meta() map[string]string {
++func (o *Object) Meta() map[string]*string {
 +	return nil
 +}
 +
@@ -343,20 +343,20 @@ index fafe6b70..716e869e 100644
 -// SetModTime sets the modification time of the object
 -func (o *Object) SetModTime(modTime time.Time) error {
 +// SetMeta sets the modification time of the object
-+func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]string) error {
++func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]*string) error {
  	return nil
  }
  
 diff --git a/backend/googlecloudstorage/googlecloudstorage.go b/backend/googlecloudstorage/googlecloudstorage.go
-index 815a4887..1d135c99 100644
+index 2f47d9156..bc783be47 100644
 --- a/backend/googlecloudstorage/googlecloudstorage.go
 +++ b/backend/googlecloudstorage/googlecloudstorage.go
-@@ -807,6 +807,16 @@ func (o *Object) Size() int64 {
+@@ -804,6 +804,16 @@ func (o *Object) Size() int64 {
  	return o.bytes
  }
  
 +// Meta returns the meta of the file
-+func (o *Object) Meta() map[string]string {
++func (o *Object) Meta() map[string]*string {
 +	return nil
 +}
 +
@@ -368,19 +368,19 @@ index 815a4887..1d135c99 100644
  // setMetaData sets the fs data from a storage.Object
  func (o *Object) setMetaData(info *storage.Object) {
  	o.url = info.MediaLink
-@@ -885,8 +895,8 @@ func metadataFromModTime(modTime time.Time) map[string]string {
+@@ -882,8 +892,8 @@ func metadataFromModTime(modTime time.Time) map[string]string {
  	return metadata
  }
  
 -// SetModTime sets the modification time of the local fs object
 -func (o *Object) SetModTime(modTime time.Time) (err error) {
 +// SetMeta sets the modification time of the local fs object
-+func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]string) (err error) {
++func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]*string) (err error) {
  	// This only adds metadata so will perserve other metadata
  	object := storage.Object{
  		Bucket:   o.fs.bucket,
 diff --git a/backend/http/http.go b/backend/http/http.go
-index cb28f25b..70b063e5 100644
+index cb28f25b9..0e0beb19d 100644
 --- a/backend/http/http.go
 +++ b/backend/http/http.go
 @@ -402,6 +402,16 @@ func (o *Object) Size() int64 {
@@ -388,7 +388,7 @@ index cb28f25b..70b063e5 100644
  }
  
 +// Meta returns the meta of the file
-+func (o *Object) Meta() map[string]string {
++func (o *Object) Meta() map[string]*string {
 +	return nil
 +}
 +
@@ -409,12 +409,12 @@ index cb28f25b..70b063e5 100644
  //
  // it also updates the info field
 -func (o *Object) SetModTime(modTime time.Time) error {
-+func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]string) error {
++func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]*string) error {
  	return errorReadOnly
  }
  
 diff --git a/backend/jottacloud/jottacloud.go b/backend/jottacloud/jottacloud.go
-index 36928f4c..2885501a 100644
+index 36928f4c0..02b40be3a 100644
 --- a/backend/jottacloud/jottacloud.go
 +++ b/backend/jottacloud/jottacloud.go
 @@ -888,6 +888,16 @@ func (o *Object) Size() int64 {
@@ -422,7 +422,7 @@ index 36928f4c..2885501a 100644
  }
  
 +// Meta returns the meta of the file
-+func (o *Object) Meta() map[string]string {
++func (o *Object) Meta() map[string]*string {
 +	return nil
 +}
 +
@@ -442,13 +442,13 @@ index 36928f4c..2885501a 100644
 -func (o *Object) SetModTime(modTime time.Time) error {
 -	return fs.ErrorCantSetModTime
 +// SetMeta sets the modification time of the local fs object
-+func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]string) error {
++func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]*string) error {
 +	return fs.ErrorCantSetMeta
  }
  
  // Storable returns a boolean showing whether this object storable
 diff --git a/backend/local/local.go b/backend/local/local.go
-index 5ffee86a..eb1fee08 100644
+index 5ffee86ad..5a868f309 100644
 --- a/backend/local/local.go
 +++ b/backend/local/local.go
 @@ -12,6 +12,7 @@ import (
@@ -467,7 +467,7 @@ index 5ffee86a..eb1fee08 100644
 +	modTime time.Time // Time of last content change
 +	chgTime time.Time // Time of last metadata and attr change
 +	accTime time.Time // Time of last access
-+	meta    map[string]string // The object metadata if known - may be nil
++	meta    map[string]*string // The object metadata if known - may be nil
  	hashes  map[hash.Type]string // Hashes
  }
  
@@ -475,7 +475,7 @@ index 5ffee86a..eb1fee08 100644
  		dstPath = f.cleanPath(filepath.Join(f.root, remote))
  	}
  	remote = f.cleanRemote(remote)
-+	m := map[string]string{}
++	m := map[string]*string{}
  	return &Object{
  		fs:     f,
  		remote: remote,
@@ -489,7 +489,7 @@ index 5ffee86a..eb1fee08 100644
  }
  
 +// Meta returns the meta of the file
-+func (o *Object) Meta() map[string]string {
++func (o *Object) Meta() map[string]*string {
 +	return o.meta
 +}
 +
@@ -506,7 +506,7 @@ index 5ffee86a..eb1fee08 100644
 -// SetModTime sets the modification time of the local fs object
 -func (o *Object) SetModTime(modTime time.Time) error {
 +// SetMeta sets the modification time of the local fs object
-+func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]string) error {
++func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]*string) error {
  	err := os.Chtimes(o.path, modTime, modTime)
  	if err != nil {
  		return err
@@ -551,41 +551,41 @@ index 5ffee86a..eb1fee08 100644
 +	if !o.accTime.Equal(timespecToTime(stat.Atim)) {
 +		o.accTime = timespecToTime(stat.Atim)
 +	}
-+	if o.meta[fs.MetaSize] != fs.Int64ToString(stat.Size) {
-+		o.meta[fs.MetaSize] = fs.Int64ToString(stat.Size)
++	if *o.meta[fs.MetaSize] != fs.Int64ToString(stat.Size) {
++		*o.meta[fs.MetaSize] = fs.Int64ToString(stat.Size)
 +	}
-+	if o.meta[fs.MetaDev] != fs.Uint64ToString(stat.Dev) {
-+		o.meta[fs.MetaDev] = fs.Uint64ToString(stat.Dev)
++	if *o.meta[fs.MetaDev] != fs.Uint64ToString(stat.Dev) {
++		*o.meta[fs.MetaDev] = fs.Uint64ToString(stat.Dev)
 +	}
-+	if o.meta[fs.MetaIno] != fs.Uint64ToString(stat.Ino) {
-+		o.meta[fs.MetaIno] = fs.Uint64ToString(stat.Ino)
++	if *o.meta[fs.MetaIno] != fs.Uint64ToString(stat.Ino) {
++		*o.meta[fs.MetaIno] = fs.Uint64ToString(stat.Ino)
 +	}
-+	if o.meta[fs.MetaNlink] != fs.Uint64ToString(stat.Nlink) {
-+		o.meta[fs.MetaNlink] = fs.Uint64ToString(stat.Nlink)
++	if *o.meta[fs.MetaNlink] != fs.Uint64ToString(stat.Nlink) {
++		*o.meta[fs.MetaNlink] = fs.Uint64ToString(stat.Nlink)
 +	}
-+	if o.meta[fs.MetaMode] != fs.Uint32ToString(stat.Mode) {
-+		o.meta[fs.MetaMode] = fs.Uint32ToString(stat.Mode)
++	if *o.meta[fs.MetaMode] != fs.Uint32ToString(stat.Mode) {
++		*o.meta[fs.MetaMode] = fs.Uint32ToString(stat.Mode)
 +	}
-+	if o.meta[fs.MetaUid] != fs.Uint32ToString(stat.Uid) {
-+		o.meta[fs.MetaUid] = fs.Uint32ToString(stat.Uid)
++	if *o.meta[fs.MetaUid] != fs.Uint32ToString(stat.Uid) {
++		*o.meta[fs.MetaUid] = fs.Uint32ToString(stat.Uid)
 +	}
-+	if o.meta[fs.MetaGid] != fs.Uint32ToString(stat.Gid) {
-+		o.meta[fs.MetaGid] = fs.Uint32ToString(stat.Gid)
++	if *o.meta[fs.MetaGid] != fs.Uint32ToString(stat.Gid) {
++		*o.meta[fs.MetaGid] = fs.Uint32ToString(stat.Gid)
 +	}
-+	if o.meta[fs.MetaRdev] != fs.Uint64ToString(stat.Rdev) {
-+		o.meta[fs.MetaRdev] = fs.Uint64ToString(stat.Rdev)
++	if *o.meta[fs.MetaRdev] != fs.Uint64ToString(stat.Rdev) {
++		*o.meta[fs.MetaRdev] = fs.Uint64ToString(stat.Rdev)
 +	}
-+	if o.meta[fs.MetaBlksize] != fs.Int64ToString(stat.Blksize) {
-+		o.meta[fs.MetaBlksize] = fs.Int64ToString(stat.Blksize)
++	if *o.meta[fs.MetaBlksize] != fs.Int64ToString(stat.Blksize) {
++		*o.meta[fs.MetaBlksize] = fs.Int64ToString(stat.Blksize)
 +	}
-+	if o.meta[fs.MetaBlocks] != fs.Int64ToString(stat.Blocks) {
-+		o.meta[fs.MetaBlocks] = fs.Int64ToString(stat.Blocks)
++	if *o.meta[fs.MetaBlocks] != fs.Int64ToString(stat.Blocks) {
++		*o.meta[fs.MetaBlocks] = fs.Int64ToString(stat.Blocks)
 +	}
  }
  
  // Stat a Object into info
 diff --git a/backend/mega/mega.go b/backend/mega/mega.go
-index 8d31f968..bddcdd80 100644
+index 8d31f9682..d7cb1cc4d 100644
 --- a/backend/mega/mega.go
 +++ b/backend/mega/mega.go
 @@ -909,6 +909,16 @@ func (o *Object) Size() int64 {
@@ -593,7 +593,7 @@ index 8d31f968..bddcdd80 100644
  }
  
 +// Meta returns the meta of the file
-+func (o *Object) Meta() map[string]string {
++func (o *Object) Meta() map[string]*string {
 +	return nil
 +}
 +
@@ -613,13 +613,13 @@ index 8d31f968..bddcdd80 100644
 -func (o *Object) SetModTime(modTime time.Time) error {
 -	return fs.ErrorCantSetModTime
 +// SetMeta sets the modification time of the local fs object
-+func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]string) error {
++func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]*string) error {
 +	return fs.ErrorCantSetMeta
  }
  
  // Storable returns a boolean showing whether this object storable
 diff --git a/backend/onedrive/onedrive.go b/backend/onedrive/onedrive.go
-index 1223be91..47330408 100644
+index 1223be91b..63adc17e4 100644
 --- a/backend/onedrive/onedrive.go
 +++ b/backend/onedrive/onedrive.go
 @@ -901,7 +901,7 @@ func (f *Fs) Copy(src fs.Object, remote string) (fs.Object, error) {
@@ -636,7 +636,7 @@ index 1223be91..47330408 100644
  }
  
 +// Meta returns the meta of the file
-+func (o *Object) Meta() map[string]string {
++func (o *Object) Meta() map[string]*string {
 +	return nil
 +}
 +
@@ -655,12 +655,12 @@ index 1223be91..47330408 100644
 -// SetModTime sets the modification time of the local fs object
 -func (o *Object) SetModTime(modTime time.Time) error {
 +// SetMeta sets the modification time of the local fs object
-+func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]string) error {
++func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]*string) error {
  	info, err := o.setModTime(modTime)
  	if err != nil {
  		return err
 diff --git a/backend/opendrive/opendrive.go b/backend/opendrive/opendrive.go
-index 5cc4897d..96841c8c 100644
+index 5cc4897d3..6304295f3 100644
 --- a/backend/opendrive/opendrive.go
 +++ b/backend/opendrive/opendrive.go
 @@ -837,6 +837,16 @@ func (o *Object) Size() int64 {
@@ -668,7 +668,7 @@ index 5cc4897d..96841c8c 100644
  }
  
 +// Meta returns the meta of the file
-+func (o *Object) Meta() map[string]string {
++func (o *Object) Meta() map[string]*string {
 +	return nil
 +}
 +
@@ -688,7 +688,7 @@ index 5cc4897d..96841c8c 100644
 -func (o *Object) SetModTime(modTime time.Time) error {
 -	// fs.Debugf(nil, "SetModTime(%v)", modTime.String())
 +// SetMeta sets the modification time of the local fs object
-+func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]string) error {
++func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]*string) error {
 +	// fs.Debugf(nil, "SetMeta(%v)", modTime.String())
  	opts := rest.Opts{
  		Method:     "PUT",
@@ -703,7 +703,7 @@ index 5cc4897d..96841c8c 100644
  		return err
  	}
 diff --git a/backend/pcloud/pcloud.go b/backend/pcloud/pcloud.go
-index fdd57b02..a6b13b80 100644
+index fdd57b02b..4e8e6a743 100644
 --- a/backend/pcloud/pcloud.go
 +++ b/backend/pcloud/pcloud.go
 @@ -919,6 +919,16 @@ func (o *Object) Size() int64 {
@@ -711,7 +711,7 @@ index fdd57b02..a6b13b80 100644
  }
  
 +// Meta returns the meta of the file
-+func (o *Object) Meta() map[string]string {
++func (o *Object) Meta() map[string]*string {
 +	return nil
 +}
 +
@@ -730,7 +730,7 @@ index fdd57b02..a6b13b80 100644
 -// SetModTime sets the modification time of the local fs object
 -func (o *Object) SetModTime(modTime time.Time) error {
 +// SetMeta sets the modification time of the local fs object
-+func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]string) error {
++func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]*string) error {
  	// Pcloud doesn't have a way of doing this so returning this
  	// error will cause the file to be re-uploaded to set the time.
 -	return fs.ErrorCantSetModTime
@@ -739,7 +739,7 @@ index fdd57b02..a6b13b80 100644
  
  // Storable returns a boolean showing whether this object storable
 diff --git a/backend/qingstor/qingstor.go b/backend/qingstor/qingstor.go
-index 1438cf61..4de2da69 100644
+index 1438cf616..d1ed93e2e 100644
 --- a/backend/qingstor/qingstor.go
 +++ b/backend/qingstor/qingstor.go
 @@ -842,8 +842,8 @@ func (o *Object) ModTime() time.Time {
@@ -749,7 +749,7 @@ index 1438cf61..4de2da69 100644
 -// SetModTime sets the modification time of the local fs object
 -func (o *Object) SetModTime(modTime time.Time) error {
 +// SetMeta sets the modification time of the local fs object
-+func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]string) error {
++func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]*string) error {
  	err := o.readMetaData()
  	if err != nil {
  		return err
@@ -767,7 +767,7 @@ index 1438cf61..4de2da69 100644
  }
  
 +// Meta returns the meta of the file
-+func (o *Object) Meta() map[string]string {
++func (o *Object) Meta() map[string]*string {
 +	return nil
 +}
 +
@@ -780,10 +780,10 @@ index 1438cf61..4de2da69 100644
  func (o *Object) MimeType() string {
  	err := o.readMetaData()
 diff --git a/backend/s3/s3.go b/backend/s3/s3.go
-index ade20a27..33d51419 100644
+index 246db518f..eb6edd7a1 100644
 --- a/backend/s3/s3.go
 +++ b/backend/s3/s3.go
-@@ -610,6 +610,8 @@ Use this only if v4 signatures don't work, eg pre Jewel/v10 CEPH.`,
+@@ -610,8 +610,11 @@ Use this only if v4 signatures don't work, eg pre Jewel/v10 CEPH.`,
  // Constants
  const (
  	metaMtime      = "Mtime"                       // the meta key to store mtime in - eg X-Amz-Meta-Mtime
@@ -791,14 +791,17 @@ index ade20a27..33d51419 100644
 +	metaAtime      = "Atime"                       // the meta key to store atime in - eg X-Amz-Meta-Atime
  	metaMD5Hash    = "Md5chksum"                   // the meta key to store md5hash in
  	metaSize       = "Size"                        // the meta key to store size in
++	metaVersionId  = "Version-Id"                  // the meta key to store the source version ID
  	metaMdOnly     = "Mdonly"                      // the meta key to specify that a request is metadata-only
-@@ -1394,6 +1396,35 @@ func (o *Object) Size() int64 {
+ 	listChunkSize  = 1000                          // number of items to read at once
+ 	maxRetries     = 10                            // number of retries to make of operations
+@@ -1394,6 +1397,35 @@ func (o *Object) Size() int64 {
  	return o.bytes
  }
  
 +// Meta returns the meta of the file
-+func (o *Object) Meta() map[string]string {
-+	return nil
++func (o *Object) Meta() map[string]*string {
++	return o.meta
 +}
 +
 +// ChgTime returns the change date of the file
@@ -828,14 +831,24 @@ index ade20a27..33d51419 100644
  // readMetaData gets the metadata if it hasn't already been fetched
  //
  // it also sets the info
-@@ -1466,16 +1497,21 @@ func (o *Object) ModTime() time.Time {
+@@ -1429,6 +1461,9 @@ func (o *Object) readMetaData() (err error) {
+ 	o.etag = aws.StringValue(resp.ETag)
+ 	o.bytes = size
+ 	o.meta = resp.Metadata
++	if resp.VersionId != nil {
++		o.meta[metaVersionId] = resp.VersionId
++	}
+ 	if resp.LastModified == nil {
+ 		fs.Logf(o, "Failed to read last modified from HEAD: %v", err)
+ 		o.lastModified = time.Now()
+@@ -1466,16 +1501,21 @@ func (o *Object) ModTime() time.Time {
  	return modTime
  }
  
 -// SetModTime sets the modification time of the local fs object
 -func (o *Object) SetModTime(modTime time.Time) error {
 +// SetMeta sets the modification time of the local fs object
-+func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]string) error {
++func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]*string) error {
  	err := o.readMetaData()
  	if err != nil {
  		return err
@@ -845,7 +858,7 @@ index ade20a27..33d51419 100644
 +	o.meta[metaCtime] = aws.String(swift.TimeToFloatString(chgTime))
 +	if (meta != nil) {
 +		for key, value := range meta {
-+			o.meta[key] = aws.String(value)
++			o.meta[key] = value
 +		}
 +	}
  	if o.bytes >= maxSizeForCopy {
@@ -854,7 +867,7 @@ index ade20a27..33d51419 100644
  		return nil
  	}
  
-@@ -1558,6 +1594,7 @@ func (o *Object) Update(in io.Reader, src fs.ObjectInfo, options ...fs.OpenOptio
+@@ -1558,6 +1598,7 @@ func (o *Object) Update(in io.Reader, src fs.ObjectInfo, options ...fs.OpenOptio
  		return err
  	}
  	modTime := src.ModTime()
@@ -862,7 +875,7 @@ index ade20a27..33d51419 100644
  	size := src.Size()
  
  	uploader := s3manager.NewUploader(o.fs.ses, func(u *s3manager.Uploader) {
-@@ -1582,6 +1619,12 @@ func (o *Object) Update(in io.Reader, src fs.ObjectInfo, options ...fs.OpenOptio
+@@ -1582,16 +1623,19 @@ func (o *Object) Update(in io.Reader, src fs.ObjectInfo, options ...fs.OpenOptio
  	// Set the mtime in the meta data
  	metadata := map[string]*string{
  		metaMtime: aws.String(swift.TimeToFloatString(modTime)),
@@ -870,13 +883,24 @@ index ade20a27..33d51419 100644
 +	}
 +	if (src.Meta() != nil) {
 +		for key, value := range src.Meta() {
-+			metadata[key] = aws.String(value)
++			metadata[key] = value
 +		}
  	}
- 
+-
  	if !o.fs.opt.DisableChecksum && size > uploader.PartSize ||
+ 		fs.Config.MdOnly {
+ 		hash, err := src.Hash(hash.MD5)
+-
+ 		if err == nil && matchMd5.MatchString(hash) ||
+-		    fs.Config.MdOnly{
++		    fs.Config.MdOnly {
+ 			hashBytes, err := hex.DecodeString(hash)
+-
+ 			if err == nil || fs.Config.MdOnly {
+ 				metadata[metaMD5Hash] = aws.String(base64.StdEncoding.EncodeToString(hashBytes))
+ 			}
 diff --git a/backend/sftp/sftp.go b/backend/sftp/sftp.go
-index cfa6d400..18ef9716 100644
+index 0d8ae45e0..cb61ae09d 100644
 --- a/backend/sftp/sftp.go
 +++ b/backend/sftp/sftp.go
 @@ -126,7 +126,7 @@ type Options struct {
@@ -893,7 +917,7 @@ index cfa6d400..18ef9716 100644
  }
  
 +// Meta returns the meta of the file
-+func (o *Object) Meta() map[string]string {
++func (o *Object) Meta() map[string]*string {
 +	return nil
 +}
 +
@@ -914,7 +938,7 @@ index cfa6d400..18ef9716 100644
  //
  // it also updates the info field
 -func (o *Object) SetModTime(modTime time.Time) error {
-+func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]string) error {
++func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]*string) error {
  	c, err := o.fs.getSftpConnection()
  	if err != nil {
 -		return errors.Wrap(err, "SetModTime")
@@ -950,15 +974,15 @@ index cfa6d400..18ef9716 100644
  	return nil
  }
 diff --git a/backend/swift/swift.go b/backend/swift/swift.go
-index 81dc6bbb..6c5f4d76 100644
+index f4d7299ca..878c13f3f 100644
 --- a/backend/swift/swift.go
 +++ b/backend/swift/swift.go
-@@ -876,6 +876,16 @@ func (o *Object) Size() int64 {
+@@ -861,6 +861,16 @@ func (o *Object) Size() int64 {
  	return o.info.Bytes
  }
  
 +// Meta returns the meta of the file
-+func (o *Object) Meta() map[string]string {
++func (o *Object) Meta() map[string]*string {
 +	return nil; // TBD
 +}
 +
@@ -970,19 +994,19 @@ index 81dc6bbb..6c5f4d76 100644
  // readMetaData gets the metadata if it hasn't already been fetched
  //
  // it also sets the info
-@@ -924,8 +934,8 @@ func (o *Object) ModTime() time.Time {
+@@ -909,8 +919,8 @@ func (o *Object) ModTime() time.Time {
  	return modTime
  }
  
 -// SetModTime sets the modification time of the local fs object
 -func (o *Object) SetModTime(modTime time.Time) error {
 +// SetMeta sets the modification time of the local fs object
-+func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, m map[string]string) error {
++func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, m map[string]*string) error {
  	err := o.readMetaData()
  	if err != nil {
  		return err
 diff --git a/backend/webdav/webdav.go b/backend/webdav/webdav.go
-index 8370d790..c30ebdec 100644
+index 8370d7904..4e831eb63 100644
 --- a/backend/webdav/webdav.go
 +++ b/backend/webdav/webdav.go
 @@ -13,7 +13,7 @@ package webdav
@@ -999,7 +1023,7 @@ index 8370d790..c30ebdec 100644
  }
  
 +// Meta returns the meta of the file
-+func (o *Object) Meta() map[string]string {
++func (o *Object) Meta() map[string]*string {
 +	return nil
 +}
 +
@@ -1019,13 +1043,13 @@ index 8370d790..c30ebdec 100644
 -func (o *Object) SetModTime(modTime time.Time) error {
 -	return fs.ErrorCantSetModTime
 +// SetMeta sets the modification time of the local fs object
-+func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]string) error {
++func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]*string) error {
 +	return fs.ErrorCantSetMeta
  }
  
  // Storable returns a boolean showing whether this object storable
 diff --git a/backend/yandex/yandex.go b/backend/yandex/yandex.go
-index f237d683..f607ad2e 100644
+index f237d6834..8a08764fe 100644
 --- a/backend/yandex/yandex.go
 +++ b/backend/yandex/yandex.go
 @@ -937,6 +937,16 @@ func (o *Object) readMetaData() (err error) {
@@ -1033,7 +1057,7 @@ index f237d683..f607ad2e 100644
  }
  
 +// Meta returns the meta of the file
-+func (o *Object) Meta() map[string]string {
++func (o *Object) Meta() map[string]*string {
 +	return nil
 +}
 +
@@ -1054,7 +1078,7 @@ index f237d683..f607ad2e 100644
  //
  // Commits the datastore
 -func (o *Object) SetModTime(modTime time.Time) error {
-+func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]string) error {
++func (o *Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]*string) error {
  	// set custom_property 'rclone_modified' of object to modTime
  	err := o.setCustomProperty("rclone_modified", modTime.Format(time.RFC3339Nano))
  	if err != nil {
@@ -1068,7 +1092,7 @@ index f237d683..f607ad2e 100644
  	return err
  }
 diff --git a/cmd/lsjson/lsjson.go b/cmd/lsjson/lsjson.go
-index c0984816..91a95503 100644
+index c09848166..71dd92193 100644
 --- a/cmd/lsjson/lsjson.go
 +++ b/cmd/lsjson/lsjson.go
 @@ -21,6 +21,7 @@ func init() {
@@ -1097,7 +1121,7 @@ index c0984816..91a95503 100644
  
  The Path field will only show folders below the remote path being listed.
 diff --git a/cmd/touch/touch.go b/cmd/touch/touch.go
-index ce7c45f2..4d73d8d7 100644
+index ce7c45f27..4d73d8d70 100644
 --- a/cmd/touch/touch.go
 +++ b/cmd/touch/touch.go
 @@ -64,7 +64,7 @@ func Touch(fsrc fs.Fs, srcFileName string) error {
@@ -1110,7 +1134,7 @@ index ce7c45f2..4d73d8d7 100644
  		return errors.Wrap(err, "touch: couldn't set mod time")
  	}
 diff --git a/fs/config.go b/fs/config.go
-index 4114aac4..c726ed55 100644
+index 4114aac4c..c726ed556 100644
 --- a/fs/config.go
 +++ b/fs/config.go
 @@ -62,7 +62,7 @@ type ConfigInfo struct {
@@ -1131,7 +1155,7 @@ index 4114aac4..c726ed55 100644
  
  // NewConfig creates a new config with everything set to the default
 diff --git a/fs/config/configflags/configflags.go b/fs/config/configflags/configflags.go
-index ae57fd07..cd5995c8 100644
+index ae57fd076..cd5995c80 100644
 --- a/fs/config/configflags/configflags.go
 +++ b/fs/config/configflags/configflags.go
 @@ -66,7 +66,7 @@ func AddFlags(flagSet *pflag.FlagSet) {
@@ -1152,7 +1176,7 @@ index ae57fd07..cd5995c8 100644
  
  // SetFlags converts any flags into config which weren't straight foward
 diff --git a/fs/dir.go b/fs/dir.go
-index 891dc8d6..9d76eede 100644
+index 891dc8d63..58288a53c 100644
 --- a/fs/dir.go
 +++ b/fs/dir.go
 @@ -6,7 +6,9 @@ import "time"
@@ -1161,7 +1185,7 @@ index 891dc8d6..9d76eede 100644
  	modTime time.Time // modification or creation time - IsZero for unknown
 +	chgTime time.Time // change time - IsZero for unknown
  	size    int64     // size of directory and contents or -1 if unknown
-+	meta    map[string]string // The object metadata if known - may be nil
++	meta    map[string]*string // The object metadata if known - may be nil
  	items   int64     // number of objects or -1 for unknown
  	id      string    // optional ID
  }
@@ -1183,7 +1207,7 @@ index 891dc8d6..9d76eede 100644
  }
  
 +// Meta returns the meta of the file
-+func (d *Dir) Meta() map[string]string {
++func (d *Dir) Meta() map[string]*string {
 +	return d.meta
 +}
 +
@@ -1191,7 +1215,7 @@ index 891dc8d6..9d76eede 100644
  func (d *Dir) SetSize(size int64) *Dir {
  	d.size = size
 diff --git a/fs/fs.go b/fs/fs.go
-index 6a3b3a28..5a6412ed 100644
+index 6a3b3a282..5b3861868 100644
 --- a/fs/fs.go
 +++ b/fs/fs.go
 @@ -48,8 +48,8 @@ var (
@@ -1248,7 +1272,7 @@ index 6a3b3a28..5a6412ed 100644
 -	// SetModTime sets the metadata on the object to set the modification date
 -	SetModTime(time.Time) error
 +	// SetMeta sets the modtime, chgTime and meta key/values on the object
-+	SetMeta(modTime time.Time, chgTime time.Time, meta map[string]string) error
++	SetMeta(modTime time.Time, chgTime time.Time, meta map[string]*string) error
  
  	// Open opens the file for read.  Call Close() on the returned io.ReadCloser
  	Open(options ...OpenOption) (io.ReadCloser, error)
@@ -1263,12 +1287,12 @@ index 6a3b3a28..5a6412ed 100644
  	// Size returns the size of the file
  	Size() int64
 +
-+	Meta() map[string]string
++	Meta() map[string]*string
  }
  
  // Directory is a filesystem like directory provided by an Fs
 diff --git a/fs/list/list_test.go b/fs/list/list_test.go
-index f6d8bdf1..20409c0d 100644
+index f6d8bdf18..234d4df44 100644
 --- a/fs/list/list_test.go
 +++ b/fs/list/list_test.go
 @@ -89,6 +89,8 @@ type unknownDirEntry string
@@ -1276,12 +1300,12 @@ index f6d8bdf1..20409c0d 100644
  func (o unknownDirEntry) Remote() string         { return string(o) }
  func (o unknownDirEntry) ModTime() (t time.Time) { return t }
 +func (o unknownDirEntry) ChgTime() (t time.Time) { return t }
-+func (o unknownDirEntry) Meta() (m map[string]string) { return m }
++func (o unknownDirEntry) Meta() (m map[string]*string) { return m }
  func (o unknownDirEntry) Size() int64            { return 0 }
  
  func TestFilterAndSortUnknown(t *testing.T) {
 diff --git a/fs/object/object.go b/fs/object/object.go
-index e11827b9..c2cf536c 100644
+index e11827b9b..5e74de2f9 100644
 --- a/fs/object/object.go
 +++ b/fs/object/object.go
 @@ -37,6 +37,7 @@ func NewStaticObjectInfo(remote string, modTime time.Time, size int64, storable
@@ -1298,7 +1322,7 @@ index e11827b9..c2cf536c 100644
  func (i *staticObjectInfo) ModTime() time.Time { return i.modTime }
 +func (i *staticObjectInfo) ChgTime() time.Time { return i.chgTime }
  func (i *staticObjectInfo) Size() int64        { return i.size }
-+func (i *staticObjectInfo) Meta() map[string]string { return nil }
++func (i *staticObjectInfo) Meta() map[string]*string { return nil }
  func (i *staticObjectInfo) Storable() bool     { return i.storable }
  func (i *staticObjectInfo) Hash(h hash.Type) (string, error) {
  	if len(i.hashes) == 0 {
@@ -1307,7 +1331,7 @@ index e11827b9..c2cf536c 100644
  	remote  string
  	modTime time.Time
 +	chgTime time.Time
-+	meta    map[string]string
++	meta    map[string]*string
  	content []byte
  }
  
@@ -1326,7 +1350,7 @@ index e11827b9..c2cf536c 100644
  }
  
 +// Meta returns the meta of the file
-+func (o *MemoryObject) Meta() map[string]string {
++func (o *MemoryObject) Meta() map[string]*string {
 +	return nil
 +}
 +
@@ -1340,7 +1364,7 @@ index e11827b9..c2cf536c 100644
 -// SetModTime sets the metadata on the object to set the modification date
 -func (o *MemoryObject) SetModTime(modTime time.Time) error {
 +// SetMeta sets the metadata on the object to set the modification date
-+func (o *MemoryObject) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]string) error {
++func (o *MemoryObject) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]*string) error {
  	o.modTime = modTime
 +	o.chgTime = chgTime
 +	o.meta = meta
@@ -1348,7 +1372,7 @@ index e11827b9..c2cf536c 100644
  }
  
 diff --git a/fs/object/object_test.go b/fs/object/object_test.go
-index cc1a17cc..1d02c724 100644
+index cc1a17cc1..1d02c7247 100644
 --- a/fs/object/object_test.go
 +++ b/fs/object/object_test.go
 @@ -104,7 +104,7 @@ func TestMemoryObject(t *testing.T) {
@@ -1361,7 +1385,7 @@ index cc1a17cc..1d02c724 100644
  	assert.Equal(t, newNow, o.ModTime())
  
 diff --git a/fs/operations/lsjson.go b/fs/operations/lsjson.go
-index 79465ece..b4ea1762 100644
+index 79465eceb..b4ea1762f 100644
 --- a/fs/operations/lsjson.go
 +++ b/fs/operations/lsjson.go
 @@ -40,6 +40,7 @@ func (t Timestamp) MarshalJSON() (out []byte, err error) {
@@ -1373,7 +1397,7 @@ index 79465ece..b4ea1762 100644
  	ShowOrigIDs   bool `json:"showOrigIDs"`
  	ShowHash      bool `json:"showHash"`
 diff --git a/fs/operations/operations.go b/fs/operations/operations.go
-index 39a8c02f..4686c749 100644
+index 39a8c02fb..4686c749e 100644
 --- a/fs/operations/operations.go
 +++ b/fs/operations/operations.go
 @@ -140,14 +140,25 @@ func equal(src fs.ObjectInfo, dst fs.Object, sizeOnly, checkSum bool) bool {
@@ -1436,7 +1460,7 @@ index 39a8c02f..4686c749 100644
  				// put in the BackupDir than deleted which is what will happen if we don't delete it.
  				if fs.Config.BackupDir == "" {
 diff --git a/fs/sync/sync_test.go b/fs/sync/sync_test.go
-index 019b171c..70aeaa51 100644
+index 019b171ca..70aeaa518 100644
 --- a/fs/sync/sync_test.go
 +++ b/fs/sync/sync_test.go
 @@ -449,9 +449,9 @@ func TestSyncAfterChangingModtimeOnlyWithNoUpdateModTime(t *testing.T) {
@@ -1452,7 +1476,7 @@ index 019b171c..70aeaa51 100644
  
  	file1 := r.WriteFile("empty space", "", t2)
 diff --git a/fstest/fstests/fstests.go b/fstest/fstests/fstests.go
-index 8d0f587e..70823525 100644
+index 8d0f587e1..708235257 100644
 --- a/fstest/fstests/fstests.go
 +++ b/fstest/fstests/fstests.go
 @@ -1222,6 +1222,46 @@ func Run(t *testing.T, opt *Opt) {
@@ -1503,7 +1527,7 @@ index 8d0f587e..70823525 100644
  			t.Run("ObjectStorable", func(t *testing.T) {
  				skipIfNotOk(t)
 diff --git a/fstest/mockobject/mockobject.go b/fstest/mockobject/mockobject.go
-index afeaad8a..75ae8618 100644
+index afeaad8ab..6956982fd 100644
 --- a/fstest/mockobject/mockobject.go
 +++ b/fstest/mockobject/mockobject.go
 @@ -49,6 +49,14 @@ func (o Object) ModTime() (t time.Time) {
@@ -1514,7 +1538,7 @@ index afeaad8a..75ae8618 100644
 +	return t
 +}
 +
-+func (o Object) Meta() (m map[string]string) {
++func (o Object) Meta() (m map[string]*string) {
 +	return m
 +}
 +
@@ -1528,12 +1552,12 @@ index afeaad8a..75ae8618 100644
 -// SetModTime sets the metadata on the object to set the modification date
 -func (o Object) SetModTime(time.Time) error {
 +// SetMeta sets the modification time of the local fs object
-+func (o Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]string) error {
++func (o Object) SetMeta(modTime time.Time, chgTime time.Time, meta map[string]*string) error {
  	return errNotImpl
  }
  
 diff --git a/vfs/file.go b/vfs/file.go
-index 966e0f4f..28035572 100644
+index 966e0f4f1..28035572f 100644
 --- a/vfs/file.go
 +++ b/vfs/file.go
 @@ -304,11 +304,11 @@ func (f *File) applyPendingModTime() error {
