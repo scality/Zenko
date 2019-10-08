@@ -1,5 +1,5 @@
 diff --git a/backend/s3/s3.go b/backend/s3/s3.go
-index 0da73a15..e7e8df8a 100644
+index fdd5ba6fe..246db518f 100644
 --- a/backend/s3/s3.go
 +++ b/backend/s3/s3.go
 @@ -14,6 +14,7 @@ What happens if you CTRL-C a multipart upload
@@ -18,7 +18,7 @@ index 0da73a15..e7e8df8a 100644
  	"strings"
  	"sync"
  	"time"
-@@ -600,6 +602,8 @@ Use this only if v4 signatures don't work, eg pre Jewel/v10 CEPH.`,
+@@ -609,6 +611,8 @@ Use this only if v4 signatures don't work, eg pre Jewel/v10 CEPH.`,
  const (
  	metaMtime      = "Mtime"                       // the meta key to store mtime in - eg X-Amz-Meta-Mtime
  	metaMD5Hash    = "Md5chksum"                   // the meta key to store md5hash in
@@ -27,7 +27,7 @@ index 0da73a15..e7e8df8a 100644
  	listChunkSize  = 1000                          // number of items to read at once
  	maxRetries     = 10                            // number of retries to make of operations
  	maxSizeForCopy = 5 * 1024 * 1024 * 1024        // The maximum size of object we can COPY
-@@ -1557,7 +1561,8 @@ func (o *Object) Update(in io.Reader, src fs.ObjectInfo, options ...fs.OpenOptio
+@@ -1580,13 +1584,15 @@ func (o *Object) Update(in io.Reader, src fs.ObjectInfo, options ...fs.OpenOptio
  		metaMtime: aws.String(swift.TimeToFloatString(modTime)),
  	}
  
@@ -36,8 +36,17 @@ index 0da73a15..e7e8df8a 100644
 +		fs.Config.MdOnly {
  		hash, err := src.Hash(hash.MD5)
  
- 		if err == nil && matchMd5.MatchString(hash) {
-@@ -1573,30 +1578,56 @@ func (o *Object) Update(in io.Reader, src fs.ObjectInfo, options ...fs.OpenOptio
+-		if err == nil && matchMd5.MatchString(hash) {
++		if err == nil && matchMd5.MatchString(hash) ||
++		    fs.Config.MdOnly{
+ 			hashBytes, err := hex.DecodeString(hash)
+ 
+-			if err == nil {
++			if err == nil || fs.Config.MdOnly {
+ 				metadata[metaMD5Hash] = aws.String(base64.StdEncoding.EncodeToString(hashBytes))
+ 			}
+ 		}
+@@ -1596,30 +1602,56 @@ func (o *Object) Update(in io.Reader, src fs.ObjectInfo, options ...fs.OpenOptio
  	mimeType := fs.MimeType(src)
  
  	key := o.fs.root + o.remote
@@ -118,7 +127,7 @@ index 0da73a15..e7e8df8a 100644
  
  	// Read the metadata from the newly created object
 diff --git a/fs/config.go b/fs/config.go
-index cf608b25..4114aac4 100644
+index cf608b25d..4114aac4c 100644
 --- a/fs/config.go
 +++ b/fs/config.go
 @@ -84,6 +84,7 @@ type ConfigInfo struct {
@@ -130,10 +139,10 @@ index cf608b25..4114aac4 100644
  
  // NewConfig creates a new config with everything set to the default
 diff --git a/fs/config/configflags/configflags.go b/fs/config/configflags/configflags.go
-index 45a01d54..27aa5440 100644
+index 110755c8e..ae57fd076 100644
 --- a/fs/config/configflags/configflags.go
 +++ b/fs/config/configflags/configflags.go
-@@ -86,6 +86,7 @@ func AddFlags(flagSet *pflag.FlagSet) {
+@@ -88,6 +88,7 @@ func AddFlags(flagSet *pflag.FlagSet) {
  	flags.IntVarP(flagSet, &fs.Config.MaxBacklog, "max-backlog", "", fs.Config.MaxBacklog, "Maximum number of objects in sync or check backlog.")
  	flags.BoolVarP(flagSet, &fs.Config.StatsOneLine, "stats-one-line", "", fs.Config.StatsOneLine, "Make the stats fit on one line.")
  	flags.BoolVarP(flagSet, &fs.Config.Progress, "progress", "P", fs.Config.Progress, "Show progress during transfer.")
@@ -142,10 +151,10 @@ index 45a01d54..27aa5440 100644
  
  // SetFlags converts any flags into config which weren't straight foward
 diff --git a/fs/operations/operations.go b/fs/operations/operations.go
-index 8b2c05fc..246390a2 100644
+index 209a39d70..39a8c02fb 100644
 --- a/fs/operations/operations.go
 +++ b/fs/operations/operations.go
-@@ -318,6 +318,11 @@ func Copy(f fs.Fs, dst fs.Object, remote string, src fs.Object) (newDst fs.Objec
+@@ -319,6 +319,11 @@ func Copy(f fs.Fs, dst fs.Object, remote string, src fs.Object) (newDst fs.Objec
  		return newDst, err
  	}
  
