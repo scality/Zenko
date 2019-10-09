@@ -1,5 +1,5 @@
 diff --git a/backend/amazonclouddrive/amazonclouddrive.go b/backend/amazonclouddrive/amazonclouddrive.go
-index 12858a20e..7d16ba4e5 100644
+index 12858a20..7d16ba4e 100644
 --- a/backend/amazonclouddrive/amazonclouddrive.go
 +++ b/backend/amazonclouddrive/amazonclouddrive.go
 @@ -1017,6 +1017,16 @@ func (o *Object) Size() int64 {
@@ -34,7 +34,7 @@ index 12858a20e..7d16ba4e5 100644
  
  // Storable returns a boolean showing whether this object storable
 diff --git a/backend/azureblob/azureblob.go b/backend/azureblob/azureblob.go
-index 28d6d6ff1..2037779fe 100644
+index 28d6d6ff..2037779f 100644
 --- a/backend/azureblob/azureblob.go
 +++ b/backend/azureblob/azureblob.go
 @@ -899,6 +899,16 @@ func (o *Object) Size() int64 {
@@ -66,7 +66,7 @@ index 28d6d6ff1..2037779fe 100644
  	if o.meta == nil {
  		o.meta = make(map[string]string, 1)
 diff --git a/backend/b2/b2.go b/backend/b2/b2.go
-index 77c2c5277..11bec7406 100644
+index 77c2c527..11bec740 100644
 --- a/backend/b2/b2.go
 +++ b/backend/b2/b2.go
 @@ -1079,6 +1079,16 @@ func (o *Object) Size() int64 {
@@ -101,7 +101,7 @@ index 77c2c5277..11bec7406 100644
  
  // Storable returns if this object is storable
 diff --git a/backend/box/box.go b/backend/box/box.go
-index 1837339aa..e4ade0b52 100644
+index 1837339a..e4ade0b5 100644
 --- a/backend/box/box.go
 +++ b/backend/box/box.go
 @@ -945,6 +945,16 @@ func (o *Object) Size() int64 {
@@ -133,7 +133,7 @@ index 1837339aa..e4ade0b52 100644
  	if err != nil {
  		return err
 diff --git a/backend/cache/cache_internal_test.go b/backend/cache/cache_internal_test.go
-index 3f0a69f63..c78493f86 100644
+index 3f0a69f6..c78493f8 100644
 --- a/backend/cache/cache_internal_test.go
 +++ b/backend/cache/cache_internal_test.go
 @@ -673,7 +673,7 @@ func TestInternalChangeSeenAfterDirCacheFlush(t *testing.T) {
@@ -155,7 +155,7 @@ index 3f0a69f63..c78493f86 100644
  
  	// get a new instance from the cache
 diff --git a/backend/cache/directory.go b/backend/cache/directory.go
-index 877313d58..8297195cb 100644
+index 877313d5..8297195c 100644
 --- a/backend/cache/directory.go
 +++ b/backend/cache/directory.go
 @@ -17,6 +17,7 @@ type Directory struct {
@@ -189,7 +189,7 @@ index 877313d58..8297195cb 100644
  func (d *Directory) Items() int64 {
  	return d.CacheItems
 diff --git a/backend/cache/object.go b/backend/cache/object.go
-index d468981c5..7b2117975 100644
+index d468981c..7b211797 100644
 --- a/backend/cache/object.go
 +++ b/backend/cache/object.go
 @@ -28,6 +28,7 @@ type Object struct {
@@ -233,7 +233,7 @@ index d468981c5..7b2117975 100644
  	fs.Debugf(o, "updated ModTime: %v", t)
  
 diff --git a/backend/drive/drive.go b/backend/drive/drive.go
-index 5b04ad7fa..851308d54 100644
+index 5b04ad7f..851308d5 100644
 --- a/backend/drive/drive.go
 +++ b/backend/drive/drive.go
 @@ -2251,6 +2251,30 @@ func (f *Fs) getRemoteInfo(remote string) (info *drive.File, err error) {
@@ -279,7 +279,7 @@ index 5b04ad7fa..851308d54 100644
  	updateInfo := &drive.File{
  		ModifiedTime: modTime.Format(timeFormatOut),
 diff --git a/backend/dropbox/dropbox.go b/backend/dropbox/dropbox.go
-index d6b18fdcf..c196df016 100644
+index d6b18fdc..c196df01 100644
 --- a/backend/dropbox/dropbox.go
 +++ b/backend/dropbox/dropbox.go
 @@ -892,6 +892,16 @@ func (o *Object) Size() int64 {
@@ -318,7 +318,7 @@ index d6b18fdcf..c196df016 100644
  
  // Storable returns whether this object is storable
 diff --git a/backend/ftp/ftp.go b/backend/ftp/ftp.go
-index fafe6b702..8563f8aa6 100644
+index fafe6b70..8563f8aa 100644
 --- a/backend/ftp/ftp.go
 +++ b/backend/ftp/ftp.go
 @@ -612,13 +612,23 @@ func (o *Object) Size() int64 {
@@ -348,7 +348,7 @@ index fafe6b702..8563f8aa6 100644
  }
  
 diff --git a/backend/googlecloudstorage/googlecloudstorage.go b/backend/googlecloudstorage/googlecloudstorage.go
-index 2f47d9156..bc783be47 100644
+index 2f47d915..bc783be4 100644
 --- a/backend/googlecloudstorage/googlecloudstorage.go
 +++ b/backend/googlecloudstorage/googlecloudstorage.go
 @@ -804,6 +804,16 @@ func (o *Object) Size() int64 {
@@ -380,7 +380,7 @@ index 2f47d9156..bc783be47 100644
  	object := storage.Object{
  		Bucket:   o.fs.bucket,
 diff --git a/backend/http/http.go b/backend/http/http.go
-index cb28f25b9..0e0beb19d 100644
+index cb28f25b..0e0beb19 100644
 --- a/backend/http/http.go
 +++ b/backend/http/http.go
 @@ -402,6 +402,16 @@ func (o *Object) Size() int64 {
@@ -414,7 +414,7 @@ index cb28f25b9..0e0beb19d 100644
  }
  
 diff --git a/backend/jottacloud/jottacloud.go b/backend/jottacloud/jottacloud.go
-index 36928f4c0..02b40be3a 100644
+index 36928f4c..02b40be3 100644
 --- a/backend/jottacloud/jottacloud.go
 +++ b/backend/jottacloud/jottacloud.go
 @@ -888,6 +888,16 @@ func (o *Object) Size() int64 {
@@ -448,18 +448,42 @@ index 36928f4c0..02b40be3a 100644
  
  // Storable returns a boolean showing whether this object storable
 diff --git a/backend/local/local.go b/backend/local/local.go
-index 5ffee86ad..5a868f309 100644
+index 5ffee86a..620fd0f4 100644
 --- a/backend/local/local.go
 +++ b/backend/local/local.go
-@@ -12,6 +12,7 @@ import (
+@@ -10,8 +10,10 @@ import (
+ 	"path/filepath"
+ 	"regexp"
  	"runtime"
++	"strconv"
  	"strings"
  	"sync"
 +	"syscall"
  	"time"
  	"unicode/utf8"
  
-@@ -124,7 +125,10 @@ type Object struct {
+@@ -26,7 +28,19 @@ import (
+ )
+ 
+ // Constants
+-const devUnset = 0xdeadbeefcafebabe // a device id meaning it is unset
++const (
++	devUnset    = 0xdeadbeefcafebabe // a device id meaning it is unset
++	MetaDev	    = "Dev"
++	MetaIno	    = "Ino"
++	MetaNlink   = "Nlink"
++	MetaMode    = "Mode"
++	MetaUid     = "Uid"
++	MetaGid     = "Gid"
++	MetaSize    = "Size"
++	MetaRdev    = "Rdev"
++	MetaBlksize = "Blksize"
++	MetaBlocks  = "Blocks"
++)
+ 
+ // Register with Fs
+ func init() {
+@@ -124,7 +138,10 @@ type Object struct {
  	path    string // The local path - may not be properly UTF-8 encoded - for OS
  	size    int64  // file metadata - always present
  	mode    os.FileMode
@@ -471,7 +495,7 @@ index 5ffee86ad..5a868f309 100644
  	hashes  map[hash.Type]string // Hashes
  }
  
-@@ -212,10 +216,12 @@ func (f *Fs) newObject(remote, dstPath string) *Object {
+@@ -212,10 +229,12 @@ func (f *Fs) newObject(remote, dstPath string) *Object {
  		dstPath = f.cleanPath(filepath.Join(f.root, remote))
  	}
  	remote = f.cleanRemote(remote)
@@ -484,7 +508,7 @@ index 5ffee86ad..5a868f309 100644
  	}
  }
  
-@@ -675,13 +681,23 @@ func (o *Object) Size() int64 {
+@@ -675,13 +694,23 @@ func (o *Object) Size() int64 {
  	return o.size
  }
  
@@ -510,7 +534,7 @@ index 5ffee86ad..5a868f309 100644
  	err := os.Chtimes(o.path, modTime, modTime)
  	if err != nil {
  		return err
-@@ -862,8 +878,8 @@ func (o *Object) Update(in io.Reader, src fs.ObjectInfo, options ...fs.OpenOptio
+@@ -862,8 +891,8 @@ func (o *Object) Update(in io.Reader, src fs.ObjectInfo, options ...fs.OpenOptio
  	o.hashes = hash.Sums()
  	o.fs.objectHashesMu.Unlock()
  
@@ -521,7 +545,7 @@ index 5ffee86ad..5a868f309 100644
  	if err != nil {
  		return err
  	}
-@@ -872,10 +888,19 @@ func (o *Object) Update(in io.Reader, src fs.ObjectInfo, options ...fs.OpenOptio
+@@ -872,10 +901,31 @@ func (o *Object) Update(in io.Reader, src fs.ObjectInfo, options ...fs.OpenOptio
  	return o.lstat()
  }
  
@@ -538,10 +562,22 @@ index 5ffee86ad..5a868f309 100644
 +		fmt.Printf("Not a syscall.Stat_t")
 +		return
 +	}
++	metadata := map[string]string{
++		MetaDev:     strconv.FormatUint(stat.Dev, 10),
++		MetaIno:     strconv.FormatUint(stat.Ino, 10),
++		MetaNlink:   strconv.FormatUint(stat.Nlink, 10),
++		MetaMode:    strconv.FormatUint(uint64(stat.Mode), 10),
++		MetaUid:     strconv.FormatUint(uint64(stat.Uid), 10),
++		MetaGid:     strconv.FormatUint(uint64(stat.Gid), 10),
++		MetaSize:    strconv.FormatInt(stat.Size, 10),
++		MetaRdev:    strconv.FormatUint(stat.Rdev, 10),
++		MetaBlksize: strconv.FormatInt(stat.Blksize, 10),
++		MetaBlocks:  strconv.FormatInt(stat.Blocks, 10),
++	}
  	if o.size != info.Size() {
  		o.size = info.Size()
  	}
-@@ -885,6 +910,42 @@ func (o *Object) setMetadata(info os.FileInfo) {
+@@ -885,6 +935,19 @@ func (o *Object) setMetadata(info os.FileInfo) {
  	if o.mode != info.Mode() {
  		o.mode = info.Mode()
  	}
@@ -551,41 +587,18 @@ index 5ffee86ad..5a868f309 100644
 +	if !o.accTime.Equal(timespecToTime(stat.Atim)) {
 +		o.accTime = timespecToTime(stat.Atim)
 +	}
-+	if *o.meta[fs.MetaSize] != fs.Int64ToString(stat.Size) {
-+		*o.meta[fs.MetaSize] = fs.Int64ToString(stat.Size)
-+	}
-+	if *o.meta[fs.MetaDev] != fs.Uint64ToString(stat.Dev) {
-+		*o.meta[fs.MetaDev] = fs.Uint64ToString(stat.Dev)
-+	}
-+	if *o.meta[fs.MetaIno] != fs.Uint64ToString(stat.Ino) {
-+		*o.meta[fs.MetaIno] = fs.Uint64ToString(stat.Ino)
-+	}
-+	if *o.meta[fs.MetaNlink] != fs.Uint64ToString(stat.Nlink) {
-+		*o.meta[fs.MetaNlink] = fs.Uint64ToString(stat.Nlink)
-+	}
-+	if *o.meta[fs.MetaMode] != fs.Uint32ToString(stat.Mode) {
-+		*o.meta[fs.MetaMode] = fs.Uint32ToString(stat.Mode)
-+	}
-+	if *o.meta[fs.MetaUid] != fs.Uint32ToString(stat.Uid) {
-+		*o.meta[fs.MetaUid] = fs.Uint32ToString(stat.Uid)
-+	}
-+	if *o.meta[fs.MetaGid] != fs.Uint32ToString(stat.Gid) {
-+		*o.meta[fs.MetaGid] = fs.Uint32ToString(stat.Gid)
-+	}
-+	if *o.meta[fs.MetaRdev] != fs.Uint64ToString(stat.Rdev) {
-+		*o.meta[fs.MetaRdev] = fs.Uint64ToString(stat.Rdev)
-+	}
-+	if *o.meta[fs.MetaBlksize] != fs.Int64ToString(stat.Blksize) {
-+		*o.meta[fs.MetaBlksize] = fs.Int64ToString(stat.Blksize)
-+	}
-+	if *o.meta[fs.MetaBlocks] != fs.Int64ToString(stat.Blocks) {
-+		*o.meta[fs.MetaBlocks] = fs.Int64ToString(stat.Blocks)
++	for key, value := range metadata {
++		if o.meta[key] == nil {
++			o.meta[key] = &value
++		} else if *o.meta[key] != value {
++			o.meta[key] = &value
++		}
 +	}
  }
  
  // Stat a Object into info
 diff --git a/backend/mega/mega.go b/backend/mega/mega.go
-index 8d31f9682..d7cb1cc4d 100644
+index 8d31f968..d7cb1cc4 100644
 --- a/backend/mega/mega.go
 +++ b/backend/mega/mega.go
 @@ -909,6 +909,16 @@ func (o *Object) Size() int64 {
@@ -619,7 +632,7 @@ index 8d31f9682..d7cb1cc4d 100644
  
  // Storable returns a boolean showing whether this object storable
 diff --git a/backend/onedrive/onedrive.go b/backend/onedrive/onedrive.go
-index 1223be91b..63adc17e4 100644
+index 1223be91..63adc17e 100644
 --- a/backend/onedrive/onedrive.go
 +++ b/backend/onedrive/onedrive.go
 @@ -901,7 +901,7 @@ func (f *Fs) Copy(src fs.Object, remote string) (fs.Object, error) {
@@ -660,7 +673,7 @@ index 1223be91b..63adc17e4 100644
  	if err != nil {
  		return err
 diff --git a/backend/opendrive/opendrive.go b/backend/opendrive/opendrive.go
-index 5cc4897d3..6304295f3 100644
+index 5cc4897d..6304295f 100644
 --- a/backend/opendrive/opendrive.go
 +++ b/backend/opendrive/opendrive.go
 @@ -837,6 +837,16 @@ func (o *Object) Size() int64 {
@@ -703,7 +716,7 @@ index 5cc4897d3..6304295f3 100644
  		return err
  	}
 diff --git a/backend/pcloud/pcloud.go b/backend/pcloud/pcloud.go
-index fdd57b02b..4e8e6a743 100644
+index fdd57b02..4e8e6a74 100644
 --- a/backend/pcloud/pcloud.go
 +++ b/backend/pcloud/pcloud.go
 @@ -919,6 +919,16 @@ func (o *Object) Size() int64 {
@@ -739,7 +752,7 @@ index fdd57b02b..4e8e6a743 100644
  
  // Storable returns a boolean showing whether this object storable
 diff --git a/backend/qingstor/qingstor.go b/backend/qingstor/qingstor.go
-index 1438cf616..d1ed93e2e 100644
+index 1438cf61..d1ed93e2 100644
 --- a/backend/qingstor/qingstor.go
 +++ b/backend/qingstor/qingstor.go
 @@ -842,8 +842,8 @@ func (o *Object) ModTime() time.Time {
@@ -780,7 +793,7 @@ index 1438cf616..d1ed93e2e 100644
  func (o *Object) MimeType() string {
  	err := o.readMetaData()
 diff --git a/backend/s3/s3.go b/backend/s3/s3.go
-index 246db518f..eb6edd7a1 100644
+index 246db518..eb6edd7a 100644
 --- a/backend/s3/s3.go
 +++ b/backend/s3/s3.go
 @@ -610,8 +610,11 @@ Use this only if v4 signatures don't work, eg pre Jewel/v10 CEPH.`,
@@ -900,7 +913,7 @@ index 246db518f..eb6edd7a1 100644
  				metadata[metaMD5Hash] = aws.String(base64.StdEncoding.EncodeToString(hashBytes))
  			}
 diff --git a/backend/sftp/sftp.go b/backend/sftp/sftp.go
-index 0d8ae45e0..cb61ae09d 100644
+index 0d8ae45e..cb61ae09 100644
 --- a/backend/sftp/sftp.go
 +++ b/backend/sftp/sftp.go
 @@ -126,7 +126,7 @@ type Options struct {
@@ -974,7 +987,7 @@ index 0d8ae45e0..cb61ae09d 100644
  	return nil
  }
 diff --git a/backend/swift/swift.go b/backend/swift/swift.go
-index f4d7299ca..878c13f3f 100644
+index f4d7299c..878c13f3 100644
 --- a/backend/swift/swift.go
 +++ b/backend/swift/swift.go
 @@ -861,6 +861,16 @@ func (o *Object) Size() int64 {
@@ -1006,7 +1019,7 @@ index f4d7299ca..878c13f3f 100644
  	if err != nil {
  		return err
 diff --git a/backend/webdav/webdav.go b/backend/webdav/webdav.go
-index 8370d7904..4e831eb63 100644
+index 8370d790..4e831eb6 100644
 --- a/backend/webdav/webdav.go
 +++ b/backend/webdav/webdav.go
 @@ -13,7 +13,7 @@ package webdav
@@ -1049,7 +1062,7 @@ index 8370d7904..4e831eb63 100644
  
  // Storable returns a boolean showing whether this object storable
 diff --git a/backend/yandex/yandex.go b/backend/yandex/yandex.go
-index f237d6834..8a08764fe 100644
+index f237d683..8a08764f 100644
 --- a/backend/yandex/yandex.go
 +++ b/backend/yandex/yandex.go
 @@ -937,6 +937,16 @@ func (o *Object) readMetaData() (err error) {
@@ -1092,7 +1105,7 @@ index f237d6834..8a08764fe 100644
  	return err
  }
 diff --git a/cmd/lsjson/lsjson.go b/cmd/lsjson/lsjson.go
-index c09848166..71dd92193 100644
+index c0984816..71dd9219 100644
 --- a/cmd/lsjson/lsjson.go
 +++ b/cmd/lsjson/lsjson.go
 @@ -21,6 +21,7 @@ func init() {
@@ -1121,7 +1134,7 @@ index c09848166..71dd92193 100644
  
  The Path field will only show folders below the remote path being listed.
 diff --git a/cmd/touch/touch.go b/cmd/touch/touch.go
-index ce7c45f27..4d73d8d70 100644
+index ce7c45f2..4d73d8d7 100644
 --- a/cmd/touch/touch.go
 +++ b/cmd/touch/touch.go
 @@ -64,7 +64,7 @@ func Touch(fsrc fs.Fs, srcFileName string) error {
@@ -1134,7 +1147,7 @@ index ce7c45f27..4d73d8d70 100644
  		return errors.Wrap(err, "touch: couldn't set mod time")
  	}
 diff --git a/fs/config.go b/fs/config.go
-index 4114aac4c..c726ed556 100644
+index 4114aac4..c726ed55 100644
 --- a/fs/config.go
 +++ b/fs/config.go
 @@ -62,7 +62,7 @@ type ConfigInfo struct {
@@ -1155,7 +1168,7 @@ index 4114aac4c..c726ed556 100644
  
  // NewConfig creates a new config with everything set to the default
 diff --git a/fs/config/configflags/configflags.go b/fs/config/configflags/configflags.go
-index ae57fd076..cd5995c80 100644
+index ae57fd07..cd5995c8 100644
 --- a/fs/config/configflags/configflags.go
 +++ b/fs/config/configflags/configflags.go
 @@ -66,7 +66,7 @@ func AddFlags(flagSet *pflag.FlagSet) {
@@ -1176,7 +1189,7 @@ index ae57fd076..cd5995c80 100644
  
  // SetFlags converts any flags into config which weren't straight foward
 diff --git a/fs/dir.go b/fs/dir.go
-index 891dc8d63..58288a53c 100644
+index 891dc8d6..58288a53 100644
 --- a/fs/dir.go
 +++ b/fs/dir.go
 @@ -6,7 +6,9 @@ import "time"
@@ -1215,7 +1228,7 @@ index 891dc8d63..58288a53c 100644
  func (d *Dir) SetSize(size int64) *Dir {
  	d.size = size
 diff --git a/fs/fs.go b/fs/fs.go
-index 6a3b3a282..5b3861868 100644
+index 6a3b3a28..40337a24 100644
 --- a/fs/fs.go
 +++ b/fs/fs.go
 @@ -48,8 +48,8 @@ var (
@@ -1229,43 +1242,7 @@ index 6a3b3a282..5b3861868 100644
  	ErrorDirNotFound                 = errors.New("directory not found")
  	ErrorObjectNotFound              = errors.New("object not found")
  	ErrorLevelNotSupported           = errors.New("level value not supported")
-@@ -195,6 +195,35 @@ type OptionExample struct {
- 	Provider string
- }
- 
-+// Additional metadata
-+const (
-+	MetaDev		= "Dev"
-+	MetaIno		= "Ino"
-+	MetaNlink	= "Nlink"
-+	MetaMode	= "Mode"
-+	MetaUid		= "Uid"
-+	MetaGid		= "Gid"
-+	MetaSize        = "Size"
-+	MetaRdev        = "Rdev"
-+	MetaBlksize     = "Blksize"
-+	MetaBlocks      = "Blocks"
-+)
-+
-+func Int64ToString(ns int64) string {
-+        result := fmt.Sprintf("%d", ns)
-+        return result
-+}
-+
-+func Uint64ToString(ns uint64) string {
-+        result := fmt.Sprintf("%d", ns)
-+        return result
-+}
-+
-+func Uint32ToString(ns uint32) string {
-+        result := fmt.Sprintf("%d", ns)
-+        return result
-+}
-+
- // Register a filesystem
- //
- // Fs modules  should use this in an init() function
-@@ -268,8 +297,8 @@ type Info interface {
+@@ -268,8 +268,8 @@ type Info interface {
  type Object interface {
  	ObjectInfo
  
@@ -1276,7 +1253,7 @@ index 6a3b3a282..5b3861868 100644
  
  	// Open opens the file for read.  Call Close() on the returned io.ReadCloser
  	Open(options ...OpenOption) (io.ReadCloser, error)
-@@ -310,8 +339,14 @@ type DirEntry interface {
+@@ -310,8 +310,14 @@ type DirEntry interface {
  	// It should return a best guess if one isn't available
  	ModTime() time.Time
  
@@ -1292,7 +1269,7 @@ index 6a3b3a282..5b3861868 100644
  
  // Directory is a filesystem like directory provided by an Fs
 diff --git a/fs/list/list_test.go b/fs/list/list_test.go
-index f6d8bdf18..234d4df44 100644
+index f6d8bdf1..234d4df4 100644
 --- a/fs/list/list_test.go
 +++ b/fs/list/list_test.go
 @@ -89,6 +89,8 @@ type unknownDirEntry string
@@ -1305,7 +1282,7 @@ index f6d8bdf18..234d4df44 100644
  
  func TestFilterAndSortUnknown(t *testing.T) {
 diff --git a/fs/object/object.go b/fs/object/object.go
-index e11827b9b..5e74de2f9 100644
+index e11827b9..5e74de2f 100644
 --- a/fs/object/object.go
 +++ b/fs/object/object.go
 @@ -37,6 +37,7 @@ func NewStaticObjectInfo(remote string, modTime time.Time, size int64, storable
@@ -1372,7 +1349,7 @@ index e11827b9b..5e74de2f9 100644
  }
  
 diff --git a/fs/object/object_test.go b/fs/object/object_test.go
-index cc1a17cc1..1d02c7247 100644
+index cc1a17cc..1d02c724 100644
 --- a/fs/object/object_test.go
 +++ b/fs/object/object_test.go
 @@ -104,7 +104,7 @@ func TestMemoryObject(t *testing.T) {
@@ -1385,7 +1362,7 @@ index cc1a17cc1..1d02c7247 100644
  	assert.Equal(t, newNow, o.ModTime())
  
 diff --git a/fs/operations/lsjson.go b/fs/operations/lsjson.go
-index 79465eceb..b4ea1762f 100644
+index 79465ece..b4ea1762 100644
 --- a/fs/operations/lsjson.go
 +++ b/fs/operations/lsjson.go
 @@ -40,6 +40,7 @@ func (t Timestamp) MarshalJSON() (out []byte, err error) {
@@ -1397,7 +1374,7 @@ index 79465eceb..b4ea1762f 100644
  	ShowOrigIDs   bool `json:"showOrigIDs"`
  	ShowHash      bool `json:"showHash"`
 diff --git a/fs/operations/operations.go b/fs/operations/operations.go
-index 39a8c02fb..4686c749e 100644
+index 39a8c02f..4686c749 100644
 --- a/fs/operations/operations.go
 +++ b/fs/operations/operations.go
 @@ -140,14 +140,25 @@ func equal(src fs.ObjectInfo, dst fs.Object, sizeOnly, checkSum bool) bool {
@@ -1460,7 +1437,7 @@ index 39a8c02fb..4686c749e 100644
  				// put in the BackupDir than deleted which is what will happen if we don't delete it.
  				if fs.Config.BackupDir == "" {
 diff --git a/fs/sync/sync_test.go b/fs/sync/sync_test.go
-index 019b171ca..70aeaa518 100644
+index 019b171c..70aeaa51 100644
 --- a/fs/sync/sync_test.go
 +++ b/fs/sync/sync_test.go
 @@ -449,9 +449,9 @@ func TestSyncAfterChangingModtimeOnlyWithNoUpdateModTime(t *testing.T) {
@@ -1476,7 +1453,7 @@ index 019b171ca..70aeaa518 100644
  
  	file1 := r.WriteFile("empty space", "", t2)
 diff --git a/fstest/fstests/fstests.go b/fstest/fstests/fstests.go
-index 8d0f587e1..708235257 100644
+index 8d0f587e..70823525 100644
 --- a/fstest/fstests/fstests.go
 +++ b/fstest/fstests/fstests.go
 @@ -1222,6 +1222,46 @@ func Run(t *testing.T, opt *Opt) {
@@ -1527,7 +1504,7 @@ index 8d0f587e1..708235257 100644
  			t.Run("ObjectStorable", func(t *testing.T) {
  				skipIfNotOk(t)
 diff --git a/fstest/mockobject/mockobject.go b/fstest/mockobject/mockobject.go
-index afeaad8ab..6956982fd 100644
+index afeaad8a..6956982f 100644
 --- a/fstest/mockobject/mockobject.go
 +++ b/fstest/mockobject/mockobject.go
 @@ -49,6 +49,14 @@ func (o Object) ModTime() (t time.Time) {
@@ -1557,7 +1534,7 @@ index afeaad8ab..6956982fd 100644
  }
  
 diff --git a/vfs/file.go b/vfs/file.go
-index 966e0f4f1..28035572f 100644
+index 966e0f4f..28035572 100644
 --- a/vfs/file.go
 +++ b/vfs/file.go
 @@ -304,11 +304,11 @@ func (f *File) applyPendingModTime() error {
