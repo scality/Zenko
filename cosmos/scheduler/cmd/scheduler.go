@@ -72,7 +72,7 @@ func (s *Scheduler) Run() {
 	go s.healthCheckServer()
 
 	// safely create or update secret on startup
-	err := s.configureIngestionSecret(true)
+	err := s.reconcileSecrets(s.getSecret(s.SecretName), nil, true)
 	if err != nil{
 		log.Fatal("run failed configuring secret: ", err)
 	}
@@ -86,9 +86,9 @@ func (s *Scheduler) Run() {
 		case <-overlayUpdates:
 			log.Println("received an overlay update")
 			// check for any credential updates
-			s.configureIngestionSecret(false)
-			// TODO check for location secret updates on overlayUpdate
-			// s.configureLocationSecrets()
+			s.reconcileSecrets(s.getSecret(s.SecretName), nil, false)
+			// check for location secret updates on overlayUpdate
+			s.validateExistingLocations()
 		}
 	}
 }
@@ -111,39 +111,69 @@ func (s *Scheduler) healthCheckServer() {
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
-// Checks for existing secret and creates one if non existant. If the a configmap
-// exists but does not match the credentials in MongoDB then the secret will be updated.
-// The init bool is used for start up sequences otherwise logging becomes too verbose.
-func (s *Scheduler) configureIngestionSecret(init bool) error {
-	accessKey, secretKey, err := s.Pensieve.GetServiceAccountCredentials("md-ingestion")
-	if err != nil {
-		log.Println("error getting service account credentials")
-		return err
+// reconcileSecrets will validate that the secret map matches the credentials for a location resulting
+// in updating the k8s secret with the replacement if there is a diff. If location is nil,
+// then it will simply try to validate the builtin service account credentials. The
+// verbose bool is used for start up sequences otherwise logging becomes too verbose.
+func (s *Scheduler) reconcileSecrets(secret map[string][]byte, location *pensieve.Location, verbose bool) error {
+	var err error
+	var accessKey, secretKey, name string
+	if location == nil {
+		name = s.SecretName
+		accessKey, secretKey, err = s.Pensieve.GetServiceAccountCredentials("md-ingestion")
+	} else {
+		name = location.Name
+		accessKey = location.Details.AccessKey
+		secretKey, err = s.Pensieve.DecryptLocationSecretKey(location.Details.SecretKey)
 	}
-    ingestionAccount := &Secret{
-		Name: s.SecretName,
+	newSecret := &Secret{
+		Name: name,
 		AccessKey: accessKey,
 		SecretKey: secretKey,
 	}
-	secret := s.getSecret(ingestionAccount)
+	if err != nil {
+		log.Println("error getting secret keys")
+		return err
+	}
 	if secret == nil {
-		log.Println("creating ingestion secret")
-		err = s.setSecret(ingestionAccount, false)
+		log.Println("creating secret:", newSecret.Name)
+		err = s.setSecret(newSecret, false)
 		if err != nil {
-			log.Println("error creating ingestion secret", err)
+			log.Println("error creating secret:", newSecret.Name)
 			return err
 		}
-		log.Println("ingestion secret created successfully")
+		log.Println("secret created successfully")
 	} else if string(secret[access_key_id]) != accessKey || string(secret[secret_access_key]) != secretKey {
-		log.Println("ingestion credentials changed, updating secret")
-		err = s.setSecret(ingestionAccount, true)
+		log.Println(name, " credentials changed, updating secret")
+		err = s.setSecret(newSecret, true)
 		if err != nil {
-			log.Println("error updating ingestion secret")
+			log.Println("error updating secret")
 			return err
-		} 
-		log.Println("ingestion credentials successfully patched")
-	} else if init {
-		log.Println("found a valid ingestion secret")
+		}
+		log.Println("credentials successfully patched")
+	} else if verbose {
+		log.Println("found valid secret:", name)
+	}
+	return nil
+}
+
+// validateExistingLocations will check that all CRDs have up-to-date
+// credentials. TODO validate that the entire CRD state matches that
+// of the location.
+func (s *Scheduler) validateExistingLocations() error {
+	cosmoses, err := s.KubeAlpha.Cosmoses(s.Namespace).List(metav1.ListOptions{})
+	if err != nil {
+		log.Println("error listing cosmos CRDs", err)
+		return err
+	}
+	for _, cosmos := range cosmoses.Items {
+		location, err := s.Pensieve.GetLocationWithName(cosmos.Name)
+		if err != nil {
+			log.Println("error getting location:", cosmos.Name)
+			continue
+		}
+		// TODO validate the state of the CRD matches the state of the location
+		s.reconcileSecrets(s.getSecret(cosmos.Name), location, false)
 	}
 	return nil
 }
@@ -226,11 +256,12 @@ func (s *Scheduler) watchOverlayUpdates(ctx context.Context) (chan interface{}) 
 	return ch
 }
 
-// getSecret returns a key value map with 'accessKey' and 'secretKey'.
+// getSecret looks for a Kubernetes secret by the given name and
+// returns a key value map with 'accessKey' and 'secretKey'.
 // The keys are strings and the values are byte arrays.
-func (s *Scheduler) getSecret(secret *Secret) (map[string][]byte) {
+func (s *Scheduler) getSecret(secret string) (map[string][]byte) {
 	secrets, err := s.KubeClientset.CoreV1().
-		Secrets(s.Namespace).Get(secret.Name, metav1.GetOptions{})
+		Secrets(s.Namespace).Get(secret, metav1.GetOptions{})
 	if err != nil {
 		return nil
 	}
@@ -443,15 +474,7 @@ func (s *Scheduler) createCosmosNFSLocation(location *pensieve.Location, bucket 
 // createCosmosNFSLocation creates a new Cosmos custom resource using data from a
 // *MongodbURL.Location. It assumes the location to be of type "AWS".
 func (s *Scheduler) createCosmosAWSLocation(location *pensieve.Location, bucket string) error {
-	SecretKey, err := s.Pensieve.DecryptLocationSecretKey(location.Details.SecretKey)
-	if err != nil {
-		log.Println("error decrypting location secret key")
-	}
-	err = s.setSecret(&Secret{
-		Name: location.Name,
-		AccessKey: location.Details.AccessKey,
-		SecretKey: SecretKey,
-	}, false)
+	err := s.reconcileSecrets(nil, location, false)
 	if err != nil {
 		log.Println("error creating location secret")
 		return err
@@ -493,15 +516,7 @@ func (s *Scheduler) createCosmosAWSLocation(location *pensieve.Location, bucket 
 // createCosmosCephLocation creates a new Cosmos custom resource using data from a
 // *MongodbURL.Location. It assumes the location to be of type "Ceph".
 func (s *Scheduler) createCosmosCephLocation(location *pensieve.Location, bucket string) error {
-	SecretKey, err := s.Pensieve.DecryptLocationSecretKey(location.Details.SecretKey)
-	if err != nil {
-		log.Println("error decrypting location secret key")
-	}
-	err = s.setSecret(&Secret{
-		Name: location.Name,
-		AccessKey: location.Details.AccessKey,
-		SecretKey: SecretKey,
-	}, false)
+	err := s.reconcileSecrets(nil, location, false)
 	if err != nil {
 		log.Println("error creating location secret")
 		return err
