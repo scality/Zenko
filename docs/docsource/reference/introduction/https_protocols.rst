@@ -27,42 +27,33 @@ Authorization, Content-Length, Content-Type, Date, and Host.
 .. tabularcolumns:: X{0.20\textwidth}X{0.75\textwidth}
 .. table::
 
-   +-----------------------------------+-----------------------------------+
-   | Header                            | Description                       |
-   +===================================+===================================+
-   | Authorization                     | Contains the information required |
-   |                                   | for authentication.               |
-   +-----------------------------------+-----------------------------------+
-   | Content-Length                    | Message Length (without headers), |
-   |                                   | as specified by RFC 2616;         |
-   |                                   | required for PUT and operations   |
-   |                                   | that load XML, such as logging    |
-   |                                   | and ACLs.                         |
-   +-----------------------------------+-----------------------------------+
-   | Content-Type                      | Resource content type (e.g.,      |
-   |                                   | text/plain) (For PUT operations,  |
-   |                                   | default is binary/octet-stream,   |
-   |                                   | and valid values are MIME types.) |
-   +-----------------------------------+-----------------------------------+
-   | Date                              | Date and time of the request      |
-   |                                   | (default format is Thu, 31 Mar    |
-   |                                   | 2016 13:00:00 GMT, which conforms |
-   |                                   | to RFC 2616 Section 3.3.1).       |
-   +-----------------------------------+-----------------------------------+
-   | Host                              | Required for HTTP 1.1, the Host   |
-   |                                   | header points to the standard     |
-   |                                   | storage service. If the host      |
-   |                                   | contains anything other than the  |
-   |                                   | standard Zenko storage server,    |
-   |                                   | this information is interpreted   |
-   |                                   | as the bucket for the request.    |
-   |                                   |                                   |
-   |                                   | The Host header contains either   |
-   |                                   | the service host name or the      |
-   |                                   | virtual host                      |
-   |                                   | (bucket.s3.bsedomain.com), in     |
-   |                                   | addition to the bucket.           |
-   +-----------------------------------+-----------------------------------+
+   +--------------------+----------------------------------------------------------+
+   | Header             | Description                                              |
+   +====================+==========================================================+
+   | ``Authorization``  | Contains the information required for authentication.    |
+   +--------------------+----------------------------------------------------------+
+   | ``Content-Length`` | Message Length (without headers), as specified by        |
+   |                    | RFC 2616; required for PUT and operations that load XML, |
+   |                    | such as logging and ACLs.                                |
+   +--------------------+----------------------------------------------------------+
+   | ``Content-Type``   | Resource content type (e.g.,text/plain) (For PUT         |
+   |                    | operations, default is binary/octet-stream, and valid    |
+   |                    | values are MIME types.)                                  |
+   +--------------------+----------------------------------------------------------+
+   | ``Date``           | Date and time of the request (default format is Thu, 31  |
+   |                    | Mar 2016 13:00:00 GMT, which conforms to RFC 2616        |
+   |                    | Section 3.3.1).                                          |
+   +--------------------+----------------------------------------------------------+
+   | ``Host``           | Required for HTTP 1.1, the Host header points to the     |
+   |                    | standard storage service. If the host contains anything  |
+   |                    | other than the standard Zenko storage server, this       |
+   |                    | information is interpreted as the bucket for the         |
+   |                    | request.                                                 |
+   |                    |                                                          |
+   |                    | The Host header contains either the service host name or |
+   |                    | the virtual host (bucket.s3.bsedomain.com), in addition  |
+   |                    | to the bucket.                                           |
+   +--------------------+----------------------------------------------------------+
 
 Important response headers that customarily comprise API operation
 responses with include HTTP/1.1, x-amzn-request-id, Content-Length,
@@ -71,32 +62,24 @@ Content-Type, and Date.
 .. tabularcolumns:: X{0.20\textwidth}X{0.10\textwidth}X{0.65\textwidth}
 .. table::
 
-   +-----------------------+-----------------------+--------------------------+
-   | Header                | Type                  | Description              |
-   +=======================+=======================+==========================+
-   | HTTP/1.1              | string                | Header followed by a     |
-   |                       |                       | status code, with        |
-   |                       |                       | status code 200          |
-   |                       |                       | indicating a             |
-   |                       |                       | successful operation.    |
-   +-----------------------+-----------------------+--------------------------+
-   | x-amzn-request-id     | string                | A value created by Zenko |
-   |                       |                       | that uniquely            |
-   |                       |                       | identifies a request.    |
-   |                       |                       | Values can be used to    |
-   |                       |                       | troubleshoot             |
-   |                       |                       | problems.                |
-   +-----------------------+-----------------------+--------------------------+
-   | Content-Length        | string                | Length of response       |
-   |                       |                       | body in bytes.           |
-   +-----------------------+-----------------------+--------------------------+
-   | Content-Type          | string                | Message’s content        |
-   |                       |                       | type (typically          |
-   |                       |                       | application/hal+json)    |
-   +-----------------------+-----------------------+--------------------------+
-   | Date                  | string                | Date and time of the     |
-   |                       |                       | Zenko response.          |
-   +-----------------------+-----------------------+--------------------------+
+   +-----------------------+--------+----------------------------------------------+
+   | Header                | Type   | Description                                  |
+   +=======================+========+==============================================+
+   | ``HTTP/1.1``          | string | Header followed by a status code, with       |
+   |                       |        | status code 200 indicating a successful      |
+   |                       |        | operation.                                   |
+   +-----------------------+--------+----------------------------------------------+
+   | ``x-amzn-request-id`` | string | A value created by Zenko that uniquely       |
+   |                       |        | identifies a request. Values can be used to  |
+   |                       |        | troubleshoot problems.                       |
+   +-----------------------+--------+----------------------------------------------+
+   | ``Content-Length``    | string | Length of response body, in bytes.           |
+   +-----------------------+--------+----------------------------------------------+
+   | ``Content-Type``      | string | Message's content type (typically            |
+   |                       |        | application/hal+json)                        |
+   +-----------------------+--------+----------------------------------------------+
+   | ``Date``              | string | Date and time of the Zenko response.         |
+   +-----------------------+--------+----------------------------------------------+
 
 .. note::
 

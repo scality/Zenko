@@ -9,7 +9,8 @@ creates a new replication configuration, or replaces an existing one.
 Requests
 --------
 
-**Request Syntax**
+Syntax
+~~~~~~
 
 .. code::
 
@@ -17,34 +18,33 @@ Requests
    Host: bucketname.s3.amazonaws.com
    Content-Length: length
    Date: date
-   Authorization: authorization string (see Authenticating Requests (AWS Signature Version
-           4))
+   Authorization: authorization string (see Authenticating Requests (AWS Signature Version 4))
    Content-MD5: MD5
 
    Replication configuration XML in the body
 
-**Request Parameters**
+Parameters
+~~~~~~~~~~
 
-The PUT Bucket Replication operation does not use Request Parameters.
+The PUT Bucket Replication operation does not use request parameters.
 
-**Request Headers**
+Headers
+~~~~~~~
 
-.. tabularcolumns:: X{0.15\textwidth}X{0.65\textwidth}X{0.15\textwidth}
+.. tabularcolumns:: X{0.15\textwidth}X{0.10\textwidth}X{0.55\textwidth}X{0.15\textwidth}
 .. table::
 
-   +-------------+--------------------------------------------------+----------+
-   | Name        | Type                                             | Required |
-   +=============+==================================================+==========+
-   | Content-MD5 | The base64-encoded 128-bit MD5 digest of the     | Yes      |
-   |             | data; must be used as a message integrity check  |          |
-   |             | to verify that the request body was not          |          |
-   |             | corrupted in transit. For more information, see  |          |
-   |             | RFC 1864.                                        |          |
-   |             |                                                  |          |
-   |             | Type: String                                     |          |
-   |             |                                                  |          |
-   |             | Default: None                                    |          |
-   +-------------+--------------------------------------------------+----------+
+   +-----------------+-----------+--------------------------------------------------+----------+
+   | Name            | Type      | Description                                      | Required |
+   +=================+===========+==================================================+==========+
+   | ``Content-MD5`` | String    | The base64-encoded 128-bit MD5 digest of the     | Yes      |
+   |                 |           | data; must be used as a message integrity check  |          |
+   |                 |           | to verify that the request body was not          |          |
+   |                 |           | corrupted in transit. For more information, see  |          |
+   |                 |           | RFC 1864.                                        |          |
+   |                 |           |                                                  |          |
+   |                 |           | **Default:** None                                |          |
+   +-----------------+-----------+--------------------------------------------------+----------+
 
 Request Body
 ~~~~~~~~~~~~
@@ -83,140 +83,133 @@ Each service uses keys generated for its own account to execute an operation.
         ...
    </ReplicationConfiguration>
 
-The following table describes the XML elements in the replication
-configuration:
+The following table describes the XML elements in the replication configuration:
 
-.. tabularcolumns:: X{0.30\textwidth}X{0.55\textwidth}l
+.. tabularcolumns:: X{0.30\textwidth}X{0.10\textwidth}X{0.45\textwidth}X{0.10\textwidth}
 .. table::
    :class: longtable
 
-   +--------------------------+------------------------------------------------+----------+
-   | Name                     | Type                                           | Required |
-   +==========================+================================================+==========+
-   | ReplicationConfiguration | Container for replication rules. Up to 1,000   | Yes      |
-   |                          | rules can be added. Total replication          |          |
-   |                          | configuration size can be up to 2 MB.          |          |
-   |                          |                                                |          |
-   |                          | Type: Container                                |          |
-   |                          |                                                |          |
-   |                          | Children: Rule                                 |          |
-   |                          |                                                |          |
-   |                          | Ancestor: None                                 |          |
-   +--------------------------+------------------------------------------------+----------+
-   | Role                     | Amazon Resource Name (ARN) of an IAM role for  | Yes      |
-   |                          | Zenko to assume when replicating the objects.  |          |
-   |                          |                                                |          |
-   |                          | Type: String                                   |          |
-   |                          |                                                |          |
-   |                          | Ancestor: Rule                                 |          |
-   +--------------------------+------------------------------------------------+----------+
-   | Rule                     | Container for information about a particular   | Yes      |
-   |                          | replication rule. Replication configuration    |          |
-   |                          | must have at least one rule and can contain    |          |
-   |                          | up to 1,000 rules.                             |          |
-   |                          |                                                |          |
-   |                          | Type: Container                                |          |
-   |                          |                                                |          |
-   |                          | Ancestor: ReplicationConfiguration             |          |
-   +--------------------------+------------------------------------------------+----------+
-   | ID                       | Unique identifier for the rule. The value      | No       |
-   |                          | cannot be longer than 255 characters.          |          |
-   |                          |                                                |          |
-   |                          | Type: String                                   |          |
-   |                          |                                                |          |
-   |                          | Ancestor: Rule                                 |          |
-   +--------------------------+------------------------------------------------+----------+
-   | Status                   | The rule is ignored if status is not Enabled.  | Yes      |
-   |                          |                                                |          |
-   |                          | Type: String                                   |          |
-   |                          |                                                |          |
-   |                          | Ancestor: Rule                                 |          |
-   |                          |                                                |          |
-   |                          | Valid values: Enabled, Disabled                |          |
-   +--------------------------+------------------------------------------------+----------+
-   | Prefix                   | Object keyname prefix identifying one or more  | Yes      |
-   |                          | more objects to which the rule applies.        |          |
-   |                          |                                                |          |
-   |                          | Maximum prefix length can be up to 1,024       |          |
-   |                          | characters. Overlapping prefixes are not       |          |
-   |                          | supported.                                     |          |
-   |                          |                                                |          |
-   |                          | Type: String                                   |          |
-   |                          |                                                |          |
-   |                          | Ancestor: Rule                                 |          |
-   +--------------------------+------------------------------------------------+----------+
-   | Destination              | Container for destination information.         | Yes      |
-   |                          |                                                |          |
-   |                          | Type: Container                                |          |
-   |                          |                                                |          |
-   |                          | Ancestor: Rule                                 |          |
-   +--------------------------+------------------------------------------------+----------+
-   | Bucket                   | Amazon resource name (ARN) of the bucket where | Yes      |
-   |                          | Zenko is to store replicas of the object       |          |
-   |                          | identified by the rule.                        |          |
-   |                          |                                                |          |
-   |                          | If there are multiple rules in the replication |          |
-   |                          | configuration, all these rules must specify    |          |
-   |                          | the same bucket as the destination. That is,   |          |
-   |                          | replication configuration can replicate        |          |
-   |                          | objects only to one destination bucket.        |          |
-   |                          |                                                |          |
-   |                          | Type: String                                   |          |
-   |                          |                                                |          |
-   |                          | Ancestor: Destination                          |          |
-   +--------------------------+------------------------------------------------+----------+
-   | StorageClass             | Optional destination storage class override to | No       |
-   |                          | use when replicating objects. If this element  |          | 
-   |                          | is not specified, Zenko uses the storage       |          |
-   |                          | class of the source object to create object    |          |
-   |                          | replica.                                       |          |
-   |			      |						       |	  |
-   |                          | Zenko reinterprets this S3 call not as a       |	  |
-   |                          | service quality directive, but as a service    |	  |
-   |                          | locator. In other words, where Amazon S3 uses  |	  |
-   |                          | this directive to define a location by quality |	  |
-   |                          | of service (e.g., STANDARD or GLACIER), Zenko  |	  |
-   |                          | uses it to direct replication to a location.   |	  |
-   |                          | The quality of service is determined and the   |	  |
-   |                          | replication destination is configured by the   |	  |
-   |                          | user.                                          |	  |
-   |                          |                                                |          |
-   |                          | Type: String                                   |          |
-   |                          |                                                |          |
-   |                          | Ancestor: Destination                          |          |
-   |                          |                                                |          |
-   |                          | Default: Storage class of the source object.   |          |
-   |                          |                                                |          |
-   |                          | Valid Values: Any defined destination name     |	  |
-   +--------------------------+------------------------------------------------+----------+
+   +------------------------------+-----------+-------------------------------------------------+----------+
+   | Name                         | Type      | Description                                     | Required |
+   +==============================+===========+=================================================+==========+
+   | ``ReplicationConfiguration`` | Container | Container for replication rules. Up to 1,000    | Yes      |
+   |                              |           | rules can be added. Total replication           |          |
+   |                              |           | configuration size can be up to 2 MB.           |          |
+   |                              |           |                                                 |          |
+   |                              |           | **Children:** Rule                              |          |
+   |                              |           |                                                 |          |
+   |                              |           | **Ancestor:** None                              |          |
+   +------------------------------+-----------+-------------------------------------------------+----------+
+   | ``Role``                     | String    | Amazon Resource Name (ARN) of an IAM role for   | Yes      |
+   |                              |           | Zenko to assume when replicating the objects.   |          |
+   |                              |           |                                                 |          |
+   |                              |           | **Type:** String                                |          |
+   |                              |           |                                                 |          |
+   |                              |           | **Ancestor:** Rule                              |          |
+   +------------------------------+-----------+-------------------------------------------------+----------+
+   | ``Rule``                     | Container | Container for information about a particular    | Yes      |
+   |                              |           | replication rule. Replication configuration     |          |
+   |                              |           | must have at least one rule and can contain     |          |
+   |                              |           | up to 1,000 rules.                              |          |
+   |                              |           |                                                 |          |
+   |                              |           | **Ancestor:** ReplicationConfiguration          |          |
+   +------------------------------+-----------+-------------------------------------------------+----------+
+   | ``ID``                       | String    | Unique identifier for the rule. The value       | No       |
+   |                              |           | cannot be longer than 255 characters.           |          |
+   |                              |           |                                                 |          |
+   |                              |           | **Ancestor:** Rule                              |          |
+   +------------------------------+-----------+-------------------------------------------------+----------+
+   | ``Status``                   | String    | The rule is ignored if status is not Enabled.   | Yes      |
+   |                              |           |                                                 |          |
+   |                              |           | **Ancestor:** Rule                              |          |
+   |                              |           |                                                 |          |
+   |                              |           | **Valid Values:** Enabled, Disabled             |          |
+   +------------------------------+-----------+-------------------------------------------------+----------+
+   | ``Prefix``                   | String    | Object keyname prefix identifying one or more   | Yes      |
+   |                              |           | more objects to which the rule applies.         |          |
+   |                              |           |                                                 |          |
+   |                              |           | Maximum prefix length can be up to 1,024        |          |
+   |                              |           | characters. Overlapping prefixes are not        |          |
+   |                              |           | supported.                                      |          |
+   |                              |           |                                                 |          |
+   |                              |           | **Ancestor:** Rule                              |          |
+   +------------------------------+-----------+-------------------------------------------------+----------+
+   | ``Destination``              | Container | Container for destination information.          | Yes      |
+   |                              |           |                                                 |          |
+   |                              |           | **Ancestor:** Rule                              |          |
+   +------------------------------+-----------+-------------------------------------------------+----------+
+   | ``Bucket``                   | String    | Amazon resource name (ARN) of the bucket where  | Yes      |
+   |                              |           | Zenko is to store replicas of the object        |          |
+   |                              |           | identified by the rule.                         |          |
+   |                              |           |                                                 |          |
+   |                              |           | If there are multiple rules in the replication  |          |
+   |                              |           | configuration, all these rules must specify     |          |
+   |                              |           | the same bucket as the destination. That is,    |          |
+   |                              |           | replication configuration can replicate         |          |
+   |                              |           | objects only to one destination bucket.         |          |
+   |                              |           |                                                 |          |
+   |                              |           | **Ancestor:** Destination                       |          |
+   +------------------------------+-----------+-------------------------------------------------+----------+
+   | ``StorageClass``             | String    | Optional destination storage class override to  | No       |
+   |                              |           | use when replicating objects. If this element   |          | 
+   |                              |           | is not specified, Zenko uses the storage        |          |
+   |                              |           | class of the source object to create object     |          |
+   |                              |           | replica.                                        |          |
+   |		                  |           |                                                 |          |
+   |                              |           | Zenko reinterprets this S3 call not as a        |          |
+   |                              |           | service quality directive, but as a service     |          |
+   |                              |           | locator. In other words, where Amazon S3 uses   |          |
+   |                              |           | this directive to define a location by quality  |	   |
+   |                              |           | of service (e.g., STANDARD or GLACIER), Zenko   |          |
+   |                              |           | uses it to direct replication to a location.    |          |
+   |                              |           | The quality of service is determined and the    |          |
+   |                              |           | replication destination is configured by the    |          |
+   |                              |           | user.                                           |          |
+   |                              |           |                                                 |          |
+   |                              |           | **Ancestor:** Destination                       |          |
+   |                              |           |                                                 |          |
+   |                              |           | **Default:** Storage class of the source        |          |
+   |                              |           | object                                          |          |
+   |                              |           |                                                 |          |
+   |                              |           | **Valid Values:** Any defined destination name  |          |
+   +------------------------------+-----------+-------------------------------------------------+----------+
 
-**Response Headers**
+Response
+--------
 
-This implementation of the operation uses only response headers that are
-common to most responses.
+Headers
+~~~~~~~
 
-**Response Elements**
+This operation uses only response headers that are common to most responses.
 
-This implementation of the operation does not return response elements.
+Elements
+~~~~~~~~
 
-**Special Errors**
+This operation does not return response elements.
 
-This implementation of the operation does not return special errors.
+Special Errors
+~~~~~~~~~~~~~~
 
-**Add Replication Configuration**
+This operation does not return special errors.
 
-*Request Sample*
+Examples
+--------
 
-The following is a sample PUT request that creates a replication
-subresource on the specified bucket and saves the replication
-configuration in it. The replication configuration specifies a rule to
-replicate to the {{exampleTargetBucket}} bucket any new objects created
-with the key name prefix “TaxDocs”.
+Add Replication Configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-After adding a replication configuration to a bucket, S3 assumes the IAM
-role specified in the configuration in order to replicate objects on
-behalf of the bucket owner, which is the AWS account that created the
-bucket.
+Request
+```````
+
+The following is a sample PUT request that creates a replication subresource on
+the specified bucket and saves the replication configuration in it. The
+replication configuration specifies a rule to replicate to the
+{{exampleTargetBucket}} bucket any new objects created with the key name prefix
+“TaxDocs”.
+
+After adding a replication configuration to a bucket, S3 assumes the IAM role
+specified in the configuration in order to replicate objects on behalf of the
+bucket owner, which is the AWS account that created the bucket.
 
 .. code::
 
@@ -239,7 +232,8 @@ bucket.
      </Rule>
    </ReplicationConfiguration>
 
-*Response Sample*
+Response
+````````
 
 .. code::
 
@@ -248,4 +242,4 @@ bucket.
    x-amz-request-id: 9E26D08072A8EF9E
    Date: Wed, 11 Feb 2015 02:11:22 GMT
    Content-Length: 0
-   Server: AmazonS3
+   Server: <serverName>
