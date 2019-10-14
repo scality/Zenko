@@ -9,7 +9,7 @@ information about managing object tags, refer to `Object
 Tagging <http://docs.aws.amazon.com/AmazonS3/latest/dev/object-tagging.html>`__
 in the Amazon Simple Storage Service Developer Guide.
 
-To use the DELETE Object Tagging operation, the user must have
+To use the DELETE Object Tagging operation, the user must have
 permission to perform the ``s3:DeleteObjectTagging`` action.
 
 To delete tags of a specific object version, add the ``versionId`` query
@@ -19,7 +19,8 @@ parameter in the request (permission for the
 Requests
 --------
 
-**Request Syntax**
+Syntax
+~~~~~~
 
 .. code::
 
@@ -29,36 +30,42 @@ Requests
    Content-Length: {{length}}
    Authorization: {{authenticationInformation}}
 
-**Request Parameters**
+Parameters
+~~~~~~~~~~
 
-The DELETE Object Tagging operation does not use Request Parameters.
+The DELETE Object Tagging operation does not use Request Parameters.
 
-**Request Headers**
+Headers
+~~~~~~~
 
-Implementation of the DELETE Object Tagging operation uses only request
+The DELETE Object Tagging operation uses only request
 headers that are common to all operations (refer to :ref:`Common Request
 Headers`).
 
-**Request Elements**
+Elements
+~~~~~~~~
 
-The DELETE Object Tagging operation does not use request elements.
+The DELETE Object Tagging operation does not use request elements.
 
 Responses
 ---------
 
-**Response Headers**
+Headers
+~~~~~~~
 
-Implementation of the DELETE Object Tagging operation uses onlyresponse
+The DELETE Object Tagging operation uses onlyresponse
 headers that are common to all operations (refer to :ref:`Common Response Headers`).
 
-**Response Elements**
+Elements
+~~~~~~~~
 
 The DELETE Object Tagging operation does not return response elements.
 
 Examples
 --------
 
-*Request Sample*
+Request
+~~~~~~~
 
 .. code::
 
@@ -67,10 +74,11 @@ Examples
    Date: Wed, 12 Oct 2016 17:50:00 GMT
    Authorization: {{authorizationString}}
 
-*Response Sample*
+Response
+~~~~~~~~
 
-The following successful response shows Amazon S3 returning a 204 No
-Content response. The tag set for the object has been removed.
+The following successful response shows Amazon S3 returning a 204 No Content
+response. The tag set for the object has been removed.
 
 .. code::
 

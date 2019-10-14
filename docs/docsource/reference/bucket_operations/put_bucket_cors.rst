@@ -60,74 +60,74 @@ Elements
 .. table::
    :class: longtable
 
-   +-------------------+-----------+-------------------------------------------+
-   | Element           | Type      | Description                               |
-   +===================+===========+===========================================+
-   | CORSConfiguration | Container | Container for up to 100 CORSRules         |
-   |                   |           | elements.                                 |
-   |                   |           |                                           |
-   |                   |           | Ancestors: None                           |
-   +-------------------+-----------+-------------------------------------------+
-   | CORSRule          | Container | A set of origins and methods (cross-      |
-   |                   |           | origin access that you want to allow).    |
-   |                   |           | You can add up to 100 rules to the        |
-   |                   |           | configuration.                            |
-   |                   |           |                                           |
-   |                   |           | Ancestors: CORSConfiguration              |
-   +-------------------+-----------+-------------------------------------------+
-   | ID                | String    | A unique identifier for the rule. The ID  |
-   |                   |           | value can be up to 255 characters long.   |
-   |                   |           | The IDs help you find a rule in the       |
-   |                   |           | configuration.                            |
-   |                   |           |                                           |
-   |                   |           | Ancestors: CORSRule                       |
-   +-------------------+-----------+-------------------------------------------+
-   | AllowedMethod     | Enum      | An HTTP method that you want to allow the |
-   |                   |           | origin to execute. Each CORSRule must     |
-   |                   |           | identify at least one origin and one      |
-   |                   |           | method.                                   |
-   |                   |           |                                           |
-   |                   |           | Ancestors: CORSRule                       |
-   +-------------------+-----------+-------------------------------------------+
-   | AllowedOrigin     | String    | An origin from which you want to allow    |
-   |                   |           | cross-domain requests. This can contain   |
-   |                   |           | at most one \* wildcard character.        |
-   |                   |           | Each CORSRule must identify at least one  |
-   |                   |           | origin and one method.                    |
-   |                   |           |                                           |
-   |                   |           | Ancestors: CORSRule                       |
-   +-------------------+-----------+-------------------------------------------+
-   | AllowedHeader     | String    | Specifies which headers are allowed in a  |
-   |                   |           | pre-flight OPTIONS request via the        |
-   |                   |           | Access-Control-Request-Headers header.    |
-   |                   |           | Each header name specified in the         |
-   |                   |           | Access-Control-Request-Headers header     |
-   |                   |           | must have a corresponding entry in the    |
-   |                   |           | rule to get a ``200 OK`` response from    |
-   |                   |           | the preflight request. In a response,     |
-   |                   |           | CloudServer sends only the allowed        | 
-   |                   |           | headers that were requested. This can     |
-   |                   |           | contain at most one \* wildcard           |
-   |                   |           | character.                                |
-   |                   |           |                                           |
-   |                   |           | Ancestors: CORSRule                       |
-   +-------------------+-----------+-------------------------------------------+
-   | MaxAgeSeconds     | Integer   | The time in seconds that your browser is  |
-   |                   |           | to cache the preflight response for the   |
-   |                   |           | specified resource. A CORSRule can have   |
-   |                   |           | at most one MaxAgeSeconds element.        |
-   |                   |           |                                           |
-   |                   |           | Ancestors: CORSRule                       |
-   +-------------------+-----------+-------------------------------------------+
-   | ExposeHeader      | String    | One or more headers in the response that  |
-   |                   |           | you want customers to be able to access   |
-   |                   |           | from their applications (for example,     |
-   |                   |           | from a JavaScript XMLHttpRequest object). |
-   |                   |           | Add one ExposeHeader element in the rule  |
-   |                   |           | for each header.                          |
-   |                   |           |                                           |
-   |                   |           | Ancestors: CORSRule                       |
-   +-------------------+-----------+-------------------------------------------+
+   +-----------------------+-----------+-------------------------------------------+
+   | Element               | Type      | Description                               |
+   +=======================+===========+===========================================+
+   | ``CORSConfiguration`` | Container | Container for up to 100 CORSRules         |
+   |                       |           | elements.                                 |
+   |                       |           |                                           |
+   |                       |           | **Ancestors:** None                       |
+   +-----------------------+-----------+-------------------------------------------+
+   | ``CORSRule``          | Container | A set of origins and methods (cross-      |
+   |                       |           | origin access that you want to allow).    |
+   |                       |           | You can add up to 100 rules to the        |
+   |                       |           | configuration.                            |
+   |                       |           |                                           |
+   |                       |           | **Ancestors:** CORSConfiguration          |
+   +-----------------------+-----------+-------------------------------------------+
+   | ``ID``                | String    | A unique identifier for the rule. The ID  |
+   |                       |           | value can be up to 255 characters long.   |
+   |                       |           | The IDs help you find a rule in the       |
+   |                       |           | configuration.                            |
+   |                       |           |                                           |
+   |                       |           | **Ancestors:** CORSRule                   |
+   +-----------------------+-----------+-------------------------------------------+
+   | ``AllowedMethod``     | Enum      | An HTTP method that you want to allow the |
+   |                       |           | origin to execute. Each CORSRule must     |
+   |                       |           | identify at least one origin and one      |
+   |                       |           | method.                                   |
+   |                       |           |                                           |
+   |                       |           | **Ancestors:** CORSRule                   |
+   +-----------------------+-----------+-------------------------------------------+
+   | ``AllowedOrigin``     | String    | An origin from which you want to allow    |
+   |                       |           | cross-domain requests. This can contain   |
+   |                       |           | at most one \* wildcard character.        |
+   |                       |           | Each CORSRule must identify at least one  |
+   |                       |           | origin and one method.                    |
+   |                       |           |                                           |
+   |                       |           | **Ancestors:** CORSRule                   |
+   +-----------------------+-----------+-------------------------------------------+
+   | ``AllowedHeader``     | String    | Specifies which headers are allowed in a  |
+   |                       |           | pre-flight OPTIONS request via the        |
+   |                       |           | Access-Control-Request-Headers header.    |
+   |                       |           | Each header name specified in the         |
+   |                       |           | Access-Control-Request-Headers header     |
+   |                       |           | must have a corresponding entry in the    |
+   |                       |           | rule to get a ``200 OK`` response from    |
+   |                       |           | the preflight request. In a response,     |
+   |                       |           | CloudServer sends only the allowed        | 
+   |                       |           | headers that were requested. This can     |
+   |                       |           | contain at most one \* wildcard           |
+   |                       |           | character.                                |
+   |                       |           |                                           |
+   |                       |           | **Ancestors:** CORSRule                   |
+   +-----------------------+-----------+-------------------------------------------+
+   | ``MaxAgeSeconds``     | Integer   | The time in seconds that your browser is  |
+   |                       |           | to cache the preflight response for the   |
+   |                       |           | specified resource. A CORSRule can have   |
+   |                       |           | at most one MaxAgeSeconds element.        |
+   |                       |           |                                           |
+   |                       |           | **Ancestors:** CORSRule                   |
+   +-----------------------+-----------+-------------------------------------------+
+   | ``ExposeHeader``      | String    | One or more headers in the response that  |
+   |                       |           | you want customers to be able to access   |
+   |                       |           | from their applications (for example,     |
+   |                       |           | from a JavaScript XMLHttpRequest object). |
+   |                       |           | Add one ExposeHeader element in the rule  |
+   |                       |           | for each header.                          |
+   |                       |           |                                           |
+   |                       |           | **Ancestors:** CORSRule                   |
+   +-----------------------+-----------+-------------------------------------------+
 
 Responses
 ---------
