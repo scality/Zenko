@@ -9,6 +9,7 @@ spec:
   schedule: "{{ .Values.maintenance.retryFailed.schedule }}"
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: {{ .Values.maintenance.successfulJobsHistory }}
+  startingDeadlineSeconds: 3600
   failedJobsHistoryLimit: 3
   jobTemplate:
     spec:
