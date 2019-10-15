@@ -9,6 +9,7 @@ spec:
   suspend: {{ .Values.rclone.suspend }}
   schedule: {{ .Values.rclone.schedule | quote }}
   concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 3600
   successfulJobsHistoryLimit: {{ .Values.rclone.successfulJobsHistory }}
   failedJobsHistoryLimit: 3
   jobTemplate:
