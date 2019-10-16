@@ -26,12 +26,12 @@ noCache: true
 persistentVolume:
   enabled: true
   accessModes:
-    - ReadWriteOnce
+  - ReadWriteOnce
   annotations: {}
-  existingClaim: ""
+  existingClaim: ''
   size: 90Gi
   # storageClass: "-"
-allowHealthchecksFrom: '0.0.0.0/0'
+allowHealthchecksFrom: 0.0.0.0/0
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

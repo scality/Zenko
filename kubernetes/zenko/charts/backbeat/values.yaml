@@ -15,7 +15,7 @@ image:
 
 logging:
    # Options: info, debug, trace
-   level: info
+  level: info
 
 mongodb:
   replicaSet: rs0
@@ -33,14 +33,14 @@ health:
 
 monitoring:
   annotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/port: "4042"
-    prometheus.io/path: "/_/monitoring/metrics"
+    prometheus.io/scrape: 'true'
+    prometheus.io/port: '4042'
+    prometheus.io/path: /_/monitoring/metrics
   collectDefaultMetricsIntervalMs: 10000
 
 kafka:
   backlog_metrics:
-    path: "/backbeat/run/kafka-backlog-metrics"
+    path: /backbeat/run/kafka-backlog-metrics
     interval: 60
 
 api:
@@ -49,9 +49,9 @@ api:
     name: backbeat-api
     type: ClusterIP
     annotations:
-      prometheus.io/scrape: "true"
-      prometheus.io/port: "8900"
-      prometheus.io/path: "/_/monitoring/metrics"
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8900'
+      prometheus.io/path: /_/monitoring/metrics
   autoscaling:
     enabled: false
     config:
@@ -96,7 +96,7 @@ ingestion:
 
 lifecycle:
   conductor:
-    cronRule: "0 */6 * * *"
+    cronRule: 0 */6 * * *
     resources: {}
     nodeSelector: {}
     tolerations: []
@@ -119,15 +119,15 @@ lifecycle:
     affinity: {}
 
   zookeeper:
-    path: "/lifecycle"
+    path: /lifecycle
 
   rules:
     expiration:
-      enabled: True
+      enabled: true
     noncurrentVersionExpiration:
-      enabled: True
+      enabled: true
     abortIncompleteMPU:
-      enabled: True
+      enabled: true
 
 replication:
   dataProcessor:
