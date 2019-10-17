@@ -199,7 +199,7 @@ latex_elements = {
     'preamble': scaldoc.resources.get_latex_preamble(
         cover=os.path.basename(latex_cover),
         logo=os.path.basename(latex_logo),
-        title='latex_title',
+        title=latex_title,
         title_voffset='85pt',
         version=release,
         copyright=copyright
@@ -216,30 +216,30 @@ latex_additional_files.extend(scaldoc.resources.get_fonts())
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 
-# if tags.has('install'):
-#    latex_documents = [(
-#       'installation/index_pdf',
-#       'Zenko_Installation.tex',
-#       'Zenko Installation Documentation',
-#       'Scality Technical Publications',
-#       'manual'
-#    )]
-# elif tags.has('operation'):
-#    latex_documents = [(
-#       'operation/index_pdf',
-#       'Zenko_Operation.tex',
-#       'Zenko Operation Documentation',
-#       'Scality Technical Publications',
-#       'manual'
-#    )]
-# elif tags.has('reference'):
-#    latex_documents = [(
-#       'reference/index_pdf',
-#       'Zenko_Reference.tex',
-#       'Zenko Reference Documentation',
-#       'Scality Technical Publications',
-#       'manual'
-#    )]
+if tags.has('install'):
+   latex_documents = [(
+      'installation/index',
+      'Zenko_Installation.tex',
+      'Zenko Installation Documentation',
+      'Scality Technical Publications',
+      'manual'
+   )]
+elif tags.has('operation'):
+   latex_documents = [(
+      'operation/index',
+      'Zenko_Operation.tex',
+      'Zenko Operation Documentation',
+      'Scality Technical Publications',
+      'manual'
+   )]
+elif tags.has('reference'):
+   latex_documents = [(
+      'reference/index',
+      'Zenko_Reference.tex',
+      'Zenko Reference Documentation',
+      'Scality Technical Publications',
+      'manual'
+   )]
 
 # Override the default formatter with our custom one.
 
