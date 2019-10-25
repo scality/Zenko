@@ -17,8 +17,11 @@ your data. To set up a Sandbox instance:
 
    |image0|
 
-#. The Welcome dialog displays:
+#. Click **Register with Google**. You must authenticate using a Google ID.
 
+   .. image:: ../../Resources/Images/Orbit_Screencaps/google_login.png
+
+#. After you have registered, the Welcome dialog displays:
    |image1|
 
    Click **Install now**.
@@ -29,7 +32,7 @@ your data. To set up a Sandbox instance:
 
    Choose the Sandbox option (**Next: Let's do this!**)
 
-#. The **LAST STEP: CREATE YOUR ZENKO SANDBOX** screen displays:
+#. The **CREATE YOUR ZENKO SANDBOX** screen displays:
 
    |image3|
 
@@ -39,15 +42,39 @@ your data. To set up a Sandbox instance:
 
    |image4|
 
-   You’ve created your sandbox!
+   Your sandbox is created. Depending on server load, there may be a delay of
+   a few minutes to complete the Orbit setup.
 
-   The sandbox runs against a Zenko instance hosted by Scality. This is
-   a demonstration instance, limited both in its lifespan and in the
-   amount of data it can handle. Nonetheless, you can use it to watch
-   Zenko in action.
+#. Once setup is complete, you're taken automatically to the **STORAGE
+   ACCOUNTS** screen for account creation.
+
+   .. image:: ../../Resources/Images/Orbit_Screencaps/newuser_add_storage_location_prompt.png   
+
+#. Add a storage account name and click the **Generate** button. This creates a
+   new user/account, and generates an access/secret key pair.
+
+
+#. Click **Show** to reveal your secret key. Copy this to a secure location,
+   either by highlighting the exposed text or clicking the **Copy** button to
+   transfer the secret key to your clipboard.
+
+   .. image:: ../../Resources/Images/Orbit_Screencaps/secret_key_my_account.png
+
+   .. important:: You do not get a second chance. Copy this now.
+
+#. The sandbox is for demonstration purposes, and is limited for total data
+   managed (1 TB) and time (48 hours). Scality may change these limits without
+   notice. You can review how much time remains for your sandbox by reviewing the
+   **Settings** window's **Sandbox Time Left** indicator.
+
+   .. image:: ../../Resources/Images/Orbit_Screencaps/sandbox_settings.png
+
+   The sandbox runs against a Zenko instance hosted by Scality. Though this
+   demonstration instance is limited both in its lifespan and in the amount of
+   data it can handle, you can use it to watch Zenko in action. 
 
 .. |image0| image:: ../../Resources/Images/Orbit_Screencaps/Zenko.io_screen.png
 .. |image1| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_Welcome_screen.png
 .. |image2| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_register_1.png
 .. |image3| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_Enter_Sandbox.png
-.. |image4| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_settings.png
+.. |image4| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_settings_setup.png

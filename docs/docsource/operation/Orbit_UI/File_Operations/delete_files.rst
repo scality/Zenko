@@ -5,32 +5,44 @@ Deleting Objects
 
 To delete objects from a selected bucket:
 
-#. Click the check box next to each object to be deleted. The number 
-   of objects to be deleted is indicated in the top bar of the file 
-   list.
+#. Click the **Browser** button in the sidebar to open the Multicloud Browser:
 
-   |image0|
+   .. image:: ../../Resources/Images/Orbit_Screencaps/sidebar_browser_button.png
+
+#. Double-click a button to open it:   
+
+   .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_multicloud_browser_with_values1.png
+      :align: center
+
+#. Click the check box next to each object to be deleted. The number of objects
+   to be deleted is indicated in the top bar of the file list.
+
+   .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_file_delete.png
+      :align: center
 
 #. Click the **Delete** button.
 
-   |image1|
+   .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_file_delete_button.png
+      :align: center
 
 #. Orbit requests confirmation of the deletion.
 
-   |image2|
+   .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_file_delete_confirm.png
+      :align: center
 
 #. The object is deleted from the bucket.
 
    .. important::
 
-      If versioning is enabled (the recommended configuration for
-      AWS nodes) deleting from the Orbit UI deletes the most
-      recent version of the object only. This results in a condition
-      where the bucket appears empty, but continues to contain
-      previous versions of the deleted object. This prevents the
-      bucket from being deleted, because it is not empty. To completely
-      delete an object and its version history requires entering
-      the CLI commands described below.
+      If versioning is enabled (the recommended configuration for AWS nodes)
+      deleting from the Orbit UI deletes the most recent version of the object
+      only. This results in a condition where the bucket appears empty, but
+      continues to contain previous versions of the deleted object. This
+      prevents the bucket from being deleted, because it is not empty. To
+      completely delete an object and its version history requires entering the
+      CLI commands described below.
+
+.. _Deleting Versioned Objects:
 
 Deleting Versioned Objects
 --------------------------
@@ -59,8 +71,8 @@ Run it as follows:
 
    .. tip::
 
-      The s3utils pod is disabled by default. You can also enable it
-      by adding the following to the options file and upgrading your Zenko deployment::
+      The s3utils pod is disabled by default. You can also enable it by adding
+      the following to the options file and upgrading your Zenko deployment::
 
         maintenance:
 	  debug:
@@ -69,12 +81,12 @@ Run it as follows:
 	      accessKey: <access-key>
 	      secretKey: <secret-key>
 
-#. Exec into the pod. First grep for your s3utils pod::
+#. Use grep to find the s3utils pod::
 
      $ kubectl get pods | grep s3utils
      myzenko-zenko-debug-s3utils-7f77f9b5b9-627gz   1/1  Running   0   31m
 
-   Then exec into the pod::
+#. exec into the s3utils pod::
 
      $ kubectl exec -it myzenko-zenko-debug-s3utils-7f77f9b5b9-627gz bash
 
@@ -92,7 +104,3 @@ from the command line with::
    $ aws s3api delete-bucket --bucket <bucket-name> --endpoint-url http://<zenko.endpoint.url>
 
 or delete the bucket using the Orbit Multicloud Browser.
-
-.. |image0| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_file_delete.png
-.. |image1| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_file_delete_button.png
-.. |image2| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_file_delete_confirm.png

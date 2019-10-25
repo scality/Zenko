@@ -12,7 +12,7 @@ and a location to send transitioned data to.
 
 To establish a lifecycle transition rule:
 
-#. From anywhere in Orbit, click the **Bucket Lifecycle** tab in the left navbar.
+#. Click the **Bucket Lifecycle** tab in the sidebar.
 
    .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_lifecycle_select.png
       :scale: 80%
@@ -24,13 +24,13 @@ To establish a lifecycle transition rule:
 #. Choose a bucket and pick **Add New Rule > Transition**
 
    .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_lifecycle_add_new_rule.png
-      :scale: 75 %
+      :scale: 80 %
       :align: center
 
 #. The **Add New Transition Rule** dialog displays:
 
    .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_lifecycle_add_transition_rule.png
-      :scale: 50 %
+      :width: 75 %
       :align: center
 
    You may specify an prefix to identify objects to which the rule applies. Enter

@@ -45,7 +45,7 @@ extensions = [
             'sphinx.ext.ifconfig',
             'sphinxcontrib.spelling',
             'sphinxcontrib.inkscapeconverter',
-#	    'sphinx_version_ref',
+	    'sphinx_version_ref',
 ]
 
 plantuml_output_format = 'svg'

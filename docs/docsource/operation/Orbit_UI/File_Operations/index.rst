@@ -10,38 +10,37 @@ the file from the bucket.
 
 To access these operations:
 
-#. Click **Browser** in the sidebar to open the **Multicloud Browser**.
+#. Click **Browser** in the sidebar to open the Multicloud Browser.
+
+   .. image:: ../../Resources/Images/Orbit_Screencaps/sidebar_browser_button.png
+
 #. Double-click the bucket you want to access.
+
+   .. image:: ../../Resources/Images/Orbit_Screencaps/multicloud_browser_1_bucket.png
 
    -  If the bucket is empty, Zenko asks you to **Drag and Drop
       Objects**:
 
       |image0|
 
-      Clicking **Upload Objects** takes you to your local machine’s file
-      system to pick files to upgrade. Clicking **skip** takes you to the
+      Clicking the **Upload Objects** button takes you to your local machine’s
+      file system to pick files to upload. Clicking **skip** takes you to the
       empty bucket.
 
    -  Otherwise, the Multicloud Browser displays the bucket’s contents:
 
       |image1|
 
-For each file, you can Download_, `View Info`_, or Delete_.
+For each uploaded file, you can :ref:`Download<Download a File>`, :ref:`View Info<View
+File Info>`, or :ref:`Delete<deleting-objects>`.
 
 .. toctree::
    :maxdepth: 1
-   :hidden:
 
-     Upload Files <upload_files_to_buckets>
-     View Files <view_file_info>
-     Download Files <download_a_file>
-     Delete Files <delete_files>
-
-
-.. _Download: download_a_file.html
-.. _`View Info`: viewing_file_info.html
-.. _Delete: delete_files.html
-
+    Upload Files <upload_files_to_buckets>
+    View Files <view_file_info>
+    Download Files <download_a_file>
+    Delete Files <delete_files>
 
 .. |image0| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_upload_objects.png
    :class: FiftyPercent

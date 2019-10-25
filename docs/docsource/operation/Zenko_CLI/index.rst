@@ -11,7 +11,7 @@ the following features:
 
   *  :ref:`crr_metrics-health`
   *  :ref:`crr_retry`
-  *  :ref:`crr_pause-resume`
+  *  :ref:`CRR Pause and Resume`
   *  :ref:`object_lifecycle`
   *  :ref:`Monitoring_NFS-SOFS_Ingestion`
   *  :ref:`Managing Bucket Policies`
@@ -29,7 +29,7 @@ or both.
    setting_up_api_access
    CRR_Metrics_and_Health
    CRR_Retry
-   CRR_Pause_&_Resume
+   CRR_Pause-Resume
    Object_Lifecycle_Management
    Monitoring_NFS-SOFS_Ingestion
    managing_bucket_policies

@@ -22,7 +22,8 @@ To access this feature:
 
 #. Orbit displays bucket info:
 
-   |image1|
+   .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_bucket_view_info.png
+      :align: center
 
 From this panel, you can:
 
@@ -35,4 +36,4 @@ at: \ https://docs.aws.amazon.com/AmazonS3/latest/dev/Versioning.html.
 Zenko implements S3 logic for versioning.
 
 .. |image0| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_multicloud_browser_with_values.png
-.. |image1| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_bucket_view_info.png
+

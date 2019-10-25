@@ -1,3 +1,5 @@
+.. _Searching Metadata with Zenko:
+
 Searching Metadata with Zenko
 =============================
 
@@ -16,7 +18,6 @@ by
    described in `Using search_bucket`_.
 -  Making an Auth V4-signed HTTP request to Zenko as described in
    `HTTP Search Requests`_.
-
 
 .. _`Searching Metadata from Orbit`: ../Orbit_UI/Searching_Metadata_from_Orbit.html
 .. _`Using search_bucket`: Using_search_bucket.html

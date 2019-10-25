@@ -1,22 +1,19 @@
 Removing a User
 ===============
 
-#. Click **Settings** in the sidebar.
+#. Click **Storage Accounts** in the sidebar.
 
-#. Scroll to **Storage Account Management** and select the user to
-   remove:
+   .. image:: ../../Resources/Images/Orbit_Screencaps/sidebar_storage_accounts_button.png
 
-   |image0|
+#. Find the user to remove:
 
-#. Click **Revoke**. Orbit requests confirmation.
+   .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_User_Remove_Name.png
+      :class: OneHundredPercent
 
-   |image1|
+#. Click **Delete**. Orbit requests confirmation.
 
-#. The user’s access key is revoked.
-
-
-
-.. |image0| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_User_Remove_Name.png
-   :class: OneHundredPercent
-.. |image1| image:: ../../Resources/Images/Orbit_Screencaps/orbit_user_revoke_warning.png
-   :class: FiftyPercent
+   .. image:: ../../Resources/Images/Orbit_Screencaps/orbit_user_revoke_warning.png
+      :align: center
+   
+#. The user’s access key is revoked and the user name is deleted from the list of
+   storage accounts/tenants. 

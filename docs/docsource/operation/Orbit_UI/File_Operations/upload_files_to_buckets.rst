@@ -5,24 +5,37 @@ Uploading Files to Buckets
 storage account associated with a user name, and you must have created
 at least one bucket.
 
-#. Click **Browser** in the sidebar to open the **Multicloud Browser**:
+#. Click **Browser** in the sidebar to open the Multicloud Browser:
+
+   .. image:: ../../Resources/Images/Orbit_Screencaps/sidebar_browser_button.png
+
+#. Double-click the bucket to which you will upload data. 
+
    |image0|
 
-#. Double-click the bucket to which you will upload data. **The Drag and
-   Drop Objects** dialog displays:
+   - If the bucket is empty, the **Drag and Drop Objects** dialog displays:
 
-   |image1|
+     |image1|
 
-#. Upload files either by dragging and dropping from the local
-   operating system (Windows Explorer, OS X, Linux desktop) or by
-   clicking the **Upload Objects** button.
+   - Otherwise, Orbit displays the bucket's contents:
+
+     .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_file_operations.png
+
+   - Click **Upload** to raise the **Drag and Drop Objects** dialog.
+  
+     .. image:: ../../Resources/Images/Orbit_Screencaps/upload_button_hover.png
+
+#. In the **Drag and Drop Objects** dialog, you can either upload files by
+   dragging and dropping from the local desktop (Windows Explorer, OS X, Linux
+   desktop, for example) or by clicking the **Upload Objects** button and
+   selecting files for upload using your local operating system's file manager.
 
    .. note::
 
-      Browsers may limit the ability to upload directories.
-      Uploading a directory may require that you recursively zip the
-      directory and upload it as a single file, or access Zenko through a
-      cloud storage browser such as Cyberduck.
+      Browsers may limit the ability to upload directories. Uploading a
+      directory may require that you recursively zip the directory and upload it
+      as a single file, or access Zenko through a cloud storage browser such as
+      Cyberduck.
 
    .. note::
 
@@ -30,5 +43,5 @@ at least one bucket.
       fewer than the 1024 one-byte characters permitted in the AWS
       specification).
 
-.. |image0| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_multicloud_browser_with_values.png
+.. |image0| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_multicloud_browser_with_values1.png
 .. |image1| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_upload_objects.png

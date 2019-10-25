@@ -24,7 +24,10 @@ Follow these steps to install Zenko with ingress.
 
 .. _create_options.yaml:
 
-1. Create an options.yaml file in Zenko/kubernetes/ to store deployment
+Configure with options.yaml
+---------------------------
+
+#. Create an options.yaml file in Zenko/kubernetes/ to store deployment
    parameters. Enter the following parameters:
    ::
 
@@ -41,10 +44,10 @@ Follow these steps to install Zenko with ingress.
    You can edit these parameters using each component’s values.yaml file
    as your guide. Save this file.
 
-2. To configure the ingress controller for HTTPS, go to
+#. To configure the ingress controller for HTTPS, go to
    “:ref:`configure_ingress`” for additional terms to add to this chart.
 
-3. If your Zenko instance is behind a proxy, add the following lines to the
+#. If your Zenko instance is behind a proxy, add the following lines to the
    options.yaml file:
 
    ::
@@ -77,8 +80,10 @@ Follow these steps to install Zenko with ingress.
       To avoid unexpected behavior, specify only one of the
       "http" or "https" proxy options.
 
+Install with Helm
+-----------------
 
-4. Perform the following Helm installation from the kubernetes directory
+#. Perform the following Helm installation from the kubernetes directory
    ::
 
     $ helm install --name my-zenko -f options.yaml zenko
@@ -92,7 +97,7 @@ Follow these steps to install Zenko with ingress.
       end with alphabetic or numeric characters. Punctuation marks, including
       periods, are not permitted. 
 
-5. To see Kubernetes's progress creating pods for Zenko, the command:
+#. To see Kubernetes's progress creating pods for Zenko, the command:
    ::
 
     $ kubectl get pods -n default -o wide
@@ -101,17 +106,22 @@ Follow these steps to install Zenko with ingress.
    Helm install, some pods will show CrashLoopBackOff issues. This is
    expected behavior, because there is no launch order between pods.
    After a few minutes, all pods will enter Running mode.
+   
+.. _Register with Orbit: 
 
+Register with Orbit
+-------------------
 
-6. To register your Zenko instance for Orbit access, get your
-   CloudServer’s name:
+#. To register your Zenko instance for Orbit access, get your CloudServer’s
+   name:
+
    ::
 
      $ kubectl get -n default pods | grep cloudserver-manager
 
      my-zenko-cloudserver-manager-76f657695-j25wq      1/1   Running   0       3m
 
-   Then grab your CloudServer’s logs with the command:
+#. Grab your CloudServer’s logs with the command:
    ::
 
      $ kubectl logs my-zenko-cloudserver-manager-<id> | grep 'Instance ID'
@@ -129,12 +139,12 @@ Follow these steps to install Zenko with ingress.
 
    Copy the instance ID.
 
-7. Open https://admin.zenko.io/user in a web browser. You may be prompted to
+#. Open https://admin.zenko.io/user in a web browser. You may be prompted to
    authenticate through Google.
 
-8. Click the **Register My Instance** button.
+#. Click the **Register My Instance** button.
 
-9. Paste the instance ID into the Instance ID dialog. Name the instance what
+#. Paste the instance ID into the Instance ID dialog. Name the instance what
    you will.
 
 Your instance is registered.
