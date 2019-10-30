@@ -18,7 +18,16 @@ and ensuring that the endpoints and containers it administers are available to
 it from that server.
 
 Once Zenko is installed, Kubernetes manages system operations on all servers.
-You will manage and reconfigure Zenko using Helm commands. 
+You will manage and reconfigure Zenko using Helm commands.
+
+.. only:: html
+
+   For more information on configuration, refer to :ref:`Supported Sources`.
+
+.. only:: latexpdf
+
+   For more information on configuration, refer to Supported Sources in
+   Operation.
 
 .. toctree::
    :maxdepth: 2

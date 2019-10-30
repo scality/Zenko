@@ -5,6 +5,8 @@ Zenko replicates and manages data from one or many sources to one or several
 destinations. Sources can be clouds or services, and targets can be of several
 types of cloud backend.
 
+.. _Supported Sources:
+
 Supported Sources
 -----------------
 
