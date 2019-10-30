@@ -26,8 +26,8 @@ AWS-to-AWS Replication
 
    .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_set_up_bucket_replication_pulldown.png
 
-#. With the AWS target now visible, enter the flow as described in `Set Up
-   Replication`_.
+#. With the AWS target now visible, enter the flow as described in :ref:`Set Up
+   Replication`.
 
-.. _`Set Up Replication`: set_up_crr.html
+
 

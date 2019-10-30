@@ -25,14 +25,8 @@ Syntax
    <LocationConstraint>scality-us-west-1</LocationConstraint>
    </CreateBucketConfiguration>
 
-.. note::
-
-  The possible options for a LocationConstraint are configured in the
-  env_s3 setting of the S3 Configuration. For more information, refer to
-  "Modifying the Group Variables (all) File" in the *Installation Guide*.
-
 If the Host header of a PUT Bucket request does not match any of the
-rest endpoints in your configuration, and a region is not specified in
+REST endpoints in your configuration, and a region is not specified in
 the request, it will be automatically assigned us-east-1.
 
 This syntax illustrates only a portion of the request headers.
@@ -47,9 +41,8 @@ Headers
 
 The PUT Bucket operation can use a number of optional request headers in
 addition to those that are common to all operations (refer to :ref:`Common
-Request Headers`). These request headers are used either to
-specify a predefined—or *canned*—ACL, or to explicitly specify access
-permissions.
+Request Headers`). These request headers are used either to specify a
+predefined—-or *canned*—-ACL, or to explicitly specify access permissions.
 
 Specifying a Canned ACL
 ```````````````````````
@@ -225,12 +218,6 @@ Response
 
 Setting a Bucket's Location Constraint
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. note::
-
-  The possible options for a LocationConstraint are configured in the
-  env_s3 setting of the S3 Configuration. For more information, see
-  “Modifying the Group Variables (all) File” in the *Installation Guide*.
 
 Request
 ```````

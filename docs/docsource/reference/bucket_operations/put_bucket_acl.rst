@@ -347,7 +347,7 @@ The request sample uses ACL-specific request headers to grant the
 following permissions:
 
 -  Write permission to the Zenko LogDelivery group and an account identified
-   by the email xyz@example.com
+   by the email \xyz@example.com
 -  Read permission to the Zenko AllUsers group
 
 Request Sample

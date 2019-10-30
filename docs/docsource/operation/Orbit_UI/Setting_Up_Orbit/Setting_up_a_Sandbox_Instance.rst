@@ -1,8 +1,11 @@
-Setting Up a Zenko Orbit Sandbox Instance
-=========================================
+.. _Setting Up an Orbit Sandbox Instance:
+
+Setting Up an Orbit Sandbox Instance
+====================================
 
 A good way to learn how to use Orbit is through the sandbox feature
-available at https://www.zenko.io/ under “Try Zenko”.
+available at `zenko.io <https://zenko.io/>`__ under
+`Try Zenko <https://www.zenko.io/try-zenko/>`__.
 
 **Prerequisites**
 
@@ -12,8 +15,8 @@ available at https://www.zenko.io/ under “Try Zenko”.
 The Sandbox is a great place to learn how Orbit will help you manage
 your data. To set up a Sandbox instance:
 
-#. Open `https://Zenko.io <https://zenko.io/>`__, and click **Try
-   Zenko** 
+#. Open `zenko.io <https://zenko.io/>`__, and click `Try Zenko
+   <https://www.zenko.io/try-zenko/>`__.
 
    |image0|
 
@@ -22,6 +25,7 @@ your data. To set up a Sandbox instance:
    .. image:: ../../Resources/Images/Orbit_Screencaps/google_login.png
 
 #. After you have registered, the Welcome dialog displays:
+
    |image1|
 
    Click **Install now**.

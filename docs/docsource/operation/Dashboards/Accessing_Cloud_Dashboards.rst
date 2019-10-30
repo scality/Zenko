@@ -17,7 +17,8 @@ To access cloud management dashboards,
        $ export KUBECONFIG=`pwd`/inventory/<cluster-name>/artifacts/admin.conf
 
 #. Open a browser, and enter the Kubernetes dashboard at:
-   http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/overview?namespace=default
+   `http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/overview?namespace=default <http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/overview\?namespace=default>`_
+
 #. Log into your Kubernetes installation.
 
    |image0|

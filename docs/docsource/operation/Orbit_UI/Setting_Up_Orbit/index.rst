@@ -1,3 +1,5 @@
+.. _Setting Up Orbit:
+
 Setting Up Orbit
 ================
 

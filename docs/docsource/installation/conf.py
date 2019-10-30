@@ -30,9 +30,9 @@ copyright = '2019, Scality, Inc'
 author = 'Scality Technical Publications'
 
 # The short X.Y version
-version = '1.1'
+version = '1.1.0'
 # The full version, including alpha/beta/rc tags
-release = '1.1'
+release = '1.1.0'
 
 
 # -- General configuration ---------------------------------------------------

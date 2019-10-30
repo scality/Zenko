@@ -70,8 +70,8 @@ All Zenko response headers are listed on separate lines.
    |                          |         | returned was or was not a delete     |
    |                          |         | marker.                              |
    |                          |         |                                      |
-   |                          |         | **Valid Values:** ``true`` \|        |
-   |                          |         |  ``false``                           |
+   |                          |         | **Valid Values:**                    |
+   |                          |         |  ``true`` | ``false``                |
    |                          |         |                                      |
    |                          |         | **Default:** false                   |
    +--------------------------+---------+--------------------------------------+

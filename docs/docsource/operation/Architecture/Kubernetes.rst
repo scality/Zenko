@@ -41,9 +41,9 @@ systems are available. Consequently, MetalK8s focuses on managing
 node-local storage and exposing these volumes to containers managed in
 the cluster.
 
-MetalK8s is hosted at https://github.com/scality/metalk8s. Instructions
-for deploying MetalK8s on your choice of hardware (real or virtual) are
-provided in the project’s Quickstart. Documentation is available
-at: https://metal-k8s.readthedocs.io/. Installation instructions
-specific to deploying MetalK8s for Zenko are included in the Zenko
-*Installation Guide*.
+MetalK8s is hosted at https://github.com/scality/metalk8s. Instructions for
+deploying MetalK8s on your choice of hardware (real or virtual) are provided in
+the project’s Quickstart. Documentation is available at:
+https://metal-k8s.readthedocs.io/. Installation instructions specific to
+deploying MetalK8s for Zenko are included in :version-ref:`Zenko Installation                                             
+<https://documentation.scality.com/Zenko/{version}/installation/index.html>`.

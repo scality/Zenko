@@ -14,11 +14,11 @@ contents of the response and to handle them appropriately.
    Using the v2 implementation requires READ access to the bucket.
 
 To use this operation in an AWS Identity and Access Management (IAM) policy,
-perform the s3:ListBucket action. By dsefault, the bucket owner has this 
+perform the s3:ListBucket action. By dsefault, the bucket owner has this
 permission and can grant it to others. For more information about permissions,
-see `Permissions Related to Bucket Operations`_ and `Managing Access 
-Permissions to Your Amazon S3 Resources`_ in the `Amazon Simple Storage
-Service Developer Guide`_.
+see `Permissions Related to Bucket Operations`_ and `Identity and Access
+Management in Amazon S3`_ in the `Amazon Simple Storage Service Developer
+Guide`_.
 
 .. important::
 
@@ -26,10 +26,6 @@ Service Developer Guide`_.
    GET Bucket (List Objects) version 2, for application development. For
    backward compatibility, support is maintained for the prior version of this
    API operation, :ref:`GET Bucket (List Objects)`.
-
-.. note::
-
-   To list buckets, use `GET Service`_.
 
 Requests
 --------
@@ -101,8 +97,8 @@ GET Bucket (List Objects) Version 2 uses the following parameters:
    |                        | more. If additional keys that satisfy the   |          |
    |                        | search were not returned because max-keys   |          |
    |                        | was exceeded, the response contains         |          |
-   |                        | <IsTruncated>true</IsTruncated>. To return  |          |
-   |                        | these additional keys, see                  |          |
+   |                        | ``<IsTruncated>true</IsTruncated>``.        |          |
+   |                        | To return these additional keys, see        |          |
    |                        | NextContinuationToken_.                     |          |
    |                        |                                             |          |
    |                        | **Type:** String                            |          |
@@ -164,8 +160,8 @@ GET Bucket (List Objects) Version 2 uses the following parameters:
    |                        | This parameter is valid only in a first     |          |
    |                        | request. If the response is truncated,      |          |
    |                        | specifying this parameter along with the    |          |
-   |                        | ``continuation-token`` parameter causes S3  |          |
-   |                        | Connector to ignore this parameter.         |          |
+   |                        | ``continuation-token`` parameter causes     |          |
+   |                        | CloudServer to ignore this parameter.       |          |
    |                        |                                             |          |
    |                        | **Type:** String                            |          |
    |                        |                                             |          |
@@ -181,7 +177,7 @@ Headers
 ~~~~~~~
 
 This operation uses only request headers that are common
-to all operations (see `Common Request Headers`_).
+to all operations (see :ref:`Common Request Headers`).
 
 Responses
 ---------
@@ -190,7 +186,7 @@ Headers
 ~~~~~~~
 
 This operation uses only response headers that are
-common to most responses (see `Common Response Headers`_).
+common to most responses (see :ref:`Common Response Headers`).
 
 Elements
 ~~~~~~~~
@@ -384,9 +380,8 @@ Elements
 Special Errors
 ~~~~~~~~~~~~~~
 
-This operation does not return special errors. For
-general information about the AWS errors Zenko uses, and a list of error 
-codes, see `Error Responses`_.
+This operation does not return special errors. For general information about the
+AWS errors Zenko uses, and a list of error codes, see :ref:`Error Messages`.
 
 Examples
 --------
@@ -690,14 +685,10 @@ request ended.
 
 .. _`Permissions Related to Bucket Operations`: https://docs.aws.amazon.com/AmazonS3/latest/dev/using-with-s3-actions.html#using-with-s3-actions-related-to-buckets
 
-.. _`Managing Access Permissions to Your Amazon S3 Resources`: https://docs.aws.amazon.com/AmazonS3/latest/dev/s3-access-control.html
+.. _`Identity and Access Management in Amazon S3`: https://docs.aws.amazon.com/AmazonS3/latest/dev/s3-access-control.html
 
 .. _`Amazon Simple Storage Service Developer Guide`: https://docs.aws.amazon.com/AmazonS3/latest/dev/Welcome.html
 
 .. _`GET Service`: ../service_operations/get_service.html
-
-.. _`Common Request Headers`: ../zenko_api_primer/request_headers.html
-
-.. _`Common Response Headers`: ../zenko_api_primer/response_headers.html
 
 .. _`Error Responses`: https://docs.aws.amazon.com/AmazonS3/latest/API/ErrorResponses.html

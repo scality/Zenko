@@ -24,7 +24,7 @@ object <http://docs.aws.amazon.com/AmazonS3/latest/API/RESTOPTIONSobject.html>`_
 
 .. warning::
 
-  If a number of rules are specified, the first one matching the preflight
+  If several rules are specified, the first one matching the preflight
   request Origin, Access-Control-Request-Method header and
   Access-Control-Request-Headers header is the rule used to determine
   response headers that are relevant to CORS (the same behavior as AWS).

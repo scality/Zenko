@@ -22,8 +22,9 @@ users, however, may wish to interact directly with Zenko using its REST
 APIs. This guide provides an API reference for the benefit of such users.
 
 Some properties can only be managed through other APIs. Documentation is also
-furnished here for addressing :ref:`Prometheus` and :ref:`Backbeat` through
-their respective APIs.
+furnished here for addressing :ref:`Prometheus` and :ref:`Backbeat`. Prometheus
+API access is direct. The Backbeat API is accessed through CloudServer API
+calls.
 
 API Basics
 ----------

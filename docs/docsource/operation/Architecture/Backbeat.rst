@@ -28,6 +28,6 @@ health checks, and object lifecycle management. Further extensions are
 under development.
 
 Backbeat is an open-source project. You can learn more about it at its
-home repository: \ https://github.com/scality/backbeat.
+home repository: https://github.com/scality/backbeat.
 
 
