@@ -8,7 +8,7 @@ Cloud users can apply lifecycle rules (specified in Amazon’s `AWS S3 API
 managed through Zenko. These rules are triggered after a defined time has passed
 since the object’s last modification. Zenko supports expiration and transition
 of objects when a defined number of days has passed since those objects’
-creation. This enables automated deletion or movement of older vobjects.
+creation. This enables automated deletion or movement of older objects.
 
 Installation
 ------------

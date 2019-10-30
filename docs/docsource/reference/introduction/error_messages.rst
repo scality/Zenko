@@ -1,4 +1,4 @@
-.. _error messages:
+.. _Error Messages:
 
 Error Messages
 ==============
