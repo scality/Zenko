@@ -1,5 +1,26 @@
+Lifecycle Management Service
+============================
+
+Lifecycle management enables you to set policies in Zenko that control the
+lifecycle of objects in a bucket conforming to AWS S3 lifecycle rules. Lifecycle
+management gives users the ability to specify a time threshold beyond which
+certain files are to be moved (lifecycle transition) or expunged (lifecycle
+expiration) to free up storage space or reduce storage costs.  You can control
+lifecycle policies using the :ref:`Orbit user interface<object_lifecycle_mgmt>`,
+or with API calls.
+
+Using this Backbeat extension, Zenko follows the S3 API to provide three calls
+to manage lifecycle properties per bucket:
+
+-  PUT Bucket Lifecycle
+-  GET Bucket Lifecycle
+-  DELETE Bucket Lifecycle
+
+These calls manage bucket attributes related to lifecycle behavior, which are
+stored as bucket metadata.
+
 Lifecycle Policies
-==================
+------------------
 
 Cloud users can apply lifecycle expiration or transition rules (specified in 
 Amazon’s `AWS S3 API <https://docs.aws.amazon.com/AmazonS3/latest/API/Welcome.html>`__)

@@ -23,9 +23,9 @@ From the Command Line
 
 The CRR Retry feature comprises three API calls. These are:
 
--  List All Failed Operations by Location (GET)
--  List Failed Operations by Object (GET)
--  Retry Failed Operations (POST)
+* :version-ref:`List All Failed Operations by Location (GET) <https://documentation.scality.com/Zenko/{version}/reference/backbeat/crr_retry/get_all_failed.html>`
+* :version-ref:`List Failed Operations by Object (GET) <https://documentation.scality.com/Zenko/{version}/reference/backbeat/crr_retry/get_failed_ops_by_object.html>`  
+* :version-ref:`Retry Failed Operations (POST) <https://documentation.scality.com/Zenko/{version}/reference/backbeat/crr_retry/retry_failed_ops.html>`
 
 These requests, sent to the Backbeat endpoints, return members stored in
 ``bb:crr:failed:*`` Redis sorted sets. A Retry command removes the member and
@@ -33,3 +33,4 @@ changes the object's metadata “FAILED” status to “PENDING”, which queues
 be retried by the replication processor.
 
 .. _`Object Lifecycle Management`: ../Lifecycle_Management/Object_Lifecycle_Management.html
+

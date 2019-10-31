@@ -62,12 +62,14 @@ Set Up Out-of-Band Updates for S3 Connector
       multiple buckets in a location with this option enabled can lead to data
       loss" appears. This is expected. Click Save.
 
-      .. image:: ../Resources/Images/add_new_location_dialog.png
+      .. image:: ../Resources/Images/add_new_location_dialog.*
+         :width: 75%
+         :align: center
 
    The new cloud location appears in the Cloud Locations window. The Mirroring
    indicator is grayed out.
 
-   .. image:: ../Resources/Images/new_cloud_location.png
+   .. image:: ../Resources/Images/new_cloud_location.*
 
 #. Open the Multicloud Browser and click **Create Bucket**.
 
@@ -77,13 +79,13 @@ Set Up Out-of-Band Updates for S3 Connector
       the name of the storage location you created above. Pick the instance that
       is followed by "(Mirror mode)".
 
-      .. image:: ../Resources/Images/create_bucket_mirror_mode.png
+      .. image:: ../Resources/Images/create_bucket_mirror_mode.*
 
    #. Click **Create**.
 
    #. The Multicloud Browser view returns. 
 
-      .. image:: ../Resources/Images/mirroring_enabled_indicator.png
+      .. image:: ../Resources/Images/mirroring_enabled_indicator.*
 
       Note the icon at far right indicating metadata ingestion has been
       activated. In the **Cloud Locations** window, the **Mirroring** button is

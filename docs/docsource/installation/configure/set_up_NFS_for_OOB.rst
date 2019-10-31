@@ -35,6 +35,8 @@ specify the ``ro`` NFS option.
    different folders to their own buckets in Zenko.
 
    .. image:: ../Resources/Images/add_nfs_location.png
+      :scale: 75%
+      :align: center
 
 #. Create your bucket in the mirror-mode version of the location just
    created. As of Zenko 1.1.0, only the "Mirror Mode" option is supported, and

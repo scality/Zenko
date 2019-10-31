@@ -1,3 +1,5 @@
+.. _Zenko Installation:
+
 Zenko Installation
 ==================
 
