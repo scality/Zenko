@@ -169,7 +169,14 @@ install-ceph:
 		--install ../eve/workers/ceph/chart
 .PHONY: install-ceph
 
-install-zenko: | install-tiller
+update-chart-dependencies:
+ifndef NO_INSTALL
+	$(HELM) repo add jetstack https://charts.jetstack.io
+	$(HELM) dependency update ../kubernetes/zenko
+endif
+.PHONY: update-chart-dependencies
+
+install-zenko: | install-tiller update-chart-dependencies
 ifndef NO_INSTALL
 	$(HELM) upgrade $(ZENKO_HELM_RELEASE) \
 		--namespace $(HELM_NAMESPACE) \
@@ -180,7 +187,7 @@ ifndef NO_INSTALL
 endif
 .PHONY: install-zenko
 
-install-latest-zenko: | build-latest
+install-latest-zenko: | build-latest update-chart-dependencies
 ifndef NO_INSTALL
 	$(HELM) upgrade $(ZENKO_HELM_RELEASE) \
 		--namespace $(HELM_NAMESPACE) \

@@ -1,0 +1,50 @@
+{{- $successfulJobsHistory :=  .Values.blobserver.asyncDeletes.successfulJobsHistory -}}
+{{- $failedJobsHistory :=  .Values.blobserver.asyncDeletes.failedJobsHistory -}}
+{{- $local := . -}}
+{{- range .Values.blobserver.asyncDeletes.jobs }}
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ template "opal.fullname" $local }}-async-delete-{{ .name }}
+  labels:
+    app: {{ template "opal.name" $local }}-async-delete-{{ .name }}
+    chart: {{ template "opal.chart" $local }}
+    release: {{ $local.Release.Name }}
+    heritage: {{ $local.Release.Service }}
+spec:
+  schedule: "{{ .schedule }}"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: {{ $successfulJobsHistory }}
+  failedJobsHistoryLimit: {{ $failedJobsHistory }}
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      ttlSecondsAfterFinished: 120
+      template:
+        metadata:
+          labels:
+            app: {{ template "opal.name" $local }}-async-delete-{{ .name }}
+            chart: {{ template "opal.chart" $local }}-async-delete-{{ .name }}
+            release: {{ $local.Release.Name }}
+            heritage: {{ $local.Release.Service }}
+        spec:
+          restartPolicy: OnFailure
+          {{- if $local.Values.blobserver.image.imagePullSecret }}
+          imagePullSecrets:
+            - name: {{ $local.Values.blobserver.image.imagePullSecret }}
+          {{- end }}
+          containers:
+            - name: async-container-delete-{{ .name }}
+              image: "{{ $local.Values.blobserver.image.repository }}:{{ $local.Values.blobserver.image.tag }}"
+              imagePullPolicy: {{ $local.Values.blobserver.image.pullPolicy }}
+              command: {{ .command | toJson }}
+              env:
+                {{- include "blobserver.env" $local | indent 16 }}
+                - name: BLOB_MAX_RETRY
+                  value: "{{ .maxRetry }}"
+                - name: BLOB_CONCURRENT_OPS
+                  value: "{{ .maxConcurrentProcs }}"
+                - name: BLOB_CONCURRENT_DELETES
+                  value: "{{ .maxConcurrentDeletes }}"
+{{- end }}

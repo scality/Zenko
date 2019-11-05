@@ -261,3 +261,9 @@ mgob:
 burry:
   persistentVolume:
     enabled: false
+
+opal:
+  blobserver:
+    enabled: True
+    imagePullSecret: registry
+  

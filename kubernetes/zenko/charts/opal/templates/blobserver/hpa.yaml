@@ -1,0 +1,17 @@
+{{- if .Values.blobserver.autoscaling.enabled -}}
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ template "blobserver.fullname" . }}
+  labels:
+    app: {{ template "blobserver.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  scaleTargetRef:
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    name: {{ template "blobserver.fullname" . }}
+{{ toYaml .Values.blobserver.autoscaling.config | indent 2 }}
+{{- end -}}
