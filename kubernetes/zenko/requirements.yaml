@@ -1,0 +1,9 @@
+dependencies:
+  - name: cert-manager-crds
+    version: v0.11.0
+    condition: ingress.auto_certificates
+    repository: 'file://../cert-manager-crds'
+  - name: cert-manager
+    version: v0.11.0
+    condition: ingress.auto_certificates
+    repository: https://charts.jetstack.io
