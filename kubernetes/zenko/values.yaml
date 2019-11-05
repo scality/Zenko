@@ -12,17 +12,41 @@ ingress:
   # Used to create an Ingress record.
   # This must match the 'cloudserver' 'endpoint', unless your client
   # supports different hostnames.
-  hosts:
-    - zenko.local
+  # The root domain for endpoints
+  root_domain: zenko.local
+
+  # Subdomain to serve cloudserver traffic
+  # Will be added as a prefix to root_domain
+  # eg s3.example.com
+  s3_subdomain: s3
+  s3_extra_hosts: []
+
+  # Subdomain to serve blobserver traffic
+  # Will be added as a prefix to root_domain
+  # eg blob.example.com
+  blob_subdomain: blob
+  blob_mgmt_subdomain: jabba
+  blob_extra_hosts: []
+
   max_body_size: 100m
   annotations:
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
+  # Enable deployment of cert-manager for automatic certificate issuance
+  auto_certificates: False
+  # Set the issuer for the created ingress
+  # Has no effect if `auto_certificates` is false
+  issuer: ''
+  cluster_issuer: ''
   tls:
     # Secrets must be manually created in the namespace.
     # - secretName: zenko-tls
     #   hosts:
     #     - zenko.example.com
+
+  # Adds a wildcard subdomain to the ingress for s3 and blob
+  # Example: *.s3.zenko.local
+  enable_dns_style_buckets: False
 
 global:
   orbit:
@@ -84,6 +108,17 @@ cloudserver:
     # accountName:
       # access:
       # secret:
+      #
+      #
+s3-data:
+  persistentVolume:
+    enabled: true
+    accessModes:
+      - ReadWriteOnce
+    annotations: {}
+    existingClaim: ""
+    size: 20Gi
+    storageClass: null
 
 backbeat:
   api:
@@ -235,6 +270,7 @@ mongodb-replicaset:
   persistentVolume:
     size: 50Gi
 
+
 zenko-queue:
 ## Extensive list of configurables can be found here:
 ## https://github.com/kubernetes/charts/blob/master/incubator/kafka/values.yaml
@@ -326,3 +362,9 @@ zenko-queue-manager:
   clusters:
     - name: "zenko-queue-cluster"
       tuning: {}
+
+opal:
+  blobserver:
+    replicaCount: *nodeCount
+  jabba:
+    replicaCount: *nodeCount

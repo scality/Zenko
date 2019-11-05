@@ -1,10 +1,13 @@
 {{- if .Values.ingress.enabled }}
-Access the Zenko endpoint from this URL:
-{{- range .Values.ingress.hosts }}
-  {{- if not . }}
-  connect using your kubernetes host IP
-  {{- else }}
+Access the Zenko S3 endpoint from this URL:
+{{ printf "http://%s.%s" .Values.ingress.s3_subdomain .Values.ingress.root_domain }}
+{{- range .Values.ingress.s3_extra_hosts }}
   http://{{ . }}
-  {{- end }}
+{{- end }}
+
+Access the Zenko Blob endpoint from this URL:
+{{ printf "http://%s.%s" .Values.ingress.blob_subdomain .Values.ingress.root_domain }}
+{{- range .Values.ingress.blob_extra_hosts }}
+  http://{{ . }}
 {{- end }}
 {{- end }}
