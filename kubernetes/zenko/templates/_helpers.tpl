@@ -81,3 +81,16 @@ Create the default mongodb replicaset hosts string
 {{- $release := .Release.Name -}}
 {{- range $v := until $count }}{{ $release }}-mongodb-replicaset-{{ $v }}.{{ $release }}-mongodb-replicaset:27017{{ if ne $v (sub $count 1) }},{{- end -}}{{- end -}}
 {{- end -}}
+
+{{/*
+Create a host entry suitable for ingress
+*/}}
+{{- define "zenko.ingress.host_entry" }}
+- host: {{ .domain }}
+  http:
+    paths:
+      - path: /
+        backend:
+          serviceName: {{ .service }}
+          servicePort: http
+{{- end }}

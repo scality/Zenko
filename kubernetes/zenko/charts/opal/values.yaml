@@ -1,0 +1,160 @@
+global:
+  orbit:
+    enabled: true
+    endpoint: https://api.zenko.io
+    pushEndpoint: https://push.api.zenko.io
+    workerMode: poll
+
+  locationConstraints: {}
+
+users: {}
+logging:
+  level: info
+
+mongodb:
+  replicaSet: rs0
+  replicas: 3
+
+kmip:
+  enabled: false
+  port: 5696
+  hosts: []
+  compoundCreate: false
+  bucketAttributeName: ''
+  pipelineDepth: 8
+
+proxy:
+  http: ''
+  https: ''
+  caCert: false
+  no_proxy: ''
+
+redis:
+  sentinel:
+    name: zenko
+  replicas: 3
+
+allowHealthchecksFrom: '0.0.0.0/0'
+
+blobserver:
+  endpoint: blob.zenko.local
+  enable_dns_storage_accounts: True
+  replicaCount: 3
+  replicaFactor: 1
+
+  asyncDeletes:
+    successfulJobsHistory: 1
+    failedJobsHistory: 3
+    jobs:
+      - name: container
+        command: ['yarn', 'cron:delete_container']
+        maxRetry: 1
+        maxConcurrentProcs: 10
+        maxConcurrentDeletes: 100
+        schedule: '*/5 * * * *'
+      - name: bucket
+        command: ['yarn', 'cron:delete_bucket']
+        maxRetry: 1
+        maxConcurrentProcs: 10
+        maxConcurrentDeletes: 100
+        schedule: '*/5 * * * *'
+      - name: overview
+        command: ['yarn', 'cron:delete_overview']
+        maxRetry: 1
+        maxConcurrentProcs: 10
+        maxConcurrentDeletes: 100
+        schedule: '*/5 * * * *'
+      - name: gc
+        command: ['yarn', 'cron:gc']
+        maxRetry: 1
+        maxConcurrentProcs: 10
+        maxConcurrentDeletes: 100
+        schedule: '*/5 * * * *'
+
+  image:
+    repository: registry.scality.com/sf-eng/blobserver
+    tag: '1.0.0'
+    pullPolicy: IfNotPresent
+    imagePullSecret: ''
+
+  ingress:
+    enabled: false
+    annotations: {}
+    path: /
+    hosts: []
+    tls: []
+
+  service:
+    type: ClusterIP
+    port: 80
+
+  env: {}
+  resources: {}
+  nodeSelector: {}
+
+  affinity: |
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 5
+        podAffinityTerm:
+          topologyKey: 'kubernetes.io/hostname'
+          labelSelector:
+            matchLabels:
+              app: {{ include "blobserver.name" . }}
+              release: {{ .Release.Name | quote }}
+
+  autoscaling:
+    enabled: false
+    config:
+      minReplicas: 1
+      maxReplicas: 16
+      # Note: when setting this, a `resources.request.cpu` is required. You
+      # likely want to set it to `1` or some lower value.
+      targetCPUUtilizationPercentage: 80
+
+jabba:
+  enabled: False
+  endpoint: manage.zenko.local
+  replicaCount: 3
+  replicaFactor: 1
+
+  image:
+    repository: registry.scality.com/sf-eng/jabba
+    tag: '1.0.0'
+    pullPolicy: IfNotPresent
+    imagePullSecret: ''
+
+  ingress:
+    enabled: false
+    annotations: {}
+    path: /
+    hosts: []
+    tls: []
+
+  service:
+    type: ClusterIP
+    port: 80
+
+  env: {}
+  resources: {}
+  nodeSelector: {}
+
+  affinity: |
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 5
+        podAffinityTerm:
+          topologyKey: 'kubernetes.io/hostname'
+          labelSelector:
+            matchLabels:
+              app: {{ include 'jabba.name' . }}
+              release: {{ .Release.Name | quote }}
+
+  autoscaling:
+    enabled: false
+    config:
+      minReplicas: 1
+      maxReplicas: 16
+      # Note: when setting this, a `resources.request.cpu` is required. You
+      # likely want to set it to `1` or some lower value.
+      targetCPUUtilizationPercentage: 80

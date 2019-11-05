@@ -13,7 +13,8 @@ IGNORED_PODS = [
     'failed',
     'pending',
     'kafkaclient',
-    'utils'
+    'utils',
+    'opal'
 ]
 
 IGNORED_PODS = [re.compile(x) for x in IGNORED_PODS]

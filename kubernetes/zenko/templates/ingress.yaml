@@ -1,5 +1,13 @@
 {{- if .Values.ingress.enabled -}}
-{{- $serviceName := printf "%s-%s" .Release.Name "cloudserver" | trunc 63 | trimSuffix "-" -}}
+{{- $cloudserverServiceName := printf "%s-%s" .Release.Name "cloudserver" | trunc 63 | trimSuffix "-" -}}
+{{- $cloudserverDomain := printf "%s.%s" .Values.ingress.s3_subdomain .Values.ingress.root_domain -}}
+{{- $cloudserverWildcardDomain := printf "*.%s.%s" .Values.ingress.s3_subdomain .Values.ingress.root_domain | quote -}}
+{{- $blobserverServiceName := printf "%s-%s-%s" .Release.Name "opal" "blobserver" | trunc 63 | trimSuffix "-" -}}
+{{- $blobserverDomain := printf "%s.%s" .Values.ingress.blob_subdomain .Values.ingress.root_domain -}}
+{{- $blobserverWildcardDomain := printf "*.%s.%s" .Values.ingress.blob_subdomain .Values.ingress.root_domain | quote -}}
+{{- $jabbaDomain := printf "%s.%s" .Values.ingress.blob_mgmt_subdomain .Values.ingress.root_domain -}}
+{{- $jabbaServiceName := printf "%s-%s-%s" .Release.Name "opal" "jabba" | trunc 63 | trimSuffix "-" -}}
+{{- $addIssuerAnnotation := and .Values.ingress.auto_certificates (or .Values.ingress.issuer .Values.ingress.cluster_issuer) -}}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
@@ -9,10 +17,18 @@ metadata:
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
-{{- if or .Values.ingress.max_body_size .Values.ingress.annotations }}
+{{- if or .Values.ingress.max_body_size .Values.ingress.annotations $addIssuerAnnotation }}
   annotations:
 {{- if .Values.ingress.max_body_size }}
     nginx.ingress.kubernetes.io/proxy-body-size: {{ .Values.ingress.max_body_size | quote }}
+{{- end }}
+{{- if and .Values.ingress.auto_certificates .Values.ingress.issuer }}
+    kubernetes.io/tls-acme: "true"
+    cert-manager.io/issuer: {{ .Values.ingress.issuer }}
+{{- end }}
+{{- if and .Values.ingress.auto_certificates .Values.ingress.cluster_issuer }}
+    kubernetes.io/tls-acme: "true"
+    cert-manager.io/cluster-issuer: {{ .Values.ingress.cluster_issuer }}
 {{- end }}
 {{- if .Values.ingress.annotations }}
     {{- range $key, $value := .Values.ingress.annotations }}
@@ -22,17 +38,40 @@ metadata:
 {{- end }}
 spec:
   rules:
-    {{- range $host := .Values.ingress.hosts }}
-    - host: {{ $host }}
-      http:
-        paths:
-          - path: /
-            backend:
-              serviceName: {{ $serviceName }}
-              servicePort: http
-    {{- end -}}
-  {{- if .Values.ingress.tls }}
+    {{- include "zenko.ingress.host_entry" (dict "domain" $cloudserverDomain "service" $cloudserverServiceName) | indent 4 }}
+    {{- include "zenko.ingress.host_entry" (dict "domain" $blobserverDomain "service" $blobserverServiceName) | indent 4 }}
+    {{- include "zenko.ingress.host_entry" (dict "domain" $jabbaDomain "service" $jabbaServiceName) | indent 4 }}
+{{- if .Values.ingress.enable_dns_style_buckets }}
+    {{- include "zenko.ingress.host_entry" (dict "domain" $cloudserverWildcardDomain "service" $cloudserverServiceName) | indent 4 }}
+    {{- include "zenko.ingress.host_entry" (dict "domain" $blobserverWildcardDomain "service" $blobserverServiceName) | indent 4 }}
+{{- end }}
+{{- range $host := .Values.ingress.s3_extra_hosts }}
+  {{- include "zenko.ingress.host_entry" (dict "domain" $host "service" $cloudserverServiceName) | indent 4 }}
+{{- end }}
+{{- range $host := .Values.ingress.blob_extra_hosts }}
+  {{- include "zenko.ingress.host_entry" (dict "domain" $host "service" $blobserverServiceName) | indent 4 }}
+{{- end }}
+{{- if or .Values.ingress.tls .Values.ingress.auto_certificates }}
   tls:
+{{- if .Values.ingress.tls }}
 {{ toYaml .Values.ingress.tls | indent 4 }}
-  {{- end -}}
+{{- end -}}
+{{- if .Values.ingress.auto_certificates }}
+    - hosts:
+        - {{ $cloudserverDomain }}
+        - {{ $blobserverDomain }}
+        - {{ $jabbaDomain }}
+        {{- if .Values.ingress.enable_dns_style_buckets }}
+        - {{ $cloudserverWildcardDomain }}
+        - {{ $blobserverWildcardDomain }}
+        {{- end }}
+        {{- range .Values.ingress.s3_extra_hosts }}
+        - {{ . | quote }}
+        {{- end }}
+        {{- range .Values.ingress.blob_extra_hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ template "zenko.fullname" . }}-ingress-certificates
+{{- end -}}
+{{- end -}}
 {{- end -}}
