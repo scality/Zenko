@@ -1,6 +1,6 @@
 FROM openjdk:8u131-jdk AS build
 
-ENV KAFKA_MANAGER_VERSION=1.3.3.23
+ENV KAFKA_MANAGER_VERSION=2.0.0.2
 
 RUN wget "https://github.com/yahoo/kafka-manager/archive/${KAFKA_MANAGER_VERSION}.tar.gz" \
     && tar -xzf ${KAFKA_MANAGER_VERSION}.tar.gz \
