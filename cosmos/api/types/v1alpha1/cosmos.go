@@ -34,6 +34,7 @@ type CosmosRcloneSpec struct {
 	TriggerIngest bool                        `json:"triggerIngestion"`
 	Source        CosmosRcloneSourceSpec      `json:"source"`
 	Destination   CosmosRcloneDestinationSpec `json:"destination"`
+	Options       CosmosRcloneOptionsSpec    `json:"options"`
 }
 
 type CosmosRcloneSourceSpec struct {
@@ -50,6 +51,11 @@ type CosmosRcloneDestinationSpec struct {
 	Region         string `json:"region"`
 	Bucket         string `json:"bucket"`
 	ExistingSecret string `json:"existingSecret"`
+}
+
+type CosmosRcloneOptionsSpec struct {
+	Transfers int64 `json:"transfers"`
+	Checkers  int64 `json:"checkers"`
 }
 
 type CosmosPersistentVolumeSpec struct {

@@ -456,6 +456,10 @@ func (s *Scheduler) createCosmosNFSLocation(location *pensieve.Location, bucket 
 					Bucket:         bucket,
 					ExistingSecret: s.SecretName,
 				},
+				Options: v1alpha1.CosmosRcloneOptionsSpec{
+					Transfers: 32,
+					Checkers: 64,
+				},
 			},
 			PersistentVolume: v1alpha1.CosmosPersistentVolumeSpec{
 				Enabled:      true,
@@ -511,6 +515,10 @@ func (s *Scheduler) createCosmosAWSLocation(location *pensieve.Location, bucket 
 					Bucket:         bucket,
 					ExistingSecret: s.SecretName,
 				},
+				Options: v1alpha1.CosmosRcloneOptionsSpec{
+					Transfers: 32,
+					Checkers: 64,
+				},
 			},
 		},
 	})
@@ -554,6 +562,10 @@ func (s *Scheduler) createCosmosCephLocation(location *pensieve.Location, bucket
 					Region:         location.Name,
 					Bucket:         bucket,
 					ExistingSecret: s.SecretName,
+				},
+				Options: v1alpha1.CosmosRcloneOptionsSpec{
+					Transfers: 32,
+					Checkers: 64,
 				},
 			},
 		},

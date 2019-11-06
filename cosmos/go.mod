@@ -38,3 +38,5 @@ require (
 	sigs.k8s.io/structured-merge-diff v0.0.0-20190212234502-787950f0d63b // indirect
 	sigs.k8s.io/yaml v1.1.0 // indirect
 )
+
+go 1.13
