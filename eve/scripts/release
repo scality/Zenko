@@ -1,0 +1,109 @@
+#!/usr/bin/env python
+
+import argparse
+import io
+import sys
+# this is the only external dependency
+import ruamel.yaml
+
+
+PY2  = sys.version_info[0] == 2
+
+if PY2:
+    from urllib2        import urlopen, HTTPError
+else:
+    from urllib.request import urlopen
+    from urllib.error   import HTTPError
+
+RELATIVE_PATH = '../../kubernetes/zenko'
+MAJOR = '8'
+CHANGES = [
+    'appVersion',
+    'version',
+]
+CHARTS = [
+    'cloudserver',
+    's3-data',
+    'backbeat',
+]
+URL = 'https://github.com/scality/{}/releases/tag/{}.{}.{}'
+CHART_PATH = '{}/charts/{}/Chart.yaml'
+VALUES_PATH = _PATH = '{}/charts/{}/values.yaml'
+
+def get_args():
+    parser = argparse.ArgumentParser(description='Release Generation Script for Zenko',
+        epilog='This script assumes that docker images have already been built and will'
+          'simply look for the latest release corresponding to the minor version.')
+    parser.add_argument('version', action='store', metavar='version', help='intended release version e.g 1.3.2')
+    parser.add_argument('path', action='store', metavar='path', default=RELATIVE_PATH,
+        help='The path to the Zenko chart folder. If not set, will assume it is currently'
+          'in the eve/scripts folder and attempt a build.')
+    parser.add_argument('-v', '--verbose', action='store_true', help='Verbose mode')
+    return parser.parse_args()
+
+def open_file(path, verbose=False):
+    yaml = ruamel.yaml.YAML()
+    with io.open(path, 'r') as stream:
+        if verbose:
+            print("opening %s" % path)
+        return yaml.load(stream)
+
+def save_file(data, path, verbose=False):
+    yaml = ruamel.yaml.YAML()
+    with io.open(path, 'w', encoding='utf8') as outfile:
+        if verbose:
+            print("saving %s" % path)
+        yaml.dump(data, outfile)
+
+def update_chart(chart, values, chart_version, app_version, verbose=False, dep=True):
+    chart['version'] = chart_version
+    if dep:
+        tag = '{}.{}.{}'.format(MAJOR, app_version[0], app_version[1])
+        chart['appVersion'] = tag
+        values['image']['tag'] = tag
+    else:
+        chart['appVersion'] = chart_version
+    if verbose:
+        print(chart)
+        if dep:
+            print(tag)
+            print(values['image'])
+    return chart, values
+
+
+args = get_args()
+if args.verbose:
+    print(args)
+version = args.version.split('.', 3)
+zenko_version = {
+    'major' : version[0],
+    'minor' : version[1],
+    'patch' : version[2],
+}
+
+# update sub charts
+for chart in CHARTS:
+    patch = 0
+    while True:
+        try:
+            if args.verbose:
+                print('looking for latest %s release tag: %s.%s.%s' % (chart, MAJOR, zenko_version['minor'], patch))
+            if chart == 's3-data':
+                repo = 'cloudserver'
+            else:
+                repo = chart
+            urlopen(URL.format(repo, MAJOR, zenko_version['minor'], patch))
+            patch += 1
+        except HTTPError:
+            patch -= 1
+            if args.verbose:
+                print('latest %s release tag found: %s.%s.%s' % (chart, MAJOR, zenko_version['minor'], patch))
+            break
+    chart_path = CHART_PATH.format(args.path, chart)
+    values_path = VALUES_PATH.format(args.path, chart)
+    chart, values = update_chart(open_file(chart_path, verbose=args.verbose), open_file(values_path, verbose=args.verbose),
+        args.version, [zenko_version['minor'], patch], verbose=args.verbose)
+    save_file(chart, chart_path)
+    save_file(values, values_path)
+# update Zenko
+update_chart(open_file('%s/Chart.yaml' % args.path, verbose=args.verbose), None, args.version, None, verbose=args.verbose, dep=False)

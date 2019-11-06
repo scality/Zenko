@@ -57,12 +57,12 @@ externalBackends:
     keepAlive: false
     keepAliveMsecs: 1000
     maxFreeSockets: 256
-    maxSockets: null
+    maxSockets:
   gcp:
     keepAlive: true
     keepAliveMsecs: 1000
     maxFreeSockets: 256
-    maxSockets: null
+    maxSockets:
 
 endpoint: zenko.local
 
@@ -73,9 +73,9 @@ users: {}
 
 logging:
    # Options: info, debug, trace
-   level: info
+  level: info
 
-allowHealthchecksFrom: '0.0.0.0/0'
+allowHealthchecksFrom: 0.0.0.0/0
 
 # enables prometheus metrics and service discovery
 metrics:
@@ -114,10 +114,10 @@ proxy:
   # Note: To avoid unexpected behavior, only specify one of "http" or "https"
   # proxy options.
   # If you have exceptions to proxification you can use the no_proxy variable.
-  http: ""
-  https: ""
+  http: ''
+  https: ''
   caCert: false
-  no_proxy: ""
+  no_proxy: ''
 
 service:
   type: ClusterIP
@@ -132,7 +132,7 @@ ingress:
   # This must match 'endpoint', unless your client supports different
   # hostnames.
   hosts:
-    - zenko.local
+  - zenko.local
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
@@ -148,7 +148,7 @@ kmip:
 
 vault:
   enabled: false
-  host: "zenko-vault"
+  host: zenko-vault
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
