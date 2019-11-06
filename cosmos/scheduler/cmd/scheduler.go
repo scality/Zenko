@@ -445,6 +445,8 @@ func (s *Scheduler) createCosmosNFSLocation(location *pensieve.Location, bucket 
 			},
 			Rclone: v1alpha1.CosmosRcloneSpec{
 				Schedule: s.IngestionSchedule,
+				Suspend: true,
+				TriggerIngest: false,
 				Source: v1alpha1.CosmosRcloneSourceSpec{
 					Type: "local",
 				},
@@ -493,6 +495,8 @@ func (s *Scheduler) createCosmosAWSLocation(location *pensieve.Location, bucket 
 			},
 			Rclone: v1alpha1.CosmosRcloneSpec{
 				Schedule: s.IngestionSchedule,
+				Suspend: true,
+				TriggerIngest: false,
 				Source: v1alpha1.CosmosRcloneSourceSpec{
 					Type: "s3",
 					Provider: "AWS",
@@ -535,6 +539,8 @@ func (s *Scheduler) createCosmosCephLocation(location *pensieve.Location, bucket
 			},
 			Rclone: v1alpha1.CosmosRcloneSpec{
 				Schedule: s.IngestionSchedule,
+				Suspend: true,
+				TriggerIngest: false,
 				Source: v1alpha1.CosmosRcloneSourceSpec{
 					Type: "s3",
 					Provider: "Ceph",

@@ -43,7 +43,9 @@ rclone:
     tag: 1.45.2
     pullPolicy: IfNotPresent
 
-  initialIngestion: true
+  ## Used to manually trigger ingestion
+  triggerIngestion: true
+  ## CronJob options
   suspend: false
   schedule: "0 */12 * * *"
   successfulJobsHistory: 1

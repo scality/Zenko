@@ -1,3 +1,4 @@
+{{- if .Values.pfsd.enabled }}
 1. Get the application URL by running these commands:
 {{- if contains "NodePort" .Values.pfsd.service.type }}
   export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ template "cosmos.fullname" . }})
@@ -13,3 +14,4 @@
   echo "Visit http://127.0.0.1:8080 to use your application"
   kubectl port-forward $POD_NAME 8080:80
 {{- end }}
+{{- end -}}

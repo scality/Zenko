@@ -1,0 +1,23 @@
+{{- if or .Values.rclone.triggerIngestion .Values.rclone.initialIngestion -}}
+{{- $hash := include (print $.Template.BasePath "/rclone-cronjob.yaml") . | sha256sum | trunc 6 -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ template "cosmos.rclone.fullname" . }}-manual-ingest-{{ $hash }}
+  labels:
+    version-hash: {{ $hash }}
+    component: rclone
+    cosmos: {{ .Values.fullnameOverride | default .Release.Name }}
+{{ include "cosmos.labels" . | indent 4 }}
+spec:
+  template:
+    metadata:
+      labels:
+        cosmos: {{ .Values.fullnameOverride | default .Release.Name }}
+        version-hash: {{ $hash }}
+        component: rclone
+        app: {{ template "cosmos.name" . }}
+        release: {{ .Release.Name | quote }}
+    spec:
+{{- template "cosmos.rclone.job" . }}
+{{- end }}

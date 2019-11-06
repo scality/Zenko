@@ -132,7 +132,7 @@ cosmos:
   operator:
     image:
       repository: zenko/cosmos-operator
-      tag: 0.5.3
+      tag: 0.5.4
       pullPolicy: IfNotPresent
     resources:
       limits:
@@ -144,7 +144,7 @@ cosmos:
   scheduler:
     image:
       repository: zenko/cosmos-scheduler
-      tag: 0.5.1
+      tag: 0.5.2
       pullPolicy: IfNotPresent
 
     ## A namespace to watch can be specified otherwise will default to the

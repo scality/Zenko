@@ -4,6 +4,7 @@ metadata:
   name: {{ template "cosmos.rclone.fullname" . }}
   labels:
     component: rclone
+    cosmos: {{ .Values.fullnameOverride | default .Release.Name }}
 {{ include "cosmos.labels" . | indent 4 }}
 spec:
   suspend: {{ .Values.rclone.suspend }}
@@ -13,12 +14,13 @@ spec:
   successfulJobsHistoryLimit: {{ .Values.rclone.successfulJobsHistory }}
   failedJobsHistoryLimit: 3
   jobTemplate:
-    backoffLimit: 1
     spec:
+      backoffLimit: 1
       template:
         metadata:
           labels:
             component: rclone
+            cosmos: {{ .Values.fullnameOverride | default .Release.Name }}
 {{ include "cosmos.labels" . | indent 12 }}
         spec:
 {{- template "cosmos.rclone.job" . }}
