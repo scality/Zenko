@@ -17,33 +17,33 @@ type CosmosList struct {
 }
 
 type CosmosSpec struct {
-	FullnameOverride string                     `json:"fullnameOverride"`
-	Pfsd             CosmosPfsdSpec             `json:"pfsd"`
-	Rclone           CosmosRcloneSpec           `json:"rclone"`
-	PersistentVolume CosmosPersistentVolumeSpec `json:"persistentVolume"`
+	FullnameOverride string                      `json:"fullnameOverride"`
+	Pfsd             *CosmosPfsdSpec             `json:"pfsd,omitempty"`
+	Rclone           *CosmosRcloneSpec           `json:"rclone"`
+	PersistentVolume *CosmosPersistentVolumeSpec `json:"persistentVolume,omitempty"`
 }
 
 type CosmosPfsdSpec struct {
-	Enabled      bool   `json:"enabled"`
-	ReplicaCount string `json:"replicaCount"`
+	Enabled      bool    `json:"enabled"`
+	ReplicaCount string  `json:"replicaCount,omitempty"`
 }
 
 type CosmosRcloneSpec struct {
-	Schedule      string                      `json:"schedule"`
-	Suspend       bool                        `json:"suspend"`
-	TriggerIngest bool                        `json:"triggerIngestion"`
-	Source        CosmosRcloneSourceSpec      `json:"source"`
-	Destination   CosmosRcloneDestinationSpec `json:"destination"`
-	Options       CosmosRcloneOptionsSpec    `json:"options"`
+	Schedule      string                       `json:"schedule"`
+	Suspend       bool                         `json:"suspend"`
+	TriggerIngest bool                         `json:"triggerIngestion"`
+	Source        *CosmosRcloneSourceSpec      `json:"source"`
+	Destination   *CosmosRcloneDestinationSpec `json:"destination"`
+	Options       *CosmosRcloneOptionsSpec     `json:"options"`
 }
 
 type CosmosRcloneSourceSpec struct {
 	Type           string `json:"type"`
-	Provider       string `json:"provider"`
-	Endpoint       string `json:"endpoint"`
-	Region         string `json:"region"`
-	Bucket         string `json:"bucket"`
-	ExistingSecret string `json:"existingSecret"`
+	Provider       string `json:"provider,omitempty"`
+	Endpoint       string `json:"endpoint,omitempty"`
+	Region         string `json:"region,omitempty"`
+	Bucket         string `json:"bucket,omitempty"`
+	ExistingSecret string `json:"existingSecret,omitempty"`
 }
 
 type CosmosRcloneDestinationSpec struct {
@@ -61,11 +61,11 @@ type CosmosRcloneOptionsSpec struct {
 type CosmosPersistentVolumeSpec struct {
 	Enabled      bool                   `json:"enabled"`
 	StorageClass string                 `json:"storageClass"`
-	VolumeConfig CosmosVolumeConfigSpec `json:"volumeConfig"`
+	VolumeConfig *CosmosVolumeConfigSpec `json:"volumeConfig"`
 }
 
 type CosmosVolumeConfigSpec struct {
-	NFS          CosmosNFSSpec `json:"nfs"`
+	NFS          *CosmosNFSSpec `json:"nfs"`
 	MountOptions []string      `json:"mountOptions"`
 }
 

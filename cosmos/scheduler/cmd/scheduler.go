@@ -439,33 +439,33 @@ func (s *Scheduler) createCosmosNFSLocation(location *pensieve.Location, bucket 
 		},
 		Spec: v1alpha1.CosmosSpec{
 			FullnameOverride: location.Name,
-			Pfsd: v1alpha1.CosmosPfsdSpec{
+			Pfsd: &v1alpha1.CosmosPfsdSpec{
 				Enabled: true,
 				ReplicaCount: s.NodeCount,
 			},
-			Rclone: v1alpha1.CosmosRcloneSpec{
+			Rclone: &v1alpha1.CosmosRcloneSpec{
 				Schedule: s.IngestionSchedule,
 				Suspend: true,
 				TriggerIngest: false,
-				Source: v1alpha1.CosmosRcloneSourceSpec{
+				Source: &v1alpha1.CosmosRcloneSourceSpec{
 					Type: "local",
 				},
-				Destination: v1alpha1.CosmosRcloneDestinationSpec{
+				Destination: &v1alpha1.CosmosRcloneDestinationSpec{
 					Endpoint:       s.Cloudserver,
 					Region:         location.Name,
 					Bucket:         bucket,
 					ExistingSecret: s.SecretName,
 				},
-				Options: v1alpha1.CosmosRcloneOptionsSpec{
+				Options: &v1alpha1.CosmosRcloneOptionsSpec{
 					Transfers: 32,
 					Checkers: 64,
 				},
 			},
-			PersistentVolume: v1alpha1.CosmosPersistentVolumeSpec{
+			PersistentVolume: &v1alpha1.CosmosPersistentVolumeSpec{
 				Enabled:      true,
 				StorageClass: s.StorageClass,
-				VolumeConfig: v1alpha1.CosmosVolumeConfigSpec{
-					NFS: v1alpha1.CosmosNFSSpec{
+				VolumeConfig: &v1alpha1.CosmosVolumeConfigSpec{
+					NFS: &v1alpha1.CosmosNFSSpec{
 						Path:         nfs.Path,
 						Server:       nfs.IPAddr,
 					},
@@ -494,14 +494,14 @@ func (s *Scheduler) createCosmosAWSLocation(location *pensieve.Location, bucket 
 		},
 		Spec: v1alpha1.CosmosSpec{
 			FullnameOverride: location.Name,
-			Pfsd: v1alpha1.CosmosPfsdSpec{
+			Pfsd: &v1alpha1.CosmosPfsdSpec{
 				Enabled: false,
 			},
-			Rclone: v1alpha1.CosmosRcloneSpec{
+			Rclone: &v1alpha1.CosmosRcloneSpec{
 				Schedule: s.IngestionSchedule,
 				Suspend: true,
 				TriggerIngest: false,
-				Source: v1alpha1.CosmosRcloneSourceSpec{
+				Source: &v1alpha1.CosmosRcloneSourceSpec{
 					Type: "s3",
 					Provider: "AWS",
 					Endpoint: location.Details.Endpoint,
@@ -509,13 +509,13 @@ func (s *Scheduler) createCosmosAWSLocation(location *pensieve.Location, bucket 
 					Region: location.Details.Region,
 					ExistingSecret: location.Name,
 				},
-				Destination: v1alpha1.CosmosRcloneDestinationSpec{
+				Destination: &v1alpha1.CosmosRcloneDestinationSpec{
 					Endpoint:       s.Cloudserver,
 					Region:         location.Name,
 					Bucket:         bucket,
 					ExistingSecret: s.SecretName,
 				},
-				Options: v1alpha1.CosmosRcloneOptionsSpec{
+				Options: &v1alpha1.CosmosRcloneOptionsSpec{
 					Transfers: 32,
 					Checkers: 64,
 				},
@@ -542,14 +542,14 @@ func (s *Scheduler) createCosmosCephLocation(location *pensieve.Location, bucket
 		},
 		Spec: v1alpha1.CosmosSpec{
 			FullnameOverride: location.Name,
-			Pfsd: v1alpha1.CosmosPfsdSpec{
+			Pfsd: &v1alpha1.CosmosPfsdSpec{
 				Enabled: false,
 			},
-			Rclone: v1alpha1.CosmosRcloneSpec{
+			Rclone: &v1alpha1.CosmosRcloneSpec{
 				Schedule: s.IngestionSchedule,
 				Suspend: true,
 				TriggerIngest: false,
-				Source: v1alpha1.CosmosRcloneSourceSpec{
+				Source: &v1alpha1.CosmosRcloneSourceSpec{
 					Type: "s3",
 					Provider: "Ceph",
 					Endpoint: location.Details.Endpoint,
@@ -557,13 +557,13 @@ func (s *Scheduler) createCosmosCephLocation(location *pensieve.Location, bucket
 					Region: location.Details.Region,
 					ExistingSecret: location.Name,
 				},
-				Destination: v1alpha1.CosmosRcloneDestinationSpec{
+				Destination: &v1alpha1.CosmosRcloneDestinationSpec{
 					Endpoint:       s.Cloudserver,
 					Region:         location.Name,
 					Bucket:         bucket,
 					ExistingSecret: s.SecretName,
 				},
-				Options: v1alpha1.CosmosRcloneOptionsSpec{
+				Options: &v1alpha1.CosmosRcloneOptionsSpec{
 					Transfers: 32,
 					Checkers: 64,
 				},
