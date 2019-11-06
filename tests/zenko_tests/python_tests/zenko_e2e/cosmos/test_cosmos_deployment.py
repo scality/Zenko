@@ -17,9 +17,6 @@ MD5_HASHES = {
 }
 
 
-INGESTION_POD = '{}-cosmos-rclone-initial-ingest'
-
-
 @pytest.fixture
 def kube():
     return client.ApiClient(config.load_incluster_config())
@@ -33,6 +30,28 @@ def kube_batch(kube):
 @pytest.fixture
 def kube_corev1(kube):
     return client.CoreV1Api(kube)
+
+
+@pytest.fixture
+def enable_ingest(kube, location):
+    api_instance = client.CustomObjectsApi(kube)
+    body = {"spec": {"rclone": {"triggerIngestion": True}}}
+    return api_instance.patch_namespaced_custom_object(
+        'zenko.io',
+        'v1alpha1',
+        conf.K8S_NAMESPACE,
+        'cosmoses',
+        location,
+        body
+    )
+
+
+@pytest.fixture
+def get_job(kube_batch, location):
+    return kube_batch.list_namespaced_job(
+        conf.K8S_NAMESPACE,
+        label_selector='cosmos=%s' % location
+    )
 
 
 @pytest.fixture
@@ -54,29 +73,34 @@ def compare_versions(objkey, aws_target_bucket, zenko_bucket):
 # be increased any further. Please investigate possible regressions or test
 # refactor before increasing the timeout any further.
 @pytest.fixture
-def wait_for_pod(kube_corev1, pod_name, timeout=180):
+def wait_for_job(kube_batch, location, timeout=180):
     _timestamp = time.time()
     while time.time() - _timestamp < timeout:
         try:
-            pod = kube_corev1.read_namespaced_pod(
-                pod_name, conf.K8S_NAMESPACE)
-            if pod.status.phase == 'Succeeded':
-                _log.debug("Finished with pod status %s", pod.status.phase)
+            enable_ingest(kube(), location)
+            job_name = get_job(kube_batch, location)
+            state = kube_batch.read_namespaced_job_status(
+                job_name.items[0], conf.K8S_NAMESPACE)
+            if state.status.succeeded:
+                _log.debug("Finished with status %s", state.status.succeeded)
                 break
+        except IndexError:
+            # When the job hasn't yet been created, there is an index error
+            pass
         except ApiException as err:
-            _log.error("Exception when calling pod status %s", err)
-        _log.info("Waiting for pod completion")
+            _log.error("Exception when calling job status %s", err)
+        _log.info("Waiting for job completion")
         time.sleep(1)
     else:
         _log.error('Initial ingestion did not complete in time')
-    return pod.status.phase
+    return state
 
 
 @pytest.mark.conformance
-def test_cosmos_nfs_ingest(nfs_loc, nfs_loc_bucket, kube_corev1):
+def test_cosmos_nfs_ingest(nfs_loc, nfs_loc_bucket, kube_batch):
     util.mark_test('SOFS-NFS OOB INGESTION')
-    pod_name = INGESTION_POD.format(nfs_loc)
-    assert wait_for_pod(kube_corev1, pod_name) == 'Succeeded'
+    job = wait_for_job(kube_batch, nfs_loc)
+    assert job.status.succeeded
 
     for (key, md5) in MD5_HASHES.items():
         _log.debug("Checking object %s with hash %s", key, md5)
@@ -84,16 +108,16 @@ def test_cosmos_nfs_ingest(nfs_loc, nfs_loc_bucket, kube_corev1):
 
 
 @pytest.mark.conformance
-def test_cosmos_aws_ingest(aws_target_bucket, zenko_bucket, kube_corev1, testfile, objkey): # noqa pylint: disable=dangerous-default-value,too-many-arguments
+def test_cosmos_aws_ingest(aws_target_bucket, zenko_bucket, kube_batch, testfile, objkey): # noqa pylint: disable=dangerous-default-value,too-many-arguments
     util.mark_test('AWS OOB INGESTION')
     aws_target_bucket.put_object(
         Body=testfile,
         Key=objkey,
     )
     zenko_bucket = aws_loc_bucket(zenko_bucket, ingest=True)
-    pod_name = INGESTION_POD.format(conf.AWS_BACKEND)
     # Wait for initial ingestion
-    assert wait_for_pod(kube_corev1, pod_name) == 'Succeeded'
+    job = wait_for_job(kube_batch, conf.AWS_BACKEND)
+    assert job.status.succeeded
     # Validate ingestion
     assert util.check_object(
         objkey, testfile, zenko_bucket, aws_target_bucket)
@@ -102,15 +126,15 @@ def test_cosmos_aws_ingest(aws_target_bucket, zenko_bucket, kube_corev1, testfil
 
 
 @pytest.mark.conformance
-def test_cosmos_ceph_ingest(ceph_target_bucket, zenko_bucket, kube_corev1, testfile, objkey): # noqa pylint: disable=dangerous-default-value,too-many-arguments
+def test_cosmos_ceph_ingest(ceph_target_bucket, zenko_bucket, kube_batch, testfile, objkey): # noqa pylint: disable=dangerous-default-value,too-many-arguments
     util.mark_test('CEPH OOB INGESTION')
     ceph_target_bucket.put_object(
         Body=testfile,
         Key=objkey,
     )
     zenko_bucket = ceph_loc_bucket(zenko_bucket, ingest=True)
-    pod_name = INGESTION_POD.format(conf.CEPH_BACKEND)
-    assert wait_for_pod(kube_corev1, pod_name) == 'Succeeded'
+    job = wait_for_job(kube_batch, conf.CEPH_BACKEND)
+    assert job.status.succeeded
     assert util.check_object(
         objkey, testfile, zenko_bucket, ceph_target_bucket)
     assert compare_versions(objkey, ceph_target_bucket, zenko_bucket)
