@@ -215,4 +215,4 @@ _log.info('Waiting for statefulsets to be available')
 wait_for_services(core_services, TIMEOUT)
 
 # Wait for all containers to become ready
-wait_for_pods(False, TIMEOUT)
+wait_for_pods(True, TIMEOUT)

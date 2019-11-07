@@ -50,11 +50,14 @@ def enable_ingest(kube, location):
 def get_job(kube_batch, location):
     # label = {"cosmos": location}
     label = 'cosmos={}'.format(location)
-    _log.debug("label %s", label)
-    return kube_batch.list_namespaced_job(
-        conf.K8S_NAMESPACE,
-        label_selector=label
-    )
+    _log.error("label %s", label)
+    jobs = kube_batch.list_namespaced_job(conf.K8S_NAMESPACE)
+    _log.error("jobs %s", jobs.items)
+    for job in jobs.items:
+        _log.error("job name:%s", job.metadata.name)
+        if location in job.metadata.name:
+            return job.metadata.name
+    return None
 
 
 @pytest.fixture
@@ -81,13 +84,13 @@ def wait_for_job(kube_batch, location, timeout=90):
     while time.time() - _timestamp < timeout:
         try:
             enable_ingest(kube(), location)
-            job_name = get_job(kube_batch, location)
-            _log.debug("job_name %s", job_name)
-            _log.debug("job items %s", job_name.items)
+            job = get_job(kube_batch, location)
+            _log.error("job_name %s", job)
+            # _log.debug("job items %s", job_name.items)
             state = kube_batch.read_namespaced_job_status(
-                job_name.items[0], conf.K8S_NAMESPACE)
+                job, conf.K8S_NAMESPACE)
             if state.status.succeeded:
-                _log.debug("Finished with status %s", state.status.succeeded)
+                _log.debug("Finished with completed status")
                 break
         except IndexError:
             # When the job hasn't yet been created, there is an index error
