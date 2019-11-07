@@ -49,7 +49,7 @@ def enable_ingest(kube, location):
 @pytest.fixture
 def get_job(kube_batch, location):
     label = 'cosmos={}'.format(location)
-    _log.info(label)
+    _log.info("label", label)
     return kube_batch.list_namespaced_job(
         conf.K8S_NAMESPACE,
         label_selector=label
@@ -81,8 +81,8 @@ def wait_for_job(kube_batch, location, timeout=180):
         try:
             enable_ingest(kube(), location)
             job_name = get_job(kube_batch, location)
-            _log.info(job_name)
-            _log.info(job_name.items)
+            _log.info("job_name", job_name)
+            _log.info("job items", job_name.items)
             state = kube_batch.read_namespaced_job_status(
                 job_name.items[0], conf.K8S_NAMESPACE)
             if state.status.succeeded:
