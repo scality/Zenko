@@ -48,8 +48,9 @@ def enable_ingest(kube, location):
 
 @pytest.fixture
 def get_job(kube_batch, location):
+    # label = {"cosmos": location}
     label = 'cosmos={}'.format(location)
-    _log.info("label", label)
+    _log.debug("label %s", label)
     return kube_batch.list_namespaced_job(
         conf.K8S_NAMESPACE,
         label_selector=label
@@ -75,14 +76,14 @@ def compare_versions(objkey, aws_target_bucket, zenko_bucket):
 # be increased any further. Please investigate possible regressions or test
 # refactor before increasing the timeout any further.
 @pytest.fixture
-def wait_for_job(kube_batch, location, timeout=180):
+def wait_for_job(kube_batch, location, timeout=90):
     _timestamp = time.time()
     while time.time() - _timestamp < timeout:
         try:
             enable_ingest(kube(), location)
             job_name = get_job(kube_batch, location)
-            _log.info("job_name", job_name)
-            _log.info("job items", job_name.items)
+            _log.debug("job_name %s", job_name)
+            _log.debug("job items %s", job_name.items)
             state = kube_batch.read_namespaced_job_status(
                 job_name.items[0], conf.K8S_NAMESPACE)
             if state.status.succeeded:
