@@ -79,6 +79,8 @@ def wait_for_job(kube_batch, location, timeout=180):
         try:
             enable_ingest(kube(), location)
             job_name = get_job(kube_batch, location)
+            _log.info(job_name)
+            _log.info(job_name.items)
             state = kube_batch.read_namespaced_job_status(
                 job_name.items[0], conf.K8S_NAMESPACE)
             if state.status.succeeded:
