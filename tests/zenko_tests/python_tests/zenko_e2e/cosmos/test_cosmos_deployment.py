@@ -57,7 +57,7 @@ def get_job(kube_batch, location):
         _log.error("job name:%s", job.metadata.name)
         if location in job.metadata.name:
             return job.metadata.name
-    return None
+    return ""
 
 
 @pytest.fixture
