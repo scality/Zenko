@@ -176,6 +176,7 @@ latex_contents = r"""
 latex_logo = scaldoc.resources.get_footer_logo()
 latex_cover = scaldoc.resources.get_cover('Zenko')
 
+latex_title = ''
 if tags.has('install'):
      latex_title = 'Installation'
 elif tags.has('operation'):
