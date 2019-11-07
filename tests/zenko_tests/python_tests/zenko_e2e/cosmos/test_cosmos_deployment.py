@@ -48,9 +48,11 @@ def enable_ingest(kube, location):
 
 @pytest.fixture
 def get_job(kube_batch, location):
+    label = 'cosmos={}'.format(location)
+    _log.info(label)
     return kube_batch.list_namespaced_job(
         conf.K8S_NAMESPACE,
-        label_selector='cosmos=%s' % location
+        label_selector=label
     )
 
 
