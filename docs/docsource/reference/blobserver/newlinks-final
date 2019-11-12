@@ -1,0 +1,11 @@
+.. |hot-cool-archive| replace:: `Azure Blob storage: hot, cool, and archive access tiers <https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blob-storage-tiers>`__
+
+.. |premium-ssd| replace:: `Premium SSD <https://docs.microsoft.com/en-us/azure/virtual-machines/windows/disks-types#premium-ssd>`__
+
+.. |list-blob-storage| replace:: `Listing Blob storage resources <https://docs.microsoft.com/en-us/rest/api/storageservices/enumerating-blob-resources>`__
+
+.. |range-header| replace:: `Specifying the Range Header for Blob Service Operations <https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-the-range-header-for-blob-service-operations>`__
+
+.. |manage-access| replace:: `Manage anonymous read access to containers and blobs <https://docs.microsoft.com/en-us/azure/storage/blobs/storage-manage-access-to-resources>`__
+
+.. |diff-emulator-azure| replace:: `Differences Between the Storage Emulator and Azure Storage <https://docs.microsoft.com/en-us/azure/storage/common/storage-use-emulator#differences-between-the-storage-emulator-and-azure-storage>`__

@@ -1,0 +1,49 @@
+.. |set-blob-timeouts| replace:: `Setting Timeouts for Blob Service Operations <https://docs.microsoft.com/en-us/rest/api/storageservices/seting-timeouts-for-blob-service-operations>`__
+
+.. |authorize-requests| replace:: `Authorize requests to Azure Storage <https://docs.microsoft.com/en-us/rest/api/storageservices/authorize-requests-to-azure-storage>`__
+
+.. |azure-versioning| replace:: `Versioning for the Azure Storage services <https://docs.microsoft.com/en-us/rest/api/storageservices/versioning-for-the-azure-storage-services>`__
+
+.. |analytics-log| replace:: `Azure Storage Analytics Logging <https://docs.microsoft.com/en-us/azure/storage/common/storage-analytics-logging>`__
+
+.. |storage-tracking| replace:: `Windows Azure Logging: Using Logs to Track Storage Requests <https://blogs.msdn.microsoft.com/windowsazurestorage/2011/08/02/windows-azure-storage-logging-using-logs-to-track-storage-requests/>`__
+
+.. |api-troubleshoot| replace:: `Troubleshooting API operations <https://docs.microsoft.com/en-us/rest/api/storageservices/troubleshooting-api-operations>`__                                                                        
+                                                 
+.. |emulator-dev-test| replace:: `Use the Azure Storage Emulator for Development and Testing <https://docs.microsoft.com/en-us/azure/storage/common/storage-use-emulator>`__
+
+.. |cors-support| replace:: `Cross-Origin Resource Sharing (CORS) support for Azure Storage <https://docs.microsoft.com/en-us/rest/api/storageservices/cross-origin-resource-sharing--cors--support-for-the-azure-storage-services>`__
+
+.. |snapshot-blob| replace:: `Create a snapshot of a blob <https://docs.microsoft.com/en-us/rest/api/storageservices/Creating-a-Snapshot-of-a-Blob>`__
+
+.. |conditional-headers| replace:: `Specifying conditional headers for Blob service operations <https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations>`__
+
+.. |get-page-ranges| replace:: `Getting the Page Ranges of a Large Page Blob in Segments <https://blogs.msdn.microsoft.com/windowsazurestorage/2012/03/26/getting-the-page-ranges-of-a-large-page-blob-in-segments/>`__
+
+.. |create-sas| replace:: `Create a service SAS <https://docs.microsoft.com/en-us/rest/api/storageservices/create-service-sas>`__
+
+.. |snapshot-charges| replace:: `Understanding how blob snapshots accrue charges <https://docs.microsoft.com/en-us/rest/api/storageservices/understanding-how-snapshots-accrue-charges>`__
+
+.. |define-access| replace:: `Define a stored access policy <https://docs.microsoft.com/en-us/rest/api/storageservices/define-stored-access-policy>`__
+
+.. |date-time-headers| replace:: `Representation of date/time values in headers <https://docs.microsoft.com/en-us/rest/api/storageservices/representation-of-date-time-values-in-headers>`__
+
+.. |geo-redundant| replace:: `Windows Azure Storage Redundancy Options and Read Access Geo Redundant Storage <https://blogs.msdn.microsoft.com/windowsazurestorage/2013/12/11/windows-azure-storage-redundancy-options-and-read-access-geo-redundant-storage/>`__
+
+.. |hot-cool-archive| replace:: `Azure Blob storage: hot, cool, and archive access tiers <https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blob-storage-tiers>`__
+
+.. |premium-ssd| replace:: `Premium SSD <https://docs.microsoft.com/en-us/azure/virtual-machines/windows/disks-types#premium-ssd>`__
+
+.. |list-blob-storage| replace:: `Listing Blob storage resources <https://docs.microsoft.com/en-us/rest/api/storageservices/enumerating-blob-resources>`__
+
+.. |range-header| replace:: `Specifying the Range Header for Blob Service Operations <https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-the-range-header-for-blob-service-operations>`__
+
+.. |manage-access| replace:: `Manage anonymous read access to containers and blobs <https://docs.microsoft.com/en-us/azure/storage/blobs/storage-manage-access-to-resources>`__
+
+.. |diff-emulator-azure| replace:: `Differences Between the Storage Emulator and Azure Storage <https://docs.microsoft.com/en-us/azure/storage/common/storage-use-emulator#differences-between-the-storage-emulator-and-azure-storage>`__
+
+.. |naming-referencing| replace:: `Naming and Referencing Containers, Blobs, and Metadata <https://docs.microsoft.com/en-us/rest/api/storageservices/naming-and-referencing-containers--blobs--and-metadata>`__
+
+.. |scalability-perf| replace:: `Azure Storage scalability and performance targets for storage accounts <https://docs.microsoft.com/en-us/azure/storage/common/storage-scalability-targets>`__
+
+"""
