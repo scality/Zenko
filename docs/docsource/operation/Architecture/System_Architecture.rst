@@ -52,9 +52,15 @@ this architecture:
    | CloudServer        | CloudServer is an open-source Node.js implementation of |
    |                    | a server handling the Amazon S3 protocol. It presents   |
    |                    | the core logic for translating user inputs and data     |
-   |                    | into stored objects on several cloud storage systems.   |
+   |                    | into object storage on several cloud storage systems.   |
    |                    | With this component, users can create locations         |
    |                    | corresponding to different clouds.                      |
+   +--------------------+---------------------------------------------------------+
+   | Blobserver         | Blobserver is an open-source implementation of a server |
+   |                    | handling Microsoft's Azure Blob Storage protocol. It is |
+   |                    | functionally analogous to CloudServer in that it        |
+   |                    | provides logic to translate user inputs and data into   |
+   |                    | object storage. This feature remains under development. |
    +--------------------+---------------------------------------------------------+
    | Backbeat           | Backbeat manages the queues involved in Zenko cloud     |
    |                    | event tracing (such as admin\_API, etc.) and job        |
@@ -62,10 +68,10 @@ this architecture:
    |                    | management, synchronous encryption, etc).               |
    +--------------------+---------------------------------------------------------+
    | Orbit              | The Orbit UI offers users controls for CloudServer,     |
-   |                    | workflow management, user management, and Metadata (MD) |
-   |                    | instance configuration using such parameters as         |
-   |                    | location, access key, workflow configuration (CRR, for  |
-   |                    | example), basic search, etc.                            |
+   |                    | Blobserver, workflow management, user management, and   |
+   |                    | Metadata (MD) instance configuration using such         |
+   |                    | parameters as location, access key, workflow            |
+   |                    | configuration (CRR, for example), basic search, etc.    |
    |                    |                                                         |
    |                    | The UI runs in the cloud and is hosted by Scality.      |
    +--------------------+---------------------------------------------------------+
@@ -87,24 +93,21 @@ that follow.
 Zenko Cluster Topology
 ----------------------
 
-To operate with high availability, Zenko must operate on a cluster of at 
-least three physical or virtual servers running CentOS 7.4 and either have
-access to a virtual Kubernetes instance (EKM, GKM, or AKM) or to an instance 
-of MetalK8s installed and running on each server.
-
-When run in a cluster configuration, Zenko is highly available. Load
-balancing, failover, and service management are handled dynamically in
-real time by Kubernetes. This dramatically improves several aspects of
-service management, creating a fast, robust, self-healing, flexible,
-scalable system. From the user’s perspective, Zenko is functionally a
-single instance that obscures the services and servers behind it.
+To operate with high availability, Zenko must operate on a cluster of at least
+three physical or virtual servers running Kubernetes 1.11.3 or later. Run in
+such a cluster configuration, Zenko is highly available: load balancing,
+failover, and service management are handled dynamically in real time by
+Kubernetes. This dramatically improves several aspects of service management,
+creating a fast, robust, self-healing, flexible, scalable system. From the
+user’s perspective, Zenko is functionally a single instance that obscures the
+services and servers behind it.
 
 .. image:: ../Resources/Images/Zenko_cluster_NoNFS.*
    :align: center
 
 A basic test configuration—a cluster of three servers—is depicted 
 above. Five servers is the recommended minimum service deployment for
-high availability. In actual practice, each server can dynamically 
+high availability. In actual practice, each server can dynamically
 deploy up to ten CloudServer instances, making for a default maximum of 
 50 CloudServer instances, plus one master. Kubernetes sets the current
 upper boundary, defined by the number of pods (including service

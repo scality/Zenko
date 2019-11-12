@@ -47,7 +47,7 @@ Elements
 
 This implementation of GET returns the following response elements.
 
-.. tabularcolumns:: lX{0.65\textwidth}
+.. tabularcolumns:: X{0.45\textwidth}X{0.50\textwidth}
 .. table::
    :class: longtable
 

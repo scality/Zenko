@@ -19,6 +19,8 @@ to manage lifecycle properties per bucket:
 These calls manage bucket attributes related to lifecycle behavior, which are
 stored as bucket metadata.
 
+This feature is not yet implemented for Azure Blob frontends.
+
 Lifecycle Policies
 ------------------
 

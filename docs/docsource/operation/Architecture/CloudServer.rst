@@ -80,17 +80,16 @@ use cases.
 
 -  **Direct SOFS storage (cdmiclient)**
 
-   CloudServer uses a library called cdmiclient to access the SOFS
-   Dewpoint daemon through the CDMI protocol. Both the file system and
-   the S3 environment have their own metadata. The CDMI protocol allows
-   a user to attach custom metadata to an entity (directory/file). This
-   feature is used to save S3 metadata: an entry named “s3metadata” is
-   added to a metadata entity. Its value is the S3 metadata (JSON
-   object). When an object is created from an S3 client, the cloud
-   server produces all the S3 metadata. When a file is created using the
-   file system interface (either using CDMI protocol or a traditional
-   file system client on Dewpoint daemon fuse mountpoint), S3 metadata
-   is reconstituted from POSIX information.
+   CloudServer uses a library called cdmiclient to access the SOFS Dewpoint
+   daemon through the CDMI protocol. Both the file system and the S3 environment
+   have their own metadata. The CDMI protocol allows a user to attach custom
+   metadata to an entity (directory/file). This feature is used to save S3
+   metadata: an entry named “s3metadata” is added to a metadata entity. Its
+   value is the S3 metadata (JSON object). When an object is created from an S3
+   client, the cloud server produces all the S3 metadata. When a file is created
+   using the file system interface (either using CDMI protocol or a traditional
+   file system client on Dewpoint daemon fuse mountpoint), S3 metadata is
+   reconstituted from POSIX information.
 
 -  **Healthcheck**
 
@@ -101,72 +100,72 @@ use cases.
 
    These metrics are valid on all Node.js-based services:
 
-.. tabularcolumns:: X{0.45\textwidth}X{0.45\textwidth}
-.. table:: Node.js Process General Metrics
+   .. tabularcolumns:: X{0.45\textwidth}X{0.45\textwidth}
+   .. table:: Node.js Process General Metrics
 
-   +-----------------------------------------------+---------------------------------------------------------+
-   | Metric                                        | Description                                             |
-   +===============================================+=========================================================+
-   | nodejs\_version\_info                         | Node.js version info                                    |
-   +-----------------------------------------------+---------------------------------------------------------+
-   | nodejs\_heap\_space\_size\_available\_bytes   | Process heap space size available from node.js in bytes |
-   +-----------------------------------------------+---------------------------------------------------------+
-   | nodejs\_heap\_size\_total\_bytes              | Process heap size from node.js in bytes                 |
-   +-----------------------------------------------+---------------------------------------------------------+
-   | nodejs\_heap\_size\_used\_bytes               | Process heap size used from node.js in bytes            |
-   +-----------------------------------------------+---------------------------------------------------------+
-   | nodejs\_external\_memory\_bytes               | Node.js external memory size in bytes                   |
-   +-----------------------------------------------+---------------------------------------------------------+
-   | nodejs\_heap\_space\_size\_total\_bytes       | Process heap space size total from node.js in bytes     |
-   +-----------------------------------------------+---------------------------------------------------------+
-   | process\_cpu\_user\_seconds\_total            | Total user CPU time spent in seconds                    |
-   +-----------------------------------------------+---------------------------------------------------------+
-   | process\_cpu\_system\_seconds\_total          | Total system CPU time spent in seconds                  |
-   +-----------------------------------------------+---------------------------------------------------------+
-   | process\_cpu\_seconds\_total                  | Total user and system CPU time spent in seconds         |
-   +-----------------------------------------------+---------------------------------------------------------+
-   | process\_start\_time\_seconds                 | Start time of the process since unix epoch in seconds   |
-   +-----------------------------------------------+---------------------------------------------------------+
-   | process\_resident\_memory\_bytes              | Resident memory size in bytes                           |
-   +-----------------------------------------------+---------------------------------------------------------+
-   | nodejs\_eventloop\_lag\_seconds               | Lag of event loop in seconds                            |
-   +-----------------------------------------------+---------------------------------------------------------+
-   | nodejs\_active\_handles\_total                | Number of active handles                                |
-   +-----------------------------------------------+---------------------------------------------------------+
-   | nodejs\_active\_requests\_total               | Number of active requests                               |
-   +-----------------------------------------------+---------------------------------------------------------+
-   | nodejs\_heap\_space\_size\_used\_bytes        | Process heap space size used from node.js in bytes      |
-   +-----------------------------------------------+---------------------------------------------------------+
+      +-----------------------------------------------+---------------------------------------------------------+
+      | Metric                                        | Description                                             |
+      +===============================================+=========================================================+
+      | nodejs\_version\_info                         | Node.js version info                                    |
+      +-----------------------------------------------+---------------------------------------------------------+
+      | nodejs\_heap\_space\_size\_available\_bytes   | Process heap space size available from node.js in bytes |
+      +-----------------------------------------------+---------------------------------------------------------+
+      | nodejs\_heap\_size\_total\_bytes              | Process heap size from node.js in bytes                 |
+      +-----------------------------------------------+---------------------------------------------------------+
+      | nodejs\_heap\_size\_used\_bytes               | Process heap size used from node.js in bytes            |
+      +-----------------------------------------------+---------------------------------------------------------+
+      | nodejs\_external\_memory\_bytes               | Node.js external memory size in bytes                   |
+      +-----------------------------------------------+---------------------------------------------------------+
+      | nodejs\_heap\_space\_size\_total\_bytes       | Process heap space size total from node.js in bytes     |
+      +-----------------------------------------------+---------------------------------------------------------+
+      | process\_cpu\_user\_seconds\_total            | Total user CPU time spent in seconds                    |
+      +-----------------------------------------------+---------------------------------------------------------+
+      | process\_cpu\_system\_seconds\_total          | Total system CPU time spent in seconds                  |
+      +-----------------------------------------------+---------------------------------------------------------+
+      | process\_cpu\_seconds\_total                  | Total user and system CPU time spent in seconds         |
+      +-----------------------------------------------+---------------------------------------------------------+
+      | process\_start\_time\_seconds                 | Start time of the process since unix epoch in seconds   |
+      +-----------------------------------------------+---------------------------------------------------------+
+      | process\_resident\_memory\_bytes              | Resident memory size in bytes                           |
+      +-----------------------------------------------+---------------------------------------------------------+
+      | nodejs\_eventloop\_lag\_seconds               | Lag of event loop in seconds                            |
+      +-----------------------------------------------+---------------------------------------------------------+
+      | nodejs\_active\_handles\_total                | Number of active handles                                |
+      +-----------------------------------------------+---------------------------------------------------------+
+      | nodejs\_active\_requests\_total               | Number of active requests                               |
+      +-----------------------------------------------+---------------------------------------------------------+
+      | nodejs\_heap\_space\_size\_used\_bytes        | Process heap space size used from node.js in bytes      |
+      +-----------------------------------------------+---------------------------------------------------------+
 
-.. tabularcolumns:: X{0.45\textwidth}X{0.45\textwidth}
-.. table:: Cloud Server General Metrics
+   .. tabularcolumns:: X{0.45\textwidth}X{0.45\textwidth}
+   .. table:: Cloud Server General Metrics
 
-   +--------------------------------------+--------------------------------------+
-   | Metric                               | Description                          |
-   +======================================+======================================+
-   | cloud\_server\_number\_of\_buckets   | Total number of buckets              |
-   +--------------------------------------+--------------------------------------+
-   | cloud\_server\_number\_of\_objects   | Total number of objects              |
-   +--------------------------------------+--------------------------------------+
-   | cloud\_server\_data\_disk\_available | Available data disk storage in bytes |
-   +--------------------------------------+--------------------------------------+
-   | cloud\_server\_data\_disk\_free      | Free data disk storage in bytes      |
-   +--------------------------------------+--------------------------------------+
-   | cloud\_server\_data\_disk\_total     | Total data disk storage in bytes     |
-   +--------------------------------------+--------------------------------------+
+      +--------------------------------------+--------------------------------------+
+      | Metric                               | Description                          |
+      +======================================+======================================+
+      | cloud\_server\_number\_of\_buckets   | Total number of buckets              |
+      +--------------------------------------+--------------------------------------+
+      | cloud\_server\_number\_of\_objects   | Total number of objects              |
+      +--------------------------------------+--------------------------------------+
+      | cloud\_server\_data\_disk\_available | Available data disk storage in bytes |
+      +--------------------------------------+--------------------------------------+
+      | cloud\_server\_data\_disk\_free      | Free data disk storage in bytes      |
+      +--------------------------------------+--------------------------------------+
+      | cloud\_server\_data\_disk\_total     | Total data disk storage in bytes     |
+      +--------------------------------------+--------------------------------------+
 
-.. tabularcolumns:: X{0.45\textwidth}X{0.45\textwidth}
-.. table:: Labeled Metrics
+   .. tabularcolumns:: X{0.45\textwidth}X{0.45\textwidth}
+   .. table:: Labeled Metrics
 
-   +--------------------------------------------+-------------------------------------------+
-   | Metric                                     | Description                               |
-   +============================================+===========================================+
-   | cloud\_server\_http\_requests\_total       | Total number of HTTP requests             |
-   +--------------------------------------------+-------------------------------------------+
-   | cloud\_server\_http\_request\_duration     | Duration of HTTP requests in microseconds |
-   | \_microseconds                             |                                           |
-   +--------------------------------------------+-------------------------------------------+
-   | cloud\_server\_http\_request\_size\_bytes  | The HTTP request sizes in bytes           |
-   +--------------------------------------------+-------------------------------------------+
-   | cloud\_server\_http\_response\_size\_bytes | The HTTP response sizes in bytes          |
-   +--------------------------------------------+-------------------------------------------+
+      +--------------------------------------------+-------------------------------------------+
+      | Metric                                     | Description                               |
+      +============================================+===========================================+
+      | cloud\_server\_http\_requests\_total       | Total number of HTTP requests             |
+      +--------------------------------------------+-------------------------------------------+
+      | cloud\_server\_http\_request\_duration     | Duration of HTTP requests in microseconds |
+      | \_microseconds                             |                                           |
+      +--------------------------------------------+-------------------------------------------+
+      | cloud\_server\_http\_request\_size\_bytes  | The HTTP request sizes in bytes           |
+      +--------------------------------------------+-------------------------------------------+
+      | cloud\_server\_http\_response\_size\_bytes | The HTTP response sizes in bytes          |
+      +--------------------------------------------+-------------------------------------------+

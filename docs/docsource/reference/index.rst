@@ -7,10 +7,8 @@ Zenko Reference
    :maxdepth: 2
 
    introduction/index
-   access_controls/index
-   bucket_operations/index
-   object_operations/index
-   backbeat/index
+   cloudserver/index
+   blobserver/index
    prometheus/index
    
 

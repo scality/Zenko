@@ -10,10 +10,10 @@ files in buckets. Administrators are free to configure and name buckets as they
 please—to the admin, buckets are essentially tenants aggregated in a cloud
 storage deployment. From an end user’s perspective, a bucket simply appears as a
 networked storage location, for example, “accounting,” “bioinformatics-lab,”
-“daily-video-backup,” or any other organizational unit that makes sense.
+“video-backup,” or any other organizational unit that makes sense.
 
-Zenko can fetch buckets from one location—a Scality RING private cloud, for
-example—and replicate them to designated cloud storage locations on other
+Zenko can fetch buckets from one location — a Scality RING private cloud, for
+example — and replicate them to designated cloud storage locations on other
 clouds. A company may, for example, store its data by departmental buckets to
 local cloud, then replicate that cloud storage location to several other public
 or private clouds for storage redundancy, rate-shopping, or other

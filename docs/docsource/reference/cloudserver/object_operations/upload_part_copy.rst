@@ -130,7 +130,7 @@ x-amz-copy-source header.
    |                                           |        | code, ``412 Precondition Failed`` error.  |
    |                                           |        |                                           |
    |                                           |        | .. note:: If both the                     |
-   |                                           |        |    x-amz-copy-source-if-match header is   | 
+   |                                           |        |    x-amz-copy-source-if-match header is   |
    |                                           |        |    present in the request and evaluates   |
    |                                           |        |    to true, and                           |
    |                                           |        |    x-amz-copy-source-if-unmodified-since  |
@@ -172,7 +172,7 @@ encryption information for Zenko to decrypt the object for copying.
    | Header                            | Type   | Description                          |
    +===================================+========+======================================+
    | ``x-amz-copy-source-server-side-\ | string | Specifies algorithm to use when      |
-   | encryption-customer-algorithm``   |        | decrypting the source object.        | 
+   | encryption-customer-algorithm``   |        | decrypting the source object.        |
    |                                   |        |                                      |
    |                                   |        | **Default:** None                    |
    |                                   |        |                                      |
@@ -267,7 +267,7 @@ addition to the response headers that are common to all operations (see
    |                                  |        | that Amazon S3 used to encrypt the object.     |
    +----------------------------------+--------+------------------------------------------------+
    | ``x-amz-server-side-encryption-\ | string | If the x-amz-server-side-encryption is present |
-   | aws-kms-key-id``                 |        | and has the value of aws:kms, this header      | 
+   | aws-kms-key-id``                 |        | and has the value of aws:kms, this header      |
    |                                  |        | specifies the ID of the AWS Key Management     |
    |                                  |        | Service (KMS) master encryption key that was   |
    |                                  |        | used for the object.                           |

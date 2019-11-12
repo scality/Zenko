@@ -145,7 +145,7 @@ Elements
 The Multi-Object Delete operation can return the following XML elements in its
 response:
 
-.. tabularcolumns:: llX{0.60\textwidth}
+.. tabularcolumns:: X{0.25\textwidth}X{0.10\textwidth}X{0.60\textwidth}
 .. table::
    :class: longtable
 

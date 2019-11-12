@@ -1,10 +1,14 @@
 Replication Service
 ===================
 
+Replication and related services are offered for S3-compatible frontend
+servers. These features are not yet implemented for Azure Blob frontends.
+
 Replication
-+++++++++++
+-----------
+
 Replication is the automatic copying of information from one location to
-another. Zenko extends beyond the AWS specification’s paradigm by
+another. Zenko extends beyond the public-cloud paradigm by
 enabling replication to occur not only from one site to another, but
 also from one site to *several*.
 
@@ -16,7 +20,7 @@ cloud object storage site (this can be a public or private cloud), and
 copies its contents to another public or private cloud.
 
 Transient Source Replication
-++++++++++++++++++++++++++++
+----------------------------
 
 Public cloud data storage services can charge substantial egress fees
 for moving data out of their cloud. This can make it costly to use a
@@ -32,12 +36,12 @@ a public cloud or a private cloud, such as the RING), and replicates the
 data to other clouds from there.
 
 Garbage Collection
-------------------
+~~~~~~~~~~~~~~~~~~
 
 The Garbage Collector is a Node.js service that cleans up the transient
 source buffer after a replication is complete. When the Backbeat
 replication status processor receives notification from all targets that
-a PUT job is complete (HTTP 200, indicating success), it enters a task
+a PUT job is complete (HTTP 200, indicating success), it enters a task
 in the Kafka queue to delete the transient source buffer. The Garbage
 Collector service is invoked and deletes files meeting the job
 description.

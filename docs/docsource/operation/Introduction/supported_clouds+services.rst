@@ -10,7 +10,10 @@ Supported Sources
 
 Zenko supports multiple-cloud storage operations natively using the Amazon
 Simple Storage Service (S3) protocol. It can handle data from many S3-compatible
-sources, as well as from servers using supported protocols.
+sources, as well as from servers using supported protocols. Zenko can also
+operate natively using Microsoft Azure Blob Storage as a front end. Operation is
+analogous to S3-based interactions, but as of release 1.2, feature parity has
+not been attained.
 
 The following Amazon S3-based clouds have been tested as Zenko-compatible
 sources:
@@ -20,8 +23,9 @@ sources:
 *  Wasabi Hot Cloud Storage
 *  Ceph RADOS Gateway
 
-In addition to its compatibility with S3 cloud frontends, Zenko can ingest data and
-metadata from servers using the following protocols:
+In addition to its compatibility with S3- and Azure Blob-compatible cloud
+frontends, Zenko can ingest data and metadata from servers using the following
+protocols:
 
 * Scality RING with sproxyd
 
@@ -65,5 +69,5 @@ private and public clouds:
    * Google Cloud Storage
    * Microsoft Azure Storage
 
-Zenko cannot write to non-object-store endpoints such as NFS at this
-time. Other target clouds and services are under development.
+Zenko cannot write to non-object-store endpoints such as NFS. Other target
+clouds and services are under development.
