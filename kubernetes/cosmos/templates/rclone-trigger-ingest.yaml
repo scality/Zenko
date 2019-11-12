@@ -5,7 +5,7 @@ kind: Job
 metadata:
   name: {{ template "cosmos.rclone.fullname" . }}-manual-ingest-{{ $hash }}
   labels:
-    version-hash: {{ $hash }}
+    version-hash: {{ $hash | quote }}
     component: rclone
     cosmos: {{ .Values.fullnameOverride | default .Release.Name }}
 {{ include "cosmos.labels" . | indent 4 }}
@@ -14,7 +14,7 @@ spec:
     metadata:
       labels:
         cosmos: {{ .Values.fullnameOverride | default .Release.Name }}
-        version-hash: {{ $hash }}
+        version-hash: {{ $hash | quote }}
         component: rclone
         app: {{ template "cosmos.name" . }}
         release: {{ .Release.Name | quote }}
