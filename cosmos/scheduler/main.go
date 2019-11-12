@@ -37,7 +37,7 @@ func init() {
 	viper.BindEnv("mongodb_hosts")
 
 	viper.SetDefault("mongodb_database", "metadata")
-	viper.BindEnv("MONGODB_DATABASE")
+	viper.BindEnv("mongodb_database")
 
 	viper.SetDefault("cloudserver_endpoint", "http://localhost:8000")
 	viper.BindEnv("cloudserver_endpoint")
@@ -52,6 +52,8 @@ func init() {
 	viper.BindEnv("ingestion_secret_name")
 }
 
+// The main function esablishes the mongodb connection, validates kube api access,
+// and instanciates the scheduler run loop.
 func main() {
 	mongoOptions := options.Client()
 	mongoOptions.SetAppName("cosmos-scheduler")

@@ -39,6 +39,41 @@ The following environment variables can be set to customize the Scheduler's beha
 
 ## Development
 
+In a typical development environment running the schdeuler locally and
+controlling a remote Zenko is most likely. This setup is the easiest to iterate,
+develop, and debug with.
+
+```sh
+export RELEASE=<zenko release name>
+# Export your kube config otherwise the scheduler will try to run in-cluster mode
+export KUBECONFIG="/${HOME}/.kube/config"
+export CLOUDSERVER_ENDPOINT=${RELEASE}-cloudserver
+# Remove any scheduler pods in the cluster allowing the local process to take over
+kubectl scale --replicas=0 deploy ${RELEASE}-cosmos-scheduler
+# Port forward one of your mongodb pods
+kubectl port-forward ${RELEASE_NAME}-mongodb-replicaset-0
+# Compile and run
+go build && ./scheduler
+```
+
+### API cURL examples
+
+GET /healthcheck
+```sh
+curl localhost:8080/healthcheck
+```
+
+GET /suspend/<location-name>
+```sh
+curl localhost:8080/suspend/<location-name>
+{"suspend":true,"triggerIngestion":true}
+```
+POST /suspend/<location-name>
+```sh
+curl -d '{"suspend":true,"triggerIngestion":false}' -X POST -H "Content-Type: application/json" localhost:8080/suspend/<location-name>
+```
+
+Makefile help:
 ```sh
 make help
 ```

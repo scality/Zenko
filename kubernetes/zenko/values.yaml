@@ -144,7 +144,7 @@ cosmos:
   scheduler:
     image:
       repository: zenko/cosmos-scheduler
-      tag: 0.5.2
+      tag: 0.5.3
       pullPolicy: IfNotPresent
 
     ## A namespace to watch can be specified otherwise will default to the

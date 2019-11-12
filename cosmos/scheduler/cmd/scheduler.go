@@ -2,6 +2,7 @@ package scheduler
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	"time"
 	"net/http"
@@ -20,6 +21,10 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 const (
+	// Routes
+	healthRoute  = "/healthcheck"
+	suspendRoute = "/suspend/"
+
 	// Auth data
 	access_key_id     = "access_key_id"
 	secret_access_key = "secret_access_key"
@@ -69,7 +74,8 @@ type Secret struct {
 // Run starts the Cosmos Scheduler
 func (s *Scheduler) Run() {
 	log.Println("starting cosmos scheduler")
-	go s.healthCheckServer()
+	// Run the health check and pause/resume server
+	go s.httpServe()
 
 	// safely create or update secret on startup
 	err := s.reconcileSecrets(s.getSecret(s.SecretName), nil, true)
@@ -93,21 +99,80 @@ func (s *Scheduler) Run() {
 	}
 }
 
-// healthCheckServer will ping the MongoDB connection on every request recieved
+type cronValues struct {
+	Suspend       bool `json:"suspend"`
+	Trigger       bool `json:"triggerIngestion"`
+}
+
+func (s *Scheduler) suspendRoute(w http.ResponseWriter, req *http.Request) {
+	var cron cronValues
+	location := req.URL.Path[len(suspendRoute):]
+	cosmosLocation := s.getCosmos(location)
+	if cosmosLocation == nil {
+		log.Println("no cosmos found:", location)
+		http.Error(w, "Cosmos location not found", http.StatusNotFound)
+		return
+	}
+	switch req.Method {
+	case "GET":
+		cron = cronValues{
+			Suspend: cosmosLocation.Spec.Rclone.Suspend,
+			Trigger: cosmosLocation.Spec.Rclone.Trigger,
+		}
+		js, err := json.Marshal(cron)
+		if err != nil {
+			log.Println(err.Error())
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Write(js)
+		log.Println("received status request for", location)
+	case "POST":
+		if content := req.Header.Get("Content-Type"); content != "" && content != "application/json" {
+			log.Println("Unsupported media type:", content)
+			http.Error(w, "Content-Type header is not application/json", http.StatusUnsupportedMediaType)
+			return
+		}
+		// Body should never be more than 42 bytes of json data
+		dec := json.NewDecoder(http.MaxBytesReader(w, req.Body, 42))
+		dec.DisallowUnknownFields()
+
+		err := dec.Decode(&cron)
+		if err != nil {
+			log.Println("Error decoding json:", err.Error())
+			http.Error(w, "Bad request", http.StatusBadRequest)
+		}
+		cosmosLocation.Spec.Rclone.Suspend = cron.Suspend
+		cosmosLocation.Spec.Rclone.Trigger = cron.Trigger
+		_, err = s.KubeAlpha.Cosmoses(s.Namespace).Update(cosmosLocation)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+	w.Header().Set("Server", "Cosmos Scheduler")
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+}
+
+// healthCheckRoute will ping the MongoDB connection on every request recieved
 // at :8080/healthcheck
-func (s *Scheduler) healthCheckServer() {
-	health := func(w http.ResponseWriter, req *http.Request){
+func (s *Scheduler) healthCheckRoute(w http.ResponseWriter, req *http.Request) {
 		ctx, cancel := context.WithTimeout(req.Context(), 5*time.Second)
 		defer cancel()
 		err := s.MongodbClient.Ping(ctx, readpref.Primary())
 		if err != nil {
 			log.Println("MongoDB healthcheck failed:", err)
-			http.Error(w, "Internal error, could not contact MongoDB", 500)
+			http.Error(w, "Could not contact MongoDB", http.StatusInternalServerError)
 			return
 		}
 		w.WriteHeader(http.StatusOK)
-	}
-	http.HandleFunc("/healthcheck", health)
+}
+
+// httpServer sets up the route handle functions and the listening server
+func (s *Scheduler) httpServe() {
+	http.HandleFunc(suspendRoute, s.suspendRoute)
+	http.HandleFunc(healthRoute, s.healthCheckRoute)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
@@ -256,6 +321,22 @@ func (s *Scheduler) watchOverlayUpdates(ctx context.Context) (chan interface{}) 
 	return ch
 }
 
+// getCosmos returns the *v1alpha1.Cosmos custom resource of a given location name.
+// if no name is specified then all Cosmoses will be returned.
+func (s *Scheduler) getCosmos(name string) (*v1alpha1.Cosmos) {
+	cosmoses, err := s.KubeAlpha.Cosmoses(s.Namespace).List(metav1.ListOptions{})
+	if err != nil {
+		log.Println("error checking cosmos:", err)
+		return nil
+	}
+	for _, cosmos := range cosmoses.Items {
+		if name == cosmos.Name {
+			return &cosmos
+		}
+	}
+	return nil
+}
+
 // getSecret looks for a Kubernetes secret by the given name and
 // returns a key value map with 'accessKey' and 'secretKey'.
 // The keys are strings and the values are byte arrays.
@@ -329,7 +410,7 @@ func (s *Scheduler) isCosmosLocation(bucket *BucketTransaction) (bool) {
 	return false
 }
 
-
+// unused
 // getCosmosLocation will return a string array of all locations of the given location type.
 func (s *Scheduler) getCosmosLocations(locationType string) ([]string, error) {
 	locations, err := s.Pensieve.GetLocationsWithTypes([]string{locationType})
@@ -343,6 +424,7 @@ func (s *Scheduler) getCosmosLocations(locationType string) ([]string, error) {
 	return ret, nil
 }
 
+// unused
 // getCosmosLocationBson will return a bson map of all locations of the given location type.
 func (s *Scheduler) getCosmosLocationBson(locationType string) (bson.A, error) {
 	locations, err := s.Pensieve.GetLocationsWithTypes([]string{locationType})
@@ -446,7 +528,7 @@ func (s *Scheduler) createCosmosNFSLocation(location *pensieve.Location, bucket 
 			Rclone: &v1alpha1.CosmosRcloneSpec{
 				Schedule: s.IngestionSchedule,
 				Suspend: true,
-				TriggerIngest: false,
+				Trigger: false,
 				Source: &v1alpha1.CosmosRcloneSourceSpec{
 					Type: "local",
 				},
@@ -477,7 +559,7 @@ func (s *Scheduler) createCosmosNFSLocation(location *pensieve.Location, bucket 
 	return err
 }
 
-// createCosmosNFSLocation creates a new Cosmos custom resource using data from a
+// createCosmosAWSLocation creates a new Cosmos custom resource using data from a
 // *MongodbURL.Location. It assumes the location to be of type "AWS".
 func (s *Scheduler) createCosmosAWSLocation(location *pensieve.Location, bucket string) error {
 	err := s.reconcileSecrets(nil, location, false)
@@ -500,7 +582,7 @@ func (s *Scheduler) createCosmosAWSLocation(location *pensieve.Location, bucket 
 			Rclone: &v1alpha1.CosmosRcloneSpec{
 				Schedule: s.IngestionSchedule,
 				Suspend: true,
-				TriggerIngest: false,
+				Trigger: false,
 				Source: &v1alpha1.CosmosRcloneSourceSpec{
 					Type: "s3",
 					Provider: "AWS",
@@ -548,7 +630,7 @@ func (s *Scheduler) createCosmosCephLocation(location *pensieve.Location, bucket
 			Rclone: &v1alpha1.CosmosRcloneSpec{
 				Schedule: s.IngestionSchedule,
 				Suspend: true,
-				TriggerIngest: false,
+				Trigger: false,
 				Source: &v1alpha1.CosmosRcloneSourceSpec{
 					Type: "s3",
 					Provider: "Ceph",

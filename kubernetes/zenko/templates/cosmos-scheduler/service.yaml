@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "cosmos-scheduler.fullname" . }}
+  labels:
+    app: {{ template "cosmos-scheduler.name" . }}
+    chart: {{ template "zenko.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: cosmos
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ template "cosmos-scheduler.name" . }}
+    release: {{ .Release.Name }}

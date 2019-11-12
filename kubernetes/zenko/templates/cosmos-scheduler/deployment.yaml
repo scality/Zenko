@@ -29,6 +29,9 @@ spec:
       - name: {{ template "cosmos-scheduler.fullname" . }}
         image: "{{ .Values.cosmos.scheduler.image.repository }}:{{ .Values.cosmos.scheduler.image.tag }}"
         imagePullPolicy: {{ .Values.cosmos.scheduler.image.pullPolicy }}
+        ports:
+        - name: cosmos
+          containerPort: 8080
         env:
         - name: NAMESPACE
           {{- if .Values.cosmos.scheduler.namespace }}
