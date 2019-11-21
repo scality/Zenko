@@ -398,7 +398,8 @@ div.footer
   }
 
 td ul {
-   margin-left: 1em;
+    margin-left: 1em;
+    padding: 0px 0px 0px 0px;
 }
 
 td ul li
