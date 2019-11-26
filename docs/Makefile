@@ -1,21 +1,9 @@
 
-# SPHINXOPTS    =
-# SPHINXBUILD   = sphinx-build
-# SPHINXPROJ    = Zenko
-# SOURCEDIR     = .
-# BUILDDIR      = _build
-
- ROOTDIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-# DOCKER=docker
-# BUILDERNAME=zenko-docs
+ROOTDIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 BUILDERIMAGE="$(ROOTDIR)"
-# BUILDERDOCKERFILE=./Dockerfile
-# BUILDERHOME=/usr/src/zenko
-
 
 DOCKER=docker
 BUILDERNAME=zenko-docs
-# BUILDERIMAGE=builder
 BUILDERHOME=/home/docs
 
 .PHONY: build shell
@@ -25,8 +13,6 @@ build:
 
 shell: build
 	@$(DOCKER) run -it --rm -v "$$PWD:$(BUILDERHOME)" $(BUILDERNAME) bash
-        print "BUILDERHOME = $BUILDERHOME"
-        print "BUILDERIMAGE = $BUILDERIMAGE"
 
 # RING-31480 Workaround: some local environments seems unable to build
 # the pdf with the desired cover.
