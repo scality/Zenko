@@ -176,6 +176,7 @@ latex_contents = r"""
 latex_logo = scaldoc.resources.get_footer_logo()
 latex_cover = scaldoc.resources.get_cover('Zenko')
 
+latex_title = ''
 if tags.has('install'):
      latex_title = 'Installation'
 elif tags.has('operation'):
@@ -199,7 +200,7 @@ latex_elements = {
     'preamble': scaldoc.resources.get_latex_preamble(
         cover=os.path.basename(latex_cover),
         logo=os.path.basename(latex_logo),
-        title='latex_title',
+        title=latex_title,
         title_voffset='85pt',
         version=release,
         copyright=copyright
