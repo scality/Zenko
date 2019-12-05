@@ -1,11 +1,19 @@
 Uninstall
 =========
 
-To uninstall/delete the “my-zenko” deployment:
+To uninstall/delete the “my-zenko” deployment, run:
 
-.. code:: bash
+::
 
-   $ helm delete my-zenko
+  $ kubectl delete cosmos --all --purge
 
-The command removes all Kubernetes components associated with the
-chart and deletes the deployed instance.
+This deletes all Cosmos objects from Kubernetes. 
+   
+Then, run:
+
+::
+  
+  $ helm delete my-zenko --purge
+
+The Helm command removes all Kubernetes components associated with the chart and
+deletes the deployed Zenko instance.
