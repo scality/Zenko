@@ -40,6 +40,13 @@ from projects_common_vars import author, copyright, release, version
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 
+# Setting up readthedocs variable to change build behavior
+READTHEDOCS = os.environ.get('READTHEDOCS', False) == 'True'
+
+# Adding readthedocs tag to use with only annotations when required.
+if READTHEDOCS:
+   tags.add('readthedocs')
+
 extensions = [
             'sphinx.ext.todo',
             'sphinx.ext.ifconfig',
@@ -54,9 +61,11 @@ plantuml_latex_output_format = 'pdf'
 autosectionlabel_prefix_document = True
 
 # Add any paths that contain templates here, relative to this directory.
-
 templates_path = ['_templates']
 
+# Adding readthedocs templates
+if READTHEDOCS:
+   templates_path.append('_templates_rtd')
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 
