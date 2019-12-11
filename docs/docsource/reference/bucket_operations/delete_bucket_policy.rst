@@ -8,10 +8,10 @@ policy. For any identity other than the root user of the account that owns the
 bucket, the identity must have the DeleteBucketPolicy permissions on the
 specified bucket and belong to the bucket owner's account to use this operation.
 
-In the absence of DeleteBucketPolicy permissions, S3 Connector returns a ``403
-Access Denied`` error. If the permissions are correct, but you are not using an
-identity that belongs to the bucket owner's account, S3 Connector returns a
-``405 Method Not Allowed`` error.
+In the absence of DeleteBucketPolicy permissions, Zenko returns a ``403 Access
+Denied`` error. If the permissions are correct, but you are not using an
+identity that belongs to the bucket owner's account, Zenko returns a ``405
+Method Not Allowed`` error.
 
 .. important::
 
@@ -98,5 +98,5 @@ Sample Response
    x-amz-request-id: 656c76696e672SAMPLE5657374  
    Date: Fri, 27 Sep 2019 20:22:01 GMT  
    Connection: keep-alive  
-   Server: S3Connector
+   Server: my-zenko
 

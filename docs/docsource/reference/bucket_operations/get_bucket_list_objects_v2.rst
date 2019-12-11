@@ -461,7 +461,7 @@ Response
 
   <?xml version="1.0" encoding="UTF-8"?>
   <ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
-  Server: S3Connector
+  Server: my-zenko
     <Name>quotes</Name>
     <Prefix>E</Prefix>
     <StartAfter>ExampleGuide.pdf</StartAfter>
@@ -497,7 +497,7 @@ The following GET request specifies the delimiter parameter with value /.
 .. code::
 
   GET /?list-type=2&delimiter=/ HTTP/1.1
-  Host: s3connector.scality.com
+  Host: my-zenko.example.com
   x-amz-date: 20181108T235931Z
   Authorization: authorization string
 
@@ -542,7 +542,7 @@ the prefix parameter with valuephotos/2006/.
 .. code::
 
   GET /?list-type=2&prefix=photos/2006/&delimiter=/ HTTP/1.1
-  Host: s3connector.scality.com
+  Host: my-zenko.example.com
   x-amz-date: 20181108T000433Z
   Authorization: authorization string
 
@@ -596,7 +596,7 @@ Request
 .. code::
 
   GET /?list-type=2 HTTP/1.1
-  Host: s3connector.scality.com
+  Host: my-zenko.example.com
   Date: Thu, 08 Nov 2018 23:17:07 GMT
   Authorization: authorization string
 
@@ -645,7 +645,7 @@ response.
   GET /?list-type=2 HTTP/1.1
   GET /?list-type=2&continuation-token=1ueGcxLPRx1Tr/XYExHnhbYLgveDs2J/wm36Hy4vbOwM= HTTP/1.1
 
-  Host: s3connector.scality.com
+  Host: my-zenko.example.com
   Date: Thu, 08 Nov 2018 23:17:07 GMT
   Authorization: authorization string
 

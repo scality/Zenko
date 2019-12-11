@@ -148,9 +148,9 @@ Headers`).
    |                                           |        | adds this metadata to the resulting      |
    |                                           |        | object. If you specify headers in the    |
    |                                           |        | request specifying any user-defined      |
-   |                                           |        | metadata, the connector ignores these    |
-   |                                           |        | headers. To use new user-defined         |
-   |                                           |        | metadata, REPLACE must be selected.      |
+   |                                           |        | metadata, Zenko ignores these headers.   |
+   |                                           |        | To use new user-defined metadata,        |
+   |                                           |        | REPLACE must be selected.                |
    |                                           |        |                                          |
    |                                           |        | If replaced, all original metadata is    |
    |                                           |        | replaced by the specified metadata.      |
