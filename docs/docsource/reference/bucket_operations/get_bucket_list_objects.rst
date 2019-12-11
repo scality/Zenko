@@ -23,7 +23,7 @@ Syntax
 .. code::
 
    GET / HTTP/1.1
-   Host: {{BucketName}}.{{ConnectorName}}.{{StorageService}}.com
+   Host: {{BucketName}}.{{StorageService}}.com
    Date: {{date}}
    Authorization: {{authenticationInformation}}
 

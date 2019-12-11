@@ -202,9 +202,9 @@ its response (includes XML containers):
    |                                       |           |                           |
    |                                       |           | If the encoding-type      |
    |                                       |           | request parameter is      |
-   |                                       |           | specified, S3 Connector   |
-   |                                       |           | includes this element in  |
-   |                                       |           | the response, and returns |
+   |                                       |           | specified, Zenko includes |
+   |                                       |           | this element in the       |
+   |                                       |           | response, and returns     |
    |                                       |           | encoded key name values   |
    |                                       |           | in the following          |
    |                                       |           | elements: Delimiter,      |

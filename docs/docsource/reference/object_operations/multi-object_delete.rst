@@ -241,12 +241,11 @@ response:
    |                           |                   |    key is specified   |
    |                           |                   |    and not the        |
    |                           |                   |    version ID. In     |
-   |                           |                   |    this case, S3      |
-   |                           |                   |    Connector creates  |
-   |                           |                   |    a delete marker    |
-   |                           |                   |    and returns its    |
-   |                           |                   |    version ID in the  |
-   |                           |                   |    response.          |
+   |                           |                   |    this case, Zenko   |
+   |                           |                   |    creates a delete   |
+   |                           |                   |    marker and returns |
+   |                           |                   |    its version ID in  |
+   |                           |                   |    the response.      |
    |                           |                   | -  A versioned delete |
    |                           |                   |    request is sent;   |
    |                           |                   |    that is, an object |
@@ -257,12 +256,11 @@ response:
    |                           |                   |    version ID         |
    |                           |                   |    identifies a       |
    |                           |                   |    delete marker. In  |
-   |                           |                   |    this case, S3      |
-   |                           |                   |    Connector deletes  |
-   |                           |                   |    the delete marker  |
-   |                           |                   |    and returns the    |
-   |                           |                   |    specific version   |
-   |                           |                   |    ID in response.    |
+   |                           |                   |    this case, Zenko   |
+   |                           |                   |    deletes the delete |
+   |                           |                   |    marker and responds|
+   |                           |                   |    with the specific  |
+   |                           |                   |    version ID.        |
    |                           |                   |                       |
    |                           |                   | **Ancestor:** Deleted |
    +---------------------------+-------------------+-----------------------+

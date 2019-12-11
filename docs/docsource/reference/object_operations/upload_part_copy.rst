@@ -96,17 +96,12 @@ x-amz-copy-source header.
    |                                           |        | returns an HTTP status code ``412         |
    |                                           |        | Precondition Failed`` error.              |
    |                                           |        |                                           |
-   |                                           |        | **Note**: If both the                     |
-   |                                           |        | x-amz-copy-source-if-match                |
-   |                                           |        | and x-amz-copy-source-if-unmodified-since |
-   |                                           |        | headers are present in the request as     |
-   |                                           |        | follows:                                  |
-   |                                           |        |                                           |
-   |                                           |        | x-amz-copy-source-if-match                |
-   |                                           |        | condition evaluates to true, and;         |
-   |                                           |        | x-amz-copy-source-if-unmodified-since     |
-   |                                           |        | condition evaluates to false; then, S3    |
-   |                                           |        | returns ``200 OK`` and copies the data.   |
+   |                                           |        | .. note:: If x-amz-copy-source-if-match   |
+   |                                           |        |    is requested and evaluates to true and |
+   |                                           |        |    x-amz-copy-source-if-unmodified-since  |
+   |                                           |        |    is present in the request and          |
+   |                                           |        |    evaluates to false, Zenko returns      |
+   |                                           |        |    ``200 OK`` and copies the data.        |
    |                                           |        |                                           |
    |                                           |        | **Default:** None                         |
    +-------------------------------------------+--------+-------------------------------------------+
@@ -117,37 +112,30 @@ x-amz-copy-source header.
    |                                           |        | status code ``412 Precondition Failed``   |
    |                                           |        | error.                                    |
    |                                           |        |                                           |
-   |                                           |        | **Note**: If both the x-amz-copy-source-\ |
-   |                                           |        | if-none-match and x-amz-copy-source-if-\  |
-   |                                           |        | unmodified-since headers are present in   |
-   |                                           |        | the request as follows:                   |
-   |                                           |        |                                           |
-   |                                           |        | x-amz-copy-source-if-none-match condition |
-   |                                           |        | evaluates to false, and                   |
-   |                                           |        | x-amz-copy-source-if-unmodified-since     |
-   |                                           |        | condition evaluates to true; then, S3     |
-   |                                           |        | returns ``412 Precondition Failed``       |
-   |                                           |        | response code.                            |
+   |                                           |        | .. note:: If                              |
+   |                                           |        |    x-amz-copy-source-if-none-match is     |
+   |                                           |        |    present in the request and evaluates   |
+   |                                           |        |    false and                              |
+   |                                           |        |    x-amz-copy-source-if-unmodified-since  |
+   |                                           |        |    is requested and evaluates to true     |
+   |                                           |        |    Zenko returns ``412 Precondition       |
+   |                                           |        |    Failed``.                              |
    |                                           |        |                                           |
    |                                           |        | **Default:** None                         |
    +-------------------------------------------+--------+-------------------------------------------+
    | ``x-amz-copy-source-if-unmodified-since`` | String | Perform a copy if the source object is    |
    |                                           |        | not modified after the time specified     |
    |                                           |        | using this header. If the source object   |
-   |                                           |        | is modified, S3Connector returns an HTTP  |
-   |                                           |        | status code, ``412 Precondition Failed``  |
-   |                                           |        | error.                                    |
+   |                                           |        | is modified, Zenko returns an HTTP status |
+   |                                           |        | code, ``412 Precondition Failed`` error.  |
    |                                           |        |                                           |
-   |                                           |        | **Note**: If both the x-amz-copy-source-\ |
-   |                                           |        | if-match and x-amz-copy-source-if-\       |
-   |                                           |        | unmodified-since headers are present in   |
-   |                                           |        | the request as follows:                   |
-   |                                           |        |                                           |
-   |                                           |        | x-amz-copy-source-if-match condition      |
-   |                                           |        | evaluates to true, and; x-amz-copy-\      |
-   |                                           |        | source-if-unmodified-since condition      |
-   |                                           |        | evaluates to false; then, S3 returns      |
-   |                                           |        | ``200 OK`` and copies the data.           |
+   |                                           |        | .. note:: If both the                     |
+   |                                           |        |    x-amz-copy-source-if-match header is   | 
+   |                                           |        |    present in the request and evaluates   |
+   |                                           |        |    to true, and                           |
+   |                                           |        |    x-amz-copy-source-if-unmodified-since  |
+   |                                           |        |    evaluates to false, Zenko returns      |
+   |                                           |        |    ``200 OK`` and copies the data.        |
    |                                           |        |                                           |
    |                                           |        | **Default:** None                         |
    +-------------------------------------------+--------+-------------------------------------------+
@@ -155,20 +143,17 @@ x-amz-copy-source header.
    |                                           |        | modified after the time specified using   |
    |                                           |        | the x-amz-copy-source-if-modified-since   |
    |                                           |        | header. If the source object is not       |
-   |                                           |        | modified, S3 Connector returns an HTTP    |
+   |                                           |        | modified, Zenko returns an HTTP           |
    |                                           |        | status code, ``412 precondition failed``  |
    |                                           |        | error.                                    |
    |                                           |        |                                           |
-   |                                           |        | **Note**: If both the x-amz-copy-source-\ |
-   |                                           |        | if-none-match and x-amz-copy-source-if-\  |
-   |                                           |        | unmodified-since headers are present in   |
-   |                                           |        | the request as follows:                   |
-   |                                           |        |                                           |
-   |                                           |        | x-amz-copy-source-if-none-match condition |
-   |                                           |        | evaluates to false, and x-amz-copy-\      |
-   |                                           |        | source-if-unmodified-since condition      |
-   |                                           |        | evaluates to true, then S3 returns        |
-   |                                           |        | ``412 Precondition Failed`` response code.|
+   |                                           |        | .. note:: If                              |
+   |                                           |        |    x-amz-copy-source-if-none-match is     |
+   |                                           |        |    requested and evaluates to false, and  |
+   |                                           |        |    x-amz-copy-source-if-unmodified-since  |
+   |                                           |        |    is requestred and evaluates to true,   |
+   |                                           |        |    Zenko returns a ``412 Precondition     |
+   |                                           |        |    Failed`` response code.                |
    |                                           |        |                                           |
    |                                           |        | **Default:** None                         |
    +-------------------------------------------+--------+-------------------------------------------+
@@ -201,11 +186,11 @@ encryption information for Zenko to decrypt the object for copying.
    +-----------------------------------+--------+--------------------------------------+
    | ``x-amz-copy-source-server-side-\ | string | Specifies the customer-provided      |
    | encryption-customer-key``         |        | base-64 encoded encryption key for   |
-   |                                   |        | S3 Connector to use to decrypt the   |
-   |                                   |        | source object. The encryption key    |
-   |                                   |        | provided in this header must be one  |
-   |                                   |        | that was used when the source object |
-   |                                   |        | was created.                         |
+   |                                   |        | Zenko to use to decrypt the source   |
+   |                                   |        | object. The encryption key provided  |
+   |                                   |        | in this header must be one that was  |
+   |                                   |        | used when the source object was      |
+   |                                   |        | created.                             |
    |                                   |        |                                      |
    |                                   |        | **Default:** None                    |
    |                                   |        |                                      |

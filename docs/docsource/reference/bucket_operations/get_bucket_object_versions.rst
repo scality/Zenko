@@ -24,7 +24,7 @@ Syntax
 .. code::
 
    GET /?versions HTTP/1.1
-   Host: {{BucketName}}.{{ConnectorName}}.{{StorageService}}.com
+   Host: {{BucketName}}.{{StorageService}}.com
    Date: {{date}}
    Authorization: {{authenticationInformation}}
 
@@ -152,8 +152,8 @@ XML elements in the response:
    |                         |           | response.                           |
    |                         |           |                                     |
    |                         |           | If encoding-type request parameter  |
-   |                         |           | is specified, S3 Connector includes |
-   |                         |           | this element in the response, and   |
+   |                         |           | is specified, Zenko includes this   |
+   |                         |           | element in the response, and        |
    |                         |           | returns encoded key name values in  |
    |                         |           | the following response elements:    |
    |                         |           |                                     |

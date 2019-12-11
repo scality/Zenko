@@ -8,7 +8,7 @@ empty.
 
 .. note::
 
-  Before a bucket can be deleted, all object must be deleted from the
+  Before a bucket can be deleted, all objects must be deleted from the
   bucket and all ongoing multipart uploads must be aborted.
 
 Requests
@@ -20,7 +20,7 @@ Syntax
 .. code::
 
    DELETE / HTTP/1.1
-   Host: {{BucketName}}.{{ConnectorName}}.{{StorageService}}.com
+   Host: {{BucketName}}.{{StorageService}}.com
    Date: {{date}}
    Authorization: {{authenticationInformation}
 

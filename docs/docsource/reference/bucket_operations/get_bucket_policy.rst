@@ -8,10 +8,10 @@ policy. For any identity other than the root user of the account that owns the
 bucket, the identity must have GetBucketPolicy permissions on the specified
 bucket and belong to the bucket owner's account to use this operation.
 
-In the absence of GetBucketPolicy permissions, S3 Connector returns a ``403
-Access Denied`` error. If the permissions are correct, but you are not using an
-identity that belongs to the bucket owner's account, S3 Connector returns a
-``405 Method Not Allowed`` error.
+In the absence of GetBucketPolicy permissions, Zenko returns a ``403 Access
+Denied`` error. If the permissions are correct, but you are not using an
+identity that belongs to the bucket owner's account, Zenko returns a ``405
+Method Not Allowed`` error.
 
 .. important::
 
