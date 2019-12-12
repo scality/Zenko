@@ -48,7 +48,7 @@ Orbit.
 .. |image0| image:: ../../Resources/Images/Orbit_Screencaps/google_login.png
    :scale: 75%
 .. |image1| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_setup_Privacy.png
-   :scale: 75%
+   :width: 75%
 .. |image2| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_register_my_Instance_detail.png
 .. |image3| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_setup_Instance_ID.png
-   :scale: 75%
+   :width: 75%
