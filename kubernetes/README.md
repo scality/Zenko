@@ -138,6 +138,43 @@ simulate and try to validate a compatible upgrade. Running with the `--debug` wi
 templated values and deployment configurations that will be installed. These are just basic validations
 but upgrade implications should be fully taken into account by you and/or your Kubernetes administrator.
 
+
+Nightly Releases
+----------------
+
+Nightly releases are currently available under our [private chart registry](https://registry.scality.com). They're designed for dev purposes only, so that
+you can get an early preview of what's about to be released.
+
+### Install
+
+They can be installed like the following:
+
+```shell
+# Add the zenko-dev repo to your helm setup
+$ helm repo add zenko-dev https://registry.scality.com/chartrepo/zenko-dev
+# Then you can install Zenko
+$ helm install zenko-dev/zenko --version 1.2-nightly
+```
+
+### Upgrade
+
+To update your nightly release setup you follow this commands:
+
+```shell
+# To ensure your repo is up to date
+$ helm repo update
+# Then upgrade your release
+$ helm upgrade my-release zenko-dev/zenko --version 1.2-nightly
+```
+
+### Version Scheme
+
+For the nightly version scheme we use the Major and Minor version of Zenko
+(we use semver) suffixed by `-nightly`. So that it looks like the following
+`${MAJOR_VERSION}.${MINOR_VERSION}-nightly`.
+
+We also upload the same chart with a date suffix so that we can keep an history of every nightly.
+
 [Helm]: https://helm.sh
 [Scality]: https://scality.com
 [Zenko]: https://zenko.io
