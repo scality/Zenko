@@ -34,4 +34,8 @@ component monitoring.
 API documentation (routes, requests, and responses) for these services 
 is provided in the :version-ref:`Zenko Reference <https://documentation.scality.com/Zenko/{version}/reference/index.html>`.
 
+.. note::
+
+   Cross-region replication is not supported for Azure Blob Storage points of
+   origin (Azure Blob frontend servers) in Zenko version |version|.
 

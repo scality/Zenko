@@ -139,6 +139,7 @@ use cases.
 
    .. tabularcolumns:: X{0.45\textwidth}X{0.45\textwidth}
    .. table:: Cloud Server General Metrics
+      :width: 100%
 
       +--------------------------------------+--------------------------------------+
       | Metric                               | Description                          |

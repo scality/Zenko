@@ -39,9 +39,9 @@ To view information about a file:
    .. image:: ../../Graphics/Orbit_x-amz-meta.png
       :align: center
 
-   This name space must conform to `Amazon’s naming rules
+   This name space must conform to `Amazon’s bucket naming rules
    <https://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html#bucketnamingrules>`__:
-   numbers, hyphens, and upper- and lower-case letters only).
+   numbers, hyphens, and upper- and lower-case letters only.
 
 #. Click the pencil icon in the **Tags** field to add custom tags.
 

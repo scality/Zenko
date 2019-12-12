@@ -15,4 +15,6 @@ protocol. When each location is established, versioning must be enabled.
 Out-of-band updates for S3C offers metrics; for NFS services, this feature
 remains under development.
 
-This feature is not yet implemented for Azure Blob frontends. 
+.. note::
+
+   This feature is not yet implemented for Azure Blob frontends. 

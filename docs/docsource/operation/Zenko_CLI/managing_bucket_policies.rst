@@ -17,3 +17,8 @@ a DELETE Bucket Policy request.
 
 Access to bucket polices is via the S3 API. You can pass these commands using
 the AWS CLI tool, S3cmd, or direct http(s) requests to the REST endpoints.
+
+.. note::
+
+   Bucket policy features are not supported for Azure Blob Storage points of
+   origin (Azure Blob frontend servers) in Zenko version |version|.

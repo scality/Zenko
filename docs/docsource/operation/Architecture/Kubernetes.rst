@@ -42,4 +42,5 @@ MetalK8s is hosted at https://github.com/scality/metalk8s. Instructions for
 deploying MetalK8s on your choice of hardware (real or virtual) are provided
 there. Documentation is available at: https://metal-k8s.readthedocs.io/.
 Installation instructions specific to deploying MetalK8s for Zenko are included
-in :version-ref:`Zenko Installation <https://documentation.scality.com/Zenko/{version}/installation/index.html>`.
+in :version-ref:`Zenko Installation
+<https://documentation.scality.com/Zenko/{version}/installation/index.html>`.

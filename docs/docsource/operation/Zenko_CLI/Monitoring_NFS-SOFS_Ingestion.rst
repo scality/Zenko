@@ -3,13 +3,12 @@
 Monitoring NFS/SOFS Ingestion
 =============================
 
-Zenko 1.1 implements an NFS feature that ingests the NFS file
-hierarchy that the RING's Scale-Out File System (SOFS) projects. For
-this release, the only available metrics for NFS/SOFS ingestion
-operations reside in log files. SOFS metadata ingestion runs on a cron
-schedule, and users can make a query against Cosmos on the kubectl
-location to discover how and when scheduled NFS activities have been
-executed.
+Zenko implements an NFS feature that ingests the NFS file hierarchy that the
+RING's Scale-Out File System (SOFS) projects. For this release, the only
+available metrics for NFS/SOFS ingestion operations reside in log files. SOFS
+metadata ingestion runs on a cron schedule, and users can make a query against
+Cosmos on the kubectl location to discover how and when scheduled NFS activities
+have been executed.
 
 To find the relevant Cosmos pods, enter:
 
@@ -54,17 +53,17 @@ yields:
 .. tabularcolumns:: X{0.20\textwidth}X{0.75\textwidth}
 .. table::
 
-   +--------------+------------------------------------------------------------+
-   | Response     | Description                                                |
-   +==============+============================================================+
-   | Transferred  | The byte count of metadata transferred, with data rate in  |
-   | 		  | B/s and a completion time estimate. Transferred counts are |
-   |		  | almost always 0/0.                                         |
-   +--------------+------------------------------------------------------------+
-   | Errors       | Aggregated error count for the requested job.              |
-   +--------------+------------------------------------------------------------+
-   | Checks       | Ingested information/total information to be ingested,     |
-   | 		  | and a percentage expressing this ratio.                    |
-   +--------------+------------------------------------------------------------+
-   | Elapsed Time | Time spent on the current ingestion cycle.	               |
-   +--------------+------------------------------------------------------------+
+   +------------------+------------------------------------------------------------+
+   | Response         | Description                                                |
+   +==================+============================================================+
+   | ``Transferred``  | The byte count of metadata transferred, with data rate in  |
+   |                  | B/s and a completion time estimate. Transferred counts are |
+   |                  | almost always 0/0.                                         |
+   +------------------+------------------------------------------------------------+
+   | ``Errors``       | Aggregated error count for the requested job.              |
+   +------------------+------------------------------------------------------------+
+   | ``Checks``       | Ingested information/total information to be ingested,     |
+   |                  | and a percentage expressing this ratio.                    |
+   +------------------+------------------------------------------------------------+
+   | ``Elapsed Time`` | Time spent on the current ingestion cycle.                 |
+   +------------------+------------------------------------------------------------+

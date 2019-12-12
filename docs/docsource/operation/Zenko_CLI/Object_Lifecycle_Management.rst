@@ -10,6 +10,11 @@ since the object’s last modification. Zenko supports expiration and transition
 of objects when a defined number of days has passed since those objects’
 creation. This enables automated deletion or movement of older objects.
 
+.. note::
+
+   Lifecycle management features are not supported for Azure Blob Storage points
+   of origin (Azure Blob frontend servers) in Zenko version |version|.
+
 Installation
 ------------
 
@@ -50,11 +55,7 @@ Element syntax described in
    cloud location as the target cloud storage location. Zenko reads and writes
    to this location based on the StorageClass tag definition.
 
-Zenko API Calls
----------------
-
-The Zenko API provides three calls to manage lifecycle properties per
-bucket:
+Zenko provides three API calls to manage lifecycle properties per bucket:
 
 -  PUT Bucket Lifecycle
 -  GET Bucket Lifecycle
@@ -65,8 +66,8 @@ bucket:
       See the `AWS S3 API Reference <https://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketOps.html>`__
       for protocol-level formatting details.
 
-These calls manage bucket attributes related to lifecycle behavior,
-which are stored as part of bucket metadata.
+These calls manage bucket attributes related to lifecycle behavior, which are
+stored as part of bucket metadata.
 
 Managing Lifecycle Rules from the S3 API 
 ----------------------------------------

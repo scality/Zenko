@@ -17,12 +17,12 @@ Orbit is configured, you can unlink it from a Zenko instance as well.
 Registering Orbit to Zenko
 --------------------------
 
-Orbit can be run as a user interface to Zenko no matter where or how
-Zenko is hosted. You can deploy Zenko:
+Orbit can be run as a user interface to Zenko no matter where or how Zenko is
+hosted. You can deploy Zenko on any host running Kubernetes 1.11.3 or
+later. Successfully tested Kubernetes hosts include:
 
--  As a test instance running on a local machine using Minikube
--  On a cloud host using MetalK8s
--  On a cloud host using the host’s native Kubernetes environment (EKS,
-   GKE, AKS).
+-  A test instance running on a local machine using Minikube
+-  A cloud host using MetalK8s
+-  A cloud host using the host’s native Kubernetes environment (EKS, GKE, AKS).
 
 

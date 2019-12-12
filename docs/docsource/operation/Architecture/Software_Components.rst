@@ -1,5 +1,5 @@
-Software Architecture
-=====================
+Component Software
+===================
 
 Zenko consists of several microservices. Among these are:
 
@@ -9,8 +9,8 @@ Zenko consists of several microservices. Among these are:
    Orbit
    CloudServer
    Blobserver
-   Backbeat
    Kubernetes
+   Backbeat
    Cosmos
    ZooKeeper
    Kafka
@@ -18,5 +18,3 @@ Zenko consists of several microservices. Among these are:
    Prometheus
    Redis-Sentinel
    S3_Data
-
-

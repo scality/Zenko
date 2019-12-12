@@ -3,8 +3,9 @@
 Zenko from the Command Line
 ===========================
 
-Zenko supports command-line interactions for a limited set of Amazon S3 API
-calls and to access its own Backbeat server.
+Zenko supports command-line interactions for a limited set of Amazon S3 and
+Azure Blob API calls via the CloudServer and Blobserver modules. Access to the
+internal Backbeat server's APIs is through CloudServer API calls.
 
 Enabling command-line interactions enables programmatic access to the following
 features:
@@ -20,20 +21,20 @@ features:
    managing_bucket_policies
    
 To access Zenko from the command line, you must first set up access to 
-the S3 API.
+the desired APIs.
 
 .. _S3 API config:
 
-Setting Up S3 API Access
-------------------------
+Set Up CloudServer API Access
+-----------------------------
 
-Zenko supports a limited set of S3 API commands. For a comprehensive listing of
-supported S3 commands, see the :version-ref:`Zenko Reference
+Zenko supports a limited set of S3 and Azure API commands. For a comprehensive
+listing of supported S3 commands, see the :version-ref:`Zenko Reference
 <https://documentation.scality.com/Zenko/{version}/reference/index.html>`.
 
-To access Zenko’s AWS S3 API, you must perform the following setup
-tasks. In the present example, server 1 is modified to be the
-AWS gateway.
+To access Zenko’s AWS S3 and Azure Blob APIs, you must perform the following
+setup tasks to configure CloudServer. In the present example, server 1 is
+modified to be the AWS gateway.
 
 #. Using SSH, open any server in a running Zenko instance.
 
@@ -47,25 +48,25 @@ AWS gateway.
 
        [$centos@node-01 ~]$ sudo yum -y install epel-release
 
-#. Install python-devel and python-pip
+#. Install python-devel and python-pip:
 
    ::
 
        [centos@node-01 ~]$ sudo yum -y install python-devel python-pip
 
-#. Install awscli.
+#. Install awscli:
 
    ::
 
        [centos@node-01 ~]$ sudo pip install awscli
 
-#. Edit /etc/hosts.
+#. Install azure-cli (optional):
 
    ::
 
-       [centos@node-01 ~]$ sudo vi /etc/hosts
-
-#. Nominate a server node as zenko.local.
+       [centos@node-01 ~]$ sudo pip install azure-cli
+   
+#. Edit /etc/hosts and nominate a server node as zenko.local:
 
    ::
 
@@ -77,9 +78,7 @@ AWS gateway.
        10.0.0.5 node-05 node-05.cluster.local
        # Ansible inventory hosts END
 
-#. Retrieve your Zenko access key ID and Zenko secret access key.
-
-#. Configure AWS using these keys.
+#. Retrieve your Zenko access key ID and Zenko secret access key and use them as follows:
 
    ::
 
@@ -101,7 +100,75 @@ AWS gateway.
 
 Zenko can now respond to the set of S3 commands documented in the
 :version-ref:`Zenko Reference
-<https://documentation.scality.com/Zenko/{version}/reference/index.html>`.
+<https://documentation.scality.com/Zenko/{version}/reference/index.html>`.       
+
+Set Up Blobserver API Access
+----------------------------
+
+Once you have created the Cloudserver access keys, you can configure optional
+Blobserver storage account access.
+
+.. note::
+
+   You must setup HTTPS to use the SRP API with the Azure command-line tool,
+   ``az``.
+
+#. Register a custom cloud in the Azure CLI.
+
+   ::
+      
+      $ az cloud register -n '{custom_cloudname}' --endpoint-resource-manager "https://{extra_authority_hostname}" --suffix-storage-endpoint "{blob_endpoint_suffix}" --endpoint-active-directory "https://{extra_authority_hostname}"
+      
+#. Tell Azure to use that cloud:
+
+   ::
+      
+      $ az cloud set -n {custom_cloudname}
+
+#. Authenticate yourself on the SRP API.
+
+   ::
+     
+      $ az login --allow-no-subscriptions
+
+This opens a browser on an authentication form. Enter the Cloudserver AWS access
+and secret keys there.
+
+#. Create a storage account via the SRP API.
+   
+   ::
+
+      $ az storage account create -g default -l us-east-1 --name myAccount
+
+   Replace ``us-east1`` with any desired existing cloud location name (using an
+   AWS-compatible name). Use "default" on the resource group.
+
+#. Once the storage account is created, you can retrieve the connection string with:
+
+   ::
+      
+      $ az storage account show-connection-string --name myAccount
+
+#. Zenko responds with: 
+
+   ::
+
+      'DefaultEndpointsProtocol=https;EndpointSuffix={blob_endpoint_suffix};AccountName=myaccount;AccountKey=gEPf7ypxhBOfefl5OP4AH3X+aDPYovItFsJFt5eAjPN5l4jcKex5s2SpBQg2tOm7ufgghTRQg2cXL2/0JtXBZg=='
+     
+#. You can either use this string as an az CLI tool option or export it as an
+   environment variable. To export it, enter:
+
+   ::
+      
+      $ export AZURE_STORAGE_CONNECTION_STRING={full string}
+
+#. Verify this configuration. If configuration is successful, the following
+   command returns a list of containers under the created storage account:
+
+   ::
+
+      $ az storage container list
+
 
 Setting Up Backbeat API Access
 ------------------------------
@@ -136,10 +203,9 @@ Where:
     user ID. It is generated in Orbit when the user account is created (see 
     :ref:`add_a_new_user`). 
 
-  * CanonicalizedResource is as described in the
-    `AWS documentation`_
+  * CanonicalizedResource is as described in the `AWS documentation`_.
 
-  * HTTP-Verb is PUT or GET.
+  * The HTTP verb is PUT or GET.
 
 You must follow the instructions at 
 https://docs.aws.amazon.com/AmazonS3/latest/dev/RESTAuthentication.html to
@@ -147,7 +213,8 @@ generate the CanonicalizedResource credentials. A rudimentary script is provided
 below to help you formulate test requests with valid CanonicalResource
 certification.
 
-**Example Request:**
+Example Request
+~~~~~~~~~~~~~~~
 
 .. code::
    
@@ -164,7 +231,8 @@ certification.
       }
    }
 
-**Example Response:**
+Example Response
+~~~~~~~~~~~~~~~~
 
 .. code::
 
