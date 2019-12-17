@@ -309,14 +309,14 @@ elements.
 .. tabularcolumns:: X{0.28\textwidth}X{0.27\textwidth}X{0.20\textwidth}X{0.20\textwidth}
 .. table::
 
-   +------------------+-----------------+-----------------+-----------------+
-   | Error Code       | Description     | HTTP Status     | SOAP Fault      |
-   |                  |                 | Code            | Code Prefix     |
-   +==================+=================+=================+=================+
-   | NoSuchLifecycle\ | The lifecycle   | 404 Not Found   | Client          |
-   | Configuration    | configuration   |                 |                 |
-   |                  | does not exist. |                 |                 |
-   +------------------+-----------------+-----------------+-----------------+
+   +----------------------+-----------------+-----------------+-----------------+
+   | Error Code           | Description     | HTTP Status     | SOAP Fault      |
+   |                      |                 | Code            | Code Prefix     |
+   +======================+=================+=================+=================+
+   | ``NoSuchLifecycle``  | The lifecycle   | 404 Not Found   | Client          |
+   | ``Configuration``    | configuration   |                 |                 |
+   |                      | does not exist. |                 |                 |
+   +----------------------+-----------------+-----------------+-----------------+
 
 **Examples**
 

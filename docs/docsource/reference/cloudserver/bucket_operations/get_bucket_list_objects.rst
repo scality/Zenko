@@ -138,7 +138,7 @@ Elements
 The GET Bucket (List Objects) operation can return the following
 XML elements in the response:
 
-.. tabularcolumns:: llX{0.65\textwidth}
+.. tabularcolumns:: X{0.15\textwidth}X{0.15\textwidth}X{0.65\textwidth}
 .. table::
    :class: longtable
 

@@ -52,7 +52,7 @@ headers that are common to all operations (see :ref:`Common Response Headers`).
 Elements
 ~~~~~~~~
 
-.. tabularcolumns:: llX{0.65\textwidth}
+.. tabularcolumns:: X{0.15\textwidth}X{0.15\textwidth}X{0.65\textwidth}
 .. table::
    :class: longtable
 

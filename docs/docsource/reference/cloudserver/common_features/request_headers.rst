@@ -8,7 +8,7 @@ quotation marks. They must be listed on separate lines, and each header
 included in the request signature must be followed by a newline marker
 (\n) in the signature string.
 
-.. tabularcolumns:: X{0.20\textwidth}X{0.75\textwidth}
+.. tabularcolumns:: X{0.25\textwidth}X{0.70\textwidth}
 .. table::
 
    +--------------------------+-----------------------------------------------------+
