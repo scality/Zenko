@@ -253,3 +253,7 @@ grafana:
     create: false
   adminUser: admin
   adminPassword: strongpassword
+
+mgob:
+  persistentVolume:
+    enabled: false
