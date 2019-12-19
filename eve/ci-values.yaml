@@ -257,3 +257,7 @@ grafana:
 mgob:
   persistentVolume:
     enabled: false
+
+burry:
+  persistentVolume:
+    enabled: false
