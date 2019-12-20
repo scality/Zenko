@@ -148,11 +148,7 @@
   font-style: italic;
 }
 
-
-
 @import url(fonts.googleapis.com/css?family=Roboto:400,400italic,500,500italic,700,700italic,900,900italic,300italic,300,100italic,100);
-
-/* Styles by chris.tingom@scality.com Hello and thanks for all the fish! */
 
 div.highlight {
     background-color: #E6E6E6;
@@ -326,36 +322,7 @@ a.reference-internal
     color: '#FFFFFF'
   }
 
-/* h2
-  {
-    font-size: 16pt;
-    font-family: 'Oswald SemiBold';
-  }
 
-h3
-  {
-    font-size: 14pt;
-    font-family: 'Oswald SemiBold';
-  }
-
-h4
-  {
-    font-size: 1em;
-    font-family: 'Oswald SemiBold';
-  }
-
-h5
-  {
-    font-style: italic;
-    font-family: 'Oswald SemiBold';
-  }
-
-h6
-  {
-    font-variant: small-caps;
-    font-family: 'Oswald SemiBold';
-  }
-*/
 img
   {
     align: center
@@ -365,47 +332,37 @@ img
     padding-bottom: 5px;
   }
 
-
 img.FiftyPercent
   {
     max-width: 50%;
   }
 
-
 img.OneHundredPercent
   {
     max-width: 100%;
-/*    padding-left: 10px;
-    padding-right: 10px;
-    padding-top: 5px;
-    padding-bottom: 5px;*/
   }
 
 img.SeventyFivePercent
   {
     align: center;
     max-width: 75%;
-  /*      padding-left: 10px;
-      padding-right: 10px;
-      display: block;
-      padding-top: 5px;
-      padding-bottom: 5px;*/
-    }
+  }
 
 div.footer
   {
     background-color: #201921;
   }
 
-td ul {
+td ul
+   {
     margin-left: 1em;
     padding: 0px 0px 0px 0px;
-}
+   }
 
 td ul li
-{
+   {
     margin-left: 1em;
-}
+   }
 
 
 /* Changes color of note admonition box */
@@ -426,7 +383,7 @@ div.tip {
     border: 1px solid #93d893;
 }
 
-/* H1 */
+
 div.body h1 {
     font-size: 222%;
 }
@@ -445,9 +402,9 @@ code {
     font-family: Courier, "Courier New", monospace;
     font-size: 90%;
     background-color: inherit;
-}
+   }
 
 ol ol {
     list-style-type: lower-alpha;
-}
+   }
 

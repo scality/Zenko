@@ -1,0 +1,24 @@
+\textbf{Publication History}
+
+X\{0.20textwidth\}X\{0.15textwidth\}X\{0.60textwidth\}
+
+\begin{longtable}[]{@{}lll@{}}
+\toprule
+\begin{minipage}[b]{0.23\columnwidth}\raggedright
+Version\strut
+\end{minipage} & \begin{minipage}[b]{0.17\columnwidth}\raggedright
+Date\strut
+\end{minipage} & \begin{minipage}[b]{0.52\columnwidth}\raggedright
+What's New\strut
+\end{minipage}\tabularnewline
+\midrule
+\endhead
+\begin{minipage}[t]{0.23\columnwidth}\raggedright
+1.2\strut
+\end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright
+\strut
+\end{minipage} & \begin{minipage}[t]{0.52\columnwidth}\raggedright
+\strut
+\end{minipage}\tabularnewline
+\bottomrule
+\end{longtable}
