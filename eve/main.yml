@@ -433,3 +433,28 @@ stages:
             TESTRAIL_KEY: '%(secret:testrail_key)s'
           warnOnFailure: true
           flunkOnFailure: false
+
+  release-nightly:
+    worker:
+      type: kube_pod
+      path: eve/workers/release/pod.yaml
+      images:
+        release: eve/workers/release
+    steps:
+      - Git: *git_pull
+      - ShellCommand:
+          name: release nightly zenko
+          command: >-
+            ./release-nightly.sh
+            --backbeat-revision development/8.2
+            --cloudserver-revision development/8.2
+            --upload zenko-dev &&
+            ./release-nightly.sh
+            --backbeat-revision development/8.2
+            --cloudserver-revision development/8.2
+            --upload zenko-dev
+            --nightly-suffix "nightly-$(date -I)"
+          workdir: build/eve/scripts
+          env:
+            HARBOR_LOGIN: '%(secret:harbor_login)s'
+            HARBOR_PASSWORD: '%(secret:harbor_password)s'
