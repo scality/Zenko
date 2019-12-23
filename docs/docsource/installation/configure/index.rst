@@ -21,4 +21,5 @@ access and manage these namespaces.
 
    configuring_zenko
    configure_ingress
+   configure_KMIP
 
