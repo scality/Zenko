@@ -33,21 +33,19 @@ This produces the following output:
       -h, --help                    output usage information
 
 In the following examples, Zenko is accessible on endpoint
-`http://zenko.local:80` and contains the bucket ``zenkobucket``.
+``http://zenko.local:80`` and contains the bucket ``zenkobucket``.
 
--  To search for objects with metadata “\ ``blue``\ ”:
+-  To search for objects with metadata ``blue``:
 
    ::
 
        $ node bin/search_bucket -a <AccessKey1> -k <verySecretKey1> -b zenkobucket -q "x-amz-meta-color=blue" -h zenko.local -p 80
 
--  The search for objects tagged with “\ ``type=color``\ ”:
+-  The search for objects tagged with ``type=color``:
 
    ::
 
        $ node bin/search_bucket -a <AccessKey1> -k <verySecretKey1> -b zenkobucket -q "tags.type=color" -h zenko.local -p 80
-
-
 
 
 .. _`HTTP Search Requests`: HTTP_Search_Requests.html

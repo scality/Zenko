@@ -22,14 +22,14 @@ whenever server operations cross pre-configured thresholds. Kubernetes reduces
 the complexity of container service and management previously addressed with
 Docker Swarm. MetalK8s, an open-source Scality project, reduces the complexity
 of deploying Kubernetes outside of a public cloud. You can use any Kubernetes
-deployment (1.11.3 or later) to run Zenko, but MetalK8s offers total platform
-independence.
+deployment (|min_kubernetes| or later) to run Zenko, but MetalK8s offers total
+platform independence.
 
 MetalK8s builds on the Kubespray project to install a base Kubernetes cluster,
 including all dependencies (like etcd), using the Ansible provisioning
 tool. This installation includes operational tools, such as Prometheus, Grafana,
 ElasticSearch, and Kibana, and deploys by default with the popular NGINX ingress
-controller (`ingress-nginx<https://github.com/kubernetes/ingress-nginx>`).
+controller (`ingress-nginx <https://github.com/kubernetes/ingress-nginx>`_).
 All these are managed as Helm packages.
 
 Unlike hosted Kubernetes solutions, where network-attached storage is available
