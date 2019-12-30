@@ -7,7 +7,7 @@ at least one bucket.
 
 #. Click **Browser** in the sidebar to open the Multicloud Browser:
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/sidebar_browser_button.png
+   .. image:: ../../Graphics/sidebar_browser_button.png
 
 #. Double-click the bucket to which you will upload data. 
 
@@ -19,11 +19,11 @@ at least one bucket.
 
    - Otherwise, Orbit displays the bucket's contents:
 
-     .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_file_operations.png
+     .. image:: ../../Graphics/Orbit_file_operations.png
 
    - Click **Upload** to raise the **Drag and Drop Objects** dialog.
   
-     .. image:: ../../Resources/Images/Orbit_Screencaps/upload_button_hover.png
+     .. image:: ../../Graphics/upload_button_hover.png
 
 #. In the **Drag and Drop Objects** dialog, you can either upload files by
    dragging and dropping from the local desktop (Windows Explorer, OS X, Linux
@@ -43,5 +43,5 @@ at least one bucket.
       fewer than the 1024 one-byte characters permitted in the AWS
       specification).
 
-.. |image0| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_multicloud_browser_with_values1.png
-.. |image1| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_upload_objects.png
+.. |image0| image:: ../../Graphics/Orbit_multicloud_browser_with_values1.png
+.. |image1| image:: ../../Graphics/Orbit_upload_objects.png

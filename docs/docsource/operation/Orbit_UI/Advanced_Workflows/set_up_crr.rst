@@ -13,7 +13,7 @@ To set up a replication configuration:
 
 #. Click **Replication** in the sidebar:
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/sidebar_replication_button.png
+   .. image:: ../../Graphics/sidebar_replication_button.png
 
 #. Orbit raises the Replication window:
 
@@ -21,14 +21,14 @@ To set up a replication configuration:
 
    If no locations are configured, Orbit displays this message:
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/replication_no_target_message.png
+   .. image:: ../../Graphics/replication_no_target_message.png
       :align: center
 
    Click the link text to create a :ref:`suitable replication target<orbit_add_location>`.
 
 #. Click **New**. The **Set up bucket replication** dialog displays.
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_set_up_bucket_replication.png
+   .. image:: ../../Graphics/Orbit_set_up_bucket_replication.png
       :align: center
 
    Name the new replication configuration, and enter source and destination
@@ -49,7 +49,7 @@ bucket and you configure that bucket to be replicated, replication only occurs
 to files written to that bucket after you have configured and set the
 replication.
 
-.. |image0| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_Replication_New.png
+.. |image0| image:: ../../Graphics/Orbit_Replication_New.png
    :class: OneHundredPercent
-.. |image2| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_replication_success.png
+.. |image2| image:: ../../Graphics/Orbit_replication_success.png
    :class: OneHundredPercent

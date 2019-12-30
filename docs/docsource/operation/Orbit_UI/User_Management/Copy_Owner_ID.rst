@@ -8,15 +8,15 @@ this string.
 
 #. Click the **Browser** button to open the Multicloud Browser.
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/sidebar_browser_button.png
+   .. image:: ../../Graphics/sidebar_browser_button.png
 
 #. In the **Multicloud Browser** window, double-click a bucket to open it.
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/bucket_select.png
+   .. image:: ../../Graphics/bucket_select.png
 
 #. The **Copy Owner ID** button appears above the file and directory listing.
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_bucket_canonical_ID.png
+   .. image:: ../../Graphics/Orbit_bucket_canonical_ID.png
 
 #. Click the **Copy Owner ID** button. The canonical user ID is transferred to
    the clipboard. The Zenko UI does not offer notification of this transfer.

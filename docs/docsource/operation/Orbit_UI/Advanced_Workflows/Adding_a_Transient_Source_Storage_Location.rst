@@ -17,18 +17,18 @@ To deploy a transient source storage location:
 
 #. Click the **Storage Locations** button in the sidebar.
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/sidebar_storage_locations_button.png
+   .. image:: ../../Graphics/sidebar_storage_locations_button.png
 
 #. The **Cloud Locations** window displays. Click **Add New**. 
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/cloud_locations_modal.png
+   .. image:: ../../Graphics/cloud_locations_modal.png
       :width: 75%
    
 #. The **Add New Storage Location** modal appears. Enter the **Location Name**
    and from the **Location Type** drop-down list, select **Scality RING with
    Sproxyd Connector**.
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/Add_New_Storage_Location_RING_sproxyd.png
+   .. image:: ../../Graphics/Add_New_Storage_Location_RING_sproxyd.png
       :width: 50%
       :align: center
 
@@ -36,7 +36,7 @@ To deploy a transient source storage location:
    and **Replication Factor for Small Objects**). Click **Advanced Options**,
    raising the **Advanced Options**.
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/Add_New_Storage_Location_RING_advanced_options.png
+   .. image:: ../../Graphics/Add_New_Storage_Location_RING_advanced_options.png
       :width: 50%
       :align: center
 

@@ -8,14 +8,14 @@ To add a storage location:
 1. Click the **Storage Locations** item in the sidebar to open the
    **Cloud Locations** window:
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_Storage_Locations.png
+   .. image:: ../../Graphics/Orbit_Storage_Locations.png
       :align: center
 
 #. Click **Add New**.
 
 #. The **Add New Storage Location** dialog displays:
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_Add_New_Storage_Location.png
+   .. image:: ../../Graphics/Orbit_Add_New_Storage_Location.png
       :align: center
 
    a. Enter a location name in the **Location Name** field using
