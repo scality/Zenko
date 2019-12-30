@@ -19,6 +19,6 @@ ease of use and excellent opportunities for visualizing managed data.
     Bucket Management<Bucket_Management/index>
     File Operations<File_Operations/index>
     Searching Metadata with Zenko<../Metadata_Search/Searching_Metadata_with_Zenko>
-    Advanced Workflows<Advanced_Workflows/index>
+
 
 

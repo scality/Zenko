@@ -4,7 +4,7 @@ Set Up Replication
 ==================
 
 **Prerequisites:** To set up bucket-level CRR using the Orbit UI, you
-must have
+must have:
 
 -  One pre-configured source bucket
 -  At least one pre-configured destination bucket
