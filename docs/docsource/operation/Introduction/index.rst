@@ -1,6 +1,16 @@
 About Zenko
 ===========
 
+Zenko is Scality's multi-cloud storage controller. It provides a single point of
+integration using the Amazon S3 and Azure Blob Storage cloud storage APIs, and
+enables data backup, transfer, and replication across private and public clouds.
+
+Using Zenko, you can store to a Scality RING storage device and automatically
+back up to one or several public clouds. Alternatively, you can use a public
+cloud such as Amazon S3 as primary storage and replicate data stored
+there--specific files, file types, or entire buckets--to other supported clouds,
+such as Google Cloud Platform (GCP) or Microsoft Azure.
+
 The Zenko open-source project, described at https://www.zenko.io/ and hosted on
 GitHub at https://github.com/scality/Zenko, provides the core logic of the Zenko
 product. This core is a stack of microservices, written primarily in Node.js and

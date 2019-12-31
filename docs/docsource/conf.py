@@ -50,6 +50,7 @@ if READTHEDOCS:
 extensions = [
             'sphinx.ext.todo',
             'sphinx.ext.ifconfig',
+            'sphinxcontrib.plantuml',
             'sphinxcontrib.spelling',
             'sphinxcontrib.inkscapeconverter',
 	    'sphinx_version_ref',
@@ -89,12 +90,12 @@ language = None
 
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
-# if tags.has('html'):
-#     master_doc = 'index_pdf'
-#     exclude_patterns.extend(['index_pdf.rst', '*/index_pdf.rst'])
-# else:
-#     master_doc = 'index_pdf'
-#     exclude_patterns.extend(['*/index.rst', 'index.rst', '*/glossary.rst'])
+if tags.has('html'):
+   master_doc = 'index'
+   exclude_patterns.extend(['index_pdf.rst', '*/index_pdf.rst'])
+else:
+   master_doc = 'index_pdf'
+   exclude_patterns.extend(['*/index.rst', 'index.rst', '*/glossary.rst'])
 
 # The name of the Pygments (syntax highlighting) style to use.
 
@@ -183,7 +184,8 @@ html_theme_options = {
       ("Knowledge Base", "https://support.scality.com/hc/en-us"),
       ("Training", "https://training.scality.com"),
       ("Privacy Policy", "https://www.scality.com/privacy-policy/"),
-   ]
+   ],
+   'kblink': 'https://support.scality.com/hc/en-us',
 }
 
 # add logo  (your logo goes in _static directory)
@@ -238,8 +240,8 @@ latex_engine = 'xelatex'
 latex_contents = r"""
     \thispagestyle{empty}
     \clearpage
-    \setcounter{page}{1}
     \sphinxtableofcontents
+    \setcounter{page}{1}
 """
 
 latex_logo = scaldoc.resources.get_footer_logo()
@@ -265,7 +267,6 @@ latex_elements = {
      'pointsize': '11pt',
 
     # Additional stuff for the LaTeX preamble.
-    #
     'preamble': scaldoc.resources.get_latex_preamble(
         cover=os.path.basename(latex_cover),
         logo=os.path.basename(latex_logo),
@@ -274,12 +275,19 @@ latex_elements = {
         version=release,
         copyright=copyright
      ),
+
+   'tableofcontents': latex_contents,
+   
     # Latex figure (float) alignment
     #
     # 'figure_align': 'htbp',
 }
 
-latex_additional_files = [latex_logo, latex_cover]
+latex_additional_files = [
+   latex_logo,
+   latex_cover,
+   os.path.join(scaldoc.paths.SHARED_INCLUDES, 'legal_notice.txt'),
+]
 latex_additional_files.extend(scaldoc.resources.get_fonts())
 
 # Grouping the document tree into LaTeX files. List of tuples
@@ -288,25 +296,25 @@ latex_additional_files.extend(scaldoc.resources.get_fonts())
 
 if tags.has('install'):
    latex_documents = [(
-      'installation/index',
+      'installation/index_pdf',
       'Zenko_Installation.tex',
-      'Zenko Installation Documentation',
+      'Zenko Installation',
       'Scality Technical Publications',
       'manual'
    )]
 elif tags.has('operation'):
    latex_documents = [(
-      'operation/index',
+      'operation/index_pdf',
       'Zenko_Operation.tex',
-      'Zenko Operation Documentation',
+      'Zenko Operation',
       'Scality Technical Publications',
       'manual'
    )]
 elif tags.has('reference'):
    latex_documents = [(
-      'reference/index',
+      'reference/index_pdf',
       'Zenko_Reference.tex',
-      'Zenko Reference Documentation',
+      'Zenko Reference',
       'Scality Technical Publications',
       'manual'
    )]
@@ -314,7 +322,6 @@ elif tags.has('reference'):
 # Override the default formatter with our custom one.
 
 PygmentsBridge.latex_formatter = scaldoc.latex.Formatter
- 
  
 def setup(app):
      app.add_stylesheet('custom.css')
