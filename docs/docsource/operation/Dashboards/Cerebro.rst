@@ -27,5 +27,5 @@ the same or similar work, but you may want to install Cerebro. It’s
 hosted at: \ https://github.com/lmenezes/cerebro.
 
 
-.. |image0| image:: ../Resources/Images/Orbit_Screencaps/Cerebro_dashboard.png
+.. |image0| image:: ../Graphics/Cerebro_dashboard.png
    :class: OneHundredPercent

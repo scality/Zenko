@@ -13,7 +13,7 @@ To create a bucket:
 
 #. The **Create Bucket** dialog displays:
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_bucket_create_dialog.png
+   .. image:: ../../Graphics/Orbit_bucket_create_dialog.png
       :width: 75%
       :align: center
 
@@ -27,13 +27,13 @@ To create a bucket:
 #. For buckets associated with AWS S3 or Scality RING endpoints, click
    **View Info**. Bucket information displays:
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_View_Bucket_Info.png
+   .. image:: ../../Graphics/Orbit_View_Bucket_Info.png
       :width: 75%
       :align: center
 
    Toggle **Versioning** ON.
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_Versioning_ON.png
+   .. image:: ../../Graphics/Orbit_Versioning_ON.png
       :width: 75%
       :align: center
 
@@ -41,6 +41,6 @@ To create a bucket:
       assigning them a location. Assigning a bucket to a location with
       versioning off will result in errors.
 
-.. |image0| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_bucket_create_multicloud_browser.png
-.. |image2| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_bucket_create_multicloud_success.png
+.. |image0| image:: ../../Graphics/Orbit_bucket_create_multicloud_browser.png
+.. |image2| image:: ../../Graphics/Orbit_bucket_create_multicloud_success.png
 

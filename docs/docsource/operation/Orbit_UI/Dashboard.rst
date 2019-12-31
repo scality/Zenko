@@ -30,4 +30,4 @@ the :ref:`View More Statistics<Statistics>` button to see more
 statistics about buckets, objects, and resources.
 
 
-.. |image0| image:: ../Resources/Images/Orbit_Screencaps/Orbit_dashboard.png
+.. |image0| image:: ../Graphics/Orbit_dashboard.png

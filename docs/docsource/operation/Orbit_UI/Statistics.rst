@@ -20,6 +20,6 @@ duration is configurable.
 Escape this screen by clicking the back arrow or a sidebar button.
 
 
-.. |image0| image:: ../Resources/Images/Orbit_Screencaps/Orbit_Statistics.png
+.. |image0| image:: ../Graphics/Orbit_Statistics.png
    :class: OneHundredPercent
 

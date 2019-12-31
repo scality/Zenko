@@ -14,7 +14,7 @@ To establish a lifecycle transition rule:
 
 #. Click the **Bucket Lifecycle** tab in the sidebar.
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_lifecycle_select.png
+   .. image:: ../../Graphics/Orbit_lifecycle_select.png
       :scale: 80%
 
 #. The **Bucket Lifecycle** screen displays.
@@ -23,13 +23,13 @@ To establish a lifecycle transition rule:
 
 #. Choose a bucket and pick **Add New Rule > Transition**
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_lifecycle_add_new_rule.png
+   .. image:: ../../Graphics/Orbit_lifecycle_add_new_rule.png
       :scale: 80 %
       :align: center
 
 #. The **Add New Transition Rule** dialog displays:
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_lifecycle_add_transition_rule.png
+   .. image:: ../../Graphics/Orbit_lifecycle_add_transition_rule.png
       :width: 75 %
       :align: center
 
@@ -42,11 +42,11 @@ To establish a lifecycle transition rule:
 
 #. The new rule is displayed:
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_lifecycle_transition_rule_success.png
+   .. image:: ../../Graphics/Orbit_lifecycle_transition_rule_success.png
       :align: center
 
    Zenko will enforce these rules on this bucket. If replication is configured, 
    any change of state to objects in this bucket can be replicated to buckets 
    on other clouds.
 
-.. |image1| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_lifecycle_bucket_select.png
+.. |image1| image:: ../../Graphics/Orbit_lifecycle_bucket_select.png

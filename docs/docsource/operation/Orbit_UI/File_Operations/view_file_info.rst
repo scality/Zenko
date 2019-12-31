@@ -7,23 +7,23 @@ To view information about a file:
 
 #. Click the Browser button to open the Multicloud Browser.
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/sidebar_browser_button.png
+   .. image:: ../../Graphics/sidebar_browser_button.png
 
 #. Double-click the bucket containing the file.
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_multicloud_browser_with_values1.png
+   .. image:: ../../Graphics/Orbit_multicloud_browser_with_values1.png
       :align: center
 
 #. Select the file, and click the **View Info** button. File information
    displays in a pop-up window:
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_file_operations_popup.png
+   .. image:: ../../Graphics/Orbit_file_operations_popup.png
       :align: center
 
 #. Click the pencil icon in the **Metadata** field to add or edit
    metadata options.
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_add-edit_metadata.png
+   .. image:: ../../Graphics/Orbit_add-edit_metadata.png
       :align: center
 
    Available options are **cache-control**, **content disposition**,
@@ -36,7 +36,7 @@ To view information about a file:
    to the Amazon S3 protocol. When you pick this, an extra field displays to
    permit entry of this “nested” key information.
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_x-amz-meta.png
+   .. image:: ../../Graphics/Orbit_x-amz-meta.png
       :align: center
 
    This name space must conform to `Amazon’s naming rules
@@ -45,7 +45,7 @@ To view information about a file:
 
 #. Click the pencil icon in the **Tags** field to add custom tags.
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_add_tags.png
+   .. image:: ../../Graphics/Orbit_add_tags.png
       :align: center
 
    These are S3-supported tags (see

@@ -170,7 +170,7 @@ you have chosen.
 
 .. _`Kubernetes Dashboard`: Kubernetes_Dashboard.html
 
-.. |image0| image:: ../Resources/Images/Orbit_Screencaps/kubernetes_dashboard_login.png
+.. |image0| image:: ../Graphics/kubernetes_dashboard_login.png
    :class: FiftyPercent
-.. |image1| image:: ../Resources/Images/Orbit_Screencaps/kubernetes_dashboard.png
+.. |image1| image:: ../Graphics/kubernetes_dashboard.png
    :class: OneHundredPercent

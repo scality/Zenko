@@ -15,24 +15,24 @@ To delete a bucket:
 
 #. Click **Browser** in the sidebar to open the **Multicloud Browser**:
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_bucket_create_multicloud_browser.png
+   .. image:: ../../Graphics/Orbit_bucket_create_multicloud_browser.png
 
 #. Pick the bucket to delete from the **Buckets** list:
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/multicloud_browser_select_bucket.png
+   .. image:: ../../Graphics/multicloud_browser_select_bucket.png
 
 #. Click the **Delete** button.
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/delete_button.png
+   .. image:: ../../Graphics/delete_button.png
 
 #. Orbit requests confirmation:
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/bucket_delete_verify.png
+   .. image:: ../../Graphics/bucket_delete_verify.png
       :width: 75%
 	      
 #. If you are sure, click **Delete**
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/bucket_delete_verify_selected.png
+   .. image:: ../../Graphics/bucket_delete_verify_selected.png
       :width: 75%
 
 #. The Multicloud Browser refreshes, and the bucket is deleted.

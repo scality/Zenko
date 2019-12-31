@@ -20,13 +20,13 @@ Establishing an Object Expiration Policy
 
 #. Choose a bucket and pick **Add New Rule > Expiration**
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_lifecycle_add_new_rule.png
+   .. image:: ../../Graphics/Orbit_lifecycle_add_new_rule.png
       :scale: 75 %
       :align: center
 
 #. The **Add New Expiration Rule** dialog displays:
 
-   .. image:: ../../Resources/Images/Orbit_Screencaps/Orbit_lifecycle_add_expiration_rule.png
+   .. image:: ../../Graphics/Orbit_lifecycle_add_expiration_rule.png
       :scale: 50 %
       :align: center
 
@@ -47,8 +47,8 @@ Versioning logic precludes simply deleting an object: that day’s object
 is deleted, but earlier versions remain. See warning at 
 :ref:`Deleting Objects<deleting-objects>`.
 
-.. |image0| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_lifecycle_select.png
-.. |image1| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_lifecycle_bucket_select.png
+.. |image0| image:: ../../Graphics/Orbit_lifecycle_select.png
+.. |image1| image:: ../../Graphics/Orbit_lifecycle_bucket_select.png
    :class: OneHundredPercent
-.. |image4| image:: ../../Resources/Images/Orbit_Screencaps/Orbit_lifecycle_expiration_rule_success.png
+.. |image4| image:: ../../Graphics/Orbit_lifecycle_expiration_rule_success.png
    :class: OneHundredPercent

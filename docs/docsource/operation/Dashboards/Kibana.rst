@@ -15,7 +15,7 @@ When ``kubectl proxy`` is active, you can access Kibana at:
 
  
 
-.. |image0| image:: ../Resources/Images/Orbit_Screencaps/kibana_opening_screen.png
+.. |image0| image:: ../Graphics/kibana_opening_screen.png
    :class: OneHundredPercent
 
 
