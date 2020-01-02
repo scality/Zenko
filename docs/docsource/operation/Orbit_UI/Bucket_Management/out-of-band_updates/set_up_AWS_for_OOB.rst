@@ -29,12 +29,12 @@ Set Up Out-of-Band Updates for AWS
 
 #. Create the AWS location in Orbit.
 
-   .. image:: ../../../Resources/Images/Orbit_Screencaps/Add_AWS_location_for_OOB.png
+   .. image:: ../../../Graphics/Add_AWS_location_for_OOB.png
 
 #. Create your bucket in the mirror-mode version of the location just
    created.
 
-   .. image:: ../../../Resources/Images/Orbit_Screencaps/Add_AWS_bucket_for_OOB.png
+   .. image:: ../../../Graphics/Add_AWS_bucket_for_OOB.png
 
    With the bucket created, Zenko deploys and configures new pods in Kubernetes
    to access and ingest file metadata. Naming is based on the location name and
@@ -42,7 +42,7 @@ Set Up Out-of-Band Updates for AWS
    deploy within a few minutes of bucket creation, along with the initial
    ingestion.
 
-   .. image:: ../../../Resources/Images/Orbit_Screencaps/cosmos_initial_ingest.png
+   .. image:: ../../../Graphics/cosmos_initial_ingest.png
 
 Advanced Usage
 --------------

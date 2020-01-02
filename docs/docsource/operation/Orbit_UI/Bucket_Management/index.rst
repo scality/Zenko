@@ -14,5 +14,6 @@ Orbit makes available the following bucket management tasks.
    Search Bucket Metadata <Searching_Metadata_from_Orbit>
    Set Up Cross-Region Replication <set_up_crr>
    AWS-to-AWS Replication <AWS_to_AWS_Replication>
-   Lifecycle Management <Lifecycle_Management>
+   Out-of-Band Updates <out-of-band_updates/index>
+   Lifecycle Management <lifecycle_management/index>
    Delete a Bucket <delete_a_bucket>

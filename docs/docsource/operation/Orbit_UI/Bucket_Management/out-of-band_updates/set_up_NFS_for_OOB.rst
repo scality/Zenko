@@ -37,7 +37,7 @@ Set Up Out of Band Updates from NFS
    ``/data/accounting/2019`` as the export path. In this way you can assign
    different folders to their own buckets in Zenko.
 
-   .. image:: ../Graphics/add_nfs_location.png
+   .. image:: ../../../Graphics/add_nfs_location.png
       :scale: 75%
       :align: center
 
@@ -45,7 +45,7 @@ Set Up Out of Band Updates from NFS
    created. As of Zenko 1.1.0, only the "Mirror Mode" option is supported, and
    the standard location option does not allow writes to the location.
 
-   .. image:: ../Graphics/create_nfs_bucket.png
+   .. image:: ../../../Graphics/create_nfs_bucket.png
 
    With the bucket created, Zenko deploys and configures new pods in Kubernetes
    to access and ingest file metadata. Naming is based on the location name and
@@ -53,7 +53,7 @@ Set Up Out of Band Updates from NFS
    deploy within a few minutes of bucket creation, along with the initial
    ingestion.
 
-   .. image:: ../Graphics/cosmos_initial_ingest.png
+   .. image:: ../../../Graphics/cosmos_initial_ingest.png
 
 Advanced Usage
 --------------
