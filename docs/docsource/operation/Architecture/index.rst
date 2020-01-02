@@ -9,7 +9,7 @@ Basics
 Zenko provides a layer that mediates between a user or configured
 storage frontend and one or several storage backends.
 
-.. image:: ../Resources/Images/Zenko_hi-level.*
+.. image:: ../Graphics/Zenko_hi-level.*
    :align: center
    
 Zenko may use a transient source, which enables it to write once to a
@@ -27,7 +27,7 @@ Zenko Services Stack
 
 The following diagram summarizes the Zenko cloud architecture:
 
-.. image:: ../Resources/Images/Zenko_arch_NoNFS.*
+.. image:: ../Graphics/Zenko_arch_NoNFS.*
    :align: center
  
 The Zenko instance depicted above presents an idealized representation
@@ -105,7 +105,7 @@ creating a fast, robust, self-healing, flexible, scalable system. From the
 user’s perspective, Zenko is functionally a single instance that obscures the
 services and servers behind it.
 
-.. image:: ../Resources/Images/Zenko_cluster_NoNFS.*
+.. image:: ../Graphics/Zenko_cluster_NoNFS.*
    :align: center
 
 A basic test configuration—a cluster of three servers—is depicted 
