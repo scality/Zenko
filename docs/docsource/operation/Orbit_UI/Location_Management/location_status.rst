@@ -6,7 +6,7 @@ Location Status
 The **Location Status** button on the Orbit sidebar opens the Location
 Status window. 
 
-.. image:: ../../Resources/Images/Orbit_Screencaps/location_status.png
+.. image:: ../../Graphics/location_status.png
 
 This provides a "high view" of the cloud locations under Zenko's management.
 From the Location Status window, you can see which locations are configured,

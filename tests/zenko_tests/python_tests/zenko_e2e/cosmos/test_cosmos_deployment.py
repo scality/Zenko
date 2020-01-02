@@ -12,7 +12,7 @@ _log = logging.getLogger('cosmos')  # pylint: disable=invalid-name
 MD5_HASHES = {
     "file1": "e61d15de7ad98164bad4394b818510a9",  # 1KB
     "file2": "18bcf93f4a001b4cdfc3fc702847864f",  # 1MB
-    "file3": "b4bf46b4640547ab96e75b24170242c1",  # 10MB
+    "file3": "e463f804492a9be73d8621e1f54f57d6",  # 10MB
     "file4": "1baecec7b7c658357288ac736b6e95a6",  # 100MB
 }
 

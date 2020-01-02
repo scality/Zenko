@@ -132,7 +132,7 @@ cosmos:
   operator:
     image:
       repository: zenko/cosmos-operator
-      tag: 0.5.4
+      tag: 0.5.5
       pullPolicy: IfNotPresent
     resources:
       limits:

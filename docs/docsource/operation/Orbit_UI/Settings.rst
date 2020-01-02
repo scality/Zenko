@@ -8,7 +8,7 @@ edition, version and last-modified date), and personal information, such as
 whether you want to receive news updates, as well as a link to Scality Support
 for data retrieval or account deletion.
 
-.. image:: ../Resources/Images/Orbit_Screencaps/Settings.png
+.. image:: ../Graphics/Settings.png
 
 The Settings window also provides a button, **Unlink this Zenko Instance**,
 which offers to forget the Zenko instance. This option does not delete the

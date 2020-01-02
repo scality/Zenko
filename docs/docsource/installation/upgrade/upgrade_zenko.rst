@@ -30,8 +30,8 @@ For example::
 .. note::
 
    A production environment may neccessitate additional validation
-   before upgrading. Upgrades run with the `--dry-run` flag simulate
-   and, if possible, validate a compatible upgrade. If the `--debug`
+   before upgrading. Upgrades run with the ``--dry-run`` flag simulate
+   and, if possible, validate a compatible upgrade. If the ``--debug``
    flag is set, Helm outputs all templated values and deployment
    configurations to be installed. These are basic validations, but
    their upgrade implications must be considered by both the Zenko and

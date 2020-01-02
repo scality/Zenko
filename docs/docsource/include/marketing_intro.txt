@@ -1,0 +1,13 @@
+Since 2009, Scality has enabled people to derive maximum value from data by
+solving their cloud-scale data storage and management challenges with our
+award-winning RING and Zenko technologies. Now, more than 500 million users rely
+on Scality RING and Zenko to store and manage hundreds of petabytes of data—more
+than one trillion data objects. A recognized leader in distributed file and
+object storage by both Gartner® and IDC®, Scality offers solutions for today’s
+reality of hybrid and multi-cloud data management. RING turns commodity x86
+servers into an unlimited storage pool for unstructured data, whether file or
+object; and the Zenko multi-cloud controller, available in open source and
+enterprise editions, provides a window into data, no matter where it lives, with
+orchestration, management and search functionality. Follow us on Twitter
+www.twitter.com/scality (@scality) and www.twitter.com/zenko (@zenko). Visit us
+at www.scality.com.

@@ -10,7 +10,7 @@ for other dashboard services. Open http://localhost:8001/api/v1/namespaces/kube-
 in your browser. If you are configured to see the other dashboards,
 the Prometheus dashboard displays: 
 
-.. image:: ../Resources/Images/Orbit_Screencaps/prometheus.png
+.. image:: ../Graphics/prometheus.png
 
 If you use a different Kubernetes implementation than MetalK8s, you will have
 to install your own Prometheus instance to use this feature.  

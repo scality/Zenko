@@ -8,7 +8,7 @@ to a non-object-storage repository with NFS access and to back up these changes
 to a cloud storage location on a regular schedule. Cosmos serves these changes
 for CloudServer ingestion over the S3 protocol.
 
-.. image:: ../Resources/Images/Cosmos.svg
+.. image:: ../Graphics/Cosmos.svg
    :align: center
 
 Because these venerable protocols do not maintain object-storage namespaces,

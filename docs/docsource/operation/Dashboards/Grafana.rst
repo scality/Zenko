@@ -196,9 +196,9 @@ Access platform-level Grafana using this URL:
 http://localhost:8001/api/v1/namespaces/kube-ops/services/kube-prometheus-grafana:http/proxy/?orgId=1
 
 
-.. |image0| image:: ../Resources/Images/Orbit_Screencaps/Grafana_login_app-level.png
+.. |image0| image:: ../Graphics/Grafana_login_app-level.png
    :class: OneHundredPercent
-.. |image1| image:: ../Resources/Images/Orbit_Screencaps/Grafana_app_level_dashboard.png
+.. |image1| image:: ../Graphics/Grafana_app_level_dashboard.png
    :class: OneHundredPercent
-.. |image2| image:: ../Resources/Images/Orbit_Screencaps/Grafana_app_level_CloudServer_dashboard.png
+.. |image2| image:: ../Graphics/Grafana_app_level_CloudServer_dashboard.png
    :class: OneHundredPercent

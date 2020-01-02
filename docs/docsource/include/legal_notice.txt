@@ -1,0 +1,44 @@
+\thispagestyle{empty}
+\chapter*{Legal notice}
+
+All brands and product names cited in Scality's technical documentation are
+the property of their respective owners.
+
+The author and publisher have taken care in the preparation of the technical
+documentation content but make no expressed or implied warranty of any kind
+and assume no responsibility for errors or omissions. No liability is assumed
+for incidental or consequential damages in connection with or arising out of
+the use of the information or programs contained therein.
+
+Scality retains the right to make changes at any time without notice.
+
+Scality assumes no liability, including liability for infringement of any
+patent or copyright, for the license, sale, or use of its products except as
+set forth in the Scality licenses.
+
+Scality assumes no obligation to update the information contained in its
+documentation.
+
+All rights reserved. No part of this documentation may be reproduced, stored
+in a retrieval system, or transmitted, in any form, or by any means,
+electronic, mechanical, photocopying, recording, or otherwise, without prior
+written consent from Scality, S.A.
+
+Copyright ©2009–2020 Scality. All rights reserved.
+
+\section*{About Scality}
+
+Since 2009, Scality has enabled people to derive maximum value from data by
+solving their cloud-scale data storage and management challenges with our
+award-winning RING and Zenko technologies. Now, more than 500 million users rely
+on Scality RING and Zenko to store and manage hundreds of petabytes of data—more
+than one trillion data objects. A recognized leader in distributed file and
+object storage by both Gartner® and IDC®, Scality offers solutions for today’s
+reality of hybrid and multi-cloud data management. RING turns commodity x86
+servers into an unlimited storage pool for unstructured data, whether file or
+object; and the Zenko multi-cloud controller, available in open source and
+enterprise editions, provides a window into data, no matter where it lives, with
+orchestration, management and search functionality. Follow us on Twitter
+\href{https://twitter.com/scality}{@scality} and
+\href{https://twitter.com/zenko}{@zenko}. Visit us at
+\url{www.scality.com}.

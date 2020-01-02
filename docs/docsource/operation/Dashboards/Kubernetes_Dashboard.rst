@@ -26,5 +26,5 @@ may prove useful to non-MetalK8s installations as well.
 
 .. _`Grafana`: Grafana.html
 
-.. |image0| image:: ../Resources/Images/Orbit_Screencaps/kubernetes_dashboard.png
+.. |image0| image:: ../Graphics/kubernetes_dashboard.png
    :class: OneHundredPercent

@@ -7,7 +7,7 @@ Basics
 Zenko provides a layer that mediates between a user or configured
 storage frontend and one or several storage backends.
 
-.. image:: ../Resources/Images/Zenko_hi-level.*
+.. image:: ../Graphics/Zenko_hi-level.*
    :align: center
    
 Zenko may use a transient source, which enables it to write once to a
@@ -25,7 +25,7 @@ Zenko Services Stack
 
 The following diagram summarizes the Zenko cloud architecture:
 
-.. image:: ../Resources/Images/Zenko_arch_NoNFS.*
+.. image:: ../Graphics/Zenko_arch_NoNFS.*
    :align: center
  
 The Zenko instance depicted above presents an idealized representation
@@ -94,15 +94,15 @@ Zenko Cluster Topology
 ----------------------
 
 To operate with high availability, Zenko must operate on a cluster of at least
-three physical or virtual servers running Kubernetes 1.11.3 or later. Run in
-such a cluster configuration, Zenko is highly available: load balancing,
-failover, and service management are handled dynamically in real time by
-Kubernetes. This dramatically improves several aspects of service management,
+three physical or virtual servers running Kubernetes |min_kubernetes| or
+later. Run in such a cluster configuration, Zenko is highly available: load
+balancing, failover, and service management are handled dynamically in real time
+by Kubernetes. This dramatically improves several aspects of service management,
 creating a fast, robust, self-healing, flexible, scalable system. From the
 user’s perspective, Zenko is functionally a single instance that obscures the
 services and servers behind it.
 
-.. image:: ../Resources/Images/Zenko_cluster_NoNFS.*
+.. image:: ../Graphics/Zenko_cluster_NoNFS.*
    :align: center
 
 A basic test configuration—a cluster of three servers—is depicted 
