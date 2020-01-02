@@ -189,6 +189,7 @@ models:
 
 stages:
   pre-merge:
+    simultaneous_builds: 2
     worker:
       type: local
     steps:
