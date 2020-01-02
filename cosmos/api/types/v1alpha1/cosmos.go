@@ -31,7 +31,7 @@ type CosmosPfsdSpec struct {
 type CosmosRcloneSpec struct {
 	Schedule      string                       `json:"schedule"`
 	Suspend       bool                         `json:"suspend"`
-	TriggerIngest bool                         `json:"triggerIngestion"`
+	Trigger       bool                         `json:"triggerIngestion"`
 	Source        *CosmosRcloneSourceSpec      `json:"source"`
 	Destination   *CosmosRcloneDestinationSpec `json:"destination"`
 	Options       *CosmosRcloneOptionsSpec     `json:"options"`
