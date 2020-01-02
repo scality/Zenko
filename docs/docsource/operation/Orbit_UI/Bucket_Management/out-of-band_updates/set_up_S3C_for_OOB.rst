@@ -1,14 +1,7 @@
 .. _set_up_s3c_oob:
 
-Setting Up Out-of-Band Updates for S3 Connector
-===============================================
-
-Zenko operates by establishing and managing a namespace of data. For select
-object stores, Zenko does not have to create a namespace; rather, it can read an
-existing namespace and use it as its own. This process of metadata ingestion
-makes it easier to manage existing data stores, as Zenko can "go back in time"
-and pick up the history of a namespace and assume management and replication
-tasks retroactively. 
+Out-of-Band Updates for S3 Connector
+====================================
 
 Prerequisites
 -------------
@@ -38,7 +31,7 @@ Set Up Out-of-Band Updates for S3 Connector
 
 #. Go to **Storage Locations** and click the "**Add New**" button.
 
-   .. image:: ../Graphics/add_new_cloud_location.png
+   .. image:: ../../../Graphics/add_new_cloud_location.png
  
    #. Enter the name of the new storage location (this can be the same as or
       different than the bucket name) and select the **Scality RING with S3
@@ -62,14 +55,14 @@ Set Up Out-of-Band Updates for S3 Connector
       multiple buckets in a location with this option enabled can lead to data
       loss" appears. This is expected. Click Save.
 
-      .. image:: ../Graphics/add_new_location_dialog.*
+      .. image:: ../../../Graphics/add_new_location_dialog.*
          :width: 75%
          :align: center
 
    The new cloud location appears in the Cloud Locations window. The Mirroring
    indicator is grayed out.
 
-   .. image:: ../Graphics/new_cloud_location.*
+   .. image:: ../../../Graphics/new_cloud_location.*
 
 #. Open the Multicloud Browser and click **Create Bucket**.
 
@@ -79,13 +72,13 @@ Set Up Out-of-Band Updates for S3 Connector
       the name of the storage location you created above. Pick the instance that
       is followed by "(Mirror mode)".
 
-      .. image:: ../Graphics/create_bucket_mirror_mode.*
+      .. image:: ../../../Graphics/create_bucket_mirror_mode.*
 
    #. Click **Create**.
 
    #. The Multicloud Browser view returns. 
 
-      .. image:: ../Graphics/mirroring_enabled_indicator.*
+      .. image:: ../../../Graphics/mirroring_enabled_indicator.*
 
       Note the icon at far right indicating metadata ingestion has been
       activated. In the **Cloud Locations** window, the **Mirroring** button is

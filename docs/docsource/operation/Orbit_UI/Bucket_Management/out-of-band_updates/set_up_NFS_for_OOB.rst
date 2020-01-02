@@ -1,5 +1,5 @@
-Set Up Out-of-Band Updates from an NFS Mount
-============================================
+Out-of-Band Updates from an NFS Mount
+=====================================
 
 Zenko 1.1 allows ingestion and out-of-band (OOB) updates from existing NFS mount
 points. This new feature does not copy the files themselves; rather, the
@@ -28,13 +28,16 @@ the export path. You may also apply specific NFS mount options based on your
 environment's requirements. For example, for read-only access to the NFS mount,
 specify the ``ro`` NFS option.
 
+Set Up Out of Band Updates from NFS
+-----------------------------------
+
 #. Create the location in Orbit. Your export path can include specific
    folders. For example, if your root export is /data but you only need Zenko
    to work with the accounting/2019 subfolder, specify
    ``/data/accounting/2019`` as the export path. In this way you can assign
    different folders to their own buckets in Zenko.
 
-   .. image:: ../Graphics/add_nfs_location.png
+   .. image:: ../../../Graphics/add_nfs_location.png
       :scale: 75%
       :align: center
 
@@ -42,7 +45,7 @@ specify the ``ro`` NFS option.
    created. As of Zenko 1.1.0, only the "Mirror Mode" option is supported, and
    the standard location option does not allow writes to the location.
 
-   .. image:: ../Graphics/create_nfs_bucket.png
+   .. image:: ../../../Graphics/create_nfs_bucket.png
 
    With the bucket created, Zenko deploys and configures new pods in Kubernetes
    to access and ingest file metadata. Naming is based on the location name and
@@ -50,7 +53,7 @@ specify the ``ro`` NFS option.
    deploy within a few minutes of bucket creation, along with the initial
    ingestion.
 
-   .. image:: ../Graphics/cosmos_initial_ingest.png
+   .. image:: ../../../Graphics/cosmos_initial_ingest.png
 
 Advanced Usage
 --------------
@@ -88,7 +91,6 @@ all future created NFS locations.
 
    This does not change the cron schedule on existing NFS locations.
 
-
 Modify Cron on Existing NFS Locations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -110,9 +112,7 @@ List Installed NFS Locations
 Because each location is treated as a unique resource, you can list all
 installed locations with the command::
 
-
    $ kubectl get cosmos
-
 
 Managed Resources
 ~~~~~~~~~~~~~~~~~
@@ -129,4 +129,3 @@ nfs resources themselves using kubectl.
 ::
 
    $ kubectl edit cosmos <my-nfs-location-name>
-
