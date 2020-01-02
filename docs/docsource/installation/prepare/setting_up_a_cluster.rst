@@ -11,10 +11,11 @@ Cluster Requirements` and skip to :ref:`Install_Zenko`. Otherwise,
 and follow its instructions (or review the requirements and instructions in 
 Zenko/docs/gke.md) to establish a working Kubernetes instance on your cluster.
 
-.. note: 
+.. note:: 
    
    Zenko 1.1 will not install with a Kubernetes instance older than version
-   1.11.3. Scality recommends MetalK8s 1.1, which installs Kubernetes v. 1.11.3.
+   |min_kubernetes|. Scality recommends MetalK8s 2.x, which satisfies this
+   requirement.
 
 Most of the complexity of installing Zenko on a cluster involves deploying the
 cluster istelf. Scality supports MetalK8s_, an open source Kubernetes engine

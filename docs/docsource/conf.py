@@ -102,13 +102,15 @@ else:
 pygments_style = 'sphinx'
 
 
-# -- rst prolog experiment -----------------------------------------
-# This section contains link substitution for MSFT doc links. As we become
+# -- rst prolog  ---------------------------------------------------------
+# This section contains text substitution for custom variables and link
+# substitution for MSFT doc links. As we become
 # more complete in our documentation, we can replace these with references
-# to our own documentation. These are for the Blobserver section of the
-# Reference book only.
+# to our own documentation.
 
 rst_prolog = """
+
+.. |min_kubernetes| replace:: 1.11.3
 
 .. |set-blob-timeouts| replace:: `Setting Timeouts for Blob Service Operations <https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations>`__
 
@@ -120,21 +122,13 @@ rst_prolog = """
 
 .. |storage-tracking| replace:: `Windows Azure Logging: Using Logs to Track Storage Requests <https://blogs.msdn.microsoft.com/windowsazurestorage/2011/08/02/windows-azure-storage-logging-using-logs-to-track-storage-requests/>`__
 
-.. |api-troubleshoot| replace:: `Troubleshooting API operations <https://docs.microsoft.com/en-us/rest/api/storageservices/troubleshooting-api-operations>`__                                                                        
-                                                 
-.. |emulator-dev-test| replace:: `Use the Azure Storage Emulator for Development and Testing <https://docs.microsoft.com/en-us/azure/storage/common/storage-use-emulator>`__
+.. |api-troubleshoot| replace:: `Troubleshooting API operations <https://docs.microsoft.com/en-us/rest/api/storageservices/troubleshooting-api-operations>`__
 
 .. |cors-support| replace:: `Cross-Origin Resource Sharing (CORS) support for Azure Storage <https://docs.microsoft.com/en-us/rest/api/storageservices/cross-origin-resource-sharing--cors--support-for-the-azure-storage-services>`__
 
-.. |snapshot-blob| replace:: `Create a snapshot of a blob <https://docs.microsoft.com/en-us/rest/api/storageservices/Creating-a-Snapshot-of-a-Blob>`__
-
 .. |conditional-headers| replace:: `Specifying conditional headers for Blob service operations <https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations>`__
 
-.. |get-page-ranges| replace:: `Getting the Page Ranges of a Large Page Blob in Segments <https://blogs.msdn.microsoft.com/windowsazurestorage/2012/03/26/getting-the-page-ranges-of-a-large-page-blob-in-segments/>`__
-
 .. |create-sas| replace:: `Create a service SAS <https://docs.microsoft.com/en-us/rest/api/storageservices/create-service-sas>`__
-
-.. |snapshot-charges| replace:: `Understanding how blob snapshots accrue charges <https://docs.microsoft.com/en-us/rest/api/storageservices/understanding-how-snapshots-accrue-charges>`__
 
 .. |define-access| replace:: `Define a stored access policy <https://docs.microsoft.com/en-us/rest/api/storageservices/define-stored-access-policy>`__
 
@@ -142,17 +136,11 @@ rst_prolog = """
 
 .. |geo-redundant| replace:: `Windows Azure Storage Redundancy Options and Read Access Geo Redundant Storage <https://blogs.msdn.microsoft.com/windowsazurestorage/2013/12/11/windows-azure-storage-redundancy-options-and-read-access-geo-redundant-storage/>`__
 
-.. |hot-cool-archive| replace:: `Azure Blob storage: hot, cool, and archive access tiers <https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blob-storage-tiers>`__
-
-.. |premium-ssd| replace:: `Premium SSD <https://docs.microsoft.com/en-us/azure/virtual-machines/windows/disks-types#premium-ssd>`__
-
 .. |list-blob-storage| replace:: `Listing Blob storage resources <https://docs.microsoft.com/en-us/rest/api/storageservices/enumerating-blob-resources>`__
 
 .. |range-header| replace:: `Specifying the Range Header for Blob Service Operations <https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-the-range-header-for-blob-service-operations>`__
 
 .. |manage-access| replace:: `Manage anonymous read access to containers and blobs <https://docs.microsoft.com/en-us/azure/storage/blobs/storage-manage-access-to-resources>`__
-
-.. |diff-emulator-azure| replace:: `Differences Between the Storage Emulator and Azure Storage <https://docs.microsoft.com/en-us/azure/storage/common/storage-use-emulator#differences-between-the-storage-emulator-and-azure-storage>`__
 
 .. |naming-referencing| replace:: `Naming and Referencing Containers, Blobs, and Metadata <https://docs.microsoft.com/en-us/rest/api/storageservices/naming-and-referencing-containers--blobs--and-metadata>`__
 

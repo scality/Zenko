@@ -94,10 +94,10 @@ Zenko Cluster Topology
 ----------------------
 
 To operate with high availability, Zenko must operate on a cluster of at least
-three physical or virtual servers running Kubernetes 1.11.3 or later. Run in
-such a cluster configuration, Zenko is highly available: load balancing,
-failover, and service management are handled dynamically in real time by
-Kubernetes. This dramatically improves several aspects of service management,
+three physical or virtual servers running Kubernetes |min_kubernetes| or
+later. Run in such a cluster configuration, Zenko is highly available: load
+balancing, failover, and service management are handled dynamically in real time
+by Kubernetes. This dramatically improves several aspects of service management,
 creating a fast, robust, self-healing, flexible, scalable system. From the
 user’s perspective, Zenko is functionally a single instance that obscures the
 services and servers behind it.
