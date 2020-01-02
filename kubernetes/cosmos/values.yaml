@@ -40,7 +40,7 @@ rclone:
 
   image:
     repository: zenko/rclone
-    tag: 1.45.2
+    tag: 1.45.3
     pullPolicy: IfNotPresent
 
   ## Used to manually trigger ingestion
