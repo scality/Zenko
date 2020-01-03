@@ -19,7 +19,7 @@ RUN apk add -U \
 COPY ./node_tests/package.json ./node_tests/package-lock.json /usr/local/bin/tests/node_tests/
 COPY ./python_tests/requirements.txt /tmp
 
-RUN python3 -m pip install -r /tmp/requirements.txt tox kubernetes && \
+RUN python3 -m pip install -r /tmp/requirements.txt tox && \
     cd /usr/local/bin/tests/node_tests && \
     npm install && \
     rm -rf /var/cache/apk/* && \
