@@ -725,7 +725,8 @@ class ReplicationUtility {
             }
             const { srcData, destMetadata, destData } = data;
             assert.strictEqual(srcData.ReplicationStatus, 'COMPLETED');
-            assert.strictEqual(srcData.ContentLength, destMetadata[0].size);
+            assert.strictEqual(`${srcData.ContentLength}`,
+                destMetadata[0].size);
             const srcUserMD = srcData.Metadata;
             const destUserMD = destMetadata[0].metadata;
             assert.strictEqual(

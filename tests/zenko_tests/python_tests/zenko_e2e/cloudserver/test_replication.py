@@ -21,6 +21,7 @@ def test_aws_1_1(aws_crr_bucket, aws_crr_target_bucket, objkey, datafile):
         objkey, data, aws_crr_bucket, [aws_crr_target_bucket])
 
 
+@pytest.mark.skip(reason='test case covered')
 @pytest.mark.flaky(reruns=3)
 @pytest.mark.parametrize('datafile', [testfile, mpufile])
 @pytest.mark.conformance
