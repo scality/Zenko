@@ -77,6 +77,7 @@ def test_wasabi_1_1(wasabi_crr_bucket,
         wasabi_crr_target_bucket)
 
 
+@pytest.mark.skip(reason='test case covered')
 @pytest.mark.flaky(reruns=1)
 @pytest.mark.parametrize('datafile', [testfile, mpufile])
 @pytest.mark.conformance
