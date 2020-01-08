@@ -158,7 +158,7 @@ models:
       TRANSIENT_SRC_BUCKET_NAME: 'ci-zenko-transient-src-bucket-%(prop:bootstrap)s-${STAGE}'
 
       NFS_SERVER: '%(secret:nfs_backend_endpoint)s'
-      NFS_BACKEND: 'nfs-%(prop:bootstrap)s'
+      NFS_BACKEND: 'nfs-${STAGE}-%(prop:bootstrap)s-%(prop:buildnumber)s'
       NFS_BUCKET_NAME: 'zenko-nfs-bucket'
 
   - env: &mock_env
