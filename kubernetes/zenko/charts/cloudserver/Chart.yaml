@@ -2,4 +2,4 @@ apiVersion: v1
 appVersion: "8.1.18"
 description: A Helm chart for Kubernetes
 name: cloudserver
-version: 1.1.4
+version: 1.1.5
