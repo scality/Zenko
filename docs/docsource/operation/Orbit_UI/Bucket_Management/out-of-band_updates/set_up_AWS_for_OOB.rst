@@ -7,6 +7,11 @@ attributes are copied to Zenko as metadata for management. Using this
 information, Zenko acts on AWS as it would any other Zenko bucket, thus enabling
 metadata search, cloud replication, and lifecycle transition or expiration.
 
+.. important::
+
+   Out-of-band updates for AWS is offered with limited availability. Successful
+   deployment will require assistance from Scality. 
+
 Minimum Requirements
 --------------------
 
@@ -113,8 +118,8 @@ recreated, which can be useful for testing and debugging. This also means,
 however, that you *cannot* directly edit a managed cronjob or deployment
 resource, because your changes are immediately changed to match the state
 defined in the "cosmos" resource. Desired changes must be made by editing the
-nfs resources themselves using kubectl.
+AWS resources themselves using kubectl.
 
 ::
 
-   $ kubectl edit cosmos <my-nfs-location-name>
+   $ kubectl edit cosmos <my-aws-location-name>
