@@ -3,18 +3,18 @@
 GET Object
 ==========
 
-To use GET Object, it is necessary to have READ access to the target
-object. If READ access is granted to an anonymous user, the object can
-be returned without using an authorization header.
+Using GET Object requires read access to the target object. If read access is
+granted to an anonymous user, the object can be returned without using an
+authorization header.
 
 By default, the GET Object operation returns the current version of an
 object. To return a different version, use the versionId subresource.
 
 .. tip::
 
-  If the current version of the object is a delete marker, Zenko behaves
-  as if the object was deleted and includes x-amz-delete-marker: true in
-  the response.
+  If the current version of the object is a delete marker, Zenko behaves as if
+  the object were deleted and includes ``x-amz-delete-marker: true`` in the
+  response.
 
 Requests
 --------
@@ -35,12 +35,12 @@ Parameters
 
 Values for a set of response headers can be overridden in the GET Object
 response using the query parameters listed in the following table. These
-response header values are sent only on a successful request, one in
-which a status code *200 OK* is returned. The set of headers that can be
-overridden using these parameters is a subset of the headers that Zenko
-accepts when an object is created, including ``Content-Type``,
-``Content-Language``, ``Expires``, ``Cache-Control``,
-``Content-Disposition``, and ``Content-Encoding``.
+response header values are sent only on a successful request, one in which a
+status code *200 OK* is returned. The set of headers that can be overridden
+using these parameters is a subset of the headers that Zenko accepts when an
+object is created, including ``Content-Type``, ``Content-Language``,
+``Expires``, ``Cache-Control``, ``Content-Disposition``, and
+``Content-Encoding``.
 
 .. note::
 
@@ -113,45 +113,70 @@ Headers`).
 .. tabularcolumns:: X{0.25\textwidth}X{0.10\textwidth}X{0.60\textwidth}
 .. table::
 
-   +-------------------------+--------+----------------------------------------+
-   | Header                  | Type   | Description                            |
-   +=========================+========+========================================+
-   | ``If-Modified-Since``   | string | Return the object only if it has been  |
-   |                         |        | modified since the specified time,     |
-   |                         |        | otherwise return a ``304`` (not        |
-   |                         |        | modified).                             |
-   |                         |        |                                        |
-   |                         |        | **Default:** None                      |
-   |                         |        |                                        |
-   |                         |        | **Constraints:** None                  |
-   +-------------------------+--------+----------------------------------------+
-   | ``If-Unmodified-Since`` | string | Return the object only if it has not   |
-   |                         |        | been modified since the specified      |
-   |                         |        | time, otherwise return a ``412``       |
-   |                         |        | (precondition failed).                 |
-   |                         |        |                                        |
-   |                         |        | **Default:** None                      |
-   |                         |        |                                        |
-   |                         |        | **Constraints:** None                  |
-   +-------------------------+--------+----------------------------------------+
-   | ``If-Match``            | string | Return the object only if its entity   |
-   |                         |        | tag (ETag) is the same as the one      |
-   |                         |        | specified; otherwise, return a ``412`` |
-   |                         |        | (precondition failed).                 |
-   |                         |        |                                        |
-   |                         |        | **Default:** None                      |
-   |                         |        |                                        |
-   |                         |        | **Constraints:** None                  |
-   +-------------------------+--------+----------------------------------------+
-   | ``If-None-Match``       | string | Return the object only if its entity   |
-   |                         |        | tag (ETag) is different from the one   |
-   |                         |        | specified; otherwise, return a ``304`` |
-   |                         |        | (not modified)                         |
-   |                         |        |                                        |
-   |                         |        | **Default:** None                      |
-   |                         |        |                                        |
-   |                         |        | **Constraints:** None                  |
-   +-------------------------+--------+----------------------------------------+
+   +-------------------------------+--------+----------------------------------------+
+   | Header                        | Type   | Description                            |
+   +===============================+========+========================================+
+   | ``If-Modified-Since``         | string | Return the object only if it has been  |
+   |                               |        | modified since the specified time,     |
+   |                               |        | otherwise return a ``304`` (not        |
+   |                               |        | modified).                             |
+   |                               |        |                                        |
+   |                               |        | **Default:** None                      |
+   |                               |        |                                        |
+   |                               |        | **Constraints:** None                  |
+   +-------------------------------+--------+----------------------------------------+
+   | ``If-Unmodified-Since``       | string | Return the object only if it has not   |
+   |                               |        | been modified since the specified      |
+   |                               |        | time, otherwise return a ``412``       |
+   |                               |        | (precondition failed).                 |
+   |                               |        |                                        |
+   |                               |        | **Default:** None                      |
+   |                               |        |                                        |
+   |                               |        | **Constraints:** None                  |
+   +-------------------------------+--------+----------------------------------------+
+   | ``If-Match``                  | string | Return the object only if its entity   |
+   |                               |        | tag (ETag) is the same as the one      |
+   |                               |        | specified; otherwise, return a ``412`` |
+   |                               |        | (precondition failed).                 |
+   |                               |        |                                        |
+   |                               |        | **Default:** None                      |
+   |                               |        |                                        |
+   |                               |        | **Constraints:** None                  |
+   +-------------------------------+--------+----------------------------------------+
+   | ``If-None-Match``             | string | Return the object only if its entity   |
+   |                               |        | tag (ETag) is different from the one   |
+   |                               |        | specified; otherwise, return a ``304`` |
+   |                               |        | (not modified)                         |
+   |                               |        |                                        |
+   |                               |        | **Default:** None                      |
+   |                               |        |                                        |
+   |                               |        | **Constraints:** None                  |
+   +-------------------------------+--------+----------------------------------------+
+   | ``x-amz-location-constraint`` | string | Return object from the location        |
+   |                               |        | specified here. Location value must be |
+   |                               |        | a valid Zenko location name to which   |
+   |                               |        | the object has been replicated, or an  |
+   |                               |        | error is returned.                     |
+   |                               |        |                                        |
+   |                               |        | **Default:** None                      |
+   |                               |        |                                        |
+   |                               |        | **Constraints:** Location name         |
+   |                               |        | provided in header must be a valid     |
+   |                               |        | replication target.                    |
+   +-------------------------------+--------+----------------------------------------+
+
+Users can specify in a GET request a location from which to read the object by
+providing the custom "x-amz-location-constraint" header and the name of the
+alternate location as value. Using this request, header, and location, an object
+can be retrieved even if the object is unavailable in the original/preferred
+location. The location value must be a valid Zenko location name to which the
+object has been replicated, or an error is returned.
+
+.. note::
+
+   This Zenko extension is not available in the standard S3 API. While
+   applications may be modified to use this header for greater availability,
+   doing so may incur egress fees for the specified cloud.
 
 Elements
 ~~~~~~~~
@@ -213,6 +238,7 @@ Headers
    |                                     |         |                           |
    |                                     |         | **Default:** None         |
    +-------------------------------------+---------+---------------------------+
+
 
 Elements
 ~~~~~~~~
