@@ -34,10 +34,9 @@ Orbit offers the following features:
 -  Help and resources
 
 You can test drive Orbit by following the “`Try Zenko`_” link at
-https://www.zenko.io/ and following the instructions for :ref:`Setting Up an Orbit Sandbox Instance<Setting Up an Orbit Sandbox Instance>`.
+https://www.zenko.io/ and following the instructions for :ref:`Setting Up an Orbit Sandbox Instance`.
 
 For a full walk-through of these features, see `Using Orbit`_.
 
 .. _`Try Zenko`: https://admin.zenko.io/user
-.. _`Setting Up Orbit`: ../Orbit_UI/Setting_Up_Orbit/Setting_Up_Orbit.html
 .. _`Using Orbit`: ../Orbit_UI/index.html
