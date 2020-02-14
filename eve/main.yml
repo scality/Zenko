@@ -43,7 +43,11 @@ models:
         docker login
         -u '%(secret:private_registry_username)s'
         -p '%(secret:private_registry_password)s'
-        '%(secret:private_registry_url)s'
+        '%(secret:private_registry_url)s' &&
+        docker login
+        -u '%(secret:scality_oci_rw_user)s'
+        -p '%(secret:scality_oci_rw_password)s'
+        registry.scality.com
   - ShellCommand: &helm_lint
       name: Lint charts
       command: >
