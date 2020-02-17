@@ -12,7 +12,6 @@ RUN apk add -U \
     libffi-dev \
     python3-dev \
     musl-dev \
-    curl \
     openssl-dev && \
     mkdir -p /usr/local/bin/tests/node_tests
 
