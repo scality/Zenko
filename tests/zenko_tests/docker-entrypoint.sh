@@ -38,6 +38,4 @@ fi
 
 python3 cleans3c.py
 
-upload-junit.sh
-
 exit "$EXIT_STATUS"
