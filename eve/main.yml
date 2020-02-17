@@ -191,18 +191,13 @@ stages:
     steps:
     - TriggerStages:
         name: trigger all the tests
+        haltOnFailure: true
         stage_names:
         - build-doc
         - test-cosmos
         - python-tests
         - node-tests-01
         - node-tests-02
-
-    - TriggerStages:
-        name: testrail report
-        stage_names:
-          - testrail-upload
-        alwaysRun: true
 
   build-doc:
     worker:
@@ -426,17 +421,3 @@ stages:
             BUILD_MSG_TS: '%(prop:report_build_msg_ts)s'
             BUILD_REPO: zenko
             CROSSPOST_TO_HIPPO: '%(prop:crosspost-to-hippo)s'
-
-  testrail-upload:
-    worker:
-      type: kube_pod
-      path: eve/workers/testrail.yaml
-    steps:
-      - ShellCommand:
-          name: upload reports
-          command: testrail -r "%(prop:artifacts_private_url)s/junit/" -n "%(prop:bootstrap)s"
-          env:
-            TESTRAIL_LOGIN: '%(secret:testrail_login)s'
-            TESTRAIL_KEY: '%(secret:testrail_key)s'
-          warnOnFailure: true
-          flunkOnFailure: false
