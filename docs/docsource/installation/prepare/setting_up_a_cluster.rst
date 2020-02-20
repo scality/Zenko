@@ -3,19 +3,19 @@
 Setting Up a Cluster
 ====================
 
-While running Zenko on a single machine is desirable for certain use cases,
-a clustered operating environment is required for high-availability deployments.
+While running Zenko on a single machine is desirable for certain use cases, a
+clustered operating environment is required for high-availability deployments.
 If you can set up a Kubernetes cluster on your own, review the :ref:`General
-Cluster Requirements` and skip to :ref:`Install_Zenko`. Otherwise, 
-`download MetalK8s <https://github.com/scality/metalk8s/releases>`_
-and follow its instructions (or review the requirements and instructions in 
-Zenko/docs/gke.md) to establish a working Kubernetes instance on your cluster.
+Cluster Requirements` and skip to :ref:`Install_Zenko`. Otherwise, download `the
+latest stable version of MetalK8s
+<https://github.com/scality/metalk8s/releases>`_ and follow its instructions to
+establish a working Kubernetes instance on your cluster.
 
 .. note:: 
    
-   Zenko 1.1 will not install with a Kubernetes instance older than version
-   |min_kubernetes|. Scality recommends MetalK8s 2.x, which satisfies this
-   requirement.
+   Zenko 1.1 and later are not compatible with Kubernetes instances before
+   version |min_kubernetes|. Scality recommends MetalK8s 2.4 or later, which
+   satisfies this requirement.
 
 Most of the complexity of installing Zenko on a cluster involves deploying the
 cluster istelf. Scality supports MetalK8s_, an open source Kubernetes engine
@@ -31,10 +31,10 @@ General Cluster Requirements
 ----------------------------
 
 Setting up a cluster requires at least three machines (these can be VMs)
-running CentOS_ 7.4 or higher (The recommended mimimum for a high-availability
+running CentOS_ 7.4 or higher. The recommended mimimum for a high-availability
 Zenko production service is five server nodes with three masters/etcds, but for
 testing and familiarization, three masters and three nodes is fine. The cluster
-must have an odd number of nodes to provide a quorum). You must have SSH access
+must have an odd number of nodes to provide a quorum. You must have SSH access
 to these machines and they must have SSH access to each other.
 
 Each machine acting as a Kubernetes_ node must also have at least one disk
@@ -46,6 +46,3 @@ it.
 .. _MetalK8s: https://github.com/scality/metalk8s/
 .. _CentOS: https://www.centos.org
 .. _Kubernetes: https://kubernetes.io
-
-
-
