@@ -1,0 +1,25 @@
+{{- if .Values.jabba.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  {{- if .Values.jabba.service.annotations }}
+  annotations:
+{{ toYaml .Values.jabba.service.annotations | indent 4 }}
+  {{- end }}
+  name: {{ template "jabba.fullname" . }}
+  labels:
+    app: {{ template "jabba.name" . }}
+    chart: {{ template "opal.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  type: {{ .Values.jabba.service.type }}
+  ports:
+    - port: {{ .Values.jabba.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ template "jabba.name" . }}
+    release: {{ .Release.Name }}
+{{- end }}

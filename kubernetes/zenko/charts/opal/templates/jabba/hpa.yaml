@@ -1,0 +1,17 @@
+{{- if .Values.jabba.autoscaling.enabled -}}
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ template "jabba.fullname" . }}
+  labels:
+    app: {{ template "jabba.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  scaleTargetRef:
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    name: {{ template "jabba.fullname" . }}
+{{ toYaml .Values.jabba.autoscaling.config | indent 2 }}
+{{- end -}}
