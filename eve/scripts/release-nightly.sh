@@ -23,7 +23,7 @@ usage() {
       --dest <path>: The local path to save the chart.
         default: /tmp
       --upload <repo>: The name of the chart repository where we will upload the release.
-        i.e: zenko-dev
+        i.e: zenko
       --nightly-suffix <name>: the suffix of the chart version.
         default: nightly
       --help: Display this message.
@@ -90,7 +90,7 @@ parse_opts() {
   CLOUDSERVER_REPO_URL="${GITHUB_URL}/scality/cloudserver.git"
   CHART_PATH="$(dirname ${SCRIPT_FULL_PATH})/../../kubernetes/zenko"
   REGISTRY="registry.scality.com"
-  REPOSITORY="zenko-dev"
+  REPOSITORY="zenko"
   UPLOAD=""
 
   eval set -- "${OPTS}"

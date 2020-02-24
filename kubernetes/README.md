@@ -150,10 +150,10 @@ you can get an early preview of what's about to be released.
 They can be installed like the following:
 
 ```shell
-# Add the zenko-dev repo to your helm setup
-$ helm repo add zenko-dev https://registry.scality.com/chartrepo/zenko-dev
+# Add the zenko repo to your helm setup
+$ helm repo add zenko https://registry.scality.com/chartrepo/zenko
 # Then you can install Zenko
-$ helm install zenko-dev/zenko --version 1.2-nightly
+$ helm install zenko/zenko --version 1.2-nightly
 ```
 
 ### Upgrade
@@ -164,7 +164,7 @@ To update your nightly release setup you follow this commands:
 # To ensure your repo is up to date
 $ helm repo update
 # Then upgrade your release
-$ helm upgrade my-release zenko-dev/zenko --version 1.2-nightly
+$ helm upgrade my-release zenko/zenko --version 1.2-nightly
 ```
 
 ### Version Scheme
