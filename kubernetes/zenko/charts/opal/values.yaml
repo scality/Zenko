@@ -73,7 +73,7 @@ blobserver:
         schedule: '*/5 * * * *'
 
   image:
-    repository: registry.scality.com/sf-eng/blobserver
+    repository: registry.scality.com/scality/blobserver
     tag: '1.0.0'
     pullPolicy: IfNotPresent
     imagePullSecret: ''
@@ -120,7 +120,7 @@ jabba:
   replicaFactor: 1
 
   image:
-    repository: registry.scality.com/sf-eng/jabba
+    repository: registry.scality.com/scality/jabba
     tag: '1.0.0'
     pullPolicy: IfNotPresent
     imagePullSecret: ''
