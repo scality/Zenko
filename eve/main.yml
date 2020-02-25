@@ -429,11 +429,11 @@ stages:
             ./release-nightly.sh
             --backbeat-revision development/8.2
             --cloudserver-revision development/8.2
-            --upload zenko-dev &&
+            --upload zenko &&
             ./release-nightly.sh
             --backbeat-revision development/8.2
             --cloudserver-revision development/8.2
-            --upload zenko-dev
+            --upload zenko
             --nightly-suffix "nightly-$(date -I)"
           workdir: build/eve/scripts
           env:
