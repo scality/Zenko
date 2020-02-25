@@ -30,12 +30,18 @@ clusters, where such resources are available on demand.
 General Cluster Requirements
 ----------------------------
 
-Setting up a cluster requires at least three machines (these can be VMs)
-running CentOS_ 7.4 or higher. The recommended mimimum for a high-availability
-Zenko production service is five server nodes with three masters/etcds, but for
-testing and familiarization, three masters and three nodes is fine. The cluster
-must have an odd number of nodes to provide a quorum. You must have SSH access
-to these machines and they must have SSH access to each other.
+Setting up a cluster requires at least three machines (these can be VMs) running
+CentOS_ 7.4 or higher. The recommended mimimum for a high-availability Zenko
+production service is five server nodes with three masters/etcds, but three-node
+configurations are also supported. The cluster must have an odd number of nodes to provide a
+quorum. You must have SSH access to these machines and they must have SSH access
+to each other.
+
+.. important::
+   
+   Three-server clusters can continue to operate without service disruption or
+   data loss if one node fails. Five-server clusters can operate without
+   disruption or loss if two nodes fail.
 
 Each machine acting as a Kubernetes_ node must also have at least one disk
 available to provision storage volumes.
