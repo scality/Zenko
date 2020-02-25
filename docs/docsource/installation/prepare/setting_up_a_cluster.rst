@@ -12,7 +12,7 @@ latest stable version of MetalK8s
 establish a working Kubernetes instance on your cluster.
 
 .. note: 
-   
+
    Zenko 1.1 and later are not compatible with Kubernetes instances before
    version |min_kubernetes|. Scality recommends MetalK8s 2.4 or later, which
    satisfies this requirement.
