@@ -158,6 +158,7 @@ init() {
 }
 
 package_chart() {
+  helm dependency update ${CHART_PATH}
   helm package ${CHART_PATH} \
   --version "${CHART_VERSION}" \
   --app-version "${CHART_VERSION}" \
