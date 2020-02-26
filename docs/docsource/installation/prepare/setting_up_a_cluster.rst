@@ -32,10 +32,11 @@ General Cluster Requirements
 
 Setting up a cluster requires at least three machines (these can be VMs) running
 CentOS_ 7.4 or higher. The recommended mimimum for a high-availability Zenko
-production service is five server nodes with three masters/etcds, but three-node
-configurations are also supported. The cluster must have an odd number of nodes to provide a
-quorum. You must have SSH access to these machines and they must have SSH access
-to each other.
+production service is the Standard Architecture, a five-node server with three
+masters/etcds. The Compact Architecture, a three-node configuration, is also
+supported. The cluster must have an odd number of nodes to provide a quorum. You
+must have SSH access to these machines and they must have SSH access to each
+other.
 
 .. important::
    
@@ -48,6 +49,74 @@ available to provision storage volumes.
 
 Once you have set up a cluster, you cannot change the size of the machines on
 it.
+
+Service and Component Architecture
+----------------------------------
+
+Zenko consists of the following stateful and stateless services.
+
+Stateful Services
+~~~~~~~~~~~~~~~~~
+
+For the following stateful services, each node has a copy of the data. Though
+their terminology varies, each service employs the same strategy for maintaining
+availability. A primary service acts on data and transfers it to replica
+instances on the other nodes. If the service running as the primary fails
+(either due to internal error or node failure), the remaining replica services
+elect a primary to continue. If this occurs on a three-node cluster, no data is
+lost unless two nodes fail. On a five-node cluster, no data is lost unless three
+nodes fail.
+
+If a replica node fails, the primary continues operation without interruption
+or an election.
+
+The following stateful services conform to this failover strategy:
+
+  * MongoDB
+  * Redis
+  * Kafka
+  * ZooKeeper
+
+Stateless Services
+~~~~~~~~~~~~~~~~~~
+
+The following stateless services are based on a transactional model. If a
+service fails, Kubernetes automatically reschedules the process on an available
+node.
+
+**Lifecycle Services**
+
+  * Lifecycle Bucket Processor
+  * Lifecycle Conductor
+  * Lifecycle Object Processor
+  * Garbage Collection (GC) Consumer
+
+**Replication Services**
+
+  * Replication Data Processor
+  * Replication Populator
+  * Replication Status Processor
+
+**APIs**
+
+  * CloudServer API
+  * Backbeat API
+
+**Monitoring Services**
+
+  * Prometheus
+  * Grafana
+
+**Out-of-Band Services**
+
+  * Ingestion Consumer
+  * Ingestion Producer
+  * Cosmos Operator
+  * Cosmos Scheduler
+
+**Orbit Management Layer**
+
+  * CloudServer Manager
 
 .. _MetalK8s: https://github.com/scality/metalk8s/
 .. _CentOS: https://www.centos.org
