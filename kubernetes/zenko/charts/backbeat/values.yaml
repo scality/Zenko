@@ -10,12 +10,12 @@ global:
 
 image:
   repository: zenko/backbeat
-  tag: 8.1.15
+  tag: 8.1.16
   pullPolicy: IfNotPresent
 
 logging:
-   # Options: info, debug, trace
-   level: info
+  # Options: info, debug, trace
+  level: info
 
 mongodb:
   replicaSet: rs0

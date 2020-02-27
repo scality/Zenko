@@ -73,7 +73,7 @@ users: {}
 
 logging:
    # Options: info, debug, trace
-   level: info
+  level: info
 
 allowHealthchecksFrom: '0.0.0.0/0'
 
@@ -101,7 +101,7 @@ replicaFactor: 1
 
 image:
   repository: zenko/cloudserver
-  tag: 8.1.18
+  tag: 8.1.19
   pullPolicy: IfNotPresent
 
 proxy:
