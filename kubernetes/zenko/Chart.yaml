@@ -8,7 +8,7 @@ icon: https://rawgit.com/scality/Zenko/development/0.9/res/zenko.io-logo-color-c
 sources:
   - https://github.com/Scality/Zenko
 maintainers:
-  - name: ssalaues
+  - name: rahulreddy
   - name: tmacro
 engine: gotpl
 tillerVersion: ">=2.9.1"
