@@ -273,6 +273,10 @@ spec:
       storageClassName: "{{ .Values.persistentVolume.storageClass }}"
     {{- end }}
     {{- end }}
+    {{- if .Values.persistentVolume.selector }}
+      selector:
+{{ toYaml .Values.persistentVolume.selector | indent 8 }}
+    {{- end }}
 {{- else if .Values.hostPath.path }}
       - name: data
         hostPath:

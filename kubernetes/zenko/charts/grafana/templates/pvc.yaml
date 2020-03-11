@@ -21,4 +21,8 @@ spec:
     requests:
       storage: {{ .Values.persistence.size | quote }}
   storageClassName: {{ .Values.persistence.storageClassName }}
+  {{- if .Values.persistence.selector }}
+  selector:
+{{ toYaml .Values.persistence.selector | indent 4 }}
+  {{- end }}
 {{- end -}}

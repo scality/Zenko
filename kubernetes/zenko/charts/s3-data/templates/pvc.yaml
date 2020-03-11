@@ -1,5 +1,4 @@
-{{- if .Values.persistentVolume.enabled -}}
-{{- if not .Values.persistentVolume.existingClaim -}}
+{{- if and .Values.persistentVolume.enabled (not .Values.persistentVolume.existingClaim) -}}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -16,18 +15,21 @@ metadata:
     heritage: {{ .Release.Service }}
 spec:
   accessModes:
-{{- range .Values.persistentVolume.accessModes }}
+  {{- range .Values.persistentVolume.accessModes }}
     - {{ . | quote }}
-{{- end }}
+  {{- end }}
   resources:
     requests:
       storage: {{ .Values.persistentVolume.size | quote }}
-{{- if .Values.persistentVolume.storageClass }}
-{{- if (eq "-" .Values.persistentVolume.storageClass) }}
+  {{- if .Values.persistentVolume.storageClass }}
+    {{- if (eq "-" .Values.persistentVolume.storageClass) }}
   storageClassName: ""
-{{- else }}
+    {{- else }}
   storageClassName: "{{ .Values.persistentVolume.storageClass }}"
-{{- end }}
-{{- end }}
-{{- end -}}
+    {{- end }}
+  {{- end }}
+  {{- if .Values.persistentVolume.selector }}
+  selector:
+{{ toYaml .Values.persistentVolume.selector | indent 4 }}
+  {{- end }}
 {{- end -}}
