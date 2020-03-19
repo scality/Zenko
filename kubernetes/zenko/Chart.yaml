@@ -4,7 +4,7 @@ appVersion: 1.2.0
 kubeVersion: ">=1.11.3-0"
 description: Zenko is the open source multi-cloud data controller
 home: https://www.zenko.io/
-icon: https://rawgit.com/scality/Zenko/development/0.9/res/zenko.io-logo-color-cmyk.png
+icon: https://rawgit.com/scality/Zenko/development/1.1/res/zenko.io-logo-color-cmyk.png
 sources:
   - https://github.com/Scality/Zenko
 maintainers:
