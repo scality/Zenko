@@ -25,18 +25,17 @@ these instructions will remain valid and portable to the production system.
 Modify options.yaml
 -------------------
 
-The options.yaml file is not present by default, but you added a simple one
-at Zenko/kubernetes/zenko/options.yaml when
-:ref:`deploying Zenko<create_options.yaml>`. options.yaml is
-the best place to make all changes to your configuration (with one 
-exception, nodeCounts). While it is possible to reconfigure any aspect of
-Zenko or its attendant microservices from those services' base settings or in
-the Zenko settings, it is better to make changes to options.yaml. Because
-options.yaml is not a part of the base installation, it is not overwritten
-on a Zenko version upgrade. Likewise, finding changes written to several 
-values.yaml file locations can become quite difficult and cumbersome. For 
-these reasons, it is a best practice to *confine all modifications to 
-options.yaml.*
+The options.yaml file is not present by default, but you added a simple one at
+Zenko/kubernetes/options.yaml when :ref:`deploying
+Zenko<create_options.yaml>`. options.yaml is the best place to make all changes
+to your configuration (with one exception, nodeCounts). While it is possible to
+reconfigure any aspect of Zenko or its attendant microservices from those
+services' base settings or in the Zenko settings, it is better to make changes
+to options.yaml. Because options.yaml is not a part of the base installation, it
+is not overwritten on a Zenko version upgrade. Likewise, finding changes written
+to several values.yaml file locations can become quite difficult and
+cumbersome. For these reasons, it is a best practice to *confine all
+modifications to options.yaml.*
 
 **Examples:**
 
@@ -50,7 +49,7 @@ default. To deactivate Cosmos:
       cosmos:
         enabled: true
 
-#. Open (or create) Zenko/kubernetes/zenko/options.yaml and paste the
+#. Open (or create) Zenko/kubernetes/options.yaml and paste the
    block you copied there. 
 #. Change the value of ``enabled`` to ``false``.
 
@@ -88,7 +87,7 @@ Push Modifications to Zenko
 ---------------------------
 
 Once you have entered all changes to options.yaml or changed the values.yaml
-nodeCount parameter, issue the following command from Zenko/kubernetes/zenko
+nodeCount parameter, issue the following command from Zenko/kubernetes
 to push your changes to the deployed Zenko instance::
 
-   $ helm upgrade {{zenko-server-name}} . -f options.yaml
+   $ helm upgrade {{zenko-server-name}} ./zenko -f options.yaml 

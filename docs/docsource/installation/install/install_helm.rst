@@ -3,25 +3,40 @@
 Install Helm
 ============
 
-1. If you are using MetalK8s, use the MetalK8s virtual shell. Change to the
-   directory from which you will deploy Zenko:
+1. Change to the directory from which you will deploy Zenko:
 
    ::
 
-    (metal-k8s) $ cd /path/to/installation
-
-   If you are not installing from MetalK8s, follow the instructions in
-   Zenko/docs/gke.md to install Helm on your cluster.
+     $ cd /path/to/installation
 
 2. If Helm is not already installed on the machine from which you will be 
-   conducting the deployment, install it as described at: 
-   https://github.com/helm/helm#Install
+   conducting the deployment, install Helm on your cluster.
+   as described at:  https://github.com/helm/helm#Install
+
+    a. Download Helm:
+
+       ::
+        
+         $ curl -LO "https://get.helm.sh/helm-v{{version-number}}-linux-amd64.tar.gz"
+
+    #. Unpack the tarball:
+
+       ::
+	  
+	 $ tar -xvzf helm-v{{version-number}}-linux-amd64.tar.gz
+
+    #. Add Helm to your PATH:
+
+       ::
+	  
+	 $ export PATH="$PATH:/path/to/helm"
+	 $ source ~/.bashrc
 
 3. Initialize Helm:
    
    ::
 
-    (metal-k8s) $ helm init
+    $ helm init
     Creating /home/centos/.helm
     Creating /home/centos/.helm/repository
     Creating /home/centos/.helm/repository/cache
@@ -36,7 +51,7 @@ Install Helm
     Warning: Tiller is already installed in the cluster.
     (Use --client-only to suppress this message, or --upgrade to upgrade Tiller to the current version.)
     Happy Helming!
-    (metal-k8s) $
+    $
 
    Helm can now install applications on the Kubernetes cluster.
 

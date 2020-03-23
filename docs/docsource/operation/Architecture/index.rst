@@ -90,17 +90,84 @@ this architecture:
    |                    | S3 data can be put to an sproxyd RING.                  |
    +--------------------+---------------------------------------------------------+
 
-These services and their likely use cases are described in the sections
-that follow.
+
+Service and Component Architecture
+----------------------------------
+
+Zenko consists of the following stateful and stateless services.
+
+Stateful Services
+~~~~~~~~~~~~~~~~~
+
+For the following stateful services, each node has a copy of its object
+data. Though their terminology varies, each service employs the same strategy
+for maintaining availability. A primary service acts on data and transfers it to
+replica instances on the other nodes. If the service running as the primary
+fails (either due to internal error or node failure), the remaining replica
+services elect a primary to continue. If this occurs on a three-node cluster, no
+data is lost unless two nodes fail. On a five-node cluster, no data is lost
+unless three nodes fail.
+
+If a replica node fails, the primary continues operation without interruption
+or an election.
+
+The following stateful services conform to this failover strategy:
+
+  * MongoDB
+  * Redis
+  * Kafka
+  * ZooKeeper
+
+Stateless Services
+~~~~~~~~~~~~~~~~~~
+
+The following stateless services are based on a transactional model. If a
+service fails, Kubernetes automatically reschedules the process on an available
+node.
+
+**Lifecycle Services**
+
+  * Lifecycle Bucket Processor
+  * Lifecycle Conductor
+  * Lifecycle Object Processor
+  * Garbage Collection (GC) Consumer
+
+**Replication Services**
+
+  * Replication Data Processor
+  * Replication Populator
+  * Replication Status Processor
+
+**APIs**
+
+  * CloudServer API
+  * Backbeat API
+
+**Monitoring Services**
+
+  * Prometheus
+  * Grafana
+
+**Out-of-Band Services**
+
+  * Ingestion Consumer
+  * Ingestion Producer
+  * Cosmos Operator
+  * Cosmos Scheduler
+
+**Orbit Management Layer**
+
+  * CloudServer Manager
+
 
 Zenko Cluster Topology
 ----------------------
 
 To operate with high availability, Zenko must operate on a cluster of at least
-three physical or virtual servers running Kubernetes 1.11.3 or later. Run in
-such a cluster configuration, Zenko is highly available: load balancing,
-failover, and service management are handled dynamically in real time by
-Kubernetes. This dramatically improves several aspects of service management,
+three physical or virtual servers running Kubernetes |min_kubernetes| or
+later. Run in such a cluster configuration, Zenko is highly available: load
+balancing, failover, and service management are handled dynamically in real time
+by Kubernetes. This dramatically improves several aspects of service management,
 creating a fast, robust, self-healing, flexible, scalable system. From the
 user’s perspective, Zenko is functionally a single instance that obscures the
 services and servers behind it.
@@ -119,6 +186,9 @@ these CloudServers spans all deployed and functioning servers, managing
 a common namespace of data and associated metadata, with Kubernetes
 managing individual servers, spinning services up and down in response
 to emergent conditions.
+
+These services and their likely use cases are described in the sections
+that follow.
 
 .. toctree::
 

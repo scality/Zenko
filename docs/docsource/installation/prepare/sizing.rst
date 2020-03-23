@@ -1,14 +1,15 @@
 .. _sizing:
 
-Sizing
-======
+========
+ Sizing
+========
 
 The following sizes for Zenko instances have been tested on live systems using
 MetalK8s, which adds some overhead. If you are running a different Kubernetes
-engine, fewer resources may be required, but such configurations remain to be
-tested.
+engine, fewer resources may be required, but such configurations are not
+supported and remain to be tested.
 
-Reserve the following resources for each node.
+Reserve at least the following resources for each node.
 
 -  Cores per server
 
@@ -29,7 +30,7 @@ Reserve the following resources for each node.
 
 -  Storage
 
-   -  1 TB persistent volume per node minimum
+   -  200 GB persistent volume per node 
 
       .. note::
 
@@ -38,37 +39,40 @@ Reserve the following resources for each node.
         anticipated use. You may have to attach a separate storage volume to
         each cloud server instance.
 
-All servers must run CentOS 7.4 or later, and must be ssh-accessible.
+All servers must run CentOS 7.7 or later, with kernel version 3.10.0-1062.4.1 or
+later, and must be SSH-accessible.
 
 Custom Sizing
--------------
+=============
 
 The default persistent volume sizing requirements are sufficient for a
-conventional deployment. Your requirements may vary based on total data
-managed and total number of objects managed.
+conventional deployment. Your requirements may vary based on total data managed
+and total number of objects managed.
 
 .. Important::
 
-   Persistent volume storage must match or exceed the maximum
-   anticipated demand. Once set, the cluster cannot be resized
-   without redefining new volumes.
+   Persistent volume storage must match or exceed the maximum anticipated
+   demand. Once set, the cluster cannot be resized without redefining new
+   volumes.
 
-To size your deployment, review the default values in Zenko/kubernetes/zenko/\
-values.yaml. This file reserves space for each component
-in the build. This is the baseline build, which Helm will install unless
-instructed otherwise.
+To size your deployment, review the default values in
+Zenko/kubernetes/zenko/values.yaml. This file reserves space for each component
+in the build. values.yaml contains baseline build settings, which Helm installs
+unless instructed otherwise.
 
 Next, review the values discussed in Zenko/kubernetes/zenko/storage.yaml.
-The storage.yaml file contains sizing instructions and settings that, when
-specified in a Helm installation, override the default values expressed in the
-values.yaml file. To override default values using storage.yaml, use the
-following addendum to the ``helm install`` invocation at 
-:ref:`Zenko deployment<Install_Zenko>`.
+The storage.yaml file contains default sizing instructions and settings.
+
+To make changes, copy the default settings from values.yaml or storage.yaml to
+Zenko/kubernetes/options.yaml and modify the values there.
+
+To override default values using options.yaml, use the following addendum to the
+``helm install`` invocation at :ref:`Install_Zenko`.
 
 ::
 
-   $ helm install [other options] -f storage.yaml
-
+   $ helm install [other options] -f options.yaml
 
 How much persistent volume space is required is calculable based on total data
-managed, total objects managed, and other factors. See storage.yaml for details.
+managed, total objects managed, and other factors. Review the comments in
+storage.yaml for details.
