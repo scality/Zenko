@@ -20,21 +20,22 @@ directory:
 3. Set Zenko chart values in options.yaml to resemble::
 
      ingress:
-       enabled: true
+       enabled: "true"
+       annotations:
        hosts:
          - zenko.local
        max_body_size: 100m
-       annotations:
        tls:
          - secretName: zenko-tls
            hosts:
              - zenko.local
 
-4. Install or upgrade Zenko from this directory (Zenko/kubernetes/zenko). Helm
+4. Install or upgrade Zenko from this directory (Zenko/kubernetes). Helm
    will pick up the settings in options.yaml.
+
    ::
 
-     $ helm upgrade --install -f options.yaml zenko .
+     $ helm upgrade --install ./zenko -f options.yaml
 
 Ports
 -----

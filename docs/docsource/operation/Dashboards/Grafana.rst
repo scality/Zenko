@@ -25,10 +25,9 @@ options.yaml, and may require further configurations.
 
 To enable application-level Grafana: 
 
-1. Open the options.yaml file for editing. Though it may be located
-   anywhere in your Zenko directory, if you followed the installation
-   instructions closely, you will find it at 
-   Zenko/kubernetes/zenko/options.yaml.
+1. Open the options.yaml file for editing. Though it may be located anywhere in
+   your Zenko directory, if you followed the installation instructions closely,
+   you will find it at Zenko/kubernetes/options.yaml.
 
 2. Add the following block to options.yaml:
    
