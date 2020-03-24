@@ -61,3 +61,5 @@ Simple Zenko setup for quick testing with non-production data:
 [Deploying a HA Kubernetes cluster](https://github.com/scality/metal-k8s)
 
 [Zenko Docker Swarm HA Deployment](./swarm-production)
+
+DUMMY
