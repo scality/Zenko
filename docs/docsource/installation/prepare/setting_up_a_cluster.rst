@@ -47,8 +47,6 @@ other.
 Each machine acting as a Kubernetes_ node must also have at least one disk
 available to provision storage volumes.
 
-Once you have set up a cluster, you cannot change the size of the machines on
-it.
 
 Service and Component Architecture
 ----------------------------------
