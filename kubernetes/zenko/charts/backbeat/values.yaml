@@ -9,8 +9,8 @@ global:
   replicationEndpoints: []
 
 image:
-  repository: zenko/backbeat
-  tag: 8.1.16
+  repository: jonathangramain/backbeat
+  tag: 8.1.18-beta5
   pullPolicy: IfNotPresent
 
 logging:
