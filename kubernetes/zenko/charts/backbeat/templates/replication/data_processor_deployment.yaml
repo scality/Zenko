@@ -61,6 +61,12 @@ spec:
               value: "64"
             - name: COLLECT_DEFAULT_METRICS_INTERVAL_MS
               value: {{ quote .Values.monitoring.collectDefaultMetricsIntervalMs }}
+            {{- if .Values.ci }}
+            - name: CI
+              value: "true"
+            - name: CI_CEPH
+              value: "true"
+            {{- end }}
             - name: EXTENSIONS_REPLICATION_SOURCE_S3_HOST
               value: "{{- printf "%s-cloudserver" .Release.Name | trunc 63 | trimSuffix "-" -}}"
             - name: EXTENSIONS_REPLICATION_SOURCE_S3_PORT
