@@ -173,6 +173,9 @@ cloudserver:
 backbeat:
   image:
     pullPolicy: Always
+  env:
+    CI: 'true'
+    CI_CEPH: 'true'
   api:
     resources:
       limits:
