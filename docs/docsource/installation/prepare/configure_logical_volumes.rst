@@ -3,33 +3,25 @@
 Configuring Logical Volumes
 ===========================
 
-Set up a cluster of nodes conforming to the specifications described in 
-:ref:`sizing`. If you are using MetalK8s, do this by downloading
-`the latest release <latest-release_>`_, and
-following the `installation instructions <mk8s-install_>`_.
+Set up a cluster of nodes conforming to the specifications described in
+:ref:`sizing`. If you are using MetalK8s, do this by downloading `the latest
+release <latest-release_>`_, and following the `installation instructions
+<mk8s-install_>`_.
 
 .. note::
 
    It is a best practice to install Zenko on a fresh cluster.
 
-When building your cluster, you must take sizing into account. It's easiest to
-use the MetalK8s GUI to set volume sizes. If you are deploying non-default
-sizing, make sure your volume sizing is sufficient.
+When building your cluster, you must take sizing into account. 
 
-For MetalK8s, you *must* size the volumes during setup. The easiest way to do
-this is to set the volume sizes when creating them, then to assign them
-using `the MetalK8s GUI <mk8s_volume_create_>`_.
-
-You can also control this from the command line by editing
-metalk8s/inventory/group_vars/kube-node.yml as described in :ref:`Setting Volume
-Sizes from the Command Line`.
+.. _Minimum Volume Size for Cluster Deployments:
 
 Minimum Volume Size for Cluster Deployments
 -------------------------------------------
 
 The following volume sizes are known good for a five-node cluster.
 
-For each node, one volume of each of the following sizes:
+For each node, create one volume of each of the following sizes:
 
 - 6 GB
 - 10 GB
@@ -38,43 +30,236 @@ For each node, one volume of each of the following sizes:
 - 54 GB
 
 One additional 100 GB volume for S3 data, which can be bound to any of the
-nodes, is also required.
+nodes, is also required. For a five-node deplyment, this totals five sets of
+five volumes, plus the S3 data volume.
 
 Custom Sizing
 ~~~~~~~~~~~~~
 
-For custom sizing for a cluster or a "cluster of one" (single-server) deployment,
-increase these base numbers.
+For custom sizing for a cluster or a "cluster of one" (single-server)
+deployment, increase these base numbers. For non-MetalK8s deployments, follow
+your vendor or community’s instructions for configuring persistent volumes at
+500 GB/node.
 
-For non-MetalK8s deployments, follow your vendor or community’s instructions for
-configuring persistent volumes at 500 GB/node.
+.. _Create a Storage Class Manifest:
 
-.. _Setting Volume Sizes from the Command Line:
+Create a Storage Class Manifest
+-------------------------------
 
-Setting Volume Sizes from the Command Line
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+On the bootstrap node, add a storage class manifest corresponding to the
+different volume sizes to be created on each node. This YAML file describes the
+general properties that a given volume type will possess.
 
-To configure the volume size from the command line, paste the following into
-kube-node.yml, with the sizes changed to suit your volumes:
+Define each storage class using the following parameters. The only setting that
+deviates from the defaults is the metadata:name value. 
 
-.. code-block:: yaml
-		
-  metalk8s_lvm_default_vg: False
-  metalk8s_lvm_vgs: ['vg_metalk8s']
-  metalk8s_lvm_drives_vg_metalk8s: ['/dev/vdb']
-  metalk8s_lvm_lvs_vg_metalk8s:
-    lv01:
-      size: 125G
-    lv02:
-      size: 125G
-    lv03:
-      size: 125G
-    lv04:
-      size: 62G
-    lv05:
-      size: 62G
+* **apiVersion:** Define this as ``storage.k8s.io/v1``
+* **kind:** Define this as ``StorageClass``
+* **metadata:** This field defines the name and labels associated with the
+   storage node.
+   
+   * **name:** You can name a node whatever you want, but it's a good idea to
+     keep things simple and name the node according to its size or anticipated
+     function.
+   * **labels:** Set this to ``zenko: storageclass`` taking care to indent as
+     shown in the example.
+
+* **mountOptions:** Set the ``mountOptions`` field to ``- rw`` and ``- discard``
+  as shown in the example.
+* **parameters:** This field defines the file system type and options. Set
+  ``fstype`` to ``ext4`` and ``mkfsOptions`` to ``'["-m", "0"]'``, indenting as
+  shown in the example.
+* **provisioner:** Define this as ``kubernetes.io/no-provisioner``.
+* **reclaimPolicy:** Define this as ``Retain``.
+* **volumeBindingMode:** Define this as ``WaitForFirstConsumer``.
+
+#. Create a storageclasses.yaml file based on the following example. For the
+   sizing described in :ref:`Minimum Volume Size for Cluster Deployments`.
+   you can copy, paste, and save this example.
+
+   ::
+
+      apiVersion: storage.k8s.io/v1
+      kind: StorageClass
+      metadata:
+        name: sc-100-g
+        labels:
+          zenko: storageclass
+      mountOptions:
+      - rw
+      - discard
+      parameters:
+        fsType: ext4
+        mkfsOptions: '["-m", "0"]'
+      provisioner: kubernetes.io/no-provisioner
+      reclaimPolicy: Retain
+      volumeBindingMode: WaitForFirstConsumer
+      ---
+      apiVersion: storage.k8s.io/v1
+      kind: StorageClass
+      metadata:
+        name: sc-54-g
+        labels:
+          zenko: storageclass
+      mountOptions:
+      - rw
+      - discard
+      parameters:
+        fsType: ext4
+        mkfsOptions: '["-m", "0"]'
+      provisioner: kubernetes.io/no-provisioner
+      reclaimPolicy: Retain
+      volumeBindingMode: WaitForFirstConsumer
+      ---
+      apiVersion: storage.k8s.io/v1
+      kind: StorageClass
+      metadata:
+        name: sc-22-g
+        labels:
+          zenko: storageclass
+      mountOptions:
+      - rw
+      - discard
+      parameters:
+        fsType: ext4
+        mkfsOptions: '["-m", "0"]'
+      provisioner: kubernetes.io/no-provisioner
+      reclaimPolicy: Retain
+      volumeBindingMode: WaitForFirstConsumer
+      ---
+      apiVersion: storage.k8s.io/v1
+      kind: StorageClass
+      metadata:
+        name: sc-12-g
+        labels:
+          zenko: storageclass
+      mountOptions:
+      - rw
+      - discard
+      parameters:
+        fsType: ext4
+        mkfsOptions: '["-m", "0"]'
+      provisioner: kubernetes.io/no-provisioner
+      reclaimPolicy: Retain
+      volumeBindingMode: WaitForFirstConsumer
+      ---
+      apiVersion: storage.k8s.io/v1
+      kind: StorageClass
+      metadata:
+        name: sc-10-g
+        labels:
+          zenko: storageclass
+      mountOptions:
+      - rw
+      - discard
+      parameters:
+        fsType: ext4
+        mkfsOptions: '["-m", "0"]'
+      provisioner: kubernetes.io/no-provisioner
+      reclaimPolicy: Retain
+      volumeBindingMode: WaitForFirstConsumer
+      ---
+      apiVersion: storage.k8s.io/v1
+      kind: StorageClass
+      metadata:
+        name: sc-6-g
+        labels:
+          zenko: storageclass
+      mountOptions:
+      - rw
+      - discard
+      parameters:
+        fsType: ext4
+        mkfsOptions: '["-m", "0"]'
+      provisioner: kubernetes.io/no-provisioner
+      reclaimPolicy: Retain
+      volumeBindingMode: WaitForFirstConsumer
+      ---
+
+#. Run ``kubectl apply -f storageclasses.yaml`` to create the resources.
+
+   ::
+      
+      storageclass.storage.k8s.io/sc-100-g created
+      storageclass.storage.k8s.io/sc-54-g created
+      storageclass.storage.k8s.io/sc-22-g created
+      storageclass.storage.k8s.io/sc-12-g created
+      storageclass.storage.k8s.io/sc-10-g created
+      storageclass.storage.k8s.io/sc-6-g created
+
+
+#. Run ``kubectl get storageclasses`` to verify that the storage class definitions have
+   been accepted.
+
+   ::
+
+      NAME                  PROVISIONER                    AGE
+      metalk8s-prometheus   kubernetes.io/no-provisioner   8m
+      sc-10-g               kubernetes.io/no-provisioner   21s
+      sc-100-g              kubernetes.io/no-provisioner   23s
+      sc-12-g               kubernetes.io/no-provisioner   22s
+      sc-22-g               kubernetes.io/no-provisioner   22s
+      sc-54-g               kubernetes.io/no-provisioner   22s
+      sc-6-g                kubernetes.io/no-provisioner   21s
+
+
+Set Up Logical Volumes with MetalK8s
+------------------------------------
+
+Use the MetalK8s GUI to set volume sizes. You *must* size the volumes during
+setup. The easiest way to do this is to set the volume sizes when creating them,
+then to assign them as follows: 
+
+#. Open the MetalK8s Platform user interface at [bootstrap]:8443.
+
+#. Click the **Nodes** tab.
+
+#. Review the Nodes list for nodes in your cluster with a **Deploy** button
+   available in the **Deployment** column. Click the **Deploy** button to deploy
+   available nodes.
+
+For each node,
+
+#. Click the name of the node in the Platform menu to display node details.
+
+   .. image:: ../Graphics/MK8s_node_select.png
+
+#. Click the **Volumes** tab.
+
+   .. image:: ../Graphics/MK8s_details.png
+
+#. Click the **+** button.
+
+   .. image:: ../Graphics/MK8s_volume_tab.png
+
+#. The **Create a New Volume** window displays.
+
+   .. image:: ../Graphics/MK8s_volume_create.png
+
+#. Enter the volume's
+
+   a. **Name** This must be AWS S3 compliant: lowercase letters, numbers, and
+      hyphens only.
+   #. **Labels** This is an optional, customizable key-value metadata pair for
+      objects that pass through this volume.
+   #. **Storage Class** This field contains a pull-down menu of the storage
+      class options you created in the Storage Class Manifest
+      (storageClasses.yaml) in :ref:`Create a Storage Class Manifest`.
+   #. **Type** This presents two options: **RawBlockDevice** and
+      **SparseLoopDevice**. Choose the device type you entered in the storage
+      class manifest.
+   #. **Device Path**\/**Volume Capacity** If you selected a raw block device in
+      the preceding step, enter the **Device path** to the volume. In a virtual
+      environment this may be /dev/vda, /dev/sda, or similar. If you selected a
+      sparse loop device in the preceding step, enter the **Volume Capacity**
+      using a dimension and size, in binary exponent format (kibi, mebi,
+      gibibyte, etc.)
+
+      .. image:: ../Graphics/MK8s_volume_create_filled_in.png
+
+#. Click **Create**. If you've correctly entered all information, a success
+   banner displays and the new volume appears in the volumes menu.
+
+   .. image:: ../Graphics/MK8s_volume_create_success.png
 
 .. _latest-release: https://github.com/scality/metalk8s/releases
-.. _mk8s-install: https://metal-k8s.readthedocs.io/en/stable/installation/index.html
-.. _mk8s_volume_create: https://metal-k8s.readthedocs.io/en/stable/operation/volume_management/volume_creation_deletion_gui.html#volume-creation
-
