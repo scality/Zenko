@@ -5,8 +5,7 @@ Configuring Logical Volumes
 
 Set up a cluster of nodes conforming to the specifications described in
 :ref:`sizing`. If you are using MetalK8s, do this by downloading `the latest
-release <latest-release_>`_, and following the `installation instructions
-<mk8s-install_>`_.
+release <latest-release_>`_, and following the installation instructions.
 
 .. note::
 
