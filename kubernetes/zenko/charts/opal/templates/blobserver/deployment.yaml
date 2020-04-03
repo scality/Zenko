@@ -1,3 +1,4 @@
+{{- if .Values.blobserver.enabled -}}
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -102,4 +103,5 @@ spec:
           secret:
             secretName: {{ template "opal.fullname" . }}-kmip-cert
         {{- end }}
+{{- end }}
 {{- end }}

@@ -1,4 +1,4 @@
-{{- if .Values.jabba.enabled -}}
+{{- if and .Values.blobserver.enabled .Values.jabba.enabled -}}
 apiVersion: v1
 kind: Service
 metadata:

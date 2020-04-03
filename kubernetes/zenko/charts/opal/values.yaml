@@ -148,7 +148,7 @@ jabba:
           topologyKey: 'kubernetes.io/hostname'
           labelSelector:
             matchLabels:
-              app: {{ include 'jabba.name' . }}
+              app: {{ include "jabba.name" . }}
               release: {{ .Release.Name | quote }}
 
   autoscaling:

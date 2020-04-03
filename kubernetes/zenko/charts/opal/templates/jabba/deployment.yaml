@@ -1,4 +1,4 @@
-{{- if .Values.jabba.enabled -}}
+{{- if and .Values.blobserver.enabled .Values.jabba.enabled -}}
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:

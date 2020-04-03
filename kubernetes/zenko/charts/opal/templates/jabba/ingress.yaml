@@ -1,5 +1,4 @@
-{{- if .Values.jabba.enabled -}}
-{{ if .Values.jabba.ingress.enabled -}}
+{{- if and .Values.blobserver.enabled .Values.jabba.enabled .Values.jabba.ingress.enabled -}}
 {{- $root := . -}}
 {{- $fullName := include "jabba.fullname" . -}}
 {{- $servicePort := .Values.jabba.service.port -}}
@@ -38,5 +37,4 @@ spec:
               serviceName: {{ $fullName }}
               servicePort: http
   {{- end }}
-{{- end }}
 {{- end }}
