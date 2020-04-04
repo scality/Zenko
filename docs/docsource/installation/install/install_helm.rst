@@ -24,7 +24,6 @@ Install Helm
       $ export PATH="$PATH:/path/to/helm"
       $ source ~/.bashrc
 
-
 #. Issue the following commands to enable and create a role for Tiller::
 
      $ kubectl -n kube-system create serviceaccount tiller
@@ -32,7 +31,6 @@ Install Helm
      $ kubectl create clusterrolebinding tiller \
        --clusterrole=cluster-admin \
        --serviceaccount=kube-system:tiller
-
 
 #. Initialize Helm::
    
