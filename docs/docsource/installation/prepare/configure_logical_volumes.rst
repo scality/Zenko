@@ -31,7 +31,7 @@ For each node, create one volume of each of the following sizes:
 - 54 GB
 
 One additional 100 GB volume for S3 data, which can be bound to any of the
-nodes, is also required. For a five-node deplyment, this totals five sets of
+nodes, is also required. For a five-node deployment, this totals five sets of
 five volumes, plus the S3 data volume.
 
 Custom Sizing
@@ -157,8 +157,8 @@ For each node,
       class options you created in the Storage Class Manifest
       (storageClasses.yaml) in :ref:`Create a Storage Class Manifest`.
    #. **Type** This presents two options: **RawBlockDevice** and
-      **SparseLoopDevice**. Choose the device type you entered in the storage
-      class manifest.
+      **SparseLoopDevice**. The **SparseLoopDevice** option is intended for test
+      environments only. Expect performance degradation if you select this option.      
    #. **Device Path**\/**Volume Capacity** If you selected a raw block device in
       the preceding step, enter the **Device path** to the volume. In a virtual
       environment this may be /dev/vda, /dev/sda, or similar. If you selected a
