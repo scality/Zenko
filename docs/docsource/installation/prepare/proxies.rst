@@ -3,7 +3,7 @@
 Proxies
 =======
 
-If you are behind a proxy, add the following lines to your local machine’s
+If you are behind a proxy, add the following lines to your host’s
 /etc/environment file:
 
 ::

@@ -6,8 +6,8 @@
 
 The following sizes for Zenko instances have been tested on live systems using
 MetalK8s, which adds some overhead. If you are running a different Kubernetes
-engine, fewer resources may be required, but such configurations remain to be
-tested.
+engine, fewer resources may be required, but such configurations are not
+supported and remain to be tested.
 
 Reserve at least the following resources for each node.
 
@@ -74,4 +74,5 @@ To override default values using options.yaml, use the following addendum to the
    $ helm install [other options] -f options.yaml
 
 How much persistent volume space is required is calculable based on total data
-managed, total objects managed, and other factors. See storage.yaml for details.
+managed, total objects managed, and other factors. Review the comments in
+storage.yaml for details.

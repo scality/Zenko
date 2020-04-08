@@ -24,6 +24,16 @@ Follow these steps to install Zenko with ingress.
 
 .. _create_options.yaml:
 
+Download Zenko
+--------------
+
+#. Go to https://github.com/Scality/Zenko/releases and download the latest
+   stable version of Zenko.
+
+#. Unzip or gunzip the file you just downloaded and change to the top-level
+   (Zenko) directory.
+
+
 Configure with options.yaml
 ---------------------------
 
@@ -32,7 +42,7 @@ Configure with options.yaml
    ::
 
     ingress:
-      enabled: "true"
+      enabled: true
       annotations:
         nginx.ingress.kubernetes.io/proxy-body-size: 0
       hosts:
@@ -83,9 +93,8 @@ Configure with options.yaml
 Install with Helm
 -----------------
 
-#. Perform the following Helm installation from the kubernetes directory
-   ::
-
+#. Perform the following Helm installation from the kubernetes directory::
+ 
     $ helm install --name my-zenko -f options.yaml zenko
 
    If the command is successful, the output from Helm is extensive.
@@ -97,7 +106,8 @@ Install with Helm
       end with alphabetic or numeric characters. Punctuation marks, including
       periods, are not permitted. 
 
-#. To see Kubernetes's progress creating pods for Zenko, the command:
+#. To see Kubernetes's progress creating pods for Zenko, the command
+
    ::
 
     $ kubectl get pods -n default -o wide
@@ -106,6 +116,8 @@ Install with Helm
    Helm install, some pods will show CrashLoopBackOff issues. This is
    expected behavior, because there is no launch order between pods.
    After a few minutes, all pods will enter Running mode.
+
+   When all pods stabilize, Zenko is installed. 
    
 .. _Register with Orbit: 
 
@@ -113,22 +125,18 @@ Register with Orbit
 -------------------
 
 #. To register your Zenko instance for Orbit access, get your CloudServer’s
-   name:
-
-   ::
+   name::
 
      $ kubectl get -n default pods | grep cloudserver-manager
 
      my-zenko-cloudserver-manager-76f657695-j25wq      1/1   Running   0       3m
 
-#. Grab your CloudServer’s logs with the command:
-   ::
+#. Grab your CloudServer’s logs with the command::
 
      $ kubectl logs my-zenko-cloudserver-manager-<id> | grep 'Instance ID'
 
 
-   Using the present sample values, this command returns:
-   ::
+   Using the present sample values, this command returns::
 
      $ kubectl logs my-zenko-cloudserver-manager-76f657695-j25wq | grep 'Instance ID'
 
@@ -142,9 +150,15 @@ Register with Orbit
 #. Open https://admin.zenko.io/user in a web browser. You may be prompted to
    authenticate through Google.
 
+   .. image:: ../Graphics/orbit_authenticate.png
+
 #. Click the **Register My Instance** button.
 
 #. Paste the instance ID into the Instance ID dialog. Name the instance what
    you will.
 
-Your instance is registered.
+   .. image:: ../Graphics/orbit_enter_instance_ID.png
+
+#. Your instance is registered.
+
+   .. image:: ../Graphics/orbit_install_success.png
