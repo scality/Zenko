@@ -1,4 +1,4 @@
-{{- if .Values.jabba.autoscaling.enabled -}}
+{{- if and .Values.blobserver.enabled .Values.jabba.autoscaling.enabled -}}
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:

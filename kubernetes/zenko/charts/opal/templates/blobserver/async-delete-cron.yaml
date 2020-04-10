@@ -1,3 +1,4 @@
+{{- if .Values.blobserver.enabled -}}
 {{- $successfulJobsHistory :=  .Values.blobserver.asyncDeletes.successfulJobsHistory -}}
 {{- $failedJobsHistory :=  .Values.blobserver.asyncDeletes.failedJobsHistory -}}
 {{- $local := . -}}
@@ -47,4 +48,5 @@ spec:
                   value: "{{ .maxConcurrentProcs }}"
                 - name: BLOB_CONCURRENT_DELETES
                   value: "{{ .maxConcurrentDeletes }}"
+{{- end }}
 {{- end }}

@@ -7,8 +7,6 @@ It is currently honored, but may be removed in future versions.
 
 Access the Zenko S3 endpoint from this URL:
 {{- if .Values.ingress.hosts }}
-The ingress.hosts option has been DEPRECATED.
-It is currently honored, but may be removed in future versions.
 {{- range .Values.ingress.hosts }}
   http://{{ . }}
 {{- end }}
@@ -17,10 +15,17 @@ It is currently honored, but may be removed in future versions.
 {{- range .Values.ingress.s3_extra_hosts }}
   http://{{ . }}
 {{- end }}
+{{- if .Values.opal.blobserver.enabled }}
 
 Access the Zenko Blob endpoint from this URL:
 {{ printf "http://%s.%s" .Values.ingress.blob_subdomain .Values.ingress.root_domain }}
 {{- range .Values.ingress.blob_extra_hosts }}
   http://{{ . }}
+{{- end }}
+{{- end }}
+{{- if .Values.opal.jabba.enabled }}
+
+Access the Zenko SRP endpoint from this URL:
+{{ printf "http://%s.%s" .Values.ingress.blob_mgmt_subdomain .Values.ingress.root_domain }}
 {{- end }}
 {{- end }}

@@ -1,4 +1,4 @@
-{{- if .Values.blobserver.autoscaling.enabled -}}
+{{- if and .Values.blobserver.autoscaling.enabled .Values.blobserver.enabled -}}
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:

@@ -1,4 +1,4 @@
-{{- if .Values.blobserver.ingress.enabled -}}
+{{- if and .Values.blobserver.enabled .Values.blobserver.ingress.enabled -}}
 {{- $root := . -}}
 {{ $fullName := include "blobserver.fullname" . -}}
 {{- $servicePort := .Values.blobserver.service.port -}}
