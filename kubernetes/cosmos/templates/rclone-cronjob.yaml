@@ -74,6 +74,20 @@ spec:
                 mountPath: /root/.config/rclone
               - name: backend-storage
                 mountPath: {{ template "cosmos.src" . }}
+            resources:
+{{ toYaml .Values.rclone.resources | indent 14 }}
+    {{- with .Values.rclone.nodeSelector }}
+          nodeSelector:
+{{ toYaml . | indent 12 }}
+    {{- end }}
+    {{- with .Values.rclone.affinity }}
+          affinity:
+{{ toYaml . | indent 12 }}
+    {{- end }}
+    {{- with .Values.rclone.tolerations }}
+          tolerations:
+{{ toYaml . | indent 12 }}
+    {{- end }}
           volumes:
           - name: rclone-config
             configMap:
