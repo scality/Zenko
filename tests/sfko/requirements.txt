@@ -17,7 +17,7 @@ idna==2.7
 jmespath==0.9.3
 kaitaistruct==0.8
 ldap3==2.5.1
-mitmproxy==4.0.4
+mitmproxy==5.0.0
 passlib==1.7.1
 Pipewrench==0.2.4
 pyasn1==0.4.4
