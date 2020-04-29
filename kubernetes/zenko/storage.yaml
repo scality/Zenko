@@ -28,6 +28,9 @@ mongodb-replicaset:
       - ReadWriteOnce
     size: 50Gi
     annotations: {}
+    # selector:
+    #   matchLabels:
+    #     app: mongodb-replicaset
 
 prometheus:
   server:
@@ -49,6 +52,9 @@ prometheus:
       ## Useful if the volume's root directory is not empty
       ##
       subPath: ""
+      # selector:
+      #   matchLabels:
+      #     app: prometheus
 
 redis-ha:
   ## Notes:
@@ -62,6 +68,9 @@ redis-ha:
       - ReadWriteOnce
     size: 10Gi
     annotations: {}
+    # selector:
+    #   matchLabels:
+    #     app: redis-ha
 
 s3-data:
   ## Notes:
@@ -78,7 +87,10 @@ s3-data:
     existingClaim: ""
     size: 90Gi
     storageClass: null
-
+    # selector:
+    #   matchLabels:
+    #     app: s3-data
+ 
 zenko-queue:
   ## Notes:
   ##   - number of PVs required is `nodeCount`
@@ -96,6 +108,9 @@ zenko-queue:
     ##
     mountPath: "/opt/kafka/data"
     storageClass: null
+    # selector:
+    #   matchLabels:
+    #     app: zenko-queue
 
 zenko-quorum:
   ## Notes:
@@ -107,6 +122,9 @@ zenko-quorum:
     storageClass: null
     accessMode: ReadWriteOnce
     size: 5Gi
+    # selector:
+    #   matchLabels:
+    #     app: zenko-quorum
 
 mgob:
   persistentVolume:
@@ -116,6 +134,9 @@ mgob:
       - ReadWriteOnce
     size: 10Gi
     annotations: {}
+    # selector:
+    #   matchLabels:
+    #     app: mgob
 
 burry:
   persistentVolume:
@@ -125,3 +146,6 @@ burry:
       - ReadWriteOnce
     size: 1Gi
     annotations: {}
+    # selector:
+    #   matchLabels:
+    #     app: burry

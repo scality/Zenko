@@ -124,6 +124,10 @@ spec:
         storageClassName: "{{ .Values.alertmanager.persistentVolume.storageClass }}"
       {{- end }}
       {{- end }}
+      {{- if .Values.alertmanager.persistentVolume.selector }}
+        selector:
+{{ toYaml .Values.alertmanager.persistentVolume.selector | indent 10 }}
+      {{- end }}
 {{- else }}
         - name: storage-volume
           emptyDir: {}
