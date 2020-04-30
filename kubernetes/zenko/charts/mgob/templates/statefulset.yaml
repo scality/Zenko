@@ -77,9 +77,9 @@ spec:
         storageClassName: "{{ .Values.persistentVolume.storageClass }}"
       {{- end }}
       {{- end }}
-      {{- if .Values.persistence.selector }}
+      {{- if .Values.persistentVolume.selector }}
         selector:
-{{ toYaml .Values.persistence.selector | indent 10 }}
+{{ toYaml .Values.persistentVolume.selector | indent 10 }}
       {{- end }}
 {{- else }}
         - name: mgob-storage
