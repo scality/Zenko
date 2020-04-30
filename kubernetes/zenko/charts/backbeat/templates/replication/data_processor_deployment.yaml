@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "backbeat.fullname" . }}-replication-data-processor
@@ -9,6 +9,10 @@ metadata:
     heritage: {{ .Release.Service }}
 spec:
   replicas: {{ template "backbeat.replication.dataProcessor.replicaCount" . }}
+  selector:
+    matchLabels:
+      app: {{ template "backbeat.name" . }}-replication
+      release: {{ .Release.Name }}
   template:
     metadata:
       {{- if not .Values.global.orbit.enabled }}

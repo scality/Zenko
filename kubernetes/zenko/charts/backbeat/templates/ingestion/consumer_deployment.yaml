@@ -1,6 +1,6 @@
 {{- if .Values.global.orbit.enabled -}}
 {{- if .Values.ingestion.enabled -}}
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "backbeat.fullname" . }}-ingestion-consumer
@@ -11,6 +11,10 @@ metadata:
     heritage: {{ .Release.Service }}
 spec:
   replicas: {{ .Values.ingestion.consumer.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "backbeat.name" . }}-ingestion
+      release: {{ .Release.Name }}
   template:
     metadata:
       labels:
