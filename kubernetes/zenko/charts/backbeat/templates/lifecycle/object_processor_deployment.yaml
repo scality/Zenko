@@ -1,5 +1,5 @@
 {{- if .Values.global.orbit.enabled -}}
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "backbeat.fullname" . }}-lifecycle-object-processor
@@ -10,6 +10,10 @@ metadata:
     heritage: {{ .Release.Service }}
 spec:
   replicas: {{ .Values.lifecycle.objectProcessor.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "backbeat.name" . }}-lifecycle
+      release: {{ .Release.Name }}
   template:
     metadata:
       labels:
