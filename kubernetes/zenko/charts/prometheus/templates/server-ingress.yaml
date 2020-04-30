@@ -2,7 +2,11 @@
 {{- $releaseName := .Release.Name -}}
 {{- $serviceName := include "prometheus.server.fullname" . }}
 {{- $servicePort := .Values.server.service.servicePort -}}
+  {{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1/Ingress" -}}
+apiVersion: networking.k8s.io/v1beta1
+  {{- else -}}
 apiVersion: extensions/v1beta1
+  {{- end }}
 kind: Ingress
 metadata:
 {{- if .Values.server.ingress.annotations }}
