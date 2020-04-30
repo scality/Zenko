@@ -2,7 +2,11 @@
 {{- $fullName := include "kafka-manager.fullname" . -}}
 {{- $servicePort := .Values.service.port -}}
 {{- $ingressPath := .Values.ingress.path -}}
+  {{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1/Ingress" -}}
+apiVersion: networking.k8s.io/v1beta1
+  {{- else -}}
 apiVersion: extensions/v1beta1
+  {{- end }}
 kind: Ingress
 metadata:
   name: {{ $fullName }}
