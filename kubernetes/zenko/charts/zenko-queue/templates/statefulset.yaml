@@ -1,5 +1,5 @@
 {{- $advertisedListenersOverride := first (pluck "advertised.listeners" .Values.configurationOverrides) }}
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: {{ include "kafka.fullname" . }}
@@ -14,6 +14,10 @@ spec:
   updateStrategy:
 {{ toYaml .Values.updateStrategy | indent 4 }}
   replicas: {{ default 3 .Values.replicas }}
+  selector:
+    matchLabels:
+      app: {{ include "kafka.name" . }}
+      release: {{ .Release.Name }}
   template:
     metadata:
 {{- if and .Values.prometheus.jmx.enabled  (not .Values.prometheus.operator.enabled) }}
