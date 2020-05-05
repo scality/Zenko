@@ -8,7 +8,11 @@
 {{- $jabbaDomain := printf "%s.%s" .Values.ingress.blob_mgmt_subdomain .Values.ingress.root_domain -}}
 {{- $jabbaServiceName := printf "%s-%s-%s" .Release.Name "opal" "jabba" | trunc 63 | trimSuffix "-" -}}
 {{- $addIssuerAnnotation := and .Values.ingress.auto_certificates (or .Values.ingress.issuer .Values.ingress.cluster_issuer) -}}
+{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1/Ingress" -}}
+apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
 apiVersion: extensions/v1beta1
+  {{- end }}
 kind: Ingress
 metadata:
   name: {{ template "zenko.fullname" . }}
