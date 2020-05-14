@@ -10,6 +10,6 @@ tests/artifacts
 .DS_Store
 .tox/
 
-*_build
+**/_build
 docs/_templates/page.html_orig
 *.pyc
