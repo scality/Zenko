@@ -1,0 +1,12 @@
+apiVersion: solutions.metalk8s.scality.com/v1alpha1
+kind: SolutionConfig
+operator:
+  image:
+    name: zenko-operator
+    tag: 1.0.0
+ui:
+  image:
+    name: zenko-ui
+    tag: 1.0.0
+customApiGroups:
+  - zenko.scality.com
