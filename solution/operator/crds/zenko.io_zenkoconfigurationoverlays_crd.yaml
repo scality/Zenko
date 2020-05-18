@@ -1,0 +1,168 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: zenkoconfigurationoverlays.zenko.io
+spec:
+  group: zenko.io
+  names:
+    kind: ZenkoConfigurationOverlay
+    listKind: ZenkoConfigurationOverlayList
+    plural: zenkoconfigurationoverlays
+    singular: zenkoconfigurationoverlay
+  scope: Namespaced
+  subresources:
+    status: {}
+  validation:
+    openAPIV3Schema:
+      description: ZenkoConfigurationOverlay is the Schema for the zenkoconfigurationoverlays
+        API
+      properties:
+        apiVersion:
+          description: 'APIVersion defines the versioned schema of this representation
+            of an object. Servers should convert recognized schemas to the latest
+            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources'
+          type: string
+        kind:
+          description: 'Kind is a string value representing the REST resource this
+            object represents. Servers may infer this from the endpoint the client
+            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds'
+          type: string
+        metadata:
+          type: object
+        spec:
+          description: ZenkoConfigurationOverlaySpec defines the desired state of
+            ZenkoConfigurationOverlay
+          properties:
+            accounts:
+              items:
+                description: ZenkoConfigurationOverlaySpecAccount defines a top-level
+                  tenant
+                properties:
+                  accessKey:
+                    type: string
+                  canonicalID:
+                    type: string
+                  encryptedSecretKey:
+                    type: string
+                  encryptionKeyVersion:
+                    format: int32
+                    type: integer
+                  name:
+                    type: string
+                  type:
+                    type: string
+                type: object
+              type: array
+            blobAPI:
+              properties:
+                endpoints:
+                  items:
+                    description: ZenkoConfigurationOverlaySpecEndpoint defines an
+                      endpoint
+                    properties:
+                      hostname:
+                        type: string
+                      isBuiltIn:
+                        type: boolean
+                      locationName:
+                        type: string
+                    type: object
+                  type: array
+              type: object
+            locations:
+              items:
+                description: ZenkoConfigurationOverlaySpecLocation defines a storage
+                  location
+                properties:
+                  canonicalID:
+                    type: string
+                  details:
+                    properties:
+                      accessKey:
+                        description: access key
+                        type: string
+                      bootstrapList:
+                        description: bootstrap list
+                        items:
+                          type: string
+                        type: array
+                      bucketMatch:
+                        description: bucket match
+                        type: boolean
+                      bucketName:
+                        description: bucket name
+                        type: string
+                      chordCos:
+                        description: chord cos
+                        format: int64
+                        type: integer
+                      codingParts:
+                        description: coding parts
+                        format: int64
+                        type: integer
+                      dataParts:
+                        description: data parts
+                        format: int64
+                        type: integer
+                      endpoint:
+                        description: endpoint
+                        type: string
+                      mpuBucketName:
+                        description: mpu bucket name
+                        type: string
+                      proxyPath:
+                        description: proxy path
+                        type: string
+                      region:
+                        description: region
+                        type: string
+                      secretKey:
+                        description: secret key
+                        type: string
+                      serverSideEncryption:
+                        description: server side encryption
+                        type: boolean
+                    type: object
+                  encryptionKeyVersion:
+                    format: int32
+                    type: integer
+                  isTransient:
+                    type: boolean
+                  legacyAWSBehavior:
+                    type: boolean
+                  name:
+                    type: string
+                  sizeLimitGB:
+                    format: int32
+                    type: integer
+                  type:
+                    type: string
+                type: object
+              type: array
+            s3API:
+              properties:
+                endpoints:
+                  items:
+                    description: ZenkoConfigurationOverlaySpecEndpoint defines an
+                      endpoint
+                    properties:
+                      hostname:
+                        type: string
+                      isBuiltIn:
+                        type: boolean
+                      locationName:
+                        type: string
+                    type: object
+                  type: array
+              type: object
+          type: object
+        status:
+          description: ZenkoConfigurationOverlayStatus defines the observed state
+            of ZenkoConfigurationOverlay
+          type: object
+      type: object
+  version: v1alpha1
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true

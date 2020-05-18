@@ -1,0 +1,9 @@
+banzaicloud/kafka-operator:v0.11.2
+jimmidyson/configmap-reload:v0.3.0
+pravega/zookeeper-operator:latest
+quay.io/jetstack/cert-manager-controller:v0.11.0
+quay.io/jetstack/cert-manager-webhook:v0.11.0
+quay.io/jetstack/cert-manager-cainjector:v0.11.0
+quay.io/coreos/prometheus-operator:v0.38.1
+quay.io/coreos/prometheus-config-reloader:v0.38.1
+registry.scality.com/sf-eng/zenko-operator:10794ca
