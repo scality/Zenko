@@ -72,7 +72,8 @@ function gen_operator_yaml()
 
 function copy_image()
 {
-	FULL_PATH=${IMAGES_ROOT}/${1/:/\/}
+	IMAGE_NAME=${1##*/}
+	FULL_PATH=${IMAGES_ROOT}/${IMAGE_NAME/:/\/}
 	mkdir -p ${FULL_PATH}
 	${SKOPEO} ${SKOPEO_OPTS} copy \
 		--format v2s2 --dest-compress \
