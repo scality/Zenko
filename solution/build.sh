@@ -87,6 +87,18 @@ function dedupe()
 	${HARDLINK} -c ${IMAGES_ROOT}
 }
 
+function build_registry_config()
+{
+	docker run \
+    	 	--name static-oci-registry \
+	 	--mount type=bind,source=${ISO_ROOT}/images,destination=/var/lib/images \
+		--mount type=bind,source=${ISO_ROOT},destination=/var/run \
+	 	--rm \
+    		docker.io/nicolast/static-container-registry:latest \
+		python3 /static-container-registry.py --omit-constants /var/lib/images
+	mv ${ISO_ROOT}/static-container-registry.conf ${ISO_ROOT}/registry-config.inc
+}
+
 function build_iso()
 {
 	mkisofs -output ${ISO} \
@@ -119,5 +131,6 @@ for img in ${DEP_IMAGES[@]}; do
 	copy_image ${img}
 done
 dedupe
+build_registry_config
 build_iso
 echo DONE
