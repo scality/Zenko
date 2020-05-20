@@ -22,16 +22,10 @@ OPERATOR_SDK=operator-sdk
 OPERATOR_SDK_OPTS=
 SKOPEO=skopeo
 SKOPEO_OPTS="--override-os linux --insecure-policy"
+OPERATOR_TAG=$(grep /zenko-operator: deps.txt | awk -F ':' '{print $2}')
 
 # grab our dependencies from our deps.txt file as an array
 readarray -t DEP_IMAGES < deps.txt
-# add the CR dependencies by joining image: and tag: lines
-readarray -t CR_IMAGES < <(grep image: zenko-version-cr.yaml | awk '{print $2}')
-readarray -t CR_TAGS < <(grep tag: zenko-version-cr.yaml | awk '{print $2}')
-
-for index in ${!CR_IMAGES[@]}; do
-	DEP_IMAGES+=(${CR_IMAGES[index]}:${CR_TAGS[index]})
-done
 
 function clean()
 {
@@ -45,9 +39,9 @@ function mkdirs()
 
 function copy_yamls()
 {
-	OPERATOR_TAG=$(grep /zenko-operator: deps.txt | awk -F ':' '{print $2}')
 	sed "s/ZENKO_OPERATOR_TAG/${OPERATOR_TAG}/" config.yaml > ${ISO_ROOT}/config.yaml
 	cp -R -f operator/ ${ISO_ROOT}/operator
+	cp zenko-version-cr.yaml ${ISO_ROOT}/operator/zenko-version-cr.yaml
 }
 
 function gen_product_txt()
@@ -65,9 +59,8 @@ EOF
 
 function gen_operator_yaml()
 {
-	OPERATOR_IMAGE=$(grep /zenko-operator: deps.txt)
 	# we need to escape / with \/ in our sed command
-	awk -v img="$OPERATOR_IMAGE" '{ gsub("REPLACE_IMAGE", img); print $0 }' operator.yaml > ${ISO_ROOT}/operator/operator.yaml	
+	sed "s/REPLACE_IMAGE/zenko-operator:${OPERATOR_TAG}/" operator.yaml > ${ISO_ROOT}/operator/operator.yaml
 }
 
 function copy_image()

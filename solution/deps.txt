@@ -1,4 +1,5 @@
 banzaicloud/kafka-operator:v0.11.2
+busybox:1.31.0-glibc
 jimmidyson/configmap-reload:v0.3.0
 kubedb/operator:v0.13.0-rc.0
 kubedb/mongo:4.0-v1
@@ -8,9 +9,18 @@ kubedb/mongo-tools:4.0-v1
 kubedb/redis:5.0.3-v1
 kubedb/redis_exporter:v0.21.1
 pravega/zookeeper-operator:latest
+pravega/zookeeper:0.2.4
 quay.io/jetstack/cert-manager-controller:v0.11.0
 quay.io/jetstack/cert-manager-webhook:v0.11.0
 quay.io/jetstack/cert-manager-cainjector:v0.11.0
 quay.io/coreos/prometheus-operator:v0.38.1
 quay.io/coreos/prometheus-config-reloader:v0.38.1
+registry.scality.com/sf-eng/blobserver:1.0.8
+registry.scality.com/sf-eng/jabba:940d
 registry.scality.com/sf-eng/zenko-operator:10794ca
+registry.scality.com/zenko-dev/cloudserver:latest-8.1.2
+registry.scality.com/zenko-dev/backbeat:161b9c1
+registry.scality.com/zenko-dev/cloudserver:4332d0a
+wurstmeister/kafka:2.12-2.3.0
+zenko/cloudserver:8.1.15
+zenko/s3utils:1.2
