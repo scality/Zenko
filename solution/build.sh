@@ -67,7 +67,7 @@ function gen_operator_yaml()
 {
 	OPERATOR_IMAGE=$(grep /zenko-operator: deps.txt)
 	# we need to escape / with \/ in our sed command
-	sed "s/REPLACE_IMAGE/${OPERATOR_IMAGE//\//\\/}/" operator.yaml > ${ISO_ROOT}/operator/operator.yaml	
+	awk -v img="$OPERATOR_IMAGE" '{ gsub("REPLACE_IMAGE", img); print $0 }' operator.yaml > ${ISO_ROOT}/operator/operator.yaml	
 }
 
 function copy_image()
