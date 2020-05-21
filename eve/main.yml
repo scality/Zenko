@@ -197,11 +197,12 @@ stages:
         name: trigger all the tests
         haltOnFailure: true
         stage_names:
-        - build-doc
-        - test-cosmos
-        - python-tests
-        - node-tests-01
-        - node-tests-02
+        # - build-doc
+        - build-iso
+        # - test-cosmos
+        # - python-tests
+        # - node-tests-01
+        # - node-tests-02
 
   build-doc:
     worker:
@@ -229,6 +230,26 @@ stages:
         urls:
           - "html/index.html"
           - "latex/*.pdf"
+
+  build-iso:
+    worker:
+      type: kube_pod
+      path: eve/workers/build-iso/pod.yaml
+      images:
+        build-iso: eve/workers/build-iso
+    steps:
+    - Git: *git_pull
+    - ShellCommand: *private_registry_login
+    - ShellCommand:
+        name: 'Build ISO'
+        haltOnFailure: true
+        workdir: build/solution
+        command: ./build.sh
+    - Upload:
+        name: Upload ISO
+        source: 'solution/_build'
+        urls:
+          - "*.iso"
 
   test-cosmos:
     worker:
