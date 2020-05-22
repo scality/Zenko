@@ -49,18 +49,18 @@ function download_dependency_yamls()
 	OPERATOR_DIR=${ISO_ROOT}/operator
 	CRDS_DIR=${OPERATOR_DIR}/crds
 
-	wget --directory=${CRDS_DIR} https://github.com/jetstack/cert-manager/releases/download/v0.11.0/cert-manager.yaml
+	wget --directory=${CRDS_DIR} https://github.com/jetstack/cert-manager/releases/download/v0.11.0/cert-manager.yaml || exit 1
 
 	# combine all zookeeper files into a bundle.yaml
 	ZOOKEEPER_VERSION=$(grep /zookeeper-operator: deps.txt | awk -F ':' '{print $2}')
-	wget -O ${BUILD_ROOT}/zookeeper-operator.tar.gz https://github.com/pravega/zookeeper-operator/archive/${ZOOKEEPER_VERSION}.tar.gz
+	wget -O ${BUILD_ROOT}/zookeeper-operator.tar.gz https://github.com/pravega/zookeeper-operator/archive/v${ZOOKEEPER_VERSION}.tar.gz || exit 1
 	mkdir ${BUILD_ROOT}/zookeeper-operator
 	tar -C ${BUILD_ROOT}/zookeeper-operator --strip-components=1 -xf ${BUILD_ROOT}/zookeeper-operator.tar.gz
 	find ${BUILD_ROOT}/zookeeper-operator/deploy/ -type f -exec cat {} + >> ${CRDS_DIR}/zookeeper-operator-bundle.yaml
 
 	# combine all kafka files into a bundle.yaml
 	KAFKA_VERSION=$(grep /kafka-operator: deps.txt | awk -F ':' '{print $2}')
-	wget -O ${BUILD_ROOT}/kafka-operator.tar.gz https://github.com/banzaicloud/kafka-operator/archive/${KAFKA_VERSION}.tar.gz
+	wget -O ${BUILD_ROOT}/kafka-operator.tar.gz https://github.com/banzaicloud/kafka-operator/archive/${KAFKA_VERSION}.tar.gz || exit 1
 	mkdir ${BUILD_ROOT}/kafka-operator
 	tar -C ${BUILD_ROOT}/kafka-operator --strip-components=1 -xf ${BUILD_ROOT}/kafka-operator.tar.gz
 	find ${BUILD_ROOT}/kafka-operator/config/base -type f -exec cat {} + >> ${CRDS_DIR}/kafka-operator-bundle.yaml
@@ -95,6 +95,7 @@ function copy_image()
 		--src-daemon-host ${DOCKER_SOCKET} \
 		docker-daemon:${1} \
 		dir:${FULL_PATH}
+	[ ! -f ${FULL_PATH}/manifest.json ] && echo Failed to copy image ${IMAGE_NAME} && exit 1
 }
 
 function dedupe()
@@ -111,7 +112,9 @@ function build_registry_config()
 	 	--rm \
     		docker.io/nicolast/static-container-registry:latest \
 		python3 /static-container-registry.py --omit-constants /var/lib/images
-	mv ${ISO_ROOT}/static-container-registry.conf ${ISO_ROOT}/registry-config.inc
+	CONFIG_FILE=${ISO_ROOT}/static-container-registry.conf
+	[ ! -f ${CONFIG_FILE} ] && echo Failed to generate nginx config ${CONFIG_FILE} && exit 1
+	mv ${CONFIG_FILE} ${ISO_ROOT}/registry-config.inc
 }
 
 function build_iso()
@@ -129,7 +132,9 @@ function build_iso()
 		-input-charset iso8859-1 \
 		-output-charset iso8859-1 \
 		${ISO_ROOT}
+	[ ! -f ${ISO} ] && echo Failed to build ISO at ${ISO} && exit 1
 	sha256sum ${ISO} > ${ISO_ROOT}/SHA256SUM
+	[ ! -f ${ISO_ROOT}/SHA256SUM ] && echo Failed to generate SHA256 && exit 1
 	echo ISO File at ${ISO}
 	echo SHA256 for ISO:
 	cat ${ISO_ROOT}/SHA256SUM
