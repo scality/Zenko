@@ -8,7 +8,7 @@ kubedb/busybox:latest
 kubedb/mongo-tools:4.0-v1
 kubedb/redis:5.0.3-v1
 kubedb/redis_exporter:v0.21.1
-pravega/zookeeper-operator:v0.2.7
+pravega/zookeeper-operator:0.2.7
 pravega/zookeeper:0.2.4
 quay.io/jetstack/cert-manager-controller:v0.11.0
 quay.io/jetstack/cert-manager-webhook:v0.11.0

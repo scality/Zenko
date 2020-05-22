@@ -1,4 +1,7 @@
 #!/bin/bash
+set -e
+set -u
+
 PWD=$(pwd)
 BUILD_ROOT=${PWD}/_build
 ISO_ROOT=${BUILD_ROOT}/root
@@ -49,11 +52,12 @@ function download_dependency_yamls()
 	OPERATOR_DIR=${ISO_ROOT}/operator
 	CRDS_DIR=${OPERATOR_DIR}/crds
 
-	wget --directory=${CRDS_DIR} https://github.com/jetstack/cert-manager/releases/download/v0.11.0/cert-manager.yaml
+	CERT_VERSION=$(grep /cert-manager-controller: deps.txt | awk -F ':' '{print $2}')
+	wget --directory=${CRDS_DIR} https://github.com/jetstack/cert-manager/releases/download/${CERT_VERSION}/cert-manager.yaml
 
 	# combine all zookeeper files into a bundle.yaml
 	ZOOKEEPER_VERSION=$(grep /zookeeper-operator: deps.txt | awk -F ':' '{print $2}')
-	wget -O ${BUILD_ROOT}/zookeeper-operator.tar.gz https://github.com/pravega/zookeeper-operator/archive/${ZOOKEEPER_VERSION}.tar.gz
+	wget -O ${BUILD_ROOT}/zookeeper-operator.tar.gz https://github.com/pravega/zookeeper-operator/archive/v${ZOOKEEPER_VERSION}.tar.gz
 	mkdir ${BUILD_ROOT}/zookeeper-operator
 	tar -C ${BUILD_ROOT}/zookeeper-operator --strip-components=1 -xf ${BUILD_ROOT}/zookeeper-operator.tar.gz
 	find ${BUILD_ROOT}/zookeeper-operator/deploy/ -type f -exec cat {} + >> ${CRDS_DIR}/zookeeper-operator-bundle.yaml
@@ -111,7 +115,8 @@ function build_registry_config()
 	 	--rm \
     		docker.io/nicolast/static-container-registry:latest \
 		python3 /static-container-registry.py --omit-constants /var/lib/images
-	mv ${ISO_ROOT}/static-container-registry.conf ${ISO_ROOT}/registry-config.inc
+	CONFIG_FILE=${ISO_ROOT}/static-container-registry.conf
+	mv ${CONFIG_FILE} ${ISO_ROOT}/registry-config.inc
 }
 
 function build_iso()
@@ -139,7 +144,7 @@ function build_iso()
 clean
 mkdirs
 copy_yamls
-download_dependency_yamls
+# download_dependency_yamls
 gen_product_txt
 gen_operator_yaml
 for img in ${DEP_IMAGES[@]}; do
