@@ -2,7 +2,7 @@
 apiVersion: zenko.io/v1alpha1
 kind: ZenkoVersion
 metadata:
-  name: 1.1-dev
+  name: VERSION_FULL
 spec:
   imagePullPolicy: Always
   versions:
