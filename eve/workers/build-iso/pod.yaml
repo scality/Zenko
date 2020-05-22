@@ -31,6 +31,9 @@ spec:
           memory: 2Gi
       securityContext:
         privileged: true
+      env:
+        - name: DOCKER_TLS_CERTDIR
+          value: ''
       volumeMounts:
         - name: docker-storage
           mountPath: /var/lib/docker
