@@ -41,7 +41,29 @@ function copy_yamls()
 {
 	sed "s/ZENKO_OPERATOR_TAG/${OPERATOR_TAG}/" config.yaml > ${ISO_ROOT}/config.yaml
 	cp -R -f operator/ ${ISO_ROOT}/operator
-	cp zenko-version-cr.yaml ${ISO_ROOT}/operator/zenko-version-cr.yaml
+	sed "s/VERSION_FULL/${VERSION_FULL}/" zenko-version-cr.yaml > ${ISO_ROOT}/operator/zenko-version-cr.yaml
+}
+
+function download_dependency_yamls()
+{
+	OPERATOR_DIR=${ISO_ROOT}/operator
+	CRDS_DIR=${OPERATOR_DIR}/crds
+
+	wget --directory=${CRDS_DIR} https://github.com/jetstack/cert-manager/releases/download/v0.11.0/cert-manager.yaml
+
+	# combine all zookeeper files into a bundle.yaml
+	ZOOKEEPER_VERSION=$(grep /zookeeper-operator: deps.txt | awk -F ':' '{print $2}')
+	wget -O ${BUILD_ROOT}/zookeeper-operator.tar.gz https://github.com/pravega/zookeeper-operator/archive/${ZOOKEEPER_VERSION}.tar.gz
+	mkdir ${BUILD_ROOT}/zookeeper-operator
+	tar -C ${BUILD_ROOT}/zookeeper-operator --strip-components=1 -xf ${BUILD_ROOT}/zookeeper-operator.tar.gz
+	find ${BUILD_ROOT}/zookeeper-operator/deploy/ -type f -exec cat {} + >> ${CRDS_DIR}/zookeeper-operator-bundle.yaml
+
+	# combine all kafka files into a bundle.yaml
+	KAFKA_VERSION=$(grep /kafka-operator: deps.txt | awk -F ':' '{print $2}')
+	wget -O ${BUILD_ROOT}/kafka-operator.tar.gz https://github.com/banzaicloud/kafka-operator/archive/${KAFKA_VERSION}.tar.gz
+	mkdir ${BUILD_ROOT}/kafka-operator
+	tar -C ${BUILD_ROOT}/kafka-operator --strip-components=1 -xf ${BUILD_ROOT}/kafka-operator.tar.gz
+	find ${BUILD_ROOT}/kafka-operator/config/base -type f -exec cat {} + >> ${CRDS_DIR}/kafka-operator-bundle.yaml
 }
 
 function gen_product_txt()
@@ -117,6 +139,7 @@ function build_iso()
 clean
 mkdirs
 copy_yamls
+download_dependency_yamls
 gen_product_txt
 gen_operator_yaml
 for img in ${DEP_IMAGES[@]}; do
