@@ -245,6 +245,8 @@ stages:
         haltOnFailure: true
         workdir: build/solution
         command: ./build.sh
+        env:                                                                                      
+          DOCKER_SOCKET: 'http://localhost:2375'    
     - Upload:
         name: Upload ISO
         source: 'solution/_build'
