@@ -16,7 +16,7 @@ ISO=${BUILD_ROOT}/${PRODUCT_LOWERNAME}-${VERSION_FULL}.iso
 
 DOCKER=docker
 DOCKER_OPTS=
-DOCKER_SOCKET=unix:///var/run/docker.sock
+DOCKER_SOCKET=${DOCKER_SOCKET:-unix:///var/run/docker.sock}
 HARDLINK=hardlink
 OPERATOR_SDK=operator-sdk
 OPERATOR_SDK_OPTS=
