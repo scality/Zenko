@@ -197,12 +197,12 @@ stages:
         name: trigger all the tests
         haltOnFailure: true
         stage_names:
-        # - build-doc
+        - build-doc
         - build-iso
-        # - test-cosmos
-        # - python-tests
-        # - node-tests-01
-        # - node-tests-02
+        - test-cosmos
+        - python-tests
+        - node-tests-01
+        - node-tests-02
 
   build-doc:
     worker:
