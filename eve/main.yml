@@ -17,7 +17,7 @@ models:
       command: eve/scripts/setup-k8s.sh
       haltOnFailure: true
       env:
-        CI_KUBECONFIG: '%(secret:openstack_cluster_conf)s'
+        CI_KUBECONFIG: '%(secret:metalk8s_kubeconfig)s'
         NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
         KUBECONFIG: /root/.kube/config
         CLUSTER_IP: '%(secret:openstack_cluster_ip)s'
@@ -230,6 +230,8 @@ stages:
     worker:
       type: kube_pod
       path: eve/workers/zenko.yaml
+      images:
+        ssh-forward: eve/workers/ssh-forward
     steps:
       - Git: *git_pull
       - ShellCommand:
@@ -241,6 +243,8 @@ stages:
     worker: &kube_cluster
       type: kube_pod
       path: eve/workers/zenko.yaml
+      images:
+        ssh-forward: eve/workers/ssh-forward
       vars:
     steps:
     - Git: *git_pull
@@ -262,6 +266,10 @@ stages:
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
     - ShellCommand: *k8s_cleanup
+    - ShellCommand:
+        name: debug
+        command: sleep 600
+        alwaysRun: true
 
   python-tests: *online-zenko
   node-tests-01: *online-zenko

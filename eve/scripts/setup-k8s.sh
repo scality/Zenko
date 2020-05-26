@@ -4,7 +4,7 @@ set -e
 echo "Replacing existing credentials"
 rm -rf /root/.kube
 mkdir -p /root/.kube
-echo "${CI_KUBECONFIG}" | envsubst > /root/.kube/config
+echo "${CI_KUBECONFIG}" > /root/.kube/config
 
 echo "Setting up k8s namespace"
 kubectl config get-contexts --kubeconfig ${KUBECONFIG}

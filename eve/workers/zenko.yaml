@@ -3,6 +3,10 @@ kind: Pod
 metadata:
   name: "zenko-test-pod"
 spec:
+  hostAliases:
+  - ip: "127.0.0.1"
+    hostnames:
+    - "kubernetes"
   containers:
   - name: aggressor
     image: zenko/zenko-releng:0.0.10
@@ -18,6 +22,21 @@ spec:
     volumeMounts:
     - mountPath: /var/run/docker.sock
       name: docker-socket
+  - name: ssh-forward
+    image: "{{ images['ssh-forward'] }}"
+    resources:
+      requests:
+        cpu: "500m"
+        memory: "500Mi"
+      limits:
+        cpu: "500m"
+        memory: "500Mi"
+    env:
+    - name: SSH_PRIVATE_KEY
+      value: "%(secret:metalk8s_bootstrap_ssh_key)s"
+    - name: SSH_CONFIG
+      value: "%(secret:metalk8s_bootstrap_ssh_config)s"
+    args: ['/bin/sh', '-c', 'ssh -NT bootstrap']
   volumes:
     - name: docker-socket
       hostPath:
