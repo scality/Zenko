@@ -15,7 +15,7 @@ ingress:
   hosts:
     - zenko.local
   max_body_size: 100m
-  annotations:
+  # annotations:
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   tls:
