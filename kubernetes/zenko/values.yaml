@@ -37,7 +37,7 @@ ingress:
   blob_extra_hosts: []
 
   max_body_size: 100m
-  annotations:
+  # annotations:
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   # Enable deployment of cert-manager for automatic certificate issuance
