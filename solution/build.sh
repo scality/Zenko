@@ -53,21 +53,19 @@ function download_dependency_yamls()
 	CRDS_DIR=${OPERATOR_DIR}/crds
 
 	CERT_VERSION=$(grep /cert-manager-controller: deps.txt | awk -F ':' '{print $2}')
-	wget --directory=${CRDS_DIR} https://github.com/jetstack/cert-manager/releases/download/${CERT_VERSION}/cert-manager.yaml
+	wget -O ${CRDS_DIR}/cert_manager_crd.yaml https://github.com/jetstack/cert-manager/releases/download/${CERT_VERSION}/cert_manager_crd.yaml
 
 	# combine all zookeeper files into a bundle.yaml
 	ZOOKEEPER_VERSION=$(grep /zookeeper-operator: deps.txt | awk -F ':' '{print $2}')
+	ZOOKEEPER_CRD_FILE=${CRDS_DIR}/zookeeper_operator_crd.yaml
 	wget -O ${BUILD_ROOT}/zookeeper-operator.tar.gz https://github.com/pravega/zookeeper-operator/archive/v${ZOOKEEPER_VERSION}.tar.gz
 	mkdir ${BUILD_ROOT}/zookeeper-operator
 	tar -C ${BUILD_ROOT}/zookeeper-operator --strip-components=1 -xf ${BUILD_ROOT}/zookeeper-operator.tar.gz
-	find ${BUILD_ROOT}/zookeeper-operator/deploy/ -type f -exec cat {} + >> ${CRDS_DIR}/zookeeper-operator-bundle.yaml
-
-	# combine all kafka files into a bundle.yaml
-	KAFKA_VERSION=$(grep /kafka-operator: deps.txt | awk -F ':' '{print $2}')
-	wget -O ${BUILD_ROOT}/kafka-operator.tar.gz https://github.com/banzaicloud/kafka-operator/archive/${KAFKA_VERSION}.tar.gz
-	mkdir ${BUILD_ROOT}/kafka-operator
-	tar -C ${BUILD_ROOT}/kafka-operator --strip-components=1 -xf ${BUILD_ROOT}/kafka-operator.tar.gz
-	find ${BUILD_ROOT}/kafka-operator/config/base -type f -exec cat {} + >> ${CRDS_DIR}/kafka-operator-bundle.yaml
+	cp ${BUILD_ROOT}/zookeeper-operator/deploy/crds/zookeeper_v1beta1_zookeepercluster_crd.yaml ${ZOOKEEPER_CRD_FILE}
+	echo --- >> ${ZOOKEEPER_CRD_FILE}
+	cat ${BUILD_ROOT}/zookeeper-operator/deploy/all_ns/rbac.yaml >> ${ZOOKEEPER_CRD_FILE}
+	echo --- >> ${ZOOKEEPER_CRD_FILE}
+	cat ${BUILD_ROOT}/zookeeper-operator/deploy/all_ns/operator.yaml >> ${ZOOKEEPER_CRD_FILE}
 }
 
 function gen_product_txt()
@@ -87,6 +85,22 @@ function gen_operator_yaml()
 {
 	# we need to escape / with \/ in our sed command
 	sed "s/REPLACE_IMAGE/zenko-operator:${OPERATOR_TAG}/" operator.yaml > ${ISO_ROOT}/operator/operator.yaml
+}
+
+function gen_operator_config_yaml()
+{
+	CONFIG_PATH=${ISO_ROOT}/operator/operator-config.yaml
+
+	echo apiVersion: solutions.metalk8s.scality.com/v1alpha1 > ${CONFIG_PATH}
+	echo kind: OperatorConfig >> ${CONFIG_PATH}
+	echo repositories: >> ${CONFIG_PATH}
+  	echo "  ${VERSION_FULL}:" >> ${CONFIG_PATH}
+    	echo "    - endpoint: metalk8s-registry/${PRODUCT_LOWERNAME}-${VERSION_FULL}" >> ${CONFIG_PATH}
+      	echo "    images:" >> ${CONFIG_PATH}
+	for dep in ${DEP_IMAGES[@]}; do
+		SHORT_DEP=${dep##*/}
+        	echo "      - ${SHORT_DEP}" >> ${CONFIG_PATH}
+	done
 }
 
 function copy_image()
@@ -144,9 +158,10 @@ function build_iso()
 clean
 mkdirs
 copy_yamls
-# download_dependency_yamls
+download_dependency_yamls
 gen_product_txt
 gen_operator_yaml
+gen_operator_config_yaml
 for img in ${DEP_IMAGES[@]}; do
 	${DOCKER} ${DOCKER_OPTS} pull ${img}
 	copy_image ${img}
