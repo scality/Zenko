@@ -115,7 +115,12 @@ build-latest: | build-latest-backbeat build-latest-cloudserver
 
 install-tiller:
 ifndef NO_INSTALL
-	$(V)$(HELM) init --tiller-namespace $(HELM_NAMESPACE) --wait
+	$(V)$(HELM) init --tiller-namespace $(HELM_NAMESPACE) --service-account tiller \
+	--override spec.selector.matchLabels.'name'='tiller',spec.selector.matchLabels.'app'='helm' --output yaml \
+	| sed 's@apiVersion: extensions/v1beta1@apiVersion: apps/v1@' \
+	| kubectl apply -f -
+	$(V)$(HELM) init --client-only
+
 endif
 .PHONY: install-tiller
 
