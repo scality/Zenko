@@ -40,9 +40,32 @@ function mkdirs()
 	mkdir -p ${ISO_ROOT}
 }
 
+function gen_manifest_yaml()
+{
+	cat > ${ISO_ROOT}/manifest.yaml <<EOF
+apiVersion: solutions.metalk8s.scality.com/v1alpha1
+kind: SolutionConfig
+metadata:
+  annotations:
+    solutions.metalk8s.scality.com/display-name: ${PRODUCT_NAME}
+    solutions.metalk8s.scality.com/git: ${GIT_REVISION}
+    solutions.metalk8s.scality.com/development-release: true
+    solutions.metalk8s.scality.com/build-timestamp: ${BUILD_TIMESTAMP}
+    solutions.metalk8s.scality.com/build-host: ${BUILD_HOST}
+  name: ${PRODUCT_LOWERNAME}
+spec:
+  version: ${VERSION_FULL}
+  images:
+    - zenko-operator:${OPERATOR_TAG}
+  operator:
+    image:
+      name: zenko-operator
+      tag: ${OPERATOR_TAG}
+EOF
+}
+
 function copy_yamls()
 {
-	sed "s/ZENKO_OPERATOR_TAG/${OPERATOR_TAG}/" config.yaml > ${ISO_ROOT}/config.yaml
 	cp -R -f operator/ ${ISO_ROOT}/operator
 	sed "s/VERSION_FULL/${VERSION_FULL}/" zenko-version-cr.yaml > ${ISO_ROOT}/operator/zenko-version-cr.yaml
 }
@@ -53,7 +76,7 @@ function download_dependency_yamls()
 	CRDS_DIR=${OPERATOR_DIR}/crds
 
 	CERT_VERSION=$(grep /cert-manager-controller: deps.txt | awk -F ':' '{print $2}')
-	wget -O ${CRDS_DIR}/cert_manager_crd.yaml https://github.com/jetstack/cert-manager/releases/download/${CERT_VERSION}/cert_manager_crd.yaml
+	wget -O ${CRDS_DIR}/cert_manager_crd.yaml https://github.com/jetstack/cert-manager/releases/download/${CERT_VERSION}/cert-manager.yaml
 
 	# combine all zookeeper files into a bundle.yaml
 	ZOOKEEPER_VERSION=$(grep /zookeeper-operator: deps.txt | awk -F ':' '{print $2}')
@@ -68,18 +91,6 @@ function download_dependency_yamls()
 	cat ${BUILD_ROOT}/zookeeper-operator/deploy/all_ns/operator.yaml >> ${ZOOKEEPER_CRD_FILE}
 }
 
-function gen_product_txt()
-{
-	cat > ${ISO_ROOT}/product.txt <<EOF
-NAME=${PRODUCT_NAME}
-VERSION=${VERSION_FULL}
-SHORT_VERSION=${VERSION_SHORT}
-GIT=${GIT_REVISION}
-DEVELOPMENT_RELEASE=1
-BUILD_TIMESTAMP=${BUILD_TIMESTAMP}
-BUILD_HOST=${BUILD_HOST}
-EOF
-}
 
 function gen_operator_yaml()
 {
@@ -157,9 +168,9 @@ function build_iso()
 # run everything in order
 clean
 mkdirs
+gen_manifest_yaml
 copy_yamls
 download_dependency_yamls
-gen_product_txt
 gen_operator_yaml
 gen_operator_config_yaml
 for img in ${DEP_IMAGES[@]}; do
