@@ -44,7 +44,7 @@ function gen_manifest_yaml()
 {
 	cat > ${ISO_ROOT}/manifest.yaml <<EOF
 apiVersion: solutions.metalk8s.scality.com/v1alpha1
-kind: SolutionConfig
+kind: Solution
 metadata:
   annotations:
     solutions.metalk8s.scality.com/display-name: ${PRODUCT_NAME}
@@ -73,9 +73,9 @@ function copy_yamls()
 function download_dependency_yamls()
 {
 	OPERATOR_DIR=${ISO_ROOT}/operator
-	CRDS_DIR=${OPERATOR_DIR}/crds
+	CRDS_DIR=${OPERATOR_DIR}/deploy/crds
 
-	CERT_VERSION=$(grep /cert-manager-controller: deps.txt | awk -F ':' '{print $2}')
+	CERT_VERSION=$(grep -oP '/cert-manager-controller:\K.+$' deps.txt)
 	wget -O ${CRDS_DIR}/cert_manager_crd.yaml https://github.com/jetstack/cert-manager/releases/download/${CERT_VERSION}/cert-manager.yaml
 
 	# combine all zookeeper files into a bundle.yaml
@@ -107,10 +107,10 @@ function gen_operator_config_yaml()
 	echo repositories: >> ${CONFIG_PATH}
   	echo "  ${VERSION_FULL}:" >> ${CONFIG_PATH}
     	echo "    - endpoint: metalk8s-registry/${PRODUCT_LOWERNAME}-${VERSION_FULL}" >> ${CONFIG_PATH}
-      	echo "    images:" >> ${CONFIG_PATH}
+      	echo "      images:" >> ${CONFIG_PATH}
 	for dep in ${DEP_IMAGES[@]}; do
 		SHORT_DEP=${dep##*/}
-        	echo "      - ${SHORT_DEP}" >> ${CONFIG_PATH}
+        	echo "        - ${SHORT_DEP}" >> ${CONFIG_PATH}
 	done
 }
 
@@ -173,7 +173,7 @@ copy_yamls
 download_dependency_yamls
 gen_operator_yaml
 gen_operator_config_yaml
-for img in ${DEP_IMAGES[@]}; do
+for img in "${DEP_IMAGES[@]}"; do
 	${DOCKER} ${DOCKER_OPTS} pull ${img}
 	copy_image ${img}
 done
