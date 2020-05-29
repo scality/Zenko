@@ -1,5 +1,0 @@
----
-- version: v1alpha1
-  group: zenko.io
-  kind: Cosmos
-  chart: /opt/helm/cosmos
