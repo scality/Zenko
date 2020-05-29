@@ -131,7 +131,7 @@ The response for this operation includes the following headers. The response may
 also include additional standard HTTP headers. All standard headers conform to
 the HTTP/1.1 protocol specification.
 
-.. tabularcolumns:: X{0.35\textwidth}X{0.60\textwidth}
+.. tabularcolumns:: X{0.40\textwidth}X{0.55\textwidth}
 .. table::
 
    +--------------------------------------+---------------------------------------------+
