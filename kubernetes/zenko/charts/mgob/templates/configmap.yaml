@@ -1,8 +1,0 @@
-kind: ConfigMap
-apiVersion: v1
-metadata:
-  labels:
-{{ include "mgob.role" . | indent 2 }}
-  name: {{ template "mgob.fullname" . }}-configmap
-data:
-{{ include "mgob.configMap-rendered" . | indent 2 }}
