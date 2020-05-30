@@ -1,5 +1,5 @@
 author = 'Scality Technical Publications'
-copyright = '2019, Scality, Inc'
+copyright = '2020, Scality, Inc'
 
 # The short X.Y version
 version = '1.2.0'

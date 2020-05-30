@@ -1,4 +1,4 @@
-.. _`Monitoring_NFS-SOFS_Ingestion`:
+.. _`monitoring_nfs_sofs_ingestion`:
 
 Monitoring NFS/SOFS Ingestion
 =============================

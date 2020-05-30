@@ -26,11 +26,12 @@ and ``example.com`` with the domain name or IP address of your endpoint:
 .. tabularcolumns:: lll
 .. table::
 
-   +--------+------------------------------------------------------------------------------+--------------+
-   | Method | Request URI                                                                  | HTTP Version |
-   +========+==============================================================================+==============+
-   | PUT    | ``https://<account-name>.blob.example.com/?restype=service&comp=properties`` | HTTP/1.1     |
-   +--------+------------------------------------------------------------------------------+--------------+
+   +--------+----------------------------------------------+--------------+
+   | Method | Request URI                                  | HTTP Version |
+   +========+==============================================+==============+
+   | PUT    | ``https://<account-name>.blob.example.com/?\ | HTTP/1.1     |
+   |        | restype=service&comp=properties``            |              |
+   +--------+----------------------------------------------+--------------+
 
 The URI must include the forward slash (/) to separate the host name from the
 path and query portions of the URI. For this operation, the path portion of the
@@ -153,7 +154,7 @@ contents.js file. Doing so will introduce unpredictable Blobserver behavior.
 
 The following table describes the elements of the request body:
 
-.. tabularcolumns:: ll
+.. tabularcolumns:: X{0.30\textwidth}X{0.65\textwidth}
 .. table::
    :class: longtable
 

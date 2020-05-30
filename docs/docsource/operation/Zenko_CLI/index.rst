@@ -10,16 +10,13 @@ internal Backbeat server's APIs is through CloudServer API calls.
 Enabling command-line interactions enables programmatic access to the following
 features:
 
-  .. toctree::
-   :maxdepth: 1
+*  :ref:`crr_metrics_health`
+*  :ref:`crr_retry`
+*  :ref:`crr_pause_resume`
+*  :ref:`object_lifecycle`
+*  :ref:`monitoring_nfs_sofs_ingestion`
+*  :ref:`managing_bucket_policies`
 
-   CRR_Metrics_and_Health
-   CRR_Retry
-   CRR_Pause-Resume
-   Object_Lifecycle_Management
-   Monitoring_NFS-SOFS_Ingestion
-   managing_bucket_policies
-   
 To access Zenko from the command line, you must first set up access to 
 the desired APIs.
 
@@ -320,7 +317,16 @@ Helper Script
       $ node test-request.js
 
 
-.. _`CRR Metrics and Healthcheck`: CRR_Metrics_and_Health.html
+  .. toctree::
+   :hidden:
+   :maxdepth: 1
 
+   CRR_Metrics_and_Health
+   CRR_Retry
+   CRR_Pause-Resume
+   Object_Lifecycle_Management
+   Monitoring_NFS-SOFS_Ingestion
+   managing_bucket_policies
+   
 .. _`AWS documentation`: https://docs.aws.amazon.com/AmazonS3/latest/dev/RESTAuthentication.html#RESTAuthenticationRequestCanonicalization
 

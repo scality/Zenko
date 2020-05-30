@@ -1,4 +1,4 @@
-.. _`crr_metrics-health`:
+.. _`crr_metrics_health`:
 
 CRR Metrics and Healthcheck
 ===========================
