@@ -65,7 +65,7 @@ EOF
 function copy_yamls()
 {
 	cp -R -f operator/ ${ISO_ROOT}/operator
-	sed "s/VERSION_FULL/${VERSION_FULL}/" zenko-version-cr.yaml > ${ISO_ROOT}/operator/zenko-version-cr.yaml
+	# sed "s/VERSION_FULL/${VERSION_FULL}/" zenko-version-cr.yaml > ${ISO_ROOT}/operator/zenko-version-cr.yaml
 }
 
 # function download_dependency_yamls()
