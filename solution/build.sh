@@ -91,10 +91,10 @@ function copy_yamls()
 # }
 
 
-function gen_operator_yaml()
-{
-	sed "s/REPLACE_IMAGE/zenko-operator:${OPERATOR_TAG}/" operator.yaml > ${ISO_ROOT}/operator/operator.yaml
-}
+# function gen_operator_yaml()
+# {
+	# sed "s/REPLACE_IMAGE/zenko-operator:${OPERATOR_TAG}/" operator.yaml > ${ISO_ROOT}/operator/operator.yaml
+# }
 
 # function gen_operator_config_yaml()
 # {
@@ -168,7 +168,7 @@ mkdirs
 gen_manifest_yaml
 copy_yamls
 # download_dependency_yamls
-gen_operator_yaml
+# gen_operator_yaml
 # gen_operator_config_yaml
 for img in "${DEP_IMAGES[@]}"; do
 	${DOCKER} ${DOCKER_OPTS} pull ${img}
