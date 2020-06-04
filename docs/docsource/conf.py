@@ -90,7 +90,7 @@ language = None
 
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
-if tags.has('html'):
+if tags.has('html') or READTHEDOCS:
    master_doc = 'index'
    exclude_patterns.extend(['index_pdf.rst', '*/index_pdf.rst'])
 else:
