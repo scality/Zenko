@@ -136,9 +136,8 @@ function build_registry_config()
 		--mount type=bind,source=${ISO_ROOT},destination=/var/run \
 	 	--rm \
     		docker.io/nicolast/static-container-registry:latest \
-		python3 /static-container-registry.py --omit-constants /var/lib/images
-	CONFIG_FILE=${ISO_ROOT}/static-container-registry.conf
-	mv ${CONFIG_FILE} ${ISO_ROOT}/registry-config.inc.j2
+		python3 static-container-registry.py --omit-constants /var/lib/images > ${ISO_ROOT}/registry-config.inc.j2
+	rm ${ISO_ROOT}/static-container-registry.conf
 }
 
 function build_iso()
