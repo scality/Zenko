@@ -1,3 +1,5 @@
+.. _`Using Orbit`:
+
 Using Orbit
 ===========
 

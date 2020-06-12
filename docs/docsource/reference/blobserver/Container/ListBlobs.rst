@@ -105,7 +105,7 @@ The following additional parameters may be specified on the URI.
    |                                   | To specify more than one of these     |
    |                                   | options on the URI, you must          |
    |                                   | separate each option with a           |
-   |                                   | URL-encoded comma ("%82").            |
+   |                                   | URL-encoded comma (``%82``).          |
    +-----------------------------------+---------------------------------------+
    | ``timeout``                       | Optional. The ``timeout``             |
    |                                   | parameter is expressed in             |

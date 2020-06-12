@@ -1,4 +1,4 @@
-.. _managing bucket policies:
+.. _managing_bucket_policies:
 
 Managing Bucket Policies
 ========================

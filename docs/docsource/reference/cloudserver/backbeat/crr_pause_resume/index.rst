@@ -1,4 +1,4 @@
-.. `crr_pause-resume`_:
+.. _`crr_pause-resume`:
 
 CRR Pause and Resume
 ====================
@@ -13,17 +13,14 @@ wants to schedule a time to resume CRR.
 
 Backbeat's CRR Pause and Resume feature comprises the following API calls
 
-.. toctree::
-   :maxdepth: 1
-
-   get_crr_status
-   get_crr_status_per_location
-   pause_crr_per_location
-   pause_all_crr
-   resume_crr_per_location
-   resume_all_crr
-   set_crr_resume_time
-   get_crr_resume_time
+* :ref:`Get CRR Status`
+* :ref:`Get CRR Status for a Location`
+* :ref:`Pause CRR for a location`
+* :ref:`Pause All CRR`
+* :ref:`Resume CRR for a Location`
+* :ref:`Resume All CRR`
+* :ref:`Set CRR Resume Time`
+* :ref:`Get CRR Resume Time`
 
 Design
 ------
@@ -56,3 +53,15 @@ subscribed to the CRR topic, so it no longer tries to consume any entries.
 When the paused consumer is resumed, it again resumes consuming entries
 from its last offset.
 
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+      
+   get_crr_status
+   get_crr_status_per_location
+   pause_crr_per_location
+   pause_all_crr
+   resume_crr_per_location
+   resume_all_crr
+   set_crr_resume_time
+   get_crr_resume_time

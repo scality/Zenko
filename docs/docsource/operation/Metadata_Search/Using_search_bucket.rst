@@ -1,3 +1,5 @@
+.. _`Using search_bucket`:
+
 Using search\_bucket
 ====================
 
