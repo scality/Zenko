@@ -1,0 +1,8 @@
+registry.scality.com/sf-eng/blobserver:1.0.8
+registry.scality.com/sf-eng/jabba:940d
+registry.scality.com/sf-eng/zenko-operator:10794ca
+registry.scality.com/zenko-dev/cloudserver:latest-8.1.2
+registry.scality.com/zenko-dev/backbeat:161b9c1
+registry.scality.com/zenko-dev/cloudserver:4332d0a
+zenko/cloudserver:8.1.15
+zenko/s3utils:1.2
