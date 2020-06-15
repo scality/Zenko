@@ -13,6 +13,17 @@ models:
       method: clobber
       retryFetch: true
       haltOnFailure: true
+  - ShellCommand: &private_registry_login
+      name: Private Registry Login
+      command: >
+        docker login
+        -u '%(secret:private_registry_username)s'
+        -p '%(secret:private_registry_password)s'
+        '%(secret:private_registry_url)s' &&
+        docker login
+        -u '%(secret:scality_oci_rw_user)s'
+        -p '%(secret:scality_oci_rw_password)s'
+        registry.scality.com
 
 stages:
   pre-merge:
@@ -46,7 +57,6 @@ stages:
           tox --workdir /tmp/tox -e docs -- latexpdf BUILDDIR="%(prop:builddir)s/build/artifacts"
           tox --workdir /tmp/tox -e docs -- latexpdf BUILDDIR="%(prop:builddir)s/build/artifacts"
         workdir: build/docs
-
     - Upload:
         name: Upload documentation
         source: 'artifacts'
