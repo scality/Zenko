@@ -2,13 +2,13 @@
 set -e
 
 echo "Replacing existing credentials"
-rm -rf /root/.kube
-mkdir -p /root/.kube
-echo "${CI_KUBECONFIG}" | envsubst > /root/.kube/config
+# rm -rf /root/.kube
+# mkdir -p /root/.kube
+# echo "${CI_KUBECONFIG}" | envsubst > /root/.kube/config
 
 echo "Setting up k8s namespace"
-kubectl config get-contexts --kubeconfig ${KUBECONFIG}
-kubectl config use-context kubernetes-admin@kubernetes || exit 1
+# kubectl config get-contexts --kubeconfig ${KUBECONFIG}
+# kubectl config use-context kubernetes-admin@kubernetes || exit 1
 kubectl get ns
 kubectl create namespace "${NAMESPACE}"
 kubectl create rolebinding view-configmap \

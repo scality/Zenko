@@ -239,12 +239,21 @@ stages:
 
   online-zenko: &online-zenko
     worker: &kube_cluster
-      type: kube_pod
-      path: eve/workers/zenko.yaml
-      vars:
+      type: openstack
+      flavor: m3.2xlarge
+      image: bionic-server-cloudimg-amd64_20181011.qcow2
+      path: eve/workers/kind
     steps:
     - Git: *git_pull
     - ShellCommand: *private_registry_login
+    - ShellCommand:
+        name: create kind cluster
+        command: kind create cluster --config kind.yaml
+        workdir: build/eve/workers/kind
+    - ShellCommand:
+        name: Create cluster wide manifests
+        command: kubectl apply -f manifests
+        workdir: build/eve/workers/kind
     - ShellCommand: *k8s_setup
     - ShellCommand: *start-mocks
     - ShellCommand:
@@ -261,6 +270,10 @@ stages:
           INSTALL_TIMEOUT: "720"
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
+    - ShellCommand:
+        name: Sleep and debug
+        command: sleep 3600
+        alwaysRun: true
     - ShellCommand: *k8s_cleanup
 
   python-tests: *online-zenko
