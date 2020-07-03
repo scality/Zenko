@@ -19,14 +19,14 @@ destination bucket, further metrics are gathered to record its completion.
 
 Backbeat offers routes for the following services:
 
-   * :version-ref:`Get All Metrics <https://documentation.scality.com/Zenko/{version}/reference/bucket_ingestion_metrics/get_all_metrics.html>`
-   * :version-ref:`Get Backlog <https://documentation.scality.com/Zenko/{version}/reference/bucket_ingestion_metrics/get_backlog.html>`
-   * :version-ref:`Get Completions <https://documentation.scality.com/Zenko/{version}/reference/bucket_ingestion_metrics/get_completions.html>`
-   * :version-ref:`Get Failures <https://documentation.scality.com/Zenko/{version}/reference/bucket_ingestion_metrics/get_failures.html>`
-   * :version-ref:`Get Pending <https://documentation.scality.com/Zenko/{version}/reference/bucket_ingestion_metrics/get_pending.html>`
-   * :version-ref:`Get Throughput: Ops/Sec <https://documentation.scality.com/Zenko/{version}/reference/bucket_ingestion_metrics/get_throughput_ops-sec.html>`
-   * :version-ref:`Get Throughput: Bytes/Sec <https://documentation.scality.com/Zenko/{version}/reference/bucket_ingestion_metrics/get_throughput_bytes-sec.html>`
-   * :version-ref:`Get Progress <https://documentation.scality.com/Zenko/{version}/reference/bucket_ingestion_metrics/get_progress.html>`
+   * :version-ref:`Get All Metrics <https://documentation.scality.com/Zenko/{version}/reference/cloudserver/bucket_operations/bucket_ingestion_metrics/get_all_metrics.html>`
+   * :version-ref:`Get Backlog <https://documentation.scality.com/Zenko/{version}/reference/cloudserver/backbeat/metrics/get_backlog.html>`
+   * :version-ref:`Get Completions <https://documentation.scality.com/Zenko/{version}/reference/cloudserver/backbeat/metrics/get_completions.html>`
+   * :version-ref:`Get Failures <https://documentation.scality.com/Zenko/{version}/reference/cloudserver/backbeat/metrics/get_failures.html>`
+   * :version-ref:`Get Pending <https://documentation.scality.com/Zenko/{version}/reference/cloudserver/backbeat/metrics/get_pending.html>`
+   * :version-ref:`Get Throughput: Ops/Sec <https://documentation.scality.com/Zenko/{version}/reference/cloudserver/backbeat/metrics/get_throughput_ops-sec.html>`
+   * :version-ref:`Get Throughput: Bytes/Sec <https://documentation.scality.com/Zenko/{version}/reference/cloudserver/backbeat/metrics/get_throughput_bytes-sec.html>`
+   * :version-ref:`Get Progress <https://documentation.scality.com/Zenko/{version}/reference/cloudserver/backbeat/metrics/get_progress.html>`
 
 Backbeat also offers a healthcheck service that enables replication
 component monitoring.
