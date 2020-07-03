@@ -119,7 +119,7 @@ Backbeat offers routes for the following services:
    get_backlog
    get_completions
    get_failures
-   get_througput_ops-sec
-   get_througput_bytes-sec
+   get_throughput_ops-sec
+   get_throughput_bytes-sec
    get_progress
 
