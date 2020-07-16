@@ -49,6 +49,11 @@ stages:
         stage_names:
         - build-doc
         - build-iso
+    - TriggerStages:
+        name: Launch end2end tests
+        haltOnFailure: true
+        stage_names:
+        - end2end
 
   build-doc:
     worker:
@@ -98,3 +103,22 @@ stages:
         source: 'solution/_build'
         urls:
           - "*.iso"
+
+  end2end:
+    worker:
+      type: kube_pod
+      path: eve/workers/end2end.yaml
+      images:
+        worker: eve/workers/end2end
+    steps:
+    - Git: *git_pull
+    - ShellCommand: *wait_docker_daemon
+    - ShellCommand:
+        name: Bootstrap kind cluster
+        command: kind create cluster --config=kind-config.yaml
+        workdir: build/eve/workers/end2end
+    - ShellCommand:
+        name: Ensure cluster is up and running
+        command: |
+          kubectl get nodes
+          kubectl get pods --all-namespaces

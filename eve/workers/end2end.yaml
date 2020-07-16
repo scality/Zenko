@@ -1,0 +1,71 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "zenko-operator-worker-smoke"
+spec:
+  automountServiceAccountToken: false
+  containers:
+  - name: worker
+    image: "{{ images.worker }}"
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        cpu: 500m
+        memory: 1Gi
+    securityContext:
+      privileged: true
+    env:
+    - name: DOCKER_HOST
+      value: localhost
+    volumeMounts:
+    - name: docker-socket
+      mountPath: /var/run/
+    - name: workspace
+      mountPath: /home/eve/workspace
+    - name: artifacts
+      mountPath: /artifacts
+  - name: dind-daemon
+    image: docker:18.09.2-dind
+    resources:
+      requests:
+        cpu: "3"
+        memory: 10Gi
+      limits:
+        cpu: "3"
+        memory: 10Gi
+    securityContext:
+      privileged: true
+    volumeMounts:
+    - name: docker-socket
+      mountPath: /var/run/
+    - name: docker-storage
+      mountPath: /var/lib/docker
+    - name: workspace
+      mountPath: /home/eve/workspace
+    - name: modules
+      mountPath: /lib/modules
+      readOnly: true
+    - name: cgroup
+      mountPath: '/sys/fs/cgroup:ro'
+    - name: artifacts
+      mountPath: /artifacts
+  volumes:
+  - name: docker-socket
+    emptyDir: {}
+  - name: artifacts
+    emptyDir: {}
+  - name: workspace
+    emptyDir: {}
+  - name: docker-storage
+    emptyDir: {}
+  - name: modules
+    hostPath:
+      path: /lib/modules
+      type: Directory
+  - name: cgroup
+    hostPath:
+      path: /sys/fs/cgroup
+      type: Directory
