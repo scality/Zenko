@@ -24,6 +24,18 @@ models:
         -u '%(secret:scality_oci_rw_user)s'
         -p '%(secret:scality_oci_rw_password)s'
         registry.scality.com
+  - ShellCommand: &wait_docker_daemon
+      name: Wait for Docker daemon to be ready
+      command: |
+        bash -c '
+        for i in {1..150}
+        do
+          docker info &> /dev/null && exit
+          sleep 2
+        done
+        echo "Could not reach Docker daemon from buildbot worker" >&2
+        exit 1'
+      haltOnFailure: true
 
 stages:
   pre-merge:
@@ -72,6 +84,7 @@ stages:
         build-iso: eve/workers/build-iso
     steps:
     - Git: *git_pull
+    - ShellCommand: *wait_docker_daemon
     - ShellCommand: *private_registry_login
     - ShellCommand:
         name: 'Build ISO'
