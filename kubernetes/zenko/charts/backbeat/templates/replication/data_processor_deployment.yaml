@@ -148,6 +148,9 @@ spec:
               value: "{{ .Values.replication.dataProcessor.retry.gcp.backoff.jitter }}"
             - name: EXTENSIONS_REPLICATION_QUEUE_PROCESSOR_GCP_RETRY_BACKOFF_FACTOR
               value: "{{ .Values.replication.dataProcessor.retry.gcp.backoff.factor }}"
+              # Other backbeat config
+            - name: EXTENSIONS_REPLICATION_QUEUE_PROCESSOR_CONCURRENCY
+              value: "{{ .Values.replication.dataProcessor.concurrency }}"
           livenessProbe:
             httpGet:
               path: {{ .Values.health.path.liveness}}
