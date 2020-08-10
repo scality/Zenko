@@ -133,6 +133,7 @@ replication:
   dataProcessor:
     replicaCount: 1
     replicaFactor: 1
+    concurrency: 10
 
     resources: {}
     nodeSelector: {}
@@ -174,6 +175,7 @@ replication:
 
   statusProcessor:
     replicaCount: 1
+    concurrency: 10
 
     resources: {}
     nodeSelector: {}

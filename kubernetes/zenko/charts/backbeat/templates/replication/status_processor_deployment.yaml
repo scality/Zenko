@@ -60,6 +60,8 @@ spec:
             - name: EXTENSIONS_REPLICATION_SOURCE_AUTH_ACCOUNT
               value: Replication
             {{- end }}
+            - name: EXTENSIONS_REPLICATION_STATUS_PROCESSOR_CONCURRENCY
+              value: "{{ .Values.replication.statusProcessor.concurrency }}"
             - name: REDIS_SENTINELS
               value: "{{ template "backbeat.redis-hosts" . }}"
             - name: REDIS_HA_NAME
