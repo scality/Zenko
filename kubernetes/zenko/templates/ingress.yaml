@@ -64,7 +64,7 @@ spec:
 {{- if or .Values.ingress.tls .Values.ingress.auto_certificates }}
   tls:
 {{- if .Values.ingress.tls }}
-    {{ toYaml .Values.ingress.tls | indent 4 }}
+{{ toYaml .Values.ingress.tls | indent 4 }}
 {{- end -}}
 {{- if .Values.ingress.auto_certificates }}
     - hosts:
