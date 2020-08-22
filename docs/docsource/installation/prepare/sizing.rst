@@ -1,8 +1,7 @@
 .. _sizing:
 
-========
- Sizing
-========
+Sizing
+======
 
 The following sizes for Zenko instances have been tested on live systems using
 MetalK8s, which adds some overhead. If you are running a different Kubernetes
@@ -41,6 +40,19 @@ Reserve at least the following resources for each node.
 
 All servers must run CentOS 7.7 or later, with kernel version 3.10.0-1062.4.1 or
 later, and must be SSH-accessible.
+
+Partitioning
+------------
+
+.. table::
+
+   +---------------+-----------------+
+   | /var/lib/etcd | 5 GB on an SSD  |
+   +---------------+-----------------+
+   | /var          | 100 GB for logs |
+   +---------------+-----------------+
+   | /             | 40 GB           |
+   +---------------+-----------------+
 
 Custom Sizing
 =============
