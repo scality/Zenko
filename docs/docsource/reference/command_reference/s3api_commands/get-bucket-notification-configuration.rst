@@ -1,0 +1,125 @@
+.. _get-bucket-notification-configuration:
+
+get-bucket-notification-configuration
+=====================================
+
+Returns the notification configuration of a bucket.
+
+See also: :ref:`GET Bucket Notification Configuration`
+
+Synopsis
+--------
+
+.. code::
+
+   get-bucket-notification-configuration
+     --bucket <value>
+     [--cli-input-json <value>]
+
+Options
+-------
+
+``--bucket`` (string)
+
+  Name of the bucket to get the notification configuration for.
+
+``--cli-input-json`` (string)
+
+  Performs service operation based on the JSON string provided. If other
+  arguments are provided on the command line, the CLI values override the
+  JSON-provided values. It is not possible to pass arbitrary binary values using
+  a JSON-provided value as the string will be taken literally.
+
+Examples
+--------
+
+The following command retrieves the notification configuration for a bucket
+named ``my-bucket``:
+
+.. code::
+
+   aws s3api get-bucket-notification-configuration --bucket my-bucket
+
+Output
+
+.. code::
+
+   {
+     "QueueConfiguration": [
+       {
+         "Id": "YmQzMmEwM2EjZWVlI0NGItNzVtZjI1MC00ZjgyLWZDBiZWNl",
+         "QueueArn": "arn:scality:bucketnotif:::destinationResourceName",
+         "Events": [
+           "s3:ObjectCreated:*"
+         ]
+       }
+     ]
+   }
+
+Output
+------
+
+QueueConfigurations -> (list)
+
+  The queues to publish messages to and the events for which to publish
+  messages.
+
+  (structure)
+
+    Specifies the configuration for publishing messages to a Kafka queue w`hen
+    S3 Connector detects specified events.
+
+    Id -> (string)
+
+      An optional unique identifier for configurations in a notification
+      configuration. If you don't provide one, Amazon S3 will assign an ID.
+
+    QueueArn -> (string)
+
+      The Amazon Resource Name (ARN) of the Kafka queue to which S3 Connector
+      publishes a message when it detects an event of the specified type.
+
+      .. tip::
+          
+	 S3 Connector returns QueueARN in conformity with AWS-standard
+	 ``arn:partition:service:region:account-id:resource`` format, where:
+
+         ``partition`` is hardcoded as ``scality``.
+	 ``service`` is harcoded as ``bucketnotif``.
+	 ``region`` is ignored.
+         ``account-id`` is ignored.
+	 ``resource`` is the name of the destination defined in env/client-template/group_vars/all.
+
+	 Retaining AWS formatting but omitting the region and account-id fields
+	 produces a returned queueARN resembling:
+
+	 ::
+	    
+	    arn:scality:bucketnotif:::destinationResourceName
+
+    Events -> (list)
+
+      (string)
+
+        The bucket event to trigger a notification.
+
+    Filter -> (structure)
+
+      Key -> (structure)
+
+      FilterRules -> (list)
+
+        (structure)
+
+        Specifies the S3 object key name to filter on and whether to
+        filter on the suffix or prefix of the key name.
+
+        Name -> (string)
+
+        The object key name prefix or suffix identifying one or more objects to
+        which the filtering rule applies. The maximum length is 1,024
+        characters. Overlapping prefixes and suffixes are not supported.
+
+        Value -> (string)
+
+        The value that the filter searches for in object key names.
