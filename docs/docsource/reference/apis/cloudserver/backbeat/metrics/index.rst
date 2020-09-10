@@ -10,6 +10,8 @@ For basic metrics, Backbeat gathers, processes, and exposes six data points:
 -  Number of completed bytes (bytesdone)
 -  Number of failed bytes (bytesfail)
 
+Backbeat exposes various metric routes that return a response with an HTTP code.
+   
 Common Metrics API Syntax
 -------------------------
 
@@ -59,7 +61,7 @@ entry, Redis keys are generated with the following schema:
 
 Site-level CRR metrics Redis key:
 
-.. code::
+OB.. code::
 
   <site-name>:<default-metrics-key>:<ops-or-bytes>:<normalized-timestamp>
 
@@ -122,4 +124,5 @@ Backbeat offers routes for the following services:
    get_throughput_ops-sec
    get_throughput_bytes-sec
    get_progress
+
 

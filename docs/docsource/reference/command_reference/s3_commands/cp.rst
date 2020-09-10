@@ -128,7 +128,7 @@ provide this value, ``--sse-c-copy-source-key`` must be specified as well.
 
 This parameter should only be specified when copying an S3 object that was
 encrypted server-side with a customer-provided key. Specifies the
-customer-provided encryption key for S3 Connector to use to decrypt the source
+customer-provided encryption key for Zenko to use to decrypt the source
 object. The encryption key provided must be one that was used when the source
 object was created. If you provide this value, ``--sse-c-copy-source`` be
 specified as well. The key provided should *not* be base64 encoded.
@@ -174,13 +174,13 @@ Defaults to ``STANDARD``.
     
     * ``id`` - The account's canonical ID
     
-  For more information on S3 Connector access control, see `Access Control
+  For more information on Zenko access control, see `Access Control
   <http://docs.aws.amazon.com/AmazonS3/latest/dev/UsingAuthAccess.html>`__
 
 ``--website-redirect`` (string)
 
 If the bucket is configured as a website, redirects requests for this object to
-another object in the same bucket or to an external URL. S3 Connector stores the
+another object in the same bucket or to an external URL. Zenko stores the
 value of this header in the object metadata.
 
 ``--content-type`` (string)

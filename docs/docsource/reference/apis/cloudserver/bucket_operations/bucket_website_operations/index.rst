@@ -8,7 +8,7 @@ hosting and then upload the website content to the bucket.
 
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    bucket_website_specification
    put_bucket_website

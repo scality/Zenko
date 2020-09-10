@@ -1,9 +1,9 @@
 Introduction
 ============
 
-Zenko is Scality's multi-cloud controller. It provides an open-source, open-\
-platform gateway to enable replication, management, and general ease of use to
-storage managers handling extreme data volumes over multiple clouds.
+Zenko, Scality's multi-cloud controller, provides an open-source,
+platform-agnostic gateway to enable replication, management, and general ease of
+use to storage managers handling extreme data volumes over multiple clouds.
 Zenko provides a single integration point from which cloud data can be managed
 in several protocol spaces. Zenko either builds a namespace for cloud object
 data stores, or ingests the namespace of supported cloud data stores to perform
@@ -31,7 +31,25 @@ furnished here for addressing :ref:`Prometheus` and :ref:`Backbeat`. Prometheus
 API access is direct. The Backbeat API is accessed through CloudServer API
 calls.
 
-.. toctree::
-   :maxdepth: 1
+Zenko provides application programming interfaces via CloudServer, Vault Admin,
+UTAPI, Prometheus, and the metadata engine. 
 
+Command Zenko by calling its REST API, using:
+
+ * The AWS and Azure SDKs for your favorite programming language
+ * aws-cli or azcli commands
+ * Zenko-UI
+ * A GUI-based client (such as CyberDuck)
+ * Direct REST API calls (constucting calls in cURL, for example)
+
+This reference describes available commands and APIs.
+
+.. toctree::
+   :maxdepth: 2
+
+   supported_apis
+   supported_keys_and_operators_in_iam_policies
+   feature_compatibility_matrix
+   actions_supported_in_iam_policies
+   supported_keys_and_operators_in_iam_policies
    bucket_encryption

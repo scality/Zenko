@@ -6,7 +6,7 @@ Accessing the vaultclient API
 If you need access to a command not available in the Supervisor, you can make
 changes to the Vault with direct shell commands in the scality-s3 Docker
 container. To open a bash session in the scality-s3 Docker container, ssh into
-the S3 Connector host and enter the following command:
+the Zenko host and enter the following command:
 
 .. code::
 

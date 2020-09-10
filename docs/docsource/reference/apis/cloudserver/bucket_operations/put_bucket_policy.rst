@@ -4,26 +4,13 @@ PUT Bucket Policy
 =================
 
 This PUT operation uses the policy subresource to return a specified bucket's
-policy. Any identity other than the root user of the account that owns the
-bucket must have PutBucketPolicy permissions on the specified bucket and belong
-to the bucket owner's account to use this operation.
+policy. For any identity other than the root user of the account that owns the
+bucket, the calling identity must have PutBucketPolicy permissions on the
+specified bucket and belong to the bucket owner's account to use this operation.
 
-.. note::
-
-   This feature implementation does not support the following values in policy
-   language:
-
-   * **Condition:** S3 conditions are not implemented.
-
-   * **Principal:** Only accounts (account ID, canonical ID) and users (user
-     ARN) are supported. Federated users (using web identity or SAML), IAM
-     roles, services (replication services such as Backbeat, for example) are
-     not supported.
-
-
-If you don't have PutBucketPolicy permissions, S3 Connector returns a ``403
-Access Denied`` error. If you have the correct permissions, but you're not using
-an identity that belongs to the bucket owner's account, S3 Connector returns a
+In the absence of PutBucketPolicy permissions, Zenko returns a ``403
+Access Denied`` error. If the permissions are correct, but you are not using
+an identity that belongs to the bucket owner's account, Zenko returns a
 ``405 Method Not Allowed`` error.
 
 .. important::
@@ -47,10 +34,11 @@ Syntax
 
    PUT /?policy HTTP/1.1
    Host: BucketName.s3.example.com
-   Date: date   
-   Authorization: authorization string
+   Date: date
+   Authorization: authorization string (see Authenticating Requests (AWS
+   Signature Version 4))
 
-Policy written in JSON
+   Policy written in JSON
 
 Request Parameters
 ~~~~~~~~~~~~~~~~~~

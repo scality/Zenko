@@ -5,7 +5,7 @@ delete-object
 
 Removes the null version (if there is one) of an object and inserts a delete
 marker, which becomes the latest version of the object. If there isn't a null
-version, S3 Connector does not remove any objects.
+version, Zenko does not remove any objects.
 
 See also: `AWS API Documentation
 <https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeleteObject>`_.

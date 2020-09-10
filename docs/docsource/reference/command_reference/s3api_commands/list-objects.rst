@@ -46,11 +46,11 @@ Options
 
 ``--encoding-type`` (string)
 
-  Requests S3 Connector to encode the object keys in the response and specifies the
+  Requests Zenko to encode the object keys in the response and specifies the
   encoding method to use. An object key may contain any Unicode character;
   however, XML 1.0 parser cannot parse some characters, such as characters with
   an ASCII value from 0 to 10. For characters that are not supported in XML 1.0,
-  you can add this parameter to request S3 Connector to encode the keys in the
+  you can add this parameter to request Zenko to encode the keys in the
   response.
 
   Possible values:
@@ -129,7 +129,7 @@ Output
 
 IsTruncated -> (Boolean)
 
-  This flag indicates whether S3 Connector returned all results that satisfied
+  This flag indicates whether Zenko returned all results that satisfied
   the search criteria.
 
 Marker -> (string)
@@ -138,7 +138,7 @@ NextMarker -> (string)
   
   When response is truncated (the IsTruncated element value in the response is
   true), you can use the key name in this field as marker in the subsequent
-  request to get next set of objects. S3 Connector lists objects in alphabetical
+  request to get next set of objects. Zenko lists objects in alphabetical
   order Note: This element is returned only if you have delimiter request
   parameter specified. If response does not include the NextMaker and it is
   truncated, you can use the value of the last Key in the response as the marker
@@ -182,4 +182,4 @@ CommonPrefixes -> (list)
   
 EncodingType -> (string)
   
-  Encoding type used by S3 Connector to encode object keys in the response.
+  Encoding type used by Zenko to encode object keys in the response.

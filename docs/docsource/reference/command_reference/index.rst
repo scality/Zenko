@@ -3,7 +3,7 @@
 Command Reference
 =================
 
-As with AWS, you can address the S3 Connector either as set of RESTful API
+As with AWS, you can address Zenko either as set of RESTful API
 endpoints, or using direct commands in the aws-cli environment. This section
 documents available commands.
 

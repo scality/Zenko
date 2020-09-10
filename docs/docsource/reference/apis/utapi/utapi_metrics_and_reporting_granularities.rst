@@ -1,7 +1,7 @@
 UTAPI Metrics and Reporting Granularities
 =========================================
 
-S3 Connector can track and report the following utilization metrics through a RESTful
+Zenko can track and report the following utilization metrics through a RESTful
 API:
 
 -  Storage capacity in bytes
@@ -24,11 +24,11 @@ at the bucket level.
 
 This service is deployed and accessed through a RESTful API that is
 securely authenticated via HTTPS, on a dedicated web server and port.
-The service is integrated with the S3 Connector IAM policies for access control
+The service is integrated with the Zenko IAM policies for access control
 through the ``utapi:ListMetrics`` policy action.
 
 To enable access, an IAM policy must first be created that grants
-permission for the action, after which the policy must be set to the S3 Connector IAM
+permission for the action, after which the policy must be set to the Zenko IAM
 Users or IAM Groups that are permitted to access the service metrics.
 
 .. note::

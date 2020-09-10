@@ -8,16 +8,16 @@ policy. For any identity other than the root user of the account that owns the
 bucket, the identity must have the DeleteBucketPolicy permissions on the
 specified bucket and belong to the bucket owner's account to use this operation.
 
-If you don't have DeleteBucketPolicy permissions, S3 Connector returns a ``403
-Access Denied`` error. If permissions are correct, but you're not using an
-identity that belongs to the bucket owner's account, S3 Connector returns a ``405
+In the absence of DeleteBucketPolicy permissions, Zenko returns a ``403 Access
+Denied`` error. If the permissions are correct, but you are not using an
+identity that belongs to the bucket owner's account, Zenko returns a ``405
 Method Not Allowed`` error.
 
 .. important::
 
-   As a security precaution, the root user of the AWS account that owns a bucket
-   can always use this operation, even if the policy explicitly denies the root
-   user the ability to perform this action.
+   The root user of the AWS account that owns a bucket can always use this
+   operation, even if the policy explicitly denies the root user the ability to
+   perform this action.
 
 For more information about bucket policies, see `Using Bucket Policies and User
 Policies
@@ -30,22 +30,23 @@ Requests
 Syntax
 ~~~~~~
 
-.. parsed-literal::
+.. code::
 
    DELETE /?policy HTTP/1.1
    Host: BucketName.s3.example.com
-   Date: date   
-   Authorization: authorization string
+   Date: date
+   Authorization: authorization string (see Authenticating Requests (AWS
+   Signature Version 4))
 
 Request Parameters
 ~~~~~~~~~~~~~~~~~~
 
-This implementation of the operation does not use request parameters.
+This operation does not use request parameters.
 
 Request Headers
 ~~~~~~~~~~~~~~~
 
-This implementation of the operation uses only request headers that are common
+This operation uses only request headers that are common
 to all operations.
 
 Request Elements
@@ -97,5 +98,5 @@ Sample Response
    x-amz-request-id: 656c76696e672SAMPLE5657374  
    Date: Fri, 27 Sep 2019 20:22:01 GMT  
    Connection: keep-alive  
-   Server: S3Connector
+   Server: my-zenko
 

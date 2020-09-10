@@ -2,7 +2,7 @@ vaultclient CLI Commands
 ========================
 
 Use the vaultclient command line interface to enter commands for
-managing S3 Connector accounts. Once an account is created, use standard AWS IAM
+managing Zenko accounts. Once an account is created, use standard AWS IAM
 commands to manage account users, groups, and policies.
 
 .. toctree::

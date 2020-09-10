@@ -8,7 +8,7 @@ Initiates a multipart upload and returns an upload ID.
 .. note::
 
    After you initiate multipart upload and upload one or more parts, you must
-   either complete or abort multipart upload. S3 Connector only frees up the
+   either complete or abort multipart upload. Zenko only frees up the
    parts storage after you either complete or abort multipart upload.
 
 See also: `AWS API Documentation
@@ -146,7 +146,7 @@ JSON Syntax::
 ``--website-redirect-location`` (string)
 
   If the bucket is configured as a website, redirects requests for this object
-  to another object in the same bucket or to an external URL. S3 Connector stores
+  to another object in the same bucket or to an external URL. Zenko stores
   the value of this header in the object metadata.
 
 

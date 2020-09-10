@@ -67,7 +67,7 @@ QueueConfigurations -> (list)
   (structure)
 
     Specifies the configuration for publishing messages to a Kafka queue w`hen
-    S3 Connector detects specified events.
+    Zenko detects specified events.
 
     Id -> (string)
 
@@ -76,12 +76,12 @@ QueueConfigurations -> (list)
 
     QueueArn -> (string)
 
-      The Amazon Resource Name (ARN) of the Kafka queue to which S3 Connector
+      The Amazon Resource Name (ARN) of the Kafka queue to which Zenko
       publishes a message when it detects an event of the specified type.
 
       .. tip::
           
-	 S3 Connector returns QueueARN in conformity with AWS-standard
+	 Zenko returns QueueARN in conformity with AWS-standard
 	 ``arn:partition:service:region:account-id:resource`` format, where:
 
          ``partition`` is hardcoded as ``scality``.

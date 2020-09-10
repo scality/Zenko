@@ -3,7 +3,7 @@
 Copy Object
 ===========
 
-Creates a copy of an object stored by S3 Connector.
+Creates a copy of an object stored by Zenko.
 
 .. note::
 
@@ -14,8 +14,8 @@ to the source object and write access to the destination bucket. Both the region
 you want to copy the object from and the region you want to copy the object to
 must be enabled for your account.
 
-A copy request might return an error when S3 Connector receives the copy request
-or while S3 Connector is copying the files. If the error occurs before the copy
+A copy request might return an error when Zenko receives the copy request
+or while Zenko is copying the files. If the error occurs before the copy
 operation starts, you receive a standard S3 error. If the error occurs
 during the copy operation, the error response is embedded in the 200 OK
 response. This means that a 200 OK response can contain either a success or
@@ -58,7 +58,7 @@ following request parameters:
 
 If both the ``x-amz-copy-source-if-match`` and
 ``x-amz-copy-source-if-unmodified-since`` headers are present in the request and
-evaluate as follows, S3 Connector returns ``200 OK`` and copies the data:
+evaluate as follows, Zenko returns ``200 OK`` and copies the data:
 
 * ``x-amz-copy-source-if-match condition evaluates to true``
 
@@ -66,7 +66,7 @@ evaluate as follows, S3 Connector returns ``200 OK`` and copies the data:
 
 If both the ``x-amz-copy-source-if-none-match`` and
 ``x-amz-copy-source-if-modified-since`` headers are present in the request and
-evaluate as follows, S3 Connector returns the ``412 Precondition Failed`` response
+evaluate as follows, Zenko returns the ``412 Precondition Failed`` response
 code:
 
 * ``x-amz-copy-source-if-none-match`` condition evaluates to false
@@ -83,7 +83,7 @@ Encryption
 
 The source object being copied can be encrypted or unencrypted. It can be
 encrypted on the server side using Scality-managed encryption keys
-(SSE-S3). With server-side encryption, S3 Connector encrypts the data as it
+(SSE-S3). With server-side encryption, Zenko encrypts the data as it
 writes it to disk and decrypts the data when you access it. Server-side
 encryption can also be requested for the target object regardless of whether the
 source object was encrypted.
@@ -93,7 +93,7 @@ ACL-Specific Request Headers
 
 When copying an object, you can grant ACL-based permissions using headers. By
 default, all objects are private. Only the owner has full access control. When
-adding a new object, you can grant permissions to individual S3 Connector
+adding a new object, you can grant permissions to individual Zenko
 accounts or to predefined groups defined by S3. These permissions are added
 to the ACL on the object. For more, see `Access Control List (ACL) Overview`_
 and `Managing ACLs Using the REST API`_.
@@ -109,15 +109,15 @@ Versioning
 ----------
 
 By default, x-amz-copy-source identifies the current version of an object to
-copy. If the current version is a delete marker, S3 Connector behaves as if the
+copy. If the current version is a delete marker, Zenko behaves as if the
 object were deleted. To copy a different version, use the versionId subresource.
 
-If you enable versioning on the target bucket, S3 Connector generates a unique
+If you enable versioning on the target bucket, Zenko generates a unique
 version ID for the object being copied. This version ID is different from the
-source object's version ID. S3 Connector returns the copied object's version ID
+source object's version ID. Zenko returns the copied object's version ID
 in the x-amz-version-id response header.
 
-If you do not enable versioning or suspend it on the target bucket, S3 Connector
+If you do not enable versioning or suspend it on the target bucket, Zenko
 generates a null version ID.
 
 The following operations are related to CopyObject:
@@ -300,7 +300,7 @@ x-amz-website-redirect-location
 
     If the bucket is configured as a website, this request parameter redirects
     requests for this object to another object in the same bucket or to an
-    external URL. S3 Connector stores the value of this header in the object
+    external URL. Zenko stores the value of this header in the object
     metadata.
 
 Request Body

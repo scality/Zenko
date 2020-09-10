@@ -162,7 +162,7 @@ JSON Syntax::
 ``--website-redirect-location`` (string)
 
   If the bucket is configured as a website, redirects requests for this object
-  to another object in the same bucket or to an external URL. S3 Connector stores
+  to another object in the same bucket or to an external URL. Zenko stores
   the value of this header in the object metadata.
 
 ``--tagging`` (string)
@@ -205,7 +205,7 @@ Examples
 --------
 
 The following example uses the ``put-object`` command to upload an object to
-S3 Connector::
+Zenko::
 
     aws s3api put-object --bucket text-content --key dir-1/my_images.tar.bz2 --body my_images.tar.bz2
 

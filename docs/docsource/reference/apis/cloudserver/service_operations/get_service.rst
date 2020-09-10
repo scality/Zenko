@@ -105,7 +105,7 @@ Request Sample
 .. code::
 
    GET / HTTP/1.1
-   Host: demo.s3.scality.com
+   Host: demo.s3.example.com
    Date: Thu, 31 Mar 2016 15:06:25 GMT
    Authorization: AWS pat:rhcjIVUs1lgxPgErOA5BTR0I8Qc=
 
@@ -124,7 +124,7 @@ The response lists the buckets owned by the authenticated sender.
    Cache-Control: no-cache
    Connection: close
    <?xml version="1.0" encoding="UTF-8"?>.
-   <ListAllMyBucketsResult xmlns="http://s3.scality.com/doc/2006-03-01/">
+   <ListAllMyBucketsResult xmlns="http://s3.example.com/doc/2006-03-01/">
      <Owner>
        <ID>14B5C45B8E359BC1601B7C682D83EB50648AE420</ID>
        <DisplayName>Test </DisplayName>

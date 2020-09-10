@@ -6,7 +6,7 @@ update-account-quota
 Each account may take a quota as an added property. If a quota was established
 when an account was created, this property can be modified with the
 update-account-quota command. If the account was created without a quota (for
-example, an account that predates S3 Connector release 7.5), a quota can be
+example, an account that predates Zenko release 7.5), a quota can be
 imposed on the account using this command, modifying the quota value from the
 existing no-quota value (zero) to the quota value. The quota value is a number
 corresponding to the maximum number of bytes. Abbreviations such as KB, M, or

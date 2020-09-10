@@ -9,8 +9,7 @@ bucket website.
 Requests
 --------
 
-Request Syntax
-~~~~~~~~~~~~~~
+**Request Syntax**
 
 .. code::
 
@@ -28,374 +27,288 @@ Request Syntax
 
   The Request Syntax illustrates only a portion of the request headers.
 
-Request Parameters
-~~~~~~~~~~~~~~~~~~
+**Request Parameters**
 
-The PUT Bucket Website operation does not use request parameters.
+The PUT Bucket Website operation does not use Request Parameters.
 
-Request Headers
-~~~~~~~~~~~~~~~
+**Request Headers**
 
 The PUT Bucket operation uses only request headers that are common to
 all operations (refer to :ref:`Common Request Headers`).
 
-Request Elements
-~~~~~~~~~~~~~~~~
+**Request Elements**
 
 You can use a website configuration to redirect all requests to the
 website endpoint of a bucket, or you can add routing rules that redirect
 only specific requests.
 
 -  To redirect all website requests sent to the bucket’s website
-   endpoint, you add a website configuration with the following
-   elements. Because all requests are sent to another website, you don’t
+   endpoint, add a website configuration with the following elements. 
+   Because all requests are sent to another website, you don’t
    need to provide index document name for the bucket.
 
-.. tabularcolumns:: llL
+   .. tabularcolumns:: X{0.30\textwidth}X{0.10\textwidth}X{0.40\textwidth}
+   .. table::
+
+      +-----------------------+-----------------------+-----------------------+
+      | Element               | Type                  | Description           |
+      +=======================+=======================+=======================+
+      | WebsiteConfiguration  | container             | The root element for  |
+      |                       |                       | the website           |
+      |                       |                       | configuration         |
+      |                       |                       |                       |
+      |                       |                       | Ancestors: None       |
+      +-----------------------+-----------------------+-----------------------+
+      | RedirectAllRequestsTo | container             | Describes the         |
+      |                       |                       | redirect behavior for |
+      |                       |                       | every request to this |
+      |                       |                       | bucket’s website      |
+      |                       |                       | endpoint. If this     |
+      |                       |                       | element is present,   |
+      |                       |                       | no other siblings are |
+      |                       |                       | allowed.              |
+      |                       |                       |                       |
+      |                       |                       | Ancestors:            |
+      |                       |                       | WebsiteConfiguration  |
+      +-----------------------+-----------------------+-----------------------+
+      | HostName              | string                | Name of the host      |
+      |                       |                       | where requests will   |
+      |                       |                       | be redirected.        |
+      |                       |                       |                       |
+      |                       |                       | Ancestors:            |
+      |                       |                       | RedirectAllRequestsTo |
+      +-----------------------+-----------------------+-----------------------+
+      | Protocol              | string                | Protocol to use       |
+      |                       |                       | (http, https) when    |
+      |                       |                       | redirecting requests. |
+      |                       |                       | The default is the    |
+      |                       |                       | protocol that is used |
+      |                       |                       | in the original       |
+      |                       |                       | request.              |
+      |                       |                       |                       |
+      |                       |                       | Ancestors:            |
+      |                       |                       | RedirectAllRequestsTo |
+      +-----------------------+-----------------------+-----------------------+
+
+-  For granular control over redirects, use the following elements to add routing
+   rules that describe conditions for redirecting requests and information about
+   the redirect destination. In this case, the website configuration must provide
+   an index document for the bucket, because some requests might not be redirected.
+
+.. tabularcolumns:: X{0.30\textwidth}X{0.10\textwidth}X{0.55\textwidth}
 .. table::
-   :widths: auto
-
-   +-----------------------+-----------------------+-----------------------+
-   | Element               | Type                  | Description           |
-   +=======================+=======================+=======================+
-   | WebsiteConfiguration  | Container             | The root element for  |
-   |                       |                       | the website           |
-   |                       |                       | configuration         |
-   |                       |                       |                       |
-   |                       |                       | Ancestors: None       |
-   +-----------------------+-----------------------+-----------------------+
-   | RedirectAllRequestsTo | Container             | Describes the         |
-   |                       |                       | redirect behavior for |
-   |                       |                       | every request to this |
-   |                       |                       | bucket's website      |
-   |                       |                       | endpoint. If this     |
-   |                       |                       | element is present,   |
-   |                       |                       | no other siblings are |
-   |                       |                       | allowed.              |
-   |                       |                       |                       |
-   |                       |                       | Ancestors:            |
-   |                       |                       | WebsiteConfiguration  |
-   +-----------------------+-----------------------+-----------------------+
-   | HostName              | String                | Name of the host      |
-   |                       |                       | where requests will   |
-   |                       |                       | be redirected.        |
-   |                       |                       |                       |
-   |                       |                       | Ancestors:            |
-   |                       |                       | RedirectAllRequestsTo |
-   +-----------------------+-----------------------+-----------------------+
-   | Protocol              | String                | Protocol to use       |
-   |                       |                       | (http, https) when    |
-   |                       |                       | redirecting requests. |
-   |                       |                       | The default is the    |
-   |                       |                       | protocol that is used |
-   |                       |                       | in the original       |
-   |                       |                       | request.              |
-   |                       |                       |                       |
-   |                       |                       | Ancestors:            |
-   |                       |                       | RedirectAllRequestsTo |
-   +-----------------------+-----------------------+-----------------------+
-
--  If you want granular control over redirects, you can use the
-   following elements to add routing rules that describe conditions for
-   redirecting requests and information about the redirect destination.
-   In this case, the website configuration must provide an index
-   document for the bucket, because some requests might not be
-   redirected.
-
-.. tabularcolumns:: llX{0.45\textwidth}
-.. table::
-   :widths: auto
    :class: longtable
 
-   +------------------------------+-----------------------+-------------------------------------------------------------------+
-   | Element                      | Type                  | Description                                                       |
-   +==============================+=======================+===================================================================+
-   | WebsiteConfiguration         | Container             | Container for the                                                 |
-   |                              |                       | request                                                           |
-   |                              |                       |                                                                   |
-   |                              |                       | Ancestors: None                                                   |
-   +------------------------------+-----------------------+-------------------------------------------------------------------+
-   | IndexDocument                | Container             | Container for the                                                 |
-   |                              |                       | Suffix element.                                                   |
-   |                              |                       |                                                                   |
-   |                              |                       | Ancestors:                                                        |
-   |                              |                       | WebsiteConfiguration                                              |
-   +------------------------------+-----------------------+-------------------------------------------------------------------+
-   | Suffix                       | String                | A suffix that is                                                  |
-   |                              |                       | appended to a request                                             |
-   |                              |                       | that is for a                                                     |
-   |                              |                       | directory on the                                                  |
-   |                              |                       | website endpoint                                                  |
-   |                              |                       | (e.g., if the suffix                                              |
-   |                              |                       | is index.html and you                                             |
-   |                              |                       | make a request to                                                 |
-   |                              |                       | samplebucket/images/,                                             |
-   |                              |                       | the data returned                                                 |
-   |                              |                       | will be for the                                                   |
-   |                              |                       | object with the key                                               |
-   |                              |                       | nameimages/index.html                                             |
-   |                              |                       | )                                                                 |
-   |                              |                       |                                                                   |
-   |                              |                       | The suffix must not                                               |
-   |                              |                       | be empty and must not                                             |
-   |                              |                       | include a slash                                                   |
-   |                              |                       | character.                                                        |
-   |                              |                       |                                                                   |
-   |                              |                       | Ancestors:                                                        |
-   |                              |                       | WebsiteConfiguration.IndexDocument                                |
-   +------------------------------+-----------------------+-------------------------------------------------------------------+
-   | ErrorDocument                | Container             | Container for the Key                                             |
-   |                              |                       | element                                                           |
-   |                              |                       |                                                                   |
-   |                              |                       | Ancestors:                                                        |
-   |                              |                       | WebsiteConfiguration                                              |
-   +------------------------------+-----------------------+-------------------------------------------------------------------+
-   | Key                          | String                | The object key name                                               |
-   |                              |                       | to use when a 4XX                                                 |
-   |                              |                       | class error occurs.                                               |
-   |                              |                       | This key identifies                                               |
-   |                              |                       | the page that is                                                  |
-   |                              |                       | returned when such an                                             |
-   |                              |                       | error occurs.                                                     |
-   |                              |                       |                                                                   |
-   |                              |                       | Ancestors:                                                        |
-   |                              |                       | WebsiteConfiguration.ErrorDocument                                |
-   |                              |                       |                                                                   |
-   |                              |                       | Condition: Required                                               |
-   |                              |                       | when ErrorDocument is                                             |
-   |                              |                       | specified.                                                        |
-   +------------------------------+-----------------------+-------------------------------------------------------------------+
-   | RoutingRules                 | Container             | Container for a                                                   |
-   |                              |                       | collection of                                                     |
-   |                              |                       | RoutingRule elements.                                             |
-   |                              |                       |                                                                   |
-   |                              |                       | Ancestors:                                                        |
-   |                              |                       | WebsiteConfiguration                                              |
-   +------------------------------+-----------------------+-------------------------------------------------------------------+
-   | RoutingRule                  | String                | Container for one                                                 |
-   |                              |                       | routing rule that                                                 |
-   |                              |                       | identifies a                                                      |
-   |                              |                       | condition and a                                                   |
-   |                              |                       | redirect that applies                                             |
-   |                              |                       | when the condition is                                             |
-   |                              |                       | met.                                                              |
-   |                              |                       |                                                                   |
-   |                              |                       | Ancestors:                                                        |
-   |                              |                       | WebsiteConfiguration.RoutingRules                                 |
-   |                              |                       |                                                                   |
-   |                              |                       | Condition: In a                                                   |
-   |                              |                       | RoutingRules                                                      |
-   |                              |                       | container, there must                                             |
-   |                              |                       | be at least one                                                   |
-   |                              |                       | RoutingRule element.                                              |
-   +------------------------------+-----------------------+-------------------------------------------------------------------+
-   | Condition                    | Container             | A container for                                                   |
-   |                              |                       | describing a                                                      |
-   |                              |                       | condition that must                                               |
-   |                              |                       | be met for the                                                    |
-   |                              |                       | specified redirect to                                             |
-   |                              |                       | apply. For example:                                               |
-   |                              |                       |                                                                   |
-   |                              |                       | -  If request is for                                              |
-   |                              |                       |    pages in the /docs                                             |
-   |                              |                       |    folder, redirect                                               |
-   |                              |                       |    to the /documents                                              |
-   |                              |                       |    folder.                                                        |
-   |                              |                       | -  If request results                                             |
-   |                              |                       |    in HTTP error 4xx,                                             |
-   |                              |                       |    redirect request                                               |
-   |                              |                       |    to another host                                                |
-   |                              |                       |    where you might                                                |
-   |                              |                       |    process the error.                                             |
-   |                              |                       |                                                                   |
-   |                              |                       | Ancestors:                                                        |
-   |                              |                       | WebsiteConfiguration.RoutingRules.RoutingRule                     |
-   +------------------------------+-----------------------+-------------------------------------------------------------------+
-   | KeyPrefixEquals              | String                | The object key name                                               |
-   |                              |                       | prefix when the                                                   |
-   |                              |                       | redirect is applied.                                              |
-   |                              |                       | For example, to                                                   |
-   |                              |                       | redirect requests for                                             |
-   |                              |                       | ExamplePage.html, the                                             |
-   |                              |                       | key prefix will be                                                |
-   |                              |                       | ExamplePage.html. To                                              |
-   |                              |                       | redirect request for                                              |
-   |                              |                       | all pages with the                                                |
-   |                              |                       | prefix docs/, the key                                             |
-   |                              |                       | prefix will be /docs,                                             |
-   |                              |                       | which identifies all                                              |
-   |                              |                       | objects in the docs/                                              |
-   |                              |                       | folder.                                                           |
-   |                              |                       |                                                                   |
-   |                              |                       | Ancestors:                                                        |
-   |                              |                       | WebsiteConfiguration.RoutingRules.RoutingRule.                    |
-   |                              |                       | Condition                                                         |
-   |                              |                       |                                                                   |
-   |                              |                       | Condition: Required                                               |
-   |                              |                       | when the parent                                                   |
-   |                              |                       | element Condition is                                              |
-   |                              |                       | specified and sibling                                             |
-   |                              |                       | HttpErrorCodeReturnedEquals                                       |
-   |                              |                       | is not specified. If                                              |
-   |                              |                       | both conditions are                                               |
-   |                              |                       | specified, both must                                              |
-   |                              |                       | be true for the                                                   |
-   |                              |                       | redirect to be                                                    |
-   |                              |                       | applied.                                                          |
-   +------------------------------+-----------------------+-------------------------------------------------------------------+
-   | HttpErrorCodeReturnedEquals  | String                | The HTTP error code                                               |
-   |                              |                       | when the redirect is                                              |
-   |                              |                       | applied. In the event                                             |
-   |                              |                       | of an error, if the                                               |
-   |                              |                       | error code equals                                                 |
-   |                              |                       | this value, then the                                              |
-   |                              |                       | specified redirect is                                             |
-   |                              |                       | applied.                                                          |
-   |                              |                       |                                                                   |
-   |                              |                       | Ancestors:                                                        |
-   |                              |                       | WebsiteConfiguration.RoutingRules.RoutingRule.                    |
-   |                              |                       | Condition                                                         |
-   |                              |                       |                                                                   |
-   |                              |                       | Condition: Required                                               |
-   |                              |                       | when parent element                                               |
-   |                              |                       | Condition is                                                      |
-   |                              |                       | specified and sibling                                             |
-   |                              |                       | KeyPrefixEquals is                                                |
-   |                              |                       | not specified. If                                                 |
-   |                              |                       | both are specified,                                               |
-   |                              |                       | then both must be                                                 |
-   |                              |                       | true for the redirect                                             |
-   |                              |                       | to be applied.                                                    |
-   +------------------------------+-----------------------+-------------------------------------------------------------------+
-   | Redirect                     | String                | Container for                                                     |
-   |                              |                       | redirect information.                                             |
-   |                              |                       | You can redirect                                                  |
-   |                              |                       | requests to another                                               |
-   |                              |                       | host, to another                                                  |
-   |                              |                       | page, or with another                                             |
-   |                              |                       | protocol. In the                                                  |
-   |                              |                       | event of an error,                                                |
-   |                              |                       | you can specify a                                                 |
-   |                              |                       | different error code                                              |
-   |                              |                       | to return.                                                        |
-   |                              |                       |                                                                   |
-   |                              |                       | Ancestors:                                                        |
-   |                              |                       | WebsiteConfiguration.RoutingRules.RoutingRule                     |
-   +------------------------------+-----------------------+-------------------------------------------------------------------+
-   | Protocol                     | String                | The protocol to use                                               |
-   |                              |                       | in the redirect                                                   |
-   |                              |                       | request.                                                          |
-   |                              |                       |                                                                   |
-   |                              |                       | Ancestors:                                                        |
-   |                              |                       | WebsiteConfiguration.RoutingRules.RoutingRule.                    |
-   |                              |                       | RedirectValidValues                                               |
-   |                              |                       | Values: http, https                                               |
-   |                              |                       |                                                                   |
-   |                              |                       | Condition: Not                                                    |
-   |                              |                       | required if one of                                                |
-   |                              |                       | the siblings is                                                   |
-   |                              |                       | present                                                           |
-   +------------------------------+-----------------------+-------------------------------------------------------------------+
-   | HostName                     | String                | The host name to use                                              |
-   |                              |                       | in the redirect                                                   |
-   |                              |                       | request.                                                          |
-   |                              |                       |                                                                   |
-   |                              |                       | Ancestors:                                                        |
-   |                              |                       | WebsiteConfiguration.RoutingRules.RoutingRule.                    |
-   |                              |                       | Redirect                                                          |
-   |                              |                       |                                                                   |
-   |                              |                       | Condition: Not                                                    |
-   |                              |                       | required if one of                                                |
-   |                              |                       | the siblings is                                                   |
-   |                              |                       | present                                                           |
-   +------------------------------+-----------------------+-------------------------------------------------------------------+
-   | ReplaceKeyPrefixWith         | String                | The object key prefix                                             |
-   |                              |                       | to use in the                                                     |
-   |                              |                       | redirect request. For                                             |
-   |                              |                       | example, to redirect                                              |
-   |                              |                       | requests for all                                                  |
-   |                              |                       | pages with prefix                                                 |
-   |                              |                       | docs/ (objects in the                                             |
-   |                              |                       | docs/ folder) to                                                  |
-   |                              |                       | documents/, you can                                               |
-   |                              |                       | set a condition block                                             |
-   |                              |                       | with KeyPrefixEquals                                              |
-   |                              |                       | set to docs/ and in                                               |
-   |                              |                       | the Redirect set                                                  |
-   |                              |                       | ReplaceKeyPrefixWith                                              |
-   |                              |                       | to “documents”.                                                   |
-   |                              |                       |                                                                   |
-   |                              |                       | Ancestors:                                                        |
-   |                              |                       | WebsiteConfiguration.RoutingRules.RoutingRule.                    |
-   |                              |                       | Redirect                                                          |
-   |                              |                       |                                                                   |
-   |                              |                       | Condition: Not                                                    |
-   |                              |                       | required if one of                                                |
-   |                              |                       | the siblings is                                                   |
-   |                              |                       | present. Can be                                                   |
-   |                              |                       | present only                                                      |
-   |                              |                       | if ReplaceKeyWith is                                              |
-   |                              |                       | not provided.                                                     |
-   +------------------------------+-----------------------+-------------------------------------------------------------------+
-   | ReplaceKeyWith               | String                | The specific object                                               |
-   |                              |                       | key to use in the                                                 |
-   |                              |                       | redirect request. For                                             |
-   |                              |                       | example, redirect                                                 |
-   |                              |                       | request to                                                        |
-   |                              |                       | error.html.                                                       |
-   |                              |                       |                                                                   |
-   |                              |                       | Ancestors:                                                        |
-   |                              |                       | WebsiteConfiguration.RoutingRules.RoutingRule.                    |
-   |                              |                       | Redirect                                                          |
-   |                              |                       |                                                                   |
-   |                              |                       | Condition: Not                                                    |
-   |                              |                       | required if one of                                                |
-   |                              |                       | the sibling is                                                    |
-   |                              |                       | present. Can be                                                   |
-   |                              |                       | present only                                                      |
-   |                              |                       | if ReplaceKeyPrefixWith                                           |
-   |                              |                       | is not provided.                                                  |
-   +------------------------------+-----------------------+-------------------------------------------------------------------+
-   | HttpRedirectCode             | String                | The HTTP redirect                                                 |
-   |                              |                       | code to use on the                                                |
-   |                              |                       | response.                                                         |
-   |                              |                       |                                                                   |
-   |                              |                       | Ancestors:                                                        |
-   |                              |                       | WebsiteConfiguration.RoutingRules.RoutingRule.                    |
-   |                              |                       | Redirect                                                          |
-   |                              |                       |                                                                   |
-   |                              |                       | Condition: Not                                                    |
-   |                              |                       | required if one of                                                |
-   |                              |                       | the siblings is                                                   |
-   |                              |                       | present.                                                          |
-   +------------------------------+-----------------------+-------------------------------------------------------------------+
+   +-----------------------+-----------+---------------------------------------+
+   | Element               | Type      | Description                           |
+   +=======================+===========+=======================================+
+   | WebsiteConfiguration  | Container | Container for the request             |
+   |                       |           |                                       |
+   |                       |           | Ancestors: None                       |
+   +-----------------------+-----------+---------------------------------------+
+   | IndexDocument         | Container | Container for the Suffix element      |
+   |                       |           |                                       |
+   |                       |           | Ancestors: WebsiteConfiguration       |
+   +-----------------------+-----------+---------------------------------------+
+   | Suffix                | String    | A suffix that is appended to a        | 
+   |                       |           | request that is for a directory on    |
+   |                       |           | the website endpoint (e.g., if the    |
+   |                       |           | suffix is index.html and you make a   |
+   |                       |           | request to samplebucket/images/, the  |
+   |                       |           | data returned will be for the         |
+   |                       |           | object with the key name              |
+   |                       |           | images/index.html)                    |
+   |                       |           |                                       |
+   |                       |           | The suffix must not be empty and must |
+   |                       |           | not include a slash character.        |
+   |                       |           |                                       | 
+   |                       |           | Ancestors:                            |
+   |                       |           | WebsiteConfiguration.IndexDocument    |
+   +-----------------------+-----------+---------------------------------------+
+   | ErrorDocument         | Container | Container for the Key element         |
+   |                       |           |                                       |
+   |                       |           | Ancestors: WebsiteConfiguration       |
+   +-----------------------+-----------+---------------------------------------+
+   | Key                   | String    | The object key name to use when a     |
+   |                       |           | 4XX-class error occurs. This key      |
+   |                       |           | identifies the page that is returned  |
+   |                       |           | when such an error occurs.            |
+   |                       |           |                                       |
+   |                       |           | Ancestors:                            |            
+   |                       |           | WebsiteConfiguration.ErrorDocument    |
+   |                       |           |                                       |
+   |                       |           | Condition: Required when              |
+   |                       |           | ErrorDocument is specified.           |
+   +-----------------------+-----------+---------------------------------------+
+   | RoutingRules          | Container | Container for a collection of         |
+   |                       |           | RoutingRule elements.                 |
+   |                       |           |                                       |
+   |                       |           | Ancestors: WebsiteConfiguration       |
+   +-----------------------+-----------+---------------------------------------+
+   | RoutingRule           | String    | Container for one routing rule that   |
+   |                       |           | identifies a condition and a redirect |
+   |                       |           | that applies when the condition is    |
+   |                       |           | met.                                  |
+   |                       |           |                                       |
+   |                       |           | Ancestors:                            |
+   |                       |           | WebsiteConfiguration.RoutingRules     |
+   |                       |           |                                       |
+   |                       |           | Condition: In a RoutingRules          |
+   |                       |           | container, there must be at least one |
+   |                       |           | RoutingRule element.                  |
+   +-----------------------+-----------+---------------------------------------+
+   | Condition             | Container | A container for describing a          |
+   |                       |           | condition that must be met for the    |
+   |                       |           | specified redirect to apply.          |
+   |                       |           |                                       |
+   |                       |           | For example:                          |
+   |                       |           |                                       |
+   |                       |           | * If request is for pages in the      |
+   |                       |           |   /docs folder, redirect to the       |
+   |                       |           |   /documents folder.                  |
+   |                       |           | * If request results in a 4xx HTTP    |
+   |                       |           |   error, redirect the request to      |
+   |                       |           |   another host to process the error.  |
+   |                       |           |                                       |
+   |                       |           | Ancestors:                            |
+   |                       |           | WebsiteConfiguration.RoutingRules.\   |
+   |                       |           | RoutingRule                           |
+   +-----------------------+-----------+---------------------------------------+
+   | KeyPrefixEquals       | String    | The object key name prefix when the   |
+   |                       |           | redirect is applied.  For example, to |
+   |                       |           | redirect requests for                 |
+   |                       |           | ExamplePage.html, the key prefix is   | 
+   |                       |           | ExamplePage.html. To redirect request |
+   |                       |           | for all pages with the prefix docs/,  |
+   |                       |           | the key prefix will be /docs, which   |
+   |                       |           | identifies all objects in the docs/   |
+   |                       |           | folder.                               |
+   |                       |           |                                       |
+   |                       |           | Ancestors:                            |
+   |                       |           | WebsiteConfiguration.RoutingRules.\   |
+   |                       |           | RoutingRule.Condition                 |
+   |                       |           |                                       |
+   |                       |           | Condition: Required when the parent   |
+   |                       |           | element Condition is specified and    | 
+   |                       |           | sibling HttpErrorCodeReturned Equals  |
+   |                       |           | is not specified. If both conditions  |
+   |                       |           | are specified, both must be true for  |
+   |                       |           | the redirect to be applied.           |
+   +-----------------------+-----------+---------------------------------------+
+   | HttpErrorCodeReturn\  | String    | The HTTP error code when the redirect |
+   | edEquals              |           | is applied. In the event of an error, |
+   |                       |           | if the error code equals this value,  |
+   |                       |           | then the specified redirect is        |
+   |                       |           | applied.                              |
+   |                       |           |                                       |
+   |                       |           | Ancestors:                            |
+   |                       |           | WebsiteConfiguration.RoutingRules.\   |
+   |                       |           | RoutingRule.Condition                 |
+   |                       |           |                                       |
+   |                       |           | Condition: Required when parent       |
+   |                       |           | Condition element is specified and    |
+   |                       |           | sibling KeyPrefixEquals is not        |
+   |                       |           | specified. If both are specified,     |
+   |                       |           | then both must be true for the        |
+   |                       |           | redirect to be applied.               |
+   +-----------------------+-----------+---------------------------------------+
+   | Redirect              | String    | Container for redirect information.   |
+   |                       |           | You can redirect requests to another  |
+   |                       |           | host, to another page, or with        |
+   |                       |           | another protocol. In the event of an  |
+   |                       |           | error, you can specify a different    |
+   |                       |           | error code to return.                 |
+   |                       |           |                                       |
+   |                       |           | Ancestors:                            |
+   |                       |           | WebsiteConfiguration.RoutingRules.\   |
+   |                       |           | RoutingRule                           |
+   +-----------------------+-----------+---------------------------------------+
+   | Protocol              | String    | The protocol to use in the redirect   |
+   |                       |           | request.                              |
+   |                       |           |                                       |
+   |                       |           | Ancestors:                            |
+   |                       |           | WebsiteConfiguration.RoutingRules.\   |
+   |                       |           | RoutingRule.RedirectValid             |
+   |                       |           |                                       |
+   |                       |           | Values: http, https                   |
+   |                       |           |                                       |
+   |                       |           | Condition: Not required if one of the |
+   |                       |           | siblings is present                   |
+   +-----------------------+-----------+---------------------------------------+
+   | HostName              | String    | The host name to use in the redirect  |
+   |                       |           | request.                              |
+   |                       |           |                                       |
+   |                       |           | Ancestors:                            |
+   |                       |           | WebsiteConfiguration.RoutingRules.\   |
+   |                       |           | RoutingRule.Redirect                  |
+   |                       |           |                                       |
+   |                       |           | Condition: Not required if one of the |
+   |                       |           | siblings is present                   |
+   +-----------------------+-----------+---------------------------------------+
+   | ReplaceKeyPrefixWith  | String    | The object key prefix to use in the   |
+   |                       |           | redirect request. For example, to     |
+   |                       |           | redirect requests for all pages with  |
+   |                       |           | the prefix "docs/" (objects in the    |
+   |                       |           | docs/ folder) to documents/, set a    |
+   |                       |           | condition block with KeyPrefixEquals  |
+   |                       |           | set to docs/ and in the Redirect set  |
+   |                       |           | ReplaceKeyPrefixWith to “documents”.  |
+   |                       |           |                                       |
+   |                       |           | Ancestors:                            |
+   |                       |           | WebsiteConfiguration.RoutingRules.\   |
+   |                       |           | RoutingRule.Redirect                  |
+   |                       |           |                                       |
+   |                       |           | Condition: Not required if one of the |
+   |                       |           | the siblings is present. Can be       |
+   |                       |           | present only ifReplaceKeyWith is not  |
+   |                       |           | provided.                             |
+   +-----------------------+-----------+---------------------------------------+
+   | ReplaceKeyWith        | String    | The specific object key to use in the |
+   |                       |           | redirect request. For example,        |
+   |                       |           | redirect request to error.html.       |
+   |                       |           |                                       |
+   |                       |           | Ancestors:                            |
+   |                       |           | WebsiteConfiguration.RoutingRules.\   |
+   |                       |           | RoutingRule.Redirect                  |
+   |                       |           |                                       |
+   |                       |           | Condition: Not required if one of     |
+   |                       |           | the siblings is present. Can be       |
+   |                       |           | present only ifReplaceKeyPrefixWith   |
+   |                       |           | is not provided.                      |
+   +-----------------------+-----------+---------------------------------------+
+   | HttpRedirectCode      | String    | The HTTP redirect code to use on the  |
+   |                       |           | response.                             |
+   |                       |           |                                       |
+   |                       |           | Ancestors:                            |
+   |                       |           | WebsiteConfiguration.RoutingRules.\   |
+   |                       |           | RoutingRule.Redirect                  |
+   |                       |           |                                       |
+   |                       |           | Condition: Not required if one of the |
+   |                       |           | siblings is present.                  |
+   +-----------------------+-----------+---------------------------------------+
 
 Responses
 ---------
 
-Response Headers
-~~~~~~~~~~~~~~~~
+**Response Headers**
 
 Implementation of the PUT Bucket Website operation uses only response
 headers that are common to all operations (refer to :ref:`Common Response Headers`).
 
-Response Elements
-~~~~~~~~~~~~~~~~~
+**Response Elements**
 
 The PUT Bucket Website operation does not return response elements.
 
 Examples
 --------
 
-Configure a Bucket as a Website (Add Website Configuration)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Configure a Bucket as a Website (Add Website Configuration)**
 
 This request configures a bucket, example.com, as a website. The
 configuration in the request specifies index.html as the index document.
 It also specifies the optional error document, SomeErrorDocument.html.
 
-Request Sample
-^^^^^^^^^^^^^^
+*Request Sample*
 
 .. code::
 
@@ -416,8 +329,7 @@ Request Sample
        </ErrorDocument>
    </WebsiteConfiguration>
 
-Response Sample
-^^^^^^^^^^^^^^^
+*Response Sample*
 
 .. code::
 
@@ -433,11 +345,10 @@ Configure a Bucket as a Website but Redirect All Requests
 
 The following request configures a bucket www.example.com as a website;
 however, the configuration specifies that all GET requests for
-the www.example.com bucket’s website endpoint will be redirected to host
+thewww.example.com bucket’s website endpoint will be redirected to host
 example.com.
 
-Request Sample
-^^^^^^^^^^^^^^
+*Request Sample*
 
 .. code::
 
@@ -455,8 +366,7 @@ Request Sample
        </RedirectAllRequestsTo>
    </WebsiteConfiguration>
 
-Configure a Bucket as a Website and Specify Optional Redirection Rules
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Configure a Bucket as a Website and Specify Optional Redirection Rules**
 
 You can further customize the website configuration by adding routing
 rules that redirect requests for one or more objects. For example,
@@ -472,8 +382,7 @@ request for docs/article1.html will need to be redirected to
 documents/article1.html. In this case, you update the website
 configuration and add a routing rule as shown in the following request:
 
-Request Sample
-^^^^^^^^^^^^^^
+*Request Sample*
 
 .. code::
 
@@ -505,8 +414,7 @@ Request Sample
      </RoutingRules>
    </WebsiteConfiguration>
 
-Configure a Bucket as a Website and Redirect Errors
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Configure a Bucket as a Website and Redirect Errors**
 
 You can use a routing rule to specify a condition that checks for a
 specific HTTP error code. When a page request results in this error, you
@@ -520,8 +428,7 @@ request is routed to a page report-404/testPage.html on the specified
 EC2 instance. If there is no routing rule and the HTTP error 404
 occurred, then Error.html is returned.
 
-Request Sample
-^^^^^^^^^^^^^^
+*Request Sample*
 
 .. code::
 
@@ -554,21 +461,19 @@ Request Sample
      </RoutingRules>
    </WebsiteConfiguration>
 
-Configure a Bucket as a Website and Redirect Folder Requests to a Page
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Configure a Bucket as a Website and Redirect Folder Requests to a Page**
 
-If you have the following pages in your bucket:
+Suppose you have the following pages in your bucket:
 
 -  images/photo1.jpg
 -  images/photo2.jpg
 -  images/photo3.jpg
 
-and you want to route requests for all pages with the images/ prefix to
+And you want to route requests for all pages with the images/ prefix to
 go to a single page, errorpage.html. You can add a website configuration
 to your bucket with the routing rule shown in the following request.
 
-Request Sample
-^^^^^^^^^^^^^^
+*Request Sample*
 
 .. code::
 

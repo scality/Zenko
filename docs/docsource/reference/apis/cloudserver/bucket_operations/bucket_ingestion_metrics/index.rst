@@ -1,7 +1,7 @@
 Bucket Ingestion Metrics
 ========================
 
-Zenko can make queries against S3 Connector instances named as bucket
+Zenko can make queries against Zenko instances named as bucket
 locations under its management. Querying the managed namespace, Zenko
 can retrieve information about the number of transfers completed and
 pending, and the rate at which they are completing.

@@ -32,7 +32,7 @@ Options
   .. note::
 
     It can take a while to propagate the deletion of a replication configuration
-    to all S3 Connector systems.
+    to all Zenko systems.
 
 ``--cli-input-json`` (string)
 

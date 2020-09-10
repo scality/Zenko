@@ -54,7 +54,7 @@ Options
 ``--status`` (string)
 
   The status you want to assign to the secret access key. ``Active`` means that
-  the key can be used for API calls to S3 Connector, while ``Inactive`` means
+  the key can be used for API calls to Zenko, while ``Inactive`` means
   that the key cannot be used.
 
   Possible values:

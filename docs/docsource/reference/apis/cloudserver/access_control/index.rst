@@ -1,54 +1,19 @@
-.. _Access Control Lists:
+Access Controls
+===============
 
-Access Control Lists
-====================
+Zenko implements access controls that conform to the S3 API for:
 
-Access Control Lists (ACLs) enable the management of access to buckets
-and objects.
+* Access Control Lists (ACLs)
+* Cross-Origin Resource Sharing (CORS)
+* Bucket policies
 
-Each bucket and object has an ACL attached to it as a subresource,
-defining which accounts or groups are granted access and the type of
-access. When a request is received against a resource, S3 Connector checks the
-corresponding ACL to verify the requester has the necessary access
-permissions.
-
-When a bucket or object is created, S3 Connector creates a default ACL that grants
-the resource owner full control over the resource as shown in the
-following sample bucket ACL (the default object ACL has the same
-structure).
-
-.. code::
-
-   <?xml version="1.0" encoding="UTF-8"?>
-   <AccessControlPolicy xmlns="http://s3.scality.com/doc/2006-03-01/">
-     <Owner>
-       <ID>*** Owner-Canonical-User-ID ***</ID>
-       <DisplayName>owner-display-name</DisplayName>
-     </Owner>
-     <AccessControlList>
-       <Grant>
-         <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                  xsi:type="Canonical User">
-           <ID>*** Owner-Canonical-User-ID ***</ID>
-           <DisplayName>display-name</DisplayName>
-         </Grantee>
-         <Permission>FULL_CONTROL</Permission>
-       </Grant>
-     </AccessControlList>
-   </AccessControlPolicy>
-
-The sample ACL includes an Owner element identifying the owner via the
-account’s canonical user ID. The Grant element identifies the grantee
-(either a specific account or a predefined group), and the permission
-granted. This default ACL has one Grant element for the owner. You grant
-permissions by adding Grant elements, each grant identifying the grantee
-and the permission.
-
+User-level access control conforming to the AWS Identity and Access Management
+(IAM) service protocols is under development as of version 1.2.0.
 
 .. toctree::
    :maxdepth: 2
 
-   grantee_eligibility
-   grantable_permissions
-   specifying_an_acl
-   sample_acl
+   ACLs/index
+   CORS/index
+   bucket_policies/index
+

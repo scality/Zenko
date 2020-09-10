@@ -3,100 +3,94 @@
 GET Bucket Location
 ===================
 
-The GET Bucket Location operation uses the locationsubresource to return
+The GET Bucket Location operation uses the location subresource to return
 a bucket’s location. The bucket’s location is set up using the
-LocationConstraint request parameter in a PUT Bucket request. Refer to :ref:`PUT Bucket`.
+LocationConstraint request parameter in a PUT Bucket request. Refer to 
+:ref:`PUT Bucket`.
 
 .. note::
 
-  Location constraint options are configured in the ``env_s3`` setting during
-  S3C configuration. See :ref:`Configuring the S3C Cluster` in :version-ref:`S3
-  Connector
-  Installation<https://documentation.scality.com/S3C/{version}/installation>`.
+  The possible options for a LocationConstraint are configured in the
+  env_s3 setting of the S3 configuration.
 
 Requests
 --------
 
-Request Syntax
-~~~~~~~~~~~~~~
+Syntax
+~~~~~~
 
 .. code::
 
    GET /?location HTTP/1.1
-   Host: {{BucketName}}.{{ConnectorName}}.{{StorageService}}.com
+   Host: {{BucketName}}.{{StorageService}}.com
    Date: {{date}}
    Authorization: {{authenticationInformation}}
 
-Request Parameters
-~~~~~~~~~~~~~~~~~~
+Parameters
+~~~~~~~~~~
 
 The GET Bucket Location operation does not use request parameters.
 
-Request Headers
-~~~~~~~~~~~~~~~
+Headers
+~~~~~~~
 
-Implementation of the GET Bucket Location operation uses only request
+The GET Bucket Location operation uses only request
 headers that are common to all operations (refer to :ref:`Common Request
 Headers`).
 
-Request Elements
-~~~~~~~~~~~~~~~~
+Elements
+~~~~~~~~
 
 The GET Bucket Location operation does not use request elements.
 
 Responses
 ---------
 
-Response Headers
-~~~~~~~~~~~~~~~~
+Headers
+~~~~~~~
 
-Implementation of the GET Bucket Location operation uses only response
+The GET Bucket Location operation uses only response
 headers that are common to all operations (refer to :ref:`Common Response Headers`).
 
-Response Elements
-~~~~~~~~~~~~~~~~~
+Elements
+~~~~~~~~
 
-The GET Bucket Location operation can return the following XML elements
+The GET Bucket Location operation can return the following XML elements
 in the response:
 
-.. tabularcolumns:: llL
+.. tabularcolumns:: X{0.20\textwidth}X{0.10\textwidth}X{0.65\textwidth}
 .. table::
-   :widths: auto
-
-   +-----------------------+-----------------------+-----------------------+
-   | Element               | Type                  | Description           |
-   +=======================+=======================+=======================+
-   | LocationConstraint    | String                | Specifies the         |
-   |                       |                       | location of the       |
-   |                       |                       | bucket. The           |
-   |                       |                       | LocationConstraint    |
-   |                       |                       | parameter is          |
-   |                       |                       | configured in the     |
-   |                       |                       | env_s3 setting of the |
-   |                       |                       | S3 Configuration. For |
-   |                       |                       | more information,     |
-   |                       |                       | refer to “Modifying   |
-   |                       |                       | the Group Variables   |
-   |                       |                       | (all) File” in        |
-   |                       |                       | S3 Connector          |
-   |                       |                       | Installation.         |
-   +-----------------------+-----------------------+-----------------------+
+   
+   +------------------------+-----------------------+-----------------------+
+   | Element                | Type                  | Description           |
+   +========================+=======================+=======================+
+   | ``LocationConstraint`` | String                | Specifies the         |
+   |                        |                       | location of the       |
+   |                        |                       | bucket. The           |
+   |                        |                       | LocationConstraint    |
+   |                        |                       | parameter is          |
+   |                        |                       | configured in the     |
+   |                        |                       | env_s3 setting of the |
+   |                        |                       | S3 configuration.     |
+   +------------------------+-----------------------+-----------------------+
 
 Examples
 --------
 
-*Request Sample*
+Request
+~~~~~~~
 
 .. code::
 
    GET /?location HTTP/1.1
-   Host: myBucket.s3.example.com
+   Host: myBucket.s3.scality.com
    Date: Thu, 31 Mar 2016 15:11:47 GMT
    Authorization: AWS pat:6nYhPMw6boadLgjywjSIyhfwRIA=
 
-*Response Sample*
+Response
+~~~~~~~~
 
 .. code::
 
    <xml version="1.0" encoding="UTF-8"?>
-   <LocationConstraint xmlns="http://s3.example.com/doc/2006-03-01/">EU</LocationConstraint>
+   <LocationConstraint xmlns="http://s3.amazonaws.com/doc/2006-03-01/">EU</LocationConstraint>

@@ -13,8 +13,8 @@ accessible, otherwise the operation can return such responses as
 Requests
 --------
 
-Request Syntax
-~~~~~~~~~~~~~~
+Syntax
+~~~~~~
 
 .. code::
 
@@ -23,33 +23,33 @@ Request Syntax
    Date: {{date}}
    Authorization: {{authorizationString}}
 
-Request Parameters
-~~~~~~~~~~~~~~~~~~
+Parameters
+~~~~~~~~~~
 
 The HEAD Bucket operation does not use request parameters.
 
-Request Headers
-~~~~~~~~~~~~~~~
+Headers
+~~~~~~~
 
-Implementation of the HEAD Bucket operation uses only request headers
+The HEAD Bucket operation uses only request headers
 that are common to all operations (refer to :ref:`Common Request Headers`).
 
-Request Elements
-~~~~~~~~~~~~~~~~
+Elements
+~~~~~~~~
 
 The HEAD Bucket operation does not use request elements.
 
 Responses
 ---------
 
-Response Headers
-~~~~~~~~~~~~~~~~
+Headers
+~~~~~~~
 
-Implementation of the HEAD Bucket operation uses only response headers
-that are common to all operations (refer to :ref:`Common Response Headers`).
+The HEAD Bucket operation uses only response headers that are
+common to all operations (refer to :ref:`Common Response Headers`).
 
-Response Elements
-~~~~~~~~~~~~~~~~~
+Elements
+~~~~~~~~
 
 The HEAD Bucket operation does not return response elements.
 
@@ -59,19 +59,19 @@ Examples
 Determining the Status of a Particular Bucket
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Request Sample
-^^^^^^^^^^^^^^
+Request
+```````
 
 .. code::
 
    HEAD / HTTP/1.1
    Date: Fri, 10 Feb 2012 21:34:55 GMT
    Authorization: {{authorizationString}}
-   Host: {{bucketname}}.s3.example.com
+   Host: {{bucketname}}.s3.scality.com
    Connection: Keep-Alive
 
-Response Sample
-^^^^^^^^^^^^^^^
+Response
+````````
 
 .. code::
 

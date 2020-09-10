@@ -43,11 +43,11 @@ Options
 
 ``--encoding-type`` (string)
 
-  Requests S3 Connector to encode the object keys in the response and specifies the
+  Requests Zenko to encode the object keys in the response and specifies the
   encoding method to use. An object key may contain any Unicode character;
   however, XML 1.0 parser cannot parse some characters, such as characters with
   an ASCII value from 0 to 10. For characters that are not supported in XML 1.0,
-  you can add this parameter to request that S3 Connector encode the keys in the
+  you can add this parameter to request that Zenko encode the keys in the
   response.
 
   Possible values:
@@ -226,4 +226,4 @@ CommonPrefixes -> (list)
 
 EncodingType -> (string)
 
-  Encoding type used by S3 Connector to encode object keys in the response.
+  Encoding type used by Zenko to encode object keys in the response.

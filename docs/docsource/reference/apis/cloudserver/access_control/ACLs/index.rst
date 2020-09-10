@@ -1,7 +1,7 @@
-.. _ACL (Access Control List):
+ .. _Access Control Lists:
 
-ACL (Access Control List)
-=========================
+Access Control Lists
+====================
 
 Access Control Lists (ACLs) enable the management of access to buckets
 and objects.
@@ -20,7 +20,7 @@ structure).
 .. code::
 
    <?xml version="1.0" encoding="UTF-8"?>
-   <AccessControlPolicy xmlns="http://example.com/doc/2006-03-01/">
+   <AccessControlPolicy xmlns="http://s3.example.com/doc/2006-03-01/">
      <Owner>
        <ID>*** Owner-Canonical-User-ID ***</ID>
        <DisplayName>owner-display-name</DisplayName>
@@ -38,10 +38,10 @@ structure).
    </AccessControlPolicy>
 
 The sample ACL includes an Owner element identifying the owner via the
-account’s canonical user ID. The Grantelement identifies the grantee
+account’s canonical user ID. The Grant element identifies the grantee
 (either a specific account or a predefined group), and the permission
-granted. This default ACL has one Grantelement for the owner. You grant
-permissions by adding Grantelements, each grant identifying the grantee
+granted. This default ACL has one Grant element for the owner. You grant
+permissions by adding Grant elements, each grant identifying the grantee
 and the permission.
 
 
@@ -51,3 +51,4 @@ and the permission.
    grantee_eligibility
    grantable_permissions
    specifying_an_acl
+

@@ -8,55 +8,55 @@ empty.
 
 .. note::
 
-  Before a bucket can be deleted, all object must be deleted from the
+  Before a bucket can be deleted, all objects must be deleted from the
   bucket and all ongoing multipart uploads must be aborted.
 
 Requests
 --------
 
-Request Syntax
-~~~~~~~~~~~~~~
+Syntax
+~~~~~~
 
 .. code::
 
    DELETE / HTTP/1.1
-   Host: {{BucketName}}.{{ConnectorName}}.{{StorageService}}.com
+   Host: {{BucketName}}.{{StorageService}}.com
    Date: {{date}}
    Authorization: {{authenticationInformation}
 
-Request Parameters
-~~~~~~~~~~~~~~~~~~
+Parameters
+~~~~~~~~~~
 
-The DELETE Bucket operation does not use request parameters.
+The DELETE Bucket operation does not use request parameters.
 
-Request Headers
-~~~~~~~~~~~~~~~
+Headers
+~~~~~~~
 
-Implementation of the DELETE Bucket operation uses only request headers
+The DELETE Bucket operation uses only request headers
 that are common to all operations (refer to :ref:`Common Request Headers`).
 
-Request Elements
-~~~~~~~~~~~~~~~~
+Elements
+~~~~~~~~
 
 The DELETE Bucket operation does not use request elements.
 
 Responses
 ---------
 
-Response Headers
-~~~~~~~~~~~~~~~~
+Headers
+~~~~~~~
 
-Implementation of the DELETE Bucket operation uses only response headers
+The DELETE Bucket operation uses only response headers
 that are common to all operations (refer to :ref:`Common Response Headers`).
 
-Response Elements
-~~~~~~~~~~~~~~~~~
+Elements
+~~~~~~~~
 
 The DELETE Bucket operation does not return response elements.
 
 .. code::
 
-   Host: documentation.s3.example.com
+   Host: documentation.s3.scality.com
    Date: Tue, 21 Jun 2011 12:12:34 GMT
 
 Examples
@@ -65,18 +65,18 @@ Examples
 Deleting the “documentation” Bucket
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Request Sample
-^^^^^^^^^^^^^^
+Request
+```````
 
 .. code::
 
    DELETE / HTTP/1.1
-   Host: documentation.s3.example.com
+   Host: documentation.s3.scality.com
    Date: Tue, 21 Jun 2011 12:12:34 GMT
    Authorization: AWS pat:BAupPCpkyeIGKH2s5Je4Bc32bc=
 
-Response Sample
-^^^^^^^^^^^^^^^
+Response
+````````
 
 .. code::
 

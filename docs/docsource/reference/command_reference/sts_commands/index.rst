@@ -3,7 +3,7 @@
 STS Command Set
 ===============
 
-As implemented, S3 Connector supports only one STS command:
+As implemented, Zenko supports only one STS command:
 
 .. toctree::
    :maxdepth: 1

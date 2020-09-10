@@ -136,7 +136,7 @@ Contents of ``replication.json``::
 
 The destination bucket must be in a different region and have versioning
 enabled. The specified role must have permission to write to the destination
-bucket and have a trust relationship that allows S3 Connector to assume the role.
+bucket and have a trust relationship that allows Zenko to assume the role.
 
 Example role permission policy::
 

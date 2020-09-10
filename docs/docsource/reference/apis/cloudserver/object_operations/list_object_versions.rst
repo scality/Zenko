@@ -49,11 +49,11 @@ The request uses the following URI parameters.
 
    ``encoding-type``
    
-      Requests S3 Connector to encode the object keys in the response,
+      Requests Zenko to encode the object keys in the response,
       specifying the encoding method. An object key may contain any Unicode
       character; however, the XML 1.0 parser may not be able to parse some
       characters. For characters not supported in XML 1.0, add this parameter to
-      request that S3 Connector encode the keys in the response.
+      request that Zenko encode the keys in the response.
 
       Valid Values: ``url``
 
@@ -173,10 +173,10 @@ XML-formatted data:
 
    ``EncodingType``
 
-      Encoding type used by S3 Connector to encode object key names in the XML
+      Encoding type used by Zenko to encode object key names in the XML
       response.
 
-      If you specify an ``encoding-type`` request parameter, S3 Connector
+      If you specify an ``encoding-type`` request parameter, Zenko
       includes this element in the response, and returns encoded key name values
       in the following response elements:
 
@@ -188,7 +188,7 @@ XML-formatted data:
 
    ``IsTruncated``
    
-      This flag indicates whether S3 Connector returned all results satisfying
+      This flag indicates whether Zenko returned all results satisfying
       the search. If the results were truncated, you can issue a follow-up
       paginated request starting with the ``NextKeyMarker`` and
       ``NextVersionIdMarker`` response parameters to return the rest of the
