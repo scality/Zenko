@@ -6,6 +6,14 @@ branches:
     stage: pre-merge
 
 models:
+  - env: &kind-env
+      OPERATOR_REPO: git@github.com:scality/zenko-operator.git
+      OPERATOR_IMAGE: '%(prop:OPERATOR_IMAGE_NAME)s:%(prop:OPERATOR_IMAGE_TAG)s'
+      KIND_NODE_IMAGE: "kindest/node:v1.17.5@sha256:ab3f9e6ec5ad8840eeb1f76c89bb7948c77bbf76bcebe1a8b59790b8ae9a283a"
+      VOLUME_ROOT: /artifacts
+  - env: &e2e-env
+      E2E_IMAGE_NAME: registry.scality.com/zenko/zenko-e2e
+      E2E_IMAGE_TAG: '%(prop:commit_short_revision)s'
   - Git: &git_pull
       name: git pull
       repourl: "%(prop:git_reference)s"
@@ -36,6 +44,10 @@ models:
         echo "Could not reach Docker daemon from buildbot worker" >&2
         exit 1'
       haltOnFailure: true
+  - SetProperties: &set_operator_properties
+      properties:
+        OPERATOR_IMAGE_NAME: registry.scality.com/sf-eng/zenko-operator
+        OPERATOR_IMAGE_TAG: 004087b
 
 stages:
   pre-merge:
@@ -112,13 +124,87 @@ stages:
         worker: eve/workers/end2end
     steps:
     - Git: *git_pull
+    - SetProperties: *set_operator_properties
     - ShellCommand: *wait_docker_daemon
-    - ShellCommand:
+    - ShellCommand: *private_registry_login
+    - ShellCommand: &bootstrap_kind
         name: Bootstrap kind cluster
-        command: kind create cluster --config=kind-config.yaml
+        env:
+          <<: *kind-env
+        command: scripts/bootstrap-kind.sh ${KIND_NODE_IMAGE} ${VOLUME_ROOT}
         workdir: build/eve/workers/end2end
     - ShellCommand:
         name: Ensure cluster is up and running
         command: |
           kubectl get nodes
           kubectl get pods --all-namespaces
+    - ShellCommand:
+        name: Create namespace
+        command: kubectl create namespace ${STAGE} &> /dev/null
+    - ShellCommand: &create_image_pull_secret
+        name: Create pull image secret
+        command: scripts/create-pull-image-secret.sh | kubectl apply -f -
+        workdir: build/eve/workers/end2end
+        haltOnFailure: True
+    - ShellCommand:
+        name: Install operator
+        env:
+          <<: *kind-env
+          COMMIT_HASH: '%(prop:OPERATOR_IMAGE_TAG)s'
+        command: |
+          git clone ${OPERATOR_REPO} operator
+          cd operator
+          git checkout ${COMMIT_HASH}
+          docker pull ${OPERATOR_IMAGE}
+          kind load docker-image ${OPERATOR_IMAGE}
+          deploy/scripts/install-kind-deps.sh
+          deploy/scripts/install-zenko-operator.sh ${OPERATOR_IMAGE} "default"
+        workdir: build/eve/workers/end2end
+        haltOnFailure: true
+        flunkOnFailure: true
+    - ShellCommand:
+        name: Deploy Zenko Instance
+        env:
+          <<: *kind-env
+        command: scripts/deploy-zenko.sh "end2end" ${VOLUME_ROOT} "default"
+        workdir: build/eve/workers/end2end
+        haltOnFailure: true
+    - ShellCommand: &build-e2e-image
+        name: Build end2end test image
+        env: *e2e-env
+        command: |
+          docker build -t ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} tests/zenko_tests
+          docker push ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG}
+          #kind load docker-image ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG}
+        workdir: build
+        haltOnFailure: true
+    - ShellCommand:
+        name: End-to-end configuration
+        env:
+          <<: [*kind-env, *e2e-env]
+        command: scripts/configure-e2e.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "default"
+        workdir: build/eve/workers/end2end
+        haltOnFailure: true
+    - ShellCommand:
+        name: Run init CI test
+        env:
+          <<: [*kind-env, *e2e-env]
+        command: eve/workers/end2end/scripts/run-e2e-test.sh  "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} ${STAGE} "default"
+        workdir: build
+        haltOnFailure: true
+    - ShellCommand:
+        name: archive artifact logs and data
+        command: >-
+          set -exu;
+          mkdir -p /artifacts/data/kind-logs;
+          kubectl get pods -A -o yaml > /artifacts/data/kind-logs/all-pods.log;
+          kubectl get events -A -o yaml > /artifacts/data/kind-logs/all-events.log;
+          kind export logs /artifacts/data/kind-logs/kind-export;
+          tar zcvf /artifacts/%(prop:commit_short_revision)s-logs-volumes.tgz /artifacts/data/kind-logs;
+        alwaysRun: true
+    - Upload:
+        alwaysRun: true
+        source: /artifacts
+        urls:
+          - "*.tgz"
+

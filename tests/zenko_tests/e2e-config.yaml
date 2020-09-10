@@ -1,0 +1,8 @@
+accounts:
+  - "zenko"
+endpoints: []
+locations: []
+workflows:
+  replication: []
+  lifecycle: []
+  ingestion: []
