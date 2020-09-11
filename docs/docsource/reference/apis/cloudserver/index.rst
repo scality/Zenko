@@ -13,3 +13,4 @@ APIs, which Zenko brokers through its APIs.
    service_operations/index
    bucket_operations/index
    object_operations/index
+   backbeat/index

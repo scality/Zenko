@@ -12,6 +12,3 @@ documents available commands.
 
    s3_commands/index
    s3api_commands/index
-   sts_commands/index
-   iam_user_and_group_commands/index
-   vault_commands/index

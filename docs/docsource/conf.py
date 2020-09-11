@@ -110,43 +110,27 @@ pygments_style = 'sphinx'
 
 rst_prolog = """
 
-.. |min_kubernetes| replace:: 1.11.3
-
-.. |set-blob-timeouts| replace:: `Setting Timeouts for Blob Service Operations <https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations>`__
-
-.. |authorize-requests| replace:: `Authorize requests to Azure Storage <https://docs.microsoft.com/en-us/rest/api/storageservices/authorize-requests-to-azure-storage>`__
-
-.. |azure-versioning| replace:: `Versioning for the Azure Storage services <https://docs.microsoft.com/en-us/rest/api/storageservices/versioning-for-the-azure-storage-services>`__
-
-.. |analytics-log| replace:: `Azure Storage Analytics Logging <https://docs.microsoft.com/en-us/azure/storage/common/storage-analytics-logging>`__
-
-.. |storage-tracking| replace:: `Windows Azure Logging: Using Logs to Track Storage Requests <https://blogs.msdn.microsoft.com/windowsazurestorage/2011/08/02/windows-azure-storage-logging-using-logs-to-track-storage-requests/>`__
-
-.. |api-troubleshoot| replace:: `Troubleshooting API operations <https://docs.microsoft.com/en-us/rest/api/storageservices/troubleshooting-api-operations>`__
-
-.. |cors-support| replace:: `Cross-Origin Resource Sharing (CORS) support for Azure Storage <https://docs.microsoft.com/en-us/rest/api/storageservices/cross-origin-resource-sharing--cors--support-for-the-azure-storage-services>`__
-
-.. |conditional-headers| replace:: `Specifying conditional headers for Blob service operations <https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations>`__
-
-.. |create-sas| replace:: `Create a service SAS <https://docs.microsoft.com/en-us/rest/api/storageservices/create-service-sas>`__
-
-.. |define-access| replace:: `Define a stored access policy <https://docs.microsoft.com/en-us/rest/api/storageservices/define-stored-access-policy>`__
-
-.. |date-time-headers| replace:: `Representation of date/time values in headers <https://docs.microsoft.com/en-us/rest/api/storageservices/representation-of-date-time-values-in-headers>`__
-
-.. |geo-redundant| replace:: `Windows Azure Storage Redundancy Options and Read Access Geo Redundant Storage <https://blogs.msdn.microsoft.com/windowsazurestorage/2013/12/11/windows-azure-storage-redundancy-options-and-read-access-geo-redundant-storage/>`__
-
-.. |list-blob-storage| replace:: `Listing Blob storage resources <https://docs.microsoft.com/en-us/rest/api/storageservices/enumerating-blob-resources>`__
-
-.. |range-header| replace:: `Specifying the Range Header for Blob Service Operations <https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-the-range-header-for-blob-service-operations>`__
-
-.. |manage-access| replace:: `Manage anonymous read access to containers and blobs <https://docs.microsoft.com/en-us/azure/storage/blobs/storage-manage-access-to-resources>`__
-
-.. |naming-referencing| replace:: `Naming and Referencing Containers, Blobs, and Metadata <https://docs.microsoft.com/en-us/rest/api/storageservices/naming-and-referencing-containers--blobs--and-metadata>`__
-
-.. |scalability-perf| replace:: `Azure Storage scalability and performance targets for storage accounts <https://docs.microsoft.com/en-us/azure/storage/common/storage-scalability-targets>`__
+   .. |min_kubernetes| replace:: 1.11.3
+   .. |set-blob-timeouts| replace:: `Setting Timeouts for Blob Service Operations <https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations>`__
+   .. |authorize-requests| replace:: `Authorize requests to Azure Storage <https://docs.microsoft.com/en-us/rest/api/storageservices/authorize-requests-to-azure-storage>`__
+   .. |azure-versioning| replace:: `Versioning for the Azure Storage services <https://docs.microsoft.com/en-us/rest/api/storageservices/versioning-for-the-azure-storage-services>`__
+   .. |analytics-log| replace:: `Azure Storage Analytics Logging <https://docs.microsoft.com/en-us/azure/storage/common/storage-analytics-logging>`__
+   .. |storage-tracking| replace:: `Windows Azure Logging: Using Logs to Track Storage Requests <https://blogs.msdn.microsoft.com/windowsazurestorage/2011/08/02/windows-azure-storage-logging-using-logs-to-track-storage-requests/>`__
+   .. |api-troubleshoot| replace:: `Troubleshooting API operations <https://docs.microsoft.com/en-us/rest/api/storageservices/troubleshooting-api-operations>`__
+   .. |cors-support| replace:: `Cross-Origin Resource Sharing (CORS) support for Azure Storage <https://docs.microsoft.com/en-us/rest/api/storageservices/cross-origin-resource-sharing--cors--support-for-the-azure-storage-services>`__
+   .. |conditional-headers| replace:: `Specifying conditional headers for Blob service operations <https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations>`__
+   .. |create-sas| replace:: `Create a service SAS <https://docs.microsoft.com/en-us/rest/api/storageservices/create-service-sas>`__
+   .. |define-access| replace:: `Define a stored access policy <https://docs.microsoft.com/en-us/rest/api/storageservices/define-stored-access-policy>`__
+   .. |date-time-headers| replace:: `Representation of date/time values in headers <https://docs.microsoft.com/en-us/rest/api/storageservices/representation-of-date-time-values-in-headers>`__
+   .. |geo-redundant| replace:: `Windows Azure Storage Redundancy Options and Read Access Geo Redundant Storage <https://blogs.msdn.microsoft.com/windowsazurestorage/2013/12/11/windows-azure-storage-redundancy-options-and-read-access-geo-redundant-storage/>`__
+   .. |list-blob-storage| replace:: `Listing Blob storage resources <https://docs.microsoft.com/en-us/rest/api/storageservices/enumerating-blob-resources>`__
+   .. |range-header| replace:: `Specifying the Range Header for Blob Service Operations <https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-the-range-header-for-blob-service-operations>`__
+   .. |manage-access| replace:: `Manage anonymous read access to containers and blobs <https://docs.microsoft.com/en-us/azure/storage/blobs/storage-manage-access-to-resources>`__
+   .. |scalability-perf| replace:: `Azure Storage scalability and performance targets for storage accounts <https://docs.microsoft.com/en-us/azure/storage/common/storage-scalability-targets>`__ 
+   .. |naming-referencing| replace:: `Naming and Referencing Containers, Blobs, and Metadata <https://docs.microsoft.com/en-us/rest/api/storageservices/naming-and-referencing-containers--blobs--and-metadata>`__
 
 """
+
 
 
 # -- Options for HTML output -------------------------------------------------

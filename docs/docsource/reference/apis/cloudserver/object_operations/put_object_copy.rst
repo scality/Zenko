@@ -258,7 +258,7 @@ with the PUT Object - Copy operation. By default, all objects are private; only
 the owner has full access control. When adding a new object, it is possible to
 grant permissions to individual AWS accounts or predefined groups defined by
 Amazon S3. These permissions are then added to the Access Control List (ACL) on
-the object. For more information, refer to :ref:`ACL (Access Control List)`.
+the object. For more information, refer to :ref:`Access Control Lists`.
 
 Specifying a Canned ACL
 ```````````````````````

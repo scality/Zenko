@@ -31,8 +31,8 @@ furnished here for addressing :ref:`Prometheus` and :ref:`Backbeat`. Prometheus
 API access is direct. The Backbeat API is accessed through CloudServer API
 calls.
 
-Zenko provides application programming interfaces via CloudServer, Vault Admin,
-UTAPI, Prometheus, and the metadata engine. 
+Zenko provides application programming interfaces via CloudServer, UTAPI,
+Prometheus, and the metadata engine.
 
 Command Zenko by calling its REST API, using:
 
@@ -48,8 +48,5 @@ This reference describes available commands and APIs.
    :maxdepth: 2
 
    supported_apis
-   supported_keys_and_operators_in_iam_policies
    feature_compatibility_matrix
-   actions_supported_in_iam_policies
-   supported_keys_and_operators_in_iam_policies
    bucket_encryption

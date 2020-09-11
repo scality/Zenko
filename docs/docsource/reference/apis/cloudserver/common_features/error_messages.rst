@@ -333,8 +333,8 @@ AWS-emulating CloudServer module:
    +---------------------------------------------+------+---------------------------------------------------+
    | ``Throttling``                              | 400  | The request was denied due to request throttling. |
    +---------------------------------------------+------+---------------------------------------------------+
-   | ``AccountNotFound``                         | 404  | No account was found in Vault. Contact your       |
-   |                                             |      | system administrator.                             |
+   | ``AccountNotFound``                         | 404  | No account was found. Contact your system         |
+   |                                             |      | administrator.                                    |
    +---------------------------------------------+------+---------------------------------------------------+
    | ``ValidationError``                         | 400  | The specified value is invalid.                   |
    +---------------------------------------------+------+---------------------------------------------------+

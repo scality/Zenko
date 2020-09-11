@@ -26,7 +26,7 @@ On a successful transaction, Blobserver returns one of the following status code
    | Partial Content | 206  | Successful operation to read a specified range                   |
    +-----------------+------+------------------------------------------------------------------+
 
-.. _Error Codes:
+.. _Blobserver Error Codes:
 
 Error Codes
 -----------

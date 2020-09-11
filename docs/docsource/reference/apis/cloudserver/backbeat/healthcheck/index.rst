@@ -41,3 +41,6 @@ producers for every topic.
    :maxdepth: 1
 	      
    get_healthcheck
+   healthcheck_details
+   healthcheck_deep
+
