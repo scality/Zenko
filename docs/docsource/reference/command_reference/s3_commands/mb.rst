@@ -5,7 +5,7 @@ mb
 
 Makes an S3 bucket.
 
-See `aws help <https://docs.aws.amazon.com/cli/latest/reference/index.html>`_ for descriptions of global parameters.
+ 
 
 Synopsis
 --------
@@ -20,7 +20,7 @@ Options
 ``path`` (string)
 
 
-See `aws help <https://docs.aws.amazon.com/cli/latest/reference/index.html>`_ for descriptions of global parameters.
+ 
 
 Examples
 --------

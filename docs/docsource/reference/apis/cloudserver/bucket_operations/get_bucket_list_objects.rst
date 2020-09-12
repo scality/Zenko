@@ -296,7 +296,7 @@ Request
 .. code::
 
    GET / HTTP/1.1
-   Host: backup.s3.scality.com
+   Host: backup.s3.example.com
    Date: Thu, 31 Mar 2016 15:11:47 GMT
    Authorization: AWS pat:6nYhPMw6boadLgjywjSIyhfwRIA=
 
@@ -309,7 +309,7 @@ Response
 .. code::
 
    <?xml version="1.0" encoding="UTF-8"?>
-     <ListBucketResult xmlns="http://s3.scality.com/doc/2006-03-01/">
+     <ListBucketResult xmlns="http://s3.example.com/doc/2006-03-01/">
        <Name>backup</Name>
        <Prefix></Prefix>
        <Marker></Marker>
@@ -339,7 +339,7 @@ Request
 .. code::
 
    GET /?max-keys=4 HTTP/1.1
-   Host: demo.s3.scality.com
+   Host: demo.s3.example.com
    Accept: */*
    Authorization: AWS pat:0YPPNCCa9yAbKOFdlLD/ixMLayg=
    Date: Tue, 28 Jun 2011 09:27:15 GMT
@@ -359,7 +359,7 @@ Response
    Connection: close
 
    <?xml version="1.0" encoding="UTF-8"?>
-     <ListBucketResult xmlns="http://s3.scality.com/doc/2006-03-01/">
+     <ListBucketResult xmlns="http://s3.example.com/doc/2006-03-01/">
        <Name>confpat</Name>
        <Prefix></Prefix>
        <Marker></Marker>
@@ -409,7 +409,7 @@ The following GET request specifies the delimiter parameter with value
 .. code::
 
    GET /?delimiter=/ HTTP/1.1
-   Host: example-bucket.s3.scality.com
+   Host: example-bucket.s3.example.com
    Date: Wed, 01 Mar  2006 12:00:00 GMT
    Authorization: {{authorizationString}}
 
@@ -425,7 +425,7 @@ to the first occurrence of the specified delimiter.
 
 .. code::
 
-   <ListBucketResult xmlns="http://s3.scality.com/doc/2006-03-01/">
+   <ListBucketResult xmlns="http://s3.example.com/doc/2006-03-01/">
      <Name>example-bucket</Name>
      <Prefix></Prefix>
      <Marker></Marker>
@@ -456,7 +456,7 @@ The following GET request specifies the delimiter parameter with value
 .. code::
 
    GET /?prefix=photographs/2006/&amp;delimiter=/ HTTP/1.1
-   Host: example-bucket.s3.scality.com
+   Host: example-bucket.s3.example.com
    Date: Wed, 01 Mar  2006 12:00:00 GMT
    Authorization: {{authorizationString}}
 
@@ -475,7 +475,7 @@ after the prefix.
 
 .. code::
 
-   <ListBucketResult xmlns="http://s3.scality.com/doc/2006-03-01/">
+   <ListBucketResult xmlns="http://s3.example.com/doc/2006-03-01/">
      <Name>example-bucket</Name>
      <Prefix>photographs/2006/</Prefix>
      <Marker></Marker>

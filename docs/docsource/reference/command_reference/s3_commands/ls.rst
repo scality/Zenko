@@ -10,7 +10,7 @@ List S3 objects and common prefixes under a prefix or all S3 buckets.
    This command ignores the ``--output`` and ``--no-paginate`` arguments.
 
 
-See `aws help <https://docs.aws.amazon.com/cli/latest/reference/index.html>`_ for descriptions of global parameters.
+ 
 
 Synopsis
 --------
@@ -46,8 +46,8 @@ Displays file sizes in human readable format.
 
 Displays summary information (number of objects, total size).
 
-See `aws help <https://docs.aws.amazon.com/cli/latest/reference/index.html>`_
-for descriptions of global parameters.
+
+
 
 Examples
 --------

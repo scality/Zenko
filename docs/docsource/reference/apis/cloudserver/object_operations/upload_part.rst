@@ -162,7 +162,7 @@ Part 1 of a multipart upload using the upload ID returned by an :ref:`Initiate M
 .. code::
 
    PUT /my-movie.m2ts?partNumber=1&amp;uploadId=VCVsb2FkIElEIGZvciBlbZZpbmcncyBteS1tb3ZpZS5tMnRzIHVwbG9hZR HTTP/1.1
-   Host: example-bucket.s3.scality.com
+   Host: example-bucket.s3.example.com
    Date:  Mon, 1 Nov 2010 20:34:56 GMT
    Content-Length: 10485760
    Content-MD5: pUNXr/BjKK5G2UKvaRRrOA==

@@ -16,15 +16,15 @@ return the versioning state of a bucket.
    +-----------------------------------+------------------------------------------------------------------------------+
    | Versioning State                  | Response                                                                     |
    +===================================+==============================================================================+
-   | Versioning is enabled on a bucket | ``<VersioningConfiguration xmlns="http://s3.scality.com/doc/2006-03-01/">``  |
+   | Versioning is enabled on a bucket | ``<VersioningConfiguration xmlns="http://s3.example.com/doc/2006-03-01/">``  |
    |                                   | ``<Status>Enabled</Status>``                                                 |
    |                                   | ``</VersioningConfiguration>``                                               |
    +-----------------------------------+------------------------------------------------------------------------------+
-   | Versioning is suspended on a      | ``<VersioningConfiguration xmlns="http://s3.scality.com/doc/2006-03-01/">``  |
+   | Versioning is suspended on a      | ``<VersioningConfiguration xmlns="http://s3.example.com/doc/2006-03-01/">``  |
    | bucket                            | ``<Status>Suspended</Status>``                                               |
    |                                   | ``</VersioningConfiguration>``                                               |
    +-----------------------------------+------------------------------------------------------------------------------+
-   | Versioning has not been enabled   | ``<VersioningConfiguration xmlns="http://s3.scality.com/doc/2006-03-01/"/>`` |
+   | Versioning has not been enabled   | ``<VersioningConfiguration xmlns="http://s3.example.com/doc/2006-03-01/"/>`` |
    | (or suspended) on a bucket        |                                                                              |
    +-----------------------------------+------------------------------------------------------------------------------+
 
@@ -96,7 +96,7 @@ Request
 .. code::
 
    GET /?versioning HTTP/1.1
-   Host: myBucket.s3.scality.com
+   Host: myBucket.s3.example.com
    Date: Tue, 13 Dec 2011 19:14:42 GMT
    Authorization: {{authenticationInformation}}
    Content-Type: text/plain
@@ -106,6 +106,6 @@ Response
 
 .. code::
 
-   <VersioningConfiguration xmlns="http://s3.scality.com/">
+   <VersioningConfiguration xmlns="http://s3.example.com/">
      <Status>Enabled</Status>
    </VersioningConfiguration>

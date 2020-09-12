@@ -35,22 +35,22 @@ Options
 ``--if-match`` (string)
 
   Return the object only if its entity tag (ETag) is the same as the one
-  specified, otherwise return a 412 (precondition failed).
+  specified; otherwise return a ``412`` (precondition failed).
 
 ``--if-modified-since`` (timestamp)
 
-  Return the object only if it has been modified since the specified time,
-  otherwise return a 304 (not modified).
+  Return the object only if it has been modified since the specified time;
+  otherwise return a ``304`` (not modified).
 
 ``--if-none-match`` (string)
 
   Return the object only if its entity tag (ETag) is different from the one
-  specified, otherwise return a 304 (not modified).
+  specified; otherwise return a ``304`` (not modified).
 
 ``--if-unmodified-since`` (timestamp)
 
-  Return the object only if it has not been modified since the specified time,
-  otherwise return a 412 (precondition failed).
+  Return the object only if it has not been modified since the specified time;
+  otherwise return a ``412`` (precondition failed).
 
 ``--key`` (string)
 
@@ -68,21 +68,18 @@ Options
 
   Part number of the object being read. This is a positive integer between 1 and
   10,000. Effectively performs a 'ranged' HEAD request for the part
-  specified. Useful querying about the size of the part and the number of parts
-  in this object.
+  specified. This is useful for querying the size of the part and the number of
+  parts in an object.
 
 ``--cli-input-json`` (string)
 
-  Performs service operation based on the JSON string provided.  If other
-  arguments are provided on the command line, the CLI values will override the
-  JSON-provided values. It is not possible to pass arbitrary binary values using
-  a JSON-provided value as the string will be taken literally.
+  .. include:: ../../../include/cli-input-json.txt
 
 Examples
 --------
 
 The following command retrieves metadata for an object in a bucket named
-``my-bucket``::
+"my-bucket"::
 
   aws s3api head-object --bucket my-bucket --key index.html
 
@@ -101,24 +98,25 @@ Output::
 Output
 ------
 
-DeleteMarker -> (boolean)
+DeleteMarker -> (Boolean)
 
-  Specifies whether the object retrieved was (true) or was not (false) a Delete
-  Marker. If false, this response header does not appear in the response.
+  Specifies whether the object retrieved was (``true``) or was not (``false``) a
+  delete marker. If ``false``, this response header does not appear in the
+  response.
 
 AcceptRanges -> (string)
 
 Expiration -> (string)
 
-  If the object expiration is configured (see PUT Bucket lifecycle), the
-  response includes this header. It includes the expiry-date and rule-id key
-  value pairs providing object expiration information. The value of the rule-id
-  is URL encoded.
+  If the object expiration is configured (see :ref:`PUT Bucket Lifecycle`), the
+  response includes this header. It includes the ``expiry-date`` and ``rule-id``
+  key value pairs providing object expiration information. The value of
+  ``rule-id`` is URL-encoded.
 
 Restore -> (string)
 
-  Provides information about object restoration operation and expiration time of
-  the restored object copy.
+  Provides information about object restoration operation and the expiration
+  time of the restored object copy.
 
 LastModified -> (timestamp)
 
@@ -126,11 +124,12 @@ LastModified -> (timestamp)
 
 ContentLength -> (long)
 
-  Size of the body in bytes.
+  Size of the body, in bytes
   
 ETag -> (string)
 
-  An ETag is an opaque identifier assigned by a web server to a specific version of a resource found at a URL
+  An ETag is an opaque identifier assigned by a web server to a specific version
+  of a resource found at an URL.
 
 MissingMeta -> (integer)
 
@@ -141,7 +140,7 @@ MissingMeta -> (integer)
   
 VersionId -> (string)
 
-  Version of the object.
+  Version of the object
 
 CacheControl -> (string)
 
@@ -177,11 +176,12 @@ WebsiteRedirectLocation -> (string)
 
 ServerSideEncryption -> (string)
 
-  The Server-side encryption algorithm used when storing this object in S3 (e.g., AES256, aws:kms).
+  The server-side encryption algorithm used when storing this object (e.g.,
+  ``AES256``, ``aws:kms``).
 
 Metadata -> (map)
 
-  A map of metadata to store with the object in S3.
+  A map of metadata to store with the object.
 
   key -> (string)
 
@@ -193,16 +193,16 @@ ReplicationStatus -> (string)
 
 PartsCount -> (integer)
 
-  The count of parts this object has.
+  The count of parts in this object.
 
 ObjectLockMode -> (string)
 
-  The object lock mode currently in place for this object.
+  The object lock mode currently in place for this object
 
 ObjectLockRetainUntilDate -> (timestamp)
 
-  The date and time when this object's object lock expires.
+  The date and time this object's object lock expires.
 
 ObjectLockLegalHoldStatus -> (string)
 
-  The Legal Hold status for the specified object.
+  The specified object's legal hold status.

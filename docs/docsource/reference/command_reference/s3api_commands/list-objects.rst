@@ -10,9 +10,6 @@ bucket.
 See also: `AWS API Documentation
 <https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/ListObjects>`_.
 
-See `aws help <https://docs.aws.amazon.com/cli/latest/reference/index.html>`_
-for descriptions of global parameters.
-
 ``list-objects`` is a paginated operation. Multiple API calls may be issued in
 order to retrieve the entire data set of results. You can disable pagination by
 providing the ``--no-paginate`` argument.  When using ``--output text`` and the
@@ -68,19 +65,14 @@ Options
 
 ``--cli-input-json`` (string)
 
-  Performs service operation based on the JSON string provided.  If other
-  arguments are provided on the command line, the CLI values will override the
-  JSON-provided values. It is not possible to pass arbitrary binary values using
-  a JSON-provided value as the string will be taken literally.
+  .. include:: ../../../include/cli-input-json.txt
 
 ``--starting-token`` (string)
 
   A token to specify where to start paginating. This is the ``NextToken`` from a
   previously truncated response.
 
-  For usage examples, see `Pagination
-  <https://docs.aws.amazon.com/cli/latest/userguide/pagination.html>`__ in the
-  *AWS Command Line Interface User Guide*.
+  |aws_cli_guide|
 
 ``--page-size`` (integer)
 
@@ -89,9 +81,7 @@ Options
   results in more calls to the AWS service, retrieving fewer items in each
   call. This can help prevent the AWS service calls from timing out.
 
-  For usage examples, see `Pagination
-  <https://docs.aws.amazon.com/cli/latest/userguide/pagination.html>`__ in the
-  *AWS Command Line Interface User Guide*.
+  |aws_cli_guide|
 
 ``--max-items`` (integer)
 
@@ -102,11 +92,7 @@ Options
   command. **Do not** use the ``NextToken`` response element directly outside of
   the AWS CLI.
 
-  For usage examples, see `Pagination
-  <https://docs.aws.amazon.com/cli/latest/userguide/pagination.html>`__ in the
-  *AWS Command Line Interface User Guide*.
-
-See `aws help <https://docs.aws.amazon.com/cli/latest/reference/index.html>`_ for descriptions of global parameters.
+  |aws_cli_guide| 
 
 Examples
 --------
@@ -139,10 +125,14 @@ NextMarker -> (string)
   When response is truncated (the IsTruncated element value in the response is
   true), you can use the key name in this field as marker in the subsequent
   request to get next set of objects. Zenko lists objects in alphabetical
-  order Note: This element is returned only if you have delimiter request
-  parameter specified. If response does not include the NextMaker and it is
-  truncated, you can use the value of the last Key in the response as the marker
-  in the subsequent request to get the next set of object keys.
+  order.
+
+  .. note::
+
+     This element is only returned if the Delimiter request parameter is
+     specified. If the response is truncated and does not include the
+     NextMarker, use the value of the last Key field in the response as the
+     marker in the subsequent request to get the next set of object keys.
  
 Contents -> (list)
   

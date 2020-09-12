@@ -41,25 +41,18 @@ Options
 
 ``--bypass-governance-retention`` | ``--no-bypass-governance-retention`` (Boolean)
 
-  Indicates whether Amazon S3 object lock should bypass governance-mode
-  restrictions to process this operation.
+  Indicates whether S3 object lock should bypass governance-mode restrictions to
+  process this operation.
 
 ``--cli-input-json`` (string)
 
-  Performs service operation based on the JSON string provided. 
-  If other arguments
-  are provided on the command line, the CLI values will override the
-  JSON-provided values. It is not possible to pass arbitrary binary values using
-  a JSON-provided value as the string will be taken literally.
-
-See `aws help <https://docs.aws.amazon.com/cli/latest/reference/index.html>`_
-for descriptions of global parameters.
+  .. include:: ../../../include/cli-input-json.txt
 
 Examples
 --------
 
-The following command deletes an object named ``test.txt`` from a bucket named
-``my-bucket``::
+The following command deletes an object named "test.txt" from a bucket named
+"my-bucket"::
 
   aws s3api delete-object --bucket my-bucket --key test.txt
 

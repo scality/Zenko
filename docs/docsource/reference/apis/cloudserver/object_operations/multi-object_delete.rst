@@ -319,7 +319,7 @@ requester does not have permission to delete the sample2.txt object).
 .. code::
 
    POST /?delete HTTP/1.1
-   Host: {{bucketname}}.s3.scality.com
+   Host: {{bucketname}}.s3.example.com
    Accept: */*
    x-amz-date: Wed, 12 Oct 2009 17:50:00 GMT
    Content-MD5: p5/WA/oEr30qrEE121PAqw==
@@ -387,7 +387,7 @@ As shown, the Multi-Object Delete request specifies only one key.
 .. code::
 
    POST /?delete HTTP/1.1
-   Host: {{bucketname}}.s3.scality.com
+   Host: {{bucketname}}.s3.example.com
    Accept: */*
    x-amz-date: Wed, 30 Nov 2011 03:39:05 GMT
    Content-MD5: p5/WA/oEr30qrEEl21PAqw==
@@ -419,7 +419,7 @@ version number of the added delete marker.
 .. code::
 
    <?xml version="1.0" encoding="UTF-8"?>
-   <DeleteResult xmlns="http://s3.scality.com/doc/2006-03-01/">
+   <DeleteResult xmlns="http://s3.example.com/doc/2006-03-01/">
      <Deleted>
        <Key>SampleDocument.txt</Key>
        <DeleteMarker>true</DeleteMarker>
@@ -436,7 +436,7 @@ object.
 .. code::
 
    POST /?delete HTTP/1.1
-   Host: {{bucketname}}.s3.scality.com
+   Host: {{bucketname}}.s3.example.com
    Accept: */*
    x-amz-date: Wed, 30 Nov 2011 03:39:05 GMT
    Content-MD5: p5/WA/oEr30qrEEl21PAqw==
@@ -470,7 +470,7 @@ version ID of the deleted object.
 .. code::
 
    <?xml version="1.0" encoding="UTF-8"?>
-   <DeleteResult xmlns="http://s3.scality.com/doc/2006-03-01/">
+   <DeleteResult xmlns="http://s3.example.com/doc/2006-03-01/">
    <Deleted>
    <Key>sampledocument.txt</Key>
    <VersionId>OYcLXagmS.WaD..oyH4KRguB95_YhLs7</VersionId>

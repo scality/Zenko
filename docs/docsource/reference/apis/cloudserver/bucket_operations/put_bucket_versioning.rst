@@ -32,7 +32,7 @@ Syntax
    Date: {{date}}
    Authorization: {{authenticationInformation}}
 
-   <VersioningConfiguration xmlns="http://s3.scality.com/doc/2006-03-01/">
+   <VersioningConfiguration xmlns="http://s3.example.com/doc/2006-03-01/">
    <Status>{{VersioningState}}>/Status>
    </VersioningConfiguration>
 
@@ -100,13 +100,13 @@ Request
 .. code::
 
    PUT /?versioning HTTP/1.1
-   Host: bucket.s3.scality.com
+   Host: bucket.s3.example.com
    Date: Wed, 01 Mar  2006 12:00:00 GMT
    Authorization: {{authorization string}}
    Content-Type: text/plain
    Content-Length: 124
    
-   <VersioningConfiguration xmlns="http://s3.scality.com/doc/2006-03-01/">
+   <VersioningConfiguration xmlns="http://s3.example.com/doc/2006-03-01/">
    <Status>Enabled</Status>
    </VersioningConfiguration>
 
@@ -129,7 +129,7 @@ Request
 .. code::
 
    PUT /?versioning HTTP/1.1
-   Host: bucket.s3.scality.com
+   Host: bucket.s3.example.com
    Date: Wed, 12 Oct 2009 17:50:00 GMT
    Authorization: {{authorization string}}
    Content-Type: text/plain

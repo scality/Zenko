@@ -9,7 +9,7 @@ Supported S3 API commands for Zenko are detailed here.
    +-----------------------------------+-------------------+------------+
    | Operation Name                    | Operation Type    | Available? |
    +===================================+===================+============+
-   | GET Service                       | Bucket            | —          |
+   | GET Service                       | Bucket            | No         |
    +-----------------------------------+-------------------+------------+
    | :ref:`DELETE Bucket`              | Bucket            | Yes        |
    +-----------------------------------+-------------------+------------+
@@ -51,7 +51,7 @@ Supported S3 API commands for Zenko are detailed here.
    +-----------------------------------+-------------------+------------+
    | :ref:`DELETE Bucket Policy`       | Bucket            | Yes        |
    +-----------------------------------+-------------------+------------+
-   | DELETE Bucket Tagging             | Bucket            | —          |
+   | DELETE Bucket Tagging             | Bucket            | No         |
    +-----------------------------------+-------------------+------------+
    | :ref:`GET Bucket Lifecycle`       | Bucket            | Yes        |
    +-----------------------------------+-------------------+------------+
@@ -59,13 +59,13 @@ Supported S3 API commands for Zenko are detailed here.
    +-----------------------------------+-------------------+------------+
    | :ref:`GET Bucket Policy`          | Bucket            | Yes        |
    +-----------------------------------+-------------------+------------+
-   | GET Bucket Logging                | Bucket            | —          |
+   | GET Bucket Logging                | Bucket            | No         |
    +-----------------------------------+-------------------+------------+
-   | GET Bucket Notification           | Bucket            | —          |
+   | GET Bucket Notification           | Bucket            | No         |
    +-----------------------------------+-------------------+------------+
-   | GET Bucket Tagging                | Bucket            | —          |
+   | GET Bucket Tagging                | Bucket            | No         |
    +-----------------------------------+-------------------+------------+
-   | GET Bucket RequestPayment         | Bucket            | —          |
+   | GET Bucket RequestPayment         | Bucket            | No         |
    +-----------------------------------+-------------------+------------+
    | :ref:`PUT Bucket Lifecycle`       | Bucket            | Yes        |
    +-----------------------------------+-------------------+------------+
@@ -73,13 +73,13 @@ Supported S3 API commands for Zenko are detailed here.
    +-----------------------------------+-------------------+------------+
    | :ref:`PUT Bucket Policy`          | Bucket            | Yes        |
    +-----------------------------------+-------------------+------------+
-   | PUT Bucket Logging                | Bucket            | —          |
+   | PUT Bucket Logging                | Bucket            | No         |
    +-----------------------------------+-------------------+------------+
-   | PUT Bucket Notification           | Bucket            | —          |
+   | PUT Bucket Notification           | Bucket            | No         |
    +-----------------------------------+-------------------+------------+
-   | PUT Bucket Tagging                | Bucket            | —          |
+   | PUT Bucket Tagging                | Bucket            | No         |
    +-----------------------------------+-------------------+------------+
-   | PUT Bucket RequestPayment         | Bucket            | —          |
+   | PUT Bucket RequestPayment         | Bucket            | No         |
    +-----------------------------------+-------------------+------------+
    | :ref:`DELETE Object`              | Object            | Yes        |
    +-----------------------------------+-------------------+------------+
@@ -95,13 +95,13 @@ Supported S3 API commands for Zenko are detailed here.
    +-----------------------------------+-------------------+------------+
    | :ref:`HEAD Object`                | Object            | Yes        |
    +-----------------------------------+-------------------+------------+
-   | GET Object Torrent                | Object            | —          |
+   | GET Object Torrent                | Object            | No         |
    +-----------------------------------+-------------------+------------+
-   | OPTIONS Object                    | Object            | —          |
+   | OPTIONS Object                    | Object            | No         |
    +-----------------------------------+-------------------+------------+
-   | POST Object                       | Object            | —          |
+   | POST Object                       | Object            | No         |
    +-----------------------------------+-------------------+------------+
-   | POST Object Restore               | Object            | —          |
+   | POST Object Restore               | Object            | No         |
    +-----------------------------------+-------------------+------------+
    | :ref:`PUT Object`                 | Object            | Yes        |
    +-----------------------------------+-------------------+------------+

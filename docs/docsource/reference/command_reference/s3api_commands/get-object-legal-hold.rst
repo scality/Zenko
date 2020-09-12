@@ -3,12 +3,9 @@
 get-object-legal-hold
 =====================
 
-Gets an object's current Legal Hold status.
+Gets an object's current legal hold status.
 
 See also: :ref:`GET Object Legal Hold`
-
-See `aws help <https://docs.aws.amazon.com/cli/latest/reference/index.html>`_
-for descriptions of global parameters.
 
 Synopsis
 --------
@@ -26,15 +23,15 @@ Options
 
 ``--bucket`` (string)
 
-  The bucket containing the object whose Legal Hold status you want to retrieve.
+  The bucket containing the object whose legal hold status you want to retrieve.
 
 ``--key`` (string)
 
-  The key name for the object whose Legal Hold status you want to retrieve.
+  The key name for the object whose legal hold status you want to retrieve.
 
 ``--version-id`` (string)
 
-  The version ID of the object whose Legal Hold status you want to retrieve.
+  The version ID of the object whose legal hold status you want to retrieve.
 
   Possible values:
   
@@ -42,22 +39,15 @@ Options
 
 ``--cli-input-json`` (string)
 
-  Performs service operation based on the JSON string provided. The JSON string
-  follows the format provided by ``--generate-cli-skeleton``. If other arguments
-  are provided on the command line, the CLI values will override the
-  JSON-provided values. It is not possible to pass arbitrary binary values using
-  a JSON-provided value as the string will be taken literally.
-
-See `aws help <https://docs.aws.amazon.com/cli/latest/reference/index.html>`_
-for descriptions of global parameters.
+  .. include:: ../../../include/cli-input-json.txt
 
 Output
 ------
 
 LegalHold -> (structure)
 
-  The current Legal Hold status for the specified object.
+  The current legal hold status for the specified object.
 
   Status -> (string)
 
-    Indicates whether the specified object has a Legal Hold in place.
+    Indicates whether the specified object has a legal hold in place.

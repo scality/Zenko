@@ -7,9 +7,6 @@ Returns the access control list (ACL) of an object.
 
 See also: :ref:`GET Object ACL`.
 
-See `aws help <https://docs.aws.amazon.com/cli/latest/reference/index.html>`_
-for descriptions of global parameters.
-
 Synopsis
 --------
 
@@ -38,19 +35,13 @@ Options
 
 ``--cli-input-json`` (string)
 
-  Performs service operation based on the JSON string provided. 
-  If other arguments
-  are provided on the command line, the CLI values will override the
-  JSON-provided values. It is not possible to pass arbitrary binary values using
-  a JSON-provided value as the string will be taken literally.
-
-See `aws help <https://docs.aws.amazon.com/cli/latest/reference/index.html>`_ for descriptions of global parameters.
+  .. include:: ../../../include/cli-input-json.txt
 
 Examples
 --------
 
 The following command retrieves the access control list for an object in a
-bucket named ``my-bucket``::
+bucket named "my-bucket"::
 
   aws s3api get-object-acl --bucket my-bucket --key index.html
 

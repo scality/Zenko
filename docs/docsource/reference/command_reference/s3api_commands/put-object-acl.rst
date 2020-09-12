@@ -9,9 +9,6 @@ permissions for an object that already exists in a bucket.
 See also: `AWS API Documentation
 <https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutObjectAcl>`_.
 
-See `aws help <https://docs.aws.amazon.com/cli/latest/reference/index.html>`_
-for descriptions of global parameters.
-
 Synopsis
 --------
 
@@ -117,20 +114,15 @@ JSON Syntax::
 
 ``--cli-input-json`` (string)
 
-  Performs service operation based on the JSON string provided. 
-  If other arguments
-  are provided on the command line, the CLI values will override the
-  JSON-provided values. It is not possible to pass arbitrary binary values using
-  a JSON-provided value as the string will be taken literally.
-
-See `aws help <https://docs.aws.amazon.com/cli/latest/reference/index.html>`_ for descriptions of global parameters.
+  .. include:: ../../../include/cli-input-json.txt
 
 Examples
 --------
 
-The following command grants ``full control`` to two AWS users
-(*user1@example.com* and *user2@example.com*) and ``read`` permission to
-everyone::
+The following command grants ``full control`` to two users (user1@example.com
+and user2@example.com) and ``read`` permission to everyone
+
+::
 
    aws s3api put-object-acl --bucket MyBucket --key file.txt --grant-full-control emailaddress=user1@example.com,emailaddress=user2@example.com --grant-read uri=http://acs.amazonaws.com/groups/global/AllUsers
 

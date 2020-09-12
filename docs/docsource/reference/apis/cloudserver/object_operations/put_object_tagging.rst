@@ -127,7 +127,7 @@ examplebucket bucket.
 .. code::
 
    PUT object-key?tagging HTTP/1.1
-   Host: {{BucketName}}.s3.scality.com
+   Host: {{BucketName}}.s3.example.com
    Content-Length: length
    Content-MD5: pUNXr/BjKK5G2UKExample==
    x-amz-date: 20160923T001956Z

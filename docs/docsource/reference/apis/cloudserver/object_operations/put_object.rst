@@ -327,7 +327,7 @@ Places the ``my-document.pdf`` object in the ``myDocsBucket`` bucket:
 .. code::
 
    PUT /my-document.pdf HTTP/1.1
-   Host: myDocsBucket.s3.scality.com
+   Host: myDocsBucket.s3.example.com
    Date: Wed, 12 Oct 2009 17:50:00 GMT
    Authorization: {{authorizationString}}
    Content-Type: text/plain
@@ -382,7 +382,7 @@ specified using canonical user ID and email address.
 .. code::
 
    PUT TestObject.txt HTTP/1.1
-   Host: myDocsBucket.s3.scality.com
+   Host: myDocsBucket.s3.example.com
    x-amz-date: Fri, 13 Apr 2012 05:40:14 GMT
    Authorization: {{authorizationString}}
    x-amz-grant-write-acp: id=8a6925ce4adf588a4532142d3f74dd8c71fa124ExampleCanonicalUserID
@@ -420,7 +420,7 @@ permission to the public.
 
    ...Object data in the body...
    PUT TestObject.txt HTTP/1.1
-   Host: myDocsBucket.s3.scality.com
+   Host: myDocsBucket.s3.example.com
    x-amz-date: Fri, 13 Apr 2012 05:54:57 GMT
    x-amz-acl: public-read
    Authorization: {{authorizationString}}

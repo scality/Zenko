@@ -265,7 +265,7 @@ Request
 .. code::
 
    POST /example-object?uploads HTTP/1.1
-   Host: example-bucket.s3.scality.com
+   Host: example-bucket.s3.example.com
    Date: Mon, 1 Nov 2010 20:34:56 GMT
    Authorization: {{authorizationString}}
 
@@ -285,7 +285,7 @@ Response
 .. code::
 
    <?xml version="1.0" encoding="UTF-8"?>
-   <InitiateMultipartUploadResult xmlns="http://s3.scality.com/doc/2006-03-01/">
+   <InitiateMultipartUploadResult xmlns="http://s3.example.com/doc/2006-03-01/">
    <Bucket>example-bucket</Bucket>
    <Key>example-object</Key>
    <UploadId>VXBsb2FkIElEIGZvciA2aWWpbmcncyBteS1tb3ZpZS5tMnRzIHVwbG9hZA</UploadId>

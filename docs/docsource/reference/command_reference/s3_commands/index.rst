@@ -164,8 +164,8 @@ To include both ``.jpg`` files as well as ``.txt`` files, run::
     aws s3 cp /tmp/foo/ s3://bucket/ --recursive \
         --exclude "*" --include "*.jpg" --include "*.txt"
 
-See `aws help <https://docs.aws.amazon.com/cli/latest/reference/index.html>`_
-for descriptions of global parameters.
+
+
 
 Synopsis
 --------
@@ -179,8 +179,8 @@ Options
 
 None
 
-See `aws help <https://docs.aws.amazon.com/cli/latest/reference/index.html>`_
-for descriptions of global parameters.
+
+
 
 Available Commands
 ------------------

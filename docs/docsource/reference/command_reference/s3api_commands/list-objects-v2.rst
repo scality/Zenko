@@ -5,14 +5,15 @@ list-objects-v2
 
 Returns some or all (up to 1,000) of the objects in a bucket. You can use the
 request parameters as selection criteria to return a subset of the objects in a
-bucket. Note: ListObjectsV2 is the revised List Objects API and we recommend you
-use this revised API for new application development.
+bucket.
+
+.. Note::
+
+   ListObjectsV2 is the revised List Objects API and we recommend you use this
+   revised API for new application development.
 
 See also: `AWS API Documentation
 <https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/ListObjectsV2>`_.
-
-See `aws help <https://docs.aws.amazon.com/cli/latest/reference/index.html>`_
-for descriptions of global parameters.
 
 ``list-objects-v2`` is a paginated operation. Multiple API calls may be issued
 in order to retrieve the entire data set of results. You can disable pagination
@@ -77,20 +78,14 @@ Options
 
 ``--cli-input-json`` (string)
 
-  Performs service operation based on the JSON string provided. 
-  If other arguments
-  are provided on the command line, the CLI values will override the
-  JSON-provided values. It is not possible to pass arbitrary binary values using
-  a JSON-provided value as the string will be taken literally.
+  .. include:: ../../../include/cli-input-json.txt
 
 ``--starting-token`` (string)
 
   A token to specify where to start paginating. This is the ``NextToken`` from a
   previously truncated response.
 
-  For usage examples, see `Pagination
-  <https://docs.aws.amazon.com/cli/latest/userguide/pagination.html>`__ in the
-  *AWS Command Line Interface User Guide* .
+  |aws_cli_guide|
 
 ``--page-size`` (integer)
 
@@ -99,9 +94,7 @@ Options
   results in more calls to the AWS service, retrieving fewer items in each
   call. This can help prevent the AWS service calls from timing out.
 
-  For usage examples, see `Pagination
-  <https://docs.aws.amazon.com/cli/latest/userguide/pagination.html>`__ in the
-  *AWS Command Line Interface User Guide* .
+  |aws_cli_guide|
 
 ``--max-items`` (integer)
 
@@ -112,11 +105,7 @@ Options
   command. **Do not** use the ``NextToken`` response element directly outside of
   the AWS CLI.
 
-  For usage examples, see `Pagination
-  <https://docs.aws.amazon.com/cli/latest/userguide/pagination.html>`__ in the
-  *AWS Command Line Interface User Guide*.
-
-See `aws help <https://docs.aws.amazon.com/cli/latest/reference/index.html>`_ for descriptions of global parameters.
+  |aws_cli_guide|
 
 Output
 ------

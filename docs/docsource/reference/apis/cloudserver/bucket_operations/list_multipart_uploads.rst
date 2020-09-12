@@ -366,7 +366,7 @@ order by the time the multipart upload was initiated.
    Server: AmazonS3
 
    <?xml version="1.0" encoding="UTF-8"?>
-   <ListMultipartUploadsResult xmlns="http://s3.scality.com/doc/2006-03-01/">
+   <ListMultipartUploadsResult xmlns="http://s3.example.com/doc/2006-03-01/">
      <Bucket>bucket</Bucket>
      <KeyMarker></KeyMarker>
      <UploadIdMarker></UploadIdMarker>
@@ -439,7 +439,7 @@ value "/".
 .. code::
 
    GET /?uploads&amp;delimiter=/ HTTP/1.1
-   Host: example-bucket.s3.scality.com
+   Host: example-bucket.s3.example.com
    Date: Mon, 1 Nov 2010 20:34:56 GMT
    Authorization: {{authorizationString}}
 
@@ -522,7 +522,7 @@ delimiter after the prefix.
 .. code::
 
    <?xml version="1.0" encoding="UTF-8"?>
-   <ListMultipartUploadsResult xmlns="http://s3.scality.com/doc/2006-03-01/">
+   <ListMultipartUploadsResult xmlns="http://s3.example.com/doc/2006-03-01/">
      <Bucket>example-bucket</Bucket>
      <KeyMarker/>
      <UploadIdMarker/>

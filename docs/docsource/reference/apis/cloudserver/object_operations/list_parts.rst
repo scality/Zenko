@@ -209,7 +209,7 @@ Response
 .. code::
 
    <?xml version="1.0" encoding="UTF-8"?>
-   <ListPartsResult xmlns="http://s3.scality.com/doc/2006-03-01/">
+   <ListPartsResult xmlns="http://s3.example.com/doc/2006-03-01/">
    <Bucket>example-bucket</Bucket>
    <Key>example-object</Key>
    <UploadId>XXBsb2FkIElEIGZvciBlbHZpbmcncyVcdS1tb3ZpZS5tMnRzEEEwbG9hZA</UploadId>

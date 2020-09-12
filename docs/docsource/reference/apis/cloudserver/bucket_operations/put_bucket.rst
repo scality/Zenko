@@ -21,7 +21,7 @@ Syntax
    Date: {{date}}
    Authorization: {{authenticationInformation}}
 
-   <CreateBucketConfiguration xmlns="http://s3.scality.com/doc/2006-03-01/">
+   <CreateBucketConfiguration xmlns="http://s3.example.com/doc/2006-03-01/">
    <LocationConstraint>scality-us-west-1</LocationConstraint>
    </CreateBucketConfiguration>
 
@@ -196,7 +196,7 @@ Request
 .. code::
 
    PUT / HTTP/1.1
-   Host: documentation.demo.s3.scality.com
+   Host: documentation.demo.s3.example.com
    Content-Length: 0
    Date: Mon, 15 Feb 2016 15:30:07 GMT
    Authorization: AWS pat:fxA/7CeKyl3QJewhIguziTMp8Cc=
@@ -234,7 +234,7 @@ of the bucket to EU.
    Content-Type: text/plain
    Content-Length: 124
 
-   <CreateBucketConfiguration xmlns="http://s3.scality.com/doc/2006-03-01/">
+   <CreateBucketConfiguration xmlns="http://s3.example.com/doc/2006-03-01/">
    <LocationConstraint>EU</LocationConstraint>
    </CreateBucketConfiguration >
 
@@ -250,7 +250,7 @@ A PUT Bucket operation example request that creates a bucket named
 .. code::
 
    PUT / HTTP/1.1
-   Host: documentation.s3.scality.com
+   Host: documentation.s3.example.com
    Content-Length: 0
    x-amz-acl: private
    Date: Wed, 01 Mar  2006 12:00:00 GMT

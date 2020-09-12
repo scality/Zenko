@@ -3,19 +3,16 @@
 list-multipart-uploads
 ======================
 
-This operation lists in-progress multipart uploads.
+This operation lists multipart uploads in progress.
 
 See also: :ref:`List Multipart Uploads`.
 
-See `aws help <https://docs.aws.amazon.com/cli/latest/reference/index.html>`_
-for descriptions of global parameters.
-
 ``list-multipart-uploads`` is a paginated operation. Multiple API calls may be
-issued in order to retrieve the entire data set of results. You can disable
-pagination by providing the ``--no-paginate`` argument.  When using ``--output
-text`` and the ``--query`` argument on a paginated response, the ``--query``
-argument must extract data from the results of the following query expressions:
-``Uploads``, ``CommonPrefixes``
+issued to retrieve the entire data set of results. You can disable pagination by
+providing the ``--no-paginate`` argument.  When using ``--output text`` and the
+``--query`` argument on a paginated response, the ``--query`` argument must
+extract data from the results of the following query expressions: ``Uploads``,
+``CommonPrefixes``
 
 Synopsis
 --------
@@ -39,16 +36,15 @@ Options
 
 ``--delimiter`` (string)
 
-  Character you use to group keys.
+  Character (delimiter) you use to group keys.
 
 ``--encoding-type`` (string)
 
   Requests Zenko to encode the object keys in the response and specifies the
   encoding method to use. An object key may contain any Unicode character;
-  however, XML 1.0 parser cannot parse some characters, such as characters with
-  an ASCII value from 0 to 10. For characters that are not supported in XML 1.0,
-  you can add this parameter to request that Zenko encode the keys in the
-  response.
+  however, the XML 1.0 parser cannot parse some characters, such as characters
+  with an ASCII value from 0 to 10. For characters not supported in XML 1.0, you
+  can add this parameter to request that Zenko encode the keys in the response.
 
   Possible values:
   
@@ -61,19 +57,14 @@ Options
 
 ``--cli-input-json`` (string)
 
-  Performs service operation based on the JSON string provided. If other
-  arguments are provided on the command line, the CLI values will override the
-  JSON-provided values. It is not possible to pass arbitrary binary values using
-  a JSON-provided value as the string will be taken literally.
+  .. include:: ../../../include/cli-input-json.txt
 
 ``--starting-token`` (string)
 
   A token to specify where to start paginating. This is the ``NextToken`` from a
   previously truncated response.
 
-  For usage examples, see `Pagination
-  <https://docs.aws.amazon.com/cli/latest/userguide/pagination.html>`__ in the
-  *AWS Command Line Interface User Guide*.
+  |aws_cli_guide|
 
 ``--page-size`` (integer)
 
@@ -82,9 +73,7 @@ Options
   results in more calls to the AWS service, retrieving fewer items in each
   call. This can help prevent the AWS service calls from timing out.
 
-  For usage examples, see `Pagination
-  <https://docs.aws.amazon.com/cli/latest/userguide/pagination.html>`__ in the
-  *AWS Command Line Interface User Guide*.
+  |aws_cli_guide|
 
 ``--max-items`` (integer)
 
@@ -95,18 +84,13 @@ Options
   command. **Do not** use the ``NextToken`` response element directly outside of
   the AWS CLI.
 
-  For usage examples, see `Pagination
-  <https://docs.aws.amazon.com/cli/latest/userguide/pagination.html>`__ in the
-  *AWS Command Line Interface User Guide* .
-
-See `aws help <https://docs.aws.amazon.com/cli/latest/reference/index.html>`_
-for descriptions of global parameters.
+  |aws_cli_guide|
 
 Examples
 --------
 
 The following command lists all of the active multipart uploads for a bucket
-named ``my-bucket``::
+named "my-bucket"::
 
   aws s3api list-multipart-uploads --bucket my-bucket
 

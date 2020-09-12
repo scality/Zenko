@@ -222,8 +222,8 @@ Response Sample Indicating Successful Object Assembly
 .. code::
 
    <?xml version="1.0" encoding="UTF-8"?>
-   <CompleteMultipartUploadResult xmlns="http://s3.scality.com/doc/2006-03-01/">
-   <Location>http://Example-Bucket.s3.scality.com/Example-Object</Location>
+   <CompleteMultipartUploadResult xmlns="http://s3.example.com/doc/2006-03-01/">
+   <Location>http://Example-Bucket.s3.example.com/Example-Object</Location>
    <Bucket>Example-Bucket</Bucket>
    <Key>Example-Object</Key>
    <ETag>"3858f62230ac3c915f300c664312c11f-9"</ETag>

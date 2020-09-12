@@ -36,7 +36,7 @@ Syntax
 .. code::
 
    GET /?list-type=2 HTTP/1.1
-   Host: BucketName.s3.scality.com
+   Host: BucketName.s3.example.com
    Date: date
    Authorization: authorization string
 
@@ -398,7 +398,7 @@ Request
 .. code::
 
   GET /?list-type=2 HTTP/1.1
-  Host: bucket.s3.scality.com
+  Host: bucket.s3.example.com
   x-amz-date: 20181108T233541Z
   Authorization: authorization string
   Content-Type: text/plain
@@ -441,7 +441,7 @@ Request
 .. code::
 
   GET /?list-type=2&max-keys=3&prefix=E&start-after=ExampleGuide.pdf HTTP/1.1
-  Host: quotes.s3.scality.com
+  Host: quotes.s3.example.com
   x-amz-date: 20181108T232933Z
   Authorization: authorization string
 

@@ -331,10 +331,9 @@ Options
    * ON
    * OFF
 
-   Performs service operation based on the JSON string provided. If other
-   arguments are provided on the command line, the CLI values will override the
-   JSON-provided values. It is not possible to pass arbitrary binary values
-   using a JSON-provided value as the string will be taken literally.
+``--cli-input-json`` (string)
+
+  .. include:: ../../../include/cli-input-json.txt
 
 Examples
 ~~~~~~~~

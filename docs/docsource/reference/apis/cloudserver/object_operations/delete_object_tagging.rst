@@ -70,7 +70,7 @@ Request
 .. code::
 
    DELETE exampleobject/?tagging HTTP/1.1
-   Host: {{bucketname}}.s3.scality.com
+   Host: {{bucketname}}.s3.example.com
    Date: Wed, 12 Oct 2016 17:50:00 GMT
    Authorization: {{authorizationString}}
 

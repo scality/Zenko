@@ -56,7 +56,7 @@ The DELETE Bucket operation does not return response elements.
 
 .. code::
 
-   Host: documentation.s3.scality.com
+   Host: documentation.s3.example.com
    Date: Tue, 21 Jun 2011 12:12:34 GMT
 
 Examples
@@ -71,7 +71,7 @@ Request
 .. code::
 
    DELETE / HTTP/1.1
-   Host: documentation.s3.scality.com
+   Host: documentation.s3.example.com
    Date: Tue, 21 Jun 2011 12:12:34 GMT
    Authorization: AWS pat:BAupPCpkyeIGKH2s5Je4Bc32bc=
 

@@ -67,7 +67,7 @@ Request
    HEAD / HTTP/1.1
    Date: Fri, 10 Feb 2012 21:34:55 GMT
    Authorization: {{authorizationString}}
-   Host: {{bucketname}}.s3.scality.com
+   Host: {{bucketname}}.s3.example.com
    Connection: Keep-Alive
 
 Response

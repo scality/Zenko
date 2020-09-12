@@ -272,7 +272,7 @@ Request
 .. code::
 
    GET /?versions HTTP/1.1
-   Host: BucketName.s3.scality.com
+   Host: BucketName.s3.example.com
    Date: Thu, 31 Mar 2016 15:11:47 GMT
    Authorization: AWS pat:6nYhPMw6boadLgjywjSIyhfwRIA=
 
@@ -282,7 +282,7 @@ Response
 .. code::
 
    <?xml version="1.0" encoding="UTF-8"?>
-   <ListVersionsResult xmlns="http://s3.scality.com/doc/2006-03-01">
+   <ListVersionsResult xmlns="http://s3.example.com/doc/2006-03-01">
        <Name>bucket</Name>
        <Prefix>my</Prefix>
        <KeyMarker/>
@@ -339,7 +339,7 @@ Request
 .. code::
 
    GET /?versions&amp;key-marker=key2 HTTP/1.1
-   Host: demo.s3.scality.com
+   Host: demo.s3.example.com
    Pragma: no-cache
    Accept: */*
    Date: Tue, 28 Jun 2011 09:27:15 GMT
@@ -351,7 +351,7 @@ Response
 .. code::
 
    <?xml version="1.0" encoding="UTF-8"?>
-   <ListVersionsResult xmlns="http://s3.scality.com/doc/2006-03-01/">
+   <ListVersionsResult xmlns="http://s3.example.com/doc/2006-03-01/">
      <Name>mtp-versioning-fresh</Name>
      <Prefix/>
      <KeyMarker>key2</KeyMarker>
@@ -403,7 +403,7 @@ Request
 .. code::
 
    GET /?versions&amp;prefix=source HTTP/1.1
-   Host: bucket.s3.scality.com
+   Host: bucket.s3.example.com
    Date: Wed, 01 Mar  2006 12:00:00 GMT
    Authorization: {{authorizationString}}
 
@@ -413,7 +413,7 @@ Response
 .. code::
 
    <?xml version="1.0" encoding="UTF-8"?>
-   <ListVersionsResult xmlns="http://s3.scality.com/doc/2006-03-01/">
+   <ListVersionsResult xmlns="http://s3.example.com/doc/2006-03-01/">
      <Name>mtp-versioning-fresh</Name>
      <Prefix>source</Prefix>
      <KeyMarker/>
@@ -455,7 +455,7 @@ Request
 .. code::
 
    GET /?versions&amp;key=key3&amp;version-id-marker=t4Zen1YTZBnj HTTP/1.1
-   Host: bucket.s3.scality.com
+   Host: bucket.s3.example.com
    Date: Wed, 01 Mar  2006 12:00:00 GMT
    Authorization: {{authorizationString}}
 
@@ -465,7 +465,7 @@ Response
 .. code::
 
    <?xml version="1.0" encoding="UTF-8"?>
-   <ListVersionsResult xmlns="http://s3.scality.com/doc/2006-03-01/">
+   <ListVersionsResult xmlns="http://s3.example.com/doc/2006-03-01/">
      <Name>mtp-versioning-fresh</Name>
      <Prefix/>
      <KeyMarker>key3</KeyMarker>
@@ -508,7 +508,7 @@ Request
 .. code::
 
    GET /?versions&amp;key-marker=key3&amp;version-id-marker=t46Z0menlYTZBnj HTTP/1.1
-   Host: bucket.s3.scality.com
+   Host: bucket.s3.example.com
    Date: Wed, 28 Oct 2009 22:32:00 +0000
    Authorization: authorization string
 
@@ -518,7 +518,7 @@ Response
 .. code::
 
    <?xml version="1.0" encoding="UTF-8"?>
-   <ListVersionsResult xmlns="http://s3.scality.com/doc/2006-03-01/">
+   <ListVersionsResult xmlns="http://s3.example.com/doc/2006-03-01/">
      <Name>mtp-versioning-fresh</Name>
      <Prefix/>
      <KeyMarker>key3</KeyMarker>
@@ -576,7 +576,7 @@ Request
 .. code::
 
    GET /?versions&amp;delimiter=/ HTTP/1.1
-   Host: example-bucket.s3.scality.com
+   Host: example-bucket.s3.example.com
    Date: Wed, 02 Feb 2011 20:34:56 GMT
    Authorization: authorization string
 
@@ -596,7 +596,7 @@ folders photos/ and videos/ having one or more objects.
 
 .. code::
 
-   <ListVersionsResult xmlns="http://s3.scality.com/doc/2006-03-01/">
+   <ListVersionsResult xmlns="http://s3.example.com/doc/2006-03-01/">
      <Name>mvbucketwithversionon1</Name>
      <Prefix></Prefix>
      <KeyMarker></KeyMarker>
@@ -636,7 +636,7 @@ a prefix parameter as shown in the following request:
 .. code::
 
    GET /?versions&amp;prefix=photos/2006/&amp;delimiter=/ HTTP/1.1
-   Host: example-bucket.s3.scality.com
+   Host: example-bucket.s3.example.com
    Date: Wed, 02 Feb 2011 19:34:02 GMT
    Authorization: authorization string
 
@@ -651,7 +651,7 @@ delimiter after the prefix.
 .. code::
 
    <?xml version="1.0" encoding="UTF-8"?>
-   <ListVersionsResult xmlns="http://s3.scality.com/doc/2006-03-01/">
+   <ListVersionsResult xmlns="http://s3.example.com/doc/2006-03-01/">
      <Name>example-bucket</Name>
      <Prefix>photos/2006/</Prefix>
      <KeyMarker></KeyMarker>

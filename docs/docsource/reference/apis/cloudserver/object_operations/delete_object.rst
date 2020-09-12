@@ -111,7 +111,7 @@ Request
 .. code::
 
    DELETE /sampledocument.pdf HTTP/1.1
-   Host: {{bucketname}}.s3.scality.com
+   Host: {{bucketname}}.s3.example.com
    Date: Wed, 12 Oct 2009 17:50:00 GMT
    Authorization: {{authorizationString}}
    Content-Type: text/plain
@@ -141,7 +141,7 @@ Request
 .. code::
 
    DELETE /sampledocument2.pdf?versionId=UIORUnfndfiufdisojhr398493jfdkjFJjkndnqUifhnw89493jJFJ HTTP/1.1
-   Host: {{bucketname}}.s3.scality.com
+   Host: {{bucketname}}.s3.example.com
    Date: Wed, 12 Oct 2009 17:50:00 GMT
    Authorization: {{authorizationString}}
    Content-Type: text/plain

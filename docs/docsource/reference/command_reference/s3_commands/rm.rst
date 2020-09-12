@@ -5,8 +5,8 @@ rm
 
 Removes (deletes) an S3 object.
 
-See `aws help <https://docs.aws.amazon.com/cli/latest/reference/index.html>`_
-for descriptions of global parameters.
+
+
 
 Synopsis
 --------
@@ -64,8 +64,8 @@ default value is 1000 (the maximum allowed). Using a lower value may help if an
 operation times out.
 
 
-See `aws help <https://docs.aws.amazon.com/cli/latest/reference/index.html>`_
-for descriptions of global parameters.
+
+
 
 Examples
 --------

@@ -101,8 +101,8 @@ Options
 
   Filename where the content will be saved
 
-See `aws help <https://docs.aws.amazon.com/cli/latest/reference/index.html>`_
-for descriptions of global parameters.
+
+
 
 Examples
 --------

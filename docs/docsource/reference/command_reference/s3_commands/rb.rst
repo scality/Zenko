@@ -9,8 +9,8 @@ can be used to delete the non-versioned objects in the bucket before the bucket
 is deleted.
 
 
-See `aws help <https://docs.aws.amazon.com/cli/latest/reference/index.html>`_
-for descriptions of global parameters.
+
+
 
 Synopsis
 --------
@@ -33,7 +33,7 @@ bucket deletion to fail because the bucket would not be empty. To delete
 versioned objects use the ``s3api delete-object`` command with the
 ``--version-id`` parameter.
 
-See `aws help <https://docs.aws.amazon.com/cli/latest/reference/index.html>`_ for descriptions of global parameters.
+ 
 
 Examples
 --------

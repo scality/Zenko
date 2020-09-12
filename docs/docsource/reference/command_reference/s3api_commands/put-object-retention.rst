@@ -7,9 +7,6 @@ Places an Object Retention configuration on an object.
 
 See also: :ref:`PUT Object Retention`
 
-See `aws help <https://docs.aws.amazon.com/cli/latest/reference/index.html>`_
-for descriptions of global parameters.
-
 Synopsis
 --------
 
@@ -65,13 +62,7 @@ JSON Syntax::
 
 ``--cli-input-json`` (string)
 
-  Performs service operation based on the JSON string provided. If other
-  arguments are provided on the command line, the CLI values override the
-  JSON-provided values. It is not possible to pass arbitrary binary values using
-  a JSON-provided value as the string will be taken literally.
-
-See `aws help <https://docs.aws.amazon.com/cli/latest/reference/index.html>`_
-for descriptions of global parameters.
+  .. include:: ../../../include/cli-input-json.txt
 
 Output
 ------

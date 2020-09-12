@@ -257,7 +257,7 @@ Request
 .. code::
 
    GET /my-document.pdf HTTP/1.1
-   Host: {{bucketName}}.s3.scality.com
+   Host: {{bucketName}}.s3.example.com
    Date: Wed, 28 Oct 2009 22:32:00 GMT
    Authorization: {{authorizationString}}
 
@@ -303,7 +303,7 @@ Request
 .. code::
 
    GET /myObject?versionId=3/L4kqtJlcpXroDTDmpUMLUo HTTP/1.1
-   Host: {{bucketName}}.s3.scality.com
+   Host: {{bucketName}}.s3.example.com
    Date: Wed, 28 Oct 2009 22:32:00 GMT
    Authorization: {{authorizationString}}
 
@@ -377,7 +377,7 @@ bytes of an object.
 .. code::
 
    GET /example-object HTTP/1.1
-   Host: {{bucketName}}.s3.scality.com
+   Host: {{bucketName}}.s3.example.com
    x-amz-date: Fri, 28 Jan 2011 21:32:02 GMT
    Range: bytes=0-9
    Authorization: AWS AKIAIOSFODNN7EXAMPLE:Yxg83MZaEgh3OZ3l0rLo5RTX11o=

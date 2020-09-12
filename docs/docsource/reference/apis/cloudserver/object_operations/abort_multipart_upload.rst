@@ -93,7 +93,7 @@ Request
 .. code::
 
    DELETE /example-object?uploadId=VXBsb2FkIElEIGZvciBlbHZpbmcncyBteS1tb3ZpZS5tMnRzIHVwbG9hZ HTTP/1.1
-   Host: example-bucket.s3.scality.com
+   Host: example-bucket.s3.example.com
    Date:  Mon, 1 Nov 2010 20:34:56 GMT
    Authorization: {{authorizationString}}
 

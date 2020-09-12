@@ -8,8 +8,8 @@ Description
 
 Copies a local file or S3 object to another location locally or in S3.
 
-See `aws help <https://docs.aws.amazon.com/cli/latest/reference/index.html>`_
-for descriptions of global parameters.
+
+
 
 Synopsis
 --------
@@ -277,7 +277,7 @@ may result in a failed upload due to too many parts in upload.
 Command is performed on all files or objects under the specified directory or
 prefix.
 
-See `aws help <https://docs.aws.amazon.com/cli/latest/reference/index.html>`_ for descriptions of global parameters.
+ 
 
 Examples
 --------

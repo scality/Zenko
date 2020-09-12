@@ -98,7 +98,7 @@ The following request returns the tag set of the specified object.
 .. code::
 
    GET /example-object?tagging HTTP/1.1
-   Host: {{BucketName}}.s3.scality.com
+   Host: {{BucketName}}.s3.example.com
    Date: Wed, 28 Oct 2009 22:32:00 GMT
    Authorization: {{authorizationString}}
 
@@ -112,7 +112,7 @@ Response
    Connection: close
    Server: ScalityS3
    <?xml version="1.0" encoding="UTF-8"?>
-   <Tagging xmlns="http://s3.scality.com/doc/2006-03-01/">
+   <Tagging xmlns="http://s3.example.com/doc/2006-03-01/">
       <TagSet>
          <Tag>
             <Key>tag1</Key>

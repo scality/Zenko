@@ -13,9 +13,6 @@ Returns the replication configuration of a bucket.
 
 See also: :ref:`GET Bucket Replication`.
 
-See `aws help <https://docs.aws.amazon.com/cli/latest/reference/index.html>`_
-for descriptions of global parameters.
-
 Synopsis
 --------
 
@@ -32,19 +29,13 @@ Options
 
 ``--cli-input-json`` (string)
 
-  Performs service operation based on the JSON string provided. If other
-  arguments are provided on the command line, the CLI values will override the
-  JSON-provided values. It is not possible to pass arbitrary binary values using
-  a JSON-provided value as the string will be taken literally.
-
-See `aws help <https://docs.aws.amazon.com/cli/latest/reference/index.html>`_
-for descriptions of global parameters.
+  .. include:: ../../../include/cli-input-json.txt
 
 Examples
 --------
 
 The following command retrieves the replication configuration for a bucket named
-``my-bucket``::
+"my-bucket"::
 
   aws s3api get-bucket-replication --bucket my-bucket
 
@@ -78,7 +69,7 @@ ReplicationConfiguration -> (structure)
   role that Zenko assumes when replicating objects. For more information,
   see `How to Set Up Cross-Region Replication
   <https://docs.aws.amazon.com/AmazonS3/latest/dev/crr-how-setup.html>`__ in the
-  *Amazon Simple Storage Service Developer Guide* .
+  *Amazon Simple Storage Service Developer Guide*.
 
   Rules -> (list)
 
@@ -216,7 +207,7 @@ ReplicationConfiguration -> (structure)
     For valid values, see the ``StorageClass`` element of the `PUT Bucket
     replication
     <https://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketPUTreplication.html>`__
-    action in the *Amazon Simple Storage Service API Reference* .
+    action in the *Amazon Simple Storage Service API Reference*.
 	  
     AccessControlTranslation -> (structure)
 

@@ -7,9 +7,6 @@ Retrieves an object's retention settings.
 
 See also: :ref:`GET Object Retention`
 
-See `aws help <https://docs.aws.amazon.com/cli/latest/reference/index.html>`_
-for descriptions of global parameters.
-
 Synopsis
 --------
 
@@ -38,15 +35,8 @@ Options
 
 ``--cli-input-json`` (string)
 
-  Performs service operation based on the JSON string provided. The JSON string
-  follows the format provided by ``--generate-cli-skeleton``. If other arguments
-  are provided on the command line, the CLI values will override the
-  JSON-provided values. It is not possible to pass arbitrary binary values using
-  a JSON-provided value as the string will be taken literally.
-
-See `aws help <https://docs.aws.amazon.com/cli/latest/reference/index.html>`_
-for descriptions of global parameters.
-
+  .. include:: ../../../include/cli-input-json.txt
+  
 Output
 ------
 
@@ -56,8 +46,9 @@ Retention -> (structure)
 
   Mode -> (string)
 
-    Indicates the Retention mode for the specified object.
+    Indicates the retention mode for the specified object; for example,
+    ``GOVERNANCE`` or ``COMPLIANCE``.
 
   RetainUntilDate -> (timestamp)
 
-    The date on which this object lock retention expires.
+    The date this object lock retention expires.

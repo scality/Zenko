@@ -42,15 +42,14 @@ x-amz-copy-source-if-unmodified-since, or x-amz-copy-source-if-modified-since.
   signed, including x-amz-copy-source.
 
 The source object being copied can be encrypted or unencrypted and the
-destination object can be stored encrypted or unencrypted. If bucket
-encryption is activated on the source bucket, the source object will
-remain encrypted in its original location. If bucket encryption is
-activated on the destination bucket, the destination object will be
-encrypted. If bucket encryption is not activated on the destination
-bucket, the object copy will be stored unencrypted
+destination object can be stored encrypted or unencrypted. If bucket encryption
+is activated on the source bucket, the source object remains encrypted in its
+original location. If bucket encryption is activated on the destination bucket,
+the destination object is encrypted. If bucket encryption is not activated on
+the destination bucket, the object copy is stored unencrypted.
 
-If the copy is successful, a response will generate that contains
-information about the copied object.
+If the copy is successful, a response is generated containing information about
+the copied object.
 
 Access Permissions
 ------------------
@@ -77,9 +76,10 @@ Requests
 Syntax
 ~~~~~~
 
-The Request Syntax that follows is for sending the ACL in the request
-body. If headers are used to specify the permissions for the object, the
-ACL cannot be sent in the request body (refer to :ref:`Common Request Headers` for a list of available headers).
+The request syntax that follows is for sending the ACL in the request body. If
+headers are used to specify the permissions for the object, the ACL cannot be
+sent in the request body (refer to :ref:`Common Request Headers` for a list of
+available headers).
 
 .. code::
 
@@ -97,8 +97,8 @@ ACL cannot be sent in the request body (refer to :ref:`Common Request Headers` f
 
 .. note::
 
-  The syntax shows only a representative sample of the possible request
-  headers. For a complete list, refer to :ref:`Common Request Headers`.
+  The syntax shows only a representative sample of possible request headers. For
+  a complete list, see :ref:`Common Request Headers`.
 
 Parameters
 ~~~~~~~~~~
@@ -407,16 +407,15 @@ all responses (refer to :ref:`Common Response Headers`).
    +-----------------------------------------------------+--------+------------------------+
    | ``x-amz-server-side-encryption-aws-kms-key-id``     | string | If the                 |
    |                                                     |        | x-amz-server-side-\    |
-   |                                                     |        | encryption             |
+   |                                                     |        | encryption header      |
    |                                                     |        | is present and has     |
-   |                                                     |        | the value of aws:kms,  |
+   |                                                     |        | a value of ``aws:kms``,|
    |                                                     |        | this header specifies  |
    |                                                     |        | the ID of the AWS Key  |
    |                                                     |        | Management Service     |
    |                                                     |        | (KMS) master           |
    |                                                     |        | encryption key that    |
-   |                                                     |        | was used for the       |
-   |                                                     |        | object.                |
+   |                                                     |        | used for the object.   |
    +-----------------------------------------------------+--------+------------------------+
    | ``x-amz-server-side-encryption-customer-algorithm`` | string | If server-side         |
    |                                                     |        | encryption with        |
@@ -457,35 +456,27 @@ Elements
 .. tabularcolumns:: X{0.20\textwidth}X{0.15\textwidth}X{0.60\textwidth}
 .. table::
 
-   +-----------------------+-----------------------+-----------------------+
-   | Header                | Type                  | Description           |
-   +=======================+=======================+=======================+
-   | ``CopyObjectResult``  | container             | Container for all     |
-   |                       |                       | response elements.    |
-   |                       |                       |                       |
-   |                       |                       | **Ancestor:** None    |
-   +-----------------------+-----------------------+-----------------------+
-   | ``ETag``              | string                | Returns the ETag of   |
-   |                       |                       | the new object. The   |
-   |                       |                       | ETag reflects changes |
-   |                       |                       | only to the contents  |
-   |                       |                       | of an object, not its |
-   |                       |                       | metadata. The source  |
-   |                       |                       | and destination ETag  |
-   |                       |                       | will be identical for |
-   |                       |                       | a successfully copied |
-   |                       |                       | object.               |
-   |                       |                       |                       |
-   |                       |                       | **Ancestor:**         |
-   |                       |                       | ``CopyObjectResult``  |
-   +-----------------------+-----------------------+-----------------------+
-   | ``LastModified``      | string                | Returns the date the  |
-   |                       |                       | object was last       |
-   |                       |                       | modified.             |
-   |                       |                       |                       |
-   |                       |                       | **Ancestor:**         |
-   |                       |                       | ``CopyObjectResult``  |
-   +-----------------------+-----------------------+-----------------------+
+   +----------------------+-----------+----------------------------------------+
+   | Header               | Type      | Description                            |
+   +======================+===========+========================================+
+   | ``CopyObjectResult`` | container | Contains all response elements.        |
+   |                      |           |                                        |
+   |                      |           | **Ancestor:** None                     |
+   +----------------------+-----------+----------------------------------------+
+   | ``ETag``             | string    | Returns the ETag of the new object.    | 
+   |                      |           | The ETag reflects changes only to the  |
+   |                      |           | contents of an object, not its         |
+   |                      |           | metadata. The source and destination   |
+   |                      |           | ETag will be identical for a           |
+   |                      |           | successfully copied object.            |
+   |                      |           |                                        |
+   |                      |           | **Ancestor:** ``CopyObjectResult``     |
+   +----------------------+-----------+----------------------------------------+
+   | ``LastModified``     | string    | Returns the date the object was last   |
+   |                      |           | modified.                              |
+   |                      |           |                                        |
+   |                      |           | **Ancestor:** ``CopyObjectResult``     |
+   +----------------------+-----------+----------------------------------------+
 
 Examples
 --------
@@ -493,8 +484,7 @@ Examples
 Copying a File into a Bucket with a Different Key Name
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The request sample copies a pdf file into a bucket with a different key
-name.
+The request sample copies a pdf file into a bucket with a different key name.
 
 Request
 ```````
@@ -502,7 +492,7 @@ Request
 .. code::
 
    PUT /my-document.pdf HTTP/1.1
-   Host: {{bucketName}}.s3.scality.com
+   Host: {{bucketName}}.s3.example.com
    Date: Wed, 21 Sep 2016 18:18:00 GMT
    x-amz-copy-source: /{{bucketName}}/my-pdf-document.pdf
    Authorization: {{authorizationString}}
@@ -545,7 +535,7 @@ Request
 .. code::
 
    PUT /my-document.pdf HTTP/1.1
-   Host: {{bucketName}}.s3.scality.com
+   Host: {{bucketName}}.s3.example.com
    Date: Wed, 21 Sep 2016 18:18:00 GMT
    x-amz-copy-source: /{{bucketName}}/my-pdf-document.pdf?versionId=3/L4kqtJlcpXroDTDmJ+rmSpXd3dIbrHY+MTRCxf3vjVBH40Nr8X8gdRQBpUMLUo
    Authorization: {{authorizationString}}
@@ -614,11 +604,11 @@ Request
 .. code::
 
    PUT ExampleObject.txt?acl HTTP/1.1
-   Host: {{bucketName}}.s3.scality.com
+   Host: {{bucketName}}.s3.example.com
    x-amz-acl: public-read
    Accept: */*
    Authorization: {{authorizationString}}
-   Host: s3.scality.com
+   Host: s3.example.com
    Connection: Keep-Alive
    PUT /exampleDestinationObject HTTP/1.1
    Host: example-destination-bucket.s3.amazonaws.com
@@ -649,7 +639,7 @@ Request
 .. code::
 
    PUT /exampleDestinationObject HTTP/1.1
-   Host: example-destination-bucket.s3.amazonaws.com
+   Host: example-destination-bucket.s3.example.com
    x-amz-server-side-encryption-customer-algorithm: AES256
    x-amz-server-side-encryption-customer-key: Base64({{customerProvidedKey}})
    x-amz-server-side-encryption-customer-key-MD5: Base64(MD5{{customerProvidedKey}})

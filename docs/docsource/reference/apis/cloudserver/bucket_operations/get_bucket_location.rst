@@ -83,7 +83,7 @@ Request
 .. code::
 
    GET /?location HTTP/1.1
-   Host: myBucket.s3.scality.com
+   Host: myBucket.s3.example.com
    Date: Thu, 31 Mar 2016 15:11:47 GMT
    Authorization: AWS pat:6nYhPMw6boadLgjywjSIyhfwRIA=
 

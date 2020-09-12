@@ -169,7 +169,7 @@ Request
 .. code::
 
    GET /my-document.pdf HTTP/1.1
-   Host: {{bucketName}}.s3.scality.com
+   Host: {{bucketName}}.s3.example.com
    Date: Wed, 28 Oct 2009 22:32:00 GMT
    Authorization: AWS AKIAIOSFODNN7EXAMPLE:02236Q3V0RonhpaBX5sCYVf1bNRuU=
 
@@ -199,7 +199,7 @@ Request
 .. code::
 
    HEAD /my-document.pdf?versionId=3HL4kqCxf3vjVBH40Nrjfkd HTTP/1.1
-   Host: {{bucketName}}.s3.scality.com
+   Host: {{bucketName}}.s3.example.com
    Date: Wed, 28 Oct 2009 22:32:00 GMT
    Authorization: AWS AKIAIOSFODNN7EXAMPLE:02236Q3V0WpaBX5sCYVf1bNRuU=
 

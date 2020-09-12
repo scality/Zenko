@@ -12,9 +12,6 @@ See also: :ref:`PUT bucket`.
    Cross-region replication is not supported on buckets with object lock
    enabled.
 
-See `aws help <https://docs.aws.amazon.com/cli/latest/reference/index.html>`_
-for descriptions of global parameters.
-
 Synopsis
 --------
 
@@ -86,15 +83,12 @@ JSON Syntax::
 
 ``--cli-input-json`` (string)
 
-  Performs service operation based on the JSON string provided.  If other
-  arguments are provided on the command line, the CLI values will override the
-  JSON-provided values. It is not possible to pass arbitrary binary values using
-  a JSON-provided value as the string will be taken literally.
+  .. include:: ../../../include/cli-input-json.txt
 
 Examples
 --------
 
-The following command creates a bucket named ``my-bucket``::
+The following command creates a bucket named "my-bucket"::
 
   aws s3api create-bucket --bucket my-bucket --region us-east-1
 
@@ -104,7 +98,7 @@ Output::
       "Location": "/my-bucket"
   }
 
-The following command creates a bucket named ``my-bucket`` in the
+The following command creates a bucket named "my-bucket" in the
 ``eu-west-1`` region. Regions outside of ``us-east-1`` require the appropriate
 ``LocationConstraint`` to be specified in order to create the bucket in the
 desired region::

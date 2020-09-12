@@ -30,7 +30,7 @@ Syntax
 .. code::
 
    PUT /{{objectName}}?partNumber={{partNumber}}&amp;uploadId={{uploadId}} HTTP/1.1
-   Host: {{BucketName}}.s3.scality.com
+   Host: {{BucketName}}.s3.example.com
    x-amz-copy-source: /{{sourceBucket}}/{{sourceObject}}
    x-amz-copy-source-range:bytes={{first-Last}}
    x-amz-copy-source-if-match: {{etag}}
@@ -352,7 +352,7 @@ upload. The request includes the upload ID received in response to an
 .. code::
 
    PUT /{{objectName}}?partNumber={{partNumber}}&amp;uploadId={{uploadId}} HTTP/1.1
-   Host: {{BucketName}}.s3.scality.com
+   Host: {{BucketName}}.s3.example.com
    x-amz-copy-source: /{{sourceBucket}}/{{sourceObject}}
    x-amz-copy-source-range:bytes={{first-Last}}
    x-amz-copy-source-if-match: {{etag}}
@@ -394,7 +394,7 @@ response to an :ref:`Initiate Multipart Upload` request.
 .. code::
 
    PUT /newobject?partNumber=2&amp;uploadId=VCVsb2FkIElEIGZvciBlbZZpbmcncyBteS1tb3ZpZS5tMnRzIHVwbG9hZR HTTP/1.1
-   Host: example-bucket.s3.scality.com
+   Host: example-bucket.s3.example.com
    Date:  Mon, 7 Nov 2016 20:34:56 GMT
    x-amz-copy-source: /source-bucket/sourceobject
    Authorization: {{authorizationString}}
@@ -415,7 +415,7 @@ versionId subresource. The byte range requests 6 MB of data, starting with byte
 .. code::
 
    PUT /newobject?partNumber=2&amp;uploadId=VCVsb2FkIElEIGZvciBlbZZpbmcncyBteS1tb3ZpZS5tMnRzIHVwbG9hZR HTTP/1.1
-   Host: example-bucket.s3.scality.com
+   Host: example-bucket.s3.example.com
    Date:  Mon, 7 Nov 2016 20:34:56 GMT
    x-amz-copy-source: /source-bucket/sourceobject?versionId=3/L4kqtJlcpXroDTDmJ+rmSpXd3dIbrHY+MTRCxf3vjVBH40Nr8X8gdRQBpUMLUo
    x-amz-copy-source-range:bytes=500-6291456

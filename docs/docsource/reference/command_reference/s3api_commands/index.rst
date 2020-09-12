@@ -24,7 +24,6 @@ and is maintained separately.
    get-bucket-acl
    get-bucket-cors
    get-bucket-location
-   get-bucket-notification-configuration
    get-bucket-policy
    get-bucket-replication
    get-bucket-versioning
@@ -45,7 +44,6 @@ and is maintained separately.
    list-parts
    put-bucket-acl
    put-bucket-cors
-   put-bucket-notification-configuration
    put-bucket-policy
    put-bucket-replication
    put-bucket-versioning
