@@ -43,7 +43,7 @@ Examples
 The following command retrieves the access control list for an object in a
 bucket named "my-bucket"::
 
-  aws s3api get-object-acl --bucket my-bucket --key index.html
+  $ aws s3api get-object-acl --bucket my-bucket --key index.html
 
 Output::
 

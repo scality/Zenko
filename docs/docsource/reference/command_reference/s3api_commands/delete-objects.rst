@@ -65,7 +65,7 @@ Examples
 
 The following command deletes an object from a bucket named "my-bucket"::
 
-  aws s3api delete-objects --bucket my-bucket --delete file://delete.json
+  $ aws s3api delete-objects --bucket my-bucket --delete file://delete.json
 
 ``delete.json`` is a JSON document in the current directory that specifies the
 object to delete::

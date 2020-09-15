@@ -342,7 +342,7 @@ The following command copies an object from bucket-1 to bucket-2:
 
 .. code::
 
-   aws s3api copy-object --copy-source bucket-1/test.txt --key test.txt --bucket bucket-2
+   $ aws s3api copy-object --copy-source bucket-1/test.txt --key test.txt --bucket bucket-2
 
 Output
 ^^^^^^

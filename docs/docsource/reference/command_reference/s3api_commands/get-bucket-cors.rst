@@ -31,7 +31,7 @@ Examples
 The following command retrieves the Cross-Origin Resource Sharing configuration
 for a bucket named "my-bucket"::
 
-  aws s3api get-bucket-cors --bucket my-bucket
+  $ aws s3api get-bucket-cors --bucket my-bucket
 
 Output::
 

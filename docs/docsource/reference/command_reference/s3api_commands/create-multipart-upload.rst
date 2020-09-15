@@ -189,7 +189,7 @@ Examples
 The following command creates a multipart upload in the bucket ``my-bucket``
 with the key ``multipart/01``::
 
-  aws s3api create-multipart-upload --bucket my-bucket --key 'multipart/01'
+  $ aws s3api create-multipart-upload --bucket my-bucket --key 'multipart/01'
 
 Output::
 

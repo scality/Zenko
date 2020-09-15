@@ -46,7 +46,7 @@ Examples
 This example allows all users to retrieve any object in *MyBucket* except those in the *MySecretFolder*. It also
 grants ``put`` and ``delete`` permission to the root user of the AWS account ``1234-5678-9012``::
 
-   aws s3api put-bucket-policy --bucket MyBucket --policy file://policy.json
+   $ aws s3api put-bucket-policy --bucket MyBucket --policy file://policy.json
 
    policy.json:
    {

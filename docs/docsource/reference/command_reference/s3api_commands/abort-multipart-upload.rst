@@ -50,7 +50,7 @@ Examples
 The following command aborts a multipart upload for the key ``multipart/01`` in
 the bucket ``my-bucket``::
 
-  aws s3api abort-multipart-upload --bucket my-bucket --key 'multipart/01'\
+  $ aws s3api abort-multipart-upload --bucket my-bucket --key 'multipart/01'\
   --upload-id dfRtDYU0WWCCcH43C3WFbkRONycyCpTJJvxu2i5GYkZljF.Yxwh6XG7WfS2vC4to6\
   HiV6Yjlx.cph0gtNBtJ8P3URCSbB7rjxI5iEwVDmgaXZOGgkk5nVTW16HOQ5l0R
 

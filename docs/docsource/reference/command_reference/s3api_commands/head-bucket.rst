@@ -32,7 +32,7 @@ Examples
 
 The following command verifies access to a bucket named "my-bucket"::
 
-  aws s3api head-bucket --bucket my-bucket
+  $ aws s3api head-bucket --bucket my-bucket
 
 If the bucket exists and you have access to it, no output is returned.
 Otherwise, an error message is shown. For example::

@@ -37,7 +37,7 @@ Examples
 The following command retrieves the replication configuration for a bucket named
 "my-bucket"::
 
-  aws s3api get-bucket-replication --bucket my-bucket
+  $ aws s3api get-bucket-replication --bucket my-bucket
 
 Output::
 

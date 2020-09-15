@@ -52,7 +52,7 @@ Examples
 The following example enables ``PUT``, ``POST``, and ``DELETE`` requests from
 *www.example.com*, and enables ``GET`` requests from any domain::
 
-   aws s3api put-bucket-cors --bucket MyBucket --cors-configuration file://cors.json
+   $ aws s3api put-bucket-cors --bucket MyBucket --cors-configuration file://cors.json
 
    cors.json:
    {

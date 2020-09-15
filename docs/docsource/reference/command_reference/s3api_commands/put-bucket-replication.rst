@@ -107,7 +107,7 @@ Examples
 
 The following ``put-bucket-replication`` example applies a replication configuration to the specified S3 bucket. ::
 
-    aws s3api put-bucket-replication \
+    $ aws s3api put-bucket-replication \
         --bucket my-bucket \
         --replication-configuration file://replication.json
 

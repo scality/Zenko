@@ -93,7 +93,7 @@ Examples
 The following command retrieves version information for an object in a bucket
 named "my-bucket"::
 
-  aws s3api list-object-versions --bucket my-bucket --prefix index.html
+  $ aws s3api list-object-versions --bucket my-bucket --prefix index.html
 
 Output::
 

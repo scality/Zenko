@@ -92,7 +92,7 @@ Examples
 The following command lists all of the active multipart uploads for a bucket
 named "my-bucket"::
 
-  aws s3api list-multipart-uploads --bucket my-bucket
+  $ aws s3api list-multipart-uploads --bucket my-bucket
 
 Output::
 

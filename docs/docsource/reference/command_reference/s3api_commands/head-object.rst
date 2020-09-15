@@ -81,7 +81,7 @@ Examples
 The following command retrieves metadata for an object in a bucket named
 "my-bucket"::
 
-  aws s3api head-object --bucket my-bucket --key index.html
+  $ aws s3api head-object --bucket my-bucket --key index.html
 
 Output::
 
