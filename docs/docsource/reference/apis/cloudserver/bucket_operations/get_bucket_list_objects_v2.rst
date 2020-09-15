@@ -207,10 +207,10 @@ Elements
    | ``CommonPrefixes``         | All of the keys rolled up into a common       |
    |                            | prefix count as a single return when          |
    |                            | calculating the number of returns. See        |
-   |                            | MaxKeys.                                      |
+   |                            | MaxKeys_.                                     |
    |                            |                                               |
    |                            | * A response can contain ``CommonPrefixes``   |
-   |                            |    only if a delimiter has been specified.    |
+   |                            |   only if a delimiter has been specified.     |
    |                            | * ``CommonPrefixes`` contains any existing    |
    |                            |   keys between ``Prefix`` and the next        |
    |                            |   occurrence of the string specified by a     |
@@ -220,12 +220,11 @@ Elements
    |                            |   by Prefix.                                  |
    |                            |                                               |
    |                            | For example, if the prefix is ``notes/`` and  |
-   |                            | the delimiter is a slash (/), as in           |
+   |                            | the delimiter is a slash (``/``), as in       |
    |                            | ``notes/summer/july``, the common prefix is   |
    |                            | ``notes/summer/``. All keys that roll up into |
    |                            | a common prefix count as a single return when |
-   |                            | calculating the number of returns. See        |
-   |                            | MaxKeys.                                      |
+   |                            | calculating the number of returns.            |
    |                            |                                               |
    |                            | **Type:** String                              |
    |                            |                                               |
@@ -302,7 +301,9 @@ Elements
    |                            |                                               |
    |                            | **Ancestor:** ListBucketResult.Contents       |
    +----------------------------+-----------------------------------------------+
-   | .. _MaxKeys: ``MaxKeys``   | The maximum number of keys returned in the    | 
+   | ``MaxKeys``                | .. _MaxKeys:                                  |
+   |                            |                                               |
+   |                            | The maximum number of keys returned in the    | 
    |                            | response body                                 |
    |                            |                                               |
    |                            | **Type:** String                              |
@@ -336,7 +337,7 @@ Elements
    |                            |                                               |
    |                            | **Ancestor:** ListBucketResult.Contents       |
    +----------------------------+-----------------------------------------------+
-   | ``StorageClass``           | STANDARD \| STANDARD_IA \| REDUCED_REDUNDANCY |
+   | ``StorageClass``           | STANDARD or custom value                      |
    |                            |                                               |
    |                            | **Type:** String                              |
    |                            |                                               |
@@ -409,7 +410,7 @@ Response
 .. code::
 
    <?xml version="1.0" encoding="UTF-8"?>
-   <ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+   <ListBucketResult xmlns="http://s3.example.com/doc/2006-03-01/">
      <Name>foob</Name>
      <Prefix/>
      <MaxKeys>1000</MaxKeys>
@@ -460,7 +461,7 @@ Response
   Server: ScalityS3
 
   <?xml version="1.0" encoding="UTF-8"?>
-  <ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+  <ListBucketResult xmlns="http://s3.example.com/doc/2006-03-01/">
   Server: my-zenko
     <Name>quotes</Name>
     <Prefix>E</Prefix>
@@ -513,7 +514,7 @@ occurrence of the specified delimiter.
 
 .. code::
 
-  <ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+  <ListBucketResult xmlns="http://s3.example.com/doc/2006-03-01/">
     <Name>example-bucket</Name>
     <Prefix></Prefix>
     <KeyCount>2</KeyCount>
@@ -560,7 +561,7 @@ first occurrence of the specified delimiter after the prefix.
 
 .. code::
 
-  <ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+  <ListBucketResult xmlns="http://s3.example.com/doc/2006-03-01/">
     <Name>example-bucket</Name>
     <Prefix>photos/2006/</Prefix>
     <KeyCount>3</KeyCount>
@@ -616,7 +617,7 @@ The following is a sample response:
   Connection: close
   Server: ScalityS3
 
-  <ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+  <ListBucketResult xmlns="http://s3.example.com/doc/2006-03-01/">
     <Name>bucket</Name>
     <Prefix></Prefix>
     <NextContinuationToken>1ueGcxLPRx1Tr/XYExHnhbYLgveDs2J/wm36Hy4vbOwM=</NextContinuationToken>
@@ -666,7 +667,7 @@ request ended.
   Connection: close
   Server: ScalityS3
 
-  <ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+  <ListBucketResult xmlns="http://s3.example.com/doc/2006-03-01/">
     <Name>bucket</Name>
     <Prefix></Prefix>
     <ContinuationToken>1ueGcxLPRx1Tr/XYExHnhbYLgveDs2J/wm36Hy4vbOwM=</ContinuationToken>

@@ -28,7 +28,7 @@ Syntax
 Parameters
 ~~~~~~~~~~
 
-The GET Object ACL operation does not use Request Parameters.
+The GET Object ACL operation does not use request parameters.
 
 Headers
 ~~~~~~~

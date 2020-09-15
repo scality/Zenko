@@ -13,10 +13,10 @@ Bucket permissions are set using one of the following two methods:
 -  Specifying the ACL in the request body
 -  Specifying permissions using request headers
 
-.. Warning::
+   .. Note::
 
-   Access permission cannot be specified using both the request body and the
-   request headers.
+      Access permission cannot be specified using both the request body and the
+      request headers.
 
 Requests
 --------
@@ -347,7 +347,7 @@ The request sample uses ACL-specific request headers to grant the
 following permissions:
 
 -  Write permission to the Zenko LogDelivery group and an account identified
-   by the email \xyz@example.com
+   by ``xyz@example.com``
 -  Read permission to the Zenko AllUsers group
 
 Request Sample

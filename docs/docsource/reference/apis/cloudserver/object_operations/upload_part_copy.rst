@@ -43,7 +43,7 @@ Syntax
 Parameters
 ~~~~~~~~~~
 
-The Upload Part-Copy operation does not use Request Parameters.
+The Upload Part-Copy operation does not use request parameters.
 
 Headers
 ~~~~~~~

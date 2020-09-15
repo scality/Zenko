@@ -328,7 +328,7 @@ configurations from a specified bucket.
 ::
 
   GET /?lifecycle HTTP/1.1
-  Host: examplebucket.s3.amazonaws.com
+  Host: examplebucket.s3.example.com
   x-amz-date: Thu, 15 Nov 2012 00:17:21 GMT
   Authorization: signatureValue
 
@@ -355,7 +355,7 @@ filter and multiple lifecycle configurations for these objects.
 .. code::
 
   <?xml version="1.0" encoding="UTF-8"?>
-  <LifecycleConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+  <LifecycleConfiguration xmlns="http://s3.example.com/doc/2006-03-01/">
     <Rule>
       <ID>Archive and then delete rule</ID>
       <Filter>

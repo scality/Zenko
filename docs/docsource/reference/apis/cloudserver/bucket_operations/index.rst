@@ -24,6 +24,7 @@ in Zenko.
    get_bucket_replication
    get_bucket_versioning
    get_object_lock_configuration
+   get_service
    head_bucket
    list_multipart_uploads
    put_bucket

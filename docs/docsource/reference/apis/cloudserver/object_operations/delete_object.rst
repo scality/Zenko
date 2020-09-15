@@ -32,7 +32,7 @@ Syntax
 Parameters
 ~~~~~~~~~~
 
-The DELETE Object operation does not use Request Parameters.
+The DELETE Object operation does not use request parameters.
 
 Headers
 ~~~~~~~

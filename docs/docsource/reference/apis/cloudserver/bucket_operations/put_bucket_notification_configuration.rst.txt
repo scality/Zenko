@@ -63,7 +63,7 @@ Request Syntax
    PUT /?notification HTTP/1.1
    Host: bucket.s3.example.com
    <?xml version="1.0" encoding="UTF-8"?>
-   <NotificationConfiguration <xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+   <NotificationConfiguration <xmlns="http://s3.example.com/doc/2006-03-01/">
     <QueueConfiguration>
       <Event>string</Event>
       ...
@@ -197,7 +197,7 @@ configuration on the bucket.
 
 .. code::
 
-   PUT http://s3.<Region>.amazonaws.com/examplebucket?notification= HTTP/1.1
+   PUT http://s3.<Region>.example.com/examplebucket?notification= HTTP/1.1
    User-Agent: s3curl 2.0
    Host: s3.example.com
    Pragma: no-cache

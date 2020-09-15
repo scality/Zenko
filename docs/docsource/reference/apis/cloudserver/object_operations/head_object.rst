@@ -32,7 +32,7 @@ Syntax
 Parameters
 ~~~~~~~~~~
 
-The HEAD Object operation does not use Request Parameters.
+The HEAD Object operation does not use request parameters.
 
 Headers
 ~~~~~~~

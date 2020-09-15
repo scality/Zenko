@@ -18,7 +18,7 @@ Request Syntax
 .. code::
 
    PUT /?object-lock HTTP/1.1
-   Host: <bucket-name>.s3.amazonaws.com
+   Host: <bucket-name>.s3.example.com
    Date: <Thu, 15 Nov 2016 00:17:21 GMT>
    Authorization: <authorization-string> (see Authenticating Requests (AWS Signature Version 4))
 

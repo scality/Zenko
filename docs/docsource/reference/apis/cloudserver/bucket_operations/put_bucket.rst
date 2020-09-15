@@ -42,7 +42,7 @@ Headers
 The PUT Bucket operation can use a number of optional request headers in
 addition to those that are common to all operations (refer to :ref:`Common
 Request Headers`). These request headers are used either to specify a
-predefined—-or *canned*—-ACL, or to explicitly specify access permissions.
+predefined—or *canned*—ACL, or to explicitly specify access permissions.
 
 Specifying a Canned ACL
 ```````````````````````

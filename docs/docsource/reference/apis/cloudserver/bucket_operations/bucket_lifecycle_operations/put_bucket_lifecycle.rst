@@ -592,7 +592,7 @@ preceding lifecycle configuration to the “examplebucket” bucket.
 .. code::
 
   PUT /?lifecycle HTTP/1.1
-  Host: examplebucket.s3.amazonaws.com
+  Host: examplebucket.s3.example.com
   x-amz-date: Wed, 14 May 2014 02:11:21 GMT
   Content-MD5: q6yJDlIkcBaGGfb3QLY69A==
   Authorization: *authorization string* Content-Length: 415
@@ -665,7 +665,7 @@ preceding lifecycle configuration to the \`examplebucket\` bucket.
 .. code::
 
   PUT /?lifecycle HTTP/1.1
-  Host: examplebucket.s3.amazonaws.com
+  Host: examplebucket.s3.example.com
   x-amz-date: Wed, 14 May 2014 02:21:48 GMT
   Content-MD5: 96rxH9mDqVNKkaZDddgnw==
   Authorization: authorization string

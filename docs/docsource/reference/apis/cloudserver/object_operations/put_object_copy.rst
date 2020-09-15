@@ -368,7 +368,7 @@ permission to two accounts identified by their email addresses:
 Elements
 ~~~~~~~~
 
-The implementation of the operation does not use request Parameters.
+The implementation of the operation does not use request parameters.
 
 Responses
 ---------

@@ -21,12 +21,12 @@ Syntax
 
 .. note::
 
-  The Request Syntax illustrates only a portion of the request headers.
+  The request syntax illustrates only a portion of the request headers.
 
 Parameters
 ~~~~~~~~~~
 
-The DELETE Bucket CORS operation does not use Request Parameters.
+The DELETE Bucket CORS operation does not use request parameters.
 
 Headers
 ~~~~~~~

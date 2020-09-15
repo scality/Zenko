@@ -60,19 +60,15 @@ in the response:
 
 .. tabularcolumns:: X{0.20\textwidth}X{0.10\textwidth}X{0.65\textwidth}
 .. table::
-   
-   +------------------------+-----------------------+-----------------------+
-   | Element                | Type                  | Description           |
-   +========================+=======================+=======================+
-   | ``LocationConstraint`` | String                | Specifies the         |
-   |                        |                       | location of the       |
-   |                        |                       | bucket. The           |
-   |                        |                       | LocationConstraint    |
-   |                        |                       | parameter is          |
-   |                        |                       | configured in the     |
-   |                        |                       | env_s3 setting of the |
-   |                        |                       | S3 configuration.     |
-   +------------------------+-----------------------+-----------------------+
+
+   +------------------------+--------+-----------------------------------------+
+   | Element                | Type   | Description                             |
+   +========================+========+=========================================+
+   | ``LocationConstraint`` | String | Specifies the location of the bucket.   |
+   |                        |        | The LocationConstraint parameter is     |
+   |                        |        | configured in the env_s3 setting of the |
+   |                        |        | S3 configuration.                       |
+   +------------------------+--------+-----------------------------------------+
 
 Examples
 --------
@@ -93,4 +89,4 @@ Response
 .. code::
 
    <xml version="1.0" encoding="UTF-8"?>
-   <LocationConstraint xmlns="http://s3.amazonaws.com/doc/2006-03-01/">EU</LocationConstraint>
+   <LocationConstraint xmlns="http://s3.example.com/doc/2006-03-01/">EU</LocationConstraint>

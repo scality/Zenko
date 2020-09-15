@@ -67,7 +67,7 @@ ACL cannot be sent in the request body (refer to :ref:`Common Request Headers` f
 Parameters
 ~~~~~~~~~~
 
-The PUT Object ACL operation does not use Request Parameters.
+The PUT Object ACL operation does not use request parameters.
 
 Headers
 ~~~~~~~

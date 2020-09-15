@@ -28,7 +28,7 @@ Syntax
 Parameters
 ~~~~~~~~~~
 
-The DELETE Bucket Website operation does not use Request Parameters.
+The DELETE Bucket Website operation does not use request parameters.
 
 Headers
 ~~~~~~~

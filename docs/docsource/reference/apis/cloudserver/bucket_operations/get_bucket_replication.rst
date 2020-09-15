@@ -14,7 +14,7 @@ Syntax
 .. code::
 
    GET /?replication HTTP/1.1
-   Host: bucketname.s3.amazonaws.com
+   Host: bucketname.s3.example.com
    Date: date
    Authorization: authorization string (see Authenticating Requests (AWS Signature Version 4))
            
@@ -186,7 +186,7 @@ information set for the examplebucket bucket.
 .. code::
 
    GET /?replication HTTP/1.1
-   Host: examplebucket.s3.amazonaws.com
+   Host: examplebucket.s3.example.com
    x-amz-date: Tue, 10 Feb 2015 00:17:21 GMT
    Authorization: signatureValue
 
@@ -212,7 +212,7 @@ bucket owner.
    Content-Length: contentlength
 
    <?xml version="1.0" encoding="UTF-8"?>
-   <ReplicationConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+   <ReplicationConfiguration xmlns="http://s3.example.com/doc/2006-03-01/">
      <Rule>
        <ID>rule1</ID>
        <Status>Enabled</Status>

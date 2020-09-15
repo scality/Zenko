@@ -36,7 +36,7 @@ DELETE request for the Abort Multipart Upload operation:
 Parameters
 ~~~~~~~~~~
 
-The Abort Multipart Upload operation does not use Request Parameters.
+The Abort Multipart Upload operation does not use request parameters.
 
 Headers
 ~~~~~~~

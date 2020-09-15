@@ -28,7 +28,7 @@ Syntax
 Parameters
 ~~~~~~~~~~
 
-The GET Bucket Website operation does not use Request Parameters.
+The GET Bucket Website operation does not use request parameters.
 
 Headers
 ~~~~~~~

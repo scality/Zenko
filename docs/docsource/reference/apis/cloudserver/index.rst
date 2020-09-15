@@ -10,7 +10,6 @@ APIs, which Zenko brokers through its APIs.
 
    common_features/index
    access_control/index
-   service_operations/index
    bucket_operations/index
    object_operations/index
    backbeat/index

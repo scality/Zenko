@@ -32,7 +32,7 @@ Request
 Parameters
 ~~~~~~~~~~
 
-The GET Object Tagging operation does not use Request Parameters.
+The GET Object Tagging operation does not use request parameters.
 
 Headers
 ~~~~~~~

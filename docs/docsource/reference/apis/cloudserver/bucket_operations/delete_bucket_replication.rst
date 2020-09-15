@@ -15,10 +15,9 @@ Syntax
 .. code::
 
    DELETE /?replication HTTP/1.1
-   Host: bucketname.s3.amazonaws.com
+   Host: bucketname.s3.example.com
    Date: date
-   Authorization: authorization string (see Authenticating Requests (AWS Signature Version
-           4))
+   Authorization: authorization string
 
 Parameters
 ~~~~~~~~~~
@@ -28,8 +27,7 @@ The PUT Bucket operation does not use request parameters.
 Headers
 ~~~~~~~
 
-This operation uses only request headers that are
-common to all operations.
+This operation uses only request headers that are common to all operations.
 
 Elements
 ~~~~~~~~
@@ -58,7 +56,7 @@ specified bucket. This removes the replication configuration set for the bucket.
 .. code::
 
    DELETE /?replication HTTP/1.1
-   Host: examplebucket.s3.amazonaws.com
+   Host: examplebucket.s3.example.com
    Date: Wed, 11 Feb 2015 05:37:16 GMT
    20150211T171320Z
 

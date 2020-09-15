@@ -135,7 +135,7 @@ Request
    Content-Type: text/plain
    Content-Length: 124
   
-   <VersioningConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+   <VersioningConfiguration xmlns="http://s3.example.com/doc/2006-03-01/">
    <Status>Suspended</Status>
    </VersioningConfiguration>
 

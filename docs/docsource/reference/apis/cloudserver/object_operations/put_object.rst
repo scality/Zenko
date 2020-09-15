@@ -60,7 +60,7 @@ Syntax
 Parameters
 ~~~~~~~~~~
 
-The PUT Object operation does not use Request Parameters.
+The PUT Object operation does not use request parameters.
 
 Headers
 ~~~~~~~

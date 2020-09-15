@@ -15,7 +15,7 @@ Syntax
 .. code::
 
    PUT /?replication HTTP/1.1
-   Host: bucketname.s3.amazonaws.com
+   Host: bucketname.s3.example.com
    Content-Length: length
    Date: date
    Authorization: authorization string (see Authenticating Requests (AWS Signature Version 4))
@@ -214,7 +214,7 @@ bucket owner, which is the AWS account that created the bucket.
 .. code::
 
    PUT /?replication HTTP/1.1
-   Host: examplebucket.s3.amazonaws.com
+   Host: examplebucket.s3.example.com
    x-amz-date: Wed, 11 Feb 2015 02:11:21 GMT
    Content-MD5: q6yJDlIkcBaGGfb3QLY69A==
    Authorization: authorization string

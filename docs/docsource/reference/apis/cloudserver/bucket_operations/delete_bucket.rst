@@ -8,8 +8,10 @@ empty.
 
 .. note::
 
-  Before a bucket can be deleted, all objects must be deleted from the
-  bucket and all ongoing multipart uploads must be aborted.
+  Before a bucket can be deleted, all objects must be deleted from the bucket
+  and all ongoing multipart uploads must be aborted. In versioned buckets, this
+  operation can be difficult. You may need to use the scripts described at
+  :ref:`Deleting Versioned Objects` to delete a bucket completely.
 
 Requests
 --------

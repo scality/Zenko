@@ -59,7 +59,7 @@ Request
 .. code::
 
   DELETE /?lifecycle HTTP/1.1
-  Host: examplebucket.s3.amazonaws.com
+  Host: examplebucket.s3.example.com
   Date: Wed, 14 Dec 2011 05:37:16 GMT
   Authorization: {{signatureValue}}
 

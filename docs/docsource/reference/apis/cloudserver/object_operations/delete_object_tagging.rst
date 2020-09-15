@@ -33,7 +33,7 @@ Syntax
 Parameters
 ~~~~~~~~~~
 
-The DELETE Object Tagging operation does not use Request Parameters.
+The DELETE Object Tagging operation does not use request parameters.
 
 Headers
 ~~~~~~~

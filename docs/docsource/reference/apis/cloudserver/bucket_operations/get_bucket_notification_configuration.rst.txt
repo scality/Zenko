@@ -129,7 +129,7 @@ specified bucket.
    Server: example.com
    <?xml version="1.0" encoding="UTF-8"?>
 
-   <NotificationConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+   <NotificationConfiguration xmlns="http://s3.example.com/doc/2006-03-01/">
      <QueueConfiguration>
        <Id>YjVkM2Y0YmUtNGI3NC00ZjQyLWEwNGItNDIyYWUxY2I0N2M4</Id>
        <Queue>arn:aws:sqs:us-east-1:account-id:my_queue2</Queue>
