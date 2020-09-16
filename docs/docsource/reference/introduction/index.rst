@@ -33,7 +33,7 @@ API access is direct. The Backbeat API is accessed through CloudServer API
 calls.
 
 Zenko provides application programming interfaces via CloudServer, UTAPI,
-Prometheus, and the metadata engine.
+and Prometheus.
 
 Command Zenko by calling its REST API, using:
 

@@ -142,8 +142,8 @@ The following labels can be used to filter this metric:
 You can use either the Prometheus API or the Prometheus UI and the PromQL 
 query language to access these metrics.
 
-Below is an example. See the Prometheus documentation for a full PromQL
-reference. 
+Below is an example. See the `Prometheus
+documentation <https://prometheus.io/docs/>`__ for a full PromQL reference.
 
 - Compute the total average throughput, in bytes per second, of successful
   replications triggered by lifecycle transitions over the last 5 minutes::
