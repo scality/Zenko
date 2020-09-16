@@ -5,8 +5,8 @@ Get Completions
 
 This route returns the replication completions in number of operations and
 number of total bytes transferred for the specified extension type and location.
-Completions are only collected up to an EXPIRY time, set to **15 minutes** by
-default
+Completions are only collected up to an EXPIRY time, set to 15 minutes by
+default.
 
 Request
 -------

@@ -119,3 +119,73 @@ Example
       }
     }
   }
+  
+Healthcheck Details
+-------------------
+
+Backbeat healthchecks returns an object with two main keys: topics and
+internalConnections.
+
+The topics key returns details on the Kafka CRR topic only. The name field
+returns the Kafka topic name, and the partitions field returns details of each
+partition for the CRR topic. The id is the partition id, the leader is the
+current node responsible for all reads and writes for the given partition, the
+replicas array is the list of nodes that replicate the log for the given
+partition, and the isrs array is the list of in-sync replicas.
+
+.. code::
+
+   topics: {
+     <topicName>: {
+       name: <value>,
+         partitions: [
+           {
+             id: <value>,
+             leader: <value>,
+             replicas: [<value>, ...],
+             isrs: [<value>, ...]
+           },
+         ...
+       ]
+     }
+   }
+
+The internalConnections key returns general details on the health of the system
+as a whole. ``isrHealth`` checks if the minimum in-sync replicas for every
+partition is met, the zookeeper field checks if ZooKeeper is running properly,
+and the kafkaProducer field checks the health of all Kafka producers for every
+topic.
+
+healthcheck/deep
+----------------
+
+Deep healthchecks return the health of every available partition for the
+replication topic.
+
+Rather than getting an internal status variable or calling an internal
+status function to check the health of the replication topic, a deep
+healthcheck produces and consumes a message directly to the replication
+topic for every available partition.
+
+If there is no HTTP response error, the response is a JSON-structured
+object of:
+
+.. code::
+
+   topicPartition: <ok || error>,
+   ...
+   timeElapsed: <value>
+
+Example Output
+--------------
+
+.. code::
+
+   {
+       "0":"ok",
+       "1":"ok",
+       "2":"error",
+       "3":"ok",
+       "4":"ok",
+       "timeElapsed":560
+   }

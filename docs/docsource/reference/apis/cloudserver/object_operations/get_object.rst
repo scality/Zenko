@@ -36,7 +36,7 @@ Parameters
 Values for a set of response headers can be overridden in the GET Object
 response using the query parameters listed in the following table. These
 response header values are sent only on a successful request, one in which a
-status code *200 OK* is returned. The set of headers that can be overridden
+status code ``200 OK`` is returned. The set of headers that can be overridden
 using these parameters is a subset of the headers that Zenko accepts when an
 object is created, including ``Content-Type``, ``Content-Language``,
 ``Expires``, ``Cache-Control``, ``Content-Disposition``, and
@@ -166,7 +166,7 @@ Headers`).
    +-------------------------------+--------+----------------------------------------+
 
 Users can specify in a GET request a location from which to read the object by
-providing the custom "x-amz-location-constraint" header and the name of the
+providing the custom ``x-amz-location-constraint`` header and the name of the
 alternate location as value. Using this request, header, and location, an object
 can be retrieved even if the object is unavailable in the original/preferred
 location. The location value must be a valid Zenko location name to which the
@@ -292,7 +292,7 @@ Response
    Connection: close
    Server: ScalityS3
 
-The delete marker returns a 404 Not Found error.
+The delete marker returns a ``404 Not Found`` error.
 
 Getting a Specified Version of an Object
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -383,9 +383,9 @@ bytes of an object.
    Authorization: AWS AKIAIOSFODNN7EXAMPLE:Yxg83MZaEgh3OZ3l0rLo5RTX11o=
    Sample Response with Specified Range of the Object Bytes
 
-  .. note::
+.. note::
 
-    Zenko does not support retrieving multiple ranges of data per GET request.
+   Zenko does not support retrieving multiple ranges of data per GET request.
 
 Response
 ````````

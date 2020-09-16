@@ -17,8 +17,8 @@ must be enabled for your account.
 A copy request might return an error when Zenko receives the copy request
 or while Zenko is copying the files. If the error occurs before the copy
 operation starts, you receive a standard S3 error. If the error occurs
-during the copy operation, the error response is embedded in the 200 OK
-response. This means that a 200 OK response can contain either a success or
+during the copy operation, the error response is embedded in the ``200 OK``
+response. This means that a ``200 OK`` response can contain either a success or
 an error. Design your application to parse the contents of the response and
 handle it appropriately.
 
@@ -41,7 +41,7 @@ objects are uploaded. For more information, see `Amazon S3 Condition Keys`_. For
 a complete list of Amazon S3-specific condition keys, see Actions, Resources,
 and Condition Keys for Amazon S3.
 
-``x-amz-copy-source-if`` Headers
+x-amz-copy-source-if Headers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To copy an object only under certain conditions, such as when the Etag matches
@@ -60,23 +60,23 @@ If both the ``x-amz-copy-source-if-match`` and
 ``x-amz-copy-source-if-unmodified-since`` headers are present in the request and
 evaluate as follows, Zenko returns ``200 OK`` and copies the data:
 
-* ``x-amz-copy-source-if-match condition evaluates to true``
+* ``x-amz-copy-source-if-match`` condition evaluates to ``true``.
 
-* ``x-amz-copy-source-if-unmodified-since condition evaluates to false``
+* ``x-amz-copy-source-if-unmodified-since`` condition evaluates to ``false``.
 
 If both the ``x-amz-copy-source-if-none-match`` and
 ``x-amz-copy-source-if-modified-since`` headers are present in the request and
 evaluate as follows, Zenko returns the ``412 Precondition Failed`` response
 code:
 
-* ``x-amz-copy-source-if-none-match`` condition evaluates to false
+* ``x-amz-copy-source-if-none-match`` condition evaluates to ``false``.
 
-* ``x-amz-copy-source-if-modified-since`` condition evaluates to true
+* ``x-amz-copy-source-if-modified-since`` condition evaluates to ``true``.
 
 .. note::
 
-   All headers with the x-amz- prefix, including x-amz-copy-source, must be
-   signed.
+   All headers with the ``x-amz-`` prefix, including ``x-amz-copy-source``, must
+   be signed.
 
 Encryption
 ----------
@@ -85,7 +85,7 @@ The source object being copied can be encrypted or unencrypted. It can be
 encrypted on the server side using Scality-managed encryption keys
 (SSE-S3). With server-side encryption, Zenko encrypts the data as it
 writes it to disk and decrypts the data when you access it. Server-side
-encryption can also be requested for the target object regardless of whether the
+encryption can also be requested for the target object, regardless of whether the
 source object was encrypted.
 
 ACL-Specific Request Headers
@@ -108,7 +108,7 @@ STANDARD class if the client sets it, but it maps to no storage class.
 Versioning
 ----------
 
-By default, x-amz-copy-source identifies the current version of an object to
+By default, ``x-amz-copy-source`` identifies the current version of an object to
 copy. If the current version is a delete marker, Zenko behaves as if the
 object were deleted. To copy a different version, use the versionId subresource.
 

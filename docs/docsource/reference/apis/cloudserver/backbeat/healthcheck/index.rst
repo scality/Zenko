@@ -17,18 +17,18 @@ partition, and the isrs array is the list of in-sync replicas.
 .. code::
 
    topics: {
-       <topicName>: {
-           name: <value>,
-           partitions: [
-               {
-                   id: <value>,
-                   leader: <value>,
-                   replicas: [<value>, ...],
-                   isrs: [<value>, ...]
-               },
-               ...
-           ]
-       }
+     <topicName>: {
+       name: <value>,
+       partitions: [
+         {
+           id: <value>,
+           leader: <value>,
+           replicas: [<value>, ...],
+           isrs: [<value>, ...]
+         },
+         ...
+       ]
+     }
    }
 
 The internalConnections key returns general details on the health of the system
@@ -41,6 +41,4 @@ producers for every topic.
    :maxdepth: 1
 	      
    get_healthcheck
-   healthcheck_details
-   healthcheck_deep
 

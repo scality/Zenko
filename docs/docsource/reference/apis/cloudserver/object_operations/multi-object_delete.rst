@@ -5,27 +5,26 @@ Multi-Object Delete
 
 The Multi-Object Delete operation enables the deletion of multiple objects from
 a bucket using a single HTTP request. If object keys to be deleted are known,
-this operation provides a suitable alternative to sending individual delete 
+this operation provides a suitable alternative to sending individual delete
 requests, reducing per-request overhead. Refer to :ref:`DELETE Object`.
 
-The Multi-Object Delete request contains a list of up to 1000 keys that
-can be deleted. In the XML, provide the object key names. Optionally,
-provide version ID to delete a specific version of the object from a
-versioning-enabled bucket. For each key, Zenko performs a delete operation and
-returns the result of that delete, success or failure, in the response.
-If the object specified in the request is not found, Zenko returns the result
-as deleted.
+The Multi-Object Delete request contains a list of up to 1,000 keys that can be
+deleted. You can provide object key names in the XML, or provide the version ID
+to delete a specific version of the object from a versioning-enabled bucket. For
+each key, Zenko performs a delete operation and returns the result of that
+delete, success or failure, in the response. If the object specified in the
+request is not found, Zenko returns the result as deleted.
 
-The Multi-Object Delete operation supports two modes for the
-response—verbose and quiet. By default, the operation uses verbose mode
-in which the response includes the result of deletion of each key in the
-request. In quiet mode the response includes only keys where the delete
-operation encountered an error. For a successful deletion, the operation
-does not return any information about the delete in the response body.
+The Multi-Object Delete operation supports two modes for the response—verbose
+and quiet. By default, the operation uses verbose mode in which the response
+includes the result of deletion of each key in the request. In quiet mode the
+response includes only keys where the delete operation encountered an error. For
+a successful deletion, the operation does not return any information about the
+delete in the response body.
 
 Finally, the Content-MD5 header is required for all Multi-Object Delete
-requests. Amazon S3 uses the header value to ensure that your request
-body has not be altered in transit.
+requests. Zenko uses the header value to ensure that your request body has not
+been altered in transit.
 
 Requests
 --------
@@ -57,37 +56,29 @@ Syntax
 Parameters
 ~~~~~~~~~~
 
-The Multi-Object Delete operation requires a single query string
-parameter called “delete” to distinguish it from other bucket POST
-operations.
+The Multi-Object Delete operation requires a single query string parameter
+called “delete” to distinguish it from other bucket POST operations.
 
 Headers
 ~~~~~~~
 
-The Multi-Object Delete operation uses two request headers —
-Content-MD5, and Content-Length — in addition to those that are common
-to all operations (refer to :ref:`Common Request Headers`).
+The Multi-Object Delete operation uses two request headers, Content-MD5 and
+Content-Length, in addition to the headers that are common to all operations
+(refer to :ref:`Common Request Headers`).
 
 .. tabularcolumns:: X{0.20\textwidth}X{0.10\textwidth}X{0.65\textwidth}
 .. table::
 
-   +-----------------------+-----------------------+-----------------------+
-   | Header                | Type                  | Description           |
-   +=======================+=======================+=======================+
-   | ``Content-MD5``       | string                | The base64-encoded    |
-   |                       |                       | 128-bit MD5 digest of |
-   |                       |                       | the data. This header |
-   |                       |                       | must be used as a     |
-   |                       |                       | message integrity     |
-   |                       |                       | check to verify that  |
-   |                       |                       | the request body was  |
-   |                       |                       | not corrupted in      |
-   |                       |                       | transit.              |
-   +-----------------------+-----------------------+-----------------------+
-   | ``Content-Length``    | string                | Length of the body    |
-   |                       |                       | according to RFC      |
-   |                       |                       | 2616.                 |
-   +-----------------------+-----------------------+-----------------------+
+   +--------------------+--------+---------------------------------------------+
+   | Header             | Type   | Description                                 |
+   +====================+========+=============================================+
+   | ``Content-MD5``    | string | The base64-encoded 128-bit MD5 digest of    |
+   |                    |        | the data. This header must be used as a     |
+   |                    |        | message integrity check to verify that the  |
+   |                    |        | request body was not corrupted in transit.  |
+   +--------------------+--------+---------------------------------------------+
+   | ``Content-Length`` | string | Length of the body according to RFC 2616.   |
+   +--------------------+--------+---------------------------------------------+
 
 Elements
 ~~~~~~~~
@@ -149,157 +140,114 @@ response:
 .. table::
    :class: longtable
 
-   +---------------------------+-------------------+-----------------------+
-   | Element                   | Type              | Description           |
-   +===========================+===================+=======================+
-   | ``DeleteResult``          | Container         | Container for the     |
-   |                           |                   | response              |
-   |                           |                   |                       |
-   |                           |                   | **Ancestor:** None    |
-   |                           |                   |                       |
-   |                           |                   | **Children:** Deleted,|
-   |                           |                   | Error                 |
-   +---------------------------+-------------------+-----------------------+
-   | ``Deleted``               | Container         | Container element for |
-   |                           |                   | a successful delete   |
-   |                           |                   | (identifies the       |
-   |                           |                   | object that was       |
-   |                           |                   | successfully deleted) |
-   |                           |                   |                       |
-   |                           |                   | **Ancestor:**         |
-   |                           |                   | DeleteResult          |
-   |                           |                   |                       |
-   |                           |                   | **Children:** Key,    |
-   |                           |                   | VersionId             |
-   +---------------------------+-------------------+-----------------------+
-   | ``Key``                   | String            | Key name for the      |
-   |                           |                   | object that Amazon S3 |
-   |                           |                   | attempted to delete   |
-   |                           |                   |                       |
-   |                           |                   | **Ancestor:** Deleted,|
-   |                           |                   | Error                 |
-   +---------------------------+-------------------+-----------------------+
-   | ``VersionId``             | String            | Version ID of the     |
-   |                           |                   | versioned object      |
-   |                           |                   | Zenko attempted to    |
-   |                           |                   | delete. Includes this |
-   |                           |                   | element only in case  |
-   |                           |                   | of a versioned-delete |
-   |                           |                   | request.              |
-   |                           |                   |                       |
-   |                           |                   | **Ancestor:** Deleted |
-   |                           |                   | or Error              |
-   +---------------------------+-------------------+-----------------------+
-   | ``DeleteMarker``          | Boolean           | DeleteMarker element  |
-   |                           |                   | with a true value     |
-   |                           |                   | indicates that the    |
-   |                           |                   | request accessed a    |
-   |                           |                   | delete marker. If a   |
-   |                           |                   | specific delete       |
-   |                           |                   | request either        |
-   |                           |                   | creates or deletes a  |
-   |                           |                   | delete marker, this   |
-   |                           |                   | element is returned   |
-   |                           |                   | in the response with  |
-   |                           |                   | a value of true. This |
-   |                           |                   | is the case only when |
-   |                           |                   | your Multi-Object     |
-   |                           |                   | Delete request is on  |
-   |                           |                   | a bucket that has     |
-   |                           |                   | versioning enabled or |
-   |                           |                   | suspended.            |
-   |                           |                   |                       |
-   |                           |                   | **Ancestor:** Deleted |
-   +---------------------------+-------------------+-----------------------+
-   | ``DeleteMarkerVersionId`` | String            | Version ID of the     |
-   |                           |                   | delete marker         |
-   |                           |                   | accessed (deleted or  |
-   |                           |                   | created) by the       |
-   |                           |                   | request.              |
-   |                           |                   |                       |
-   |                           |                   | If the specific       |
-   |                           |                   | delete request in the |
-   |                           |                   | Multi-Object Delete   |
-   |                           |                   | either creates or     |
-   |                           |                   | deletes a delete      |
-   |                           |                   | marker, Zenko returns |
-   |                           |                   | this element in       |
-   |                           |                   | response with the     |
-   |                           |                   | version ID of the     |
-   |                           |                   | delete marker. @hen   |
-   |                           |                   | deleting an object in |
-   |                           |                   | a bucket with         |
-   |                           |                   | versioning enabled,   |
-   |                           |                   | this value is present |
-   |                           |                   | for the following     |
-   |                           |                   | two reasons:          |
-   |                           |                   |                       |
-   |                           |                   | -  A non-versioned    |
-   |                           |                   |    delete request is  |
-   |                           |                   |    sent; that is,     |
-   |                           |                   |    only the object    |
-   |                           |                   |    key is specified   |
-   |                           |                   |    and not the        |
-   |                           |                   |    version ID. In     |
-   |                           |                   |    this case, Zenko   |
-   |                           |                   |    creates a delete   |
-   |                           |                   |    marker and returns |
-   |                           |                   |    its version ID in  |
-   |                           |                   |    the response.      |
-   |                           |                   | -  A versioned delete |
-   |                           |                   |    request is sent;   |
-   |                           |                   |    that is, an object |
-   |                           |                   |    key and a version  |
-   |                           |                   |    ID are specified   |
-   |                           |                   |    in the request;    |
-   |                           |                   |    however, the       |
-   |                           |                   |    version ID         |
-   |                           |                   |    identifies a       |
-   |                           |                   |    delete marker. In  |
-   |                           |                   |    this case, Zenko   |
-   |                           |                   |    deletes the delete |
-   |                           |                   |    marker and responds|
-   |                           |                   |    with the specific  |
-   |                           |                   |    version ID.        |
-   |                           |                   |                       |
-   |                           |                   | **Ancestor:** Deleted |
-   +---------------------------+-------------------+-----------------------+
-   | ``Error``                 | String            | Container for a       |
-   |                           |                   | failed delete         |
-   |                           |                   | operation that        |
-   |                           |                   | describes the object  |
-   |                           |                   | that Zenko    	   |
-   |                           |                   | attempted to          |
-   |                           |                   | delete and the error  |
-   |                           |                   | it encountered.       |
-   |                           |                   |                       |
-   |                           |                   | **Ancestor:**         |
-   |                           |                   | DeleteResult          |
-   |                           |                   |                       |
-   |                           |                   | **Children:** Key,    |
-   |                           |                   | VersionId, Code,      |
-   |                           |                   | Message               |
-   +---------------------------+-------------------+-----------------------+
-   | ``Key``                   | String            | Key for the object    |
-   |                           |                   | Zenko attempted to	   |
-   |                           |                   | delete         	   |
-   |                           |                   |                       |
-   |                           |                   | **Ancestor:** Error   |
-   +---------------------------+-------------------+-----------------------+
-   | ``Code``                  | String            | Status code for the   |
-   |                           |                   | result of the failed  |
-   |                           |                   | delete                |
-   |                           |                   |                       |
-   |                           |                   | **Valid Values:**     |
-   |                           |                   | ``AccessDenied``,     |
-   |                           |                   | ``InternalError``     |
-   |                           |                   |                       |
-   |                           |                   | **Ancestor:** Error   |
-   +---------------------------+-------------------+-----------------------+
-   | ``Message``               | String            | Error description     |
-   |                           |                   |                       |
-   |                           |                   | **Ancestor:** Error   |
-   +---------------------------+-------------------+-----------------------+
+   +---------------------------+-----------+-----------------------------------+
+   | Element                   | Type      | Description                       |
+   +===========================+===========+===================================+
+   | ``DeleteResult``          | Container | Container for the response        |
+   |                           |           |                                   |
+   |                           |           | **Ancestor:** None                |
+   |                           |           |                                   |
+   |                           |           | **Children:** Deleted, Error      |
+   +---------------------------+-----------+-----------------------------------+
+   | ``Deleted``               | Container | Container element for a           |
+   |                           |           | successful delete (identifies the |
+   |                           |           | object that was successfully      |
+   |                           |           | deleted)                          |
+   |                           |           |                                   |
+   |                           |           | **Ancestor:** DeleteResult        |
+   |                           |           |                                   |
+   |                           |           | **Children:** Key, VersionId      |
+   +---------------------------+-----------+-----------------------------------+
+   | ``Key``                   | String    | Key name for the object that      |
+   |                           |           | Zenko attempted to delete         |
+   |                           |           |                                   |
+   |                           |           | **Ancestor:** Deleted, Error      |
+   +---------------------------+-----------+-----------------------------------+
+   | ``VersionId``             | String    | Version ID of the versioned       |
+   |                           |           | object Zenko attempted to delete. |
+   |                           |           | Includes this element only in     |
+   |                           |           | case of a versioned-delete        |
+   |                           |           | request.                          |
+   |                           |           |                                   |
+   |                           |           | **Ancestor:** Deleted or Error    |
+   +---------------------------+-----------+-----------------------------------+
+   | ``DeleteMarker``          | Boolean   | DeleteMarker element with a true  |
+   |                           |           | value indicates that the request  |
+   |                           |           | accessed a delete marker. If a    |
+   |                           |           | specific delete request either    |
+   |                           |           | creates or deletes a delete       |
+   |                           |           | marker, this element is returned  |
+   |                           |           | in the response with a value of   |
+   |                           |           | ``true``. This is the case only   |
+   |                           |           | when your Multi-Object Delete     |
+   |                           |           | request is on a bucket that has   |
+   |                           |           | versioning enabled or suspended.  |
+   |                           |           |                                   |
+   |                           |           | **Ancestor:** Deleted             |
+   +---------------------------+-----------+-----------------------------------+
+   | ``DeleteMarkerVersionId`` | String    | Version ID of the delete marker   |
+   |                           |           | accessed (deleted or created) by  |
+   |                           |           | the request.                      |
+   |                           |           |                                   |
+   |                           |           | If the specific delete request in |
+   |                           |           | the Multi-Object Delete either    |
+   |                           |           | creates or deletes a delete       |
+   |                           |           | marker, Zenko returns this        |
+   |                           |           | element in response with the      |
+   |                           |           | version ID of the  delete marker. |
+   |                           |           | When deleting an object in a      |
+   |                           |           | bucket with versioning enabled,   |
+   |                           |           | this value is present for the     |
+   |                           |           | following two reasons:            |
+   |                           |           |                                   |
+   |                           |           | -  A non-versioned delete request |
+   |                           |           |    is sent; that is, only the     |
+   |                           |           |    object key is specified and    |
+   |                           |           |    not the version ID. In this    |
+   |                           |           |    case, Zenko creates a delete   |
+   |                           |           |    marker and returns its version |
+   |                           |           |    ID in the response.            |
+   |                           |           | -  A versioned delete request is  |
+   |                           |           |    sent; that is, an object key   |
+   |                           |           |    and a version ID are specified |
+   |                           |           |    in the request; however, the   |
+   |                           |           |    version ID identifies a delete |
+   |                           |           |    marker. In this case, Zenko    |
+   |                           |           |    deletes the delete marker and  |
+   |                           |           |    responds with the specific     |
+   |                           |           |    version ID.                    |
+   |                           |           |                                   |
+   |                           |           | **Ancestor:** Deleted             |
+   +---------------------------+-----------+-----------------------------------+
+   | ``Error``                 | String    | Container for a failed delete     |
+   |                           |           | operation that describes the      |
+   |                           |           | object that Zenko attempted to    |
+   |                           |           | delete and the error it           |
+   |                           |           | encountered.                      |
+   |                           |           |                                   |
+   |                           |           | **Ancestor:** DeleteResult        |
+   |                           |           |                                   |
+   |                           |           | **Children:** Key, VersionId,     |
+   |                           |           | Code, Message                     |
+   +---------------------------+-----------+-----------------------------------+
+   | ``Key``                   | String    | Key for the object Zenko          |
+   |                           |           | attempted to delete               |
+   |                           |           |                                   |
+   |                           |           | **Ancestor:** Error               |
+   +---------------------------+-----------+-----------------------------------+
+   | ``Code``                  | String    | Status code for the result of the |
+   |                           |           | failed delete                     |
+   |                           |           |                                   |
+   |                           |           | **Valid Values:**                 |
+   |                           |           | ``AccessDenied``,                 |
+   |                           |           | ``InternalError``                 |
+   |                           |           |                                   |
+   |                           |           | **Ancestor:** Error               |
+   +---------------------------+-----------+-----------------------------------+
+   | ``Message``               | String    | Error description                 |
+   |                           |           |                                   |
+   |                           |           | **Ancestor:** Error               |
+   +---------------------------+-----------+-----------------------------------+
 
 Examples
 --------
@@ -359,7 +307,7 @@ delete because the user didn’t have permission to delete the object.
 ::
 
    <?xml version="1.0" encoding="UTF-8"?>
-   <DeleteResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+   <DeleteResult xmlns="http://s3.example.com/doc/2006-03-01/">
    <Deleted>
    <Key>sample1.txt</Key>
    </Deleted>
@@ -529,7 +477,7 @@ Request
 .. code::
 
    POST /?delete HTTP/1.1
-   Host: bucketname.S3.amazonaws.com
+   Host: bucketname.s3.example.com
    Accept: */*
    x-amz-date: Wed, 30 Nov 2011 03:39:05 GMT
    Content-MD5: p5/WA/oEr30qrEEl21PAqw==
@@ -550,7 +498,7 @@ Request
 Response
 ````````
 
-The response returns the Error messages that describe the error.
+The response returns an error messages that describes the error.
 
 .. code::
 
@@ -559,7 +507,7 @@ The response returns the Error messages that describe the error.
    x-amz-request-id: 264A17BF16E9E80A
    Date: Wed, 30 Nov 2011 03:39:32 GMT
    Content-Type: application/xml
-   Server: AmazonS3
+   Server: s3.example
    Content-Length: 207
 
 .. code::

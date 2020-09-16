@@ -16,7 +16,7 @@ Syntax
    GET /?replication HTTP/1.1
    Host: bucketname.s3.example.com
    Date: date
-   Authorization: authorization string (see Authenticating Requests (AWS Signature Version 4))
+   Authorization: authorization string
            
 Parameters
 ~~~~~~~~~~

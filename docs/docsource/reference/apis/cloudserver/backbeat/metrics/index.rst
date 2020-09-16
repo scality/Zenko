@@ -12,42 +12,6 @@ For basic metrics, Backbeat gathers, processes, and exposes six data points:
 
 Backbeat exposes various metric routes that return a response with an HTTP code.
    
-Common Metrics API Syntax
--------------------------
-
-Backbeat metrics routes are organized as follows:
-
-.. code::
-
-  /_/backbeat/api/metrics/<extension-type>/<location-name/[<metric-type>]/[<bucket>]/[<key>]?[versionId=<version-id>]
-
-Where:
-
-* ``<extension-type>`` currently supports only crr for replication metrics.
-   
-* ``<location-name>`` represents any current destination replication location(s)
-  you have defined. To display metrics for all locations, use ``all``. All
-  metric routes contain a location-name variable.
-   
-* ``<metric-type>`` is an optional field. If you specify a metric type, Backbeat
-  returns the specified metric. If you omit it, Backbeat returns all available
-  metrics for the given extension and location.
-   
-* ``<bucket>`` is an optional field. It carries the name of the bucket in which
-  the object is expected to exist.
-   
-* ``<key>`` is an optional field. When getting CRR metrics for a particular
-  object, it contains the object's key.
-
-* ``<version-id>`` is an optional field. When getting CRR metrics for a
-  particular object, it contains the object's version ID.
-
-The site name must match the name specified in env\_replication\_endpoints under
-the backbeat replication configurations in env/client\_template/group\_vars/all.
-
-If the site is for a different cloud backend (e.g. AWS, Azure), use that
-backend’s defined type (``aws\_s3`` or ``azure``, for example).
-
 Design
 ------
 
@@ -61,7 +25,7 @@ entry, Redis keys are generated with the following schema:
 
 Site-level CRR metrics Redis key:
 
-OB.. code::
+.. code::
 
   <site-name>:<default-metrics-key>:<ops-or-bytes>:<normalized-timestamp>
 
@@ -108,6 +72,43 @@ in Redis by querying based on the prepended Redis keys.  Using these data
 points, we can calculate simple metrics like backlog, number of completions,
 progress, throughput, etc.
 
+Common Metrics API Syntax
+-------------------------
+
+Backbeat metrics routes are organized as follows:
+
+.. code::
+
+  /_/backbeat/api/metrics/<extension-type>/<location-name/[<metric-type>]/[<bucket>]/[<key>]?[versionId=<version-id>]
+
+Where:
+
+* ``<extension-type>`` currently supports only crr for replication metrics.
+   
+* ``<location-name>`` represents any current destination replication location(s)
+  you have defined. To display metrics for all locations, use ``all``. All
+  metric routes contain a location-name variable.
+   
+* ``<metric-type>`` is an optional field. If you specify a metric type, Backbeat
+  returns the specified metric. If you omit it, Backbeat returns all available
+  metrics for the given extension and location.
+   
+* ``<bucket>`` is an optional field. It carries the name of the bucket in which
+  the object is expected to exist.
+   
+* ``<key>`` is an optional field. When getting CRR metrics for a particular
+  object, it contains the object's key.
+
+* ``<version-id>`` is an optional field. When getting CRR metrics for a
+  particular object, it contains the object's version ID.
+
+The site name must match the name specified in env\_replication\_endpoints under
+the backbeat replication configurations in env/client\_template/group\_vars/all.
+
+If the site is for a different cloud backend (e.g. AWS, Azure), use that
+backend’s defined type (``aws\_s3`` or ``azure``, for example).
+
+
 Backbeat Metrics Routes
 -----------------------
 
@@ -124,5 +125,3 @@ Backbeat offers routes for the following services:
    get_throughput_ops-sec
    get_throughput_bytes-sec
    get_progress
-
-

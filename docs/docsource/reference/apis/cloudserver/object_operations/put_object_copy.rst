@@ -84,7 +84,7 @@ available headers).
 .. code::
 
    PUT /destinationObject HTTP/1.1
-   Host: destinationBucket.s3.amazonaws.com
+   Host: destinationBucket.s3.example.com
    x-amz-copy-source: /source_bucket/sourceObject
    x-amz-metadata-directive: metadata_directive
    x-amz-copy-source-if-match: etag
@@ -124,8 +124,8 @@ Headers`).
    |                                           |        | a slash (/). If versioning is enabled,   |
    |                                           |        | this will copy the latest version of the |
    |                                           |        | key by default. To specify another       |
-   |                                           |        | version, append ?versionId={{version     |
-   |                                           |        | id}} after the object key.               |
+   |                                           |        | version, append ``?versionId={{version   |
+   |                                           |        | id}}`` after the object key.             |
    |                                           |        |                                          |
    |                                           |        | **Default:** None                        |
    |                                           |        |                                          |
@@ -141,7 +141,7 @@ Headers`).
    |                                           |        | If copied, the metadata, except for the  |
    |                                           |        | version ID, remains unchanged. In        |
    |                                           |        | addition, the server-side-encryption     |
-   |                                           |        | storage-class, and website-redirect-\    |
+   |                                           |        | storage class, and website-redirect-\    |
    |                                           |        | location metadata from the source is not |
    |                                           |        | copied. If you specify this metadata     |
    |                                           |        | explicitly in the copy request, Zenko    |
@@ -161,16 +161,16 @@ Headers`).
    |                                           |        |                                          |
    |                                           |        | **Constraints:** Values other than COPY  |
    |                                           |        | or REPLACE result in an immediate 400-   |
-   |                                           |        | based error response. An object cannot be|
-   |                                           |        | copied to itself unless the              |
+   |                                           |        | based error response. An object cannot   |
+   |                                           |        | be copied to itself unless the           |
    |                                           |        | MetadataDirective header is specified    |
    |                                           |        | and its value set to REPLACE (or, at the |
-   |                                           |        | least, some metadata is changed, such as |
-   |                                           |        | storage class).                          |
+   |                                           |        | least, some metadata, such as storage    |
+   |                                           |        | class, is changed).                      |
    +-------------------------------------------+--------+------------------------------------------+
    | ``x-amz-copy-source-if-match``            | string | Copies the object if its entity tag      |
    |                                           |        | (ETag) matches the specified tag;        |
-   |                                           |        | otherwise, the request returns a 412     |
+   |                                           |        | otherwise, the request returns a ``412`` |
    |                                           |        | HTTP status code error (failed           |
    |                                           |        | precondition).                           |
    |                                           |        |                                          |
@@ -184,7 +184,7 @@ Headers`).
    | ``x-amz-copy-source-if-none-match``       | string | Copies the object if its entity tag      |
    |                                           |        | (ETag) is different than the specified   |
    |                                           |        | ETag; otherwise, the request returns a   |
-   |                                           |        | 412 HTTP status code error (failed       |
+   |                                           |        | ``412`` HTTP status code error (failed   |
    |                                           |        | precondition).                           |
    |                                           |        |                                          |
    |                                           |        | **Default:** None                        |
@@ -196,7 +196,7 @@ Headers`).
    +-------------------------------------------+--------+------------------------------------------+
    | ``x-amz-copy-source-if-unmodified-since`` | string | Copies the object if it hasn't been      |
    |                                           |        | modified since the specified time;       |
-   |                                           |        | otherwise, the request returns a 412     |
+   |                                           |        | otherwise, the request returns a ``412`` |
    |                                           |        | HTTP status code error (failed           |
    |                                           |        | precondition).                           |
    |                                           |        |                                          |
@@ -210,7 +210,7 @@ Headers`).
    +-------------------------------------------+--------+------------------------------------------+
    | ``x-amz-copy-source-if-modified-since``   | string | Copies the object if it has been         |
    |                                           |        | modified since the specified time;       |
-   |                                           |        | otherwise, the request returns a 412     |
+   |                                           |        | otherwise, the request returns a ``412`` |
    |                                           |        | HTTP status code error (failed           |
    |                                           |        | condition).                              |
    |                                           |        |                                          |
@@ -224,7 +224,9 @@ Headers`).
    +-------------------------------------------+--------+------------------------------------------+
    | ``x-amz-storage-class``                   | enum   | The default storage class is “Standard.” |
    |                                           |        | Currently, Zenko only suports one level  |
-   |                                           |        | level of storage class.                  |
+   |                                           |        | level of storage class. You can use this |
+   |                                           |        | parameter to set location/service        |
+   |                                           |        | information.                             |
    |                                           |        |                                          |
    |                                           |        | **Default:** Standard                    |
    |                                           |        |                                          |
@@ -235,29 +237,25 @@ Headers`).
 Note the following additional considerations about the preceding request
 headers:
 
-#. If both of thex-amz-copy-source-if-match and
+#. If both of the x-amz-copy-source-if-match and
    x-amz-copy-source-if-unmodified-since headers are present in the request as
-   follows, Zenko returns 200 OK and copies the data:
+   follows, Zenko returns ``200 OK`` and copies the data:
 
-   .. code::
-
-      x-amz-copy-source-if-match condition evaluates to true, and;
-      x-amz-copy-source-if-unmodified-since condition evaluates to false;
+   * x-amz-copy-source-if-match condition evaluates to true, and
+   * x-amz-copy-source-if-unmodified-since condition evaluates to false
 
 #. If both of the x-amz-copy-source-if-none-match and
    x-amz-copy-source-if-modified-since headers are present in the request as
-   follows, Zenko returns a 412 Precondition Failed response code:
+   follows, Zenko returns a ``412 Precondition Failed`` response code:
 
-   .. code::
-
-      x-amz-copy-source-if-none-match condition evaluates to false, and;
-      x-amz-copy-source-if-modified-since condition evaluates to true
+   * x-amz-copy-source-if-none-match condition evaluates to false, and
+   * x-amz-copy-source-if-modified-since condition evaluates to true
 
 Additionally, the following access control-related (ACL) headers can be used
 with the PUT Object - Copy operation. By default, all objects are private; only
 the owner has full access control. When adding a new object, it is possible to
 grant permissions to individual AWS accounts or predefined groups defined by
-Amazon S3. These permissions are then added to the Access Control List (ACL) on
+Zenko. These permissions are then added to the Access Control List (ACL) on
 the object. For more information, refer to :ref:`Access Control Lists`.
 
 Specifying a Canned ACL
@@ -295,15 +293,15 @@ and specify the canned ACL name as its value.
 Explicitly Specifying Grantee Access Permissions
 ````````````````````````````````````````````````
 
-A set of headers is available for explicitly granting access permissions
-to specific accounts or groups.
+A set of headers is available for explicitly granting access permissions to
+specific accounts or groups.
 
 .. note::
 
-  Each of the x-amz-grant-permission headers maps to specific permissions
-  that Zenko supports in an ACL. Please also note that the use of any of these
-  ACL-specific headers negates the use of the x-amz-acl header to set a
-  canned ACL.
+  Each of the x-amz-grant-permission headers maps to specific permissions that
+  Zenko supports in an ACL. Please also note that the use of any of these
+  ACL-specific headers negates the use of the x-amz-acl header to set a canned
+  ACL.
 
 .. tabularcolumns:: X{0.30\textwidth}X{0.10\textwidth}X{0.55\textwidth}
 .. table::
@@ -376,9 +374,9 @@ Responses
 Headers
 ~~~~~~~
 
-The PUT Object - Copy operation can include the
-following response headers in addition to the response headers common to
-all responses (refer to :ref:`Common Response Headers`).
+The PUT Object - Copy operation can include the following response headers in
+addition to the response headers common to all responses (refer to :ref:`Common
+Response Headers`).
 
 .. tabularcolumns:: X{0.57\textwidth}X{0.07\textwidth}X{0.30\textwidth}
 .. table::
@@ -525,9 +523,8 @@ source object.
 Copying a Specified Version of an Object
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The request sample copies a pdf file with a specified version ID and
-copies it into the bucket {{bucketname}} and gives it a different key
-name.
+The request sample copies a pdf file with a specified version ID and copies it
+into the ``{{bucketname}}`` bucket and gives it a different key name.
 
 Request
 ```````
@@ -543,8 +540,8 @@ Request
 Response: Copying a Versioned Object to a Version-Enabled Bucket
 ````````````````````````````````````````````````````````````````
 
-The response sample shows that an object was copied into a target bucket
-where Versioning is enabled.
+The response sample shows that an object was copied into a target bucket where
+versioning is enabled.
 
 .. code::
 
@@ -569,9 +566,9 @@ where Versioning is enabled.
 Response: Copying a Versioned Object to a Version-Suspended Bucket
 ``````````````````````````````````````````````````````````````````
 
-The response sample shows that an object was copied into a target bucket
-where versioning is suspended. Note that the response header
-x-amz-version-id does not appear.
+The response sample shows that an object was copied into a target bucket where
+versioning is suspended. Note that the x-amz-version-id response header does not
+appear.
 
 .. code::
 
@@ -611,7 +608,7 @@ Request
    Host: s3.example.com
    Connection: Keep-Alive
    PUT /exampleDestinationObject HTTP/1.1
-   Host: example-destination-bucket.s3.amazonaws.com
+   Host: example-destination-bucket.s3.example.com
    x-amz-server-side-encryption-customer-algorithm: AES256
    x-amz-server-side-encryption-customer-key: Base64{{customerProvidedKey}})
    x-amz-server-side-encryption-customer-key-MD5 : Base64(MD5{{customerProvidedKey}})

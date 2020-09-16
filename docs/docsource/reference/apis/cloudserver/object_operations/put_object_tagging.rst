@@ -3,13 +3,13 @@
 PUT Object Tagging
 ==================
 
-The Put Object Tagging operation uses the ``tagging`` subresource to add
-a set of tags to an existing object.
+The Put Object Tagging operation uses the "tagging" subresource to add a set of
+tags to an existing object.
 
-A tag is a key/value pair. You can associate tags with an object by
-sending a PUT request against the ``tagging`` subresource associated
-with the object. To retrieve tags, send a GET request. For more
-information, see :ref:`GET Object Tagging`.
+A tag is a key/value pair. You can associate tags with an object by sending a
+PUT request against the "tagging" subresource associated with the object. To
+retrieve tags, send a GET request. For more information, see :ref:`GET Object
+Tagging`.
 
 For tagging restrictions related to characters and encodings, see `Tag
 Restrictions
@@ -20,8 +20,8 @@ number of tags to 10 tags per object.
 This operation requires permission to perform the s3:PutObjectTagging action. By
 default, the bucket owner has this permission and can grant it to others.
 
-To put tags of any other version, use the versionId query parameter. You
-also need permission for the s3:PutObjectVersionTagging action.
+To put tags of any other version, use the versionId query parameter. You also
+need permission for the s3:PutObjectVersionTagging action.
 
 Requests
 --------
@@ -29,8 +29,8 @@ Requests
 Syntax
 ~~~~~~
 
-The following request shows the syntax for sending tagging information
-in the request body.
+The following request shows the syntax for sending tagging information in the
+request body.
 
 .. code::
 
@@ -105,15 +105,15 @@ The PUT Object Tagging operation does not return response elements.
 Special Errors
 ~~~~~~~~~~~~~~
 
-- InvalidTagError — The tag provided was not a valid tag. This error can occur
+- ``InvalidTagError`` — The tag provided was not valid. This error can occur
   if the tag did not pass input validation. See `Object Tagging
   <http://docs.aws.amazon.com/AmazonS3/latest/dev/object-tagging.html>`__ in the
   *Amazon Simple Storage Service Developer Guide*.
-- MalformedXMLError — The XML provided does not match the schema.
-- OperationAbortedError — A conflicting conditional operation is currently in
-  progress against this resource. Please try again.
-- InternalError — The service was unable to apply the provided tag to
-  the object.
+- ``MalformedXMLError`` — The XML provided does not match the schema.
+- ``OperationAbortedError`` — A conflicting conditional operation is currently
+  in progress against this resource. Please try again.
+- ``InternalError`` — The service was unable to apply the provided tag to the
+  object.
 
 Examples
 --------
@@ -121,7 +121,7 @@ Examples
 Request
 ~~~~~~~
 
-The following request adds a tag set to the existing object object-key in the
+The following request adds a tag set to the existing object-key object in the
 examplebucket bucket.
 
 .. code::

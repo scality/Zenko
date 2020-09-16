@@ -36,7 +36,7 @@ Syntax
    <Status>{{VersioningState}}>/Status>
    </VersioningConfiguration>
 
-The Request Syntax illustrates only a portion of the request headers.
+The request syntax illustrates only a portion of the request headers.
 
 Parameters
 ~~~~~~~~~~

@@ -5,7 +5,7 @@ Get Failures
 
 This route returns replication failures in number of objects and number of
 total bytes for the specified extension type and location. Failures are
-collected only up to an EXPIRY time, set by default to **15 minutes**.
+collected only up to an EXPIRY time, set by default to 15 minutes.
 
 Request
 -------

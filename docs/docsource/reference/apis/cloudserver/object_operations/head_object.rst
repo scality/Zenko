@@ -7,14 +7,15 @@ The HEAD Object operation returns the metadata for an object without
 returning the object itself (READ access to the object is necessary to
 use the operation).
 
-By default, the HEAD operation retrieves metadata from the current
-version of an object. If the current version is a delete marker, Amazon
-S3 behaves as if the object was deleted. To retrieve metadata from a
-different version, use the versionIdsubresource.
+By default, the HEAD operation retrieves metadata from the current version of an
+object. If the current version is a delete marker, Zenko behaves as if the
+object were deleted. To retrieve metadata from a different version, use the
+versionId subresource.
 
 .. warning::
 
-  The HEAD Object operation does not return a response body. Its response header is the same as for a GET Object operation.
+  The HEAD Object operation does not return a response body. Its response header
+  is the same as for a GET Object operation.
 
 Requests
 --------
@@ -37,64 +38,52 @@ The HEAD Object operation does not use request parameters.
 Headers
 ~~~~~~~
 
-The HEAD Object operation can use a number of optional request headers
-in addition to those that are common to all operations (refer to :ref:`Common Request Headers`).
+The HEAD Object operation can use a number of optional request headers in
+addition to those that are common to all operations (refer to :ref:`Common
+Request Headers`).
 
 .. tabularcolumns:: X{0.30\textwidth}X{0.10\textwidth}X{0.55\textwidth}
 .. table::
 
-   +-------------------------+-----------------------+-----------------------+
-   | Header                  | Type                  | Description           |
-   +=========================+=======================+=======================+
-   | ``If-Modified-Since``   | string                | Return the object     |
-   |                         |                       | only if it has been   |
-   |                         |                       | modified since the    |
-   |                         |                       | specified time,       |
-   |                         |                       | otherwise return a    |
-   |                         |                       | ``304`` (not          |
-   |                         |                       | modified)             |
-   |                         |                       |                       |
-   |                         |                       | **Default:** None     |
-   |                         |                       |                       |
-   |                         |                       | **Constraints:** None |
-   +-------------------------+-----------------------+-----------------------+
-   | ``If-Unmodified-Since`` | string                | Return the object     |
-   |                         |                       | only if it has not    |
-   |                         |                       | been modified since   |
-   |                         |                       | the specified time,   |
-   |                         |                       | otherwise return a    |
-   |                         |                       | ``412`` (precondition |
-   |                         |                       | failed)               |
-   |                         |                       |                       |
-   |                         |                       | **Default:** None     |
-   |                         |                       |                       |
-   |                         |                       | **Constraints:** None |
-   +-------------------------+-----------------------+-----------------------+
-   | ``If-Match``            | string                | Return the object     |
-   |                         |                       | only if its entity    |
-   |                         |                       | tag (ETag) is the     |
-   |                         |                       | same as the one       |
-   |                         |                       | specified; otherwise, |
-   |                         |                       | return a ``412``      |
-   |                         |                       | (precondition failed) |
-   |                         |                       |                       |
-   |                         |                       | **Default:** None     |
-   |                         |                       |                       |
-   |                         |                       | **Constraints:** None |
-   +-------------------------+-----------------------+-----------------------+
-   | ``If-None-Match``       | string                | Return the object     |
-   |                         |                       | only if its entity    |
-   |                         |                       | tag (ETag) is         |
-   |                         |                       | different from the    |
-   |                         |                       | one specified;        |
-   |                         |                       | otherwise, return a   |
-   |                         |                       | ``304`` (not          |
-   |                         |                       | modified)             |
-   |                         |                       |                       |
-   |                         |                       | **Default:** None     |
-   |                         |                       |                       |
-   |                         |                       | **Constraints:** None |
-   +-------------------------+-----------------------+-----------------------+
+   +-------------------------+--------+--------------------------------------+
+   | Header                  | Type   | Description                          |
+   +=========================+========+======================================+
+   | ``If-Modified-Since``   | string | Return the object only if it has     |
+   |                         |        | been modified since the specified    |
+   |                         |        | time, otherwise return a ``304``     |
+   |                         |        | (not modified).                      |
+   |                         |        |                                      |
+   |                         |        | **Default:** None                    |
+   |                         |        |                                      |
+   |                         |        | **Constraints:** None                |
+   +-------------------------+--------+--------------------------------------+
+   | ``If-Unmodified-Since`` | string | Return the object only if it has not |
+   |                         |        | been modified since the specified    |
+   |                         |        | time, otherwise return a  ``412``    |
+   |                         |        | (precondition failed).               |
+   |                         |        |                                      |
+   |                         |        | **Default:** None                    |
+   |                         |        |                                      |
+   |                         |        | **Constraints:** None                |
+   +-------------------------+--------+--------------------------------------+
+   | ``If-Match``            | string | Return the object only if its entity |
+   |                         |        | tag (ETag) is the same as the one    |
+   |                         |        | specified; otherwise, return a       |
+   |                         |        | ``412`` (precondition failed)        |
+   |                         |        |                                      |
+   |                         |        | **Default:** None                    |
+   |                         |        |                                      |
+   |                         |        | **Constraints:** None                |
+   +-------------------------+--------+--------------------------------------+
+   | ``If-None-Match``       | string | Return the object only if its entity |
+   |                         |        | tag (ETag) is different from the     |
+   |                         |        | one specified; otherwise, return a   |
+   |                         |        | ``304`` (not modified).              |
+   |                         |        |                                      |
+   |                         |        | **Default:** None                    |
+   |                         |        |                                      |
+   |                         |        | **Constraints:** None                |
+   +-------------------------+--------+--------------------------------------+
 
 Elements
 ~~~~~~~~
@@ -107,9 +96,9 @@ Responses
 Headers
 ~~~~~~~
 
-The HEAD Object operation can include the following
-response headers in addition to the response headers common to all
-responses (refer to :ref:`Common Response Headers`).
+The HEAD Object operation can include the following response headers in addition
+to the response headers common to all responses (refer to :ref:`Common Response
+Headers`).
 
 .. tabularcolumns:: X{0.40\textwidth}X{0.10\textwidth}X{0.45\textwidth}
 .. table::
@@ -117,7 +106,7 @@ responses (refer to :ref:`Common Response Headers`).
    +-------------------------------------+---------+-----------------------+
    | Header                              | Type    | Description           |
    +=====================================+=========+=======================+
-   | ``x-amz-meta-\*``                   | string  | Headers starting with |
+   | ``x-amz-meta-*``                    | string  | Headers starting with |
    |                                     |         | this prefix are       |
    |                                     |         | user-defined          |
    |                                     |         | metadata, each of     |
@@ -132,7 +121,7 @@ responses (refer to :ref:`Common Response Headers`).
    | ``x-amz-version-id``                | string  | Returns the version   |
    |                                     |         | ID of the retrieved   |
    |                                     |         | object if it has a    |
-   |                                     |         | unique version ID     |
+   |                                     |         | unique version ID.    |
    |                                     |         |                       |
    |                                     |         | **Default:** None     |
    +-------------------------------------+---------+-----------------------+

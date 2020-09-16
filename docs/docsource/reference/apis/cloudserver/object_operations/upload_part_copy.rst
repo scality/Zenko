@@ -3,11 +3,10 @@
 Upload Part - Copy
 ==================
 
-The Upload Part - Copy operation is used to upload a part by copying
-data from an existing object as data source. The data source is
-specified by adding the request header x-amz-copy-source to the request,
-and a byte range is specified by adding the request header
-x-amz-copy-source-range to the request.
+The Upload Part - Copy operation is used to upload a part by copying data from
+an existing object as data source. The data source is specified by adding the
+x-amz-copy-source header to the request, and a byte range is specified by adding
+the x-amz-copy-source-range header to the request.
 
 The minimum allowable part size for a multipart upload is 5 MB.
 
@@ -60,18 +59,19 @@ Headers`).
    +=============================+=========+===================================+
    | ``x-amz-copy-source``       | String  | The name of the source bucket and |
    |                             |         | the source object key name        |
-   |                             |         | separated by a slash ("/").       |
+   |                             |         | separated by a slash (``/``).     |
    |                             |         |                                   |
    |                             |         | **Default:** None                 |
    +-----------------------------+---------+-----------------------------------+
    | ``x-amz-copy-source-range`` | Integer | The range of bytes to copy from   |
    |                             |         | the source object. The range      |
    |                             |         | value must use the form,          |
-   |                             |         | "bytes=first-last", where the     |
+   |                             |         | ``bytes=first-last``, where the   |
    |                             |         | first and last are the zero-based |
    |                             |         | byte offsets to copy (e.g.,       |
-   |                             |         | bytes=0-9 indicates copying the   |
-   |                             |         | first ten bytes of the source).   |
+   |                             |         | ``bytes=0-9`` indicates copying   |
+   |                             |         | the first ten bytes of the        |
+   |                             |         | source).                          |
    |                             |         |                                   |
    |                             |         | x-amz-copy-source-range is not    |
    |                             |         | required when copying an entire   |

@@ -391,6 +391,7 @@ specified using canonical user ID and email address.
    Content-Length: 300
    Expect: 100-continue
    Connection: Keep-Alive
+   
    ...Object data in the body...
 
 Response
@@ -419,6 +420,7 @@ permission to the public.
 .. code::
 
    ...Object data in the body...
+
    PUT TestObject.txt HTTP/1.1
    Host: myDocsBucket.s3.example.com
    x-amz-date: Fri, 13 Apr 2012 05:54:57 GMT
@@ -427,6 +429,7 @@ permission to the public.
    Content-Length: 300
    Expect: 100-continue
    Connection: Keep-Alive
+   
    ...Object data in the body...
 
 Response

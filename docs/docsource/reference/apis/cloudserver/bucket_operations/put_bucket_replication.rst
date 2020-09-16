@@ -3,8 +3,8 @@
 PUT Bucket Replication
 ======================
 
-In a versioning-enabled bucket, The PUT Bucket Replication operation
-creates a new replication configuration, or replaces an existing one.
+In a versioning-enabled bucket, the PUT Bucket Replication operation creates a
+new replication configuration, or replaces an existing one.
 
 Requests
 --------
@@ -18,7 +18,7 @@ Syntax
    Host: bucketname.s3.example.com
    Content-Length: length
    Date: date
-   Authorization: authorization string (see Authenticating Requests (AWS Signature Version 4))
+   Authorization: authorization string
    Content-MD5: MD5
 
    Replication configuration XML in the body
@@ -37,7 +37,7 @@ Headers
    +-----------------+-----------+--------------------------------------------------+----------+
    | Name            | Type      | Description                                      | Required |
    +=================+===========+==================================================+==========+
-   | ``Content-MD5`` | String    | The base64-encoded 128-bit MD5 digest of the     | Yes      |
+   | ``Content-MD5`` | String    | The base64-encoded 128 bit MD5 digest of the     | Yes      |
    |                 |           | data; must be used as a message integrity check  |          |
    |                 |           | to verify that the request body was not          |          |
    |                 |           | corrupted in transit. For more information, see  |          |
@@ -50,18 +50,18 @@ Request Body
 ~~~~~~~~~~~~
 
 The replication configuration can be specified in the request body. The
-configuration includes one or more rules, with each providing
-information (e.g., key name prefix identifying objects with specific
-prefixes) to replicate (an empty prefix indicates all objects), rule
-status, and details about the destination.
+configuration includes one or more rules, with each providing information (e.g.,
+key name prefix identifying objects with specific prefixes) to replicate (an
+empty prefix indicates all objects), rule status, and details about the
+destination.
 
-The destination details include the bucket in which to store replicas
-and optional storage classes to use to store the replicas.
+The destination details include the bucket in which to store replicas and
+optional storage classes to use to store the replicas.
 
-Zenko only acts on rules with an Enabled status. Zenko does not support IAM 
+Zenko only acts on rules with an Enabled status. Zenko does not support IAM
 roles; instead, Zenko pre-creates service accounts, one for each service
-(Replication, Lifecycle, Ingestion, Garbage Collection, Metadata Search).
-Each service uses keys generated for its own account to execute an operation.
+(replication, lifecycle, ingestion, garbage collection, metadata search). Each
+service uses keys generated for its own account to execute an operation.
 
 .. code::
 

@@ -256,8 +256,8 @@ its response (includes XML containers):
 Examples
 --------
 
-Initiating a Multipart Upload for the example-object Object
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Initiating a Multipart Upload for an Example Object
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Request
 ```````

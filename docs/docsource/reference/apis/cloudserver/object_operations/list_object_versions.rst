@@ -421,7 +421,6 @@ This example returns objects whose keys begin with ``source``.
 
 Sample Response
 ~~~~~~~~~~~~~~~
-   :name: API_ListObjectVersions_Example_6
 
 .. code::
 

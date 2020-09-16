@@ -48,4 +48,4 @@ Response Syntax
 Response Elements
 ~~~~~~~~~~~~~~~~~
 
-On success, the service returns an HTTP 200 response. 
+On success, the service returns an HTTP ``200`` response. 
