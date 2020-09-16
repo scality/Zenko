@@ -17,6 +17,5 @@ Common API protocol characteristics are described below.
    encryption
    cloudserver/index
    blobserver/index
-   metadata/index
    utapi/index
    prometheus/index
