@@ -3,7 +3,7 @@
 GET Bucket Versioning
 =====================
 
-The GET Bucket Versioning operation uses the versioningsubresource to
+The GET Bucket Versioning operation uses the versioning subresource to
 return the versioning state of a bucket.
 
 .. note::

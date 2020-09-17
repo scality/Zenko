@@ -149,13 +149,12 @@ will exclude ``/tmp/foo/bar.txt`` and ``/tmp/foo/baz.jpg``::
     /tmp/foo/ba* -> /tmp/foo/baz.jpg  (matches, should exclude)
 
 
-Note that, by default, *all files are included*. This means that
-providing ``only`` an ``--include`` filter will not change what
-files are transferred. ``--include`` will only re-include files that
-have been excluded from an ``--exclude`` filter. If you only want
-to upload files with a particular extension, you need to first exclude
-all files, then re-include the files with the particular extension.
-This command will upload only files ending with ``.jpg``::
+Note that, by default, *all files are included*. This means that providing only
+an ``--include`` filter does not change which files are transferred.
+``--include`` only re-includes files that have been excluded from an
+``--exclude`` filter. If you only want to upload files with a particular
+extension, you must first exclude all files, then re-include the files with the
+particular extension.  This command uploads only files ending with ``.jpg``::
 
     aws s3 cp /tmp/foo/ s3://bucket/ --recursive --exclude "*" --include "*.jpg"
 
@@ -163,9 +162,6 @@ To include both ``.jpg`` files as well as ``.txt`` files, run::
 
     aws s3 cp /tmp/foo/ s3://bucket/ --recursive \
         --exclude "*" --include "*.jpg" --include "*.txt"
-
-
-
 
 Synopsis
 --------
@@ -178,9 +174,6 @@ Options
 -------
 
 None
-
-
-
 
 Available Commands
 ------------------

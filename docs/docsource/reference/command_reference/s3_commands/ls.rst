@@ -9,9 +9,6 @@ List S3 objects and common prefixes under a prefix or all S3 buckets.
 
    This command ignores the ``--output`` and ``--no-paginate`` arguments.
 
-
- 
-
 Synopsis
 --------
 
@@ -46,9 +43,6 @@ Displays file sizes in human readable format.
 
 Displays summary information (number of objects, total size).
 
-
-
-
 Examples
 --------
 
@@ -78,7 +72,6 @@ Output::
 
                                PRE somePrefix/
     2013-07-25 17:06:27         88 test.txt
-
 
 The following ``ls`` command lists objects and common prefixes under a specified
 bucket and prefix.  However, there are no objects nor common prefixes under the

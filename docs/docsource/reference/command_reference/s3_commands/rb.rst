@@ -8,10 +8,6 @@ versioned objects before it can be deleted. However, the ``--force`` parameter
 can be used to delete the non-versioned objects in the bucket before the bucket
 is deleted.
 
-
-
-
-
 Synopsis
 --------
 
@@ -32,8 +28,6 @@ versioned objects will not be deleted in this process which would cause the
 bucket deletion to fail because the bucket would not be empty. To delete
 versioned objects use the ``s3api delete-object`` command with the
 ``--version-id`` parameter.
-
- 
 
 Examples
 --------

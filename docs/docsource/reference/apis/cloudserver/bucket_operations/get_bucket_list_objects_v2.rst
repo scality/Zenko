@@ -382,7 +382,7 @@ Special Errors
 ~~~~~~~~~~~~~~
 
 This operation does not return special errors. For general information about the
-AWS errors Zenko uses, and a list of error codes, see :ref:`Error Messages`.
+AWS errors Zenko uses, and a list of error codes, see :ref:`AWS S3 Error Messages`.
 
 Examples
 --------

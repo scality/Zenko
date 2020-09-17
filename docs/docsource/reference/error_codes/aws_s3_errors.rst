@@ -1,10 +1,7 @@
-.. _Error Messages:
-
-Error Messages
-==============
+.. _AWS S3 Error Messages:
 
 AWS S3 Error Messages
----------------------
+=====================
 
 Zenko may return the following AWS error messages, which are available to the
 AWS-emulating CloudServer module:

@@ -5,8 +5,6 @@ mb
 
 Makes an S3 bucket.
 
- 
-
 Synopsis
 --------
 
@@ -18,9 +16,6 @@ Options
 -------
 
 ``path`` (string)
-
-
- 
 
 Examples
 --------
