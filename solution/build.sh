@@ -134,9 +134,13 @@ function build_registry_config()
         --name static-oci-registry \
         --mount type=bind,source=${ISO_ROOT}/images,destination=/var/lib/images \
         --mount type=bind,source=${ISO_ROOT},destination=/var/run \
-         --rm \
-            docker.io/nicolast/static-container-registry:latest \
-        python3 static-container-registry.py --omit-constants /var/lib/images > ${ISO_ROOT}/registry-config.inc.j2
+        --rm \
+        docker.io/nicolast/static-container-registry:latest \
+            python3 static-container-registry.py \
+            --name-prefix '{{ repository }}' \
+            --server-root '{{ registry_root }}' \
+            --omit-constants \
+            /var/lib/images > ${ISO_ROOT}/registry-config.inc.j2
     rm ${ISO_ROOT}/static-container-registry.conf
 }
 
