@@ -65,51 +65,7 @@ EOF
 function copy_yamls()
 {
     cp -R -f operator/ ${ISO_ROOT}/operator
-    # sed "s/VERSION_FULL/${VERSION_FULL}/" zenko-version-cr.yaml > ${ISO_ROOT}/operator/zenko-version-cr.yaml
 }
-
-# function download_dependency_yamls()
-# {
-    # OPERATOR_DIR=${ISO_ROOT}/operator
-    # CRDS_DIR=${OPERATOR_DIR}/deploy/crds
-    # mkdir -p ${CRDS_DIR}
-
-    # CERT_VERSION=$(grep -oP '/cert-manager-controller:\K.+$' deps.txt)
-    # wget -O ${CRDS_DIR}/cert_manager_crd.yaml https://github.com/jetstack/cert-manager/releases/download/${CERT_VERSION}/cert-manager.yaml
-
-    # combine all zookeeper files into a bundle.yaml
-    # ZOOKEEPER_VERSION=$(grep /zookeeper-operator: deps.txt | awk -F ':' '{print $2}')
-    # ZOOKEEPER_CRD_FILE=${CRDS_DIR}/zookeeper_operator_crd.yaml
-    # wget -O ${BUILD_ROOT}/zookeeper-operator.tar.gz https://github.com/pravega/zookeeper-operator/archive/v${ZOOKEEPER_VERSION}.tar.gz
-    # mkdir ${BUILD_ROOT}/zookeeper-operator
-    # tar -C ${BUILD_ROOT}/zookeeper-operator --strip-components=1 -xf ${BUILD_ROOT}/zookeeper-operator.tar.gz
-    # cp ${BUILD_ROOT}/zookeeper-operator/deploy/crds/zookeeper_v1beta1_zookeepercluster_crd.yaml ${ZOOKEEPER_CRD_FILE}
-    # echo --- >> ${ZOOKEEPER_CRD_FILE}
-    # cat ${BUILD_ROOT}/zookeeper-operator/deploy/all_ns/rbac.yaml >> ${ZOOKEEPER_CRD_FILE}
-    # echo --- >> ${ZOOKEEPER_CRD_FILE}
-    # cat ${BUILD_ROOT}/zookeeper-operator/deploy/all_ns/operator.yaml >> ${ZOOKEEPER_CRD_FILE}
-# }
-
-
-# function gen_operator_yaml()
-# {
-    # sed "s/REPLACE_IMAGE/zenko-operator:${OPERATOR_TAG}/" operator.yaml > ${ISO_ROOT}/operator/operator.yaml
-# }
-
-# function gen_operator_config_yaml()
-# {
-    # CONFIG_PATH=${ISO_ROOT}/operator/operator-config.yaml
-    # echo apiVersion: solutions.metalk8s.scality.com/v1alpha1 > ${CONFIG_PATH}
-    # echo kind: OperatorConfig >> ${CONFIG_PATH}
-    # echo repositories: >> ${CONFIG_PATH}
-      # echo "  ${VERSION_FULL}:" >> ${CONFIG_PATH}
-        # echo "    - endpoint: metalk8s-registry/${PRODUCT_LOWERNAME}-${VERSION_FULL}" >> ${CONFIG_PATH}
-          # echo "      images:" >> ${CONFIG_PATH}
-    # for dep in ${DEP_IMAGES[@]}; do
-        # SHORT_DEP=${dep##*/}
-            # echo "        - ${SHORT_DEP}" >> ${CONFIG_PATH}
-    # done
-# }
 
 function copy_image()
 {
@@ -141,7 +97,7 @@ function build_registry_config()
             --server-root '{{ registry_root }}' \
             --omit-constants \
             /var/lib/images > ${ISO_ROOT}/registry-config.inc.j2
-    rm ${ISO_ROOT}/static-container-registry.conf
+    rm ${ISO_ROOT}/static-container-registry.conf -f
 }
 
 function build_iso()
@@ -170,11 +126,9 @@ clean
 mkdirs
 gen_manifest_yaml
 copy_yamls
-# download_dependency_yamls
-# gen_operator_yaml
-# gen_operator_config_yaml
 for img in "${DEP_IMAGES[@]}"; do
-    ${DOCKER} ${DOCKER_OPTS} pull ${img}
+    # only pull if the image isnt already local
+    ${DOCKER} image inspect ${img} > /dev/null 2>&1 || ${DOCKER} ${DOCKER_OPTS} pull ${img}
     copy_image ${img}
 done
 dedupe
