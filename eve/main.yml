@@ -55,8 +55,16 @@ stages:
     worker:
       type: local
     steps:
+    # Checking whether the content of the branch is only documentation related.
+    # This will help in deciding whether the end2end tests
+    # are going to be executed or not.
+    - Git: *git_pull
+    - EvePropertyFromCommand:
+        name: Check if documentation related content
+        property: launch_end2end
+        command: eve/scripts/launch-end2end.sh
     - TriggerStages:
-        name: trigger all the tests
+        name: trigger iso and documentation build
         haltOnFailure: true
         stage_names:
         - build-doc
@@ -64,6 +72,7 @@ stages:
     - TriggerStages:
         name: Launch end2end tests
         haltOnFailure: true
+        doStepIf: '%(prop:launch_end2end)s'
         stage_names:
         - end2end
 

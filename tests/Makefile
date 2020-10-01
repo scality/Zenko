@@ -306,11 +306,7 @@ test-flaky:
 	$(call run-tests)
 .PHONY: test-flaky
 
-ifeq ($(DOCS_ONLY),)
 test: | install-common install-zenko run-tests
-else
-test:
-endif
 test-latest: | install-common install-latest-zenko run-tests test-flaky
 .PHONY: test test-latest
 
