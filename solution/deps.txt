@@ -1,8 +1,12 @@
+kubedb/redis:5.0.3-v1
+oliver006/redis_exporter:v1.8.0
+redis:5.0.3
 registry.scality.com/sf-eng/blobserver:1.0.8
 registry.scality.com/sf-eng/jabba:940d
+registry.scality.com/sf-eng/pensieve/api:3374cb1
 registry.scality.com/sf-eng/utapi:zenko-1.0.0
 registry.scality.com/sf-eng/vault:zenko-2.0.0
-registry.scality.com/sf-eng/zenko-operator:1.0.0-local
+registry.scality.com/sf-eng/zenko-operator:ae6bd9d
 registry.scality.com/sf-eng/zenko-ui:c091051
 registry.scality.com/zenko-dev/backbeat:161b9c1
 registry.scality.com/zenko-dev/cloudserver:latest-8.1.2
