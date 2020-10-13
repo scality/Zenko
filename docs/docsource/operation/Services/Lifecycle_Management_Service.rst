@@ -62,4 +62,4 @@ Element syntax described in
    they are stored.
 
    Zenko does not support lifecycle transitions to Amazon's STANDARD\_IA or
-   GLACIER storage classes, only to other storage locations.
+   GLACIER storage classes; only to other storage locations.

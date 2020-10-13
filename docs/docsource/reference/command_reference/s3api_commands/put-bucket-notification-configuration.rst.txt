@@ -1,0 +1,114 @@
+.. _put-bucket-notification-configuration:
+
+put-bucket-notification-configuration
+=====================================
+
+Enables notification on specified bucket events.
+
+**Supported Events**
+
+* Object creation
+   * s3:ObjectCreated:*
+   * s3:ObjectCreated:Put
+   * s3:ObjectCreated:Copy
+   * s3:ObjectCreated:CompleteMultipartUpload
+
+* Object deletion:
+   * s3:ObjectRemoved:*
+   * s3:ObjectRemoved:Delete
+   * s3:ObjectRemoved:DeleteMarkerCreated
+
+Bucket notification can be enabled for versioned and non-versioned buckets.
+
+See also: :ref:`PUT Bucket Notification Configuration`
+
+Synopsis
+--------
+
+.. code::
+
+   put-bucket-notification-configuration
+     --bucket <value>
+     --notification-configuration <value>
+     [--cli-input-json <value>]
+
+Options
+-------
+
+``--bucket`` (string)
+
+``--notification-configuration`` (structure)
+
+JSON Syntax:
+
+.. code::
+
+  {    "QueueConfigurations": [
+      {
+       "Id": "string",
+        "QueueArn": "arn:partition:service:::resource",
+        "Events": ["s3:ObjectCreated:*"|"s3:ObjectCreated:Put"|"s3:ObjectCreated:Copy"|"s3:ObjectCreated:CompleteMultipartUpload"|"s3:ObjectRemoved:*"OA|"s3:ObjectRemoved:Delete"|"s3:ObjectRemoved:DeleteMarkerCreated", ...],
+        "Filter": {
+          "Key": {
+            "FilterRules": [
+              {
+                "Name": "prefix"|"suffix",
+                "Value": "string"
+              }
+              ...
+            ]
+          }
+        }
+      }
+      ...
+    ],
+  }
+
+   .. tip::
+          
+      Construct ``QueueARN`` as
+      ``arn:partition:service:region:account-id:resource`` where:
+
+      ``partition`` is hardcoded as ``scality``.
+      ``service`` is harcoded as ``bucketnotif``.
+      ``region`` is ignored.
+      ``account-id`` is ignored.
+      ``resource`` is the name of the destination defined in env/client-template/group_vars/all.
+
+      For example: ``arn:scality:bucketnotif:::destinationResourceName``
+  
+``--cli-input-json`` (string)
+
+  .. include:: ../../../include/cli-input-json.txt
+
+Examples
+--------
+
+The applies a notification configuration to a bucket named "my-bucket"
+
+.. code::
+
+   aws s3api put-bucket-notification-configuration --bucket my-bucket --notification-configuration file://notification.json
+
+The file ``notification.json`` is a JSON document in the current folder that
+specifies an SQS queue and event type.
+
+.. code::
+
+   {
+     "QueueConfigurations": [
+       {
+         "QueueArn": "arn:scality:bucket-notif:::destinationResourceName",
+         "Events": [
+           "s3:ObjectCreated:*"
+         ]
+       }
+     ]
+   }
+
+
+
+Output
+------
+
+None

@@ -7,8 +7,7 @@ Zenko Reference
    :maxdepth: 2
 
    introduction/index
-   cloudserver/index
-   blobserver/index
-   prometheus/index
-
+   command_reference/index
+   apis/index
+   error_codes/index
 
