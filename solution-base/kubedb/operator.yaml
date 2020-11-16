@@ -1,0 +1,110 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubedb-${KUBEDB_OPERATOR_NAME}
+  namespace: ${KUBEDB_NAMESPACE}
+  labels:
+    app: kubedb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kubedb
+  template:
+    metadata:
+      labels:
+        app: kubedb
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ''
+    spec:
+      serviceAccountName: ${KUBEDB_SERVICE_ACCOUNT}
+      imagePullSecrets: [${KUBEDB_IMAGE_PULL_SECRET}]
+      containers:
+      - name: operator
+        image: ${KUBEDB_DOCKER_REGISTRY}/${KUBEDB_OPERATOR_NAME}:${KUBEDB_OPERATOR_TAG}
+        imagePullPolicy: IfNotPresent
+        args:
+        - run
+        - --v=3
+        - --governing-service=kubedb
+        - --rbac=true
+        - --secure-port=8443
+        - --audit-log-path=-
+        - --tls-cert-file=/var/serving-cert/tls.crt
+        - --tls-private-key-file=/var/serving-cert/tls.key
+        - --enable-mutating-webhook=true
+        - --enable-validating-webhook=true
+        - --enable-status-subresource=false
+        - --bypass-validating-webhook-xray=false
+        - --enable-analytics=false
+        env:
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: MY_POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        ports:
+        - containerPort: 8443
+        volumeMounts:
+        - mountPath: /var/serving-cert
+          name: serving-cert
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8443
+            scheme: HTTPS
+          initialDelaySeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8443
+            scheme: HTTPS
+          initialDelaySeconds: 15
+          timeoutSeconds: 15
+        resources:
+          requests:
+            cpu: "100m"
+      nodeSelector:
+        beta.kubernetes.io/os: linux
+        beta.kubernetes.io/arch: amd64
+      volumes:
+      - name: serving-cert
+        secret:
+          defaultMode: 420
+          secretName: ${KUBEDB_OPERATOR_NAME}-apiserver-cert
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${KUBEDB_OPERATOR_NAME}
+  namespace: ${KUBEDB_NAMESPACE}
+  labels:
+    app: kubedb
+spec:
+  ports:
+  - name: api
+    port: 443
+    targetPort: 8443
+  selector:
+    app: kubedb
+---
+# register as aggregated apiserver
+apiVersion: apiregistration.k8s.io/v1beta1
+kind: APIService
+metadata:
+  name: v1alpha1.validators.kubedb.com
+  labels:
+    app: kubedb
+  annotations:
+    cert-manager.io/inject-ca-from: ${KUBEDB_NAMESPACE}/${KUBEDB_OPERATOR_NAME}-apiserver-cert
+spec:
+  group: validators.kubedb.com
+  groupPriorityMinimum: 1000
+  versionPriority: 15
+  service:
+    name: ${KUBEDB_OPERATOR_NAME}
+    namespace: ${KUBEDB_NAMESPACE}
+  version: v1alpha1

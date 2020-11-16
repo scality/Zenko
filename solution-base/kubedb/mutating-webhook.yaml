@@ -1,0 +1,102 @@
+# register to intercept kubedb CRD creates / updates
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: mutators.kubedb.com
+  labels:
+    app: kubedb
+  annotations:
+    cert-manager.io/inject-ca-from: ${KUBEDB_NAMESPACE}/kubedb-operator-apiserver-cert
+webhooks:
+- name: elasticsearch.mutators.kubedb.com
+  clientConfig:
+    service:
+      namespace: default
+      name: kubernetes
+      path: /apis/mutators.kubedb.com/v1alpha1/elasticsearchmutators
+  rules:
+  - apiGroups: ["kubedb.com"]
+    apiVersions: ["*"]
+    resources: ["elasticsearches"]
+    operations: ["CREATE", "UPDATE"]
+  failurePolicy: Fail
+  sideEffects: None
+- name: postgres.mutators.kubedb.com
+  clientConfig:
+    service:
+      namespace: default
+      name: kubernetes
+      path: /apis/mutators.kubedb.com/v1alpha1/postgresmutators
+  rules:
+  - apiGroups: ["kubedb.com"]
+    apiVersions: ["*"]
+    resources: ["postgreses"]
+    operations: ["CREATE", "UPDATE"]
+  failurePolicy: Fail
+  sideEffects: None
+- name: mysql.mutators.kubedb.com
+  clientConfig:
+    service:
+      namespace: default
+      name: kubernetes
+      path: /apis/mutators.kubedb.com/v1alpha1/mysqlmutators
+  rules:
+  - apiGroups: ["kubedb.com"]
+    apiVersions: ["*"]
+    resources: ["mysqls"]
+    operations: ["CREATE", "UPDATE"]
+  failurePolicy: Fail
+  sideEffects: None
+- name: mongodb.mutators.kubedb.com
+  clientConfig:
+    service:
+      namespace: default
+      name: kubernetes
+      path: /apis/mutators.kubedb.com/v1alpha1/mongodbmutators
+  rules:
+  - apiGroups: ["kubedb.com"]
+    apiVersions: ["*"]
+    resources: ["mongodbs"]
+    operations: ["CREATE", "UPDATE"]
+  failurePolicy: Fail
+  sideEffects: None
+- name: redis.mutators.kubedb.com
+  clientConfig:
+    service:
+      namespace: default
+      name: kubernetes
+      path: /apis/mutators.kubedb.com/v1alpha1/redismutators
+  rules:
+  - apiGroups: ["kubedb.com"]
+    apiVersions: ["*"]
+    resources: ["redises"]
+    operations: ["CREATE", "UPDATE"]
+  failurePolicy: Fail
+  sideEffects: None
+- name: memcached.mutators.kubedb.com
+  clientConfig:
+    service:
+      namespace: default
+      name: kubernetes
+      path: /apis/mutators.kubedb.com/v1alpha1/memcachedmutators
+  rules:
+  - apiGroups: ["kubedb.com"]
+    apiVersions: ["*"]
+    resources: ["memcacheds"]
+    operations: ["CREATE", "UPDATE"]
+  failurePolicy: Fail
+  sideEffects: None
+- name: etcd.mutators.kubedb.com
+  clientConfig:
+    service:
+      namespace: default
+      name: kubernetes
+      path: /apis/mutators.kubedb.com/v1alpha1/etcdmutators
+  rules:
+  - apiGroups: ["kubedb.com"]
+    apiVersions: ["*"]
+    resources: ["etcds"]
+    operations: ["CREATE", "UPDATE"]piserv
+  failurePolicy: Fail
+  sideEffects: None
+---
