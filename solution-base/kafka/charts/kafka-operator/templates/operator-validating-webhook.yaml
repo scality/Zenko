@@ -1,0 +1,54 @@
+{{- if and (.Values.webhook.enabled) (.Values.webhook.certs.generate) -}}
+
+{{- $commonName := printf "%s-operator.%s.svc" (include "kafka-operator.fullname" .) .Release.Namespace -}}
+{{- $altNames := list ( $commonName ) ( printf "%s.cluster.local" $commonName ) -}}
+{{- $ca := genCA "kafka-operator-ca" 365 -}}
+{{- $cert := genSignedCert $commonName nil $altNames 365 $ca -}}
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: ValidatingWebhookConfiguration
+metadata:
+  labels:
+    app.kubernetes.io/name: {{ include "kafka-operator.name" . }}
+    helm.sh/chart: {{ include "kafka-operator.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion }}
+    app.kubernetes.io/component: webhook
+  name: {{ include "kafka-operator.name" . }}-validating-webhook
+webhooks:
+- clientConfig:
+    caBundle: {{ $ca.Cert | b64enc }}
+    service:
+      name: "{{ include "kafka-operator.fullname" . }}-operator"
+      namespace: {{ .Release.Namespace }}
+      path: /validate
+  failurePolicy: Fail
+  name: kafkatopics.kafka.banzaicloud.io
+  rules:
+  - apiGroups:
+    - kafka.banzaicloud.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - kafkatopics
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app.kubernetes.io/name: {{ include "kafka-operator.name" . }}
+    helm.sh/chart: {{ include "kafka-operator.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion }}
+    app.kubernetes.io/component: operator-certificates
+  name: {{ .Values.webhook.certs.secret }}
+  namespace: {{ .Release.Namespace }}
+data:
+  tls.crt: {{ $cert.Cert | b64enc }}
+  tls.key: {{ $cert.Key | b64enc }}
+
+{{- end -}}
