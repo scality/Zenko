@@ -22,14 +22,15 @@ DOCKER_SOCKET=${DOCKER_SOCKET:-unix:///var/run/docker.sock}
 HARDLINK=hardlink
 SKOPEO=skopeo
 SKOPEO_OPTS="--override-os linux --insecure-policy"
-OPERATOR_TAG=$(grep /operator: deps.txt | awk -F ':' '{print $2}')
 SOLUTION_REGISTRY=metalk8s-registry-from-config.invalid/${PRODUCT_LOWERNAME}-${VERSION_FULL}
 
 KUBEDB_SCRIPT_BRANCH_TAG=89fab34cf2f5d9e0bcc3c2d5b0f0599f94ff0dca
 OPERATOR_PATH=${ISO_ROOT}/operator.yaml
 
-export KUBEDB_OPERATOR_TAG=${OPERATOR_TAG}
-export KUBEDB_NAMESPACE=SOLUTION_ENV
+SOLUTION_ENV='SOLUTION_ENV'
+
+export KUBEDB_OPERATOR_TAG=$(grep kubedb/operator: deps.txt | awk -F ':' '{print $2}')
+export KUBEDB_NAMESPACE=${SOLUTION_ENV}
 export KUBEDB_SERVICE_ACCOUNT=kubedb-operator
 export KUBEDB_OPERATOR_NAME=operator
 export KUBEDB_DOCKER_REGISTRY=${SOLUTION_REGISTRY}
@@ -39,6 +40,16 @@ export ZOOKEEPER_NAMESPACE=SOLUTION_ENV
 export ZOOKEEPER_IMAGE_PREFIX=${SOLUTION_REGISTRY}
 export ZOOKEEPER_IMAGE_NAME=zookeeper-operator
 export ZOOKEEPER_OPERATOR_TAG=$(grep /zookeeper-operator: deps.txt | awk -F ':' '{print $2}')
+
+KAFKA_NAME='kafka-operator'
+KAFKA_NAMESPACE=${SOLUTION_ENV}
+KAFKA_CERT_NAME='kafka-operator-serving-cert'
+KAFKA_IMAGE_NAME="kafka-operator"
+KAFKA_IMAGE_REPO_NAME="${SOLUTION_REGISTRY}/${KAFKA_IMAGE_NAME}"
+KAFKA_IMAGE_REPO_TAG=$(grep /kafka-operator: deps.txt | awk -F ':' '{print $2}')
+KAFKA_METRICS_IMAGE_NAME="kube-rbac-proxy"
+KAFKA_METRICS_IMAGE_REPO_NAME="${SOLUTION_REGISTRY}/${KAFKA_METRICS_IMAGE_NAME}"
+KAFKA_METRICS_IMAGE_REPO_TAG=$(grep /kubebuilder/kube-rbac-proxy: deps.txt | awk -F ':' '{print $2}')
 
 # grab our dependencies from our deps.txt file as an array
 readarray -t DEP_IMAGES < deps.txt
@@ -95,6 +106,21 @@ function zookeeper_yamls()
         cat zookeeper/${y}.yaml | envsubst >> ${OPERATOR_PATH}
         echo --- >> ${OPERATOR_PATH}
     done
+}
+
+function kafka_yamls()
+{
+    echo merging kafka operator yamls
+    CHART_PATH="$(dirname $0)/kafka/charts/kafka-operator"
+    OPERATOR_PATH=${ISO_ROOT}/operator.yaml
+
+    helm template ${KAFKA_NAME} ${CHART_PATH} -n ${KAFKA_NAMESPACE} \
+        --set "operator.image.repository=${KAFKA_IMAGE_REPO_NAME}" \
+        --set "operator.image.tag=${KAFKA_IMAGE_REPO_TAG}" \
+        --set "prometheusMetrics.authProxy.image.repository=${KAFKA_METRICS_IMAGE_REPO_NAME}" \
+        --set "prometheusMetrics.authProxy.image.tag=${KAFKA_METRICS_IMAGE_REPO_TAG}" \
+        --set "webhook.certs.secret=${KAFKA_CERT_NAME}"  >> ${OPERATOR_PATH}
+    echo --- >> ${OPERATOR_PATH}
 }
 
 function gen_manifest_yaml()
@@ -180,6 +206,7 @@ clean
 mkdirs
 kubedb_yamls
 zookeeper_yamls
+kafka_yamls
 gen_manifest_yaml
 # copy_yamls
 for img in "${DEP_IMAGES[@]}"; do
