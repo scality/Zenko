@@ -1,0 +1,33 @@
+apiVersion: cert-manager.io/v1alpha2
+kind: Issuer
+metadata:
+  name: selfsigned-issuer
+  namespace: ${KUBEDB_NAMESPACE}
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: kubedb-operator-apiserver-cert
+  namespace: ${KUBEDB_NAMESPACE}
+spec:
+  # Secret names are always required.
+  secretName: kubedb-operator-apiserver-cert
+  # TODO: How does kubedb handle cert regens?
+  duration: 2160h # 90d
+  renewBefore: 360h # 15d
+  isCA: false
+  keyAlgorithm: rsa
+  keyEncoding: pkcs1
+  keySize: 2048
+  # At least one of a DNS Name, URI, Email Address, or IP address is required.
+  dnsNames:
+  - kubedb-${KUBEDB_OPERATOR_NAME}
+  - kubedb-${KUBEDB_OPERATOR_NAME}.${KUBEDB_NAMESPACE}.svc
+  # Issuer references are always required.
+  issuerRef:
+    name: selfsigned-issuer
+    # We can reference ClusterIssuers by changing the kind here.
+    # The default value is Issuer (i.e. a locally namespaced Issuer)
+    kind: Issuer
