@@ -96,7 +96,7 @@ webhooks:
   - apiGroups: ["kubedb.com"]
     apiVersions: ["*"]
     resources: ["etcds"]
-    operations: ["CREATE", "UPDATE"]piserv
+    operations: ["CREATE", "UPDATE"]
   failurePolicy: Fail
   sideEffects: None
 ---

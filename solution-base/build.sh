@@ -26,6 +26,7 @@ OPERATOR_TAG=$(grep /operator: deps.txt | awk -F ':' '{print $2}')
 SOLUTION_REGISTRY=metalk8s-registry-from-config.invalid/${PRODUCT_LOWERNAME}-${VERSION_FULL}
 
 KUBEDB_SCRIPT_BRANCH_TAG=89fab34cf2f5d9e0bcc3c2d5b0f0599f94ff0dca
+OPERATOR_PATH=${ISO_ROOT}/operator.yaml
 
 export KUBEDB_OPERATOR_TAG=${OPERATOR_TAG}
 export KUBEDB_NAMESPACE=SOLUTION_ENV
@@ -33,6 +34,11 @@ export KUBEDB_SERVICE_ACCOUNT=kubedb-operator
 export KUBEDB_OPERATOR_NAME=operator
 export KUBEDB_DOCKER_REGISTRY=${SOLUTION_REGISTRY}
 export KUBEDB_PRIORITY_CLASS=system-cluster-critical
+
+export ZOOKEEPER_NAMESPACE=SOLUTION_ENV
+export ZOOKEEPER_IMAGE_PREFIX=${SOLUTION_REGISTRY}
+export ZOOKEEPER_IMAGE_NAME=zookeeper-operator
+export ZOOKEEPER_OPERATOR_TAG=$(grep /zookeeper-operator: deps.txt | awk -F ':' '{print $2}')
 
 # grab our dependencies from our deps.txt file as an array
 readarray -t DEP_IMAGES < deps.txt
@@ -54,8 +60,6 @@ function mkdirs()
 function kubedb_yamls()
 {
     echo merging kubedb yamls
-    OPERATOR_PATH=${ISO_ROOT}/operator.yaml
-
     yamls=(
         certs
         operator
@@ -74,6 +78,21 @@ function kubedb_yamls()
 
     for y in "${yamls[@]}"; do
         cat kubedb/${y}.yaml | envsubst >> ${OPERATOR_PATH}
+        echo --- >> ${OPERATOR_PATH}
+    done
+}
+
+function zookeeper_yamls()
+{
+    echo merging zookeeper yamls
+    yamls=(
+        zookeeper_v1beta1_zookeepercluster_crd
+        operator
+        rbac
+    )
+
+    for y in "${yamls[@]}"; do
+        cat zookeeper/${y}.yaml | envsubst >> ${OPERATOR_PATH}
         echo --- >> ${OPERATOR_PATH}
     done
 }
@@ -160,6 +179,7 @@ function build_iso()
 clean
 mkdirs
 kubedb_yamls
+zookeeper_yamls
 gen_manifest_yaml
 # copy_yamls
 for img in "${DEP_IMAGES[@]}"; do
