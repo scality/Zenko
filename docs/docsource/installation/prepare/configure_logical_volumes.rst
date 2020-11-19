@@ -13,7 +13,7 @@ to install MetalK8s on your cluster, instantiating the desired number of nodes.
 
 .. note::
 
-   It is a best practice to install Zenko on a fresh cluster.
+   It is a best practice to install |product| on a fresh cluster.
 
 .. _Minimum Volume Size for Cluster Deployments:
 

@@ -1,7 +1,7 @@
 GET Pending Object Count	
 ========================
 
-This request retrieves the number of objects queued for Zenko	
+This request retrieves the number of objects queued for |product|  	
 ingestion.    
 
 **Endpoint** 

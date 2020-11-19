@@ -1,6 +1,6 @@
-.. _Zenko Installation:
+.. _|product| Installation:
 
-Zenko Installation
+|product| Installation
 ==================
 
 .. toctree::

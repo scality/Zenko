@@ -1,12 +1,12 @@
 Bucket Ingestion Metrics
 ========================
 
-Zenko can make queries against Zenko instances named as bucket
-locations under its management. Querying the managed namespace, Zenko
+|product| can make queries against |product|  instances named as bucket
+locations under its management. Querying the managed namespace, |product|  
 can retrieve information about the number of transfers completed and
 pending, and the rate at which they are completing.
 
-Zenko provides a REST API that makes these metrics available to users. To
+|product| provides a REST API that makes these metrics available to users. To
 access these, make a request to the endpoints as specified in the following
 sections. Enter the listed endpoints verbatim, substituting a location
 that matches the bucket/location queried if the query requires it.
@@ -17,7 +17,7 @@ For example,
 
     $ curl http://zenko-instance.net/_/backbeat/api/metrics/ingestion/us-west-video-dailies/all
 
-where zenko-instance.net is the Zenko server's URL and us-west-video-dailies		
+where zenko-instance.net is the |product| server's URL and us-west-video-dailies		
 is the bucket name (location).
 
 .. toctree::

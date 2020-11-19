@@ -17,7 +17,7 @@ The minimum allowable part size for a multipart upload is 5 MB.
   information, refer to :ref:`Upload Part`.
 
 A multipart upload must be initiated before uploading any part. In
-response to the initiate request, Zenko returns a unique identifier — the
+response to the initiate request, |product| returns a unique identifier — the
 *upload ID* — that must be included in the upload part request.
 
 Requests
@@ -92,15 +92,15 @@ x-amz-copy-source header.
    +===========================================+========+===========================================+
    | ``x-amz-copy-source-if-match``            | String | Perform a copy if the source object       |
    |                                           |        | entity tag (ETag) matches the specified   |
-   |                                           |        | value. If the value does not match, Zenko |
-   |                                           |        | returns an HTTP status code ``412         |
-   |                                           |        | Precondition Failed`` error.              |
+   |                                           |        | value. If the value does not match,       |
+   |                                           |        | |product| returns an HTTP status code     |
+   |                                           |        | ``412 Precondition Failed`` error.        |
    |                                           |        |                                           |
    |                                           |        | .. note:: If x-amz-copy-source-if-match   |
    |                                           |        |    is requested and evaluates to true and |
    |                                           |        |    x-amz-copy-source-if-unmodified-since  |
    |                                           |        |    is present in the request and          |
-   |                                           |        |    evaluates to false, Zenko returns      |
+   |                                           |        |    evaluates to false, |product| returns  |
    |                                           |        |    ``200 OK`` and copies the data.        |
    |                                           |        |                                           |
    |                                           |        | **Default:** None                         |
@@ -108,7 +108,7 @@ x-amz-copy-source header.
    | ``x-amz-copy-source-if-none-match``       | String | Perform a copy if the source object       |
    |                                           |        | entity tag (ETag) is different than the   |
    |                                           |        | value specified using this header. If the |
-   |                                           |        | values match, Zenko returns an HTTP       |
+   |                                           |        | values match, |product| returns an HTTP   |
    |                                           |        | status code ``412 Precondition Failed``   |
    |                                           |        | error.                                    |
    |                                           |        |                                           |
@@ -118,7 +118,7 @@ x-amz-copy-source header.
    |                                           |        |    false and                              |
    |                                           |        |    x-amz-copy-source-if-unmodified-since  |
    |                                           |        |    is requested and evaluates to true     |
-   |                                           |        |    Zenko returns ``412 Precondition       |
+   |                                           |        |    |product| returns ``412 Precondition   |
    |                                           |        |    Failed``.                              |
    |                                           |        |                                           |
    |                                           |        | **Default:** None                         |
@@ -126,15 +126,16 @@ x-amz-copy-source header.
    | ``x-amz-copy-source-if-unmodified-since`` | String | Perform a copy if the source object is    |
    |                                           |        | not modified after the time specified     |
    |                                           |        | using this header. If the source object   |
-   |                                           |        | is modified, Zenko returns an HTTP status |
-   |                                           |        | code, ``412 Precondition Failed`` error.  |
+   |                                           |        | is modified, |product| returns an HTTP    |
+   |                                           |        | status code, ``412 Precondition Failed``  |
+   |                                           |        | error.                                    |
    |                                           |        |                                           |
    |                                           |        | .. note:: If both the                     |
    |                                           |        |    x-amz-copy-source-if-match header is   |
    |                                           |        |    present in the request and evaluates   |
    |                                           |        |    to true, and                           |
    |                                           |        |    x-amz-copy-source-if-unmodified-since  |
-   |                                           |        |    evaluates to false, Zenko returns      |
+   |                                           |        |    evaluates to false, |product| returns  |
    |                                           |        |    ``200 OK`` and copies the data.        |
    |                                           |        |                                           |
    |                                           |        | **Default:** None                         |
@@ -143,7 +144,7 @@ x-amz-copy-source header.
    |                                           |        | modified after the time specified using   |
    |                                           |        | the x-amz-copy-source-if-modified-since   |
    |                                           |        | header. If the source object is not       |
-   |                                           |        | modified, Zenko returns an HTTP           |
+   |                                           |        | modified, |product| returns an HTTP       |
    |                                           |        | status code, ``412 precondition failed``  |
    |                                           |        | error.                                    |
    |                                           |        |                                           |
@@ -152,7 +153,7 @@ x-amz-copy-source header.
    |                                           |        |    requested and evaluates to false, and  |
    |                                           |        |    x-amz-copy-source-if-unmodified-since  |
    |                                           |        |    is requestred and evaluates to true,   |
-   |                                           |        |    Zenko returns a ``412 Precondition     |
+   |                                           |        |    |product| returns a ``412 Precondition |
    |                                           |        |    Failed`` response code.                |
    |                                           |        |                                           |
    |                                           |        | **Default:** None                         |
@@ -163,7 +164,7 @@ Server-Side Encryption-Specific Request Headers
 
 If the source object is encrypted using server-side encryption with a
 customer-provided encryption key, you must use the following headers providing
-encryption information for Zenko to decrypt the object for copying.
+encryption information for |product| to decrypt the object for copying.
 
 .. tabularcolumns:: X{0.40\textwidth}X{0.10\textwidth}X{0.40\textwidth}
 .. table::
@@ -186,11 +187,11 @@ encryption information for Zenko to decrypt the object for copying.
    +-----------------------------------+--------+--------------------------------------+
    | ``x-amz-copy-source-server-side-\ | string | Specifies the customer-provided      |
    | encryption-customer-key``         |        | base-64 encoded encryption key for   |
-   |                                   |        | Zenko to use to decrypt the source   |
-   |                                   |        | object. The encryption key provided  |
-   |                                   |        | in this header must be one that was  |
-   |                                   |        | used when the source object was      |
-   |                                   |        | created.                             |
+   |                                   |        | |product| to use to decrypt the      |
+   |                                   |        | source object. The encryption key    |
+   |                                   |        | provided in this header must be one  |
+   |                                   |        | that was used when the source object |
+   |                                   |        | was created.                         |
    |                                   |        |                                      |
    |                                   |        | **Default:** None                    |
    |                                   |        |                                      |
@@ -202,7 +203,7 @@ encryption information for Zenko to decrypt the object for copying.
    +-----------------------------------+--------+--------------------------------------+
    | ``x-amz-copy-source-server-side-\ | string | Specifies the base64-encoded 128-bit |
    | encryption-customer-key-MD5``     |        | MD5 digest of the encryption key     |
-   |                                   |        | according to RFC 1321. Zenko uses    |
+   |                                   |        | according to RFC 1321. |product| uses|
    |                                   |        | this header for a message integrity  |
    |                                   |        | check to ensure the encryption key   |
    |                                   |        | was transmitted without error.       |
@@ -227,9 +228,9 @@ Versioning
 If a bucket has versioning enabled, it is possible to have multiple versions of
 the same object. By default, x-amz-copy-source identifies the current version of
 the object to copy. If the current version is a delete marker and a versionId is
-not specified in the x-amz-copy-source, Zenko returns a 404 error, because the
+not specified in the x-amz-copy-source, |product| returns a 404 error, because the
 object does not exist. If versionId is specified in the x-amz-copy-source and
-the versionId is a delete marker, Zenko returns an HTTP 400 error, because a
+the versionId is a delete marker, |product| returns an HTTP 400 error, because a
 delete marker cannot be specified as a version for the x-amz-copy-source.
 
 Optionally, a specific version of the source object to copy can be specified by

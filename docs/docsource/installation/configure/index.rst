@@ -3,17 +3,17 @@
 Configure
 =========
 
-Once Zenko is installed and stable, installing optional configurations
+Once |product| is installed and stable, installing optional configurations
 is a relatively painless process. Follow the configuration instructions
-in this section to extend Zenko's capabilities. 
+in this section to extend |product|'s capabilities. 
 
 Because ingress control is not standardized across all Kubernetes
 implementations, it is deactivated by default. You must configure it
-to enable Web access to Zenko. 
+to enable Web access to |product|. 
 
-Zenko supports out-of-band (OOB) updates from NFS file systems as well as
+|product| supports out-of-band (OOB) updates from NFS file systems as well as
 dynamic OOB updates from Scality RINGs with the S3 Connector. With added
-configurations, described in the sections that follow, your Zenko instance can
+configurations, described in the sections that follow, your |product| instance can
 access and manage these namespaces.
 
 .. toctree::

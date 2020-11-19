@@ -1,9 +1,9 @@
 HTTP Protocols
 ==============
 
-Zenko uses HTTP protocols as defined by `RFC 2616
+|product| uses HTTP protocols as defined by `RFC 2616
 <https://tools.ietf.org/html/rfc2616>`__. REST operations consist of sending
-HTTP requests to Zenko, which returns HTTP responses. These HTTP requests
+HTTP requests to |product|, which returns HTTP responses. These HTTP requests
 contain a request method, a URI with an optional query string, headers, and a
 body. The responses contain status codes, headers, and may contain a response
 body.
@@ -18,10 +18,10 @@ capacity, discrete values are returned in bytes for the start and the end times
 (not as an average between start and end).
 
 Because request headers and response headers can be specific to a
-particular Zenko API operation or set of operations, many such elements are
+particular |product| API operation or set of operations, many such elements are
 common to all operations.
 
-Request headers typically found in Zenko requests include ``Authorization``,
+Request headers typically found in |product| requests include ``Authorization``,
 ``Content-Length``, ``Content-Type``, ``Date``, and ``Host``.
 
 .. tabularcolumns:: X{0.20\textwidth}X{0.75\textwidth}
@@ -46,7 +46,7 @@ Request headers typically found in Zenko requests include ``Authorization``,
    +--------------------+----------------------------------------------------------+
    | ``Host``           | Required for HTTP 1.1, the Host header points to the     |
    |                    | standard storage service. If the host contains anything  |
-   |                    | other than the standard Zenko storage server, this       |
+   |                    | other than the standard |product| storage server, this   |
    |                    | information is interpreted as the bucket for the         |
    |                    | request.                                                 |
    |                    |                                                          |
@@ -69,7 +69,7 @@ include ``HTTP/1.1``, ``x-amzn-request-id``, ``Content-Length``,
    |                       |        | status code ``200``, indicating a successful |
    |                       |        | operation.                                   |
    +-----------------------+--------+----------------------------------------------+
-   | ``x-amzn-request-id`` | string | A value created by Zenko that uniquely       |
+   | ``x-amzn-request-id`` | string | A value created by |product| that uniquely   |
    |                       |        | identifies a request. Values can be used to  |
    |                       |        | troubleshoot problems.                       |
    +-----------------------+--------+----------------------------------------------+
@@ -78,7 +78,7 @@ include ``HTTP/1.1``, ``x-amzn-request-id``, ``Content-Length``,
    | ``Content-Type``      | string | Message's content type (typically            |
    |                       |        | ``application/hal+json``)                    |
    +-----------------------+--------+----------------------------------------------+
-   | ``Date``              | string | Date and time of the Zenko response.         |
+   | ``Date``              | string | Date and time of the |product| response.     |
    +-----------------------+--------+----------------------------------------------+
 
 .. note::

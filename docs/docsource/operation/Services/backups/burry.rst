@@ -4,17 +4,17 @@ Burry
 =====
 
 Burry is a **B**\ack\ **u**\ p and **r**\ecove\ **ry** tool for cloud-native
-infrastructure services. Zenko uses Burry to back up and restore critical
+infrastructure services. |product| uses Burry to back up and restore critical
 base infrastructure services such as ZooKeeper and the Kafka configurations and
 topics it contains.
 
 Install
 -------
 
-Burry is installed with Zenko as a cronjob in suspended mode. To enable it, edit
-the options.yaml file; then update Zenko with Helm. It is toggled off by default
+Burry is installed with |product| as a cronjob in suspended mode. To enable it, edit
+the options.yaml file; then update |product| with Helm. It is toggled off by default
 with the ``suspend:`` parameter set to ``true``. Setting this parameter to ``false``
-activates the feature when pushed to a Zenko server.
+activates the feature when pushed to a |product| server.
 
 .. code:: sh
 
@@ -31,6 +31,6 @@ activates the feature when pushed to a Zenko server.
        ssl: "false
 
 When you've completed your reconfiguration, push the new configuration to your
-Zenko server with a Helm command::
+|product| server with a Helm command::
 
   $ helm upgrade {{zenko-server-name}} ./zenko -f options.yaml

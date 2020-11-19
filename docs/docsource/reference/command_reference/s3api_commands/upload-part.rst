@@ -8,7 +8,7 @@ Uploads a part in a multipart upload.
  .. note::
 
     After you initiate multipart upload and upload one or more parts, you must
-    either complete or abort multipart upload. Zenko only frees up parts
+    either complete or abort multipart upload. |product| only frees up parts
     storage after you either complete or abort multipart upload.
 
 See also: `AWS API Documentation

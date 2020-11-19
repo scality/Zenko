@@ -3,7 +3,7 @@
 Error Codes
 ===========
 
-Zenko modular components may return the following error messages.
+|product| modular components may return the following error messages.
 
 .. toctree::
    :maxdepth: 1

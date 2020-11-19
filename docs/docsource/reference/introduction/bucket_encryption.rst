@@ -1,7 +1,7 @@
 Bucket Encryption
 =================
 
-Slightly different from AWS SSE, Zenko bucket encryption is transparent to the
+Slightly different from AWS SSE, |product| bucket encryption is transparent to the
 application. Buckets are created with a special
 ``x-amz-scal-server-side-encryption`` header (value: ``AES256``), which
 specifies that the bucket's objects be encrypted, and thereafter there is no
@@ -11,11 +11,11 @@ contrast, AWS SSE can be quite intrusive, as it requires special headers on all
 object-create calls, including Object Put, Object Copy, Object Post, and Multi
 Part Upload requests.
 
-Zenko bucket encryption is similar to SSE-C in its integration with a key
-management service (KMS). Zenko requires users to provide the KMS, which
+|product| bucket encryption is similar to SSE-C in its integration with a key
+management service (KMS). |product| requires users to provide the KMS, which
 generates encryption keys on PUT calls and retrieves the same encryption key on
-GET calls. Thus, Zenko does not store encryption keys.
+GET calls. Thus, |product| does not store encryption keys.
 
-Zenko also uses standard 256-bit OpenSSL encryption libraries to perform payload
+|product| also uses standard 256-bit OpenSSL encryption libraries to perform payload
 encryption and decryption. This supports the Intel AES-NI CPU acceleration
 library, making encryption nearly as fast as non-encrypted performance.

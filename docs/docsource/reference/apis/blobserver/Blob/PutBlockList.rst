@@ -89,7 +89,7 @@ The following table describes required and optional request headers.
    |                                   | content, and not with the content           |
    |                                   | of the blob itself.                         |
    +-----------------------------------+---------------------------------------------+
-   | ``x-ms-content-crc64``            | Not applicable (Not supported in Zenko      |
+   | ``x-ms-content-crc64``            | Not applicable (Not supported in |product|  |
    |                                   | version |version|).                         |
    +-----------------------------------+---------------------------------------------+
    | ``x-ms-blob-cache-control``       | Optional. Sets the blob's cache             |
@@ -146,7 +146,7 @@ The following table describes required and optional request headers.
    |                                   | names must adhere to the naming rules for   |
    |                                   | C# identifiers.                             |
    +-----------------------------------+---------------------------------------------+
-   | ``x-ms-lease-id``                 | Not applicable (Zenko version |version|     |
+   | ``x-ms-lease-id``                 | Not applicable (|product| version |version| |
    |                                   | does not support leasing).                  |
    +-----------------------------------+---------------------------------------------+
    | ``x-ms-client-request-id``        | Optional. Provides a                        |
@@ -176,7 +176,7 @@ The following table describes required and optional request headers.
    |                                   | :ref:`Get Blob Properties` operations       |
    |                                   | includes the content-disposition header.    |
    +-----------------------------------+---------------------------------------------+
-   | ``x-ms-access-tier``              | Not applicable (Not supported in Zenko      |
+   | ``x-ms-access-tier``              | Not applicable (Not supported in |product|  |
    |                                   | version |version|).                         |
    +-----------------------------------+---------------------------------------------+
 
@@ -348,7 +348,7 @@ the HTTP/1.1 protocol specification.
    |                                               | content of the blob itself.                 |
    +-----------------------------------------------+---------------------------------------------+
    | ``x-ms-content-crc64``                        | Not applicable (Not supported in            |
-   |                                               | Zenko version |version|).                   |
+   |                                               | |product| version |version|).               |
    +-----------------------------------------------+---------------------------------------------+
    | ``x-ms-request-id``                           | This header uniquely identifies             |
    |                                               | the request that was made and can           |
@@ -373,7 +373,7 @@ the HTTP/1.1 protocol specification.
    |                                               | algorithm, and ``false`` otherwise.         |
    +-----------------------------------------------+---------------------------------------------+
    | ``x-ms-encryption-key-sha256``                | Not applicable (Not supported in            |
-   |                                               | Zenko version |version|).                   |
+   |                                               | |product| version |version|).               |
    +-----------------------------------------------+---------------------------------------------+
    | ``x-ms-client-request-id``                    | This header can be used to                  |
    |                                               | troubleshoot requests and                   |

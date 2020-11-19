@@ -24,7 +24,7 @@ By default, your bucket has no event notifications configured.
 This operation replaces the existing notification configuration with the
 configuration you include in the request body.
 
-When Zenko receives this request, it verifies that the aws sqs Kafka destination
+When XDM  receives this request, it verifies that the aws sqs Kafka destination
 exists, and that the bucket owner has permission to publish to it by sending a
 test notification.
 
@@ -33,7 +33,7 @@ element.
 
 .. note::
    
-   Zenko supports QueueConfiguration notification types only. There is no
+   XDM  supports QueueConfiguration notification types only. There is no
    support for CloudFunctionConfiguration and TopicConfiguration notification
    types.
 
@@ -44,8 +44,8 @@ users to set this configuration with s3:PutBucketNotification permission.
 .. note::
 
    The PUT notification is an atomic operation. When you send a PUT request with
-   this configuration, Zenko sends test messages to your Kafka queue. If
-   the message fails, the entire PUT operation fails, and Zenko does not
+   this configuration, XDM  sends test messages to your Kafka queue. If
+   the message fails, the entire PUT operation fails, and XDM  does not
    add the configuration to your bucket.
 
 Responses
@@ -130,7 +130,7 @@ Example: Configure a notification with queue destinations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The following notification configuration includes a queue configuration
-identifying an SQS queue for Zenko to publish events of the
+identifying an SQS queue for XDM  to publish events of the
 s3:ObjectCreated:\* type.
 
 .. code::
@@ -162,7 +162,7 @@ Example 3: Configure a notification with object key name filtering
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The following notification configuration contains a queue configuration
-identifying an s3:ObjectCreated:Put type Kafka queue for Zenko to publish
+identifying an s3:ObjectCreated:Put type Kafka queue for XDM  to publish
 to. The events are published whenever an object with an ``images`` prefix and
 a ``.jpg`` suffix is PUT to a bucket. For more examples of notification
 configurations that use filtering, see `Configuring Event Notifications
