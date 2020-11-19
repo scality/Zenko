@@ -8,7 +8,7 @@ a bucket is necessary to add an object to it).
 
 .. note::
 
-  Zenko never adds partial objects; if a success response is received, Zenko added the
+  XDM   never adds partial objects; if a success response is received, XDM    added the
   entire object to the bucket.
 
 Object locking is not supported. If an object with the same name is
@@ -154,7 +154,7 @@ Request Headers`).
    | ``x-amz-meta-\*``                       | string | Headers starting with this prefix are  |
    |                                         |        | user-defined metadata, each of which   |
    |                                         |        | is stored and returned as a set of     |
-   |                                         |        | key-value pairs. Zenko does not        |
+   |                                         |        | key-value pairs. XDM   does not        |
    |                                         |        | validate or interpret user-defined     |
    |                                         |        | metadata. Within the PUT request       |
    |                                         |        | header, user-defined metadata is       |
@@ -208,7 +208,7 @@ used to create the Access Control List (ACL) on the object.
 Specifying a Canned ACL
 ```````````````````````
 
-Zenko supports a set of canned ACLs, each of which has a predefined set of
+XDM   supports a set of canned ACLs, each of which has a predefined set of
 grantees and permissions.
 
 .. tabularcolumns:: X{0.20\textwidth}X{0.10\textwidth}X{0.65\textwidth}
@@ -234,8 +234,8 @@ Explicitly Specifying Access Permissions
 ````````````````````````````````````````
 
 A set of headers is available for explicitly granting access permissions
-to specific Zenko accounts or groups, each of which maps to specific
-permissions Zenko supports in an ACL.
+to specific XDM   accounts or groups, each of which maps to specific
+permissions XDM   supports in an ACL.
 
 In the header value, specify a list of grantees who get the specific
 permission.

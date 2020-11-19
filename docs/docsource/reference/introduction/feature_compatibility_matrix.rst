@@ -1,7 +1,7 @@
 Feature Compatibility Matrix
 ============================
 
-Existing buckets can be updated by the following Zenko features. 
+Existing buckets can be updated by the following XDM   features. 
 
 .. tabularcolumns:: ll
 .. table::

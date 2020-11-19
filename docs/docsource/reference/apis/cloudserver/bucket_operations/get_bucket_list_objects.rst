@@ -62,7 +62,7 @@ parameters to return a subset of objects in a bucket:
    |                       |        | is ``url``.                              |
    +-----------------------+--------+------------------------------------------+
    | ``marker``            | integer| Specifies the key to start with when     |
-   |                       |        | listing objects in a bucket. Zenko       |
+   |                       |        | listing objects in a bucket. XDM         |
    |                       |        | returns object keys in UTF-8 binary      |
    |                       |        | order, starting with key after the       |
    |                       |        | marker.                                  |
@@ -152,12 +152,12 @@ XML elements in the response:
    +-----------------------+--------------+--------------------------------+
    | ``DisplayName``       | string       | Object owner's name            |
    +-----------------------+--------------+--------------------------------+
-   | ``Encoding-Type``     | string       | Encoding type used by Zenko to |
+   | ``Encoding-Type``     | string       | Encoding type used by XDM   to |
    |                       |              | encode object key names in the |
    |                       |              | XML response.                  |
    |                       |              |                                |
    |                       |              | If encoding-type request       |
-   |                       |              | parameter is specified, Zenko  |
+   |                       |              | parameter is specified, XDM    |
    |                       |              | includes this element in the   |
    |                       |              | response, and returns encoded  |
    |                       |              | key name values in the         |
@@ -202,14 +202,14 @@ XML elements in the response:
    |                       |              | the key name can be used in    |
    |                       |              | this field as marker in the    |
    |                       |              | subsequent request to get the  |
-   |                       |              | next set of objects. Zenko     |
+   |                       |              | next set of objects. XDM       |
    |                       |              | lists objects in UTF-8 binary  |
    |                       |              | order.                         |
    |                       |              |                                |
    |                       |              | .. note::                      |
    |                       |              |                                |
    |                       |              |    Counter to AWS practice,    |
-   |                       |              |    Zenko returns the           |
+   |                       |              |    XDM   returns the           |
    |                       |              |    NextMarker only if a        |
    |                       |              |    Delimiter request parameter |
    |                       |              |    is specified.               |
@@ -355,8 +355,8 @@ Response
 ````````
 
 The key greatshot.raw does not contain the delimiter character, and
-Zenko returns it in the Contents element in the response. However, all other
-keys contain the delimiter character. Zenko groups these keys and return a
+XDM   returns it in the Contents element in the response. However, all other
+keys contain the delimiter character. XDM   groups these keys and return a
 single CommonPrefixes element with the common prefix value
 ``photographs/``, which is a substring from the beginning of these keys
 to the first occurrence of the specified delimiter.
@@ -401,10 +401,10 @@ The following GET request specifies the delimiter parameter with value
 Response
 ````````
 
-In response, Zenko returns only the keys that start with the specified prefix.
+In response, XDM   returns only the keys that start with the specified prefix.
 Further, it uses the delimiter character to group keys that contain the
 same substring until the first occurrence of the delimiter character
-after the specified prefix. For each such key group Zenko returns one
+after the specified prefix. For each such key group XDM   returns one
 CommonPrefixes element in the response. The keys grouped under this
 CommonPrefixes element are not returned elsewhere in the response. The
 value returned in the CommonPrefixes element is a substring, from the

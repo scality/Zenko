@@ -41,11 +41,11 @@ Options
 
 ``--encoding-type`` (string)
 
-  Requests Zenko to encode the object keys in the response and specifies the
+  Requests XDM   to encode the object keys in the response and specifies the
   encoding method to use. An object key may contain any Unicode character;
   however, XML 1.0 parser cannot parse some characters, such as characters with
   an ASCII value from 0 to 10. For characters that are not supported in XML 1.0,
-  you can add this parameter to request that Zenko encode the keys in the
+  you can add this parameter to request that XDM   encode the keys in the
   response.
 
   Possible values:
@@ -168,7 +168,7 @@ Output
 
 IsTruncated -> (Boolean)
 
-  A flag that indicates whether or not Zenko returned all of the results
+  A flag that indicates whether or not XDM   returned all of the results
   that satisfied the search criteria. If your results were truncated, you can
   make a follow-up paginated request using the NextKeyMarker and
   NextVersionIdMarker response parameters as a starting place in another request
@@ -266,4 +266,4 @@ CommonPrefixes -> (list)
 
 EncodingType -> (string)
 
-  Encoding type used by Zenko to encode object keys in the response.
+  Encoding type used by XDM   to encode object keys in the response.

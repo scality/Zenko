@@ -11,9 +11,9 @@ requests, reducing per-request overhead. Refer to :ref:`DELETE Object`.
 The Multi-Object Delete request contains a list of up to 1,000 keys that can be
 deleted. You can provide object key names in the XML, or provide the version ID
 to delete a specific version of the object from a versioning-enabled bucket. For
-each key, Zenko performs a delete operation and returns the result of that
+each key, XDM   performs a delete operation and returns the result of that
 delete, success or failure, in the response. If the object specified in the
-request is not found, Zenko returns the result as deleted.
+request is not found, XDM   returns the result as deleted.
 
 The Multi-Object Delete operation supports two modes for the response—verbose
 and quiet. By default, the operation uses verbose mode in which the response
@@ -23,7 +23,7 @@ a successful deletion, the operation does not return any information about the
 delete in the response body.
 
 Finally, the Content-MD5 header is required for all Multi-Object Delete
-requests. Zenko uses the header value to ensure that your request body has not
+requests. XDM   uses the header value to ensure that your request body has not
 been altered in transit.
 
 Requests
@@ -159,12 +159,12 @@ response:
    |                           |           | **Children:** Key, VersionId      |
    +---------------------------+-----------+-----------------------------------+
    | ``Key``                   | String    | Key name for the object that      |
-   |                           |           | Zenko attempted to delete         |
+   |                           |           | XDM   attempted to delete         |
    |                           |           |                                   |
    |                           |           | **Ancestor:** Deleted, Error      |
    +---------------------------+-----------+-----------------------------------+
    | ``VersionId``             | String    | Version ID of the versioned       |
-   |                           |           | object Zenko attempted to delete. |
+   |                           |           | object XDM   attempted to delete. |
    |                           |           | Includes this element only in     |
    |                           |           | case of a versioned-delete        |
    |                           |           | request.                          |
@@ -192,7 +192,7 @@ response:
    |                           |           | If the specific delete request in |
    |                           |           | the Multi-Object Delete either    |
    |                           |           | creates or deletes a delete       |
-   |                           |           | marker, Zenko returns this        |
+   |                           |           | marker, XDM   returns this        |
    |                           |           | element in response with the      |
    |                           |           | version ID of the  delete marker. |
    |                           |           | When deleting an object in a      |
@@ -204,7 +204,7 @@ response:
    |                           |           |    is sent; that is, only the     |
    |                           |           |    object key is specified and    |
    |                           |           |    not the version ID. In this    |
-   |                           |           |    case, Zenko creates a delete   |
+   |                           |           |    case, XDM   creates a delete   |
    |                           |           |    marker and returns its version |
    |                           |           |    ID in the response.            |
    |                           |           | -  A versioned delete request is  |
@@ -212,7 +212,7 @@ response:
    |                           |           |    and a version ID are specified |
    |                           |           |    in the request; however, the   |
    |                           |           |    version ID identifies a delete |
-   |                           |           |    marker. In this case, Zenko    |
+   |                           |           |    marker. In this case, XDM      |
    |                           |           |    deletes the delete marker and  |
    |                           |           |    responds with the specific     |
    |                           |           |    version ID.                    |
@@ -221,7 +221,7 @@ response:
    +---------------------------+-----------+-----------------------------------+
    | ``Error``                 | String    | Container for a failed delete     |
    |                           |           | operation that describes the      |
-   |                           |           | object that Zenko attempted to    |
+   |                           |           | object that XDM   attempted to    |
    |                           |           | delete and the error it           |
    |                           |           | encountered.                      |
    |                           |           |                                   |
@@ -230,7 +230,7 @@ response:
    |                           |           | **Children:** Key, VersionId,     |
    |                           |           | Code, Message                     |
    +---------------------------+-----------+-----------------------------------+
-   | ``Key``                   | String    | Key for the object Zenko          |
+   | ``Key``                   | String    | Key for the object XDM            |
    |                           |           | attempted to delete               |
    |                           |           |                                   |
    |                           |           | **Ancestor:** Error               |
@@ -291,7 +291,7 @@ Response
 ````````
 
 The response includes a DeleteResult element that includes a Deleted element for
-the item that Zenko successfully deleted and an Error element that Zenko did not
+the item that XDM   successfully deleted and an Error element that XDM    did not
 delete because the user didn’t have permission to delete the object.
 
 .. code::
@@ -322,7 +322,7 @@ Deleting Object from a Versioned Bucket
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In deleting an item from a versioning enabled bucket, all versions of that
-object remain in the bucket; however, Zenko inserts a delete marker.
+object remain in the bucket; however, XDM   inserts a delete marker.
 
 The following scenarios describe the behavior of a Multi-Object Delete request
 when versioning is enabled for a bucket.
@@ -349,7 +349,7 @@ As shown, the Multi-Object Delete request specifies only one key.
      </Object>
    </Delete>
 
-Because versioning is enabled on the bucket, Zenko does not delete the object,
+Because versioning is enabled on the bucket, XDM   does not delete the object,
 instead adding a delete marker. The response indicates that a delete marker was
 added (the DeleteMarker element in the response has a value of true) and the
 version number of the added delete marker.
@@ -401,8 +401,8 @@ object.
    </Object>
    </Delete>
 
-In this case, Zenko deletes the specific object version from the bucket and
-returns the following response. In the response, Zenko returns the key and
+In this case, XDM   deletes the specific object version from the bucket and
+returns the following response. In the response, XDM   returns the key and
 version ID of the deleted object.
 
 .. code::
@@ -429,9 +429,9 @@ Scenario 3: Versioned Delete of a Delete Marker
 ```````````````````````````````````````````````
 
 In the preceding example, the request refers to a delete marker (in lieu
-of an object), then Zenko deletes the delete marker. The effect of this
+of an object), then XDM   deletes the delete marker. The effect of this
 operation is to make the object reappear in the bucket. The response
-returned by Zenko indicates the deleted delete marker (DeleteMarker element
+returned by XDM   indicates the deleted delete marker (DeleteMarker element
 with value true) and the version ID of the delete marker.
 
 .. code::
@@ -456,7 +456,7 @@ with value true) and the version ID of the delete marker.
    </Deleted>
    </DeleteResult>
 
-In general, when a Multi-Object Delete request results in Zenko either adding
+In general, when a Multi-Object Delete request results in XDM   either adding
 a delete marker or removing a delete marker, the response returns the
 following elements:
 

@@ -1,48 +1,48 @@
 Architecture
 ============
 
-This section describes Zenko's system architecture and its software components.
+This section describes XDM's system architecture and its software components.
 
 Basics
 ------
 
-Zenko provides a layer that mediates between a user or configured
+XDM provides a layer that mediates between a user or configured
 storage frontend and one or several storage backends.
 
 .. image:: ../Graphics/Zenko_hi-level.*
    :align: center
    
-Zenko may use a transient source, which enables it to write once to a
+XDM may use a transient source, which enables it to write once to a
 master (local) storage cloud, then replicate the stored data to other
 clouds without incurring egress fees from the primary storage cloud.
 
-Zenko uses agile application frameworks such as Kubernetes for
-orchestration and Prometheus for monitoring. Zenko is deployed using
+XDM uses agile application frameworks such as Kubernetes for
+orchestration and Prometheus for monitoring. XDM is deployed using
 Kubernetes either on-premises or remotely, or using a cloud Kubernetes
 framework (such as GKE, AKS, EKS, or Kops). Scality supports MetalK8s
-as the reference Kubernetes implementation for Zenko installations.
+as the reference Kubernetes implementation for XDM installations.
 
-Zenko Services Stack
+XDM Services Stack
 --------------------
 
-The following diagram summarizes the Zenko cloud architecture:
+The following diagram summarizes the XDM cloud architecture:
 
 .. image:: ../Graphics/Zenko_arch_NoNFS.*
    :align: center
  
-The Zenko instance depicted above presents an idealized representation
-of Zenko’s structure. Several complexities are elided for clarity.
+The XDM instance depicted above presents an idealized representation
+of XDM’s structure. Several complexities are elided for clarity.
 
 Transient source replication is optional and configurable. Transient
 source storage requires an on-premises RING deployment (with sproxyd).
 
 The central square in this diagram represents the suite of
-interdependent services required to implement a working Zenko instance.
+interdependent services required to implement a working XDM instance.
 Deployed, this suite of services is highly available, containerized, and
 under the control of Kubernetes. Kubernetes dynamically creates and
 destroys services in response to demand.
 
-The following table offers brief descriptions of the Zenko components in
+The following table offers brief descriptions of the XDM components in
 this architecture:
 
 .. tabularcolumns:: X{0.20\textwidth}X{0.65\textwidth}
@@ -65,7 +65,7 @@ this architecture:
    |                    | data into Azure Blob-compatible object storage. This    |
    |                    | feature remains under development.                      |
    +--------------------+---------------------------------------------------------+
-   | Backbeat           | Backbeat manages the queues involved in Zenko cloud     |
+   | Backbeat           | Backbeat manages the queues involved in XDM cloud       |
    |                    | event tracing (such as admin\_API, etc.) and job        |
    |                    | queuing for current actions (such as CRR, lifecycle     |
    |                    | management, synchronous encryption, etc).               |
@@ -94,7 +94,7 @@ this architecture:
 Service and Component Architecture
 ----------------------------------
 
-Zenko consists of the following stateful and stateless services.
+XDM consists of the following stateful and stateless services.
 
 Stateful Services
 ~~~~~~~~~~~~~~~~~
@@ -160,16 +160,16 @@ node.
   * CloudServer Manager
 
 
-Zenko Cluster Topology
+XDM Cluster Topology
 ----------------------
 
-To operate with high availability, Zenko must operate on a cluster of at least
+To operate with high availability, XDM must operate on a cluster of at least
 three physical or virtual servers running Kubernetes |min_kubernetes| or
-later. Run in such a cluster configuration, Zenko is highly available: load
+later. Run in such a cluster configuration, XDM is highly available: load
 balancing, failover, and service management are handled dynamically in real time
 by Kubernetes. This dramatically improves several aspects of service management,
 creating a fast, robust, self-healing, flexible, scalable system. From the
-user’s perspective, Zenko is functionally a single instance that obscures the
+user’s perspective, XDM is functionally a single instance that obscures the
 services and servers behind it.
 
 .. image:: ../Graphics/Zenko_cluster_NoNFS.*
@@ -181,7 +181,7 @@ high availability. In actual practice, each server can dynamically
 deploy up to ten CloudServer instances, making for a default maximum of 
 50 CloudServer instances, plus one master. Kubernetes sets the current
 upper boundary, defined by the number of pods (including service
-pods) that can be run, at 100 pods. The Zenko instance that manages all
+pods) that can be run, at 100 pods. The XDM instance that manages all
 these CloudServers spans all deployed and functioning servers, managing
 a common namespace of data and associated metadata, with Kubernetes
 managing individual servers, spinning services up and down in response

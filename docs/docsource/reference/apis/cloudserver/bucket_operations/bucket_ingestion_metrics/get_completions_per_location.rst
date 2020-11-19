@@ -1,7 +1,7 @@
 GET Completions per Location	
 ============================	
 
-This request retrieves the number of operations Zenko ingested	
+This request retrieves the number of operations XDM   ingested	
 (completed) from a specific location over the preceding 24 hours.	
 
 **Endpoint**	

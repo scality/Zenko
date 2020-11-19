@@ -47,7 +47,7 @@ predefined—or *canned*—ACL, or to explicitly specify access permissions.
 Specifying a Canned ACL
 ```````````````````````
 
-Zenko supports a set of canned ACLs, each with a predefined set of grantees
+XDM   supports a set of canned ACLs, each with a predefined set of grantees
 and permissions.
 
 .. tabularcolumns:: X{0.15\textwidth}X{0.15\textwidth}X{0.65\textwidth}
@@ -72,8 +72,8 @@ Explicitly Specifying Access Permissions
 ````````````````````````````````````````
 
 A set of headers is available for explicitly granting access permissions
-to specific Zenko accounts or groups, each of which maps to specific
-permissions Zenko supports in an ACL.
+to specific XDM   accounts or groups, each of which maps to specific
+permissions XDM   supports in an ACL.
 
 In the header value, specify a list of grantees who get the specific
 permission.

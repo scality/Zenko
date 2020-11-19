@@ -8,7 +8,7 @@ Returns the replication configuration of a bucket.
 .. note::
 
   It can take a while to propagate the put or delete a replication configuration
-  to all Zenko systems. Therefore, a get request soon after put or delete
+  to all XDM   systems. Therefore, a get request soon after put or delete
   can return a wrong result.
 
 See also: :ref:`GET Bucket Replication`.
@@ -66,7 +66,7 @@ ReplicationConfiguration -> (structure)
   Role -> (string)
   
   The Amazon Resource Name (ARN) of the AWS Identity and Access Management (IAM)
-  role that Zenko assumes when replicating objects. For more information,
+  role that XDM   assumes when replicating objects. For more information,
   see `How to Set Up Cross-Region Replication
   <https://docs.aws.amazon.com/AmazonS3/latest/dev/crr-how-setup.html>`__ in the
   *Amazon Simple Storage Service Developer Guide*.
@@ -87,7 +87,7 @@ ReplicationConfiguration -> (structure)
     Priority -> (integer)
 
     The priority associated with the rule. If you specify multiple rules in a
-    replication configuration, Zenko prioritizes the rules to prevent
+    replication configuration, XDM   prioritizes the rules to prevent
     conflicts when filtering. If two or more rules identify the same object
     based on a specified filter, the rule with higher priority takes
     precedence. For example:
@@ -159,7 +159,7 @@ ReplicationConfiguration -> (structure)
       
     A container that describes additional filters for identifying the source
     objects that you want to replicate. You can choose to enable or disable the
-    replication of these objects. Currently, Zenko supports only the filter
+    replication of these objects. Currently, XDM   supports only the filter
     that you can specify for objects created with server-side encryption using
     an AWS KMS-Managed Key (SSE-KMS).
 
@@ -171,7 +171,7 @@ ReplicationConfiguration -> (structure)
 
       Status -> (string)
 
-      Specifies whether Zenko replicates objects created with server-side
+      Specifies whether XDM   replicates objects created with server-side
       encryption using an AWS KMS-managed key.
 
     Destination -> (structure)
@@ -180,7 +180,7 @@ ReplicationConfiguration -> (structure)
 
       Bucket -> (string)
 
-      The Amazon Resource Name (ARN) of the bucket where you want Zenko to
+      The Amazon Resource Name (ARN) of the bucket where you want XDM   to
       store replicas of the object identified by the rule.
 
       A replication configuration can replicate objects to only one destination
@@ -190,7 +190,7 @@ ReplicationConfiguration -> (structure)
     Account -> (string)
 
     Destination bucket owner account ID. In a cross-account scenario, if you
-    direct Zenko to change replica ownership to the AWS account that owns
+    direct XDM   to change replica ownership to the AWS account that owns
     the destination bucket by specifying the ``AccessControlTranslation``
     property, this is the account ID of the destination bucket owner. For more
     information, see `Cross-Region Replication Additional Configuration\: Change
@@ -201,7 +201,7 @@ ReplicationConfiguration -> (structure)
     StorageClass -> (string)
 
     The storage class to use when replicating objects, such as standard or
-    reduced redundancy. By default, Zenko uses the storage class of the
+    reduced redundancy. By default, XDM   uses the storage class of the
     source object to create the object replica.
 
     For valid values, see the ``StorageClass`` element of the `PUT Bucket
@@ -232,7 +232,7 @@ ReplicationConfiguration -> (structure)
       ReplicaKmsKeyID -> (string)
 
       Specifies the AWS KMS Key ID (Key ARN or Alias ARN) for the destination
-      bucket. Zenko uses this key to encrypt replica objects.
+      bucket. XDM   uses this key to encrypt replica objects.
 
       DeleteMarkerReplication -> (structure)
 

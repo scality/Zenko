@@ -1,7 +1,7 @@
 Lifecycle Management Service
 ============================
 
-Lifecycle management enables you to set policies in Zenko that control the
+Lifecycle management enables you to set policies in XDM that control the
 lifecycle of objects in a bucket conforming to AWS S3 lifecycle rules. Lifecycle
 management gives users the ability to specify a time threshold beyond which
 certain files are to be moved (lifecycle transition) or expunged (lifecycle
@@ -9,7 +9,7 @@ expiration) to free up storage space or reduce storage costs.  You can control
 lifecycle policies using the :ref:`Orbit user interface<object_lifecycle_mgmt>`,
 or with API calls.
 
-Using this Backbeat extension, Zenko follows the S3 API to provide three calls
+Using this Backbeat extension, XDM follows the S3 API to provide three calls
 to manage lifecycle properties per bucket:
 
 -  PUT Bucket Lifecycle
@@ -28,21 +28,21 @@ Lifecycle Policies
 
 Cloud users can apply lifecycle expiration or transition rules (specified in
 Amazon’s `AWS S3 API <https://docs.aws.amazon.com/AmazonS3/latest/API/Welcome.html>`__)
-to buckets managed through Zenko. These rules are triggered after a defined
+to buckets managed through XDM. These rules are triggered after a defined
 time has passed since the object’s last modification.
 
-Zenko supports expiration or transition of versioned or non-versioned objects,
+XDM supports expiration or transition of versioned or non-versioned objects,
 when a defined number of days has passed since those objects’ creation. This
 enables automatic deletion of older versions of versioned objects to reclaim
-storage space. Zenko also supports triggering expiration or transition of
+storage space. XDM also supports triggering expiration or transition of
 the latest version on a date. This is currently feasible from the S3 API, but not
-using Orbit. Using Zenko from the command line or from Orbit, you can expire
+using Orbit. Using XDM from the command line or from Orbit, you can expire
 the current version of an object with a separate rule. For versioned buckets,
 lifecycle adds a delete marker automatically when a rule expiring a current
 version is triggered, such as when a user deletes an object without first
 specifying a version ID.
 
-Bucket lifecycle characteristics inhere to each bucket. Zenko’s lifecycle
+Bucket lifecycle characteristics inhere to each bucket. XDM’s lifecycle
 management feature enforces, but does not set these characteristics. When
 lifecycle management is enabled, the host cloud enforces buckets’ lifecycle
 rules.
@@ -61,5 +61,5 @@ Element syntax described in
    can be transitioned (moved) or expired (deleted) from the bucket on which
    they are stored.
 
-   Zenko does not support lifecycle transitions to Amazon's STANDARD\_IA or
+   XDM does not support lifecycle transitions to Amazon's STANDARD\_IA or
    GLACIER storage classes; only to other storage locations.

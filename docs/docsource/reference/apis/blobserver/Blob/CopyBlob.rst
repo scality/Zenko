@@ -225,10 +225,10 @@ The following table describes required and optional request headers.
    |                                     | ``https://myaccount.file.example.com/       |
    |                                     | myshare/mydirectorypath/myfile?sastoken``   |
    +-------------------------------------+---------------------------------------------+
-   | ``x-ms-lease-id``                   | Not applicable (Zenko version |version|     |
+   | ``x-ms-lease-id``                   | Not applicable (XDM   version |version|     |
    |                                     | does not support leasing).                  |
    +-------------------------------------+---------------------------------------------+
-   | ``x-ms-source-lease-id``            | Not applicable (Zenko version |version|     |
+   | ``x-ms-source-lease-id``            | Not applicable (XDM   version |version|     |
    |                                     | does not support leasing).                  |
    +-------------------------------------+---------------------------------------------+
    | ``x-ms-client-request-id``          | Optional. Provides a                        |
@@ -244,10 +244,10 @@ The following table describes required and optional request headers.
    |                                     | and |storage-tracking|.                     |
    +-------------------------------------+---------------------------------------------+
    | ``x-ms-access-tier``                | Not applicable (tiering is not              |
-   |                                     | supported in Zenko version |version|.)      |
+   |                                     | supported in XDM   version |version|.)      |
    +-------------------------------------+---------------------------------------------+
    | ``x-ms-rehydrate-priority``         | Not applicable (tiering is not              |
-   |                                     | supported in Zenko version |version|.)      |
+   |                                     | supported in XDM   version |version|.)      |
    +-------------------------------------+---------------------------------------------+
 
 Request Body
@@ -425,7 +425,7 @@ A Copy Blob operation can take any of the following forms:
 
 -  You can copy a source blob to a destination blob with a different name. The
    destination blob can be an existing blob of the same blob type (only block
-   blob types are supported in Zenko version |version|), or can be a new blob
+   blob types are supported in XDM   version |version|), or can be a new blob
    created by the copy operation.
 
 -  You can copy a source blob to a destination blob with the same name,

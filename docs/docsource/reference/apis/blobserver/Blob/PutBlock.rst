@@ -92,9 +92,9 @@ The following table describes required and optional request headers.
    |                            | error code 400 (Bad Request).            |
    +----------------------------+------------------------------------------+
    | ``x-ms-content-crc64``     | Not applicable (unsupported in           |
-   |                            | Zenko version |version|).                |
+   |                            | XDM   version |version|).                |
    +----------------------------+------------------------------------------+
-   | ``x-ms-lease-id``          | Not applicable (Zenko version |version|  |
+   | ``x-ms-lease-id``          | Not applicable (XDM   version |version|  |
    |                            | not support leasing).                    |
    +----------------------------+------------------------------------------+
    | ``x-ms-client-request-id`` | Optional. Provides a                     |
@@ -163,7 +163,7 @@ the HTTP/1.1 protocol specification.
    |                                               | necessarily the same value                    |
    |                                               | specified in the request headers.             |
    +-----------------------------------------------+-----------------------------------------------+
-   | ``x-ms-content-crc64``                        | Not applicable (Zenko version |version|       |
+   | ``x-ms-content-crc64``                        | Not applicable (XDM   version |version|       |
    |                                               | does not support this header).                |
    +-----------------------------------------------+-----------------------------------------------+
    | ``x-ms-request-id``                           | This header uniquely identifies               |
@@ -188,7 +188,7 @@ the HTTP/1.1 protocol specification.
    |                                               | ``false`` otherwise.                          |
    +-----------------------------------------------+-----------------------------------------------+
    | ``x-ms-encryption-key-sha256``                | Not applicable (This header is                |
-   |                                               | not supported in Zenko version |version|.)    |
+   |                                               | not supported in XDM   version |version|.)    |
    +-----------------------------------------------+-----------------------------------------------+
    | ``x-ms-client-request-id``                    | This header can be used to                    |
    |                                               | troubleshoot requests and                     |

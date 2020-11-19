@@ -1,21 +1,21 @@
 Supported Clouds and Services
 =============================
 
-Zenko replicates and manages data from one or many sources to one or many
+XDM replicates and manages data from one or many sources to one or many
 destinations. Sources can be clouds or services, and targets can be of several
 types of cloud backend.
 
 Supported Sources
 -----------------
 
-Zenko supports multiple-cloud storage operations natively using the Amazon
+XDM supports multiple-cloud storage operations natively using the Amazon
 Simple Storage Service (S3) protocol. It can handle data from many S3-compatible
-sources, as well as from servers using supported protocols. Zenko can also
+sources, as well as from servers using supported protocols. XDM can also
 operate natively using Microsoft Azure Blob Storage as a front end. Operation is
 analogous to S3-based interactions, but as of release 1.2, feature parity has
 not been attained.
 
-The following Amazon S3-based clouds have been tested as Zenko-compatible
+The following Amazon S3-based clouds have been tested as XDM-compatible
 sources:
 
 *  Amazon Simple Storage Service
@@ -24,7 +24,7 @@ sources:
 *  Ceph RADOS Gateway
 
 In addition to its compatibility with S3- and Azure Blob-compatible cloud
-frontends, Zenko can ingest data and metadata from servers using the following
+frontends, XDM can ingest data and metadata from servers using the following
 protocols:
 
 * Scality RING with sproxyd
@@ -41,15 +41,15 @@ protocols:
 
 * Network File System (NFS)
 
-  Zenko can ingest data and metadata from NFS sources, using a simple Orbit
+  XDM can ingest data and metadata from NFS sources, using a simple Orbit
   configuration process or from the command line. Because NFS does not maintain
-  an object-store namespace, Zenko extrapolates one using out-of-band updates.
+  an object-store namespace, XDM extrapolates one using out-of-band updates.
 
 * Amazon Web Services (AWS)
 
-  Zenko can ingest data and metadata from AWS sources, using a simple Orbit
+  XDM can ingest data and metadata from AWS sources, using a simple Orbit
   configuration process or from the command line. Because AWS's object-store
-  namespace is not accessible to customers, Zenko queries Amazon buckets and
+  namespace is not accessible to customers, XDM queries Amazon buckets and
   extrapolates its own namespace using out-of-band updates.
 
 Other sources are under development. 
@@ -57,7 +57,7 @@ Other sources are under development.
 Supported Targets
 -----------------
 
-Zenko can replicate stored data at the site level to the following supported
+XDM can replicate stored data at the site level to the following supported
 private and public clouds:
 
 *  Amazon S3-based public clouds:
@@ -76,5 +76,5 @@ private and public clouds:
    * Google Cloud Storage
    * Microsoft Azure Storage
 
-Zenko cannot write to non-object-store endpoints such as NFS. Other target
+XDM cannot write to non-object-store endpoints such as NFS. Other target
 clouds and services are under development.

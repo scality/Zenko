@@ -245,14 +245,14 @@ elements.
    |                                   | which you want to transition the  |
    |                                   | object.                           |
    |				       | 				   |
-   |				       | Zenko reinterprets this S3 call   |
+   |				       | XDM   reinterprets this S3 call   |
    |				       | not as a service quality   	   |
    |				       | directive, but as a service 	   |
    |                          	       | locator. In other words, where    |
    |                          	       | Amazon S3 uses this directive to  |
    |				       | define a location by quality of   |
    |                          	       | service (e.g., STANDARD or   	   |
-   |				       | GLACIER), Zenko uses it to direct |
+   |				       | GLACIER), XDM   uses it to direct |
    |				       | replication to a location.   	   |
    |                          	       | The quality of service is 	   |
    |				       | determined and the replication    |

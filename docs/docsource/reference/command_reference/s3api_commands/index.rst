@@ -1,7 +1,7 @@
 S3 API Commands
 ===============
 
-Zenko supports the following S3 API commands.
+XDM   supports the following S3 API commands.
 
 This command reference was initially extracted from the Amazon S3 documentation
 and is maintained separately.

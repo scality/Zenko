@@ -3,17 +3,17 @@
 Configure
 =========
 
-Once Zenko is installed and stable, installing optional configurations
+Once XDM is installed and stable, installing optional configurations
 is a relatively painless process. Follow the configuration instructions
-in this section to extend Zenko's capabilities. 
+in this section to extend XDM's capabilities. 
 
 Because ingress control is not standardized across all Kubernetes
 implementations, it is deactivated by default. You must configure it
-to enable Web access to Zenko. 
+to enable Web access to XDM. 
 
-Zenko supports out-of-band (OOB) updates from NFS file systems as well as
+XDM supports out-of-band (OOB) updates from NFS file systems as well as
 dynamic OOB updates from Scality RINGs with the S3 Connector. With added
-configurations, described in the sections that follow, your Zenko instance can
+configurations, described in the sections that follow, your XDM instance can
 access and manage these namespaces.
 
 .. toctree::

@@ -3,7 +3,7 @@
 Install Helm
 ============
 
-1. Change to the directory from which you will deploy Zenko::
+1. Change to the directory from which you will deploy XDM::
 
      $ cd /path/to/installation
 

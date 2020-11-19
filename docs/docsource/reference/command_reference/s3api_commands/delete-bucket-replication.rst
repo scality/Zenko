@@ -29,7 +29,7 @@ Options
   .. note::
 
     It can take a while to propagate the deletion of a replication configuration
-    to all Zenko systems.
+    to all XDM   systems.
 
 ``--cli-input-json`` (string)
 

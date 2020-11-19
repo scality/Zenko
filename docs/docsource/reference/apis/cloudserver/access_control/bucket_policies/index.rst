@@ -39,7 +39,7 @@ Policies consist of four elements: an action, an effect, a resource, and a princ
   canonical ID of the user or entity being permitted or denied access. The basic
   format of a principal is ``"Principal": {"AWS": ["123456789012"]}``, but many
   options are available, the syntax for which exceeds the scope of this
-  documentation. Zenko follows the conventions for principals documented at
+  documentation. XDM   follows the conventions for principals documented at
   https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_principal.html,
   but does not recognize federated users, IAM roles, or service roles.
 

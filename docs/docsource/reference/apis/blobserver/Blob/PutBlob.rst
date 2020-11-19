@@ -135,7 +135,7 @@ types.
    |                                   |                                   |
    |                                   | .. note::                         |
    |                                   |                                   |
-   |                                   |    Zenko version |version|        |
+   |                                   |    XDM   version |version|        |
    |                                   |    supports block blobs only. Set |
    |                                   |    this value to ``BlockBlob``.   |
    +-----------------------------------+-----------------------------------+
@@ -145,7 +145,7 @@ types.
    |                                   | adhere to the naming rules for C# |
    |                                   | identifiers.                      |
    +-----------------------------------+-----------------------------------+
-   | ``x-ms-lease-id``                 | Not applicable (Zenko |version|   |
+   | ``x-ms-lease-id``                 | Not applicable (XDM   |version|   |
    |                                   | does not support leasing).        |
    +-----------------------------------+-----------------------------------+
    | ``x-ms-blob-content-disposition`` | Optional. Sets the blob's         |
@@ -187,7 +187,7 @@ types.
    |                                   | information, see |analytics-log|  |
    |                                   | and |storage-tracking|.           |
    +-----------------------------------+-----------------------------------+
-   | ``x-ms-access-tier``              | Not applicable (Zenko version     |
+   | ``x-ms-access-tier``              | Not applicable (XDM   version     |
    |                                   | |version| does not support        |
    |                                   | tiering).                         |
    +-----------------------------------+-----------------------------------+

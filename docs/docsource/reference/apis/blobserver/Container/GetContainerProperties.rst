@@ -57,7 +57,7 @@ The following table describes required and optional request headers.
    |                            | (UTC) for the request. For more information, see        |
    |                            | |authorize-requests|.                                   |
    +----------------------------+---------------------------------------------------------+
-   | ``x-ms-lease-id``          | Not applicable (Zenko version |version| does not        |
+   | ``x-ms-lease-id``          | Not applicable (XDM   version |version| does not        |
    |                            | support leasing.                                        |
    +----------------------------+---------------------------------------------------------+
    | ``x-ms-version``           | Required for all authorized requests, optional for      |
@@ -125,17 +125,17 @@ the HTTP/1.1 protocol specification.
    |                                    | blobs do not affect the last        |
    |                                    | modified time of the container.     |
    +------------------------------------+-------------------------------------+
-   | ``x-ms-lease-status: unlocked``    | Not applicable (Zenko version       |
+   | ``x-ms-lease-status: unlocked``    | Not applicable (XDM   version       |
    |                                    | |version| does not support leasing).|
    |                                    | Blobserver returns the "unlocked"   |
    |                                    | lease status only.                  |
    +------------------------------------+-------------------------------------+
-   | ``x-ms-lease-state: available``    | Not applicable (Zenko version       |
+   | ``x-ms-lease-state: available``    | Not applicable (XDM   version       |
    |                                    | |version| does not support leasing).|
    |                                    | Blobserver returns the "available"  |
    |                                    | lease state only.                   |
    +------------------------------------+-------------------------------------+
-   | ``x-ms-lease-duration``            | Not applicable (Zenko version       |
+   | ``x-ms-lease-duration``            | Not applicable (XDM   version       |
    |                                    | |version| does not support leasing).|
    |                                    | Blobserver returns no lease         |
    |                                    | duration information.               |

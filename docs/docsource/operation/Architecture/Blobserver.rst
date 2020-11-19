@@ -9,5 +9,5 @@ interface to access object data stores across multiple backends, on-premises or
 in the cloud, as well as translation for Azure Blob actions that interoperate
 with S3 logic through CloudServer.
 
-Blobserver has not achieved feature parity with CloudServer as of Zenko version
+Blobserver has not achieved feature parity with CloudServer as of XDM version
 |version|.

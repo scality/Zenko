@@ -1,8 +1,8 @@
 HTTP Conformity
 ---------------
 
-Zenko uses the HTTP 1.1 protocol as defined by RFC 2616. REST operations
-consist of sending HTTP requests to Zenko, which returns HTTP responses. These
+XDM   uses the HTTP 1.1 protocol as defined by RFC 2616. REST operations
+consist of sending HTTP requests to XDM, which returns HTTP responses. These
 HTTP requests contain a request method, a URI with an optional query string,
 headers, and a body. The responses contain status codes, headers, and may
 contain a response body.
@@ -17,10 +17,10 @@ times. For storage capacity, discrete values are returned in bytes for the start
 and the end times (not as an average between start and end).
 
 Because request headers and response headers can be specific to a particular
-Zenko API operation or set of operations, many such elements are common to all
+XDM   API operation or set of operations, many such elements are common to all
 operations.
 
-Request headers typically found in Zenko requests include Authorization,
+Request headers typically found in XDM   requests include Authorization,
 Content-Length, Content-Type, Date, and Host.
 
 .. tabularcolumns:: lL
@@ -72,7 +72,7 @@ include ``HTTP/1.1``, ``x-amzn-request-id``, ``Content-Length``,
    |                       |        | :ref:`API Error Codes (Client and Server     |
    |                       |        | Errors)`                                     |
    +-----------------------+--------+----------------------------------------------+
-   | ``x-amzn-request-id`` | string | A Zenko-generated value that uniquely        |
+   | ``x-amzn-request-id`` | string | A XDM  -generated value that uniquely        |
    |                       |        | identifies a request. Values can be used to  |
    |                       |        | troubleshoot problems.                       |
    +-----------------------+--------+----------------------------------------------+

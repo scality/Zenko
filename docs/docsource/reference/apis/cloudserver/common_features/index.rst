@@ -1,7 +1,7 @@
 Common S3 Features
 ==================
 
-The Zenko S3 APIs have the following common features. For common error messages,
+The XDM   S3 APIs have the following common features. For common error messages,
 see :ref:`S3 API Errors`.
 
 .. toctree::

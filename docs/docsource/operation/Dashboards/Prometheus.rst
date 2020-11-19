@@ -2,7 +2,7 @@ Prometheus
 ==========
 
 Prometheus offers visualization and insight into Kubernetes operations.
-For Zenko, it aggregates metrics exposed by Kubernetes pods that have been
+For XDM, it aggregates metrics exposed by Kubernetes pods that have been
 configured to yield Prometheus-readable data.
 
 Prometheus ships with MetalK8s. Access to Prometheus is similar to that 

@@ -1,6 +1,6 @@
-.. _Zenko Installation:
+.. _XDM Installation:
 
-Zenko Installation
+XDM Installation
 ==================
 
 .. toctree::

@@ -70,7 +70,7 @@ grantee permissions.
 Specifying a Canned ACL
 -----------------------
 
-Zenko supports a set of canned ACLs, each of which has a predefined set of
+XDM   supports a set of canned ACLs, each of which has a predefined set of
 grantees and permissions.
 
 To grant access permissions by specifying canned ACLs, use the following
@@ -104,8 +104,8 @@ Explicitly Specifying Grantee Access Permissions
 ------------------------------------------------
 
 A set of x-amz-grant-permission headers is available for explicitly
-granting individualized bucket access permissions to specific Zenko accounts
-or groups. Each of these headers maps to specific permissions the Zenko
+granting individualized bucket access permissions to specific XDM   accounts
+or groups. Each of these headers maps to specific permissions the XDM  
 supports in an ACL.
 
 .. note::
@@ -166,7 +166,7 @@ type can be one any one of the following:
 
 For example, the following x-amz-grant-write header grants create,
 overwrite, and delete objects permission to a LogDelivery group
-predefined by Zenko and two accounts identified by their email addresses.
+predefined by XDM   and two accounts identified by their email addresses.
 
 .. code::
 
@@ -175,7 +175,7 @@ predefined by Zenko and two accounts identified by their email addresses.
 .. note::
 
   Though cited here for purposes of example, the LogDelivery group
-  permission is not currently being used by Zenko.
+  permission is not currently being used by XDM.
 
 Request Elements
 ~~~~~~~~~~~~~~~~
@@ -346,9 +346,9 @@ Access Permissions Specified Using Headers
 The request sample uses ACL-specific request headers to grant the
 following permissions:
 
--  Write permission to the Zenko LogDelivery group and an account identified
+-  Write permission to the XDM   LogDelivery group and an account identified
    by ``xyz@example.com``
--  Read permission to the Zenko AllUsers group
+-  Read permission to the XDM   AllUsers group
 
 Request Sample
 ^^^^^^^^^^^^^^

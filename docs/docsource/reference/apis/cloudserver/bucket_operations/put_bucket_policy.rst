@@ -8,9 +8,9 @@ policy. For any identity other than the root user of the account that owns the
 bucket, the calling identity must have PutBucketPolicy permissions on the
 specified bucket and belong to the bucket owner's account to use this operation.
 
-In the absence of PutBucketPolicy permissions, Zenko returns a ``403
+In the absence of PutBucketPolicy permissions, XDM   returns a ``403
 Access Denied`` error. If the permissions are correct, but you are not using
-an identity that belongs to the bucket owner's account, Zenko returns a
+an identity that belongs to the bucket owner's account, XDM   returns a
 ``405 Method Not Allowed`` error.
 
 .. important::

@@ -394,7 +394,7 @@ configuration:
    |                       | Enabled or Disabled.  |                       |
    +-----------------------+-----------------------+-----------------------+
    | StorageClass          | Specifies the storage | Yes                   |
-   |                       | class (Zenko  	   | 			   |
+   |                       | class (XDM    	   | 			   |
    |			   | location) to which	   | This element is       |
    |			   | you want the object   | required only if you  |
    |                       | to transition.        | specify one or both   |

@@ -1,7 +1,7 @@
 Grantable Permissions
 =====================
 
-The set of permissions Zenko supports in an ACL is detailed in the following
+The set of permissions XDM   supports in an ACL is detailed in the following
 table.
 
 .. tabularcolumns:: X{0.20\textwidth}X{0.35\textwidth}X{0.35\textwidth}

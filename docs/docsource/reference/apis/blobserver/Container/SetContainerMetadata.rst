@@ -61,7 +61,7 @@ The following table describes required and optional request headers.
    |                            | request. For more information,              |
    |                            | see |azure-versioning|.                     |
    +----------------------------+---------------------------------------------+
-   | ``x-ms-lease-id``          | Not applicable (Zenko version |version|     |
+   | ``x-ms-lease-id``          | Not applicable (XDM   version |version|     |
    |                            | does not support leasing).                  |
    +----------------------------+---------------------------------------------+
    | ``x-ms-meta-name:value``   | Optional. A name-value pair to              |

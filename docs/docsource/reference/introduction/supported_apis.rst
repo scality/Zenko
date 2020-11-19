@@ -1,7 +1,7 @@
 Supported APIs
 ==============
 
-Supported APIs for Zenko are detailed here.
+Supported APIs for XDM   are detailed here.
 
 Scality extended APIs, including the Utilization API (UTAPI), a REST API for
 reporting on utilization metrics (capacity, objects, bandwidth, and operations

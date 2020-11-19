@@ -131,16 +131,16 @@ This implementation of GET returns the following response elements.
    +------------------------------+--------------------------------------------+
    | ``StorageClass``             | Optional destination storage class         |
    |                              | override to use when replicating objects.  |
-   |                              | If this element is not specified, Zenko    |
+   |                              | If this element is not specified, XDM      |
    |			          | uses the source object's storage class to  |
    |   			          | create an object replica.                  |
    |                              |                                            |
-   |			          | Zenko reinterprets this S3 call not as a   |
+   |			          | XDM   reinterprets this S3 call not as a   |
    |                              | service quality directive, but as a service|
    |                              | locator. In other words, where Amazon S3   |
    |                              | uses this directive to define a location   |
    |                              | by quality of service (e.g., STANDARD or   |
-   |                              | GLACIER), Zenko uses it to direct          |
+   |                              | GLACIER), XDM   uses it to direct          |
    |                              | replication to a location. The quality of  |
    |			          | service is determined and the replication  |
    |                              | destination is configured by the user.     |
@@ -152,7 +152,7 @@ This implementation of GET returns the following response elements.
    |                              | **Default:** Storage class of the source   |
    |                              | object                                     |
    |                              |                                            |
-   |                              | **Valid Values:** Any defined Zenko        |
+   |                              | **Valid Values:** Any defined XDM          |
    |                              | location                                   |
    +------------------------------+--------------------------------------------+
 
@@ -194,12 +194,12 @@ Response
 ````````
 
 The following sample response shows that replication is enabled on the
-bucket, and the empty prefix indicates that Zenko will replicate all
+bucket, and the empty prefix indicates that XDM   will replicate all
 objects created in the examplebucket bucket. The Destination element
-shows the target bucket where Zenko creates the object replicas and the
-storage class (AzureCloud) that Zenko uses when creating replicas.
+shows the target bucket where XDM   creates the object replicas and the
+storage class (AzureCloud) that XDM   uses when creating replicas.
 
-Zenko assumes the specified role to replicate objects on behalf of the
+XDM   assumes the specified role to replicate objects on behalf of the
 bucket owner.
 
 .. code::

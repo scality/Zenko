@@ -67,7 +67,7 @@ The following table describes required and optional request headers.
    |                            | headers. Metadata names must adhere to the naming      |
    |                            | rules for C# identifiers.                              |
    +----------------------------+--------------------------------------------------------+
-   | ``x-ms-lease-id``          | Not applicable (Zenko |version| does not support       |
+   | ``x-ms-lease-id``          | Not applicable (XDM   |version| does not support       |
    |                            | leasing).                                              |
    +----------------------------+--------------------------------------------------------+
    | ``x-ms-client-request-id`` | Optional. Provides a client-generated, opaque value    |

@@ -1,7 +1,7 @@
 API Reference
 =============
 
-Zenko comprises several component REST APIs. Many of the endpoint
+XDM   comprises several component REST APIs. Many of the endpoint
 functionalies are replicated in the :ref:`command reference`.
 
 Access to these APIs is documented in each section.

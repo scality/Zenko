@@ -31,7 +31,7 @@ The following additional parameters may be specified on the request URI.
    +--------------+------------------------------------------------------------+
    | Parameter    | Description                                                |
    +==============+============================================================+
-   | ``snapshot`` | Not applicable (Zenko version |version| does not support   |
+   | ``snapshot`` | Not applicable (XDM   version |version| does not support   |
    |              | snapshots).                                                |
    +--------------+------------------------------------------------------------+
    | ``timeout``  | Optional. The ``timeout`` parameter is expressed in        |
@@ -63,10 +63,10 @@ The following table describes required and optional request headers.
    |                                            | requests. For more information,             |
    |                                            | see |azure-versioning|.                     |
    +--------------------------------------------+---------------------------------------------+
-   | ``x-ms-lease-id``                          | Not applicable (Zenko version |version|     |
+   | ``x-ms-lease-id``                          | Not applicable (XDM   version |version|     |
    |                                            | does not support leasing).                  |
    +--------------------------------------------+---------------------------------------------+
-   | ``x-ms-delete-snapshots``                  | Not applicable (Zenko version |version|     |
+   | ``x-ms-delete-snapshots``                  | Not applicable (XDM   version |version|     |
    |                                            | does not support snapshots).                |
    +--------------------------------------------+---------------------------------------------+
    | ``x-ms-client-request-id``                 | Optional. Provides a client-generated,      |
@@ -159,7 +159,7 @@ Soft Delete Feature Enabled
 
 .. note::
 
-   Zenko version |version| does not support the soft-delete feature.
+   XDM   version |version| does not support the soft-delete feature.
 
 When a blob is successfully deleted, it is soft-deleted and is no longer
 accessible to clients. The Blob service retains the blob for the number of days

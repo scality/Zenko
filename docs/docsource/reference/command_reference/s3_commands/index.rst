@@ -5,7 +5,7 @@ AWS includes basic funtionality for S3 commands, which emulate Unix
 command logic for ease of use and basic operations.
 
 The S3 documentation presented here is a subset of the Amazon S3 documentation
-set, maintained separately to reflect operations available for Zenko.
+set, maintained separately to reflect operations available for XDM.
 
 Path Argument Type
 ~~~~~~~~~~~~~~~~~~

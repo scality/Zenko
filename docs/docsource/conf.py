@@ -102,14 +102,15 @@ else:
 pygments_style = 'sphinx'
 
 
-# -- rst prolog  ---------------------------------------------------------
+# -- rst prolog ---------------------------------------------------------
+
 # This section contains text substitution for custom variables and link
-# substitution for MSFT doc links. As we become
-# more complete in our documentation, we can replace these with references
-# to our own documentation.
+# substitution for MSFT doc links. As we become more complete in our
+# documentation, we can replace these with references to our own documentation.
 
 rst_prolog = """
 
+   .. |product| replace:: XDM
    .. |min_kubernetes| replace:: 1.11.3
    .. |aws_cli_guide| replace:: For usage examples, see `Pagination <https://docs.aws.amazon.com/cli/latest/userguide/pagination.html>`__ in the `AWS Command Line Interface User Guide <https://aws.amazon.com/cli/>`__.
    .. |set-blob-timeouts| replace:: `Setting Timeouts for Blob Service Operations <https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations>`__

@@ -95,7 +95,7 @@ request headers in addition to those that are common to all operations
    | ``x-amz-meta-*``                    | string | Headers starting with this prefix are    |
    |                                     |        | user-defined metadata, each of which is  |
    |                                     |        | stored and returned as a set of          |
-   |                                     |        | key-value pairs. Zenko does not validate |
+   |                                     |        | key-value pairs. XDM   does not validate |
    |                                     |        | or interpret user-defined metadata.      |
    |                                     |        | Within the PUT request header, the       |
    |                                     |        | user-defined metadata's size is limited  |
@@ -129,7 +129,7 @@ the Access Control List (ACL) on the object.
 Specifying a Canned ACL
 ```````````````````````
 
-Zenko supports a set of canned ACLs, each of which has a predefined set of
+XDM   supports a set of canned ACLs, each of which has a predefined set of
 grantees and permissions.
 
 .. tabularcolumns:: X{0.15\textwidth}X{0.10\textwidth}X{0.70\textwidth}
@@ -155,8 +155,8 @@ Explicitly Specifying Access Permissions
 ````````````````````````````````````````
 
 A set of headers is available for explicitly granting access permissions
-to specific accounts or groups, each of which maps to specific Zenko
-permissions Zenko supports in an ACL.
+to specific accounts or groups, each of which maps to specific XDM  
+permissions XDM   supports in an ACL.
 
 In the header value, specify a list of grantees who get the specific
 permission.
@@ -224,7 +224,7 @@ Headers
 ~~~~~~~
 
 The Initiate Multipart Upload operation may include any of the common response
-headers supported by the Zenko (see :ref:`Common Response Headers`).
+headers supported by the XDM   (see :ref:`Common Response Headers`).
 
 Elements
 ~~~~~~~~

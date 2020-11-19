@@ -3,7 +3,7 @@
 Common Response Headers
 =======================
 
-All Zenko response headers are listed on separate lines.
+All XDM   response headers are listed on separate lines.
 
 .. tabularcolumns:: X{0.25\textwidth}X{0.10\textwidth}X{0.60\textwidth}
 .. table::
@@ -77,7 +77,7 @@ All Zenko response headers are listed on separate lines.
    +--------------------------+---------+--------------------------------------+
    | ``x-amz-version-id``     | string  | The version of the object. When      |
    |                          |         | versioning is enabled, generates a   |
-   |                          |         | URL-ready hex string Zenko uses      |
+   |                          |         | URL-ready hex string XDM   uses      |
    |                          |         | to identify objects added to a       |
    |                          |         | bucket. For example: 39393939393939\ |
    |                          |         | 39393939393939393939393939756e6437.  |

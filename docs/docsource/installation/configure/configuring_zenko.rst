@@ -1,25 +1,25 @@
 .. _configuring_zenko:
 
-Configuring Zenko
+Configuring XDM
 =================
 
-Zenko is readily configurable using Helm to pass values set in Helm charts. 
+XDM is readily configurable using Helm to pass values set in Helm charts. 
 Helm charts are stored in Zenko/kubernetes/zenko/ and its subdirectories.
-Helm charts are YAML files with configurable values. In a Zenko deployment, 
+Helm charts are YAML files with configurable values. In a XDM deployment, 
 reconfiguration, or upgrade, Helm reads charts in the following order:
 
-#. Base settings for Zenko microservices (for example, Grafana settings,
+#. Base settings for XDM microservices (for example, Grafana settings,
    written to Zenko/kubernetes/zenko/charts/grafana/values.yaml).
-#. Base settings for Zenko. These settings override the base microservice 
+#. Base settings for XDM. These settings override the base microservice 
    settings, and are found in Zenko/kubernetes/zenko/values.yaml.
 #. Custom settings, which you can write to an options.yaml file. Settings
    written to this file override settings read from the preceding
    values.yaml file.
 
-Zenko's charts are populated by default to provide a stable, feature-rich
-deployment. It is easiest and safest to deploy Zenko using these default 
+XDM's charts are populated by default to provide a stable, feature-rich
+deployment. It is easiest and safest to deploy XDM using these default 
 settings in a test environment and to adjust settings there for a working
-deployment. If your use case requires configuring Zenko before deployment,
+deployment. If your use case requires configuring XDM before deployment,
 these instructions will remain valid and portable to the production system.
 
 Modify options.yaml
@@ -27,19 +27,19 @@ Modify options.yaml
 
 The options.yaml file is not present by default, but you added a simple one at
 Zenko/kubernetes/options.yaml when :ref:`deploying
-Zenko<create_options.yaml>`. options.yaml is the best place to make all changes
+XDM<create_options.yaml>`. options.yaml is the best place to make all changes
 to your configuration (with one exception, nodeCounts). While it is possible to
-reconfigure any aspect of Zenko or its attendant microservices from those
-services' base settings or in the Zenko settings, it is better to make changes
+reconfigure any aspect of XDM or its attendant microservices from those
+services' base settings or in the XDM settings, it is better to make changes
 to options.yaml. Because options.yaml is not a part of the base installation, it
-is not overwritten on a Zenko version upgrade. Likewise, finding changes written
+is not overwritten on a XDM version upgrade. Likewise, finding changes written
 to several values.yaml file locations can become quite difficult and
 cumbersome. For these reasons, it is a best practice to *confine all
 modifications to options.yaml.*
 
 **Examples:**
 
-Zenko provides outward-facing NFS service using Cosmos, which is enabled by
+XDM provides outward-facing NFS service using Cosmos, which is enabled by
 default. To deactivate Cosmos:
 
 #. Open kubernetes/zenko/cosmos/values.yaml with read-only access
@@ -83,11 +83,11 @@ To change the node count:
 
 #. Change the nodeCount value only.
 
-Push Modifications to Zenko
+Push Modifications to XDM
 ---------------------------
 
 Once you have entered all changes to options.yaml or changed the values.yaml
 nodeCount parameter, issue the following command from Zenko/kubernetes
-to push your changes to the deployed Zenko instance::
+to push your changes to the deployed XDM instance::
 
    $ helm upgrade {{zenko-server-name}} ./zenko -f options.yaml 

@@ -1,8 +1,8 @@
 GET All Metrics	
 ===============	
 
-This request retrieves all metrics for all Zenko metadata ingestion
-locations. Zenko returns three categories of information (metrics) about system
+This request retrieves all metrics for all XDM   metadata ingestion
+locations. XDM   returns three categories of information (metrics) about system
 operations: completions, throughput, and pending operations. Completions are
 returned for the preceding 24 hours, throughput for the preceding 15 minutes,
 and pending transactions are returned as a simple aggregate.

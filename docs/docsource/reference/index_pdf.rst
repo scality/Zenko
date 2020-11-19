@@ -1,6 +1,6 @@
 .. _Reference:
 
-Zenko Reference
+XDM   Reference
 ===============
 
 .. toctree::

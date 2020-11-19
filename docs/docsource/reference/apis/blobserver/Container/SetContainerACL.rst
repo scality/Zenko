@@ -112,7 +112,7 @@ The following table describes required and optional request headers.
    |                             | the request, container data is                  |
    |                             | private to the account owner.                   |
    +-----------------------------+-------------------------------------------------+
-   | ``x-ms-lease-id``           | Not applicable (Zenko version |version| does    |
+   | ``x-ms-lease-id``           | Not applicable (XDM   version |version| does    |
    |                             | not supported leasing).                         |
    +-----------------------------+-------------------------------------------------+
    | ``x-ms-client-request-id``  | Optional. Provides a                            |

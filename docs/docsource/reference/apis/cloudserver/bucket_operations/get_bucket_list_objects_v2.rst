@@ -70,7 +70,7 @@ GET Bucket (List Objects) Version 2 uses the following parameters:
    |                        |                                             |          |
    |                        | **Default:** None                           |          |
    +------------------------+---------------------------------------------+----------+
-   | ``encoding-type``      | Requests Zenko to encode the response and   | No       |
+   | ``encoding-type``      | Requests XDM   to encode the response and   | No       |
    |                        | specifies the encoding method to use.       |          |
    |                        |                                             |          |
    |                        | An object key can contain any Unicode       |          |
@@ -134,8 +134,8 @@ GET Bucket (List Objects) Version 2 uses the following parameters:
    |                        | next request as the ``continuation-token``. |          |
    |                        |                                             |          |
    |                        | * The continuation token is an opaque value |          |
-   |                        |   that Zenko understands.                   |          |
-   |                        | * Zenko lists objects in UTF-8 character    |          |
+   |                        |   that XDM   understands.                   |          |
+   |                        | * XDM   lists objects in UTF-8 character    |          |
    |                        |   encoding in lexicographic order.          |          |
    |                        |                                             |          |
    |                        | **Type:** String                            |          |
@@ -153,7 +153,7 @@ GET Bucket (List Objects) Version 2 uses the following parameters:
    +------------------------+---------------------------------------------+----------+
    | ``start-after``        | Add this parameter to request the API to    | No       |
    |                        | return key names after a specific object    |          |
-   |                        | key in your key space. Zenko lists objects  |          |
+   |                        | key in your key space. XDM   lists objects  |          |
    |                        | in UTF-8 character encoding in              |          |
    |                        | lexicographic order.                        |          |
    |                        |                                             |          |
@@ -249,11 +249,11 @@ Elements
    |                            |                                               |
    |                            | **Ancestor:** ListBucketResult.Contents.Owner |
    +----------------------------+-----------------------------------------------+
-   | ``Encoding-Type``          | Encoding type used by Zenko to encode object  |
+   | ``Encoding-Type``          | Encoding type used by XDM   to encode object  |
    |                            | key names in the XML response.                |
    |                            |                                               |
    |                            | If you specify encoding-type request          |
-   |                            | parameter, Zenko includes this element in the |
+   |                            | parameter, XDM   includes this element in the |
    |                            | response, and returns encoded key name values |
    |                            | in the ``Delimiter``, ``Prefix``, ``Key``,    |
    |                            | and ``StartAfter`` response elements.         |
@@ -360,7 +360,7 @@ Elements
    +----------------------------+-----------------------------------------------+
    | ``NextContinuationToken``  | .. _NextContinuationToken:                    |
    |                            |                                               |
-   |                            | If the response is truncated, Zenko returns   |
+   |                            | If the response is truncated, XDM   returns   |
    |                            | this parameter with a continuation token.     |
    |                            | You can specify the token as the              |
    |                            | continuation-token in your next request to    |
@@ -382,7 +382,7 @@ Special Errors
 ~~~~~~~~~~~~~~
 
 This operation does not return special errors. For general information about the
-AWS errors Zenko uses, and a list of error codes, see :ref:`AWS S3 Error Messages`.
+AWS errors XDM   uses, and a list of error codes, see :ref:`AWS S3 Error Messages`.
 
 Examples
 --------
@@ -505,9 +505,9 @@ The following GET request specifies the delimiter parameter with value /.
 Response
 ````````
 
-The sample.jpg key does not contain the delimiter character, and Zenko returns
+The sample.jpg key does not contain the delimiter character, and XDM   returns
 it in the Contents element in the response. However, all other keys contain the
-delimiter character. Zenko groups these keys and returns a single
+delimiter character. XDM   groups these keys and returns a single
 ``CommonPrefixes`` element with the prefix value ``photos/``. The element is a
 substring that starts at the beginning of these keys and ends at the first
 occurrence of the specified delimiter.
@@ -550,10 +550,10 @@ the prefix parameter with valuephotos/2006/.
 Response
 ````````
 
-In response, Zenko returns only the keys that start with the specified
+In response, XDM   returns only the keys that start with the specified
 prefix. Further, it uses the delimiter character to group keys that contain the
 same substring until the first occurrence of the delimiter character after the
-specified prefix. For each such key group Zenko returns one CommonPrefixes
+specified prefix. For each such key group XDM   returns one CommonPrefixes
 element in the response. The keys grouped under this CommonPrefixes element are
 not returned elsewhere in the response. The value returned in the CommonPrefixes
 element is a substring that starts at the beginning of the key and ends at the
@@ -588,7 +588,7 @@ Using a Continuation Token
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In this example, the initial request returns more than 1000 keys. In response to
-this request, Zenko returns the IsTruncated element with the value set to true
+this request, XDM   returns the IsTruncated element with the value set to true
 and with a NextContinuationToken element.
 
 Request
@@ -653,7 +653,7 @@ response.
 Response
 ````````
 
-Zenko returns a list of the next set of keys starting where the previous
+XDM   returns a list of the next set of keys starting where the previous
 request ended.
 
 .. code::

@@ -3,7 +3,7 @@
 Backup Services
 ===============
 
-Zenko uses two scripted backup services, Burry and MGOB. Burry backs up
+XDM uses two scripted backup services, Burry and MGOB. Burry backs up
 Kubernetes data. MGOB backs up the namespace and other metadata that MongoDB
 generates and uses to track object stores. Both perform scheduled backups using
 a crontab-like configfuration.

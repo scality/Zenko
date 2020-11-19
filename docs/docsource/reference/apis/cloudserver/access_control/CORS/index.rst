@@ -1,7 +1,7 @@
 Bucket CORS Operations
 ======================
 
-Bucket CORS operations enable Zenko to permit cross-origin requests sent
+Bucket CORS operations enable XDM   to permit cross-origin requests sent
 through the browser on a per-bucket basis. To enable cross-origin
 requests, configure an S3 bucket by adding a CORS subresource containing
 rules for the type of requests to permit.
@@ -11,12 +11,12 @@ rules for the type of requests to permit.
 Bucket CORS Specification
 -------------------------
 
-Zenko implements the `AWS S3 Bucket CORS APIs <http://docs.aws.amazon.com/AmazonS3/latest/dev/cors.html>`__.
+XDM   implements the `AWS S3 Bucket CORS APIs <http://docs.aws.amazon.com/AmazonS3/latest/dev/cors.html>`__.
 
 Preflight CORS Requests
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-A preflight request with the HTTP OPTIONS method can be made against Zenko to
+A preflight request with the HTTP OPTIONS method can be made against XDM   to
 determine whether CORS requests are permitted on a bucket before sending
 the actual request. (For detailed information on the preflight request
 and response, see the `OPTIONS

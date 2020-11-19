@@ -58,8 +58,8 @@ destination.
 The destination details include the bucket in which to store replicas and
 optional storage classes to use to store the replicas.
 
-Zenko only acts on rules with an Enabled status. Zenko does not support IAM
-roles; instead, Zenko pre-creates service accounts, one for each service
+XDM   only acts on rules with an Enabled status. XDM    does not support IAM
+roles; instead, XDM   pre-creates service accounts, one for each service
 (replication, lifecycle, ingestion, garbage collection, metadata search). Each
 service uses keys generated for its own account to execute an operation.
 
@@ -101,7 +101,7 @@ The following table describes the XML elements in the replication configuration:
    |                              |           | **Ancestor:** None                              |          |
    +------------------------------+-----------+-------------------------------------------------+----------+
    | ``Role``                     | String    | Amazon Resource Name (ARN) of an IAM role for   | Yes      |
-   |                              |           | Zenko to assume when replicating the objects.   |          |
+   |                              |           | XDM   to assume when replicating the objects.   |          |
    |                              |           |                                                 |          |
    |                              |           | **Type:** String                                |          |
    |                              |           |                                                 |          |
@@ -139,7 +139,7 @@ The following table describes the XML elements in the replication configuration:
    |                              |           | **Ancestor:** Rule                              |          |
    +------------------------------+-----------+-------------------------------------------------+----------+
    | ``Bucket``                   | String    | Amazon resource name (ARN) of the bucket where  | Yes      |
-   |                              |           | Zenko is to store replicas of the object        |          |
+   |                              |           | XDM   is to store replicas of the object        |          |
    |                              |           | identified by the rule.                         |          |
    |                              |           |                                                 |          |
    |                              |           | If there are multiple rules in the replication  |          |
@@ -152,15 +152,15 @@ The following table describes the XML elements in the replication configuration:
    +------------------------------+-----------+-------------------------------------------------+----------+
    | ``StorageClass``             | String    | Optional destination storage class override to  | No       |
    |                              |           | use when replicating objects. If this element   |          | 
-   |                              |           | is not specified, Zenko uses the storage        |          |
+   |                              |           | is not specified, XDM   uses the storage        |          |
    |                              |           | class of the source object to create object     |          |
    |                              |           | replica.                                        |          |
    |		                  |           |                                                 |          |
-   |                              |           | Zenko reinterprets this S3 call not as a        |          |
+   |                              |           | XDM   reinterprets this S3 call not as a        |          |
    |                              |           | service quality directive, but as a service     |          |
    |                              |           | locator. In other words, where Amazon S3 uses   |          |
    |                              |           | this directive to define a location by quality  |	   |
-   |                              |           | of service (e.g., STANDARD or GLACIER), Zenko   |          |
+   |                              |           | of service (e.g., STANDARD or GLACIER), XDM     |          |
    |                              |           | uses it to direct replication to a location.    |          |
    |                              |           | The quality of service is determined and the    |          |
    |                              |           | replication destination is configured by the    |          |

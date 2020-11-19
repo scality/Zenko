@@ -1,7 +1,7 @@
 Specifying an ACL
 =================
 
-Using Zenko, an ACL can be set at the creation point of a bucket or object.
+Using XDM, an ACL can be set at the creation point of a bucket or object.
 An ACL can also be applied to an existing bucket or object.
 
 .. tabularcolumns:: X{0.25\textwidth}X{0.70\textwidth}
@@ -26,7 +26,7 @@ Sample ACL
 ----------
 
 The ACL on a bucket identifies the resource owner and a set of grants.
-The format is the XML representation of an ACL in the Zenko API. The bucket
+The format is the XML representation of an ACL in the XDM   API. The bucket
 owner has FULL_CONTROL of the resource. In addition, the ACL shows how
 permissions are granted on a resource to two accounts, identified by
 canonical user ID, and two of the predefined Amazon S3 groups.

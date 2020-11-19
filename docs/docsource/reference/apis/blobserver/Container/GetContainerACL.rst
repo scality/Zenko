@@ -78,7 +78,7 @@ The following table describes required and optional request headers.
    |                            | (UTC) for the request. For more information, see   |
    |                            | |authorize-requests|.                              |
    +----------------------------+----------------------------------------------------+
-   | ``x-ms-lease-id``          | Not applicable (Zenko version |version| does not   |
+   | ``x-ms-lease-id``          | Not applicable (XDM   version |version| does not   |
    |                            | support leasing).                                  |
    +----------------------------+----------------------------------------------------+
    | ``x-ms-version``           | Required for all authorized requests. Specifies    |

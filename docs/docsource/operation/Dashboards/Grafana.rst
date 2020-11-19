@@ -2,19 +2,19 @@ Grafana
 =======
 
 Grafana provides a “dashboard of dashboards” that offers deep insight
-into ongoing operations. Installing the Zenko stack gives you access to
+into ongoing operations. Installing the XDM stack gives you access to
 an “application-level” Grafana, which provides information about
-CloudServer operations. Installing Zenko with MetalK8s also provides
+CloudServer operations. Installing XDM with MetalK8s also provides
 access to “platform-level” Grafana, which provides information about
 cluster operations.
 
 Both require some setup, detailed in the installation guide, which ships
-with the Zenko repository.
+with the XDM repository.
 
 Application-Level Grafana
 -------------------------
 
-Deployed with all Zenko instances, application-level Grafana provides
+Deployed with all XDM instances, application-level Grafana provides
 insight into CloudServer operation.
 
 Configuration
@@ -26,8 +26,8 @@ options.yaml, and may require further configurations.
 To enable application-level Grafana: 
 
 1. Open the options.yaml file for editing. Though it may be located anywhere in
-   your Zenko directory, if you followed the installation instructions closely,
-   you will find it at Zenko/kubernetes/options.yaml.
+   your XDM directory, if you followed the installation instructions closely,
+   you will find it at XDM/kubernetes/options.yaml.
 
 2. Add the following block to options.yaml:
    
@@ -56,7 +56,7 @@ To enable application-level Grafana:
       credentials using the default configuration, the Grafana credentials will
       be overwritten on every Helm upgrade command.**
 
-3. Upgrade Zenko. From Zenko/kubernetes/zenko, enter:
+3. Upgrade XDM. From XDM/kubernetes/zenko, enter:
 
    :: 
 
@@ -67,7 +67,7 @@ To enable application-level Grafana:
    Grafana generates new admin credentials automatically. The default login is
    “admin.” To obtain the admin password from such a "default" installation, 
    run the following command from the command line, substituting the name of
-   your Zenko instance for ``<my-zenko>``:
+   your XDM instance for ``<my-zenko>``:
 
    ::
 
@@ -121,7 +121,7 @@ Possible reasons:
    address set in /etc/hosts (c:\\windows\\System32\\drivers\\etc\\hosts
    for Windows machines). If not, add the following line to /etc/hosts, 
    substituting the IP address for the cluster on which you are operating
-   Zenko and Grafana:
+   XDM and Grafana:
    
    ::
 
@@ -174,7 +174,7 @@ Possible reasons:
 Platform-Level Grafana
 ----------------------
 
-Deployed with MetalK8s, Grafana provides the following views of Zenko
+Deployed with MetalK8s, Grafana provides the following views of XDM
 and Kubernetes services: 
 
 -  Deployment

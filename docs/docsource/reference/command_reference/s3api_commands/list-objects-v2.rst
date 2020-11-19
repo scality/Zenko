@@ -52,7 +52,7 @@ Options
 
 ``--encoding-type`` (string)
 
-  Encoding type used by Zenko to encode object keys in the response.
+  Encoding type used by XDM   to encode object keys in the response.
 
   Possible values:
   
@@ -69,7 +69,7 @@ Options
 
 ``--start-after`` (string)
 
-  StartAfter is where you want Zenko to start listing from. Zenko starts
+  StartAfter is where you want XDM   to start listing from. XDM    starts
   listing after this specified key. StartAfter can be any key in the bucket
 
   Possible values:
@@ -112,7 +112,7 @@ Output
 
 IsTruncated -> (Boolean)
 
-  A flag that indicates whether Zenko returned all of the results
+  A flag that indicates whether XDM   returned all of the results
   that satisfied the search criteria.
 
 Contents -> (list)
@@ -167,7 +167,7 @@ CommonPrefixes -> (list)
     
 EncodingType -> (string)
 
-  Encoding type used by Zenko to encode object keys in the response.
+  Encoding type used by XDM   to encode object keys in the response.
 
 KeyCount -> (integer)
 
@@ -177,7 +177,7 @@ KeyCount -> (integer)
 
 ContinuationToken -> (string)
 
-  ContinuationToken indicates to Zenko that the list is being continued
+  ContinuationToken indicates to XDM   that the list is being continued
   on this bucket with a token. ContinuationToken is obfuscated and is not a real
   key.
 
@@ -191,6 +191,6 @@ NextContinuationToken -> (string)
 
 StartAfter -> (string)
 
-  StartAfter is where you want Zenko to start listing from. Zenko
+  StartAfter is where you want XDM   to start listing from. XDM   
   starts listing after this specified key. StartAfter can be any key in the
   bucket.

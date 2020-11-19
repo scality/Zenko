@@ -34,7 +34,7 @@ The following additional parameters may be specified on the request URI.
    +--------------+-----------------------------------------------------------------------+
    | Parameter    | Description                                                           |
    +==============+=======================================================================+
-   | ``snapshot`` | Not applicable (Zenko version |version| does not support snapshots).  |
+   | ``snapshot`` | Not applicable (XDM   version |version| does not support snapshots).  |
    +--------------+-----------------------------------------------------------------------+
    | ``timeout``  | Optional. The ``timeout`` parameter is expressed in seconds. For more |
    |              | information, see |set-blob-timeouts|.                                 |
@@ -67,7 +67,7 @@ The following table describes required and optional request headers.
    |                            | request. For more information,              |
    |                            | see |azure-versioning|.                     |
    +----------------------------+---------------------------------------------+
-   | ``x-ms-lease-id``          | Not applicable (Zenko version |version|     |
+   | ``x-ms-lease-id``          | Not applicable (XDM   version |version|     |
    |                            | does not support leasing).                  |
    +----------------------------+---------------------------------------------+
    | ``x-ms-client-request-id`` | Optional. Provides a client-generated,      |
@@ -133,7 +133,7 @@ the HTTP/1.1 specification.
    |                                                  | correspond to the user-defined               |
    |                                                  | metadata associated with this blob.          |
    +--------------------------------------------------+----------------------------------------------+
-   | ``x-ms-blob-type: BlockBlob``                    | The blob type. Zenko version |version| only  |
+   | ``x-ms-blob-type: BlockBlob``                    | The blob type. XDM   version |version| only  |
    |                                                  | supports the BlockBlob (Block) blob type.    |
    +--------------------------------------------------+----------------------------------------------+
    | ``x-ms-copy-completion-time: <date time>``       | Conclusion time of the last attempted Copy   |
@@ -226,21 +226,21 @@ the HTTP/1.1 specification.
    |                                                  | :ref:`Set Blob Properties`, :ref:`Put Blob`, |
    |                                                  | or :ref:`Put Block List`.                    |
    +--------------------------------------------------+----------------------------------------------+
-   | ``x-ms-incremental-copy: true``                  | Not applicable (Zenko version |version| does |
+   | ``x-ms-incremental-copy: true``                  | Not applicable (XDM   version |version| does |
    |                                                  | not support incremental copy).               |
    +--------------------------------------------------+----------------------------------------------+
-   | ``x-ms-copy-destination-snapshot: <datetime>``   | Not applicable (Zenko version |version| does |
+   | ``x-ms-copy-destination-snapshot: <datetime>``   | Not applicable (XDM   version |version| does |
    |                                                  | not support incremental copy or snapshots).  |
    +--------------------------------------------------+----------------------------------------------+
-   | ``x-ms-lease-duration``                          | Not applicable (Zenko version |version| does |
+   | ``x-ms-lease-duration``                          | Not applicable (XDM   version |version| does |
    |                                                  | not support leasing). Blobserver returns no  |
    |                                                  | lease duration information.                  |
    +--------------------------------------------------+----------------------------------------------+
-   | ``x-ms-lease-state: available``                  | Not applicable (Zenko version |version| does |
+   | ``x-ms-lease-state: available``                  | Not applicable (XDM   version |version| does |
    |                                                  | not support leasing). Blobserver returns     |
    |                                                  | the "available" lease state only.            |
    +--------------------------------------------------+----------------------------------------------+
-   | ``x-ms-lease-status: unlocked``                  | Not applicable (Zenko version |version| does |
+   | ``x-ms-lease-status: unlocked``                  | Not applicable (XDM   version |version| does |
    |                                                  | not support leasing). Blobserver returns     |
    |                                                  | the "unlocked" lease status only.            |
    +--------------------------------------------------+----------------------------------------------+
@@ -316,7 +316,7 @@ the HTTP/1.1 specification.
    | ``Accept-Ranges: bytes``                         | Indicates that the service                   |
    |                                                  | supports requests for partial blob content.  |
    +--------------------------------------------------+----------------------------------------------+
-   | ``x-ms-blob-committed-block-count``              | Not applicable (Zenko version |version| does |
+   | ``x-ms-blob-committed-block-count``              | Not applicable (XDM   version |version| does |
    |                                                  | not support append blobs).                   |
    +--------------------------------------------------+----------------------------------------------+
    | ``x-ms-server-encrypted: true/false``            | The value of this header is set to           |
@@ -330,16 +330,16 @@ the HTTP/1.1 specification.
    |                                                  | blob/application metadata are                |
    |                                                  | encrypted).                                  |
    +--------------------------------------------------+----------------------------------------------+
-   | ``x-ms-access-tier``                             | Not applicable (Zenko version |version| does |
+   | ``x-ms-access-tier``                             | Not applicable (XDM   version |version| does |
    |                                                  | not support service tiers).                  |
    +--------------------------------------------------+----------------------------------------------+
-   | ``x-ms-access-tier-inferred: true``              | Not applicable (Zenko version |version| does |
+   | ``x-ms-access-tier-inferred: true``              | Not applicable (XDM   version |version| does |
    |                                                  | not support service tiers).                  |
    +--------------------------------------------------+----------------------------------------------+
-   | ``x-ms-archive-status``                          | Not applicable (Zenko version |version| does |
+   | ``x-ms-archive-status``                          | Not applicable (XDM   version |version| does |
    |                                                  | not support service tiers).                  |
    +--------------------------------------------------+----------------------------------------------+
-   | ``x-ms-access-tier-change-time``                 | Not applicable (Zenko version |version| does |
+   | ``x-ms-access-tier-change-time``                 | Not applicable (XDM   version |version| does |
    |                                                  | not support service tiers).                  |
    +--------------------------------------------------+----------------------------------------------+
    | ``x-ms-client-request-id``                       | This header can be used to                   |

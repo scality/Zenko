@@ -1,7 +1,7 @@
 API Support
 ===========
 
-Supported S3 API commands for Zenko are detailed here.
+Supported S3 API commands for XDM   are detailed here.
 
 .. tabularcolumns:: X{0.40\textwidth}X{0.20\textwidth}X{0.20\textwidth}
 .. table::

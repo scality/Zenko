@@ -1,6 +1,6 @@
 .. _configure_ingress:
 
-Configure HTTPS Ingress for Zenko
+Configure HTTPS Ingress for XDM
 =================================
 
 If your Kubernetes cluster uses NGINX for ingress control, use the following
@@ -17,7 +17,7 @@ directory:
 
     $ kubectl create secret tls zenko-tls --key /tmp/tls.key --cert /tmp/tls.crt
 
-3. Set Zenko chart values in options.yaml to resemble::
+3. Set XDM chart values in options.yaml to resemble::
 
      ingress:
        enabled: "true"
@@ -40,12 +40,12 @@ directory:
 Ports
 -----
 
-Zenko operates in the context of a Kubernetes cluster. Ingress and egress 
+XDM operates in the context of a Kubernetes cluster. Ingress and egress 
 from the cluster are configured in the base setup of the cluster, using the 
 conventional web protocols for secure and insecure transactions: HTTPS and 
 HTTP over ports 443 and 80, respectively. 
 
-Zenko can use either or both protocols to allow ingress/egress. If ingress 
+XDM can use either or both protocols to allow ingress/egress. If ingress 
 is enabled, port 80 is used, unless SSL is configured. If SSL is configured,
 then port 443 is required.
 

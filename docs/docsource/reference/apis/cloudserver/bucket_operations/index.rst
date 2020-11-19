@@ -2,7 +2,7 @@ Bucket Operations
 =================
 
 This section presents a compendium of available API calls for bucket operations
-in Zenko.
+in XDM.
 
 .. toctree::
    :maxdepth: 1
