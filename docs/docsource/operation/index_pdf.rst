@@ -7,6 +7,6 @@ XDM Operation
    About XDM<Introduction/index>
    Architecture<Architecture/index>
    Services<Services/index>
-   Using Orbit<Orbit_UI/index>
+   Using XDM UI<GUI/index>
    Cloud Management Services<Dashboards/Cloud_Management_Services>
    XDM from the Command Line<CLI/index>
