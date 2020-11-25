@@ -1,4 +1,4 @@
-apiVersion: cert-manager.io/v1alpha2
+apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: selfsigned-issuer
@@ -6,7 +6,7 @@ metadata:
 spec:
   selfSigned: {}
 ---
-apiVersion: cert-manager.io/v1alpha2
+apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: kubedb-operator-apiserver-cert
@@ -18,9 +18,10 @@ spec:
   duration: 2160h # 90d
   renewBefore: 360h # 15d
   isCA: false
-  keyAlgorithm: rsa
-  keyEncoding: pkcs1
-  keySize: 2048
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS1
+    size: 2048
   # At least one of a DNS Name, URI, Email Address, or IP address is required.
   dnsNames:
   - kubedb-${KUBEDB_OPERATOR_NAME}

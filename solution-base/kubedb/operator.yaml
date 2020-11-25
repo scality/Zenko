@@ -74,7 +74,7 @@ spec:
       - name: serving-cert
         secret:
           defaultMode: 420
-          secretName: ${KUBEDB_OPERATOR_NAME}-apiserver-cert
+          secretName: kubedb-${KUBEDB_OPERATOR_NAME}-apiserver-cert
 ---
 apiVersion: v1
 kind: Service
