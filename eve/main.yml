@@ -59,12 +59,14 @@ models:
       warnOnFailure: true
       env:
         HELM_NAMESPACE: '%(prop:bootstrap)s-%(prop:stage_name)s'
+        KUBECONFIG: /tmp/config
   - ShellCommand: &start-mocks
       name: Start external service mocks
       command: make -e install-mocks
       workdir: build/tests
       haltOnFailure: true
       env:
+        KUBECONFIG: /tmp/config
         HELM_NAMESPACE: '%(prop:bootstrap)s-%(prop:stage_name)s'
   - SetPropertyFromCommand: &notify-build-start
       name: Save the timestamp from our start message, for editing later
