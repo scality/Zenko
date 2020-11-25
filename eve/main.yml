@@ -65,6 +65,7 @@ models:
       workdir: build/tests
       haltOnFailure: true
       env:
+        KUBECONFIG: /tmp/config
         HELM_NAMESPACE: '%(prop:bootstrap)s-%(prop:stage_name)s'
   - SetPropertyFromCommand: &notify-build-start
       name: Save the timestamp from our start message, for editing later
