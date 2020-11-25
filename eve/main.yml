@@ -252,9 +252,10 @@ stages:
 
   online-zenko: &online-zenko
     worker: &kube_cluster
-      type: kube_pod
-      path: eve/workers/zenko.yaml
-      vars:
+      type: openstack
+      path: eve/workers/end2end
+      image: CentOS-7-x86_64-GenericCloud-latest
+      flavor: general1-8
     steps:
     - Git: *git_pull
     - ShellCommand: *private_registry_login
