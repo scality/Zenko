@@ -19,7 +19,7 @@ models:
       env:
         CI_KUBECONFIG: '%(secret:openstack_cluster_conf)s'
         NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
-        KUBECONFIG: /root/.kube/config
+        KUBECONFIG: /tmp/config
         CLUSTER_IP: '%(secret:openstack_cluster_ip)s'
   - ShellCommand: &k8s_cleanup
       name: Cleanup
@@ -31,7 +31,7 @@ models:
       warnOnFailure: true
       sigtermTime: 1200
       env:
-        KUBECONFIG: /root/.kube/config
+        KUBECONFIG: /tmp/config
         NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
   - Upload: &upload_artifacts
       source: tests/artifacts
@@ -267,7 +267,7 @@ stages:
         workdir: build/tests
         env:
           <<: [*mock_env, *secrets_env, *docker_env]
-          KUBECONFIG: /root/.kube/config
+          KUBECONFIG: /tmp/config
           HELM_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
           TILLER_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
           INSTALL_TIMEOUT: "720"
@@ -368,7 +368,7 @@ stages:
         maxTime: 43200
         env:
           <<: *global_env
-          KUBECONFIG: /root/.kube/config
+          KUBECONFIG: /tmp/config
           HELM_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
           TILLER_NAMESPACE: '%(prop:bootstrap)s-${STAGE}'
           INSTALL_TIMEOUT: "720"
