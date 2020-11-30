@@ -69,6 +69,7 @@ stages:
         stage_names:
         - build-doc
         - build-iso
+        - build-base-iso
     - TriggerStages:
         name: Launch end2end tests
         haltOnFailure: true
@@ -103,7 +104,7 @@ stages:
           - "latex/*.pdf"
 
   build-iso:
-    worker:
+    worker: &build-iso-worker
       type: kube_pod
       path: eve/workers/build-iso/pod.yaml
       images:
@@ -122,6 +123,25 @@ stages:
     - Upload:
         name: Upload ISO
         source: 'solution/_build'
+        urls:
+          - "*.iso"
+
+  build-base-iso:
+    worker: *build-iso-worker
+    steps:
+    - Git: *git_pull
+    - ShellCommand: *wait_docker_daemon
+    - ShellCommand: *private_registry_login
+    - ShellCommand:
+        name: 'Build ISO'
+        haltOnFailure: true
+        workdir: build/solution-base
+        command: ./build.sh
+        env:
+          DOCKER_SOCKET: 'http://localhost:2375'
+    - Upload:
+        name: Upload ISO
+        source: 'solution-base/_build'
         urls:
           - "*.iso"
 

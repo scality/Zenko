@@ -4,7 +4,7 @@ WORKDIR /workdir
 ENV PATH=$PATH:/usr/local/go/bin
 ENV HELM_VERSION v3.2.3
 
-RUN yum install -y yum-utils && \
+RUN yum install -y yum-utils gettext && \
     yum-config-manager \
         --add-repo \
         https://download.docker.com/linux/centos/docker-ce.repo
