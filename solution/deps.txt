@@ -1,5 +1,6 @@
 kubedb/redis:5.0.3-v1
 oliver006/redis_exporter:v1.8.0
+pravega/zookeeper:0.2.4
 redis:5.0.3
 registry.scality.com/sf-eng/blobserver:1.0.8
 registry.scality.com/sf-eng/jabba:940d
@@ -11,5 +12,6 @@ registry.scality.com/sf-eng/zenko-ui:c091051
 registry.scality.com/zenko-dev/backbeat:161b9c1
 registry.scality.com/zenko-dev/cloudserver:latest-8.1.2
 registry.scality.com/zenko-dev/cloudserver:4332d0a
+wurstmeister/kafka:2.12-2.3.0
 zenko/cloudserver:8.1.15
 zenko/s3utils:1.2
