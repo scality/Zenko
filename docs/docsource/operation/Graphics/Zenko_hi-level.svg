@@ -487,7 +487,7 @@
        v:mID="4"
        id="shape4-50"><title
          id="title4826">Process.4</title><desc
-         id="desc4828">Zenko</desc><v:custProps><v:cp
+         id="desc4828">XDM</desc><v:custProps><v:cp
            v:cal="0"
            v:langID="1033"
            v:ask="false"
@@ -590,7 +590,7 @@
          class="st7"
          y="768.81"
          x="15.7"><v:paragraph
-   v:horizAlign="1" /><v:tabList />Zenko</text>
+   v:horizAlign="1" /><v:tabList />XDM</text>
 </g><g
        transform="translate(206.962,-662.625)"
        v:layerMember="0"

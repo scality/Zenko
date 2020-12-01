@@ -500,7 +500,7 @@
       <g class="com.sun.star.drawing.TextShape">
        <g id="id55">
         <rect class="BoundingBox" stroke="none" fill="none" x="2549" y="1574" width="897" height="353"/>
-        <text class="TextShape"><tspan class="TextParagraph" font-family="Calibri, sans-serif" font-size="353px" font-weight="400"><tspan class="TextPosition" x="2561" y="1836"><tspan fill="rgb(0,0,0)" stroke="none">Zenko</tspan></tspan></tspan></text>
+        <text class="TextShape"><tspan class="TextParagraph" font-family="Calibri, sans-serif" font-size="353px" font-weight="400"><tspan class="TextPosition" x="2561" y="1836"><tspan fill="rgb(0,0,0)" stroke="none">XDM</tspan></tspan></tspan></text>
        </g>
       </g>
       <g class="com.sun.star.drawing.PolyPolygonShape">
@@ -534,7 +534,7 @@
       <g class="com.sun.star.drawing.TextShape">
        <g id="id58">
         <rect class="BoundingBox" stroke="none" fill="none" x="3145" y="2925" width="770" height="286"/>
-        <text class="TextShape"><tspan class="TextParagraph" font-family="Calibri, sans-serif" font-size="282px" font-weight="400"><tspan class="TextPosition" x="3154" y="3137"><tspan fill="rgb(0,0,0)" stroke="none">Zenko </tspan></tspan></tspan></text>
+        <text class="TextShape"><tspan class="TextParagraph" font-family="Calibri, sans-serif" font-size="282px" font-weight="400"><tspan class="TextPosition" x="3154" y="3137"><tspan fill="rgb(0,0,0)" stroke="none">XDM </tspan></tspan></tspan></text>
        </g>
       </g>
       <g class="com.sun.star.drawing.LineShape">

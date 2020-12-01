@@ -10,7 +10,7 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    inkscape:version="1.0beta2 (2b71d25, 2019-12-03)"
-   sodipodi:docname="Zenko_arch_NoNFS.svg"
+   sodipodi:docname="XDM_arch_NoNFS.svg"
    width="4.2041674in"
    height="2.8031261in"
    viewBox="0 0 302.70005 201.82508"
@@ -1205,7 +1205,7 @@
        v:groupContext="shape"
        transform="translate(142.875,-666.375)"><title
    id="title518">Sheet.64</title><desc
-   id="desc520">Zenko</desc><v:textBlock
+   id="desc520">XDM</desc><v:textBlock
    v:margins="rect(4,4,4,4)" /><v:textRect
    cx="17.7187"
    cy="786.375"
@@ -1224,7 +1224,7 @@
    v:langID="1033"
    id="text524"
    style="font-size:10.00003242px;font-family:Helvetica;fill:#000000"><v:paragraph
-   v:horizAlign="1" /><v:tabList />Zenko</text>
+   v:horizAlign="1" /><v:tabList />XDM</text>
 </g><g
        style="stroke-width:0.50000001;stroke-miterlimit:4;stroke-dasharray:none"
        id="shape65-116"
