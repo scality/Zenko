@@ -252,6 +252,7 @@ stages:
           workdir: build
 
   online-zenko: &online-zenko
+    simultaneous_builds: 1
     worker: &kube_cluster
       type: openstack
       path: eve/workers/end2end
