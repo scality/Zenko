@@ -30,7 +30,7 @@ directory:
            hosts:
              - zenko.local
 
-4. Install or upgrade Zenko from this directory (Zenko/kubernetes). Helm
+4. Install or upgrade |product| from this directory (Zenko/kubernetes). Helm
    will pick up the settings in options.yaml.
 
    ::
