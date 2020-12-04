@@ -1,7 +1,7 @@
 .. _|product| Installation:
 
 |product| Installation
-==================
+======================
 
 .. toctree::
    :maxdepth: 2
