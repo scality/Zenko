@@ -13,7 +13,7 @@ See |cors-support| for more information on CORS rules.
 
 .. note::
 
-   Although CORS rules are listed in this schema, Zenko version |version| does not
+   Although CORS rules are listed in this schema, |product|  version |version| does not
    support CORS features.
 
 Request
@@ -142,7 +142,7 @@ specified in the request body. The root elements include:
 -  DeleteRetentionPolicy
 -  StaticWebsite
 
-Zenko implements a subset of these elements as default values in the
+|product|  implements a subset of these elements as default values in the
 constants.js file in the root of the Blobserver repo. All root elements are
 preconfigured to false, with version set to ``1.0``, retentionPolicy disabled
 (``false``) with days set to ``0``, and defaultServiceVersion set to
@@ -162,27 +162,27 @@ The following table describes the elements of the request body:
    | Element Name                       | Description                                 |
    +====================================+=============================================+
    | Logging                            | Optional. Groups the Azure Analytics        |
-   |                                    | Logging settings. Disabled in Zenko version |
-   |                                    | |version|.                                  |
+   |                                    | Logging settings. Disabled in |product|     |
+   |                                    | version   |version|.                        |
    +------------------------------------+---------------------------------------------+
    | Metrics                            | Groups the Azure Analytics Metrics          |
    |                                    | settings. The Metrics settings provide a    |
    |                                    | summary of request statistics grouped by    |
    |                                    | API in hourly aggregates for blobs.         |
-   |                                    | Disabled in Zenko version |version|.        |
+   |                                    | Disabled in |product| version |version|.    |
    +------------------------------------+---------------------------------------------+
    | HourMetrics                        | Optional. Groups the Azure Analytics        |
    |                                    | HourMetrics settings. The HourMetrics       |
    |                                    | settings provide a summary of request       |
    |                                    | statistics grouped by API in hourly         |
-   |                                    | aggregates for blobs. Disabled in Zenko     |
+   |                                    | aggregates for blobs. Disabled in |product| |
    |                                    | version |version|.                          |
    +------------------------------------+---------------------------------------------+
    | MinuteMetrics                      | Optional. Groups the Azure Analytics        |
    |                                    | MinuteMetrics settings. The MinuteMetrics   |
    |                                    | settings provide request statistics for     |
-   |                                    | each minute for blobs. Disabled in Zenko    |
-   |                                    | version |version|.                          |
+   |                                    | each minute for blobs. Disabled in          |
+   |                                    | |product| version |version|.                |
    +------------------------------------+---------------------------------------------+
    | Version                            | Required if Logging, Metrics, HourMetrics,  |
    |                                    | or MinuteMetrics settings are specified.    |
@@ -239,10 +239,11 @@ The following table describes the elements of the request body:
    |                                    | information on applicable versions, see     |
    |                                    | |azure-versioning|. Applies only to the     |
    |                                    | Blob service. This value is hard-coded to   |
-   |                                    | ``2018-03-28`` in Zenko version |version|.  |
+   |                                    | ``2018-03-28`` in |product| version         |
+   |                                    | |version|.                                  |
    +------------------------------------+---------------------------------------------+
    | Cors                               | Groups all CORS rules. Not supported in     |
-   |                                    | Zenko version |version|.                    |
+   |                                    | |product| version |version|.                |
    +------------------------------------+---------------------------------------------+
    | CorsRule                           | Groups settings for a CORS rule.            |
    +------------------------------------+---------------------------------------------+
@@ -270,7 +271,7 @@ The following table describes the elements of the request body:
    |                                    | call :ref:`Set Blob Service Properties`.    |
    |                                    | Groups the Soft Delete settings. Applies    |
    |                                    | only to the Blob service. Not supported in  |
-   |                                    | Zenko version |version|.                    |
+   |                                    | |product| version |version|.                |
    +------------------------------------+---------------------------------------------+
    | DeleteRetentionPolicy: Enabled     | Required. Indicates whether deleted blob    |
    |                                    | is retained or immediately removed by a     |

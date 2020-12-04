@@ -16,4 +16,4 @@ Then, run:
   $ helm delete my-zenko --purge
 
 The Helm command removes all Kubernetes components associated with the chart and
-deletes the deployed Zenko instance.
+deletes the deployed |product| instance.

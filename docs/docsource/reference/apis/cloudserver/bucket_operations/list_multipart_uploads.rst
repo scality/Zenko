@@ -64,7 +64,7 @@ in a bucket.
    |                       |         | not returned elsewhere in the       |
    |                       |         | response.                           |
    +-----------------------+---------+-------------------------------------+
-   | ``encoding-type``     | string  | Requests that Zenko encode the      |
+   | ``encoding-type``     | string  | Requests that |product| encode the  |
    |                       |         | response and specifies the encoding |
    |                       |         | method to use.                      |
    |                       |         |                                     |
@@ -75,7 +75,7 @@ in a bucket.
    |                       |         | value from 0 to 10. For characters  |
    |                       |         | that are not supported in XML 1.0,  |
    |                       |         | add this parameter to request       |
-   |                       |         | Zenko to encode the keys in the     |
+   |                       |         | |product| to encode the keys in the |
    |                       |         | response.                           |
    |                       |         |                                     |
    |                       |         | **Note**: The only valid value for  |
@@ -151,7 +151,7 @@ Responses
 Headers
 ~~~~~~~
 
-List Multipart Uploads uses only the common response headers supported by Zenko
+List Multipart Uploads uses only the common response headers supported by |product|  
 (refer to :ref:`Common Response Headers`).
 
 Elements
@@ -196,15 +196,15 @@ its response (includes XML containers):
    |                                       |           | request.                  |
    +---------------------------------------+-----------+---------------------------+
    | ``Encoding-Type``                     | string    | Encoding type used by     |
-   |                                       |           | Zenko to encode object    |
+   |                                       |           | |product| to encode object|
    |                                       |           | key names in the XML      |
    |                                       |           | response.                 |
    |                                       |           |                           |
    |                                       |           | If the encoding-type      |
    |                                       |           | request parameter is      |
-   |                                       |           | specified, Zenko includes |
-   |                                       |           | this element in the       |
-   |                                       |           | response, and returns     |
+   |                                       |           | specified, |product|      |
+   |                                       |           | includes this element in  |
+   |                                       |           | the response, and returns |
    |                                       |           | encoded key name values   |
    |                                       |           | in the following          |
    |                                       |           | elements: Delimiter,      |

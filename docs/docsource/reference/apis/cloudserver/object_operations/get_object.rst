@@ -12,7 +12,7 @@ object. To return a different version, use the versionId subresource.
 
 .. tip::
 
-  If the current version of the object is a delete marker, Zenko behaves as if
+  If the current version of the object is a delete marker, |product| behaves as if
   the object were deleted and includes ``x-amz-delete-marker: true`` in the
   response.
 
@@ -37,7 +37,7 @@ Values for a set of response headers can be overridden in the GET Object
 response using the query parameters listed in the following table. These
 response header values are sent only on a successful request, one in which a
 status code ``200 OK`` is returned. The set of headers that can be overridden
-using these parameters is a subset of the headers that Zenko accepts when an
+using these parameters is a subset of the headers that |product| accepts when an
 object is created, including ``Content-Type``, ``Content-Language``,
 ``Expires``, ``Cache-Control``, ``Content-Disposition``, and
 ``Content-Encoding``.
@@ -154,9 +154,9 @@ Headers`).
    +-------------------------------+--------+----------------------------------------+
    | ``x-amz-location-constraint`` | string | Return object from the location        |
    |                               |        | specified here. Location value must be |
-   |                               |        | a valid Zenko location name to which   |
-   |                               |        | the object has been replicated, or an  |
-   |                               |        | error is returned.                     |
+   |                               |        | a valid |product| location name to     |
+   |                               |        | which the object has been replicated,  |
+   |                               |        | or an error is returned.               |
    |                               |        |                                        |
    |                               |        | **Default:** None                      |
    |                               |        |                                        |
@@ -169,12 +169,12 @@ Users can specify in a GET request a location from which to read the object by
 providing the custom ``x-amz-location-constraint`` header and the name of the
 alternate location as value. Using this request, header, and location, an object
 can be retrieved even if the object is unavailable in the original/preferred
-location. The location value must be a valid Zenko location name to which the
+location. The location value must be a valid |product| location name to which the
 object has been replicated, or an error is returned.
 
 .. note::
 
-   This Zenko extension is not available in the standard S3 API. While
+   This |product| extension is not available in the standard S3 API. While
    applications may be modified to use this header for greater availability,
    doing so may incur egress fees for the specified cloud.
 
@@ -213,10 +213,10 @@ Headers
    |                                     |         | defined metadata, each of |
    |                                     |         | which is stored and       |
    |                                     |         | returned as a set of      |
-   |                                     |         | key-value pairs. Zenko    |
-   |                                     |         | does not validate or      |
-   |                                     |         | interpret user-defined    |
-   |                                     |         | metadata.                 |
+   |                                     |         | key-value pairs.          |
+   |                                     |         | |product| does not        |
+   |                                     |         | validate or interpret     |
+   |                                     |         | user-defined metadata.    |
    +-------------------------------------+---------+---------------------------+
    | ``x-amz-version-id``                | string  | Returns the version ID of |
    |                                     |         | the retrieved object if   |
@@ -385,7 +385,7 @@ bytes of an object.
 
 .. note::
 
-   Zenko does not support retrieving multiple ranges of data per GET request.
+   |product| does not support retrieving multiple ranges of data per GET request.
 
 Response
 ````````

@@ -33,7 +33,7 @@ The following additional parameters may be specified on the request URI.
    +--------------+---------------------------------------------------------------+
    | Parameter    | Description                                                   |
    +==============+===============================================================+
-   | ``snapshot`` | Not applicable (Zenko version |version| does not support      |
+   | ``snapshot`` | Not applicable (|product| version |version| does not support  |
    |              | snapshots).                                                   |
    +--------------+---------------------------------------------------------------+
    | ``timeout``  | Optional. The ``timeout`` parameter is expressed in seconds.  |
@@ -87,7 +87,7 @@ The following table describes required and optional request headers.
    |                                        | |range-header| for more           |
    |                                        | information.                      |
    +----------------------------------------+-----------------------------------+
-   | ``x-ms-lease-id``                      | Not applicable (Zenko version     |
+   | ``x-ms-lease-id``                      | Not applicable (|product| version |
    |                                        | |version| does not support        |
    |                                        | leasing).                         |
    +----------------------------------------+-----------------------------------+
@@ -236,11 +236,11 @@ the HTTP/1.1 protocol specification.
    |                                                 | instead shows a **Save As** dialog with a               |
    |                                                 | filename other than the blob name specified.            |
    +-------------------------------------------------+---------------------------------------------------------+
-   | ``x-ms-blob-sequence-number``                   | Not applicable (Zenko version |version| does not        |
+   | ``x-ms-blob-sequence-number``                   | Not applicable (|product| version |version| does not    |
    |                                                 | support Page blob operations).                          |
    +-------------------------------------------------+---------------------------------------------------------+
-   | ``x-ms-blob-type: BlockBlob``                   | Returns the blob's type. Zenko version |version| only   |
-   |                                                 | supports the Block blob type.                           |
+   | ``x-ms-blob-type: BlockBlob``                   | Returns the blob's type. |product| version |version|    |
+   |                                                 | only supports the Block blob type.                      |
    +-------------------------------------------------+---------------------------------------------------------+
    | ``x-ms-copy-completion-time: <datetime>``       | Conclusion time of the last attempted Copy Blob         |
    |                                                 | operation where this blob was the destination blob.     |
@@ -315,14 +315,14 @@ the HTTP/1.1 protocol specification.
    |                                                 | using Set Blob Properties, Put Blob,                    |
    |                                                 | or Put Block List.                                      |
    +-------------------------------------------------+---------------------------------------------------------+
-   | ``x-ms-lease-duration:``                        | Not applicable (Zenko version |version| does not        |
+   | ``x-ms-lease-duration:``                        | Not applicable (|product| version |version| does not    |
    |                                                 | support leasing).                                       |
    +-------------------------------------------------+---------------------------------------------------------+
-   | ``x-ms-lease-state: available``                 | Not applicable (Zenko version |version| does not        |
+   | ``x-ms-lease-state: available``                 | Not applicable (|product| version |version| does not    |
    |                                                 | support leasing). Blobserver returns the "available"    |
    |                                                 | lease state only.                                       |
    +-------------------------------------------------+---------------------------------------------------------+
-   | ``x-ms-lease-status: unlocked``                 | Not applicable (Zenko version |version| does not        |
+   | ``x-ms-lease-status: unlocked``                 | Not applicable (|product| version |version| does not    |
    |                                                 | support leasing). Blobserver returns the "unlocked"     |
    |                                                 | lease status only.                                      |
    +-------------------------------------------------+---------------------------------------------------------+

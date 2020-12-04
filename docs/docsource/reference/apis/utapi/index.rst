@@ -3,7 +3,7 @@
 Service Utilization API
 =======================
 
-Scality's Zenko provides a Service Utilization API (UTAPI) for resource
+Scality's |product| provides a Service Utilization API (UTAPI) for resource
 utilization tracking and metrics reporting.
 
 UTAPI includes information on RING storage capacity, the number of bytes
@@ -18,7 +18,7 @@ protocol.
 
 UTAPI is deployed and accessed through a RESTful API that is securely
 authenticated via HTTPS, on a dedicated web server and port. The service
-is integrated with the Zenko IAM policies for access control through the
+is integrated with the |product| IAM policies for access control through the
 ``utapi:ListMetrics`` policy action.
 
 To enable access, an IAM policy must first be created that grants

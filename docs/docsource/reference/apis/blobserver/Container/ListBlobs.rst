@@ -80,8 +80,8 @@ The following additional parameters may be specified on the URI.
    |                                   | response:                             |
    |                                   |                                       |
    |                                   | - ``snapshots``: Not applicable       |
-   |                                   |   (Zenko version |version| does not   |
-   |                                   |   support snapshots).                 |
+   |                                   |   (|product| version |version| does   |
+   |                                   |   not support snapshots).             |
    |                                   | - ``metadata``: Specifies that        |
    |                                   |   blob metadata be returned in the    |
    |                                   |   response.                           |
@@ -99,8 +99,8 @@ The following additional parameters may be specified on the URI.
    |                                   | - ``deleted``: Specifies that soft-\  |
    |                                   |   deleted blobs should be included    |
    |                                   |   in the response.                    |
-   |                                   |   (Zenko version |version| does not   |
-   |                                   |   support soft deletes).              |
+   |                                   |   (|product| version |version| does   |
+   |                                   |   not support soft deletes).          |
    |                                   |                                       |
    |                                   | To specify more than one of these     |
    |                                   | options on the URI, you must          |

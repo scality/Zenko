@@ -3,24 +3,24 @@
 Setting Up a Cluster
 ====================
 
-Most of the complexity of installing Zenko on a cluster involves deploying the
+Most of the complexity of installing |product| on a cluster involves deploying the
 cluster istelf. Scality supports MetalK8s_, an open source Kubernetes engine
-optimized for the Zenko use case, to manage cluster operations
-dynamically. While running Zenko on a single machine is desirable for certain
+optimized for the |product| use case, to manage cluster operations
+dynamically. While running |product| on a single machine is desirable for certain
 use cases, a clustered operating environment is required for high-availability
 deployments, and even on single-node deployments, Kubernetes management is a
 necessity.
 
 If you can set up a Kubernetes cluster on your own, review the :ref:`General
-Cluster Requirements` and skip to :ref:`Install_Zenko`. Otherwise, download `the
+Cluster Requirements` and skip to :ref:`Install_|product|`. Otherwise, download `the
 latest stable version of MetalK8s
 <https://github.com/scality/metalk8s/releases>`_ and follow its instructions to
-establish a working Kubernetes instance on your cluster. Though Zenko is built
+establish a working Kubernetes instance on your cluster. Though |product| is built
 to run on any Kubernetes, Scality only supports clusters built on MetalK8s.
 
 .. note: 
 
-   Zenko 1.1 and later are not compatible with Kubernetes instances before
+   |product| 1.1 and later are not compatible with Kubernetes instances before
    version |min_kubernetes|. Scality recommends MetalK8s 2.4 or later, which
    satisfies this requirement.
 
@@ -37,7 +37,7 @@ General Cluster Requirements
 
 Setting up a high availability cluster requires at least three machines (these
 can be VMs) running CentOS_ 7.4 or higher. The recommended mimimum for
-high-availability Zenko production service is the Standard Architecture, a
+high-availability |product| production service is the Standard Architecture, a
 five-node cluster with three masters/etcds. The Compact Architecture, a
 three-node cluster configuration, is also supported. The cluster must have an
 odd number of nodes to provide a quorum. You must have SSH access to these

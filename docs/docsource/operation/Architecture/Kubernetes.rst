@@ -1,11 +1,11 @@
 Kubernetes
 ==========
 
-Kubernetes is the essential manager for Zenko cloud instances, spawning
+Kubernetes is the essential manager for |product| cloud instances, spawning
 and destroying containerized services, load balancing, and managing
 failover for a robust, highly available service.
 
-Zenko operates with Kubernetes engines provided by all major cloud
+|product| operates with Kubernetes engines provided by all major cloud
 storage providers, including Amazon Elastic Container Service for
 Kubernetes (EKS), Microsoft Azure Kubernetes Service (AKS), and Google
 Kubernetes Engine (GKE). Additionally, Scality provides MetalK8s, an
@@ -17,12 +17,12 @@ MetalK8s
 --------
 
 MetalK8s provides a Kubernetes engine that can be hosted on a local or virtual
-machine. Zenko uses Kubernetes to automate the deployment of assets instances
+machine. |product| uses Kubernetes to automate the deployment of assets instances
 whenever server operations cross pre-configured thresholds. Kubernetes reduces
 the complexity of container service and management previously addressed with
 Docker Swarm. MetalK8s, an open-source Scality project, reduces the complexity
 of deploying Kubernetes outside of a public cloud. You can use any Kubernetes
-deployment (|min_kubernetes| or later) to run Zenko, but MetalK8s offers total
+deployment (|min_kubernetes| or later) to run |product|, but MetalK8s offers total
 platform independence.
 
 MetalK8s builds on the Kubespray project to install a base Kubernetes cluster,
@@ -41,6 +41,6 @@ volumes to containers managed in the cluster.
 MetalK8s is hosted at https://github.com/scality/metalk8s. Instructions for
 deploying MetalK8s on your choice of hardware (real or virtual) are provided
 there. Documentation is available at: https://metal-k8s.readthedocs.io/.
-Installation instructions specific to deploying MetalK8s for Zenko are included
-in :version-ref:`Zenko Installation
+Installation instructions specific to deploying MetalK8s for |product| are included
+in :version-ref:`|product| Installation
 <https://documentation.scality.com/Zenko/{version}/installation/index.html>`.

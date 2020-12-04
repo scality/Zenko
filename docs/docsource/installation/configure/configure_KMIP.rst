@@ -9,7 +9,7 @@ Using Encryption with a KMIP Appliance
 KMIP is a standard protocol for accessing third party key management
 systems.
 
-The Zenko KMIP driver requires a KMIP version 1.2 or later server. The server
+The |product| KMIP driver requires a KMIP version 1.2 or later server. The server
 must also support the following KMIP profiles:
 
 - Baseline Server Profile (TLS transport and TTLV encoding)
@@ -63,7 +63,7 @@ Where:
   bug. Otherwise, there is almost no performance improvement to be gained from
   tuning this value away from 8.
 
-  .. note:: Zero is not an appropriate value. Zenko will fall back to 1.
+  .. note:: Zero is not an appropriate value. |product| will fall back to 1.
 
 The KMIP protocol uses certificates for client authentication. The key, cert and
 ca files must be stored in the kubernetes/zenko/charts/cloudserver/ directory
@@ -74,7 +74,7 @@ kubernetes/zenko/charts/cloudserver/kmip-cert.pem
 kubernetes/zenko/charts/cloudserver/kmip-key.pem
       
 When you've reconfigured the KMIP settings in values.yaml, deploy or upgrade
-Zenko with a Helm command:
+|product| with a Helm command:
 
 ::
 
