@@ -22,17 +22,23 @@ DOCKER_SOCKET=${DOCKER_SOCKET:-unix:///var/run/docker.sock}
 HARDLINK=hardlink
 SKOPEO=skopeo
 SKOPEO_OPTS="--override-os linux --insecure-policy"
+
 SOLUTION_REGISTRY=metalk8s-registry-from-config.invalid/${PRODUCT_LOWERNAME}-${VERSION_FULL}
+# uncomment this to test locally
+# SOLUTION_REGISTRY=kubedb
 
 KUBEDB_SCRIPT_BRANCH_TAG=89fab34cf2f5d9e0bcc3c2d5b0f0599f94ff0dca
 OPERATOR_PATH=${ISO_ROOT}/operator.yaml
 
+# rename this if you want to test locally
 SOLUTION_ENV='SOLUTION_ENV'
 
 export KUBEDB_OPERATOR_TAG=$(grep kubedb/operator: deps.txt | awk -F ':' '{print $2}')
 export KUBEDB_NAMESPACE=${SOLUTION_ENV}
 export KUBEDB_SERVICE_ACCOUNT=kubedb-operator
-export KUBEDB_OPERATOR_NAME=operator
+export KUBEDB_IMAGE_NAME=operator
+export KUBEDB_OPERATOR_NAME=kubedb-operator
+export KUBEDB_CERT_NAME=kubedb-operator-apiserver-cert
 export KUBEDB_DOCKER_REGISTRY=${SOLUTION_REGISTRY}
 export KUBEDB_PRIORITY_CLASS=system-cluster-critical
 
@@ -205,17 +211,17 @@ function build_iso()
 clean
 mkdirs
 kubedb_yamls
-zookeeper_yamls
-kafka_yamls
-gen_manifest_yaml
+# zookeeper_yamls
+# kafka_yamls
+# gen_manifest_yaml
 # copy_yamls
-for img in "${DEP_IMAGES[@]}"; do
+# for img in "${DEP_IMAGES[@]}"; do
     # only pull if the image isnt already local
-    echo downloading ${img}
-    ${DOCKER} image inspect ${img} > /dev/null 2>&1 || ${DOCKER} ${DOCKER_OPTS} pull ${img}
-    copy_image ${img}
-done
-dedupe
-build_registry_config
-build_iso
+    # echo downloading ${img}
+    # ${DOCKER} image inspect ${img} > /dev/null 2>&1 || ${DOCKER} ${DOCKER_OPTS} pull ${img}
+    # copy_image ${img}
+# done
+# dedupe
+# build_registry_config
+# build_iso
 echo DONE
