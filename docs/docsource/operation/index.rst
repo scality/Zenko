@@ -18,5 +18,6 @@ such as Google Cloud Platform (GCP) or Microsoft Azure.
    Architecture<Architecture/index>
    Services<Services/index>
    Using Orbit<Orbit_UI/index>
+   The XDM UI<XDM_GUI/index>
    Cloud Management Services<Dashboards/Cloud_Management_Services>
    Zenko from the Command Line<Zenko_CLI/index>

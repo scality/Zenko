@@ -7,6 +7,7 @@ Zenko Operation
    About Zenko<Introduction/index>
    Architecture<Architecture/index>
    Services<Services/index>
+   The XDM UI<XDM_GUI/index>
    Using Orbit<Orbit_UI/index>
    Cloud Management Services<Dashboards/Cloud_Management_Services>
    Zenko from the Command Line<Zenko_CLI/index>
