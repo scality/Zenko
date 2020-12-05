@@ -1,7 +1,7 @@
 Services
 ========
 
-Zenko offers the following services as Backbeat extensions:
+|product| offers the following services as Backbeat extensions:
 
 .. toctree::
   :maxdepth: 2

@@ -1,12 +1,12 @@
 MGOB
 ====
 
-MGOB is a MongoDB backup automation tool, deployed with Zenko 1.2 and later.
+MGOB is a MongoDB backup automation tool, deployed with |product| 1.2 and later.
 
 MGOB runs as a Kubernetes pod with crontab scheduling to enable backups of
-Zenko's MongoDB assets, including object store metadata.
+|product|'s MongoDB assets, including object store metadata.
 
-MGOB enables your Zenko instance to:
+MGOB enables your |product| instance to:
 
 -  Schedule backups
 -  Retain (buffer) backups locally
@@ -19,20 +19,20 @@ MGOB enables your Zenko instance to:
 Installation
 ------------
 
-MGOB is installed with Zenko 1.2 and later. It imposes no installation overhead.
+MGOB is installed with |product| 1.2 and later. It imposes no installation overhead.
 
 Configuration
 -------------
 
 MGOB runs as a Kubernetes pod operating under rules defined in a Helm chart. To
-configure MGOB, edit its configuration in values.yaml, and pass it to Zenko
+configure MGOB, edit its configuration in values.yaml, and pass it to |product|
 using a Helm command.
 
 Backup Plan
 ~~~~~~~~~~~
 
 Define your backup plan under configMap in either the mgob values.yaml file or
-the vaules.yaml file for Zenko.
+the vaules.yaml file for |product|.
 
 For example:
 

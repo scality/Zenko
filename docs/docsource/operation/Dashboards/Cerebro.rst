@@ -10,7 +10,7 @@ The Cerebro dashboard offers a visualization of log information showing
 how file systems are sharded, indexed, and distributed in in MetalK8s,
 Scality’s free Kubernetes server.
 
-If you have deployed Zenko using a MetalK8s cluster, use the following
+If you have deployed |product| using a MetalK8s cluster, use the following
 URL to access the MetalK8s dashboard:
 
 `http://localhost:8001/api/v1/namespaces/kube-ops/services/cerebro:http/proxy/#/overview?host=Metal

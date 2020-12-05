@@ -45,8 +45,8 @@ The following additional parameters may be specified on the request URI.
    +-------------------+----------------------------------------------------+
    | URI Parameter     | Description                                        |
    +===================+====================================================+
-   | ``snapshot``      | Not applicable (Zenko version |version| does not   |
-   |                   | support snapshots).                                |
+   | ``snapshot``      | Not applicable (|product| version |version| does   |
+   |                   | not support snapshots).                            |
    +-------------------+----------------------------------------------------+
    | ``blocklisttype`` | Specifies whether to return the list of committed  |
    |                   | blocks, the list of uncommitted blocks, or both    |
@@ -88,7 +88,7 @@ The following table describes required and optional request headers.
    |                            | request. For more information,              |
    |                            | see |azure-versioning|.                     |
    +----------------------------+---------------------------------------------+
-   | ``x-ms-lease-id``          | Not applicable (Zenko version |version|     |
+   | ``x-ms-lease-id``          | Not applicable (|product| version |version| |
    |                            | does not support leasing).                  |
    +----------------------------+---------------------------------------------+
    | ``x-ms-client-request-id`` | Optional. Provides a                        |

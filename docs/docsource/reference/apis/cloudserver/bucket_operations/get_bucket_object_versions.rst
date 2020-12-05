@@ -147,13 +147,13 @@ XML elements in the response:
    |                         |           | Version.Owner \| ListVersionsResult\|
    |                         |           | .DeleteMarker.Owner                 |
    +-------------------------+-----------+-------------------------------------+
-   | ``Encoding-Type``       | string    | Encoding type used by Zenko to      |
+   | ``Encoding-Type``       | string    | Encoding type used by |product| to  |
    |                         |           | encode object key names in the XML  |
    |                         |           | response.                           |
    |                         |           |                                     |
    |                         |           | If encoding-type request parameter  |
-   |                         |           | is specified, Zenko includes this   |
-   |                         |           | element in the response, and        |
+   |                         |           | is specified, |product| includes    |
+   |                         |           | this element in the response, and   |
    |                         |           | returns encoded key name values in  |
    |                         |           | the following response elements:    |
    |                         |           |                                     |
@@ -584,7 +584,7 @@ Response
 ````````
 
 The response returns the sample.jpg key in a <Version> element. However, because
-all the other keys contain the specified delimiter, Zenko returns a distinct
+all the other keys contain the specified delimiter, |product| returns a distinct
 substring from each of these keys--from the beginning of the key to the first
 occurrence of the delimiter--in a <CommonPrefixes> element. The key substrings
 in the <CommonPrefixes> element, ``photos/`` and ``videos/``, indicate that

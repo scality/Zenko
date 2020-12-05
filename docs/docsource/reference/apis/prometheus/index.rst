@@ -3,8 +3,8 @@
 Prometheus
 ==========
 
-One of several dashboards available to Zenko users, Prometheus provides insight
-into Kubernetes platform (MetalK8s) and Zenko functionality.
+One of several dashboards available to |product| users, Prometheus provides insight
+into Kubernetes platform (MetalK8s) and |product| functionality.
 
 Lifecycle Metrics
 -----------------
@@ -63,14 +63,14 @@ The following labels are provided to one or more of the above metrics:
 - **partition:** The partition number in the “backbeat-data-mover” Kafka topic
   where the replication task has been queued
 
-- **fromLocation:** The name of the source Zenko location 
+- **fromLocation:** The name of the source |product| location 
 
 - **fromLocationType:** This identifies the type of location from which the
   ``fromLocation`` call emerged: ``aws_s3`` for an AWS compatible location,
   ``local`` for a local storage location or a RING location, ``azure`` for an
   Azure location, ``gcp`` for a Google Cloud location.
 
-- **toLocation:** The name of the target Zenko location
+- **toLocation:** The name of the target |product| location
 
 - **toLocationType:** This identifies the type of location to which the
   information in ``toLocation`` is targeted, following the convention described

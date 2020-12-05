@@ -41,16 +41,17 @@ subset of a bucket’s objects.
    +------------------------+--------+-----------------------------------------+
    | Parameter              | Type   | Description                             |
    +========================+========+=========================================+
-   | ``encoding-type``      | string | Requests that Zenko encode the response |
-   |                        |        | and specifies the encoding method to    |
-   |                        |        | use. An object key can contain any      |
-   |                        |        | Unicode character; however, XML 1.0     |
+   | ``encoding-type``      | string | Requests that |product| encode the      |
+   |                        |        | response and specifies the encoding     |
+   |                        |        | method to use. An object key can contain|
+   |                        |        | any Unicode character; however, XML 1.0 |
    |                        |        | parser cannot parse some characters,    |
    |                        |        | such  as characters with an ASCII value |
    |                        |        | from 0 to 10. For characters that are   |
    |                        |        | not supported in XML 1.0, you can add   |
-   |                        |        | this parameter to request that Zenko    |
-   |                        |        | encode the keys in the response.        |
+   |                        |        | this parameter to request that          |
+   |                        |        | |product| encode the keys in the        |
+   |                        |        | response.                               |
    |                        |        |                                         |
    |                        |        | **Default:** None                       |
    +------------------------+--------+-----------------------------------------+
@@ -89,7 +90,7 @@ Headers
 ~~~~~~~
 
 The List Parts operation uses only the common response headers supported
-by Zenko (see :ref:`Common Response Headers`).
+by |product| (see :ref:`Common Response Headers`).
 
 Elements
 ~~~~~~~~
@@ -108,11 +109,12 @@ The List Parts operation can return the following XML elements in its response
    | ``Bucket``               | string    | Name of the bucket to which the       |
    |                          |           | multipart upload was initiated        |
    +--------------------------+-----------+---------------------------------------+
-   | ``Encoding-Type``        | string    | Encoding type used by Zenko to encode |
-   |                          |           | object key names in the XML response. |
+   | ``Encoding-Type``        | string    | Encoding type used by |product| to    |
+   |                          |           | encode object key names in the XML    |
+   |                          |           | response.                             |
    |                          |           |                                       |
    |                          |           | If the encoding-type request          |
-   |                          |           | parameter is specified, Zenko         |
+   |                          |           | parameter is specified, |product|     |
    |                          |           | includes this element in the response,|
    |                          |           | and returns encoded key name values   |
    |                          |           | in the Key element.                   |

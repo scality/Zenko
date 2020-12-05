@@ -3,7 +3,7 @@ Accessing Cloud Dashboards
 
 To access cloud management dashboards,
 
-#. With Zenko installed on a Kubernetes cluster, open a command line on
+#. With |product| installed on a Kubernetes cluster, open a command line on
    your local workstation and enter ``kubectl proxy`` from your local
    Kubernetes repo. This opens a kubectl proxy session that enables you
    to access dashboards. Leave this process running.
@@ -36,7 +36,7 @@ To access cloud management dashboards,
    |image1|
 
 For MetalK8s deployments, if the Kubernetes dashboard is visible, you
-can also access the other Kubernetes-dependent services Zenko offers as
+can also access the other Kubernetes-dependent services |product| offers as
 part of its default stack.
 
 .. _Troubleshooting\ Cloud\ Dashboards:
@@ -44,13 +44,13 @@ part of its default stack.
 Troubleshooting Cloud Dashboards
 --------------------------------
 
-To operate, Zenko ties together several systems, many of which are not
-part of the core Zenko product. Because of this, describing every
+To operate, |product| ties together several systems, many of which are not
+part of the core |product| product. Because of this, describing every
 possible configuration impossible; however, these are the main points of
 failure when accessing cloud dashboards.
 
 The dashboards to control, monitor, and adjust your Kubernetes cluster
-and Zenko instance are available when the following conditions are met:
+and |product| instance are available when the following conditions are met:
 
 -  The cluster is operating.
 -  The appropriate ports on the cluster are open.

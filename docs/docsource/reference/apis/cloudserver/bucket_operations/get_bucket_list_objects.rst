@@ -62,7 +62,7 @@ parameters to return a subset of objects in a bucket:
    |                       |        | is ``url``.                              |
    +-----------------------+--------+------------------------------------------+
    | ``marker``            | integer| Specifies the key to start with when     |
-   |                       |        | listing objects in a bucket. Zenko       |
+   |                       |        | listing objects in a bucket. |product|   |
    |                       |        | returns object keys in UTF-8 binary      |
    |                       |        | order, starting with key after the       |
    |                       |        | marker.                                  |
@@ -152,18 +152,19 @@ XML elements in the response:
    +-----------------------+--------------+--------------------------------+
    | ``DisplayName``       | string       | Object owner's name            |
    +-----------------------+--------------+--------------------------------+
-   | ``Encoding-Type``     | string       | Encoding type used by Zenko to |
-   |                       |              | encode object key names in the |
-   |                       |              | XML response.                  |
+   | ``Encoding-Type``     | string       | Encoding type used by          |
+   |                       |              | |product| to encode object key |
+   |                       |              | names in the XML response.     |
    |                       |              |                                |
    |                       |              | If encoding-type request       |
-   |                       |              | parameter is specified, Zenko  |
-   |                       |              | includes this element in the   |
-   |                       |              | response, and returns encoded  |
-   |                       |              | key name values in the         |
-   |                       |              | following response elements:   |
-   |                       |              | Delimiter, Marker, Prefix,     |
-   |                       |              | NextMarker, Key                |
+   |                       |              | parameter is specified,        |
+   |                       |              | |product| includes this        |
+   |                       |              | element in the response, and   |
+   |                       |              | returns encoded key name       |
+   |                       |              | values in the following        |
+   |                       |              | response elements: Delimiter,  |
+   |                       |              | Marker, Prefix, NextMarker,    |
+   |                       |              | Key.                           |
    +-----------------------+--------------+--------------------------------+
    | ``ETag``              | string       | The entity tag is an MD5 hash  |
    |                       |              | of the object. The ETag only   |
@@ -202,14 +203,14 @@ XML elements in the response:
    |                       |              | the key name can be used in    |
    |                       |              | this field as marker in the    |
    |                       |              | subsequent request to get the  |
-   |                       |              | next set of objects. Zenko     |
+   |                       |              | next set of objects. |product| |
    |                       |              | lists objects in UTF-8 binary  |
    |                       |              | order.                         |
    |                       |              |                                |
    |                       |              | .. note::                      |
    |                       |              |                                |
    |                       |              |    Counter to AWS practice,    |
-   |                       |              |    Zenko returns the           |
+   |                       |              |    |product| returns the       |
    |                       |              |    NextMarker only if a        |
    |                       |              |    Delimiter request parameter |
    |                       |              |    is specified.               |
@@ -355,8 +356,8 @@ Response
 ````````
 
 The key greatshot.raw does not contain the delimiter character, and
-Zenko returns it in the Contents element in the response. However, all other
-keys contain the delimiter character. Zenko groups these keys and return a
+|product| returns it in the Contents element in the response. However, all other
+keys contain the delimiter character. |product| groups these keys and return a
 single CommonPrefixes element with the common prefix value
 ``photographs/``, which is a substring from the beginning of these keys
 to the first occurrence of the specified delimiter.
@@ -401,10 +402,10 @@ The following GET request specifies the delimiter parameter with value
 Response
 ````````
 
-In response, Zenko returns only the keys that start with the specified prefix.
+In response, |product| returns only the keys that start with the specified prefix.
 Further, it uses the delimiter character to group keys that contain the
 same substring until the first occurrence of the delimiter character
-after the specified prefix. For each such key group Zenko returns one
+after the specified prefix. For each such key group |product| returns one
 CommonPrefixes element in the response. The keys grouped under this
 CommonPrefixes element are not returned elsewhere in the response. The
 value returned in the CommonPrefixes element is a substring, from the

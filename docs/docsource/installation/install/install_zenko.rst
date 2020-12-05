@@ -1,10 +1,10 @@
-.. _Install_Zenko:
+.. _Install_|product|:
 
-Install Zenko
-=============
+Install |product|
+=================
 
-Helm installs Zenko using packages of Kubernetes resource definitions known as
-charts. These charts, which Helm follows for each Zenko component, can be found
+Helm installs |product| using packages of Kubernetes resource definitions known as
+charts. These charts, which Helm follows for each |product| component, can be found
 under zenko/kubernetes/zenko/charts. For each component there is a Chart.yaml
 file and a values.yaml file. Helm reads the Chart.yaml file to establish such
 basic installation attributes as name and version number, and reads the values
@@ -14,7 +14,7 @@ better to write configuration changes and options to
 zenko/kubernetes/zenko/options.yaml, which Helm can use to overwrite the default
 settings presented in the charts.
 
-Follow these steps to install Zenko with ingress.
+Follow these steps to install |product| with ingress.
 
 .. note::
 
@@ -24,14 +24,14 @@ Follow these steps to install Zenko with ingress.
 
 .. _create_options.yaml:
 
-Download Zenko
---------------
+Download |product|
+------------------
 
 #. Go to https://github.com/Scality/Zenko/releases and download the latest
-   stable version of Zenko.
+   stable version of |product|.
 
 #. Unzip or gunzip the file you just downloaded and change to the top-level
-   (Zenko) directory.
+   (|product|) directory.
 
 
 Configure with options.yaml
@@ -57,7 +57,7 @@ Configure with options.yaml
 #. To configure the ingress controller for HTTPS, go to
    “:ref:`configure_ingress`” for additional terms to add to this chart.
 
-#. If your Zenko instance is behind a proxy, add the following lines to the
+#. If your |product| instance is behind a proxy, add the following lines to the
    options.yaml file:
 
    ::
@@ -106,7 +106,7 @@ Install with Helm
       end with alphabetic or numeric characters. Punctuation marks, including
       periods, are not permitted. 
 
-#. To see Kubernetes's progress creating pods for Zenko, the command
+#. To see Kubernetes's progress creating pods for |product|, the command
 
    ::
 
@@ -117,14 +117,14 @@ Install with Helm
    expected behavior, because there is no launch order between pods.
    After a few minutes, all pods will enter Running mode.
 
-   When all pods stabilize, Zenko is installed. 
+   When all pods stabilize, |product| is installed. 
    
 .. _Register with Orbit: 
 
 Register with Orbit
 -------------------
 
-#. To register your Zenko instance for Orbit access, get your CloudServer’s
+#. To register your |product| instance for Orbit access, get your CloudServer’s
    name::
 
      $ kubectl get -n default pods | grep cloudserver-manager

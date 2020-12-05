@@ -78,8 +78,8 @@ The following table describes required and optional request headers.
    |                            | (UTC) for the request. For more information, see   |
    |                            | |authorize-requests|.                              |
    +----------------------------+----------------------------------------------------+
-   | ``x-ms-lease-id``          | Not applicable (Zenko version |version| does not   |
-   |                            | support leasing).                                  |
+   | ``x-ms-lease-id``          | Not applicable (|product| version |version| does   |
+   |                            | not support leasing).                              |
    +----------------------------+----------------------------------------------------+
    | ``x-ms-version``           | Required for all authorized requests. Specifies    |
    |                            | the version of the operation to use for this       |

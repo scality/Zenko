@@ -12,7 +12,7 @@ received from the S3 API: client errors and server errors.
 
    +---------------+-----------------------------------------------------------+
    | client errors | Indicated by a 4xx HTTP response code, client errors      |
-   |               | indicate that Zenko has uncovered a problem with the      |
+   |               | indicate that |product| has uncovered a problem with the  |
    |               | client request (e.g., an authentication failure, missing  |
    |               | required parameters). Fix the issue in the client         |
    |               | application before resubmitting the request.              |

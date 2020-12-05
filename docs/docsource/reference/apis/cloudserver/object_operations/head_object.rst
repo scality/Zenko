@@ -8,7 +8,7 @@ returning the object itself (READ access to the object is necessary to
 use the operation).
 
 By default, the HEAD operation retrieves metadata from the current version of an
-object. If the current version is a delete marker, Zenko behaves as if the
+object. If the current version is a delete marker, |product| behaves as if the
 object were deleted. To retrieve metadata from a different version, use the
 versionId subresource.
 
@@ -113,7 +113,7 @@ Headers`).
    |                                     |         | which is stored and   |
    |                                     |         | returned as a set of  |
    |                                     |         | key-value pairs.      |
-   |                                     |         | Zenko does not        |
+   |                                     |         | |product| does not    |
    |                                     |         | validate or interpret |
    |                                     |         | user-defined          |
    |                                     |         | metadata.             |

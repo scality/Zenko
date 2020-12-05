@@ -82,7 +82,7 @@ CORSRules -> (list)
 
       Headers that are specified in the ``Access-Control-Request-Headers``
       header. These headers are allowed in a preflight OPTIONS request. In
-      response to any preflight OPTIONS request, Zenko returns any requested
+      response to any preflight OPTIONS request, |product| returns any requested
       headers that are allowed.
 
       (string)
