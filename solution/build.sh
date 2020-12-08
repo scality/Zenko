@@ -27,6 +27,8 @@ SKOPEO=skopeo
 SKOPEO_OPTS="--override-os linux --insecure-policy"
 OPERATOR_TAG=$(grep /zenko-operator: deps.txt | awk -F ':' '{print $2}')
 
+export SOLUTION_REGISTRY=metalk8s-registry-from-config.invalid/${PRODUCT_LOWERNAME}-${VERSION_FULL}
+
 # grab our dependencies from our deps.txt file as an array
 readarray -t DEP_IMAGES < deps.txt
 
@@ -65,6 +67,7 @@ EOF
 function copy_yamls()
 {
     cp -R -f operator/ ${ISO_ROOT}/operator
+    cat zenkoversion.yaml | envsubst >> ${ISO_ROOT}/zenkoversion.yaml
 }
 
 function copy_image()
