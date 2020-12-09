@@ -15,11 +15,11 @@ account:
 
    .. image:: ../Graphics/xdm_ui_create_account.png
 
-   Enter a unique account name and the email address for the account
-   administrator (root). You can also use the **Quota in GB** field to set a
-   hard upper limit on space available to this account. Once the account is
-   created, the quota cannot be changed from the |product| UI. If no value is
-   entered, |product| imposes no size limit on the account.
+   Enter a unique account name and the email address for the Storage
+   Manager. You can also use the **Quota in GB** field to set a hard upper limit
+   on space available to this account. Once the account is created, the quota
+   cannot be changed from the |product| UI. If no value is entered, |product|
+   imposes no size limit on the account.
 
    Click **Create**.
 
@@ -27,9 +27,9 @@ account:
 
    .. image:: ../Graphics/xdm_ui_account_created.png
 
-   From this view, the account administrator can create, find, and delete
-   accounts, or click the **Locations** tab to manage account locations and the
-   buckets they contain.
+   From this view, the Storage Manager can create, find, and delete accounts, or
+   click the **Locations** tab to manage account locations and the buckets they
+   contain.
 
    
 
