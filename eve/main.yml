@@ -56,6 +56,7 @@ models:
       command: make -e dump-logs
       workdir: build/tests
       alwaysRun: true
+      flunkOnFailure: False
       warnOnFailure: true
       env:
         HELM_NAMESPACE: '%(prop:bootstrap)s-%(prop:stage_name)s'
