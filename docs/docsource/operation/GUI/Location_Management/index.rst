@@ -41,9 +41,10 @@ notice.
 
    https://access.redhat.com/documentation/en-us/red_hat_ceph_storage
 
-See :version-ref:`|product| Installation
-<https://documentation.scality.com/Zenko/{version}/installation/index.html>` for
-advice on sizing, cluster configuration, and other preparations.
+See the :version-ref:`Installation
+<https://documentation.scality.com/Zenko/{version}/installation/index.html>`
+documentation for advice on sizing, cluster configuration, and other
+preparations.
 
 Scality RING with S3 Connector
 ------------------------------

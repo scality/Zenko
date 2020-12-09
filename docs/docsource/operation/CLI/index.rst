@@ -26,7 +26,7 @@ Set Up CloudServer API Access
 -----------------------------
 
 |product| supports a limited set of S3 and Azure API commands. For a comprehensive
-listing of supported S3 commands, see the :version-ref:`|product| Reference
+listing of supported S3 commands, see the |product| :version-ref:`Reference
 <https://documentation.scality.com/Zenko/{version}/reference/index.html>`.
 
 To access |product|’s AWS S3 and Azure Blob APIs, you must perform the following

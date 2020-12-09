@@ -1,5 +1,5 @@
-User Management Tasks
-=====================
+User Management
+===============
 
 Using the Orbit interface, you can manage users by adding them, changing
 their credentials (secret keys), or revoking their credentials

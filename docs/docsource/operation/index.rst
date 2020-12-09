@@ -8,15 +8,17 @@ enables data backup, transfer, and replication across private and public clouds.
 Using |product|, you can store to a Scality RING storage device and automatically
 back up to one or several public clouds. Alternatively, you can use a public
 cloud such as Amazon S3 as primary storage and replicate data stored
-there—-specific files, file types, or entire buckets—-to other supported clouds,
+there—specific files, file types, or entire buckets—to other supported clouds,
 such as Google Cloud Platform (GCP) or Microsoft Azure.
 
 .. toctree::
    :maxdepth: 2
 
-   About |product|<Introduction/index>
-   Architecture<Architecture/index>
-   Services<Services/index>
-   Using the |product| UI<GUI/index>
-   Cloud Management Services<Dashboards/Cloud_Management_Services>
-   |product| Command Line and API Operation<CLI/index>
+   Introduction/index
+   Architecture/index
+   Services/index
+   GUI/index
+   Dashboards/Cloud_Management_Services
+   CLI/index
+
+
