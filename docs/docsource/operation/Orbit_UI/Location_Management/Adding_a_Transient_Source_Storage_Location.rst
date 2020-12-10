@@ -9,9 +9,9 @@ storage location, but for a few particulars.
 A transient source location is a temporary buffer to which data is stored and
 from which data is replicated. Scality RING with sproxyd is the only
 production-ready environment that supports the transient source replication
-feature (the Zenko Local environment also supports this feature, but is suitable
+feature (the |product| Local environment also supports this feature, but is suitable
 for testing purposes only). Data written to the transient source location can be
-replicated to any cloud service Zenko supports.
+replicated to any cloud service |product| supports.
 
 To deploy a transient source storage location:
 

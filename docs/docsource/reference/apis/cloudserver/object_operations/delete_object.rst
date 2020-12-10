@@ -5,12 +5,12 @@ DELETE Object
 
 The DELETE Object operation removes the null version (if there is one)
 of an object and inserts a delete marker, which becomes the current
-version of the object. If there isn’t a null version, Zenko does not remove
+version of the object. If there isn’t a null version, |product| does not remove
 any objects.
 
 Only the bucket owner can remove a specific version, using the versionId
 subresource, whichpermanently deletes the version. If the object deleted
-is a delete marker, Zenko sets the response header x-amz-delete-marker to
+is a delete marker, |product| sets the response header x-amz-delete-marker to
 true.
 
 Requests

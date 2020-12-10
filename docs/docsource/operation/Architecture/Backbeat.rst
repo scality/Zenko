@@ -23,7 +23,7 @@ Backbeat is:
    lifecycle policy, check object metadata for tags (if tags are used in
    a policy), and then apply the lifecycle action to matched objects.
 
-Zenko uses Backbeat extensions to enable cross-region replication,
+|product| uses Backbeat extensions to enable cross-region replication,
 health checks, and object lifecycle management. Further extensions are
 under development.
 

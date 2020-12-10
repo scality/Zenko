@@ -25,7 +25,7 @@ Add a New User
 
    A **Copy** button is included in the user interface for your convenience.
    
-As the Zenko user, you can create multiple users in the Zenko-managed namespace,
+As the |product| user, you can create multiple users in the |product|-managed namespace,
 each with a unique access key and secret key. You can also re-generate 
 access/secret key pairs for any such user.
 

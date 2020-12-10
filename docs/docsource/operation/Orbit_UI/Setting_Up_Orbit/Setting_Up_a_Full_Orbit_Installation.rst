@@ -3,17 +3,17 @@
 Setting Up a Full Orbit Installation
 ====================================
 
-Orbit can be run as a user interface to Zenko no matter where or how Zenko is
-hosted. You can deploy Zenko in any of the following topologies:
+Orbit can be run as a user interface to |product| no matter where or how |product| is
+hosted. You can deploy |product| in any of the following topologies:
 
 * As a test instance running on a local machine using Minikube
 * On a cloud host using MetalK8s
 * On a cloud host using the host’s native Kubernetes environment (EKS, GKE, AKS).
 
-To run a “full” Zenko installation, you must register your Zenko instance to
+To run a “full” |product| installation, you must register your |product| instance to
 Orbit.
 
-#. Go to `Zenko.io <https://www.zenko.io/try-zenko/>`_.
+#. Go to `|product|.io <https://www.zenko.io/try-zenko/>`_.
 
 #. Click **Register with Google** (Google ID required)
 

@@ -3,7 +3,7 @@
 Monitoring NFS/SOFS Ingestion
 =============================
 
-Zenko implements an NFS feature that ingests the NFS file hierarchy that the
+|product| implements an NFS feature that ingests the NFS file hierarchy that the
 RING's Scale-Out File System (SOFS) projects. For this release, the only
 available metrics for NFS/SOFS ingestion operations reside in log files. SOFS
 metadata ingestion runs on a cron schedule, and users can make a query against

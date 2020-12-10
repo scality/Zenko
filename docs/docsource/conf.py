@@ -102,11 +102,11 @@ else:
 pygments_style = 'sphinx'
 
 
-# -- rst prolog  ---------------------------------------------------------
+# -- rst prolog ---------------------------------------------------------
+
 # This section contains text substitution for custom variables and link
-# substitution for MSFT doc links. As we become
-# more complete in our documentation, we can replace these with references
-# to our own documentation.
+# substitution, mostly for MSFT doc links. As we become more complete in our
+# documentation, we can replace these with references to our own documentation.
 
 rst_prolog = """
 

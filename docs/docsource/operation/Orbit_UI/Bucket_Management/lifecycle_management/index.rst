@@ -6,10 +6,10 @@ Object Lifecycle Management
 Orbit enables you to set policies that manage lifecycle events in selected
 buckets. 
 
-From the Bucket Lifecycle selector on the Zenko sidebar menu, you can select,
+From the Bucket Lifecycle selector on the |product| sidebar menu, you can select,
 then create lifecycle transition or lifecycle expiration policies for objects
 in buckets. These transition (move) or expire (delete) objects that match your
-criteria based on a timespan you set. In other words, Zenko reviews when a set
+criteria based on a timespan you set. In other words, |product| reviews when a set
 number of days has passed since an object or type of object was last modified,
 and either moves such objects to a different storage site (transitions them) or
 deletes (expires) them. You can create rules to transition objects themselves, 

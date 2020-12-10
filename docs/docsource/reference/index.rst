@@ -1,7 +1,7 @@
 .. _Reference:
 
-Zenko Reference
-===============
+|product| Reference
+===================
 
 .. toctree::
    :maxdepth: 2

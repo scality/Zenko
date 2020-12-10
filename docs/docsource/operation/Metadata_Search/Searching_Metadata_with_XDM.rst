@@ -1,11 +1,11 @@
-.. _Searching Metadata with Zenko:
+.. _Searching Metadata with |product|:
 
-Searching Metadata with Zenko
-=============================
+Searching Metadata with |product|
+=================================
 
-A successful request to Zenko requires
+A successful request to |product| requires
 
--  Zenko credentials
+-  |product| credentials
 -  Auth V4 signature
 
 If these requirements are satisfied, you can perform metadata searches
@@ -16,7 +16,7 @@ by
 -  Using the ``search_bucket`` tool (found in the
    `Scality/S3 <https://github.com/scality/S3>`__ GitHub repository) as
    described in :ref:`Using search_bucket`.
--  Making an Auth V4-signed HTTP request to Zenko as described in
+-  Making an Auth V4-signed HTTP request to |product| as described in
    :ref:`HTTP Search Requests`.
 
 

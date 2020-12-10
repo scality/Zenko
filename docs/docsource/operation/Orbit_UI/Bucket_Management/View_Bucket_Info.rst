@@ -4,7 +4,7 @@ View Bucket Info
 **Prerequisite:** To view bucket info, you must already have created at
 least one bucket.
 
-Zenko offers the ability to view bucket details, and to turn Versioning
+|product| offers the ability to view bucket details, and to turn Versioning
 on or off.
 
 To access this feature: 
@@ -33,7 +33,7 @@ From this panel, you can:
 
 For more information on versioning, review the Amazon S3 documentation
 at: \ https://docs.aws.amazon.com/AmazonS3/latest/dev/Versioning.html.
-Zenko implements S3 logic for versioning.
+|product| implements S3 logic for versioning.
 
 .. |image0| image:: ../../Graphics/Orbit_multicloud_browser_with_values.png
 

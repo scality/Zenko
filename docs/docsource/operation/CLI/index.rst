@@ -1,9 +1,9 @@
-.. _`Zenko from the Command Line`:
+.. _`|product| Command Line Operation`:
 
-Zenko from the Command Line
-===========================
+|product| Command Line Operation
+================================
 
-Zenko supports command-line interactions for a limited set of Amazon S3 and
+|product| supports command-line interactions for a limited set of Amazon S3 and
 Azure Blob API calls via the CloudServer and Blobserver modules. Access to the
 internal Backbeat server's APIs is through CloudServer API calls.
 
@@ -17,7 +17,7 @@ features:
 *  :ref:`monitoring_nfs_sofs_ingestion`
 *  :ref:`managing_bucket_policies`
 
-To access Zenko from the command line, you must first set up access to 
+To access |product| from the command line, you must first set up access to 
 the desired APIs.
 
 .. _S3 API config:
@@ -25,15 +25,15 @@ the desired APIs.
 Set Up CloudServer API Access
 -----------------------------
 
-Zenko supports a limited set of S3 and Azure API commands. For a comprehensive
-listing of supported S3 commands, see the :version-ref:`Zenko Reference
+|product| supports a limited set of S3 and Azure API commands. For a comprehensive
+listing of supported S3 commands, see the |product| :version-ref:`Reference
 <https://documentation.scality.com/Zenko/{version}/reference/index.html>`.
 
-To access Zenko’s AWS S3 and Azure Blob APIs, you must perform the following
+To access |product|’s AWS S3 and Azure Blob APIs, you must perform the following
 setup tasks to configure CloudServer. In the present example, server 1 is
 modified to be the AWS gateway.
 
-#. Using SSH, open any server in a running Zenko instance.
+#. Using SSH, open any server in a running |product| instance.
 
    ::
 
@@ -75,7 +75,7 @@ modified to be the AWS gateway.
        10.0.0.5 node-05 node-05.cluster.local
        # Ansible inventory hosts END
 
-#. Retrieve your Zenko access key ID and Zenko secret access key and use them as follows:
+#. Retrieve your |product| access key ID and |product| secret access key and use them as follows:
 
    ::
 
@@ -95,8 +95,8 @@ modified to be the AWS gateway.
        2018-09-07 18:33:34 wasabi-bucket
        2018-09-05 22:17:18 zenko-bucket-01
 
-Zenko can now respond to the set of S3 commands documented in the
-:version-ref:`Zenko Reference
+|product| can now respond to the set of S3 commands documented in the
+:version-ref:`|product| Reference
 <https://documentation.scality.com/Zenko/{version}/reference/index.html>`.       
 
 Set Up Blobserver API Access
@@ -146,7 +146,7 @@ and secret keys there.
       
       $ az storage account show-connection-string --name myAccount
 
-#. Zenko responds with: 
+#. |product| responds with: 
 
    ::
 
@@ -178,7 +178,7 @@ A pseudocode example of a model query is shown here.
 
 .. code::
 
-   Authorization = "AWS" + " " + ZenkoAccessKeyId + ":" + Signature;
+   Authorization = "AWS" + " " + |product|AccessKeyId + ":" + Signature;
 
    Signature = Base64( HMAC-SHA1( YourSecretAccessKeyID, UTF-8-Encoding-Of( StringToSign ) ) );
 
@@ -193,7 +193,7 @@ A pseudocode example of a model query is shown here.
 
 Where:
 
-  * ``ZenkoAccessKeyId`` is the public access key associated with a user account
+  * ``|product|AccessKeyId`` is the public access key associated with a user account
     (see the **Access Key** column in https://admin.zenko.io/accounts) and 
 
   * ``YourSecretAccessKeyId`` is the secret key associated with the requesting
@@ -253,7 +253,7 @@ Helper Script
    Scality does not offer any support or warranty for the following script.
    It is included as a convenience. You must edit it to suit your installation.
 
-1. Access your Zenko cluster.
+1. Access your |product| cluster.
    
    .. code::
 

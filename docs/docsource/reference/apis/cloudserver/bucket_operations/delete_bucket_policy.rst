@@ -8,9 +8,9 @@ policy. For any identity other than the root user of the account that owns the
 bucket, the identity must have the DeleteBucketPolicy permissions on the
 specified bucket and belong to the bucket owner's account to use this operation.
 
-In the absence of DeleteBucketPolicy permissions, Zenko returns a ``403 Access
+In the absence of DeleteBucketPolicy permissions, |product| returns a ``403 Access
 Denied`` error. If the permissions are correct, but you are not using an
-identity that belongs to the bucket owner's account, Zenko returns a ``405
+identity that belongs to the bucket owner's account, |product| returns a ``405
 Method Not Allowed`` error.
 
 .. important::

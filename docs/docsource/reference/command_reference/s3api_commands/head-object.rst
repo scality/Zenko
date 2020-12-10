@@ -171,7 +171,7 @@ Expires -> (timestamp)
 WebsiteRedirectLocation -> (string)
 
   If the bucket is configured as a website, redirects requests for this object
-  to another object in the same bucket or to an external URL. Zenko stores
+  to another object in the same bucket or to an external URL. |product| stores
   the value of this header in the object metadata.
 
 ServerSideEncryption -> (string)

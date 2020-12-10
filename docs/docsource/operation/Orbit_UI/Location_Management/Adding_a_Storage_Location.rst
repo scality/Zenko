@@ -38,7 +38,7 @@ To add a storage location:
       * Scality RING with S3 Connector
       * Scality RING with sproxyd Connector
       * Ceph RADOS Gateway
-      * A Zenko local filesystem
+      * A |product| local filesystem
 
 #. Each storage location type has its own requirements. No security is
    required for a local file system, but all public clouds require
@@ -48,11 +48,11 @@ To add a storage location:
 
       Adding a location requires credentials (an access key and a secret key).
       Though nothing prevents you from using account-level credentials when
-      Zenko requests credentials for a location, it is a best practice to enter
+      |product| requests credentials for a location, it is a best practice to enter
       credentials specifically generated for this access. In other words, before
       you add a location, first create a user in that location (an AWS account
-      or an S3 Connector, for example) for the purpose of Zenko access. Give
-      that Zenko "user" all and only the permissions needed to perform the
+      or an S3 Connector, for example) for the purpose of |product| access. Give
+      that |product| "user" all and only the permissions needed to perform the
       desired tasks.
 
    .. tip::
@@ -82,7 +82,7 @@ To add a storage location:
 Cloud Storage Locations
 -----------------------
 
-All the cloud storage services serviced by Zenko require the same basic
+All the cloud storage services serviced by |product| require the same basic
 information: an access key, a secret key, and a target bucket name. [#f1]_
 The Orbit interface also presents the following requirements for each 
 cloud storage system.
@@ -123,7 +123,7 @@ Endpoint
 ~~~~~~~~
 
 Some service providers assign fixed endpoints to customers. Others require users
-to name endpoints. Services for which Zenko requests endpoint names may have
+to name endpoints. Services for which |product| requests endpoint names may have
 additional naming requirements. For these requirements, review your cloud
 storage service provider's documentation.
 
@@ -134,16 +134,16 @@ storage service provider's documentation.
 
 For Ceph RADOS Gateway endpoints, you can nominate a secure port, such as 443 or
 4443. If you do not, the default is port 80. Whichever port you assign, make
-sure it is accessible to Zenko (firewall open, etc.).
+sure it is accessible to |product| (firewall open, etc.).
 
 Bucket Match
 ~~~~~~~~~~~~
 
-Zenko provides a "Bucket Match" option for Ceph RADOS Gateway and Scality S3
-Connector. If this option is left unchecked, Zenko prepends a bucket identifier
+|product| provides a "Bucket Match" option for Ceph RADOS Gateway and Scality S3
+Connector. If this option is left unchecked, |product| prepends a bucket identifier
 to every object in the target backend's namespace.  This enables a "bucket of
 buckets" architecture in which the target backend sees and manages only one
-large bucket and Zenko manages the namespace of the "sub-buckets." Clicking the
+large bucket and |product| manages the namespace of the "sub-buckets." Clicking the
 **Bucket Match** box deactivates this feature: the prepending of bucket names is
 defeated, and the bucket structure in the host cloud is copied identically to
 the target cloud.
@@ -151,7 +151,7 @@ the target cloud.
 .. important::
 
    If the Bucket Match option is set, buckets in the target location cannot be
-   used as a CRR destination. Zenko requires the bucket identifier in order to
+   used as a CRR destination. |product| requires the bucket identifier in order to
    manage the namespace for replication.
 
 Server-Side Encryption
@@ -172,7 +172,7 @@ table is provided in this document, but vendors' offerings are subject to change
 without notice.
 
 If you have already created a bucket with server-side encryption enabled (SSE-S3
-protocol), clicking **Server Side Encryption** forces Zenko to include
+protocol), clicking **Server Side Encryption** forces |product| to include
 ``"x-amz-server-side-encryption": "AES256"`` in API calls to the cloud host (AWS
 or a vendor that supports the call). If valid credentials are provided, the cloud
 service provides the objects thus requested. 
@@ -183,28 +183,28 @@ Target Helper Bucket for Multi-Part Uploads
 The Google Cloud Storage solution imposes limitations on uploads that require
 specific workarounds. Among these is a 5 GB hard limit on uploads per command,
 which requires objects over this limit to be broken up, uploaded in parallel
-chunks, and on a successful upload reassembled in the cloud. Zenko manages this
+chunks, and on a successful upload reassembled in the cloud. |product| manages this
 complexity, in part, by using a "helper" bucket.
 
 .. note::
 
    Google Cloud Storage also imposes a 1024-part cap on objects stored to its
-   locations (For all other backends, Zenko caps the number of parts at
-   10,000). For data stored directly to GCP as the primary cloud, Zenko
+   locations (For all other backends, |product| caps the number of parts at
+   10,000). For data stored directly to GCP as the primary cloud, |product|
    propagates this limitation forward to any other cloud storage services to
    which Google data is replicated.
 
-Other Services: Zenko Local, RING/sproxyd, and NFS
---------------------------------------------------
+Other Services: |product| Local, RING/sproxyd, and NFS
+------------------------------------------------------
 
-Zenko Local Filesystem
-~~~~~~~~~~~~~~~~~~~~~~
+|product| Local Filesystem
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Zenko Local Filesystem has similar authentication requirements to AWS S3, but
-because it is a Zenko-native filesystem, it shares authentication and related
+|product| Local Filesystem has similar authentication requirements to AWS S3, but
+because it is a |product|-native filesystem, it shares authentication and related
 credentialing tasks, which are addressed elsewhere in the Orbit UI.
 
-For more information, see :ref:`Zenko Local`.
+For more information, see :ref:`|product| Local`.
 
 RING with sproxyd Connector
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -214,21 +214,21 @@ a bootstrap list. To access a RING directly using sproxyd, you must enter at
 least one bootstrap server; however, more is better.  This is simply a list of
 IP addresses for the bootstrap servers in the RING. The order of entry is not
 important: none enjoys a preferred position. Entries must assign a port
-number. If a port number is not explicitly assigned, Zenko assigns port 8081 by
+number. If a port number is not explicitly assigned, |product| assigns port 8081 by
 default. Entries can use DNS or IP address format.
 
 NFS
 ~~~
 
-Zenko supports out-of-band updates from NFSv3 and NFSv4 file systems. Zenko
+|product| supports out-of-band updates from NFSv3 and NFSv4 file systems. |product|
 replicates data from NFS servers to cloud storage services using scheduled cron
 jobs.
 
 .. note::
 
-   For NFS mounts, Zenko cannot perform data PUT transactions. In other words,
-   data can be written directly to NFS for Zenko to replicate to other backends,
-   but cannot be written to Zenko to replicate to NFS.
+   For NFS mounts, |product| cannot perform data PUT transactions. In other words,
+   data can be written directly to NFS for |product| to replicate to other backends,
+   but cannot be written to |product| to replicate to NFS.
 
 Configuring NFS requires you to specify the transfer protocol (TCP or UDP), NFS
 version (v3 or v4), the server location (IP address or URI), export path (the
@@ -238,9 +238,9 @@ async are the default entries).
 AWS
 ~~~
 
-Zenko can ingest metadata out of band from AWS in much the same way it can
+|product| can ingest metadata out of band from AWS in much the same way it can
 ingest out-of-band updates from NFS mounts. AWS metadata is ingested in an
-initial setup, then changes are mapped via a regularly scheduled cron job. Zenko
+initial setup, then changes are mapped via a regularly scheduled cron job. |product|
 develops its own namespace for the Amazon bucket and can perform metadata-\
 related tasks (CRR, metadata search, lifecycle management, etc.) on targets in
 the AWS bucket using this namespace.
@@ -248,7 +248,7 @@ the AWS bucket using this namespace.
 Transient Sources
 -----------------
 
-Both RING with sproxyd and Zenko Local file systems can be configured
+Both RING with sproxyd and |product| Local file systems can be configured
 as transient sources. The transient source can be deployed as a
 "buffer" for replication to cloud locations. This configuration
 enables replication from a local service to multiple "parallel" cloud

@@ -3,7 +3,7 @@
 CRR Metrics and Healthcheck
 ===========================
 
-Zenko provides replication status tracking. The replication system
+|product| provides replication status tracking. The replication system
 exposes metrics through a REST API to monitor pending, processing, and
 completed replication objects. It can return the number of failures that
 occurred during replication, the current throughput (in replication
@@ -37,5 +37,5 @@ is provided in the :version-ref:`Zenko Reference <https://documentation.scality.
 .. note::
 
    Cross-region replication is not supported for Azure Blob Storage points of
-   origin (Azure Blob frontend servers) in Zenko version |version|.
+   origin (Azure Blob frontend servers) in |product| version |version|.
 

@@ -77,7 +77,7 @@ Request
 Response
 ~~~~~~~~
 
-The following successful response shows Zenko returning a ``204 No Content``
+The following successful response shows |product| returning a ``204 No Content``
 response. The tag set for the object has been removed.
 
 .. code::

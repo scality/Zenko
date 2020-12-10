@@ -1,7 +1,7 @@
 Redis-Sentinel
 ==============
 
-Zenko uses Redis-Sentinel to provide a highly available in-memory
+|product| uses Redis-Sentinel to provide a highly available in-memory
 database for processes in:
 
 -  CRR (pause and retry feature)
