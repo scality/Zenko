@@ -41,6 +41,7 @@ volumes to containers managed in the cluster.
 MetalK8s is hosted at https://github.com/scality/metalk8s. Instructions for
 deploying MetalK8s on your choice of hardware (real or virtual) are provided
 there. Documentation is available at: https://metal-k8s.readthedocs.io/.
-Installation instructions specific to deploying MetalK8s for |product| are included
-in :version-ref:`|product| Installation
-<https://documentation.scality.com/Zenko/{version}/installation/index.html>`.
+Installation instructions specific to deploying MetalK8s for |product| are
+included in the
+:version-ref:`Installation<https://documentation.scality.com/Zenko/{version}/installation/index.html>`
+documentation.

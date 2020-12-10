@@ -72,7 +72,9 @@ Run it as follows:
    .. tip::
 
       The s3utils pod is disabled by default. You can also enable it by adding
-      the following to the options file and upgrading your |product| deployment::
+      the following to the options file and upgrading your |product| deployment
+
+      .. parsed-literal::
 
         maintenance:
 	  debug:

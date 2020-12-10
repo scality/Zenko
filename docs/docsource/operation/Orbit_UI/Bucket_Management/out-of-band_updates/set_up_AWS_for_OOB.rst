@@ -66,13 +66,13 @@ AWS location named "my-aws".
 Cron Job Defaults
 ~~~~~~~~~~~~~~~~~
 
-|product|'s AWS ingestion cron job is triggered every 12 hours (12 pm and 12 am) by
-default, but this is configurable. The cron specification supports both the
+|product|'s AWS ingestion cron job is triggered every 12 hours (12 pm and 12 am)
+by default, but this is configurable. The cron specification supports both the
 traditional (``* *0 * * * *``) format as well as the non-standard (``@hourly``)
-format. Adding and `upgrading |product|
-<https://github.com/scality/Zenko/blob/development/1.1/docs/docsource/installation/upgrade/upgrade_zenko.rst#upgrading>`_
-with the following YAML added as custom values sets a default cron schedule for
-all future created AWS locations.
+format. Adding and
+:version-ref:`upgrading<https://github.com/scality/Zenko/blob/development/{version}/docs/docsource/installation/upgrade/upgrade_zenko.rst#upgrading>`
+|product| with the following YAML added as custom values sets a default cron
+schedule for all future created AWS locations.
 
 ::
 
@@ -114,7 +114,7 @@ Managed Resources
 Due to the Kubernetes operator-managed nature of the AWS locations, resources
 like cron jobs or deployments related to each location are "enforced state."
 This means that if a cron job for a location is deleted, it is automatically
-recreated, which can be useful for testing and debugging. This also means,
+re-created, which can be useful for testing and debugging. This also means,
 however, that you *cannot* directly edit a managed cronjob or deployment
 resource, because your changes are immediately changed to match the state
 defined in the "cosmos" resource. Desired changes must be made by editing the
@@ -123,3 +123,5 @@ AWS resources themselves using kubectl.
 ::
 
    $ kubectl edit cosmos <my-aws-location-name>
+
+
