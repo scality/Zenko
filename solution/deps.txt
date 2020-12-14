@@ -1,3 +1,4 @@
+kubedb/busybox:latest
 kubedb/redis:5.0.3-v1
 oliver006/redis_exporter:v1.8.0
 pravega/zookeeper:0.2.4
