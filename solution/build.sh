@@ -6,14 +6,17 @@ PWD=$(pwd)
 BUILD_ROOT=${PWD}/_build
 ISO_ROOT=${BUILD_ROOT}/root
 IMAGES_ROOT=${ISO_ROOT}/images
+SCRIPT_FULL_PATH=$(readlink -f "$0")
+REPOSITORY_DIR=$(dirname "${SCRIPT_FULL_PATH}")/..
 
 PRODUCT_NAME=Zenko
 PRODUCT_LOWERNAME=zenko
 BUILD_TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 BUILD_HOST=$(hostname)
 
-VERSION_SHORT=$(git describe --abbrev=0)
-VERSION_FULL=${VERSION_SHORT}-dev
+VERSION_FILE="${REPOSITORY_DIR}/VERSION"
+
+source ${VERSION_FILE}
 GIT_REVISION=$(git describe --long --always --tags --dirty)
 ISO=${BUILD_ROOT}/${PRODUCT_LOWERNAME}-${VERSION_FULL}.iso
 
@@ -27,6 +30,7 @@ SKOPEO=skopeo
 SKOPEO_OPTS="--override-os linux --insecure-policy"
 OPERATOR_TAG=$(grep /zenko-operator: deps.txt | awk -F ':' '{print $2}')
 
+export VERSION_FULL=${VERSION_FULL}
 export SOLUTION_REGISTRY=metalk8s-registry-from-config.invalid/${PRODUCT_LOWERNAME}-${VERSION_FULL}
 
 # grab our dependencies from our deps.txt file as an array
