@@ -15,7 +15,7 @@ spec:
         image: ${SOLUTION_REGISTRY}/pensieve-api
         tag: cff863c
       pushAPI:
-        image: ${SOLUTION_REGISTRY}/api
+        image: ${SOLUTION_REGISTRY}/pensieve-api
         tag: cff863c
     cloudserver:
       image: ${SOLUTION_REGISTRY}/cloudserver
