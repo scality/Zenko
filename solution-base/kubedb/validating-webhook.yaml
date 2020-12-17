@@ -5,8 +5,6 @@ metadata:
   name: validators.kubedb.com
   labels:
     app: kubedb
-  annotations:
-    cert-manager.io/inject-ca-from: ${KUBEDB_NAMESPACE}/kubedb-operator-apiserver-cert
 webhooks:
 - name: elasticsearch.validators.kubedb.com
   clientConfig:
