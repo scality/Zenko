@@ -9,11 +9,11 @@ account:
 
 #. Log into the |product| UI.
 
-   .. image:: ../Graphics/xdm_ui_login.png
+   .. image:: ../../Graphics/xdm_ui_login.png
 
 #. The **CREATE NEW ACCOUNT** window displays.
 
-   .. image:: ../Graphics/xdm_ui_create_account.png
+   .. image:: ../../Graphics/xdm_ui_create_account.png
 
    Enter a unique account name and the email address for the Storage
    Manager. You can also use the **Quota in GB** field to set a hard upper limit
@@ -25,7 +25,7 @@ account:
 
 #. The **Accounts** view displays with the new account information.
 
-   .. image:: ../Graphics/xdm_ui_account_created.png
+   .. image:: ../../Graphics/xdm_ui_account_created.png
 
    From this view, the Storage Manager can create, find, and delete accounts, or
    click the **Locations** tab to manage account locations and the buckets they
