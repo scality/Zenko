@@ -11,6 +11,7 @@ ease of use and excellent opportunities for visualizing managed data.
 .. toctree::
    :maxdepth: 2
 
+   location_management/index
    account_operations/index
    bucket_operations/index
    
