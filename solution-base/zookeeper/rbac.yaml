@@ -8,6 +8,7 @@ kind: Role
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
   name: zookeeper-operator
+  namespace: ${ZOOKEEPER_NAMESPACE}
 rules:
 - apiGroups:
   - zookeeper.pravega.io
@@ -47,6 +48,7 @@ kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
   name: zookeeper-operator-role-binding
+  namespace: ${ZOOKEEPER_NAMESPACE}
 subjects:
 - kind: ServiceAccount
   name: zookeeper-operator
