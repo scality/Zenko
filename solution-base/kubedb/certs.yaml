@@ -9,11 +9,11 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: kubedb-operator-apiserver-cert
+  name: ${KUBEDB_CERT_NAME}
   namespace: ${KUBEDB_NAMESPACE}
 spec:
   # Secret names are always required.
-  secretName: kubedb-operator-apiserver-cert
+  secretName: ${KUBEDB_CERT_NAME}
   # TODO: How does kubedb handle cert regens?
   duration: 2160h # 90d
   renewBefore: 360h # 15d
@@ -24,8 +24,8 @@ spec:
     size: 2048
   # At least one of a DNS Name, URI, Email Address, or IP address is required.
   dnsNames:
-  - kubedb-${KUBEDB_OPERATOR_NAME}
-  - kubedb-${KUBEDB_OPERATOR_NAME}.${KUBEDB_NAMESPACE}.svc
+  - ${KUBEDB_OPERATOR_NAME}
+  - ${KUBEDB_OPERATOR_NAME}.${KUBEDB_NAMESPACE}.svc
   # Issuer references are always required.
   issuerRef:
     name: selfsigned-issuer

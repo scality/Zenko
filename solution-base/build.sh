@@ -32,7 +32,9 @@ SOLUTION_ENV='SOLUTION_ENV'
 export KUBEDB_OPERATOR_TAG=$(grep kubedb/operator: deps.txt | awk -F ':' '{print $2}')
 export KUBEDB_NAMESPACE=${SOLUTION_ENV}
 export KUBEDB_SERVICE_ACCOUNT=kubedb-operator
-export KUBEDB_OPERATOR_NAME=operator
+export KUBEDB_IMAGE_NAME=operator
+export KUBEDB_OPERATOR_NAME=kubedb-operator
+export KUBEDB_CERT_NAME=kubedb-operator-apiserver-cert
 export KUBEDB_DOCKER_REGISTRY=${SOLUTION_REGISTRY}
 export KUBEDB_PRIORITY_CLASS=system-cluster-critical
 
@@ -58,7 +60,6 @@ function clean()
 {
     echo cleaning
     rm -rf ${BUILD_ROOT}
-    rm -rf ca.crt ca.key server.crt server.key
 }
 
 function mkdirs()
@@ -141,12 +142,6 @@ spec:
 EOF
 }
 
-# function copy_yamls()
-# {
-    # no yamls currently but other dependencies may require them
-    # cp -R -f operator/ ${ISO_ROOT}/operator
-# }
-
 function copy_image()
 {
     IMAGE_NAME=${1##*/}
@@ -208,7 +203,6 @@ kubedb_yamls
 zookeeper_yamls
 kafka_yamls
 gen_manifest_yaml
-# copy_yamls
 for img in "${DEP_IMAGES[@]}"; do
     # only pull if the image isnt already local
     echo downloading ${img}

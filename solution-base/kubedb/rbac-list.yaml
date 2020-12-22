@@ -1,7 +1,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: kubedb-operator
+  name: ${KUBEDB_OPERATOR_NAME}
   labels:
     app: kubedb
 rules:
@@ -112,7 +112,7 @@ rules:
   - podsecuritypolicies
   verbs: ["use"]
   resourceNames:
-  - kubedb-${KUBEDB_OPERATOR_NAME}
+  - ${KUBEDB_OPERATOR_NAME}
   - elasticsearch-db
   - etcd-db
   - memcached-db
@@ -139,13 +139,13 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: kubedb-operator
+  name: ${KUBEDB_OPERATOR_NAME}
   labels:
     app: kubedb
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: kubedb-operator
+  name: ${KUBEDB_OPERATOR_NAME}
 subjects:
 - kind: ServiceAccount
   name: ${KUBEDB_SERVICE_ACCOUNT}
