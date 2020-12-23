@@ -52,7 +52,7 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: zookeeper-operator
-  namespace: default
+  namespace: ${ZOOKEEPER_NAMESPACE}
 roleRef:
   kind: Role
   name: zookeeper-operator

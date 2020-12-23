@@ -1,0 +1,67 @@
+---
+apiVersion: zenko.io/v1alpha1
+kind: ZenkoVersion
+metadata:
+  name: ${VERSION_FULL}
+  namespace: SOLUTION_ENV
+spec:
+  imagePullPolicy: Always
+  versions:
+    management:
+      ui:
+        image: ${SOLUTION_REGISTRY}/zenko-ui
+        tag: 2f10bac
+      api:
+        image: ${SOLUTION_REGISTRY}/pensieve-api
+        tag: 611b9ca
+      pushAPI:
+        image: ${SOLUTION_REGISTRY}/pensieve-api
+        tag: 611b9ca
+    cloudserver:
+      image: ${SOLUTION_REGISTRY}/cloudserver
+      tag: latest-8.1.2
+    backbeat:
+      image: ${SOLUTION_REGISTRY}/backbeat
+      tag: 161b9c1
+    blobserver:
+      image: ${SOLUTION_REGISTRY}/blobserver
+      tag: 1.0.8
+    jabba:
+      image: ${SOLUTION_REGISTRY}/jabba
+      tag: 940d
+    utapi:
+      image: ${SOLUTION_REGISTRY}/utapi
+      tag: zenko-1.0.0
+    secureChannelProxy:
+      image: ${SOLUTION_REGISTRY}/cloudserver
+      tag: '4332d0a'
+    localData:
+      image: ${SOLUTION_REGISTRY}/cloudserver
+      tag: '8.1.15'
+    metrics:
+      image: ${SOLUTION_REGISTRY}/cloudserver
+      tag: '4332d0a'
+    s3utils:
+      image: ${SOLUTION_REGISTRY}/s3utils
+      tag: '1.2'
+    zookeeper:
+      image: ${SOLUTION_REGISTRY}/zookeeper
+      tag: 0.2.4
+    kafka:
+      image: ${SOLUTION_REGISTRY}/kafka
+      tag: 2.12-2.3.0
+    vault:
+      image: ${SOLUTION_REGISTRY}/vault
+      tag: zenko-2.0.0
+    shell:
+      image: ${SOLUTION_REGISTRY}/busybox
+      tag: latest
+    mongodb: '4.0-v1'
+    redis:
+      db:
+        image: ${SOLUTION_REGISTRY}/redis
+        tag: 5.0.3
+      exporter:
+        image: ${SOLUTION_REGISTRY}/redis_exporter
+        tag: v1.8.0
+      kubedb: '5.0.3-v1'
