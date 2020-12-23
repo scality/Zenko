@@ -11,7 +11,7 @@ ease of use and excellent opportunities for visualizing managed data.
 .. toctree::
    :maxdepth: 1
 
-   create_an_account
+   account_operations/index
 
 
 
