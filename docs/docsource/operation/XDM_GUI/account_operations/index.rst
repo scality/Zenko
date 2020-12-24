@@ -12,7 +12,5 @@ delete accounts.
    :maxdepth: 1
 
    create_an_account
-
-   
-
+   delete_an_account
 
