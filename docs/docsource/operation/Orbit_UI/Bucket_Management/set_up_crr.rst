@@ -24,7 +24,7 @@ To set up a replication configuration:
    .. image:: ../../Graphics/replication_no_target_message.png
       :align: center
 
-   Click the link text to create a :ref:`suitable replication target<orbit_add_location>`.
+   Click the link text to create a :ref:`suitable replication target<Add a Storage Location>`.
 
 #. Click **New**. The **Set up bucket replication** dialog displays.
 

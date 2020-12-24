@@ -259,7 +259,7 @@ Configuring a location as a transient source requires checking the
 **Delete objects after successful replication** box under the
 **Advanced Options** submenu.
 
-See :ref:`Adding a Transient Source Storage Location` for details.
+See :ref:`Add a Transient Source Storage Location` for details.
 
 .. [#f1] Microsoft's setup procedure is functionally identical to that of AWS
    S3. However, the Microsoft terms, "Azure Account Name" and "Azure Access Key"

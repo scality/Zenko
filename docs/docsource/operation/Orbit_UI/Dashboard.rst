@@ -17,7 +17,7 @@ buttons for:
    * :ref:`Statistics`
    * :ref:`Location Status <location_status>`
    * :ref:`Storage Accounts <add_a_new_user>`
-   * :ref:`Storage Locations <orbit_add_location>`
+   * :ref:`Storage Locations <Add a Storage Location>`
    * :ref:`Endpoints <endpoint>`
    * :ref:`Browser <create_a_bucket>`
    * :ref:`Search <Searching Metadata from Orbit>`
