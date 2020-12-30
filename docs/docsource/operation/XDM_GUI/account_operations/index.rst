@@ -8,9 +8,10 @@ several accounts, each account containing several buckets, and each bucket
 containing many files. The |product| UI enables the user to create, edit, and
 delete accounts.
 
-.. toctree::
-   :maxdepth: 1
+From the account management window, you can:
 
-   create_an_account
-   delete_an_account
+  .. toctree::
+     :maxdepth: 1
 
+     create_an_account
+     delete_an_account

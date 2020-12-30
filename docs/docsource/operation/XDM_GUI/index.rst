@@ -15,5 +15,3 @@ ease of use and excellent opportunities for visualizing managed data.
    account_operations/index
    bucket_operations/index
    
-
-
