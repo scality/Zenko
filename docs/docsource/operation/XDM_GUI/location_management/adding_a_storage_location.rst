@@ -53,11 +53,11 @@ To add a storage location:
 
       Adding a location requires credentials (an access key and a secret key).
       Though nothing prevents you from using account-level credentials when
-      Zenko requests credentials for a location, it is a best practice to enter
-      credentials specifically generated for this access. In other words, before
-      you add a location, first create a user in that location (an AWS or S3
-      Connector account, for example) for the purpose of |product| access. Give
-      that user all and only the permissions needed to perform the desired
+      |product| requests credentials for a location, it is a best practice to
+      enter credentials specifically generated for this access. In other words,
+      before you add a location, first create a user in that location (an AWS or
+      S3 Connector account, for example) for the purpose of |product| access.
+      Give that user all and only the permissions needed to perform the desired
       tasks.
 
    .. tip::
@@ -66,7 +66,7 @@ To add a storage location:
       special |product|-access user to ensure access to the Metadata service and the
       ability to perform operations on the bucket:
 
-      ::
+      .. code-block:: json
 
         {
           "Version":"2012-10-17",
@@ -248,7 +248,7 @@ AWS
 ingest out-of-band updates from NFS mounts. AWS metadata is ingested in an
 initial setup, then changes are mapped via a regularly scheduled cron
 job. |product| develops its own namespace for the Amazon bucket and can perform
-metadata-\ related tasks (CRR, metadata search, lifecycle management, etc.) on
+metadata-related tasks (CRR, metadata search, lifecycle management, etc.) on
 targets in the AWS bucket using this namespace.
 
 Transient Sources
