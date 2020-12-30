@@ -55,10 +55,10 @@ To completely delete a versioned object, you must issue S3 API commands
 from the command line.
 
 If you have not already done so, follow the instructions at
-:ref:`Zenko from the Command Line` to configure one of your nodes to accept
+:ref:`|product| Command Line Operation` to configure one of your nodes to accept
 AWS S3 CLI commands.
 
-Zenko provides command-line scripts that enable removing versioned objects 
+|product| provides command-line scripts that enable removing versioned objects 
 completely (both removing the object data and its object ID from the namespace).
 
 The cleanupBuckets.js script is available in the s3utils pod. 
@@ -72,12 +72,14 @@ Run it as follows:
    .. tip::
 
       The s3utils pod is disabled by default. You can also enable it by adding
-      the following to the options file and upgrading your Zenko deployment::
+      the following to the options file and upgrading your |product| deployment
+
+      .. parsed-literal::
 
         maintenance:
 	  debug:
 	    enabled: true
-	      # An access/secret key to access Zenko that will be used to configure the s3utils pod
+	      # An access/secret key to access |product| that will be used to configure the s3utils pod
 	      accessKey: <access-key>
 	      secretKey: <secret-key>
 

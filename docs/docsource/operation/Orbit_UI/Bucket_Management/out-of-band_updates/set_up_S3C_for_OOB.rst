@@ -11,20 +11,20 @@ The following are required to configure out-of-band updates for S3 Connector:
 * An S3 bucket must be established on an S3 Connector (version 7.4.4 or
   later). See "Using the S3 Browser" in *S3 Connector Operation*.
 
-* The S3 Connector bucket must have permissions that enable Zenko access.
+* The S3 Connector bucket must have permissions that enable |product| access.
 
 * The S3 Connector bucket must have versioning enabled.
 
-* The Zenko user must have access to an S3 Connector user credentials (an access
+* The |product| user must have access to an S3 Connector user credentials (an access
   key and a secret key) and the S3-credentialed user must have access to the
   target S3 bucket.
 
-Establishing a Zenko user in S3 Connector with all and only necessary
+Establishing a |product| user in S3 Connector with all and only necessary
 permissions to access the bucket is considered a best practice. See "Create a
-Zenko User for Out-of-Band Updates" in *S3 Connector Operation* for how to
-assign correct policies to a Zenko user for S3 access.
+|product| User for Out-of-Band Updates" in *S3 Connector Operation* for how to
+assign correct policies to a |product| user for S3 access.
 
-There are no special Zenko dependencies for Zenko 1.1 or later. 
+There are no special |product| dependencies for |product| 1.1 or later. 
 
 Set Up Out-of-Band Updates for S3 Connector
 -------------------------------------------
@@ -85,5 +85,5 @@ Set Up Out-of-Band Updates for S3 Connector
       activated and no longer grayed out.
 
 In a few minutes, objects stored in the S3 Connector become visible and
-manageable from Zenko. Files uploaded to Zenko propagate to S3 Connector as
+manageable from |product|. Files uploaded to |product| propagate to S3 Connector as
 well.

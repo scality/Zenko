@@ -3,7 +3,7 @@
 get-object
 ==========
 
-Retrieves objects from Zenko.
+Retrieves objects from |product|.
 
 See also: :ref:`GET Object`.
 
@@ -108,7 +108,7 @@ Examples
 --------
 
 The following example uses the ``get-object`` command to download an object from
-Zenko::
+|product|  ::
 
   $ aws s3api get-object --bucket text-content --key dir/my_images.tar.bz2 my_images.tar.bz2
 
@@ -210,7 +210,7 @@ Expires -> (timestamp)
 WebsiteRedirectLocation -> (string)
 
   If the bucket is configured as a website, redirects requests for this object
-  to another object in the same bucket or to an external URL. Zenko stores
+  to another object in the same bucket or to an external URL. |product| stores
   the value of this header in the object metadata.
 
 ServerSideEncryption -> (string)

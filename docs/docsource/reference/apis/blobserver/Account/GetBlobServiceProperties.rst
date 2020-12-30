@@ -184,7 +184,7 @@ The following table describes the elements of the response body:
    +===================================+===================================+
    | Logging                           | Groups the Azure Analytics        |
    |                                   | Logging settings. Disabled in     |
-   |                                   | Zenko version |version|.          |
+   |                                   | |product| version |version|.      |
    +-----------------------------------+-----------------------------------+
    | Metrics                           | Groups the Azure Analytics        |
    |                                   | Metrics settings. The             |
@@ -192,7 +192,7 @@ The following table describes the elements of the response body:
    |                                   | summary of request statistics     |
    |                                   | grouped by API in hourly          |
    |                                   | aggregates for blobs. Disabled in |
-   |                                   | Zenko version |version|.          |
+   |                                   | |product| version |version|.      |
    +-----------------------------------+-----------------------------------+
    | HourMetrics                       | Groups the Azure Analytics        |
    |                                   | HourMetrics settings. The         |
@@ -200,14 +200,14 @@ The following table describes the elements of the response body:
    |                                   | a summary of request statistics   |
    |                                   | grouped by API in hourly          |
    |                                   | aggregates for blobs. Disabled in |
-   |                                   | Zenko version |version|.          |
+   |                                   | |product| version |version|.      |
    +-----------------------------------+-----------------------------------+
    | MinuteMetrics                     | Groups the Azure Analytics        |
    |                                   | MinuteMetrics settings. The       |
    |                                   | MinuteMetrics settings            |
    |                                   | provide request statistics for    |
    |                                   | each minute for blobs. Disabled   |
-   |                                   | in Zenko version |version|.       |
+   |                                   | in |product| version |version|.   |
    +-----------------------------------+-----------------------------------+
    | Version                           | The version of Storage Analytics  |
    |                                   | currently in use. The Blobserver  |
@@ -263,7 +263,7 @@ The following table describes the elements of the response body:
    |                                   | ``2018-03-28``.                   |
    +-----------------------------------+-----------------------------------+
    | Cors                              | Groups all CORS rules. Not        |
-   |                                   | supported in Zenko version        |
+   |                                   | supported in |product| version    |
    |                                   | |version|.                        |
    +-----------------------------------+-----------------------------------+
    | CorsRule                          | Groups settings for a CORS rule.  |
@@ -294,7 +294,7 @@ The following table describes the elements of the response body:
    +-----------------------------------+-----------------------------------+
    | DeleteRetentionPolicy             | Groups the Azure Delete settings. |
    |                                   | Applies only to the Blob service. |
-   |                                   | Not supported in Zenko version    |
+   |                                   | Not supported in |product| version|
    |                                   | |version|.                        |
    +-----------------------------------+-----------------------------------+
    | Enabled                           | Indicates whether deleted blob    |
@@ -309,7 +309,7 @@ The following table describes the elements of the response body:
    | StaticWebsite                     | Groups the static website         |
    |                                   | settings. Applies only to the     |
    |                                   | Blob service. Not supported in    |
-   |                                   | Zenko version |version|.          |
+   |                                   | |product| version |version|.      |
    +-----------------------------------+-----------------------------------+
    | StaticWebsite: Enabled            | Indicates whether                 |
    |                                   | staticwebsite support is          |

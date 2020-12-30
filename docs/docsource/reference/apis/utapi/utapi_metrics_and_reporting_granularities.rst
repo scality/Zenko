@@ -1,7 +1,7 @@
 UTAPI Metrics and Reporting Granularities
 =========================================
 
-Zenko can track and report the following utilization metrics through a RESTful
+|product| can track and report the following utilization metrics through a RESTful
 API:
 
 -  Storage capacity in bytes
@@ -24,11 +24,11 @@ at the bucket level.
 
 This service is deployed and accessed through a RESTful API that is
 securely authenticated via HTTPS, on a dedicated web server and port.
-The service is integrated with the Zenko IAM policies for access control
+The service is integrated with the |product| IAM policies for access control
 through the ``utapi:ListMetrics`` policy action.
 
 To enable access, an IAM policy must first be created that grants
-permission for the action, after which the policy must be set to the Zenko IAM
+permission for the action, after which the policy must be set to the |product| IAM
 Users or IAM Groups that are permitted to access the service metrics.
 
 .. note::

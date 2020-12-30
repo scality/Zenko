@@ -56,7 +56,7 @@ The following table describes required and optional request headers.
    |                            | for the request. For more information, see                  |
    |                            | |authorize-requests|.                                       |
    +----------------------------+-------------------------------------------------------------+
-   | ``x-ms-lease-id``          | Not applicable (Zenko version |version| does not support    |
+   | ``x-ms-lease-id``          | Not applicable (|product| version |version| does not support|
    |                            | leasing).                                                   |
    +----------------------------+-------------------------------------------------------------+
    | ``x-ms-version``           | Required for all authorized requests, optional for          |

@@ -1,7 +1,7 @@
 CloudServer
 ===========
 
-Zenko CloudServer is an open-source Node.js object storage server
+|product| CloudServer is an open-source Node.js object storage server
 handling the Amazon S3 protocols.
 
 By providing a free-standing implementation of the S3 API, CloudServer
@@ -55,7 +55,7 @@ Overview
 Use Cases
 ---------
 
-As currently implemented with Zenko, CloudServer supports the following
+As currently implemented with |product|, CloudServer supports the following
 use cases.
 
 -  **Direct cloud storage**

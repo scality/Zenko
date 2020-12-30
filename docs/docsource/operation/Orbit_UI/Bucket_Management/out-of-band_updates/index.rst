@@ -3,10 +3,10 @@
 Out-of-Band Updates
 ===================
 
-Zenko operates by establishing and managing a namespace of data. For select
-object stores, Zenko does not have to create a namespace; rather, it can read an
+|product| operates by establishing and managing a namespace of data. For select
+object stores, |product| does not have to create a namespace; rather, it can read an
 existing namespace and use it as its own. This process of metadata ingestion
-makes it easier to manage existing data stores, as Zenko can "go back in time"
+makes it easier to manage existing data stores, as |product| can "go back in time"
 and pick up the history of a namespace and assume management and replication
 tasks retroactively.
 

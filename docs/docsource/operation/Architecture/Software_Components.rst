@@ -1,7 +1,7 @@
 Component Software
 ===================
 
-Zenko consists of several microservices. Among these are:
+|product| consists of several microservices. Among these are:
 
 .. toctree::
    :maxdepth: 1

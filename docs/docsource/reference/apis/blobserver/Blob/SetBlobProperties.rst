@@ -115,7 +115,7 @@ The following table describes required and optional request headers.
    |                                   | it is explicitly set on the blob  |
    |                                   | again.                            |
    +-----------------------------------+-----------------------------------+
-   | ``x-ms-lease-id``                 | Not applicable (Zenko version     |
+   | ``x-ms-lease-id``                 | Not applicable (|product| version |
    |                                   | |version| does not support        |
    |                                   | leasing).                         |
    +-----------------------------------+-----------------------------------+

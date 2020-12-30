@@ -1,7 +1,7 @@
 Access Controls
 ===============
 
-Zenko implements access controls that conform to the S3 API for:
+|product| implements access controls that conform to the S3 API for:
 
 * Access Control Lists (ACLs)
 * Cross-Origin Resource Sharing (CORS)

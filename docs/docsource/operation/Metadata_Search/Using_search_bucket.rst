@@ -34,7 +34,7 @@ This produces the following output:
       -v, --verbose
       -h, --help                    output usage information
 
-In the following examples, Zenko is accessible on endpoint
+In the following examples, |product| is accessible on endpoint
 ``http://zenko.local:80`` and contains the bucket ``zenkobucket``.
 
 -  To search for objects with metadata ``blue``:

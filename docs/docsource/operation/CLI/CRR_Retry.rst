@@ -5,7 +5,7 @@ CRR Retry
 
 The CRR Retry feature lets users monitor and retry failed CRR
 operations. Users can retrieve a list of failed operations and order
-Zenko to retry specific CRR operations.
+|product| to retry specific CRR operations.
 
 From Orbit
 ----------

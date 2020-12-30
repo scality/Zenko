@@ -70,8 +70,8 @@ GET Bucket (List Objects) Version 2 uses the following parameters:
    |                        |                                             |          |
    |                        | **Default:** None                           |          |
    +------------------------+---------------------------------------------+----------+
-   | ``encoding-type``      | Requests Zenko to encode the response and   | No       |
-   |                        | specifies the encoding method to use.       |          |
+   | ``encoding-type``      | Requests |product| to encode the response   | No       |
+   |                        | and specifies the encoding method to use.   |          |
    |                        |                                             |          |
    |                        | An object key can contain any Unicode       |          |
    |                        | character. However, XML 1.0 parsers cannot  |          |
@@ -134,9 +134,10 @@ GET Bucket (List Objects) Version 2 uses the following parameters:
    |                        | next request as the ``continuation-token``. |          |
    |                        |                                             |          |
    |                        | * The continuation token is an opaque value |          |
-   |                        |   that Zenko understands.                   |          |
-   |                        | * Zenko lists objects in UTF-8 character    |          |
-   |                        |   encoding in lexicographic order.          |          |
+   |                        |   that |product| understands.               |          |
+   |                        | * |product| lists objects in UTF-8          |          |
+   |                        |   character encoding in lexicographic       |          |
+   |                        |   order.                                    |          |
    |                        |                                             |          |
    |                        | **Type:** String                            |          |
    |                        |                                             |          |
@@ -153,8 +154,8 @@ GET Bucket (List Objects) Version 2 uses the following parameters:
    +------------------------+---------------------------------------------+----------+
    | ``start-after``        | Add this parameter to request the API to    | No       |
    |                        | return key names after a specific object    |          |
-   |                        | key in your key space. Zenko lists objects  |          |
-   |                        | in UTF-8 character encoding in              |          |
+   |                        | key in your key space. |product| lists      |          |
+   |                        | objects in UTF-8 character encoding in      |          |
    |                        | lexicographic order.                        |          |
    |                        |                                             |          |
    |                        | This parameter is valid only in a first     |          |
@@ -249,14 +250,14 @@ Elements
    |                            |                                               |
    |                            | **Ancestor:** ListBucketResult.Contents.Owner |
    +----------------------------+-----------------------------------------------+
-   | ``Encoding-Type``          | Encoding type used by Zenko to encode object  |
-   |                            | key names in the XML response.                |
+   | ``Encoding-Type``          | Encoding type used by |product| to encode     |
+   |                            | object key names in the XML response.         |
    |                            |                                               |
    |                            | If you specify encoding-type request          |
-   |                            | parameter, Zenko includes this element in the |
-   |                            | response, and returns encoded key name values |
-   |                            | in the ``Delimiter``, ``Prefix``, ``Key``,    |
-   |                            | and ``StartAfter`` response elements.         |
+   |                            | parameter, |product| includes this element in |
+   |                            | the response, and returns encoded key name    |
+   |                            | values in the ``Delimiter``, ``Prefix``,      |
+   |                            | ``Key``, and ``StartAfter`` response elements.|
    |                            |                                               |
    |                            | **Type:** String                              |
    |                            |                                               |
@@ -360,9 +361,9 @@ Elements
    +----------------------------+-----------------------------------------------+
    | ``NextContinuationToken``  | .. _NextContinuationToken:                    |
    |                            |                                               |
-   |                            | If the response is truncated, Zenko returns   |
-   |                            | this parameter with a continuation token.     |
-   |                            | You can specify the token as the              |
+   |                            | If the response is truncated, |product|       |
+   |                            | returns this parameter with a continuation    |
+   |                            | token. You can specify the token as the       |
    |                            | continuation-token in your next request to    |
    |                            | retrieve the next set of keys.                |
    |                            |                                               |
@@ -382,7 +383,7 @@ Special Errors
 ~~~~~~~~~~~~~~
 
 This operation does not return special errors. For general information about the
-AWS errors Zenko uses, and a list of error codes, see :ref:`AWS S3 Error Messages`.
+AWS errors |product| uses, and a list of error codes, see :ref:`AWS S3 Error Messages`.
 
 Examples
 --------
@@ -505,9 +506,9 @@ The following GET request specifies the delimiter parameter with value /.
 Response
 ````````
 
-The sample.jpg key does not contain the delimiter character, and Zenko returns
+The sample.jpg key does not contain the delimiter character, and |product| returns
 it in the Contents element in the response. However, all other keys contain the
-delimiter character. Zenko groups these keys and returns a single
+delimiter character. |product| groups these keys and returns a single
 ``CommonPrefixes`` element with the prefix value ``photos/``. The element is a
 substring that starts at the beginning of these keys and ends at the first
 occurrence of the specified delimiter.
@@ -550,10 +551,10 @@ the prefix parameter with valuephotos/2006/.
 Response
 ````````
 
-In response, Zenko returns only the keys that start with the specified
+In response, |product| returns only the keys that start with the specified
 prefix. Further, it uses the delimiter character to group keys that contain the
 same substring until the first occurrence of the delimiter character after the
-specified prefix. For each such key group Zenko returns one CommonPrefixes
+specified prefix. For each such key group |product| returns one CommonPrefixes
 element in the response. The keys grouped under this CommonPrefixes element are
 not returned elsewhere in the response. The value returned in the CommonPrefixes
 element is a substring that starts at the beginning of the key and ends at the
@@ -588,7 +589,7 @@ Using a Continuation Token
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In this example, the initial request returns more than 1000 keys. In response to
-this request, Zenko returns the IsTruncated element with the value set to true
+this request, |product| returns the IsTruncated element with the value set to true
 and with a NextContinuationToken element.
 
 Request
@@ -653,7 +654,7 @@ response.
 Response
 ````````
 
-Zenko returns a list of the next set of keys starting where the previous
+|product| returns a list of the next set of keys starting where the previous
 request ended.
 
 .. code::

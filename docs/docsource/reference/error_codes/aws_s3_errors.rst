@@ -3,7 +3,7 @@
 AWS S3 Error Messages
 =====================
 
-Zenko may return the following AWS error messages, which are available to the
+|product| may return the following AWS error messages, which are available to the
 AWS-emulating CloudServer module:
 
 .. tabularcolumns:: X{0.47\textwidth}X{0.05\textwidth}X{0.43\textwidth}
@@ -348,7 +348,7 @@ AWS-emulating CloudServer module:
 Non-AWS S3 Error Messages
 -------------------------
 
-Zenko also may return the following non-AWS S3 error message during a multipart
+|product| also may return the following non-AWS S3 error message during a multipart
 upload:
 
 .. tabularcolumns:: X{0.40\textwidth}X{0.10\textwidth}X{0.45\textwidth}

@@ -4,7 +4,7 @@ Orbit Security
 Orbit sessions use a direct connection proxied through
 `https://admin.zenko.io <https://admin.zenko.io/>`__. Connections are
 encrypted end-to-end between the user’s browser and the admin.zenko.io
-proxy, and from there to the Zenko instance. No user content in
+proxy, and from there to the |product| instance. No user content in
 transmission is stored, cached, read, or readable by Scality systems.
 
 Metrics (and configuration) are stored in Scality systems using
@@ -13,8 +13,8 @@ essential namespace information
 
 -  Bucket names
 -  Remote credential names (secret keys are encrypted such that only the
-   Zenko instance itself can decrypt them)
--  Zenko-local storage account names, location names and endpoints
+   |product| instance itself can decrypt them)
+-  |product|-local storage account names, location names and endpoints
 
 The following features employ real-time communication
 

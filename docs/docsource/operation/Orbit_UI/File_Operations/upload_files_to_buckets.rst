@@ -34,7 +34,7 @@ at least one bucket.
 
       Browsers may limit the ability to upload directories. Uploading a
       directory may require that you recursively zip the directory and upload it
-      as a single file, or access Zenko through a cloud storage browser such as
+      as a single file, or access |product| through a cloud storage browser such as
       Cyberduck.
 
    .. note::

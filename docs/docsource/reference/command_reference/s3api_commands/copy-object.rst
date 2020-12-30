@@ -3,7 +3,7 @@
 copy-object
 ===========
 
-Creates a copy of an object stored in Zenko.
+Creates a copy of an object stored in |product|.
 
 .. note::
    
@@ -15,8 +15,8 @@ to the source object and write access to the destination bucket. Your account
 must have permissions for both the region from which you want to copy the object
 and the region to which you want to copy the object.
 
-A copy request might return an error when Zenko receives the copy request
-or while Zenko is copying the files. If the error occurs before the copy
+A copy request might return an error when |product| receives the copy request
+or while |product| is copying the files. If the error occurs before the copy
 operation starts, you receive a standard S3 error. If the error occurs during
 the copy operation, the error response is embedded in the ``200 OK``
 response. This means that a ``200 OK`` response can contain either a success or
@@ -52,7 +52,7 @@ the following request parameters:
 * ``x-amz-copy-source-if-modified-since``
 
 If both the x-amz-copy-source-if-match and x-amz-copy-source-if-unmodified-since
-headers are present in the request and evaluate as follows, Zenko returns
+headers are present in the request and evaluate as follows, |product| returns
 ``200 OK`` and copies the data:
 
 * ``x-amz-copy-source-if-match`` condition evaluates to true
@@ -60,7 +60,7 @@ headers are present in the request and evaluate as follows, Zenko returns
 
 If both the x-amz-copy-source-if-none-match and
 x-amz-copy-source-if-modified-since headers are present in the request and
-evaluate as follows, Zenko returns the ``412 Precondition Failed``
+evaluate as follows, |product| returns the ``412 Precondition Failed``
 response code:
 
 * ``x-amz-copy-source-if-none-match`` condition evaluates to false
@@ -76,7 +76,7 @@ Encryption
 
 The source object being copied can be encrypted or unencrypted. The source
 object can be encrypted with server-side encryption using Scality-managed
-encryption keys (SSE-S3). With server-side encryption, Zenko encrypts
+encryption keys (SSE-S3). With server-side encryption, |product| encrypts
 data as it writes it to disk and decrypts the data when you access it.
 
 You can request server-side encryption for the target object regardless of
@@ -88,28 +88,28 @@ ACL-Specific Request Headers
 When copying an object, you may use headers to grant permissions based on access
 control lists (ACLs). By default, all objects are private. Only the owner has
 full access control. When adding a new object, you can grant permissions to
-individual AWS accounts or to predefined groups defined by Zenko. These
+individual AWS accounts or to predefined groups defined by |product|. These
 permissions are then added to the ACL on the object.
 
 Storage Class Options
 ---------------------
 
 You can use the CopyObject operation to change the storage class of an object
-that is already stored in Zenko using the StorageClass parameter.
+that is already stored in |product| using the StorageClass parameter.
 
 Versioning
 ----------
 	
 By default, x-amz-copy-source identifies the current version of an object to
-copy. If the current version is a delete marker, Zenko behaves as if the
+copy. If the current version is a delete marker, |product| behaves as if the
 object were deleted. To copy a different version, use the versionId subresource.
 
-If you enable versioning on the target bucket, Zenko generates a unique
+If you enable versioning on the target bucket, |product| generates a unique
 version ID for the object being copied. This version ID is different from the
-version ID of the source object. Zenko returns the version ID of the
+version ID of the source object. |product| returns the version ID of the
 copied object in the x-amz-version-id response header in the response.
 
-If you do not enable versioning or suspend it on the target bucket, Zenko
+If you do not enable versioning or suspend it on the target bucket, |product|  
 generates a null version ID.
 
 The following operations are related to CopyObject :
@@ -300,7 +300,7 @@ Options
 ``--website-redirect-location`` (string)
 
    If the bucket is configured as a website, redirects requests for this object
-   to another object in the same bucket or to an external URL. Zenko
+   to another object in the same bucket or to an external URL. |product|  
    stores the value of this header in the object metadata.
 
 ``--tagging`` (string)

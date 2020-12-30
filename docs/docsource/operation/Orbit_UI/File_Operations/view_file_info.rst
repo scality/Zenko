@@ -51,6 +51,6 @@ To view information about a file:
    These are S3-supported tags (see
    https://docs.aws.amazon.com/AmazonS3/latest/dev/object-tagging.html).
    Because other backends may not support the S3 tagging structure,
-   operations that use these tags must be performed using Zenko.
+   operations that use these tags must be performed using |product|.
 
 

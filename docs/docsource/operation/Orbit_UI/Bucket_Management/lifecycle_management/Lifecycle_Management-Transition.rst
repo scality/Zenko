@@ -45,7 +45,7 @@ To establish a lifecycle transition rule:
    .. image:: ../../../Graphics/Orbit_lifecycle_transition_rule_success.png
       :align: center
 
-   Zenko will enforce these rules on this bucket. If replication is configured, 
+   |product| will enforce these rules on this bucket. If replication is configured, 
    any change of state to objects in this bucket can be replicated to buckets 
    on other clouds.
 

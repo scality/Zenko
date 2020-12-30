@@ -24,7 +24,7 @@ GetBucketNotificationConfiguration.
 
 .. note::
    
-   Zenko supports QueueConfiguration notification types only. There is no
+   |product| supports QueueConfiguration notification types only. There is no
    support for CloudFunctionConfiguration and TopicConfiguration notification
    types.
 

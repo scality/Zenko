@@ -8,7 +8,7 @@ Status window.
 
 .. image:: ../../Graphics/location_status.png
 
-This provides a "high view" of the cloud locations under Zenko's management.
+This provides a "high view" of the cloud locations under |product|'s management.
 From the Location Status window, you can see which locations are configured,
 each location's type and operating status, and the amount of data stored at
 that location.

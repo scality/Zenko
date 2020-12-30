@@ -5,7 +5,7 @@ On login, the dashboard displays:
 
 |image0|
 
-The dashboard provides useful information about ongoing Zenko
+The dashboard provides useful information about ongoing |product|
 operations, replication status, and cloud server health.
 
 The Sidebar

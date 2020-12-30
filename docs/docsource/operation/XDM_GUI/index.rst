@@ -9,10 +9,11 @@ API, most of its features are also available through the |product| UI, providing
 ease of use and excellent opportunities for visualizing managed data.
 
 .. toctree::
-   :maxdepth: 1
-
+   :maxdepth: 2
+	      
    account_operations/index
    location_management/index
+   bucket_operations/index
 
 
 

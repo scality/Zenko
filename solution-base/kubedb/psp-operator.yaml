@@ -1,7 +1,7 @@
 apiVersion: policy/v1beta1
 kind: PodSecurityPolicy
 metadata:
-  name: kubedb-${KUBEDB_OPERATOR_NAME}
+  name: ${KUBEDB_OPERATOR_NAME}
   labels:
     app: kubedb
 spec:

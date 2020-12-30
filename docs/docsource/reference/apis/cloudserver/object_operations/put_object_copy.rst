@@ -62,7 +62,7 @@ two ways to grant the permissions using the request headers:
 -  Specify access permissions explicitly using thex-amz-grant-read,
    x-amz-grant-read-acp, x-amz-grant-write-acp, and
    x-amz-grant-full-control headers. These headers map to the set of
-   permissions Zenko supports in an ACL.
+   permissions |product| supports in an ACL.
 
 .. note::
 
@@ -144,13 +144,13 @@ Headers`).
    |                                           |        | storage class, and website-redirect-\    |
    |                                           |        | location metadata from the source is not |
    |                                           |        | copied. If you specify this metadata     |
-   |                                           |        | explicitly in the copy request, Zenko    |
-   |                                           |        | adds this metadata to the resulting      |
-   |                                           |        | object. If you specify headers in the    |
-   |                                           |        | request specifying any user-defined      |
-   |                                           |        | metadata, Zenko ignores these headers.   |
-   |                                           |        | To use new user-defined metadata,        |
-   |                                           |        | REPLACE must be selected.                |
+   |                                           |        | explicitly in the copy request,          |
+   |                                           |        | |product| adds this metadata to the      |
+   |                                           |        | resulting object. If you specify headers |
+   |                                           |        | in the request specifying any user-\     |
+   |                                           |        | defined metadata, |product| ignores      |
+   |                                           |        | these headers. To use new user-defined   |
+   |                                           |        | metadata, select REPLACE.                |
    |                                           |        |                                          |
    |                                           |        | If replaced, all original metadata is    |
    |                                           |        | replaced by the specified metadata.      |
@@ -222,8 +222,8 @@ Headers`).
    |                                           |        | cannot be used with other conditional    |
    |                                           |        | copy headers.                            |
    +-------------------------------------------+--------+------------------------------------------+
-   | ``x-amz-storage-class``                   | enum   | The default storage class is “Standard.” |
-   |                                           |        | Currently, Zenko only suports one level  |
+   | ``x-amz-storage-class``                   | enum   | The default storage class is "Standard." |
+   |                                           |        | Currently, |product| only suports one    |
    |                                           |        | level of storage class. You can use this |
    |                                           |        | parameter to set location/service        |
    |                                           |        | information.                             |
@@ -239,14 +239,14 @@ headers:
 
 #. If both of the x-amz-copy-source-if-match and
    x-amz-copy-source-if-unmodified-since headers are present in the request as
-   follows, Zenko returns ``200 OK`` and copies the data:
+   follows, |product| returns ``200 OK`` and copies the data:
 
    * x-amz-copy-source-if-match condition evaluates to true, and
    * x-amz-copy-source-if-unmodified-since condition evaluates to false
 
 #. If both of the x-amz-copy-source-if-none-match and
    x-amz-copy-source-if-modified-since headers are present in the request as
-   follows, Zenko returns a ``412 Precondition Failed`` response code:
+   follows, |product| returns a ``412 Precondition Failed`` response code:
 
    * x-amz-copy-source-if-none-match condition evaluates to false, and
    * x-amz-copy-source-if-modified-since condition evaluates to true
@@ -255,13 +255,13 @@ Additionally, the following access control-related (ACL) headers can be used
 with the PUT Object - Copy operation. By default, all objects are private; only
 the owner has full access control. When adding a new object, it is possible to
 grant permissions to individual AWS accounts or predefined groups defined by
-Zenko. These permissions are then added to the Access Control List (ACL) on
+|product|. These permissions are then added to the Access Control List (ACL) on
 the object. For more information, refer to :ref:`Access Control Lists`.
 
 Specifying a Canned ACL
 ```````````````````````
 
-Zenko supports a set of predefined ACLs, each of which has a predefined set of
+|product| supports a set of predefined ACLs, each of which has a predefined set of
 grantees and permissions.
 
 To grant access permissions by specifying canned ACLs, use the x-amz-acl header
@@ -299,7 +299,7 @@ specific accounts or groups.
 .. note::
 
   Each of the x-amz-grant-permission headers maps to specific permissions that
-  Zenko supports in an ACL. Please also note that the use of any of these
+  |product| supports in an ACL. Please also note that the use of any of these
   ACL-specific headers negates the use of the x-amz-acl header to set a canned
   ACL.
 
@@ -394,7 +394,7 @@ Response Headers`).
    |                                                     |        | encryption is          |
    |                                                     |        | specified either with  |
    |                                                     |        | an AWS KMS or          |
-   |                                                     |        | Zenko-managed          |
+   |                                                     |        | |product|\-managed     |
    |                                                     |        | encryption key in the  |
    |                                                     |        | copy request, the      |
    |                                                     |        | response includes this |

@@ -10,10 +10,10 @@ from .. import util
 _log = logging.getLogger('cosmos')  # pylint: disable=invalid-name
 
 MD5_HASHES = {
-    "file1": "e61d15de7ad98164bad4394b818510a9",  # 1KB
-    "file2": "18bcf93f4a001b4cdfc3fc702847864f",  # 1MB
-    "file3": "e463f804492a9be73d8621e1f54f57d6",  # 10MB
-    "file4": "1baecec7b7c658357288ac736b6e95a6",  # 100MB
+    "file1": "b781c1f5179214f6d7f3f957a989a5b9",  # 1KB
+    "file2": "e1961ee5d47897950cc57b7c98fd43d2",  # 1MB
+    "file3": "7e96ca8de916f4a259ef7b4fcdb49d91",  # 10MB
+    "file4": "aa06df7da67c9362335bc2068b3d49c9",  # 100MB
 }
 
 

@@ -5,7 +5,7 @@ Setting Up an Orbit Sandbox Instance
 
 A good way to learn how to use Orbit is through the sandbox feature
 available at `zenko.io <https://zenko.io/>`__ under
-`Try Zenko <https://www.zenko.io/try-zenko/>`__.
+`Try |product| <https://www.zenko.io/try-zenko/>`__.
 
 **Prerequisites**
 
@@ -15,7 +15,7 @@ available at `zenko.io <https://zenko.io/>`__ under
 The Sandbox is a great place to learn how Orbit will help you manage
 your data. To set up a Sandbox instance:
 
-#. Open `zenko.io <https://zenko.io/>`__, and click `Try Zenko
+#. Open `zenko.io <https://zenko.io/>`__, and click `Try |product|
    <https://www.zenko.io/try-zenko/>`__.
 
    |image0|
@@ -73,9 +73,9 @@ your data. To set up a Sandbox instance:
 
    .. image:: ../../Graphics/sandbox_settings.png
 
-   The sandbox runs against a Zenko instance hosted by Scality. Though this
+   The sandbox runs against a |product| instance hosted by Scality. Though this
    demonstration instance is limited both in its lifespan and in the amount of
-   data it can handle, you can use it to watch Zenko in action. 
+   data it can handle, you can use it to watch |product| in action. 
 
 .. |image0| image:: ../../Graphics/Zenko.io_screen.png
 .. |image1| image:: ../../Graphics/Orbit_Welcome_screen.png

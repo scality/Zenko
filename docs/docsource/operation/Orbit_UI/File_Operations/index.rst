@@ -4,7 +4,7 @@ File Operations
 **Prerequisites:** You must have at least one account, containing at
 least one bucket.
 
-For each file stored in a Zenko bucket, you can view info, manipulate
+For each file stored in a |product| bucket, you can view info, manipulate
 tags and metadata, download the file to your local machine, or delete
 the file from the bucket.
 
@@ -18,7 +18,7 @@ To access these operations:
 
    .. image:: ../../Graphics/multicloud_browser_1_bucket.png
 
-   -  If the bucket is empty, Zenko asks you to **Drag and Drop
+   -  If the bucket is empty, |product| asks you to **Drag and Drop
       Objects**:
 
       |image0|

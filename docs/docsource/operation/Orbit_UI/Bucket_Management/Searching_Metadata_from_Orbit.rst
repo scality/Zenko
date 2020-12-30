@@ -10,9 +10,9 @@ files.
 
 Orbit provides a graphical tool for performing metadata searches, the
 syntax for which is hinted under the search bar itself, but also
-described explicitly in :ref:`Searching Metadata with Zenko`.
+described explicitly in :ref:`Searching Metadata with |product|`.
 
-To search the metadata of files stored in clouds managed by Zenko,
+To search the metadata of files stored in clouds managed by |product|,
 
 #. Click **Search** in the sidebar to raise the **Multicloud Search** window.
 
@@ -23,7 +23,7 @@ To search the metadata of files stored in clouds managed by Zenko,
    |image1|
 
 #. Enter metadata search terms in the modified NoSQL format described in
-   :ref:`Searching Metadata with Zenko`. Click the magnifying glass icon.
+   :ref:`Searching Metadata with |product|`. Click the magnifying glass icon.
 
    .. image::  ../../Graphics/metadata_search_results.png
 

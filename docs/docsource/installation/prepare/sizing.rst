@@ -3,7 +3,7 @@
 Sizing
 ======
 
-The following sizes for Zenko instances have been tested on live systems using
+The following sizes for |product| instances have been tested on live systems using
 MetalK8s, which adds some overhead. If you are running a different Kubernetes
 engine, fewer resources may be required, but such configurations are not
 supported and remain to be tested.
@@ -79,7 +79,7 @@ To make changes, copy the default settings from values.yaml or storage.yaml to
 Zenko/kubernetes/options.yaml and modify the values there.
 
 To override default values using options.yaml, use the following addendum to the
-``helm install`` invocation at :ref:`Install_Zenko`.
+``helm install`` invocation at :ref:`Install_|product|`.
 
 ::
 

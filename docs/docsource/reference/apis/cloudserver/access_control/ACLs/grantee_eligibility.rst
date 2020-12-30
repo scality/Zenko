@@ -3,7 +3,7 @@ Grantee Eligibility
 
 A grantee can be an account or one of the predefined groups. Permission
 is granted to an account by the email address or the canonical user ID.
-However, if an email address is provided in the grant request, Zenko finds the
+However, if an email address is provided in the grant request, |product| finds the
 canonical user ID for that account and adds it to the ACL. The resulting
 ACLs always contain the canonical user ID for the account, not the
 account’s email address.
@@ -18,7 +18,7 @@ that account’s canonical user ID.
 Predefined Amazon S3 Groups
 ---------------------------
 
-Zenko offers the use of Amazon S3 predefined groups. When granting account
+|product| offers the use of Amazon S3 predefined groups. When granting account
 access to such a group, specify one of URIs instead of a canonical user
 ID.
 

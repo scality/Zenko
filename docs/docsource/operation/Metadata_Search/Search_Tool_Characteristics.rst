@@ -82,8 +82,8 @@ The search example above returns the following results
 Searchable Metadata and Tags
 ----------------------------
 
-Because Zenko supports two classes of custom tags, it is not possible to
-list all the ways to search data in Zenko. At a mimimum, however, files
+Because |product| supports two classes of custom tags, it is not possible to
+list all the ways to search data in |product|. At a mimimum, however, files
 will have the following fields inscribed, and these will be searchable:
 
 -  cache-control

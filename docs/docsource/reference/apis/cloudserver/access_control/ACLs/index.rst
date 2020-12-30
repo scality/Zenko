@@ -8,11 +8,11 @@ and objects.
 
 Each bucket and object has an ACL attached to it as a subresource,
 defining which accounts or groups are granted access and the type of
-access. When a request is received against a resource, Zenko checks the
+access. When a request is received against a resource, |product| checks the
 corresponding ACL to verify the requester has the necessary access
 permissions.
 
-When a bucket or object is created, Zenko creates a default ACL that grants
+When a bucket or object is created, |product| creates a default ACL that grants
 the resource owner full control over the resource as shown in the
 following sample bucket ACL (the default object ACL has the same
 structure).

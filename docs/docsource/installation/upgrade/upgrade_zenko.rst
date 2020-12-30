@@ -1,7 +1,7 @@
 Upgrading
 =========
 
-Once a Zenko instance is up and running, you can upgrade it with a
+Once a |product| instance is up and running, you can upgrade it with a
 simple Helm command. 
 
 Before Upgrade
@@ -11,7 +11,7 @@ Most installations use custom values to set them up as required.
 Compare any live values to those to be applied in an
 upgrade to ensure consistency and prevent undesired changes.
 
-To see the custom values of a running Zenko instance::
+To see the custom values of a running |product| instance::
 
    $ helm get values {{zenko-release-name}} > pre_upgrade_values.yaml
 
@@ -34,15 +34,15 @@ For example::
    and, if possible, validate a compatible upgrade. If the ``--debug``
    flag is set, Helm outputs all templated values and deployment
    configurations to be installed. These are basic validations, but
-   their upgrade implications must be considered by both the Zenko and
+   their upgrade implications must be considered by both the |product| and
    Kubernetes administrators.
 
 Upgrade
 -------
 
-To upgrade Zenko: 
+To upgrade |product|: 
 
-#. Back up your existing Zenko directory.
+#. Back up your existing |product| directory.
 
    ::
 
@@ -54,14 +54,14 @@ To upgrade Zenko:
 #. Unpack the .zip or .tar.gz file and navigate to Zenko/kubernetes/. 
 
 #. Copy Zenko/kubernetes/options.yaml from your existing Zenko
-   source directory to the same directory in the new Zenko source.  
+   source directory to the same directory in the new |product| source.  
 
 #. If you have modified the node count from the default value of 3,
    go to Zenko/kubernetes/zenko/values.yaml in the new Zenko source and
    edit the nodeCount value to match the existing nodeCount value. 
 
-#. From the kubernetes/ directory of the new Zenko source, enter this
-   Helm command, inserting your Zenko server's name:
+#. From the kubernetes/ directory of the new |product| source, enter this
+   Helm command, inserting your |product| server's name:
 
    ::
       

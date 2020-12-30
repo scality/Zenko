@@ -18,10 +18,10 @@ AWS-to-AWS Replication
 #. From the Multicloud Browser, create another bucket and set the new AWS
    location as its location constraint.
 
-   If using AWS CLI, set the endpoint as the Zenko deployment, and location
+   If using AWS CLI, set the endpoint as the |product| deployment, and location
    constraint as the AWS location.
 
-#. The bucket created through Zenko appears in the drop-down menu on the **Set
+#. The bucket created through |product| appears in the drop-down menu on the **Set
    up bucket replication** dialog box.
 
    .. image:: ../../Graphics/Orbit_set_up_bucket_replication_pulldown.png

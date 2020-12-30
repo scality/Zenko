@@ -41,7 +41,7 @@ Establishing an Object Expiration Policy
 
    |image4|
 
-   Zenko will enforce these rules on this bucket. 
+   |product| will enforce these rules on this bucket. 
 
 Versioning logic precludes simply deleting an object: that day’s object
 is deleted, but earlier versions remain. See warning at 

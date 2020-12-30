@@ -135,7 +135,7 @@ types.
    |                                   |                                   |
    |                                   | .. note::                         |
    |                                   |                                   |
-   |                                   |    Zenko version |version|        |
+   |                                   |    |product| version |version|    |
    |                                   |    supports block blobs only. Set |
    |                                   |    this value to ``BlockBlob``.   |
    +-----------------------------------+-----------------------------------+
@@ -145,8 +145,9 @@ types.
    |                                   | adhere to the naming rules for C# |
    |                                   | identifiers.                      |
    +-----------------------------------+-----------------------------------+
-   | ``x-ms-lease-id``                 | Not applicable (Zenko |version|   |
-   |                                   | does not support leasing).        |
+   | ``x-ms-lease-id``                 | Not applicable (|product|         |
+   |                                   | |version| does not support        |
+   |                                   | leasing).                         |
    +-----------------------------------+-----------------------------------+
    | ``x-ms-blob-content-disposition`` | Optional. Sets the blob's         |
    |                                   | ``Content-Disposition`` header.   |
@@ -187,7 +188,7 @@ types.
    |                                   | information, see |analytics-log|  |
    |                                   | and |storage-tracking|.           |
    +-----------------------------------+-----------------------------------+
-   | ``x-ms-access-tier``              | Not applicable (Zenko version     |
+   | ``x-ms-access-tier``              | Not applicable (|product| version |
    |                                   | |version| does not support        |
    |                                   | tiering).                         |
    +-----------------------------------+-----------------------------------+
