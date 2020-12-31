@@ -8,8 +8,7 @@ from all locations under your control.
 
 .. toctree::
    :maxdepth: 1
-	      
+
    create_a_bucket
    delete_a_bucket
-   
    
