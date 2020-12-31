@@ -61,23 +61,23 @@ To add a storage location:
       special zenko-access user to ensure access to the Metadata service and the
       ability to perform operations on the bucket:
 
-   ::
+      .. code-block:: json
 
-      {
-        "Version":"2012-10-17",
-        "Statement":[
-          {
-            "Action":"metadata:*",
-            "Effect":"Allow",
-            "Resource":"*"
-          },
-          {
-            "Action":"s3:*",
-            "Effect":"Allow",
-            "Resource":"*"
-          }
-        ]
-      }
+         {
+           "Version":"2012-10-17",
+           "Statement":[
+             {
+               "Action":"metadata:*",
+               "Effect":"Allow",
+               "Resource":"*"
+             },
+             {
+               "Action":"s3:*",
+               "Effect":"Allow",
+               "Resource":"*"
+             }
+           ]
+         }
 
 Cloud Storage Locations
 -----------------------
