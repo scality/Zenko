@@ -1,4 +1,4 @@
-.. _orbit_add_location:
+.. _Adding a Storage Location:
 
 Adding a Storage Location
 =========================
@@ -210,7 +210,7 @@ Other Services: |product| Local, RING/sproxyd, and NFS
 because it is a |product|-native filesystem, it shares authentication and related
 credentialing tasks, which are addressed elsewhere in the |product| UI.
 
-For more information, see :ref:`Zenko Local`.
+For more information, see :ref:`|product| Local`.
 
 RING with sproxyd Connector
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

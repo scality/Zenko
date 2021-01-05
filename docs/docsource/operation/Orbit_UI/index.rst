@@ -17,7 +17,6 @@ providing ease of use and excellent opportunities for visualizing managed data.
    Statistics
    Settings
    User_Management/index
-   Location_Management/index
    Bucket_Management/index
    File_Operations/index
    ../Metadata_Search/Searching_Metadata_with_XDM
