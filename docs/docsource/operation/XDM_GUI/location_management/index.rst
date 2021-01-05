@@ -1,3 +1,5 @@
+.. _Location Management:
+
 Location Management
 ===================
 
@@ -64,30 +66,30 @@ sproxyd presents a RING-native REST API providing direct object-store access to
 the RING. If you are integrating to a RING that does not have an S3 Connector
 installed, this is probably the API you use to access the RING.
 
-.. _Zenko Local:
+.. _|product| Local:
 
-Zenko Local
-___________
+|product| Local
+---------------
 
-The Zenko Local filesystem is a convenient, easily configured test location that
-enables product familiarization and simple operations. It is internal to Zenko,
+The |product| Local filesystem is a convenient, easily configured test location that
+enables product familiarization and simple operations. It is internal to |product|,
 and serves as the default location for otherwise unnamed locations that rely on
-the default "us-east-1" location. Because it is internal to Zenko, the "Add New
+the default "us-east-1" location. Because it is internal to |product|, the "Add New
 Storage Location" prompt does not offer configurations for credentials or bucket
 naming at setup time. These are handled elsewhere in the Orbit user interface.
 
 .. warning::
 
-   While convenient for testing purposes, the Zenko Local filesystem is not
-   recommended for use in a production setting. The Zenko Local filesystem
+   While convenient for testing purposes, the |product| Local filesystem is not
+   recommended for use in a production setting. The |product| Local filesystem
    introduces a single point of failure and is thus unsuitable for a
    highly-reliable, highly-available storage solution.
 
 NFS Mount
 ---------
 
-Zenko can access information and file system metadata over the NFSv3 and NFSv4
-protocols. To configure Zenko to access NFS using out-of-band updates, review
+|product| can access information and file system metadata over the NFSv3 and NFSv4
+protocols. To configure |product| to access NFS using out-of-band updates, review
 the NFS host's /etc/exports file to find the relevant export path, hostname, and
 NFS options. Use ``nfsstat`` on the NFS host to discover the relevant NFS
 version and protocol.
@@ -95,7 +97,7 @@ version and protocol.
 .. important::
 
    Do not configure CRR for NFS mounts unless there is predictable down time for
-   replication. For NFS CRR, Zenko scans the NFS file system, then detects and
+   replication. For NFS CRR, |product| scans the NFS file system, then detects and
    replicates changes. It assumes that the NFS mount does not change after
    scanning but before replication is complete. Changes written after the initial scan
    but before replication completes may not be replicated.
@@ -103,9 +105,9 @@ version and protocol.
 AWS Source
 ----------
 
-Zenko can access information and file system metadata from AWS S3 services using
+|product| can access information and file system metadata from AWS S3 services using
 out-of-band updates in a flow similar to that used to extrapolate metadata from
-NFS. To configure Zenko to access AWS using out-of-band updates, follow the
+NFS. To configure |product| to access AWS using out-of-band updates, follow the
 instructions at :ref:`Set Up Out-of-Band Updates for AWS`.
 
 
@@ -114,6 +116,6 @@ You can:
 .. toctree::
    :maxdepth: 1
 
-      Add a Storage Location <adding_a_storage_location>
-      Add a Transient Source Storage Location <adding_a_transient_source_storage_location>
-      View Location Status <location_status>
+   add_a_storage_location
+   add_a_transient_source_storage_location
+   location_status
