@@ -1,4 +1,5 @@
-==========================
+.. _Specifying Metadata Fields:
+
 Specifying Metadata Fields
 ==========================
 
@@ -41,8 +42,3 @@ For example:
  ::
 
    tags.type = color
-
-
-
-
-.. _`Differences from SQL`: Differences_from_SQL.html

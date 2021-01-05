@@ -5,9 +5,9 @@ Metadata search queries are similar to the ``WHERE`` clauses of SQL queries,
 but they differ in that:
 
 -  Metadata search queries follow the PCRE (Perl-Compatible Regular
-   Expression) format.
+   Expression) format.
 
--  Metadata search queries do not require values with hyphens to be enclosed
+-  Metadata search queries do not require values with hyphens to be enclosed
    in backticks, ``(`)``
 
    -  SQL query
@@ -55,7 +55,3 @@ substring “helloworld”
     "/.*helloworld.*/i"
 
 
-
-
-
-.. _`HTTP Search Requests`: HTTP_Search_Requests.html
