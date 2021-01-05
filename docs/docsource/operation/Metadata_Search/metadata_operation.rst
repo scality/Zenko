@@ -1,36 +1,14 @@
-Metadata Search
-===============
+.. _Metadata Search Operation:
 
-Production systems usually mark generated files with metadata tags.
-Scality’s object storage model also inscribes metadata to objects to
-create a searchable, manageable namespace for stored files. |product|’s
-metadata search enables you to use these tags to perform powerful
-metadata searches on objects stored through |product|.
+Metadata Search Operation
+=========================
 
-|product| metadata searches can be performed from the command line or from
-the Orbit graphical user interface. Both searches use a common SQL-like
-syntax to drive a MongoDB search.
-
-.. toctree::
-   :maxdepth: 1
-   :hidden:
-
-   Searching Metadata with |product| <Searching_Metadata_with_XDM>
-   Search Tool Characteristics <Search_Tool_Characteristics>
-   Using search_bucket <Using_search_bucket>
-   HTTP Search Requests <HTTP_Search_Requests>
-   Specifying Metadata Fields <Specifying_Metadata_Fields>
-   Differences from SQL <Differences_from_SQL>
-
-Design
-++++++
-
-The MD Search feature expands on the existing GET Bucket S3 API. It
-allows users to conduct metadata searches by adding the custom |product|
-querystring parameter, ``search``. The ``search`` parameter is
-structured as a pseudo-SQL WHERE clause and supports basic SQL
-operators. For example, ``"A=1 AND B=2 OR C=3"``. More complex queries
-can also be made using nesting operators, “\ ``(``\ ” and “\ ``)``\ ”.
+The metadata search feature expands on the GET Bucket S3 API. It allows users to
+conduct metadata searches by adding the custom |product| querystring parameter,
+``search``. The ``search`` parameter is structured as a pseudo-SQL WHERE clause
+and supports basic SQL operators. For example, ``"A=1 AND B=2 OR C=3"``. More
+complex queries can also be made using nesting operators, “\ ``(``\ ” and “\
+``)``\ ”.
 
 The search process is as follows:
 

@@ -16,4 +16,4 @@ Orbit makes available the following bucket management tasks.
    AWS-to-AWS Replication <AWS_to_AWS_Replication>
    Out-of-Band Updates <out-of-band_updates/index>
    Lifecycle Management <lifecycle_management/index>
-   Delete a Bucket <delete_a_bucket>
+
