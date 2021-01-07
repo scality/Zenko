@@ -9,8 +9,6 @@ Orbit makes available the following bucket management tasks.
 .. toctree::
    :maxdepth: 2
 
-   Create a Bucket <Create_a_bucket>
-   View Bucket Info <View_Bucket_Info>
    Search Bucket Metadata <Searching_Metadata_from_Orbit>
    Set Up Cross-Region Replication <set_up_crr>
    AWS-to-AWS Replication <AWS_to_AWS_Replication>
