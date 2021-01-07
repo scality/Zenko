@@ -31,6 +31,7 @@ To create a bucket:
 
       If you cannot select the correct storage location, stop. Verify that you
       have selected the correct account; then follow the instructions for
+
       :ref:`Add a Storage Location` to set up the correct
       location before you continue.
 

@@ -5,17 +5,21 @@ Add a Storage Location
 
 To add a storage location:
 
-1. Click the **Storage Locations** item in the sidebar to open the
-   **Cloud Locations** window:
+#. From the Account view, select an account name to expose account information.
 
-   .. image:: ../../Graphics/Orbit_Storage_Locations.png
+   .. image:: ../../Graphics/xdm_ui_account_view.png
       :align: center
+	      
+#. Click the **Locations** tab.
 
-#. Click **Add New**.
+   .. image:: ../../Graphics/xdm_ui_locations_tab.png
+      :align: center
+	      
+#. Click **Create Location**.
 
-#. The **Add New Storage Location** dialog displays:
+#. The **ADD NEW STORAGE LOCATION** dialog displays:
 
-   .. image:: ../../Graphics/Orbit_Add_New_Storage_Location.png
+   .. image:: ../../Graphics/xdm_ui_add_new_storage_location.png
       :align: center
 
    a. Enter a location name in the **Location Name** field using
@@ -30,62 +34,68 @@ To add a storage location:
       You can choose:
 
       * Amazon S3
+      * Ceph RADOS Gateway
       * DigitalOcean Spaces
-      * Wasabi
       * Google Cloud Storage
       * Microsoft Azure Blob Storage
       * NFS Mount
       * Scality RING with S3 Connector
       * Scality RING with sproxyd Connector
-      * Ceph RADOS Gateway
-      * A |product| local filesystem
+      * Scality XCore
+      * Wasabi
+      * A Zenko local filesystem
 
-#. Each storage location type has its own requirements. No security is
-   required for a local file system, but all public clouds require
-   authentication information.
+#. Each storage location type has its own requirements. These requirements are
+   detailed in :ref:`Cloud Storage Locations`. No security is required for the
+   local filesystem, but all public clouds require authentication information.
 
    .. note::
 
       Adding a location requires credentials (an access key and a secret key).
       Though nothing prevents you from using account-level credentials when
-      |product| requests credentials for a location, it is a best practice to enter
-      credentials specifically generated for this access. In other words, before
-      you add a location, first create a user in that location (an AWS account
-      or an S3 Connector, for example) for the purpose of |product| access. Give
-      that |product| "user" all and only the permissions needed to perform the
-      desired tasks.
+      |product| requests credentials for a location, it is a best practice to
+      enter credentials specifically generated for this access. In other words,
+      before you add a location, first create a user in that location (an AWS or
+      S3 Connector account, for example) for the purpose of |product| access.
+      Give that user all and only the permissions needed to perform the desired
+      tasks.
 
    .. tip::
    
       When configuring an S3 Connector, assign the following policy to the
-      special zenko-access user to ensure access to the Metadata service and the
+      special |product|-access user to ensure access to the Metadata service and the
       ability to perform operations on the bucket:
 
-   ::
+      .. code-block:: json
 
-      {
-        "Version":"2012-10-17",
-        "Statement":[
-          {
-            "Action":"metadata:*",
-            "Effect":"Allow",
-            "Resource":"*"
-          },
-          {
-            "Action":"s3:*",
-            "Effect":"Allow",
-            "Resource":"*"
-          }
-        ]
-      }
+        {
+          "Version":"2012-10-17",
+          "Statement":[
+            {
+              "Action":"metadata:*",
+              "Effect":"Allow",
+              "Resource":"*"
+            },
+            {
+              "Action":"s3:*",
+              "Effect":"Allow",
+              "Resource":"*"
+            }
+          ]
+        }
+
+#. When you have satisfied all of the target cloud location's requirements,
+   click **Create**.
+	
+.. _Cloud Storage Locations:
 
 Cloud Storage Locations
 -----------------------
 
 All the cloud storage services serviced by |product| require the same basic
-information: an access key, a secret key, and a target bucket name. [#f1]_
-The Orbit interface also presents the following requirements for each 
-cloud storage system.
+information: an access key, a secret key, and a target bucket name. [#f1]_ The
+|product| UI also presents the following requirements for each cloud storage
+system.
 
 .. tabularcolumns::X{0.35\textwidth}X{0.15\textwidth}X{0.15\textwidth}X{0.15\textwidth}X{0.15\textwidth}
 .. table::
@@ -127,11 +137,6 @@ to name endpoints. Services for which |product| requests endpoint names may have
 additional naming requirements. For these requirements, review your cloud
 storage service provider's documentation.
 
-.. note::
-
-   The **Add Storage Location** screen for Wasabi presents an endpoint field,
-   but it is not yet editable.
-
 For Ceph RADOS Gateway endpoints, you can nominate a secure port, such as 443 or
 4443. If you do not, the default is port 80. Whichever port you assign, make
 sure it is accessible to |product| (firewall open, etc.).
@@ -151,19 +156,20 @@ the target cloud.
 .. important::
 
    If the Bucket Match option is set, buckets in the target location cannot be
-   used as a CRR destination. |product| requires the bucket identifier in order to
-   manage the namespace for replication.
+   used as a CRR destination. |product| requires the bucket identifier to manage
+   the namespace for replication.
 
 Server-Side Encryption
 ~~~~~~~~~~~~~~~~~~~~~~
 
 Encryption-based transfer protocols ensure your credentials and transmitted
-information are secure while in transit. The S3 API also offers encryption and
-key management services to protect information stored on cloud drives. From
-Orbit, clicking **Server Side Encryption** when setting up a location creates a
-location with encryption enabled for all objects stored there. Encryption is set
-at the bucket level, not at the object level. Object encryption is delegated to
-the cloud storage system.
+information are secure while in transit. Amazon S3 also offers encryption and
+key management services to protect information stored on cloud drives. To enable
+server-side encryption from the |product| UI, click **Server Side
+Encryption** when setting up an AWS S3 location. This creates a location with
+encryption enabled for all objects stored there. Encryption is set at the bucket
+level, not at the object level. Object encryption is delegated to the cloud
+storage system.
 
 Server-side encryption is based on the x-amz-server-side-encryption
 header. Inquire with your cloud vendor to determine whether server-side
@@ -202,7 +208,7 @@ Other Services: |product| Local, RING/sproxyd, and NFS
 
 |product| Local Filesystem has similar authentication requirements to AWS S3, but
 because it is a |product|-native filesystem, it shares authentication and related
-credentialing tasks, which are addressed elsewhere in the Orbit UI.
+credentialing tasks, which are addressed elsewhere in the |product| UI.
 
 For more information, see :ref:`|product| Local`.
 
@@ -240,10 +246,10 @@ AWS
 
 |product| can ingest metadata out of band from AWS in much the same way it can
 ingest out-of-band updates from NFS mounts. AWS metadata is ingested in an
-initial setup, then changes are mapped via a regularly scheduled cron job. |product|
-develops its own namespace for the Amazon bucket and can perform metadata-\
-related tasks (CRR, metadata search, lifecycle management, etc.) on targets in
-the AWS bucket using this namespace.
+initial setup, then changes are mapped via a regularly scheduled cron
+job. |product| develops its own namespace for the Amazon bucket and can perform
+metadata-related tasks (CRR, metadata search, lifecycle management, etc.) on
+targets in the AWS bucket using this namespace.
 
 Transient Sources
 -----------------

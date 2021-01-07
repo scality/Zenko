@@ -5,9 +5,9 @@ Location Management
 
 Users save data to files, which are stored as objects in buckets. Buckets are
 stored in locations, which correspond (quite roughly) to a service and a region,
-such as AWS us-east-1, or GCP europe-west1. Before you can establish a location
-in Orbit, you must have an account with at least one cloud storage service. This
-can either be a public cloud, such as Amazon S3 or Google Cloud Platform, or
+such as AWS us-east-1, or GCP europe-west1. Before you can establish a location,
+you must have an account with at least one cloud storage service. This can
+either be a public cloud, such as Amazon S3 or Google Cloud Platform, or
 Scality's private cloud, the RING with S3 Connector. RING provides resilient,
 reliable object storage, and S3 Connector provides Amazon S3-compatible command
 set and namespace.
@@ -43,10 +43,9 @@ notice.
 
    https://access.redhat.com/documentation/en-us/red_hat_ceph_storage
 
-See the :version-ref:`Installation
-<https://documentation.scality.com/Zenko/{version}/installation/index.html>`
-documentation for advice on sizing, cluster configuration, and other
-preparations.
+See :version-ref:`Zenko Installation
+<https://documentation.scality.com/Zenko/{version}/installation/index.html>` for
+advice on sizing, cluster configuration, and other preparations.
 
 Scality RING with S3 Connector
 ------------------------------
