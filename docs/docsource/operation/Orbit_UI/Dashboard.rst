@@ -19,8 +19,6 @@ buttons for:
    * :ref:`Storage Accounts <add_a_new_user>`
    * :ref:`Storage Locations <Add a Storage Location>`
    * :ref:`Endpoints <endpoint>`
-   * :ref:`Browser <create_a_bucket>`
-   * :ref:`Search <Searching Metadata from Orbit>`
    * :ref:`Replication <Set Up Replication>`
    * :ref:`Bucket Lifecycle <object_lifecycle_mgmt>`
    * :ref:`Settings`

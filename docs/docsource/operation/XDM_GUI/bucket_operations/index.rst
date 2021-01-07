@@ -10,6 +10,7 @@ from all locations under your control.
    :maxdepth: 1
 	      
    create_a_bucket
+   inspect_a_bucket
    delete_a_bucket
    
    
