@@ -35,6 +35,6 @@ From this panel, you can:
    - CORS configuration status (yes or no)
    - Whether the bucket is visible to the public (yes or no)
 
-For more information on versioning, review the Amazon S3 documentation
-at: \ https://docs.aws.amazon.com/AmazonS3/latest/dev/Versioning.html.
+For more information on versioning, review the `Amazon S3
+documentation <https://docs.aws.amazon.com/AmazonS3/latest/dev/Versioning.html>`__.
 |product| implements S3 logic for versioning.
