@@ -5,9 +5,8 @@ Lifecycle management enables you to set policies in |product| that control the
 lifecycle of objects in a bucket conforming to AWS S3 lifecycle rules. Lifecycle
 management gives users the ability to specify a time threshold beyond which
 certain files are to be moved (lifecycle transition) or expunged (lifecycle
-expiration) to free up storage space or reduce storage costs.  You can control
-lifecycle policies using the :ref:`Orbit user interface<object_lifecycle_mgmt>`,
-or with API calls.
+expiration) to free up storage space or reduce storage costs. You can control
+lifecycle policies using the |product| UI or with API calls.
 
 Using this Backbeat extension, |product| follows the S3 API to provide three calls
 to manage lifecycle properties per bucket:

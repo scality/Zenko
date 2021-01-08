@@ -33,9 +33,6 @@ Orbit offers the following features:
 -  Metadata search
 -  Help and resources
 
-You can test drive Orbit by following the “`Try |product|`_” link at
-https://www.zenko.io/ and following the instructions for :ref:`Setting Up an Orbit Sandbox Instance`.
-
 For a full walk-through of these features, see :ref:`|product| UI`.
 
 .. _`Try |product|`: https://admin.zenko.io/user

@@ -15,6 +15,6 @@ which offers to forget the |product| instance. This option does not delete the
 |product| instance; rather, it breaks the association between Orbit and the
 instance. If you click this and confirm (**Forget**), you will not lose data
 or otherwise perturb the running |product| instance, but you will have to follow
-the steps in :ref:`Setting Up a Full Orbit Installation <setting_up_orbit>`
+the steps in "Setting Up a Full Orbit Installation"
 to connect Orbit to another |product| instance or reconnect it to the forgotten
 instance.

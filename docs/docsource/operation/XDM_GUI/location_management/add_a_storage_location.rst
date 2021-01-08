@@ -1,33 +1,60 @@
 .. _Add a Storage Location:
 
 Add a Storage Location
-=========================
+======================
+
+Though you can learn by nominating arbirary Zenko endpoints in a local file
+system, in practical applications you will need an existing account on a cloud
+server. This can be a public cloud, like AWS S3, or a private cloud, like
+Scality RING with S3 Connector.
 
 To add a storage location:
 
-#. From the Account view, select an account name to expose account information.
+#. From the **Accounts** view, select an account name to expose account
+   information.
 
    .. image:: ../../Graphics/xdm_ui_account_view.png
+      :width: 100%
+
+
+   .. tip::
+
+      If there are many accounts, you can use the field marked *Filter by
+      Account Name* to reduce the number of visible accounts to a manageable
+      level.
 	      
 #. Click the **Locations** tab.
 
    .. image:: ../../Graphics/xdm_ui_locations_tab.png
+      :width: 75%
 	      
 #. Click **Create Location**.
 
 #. The **ADD NEW STORAGE LOCATION** dialog displays:
 
    .. image:: ../../Graphics/xdm_ui_add_new_storage_location.png
+      :width: 50%
 
-   a. Enter a location name in the **Location Name** field using
-      lowercase letters, numbers, and dashes.
+   a. Enter a location name in the **Location Name** field using lowercase
+      letters, numbers, and dashes. This is the location name that you will use
+      in Zenko. It is not known to the cloud storage provider.
 
       .. note::
 
          Capital letters, spaces, and punctuation and diacritical
          marks will result in an error message.
 
-   b. Select a location type from the **Location Type** pull-down menu.
+   #. Enter the **Target Bucket Name**. This is the name of the bucket in the
+      cloud location. Enter the name you see in the cloud service provider's
+      bucket dashboard here.
+
+      For example, in the Amazon S3 interface, this is the **Name** value in the
+      **Buckets** window.
+
+      .. image:: ../../Graphics/aws_bucket_dashboard.png
+	 :width: 75%
+
+   #. Select a location type from the **Location Type** pull-down menu.
       You can choose:
 
       * Amazon S3
@@ -44,7 +71,7 @@ To add a storage location:
 
 #. Each storage location type has its own requirements. These requirements are
    detailed in :ref:`Cloud Storage Locations`. No security is required for the
-   local filesystem, but all public clouds require authentication information.
+   local file system, but all public clouds require authentication information.
 
    .. note::
 
@@ -104,10 +131,10 @@ system.
    +===============+==========+========+============+=========+
    | Amazon S3     | \-       | \-     | Yes        | \-      |
    +---------------+----------+--------+------------+---------+
-   | Ceph RADOS    | Yes      | Yes    | \-         | \-      |
+   | Ceph RADOS    | Yes      | \-     | \-         | \-      |
    | Gateway       |          |        |            |         |
    +---------------+----------+--------+------------+---------+
-   | DigitalOcean  | Yes      | \-     | \-         | \-      |
+   | DigitalOcean  | Yes      | Yes    | \-         | \-      |
    | Spaces [#f2]_ |          |        |            |         |
    +---------------+----------+--------+------------+---------+
    | Google Cloud  | \-       | \-     | \-         | Yes     |
@@ -117,7 +144,7 @@ system.
    | Azure Blob    |          |        |            |         |
    | Storage       |          |        |            |         |
    +---------------+----------+--------+------------+---------+
-   | RING/S3C      | Yes      | Yes    | \-         | \-      |
+   | RING/S3C      | Yes      | \-     | \-         | \-      |
    +---------------+----------+--------+------------+---------+
    | Wasabi        | \-       | \-     | \-         | \-      |
    +---------------+----------+--------+------------+---------+
@@ -141,12 +168,12 @@ sure it is accessible to |product| (firewall open, etc.).
 Bucket Match
 ~~~~~~~~~~~~
 
-|product| provides a "Bucket Match" option for Ceph RADOS Gateway and Scality S3
-Connector. If this option is left unchecked, |product| prepends a bucket identifier
-to every object in the target backend's namespace.  This enables a "bucket of
-buckets" architecture in which the target backend sees and manages only one
-large bucket and |product| manages the namespace of the "sub-buckets." Clicking the
-**Bucket Match** box deactivates this feature: the prepending of bucket names is
+|product| provides a "Bucket Match" option for Ceph RADOS Gateway. If this
+option is left unchecked, |product| prepends a bucket identifier to every object
+in the target backend's namespace. This enables a "bucket of buckets"
+architecture in which the target backend sees and manages only one large bucket
+and |product| manages the namespace of the "sub-buckets." Clicking the **Bucket
+Match** box deactivates this feature: the prepending of bucket names is
 defeated, and the bucket structure in the host cloud is copied identically to
 the target cloud.
 

@@ -9,9 +9,7 @@ Orbit makes available the following bucket management tasks.
 .. toctree::
    :maxdepth: 2
 
-   Search Bucket Metadata <Searching_Metadata_from_Orbit>
    Set Up Cross-Region Replication <set_up_crr>
    AWS-to-AWS Replication <AWS_to_AWS_Replication>
    Out-of-Band Updates <out-of-band_updates/index>
-   Lifecycle Management <lifecycle_management/index>
 

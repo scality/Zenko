@@ -112,10 +112,16 @@ instructions at :ref:`Set Up Out-of-Band Updates for AWS`.
 
 
 You can:
+*  :ref:`Add a Storage Location`
+*  :ref:`Add a Transient Source Storage Location`	
+*  :ref:`Edit a Storage Location`
+*  :ref:`Delete a Storage Location`
 
 .. toctree::
+   :hidden:
    :maxdepth: 1
 
    add_a_storage_location
    add_a_transient_source_storage_location
-   location_status
+   edit_a_storage_location
+   delete_a_storage_location
