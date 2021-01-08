@@ -2,7 +2,7 @@ Metadata Search
 ===============
 
 Production systems usually mark generated files with metadata tags.
-Scality’s object storage model also inscribes metadata to objects to
+Scality’s object storage model also assigns metadata to objects to
 create a searchable, manageable namespace for stored files. |product|’s
 metadata search enables you to use these tags to perform powerful
 metadata searches on objects stored through |product|.

@@ -42,5 +42,5 @@ To search the metadata of files stored in clouds managed by |product|,
       :width: 75 %
 
    You have full object-level control (delete, inspect, download) of the
-   returned results. See :ref:`File Operations`
+   returned results. See :ref:`File Operations` for more.
       
