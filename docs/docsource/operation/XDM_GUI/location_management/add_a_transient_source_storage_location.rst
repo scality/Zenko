@@ -24,7 +24,7 @@ To deploy a transient source storage location:
 #. The **Add New Storage Location** modal appears. Enter the **Location Name**
    (AWS S3 naming rules apply: lowercase alphanumerics and hyphens only) and
    select **Scality RING with Sproxyd Connector** from the **Location Type**
-   drop-down list,
+   drop-down list.
 
    .. image:: ../../Graphics/xdm_ui_add_storage_location_sproxyd.png
 
@@ -49,5 +49,3 @@ To deploy a transient source storage location:
       Do not update metadata in a transient source object. Changing metadata of
       an object in a transient source bucket will fail. You cannot change
       metadata in the S3 protocol.
-
-
