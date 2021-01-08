@@ -31,8 +31,8 @@ To create a bucket:
 
       If you cannot select the correct storage location, stop. Verify that you
       have selected the correct account; then follow the instructions for
-      :ref:`Adding a Storage Location` to set up the correct
-      location before you continue.
+      :ref:`Add a Storage Location` to set up the correct location before you
+      continue.
 
 #. The new bucket appears in the data browser view.
 
