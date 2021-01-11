@@ -3,8 +3,8 @@
 Searching Metadata from |product|
 =================================
 
-Every object stored in an object storage system is associated with a set
-of metadata. Understanding the metadata tags associated with these objects
+Every object stored in an object storage system is associated with metadata. 
+Understanding the metadata tags associated with these objects
 provides a powerful method for rapid object search and retrieval.
 
 The |product| UI provides a graphical tool for performing metadata searches, the
