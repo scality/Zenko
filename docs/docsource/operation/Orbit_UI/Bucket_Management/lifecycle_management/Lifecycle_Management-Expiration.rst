@@ -31,9 +31,9 @@ Establishing an Object Expiration Policy
       :align: center
 
    You may enter a distinct directory or subdirectory to which the rule applies.
-   Enter an expiration time span and a deletion time span.
-   These follow the bucket and enforce expiration and deletion.
-   You may also add a comment about this expiration rule.
+   Enter an expiration time span and a deletion time span.  These follow the
+   bucket and enforce expiration and deletion.  You may also add a comment about
+   this expiration rule.
 
    Click **Save**.
 
@@ -43,9 +43,10 @@ Establishing an Object Expiration Policy
 
    |product| will enforce these rules on this bucket. 
 
-Versioning logic precludes simply deleting an object: that day’s object
-is deleted, but earlier versions remain. See warning at 
-:ref:`Deleting Objects<deleting-objects>`.
+Versioning logic precludes simply deleting an object: that day’s object is
+deleted, but earlier versions remain. To delete files from a versioned bucket,
+see :ref:`Delete Versioned Files`
+
 
 .. |image0| image:: ../../../Graphics/Orbit_lifecycle_select.png
 .. |image1| image:: ../../../Graphics/Orbit_lifecycle_bucket_select.png

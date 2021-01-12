@@ -22,3 +22,11 @@ To delete a bucket:
 #. Confirm the deletion.
 
    .. image:: ../../Graphics/xdm_ui_bucket_delete_confirm.png
+
+.. important::
+
+   If the bucket is not empty, it cannot be deleted. In a bucket deployed with
+   versioning enabled, it is possible to delete a file without deleting earlier
+   versions of that file. Earlier versions may remain, and may make deleting the
+   bucket impossible. See the instructions to :ref:`Delete Versioned Files` to
+   completely empty a versioned bucket.
