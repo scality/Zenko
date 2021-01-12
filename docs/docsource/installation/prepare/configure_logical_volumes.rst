@@ -8,7 +8,7 @@ Set up a cluster of nodes conforming to the specifications described in
 stable MetalK8s source code from the MetalK8s releases page:
 https://github.com/scality/metalk8s/releases. Follow the instructions in
 `MetalK8s
-Installation<https://documentation.scality.com/metalk8s/2.4.2/installation/index.html>`
+Installation<https://documentation.scality.com/metalk8s/2.4.2/installation/index.html>`_
 to install MetalK8s on your cluster, instantiating the desired number of nodes.
 
 .. note::
