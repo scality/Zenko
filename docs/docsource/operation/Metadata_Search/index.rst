@@ -8,7 +8,7 @@ metadata search enables you to use these tags to perform powerful
 metadata searches on objects stored through |product|.
 
 |product| metadata searches can be performed from the command line or from
-the Orbit graphical user interface. Both searches use a common SQL-like
+the |product| user interface. Both searches use a common SQL-like
 syntax to drive a MongoDB search.
 
 
