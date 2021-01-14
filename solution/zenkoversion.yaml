@@ -10,7 +10,7 @@ spec:
     management:
       ui:
         image: ${SOLUTION_REGISTRY}/zenko-ui
-        tag: 2f10bac
+        tag: 0.1.0
       api:
         image: ${SOLUTION_REGISTRY}/pensieve-api
         tag: 611b9ca
