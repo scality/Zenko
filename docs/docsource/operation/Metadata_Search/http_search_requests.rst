@@ -1,4 +1,4 @@
-.. _`HTTP Search Requests`:
+.. _HTTP Search Requests:
 
 HTTP Search Requests
 ====================
