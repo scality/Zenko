@@ -25,7 +25,7 @@
     "uuid": "^3.0.1"
   },
   "scripts": {
-    "test_ui": "cypress run",
+    "test_ui": "cypress run --project ./ui",
     "test_aws_crr": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --reporter mocha-multi-reporters --reporter-options configFile=config.json  backbeat/tests/crr/awsBackend.js",
     "test_azure_crr": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --reporter mocha-multi-reporters --reporter-options configFile=config.json  backbeat/tests/crr/azureBackend.js",
     "test_gcp_crr": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --reporter mocha-multi-reporters --reporter-options configFile=config.json  backbeat/tests/crr/gcpBackend.js",
