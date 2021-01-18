@@ -58,3 +58,6 @@ kubectl run ${POD_NAME} \
   --env="MANAGEMENT_ENDPOINT=${MANAGEMENT_ENDPOINT}" \
   --env="NAMESPACE=${NAMESPACE}" \
   --command -- python3 configuration.py
+
+kubectl wait --for condition=DeploymentFailure=false --timeout 10m -n ${NAMESPACE} zenko/${ZENKO_NAME}
+kubectl wait --for condition=DeploymentInProgress=false --timeout 10m -n ${NAMESPACE} zenko/${ZENKO_NAME}
