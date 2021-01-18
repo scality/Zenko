@@ -236,4 +236,3 @@ stages:
         source: /artifacts
         urls:
           - "*.tgz"
-
