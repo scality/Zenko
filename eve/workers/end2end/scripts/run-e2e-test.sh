@@ -18,7 +18,7 @@ ZENKO_SECRET_KEY=$(kubectl get secret ${ZENKO_NAME}-account-zenko -o jsonpath='{
 
 ## TODO use existing entrypoint
 if [ "$STAGE" = "end2end" ]; then
-   ARGS='sh -c cd node_tests && npm run test_operator && CYPRESS_BASE_URL=$UI_ENDPOINT CYPRESS_KEYCLOAK_USER_FULLNAME=bartsimpson CYPRESS_KEYCLOAK_USERNAME=bartsimpson CYPRESS_KEYCLOAK_PASSWORD=123 CYPRESS_KEYCLOAK_ROOT=http://127.0.0.1:8080 CYPRESS_KEYCLOAK_CLIENT_ID=myclient CYPRESS_KEYCLOAK_REALM=myrealm npm run test_ui'
+   ARGS='sh -c cd node_tests && npm run test_operator && npm run test_ui'
 fi
 
 kubectl run ${POD_NAME} \
