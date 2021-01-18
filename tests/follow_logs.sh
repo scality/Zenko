@@ -22,6 +22,7 @@ while [ ! "${TEST_POD_PHASE}" ]; do
 	sleep 5
 	TEST_POD_PHASE=`getPhase`
 done
+${V}${KUBECTL} --namespace ${NAMESPACE} logs -f ${E2E_POD}
 while [ "${TEST_POD_PHASE}" != "Failed" ] && [ "${TEST_POD_PHASE}" != "Unknown" ] && [ "${TEST_POD_PHASE}" != "Succeeded" ] ; do
 	if [ "${TEST_POD_PHASE}" = "Pending" ]; then
 		echo "${E2E_POD} pod state is 'Pending', sleeping 5 seconds before checking again"
