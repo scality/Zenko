@@ -25,7 +25,7 @@
     "uuid": "^3.0.1"
   },
   "scripts": {
-    "test_ui": "cypress run --project ./ui",
+    "test_ui": "CYPRESS_BASE_URL=${UI_ENDPOINT} CYPRESS_KEYCLOAK_USER_FULLNAME=bartsimpson CYPRESS_KEYCLOAK_USERNAME=bartsimpson CYPRESS_KEYCLOAK_PASSWORD=123 CYPRESS_KEYCLOAK_ROOT=http://127.0.0.1:8080 CYPRESS_KEYCLOAK_CLIENT_ID=myclient CYPRESS_KEYCLOAK_REALM=myrealm cypress run --project ./ui",
     "test_aws_crr": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --reporter mocha-multi-reporters --reporter-options configFile=config.json  backbeat/tests/crr/awsBackend.js",
     "test_azure_crr": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --reporter mocha-multi-reporters --reporter-options configFile=config.json  backbeat/tests/crr/azureBackend.js",
     "test_gcp_crr": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --reporter mocha-multi-reporters --reporter-options configFile=config.json  backbeat/tests/crr/gcpBackend.js",
