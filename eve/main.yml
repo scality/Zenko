@@ -63,13 +63,13 @@ stages:
         name: Check if documentation related content
         property: launch_end2end
         command: eve/scripts/launch-end2end.sh
-    - TriggerStages:
-        name: trigger iso and documentation build
-        haltOnFailure: true
-        stage_names:
-        - build-doc
-        - build-iso
-        - build-base-iso
+    # - TriggerStages:
+    #     name: trigger iso and documentation build
+    #     haltOnFailure: true
+    #     stage_names:
+    #     - build-doc
+    #     - build-iso
+    #     - build-base-iso
     - TriggerStages:
         name: Launch end2end tests
         haltOnFailure: true
@@ -236,4 +236,3 @@ stages:
         source: /artifacts
         urls:
           - "*.tgz"
-
