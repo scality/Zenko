@@ -10,6 +10,7 @@ NAMESPACE=${4:-default}
 POD_NAME="${ZENKO_NAME}-${STAGE}-test"
 
 # set environment vars
+UI_ENDPOINT="http://${ZENKO_NAME}-management-ui.default.svc.cluster.local:80"
 CLOUDSERVER_ENDPOINT="http://${ZENKO_NAME}-connector-s3api.default.svc.cluster.local:80"
 BACKBEAT_API_ENDPOINT="http://${ZENKO_NAME}-management-backbeat-api.default.svc.cluster.local:80"
 ZENKO_ACCESS_KEY=$(kubectl get secret ${ZENKO_NAME}-account-zenko -o jsonpath='{.data.accessKey}' | base64 -d)
@@ -28,6 +29,7 @@ kubectl run ${POD_NAME} \
   --namespace=${NAMESPACE} \
   --image-pull-policy=Always \
   --env="CLOUDSERVER_ENDPOINT=${CLOUDSERVER_ENDPOINT}" \
+  --env="UI_ENDPOINT=${UI_ENDPOINT}" \
   --env="ZENKO_ACCESS_KEY=${ZENKO_ACCESS_KEY}" \
   --env="ZENKO_SECRET_KEY=${ZENKO_SECRET_KEY}" \
   --env="STAGE=${STAGE}" \
