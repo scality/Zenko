@@ -18,7 +18,7 @@ ZENKO_SECRET_KEY=$(kubectl get secret ${ZENKO_NAME}-account-zenko -o jsonpath='{
 
 ## TODO use existing entrypoint
 if [ "$STAGE" = "end2end" ]; then
-   ARGS='sh -c cd node_tests && npm run test_operator && npm run test_ui'
+   ARGS='sh -c cd node_tests && npm run test_ui'
 fi
 
 kubectl run ${POD_NAME} \
