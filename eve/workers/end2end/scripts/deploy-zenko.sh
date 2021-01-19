@@ -67,6 +67,12 @@ spec:
       ui:
         image: registry.scality.com/sf-eng/zenko-ui
         tag: 'c091051'
+      api:
+        image: registry.scality.com/sf-eng/pensieve-api
+        tag:  '611b9ca'
+      pushAPI:
+        image: registry.scality.com/sf-eng/pensieve-api
+        tag:  '611b9ca'
     cloudserver:
       image: registry.scality.com/zenko/cloudserver
       tag: latest-8.1.2
@@ -100,6 +106,9 @@ spec:
     mongodb: '4.0-v1'
     redis:
       kubedb: '5.0.3-v1'
+    vault:
+      image: registry.scality.com/sf-eng/vault
+      tag: zenko-2.0.0
 ---
 apiVersion: zenko.io/v1alpha1
 kind: Zenko
@@ -128,13 +137,24 @@ spec:
   localData:
     persistence:
       existingPersistentVolume: ${LOCALDATA_PV_NAME}
+  vault:
+    enable: true
+    iamIngress:
+      hostname: iam.zenko.local
+    stsIngress:
+      hostname: sts.zenko.local
   management:
     provider: InCluster
+    ui:
+      ingress:
+        hostname: ui.zenko.local
     oidc:
       discoveryUrl: 'http://keycloak.local/auth/realms/z2/.well-known/openid-configuration'
       uiClientId: ui
       vaultClientId: vault
     api:
+      ingress:
+          hostname: "managementapi.zenko.local"
       allowFrom:
       - 172.16.0.0/12
       - 10.0.0.0/8

@@ -23,8 +23,6 @@ fi
 
 kubectl run ${POD_NAME} \
   --image ${E2E_IMAGE} \
-  -ti \
-  --attach=True \
   --restart=Never \
   --namespace=${NAMESPACE} \
   --image-pull-policy=Always \
