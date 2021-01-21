@@ -7,7 +7,7 @@ registry.scality.com/sf-eng/blobserver:1.0.8
 registry.scality.com/sf-eng/jabba:940d
 registry.scality.com/sf-eng/pensieve-api:611b9ca
 registry.scality.com/sf-eng/utapi:zenko-1.0.0
-registry.scality.com/sf-eng/vault:zenko-2.0.0
+registry.scality.com/vault/vault:8.2.0-alpha.1
 registry.scality.com/sf-eng/zenko-operator:0a7b2f0
 registry.scality.com/zenko-dev/backbeat:161b9c1
 registry.scality.com/zenko-dev/cloudserver:latest-8.1.2

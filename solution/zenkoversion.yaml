@@ -50,8 +50,8 @@ spec:
       image: kafka
       tag: 2.12-2.3.0
     vault:
-      image: vault
-      tag: zenko-2.0.0
+      image: ${SOLUTION_REGISTRY}/vault
+      tag: 8.2.0-alpha.1
     shell:
       image: busybox
       tag: latest
