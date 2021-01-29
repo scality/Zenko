@@ -53,7 +53,8 @@ extensions = [
             'sphinxcontrib.plantuml',
             'sphinxcontrib.spelling',
             'sphinxcontrib.inkscapeconverter',
-	    'sphinx_version_ref',
+            'sphinx_version_ref',
+            'sphinx_copybutton',
 ]
 
 plantuml_output_format = 'svg'
@@ -198,6 +199,21 @@ html_favicon = '_static/favicon.ico'
 
 html_show_sphinx = False
 html_show_source = False
+
+# -- sphinx-copybutton configuration -----------------------------------------
+#
+
+copybutton_prompt_text = [
+    '$ ',
+    '# ',
+    '[root@scality] # ',
+    '[root@scality]# ',
+    '[doc@scality]$ ',
+]
+copybutton_prompt_is_regexp = False
+copybutton_remove_prompts = True
+copybutton_selector = "div.highlight pre, pre.literal-block"
+
 
 # -- Options for HTMLHelp output ---------------------------------------------
 
