@@ -61,7 +61,7 @@ metadata:
   name: ${ZENKO_VERSION_NAME}
   namespace: ${NAMESPACE}
 spec:
-  imagePullPolicy: Always
+  imagePullPolicy: IfNotPresent
   versions:
     management:
       ui:
