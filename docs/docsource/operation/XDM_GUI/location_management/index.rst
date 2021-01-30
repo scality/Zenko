@@ -116,6 +116,6 @@ You can:
 .. toctree::
    :maxdepth: 1
 
-   adding_a_storage_location
-   adding_a_transient_source_storage_location
+   add_a_storage_location
+   add_a_transient_source_storage_location
    location_status

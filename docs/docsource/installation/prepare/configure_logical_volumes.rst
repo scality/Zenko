@@ -7,8 +7,8 @@ Set up a cluster of nodes conforming to the specifications described in
 :ref:`sizing`. If you are using MetalK8s, do this by downloading the latest
 stable MetalK8s source code from the MetalK8s releases page:
 https://github.com/scality/metalk8s/releases. Follow the instructions in
-`MetalK8s
-Installation<https://documentation.scality.com/metalk8s/2.4.2/installation/index.html>`
+`MetalK8s Installation
+<https://documentation.scality.com/metalk8s/2.4.2/installation/index.html>`_
 to install MetalK8s on your cluster, instantiating the desired number of nodes.
 
 .. note::
@@ -180,49 +180,5 @@ For each node,
 #. Review the Nodes list for nodes in your cluster with a **Deploy** button
    available in the **Deployment** column. Click the **Deploy** button to deploy
    available nodes.
-
-For each node,
-
-#. Click the name of the node in the Platform menu to display node details.
-
-   .. image:: ../Graphics/MK8s_node_select.png
-
-#. Click the **Volumes** tab.
-
-   .. image:: ../Graphics/MK8s_details.png
-
-#. Click the **+** button.
-
-   .. image:: ../Graphics/MK8s_volume_tab.png
-
-#. The **Create a New Volume** window displays.
-
-   .. image:: ../Graphics/MK8s_volume_create.png
-
-#. Enter the volume's
-
-   a. **Name** This must be AWS S3 compliant: lowercase letters, numbers, and
-      hyphens only.
-   #. **Labels** This is an optional, customizable key-value metadata pair for
-      objects that pass through this volume.
-   #. **Storage Class** This field contains a pull-down menu of the storage
-      class options you created in the Storage Class Manifest
-      (storageClasses.yaml) in :ref:`Create a Storage Class Manifest`.
-   #. **Type** This presents two options: **RawBlockDevice** and
-      **SparseLoopDevice**. Choose the device type you entered in the storage
-      class manifest.
-   #. **Device Path**\/**Volume Capacity** If you selected a raw block device in
-      the preceding step, enter the **Device path** to the volume. In a virtual
-      environment this may be /dev/vda, /dev/sda, or similar. If you selected a
-      sparse loop device in the preceding step, enter the **Volume Capacity**
-      using a dimension and size, in binary exponent format (kibi, mebi,
-      gibibyte, etc.)
-
-      .. image:: ../Graphics/MK8s_volume_create_filled_in.png
-
-#. Click **Create**. If you've correctly entered all information, a success
-   banner displays and the new volume appears in the volumes menu.
-
-   .. image:: ../Graphics/MK8s_volume_create_success.png
 
 .. _latest-release: https://github.com/scality/metalk8s/releases

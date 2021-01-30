@@ -12,7 +12,7 @@ registry.scality.com/sf-eng/zenko-operator:0a7b2f0
 registry.scality.com/zenko-dev/backbeat:161b9c1
 registry.scality.com/zenko-dev/cloudserver:latest-8.1.2
 registry.scality.com/zenko-dev/cloudserver:4332d0a
-registry.scality.com/zenko-ui-dev/zenko-ui:2f10bac
+registry.scality.com/zenko-ui/zenko-ui:0.1.0
 wurstmeister/kafka:2.12-2.3.0
 zenko/cloudserver:8.1.15
 zenko/s3utils:1.2

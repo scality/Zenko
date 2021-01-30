@@ -1,6 +1,6 @@
-.. _Adding a Storage Location:
+.. _Add a Storage Location:
 
-Adding a Storage Location
+Add a Storage Location
 =========================
 
 To add a storage location:
@@ -8,19 +8,16 @@ To add a storage location:
 #. From the Account view, select an account name to expose account information.
 
    .. image:: ../../Graphics/xdm_ui_account_view.png
-      :align: center
 	      
 #. Click the **Locations** tab.
 
    .. image:: ../../Graphics/xdm_ui_locations_tab.png
-      :align: center
 	      
 #. Click **Create Location**.
 
 #. The **ADD NEW STORAGE LOCATION** dialog displays:
 
    .. image:: ../../Graphics/xdm_ui_add_new_storage_location.png
-      :align: center
 
    a. Enter a location name in the **Location Name** field using
       lowercase letters, numbers, and dashes.
@@ -265,7 +262,7 @@ Configuring a location as a transient source requires checking the
 **Delete objects after successful replication** box under the
 **Advanced Options** submenu.
 
-See :ref:`Adding a Transient Source Storage Location` for details.
+See :ref:`Add a Transient Source Storage Location` for details.
 
 .. [#f1] Microsoft's setup procedure is functionally identical to that of AWS
    S3. However, the Microsoft terms, "Azure Account Name" and "Azure Access Key"

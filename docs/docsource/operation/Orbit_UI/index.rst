@@ -18,7 +18,6 @@ providing ease of use and excellent opportunities for visualizing managed data.
    Settings
    User_Management/index
    Bucket_Management/index
-   ../Metadata_Search/Searching_Metadata_with_XDM
 
 
 

@@ -11,8 +11,8 @@ A successful request to |product| requires
 If these requirements are satisfied, you can perform metadata searches
 by
 
--  Entering a search in the Orbit Search tool from an authorized session.
-   See :ref:`Searching Metadata from Orbit`.
+-  Entering a search in the |product| search tool.  See :ref:`Searching Metadata from
+   |product|`.
 -  Using the ``search_bucket`` tool (found in the
    `Scality/S3 <https://github.com/scality/S3>`__ GitHub repository) as
    described in :ref:`Using search_bucket`.
