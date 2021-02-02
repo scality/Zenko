@@ -31,8 +31,8 @@ Establishing an Object Expiration Policy
       :align: center
 
    You may enter a distinct directory or subdirectory to which the rule applies.
-   Enter an expiration time span and a deletion time span.  These follow the
-   bucket and enforce expiration and deletion.  You may also add a comment about
+   Enter an expiration time span and a deletion time span. These follow the
+   bucket and enforce expiration and deletion. You may also add a comment about
    this expiration rule.
 
    Click **Save**.
