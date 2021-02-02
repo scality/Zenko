@@ -1,19 +1,30 @@
-FROM alpine:3.8
+FROM ubuntu:18.04
 
 ENV MOCHA_TAGS not:flaky
 ENV LANG C.UTF-8
 
 # Install dependencies
-RUN apk add -U \
-    nodejs \
+RUN apt-get -y update
+RUN apt-get install -y \
+    libgtk2.0-0 \
+    libgtk-3-0 \
+    libnotify-dev \
+    libgconf-2-4 \
+    libnss3 \
+    libxss1 \
+    libasound2 \
+    libxtst6 \
+    xauth \
+    xvfb \
+    node-gyp \
+    nodejs-dev \
     npm \
-    python3 \
+    python3-pip \
     gcc \
     libffi-dev \
-    python3-dev \
     musl-dev \
     curl \
-    openssl-dev && \
+    libssl1.0-dev && \
     mkdir -p /usr/local/bin/tests/node_tests
 
 COPY ./node_tests/package.json ./node_tests/package-lock.json /usr/local/bin/tests/node_tests/
