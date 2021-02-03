@@ -4,8 +4,7 @@ ENV MOCHA_TAGS not:flaky
 ENV LANG C.UTF-8
 
 # Install dependencies
-RUN apt-get -y update
-RUN apt-get install -y \
+RUN apt-get update && apt-get install -y \
     libgtk2.0-0 \
     libgtk-3-0 \
     libnotify-dev \
