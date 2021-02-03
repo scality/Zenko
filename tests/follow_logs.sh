@@ -22,6 +22,7 @@ while [ ! "${TEST_POD_PHASE}" ]; do
 	sleep 5
 	TEST_POD_PHASE=`getPhase`
 done
+echo "PODS LOGS!!! {TO BE REMOVED}:"
 ${V}${KUBECTL} --namespace ${NAMESPACE} logs -f ${E2E_POD}
 while [ "${TEST_POD_PHASE}" != "Failed" ] && [ "${TEST_POD_PHASE}" != "Unknown" ] && [ "${TEST_POD_PHASE}" != "Succeeded" ] ; do
 	if [ "${TEST_POD_PHASE}" = "Pending" ]; then
