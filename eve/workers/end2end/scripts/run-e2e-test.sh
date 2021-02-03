@@ -19,7 +19,7 @@ ZENKO_SECRET_KEY=$(kubectl get secret ${ZENKO_NAME}-account-zenko -o jsonpath='{
 
 ## TODO use existing entrypoint
 if [ "$STAGE" = "end2end" ]; then
-   ARGS='sh -c "cd node_tests && UI_ENDPOINT=${UI_ENDPOINT} KEYCLOAK_ENDPOINT=${KEYCLOAK_ENDPOINT} npm run test_ui"'
+   ARGS=(sh -c "cd node_tests && UI_ENDPOINT=${UI_ENDPOINT} KEYCLOAK_ENDPOINT=${KEYCLOAK_ENDPOINT} npm run test_ui")
 fi
 
 kubectl run ${POD_NAME} \
@@ -33,6 +33,6 @@ kubectl run ${POD_NAME} \
   --env="ZENKO_ACCESS_KEY=${ZENKO_ACCESS_KEY}" \
   --env="ZENKO_SECRET_KEY=${ZENKO_SECRET_KEY}" \
   --env="STAGE=${STAGE}" \
-  -- ${ARGS}
+  -- "${ARGS[@]}"
 
 KUBECTL=$(which kubectl) E2E_POD=${POD_NAME} NAMESPACE=${NAMESPACE} tests/follow_logs.sh
