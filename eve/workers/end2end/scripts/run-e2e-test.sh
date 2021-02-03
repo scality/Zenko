@@ -24,7 +24,7 @@ ZENKO_SECRET_KEY=$(kubectl get secret ${ZENKO_NAME}-account-zenko -o jsonpath='{
 
 kubectl run ${POD_NAME} \
   --image ${E2E_IMAGE} \
-  -ti \
+  -i \
   --attach=True \
   --restart=Never \
   --namespace=${NAMESPACE} \
