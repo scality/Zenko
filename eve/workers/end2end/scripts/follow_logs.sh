@@ -35,6 +35,7 @@ while [ "${TEST_POD_PHASE}" != "Failed" ] && [ "${TEST_POD_PHASE}" != "Unknown" 
 	TEST_POD_PHASE=`getPhase`
 	echo "\tPhase is: ${TEST_POD_PHASE}"
 done
+
 echo "Test completed with pod phase: ${TEST_POD_PHASE}"
 if [ ! "${TEST_POD_PHASE}" ] || [ "${TEST_POD_PHASE}" = "Failed" ] || [ "${TEST_POD_PHASE}" = "Unknown" ]; then
 	echo "Tests have failed"
@@ -50,4 +51,10 @@ if [ ! "${TEST_POD_PHASE}" ] || [ "${TEST_POD_PHASE}" = "Failed" ] || [ "${TEST_
 	echo "=== End of Description dumping ==="
 
 	exit 1
+else
+	echo "=== Test Logs ==="
+    ${V}${KUBECTL} --namespace ${NAMESPACE} logs ${E2E_POD}
+	echo "=== End Test Logs ==="
+
+    exit 0
 fi

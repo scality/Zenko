@@ -7,10 +7,19 @@ branches:
 
 models:
   - env: &kind-env
+      WORKER_COUNT: '2'
       OPERATOR_REPO: git@github.com:scality/zenko-operator.git
       OPERATOR_IMAGE: '%(prop:OPERATOR_IMAGE_NAME)s:%(prop:OPERATOR_IMAGE_TAG)s'
       KIND_NODE_IMAGE: "kindest/node:v1.17.5@sha256:ab3f9e6ec5ad8840eeb1f76c89bb7948c77bbf76bcebe1a8b59790b8ae9a283a"
       VOLUME_ROOT: /artifacts
+      OIDC_REALM: "zenko"
+      OIDC_CLIENT_ID: "zenko-ui"
+      OIDC_USERNAME: 'zenko-end2end'
+      UI_ENDPOINT: 'ui.zenko.local'
+      OIDC_ENDPOINT: 'keycloak.zenko.local'
+      OIDC_PASSWORD: 'end2end_password'
+      OIDC_FIRST_NAME: 'hello'
+      OIDC_LAST_NAME: 'world'
   - env: &e2e-env
       E2E_IMAGE_NAME: registry.scality.com/zenko/zenko-e2e
       E2E_IMAGE_TAG: '%(prop:commit_short_revision)s'
@@ -47,7 +56,7 @@ models:
   - SetProperties: &set_operator_properties
       properties:
         OPERATOR_IMAGE_NAME: registry.scality.com/sf-eng/zenko-operator
-        OPERATOR_IMAGE_TAG: 004087b
+        OPERATOR_IMAGE_TAG: '3879889'
 
 stages:
   pre-merge:
@@ -176,34 +185,52 @@ stages:
         name: Bootstrap kind cluster
         env:
           <<: *kind-env
-        command: scripts/bootstrap-kind.sh ${KIND_NODE_IMAGE} ${VOLUME_ROOT}
-        workdir: build/eve/workers/end2end
+        command: bash scripts/bootstrap-kind.sh ${KIND_NODE_IMAGE} ${VOLUME_ROOT} ${WORKER_COUNT}
+        workdir: build/eve/workers/end2end 
     - ShellCommand:
         name: Ensure cluster is up and running
         command: |
           kubectl get nodes
           kubectl get pods --all-namespaces
-    - ShellCommand:
-        name: Create namespace
-        command: kubectl create namespace ${STAGE} &> /dev/null
     - ShellCommand: &create_image_pull_secret
         name: Create pull image secret
-        command: scripts/create-pull-image-secret.sh | kubectl apply -f -
+        command: bash scripts/create-pull-image-secret.sh
         workdir: build/eve/workers/end2end
         haltOnFailure: True
     - ShellCommand:
-        name: Install operator
+        name: Install kind cluster dependencies
+        env:
+          <<: *kind-env
+        command: bash scripts/install-kind-dependencies.sh
+        workdir: build/eve/workers/end2end
+        haltOnFailure: true
+        flunkOnFailure: true
+    - ShellCommand:
+        name: Patch CoreDNS config
+        env:
+          <<: *kind-env
+        command: bash scripts/patch-coredns.sh
+        workdir: build/eve/workers/end2end
+        haltOnFailure: true
+    - ShellCommand:
+        name: Setup Keycloak Realm/Client
+        env:
+          <<: *kind-env
+        command: bash scripts/keycloak-helper.sh setup-realm default
+        workdir: build/eve/workers/end2end
+        haltOnFailure: true
+    - ShellCommand:
+        name: Install test cluster
         env:
           <<: *kind-env
           COMMIT_HASH: '%(prop:OPERATOR_IMAGE_TAG)s'
         command: |
+          docker pull ${OPERATOR_IMAGE}
+          kind load docker-image ${OPERATOR_IMAGE}
           git clone ${OPERATOR_REPO} operator
           cd operator
           git checkout ${COMMIT_HASH}
-          docker pull ${OPERATOR_IMAGE}
-          kind load docker-image ${OPERATOR_IMAGE}
-          deploy/scripts/install-kind-deps.sh
-          deploy/scripts/install-zenko-operator.sh ${OPERATOR_IMAGE} "default"
+          bash deploy/scripts/install-zenko-operator.sh "${OPERATOR_IMAGE}" default
         workdir: build/eve/workers/end2end
         haltOnFailure: true
         flunkOnFailure: true
@@ -211,7 +238,14 @@ stages:
         name: Deploy Zenko Instance
         env:
           <<: *kind-env
-        command: scripts/deploy-zenko.sh "end2end" ${VOLUME_ROOT} "default"
+        command: bash scripts/deploy-zenko.sh end2end default
+        workdir: build/eve/workers/end2end
+        haltOnFailure: true
+    - ShellCommand:
+        name: Add Keycloak user
+        env:
+          <<: *kind-env
+        command: bash scripts/keycloak-helper.sh add-user default
         workdir: build/eve/workers/end2end
         haltOnFailure: true
     - ShellCommand: &build-e2e-image
@@ -220,22 +254,21 @@ stages:
         command: |
           docker build -t ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} tests/zenko_tests
           docker push ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG}
-          #kind load docker-image ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG}
         workdir: build
         haltOnFailure: true
     - ShellCommand:
         name: End-to-end configuration
         env:
           <<: [*kind-env, *e2e-env]
-        command: scripts/configure-e2e.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "default"
+        command: bash scripts/configure-e2e.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "default"
         workdir: build/eve/workers/end2end
         haltOnFailure: true
     - ShellCommand:
         name: Run init CI test
         env:
           <<: [*kind-env, *e2e-env]
-        command: eve/workers/end2end/scripts/run-e2e-test.sh  "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} ${STAGE} "default"
-        workdir: build
+        command: bash scripts/run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} ${STAGE} "default"
+        workdir: build/eve/workers/end2end
         haltOnFailure: true
     - ShellCommand:
         name: archive artifact logs and data
@@ -247,6 +280,9 @@ stages:
           kind export logs /artifacts/data/kind-logs/kind-export;
           tar zcvf /artifacts/%(prop:commit_short_revision)s-logs-volumes.tgz /artifacts/data/kind-logs;
         alwaysRun: true
+    - ShellCommand:
+        name: Clean Up
+        command: kind delete cluster
     - Upload:
         alwaysRun: true
         source: /artifacts

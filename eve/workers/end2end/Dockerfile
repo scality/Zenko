@@ -17,7 +17,9 @@ RUN apt-get update && apt-get install -y \
     gnupg2 \
     python3-buildbot-worker \
     software-properties-common \
-    m4
+    m4 \
+    gettext-base \
+    jq
 
 # install main dependencies
 RUN curl -Lo /usr/local/bin/kind https://kind.sigs.k8s.io/dl/${KIND_VERSION}/kind-$(uname)-amd64 && \

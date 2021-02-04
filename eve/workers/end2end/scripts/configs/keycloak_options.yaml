@@ -1,0 +1,68 @@
+replicas: 1
+
+ingress:
+  enabled: true
+  servicePort: http
+  tls: [  ]
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: 'HTTP'
+    nginx.ingress.kubernetes.io/enable-cors: 'true'
+  rules:
+    - host: 'keycloak.zenko.local'
+      paths:
+        - /
+
+extraEnv: |
+  - name: KEYCLOAK_USER
+    value: admin
+  - name: KEYCLOAK_PASSWORD
+    value: password
+  - name: JGROUPS_DISCOVERY_PROTOCOL
+    value: dns.DNS_PING
+  - name: JGROUPS_DISCOVERY_PROPERTIES
+    value: 'dns_query={{ include "keycloak.serviceDnsName" . }}'
+  - name: CACHE_OWNERS_COUNT
+    value: "2"
+  - name: CACHE_OWNERS_AUTH_SESSIONS_COUNT
+    value: "2"
+  - name: KEYCLOAK_NAMESPACE
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.namespace
+  - name: POD_NAME
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.name
+  - name: JAVA_OPTS
+    value: >-
+      -Djboss.default.jgroups.stack=kubernetes
+      -Djboss.node.name=$(POD_NAME)
+      -Djboss.tx.node.id=$(POD_NAME)
+      -Djboss.site.name=$(KEYCLOAK_NAMESPACE)
+  - name: KEYCLOAK_STATISTICS
+    value: all
+
+postgresql:
+  persistence:
+    enabled: true
+    accessModes:
+    - ReadWriteOnce
+    size: 10Gi
+    annotations: {}
+    storageClass: "standard"
+    mountPath: /keycloak/postgresql
+  replication:
+    enabled: true
+    user: repl_user
+    password: repl_password
+    slaveReplicas: 0
+    synchronousCommit: "off"
+    numSynchronousReplicas: 1
+    applicationName: Keycloak
+  postgresqlDataDir: /keycloak/postgresql/data
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      additionalLabels:
+        release: prometheus-operator

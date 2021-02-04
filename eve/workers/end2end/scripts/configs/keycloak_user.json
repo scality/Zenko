@@ -1,0 +1,32 @@
+{
+  "username": "${OIDC_USERNAME}",
+  "enabled": true,
+  "totp": false,
+  "emailVerified": true,
+  "firstName": "${OIDC_FIRST_NAME}",
+  "lastName": "${OIDC_LAST_NAME}",
+  "email": "e2e@zenko.local",
+  "attributes": {
+    "instanceIds": [
+        "${INSTANCE_ID}"
+    ],
+    "role": [
+      "user"
+    ]
+  },
+  "credentials": [],
+  "disableableCredentialTypes": [],
+  "requiredActions": [],
+  "realmRoles": [
+    "uma_authorization",
+    "offline_access"
+  ],
+  "clientRoles": {
+    "account": [
+      "view-profile",
+      "manage-account"
+    ]
+  },
+  "notBefore": 0,
+  "groups": []
+}

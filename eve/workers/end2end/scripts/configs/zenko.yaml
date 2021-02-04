@@ -1,0 +1,63 @@
+---
+apiVersion: zenko.io/v1alpha1
+kind: Zenko
+metadata:
+  name: ${ZENKO_NAME}
+spec:
+  version: ${ZENKO_VERSION_NAME}
+  replicas: 1
+  mongodb:
+    provider: KubeDB
+    persistence:
+      volumeClaimTemplate:
+        size: 20Gi
+        storageClassName: "standard"
+  redis:
+    provider: KubeDB
+    persistence:
+      volumeClaimTemplate:
+        size: 20Gi
+        storageClassName: "standard"
+  kafka:
+    provider: Managed
+    persistence:
+      volumeClaimTemplate:
+        size: 20Gi
+        storageClassName: "standard"
+  zookeeper:
+    provider: Managed
+    persistence:
+      volumeClaimTemplate:
+        size: 20Gi
+        storageClassName: "standard"
+  localData:
+    persistence:
+      volumeClaimTemplate:
+        size: 20Gi
+        storageClassName: "standard"
+  vault:
+    enable: true
+    iamIngress:
+      hostname: iam.zenko.local
+    stsIngress:
+      hostname: sts.zenko.local
+  utapi:
+    enable: false
+  management:
+    provider: InCluster
+    ui:
+      ingress:
+        hostname: ui.zenko.local
+    oidc:
+      provider: 'http://keycloak.zenko.local/auth/realms/${OIDC_REALM}'
+      uiClientId: ${OIDC_CLIENT_ID}
+      vaultClientId: ${OIDC_CLIENT_ID}
+    api:
+      ingress:
+        hostname: management.zenko.local
+      allowFrom:
+      - 172.16.0.0/12
+      - 10.0.0.0/8
+  registry:
+    imagePullSecretNames:
+    - zenko-operator-image-pull

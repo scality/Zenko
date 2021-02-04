@@ -1,0 +1,74 @@
+# TODO: update image version to tagged versions
+---
+apiVersion: zenko.io/v1alpha1
+kind: ZenkoVersion
+metadata:
+  name: ${ZENKO_VERSION_NAME}
+spec:
+  imagePullPolicy: Always
+  versions:
+    management:
+      ui:
+        image: registry.scality.com/zenko-ui/zenko-ui
+        tag: '0.1.0' 
+      api:
+        image: registry.scality.com/sf-eng/pensieve-api
+        tag:  '46e279b'
+      pushAPI:
+        image: registry.scality.com/sf-eng/pensieve-api
+        tag:  '46e279b'
+    cloudserver:
+      image: 'registry.scality.com/zenko/cloudserver'
+      tag: '501067f'
+    backbeat:
+      image: registry.scality.com/zenko-dev/backbeat
+      tag: 161b9c1
+    blobserver:
+      image: registry.scality.com/sf-eng/blobserver
+      tag: 1.0.8
+    jabba:
+      image: registry.scality.com/sf-eng/jabba
+      tag: 940d
+    utapi:
+      image: registry.scality.com/sf-eng/utapi
+      tag: zenko-1.0.0
+    secureChannelProxy:
+      image: 'registry.scality.com/zenko/cloudserver'
+      tag: '501067f'
+    localData:
+      image: 'zenko/cloudserver'
+      tag: '8.1.15'
+    metrics:
+      image: 'registry.scality.com/zenko/cloudserver'
+      tag: '501067f'
+    s3utils:
+      image: 'zenko/s3utils'
+      tag: '1.2'
+    zookeeper:
+      image: pravega/zookeeper
+      tag: 0.2.4
+    kafka:
+      cluster:
+        image: wurstmeister/kafka
+        tag: 2.12-2.3.0
+      cruiseControl:
+        image: registry.scality.com/zenko-dev/kafka-cruise-control
+        tag: 2.0.0-alpha.3
+      monitoring:
+        image: banzaicloud/jmx-javaagent
+        tag: '0.12.0'
+    vault:
+      image: registry.scality.com/vault/vault
+      tag: 8.2.0-alpha.1
+    shell:
+      image: busybox
+      tag: 1.31.0-glibc
+    mongodb: '4.0-v1'
+    redis:
+      db: 
+        image: redis
+        tag: 5.0.3
+      exporter:
+        image: oliver006/redis_exporter
+        tag: v1.8.0
+      kubedb: '5.0.3-v1'

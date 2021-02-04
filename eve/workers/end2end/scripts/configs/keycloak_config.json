@@ -1,0 +1,61 @@
+{
+  "realm" : "${OIDC_REALM}",
+  "enabled" : true,
+  "groups" : [ ],
+  "defaultRoles" : [ "uma_authorization", "offline_access" ],
+  "requiredCredentials" : [ "password" ],
+  "users" : [ ],
+  "clients" : [ {
+    "clientId" : "${OIDC_CLIENT_ID}",
+    "rootUrl" : "http://${UI_ENDPOINT}",
+    "adminUrl" : "http://${UI_ENDPOINT}",
+    "surrogateAuthRequired" : false,
+    "enabled" : true,
+    "alwaysDisplayInConsole" : false,
+    "clientAuthenticatorType" : "client-secret",
+    "secret" : "",
+    "redirectUris" : [ "http://${UI_ENDPOINT}/*" ],
+    "webOrigins" : [ "http://${UI_ENDPOINT}" ],
+    "notBefore" : 0,
+    "bearerOnly" : false,
+    "consentRequired" : false,
+    "standardFlowEnabled" : true,
+    "implicitFlowEnabled" : false,
+    "directAccessGrantsEnabled" : true,
+    "serviceAccountsEnabled" : false,
+    "publicClient" : true,
+    "frontchannelLogout" : false,
+    "protocol" : "openid-connect",
+    "attributes" : { },
+    "authenticationFlowBindingOverrides" : { },
+    "fullScopeAllowed" : true,
+    "nodeReRegistrationTimeout" : -1,
+    "protocolMappers" : [ {
+      "name" : "instanceids_mapper",
+      "protocol" : "openid-connect",
+      "protocolMapper" : "oidc-usermodel-attribute-mapper",
+      "consentRequired" : false,
+      "config" : {
+        "multivalued" : "true",
+        "userinfo.token.claim" : "true",
+        "user.attribute" : "instanceIds",
+        "id.token.claim" : "true",
+        "access.token.claim" : "true",
+        "claim.name" : "instanceIds"
+      }
+    }, {
+      "name" : "role_mapper",
+      "protocol" : "openid-connect",
+      "protocolMapper" : "oidc-usermodel-attribute-mapper",
+      "consentRequired" : false,
+      "config" : {
+        "user.attribute" : "role",
+        "id.token.claim" : "true",
+        "access.token.claim" : "true",
+        "claim.name" : "role",
+        "userinfo.token.claim" : "true"
+      }
+    } ]
+  } ]
+}
+

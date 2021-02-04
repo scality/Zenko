@@ -2,6 +2,8 @@
 
 set -exu
 
+. "$(dirname $0)/common.sh"
+
 ZENKO_NAME=${1:-end2end}
 E2E_IMAGE=${2:-registry.scality.com/zenko/zenko-e2e:latest}
 NAMESPACE=${3:-default}
@@ -9,8 +11,9 @@ NAMESPACE=${3:-default}
 SERVICE_ACCOUNT="${ZENKO_NAME}-config"
 POD_NAME="${ZENKO_NAME}-config"
 MANAGEMENT_ENDPOINT="http://${ZENKO_NAME}-management-orbit-api:5001"
+VAULT_ENDPOINT="http://${ZENKO_NAME}-connector-vault-sts-api"
 UUID=$(kubectl get zenko ${ZENKO_NAME} --namespace ${NAMESPACE} -o jsonpath='{.status.instanceID}')
-KEY=$(kubectl get secret end2end-management-orbit-api-jwt-secret.v1 --namespace ${NAMESPACE} -o jsonpath='{.data.jwtUserSecret}' | base64 -d)
+TOKEN=$(get_token)
 
 cat <<EOF | kubectl apply -f - 
 ---
@@ -46,15 +49,18 @@ EOF
 
 kubectl run ${POD_NAME} \
   --image ${E2E_IMAGE} \
-  -ti \
   --rm \
   --attach=True \
   --restart=Never \
   --namespace=${NAMESPACE} \
   --image-pull-policy=Always \
   --serviceaccount="${SERVICE_ACCOUNT}" \
-  --env="KEY=${KEY}" \
+  --env="TOKEN=${TOKEN}" \
   --env="UUID=${UUID}" \
   --env="MANAGEMENT_ENDPOINT=${MANAGEMENT_ENDPOINT}" \
+  --env="VAULT_ENDPOINT=${VAULT_ENDPOINT}" \
   --env="NAMESPACE=${NAMESPACE}" \
   --command -- python3 configuration.py
+
+kubectl wait --for condition=DeploymentFailure=false --timeout 10m -n ${NAMESPACE} zenko/${ZENKO_NAME}
+kubectl wait --for condition=DeploymentInProgress=false --timeout 10m -n ${NAMESPACE} zenko/${ZENKO_NAME}

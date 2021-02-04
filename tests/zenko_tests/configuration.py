@@ -51,30 +51,6 @@ def load_end2end_config(config_file):
         return yaml.full_load(file)
 
 
-def create_ui_token(key, uuid):
-    """
-    Generates token for ui api
-
-    :param key: jwt signning key
-    :param uuid: zenko instance uuid
-    """
-    TTL_TIME = 60 * 60  # 1HR
-
-    if key == "":
-        raise Exception("Invalid Signing Key")
-
-    payload = {
-        "role": "user",
-        "instanceIds": [uuid],
-        "userId": "end2end",
-        "exp": (time.time()) + TTL_TIME,
-    }
-
-    return jwt.encode(payload=payload,
-                      key=key,
-                      algorithm="HS256").decode("utf-8")
-
-
 def create_swagger_client(swagger_conf_url, api_url, token=""):
     """
     Create swagger client
@@ -121,7 +97,7 @@ def create_swagger_client(swagger_conf_url, api_url, token=""):
 
 
 def main():
-    KEY = os.getenv("KEY")
+    TOKEN = os.getenv("TOKEN")
     UUID = os.getenv("UUID")
     KUBECONFIG = os.getenv("KUBECONFIG")
     CONFIG_FILE = os.getenv("CONFIG_FILE", "./e2e-config.yaml")
@@ -136,13 +112,16 @@ def main():
 
         validate(e2e_config, yaml.full_load(schema.e2e_config_schema))
 
-        token = create_ui_token(KEY, UUID)
         client = create_swagger_client(MANAGEMENT_ENDPOINT + "/swagger.json",
                                        MANAGEMENT_ENDPOINT,
-                                       token=token)
+                                       token=TOKEN)
 
         for account in e2e_config["accounts"]:
-            accounts.create_account(client, UUID, account, namespace=NAMESPACE)
+            accounts.create_account(client,
+                                    TOKEN,
+                                    UUID,
+                                    account,
+                                    namespace=NAMESPACE)
 
         for endpoint in e2e_config["endpoints"]:
             endpoints.create_endpoint(client, UUID, endpoint)
