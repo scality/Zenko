@@ -16,13 +16,13 @@ ZENKO_ACCESS_KEY=$(kubectl get secret ${ZENKO_NAME}-account-zenko -o jsonpath='{
 ZENKO_SECRET_KEY=$(kubectl get secret ${ZENKO_NAME}-account-zenko -o jsonpath='{.data.secretKey}' | base64 -d)
 
 ## TODO use existing entrypoint
-if [ "$STAGE" = "end2end" ]; then
-   ARGS='sh -c cd node_tests && npm run test_operator'
-fi
+# if [ "$STAGE" = "end2end" ]; then
+#    ARGS='sh -c cd node_tests && npm run test_operator'
+# fi
 
 kubectl run ${POD_NAME} \
   --image ${E2E_IMAGE} \
-  -ti \
+  -i \
   --attach=True \
   --restart=Never \
   --namespace=${NAMESPACE} \
@@ -31,6 +31,6 @@ kubectl run ${POD_NAME} \
   --env="ZENKO_ACCESS_KEY=${ZENKO_ACCESS_KEY}" \
   --env="ZENKO_SECRET_KEY=${ZENKO_SECRET_KEY}" \
   --env="STAGE=${STAGE}" \
-  --command -- ${ARGS}
+  --command -- sh -c "cd node_tests && npm run test_operator"
 
 KUBECTL=$(which kubectl) E2E_POD=${POD_NAME} NAMESPACE=${NAMESPACE} tests/follow_logs.sh
