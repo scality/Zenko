@@ -12,8 +12,11 @@ corefile="
     }
     ready
     rewrite name exact keycloak.zenko.local keycloak-http.default.svc.cluster.local
-    rewrite name exact ui.zenko.local ${ZENKO_NAME}-management-ui.default.svc.cluster.local
-    rewrite name regex (sts|iam|management)\.zenko\.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
+    rewrite name exact ui.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
+    rewrite name exact management.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
+    rewrite name exact s3.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
+    rewrite name exact sts.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
+    rewrite name exact iam.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     kubernetes cluster.local in-addr.arpa ip6.arpa {
         pods insecure
         fallthrough in-addr.arpa ip6.arpa

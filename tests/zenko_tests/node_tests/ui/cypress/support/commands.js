@@ -1,7 +1,7 @@
 Cypress.Commands.add('kcLogin', (username, password) => {
     Cypress.log({ name: 'keycloak login' });
 
-    const kcUsername =  username || Cypress.env('KEYCLOAK_USERNAME');
+    const kcUsername = username || Cypress.env('KEYCLOAK_USERNAME');
     const kcPassword = password || Cypress.env('KEYCLOAK_PASSWORD');
     const kcRoot = Cypress.env('KEYCLOAK_ROOT');
     const kcRealm = Cypress.env('KEYCLOAK_REALM');
@@ -61,4 +61,37 @@ Cypress.Commands.add('kcLogout', () => {
 Cypress.Commands.add('clearSession', () => {
     Cypress.log({ name: 'Clear Session' });
     cy.window().then(window => window.sessionStorage.clear());
+});
+
+Cypress.Commands.add('createAccount', (accountName) => {
+    Cypress.log({ name: `Create Account: ${accountName}` });
+    cy.visit('/create-account');
+    cy.get('input#name').type(accountName);
+    cy.get('input#email').type('my@email.ok');
+    cy.get('button#create-account-btn').click();
+});
+
+Cypress.Commands.add('deleteAccount', (accountName) => {
+    Cypress.log({ name: `Delete Account: ${accountName}` });
+    cy.visit('/accounts');
+    cy.get('#account-list tbody').contains('tr', accountName).should('be.visible');
+    cy.get('#account-list tbody').contains('tr', accountName).click();
+    cy.get('button').contains('Delete Account').click();
+    cy.get('.sc-modal-content button').contains('Delete').click();
+});
+
+Cypress.Commands.add('createBucket', (bucketName) => {
+    Cypress.log({ name: `Create Bucket: ${bucketName}` });
+    cy.visit('/create-bucket');
+    cy.get('input#name').type(bucketName);
+    cy.get('button').contains('Create').click();
+});
+
+Cypress.Commands.add('deleteBucket', (bucketName) => {
+    Cypress.log({ name: `Delete Bucket: ${bucketName}` });
+    cy.visit('/buckets');
+    cy.get('table tbody').contains('tr', bucketName).should('be.visible');
+    cy.get('table tbody').contains('tr', bucketName).click();
+    cy.get('button').contains('Delete Bucket').click();
+    cy.get('.sc-modal-content button').contains('Delete').click();
 });

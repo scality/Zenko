@@ -23,7 +23,7 @@ ZENKO_SESSION_TOKEN=$(kubectl get secret end2end-account-zenko -o jsonpath='{.da
 OIDC_FULLNAME="${OIDC_FIRST_NAME} ${OIDC_LAST_NAME}"
 
 run_e2e_test() {
-    kubectl run ${POD_NAME} \
+    kubectl run ${1} ${POD_NAME} \
         --image ${E2E_IMAGE} \
         --restart=Never \
         --namespace=${NAMESPACE} \
@@ -41,12 +41,14 @@ run_e2e_test() {
         --env=CYPRESS_KEYCLOAK_CLIENT_ID=${OIDC_CLIENT_ID} \
         --env=CYPRESS_KEYCLOAK_REALM=${OIDC_REALM} \
         --env=UI_ENDPOINT=${UI_ENDPOINT} \
-        --command -- sh -c "$@"
+        --command -- sh -c "${2}"
 }
 
 ## TODO use existing entrypoint
 if [ "$STAGE" = "end2end" ]; then
-   run_e2e_test 'cd node_tests && npm run test_operator && npm run test_ui'
+   run_e2e_test '' 'cd node_tests && npm run test_operator && npm run test_ui'
+elif [ "$STAGE" = "debug" ]; then
+   run_e2e_test '-ti' 'bash'
 fi
 
 KUBECTL=$(which kubectl) E2E_POD=${POD_NAME} NAMESPACE=${NAMESPACE} $DIR/follow_logs.sh

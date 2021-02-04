@@ -1,5 +1,3 @@
-/* eslint jest/expect-expect: 0 */
-
 describe('Authentication with keycloak', () => {
     describe('User authenticated', () => {
         beforeEach(cy.kcLogin);
