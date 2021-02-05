@@ -75,13 +75,36 @@ spec:
                         type: string
                     type: object
                   kafka:
-                    description: ZenkoVersionSpecImage defines an image repository
-                      and version
+                    description: ZenkoVersionSpecVersionsKafka defines versions of
+                      kafka
                     properties:
-                      image:
-                        type: string
-                      tag:
-                        type: string
+                      cluster:
+                        description: ZenkoVersionSpecImage defines an image repository
+                          and version
+                        properties:
+                          image:
+                            type: string
+                          tag:
+                            type: string
+                        type: object
+                      cruiseControl:
+                        description: ZenkoVersionSpecImage defines an image repository
+                          and version
+                        properties:
+                          image:
+                            type: string
+                          tag:
+                            type: string
+                        type: object
+                      monitoring:
+                        description: ZenkoVersionSpecImage defines an image repository
+                          and version
+                        properties:
+                          image:
+                            type: string
+                          tag:
+                            type: string
+                        type: object
                     type: object
                   localData:
                     description: ZenkoVersionSpecImage defines an image repository

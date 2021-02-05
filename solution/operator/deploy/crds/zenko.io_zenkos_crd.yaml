@@ -336,10 +336,6 @@ spec:
                     description: ZenkoSpecManagementOIDC defines the management used
                       by OIDC providers.
                     properties:
-                      discoveryUrl:
-                        description: DiscoveryURL is the url of the .well-known/openid-configuration
-                          document
-                        type: string
                       ingress:
                         description: ZenkoComponentIngress defines ingress values
                           for components.
@@ -347,6 +343,9 @@ spec:
                           hostname:
                             type: string
                         type: object
+                      provider:
+                        description: Provider is the url of the OIDC Provider
+                        type: string
                       uiClientId:
                         description: UIClientID is the OIDC client ID for the UI
                         type: string

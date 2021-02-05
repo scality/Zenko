@@ -10,7 +10,7 @@ spec:
     management:
       ui:
         image: registry.scality.com/zenko-ui/zenko-ui
-        tag: '0.1.0' 
+        tag: '0.1.0'
       api:
         image: registry.scality.com/sf-eng/pensieve-api
         tag:  '46e279b'
@@ -18,11 +18,11 @@ spec:
         image: registry.scality.com/sf-eng/pensieve-api
         tag:  '46e279b'
     cloudserver:
-      image: 'registry.scality.com/zenko/cloudserver'
-      tag: '501067f'
+      image: 'registry.scality.com/cloudserver/cloudserver'
+      tag: '8.2.8'
     backbeat:
-      image: registry.scality.com/zenko-dev/backbeat
-      tag: 161b9c1
+      image: registry.scality.com/backbeat/backbeat
+      tag: 8.2.5
     blobserver:
       image: registry.scality.com/sf-eng/blobserver
       tag: 1.0.8
@@ -33,17 +33,17 @@ spec:
       image: registry.scality.com/sf-eng/utapi
       tag: zenko-1.0.0
     secureChannelProxy:
-      image: 'registry.scality.com/zenko/cloudserver'
-      tag: '501067f'
+      image: 'registry.scality.com/cloudserver/cloudserver'
+      tag: '8.2.8'
     localData:
-      image: 'zenko/cloudserver'
-      tag: '8.1.15'
+      image: 'registry.scality.com/cloudserver/cloudserver'
+      tag: '8.2.8'
     metrics:
-      image: 'registry.scality.com/zenko/cloudserver'
-      tag: '501067f'
+      image: 'registry.scality.com/cloudserver/cloudserver'
+      tag: '8.2.8'
     s3utils:
-      image: 'zenko/s3utils'
-      tag: '1.2'
+      image: 'registry.scality.com/s3utils/s3utils'
+      tag: '1.8.2'
     zookeeper:
       image: pravega/zookeeper
       tag: 0.2.4
@@ -65,7 +65,7 @@ spec:
       tag: 1.31.0-glibc
     mongodb: '4.0-v1'
     redis:
-      db: 
+      db:
         image: redis
         tag: 5.0.3
       exporter:

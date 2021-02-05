@@ -8,7 +8,7 @@ spec:
   versions:
     management:
       ui:
-        image: ${SOLUTION_REGISTRY}/zenko-ui
+        image: zenko-ui
         tag: 0.1.0
       api:
         image: pensieve-api
@@ -18,10 +18,10 @@ spec:
         tag: 611b9ca
     cloudserver:
       image: cloudserver
-      tag: latest-8.1.2
+      tag: 8.2.8
     backbeat:
       image: backbeat
-      tag: 161b9c1
+      tag: 8.2.5
     blobserver:
       image: blobserver
       tag: 1.0.8
@@ -33,25 +33,32 @@ spec:
       tag: zenko-1.0.0
     secureChannelProxy:
       image: cloudserver
-      tag: '4332d0a'
+      tag: '8.2.8'
     localData:
       image: cloudserver
-      tag: '8.1.15'
+      tag: '8.2.8'
     metrics:
       image: cloudserver
-      tag: '4332d0a'
+      tag: '8.2.8'
     s3utils:
       image: s3utils
-      tag: '1.2'
+      tag: '1.8.2'
     zookeeper:
       image: zookeeper
       tag: 0.2.4
     kafka:
-      image: kafka
-      tag: 2.12-2.3.0
+      cluster:
+        image: kafka
+        tag: 2.12-2.3.0
+      cruiseControl:
+        image: kafka-cruise-control
+        tag: 2.0.0-alpha.3
+      monitoring:
+        image: jmx-javaagent
+        tag: '0.12.0'
     vault:
       image: vault
-      tag: zenko-2.0.0
+      tag: 8.2.0-alpha.1
     shell:
       image: busybox
       tag: latest
