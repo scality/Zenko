@@ -12,10 +12,10 @@ spec:
         tag: 0.1.0
       api:
         image: pensieve-api
-        tag: 611b9ca
+        tag: 46e279b
       pushAPI:
         image: pensieve-api
-        tag: 611b9ca
+        tag: 46e279b
     cloudserver:
       image: cloudserver
       tag: 8.2.8

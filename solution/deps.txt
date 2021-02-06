@@ -6,7 +6,7 @@ pravega/zookeeper:0.2.4
 redis:5.0.3
 registry.scality.com/sf-eng/blobserver:1.0.8
 registry.scality.com/sf-eng/jabba:940d
-registry.scality.com/sf-eng/pensieve-api:611b9ca
+registry.scality.com/sf-eng/pensieve-api:46e279b
 registry.scality.com/sf-eng/utapi:zenko-1.0.0
 registry.scality.com/sf-eng/zenko-operator:195a22f
 registry.scality.com/vault/vault:8.2.0-alpha.1
