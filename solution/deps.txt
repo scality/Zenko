@@ -10,7 +10,7 @@ registry.scality.com/sf-eng/pensieve-api:46e279b
 registry.scality.com/sf-eng/utapi:zenko-1.0.0
 registry.scality.com/sf-eng/zenko-operator:195a22f
 registry.scality.com/vault/vault:8.2.0-alpha.1
-registry.scality.com/backbeat/backbeat:8.2.5
+registry.scality.com/zenko-dev/backbeat:161b9c1
 registry.scality.com/cloudserver/cloudserver:8.2.8
 registry.scality.com/s3utils/s3utils:1.8.2
 registry.scality.com/zenko-dev/kafka-cruise-control:2.0.0-alpha.3
