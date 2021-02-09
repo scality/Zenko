@@ -4,7 +4,6 @@ kind: ZenkoVersion
 metadata:
   name: ${VERSION_FULL}
 spec:
-  imagePullPolicy: Always
   versions:
     management:
       ui:

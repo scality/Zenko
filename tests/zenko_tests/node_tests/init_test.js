@@ -18,6 +18,12 @@ describe('Test Configuration', () => {
                     LocationConstraint: "us-east-1",
                 },
             }, next),
+            next => s3.listBuckets((err, res) => {
+                assert.ifError(err);
+                assert.strictEqual(res.Buckets.length, 1);
+                assert.strictEqual(res.Buckets[0].Name, bucket);
+                next();
+            }),
             next => s3.putObject({
                 Bucket: bucket, Key: key, Body: body
             }, next),
@@ -27,6 +33,12 @@ describe('Test Configuration', () => {
                     assert.strictEqual(body, res.Body.toString());
                     next()
                 }),
+            next => s3.listObjects({ Bucket: bucket }, (err, res) => {
+                assert.ifError(err);
+                assert.strictEqual(res.Contents.length, 1);
+                assert.strictEqual(res.Contents[0].Key, key);
+                next();
+            }),
             next => s3.deleteObject({ Bucket: bucket, Key: key}, next),
             next => s3.deleteBucket({ Bucket: bucket }, next),
         ], done);
