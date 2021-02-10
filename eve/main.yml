@@ -56,7 +56,7 @@ models:
   - SetProperties: &set_operator_properties
       properties:
         OPERATOR_IMAGE_NAME: registry.scality.com/sf-eng/zenko-operator
-        OPERATOR_IMAGE_TAG: '994e241'
+        OPERATOR_IMAGE_TAG: 'da2754e'
 
 stages:
   pre-merge:
