@@ -1,7 +1,7 @@
 .. _Upload Objects to Buckets:
 
 Upload Objects to Buckets
-=======================
+=========================
 
 **Prerequisites:** Before uploading data to a bucket, you must have a storage
 account associated with a user, and you must have created at least one bucket.
