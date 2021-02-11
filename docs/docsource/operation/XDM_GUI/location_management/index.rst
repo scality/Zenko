@@ -71,7 +71,7 @@ installed, this is probably the API you use to access the RING.
 |product| Local
 ---------------
 
-The |product| Local filesystem is a convenient, easily configured test location that
+The |product| Local file system is a convenient, easily configured test location that
 enables product familiarization and simple operations. It is internal to |product|,
 and serves as the default location for otherwise unnamed locations that rely on
 the default "us-east-1" location. Because it is internal to |product|, the "Add New
@@ -80,8 +80,8 @@ naming at setup time. These are handled elsewhere in the Orbit user interface.
 
 .. warning::
 
-   While convenient for testing purposes, the |product| Local filesystem is not
-   recommended for use in a production setting. The |product| Local filesystem
+   While convenient for testing purposes, the |product| Local file system is not
+   recommended for use in a production setting. The |product| Local file system
    introduces a single point of failure and is thus unsuitable for a
    highly-reliable, highly-available storage solution.
 

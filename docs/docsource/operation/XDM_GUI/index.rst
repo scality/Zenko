@@ -14,4 +14,4 @@ ease of use and excellent opportunities for visualizing managed data.
    location_management/index
    account_operations/index
    bucket_operations/index
-   file_operations/index
+   object_operations/index

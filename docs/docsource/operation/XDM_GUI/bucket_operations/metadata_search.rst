@@ -11,7 +11,7 @@ The |product| UI provides a graphical tool for performing metadata searches, the
 syntax for which is hinted under the search bar itself, but also
 described explicitly in :ref:`Searching Metadata with |product|`.
 
-To search the metadata of files stored in clouds managed by |product|,
+To search the metadata of objects stored in clouds managed by |product|,
 
 #. Click the **Data Browser** tab.
 
@@ -42,5 +42,5 @@ To search the metadata of files stored in clouds managed by |product|,
       :width: 75 %
 
    You have full object-level control (delete, inspect, download) of the
-   returned results. See :ref:`File Operations` for more.
+   returned results. See :ref:`Object Operations` for more.
       

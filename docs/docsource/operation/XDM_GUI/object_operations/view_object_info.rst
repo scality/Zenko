@@ -1,11 +1,11 @@
-.. _View File Info:
+.. _View Object Info:
 
-View File Info
-==============
+View Object Info
+================
 
-To view information about a file:
+To view information about an object:
 
-#. Click the **Data Browser** tab open the Data Browser view.
+#. Click the **Data Browser** tab to open the Data Browser view.
 
    .. image:: ../../Graphics/xdm_ui_data_browser.png
       :width: 75%	      
@@ -15,24 +15,24 @@ To view information about a file:
    .. image:: ../../Graphics/xdm_ui_bucket_select.png
       :width: 75%
 
-#. Select the file by clicking in its row.
+#. Select the object by clicking in its row.
 
-   .. image:: ../../Graphics/xdm_ui_file_select.png
+   .. image:: ../../Graphics/xdm_ui_object_select.png
       :width: 75%
 
    .. note::
 
-      Clicking the filename downloads the file.
+      Clicking the object name downloads the object.
 
-#. Summary data about the file is displayed in the right column.
+#. Summary data about the object is displayed in the right column.
 
-   .. image:: ../../Graphics/xdm_ui_file_info_summary.png
-      :width: 50%
+   .. image:: ../../Graphics/xdm_ui_object_info_summary.png
+      :width: 75%
 
-#. To review or modify the file's metadata, click the **Metadata** tab.
+#. To review or modify the object's metadata, click the **Metadata** tab.
 
-   .. image:: ../../Graphics/xdm_ui_file_info_metadata.png
-      :width: 50%
+   .. image:: ../../Graphics/xdm_ui_object_info_metadata.png
+      :width: 75%
 
    Available metadata options are **cache-control**, **content disposition**,
    **content-encoding**, **content-type**, **website-redirect-location**, and
@@ -47,10 +47,10 @@ To view information about a file:
    <https://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html#bucketnamingrules>`__:
    numbers, hyphens, and upper- and lower-case letters only.
 
-#. To review or edit the file's custom tags, click the **Tags** tab.
+#. To review or edit the object's custom tags, click the **Tags** tab.
 
-   .. image:: ../../Graphics/xdm_ui_file_info_tags.png
-      :width: 50%
+   .. image:: ../../Graphics/xdm_ui_object_info_tags.png
+      :width: 75%
 
    These are S3-supported tags (see
    https://docs.aws.amazon.com/AmazonS3/latest/dev/object-tagging.html).
