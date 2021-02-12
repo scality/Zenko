@@ -1,7 +1,12 @@
 .. _View Object Info:
 
-View Object Info
-================
+View Object Information, Metadata, and Tags
+===========================================
+
+An object consists of a file and its attendant metadata. Some of this metadata,
+such as date stamps, cannot be edited. Other types of metadata can be edited and
+can be customized. This section describes viewing object information (immutable
+metadata), and viewing and editing metadata and tags. 
 
 To view information about an object:
 
@@ -29,7 +34,7 @@ To view information about an object:
    .. image:: ../../Graphics/xdm_ui_object_info_summary.png
       :width: 75%
 
-#. To review or modify the object's metadata, click the **Metadata** tab.
+#. To review or change the object's metadata, click the **Metadata** tab.
 
    .. image:: ../../Graphics/xdm_ui_object_info_metadata.png
       :width: 75%
