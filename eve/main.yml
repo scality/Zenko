@@ -238,12 +238,20 @@ stages:
           tox --workdir /tmp/tox -e docs -- latexpdf BUILDDIR="%(prop:documentation_builddir)s"
           tox --workdir /tmp/tox -e docs -- latexpdf BUILDDIR="%(prop:documentation_builddir)s"
         workdir: build/docs
+    - ShellCommand:
+        name: Create tar file for documentation
+        command: >-
+          tar --create -gzip
+          --directory %(prop:documentation_builddir)s
+          --file %(prop:documentation_builddir)s/zenko-documentation.tar.gz
+          doctrees html latex
     - Upload:
         name: Upload documentation
         source: 'artifacts'
         urls:
           - "documentation/html/index.html"
           - "documentation/latex/*.pdf"
+          - "documentation/*.tar.gz"
 
   test-cosmos:
     worker:
