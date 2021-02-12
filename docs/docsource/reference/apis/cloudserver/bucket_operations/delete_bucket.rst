@@ -10,7 +10,7 @@ empty.
 
   Before a bucket can be deleted, all objects must be deleted from the bucket
   and all ongoing multipart uploads must be aborted. See :ref:`Delete Versioned
-  Files` to empty a bucket completely using the |product| UI.
+  Objects` to empty a bucket completely using the |product| UI.
 
 Requests
 --------

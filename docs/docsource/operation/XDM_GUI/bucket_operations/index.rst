@@ -3,7 +3,7 @@
 Bucket Operations
 =================
 
-You can use the Zenko UI to create, configure, access, and delete buckets from
+You can use the |product| UI to create, configure, access, and delete buckets from
 all locations under your control.
 
 .. toctree::

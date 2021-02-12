@@ -45,7 +45,7 @@ Establishing an Object Expiration Policy
 
 Versioning logic precludes simply deleting an object: that day’s object is
 deleted, but earlier versions remain. To delete files from a versioned bucket,
-see :ref:`Delete Versioned Files`
+see :ref:`Delete Versioned Objects`
 
 
 .. |image0| image:: ../../../Graphics/Orbit_lifecycle_select.png

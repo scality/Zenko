@@ -37,7 +37,7 @@ To delete a bucket:
 .. important::
 
    If the bucket is not empty, it cannot be deleted. In a bucket deployed with
-   versioning enabled, it is possible to delete a file without deleting earlier
-   versions of that file. Earlier versions may remain, and may make deleting the
-   bucket impossible. See the instructions to :ref:`Delete Versioned Files` to
+   versioning enabled, it is possible to delete an object without deleting earlier
+   versions of that object. Earlier versions may remain, and may make deleting the
+   bucket impossible. See the instructions to :ref:`Delete Versioned Objects` to
    completely empty a versioned bucket.
