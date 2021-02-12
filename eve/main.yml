@@ -112,21 +112,33 @@ stages:
           dockerfile: docs/Dockerfile
     steps:
     - Git: *git_pull
+    - EveProperty:
+        name: Setup documentation builddir
+        property: documentation_builddir
+        value: "%(prop:builddir)s/build/artifacts/documentation"
     - ShellCommand:
         name: 'Build doc'
         haltOnFailure: true
         command: |-
-          tox --workdir /tmp/tox -e docs -- html BUILDDIR="%(prop:builddir)s/build/artifacts"
+          tox --workdir /tmp/tox -e docs -- html BUILDDIR="%(prop:documentation_builddir)s"
           # Building the latex twice to catch up the reference
-          tox --workdir /tmp/tox -e docs -- latexpdf BUILDDIR="%(prop:builddir)s/build/artifacts"
-          tox --workdir /tmp/tox -e docs -- latexpdf BUILDDIR="%(prop:builddir)s/build/artifacts"
+          tox --workdir /tmp/tox -e docs -- latexpdf BUILDDIR="%(prop:documentation_builddir)s"
+          tox --workdir /tmp/tox -e docs -- latexpdf BUILDDIR="%(prop:documentation_builddir)s"
         workdir: build/docs
+    - ShellCommand:
+        name: Create tar file for documentation
+        command: >-
+          tar --create --gzip
+          --directory %(prop:documentation_builddir)s
+          --file %(prop:documentation_builddir)s/zenko-documentation.tar.gz
+          doctrees html latex
     - Upload:
         name: Upload documentation
         source: 'artifacts'
         urls:
-          - "html/index.html"
-          - "latex/*.pdf"
+          - "documentation/html/index.html"
+          - "documentation/latex/*.pdf"
+          - "documentation/*.tar.gz"
 
   build-iso:
     worker: &build-iso-worker
