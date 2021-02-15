@@ -26,8 +26,8 @@ Modify options.yaml
 -------------------
 
 The options.yaml file is not present by default, but you added a simple one at
-Zenko/kubernetes/options.yaml when :ref:`deploying
-|product|<create_options.yaml>`. options.yaml is the best place to make all changes
+Zenko/kubernetes/options.yaml when :ref:`deploying<create_options.yaml>` 
+|product|. options.yaml is the best place to make all changes
 to your configuration (with one exception, nodeCounts). While it is possible to
 reconfigure any aspect of |product| or its attendant microservices from those
 services' base settings or in the |product| settings, it is better to make changes
