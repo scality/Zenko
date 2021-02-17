@@ -49,7 +49,6 @@ all configured to talk to each other.
 Simple Zenko setup for quick testing with non-production data:
 
 - [Zenko Single-Node Kubernetes](./docs/minikube.md)
-- [Zenko Docker Swarm Testing](./swarm-testing)
 
 ## Zenko in Production
 
