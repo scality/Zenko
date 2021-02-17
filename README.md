@@ -28,10 +28,7 @@ If you'd like to contribute, please review the
 ## Overview
 
 This repository includes installation resources to deploy the full Zenko
-stack over different orchestration systems.
-
-Currently we have [Kubernetes](https://kubernetes.io/) and
-[Docker Swarm](https://docs.docker.com/engine/swarm/).
+stack on the [Kubernetes](https://kubernetes.io/) orchestration system.
 
 ### Zenko Stack
 
@@ -49,7 +46,6 @@ all configured to talk to each other.
 Simple Zenko setup for quick testing with non-production data:
 
 - [Zenko Single-Node Kubernetes](./docs/minikube.md)
-- [Zenko Docker Swarm Testing](./swarm-testing)
 
 ## Zenko in Production
 
@@ -59,5 +55,3 @@ Simple Zenko setup for quick testing with non-production data:
 [Zenko Kubernetes Helm Chart deployment](./kubernetes)
 
 [Deploying a HA Kubernetes cluster](https://github.com/scality/metal-k8s)
-
-[Zenko Docker Swarm HA Deployment](./swarm-production)
