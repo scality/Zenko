@@ -22,6 +22,9 @@ ORBIT_HELM_RELEASE := ciutil
 COSBENCH_HELM_RELEASE := zenko-cosbench
 CEPH_HELM_RELEASE := zenko-ceph
 
+HELM_REPOSITORY_STABLE ?= https://charts.helm.sh/stable
+HELM_REPOSITORY_INCUBATOR ?= https://charts.helm.sh/incubator
+
 # This is for dumping logs, command is long so storing as a variable
 ZENKO_PODS := {{range .items}}{{$$pod := .metadata.name}}{{range .spec.containers}}"kubectl logs -n $(HELM_NAMESPACE) {{$$pod}} -c {{.name}} --previous=true >> artifacts/{{.name}}-{{$$pod}}.log;kubectl logs -n $(HELM_NAMESPACE) {{$$pod}} -c {{.name}} >> artifacts/{{.name}}-{{$$pod}}.log ; exit 0"{{"\n"}}{{end}}{{end}}
 
@@ -115,13 +118,13 @@ build-latest: | build-latest-backbeat build-latest-cloudserver
 
 install-tiller:
 ifndef NO_INSTALL
-	$(V)$(HELM) init --tiller-namespace $(HELM_NAMESPACE) --wait
+	$(V)$(HELM) init --stable-repo-url $(HELM_REPOSITORY_STABLE) --tiller-namespace $(HELM_NAMESPACE) --wait
 endif
 .PHONY: install-tiller
 
 install-helm-repos:
 ifndef NO_INSTALL
-	$(V)$(HELM) repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator && \
+	$(V)$(HELM) repo add incubator $(HELM_REPOSITORY_INCUBATOR) && \
 	$(HELM) repo add scality https://scality.github.io/Zenko
 endif
 .PHONY: install-helm-repos
