@@ -11,7 +11,6 @@ metadata:
 spec:
   serviceName: {{ template "zookeeper.fullname" . }}-headless
   replicas: {{ .Values.replicaCount }}
-  terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
   selector:
     matchLabels:
       app: {{ template "zookeeper.name" . }}
@@ -44,6 +43,7 @@ spec:
 {{- end }}
       securityContext:
 {{ toYaml .Values.securityContext | indent 8 }}
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
       containers:
 
         - name: zookeeper
