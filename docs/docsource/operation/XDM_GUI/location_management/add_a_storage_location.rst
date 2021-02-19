@@ -15,8 +15,6 @@ To add a storage location:
 
    .. image:: ../../Graphics/xdm_ui_account_view.png
       :width: 100%
-
-
    .. tip::
 
       If there are many accounts, you can use the field marked *Filter by
