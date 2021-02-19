@@ -3,7 +3,7 @@
 Add a Storage Location
 ======================
 
-Though you can learn by nominating arbirary Zenko endpoints in a local file
+Though you can learn by nominating arbitrary Zenko endpoints in a local file
 system, in practical applications you will need an existing account on a cloud
 server. This can be a public cloud, like AWS S3, or a private cloud, like
 Scality RING with S3 Connector.
