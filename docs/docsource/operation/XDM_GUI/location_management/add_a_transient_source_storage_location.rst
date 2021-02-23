@@ -20,6 +20,7 @@ To deploy a transient source storage location:
    Location** to raise the **ADD NEW STORAGE LOCATION** window.
 
    .. image:: ../../Graphics/xdm_ui_add_new_storage_location.png
+      :width: 50%
 
 #. The **Add New Storage Location** modal appears. Enter the **Location Name**
    (AWS S3 naming rules apply: lowercase alphanumerics and hyphens only) and
@@ -27,12 +28,14 @@ To deploy a transient source storage location:
    drop-down list.
 
    .. image:: ../../Graphics/xdm_ui_add_storage_location_sproxyd.png
+      :width: 50%
 
 #. Enter up to six **Bootstrap List** parameters (or accept the default value),
    **Proxy Path**, and **Replication Factor for Small Objects**, if any. Under
    **Advanced Options**, click **Delete objects after successful replication**.
  
    .. image:: ../../Graphics/xdm_ui_add_sproxyd_selected.png
+      :width: 50%
 
    You can also set the **Limit total size in this location to** parameter to a
    reasonable size that conforms to the anticipated size of files, peak demand,

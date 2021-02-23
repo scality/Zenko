@@ -12,7 +12,6 @@ providing ease of use and excellent opportunities for visualizing managed data.
    :maxdepth: 1
 
    Orbit_Security
-   Setting_Up_Orbit/index
    Dashboard
    Statistics
    Settings
