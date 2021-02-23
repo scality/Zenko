@@ -151,14 +151,17 @@ Register with Orbit
    authenticate through Google.
 
    .. image:: ../Graphics/orbit_authenticate.png
-
+      :width: 50%
+	      
 #. Click the **Register My Instance** button.
 
 #. Paste the instance ID into the Instance ID dialog. Name the instance what
    you will.
 
    .. image:: ../Graphics/orbit_enter_instance_ID.png
+      :width: 75%
 
 #. Your instance is registered.
 
    .. image:: ../Graphics/orbit_install_success.png
+      :width: 100%
