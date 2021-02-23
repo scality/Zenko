@@ -15,30 +15,30 @@ To search the metadata of objects stored in clouds managed by |product|,
 
 #. Click the **Data Browser** tab.
 
-   .. image:: ../../Graphics/xdm_ui_data_browser.png
+   .. image:: ../../../Graphics/xdm_ui_data_browser.png
       :width: 100 %
 
 #. Select an account from the **Account Name** column.
 
-   .. image:: ../../Graphics/xdm_ui_data_browser_account_select.png   
+   .. image:: ../../../Graphics/xdm_ui_data_browser_account_select.png   
       :width: 75 %
 
 #. Select a bucket to search. Either pick one directly from the **Bucket Name**
    column or narrow your options using the filter field.
 
-   .. image:: ../../Graphics/xdm_ui_bucket_select.png
+   .. image:: ../../../Graphics/xdm_ui_bucket_select.png
       :width: 75 %
 
 #. Enter metadata search terms in the modified NoSQL format described in
    :ref:`Searching Metadata with |product|`. Suggested search terms appear in
    this field. Click **Search**.
 
-   .. image::  ../../Graphics/xdm_ui_metadata_search_entry.png
+   .. image::  ../../../Graphics/xdm_ui_metadata_search_entry.png
       :width: 50 %
 
 #. The |product| UI returns the search results.
 
-   .. image::  ../../Graphics/xdm_ui_metadata_search_results.png
+   .. image::  ../../../Graphics/xdm_ui_metadata_search_results.png
       :width: 75 %
 
    You have full object-level control (delete, inspect, download) of the

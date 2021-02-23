@@ -248,22 +248,6 @@ job. |product| develops its own namespace for the Amazon bucket and can perform
 metadata-related tasks (CRR, metadata search, lifecycle management, etc.) on
 targets in the AWS bucket using this namespace.
 
-Transient Sources
------------------
-
-Both RING with sproxyd and |product| Local file systems can be configured
-as transient sources. The transient source can be deployed as a
-"buffer" for replication to cloud locations. This configuration
-enables replication from a local service to multiple "parallel" cloud
-locations without incurring egress fees. Once data has been
-replicated, it is deleted from the transient source.
-
-Configuring a location as a transient source requires checking the
-**Delete objects after successful replication** box under the
-**Advanced Options** submenu.
-
-See :ref:`Add a Transient Source Storage Location` for details.
-
 .. [#f1] Microsoft's setup procedure is functionally identical to that of AWS
    S3. However, the Microsoft terms, "Azure Account Name" and "Azure Access Key"
    correspond, respectively, to the AWS terms "Access Key" and "Secret Key." 

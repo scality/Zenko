@@ -6,7 +6,7 @@ Component Software
 .. toctree::
    :maxdepth: 1
 
-   Orbit
+   xdm_ui
    CloudServer
    Blobserver
    Kubernetes

@@ -102,14 +102,6 @@ version and protocol.
    scanning but before replication is complete. Changes written after the initial scan
    but before replication completes may not be replicated.
 
-AWS Source
-----------
-
-|product| can access information and file system metadata from AWS S3 services using
-out-of-band updates in a flow similar to that used to extrapolate metadata from
-NFS. To configure |product| to access AWS using out-of-band updates, follow the
-instructions at :ref:`Set Up Out-of-Band Updates for AWS`.
-
 
 You can:
 
@@ -117,5 +109,4 @@ You can:
    :maxdepth: 1
 
    add_a_storage_location
-   add_a_transient_source_storage_location
    location_status

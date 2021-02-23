@@ -70,13 +70,8 @@ this architecture:
    |                    | queuing for current actions (such as CRR, lifecycle     |
    |                    | management, synchronous encryption, etc).               |
    +--------------------+---------------------------------------------------------+
-   | Orbit              | The Orbit UI offers users controls for CloudServer,     |
-   |                    | Blobserver, workflow management, user management, and   |
-   |                    | Metadata (MD) instance configuration using such         |
-   |                    | parameters as location, access key, workflow            |
-   |                    | configuration (CRR, for example), basic search, etc.    |
-   |                    |                                                         |
-   |                    | The UI runs in the cloud and is hosted by Scality.      |
+   | |product| UI       | The |product| UI offers users controls for location,    |
+   |                    | bucket, and object management in the RINGX context.     |
    +--------------------+---------------------------------------------------------+
    | CLI                | CloudServer accepts commands from command-line          |
    |                    | interfaces.                                             |
@@ -155,7 +150,7 @@ node.
   * Cosmos Operator
   * Cosmos Scheduler
 
-**Orbit Management Layer**
+**|product| UI Management Layer**
 
   * CloudServer Manager
 
