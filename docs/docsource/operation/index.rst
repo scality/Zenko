@@ -1,5 +1,5 @@
-|product| Operation
-===================
+l|product| Operation
+====================
 
 |product| is Scality’s multi-cloud storage controller. It provides a single point of
 integration using the Amazon S3 and Azure Blob Storage cloud storage APIs, and
@@ -16,8 +16,6 @@ such as Google Cloud Platform (GCP) or Microsoft Azure.
 
    Introduction/index
    Architecture/index
-   Services/index
-   Orbit_UI/index
    XDM_GUI/index
    Dashboards/Cloud_Management_Services
-   CLI/index
+ 

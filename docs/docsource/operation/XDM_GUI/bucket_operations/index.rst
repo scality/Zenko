@@ -12,4 +12,4 @@ all locations under your control.
    create_a_bucket
    inspect_a_bucket
    delete_a_bucket
-   metadata_search
+   metadata_search/index
