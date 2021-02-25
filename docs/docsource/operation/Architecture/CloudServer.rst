@@ -12,7 +12,7 @@ CloudServer is deployed in a Docker container.
 Overview
 --------
 
-.. image:: ../Graphics/CloudServer_2.0.*
+.. image:: ../Graphics/CloudServer.*
    :align: center
 
 .. tabularcolumns:: X{0.20\textwidth}X{0.65\textwidth}
@@ -28,13 +28,13 @@ Overview
    |            | status of the local object, while being authenticated as the |
    |            | internal Backbeat service.                                   |
    +------------+--------------------------------------------------------------+
-   | Management | CloudServer establishes an HTTPS connection to Orbit (API    |
-   | agent      | Push Server) and uses polling or websockets. The management  |
-   |            | agent stores the configuration, an in-memory-only overlay of |
-   |            | the configuration, in the Metadata service. The same         |
-   |            | mechanism retrieves statistics from the Backbeat API and,    |
-   |            | later, to control the Replication service and do the same    |
-   |            | with other service components.                               |
+   | Management | CloudServer establishes an HTTPS connection to the |product| |
+   | agent      | GUI (API Push Server) and uses polling or websockets. The    |
+   |            | management agent stores the configuration, an in-memory-only |
+   |            | overlay of the configuration, in the Metadata service. The   |
+   |            | same mechanism retrieves statistics from the Backbeat API    |
+   |            | and, later, to control the Replication service and do the    |
+   |            | same with other service components.                          |
    +------------+--------------------------------------------------------------+
    | Prometheus | (Not depicted) Monitoring information is maintained in a     |
    | client     | Prometheus endpoint. Prometheus polls this endpoint for      |
@@ -62,7 +62,7 @@ use cases.
 
    Users can store data on the managed cloud locations using the S3
    protocol, if a cloud location (AWS, Azure, GCP, etc.) and endpoints
-   are configured (using Orbit or a configuration file).
+   are configured (using the |product| GUI or a configuration file).
 
 -  **Managing a preferred location for PUTs and GETs**
 

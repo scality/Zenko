@@ -1,14 +1,14 @@
-GET Metrics for a Location	
+GET Metrics for a Location
 ==========================	
 
 This request retrieves metrics for a single location, defined as a	
-bucket in the Orbit UI. 	
+bucket in the |product| UI. 	
 
 The response from the endpoint is formatted identically to the	
 Get All Metrics request, (completions, throughput, and pending 	
 operations) but constrained to the requested location only.	
 
-**Endpoint**	
+**Endpoint**
 
 .. code::
 

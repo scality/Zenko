@@ -1,6 +1,0 @@
-These Metadata keys were present in Orbit, but are missing in the current
-mockup.
-
-* content-language
-
-* expires

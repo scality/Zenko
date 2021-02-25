@@ -22,10 +22,9 @@ which manages stored objects in a Microsoft Azure Blob storage-compatible
 namespace. The subset of Azure Blob-compatible APIs available to Blobserver is
 also documented here.
 
-Most |product| tasks can be managed using the web-based Orbit service. More advanced
-users, however, may wish to interact directly with |product| using its REST
-APIs. This guide provides an API and command reference for the benefit of such
-users.
+Most |product| tasks can be managed using the |product| UI. More advanced users,
+however, may wish to interact directly with |product| using its REST APIs. This
+guide provides an API and command reference for the benefit of such users.
 
 Some properties can only be managed through other APIs. Documentation is also
 furnished here for addressing :ref:`Prometheus` and :ref:`Backbeat`. Prometheus
