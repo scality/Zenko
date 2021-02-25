@@ -9,9 +9,16 @@ Basics
 |product| provides a layer that mediates between a user or configured
 storage frontend and one or several storage backends.
 
-.. image:: ../Graphics/Zenko_hi-level.*
-   :align: center
-   
+.. ifconfig:: product in ('Zenko')
+	      
+   .. image:: ../Graphics/Zenko_hi-level.*
+      :align: center
+
+.. ifconfig:: product in ('XDM')
+	      
+   .. image:: ../Graphics/XDM_hi-level.*
+      :align: center
+
 |product| may use a transient source, which enables it to write once to a
 master (local) storage cloud, then replicate the stored data to other
 clouds without incurring egress fees from the primary storage cloud.
@@ -27,8 +34,16 @@ as the reference Kubernetes implementation for |product| installations.
 
 The following diagram summarizes the |product| cloud architecture:
 
-.. image:: ../Graphics/Zenko_arch_NoNFS.*
-   :align: center
+
+.. ifconfig:: product in ('Zenko')
+	      
+   .. image:: ../Graphics/Zenko_arch_NoNFS.*
+      :align: center
+
+.. ifconfig:: product in ('XDM')
+	      
+   .. image:: ../Graphics/XDM_arch_NoNFS.*
+      :align: center
  
 The |product| instance depicted above presents an idealized representation
 of |product|’s structure. Several complexities are elided for clarity.
@@ -136,7 +151,6 @@ node.
 **APIs**
 
   * CloudServer API
-  * Backbeat API
 
 **Monitoring Services**
 
@@ -167,8 +181,15 @@ creating a fast, robust, self-healing, flexible, scalable system. From the
 user’s perspective, |product| is functionally a single instance that obscures the
 services and servers behind it.
 
-.. image:: ../Graphics/Zenko_cluster_NoNFS.*
-   :align: center
+.. ifconfig:: product in ('Zenko')
+	      
+   .. image:: ../Graphics/Zenko_cluster_NoNFS.*
+      :align: center
+
+.. ifconfig:: product in ('XDM')
+	      
+   .. image:: ../Graphics/XDM_cluster_NoNFS.*
+      :align: center
 
 A basic test configuration—a cluster of three servers—is depicted 
 above. Five servers is the recommended minimum service deployment for

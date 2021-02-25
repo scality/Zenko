@@ -26,6 +26,9 @@ import scaldoc.resources
 
 # -- Project information -----------------------------------------------------
 
+# REBRAND: Change the following to "Zenko" or "XDM". There is one more switch
+# below.
+
 project = 'Zenko'
 project_identifier = 'Zenko'
 
@@ -108,6 +111,7 @@ pygments_style = 'sphinx'
 # substitution, mostly for MSFT doc links. As we become more complete in our
 # documentation, we can replace these with references to our own documentation.
 
+# REBRAND: Change the first definition, "|product|", to "Zenko" or "XDM".
 rst_prolog = """
 
    .. |product| replace:: Zenko
@@ -300,9 +304,8 @@ PygmentsBridge.latex_formatter = scaldoc.latex.Formatter
 def setup(app):
      app.add_stylesheet('custom.css')
      app.add_stylesheet('screenshot.css')
+# REBRAND: Change the middle term of the next tuple to "XDM" or "Zenko".
+# This swaps XDM/Zenko images.
+     app.add_config_value('product', 'Zenko', 'env')
 
-# latex_documents = [
-#    (master_doc, 'ZenkoDocumentation.tex', 'Zenko Documentation',
-#    'Scality Technical Publications', 'manual'),
-#]
 

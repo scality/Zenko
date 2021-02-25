@@ -1,4 +1,4 @@
-l|product| Operation
+|product| Operation
 ====================
 
 |product| is Scality’s multi-cloud storage controller. It provides a single point of
