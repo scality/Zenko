@@ -29,7 +29,7 @@ RUN apt-get update && apt-get install -y \
 COPY ./node_tests/package.json ./node_tests/package-lock.json /usr/local/bin/tests/node_tests/
 COPY ./python_tests/requirements.txt /tmp
 
-RUN python3 -m pip install -r /tmp/requirements.txt tox && \
+RUN python3 -m pip install --no-cache-dir -r /tmp/requirements.txt tox && \
     cd /usr/local/bin/tests/node_tests && \
     npm install && \
     rm -rf /var/cache/apk/* && \

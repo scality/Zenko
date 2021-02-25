@@ -10,7 +10,7 @@ ADD ./requirements.txt /tmp/
 
 RUN apk add -U --no-cache openssl libffi coreutils su-exec && \
     apk add -U --no-cache --virtual .build-deps g++ musl-dev libffi-dev openssl-dev && \
-    pip install -r /tmp/requirements.txt && \
+    pip install --no-cache-dir -r /tmp/requirements.txt && \
     apk del .build-deps && \
     addgroup -S sfko && adduser -S -G sfko sfko && \
     mkdir -p /config

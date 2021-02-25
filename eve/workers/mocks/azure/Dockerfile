@@ -10,7 +10,7 @@ RUN apk add -U --no-cache python3 ca-certificates git haproxy \
         gcc \
         make \
         openssl-dev \
-    && python3 -m pip install azure-cli \
+    && python3 -m pip install --no-cache-dir azure-cli \
     && apk del .build-deps \
     && mkdir -p /usr/src/app
 

@@ -15,6 +15,6 @@ RUN curl -sSL https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz | \
 RUN tar -C /usr/local -xzf go1.14.3.linux-amd64.tar.gz
 
 # install python + buildbot worker
-RUN pip3 install buildbot-worker
+RUN pip3 install --no-cache-dir buildbot-worker
 CMD buildbot-worker create-worker . "$BUILDMASTER:$BUILDMASTER_PORT" "$WORKERNAME" "$WORKERPASS" \
     && buildbot-worker start --nodaemon
