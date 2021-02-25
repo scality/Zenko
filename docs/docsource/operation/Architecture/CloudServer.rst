@@ -12,7 +12,7 @@ CloudServer is deployed in a Docker container.
 Overview
 --------
 
-.. image:: ../Graphics/CloudServer.svg
+.. image:: ../Graphics/CloudServer_2.0.*
    :align: center
 
 .. tabularcolumns:: X{0.20\textwidth}X{0.65\textwidth}
