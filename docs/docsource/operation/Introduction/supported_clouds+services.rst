@@ -41,16 +41,17 @@ protocols:
 
 * Network File System (NFS)
 
-  |product| can ingest data and metadata from NFS sources, using a simple Orbit
-  configuration process or from the command line. Because NFS does not maintain
-  an object-store namespace, |product| extrapolates one using out-of-band updates.
+  |product| can ingest data and metadata from NFS sources, using a simple
+  |product| GUI configuration process or from the command line. Because NFS does
+  not maintain an object-store namespace, |product| extrapolates one using
+  out-of-band updates.
 
 * Amazon Web Services (AWS)
 
-  |product| can ingest data and metadata from AWS sources, using a simple Orbit
-  configuration process or from the command line. Because AWS's object-store
-  namespace is not accessible to customers, |product| queries Amazon buckets and
-  extrapolates its own namespace using out-of-band updates.
+  |product| can ingest data and metadata from AWS sources, using a simple
+  |product| configuration process or from the command line. Because AWS's
+  object-store namespace is not accessible to customers, |product| queries
+  Amazon buckets and extrapolates its own namespace using out-of-band updates.
 
 Other sources are under development. 
 
