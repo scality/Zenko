@@ -108,6 +108,10 @@ You can:
 *  :ref:`Edit a Storage Location`
 *  :ref:`Delete a Storage Location`
 
+*  :ref:`Add a Storage Location`
+*  :ref:`Edit a Storage Location`
+*  :ref:`Delete a Storage Location`
+
 .. toctree::
    :hidden:
    :maxdepth: 1
@@ -115,4 +119,3 @@ You can:
    add_a_storage_location
    edit_a_storage_location
    delete_a_storage_location
-

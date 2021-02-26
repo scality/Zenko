@@ -1,5 +1,5 @@
 |product| Operation
-====================
+===================
 
 |product| is Scality’s multi-cloud storage controller. It provides a single point of
 integration using the Amazon S3 and Azure Blob Storage cloud storage APIs, and
