@@ -112,7 +112,7 @@ Cypress.Commands.add('uploadObject', (bucketName, fileName) => {
             uploadId: /.*/,
         },
     }).as('mpu');
-    cy.wait('@mpu');
+    cy.wait('@mpu', { timeout: 30000 });
 });
 
 Cypress.Commands.add('deleteObject', (bucketName, fileName) => {
