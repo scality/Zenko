@@ -56,7 +56,7 @@ models:
   - SetProperties: &set_operator_properties
       properties:
         OPERATOR_IMAGE_NAME: registry.scality.com/sf-eng/zenko-operator
-        OPERATOR_IMAGE_TAG: 'da2754e'
+        OPERATOR_IMAGE_TAG: '6be152a'
 
 stages:
   pre-merge:
@@ -198,7 +198,7 @@ stages:
         env:
           <<: *kind-env
         command: bash scripts/bootstrap-kind.sh ${KIND_NODE_IMAGE} ${VOLUME_ROOT} ${WORKER_COUNT}
-        workdir: build/eve/workers/end2end 
+        workdir: build/eve/workers/end2end
     - ShellCommand:
         name: Ensure cluster is up and running
         command: |
@@ -300,4 +300,3 @@ stages:
         source: /artifacts
         urls:
           - "*.tgz"
-

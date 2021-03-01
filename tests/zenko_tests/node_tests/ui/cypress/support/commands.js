@@ -1,3 +1,5 @@
+import 'cypress-file-upload';
+
 Cypress.Commands.add('kcLogin', (username, password) => {
     Cypress.log({ name: 'keycloak login' });
 
@@ -93,5 +95,31 @@ Cypress.Commands.add('deleteBucket', (bucketName) => {
     cy.get('table tbody').contains('tr', bucketName).should('be.visible');
     cy.get('table tbody').contains('tr', bucketName).click();
     cy.get('button').contains('Delete Bucket').click();
+    cy.get('.sc-modal-content button').contains('Delete').click();
+});
+
+Cypress.Commands.add('uploadObject', (bucketName, fileName) => {
+    Cypress.log({ name: `Upload object "${fileName}" to bucket "${bucketName}"` });
+    cy.visit(`/buckets/${bucketName}/objects`);
+    cy.get('button').contains('Upload').click();
+    cy.get('input.object-upload-drop-zone-input')
+        .attachFile(fileName);
+    cy.get('#object-upload-upload-button').click();
+    cy.intercept({
+        method: 'POST',
+        url: `/s3/${bucketName}/${fileName}`,
+        query: {
+            uploadId: /.*/,
+        },
+    }).as('mpu');
+    cy.wait('@mpu');
+});
+
+Cypress.Commands.add('deleteObject', (bucketName, fileName) => {
+    Cypress.log({ name: `Delete object "${fileName}" in bucket "${bucketName}"` });
+    cy.visit(`/buckets/${bucketName}/objects`);
+    cy.get('table tbody').contains('tr', fileName).should('be.visible');
+    cy.get('table tbody').contains('tr', fileName).click();
+    cy.get('button#object-list-delete-button').click();
     cy.get('.sc-modal-content button').contains('Delete').click();
 });
