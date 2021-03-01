@@ -3,6 +3,10 @@ FROM ubuntu:18.04
 ENV MOCHA_TAGS not:flaky
 ENV LANG C.UTF-8
 
+# Add Node.js PPA
+RUN apt-get update && apt install -y curl
+RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
+
 # Install dependencies
 RUN apt-get update && apt-get install -y \
     libgtk2.0-0 \
@@ -16,14 +20,12 @@ RUN apt-get update && apt-get install -y \
     libxtst6 \
     xauth \
     xvfb \
-    node-gyp \
-    nodejs-dev \
+    nodejs \
     npm \
     python3-pip \
     gcc \
     libffi-dev \
     musl-dev \
-    curl \
     libssl1.0-dev && \
     mkdir -p /usr/local/bin/tests/node_tests
 
