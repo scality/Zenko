@@ -100,16 +100,16 @@ Cypress.Commands.add('deleteBucket', (bucketName) => {
 
 Cypress.Commands.add('uploadObject', (bucketName, fileName) => {
     Cypress.log({ name: `Upload object "${fileName}" to bucket "${bucketName}"` });
-    cy.intercept({
-        method: 'POST',
-        url: `**/s3/${bucketName}/${fileName}?uploadId=*`,
-    }).as('mpu');
     cy.visit(`/buckets/${bucketName}/objects`);
     cy.get('button').contains('Upload').click();
     cy.get('input.object-upload-drop-zone-input')
         .attachFile(fileName);
+    cy.intercept({
+        method: 'GET',
+        url: `/s3/${bucketName}`,
+    }).as('get-after-upload');
     cy.get('#object-upload-upload-button').click();
-    cy.wait('@mpu');
+    cy.wait('@get-after-upload');
 });
 
 Cypress.Commands.add('deleteObject', (bucketName, fileName) => {
