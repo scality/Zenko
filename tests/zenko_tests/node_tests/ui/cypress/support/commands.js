@@ -102,10 +102,7 @@ Cypress.Commands.add('uploadObject', (bucketName, fileName) => {
     Cypress.log({ name: `Upload object "${fileName}" to bucket "${bucketName}"` });
     cy.intercept({
         method: 'POST',
-        url: `/s3/${bucketName}/${fileName}`,
-        query: {
-            uploadId: /.*/,
-        },
+        url: `**/s3/${bucketName}/${fileName}?uploadId=*`,
     }).as('mpu');
     cy.visit(`/buckets/${bucketName}/objects`);
     cy.get('button').contains('Upload').click();
