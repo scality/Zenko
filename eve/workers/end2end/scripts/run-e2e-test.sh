@@ -23,25 +23,58 @@ ZENKO_SESSION_TOKEN=$(kubectl get secret end2end-account-zenko -o jsonpath='{.da
 OIDC_FULLNAME="${OIDC_FIRST_NAME} ${OIDC_LAST_NAME}"
 
 run_e2e_test() {
-    kubectl run ${1} ${POD_NAME} \
-        --image ${E2E_IMAGE} \
-        --restart=Never \
-        --namespace=${NAMESPACE} \
-        --image-pull-policy=Always \
-        --env=CLOUDSERVER_ENDPOINT=${CLOUDSERVER_ENDPOINT} \
-        --env=ZENKO_ACCESS_KEY=${ZENKO_ACCESS_KEY} \
-        --env=ZENKO_SECRET_KEY=${ZENKO_SECRET_KEY} \
-        --env=ZENKO_SESSION_TOKEN=${ZENKO_SESSION_TOKEN} \
-        --env=TOKEN=${TOKEN} \
-        --env=STAGE=${STAGE} \
-        --env=CYPRESS_KEYCLOAK_USER_FULLNAME="${OIDC_FULLNAME}" \
-        --env=CYPRESS_KEYCLOAK_USERNAME=${OIDC_USERNAME} \
-        --env=CYPRESS_KEYCLOAK_PASSWORD=${OIDC_PASSWORD} \
-        --env=CYPRESS_KEYCLOAK_ROOT=${OIDC_ENDPOINT} \
-        --env=CYPRESS_KEYCLOAK_CLIENT_ID=${OIDC_CLIENT_ID} \
-        --env=CYPRESS_KEYCLOAK_REALM=${OIDC_REALM} \
-        --env=UI_ENDPOINT=${UI_ENDPOINT} \
-        --command -- sh -c "${2}"
+   kubectl apply -f - <<EOF
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: "${POD_NAME}"
+  name: "${POD_NAME}"
+spec:
+  containers:
+  - name: "${POD_NAME}"
+    command: ['sh', '-c']
+    args: ["${2}"]
+    env:
+    - name: CLOUDSERVER_ENDPOINT
+      value: "${CLOUDSERVER_ENDPOINT}"
+    - name: ZENKO_ACCESS_KEY
+      value: "${ZENKO_ACCESS_KEY}"
+    - name: ZENKO_SECRET_KEY
+      value: "${ZENKO_SECRET_KEY}"
+    - name: ZENKO_SESSION_TOKEN
+      value: "${ZENKO_SESSION_TOKEN}"
+    - name: TOKEN
+      value: "${TOKEN}"
+    - name: STAGE
+      value: "${STAGE}"
+    - name: CYPRESS_KEYCLOAK_USER_FULLNAME
+      value: "${OIDC_FULLNAME}"
+    - name: CYPRESS_KEYCLOAK_USERNAME
+      value: "${OIDC_USERNAME}"
+    - name: CYPRESS_KEYCLOAK_PASSWORD
+      value: "${OIDC_PASSWORD}"
+    - name: CYPRESS_KEYCLOAK_ROOT
+      value: "${OIDC_ENDPOINT}"
+    - name: CYPRESS_KEYCLOAK_CLIENT_ID
+      value: "${OIDC_CLIENT_ID}"
+    - name: CYPRESS_KEYCLOAK_REALM
+      value: "${OIDC_REALM}"
+    - name: UI_ENDPOINT
+      value: "${UI_ENDPOINT}"
+    image: "${E2E_IMAGE}"
+    imagePullPolicy: Always
+    volumeMounts:
+    - name: artifacts
+      mountPath: /artifacts
+  restartPolicy: Never
+  volumes:
+  - name: artifacts
+    hostPath:
+      path: "/data/${POD_NAME}"
+      type: "DirectoryOrCreate"
+EOF
 }
 
 ## TODO use existing entrypoint
