@@ -3,6 +3,8 @@ FROM ubuntu:18.04
 ENV MOCHA_TAGS not:flaky
 ENV LANG C.UTF-8
 
+VOLUME /artifacts
+
 # Add Node.js PPA
 RUN apt-get update && apt install -y curl
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
