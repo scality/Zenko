@@ -300,3 +300,6 @@ stages:
         source: /artifacts
         urls:
           - "*.tgz"
+          - "data/*/cypress/videos/*.mp4"
+          - "data/*/cypress/screenshots/*.png"
+          - "data/*/cypress"
