@@ -16,6 +16,8 @@ getPhase() {
 }
 
 ${V}${KUBECTL} --namespace ${NAMESPACE} get pods
+echo "=== MANAGEMENT UI SECRET 1 ==="
+${V}${KUBECTL} get secret end2end-management-ui-config -o jsonpath='{.data.default\.conf}' | base64 -d
 TEST_POD_PHASE=`getPhase`
 while [ ! "${TEST_POD_PHASE}" ]; do
 	echo "${E2E_POD} pod state is currently undefined. Sleeping 5 seconds before checking again"
@@ -48,6 +50,8 @@ if [ ! "${TEST_POD_PHASE}" ] || [ "${TEST_POD_PHASE}" = "Failed" ] || [ "${TEST_
 	    echo "=== Dumping description of $POD ==="
 	    kubectl --namespace ${NAMESPACE} describe $POD
 	done
+  echo "=== MANAGEMENT UI SECRET 2 ==="
+  ${V}${KUBECTL} get secret end2end-management-ui-config -o jsonpath='{.data.default\.conf}' | base64 -d
 	echo "=== End of Description dumping ==="
 
 	exit 1
