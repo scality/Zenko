@@ -58,6 +58,9 @@ spec:
       allowFrom:
       - 172.16.0.0/12
       - 10.0.0.0/8
+  ingress:
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-body-size: 0m
   registry:
     imagePullSecretNames:
     - zenko-operator-image-pull
