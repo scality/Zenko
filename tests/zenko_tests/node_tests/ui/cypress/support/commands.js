@@ -120,3 +120,13 @@ Cypress.Commands.add('deleteObject', (bucketName, fileName) => {
     cy.get('button#object-list-delete-button').click();
     cy.get('.sc-modal-content button').contains('Delete').click();
 });
+
+Cypress.Commands.add('deleteObjects', (bucketName) => {
+    Cypress.log({ name: `Delete all objects in bucket "${bucketName}"` });
+    cy.visit(`/buckets/${bucketName}/objects`);
+    cy.get('table tbody tr').each(el => {
+        el.click();
+        cy.get('button#object-list-delete-button').click();
+        cy.get('.sc-modal-content button').contains('Delete').click();
+    });
+});
