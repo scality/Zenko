@@ -109,7 +109,7 @@ Cypress.Commands.add('uploadObject', (bucketName, fileName) => {
         url: `/s3/${bucketName}`,
     }).as('get-after-upload');
     cy.get('#object-upload-upload-button').click();
-    cy.wait(30000);
+    cy.wait('@get-after-upload');
 });
 
 Cypress.Commands.add('deleteObject', (bucketName, fileName) => {
