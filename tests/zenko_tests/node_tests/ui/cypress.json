@@ -1,4 +1,5 @@
 {
+  "retries": 3,
   "video": true,
   "videosFolder": "/artifacts/cypress/videos",
   "screenshotsFolder": "/artifacts/cypress/screenshots"
