@@ -109,7 +109,8 @@ Cypress.Commands.add('uploadObject', (bucketName, fileName) => {
         url: `/s3/${bucketName}`,
     }).as('get-after-upload');
     cy.get('#object-upload-upload-button').click();
-    cy.wait('@get-after-upload');
+    // wait for the 'get-after-upload' request, and leave a 5 minutes delay before throwing an error
+    cy.wait('@get-after-upload', { timeout: 5 * 60000 });
 });
 
 Cypress.Commands.add('deleteObject', (bucketName, fileName) => {
@@ -119,4 +120,14 @@ Cypress.Commands.add('deleteObject', (bucketName, fileName) => {
     cy.get('table tbody').contains('tr', fileName).click();
     cy.get('button#object-list-delete-button').click();
     cy.get('.sc-modal-content button').contains('Delete').click();
+});
+
+Cypress.Commands.add('deleteObjects', (bucketName) => {
+    Cypress.log({ name: `Delete all objects in bucket "${bucketName}"` });
+    cy.visit(`/buckets/${bucketName}/objects`);
+    cy.get('table tbody tr').each(el => {
+        el.click();
+        cy.get('button#object-list-delete-button').click();
+        cy.get('.sc-modal-content button').contains('Delete').click();
+    });
 });
