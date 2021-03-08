@@ -95,6 +95,8 @@ ingestion:
     affinity: {}
 
 lifecycle:
+  triggerTransitionsOneDayEarlierForTesting: false
+
   conductor:
     cronRule: 0 */6 * * *
     resources: {}
