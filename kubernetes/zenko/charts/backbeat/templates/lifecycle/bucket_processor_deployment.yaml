@@ -30,6 +30,8 @@ spec:
           command: ["/usr/src/app/docker-entrypoint.sh"]
           args: ["npm", "run", "lifecycle_bucket_processor"]
           env:
+            - name: TRANSITION_ONE_DAY_EARLIER
+              value: '{{ .Values.lifecycle.triggerTransitionsOneDayEarlierForTesting | default false }}'
             - name: ZOOKEEPER_AUTO_CREATE_NAMESPACE
               value: "1"
             - name: ZOOKEEPER_CONNECTION_STRING
