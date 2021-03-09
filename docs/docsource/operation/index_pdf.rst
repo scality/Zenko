@@ -5,7 +5,6 @@
    :maxdepth: 2
 
    Introduction/index
-   Upgrading_XDM
    Architecture/index
    Services/index
    Orbit_UI/index

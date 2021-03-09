@@ -9,5 +9,6 @@
    prepare/index
    install/index
    configure/index
+   upgrade/upgrade_xdm
    upgrade/upgrade_zenko
    uninstall/index
