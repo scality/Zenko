@@ -1,3 +1,5 @@
+import 'cypress-file-upload';
+
 Cypress.Commands.add('kcLogin', (username, password) => {
     Cypress.log({ name: 'keycloak login' });
 
@@ -94,4 +96,38 @@ Cypress.Commands.add('deleteBucket', (bucketName) => {
     cy.get('table tbody').contains('tr', bucketName).click();
     cy.get('button').contains('Delete Bucket').click();
     cy.get('.sc-modal-content button').contains('Delete').click();
+});
+
+Cypress.Commands.add('uploadObject', (bucketName, fileName) => {
+    Cypress.log({ name: `Upload object "${fileName}" to bucket "${bucketName}"` });
+    cy.visit(`/buckets/${bucketName}/objects`);
+    cy.get('button').contains('Upload').click();
+    cy.get('input.object-upload-drop-zone-input')
+        .attachFile(fileName);
+    cy.intercept({
+        method: 'GET',
+        url: `/s3/${bucketName}`,
+    }).as('get-after-upload');
+    cy.get('#object-upload-upload-button').click();
+    // wait for the 'get-after-upload' request, and leave a 5 minutes delay before throwing an error
+    cy.wait('@get-after-upload', { timeout: 5 * 60000 });
+});
+
+Cypress.Commands.add('deleteObject', (bucketName, fileName) => {
+    Cypress.log({ name: `Delete object "${fileName}" in bucket "${bucketName}"` });
+    cy.visit(`/buckets/${bucketName}/objects`);
+    cy.get('table tbody').contains('tr', fileName).should('be.visible');
+    cy.get('table tbody').contains('tr', fileName).click();
+    cy.get('button#object-list-delete-button').click();
+    cy.get('.sc-modal-content button').contains('Delete').click();
+});
+
+Cypress.Commands.add('deleteObjects', (bucketName) => {
+    Cypress.log({ name: `Delete all objects in bucket "${bucketName}"` });
+    cy.visit(`/buckets/${bucketName}/objects`);
+    cy.get('table tbody tr').each(el => {
+        el.click();
+        cy.get('button#object-list-delete-button').click();
+        cy.get('.sc-modal-content button').contains('Delete').click();
+    });
 });
