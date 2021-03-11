@@ -18,7 +18,6 @@ spec:
         scheduler.alpha.kubernetes.io/critical-pod: ''
     spec:
       serviceAccountName: ${KUBEDB_SERVICE_ACCOUNT}
-      imagePullSecrets: [${KUBEDB_IMAGE_PULL_SECRET}]
       containers:
       - name: operator
         image: ${KUBEDB_DOCKER_REGISTRY}/${KUBEDB_IMAGE_NAME}:${KUBEDB_OPERATOR_TAG}
