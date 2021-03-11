@@ -150,6 +150,12 @@ Deploy XDM
       }
       EOF
 
+#. Check the Keycloak realm:
+
+   .. code::
+      
+      kubectl -n ringx-auth exec keycloak-0 -- curl http://keycloak.zenko.local/auth/realms/zenko-realm
+
 #. Create a yaml file for the new XDM version:
 
    .. parsed-literal::
@@ -401,7 +407,7 @@ MetalK8s node's IP address:
 
 - management.zenko.local
 
-- keycloak.zenok.local
+- keycloak.zenko.local
 
 - ui.zenko.local
 
