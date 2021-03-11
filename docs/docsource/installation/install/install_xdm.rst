@@ -62,17 +62,17 @@ Deploy XDM Operator
    .. parsed-literal::
 
       /srv/scality/metalk8s-2.6.0/solutions.sh import --archive $ZENKO_BASE_ISO
-      sed "s/SOLUTION_ENV/zenko/g" /srv/scality/zenko-base-|version|-beta.3/operator.yaml | kubectl apply -f -
+      sed "s/SOLUTION_ENV/zenko/g" /srv/scality/zenko-base-|version|/operator.yaml | kubectl apply -f -
       kubectl -n zenko rollout status --timeout 10m deploy kubedb-operator
-      sed "s/SOLUTION_ENV/zenko/g" /srv/scality/zenko-base-|version|-beta.3/operator.yaml | kubectl apply -f -
+      sed "s/SOLUTION_ENV/zenko/g" /srv/scality/zenko-base-|version|/operator.yaml | kubectl apply -f -
 
 #. Install XDM Operator:
 
    .. parsed-literal::
 
       /srv/scality/metalk8s-2.6.0/solutions.sh import --archive $ZENKO_ISO
-      /srv/scality/metalk8s-2.6.0/solutions.sh activate --name zenko --version |version|-beta.3
-      /srv/scality/metalk8s-2.6.0/solutions.sh add-solution --name zenko --solution zenko --version |version|-beta.3
+      /srv/scality/metalk8s-2.6.0/solutions.sh activate --name zenko --version |version|
+      /srv/scality/metalk8s-2.6.0/solutions.sh add-solution --name zenko --solution zenko --version |version|
       kubectl -n zenko rollout status --timeout 10m deploy zenko-operator
 
 Deploy XDM
@@ -154,7 +154,7 @@ Deploy XDM
 
    .. parsed-literal::
 
-      kubectl apply --namespace zenko -f /srv/scality/zenko-|version|-beta.3/zenkoversion.yaml
+      kubectl apply --namespace zenko -f /srv/scality/zenko-|version|/zenkoversion.yaml
 
 #. Create storage classes:
 
@@ -283,7 +283,7 @@ Deploy XDM
       metadata:
         name: zenko-instance
       spec:
-        version: |version|-beta.3
+        version: |version|
         replicas: 1
         mongodb:
           provider: KubeDB
