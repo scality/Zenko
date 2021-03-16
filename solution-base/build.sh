@@ -46,6 +46,7 @@ export ZOOKEEPER_NAMESPACE=SOLUTION_ENV
 export ZOOKEEPER_IMAGE_PREFIX=${SOLUTION_REGISTRY}
 export ZOOKEEPER_IMAGE_NAME=zookeeper-operator
 export ZOOKEEPER_OPERATOR_TAG=$(grep /zookeeper-operator: deps.txt | awk -F ':' '{print $2}')
+export ZOOKEEPER_WATCH_NAMESPACE=SOLUTION_ENV
 
 KAFKA_NAME='kafka-operator'
 KAFKA_NAMESPACE=${SOLUTION_ENV}
