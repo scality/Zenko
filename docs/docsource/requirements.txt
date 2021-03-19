@@ -19,7 +19,7 @@ jinja2==2.10.1            # via sphinx
 markupsafe==1.1.1         # via jinja2
 packaging==19.1           # via sphinx
 pyenchant==2.0.0          # via sphinxcontrib-spelling
-pygments==2.4.2           # via sphinx
+pygments==2.7.4           # via sphinx
 pyparsing==2.4.2          # via packaging
 pytz==2019.2              # via babel
 recommonmark==0.5.0
