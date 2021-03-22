@@ -337,6 +337,8 @@ stages:
         name: Set development version
         property: dev_version
         command: echo ${STAGE##*-}
+        env:
+          STAGE: '%(prop:stage_name)s'
     - Git: *git_pull
     - ShellCommand:
         name: checkout development branch
