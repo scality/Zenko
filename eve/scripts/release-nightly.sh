@@ -33,7 +33,7 @@ HELP
 }
 
 parse_semver() {
-  local RE='[^0-9]*\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\)[-+]\([0-9A-Za-z\-\.]*\)'
+  local RE='[^0-9]*\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\)[-+]\?\([0-9A-Za-z\-\.]*\)'
   local major
   local minor
   local patch
