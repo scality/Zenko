@@ -422,6 +422,9 @@ stages:
           S3FUZZ_AWS_BUCKET: ci-zenko-s3-fuzzer
           HELM_NAMESPACE: '%(prop:bootstrap)s-%(prop:stage_name)s'
           TILLER_NAMESPACE: '%(prop:bootstrap)s-%(prop:stage_name)s'
+    - ShellCommand:
+        name: Long Sleep
+        command: sleep 36000
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
     - ShellCommand: *k8s_cleanup
