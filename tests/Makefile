@@ -159,7 +159,7 @@ install-cosbench:
 	cd ../.. && \
 	$(HELM) upgrade $(COSBENCH_HELM_RELEASE) \
 		--namespace $(HELM_NAMESPACE) \
-		--install build/zenko-cosbench/charts/zenko-cosbench \
+		--install build/zenko-cosbench \
 		--set controller.logLevel=TRACE \
 		--set driver.logLevel=TRACE \
 		--wait
