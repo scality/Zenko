@@ -53,7 +53,7 @@ pytest-xdist==1.22.5
 python-dateutil==2.7.3
 python-dotenv==0.9.1
 pytz==2020.1
-PyYAML==5.3.1
+PyYAML==5.4
 requests==2.19.1
 requests-aws==0.1.8
 requests-oauthlib==1.0.0
