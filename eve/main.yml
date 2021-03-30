@@ -211,12 +211,22 @@ stages:
         - build-doc
         - test-cosmos
     - TriggerStages:
-        name: trigger end2end tests
+        name: trigger python end2end tests
         haltOnFailure: true
         doStepIf: '%(prop:launch_end2end)s'
         stage_names:
         - python-tests
+    - TriggerStages:
+        name: trigger node 1 end2end tests
+        haltOnFailure: true
+        doStepIf: '%(prop:launch_end2end)s'
+        stage_names:
         - node-tests-01
+    - TriggerStages:
+        name: trigger node 2 end2end tests
+        haltOnFailure: true
+        doStepIf: '%(prop:launch_end2end)s'
+        stage_names:
         - node-tests-02
 
   build-doc:

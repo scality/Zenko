@@ -27,6 +27,7 @@ HELM_REPOSITORY_INCUBATOR ?= https://charts.helm.sh/incubator
 
 # This is for dumping logs, command is long so storing as a variable
 ZENKO_PODS := {{range .items}}{{$$pod := .metadata.name}}{{range .spec.containers}}"kubectl logs -n $(HELM_NAMESPACE) {{$$pod}} -c {{.name}} --previous=true >> artifacts/{{.name}}-{{$$pod}}.log;kubectl logs -n $(HELM_NAMESPACE) {{$$pod}} -c {{.name}} >> artifacts/{{.name}}-{{$$pod}}.log ; exit 0"{{"\n"}}{{end}}{{end}}
+ZENKO_DESCRIBE_PODS := {{range .items}}{{$$pod := .metadata.name}}"kubectl describe -n $(HELM_NAMESPACE) pod {{$$pod}} >> artifacts/{{$$pod}}-describe.log; exit 0"{{"\n"}}{{end}}
 
 # Defaults for our test images
 IMAGE_REGISTRY := docker.io
@@ -242,6 +243,7 @@ install-common: | install-tiller install-helm-repos install-orbit-simulator inst
 .PHONY: install-common
 
 dump-logs: | artifacts
+	$(v)(kubectl  -n $(HELM_NAMESPACE) get pods -o go-template --template '$(ZENKO_DESCRIBE_PODS)') | xargs -n 1 -r sh -c;
 	$(V)(kubectl  -n $(HELM_NAMESPACE) get pods -o go-template --template '$(ZENKO_PODS)') | xargs -n 1 -r sh -c;
 	tar -czvf ./artifacts/$(HELM_NAMESPACE).tar.gz ./artifacts
 .PHONY: dump-logs
