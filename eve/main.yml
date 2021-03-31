@@ -215,9 +215,7 @@ stages:
         haltOnFailure: true
         doStepIf: '%(prop:launch_end2end)s'
         stage_names:
-        - python-tests
-        - node-tests-01
-        - node-tests-02
+        - end2end
 
   build-doc:
     worker:
@@ -268,8 +266,8 @@ stages:
           command: helm template kubernetes/cosmos
           workdir: build
 
-  online-zenko: &online-zenko
-    simultaneous_builds: 1
+  end2end: &online-zenko
+    simultaneous_builds: 2
     worker: &kube_cluster
       type: openstack
       path: eve/workers/end2end
@@ -294,10 +292,6 @@ stages:
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
     - ShellCommand: *k8s_cleanup
-
-  python-tests: *online-zenko
-  node-tests-01: *online-zenko
-  node-tests-02: *online-zenko
 
   test-latest-zenko:
     worker:
