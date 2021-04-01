@@ -54,7 +54,7 @@ zenko-operator:
 vault:
   sourceRegistry: registry.scality.com/vault
   image: vault
-  tag: 8.2.0-alpha.1
+  tag: 8.2.0-alpha.2
   envsubst: VAULT_TAG
 backbeat:
   sourceRegistry: registry.scality.com/zenko-dev
