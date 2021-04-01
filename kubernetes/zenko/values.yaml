@@ -67,8 +67,8 @@ global:
 
 s3Utils:
   image:
-    repository: zenko/s3utils
-    tag: "1.2"
+    repository: registry.scality.com/s3utils/s3utils
+    tag: "1.9.0"
     pullPolicy: IfNotPresent
 
 maintenance:
