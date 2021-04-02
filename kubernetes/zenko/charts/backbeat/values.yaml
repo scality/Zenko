@@ -9,8 +9,8 @@ global:
   replicationEndpoints: []
 
 image:
-  repository: zenko/backbeat
-  tag: 8.2.4
+  repository: registry.scality.com/backbeat/backbeat
+  tag: 8.2.6
   pullPolicy: IfNotPresent
 
 logging:
