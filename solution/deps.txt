@@ -11,7 +11,7 @@ registry.scality.com/sf-eng/utapi:zenko-1.0.0
 registry.scality.com/sf-eng/zenko-operator:6be152a
 registry.scality.com/vault/vault:8.2.0-alpha.1
 registry.scality.com/zenko-dev/backbeat:161b9c1
-registry.scality.com/cloudserver/cloudserver:8.2.8
+registry.scality.com/cloudserver/cloudserver:8.2.10
 registry.scality.com/s3utils/s3utils:1.8.2
 registry.scality.com/zenko-dev/kafka-cruise-control:2.0.0-alpha.3
 registry.scality.com/zenko-ui/zenko-ui:0.1.0
