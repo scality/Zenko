@@ -3,6 +3,8 @@ WORKDIR /workdir
 
 ENV PATH=$PATH:/usr/local/go/bin
 ENV HELM_VERSION v3.2.3
+ENV YQ_VERSION v4.6.3
+ENV YQ_BINARY yq_linux_amd64
 
 RUN yum install -y yum-utils gettext && \
     yum-config-manager \
@@ -13,6 +15,8 @@ RUN wget https://dl.google.com/go/go1.14.3.linux-amd64.tar.gz
 RUN curl -sSL https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz | \
     tar -xvz && install linux-amd64/helm /usr/local/bin
 RUN tar -C /usr/local -xzf go1.14.3.linux-amd64.tar.gz
+RUN wget https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/${YQ_BINARY} -O /usr/bin/yq && \
+    chmod +x /usr/bin/yq
 
 # install python + buildbot worker
 RUN pip3 install buildbot-worker
