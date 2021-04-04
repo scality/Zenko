@@ -8,65 +8,65 @@ spec:
     management:
       ui:
         image: zenko-ui
-        tag: 0.1.0
+        tag: '${ZENKO_UI_TAG}'
       api:
         image: pensieve-api
-        tag: 46e279b
+        tag: '${PENSIEVE_API_TAG}'
       pushAPI:
         image: pensieve-api
-        tag: 46e279b
+        tag: '${PENSIEVE_API_TAG}'
     cloudserver:
       image: cloudserver
-      tag: 8.2.8
+      tag: '${CLOUDSERVER_TAG}'
     backbeat:
       image: backbeat
-      tag: 161b9c1 
+      tag: '${BACKBEAT_TAG}'
     blobserver:
       image: blobserver
-      tag: 1.0.8
+      tag: '${BLOBSERVER_TAG}'
     jabba:
       image: jabba
-      tag: 940d
+      tag: '${JABBA_TAG}'
     utapi:
       image: utapi
-      tag: zenko-1.0.0
+      tag: '${UTAPI_TAG}'
     secureChannelProxy:
       image: cloudserver
-      tag: '8.2.8'
+      tag: '${CLOUDSERVER_TAG}'
     localData:
       image: cloudserver
-      tag: '8.2.8'
+      tag: '${CLOUDSERVER_TAG}'
     metrics:
       image: cloudserver
-      tag: '8.2.8'
+      tag: '${CLOUDSERVER_TAG}'
     s3utils:
       image: s3utils
-      tag: '1.8.2'
+      tag: '${S3UTILS_TAG}'
     zookeeper:
       image: zookeeper
-      tag: 0.2.4
+      tag: '${ZOOKEEPER_TAG}'
     kafka:
       cluster:
         image: kafka
-        tag: 2.12-2.3.0
+        tag: '${KAFKA_TAG}'
       cruiseControl:
         image: kafka-cruise-control
-        tag: 2.0.0-alpha.3
+        tag: '${KAFKA_CRUISECONTROL_TAG}'
       monitoring:
         image: jmx-javaagent
-        tag: '0.12.0'
+        tag: '${JMX_JAVAAGENT_TAG}'
     vault:
       image: vault
-      tag: 8.2.0-alpha.1
+      tag: '${VAULT_TAG}'
     shell:
       image: busybox
-      tag: latest
-    mongodb: '4.0-v1'
+      tag: '${BUSYBOX_TAG}'
+    mongodb: '${MONGODB_TAG}'
     redis:
       db:
         image: redis
-        tag: 5.0.3
+        tag: '${REDIS_TAG}'
       exporter:
         image: redis_exporter
-        tag: v1.8.0
-      kubedb: '5.0.3-v1'
+        tag: '${REDIS_EXPORTER_TAG}'
+      kubedb: '${REDIS_KUBEDB_TAG}'

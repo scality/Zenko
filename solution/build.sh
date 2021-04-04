@@ -28,13 +28,8 @@ OPERATOR_SDK=operator-sdk
 OPERATOR_SDK_OPTS=
 SKOPEO=skopeo
 SKOPEO_OPTS="--override-os linux --insecure-policy"
-OPERATOR_TAG=$(grep /zenko-operator: deps.txt | awk -F ':' '{print $2}')
 
-export VERSION_FULL=${VERSION_FULL}
 export SOLUTION_REGISTRY=metalk8s-registry-from-config.invalid/${PRODUCT_LOWERNAME}-${VERSION_FULL}
-
-# grab our dependencies from our deps.txt file as an array
-readarray -t DEP_IMAGES < deps.txt
 
 function clean()
 {
@@ -64,14 +59,30 @@ spec:
   operator:
     image:
       name: zenko-operator
-      tag: ${OPERATOR_TAG}
+      tag: '$(zenko_operator_tag)'
 EOF
+}
+
+function flatten_source_images()
+{
+    yq eval '.* | (.sourceRegistry // "docker.io") + "/" + .image + ":" + .tag' deps.yaml
+}
+
+function zenko_operator_tag()
+{
+    yq eval '.zenko-operator.tag' deps.yaml
+}
+
+function dependencies_versions_env()
+{
+    yq eval '.[] | .envsubst + "=" + .tag' deps.yaml
+    echo VERSION_FULL=${VERSION_FULL}
 }
 
 function copy_yamls()
 {
     cp -R -f operator/ ${ISO_ROOT}/operator
-    cat zenkoversion.yaml | envsubst >> ${ISO_ROOT}/zenkoversion.yaml
+    env $(dependencies_versions_env) envsubst < zenkoversion.yaml > ${ISO_ROOT}/zenkoversion.yaml
 }
 
 function copy_image()
@@ -133,7 +144,7 @@ clean
 mkdirs
 gen_manifest_yaml
 copy_yamls
-for img in "${DEP_IMAGES[@]}"; do
+flatten_source_images | while read img ; do
     # only pull if the image isnt already local
     ${DOCKER} image inspect ${img} > /dev/null 2>&1 || ${DOCKER} ${DOCKER_OPTS} pull ${img}
     copy_image ${img}
