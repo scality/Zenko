@@ -1,0 +1,72 @@
+---
+apiVersion: zenko.io/v1alpha1
+kind: ZenkoVersion
+metadata:
+  name: '$(VERSION)$(VERSION_SUFFIX)'
+spec:
+  versions:
+    management:
+      ui:
+        image: registry.scality.com/zenko-ui/zenko-ui
+        tag: '$(ZENKO_UI_TAG)'
+      api:
+        image: registry.scality.com/sf-eng/pensieve-api
+        tag: '$(PENSIEVE_API_TAG)'
+      pushAPI:
+        image: registry.scality.com/sf-eng/pensieve-api
+        tag: '$(PENSIEVE_API_TAG)'
+    cloudserver:
+      image: registry.scality.com/cloudserver/cloudserver
+      tag: '$(CLOUDSERVER_TAG)'
+    backbeat:
+      image: registry.scality.com/zenko-dev/backbeat
+      tag: '$(BACKBEAT_TAG)'
+    blobserver:
+      image: registry.scality.com/sf-eng/blobserver
+      tag: '$(BLOBSERVER_TAG)'
+    jabba:
+      image: registry.scality.com/sf-eng/jabba
+      tag: '$(JABBA_TAG)'
+    utapi:
+      image: registry.scality.com/sf-eng/utapi
+      tag: '$(UTAPI_TAG)'
+    secureChannelProxy:
+      image: registry.scality.com/cloudserver/cloudserver
+      tag: '$(CLOUDSERVER_TAG)'
+    localData:
+      image: registry.scality.com/cloudserver/cloudserver
+      tag: '$(CLOUDSERVER_TAG)'
+    metrics:
+      image: registry.scality.com/cloudserver/cloudserver
+      tag: '$(CLOUDSERVER_TAG)'
+    s3utils:
+      image: registry.scality.com/s3utils/s3utils
+      tag: '$(S3UTILS_TAG)'
+    zookeeper:
+      image: pravega/zookeeper
+      tag: '$(ZOOKEEPER_TAG)'
+    kafka:
+      cluster:
+        image: wurstmeister/kafka
+        tag: '$(KAFKA_TAG)'
+      cruiseControl:
+        image: registry.scality.com/zenko-dev/kafka-cruise-control
+        tag: '$(KAFKA_CRUISECONTROL_TAG)'
+      monitoring:
+        image: banzaicloud/jmx-javaagent
+        tag: '$(JMX_JAVAAGENT_TAG)'
+    vault:
+      image: registry.scality.com/vault/vault
+      tag: '$(VAULT_TAG)'
+    shell:
+      image: busybox
+      tag: '$(BUSYBOX_TAG)'
+    mongodb: '$(MONGODB_TAG)'
+    redis:
+      db:
+        image: redis
+        tag: '$(REDIS_TAG)'
+      exporter:
+        image: oliver006/redis_exporter
+        tag: '$(REDIS_EXPORTER_TAG)'
+      kubedb: '$(REDIS_KUBEDB_TAG)'

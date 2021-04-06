@@ -14,7 +14,7 @@ PRODUCT_LOWERNAME=zenko
 BUILD_TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 BUILD_HOST=$(hostname)
 
-VERSION_FILE="${REPOSITORY_DIR}/VERSION"
+VERSION_FILE="${REPOSITORY_DIR}/versions/VERSION"
 
 source ${VERSION_FILE}
 GIT_REVISION=$(git describe --long --always --tags --dirty)
@@ -82,7 +82,7 @@ function dependencies_versions_env()
 function copy_yamls()
 {
     cp -R -f operator/ ${ISO_ROOT}/operator
-    env $(dependencies_versions_env) envsubst < zenkoversion.yaml > ${ISO_ROOT}/zenkoversion.yaml
+    kustomize build -o ${ISO_ROOT}/zenkoversion.yaml
 }
 
 function copy_image()

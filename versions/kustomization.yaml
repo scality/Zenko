@@ -1,0 +1,100 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- zenkoversion.yaml
+
+configurations:
+- kustomizeconfig.yaml
+
+configMapGenerator:
+- name: zenko-version
+  envs:
+  - VERSION
+  options:
+    disableNameSuffixHash: true
+
+vars:
+- name: "VERSION"
+  objref: &zenko-version
+    kind: ConfigMap
+    name: zenko-version
+    apiVersion: v1
+  fieldref:
+    fieldpath: data.VERSION
+- name: "VERSION_SUFFIX"
+  objref: *zenko-version
+  fieldref:
+    fieldpath: data.VERSION_SUFFIX
+- name: ZENKO_UI_TAG
+  objref: *zenko-version
+  fieldref:
+    fieldpath: data.ZENKO_UI_TAG
+- name: PENSIEVE_API_TAG
+  objref: *zenko-version
+  fieldref:
+    fieldpath: data.PENSIEVE_API_TAG
+- name: CLOUDSERVER_TAG
+  objref: *zenko-version
+  fieldref:
+    fieldpath: data.CLOUDSERVER_TAG
+- name: BACKBEAT_TAG
+  objref: *zenko-version
+  fieldref:
+    fieldpath: data.BACKBEAT_TAG
+- name: BLOBSERVER_TAG
+  objref: *zenko-version
+  fieldref:
+    fieldpath: data.BLOBSERVER_TAG
+- name: JABBA_TAG
+  objref: *zenko-version
+  fieldref:
+    fieldpath: data.JABBA_TAG
+- name: UTAPI_TAG
+  objref: *zenko-version
+  fieldref:
+    fieldpath: data.UTAPI_TAG
+- name: S3UTILS_TAG
+  objref: *zenko-version
+  fieldref:
+    fieldpath: data.S3UTILS_TAG
+- name: ZOOKEEPER_TAG
+  objref: *zenko-version
+  fieldref:
+    fieldpath: data.ZOOKEEPER_TAG
+- name: KAFKA_TAG
+  objref: *zenko-version
+  fieldref:
+    fieldpath: data.KAFKA_TAG
+- name: KAFKA_CRUISECONTROL_TAG
+  objref: *zenko-version
+  fieldref:
+    fieldpath: data.KAFKA_CRUISECONTROL_TAG
+- name: JMX_JAVAAGENT_TAG
+  objref: *zenko-version
+  fieldref:
+    fieldpath: data.JMX_JAVAAGENT_TAG
+- name: VAULT_TAG
+  objref: *zenko-version
+  fieldref:
+    fieldpath: data.VAULT_TAG
+- name: BUSYBOX_TAG
+  objref: *zenko-version
+  fieldref:
+    fieldpath: data.BUSYBOX_TAG
+- name: REDIS_TAG
+  objref: *zenko-version
+  fieldref:
+    fieldpath: data.REDIS_TAG
+- name: REDIS_EXPORTER_TAG
+  objref: *zenko-version
+  fieldref:
+    fieldpath: data.REDIS_EXPORTER_TAG
+- name: MONGODB_TAG
+  objref: *zenko-version
+  fieldref:
+    fieldpath: data.MONGODB_TAG
+- name: REDIS_KUBEDB_TAG
+  objref: *zenko-version
+  fieldref:
+    fieldpath: data.REDIS_KUBEDB_TAG
