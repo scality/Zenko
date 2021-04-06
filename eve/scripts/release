@@ -105,5 +105,14 @@ for chart in CHARTS:
         args.version, [zenko_version['minor'], patch], verbose=args.verbose)
     save_file(chart, chart_path)
     save_file(values, values_path)
+
 # update Zenko
-update_chart(open_file('%s/Chart.yaml' % args.path, verbose=args.verbose), None, args.version, None, verbose=args.verbose, dep=False)
+chart_path = '%s/Chart.yaml' % (args.path)
+values_path= '%s/values.yaml' % (args.path)
+chart, values = update_chart(open_file(chart_path, verbose=args.verbose),
+                             open_file(values_path, verbose=args.verbose),
+                             args.version,
+                             None,
+                             verbose=args.verbose,
+                             dep=False)
+save_file(chart, chart_path)
