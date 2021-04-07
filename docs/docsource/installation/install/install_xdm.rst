@@ -51,7 +51,7 @@ Refer to MetalK8s *Installation* for details on its deployment.
 Deploy |product| Operator
 -------------------------
 
-#. From your terminal, create a namespace for |product|:
+#. From your terminal, create an environment for |product|:
 
    .. code::
 
@@ -156,7 +156,7 @@ Deploy |product|
       
       kubectl -n ringx-auth exec keycloak-0 -- curl http://keycloak.zenko.local/auth/realms/zenko-realm
 
-#. Create a yaml file for the new |product| version:
+#. Create a ``.yaml`` file for the new |product| version:
 
    .. parsed-literal::
 
@@ -219,7 +219,7 @@ Deploy |product|
 
 #. Refer to MetalK8s *Operational Guide* to create volumes for |product|.
 
-#. Create a |product| resource:
+#. Create a resource for |product|:
 
    .. parsed-literal::
 
