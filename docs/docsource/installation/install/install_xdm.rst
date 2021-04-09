@@ -46,7 +46,7 @@ Prerequisites
 Deploy MetalK8s
 ---------------
 
-Refer to MetalK8s *Installation* guide for details on its deployment.
+Refer to *MetalK8s Installation* for details on its deployment.
 
 Deploy |product| Operator
 -------------------------
@@ -217,7 +217,7 @@ Deploy |product|
       ---
       EOF
 
-#. Refer to MetalK8s *Operation* guide to create volumes for |product|.
+#. Refer to *MetalK8s Operation* to create volumes for |product|.
 
 #. Create a resource for |product|:
 
