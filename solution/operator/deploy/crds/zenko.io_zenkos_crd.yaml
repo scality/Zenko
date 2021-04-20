@@ -37,6 +37,10 @@ spec:
                   replicas:
                     format: int32
                     type: integer
+                  triggerTransitionsOneDayEarlierForTesting:
+                    type: boolean
+                required:
+                - triggerTransitionsOneDayEarlierForTesting
                 type: object
               blobserver:
                 description: ZenkoSpecBlobserver defines the Blobserver deployment
@@ -369,6 +373,23 @@ spec:
                     description: ZenkoSpecManagementUI defines the management UI used
                       by Zenko.
                     properties:
+                      discovery:
+                        description: ZenkoSpecManagementUIDiscovery defines the management
+                          UI discovery endpoints
+                        properties:
+                          assetsURL:
+                            description: AssetsURL provides the endpoint for retrieving
+                              ui assets
+                            type: string
+                          navbarBundleURL:
+                            description: NavbarBundleURL provides the endpoint to
+                              retrieve the navbar bundle script
+                            type: string
+                          shellConfigURL:
+                            description: ShellConfigURL provides the endpoint to retrieve
+                              the base shell config values
+                            type: string
+                        type: object
                       ingress:
                         description: ZenkoComponentIngress defines ingress values
                           for components.

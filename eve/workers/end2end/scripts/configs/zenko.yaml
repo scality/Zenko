@@ -48,6 +48,8 @@ spec:
     ui:
       ingress:
         hostname: ui.zenko.local
+      discovery:
+        navbarBundleURL: 'http://shell-ui.zenko.local/shell/solution-ui-navbar.1.0.0.js'
     oidc:
       provider: 'http://keycloak.zenko.local/auth/realms/${OIDC_REALM}'
       uiClientId: ${OIDC_CLIENT_ID}

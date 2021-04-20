@@ -20,6 +20,8 @@ models:
       OIDC_PASSWORD: 'end2end_password'
       OIDC_FIRST_NAME: 'hello'
       OIDC_LAST_NAME: 'world'
+      SHELL_UI_IMAGE: "registry.scality.com/playground/jbwatenberg/shell-ui:2.9-dev"
+      SHELL_UI_NAME: "shell-ui"
   - env: &e2e-env
       E2E_IMAGE_NAME: registry.scality.com/zenko/zenko-e2e
       E2E_IMAGE_TAG: '%(prop:commit_short_revision)s'
@@ -56,7 +58,7 @@ models:
   - SetProperties: &set_operator_properties
       properties:
         OPERATOR_IMAGE_NAME: registry.scality.com/sf-eng/zenko-operator
-        OPERATOR_IMAGE_TAG: '6be152a'
+        OPERATOR_IMAGE_TAG: '1.0.0-alpha.5'
 
 stages:
   pre-merge:
@@ -225,6 +227,13 @@ stages:
         workdir: build/eve/workers/end2end
         haltOnFailure: true
     - ShellCommand:
+        name: Setup Shell-UI Service
+        env:
+          <<: *kind-env
+        command: bash scripts/deploy-shell-ui.sh
+        workdir: build/eve/workers/end2end
+        haltOnFailure: true
+    - ShellCommand:
         name: Setup Keycloak Realm/Client
         env:
           <<: *kind-env
@@ -250,8 +259,8 @@ stages:
         name: Deploy Zenko Instance
         env:
           <<: *kind-env
-        command: bash scripts/deploy-zenko.sh end2end default
-        workdir: build/eve/workers/end2end
+        command: bash eve/workers/end2end/scripts/deploy-zenko.sh end2end default
+        workdir: build
         haltOnFailure: true
     - ShellCommand:
         name: Add Keycloak user

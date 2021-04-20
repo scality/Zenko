@@ -49,7 +49,7 @@ utapi:
 zenko-operator:
   sourceRegistry: registry.scality.com/sf-eng
   image: zenko-operator
-  tag: 6be152a
+  tag: 1.0.0-alpha.5
   envsubst: ZENKO_OPERATOR_TAG
 vault:
   sourceRegistry: registry.scality.com/vault
@@ -79,7 +79,7 @@ kafka-cruise-control:
 zenko-ui:
   sourceRegistry: registry.scality.com/zenko-ui
   image: zenko-ui
-  tag: 0.1.0
+  tag: 0.2.0
   envsubst: ZENKO_UI_TAG
 kafka:
   sourceRegistry: wurstmeister

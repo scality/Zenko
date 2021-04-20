@@ -35,6 +35,7 @@ rules:
   - monitoring.coreos.com
   resources:
   - servicemonitors
+  - prometheusrules
   verbs:
   - '*'
 - apiGroups:

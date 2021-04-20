@@ -5,6 +5,8 @@ ENV LANG C.UTF-8
 ENV KUBECTL_VERSION 1.18.3
 ENV KIND_VERSION v0.8.1
 ENV HELM_VERSION v3.2.3
+ENV YQ_VERSION v4.6.3
+ENV YQ_BINARY yq_linux_amd64
 
 VOLUME ['/artifacts', '/home/eve/workspace']
 
@@ -19,7 +21,8 @@ RUN apt-get update && apt-get install -y \
     software-properties-common \
     m4 \
     gettext-base \
-    jq
+    jq \
+    wget
 
 # install main dependencies
 RUN curl -Lo /usr/local/bin/kind https://kind.sigs.k8s.io/dl/${KIND_VERSION}/kind-$(uname)-amd64 && \
@@ -34,6 +37,8 @@ RUN curl -Lo /usr/local/bin/kind https://kind.sigs.k8s.io/dl/${KIND_VERSION}/kin
     apt-get update && apt-get install -y \
     docker-ce-cli \
     kubectl=${KUBECTL_VERSION}*
+RUN wget https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/${YQ_BINARY} -O /usr/bin/yq && \
+    chmod +x /usr/bin/yq
 
 WORKDIR /home/eve/workspace
 
