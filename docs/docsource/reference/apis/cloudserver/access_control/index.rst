@@ -8,7 +8,7 @@ Access Controls
 * Bucket policies
 
 User-level access control conforming to the AWS Identity and Access Management
-(IAM) service protocols is under development as of version 1.2.0.
+(IAM) service protocols are available in :ref:`IAM Access Key Routes`.
 
 .. toctree::
    :maxdepth: 2

@@ -160,6 +160,30 @@ S3 API Endpoints
    | object PUT with v4 AUTH               |                |            |
    +---------------------------------------+----------------+------------+
 
+.. _IAM and Vault APIs:
+
+IAM and Vault APIs
+------------------
+
+The following S3 Identity Access Management (IAM) servies are available in
+|product|.
+
+.. tabularcolumns:: X{0.50\textwidth}X{0.30\textwidth}X{0.15\textwidth}
+.. table::
+   :widths: auto
+
+   +---------------------------------------+----------------+------------+
+   | Operation Name                        | Operation Type | Available? |
+   +=======================================+================+============+
+   | :ref:`create-access-key`              | Vault (POST)   | Yes        |
+   +---------------------------------------+----------------+------------+
+   | :ref:`delete-access-key`              | IAM (POST)     | Yes        |
+   +---------------------------------------+----------------+------------+
+   | :ref:`list-access-keys`               | IAM (POST)     | Yes        |
+   +---------------------------------------+----------------+------------+
+   | :ref:`update-access-key`              | IAM (POST)     | Yes        |
+   +---------------------------------------+----------------+------------+
+   
 
 Utilization API (UTAPI)
 -----------------------
