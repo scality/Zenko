@@ -8,13 +8,12 @@ Access to these APIs is documented in each section.
 
 Common API protocol characteristics are described below. 
 
-
-
 .. toctree::
    :maxdepth: 2
 
    http_conformity
    encryption
+   iam/index
    cloudserver/index
    blobserver/index
    utapi/index
