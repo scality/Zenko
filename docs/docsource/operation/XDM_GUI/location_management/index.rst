@@ -104,9 +104,6 @@ version and protocol.
 
 
 You can:
-*  :ref:`Add a Storage Location`
-*  :ref:`Edit a Storage Location`
-*  :ref:`Delete a Storage Location`
 
 *  :ref:`Add a Storage Location`
 *  :ref:`Edit a Storage Location`

@@ -8,6 +8,7 @@ Object Operations
 
    upload_objects_to_buckets
    view_object_info
+   view_object_versions
    download_an_object
    delete_objects
 

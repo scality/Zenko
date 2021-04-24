@@ -17,7 +17,7 @@ To add a storage location:
       :width: 100%
    .. tip::
 
-      If there are many accounts, you can use the field marked *Filter by
+      If there are many accounts, you can use the field marked *Search by
       Account Name* to reduce the number of visible accounts to a manageable
       level.
 	      
@@ -28,7 +28,7 @@ To add a storage location:
 	      
 #. Click **Create Location**.
 
-#. The **ADD NEW STORAGE LOCATION** dialog displays:
+#. The **Add New Storage Location** window displays:
 
    .. image:: ../../Graphics/xdm_ui_add_new_storage_location.png
       :width: 50%

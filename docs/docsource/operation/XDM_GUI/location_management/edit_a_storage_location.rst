@@ -38,7 +38,7 @@ To edit a storage location:
    .. image:: ../../Graphics/xdm_ui_icon_edit.png
       :width: 10%
 
-#. The **EDIT STORAGE LOCATION** window displays. You cannot edit the location's
+#. The **Edit Storage Location** window displays. You cannot edit the location's
    name or type. Depending on the location type, you can edit access and secret
    keys, the target bucket name, and the features and advanced options that are
    available. See :ref:`Cloud Storage Locations` for details.
