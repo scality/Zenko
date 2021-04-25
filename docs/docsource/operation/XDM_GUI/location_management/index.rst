@@ -75,7 +75,7 @@ The |product| Local file system is a convenient, easily configured test location
 that enables product familiarization and simple operations. It is internal to
 |product|, and serves as the default location for otherwise unnamed locations
 that rely on the default "us-east-1" location. Because it is internal to
-|product|, the **ADD NEW STORAGE LOCATION** prompt does not offer
+|product|, the **Add New Storage Location** prompt does not offer
 configurations for credentials.
 
 .. warning::

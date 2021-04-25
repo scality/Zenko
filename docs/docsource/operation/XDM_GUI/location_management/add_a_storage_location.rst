@@ -15,6 +15,7 @@ To add a storage location:
 
    .. image:: ../../Graphics/xdm_ui_account_view.png
       :width: 100%
+
    .. tip::
 
       If there are many accounts, you can use the field marked *Search by
@@ -30,7 +31,7 @@ To add a storage location:
 
 #. The **Add New Storage Location** window displays:
 
-   .. image:: ../../Graphics/xdm_ui_add_new_storage_location.png
+   .. image:: ../../Graphics/xdm_ui_location_add.png
       :width: 50%
 
    a. Enter a location name in the **Location Name** field using lowercase
@@ -63,7 +64,7 @@ To add a storage location:
       * NFS Mount
       * Scality RING with S3 Connector
       * Scality RING with sproxyd Connector
-      * Scality XCore
+      * Storage Service for Artesca
       * Wasabi
       * A Zenko local filesystem
 
@@ -144,6 +145,10 @@ system.
    +---------------+----------+--------+------------+---------+
    | RING/S3C      | Yes      | \-     | \-         | \-      |
    +---------------+----------+--------+------------+---------+
+   | Storage       |          |        |            |         |
+   | Service for   | Yes      | \-     | \-         | \-      |
+   | Artesca       |          |        |            |         |
+   +---------------+----------+--------+------------+---------+   
    | Wasabi        | \-       | \-     | \-         | \-      |
    +---------------+----------+--------+------------+---------+
 
