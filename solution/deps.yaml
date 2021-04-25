@@ -49,7 +49,7 @@ utapi:
 zenko-operator:
   sourceRegistry: registry.scality.com/sf-eng
   image: zenko-operator
-  tag: 1.0.0-alpha.5
+  tag: 1.0.0-alpha.6
   envsubst: ZENKO_OPERATOR_TAG
 vault:
   sourceRegistry: registry.scality.com/vault
@@ -64,7 +64,7 @@ backbeat:
 cloudserver:
   sourceRegistry: registry.scality.com/cloudserver
   image: cloudserver
-  tag: 8.2.10
+  tag: 8.2.11
   envsubst: CLOUDSERVER_TAG
 s3utils:
   sourceRegistry: registry.scality.com/s3utils
@@ -79,7 +79,7 @@ kafka-cruise-control:
 zenko-ui:
   sourceRegistry: registry.scality.com/zenko-ui
   image: zenko-ui
-  tag: 0.2.0
+  tag: 0.3.0
   envsubst: ZENKO_UI_TAG
 kafka:
   sourceRegistry: wurstmeister
