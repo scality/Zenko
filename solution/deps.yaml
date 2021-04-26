@@ -57,9 +57,9 @@ vault:
   tag: 8.2.0-alpha.3
   envsubst: VAULT_TAG
 backbeat:
-  sourceRegistry: registry.scality.com/zenko-dev
+  sourceRegistry: registry.scality.com/backbeat
   image: backbeat
-  tag: 161b9c1
+  tag: 8.2.6
   envsubst: BACKBEAT_TAG
 cloudserver:
   sourceRegistry: registry.scality.com/cloudserver
