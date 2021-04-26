@@ -22,6 +22,7 @@ models:
       OIDC_LAST_NAME: 'world'
       SHELL_UI_IMAGE: "registry.scality.com/playground/jbwatenberg/shell-ui:2.9-dev"
       SHELL_UI_NAME: "shell-ui"
+      VAULT_ENDPOINT: 'http://iam.zenko.local'
   - env: &e2e-env
       E2E_IMAGE_NAME: registry.scality.com/zenko/zenko-e2e
       E2E_IMAGE_TAG: '%(prop:commit_short_revision)s'
@@ -289,6 +290,13 @@ stages:
         env:
           <<: [*kind-env, *e2e-env]
         command: bash scripts/run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} ${STAGE} "default"
+        workdir: build/eve/workers/end2end
+        haltOnFailure: true
+    - ShellCommand:
+        name: Run smoke tests
+        env:
+          <<: [*kind-env, *e2e-env]
+        command: bash scripts/run-e2e-test.sh "smoke" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "smoke" "default"
         workdir: build/eve/workers/end2end
         haltOnFailure: true
     - ShellCommand:

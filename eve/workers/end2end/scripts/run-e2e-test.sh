@@ -17,10 +17,13 @@ TOKEN=$(get_token)
 # set environment vars
 CLOUDSERVER_ENDPOINT="http://${ZENKO_NAME}-connector-s3api.default.svc.cluster.local:80"
 BACKBEAT_API_ENDPOINT="http://${ZENKO_NAME}-management-backbeat-api.default.svc.cluster.local:80"
+ADMIN_ACCESS_KEY_ID=$(kubectl get secret end2end-management-vault-admin-creds.v1 -o jsonpath='{.data.accessKey}' | base64 -d)
+ADMIN_SECRET_ACCESS_KEY=$(kubectl get secret end2end-management-vault-admin-creds.v1  -o jsonpath='{.data.secretKey}' | base64 -d)
 ZENKO_ACCESS_KEY=$(kubectl get secret end2end-account-zenko -o jsonpath='{.data.AccessKeyId}' | base64 -d)
 ZENKO_SECRET_KEY=$(kubectl get secret end2end-account-zenko -o jsonpath='{.data.SecretAccessKey}' | base64 -d)
 ZENKO_SESSION_TOKEN=$(kubectl get secret end2end-account-zenko -o jsonpath='{.data.SessionToken}' | base64 -d)
 OIDC_FULLNAME="${OIDC_FIRST_NAME} ${OIDC_LAST_NAME}"
+
 
 run_e2e_test() {
     kubectl run ${1} ${POD_NAME} \
@@ -32,6 +35,9 @@ run_e2e_test() {
         --env=ZENKO_ACCESS_KEY=${ZENKO_ACCESS_KEY} \
         --env=ZENKO_SECRET_KEY=${ZENKO_SECRET_KEY} \
         --env=ZENKO_SESSION_TOKEN=${ZENKO_SESSION_TOKEN} \
+        --env=ADMIN_ACCESS_KEY_ID=${ADMIN_ACCESS_KEY_ID} \
+        --env=ADMIN_SECRET_ACCESS_KEY=${ADMIN_SECRET_ACCESS_KEY} \
+        --env=VAULT_ENDPOINT=${VAULT_ENDPOINT} \
         --env=TOKEN=${TOKEN} \
         --env=STAGE=${STAGE} \
         --env=CYPRESS_KEYCLOAK_USER_FULLNAME="${OIDC_FULLNAME}" \
@@ -49,6 +55,8 @@ if [ "$STAGE" = "end2end" ]; then
    run_e2e_test '' 'cd node_tests && npm run test_operator && npm run test_ui'
 elif [ "$STAGE" = "debug" ]; then
    run_e2e_test '-ti' 'bash'
+elif [ "$STAGE" = "smoke" ]; then
+   run_e2e_test '' 'cd node_tests && npm run test_smoke'
 fi
 
 KUBECTL=$(which kubectl) E2E_POD=${POD_NAME} NAMESPACE=${NAMESPACE} $DIR/follow_logs.sh

@@ -21,6 +21,7 @@ RUN apt-get update && apt-get install -y \
     xauth \
     xvfb \
     nodejs \
+    git \
     python3-pip \
     gcc \
     libffi-dev \
