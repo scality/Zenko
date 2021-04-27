@@ -133,6 +133,8 @@ function build_iso()
         -input-charset iso8859-1 \
         -output-charset iso8859-1 \
         ${ISO_ROOT}
+    echo Implant MD5 sum into ISO
+    implantisomd5 --supported-iso ${ISO}
     sha256sum ${ISO} > ${ISO_ROOT}/SHA256SUM
     echo ISO File at ${ISO}
     echo SHA256 for ISO:
