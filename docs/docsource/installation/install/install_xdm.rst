@@ -10,23 +10,27 @@ Install |product| on MetalK8s
 Prerequisites
 -------------
 
-- Partition your disk as follows:
-   
-  +-------------+---------+-----------+
-  | Partition # | Size    | Service   |
-  +=============+=========+===========+
-  | 1           | 300 GiB | Mongo     |
-  +-------------+---------+-----------+
-  | 2           | 100 GiB | Kafka     |
-  +-------------+---------+-----------+
-  | 3           | 100 GiB | S3Data    |
-  +-------------+---------+-----------+
-  | 4           | 10 GiB  | Redis     |
-  +-------------+---------+-----------+
-  | 5           | 10 GiB  | ZooKeeper |
-  +-------------+---------+-----------+
+Partition your disk as follows:
 
-  If necessary, partition your disk:
+  .. tabularcolumns:: lll
+  .. table::
+     :widths: auto
+
+     +-------------+---------+-----------+
+     | Partition # | Size    | Service   |
+     +=============+=========+===========+
+     | 1           | 300 GiB | Mongo     |
+     +-------------+---------+-----------+
+     | 2           | 100 GiB | Kafka     |
+     +-------------+---------+-----------+
+     | 3           | 100 GiB | S3Data    |
+     +-------------+---------+-----------+
+     | 4           | 10 GiB  | Redis     |
+     +-------------+---------+-----------+
+     | 5           | 10 GiB  | ZooKeeper |
+     +-------------+---------+-----------+
+
+Use this syntax to partition your disk :
 
   .. code::
       
@@ -46,7 +50,7 @@ Prerequisites
 Deploy MetalK8s
 ---------------
 
-Refer to *MetalK8s Installation* for details on its deployment.
+Refer to *MetalK8s Installation* for its deployment details.
 
 Deploy |product| Operator
 -------------------------
@@ -339,8 +343,8 @@ Deploy |product|
 Testing
 -------
 
-Using the GUI
-*************
+From the GUI
+************
 
 Add the following hosts to your ``etc/hosts`` file, resolving them to the 
 MetalK8s node's IP address:
@@ -358,103 +362,9 @@ MetalK8s node's IP address:
 
    The user interface is limited to creating accounts and locations.
 
-Using the Command Line
-**********************
+From the Command Line
+*********************
 
-Prerequisites
-~~~~~~~~~~~~~~
+See :ref:`Command-Line Operations` to :ref:`Retrieve Access Tokens`,
+:ref:`Create an Account`, :ref:`Create an S3 Endpoint`, and :ref:`Generate Root User Account Access Keys`.
 
-- jq and curl must be installed
-- Access from the browser user machine
-
-Procedure
-~~~~~~~~~
-
-#. Retrieve ``ACCESS_TOKEN``, ``TOKEN``, and ``INSTANCE_ID``:
-
-   .. code::
-      
-      OIDC_REALM='zenko-realm'
-      OIDC_CLIENT_ID='zenko-ui'
-      OIDC_USER='zenko-tester'
-      OIDC_USER_PASSWORD='password'
-      ZENKO_NAME='zenko-instance'
-      
-      ACCESS_TOKEN=$(
-          curl -s -k "http://keycloak.zenko.local/auth/realms/${OIDC_REALM}/protocol/      openid-connect/token" \
-              -d 'scope=openid' \
-              -d "client_id=${OIDC_CLIENT_ID}" \
-              -d "username=${OIDC_USER}" \
-              -d "password=${OIDC_USER_PASSWORD}" \
-              -d "grant_type=password" | \
-              jq -cr '.access_token'
-      )
-      
-      TOKEN=$(
-          curl -s -k "http://keycloak.zenko.local/auth/realms/${OIDC_REALM}/protocol/      openid-connect/token" \
-              -d 'scope=openid' \
-              -d "client_id=${OIDC_CLIENT_ID}" \
-              -d "username=${OIDC_USER}" \
-              -d "password=${OIDC_USER_PASSWORD}" \
-              -d "grant_type=password" | \
-              jq -cr '.id_token'
-      )
-      
-      
-      INSTANCE_ID=$(
-          curl -s -k "http://keycloak.zenko.local/auth/realms/${OIDC_REALM}/protocol/      openid-connect/userinfo" \
-              -H "Authorization: bearer $ACCESS_TOKEN" | \
-              jq -rc '.instanceIds[0]'
-      )
-
-#. Create an account:
-
-   .. code::
-      
-      ZENKO_ACCOUNT='test-account-1'
-
-      USER_PARAMS=$(
-          echo '{}' |
-          jq -c "
-              .userName=\"${ZENKO_ACCOUNT}\" |
-              .email=\"${ZENKO_ACCOUNT}@zenko.local\"
-          "
-      )
-      
-      curl -s -k -X POST \
-          -H "X-Authentication-Token: ${TOKEN}" \
-          -H "Content-Type: application/json" \
-          -d "${USER_PARAMS}" \
-          "http://management.zenko.local/api/v1/config/${INSTANCE_ID}/user" | \
-          jq '.'
-
-#. Create an additional S3 endpoint:
-
-   .. code::
-      
-      ENDPOINT_PARAMS=$(
-          echo '{}' |
-          jq -c "
-              .hostname=\"${ENDPOINT_HOSTNAME}\" |
-              .locationName=\"${LOCATION_NAME}\"
-          "
-      )
-      
-      curl -s -k -X POST \
-          -H "X-Authentication-Token: ${TOKEN}" \
-          -H "Content-Type: application/json" \
-          -d "${ENDPOINT_PARAMS}" \
-          "http://management.zenko.local/api/v1/config/${INSTANCE_ID}/endpoint" | \
-          jq '.'
-
-#. Generate the account key:
-
-   .. code::
-      
-      ZENKO_ACCOUNT='test-account-1'
-
-      curl -s -k -X POST \
-          -H "X-Authentication-Token: ${TOKEN}" \
-          -H "Content-Type: application/json" \
-          "http://management.zenko.local/api/v1/config/${INSTANCE_ID}/user/$      {ZENKO_ACCOUNT}/key" | \
-          jq '.'
