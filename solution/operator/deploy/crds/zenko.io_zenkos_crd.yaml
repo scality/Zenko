@@ -124,6 +124,160 @@ spec:
                   workloadPlaneClass:
                     type: string
                 type: object
+              initialConfiguration:
+                description: ZenkoConfigurationOverlaySpec defines the desired state
+                  of ZenkoConfigurationOverlay
+                properties:
+                  accounts:
+                    items:
+                      description: ZenkoConfigurationOverlaySpecAccount defines a
+                        top-level tenant
+                      properties:
+                        accessKey:
+                          type: string
+                        canonicalID:
+                          type: string
+                        encryptedSecretKey:
+                          type: string
+                        encryptionKeyVersion:
+                          format: int32
+                          type: integer
+                        name:
+                          type: string
+                        type:
+                          type: string
+                      required:
+                      - name
+                      type: object
+                    type: array
+                    x-kubernetes-list-map-keys:
+                    - name
+                    x-kubernetes-list-type: map
+                  blobAPI:
+                    description: ZenkoConfigurationOverlaySpecFrontendAPIConfiguration
+                      defines configuration for the frontend API.
+                    properties:
+                      endpoints:
+                        items:
+                          description: ZenkoConfigurationOverlaySpecEndpoint defines
+                            an endpoint
+                          properties:
+                            hostname:
+                              type: string
+                            isBuiltIn:
+                              type: boolean
+                            locationName:
+                              type: string
+                          required:
+                          - hostname
+                          type: object
+                        type: array
+                        x-kubernetes-list-map-keys:
+                        - hostname
+                        x-kubernetes-list-type: map
+                    type: object
+                  locations:
+                    items:
+                      description: ZenkoConfigurationOverlaySpecLocation defines a
+                        storage location
+                      properties:
+                        canonicalID:
+                          type: string
+                        details:
+                          description: ZenkoConfigurationOverlaySpecLocationDetails
+                            defines details about a storage backend location.
+                          properties:
+                            accessKey:
+                              description: access key
+                              type: string
+                            bootstrapList:
+                              description: bootstrap list
+                              items:
+                                type: string
+                              type: array
+                              x-kubernetes-list-type: atomic
+                            bucketMatch:
+                              description: bucket match
+                              type: boolean
+                            bucketName:
+                              description: bucket name
+                              type: string
+                            chordCos:
+                              description: chord cos
+                              format: int64
+                              type: integer
+                            codingParts:
+                              description: coding parts
+                              format: int64
+                              type: integer
+                            dataParts:
+                              description: data parts
+                              format: int64
+                              type: integer
+                            endpoint:
+                              description: endpoint
+                              type: string
+                            mpuBucketName:
+                              description: mpu bucket name
+                              type: string
+                            proxyPath:
+                              description: proxy path
+                              type: string
+                            region:
+                              description: region
+                              type: string
+                            secretKey:
+                              description: secret key
+                              type: string
+                            serverSideEncryption:
+                              description: server side encryption
+                              type: boolean
+                          type: object
+                        encryptionKeyVersion:
+                          format: int32
+                          type: integer
+                        isTransient:
+                          type: boolean
+                        legacyAWSBehavior:
+                          type: boolean
+                        name:
+                          type: string
+                        sizeLimitGB:
+                          format: int32
+                          type: integer
+                        type:
+                          type: string
+                      required:
+                      - name
+                      type: object
+                    type: array
+                    x-kubernetes-list-map-keys:
+                    - name
+                    x-kubernetes-list-type: map
+                  s3API:
+                    description: ZenkoConfigurationOverlaySpecFrontendAPIConfiguration
+                      defines configuration for the frontend API.
+                    properties:
+                      endpoints:
+                        items:
+                          description: ZenkoConfigurationOverlaySpecEndpoint defines
+                            an endpoint
+                          properties:
+                            hostname:
+                              type: string
+                            isBuiltIn:
+                              type: boolean
+                            locationName:
+                              type: string
+                          required:
+                          - hostname
+                          type: object
+                        type: array
+                        x-kubernetes-list-map-keys:
+                        - hostname
+                        x-kubernetes-list-type: map
+                    type: object
+                type: object
               jabba:
                 description: ZenkoSpecJabba defines how Jabba is deployed
                 properties:
