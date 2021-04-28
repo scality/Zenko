@@ -12,4 +12,7 @@ all locations under your control.
    create_a_bucket
    inspect_a_bucket
    delete_a_bucket
+   create_a_replication_workflow
+   update_a_replication_workflow
+   delete_a_replication_workflow   
    metadata_search/index
