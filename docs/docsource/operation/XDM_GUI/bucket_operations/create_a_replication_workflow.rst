@@ -10,6 +10,11 @@ destination deployed.
    
    *Both the source and the destination must have versioning enabled.*
 
+.. note::
+
+   Only one-to-one bucket replication is supported. One-to-many replication is
+   not supported.
+   
 To set up replication:
 
 #. Click the **Workflows** tab. The first time you do this, you are prompted to
@@ -47,3 +52,30 @@ To set up replication:
    Replication is not retroactive. In other words, if you configure a bucket to
    be replicated, only files written to, or changed in that bucket *after you
    have activated the workflow rule* are replicated.
+
+Creating a Replication Workflow Using the AWS CLI
+-------------------------------------------------
+
+Use the :ref:`put-bucket-replication` S3 command to create or update replication
+workflows from the command line.
+
+.. code::
+   
+   aws s3api put-bucket-replication --bucket source-bucket --replication-configuration <configuration>
+
+Where ``configuration`` is a JSON object including the following syntax:
+
+.. code::
+
+   ...
+     "Rules": [
+         {
+           "Destination": {
+                   "Bucket": "arn-bucket-source",
+                   "StorageClass": "storage-location"
+           }
+         }
+       ]
+   ...
+
+For API operation, see :ref:`PUT Bucket Replication`.
