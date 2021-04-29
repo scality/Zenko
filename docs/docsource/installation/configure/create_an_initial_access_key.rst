@@ -10,9 +10,8 @@ users and policies.
 Prerequisites
 -------------
 
-- The data service is deployed
-- Admin credentials are available 
-- Admin routes are set
+- The data service must be deployed
+- Credentials must be generated from the Artesca cluster itself
 
 Procedure
 ---------
@@ -35,4 +34,10 @@ Procedure
 
    .. code::
 
-      kubectl --kubeconfig=/etc/kubernetes/admin.conf -n zenko exec $VAULT_CONTAINER -- bash -c   "ADMIN_ACCESS_KEY_ID=${ADMIN_ACCESS_KEY_ID} ADMIN_SECRET_ACCESS_KEY=${ADMIN_SECRET_ACCESS_KEY} /vault/node_modules/vaultclient/bin/vaultclient generate-account-access-key --name=account2 --host 127.0.0.1  --port 8600"
+      kubectl --kubeconfig=/etc/kubernetes/admin.conf -n zenko exec $VAULT_CONTAINER -- bash -c   "ADMIN_ACCESS_KEY_ID=${ADMIN_ACCESS_KEY_ID} ADMIN_SECRET_ACCESS_KEY=${ADMIN_SECRET_ACCESS_KEY} /vault/node_modules/vaultclient/bin/vaultclient generate-account-access-key --name=account1 --host 127.0.0.1  --port 8600"
+
+   .. note::
+
+     If the ``UserName`` field is not specified, the user name is determined based
+     on the access key ID used to sign the request.
+  

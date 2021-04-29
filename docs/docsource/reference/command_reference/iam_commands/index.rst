@@ -14,4 +14,4 @@ and is maintained separately.
    create-access-key
    delete-access-key
    list-access-keys
-   update-access-key
+

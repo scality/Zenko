@@ -175,13 +175,13 @@ The following S3 Identity Access Management (IAM) servies are available in
    +---------------------------------------+----------------+------------+
    | Operation Name                        | Operation Type | Available? |
    +=======================================+================+============+
-   | :ref:`create-access-key`              | Vault (POST)   | Yes        |
+   | :ref:`create-access-key`              | IAM (POST)     | yes        |
    +---------------------------------------+----------------+------------+
-   | :ref:`delete-access-key`              | IAM (POST)     | Yes        |
+   | :ref:`delete-access-key`              | IAM (POST)     | yes        |
    +---------------------------------------+----------------+------------+
-   | :ref:`list-access-keys`               | IAM (POST)     | Yes        |
+   | :ref:`list-access-keys`               | IAM (POST)     | yes        |
    +---------------------------------------+----------------+------------+
-   | :ref:`update-access-key`              | IAM (POST)     | Yes        |
+   | update-access-key                     | IAM (POST)     | no         |
    +---------------------------------------+----------------+------------+
    
 

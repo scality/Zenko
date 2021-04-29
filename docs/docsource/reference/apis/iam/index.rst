@@ -11,5 +11,4 @@ These APIs handle IAM access key operations.
    generate_account_access_key
    create_access_key
    list_access_keys
-   update_access_key
    delete_access_key

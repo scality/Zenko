@@ -51,6 +51,11 @@ Options
 Examples
 --------
 
+.. note::
+
+   If the ``user-name`` option is not specified, the user name is determined based
+   on the AccessKeyId used to sign the request.
+   
 **To delete a user's access key**
 
 The following ``delete-access-key`` command deletes the specified access key

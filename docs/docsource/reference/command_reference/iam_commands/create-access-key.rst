@@ -58,6 +58,11 @@ Options
 Examples
 --------
 
+.. note::
+
+   If the ``user-name`` option is not specified, the user name is determined based
+   on the AccessKeyId used to sign the request.
+   
 **To create an access key**
 
 The following ``create-access-key`` command creates an access key (access key ID
@@ -109,10 +114,3 @@ SecretAccessKey -> (string)
 CreateDate -> (timestamp)
 
   The date the access key was created.
-
-    
-
-    
-
-  
-
