@@ -10,7 +10,7 @@ Method and Path
 
 .. code::
 
-  POST /
+   POST /
 
 Request Parameters
 ------------------
@@ -61,4 +61,3 @@ Error Codes
    +------+--------------------+
    | 500  | ServiceFailure     |
    +------+--------------------+
-
