@@ -79,7 +79,7 @@ kafka-cruise-control:
 zenko-ui:
   sourceRegistry: registry.scality.com/zenko-ui
   image: zenko-ui
-  tag: 0.5.0
+  tag: 0.6.0
   envsubst: ZENKO_UI_TAG
 kafka:
   sourceRegistry: wurstmeister
