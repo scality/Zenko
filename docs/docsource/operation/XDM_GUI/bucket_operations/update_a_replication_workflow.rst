@@ -40,6 +40,7 @@ Where ``configuration`` is a JSON object including the following syntax:
            }
          }
        ]
+     "Role": "arn:aws:iam::root:role/s3-replication-role",  
    ...
    
 For API operation, see :ref:`PUT Bucket Replication`.
