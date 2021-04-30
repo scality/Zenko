@@ -123,9 +123,6 @@ stages:
         haltOnFailure: true
         command: |-
           tox --workdir /tmp/tox -e docs -- html BUILDDIR="%(prop:documentation_builddir)s"
-          # Building the latex twice to catch up the reference
-          tox --workdir /tmp/tox -e docs -- latexpdf BUILDDIR="%(prop:documentation_builddir)s"
-          tox --workdir /tmp/tox -e docs -- latexpdf BUILDDIR="%(prop:documentation_builddir)s"
         workdir: build/docs
     - ShellCommand:
         name: Create tar file for documentation
@@ -133,13 +130,12 @@ stages:
           tar --create --gzip
           --directory %(prop:documentation_builddir)s
           --file %(prop:documentation_builddir)s/zenko-documentation.tar.gz
-          doctrees html latex
+          doctrees html
     - Upload:
         name: Upload documentation
         source: 'artifacts'
         urls:
           - "documentation/html/index.html"
-          - "documentation/latex/*.pdf"
           - "documentation/*.tar.gz"
 
   build-iso:
