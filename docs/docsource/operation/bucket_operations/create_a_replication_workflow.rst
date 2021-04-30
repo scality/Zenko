@@ -1,0 +1,49 @@
+.. _Create a Replication Workflow:
+
+Create a Replication Workflow
+=============================
+
+Before creating a replication workflow, you must have a source bucket and a
+destination deployed.
+
+.. important::
+   
+   *Both the source and the destination must have versioning enabled.*
+
+To set up replication:
+
+#. Click the **Workflows** tab. The first time you do this, you are prompted to
+   create your first workflow rule:
+
+   .. image:: ../../graphics/xdm_ui_create_workflow_first.png
+
+   Click **Create Rule**	      
+
+   If you have already established your first rule, the workflow panel appears:
+
+   .. image:: ../../graphics/xdm_ui_workflow_panel.png
+   
+#. The **Create New Workflow** panel displays:
+
+   .. image:: ../../graphics/xdm_ui_workflow_create.png
+
+#. Select a source bucket name and a destination location name.
+
+   You can specify a prefix. This filters only for objects with this prefix; for
+   example, all items prepended with "accounting/", "evidence/", or
+   "imaging/". This is useful for replication selectivity.
+
+   You can also toggle the state from inactive to active. This controls whether
+   the workflow is in effect (active replication) or idle (rule exists, but is
+   not in effect).
+
+#. When you've entered all desired information, click **Create**. The new
+   workflow rule appears in the workflow panel.
+
+   .. image:: ../../graphics/xdm_ui_workflow_panel.png
+
+.. important::
+
+   Replication is not retroactive. In other words, if you configure a bucket to
+   be replicated, only files written to, or changed in that bucket *after you
+   have activated the workflow rule* are replicated.

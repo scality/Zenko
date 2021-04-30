@@ -1,21 +1,24 @@
 |product| Operation
 ===================
 
-|product| is Scality’s multi-cloud storage controller. It provides a single point of
-integration using the Amazon S3 and Azure Blob Storage cloud storage APIs, and
-enables data backup, transfer, and replication across private and public clouds.
+This site provides guidance on the operation and design principles of |product|;
+offers use case-based guidance on how to operate |product| using its GUI,
+command set, and API; and describes facilities for monitoring it using
+dashboards integrated through Scality's default Kubernetes distribution,
+MetalK8s.
 
-Using |product|, you can store to a Scality RING storage device and automatically
-back up to one or several public clouds. Alternatively, you can use a public
-cloud such as Amazon S3 as primary storage and replicate data stored
-there—specific files, file types, or entire buckets—to other supported clouds,
-such as Google Cloud Platform (GCP) or Microsoft Azure.
+For each use case, there is a programmatic interface via an API or an AWS-like
+command. A graphical user interface, the |product| UI, supports most
+operations. |product| UI is an application-based frontend for the |product|
+platform, providing ease of use and excellent opportunities for visualizing
+managed data.
+
 
 .. toctree::
    :maxdepth: 2
 
-   Introduction/index
-   Architecture/index
-   XDM_GUI/index
-   Dashboards/Cloud_Management_Services
- 
+   location_management/index
+   account_operations/index
+   bucket_operations/index
+   object_operations/index
+   dashboards/index
