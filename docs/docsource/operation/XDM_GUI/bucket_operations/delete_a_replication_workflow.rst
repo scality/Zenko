@@ -14,8 +14,8 @@ To delete a replication workflow rule:
 #. The workflow is removed from the menu. If no workflows remain, you are
    prompted to create a new worflow.
 
-Delete a Replication Workflow from the Command Line
----------------------------------------------------
+Deleting a Replication Workflow Using the AWS CLI
+-------------------------------------------------
 
 The following command deletes a replication configuration from a bucket named
 "my-bucket"::

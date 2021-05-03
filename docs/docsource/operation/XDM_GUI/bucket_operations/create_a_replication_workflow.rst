@@ -69,13 +69,13 @@ Where ``configuration`` is a JSON object including the following syntax:
 
    ...
      "Rules": [
-         {
-           "Destination": {
-                   "Bucket": "arn-bucket-source",
-                   "StorageClass": "storage-location"
-           }
+       {
+         "Destination": {
+                 "Bucket": "arn-bucket-source",
+                 "StorageClass": "storage-location"
          }
-       ]
+       }
+     ],
      "Role": "arn:aws:iam::root:role/s3-replication-role",  
    ...
 
