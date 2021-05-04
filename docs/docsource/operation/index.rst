@@ -16,6 +16,7 @@ such as Google Cloud Platform (GCP) or Microsoft Azure.
 
    Introduction/index
    Architecture/index
+   CLI/index
    XDM_GUI/index
    Dashboards/Cloud_Management_Services
  
