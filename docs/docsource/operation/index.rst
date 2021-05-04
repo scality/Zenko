@@ -1,9 +1,9 @@
 |product| Operation
 ===================
 
-This site provides guidance on the operation and design principles of |product|;
-offers use case-based guidance on how to operate |product| using its GUI,
-command set, and API; and describes facilities for monitoring it using
+This site provides guidance on the operation and design principles of |product|,
+offers use case-based instruction on how to operate |product| using its GUI,
+command set, and API, and describes facilities for monitoring it using
 dashboards integrated through Scality's default Kubernetes distribution,
 MetalK8s.
 
@@ -17,6 +17,7 @@ managed data.
 .. toctree::
    :maxdepth: 2
 
+   platform_operations/index
    location_management/index
    account_operations/index
    bucket_operations/index
