@@ -12,3 +12,4 @@ documents available commands.
 
    s3_commands/index
    s3api_commands/index
+   iam_commands/index
