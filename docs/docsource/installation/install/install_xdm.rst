@@ -365,6 +365,6 @@ MetalK8s node's IP address:
 From the Command Line
 *********************
 
-See :ref:`Command-Line Operations` to :ref:`Retrieve Access Tokens`,
-:ref:`Create an Account`, :ref:`Create an S3 Endpoint`, and :ref:`Generate Root User Account Access Keys`.
-
+See :ref:`Platform Operations` to :ref:`Retrieve Access Tokens`, :ref:`Create an
+Account`, :ref:`Create an S3 Endpoint`, and :ref:`Generate Root User Account
+Access Keys`.
