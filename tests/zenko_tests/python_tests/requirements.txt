@@ -58,7 +58,7 @@ requests==2.19.1
 requests-aws==0.1.8
 requests-oauthlib==1.0.0
 rfc3987==1.3.8
-rsa==4.6
+rsa==4.7
 s3transfer==0.1.13
 SecretStorage==3.0.1
 simplejson==3.17.2
