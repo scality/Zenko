@@ -33,7 +33,8 @@ describe('IAM users: ', () => {
         next => iamAccountClient.createUser({ UserName: userName }, next),
         next => iamAccountClient.listUsers({}, next),
         next => iamAccountClient.getUser({ UserName: userName }, next),
-        next => iamAccountClient.updateUser({ UserName: userName, NewPath: randomPath }, next),
+        // TODO: uncomment once update user is implemented: ZENKO-2871
+        // next => iamAccountClient.updateUser({ UserName: userName, NewPath: randomPath }, next),
         next => iamAccountClient.deleteUser({ UserName: userName }, next),
     ], done));
 });
