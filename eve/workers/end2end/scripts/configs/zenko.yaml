@@ -6,6 +6,14 @@ metadata:
 spec:
   version: ${ZENKO_VERSION_NAME}
   replicas: 1
+  initialConfiguration:
+    locations:
+    - name: us-east-1
+      type: location-file-v1
+    s3API:
+      endpoints:
+      - hostname: s3.zenko.local
+        locationName: us-east-1
   mongodb:
     provider: KubeDB
     persistence:
