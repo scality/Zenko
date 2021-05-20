@@ -87,9 +87,9 @@ To upgrade |product|:
       Expect the cluster to take a few minutes to stabilize. You may see 
       CrashLoopBackoff errors. This is normal, expected behavior.
 
-#. With the introduction of Helm 3 support of Helm 2 charts are still 
-   supported. Helm 3 charts introduces improved functionality with support for 
-   existing Helm 2 charts and in place upgrades and conversions.
+With the introduction of Helm 3, Helm 2 charts are still 
+supported. Helm 3 charts introduce improved functionality, and support
+existing Helm 2 charts and in-place upgrades and conversion.
  
    To upgrade existing Helm 2 charts to Helm 3 you can install the 2to3
    plugin and use the following steps to migrate and cleanup your 
