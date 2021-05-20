@@ -91,8 +91,8 @@ With the introduction of Helm 3, Helm 2 charts are still
 supported. Helm 3 charts introduce improved functionality, and support
 existing Helm 2 charts and in-place upgrades and conversion.
  
-   To upgrade existing Helm 2 charts to Helm 3 you can install the 2to3
-   plugin and use the following steps to migrate and cleanup your 
+   To upgrade existing Helm 2 charts to Helm 3, install the 2to3
+   plugin and use the following steps to migrate and clean up your 
    Helm 2 configuration, releases, and Tiller deployment. 
 
    First install the 2to3 plugin for Helm 3.
