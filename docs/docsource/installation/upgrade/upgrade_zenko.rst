@@ -109,8 +109,8 @@ existing Helm 2 charts and in-place upgrades and conversion.
      $ helm3 2to3 move config --dry-run
      $ helm3 2to3 move config
 
-  After the Helm 3 configuration is complete you can convert your existing
-  release with the following steps. 
+#. After Helm 3 configuration is complete, convert the existing
+    deployment with the following steps:
   
   ::
 
