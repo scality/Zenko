@@ -87,3 +87,34 @@ To upgrade |product|:
       Expect the cluster to take a few minutes to stabilize. You may see 
       CrashLoopBackoff errors. This is normal, expected behavior.
 
+#. With the introduction of Helm 3 support of Helm 2 charts are still 
+   supported. Helm 3 charts introduces improved functionality with support for 
+   existing Helm 2 charts and in place upgrades and conversions.
+ 
+   To upgrade existing Helm 2 charts to Helm 3 you can install the 2to3
+   plugin and use the following steps to migrate and cleanup your 
+   Helm 2 configuration, releases, and Tiller deployment. 
+
+   First install the 2to3 plugin for Helm 3.
+  
+  ::
+
+     $ helm3 plugin install https://github.com/helm/helm-2to3
+
+  Then update the existing Helm 2 configuration.  As previously noted always 
+  test with the --dry-run option before migrating or updating production 
+  systems. 
+
+  ::
+
+     $ helm3 2to3 move config --dry-run
+     $ helm3 2to3 move config
+
+  After the Helm 3 configuration is complete you can convert your existing
+  release with the following steps. 
+  
+  ::
+
+     $ helm3 2to3 convert zenko -t helm --dry-run
+     $ helm3 2to3 convert zenko -t helm
+     $ helm3 2to3 cleanup -t helm
