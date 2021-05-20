@@ -101,9 +101,8 @@ existing Helm 2 charts and in-place upgrades and conversion.
 
      $ helm3 plugin install https://github.com/helm/helm-2to3
 
-  Then update the existing Helm 2 configuration.  As previously noted always 
-  test with the --dry-run option before migrating or updating production 
-  systems. 
+#. Update the existing Helm 2 configuration.  Always 
+   test with the ``--dry-run`` option before migrating or updating a production system.
 
   ::
 
