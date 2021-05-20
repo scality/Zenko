@@ -95,7 +95,7 @@ existing Helm 2 charts and in-place upgrades and conversion.
    plugin and use the following steps to migrate and clean up your 
    Helm 2 configuration, releases, and Tiller deployment. 
 
-   First install the 2to3 plugin for Helm 3.
+#. Install the 2to3 plugin for Helm 3.
   
   ::
 
