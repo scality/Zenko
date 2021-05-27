@@ -5,7 +5,8 @@ The Kubernetes dashboard is the master dashboard for visualizing your
 cluster’s performance. You can use a cloud-hosted version of Kubernetes,
 or host it yourself using MetalK8s.
 
-|image0|
+.. image:: ../Graphics/kubernetes_dashboard.png
+   :width: 100%
 
 Your Kubernetes user experience will vary depending on which Kubernetes
 you use. At a minimum, you will see everything available to you by
@@ -25,6 +26,3 @@ up Kubernetes proxying in the MetalK8s Quickstart. These instructions
 may prove useful to non-MetalK8s installations as well.
 
 .. _`Grafana`: Grafana.html
-
-.. |image0| image:: ../Graphics/kubernetes_dashboard.png
-   :class: OneHundredPercent

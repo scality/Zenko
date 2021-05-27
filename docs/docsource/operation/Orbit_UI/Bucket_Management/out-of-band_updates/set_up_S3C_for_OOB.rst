@@ -57,12 +57,12 @@ Set Up Out-of-Band Updates for S3 Connector
 
       .. image:: ../../../Graphics/add_new_location_dialog.*
          :width: 75%
-         :align: center
 
    The new cloud location appears in the Cloud Locations window. The Mirroring
    indicator is grayed out.
 
    .. image:: ../../../Graphics/new_cloud_location.*
+      :width: 100%
 
 #. Open the Multicloud Browser and click **Create Bucket**.
 
@@ -73,6 +73,7 @@ Set Up Out-of-Band Updates for S3 Connector
       is followed by "(Mirror mode)".
 
       .. image:: ../../../Graphics/create_bucket_mirror_mode.*
+         :width: 100%
 
    #. Click **Create**.
 

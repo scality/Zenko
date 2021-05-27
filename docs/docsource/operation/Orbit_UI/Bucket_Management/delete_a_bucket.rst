@@ -20,10 +20,12 @@ To delete a bucket:
 #. Pick the bucket to delete from the **Buckets** list:
 
    .. image:: ../../Graphics/multicloud_browser_select_bucket.png
+      :width: 100%
 
 #. Click the **Delete** button.
 
    .. image:: ../../Graphics/delete_button.png
+      :width: 50%
 
 #. Orbit requests confirmation:
 
@@ -36,4 +38,3 @@ To delete a bucket:
       :width: 75%
 
 #. The Multicloud Browser refreshes, and the bucket is deleted.
-

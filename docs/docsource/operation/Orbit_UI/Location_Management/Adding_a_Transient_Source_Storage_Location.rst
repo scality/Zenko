@@ -18,6 +18,7 @@ To deploy a transient source storage location:
 #. Click the **Storage Locations** button in the sidebar.
 
    .. image:: ../../Graphics/sidebar_storage_locations_button.png
+      :width: 75%
 
 #. The **Cloud Locations** window displays. Click **Add New**. 
 

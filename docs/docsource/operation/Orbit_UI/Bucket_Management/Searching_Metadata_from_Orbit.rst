@@ -16,23 +16,21 @@ To search the metadata of files stored in clouds managed by Zenko,
 
 #. Click **Search** in the sidebar to raise the **Multicloud Search** window.
 
-   |image0|
+   .. image:: ../../Graphics/Orbit_multicloud_search.png
+      :width: 100%
 
 #. Pick a bucket to search.
 
-   |image1|
+   .. image:: ../../Graphics/Orbit_multicloud_search_bucket_select.png
+      :width: 75%
 
 #. Enter metadata search terms in the modified NoSQL format described in
    :ref:`Searching Metadata with Zenko`. Click the magnifying glass icon.
 
    .. image::  ../../Graphics/metadata_search_results.png
+      :width: 100%
 
    Orbit returns the search results.
 
    Clicking the arrow icon next to the search result takes you to the
    item’s location (directory) in the bucket.
-
-.. |image0| image:: ../../Graphics/Orbit_multicloud_search.png
-   :class: OneHundredPercent
-.. |image1| image:: ../../Graphics/Orbit_multicloud_search_bucket_select.png
-   :class: FiftyPercent

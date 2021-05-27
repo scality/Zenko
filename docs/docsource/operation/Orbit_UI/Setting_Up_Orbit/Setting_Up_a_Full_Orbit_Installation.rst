@@ -19,7 +19,8 @@ Orbit.
 
 #. Authenticate:
 
-   |image0|
+   .. image:: ../../Graphics/google_login.png
+      :scale: 75%
 
 #. Click **Install Now**.
 
@@ -28,27 +29,22 @@ Orbit.
 
 #. Review and affirm the Privacy Policy:
 
-   |image1|
-
+   .. image:: ../../Graphics/Orbit_setup_Privacy.png
+      :width: 75%
+   
 #. Click **Register My Instance**.
 
-   |image2|
+   .. image:: ../../Graphics/Orbit_register_my_Instance_detail.png
+      :width: 75%
 
 #. Enter your Instance ID and your instance's name, then click **Submit
    Now!**
 
-   |image3|
+   .. image:: ../../Graphics/Orbit_setup_Instance_ID.png
+      :width: 75%
 
 .. tip::
 
    To find your Instance ID, use the
    :version-ref:`kubectl commands <https://documentation.scality.com/Zenko/{version}/installation/install/Install_Zenko.html#get-instance-id>`
    from :version-ref:`Zenko Installation <https://documentation.scality.com/Zenko/{version}/installation/index.html>`.
-
-.. |image0| image:: ../../Graphics/google_login.png
-   :scale: 75%
-.. |image1| image:: ../../Graphics/Orbit_setup_Privacy.png
-   :width: 75%
-.. |image2| image:: ../../Graphics/Orbit_register_my_Instance_detail.png
-.. |image3| image:: ../../Graphics/Orbit_setup_Instance_ID.png
-   :width: 75%

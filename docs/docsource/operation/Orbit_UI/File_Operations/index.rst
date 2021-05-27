@@ -13,15 +13,18 @@ To access these operations:
 #. Click **Browser** in the sidebar to open the Multicloud Browser.
 
    .. image:: ../../Graphics/sidebar_browser_button.png
+      :width: 50%
 
 #. Double-click the bucket you want to access.
 
    .. image:: ../../Graphics/multicloud_browser_1_bucket.png
+      :width: 100%
 
    -  If the bucket is empty, Zenko asks you to **Drag and Drop
       Objects**:
 
-      |image0|
+      .. image:: ../../Graphics/Orbit_upload_objects.png
+         :width: 100%
 
       Clicking the **Upload Objects** button takes you to your local machine’s
       file system to pick files to upload. Clicking **skip** takes you to the
@@ -29,7 +32,8 @@ To access these operations:
 
    -  Otherwise, the Multicloud Browser displays the bucket’s contents:
 
-      |image1|
+      .. image:: ../../Graphics/Orbit_file_operations.png
+         :width: 100%
 
 For each uploaded file, you can :ref:`Download<Download a File>`, :ref:`View Info<View
 File Info>`, or :ref:`Delete<deleting-objects>`.
@@ -41,7 +45,3 @@ File Info>`, or :ref:`Delete<deleting-objects>`.
     View Files <view_file_info>
     Download Files <download_a_file>
     Delete Files <delete_files>
-
-.. |image0| image:: ../../Graphics/Orbit_upload_objects.png
-   :class: FiftyPercent
-.. |image1| image:: ../../Graphics/Orbit_file_operations.png

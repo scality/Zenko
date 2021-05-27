@@ -9,14 +9,14 @@ To add a storage location:
    **Cloud Locations** window:
 
    .. image:: ../../Graphics/Orbit_Storage_Locations.png
-      :align: center
+      :width: 100%
 
 #. Click **Add New**.
 
 #. The **Add New Storage Location** dialog displays:
 
    .. image:: ../../Graphics/Orbit_Add_New_Storage_Location.png
-      :align: center
+      :width: 100%
 
    a. Enter a location name in the **Location Name** field using
       lowercase letters, numbers, and dashes.

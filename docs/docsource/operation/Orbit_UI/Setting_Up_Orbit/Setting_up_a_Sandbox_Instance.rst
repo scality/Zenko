@@ -18,33 +18,37 @@ your data. To set up a Sandbox instance:
 #. Open `zenko.io <https://zenko.io/>`__, and click `Try Zenko
    <https://www.zenko.io/try-zenko/>`__.
 
-   |image0|
+   .. image:: ../../Graphics/Zenko.io_screen.png
 
 #. Click **Register with Google**. You must authenticate using a Google ID.
 
    .. image:: ../../Graphics/google_login.png
+      :width: 75%
 
 #. After you have registered, the Welcome dialog displays:
 
-   |image1|
+   .. image:: ../../Graphics/Orbit_Welcome_screen.png
+      :width: 75%
 
    Click **Install now**.
 
 #. The **REGISTER AN INSTANCE** screen displays:
 
-   |image2|
+   .. image:: ../../Graphics/Orbit_register_1.png
+      :width: 75%
 
    Choose the Sandbox option (**Next: Let's do this!**)
 
 #. The **CREATE YOUR ZENKO SANDBOX** screen displays:
 
-   |image3|
+   .. image:: ../../Graphics/Orbit_Enter_Sandbox.png
+      :width: 100%
 
    Enter a name for your sandbox and click **Create Sandbox**.
 
 #. After less than a minute, the **Settings** window displays:
 
-   |image4|
+   .. image:: ../../Graphics/Orbit_settings_setup.png
 
    Your sandbox is created. Depending on server load, there may be a delay of
    a few minutes to complete the Orbit setup.
@@ -63,6 +67,7 @@ your data. To set up a Sandbox instance:
    transfer the secret key to your clipboard.
 
    .. image:: ../../Graphics/secret_key_my_account.png
+      :width: 100%
 
    .. important:: You do not get a second chance. Copy this now.
 
@@ -72,13 +77,8 @@ your data. To set up a Sandbox instance:
    **Settings** window's **Sandbox Time Left** indicator.
 
    .. image:: ../../Graphics/sandbox_settings.png
+      :width: 75%
 
    The sandbox runs against a Zenko instance hosted by Scality. Though this
    demonstration instance is limited both in its lifespan and in the amount of
    data it can handle, you can use it to watch Zenko in action. 
-
-.. |image0| image:: ../../Graphics/Zenko.io_screen.png
-.. |image1| image:: ../../Graphics/Orbit_Welcome_screen.png
-.. |image2| image:: ../../Graphics/Orbit_register_1.png
-.. |image3| image:: ../../Graphics/Orbit_Enter_Sandbox.png
-.. |image4| image:: ../../Graphics/Orbit_settings_setup.png

@@ -8,22 +8,27 @@ at least one bucket.
 #. Click **Browser** in the sidebar to open the Multicloud Browser:
 
    .. image:: ../../Graphics/sidebar_browser_button.png
+      :width: 50%
 
 #. Double-click the bucket to which you will upload data. 
 
-   |image0|
+   .. image:: ../../Graphics/Orbit_multicloud_browser_with_values1.png
+      :width: 100%
 
    - If the bucket is empty, the **Drag and Drop Objects** dialog displays:
 
-     |image1|
+     .. image:: ../../Graphics/Orbit_upload_objects.png
+        :width: 100%
 
    - Otherwise, Orbit displays the bucket's contents:
 
      .. image:: ../../Graphics/Orbit_file_operations.png
+        :width: 100%
 
    - Click **Upload** to raise the **Drag and Drop Objects** dialog.
   
      .. image:: ../../Graphics/upload_button_hover.png
+        :width: 50%
 
 #. In the **Drag and Drop Objects** dialog, you can either upload files by
    dragging and dropping from the local desktop (Windows Explorer, OS X, Linux
@@ -42,6 +47,3 @@ at least one bucket.
       Object key name lengths are limited to 915 single-byte characters (109
       fewer than the 1024 one-byte characters permitted in the AWS
       specification).
-
-.. |image0| image:: ../../Graphics/Orbit_multicloud_browser_with_values1.png
-.. |image1| image:: ../../Graphics/Orbit_upload_objects.png

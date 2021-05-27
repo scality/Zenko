@@ -16,19 +16,18 @@ Establishing an Object Expiration Policy
 
 #. The **Bucket Lifecycle** screen displays.
 
-   |image1|
+   .. image:: ../../../Graphics/Orbit_lifecycle_bucket_select.png
+      :width: 100%
 
 #. Choose a bucket and pick **Add New Rule > Expiration**
 
    .. image:: ../../../Graphics/Orbit_lifecycle_add_new_rule.png
-      :scale: 75 %
-      :align: center
+      :scale: 100 %
 
 #. The **Add New Expiration Rule** dialog displays:
 
    .. image:: ../../../Graphics/Orbit_lifecycle_add_expiration_rule.png
       :scale: 50 %
-      :align: center
 
    You may enter a distinct directory or subdirectory to which the rule applies.
    Enter an expiration time span and a deletion time span.
@@ -39,16 +38,11 @@ Establishing an Object Expiration Policy
 
 #. The new rule is displayed:
 
-   |image4|
+   .. image:: ../../../Graphics/Orbit_lifecycle_expiration_rule_success.png
+      :width: 100%
 
    Zenko will enforce these rules on this bucket. 
 
 Versioning logic precludes simply deleting an object: that day’s object
 is deleted, but earlier versions remain. See warning at 
 :ref:`Deleting Objects<deleting-objects>`.
-
-.. |image0| image:: ../../../Graphics/Orbit_lifecycle_select.png
-.. |image1| image:: ../../../Graphics/Orbit_lifecycle_bucket_select.png
-   :class: OneHundredPercent
-.. |image4| image:: ../../../Graphics/Orbit_lifecycle_expiration_rule_success.png
-   :class: OneHundredPercent
