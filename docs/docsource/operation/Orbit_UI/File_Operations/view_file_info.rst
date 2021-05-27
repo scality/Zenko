@@ -8,23 +8,23 @@ To view information about a file:
 #. Click the Browser button to open the Multicloud Browser.
 
    .. image:: ../../Graphics/sidebar_browser_button.png
+      :width: 50%
 
 #. Double-click the bucket containing the file.
 
    .. image:: ../../Graphics/Orbit_multicloud_browser_with_values1.png
-      :align: center
+      :width: 100%
 
 #. Select the file, and click the **View Info** button. File information
    displays in a pop-up window:
 
    .. image:: ../../Graphics/Orbit_file_operations_popup.png
-      :align: center
 
 #. Click the pencil icon in the **Metadata** field to add or edit
    metadata options.
 
    .. image:: ../../Graphics/Orbit_add-edit_metadata.png
-      :align: center
+      :width: 75%
 
    Available options are **cache-control**, **content disposition**,
    **content-encoding**, **content-language**, **content-type**, **expires**,
@@ -37,7 +37,7 @@ To view information about a file:
    permit entry of this “nested” key information.
 
    .. image:: ../../Graphics/Orbit_x-amz-meta.png
-      :align: center
+      :width: 75%
 
    This name space must conform to `Amazon’s bucket naming rules
    <https://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html#bucketnamingrules>`__:
@@ -46,11 +46,9 @@ To view information about a file:
 #. Click the pencil icon in the **Tags** field to add custom tags.
 
    .. image:: ../../Graphics/Orbit_add_tags.png
-      :align: center
+      :width: 75%
 
    These are S3-supported tags (see
    https://docs.aws.amazon.com/AmazonS3/latest/dev/object-tagging.html).
    Because other backends may not support the S3 tagging structure,
    operations that use these tags must be performed using Zenko.
-
-

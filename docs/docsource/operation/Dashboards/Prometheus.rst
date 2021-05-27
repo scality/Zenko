@@ -11,6 +11,7 @@ in your browser. If you are configured to see the other dashboards,
 the Prometheus dashboard displays: 
 
 .. image:: ../Graphics/prometheus.png
+   :width: 100%
 
 If you use a different Kubernetes implementation than MetalK8s, you will have
 to install your own Prometheus instance to use this feature.  

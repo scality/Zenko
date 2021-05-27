@@ -3,7 +3,8 @@ The Dashboard
 
 On login, the dashboard displays:
 
-|image0|
+.. image:: ../Graphics/Orbit_dashboard.png
+   :width: 100%
 
 The dashboard provides useful information about ongoing Zenko
 operations, replication status, and cloud server health.
@@ -28,6 +29,3 @@ buttons for:
 In addition to the options on the left sidebar, you can click
 the :ref:`View More Statistics<Statistics>` button to see more
 statistics about buckets, objects, and resources.
-
-
-.. |image0| image:: ../Graphics/Orbit_dashboard.png

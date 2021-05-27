@@ -12,10 +12,11 @@ To access this feature:
 #. Click the **Browser** item in the sidebar.
 
    .. image:: ../../Graphics/sidebar_browser_button.png
+      :width: 50%
 
 #. The Multicloud Browser **Buckets** list displays:
 
-   |image0|
+   .. image:: ../../Graphics/Orbit_multicloud_browser_with_values.png
 
    Select a bucket from the list of bucket names, then click **View
    Info**.
@@ -23,7 +24,7 @@ To access this feature:
 #. Orbit displays bucket info:
 
    .. image:: ../../Graphics/Orbit_bucket_view_info.png
-      :align: center
+      :width: 75%
 
 From this panel, you can:
 
@@ -34,6 +35,3 @@ From this panel, you can:
 For more information on versioning, review the Amazon S3 documentation
 at: \ https://docs.aws.amazon.com/AmazonS3/latest/dev/Versioning.html.
 Zenko implements S3 logic for versioning.
-
-.. |image0| image:: ../../Graphics/Orbit_multicloud_browser_with_values.png
-

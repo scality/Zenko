@@ -38,9 +38,8 @@ Set Up Out of Band Updates from NFS
    different folders to their own buckets in Zenko.
 
    .. image:: ../../../Graphics/add_nfs_location.png
-      :scale: 75%
-      :align: center
-
+      :scale: 50%
+   
 #. Create your bucket in the mirror-mode version of the location just
    created. As of Zenko 1.1.0, only the "Mirror Mode" option is supported, and
    the standard location option does not allow writes to the location.

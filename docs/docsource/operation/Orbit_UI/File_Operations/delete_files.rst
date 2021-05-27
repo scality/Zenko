@@ -8,27 +8,26 @@ To delete objects from a selected bucket:
 #. Click the **Browser** button in the sidebar to open the Multicloud Browser:
 
    .. image:: ../../Graphics/sidebar_browser_button.png
+      :width: 50%
 
 #. Double-click a button to open it:   
 
    .. image:: ../../Graphics/Orbit_multicloud_browser_with_values1.png
-      :align: center
+      :width: 100%
 
 #. Click the check box next to each object to be deleted. The number of objects
    to be deleted is indicated in the top bar of the file list.
 
    .. image:: ../../Graphics/Orbit_file_delete.png
-      :align: center
 
 #. Click the **Delete** button.
 
    .. image:: ../../Graphics/Orbit_file_delete_button.png
-      :align: center
 
 #. Orbit requests confirmation of the deletion.
 
    .. image:: ../../Graphics/Orbit_file_delete_confirm.png
-      :align: center
+      :width: 75%
 
 #. The object is deleted from the bucket.
 

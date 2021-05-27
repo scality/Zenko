@@ -15,23 +15,21 @@ To establish a lifecycle transition rule:
 #. Click the **Bucket Lifecycle** tab in the sidebar.
 
    .. image:: ../../../Graphics/Orbit_lifecycle_select.png
-      :scale: 80%
+      :scale: 75%
 
 #. The **Bucket Lifecycle** screen displays.
 
-   |image1|
+   .. image:: ../../../Graphics/Orbit_lifecycle_bucket_select.png
 
 #. Choose a bucket and pick **Add New Rule > Transition**
 
    .. image:: ../../../Graphics/Orbit_lifecycle_add_new_rule.png
-      :scale: 80 %
-      :align: center
+      :scale: 100 %
 
 #. The **Add New Transition Rule** dialog displays:
 
    .. image:: ../../../Graphics/Orbit_lifecycle_add_transition_rule.png
       :width: 75 %
-      :align: center
 
    You may specify an prefix to identify objects to which the rule applies. Enter
    a time span after the object's current version was last modified and specify
@@ -43,10 +41,8 @@ To establish a lifecycle transition rule:
 #. The new rule is displayed:
 
    .. image:: ../../../Graphics/Orbit_lifecycle_transition_rule_success.png
-      :align: center
+      :width: 75%
 
    Zenko will enforce these rules on this bucket. If replication is configured, 
    any change of state to objects in this bucket can be replicated to buckets 
    on other clouds.
-
-.. |image1| image:: ../../../Graphics/Orbit_lifecycle_bucket_select.png

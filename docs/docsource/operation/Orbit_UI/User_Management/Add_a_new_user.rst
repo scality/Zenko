@@ -5,16 +5,19 @@ Add a New User
 
 #. Click **Storage Accounts** in the sidebar to raise the Storage Accounts window.
 
-   ..  image:: ../../Graphics/sidebar_storage_accounts_button.png
+   .. image:: ../../Graphics/sidebar_storage_accounts_button.png
+      :width: 75%
    
 #. Enter a new user name in the **Account Name** field and click
    **Generate**.
 
-   |image0|
+   .. image:: ../../Graphics/Orbit_user_create_enter_username.png
+      :width: 75%
 
 #. Click **Show** to see the secret key associated with this user:
 
-   |image2|
+   .. image:: ../../Graphics/Orbit_user_create_secret_key.png
+      :width: 75%
 
    Copy this key and store it.
 
@@ -28,8 +31,3 @@ Add a New User
 As the Zenko user, you can create multiple users in the Zenko-managed namespace,
 each with a unique access key and secret key. You can also re-generate 
 access/secret key pairs for any such user.
-
-.. |image0| image:: ../../Graphics/Orbit_user_create_enter_username.png
-   :class: FiftyPercent
-.. |image2| image:: ../../Graphics/Orbit_user_create_secret_key.png
-   :class: FiftyPercent

@@ -9,10 +9,12 @@ this string.
 #. Click the **Browser** button to open the Multicloud Browser.
 
    .. image:: ../../Graphics/sidebar_browser_button.png
+      :width: 75%
 
 #. In the **Multicloud Browser** window, double-click a bucket to open it.
 
    .. image:: ../../Graphics/bucket_select.png
+      :width: 100%
 
 #. The **Copy Owner ID** button appears above the file and directory listing.
 

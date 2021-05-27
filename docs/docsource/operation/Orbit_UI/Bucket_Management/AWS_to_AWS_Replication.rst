@@ -13,7 +13,7 @@ AWS-to-AWS Replication
    bucket you just created.
 
    .. image:: ../../Graphics/Orbit_Add_Storage_location_AWS.png
-      :align: center
+      :width: 75%
 
 #. From the Multicloud Browser, create another bucket and set the new AWS
    location as its location constraint.
@@ -25,9 +25,7 @@ AWS-to-AWS Replication
    up bucket replication** dialog box.
 
    .. image:: ../../Graphics/Orbit_set_up_bucket_replication_pulldown.png
+      :width: 75%
 
 #. With the AWS target now visible, enter the flow as described in :ref:`Set Up
    Replication`.
-
-
-
