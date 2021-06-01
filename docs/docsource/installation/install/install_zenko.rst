@@ -118,4 +118,3 @@ Install with Helm
    After a few minutes, all pods will enter Running mode.
 
    When all pods stabilize, |product| is installed. 
-   
