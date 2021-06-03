@@ -55,3 +55,5 @@ Simple Zenko setup for quick testing with non-production data:
 [Zenko Kubernetes Helm Chart deployment](./kubernetes)
 
 [Deploying a HA Kubernetes cluster](https://github.com/scality/metal-k8s)
+
+foo
