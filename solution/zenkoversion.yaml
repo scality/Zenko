@@ -57,7 +57,7 @@ spec:
         image: jmx-javaagent
         tag: '${JMX_JAVAAGENT_TAG}'
     vault:
-      image: vault
+      image: vault-test-artesca 
       tag: '${VAULT_TAG}'
     shell:
       image: busybox
