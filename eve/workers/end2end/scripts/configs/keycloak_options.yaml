@@ -2,15 +2,15 @@ replicas: 1
 
 ingress:
   enabled: true
-  servicePort: http
+  servicePort: https
   tls: [  ]
   annotations:
-    nginx.ingress.kubernetes.io/backend-protocol: 'HTTP'
+    nginx.ingress.kubernetes.io/backend-protocol: 'HTTPS'
     nginx.ingress.kubernetes.io/enable-cors: 'true'
   rules:
     - host: 'keycloak.zenko.local'
       paths:
-        - /
+        - /auth
 
 extraEnv: |
   - name: KEYCLOAK_USER
