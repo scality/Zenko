@@ -25,3 +25,8 @@ mv linux-amd64/helm /usr/bin/
 # install kubectl
 wget -q https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VER}/bin/linux/amd64/kubectl -O /usr/bin/kubectl && \
 chmod +x /usr/bin/kubectl
+
+# Install Kind
+wget -L -o ./kind https://kind.sigs.k8s.io/dl/v0.10.0/kind-linux-amd64
+chmod +x ./kind
+mv kind /usr/bin/

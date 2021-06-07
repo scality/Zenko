@@ -1,0 +1,17 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: ci-zenko
+  labels:
+    zenko-ci: storageclass
+  annotations:
+    storageclass.beta.kubernetes.io/is-default-class: "true"
+provisioner: kubernetes.io/no-provisioner
+reclaimPolicy: Retain
+volumeBindingMode: WaitForFirstConsumer
+mountOptions:
+  - rw
+  - discard
+parameters:
+  fsType: ext4
+  mkfsOptions: '["-m", "0"]'

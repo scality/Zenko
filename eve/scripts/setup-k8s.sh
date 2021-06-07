@@ -1,10 +1,11 @@
 #!/bin/sh
 set -e
 
-echo "${CI_KUBECONFIG}" | envsubst > /tmp/config
+script_full_path=$(readlink -f "$0")
+file_dir=$(dirname "$script_full_path")/..
 
 echo "Setting up k8s namespace"
-kubectl config get-contexts --kubeconfig ${KUBECONFIG}
+kubectl config get-contexts
 kubectl config use-context kubernetes-admin@kubernetes || exit 1
 kubectl get ns
 kubectl create namespace "${NAMESPACE}"
@@ -34,6 +35,8 @@ roleRef:
   name: zenko-test-cosmos-operator
   apiGroup: rbac.authorization.k8s.io
 EOF
+
+kubectl apply -f ${file_dir}/../end2end/manifests
 
 ## Todo: Add namespace wide quotas
 #echo "Applying namespace quota"

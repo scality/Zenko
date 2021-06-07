@@ -17,10 +17,7 @@ models:
       command: eve/scripts/setup-k8s.sh
       haltOnFailure: true
       env:
-        CI_KUBECONFIG: '%(secret:openstack_cluster_conf)s'
         NAMESPACE: '%(prop:bootstrap)s-%(prop:stage_name)s'
-        KUBECONFIG: /tmp/config
-        CLUSTER_IP: '%(secret:openstack_cluster_ip)s'
   - ShellCommand: &k8s_cleanup
       name: Cleanup
       command: |
@@ -186,6 +183,16 @@ models:
   - env: &global_env # contains all env values
       <<: [*secrets_env, *docker_env, *k8s_env]
 
+  - ShellCommand: &setup_kind
+      name: setup kind
+      command: |
+        # Create kind cluster
+        kind create cluster
+        # Setup Kind kubeconfig
+        mkdir -p /home/eve/.kube
+        kind get kubeconfig > /home/eve/.kube/config
+
+
 stages:
   pre-merge:
     simultaneous_builds: 4
@@ -274,6 +281,7 @@ stages:
     steps:
     - Git: *git_pull
     - ShellCommand: *private_registry_login
+    - ShellCommand: *setup_kind
     - ShellCommand: *k8s_setup
     - ShellCommand: *start-mocks
     - ShellCommand:
