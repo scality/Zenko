@@ -24,7 +24,7 @@
     "npm-run-all": "~4.0.2",
     "request": "^2.87.0",
     "uuid": "^3.0.1",
-    "vaultclient": "scality/vaultclient#5617b9b"
+    "vaultclient": "scality/vaultclient#adcbd16"
   },
   "scripts": {
     "test_ui": "cypress run --config baseUrl=${UI_ENDPOINT} --project ./ui",
