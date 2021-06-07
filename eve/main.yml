@@ -22,7 +22,7 @@ models:
       OIDC_LAST_NAME: 'world'
       SHELL_UI_IMAGE: "registry.scality.com/playground/jbwatenberg/shell-ui:2.9-dev"
       SHELL_UI_NAME: "shell-ui"
-      VAULT_ENDPOINT: 'http://iam.zenko.local'
+      VAULT_ENDPOINT: 'https://iam.zenko.local'
   - env: &e2e-env
       E2E_IMAGE_NAME: registry.scality.com/zenko/zenko-e2e
       E2E_IMAGE_TAG: '%(prop:commit_short_revision)s'
