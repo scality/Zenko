@@ -37,9 +37,9 @@ jabba:
   tag: 940d
   envsubst: JABBA_TAG
 pensieve-api:
-  sourceRegistry: registry.scality.com/pensieve-api-dev
+  sourceRegistry: registry.scality.com/pensieve-api
   image: pensieve-api
-  tag: 1fa3600 
+  tag: 1.0.0-rc.3 
   envsubst: PENSIEVE_API_TAG
 utapi:
   sourceRegistry: registry.scality.com/sf-eng
@@ -54,7 +54,7 @@ zenko-operator:
 vault:
   sourceRegistry: registry.scality.com/vault-dev
   image: vault 
-  tag: a1e1d68 
+  tag: ea8c42e 
   envsubst: VAULT_TAG
 backbeat:
   sourceRegistry: registry.scality.com/backbeat
