@@ -2,7 +2,7 @@ version: "0.2"
 
 branches:
   documentation/*, feature/*, improvement/*, bugfix/*, w/*, q/*, hotfix/*:
-    stage: pre-merge
+    stage: python-tests
 
 models:
   - Git: &git_pull
@@ -298,6 +298,10 @@ stages:
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
     - ShellCommand: *k8s_cleanup
+    - ShellCommand:
+        name: debug
+        command: while true; do sleep 10 ; echo sleep ; done
+        alwaysRun: true
 
   python-tests: *online-zenko
   node-tests-01: *online-zenko
