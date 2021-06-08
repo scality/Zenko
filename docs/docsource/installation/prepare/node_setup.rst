@@ -6,15 +6,18 @@ Follow these steps to set up the node structure using MetalK8s.
 #. Open MetalK8s.
 
    .. image:: ../Graphics/MK8s_clean.png
+      :width: 100%
 
 #. Click **Create a New Node**.
 
    .. image:: ../Graphics/MK8s_new_node.png
-
+      :width: 75%
+	      
 #. Enter the hostname, roles, and SSH information for the node.
 
    .. image:: ../Graphics/MK8s_new_node_filled_in.png
-
+      :width: 75%
+	      
    .. tip::
 
       If you aren't certain about the node's hostname, open the node in SSH and
@@ -24,7 +27,8 @@ Follow these steps to set up the node structure using MetalK8s.
    banner.
 
    .. image:: ../Graphics/MK8s_node_created_green.png
-
+      :width: 100%
+      
 Troubleshooting
 ---------------
 

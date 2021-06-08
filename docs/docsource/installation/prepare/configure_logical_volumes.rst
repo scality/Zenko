@@ -134,18 +134,22 @@ For each node,
 #. Click the name of the node in the Platform menu to display node details.
 
    .. image:: ../Graphics/MK8s_node_select.png
+      :width: 75%
 
 #. Click the **Volumes** tab.
 
    .. image:: ../Graphics/MK8s_details.png
+      :width: 50%
 
 #. Click the **+** button.
 
    .. image:: ../Graphics/MK8s_volume_tab.png
+      :width: 75%
 
 #. The **Create a New Volume** window displays.
 
    .. image:: ../Graphics/MK8s_volume_create.png
+      :width: 100%
 
 #. Enter the volume's
 
