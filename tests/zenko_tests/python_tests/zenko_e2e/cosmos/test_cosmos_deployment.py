@@ -73,7 +73,7 @@ def compare_versions(objkey, aws_target_bucket, zenko_bucket):
 # Timeout has been increased to 180 because of setup time but really shouldn't
 # be increased any further. Please investigate possible regressions or test
 # refactor before increasing the timeout any further.
-# Updated timeout to 360 to allow for increased system latency 
+# Updated timeout to 360 to allow for increased system latency
 
 @pytest.fixture
 def wait_for_job(kube_batch, location, timeout=360):
