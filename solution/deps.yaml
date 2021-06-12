@@ -32,9 +32,9 @@ blobserver:
   tag: 1.0.8
   envsubst: BLOBSERVER_TAG
 jabba:
-  sourceRegistry: registry.scality.com/sf-eng
+  sourceRegistry: registry.scality.com/jabba
   image: jabba
-  tag: 940d
+  tag: 1.0.0
   envsubst: JABBA_TAG
 pensieve-api:
   sourceRegistry: registry.scality.com/pensieve-api
