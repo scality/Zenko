@@ -11,6 +11,13 @@ KAFKA_OPERATOR_VERSION=0.2.18
 INGRESS_NGINX_VERSION=controller-v0.34.1
 PROMETHEUS_VERSION=v0.38.2
 KEYCLOAK_VERSION=9.0.5
+ENABLE_KEYCLOAK_HTTPS=${ENABLE_KEYCLOAK_HTTPS:-'false'}
+
+if [ $ENABLE_KEYCLOAK_HTTPS == 'true' ]; then
+    KEYCLOAK_INGRESS_OPTIONS="$DIR/configs/keycloak_ingress_https.yaml"
+else
+    KEYCLOAK_INGRESS_OPTIONS="$DIR/configs/keycloak_ingress_http.yaml"
+fi
 
 # nginx-controller
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/${INGRESS_NGINX_VERSION}/deploy/static/provider/kind/deploy.yaml
@@ -36,6 +43,6 @@ curl -fsSL https://raw.githubusercontent.com/kubedb/installer/${KUBEDB_VERSION}/
 
 # keycloak
 helm repo add codecentric https://codecentric.github.io/helm-charts/ && \
-    helm upgrade --install --version ${KEYCLOAK_VERSION} keycloak codecentric/keycloak -f "$DIR/configs/keycloak_options.yaml"
+    helm upgrade --install --version ${KEYCLOAK_VERSION} keycloak codecentric/keycloak -f "$DIR/configs/keycloak_options.yaml" -f "${KEYCLOAK_INGRESS_OPTIONS}"
 
 kubectl rollout status sts/keycloak --timeout=10m

@@ -1,0 +1,11 @@
+ingress:
+  enabled: true
+  servicePort: https
+  tls: [  ]
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: 'HTTPS'
+    nginx.ingress.kubernetes.io/enable-cors: 'true'
+  rules:
+    - host: 'keycloak.zenko.local'
+      paths:
+        - /auth

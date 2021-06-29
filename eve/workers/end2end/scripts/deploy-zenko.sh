@@ -11,6 +11,23 @@ export ZENKOVERSION_PATH=${4:-'eve/workers/end2end/scripts/configs/zenkoversion.
 export DEPS_PATH=${5:-'solution/deps.yaml'}
 export ZENKO_VERSION_NAME="${ZENKO_NAME}-version"
 
+ENABLE_KEYCLOAK_HTTPS=${ENABLE_KEYCLOAK_HTTPS:-'false'}
+if [ ${ENABLE_KEYCLOAK_HTTPS} == 'true' ]; then
+    export ZENKO_INGRESS_ANNOTATIONS="annotations:
+      nginx.ingress.kubernetes.io/proxy-body-size: 0m
+      nginx.ingress.kubernetes.io/ssl-redirect: 'false'"
+    export ZENKO_INGRESS_CERTIFICATES='certificates:
+    - hosts:
+      - ui.zenko.local
+      - management.zenko.local
+      - iam.zenko.local
+      - sts.zenko.local'
+else
+    export ZENKO_INGRESS_ANNOTATIONS="annotations:
+      nginx.ingress.kubernetes.io/proxy-body-size: 0m"
+    export ZENKO_INGRESS_CERTIFICATES='certificates: []'
+fi
+
 function dependencies_image_env()
 {
     yq eval '.[] | .envsubst + "=" + (.sourceRegistry // "docker.io") + "/" + .image' ${DEPS_PATH} |

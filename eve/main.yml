@@ -15,14 +15,21 @@ models:
       OIDC_REALM: "zenko"
       OIDC_CLIENT_ID: "zenko-ui"
       OIDC_USERNAME: 'zenko-end2end'
-      UI_ENDPOINT: 'http://ui.zenko.local'
-      OIDC_ENDPOINT: 'http://keycloak.zenko.local'
       OIDC_PASSWORD: 'end2end_password'
       OIDC_FIRST_NAME: 'hello'
       OIDC_LAST_NAME: 'world'
-      SHELL_UI_IMAGE: "registry.scality.com/playground/jbwatenberg/shell-ui:2.9-dev"
       SHELL_UI_NAME: "shell-ui"
-      VAULT_ENDPOINT: 'http://iam.zenko.local'
+      SHELL_UI_IMAGE: "registry.scality.com/playground/jbwatenberg/shell-ui:2.9-dev"
+  - env: &http-env
+      UI_ENDPOINT: 'http://ui.zenko.local'
+      OIDC_ENDPOINT: 'http://keycloak.zenko.local'
+      NAVBAR_ENDPOINT: 'http://shell-ui.zenko.local'
+      ENABLE_KEYCLOAK_HTTPS: 'false'
+  - env: &https-env
+      UI_ENDPOINT: 'https://ui.zenko.local'
+      OIDC_ENDPOINT: 'https://keycloak.zenko.local'
+      NAVBAR_ENDPOINT: 'https://shell-ui.zenko.local'
+      ENABLE_KEYCLOAK_HTTPS: 'true'
   - env: &e2e-env
       E2E_IMAGE_NAME: registry.scality.com/zenko/zenko-e2e
       E2E_IMAGE_TAG: '%(prop:commit_short_revision)s'
@@ -59,7 +66,7 @@ models:
   - SetProperties: &set_operator_properties
       properties:
         OPERATOR_IMAGE_NAME: registry.scality.com/sf-eng/zenko-operator
-        OPERATOR_IMAGE_TAG: '1.0.0'
+        OPERATOR_IMAGE_TAG: '1.0.2'
 
 stages:
   pre-merge:
@@ -82,12 +89,14 @@ stages:
         - build-doc
         - build-iso
         - build-base-iso
+        - build-test-image
     - TriggerStages:
         name: Launch end2end tests
         haltOnFailure: true
         doStepIf: '%(prop:launch_end2end)s'
         stage_names:
-        - end2end
+        - end2end-http
+        - end2end-https
     - ShellCommand:
         name: add successful .final_status to artifacts
         command: >
@@ -181,12 +190,27 @@ stages:
         urls:
           - "*.iso"
 
-  end2end:
-    worker:
+  build-test-image:
+    worker: &end2end-worker
       type: kube_pod
       path: eve/workers/end2end.yaml
       images:
         worker: eve/workers/end2end
+    steps:
+    - Git: *git_pull
+    - ShellCommand: *wait_docker_daemon
+    - ShellCommand: *private_registry_login
+    - ShellCommand: &build-e2e-image
+        name: Build end2end test image
+        env: *e2e-env
+        command: |
+          docker build -t ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} tests/zenko_tests
+          docker push ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG}
+        workdir: build
+        haltOnFailure: true
+
+  end2end-http:
+    worker: *end2end-worker
     steps:
     - Git: *git_pull
     - SetProperties: *set_operator_properties
@@ -198,7 +222,7 @@ stages:
           <<: *kind-env
         command: bash scripts/bootstrap-kind.sh ${KIND_NODE_IMAGE} ${VOLUME_ROOT} ${WORKER_COUNT}
         workdir: build/eve/workers/end2end
-    - ShellCommand:
+    - ShellCommand: &ensure_cluter_running
         name: Ensure cluster is up and running
         command: |
           kubectl get nodes
@@ -208,37 +232,37 @@ stages:
         command: bash scripts/create-pull-image-secret.sh
         workdir: build/eve/workers/end2end
         haltOnFailure: True
-    - ShellCommand:
+    - ShellCommand: &install_kind_dependencies
         name: Install kind cluster dependencies
         env:
-          <<: *kind-env
+          <<: [*kind-env, *http-env]
         command: bash scripts/install-kind-dependencies.sh
         workdir: build/eve/workers/end2end
         haltOnFailure: true
         flunkOnFailure: true
-    - ShellCommand:
+    - ShellCommand: &patch_coredns
         name: Patch CoreDNS config
         env:
           <<: *kind-env
         command: bash scripts/patch-coredns.sh
         workdir: build/eve/workers/end2end
         haltOnFailure: true
-    - ShellCommand:
+    - ShellCommand: &install_shell_ui
         name: Setup Shell-UI Service
         env:
           <<: *kind-env
         command: bash scripts/deploy-shell-ui.sh
         workdir: build/eve/workers/end2end
         haltOnFailure: true
-    - ShellCommand:
+    - ShellCommand: &setup_keycloak
         name: Setup Keycloak Realm/Client
         env:
-          <<: *kind-env
+          <<: [*kind-env, *http-env]
         command: bash scripts/keycloak-helper.sh setup-realm default
         workdir: build/eve/workers/end2end
         haltOnFailure: true
-    - ShellCommand:
-        name: Install test cluster
+    - ShellCommand: &install_operator
+        name: Install operator 
         env:
           <<: *kind-env
           COMMIT_HASH: '%(prop:OPERATOR_IMAGE_TAG)s'
@@ -252,50 +276,42 @@ stages:
         workdir: build/eve/workers/end2end
         haltOnFailure: true
         flunkOnFailure: true
-    - ShellCommand:
+    - ShellCommand: &deploy_zenko
         name: Deploy Zenko Instance
         env:
-          <<: *kind-env
+          <<: [*kind-env, *http-env]
         command: bash eve/workers/end2end/scripts/deploy-zenko.sh end2end default
         workdir: build
         haltOnFailure: true
-    - ShellCommand:
+    - ShellCommand: &setup_keycloak_user
         name: Add Keycloak user
         env:
-          <<: *kind-env
+          <<: [*kind-env, *http-env]
         command: bash scripts/keycloak-helper.sh add-user default
         workdir: build/eve/workers/end2end
         haltOnFailure: true
-    - ShellCommand: &build-e2e-image
-        name: Build end2end test image
-        env: *e2e-env
-        command: |
-          docker build -t ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} tests/zenko_tests
-          docker push ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG}
-        workdir: build
-        haltOnFailure: true
-    - ShellCommand:
+    - ShellCommand: &configure_end2end_tests
         name: End-to-end configuration
         env:
-          <<: [*kind-env, *e2e-env]
+          <<: [*kind-env, *e2e-env, *http-env]
         command: bash scripts/configure-e2e.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "default"
         workdir: build/eve/workers/end2end
         haltOnFailure: true
-    - ShellCommand:
+    - ShellCommand: &run_end2end_tests
         name: Run init CI test
         env:
-          <<: [*kind-env, *e2e-env]
-        command: bash scripts/run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} ${STAGE} "default"
+          <<: [*kind-env, *e2e-env, *http-env]
+        command: bash scripts/run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "end2end" "default"
         workdir: build/eve/workers/end2end
         haltOnFailure: true
-    - ShellCommand:
+    - ShellCommand: &run_smoke_test
         name: Run smoke tests
         env:
-          <<: [*kind-env, *e2e-env]
-        command: bash scripts/run-e2e-test.sh "smoke" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "smoke" "default"
+          <<: [*kind-env, *e2e-env, *http-env]
+        command: bash scripts/run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "smoke" "default"
         workdir: build/eve/workers/end2end
         haltOnFailure: true
-    - ShellCommand:
+    - ShellCommand: &archive_artifacts
         name: archive artifact logs and data
         command: >-
           set -exu;
@@ -305,11 +321,56 @@ stages:
           kind export logs /artifacts/data/kind-logs/kind-export;
           tar zcvf /artifacts/%(prop:commit_short_revision)s-logs-volumes.tgz /artifacts/data/kind-logs;
         alwaysRun: true
-    - ShellCommand:
+    - ShellCommand: &kind_cluster_cleanup
         name: Clean Up
         command: kind delete cluster
-    - Upload:
+    - Upload: &upload_artifacts
         alwaysRun: true
         source: /artifacts
         urls:
           - "*.tgz"
+
+  end2end-https:
+    worker: *end2end-worker
+    steps:
+    - Git: *git_pull
+    - SetProperties: *set_operator_properties
+    - ShellCommand: *wait_docker_daemon
+    - ShellCommand: *private_registry_login
+    - ShellCommand: *bootstrap_kind
+    - ShellCommand: *ensure_cluter_running
+    - ShellCommand: *create_image_pull_secret
+    - ShellCommand:
+        <<: *install_kind_dependencies
+        env:
+          <<: [*kind-env, *https-env]
+    - ShellCommand: *patch_coredns
+    - ShellCommand: *install_shell_ui
+    - ShellCommand:
+        <<: *setup_keycloak
+        env:
+          <<: [*kind-env, *https-env]
+    - ShellCommand: *install_operator
+    - ShellCommand:
+        <<: *deploy_zenko
+        env:
+          <<: [*kind-env, *https-env]
+    - ShellCommand:
+        <<: *setup_keycloak_user
+        env:
+          <<: [*kind-env, *https-env]
+    - ShellCommand:
+        <<: *configure_end2end_tests
+        env:
+          <<: [*kind-env, *e2e-env, *https-env]
+    - ShellCommand: 
+        <<: *run_end2end_tests
+        env:
+          <<: [*kind-env, *e2e-env, *https-env]
+    - ShellCommand: 
+        <<: *run_smoke_test
+        env:
+          <<: [*kind-env, *e2e-env, *https-env]
+    - ShellCommand: *archive_artifacts
+    - ShellCommand: *kind_cluster_cleanup
+    - Upload: *upload_artifacts

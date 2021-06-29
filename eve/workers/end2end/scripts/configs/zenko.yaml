@@ -57,9 +57,9 @@ spec:
       ingress:
         hostname: ui.zenko.local
       discovery:
-        navbarBundleURL: 'http://shell-ui.zenko.local/shell/solution-ui-navbar.1.0.0.js'
+        navbarBundleURL: '${NAVBAR_ENDPOINT}/shell/solution-ui-navbar.1.0.0.js'
     oidc:
-      provider: 'http://keycloak.zenko.local/auth/realms/${OIDC_REALM}'
+      provider: '${OIDC_ENDPOINT}/auth/realms/${OIDC_REALM}'
       uiClientId: ${OIDC_CLIENT_ID}
       vaultClientId: ${OIDC_CLIENT_ID}
     api:
@@ -71,8 +71,8 @@ spec:
   ingress:
     workloadPlaneClass: 'nginx'
     controlPlaneClass: 'nginx'
-    annotations:
-      nginx.ingress.kubernetes.io/proxy-body-size: 0m
+    ${ZENKO_INGRESS_ANNOTATIONS}
+    ${ZENKO_INGRESS_CERTIFICATES}
   registry:
     imagePullSecretNames:
     - zenko-operator-image-pull
