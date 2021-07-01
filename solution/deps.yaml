@@ -77,7 +77,7 @@ kafka-cruise-control:
   tag: 2.0.0-alpha.3
   envsubst: KAFKA_CRUISECONTROL_TAG
 zenko-ui:
-  sourceRegistry: registry.scality.com/zenko-ui
+  sourceRegistry: registry.scality.com/zenko-ui-dev
   image: zenko-ui
   tag: 7a5c665
   envsubst: ZENKO_UI_TAG
