@@ -164,12 +164,16 @@ html_theme_options = {
       ("Privacy Policy", "https://www.scality.com/privacy-policy/"),
    ],
    'kblink': 'https://support.scality.com/hc/en-us',
+   # Color link definition
+   "sidebarlinkactivecolor": "#763C8E",
+   "visitedlink": "#876A93",
+   "defaultlink": "#763C8E",
 }
 
 # add logo  (your logo goes in _static directory)
 
 # html_logo = '_static/Zenko-Logo-Wide-white-on-sitegray.png'
-html_logo = '_static/{}_logo.svg'.format(project_identifier)
+html_logo = '_static/{}_logo.png'.format(project_identifier)
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -184,9 +188,6 @@ html_last_updated_fmt = '%B %d, %Y'
 html_context = {
     'project_identifier': project_identifier,
 }
-
-# Favicon
-html_favicon = '_static/favicon.ico'
 
 # Custom sidebar templates must be a dictionary that maps document names
 # to template names.
