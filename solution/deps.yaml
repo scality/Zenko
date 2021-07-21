@@ -57,9 +57,9 @@ vault:
   tag: 8.2.1 
   envsubst: VAULT_TAG
 backbeat:
-  sourceRegistry: registry.scality.com/backbeat
+  sourceRegistry: registry.scality.com/backbeat-dev
   image: backbeat
-  tag: 8.2.6
+  tag: abf52dc2
   envsubst: BACKBEAT_TAG
 cloudserver:
   sourceRegistry: registry.scality.com/cloudserver
