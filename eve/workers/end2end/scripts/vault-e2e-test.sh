@@ -26,7 +26,10 @@ MONGODB_TEST_DATABASE=$(kubectl get zenko $ZENKO_RESOURCE -n $NAMESPACE -o jsonp
 REDIS_TEST_HOST="${ZENKO_RESOURCE}-base-cache"
 REDIS_TEST_PORT="6379"
 REDIS_TEST_PASSWORD=$(kubectl get secret $ZENKO_RESOURCE-base-cache-creds.v1 -n $NAMESPACE -o jsonpath='{.data.password}' | base64 -d)
-VAULT_TAG=$(yq eval '.["vault"] | .tag' $DEPS_PATH)
+# TODO: Get valt tag from deps
+# VAULT_TAG=$(yq eval '.["vault"] | .tag' $DEPS_PATH)
+VAULT_TAG="8.2.2"
+
 
 kubectl run $POD_NAME \
   --image registry.scality.com/vault/vault-test:$VAULT_TAG \
