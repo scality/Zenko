@@ -414,3 +414,7 @@ stages:
         haltOnFailure: true
     - ShellCommand: *kind_cluster_cleanup
     - Upload: *upload_artifacts
+    - ShellCommand:
+        name: debug
+        command: while true; do sleep 10; echo sleep; done
+        alwaysRun: true
