@@ -409,6 +409,7 @@ stages:
         name: Run vault end-2end tests
         env:
           <<: [*kind-env, *e2e-env, *http-env]
+        command: bash scripts/vault-e2e-test.sh
         workdir: build/eve/workers/end2end
         haltOnFailure: true
     - ShellCommand: *kind_cluster_cleanup
