@@ -3,7 +3,7 @@ version: "0.2"
 
 branches:
   documentation/*, feature/*, improvement/*, bugfix/*, w/*, q/*, hotfix/*:
-    stage: pre-merge
+    stage: end2end-vault
 
 models:
   - env: &kind-env
