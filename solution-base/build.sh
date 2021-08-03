@@ -29,7 +29,11 @@ SKOPEO_OPTS="--override-os linux --insecure-policy"
 SOLUTION_REGISTRY=metalk8s-registry-from-config.invalid/${PRODUCT_LOWERNAME}-${VERSION_FULL}
 
 KUBEDB_SCRIPT_BRANCH_TAG=89fab34cf2f5d9e0bcc3c2d5b0f0599f94ff0dca
-OPERATOR_PATH=${ISO_ROOT}/operator.yaml
+
+KAFKA_OPERATOR_PATH=${ISO_ROOT}/deploy/kafka.yaml
+KUBEDB_OPERATOR_PATH=${ISO_ROOT}/deploy/kubedb.yaml
+KUBEDB_CATALOGS_PATH=${ISO_ROOT}/deploy/kubedb-catalogs.yaml
+ZOOKEEPER_OPERATOR_PATH=${ISO_ROOT}/deploy/zookeeper.yaml
 
 SOLUTION_ENV='SOLUTION_ENV'
 
@@ -42,7 +46,7 @@ export KUBEDB_CERT_NAME=kubedb-operator-apiserver-cert
 export KUBEDB_DOCKER_REGISTRY=${SOLUTION_REGISTRY}
 export KUBEDB_PRIORITY_CLASS=system-cluster-critical
 
-export ZOOKEEPER_NAMESPACE=SOLUTION_ENV
+export ZOOKEEPER_NAMESPACE=${SOLUTION_ENV}
 export ZOOKEEPER_IMAGE_PREFIX=${SOLUTION_REGISTRY}
 export ZOOKEEPER_IMAGE_NAME=zookeeper-operator
 export ZOOKEEPER_OPERATOR_TAG=$(grep /zookeeper-operator: deps.txt | awk -F ':' '{print $2}')
@@ -69,14 +73,14 @@ function clean()
 function mkdirs()
 {
     echo making dirs
-    mkdir -p ${ISO_ROOT}
+    mkdir -p ${ISO_ROOT}/deploy
     mkdir -p ${IMAGES_ROOT}
 }
 
 function kubedb_yamls()
 {
     echo merging kubedb yamls
-    yamls=(
+    operator_yamls=(
         certs
         operator
         service-account
@@ -88,13 +92,20 @@ function kubedb_yamls()
         psp-operator
         psp-mongodb
         psp-redis
+    )
+    catalog_yamls=(
         kubedb-catalog-mongodb
         kubedb-catalog-redis
     )
 
-    for y in "${yamls[@]}"; do
-        cat kubedb/${y}.yaml | envsubst >> ${OPERATOR_PATH}
-        echo --- >> ${OPERATOR_PATH}
+    for y in "${operator_yamls[@]}"; do
+        cat kubedb/${y}.yaml | envsubst >> ${KUBEDB_OPERATOR_PATH}
+        echo --- >> ${KUBEDB_OPERATOR_PATH}
+    done
+
+    for y in "${catalog_yamls[@]}"; do
+        cat kubedb/${y}.yaml | envsubst >> ${KUBEDB_CATALOGS_PATH}
+        echo --- >> ${KUBEDB_CATALOGS_PATH}
     done
 }
 
@@ -108,8 +119,8 @@ function zookeeper_yamls()
     )
 
     for y in "${yamls[@]}"; do
-        cat zookeeper/${y}.yaml | envsubst >> ${OPERATOR_PATH}
-        echo --- >> ${OPERATOR_PATH}
+        cat zookeeper/${y}.yaml | envsubst >> ${ZOOKEEPER_OPERATOR_PATH}
+        echo --- >> ${ZOOKEEPER_OPERATOR_PATH}
     done
 }
 
@@ -117,15 +128,14 @@ function kafka_yamls()
 {
     echo merging kafka operator yamls
     CHART_PATH="$(dirname $0)/kafka/charts/kafka-operator"
-    OPERATOR_PATH=${ISO_ROOT}/operator.yaml
 
     helm template ${KAFKA_NAME} ${CHART_PATH} -n ${KAFKA_NAMESPACE} \
         --set "operator.image.repository=${KAFKA_IMAGE_REPO_NAME}" \
         --set "operator.image.tag=${KAFKA_IMAGE_REPO_TAG}" \
         --set "prometheusMetrics.authProxy.image.repository=${KAFKA_METRICS_IMAGE_REPO_NAME}" \
         --set "prometheusMetrics.authProxy.image.tag=${KAFKA_METRICS_IMAGE_REPO_TAG}" \
-        --set "webhook.certs.secret=${KAFKA_CERT_NAME}"  >> ${OPERATOR_PATH}
-    echo --- >> ${OPERATOR_PATH}
+        --set "webhook.certs.secret=${KAFKA_CERT_NAME}"  >> ${KAFKA_OPERATOR_PATH}
+    echo --- >> ${KAFKA_OPERATOR_PATH}
 }
 
 function gen_manifest_yaml()

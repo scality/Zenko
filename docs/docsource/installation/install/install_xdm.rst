@@ -66,9 +66,11 @@ Deploy |product| Operator
    .. parsed-literal::
 
       /srv/scality/metalk8s-{{version-number}}/solutions.sh import --archive $ZENKO_BASE_ISO
-      sed "s/SOLUTION_ENV/zenko/g" /srv/scality/zenko-base-|version|/operator.yaml | kubectl apply -f -
+      sed "s/SOLUTION_ENV/zenko/g" /srv/scality/zenko-base-|version|/deploy/kubedb.yaml | kubectl apply -f -
       kubectl -n zenko rollout status --timeout 10m deploy kubedb-operator
-      sed "s/SOLUTION_ENV/zenko/g" /srv/scality/zenko-base-|version|/operator.yaml | kubectl apply -f -
+      kubectl apply -f /srv/scality/zenko-base-|version|/deploy/kubedb-catalogs.yaml
+      sed "s/SOLUTION_ENV/zenko/g" /srv/scality/zenko-base-|version|/deploy/kafka.yaml | kubectl apply -f -
+      sed "s/SOLUTION_ENV/zenko/g" /srv/scality/zenko-base-|version|/deploy/zookeeper.yaml | kubectl apply -f -
 
 #. Install |product| Operator:
 
