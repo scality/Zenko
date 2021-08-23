@@ -34,4 +34,4 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 RUN curl -f -Lo /usr/share/plantuml/plantuml.jar \
 	https://sourceforge.net/projects/plantuml/files/plantuml.1.2019.9.jar
 
-WORKDIR /home/docs
+WORKDIR /home/zenko/docs

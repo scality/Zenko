@@ -4,7 +4,7 @@ BUILDERIMAGE="$(ROOTDIR)"
 
 DOCKER=docker
 BUILDERNAME=zenko-docs
-BUILDERHOME=/home/docs
+BUILDERHOME=/home/zenko
 
 .PHONY: build shell
 
@@ -12,7 +12,7 @@ build:
 	@$(DOCKER) build -t $(BUILDERNAME):latest $(BUILDERIMAGE)
 
 shell: build
-	@$(DOCKER) run -it --rm -v "$$PWD:$(BUILDERHOME)" $(BUILDERNAME) bash
+	@$(DOCKER) run -it --rm -v "$$PWD/..:$(BUILDERHOME)" $(BUILDERNAME) bash
 
 # RING-31480 Workaround: some local environments seems unable to build
 # the pdf with the desired cover.

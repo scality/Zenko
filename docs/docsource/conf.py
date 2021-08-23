@@ -5,6 +5,7 @@
 # http://www.sphinx-doc.org/en/master/config
 
 import os
+import pathlib
 import sys
 
 from sphinx.highlighting import PygmentsBridge
@@ -16,8 +17,7 @@ from sphinx.highlighting import PygmentsBridge
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 # sys.path.insert(0, os.path.abspath('.'))
-
-doc_dir = os.path.dirname(os.path.realpath(__file__))
+doc_dir = pathlib.Path(__file__).parent
 sys.path.append(os.path.dirname(doc_dir))
 
 import scaldoc.latex
@@ -31,8 +31,28 @@ import scaldoc.resources
 
 project = 'Zenko'
 project_identifier = 'Zenko'
+author = 'Scality Technical Publications'
+copyright = '2021, Scality, Inc'
 
-from projects_common_vars import author, copyright, release, version
+# Load VERSION info
+VERSION_FILE = (doc_dir / "../../VERSION").resolve()
+
+VERSION_INFO = {
+    "VERSION": "",
+    "VERSION_SUFFIX": "",
+    "VERSION_FULL": "",
+}
+with VERSION_FILE.open("r", encoding="utf-8") as fp:
+    for line in fp:
+        name, _, value = line.strip().partition("=")
+        var = name.strip()
+        if var in VERSION_INFO:
+            VERSION_INFO[var] = value.strip('"')
+
+
+version = "{VERSION}".format(**VERSION_INFO)
+# The full version, including alpha/beta/rc tags.
+release = "{VERSION}{VERSION_SUFFIX}".format(**VERSION_INFO)
 
 # -- General configuration ---------------------------------------------------
 
