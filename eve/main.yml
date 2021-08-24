@@ -10,7 +10,7 @@ models:
       WORKER_COUNT: '2'
       OPERATOR_REPO: git@github.com:scality/zenko-operator.git
       OPERATOR_IMAGE: '%(prop:OPERATOR_IMAGE_NAME)s:%(prop:OPERATOR_IMAGE_TAG)s'
-      KIND_NODE_IMAGE: "kindest/node:v1.17.5@sha256:ab3f9e6ec5ad8840eeb1f76c89bb7948c77bbf76bcebe1a8b59790b8ae9a283a"
+      KIND_NODE_IMAGE: "kindest/node:v1.22.0@sha256:f97edf7f7ed53c57762b24f90a34fad101386c5bd4d93baeb45449557148c717"
       VOLUME_ROOT: /artifacts
       OIDC_REALM: "zenko"
       OIDC_CLIENT_ID: "zenko-ui"
