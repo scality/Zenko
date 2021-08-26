@@ -1,0 +1,77 @@
+---
+apiVersion: zenko.io/v1alpha2
+kind: Zenko
+metadata:
+  name: end2end
+spec:
+  version: end2end-version
+  replicas: 1
+  initialConfiguration:
+    locations:
+    - name: us-east-1
+      type: location-file-v1
+    s3API:
+      endpoints:
+      - hostname: s3.zenko.local
+        locationName: us-east-1
+  mongodb:
+    provider: External
+    endpoints:
+      - dev-db-mongodb-primary-0.dev-db-mongodb-headless.default.svc.cluster.local:27017
+    userSecretName: mongodb-db-creds
+    usernameKey: mongodb-username
+    passwordKey: mongodb-password
+    databaseName: datadb
+  redis:
+    provider: Zenko
+  kafka:
+    provider: Managed
+    persistence:
+      volumeClaimTemplate:
+        size: 20Gi
+        storageClassName: "standard"
+  zookeeper:
+    provider: Managed
+    persistence:
+      volumeClaimTemplate:
+        size: 20Gi
+        storageClassName: "standard"
+  localData:
+    persistence:
+      volumeClaimTemplate:
+        size: 20Gi
+        storageClassName: "standard"
+  vault:
+    enable: true
+    iamIngress:
+      hostname: iam.zenko.local
+    stsIngress:
+      hostname: sts.zenko.local
+  utapi:
+    enable: false
+  management:
+    provider: InCluster
+    ui:
+      ingress:
+        hostname: ui.zenko.local
+      discovery:
+        navbarBundleURL: 'http://shell-ui.zenko.local/shell/solution-ui-navbar.1.0.0.js'
+    oidc:
+      provider: 'http://keycloak.zenko.local/auth/realms/zenko'
+      uiClientId: zenko-ui
+      vaultClientId: zenko-ui
+    api:
+      ingress:
+        hostname: management.zenko.local
+      allowFrom:
+      - 172.16.0.0/12
+      - 10.0.0.0/8
+  ingress:
+    workloadPlaneClass: 'nginx'
+    controlPlaneClass: 'nginx'
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-body-size: 0m
+    certificates: []
+  registry:
+    imagePullSecretNames:
+    - zenko-operator-image-pull

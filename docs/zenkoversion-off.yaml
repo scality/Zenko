@@ -1,0 +1,72 @@
+---
+apiVersion: zenko.io/v1alpha1
+kind: ZenkoVersion
+metadata:
+  name: 'end2end-version'
+spec:
+  versions:
+    management:
+      ui:
+        image: 'registry.scality.com/zenko-ui/zenko-ui'
+        tag: '1.1.0'
+      api:
+        image: 'registry.scality.com/pensieve-api/pensieve-api'
+        tag: '1.0.4'
+      pushAPI:
+        image: 'registry.scality.com/pensieve-api/pensieve-api'
+        tag: '1.0.4'
+    cloudserver:
+      image: 'registry.scality.com/cloudserver/cloudserver' 
+      tag: '8.3.0'
+    backbeat:
+      image: 'registry.scality.com/backbeat/backbeat' 
+      tag: '8.3.0'
+    blobserver:
+      image: 'registry.scality.com/sf-eng/blobserver' 
+      tag: '1.0.8'
+    jabba:
+      image: 'registry.scality.com/sf-eng/jabba' 
+      tag: '1300'
+    utapi:
+      image: 'registry.scality.com/sf-eng/utapi' 
+      tag: 'zenko-1.0.0'
+    secureChannelProxy:
+      image: 'registry.scality.com/cloudserver/cloudserver' 
+      tag: '8.3.0'
+    localData:
+      image: 'registry.scality.com/cloudserver/cloudserver' 
+      tag: '8.3.0'
+    metrics:
+      image: 'registry.scality.com/cloudserver/cloudserver' 
+      tag: '8.3.0'
+    s3utils:
+      image: 'registry.scality.com/s3utils/s3utils' 
+      tag: '1.8.2'
+    zookeeper:
+      image: 'pravega/zookeeper' 
+      tag: '0.2.4'
+    kafka:
+      cluster:
+        image: 'wurstmeister/kafka' 
+        tag: '2.12-2.3.0'
+      cruiseControl:
+        image: 'registry.scality.com/zenko-dev/kafka-cruise-control'
+        tag: '2.0.0-alpha.3'
+      monitoring:
+        image: 'banzaicloud/jmx-javaagent'
+        tag: '0.12.0'
+    vault:
+      image: 'registry.scality.com/vault/vault'
+      tag: '8.3.5'
+    shell:
+      image: 'busybox'
+      tag: '1.33.0'
+    mongodb: '4.0-v1'
+    redis:
+      db:
+        image: 'redis'
+        tag: '5.0.3'
+      exporter:
+        image: 'oliver006/redis_exporter'
+        tag: 'v1.8.0'
+      kubedb: '5.0.3-v1'
