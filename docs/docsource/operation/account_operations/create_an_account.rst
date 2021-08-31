@@ -34,31 +34,66 @@ not yet set up any accounts:
    click the **Locations** tab to manage account locations and the buckets they
    contain.
    
-Create an Account from the Command Line
+Create an Account From the Command Line
 ---------------------------------------
 
-To create an account from the command line:
-
-#. Retrieve tokens as described in :ref:`Retrieve Access Tokens`.
-
-#. Issue the following variable declarations and commands:
+#. Set the admin access key ID and secret access key ID as environment variables:
 
    .. code::
       
-      ZENKO_ACCOUNT='test-account-1'
+      VAULT_CONTAINER=$(kubectl --kubeconfig=/etc/kubernetes/admin.conf -n zenko 
+      get pods -l app.kubernetes.io/name=connector-vault -o jsonpath='{.items[0].metadata.name}') 
 
-      USER_PARAMS=$(
-          echo '{}' |
-          jq -c "
-              .userName=\"${ZENKO_ACCOUNT}\" |
-              .email=\"${ZENKO_ACCOUNT}@zenko.local\"
-          "
-      )
-      
-      curl -s -k -X POST \
-          -H "X-Authentication-Token: ${TOKEN}" \
-          -H "Content-Type: application/json" \
-          -d "${USER_PARAMS}" \
-          "http://management.zenko.local/api/v1/config/${INSTANCE_ID}/user" | \
-          jq '.'
+   .. code::
 
+      ADMIN_ACCESS_KEY_ID=$(kubectl --kubeconfig=/etc/kubernetes/admin.conf 
+      get secret artesca-data-management-vault-admin-creds.v1 -n zenko -o jsonpath='{.data.accessKey}' | base64 -d)
+
+   .. code::
+
+      ADMIN_SECRET_ACCESS_KEY=$(kubectl --kubeconfig=/etc/kubernetes/admin.conf 
+      get secret artesca-data-management-vault-admin-creds.v1 -n zenko -o jsonpath='{.data.secretKey}' | base64 -d)
+
+#. Create the Account 
+
+   .. note:: 
+
+      In the following example, account name is ``account1`` and email is ``account1@scality.local`` 
+
+   .. code::
+
+      kubectl --kubeconfig=/etc/kubernetes/admin.conf -n zenko exec $VAULT_CONTAINER -- bash -c 
+      "ADMIN_ACCESS_KEY_ID=${ADMIN_ACCESS_KEY_ID} ADMIN_SECRET_ACCESS_KEY=${ADMIN_SECRET_ACCESS_KEY} 
+      /vault/node_modules/vaultclient/bin/vaultclient create-account --name account1 --email account1@scality.local"
+
+Generate Account Access Keys
+-----------------------------
+
+#. Set the admin access key ID and secret access key ID as environment variables.
+
+   .. code::
+   
+      VAULT_CONTAINER=$(kubectl --kubeconfig=/etc/kubernetes/admin.conf -n zenko get pods -l 
+      app.kubernetes.io/name=connector-vault -o jsonpath='{.items[0].metadata.name}')
+
+   .. code::
+
+      ADMIN_ACCESS_KEY_ID=$(kubectl --kubeconfig=/etc/kubernetes/admin.conf 
+      get secret artesca-data-management-vault-admin-creds.v1 -n zenko -o jsonpath='{.data.accessKey}' | base64 -d)
+
+   .. code::
+
+      ADMIN_SECRET_ACCESS_KEY=$(kubectl --kubeconfig=/etc/kubernetes/admin.conf 
+      get secret artesca-data-management-vault-admin-creds.v1 -n zenko -o jsonpath='{.data.secretKey}' | base64 -d)
+
+#. Generate the Account Access Key.
+
+   .. note:: 
+
+      In the following example, account name is ``account1`` and email is ``account1@scality.local`` 
+
+   .. code::
+
+      kubectl --kubeconfig=/etc/kubernetes/admin.conf -n zenko exec $VAULT_CONTAINER -- bash -c 
+      "ADMIN_ACCESS_KEY_ID=${ADMIN_ACCESS_KEY_ID} ADMIN_SECRET_ACCESS_KEY=${ADMIN_SECRET_ACCESS_KEY} 
+      /vault/node_modules/vaultclient/bin/vaultclient generate-account-access-key --name=account1 --host 127.0.0.1  --port 8600"
