@@ -3,49 +3,47 @@
 Manage Access Keys
 ==================
 
-Creating Access Keys Using the UI
----------------------------------
+Creating Access Keys
+--------------------
 
-#. Log into the |product| UI using previously provisioned credentials.
+#. Log into the |product| UI using previously provisioned credentials (refer to :ref:`Create an Account`).
 
    .. image:: ../../graphics/sign_into_artesca.PNG
 
-#. Select the **Accounts** tab at the top of the screen.
+#. Click **Accounts** on the top menu.
 
    .. image:: ../../graphics/account_banner.PNG
 
-#. Select blue button  **+Create Access key**
+#. Click **+Create Access key**
 
    .. image:: ../../graphics/accounts-page.PNG
 
-#. Select **Continue** on the **Create Root user Access keys** screen.
+#. Click **Continue** on the **Create Root user Access keys** screen.
 
    .. image:: ../../graphics/root_user_access_keys_dialog.PNG
 
-#. Save the Secret Access key ID. 
+#. Save the Secret Access Key ID by clicking the copy button, and save it in a secure location 
    
    .. image:: ../../graphics/close_button.PNG
-   
-   Save the **Access key ID** in a secure location.
 
-#. Select the **Close** button to finish.
+#. Close **Close**.
 
-Deleting Access Keys Using the UI
----------------------------------
+Deleting Access Keys
+--------------------
 
-#. Log into the |product| UI using previously provisioned credentials.
+#. Log into the |product| UI.
 
    .. image:: ../../graphics/sign_into_artesca.PNG
 
-#. Navigate to the **Accounts** tab at the top of the screen.
+#. Click **Accounts** on the top menu.
 
    .. image:: ../../graphics/account_banner.PNG
 
-#. Select the red trash icon to the right of the access key you wish to delete. 
+#. Click the red trash icon to the right of the access key you wish to delete. 
 
    .. note::
 
-	   You will not be asked for confirmation. Selecting the trash icon will immediatly delete the key. 
+	   You will not be asked for confirmation. Clicking the trash icon will immediatly delete the key. 
    
    .. image:: ../../graphics/delete_access_key_icon.PNG
 

@@ -34,8 +34,8 @@ not yet set up any accounts:
    click the **Locations** tab to manage account locations and the buckets they
    contain.
    
-Create an Account From the Command Line
----------------------------------------
+Create an Account Using the Command Line
+----------------------------------------
 
 #. Set the admin access key ID and secret access key ID as environment variables:
 
@@ -66,8 +66,8 @@ Create an Account From the Command Line
       "ADMIN_ACCESS_KEY_ID=${ADMIN_ACCESS_KEY_ID} ADMIN_SECRET_ACCESS_KEY=${ADMIN_SECRET_ACCESS_KEY} 
       /vault/node_modules/vaultclient/bin/vaultclient create-account --name account1 --email account1@scality.local"
 
-Generate Account Access Keys
------------------------------
+Generate Account Access Keys Using the Command Line
+---------------------------------------------------
 
 #. Set the admin access key ID and secret access key ID as environment variables.
 
