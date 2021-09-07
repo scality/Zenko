@@ -4,13 +4,13 @@ set -exu
 
 DIR=$(dirname "$0")
 
-ZK_OPERATOR_VERSION=v0.2.7
-CERT_MANAGER_VERSION=v1.0.4
-KUBEDB_VERSION=89fab34cf2f5d9e0bcc3c2d5b0f0599f94ff0dca
+ZK_OPERATOR_VERSION=v0.2.13
+CERT_MANAGER_VERSION=v1.5.3
+KUBEDB_VERSION=v2021.08.23
 KAFKA_OPERATOR_VERSION=0.2.18
 INGRESS_NGINX_VERSION=controller-v1.0.0
-PROMETHEUS_VERSION=v0.38.2
-KEYCLOAK_VERSION=9.0.5
+PROMETHEUS_VERSION=v0.50.0
+KEYCLOAK_VERSION=15.0.2
 ENABLE_KEYCLOAK_HTTPS=${ENABLE_KEYCLOAK_HTTPS:-'false'}
 
 if [ $ENABLE_KEYCLOAK_HTTPS == 'true' ]; then
@@ -24,7 +24,7 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/${IN
 kubectl rollout status -n ingress-nginx deployment/ingress-nginx-controller --timeout=10m
 
 # zookeeper
-kubectl apply -f https://raw.githubusercontent.com/pravega/zookeeper-operator/${ZK_OPERATOR_VERSION}/deploy/crds/zookeeper_v1beta1_zookeepercluster_crd.yaml
+kubectl apply -f https://raw.githubusercontent.com/pravega/zookeeper-operator/${ZK_OPERATOR_VERSION}/deploy/crds/zookeeper.pravega.io_zookeeperclusters_crd.yaml
 kubectl apply -f https://raw.githubusercontent.com/pravega/zookeeper-operator/${ZK_OPERATOR_VERSION}/deploy/default_ns/rbac.yaml
 kubectl apply -f https://raw.githubusercontent.com/pravega/zookeeper-operator/${ZK_OPERATOR_VERSION}/deploy/default_ns/operator.yaml
 
@@ -39,7 +39,8 @@ helm repo add banzaicloud-stable https://kubernetes-charts.banzaicloud.com/ && \
     helm upgrade --install --version ${KAFKA_OPERATOR_VERSION} -n default kafka-operator banzaicloud-stable/kafka-operator
 
 # kubedb
-curl -fsSL https://raw.githubusercontent.com/kubedb/installer/${KUBEDB_VERSION}/deploy/kubedb.sh | bash
+helm repo add appscode https://charts.appscode.com/stable/ && \
+    helm upgrade --install --version ${KUBEDB_VERSION} -n default kubedb-community appscode/kubedb-community
 
 # keycloak
 helm repo add codecentric https://codecentric.github.io/helm-charts/ && \
