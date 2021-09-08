@@ -18,7 +18,7 @@ Creating Access Keys
 
    .. image:: ../../graphics/accounts-page.PNG
 
-#. Click **Continue** on the **Create Root user Access keys** screen.
+#. Click **-> Continue** on the **Create Root user Access keys** screen.
 
    .. image:: ../../graphics/root_user_access_keys_dialog.PNG
 
