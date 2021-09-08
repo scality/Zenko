@@ -14,7 +14,7 @@ Creating Access Keys
 
    .. image:: ../../graphics/account_banner.PNG
 
-#. Click **+Create Access key**
+#. Click **+ Create Access key**.
 
    .. image:: ../../graphics/accounts-page.PNG
 
