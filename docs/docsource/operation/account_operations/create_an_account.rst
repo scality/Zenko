@@ -37,7 +37,7 @@ not yet set up any accounts:
 Create an Account Using the Command Line
 ----------------------------------------
 
-#. Set the admin access key ID and secret access key ID as environment variables:
+#. Set the admin access key ID and secret access key ID as environment variables.
 
    .. code::
       
