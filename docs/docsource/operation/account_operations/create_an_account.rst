@@ -58,7 +58,7 @@ Create an Account Using the Command Line
 
    .. note:: 
 
-      In the following example, account name is ``account1`` and email is ``account1@scality.local`` 
+      In the following example, the account name is ``account1`` and the email is ``account1@scality.local``.
 
    .. code::
 
