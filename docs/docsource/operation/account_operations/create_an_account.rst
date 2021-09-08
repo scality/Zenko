@@ -54,7 +54,7 @@ Create an Account Using the Command Line
       ADMIN_SECRET_ACCESS_KEY=$(kubectl --kubeconfig=/etc/kubernetes/admin.conf 
       get secret artesca-data-management-vault-admin-creds.v1 -n zenko -o jsonpath='{.data.secretKey}' | base64 -d)
 
-#. Create the Account 
+#. Create the account.
 
    .. note:: 
 
