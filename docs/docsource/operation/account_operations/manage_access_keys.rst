@@ -26,7 +26,7 @@ Creating Access Keys
    
    .. image:: ../../graphics/close_button.PNG
 
-#. Close **Close**.
+#. Click **Close** once you saved the Secret Access key ID.
 
 Deleting Access Keys
 --------------------
