@@ -22,7 +22,7 @@ Creating Access Keys
 
    .. image:: ../../graphics/root_user_access_keys_dialog.PNG
 
-#. Save the Secret Access Key ID by clicking the copy button, and save it in a secure location 
+#. Save the Secret Access key ID by clicking the copy button, and save it in a secure location.
    
    .. image:: ../../graphics/close_button.PNG
 
