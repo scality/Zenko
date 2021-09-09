@@ -3,6 +3,9 @@
 Create an Account
 =================
 
+Create an Account Using the UI
+------------------------------
+
 Because |product| cannot do anything without at least one account to work with,
 the first step in any working deployment is to create an account. If you have
 not yet set up any accounts:

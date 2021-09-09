@@ -3,6 +3,9 @@
 Create Access Keys
 ==================
 
+Create Access Keys Using the UI
+-------------------------------
+
 #. Log into the |product| UI using previously provisioned credentials (refer to :ref:`Create an Account`).
 
 #. Click **Accounts** on the top menu.
@@ -24,7 +27,7 @@ Create Access Keys
 #. Close **Close** after you saved the Secret Access key ID.
 
 Create Access Keys Using the Command Line
----------------------------------------------------
+-----------------------------------------
 
 #. Set the admin access key ID and secret access key ID as environment variables.
 

@@ -1,7 +1,10 @@
 .. _delete_access_keys:
 
 Delete Access Keys
---------------------
+==================
+
+Delete Access Keys Using the UI
+-------------------------------
 
 #. Log into the |product| UI.
 
