@@ -15,5 +15,6 @@ From the account management window, you can:
 
      create_an_account
      delete_an_account
-     manage_access_keys
+     create_access_keys
+     delete_access_keys
      
