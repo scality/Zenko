@@ -42,6 +42,22 @@ class BackbeatAPIUtility {
         }
         makePOSTRequest(path, requestBody, cb);
     }
+
+    resumeIngestion(locationName, schedule, hoursScheduled, cb) {
+        let path = '/_/backbeat/api/ingestion/resume';
+        let requestBody;
+        if (locationName && (schedule === false)) {
+            path = `${path}/${locationName}`;
+        }
+        else if (locationName && hoursScheduled) {
+            path = `${path}/${locationName}/schedule`;
+            requestBody = JSON.stringify({ hours: hoursScheduled });
+        }
+        return makePOSTRequest(path, requestBody, (err, res) => {
+            assert.ifError(err);
+            return getResponseBody(res, cb);
+        });
+    }
 }
 
 module.exports = BackbeatAPIUtility;
