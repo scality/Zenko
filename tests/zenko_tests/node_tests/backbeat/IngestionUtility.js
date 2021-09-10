@@ -4,6 +4,8 @@ const crypto = require('crypto');
 
 const { scalityS3Client, ringS3Client } = require('../s3SDK');
 const ReplicationUtility = require('./ReplicationUtility');
+const BackbeatAPIUtility = require('./BackbeatAPIUtility');
+const backbeatAPIUtils = new BackbeatAPIUtility();
 
 class IngestionUtility extends ReplicationUtility {
     constructor(s3, ringS3C) {
@@ -27,13 +29,36 @@ class IngestionUtility extends ReplicationUtility {
         }, cb);
     }
 
-    createIngestionBucket(bucketName, ingestionSrcLocation, cb) {
-        this.s3.createBucket({
+    createIngestionBucket(bucketName, locationName, cb) {
+        const locationNameWithSuffix = `${locationName}:ingest`;
+        return this.s3.createBucket({
             Bucket: bucketName,
             CreateBucketConfiguration: {
-                LocationConstraint: ingestionSrcLocation,
+                LocationConstraint: locationNameWithSuffix,
             },
-        }, cb);
+        }, err => {
+            if (err) {
+                return cb(err);
+            }
+            // When resuming an ingestion-enabled location, 
+            // backbeat gets the list of buckets with ingestion-enabled 
+            // to check if the location is valid.
+            // Backbeat sets the list of buckets with ingestion-enabled periodically, 
+            // so the list might be outdated for few seconds leading to a 404 API error response.
+            // Also backbeat "ingestion producer" process applies update every 5 seconds.
+            // For this reason, we are waiting 10 seconds to make sure ingestion processes are up-to-date. 
+            return setTimeout(() => {
+                return backbeatAPIUtils.resumeIngestion(locationName, false, null, (err, body) => {
+                    if (err) {
+                        return cb(err);
+                    }
+                    if (body.code) {
+                        return cb(`error resuming ingestion: ${JSON.stringify(body)}`);
+                    }
+                    return cb();
+                });
+            }, 10000);
+        });
     }
 
     putObjectWithProperties(bucketName, objectName, content, cb) {

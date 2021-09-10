@@ -10,7 +10,7 @@ global:
 
 image:
   repository: registry.scality.com/backbeat/backbeat
-  tag: 8.2.6
+  tag: 8.2.12
   pullPolicy: IfNotPresent
 
 logging:
@@ -29,13 +29,13 @@ redis:
 health:
   port: 4042
   path:
-    liveness: /_/health/readiness
+    liveness: /_/live
 
 monitoring:
   annotations:
     prometheus.io/scrape: 'true'
     prometheus.io/port: '4042'
-    prometheus.io/path: /_/monitoring/metrics
+    prometheus.io/path: /_/metrics
   collectDefaultMetricsIntervalMs: 10000
 
 kafka:
@@ -51,7 +51,7 @@ api:
     annotations:
       prometheus.io/scrape: 'true'
       prometheus.io/port: '8900'
-      prometheus.io/path: /_/monitoring/metrics
+      prometheus.io/path: /_/metrics
   autoscaling:
     enabled: false
     config:
