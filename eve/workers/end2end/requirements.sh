@@ -18,7 +18,7 @@ usermod -aG docker eve
 
 
 # install helm
-wget -q https://storage.googleapis.com/kubernetes-helm/helm-v${HELM_VER}-linux-amd64.tar.gz && \
+wget -q https://get.helm.sh/helm-v${HELM_VER}-linux-amd64.tar.gz && \
 tar -xvf helm-v${HELM_VER}-linux-amd64.tar.gz && \
 mv linux-amd64/helm /usr/bin/
 
