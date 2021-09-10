@@ -7,7 +7,7 @@ const gcpStorage = require('../../gcpStorage');
 const sharedBlobSvc = require('../../azureSDK');
 const LifecycleUtility = require('../../LifecycleUtility');
 
-const LIFECYCLE_TIMEOUT = 300000;
+const LIFECYCLE_TIMEOUT = 100000;
 const srcBucket = `transition-bucket-${uuid()}`;
 const keyPrefix = uuid();
 
