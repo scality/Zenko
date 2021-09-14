@@ -34,10 +34,12 @@ while [ "${TEST_POD_PHASE}" != "Failed" ] && [ "${TEST_POD_PHASE}" != "Unknown" 
 	fi
 	TEST_POD_PHASE=`getPhase`
 	echo "\tPhase is: ${TEST_POD_PHASE}"
+	${V}${KUBECTL} --namespace ${NAMESPACE} get pods
 done
 echo "Test completed with pod phase: ${TEST_POD_PHASE}"
 if [ ! "${TEST_POD_PHASE}" ] || [ "${TEST_POD_PHASE}" = "Failed" ] || [ "${TEST_POD_PHASE}" = "Unknown" ]; then
 	echo "Tests have failed"
+	${V}${KUBECTL} --namespace ${NAMESPACE} get pods
 	echo "=== Dumping kubernetes namespace state ==="
 	kubectl get all
 	echo "=== End of kubernetes namespace state dump ==="
