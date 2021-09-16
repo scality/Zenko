@@ -124,22 +124,22 @@ spec:
           - name: MONGODB_ADVERTISED_HOSTNAME
             value: "$(MONGODB_POD_NAME).{{ template "mongodb.fullname" . }}-headless.{{ .Release.Namespace }}.svc.{{ .Values.clusterDomain }}"
             {{- end }}
-          {{- if .Values.mongodbUsername }}
+          {{- if .Values.usePassword }}
           - name: MONGODB_USERNAME
-            value: {{ .Values.mongodbUsername | quote }}
-          {{- end }}
-          {{- if .Values.mongodbDatabase }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ if .Values.existingSecret }}{{ .Values.existingSecret }}{{- else }}{{ template "mongodb.fullname" . }}{{- end }}
+                key: mongodb-username
           - name: MONGODB_DATABASE
-            value: {{ .Values.mongodbDatabase | quote }}
-          {{- end }}
-            {{- if .Values.usePassword }}
-            {{- if and .Values.mongodbUsername .Values.mongodbDatabase }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ if .Values.existingSecret }}{{ .Values.existingSecret }}{{- else }}{{ template "mongodb.fullname" . }}{{- end }}
+                key: mongodb-database
           - name: MONGODB_PASSWORD
             valueFrom:
               secretKeyRef:
                 name: {{ if .Values.existingSecret }}{{ .Values.existingSecret }}{{- else }}{{ template "mongodb.fullname" . }}{{- end }}
                 key: mongodb-password
-            {{- end }}
           - name: MONGODB_ROOT_PASSWORD
             valueFrom:
               secretKeyRef:
@@ -150,7 +150,7 @@ spec:
               secretKeyRef:
                 name: {{ if .Values.existingSecret }}{{ .Values.existingSecret }}{{- else }}{{ template "mongodb.fullname" . }}{{- end }}
                 key: mongodb-replica-set-key
-            {{- end }}
+          {{- end }}
           - name: MONGODB_ENABLE_IPV6
           {{- if .Values.mongodbEnableIPv6 }}
             value: "yes"
@@ -292,6 +292,10 @@ spec:
           {{ $key }}: "{{ $value }}"
         {{- end }}
       spec:
+        {{- if .Values.persistence.selector }}
+        selector:
+{{ toYaml .Values.persistence.selector | indent 10 }}
+        {{- end }}
         accessModes:
         {{- range .Values.persistence.accessModes }}
           - {{ . | quote }}
