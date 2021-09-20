@@ -3,6 +3,9 @@
 Delete an Account
 =================
 
+Delete an Account Using the UI
+------------------------------
+
 To delete an account:
 
 #. Open the account management window either by logging into the XDM UI (which
