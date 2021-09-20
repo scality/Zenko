@@ -12,7 +12,7 @@ Create Access Keys Using the UI
 
    .. image:: ../../graphics/account_banner.PNG
 
-#. Click **+ Create Access key**
+#. Click **+ Create Access key**.
 
    .. image:: ../../graphics/accounts-page.PNG
 
@@ -20,37 +20,40 @@ Create Access Keys Using the UI
 
    .. image:: ../../graphics/root_user_access_keys_dialog.PNG
 
-#. Save the Secret Access key ID by clicking the copy button, and save it in a secure location 
+#. Click the copy button to save the Secret Access key ID. Make sure to save it in a secure location. 
    
    .. image:: ../../graphics/close_button.PNG
 
-#. Close **Close** after you saved the Secret Access key ID.
+#. Click **Close** after saving the Secret Access key ID.
 
 Create Access Keys Using the Command Line
 -----------------------------------------
 
-#. Set the admin access key ID and secret access key ID as environment variables.
+#. Set the Admin Access key ID and Secret Access key ID as environment variables.
 
-   .. code::
+   .. code-block:: none
+      :caption: VAULT_CONTAINER
    
       VAULT_CONTAINER=$(kubectl --kubeconfig=/etc/kubernetes/admin.conf -n zenko get pods -l 
       app.kubernetes.io/name=connector-vault -o jsonpath='{.items[0].metadata.name}')
 
-   .. code::
+   .. code-block:: none
+      :caption: ADMIN_ACCESS_KEY_ID
 
       ADMIN_ACCESS_KEY_ID=$(kubectl --kubeconfig=/etc/kubernetes/admin.conf 
       get secret artesca-data-management-vault-admin-creds.v1 -n zenko -o jsonpath='{.data.accessKey}' | base64 -d)
 
-   .. code::
+   .. code-block:: none
+      :caption: ADMIN_SECRET_ACCESS_KEY
 
       ADMIN_SECRET_ACCESS_KEY=$(kubectl --kubeconfig=/etc/kubernetes/admin.conf 
       get secret artesca-data-management-vault-admin-creds.v1 -n zenko -o jsonpath='{.data.secretKey}' | base64 -d)
 
-#. Generate the Account Access Key.
+#. Generate the Account Access key.
 
    .. note:: 
 
-      In the following example, account name is ``account1`` and email is ``account1@scality.local`` 
+      In the following example, account name is ``account1`` and email is ``account1@scality.local``. 
 
    .. code::
 

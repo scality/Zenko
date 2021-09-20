@@ -3,16 +3,13 @@
 Delete Access Keys
 ==================
 
-Delete Access Keys Using the UI
--------------------------------
-
 #. Log into the |product| UI.
 
 #. Click **Accounts** on the top menu.
 
    .. image:: ../../graphics/account_banner.PNG
 
-#. Click the red trash icon to the right of the access key you wish to delete. 
+#. Click the red trash icon next to the Access key you want to delete. 
 
    .. important::
 
