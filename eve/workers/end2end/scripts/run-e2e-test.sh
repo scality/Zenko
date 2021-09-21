@@ -30,6 +30,8 @@ run_e2e_test() {
     kubectl run ${1} ${POD_NAME} \
         --image ${E2E_IMAGE} \
         --restart=Never \
+        --rm \
+        --attach=True \
         --namespace=${NAMESPACE} \
         --image-pull-policy=Always \
         --env=CLOUDSERVER_ENDPOINT=${CLOUDSERVER_ENDPOINT} \
@@ -59,5 +61,3 @@ elif [ "$STAGE" = "debug" ]; then
 elif [ "$STAGE" = "smoke" ]; then
    run_e2e_test '' 'cd node_tests && npm run test_smoke'
 fi
-
-KUBECTL=$(which kubectl) E2E_POD=${POD_NAME} NAMESPACE=${NAMESPACE} $DIR/follow_logs.sh
