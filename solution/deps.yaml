@@ -49,7 +49,7 @@ utapi:
 zenko-operator:
   sourceRegistry: registry.scality.com/sf-eng
   image: zenko-operator
-  tag: 1.0.2 
+  tag: 1.0.3
   envsubst: ZENKO_OPERATOR_TAG
 vault:
   sourceRegistry: registry.scality.com/vault
@@ -59,7 +59,7 @@ vault:
 backbeat:
   sourceRegistry: registry.scality.com/backbeat
   image: backbeat
-  tag: 8.2.8
+  tag: 8.2.10
   envsubst: BACKBEAT_TAG
 cloudserver:
   sourceRegistry: registry.scality.com/cloudserver
