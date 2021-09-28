@@ -4,6 +4,18 @@ kind: Pod
 metadata:
   name: "zenko-operator-worker-smoke"
 spec:
+  initContainers:
+  - name: workaround
+    image: k8s.gcr.io/build-image/debian-iptables-amd64:buster-v1.6.7
+    command:
+    - sh
+    - -c
+    - "iptables -t mangle -A POSTROUTING -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu"
+    securityContext:
+      capabilities:
+        add:
+        - NET_ADMIN
+      privileged: true
   automountServiceAccountToken: false
   containers:
   - name: worker
