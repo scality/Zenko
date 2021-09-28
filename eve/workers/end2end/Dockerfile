@@ -8,7 +8,7 @@ ENV HELM_VERSION v3.2.3
 ENV YQ_VERSION v4.6.3
 ENV YQ_BINARY yq_linux_amd64
 
-VOLUME ['/artifacts', '/home/eve/workspace']
+VOLUME ["/artifacts", "/home/eve/workspace"]
 
 # install base dependencies
 RUN apt-get update && apt-get install -y \
