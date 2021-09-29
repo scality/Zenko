@@ -37,7 +37,7 @@ spec:
             - name: EXTENSIONS_GC_AUTH_TYPE
               value: service
             - name: LIVENESS_PROBE_PORT
-              value: {{ .Values.health.port }}
+              value: "{{ .Values.health.port }}"
             - name: EXTENSIONS_GC_AUTH_ACCOUNT
               value: service-gc
             - name: CLOUDSERVER_HOST
