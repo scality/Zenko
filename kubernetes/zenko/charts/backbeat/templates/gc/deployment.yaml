@@ -36,6 +36,8 @@ spec:
               value: "{{- printf "%s-zenko-queue:9092" .Release.Name | trunc 63 | trimSuffix "-" -}}"
             - name: EXTENSIONS_GC_AUTH_TYPE
               value: service
+            - name: LIVENESS_PROBE_PORT
+              value: {{ .Values.health.port }}
             - name: EXTENSIONS_GC_AUTH_ACCOUNT
               value: service-gc
             - name: CLOUDSERVER_HOST
