@@ -301,6 +301,8 @@ stages:
           TILLER_NAMESPACE: '%(prop:bootstrap)s-%(prop:stage_name)s'
           INSTALL_TIMEOUT: "720"
           STAGE: '%(prop:stage_name)s'
+          HTTPS_PROXY: ""
+          https_proxy: ""
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
     - ShellCommand: *k8s_cleanup
