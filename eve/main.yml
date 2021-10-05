@@ -301,6 +301,10 @@ stages:
           TILLER_NAMESPACE: '%(prop:bootstrap)s-%(prop:stage_name)s'
           INSTALL_TIMEOUT: "720"
           STAGE: '%(prop:stage_name)s'
+    - ShellCommand:
+        name: sleep
+        command: while true; do sleep 10; echo sleep; done
+        alwaysRun: true
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
     - ShellCommand: *k8s_cleanup
