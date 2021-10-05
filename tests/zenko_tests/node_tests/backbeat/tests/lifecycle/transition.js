@@ -59,21 +59,26 @@ const locationParams = {
     },
 };
 
+// const testsToRun = [{
+//     from: 'LocalStorage',
+//     to: 'AWS',
+// }, {
+//     from: 'LocalStorage',
+//     to: 'GCP',
+// }, {
+//     from: 'LocalStorage',
+//     to: 'Azure',
+// }, {
+//     from: 'AWS',
+//     to: 'GCP',
+// }, {
+//     from: 'GCP',
+//     to: 'Azure',
+// }];
+
 const testsToRun = [{
     from: 'LocalStorage',
     to: 'AWS',
-}, {
-    from: 'LocalStorage',
-    to: 'GCP',
-}, {
-    from: 'LocalStorage',
-    to: 'Azure',
-}, {
-    from: 'AWS',
-    to: 'GCP',
-}, {
-    from: 'GCP',
-    to: 'Azure',
 }];
 
 testsToRun.forEach(test => {
@@ -108,49 +113,49 @@ testsToRun.forEach(test => {
                 ], done);
             });
 
-            it('should transition an MPU object with 10 parts', done => {
-                const key = `${keyPrefix}-from-${test.from}-to-${test.to}-` +
-                      'nover-mpu';
-                cloudServer.setKey(key);
-                cloud.setKey(`${srcBucket}/${key}`);
-                series([
-                    next => cloudServer.putMPU(10, next),
-                    next => compareTransitionedData(next),
-                ], done);
-            });
+            // it('should transition an MPU object with 10 parts', done => {
+            //     const key = `${keyPrefix}-from-${test.from}-to-${test.to}-` +
+            //           'nover-mpu';
+            //     cloudServer.setKey(key);
+            //     cloud.setKey(`${srcBucket}/${key}`);
+            //     series([
+            //         next => cloudServer.putMPU(10, next),
+            //         next => compareTransitionedData(next),
+            //     ], done);
+            // });
         });
 
-        if (fromLoc.supportsVersioning) {
-            describe('with versioning', () => {
-                beforeEach(done => cloudServer.createVersionedBucket(done));
+        // if (fromLoc.supportsVersioning) {
+        //     describe('with versioning', () => {
+        //         beforeEach(done => cloudServer.createVersionedBucket(done));
 
-                it('should transition a single master version', done => {
-                    const key = `${keyPrefix}-from-${test.from}-to-` +
-                          `${test.to}-ver-single-master`;
-                    cloudServer.setKey(key);
-                    cloud.setKey(`${srcBucket}/${key}`);
-                    series([
-                        next => cloudServer.putObject(Buffer.from(key), next),
-                        next => compareTransitionedData(next),
-                    ], done);
-                });
+        //         it('should transition a single master version', done => {
+        //             const key = `${keyPrefix}-from-${test.from}-to-` +
+        //                   `${test.to}-ver-single-master`;
+        //             cloudServer.setKey(key);
+        //             cloud.setKey(`${srcBucket}/${key}`);
+        //             series([
+        //                 next => cloudServer.putObject(Buffer.from(key), next),
+        //                 next => compareTransitionedData(next),
+        //             ], done);
+        //         });
 
-                it('should transition the master version', done => {
-                    const key = `${keyPrefix}-from-${test.from}-to-` +
-                          `${test.to}-ver-master`;
-                    cloudServer.setKey(key);
-                    cloud.setKey(`${srcBucket}/${key}`);
-                    series([
-                        next => cloudServer.putObject(
-                            Buffer.from(`${key}-1`), next),
-                        next => cloudServer.putObject(
-                            Buffer.from(`${key}-2`), next),
-                        next => cloudServer.putObject(
-                            Buffer.from(`${key}-3`), next),
-                        next => compareTransitionedData(next),
-                    ], done);
-                });
-            });
-        }
+        //         it('should transition the master version', done => {
+        //             const key = `${keyPrefix}-from-${test.from}-to-` +
+        //                   `${test.to}-ver-master`;
+        //             cloudServer.setKey(key);
+        //             cloud.setKey(`${srcBucket}/${key}`);
+        //             series([
+        //                 next => cloudServer.putObject(
+        //                     Buffer.from(`${key}-1`), next),
+        //                 next => cloudServer.putObject(
+        //                     Buffer.from(`${key}-2`), next),
+        //                 next => cloudServer.putObject(
+        //                     Buffer.from(`${key}-3`), next),
+        //                 next => compareTransitionedData(next),
+        //             ], done);
+        //         });
+        //     });
+        // }
     });
 });
