@@ -10,12 +10,12 @@ global:
 
 image:
   repository: registry.scality.com/backbeat-dev/backbeat
-  tag: c9a9cd4e6f
+  tag: 217efc35e6
   pullPolicy: IfNotPresent
 
 logging:
    # Options: info, debug, trace
-  level: info
+  level: debug
 
 mongodb:
   replicaSet: rs0
