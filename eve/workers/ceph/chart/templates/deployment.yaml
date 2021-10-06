@@ -25,10 +25,10 @@ spec:
           imagePullPolicy: {{ .Values.ceph.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.ceph.service.internalPort }}
-      resources:
-        requests:
-          cpu: 500m
-          memory: 1Gi
-        limits:
-          cpu: 500m
-          memory: 1Gi
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: 500m
+              memory: 1Gi
