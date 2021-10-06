@@ -117,14 +117,9 @@ build-latest-backbeat: | get-backbeat-commit builddir
 build-latest: | build-latest-backbeat build-latest-cloudserver
 .PHONY: build build-latest
 
-install-tiller:
-ifndef NO_INSTALL
-	$(V)$(HELM) init --stable-repo-url $(HELM_REPOSITORY_STABLE) --tiller-namespace $(HELM_NAMESPACE) --wait
-endif
-.PHONY: install-tiller
-
 install-helm-repos:
 ifndef NO_INSTALL
+	$(V)$(HELM) repo add stable $(HELM_REPOSITORY_STABLE) && \
 	$(V)$(HELM) repo add incubator $(HELM_REPOSITORY_INCUBATOR) && \
 	$(HELM) repo add scality https://scality.github.io/Zenko
 endif
@@ -135,7 +130,6 @@ ifndef NO_SIM
 	$(V)$(GIT) clone git@github.com:scality/orbit-simulator.git build/orbit-simulator && \
 	$(HELM) upgrade ciutil \
 		--namespace $(HELM_NAMESPACE) \
-        --tiller-namespace $(HELM_NAMESPACE) \
         --install build/orbit-simulator/charts/orbit-simulator \
         --set simulator.shim.cloudserver_release=$(ZENKO_HELM_RELEASE) \
         --wait $(shell ../eve/workers/ci_env.sh set)
@@ -180,7 +174,7 @@ ifndef NO_INSTALL
 endif
 .PHONY: update-chart-dependencies
 
-install-zenko: | install-tiller update-chart-dependencies
+install-zenko: | update-chart-dependencies
 ifndef NO_INSTALL
 	$(HELM) upgrade $(ZENKO_HELM_RELEASE) \
 		--namespace $(HELM_NAMESPACE) \
@@ -195,7 +189,6 @@ install-latest-zenko: | build-latest update-chart-dependencies
 ifndef NO_INSTALL
 	$(HELM) upgrade $(ZENKO_HELM_RELEASE) \
 		--namespace $(HELM_NAMESPACE) \
-                --tiller-namespace $(HELM_NAMESPACE) \
 		--install ../kubernetes/zenko \
 		-f ../eve/ci-values.yaml \
 	--set cosmos.namespace=$(HELM_NAMESPACE) \
@@ -239,7 +232,7 @@ wait-for-ceph: | build-tests
 .PHONY: wait-for-ceph
 
 # Target to install common components need for all tests
-install-common: | install-tiller install-helm-repos install-orbit-simulator install-ceph
+install-common: | install-helm-repos install-orbit-simulator install-ceph
 .PHONY: install-common
 
 dump-logs: | artifacts

@@ -1,8 +1,7 @@
 #!/bin/bash
 
-export HELM_VER=2.16.7
+export HELM_VER=3.5.4
 export KUBECTL_VER=1.11.6
-
 
 yum install -y yum-utils
 
@@ -16,9 +15,8 @@ systemctl start docker
 
 usermod -aG docker eve
 
-
-# install helm
-wget -q https://storage.googleapis.com/kubernetes-helm/helm-v${HELM_VER}-linux-amd64.tar.gz && \
+# install helm 3 
+wget -q https://get.helm.sh/helm-v${HELM_VER}-linux-amd64.tar.gz && \ 
 tar -xvf helm-v${HELM_VER}-linux-amd64.tar.gz && \
 mv linux-amd64/helm /usr/bin/
 
