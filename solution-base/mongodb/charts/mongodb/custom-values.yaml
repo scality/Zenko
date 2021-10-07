@@ -290,7 +290,7 @@ persistence:
   ## The path the volume will be mounted at, useful when using different
   ## MongoDB images.
   ##
-  mountPath: /bitnami/mongodb/data/db
+  mountPath: /bitnami/mongodb
 
   ## The subdirectory of the volume to mount to, useful in dev environments
   ## and one PV for multiple services.
