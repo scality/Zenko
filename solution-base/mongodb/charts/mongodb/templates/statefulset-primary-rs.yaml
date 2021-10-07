@@ -121,21 +121,23 @@ spec:
           - name: MONGODB_REPLICA_SET_NAME
             value: {{ .Values.replicaSet.name | quote }}
             {{- if .Values.replicaSet.useHostnames }}
+          - name: MONGODB_HOSTS
+            value: {{ template "mongodb.hosts". }}
           - name: MONGODB_ADVERTISED_HOSTNAME
             value: "$(MONGODB_POD_NAME).{{ template "mongodb.fullname" . }}-headless.{{ .Release.Namespace }}.svc.{{ .Values.clusterDomain }}"
             {{- end }}
           {{- if .Values.usePassword }}
-          - name: MONGODB_USERNAME
+          - name: MONGODB_APP_USERNAME
             valueFrom:
               secretKeyRef:
                 name: {{ if .Values.existingSecret }}{{ .Values.existingSecret }}{{- else }}{{ template "mongodb.fullname" . }}{{- end }}
                 key: mongodb-username
-          - name: MONGODB_DATABASE
+          - name: MONGODB_APP_DATABASE
             valueFrom:
               secretKeyRef:
                 name: {{ if .Values.existingSecret }}{{ .Values.existingSecret }}{{- else }}{{ template "mongodb.fullname" . }}{{- end }}
                 key: mongodb-database
-          - name: MONGODB_PASSWORD
+          - name: MONGODB_APP_PASSWORD
             valueFrom:
               secretKeyRef:
                 name: {{ if .Values.existingSecret }}{{ .Values.existingSecret }}{{- else }}{{ template "mongodb.fullname" . }}{{- end }}
