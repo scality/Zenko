@@ -10,7 +10,7 @@ global:
 
 image:
   repository: registry.scality.com/backbeat/backbeat
-  tag: 8.2.11
+  tag: 8.2.12
   pullPolicy: IfNotPresent
 
 logging:
