@@ -9,5 +9,5 @@
    prepare/index
    install/index
    configure/index
-   upgrade/index
+   upgrade/upgrade_zenko
    uninstall/index
