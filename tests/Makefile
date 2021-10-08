@@ -76,7 +76,7 @@ lint:
 .PHONY: lint
 
 build-tests:
-	$(V)cd zenko_tests/node_tests && sh gcp_shim.sh
+	$(V)cd zenko_tests/node_tests && bash gcp_shim.sh
 	$(V)$(DOCKER) build -t $(E2E_IMAGE) zenko_tests/ && \
 	$(DOCKER) push $(E2E_IMAGE)
 .PHONY: build-test
