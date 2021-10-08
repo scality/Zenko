@@ -204,12 +204,12 @@ stages:
         name: Check if documentation related content
         property: launch_end2end
         command: eve/scripts/launch-end2end.sh
-    - TriggerStages:
-        name: trigger small tests and documentation build
-        haltOnFailure: true
-        stage_names:
-        - build-doc
-        - test-cosmos
+    # - TriggerStages:
+    #     name: trigger small tests and documentation build
+    #     haltOnFailure: true
+    #     stage_names:
+    #     - build-doc
+    #     - test-cosmos
     - TriggerStages:
         name: trigger python end2end tests
         haltOnFailure: true
@@ -303,10 +303,10 @@ stages:
           STAGE: '%(prop:stage_name)s'
     - ShellCommand: *dump_logs
     - Upload: *upload_artifacts
-    # - ShellCommand:
-    #     name: debug
-    #     command: while true; do sleep 10; echo sleep; done
-    #     alwaysRun: true
+    - ShellCommand:
+        name: debug
+        command: while true; do sleep 10; echo sleep; done
+        alwaysRun: true
     - ShellCommand: *k8s_cleanup
 
   python-tests: *online-zenko
