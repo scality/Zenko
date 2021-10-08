@@ -12,7 +12,7 @@ getPhase() {
     #echo "phase_line::\n\t${phase_line}"
     #phase=`echo ${phase_line} | awk '{ print $2 }'`
     #echo "phase::\n\t${phase}"
-    ${V}${KUBECTL} --namespace ${NAMESPACE} get pod ${E2E_POD} -o yaml | grep -i phase: | awk '{ print $2 }'
+    ${V}${KUBECTL} --namespace ${NAMESPACE} get pod ${E2E_POD} -o jsonpath='{.status.phase}'
 }
 
 ${V}${KUBECTL} --namespace ${NAMESPACE} get pods

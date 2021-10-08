@@ -28,6 +28,7 @@ spec:
         storageClassName: "standard"
   kafka:
     provider: Managed
+    jmxJarPath: /opt/jmx_exporter/jmx_prometheus_javaagent-0.14.0.jar
     persistence:
       volumeClaimTemplate:
         size: 20Gi
