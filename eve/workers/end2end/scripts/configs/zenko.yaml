@@ -22,10 +22,6 @@ spec:
         storageClassName: "standard"
   redis:
     provider: KubeDB
-    persistence:
-      volumeClaimTemplate:
-        size: 20Gi
-        storageClassName: "standard"
   kafka:
     provider: Managed
     jmxJarPath: /opt/jmx_exporter/jmx_prometheus_javaagent-0.14.0.jar
