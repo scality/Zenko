@@ -101,7 +101,7 @@ replicaFactor: 1
 
 image:
   repository: registry.scality.com/cloudserver/cloudserver
-  tag: 8.2.9
+  tag: 8.2.13
   pullPolicy: IfNotPresent
 
 proxy:
