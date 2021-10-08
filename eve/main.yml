@@ -17,10 +17,12 @@ models:
       command: eve/scripts/setup-k8s.sh
       haltOnFailure: true
       env:
-        CI_KUBECONFIG: '%(secret:openstack_cluster_conf)s'
         NAMESPACE: '%(prop:bootstrap)s-%(prop:stage_name)s'
-        KUBECONFIG: /tmp/config
         CLUSTER_IP: '%(secret:openstack_cluster_ip)s'
+        HTTPS_PROXY: ""
+        HTTP_PROXY: ""
+        https_proxy: ""
+        http_proxy: ""
   - ShellCommand: &k8s_cleanup
       name: Cleanup
       command: |
@@ -31,7 +33,6 @@ models:
       warnOnFailure: true
       sigtermTime: 1200
       env:
-        KUBECONFIG: /tmp/config
         NAMESPACE: '%(prop:bootstrap)s-%(prop:stage_name)s'
   - Upload: &upload_artifacts
       source: tests/artifacts
@@ -47,7 +48,10 @@ models:
         docker login
         -u '%(secret:scality_oci_rw_user)s'
         -p '%(secret:scality_oci_rw_password)s'
-        registry.scality.com
+        registry.scality.com &&
+        docker login
+        -u '%(secret:dockerhub_login)s'
+        -p '%(secret:dockerhub_password)s'
   - ShellCommand: &helm_lint
       name: Lint charts
       command: >
@@ -64,14 +68,12 @@ models:
       warnOnFailure: true
       env:
         HELM_NAMESPACE: '%(prop:bootstrap)s-%(prop:stage_name)s'
-        KUBECONFIG: /tmp/config
   - ShellCommand: &start-mocks
       name: Start external service mocks
       command: make -e install-mocks
       workdir: build/tests
       haltOnFailure: true
       env:
-        KUBECONFIG: /tmp/config
         HELM_NAMESPACE: '%(prop:bootstrap)s-%(prop:stage_name)s'
   - SetPropertyFromCommand: &notify-build-start
       name: Save the timestamp from our start message, for editing later
@@ -211,22 +213,12 @@ stages:
         - build-doc
         - test-cosmos
     - TriggerStages:
-        name: trigger python end2end tests
+        name: trigger end2end tests
         haltOnFailure: true
         doStepIf: '%(prop:launch_end2end)s'
         stage_names:
         - python-tests
-    - TriggerStages:
-        name: trigger node 1 end2end tests
-        haltOnFailure: true
-        doStepIf: '%(prop:launch_end2end)s'
-        stage_names:
         - node-tests-01
-    - TriggerStages:
-        name: trigger node 2 end2end tests
-        haltOnFailure: true
-        doStepIf: '%(prop:launch_end2end)s'
-        stage_names:
         - node-tests-02
 
   build-doc:
@@ -279,14 +271,20 @@ stages:
           workdir: build
 
   online-zenko: &online-zenko
-    simultaneous_builds: 1
     worker: &kube_cluster
       type: openstack
+      image: focal-server-cloudimg-amd64_2021-04-29
+      flavor: m1.xlarge
       path: eve/workers/end2end
-      image: CentOS-7-x86_64-GenericCloud-latest
-      flavor: general1-8
     steps:
     - Git: *git_pull
+    - ShellCommand: &ssh_access
+        # Connect with ssh eve@ip
+        name: setup team ssh credentials
+        command: |
+          mkdir -p ~/.ssh
+          echo '%(secret:team_ssh_pub_keys)s' >> ~/.ssh/authorized_keys
+          ip a
     - ShellCommand: *private_registry_login
     - ShellCommand: *k8s_setup
     - ShellCommand: *start-mocks
@@ -296,7 +294,6 @@ stages:
         workdir: build/tests
         env:
           <<: [*mock_env, *secrets_env, *docker_env]
-          KUBECONFIG: /tmp/config
           HELM_NAMESPACE: '%(prop:bootstrap)s-%(prop:stage_name)s'
           TILLER_NAMESPACE: '%(prop:bootstrap)s-%(prop:stage_name)s'
           INSTALL_TIMEOUT: "720"
@@ -308,6 +305,7 @@ stages:
     #     command: while true; do sleep 10; echo sleep; done
     #     alwaysRun: true
     - ShellCommand: *k8s_cleanup
+
 
   python-tests: *online-zenko
   node-tests-01: *online-zenko
@@ -391,7 +389,6 @@ stages:
         maxTime: 43200
         env:
           <<: *global_env
-          KUBECONFIG: /tmp/config
           HELM_NAMESPACE: '%(prop:bootstrap)s-%(prop:stage_name)s'
           TILLER_NAMESPACE: '%(prop:bootstrap)s-%(prop:stage_name)s'
           INSTALL_TIMEOUT: "720"

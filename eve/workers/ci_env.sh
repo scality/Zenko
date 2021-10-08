@@ -1,10 +1,10 @@
-#!/bin/sh
+#!/bin/bash
 
-if [ -z $ZENKO_HELM_RELEASE ]; then
+if [[ -z $ZENKO_HELM_RELEASE ]]; then
     ZENKO_HELM_RELEASE='zenko-test'
 fi
 
-if [ "$1" == "env" ]; then
+if [[ "$1" == "env" ]]; then
   CLI_FLAG="env"
   CI_PREFIX=""
   printf -- "\
@@ -15,7 +15,7 @@ if [ "$1" == "env" ]; then
 --env INSTALL_TIMEOUT=$INSTALL_TIMEOUT \
 --env S3_FUZZER=$S3_FUZZER "
 
-elif [ "$1" == "set" ]; then
+elif [[ "$1" == "set" ]]; then
   CLI_FLAG="set"
   CI_PREFIX="ci."
 else

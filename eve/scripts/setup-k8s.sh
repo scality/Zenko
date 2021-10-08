@@ -1,17 +1,21 @@
 #!/bin/sh
 set -e
+FILE_PATH=$(readlink -f "$0")
+SCRIPT_FULL_PATH=$(dirname $FILE_PATH)
 
-echo "${CI_KUBECONFIG}" | envsubst > /tmp/config
+# Create kind cluster
+kind create cluster --config ${SCRIPT_FULL_PATH}/kind.yaml
 
-echo "Setting up k8s namespace"
-kubectl config get-contexts --kubeconfig ${KUBECONFIG}
-kubectl config use-context kubernetes-admin@kubernetes || exit 1
+# install cluster wide CRDs
+kubectl apply -f ${SCRIPT_FULL_PATH}/ci-manifests
+
 kubectl get ns
 kubectl create namespace "${NAMESPACE}"
 kubectl create rolebinding view-configmap \
 --clusterrole=cluster-admin \
 --serviceaccount="${NAMESPACE}:default" \
 --namespace="${NAMESPACE}"
+
 
 echo "Configuring cluster registry secret"
 $(dirname "$0")/cluster-registry-secret.sh
