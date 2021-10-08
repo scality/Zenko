@@ -301,6 +301,13 @@ spec:
                     items:
                       type: string
                     type: array
+                  jmxJarPath:
+                    description: JMXJarPath is the path to the JMX exporter jar in
+                      the provided JMX exporter image
+                    type: string
+                  kafkaConfigFiles:
+                    description: KafkaConfigFiles contains the Kafka config files
+                    type: string
                   persistence:
                     description: ZenkoSpecPersistence defines the persistence attribute
                       of a stateful Zenko component. Only one of its members can be
@@ -570,6 +577,10 @@ spec:
                     items:
                       type: string
                     type: array
+                  passwordKey:
+                    description: Name of key for retrieve the MongoDB password Required
+                      if using an external provider.
+                    type: string
                   persistence:
                     description: ZenkoSpecPersistence defines the persistence attribute
                       of a stateful Zenko component. Only one of its members can be
@@ -658,7 +669,7 @@ spec:
                     enum:
                     - primary
                     - primaryPreferred
-                    - seconday
+                    - secondary
                     - secondaryPreferred
                     - nearest
                     type: string
@@ -669,6 +680,10 @@ spec:
                   userSecretName:
                     description: Name of the secret containing the MongoDB user account
                       info. Required if using an external provider.
+                    type: string
+                  usernameKey:
+                    description: Name of key for retrieve the MongoDB username Required
+                      if using an external provider.
                     type: string
                   writeConcern:
                     description: Write concern for mongo as a string. Defaults to
