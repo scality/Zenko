@@ -1,6 +1,10 @@
+kubedb/operator:v0.13.0-rc.0
+kubedb/redis:5.0.3-v1
+kubedb/redis_exporter:v0.21.1
+kubedb/mongo:4.0-v1
+kubedb/mongo-tools:4.0-v1
+kubedb/busybox:latest
+kubedb/mongodb_exporter:v1.0.0
 pravega/zookeeper-operator:0.2.7
 banzaicloud/kafka-operator:v0.11.2
 gcr.io/kubebuilder/kube-rbac-proxy:v0.4.0
-bitnami/mongodb:4.0.14-debian-9-r24
-bitnami/minideb:stretch
-bitnami/mongodb-exporter:0.10.0-debian-9-r104
