@@ -5,7 +5,7 @@ nodes:
 - role: control-plane
   extraMounts: &docker_login
   - containerPath: /var/lib/kubelet/config.json
-    hostPath: /home/tcarmet/.docker/config.json
+    hostPath: /home/eve/.docker/config.json
 - role: worker
   extraMounts: *docker_login
 - role: worker
