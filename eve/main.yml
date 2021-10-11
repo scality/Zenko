@@ -166,7 +166,7 @@ models:
 
   - env: &mock_env
       AZURE_ACCOUNT_NAME: devstoreaccount1
-      AZURE_BACKEND_ENDPOINT: http://azure-mock/devstoreaccount1
+      AZURE_BACKEND_ENDPOINT: http://devstoreaccount1.azure-mock
       AZURE_SECRET_KEY: Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==
 
       AWS_ENDPOINT: http://aws-mock
