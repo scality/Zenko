@@ -99,7 +99,7 @@ def wait_for_job(kube_batch, location, timeout=180):
 
 @pytest.mark.conformance
 def test_cosmos_nfs_ingest(nfs_loc, nfs_loc_bucket, kube_batch):
-    util.mark_test('SOFS-NFS OOB INGESTION')
+    util.mark_test('SOFS-NFS OOB INGESTION should fail')
     job = wait_for_job(kube_batch, nfs_loc)
     assert job.status.succeeded
 
