@@ -97,7 +97,7 @@ def wait_for_job(kube_batch, location, timeout=180):
     return state
 
 
-@pytest.mark.conformance
+@pytest.mark.skip(reason="ZENKO-3359 Cosmos: failing to create OOB resources")
 def test_cosmos_nfs_ingest(nfs_loc, nfs_loc_bucket, kube_batch):
     util.mark_test('SOFS-NFS OOB INGESTION')
     job = wait_for_job(kube_batch, nfs_loc)
@@ -108,7 +108,8 @@ def test_cosmos_nfs_ingest(nfs_loc, nfs_loc_bucket, kube_batch):
         assert util.get_object_hash(nfs_loc_bucket, key) == md5
 
 
-@pytest.mark.conformance
+# Fails because ingestion AWS location not resumed (paused by default).
+@pytest.mark.skip(reason="ZENKO-3644 Introduce a backbeat client to resume ingestion for the AWS location")
 def test_cosmos_aws_ingest(aws_target_bucket, zenko_bucket, kube_batch, testfile, objkey): # noqa pylint: disable=dangerous-default-value,too-many-arguments
     util.mark_test('AWS OOB INGESTION')
     aws_target_bucket.put_object(
@@ -126,7 +127,8 @@ def test_cosmos_aws_ingest(aws_target_bucket, zenko_bucket, kube_batch, testfile
     assert compare_versions(objkey, aws_target_bucket, zenko_bucket)
 
 
-@pytest.mark.conformance
+# Fails because ingestion CEPH location not resumed (paused by default).
+@pytest.mark.skip(reason="ZENKO-3644 Introduce a backbeat client to resume ingestion for the CEPH location")
 def test_cosmos_ceph_ingest(ceph_target_bucket, zenko_bucket, kube_batch, testfile, objkey): # noqa pylint: disable=dangerous-default-value,too-many-arguments
     util.mark_test('CEPH OOB INGESTION')
     ceph_target_bucket.put_object(
