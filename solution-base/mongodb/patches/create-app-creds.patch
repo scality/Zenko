@@ -1,0 +1,101 @@
+diff --git a/solution-base/mongodb/charts/mongodb/files/docker-entrypoint-initdb.d/create-app-user.sh b/solution-base/mongodb/charts/mongodb/files/docker-entrypoint-initdb.d/create-app-user.sh
+new file mode 100644
+index 00000000..886b73d9
+--- /dev/null
++++ b/solution-base/mongodb/charts/mongodb/files/docker-entrypoint-initdb.d/create-app-user.sh
+@@ -0,0 +1,30 @@
++#!/bin/bash
++
++create_user() {
++    mongo --host $MONGODB_HOSTS -u 'root' -p "$MONGODB_ROOT_PASSWORD" <<EOF
++user = db.getSiblingDB('admin').getUser('$MONGODB_APP_USERNAME')
++if (user == null) {
++    db.getSiblingDB('admin').createUser({
++        user: '$MONGODB_APP_USERNAME',
++        pwd: '$MONGODB_APP_PASSWORD',
++        roles: [
++            {role: 'readWrite', db: '$MONGODB_APP_DATABASE' },
++            {role: 'read', db: 'local' }
++        ]
++    })
++}
++EOF
++}
++
++retry() {
++    local count=0
++
++    while ! "$@" && [ $count -lt 10 ]; do
++        count=$(($count + 1))
++        sleep 5
++    done
++
++    [ $count -lt 10 ] || echo "Failed to create app user."
++}
++
++retry create_user
+diff --git a/solution-base/mongodb/charts/mongodb/templates/_helpers.tpl b/solution-base/mongodb/charts/mongodb/templates/_helpers.tpl
+index 47f1bb27..fe6963a7 100644
+--- a/solution-base/mongodb/charts/mongodb/templates/_helpers.tpl
++++ b/solution-base/mongodb/charts/mongodb/templates/_helpers.tpl
+@@ -250,3 +250,29 @@ in the values file. If the name is not explicitly set it will take the "mongodb.
+     {{ template "mongodb.fullname" .}}
+   {{- end -}}
+ {{- end -}}
++
++
++{{- define "mongodb.servicePort" -}}
++  {{- if .Values.service.port -}}
++    {{ .Values.service.port | toString }}
++  {{- else -}}
++    {{ 27017 | toString }}
++  {{- end -}}
++{{- end -}}
++
++{{- define "mongodb.headlessServiceSuffix" -}}
++{{ template "mongodb.fullname" .}}-headless.{{ .Release.Namespace }}.svc.{{ .Values.clusterDomain }}:{{ template "mongodb.servicePort" . }}
++{{- end -}}
++
++{{/*
++Create the default mongodb replicaset hosts string
++*/}}
++{{- define "mongodb.hosts" -}}
++{{- $secondaryCount := (int (.Values.replicaSet.replicas.secondary)) -}}
++{{- $arbiterCount := (int (.Values.replicaSet.replicas.arbiter)) -}}
++{{- $suffix := include "mongodb.headlessServiceSuffix" . -}}
++{{- $name := include  "mongodb.fullname" . -}}
++{{ $name }}-primary-0.{{ $suffix }}
++{{- range $v := until $secondaryCount}},{{ $name }}-secondary-{{ $v }}.{{ $suffix }}{{- end -}}
++{{- range $v := until $arbiterCount}},{{ $name }}-arbiter-{{ $v }}.{{ $suffix }}{{- end -}}
++{{- end -}}
+diff --git a/solution-base/mongodb/charts/mongodb/templates/statefulset-primary-rs.yaml b/solution-base/mongodb/charts/mongodb/templates/statefulset-primary-rs.yaml
+index 9ce5301f..cd42a8a7 100644
+--- a/solution-base/mongodb/charts/mongodb/templates/statefulset-primary-rs.yaml
++++ b/solution-base/mongodb/charts/mongodb/templates/statefulset-primary-rs.yaml
+@@ -121,21 +121,23 @@ spec:
+           - name: MONGODB_REPLICA_SET_NAME
+             value: {{ .Values.replicaSet.name | quote }}
+             {{- if .Values.replicaSet.useHostnames }}
++          - name: MONGODB_HOSTS
++            value: {{ template "mongodb.hosts". }}
+           - name: MONGODB_ADVERTISED_HOSTNAME
+             value: "$(MONGODB_POD_NAME).{{ template "mongodb.fullname" . }}-headless.{{ .Release.Namespace }}.svc.{{ .Values.clusterDomain }}"
+             {{- end }}
+           {{- if .Values.usePassword }}
+-          - name: MONGODB_USERNAME
++          - name: MONGODB_APP_USERNAME
+             valueFrom:
+               secretKeyRef:
+                 name: {{ if .Values.existingSecret }}{{ .Values.existingSecret }}{{- else }}{{ template "mongodb.fullname" . }}{{- end }}
+                 key: mongodb-username
+-          - name: MONGODB_DATABASE
++          - name: MONGODB_APP_DATABASE
+             valueFrom:
+               secretKeyRef:
+                 name: {{ if .Values.existingSecret }}{{ .Values.existingSecret }}{{- else }}{{ template "mongodb.fullname" . }}{{- end }}
+                 key: mongodb-database
+-          - name: MONGODB_PASSWORD
++          - name: MONGODB_APP_PASSWORD
+             valueFrom:
+               secretKeyRef:
+                 name: {{ if .Values.existingSecret }}{{ .Values.existingSecret }}{{- else }}{{ template "mongodb.fullname" . }}{{- end }}
