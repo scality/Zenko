@@ -5,6 +5,3 @@ kubedb/mongo:4.0-v1
 kubedb/mongo-tools:4.0-v1
 kubedb/busybox:latest
 kubedb/mongodb_exporter:v1.0.0
-pravega/zookeeper-operator:0.2.7
-banzaicloud/kafka-operator:v0.11.2
-gcr.io/kubebuilder/kube-rbac-proxy:v0.4.0
