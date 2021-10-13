@@ -97,7 +97,7 @@ def wait_for_job(kube_batch, location, timeout=180):
     return state
 
 
-@pytest.mark.skip(reason="ZENKO-3359 Cosmos: failing to create OOB resources")
+@pytest.mark.conformance
 def test_cosmos_nfs_ingest(nfs_loc, nfs_loc_bucket, kube_batch):
     util.mark_test('SOFS-NFS OOB INGESTION')
     job = wait_for_job(kube_batch, nfs_loc)
