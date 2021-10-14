@@ -4,7 +4,7 @@
 replicaCount: 1
 image:
   repository: registry.scality.com/cloudserver/cloudserver
-  tag: 8.2.9
+  tag: 8.2.14
   pullPolicy: IfNotPresent
 service:
   name: s3-data

@@ -1,6 +1,6 @@
 name: zenko
-version: 1.2.2
-appVersion: 1.2.2
+version: 1.2.3
+appVersion: 1.2.3
 apiVersion: v1
 kubeVersion: '>=1.11.3-0'
 description: Zenko is the open source multi-cloud data controller
