@@ -30,10 +30,8 @@ SOLUTION_REGISTRY=metalk8s-registry-from-config.invalid/${PRODUCT_LOWERNAME}-${V
 
 KUBEDB_SCRIPT_BRANCH_TAG=89fab34cf2f5d9e0bcc3c2d5b0f0599f94ff0dca
 
-KAFKA_OPERATOR_PATH=${ISO_ROOT}/deploy/kafka.yaml
 KUBEDB_OPERATOR_PATH=${ISO_ROOT}/deploy/kubedb.yaml
 KUBEDB_CATALOGS_PATH=${ISO_ROOT}/deploy/kubedb-catalogs.yaml
-ZOOKEEPER_OPERATOR_PATH=${ISO_ROOT}/deploy/zookeeper.yaml
 MONGODB_SINGLE_NODE_PATH=${ISO_ROOT}/deploy/mongodb-1-node.yaml
 MONGODB_THREE_NODE_PATH=${ISO_ROOT}/deploy/mongodb-3-node.yaml
 
@@ -47,21 +45,6 @@ export KUBEDB_OPERATOR_NAME=kubedb-operator
 export KUBEDB_CERT_NAME=kubedb-operator-apiserver-cert
 export KUBEDB_DOCKER_REGISTRY=${SOLUTION_REGISTRY}
 export KUBEDB_PRIORITY_CLASS=system-cluster-critical
-
-export ZOOKEEPER_NAMESPACE=${SOLUTION_ENV}
-export ZOOKEEPER_IMAGE_PREFIX=${SOLUTION_REGISTRY}
-export ZOOKEEPER_IMAGE_NAME=zookeeper-operator
-export ZOOKEEPER_OPERATOR_TAG=$(grep /zookeeper-operator: deps.txt | awk -F ':' '{print $2}')
-
-KAFKA_NAME='kafka-operator'
-KAFKA_NAMESPACE=${SOLUTION_ENV}
-KAFKA_CERT_NAME='kafka-operator-serving-cert'
-KAFKA_IMAGE_NAME="kafka-operator"
-KAFKA_IMAGE_REPO_NAME="${SOLUTION_REGISTRY}/${KAFKA_IMAGE_NAME}"
-KAFKA_IMAGE_REPO_TAG=$(grep /kafka-operator: deps.txt | awk -F ':' '{print $2}')
-KAFKA_METRICS_IMAGE_NAME="kube-rbac-proxy"
-KAFKA_METRICS_IMAGE_REPO_NAME="${SOLUTION_REGISTRY}/${KAFKA_METRICS_IMAGE_NAME}"
-KAFKA_METRICS_IMAGE_REPO_TAG=$(grep /kubebuilder/kube-rbac-proxy: deps.txt | awk -F ':' '{print $2}')
 
 MONGODB_NAME="mongodb"
 MONGODB_NAMESPACE=${SOLUTION_ENV}
@@ -120,35 +103,6 @@ function kubedb_yamls()
         cat kubedb/${y}.yaml | envsubst >> ${KUBEDB_CATALOGS_PATH}
         echo --- >> ${KUBEDB_CATALOGS_PATH}
     done
-}
-
-function zookeeper_yamls()
-{
-    echo merging zookeeper yamls
-    yamls=(
-        zookeeper_v1beta1_zookeepercluster_crd
-        operator
-        rbac
-    )
-
-    for y in "${yamls[@]}"; do
-        cat zookeeper/${y}.yaml | envsubst >> ${ZOOKEEPER_OPERATOR_PATH}
-        echo --- >> ${ZOOKEEPER_OPERATOR_PATH}
-    done
-}
-
-function kafka_yamls()
-{
-    echo merging kafka operator yamls
-    CHART_PATH="$(dirname $0)/kafka/charts/kafka-operator"
-
-    helm template ${KAFKA_NAME} ${CHART_PATH} -n ${KAFKA_NAMESPACE} \
-        --set "operator.image.repository=${KAFKA_IMAGE_REPO_NAME}" \
-        --set "operator.image.tag=${KAFKA_IMAGE_REPO_TAG}" \
-        --set "prometheusMetrics.authProxy.image.repository=${KAFKA_METRICS_IMAGE_REPO_NAME}" \
-        --set "prometheusMetrics.authProxy.image.tag=${KAFKA_METRICS_IMAGE_REPO_TAG}" \
-        --set "webhook.certs.secret=${KAFKA_CERT_NAME}"  >> ${KAFKA_OPERATOR_PATH}
-    echo --- >> ${KAFKA_OPERATOR_PATH}
 }
 
 function render_mongodb_yamls()
@@ -266,8 +220,6 @@ function build_iso()
 clean
 mkdirs
 kubedb_yamls
-zookeeper_yamls
-kafka_yamls
 mongodb_yamls
 gen_manifest_yaml
 for img in "${DEP_IMAGES[@]}"; do
