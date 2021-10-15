@@ -51,7 +51,7 @@ spec:
         image: kafka
         tag: '${KAFKA_TAG}'
       cruiseControl:
-        image: kafka-cruise-control
+        image: cruise-control
         tag: '${KAFKA_CRUISECONTROL_TAG}'
       monitoring:
         image: jmx-javaagent
