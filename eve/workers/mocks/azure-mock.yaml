@@ -17,6 +17,7 @@ metadata:
   name: azure-mock-pod
   labels:
     name: azure-mock
+    component: mock
 spec:
   hostname: devstoreaccount1
   subdomain: azure-mock

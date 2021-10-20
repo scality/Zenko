@@ -17,6 +17,7 @@ metadata:
   name: aws-mock-pod
   labels:
     name: aws-mock
+    component: mock
 spec:
   initContainers:
   - image: zenko/cloudserver:latest
@@ -60,4 +61,4 @@ spec:
     emptyDir: {}
   - name: configmap
     configMap:
-      name: aws-mock  
+      name: aws-mock

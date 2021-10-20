@@ -39,6 +39,16 @@ models:
       E2E_IMAGE_TAG: '%(prop:commit_short_revision)s'
       VAULT_TEST_IMAGE_NAME: '%(prop:vault_test_image_name)s'
       VAULT_TEST_IMAGE_TAG: '%(prop:vault_test_image_tag)s'
+  - env: &mock-env
+      AZURE_ACCOUNT_NAME: devstoreaccount1
+      AZURE_BACKEND_ENDPOINT: http://azure-mock/devstoreaccount1
+      AZURE_SECRET_KEY: Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==
+      AWS_ENDPOINT: http://aws-mock
+      AWS_ACCESS_KEY: accessKey1
+      AWS_SECRET_KEY: verySecretKey1
+      AWS_ACCESS_KEY_2: accessKey2
+      AWS_SECRET_KEY_2: verySecretKey2
+      VERIFY_CERTIFICATES: "false"
   - Git: &git_pull
       name: git pull
       repourl: "%(prop:git_reference)s"
@@ -306,6 +316,13 @@ stages:
         env:
           <<: [*kind-env, *http-env]
         command: bash scripts/keycloak-helper.sh add-user default
+        workdir: build/eve/workers/end2end
+        haltOnFailure: true
+    - ShellCommand: &install-mocks
+        name: Start external service mocks
+        env:
+          <<: [*kind-env, *e2e-env, *http-env]
+        command: bash scripts/install-mocks.sh "default"
         workdir: build/eve/workers/end2end
         haltOnFailure: true
     - ShellCommand: &configure_end2end_tests
