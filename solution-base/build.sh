@@ -119,9 +119,9 @@ function render_mongodb_yamls()
         --set "image.registry=${MONGODB_REGISTRY}" \
         --set "image.repository=${MONGODB_IMAGE_NAME}" \
         --set "image.tag=${MONGODB_IMAGE_TAG}" \
-        --set "volumePermission.image.registry=${MONGODB_REGISTRY}" \
-        --set "volumePermission.image.repository=${MONGODB_INIT_IMAGE_NAME}" \
-        --set "volumePermission.image.tag=${MONGODB_INIT_IMAGE_TAG}" \
+        --set "volumePermissions.image.registry=${MONGODB_REGISTRY}" \
+        --set "volumePermissions.image.repository=${MONGODB_INIT_IMAGE_NAME}" \
+        --set "volumePermissions.image.tag=${MONGODB_INIT_IMAGE_TAG}" \
         --set "metrics.image.registry=${MONGODB_REGISTRY}" \
         --set "metrics.image.repository=${MONGODB_EXPORTER_IMAGE_NAME}" \
         --set "metrics.image.tag=${MONGODB_EXPORTER_IMAGE_TAG}" \
