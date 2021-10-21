@@ -28,6 +28,15 @@ REDIS_TEST_PASSWORD=$(kubectl get secret $ZENKO_RESOURCE-base-cache-creds.v1 -n 
 ZENKO_VERSION=$(kubectl get zenko $ZENKO_RESOURCE -n $NAMESPACE -o jsonpath='{.spec.version}')
 VAULT_TEST_TAG=$(kubectl get zenkoversion $ZENKO_VERSION  -n $NAMESPACE -o jsonpath='{.spec.versions.vault.tag}')
 VAULT_TEST_IMAGE="registry.scality.com/vault/vault-test"
+KEYCLOAK_TEST_USER=${OIDC_USERNAME}
+KEYCLOAK_TEST_PASSWORD=${OIDC_PASSWORD}
+KEYCLOAK_TEST_HOST=${OIDC_ENDPOINT}
+KEYCLOAK_TEST_PORT="8443"
+KEYCLOAK_TEST_REALM_NAME=${OIDC_REALM}
+KEYCLOAK_TEST_CLIENT_ID=${OIDC_CLIENT_ID}
+KEYCLOAK_TEST_GRANT_TYPE="password"
+VAULT_TEST_CONFIG=$(kubectl get secret $ZENKO_RESOURCE-management-vault-config.v0 -o jsonpath='{.data.config\.json}' | base64 -d)
+VAULT_OIDC_TEST="1"
 
 
 # in case of force builds image and tag can be specified using "Extra properties":
@@ -58,4 +67,13 @@ kubectl run $POD_NAME \
   --env="REDIS_TEST_HOST=${REDIS_TEST_HOST}" \
   --env="REDIS_TEST_PORT=${REDIS_TEST_PORT}" \
   --env="REDIS_TEST_PASSWORD=${REDIS_TEST_PASSWORD}" \
+  --env="KEYCLOAK_TEST_USER=${KEYCLOAK_TEST_USER}" \
+  --env="KEYCLOAK_TEST_PASSWORD=${KEYCLOAK_TEST_PASSWORD}" \
+  --env="KEYCLOAK_TEST_HOST=${KEYCLOAK_TEST_HOST}" \
+  --env="KEYCLOAK_TEST_PORT=${KEYCLOAK_TEST_PORT}" \
+  --env="KEYCLOAK_TEST_REALM_NAME=${KEYCLOAK_TEST_REALM_NAME}" \
+  --env="KEYCLOAK_TEST_CLIENT_ID=${KEYCLOAK_TEST_CLIENT_ID}" \
+  --env="KEYCLOAK_TEST_GRANT_TYPE=${KEYCLOAK_TEST_GRANT_TYPE}" \
+  --env="VAULT_TEST_CONFIG=${VAULT_TEST_CONFIG}" \
+  --env="VAULT_OIDC_TEST=${VAULT_OIDC_TEST}" \
   --command -- yarn ft_test
