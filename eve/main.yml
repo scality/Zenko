@@ -391,26 +391,26 @@ stages:
     - ShellCommand:
         <<: *install_kind_dependencies
         env:
-          <<: [*kind-env, *http-env]
+          <<: [*kind-env, *https-env]
     - ShellCommand: *patch_coredns
     - ShellCommand: *install_shell_ui
     - ShellCommand:
         <<: *setup_keycloak
         env:
-          <<: [*kind-env, *http-env]
+          <<: [*kind-env, *https-env]
     - ShellCommand: *install_operator
     - ShellCommand:
         <<: *deploy_zenko
         env:
-          <<: [*kind-env, *http-env]
+          <<: [*kind-env, *https-env]
     - ShellCommand:
         <<: *setup_keycloak_user
         env:
-          <<: [*kind-env, *http-env]
+          <<: [*kind-env, *https-env]
     - ShellCommand: &run_vault_end2end_test
         name: Run vault end-2end tests
         env:
-          <<: [*kind-env, *e2e-env, *http-env]
+          <<: [*kind-env, *e2e-env, *https-env]
         command: bash scripts/vault-e2e-test.sh
         workdir: build/eve/workers/end2end
         haltOnFailure: true
