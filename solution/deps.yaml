@@ -39,7 +39,7 @@ jabba:
 pensieve-api:
   sourceRegistry: registry.scality.com/pensieve-api
   image: pensieve-api
-  tag: 1.0.2
+  tag: 1.0.3
   envsubst: PENSIEVE_API_TAG
 utapi:
   sourceRegistry: registry.scality.com/sf-eng
