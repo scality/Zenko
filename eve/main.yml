@@ -219,6 +219,9 @@ stages:
     - SetProperties: *set_operator_properties
     - ShellCommand: *wait_docker_daemon
     - ShellCommand: *private_registry_login
+    - ShellCommand:
+        name: Print docker info
+        command: docker info
     - ShellCommand: &bootstrap_kind
         name: Bootstrap kind cluster
         env:
