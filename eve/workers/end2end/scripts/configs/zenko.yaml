@@ -1,5 +1,5 @@
 ---
-apiVersion: zenko.io/v1alpha1
+apiVersion: zenko.io/v1alpha2
 kind: Zenko
 metadata:
   name: ${ZENKO_NAME}
@@ -15,13 +15,15 @@ spec:
       - hostname: s3.zenko.local
         locationName: us-east-1
   mongodb:
-    provider: KubeDB
-    persistence:
-      volumeClaimTemplate:
-        size: 20Gi
-        storageClassName: "standard"
+    provider: External
+    endpoints:
+      - dev-db-mongodb-primary-0.dev-db-mongodb-headless.default.svc.cluster.local:27017
+    userSecretName: mongodb-db-creds
+    usernameKey: mongodb-username
+    passwordKey: mongodb-password
+    databaseName: datadb
   redis:
-    provider: KubeDB
+    provider: Zenko
   kafka:
     provider: Managed
     jmxJarPath: /opt/jmx_exporter/jmx_prometheus_javaagent-0.14.0.jar
