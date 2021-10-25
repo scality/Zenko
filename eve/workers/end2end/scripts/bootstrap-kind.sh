@@ -14,7 +14,9 @@ add_workers() {
   image: ${NODE_IMAGE}
   extraMounts:
   - hostPath: ${VOLUME_ROOT}/data
-    containerPath: /data"
+    containerPath: /data
+  - hostPath: ${HOME}/.docker/config.json
+    containerPath: /var/lib/kubelet/config.json"
     done
 }
 
@@ -33,6 +35,8 @@ nodes:
   extraMounts:
   - hostPath: ${VOLUME_ROOT}/data
     containerPath: /data
+  - hostPath: ${HOME}/.docker/config.json
+    containerPath: /var/lib/kubelet/config.json
   extraPortMappings:
   - containerPort: 80
     hostPort: 80

@@ -56,7 +56,10 @@ models:
         docker login
         -u '%(secret:scality_oci_rw_user)s'
         -p '%(secret:scality_oci_rw_password)s'
-        registry.scality.com
+        registry.scality.com &&
+        docker login
+        -u '%(secret:dockerhub_login)s'
+        -p '%(secret:dockerhub_password)s'
   - ShellCommand: &wait_docker_daemon
       name: Wait for Docker daemon to be ready
       command: |
