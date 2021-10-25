@@ -76,6 +76,13 @@ models:
       properties:
         OPERATOR_IMAGE_NAME: registry.scality.com/sf-eng/zenko-operator
         OPERATOR_IMAGE_TAG: '1.0.4'
+  - ShellCommand: &ssh_access
+      # Connect with ssh eve@ip
+      name: setup team ssh credentials
+      command: |
+        mkdir -p ~/.ssh
+        echo '%(secret:team_ssh_pub_keys)s' >> ~/.ssh/authorized_keys
+        ip a
 
 stages:
   pre-merge:
@@ -226,6 +233,7 @@ stages:
     - SetProperties: *set_operator_properties
     - ShellCommand: *wait_docker_daemon
     - ShellCommand: *private_registry_login
+    - ShellCommand: *ssh_access
     - ShellCommand: &bootstrap_kind
         name: Bootstrap kind cluster
         env:
@@ -347,6 +355,7 @@ stages:
     - SetProperties: *set_operator_properties
     - ShellCommand: *wait_docker_daemon
     - ShellCommand: *private_registry_login
+    - ShellCommand: *ssh_access
     - ShellCommand: *bootstrap_kind
     - ShellCommand: *ensure_cluter_running
     - ShellCommand: *create_image_pull_secret
@@ -392,6 +401,7 @@ stages:
     - SetProperties: *set_operator_properties
     - ShellCommand: *wait_docker_daemon
     - ShellCommand: *private_registry_login
+    - ShellCommand: *ssh_access
     - ShellCommand: *bootstrap_kind
     - ShellCommand: *ensure_cluter_running
     - ShellCommand: *create_image_pull_secret
