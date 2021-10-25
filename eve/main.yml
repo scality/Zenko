@@ -20,6 +20,10 @@ models:
       OIDC_LAST_NAME: 'world'
       SHELL_UI_NAME: "shell-ui"
       SHELL_UI_IMAGE: "registry.scality.com/sf-eng/shell-ui:2.9-dev"
+      HTTP_PROXY: ""
+      HTTPS_PROXY: ""
+      http_proxy: ""
+      https_proxy: ""
   - env: &http-env
       UI_ENDPOINT: 'http://ui.zenko.local'
       OIDC_ENDPOINT: 'http://keycloak.zenko.local'
@@ -52,7 +56,10 @@ models:
         docker login
         -u '%(secret:scality_oci_rw_user)s'
         -p '%(secret:scality_oci_rw_password)s'
-        registry.scality.com
+        registry.scality.com &&
+        docker login
+        -u '%(secret:dockerhub_login)s'
+        -p '%(secret:dockerhub_password)s'
   - ShellCommand: &wait_docker_daemon
       name: Wait for Docker daemon to be ready
       command: |
@@ -69,6 +76,13 @@ models:
       properties:
         OPERATOR_IMAGE_NAME: registry.scality.com/sf-eng/zenko-operator
         OPERATOR_IMAGE_TAG: '1.1.1'
+  - ShellCommand: &ssh_access
+      # Connect with ssh eve@ip
+      name: setup team ssh credentials
+      command: |
+        mkdir -p ~/.ssh
+        echo '%(secret:team_ssh_pub_keys)s' >> ~/.ssh/authorized_keys
+        ip a
 
 stages:
   pre-merge:
@@ -195,10 +209,10 @@ stages:
 
   build-test-image:
     worker: &end2end-worker
-      type: kube_pod
-      path: eve/workers/end2end.yaml
-      images:
-        worker: eve/workers/end2end
+      type: openstack
+      image: focal-server-cloudimg-amd64_2021-04-29
+      flavor: m1.xlarge
+      path: eve/workers/end2end
     steps:
     - Git: *git_pull
     - ShellCommand: *wait_docker_daemon
@@ -219,6 +233,7 @@ stages:
     - SetProperties: *set_operator_properties
     - ShellCommand: *wait_docker_daemon
     - ShellCommand: *private_registry_login
+    - ShellCommand: *ssh_access
     - ShellCommand: &bootstrap_kind
         name: Bootstrap kind cluster
         env:
@@ -265,7 +280,7 @@ stages:
         workdir: build/eve/workers/end2end
         haltOnFailure: true
     - ShellCommand: &install_operator
-        name: Install operator 
+        name: Install operator
         env:
           <<: *kind-env
           COMMIT_HASH: '%(prop:OPERATOR_IMAGE_TAG)s'
@@ -318,18 +333,18 @@ stages:
         name: archive artifact logs and data
         command: >-
           set -exu;
-          mkdir -p /artifacts/data/kind-logs;
-          kubectl get pods -A -o yaml > /artifacts/data/kind-logs/all-pods.log;
-          kubectl get events -A -o yaml > /artifacts/data/kind-logs/all-events.log;
-          kind export logs /artifacts/data/kind-logs/kind-export;
-          tar zcvf /artifacts/%(prop:commit_short_revision)s-logs-volumes.tgz /artifacts/data/kind-logs;
+          mkdir -p /tmp/artifacts/data/kind-logs;
+          kubectl get pods -A -o yaml > /tmp/artifacts/data/kind-logs/all-pods.log;
+          kubectl get events -A -o yaml > /tmp/artifacts/data/kind-logs/all-events.log;
+          kind export logs /tmp/artifacts/data/kind-logs/kind-export;
+          tar zcvf /tmp/artifacts/%(prop:commit_short_revision)s-logs-volumes.tgz /tmp/artifacts/data/kind-logs;
         alwaysRun: true
     - ShellCommand: &kind_cluster_cleanup
         name: Clean Up
         command: kind delete cluster
     - Upload: &upload_artifacts
         alwaysRun: true
-        source: /artifacts
+        source: /tmp/artifacts
         urls:
           - "*.tgz"
 
@@ -340,6 +355,7 @@ stages:
     - SetProperties: *set_operator_properties
     - ShellCommand: *wait_docker_daemon
     - ShellCommand: *private_registry_login
+    - ShellCommand: *ssh_access
     - ShellCommand: *bootstrap_kind
     - ShellCommand: *ensure_cluter_running
     - ShellCommand: *create_image_pull_secret
@@ -366,11 +382,11 @@ stages:
         <<: *configure_end2end_tests
         env:
           <<: [*kind-env, *e2e-env, *https-env]
-    - ShellCommand: 
+    - ShellCommand:
         <<: *run_end2end_tests
         env:
           <<: [*kind-env, *e2e-env, *https-env]
-    - ShellCommand: 
+    - ShellCommand:
         <<: *run_smoke_test
         env:
           <<: [*kind-env, *e2e-env, *https-env]
@@ -385,6 +401,7 @@ stages:
     - SetProperties: *set_operator_properties
     - ShellCommand: *wait_docker_daemon
     - ShellCommand: *private_registry_login
+    - ShellCommand: *ssh_access
     - ShellCommand: *bootstrap_kind
     - ShellCommand: *ensure_cluter_running
     - ShellCommand: *create_image_pull_secret

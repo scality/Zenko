@@ -263,6 +263,8 @@ clean: | clean-s3c clean-cosmos
 run-tests: | build-tests
 	$(V)$(KUBECTL) run $(E2E_POD) \
 		--restart=Never \
+		--rm \
+		--attach=True \
 		--image=$(E2E_IMAGE)  \
 		--namespace $(HELM_NAMESPACE) \
 		--limits='cpu=300m,memory=2Gi' \
@@ -270,7 +272,6 @@ run-tests: | build-tests
 		--env MOCHA_TAGS="$(NODE_TEST_TAGS)" \
 		--env CLOUDSERVER_ENDPOINT="http://$(ZENKO_HELM_RELEASE)-cloudserver:80" \
 		$(shell ../eve/workers/ci_env.sh env)
-	V=$(V) KUBECTL=$(KUBECTL) E2E_POD=$(E2E_POD) NAMESPACE=$(HELM_NAMESPACE) ./follow_logs.sh
 .PHONY: run-tests
 
 run-listing-fuzzer:
