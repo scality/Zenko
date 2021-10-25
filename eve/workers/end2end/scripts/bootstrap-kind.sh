@@ -2,7 +2,7 @@
 
 set -exu
 
-NODE_IMAGE=${1:-kindest/node:v1.17.5@sha256:ab3f9e6ec5ad8840eeb1f76c89bb7948c77bbf76bcebe1a8b59790b8ae9a283a}
+NODE_IMAGE=${1:-kindest/node:v1.19.11@sha256:07db187ae84b4b7de440a73886f008cf903fcf5764ba8106a9fd5243d6f32729}
 VOLUME_ROOT=${2:-/artifacts}
 WORKER_NODE_COUNT=${3:-0}
 
@@ -14,7 +14,9 @@ add_workers() {
   image: ${NODE_IMAGE}
   extraMounts:
   - hostPath: ${VOLUME_ROOT}/data
-    containerPath: /data"
+    containerPath: /data
+  - hostPath: ${HOME}/.docker/config.json
+    containerPath: /var/lib/kubelet/config.json"
     done
 }
 
@@ -33,6 +35,8 @@ nodes:
   extraMounts:
   - hostPath: ${VOLUME_ROOT}/data
     containerPath: /data
+  - hostPath: ${HOME}/.docker/config.json
+    containerPath: /var/lib/kubelet/config.json
   extraPortMappings:
   - containerPort: 80
     hostPort: 80
