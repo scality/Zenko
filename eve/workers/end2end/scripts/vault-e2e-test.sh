@@ -17,11 +17,11 @@ VAULT_STS_ENDPOINT="http://${ZENKO_RESOURCE}-connector-vault-sts-api:80"
 VAULT_AUTH_ENDPOINT="http://${ZENKO_RESOURCE}-connector-vault-auth-api:80"
 ADMIN_ACCESS_KEY_ID=$(kubectl get secret $ZENKO_RESOURCE-management-vault-admin-creds.v1 -n $NAMESPACE -o  jsonpath='{.data.accessKey}' | base64 -d)
 ADMIN_SECRET_ACCESS_KEY=$(kubectl get secret $ZENKO_RESOURCE-management-vault-admin-creds.v1 -n $NAMESPACE -o  jsonpath='{.data.secretKey}' | base64 -d)
-MONGODB_TEST_HOST="${ZENKO_RESOURCE}-base-db"
+MONGODB_TEST_HOST="dev-db-mongodb-primary-0.dev-db-mongodb-headless.default.svc.cluster.local"
 MONGODB_TEST_PORT="27017"
-MONGODB_TEST_USER=$(kubectl get secret $ZENKO_RESOURCE-base-db-auth -n $NAMESPACE -o jsonpath='{.data.username}' | base64 -d)
-MONGODB_TEST_PASSWORD=$(kubectl get secret $ZENKO_RESOURCE-base-db-auth -n $NAMESPACE -o jsonpath='{.data.password}' | base64 -d)
-MONGODB_TEST_DATABASE=$(kubectl get zenko $ZENKO_RESOURCE -n $NAMESPACE -o jsonpath='{.status.instanceID}')
+MONGODB_TEST_USER=$(kubectl get secret mongodb-db-creds -n $NAMESPACE -o jsonpath='{.data.mongodb-username}' | base64 -d)
+MONGODB_TEST_PASSWORD=$(kubectl get secret mongodb-db-creds -n $NAMESPACE -o jsonpath='{.data.mongodb-password}' | base64 -d)
+MONGODB_TEST_DATABASE=$(kubectl get secret mongodb-db-creds -n $NAMESPACE -o jsonpath='{.data.mongodb-database}' | base64 -d)
 REDIS_TEST_HOST="${ZENKO_RESOURCE}-base-cache"
 REDIS_TEST_PORT="6379"
 REDIS_TEST_PASSWORD=$(kubectl get secret $ZENKO_RESOURCE-base-cache-creds.v1 -n $NAMESPACE -o jsonpath='{.data.password}' | base64 -d)
