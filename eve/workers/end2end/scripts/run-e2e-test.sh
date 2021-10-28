@@ -53,6 +53,20 @@ run_e2e_test() {
         --command -- sh -c "${2}"
 }
 
+run_backbeat_tests() {
+   EXIT_STATUS="0"
+
+   # Setup our environment
+   python3 ../../../tests/zenko_tests/create_buckets.py
+   if [ "$?" -ne "0" ]; then
+      exit 1
+   fi
+
+   run_e2e_test '' 'cd node_tests && npm run test_api test_crr test_crr_pause_resume'
+
+   python3 ../../../tests/zenko_tests/cleans3c.py
+}
+
 ## TODO use existing entrypoint
 if [ "$STAGE" = "end2end" ]; then
    run_e2e_test '' 'cd node_tests && npm run test_operator && npm run test_ui'
@@ -60,4 +74,6 @@ elif [ "$STAGE" = "debug" ]; then
    run_e2e_test '-ti' 'bash'
 elif [ "$STAGE" = "smoke" ]; then
    run_e2e_test '' 'cd node_tests && npm run test_smoke'
+elif [ "$STAGE" = "backbeat" ]; then
+   run_backbeat_tests
 fi

@@ -346,6 +346,13 @@ stages:
         command: bash scripts/run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "smoke" "default"
         workdir: build/eve/workers/end2end
         haltOnFailure: true
+    - ShellCommand: &run_backbeat_end2end_tests
+        name: Run backbeat end to end tests
+        env:
+          <<: [*kind-env, *e2e-env, *http-env, *mock-env]
+        command: bash scripts/run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "backbeat" "default"
+        workdir: build/eve/workers/end2end
+        haltOnFailure: true
     - ShellCommand: &archive_artifacts
         name: archive artifact logs and data
         command: >-
