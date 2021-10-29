@@ -30,7 +30,12 @@ retry() {
         sleep 5
     done
 
-    [ $count -lt 10 ] || echo "Failed to create app user."
+    if [ $count -ge 10 ]; then
+        echo "Failed to create app user."
+        exit 1
+    fi
+
+    exit 0
 }
 
 retry create_user
