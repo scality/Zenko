@@ -9,8 +9,8 @@ global:
   replicationEndpoints: []
 
 image:
-  repository: registry.scality.com/backbeat/backbeat
-  tag: 8.2.12
+  repository: registry.scality.com/backbeat-dev/backbeat
+  tag: d889cd8d48c506004fcff9bc684bfc9c49a74d01
   pullPolicy: IfNotPresent
 
 logging:
