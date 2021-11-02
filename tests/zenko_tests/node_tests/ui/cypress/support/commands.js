@@ -101,7 +101,7 @@ Cypress.Commands.add('deleteBucket', (bucketName) => {
 Cypress.Commands.add('uploadObject', (bucketName, fileName) => {
     Cypress.log({ name: `Upload object "${fileName}" to bucket "${bucketName}"` });
     cy.visit(`/buckets/${bucketName}/objects`);
-    cy.get('button').contains('Upload').click();
+    cy.get('#object-list button').contains('Upload').click();
     cy.get('input.object-upload-drop-zone-input')
         .attachFile(fileName);
     cy.intercept({
