@@ -3,41 +3,44 @@
 Delete an S3 Endpoint
 =====================
 
-To delete an S3 endpoint from the command line:
+Delete an S3 Endpoint from the UI
+---------------------------------
+
+#. From the home screen, select the **Data Services** tab.
+
+#. Click the red trash can corresponding to the endpoint you want to delete, and click **Delete** on the confirmation popup.
+
+   .. image:: ../../graphics/endpoint_created.png
+
+Delete an S3 Endpoint from the Command Line
+-------------------------------------------
 
 #. Retrieve tokens as described in :ref:`Retrieve Access Tokens`.
 
-#. Retrieve list of all endpoints and hostnames:
+#. Retrieve the list of all endpoints and hostnames.
 
    .. code::
 
-      kubectl -n zenko get zenkoconfigurationoverlay -o jsonpath='{.items[0].spec.s3API.endpoints[*]}'
+      kubectl -n zenko get zenkoconfigurationoverlay -o jsonpath='{.items[-1].spec.s3API.endpoints[*]}' \
+        --sort-by='{.metadata.creationTimestamp}'
 
-   For hostnames only:
-
-   .. code::
-
-      kubectl -n zenko get zenkoconfigurationoverlay -o jsonpath='{.items[0].spec.s3API.endpoints[*].hostname}'
-
-#. Select hostname to delete:
+#. Select the hostname to delete.
 
    .. code::
 
       HOSTNAME="hostname to delete"
 
-#. Send delete request to the management API:
+#. Send a delete request to the management API.
 
    .. code::
 
-       curl -s -k -X DELETE -H "X-Authentication-Token: ${TOKEN}" "" | jq '
+       curl -s -k -X DELETE -H "X-Authentication-Token: ${TOKEN}" "https://management.zenko.workloadplane.scality.local/api/v1/config/${INSTANCE_ID}/endpoint/${HOSTNAME}"
 
-#. Post-checks
-
-   Verify endpoint has been deleted: 
+#. Check that the endpoint has been deleted.
 
    .. code::
 
-      kubectl -n zenko get zenkoconfigurationoverlay -o jsonpath='{.items[0].spec.s3API.endpoints[*]}' 
+      kubectl -n zenko get zenkoconfigurationoverlay -o jsonpath='{range .items[-1].spec.s3API.endpoints[*]}{}{"\n"}{end}' --sort-by='{.metadata.creationTimestamp}'                               
 
    After a few moments, all pods will be in a running state.
 
