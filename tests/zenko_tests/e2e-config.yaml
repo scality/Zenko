@@ -1,8 +1,25 @@
 accounts:
   - "zenko"
-endpoints: []
-locations: []
+endpoints:
+  - hostname: "http://aws-mock"
+    locationName: "awsbackendmismatch"
+  - hostname: "http://azure-mock/devstoreaccount1"
+    locationName: "azurebackendmismatch"
+locations:
+  - name: "awsbackendmismatch"
+    locationType: "location-aws-s3-v1"
+    details:
+      bucketName: "ci-zenko-aws-crr-target-bucket"
+      endpoint: "http://aws-mock"
+      accessKey: "accessKey1"
+      secretKey: "verySecretKey1"
+  - name: "azurebackendmismatch"
+    locationType: "location-azure-v1"
+    details:
+      bucketName: "ci-zenko-azure-crr-target-bucket"
+      endpoint: "http://azure-mock/devstoreaccount1"
+      accessKey: "devstoreaccount1"
+      secretKey: "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw=="
 workflows:
   replication: []
   lifecycle: []
-  ingestion: []
