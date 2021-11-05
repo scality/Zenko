@@ -50,6 +50,31 @@ run_e2e_test() {
         --env=CYPRESS_KEYCLOAK_CLIENT_ID=${OIDC_CLIENT_ID} \
         --env=CYPRESS_KEYCLOAK_REALM=${OIDC_REALM} \
         --env=UI_ENDPOINT=${UI_ENDPOINT} \
+        --env=AZURE_ACCOUNT_NAME_2=${AZURE_ACCOUNT_NAME_2} \
+        --env=AZURE_BACKEND_ENDPOINT_2=${AZURE_BACKEND_ENDPOINT_2} \
+        --env=AZURE_SECRET_KEY_2=${AZURE_SECRET_KEY_2} \
+        --env=AWS_BACKEND_SOURCE_LOCATION=${AWS_BACKEND_SOURCE_LOCATION} \
+        --env=AWS_BACKEND_DESTINATION_LOCATION=${AWS_BACKEND_DESTINATION_LOCATION} \
+        --env=GCP_BACKEND_DESTINATION_LOCATION=${GCP_BACKEND_DESTINATION_LOCATION} \
+        --env=AZURE_BACKEND_DESTINATION_LOCATION=${AZURE_BACKEND_DESTINATION_LOCATION} \
+        --env=LOCATION_QUOTA_BACKEND=${LOCATION_QUOTA_BACKEND} \
+        --env=AWS_BUCKET_NAME=${AWS_BUCKET_NAME} \
+        --env=AWS_BUCKET_NAME_2=${AWS_BUCKET_NAME_2} \
+        --env=AWS_CRR_BUCKET_NAME=${AWS_CRR_BUCKET_NAME} \
+        --env=AWS_CRR_SRC_BUCKET_NAME=${AWS_CRR_SRC_BUCKET_NAME} \
+        --env=AZURE_BUCKET_NAME=${AZURE_BUCKET_NAME} \
+        --env=AZURE_BUCKET_NAME_2=${AZURE_BUCKET_NAME_2} \
+        --env=AZURE_CRR_BUCKET_NAME=${AZURE_CRR_BUCKET_NAME} \
+        --env=AZURE_CRR_SRC_BUCKET_NAME=${AZURE_CRR_SRC_BUCKET_NAME} \
+        --env=AZURE_ACCOUNT_NAME=${AZURE_ACCOUNT_NAME} \
+        --env=AZURE_BACKEND_ENDPOINT=${AZURE_BACKEND_ENDPOINT} \
+        --env=AZURE_SECRET_KEY=${AZURE_SECRET_KEY} \
+        --env=AWS_ENDPOINT=${AWS_ENDPOINT} \
+        --env=AWS_ACCESS_KEY=${AWS_ACCESS_KEY} \
+        --env=AWS_SECRET_KEY=${AWS_SECRET_KEY} \
+        --env=AWS_ACCESS_KEY_2=${AWS_ACCESS_KEY_2} \
+        --env=AWS_SECRET_KEY_2=${AWS_SECRET_KEY_2} \
+        --env=VERIFY_CERTIFICATES=${VERIFY_CERTIFICATES} \
         --command -- sh -c "${2}"
 }
 
@@ -60,4 +85,6 @@ elif [ "$STAGE" = "debug" ]; then
    run_e2e_test '-ti' 'bash'
 elif [ "$STAGE" = "smoke" ]; then
    run_e2e_test '' 'cd node_tests && npm run test_smoke'
+elif [ "$STAGE" = "backbeat" ]; then
+   run_e2e_test '' 'cd node_tests && npm-run-all run test_aws_crr test_azure_crr'
 fi
