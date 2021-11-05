@@ -12,7 +12,7 @@ properties:
         items:
             type: object
             properties:
-                host:
+                hostname:
                     type: string
                 locationName:
                     type: string
@@ -25,6 +25,17 @@ properties:
                     type: string
                 locationType:
                     type: string
+                details:
+                    type: object
+                    properties:
+                        bucketName:
+                            type: string
+                        endpoint:
+                            type: string
+                        accessKey:
+                            type: string
+                        secretKey:
+                            type: string
     workflows:
         type: object
         properties:
@@ -41,4 +52,3 @@ properties:
                 items:
                     type: object
 """
-
