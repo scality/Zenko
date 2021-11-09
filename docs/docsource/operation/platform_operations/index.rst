@@ -4,10 +4,19 @@ Platform Operations
 ===================
 
 The operations described here pertain to the operation and maintenance of the
-|product| platform. Using command-line operations, you can :ref:`Create an
-Ingress Endpoint`, :ref:`Retrieve Access Tokens`, :ref:`Create an Account`,
-:ref:`Create an S3 Endpoint`, :ref:`Delete an S3 Endpoint`, and 
-:ref:`Generate Root User Account Access Keys`.
+|product| platform. Using command-line operations, you can: 
+
+- :ref:`Create an Ingress Endpoint`
+
+- :ref:`Retrieve Access Tokens` 
+
+- :ref:`Create an Account`
+
+- :ref:`Create an S3 Endpoint`
+
+- :ref:`Delete an S3 Endpoint`
+
+- :ref:`Generate Root User Account Access Keys`
 
 .. toctree::
    :hidden:
