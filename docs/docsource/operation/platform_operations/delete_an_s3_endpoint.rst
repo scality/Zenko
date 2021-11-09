@@ -6,11 +6,16 @@ Delete an S3 Endpoint
 Delete an S3 Endpoint from the UI
 ---------------------------------
 
-#. From the home screen, select the **Data Services** tab.
+#. From the |product| home screen, select the **Data Services** tab.
 
 #. Click the red trash can corresponding to the endpoint you want to delete, and click **Delete** on the confirmation popup.
 
    .. image:: ../../graphics/endpoint_created.png
+
+#. Check that the deleted endpoint is no longer listed.
+
+   .. image:: ../../graphics/create_endpoint.png
+
 
 Delete an S3 Endpoint from the Command Line
 -------------------------------------------
