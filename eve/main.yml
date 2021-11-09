@@ -235,9 +235,12 @@ stages:
     - ShellCommand: *private_registry_login
     - ShellCommand:
         name: Generate end2end config yaml
-        env: [*mock-env, *secrets_env]
-        command: ./generate-e2e-config.sh
+        env:
+          <<: [*kind-env, *e2e-env, *http-env, *mock-env, *secrets_env]
         workdir: build/tests/zenko_tests
+        command: |
+          envsubst < 'e2e-config.yaml.template' > 'e2e-config.yaml'
+          echo 'Generated e2e-config.yaml file'
         haltOnFailure: true
     - ShellCommand: &build-e2e-image
         name: Build end2end test image
