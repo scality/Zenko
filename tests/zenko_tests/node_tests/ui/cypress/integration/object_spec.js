@@ -3,6 +3,7 @@ describe('Object', () => {
         const accountName = 'account2';
         const bucketName = 'mybucket6';
         const smallFileName = 'fivehundredandtwelvekb';
+        const unicodeFileName = 'éléphant.txt';
         const mpuFileName = 'fifteenmb';
 
         beforeEach(() => {
@@ -15,6 +16,12 @@ describe('Object', () => {
             cy.uploadObject(bucketName, smallFileName);
             cy.get('table tbody tr').should('have.length', 1);
             cy.get('table tbody tr').contains(smallFileName).should('be.visible');
+        });
+
+        it('should upload an object with an escaped name to a bucket', () => {
+            cy.uploadObject(bucketName, unicodeFileName);
+            cy.get('table tbody tr').should('have.length', 1);
+            cy.get('table tbody tr').contains(unicodeFileName).should('be.visible');
         });
 
         it('should multipart upload an object to a bucket (15 mb)', () => {
