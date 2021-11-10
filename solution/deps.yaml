@@ -49,7 +49,7 @@ utapi:
 zenko-operator:
   sourceRegistry: registry.scality.com/sf-eng
   image: zenko-operator
-  tag: 1.2.0
+  tag: 1.2.1
   envsubst: ZENKO_OPERATOR_TAG
 vault:
   sourceRegistry: registry.scality.com/vault
