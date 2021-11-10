@@ -4,6 +4,11 @@ import zenko_e2e.util as util
 
 
 @pytest.fixture(scope='function')
+def objkey_unicode():
+    return '/'.join([conf.OBJ_PREFIX, util.make_name('éléphant')])
+
+
+@pytest.fixture(scope='function')
 def objkey():
     return '/'.join([conf.OBJ_PREFIX, util.make_name('test-object')])
 
