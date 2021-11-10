@@ -16,7 +16,7 @@ Create an S3 Endpoint from the UI
 
    .. note::
 
-      If no location is specified when creating a bucket from the API, this endpoint 
+      If no location is specified when creating a bucket from the S3-API, this endpoint 
       location will be used to store objects.
 
    .. image:: ../../graphics/create_endpoint_options.png
