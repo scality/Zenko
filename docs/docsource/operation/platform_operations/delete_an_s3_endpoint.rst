@@ -35,7 +35,7 @@ Delete an S3 Endpoint from the Command Line
 
       HOSTNAME="hostname to delete"
 
-#. Send a delete request to the management API.
+#. Send a delete request to the management S3-API.
 
    .. code::
 
