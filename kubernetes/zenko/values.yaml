@@ -68,7 +68,7 @@ global:
 s3Utils:
   image:
     repository: registry.scality.com/s3utils/s3utils
-    tag: "1.9.0"
+    tag: "1.10.1"
     pullPolicy: IfNotPresent
 
 maintenance:
