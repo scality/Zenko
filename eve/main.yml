@@ -72,10 +72,14 @@ models:
         echo "Could not reach Docker daemon from buildbot worker" >&2
         exit 1'
       haltOnFailure: true
-  - SetProperties: &set_operator_properties
-      properties:
-        OPERATOR_IMAGE_NAME: registry.scality.com/sf-eng/zenko-operator
-        OPERATOR_IMAGE_TAG: '1.1.6'
+  - SetPropertyFromCommand: &set_operator_image_name
+      name: Set operator image name
+      property: OPERATOR_IMAGE_NAME
+      command: yq '."zenko-operator".sourceRegistry'
+  - SetPropertyFromCommand: &set_operator_image_tag
+      name: Set operator image name
+      property: OPERATOR_IMAGE_TAG
+      command: yq '."zenko-operator".tag'
   - ShellCommand: &ssh_access
       # Connect with ssh eve@ip
       name: setup team ssh credentials
@@ -230,7 +234,8 @@ stages:
     worker: *end2end-worker
     steps:
     - Git: *git_pull
-    - SetProperties: *set_operator_properties
+    - SetPropertyFromCommand: *set_operator_image_name
+    - SetPropertyFromCommand: *set_operator_image_tag
     - ShellCommand: *wait_docker_daemon
     - ShellCommand: *private_registry_login
     - ShellCommand: *ssh_access
@@ -284,13 +289,12 @@ stages:
         env:
           <<: *kind-env
           COMMIT_HASH: '%(prop:OPERATOR_IMAGE_TAG)s'
+          REPLACE_IMAGE: '${OPERATOR_IMAGE}'
         command: |
           docker pull ${OPERATOR_IMAGE}
           kind load docker-image ${OPERATOR_IMAGE}
-          git clone ${OPERATOR_REPO} operator
-          cd operator
-          git checkout ${COMMIT_HASH}
-          bash deploy/scripts/install-zenko-operator.sh "${OPERATOR_IMAGE}" default
+          kubectl apply -k "ssh://github.com/scality/zenko-operator/deploy?ref=%(prop:OPERATOR_IMAGE_TAG)s"
+          kubectl wait --for condition=Available --timeout=5m deployment/zenko-operator
         workdir: build/eve/workers/end2end
         haltOnFailure: true
         flunkOnFailure: true
@@ -352,7 +356,8 @@ stages:
     worker: *end2end-worker
     steps:
     - Git: *git_pull
-    - SetProperties: *set_operator_properties
+    - SetPropertyFromCommand: *set_operator_image_name
+    - SetPropertyFromCommand: *set_operator_image_tag
     - ShellCommand: *wait_docker_daemon
     - ShellCommand: *private_registry_login
     - ShellCommand: *ssh_access
@@ -398,7 +403,8 @@ stages:
     worker: *end2end-worker
     steps:
     - Git: *git_pull
-    - SetProperties: *set_operator_properties
+    - SetPropertyFromCommand: *set_operator_image_name
+    - SetPropertyFromCommand: *set_operator_image_tag
     - ShellCommand: *wait_docker_daemon
     - ShellCommand: *private_registry_login
     - ShellCommand: *ssh_access
