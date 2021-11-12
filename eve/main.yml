@@ -75,7 +75,7 @@ models:
   - SetProperties: &set_operator_properties
       properties:
         OPERATOR_IMAGE_NAME: registry.scality.com/sf-eng/zenko-operator
-        OPERATOR_IMAGE_TAG: '1.2.2'
+        OPERATOR_IMAGE_TAG: '1.2.3'
   - ShellCommand: &ssh_access
       # Connect with ssh eve@ip
       name: setup team ssh credentials
