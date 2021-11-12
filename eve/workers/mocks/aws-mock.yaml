@@ -11,6 +11,29 @@ spec:
       port: 80
       targetPort: http
 ---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: aws-mock
+spec:
+  rules:
+  - host: 'aws-mock.zenko.local'
+    http:
+      paths:
+      - backend:
+          serviceName: aws-mock
+          servicePort: http
+        path: /
+        pathType: Prefix
+  - host: '*.aws-mock.zenko.local'
+    http:
+      paths:
+      - backend:
+          serviceName: aws-mock
+          servicePort: http
+        path: /
+        pathType: Prefix
+---
 apiVersion: v1
 kind: Pod
 metadata:
@@ -40,7 +63,7 @@ spec:
     - name: REMOTE_MANAGEMENT_DISABLE
       value: "1"
     - name: ENDPOINT
-      value: "aws-mock"
+      value: "aws-mock.zenko.local"
     - name: S3BACKEND
       value: file
     ports:

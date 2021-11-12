@@ -13,6 +13,8 @@ def create_location(client, uuid, location):
     """
     try:
         Location_V1 = client.get_model('location-v1')
+        if "bootstrapList" not in location["details"]:
+            location["details"]["bootstrapList"] = []
         loc = Location_V1(name=location["name"],
                             locationType=location["locationType"],
                             details=location["details"])
@@ -24,7 +26,6 @@ def create_location(client, uuid, location):
             .result
         )
 
-        _log.info(res)
         _log.info("location created")
     except Exception as e:
         raise Exception(

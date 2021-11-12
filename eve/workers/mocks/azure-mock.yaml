@@ -34,3 +34,42 @@ spec:
       requests:
         cpu: 1
         memory: 2Gi
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: azure-mock
+spec:
+  rules:
+  - host: '*.azure-mock.zenko.local'
+    http:
+      paths:
+      - backend:
+          serviceName: azure-mock
+          servicePort: http
+        path: /
+        pathType: Prefix
+  - host: 'azure-mock.zenko.local'
+    http:
+      paths:
+      - backend:
+          serviceName: azure-mock
+          servicePort: http
+        path: /
+        pathType: Prefix
+  - host: '*.blob.azure-mock.zenko.local'
+    http:
+      paths:
+      - backend:
+          serviceName: azure-mock
+          servicePort: http
+        path: /
+        pathType: Prefix
+  - host: 'blob.azure-mock.zenko.local'
+    http:
+      paths:
+      - backend:
+          serviceName: azure-mock
+          servicePort: http
+        path: /
+        pathType: Prefix
