@@ -72,10 +72,14 @@ models:
         echo "Could not reach Docker daemon from buildbot worker" >&2
         exit 1'
       haltOnFailure: true
-  - SetProperties: &set_operator_properties
-      properties:
-        OPERATOR_IMAGE_NAME: registry.scality.com/sf-eng/zenko-operator
-        OPERATOR_IMAGE_TAG: '1.2.3'
+  - SetPropertyFromCommand: &set_operator_image_name
+      name: Set operator image name
+      property: OPERATOR_IMAGE_NAME
+      command: yq eval '."zenko-operator" | .sourceRegistry + "/" + .image' solution/deps.yaml
+  - SetPropertyFromCommand: &set_operator_image_tag
+      name: Set operator image name
+      property: OPERATOR_IMAGE_TAG
+      command: yq eval '."zenko-operator".tag' solution/deps.yaml
   - ShellCommand: &ssh_access
       # Connect with ssh eve@ip
       name: setup team ssh credentials
@@ -230,7 +234,8 @@ stages:
     worker: *end2end-worker
     steps:
     - Git: *git_pull
-    - SetProperties: *set_operator_properties
+    - SetPropertyFromCommand: *set_operator_image_name
+    - SetPropertyFromCommand: *set_operator_image_tag
     - ShellCommand: *wait_docker_daemon
     - ShellCommand: *private_registry_login
     - ShellCommand: *ssh_access
@@ -352,7 +357,8 @@ stages:
     worker: *end2end-worker
     steps:
     - Git: *git_pull
-    - SetProperties: *set_operator_properties
+    - SetPropertyFromCommand: *set_operator_image_name
+    - SetPropertyFromCommand: *set_operator_image_tag
     - ShellCommand: *wait_docker_daemon
     - ShellCommand: *private_registry_login
     - ShellCommand: *ssh_access
@@ -398,7 +404,8 @@ stages:
     worker: *end2end-worker
     steps:
     - Git: *git_pull
-    - SetProperties: *set_operator_properties
+    - SetPropertyFromCommand: *set_operator_image_name
+    - SetPropertyFromCommand: *set_operator_image_tag
     - ShellCommand: *wait_docker_daemon
     - ShellCommand: *private_registry_login
     - ShellCommand: *ssh_access
