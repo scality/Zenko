@@ -124,7 +124,8 @@ def main():
                                     namespace=NAMESPACE)
 
         for endpoint in e2e_config["endpoints"]:
-            endpoints.create_endpoint(client, UUID, endpoint)
+            endpoints.create_endpoint(client, UUID, endpoint["hostname"],
+                                      endpoint["locationName"])
 
         for location in e2e_config["locations"]:
             locations.create_location(client, UUID, location)
