@@ -67,6 +67,11 @@ run_e2e_test() {
         --env=AWS_ACCESS_KEY=accessKey1 \
         --env=AWS_SECRET_KEY=verySecretKey1 \
         --env=VERIFY_CERTIFICATES=false \
+        --env=RING_S3C_ACCESS_KEY=${RING_S3C_ACCESS_KEY}
+        --env=RING_S3C_SECRET_KEY=${RING_S3C_SECRET_KEY}
+        --env=RING_S3C_ENDPOINT=${RING_S3C_ENDPOINT}
+        --env=RING_S3C_BACKEND_SOURCE_LOCATION=${RING_S3C_BACKEND_SOURCE_LOCATION}
+        --env=RING_S3C_INGESTION_SRC_BUCKET_NAME=${RING_S3C_INGESTION_SRC_BUCKET_NAME}
         --command -- sh -c "${2}"
 }
 
@@ -78,5 +83,5 @@ elif [ "$STAGE" = "debug" ]; then
 elif [ "$STAGE" = "smoke" ]; then
    run_e2e_test '' 'cd node_tests && npm run test_smoke'
 elif [ "$STAGE" = "backbeat" ]; then
-   run_e2e_test '' 'cd node_tests && npm run test_aws_crr'
+   run_e2e_test '' 'cd node_tests && npm run test_aws_crr && npm run test_ingestion_oob_s3c'
 fi
