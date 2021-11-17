@@ -50,6 +50,23 @@ run_e2e_test() {
         --env=CYPRESS_KEYCLOAK_CLIENT_ID=${OIDC_CLIENT_ID} \
         --env=CYPRESS_KEYCLOAK_REALM=${OIDC_REALM} \
         --env=UI_ENDPOINT=${UI_ENDPOINT} \
+        --env=AWS_BACKEND_SOURCE_LOCATION=awsbackend \
+        --env=AWS_BACKEND_DESTINATION_LOCATION=awsbackendmismatch \
+        --env=GCP_BACKEND_DESTINATION_LOCATION=gcpbackendmismatch \
+        --env=AZURE_BACKEND_DESTINATION_LOCATION=azurebackendmismatch \
+        --env=LOCATION_QUOTA_BACKEND=quotabackend \
+        --env=AWS_BUCKET_NAME=ci-zenko-aws-target-bucket \
+        --env=AWS_CRR_BUCKET_NAME=ci-zenko-aws-crr-target-bucket \
+        --env=AZURE_CRR_BUCKET_NAME=ci-zenko-azure-crr-target-bucket \
+        --env=GCP_CRR_BUCKET_NAME=ci-zenko-gcp-crr-target-bucket \
+        --env=GCP_CRR_MPU_BUCKET_NAME=ci-zenko-gcp-crr-mpu-bucket \
+        --env=AZURE_ACCOUNT_NAME=devstoreaccount1 \
+        --env=AZURE_BACKEND_ENDPOINT=http://azure-mock/devstoreaccount1 \
+        --env=AZURE_SECRET_KEY=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw== \
+        --env=AWS_ENDPOINT=http://aws-mock.zenko.local \
+        --env=AWS_ACCESS_KEY=accessKey1 \
+        --env=AWS_SECRET_KEY=verySecretKey1 \
+        --env=VERIFY_CERTIFICATES=false \
         --command -- sh -c "${2}"
 }
 
@@ -60,4 +77,6 @@ elif [ "$STAGE" = "debug" ]; then
    run_e2e_test '-ti' 'bash'
 elif [ "$STAGE" = "smoke" ]; then
    run_e2e_test '' 'cd node_tests && npm run test_smoke'
+elif [ "$STAGE" = "backbeat" ]; then
+   run_e2e_test '' 'cd node_tests && npm run test_aws_crr'
 fi
