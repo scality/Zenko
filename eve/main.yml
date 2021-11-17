@@ -54,6 +54,11 @@ models:
       GCP_SECRET_KEY: '%(secret:aws_gcp_backend_secret_key)s'
       GCP_BACKEND_SERVICE_KEY: '%(secret:gcp_backend_service_key)s'
       GCP_BACKEND_SERVICE_EMAIL: '%(secret:gcp_backend_service_email)s'
+      RING_S3C_ACCESS_KEY: '%(secret:ring_s3c_backend_access_key)s'
+      RING_S3C_SECRET_KEY: '%(secret:ring_s3c_backend_secret_key)s'
+      RING_S3C_ENDPOINT: '%(secret:ring_s3c_backend_endpoint)s'
+      RING_S3C_BACKEND_SOURCE_LOCATION: rings3cbackendingestion
+      RING_S3C_INGESTION_SRC_BUCKET_NAME: 'ingestion-test-src-bucket-%(prop:bootstrap)s'
   - env: &mock-env
       AZURE_ACCOUNT_NAME: devstoreaccount1
       AZURE_BACKEND_ENDPOINT: http://azure-mock/devstoreaccount1
@@ -251,6 +256,7 @@ stages:
         workdir: build/tests/zenko_tests
         command: |
           envsubst < 'e2e-config.yaml.template' > 'e2e-config.yaml'
+          cat e2e-config.yaml
           echo 'Generated e2e-config.yaml file'
         haltOnFailure: true
     - ShellCommand: &build-e2e-image
@@ -355,21 +361,21 @@ stages:
     - ShellCommand: &configure_end2end_tests
         name: End-to-end configuration
         env:
-          <<: [*kind-env, *e2e-env, *http-env]
+          <<: [*kind-env, *e2e-env, *http-env, *secrets-env]
         command: bash scripts/configure-e2e.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "default"
         workdir: build/eve/workers/end2end
         haltOnFailure: true
     - ShellCommand: &run_end2end_tests
         name: Run init CI test
         env:
-          <<: [*kind-env, *e2e-env, *http-env]
+          <<: [*kind-env, *e2e-env, *http-env, *secrets-env]
         command: bash scripts/run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "end2end" "default"
         workdir: build/eve/workers/end2end
         haltOnFailure: true
     - ShellCommand: &run_smoke_test
         name: Run smoke tests
         env:
-          <<: [*kind-env, *e2e-env, *http-env]
+          <<: [*kind-env, *e2e-env, *http-env, *secrets-env]
         command: bash scripts/run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "smoke" "default"
         workdir: build/eve/workers/end2end
         haltOnFailure: true
@@ -437,15 +443,15 @@ stages:
     - ShellCommand:
         <<: *configure_end2end_tests
         env:
-          <<: [*kind-env, *e2e-env, *https-env]
+          <<: [*kind-env, *e2e-env, *https-env, *secrets-env]
     - ShellCommand:
         <<: *run_end2end_tests
         env:
-          <<: [*kind-env, *e2e-env, *https-env]
+          <<: [*kind-env, *e2e-env, *https-env, *secrets-env]
     - ShellCommand:
         <<: *run_smoke_test
         env:
-          <<: [*kind-env, *e2e-env, *https-env]
+          <<: [*kind-env, *e2e-env, *https-env, *secrets-env]
     - ShellCommand: *archive_artifacts
     - ShellCommand: *kind_cluster_cleanup
     - Upload: *upload_artifacts

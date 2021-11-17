@@ -18,6 +18,9 @@ def get_credentials(token, account_id):
     """
     _log.info("getting account credentials")
 
+    # TODO: either use account credentials by generating it using pensieve-api
+    # or create a role and then use assume role to generate credential/token
+    # do not use hard coded role, this will be removed in the future versions!
     res = clients.stsclient.assume_role_with_web_identity(
         RoleArn="arn:aws:iam::%s:role/roleForB" % (account_id),
         RoleSessionName='end2end',
