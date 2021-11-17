@@ -4,18 +4,22 @@ endpoints: []
 locations:
   - name: "${AWS_BACKEND_DESTINATION_LOCATION}"
     locationType: "location-aws-s3-v1"
+    legacyAwsBehavior: yes
     details:
       bucketName: "${AWS_CRR_BUCKET_NAME}"
       endpoint: "${AWS_ENDPOINT}"
       accessKey: "${AWS_ACCESS_KEY}"
       secretKey: "${AWS_SECRET_KEY}"
-  - name: "${AZURE_BACKEND_DESTINATION_LOCATION}"
-    locationType: "location-azure-v1"
+      bucketMatch: no
+  - name: "${AWS_BACKEND_SOURCE_LOCATION}"
+    locationType: "location-aws-s3-v1"
     details:
-      bucketName: "${AZURE_CRR_BUCKET_NAME}"
-      endpoint: "${AZURE_BACKEND_ENDPOINT}"
-      accessKey: "${AZURE_ACCOUNT_NAME}"
-      secretKey: "${AZURE_SECRET_KEY}"
+      bucketName: "${AWS_BUCKET_NAME}"
+      endpoint: "${AWS_ENDPOINT}"
+      accessKey: "${AWS_ACCESS_KEY}"
+      secretKey: "${AWS_SECRET_KEY}"
+      bucketMatch: yes
 workflows:
   replication: []
   lifecycle: []
+  ingestion: []
