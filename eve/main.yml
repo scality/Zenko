@@ -40,6 +40,16 @@ models:
       VAULT_TEST_IMAGE_NAME: '%(prop:vault_test_image_name)s'
       VAULT_TEST_IMAGE_TAG: '%(prop:vault_test_image_tag)s'
   - env: &secrets-env
+      AWS_BACKEND_SOURCE_LOCATION: awsbackend
+      AWS_BACKEND_DESTINATION_LOCATION: awsbackendmismatch
+      GCP_BACKEND_DESTINATION_LOCATION: gcpbackendmismatch
+      AZURE_BACKEND_DESTINATION_LOCATION: azurebackendmismatch
+      LOCATION_QUOTA_BACKEND: quotabackend
+      AWS_BUCKET_NAME: ci-zenko-aws-target-bucket
+      AWS_CRR_BUCKET_NAME: ci-zenko-aws-crr-target-bucket
+      AZURE_CRR_BUCKET_NAME: ci-zenko-azure-crr-target-bucket
+      GCP_CRR_BUCKET_NAME: ci-zenko-gcp-crr-target-bucket
+      GCP_CRR_MPU_BUCKET_NAME: ci-zenko-gcp-crr-mpu-bucket
       GCP_ACCESS_KEY: '%(secret:aws_gcp_backend_access_key)s'
       GCP_SECRET_KEY: '%(secret:aws_gcp_backend_secret_key)s'
       GCP_BACKEND_SERVICE_KEY: '%(secret:gcp_backend_service_key)s'
@@ -124,9 +134,9 @@ stages:
         name: trigger iso and documentation build
         haltOnFailure: true
         stage_names:
-        - build-doc
-        - build-iso
-        - build-base-iso
+        # - build-doc
+        # - build-iso
+        # - build-base-iso
         - build-test-image
     - TriggerStages:
         name: Launch end2end tests
@@ -134,8 +144,8 @@ stages:
         doStepIf: '%(prop:launch_end2end)s'
         stage_names:
         - end2end-http
-        - end2end-https
-        - end2end-vault
+        # - end2end-https
+        # - end2end-vault
     - ShellCommand:
         name: add successful .final_status to artifacts
         command: >
@@ -246,6 +256,7 @@ stages:
         workdir: build/tests/zenko_tests
         command: |
           envsubst < 'e2e-config.yaml.template' > 'e2e-config.yaml'
+          cat e2e-config.yaml
           echo 'Generated e2e-config.yaml file'
         haltOnFailure: true
     - ShellCommand: &build-e2e-image
