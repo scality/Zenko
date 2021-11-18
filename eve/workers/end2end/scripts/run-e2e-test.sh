@@ -75,6 +75,14 @@ run_e2e_test() {
         --command -- sh -c "${2}"
 }
 
+run_backbeat_tests() {
+   # run tests
+   run_e2e_test '' 'cd node_tests && npm run test_aws_crr && npm run test_ingestion_oob_s3c'
+
+   # cleanup
+   python3 cleans3c.py
+}
+
 ## TODO use existing entrypoint
 if [ "$STAGE" = "end2end" ]; then
    run_e2e_test '' 'cd node_tests && npm run test_operator && npm run test_ui'
@@ -83,5 +91,5 @@ elif [ "$STAGE" = "debug" ]; then
 elif [ "$STAGE" = "smoke" ]; then
    run_e2e_test '' 'cd node_tests && npm run test_smoke'
 elif [ "$STAGE" = "backbeat" ]; then
-   run_e2e_test '' 'cd node_tests && npm run test_aws_crr && npm run test_ingestion_oob_s3c'
+   run_backbeat_tests
 fi

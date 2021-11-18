@@ -15,7 +15,7 @@ VAULT_ENDPOINT="http://${ZENKO_NAME}-connector-vault-sts-api"
 UUID=$(kubectl get zenko ${ZENKO_NAME} --namespace ${NAMESPACE} -o jsonpath='{.status.instanceID}')
 TOKEN=$(get_token)
 
-cat <<EOF | kubectl apply -f - 
+cat <<EOF | kubectl apply -f -
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -60,7 +60,13 @@ kubectl run ${POD_NAME} \
   --env="MANAGEMENT_ENDPOINT=${MANAGEMENT_ENDPOINT}" \
   --env="VAULT_ENDPOINT=${VAULT_ENDPOINT}" \
   --env="NAMESPACE=${NAMESPACE}" \
-  --command -- python3 configuration.py
+  --env=VERIFY_CERTIFICATES=false \
+  --env=RING_S3C_ACCESS_KEY=${RING_S3C_ACCESS_KEY} \
+  --env=RING_S3C_SECRET_KEY=${RING_S3C_SECRET_KEY} \
+  --env=RING_S3C_ENDPOINT=${RING_S3C_ENDPOINT} \
+  --env=RING_S3C_BACKEND_SOURCE_LOCATION=${RING_S3C_BACKEND_SOURCE_LOCATION} \
+  --env=RING_S3C_INGESTION_SRC_BUCKET_NAME=${RING_S3C_INGESTION_SRC_BUCKET_NAME} \
+  --command -- sh "python3 create_buckets.py && python3 configuration.py"
 
 ## wait for updates to trigger zenko upgrades
 sleep 10
