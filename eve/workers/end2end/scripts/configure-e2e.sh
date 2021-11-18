@@ -66,7 +66,7 @@ kubectl run ${POD_NAME} \
   --env=RING_S3C_ENDPOINT=${RING_S3C_ENDPOINT} \
   --env=RING_S3C_BACKEND_SOURCE_LOCATION=${RING_S3C_BACKEND_SOURCE_LOCATION} \
   --env=RING_S3C_INGESTION_SRC_BUCKET_NAME=${RING_S3C_INGESTION_SRC_BUCKET_NAME} \
-  --command -- sh "python3 create_buckets.py && python3 configuration.py"
+  --command -- python3 configuration.py
 
 ## wait for updates to trigger zenko upgrades
 sleep 10

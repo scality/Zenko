@@ -15,7 +15,8 @@ POD_NAME="${ZENKO_NAME}-${STAGE}-test"
 TOKEN=$(get_token)
 
 # set environment vars
-CLOUDSERVER_ENDPOINT="http://${ZENKO_NAME}-connector-s3api.default.svc.cluster.local:80"
+CLOUDSERVER_HOST="${ZENKO_NAME}-connector-s3api.default.svc.cluster.local"
+CLOUDSERVER_ENDPOINT="http://${CLOUDSERVER_HOST}:80"
 BACKBEAT_API_ENDPOINT="http://${ZENKO_NAME}-management-backbeat-api.default.svc.cluster.local:80"
 VAULT_ENDPOINT="http://${ZENKO_NAME}-management-vault-iam-admin-api"
 ADMIN_ACCESS_KEY_ID=$(kubectl get secret end2end-management-vault-admin-creds.v1 -o jsonpath='{.data.accessKey}' | base64 -d)
@@ -25,6 +26,8 @@ ZENKO_SECRET_KEY=$(kubectl get secret end2end-account-zenko -o jsonpath='{.data.
 ZENKO_SESSION_TOKEN=$(kubectl get secret end2end-account-zenko -o jsonpath='{.data.SessionToken}' | base64 -d)
 OIDC_FULLNAME="${OIDC_FIRST_NAME} ${OIDC_LAST_NAME}"
 
+echo "ZENKO ACCESS KEY------> ${ZENKO_ACCESS_KEY}"
+echo "ZENKO SECRET KEY------> ${ZENKO_SECRET_KEY}"
 
 run_e2e_test() {
     kubectl run ${1} ${POD_NAME} \
@@ -34,6 +37,7 @@ run_e2e_test() {
         --attach=True \
         --namespace=${NAMESPACE} \
         --image-pull-policy=Always \
+        --env=CLOUDSERVER_HOST=${CLOUDSERVER_HOST} \
         --env=CLOUDSERVER_ENDPOINT=${CLOUDSERVER_ENDPOINT} \
         --env=ZENKO_ACCESS_KEY=${ZENKO_ACCESS_KEY} \
         --env=ZENKO_SECRET_KEY=${ZENKO_SECRET_KEY} \

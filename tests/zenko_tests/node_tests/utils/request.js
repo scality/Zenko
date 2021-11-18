@@ -1,11 +1,14 @@
 const http = require('http');
 const aws4 = require('aws4');
 
-const DEFAULT_HOST = process.env.CLOUDSERVER_HOST || 'zenko.local';
+const DEFAULT_HOST = process.env.CLOUDSERVER_HOST;
 const DEFAULT_PORT = '80';
 
 const accessKeyId = process.env.ZENKO_ACCESS_KEY;
 const secretAccessKey = process.env.ZENKO_SECRET_KEY;
+
+console.log('ZENKO_ACCESS_KEY-------->', accessKeyId);
+console.log('ZENKO_SECRET_KEY-------->', secretAccessKey);
 
 const defaultOptions = {
     host: DEFAULT_HOST,

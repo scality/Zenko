@@ -12,8 +12,6 @@ def create_location(client, uuid, location):
     :param location: location details
     """
     try:
-        print('LOCATION---->')
-        print(location)
         Location_V1 = client.get_model('location-v1')
         if "bootstrapList" not in location["details"]:
             location["details"]["bootstrapList"] = []
