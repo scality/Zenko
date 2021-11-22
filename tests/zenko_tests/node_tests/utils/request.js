@@ -6,6 +6,7 @@ const DEFAULT_PORT = '80';
 
 const accessKeyId = process.env.ZENKO_ACCESS_KEY;
 const secretAccessKey = process.env.ZENKO_SECRET_KEY;
+const sessionToken = process.env.ZENKO_SESSION_TOKEN;
 
 console.log('ZENKO_ACCESS_KEY-------->', accessKeyId);
 console.log('ZENKO_SECRET_KEY-------->', secretAccessKey);
@@ -15,7 +16,8 @@ const defaultOptions = {
     port: DEFAULT_PORT,
     service: 's3',
 };
-const credentials = { accessKeyId, secretAccessKey };
+
+const credentials = { accessKeyId, secretAccessKey, sessionToken };
 
 function getResponseBody(res, cb) {
     res.setEncoding('utf8');
