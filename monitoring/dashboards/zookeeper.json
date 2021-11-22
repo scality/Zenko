@@ -107,7 +107,7 @@
   "gnetId": 10465,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1596345589531,
+  "iteration": null,
   "links": [],
   "panels": [
     {
@@ -9025,6 +9025,6 @@
   },
   "timezone": "",
   "title": "ZooKeeper",
-  "uid": "SDE76m7Zzz",
-  "version": 342
+  "uid": null,
+  "version": 4
 }
