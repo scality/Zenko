@@ -588,7 +588,7 @@
                 {
                     "expr": "rate(redis_net_input_bytes_total{namespace=\"${namespace}\", job=\"${job}\"}[5m])",
                     "intervalFactor": 2,
-                    "legendFormat": "{{ input }}",
+                    "legendFormat": "input",
                     "refId": "A",
                     "step": 240
                 },
@@ -596,7 +596,7 @@
                     "expr": "rate(redis_net_output_bytes_total{namespace=\"${namespace}\", job=\"${job}\"}[5m])",
                     "interval": "",
                     "intervalFactor": 2,
-                    "legendFormat": "{{ output }}",
+                    "legendFormat": "output",
                     "refId": "B",
                     "step": 240
                 }
@@ -1085,7 +1085,8 @@
                     "expr": "redis_connected_clients{namespace=\"${namespace}\", job=\"${job}\"}",
                     "format": "time_series",
                     "intervalFactor": 1,
-                    "refId": "A"
+                    "refId": "A",
+                    "legendFormat": "clients"
                 }
             ],
             "thresholds": [],
@@ -1167,7 +1168,7 @@
     },
     "refresh": "30s",
     "schemaVersion": 12,
-    "version": 52,
+    "version": 1,
     "links": [],
     "gnetId": 37
 }
