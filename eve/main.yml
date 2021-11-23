@@ -134,6 +134,11 @@ stages:
         - build-base-iso
         - build-test-image
     - TriggerStages:
+        name: Launch inexpensive tests
+        haltOnFailure: true
+        stage_names:
+          - check-dashboard-versions
+    - TriggerStages:
         name: Launch end2end tests
         haltOnFailure: true
         doStepIf: '%(prop:launch_end2end)s'
@@ -490,3 +495,13 @@ stages:
         haltOnFailure: true
     - ShellCommand: *kind_cluster_cleanup
     - Upload: *upload_artifacts
+
+  check-dashboard-versions:
+    worker:
+      type: local
+    steps:
+      - Git: *git_pull
+      - ShellCommand:
+          name: Verify monitoring dashboard versions
+          command: bash monitoring/dashboards/check_versions.sh
+          haltOnFailure: true
