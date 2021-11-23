@@ -16,12 +16,15 @@
 
 1. Copy the JSON model
 2. Apply the following modifications:
-   * add the `__inputs` of the original download to the model
+   * add the `__inputs` of the original download to the model.
+     Inputs are named values populated at dashboard upload time, used to match
+     the dashboard with the deployment.
    * add the `__requires` of the original download to the model
    * move `id` from int to `null` in the model
    * move `uid` from int to `null` in the model
    * set the `version` of the model to `1`
    * remove `iteration` entirely from the model
+   * set `annotations` to `{"list": []}`
 3. Comnit in `monitoring/dashboards`
 
 
