@@ -7,6 +7,20 @@
       "type": "datasource",
       "pluginId": "prometheus",
       "pluginName": "Prometheus"
+    },
+    {
+      "name": "namespace",
+      "type": "constant",
+      "label": "namespace",
+      "description": "Namespace associated with the Zenko instance",
+      "value": "zenko"
+    },
+    {
+      "name": "job",
+      "type": "constant",
+      "label": "job",
+      "description": "Name of the MongoDB job, used to filter only the MongoDB instances.",
+      "value": "mongodb"
     }
   ],
   "__requires": [
@@ -35,19 +49,6 @@
       "version": "5.0.0"
     }
   ],
-  "annotations": {
-    "list": [
-      {
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
-        "type": "dashboard"
-      }
-    ]
-  },
   "description": "MongoDB Prometheus Exporter Dashboard. A fork inspired from https://grafana.com/grafana/dashboards/2583 which is made to work well with https://github.com/percona/mongodb_exporter.",
   "editable": true,
   "gnetId": 12079,
@@ -57,7 +58,7 @@
   "panels": [
     {
       "collapsed": false,
-      "datasource": null,
+      "datasource": "${DS_PROMETHEUS}",
       "fieldConfig": {
         "defaults": {},
         "overrides": []
@@ -79,7 +80,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "${DS_PROMETHEUS}",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -118,7 +119,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "rate(mongodb_op_counters_total{pod=~\"$env\", namespace=\"zenko\"}[$interval])",
+          "expr": "rate(mongodb_op_counters_total{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\"}[10m])",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -173,7 +174,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "${DS_PROMETHEUS}",
       "fieldConfig": {
         "defaults": {
           "unit": "ops"
@@ -223,7 +224,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "rate(mongodb_mongod_metrics_document_total{pod=~\"$env\", namespace=\"zenko\"}[$interval])",
+          "expr": "rate(mongodb_mongod_metrics_document_total{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\"}[10m])",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -278,7 +279,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "${DS_PROMETHEUS}",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -317,7 +318,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "rate(mongodb_mongod_metrics_query_executor_total{pod=~\"$env\", namespace=\"zenko\"}[$interval])",
+          "expr": "rate(mongodb_mongod_metrics_query_executor_total{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\"}[5m])",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -370,7 +371,7 @@
     },
     {
       "collapsed": false,
-      "datasource": null,
+      "datasource": "${DS_PROMETHEUS}",
       "fieldConfig": {
         "defaults": {},
         "overrides": []
@@ -392,7 +393,7 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "${DS_PROMETHEUS}",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -431,7 +432,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "mongodb_mongod_replset_number_of_members{pod=~\"$env\"}",
+          "expr": "mongodb_mongod_replset_number_of_members{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\"}",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -441,7 +442,7 @@
         },
         {
           "exemplar": true,
-          "expr": "sum(mongodb_mongod_replset_number_of_members{pod=~\"$env\"})",
+          "expr": "sum(mongodb_mongod_replset_number_of_members{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\"})",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -498,7 +499,7 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "${DS_PROMETHEUS}",
       "description": "See which node is currently acting as the primary, secondary, ...",
       "fill": 1,
       "fillGradient": 0,
@@ -539,7 +540,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "mongodb_mongod_replset_member_state{pod=~\"$env\"}",
+          "expr": "mongodb_mongod_replset_member_state{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\"}",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -596,7 +597,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "${DS_PROMETHEUS}",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -635,7 +636,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "rate(mongodb_op_counters_repl_total{pod=~\"$env\"}[$interval])",
+          "expr": "rate(mongodb_op_counters_repl_total{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\"}[5m])",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -687,7 +688,7 @@
     },
     {
       "collapsed": false,
-      "datasource": null,
+      "datasource": "${DS_PROMETHEUS}",
       "fieldConfig": {
         "defaults": {},
         "overrides": []
@@ -706,7 +707,7 @@
     },
     {
       "cacheTimeout": null,
-      "datasource": "Prometheus",
+      "datasource": "${DS_PROMETHEUS}",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -773,8 +774,9 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "mongodb_instance_uptime_seconds{pod=~\"$env\"}",
+          "expr": "mongodb_instance_uptime_estimate_seconds{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\"}",
           "format": "time_series",
+          "instant": true,
           "interval": "",
           "intervalFactor": 2,
           "legendFormat": "",
@@ -787,7 +789,7 @@
     },
     {
       "cacheTimeout": null,
-      "datasource": "Prometheus",
+      "datasource": "${DS_PROMETHEUS}",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -851,9 +853,10 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "mongodb_connections{pod=~\"$env\",state=\"available\"}",
+          "expr": "mongodb_connections{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\",state=\"available\"}",
           "format": "time_series",
           "interval": "",
+          "instant": true,
           "intervalFactor": 2,
           "legendFormat": "",
           "metric": "mongodb_connections",
@@ -866,7 +869,7 @@
     },
     {
       "cacheTimeout": null,
-      "datasource": "Prometheus",
+      "datasource": "${DS_PROMETHEUS}",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -931,9 +934,10 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "mongodb_connections{pod=~\"$env\",state=\"current\"}",
+          "expr": "mongodb_connections{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\",state=\"current\"}",
           "format": "time_series",
           "interval": "",
+          "instant": true,
           "intervalFactor": 2,
           "legendFormat": "",
           "metric": "mongodb_connections",
@@ -946,7 +950,7 @@
     },
     {
       "collapsed": false,
-      "datasource": null,
+      "datasource": "${DS_PROMETHEUS}",
       "fieldConfig": {
         "defaults": {},
         "overrides": []
@@ -968,7 +972,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "${DS_PROMETHEUS}",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -1007,7 +1011,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "mongodb_mongod_replset_oplog_size_bytes{pod=~\"$env\"}",
+          "expr": "mongodb_mongod_replset_oplog_size_bytes{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\"}",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -1063,7 +1067,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "${DS_PROMETHEUS}",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -1106,7 +1110,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "mongodb_memory{pod=~\"$env\",type=~\"resident|virtual\"}",
+          "expr": "mongodb_memory{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\",type=~\"resident|virtual\"}",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -1163,7 +1167,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "${DS_PROMETHEUS}",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -1202,7 +1206,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "rate(mongodb_network_bytes_total{pod=~\"$env\"}[$interval])",
+          "expr": "rate(mongodb_network_bytes_total{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\"}[10m])",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -1255,7 +1259,7 @@
     },
     {
       "collapsed": false,
-      "datasource": null,
+      "datasource": "${DS_PROMETHEUS}",
       "fieldConfig": {
         "defaults": {},
         "overrides": []
@@ -1315,7 +1319,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "${DS_PROMETHEUS}",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -1456,7 +1460,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "${DS_PROMETHEUS}",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -1557,7 +1561,7 @@
     },
     {
       "collapsed": false,
-      "datasource": null,
+      "datasource": "${DS_PROMETHEUS}",
       "fieldConfig": {
         "defaults": {},
         "overrides": []
@@ -1579,7 +1583,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "${DS_PROMETHEUS}",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -1671,7 +1675,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "${DS_PROMETHEUS}",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -1763,7 +1767,7 @@
   "schemaVersion": 30,
   "style": "dark",
   "tags": [
-    "prometheus"
+    "mongodb"
   ],
   "templating": {
     "list": [
@@ -1774,15 +1778,15 @@
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "Prometheus",
+        "datasource": "${DS_PROMETHEUS}",
         "definition": "label_values(mongodb_connections, pod)",
         "description": null,
         "error": null,
         "hide": 0,
         "includeAll": true,
-        "label": "env",
+        "label": "instance",
         "multi": true,
-        "name": "env",
+        "name": "pod",
         "options": [],
         "query": {
           "query": "label_values(mongodb_connections, pod)",
@@ -1794,82 +1798,6 @@
         "sort": 1,
         "type": "query",
         "useTags": false
-      },
-      {
-        "auto": true,
-        "auto_count": 30,
-        "auto_min": "10s",
-        "current": {
-          "selected": false,
-          "text": "auto",
-          "value": "$__auto_interval_interval"
-        },
-        "description": null,
-        "error": null,
-        "hide": 0,
-        "label": null,
-        "name": "interval",
-        "options": [
-          {
-            "selected": true,
-            "text": "auto",
-            "value": "$__auto_interval_interval"
-          },
-          {
-            "selected": false,
-            "text": "1m",
-            "value": "1m"
-          },
-          {
-            "selected": false,
-            "text": "10m",
-            "value": "10m"
-          },
-          {
-            "selected": false,
-            "text": "30m",
-            "value": "30m"
-          },
-          {
-            "selected": false,
-            "text": "1h",
-            "value": "1h"
-          },
-          {
-            "selected": false,
-            "text": "6h",
-            "value": "6h"
-          },
-          {
-            "selected": false,
-            "text": "12h",
-            "value": "12h"
-          },
-          {
-            "selected": false,
-            "text": "1d",
-            "value": "1d"
-          },
-          {
-            "selected": false,
-            "text": "7d",
-            "value": "7d"
-          },
-          {
-            "selected": false,
-            "text": "14d",
-            "value": "14d"
-          },
-          {
-            "selected": false,
-            "text": "30d",
-            "value": "30d"
-          }
-        ],
-        "query": "1m,10m,30m,1h,6h,12h,1d,7d,14d,30d",
-        "refresh": 2,
-        "skipUrlSync": false,
-        "type": "interval"
       }
     ]
   },
@@ -1904,6 +1832,5 @@
   },
   "timezone": "browser",
   "title": "MongoDB",
-  "uid": "AyWQt9jWk",
   "version": 1
 }
