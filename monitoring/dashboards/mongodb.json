@@ -49,7 +49,7 @@
       "version": "5.0.0"
     }
   ],
-  "description": "MongoDB Prometheus Exporter Dashboard. A fork inspired from https://grafana.com/grafana/dashboards/2583 which is made to work well with https://github.com/percona/mongodb_exporter.",
+  "description": "MongoDB Dashboard.",
   "editable": true,
   "gnetId": 12079,
   "graphTooltip": 1,
@@ -1832,5 +1832,5 @@
   },
   "timezone": "browser",
   "title": "MongoDB",
-  "version": 1
+  "version": 10
 }
