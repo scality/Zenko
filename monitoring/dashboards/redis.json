@@ -841,11 +841,6 @@
             }
         },
         {
-            "aliasColors": {
-                "evicts": "#890F02",
-                "memcached_items_evicted_total{instance=\"172.17.0.1:9150\",job=\"prometheus\"}": "#890F02",
-                "reclaims": "#3F6833"
-            },
             "bars": false,
             "dashLength": 10,
             "dashes": false,
