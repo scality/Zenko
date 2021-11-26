@@ -134,6 +134,7 @@ stages:
         name: trigger iso and documentation build
         haltOnFailure: true
         stage_names:
+        - check-dashboard-versions
         - build-doc
         - build-iso
         - build-base-iso
@@ -496,3 +497,12 @@ stages:
         haltOnFailure: true
     - ShellCommand: *kind_cluster_cleanup
     - Upload: *upload_artifacts
+
+  check-dashboard-versions:
+    worker: *end2end-worker
+    steps:
+      - Git: *git_pull
+      - ShellCommand:
+          name: Verify monitoring dashboard versions
+          command: bash monitoring/dashboards/check_versions.sh
+          haltOnFailure: true
