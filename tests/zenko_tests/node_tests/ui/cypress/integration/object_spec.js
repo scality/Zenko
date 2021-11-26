@@ -1,6 +1,6 @@
 describe('Object', () => {
     describe('creation', () => {
-        const accountName = 'account2';
+        const accountName = 'object_spec_1';
         const bucketName = 'mybucket6';
         const smallFileName = 'fivehundredandtwelvekb';
         const unicodeFileName = 'éléphant.txt';

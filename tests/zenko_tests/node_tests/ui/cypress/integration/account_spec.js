@@ -1,6 +1,6 @@
 describe('Account', () => {
     describe('creation', () => {
-        const accountName = 'account1';
+        const accountName = 'account_spec_1';
         beforeEach(cy.kcLogin);
 
         it('should create an account', () => {
