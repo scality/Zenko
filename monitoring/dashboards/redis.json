@@ -1163,7 +1163,7 @@
     },
     "refresh": "30s",
     "schemaVersion": 12,
-    "version": 1,
+    "version": 4,
     "links": [],
     "gnetId": 37
 }
