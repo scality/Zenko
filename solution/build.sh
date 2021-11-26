@@ -109,7 +109,7 @@ function build_registry_config()
         --mount type=bind,source=${ISO_ROOT}/images,destination=/var/lib/images \
         --mount type=bind,source=${ISO_ROOT},destination=/var/run \
         --rm \
-        docker.io/nicolast/static-container-registry:latest \
+        registry.scality.com/playground/alavigne/static-container-registry:oci-images \
             python3 static-container-registry.py \
             --name-prefix '{{ repository }}' \
             --server-root '{{ registry_root }}' \
