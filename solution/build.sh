@@ -97,6 +97,72 @@ function copy_image()
         dir:${FULL_PATH}
 }
 
+function generate_local_dashboard()
+{
+    if [[ $# -ne 1 ]]
+    then
+        echo "missing argument, $0 <dashboard>"
+        exit 1
+    fi
+
+    file=$1
+    filename=$(basename ${file})
+
+    dashboard_base_dir=${IMAGES_ROOT}/${filename%.json}/${VERSION}/
+    mkdir -p ${dashboard_base_dir}
+
+    # get sha256, sha256sum prints the checksum and the filename, keep the checksum only
+    digest=$(sha256sum  ${file} | cut -d " " -f 1)
+    # get only the size (in bytes) of the file. format "%s" only prints the size
+    size=$(stat --printf "%s" ${file})
+
+    # generate empty config file
+    config_file=${dashboard_base_dir}/config.json
+    echo "{}" > ${config_file}
+    config_sum=$(sha256sum  ${config_file} | cut -d " " -f 1)
+    mv ${config_file} ${dashboard_base_dir}/${config_sum}
+
+    cp ${file} ${dashboard_base_dir}/${digest}
+
+    cat > ${dashboard_base_dir}/manifest.json <<EOF
+{
+    "schemaVersion": 2,
+    "mediaType": "application/vnd.oci.image.manifest.v1+json",
+    "config": {
+        "mediaType": "application/vnd.oci.image.config.v1+json",
+        "digest": "sha256:${config_sum}",
+        "size": 2
+    },
+    "layers": [
+        {
+            "mediaType": "application/json",
+            "digest": "sha256:${digest}",
+            "size": ${size},
+            "annotations": {
+                "org.opencontainers.image.title": "${filename}"
+            }
+        }
+    ]
+}
+EOF
+}
+
+function get_local_dashboards()
+{
+    DASHBOARD_DIR=${REPOSITORY_DIR}/monitoring/dashboards
+
+    for dashboard in $(ls ${DASHBOARD_DIR}/*.json)
+    do
+        echo "prepare dashboard: ${dashboard}"
+        generate_local_dashboard ${dashboard}
+    done
+}
+
+function get_dashboards()
+{
+    get_local_dashboards
+}
+
 function dedupe()
 {
     ${HARDLINK} -c ${IMAGES_ROOT}
@@ -151,6 +217,7 @@ flatten_source_images | while read img ; do
     ${DOCKER} image inspect ${img} > /dev/null 2>&1 || ${DOCKER} ${DOCKER_OPTS} pull ${img}
     copy_image ${img}
 done
+get_dashboards
 dedupe
 build_registry_config
 build_iso
