@@ -13,6 +13,7 @@ POD_NAME="${ZENKO_RESOURCE}-vault-test"
 
 # set environment vars
 VAULT_ENDPOINT="http://${ZENKO_RESOURCE}-management-vault-iam-admin-api:80"
+VAULT_METRICS_ENDPOINT="http://${ZENKO_RESOURCE}-connector-vault-metrics:8501"
 VAULT_STS_ENDPOINT="http://${ZENKO_RESOURCE}-connector-vault-sts-api:80"
 VAULT_AUTH_ENDPOINT="http://${ZENKO_RESOURCE}-connector-vault-auth-api:80"
 ADMIN_ACCESS_KEY_ID=$(kubectl get secret $ZENKO_RESOURCE-management-vault-admin-creds.v1 -n $NAMESPACE -o  jsonpath='{.data.accessKey}' | base64 -d)
@@ -26,6 +27,8 @@ REDIS_TEST_HOST="${ZENKO_RESOURCE}-base-cache"
 REDIS_TEST_PORT="6379"
 REDIS_TEST_PASSWORD=$(kubectl get secret $ZENKO_RESOURCE-base-cache-creds.v1 -n $NAMESPACE -o jsonpath='{.data.password}' | base64 -d)
 ZENKO_VERSION=$(kubectl get zenko $ZENKO_RESOURCE -n $NAMESPACE -o jsonpath='{.spec.version}')
+VAULT_TEST_TAG=$(kubectl get zenkoversion $ZENKO_VERSION  -n $NAMESPACE -o jsonpath='{.spec.versions.vault.tag}')
+VAULT_TEST_IMAGE="registry.scality.com/vault/vault-test"
 KEYCLOAK_TEST_USER="${OIDC_USERNAME}-norights"
 KEYCLOAK_TEST_PASSWORD=${OIDC_PASSWORD}
 KEYCLOAK_TEST_HOST=${OIDC_ENDPOINT}
@@ -53,6 +56,7 @@ kubectl run $POD_NAME \
   --restart=Never \
   --namespace=$NAMESPACE \
   --env="VAULT_ENDPOINT=${VAULT_ENDPOINT}" \
+  --env="VAULT_METRICS_ENDPOINT=${VAULT_METRICS_ENDPOINT}" \
   --env="VAULT_STS_ENDPOINT=${VAULT_STS_ENDPOINT}" \
   --env="VAULT_AUTH_ENDPOINT=${VAULT_AUTH_ENDPOINT}" \
   --env="ADMIN_ACCESS_KEY_ID=${ADMIN_ACCESS_KEY_ID}" \
