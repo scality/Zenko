@@ -108,7 +108,7 @@ function generate_local_dashboard()
     file=$1
     filename=$(basename ${file})
 
-    dashboard_base_dir=${IMAGES_ROOT}/${filename%.json}/${VERSION}/
+    dashboard_base_dir=${IMAGES_ROOT}/${filename%.json}-dashboard/${VERSION}/
     mkdir -p ${dashboard_base_dir}
 
     # get sha256, sha256sum prints the checksum and the filename, keep the checksum only
@@ -135,7 +135,7 @@ function generate_local_dashboard()
     },
     "layers": [
         {
-            "mediaType": "application/json",
+            "mediaType": "application/grafana-dashboard+json",
             "digest": "sha256:${digest}",
             "size": ${size},
             "annotations": {
@@ -176,7 +176,7 @@ function build_registry_config()
         --mount type=bind,source=${ISO_ROOT},destination=/var/run \
         --rm \
         registry.scality.com/static-container-registry/static-container-registry:1.0.0 \
-            python3 static-container-registry.py \
+            python3 static_container_registry.py \
             --name-prefix '{{ repository }}' \
             --server-root '{{ registry_root }}' \
             --omit-constants \
