@@ -15,7 +15,7 @@ models:
       OIDC_REALM: "zenko"
       OIDC_CLIENT_ID: "zenko-ui"
       OIDC_USERNAME: 'zenko-end2end'
-      OIDC_PASSWORD: 'end2end_password'
+      OIDC_PASSWORD: '123'
       OIDC_FIRST_NAME: 'hello'
       OIDC_LAST_NAME: 'world'
       SHELL_UI_NAME: "shell-ui"
