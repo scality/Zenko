@@ -30,7 +30,7 @@ RUN apt-get update && apt-get install -y \
     mkdir -p /usr/local/bin/tests/node_tests
 
 COPY ./node_tests/package.json ./node_tests/package-lock.json /usr/local/bin/tests/node_tests/
-COPY ./python_tests/requirements.txt /tmp
+COPY ./requirements.txt /tmp
 
 RUN python3 -m pip install -r /tmp/requirements.txt tox && \
     cd /usr/local/bin/tests/node_tests && \

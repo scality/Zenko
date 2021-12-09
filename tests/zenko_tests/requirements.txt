@@ -2,6 +2,8 @@ asn1crypto==0.24.0
 blinker==1.4
 boto3==1.9.24
 botocore==1.12.24
+bravado==10.6.2
+bravado-core==5.17.0
 brotlipy==0.7.0
 certifi==2018.10.15
 cffi==1.11.5
@@ -15,18 +17,21 @@ hpack==3.0.0
 hyperframe==5.1.0
 idna==2.7
 jmespath==0.9.3
+jsonschema==3.2.0
 kaitaistruct==0.8
+kubernetes==10.0.1
 ldap3==2.5.1
 mitmproxy==4.0.4
 passlib==1.7.1
 Pipewrench==0.2.4
 pyasn1==0.4.4
 pycparser==2.19
+PyJWT==1.6.4
 pyOpenSSL==18.0.0
 pyparsing==2.2.2
 pyperclip==1.6.5
 python-dateutil==2.7.3
-PyYAML==3.13
+PyYAML==5.3.1
 redis==2.10.6
 requests==2.19.1
 ruamel.yaml==0.15.73
@@ -37,3 +42,4 @@ tornado==5.1.1
 urllib3==1.23
 urwid==2.0.1
 wsproto==0.11.0
+
