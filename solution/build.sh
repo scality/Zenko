@@ -97,6 +97,71 @@ function copy_image()
         dir:${FULL_PATH}
 }
 
+# $1 : destination folder
+# $2 : mime-type of the file
+# $3 : optionally, name of the file
+# input : the content of the file
+# output : the manifest fragment defining the file
+function generate_manifest_layer()
+{
+    local tmp=$(mktemp)
+    cat > $tmp
+    digest=$(sha256sum  ${tmp} | cut -d " " -f 1) # get sha256, sha256sum prints the checksum and the filename, keep the checksum only
+    size=$(stat --printf "%s" ${tmp})             # get only the size (in bytes) of the file. format "%s" only prints the size
+    mv $tmp $1/$digest
+
+    echo "\"mediaType\": \"$2\","
+    echo "\"digest\": \"sha256:${digest}\","
+    echo "\"size\": ${size}"
+    [ $# -eq 3 ] && echo ",\"annotations\": { \"org.opencontainers.image.title\": \"$3\" }"
+}
+
+function generate_local_dashboard()
+{
+    if [[ $# -ne 1 ]]
+    then
+        echo "missing argument, $0 <dashboard>"
+        exit 1
+    fi
+
+    file=$1
+    filename=$(basename ${file})
+
+    dashboard_base_dir=${IMAGES_ROOT}/${filename%.json}-dashboard/${VERSION}/
+    mkdir -p ${dashboard_base_dir}
+
+    cat > ${dashboard_base_dir}/manifest.json <<EOF
+{
+    "schemaVersion": 2,
+    "mediaType": "application/vnd.oci.image.manifest.v1+json",
+    "config": {
+        $(generate_manifest_layer "${dashboard_base_dir}" "application/vnd.oci.image.config.v1+json" <<< '{}')
+    },
+    "layers": [
+        {
+            $(generate_manifest_layer "${dashboard_base_dir}" "application/grafana-dashboard+json" "${filename}" < "${file}")
+        }
+    ]
+}
+EOF
+}
+
+function get_local_dashboards()
+{
+    DASHBOARD_DIR=${REPOSITORY_DIR}/monitoring/dashboards
+
+    for dashboard in $(ls ${DASHBOARD_DIR}/*.json)
+    do
+        echo "prepare dashboard: ${dashboard}"
+        generate_local_dashboard ${dashboard}
+    done
+}
+
+function get_dashboards()
+{
+    get_local_dashboards
+}
+
 function dedupe()
 {
     ${HARDLINK} -c ${IMAGES_ROOT}
@@ -109,8 +174,8 @@ function build_registry_config()
         --mount type=bind,source=${ISO_ROOT}/images,destination=/var/lib/images \
         --mount type=bind,source=${ISO_ROOT},destination=/var/run \
         --rm \
-        docker.io/nicolast/static-container-registry:latest \
-            python3 static-container-registry.py \
+        registry.scality.com/static-container-registry/static-container-registry:1.0.0 \
+            python3 static_container_registry.py \
             --name-prefix '{{ repository }}' \
             --server-root '{{ registry_root }}' \
             --omit-constants \
@@ -151,6 +216,7 @@ flatten_source_images | while read img ; do
     ${DOCKER} image inspect ${img} > /dev/null 2>&1 || ${DOCKER} ${DOCKER_OPTS} pull ${img}
     copy_image ${img}
 done
+get_dashboards
 dedupe
 build_registry_config
 build_iso
