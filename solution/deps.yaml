@@ -39,7 +39,7 @@ jabba:
 pensieve-api:
   sourceRegistry: registry.scality.com/pensieve-api
   image: pensieve-api
-  tag: 1.0.4
+  tag: 1.0.5
   envsubst: PENSIEVE_API_TAG
 utapi:
   sourceRegistry: registry.scality.com/sf-eng
@@ -47,24 +47,24 @@ utapi:
   tag: zenko-1.0.0
   envsubst: UTAPI_TAG
 zenko-operator:
-  sourceRegistry: registry.scality.com/sf-eng
+  sourceRegistry: registry.scality.com/zenko-operator
   image: zenko-operator
-  tag: 1.2.3
+  tag: 1.2.4
   envsubst: ZENKO_OPERATOR_TAG
 vault:
   sourceRegistry: registry.scality.com/vault
   image: vault
-  tag: 8.3.5
+  tag: 8.3.8
   envsubst: VAULT_TAG
 backbeat:
   sourceRegistry: registry.scality.com/backbeat
   image: backbeat
-  tag: 8.3.0
+  tag: 8.3.1
   envsubst: BACKBEAT_TAG
 cloudserver:
   sourceRegistry: registry.scality.com/cloudserver
   image: cloudserver
-  tag: 8.3.0
+  tag: 8.3.2
   envsubst: CLOUDSERVER_TAG
 s3utils:
   sourceRegistry: registry.scality.com/s3utils
@@ -79,7 +79,7 @@ kafka-cruise-control:
 zenko-ui:
   sourceRegistry: registry.scality.com/zenko-ui
   image: zenko-ui
-  tag: 1.1.0
+  tag: 1.1.1
   envsubst: ZENKO_UI_TAG
 kafka:
   sourceRegistry: ghcr.io/banzaicloud
