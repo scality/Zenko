@@ -34,6 +34,20 @@ spec:
               backbeat:
                 description: ZenkoSpecBackbeat defines how Backbeat is deployed
                 properties:
+                  metrics:
+                    description: ZenkoSpecMetrics define the metrics scrape configuration
+                      of a Zenko component.
+                    properties:
+                      scrapeInterval:
+                        description: Interval at which to scrape for metrics
+                        type: string
+                      scrapePath:
+                        description: Path to scrape for metrics
+                        type: string
+                      scrapePort:
+                        description: Name or number of metrics port
+                        type: string
+                    type: object
                   replicas:
                     format: int32
                     type: integer
@@ -48,6 +62,20 @@ spec:
                 properties:
                   enable:
                     type: boolean
+                  metrics:
+                    description: ZenkoSpecMetrics define the metrics scrape configuration
+                      of a Zenko component.
+                    properties:
+                      scrapeInterval:
+                        description: Interval at which to scrape for metrics
+                        type: string
+                      scrapePath:
+                        description: Path to scrape for metrics
+                        type: string
+                      scrapePort:
+                        description: Name or number of metrics port
+                        type: string
+                    type: object
                   replicas:
                     format: int32
                     type: integer
@@ -55,6 +83,20 @@ spec:
               cloudserver:
                 description: ZenkoSpecCloudserver defines how Cloudserver is deployed
                 properties:
+                  metrics:
+                    description: ZenkoSpecMetrics define the metrics scrape configuration
+                      of a Zenko component.
+                    properties:
+                      scrapeInterval:
+                        description: Interval at which to scrape for metrics
+                        type: string
+                      scrapePath:
+                        description: Path to scrape for metrics
+                        type: string
+                      scrapePort:
+                        description: Name or number of metrics port
+                        type: string
+                    type: object
                   replicas:
                     format: int32
                     type: integer
@@ -288,6 +330,20 @@ spec:
                       hostname:
                         type: string
                     type: object
+                  metrics:
+                    description: ZenkoSpecMetrics define the metrics scrape configuration
+                      of a Zenko component.
+                    properties:
+                      scrapeInterval:
+                        description: Interval at which to scrape for metrics
+                        type: string
+                      scrapePath:
+                        description: Path to scrape for metrics
+                        type: string
+                      scrapePort:
+                        description: Name or number of metrics port
+                        type: string
+                    type: object
                   replicas:
                     format: int32
                     type: integer
@@ -308,6 +364,20 @@ spec:
                   kafkaConfigFiles:
                     description: KafkaConfigFiles contains the Kafka config files
                     type: string
+                  metrics:
+                    description: ZenkoSpecMetrics define the metrics scrape configuration
+                      of a Zenko component.
+                    properties:
+                      scrapeInterval:
+                        description: Interval at which to scrape for metrics
+                        type: string
+                      scrapePath:
+                        description: Path to scrape for metrics
+                        type: string
+                      scrapePort:
+                        description: Name or number of metrics port
+                        type: string
+                    type: object
                   persistence:
                     description: ZenkoSpecPersistence defines the persistence attribute
                       of a stateful Zenko component. Only one of its members can be
@@ -490,6 +560,20 @@ spec:
                           hostname:
                             type: string
                         type: object
+                      metrics:
+                        description: ZenkoSpecMetrics define the metrics scrape configuration
+                          of a Zenko component.
+                        properties:
+                          scrapeInterval:
+                            description: Interval at which to scrape for metrics
+                            type: string
+                          scrapePath:
+                            description: Path to scrape for metrics
+                            type: string
+                          scrapePort:
+                            description: Name or number of metrics port
+                            type: string
+                        type: object
                       replicas:
                         format: int32
                         type: integer
@@ -558,6 +642,20 @@ spec:
                           hostname:
                             type: string
                         type: object
+                      metrics:
+                        description: ZenkoSpecMetrics define the metrics scrape configuration
+                          of a Zenko component.
+                        properties:
+                          scrapeInterval:
+                            description: Interval at which to scrape for metrics
+                            type: string
+                          scrapePath:
+                            description: Path to scrape for metrics
+                            type: string
+                          scrapePort:
+                            description: Name or number of metrics port
+                            type: string
+                        type: object
                       replicas:
                         format: int32
                         type: integer
@@ -571,9 +669,16 @@ spec:
                     description: Database name within MongoDB. Required if using an
                       External provider.
                     type: string
+                  enableSharding:
+                    description: EnableSharding specifies whether to instruct Zenko
+                      components that they should shard the collections they create.
+                      Only works with External provider.
+                    type: boolean
                   endpoints:
                     description: Endpoints are `host:port` formatted strings of External
-                      MongoDB endpoints. Must be the same length as statefulReplicas.
+                      MongoDB endpoints. Must be the same length as statefulReplicas
+                      if using a replicaset, otherwise if using sharding, must point
+                      to one or more `mongos` endpoints.
                     items:
                       type: string
                     type: array
@@ -674,8 +779,8 @@ spec:
                     - nearest
                     type: string
                   replicaSetName:
-                    description: Name of the replica set used by MongoDB. Will default
-                      to 'rs0'.
+                    description: Name of the replica set used by MongoDB. Must be
+                      empty if sharding enabled. Will default to 'rs0'.
                     type: string
                   userSecretName:
                     description: Name of the secret containing the MongoDB user account
@@ -693,6 +798,20 @@ spec:
               redis:
                 description: ZenkoSpecRedis defines the Redis deployment used by Zenko
                 properties:
+                  metrics:
+                    description: ZenkoSpecMetrics define the metrics scrape configuration
+                      of a Zenko component.
+                    properties:
+                      scrapeInterval:
+                        description: Interval at which to scrape for metrics
+                        type: string
+                      scrapePath:
+                        description: Path to scrape for metrics
+                        type: string
+                      scrapePort:
+                        description: Name or number of metrics port
+                        type: string
+                    type: object
                   persistence:
                     description: 'Deprecated: redis uses only ephemeral storage in
                       Zenko'
@@ -802,6 +921,20 @@ spec:
                     type: object
                   enable:
                     type: boolean
+                  metrics:
+                    description: ZenkoSpecMetrics define the metrics scrape configuration
+                      of a Zenko component.
+                    properties:
+                      scrapeInterval:
+                        description: Interval at which to scrape for metrics
+                        type: string
+                      scrapePath:
+                        description: Path to scrape for metrics
+                        type: string
+                      scrapePort:
+                        description: Name or number of metrics port
+                        type: string
+                    type: object
                   replicas:
                     format: int32
                     type: integer
@@ -823,6 +956,20 @@ spec:
                       components.
                     properties:
                       hostname:
+                        type: string
+                    type: object
+                  metrics:
+                    description: ZenkoSpecMetrics define the metrics scrape configuration
+                      of a Zenko component.
+                    properties:
+                      scrapeInterval:
+                        description: Interval at which to scrape for metrics
+                        type: string
+                      scrapePath:
+                        description: Path to scrape for metrics
+                        type: string
+                      scrapePort:
+                        description: Name or number of metrics port
                         type: string
                     type: object
                   replicas:
@@ -851,6 +998,20 @@ spec:
                     items:
                       type: string
                     type: array
+                  metrics:
+                    description: ZenkoSpecMetrics define the metrics scrape configuration
+                      of a Zenko component.
+                    properties:
+                      scrapeInterval:
+                        description: Interval at which to scrape for metrics
+                        type: string
+                      scrapePath:
+                        description: Path to scrape for metrics
+                        type: string
+                      scrapePort:
+                        description: Name or number of metrics port
+                        type: string
+                    type: object
                   persistence:
                     description: ZenkoSpecPersistence defines the persistence attribute
                       of a stateful Zenko component. Only one of its members can be
@@ -1003,6 +1164,20 @@ spec:
               backbeat:
                 description: ZenkoSpecBackbeat defines how Backbeat is deployed
                 properties:
+                  metrics:
+                    description: ZenkoSpecMetrics define the metrics scrape configuration
+                      of a Zenko component.
+                    properties:
+                      scrapeInterval:
+                        description: Interval at which to scrape for metrics
+                        type: string
+                      scrapePath:
+                        description: Path to scrape for metrics
+                        type: string
+                      scrapePort:
+                        description: Name or number of metrics port
+                        type: string
+                    type: object
                   replicas:
                     format: int32
                     type: integer
@@ -1017,6 +1192,20 @@ spec:
                 properties:
                   enable:
                     type: boolean
+                  metrics:
+                    description: ZenkoSpecMetrics define the metrics scrape configuration
+                      of a Zenko component.
+                    properties:
+                      scrapeInterval:
+                        description: Interval at which to scrape for metrics
+                        type: string
+                      scrapePath:
+                        description: Path to scrape for metrics
+                        type: string
+                      scrapePort:
+                        description: Name or number of metrics port
+                        type: string
+                    type: object
                   replicas:
                     format: int32
                     type: integer
@@ -1024,6 +1213,20 @@ spec:
               cloudserver:
                 description: ZenkoSpecCloudserver defines how Cloudserver is deployed
                 properties:
+                  metrics:
+                    description: ZenkoSpecMetrics define the metrics scrape configuration
+                      of a Zenko component.
+                    properties:
+                      scrapeInterval:
+                        description: Interval at which to scrape for metrics
+                        type: string
+                      scrapePath:
+                        description: Path to scrape for metrics
+                        type: string
+                      scrapePort:
+                        description: Name or number of metrics port
+                        type: string
+                    type: object
                   replicas:
                     format: int32
                     type: integer
@@ -1257,6 +1460,20 @@ spec:
                       hostname:
                         type: string
                     type: object
+                  metrics:
+                    description: ZenkoSpecMetrics define the metrics scrape configuration
+                      of a Zenko component.
+                    properties:
+                      scrapeInterval:
+                        description: Interval at which to scrape for metrics
+                        type: string
+                      scrapePath:
+                        description: Path to scrape for metrics
+                        type: string
+                      scrapePort:
+                        description: Name or number of metrics port
+                        type: string
+                    type: object
                   replicas:
                     format: int32
                     type: integer
@@ -1275,8 +1492,23 @@ spec:
                       the provided JMX exporter image
                     type: string
                   kafkaConfigFiles:
-                    description: KafkaConfigFiles contains the Kafka config files
+                    description: KafkaConfigFiles is the name of the configmap that
+                      contains the Kafka config files
                     type: string
+                  metrics:
+                    description: ZenkoSpecMetrics define the metrics scrape configuration
+                      of a Zenko component.
+                    properties:
+                      scrapeInterval:
+                        description: Interval at which to scrape for metrics
+                        type: string
+                      scrapePath:
+                        description: Path to scrape for metrics
+                        type: string
+                      scrapePort:
+                        description: Name or number of metrics port
+                        type: string
+                    type: object
                   persistence:
                     description: ZenkoSpecPersistence defines the persistence attribute
                       of a stateful Zenko component. Only one of its members can be
@@ -1459,6 +1691,20 @@ spec:
                           hostname:
                             type: string
                         type: object
+                      metrics:
+                        description: ZenkoSpecMetrics define the metrics scrape configuration
+                          of a Zenko component.
+                        properties:
+                          scrapeInterval:
+                            description: Interval at which to scrape for metrics
+                            type: string
+                          scrapePath:
+                            description: Path to scrape for metrics
+                            type: string
+                          scrapePort:
+                            description: Name or number of metrics port
+                            type: string
+                        type: object
                       replicas:
                         format: int32
                         type: integer
@@ -1527,6 +1773,20 @@ spec:
                           hostname:
                             type: string
                         type: object
+                      metrics:
+                        description: ZenkoSpecMetrics define the metrics scrape configuration
+                          of a Zenko component.
+                        properties:
+                          scrapeInterval:
+                            description: Interval at which to scrape for metrics
+                            type: string
+                          scrapePath:
+                            description: Path to scrape for metrics
+                            type: string
+                          scrapePort:
+                            description: Name or number of metrics port
+                            type: string
+                        type: object
                       replicas:
                         format: int32
                         type: integer
@@ -1540,9 +1800,16 @@ spec:
                     description: Database name within MongoDB. Required if using an
                       External provider.
                     type: string
+                  enableSharding:
+                    description: EnableSharding specifies whether to instruct Zenko
+                      components that they should shard the collections they create.
+                      Only works with External provider.
+                    type: boolean
                   endpoints:
                     description: Endpoints are `host:port` formatted strings of External
-                      MongoDB endpoints. Must be the same length as statefulReplicas.
+                      MongoDB endpoints. Must be the same length as statefulReplicas
+                      if using a replicaset, otherwise if using sharding, must point
+                      to one or more `mongos` endpoints.
                     items:
                       type: string
                     type: array
@@ -1642,8 +1909,8 @@ spec:
                     - nearest
                     type: string
                   replicaSetName:
-                    description: Name of the replica set used by MongoDB. Will default
-                      to 'rs0'.
+                    description: Name of the replica set used by MongoDB. Must be
+                      empty if sharding enabled. Will default to 'rs0'.
                     type: string
                   userSecretName:
                     description: Name of the secret containing the MongoDB user account
@@ -1661,6 +1928,20 @@ spec:
               redis:
                 description: ZenkoSpecRedis defines the Redis deployment used by Zenko
                 properties:
+                  metrics:
+                    description: ZenkoSpecMetrics define the metrics scrape configuration
+                      of a Zenko component.
+                    properties:
+                      scrapeInterval:
+                        description: Interval at which to scrape for metrics
+                        type: string
+                      scrapePath:
+                        description: Path to scrape for metrics
+                        type: string
+                      scrapePort:
+                        description: Name or number of metrics port
+                        type: string
+                    type: object
                   provider:
                     description: Provider determines how Redis is deployed.
                     enum:
@@ -1695,6 +1976,20 @@ spec:
                     type: object
                   enable:
                     type: boolean
+                  metrics:
+                    description: ZenkoSpecMetrics define the metrics scrape configuration
+                      of a Zenko component.
+                    properties:
+                      scrapeInterval:
+                        description: Interval at which to scrape for metrics
+                        type: string
+                      scrapePath:
+                        description: Path to scrape for metrics
+                        type: string
+                      scrapePort:
+                        description: Name or number of metrics port
+                        type: string
+                    type: object
                   replicas:
                     format: int32
                     type: integer
@@ -1716,6 +2011,20 @@ spec:
                       components.
                     properties:
                       hostname:
+                        type: string
+                    type: object
+                  metrics:
+                    description: ZenkoSpecMetrics define the metrics scrape configuration
+                      of a Zenko component.
+                    properties:
+                      scrapeInterval:
+                        description: Interval at which to scrape for metrics
+                        type: string
+                      scrapePath:
+                        description: Path to scrape for metrics
+                        type: string
+                      scrapePort:
+                        description: Name or number of metrics port
                         type: string
                     type: object
                   replicas:
@@ -1744,6 +2053,20 @@ spec:
                     items:
                       type: string
                     type: array
+                  metrics:
+                    description: ZenkoSpecMetrics define the metrics scrape configuration
+                      of a Zenko component.
+                    properties:
+                      scrapeInterval:
+                        description: Interval at which to scrape for metrics
+                        type: string
+                      scrapePath:
+                        description: Path to scrape for metrics
+                        type: string
+                      scrapePort:
+                        description: Name or number of metrics port
+                        type: string
+                    type: object
                   persistence:
                     description: ZenkoSpecPersistence defines the persistence attribute
                       of a stateful Zenko component. Only one of its members can be
