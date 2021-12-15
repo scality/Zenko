@@ -5,6 +5,19 @@ kind: ZenkoVersion
 metadata:
   name: '${ZENKO_VERSION_NAME}'
 spec:
+  dashboards:
+    kafka:
+      image: kafka_grafana_dashboard
+      tag: '${ZENKO_VERSION_NAME}'
+    mongodb:
+      image: mongodb_grafana_dashboard
+      tag: '${ZENKO_VERSION_NAME}'
+    redis:
+      image: redis_grafana_dashboard
+      tag: '${ZENKO_VERSION_NAME}'
+    zookeeper:
+      image: zookeeper_grafana_dashboard
+      tag: '${ZENKO_VERSION_NAME}'
   versions:
     management:
       ui:
