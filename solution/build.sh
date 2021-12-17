@@ -81,7 +81,16 @@ function dependencies_versions_env()
 
 function copy_yamls()
 {
-    cp -R -f operator/ ${ISO_ROOT}/operator
+    local crd_dir="${ISO_ROOT}/operator/deploy/crd"
+    local role_dir="${ISO_ROOT}/operator/deploy"
+    local zenko_operator_repo='https://github.com/scality/zenko-operator'
+
+    mkdir -p ${crd_dir} ${role_dir}
+
+    kustomize build "${zenko_operator_repo}/config/artesca-solution/crd?ref=$(zenko_operator_tag)" > ${crd_dir}/crd.yaml
+    kustomize build "${zenko_operator_repo}/config/artesca-solution/rbac?ref=$(zenko_operator_tag)" |
+        docker run --rm -i ryane/kfilt:v0.0.5 -k Role,ClusterRole > ${role_dir}/role.yaml
+
     env $(dependencies_versions_env) envsubst < zenkoversion.yaml > ${ISO_ROOT}/zenkoversion.yaml
 }
 
