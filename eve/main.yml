@@ -10,7 +10,7 @@ models:
       WORKER_COUNT: '2'
       OPERATOR_REPO: git@github.com:scality/zenko-operator.git
       OPERATOR_IMAGE: '%(prop:OPERATOR_IMAGE_NAME)s:%(prop:OPERATOR_IMAGE_TAG)s'
-      KIND_NODE_IMAGE: "kindest/node:v1.19.11@sha256:07db187ae84b4b7de440a73886f008cf903fcf5764ba8106a9fd5243d6f32729"
+      KIND_NODE_IMAGE: "kindest/node:v1.22.4@sha256:ca3587e6e545a96c07bf82e2c46503d9ef86fc704f44c17577fca7bcabf5f978"
       VOLUME_ROOT: /artifacts
       OIDC_REALM: "zenko"
       OIDC_CLIENT_ID: "zenko-ui"
@@ -334,7 +334,7 @@ stages:
           git clone ${OPERATOR_REPO} operator
           cd operator
           git checkout ${COMMIT_HASH}
-          bash deploy/scripts/install-zenko-operator.sh "${OPERATOR_IMAGE}" default
+          tilt ci
         workdir: build/eve/workers/end2end
         haltOnFailure: true
         flunkOnFailure: true

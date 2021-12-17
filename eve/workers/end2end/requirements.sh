@@ -5,6 +5,7 @@ KIND_VERSION=v0.11.1
 HELM_VERSION=v3.5.3
 YQ_VERSION=v4.6.3
 YQ_BINARY=yq_linux_amd64
+TILT_VERSION=0.23.4
 
 apt-get update && apt-get install -y \
     apt-transport-https \
@@ -47,3 +48,8 @@ rm -rf linux-amd64
 # Install yq
 wget https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/${YQ_BINARY} -O /usr/local/bin/yq
 chmod +x /usr/local/bin/yq
+
+# Install tilt
+curl -sSL https://github.com/tilt-dev/tilt/releases/download/v${TILT_VERSION}/tilt.${TILT_VERSION}.linux.x86_64.tar.gz | tar xzvf -
+mv tilt /usr/local/bin
+chmod +x /usr/local/bin/tilt

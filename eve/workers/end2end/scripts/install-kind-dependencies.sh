@@ -5,11 +5,11 @@ set -exu
 DIR=$(dirname "$0")
 
 ZK_OPERATOR_VERSION=0.2.13
-CERT_MANAGER_VERSION=v1.0.4
-KAFKA_OPERATOR_VERSION=0.2.18
-INGRESS_NGINX_VERSION=controller-v0.34.1
-PROMETHEUS_VERSION=v0.38.2
-KEYCLOAK_VERSION=9.0.5
+CERT_MANAGER_VERSION=v1.6.1
+KAFKA_OPERATOR_VERSION=0.20.1
+INGRESS_NGINX_VERSION=controller-v1.1.0
+PROMETHEUS_VERSION=v0.52.1
+KEYCLOAK_VERSION=16.0.4
 BITNAMI_MONGODB_VER=7.8.0
 
 MONGODB_ROOT_USERNAME=root
@@ -41,12 +41,16 @@ kubectl rollout status -n ingress-nginx deployment/ingress-nginx-controller --ti
 kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/${CERT_MANAGER_VERSION}/cert-manager.yaml
 
 # prometheus
-kubectl apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/${PROMETHEUS_VERSION}/bundle.yaml
+# last-applied-configuration can end up larger than 256kB  which is too large for an annotation
+# so if apply fails, replace can work
+prom_url=https://raw.githubusercontent.com/coreos/prometheus-operator/${PROMETHEUS_VERSION}/bundle.yaml
+kubectl create -f $prom_url || kubectl replace -f $prom_url
 
 # zookeeper
 helm upgrade --install --version ${ZK_OPERATOR_VERSION} -n default zk-operator pravega/zookeeper-operator --set "watchNamespace=default"
 
 # kafka
+kubectl create --validate=false -f https://github.com/banzaicloud/koperator/releases/download/v${KAFKA_OPERATOR_VERSION}/kafka-operator.crds.yaml
 helm upgrade --install --version ${KAFKA_OPERATOR_VERSION} -n default kafka-operator banzaicloud-stable/kafka-operator
 
 # keycloak
