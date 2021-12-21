@@ -22,6 +22,7 @@ spec:
       initContainers:
         - name: {{ .Chart.Name }}-init
           image: busybox
+          imagePullPolicy: {{ .Values.image.initPullPolicy }}
           command: ['sh', '-x', '-c', 'if ! test -d /data/3511; then for i in `seq 1 3511`; do mkdir -p /data/$i; done; fi']
           volumeMounts:
             - name: persistent-storage

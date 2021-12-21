@@ -6,6 +6,7 @@ image:
   repository: registry.scality.com/cloudserver/cloudserver
   tag: 8.2.14
   pullPolicy: IfNotPresent
+  initPullPolicy: IfNotPresent
 service:
   name: s3-data
   type: ClusterIP
