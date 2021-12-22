@@ -11,7 +11,7 @@ spec:
       port: 80
       targetPort: http
 ---
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: aws-mock
@@ -21,16 +21,20 @@ spec:
     http:
       paths:
       - backend:
-          serviceName: aws-mock
-          servicePort: http
+          service:
+            name: aws-mock
+            port:
+              name: http
         path: /
         pathType: Prefix
   - host: '*.aws-mock.zenko.local'
     http:
       paths:
       - backend:
-          serviceName: aws-mock
-          servicePort: http
+          service:
+            name: aws-mock
+            port:
+              name: http
         path: /
         pathType: Prefix
 ---
