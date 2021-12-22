@@ -14,7 +14,7 @@ RUN yum install -y yum-utils gettext epel-release && \
     yum-config-manager \
         --add-repo \
         https://download.docker.com/linux/centos/docker-ce.repo
-RUN yum install -y python3 make wget mkisofs git docker-ce docker-ce-cli isomd5sum
+RUN yum install -y python3 make wget mkisofs git docker-ce docker-ce-cli isomd5sum jq
 RUN curl --fail -LO https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz
 RUN tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz
 RUN curl --fail -sSL https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz | \

@@ -22,7 +22,6 @@ ISO=${BUILD_ROOT}/${PRODUCT_LOWERNAME}-${VERSION_FULL}.iso
 
 DOCKER=docker
 DOCKER_OPTS=
-DOCKER_SOCKET=${DOCKER_SOCKET:-unix:///var/run/docker.sock}
 HARDLINK=hardlink
 OPERATOR_SDK=operator-sdk
 OPERATOR_SDK_OPTS=
@@ -94,16 +93,32 @@ function copy_yamls()
     env $(dependencies_versions_env) envsubst < zenkoversion.yaml > ${ISO_ROOT}/zenkoversion.yaml
 }
 
-function copy_image()
+function copy_docker_image()
 {
     IMAGE_NAME=${1##*/}
     FULL_PATH=${IMAGES_ROOT}/${IMAGE_NAME/:/\/}
     mkdir -p ${FULL_PATH}
     ${SKOPEO} ${SKOPEO_OPTS} copy \
         --format v2s2 --dest-compress \
-        --src-daemon-host ${DOCKER_SOCKET} \
-        docker-daemon:${1} \
+        docker://${1} \
         dir:${FULL_PATH}
+}
+
+function copy_oci_image()
+{
+    IMAGE_NAME=${1##*/}
+    FULL_PATH=${IMAGES_ROOT}/${IMAGE_NAME/:/\/}
+    mkdir -p ${FULL_PATH}
+    ${SKOPEO} ${SKOPEO_OPTS} copy \
+        docker://${1} \
+        dir:${FULL_PATH}
+
+    # oras does not put a 'mediaType' in the manifest.json file
+    # add it manually so the image is piked up by static-container-registry
+    jq -c \
+        '{schemaVersion, config, mediaType: "application/vnd.oci.image.manifest.v1+json", layers}' \
+        ${FULL_PATH}/manifest.json > ${FULL_PATH}/new_manifest.json
+    mv ${FULL_PATH}/new_manifest.json ${FULL_PATH}/manifest.json
 }
 
 # $1 : destination folder
@@ -166,9 +181,21 @@ function get_local_dashboards()
     done
 }
 
+function get_component_dashboards()
+{
+    components=$(yq eval '.* | select(.dashboard != "") | .sourceRegistry + "/" + .dashboard + ":" + .tag' deps.yaml)
+
+    for dashboard in ${components}
+    do
+        echo "copy dashboards/alerts for ${dashboard}"
+        copy_oci_image ${dashboard}
+    done
+}
+
 function get_dashboards()
 {
     get_local_dashboards
+    get_component_dashboards
 }
 
 function dedupe()
@@ -223,7 +250,7 @@ copy_yamls
 flatten_source_images | while read img ; do
     # only pull if the image isnt already local
     ${DOCKER} image inspect ${img} > /dev/null 2>&1 || ${DOCKER} ${DOCKER_OPTS} pull ${img}
-    copy_image ${img}
+    copy_docker_image ${img}
 done
 get_dashboards
 dedupe
