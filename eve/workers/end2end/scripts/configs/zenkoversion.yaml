@@ -18,6 +18,9 @@ spec:
     redis:
       image: redis_grafana_dashboard
       tag: '${ZENKO_VERSION_NAME}'
+    vault:
+      image: vault-dashboards
+      tag: '${VAULT_TAG}'
     zookeeper:
       image: zookeeper_grafana_dashboard
       tag: '${ZENKO_VERSION_NAME}'
