@@ -77,6 +77,7 @@ utapi:
   envsubst: UTAPI_TAG
 vault:
   sourceRegistry: registry.scality.com/vault
+  dashboard: vault-dashboards
   image: vault
   tag: 8.3.8
   envsubst: VAULT_TAG
