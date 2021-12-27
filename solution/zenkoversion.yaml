@@ -6,6 +6,9 @@ metadata:
   name: '${VERSION_FULL}'
 spec:
   dashboards:
+    cloudserver:
+      image: cloudserver-dashboards
+      tag: '${CLOUDSERVER_TAG}'
     kafka:
       image: kafka_grafana_dashboard
       tag: '${VERSION_FULL}'
