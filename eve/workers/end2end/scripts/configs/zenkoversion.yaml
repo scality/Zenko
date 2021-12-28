@@ -6,9 +6,9 @@ metadata:
   name: '${ZENKO_VERSION_NAME}'
 spec:
   dashboards:
-    cloudserver:
-      image: '${CLOUDSERVER_DASHBOARD}'
-      tag: '${CLOUDSERVER_TAG}'
+    #cloudserver:
+    #  image: '${CLOUDSERVER_DASHBOARD}'
+    #  tag: '${CLOUDSERVER_TAG}'
     kafka:
       image: kafka_grafana_dashboard
       tag: '${ZENKO_VERSION_NAME}'
@@ -18,9 +18,9 @@ spec:
     redis:
       image: redis_grafana_dashboard
       tag: '${ZENKO_VERSION_NAME}'
-    vault:
-      image: '${VAULT_DASHBOARD}'
-      tag: '${VAULT_TAG}'
+    #vault:
+    #  image: '${VAULT_DASHBOARD}'
+    #  tag: '${VAULT_TAG}'
     zookeeper:
       image: zookeeper_grafana_dashboard
       tag: '${ZENKO_VERSION_NAME}'
