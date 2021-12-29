@@ -74,7 +74,7 @@ s3utils:
 kafka-cruise-control:
   sourceRegistry: ghcr.io/banzaicloud
   image: cruise-control
-  tag: 2.5.37
+  tag: 2.5.79
   envsubst: KAFKA_CRUISECONTROL_TAG
 zenko-ui:
   sourceRegistry: registry.scality.com/zenko-ui
