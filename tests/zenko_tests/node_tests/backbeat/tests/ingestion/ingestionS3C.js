@@ -169,8 +169,7 @@ describe('Ingesting existing data from RING S3C bucket', () => {
         ], done);
     });
 
-    // BUG: user metadata not replicating
-    it.skip('should ingest user metadata', done => {
+    it('should ingest user metadata', done => {
         return async.waterfall([
             next => ringS3CUtils.putObjectWithUserMetadata(ingestionSrcBucket, OBJ_KEY, Buffer.alloc(1),
                 next),
