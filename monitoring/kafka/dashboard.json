@@ -67,7 +67,7 @@
       "version": ""
     }
   ],
-  "description": "Kafka metrics",
+  "description": "Kafka Dashboard",
   "editable": true,
   "gnetId": 11962,
   "graphTooltip": 0,
@@ -4988,6 +4988,6 @@
     ]
   },
   "timezone": "",
-  "title": "Kafka Metrics",
-  "version": 2
+  "title": "Kafka",
+  "version": 3
 }
