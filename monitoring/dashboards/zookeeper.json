@@ -111,12 +111,464 @@
   "links": [],
   "panels": [
     {
+      "datasource": "${DS_PROMETHEUS}",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 0
+      },
+      "id": 242,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "sum(up{job=\"${job}\",namespace=\"${namespace}\"})",
+          "interval": "",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "Up",
+      "type": "stat"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": "${DS_PROMETHEUS}",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "text": "DOWN"
+                },
+                "1": {
+                  "text": "UP"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#d44a3a",
+                "value": null
+              },
+              {
+                "color": "rgba(237, 129, 40, 0.89)",
+                "value": 0.99
+              },
+              {
+                "color": "#299c46",
+                "value": 0.1
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 0
+      },
+      "id": 240,
+      "interval": null,
+      "links": [],
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "up{pod=~\"$pod\",job=\"${job}\",namespace=\"${namespace}\"}",
+          "interval": "",
+          "legendFormat": "{{pod}}",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Status",
+      "type": "stat"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": "${DS_PROMETHEUS}",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "rgb(31, 120, 193)",
+            "mode": "fixed"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "text": "No"
+                },
+                "1": {
+                  "text": "Yes"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 0
+      },
+      "id": 244,
+      "interval": null,
+      "links": [],
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "name"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "leader_uptime{pod=~\"$pod\",job=\"${job}\",namespace=\"${namespace}\"}",
+          "interval": "",
+          "legendFormat": "{{pod}}",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Leader",
+      "type": "stat"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": "${DS_PROMETHEUS}",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "rgb(31, 120, 193)",
+            "mode": "fixed"
+          },
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 0
+      },
+      "id": 246,
+      "interval": null,
+      "links": [],
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "ephemerals_count{pod=~\"$pod\",job=\"${job}\",namespace=\"${namespace}\"}",
+          "interval": "",
+          "legendFormat": "{{pod}}",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Ephemerals Count",
+      "type": "stat"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": "${DS_PROMETHEUS}",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "rgb(31, 120, 193)",
+            "mode": "fixed"
+          },
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 0
+      },
+      "id": 248,
+      "interval": null,
+      "links": [],
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "znode_count{pod=~\"$pod\",job=\"${job}\",namespace=\"${namespace}\"}",
+          "interval": "",
+          "legendFormat": "{{pod}}",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Znode Count",
+      "type": "stat"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": "${DS_PROMETHEUS}",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "rgb(31, 120, 193)",
+            "mode": "fixed"
+          },
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 0
+      },
+      "id": 250,
+      "interval": null,
+      "links": [],
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "watch_count{pod=~\"$pod\",job=\"${job}\",namespace=\"${namespace}\"}",
+          "interval": "",
+          "legendFormat": "{{pod}}",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Watch Count",
+      "type": "stat"
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 0
+        "y": 4
       },
       "id": 14,
       "panels": [],
@@ -134,7 +586,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 1
+        "y": 5
       },
       "id": 224,
       "interval": "",
@@ -235,7 +687,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 1
+        "y": 5
       },
       "id": 4,
       "interval": "",
@@ -332,7 +784,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 9
+        "y": 13
       },
       "id": 48,
       "links": [],
@@ -389,7 +841,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 9
+        "y": 13
       },
       "id": 52,
       "links": [],
@@ -448,7 +900,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 17
+        "y": 21
       },
       "id": 168,
       "legend": {
@@ -534,7 +986,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 17
+        "y": 21
       },
       "id": 200,
       "legend": {
@@ -621,7 +1073,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 25
+        "y": 29
       },
       "id": 132,
       "legend": {
@@ -707,7 +1159,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 25
+        "y": 29
       },
       "id": 90,
       "legend": {
@@ -793,7 +1245,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 25
+        "y": 29
       },
       "id": 56,
       "legend": {
@@ -879,7 +1331,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 33
+        "y": 37
       },
       "id": 184,
       "legend": {
@@ -986,7 +1438,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 33
+        "y": 37
       },
       "id": 120,
       "legend": {
@@ -1073,7 +1525,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 33
+        "y": 37
       },
       "id": 235,
       "legend": {
@@ -1159,7 +1611,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 41
+        "y": 45
       },
       "id": 140,
       "legend": {
@@ -1261,7 +1713,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 41
+        "y": 45
       },
       "id": 192,
       "legend": {
@@ -1363,7 +1815,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 41
+        "y": 45
       },
       "id": 210,
       "legend": {
@@ -1460,7 +1912,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 49
+        "y": 53
       },
       "id": 82,
       "panels": [
@@ -2965,7 +3417,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 50
+        "y": 54
       },
       "id": 36,
       "panels": [
@@ -3767,7 +4219,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 51
+        "y": 55
       },
       "id": 102,
       "panels": [
@@ -4655,7 +5107,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 52
+        "y": 56
       },
       "id": 112,
       "panels": [],
@@ -4668,7 +5120,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 53
+        "y": 57
       },
       "id": 122,
       "links": [],
@@ -4728,7 +5180,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 61
+        "y": 65
       },
       "id": 114,
       "legend": {
@@ -4853,7 +5305,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 69
+        "y": 73
       },
       "id": 88,
       "legend": {
@@ -4953,7 +5405,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 77
+        "y": 81
       },
       "id": 136,
       "panels": [],
@@ -4971,7 +5423,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 78
+        "y": 82
       },
       "id": 158,
       "legend": {
@@ -5057,7 +5509,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 78
+        "y": 82
       },
       "id": 138,
       "legend": {
@@ -5143,7 +5595,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 78
+        "y": 82
       },
       "id": 156,
       "legend": {
@@ -5229,7 +5681,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 86
+        "y": 90
       },
       "id": 160,
       "legend": {
@@ -5315,7 +5767,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 86
+        "y": 90
       },
       "id": 92,
       "legend": {
@@ -5408,7 +5860,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 86
+        "y": 90
       },
       "id": 32,
       "legend": {
@@ -5489,7 +5941,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 94
+        "y": 98
       },
       "id": 2,
       "panels": [],
@@ -5508,7 +5960,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 95
+        "y": 99
       },
       "id": 142,
       "legend": {
@@ -5594,7 +6046,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 95
+        "y": 99
       },
       "id": 18,
       "legend": {
@@ -5680,7 +6132,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 95
+        "y": 99
       },
       "id": 26,
       "legend": {
@@ -5766,7 +6218,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 103
+        "y": 107
       },
       "id": 16,
       "legend": {
@@ -5852,7 +6304,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 103
+        "y": 107
       },
       "id": 24,
       "legend": {
@@ -5933,7 +6385,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 111
+        "y": 115
       },
       "id": 108,
       "panels": [],
@@ -5951,7 +6403,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 112
+        "y": 116
       },
       "id": 118,
       "legend": {
@@ -6051,7 +6503,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 112
+        "y": 116
       },
       "id": 72,
       "legend": {
@@ -6151,7 +6603,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 112
+        "y": 116
       },
       "id": 44,
       "legend": {
@@ -6237,7 +6689,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 120
+        "y": 124
       },
       "id": 58,
       "legend": {
@@ -6330,7 +6782,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 120
+        "y": 124
       },
       "id": 164,
       "legend": {
@@ -6416,7 +6868,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 120
+        "y": 124
       },
       "id": 188,
       "legend": {
@@ -6503,7 +6955,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 128
+        "y": 132
       },
       "id": 30,
       "legend": {
@@ -6589,7 +7041,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 128
+        "y": 132
       },
       "id": 94,
       "legend": {
@@ -6675,7 +7127,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 128
+        "y": 132
       },
       "id": 74,
       "legend": {
@@ -6761,7 +7213,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 136
+        "y": 140
       },
       "id": 106,
       "legend": {
@@ -6848,7 +7300,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 136
+        "y": 140
       },
       "id": 34,
       "legend": {
@@ -6934,7 +7386,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 136
+        "y": 140
       },
       "id": 50,
       "legend": {
@@ -7020,7 +7472,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 144
+        "y": 148
       },
       "id": 38,
       "legend": {
@@ -7106,7 +7558,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 144
+        "y": 148
       },
       "id": 152,
       "legend": {
@@ -7187,7 +7639,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 152
+        "y": 156
       },
       "id": 170,
       "panels": [],
@@ -7205,7 +7657,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 153
+        "y": 157
       },
       "id": 172,
       "legend": {
@@ -7291,7 +7743,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 153
+        "y": 157
       },
       "id": 228,
       "legend": {
@@ -7372,7 +7824,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 161
+        "y": 165
       },
       "id": 80,
       "panels": [],
@@ -7390,7 +7842,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 162
+        "y": 166
       },
       "id": 198,
       "legend": {
@@ -7476,7 +7928,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 162
+        "y": 166
       },
       "id": 78,
       "legend": {
@@ -7565,7 +8017,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 170
+        "y": 174
       },
       "id": 100,
       "interval": "",
@@ -7667,7 +8119,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 170
+        "y": 174
       },
       "id": 134,
       "legend": {
@@ -7753,7 +8205,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 178
+        "y": 182
       },
       "id": 162,
       "legend": {
@@ -7839,7 +8291,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 178
+        "y": 182
       },
       "id": 126,
       "legend": {
@@ -7925,7 +8377,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 186
+        "y": 190
       },
       "id": 196,
       "legend": {
@@ -8011,7 +8463,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 186
+        "y": 190
       },
       "id": 182,
       "legend": {
@@ -8097,7 +8549,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 194
+        "y": 198
       },
       "id": 42,
       "legend": {
@@ -8178,7 +8630,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 202
+        "y": 206
       },
       "id": 238,
       "panels": [],
@@ -8196,7 +8648,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 203
+        "y": 207
       },
       "id": 236,
       "legend": {
@@ -8289,7 +8741,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 203
+        "y": 207
       },
       "id": 64,
       "legend": {
@@ -8384,7 +8836,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 211
+        "y": 215
       },
       "id": 227,
       "panels": [],
@@ -8413,7 +8865,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 212
+        "y": 216
       },
       "id": 204,
       "interval": null,
@@ -8497,7 +8949,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 212
+        "y": 216
       },
       "id": 229,
       "interval": null,
@@ -8581,7 +9033,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 212
+        "y": 216
       },
       "id": 230,
       "interval": null,
@@ -8654,7 +9106,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 220
+        "y": 224
       },
       "id": 231,
       "legend": {
@@ -8740,7 +9192,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 220
+        "y": 224
       },
       "id": 232,
       "legend": {
@@ -8826,7 +9278,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 220
+        "y": 224
       },
       "id": 233,
       "legend": {
@@ -8912,7 +9364,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 228
+        "y": 232
       },
       "id": 234,
       "legend": {
@@ -9026,5 +9478,5 @@
   "timezone": "",
   "title": "ZooKeeper",
   "uid": null,
-  "version": 6
+  "version": 7
 }
