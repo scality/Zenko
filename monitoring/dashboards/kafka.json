@@ -813,7 +813,7 @@
       "pluginVersion": "7.3.4",
       "targets": [
         {
-          "expr": "sum(rate(kafka_server_brokertopicmetrics_messagesin_total{namespace=\"${namespace}\", job=\"${job}\",topic=\"\"}[1m]))",
+          "expr": "sum(rate(kafka_server_brokertopicmetrics_messagesin_total{namespace=\"${namespace}\", job=\"${job}\",topic=\"\"}[$__rate_interval]))",
           "interval": "",
           "legendFormat": "Total messages in per sec ",
           "refId": "A"
@@ -1234,7 +1234,7 @@
       "repeatDirection": "h",
       "targets": [
         {
-          "expr": "100 - rate(kafka_server_kafkarequesthandlerpool_requesthandleravgidlepercent_count{namespace=\"${namespace}\", job=\"${job}\",pod=\"${broker}\"}[1m]) / 10000000",
+          "expr": "100 - rate(kafka_server_kafkarequesthandlerpool_requesthandleravgidlepercent_count{namespace=\"${namespace}\", job=\"${job}\",pod=\"${broker}\"}[$__rate_interval]) / 10000000",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -1870,7 +1870,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sort(sum(rate(kafka_server_brokertopicmetrics_messagesin_total{namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\",topic!=\"\",topic=~\"$topic\"}[1m]))by(topic))",
+          "expr": "sort(sum(rate(kafka_server_brokertopicmetrics_messagesin_total{namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\",topic!=\"\",topic=~\"$topic\"}[$__rate_interval]))by(topic))",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -1978,7 +1978,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum (rate(kafka_server_brokertopicmetrics_bytesin_total{namespace=\"${namespace}\", job=\"${job}\",topic!=\"\",pod=~\"$broker\",topic=~\"$topic\"}[1m]))by(topic)",
+          "expr": "sum (rate(kafka_server_brokertopicmetrics_bytesin_total{namespace=\"${namespace}\", job=\"${job}\",topic!=\"\",pod=~\"$broker\",topic=~\"$topic\"}[$__rate_interval]))by(topic)",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -2092,7 +2092,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum (rate(kafka_server_brokertopicmetrics_totalproducerequests_total{namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\",topic!=\"\",topic=~\"$topic\"}[1m]))by(topic)",
+          "expr": "sum (rate(kafka_server_brokertopicmetrics_totalproducerequests_total{namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\",topic!=\"\",topic=~\"$topic\"}[$__rate_interval]))by(topic)",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -2202,7 +2202,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum (rate(kafka_server_brokertopicmetrics_bytesout_total{namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\",topic!=\"\",topic=~\"$topic\"}[1m]))by(topic)",
+          "expr": "sum (rate(kafka_server_brokertopicmetrics_bytesout_total{namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\",topic!=\"\",topic=~\"$topic\"}[$__rate_interval]))by(topic)",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -2308,7 +2308,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(rate(kafka_network_requestmetrics_requests_total{request=~\"Produce\",namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\"}[1m]))by(pod)",
+          "expr": "sum(rate(kafka_network_requestmetrics_requests_total{request=~\"Produce\",namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\"}[$__rate_interval]))by(pod)",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -2422,7 +2422,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum (rate(kafka_server_brokertopicmetrics_bytesout_total{namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\",topic!=\"\"}[1m]))by(pod)",
+          "expr": "sum (rate(kafka_server_brokertopicmetrics_bytesout_total{namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\",topic!=\"\"}[$__rate_interval]))by(pod)",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -2431,7 +2431,7 @@
           "refId": "B"
         },
         {
-          "expr": "sum (rate(kafka_server_brokertopicmetrics_bytesin_total{namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\",topic!=\"\"}[1m]))by(pod)",
+          "expr": "sum (rate(kafka_server_brokertopicmetrics_bytesin_total{namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\",topic!=\"\"}[$__rate_interval]))by(pod)",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -2552,7 +2552,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(irate(kafka_server_brokertopicmetrics_failedproducerequests_total{namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\"}[1m]))by(pod)",
+          "expr": "sum(irate(kafka_server_brokertopicmetrics_failedproducerequests_total{namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\"}[$__rate_interval]))by(pod)",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -2657,7 +2657,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(irate(kafka_server_brokertopicmetrics_failedfetchrequests_total{namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\"}[1m]))by(pod)",
+          "expr": "sum(irate(kafka_server_brokertopicmetrics_failedfetchrequests_total{namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\"}[$__rate_interval]))by(pod)",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -2762,7 +2762,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(irate(kafka_server_brokertopicmetrics_failedproducerequests_total{namespace=\"${namespace}\", job=\"${job}\",topic!=\"\",pod=~\"$broker\",topic=~\"$topic\"}[1m]))by(topic)",
+          "expr": "sum(irate(kafka_server_brokertopicmetrics_failedproducerequests_total{namespace=\"${namespace}\",job=\"${job}\",pod=~\"$broker\",topic=~\"$topic\"}[$__rate_interval]))by(topic)",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -2867,7 +2867,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(irate(kafka_server_brokertopicmetrics_failedfetchrequests_total{namespace=\"${namespace}\", job=\"${job}\",topic!=\"\",pod=~\"$broker\",topic=~\"$topic\"}[1m]))by(topic)",
+          "expr": "sum(irate(kafka_server_brokertopicmetrics_failedfetchrequests_total{namespace=\"${namespace}\",job=\"${job}\",pod=~\"$broker\",topic=~\"$topic\"}[$__rate_interval]))by(topic)",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -2974,7 +2974,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum (irate(kafka_server_sessionexpirelistener_zookeeperdisconnects_total{namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\"}[1m]))by(pod)",
+          "expr": "sum (irate(kafka_server_sessionexpirelistener_zookeeperdisconnects_total{namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\"}[$__rate_interval]))by(pod)",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -3078,7 +3078,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum (irate(kafka_server_sessionexpirelistener_zookeeperexpires_total{namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\"}[1m]))by(pod)",
+          "expr": "sum (irate(kafka_server_sessionexpirelistener_zookeeperexpires_total{namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\"}[$__rate_interval]))by(pod)",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -3295,7 +3295,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum (irate(kafka_server_replicamanager_isrshrinks_total{namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\"}[1m]))",
+          "expr": "sum (irate(kafka_server_replicamanager_isrshrinks_total{namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\"}[$__rate_interval]))",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -3303,7 +3303,7 @@
           "refId": "A"
         },
         {
-          "expr": "sum (irate(kafka_server_replicamanager_isrexpands_total{namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\"}[1m]))",
+          "expr": "sum (irate(kafka_server_replicamanager_isrexpands_total{namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\"}[$__rate_interval]))",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -3407,7 +3407,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(rate(kafka_network_requestmetrics_requests_total{request=~\"FetchFollower\",namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\"}[1m]))by(pod)",
+          "expr": "sum(rate(kafka_network_requestmetrics_requests_total{request=~\"FetchFollower\",namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\"}[$__rate_interval]))by(pod)",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -3513,7 +3513,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(irate(kafka_network_requestmetrics_requests_total{request=\"FetchConsumer\",namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\"}[5m]))by(pod)",
+          "expr": "sum(irate(kafka_network_requestmetrics_requests_total{request=\"FetchConsumer\",namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\"}[$__rate_interval]))by(pod)",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -3727,7 +3727,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum (irate(kafka_server_brokertopicmetrics_totalfetchrequests_total{namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\",topic!=\"\"}[1m]))by(pod)",
+          "expr": "sum (irate(kafka_server_brokertopicmetrics_totalfetchrequests_total{namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\",topic!=\"\"}[$__rate_interval]))by(pod)",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -3830,7 +3830,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum (irate(kafka_log_logflushstats_logflushrateandtimems_count{namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\"}[5m]))by(pod)",
+          "expr": "sum (irate(kafka_log_logflushstats_logflushrateandtimems_count{namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\"}[$__rate_interval]))by(pod)",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -4044,7 +4044,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum (irate(kafka_controller_controllerstats_leaderelectionrateandtimems_count{namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\"}[1m]))by(pod)",
+          "expr": "sum (irate(kafka_controller_controllerstats_leaderelectionrateandtimems_count{namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\"}[$__rate_interval]))by(pod)",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -4722,7 +4722,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "rate(process_cpu_seconds_total{namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\"}[5m])",
+              "expr": "rate(process_cpu_seconds_total{namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -4824,7 +4824,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum without(gc)(rate(jvm_gc_collection_seconds_sum{namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\"}[1m]))",
+              "expr": "sum without(gc)(rate(jvm_gc_collection_seconds_sum{namespace=\"${namespace}\", job=\"${job}\",pod=~\"$broker\"}[$__rate_interval]))",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -4989,5 +4989,5 @@
   },
   "timezone": "",
   "title": "Kafka",
-  "version": 3
+  "version": 4
 }
