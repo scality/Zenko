@@ -1844,7 +1844,6 @@
         "current": true,
         "max": true,
         "min": true,
-        "rightSide": true,
         "show": true,
         "sort": "current",
         "sortDesc": true,
@@ -1874,7 +1873,7 @@
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "Topic: {{topic}}",
+          "legendFormat": "{{topic}}",
           "refId": "D"
         }
       ],
@@ -1952,7 +1951,6 @@
         "hideZero": false,
         "max": true,
         "min": true,
-        "rightSide": true,
         "show": true,
         "sort": "current",
         "sortDesc": true,
@@ -1982,7 +1980,7 @@
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
-          "legendFormat": "Topic: {{topic}}",
+          "legendFormat": "{{topic}}",
           "refId": "A"
         }
       ],
@@ -2066,7 +2064,6 @@
         "current": true,
         "max": true,
         "min": true,
-        "rightSide": true,
         "show": true,
         "sort": "current",
         "sortDesc": true,
@@ -2096,7 +2093,7 @@
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "Topic: {{topic}}",
+          "legendFormat": "{{topic}}",
           "refId": "A"
         }
       ],
@@ -2176,7 +2173,6 @@
         "hideZero": false,
         "max": true,
         "min": true,
-        "rightSide": true,
         "show": true,
         "sort": "current",
         "sortDesc": true,
@@ -2206,7 +2202,7 @@
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
-          "legendFormat": "Topic: {{topic}}",
+          "legendFormat": "{{topic}}",
           "refId": "A"
         }
       ],
@@ -2282,7 +2278,6 @@
         "current": true,
         "max": true,
         "min": true,
-        "rightSide": true,
         "show": true,
         "sort": "current",
         "sortDesc": true,
@@ -2313,7 +2308,7 @@
           "instant": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "Request: {{pod}}",
+          "legendFormat": "{{pod}}",
           "refId": "A"
         }
       ],
@@ -2392,7 +2387,6 @@
         "hideZero": false,
         "max": true,
         "min": true,
-        "rightSide": true,
         "show": true,
         "total": false,
         "values": true
@@ -2523,12 +2517,11 @@
       "hiddenSeries": false,
       "id": 612,
       "legend": {
-        "alignAsTable": true,
+        "alignAsTable": false,
         "avg": false,
         "current": true,
         "max": true,
         "min": false,
-        "rightSide": true,
         "show": true,
         "total": false,
         "values": true
@@ -2628,12 +2621,11 @@
       "hiddenSeries": false,
       "id": 613,
       "legend": {
-        "alignAsTable": true,
+        "alignAsTable": false,
         "avg": false,
         "current": true,
         "max": true,
         "min": false,
-        "rightSide": true,
         "show": true,
         "total": false,
         "values": true
@@ -2738,7 +2730,6 @@
         "current": true,
         "max": true,
         "min": false,
-        "rightSide": true,
         "show": true,
         "total": false,
         "values": true
@@ -2843,7 +2834,6 @@
         "current": true,
         "max": true,
         "min": false,
-        "rightSide": true,
         "show": true,
         "total": false,
         "values": true
@@ -2978,7 +2968,7 @@
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "Broker - {{pod}}",
+          "legendFormat": "{{pod}}",
           "refId": "A"
         }
       ],
@@ -3082,7 +3072,7 @@
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "Broker - {{pod}}",
+          "legendFormat": "{{pod}}",
           "refId": "A"
         }
       ],
@@ -3188,7 +3178,7 @@
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "Broker: {{pod}}",
+          "legendFormat": "{{pod}}",
           "refId": "A"
         }
       ],
@@ -3518,7 +3508,7 @@
           "instant": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "Request: {{pod}}",
+          "legendFormat": "{{pod}}",
           "refId": "A"
         }
       ],
@@ -3627,7 +3617,7 @@
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "Broker {{pod}}",
+          "legendFormat": "{{pod}}",
           "refId": "A"
         }
       ],
@@ -3731,7 +3721,7 @@
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "Broker: {{pod}}",
+          "legendFormat": "{{pod}}",
           "refId": "A"
         }
       ],
@@ -3834,7 +3824,7 @@
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "Broker - {{pod}}",
+          "legendFormat": "{{pod}}",
           "refId": "A"
         }
       ],
@@ -3941,7 +3931,7 @@
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "Broker {{pod}}",
+          "legendFormat": "{{pod}}",
           "refId": "A"
         }
       ],
@@ -4048,7 +4038,7 @@
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "Broker - {{pod}}",
+          "legendFormat": "{{pod}}",
           "refId": "A"
         }
       ],
@@ -4298,7 +4288,7 @@
           "instant": true,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "Instance Broker:  {{pod}}",
+          "legendFormat": "{{pod}}",
           "refId": "A"
         }
       ],
@@ -4404,7 +4394,7 @@
           "instant": true,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "Instance Broker: {{pod}}",
+          "legendFormat": "{{pod}}",
           "refId": "A"
         }
       ],
@@ -4624,7 +4614,7 @@
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
-              "legendFormat": "Broker - {{pod}}",
+              "legendFormat": "{{pod}}",
               "refId": "A"
             }
           ],
@@ -4726,7 +4716,7 @@
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
-              "legendFormat": "Broker - {{pod}}",
+              "legendFormat": "{{pod}}",
               "refId": "A"
             }
           ],
