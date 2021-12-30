@@ -2493,6 +2493,72 @@
       "type": "row"
     },
     {
+      "datasource": "${DS_PROMETHEUS}",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "fillOpacity": 70,
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 2
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 72
+      },
+      "id": 694,
+      "interval": null,
+      "maxDataPoints": 90,
+      "options": {
+        "colWidth": 0.85,
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "rowHeight": 0.85,
+        "showValue": "never",
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "sum(kafka_cluster_partition_underreplicated{namespace=\"${namespace}\",job=\"${job}\"}) by (topic)",
+          "format": "time_series",
+          "interval": "",
+          "legendFormat": "{{topic}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Under-replicated partitions by topic",
+      "type": "status-history"
+    },
+    {
       "aliasColors": {},
       "bars": false,
       "dashLength": 10,
@@ -2512,7 +2578,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 72
+        "y": 80
       },
       "hiddenSeries": false,
       "id": 612,
@@ -2616,7 +2682,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 72
+        "y": 80
       },
       "hiddenSeries": false,
       "id": 613,
@@ -4979,5 +5045,5 @@
   },
   "timezone": "",
   "title": "Kafka",
-  "version": 6
+  "version": 7
 }
