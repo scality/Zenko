@@ -504,5 +504,5 @@ stages:
       - Git: *git_pull
       - ShellCommand:
           name: Verify monitoring dashboard versions
-          command: bash monitoring/dashboards/check_versions.sh
+          command: bash monitoring/check_versions.sh
           haltOnFailure: true

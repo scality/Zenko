@@ -134,51 +134,50 @@ function generate_manifest_layer()
     size=$(stat --printf "%s" ${tmp})             # get only the size (in bytes) of the file. format "%s" only prints the size
     mv $tmp $1/$digest
 
+    echo "{"
     echo "\"mediaType\": \"$2\","
     echo "\"digest\": \"sha256:${digest}\","
     echo "\"size\": ${size}"
     [ $# -eq 3 ] && echo ",\"annotations\": { \"org.opencontainers.image.title\": \"$3\" }"
+    echo "}"
 }
 
 function generate_local_dashboard()
 {
     if [[ $# -ne 1 ]]
     then
-        echo "missing argument, $0 <dashboard>"
+        echo "missing argument, $0 <path>"
         exit 1
     fi
 
-    file=$1
-    filename=$(basename ${file})
+    local dashboard="${1}/dashboard.json"
+    local alert="${1}/alerts.yaml"
 
-    dashboard_base_dir=${IMAGES_ROOT}/${filename%.json}-dashboard/${VERSION}/
+    local dashboard_base_dir=${IMAGES_ROOT}/${1##*/}-dashboard/${VERSION}/
     mkdir -p ${dashboard_base_dir}
 
-    cat > ${dashboard_base_dir}/manifest.json <<EOF
+    jq > ${dashboard_base_dir}/manifest.json <<EOF
 {
     "schemaVersion": 2,
     "mediaType": "application/vnd.oci.image.manifest.v1+json",
-    "config": {
-        $(generate_manifest_layer "${dashboard_base_dir}" "application/vnd.oci.image.config.v1+json" <<< '{}')
-    },
-    "layers": [
-        {
-            $(generate_manifest_layer "${dashboard_base_dir}" "application/grafana-dashboard+json" "${filename}" < "${file}")
-        }
-    ]
+    "config": $(generate_manifest_layer "${dashboard_base_dir}" "application/vnd.oci.image.config.v1+json" <<< '{}'),
+    "layers": $(jq -s "." \
+        <( [ -e "${dashboard}" ] && generate_manifest_layer "${dashboard_base_dir}" "application/grafana-dashboard+json" \
+                                                            "$(basename "${dashboard}")" < "${dashboard}" ) \
+        <( [ -e "${alert}" ] && generate_manifest_layer "${dashboard_base_dir}" "prometheus-alerts+yaml" \
+                                                        "$(basename "${alert}")" < "${alert}" ) \
+    )
 }
 EOF
 }
 
 function get_local_dashboards()
 {
-    DASHBOARD_DIR=${REPOSITORY_DIR}/monitoring/dashboards
-
-    for dashboard in $(ls ${DASHBOARD_DIR}/*.json)
-    do
-        echo "prepare dashboard: ${dashboard}"
-        generate_local_dashboard ${dashboard}
-    done
+    find ${REPOSITORY_DIR}/monitoring/ -type d -depth 1 -print0 |
+        while IFS= read -r -d '' dashboard ; do
+            echo "Prepare dashboard: ${dashboard##*/}"
+            generate_local_dashboard "${dashboard}"
+        done
 }
 
 function get_component_dashboards()

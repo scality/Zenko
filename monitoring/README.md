@@ -25,7 +25,7 @@
    * set the `version` of the model to `1`
    * remove `iteration` entirely from the model
    * set `annotations` to `{"list": []}`
-3. Comnit in `monitoring/dashboards`
+3. Comnit in `monitoring/*/dashboard.json`
 
 
 # Modifying existing dashboards
