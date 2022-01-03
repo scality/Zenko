@@ -164,7 +164,7 @@
                 }
             ],
             "maxDataPoints": 100,
-            "nullPointMode": "connected",
+            "nullPointMode": "null",
             "nullText": null,
             "options": {},
             "postfix": "",
@@ -335,7 +335,7 @@
             "tableColumn": "",
             "targets": [
                 {
-                    "expr": "redis_connected_clients{namespace=\"${namespace}\", job=\"${job}\"}",
+                    "expr": "sum(redis_connected_clients{namespace=\"${namespace}\", job=\"${job}\"})",
                     "intervalFactor": 2,
                     "legendFormat": "",
                     "metric": "",
@@ -388,7 +388,7 @@
             "lines": true,
             "linewidth": 2,
             "links": [],
-            "nullPointMode": "connected",
+            "nullPointMode": "null",
             "options": {},
             "percentage": false,
             "pointradius": 5,
@@ -400,7 +400,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "rate(redis_commands_processed_total{namespace=\"${namespace}\", job=\"${job}\"}[5m])",
+                    "expr": "sum(rate(redis_commands_processed_total{namespace=\"${namespace}\", job=\"${job}\"}[$__rate_interval]))",
                     "interval": "",
                     "intervalFactor": 2,
                     "legendFormat": "",
@@ -483,7 +483,7 @@
             "lines": true,
             "linewidth": 2,
             "links": [],
-            "nullPointMode": "connected",
+            "nullPointMode": "null",
             "options": {},
             "percentage": true,
             "pointradius": 5,
@@ -495,7 +495,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "irate(redis_keyspace_hits_total{namespace=\"${namespace}\", job=\"${job}\"}[5m])",
+                    "expr": "sum(irate(redis_keyspace_hits_total{namespace=\"${namespace}\", job=\"${job}\"}[$__rate_interval]))",
                     "hide": false,
                     "interval": "",
                     "intervalFactor": 2,
@@ -506,7 +506,7 @@
                     "target": ""
                 },
                 {
-                    "expr": "irate(redis_keyspace_misses_total{namespace=\"${namespace}\", job=\"${job}\"}[5m])",
+                    "expr": "sum(irate(redis_keyspace_misses_total{namespace=\"${namespace}\", job=\"${job}\"}[$__rate_interval]))",
                     "hide": false,
                     "interval": "",
                     "intervalFactor": 2,
@@ -593,7 +593,7 @@
             "lines": true,
             "linewidth": 2,
             "links": [],
-            "nullPointMode": "null as zero",
+            "nullPointMode": "null",
             "options": {},
             "percentage": false,
             "pointradius": 5,
@@ -605,7 +605,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "redis_memory_used_bytes{namespace=\"${namespace}\", job=\"${job}\"} ",
+                    "expr": "sum(redis_memory_used_bytes{namespace=\"${namespace}\", job=\"${job}\"})",
                     "intervalFactor": 2,
                     "legendFormat": "used",
                     "metric": "",
@@ -614,7 +614,7 @@
                     "target": ""
                 },
                 {
-                    "expr": "redis_memory_max_bytes{namespace=\"${namespace}\", job=\"${job}\"} ",
+                    "expr": "sum(redis_memory_max_bytes{namespace=\"${namespace}\", job=\"${job}\"})",
                     "hide": false,
                     "intervalFactor": 2,
                     "legendFormat": "max",
@@ -694,7 +694,7 @@
             "lines": true,
             "linewidth": 2,
             "links": [],
-            "nullPointMode": "connected",
+            "nullPointMode": "null",
             "options": {},
             "percentage": false,
             "pointradius": 5,
@@ -706,14 +706,14 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "rate(redis_net_input_bytes_total{namespace=\"${namespace}\", job=\"${job}\"}[5m])",
+                    "expr": "sum(rate(redis_net_input_bytes_total{namespace=\"${namespace}\", job=\"${job}\"}[$__rate_interval]))",
                     "intervalFactor": 2,
                     "legendFormat": "input",
                     "refId": "A",
                     "step": 240
                 },
                 {
-                    "expr": "rate(redis_net_output_bytes_total{namespace=\"${namespace}\", job=\"${job}\"}[5m])",
+                    "expr": "sum(rate(redis_net_output_bytes_total{namespace=\"${namespace}\", job=\"${job}\"}[$__rate_interval]))",
                     "interval": "",
                     "intervalFactor": 2,
                     "legendFormat": "output",
@@ -989,7 +989,7 @@
             "lines": true,
             "linewidth": 2,
             "links": [],
-            "nullPointMode": "connected",
+            "nullPointMode": "null",
             "options": {},
             "percentage": false,
             "pointradius": 5,
@@ -1006,7 +1006,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "sum(rate(redis_expired_keys_total{namespace=\"${namespace}\", job=\"${job}\"}[5m])) by (addr)",
+                    "expr": "sum(rate(redis_expired_keys_total{namespace=\"${namespace}\", job=\"${job}\"}[$__rate_interval])) by (addr)",
                     "interval": "",
                     "intervalFactor": 2,
                     "legendFormat": "expired",
@@ -1016,7 +1016,7 @@
                     "target": ""
                 },
                 {
-                    "expr": "sum(rate(redis_evicted_keys_total{namespace=\"${namespace}\", job=\"${job}\"}[5m])) by (addr)",
+                    "expr": "sum(rate(redis_evicted_keys_total{namespace=\"${namespace}\", job=\"${job}\"}[$__rate_interval])) by (addr)",
                     "interval": "",
                     "intervalFactor": 2,
                     "legendFormat": "evicted",
@@ -1096,7 +1096,7 @@
             "lines": true,
             "linewidth": 1,
             "links": [],
-            "nullPointMode": "connected",
+            "nullPointMode": "null",
             "options": {},
             "percentage": false,
             "pointradius": 5,
@@ -1108,7 +1108,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "topk(5, irate(redis_commands_total{namespace=\"${namespace}\", job=\"${job}\"} [1m]))",
+                    "expr": "topk(5, sum(irate(redis_commands_total{namespace=\"${namespace}\", job=\"${job}\"}[$__rate_interval])))",
                     "interval": "",
                     "intervalFactor": 2,
                     "legendFormat": "{{ cmd }}",
@@ -1121,7 +1121,7 @@
             "timeFrom": null,
             "timeRegions": [],
             "timeShift": null,
-            "title": "Command Calls / sec",
+            "title": "Top5 commands with most Calls/sec",
             "tooltip": {
                 "msResolution": true,
                 "shared": true,
@@ -1178,7 +1178,7 @@
                 "current": false,
                 "max": false,
                 "min": false,
-                "show": true,
+                "show": false,
                 "total": false,
                 "values": false
             },
@@ -1197,7 +1197,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "redis_connected_clients{namespace=\"${namespace}\", job=\"${job}\"}",
+                    "expr": "sum(redis_connected_clients{namespace=\"${namespace}\", job=\"${job}\"})",
                     "format": "time_series",
                     "intervalFactor": 1,
                     "refId": "A",
@@ -1283,7 +1283,7 @@
     },
     "refresh": "30s",
     "schemaVersion": 12,
-    "version": 8,
+    "version": 9,
     "links": [],
     "gnetId": 37
 }
