@@ -1,0 +1,60 @@
+# Variables which should be replaced. Similar to grafana dashboards' __inputs section
+x-inputs:
+  - name: namespace
+    type: constant
+    value: zenko
+  - name: service
+    type: constant
+    value: artesca-data-base-cache-metrics
+  - name: highMemoryUsageWarningThreshold
+    type: constant
+    value: 0.25
+  - name: tooManyClientConnectionsWarningThreshold
+    type: constant
+    value: 100
+
+groups:
+- name: RedisBaseCache
+  rules:
+
+  - alert: ServiceDown
+    Expr: sum(up{namespace="${namespace}", service="${service}"}) == 0
+    For: 30s
+    Labels:
+      severity: critical
+    Annotations:
+      description: "Redis service is down"
+      summary: "Redis service is down"
+
+  - alert: HighMemoryUsage
+    Expr: |
+      redis_memory_max_bytes{namespace="${namespace}", job="${service}"} > 0) &&
+        (redis_memory_used_bytes{namespace="${namespace}", job="${service}"}
+            / redis_memory_max_bytes{namespace="${namespace}", job="${service}"}
+          > ${highMemoryUsageWarningThreshold}
+    For: 2m
+    Labels:
+      severity: warning
+    Annotations:
+      description: "Redis is using more than ${highMemoryUsageWarningThreshold}% of available memory."
+      summary: "Redis is using a lot of memory"
+
+  - alert: TooManyClientConnections
+    Expr: |
+      sum(redis_connected_clients{namespace="${namespace}", job="${service}"}) > ${tooManyClientConnectionsThreshold}
+    For: 2m
+    Labels:
+      severity: warning
+    Annotations:
+      description: "Redis has more than ${tooManyClientConnectionsThreshold} client connections: {{ $value }}"
+      summary: "Too many Redis client connections"
+
+  - alert: RejectedClientConnections
+    Expr: |
+      sum(increase(redis_rejected_connections_total{namespace="${namespace}", job="${service}"}[5m]) > 1
+    For: 0m
+    Labels:
+      severity: critical
+    Annotations:
+      description: "Some connections to Redis have been rejected"
+      summary: "Redis rejected connections"
