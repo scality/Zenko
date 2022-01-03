@@ -474,11 +474,13 @@
             "legend": {
                 "avg": false,
                 "current": false,
-                "max": false,
+                "max": true,
                 "min": false,
-                "show": false,
+                "show": true,
                 "total": false,
-                "values": false
+                "values": false,
+                "alignAsTable": true,
+                "rightSide": true
             },
             "lines": true,
             "linewidth": 2,
@@ -1283,7 +1285,7 @@
     },
     "refresh": "30s",
     "schemaVersion": 12,
-    "version": 9,
+    "version": 10,
     "links": [],
     "gnetId": 37
 }
