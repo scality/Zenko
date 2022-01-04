@@ -28,10 +28,9 @@ groups:
 
   - alert: HighMemoryUsage
     Expr: |
-      redis_memory_max_bytes{namespace="${namespace}", job="${service}"} > 0) &&
-        (redis_memory_used_bytes{namespace="${namespace}", job="${service}"}
-            / redis_memory_max_bytes{namespace="${namespace}", job="${service}"}
-          > ${highMemoryUsageWarningThreshold}
+      redis_memory_used_bytes{namespace="${namespace}", job="${service}"}
+          / redis_total_system_memory_bytes{namespace="${namespace}", job="${service}"}
+        > ${highMemoryUsageWarningThreshold}
     For: 2m
     Labels:
       severity: warning
