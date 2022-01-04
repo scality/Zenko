@@ -438,7 +438,8 @@
           "intervalFactor": 2,
           "legendFormat": "# members",
           "refId": "A",
-          "step": 600
+          "step": 600,
+          "instant": true
         },
         {
           "exemplar": true,
@@ -448,7 +449,8 @@
           "intervalFactor": 2,
           "legendFormat": "healthy members",
           "refId": "B",
-          "step": 600
+          "step": 600,
+          "instant": true
         }
       ],
       "thresholds": [],
@@ -546,7 +548,8 @@
           "intervalFactor": 2,
           "legendFormat": "{{state}} - {{name}}",
           "refId": "A",
-          "step": 240
+          "step": 240,
+          "instant": true
         }
       ],
       "thresholds": [],
@@ -1832,5 +1835,5 @@
   },
   "timezone": "browser",
   "title": "MongoDB",
-  "version": 7
+  "version": 8
 }
