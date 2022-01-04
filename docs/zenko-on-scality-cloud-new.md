@@ -44,18 +44,13 @@ git clone https://github.com/scality/zenko-operator
 cd zenko-operator
 ```
 
-# deploy shell UI
-```
-hack/scripts/install-local-shell-ui.sh shell-ui 'shell-ui.zenko.local' 'registry.scality.com/playground/nhumbert/shell-ui:fae6645'
-```
-
 
 #### Create Directory for Persisting Data
 
 Create a directory and change its permissions:
 
 ``` sh
-    export VOLUME_ROOT="<data_path>"
+    export VOLUME_ROOT="/home/centos/data"
     mkdir -p ${VOLUME_ROOT}
     chmod 777 -R ${VOLUME_ROOT}
 ```
@@ -71,6 +66,11 @@ To install the `Zenko-Operator` and deploy a `Zenko` instance, run:
 
     # add worker nodes
     WORKER_NODE_COUNT="2" hack/scripts/bootstrap-kind-dev.sh dev ${VOLUME_ROOT} kindest/node:vX.Y.Z
+```
+
+# deploy shell UI
+```
+hack/scripts/install-local-shell-ui.sh shell-ui 'shell-ui.zenko.local' 'registry.scality.com/playground/nhumbert/shell-ui:fae6645'
 ```
 
 ### Management API should allow both IP subnet
