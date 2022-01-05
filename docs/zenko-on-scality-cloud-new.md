@@ -77,6 +77,16 @@ hack/scripts/install-local-shell-ui.sh shell-ui 'shell-ui.zenko.local' 'registry
 ```
 vim doc/examples/zenko-1.2-dev.yaml
 
+replicas: 1
+initialConfiguration:
+  locations:
+  - name: us-east-1
+    type: location-file-v1
+  s3API:
+    endpoints:
+    - hostname: s3.zenko.local
+      locationName: us-east-1
+
 - 172.16.0.0/12
 - 10.0.0.0/8
 
