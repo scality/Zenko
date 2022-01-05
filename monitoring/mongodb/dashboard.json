@@ -514,7 +514,7 @@
       "hiddenSeries": false,
       "id": 14,
       "legend": {
-        "alignAsTable": true,
+        "alignAsTable": false,
         "avg": false,
         "current": false,
         "max": false,
@@ -546,7 +546,7 @@
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
-          "legendFormat": "{{state}} - {{name}}",
+          "legendFormat": "{{state}} - {{pod}}",
           "refId": "A",
           "step": 240,
           "instant": true
@@ -1835,5 +1835,5 @@
   },
   "timezone": "browser",
   "title": "MongoDB",
-  "version": 8
+  "version": 9
 }
