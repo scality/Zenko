@@ -1421,44 +1421,6 @@
       }
     },
     {
-      "alert": {
-        "conditions": [
-          {
-            "evaluator": {
-              "params": [
-                0.98
-              ],
-              "type": "gt"
-            },
-            "operator": {
-              "type": "and"
-            },
-            "query": {
-              "params": [
-                "A",
-                "5m",
-                "now"
-              ]
-            },
-            "reducer": {
-              "params": [],
-              "type": "avg"
-            },
-            "type": "query"
-          }
-        ],
-        "executionErrorState": "keep_state",
-        "frequency": "60s",
-        "handler": 1,
-        "message": "MongoDB's average disk i/o utilization has been above 98% for 5 minutes",
-        "name": "MongoDB's Disk IO Utilization alert",
-        "noDataState": "no_data",
-        "notifications": [
-          {
-            "id": 2
-          }
-        ]
-      },
       "aliasColors": {},
       "bars": false,
       "dashLength": 10,
@@ -1475,13 +1437,11 @@
       "hiddenSeries": false,
       "id": 17,
       "legend": {
-        "alignAsTable": true,
         "avg": false,
         "current": false,
         "max": false,
         "min": false,
-        "rightSide": true,
-        "show": false,
+        "show": true,
         "total": false,
         "values": false
       },
@@ -1503,25 +1463,16 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "(rate(node_disk_io_time_seconds_total[5m])/1000 or irate(node_disk_io_time_seconds_total[5m])/1000)",
+          "expr": "sum by(pod) (rate(container_blkio_device_usage_total{operation=\"Total\",namespace=\"${namespace}\",container=~\"${job}-.*\"}[$__rate_interval]))",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
-          "legendFormat": "{{device}} - {{instance}}",
+          "legendFormat": "{{pod}}",
           "refId": "A",
           "step": 240
         }
       ],
-      "thresholds": [
-        {
-          "colorMode": "critical",
-          "fill": true,
-          "line": true,
-          "op": "gt",
-          "value": 0.98,
-          "visible": true
-        }
-      ],
+      "thresholds": [],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
@@ -1541,10 +1492,10 @@
       },
       "yaxes": [
         {
-          "format": "percentunit",
+          "format": "binBps",
           "label": "",
           "logBase": 1,
-          "max": "1",
+          "max": null,
           "min": null,
           "show": true
         },
@@ -1602,7 +1553,7 @@
         "current": false,
         "max": false,
         "min": false,
-        "show": false,
+        "show": true,
         "total": false,
         "values": false
       },
@@ -1624,10 +1575,10 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(node_disk_reads_completed_total[5m])",
+          "expr": "sum by(pod) (rate(container_fs_writes_total{namespace=\"${namespace}\",container=~\"${job}-.*\"}[$__rate_interval]))",
           "format": "time_series",
           "intervalFactor": 2,
-          "legendFormat": "{{device}} - {{instance}}",
+          "legendFormat": "{{pod}}",
           "refId": "A",
           "step": 240
         }
@@ -1652,7 +1603,7 @@
       },
       "yaxes": [
         {
-          "format": "short",
+          "format": "ops",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -1694,7 +1645,7 @@
         "current": false,
         "max": false,
         "min": false,
-        "show": false,
+        "show": true,
         "total": false,
         "values": false
       },
@@ -1716,10 +1667,10 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(node_disk_writes_completed_total[5m])",
+          "expr": "sum by(pod) (rate(container_fs_writes_total{namespace=\"${namespace}\",container=~\"${job}-.*\"}[$__rate_interval]))",
           "format": "time_series",
           "intervalFactor": 2,
-          "legendFormat": "{{device}} - {{instance}}",
+          "legendFormat": "{{pod}}",
           "refId": "A",
           "step": 240
         }
@@ -1744,7 +1695,7 @@
       },
       "yaxes": [
         {
-          "format": "short",
+          "format": "ops",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -1835,5 +1786,5 @@
   },
   "timezone": "browser",
   "title": "MongoDB",
-  "version": 9
+  "version": 10
 }
