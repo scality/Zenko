@@ -823,7 +823,7 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -844,7 +844,7 @@
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "mean"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -856,10 +856,10 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "mongodb_connections{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\",state=\"available\"}",
+          "expr": "sum by(pod) (mongodb_connections{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\",state=\"available\"})",
           "format": "time_series",
           "interval": "",
-          "instant": true,
+          "instant": false,
           "intervalFactor": 2,
           "legendFormat": "",
           "metric": "mongodb_connections",
@@ -903,7 +903,7 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -925,7 +925,7 @@
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "mean"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -937,10 +937,10 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "mongodb_connections{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\",state=\"current\"}",
+          "expr": "sum by(pod) (mongodb_connections{pod=\"${pod}\",namespace=\"${namespace}\",job=\"${job}\",state=\"current\"})",
           "format": "time_series",
           "interval": "",
-          "instant": true,
+          "instant": false,
           "intervalFactor": 2,
           "legendFormat": "",
           "metric": "mongodb_connections",
@@ -1786,5 +1786,5 @@
   },
   "timezone": "browser",
   "title": "MongoDB",
-  "version": 10
+  "version": 11
 }
