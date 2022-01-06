@@ -39,7 +39,7 @@ kafka:
 kafka-cruise-control:
   sourceRegistry: ghcr.io/banzaicloud
   image: cruise-control
-  tag: 2.5.79
+  tag: 2.5.80
   envsubst: KAFKA_CRUISECONTROL_TAG
 mongodb:
   sourceRegistry: kubedb
