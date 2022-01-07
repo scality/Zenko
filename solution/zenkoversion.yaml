@@ -11,19 +11,19 @@ spec:
     #   tag: '${CLOUDSERVER_TAG}'
     # commented out to unblock k8s version testing
     # kafka:
-    #   image: kafka_grafana_dashboard
+    #   image: kafka-dashboard
     #   tag: '${VERSION_FULL}'
     # mongodb:
-    #   image: mongodb_grafana_dashboard
+    #   image: mongodb-dashboard
     #   tag: '${VERSION_FULL}'
     # redis:
-    #   image: redis_grafana_dashboard
+    #   image: redis-dashboard
     #   tag: '${VERSION_FULL}'
     # vault:
     #   image: vault-dashboards
     #   tag: '${VAULT_TAG}'
     # zookeeper:
-    #   image: zookeeper_grafana_dashboard
+    #   image: zookeeper-dashboard
     #   tag: '${VERSION_FULL}'
   versions:
     management:
