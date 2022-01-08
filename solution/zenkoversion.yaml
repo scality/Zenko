@@ -6,24 +6,25 @@ metadata:
   name: '${VERSION_FULL}'
 spec:
   dashboards:
-    cloudserver:
-      image: cloudserver-dashboards
-      tag: '${CLOUDSERVER_TAG}'
-    kafka:
-      image: kafka_grafana_dashboard
-      tag: '${VERSION_FULL}'
-    mongodb:
-      image: mongodb_grafana_dashboard
-      tag: '${VERSION_FULL}'
-    redis:
-      image: redis_grafana_dashboard
-      tag: '${VERSION_FULL}'
-    vault:
-      image: vault-dashboards
-      tag: '${VAULT_TAG}'
-    zookeeper:
-      image: zookeeper_grafana_dashboard
-      tag: '${VERSION_FULL}'
+    # cloudserver:
+    #   image: cloudserver-dashboards
+    #   tag: '${CLOUDSERVER_TAG}'
+    # commented out to unblock k8s version testing
+    # kafka:
+    #   image: kafka_grafana_dashboard
+    #   tag: '${VERSION_FULL}'
+    # mongodb:
+    #   image: mongodb_grafana_dashboard
+    #   tag: '${VERSION_FULL}'
+    # redis:
+    #   image: redis_grafana_dashboard
+    #   tag: '${VERSION_FULL}'
+    # vault:
+    #   image: vault-dashboards
+    #   tag: '${VAULT_TAG}'
+    # zookeeper:
+    #   image: zookeeper_grafana_dashboard
+    #   tag: '${VERSION_FULL}'
   versions:
     management:
       ui:

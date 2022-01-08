@@ -6,24 +6,25 @@ metadata:
   name: '${ZENKO_VERSION_NAME}'
 spec:
   dashboards:
-    #cloudserver:
-    #  image: '${CLOUDSERVER_DASHBOARD}'
-    #  tag: '${CLOUDSERVER_TAG}'
-    kafka:
-      image: kafka_grafana_dashboard
-      tag: '${ZENKO_VERSION_NAME}'
-    mongodb:
-      image: mongodb_grafana_dashboard
-      tag: '${ZENKO_VERSION_NAME}'
-    redis:
-      image: redis_grafana_dashboard
-      tag: '${ZENKO_VERSION_NAME}'
-    #vault:
-    #  image: '${VAULT_DASHBOARD}'
-    #  tag: '${VAULT_TAG}'
-    zookeeper:
-      image: zookeeper_grafana_dashboard
-      tag: '${ZENKO_VERSION_NAME}'
+    # cloudserver:
+    #   image: '${CLOUDSERVER_DASHBOARD}'
+    #   tag: '${CLOUDSERVER_TAG}'
+    # commented out to unblock k8s version testing
+    # kafka:
+    #   image: kafka_grafana_dashboard
+    #   tag: '${ZENKO_VERSION_NAME}'
+    # mongodb:
+    #   image: mongodb_grafana_dashboard
+    #   tag: '${ZENKO_VERSION_NAME}'
+    # redis:
+    #   image: redis_grafana_dashboard
+    #   tag: '${ZENKO_VERSION_NAME}'
+    # vault:
+    #   image: '${VAULT_DASHBOARD}'
+    #   tag: '${VAULT_TAG}'
+    # zookeeper:
+    #   image: zookeeper_grafana_dashboard
+    #   tag: '${ZENKO_VERSION_NAME}'
   versions:
     management:
       ui:
