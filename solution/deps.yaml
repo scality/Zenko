@@ -47,9 +47,9 @@ utapi:
   tag: zenko-1.0.0
   envsubst: UTAPI_TAG
 zenko-operator:
-  sourceRegistry: registry.scality.com/sf-eng
+  sourceRegistry: registry.scality.com/zenko-operator
   image: zenko-operator
-  tag: 1.1.6
+  tag: 1.1.7
   envsubst: ZENKO_OPERATOR_TAG
 vault:
   sourceRegistry: registry.scality.com/vault
