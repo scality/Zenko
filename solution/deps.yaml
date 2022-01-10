@@ -3,8 +3,9 @@
 # yq eval 'sortKeys(.)' -i deps.yaml
 backbeat:
   sourceRegistry: registry.scality.com/backbeat
+  dashboard: backbeat-dashboards
   image: backbeat
-  tag: 8.3.1
+  tag: 8.3.3
   envsubst: BACKBEAT_TAG
 blobserver:
   sourceRegistry: registry.scality.com/sf-eng
@@ -84,7 +85,7 @@ vault:
 zenko-operator:
   sourceRegistry: registry.scality.com/zenko-operator
   image: zenko-operator
-  tag: 1.2.8
+  tag: 1.2.9
   envsubst: ZENKO_OPERATOR_TAG
 zenko-ui:
   sourceRegistry: registry.scality.com/zenko-ui
