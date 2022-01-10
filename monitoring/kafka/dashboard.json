@@ -146,10 +146,6 @@
       "maxDataPoints": 100,
       "nullPointMode": "connected",
       "nullText": null,
-      "postfix": " / $online_broker",
-      "postfixFontSize": "100%",
-      "prefix": "",
-      "prefixFontSize": "50%",
       "rangeMaps": [
         {
           "from": "null",
@@ -5330,29 +5326,6 @@
       },
       {
         "allValue": null,
-        "current": {},
-        "datasource": "${DS_PROMETHEUS}",
-        "definition": "query_result(count(up{namespace=\"${namespace}\", job=\"${job}\"}))",
-        "error": null,
-        "hide": 2,
-        "includeAll": false,
-        "label": "",
-        "multi": false,
-        "name": "online_broker",
-        "options": [],
-        "query": "query_result(count(up{namespace=\"${namespace}\", job=\"${job}\"}))",
-        "refresh": 1,
-        "regex": "/.* ([^\\ ]*) .*/",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
         "current": {
           "selected": false,
           "text": "All",
@@ -5412,5 +5385,5 @@
   },
   "timezone": "",
   "title": "Kafka",
-  "version": 8
+  "version": 9
 }
