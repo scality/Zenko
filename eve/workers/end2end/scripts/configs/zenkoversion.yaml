@@ -6,6 +6,9 @@ metadata:
   name: '${ZENKO_VERSION_NAME}'
 spec:
   dashboards:
+    # backbeat:
+    #   image: '${BACKBEAT_DASHBOARD}'
+    #   tag: '${BACKBEAT_TAG}'
     # cloudserver:
     #   image: '${CLOUDSERVER_DASHBOARD}'
     #   tag: '${CLOUDSERVER_TAG}'
