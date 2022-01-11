@@ -21,6 +21,13 @@
       "label": "job",
       "description": "Name of the Kafka job, used to filter only the Kafka instances.",
       "value": "artesca-data-base-queue-headless"
+    },
+    {
+      "name": "cluster",
+      "type": "constant",
+      "label": "cluster",
+      "description": "Name of the Kafka cluster.",
+      "value": "artesca-data-base-queue"
     }
   ],
   "__requires": [
@@ -139,10 +146,6 @@
       "maxDataPoints": 100,
       "nullPointMode": "connected",
       "nullText": null,
-      "postfix": " / $online_broker",
-      "postfixFontSize": "100%",
-      "prefix": "",
-      "prefixFontSize": "50%",
       "rangeMaps": [
         {
           "from": "null",
@@ -2480,12 +2483,345 @@
     },
     {
       "collapsed": false,
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
         "y": 71
+      },
+      "id": 704,
+      "panels": [],
+      "title": "Consumer Group Lag",
+      "type": "row"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "${DS_PROMETHEUS}",
+      "description": "Max lag in seconds (extrapolated) and messages for each consumer group.",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 72
+      },
+      "hiddenSeries": false,
+      "id": 700,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "rightSide": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "8.0.7",
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "kafka_consumergroup_group_max_lag_seconds{namespace=\"${namespace}\",cluster_name=\"${cluster}\",group=~\"$consumer_group\",group!=\"\"}",
+          "format": "time_series",
+          "hide": false,
+          "interval": "",
+          "intervalFactor": 1,
+          "legendFormat": "{{ group }}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Max estimated lag in seconds",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:415",
+          "format": "s",
+          "label": "Estimated lag in seconds",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "$$hashKey": "object:416",
+          "format": "short",
+          "label": "Lag in number of messages",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": false
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "${DS_PROMETHEUS}",
+      "description": "Max lag in messages for each consumer group.",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 72
+      },
+      "hiddenSeries": false,
+      "id": 705,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "rightSide": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "8.0.7",
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "kafka_consumergroup_group_max_lag_seconds{namespace=\"${namespace}\",cluster_name=\"${cluster}\",group=~\"$consumer_group\",group!=\"\"}",
+          "format": "time_series",
+          "hide": false,
+          "interval": "",
+          "intervalFactor": 1,
+          "legendFormat": "{{ group }}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Max lag in messages",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:415",
+          "format": "short",
+          "label": "Lag in number of messages",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "$$hashKey": "object:416",
+          "format": "s",
+          "label": "Estimated lag in seconds",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": false
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "${DS_PROMETHEUS}",
+      "description": "Shows time lag on the left Y axis and message/offset lag on the right Y axis for a single consumer group.",
+      "fill": 0,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 82
+      },
+      "hiddenSeries": false,
+      "id": 707,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "maxPerRow": 3,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "8.0.7",
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "repeat": "consumer_group",
+      "repeatDirection": "h",
+      "seriesOverrides": [
+        {
+          "alias": "Consumer group lag in offsets",
+          "color": "#FF9830",
+          "linewidth": 2,
+          "yaxis": 2
+        },
+        {
+          "alias": "Consumer group estimated lag in time",
+          "color": "#F2495C",
+          "linewidth": 2,
+          "yaxis": 1
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "kafka_consumergroup_group_max_lag_seconds{namespace=\"${namespace}\",cluster_name=\"${cluster}\",group=~\"$consumer_group\",group!=\"\"}",
+          "format": "time_series",
+          "hide": false,
+          "interval": "",
+          "intervalFactor": 1,
+          "legendFormat": "Consumer group estimated lag in time",
+          "refId": "A"
+        },
+        {
+          "exemplar": true,
+          "expr": "kafka_consumergroup_group_max_lag{namespace=\"${namespace}\",cluster_name=\"${cluster}\",group=~\"$consumer_group\",group!=\"\"}",
+          "format": "time_series",
+          "hide": false,
+          "interval": "",
+          "intervalFactor": 1,
+          "legendFormat": "Consumer group lag in offsets",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "$consumer_group",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:161",
+          "format": "s",
+          "label": "Estimated lag in seconds",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "$$hashKey": "object:162",
+          "format": "short",
+          "label": "Lag in messages",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "collapsed": false,
+      "datasource": "${DS_PROMETHEUS}",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 90
       },
       "id": 28,
       "panels": [],
@@ -2528,7 +2864,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 72
+        "y": 91
       },
       "id": 694,
       "interval": null,
@@ -2578,7 +2914,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 80
+        "y": 99
       },
       "hiddenSeries": false,
       "id": 612,
@@ -2682,7 +3018,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 80
+        "y": 99
       },
       "hiddenSeries": false,
       "id": 613,
@@ -2786,7 +3122,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 81
+        "y": 100
       },
       "hiddenSeries": false,
       "id": 614,
@@ -2890,7 +3226,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 81
+        "y": 100
       },
       "hiddenSeries": false,
       "id": 615,
@@ -2996,7 +3332,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 90
+        "y": 109
       },
       "hiddenSeries": false,
       "id": 138,
@@ -3100,7 +3436,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 90
+        "y": 109
       },
       "hiddenSeries": false,
       "id": 139,
@@ -3206,7 +3542,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 90
+        "y": 109
       },
       "hiddenSeries": false,
       "id": 150,
@@ -3310,7 +3646,7 @@
         "h": 10,
         "w": 12,
         "x": 0,
-        "y": 98
+        "y": 117
       },
       "hiddenSeries": false,
       "id": 193,
@@ -3429,7 +3765,7 @@
         "h": 10,
         "w": 12,
         "x": 12,
-        "y": 98
+        "y": 117
       },
       "hiddenSeries": false,
       "id": 177,
@@ -3535,7 +3871,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 108
+        "y": 127
       },
       "hiddenSeries": false,
       "id": 178,
@@ -3643,7 +3979,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 108
+        "y": 127
       },
       "hiddenSeries": false,
       "id": 196,
@@ -3749,7 +4085,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 116
+        "y": 135
       },
       "hiddenSeries": false,
       "id": 56,
@@ -3852,7 +4188,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 116
+        "y": 135
       },
       "hiddenSeries": false,
       "id": 147,
@@ -3957,7 +4293,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 124
+        "y": 143
       },
       "hiddenSeries": false,
       "id": 195,
@@ -4064,7 +4400,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 124
+        "y": 143
       },
       "hiddenSeries": false,
       "id": 140,
@@ -4165,7 +4501,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 133
+        "y": 152
       },
       "id": 628,
       "links": [],
@@ -4315,7 +4651,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 142
+        "y": 161
       },
       "hiddenSeries": false,
       "id": 609,
@@ -4423,7 +4759,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 150
+        "y": 169
       },
       "hiddenSeries": false,
       "id": 603,
@@ -4516,7 +4852,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 158
+        "y": 177
       },
       "id": 159,
       "panels": [
@@ -4541,7 +4877,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 156
+            "y": 175
           },
           "hiddenSeries": false,
           "id": 161,
@@ -4643,7 +4979,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 156
+            "y": 175
           },
           "hiddenSeries": false,
           "id": 163,
@@ -4745,7 +5081,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 165
+            "y": 184
           },
           "hiddenSeries": false,
           "id": 81,
@@ -4847,7 +5183,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 165
+            "y": 184
           },
           "hiddenSeries": false,
           "id": 83,
@@ -4990,26 +5326,30 @@
       },
       {
         "allValue": null,
-        "current": {},
-        "datasource": "${DS_PROMETHEUS}",
-        "definition": "query_result(count(up{namespace=\"${namespace}\", job=\"${job}\"}))",
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": null,
+        "definition": "query_result(kafka_consumergroup_group_lag{namespace=\"${namespace}\",cluster_name=\"${cluster}\"})",
+        "description": null,
         "error": null,
-        "hide": 2,
-        "includeAll": false,
-        "label": "",
-        "multi": false,
-        "name": "online_broker",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Consumer Group",
+        "multi": true,
+        "name": "consumer_group",
         "options": [],
-        "query": "query_result(count(up{namespace=\"${namespace}\", job=\"${job}\"}))",
+        "query": {
+          "query": "query_result(kafka_consumergroup_group_lag{namespace=\"${namespace}\",cluster_name=\"${cluster}\"})",
+          "refId": "StandardVariableQuery"
+        },
         "refresh": 1,
-        "regex": "/.* ([^\\ ]*) .*/",
+        "regex": "/.*group=\"([^\"]*).*/",
         "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
+        "sort": 1,
+        "type": "query"
       }
     ]
   },
@@ -5045,5 +5385,5 @@
   },
   "timezone": "",
   "title": "Kafka",
-  "version": 7
+  "version": 9
 }

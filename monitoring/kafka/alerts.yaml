@@ -9,11 +9,20 @@ x-inputs:
   - name: pvc
     type: constant
     value: artesca-data-base-queue
+  - name: cluster
+    type: constant
+    value: artesca-data-base-queue
   - name: replicas
     type: constant
   - name: remainingDiskSpaceWarningThreshold
     type: constant
     value: 0.25
+  - name: maxConsumerLagMessagesWarningThreshold
+    type: constant
+    value: 1000
+  - name: maxConsumerLagSecondsWarningThreshold
+    type: constant
+    value: 300
 
 groups:
 - name: KafkaBaseQueue
@@ -95,3 +104,24 @@ groups:
     annotations:
       summary: 'Zookeeper Sync Disconected'
       description: 'Kafka Zookeeper Sync Disconected'
+
+  - alert: ConsummerLagWarning
+    expr: |
+      kafka_consumergroup_group_max_lag{namespace="${namespace}",cluster_name="${cluster}",group!=""}
+          > ${maxConsumerLagMessagesWarningThreshold}
+      or
+      kafka_consumergroup_group_max_lag_seconds{namespace="${namespace}",cluster_name="${cluster}",group!=""}
+          > ${maxConsumerLagSecondsWarningThreshold}
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: 'Kafka: consumer lag is too high for {{ $labels.group }}'
+      description: |
+        Kafka consumer lag has been more more than ${maxConsumerLagSecondsWarningThreshold} seconds
+        or more than ${maxConsumerLagMessagesWarningThreshold} messages for 5 minutes.
+
+        Current time lag is {{ with printf 'kafka_consumergroup_group_max_lag_seconds{namespace="${namespace}",cluster_name="${cluster}",group="%s"}'
+                                    $labels.group | query}}{{ . | first | value | humanizeDuration }}{{ end }} seconds.
+        Current offset lag is {{ with printf 'kafka_consumergroup_group_max_lag{namespace="${namespace}",cluster_name="${cluster}",group="%s"}'
+                                      $labels.group | query}}{{ . | first | value | humanize }}{{ end }} messages.
