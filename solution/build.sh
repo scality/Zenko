@@ -130,6 +130,7 @@ function generate_manifest_layer()
 {
     local tmp=$(mktemp)
     cat > $tmp
+    chmod +r $tmp
     digest=$(sha256sum  ${tmp} | cut -d " " -f 1) # get sha256, sha256sum prints the checksum and the filename, keep the checksum only
     size=$(stat --printf "%s" ${tmp})             # get only the size (in bytes) of the file. format "%s" only prints the size
     mv $tmp $1/$digest
