@@ -80,7 +80,7 @@ function dependencies_versions_env()
 
 function copy_yamls()
 {
-    local crd_dir="${ISO_ROOT}/operator/deploy/crd"
+    local crd_dir="${ISO_ROOT}/operator/deploy/crds"
     local role_dir="${ISO_ROOT}/operator/deploy"
     local zenko_operator_repo='https://github.com/scality/zenko-operator'
 
