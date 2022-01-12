@@ -1,0 +1,23 @@
+{{- if and .Values.shards .Values.shardsvr.dataNode.pdb.enabled -}}
+{{- $replicas := .Values.shards | int -}}
+{{- range $i, $e := until $replicas -}}
+kind: PodDisruptionBudget
+apiVersion: policy/v1beta1
+metadata:
+  name: {{ printf "%s-shard%d-data" (include "common.names.fullname" $ ) $i }}
+  labels: {{- include "common.labels.standard" $ | nindent 4 }}
+    app.kubernetes.io/component: shardsvr
+spec:
+  selector:
+    matchLabels: {{- include "common.labels.matchLabels" $ | nindent 6 }}
+      app.kubernetes.io/component: shardsvr
+      shard: {{ $i | quote }}
+  {{- if $.Values.shardsvr.dataNode.pdb.minAvailable }}
+  minAvailable: {{ $.Values.shardsvr.dataNode.pdb.minAvailable | int }}
+  {{- end }}
+  {{- if $.Values.shardsvr.dataNode.pdb.maxUnavailable }}
+  maxUnavailable: {{ $.Values.shardsvr.dataNode.pdb.maxUnavailable | int }}
+  {{- end }}
+---
+{{- end -}}
+{{- end -}}
