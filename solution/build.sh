@@ -86,7 +86,7 @@ function copy_yamls()
 
     mkdir -p ${crd_dir} ${role_dir}
 
-    kustomize build "${zenko_operator_repo}/config/artesca-solution/crd?ref=$(zenko_operator_tag)" > ${crd_dir}/crd.yaml
+    kustomize build "${zenko_operator_repo}/config/artesca-solution/crd?ref=$(zenko_operator_tag)" > ${crd_dir}/zenko_crd.yaml
     kustomize build "${zenko_operator_repo}/config/artesca-solution/rbac?ref=$(zenko_operator_tag)" |
         docker run --rm -i ryane/kfilt:v0.0.5 -k Role,ClusterRole > ${role_dir}/role.yaml
 
