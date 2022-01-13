@@ -43,6 +43,33 @@ class BackbeatAPIUtility {
         makePOSTRequest(path, requestBody, cb);
     }
 
+    getIngestionStatus(locationName, cb) {
+        let path = '/_/backbeat/api/ingestion/status';
+        if (locationName) {
+            path = `${path}/${locationName}`;
+        }
+        makeGETRequest(path, (err, res) => {
+            assert.ifError(err);
+            getResponseBody(res, cb);
+        });
+    }
+
+    getIngestionResumeSchedule(locationName, cb) {
+        const path = `/_/backbeat/api/ingestion/resume/${locationName}`;
+        makeGETRequest(path, (err, res) => {
+            assert.ifError(err);
+            getResponseBody(res, cb);
+        });
+    }
+
+    pauseIngestion(locationName, cb) {
+        let path = '/_/backbeat/api/ingestion/pause';
+        if (locationName) {
+            path = `${path}/${locationName}`;
+        }
+        makePOSTRequest(path, '{}', cb);
+    }
+
     resumeIngestion(locationName, schedule, hoursScheduled, cb) {
         let path = '/_/backbeat/api/ingestion/resume';
         let requestBody;
