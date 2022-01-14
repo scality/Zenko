@@ -1,0 +1,127 @@
+# Variables which should be replaced. Similar to grafana dashboards' __inputs section
+x-inputs:
+  - name: namespace
+    type: constant
+    value: zenko
+  - name: service
+    type: constant
+    value: artesca-data-base-queue-headless
+  - name: pvc
+    type: constant
+    value: artesca-data-base-queue
+  - name: cluster
+    type: constant
+    value: artesca-data-base-queue
+  - name: replicas
+    type: constant
+  - name: remainingDiskSpaceWarningThreshold
+    type: constant
+    value: 0.25
+  - name: maxConsumerLagMessagesWarningThreshold
+    type: constant
+    value: 1000
+  - name: maxConsumerLagSecondsWarningThreshold
+    type: constant
+    value: 300
+
+groups:
+- name: KafkaBaseQueue
+  rules:
+
+  - alert: BrokersCountWarning
+    expr: |
+      count(kafka_server_replicamanager_leadercount{namespace="${namespace}",service="${service}"}) < ${replicas}
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: 'Not all expected brokers are online.'
+      description: 'Kafka: Broker count is down'
+
+  - alert: BrokersCountCritical
+    expr: |
+      count(kafka_server_replicamanager_leadercount{namespace="${namespace}",service="${service}"}) == 0
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: 'No Brokers online'
+      description: 'Kafka: Broker count is 0'
+
+  - alert: ActiveControllerCritical
+    expr: sum(kafka_controller_kafkacontroller_activecontrollercount{namespace="${namespace}",service="${service}"}) != 1
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      description: >-
+        No broker in the cluster is reporting as the active controller in the last 1 minute interval. During steady state there should
+        be only one active controller per cluster.
+      summary: 'Kafka: No active controller'
+
+  - alert: UnderReplicatedPartitions
+    expr: sum(kafka_server_replicamanager_underreplicatedpartitions{namespace="${namespace}",service="${service}"}) > 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      description: >-
+        Under-replicated partitions means that one or more replicas are not available. This is usually because a broker is down.  Restart
+        the broker, and check for errors in the logs.
+      summary: 'Kafka: {{ $value }} under-replicated partitons'
+
+  - alert: OfflinePartitons
+    expr: sum(kafka_controller_kafkacontroller_offlinepartitionscount{namespace="${namespace}",service="${service}"}) > 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      description: >-
+        After successful leader election, if the leader for partition dies, then the partition moves to the OfflinePartition state.
+        Offline partitions are not available for reading and writing. Restart the brokers, if needed, and check the logs for errors.
+      summary: 'Kafka: {{ $value }} offline partitons'
+
+  - alert: RemainingDiskSpaceWarning
+    expr: |
+        kubelet_volume_stats_available_bytes{namespace="${namespace}",persistentvolumeclaim=~"${pvc}-.*"}
+            / kubelet_volume_stats_capacity_bytes{namespace="${namespace}",persistentvolumeclaim=~"${pvc}-.*"}
+          < ${remainingDiskSpaceWarningThreshold}
+        and
+          predict_linear(kubelet_volume_stats_available_bytes{namespace="${namespace}",persistentvolumeclaim=~"${pvc}-.*"}[6h], 4 * 24 * 3600) < 0
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      description: 'Kafka Broker has low disk space'
+      summary: 'Kafka Broker has low disk space'
+
+  - alert: ZookeeperSyncConnect
+    expr: |
+      avg(kafka_server_sessionexpirelistener_zookeepersyncconnects_total{namespace="${namespace}",service="${service}"}) < 1
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: 'Zookeeper Sync Disconected'
+      description: 'Kafka Zookeeper Sync Disconected'
+
+  - alert: ConsummerLagWarning
+    expr: |
+      kafka_consumergroup_group_max_lag{namespace="${namespace}",cluster_name="${cluster}",group!=""}
+          > ${maxConsumerLagMessagesWarningThreshold}
+      or
+      kafka_consumergroup_group_max_lag_seconds{namespace="${namespace}",cluster_name="${cluster}",group!=""}
+          > ${maxConsumerLagSecondsWarningThreshold}
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: 'Kafka: consumer lag is too high for {{ $labels.group }}'
+      description: |
+        Kafka consumer lag has been more more than ${maxConsumerLagSecondsWarningThreshold} seconds
+        or more than ${maxConsumerLagMessagesWarningThreshold} messages for 5 minutes.
+
+        Current time lag is {{ with printf 'kafka_consumergroup_group_max_lag_seconds{namespace="${namespace}",cluster_name="${cluster}",group="%s"}'
+                                    $labels.group | query}}{{ . | first | value | humanizeDuration }}{{ end }} seconds.
+        Current offset lag is {{ with printf 'kafka_consumergroup_group_max_lag{namespace="${namespace}",cluster_name="${cluster}",group="%s"}'
+                                      $labels.group | query}}{{ . | first | value | humanize }}{{ end }} messages.

@@ -39,14 +39,6 @@ postgresql:
     annotations: {}
     storageClass: "standard"
     mountPath: /keycloak/postgresql
-  replication:
-    enabled: true
-    user: repl_user
-    password: repl_password
-    slaveReplicas: 0
-    synchronousCommit: "off"
-    numSynchronousReplicas: 1
-    applicationName: Keycloak
   postgresqlDataDir: /keycloak/postgresql/data
   metrics:
     enabled: true

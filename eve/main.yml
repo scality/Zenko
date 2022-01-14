@@ -2,7 +2,7 @@
 version: "0.2"
 
 branches:
-  documentation/*, feature/*, improvement/*, bugfix/*, w/*, q/*, hotfix/*:
+  documentation/*, feature/*, improvement/*, bugfix/*, w/*, q/*, hotfix/*, user/*:
     stage: pre-merge
 
 models:
@@ -10,12 +10,12 @@ models:
       WORKER_COUNT: '2'
       OPERATOR_REPO: git@github.com:scality/zenko-operator.git
       OPERATOR_IMAGE: '%(prop:OPERATOR_IMAGE_NAME)s:%(prop:OPERATOR_IMAGE_TAG)s'
-      KIND_NODE_IMAGE: "kindest/node:v1.19.11@sha256:07db187ae84b4b7de440a73886f008cf903fcf5764ba8106a9fd5243d6f32729"
+      KIND_NODE_IMAGE: "kindest/node:v1.22.4@sha256:ca3587e6e545a96c07bf82e2c46503d9ef86fc704f44c17577fca7bcabf5f978"
       VOLUME_ROOT: /artifacts
       OIDC_REALM: "zenko"
       OIDC_CLIENT_ID: "zenko-ui"
       OIDC_USERNAME: 'zenko-end2end'
-      OIDC_PASSWORD: 'end2end_password'
+      OIDC_PASSWORD: '123'
       OIDC_FIRST_NAME: 'hello'
       OIDC_LAST_NAME: 'world'
       SHELL_UI_NAME: "shell-ui"
@@ -54,6 +54,11 @@ models:
       GCP_SECRET_KEY: '%(secret:aws_gcp_backend_secret_key)s'
       GCP_BACKEND_SERVICE_KEY: '%(secret:gcp_backend_service_key)s'
       GCP_BACKEND_SERVICE_EMAIL: '%(secret:gcp_backend_service_email)s'
+      RING_S3C_ACCESS_KEY: '%(secret:ring_s3c_backend_access_key)s'
+      RING_S3C_SECRET_KEY: '%(secret:ring_s3c_backend_secret_key)s'
+      RING_S3C_ENDPOINT: '%(secret:ring_s3c_backend_endpoint)s'
+      RING_S3C_BACKEND_SOURCE_LOCATION: rings3cbackendingestion
+      RING_S3C_INGESTION_SRC_BUCKET_NAME: 'ingestion-test-src-bucket-%(prop:bootstrap)s'
   - env: &mock-env
       AZURE_ACCOUNT_NAME: devstoreaccount1
       AZURE_BACKEND_ENDPOINT: http://azure-mock/devstoreaccount1
@@ -129,6 +134,7 @@ stages:
         name: trigger iso and documentation build
         haltOnFailure: true
         stage_names:
+        - check-dashboard-versions
         - build-doc
         - build-iso
         - build-base-iso
@@ -251,6 +257,7 @@ stages:
         workdir: build/tests/zenko_tests
         command: |
           envsubst < 'e2e-config.yaml.template' > 'e2e-config.yaml'
+          cat e2e-config.yaml
           echo 'Generated e2e-config.yaml file'
         haltOnFailure: true
     - ShellCommand: &build-e2e-image
@@ -327,7 +334,7 @@ stages:
           git clone ${OPERATOR_REPO} operator
           cd operator
           git checkout ${COMMIT_HASH}
-          bash deploy/scripts/install-zenko-operator.sh "${OPERATOR_IMAGE}" default
+          tilt ci
         workdir: build/eve/workers/end2end
         haltOnFailure: true
         flunkOnFailure: true
@@ -355,21 +362,21 @@ stages:
     - ShellCommand: &configure_end2end_tests
         name: End-to-end configuration
         env:
-          <<: [*kind-env, *e2e-env, *http-env]
+          <<: [*kind-env, *e2e-env, *http-env, *secrets-env]
         command: bash scripts/configure-e2e.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "default"
         workdir: build/eve/workers/end2end
         haltOnFailure: true
     - ShellCommand: &run_end2end_tests
         name: Run init CI test
         env:
-          <<: [*kind-env, *e2e-env, *http-env]
+          <<: [*kind-env, *e2e-env, *http-env, *secrets-env]
         command: bash scripts/run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "end2end" "default"
         workdir: build/eve/workers/end2end
         haltOnFailure: true
     - ShellCommand: &run_smoke_test
         name: Run smoke tests
         env:
-          <<: [*kind-env, *e2e-env, *http-env]
+          <<: [*kind-env, *e2e-env, *http-env, *secrets-env]
         command: bash scripts/run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "smoke" "default"
         workdir: build/eve/workers/end2end
         haltOnFailure: true
@@ -437,15 +444,15 @@ stages:
     - ShellCommand:
         <<: *configure_end2end_tests
         env:
-          <<: [*kind-env, *e2e-env, *https-env]
+          <<: [*kind-env, *e2e-env, *https-env, *secrets-env]
     - ShellCommand:
         <<: *run_end2end_tests
         env:
-          <<: [*kind-env, *e2e-env, *https-env]
+          <<: [*kind-env, *e2e-env, *https-env, *secrets-env]
     - ShellCommand:
         <<: *run_smoke_test
         env:
-          <<: [*kind-env, *e2e-env, *https-env]
+          <<: [*kind-env, *e2e-env, *https-env, *secrets-env]
     - ShellCommand: *archive_artifacts
     - ShellCommand: *kind_cluster_cleanup
     - Upload: *upload_artifacts
@@ -465,28 +472,37 @@ stages:
     - ShellCommand:
         <<: *install_kind_dependencies
         env:
-          <<: [*kind-env, *http-env]
+          <<: [*kind-env, *https-env]
     - ShellCommand: *patch_coredns
     - ShellCommand: *install_shell_ui
     - ShellCommand:
         <<: *setup_keycloak
         env:
-          <<: [*kind-env, *http-env]
+          <<: [*kind-env, *https-env]
     - ShellCommand: *install_operator
     - ShellCommand:
         <<: *deploy_zenko
         env:
-          <<: [*kind-env, *http-env]
+          <<: [*kind-env, *https-env]
     - ShellCommand:
         <<: *setup_keycloak_user
         env:
-          <<: [*kind-env, *http-env]
+          <<: [*kind-env, *https-env]
     - ShellCommand: &run_vault_end2end_test
         name: Run vault end-2end tests
         env:
-          <<: [*kind-env, *e2e-env, *http-env]
+          <<: [*kind-env, *e2e-env, *https-env]
         command: bash scripts/vault-e2e-test.sh
         workdir: build/eve/workers/end2end
         haltOnFailure: true
     - ShellCommand: *kind_cluster_cleanup
     - Upload: *upload_artifacts
+
+  check-dashboard-versions:
+    worker: *end2end-worker
+    steps:
+      - Git: *git_pull
+      - ShellCommand:
+          name: Verify monitoring dashboard versions
+          command: bash monitoring/check_versions.sh
+          haltOnFailure: true

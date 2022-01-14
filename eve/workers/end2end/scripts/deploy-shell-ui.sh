@@ -44,7 +44,7 @@ spec:
   selector:
     shell-ui: $SHELL_UI_NAME
 ---
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: $SHELL_UI_NAME
@@ -58,7 +58,10 @@ spec:
     http:
       paths:
       - backend:
-          serviceName: $SHELL_UI_NAME
-          servicePort: http
+          service:
+            name: $SHELL_UI_NAME
+            port:
+              name: http
         path: /
+        pathType: Prefix
 EOF

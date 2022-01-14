@@ -1,12 +1,61 @@
+# Please keep the first level keys sorted
+# to sort keys, use the following command
+# yq eval 'sortKeys(.)' -i deps.yaml
+backbeat:
+  sourceRegistry: registry.scality.com/backbeat
+  dashboard: backbeat-dashboards
+  image: backbeat
+  tag: 8.3.3
+  envsubst: BACKBEAT_TAG
+blobserver:
+  sourceRegistry: registry.scality.com/sf-eng
+  image: blobserver
+  tag: 1.0.8
+  envsubst: BLOBSERVER_TAG
+busybox:
+  image: busybox
+  tag: 1.33.0
+  envsubst: BUSYBOX_TAG
+cloudserver:
+  sourceRegistry: registry.scality.com/cloudserver
+  dashboard: cloudserver-dashboards
+  image: cloudserver
+  tag: 8.3.6
+  envsubst: CLOUDSERVER_TAG
+jabba:
+  sourceRegistry: registry.scality.com/jabba
+  image: jabba
+  tag: 1.0.0
+  envsubst: JABBA_TAG
 jmx-javaagent:
   sourceRegistry: banzaicloud
   image: jmx-javaagent
   tag: 0.14.0
   envsubst: JMX_JAVAAGENT_TAG
-busybox:
-  image: busybox
-  tag: 1.33.0
-  envsubst: BUSYBOX_TAG
+kafka:
+  sourceRegistry: ghcr.io/banzaicloud
+  image: kafka
+  tag: 2.13-2.7.0-bzc.1
+  envsubst: KAFKA_TAG
+kafka-cruise-control:
+  sourceRegistry: ghcr.io/banzaicloud
+  image: cruise-control
+  tag: 2.5.80
+  envsubst: KAFKA_CRUISECONTROL_TAG
+mongodb:
+  sourceRegistry: kubedb
+  image: mongo
+  tag: 4.0-v1
+  envsubst: MONGODB_TAG
+pensieve-api:
+  sourceRegistry: registry.scality.com/pensieve-api
+  image: pensieve-api
+  tag: 1.1.0
+  envsubst: PENSIEVE_API_TAG
+redis:
+  image: redis
+  tag: 5.0.3
+  envsubst: REDIS_TAG
 redis-kubedb:
   sourceRegistry: kubedb
   image: redis
@@ -15,79 +64,36 @@ redis-kubedb:
 redis_exporter:
   sourceRegistry: oliver006
   image: redis_exporter
-  tag: v1.8.0
+  tag: v1.29.0
   envsubst: REDIS_EXPORTER_TAG
-zookeeper:
-  sourceRegistry: pravega
-  image: zookeeper
-  tag: 0.2.4
-  envsubst: ZOOKEEPER_TAG
-redis:
-  image: redis
-  tag: 5.0.3
-  envsubst: REDIS_TAG
-blobserver:
-  sourceRegistry: registry.scality.com/sf-eng
-  image: blobserver
-  tag: 1.0.8
-  envsubst: BLOBSERVER_TAG
-jabba:
-  sourceRegistry: registry.scality.com/jabba
-  image: jabba
-  tag: 1.0.0
-  envsubst: JABBA_TAG
-pensieve-api:
-  sourceRegistry: registry.scality.com/pensieve-api
-  image: pensieve-api
-  tag: 1.0.4
-  envsubst: PENSIEVE_API_TAG
-utapi:
-  sourceRegistry: registry.scality.com/sf-eng
-  image: utapi
-  tag: zenko-1.0.0
-  envsubst: UTAPI_TAG
-zenko-operator:
-  sourceRegistry: registry.scality.com/zenko-operator
-  image: zenko-operator
-  tag: 1.1.7
-  envsubst: ZENKO_OPERATOR_TAG
-vault:
-  sourceRegistry: registry.scality.com/vault-dev
-  image: vault
-  tag: 6125cfbac2
-  envsubst: VAULT_TAG
-backbeat:
-  sourceRegistry: registry.scality.com/backbeat
-  image: backbeat
-  tag: 8.2.12
-  envsubst: BACKBEAT_TAG
-cloudserver:
-  sourceRegistry: registry.scality.com/cloudserver
-  image: cloudserver
-  tag: 8.2.18
-  envsubst: CLOUDSERVER_TAG
 s3utils:
   sourceRegistry: registry.scality.com/s3utils
   image: s3utils
   tag: 1.10.1
   envsubst: S3UTILS_TAG
-kafka-cruise-control:
-  sourceRegistry: ghcr.io/banzaicloud
-  image: cruise-control
-  tag: 2.5.80
-  envsubst: KAFKA_CRUISECONTROL_TAG
+utapi:
+  sourceRegistry: registry.scality.com/sf-eng
+  image: utapi
+  tag: zenko-1.0.0
+  envsubst: UTAPI_TAG
+vault:
+  sourceRegistry: registry.scality.com/vault
+  dashboard: vault-dashboards
+  image: vault
+  tag: 6125cfbac2
+  envsubst: VAULT_TAG
+zenko-operator:
+  sourceRegistry: registry.scality.com/zenko-operator
+  image: zenko-operator
+  tag: 1.2.10
+  envsubst: ZENKO_OPERATOR_TAG
 zenko-ui:
   sourceRegistry: registry.scality.com/zenko-ui
   image: zenko-ui
-  tag: 1.0.7
+  tag: 1.1.2
   envsubst: ZENKO_UI_TAG
-kafka:
-  sourceRegistry: ghcr.io/banzaicloud
-  image: kafka
-  tag: 2.13-2.7.0-bzc.1
-  envsubst: KAFKA_TAG
-mongodb:
-  sourceRegistry: kubedb
-  image: mongo
-  tag: 4.0-v1
-  envsubst: MONGODB_TAG
+zookeeper:
+  sourceRegistry: pravega
+  image: zookeeper
+  tag: 0.2.13
+  envsubst: ZOOKEEPER_TAG

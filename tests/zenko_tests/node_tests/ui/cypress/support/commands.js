@@ -69,7 +69,7 @@ Cypress.Commands.add('createAccount', (accountName) => {
     Cypress.log({ name: `Create Account: ${accountName}` });
     cy.visit('/create-account');
     cy.get('input#name').type(accountName);
-    cy.get('input#email').type('my@email.ok');
+    cy.get('input#email').type(`${accountName}my@email.ok`);
     cy.get('button#create-account-btn').click();
 });
 

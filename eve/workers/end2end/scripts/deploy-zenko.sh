@@ -34,6 +34,12 @@ function dependencies_image_env()
         sed 's/_TAG=/_IMAGE=/g'
 }
 
+function dependencies_dashboard_env()
+{
+    yq eval '.[] | .envsubst + "=" + (.sourceRegistry // "docker.io") + "/" + .dashboard' ${DEPS_PATH} |
+        sed 's/_TAG=/_DASHBOARD=/g'
+}
+
 function dependencies_versions_env()
 {
     yq eval '.[] | .envsubst + "=" + .tag' ${DEPS_PATH}
@@ -43,6 +49,7 @@ function dependencies_env()
 {
     echo $(dependencies_versions_env)
     echo $(dependencies_image_env)
+    echo $(dependencies_dashboard_env)
     echo "ZENKO_VERSION_NAME=${ZENKO_NAME}-version"
 }
 

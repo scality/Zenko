@@ -8,4 +8,5 @@ ingress:
   rules:
     - host: 'keycloak.zenko.local'
       paths:
-        - /auth
+        - path: /auth
+          pathType: Prefix

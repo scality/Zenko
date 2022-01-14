@@ -15,6 +15,7 @@ from kubernetes.config.config_exception import ConfigException
 from jsonschema import validate
 
 from e2e_config import accounts, endpoints, locations, workflows, schema
+import create_buckets
 
 logging.basicConfig(level=logging.INFO)
 _log = logging.getLogger("end2end configuration")
@@ -116,6 +117,10 @@ def main():
                                        MANAGEMENT_ENDPOINT,
                                        token=TOKEN)
 
+        # create ingestion source bucket
+        create_buckets.create_ring_buckets()
+
+        # create zenko resources
         for account in e2e_config["accounts"]:
             accounts.create_account(client,
                                     TOKEN,

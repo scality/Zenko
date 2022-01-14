@@ -12,7 +12,6 @@ def get_env(key, default=None, error=False):
         return os.environ.get(key, default)
     return os.environ[key]
 
-K8S_NAMESPACE = os.getenv('HELM_NAMESPACE')
 RING_S3C_ACCESS_KEY = get_env('RING_S3C_ACCESS_KEY')
 RING_S3C_SECRET_KEY = get_env('RING_S3C_SECRET_KEY')
 RING_S3C_INGESTION_SRC_BUCKET_NAME = get_env('RING_S3C_INGESTION_SRC_BUCKET_NAME')

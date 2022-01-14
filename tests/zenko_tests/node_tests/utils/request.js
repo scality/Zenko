@@ -1,18 +1,19 @@
 const http = require('http');
 const aws4 = require('aws4');
 
-const DEFAULT_HOST = process.env.CLOUDSERVER_HOST || 'zenko.local';
+const DEFAULT_HOST = process.env.CLOUDSERVER_HOST;
 const DEFAULT_PORT = '80';
 
 const accessKeyId = process.env.ZENKO_ACCESS_KEY;
 const secretAccessKey = process.env.ZENKO_SECRET_KEY;
+const sessionToken = process.env.ZENKO_SESSION_TOKEN;
 
 const defaultOptions = {
     host: DEFAULT_HOST,
     port: DEFAULT_PORT,
     service: 's3',
 };
-const credentials = { accessKeyId, secretAccessKey };
+const credentials = { accessKeyId, secretAccessKey, sessionToken };
 
 function getResponseBody(res, cb) {
     res.setEncoding('utf8');

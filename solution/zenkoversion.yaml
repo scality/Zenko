@@ -5,6 +5,29 @@ kind: ZenkoVersion
 metadata:
   name: '${VERSION_FULL}'
 spec:
+  dashboards:
+    # backbeat:
+    #   image: backbeat-dashboards
+    #   tag: '${BACKBEAT_TAG}'
+    # cloudserver:
+    #   image: cloudserver-dashboards
+    #   tag: '${CLOUDSERVER_TAG}'
+    # commented out to unblock k8s version testing
+    # kafka:
+    #   image: kafka-dashboard
+    #   tag: '${VERSION_FULL}'
+    # mongodb:
+    #   image: mongodb-dashboard
+    #   tag: '${VERSION_FULL}'
+    # redis:
+    #   image: redis-dashboard
+    #   tag: '${VERSION_FULL}'
+    # vault:
+    #   image: vault-dashboards
+    #   tag: '${VAULT_TAG}'
+    # zookeeper:
+    #   image: zookeeper-dashboard
+    #   tag: '${VERSION_FULL}'
   versions:
     management:
       ui:
