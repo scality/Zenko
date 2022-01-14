@@ -366,6 +366,10 @@ spec:
         {{- range .Values.configsvr.persistence.accessModes }}
           - {{ . | quote }}
         {{- end }}
+        {{- if .Values.configsvr.persistence.selector }}
+        selector:
+{{ toYaml .Values.configsvr.persistence.selector | indent 10 }}
+        {{- end }}
         resources:
           requests:
             storage: {{ .Values.configsvr.persistence.size | quote }}

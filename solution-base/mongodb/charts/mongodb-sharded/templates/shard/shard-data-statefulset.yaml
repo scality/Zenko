@@ -373,6 +373,10 @@ spec:
         {{- range $.Values.shardsvr.persistence.accessModes }}
           - {{ . | quote }}
         {{- end }}
+        {{- if $.Values.shardsvr.persistence.selector }}
+        selector:
+{{ toYaml $.Values.shardsvr.persistence.selector | indent 10 }}
+        {{- end }}
         resources:
           requests:
             storage: {{ $.Values.shardsvr.persistence.size | quote }}
