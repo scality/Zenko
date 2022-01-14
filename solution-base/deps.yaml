@@ -1,0 +1,22 @@
+# Please keep the first level keys sorted
+# to sort keys, use the following command
+# yq eval 'sortKeys(.)' -i deps.yaml
+mongodb:
+  image: bitnami/mongodb
+  tag: 4.0.14-debian-9-r24
+mongodb-exporter:
+  image: bitnami/mongodb-exporter
+  tag: 0.10.0-debian-9-r104
+mongodb-minideb:
+  sourceRegistry: registry.scality.com
+  image: zenko-dev/minideb
+  tag: base-2.1.0
+mongodb-sharded:
+  image: bitnami/mongodb-sharded
+  tag: 4.0.27-debian-9-r111
+mongodb-sharded-exporter:
+  image: bitnami/mongodb-exporter
+  tag: 0.11.2-debian-10-r382
+mongodb-sharded-shell:
+  image: bitnami/bitnami-shell
+  tag: 10-debian-10-r293

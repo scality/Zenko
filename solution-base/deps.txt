@@ -1,3 +1,0 @@
-bitnami/mongodb:4.0.14-debian-9-r24
-registry.scality.com/zenko-dev/minideb:base-2.1.0
-bitnami/mongodb-exporter:0.10.0-debian-9-r104

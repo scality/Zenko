@@ -33,11 +33,11 @@ KUBEDB_SCRIPT_BRANCH_TAG=89fab34cf2f5d9e0bcc3c2d5b0f0599f94ff0dca
 KUBEDB_OPERATOR_PATH=${ISO_ROOT}/deploy/kubedb.yaml
 KUBEDB_CATALOGS_PATH=${ISO_ROOT}/deploy/kubedb-catalogs.yaml
 MONGODB_SINGLE_NODE_PATH=${ISO_ROOT}/deploy/mongodb-1-node.yaml
-MONGODB_THREE_NODE_PATH=${ISO_ROOT}/deploy/mongodb-3-node.yaml
+MONGODB_THREE_NODE_PATH=${ISO_ROOT}/deploy/mongodb-3-nodes.yaml
+MONGODB_SHARDED_THREE_NODE_PATH=${ISO_ROOT}/deploy/mongodb-sharded-3-nodes.yaml
 
 SOLUTION_ENV='SOLUTION_ENV'
 
-export KUBEDB_OPERATOR_TAG=$(grep kubedb/operator: deps.txt | awk -F ':' '{print $2}')
 export KUBEDB_NAMESPACE=${SOLUTION_ENV}
 export KUBEDB_SERVICE_ACCOUNT=kubedb-operator
 export KUBEDB_IMAGE_NAME=operator
@@ -47,18 +47,27 @@ export KUBEDB_DOCKER_REGISTRY=${SOLUTION_REGISTRY}
 export KUBEDB_PRIORITY_CLASS=system-cluster-critical
 
 MONGODB_NAME="mongodb"
+MONGODB_SHARDED_NAME="data-db"
 MONGODB_NAMESPACE=${SOLUTION_ENV}
 MONGODB_REGISTRY=${SOLUTION_REGISTRY}
 MONGODB_IMAGE_NAME="mongodb"
-MONGODB_IMAGE_TAG=$(grep /mongodb: deps.txt | awk -F ':' '{print $2}')
+MONGODB_IMAGE_TAG=$(yq eval ".mongodb.tag" deps.yaml)
 MONGODB_INIT_IMAGE_NAME="minideb"
-MONGODB_INIT_IMAGE_TAG=$(grep /minideb: deps.txt | awk -F ':' '{print $2}')
+MONGODB_INIT_IMAGE_TAG=$(yq eval ".mongodb-minideb.tag" deps.yaml)
 MONGODB_EXPORTER_IMAGE_NAME="mongodb-exporter"
-MONGODB_EXPORTER_IMAGE_TAG=$(grep /mongodb-exporter: deps.txt | awk -F ':' '{print $2}')
+MONGODB_EXPORTER_IMAGE_TAG=$(yq eval ".mongodb-exporter.tag" deps.yaml)
+MONGODB_SHARDED_IMAGE_NAME="mongodb-sharded"
+MONGODB_SHARDED_IMAGE_TAG=$(yq eval ".mongodb-sharded.tag" deps.yaml)
+MONGODB_SHARDED_EXPORTER_IMAGE_NAME="mongodb-exporter"
+MONGODB_SHARDED_EXPORTER_IMAGE_TAG=$(yq eval ".mongodb-sharded-exporter.tag" deps.yaml)
+MONGODB_SHARDED_SHELL_IMAGE_NAME="bitnami-shell"
+MONGODB_SHARDED_SHELL_IMAGE_TAG=$(yq eval ".mongodb-sharded-shell.tag" deps.yaml)
 MONGODB_STORAGE_CLASS="MONGODB_STORAGE_CLASS"
 
-# grab our dependencies from our deps.txt file as an array
-readarray -t DEP_IMAGES < deps.txt
+function flatten_source_images()
+{
+    yq eval '.* | (.sourceRegistry // "docker.io") + "/" + .image + ":" + .tag' deps.yaml
+}
 
 function clean()
 {
@@ -107,9 +116,9 @@ function kubedb_yamls()
 
 function render_mongodb_yamls()
 {
-    OUTPUT_PATH=${1:-${OPERATOR_PATH}}
-    NODE_COUNT=${2:-1}
-    ADD_OPTIONS=${3:-""}
+    local OUTPUT_PATH=${1:-${OPERATOR_PATH}}
+    local NODE_COUNT=${2:-1}
+    local ADD_OPTIONS=${3:-""}
 
     echo creating mongodb ${NODE_COUNT}-node yamls
     CHART_PATH="$(dirname $0)/mongodb/charts/mongodb"
@@ -142,6 +151,50 @@ function mongodb_yamls()
         "replicaSet.pdb.minAvailable.secondary=1,replicaSet.pdb.minAvailable.arbiter=0,replicaSet.replicas.secondary=2,replicaSet.replicas.arbiter=0" 
 }
 
+function render_mongodb_sharded_yamls()
+{
+    local OUTPUT_PATH=${1:-${OPERATOR_PATH}}
+    local SHARD_COUNT=${2:-1}
+    local NODE_COUNT=${3:-1}
+    local ADD_OPTIONS=${4:-""}
+
+    echo creating mongodb-sharded ${NODE_COUNT}-node yamls
+    CHART_PATH="$(dirname $0)/mongodb/charts/mongodb-sharded"
+
+    helm template ${MONGODB_SHARDED_NAME} ${CHART_PATH} -n ${MONGODB_NAMESPACE} \
+        --set image.registry=${MONGODB_REGISTRY} \
+        --set image.repository=${MONGODB_SHARDED_IMAGE_NAME} \
+        --set image.tag=${MONGODB_SHARDED_IMAGE_TAG} \
+        --set global.storageClass=${MONGODB_STORAGE_CLASS} \
+        --set shards=${SHARD_COUNT} \
+        --set mongos.replicas=${NODE_COUNT} \
+        --set mongos.useStatefulSet=true \
+        --set shardsvr.dataNode.replicas=${NODE_COUNT} \
+        --set shardsvr.persistence.enabled=true \
+        --set shardsvr.persistence.storageClass=${MONGODB_STORAGE_CLASS} \
+        --set configsvr.replicas=${NODE_COUNT} \
+        --set configsvr.persistence.enabled=true \
+        --set configsvr.persistence.storageClass=${MONGODB_STORAGE_CLASS} \
+        --set metrics.enabled=true \
+        --set metrics.image.registry=${MONGODB_REGISTRY} \
+        --set metrics.image.repository=${MONGODB_SHARDED_EXPORTER_IMAGE_NAME} \
+        --set metrics.image.tag=${MONGODB_SHARDED_EXPORTER_IMAGE_TAG} \
+        --set volumePermissions.enabled=true \
+        --set volumePermissions.image.registry=${MONGODB_REGISTRY} \
+        --set volumePermissions.image.repository=${MONGODB_SHARDED_SHELL_IMAGE_NAME} \
+        --set volumePermissions.image.tag=${MONGODB_SHARDED_SHELL_IMAGE_TAG} \
+        --set 'shardsvr.persistence.selector.matchLabels.app\.kubernetes\.io/name=mongodb' \
+        --set 'shardsvr.persistence.selector.matchLabels.app\.kubernetes\.io/part-of=zenko' \
+        --set 'configsvr.persistence.selector.matchLabels.app\.kubernetes\.io/name=mongodb-sharded-config' \
+        --set 'configsvr.persistence.selector.matchLabels.app\.kubernetes\.io/part-of=zenko' \
+        --set existingSecret=${MONGODB_NAME}-db-creds >> ${OUTPUT_PATH}
+}
+
+function mongodb_sharded_yamls()
+{
+    render_mongodb_sharded_yamls "${MONGODB_SHARDED_THREE_NODE_PATH}" 1 3 
+}
+
 function gen_manifest_yaml()
 {
     cat > ${ISO_ROOT}/manifest.yaml <<EOF
@@ -160,15 +213,14 @@ spec:
 EOF
 }
 
-function copy_image()
+function copy_docker_image()
 {
     IMAGE_NAME=${1##*/}
     FULL_PATH=${IMAGES_ROOT}/${IMAGE_NAME/:/\/}
     mkdir -p ${FULL_PATH}
     ${SKOPEO} ${SKOPEO_OPTS} copy \
         --format v2s2 --dest-compress \
-        --src-daemon-host ${DOCKER_SOCKET} \
-        docker-daemon:${1} \
+        docker://${1} \
         dir:${FULL_PATH}
 }
 
@@ -221,12 +273,12 @@ clean
 mkdirs
 kubedb_yamls
 mongodb_yamls
+mongodb_sharded_yamls
 gen_manifest_yaml
-for img in "${DEP_IMAGES[@]}"; do
+flatten_source_images | while read img ; do
     # only pull if the image isnt already local
-    echo downloading ${img}
     ${DOCKER} image inspect ${img} > /dev/null 2>&1 || ${DOCKER} ${DOCKER_OPTS} pull ${img}
-    copy_image ${img}
+    copy_docker_image ${img}
 done
 dedupe
 build_registry_config

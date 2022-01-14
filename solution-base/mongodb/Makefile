@@ -12,12 +12,14 @@ HELM=helm
 
 .PHONY: fetch patch
 
-fetch: 
+fetch-mongodb: 
 	@${HELM} fetch mongodb \
 		--repo ${CHART_REPO} \
 		--version ${CHART_MONGO_REPLICASET_VERSION} \
 		--untar \
 		--untardir ${CHART_DIR}
+
+fetch-mongodb-sharded:
 	@${HELM} fetch mongodb-sharded \
 		--repo ${CHART_REPO} \
 		--version ${CHART_MONGO_SHARDED_VERSION} \
