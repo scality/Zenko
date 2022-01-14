@@ -175,7 +175,7 @@ EOF
 
 function get_local_dashboards()
 {
-    find ${REPOSITORY_DIR}/monitoring/ -type d -depth 1 -print0 |
+    find ${REPOSITORY_DIR}/monitoring/ -mindepth 1 -maxdepth 1 -type d -print0 |
         while IFS= read -r -d '' dashboard ; do
             echo "Prepare dashboard: ${dashboard##*/}"
             generate_local_dashboard "${dashboard}"
