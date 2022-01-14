@@ -176,10 +176,11 @@ function render_mongodb_sharded_yamls()
         --set configsvr.persistence.enabled=true \
         --set configsvr.persistence.storageClass=${MONGODB_STORAGE_CLASS} \
         --set metrics.enabled=true \
+        --set common.initScriptsCM=mongodb-sharded-init-scripts \
+        --set volumePermissions.enabled=true \
         --set metrics.image.registry=${MONGODB_REGISTRY} \
         --set metrics.image.repository=${MONGODB_SHARDED_EXPORTER_IMAGE_NAME} \
         --set metrics.image.tag=${MONGODB_SHARDED_EXPORTER_IMAGE_TAG} \
-        --set volumePermissions.enabled=true \
         --set volumePermissions.image.registry=${MONGODB_REGISTRY} \
         --set volumePermissions.image.repository=${MONGODB_SHARDED_SHELL_IMAGE_NAME} \
         --set volumePermissions.image.tag=${MONGODB_SHARDED_SHELL_IMAGE_TAG} \
