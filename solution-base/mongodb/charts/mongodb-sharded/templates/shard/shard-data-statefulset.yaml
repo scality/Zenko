@@ -147,6 +147,7 @@ spec:
                 secretKeyRef:
                   name: {{ include "mongodb-sharded.secret" $ }}
                   key: mongodb-replica-set-key
+            {{- include "mongodb-sharded.appAccountEnvs" $ | nindent 12 }}
             {{- end }}
             - name: MONGODB_ENABLE_IPV6
             {{- if $.Values.common.mongodbEnableIPv6 }}
