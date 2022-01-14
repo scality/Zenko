@@ -77,7 +77,7 @@ utapi:
   tag: zenko-1.0.0
   envsubst: UTAPI_TAG
 vault:
-  sourceRegistry: registry.scality.com/vault
+  sourceRegistry: registry.scality.com/vault-dev
   dashboard: vault-dashboards
   image: vault
   tag: 6125cfbac2
