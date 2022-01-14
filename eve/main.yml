@@ -146,6 +146,7 @@ stages:
         stage_names:
         - end2end-http
         - end2end-https
+        - end2end-sharded
         - end2end-vault
     - ShellCommand:
         name: add successful .final_status to artifacts
@@ -387,6 +388,14 @@ stages:
         command: bash scripts/run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "backbeat" "default"
         workdir: build/eve/workers/end2end
         haltOnFailure: true
+    - ShellCommand: &debug_wait
+        alwaysRun: true
+        command: >-
+          if [ $ENABLE_DEBUG = 'true' ]; then
+            while true; do sleep 10; echo sleep; done
+          fi
+        env:
+          ENABLE_DEBUG: '%(prop:enable_debug)s'
     - ShellCommand: &archive_artifacts
         name: archive artifact logs and data
         command: >-
@@ -395,8 +404,10 @@ stages:
           kubectl get pods -A -o yaml > /tmp/artifacts/data/kind-logs/all-pods.log;
           kubectl get events -A -o yaml > /tmp/artifacts/data/kind-logs/all-events.log;
           kind export logs /tmp/artifacts/data/kind-logs/kind-export;
-          tar zcvf /tmp/artifacts/%(prop:commit_short_revision)s-logs-volumes.tgz /tmp/artifacts/data/kind-logs;
+          tar zcvf /tmp/artifacts/%(prop:commit_short_revision)s-${STAGE}-logs-volumes.tgz /tmp/artifacts/data/kind-logs;
         alwaysRun: true
+        env:
+          STAGE: end2end-http
     - ShellCommand: &kind_cluster_cleanup
         name: Clean Up
         command: kind delete cluster
@@ -453,7 +464,11 @@ stages:
         <<: *run_smoke_test
         env:
           <<: [*kind-env, *e2e-env, *https-env, *secrets-env]
-    - ShellCommand: *archive_artifacts
+    - ShellCommand: *debug_wait
+    - ShellCommand:
+        <<: *archive_artifacts
+        env:
+          STAGE: end2end-https
     - ShellCommand: *kind_cluster_cleanup
     - Upload: *upload_artifacts
 
@@ -495,6 +510,11 @@ stages:
         command: bash scripts/vault-e2e-test.sh
         workdir: build/eve/workers/end2end
         haltOnFailure: true
+    - ShellCommand: *debug_wait
+    - ShellCommand:
+        <<: *archive_artifacts
+        env:
+          STAGE: end2end-vault
     - ShellCommand: *kind_cluster_cleanup
     - Upload: *upload_artifacts
 
@@ -506,3 +526,60 @@ stages:
           name: Verify monitoring dashboard versions
           command: bash monitoring/check_versions.sh
           haltOnFailure: true
+
+  end2end-sharded:
+    worker: *end2end-worker
+    steps:
+    - Git: *git_pull
+    - SetPropertyFromCommand: *set_operator_image_name
+    - SetPropertyFromCommand: *set_operator_image_tag
+    - ShellCommand: *wait_docker_daemon
+    - ShellCommand: *private_registry_login
+    - ShellCommand: *ssh_access
+    - ShellCommand: *bootstrap_kind
+    - ShellCommand: *ensure_cluter_running
+    - ShellCommand: *create_image_pull_secret
+    - ShellCommand:
+        <<: *install_kind_dependencies
+        env:
+          <<: [*kind-env, *http-env]
+          ZENKO_MONGODB_SHARDED: 'true'
+    - ShellCommand: *patch_coredns
+    - ShellCommand: *install_shell_ui
+    - ShellCommand:
+        <<: *setup_keycloak
+        env:
+          <<: [*kind-env, *http-env]
+    - ShellCommand: *install_operator
+    - ShellCommand:
+        <<: *deploy_zenko
+        env:
+          <<: [*kind-env, *http-env]
+          ZENKO_MONGODB_SHARDED: 'true'
+    - ShellCommand:
+        <<: *setup_keycloak_user
+        env:
+          <<: [*kind-env, *http-env]
+    - ShellCommand:
+        <<: *install_mocks
+        env:
+          <<: [*kind-env, *e2e-env, *http-env]
+    - ShellCommand:
+        <<: *configure_end2end_tests
+        env:
+          <<: [*kind-env, *e2e-env, *http-env, *secrets-env]
+    - ShellCommand:
+        <<: *run_end2end_tests
+        env:
+          <<: [*kind-env, *e2e-env, *http-env, *secrets-env]
+    - ShellCommand:
+        <<: *run_smoke_test
+        env:
+          <<: [*kind-env, *e2e-env, *http-env, *secrets-env]
+    - ShellCommand: *debug_wait
+    - ShellCommand:
+        <<: *archive_artifacts
+        env:
+          STAGE: end2end-sharded
+    - ShellCommand: *kind_cluster_cleanup
+    - Upload: *upload_artifacts

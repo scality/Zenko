@@ -3,6 +3,7 @@ apiVersion: zenko.io/v1alpha2
 kind: Zenko
 metadata:
   name: ${ZENKO_NAME}
+  ${ZENKO_ANNOTATIONS}
 spec:
   version: ${ZENKO_VERSION_NAME}
   replicas: 1
@@ -17,11 +18,12 @@ spec:
   mongodb:
     provider: External
     endpoints:
-      - dev-db-mongodb-primary-0.dev-db-mongodb-headless.default.svc.cluster.local:27017
+      - ${ZENKO_MONGODB_ENDPOINT} 
     userSecretName: mongodb-db-creds
     usernameKey: mongodb-username
     passwordKey: mongodb-password
     databaseName: datadb
+    ${ZENKO_MONGODB_CONFIG}
   redis:
     provider: Zenko
   kafka:

@@ -28,6 +28,19 @@ else
     export ZENKO_INGRESS_CERTIFICATES='certificates: []'
 fi
 
+# TODO: use kustomize
+ZENKO_MONGODB_SHARDED=${ZENKO_MONGODB_SHARDED:-'false'}
+if [ ${ZENKO_MONGODB_SHARDED} == 'true' ]; then
+    export ZENKO_ANNOTATIONS="annotations:
+    zenko.io/x-backbeat-oneshard-replicaset: dev-db-mongodb-sharded-shard-0
+    zenko.io/x-backbeat-oneshard-replicaset-hosts: dev-db-mongodb-sharded-shard0-data-0.dev-db-mongodb-sharded-headless.default.svc.cluster.local:27017,dev-db-mongodb-sharded-shard0-data-1.dev-db-mongodb-sharded-headless.default.svc.cluster.local:27017,dev-db-mongodb-sharded-shard0-data-2.dev-db-mongodb-sharded-headless.default.svc.cluster.local:27017"
+    export ZENKO_MONGODB_ENDPOINT="dev-db-mongodb-sharded-mongos-0.dev-db-mongodb-sharded.default.svc.cluster.local:27017"
+    export ZENKO_MONGODB_CONFIG="writeConcern: 'majority'
+    enableSharding: true"
+else 
+    export ZENKO_MONGODB_ENDPOINT="dev-db-mongodb-primary-0.dev-db-mongodb-headless.default.svc.cluster.local:27017"
+fi
+
 function dependencies_image_env()
 {
     yq eval '.[] | .envsubst + "=" + (.sourceRegistry // "docker.io") + "/" + .image' ${DEPS_PATH} |
