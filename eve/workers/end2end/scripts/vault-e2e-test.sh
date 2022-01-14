@@ -27,7 +27,7 @@ REDIS_TEST_PORT="6379"
 REDIS_TEST_PASSWORD=$(kubectl get secret $ZENKO_RESOURCE-base-cache-creds.v1 -n $NAMESPACE -o jsonpath='{.data.password}' | base64 -d)
 ZENKO_VERSION=$(kubectl get zenko $ZENKO_RESOURCE -n $NAMESPACE -o jsonpath='{.spec.version}')
 VAULT_TEST_TAG=$(kubectl get zenkoversion $ZENKO_VERSION  -n $NAMESPACE -o jsonpath='{.spec.versions.vault.tag}')
-VAULT_TEST_IMAGE="registry.scality.com/vault/vault-test"
+VAULT_TEST_IMAGE="registry.scality.com/vault-dev/vault-test"
 
 
 # in case of force builds image and tag can be specified using "Extra properties":

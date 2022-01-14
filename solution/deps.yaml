@@ -52,9 +52,9 @@ zenko-operator:
   tag: 1.1.7
   envsubst: ZENKO_OPERATOR_TAG
 vault:
-  sourceRegistry: registry.scality.com/vault
+  sourceRegistry: registry.scality.com/vault-dev
   image: vault
-  tag: 8.3.2.3
+  tag: 6125cfbac2
   envsubst: VAULT_TAG
 backbeat:
   sourceRegistry: registry.scality.com/backbeat
