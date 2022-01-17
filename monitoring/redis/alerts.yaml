@@ -7,10 +7,10 @@ x-inputs:
     type: constant
     value: artesca-data-base-cache-metrics
   - name: highMemoryUsageWarningThreshold
-    type: constant
+    type: config
     value: 0.25
   - name: tooManyClientConnectionsWarningThreshold
-    type: constant
+    type: config
     value: 100
 
 groups:
