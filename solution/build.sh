@@ -167,9 +167,9 @@ function generate_local_dashboard()
     "config": $(generate_manifest_layer "${dashboard_base_dir}" "application/vnd.oci.image.config.v1+json" <<< '{}'),
     "layers": $(jq -s "." \
         <( [ -e "${dashboard}" ] && generate_manifest_layer "${dashboard_base_dir}" "application/grafana-dashboard+json" \
-                                                            "$(basename "${dashboard}")" < "${dashboard}" ) \
+                                                            "${1}.json" < "${dashboard}" ) \
         <( [ -e "${alert}" ] && generate_manifest_layer "${dashboard_base_dir}" "prometheus-alerts+yaml" \
-                                                        "$(basename "${alert}")" < "${alert}" ) \
+                                                        "${1}.yaml" < "${alert}" ) \
     )
 }
 EOF
