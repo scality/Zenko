@@ -12,21 +12,21 @@ spec:
     cloudserver:
       image: '${CLOUDSERVER_DASHBOARD}'
       tag: '${CLOUDSERVER_TAG}'
-    kafka:
-      image: kafka-dashboard
-      tag: '${ZENKO_VERSION_NAME}'
-    mongodb:
-      image: mongodb-dashboard
-      tag: '${ZENKO_VERSION_NAME}'
-    redis:
-      image: redis-dashboard
-      tag: '${ZENKO_VERSION_NAME}'
+    # kafka:
+    #   image: kafka-dashboard
+    #   tag: '${ZENKO_VERSION_NAME}'
+    # mongodb:
+    #   image: mongodb-dashboard
+    #   tag: '${ZENKO_VERSION_NAME}'
+    # redis:
+    #   image: redis-dashboard
+    #   tag: '${ZENKO_VERSION_NAME}'
     vault:
       image: '${VAULT_DASHBOARD}'
       tag: '${VAULT_TAG}'
-    zookeeper:
-      image: zookeeper-dashboard
-      tag: '${ZENKO_VERSION_NAME}'
+    # zookeeper:
+    #   image: zookeeper-dashboard
+    #   tag: '${ZENKO_VERSION_NAME}'
   versions:
     management:
       ui:
