@@ -15,13 +15,13 @@ x-inputs:
   - name: replicas
     type: constant
   - name: remainingDiskSpaceWarningThreshold
-    type: constant
+    type: config
     value: 0.25
   - name: maxConsumerLagMessagesWarningThreshold
-    type: constant
+    type: config
     value: 1000
   - name: maxConsumerLagSecondsWarningThreshold
-    type: constant
+    type: config
     value: 300
 
 groups:

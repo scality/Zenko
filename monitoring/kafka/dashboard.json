@@ -5385,5 +5385,6 @@
   },
   "timezone": "",
   "title": "Kafka",
-  "version": 9
+  "uid": null,
+  "version": 10
 }

@@ -6,13 +6,12 @@ metadata:
   name: '${ZENKO_VERSION_NAME}'
 spec:
   dashboards:
-    # backbeat:
-    #   image: '${BACKBEAT_DASHBOARD}'
-    #   tag: '${BACKBEAT_TAG}'
-    # cloudserver:
-    #   image: '${CLOUDSERVER_DASHBOARD}'
-    #   tag: '${CLOUDSERVER_TAG}'
-    # commented out to unblock k8s version testing
+    backbeat:
+      image: '${BACKBEAT_DASHBOARD}'
+      tag: '${BACKBEAT_TAG}'
+    cloudserver:
+      image: '${CLOUDSERVER_DASHBOARD}'
+      tag: '${CLOUDSERVER_TAG}'
     # kafka:
     #   image: kafka-dashboard
     #   tag: '${ZENKO_VERSION_NAME}'

@@ -10,13 +10,13 @@ x-inputs:
     type: constant
     value: datadir-mongodb
   - name: tooManyElectionsWarningThreshold
-    type: constant
+    type: config
     value: 10
   - name: tooManyClientConnectionsWarningThreshold
-    type: constant
+    type: config
     value: 100
   - name: remainingDiskSpaceWarningThreshold
-    type: constant
+    type: config
     value: 0.25
 
 groups:

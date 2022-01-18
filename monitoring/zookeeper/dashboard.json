@@ -49,7 +49,6 @@
       }
     ]
   },
-
   "__requires": [
     {
       "type": "panel",
@@ -9478,5 +9477,5 @@
   "timezone": "",
   "title": "ZooKeeper",
   "uid": null,
-  "version": 8
+  "version": 9
 }

@@ -87,7 +87,9 @@ function copy_yamls()
     mkdir -p ${crd_dir} ${role_dir}
 
     kustomize build "${zenko_operator_repo}/config/artesca-solution/crd?ref=$(zenko_operator_tag)" -o ${crd_dir}
-    rename '.yaml' '_crd.yaml' ${crd_dir}/*
+    for file in ${crd_dir}/*.yaml ; do 
+        mv $file ${file%.yaml}_crd.yaml
+    done
     kustomize build "${zenko_operator_repo}/config/artesca-solution/rbac?ref=$(zenko_operator_tag)" |
         docker run --rm -i ryane/kfilt:v0.0.5 -k Role,ClusterRole > ${role_dir}/role.yaml
 
@@ -165,9 +167,9 @@ function generate_local_dashboard()
     "config": $(generate_manifest_layer "${dashboard_base_dir}" "application/vnd.oci.image.config.v1+json" <<< '{}'),
     "layers": $(jq -s "." \
         <( [ -e "${dashboard}" ] && generate_manifest_layer "${dashboard_base_dir}" "application/grafana-dashboard+json" \
-                                                            "$(basename "${dashboard}")" < "${dashboard}" ) \
+                                                            "${1}.json" < "${dashboard}" ) \
         <( [ -e "${alert}" ] && generate_manifest_layer "${dashboard_base_dir}" "prometheus-alerts+yaml" \
-                                                        "$(basename "${alert}")" < "${alert}" ) \
+                                                        "${1}.yaml" < "${alert}" ) \
     )
 }
 EOF
@@ -175,7 +177,7 @@ EOF
 
 function get_local_dashboards()
 {
-    find ${REPOSITORY_DIR}/monitoring/ -type d -depth 1 -print0 |
+    find ${REPOSITORY_DIR}/monitoring/ -mindepth 1 -maxdepth 1 -type d -print0 |
         while IFS= read -r -d '' dashboard ; do
             echo "Prepare dashboard: ${dashboard##*/}"
             generate_local_dashboard "${dashboard}"

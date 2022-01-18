@@ -13,7 +13,7 @@ x-inputs:
     type: constant
     value: 3
   - name: remainingDiskSpaceWarningThreshold
-    type: constant
+    type: config
     value: 0.25
 
 groups:
