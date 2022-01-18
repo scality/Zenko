@@ -21,9 +21,9 @@ spec:
     # redis:
     #   image: redis-dashboard
     #   tag: '${ZENKO_VERSION_NAME}'
-    vault:
-      image: '${VAULT_DASHBOARD}'
-      tag: '${VAULT_TAG}'
+    # vault:
+    #   image: '${VAULT_DASHBOARD}'
+    #   tag: '${VAULT_TAG}'
     # zookeeper:
     #   image: zookeeper-dashboard
     #   tag: '${ZENKO_VERSION_NAME}'
