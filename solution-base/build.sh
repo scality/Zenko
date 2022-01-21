@@ -1,6 +1,10 @@
 #!/bin/bash
 set -eu
 
+SCRIPT_FULL_PATH=$(readlink -f "$0")
+REPOSITORY_DIR=$(dirname "$SCRIPT_FULL_PATH")/..
+SOLUTION_BASE_DIR=$REPOSITORY_DIR/solution-base
+
 PWD=$(pwd)
 BUILD_ROOT=${PWD}/_build
 ISO_ROOT=${BUILD_ROOT}/root
@@ -10,9 +14,6 @@ PRODUCT_NAME=Zenko-Base
 PRODUCT_LOWERNAME=zenko-base
 BUILD_TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 BUILD_HOST=$(hostname)
-SCRIPT_FULL_PATH=$(readlink -f "$0")
-REPOSITORY_DIR=$(dirname "$SCRIPT_FULL_PATH")/..
-
 
 VERSION_FILE="${REPOSITORY_DIR}/VERSION"
 
@@ -51,22 +52,22 @@ MONGODB_SHARDED_NAME="data-db"
 MONGODB_NAMESPACE=${SOLUTION_ENV}
 MONGODB_REGISTRY=${SOLUTION_REGISTRY}
 MONGODB_IMAGE_NAME="mongodb"
-MONGODB_IMAGE_TAG=$(yq eval ".mongodb.tag" deps.yaml)
+MONGODB_IMAGE_TAG=$(yq eval ".mongodb.tag" $SOLUTION_BASE_DIR/deps.yaml)
 MONGODB_INIT_IMAGE_NAME="minideb"
-MONGODB_INIT_IMAGE_TAG=$(yq eval ".mongodb-minideb.tag" deps.yaml)
+MONGODB_INIT_IMAGE_TAG=$(yq eval ".mongodb-minideb.tag" $SOLUTION_BASE_DIR/deps.yaml)
 MONGODB_EXPORTER_IMAGE_NAME="mongodb-exporter"
-MONGODB_EXPORTER_IMAGE_TAG=$(yq eval ".mongodb-exporter.tag" deps.yaml)
+MONGODB_EXPORTER_IMAGE_TAG=$(yq eval ".mongodb-exporter.tag" $SOLUTION_BASE_DIR/deps.yaml)
 MONGODB_SHARDED_IMAGE_NAME="mongodb-sharded"
-MONGODB_SHARDED_IMAGE_TAG=$(yq eval ".mongodb-sharded.tag" deps.yaml)
+MONGODB_SHARDED_IMAGE_TAG=$(yq eval ".mongodb-sharded.tag" $SOLUTION_BASE_DIR/deps.yaml)
 MONGODB_SHARDED_EXPORTER_IMAGE_NAME="mongodb-exporter"
-MONGODB_SHARDED_EXPORTER_IMAGE_TAG=$(yq eval ".mongodb-sharded-exporter.tag" deps.yaml)
+MONGODB_SHARDED_EXPORTER_IMAGE_TAG=$(yq eval ".mongodb-sharded-exporter.tag" $SOLUTION_BASE_DIR/deps.yaml)
 MONGODB_SHARDED_SHELL_IMAGE_NAME="bitnami-shell"
-MONGODB_SHARDED_SHELL_IMAGE_TAG=$(yq eval ".mongodb-sharded-shell.tag" deps.yaml)
+MONGODB_SHARDED_SHELL_IMAGE_TAG=$(yq eval ".mongodb-sharded-shell.tag" $SOLUTION_BASE_DIR/deps.yaml)
 MONGODB_STORAGE_CLASS="MONGODB_STORAGE_CLASS"
 
 function flatten_source_images()
 {
-    yq eval '.* | (.sourceRegistry // "docker.io") + "/" + .image + ":" + .tag' deps.yaml
+    yq eval '.* | (.sourceRegistry // "docker.io") + "/" + .image + ":" + .tag' ${SOLUTION_BASE_DIR}/deps.yaml
 }
 
 function clean()
@@ -104,12 +105,12 @@ function kubedb_yamls()
     )
 
     for y in "${operator_yamls[@]}"; do
-        cat kubedb/${y}.yaml | envsubst >> ${KUBEDB_OPERATOR_PATH}
+        cat ${SOLUTION_BASE_DIR}/kubedb/${y}.yaml | envsubst >> ${KUBEDB_OPERATOR_PATH}
         echo --- >> ${KUBEDB_OPERATOR_PATH}
     done
 
     for y in "${catalog_yamls[@]}"; do
-        cat kubedb/${y}.yaml | envsubst >> ${KUBEDB_CATALOGS_PATH}
+        cat ${SOLUTION_BASE_DIR}/kubedb/${y}.yaml | envsubst >> ${KUBEDB_CATALOGS_PATH}
         echo --- >> ${KUBEDB_CATALOGS_PATH}
     done
 }
@@ -121,7 +122,7 @@ function render_mongodb_yamls()
     local ADD_OPTIONS=${3:-""}
 
     echo creating mongodb ${NODE_COUNT}-node yamls
-    CHART_PATH="$(dirname $0)/mongodb/charts/mongodb"
+    CHART_PATH="$SOLUTION_BASE_DIR/mongodb/charts/mongodb"
 
     helm template ${MONGODB_NAME} ${CHART_PATH} -n ${MONGODB_NAMESPACE} \
         -f "${CHART_PATH}/custom-values.yaml" \
@@ -159,7 +160,7 @@ function render_mongodb_sharded_yamls()
     local ADD_OPTIONS=${4:-""}
 
     echo creating mongodb-sharded ${NODE_COUNT}-node yamls
-    CHART_PATH="$(dirname $0)/mongodb/charts/mongodb-sharded"
+    CHART_PATH="$SOLUTION_BASE_DIR/mongodb/charts/mongodb-sharded"
 
     helm template ${MONGODB_SHARDED_NAME} ${CHART_PATH} -n ${MONGODB_NAMESPACE} \
         --set image.registry=${MONGODB_REGISTRY} \
@@ -269,6 +270,8 @@ function build_iso()
     cat ${ISO_ROOT}/SHA256SUM
 }
 
+MANIFEST_ONLY=${MANIFEST_ONLY:-'false'}
+
 # run everything in order
 clean
 mkdirs
@@ -276,12 +279,15 @@ kubedb_yamls
 mongodb_yamls
 mongodb_sharded_yamls
 gen_manifest_yaml
-flatten_source_images | while read img ; do
-    # only pull if the image isnt already local
-    ${DOCKER} image inspect ${img} > /dev/null 2>&1 || ${DOCKER} ${DOCKER_OPTS} pull ${img}
-    copy_docker_image ${img}
-done
-dedupe
-build_registry_config
-build_iso
+
+if  [ $MANIFEST_ONLY = 'false' ]; then
+    flatten_source_images | while read img ; do
+        # only pull if the image isnt already local
+        ${DOCKER} image inspect ${img} > /dev/null 2>&1 || ${DOCKER} ${DOCKER_OPTS} pull ${img}
+        copy_docker_image ${img}
+    done
+    dedupe
+    build_registry_config
+    build_iso
+fi
 echo DONE

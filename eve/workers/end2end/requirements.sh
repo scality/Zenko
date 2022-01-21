@@ -1,8 +1,9 @@
 #!/bin/bash
 
-KUBECTL_VERSION=1.18.3
+KUBECTL_VERSION=1.21.1
 KIND_VERSION=v0.11.1
 HELM_VERSION=v3.5.3
+KUSTOMIZE_VERSION=v4.4.1
 YQ_VERSION=v4.6.3
 YQ_BINARY=yq_linux_amd64
 TILT_VERSION=0.23.4
@@ -53,3 +54,7 @@ chmod +x /usr/local/bin/yq
 curl -sSL https://github.com/tilt-dev/tilt/releases/download/v${TILT_VERSION}/tilt.${TILT_VERSION}.linux.x86_64.tar.gz | tar xzvf -
 mv tilt /usr/local/bin
 chmod +x /usr/local/bin/tilt
+
+# Install kustomize
+curl -sSL https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz | tar -xvz
+install kustomize /usr/local/bin

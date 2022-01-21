@@ -1,0 +1,39 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- ./_build/root/deploy/mongodb-sharded-3-nodes.yaml
+patchesStrategicMerge:
+- |-
+  apiVersion: apps/v1
+  kind: StatefulSet
+  metadata:
+    name: data-db-mongodb-sharded-configsvr
+  spec:
+    volumeClaimTemplates:
+     - metadata:
+         name: datadir
+         annotations:
+       spec:
+         accessModes:
+         - "ReadWriteOnce"
+         resources:
+           requests:
+             storage: "8Gi"
+         storageClassName: standard
+- |-
+  apiVersion: apps/v1
+  kind: StatefulSet
+  metadata:
+    name: data-db-mongodb-sharded-shard0-data
+  spec:
+    volumeClaimTemplates:
+     - metadata:
+         name: datadir
+         annotations:
+       spec:
+         accessModes:
+         - "ReadWriteOnce"
+         resources:
+           requests:
+             storage: "8Gi"
+         storageClassName: standard

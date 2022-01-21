@@ -2,7 +2,13 @@
 
 set -exu
 
+SCRIPT_FULL_PATH=$(readlink -f "$0")
 DIR=$(dirname "$0")
+REPOSITORY_DIR=$(dirname "$SCRIPT_FULL_PATH")/../../../..
+SOLUTION_BASE_DIR=$REPOSITORY_DIR/solution-base
+VERSION_FILE="${REPOSITORY_DIR}/VERSION"
+
+source "${VERSION_FILE}"
 
 ZK_OPERATOR_VERSION=0.2.13
 CERT_MANAGER_VERSION=v1.6.1
@@ -61,7 +67,8 @@ kubectl create -f $prom_url || kubectl replace -f $prom_url
 helm upgrade --install --version ${ZK_OPERATOR_VERSION} -n default zk-operator pravega/zookeeper-operator --set "watchNamespace=default"
 
 # kafka
-kubectl create --validate=false -f https://github.com/banzaicloud/koperator/releases/download/v${KAFKA_OPERATOR_VERSION}/kafka-operator.crds.yaml
+kafka_crd_url=https://github.com/banzaicloud/koperator/releases/download/v${KAFKA_OPERATOR_VERSION}/kafka-operator.crds.yaml
+kubectl create -f $kafka_crd_url || kubectl replace -f $kafka_crd_url
 helm upgrade --install --version ${KAFKA_OPERATOR_VERSION} -n default kafka-operator banzaicloud-stable/kafka-operator
 
 # keycloak
@@ -84,6 +91,18 @@ stringData:
   mongodb-database: $MONGODB_APP_DATABASE
   mongodb-replica-set-key: $MONGODB_RS_KEY
 EOF
+
+build_solution_base_manifests() {
+    echo 'build solution-base manifests'
+    MANIFEST_ONLY=true $SOLUTION_BASE_DIR/build.sh
+    sed -i 's/SOLUTION_ENV/default/g' $DIR/../_build/root/deploy/*
+    sed -i 's/MONGODB_STORAGE_CLASS/standard/g' $DIR/../_build/root/deploy/*
+}
+
+get_image_from_deps() {
+    local dep_name=$1
+    yq eval ".$dep_name | (.sourceRegistry // \"docker.io\") + \"/\" + .image + \":\" + .tag" $SOLUTION_BASE_DIR/deps.yaml
+}
 
 mongodb_replicaset() {
     ### TODO:  update to use chart in project
@@ -117,38 +136,27 @@ mongodb_replicaset() {
 }
 
 mongodb_sharded() {
-    local CHART_PATH="$(dirname $0)/../../../../solution-base/mongodb/charts/mongodb-sharded"
+    local SOLUTION_REGISTRY=metalk8s-registry-from-config.invalid/zenko-base-${VERSION_FULL}
 
-    helm upgrade --install dev-db ${CHART_PATH} -n default \
-        --set global.storageClass=standard \
-        --set shards=1 \
-        --set mongos.replicas=1 \
-        --set mongos.useStatefulSet=true \
-        --set shardsvr.dataNode.replicas=3 \
-        --set shardsvr.persistence.enabled=true \
-        --set shardsvr.persistence.storageClass=standard \
-        --set configsvr.replicas=3 \
-        --set configsvr.persistence.enabled=true \
-        --set configsvr.persistence.storageClass=standard \
-        --set metrics.enabled=true \
-        --set common.initScriptsCM=mongodb-sharded-init-scripts \
-        --set volumePermissions.enabled=true \
-        --set image.tag=${MONGODB_SHARDED_IMAGE_TAG} \
-        --set metrics.image.tag=${MONGODB_SHARDED_EXPORTER_IMAGE_TAG} \
-        --set volumePermissions.image.tag=${MONGODB_SHARDED_SHELL_IMAGE_TAG} \
-        --set existingSecret=mongodb-db-creds
+    kustomize edit set image \
+        $SOLUTION_REGISTRY/mongodb-sharded=$(get_image_from_deps mongodb-sharded) \
+        $SOLUTION_REGISTRY/bitnami-shell=$(get_image_from_deps mongodb-sharded-shell) \
+        $SOLUTION_REGISTRY/mongodb-exporter=$(get_image_from_deps mongodb-sharded-exporter)
 
-    kubectl rollout status statefulset dev-db-mongodb-sharded-mongos
-    kubectl rollout status statefulset dev-db-mongodb-sharded-configsvr
-    kubectl rollout status statefulset dev-db-mongodb-sharded-shard0-data
+    kubectl apply -k .
 
-    kubectl exec -t dev-db-mongodb-sharded-mongos-0 -- \
+    kubectl rollout status statefulset data-db-mongodb-sharded-mongos
+    kubectl rollout status statefulset data-db-mongodb-sharded-configsvr
+    kubectl rollout status statefulset data-db-mongodb-sharded-shard0-data
+
+    kubectl exec -t data-db-mongodb-sharded-mongos-0 -- \
         mongo admin \
             -u $MONGODB_ROOT_USERNAME \
             -p $MONGODB_ROOT_PASSWORD \
             --eval "sh.enableSharding('$MONGODB_APP_DATABASE')"
 }
 
+build_solution_base_manifests
 if [ $ZENKO_MONGODB_SHARDED = 'true' ]; then
     mongodb_sharded
 else
