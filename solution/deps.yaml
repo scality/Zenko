@@ -3,7 +3,6 @@
 # yq eval 'sortKeys(.)' -i deps.yaml
 backbeat:
   sourceRegistry: registry.scality.com/backbeat
-  dashboard: backbeat-dashboards
   image: backbeat
   tag: 8.3.4
   envsubst: BACKBEAT_TAG
