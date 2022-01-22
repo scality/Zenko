@@ -64,7 +64,7 @@ backbeat:
 cloudserver:
   sourceRegistry: registry.scality.com/cloudserver
   image: cloudserver
-  tag: 8.2.18
+  tag: 8.2.19
   envsubst: CLOUDSERVER_TAG
 s3utils:
   sourceRegistry: registry.scality.com/s3utils
