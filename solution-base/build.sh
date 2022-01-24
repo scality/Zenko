@@ -35,6 +35,7 @@ KUBEDB_OPERATOR_PATH=${ISO_ROOT}/deploy/kubedb.yaml
 KUBEDB_CATALOGS_PATH=${ISO_ROOT}/deploy/kubedb-catalogs.yaml
 MONGODB_SINGLE_NODE_PATH=${ISO_ROOT}/deploy/mongodb-1-node.yaml
 MONGODB_THREE_NODE_PATH=${ISO_ROOT}/deploy/mongodb-3-nodes.yaml
+MONGODB_SHARDED_SINGLE_NODE_PATH=${ISO_ROOT}/deploy/mongodb-sharded-1-node.yaml
 MONGODB_SHARDED_THREE_NODE_PATH=${ISO_ROOT}/deploy/mongodb-sharded-3-nodes.yaml
 
 SOLUTION_ENV='SOLUTION_ENV'
@@ -194,6 +195,7 @@ function render_mongodb_sharded_yamls()
 
 function mongodb_sharded_yamls()
 {
+    render_mongodb_sharded_yamls "${MONGODB_SHARDED_SINGLE_NODE_PATH}" 1 1
     render_mongodb_sharded_yamls "${MONGODB_SHARDED_THREE_NODE_PATH}" 1 3 
 }
 

@@ -34,7 +34,7 @@ if [ ${ZENKO_MONGODB_SHARDED} == 'true' ]; then
     export ZENKO_ANNOTATIONS="annotations:
     zenko.io/x-backbeat-oneshard-replicaset: data-db-mongodb-sharded-shard-0
     zenko.io/x-backbeat-oneshard-replicaset-hosts: data-db-mongodb-sharded-shard0-data-0.data-db-mongodb-sharded-headless.default.svc.cluster.local:27017,data-db-mongodb-sharded-shard0-data-1.data-db-mongodb-sharded-headless.default.svc.cluster.local:27017,data-db-mongodb-sharded-shard0-data-2.data-db-mongodb-sharded-headless.default.svc.cluster.local:27017"
-    export ZENKO_MONGODB_ENDPOINT="data-db-mongodb-sharded-mongos-0.data-db-mongodb-sharded.default.svc.cluster.local:27017"
+    export ZENKO_MONGODB_ENDPOINT="data-db-mongodb-sharded.default.svc.cluster.local:27017"
     export ZENKO_MONGODB_CONFIG="writeConcern: 'majority'
     enableSharding: true"
 else 

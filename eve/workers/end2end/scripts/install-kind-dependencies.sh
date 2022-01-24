@@ -135,6 +135,33 @@ mongodb_replicaset() {
     kubectl rollout status statefulset dev-db-mongodb-secondary
 }
 
+retry() {
+    local count=0
+    local errMsg=${1:-'reached max retry attempts'}
+
+    while ! "$@" && [ $count -lt 10 ]; do
+        count=$(($count + 1))
+        sleep 5
+    done
+
+    if [ $count -ge 10 ]; then
+        echo $errMsg
+        exit 1
+    fi
+}
+
+mongodb_wait_for_shards() {
+    local count=$(kubectl exec -t data-db-mongodb-sharded-mongos-0 -- \
+        mongo admin \
+            -u $MONGODB_ROOT_USERNAME \
+            -p $MONGODB_ROOT_PASSWORD \
+            --quiet \
+            --eval "db.runCommand({ listshards: 1 }).shards.length"
+    )
+
+    [ $count == "1" ]
+}
+
 mongodb_sharded() {
     local SOLUTION_REGISTRY=metalk8s-registry-from-config.invalid/zenko-base-${VERSION_FULL}
 
@@ -148,6 +175,8 @@ mongodb_sharded() {
     kubectl rollout status statefulset data-db-mongodb-sharded-mongos
     kubectl rollout status statefulset data-db-mongodb-sharded-configsvr
     kubectl rollout status statefulset data-db-mongodb-sharded-shard0-data
+
+    retry mongodb_wait_for_shards "no shards found"
 
     kubectl exec -t data-db-mongodb-sharded-mongos-0 -- \
         mongo admin \
