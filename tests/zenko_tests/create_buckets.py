@@ -37,3 +37,5 @@ def create_ring_buckets():
     _log.info('Creating S3C buckets...')
     bucket_safe_create(ring_s3c_client.Bucket(RING_S3C_INGESTION_SRC_BUCKET_NAME))
     ring_s3c_client.Bucket(RING_S3C_INGESTION_SRC_BUCKET_NAME).Versioning().enable()
+
+create_ring_buckets()

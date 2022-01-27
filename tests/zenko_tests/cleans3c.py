@@ -29,8 +29,10 @@ def bucket_safe_delete(bucketname):
         _log.info('Deleting bucket %s' % bucket.name)
         bucket.objects.all().delete()
         bucket.delete()
+    except bucket.meta.client.exceptions.NoSuchBucket:
+        _log.info('Bucket %s already been deleted' % bucket.name)
     except Exception as exp:
-        _log.info('Error creating bucket %s - %s' % (bucket.name, str(exp)))
+        _log.info('Error deleting bucket %s - %s' % (bucket.name, str(exp)))
         raise exp
 
 _log.info('Removing S3C buckets...')

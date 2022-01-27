@@ -30,3 +30,23 @@ def create_location(client, uuid, location):
     except Exception as e:
         raise Exception(
             "Failed to create location '%s': %s" % (location["name"], e))
+
+def delete_location(client, uuid, location):
+    """
+    Deletes a location
+    :param client: swagger client
+    :param uuid: zenko instance uuid
+    :param location: location details
+    """
+    try:
+        res = (
+            client.ui_facing
+            .deleteConfigurationOverlayLocation(locationName=location["name"], uuid=uuid)
+            .response()
+            .result
+        )
+
+        _log.info("location deleted")
+    except Exception as e:
+        raise Exception(
+            "Failed to delete location '%s': %s" % (location["name"], e))
