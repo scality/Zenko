@@ -26,6 +26,9 @@ if [ "$?" -ne "0" ]; then
     exit 1
 fi
 
+# wait locations propagate
+sleep 60
+
 # Run the tests
 echo "Running test stage: $STAGE"
 

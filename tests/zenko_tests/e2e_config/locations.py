@@ -26,7 +26,7 @@ def create_location(client, uuid, location):
             .result
         )
 
-        _log.info("location created")
+        _log.info("location created: %s" % location["name"])
     except Exception as e:
         raise Exception(
             "Failed to create location '%s': %s" % (location["name"], e))
