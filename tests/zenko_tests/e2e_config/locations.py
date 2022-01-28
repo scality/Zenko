@@ -25,7 +25,7 @@ def create_location(client, uuid, location):
             .response()
             .result
         )
-
+        _log.info(res)
         _log.info("location created: %s" % location["name"])
     except Exception as e:
         raise Exception(
@@ -45,7 +45,7 @@ def delete_location(client, uuid, location):
             .response()
             .result
         )
-
+        _log.info(res)
         _log.info("location deleted")
     except Exception as e:
         raise Exception(

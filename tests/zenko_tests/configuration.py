@@ -15,7 +15,6 @@ from kubernetes.config.config_exception import ConfigException
 from jsonschema import validate
 
 from e2e_config import accounts, endpoints, locations, workflows, schema
-# import create_buckets
 
 logging.basicConfig(level=logging.INFO)
 _log = logging.getLogger("end2end configuration")
@@ -117,9 +116,6 @@ def main():
                                        MANAGEMENT_ENDPOINT,
                                        token=TOKEN)
 
-        # create ingestion source bucket
-        # create_buckets.create_ring_buckets()
-
         # create zenko resources
         for account in e2e_config["accounts"]:
             accounts.create_account(client,
@@ -131,18 +127,6 @@ def main():
         for endpoint in e2e_config["endpoints"]:
             endpoints.create_endpoint(client, UUID, endpoint["hostname"],
                                       endpoint["locationName"])
-
-        # for location in e2e_config["locations"]:
-        #     locations.create_location(client, UUID, location)
-
-        # for wf in e2e_config["workflows"]["replication"]:
-        #     workflows.create_replication_workflow(client, UUID, wf)
-
-        # for wf in e2e_config["workflows"]["lifecycle"]:
-        #     workflows.create_lifecycle_workflow(client, UUID, wf)
-
-        # for wf in e2e_config["workflows"]["ingestion"]:
-        #     workflows.create_ingestion_workflow(client, UUID, wf)
 
     except Exception as e:
         _log.error("Unable to run set up: %s", e)
