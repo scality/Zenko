@@ -19,11 +19,10 @@ Learn more at  [Zenko.io](http://www.zenko.io/).
 
 ## Contributing
 
-You can find the roadmap, features in development and bugs for the next release on [Zenko Jira Project](https://scality.atlassian.net/projects/ZENKOIO/issues/ZENKOIO-19?filter=allopenissues) as well as for the future releases.
-At this time if you have suggestions or questions you can leave the comments on the [forum](https://forum.zenko.io/) or create issues on this repository.
-
 If you'd like to contribute, please review the
 [Contributing Guidelines](https://github.com/scality/Guidelines/blob/development/8.1/CONTRIBUTING.md).
+
+If you have suggestions or questions you can leave the comments on the [Discussions](https://github.com/scality/Zenko/discussions) in this repository.
 
 ## Overview
 
@@ -33,6 +32,7 @@ stack on the [Kubernetes](https://kubernetes.io/) orchestration system.
 ### Zenko Stack
 
 The stack consists of:
+
 - [nginx](https://nginx.org/en/)
 - [Zenko Cloudserver](https://github.com/scality/S3)
 - [Zenko Backbeat Async Replication Engine](https://github.com/scality/backbeat)
@@ -40,12 +40,6 @@ The stack consists of:
 - [redis](https://redis.io/)
 
 all configured to talk to each other.
-
-## Testing Zenko
-
-Simple Zenko setup for quick testing with non-production data:
-
-- [Zenko Single-Node Kubernetes](./docs/minikube.md)
 
 ## Zenko in Production
 
