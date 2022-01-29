@@ -15,6 +15,9 @@ or [Google Cloud Storage](https://cloud.google.com/storage/).
 
 Learn more at  [Zenko.io](http://www.zenko.io/).
 
+
+# Member of SODA foundation
+[![Soda foundation logo](res/soda-foundation.png)](https://sodafoundation.io/)
 ## [Full Documentation](http://zenko.readthedocs.io)
 
 ## Contributing
