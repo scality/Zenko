@@ -65,7 +65,7 @@ describe('Ingestion pause resume', function() {
             }),
             next => setTimeout(next, 15000),
             next => scalityUtils.assertNoObject(INGESTION_DEST_BUCKET, OBJ_KEY2, next),
-            next => backbeatAPIUtils.resumeIngestion(location, next),
+            next => backbeatAPIUtils.resumeIngestion(location, false, null, next),
             next => setTimeout(next, 5000),
             next => backbeatAPIUtils.getIngestionStatus(null, (err, data) => {
                 assert.ifError(err);
