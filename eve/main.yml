@@ -131,15 +131,6 @@ stages:
         property: launch_end2end
         command: eve/scripts/launch-end2end.sh
     - TriggerStages:
-        name: trigger iso and documentation build
-        haltOnFailure: true
-        stage_names:
-        - check-dashboard-versions
-        - build-doc
-        - build-iso
-        - build-base-iso
-        - build-test-image
-    - TriggerStages:
         name: Launch end2end tests
         haltOnFailure: true
         doStepIf: '%(prop:launch_end2end)s'
@@ -450,10 +441,6 @@ stages:
         env:
           <<: [*kind-env, *e2e-env, *https-env, *secrets-env]
     - ShellCommand:
-        <<: *run_end2end_tests
-        env:
-          <<: [*kind-env, *e2e-env, *https-env, *secrets-env]
-    - ShellCommand:
         <<: *run_smoke_test
         env:
           <<: [*kind-env, *e2e-env, *https-env, *secrets-env]
@@ -559,10 +546,6 @@ stages:
           <<: [*kind-env, *e2e-env, *http-env]
     - ShellCommand:
         <<: *configure_end2end_tests
-        env:
-          <<: [*kind-env, *e2e-env, *http-env, *secrets-env]
-    - ShellCommand:
-        <<: *run_end2end_tests
         env:
           <<: [*kind-env, *e2e-env, *http-env, *secrets-env]
     - ShellCommand:
