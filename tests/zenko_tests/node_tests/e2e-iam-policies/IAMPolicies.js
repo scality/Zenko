@@ -38,7 +38,7 @@ describe('Test policies', function() {
     for (const policyToTest of policiesToTest) {
         it(`Should not be granted right with policy: ${policyToTest.PolicyName}`, done => {
             policyToTest.function(...Object.values(policyToTest.params), (err, res) => {
-                console.log(err);
+                console.log(err, res);
                 //should not work
             })
         })

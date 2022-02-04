@@ -131,15 +131,6 @@ stages:
         property: launch_end2end
         command: eve/scripts/launch-end2end.sh
     - TriggerStages:
-        name: trigger iso and documentation build
-        haltOnFailure: true
-        stage_names:
-        - check-dashboard-versions
-        - build-doc
-        - build-iso
-        - build-base-iso
-        - build-test-image
-    - TriggerStages:
         name: Launch end2end tests
         haltOnFailure: true
         doStepIf: '%(prop:launch_end2end)s'
@@ -148,22 +139,6 @@ stages:
         - end2end-https
         - end2end-sharded
         - end2end-vault
-    - ShellCommand:
-        name: add successful .final_status to artifacts
-        command: >
-            mkdir build_status
-            && echo -n "SUCCESSFUL" > build_status/.final_status
-        haltOnFailure: True
-    - ShellCommand:
-        name: add failed .final_status to artifacts if needed
-        command: >
-            [ -f build_status/.final_status ]
-            || ( mkdir build_status && echo -n "FAILED" > build_status/.final_status )
-        haltOnFailure: True
-        alwaysRun: True
-    - Upload:
-        source: build_status
-        alwaysRun: True
 
   build-doc:
     worker:
