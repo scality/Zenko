@@ -13,6 +13,17 @@ enter_and_run() {
     cd "$old_cwd"
 }
 
+get_token() {
+    curl -k -H "Host: keycloak.zenko.local" \
+        -d "client_id=${CYPRESS_KEYCLOAK_CLIENT_ID}" \
+        -d "username=${CYPRESS_KEYCLOAK_USERNAME}" \
+        -d "password=${CYPRESS_KEYCLOAK_PASSWORD}" \
+        -d "grant_type=password" \
+        -d 'scope=openid' \
+        https://localhost/auth/realms/${CYPRESS_KEYCLOAK_REALM}/protocol/openid-connect/token | \
+        jq -cr '.id_token'
+}
+
 # Run the tests
 echo "Running test stage: $STAGE"
 
@@ -27,7 +38,8 @@ elif [ "$STAGE" = "backbeat" ]; then
         exit 1
     fi
     # locations need to be created after the location's bucket creation.
-    python3 create_locations.py
+    UPDATED_TOKEN=$(get_token)
+    python3 create_locations.py "$UPDATED_TOKEN"
     if [ "$?" -ne "0" ]; then
         exit 1
     fi
@@ -37,7 +49,8 @@ elif [ "$STAGE" = "backbeat" ]; then
 
     enter_and_run node_tests "npm_chain.sh test_aws_crr test_ingestion_oob_s3c"
 
-    python3 delete_locations.py
+    UPDATED_TOKEN=$(get_token) 
+    python3 delete_locations.py $UPDATED_TOKEN
     if [ "$?" -ne "0" ]; then
         exit 1
     fi

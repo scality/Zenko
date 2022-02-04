@@ -4,11 +4,12 @@ import os
 import logging
 from e2e_config import locations
 import configuration
+import sys
 
 logging.basicConfig(level=logging.INFO)
 _log = logging.getLogger('delete_locations')
 
-TOKEN = os.getenv("TOKEN")
+TOKEN = sys.argv[1]
 UUID = os.getenv("UUID")
 CONFIG_FILE = os.getenv("CONFIG_FILE", "./e2e-config.yaml")
 MANAGEMENT_ENDPOINT = os.getenv("MANAGEMENT_ENDPOINT",
