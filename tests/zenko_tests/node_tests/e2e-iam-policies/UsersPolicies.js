@@ -34,6 +34,14 @@ const policiesToTest = [
 describe('Test policies', function() {
 
     let iamAccountClient = null;
+    before(done => {
+        async.series([
+            next => clientAdmin.createAccount(accountName, accountInfo, next),
+            next => clientAdmin.generateAccountAccessKey(accountName, next),
+        ], function(err, results) {
+            console.log(results);
+        });
+    })
 
     for (const policyToTest of policiesToTest) {
         it(`Should not be granted right with policy: ${policyToTest.PolicyName}`, done => {
