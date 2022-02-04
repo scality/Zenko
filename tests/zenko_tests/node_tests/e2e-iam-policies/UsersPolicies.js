@@ -34,12 +34,17 @@ const policiesToTest = [
 describe('Test policies', function() {
 
     let iamAccountClient = null;
+
     before(done => {
         async.series([
             next => clientAdmin.createAccount(accountName, accountInfo, next),
-            next => clientAdmin.generateAccountAccessKey(accountName, next),
+            next => clientAdmin.generateAccountAccessKey(accountName, next, { externalAccessKey, externalSecretKey }),
         ], function(err, results) {
-            console.log(results);
+            if (err) {
+                return done(err);
+            }
+            iamAccountClient = VaultClient.getIamClient(externalAccessKey, externalSecretKey);
+            return done();
         });
     })
 
@@ -47,22 +52,21 @@ describe('Test policies', function() {
         it(`Should not be granted right with policy: ${policyToTest.PolicyName}`, done => {
             policyToTest.function(...Object.values(policyToTest.params), (err, res) => {
                 console.log(err, res);
-                //should not work
             })
         })
 
         it(`Should be granted right with policy: ${policyToTest.PolicyName}`, done => {
             async.series([
                 next => {
-                    //create policy with policyToTest and attach to user
-                    console.log('test')
+                    console.log('create policy and attach to user')
                 },
                 next => {
                     policyToTest.function(...Object.values(policyToTest.params), (err, res) => {
-                        //should work
                     })
                 }
-            ])
+            ], function(err, result) {
+                return done();
+            })
         })
     }
 });
