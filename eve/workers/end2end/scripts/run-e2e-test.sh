@@ -85,5 +85,5 @@ elif [ "$STAGE" = "smoke" ]; then
    run_e2e_test '' 'cd node_tests && npm run test_smoke'
 elif [ "$STAGE" = "backbeat" ]; then
    ## TODO: use node js to create and remove buckets
-   run_e2e_test '' 'cd node_tests && npm run test_aws_crr && npm run test_ingestion_oob_s3c && cd .. && python3 cleans3c.py'
+   run_e2e_test '' 'cd node_tests && npm run test_all_extensions && cd .. && python3 cleans3c.py'
 fi
