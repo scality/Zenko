@@ -13,7 +13,6 @@ const externalAccessKey = 'DZMMJUPWIUK8IWXRP0HQ';
 const externalSecretKey = 'iTuJdlidzrLipymvAGrLP66Yxghl4NQxLZR3cLlu';
 const userName = 'iam-api-test-user'
 const randomPath = '/random/path/';
-
 const policiesToTest = [
     {
         PolicyName: "s3:CreateBucket",
