@@ -105,7 +105,7 @@ groups:
       summary: 'Zookeeper Sync Disconected'
       description: 'Kafka Zookeeper Sync Disconected'
 
-  - alert: ConsummerLagWarning
+  - alert: ConsumerLagWarning
     expr: |
       kafka_consumergroup_group_max_lag{namespace="${namespace}",cluster_name="${cluster}",group!=""}
           > ${maxConsumerLagMessagesWarningThreshold}
@@ -121,7 +121,7 @@ groups:
         Kafka consumer lag has been more more than ${maxConsumerLagSecondsWarningThreshold} seconds
         or more than ${maxConsumerLagMessagesWarningThreshold} messages for 5 minutes.
 
-        Current time lag is {{ with printf 'kafka_consumergroup_group_max_lag_seconds{namespace="${namespace}",cluster_name="${cluster}",group="%s"}'
+        Current time lag is {{ with printf "kafka_consumergroup_group_max_lag_seconds{namespace=\"${namespace}\",cluster_name=\"${cluster}\",group=\"%s\"x}"
                                     $labels.group | query}}{{ . | first | value | humanizeDuration }}{{ end }} seconds.
-        Current offset lag is {{ with printf 'kafka_consumergroup_group_max_lag{namespace="${namespace}",cluster_name="${cluster}",group="%s"}'
+        Current offset lag is {{ with printf "kafka_consumergroup_group_max_lag{namespace=\"${namespace}\",cluster_name=\"${cluster}\",group=\"%s\"}"
                                       $labels.group | query}}{{ . | first | value | humanize }}{{ end }} messages.

@@ -18,42 +18,42 @@ groups:
   rules:
 
   - alert: ServiceDown
-    Expr: sum(up{namespace="${namespace}", service="${service}"}) == 0
-    For: 30s
-    Labels:
+    expr: sum(up{namespace="${namespace}", service="${service}"}) == 0
+    for: 30s
+    labels:
       severity: critical
-    Annotations:
+    annotations:
       description: "Redis service is down"
       summary: "Redis service is down"
 
   - alert: HighMemoryUsage
-    Expr: |
+    expr: |
       redis_memory_used_bytes{namespace="${namespace}", job="${service}"}
           / redis_total_system_memory_bytes{namespace="${namespace}", job="${service}"}
         > ${highMemoryUsageWarningThreshold}
-    For: 2m
-    Labels:
+    for: 2m
+    labels:
       severity: warning
-    Annotations:
+    annotations:
       description: "Redis is using more than ${highMemoryUsageWarningThreshold}% of available memory."
       summary: "Redis is using a lot of memory"
 
   - alert: TooManyClientConnections
-    Expr: |
-      sum(redis_connected_clients{namespace="${namespace}", job="${service}"}) > ${tooManyClientConnectionsThreshold}
-    For: 2m
-    Labels:
+    expr: |
+      sum(redis_connected_clients{namespace="${namespace}", job="${service}"}) > ${tooManyClientConnectionsWarningThreshold}
+    for: 2m
+    labels:
       severity: warning
-    Annotations:
-      description: "Redis has more than ${tooManyClientConnectionsThreshold} client connections: {{ $value }}"
+    annotations:
+      description: "Redis has more than ${tooManyClientConnectionsWarningThreshold} client connections: {{ $value }}"
       summary: "Too many Redis client connections"
 
   - alert: RejectedClientConnections
-    Expr: |
-      sum(increase(redis_rejected_connections_total{namespace="${namespace}", job="${service}"}[5m]) > 1
-    For: 0m
-    Labels:
+    expr: |
+      sum(increase(redis_rejected_connections_total{namespace="${namespace}", job="${service}"}[5m])) > 1
+    for: 0m
+    labels:
       severity: critical
-    Annotations:
+    annotations:
       description: "Some connections to Redis have been rejected"
       summary: "Redis rejected connections"
