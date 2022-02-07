@@ -178,6 +178,9 @@ function render_mongodb_sharded_yamls()
         --set configsvr.persistence.enabled=true \
         --set configsvr.persistence.storageClass=${MONGODB_STORAGE_CLASS} \
         --set metrics.enabled=true \
+        --set metrics.podMonitor.enabled=true \
+        --set metrics.podMonitor.namespace= \
+        --set metrics.podMonitor.additionalLabels."metalk8s\.scality\.com/monitor"= \
         --set common.initScriptsCM=mongodb-sharded-init-scripts \
         --set volumePermissions.enabled=true \
         --set metrics.image.registry=${MONGODB_REGISTRY} \

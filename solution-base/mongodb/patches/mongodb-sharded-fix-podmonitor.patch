@@ -1,0 +1,13 @@
+diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-podmonitor.yaml b/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-podmonitor.yaml
+index 3c689fc0..2ce5c5db 100644
+--- a/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-podmonitor.yaml
++++ b/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-podmonitor.yaml
+@@ -31,5 +31,8 @@ spec:
+   selector:
+     matchLabels: {{- include "common.labels.matchLabels" $ | nindent 6 }}
+       app.kubernetes.io/component: shardsvr
++{{- if lt $i (sub $replicas 1) }}
++---
++{{- end }}
+ {{- end }}
+ {{- end }}
