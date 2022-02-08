@@ -25,7 +25,7 @@ groups:
 
   - alert: MongoDbDown
     expr: |
-      sum(up{namespace="${namespace}",job="${service}"}) == 0
+      sum(up{namespace="${namespace}",pod=~"${service}.*"}) == 0
     for: 0m
     labels:
       severity: critical
@@ -35,7 +35,7 @@ groups:
 
   - alert: NoPrimary
     expr: |
-      count by(set) (mongodb_mongod_replset_member_state{namespace="${namespace}",job="${service}",state="PRIMARY"}) == 0
+      count by(set) (mongodb_mongod_replset_member_state{namespace="${namespace}",pod=~"${service}.*",state="PRIMARY"}) == 0
     for: 0m
     labels:
       severity: critical
@@ -45,7 +45,7 @@ groups:
 
   - alert: UnhealthyMemberWarning
     expr: |
-      group by(name, state) (mongodb_mongod_replset_member_health{namespace="${namespace}",job="${service}"}) != 1
+      group by(name, state) (mongodb_mongod_replset_member_health{namespace="${namespace}",pod=~"${service}.*"}) != 1
     for: 30s
     labels:
       severity: warning
@@ -55,7 +55,7 @@ groups:
 
   - alert: TooManyElectionsWarning
     expr: |
-      group by(set) (changes(mongodb_mongod_replset_member_election_date{namespace="${namespace}",job="${service}"}[10m]))
+      group by(set) (changes(mongodb_mongod_replset_member_election_date{namespace="${namespace}",pod=~"${service}.*"}[10m]))
         > ${tooManyElectionsWarningThreshold}
     for: 0s
     labels:
@@ -66,7 +66,7 @@ groups:
 
   - alert: ReplicationLagWarning
     expr: |
-      group by(name) (mongodb_mongod_replset_member_replication_lag{namespace="${namespace}",job="${service}"})
+      group by(name) (mongodb_mongod_replset_member_replication_lag{namespace="${namespace}",pod=~"${service}.*"})
         > 10
     for: 30s
     labels:
@@ -77,7 +77,7 @@ groups:
 
   - alert: TooManyClientConnectionsWarning
     expr: |
-      sum(mongodb_connections{namespace="${namespace}",job="${service}",state="current"})
+      sum(mongodb_connections{namespace="${namespace}",pod=~"${service}.*",state="current"})
         > ${tooManyClientConnectionsWarningThreshold}
     for: 2m
     labels:
