@@ -64,11 +64,254 @@
         "x": 0,
         "y": 0
       },
-      "id": 20,
+      "id": 22,
       "panels": [],
       "repeat": "pod",
-      "title": "Query Metrics for ${pod}",
+      "title": "Health metrics for ${pod}",
       "type": "row"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": "${DS_PROMETHEUS}",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "rgba(245, 54, 54, 0.9)",
+                "value": null
+              },
+              {
+                "color": "rgba(237, 129, 40, 0.89)",
+                "value": 0
+              },
+              {
+                "color": "rgba(50, 172, 45, 0.97)",
+                "value": 360
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 0,
+        "y": 1
+      },
+      "id": 10,
+      "interval": null,
+      "links": [],
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "mongodb_instance_uptime_estimate_seconds{pod=\"${pod}\", namespace=\"${namespace}\"}",
+          "format": "time_series",
+          "instant": true,
+          "interval": "",
+          "intervalFactor": 2,
+          "legendFormat": "",
+          "refId": "A",
+          "step": 1800
+        }
+      ],
+      "title": "Uptime",
+      "type": "stat"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": "${DS_PROMETHEUS}",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "rgb(31, 120, 193)",
+            "mode": "fixed"
+          },
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 4,
+        "y": 1
+      },
+      "id": 2,
+      "interval": null,
+      "links": [],
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "sum by(pod) (mongodb_connections{pod=\"${pod}\", namespace=\"${namespace}\", state=\"available\"})",
+          "format": "time_series",
+          "interval": "",
+          "instant": false,
+          "intervalFactor": 2,
+          "legendFormat": "",
+          "metric": "mongodb_connections",
+          "refId": "A",
+          "step": 1800
+        }
+      ],
+      "title": "Available Connections",
+      "type": "stat"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": "${DS_PROMETHEUS}",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "rgb(31, 120, 193)",
+            "mode": "fixed"
+          },
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 8,
+        "y": 1
+      },
+      "hideTimeOverride": false,
+      "id": 1,
+      "interval": null,
+      "links": [],
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "sum by(pod) (mongodb_connections{pod=\"${pod}\", namespace=\"${namespace}\", state=\"current\"})",
+          "format": "time_series",
+          "interval": "",
+          "instant": false,
+          "intervalFactor": 2,
+          "legendFormat": "",
+          "metric": "mongodb_connections",
+          "refId": "A",
+          "step": 1800
+        }
+      ],
+      "title": "Open Connections",
+      "type": "stat"
     },
     {
       "aliasColors": {},
@@ -79,9 +322,9 @@
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
-        "h": 6,
-        "w": 10,
-        "x": 0,
+        "h": 5,
+        "w": 12,
+        "x": 12,
         "y": 1
       },
       "hiddenSeries": false,
@@ -93,7 +336,8 @@
         "min": false,
         "show": true,
         "total": false,
-        "values": false
+        "values": false,
+        "rightSide": true
       },
       "lines": true,
       "linewidth": 1,
@@ -165,6 +409,20 @@
       }
     },
     {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 6
+      },
+      "id": 20,
+      "panels": [],
+      "repeat": "mongod",
+      "title": "Query Metrics for ${mongod}",
+      "type": "row"
+    },
+    {
       "aliasColors": {},
       "bars": false,
       "dashLength": 10,
@@ -180,9 +438,9 @@
       "fillGradient": 0,
       "gridPos": {
         "h": 6,
-        "w": 8,
-        "x": 10,
-        "y": 1
+        "w": 10,
+        "x": 0,
+        "y": 8
       },
       "hiddenSeries": false,
       "id": 9,
@@ -219,7 +477,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "rate(mongodb_mongod_metrics_document_total{pod=\"${pod}\", namespace=\"${namespace}\"}[$__rate_interval])",
+          "expr": "rate(mongodb_mongod_metrics_document_total{pod=\"${mongod}\", namespace=\"${namespace}\"}[$__rate_interval])",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -279,9 +537,9 @@
       "fillGradient": 0,
       "gridPos": {
         "h": 6,
-        "w": 6,
-        "x": 18,
-        "y": 1
+        "w": 8,
+        "x": 10,
+        "y": 8
       },
       "hiddenSeries": false,
       "id": 8,
@@ -313,7 +571,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "rate(mongodb_mongod_metrics_query_executor_total{pod=\"${pod}\", namespace=\"${namespace}\"}[$__rate_interval])",
+          "expr": "rate(mongodb_mongod_metrics_query_executor_total{pod=\"${mongod}\", namespace=\"${namespace}\"}[$__rate_interval])",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -365,6 +623,100 @@
       }
     },
     {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "${DS_PROMETHEUS}",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 18,
+        "y": 8
+      },
+      "hiddenSeries": false,
+      "id": 11,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "8.0.6",
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "sum by(type) (rate(mongodb_op_counters_repl_total{pod=\"${mongod}\", namespace=\"${namespace}\"}[$__rate_interval]))",
+          "format": "time_series",
+          "interval": "",
+          "intervalFactor": 2,
+          "legendFormat": "{{type}}",
+          "refId": "A",
+          "step": 600
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Replica Query Operations",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "ops",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
@@ -374,8 +726,8 @@
       },
       "id": 21,
       "panels": [],
-      "repeat": "pod",
-      "title": "Replica Set Metrics for ${pod}",
+      "repeat": "replicaset",
+      "title": "Replica Set Metrics for ${replicaset}",
       "type": "row"
     },
     {
@@ -422,7 +774,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "mongodb_mongod_replset_number_of_members{pod=\"${pod}\", namespace=\"${namespace}\"}",
+          "expr": "mongodb_mongod_replset_number_of_members{set=\"${replicaset}\", namespace=\"${namespace}\"}",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -433,7 +785,7 @@
         },
         {
           "exemplar": true,
-          "expr": "sum(mongodb_mongod_replset_number_of_members{pod=\"${pod}\", namespace=\"${namespace}\"})",
+          "expr": "sum(mongodb_mongod_replset_number_of_members{set=\"${replicaset}\", namespace=\"${namespace}\"})",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -532,7 +884,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "mongodb_mongod_replset_member_state{pod=\"${pod}\", namespace=\"${namespace}\"}",
+          "expr": "mongodb_mongod_replset_member_state{set=\"${replicaset}\", namespace=\"${namespace}\"}",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -584,357 +936,6 @@
         "align": false,
         "alignLevel": null
       }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "${DS_PROMETHEUS}",
-      "fill": 1,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 18,
-        "y": 29
-      },
-      "hiddenSeries": false,
-      "id": 11,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null",
-      "options": {
-        "alertThreshold": true
-      },
-      "percentage": false,
-      "pluginVersion": "8.0.6",
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "exemplar": true,
-          "expr": "rate(mongodb_op_counters_repl_total{pod=\"${pod}\", namespace=\"${namespace}\"}[$__rate_interval])",
-          "format": "time_series",
-          "interval": "",
-          "intervalFactor": 2,
-          "legendFormat": "{{type}}",
-          "refId": "A",
-          "step": 600
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Replica Query Operations",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "ops",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 91
-      },
-      "id": 22,
-      "panels": [],
-      "repeat": "pod",
-      "title": "Health metrics for ${pod}",
-      "type": "row"
-    },
-    {
-      "cacheTimeout": null,
-      "datasource": "${DS_PROMETHEUS}",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [
-            {
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "N/A"
-                }
-              },
-              "type": "special"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "rgba(245, 54, 54, 0.9)",
-                "value": null
-              },
-              {
-                "color": "rgba(237, 129, 40, 0.89)",
-                "value": 0
-              },
-              {
-                "color": "rgba(50, 172, 45, 0.97)",
-                "value": 360
-              }
-            ]
-          },
-          "unit": "s"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 0,
-        "y": 92
-      },
-      "id": 10,
-      "interval": null,
-      "links": [],
-      "maxDataPoints": 100,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "text": {},
-        "textMode": "auto"
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "exemplar": true,
-          "expr": "mongodb_instance_uptime_estimate_seconds{pod=\"${pod}\", namespace=\"${namespace}\"}",
-          "format": "time_series",
-          "instant": true,
-          "interval": "",
-          "intervalFactor": 2,
-          "legendFormat": "",
-          "refId": "A",
-          "step": 1800
-        }
-      ],
-      "title": "Uptime",
-      "type": "stat"
-    },
-    {
-      "cacheTimeout": null,
-      "datasource": "${DS_PROMETHEUS}",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "rgb(31, 120, 193)",
-            "mode": "fixed"
-          },
-          "mappings": [
-            {
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "N/A"
-                }
-              },
-              "type": "special"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 4,
-        "y": 92
-      },
-      "id": 2,
-      "interval": null,
-      "links": [],
-      "maxDataPoints": 100,
-      "options": {
-        "colorMode": "none",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "text": {},
-        "textMode": "auto"
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "exemplar": true,
-          "expr": "sum by(pod) (mongodb_connections{pod=\"${pod}\", namespace=\"${namespace}\", state=\"available\"})",
-          "format": "time_series",
-          "interval": "",
-          "instant": false,
-          "intervalFactor": 2,
-          "legendFormat": "",
-          "metric": "mongodb_connections",
-          "refId": "A",
-          "step": 1800
-        }
-      ],
-      "title": "Available Connections",
-      "type": "stat"
-    },
-    {
-      "cacheTimeout": null,
-      "datasource": "${DS_PROMETHEUS}",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "rgb(31, 120, 193)",
-            "mode": "fixed"
-          },
-          "mappings": [
-            {
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "N/A"
-                }
-              },
-              "type": "special"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 16,
-        "x": 8,
-        "y": 92
-      },
-      "hideTimeOverride": false,
-      "id": 1,
-      "interval": null,
-      "links": [],
-      "maxDataPoints": 100,
-      "options": {
-        "colorMode": "none",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "text": {},
-        "textMode": "auto"
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "exemplar": true,
-          "expr": "sum by(pod) (mongodb_connections{pod=\"${pod}\", namespace=\"${namespace}\", state=\"current\"})",
-          "format": "time_series",
-          "interval": "",
-          "instant": false,
-          "intervalFactor": 2,
-          "legendFormat": "",
-          "metric": "mongodb_connections",
-          "refId": "A",
-          "step": 1800
-        }
-      ],
-      "title": "Open Connections",
-      "type": "stat"
     },
     {
       "collapsed": false,
@@ -1670,6 +1671,62 @@
         "sort": 1,
         "type": "query",
         "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "${DS_PROMETHEUS}",
+        "definition": "label_values(mongodb_mongod_metrics_document_total{namespace=\"${namespace}\", pod=~\"$pod\"}, pod)",
+        "description": null,
+        "error": null,
+        "hide": 2,
+        "includeAll": true,
+        "label": "MongoD",
+        "multi": true,
+        "name": "mongod",
+        "options": [],
+        "query": {
+          "query": "label_values(mongodb_mongod_metrics_document_total{namespace=\"${namespace}\", pod=~\"$pod\"}, pod)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "${DS_PROMETHEUS}",
+        "definition": "label_values(mongodb_mongod_replset_number_of_members{namespace=\"${namespace}\", pod=~\"$mongod\"}, set)",
+        "description": null,
+        "error": null,
+        "hide": 2,
+        "includeAll": true,
+        "label": "Replica-Set",
+        "multi": true,
+        "name": "replicaset",
+        "options": [],
+        "query": {
+          "query": "label_values(mongodb_mongod_replset_number_of_members{namespace=\"${namespace}\", pod=~\"$mongod\"}, set)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query",
+        "useTags": false
       }
     ]
   },
@@ -1705,5 +1762,5 @@
   "timezone": "browser",
   "title": "MongoDB",
   "uid": null,
-  "version": 17
+  "version": 18
 }
