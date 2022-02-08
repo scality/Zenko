@@ -66,7 +66,7 @@ groups:
 
   - alert: ReplicationLagWarning
     expr: |
-      group by(name) mongodb_mongod_replset_member_replication_lag{namespace="${namespace}",job="${service}"}
+      group by(name) (mongodb_mongod_replset_member_replication_lag{namespace="${namespace}",job="${service}"})
         > 10
     for: 30s
     labels:
