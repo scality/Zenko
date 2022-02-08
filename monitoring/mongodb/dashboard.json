@@ -114,7 +114,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "rate(mongodb_op_counters_total{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\"}[10m])",
+          "expr": "rate(mongodb_op_counters_total{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\"}[$__rate_interval])",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -219,7 +219,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "rate(mongodb_mongod_metrics_document_total{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\"}[10m])",
+          "expr": "rate(mongodb_mongod_metrics_document_total{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\"}[$__rate_interval])",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -313,7 +313,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "rate(mongodb_mongod_metrics_query_executor_total{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\"}[5m])",
+          "expr": "rate(mongodb_mongod_metrics_query_executor_total{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\"}[$__rate_interval])",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -629,7 +629,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "rate(mongodb_op_counters_repl_total{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\"}[5m])",
+          "expr": "rate(mongodb_op_counters_repl_total{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\"}[$__rate_interval])",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -1189,7 +1189,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "rate(mongodb_network_bytes_total{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\"}[10m])",
+          "expr": "rate(mongodb_network_bytes_total{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\"}[$__rate_interval])",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -1297,7 +1297,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(mongodb_mongod_replset_oplog_head_timestamp[5m])",
+          "expr": "rate(mongodb_mongod_replset_oplog_head_timestamp{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\"}[$__rate_interval])",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -1719,5 +1719,5 @@
   "timezone": "browser",
   "title": "MongoDB",
   "uid": null,
-  "version": 14
+  "version": 15
 }
