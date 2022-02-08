@@ -20,7 +20,7 @@
       "type": "constant",
       "label": "job",
       "description": "Name of the MongoDB job, used to filter only the MongoDB instances.",
-      "value": "mongodb"
+      "value": "data-db-mongodb-sharded"
     }
   ],
   "__requires": [
@@ -114,7 +114,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "rate(mongodb_op_counters_total{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\"}[$__rate_interval])",
+          "expr": "rate(mongodb_op_counters_total{pod=\"${pod}\", namespace=\"${namespace}\"}[$__rate_interval])",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -219,7 +219,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "rate(mongodb_mongod_metrics_document_total{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\"}[$__rate_interval])",
+          "expr": "rate(mongodb_mongod_metrics_document_total{pod=\"${pod}\", namespace=\"${namespace}\"}[$__rate_interval])",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -313,7 +313,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "rate(mongodb_mongod_metrics_query_executor_total{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\"}[$__rate_interval])",
+          "expr": "rate(mongodb_mongod_metrics_query_executor_total{pod=\"${pod}\", namespace=\"${namespace}\"}[$__rate_interval])",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -422,7 +422,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "mongodb_mongod_replset_number_of_members{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\"}",
+          "expr": "mongodb_mongod_replset_number_of_members{pod=\"${pod}\", namespace=\"${namespace}\"}",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -433,7 +433,7 @@
         },
         {
           "exemplar": true,
-          "expr": "sum(mongodb_mongod_replset_number_of_members{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\"})",
+          "expr": "sum(mongodb_mongod_replset_number_of_members{pod=\"${pod}\", namespace=\"${namespace}\"})",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -532,7 +532,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "mongodb_mongod_replset_member_state{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\"}",
+          "expr": "mongodb_mongod_replset_member_state{pod=\"${pod}\", namespace=\"${namespace}\"}",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -629,7 +629,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "rate(mongodb_op_counters_repl_total{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\"}[$__rate_interval])",
+          "expr": "rate(mongodb_op_counters_repl_total{pod=\"${pod}\", namespace=\"${namespace}\"}[$__rate_interval])",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -762,7 +762,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "mongodb_instance_uptime_estimate_seconds{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\"}",
+          "expr": "mongodb_instance_uptime_estimate_seconds{pod=\"${pod}\", namespace=\"${namespace}\"}",
           "format": "time_series",
           "instant": true,
           "interval": "",
@@ -841,7 +841,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum by(pod) (mongodb_connections{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\",state=\"available\"})",
+          "expr": "sum by(pod) (mongodb_connections{pod=\"${pod}\", namespace=\"${namespace}\", state=\"available\"})",
           "format": "time_series",
           "interval": "",
           "instant": false,
@@ -922,7 +922,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum by(pod) (mongodb_connections{pod=\"${pod}\",namespace=\"${namespace}\",job=\"${job}\",state=\"current\"})",
+          "expr": "sum by(pod) (mongodb_connections{pod=\"${pod}\", namespace=\"${namespace}\", state=\"current\"})",
           "format": "time_series",
           "interval": "",
           "instant": false,
@@ -993,7 +993,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(mongodb_mongod_replset_oplog_head_timestamp{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\"}[$__rate_interval])",
+          "expr": "rate(mongodb_mongod_replset_oplog_head_timestamp{pod=~\"${pod}\", namespace=\"${namespace}\"}[$__rate_interval])",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -1097,7 +1097,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "mongodb_mongod_replset_oplog_size_bytes{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\"}",
+          "expr": "mongodb_mongod_replset_oplog_size_bytes{pod=~\"${pod}\", namespace=\"${namespace}\"}",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -1210,11 +1210,11 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "mongodb_memory{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\",type=~\"resident|virtual\"}",
+          "expr": "mongodb_memory{pod=~\"${pod}\", namespace=\"${namespace}\",type=~\"resident|virtual\"}",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
-          "legendFormat": "{{type}}",
+          "legendFormat": "{{pod}}: {{type}}",
           "refId": "A",
           "step": 240
         }
@@ -1305,7 +1305,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum by(pod) (rate(container_blkio_device_usage_total{operation=\"Total\",namespace=\"${namespace}\",container=~\"${job}-.*\"}[$__rate_interval]))",
+          "expr": "sum by(pod) (rate(container_blkio_device_usage_total{operation=\"Total\", namespace=\"${namespace}\", pod=~\"${pod}\"}[$__rate_interval]))",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -1399,11 +1399,11 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "rate(mongodb_network_bytes_total{pod=\"${pod}\", namespace=\"${namespace}\", job=\"${job}\"}[$__rate_interval])",
+          "expr": "rate(mongodb_network_bytes_total{pod=~\"${pod}\", namespace=\"${namespace}\"}[$__rate_interval])",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
-          "legendFormat": "{{state}}",
+          "legendFormat": "{{pod}}: {{state}}",
           "metric": "mongodb_metrics_operation_total",
           "refId": "A",
           "step": 240
@@ -1493,7 +1493,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum by(pod) (rate(container_fs_writes_total{namespace=\"${namespace}\",container=~\"${job}-.*\"}[$__rate_interval]))",
+          "expr": "sum by(pod) (rate(container_fs_writes_total{namespace=\"${namespace}\", pod=~\"${pod}\"}[$__rate_interval]))",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "{{pod}}",
@@ -1585,7 +1585,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum by(pod) (rate(container_fs_writes_total{namespace=\"${namespace}\",container=~\"${job}-.*\"}[$__rate_interval]))",
+          "expr": "sum by(pod) (rate(container_fs_writes_total{namespace=\"${namespace}\", pod=~\"${pod}\"}[$__rate_interval]))",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "{{pod}}",
@@ -1651,21 +1651,21 @@
           "value": "$__all"
         },
         "datasource": "${DS_PROMETHEUS}",
-        "definition": "label_values(mongodb_connections, pod)",
+        "definition": "label_values(mongodb_connections{namespace=\"${namespace}\"}, pod)",
         "description": null,
         "error": null,
         "hide": 0,
         "includeAll": true,
-        "label": "instance",
+        "label": "Pod",
         "multi": true,
         "name": "pod",
         "options": [],
         "query": {
-          "query": "label_values(mongodb_connections, pod)",
+          "query": "label_values(mongodb_connections{namespace=\"${namespace}\"}, pod)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 1,
-        "regex": "",
+        "regex": "/(?<value>${job}-(?<text>.*))/",
         "skipUrlSync": false,
         "sort": 1,
         "type": "query",
@@ -1705,5 +1705,5 @@
   "timezone": "browser",
   "title": "MongoDB",
   "uid": null,
-  "version": 16
+  "version": 17
 }
