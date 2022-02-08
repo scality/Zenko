@@ -726,8 +726,8 @@
       },
       "id": 21,
       "panels": [],
-      "repeat": "replicaset",
-      "title": "Replica Set Metrics for ${replicaset}",
+      "repeat": "mongod",
+      "title": "Replica Set Metrics for ${mongod}",
       "type": "row"
     },
     {
@@ -740,7 +740,7 @@
       "fillGradient": 0,
       "gridPos": {
         "h": 6,
-        "w": 6,
+        "w": 5,
         "x": 0,
         "y": 29
       },
@@ -774,7 +774,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "mongodb_mongod_replset_number_of_members{set=\"${replicaset}\", namespace=\"${namespace}\"}",
+          "expr": "mongodb_mongod_replset_number_of_members{pod=\"${mongod}\", namespace=\"${namespace}\"}",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -785,7 +785,7 @@
         },
         {
           "exemplar": true,
-          "expr": "sum(mongodb_mongod_replset_number_of_members{set=\"${replicaset}\", namespace=\"${namespace}\"})",
+          "expr": "sum(mongodb_mongod_replset_number_of_members{pod=\"${mongod}\", namespace=\"${namespace}\"})",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -849,8 +849,8 @@
       "fillGradient": 0,
       "gridPos": {
         "h": 6,
-        "w": 12,
-        "x": 6,
+        "w": 5,
+        "x": 5,
         "y": 29
       },
       "hiddenSeries": false,
@@ -884,11 +884,11 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "mongodb_mongod_replset_member_state{set=\"${replicaset}\", namespace=\"${namespace}\"}",
+          "expr": "mongodb_mongod_replset_member_state{pod=\"${mongod}\", namespace=\"${namespace}\"}",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
-          "legendFormat": "{{state}} - {{pod}}",
+          "legendFormat": "{{state}}",
           "refId": "A",
           "step": 240,
           "instant": true
@@ -938,20 +938,6 @@
       }
     },
     {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 293
-      },
-      "id": 24,
-      "panels": [],
-      "repeat": null,
-      "title": "Oplog",
-      "type": "row"
-    },
-    {
       "aliasColors": {},
       "bars": false,
       "dashLength": 10,
@@ -960,10 +946,10 @@
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 0,
-        "y": 294
+        "h": 6,
+        "w": 7,
+        "x": 10,
+        "y": 29
       },
       "hiddenSeries": false,
       "id": 16,
@@ -972,7 +958,7 @@
         "current": false,
         "max": false,
         "min": false,
-        "show": true,
+        "show": false,
         "total": false,
         "values": false
       },
@@ -994,7 +980,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(mongodb_mongod_replset_oplog_head_timestamp{pod=~\"${pod}\", namespace=\"${namespace}\"}[$__rate_interval])",
+          "expr": "rate(mongodb_mongod_replset_oplog_head_timestamp{pod=~\"${mongod}\", namespace=\"${namespace}\"}[$__rate_interval])",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -1063,10 +1049,10 @@
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 12,
-        "y": 294
+        "h": 6,
+        "w": 7,
+        "x": 17,
+        "y": 29
       },
       "hiddenSeries": false,
       "id": 6,
@@ -1098,11 +1084,11 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "mongodb_mongod_replset_oplog_size_bytes{pod=~\"${pod}\", namespace=\"${namespace}\"}",
+          "expr": "mongodb_mongod_replset_oplog_size_bytes{pod=~\"${mongod}\", namespace=\"${namespace}\"}",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
-          "legendFormat": "{{pod}}: {{type}}",
+          "legendFormat": "{{type}}",
           "metric": "mongodb_locks_time_acquiring_global_microseconds_total",
           "refId": "A",
           "step": 240
@@ -1699,34 +1685,6 @@
         "sort": 1,
         "type": "query",
         "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "selected": false,
-          "text": "All",
-          "value": "$__all"
-        },
-        "datasource": "${DS_PROMETHEUS}",
-        "definition": "label_values(mongodb_mongod_replset_number_of_members{namespace=\"${namespace}\", pod=~\"$mongod\"}, set)",
-        "description": null,
-        "error": null,
-        "hide": 2,
-        "includeAll": true,
-        "label": "Replica-Set",
-        "multi": true,
-        "name": "replicaset",
-        "options": [],
-        "query": {
-          "query": "label_values(mongodb_mongod_replset_number_of_members{namespace=\"${namespace}\", pod=~\"$mongod\"}, set)",
-          "refId": "StandardVariableQuery"
-        },
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 1,
-        "type": "query",
-        "useTags": false
       }
     ]
   },
@@ -1762,5 +1720,5 @@
   "timezone": "browser",
   "title": "MongoDB",
   "uid": null,
-  "version": 18
+  "version": 19
 }
