@@ -34,6 +34,7 @@ function getResponseBody(res, cb, isXml = false) {
  * http request helper method
  * @param {String} path - url path
  * @param {Function} cb - callback(error, response)
+ * @param {object} userCredentials - user credentials
  * @return {undefined}
  */
 function makeGETRequest(path, cb, userCredentials) {

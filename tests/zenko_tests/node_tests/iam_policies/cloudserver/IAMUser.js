@@ -1,7 +1,7 @@
 const assert = require('assert');
 const async = require('async');
 const { errors } = require('arsenal');
-const { makeGETRequest, getResponseBody } = require('../../utils/request');
+const { metadataSearchResponseCode } = require('./utils');
 
 const iam = require('../../s3SDK').scalityIAMClient;
 const s3 = require('../../s3SDK').scalityS3Client;
@@ -27,21 +27,6 @@ function createPolicy(action, isAllow = true, resource = '*') {
             },
         ],
     });
-}
-
-function metadataSearchResponseCode(userCredentials, bucketName, cb) {
-    return makeGETRequest(`/${bucketName}/?search=${encodeURIComponent('key LIKE "file"')}`, (err, response) => {
-        if (err) { return cb(err); }
-        const { statusCode } = response;
-        return getResponseBody(response, (err, res) => {
-            const r = /<Message>(.*)<\/Message>/;
-            const message = res.match(r);
-            if (message !== null) {
-                return cb(null, { statusCode, message: message[1] });
-            }
-            return cb(null, { statusCode, message });
-        }, true);
-    }, userCredentials);
 }
 
 describe('IAM Policies MetadataSearch', () => {

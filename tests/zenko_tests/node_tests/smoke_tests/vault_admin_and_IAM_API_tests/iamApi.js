@@ -1,6 +1,6 @@
 const async = require('async');
 
-const VaultClient = require('./VaultClient');
+const VaultClient = require('../../VaultClient');
 
 const clientAdmin = VaultClient.getAdminClient();
 const accountName = 'iam-api-test-account';
