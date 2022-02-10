@@ -65,9 +65,26 @@ const altScalityS3Client = new S3({
     httpOptions: { timeout: 0 },
 });
 
+function getS3Client(accessKey, secretKey, sessionToken) {
+    const config = {
+        sslEnabled: false,
+        endpoint: process.env.CLOUDSERVER_ENDPOINT,
+        apiVersions: { s3: '2006-03-01' },
+        signatureCache: false,
+        signatureVersion: 'v4',
+        region: 'us-east-1',
+        s3ForcePathStyle: true,
+        accessKeyId: accessKey,
+        secretAccessKey: secretKey,
+        sessionToken: sessionToken
+    };
+    return new S3(config);
+}
+
 module.exports = {
     scalityS3Client,
     awsS3Client,
     ringS3Client,
     altScalityS3Client,
+    getS3Client,
 };
