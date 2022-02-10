@@ -21,8 +21,8 @@ updateStrategy:
 ## - https://github.com/kubernetes/contrib/tree/master/statefulsets/zookeeper
 ## - https://github.com/kubernetes/contrib/blob/master/statefulsets/zookeeper/Makefile#L1
 image:
-  repository: gcr.io/google_samples/k8szk  # Container image repository for zookeeper container.
-  tag: v3  # Container image tag for zookeeper container.
+  repository: docker.io/scality/zookeeper  # Container image repository for zookeeper container.
+  tag: v3-autopurgefix  # Container image tag for zookeeper container.
   pullPolicy: IfNotPresent  # Image pull criteria for zookeeper container.
 
 service:
@@ -261,7 +261,7 @@ env:
   ZK_MIN_SESSION_TIMEOUT: 4000
 
   ## The delay, in hours, between ZooKeeper log and snapshot cleanups.
-  ZK_PURGE_INTERVAL: 0
+  ZK_PURGE_INTERVAL: 24
 
   ## The port on which the leader will send events to followers.
   ZK_SERVER_PORT: 2888
