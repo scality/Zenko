@@ -360,27 +360,6 @@ stages:
         command: bash scripts/configure-e2e.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "default"
         workdir: build/eve/workers/end2end
         haltOnFailure: true
-    - ShellCommand: &run_end2end_tests
-        name: Run init CI test
-        env:
-          <<: [*kind-env, *e2e-env, *http-env, *secrets-env]
-        command: bash scripts/run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "end2end" "default"
-        workdir: build/eve/workers/end2end
-        haltOnFailure: true
-    - ShellCommand: &run_smoke_test
-        name: Run smoke tests
-        env:
-          <<: [*kind-env, *e2e-env, *http-env, *secrets-env]
-        command: bash scripts/run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "smoke" "default"
-        workdir: build/eve/workers/end2end
-        haltOnFailure: true
-    - ShellCommand: &run_backbeat_end2end_tests
-        name: Run backbeat end to end tests
-        env:
-          <<: [*kind-env, *e2e-env, *http-env, *mock-env, *secrets-env]
-        command: bash scripts/run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "backbeat" "default"
-        workdir: build/eve/workers/end2end
-        haltOnFailure: true
     - ShellCommand: &run_iam_policies_test
         name: Run iam policies tests
         env:
@@ -454,14 +433,6 @@ stages:
           <<: [*kind-env, *e2e-env, *http-env]
     - ShellCommand:
         <<: *configure_end2end_tests
-        env:
-          <<: [*kind-env, *e2e-env, *https-env, *secrets-env]
-    - ShellCommand:
-        <<: *run_end2end_tests
-        env:
-          <<: [*kind-env, *e2e-env, *https-env, *secrets-env]
-    - ShellCommand:
-        <<: *run_smoke_test
         env:
           <<: [*kind-env, *e2e-env, *https-env, *secrets-env]
     - ShellCommand:
@@ -570,14 +541,6 @@ stages:
           <<: [*kind-env, *e2e-env, *http-env]
     - ShellCommand:
         <<: *configure_end2end_tests
-        env:
-          <<: [*kind-env, *e2e-env, *http-env, *secrets-env]
-    - ShellCommand:
-        <<: *run_end2end_tests
-        env:
-          <<: [*kind-env, *e2e-env, *http-env, *secrets-env]
-    - ShellCommand:
-        <<: *run_smoke_test
         env:
           <<: [*kind-env, *e2e-env, *http-env, *secrets-env]
     - ShellCommand:

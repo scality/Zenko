@@ -52,9 +52,11 @@ describe('iam policies - cloudserver - AssumeRole - Metadata', () => {
                 iamAcount1Id = res.account.id;
                 next();
             }),
-            next => clientAdmin.generateAccountAccessKey(account1Name, next, {externalAccessKey1, externalSecretKey1}),
+            next => clientAdmin.generateAccountAccessKey(account1Name, next,
+                { externalAccessKey: externalAccessKey1, externalSecretKey: externalSecretKey1}),
             next => clientAdmin.createAccount(account2Name, account2Info, next),
-            next => clientAdmin.generateAccountAccessKey(account2Name, next, {externalAccessKey2, externalSecretKey2}),
+            next => clientAdmin.generateAccountAccessKey(account2Name, next,
+                { externalAccessKey: externalAccessKey2, externalSecretKey: externalSecretKey2}),
             next => {
                 iamAccount1Client = VaultClient.getIamClient(externalAccessKey1, externalSecretKey1);
                 iamAccount2Client = VaultClient.getIamClient(externalAccessKey2, externalSecretKey2);
