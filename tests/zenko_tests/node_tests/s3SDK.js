@@ -24,7 +24,7 @@ const scalityS3Client = new S3({
 const scalityIAMClient = new IAM({
     accessKeyId: process.env.ZENKO_ACCESS_KEY,
     secretAccessKey: process.env.ZENKO_SECRET_KEY,
-//    sessionToken: process.env.ZENKO_SESSION_TOKEN,
+    sessionToken: process.env.ZENKO_SESSION_TOKEN,
     sslEnabled: false,
     endpoint: process.env.VAULT_ENDPOINT,
     apiVersions: { s3: '2006-03-01' },

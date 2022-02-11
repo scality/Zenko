@@ -1,35 +1,25 @@
-process.env.ZENKO_ACCESS_KEY = "TDWHZ9OWYCJZLGCAKBTT"
-process.env.ZENKO_SECRET_KEY = "+Q2G7yLapU8ApDKbPfS0gQrEzmEnmd5m9wn8lqeR"
-process.env.VAULT_ENDPOINT = "iam.zenko.local"
-process.env.CLOUDSERVER_HOST = "s3.zenko.local"
-
-
 const assert = require('assert');
 const async = require('async');
-const uuidV4 = require('uuid/v4');
-const {makeGETRequest} = require("../../utils/request");
-
+const {makeGETRequest, getResponseBodyXML} = require("../../utils/request");
+const s3 = require("../../s3SDK").scalityS3Client;
 const iam = require('../../s3SDK').scalityIAMClient;
 
 const userName = "username-policy-test-metadatasearch";
+const bucketName = "bucket-test";
 
 function metadataSearch(cb) {
-    makeGETRequest(`http://${process.env.CLOUDSERVER_HOST}/s3/bucketname`, (err, res) => {
-        let str = '';
-        res.on('data', (chunk) => {
-            str += chunk;
-        });
-        res.on('end', function () {
-            console.log(str);
-        });
+    return makeGETRequest(`/${bucketName}`, (err, res) => {
+        return getResponseBodyXML(res, (err, res) => {
+            return cb();
+        })
     })
-    return cb();
 }
 
 describe('IAM Policies MetadataSearch', () => {
     before(done => {
         async.series([
             next => iam.createUser({UserName: userName}, next),
+            next => s3.createBucket({Bucket: bucketName}, next),
         ], err => {
             assert.ifError(err);
             done();
@@ -39,6 +29,7 @@ describe('IAM Policies MetadataSearch', () => {
     after(done => {
         async.series([
             next => iam.deleteUser({UserName: userName}, next),
+            next => s3.deleteBucket({Bucket: bucketName}, next),
         ], err => {
             assert.ifError(err);
             done();

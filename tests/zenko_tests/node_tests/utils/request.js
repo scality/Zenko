@@ -6,14 +6,14 @@ const DEFAULT_PORT = '80';
 
 const accessKeyId = process.env.ZENKO_ACCESS_KEY;
 const secretAccessKey = process.env.ZENKO_SECRET_KEY;
-const sessionToken = process.env.ZENKO_SESSION_TOKEN;
+//const sessionToken = process.env.ZENKO_SESSION_TOKEN;
 
 const defaultOptions = {
     host: DEFAULT_HOST,
     port: DEFAULT_PORT,
     service: 's3',
 };
-const credentials = { accessKeyId, secretAccessKey, sessionToken };
+const credentials = { accessKeyId, secretAccessKey };
 
 function getResponseBody(res, cb) {
     res.setEncoding('utf8');
@@ -23,6 +23,20 @@ function getResponseBody(res, cb) {
         try {
             const parsedBody = JSON.parse(resBody.join(''));
             return cb(null, parsedBody);
+        } catch (e) {
+            return cb(e);
+        }
+    });
+    res.on('error', err => cb(err));
+}
+
+function getResponseBodyXML(res, cb) {
+    res.setEncoding('utf8');
+    const resBody = [];
+    res.on('data', chunk => resBody.push(chunk));
+    res.on('end', () => {
+        try {
+            return cb(null, resBody.join(''));
         } catch (e) {
             return cb(e);
         }
@@ -75,4 +89,4 @@ function makePOSTRequest(path, body, cb, userCredentials) {
     req.end(body);
 }
 
-module.exports = { makePOSTRequest, makeGETRequest, getResponseBody };
+module.exports = { makePOSTRequest, makeGETRequest, getResponseBody, getResponseBodyXML };
