@@ -87,5 +87,5 @@ elif [ "$STAGE" = "backbeat" ]; then
    ## TODO: use node js to create and remove buckets
    run_e2e_test '' 'cd node_tests && npm run test_all_extensions && cd .. && python3 cleans3c.py'
 elif [ "$STAGE" = "iam-policies" ]; then
-  run_e2e_test '' 'cd node_tests && npm run test_iam_policies'
+   run_e2e_test '' 'cd node_tests && npm run test_iam_policies'
 fi
