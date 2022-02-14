@@ -78,7 +78,7 @@ run_e2e_test() {
 
 ## TODO use existing entrypoint
 if [ "$STAGE" = "end2end" ]; then
-   run_e2e_test '' 'cd node_tests && npm run test_operator && npm run test_ui'
+   run_e2e_test '' 'cd node_tests && npm run test_operator && npm run test_ui && npm run test_iam_policies'
 elif [ "$STAGE" = "debug" ]; then
    run_e2e_test '-ti' 'bash'
 elif [ "$STAGE" = "smoke" ]; then
