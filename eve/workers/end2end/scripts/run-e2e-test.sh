@@ -26,6 +26,13 @@ ZENKO_ACCESS_KEY=$(kubectl get secret end2end-account-zenko -o jsonpath='{.data.
 ZENKO_SECRET_KEY=$(kubectl get secret end2end-account-zenko -o jsonpath='{.data.SecretAccessKey}' | base64 -d)
 ZENKO_SESSION_TOKEN=$(kubectl get secret end2end-account-zenko -o jsonpath='{.data.SessionToken}' | base64 -d)
 OIDC_FULLNAME="${OIDC_FIRST_NAME} ${OIDC_LAST_NAME}"
+KEYCLOAK_TEST_USER="${OIDC_USERNAME}-norights"
+KEYCLOAK_TEST_PASSWORD=${OIDC_PASSWORD}
+KEYCLOAK_TEST_HOST=${OIDC_ENDPOINT}
+KEYCLOAK_TEST_PORT="80"
+KEYCLOAK_TEST_REALM_NAME=${OIDC_REALM}
+KEYCLOAK_TEST_CLIENT_ID=${OIDC_CLIENT_ID}
+KEYCLOAK_TEST_GRANT_TYPE="password"
 
 run_e2e_test() {
     kubectl run ${1} ${POD_NAME} \
@@ -75,6 +82,13 @@ run_e2e_test() {
         --env=RING_S3C_ENDPOINT=${RING_S3C_ENDPOINT} \
         --env=RING_S3C_BACKEND_SOURCE_LOCATION=${RING_S3C_BACKEND_SOURCE_LOCATION} \
         --env=RING_S3C_INGESTION_SRC_BUCKET_NAME=${RING_S3C_INGESTION_SRC_BUCKET_NAME} \
+        --env=KEYCLOAK_TEST_USER=${KEYCLOAK_TEST_USER} \
+        --env=KEYCLOAK_TEST_PASSWORD=${KEYCLOAK_TEST_PASSWORD} \
+        --env=KEYCLOAK_TEST_HOST=${KEYCLOAK_TEST_HOST} \
+        --env=KEYCLOAK_TEST_PORT=${KEYCLOAK_TEST_PORT} \
+        --env=KEYCLOAK_TEST_REALM_NAME=${KEYCLOAK_TEST_REALM_NAME} \
+        --env=KEYCLOAK_TEST_CLIENT_ID=${KEYCLOAK_TEST_CLIENT_ID} \
+        --env=KEYCLOAK_TEST_GRANT_TYPE=${KEYCLOAK_TEST_GRANT_TYPE} \
         --command -- sh -c "${2}"
 }
 
