@@ -36,12 +36,16 @@ function getResponseBody(res, cb) {
  * @param {Function} cb - callback(error, response)
  * @return {undefined}
  */
-function makeGETRequest(path, cb) {
+function makeGETRequest(path, cb, userCredentials) {
     let options = Object.assign({}, defaultOptions, {
         method: 'GET',
         path,
     });
-    options = aws4.sign(options, credentials);
+    if (userCredentials) {
+        options = aws4.sign(options, userCredentials);
+    } else {
+        options = aws4.sign(options, credentials);
+    }
 
     const req = http.request(options, res => cb(null, res));
     req.on('error', err => cb(err));

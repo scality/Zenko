@@ -6,7 +6,7 @@ const {makeGETRequest} = require("../../utils/request");
 const iam = require('../../s3SDK').scalityIAMClient;
 const s3 = require('../../s3SDK').scalityS3Client;
 
-const userName = "username-policy-test-metadatasearch";
+const userName = "username-policy-test-metadatasearch2";
 
 const bucketName = "bucket-test";
 const listBucketPolicyName = "listBucketPolicy";
