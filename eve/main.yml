@@ -374,6 +374,13 @@ stages:
         command: bash scripts/run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "end2end" "default"
         workdir: build/eve/workers/end2end
         haltOnFailure: true
+    - ShellCommand: &run_iam_policies_test
+        name: Run iam policies tests
+        env:
+          <<: [ *kind-env, *e2e-env, *http-env, *secrets-env ]
+        command: bash scripts/run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "iam-policies" "default"
+        workdir: build/eve/workers/end2end
+        haltOnFailure: true
     - ShellCommand: &run_smoke_test
         name: Run smoke tests
         env:
@@ -456,6 +463,10 @@ stages:
         <<: *configure_end2end_tests
         env:
           <<: [*kind-env, *e2e-env, *https-env, *secrets-env]
+    - ShellCommand:
+        <<: *run_iam_policies_test
+        env:
+          <<: [ *kind-env, *e2e-env, *http-env, *secrets-env ]
     - ShellCommand:
         <<: *run_end2end_tests
         env:
@@ -568,6 +579,10 @@ stages:
         <<: *configure_end2end_tests
         env:
           <<: [*kind-env, *e2e-env, *http-env, *secrets-env]
+    - ShellCommand:
+        <<: *run_iam_policies_test
+        env:
+          <<: [ *kind-env, *e2e-env, *http-env, *secrets-env ]
     - ShellCommand:
         <<: *run_end2end_tests
         env:

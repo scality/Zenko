@@ -41,11 +41,7 @@ function makeGETRequest(path, cb, userCredentials) {
         method: 'GET',
         path,
     });
-    if (userCredentials) {
-        options = aws4.sign(options, userCredentials);
-    } else {
-        options = aws4.sign(options, credentials);
-    }
+    options = aws4.sign(options, userCredentials ? userCredentials : credentials);
 
     const req = http.request(options, res => cb(null, res));
     req.on('error', err => cb(err));

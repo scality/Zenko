@@ -78,7 +78,7 @@ run_e2e_test() {
 
 ## TODO use existing entrypoint
 if [ "$STAGE" = "end2end" ]; then
-   run_e2e_test '' 'cd node_tests && npm run test_iam_policies && npm run test_ui && npm run test_operator'
+   run_e2e_test '' 'cd node_tests && npm run test_operator && npm run test_ui'
 elif [ "$STAGE" = "debug" ]; then
    run_e2e_test '-ti' 'bash'
 elif [ "$STAGE" = "smoke" ]; then
@@ -86,4 +86,6 @@ elif [ "$STAGE" = "smoke" ]; then
 elif [ "$STAGE" = "backbeat" ]; then
    ## TODO: use node js to create and remove buckets
    run_e2e_test '' 'cd node_tests && npm run test_all_extensions && cd .. && python3 cleans3c.py'
+elif [ "$STAGE" = "iam-policies" ]; then
+     run_e2e_test '' 'cd node_tests && npm run test_iam_policies'
 fi

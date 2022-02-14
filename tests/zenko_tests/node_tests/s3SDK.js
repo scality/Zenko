@@ -31,7 +31,6 @@ const scalityIAMClient = new IAM({
     signatureCache: false,
     signatureVersion: 'v4',
     region: 'us-east-1',
-    s3ForcePathStyle: true,
     // disable node sdk retries and timeout to prevent InvalidPart
     // and SocketHangUp errors. If retries are allowed, sdk will send
     // another request after first request has already deleted parts,
