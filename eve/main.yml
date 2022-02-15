@@ -464,10 +464,6 @@ stages:
         env:
           <<: [*kind-env, *e2e-env, *https-env, *secrets-env]
     - ShellCommand:
-        <<: *run_iam_policies_test
-        env:
-          <<: [ *kind-env, *e2e-env, *http-env, *secrets-env ]
-    - ShellCommand:
         <<: *run_end2end_tests
         env:
           <<: [*kind-env, *e2e-env, *https-env, *secrets-env]

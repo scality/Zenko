@@ -15,13 +15,13 @@ const defaultOptions = {
 };
 const credentials = { accessKeyId, secretAccessKey, sessionToken };
 
-function getResponseBody(res, cb) {
+function getResponseBody(res, cb, isXml = false) {
     res.setEncoding('utf8');
     const resBody = [];
     res.on('data', chunk => resBody.push(chunk));
     res.on('end', () => {
         try {
-            const parsedBody = JSON.parse(resBody.join(''));
+            const parsedBody = isXml ? resBody.join('') : JSON.parse(resBody.join(''));
             return cb(null, parsedBody);
         } catch (e) {
             return cb(e);
@@ -41,7 +41,7 @@ function makeGETRequest(path, cb, userCredentials) {
         method: 'GET',
         path,
     });
-    options = aws4.sign(options, userCredentials ? userCredentials : credentials);
+    options = aws4.sign(options, userCredentials || credentials);
 
     const req = http.request(options, res => cb(null, res));
     req.on('error', err => cb(err));
