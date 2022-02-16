@@ -1,5 +1,5 @@
-const S3 = require('aws-sdk').S3;
-const IAM = require('aws-sdk').IAM;
+const { S3 } = require('aws-sdk');
+const { IAM } = require('aws-sdk');
 
 const scalityS3Client = new S3({
     accessKeyId: process.env.ZENKO_ACCESS_KEY,
@@ -40,8 +40,8 @@ const scalityIAMClient = new IAM({
     httpOptions: { timeout: 0 },
 });
 
-const verifyCerts = process.env.VERIFY_CERTIFICATES ?
-                      process.env.VERIFY_CERTIFICATES : true;
+const verifyCerts = process.env.VERIFY_CERTIFICATES
+    ? process.env.VERIFY_CERTIFICATES : true;
 
 const awsS3Client = new S3({
     accessKeyId: process.env.AWS_ACCESS_KEY,
@@ -90,5 +90,5 @@ module.exports = {
     awsS3Client,
     ringS3Client,
     altScalityS3Client,
-    scalityIAMClient
+    scalityIAMClient,
 };
