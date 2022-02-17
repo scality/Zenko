@@ -13,7 +13,7 @@ tests:
   - interval: 30s
     input_series:
       - series: up{namespace="zenko", service="artesca-data-base-cache-metrics"}
-        values: 1 1 0+0x2
+        values: 1 1 0 0 0
 
     alert_rule_test:
       - alertname: Servicedown
