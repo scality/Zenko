@@ -1,0 +1,96 @@
+# These tests are meant to go hand-in-hand with the rendered alert rule.
+# Use github.com/scality/action-prom-render-test@python-renderer python module
+#
+# Render the alerts file with
+# gen-alert render alerts.yaml
+
+evaluation_interval: 1m
+
+rule_files:
+  - alerts.rendered.yaml
+
+tests:
+  - interval: 30s
+    input_series:
+      - series: up{namespace="zenko", service="artesca-data-base-cache-metrics"}
+        values: 1 1 0 0 0
+
+    alert_rule_test:
+      - alertname: Servicedown
+        eval_time: 1m
+        exp_alerts: []
+      - alertname: ServiceDown
+        eval_time: 2m
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+            exp_annotations:
+              summary: "Redis service is down"
+              description: "Redis service is down"
+
+  - interval: 1m
+    input_series:
+      - series: redis_memory_used_bytes{namespace="zenko", job="artesca-data-base-cache-metrics"}
+        values: 10 10 30+5x3
+      - series: redis_total_system_memory_bytes{namespace="zenko", job="artesca-data-base-cache-metrics"}
+        values: 100+0x6
+
+    alert_rule_test:
+      - alertname: HighMemoryUsage
+        eval_time: 1m
+        exp_alerts: []
+      - alertname: HighMemoryUsage
+        eval_time: 2m
+        exp_alerts: []
+      - alertname: HighMemoryUsage
+        eval_time: 4m
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              job: artesca-data-base-cache-metrics
+              namespace: zenko
+            exp_annotations:
+              summary: "Redis is using a lot of memory"
+              description: "Redis is using more than 0.25% of available memory."
+
+  - interval: 1m
+    input_series:
+      - series: redis_connected_clients{namespace="zenko", job="artesca-data-base-cache-metrics"}
+        values: 70+10x2 101 110
+
+    alert_rule_test:
+      - alertname: tooManyClientConnections
+        eval_time: 1m
+        exp_alerts: []
+      - alertname: tooManyClientConnections
+        eval_time: 3m
+        exp_alerts: []
+      - alertname: TooManyClientConnections
+        eval_time: 5m
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+            exp_annotations:
+              summary: Too many Redis client connections
+              description: 'Redis has more than 100 client connections: 110'
+
+  - interval: 1m
+    input_series:
+      - series: redis_rejected_connections_total{namespace="zenko", job="artesca-data-base-cache-metrics"}
+        values: 0 0 1
+
+    alert_rule_test:
+      - alertname: RejectedClientconnections
+        eval_time: 1m
+        exp_alerts: []
+      - alertname: RejectedClientconnections
+        eval_time: 2m
+        exp_alerts: []
+      - alertname: RejectedClientConnections
+        eval_time: 3m
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+            exp_annotations:
+              description: Some connections to Redis have been rejected
+              summary: Redis rejected connections
