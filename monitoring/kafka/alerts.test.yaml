@@ -1,0 +1,324 @@
+# These tests are meant to go hand-in-hand with the rendered alert rule.
+# Use github.com/scality/action-prom-render-test@python-renderer python module
+#
+# Render the alerts file with
+# gen-alert render alerts.yaml --value replicas:3
+
+evaluation_interval: 1m
+rule_files:
+  - alerts.rendered.yaml
+
+tests:
+  # BrokersCountWarning & BrokersCountCritical
+  ##################################################################################################
+  - name: Brokers Count
+    interval: 1m
+    input_series:
+      - series: kafka_server_replicamanager_leadercount{namespace="zenko",service="artesca-data-base-queue-headless",broker="kafka1"}
+        values: 1 1 1 stale
+      - series: kafka_server_replicamanager_leadercount{namespace="zenko",service="artesca-data-base-queue-headless",broker="kafka2"}
+        values: 1 1 stale
+      - series: kafka_server_replicamanager_leadercount{namespace="zenko",service="artesca-data-base-queue-headless",broker="kafka3"}
+        values: 1 stale
+    alert_rule_test:
+      - alertname: BrokersCountWarning
+        eval_time: 1m
+        exp_alerts: []
+      - alertname: BrokersCountCritical
+        eval_time: 1m
+        exp_alerts: []
+
+      - alertname: BrokersCountWarning
+        eval_time: 2m
+        exp_alerts:
+          - exp_annotations:
+              summary: Not all expected brokers are online.
+              description: 'Kafka: Broker count is down'
+            exp_labels:
+              severity: warning
+      - alertname: BrokersCountCritical
+        eval_time: 2m
+        exp_alerts: []
+
+      # TODO: fix these tests... stalenes seems to break "later" tests, and the count of series
+      #       after (strictly) the staleness is wrong...
+       # - alertname: BrokersCountWarning
+      #   eval_time: 3m
+      #   exp_alerts:
+      #     - exp_annotations:
+      #         summary: Not all expected brokers are online.
+      #         description: 'Kafka: Broker count is down'
+      #       exp_labels:
+      #         severity: warning
+      # - alertname: BrokersCountCritical
+      #   eval_time: 3m
+      #   exp_alerts: []
+      #
+      # - alertname: BrokersCountWarning
+      #   eval_time: 4m
+      #   exp_alerts:
+      #     - exp_annotations:
+      #         summary: Not all expected brokers are online.
+      #         description: 'Kafka: Broker count is down'
+      #       exp_labels:
+      #         severity: warning
+      # - alertname: BrokersCountCritical
+      #   eval_time: 4m
+      #   exp_alerts:
+      #     - exp_annotations:
+      #         summary: No Brokers online
+      #         description: 'Kafka: Broker count is 0'
+      #       exp_labels:
+      #         severity: critical
+
+  # ActiveControllerCritical
+  ##################################################################################################
+  - name: Active Controller
+    interval: 1m
+    input_series:
+      - series: kafka_controller_kafkacontroller_activecontrollercount{namespace="zenko",service="artesca-data-base-queue-headless",broker="kafka1"}
+        values: 1 0 0 0
+      - series: kafka_controller_kafkacontroller_activecontrollercount{namespace="zenko",service="artesca-data-base-queue-headless",broker="kafka2"}
+        values: 0 0 0 1
+      - series: kafka_controller_kafkacontroller_activecontrollercount{namespace="zenko",service="artesca-data-base-queue-headless",broker="kafka3"}
+        values: 0 0 0 0
+    alert_rule_test:
+      - alertname: ActiveControllerCritical
+        eval_time: 1m
+        exp_alerts: []
+      - alertname: ActiveControllerCritical
+        eval_time: 2m
+        exp_alerts:
+          - exp_annotations:
+              description: >-
+                No broker in the cluster is reporting as the active controller in the last
+                1 minute interval. During steady state there should
+                be only one active controller per cluster.
+              summary: 'Kafka: No active controller'
+            exp_labels:
+              severity: critical
+      - alertname: ActiveControllerCritical
+        eval_time: 3m
+        exp_alerts: []
+
+  # UnderReplicatedPartitions
+  ##################################################################################################
+  - name: Under Replicated Partitions
+    interval: 1m
+    input_series:
+      - series: kafka_server_replicamanager_underreplicatedpartitions{namespace="zenko",service="artesca-data-base-queue-headless",broker="kafka1"}
+        values: 0 1 1 1 0
+      - series: kafka_server_replicamanager_underreplicatedpartitions{namespace="zenko",service="artesca-data-base-queue-headless",broker="kafka2"}
+        values: 0 0 0 1 0
+      - series: kafka_server_replicamanager_underreplicatedpartitions{namespace="zenko",service="artesca-data-base-queue-headless",broker="kafka3"}
+        values: 0 0 0 0 0
+    alert_rule_test:
+      - alertname: UnderReplicatedPartitions
+        eval_time: 1m
+        exp_alerts: []
+      - alertname: UnderReplicatedPartitions
+        eval_time: 2m
+        exp_alerts:
+          - exp_annotations:
+              description: >-
+                Under-replicated partitions means that one or more replicas are not available.
+                This is usually because a broker is down.  Restart
+                the broker, and check for errors in the logs.
+              summary: 'Kafka: 1 under-replicated partitons'
+            exp_labels:
+              severity: critical
+      - alertname: UnderReplicatedPartitions
+        eval_time: 3m
+        exp_alerts:
+          - exp_annotations:
+              description: >-
+                Under-replicated partitions means that one or more replicas are not available.
+                This is usually because a broker is down.  Restart
+                the broker, and check for errors in the logs.
+              summary: 'Kafka: 2 under-replicated partitons'
+            exp_labels:
+              severity: critical
+
+  # OfflinePartitons
+  ##################################################################################################
+  - name: Under Replicated Partitions
+    interval: 1m
+    input_series:
+      - series: kafka_controller_kafkacontroller_offlinepartitionscount{namespace="zenko",service="artesca-data-base-queue-headless",broker="kafka1"}
+        values: 0 1 1 1 0
+      - series: kafka_controller_kafkacontroller_offlinepartitionscount{namespace="zenko",service="artesca-data-base-queue-headless",broker="kafka2"}
+        values: 0 0 0 1 0
+      - series: kafka_controller_kafkacontroller_offlinepartitionscount{namespace="zenko",service="artesca-data-base-queue-headless",broker="kafka3"}
+        values: 0 0 0 0 0
+    alert_rule_test:
+      - alertname: OfflinePartitons
+        eval_time: 1m
+        exp_alerts: []
+      - alertname: OfflinePartitons
+        eval_time: 2m
+        exp_alerts:
+          - exp_annotations:
+              description: >-
+                After successful leader election, if the leader for partition dies, then the
+                partition moves to the OfflinePartition state.
+                Offline partitions are not available for reading and writing. Restart the
+                brokers, if needed, and check the logs for errors.
+              summary: 'Kafka: 1 offline partitons'
+            exp_labels:
+              severity: critical
+      - alertname: OfflinePartitons
+        eval_time: 3m
+        exp_alerts:
+          - exp_annotations:
+              description: >-
+                After successful leader election, if the leader for partition dies, then the
+                partition moves to the OfflinePartition state.
+                Offline partitions are not available for reading and writing. Restart the
+                brokers, if needed, and check the logs for errors.
+              summary: 'Kafka: 2 offline partitons'
+            exp_labels:
+              severity: critical
+  
+  # RemainingDiskSpaceWarning
+  ##################################################################################################
+  - name: Remaining Disk Space
+    interval: 1m
+    input_series:
+      # day 1: decreasing quickly but lots of space available
+      # day 2: 26% available, stable
+      # day 3: 24% available, stable
+      # day 3: free space decreases slowly
+      # day 5: free space decrease quickly --> alert (after 6h decreasing at this rate)
+      # day 6: decreasing quickly for a short time
+      - series: kubelet_volume_stats_available_bytes{namespace="zenko",persistentvolumeclaim="artesca-data-base-queue-1"}
+        values: 50000-10x1440   26000x1440   24000x1440   24000-.015x1380   23000-10x1380   10000x150 10000-10x150 5000x240
+      - series: kubelet_volume_stats_capacity_bytes{namespace="zenko",persistentvolumeclaim="artesca-data-base-queue-1"}
+        values: 100000x8700 # 100kB for 6 days
+    alert_rule_test:
+      - alertname: RemainingDiskSpaceWarning
+        eval_time: 1d
+        exp_alerts: []
+      - alertname: RemainingDiskSpaceWarning
+        eval_time: 2d
+        exp_alerts: []
+      - alertname: RemainingDiskSpaceWarning
+        eval_time: 3d
+        exp_alerts: []
+      - alertname: RemainingDiskSpaceWarning
+        eval_time: 4d
+        exp_alerts: []
+      - alertname: RemainingDiskSpaceWarning
+        eval_time: 5d
+        exp_alerts:
+          - exp_annotations:
+              description: Kafka Broker has low disk space
+              summary: Kafka Broker has low disk space
+            exp_labels:
+              namespace: zenko
+              persistentvolumeclaim: artesca-data-base-queue-1
+              severity: warning
+      - alertname: RemainingDiskSpaceWarning
+        eval_time: 5d8h
+        exp_alerts: []
+
+  # ZookeeperSyncConnect
+  ##################################################################################################
+  - name: Kafka Zookeeper Sync
+    interval: 1m
+    input_series:
+      - series: kafka_server_sessionexpirelistener_zookeepersyncconnects_total{namespace="zenko",service="artesca-data-base-queue-headless",broker="kafka1"}
+        values: 1 1 1
+      - series: kafka_server_sessionexpirelistener_zookeepersyncconnects_total{namespace="zenko",service="artesca-data-base-queue-headless",broker="kafka2"}
+        values: 1 1 0
+      - series: kafka_server_sessionexpirelistener_zookeepersyncconnects_total{namespace="zenko",service="artesca-data-base-queue-headless",broker="kafka3"}
+        values: 1 1 1
+    alert_rule_test:
+      - alertname: ZookeeperSyncConnect
+        eval_time: 1m
+        exp_alerts: []
+      - alertname: ZookeeperSyncConnect
+        eval_time: 3m
+        exp_alerts:
+          - exp_annotations:
+              description: Kafka Zookeeper Sync Disconected
+              summary: Zookeeper Sync Disconected
+            exp_labels:
+              severity: warning
+
+   # ConsumerLagWarning
+  ##################################################################################################
+  - name: Kafka Zookeeper Sync
+    interval: 1m
+    input_series:
+      # For 5 minutes, no lag
+      # Then short 'burst' in replication --> OK
+      # Then bucket notification dies: delay increases --> error
+      # Then replication dies: offset-delay increases  --> error
+      - series: kafka_consumergroup_group_max_lag{namespace="zenko",cluster_name="artesca-data-base-queue",group="replication"}
+        values: 200x5 2000-300x4 800x3 1500x7
+      - series: kafka_consumergroup_group_max_lag_seconds{namespace="zenko",cluster_name="artesca-data-base-queue",group="replication"}
+        values: 60x20
+      - series: kafka_consumergroup_group_max_lag{namespace="zenko",cluster_name="artesca-data-base-queue",group="notification"}
+        values: 100x20
+      - series: kafka_consumergroup_group_max_lag_seconds{namespace="zenko",cluster_name="artesca-data-base-queue",group="notification"}
+        values: 50x10            500x10  
+      # Last two series have no 'group' : so they are ignored
+      - series: kafka_consumergroup_group_max_lag{namespace="zenko",cluster_name="artesca-data-base-queue",group=""}
+        values: 10000x20
+      - series: kafka_consumergroup_group_max_lag_seconds{namespace="zenko",cluster_name="artesca-data-base-queue",group=""}
+        values: 3000x10
+    alert_rule_test:
+      - alertname: ConsumerLagWarning
+        eval_time: 5m
+        exp_alerts: []
+      - alertname: ConsumerLagWarning
+        eval_time: 10m
+        exp_alerts: []
+      - alertname: ConsumerLagWarning
+        eval_time: 15m
+        exp_alerts: []
+      - alertname: ConsumerLagWarning
+        eval_time: 16m
+        exp_alerts:
+          - exp_annotations:
+              description:  |
+                Kafka consumer lag has been more more than 300 seconds
+                or more than 1000 messages for 5 minutes.
+
+                Current time lag is 8m 20s.
+                Current offset lag is 100 messages.
+              summary: 'Kafka: consumer lag is too high for notification'
+            exp_labels:
+              namespace: zenko
+              cluster_name: artesca-data-base-queue
+              group: notification
+              severity: warning
+      - alertname: ConsumerLagWarning
+        eval_time: 20m
+        exp_alerts:
+          - exp_annotations:
+              description:  |
+                Kafka consumer lag has been more more than 300 seconds
+                or more than 1000 messages for 5 minutes.
+
+                Current time lag is 1m 0s.
+                Current offset lag is 1.5k messages.
+              summary: 'Kafka: consumer lag is too high for replication'
+            exp_labels:
+              namespace: zenko
+              cluster_name: artesca-data-base-queue
+              group: replication
+              severity: warning
+          - exp_annotations:
+              description:  |
+                Kafka consumer lag has been more more than 300 seconds
+                or more than 1000 messages for 5 minutes.
+
+                Current time lag is 8m 20s.
+                Current offset lag is 100 messages.
+              summary: 'Kafka: consumer lag is too high for notification'
+            exp_labels:
+              namespace: zenko
+              cluster_name: artesca-data-base-queue
+              group: notification
+              severity: warning
