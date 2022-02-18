@@ -305,10 +305,10 @@ describe('iam policies - cloudserver - AssumeRole - Metadata', () => {
                             secretAccessKey: res.Credentials.SecretAccessKey,
                             sessionToken: res.Credentials.SessionToken,
                         };
-                        return async.eachOf(test.buckets, (path, idx, eachCb) => {
+                        return async.eachOf(test.buckets, (bucket, idx, eachCb) => {
                             // make metadataSearch request on specific buckets using session user's credentials
                             // and see if can get the correct response
-                            metadataSearchResponseCode(sessionUserCredentials, test.buckets[idx], (err, res) => {
+                            metadataSearchResponseCode(sessionUserCredentials, bucket, (err, res) => {
                                 if (err) {
                                     assert.ifError(err);
                                     return done(err);
