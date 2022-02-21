@@ -785,7 +785,7 @@
         },
         {
           "exemplar": true,
-          "expr": "sum(mongodb_mongod_replset_number_of_members{pod=\"${mongod}\", namespace=\"${namespace}\"})",
+          "expr": "sum(mongodb_mongod_replset_member_health{pod=\"${mongod}\", namespace=\"${namespace}\"})",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -1720,5 +1720,5 @@
   "timezone": "browser",
   "title": "MongoDB",
   "uid": null,
-  "version": 19
+  "version": 20
 }

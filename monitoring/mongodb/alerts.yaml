@@ -31,11 +31,11 @@ groups:
       severity: critical
     annotations:
       description: "MongoDb down"
-      summary: MongoDb Down
+      summary: MongoDb down
 
   - alert: NoPrimary
     expr: |
-      count by(set) (mongodb_mongod_replset_member_state{namespace="${namespace}",pod=~"${service}.*",state="PRIMARY"}) == 0
+      group(mongodb_mongod_replset_member_state{namespace="${namespace}",pod=~"${service}.*",state="PRIMARY"}) == 0
     for: 0m
     labels:
       severity: critical
@@ -45,7 +45,7 @@ groups:
 
   - alert: UnhealthyMemberWarning
     expr: |
-      group by(name, state) (mongodb_mongod_replset_member_health{namespace="${namespace}",pod=~"${service}.*"}) != 1
+      group by(name, state) (mongodb_mongod_replset_member_health{namespace="${namespace}",pod=~"${service}.*"} != 1)
     for: 30s
     labels:
       severity: warning
@@ -55,7 +55,7 @@ groups:
 
   - alert: TooManyElectionsWarning
     expr: |
-      group by(set) (changes(mongodb_mongod_replset_member_election_date{namespace="${namespace}",pod=~"${service}.*"}[10m]))
+      sum by(set) (changes(mongodb_mongod_replset_member_election_date{namespace="${namespace}",pod=~"${service}.*"}[10m]))
         > ${tooManyElectionsWarningThreshold}
     for: 0s
     labels:
@@ -66,7 +66,7 @@ groups:
 
   - alert: ReplicationLagWarning
     expr: |
-      group by(name) (mongodb_mongod_replset_member_replication_lag{namespace="${namespace}",pod=~"${service}.*"})
+      sum by(name) (mongodb_mongod_replset_member_replication_lag{namespace="${namespace}",pod=~"${service}.*"})
         > 10
     for: 30s
     labels:
