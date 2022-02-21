@@ -18,13 +18,21 @@ TOKEN=$(get_token)
 CLOUDSERVER_HOST="${ZENKO_NAME}-connector-s3api.default.svc.cluster.local"
 CLOUDSERVER_ENDPOINT="http://${CLOUDSERVER_HOST}:80"
 BACKBEAT_API_ENDPOINT="http://${ZENKO_NAME}-management-backbeat-api.default.svc.cluster.local:80"
-VAULT_ENDPOINT="http://${ZENKO_NAME}-management-vault-iam-admin-api"
+VAULT_ENDPOINT="http://${ZENKO_NAME}-management-vault-iam-admin-api:80"
+VAULT_STS_ENDPOINT="http://${ZENKO_NAME}-connector-vault-sts-api:80"
 ADMIN_ACCESS_KEY_ID=$(kubectl get secret end2end-management-vault-admin-creds.v1 -o jsonpath='{.data.accessKey}' | base64 -d)
 ADMIN_SECRET_ACCESS_KEY=$(kubectl get secret end2end-management-vault-admin-creds.v1  -o jsonpath='{.data.secretKey}' | base64 -d)
 ZENKO_ACCESS_KEY=$(kubectl get secret end2end-account-zenko -o jsonpath='{.data.AccessKeyId}' | base64 -d)
 ZENKO_SECRET_KEY=$(kubectl get secret end2end-account-zenko -o jsonpath='{.data.SecretAccessKey}' | base64 -d)
 ZENKO_SESSION_TOKEN=$(kubectl get secret end2end-account-zenko -o jsonpath='{.data.SessionToken}' | base64 -d)
 OIDC_FULLNAME="${OIDC_FIRST_NAME} ${OIDC_LAST_NAME}"
+KEYCLOAK_TEST_USER="${OIDC_USERNAME}-norights"
+KEYCLOAK_TEST_PASSWORD=${OIDC_PASSWORD}
+KEYCLOAK_TEST_HOST=${OIDC_ENDPOINT}
+KEYCLOAK_TEST_PORT="80"
+KEYCLOAK_TEST_REALM_NAME=${OIDC_REALM}
+KEYCLOAK_TEST_CLIENT_ID=${OIDC_CLIENT_ID}
+KEYCLOAK_TEST_GRANT_TYPE="password"
 
 run_e2e_test() {
     kubectl run ${1} ${POD_NAME} \
@@ -42,6 +50,7 @@ run_e2e_test() {
         --env=ADMIN_ACCESS_KEY_ID=${ADMIN_ACCESS_KEY_ID} \
         --env=ADMIN_SECRET_ACCESS_KEY=${ADMIN_SECRET_ACCESS_KEY} \
         --env=VAULT_ENDPOINT=${VAULT_ENDPOINT} \
+        --env=VAULT_STS_ENDPOINT=${VAULT_STS_ENDPOINT} \
         --env=TOKEN=${TOKEN} \
         --env=STAGE=${STAGE} \
         --env=CYPRESS_KEYCLOAK_USER_FULLNAME="${OIDC_FULLNAME}" \
@@ -73,6 +82,13 @@ run_e2e_test() {
         --env=RING_S3C_ENDPOINT=${RING_S3C_ENDPOINT} \
         --env=RING_S3C_BACKEND_SOURCE_LOCATION=${RING_S3C_BACKEND_SOURCE_LOCATION} \
         --env=RING_S3C_INGESTION_SRC_BUCKET_NAME=${RING_S3C_INGESTION_SRC_BUCKET_NAME} \
+        --env=KEYCLOAK_TEST_USER=${KEYCLOAK_TEST_USER} \
+        --env=KEYCLOAK_TEST_PASSWORD=${KEYCLOAK_TEST_PASSWORD} \
+        --env=KEYCLOAK_TEST_HOST=${KEYCLOAK_TEST_HOST} \
+        --env=KEYCLOAK_TEST_PORT=${KEYCLOAK_TEST_PORT} \
+        --env=KEYCLOAK_TEST_REALM_NAME=${KEYCLOAK_TEST_REALM_NAME} \
+        --env=KEYCLOAK_TEST_CLIENT_ID=${KEYCLOAK_TEST_CLIENT_ID} \
+        --env=KEYCLOAK_TEST_GRANT_TYPE=${KEYCLOAK_TEST_GRANT_TYPE} \
         --command -- sh -c "${2}"
 }
 
@@ -86,4 +102,6 @@ elif [ "$STAGE" = "smoke" ]; then
 elif [ "$STAGE" = "backbeat" ]; then
    ## TODO: use node js to create and remove buckets
    run_e2e_test '' 'cd node_tests && npm run test_all_extensions && cd .. && python3 cleans3c.py'
+elif [ "$STAGE" = "iam-policies" ]; then
+   run_e2e_test '' 'cd node_tests && npm run lint && npm run test_iam_policies'
 fi

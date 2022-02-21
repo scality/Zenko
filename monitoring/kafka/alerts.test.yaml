@@ -27,7 +27,6 @@ tests:
       - alertname: BrokersCountCritical
         eval_time: 1m
         exp_alerts: []
-
       - alertname: BrokersCountWarning
         eval_time: 2m
         exp_alerts:
@@ -37,39 +36,21 @@ tests:
             exp_labels:
               severity: warning
       - alertname: BrokersCountCritical
-        eval_time: 2m
+        eval_time: 3m
         exp_alerts: []
-
-      # TODO: fix these tests... stalenes seems to break "later" tests, and the count of series
-      #       after (strictly) the staleness is wrong...
-       # - alertname: BrokersCountWarning
-      #   eval_time: 3m
-      #   exp_alerts:
-      #     - exp_annotations:
-      #         summary: Not all expected brokers are online.
-      #         description: 'Kafka: Broker count is down'
-      #       exp_labels:
-      #         severity: warning
-      # - alertname: BrokersCountCritical
-      #   eval_time: 3m
-      #   exp_alerts: []
-      #
-      # - alertname: BrokersCountWarning
-      #   eval_time: 4m
-      #   exp_alerts:
-      #     - exp_annotations:
-      #         summary: Not all expected brokers are online.
-      #         description: 'Kafka: Broker count is down'
-      #       exp_labels:
-      #         severity: warning
-      # - alertname: BrokersCountCritical
-      #   eval_time: 4m
-      #   exp_alerts:
-      #     - exp_annotations:
-      #         summary: No Brokers online
-      #         description: 'Kafka: Broker count is 0'
-      #       exp_labels:
-      #         severity: critical
+      - alertname: BrokersCountWarning
+        eval_time: 3m
+        exp_alerts: []
+      - alertname: BrokersCountCritical
+        eval_time: 4m
+        exp_alerts:
+          - exp_annotations:
+              summary: No Brokers online
+              description: 'Kafka: Broker count is 0'
+            exp_labels:
+              namespace: zenko
+              service: artesca-data-base-queue-headless
+              severity: critical
 
   # ActiveControllerCritical
   ##################################################################################################
