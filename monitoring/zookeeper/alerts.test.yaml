@@ -62,11 +62,11 @@ tests:
   - interval: 30s
     input_series:
       - series: up{namespace="zenko",job="artesca-data-base-quorum-headless", pod="zk-1"}
-        values: 1 1 0
+        values: 1 1 0 0
       - series: up{namespace="zenko",job="artesca-data-base-quorum-headless", pod="zk-2"}
-        values: 1 1 0
+        values: 1 0 0 0
       - series: up{namespace="zenko",job="artesca-data-base-quorum-headless", pod="zk-3"}
-        values: 1 0 0
+        values: 1 0 0 1
 
     alert_rule_test:
       - alertname: ZookeeperDown
@@ -74,43 +74,41 @@ tests:
         exp_alerts: []
       - alertname: ZookeeperDown
         eval_time: 1m
-        exp_alerts: []
-      - alertname: ZookeeperDown
-        eval_time: 1m30s
         exp_alerts:
           - exp_labels:
               severity: critical
             exp_annotations:
               description: Zookeeper down
               summary: Zookeeper down
+      - alertname: ZookeeperDown
+        eval_time: 1m30s
+        exp_alerts: []
       
   #
   # Leaders
   #
-  - interval: 30s
+  - interval: 1m
     input_series:
-      - series: leader_uptime{namespace="zenko",job="artesca-data-base-quorum-headless"}
-        values: 1 1 1 1 _ _
-      - series: leader_uptime{namespace="zenko",job="artesca-data-base-quorum-headless"}
-        values: 1 1 _ _ _ _
-      - series: leader_uptime{namespace="zenko",job="artesca-data-base-quorum-headless"}
-        values: 1 _ _ _ _ _
+      - series: leader_uptime{namespace="zenko", job="artesca-data-base-quorum-headless"}
+        values: 10 _ _ 10
 
     alert_rule_test:
       - alertname: MissingLeader
-        eval_time: 30s
+        eval_time: 1m
         exp_alerts: []
       - alertname: MissingLeader
         eval_time: 2m
-        exp_alerts: []
-      - alertname: MissingLeader
-        eval_time: 3m
         exp_alerts:
           - exp_labels:
               severity: critical
+              namespace: zenko
+              job: artesca-data-base-quorum-headless
             exp_annotations:
               description: Zookeeper cluster has no node marked as leader
               summary: Missing Zookeeper leader
+      - alertname: MissingLeader
+        eval_time: 3m
+        exp_alerts: []
 
   #
   # Disk space
