@@ -28,6 +28,28 @@ tests:
               summary: MongoDb down
               description: MongoDb down
 
+  - interval: 1m
+    input_series:
+      - series: mongodb_mongod_replset_member_state{namespace="zenko",pod="mongodb-0",state="PRIMARY"}
+        values: 1 _
+
+    alert_rule_test:
+      - alertname: NoPrimary
+        eval_time: 1m
+        exp_alerts: []
+      - alertname: NoPrimary
+        eval_time: 2m
+        exp_alerts:
+          - exp_labels:
+              namespace: zenko
+              state: PRIMARY
+              severity: critical
+            exp_annotations:
+              description: "MongoDb down"
+              summary: MongoDb down
+
+
+
   - interval: 30s
     input_series:
       - series: mongodb_mongod_replset_member_health{namespace="zenko",pod="mongodb-0", name="mongodb-0", state="PRIMARY"}

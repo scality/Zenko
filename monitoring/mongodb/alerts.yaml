@@ -35,13 +35,13 @@ groups:
 
   - alert: NoPrimary
     expr: |
-      group(mongodb_mongod_replset_member_state{namespace="${namespace}",pod=~"${service}.*",state="PRIMARY"}) == 0
+      absent_over_time(mongodb_mongod_replset_member_state{namespace="${namespace}",pod=~"${service}.*",state="PRIMARY"}[1m]) == 1
     for: 0m
     labels:
       severity: critical
     annotations:
       description: "MongoDb down"
-      summary: MongoDb Down
+      summary: MongoDb down
 
   - alert: UnhealthyMemberWarning
     expr: |
