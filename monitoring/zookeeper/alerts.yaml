@@ -26,7 +26,7 @@ groups:
     labels:
       severity: warning
     annotations:
-      description: "Zookeeper degraded : not enough nodes for quorum"
+      description: "Zookeeper degraded: not enough nodes for quorum"
       summary: Zookeeper degraded
 
   - alert: ZookeeperDown
@@ -36,10 +36,10 @@ groups:
       severity: critical
     annotations:
       description: "Zookeeper down"
-      summary: Zookeeper Down
+      summary: Zookeeper down
 
   - alert: MissingLeader
-    expr: count(leader_uptime{namespace="${namespace}",job="${service}"}) == 0
+    expr: absent_over_time(leader_uptime{namespace="${namespace}",job="${service}"}[1m]) == 1
     for: 0m
     labels:
       severity: critical
