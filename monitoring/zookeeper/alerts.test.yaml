@@ -1,0 +1,159 @@
+# These tests are meant to go hand-in-hand with the rendered alert rule.
+# Use github.com/scality/action-prom-render-test@python-renderer python module
+#
+# Render the alerts file with
+# gen-alert render alerts.yaml
+
+
+evaluation_interval: 30s
+rule_files:
+  - alerts.rendered.yaml
+
+tests:
+
+  #
+  # Quorum
+  #
+
+  - interval: 30s
+    input_series:
+      - series: up{namespace="zenko",job="artesca-data-base-quorum-headless", pod="zk-1"}
+        values: 1 1 1 0 0 1
+      - series: up{namespace="zenko",job="artesca-data-base-quorum-headless", pod="zk-2"}
+        values: 1 1 1 0 0 1
+      - series: up{namespace="zenko",job="artesca-data-base-quorum-headless", pod="zk-3"}
+        values: 1 0 0 0 0 1
+
+    alert_rule_test:
+      - alertname: ZookeeperQuorum
+        eval_time: 30s
+        exp_alerts: []
+      - alertname: ZookeeperQuorum
+        eval_time: 1m
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+            exp_annotations:
+              description: 'Zookeeper degraded: not enough nodes for quorum'
+              summary: Zookeeper degraded
+      - alertname: ZookeeperDown
+        eval_time: 1m
+        exp_alerts: []
+      - alertname: ZookeeperQuorum
+        eval_time: 2m
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+            exp_annotations:
+              description: 'Zookeeper degraded: not enough nodes for quorum'
+              summary: Zookeeper degraded
+      - alertname: ZookeeperDown
+        eval_time: 2m
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+            exp_annotations:
+              description: Zookeeper down
+              summary: Zookeeper down
+      - alertname: ZookeeperQuorum
+        eval_time: 2m30s
+        exp_alerts: []
+
+  - interval: 30s
+    input_series:
+      - series: up{namespace="zenko",job="artesca-data-base-quorum-headless", pod="zk-1"}
+        values: 1 1 0 0
+      - series: up{namespace="zenko",job="artesca-data-base-quorum-headless", pod="zk-2"}
+        values: 1 0 0 0
+      - series: up{namespace="zenko",job="artesca-data-base-quorum-headless", pod="zk-3"}
+        values: 1 0 0 1
+
+    alert_rule_test:
+      - alertname: ZookeeperDown
+        eval_time: 30s
+        exp_alerts: []
+      - alertname: ZookeeperDown
+        eval_time: 1m
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+            exp_annotations:
+              description: Zookeeper down
+              summary: Zookeeper down
+      - alertname: ZookeeperDown
+        eval_time: 1m30s
+        exp_alerts: []
+      
+  #
+  # Leaders
+  #
+  - interval: 1m
+    input_series:
+      - series: leader_uptime{namespace="zenko", job="artesca-data-base-quorum-headless"}
+        values: 10 _ _ 10
+
+    alert_rule_test:
+      - alertname: MissingLeader
+        eval_time: 1m
+        exp_alerts: []
+      - alertname: MissingLeader
+        eval_time: 2m
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              namespace: zenko
+              job: artesca-data-base-quorum-headless
+            exp_annotations:
+              description: Zookeeper cluster has no node marked as leader
+              summary: Missing Zookeeper leader
+      - alertname: MissingLeader
+        eval_time: 3m
+        exp_alerts: []
+
+  #
+  # Disk space
+  #
+  - interval: 1m
+    input_series:
+      # 26% for 6h, then 24% for 6h
+      - series: kubelet_volume_stats_available_bytes{namespace="zenko",persistentvolumeclaim="artesca-data-base-quorum-pod"}
+        values: 26x360 24x360
+      - series: kubelet_volume_stats_capacity_bytes{namespace="zenko",persistentvolumeclaim="artesca-data-base-quorum-pod"}
+        values: 100x526
+
+    alert_rule_test:
+      - alertname: RemainingDiskSpaceWarning
+        eval_time: 6h
+        exp_alerts: []
+      - alertname: RemainingDiskSpaceWarning
+        eval_time: 9h
+        exp_alerts: []
+      - alertname: RemainingDiskSpaceWarning
+        eval_time: 18h
+        exp_alerts: []
+
+  - interval: 1m
+    input_series:
+      # 30% for 3m, then 1% for 3m
+      - series: kubelet_volume_stats_available_bytes{namespace="zenko",persistentvolumeclaim="artesca-data-base-quorum-pod"}
+        values: 30 30 30 1 1 1
+      - series: kubelet_volume_stats_capacity_bytes{namespace="zenko",persistentvolumeclaim="artesca-data-base-quorum-pod"}
+        values: 100x526
+
+    alert_rule_test:
+      - alertname: RemainingDiskSpaceWarning
+        eval_time: 3m
+        exp_alerts: []
+      - alertname: RemainingDiskSpaceWarning
+        eval_time: 4m
+        exp_alerts: []
+      - alertname: RemainingDiskSpaceWarning
+        eval_time: 5m
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              namespace: zenko
+              persistentvolumeclaim: artesca-data-base-quorum-pod
+            exp_annotations:
+              description: Zookeeper has low disk space
+              summary: Zookeeper has low disk space
