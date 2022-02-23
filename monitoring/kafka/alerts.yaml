@@ -121,7 +121,7 @@ groups:
         Kafka consumer lag has been more more than ${maxConsumerLagSecondsWarningThreshold} seconds
         or more than ${maxConsumerLagMessagesWarningThreshold} messages for 5 minutes.
 
-        Current time lag is {{ with printf "kafka_consumergroup_group_max_lag_seconds{namespace=\"${namespace}\",cluster_name=\"${cluster}\",group=\"%s\"x}"
-                                    $labels.group | query}}{{ . | first | value | humanizeDuration }}{{ end }} seconds.
+        Current time lag is {{ with printf "kafka_consumergroup_group_max_lag_seconds{namespace=\"${namespace}\",cluster_name=\"${cluster}\",group=\"%s\"}"
+                                    $labels.group | query}}{{ . | first | value | humanizeDuration }}{{ end }}.
         Current offset lag is {{ with printf "kafka_consumergroup_group_max_lag{namespace=\"${namespace}\",cluster_name=\"${cluster}\",group=\"%s\"}"
                                       $labels.group | query}}{{ . | first | value | humanize }}{{ end }} messages.
