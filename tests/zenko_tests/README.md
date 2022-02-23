@@ -82,13 +82,13 @@ Run the script:
 #### Get access key
 
 ```shell
-$ export ZENKO_ACCESS_KEY=$(kubectl get secret dev-management-vault-admin-creds.v1  -n default -o  jsonpath='{.data.accessKey}' | base64 -d)
+$ export ADMIN_ACCESS_KEY=$(kubectl get secret dev-management-vault-admin-creds.v1  -n default -o  jsonpath='{.data.accessKey}' | base64 -d)
 ```
 
 #### Get secret key
 
 ```shell
-$ export ZENKO_SECRET_KEY=$(kubectl get secret dev-management-vault-admin-creds.v1  -n default -o  jsonpath='{.data.secretKey}' | base64 -d)
+$ export ADMIN_SECRET_KEY=$(kubectl get secret dev-management-vault-admin-creds.v1  -n default -o  jsonpath='{.data.secretKey}' | base64 -d)
 ```
 
 #### Edit hosts file
@@ -97,17 +97,21 @@ $ sudo vi /etc/hosts
 # add this line:
 127.0.0.1  iam.zenko.local ui.zenko.local s3-local-file.zenko.local keycloak.zenko.local sts.zenko.local management.zenko.local s3.zenko.local
 ```
-#### Come to your local vaultclient root folder and test connection
+#### Come to your local vaultclient root folder and create an account and generate access key
 ```shell
-$ ADMIN_ACCESS_KEY_ID=$ZENKO_ACCESS_KEY ADMIN_SECRET_ACCESS_KEY=$ZENKO_SECRET_KEY ./bin/vaultclient list-accounts --host iam.zenko.local --port 80
+$ ADMIN_ACCESS_KEY_ID=$ADMIN_ACCESS_KEY ADMIN_SECRET_ACCESS_KEY=$ADMIN_SECRET_KEY ./bin/vaultclient create-account --name account --email acc@ount.fr --host iam.zenko.local --port 80
+$ ADMIN_ACCESS_KEY_ID=$ADMIN_ACCESS_KEY ADMIN_SECRET_ACCESS_KEY=$ADMIN_SECRET_KEY ./bin/vaultclient generate-account-access-key --name account --host iam.zenko.local --port 80
 ```
 
 ### Export endpoints in env
 
 ```shell
-$ export CLOUDSERVER_ENDPOINT=s3.zenko.local
-$ export VAULT_ENDPOINT=iam.zenko.local
-$ export CLOUDSERVER_HOST=s3.zenko.local
+$ export ZENKO_ACCESS_KEY=<access key generated previously>
+$ export ZENKO_SECRET_KEY=<secret key generated previously>
+$ export CLOUDSERVER_ENDPOINT=http://s3.zenko.local:80
+$ export VAULT_ENDPOINT=http://iam.zenko.local:80
+$ export VAULT_STS_ENDPOINT=http://sts.zenko.local:80
+$ export CLOUDSERVER_HOST=s3.zenko.local #No http and port here
 ```
 
 ### Run end2end tests
@@ -116,6 +120,6 @@ $ export CLOUDSERVER_HOST=s3.zenko.local
 $ git clone git@github.com:scality/zenko
 $ cd zenko/tests/node_tests
 #Using node 16
-$ npm i
-$ npm run test_iam_policies
+$ yarn install
+$ yarn run test_iam_policies
 ```
