@@ -123,3 +123,18 @@ $ cd zenko/tests/node_tests
 $ yarn install
 $ yarn run test_iam_policies
 ```
+
+### Access mongodb
+
+####Get MongoDB credentials
+
+```shell
+$ kubectl get secret mongodb-db-creds -o jsonpath={.data.mongodb-username} | base64 -d
+$ kubectl get secret mongodb-db-creds -o jsonpath={.data.mongodb-password} | base64 -d
+```
+
+#### Forward mongodb port from inside cluster to local
+```shell
+$ kubectl port-forward dev-db-mongodb-primary-0 27021:27017
+```
+Connect to `localhost:27021` with database `admin` and `username/password` got from above using your local MongoDB GUI (Robo3T, MongoDB Compass, etc...)
