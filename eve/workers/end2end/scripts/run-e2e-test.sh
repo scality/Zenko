@@ -89,6 +89,7 @@ run_e2e_test() {
         --env=KEYCLOAK_TEST_REALM_NAME=${KEYCLOAK_TEST_REALM_NAME} \
         --env=KEYCLOAK_TEST_CLIENT_ID=${KEYCLOAK_TEST_CLIENT_ID} \
         --env=KEYCLOAK_TEST_GRANT_TYPE=${KEYCLOAK_TEST_GRANT_TYPE} \
+        --env=BACKBEAT_BUCKET_CHECK_TIMEOUT_S=180 \
         --command -- sh -c "${2}"
 }
 
