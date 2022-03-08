@@ -15,5 +15,5 @@ describe('Accounts: ', () => {
         next => clientAdmin.createAccount(accountName, accountInfo, next),
         next => clientAdmin.generateAccountAccessKey(accountName, next),
         next => clientAdmin.deleteAccount(accountName, next),
-    ], done))
+    ], done));
 });
