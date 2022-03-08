@@ -38,10 +38,11 @@ function getResponseBody(res, cb, isXml = false) {
  * @return {undefined}
  */
 function makeGETRequest(path, cb, userCredentials) {
-    let options = Object.assign({}, defaultOptions, {
+    let options = {
+        ...defaultOptions,
         method: 'GET',
         path,
-    });
+    };
     options = aws4.sign(options, userCredentials || credentials);
 
     const req = http.request(options, res => cb(null, res));
@@ -57,10 +58,11 @@ function makeGETRequest(path, cb, userCredentials) {
  * @return {undefined}
  */
 function makePOSTRequest(path, body, cb) {
-    let options = Object.assign({}, defaultOptions, {
+    let options = {
+        ...defaultOptions,
         method: 'POST',
         path,
-    });
+    };
     options = aws4.sign(options, credentials);
 
     const req = http.request(options, res => cb(null, res));

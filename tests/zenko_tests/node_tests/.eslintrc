@@ -9,9 +9,10 @@
     "no-loop-func" : "off",
     "padded-blocks" : "off",
     "no-plusplus": "off",
-    "no-underscore-dangle": "off"
+    "no-underscore-dangle": "off",
+    "camelcase": ["error", {"properties": "never"}]
   },
-  "ignorePatterns": ["backbeat/**/*", "cloudserver/**/*", "smoke_tests/**/*", "ui/**/*", "utils/**/*", "node_modules/**/*"],
+  "ignorePatterns": ["backbeat/**/*", "cloudserver/**/*", "smoke_tests/**/*", "ui/**/*", "node_modules/**/*"],
   "settings": {
     "import/resolver": {
       "node": {
