@@ -8,13 +8,13 @@ const bucket = `get-v2-bucket-${uuidV4()}`;
 
 function putObjects(cb) {
     async.times(10, (n, next) => {
-        s3.putObject({ Bucket: bucket, Key: `key-${n}`}, next)
+        s3.putObject({ Bucket: bucket, Key: `key-${n}` }, next);
     }, cb);
 }
 
 function emptyBucket(cb) {
     async.times(10, (n, next) => {
-        s3.deleteObject({ Bucket: bucket, Key: `key-${n}`}, next)
+        s3.deleteObject({ Bucket: bucket, Key: `key-${n}` }, next);
     }, cb);
 }
 
@@ -45,7 +45,7 @@ describe('Bucket GET V2 api', () => {
             assert.ifError(err);
             done();
         });
-    })
+    });
 
     it('should list objects in V2 format', done => {
         s3.listObjectsV2({ Bucket: bucket }, (err, res) => {
@@ -58,14 +58,16 @@ describe('Bucket GET V2 api', () => {
     });
 
     it('should list only objects after startAfter value', done => {
-        s3.listObjectsV2({ Bucket: bucket, StartAfter: 'key-7' },
-        (err, res) => {
-            assert.ifError(err);
-            const keyList = [];
-            res.Contents.forEach(object => keyList.push(object.Key));
-            assert.deepStrictEqual(keyList, expectedKeyList(8, 9));
-            done();
-        });
+        s3.listObjectsV2(
+            { Bucket: bucket, StartAfter: 'key-7' },
+            (err, res) => {
+                assert.ifError(err);
+                const keyList = [];
+                res.Contents.forEach(object => keyList.push(object.Key));
+                assert.deepStrictEqual(keyList, expectedKeyList(8, 9));
+                done();
+            },
+        );
     });
 
     it('should include NextContinuationToken in truncated response', done => {
@@ -79,9 +81,11 @@ describe('Bucket GET V2 api', () => {
     it('should list objects after continuation token value', done => {
         async.waterfall([
             next => s3.listObjectsV2({ Bucket: bucket, MaxKeys: 5 }, next),
-            (objList, next) => s3.listObjectsV2(
-                { Bucket: bucket, MaxKeys: 5,
-                  ContinuationToken: objList.NextContinuationToken }, next),
+            (objList, next) => s3.listObjectsV2({
+                Bucket: bucket,
+                MaxKeys: 5,
+                ContinuationToken: objList.NextContinuationToken,
+            }, next),
         ], (err, objList2) => {
             assert.ifError(err);
             const keyList = [];
@@ -91,30 +95,35 @@ describe('Bucket GET V2 api', () => {
         });
     });
 
-    it('should ignore startAfter value if both startAfter and ' +
-    'continuationToken are included', done => {
+    it('should ignore startAfter value if both startAfter and '
+    + 'continuationToken are included', done => {
         async.waterfall([
             next => s3.listObjectsV2({ Bucket: bucket, MaxKeys: 5 }, next),
             (objList, next) => {
-                s3.listObjectsV2(
-                { Bucket: bucket, MaxKeys: 5,
-                  StartAfter: 'key-7',
-                  ContinuationToken: objList.NextContinuationToken }, next)},
+                s3.listObjectsV2({
+                    Bucket: bucket,
+                    MaxKeys: 5,
+                    StartAfter: 'key-7',
+                    ContinuationToken: objList.NextContinuationToken,
+                }, next);
+            },
         ], (err, objList2) => {
             assert.ifError(err);
             const keyList = [];
             objList2.Contents.forEach(object => keyList.push(object.Key));
-            assert.deepStrictEqual(keyList, expectedKeyList(5,9));
+            assert.deepStrictEqual(keyList, expectedKeyList(5, 9));
             done();
         });
     });
 
-    it('should include Owner in response if fetchOwner is included in request',
-    done => {
-        s3.listObjectsV2({ Bucket: bucket, FetchOwner: true }, (err, res) => {
-            assert.ifError(err);
-            res.Contents.forEach(object => assert(object.Owner));
-            done();
-        });
-    });
+    it(
+        'should include Owner in response if fetchOwner is included in request',
+        done => {
+            s3.listObjectsV2({ Bucket: bucket, FetchOwner: true }, (err, res) => {
+                assert.ifError(err);
+                res.Contents.forEach(object => assert(object.Owner));
+                done();
+            });
+        },
+    );
 });

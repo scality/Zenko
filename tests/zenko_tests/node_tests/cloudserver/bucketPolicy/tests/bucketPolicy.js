@@ -1,4 +1,5 @@
-'use strict'; // eslint-disable-line strict
+
+// eslint-disable-line strict
 
 const assert = require('assert');
 const async = require('async');
@@ -79,8 +80,7 @@ function getPolicyParams(paramsToChange) {
     if (paramsToChange) {
         for (let i = 0; i < paramsToChange.length; i++) {
             newParam[paramsToChange[i].key] = paramsToChange[i].value;
-            bucketPolicy.Statement[0] = Object.assign(
-                {}, basicStatement, newParam);
+            bucketPolicy.Statement[0] = { ...basicStatement, ...newParam };
         }
     }
     return {
@@ -91,10 +91,13 @@ function getPolicyParams(paramsToChange) {
 
 describe('Bucket policies', () => {
     beforeEach(done => {
-        scalityS3Client.createBucket({
-            Bucket: bucket,
-            CreateBucketConfiguration: { LocationConstraint: 'us-east-1' } },
-        done);
+        scalityS3Client.createBucket(
+            {
+                Bucket: bucket,
+                CreateBucketConfiguration: { LocationConstraint: 'us-east-1' },
+            },
+            done,
+        );
     });
 
     afterEach(done => testUtils.emptyDeleteBucket(bucket, done));
@@ -116,12 +119,10 @@ describe('Bucket policies', () => {
             ]);
             async.waterfall([
                 next => scalityS3Client.putBucketPolicy(params, next),
-                (policyData, next) => scalityS3Client.createMultipartUpload(
-                    { Bucket: bucket, Key: mpuKey }, next),
+                (policyData, next) => scalityS3Client.createMultipartUpload({ Bucket: bucket, Key: mpuKey }, next),
                 (mpuData, next) => {
                     const uId = mpuData.UploadId;
-                    altScalityS3Client.abortMultipartUpload(
-                        { Bucket: bucket, Key: mpuKey, UploadId: uId }, next);
+                    altScalityS3Client.abortMultipartUpload({ Bucket: bucket, Key: mpuKey, UploadId: uId }, next);
                 },
             ], err => {
                 assert.ifError(err);
@@ -129,10 +130,11 @@ describe('Bucket policies', () => {
             });
         });
 
-        it(`should not ${allow} because bucket owner action: ` +
-        'DeleteBucketPolicy', done => {
+        it(`should not ${allow} because bucket owner action: `
+        + 'DeleteBucketPolicy', done => {
             const params = getPolicyParams(
-                [{ key: 'Action', value: 's3:DeleteBucketPolicy' }]);
+                [{ key: 'Action', value: 's3:DeleteBucketPolicy' }],
+            );
             scalityS3Client.putBucketPolicy(params, err => {
                 assert.ifError(err);
                 altScalityS3Client.deleteBucketPolicy(bParam, err => {
@@ -144,11 +146,11 @@ describe('Bucket policies', () => {
 
         it(`should ${allow}: DeleteBucketWebsite`, done => {
             const params = getPolicyParams(
-                [{ key: 'Action', value: 's3:DeleteBucketWebsite' }]);
+                [{ key: 'Action', value: 's3:DeleteBucketWebsite' }],
+            );
             async.series([
                 next => scalityS3Client.putBucketPolicy(params, next),
-                next => scalityS3Client.putBucketWebsite(
-                    { Bucket: bucket, WebsiteConfiguration: webConfig }, next),
+                next => scalityS3Client.putBucketWebsite({ Bucket: bucket, WebsiteConfiguration: webConfig }, next),
                 next => altScalityS3Client.deleteBucketWebsite(bParam, next),
             ], err => {
                 assert.ifError(err);
@@ -179,11 +181,14 @@ describe('Bucket policies', () => {
             async.series([
                 next => scalityS3Client.putBucketPolicy(params, next),
                 next => scalityS3Client.putObject(oParam, next),
-                next => scalityS3Client.putObjectTagging({
-                    Bucket: bucket,
-                    Key: objKey,
-                    Tagging: { TagSet: [{ Key: 'key', Value: 'value' }] } },
-                next),
+                next => scalityS3Client.putObjectTagging(
+                    {
+                        Bucket: bucket,
+                        Key: objKey,
+                        Tagging: { TagSet: [{ Key: 'key', Value: 'value' }] },
+                    },
+                    next,
+                ),
                 next => altScalityS3Client.deleteObjectTagging(oParam, next),
             ], err => {
                 assert.ifError(err);
@@ -193,7 +198,8 @@ describe('Bucket policies', () => {
 
         it(`should ${allow}: GetBucketAcl`, done => {
             const params = getPolicyParams(
-                [{ key: 'Action', value: 's3:GetBucketAcl' }]);
+                [{ key: 'Action', value: 's3:GetBucketAcl' }],
+            );
             async.series([
                 next => scalityS3Client.putBucketPolicy(params, next),
                 next => altScalityS3Client.getBucketAcl(bParam, next),
@@ -205,11 +211,11 @@ describe('Bucket policies', () => {
 
         it(`should ${allow}: GetBucketCORS`, done => {
             const params = getPolicyParams(
-                [{ key: 'Action', value: 's3:GetBucketCORS' }]);
+                [{ key: 'Action', value: 's3:GetBucketCORS' }],
+            );
             async.series([
                 next => scalityS3Client.putBucketPolicy(params, next),
-                next => scalityS3Client.putBucketCors(
-                    { Bucket: bucket, CORSConfiguration: corsConfig }, next),
+                next => scalityS3Client.putBucketCors({ Bucket: bucket, CORSConfiguration: corsConfig }, next),
                 next => altScalityS3Client.getBucketCors(bParam, next),
             ], err => {
                 assert.ifError(err);
@@ -219,7 +225,8 @@ describe('Bucket policies', () => {
 
         it(`should ${allow}: GetBucketLocation`, done => {
             const params = getPolicyParams(
-                [{ key: 'Action', value: 's3:GetBucketLocation' }]);
+                [{ key: 'Action', value: 's3:GetBucketLocation' }],
+            );
             async.series([
                 next => scalityS3Client.putBucketPolicy(params, next),
                 next => altScalityS3Client.getBucketLocation(bParam, next),
@@ -229,22 +236,26 @@ describe('Bucket policies', () => {
             });
         });
 
-        it(`should not ${allow} because bucket owner action: GetBucketPolicy`,
-        done => {
-            const params = getPolicyParams(
-                [{ key: 'Action', value: 's3:GetBucketPolicy' }]);
-            scalityS3Client.putBucketPolicy(params, err => {
-                assert.ifError(err);
-                altScalityS3Client.getBucketPolicy(bParam, err => {
-                    assert.strictEqual(err.code, 'MethodNotAllowed');
-                    done();
+        it(
+            `should not ${allow} because bucket owner action: GetBucketPolicy`,
+            done => {
+                const params = getPolicyParams(
+                    [{ key: 'Action', value: 's3:GetBucketPolicy' }],
+                );
+                scalityS3Client.putBucketPolicy(params, err => {
+                    assert.ifError(err);
+                    altScalityS3Client.getBucketPolicy(bParam, err => {
+                        assert.strictEqual(err.code, 'MethodNotAllowed');
+                        done();
+                    });
                 });
-            });
-        });
+            },
+        );
 
         it(`should ${allow}: GetBucketVersioning`, done => {
             const params = getPolicyParams(
-                [{ key: 'Action', value: 's3:GetBucketVersioning' }]);
+                [{ key: 'Action', value: 's3:GetBucketVersioning' }],
+            );
             async.series([
                 next => scalityS3Client.putBucketPolicy(params, next),
                 next => altScalityS3Client.getBucketVersioning(bParam, next),
@@ -256,11 +267,11 @@ describe('Bucket policies', () => {
 
         it(`should ${allow}: GetBucketWebsite`, done => {
             const params = getPolicyParams(
-                [{ key: 'Action', value: 's3:GetBucketWebsite' }]);
+                [{ key: 'Action', value: 's3:GetBucketWebsite' }],
+            );
             async.series([
                 next => scalityS3Client.putBucketPolicy(params, next),
-                next => scalityS3Client.putBucketWebsite(
-                    { Bucket: bucket, WebsiteConfiguration: webConfig }, next),
+                next => scalityS3Client.putBucketWebsite({ Bucket: bucket, WebsiteConfiguration: webConfig }, next),
                 next => altScalityS3Client.getBucketWebsite(bParam, next),
             ], err => {
                 assert.ifError(err);
@@ -270,13 +281,15 @@ describe('Bucket policies', () => {
 
         it(`should ${allow}: GetLifecycleConfiguration`, done => {
             const params = getPolicyParams(
-                [{ key: 'Action', value: 's3:GetLifecycleConfiguration' }]);
+                [{ key: 'Action', value: 's3:GetLifecycleConfiguration' }],
+            );
             async.series([
                 next => scalityS3Client.putBucketPolicy(params, next),
-                next => scalityS3Client.putBucketLifecycleConfiguration(
-                    { Bucket: bucket, LifecycleConfiguration: lcConfig }, next),
-                next => altScalityS3Client.getBucketLifecycleConfiguration(
-                    bParam, next),
+                next => scalityS3Client.putBucketLifecycleConfiguration({
+                    Bucket: bucket,
+                    LifecycleConfiguration: lcConfig,
+                }, next),
+                next => altScalityS3Client.getBucketLifecycleConfiguration(bParam, next),
             ], err => {
                 assert.ifError(err);
                 done();
@@ -330,14 +343,15 @@ describe('Bucket policies', () => {
 
         it(`should ${allow}: GetReplicationConfiguration`, done => {
             const params = getPolicyParams(
-                [{ key: 'Action', value: 's3:GetReplicationConfiguration' }]);
+                [{ key: 'Action', value: 's3:GetReplicationConfiguration' }],
+            );
             async.series([
                 next => scalityS3Client.putBucketPolicy(params, next),
-                next => scalityS3Client.putBucketVersioning(
-                    { Bucket: bucket, VersioningConfiguration: vConfig }, next),
+                next => scalityS3Client.putBucketVersioning({ Bucket: bucket, VersioningConfiguration: vConfig }, next),
                 next => scalityS3Client.putBucketReplication(
                     { Bucket: bucket, ReplicationConfiguration: repConfig },
-                    next),
+                    next,
+                ),
                 next => altScalityS3Client.getBucketReplication(bParam, next),
             ], err => {
                 assert.ifError(err);
@@ -347,7 +361,8 @@ describe('Bucket policies', () => {
 
         it(`should ${allow}: ListBucket`, done => {
             const params = getPolicyParams(
-                [{ key: 'Action', value: 's3:ListBucket' }]);
+                [{ key: 'Action', value: 's3:ListBucket' }],
+            );
             async.series([
                 next => scalityS3Client.putBucketPolicy(params, next),
                 next => altScalityS3Client.headBucket(bParam, next),
@@ -359,7 +374,8 @@ describe('Bucket policies', () => {
 
         it(`should ${allow}: ListBucketMultipartUploads`, done => {
             const params = getPolicyParams(
-                [{ key: 'Action', value: 's3:ListBucketMultipartUploads' }]);
+                [{ key: 'Action', value: 's3:ListBucketMultipartUploads' }],
+            );
             async.series([
                 next => scalityS3Client.putBucketPolicy(params, next),
                 next => altScalityS3Client.listMultipartUploads(bParam, next),
@@ -376,16 +392,18 @@ describe('Bucket policies', () => {
             ]);
             async.waterfall([
                 next => scalityS3Client.putBucketPolicy(params, next),
-                (policyData, next) => scalityS3Client.createMultipartUpload(
-                    { Bucket: bucket, Key: mpuKey }, next),
+                (policyData, next) => scalityS3Client.createMultipartUpload({ Bucket: bucket, Key: mpuKey }, next),
                 (mpuData, next) => {
                     const uId = mpuData.UploadId;
                     altScalityS3Client.listParts(
                         { Bucket: bucket, Key: mpuKey, UploadId: uId },
-                        err => next(err, uId));
+                        err => next(err, uId),
+                    );
                 },
                 (uId, next) => scalityS3Client.abortMultipartUpload(
-                    { Bucket: bucket, Key: mpuKey, UploadId: uId }, next),
+                    { Bucket: bucket, Key: mpuKey, UploadId: uId },
+                    next,
+                ),
             ], err => {
                 assert.ifError(err);
                 done();
@@ -394,13 +412,15 @@ describe('Bucket policies', () => {
 
         it(`should ${allow}: PutBucketAcl`, done => {
             const params = getPolicyParams(
-                [{ key: 'Action', value: 's3:PutBucketAcl' }]);
+                [{ key: 'Action', value: 's3:PutBucketAcl' }],
+            );
             async.series([
                 next => scalityS3Client.putBucketPolicy(params, next),
                 next => altScalityS3Client.putBucketAcl({
                     Bucket: bucket,
                     AccessControlPolicy: {},
-                    GrantRead: `uri=${publicId}` }, next),
+                    GrantRead: `uri=${publicId}`,
+                }, next),
             ], err => {
                 assert.ifError(err);
                 done();
@@ -409,37 +429,43 @@ describe('Bucket policies', () => {
 
         it(`should ${allow}: PutBucketCORS`, done => {
             const params = getPolicyParams(
-                [{ key: 'Action', value: 's3:PutBucketCORS' }]);
+                [{ key: 'Action', value: 's3:PutBucketCORS' }],
+            );
             async.series([
                 next => scalityS3Client.putBucketPolicy(params, next),
-                next => altScalityS3Client.putBucketCors(
-                    { Bucket: bucket, CORSConfiguration: corsConfig }, next),
+                next => altScalityS3Client.putBucketCors({ Bucket: bucket, CORSConfiguration: corsConfig }, next),
             ], err => {
                 assert.ifError(err);
                 done();
             });
         });
 
-        it(`should not ${allow} because bucket owner action: PutBucketPolicy`,
-        done => {
-            const params = getPolicyParams(
-                [{ key: 'Action', value: 's3:PutBucketPolicy' }]);
-            scalityS3Client.putBucketPolicy(params, err => {
-                assert.ifError(err);
-                altScalityS3Client.putBucketPolicy(params, err => {
-                    assert.strictEqual(err.code, 'MethodNotAllowed');
-                    done();
+        it(
+            `should not ${allow} because bucket owner action: PutBucketPolicy`,
+            done => {
+                const params = getPolicyParams(
+                    [{ key: 'Action', value: 's3:PutBucketPolicy' }],
+                );
+                scalityS3Client.putBucketPolicy(params, err => {
+                    assert.ifError(err);
+                    altScalityS3Client.putBucketPolicy(params, err => {
+                        assert.strictEqual(err.code, 'MethodNotAllowed');
+                        done();
+                    });
                 });
-            });
-        });
+            },
+        );
 
         it(`should ${allow}: PutBucketVersioning`, done => {
             const params = getPolicyParams(
-                [{ key: 'Action', value: 's3:PutBucketVersioning' }]);
+                [{ key: 'Action', value: 's3:PutBucketVersioning' }],
+            );
             async.series([
                 next => scalityS3Client.putBucketPolicy(params, next),
                 next => altScalityS3Client.putBucketVersioning(
-                    { Bucket: bucket, VersioningConfiguration: vConfig }, next),
+                    { Bucket: bucket, VersioningConfiguration: vConfig },
+                    next,
+                ),
             ], err => {
                 assert.ifError(err);
                 done();
@@ -448,11 +474,11 @@ describe('Bucket policies', () => {
 
         it(`should ${allow}: PutBucketWebsite`, done => {
             const params = getPolicyParams(
-                [{ key: 'Action', value: 's3:PutBucketWebsite' }]);
+                [{ key: 'Action', value: 's3:PutBucketWebsite' }],
+            );
             async.series([
                 next => scalityS3Client.putBucketPolicy(params, next),
-                next => altScalityS3Client.putBucketWebsite(
-                    { Bucket: bucket, WebsiteConfiguration: webConfig }, next),
+                next => altScalityS3Client.putBucketWebsite({ Bucket: bucket, WebsiteConfiguration: webConfig }, next),
             ], err => {
                 assert.ifError(err);
                 done();
@@ -461,11 +487,14 @@ describe('Bucket policies', () => {
 
         it(`should ${allow}: PutLifecycleConfiguration`, done => {
             const params = getPolicyParams(
-                [{ key: 'Action', value: 's3:PutLifecycleConfiguration' }]);
+                [{ key: 'Action', value: 's3:PutLifecycleConfiguration' }],
+            );
             async.series([
                 next => scalityS3Client.putBucketPolicy(params, next),
-                next => altScalityS3Client.putBucketLifecycleConfiguration(
-                    { Bucket: bucket, LifecycleConfiguration: lcConfig }, next),
+                next => altScalityS3Client.putBucketLifecycleConfiguration({
+                    Bucket: bucket,
+                    LifecycleConfiguration: lcConfig,
+                }, next),
             ], err => {
                 assert.ifError(err);
                 done();
@@ -498,7 +527,8 @@ describe('Bucket policies', () => {
                     Bucket: bucket,
                     Key: objKey,
                     AccessControlPolicy: {},
-                    GrantRead: `uri=${publicId}` }, next),
+                    GrantRead: `uri=${publicId}`,
+                }, next),
             ], err => {
                 assert.ifError(err);
                 done();
@@ -513,11 +543,14 @@ describe('Bucket policies', () => {
             async.series([
                 next => scalityS3Client.putBucketPolicy(params, next),
                 next => scalityS3Client.putObject(oParam, next),
-                next => altScalityS3Client.putObjectTagging({
-                    Bucket: bucket,
-                    Key: objKey,
-                    Tagging: { TagSet: [{ Key: 'key', Value: 'value' }] } },
-                next),
+                next => altScalityS3Client.putObjectTagging(
+                    {
+                        Bucket: bucket,
+                        Key: objKey,
+                        Tagging: { TagSet: [{ Key: 'key', Value: 'value' }] },
+                    },
+                    next,
+                ),
             ], err => {
                 assert.ifError(err);
                 done();
@@ -526,14 +559,15 @@ describe('Bucket policies', () => {
 
         it(`should ${allow}: PutReplicationConfiguration`, done => {
             const params = getPolicyParams(
-                [{ key: 'Action', value: 's3:PutReplicationConfiguration' }]);
+                [{ key: 'Action', value: 's3:PutReplicationConfiguration' }],
+            );
             async.series([
                 next => scalityS3Client.putBucketPolicy(params, next),
-                next => scalityS3Client.putBucketVersioning(
-                    { Bucket: bucket, VersioningConfiguration: vConfig }, next),
+                next => scalityS3Client.putBucketVersioning({ Bucket: bucket, VersioningConfiguration: vConfig }, next),
                 next => altScalityS3Client.putBucketReplication(
                     { Bucket: bucket, ReplicationConfiguration: repConfig },
-                    next),
+                    next,
+                ),
             ], err => {
                 assert.ifError(err);
                 done();
@@ -544,15 +578,19 @@ describe('Bucket policies', () => {
 
 describe('Bucket policies with basic policies', () => {
     before(done => {
-        scalityS3Client.createBucket({
-            Bucket: bucket,
-            CreateBucketConfiguration: { LocationConstraint: 'us-east-1' } },
-        done);
+        scalityS3Client.createBucket(
+            {
+                Bucket: bucket,
+                CreateBucketConfiguration: { LocationConstraint: 'us-east-1' },
+            },
+            done,
+        );
     });
 
     it(`should ${allow}: DeleteBucket`, done => {
         const params = getPolicyParams(
-            [{ key: 'Action', value: 's3:DeleteBucket' }]);
+            [{ key: 'Action', value: 's3:DeleteBucket' }],
+        );
         async.series([
             next => scalityS3Client.putBucketPolicy(params, err => {
                 assert.ifError(err);
