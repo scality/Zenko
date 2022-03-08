@@ -1,7 +1,6 @@
 const assert = require('assert');
 const crypto = require('crypto');
 const async = require('async');
-const fs = require('fs');
 
 const { scalityS3Client, awsS3Client } = require('../s3SDK');
 
@@ -9,6 +8,7 @@ const srcLocation = process.env.AWS_BACKEND_SOURCE_LOCATION;
 const destAWSLocation = process.env.AWS_BACKEND_DESTINATION_LOCATION;
 const destAzureLocation = process.env.AZURE_BACKEND_DESTINATION_LOCATION;
 const destGCPLocation = process.env.GCP_BACKEND_DESTINATION_LOCATION;
+// eslint-disable-next-line
 const REPLICATION_TIMEOUT = 10000;
 
 class ReplicationUtility {
@@ -45,13 +45,12 @@ class ReplicationUtility {
                     return temp;
                 }),
             },
-        }
+        };
         return this.s3.deleteObjects(params, cb);
     }
 
     _deleteBlobList(blobList, containerName, cb) {
-        async.each(blobList, (blob, next) =>
-            this.deleteBlob(containerName, blob.name, undefined, next), cb);
+        async.each(blobList, (blob, next) => this.deleteBlob(containerName, blob.name, undefined, next), cb);
     }
 
     _setS3Client(s3Client) {
@@ -69,14 +68,15 @@ class ReplicationUtility {
             // If replicating to a multiple backend bucket, we only want to
             // remove versions that we have put with our tests.
             if (keyPrefix) {
-                versions = versions.filter(version =>
-                    version.Key.startsWith(keyPrefix));
-                deleteMarkers = deleteMarkers.filter(marker =>
-                    marker.Key.startsWith(keyPrefix));
+                versions = versions.filter(version => version.Key.startsWith(keyPrefix));
+                deleteMarkers = deleteMarkers.filter(marker => marker.Key.startsWith(keyPrefix));
             }
             return async.series([
-                next => this._deleteVersionList(deleteMarkers, bucketName,
-                    next),
+                next => this._deleteVersionList(
+                    deleteMarkers,
+                    bucketName,
+                    next,
+                ),
                 next => this._deleteVersionList(versions, bucketName, next),
             ], err => cb(err));
         });
@@ -84,16 +84,19 @@ class ReplicationUtility {
 
     deleteAllBlobs(containerName, keyPrefix, cb) {
         const options = { include: 'metadata' };
-        this.azure.listBlobsSegmented(containerName, null, options,
-            (err, result, response) => {
+        this.azure.listBlobsSegmented(
+            containerName,
+            null,
+            options,
+            (err, result) => {
                 if (err) {
                     return cb(err);
                 }
                 // Only delete the blobs put by the current test.
-                const filteredEntries = result.entries.filter(entry =>
-                    entry.name.startsWith(keyPrefix));
+                const filteredEntries = result.entries.filter(entry => entry.name.startsWith(keyPrefix));
                 return this._deleteBlobList(filteredEntries, containerName, cb);
-            });
+            },
+        );
     }
 
     deleteAllFiles(bucketName, filePrefix, cb) {
@@ -167,7 +170,7 @@ class ReplicationUtility {
         this.s3.putObject({
             Bucket: bucketName,
             Key: objectName,
-            Metadata: { 'customKey': 'customValue' },
+            Metadata: { customKey: 'customValue' },
             ContentType: 'image/png',
             CacheControl: 'test-cache-control',
             ContentDisposition: 'test-content-disposition',
@@ -185,20 +188,27 @@ class ReplicationUtility {
         }, cb);
     }
 
-    genericCompleteMPU(bucketName, objectName, howManyParts, isExternalBackend,
-        hasOptionalFields, customPartSize, cb) {
+    genericCompleteMPU(
+        bucketName,
+        objectName,
+        howManyParts,
+        isExternalBackend,
+        hasOptionalFields,
+        customPartSize,
+        cb,
+    ) {
         let uploadId;
         let ETags = [];
-        const partSize = customPartSize === false ?
-            ((1024 * 1024) * 5) + 1 : customPartSize;
+        const partSize = customPartSize === false
+            ? ((1024 * 1024) * 5) + 1 : customPartSize;
         const partNumbers = Array.from(Array(howManyParts).keys());
         const initiateMPUParams = {
             Bucket: bucketName,
             Key: objectName,
-        }
+        };
         if (hasOptionalFields) {
             Object.assign(initiateMPUParams, {
-                Metadata: { 'customKey': 'customValue' },
+                Metadata: { customKey: 'customValue' },
                 ContentType: 'image/png',
                 CacheControl: 'test-cache-control',
                 ContentDisposition: 'test-content-disposition',
@@ -207,38 +217,41 @@ class ReplicationUtility {
             });
         }
         return async.waterfall([
-            next => this.s3.createMultipartUpload(initiateMPUParams,
-            (err, data) => {
-                if (err) {
-                    return next(err);
-                }
-                uploadId = data.UploadId;
-                return next();
-            }),
-            next =>
-                async.mapLimit(partNumbers, 2, (partNumber, callback) => {
-                    const uploadPartParams = {
-                        Bucket: bucketName,
-                        Key: objectName,
-                        PartNumber: partNumber + 1,
-                        UploadId: uploadId,
-                        Body: Buffer.alloc(partSize).fill(partNumber + 1),
-                    };
-
-                    return this.s3.uploadPart(uploadPartParams,
-                        (err, data) => {
-                            if (err) {
-                                return callback(err);
-                            }
-                            return callback(null, data.ETag);
-                        });
-                }, (err, results) => {
+            next => this.s3.createMultipartUpload(
+                initiateMPUParams,
+                (err, data) => {
                     if (err) {
                         return next(err);
                     }
-                    ETags = results;
+                    uploadId = data.UploadId;
                     return next();
-                }),
+                },
+            ),
+            next => async.mapLimit(partNumbers, 2, (partNumber, callback) => {
+                const uploadPartParams = {
+                    Bucket: bucketName,
+                    Key: objectName,
+                    PartNumber: partNumber + 1,
+                    UploadId: uploadId,
+                    Body: Buffer.alloc(partSize).fill(partNumber + 1),
+                };
+
+                return this.s3.uploadPart(
+                    uploadPartParams,
+                    (err, data) => {
+                        if (err) {
+                            return callback(err);
+                        }
+                        return callback(null, data.ETag);
+                    },
+                );
+            }, (err, results) => {
+                if (err) {
+                    return next(err);
+                }
+                ETags = results;
+                return next();
+            }),
             next => {
                 const params = {
                     Bucket: bucketName,
@@ -266,32 +279,73 @@ class ReplicationUtility {
     }
 
     completeSinglePartMPU(bucketName, objectName, size, cb) {
-        this.genericCompleteMPU(bucketName, objectName, 1, true, false, size,
-            cb);
+        this.genericCompleteMPU(
+            bucketName,
+            objectName,
+            1,
+            true,
+            false,
+            size,
+            cb,
+        );
     }
 
     completeMPUAWS(bucketName, objectName, howManyParts, cb) {
-        this.genericCompleteMPU(bucketName, objectName, howManyParts, true,
-            false, false, cb);
+        this.genericCompleteMPU(
+            bucketName,
+            objectName,
+            howManyParts,
+            true,
+            false,
+            false,
+            cb,
+        );
     }
 
     completeMPUAWSWithProperties(bucketName, objectName, howManyParts, cb) {
-        this.genericCompleteMPU(bucketName, objectName, howManyParts, true,
-            true, false, cb);
+        this.genericCompleteMPU(
+            bucketName,
+            objectName,
+            howManyParts,
+            true,
+            true,
+            false,
+            cb,
+        );
     }
 
     completeMPUGCP(bucketName, objectName, howManyParts, cb) {
-        this.genericCompleteMPU(bucketName, objectName, howManyParts, true,
-            false, false, cb);
+        this.genericCompleteMPU(
+            bucketName,
+            objectName,
+            howManyParts,
+            true,
+            false,
+            false,
+            cb,
+        );
     }
 
     completeMPUGCPWithProperties(bucketName, objectName, howManyParts, cb) {
-        this.genericCompleteMPU(bucketName, objectName, howManyParts, true,
-            true, false, cb);
+        this.genericCompleteMPU(
+            bucketName,
+            objectName,
+            howManyParts,
+            true,
+            true,
+            false,
+            cb,
+        );
     }
 
-    completeMPUWithPartCopy(bucketName, objectName, copySource, byteRange,
-        howManyParts, cb) {
+    completeMPUWithPartCopy(
+        bucketName,
+        objectName,
+        copySource,
+        byteRange,
+        howManyParts,
+        cb,
+    ) {
         let uploadId;
         let ETags = [];
         const partNumbers = Array.from(Array(howManyParts).keys());
@@ -306,31 +360,32 @@ class ReplicationUtility {
                 uploadId = data.UploadId;
                 return next();
             }),
-            next =>
-                async.mapLimit(partNumbers, 2, (partNumber, callback) => {
-                    const uploadPartCopyParams = {
-                        Bucket: bucketName,
-                        CopySource: copySource,
-                        CopySourceRange: byteRange ?
-                            `bytes=${byteRange}` : undefined,
-                        Key: objectName,
-                        PartNumber: partNumber + 1,
-                        UploadId: uploadId,
-                    };
-                    return this.s3.uploadPartCopy(uploadPartCopyParams,
-                        (err, data) => {
-                            if (err) {
-                                return callback(err);
-                            }
-                            return callback(null, data.ETag);
-                        });
-                }, (err, results) => {
-                    if (err) {
-                        return next(err);
-                    }
-                    ETags = results;
-                    return next();
-                }),
+            next => async.mapLimit(partNumbers, 2, (partNumber, callback) => {
+                const uploadPartCopyParams = {
+                    Bucket: bucketName,
+                    CopySource: copySource,
+                    CopySourceRange: byteRange
+                        ? `bytes=${byteRange}` : undefined,
+                    Key: objectName,
+                    PartNumber: partNumber + 1,
+                    UploadId: uploadId,
+                };
+                return this.s3.uploadPartCopy(
+                    uploadPartCopyParams,
+                    (err, data) => {
+                        if (err) {
+                            return callback(err);
+                        }
+                        return callback(null, data.ETag);
+                    },
+                );
+            }, (err, results) => {
+                if (err) {
+                    return next(err);
+                }
+                ETags = results;
+                return next();
+            }),
             next => this.s3.completeMultipartUpload({
                 Bucket: bucketName,
                 Key: objectName,
@@ -374,7 +429,7 @@ class ReplicationUtility {
             data.push(chunk);
         });
         request.on('end', () => {
-            cb(null, Buffer.concat(data, totalLength))
+            cb(null, Buffer.concat(data, totalLength));
         });
         request.on('error', err => cb(err));
     }
@@ -419,7 +474,7 @@ class ReplicationUtility {
                 Bucket: bucketName,
                 VersioningConfiguration: {
                     Status: 'Enabled',
-                }
+                },
             }, next),
         ], err => cb(err));
     }
@@ -431,8 +486,13 @@ class ReplicationUtility {
         ], err => cb(err));
     }
 
-    putBucketReplicationMultipleBackend(srcBucket, destBucket, roleArn,
-        storageClass, cb) {
+    putBucketReplicationMultipleBackend(
+        srcBucket,
+        destBucket,
+        roleArn,
+        storageClass,
+        cb,
+    ) {
         this.s3.putBucketReplication({
             Bucket: srcBucket,
             ReplicationConfiguration: {
@@ -534,8 +594,8 @@ class ReplicationUtility {
     // Continue getting head object while the status is PENDING or PROCESSING.
     waitUntilReplicated(bucketName, key, versionId, cb) {
         let status;
-        return async.doWhilst(callback =>
-            this.s3.headObject({
+        return async.doWhilst(
+            callback => this.s3.headObject({
                 Bucket: bucketName,
                 Key: key,
                 VersionId: versionId,
@@ -544,14 +604,19 @@ class ReplicationUtility {
                     return callback(err);
                 }
                 status = data.ReplicationStatus;
-                assert.notStrictEqual(status, 'FAILED',
-                    `Unexpected CRR failure occurred: ${JSON.stringify(data)}`);
+                assert.notStrictEqual(
+                    status,
+                    'FAILED',
+                    `Unexpected CRR failure occurred: ${JSON.stringify(data)}`,
+                );
                 if (status === 'PENDING' || status === 'PROCESSING') {
                     return setTimeout(callback, 2000);
                 }
                 return callback();
             }),
-        () => (status === 'PENDING' || status === 'PROCESSING'), cb);
+            () => (status === 'PENDING' || status === 'PROCESSING'),
+            cb,
+        );
     }
 
     // Continue getting object while the object exists.
@@ -559,8 +624,8 @@ class ReplicationUtility {
         let objectExists;
         const method = client === 'azure' ? 'getBlobToText' : 'getObject';
         const expectedCode = client === 'azure' ? 'BlobNotFound' : 'NoSuchKey';
-        return async.doWhilst(callback =>
-            this[method](bucketName, key, err => {
+        return async.doWhilst(
+            callback => this[method](bucketName, key, err => {
                 if (err && err.code !== expectedCode) {
                     return callback(err);
                 }
@@ -570,14 +635,16 @@ class ReplicationUtility {
                 }
                 return setTimeout(callback, 2000);
             }),
-        () => objectExists, cb);
+            () => objectExists,
+            cb,
+        );
     }
 
     // Continue getting head object while any backend status is PENDING.
     waitWhilePendingCRR(bucketName, key, cb) {
         let shouldContinue;
-        return async.doWhilst(callback =>
-            this.s3.headObject({
+        return async.doWhilst(
+            callback => this.s3.headObject({
                 Bucket: bucketName,
                 Key: key,
             }, (err, data) => {
@@ -598,14 +665,16 @@ class ReplicationUtility {
                 }
                 return callback();
             }),
-        () => shouldContinue, cb);
+            () => shouldContinue,
+            cb,
+        );
     }
 
     // Continue getting head object while the replication status is FAILED.
     waitWhileFailedCRR(bucketName, key, cb) {
         let shouldContinue;
-        return async.doWhilst(callback =>
-            this.s3.headObject({
+        return async.doWhilst(
+            callback => this.s3.headObject({
                 Bucket: bucketName,
                 Key: key,
             }, (err, data) => {
@@ -618,7 +687,9 @@ class ReplicationUtility {
                 }
                 return callback();
             }),
-        () => shouldContinue, cb);
+            () => shouldContinue,
+            cb,
+        );
     }
 
     compareObjectsAWS(srcBucket, destBucket, key, optionalField, cb) {
@@ -635,51 +706,88 @@ class ReplicationUtility {
             const srcData = data[1];
             const destData = data[2];
             assert.strictEqual(srcData.ReplicationStatus, 'COMPLETED');
-            assert.strictEqual(srcData.ContentLength,
-                destData.ContentLength);
+            assert.strictEqual(
+                srcData.ContentLength,
+                destData.ContentLength,
+            );
             this._compareObjectBody(srcData.Body, destData.Body);
             const srcUserMD = srcData.Metadata;
-            assert.strictEqual(srcUserMD[`${destAWSLocation}-version-id`],
-                destData.VersionId);
-            assert.strictEqual(srcUserMD[`${destAWSLocation}-replication-status`],
-                'COMPLETED');
+            assert.strictEqual(
+                srcUserMD[`${destAWSLocation}-version-id`],
+                destData.VersionId,
+            );
+            assert.strictEqual(
+                srcUserMD[`${destAWSLocation}-replication-status`],
+                'COMPLETED',
+            );
             const destUserMD = destData.Metadata;
-            assert.strictEqual(destUserMD['scal-version-id'],
-                srcData.VersionId);
-            assert.strictEqual(destUserMD['scal-replication-status'],
-                'REPLICA');
+            assert.strictEqual(
+                destUserMD['scal-version-id'],
+                srcData.VersionId,
+            );
+            assert.strictEqual(
+                destUserMD['scal-replication-status'],
+                'REPLICA',
+            );
             if (optionalField === 'Metadata') {
                 assert.strictEqual(srcUserMD.customkey, 'customValue');
                 assert.strictEqual(destUserMD.customkey, 'customValue');
             }
             if (optionalField && optionalField !== 'Metadata') {
-                assert.strictEqual(srcData[optionalField],
-                    destData[optionalField]);
+                assert.strictEqual(
+                    srcData[optionalField],
+                    destData[optionalField],
+                );
             }
             return cb();
         });
     }
 
-    compareObjectsOneToMany(srcBucket, awsDestBucket, destContainer,
-        gcpDestBucket, key, cb) {
+    compareObjectsOneToMany(
+        srcBucket,
+        awsDestBucket,
+        destContainer,
+        gcpDestBucket,
+        key,
+        cb,
+    ) {
         return async.parallel([
-            next => this.compareObjectsAWS(srcBucket, awsDestBucket, key,
-                undefined, next),
-            next => this.compareObjectsAzure(srcBucket, destContainer, key,
-                next),
-            next => this.compareObjectsGCP(srcBucket, gcpDestBucket, key,
-                next),
+            next => this.compareObjectsAWS(
+                srcBucket,
+                awsDestBucket,
+                key,
+                undefined,
+                next,
+            ),
+            next => this.compareObjectsAzure(
+                srcBucket,
+                destContainer,
+                key,
+                next,
+            ),
+            next => this.compareObjectsGCP(
+                srcBucket,
+                gcpDestBucket,
+                key,
+                next,
+            ),
         ], cb);
-    };
+    }
 
     compareObjectsAzure(srcBucket, containerName, key, cb) {
         return async.series([
             next => this.waitUntilReplicated(srcBucket, key, undefined, next),
             next => this.getObject(srcBucket, key, next),
-            next => this.azure.getBlobProperties(containerName,
-                `${srcBucket}/${key}`, next),
-            next => this.getBlob(containerName,
-                `${srcBucket}/${key}`, next),
+            next => this.azure.getBlobProperties(
+                containerName,
+                `${srcBucket}/${key}`,
+                next,
+            ),
+            next => this.getBlob(
+                containerName,
+                `${srcBucket}/${key}`,
+                next,
+            ),
         ], (err, data) => {
             if (err) {
                 return cb(err);
@@ -694,17 +802,18 @@ class ReplicationUtility {
             // from Azure to set on the source.
             assert.strictEqual(
                 srcData.Metadata[`${destAzureLocation}-replication-status`],
-                'COMPLETED');
-            assert.strictEqual(
-                destPropResult.metadata['scal_replication_status'], 'REPLICA');
-            assert.strictEqual(
-                destPropResult.metadata['scal_version_id'], srcData.VersionId);
+                'COMPLETED',
+            );
+            assert.strictEqual(destPropResult.metadata.scal_replication_status, 'REPLICA');
+            assert.strictEqual(destPropResult.metadata.scal_version_id, srcData.VersionId);
             assert.strictEqual(
                 destPropResponse.headers['x-ms-meta-scal_replication_status'],
-                'REPLICA');
+                'REPLICA',
+            );
             assert.strictEqual(
                 destPropResponse.headers['x-ms-meta-scal_version_id'],
-                srcData.VersionId);
+                srcData.VersionId,
+            );
             this._compareObjectBody(srcData.Body, destDataBuf);
             return cb();
         });
@@ -712,32 +821,46 @@ class ReplicationUtility {
 
     compareObjectsGCP(srcBucket, destBucket, key, cb) {
         return async.series({
-            wait: next =>
-                this.waitUntilReplicated(srcBucket, key, undefined, next),
+            wait: next => this.waitUntilReplicated(srcBucket, key, undefined, next),
             srcData: next => this.getObject(srcBucket, key, next),
-            destMetadata: next => this.getMetadata(destBucket,
-                `${srcBucket}/${key}`, next),
-            destData: next => this.download(destBucket,
-                `${srcBucket}/${key}`, next),
+            destMetadata: next => this.getMetadata(
+                destBucket,
+                `${srcBucket}/${key}`,
+                next,
+            ),
+            destData: next => this.download(
+                destBucket,
+                `${srcBucket}/${key}`,
+                next,
+            ),
         }, (err, data) => {
             if (err) {
                 return cb(err);
             }
             const { srcData, destMetadata, destData } = data;
             assert.strictEqual(srcData.ReplicationStatus, 'COMPLETED');
-            assert.strictEqual(`${srcData.ContentLength}`,
-                destMetadata[0].size);
+            assert.strictEqual(
+                `${srcData.ContentLength}`,
+                destMetadata[0].size,
+            );
             const srcUserMD = srcData.Metadata;
             const destUserMD = destMetadata[0].metadata;
             assert.strictEqual(
                 srcUserMD[`${destGCPLocation}-replication-status`],
-                'COMPLETED');
-            assert.strictEqual(srcUserMD[`${destGCPLocation}-version-id`],
-                destMetadata[0].generation);
-            assert.strictEqual(destUserMD['scal-replication-status'],
-                'REPLICA');
-            assert.strictEqual(destUserMD['scal-version-id'],
-                srcData.VersionId);
+                'COMPLETED',
+            );
+            assert.strictEqual(
+                srcUserMD[`${destGCPLocation}-version-id`],
+                destMetadata[0].generation,
+            );
+            assert.strictEqual(
+                destUserMD['scal-replication-status'],
+                'REPLICA',
+            );
+            assert.strictEqual(
+                destUserMD['scal-version-id'],
+                srcData.VersionId,
+            );
             // Zero-byte object condition.
             if (srcData.Body.length === 0) {
                 assert.deepStrictEqual(destData, []);
@@ -752,8 +875,11 @@ class ReplicationUtility {
         return async.series([
             next => this.waitUntilReplicated(srcBucket, key, undefined, next),
             next => this.getHeadObject(srcBucket, key, next),
-            next => this.azure.getBlobProperties(containerName,
-                `${srcBucket}/${key}`, next),
+            next => this.azure.getBlobProperties(
+                containerName,
+                `${srcBucket}/${key}`,
+                next,
+            ),
         ], (err, data) => {
             if (err) {
                 return cb(err);
@@ -765,10 +891,14 @@ class ReplicationUtility {
             const { contentSettings } = destResult;
             const { headers } = destResponse;
             let expectedVal = srcData.Metadata.customkey;
-            assert.strictEqual(expectedVal,
-                destResult.metadata['customkey']);
-            assert.strictEqual(expectedVal,
-                headers['x-ms-meta-customkey']);
+            assert.strictEqual(
+                expectedVal,
+                destResult.metadata.customkey,
+            );
+            assert.strictEqual(
+                expectedVal,
+                headers['x-ms-meta-customkey'],
+            );
             expectedVal = srcData.ContentType;
             assert.strictEqual(expectedVal, contentSettings.contentType);
             assert.strictEqual(expectedVal, headers['content-type']);
@@ -783,15 +913,17 @@ class ReplicationUtility {
             assert.strictEqual(expectedVal, headers['content-language']);
             return cb();
         });
-    };
+    }
 
     compareGCPObjectProperties(srcBucket, destBucket, file, cb) {
         return async.series({
-            wait: next =>
-                this.waitUntilReplicated(srcBucket, file, undefined, next),
+            wait: next => this.waitUntilReplicated(srcBucket, file, undefined, next),
             srcData: next => this.getHeadObject(srcBucket, file, next),
-            destData: next => this.getMetadata(destBucket,
-                `${srcBucket}/${file}`, next),
+            destData: next => this.getMetadata(
+                destBucket,
+                `${srcBucket}/${file}`,
+                next,
+            ),
         }, (err, data) => {
             if (err) {
                 return cb(err);
@@ -800,7 +932,7 @@ class ReplicationUtility {
             const destProperties = destData[0];
             const destMetadata = destProperties.metadata;
             let expectedVal = srcData.Metadata.customkey;
-            assert.strictEqual(expectedVal, destMetadata['customkey']);
+            assert.strictEqual(expectedVal, destMetadata.customkey);
             expectedVal = srcData.ContentType;
             assert.strictEqual(expectedVal, destProperties.contentType);
             expectedVal = srcData.CacheControl;
@@ -813,7 +945,7 @@ class ReplicationUtility {
             assert.strictEqual(expectedVal, destProperties.contentLanguage);
             return cb();
         });
-    };
+    }
 
     compareACLsAWS(srcBucket, destBucket, key, cb) {
         return async.series([
@@ -826,21 +958,37 @@ class ReplicationUtility {
             if (err) {
                 return cb(err);
             }
-            assert.strictEqual(data[1].Grants[0].Permission,
-                data[2].Grants[0].Permission);
+            assert.strictEqual(
+                data[1].Grants[0].Permission,
+                data[2].Grants[0].Permission,
+            );
             return cb();
         });
     }
 
-    compareObjectTagsAWS(srcBucket, destBucket, key, scalityVersionId,
-        AWSVersionId, cb) {
+    compareObjectTagsAWS(
+        srcBucket,
+        destBucket,
+        key,
+        scalityVersionId,
+        AWSVersionId,
+        cb,
+    ) {
         return async.series([
-            next => this.waitUntilReplicated(srcBucket, key, scalityVersionId,
-                next),
-            next => this.getObjectTagging(srcBucket, key, scalityVersionId,
-               next),
+            next => this.waitUntilReplicated(
+                srcBucket,
+                key,
+                scalityVersionId,
+                next,
+            ),
+            next => this.getObjectTagging(
+                srcBucket,
+                key,
+                scalityVersionId,
+                next,
+            ),
             next => this._setS3Client(awsS3Client)
-               .getObjectTagging(destBucket, `${srcBucket}/${key}`, AWSVersionId, next),
+                .getObjectTagging(destBucket, `${srcBucket}/${key}`, AWSVersionId, next),
         ], (err, data) => {
             this._setS3Client(scalityS3Client);
             if (err) {
@@ -854,15 +1002,31 @@ class ReplicationUtility {
         });
     }
 
-    compareObjectTagsAzure(srcBucket, destContainer, key, scalityVersionId,
-        cb) {
+    compareObjectTagsAzure(
+        srcBucket,
+        destContainer,
+        key,
+        scalityVersionId,
+        cb,
+    ) {
         return async.series([
-            next => this.waitUntilReplicated(srcBucket, key, scalityVersionId,
-                next),
-            next => this.getObjectTagging(srcBucket, key, scalityVersionId,
-                next),
-            next => this.azure.getBlobMetadata(destContainer,
-                `${srcBucket}/${key}`, next),
+            next => this.waitUntilReplicated(
+                srcBucket,
+                key,
+                scalityVersionId,
+                next,
+            ),
+            next => this.getObjectTagging(
+                srcBucket,
+                key,
+                scalityVersionId,
+                next,
+            ),
+            next => this.azure.getBlobMetadata(
+                destContainer,
+                `${srcBucket}/${key}`,
+                next,
+            ),
         ], (err, data) => {
             if (err) {
                 return cb(err);
@@ -885,13 +1049,23 @@ class ReplicationUtility {
 
     compareObjectTagsGCP(srcBucket, destContainer, file, scalityVersionId, cb) {
         return async.series({
-            wait: next =>
-                this.waitUntilReplicated(srcBucket, file, scalityVersionId,
-                    next),
-            srcData: next => this.getObjectTagging(srcBucket, file,
-                scalityVersionId, next),
-            destData: next => this.getMetadata(destContainer,
-                `${srcBucket}/${file}`, next),
+            wait: next => this.waitUntilReplicated(
+                srcBucket,
+                file,
+                scalityVersionId,
+                next,
+            ),
+            srcData: next => this.getObjectTagging(
+                srcBucket,
+                file,
+                scalityVersionId,
+                next,
+            ),
+            destData: next => this.getMetadata(
+                destContainer,
+                `${srcBucket}/${file}`,
+                next,
+            ),
         }, (err, data) => {
             if (err) {
                 return cb(err);
@@ -906,7 +1080,7 @@ class ReplicationUtility {
                         destTagSet.push({
                             Key: tag,
                             Value: destTags[key],
-                        })
+                        });
                     }
                 });
             }

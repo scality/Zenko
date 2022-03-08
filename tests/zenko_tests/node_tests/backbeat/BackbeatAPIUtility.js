@@ -1,6 +1,5 @@
 const assert = require('assert');
-const { makeGETRequest, makePOSTRequest, getResponseBody } =
-    require('../utils/request');
+const { makeGETRequest, makePOSTRequest, getResponseBody } = require('../utils/request');
 
 class BackbeatAPIUtility {
     getReplicationStatus(locationName, cb) {
@@ -35,8 +34,7 @@ class BackbeatAPIUtility {
         let requestBody;
         if (locationName && (schedule === false)) {
             path = `${path}/${locationName}`;
-        }
-        else if (locationName && hoursScheduled) {
+        } else if (locationName && hoursScheduled) {
             path = `${path}/${locationName}/schedule`;
             requestBody = JSON.stringify({ hours: hoursScheduled });
         }
@@ -75,8 +73,7 @@ class BackbeatAPIUtility {
         let requestBody;
         if (locationName && (schedule === false)) {
             path = `${path}/${locationName}`;
-        }
-        else if (locationName && hoursScheduled) {
+        } else if (locationName && hoursScheduled) {
             path = `${path}/${locationName}/schedule`;
             requestBody = JSON.stringify({ hours: hoursScheduled });
         }

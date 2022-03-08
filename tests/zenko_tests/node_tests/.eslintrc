@@ -12,7 +12,6 @@
     "no-underscore-dangle": "off",
     "camelcase": ["error", {"properties": "never"}]
   },
-  "ignorePatterns": ["backbeat/**/*", "node_modules/**/*"],
   "settings": {
     "import/resolver": {
       "node": {

@@ -1,6 +1,6 @@
 const assert = require('assert');
 const crypto = require('crypto');
-const  { series, parallel, timesSeries, each } = require('async');
+const { series } = require('async');
 
 const { scalityS3Client, awsS3Client } = require('../../../s3SDK');
 const ReplicationUtility = require('../../ReplicationUtility');
@@ -29,28 +29,40 @@ const REPLICATION_TIMEOUT = 300000;
 // check that the object DNE due to the replication pause, and not because
 // the tests checked before replication was complete.
 
-describe('Replication Pause-Resume with AWS backend', function() {
+describe('Replication Pause-Resume with AWS backend', () => {
     this.timeout(REPLICATION_TIMEOUT);
-    let roleArn = 'arn:aws:iam::root:role/s3-replication-role';
+    const roleArn = 'arn:aws:iam::root:role/s3-replication-role';
 
     beforeEach(done => series([
         next => scalityUtils.createVersionedBucket(srcBucket, next),
-        next => scalityUtils.putBucketReplicationMultipleBackend(srcBucket,
-            destBucket, roleArn, destLocation, next),
+        next => scalityUtils.putBucketReplicationMultipleBackend(
+            srcBucket,
+            destBucket,
+            roleArn,
+            destLocation,
+            next,
+        ),
     ], done));
 
     afterEach(done => series([
         next => scalityUtils.deleteVersionedBucket(srcBucket, next),
-        next => awsUtils.deleteAllVersions(destBucket,
-            `${srcBucket}/${keyPrefix}`, next),
+        next => awsUtils.deleteAllVersions(
+            destBucket,
+            `${srcBucket}/${keyPrefix}`,
+            next,
+        ),
     ], done));
 
     after(done => backbeatAPIUtils.resumeReplication(null, null, null, done));
 
     it('should pause and resume replication', done => series([
         next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next),
-        next => scalityUtils.waitUntilReplicated(srcBucket, key,
-            undefined, next),
+        next => scalityUtils.waitUntilReplicated(
+            srcBucket,
+            key,
+            undefined,
+            next,
+        ),
         next => backbeatAPIUtils.pauseReplication(null, next),
         next => setTimeout(next, 5000),
         next => backbeatAPIUtils.getReplicationStatus(null, (err, data) => {
@@ -59,8 +71,12 @@ describe('Replication Pause-Resume with AWS backend', function() {
             assert.strictEqual(data[destLocation], 'disabled');
             return next();
         }),
-        next => scalityUtils.putObject(srcBucket, key2, Buffer.alloc(1),
-            next),
+        next => scalityUtils.putObject(
+            srcBucket,
+            key2,
+            Buffer.alloc(1),
+            next,
+        ),
         next => setTimeout(next, 15000),
         next => awsUtils.assertNoObject(destBucket, key2, next),
         next => backbeatAPIUtils.resumeReplication(null, null, null, next),
@@ -71,8 +87,12 @@ describe('Replication Pause-Resume with AWS backend', function() {
             assert.strictEqual(data[destLocation], 'enabled');
             return next();
         }),
-        next => scalityUtils.waitUntilReplicated(srcBucket, key2,
-            undefined, next),
+        next => scalityUtils.waitUntilReplicated(
+            srcBucket,
+            key2,
+            undefined,
+            next,
+        ),
     ], done));
 
     it('should pause, resume, get status by location name', done => series([
@@ -84,8 +104,12 @@ describe('Replication Pause-Resume with AWS backend', function() {
             assert.strictEqual(data[destLocation], 'disabled');
             return next();
         }),
-        next => backbeatAPIUtils.resumeReplication(destLocation, false, null,
-            next),
+        next => backbeatAPIUtils.resumeReplication(
+            destLocation,
+            false,
+            null,
+            next,
+        ),
         next => setTimeout(next, 5000),
         next => backbeatAPIUtils.getReplicationStatus(null, (err, data) => {
             assert.ifError(err);
@@ -95,16 +119,18 @@ describe('Replication Pause-Resume with AWS backend', function() {
         }),
     ], done));
 
-    it('should get 404 error in data for status of non-existent location',
-        done => {
-        return backbeatAPIUtils.getReplicationStatus('non-existent-location',
+    it(
+        'should get 404 error in data for status of non-existent location',
+        done => backbeatAPIUtils.getReplicationStatus(
+            'non-existent-location',
             (err, data) => {
-            assert.ifError(err);
-            assert.strictEqual(data.code, 404);
-            assert.strictEqual(data.RouteNotFound, true);
-            return done();
-        });
-    });
+                assert.ifError(err);
+                assert.strictEqual(data.code, 404);
+                assert.strictEqual(data.RouteNotFound, true);
+                return done();
+            },
+        ),
+    );
 
     it('should be able to set a CRR resume schedule', done => series([
         next => backbeatAPIUtils.pauseReplication(null, next),
@@ -117,17 +143,19 @@ describe('Replication Pause-Resume with AWS backend', function() {
         }),
         next => backbeatAPIUtils.resumeReplication(destLocation, true, 1, next),
         next => setTimeout(next, 5000),
-        next => backbeatAPIUtils.getReplicationResumeSchedule(destLocation,
+        next => backbeatAPIUtils.getReplicationResumeSchedule(
+            destLocation,
             (err, data) => {
-            assert.ifError(err);
-            assert(data[destLocation]);
-            const requestTimeMs = Date.now();
-            const resumeTime = new Date(data[destLocation]);
-            const resumeTimeMs = resumeTime.getTime();
-            const timediff = resumeTimeMs - requestTimeMs;
-            const hrdiff = (timediff/1000)/3600;
-            assert.strictEqual(Math.round(hrdiff), 1);
-            return next();
-        }),
+                assert.ifError(err);
+                assert(data[destLocation]);
+                const requestTimeMs = Date.now();
+                const resumeTime = new Date(data[destLocation]);
+                const resumeTimeMs = resumeTime.getTime();
+                const timediff = resumeTimeMs - requestTimeMs;
+                const hrdiff = (timediff / 1000) / 3600;
+                assert.strictEqual(Math.round(hrdiff), 1);
+                return next();
+            },
+        ),
     ], done));
 });

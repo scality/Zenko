@@ -24,7 +24,7 @@ describe('Backbeat healthchecks', function dF() {
                 Object.keys(body.internalConnections).forEach(prop => {
                     assert(internals.includes(prop));
                     if (body.internalConnections[prop].status) {
-                        const status = body.internalConnections[prop].status;
+                        const { status } = body.internalConnections[prop];
                         assert.strictEqual(status, 'ok');
                     }
                 });
