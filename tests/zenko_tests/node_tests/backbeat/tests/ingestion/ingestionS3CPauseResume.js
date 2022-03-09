@@ -19,7 +19,7 @@ let OBJ_KEY2;
 let OBJ_DATA;
 const INGESTION_TIMEOUT = 300000;
 
-describe('Ingestion pause resume', () => {
+describe('Ingestion pause resume', function () {
     this.timeout(INGESTION_TIMEOUT);
 
     beforeEach(done => {

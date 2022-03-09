@@ -978,7 +978,7 @@ describe('Replication with AWS backend', () => {
     ], done));
 });
 
-describe.skip('Replication with AWS backend: source AWS location', () => {
+describe.skip('Replication with AWS backend: source AWS location', function () {
     this.timeout(REPLICATION_TIMEOUT);
     const roleArn = 'arn:aws:iam::root:role/s3-replication-role';
 

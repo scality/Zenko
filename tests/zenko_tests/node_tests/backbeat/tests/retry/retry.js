@@ -125,7 +125,7 @@ function performRetries(keys, done) {
     ], done);
 }
 
-describe('Backbeat replication retry', () => {
+describe('Backbeat replication retry', function () {
     this.timeout(REPLICATION_TIMEOUT);
     const roleArn = 'arn:aws:iam::root:role/s3-replication-role';
 

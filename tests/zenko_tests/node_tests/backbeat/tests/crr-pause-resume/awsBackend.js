@@ -29,7 +29,7 @@ const REPLICATION_TIMEOUT = 300000;
 // check that the object DNE due to the replication pause, and not because
 // the tests checked before replication was complete.
 
-describe('Replication Pause-Resume with AWS backend', () => {
+describe('Replication Pause-Resume with AWS backend', function () {
     this.timeout(REPLICATION_TIMEOUT);
     const roleArn = 'arn:aws:iam::root:role/s3-replication-role';
 

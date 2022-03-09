@@ -58,7 +58,7 @@ function getPendingPath(location) {
     return `${pathPrefix}/${location}/pending`;
 }
 
-describe('Backbeat API pending metrics', () => {
+describe('Backbeat API pending metrics', function () {
     this.timeout(REPLICATION_TIMEOUT);
     const roleArn = 'arn:aws:iam::root:role/s3-replication-role';
 

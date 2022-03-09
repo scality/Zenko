@@ -10,6 +10,7 @@
     "padded-blocks" : "off",
     "no-plusplus": "off",
     "no-underscore-dangle": "off",
+    "func-names": "off",
     "camelcase": ["error", {"properties": "never"}]
   },
   "settings": {
