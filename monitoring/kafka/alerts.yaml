@@ -40,10 +40,10 @@ groups:
 
   - alert: BrokersCountCritical
     expr: |
-      count(kafka_server_replicamanager_leadercount{namespace="${namespace}",service="${service}"}) == 0
+      absent(kafka_server_replicamanager_leadercount{namespace="${namespace}",service="${service}"}) == 1
     for: 1m
     labels:
-      severity: warning
+      severity: critical
     annotations:
       summary: 'No Brokers online'
       description: 'Kafka: Broker count is 0'
