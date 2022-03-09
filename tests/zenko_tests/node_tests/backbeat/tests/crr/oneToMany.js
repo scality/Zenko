@@ -27,7 +27,7 @@ const REPLICATION_TIMEOUT = 300000;
 
 describe(
     'Replication with AWS, Azure, and GCP backends (one-to-many)',
-    () => {
+    function () {
         this.timeout(REPLICATION_TIMEOUT);
         this.retries(3);
         const roleArn = 'arn:aws:iam::root:role/s3-replication-role';
