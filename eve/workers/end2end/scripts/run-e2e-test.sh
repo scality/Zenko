@@ -16,7 +16,17 @@ BACKBEAT_BUCKET_CHECK_TIMEOUT_S=${BACKBEAT_BUCKET_CHECK_TIMEOUT_S:-10}
 POD_NAME="${ZENKO_NAME}-${STAGE}-test"
 TOKEN=$(get_token)
 
+CLOUDSERVER_SECRET="$(kubectl get secret -l app.kubernetes.io/name=connector-cloudserver-config,app.kubernetes.io/instance=end2end \
+   -o jsonpath="{.items[0].data.config\.json}" | base64 -di)"
+
 # set environment vars
+MONGO_DATABASE=$(echo "${CLOUDSERVER_SECRET}" | jq -r '.mongodb.database')
+MONGO_READ_PREFERENCE=$(echo "${CLOUDSERVER_SECRET}" | jq -r '.mongodb.readPreference')
+MONGO_REPLICA_SET_HOSTS=$(echo "${CLOUDSERVER_SECRET}" | jq -r '.mongodb.replicaSetHosts')
+MONGO_SHARD_COLLECTION=$(echo "${CLOUDSERVER_SECRET}" | jq -r '.mongodb.shardCollections')
+MONGO_WRITE_CONCERN=$(echo "${CLOUDSERVER_SECRET}" | jq -r '.mongodb.writeConcern')
+MONGO_AUTH_USERNAME=$(echo "${CLOUDSERVER_SECRET}" | jq -r '.mongodb.authCredentials.username')
+MONGO_AUTH_PASSWORD=$(echo "${CLOUDSERVER_SECRET}" | jq -r '.mongodb.authCredentials.password')
 CLOUDSERVER_HOST="${ZENKO_NAME}-connector-s3api.default.svc.cluster.local"
 CLOUDSERVER_ENDPOINT="http://${CLOUDSERVER_HOST}:80"
 BACKBEAT_API_ENDPOINT="http://${ZENKO_NAME}-management-backbeat-api.default.svc.cluster.local:80"
@@ -92,6 +102,13 @@ run_e2e_test() {
         --env=KEYCLOAK_TEST_CLIENT_ID=${KEYCLOAK_TEST_CLIENT_ID} \
         --env=KEYCLOAK_TEST_GRANT_TYPE=${KEYCLOAK_TEST_GRANT_TYPE} \
         --env=BACKBEAT_BUCKET_CHECK_TIMEOUT_S=${BACKBEAT_BUCKET_CHECK_TIMEOUT_S} \
+        --env=MONGO_DATABASE=${MONGO_DATABASE} \
+        --env=MONGO_READ_PREFERENCE=${MONGO_READ_PREFERENCE} \
+        --env=MONGO_REPLICA_SET_HOSTS=${MONGO_REPLICA_SET_HOSTS} \
+        --env=MONGO_SHARD_COLLECTION=${MONGO_SHARD_COLLECTION} \
+        --env=MONGO_WRITE_CONCERN=${MONGO_WRITE_CONCERN} \
+        --env=MONGO_AUTH_USERNAME=${MONGO_AUTH_USERNAME} \
+        --env=MONGO_AUTH_PASSWORD=${MONGO_AUTH_PASSWORD} \
         --command -- sh -c "${2}"
 }
 
@@ -108,4 +125,6 @@ elif [ "$STAGE" = "backbeat" ]; then
    run_e2e_test '' 'cd node_tests && npm run test_all_extensions && cd .. && python3 cleans3c.py'
 elif [ "$STAGE" = "iam-policies" ]; then
    run_e2e_test '' 'cd node_tests && npm run lint && npm run test_iam_policies'
+elif [ "$STAGE" = "object-api" ]; then
+   run_e2e_test '' 'cd node_tests && npm run lint && npm run test_object_api'
 fi

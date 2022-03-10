@@ -12,7 +12,7 @@
   ],
   "dependencies": {
     "@google-cloud/storage": "^1.6.0",
-    "arsenal": "scality/Arsenal#8.1.27",
+    "arsenal": "scality/Arsenal#8.1.38",
     "async": "2.1.2",
     "aws-sdk": "^2.905.0",
     "aws4": "^1.11.0",
@@ -31,7 +31,8 @@
     "npm-run-all": "~4.0.2",
     "request": "^2.87.0",
     "uuid": "^3.0.1",
-    "vaultclient": "scality/vaultclient#b9452a526daf5627ecae9528c941375a208e79f3"
+    "vaultclient": "scality/vaultclient#b9452a526daf5627ecae9528c941375a208e79f3",
+    "werelogs": "github:scality/werelogs"
   },
   "scripts": {
     "test_ui": "cypress run --config baseUrl=${UI_ENDPOINT} --project ./ui",
@@ -53,6 +54,7 @@
     "test_smoke": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --reporter mocha-multi-reporters --reporter-options configFile=config.json --recursive smoke_tests",
     "test_iam_policies": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --reporter mocha-multi-reporters --reporter-options configFile=config.json --recursive iam_policies",
     "test_all_extensions": "npm-run-all test_aws_crr test_expiration",
+    "test_object_api": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --reporter mocha-multi-reporters --reporter-options configFile=config.json --recursive cloudserver/keyFormatVersion/tests",
     "lint": "eslint $(find . -name '*.js' -not -path '*/node_modules/*')"
   },
   "author": ""
