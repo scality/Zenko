@@ -42,6 +42,7 @@ function checkMetrics(
 }
 
 function performRetries(keys, done) {
+    let postBody;
     return series([
         next => awsUtils.deleteVersionedBucket(destFailBucket, next),
         next => times(
@@ -87,7 +88,6 @@ function performRetries(keys, done) {
                 assert.ifError(err);
                 return getResponseBody(res, (err, body) => {
                     assert.ifError(err);
-                    // eslint-disable-next-line
                     postBody = JSON.stringify(body.Versions);
                     next();
                 });
@@ -96,7 +96,6 @@ function performRetries(keys, done) {
         next => awsUtils.createVersionedBucket(destFailBucket, next),
         next => makePOSTRequest(
             '/_/backbeat/api/crr/failed',
-            // eslint-disable-next-line
             postBody,
             (err, res) => {
                 assert.ifError(err);
