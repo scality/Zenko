@@ -18,8 +18,8 @@ describe('Location storage quota', () => {
             next => scalityS3.createQuotaBucket(bucket, next),
             next => scalityS3.fillBucket(bucket, next),
         ], err => {
-            assert.ifError(err, 'Error creating and filling quota bucket' +
-                `${err}`);
+            assert.ifError(err, 'Error creating and filling quota bucket'
+                + `${err}`);
             done();
         });
     });
@@ -50,12 +50,11 @@ describe('Location storage quota', () => {
             (mpuData, next) => {
                 const body = Buffer.alloc(TEN_MB_BYTES);
                 scalityS3.putPart(bucket, key, body, mpuData.UploadId, 1, next);
-            }
+            },
         ], err => {
             assert.strictEqual(err.toString(), scalityS3.getQuotaError());
             done();
         });
     });
 });
-
 

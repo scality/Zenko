@@ -10,7 +10,7 @@ const accountInfo = {
 };
 const externalAccessKey = 'DZMMJUPWIUK8IWXRP0HQ';
 const externalSecretKey = 'iTuJdlidzrLipymvAGrLP66Yxghl4NQxLZR3cLlu';
-const userName = 'iam-api-test-user'
+const userName = 'iam-api-test-user';
 const randomPath = '/random/path/';
 
 describe('IAM users: ', () => {
@@ -50,19 +50,21 @@ describe('IAM user - Access Keys: ', () => {
             return done(err);
         }
         iamAccountClient = VaultClient.getIamClient(externalAccessKey, externalSecretKey);
-        return iamAccountClient.createUser({ UserName: userName }, done)
+        return iamAccountClient.createUser({ UserName: userName }, done);
     }));
 
-    afterEach(done => iamAccountClient.deleteUser({ UserName: userName},
-        () => clientAdmin.deleteAccount(accountName, done)));
+    afterEach(done => iamAccountClient.deleteUser(
+        { UserName: userName },
+        () => clientAdmin.deleteAccount(accountName, done),
+    ));
 
-    it('should be able to create, list and delete user access keys', done =>  async.series([
+    it('should be able to create, list and delete user access keys', done => async.series([
         next => iamAccountClient.createAccessKey({ UserName: userName }, (err, result) => {
             if (err) {
                 return next(err);
             }
             keyPair = result.AccessKey;
-            return next()
+            return next();
         }),
         next => iamAccountClient.listAccessKeys({ UserName: userName }, next),
         next => iamAccountClient.deleteAccessKey({

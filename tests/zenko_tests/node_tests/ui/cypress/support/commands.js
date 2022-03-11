@@ -10,7 +10,8 @@ Cypress.Commands.add('kcLogin', (username, password) => {
     const kcClientID = Cypress.env('KEYCLOAK_CLIENT_ID');
 
     if (!kcUsername || !kcPassword || !kcRoot || !kcRealm || !kcClientID) {
-        throw new Error('missing CYPRESS_KEYCLOAK_USERNAME, CYPRESS_KEYCLOAK_PASSWORD, CYPRESS_KEYCLOAK_ROOT, CYPRESS_KEYCLOAK_REALM or CYPRESS_KEYCLOAK_CLIENT_ID environment variable');
+        throw new Error('missing CYPRESS_KEYCLOAK_USERNAME, CYPRESS_KEYCLOAK_PASSWORD,'
+            + 'CYPRESS_KEYCLOAK_ROOT, CYPRESS_KEYCLOAK_REALM or CYPRESS_KEYCLOAK_CLIENT_ID environment variable');
     }
 
     const getStartBody = {

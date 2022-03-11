@@ -9,7 +9,7 @@ describe('Bucket', () => {
 
         it('should create a bucket', () => {
             cy.createBucket(bucketName);
-            
+
             cy.location('pathname').should('eq', `/buckets/${bucketName}`);
             cy.get('table tbody tr').should('have.length', 1);
             cy.get('table tbody tr').contains(bucketName).should('be.visible');

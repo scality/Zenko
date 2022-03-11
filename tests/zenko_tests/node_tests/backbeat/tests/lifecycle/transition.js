@@ -1,4 +1,3 @@
-const assert = require('assert');
 const uuid = require('uuid/v4');
 const { series } = require('async');
 
@@ -12,11 +11,11 @@ const srcBucket = `transition-bucket-${uuid()}`;
 const keyPrefix = uuid();
 
 const cloudServer = new LifecycleUtility(scalityS3Client)
-      .setBucket(srcBucket)
-      .setKeyPrefix(keyPrefix);
+    .setBucket(srcBucket)
+    .setKeyPrefix(keyPrefix);
 
 const cloud = new LifecycleUtility(awsS3Client, sharedBlobSvc, gcpStorage)
-      .setKeyPrefix(keyPrefix);
+    .setKeyPrefix(keyPrefix);
 
 function compareTransitionedData(cb) {
     return series([
@@ -35,7 +34,7 @@ function compareTransitionedData(cb) {
         cloudServer._compareObjectBody(data[0].Body, data[4].Body);
         return cb();
     });
-};
+}
 
 const locationParams = {
     LocalStorage: {
@@ -77,7 +76,7 @@ const testsToRun = [{
 }];
 
 testsToRun.forEach(test => {
-    describe(`transition from ${test.from} to ${test.to}`, function() {
+    describe(`transition from ${test.from} to ${test.to}`, () => {
         this.timeout(LIFECYCLE_TIMEOUT);
         const fromLoc = locationParams[test.from];
         const toLoc = locationParams[test.to];
@@ -98,8 +97,8 @@ testsToRun.forEach(test => {
             beforeEach(done => cloudServer.createBucket(done));
 
             it('should transition an object', done => {
-                const key = `${keyPrefix}-from-${test.from}-to-${test.to}-` +
-                      'nover-object';
+                const key = `${keyPrefix}-from-${test.from}-to-${test.to}-`
+                      + 'nover-object';
                 cloudServer.setKey(key);
                 cloud.setKey(`${srcBucket}/${key}`);
                 series([
@@ -109,8 +108,8 @@ testsToRun.forEach(test => {
             });
 
             it('should transition an MPU object with 10 parts', done => {
-                const key = `${keyPrefix}-from-${test.from}-to-${test.to}-` +
-                      'nover-mpu';
+                const key = `${keyPrefix}-from-${test.from}-to-${test.to}-`
+                      + 'nover-mpu';
                 cloudServer.setKey(key);
                 cloud.setKey(`${srcBucket}/${key}`);
                 series([
@@ -125,8 +124,8 @@ testsToRun.forEach(test => {
                 beforeEach(done => cloudServer.createVersionedBucket(done));
 
                 it('should transition a single master version', done => {
-                    const key = `${keyPrefix}-from-${test.from}-to-` +
-                          `${test.to}-ver-single-master`;
+                    const key = `${keyPrefix}-from-${test.from}-to-`
+                          + `${test.to}-ver-single-master`;
                     cloudServer.setKey(key);
                     cloud.setKey(`${srcBucket}/${key}`);
                     series([
@@ -136,17 +135,14 @@ testsToRun.forEach(test => {
                 });
 
                 it('should transition the master version', done => {
-                    const key = `${keyPrefix}-from-${test.from}-to-` +
-                          `${test.to}-ver-master`;
+                    const key = `${keyPrefix}-from-${test.from}-to-`
+                          + `${test.to}-ver-master`;
                     cloudServer.setKey(key);
                     cloud.setKey(`${srcBucket}/${key}`);
                     series([
-                        next => cloudServer.putObject(
-                            Buffer.from(`${key}-1`), next),
-                        next => cloudServer.putObject(
-                            Buffer.from(`${key}-2`), next),
-                        next => cloudServer.putObject(
-                            Buffer.from(`${key}-3`), next),
+                        next => cloudServer.putObject(Buffer.from(`${key}-1`), next),
+                        next => cloudServer.putObject(Buffer.from(`${key}-2`), next),
+                        next => cloudServer.putObject(Buffer.from(`${key}-3`), next),
                         next => compareTransitionedData(next),
                     ], done);
                 });

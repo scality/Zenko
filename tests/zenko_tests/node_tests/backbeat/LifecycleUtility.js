@@ -3,10 +3,6 @@ const async = require('async');
 const ReplicationUtility = require('./ReplicationUtility');
 
 class LifecycleUtility extends ReplicationUtility {
-    constructor(s3, azure, gcpStorage) {
-        super(s3, azure, gcpStorage);
-    }
-
     setBucket(bucket) {
         this.bucket = bucket;
         return this;
@@ -53,7 +49,7 @@ class LifecycleUtility extends ReplicationUtility {
                 Bucket: this.bucket,
                 VersioningConfiguration: {
                     Status: 'Enabled',
-                }
+                },
             }, next),
         ], err => cb(err));
     }
@@ -79,7 +75,7 @@ class LifecycleUtility extends ReplicationUtility {
                 }
                 return cb(null, data.Body);
             });
-            break ;
+            break;
         case 'GCP':
             super.download(this.bucket, this.key, (err, data) => {
                 if (err) {
@@ -87,14 +83,14 @@ class LifecycleUtility extends ReplicationUtility {
                 }
                 // GCP returns [] for an empty object for some reason
                 if (Array.isArray(data) && data.length === 0) {
-                    return cb(null, new Buffer(0));
+                    return cb(null, Buffer.alloc(0));
                 }
                 return cb(null, data);
             });
-            break ;
+            break;
         case 'Azure':
             super.getBlob(this.bucket, this.key, cb);
-            break ;
+            break;
         default:
             cb(new Error(`bad destination location type ${this.locationType}`));
         }
@@ -104,13 +100,13 @@ class LifecycleUtility extends ReplicationUtility {
         switch (this.locationType) {
         case 'AWS':
             this.deleteAllVersions(this.bucket, this.keyPrefix, cb);
-            break ;
+            break;
         case 'GCP':
             this.deleteAllFiles(this.bucket, this.keyPrefix, cb);
-            break ;
+            break;
         case 'Azure':
             super.deleteAllBlobs(this.bucket, this.keyPrefix, cb);
-            break ;
+            break;
         default:
             cb(new Error(`bad destination location type ${this.locationType}`));
         }
@@ -136,8 +132,8 @@ class LifecycleUtility extends ReplicationUtility {
 
     waitUntilTransitioned(cb) {
         let shouldContinue;
-        return async.doWhilst(next =>
-            this.s3.headObject({
+        return async.doWhilst(
+            next => this.s3.headObject({
                 Bucket: this.bucket,
                 Key: this.key,
             }, (err, data) => {
@@ -150,7 +146,9 @@ class LifecycleUtility extends ReplicationUtility {
                 }
                 return next();
             }),
-        () => shouldContinue, cb);
+            () => shouldContinue,
+            cb,
+        );
     }
 }
 

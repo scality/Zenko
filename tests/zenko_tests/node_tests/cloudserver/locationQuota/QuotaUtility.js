@@ -3,7 +3,7 @@ const async = require('async');
 const assert = require('assert');
 
 const quotaLocation = process.env.LOCATION_QUOTA_BACKEND;
-const quotaSize= 0.1;
+const quotaSize = 0.1;
 
 class QuotaUtility {
     constructor(s3) {
@@ -15,21 +15,28 @@ class QuotaUtility {
     }
 
     _deleteAllObjects(objList, bucketName, cb) {
-        async.each(objList.Contents, (obj, next) => 
-            this.s3.deleteObject({ Bucket: bucketName, Key: obj.Key }, next),
-        cb);
+        async.each(
+            objList.Contents,
+            (obj, next) => this.s3.deleteObject({ Bucket: bucketName, Key: obj.Key }, next),
+            cb,
+        );
     }
 
     _abortAllMpus(mpuList, bucketName, cb) {
-        async.each(mpuList.Uploads, (mpu, next) =>
-            this.s3.abortMultipartUpload({ Bucket: bucketName, Key: mpu.Key,
-                UploadId: mpu.UploadId }, next),
-        cb);
+        async.each(
+            mpuList.Uploads,
+            (mpu, next) => this.s3.abortMultipartUpload({
+                Bucket: bucketName,
+                Key: mpu.Key,
+                UploadId: mpu.UploadId,
+            }, next),
+            cb,
+        );
     }
 
     getQuotaError() {
-        const errorString = 'AccessDenied: The assigned storage space limit ' +
-            `for location ${quotaLocation} will be exceeded`;
+        const errorString = 'AccessDenied: The assigned storage space limit '
+            + `for location ${quotaLocation} will be exceeded`;
         return errorString;
     }
 
@@ -37,23 +44,23 @@ class QuotaUtility {
      * createQuotaBucket - creates bucket in quotaLocation
      * @param {string} bucketName - name of bucket
      * @param {function} cb - callback to call
-     * @return {undefined} 
+     * @return {undefined}
      */
     createQuotaBucket(bucketName, cb) {
         const params = {
             Bucket: bucketName,
             CreateBucketConfiguration: {
-                LocationConstraint: quotaLocation
-            }
+                LocationConstraint: quotaLocation,
+            },
         };
         return this.s3.createBucket(params, cb);
     }
 
     /**
      * deleteQuotaBucket - empties and deletes bucket in quotalocation
-     * @param {string} bucketName 
-     * @param {function} cb
-     * @return {undefined} 
+     * @param {string} bucketName name of the bucket
+     * @param {function} cb callback
+     * @return {undefined}
      */
     deleteQuotaBucket(bucketName, cb) {
         async.series({
@@ -66,7 +73,7 @@ class QuotaUtility {
                 next => this._abortAllMpus(results.mpuList, bucketName, next),
                 next => this.deleteBucket(bucketName, next),
             ], err => cb(err));
-        })
+        });
     }
 
     /**
@@ -84,7 +91,7 @@ class QuotaUtility {
             .update(Math.random().toString()).digest('hex');
         async.times(numberObjs, (n, next) => {
             const key = `${bucketName}/${hex}/quota-object${Date.now()}${n}`;
-            process.stdout.write(`Putting object ${n+1}/${numberObjs}\n`);
+            process.stdout.write(`Putting object ${n + 1}/${numberObjs}\n`);
             this.putObject(bucketName, key, body, next);
         }, cb);
     }

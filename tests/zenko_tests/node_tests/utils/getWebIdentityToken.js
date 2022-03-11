@@ -1,5 +1,5 @@
-const querystring = require("querystring");
-const http = require("http");
+const querystring = require('querystring');
+const http = require('http');
 const assert = require('assert');
 
 const USER_1_PASSWORD = process.env.KEYCLOAK_TEST_PASSWORD || '123';
@@ -11,15 +11,6 @@ const CLIENT_ID = process.env.KEYCLOAK_TEST_CLIENT_ID || 'zenko-ui';
 const GRANT_TYPE = process.env.KEYCLOAK_TEST_GRANT_TYPE || 'password';
 
 
-function getTokenForIdentity(identity, callback) {
-    getWebIdentityToken(identity, USER_1_PASSWORD, HOST_1_URL,
-        HOST_1_PORT, KEYCLOAK_PATH, CLIENT_ID, GRANT_TYPE, (err, token) => {
-            assert(err === null);
-            callback(err, token);
-        });
-}
-
-
 /**
  * HTTP client to request JWT token given the username and password.
  *
@@ -28,21 +19,29 @@ function getTokenForIdentity(identity, callback) {
  * @param {string} host - host URL of keycloak service
  * @param {number} port - port of keycloak service
  * @param {string} path - path of keycloak service authentication API
- * @param {string} client_id - id of the client of the user
- * @param {string} grant_type - grant of the user
+ * @param {string} clientId - id of the client of the user
+ * @param {string} grandType - grant of the user
  * @param {function} callback - callback function called with error or result
  * @returns {undefined} undefined
  */
-function getWebIdentityToken(username, password, host, port, path,
-                             client_id, grant_type, callback) {
+function getWebIdentityToken(
+    username,
+    password,
+    host,
+    port,
+    path,
+    clientId,
+    grandType,
+    callback,
+) {
     // In Zenko, we are using an endpoint as the `KEYCLOAK_TEST_HOST` env variable
     // So we should remove any existing http of https prefix in HOST_1_URL.
     host = host.replace('https://', '').replace('http://', '');
     const userData = querystring.stringify({
         username,
         password,
-        client_id,
-        grant_type,
+        client_id: clientId,
+        grant_type: grandType,
     });
     const options = {
         host,
@@ -80,6 +79,22 @@ function getWebIdentityToken(username, password, host, port, path,
     req.end();
 }
 
+function getTokenForIdentity(identity, callback) {
+    getWebIdentityToken(
+        identity,
+        USER_1_PASSWORD,
+        HOST_1_URL,
+        HOST_1_PORT,
+        KEYCLOAK_PATH,
+        CLIENT_ID,
+        GRANT_TYPE,
+        (err, token) => {
+            assert(err === null);
+            callback(err, token);
+        },
+    );
+}
+
 module.exports = {
     getTokenForIdentity,
-}
+};
