@@ -50,7 +50,7 @@ mongodb:
 pensieve-api:
   sourceRegistry: registry.scality.com/pensieve-api
   image: pensieve-api
-  tag: 1.1.0
+  tag: 1.1.1
   envsubst: PENSIEVE_API_TAG
 redis:
   image: redis
