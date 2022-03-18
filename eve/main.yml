@@ -24,6 +24,8 @@ models:
       HTTPS_PROXY: ""
       http_proxy: ""
       https_proxy: ""
+      BACKBEAT_BUCKET_CHECK_TIMEOUT_S: "%(prop:BACKBEAT_BUCKET_CHECK_TIMEOUT_S)s"
+      BACKBEAT_LCC_CRON_RULE: "%(prop:BACKBEAT_LCC_CRON_RULE)s"
   - env: &http-env
       UI_ENDPOINT: 'http://ui.zenko.local'
       OIDC_ENDPOINT: 'http://keycloak.zenko.local'
@@ -388,13 +390,6 @@ stages:
         command: bash scripts/run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "smoke" "default"
         workdir: build/eve/workers/end2end
         haltOnFailure: true
-    - ShellCommand: &run_backbeat_end2end_tests
-        name: Run backbeat end to end tests
-        env:
-          <<: [*kind-env, *e2e-env, *http-env, *mock-env, *secrets-env]
-        command: bash scripts/run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "backbeat" "default"
-        workdir: build/eve/workers/end2end
-        haltOnFailure: true
     - ShellCommand: &debug_wait
         alwaysRun: true
         command: >-
@@ -583,10 +578,13 @@ stages:
         <<: *run_smoke_test
         env:
           <<: [*kind-env, *e2e-env, *http-env, *secrets-env]
-    - ShellCommand:
-        <<: *run_backbeat_end2end_tests
+    - ShellCommand: &run_backbeat_end2end_tests
+        name: Run backbeat end to end tests
         env:
           <<: [*kind-env, *e2e-env, *http-env, *mock-env, *secrets-env]
+        command: bash scripts/run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "backbeat" "default"
+        workdir: build/eve/workers/end2end
+        haltOnFailure: true
     - ShellCommand: *debug_wait
     - ShellCommand:
         <<: *archive_artifacts

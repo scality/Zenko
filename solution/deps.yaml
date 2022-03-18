@@ -5,7 +5,7 @@ backbeat:
   sourceRegistry: registry.scality.com/backbeat
   dashboard: backbeat-dashboards
   image: backbeat
-  tag: 8.3.4
+  tag: 8.3.8
   envsubst: BACKBEAT_TAG
 blobserver:
   sourceRegistry: registry.scality.com/sf-eng

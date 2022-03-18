@@ -11,6 +11,8 @@ E2E_IMAGE=${2:-registry.scality.com/zenko/zenko-e2e:latest}
 STAGE=${3:-end2end}
 NAMESPACE=${4:-default}
 
+BACKBEAT_BUCKET_CHECK_TIMEOUT_S=${BACKBEAT_BUCKET_CHECK_TIMEOUT_S:-10}
+
 POD_NAME="${ZENKO_NAME}-${STAGE}-test"
 TOKEN=$(get_token)
 
@@ -89,7 +91,7 @@ run_e2e_test() {
         --env=KEYCLOAK_TEST_REALM_NAME=${KEYCLOAK_TEST_REALM_NAME} \
         --env=KEYCLOAK_TEST_CLIENT_ID=${KEYCLOAK_TEST_CLIENT_ID} \
         --env=KEYCLOAK_TEST_GRANT_TYPE=${KEYCLOAK_TEST_GRANT_TYPE} \
-        --env=BACKBEAT_BUCKET_CHECK_TIMEOUT_S=180 \
+        --env=BACKBEAT_BUCKET_CHECK_TIMEOUT_S=${BACKBEAT_BUCKET_CHECK_TIMEOUT_S} \
         --command -- sh -c "${2}"
 }
 

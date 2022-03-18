@@ -11,6 +11,8 @@ export ZENKOVERSION_PATH=${4:-'eve/workers/end2end/scripts/configs/zenkoversion.
 export DEPS_PATH=${5:-'solution/deps.yaml'}
 export ZENKO_VERSION_NAME="${ZENKO_NAME}-version"
 
+export BACKBEAT_LCC_CRON_RULE=${BACKBEAT_LCC_CRON_RULE:-'*/5 * * * * *'}
+
 ENABLE_KEYCLOAK_HTTPS=${ENABLE_KEYCLOAK_HTTPS:-'false'}
 if [ ${ENABLE_KEYCLOAK_HTTPS} == 'true' ]; then
     export ZENKO_INGRESS_ANNOTATIONS="annotations:
