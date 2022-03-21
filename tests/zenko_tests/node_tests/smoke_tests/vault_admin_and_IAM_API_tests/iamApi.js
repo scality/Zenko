@@ -27,7 +27,7 @@ describe('IAM users: ', () => {
         return done();
     }));
 
-    afterEach(done => clientAdmin.deleteAccount(accountName, done));
+    afterEach(done => VaultClient.deleteVaultAccount(clientAdmin, iamAccountClient, accountName, done));
 
     it('should be able to perform CRUD operations on a user', done => async.series([
         next => iamAccountClient.createUser({ UserName: userName }, next),
@@ -55,7 +55,7 @@ describe('IAM user - Access Keys: ', () => {
 
     afterEach(done => iamAccountClient.deleteUser(
         { UserName: userName },
-        () => clientAdmin.deleteAccount(accountName, done),
+        () => VaultClient.deleteVaultAccount(clientAdmin, iamAccountClient, accountName, done),
     ));
 
     it('should be able to create, list and delete user access keys', done => async.series([

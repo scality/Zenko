@@ -1,7 +1,131 @@
+const async = require('async');
 const fs = require('fs');
 const { IAM } = require('aws-sdk');
 const vaultclient = require('vaultclient');
 const https = require('https');
+
+function _deleteAttachedUserPolicies(iamClient, userName, cb) {
+    let truncated = true;
+
+    async.whilst(
+        () => truncated,
+        done => iamClient.listAttachedUserPolicies(
+            { UserName: userName },
+            (err, res) => {
+                if (err) {
+                    return done(err);
+                }
+
+                truncated = res.IsTruncated;
+                return async.forEach(
+                    res.AttachedPolicies,
+                    (policy, next) => iamClient.detachUserPolicy({
+                        PolicyArn: policy.PolicyArn,
+                        UserName: userName,
+                    }, next),
+                    done,
+                );
+            },
+        ),
+        cb,
+    );
+}
+
+function _deleteAttachedRolePolicies(iamClient, roleName, cb) {
+    let truncated = true;
+
+    async.whilst(
+        () => truncated,
+        done => iamClient.listAttachedRolePolicies(
+            { RoleName: roleName },
+            (err, res) => {
+                if (err) {
+                    return done(err);
+                }
+
+                truncated = res.IsTruncated;
+                return async.forEach(
+                    res.AttachedPolicies,
+                    (policy, next) => iamClient.detachRolePolicy({
+                        PolicyArn: policy.PolicyArn,
+                        RoleName: roleName,
+                    }, next),
+                    done,
+                );
+            },
+        ),
+        cb,
+    );
+}
+
+function _deleteUsers(iamClient, cb) {
+    let truncated = true;
+
+    async.whilst(
+        () => truncated,
+        done => iamClient.listUsers((err, res) => {
+            if (err) {
+                return done(err);
+            }
+
+            truncated = res.IsTruncated;
+            return async.forEach(
+                res.Users,
+                (user, next) => async.series([
+                    next => _deleteAttachedUserPolicies(iamClient, user.UserName, next),
+                    next => iamClient.deleteUser({ UserName: user.UserName }, next),
+                ], next),
+                done,
+            );
+        }),
+        cb,
+    );
+}
+
+function _deleteRoles(iamClient, cb) {
+    let truncated = true;
+
+    async.whilst(
+        () => truncated,
+        done => iamClient.listRoles((err, res) => {
+            if (err) {
+                return done(err);
+            }
+
+            truncated = res.IsTruncated;
+            return async.forEach(
+                res.Roles,
+                (role, next) => async.series([
+                    next => _deleteAttachedRolePolicies(iamClient, role.RoleName, next),
+                    next => iamClient.deleteRole({ RoleName: role.RoleName }, next),
+                ], next),
+                done,
+            );
+        }),
+        cb,
+    );
+}
+
+function _deletePolicies(iamClient, cb) {
+    let truncated = true;
+
+    async.whilst(
+        () => truncated,
+        done => iamClient.listPolicies((err, res) => {
+            if (err) {
+                return done(err);
+            }
+
+            truncated = res.IsTruncated;
+            return async.forEach(
+                res.Policies,
+                (policy, next) => iamClient.deletePolicy({ PolicyArn: policy.Arn }, next),
+                done,
+            );
+        }),
+        cb,
+    );
+}
 
 class VaultClient {
 
@@ -112,6 +236,22 @@ class VaultClient {
         );
     }
 
-
+    /**
+     * Delete all account subresources and account
+     * @param {vaultclient.Client} adminClient - Vault client for admin calls
+     * @param {object} iamClient - IAM client
+     * @param {string} accountName - account name
+     * @param {function} cb - callback
+     *
+     * @return {undefined}
+     */
+    static deleteVaultAccount(adminClient, iamClient, accountName, cb) {
+        async.waterfall([
+            next => _deleteUsers(iamClient, next),
+            next => _deleteRoles(iamClient, next),
+            next => _deletePolicies(iamClient, next),
+            next => adminClient.deleteAccount(accountName, next),
+        ], cb);
+    }
 }
 module.exports = VaultClient;
