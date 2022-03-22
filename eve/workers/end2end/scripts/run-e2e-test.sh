@@ -94,7 +94,8 @@ run_e2e_test() {
 
 ## TODO use existing entrypoint
 if [ "$STAGE" = "end2end" ]; then
-   run_e2e_test '' 'cd node_tests && npm run test_operator && npm run test_ui'
+   ## TODO: re-add npm  run test_ui after ZENKO-4033
+   run_e2e_test '' 'cd node_tests && npm run test_operator'
 elif [ "$STAGE" = "debug" ]; then
    run_e2e_test '-ti' 'bash'
 elif [ "$STAGE" = "smoke" ]; then
