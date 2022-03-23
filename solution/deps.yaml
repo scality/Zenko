@@ -18,7 +18,7 @@ busybox:
   envsubst: BUSYBOX_TAG
 cloudserver:
   sourceRegistry: registry.scality.com/playground/xinli
-  dashboard: cloudserver-dashboards
+#  dashboard: cloudserver-dashboards
   image: cloudserver
   tag: 3.23.0
   envsubst: CLOUDSERVER_TAG
