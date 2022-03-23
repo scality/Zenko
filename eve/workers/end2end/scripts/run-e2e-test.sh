@@ -39,7 +39,6 @@ run_e2e_test() {
     kubectl run ${1} ${POD_NAME} \
         --image ${E2E_IMAGE} \
         --restart=Never \
-        --rm \
         --attach=True \
         --namespace=${NAMESPACE} \
         --image-pull-policy=Always \
