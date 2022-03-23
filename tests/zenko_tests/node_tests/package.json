@@ -14,7 +14,7 @@
     "@google-cloud/storage": "^1.6.0",
     "arsenal": "scality/Arsenal#8.1.27",
     "async": "2.1.2",
-    "aws-sdk": "2.60.0",
+    "aws-sdk": "^2.905.0",
     "aws4": "^1.11.0",
     "azure-storage": "^2.10.0",
     "babel-eslint": "^10.1.0",
