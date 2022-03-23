@@ -17,10 +17,10 @@ busybox:
   tag: 1.33.0
   envsubst: BUSYBOX_TAG
 cloudserver:
-  sourceRegistry: registry.scality.com/playground/xinli
-#  dashboard: cloudserver-dashboards
+  sourceRegistry: registry.scality.com/cloudserver
+  dashboard: cloudserver-dashboards
   image: cloudserver
-  tag: 3.23.0
+  tag: 8.4.4
   envsubst: CLOUDSERVER_TAG
 jabba:
   sourceRegistry: registry.scality.com/jabba
