@@ -52,7 +52,7 @@
     "test_operator": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --reporter mocha-multi-reporters --reporter-options configFile=config.json ./init_test.js",
     "test_smoke": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --reporter mocha-multi-reporters --reporter-options configFile=config.json --recursive smoke_tests",
     "test_iam_policies": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --reporter mocha-multi-reporters --reporter-options configFile=config.json --recursive iam_policies",
-    "test_all_extensions": "npm-run-all test_aws_crr test_ingestion_oob_s3c test_expiration",
+    "test_all_extensions": "npm-run-all test_aws_crr test_expiration",
     "lint": "eslint $(find . -name '*.js' -not -path '*/node_modules/*')"
   },
   "author": ""
