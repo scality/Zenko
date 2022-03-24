@@ -77,10 +77,10 @@ utapi:
   tag: zenko-1.0.0
   envsubst: UTAPI_TAG
 vault:
-  sourceRegistry: registry.scality.com/vault
+  sourceRegistry: registry.scality.com/vault-dev
   dashboard: vault-dashboards
-  image: vault
-  tag: 8.4.9
+  image: vault-test
+  tag: '1ae577125f24fdf9cb4c991bb71ed96067024a16'
   envsubst: VAULT_TAG
 zenko-operator:
   sourceRegistry: registry.scality.com/zenko-operator

@@ -27,8 +27,8 @@ REDIS_TEST_HOST="${ZENKO_RESOURCE}-base-cache"
 REDIS_TEST_PORT="6379"
 REDIS_TEST_PASSWORD=$(kubectl get secret $ZENKO_RESOURCE-base-cache-creds.v1 -n $NAMESPACE -o jsonpath='{.data.password}' | base64 -d)
 ZENKO_VERSION=$(kubectl get zenko $ZENKO_RESOURCE -n $NAMESPACE -o jsonpath='{.spec.version}')
-VAULT_TEST_TAG=$(kubectl get zenkoversion $ZENKO_VERSION  -n $NAMESPACE -o jsonpath='{.spec.versions.vault.tag}')
-VAULT_TEST_IMAGE="registry.scality.com/vault/vault-test"
+VAULT_TEST_IMAGE="registry.scality.com/vault-dev/vault-test"
+VAULT_TEST_TAG="1ae577125f24fdf9cb4c991bb71ed96067024a16"
 KEYCLOAK_TEST_USER="${OIDC_USERNAME}-norights"
 KEYCLOAK_TEST_PASSWORD=${OIDC_PASSWORD}
 KEYCLOAK_TEST_HOST=${OIDC_ENDPOINT}
@@ -78,4 +78,4 @@ kubectl run $POD_NAME \
   --env="KEYCLOAK_TEST_GRANT_TYPE=${KEYCLOAK_TEST_GRANT_TYPE}" \
   --env="VAULT_TEST_CONFIG=${VAULT_TEST_CONFIG}" \
   --env="VAULT_OIDC_TEST=${VAULT_OIDC_TEST}" \
-  --command -- yarn ft_test
+  --command -- for run in {1..30}; do yarn run ft_test; done
