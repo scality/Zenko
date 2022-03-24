@@ -79,7 +79,7 @@ utapi:
 vault:
   sourceRegistry: registry.scality.com/playground/xinli
   dashboard: vault-dashboards
-  image: vault-test
+  image: vault
   tag: 'testparallel3'
   envsubst: VAULT_TAG
 zenko-operator:
