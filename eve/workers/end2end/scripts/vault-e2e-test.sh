@@ -78,4 +78,4 @@ kubectl run $POD_NAME \
   --env="KEYCLOAK_TEST_GRANT_TYPE=${KEYCLOAK_TEST_GRANT_TYPE}" \
   --env="VAULT_TEST_CONFIG=${VAULT_TEST_CONFIG}" \
   --env="VAULT_OIDC_TEST=${VAULT_OIDC_TEST}" \
-  --command -- `for run in {1..30}; do yarn run ft_test; done`
+  --command -- /bin/bash '-c' 'for run in {1..30}; do yarn run ft_test; done'
