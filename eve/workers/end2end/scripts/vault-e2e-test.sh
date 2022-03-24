@@ -27,8 +27,8 @@ REDIS_TEST_HOST="${ZENKO_RESOURCE}-base-cache"
 REDIS_TEST_PORT="6379"
 REDIS_TEST_PASSWORD=$(kubectl get secret $ZENKO_RESOURCE-base-cache-creds.v1 -n $NAMESPACE -o jsonpath='{.data.password}' | base64 -d)
 ZENKO_VERSION=$(kubectl get zenko $ZENKO_RESOURCE -n $NAMESPACE -o jsonpath='{.spec.version}')
-VAULT_TEST_IMAGE="registry.scality.com/vault-dev/vault-test"
-VAULT_TEST_TAG="1ae577125f24fdf9cb4c991bb71ed96067024a16"
+VAULT_TEST_IMAGE="registry.scality.com/playground/xinli/vault"
+VAULT_TEST_TAG="testparallel3"
 KEYCLOAK_TEST_USER="${OIDC_USERNAME}-norights"
 KEYCLOAK_TEST_PASSWORD=${OIDC_PASSWORD}
 KEYCLOAK_TEST_HOST=${OIDC_ENDPOINT}
