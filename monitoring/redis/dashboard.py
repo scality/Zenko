@@ -22,9 +22,11 @@ uptime = Stat(
     decimals=0,
     format=UNITS.SECONDS,
     reduceCalc=RTYPE_LAST,
+    colorMode='none',
     targets=[
         Target(
-            expr='max(max_over_time(redis_uptime_in_seconds{namespace="${namespace}", job="${job}"}[$__interval]))'
+            expr='max(max_over_time(redis_uptime_in_seconds{namespace="${namespace}", job="${job}"}[$__rate_interval]))',
+            intervalFactor=2,
         ),
     ],
     thresholds=[
@@ -49,6 +51,7 @@ clients = Stat(
     title="Clients",
     dataSource="${DS_PROMETHEUS}",
     reduceCalc=RTYPE_LAST,
+    colorMode='none',
     targets=[
         Target(
             expr='sum(redis_connected_clients{namespace="${namespace}", job="${job}"})'

@@ -151,7 +151,7 @@
       "links": [],
       "maxDataPoints": 100,
       "options": {
-        "colorMode": "value",
+        "colorMode": "none",
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
@@ -167,7 +167,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "max(max_over_time(redis_uptime_in_seconds{namespace=\"${namespace}\", job=\"${job}\"}[$__interval]))",
+          "expr": "max(max_over_time(redis_uptime_in_seconds{namespace=\"${namespace}\", job=\"${job}\"}[$__rate_interval]))",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -481,7 +481,7 @@
       "links": [],
       "maxDataPoints": 100,
       "options": {
-        "colorMode": "value",
+        "colorMode": "none",
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
@@ -1190,5 +1190,5 @@
   "timezone": "",
   "title": "Redis",
   "uid": null,
-  "version": 14
+  "version": 15
 }
