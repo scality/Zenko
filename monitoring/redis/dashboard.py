@@ -1,4 +1,4 @@
-from grafanalib.core import ConstantInput, DataSourceInput, Stat, Threshold, TimeSeries
+from grafanalib.core import ConstantInput, DataSourceInput, Stat, Threshold, TimeSeries, RTYPE_LAST
 from grafanalib import formatunits as UNITS
 from scalgrafanalib import Target, layout, Dashboard
 
@@ -8,7 +8,7 @@ LAST_NOT_NULL = "lastNotNull"
 up = Stat(
     title="Up",
     dataSource="${DS_PROMETHEUS}",
-    reduceCalc=LAST_NOT_NULL,
+    reduceCalc=RTYPE_LAST,
     targets=[Target(expr='sum(up{namespace="${namespace}", job="${job}"})')],
     thresholds=[
         Threshold("red", 0, 0.0),
@@ -21,7 +21,7 @@ uptime = Stat(
     dataSource="${DS_PROMETHEUS}",
     decimals=0,
     format=UNITS.SECONDS,
-    reduceCalc=LAST_NOT_NULL,
+    reduceCalc=RTYPE_LAST,
     targets=[
         Target(
             expr='max(max_over_time(redis_uptime_in_seconds{namespace="${namespace}", job="${job}"}[$__interval]))'
@@ -48,7 +48,7 @@ totalItems = Stat(
 clients = Stat(
     title="Clients",
     dataSource="${DS_PROMETHEUS}",
-    reduceCalc=LAST_NOT_NULL,
+    reduceCalc=RTYPE_LAST,
     targets=[
         Target(
             expr='sum(redis_connected_clients{namespace="${namespace}", job="${job}"})'
