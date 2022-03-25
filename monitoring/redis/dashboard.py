@@ -1,6 +1,6 @@
 from grafanalib.core import ConstantInput, DataSourceInput, Stat, Threshold, RTYPE_LAST
 from grafanalib import formatunits as UNITS
-from scalgrafanalib import layout, Dashboard, Target, TimeSeries
+from scalgrafanalib import layout, Dashboard, PieChart, Target, TimeSeries
 
 LAST_NOT_NULL = "lastNotNull"
 
@@ -183,11 +183,15 @@ evicted = TimeSeries(
     ],
 )
 
-topk_5_commands = TimeSeries(
+topk_5_commands = PieChart(
     title="Top5 commands with most Calls/sec",
     dataSource="${DS_PROMETHEUS}",
-    lineInterpolation="smooth",
-    fillOpacity=80,
+    displayLabels=["name"],
+    legendDisplayMode="table",
+    legendPlacement="right",
+    legendValues=["value"],
+    pieType="donut",
+    unit="op/s",
     targets=[
         Target(
             expr='topk(5, sum(irate(redis_commands_total{namespace="${namespace}", job="${job}"}[$__rate_interval])) by (cmd))',
