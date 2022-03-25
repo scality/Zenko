@@ -227,50 +227,19 @@ dashboard = (
                 value="artesca-data-base-cache-metrics",
             ),
         ],
-        panels=layout.column(
-            [
-                layout.row(
-                    layout.resize([up, uptime], height=4, width=2)
-                    + layout.resize(
-                        [
-                            commandsPerSec,
-                        ],
-                        height=8,
-                        width=8,
-                    )
-                    + layout.resize(
-                        [
-                            hit_miss,
-                        ],
-                        height=8,
-                        width=12,
-                    ),
-                    height=4,
-                ),
-                layout.row(
-                    layout.resize([totalItems, clients], height=4, width=2), height=4
-                ),
-                layout.row(
-                    [
-                        total_memory,
-                        network,
-                    ],
-                    height=7,
-                ),
-                layout.row(
-                    [total_item_db, expiring],
-                    height=7,
-                ),
-                layout.row(
-                    [
-                        evicted,
-                        topk_5_commands,
-                    ],
-                    height=7,
-                ),
-                layout.row([clients_ts], height=7),
-            ]
-        ),
+        panels=layout.column([
+            layout.row(
+                layout.resize([up, uptime], height=4, width=2)
+                + layout.resize([commandsPerSec], width=8)
+                + layout.resize([hit_miss], width=12),
+                height=8
+            ),
+            layout.row([totalItems, clients], height=4, width=2),
+            layout.row([total_memory, network], height=7),
+            layout.row([total_item_db, expiring],height=7),
+            layout.row([evicted, topk_5_commands], height=7),
+            layout.row([clients_ts], height=7),
+        ]),
     )
     .auto_panel_ids()
     .verify_datasources()
