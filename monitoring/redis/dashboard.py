@@ -1,6 +1,6 @@
-from grafanalib.core import ConstantInput, DataSourceInput, Stat, Threshold, TimeSeries, RTYPE_LAST
+from grafanalib.core import ConstantInput, DataSourceInput, Stat, Threshold, RTYPE_LAST
 from grafanalib import formatunits as UNITS
-from scalgrafanalib import Target, layout, Dashboard
+from scalgrafanalib import layout, Dashboard, Target, TimeSeries
 
 LAST_NOT_NULL = "lastNotNull"
 
@@ -82,6 +82,7 @@ hit_miss = TimeSeries(
     fillOpacity=20,
     legendDisplayMode="table",
     legendPlacement="right",
+    legendValues=['max'],
     targets=[
         Target(
             expr='sum(irate(redis_keyspace_hits_total{namespace="${namespace}", job="${job}"}[$__rate_interval]))',

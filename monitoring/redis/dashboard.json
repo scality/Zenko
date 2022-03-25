@@ -320,7 +320,9 @@
       "maxDataPoints": 100,
       "options": {
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "max"
+          ],
           "displayMode": "table",
           "placement": "right"
         },
@@ -1190,5 +1192,5 @@
   "timezone": "",
   "title": "Redis",
   "uid": null,
-  "version": 16
+  "version": 17
 }
