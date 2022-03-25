@@ -26,7 +26,7 @@
   "annotations": {
     "list": []
   },
-  "description": "",
+  "description": "Prometheus dashboard for Redis servers",
   "editable": true,
   "gnetId": null,
   "hideControls": false,
@@ -85,7 +85,7 @@
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "lastNotNull"
+            "last"
           ],
           "fields": "",
           "values": false
@@ -151,13 +151,13 @@
       "links": [],
       "maxDataPoints": 100,
       "options": {
-        "colorMode": "value",
+        "colorMode": "none",
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "lastNotNull"
+            "last"
           ],
           "fields": "",
           "values": false
@@ -167,7 +167,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "max(max_over_time(redis_uptime_in_seconds{namespace=\"${namespace}\", job=\"${job}\"}[$__interval]))",
+          "expr": "max(max_over_time(redis_uptime_in_seconds{namespace=\"${namespace}\", job=\"${job}\"}[$__rate_interval]))",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -215,10 +215,7 @@
             },
             "showPoints": "auto",
             "spanNulls": false,
-            "stacking": {},
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "stacking": {}
           },
           "mappings": [],
           "thresholds": {
@@ -242,7 +239,7 @@
       "options": {
         "legend": {
           "calcs": [],
-          "displayMode": "list",
+          "displayMode": "hidden",
           "placement": "bottom"
         },
         "tooltip": {
@@ -300,10 +297,7 @@
             },
             "showPoints": "auto",
             "spanNulls": false,
-            "stacking": {},
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "stacking": {}
           },
           "mappings": [],
           "thresholds": {
@@ -326,7 +320,9 @@
       "maxDataPoints": 100,
       "options": {
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "max"
+          ],
           "displayMode": "table",
           "placement": "right"
         },
@@ -487,13 +483,13 @@
       "links": [],
       "maxDataPoints": 100,
       "options": {
-        "colorMode": "value",
+        "colorMode": "none",
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "lastNotNull"
+            "last"
           ],
           "fields": "",
           "values": false
@@ -535,7 +531,7 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 20,
+            "fillOpacity": 10,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -551,10 +547,7 @@
             },
             "showPoints": "auto",
             "spanNulls": false,
-            "stacking": {},
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "stacking": {}
           },
           "mappings": [],
           "thresholds": {
@@ -634,7 +627,7 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 20,
+            "fillOpacity": 10,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -650,10 +643,7 @@
             },
             "showPoints": "auto",
             "spanNulls": false,
-            "stacking": {},
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "stacking": {}
           },
           "mappings": [],
           "thresholds": {
@@ -733,7 +723,7 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 0,
+            "fillOpacity": 70,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -749,9 +739,8 @@
             },
             "showPoints": "auto",
             "spanNulls": false,
-            "stacking": {},
-            "thresholdsStyle": {
-              "mode": "off"
+            "stacking": {
+              "mode": "normal"
             }
           },
           "mappings": [],
@@ -775,7 +764,9 @@
       "maxDataPoints": 100,
       "options": {
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "current"
+          ],
           "displayMode": "table",
           "placement": "right"
         },
@@ -799,7 +790,7 @@
           "target": ""
         }
       ],
-      "title": "total Items per DB",
+      "title": "Total Items per DB",
       "transformations": [],
       "transparent": false,
       "type": "timeseries"
@@ -818,7 +809,7 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 0,
+            "fillOpacity": 70,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -834,9 +825,8 @@
             },
             "showPoints": "auto",
             "spanNulls": false,
-            "stacking": {},
-            "thresholdsStyle": {
-              "mode": "off"
+            "stacking": {
+              "mode": "normal"
             }
           },
           "mappings": [],
@@ -917,7 +907,7 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 0,
+            "fillOpacity": 10,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -933,10 +923,7 @@
             },
             "showPoints": "auto",
             "spanNulls": false,
-            "stacking": {},
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "stacking": {}
           },
           "mappings": [],
           "thresholds": {
@@ -1032,10 +1019,7 @@
             },
             "showPoints": "auto",
             "spanNulls": false,
-            "stacking": {},
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "stacking": {}
           },
           "mappings": [],
           "thresholds": {
@@ -1117,10 +1101,7 @@
             },
             "showPoints": "auto",
             "spanNulls": false,
-            "stacking": {},
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "stacking": {}
           },
           "mappings": [],
           "thresholds": {
@@ -1179,8 +1160,7 @@
   "sharedCrosshair": false,
   "style": "dark",
   "tags": [
-    "redis",
-    "base-cache"
+    "redis"
   ],
   "templating": {
     "list": []
@@ -1218,5 +1198,5 @@
   "timezone": "",
   "title": "Redis",
   "uid": null,
-  "version": 12
+  "version": 19
 }

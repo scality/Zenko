@@ -143,14 +143,8 @@ describe('iam policies - cloudserver - AssumeRole - Metadata', () => {
             }, next),
             next => s3Account1Client.deleteBucket({ Bucket: bucket1 }, next),
             next => s3Account1Client.deleteBucket({ Bucket: bucket2 }, next),
-            next => iamAccount2Client.detachUserPolicy({
-                UserName: userName,
-                PolicyArn: allowAssumeRolePolicyArn,
-            }, next),
-            next => iamAccount2Client.deletePolicy({ PolicyArn: allowAssumeRolePolicyArn }, next),
-            next => iamAccount2Client.deleteUser({ UserName: userName }, next),
-            next => clientAdmin.deleteAccount(account1Name, next),
-            next => clientAdmin.deleteAccount(account2Name, next),
+            next => VaultClient.deleteVaultAccount(clientAdmin, iamAccount1Client, account1Name, next),
+            next => VaultClient.deleteVaultAccount(clientAdmin, iamAccount2Client, account2Name, next),
         ], done);
     });
 

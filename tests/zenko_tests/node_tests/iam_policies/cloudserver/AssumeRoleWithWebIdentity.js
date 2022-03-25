@@ -65,7 +65,7 @@ describe('iam policies - cloudserver - AssumeRoleWithWebIdentity - Metadata', ()
                 },
             }, next),
             next => s3Client.deleteBucket({ Bucket: bucket1 }, next),
-            next => clientAdmin.deleteAccount(accountName, next),
+            next => VaultClient.deleteVaultAccount(clientAdmin, iamClient, accountName, next),
         ], done);
     });
 
