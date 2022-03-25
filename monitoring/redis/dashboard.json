@@ -1057,88 +1057,6 @@
       "transformations": [],
       "transparent": false,
       "type": "piechart"
-    },
-    {
-      "datasource": "${DS_PROMETHEUS}",
-      "editable": true,
-      "error": false,
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 20,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "smooth",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "log": 2,
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {}
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": []
-          },
-          "unit": ""
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 24,
-        "x": 0,
-        "y": 33
-      },
-      "hideTimeOverride": false,
-      "id": 13,
-      "links": [],
-      "maxDataPoints": 100,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "single"
-        }
-      },
-      "targets": [
-        {
-          "datasource": null,
-          "expr": "sum(redis_connected_clients{namespace=\"${namespace}\", job=\"${job}\"})",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "intervalFactor": 1,
-          "legendFormat": "clients",
-          "metric": "",
-          "refId": "",
-          "step": 10,
-          "target": ""
-        }
-      ],
-      "title": "Clients",
-      "transformations": [],
-      "transparent": false,
-      "type": "timeseries"
     }
   ],
   "refresh": "30s",
@@ -1185,5 +1103,5 @@
   "timezone": "",
   "title": "Redis",
   "uid": null,
-  "version": 20
+  "version": 21
 }

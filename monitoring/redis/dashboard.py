@@ -200,19 +200,6 @@ topk_5_commands = PieChart(
     ],
 )
 
-clients_ts = TimeSeries(
-    title="Clients",
-    dataSource="${DS_PROMETHEUS}",
-    lineInterpolation="smooth",
-    fillOpacity=20,
-    targets=[
-        Target(
-            expr='sum(redis_connected_clients{namespace="${namespace}", job="${job}"})',
-            legendFormat="clients",
-        ),
-    ],
-)
-
 dashboard = (
     Dashboard(
         title="Redis",
@@ -253,7 +240,6 @@ dashboard = (
             layout.row([total_memory, network], height=7),
             layout.row([total_item_db, expiring],height=7),
             layout.row([evicted, topk_5_commands], height=7),
-            layout.row([clients_ts], height=7),
         ]),
     )
     .auto_panel_ids()
