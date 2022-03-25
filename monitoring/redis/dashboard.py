@@ -99,7 +99,7 @@ total_memory = TimeSeries(
     title="Total Memory Usage",
     dataSource="${DS_PROMETHEUS}",
     lineInterpolation="smooth",
-    fillOpacity=20,
+    fillOpacity=10,
     unit=UNITS.BYTES,
     targets=[
         Target(
@@ -117,7 +117,7 @@ network = TimeSeries(
     title="Network I/O",
     dataSource="${DS_PROMETHEUS}",
     lineInterpolation="smooth",
-    fillOpacity=20,
+    fillOpacity=10,
     unit=UNITS.BYTES,
     targets=[
         Target(
@@ -132,11 +132,14 @@ network = TimeSeries(
 )
 
 total_item_db = TimeSeries(
-    title="total Items per DB",
+    title="Total Items per DB",
     dataSource="${DS_PROMETHEUS}",
     lineInterpolation="smooth",
     legendDisplayMode="table",
     legendPlacement="right",
+    legendValues=["current"],
+    fillOpacity=70,
+    stacking={"mode": "normal"},
     targets=[
         Target(
             expr='sum (redis_db_keys{namespace="${namespace}", job="${job}"}) by (db)',
@@ -149,6 +152,8 @@ expiring = TimeSeries(
     title="Expiring vs Not-Expiring Keys",
     dataSource="${DS_PROMETHEUS}",
     lineInterpolation="smooth",
+    fillOpacity=70,
+    stacking={"mode": "normal"},
     targets=[
         Target(
             expr='sum (redis_db_keys{namespace="${namespace}", job="${job}"}) - sum (redis_db_keys_expiring{namespace="${namespace}", job="${job}"})',
@@ -165,6 +170,7 @@ evicted = TimeSeries(
     title="Expired / Evicted",
     dataSource="${DS_PROMETHEUS}",
     lineInterpolation="smooth",
+    fillOpacity=10,
     targets=[
         Target(
             expr='sum(rate(redis_expired_keys_total{namespace="${namespace}", job="${job}"}[$__rate_interval])) by (addr)',
