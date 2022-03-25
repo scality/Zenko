@@ -201,9 +201,10 @@ clients_ts = TimeSeries(
 dashboard = (
     Dashboard(
         title="Redis",
+        description="Prometheus dashboard for Redis servers",
         editable=True,
         refresh="30s",
-        tags=["redis", "base-cache"],
+        tags=["redis"],
         timezone="",
         inputs=[
             DataSourceInput(

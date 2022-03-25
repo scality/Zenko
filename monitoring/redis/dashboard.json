@@ -26,7 +26,7 @@
   "annotations": {
     "list": []
   },
-  "description": "",
+  "description": "Prometheus dashboard for Redis servers",
   "editable": true,
   "gnetId": null,
   "hideControls": false,
@@ -215,10 +215,7 @@
             },
             "showPoints": "auto",
             "spanNulls": false,
-            "stacking": {},
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "stacking": {}
           },
           "mappings": [],
           "thresholds": {
@@ -300,10 +297,7 @@
             },
             "showPoints": "auto",
             "spanNulls": false,
-            "stacking": {},
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "stacking": {}
           },
           "mappings": [],
           "thresholds": {
@@ -551,10 +545,7 @@
             },
             "showPoints": "auto",
             "spanNulls": false,
-            "stacking": {},
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "stacking": {}
           },
           "mappings": [],
           "thresholds": {
@@ -650,10 +641,7 @@
             },
             "showPoints": "auto",
             "spanNulls": false,
-            "stacking": {},
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "stacking": {}
           },
           "mappings": [],
           "thresholds": {
@@ -749,10 +737,7 @@
             },
             "showPoints": "auto",
             "spanNulls": false,
-            "stacking": {},
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "stacking": {}
           },
           "mappings": [],
           "thresholds": {
@@ -834,10 +819,7 @@
             },
             "showPoints": "auto",
             "spanNulls": false,
-            "stacking": {},
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "stacking": {}
           },
           "mappings": [],
           "thresholds": {
@@ -933,10 +915,7 @@
             },
             "showPoints": "auto",
             "spanNulls": false,
-            "stacking": {},
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "stacking": {}
           },
           "mappings": [],
           "thresholds": {
@@ -1032,10 +1011,7 @@
             },
             "showPoints": "auto",
             "spanNulls": false,
-            "stacking": {},
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "stacking": {}
           },
           "mappings": [],
           "thresholds": {
@@ -1117,10 +1093,7 @@
             },
             "showPoints": "auto",
             "spanNulls": false,
-            "stacking": {},
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "stacking": {}
           },
           "mappings": [],
           "thresholds": {
@@ -1179,8 +1152,7 @@
   "sharedCrosshair": false,
   "style": "dark",
   "tags": [
-    "redis",
-    "base-cache"
+    "redis"
   ],
   "templating": {
     "list": []
@@ -1218,5 +1190,5 @@
   "timezone": "",
   "title": "Redis",
   "uid": null,
-  "version": 12
+  "version": 13
 }
