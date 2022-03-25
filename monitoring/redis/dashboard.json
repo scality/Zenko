@@ -998,35 +998,9 @@
           "color": {
             "mode": "palette-classic"
           },
-          "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 80,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "smooth",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "log": 2,
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {}
-          },
+          "custom": {},
           "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": []
-          },
-          "unit": ""
+          "unit": "op/s"
         },
         "overrides": []
       },
@@ -1041,10 +1015,23 @@
       "links": [],
       "maxDataPoints": 100,
       "options": {
+        "displayLabels": [
+          "name"
+        ],
         "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
+          "displayMode": "table",
+          "placement": "right",
+          "values": [
+            "value"
+          ]
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
         },
         "tooltip": {
           "mode": "single"
@@ -1069,7 +1056,7 @@
       "title": "Top5 commands with most Calls/sec",
       "transformations": [],
       "transparent": false,
-      "type": "timeseries"
+      "type": "piechart"
     },
     {
       "datasource": "${DS_PROMETHEUS}",
@@ -1198,5 +1185,5 @@
   "timezone": "",
   "title": "Redis",
   "uid": null,
-  "version": 18
+  "version": 19
 }
