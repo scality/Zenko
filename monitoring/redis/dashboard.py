@@ -66,6 +66,7 @@ commandsPerSec = TimeSeries(
     title="Commands Executed / sec",
     dataSource="${DS_PROMETHEUS}",
     lineInterpolation="smooth",
+    legendDisplayMode='hidden',
     fillOpacity=20,
     targets=[
         Target(

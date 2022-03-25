@@ -239,7 +239,7 @@
       "options": {
         "legend": {
           "calcs": [],
-          "displayMode": "list",
+          "displayMode": "hidden",
           "placement": "bottom"
         },
         "tooltip": {
@@ -1190,5 +1190,5 @@
   "timezone": "",
   "title": "Redis",
   "uid": null,
-  "version": 15
+  "version": 16
 }
