@@ -369,6 +369,13 @@ stages:
         command: bash scripts/configure-e2e.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "default"
         workdir: build/eve/workers/end2end
         haltOnFailure: true
+    - ShellCommand: &linting_coverage
+        name: Linting
+        env:
+          <<: [*kind-env, *e2e-env, *http-env, *secrets-env]
+        command: bash scripts/run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "lint" "default"
+        workdir: build/eve/workers/end2end
+        haltOnFailure: true
     - ShellCommand: &run_end2end_tests
         name: Run init CI test
         env:
