@@ -5,7 +5,7 @@ backbeat:
   sourceRegistry: registry.scality.com/backbeat
   dashboard: backbeat-dashboards
   image: backbeat
-  tag: 8.3.8
+  tag: 8.3.11
   envsubst: BACKBEAT_TAG
 blobserver:
   sourceRegistry: registry.scality.com/sf-eng
@@ -20,7 +20,7 @@ cloudserver:
   sourceRegistry: registry.scality.com/cloudserver
   dashboard: cloudserver-dashboards
   image: cloudserver
-  tag: 8.4.3
+  tag: 8.4.6
   envsubst: CLOUDSERVER_TAG
 jabba:
   sourceRegistry: registry.scality.com/jabba
