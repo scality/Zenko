@@ -78,7 +78,6 @@ utapi:
   envsubst: UTAPI_TAG
 vault:
   sourceRegistry: registry.scality.com/playground/xinli
-  dashboard: vault-dashboards
   image: vault
   tag: 8.4.11
   envsubst: VAULT_TAG
