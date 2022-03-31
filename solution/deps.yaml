@@ -77,9 +77,9 @@ utapi:
   tag: zenko-1.0.0
   envsubst: UTAPI_TAG
 vault:
-  sourceRegistry: registry.scality.com/playground/xinli
+  sourceRegistry: registry.scality.com/vault-dev/vault
   image: vault
-  tag: 8.4.11
+  tag: 2c647d5e04da0b6da0ccdfe8a37fe25071663e9c
   envsubst: VAULT_TAG
 zenko-operator:
   sourceRegistry: registry.scality.com/zenko-operator
