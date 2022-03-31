@@ -77,7 +77,7 @@ utapi:
   tag: zenko-1.0.0
   envsubst: UTAPI_TAG
 vault:
-  sourceRegistry: registry.scality.com/playground/xinli/vault
+  sourceRegistry: registry.scality.com/playground/xinli
   dashboard: vault-dashboards
   image: vault
   tag: 8.4.11
