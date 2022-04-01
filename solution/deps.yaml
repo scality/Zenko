@@ -50,7 +50,7 @@ mongodb:
 pensieve-api:
   sourceRegistry: registry.scality.com/pensieve-api
   image: pensieve-api
-  tag: 1.2.4
+  tag: 1.2.5
   envsubst: PENSIEVE_API_TAG
 redis:
   image: redis
@@ -90,7 +90,7 @@ zenko-operator:
 zenko-ui:
   sourceRegistry: registry.scality.com/zenko-ui
   image: zenko-ui
-  tag: 1.4.0
+  tag: 1.4.1
   envsubst: ZENKO_UI_TAG
 zookeeper:
   sourceRegistry: pravega
