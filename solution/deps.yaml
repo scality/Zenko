@@ -5,7 +5,7 @@ backbeat:
   sourceRegistry: registry.scality.com/backbeat
   dashboard: backbeat-dashboards
   image: backbeat
-  tag: 8.3.11
+  tag: 8.3.12
   envsubst: BACKBEAT_TAG
 blobserver:
   sourceRegistry: registry.scality.com/sf-eng
@@ -90,7 +90,7 @@ zenko-operator:
 zenko-ui:
   sourceRegistry: registry.scality.com/zenko-ui
   image: zenko-ui
-  tag: 1.4.1
+  tag: 1.4.2
   envsubst: ZENKO_UI_TAG
 zookeeper:
   sourceRegistry: pravega
