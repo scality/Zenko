@@ -1,0 +1,78 @@
+diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/_helpers.tpl b/solution-base/mongodb/charts/mongodb-sharded/templates/_helpers.tpl
+index 04b183a2..0fe370f2 100644
+--- a/solution-base/mongodb/charts/mongodb-sharded/templates/_helpers.tpl
++++ b/solution-base/mongodb/charts/mongodb-sharded/templates/_helpers.tpl
+@@ -49,6 +49,10 @@ metadata:
+   {{- end -}}
+ {{- end -}}
+ 
++{{- define "mongodb-sharded.configServer.serviceName" -}}
++  {{- printf "%s-configsvr.%s.svc.%s" (include "common.names.fullname" .) .Release.Namespace .Values.clusterDomain -}}
++{{- end -}}
++
+ {{- define "mongodb-sharded.configServer.rsName" -}}
+   {{- if .Values.configsvr.external.replicasetName -}}
+     {{- .Values.configsvr.external.replicasetName }}
+diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-service.yaml b/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-service.yaml
+new file mode 100644
+index 00000000..fff5cea7
+--- /dev/null
++++ b/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-service.yaml
+@@ -0,0 +1,41 @@
++apiVersion: v1
++kind: Service
++metadata:
++  name: {{ include "common.names.fullname" . }}-configsvr
++  labels: {{ include "common.labels.standard" . | nindent 4 }}
++    app.kubernetes.io/component: configsvr
++  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.service.annotations "context" $ ) | nindent 4 }}
++spec:
++  type: {{ .Values.service.type }}
++  {{- if and .Values.service.loadBalancerIP (eq .Values.service.type "LoadBalancer") }}
++  loadBalancerIP: {{ .Values.service.loadBalancerIP }}
++  {{- end }}
++  {{- if and (eq .Values.service.type "LoadBalancer") .Values.service.loadBalancerSourceRanges }}
++  loadBalancerSourceRanges:
++  {{ with .Values.service.loadBalancerSourceRanges }}
++{{ toYaml . | indent 4 }}
++  {{- end }}
++  {{- end }}
++  {{- if and (eq .Values.service.type "ClusterIP") .Values.service.clusterIP }}
++  clusterIP: {{ .Values.service.clusterIP }}
++  {{- end }}
++  ports:
++    - name: mongodb
++      port: {{ .Values.service.port }}
++      targetPort: mongodb
++      {{- if .Values.service.nodePort }}
++      nodePort: {{ .Values.service.nodePort }}
++      {{- else if eq .Values.service.type "ClusterIP" }}
++      nodePort: null
++      {{- end }}
++    {{- if .Values.metrics.enabled }}
++    - name: metrics
++      port: 9216
++      targetPort: metrics
++    {{- end }}
++    {{- if .Values.service.extraPorts }}
++      {{- include "common.tplvalues.render" (dict "value" .Values.service.extraPorts "context" $) | nindent 4 }}
++    {{- end }}
++  selector: {{ include "common.labels.matchLabels" . | nindent 4 }}
++    app.kubernetes.io/component: configsvr 
++  sessionAffinity: {{ default "None" .Values.service.sessionAffinity }}
+diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/mongos/mongos-dep-sts.yaml b/solution-base/mongodb/charts/mongodb-sharded/templates/mongos/mongos-dep-sts.yaml
+index 08d5959c..9c98cd7f 100644
+--- a/solution-base/mongodb/charts/mongodb-sharded/templates/mongos/mongos-dep-sts.yaml
++++ b/solution-base/mongodb/charts/mongodb-sharded/templates/mongos/mongos-dep-sts.yaml
+@@ -121,7 +121,7 @@ spec:
+             - name: MONGODB_PORT_NUMBER
+               value: {{ $.Values.common.containerPorts.mongo | quote }}
+             - name: MONGODB_CFG_PRIMARY_HOST
+-              value: {{ include "mongodb-sharded.configServer.primaryHost" . }}
++              value: {{ include "mongodb-sharded.configServer.serviceName" . }}
+             - name: MONGODB_CFG_REPLICA_SET_NAME
+               value: {{ include "mongodb-sharded.configServer.rsName" . }}
+             - name: MONGODB_SYSTEM_LOG_VERBOSITY
+diff --git a/solution-base/mongodb/patches/mongodb-sharded-add-configsvr-service.patch b/solution-base/mongodb/patches/mongodb-sharded-add-configsvr-service.patch
+new file mode 100644
+index 00000000..e69de29b
