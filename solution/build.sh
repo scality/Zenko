@@ -201,6 +201,17 @@ function get_dashboards()
     get_component_dashboards
 }
 
+function copy_iam_policies()
+{
+    components=$(yq eval '.* | select(.policy != "") | .sourceRegistry + "/" + .policy + ":" + .tag' deps.yaml)
+
+    for policy in ${components}
+    do
+        echo "copy iam policies for ${policy}"
+        copy_oci_image ${policy}
+    done
+}
+
 function dedupe()
 {
     ${HARDLINK} -c ${IMAGES_ROOT}
@@ -256,6 +267,7 @@ flatten_source_images | while read img ; do
     copy_docker_image ${img}
 done
 get_dashboards
+copy_iam_policies
 dedupe
 build_registry_config
 build_iso
