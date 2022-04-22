@@ -27,6 +27,10 @@ spec:
     zookeeper:
       image: zookeeper-dashboard
       tag: '${VERSION_FULL}'
+  policies:
+    backbeat:
+      image: backbeat-policies
+      tag: '${BACKBEAT_TAG}'
   versions:
     management:
       ui:
