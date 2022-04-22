@@ -76,6 +76,9 @@ spec:
       cluster:
         image: kafka
         tag: '${KAFKA_TAG}'
+      connect:
+        image: kafka-connect
+        tag: '${KAFKA_TAG}'
       cruiseControl:
         image: cruise-control
         tag: '${KAFKA_CRUISECONTROL_TAG}'
