@@ -27,6 +27,10 @@ spec:
     # zookeeper:
     #   image: zookeeper-dashboard
     #   tag: '${ZENKO_VERSION_NAME}'
+  policies:
+    backbeat:
+      image: '${BACKBEAT_POLICY}'
+      tag: '${BACKBEAT_TAG}'
   versions:
     management:
       ui:
