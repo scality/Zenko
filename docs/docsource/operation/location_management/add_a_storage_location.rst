@@ -164,9 +164,9 @@ to name endpoints. Services for which |product| requests endpoint names may have
 additional naming requirements. For these requirements, review your cloud
 storage service provider's documentation.
 
-For Ceph RADOS Gateway endpoints, you can nominate a secure port, such as 443 or
-4443. If you do not, the default is port 80. Whichever port you assign, make
-sure it is accessible to |product| (firewall open, etc.).
+For Ceph RADOS Gateway endpoints, you can nominate a secure port. 
+If you do not nominate a secure port, the default is port 80. 
+Whichever port you assign, make sure it is accessible to |product| (firewall open, etc.).
 
 Bucket Match
 ~~~~~~~~~~~~
