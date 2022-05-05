@@ -77,4 +77,4 @@ function dependencies_env()
 
 env $(dependencies_env) envsubst < ${ZENKOVERSION_PATH} | kubectl -n ${NAMESPACE} apply -f -
 envsubst < ${ZENKO_CR_PATH} | kubectl -n ${NAMESPACE} apply -f -
-kubectl wait --for condition=Available --timeout 10m --namespace ${NAMESPACE} zenko/${ZENKO_NAME}
+kubectl wait --for condition=Available --timeout 20m --namespace ${NAMESPACE} zenko/${ZENKO_NAME}
