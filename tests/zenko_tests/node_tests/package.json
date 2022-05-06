@@ -12,7 +12,7 @@
   ],
   "dependencies": {
     "@google-cloud/storage": "^1.6.0",
-    "arsenal": "scality/Arsenal#8.1.38",
+    "arsenal": "git+https://github.com/scality/Arsenal.git#8.1.45",
     "async": "2.1.2",
     "aws-sdk": "^2.905.0",
     "aws4": "^1.11.0",
@@ -31,7 +31,7 @@
     "npm-run-all": "~4.0.2",
     "request": "^2.87.0",
     "uuid": "^3.0.1",
-    "vaultclient": "scality/vaultclient#b9452a526daf5627ecae9528c941375a208e79f3",
+    "vaultclient": "scality/vaultclient#8.3.5",
     "werelogs": "github:scality/werelogs"
   },
   "scripts": {

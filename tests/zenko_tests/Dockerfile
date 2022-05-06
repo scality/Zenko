@@ -34,7 +34,7 @@ COPY ./requirements.txt /tmp
 
 RUN python3 -m pip install -r /tmp/requirements.txt tox && \
     cd /usr/local/bin/tests/node_tests && \
-    npm install && \
+    npm install --network-concurrency=1 && \
     rm -rf /var/cache/apk/* && \
     npm cache clear --force && \
     rm -rf ~/.node-gyp && \
