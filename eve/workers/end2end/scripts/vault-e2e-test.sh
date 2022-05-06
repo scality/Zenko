@@ -27,8 +27,8 @@ REDIS_TEST_HOST="${ZENKO_RESOURCE}-base-cache"
 REDIS_TEST_PORT="6379"
 REDIS_TEST_PASSWORD=$(kubectl get secret $ZENKO_RESOURCE-base-cache-creds.v1 -n $NAMESPACE -o jsonpath='{.data.password}' | base64 -d)
 ZENKO_VERSION=$(kubectl get zenko $ZENKO_RESOURCE -n $NAMESPACE -o jsonpath='{.spec.version}')
-VAULT_TEST_TAG=$(kubectl get zenkoversion $ZENKO_VERSION  -n $NAMESPACE -o jsonpath='{.spec.versions.vault.tag}')
-VAULT_TEST_IMAGE="registry.scality.com/vault/vault-test"
+VAULT_TEST_TAG="8.4.16"
+VAULT_TEST_IMAGE="registry.scality.com/playground/wlardier/vault"
 KEYCLOAK_TEST_USER="${OIDC_USERNAME}-norights"
 KEYCLOAK_TEST_PASSWORD=${OIDC_PASSWORD}
 KEYCLOAK_TEST_HOST=${OIDC_ENDPOINT}
@@ -37,7 +37,7 @@ KEYCLOAK_TEST_REALM_NAME=${OIDC_REALM}
 KEYCLOAK_TEST_CLIENT_ID=${OIDC_CLIENT_ID}
 KEYCLOAK_TEST_GRANT_TYPE="password"
 VAULT_TEST_CONFIG=$(kubectl get secret $ZENKO_RESOURCE-management-vault-config.v0 -o jsonpath='{.data.config\.json}' | base64 -d)
-VAULT_OIDC_TEST="1"
+VAULT_OIDC_TEST="2"
 
 
 # in case of force builds image and tag can be specified using "Extra properties":

@@ -21,7 +21,7 @@ cloudserver:
   sourceRegistry: registry.scality.com/playground/xinli
   dashboard: cloudserver-dashboards
   image: cloudserver
-  tag: 8.4.20
+  tag: 8.4.26
   envsubst: CLOUDSERVER_TAG
 jabba:
   sourceRegistry: registry.scality.com/jabba
@@ -78,10 +78,10 @@ utapi:
   tag: zenko-1.0.0
   envsubst: UTAPI_TAG
 vault:
-  sourceRegistry: registry.scality.com/vault
+  sourceRegistry: registry.scality.com/playground/wlardier
   dashboard: vault-dashboards
   image: vault
-  tag: 8.4.14
+  tag: 8.4.16
   envsubst: VAULT_TAG
 zenko-operator:
   sourceRegistry: registry.scality.com/zenko-operator
