@@ -70,7 +70,7 @@ redis_exporter:
 s3utils:
   sourceRegistry: registry.scality.com/s3utils
   image: s3utils
-  tag: 1.10.1
+  tag: 1.12.3
   envsubst: S3UTILS_TAG
 utapi:
   sourceRegistry: registry.scality.com/sf-eng
