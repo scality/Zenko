@@ -6,7 +6,7 @@ mongodb:
   tag: 4.0.14-debian-9-r24
 mongodb-exporter:
   image: bitnami/mongodb-exporter
-  tag: 0.10.0-debian-9-r104
+  tag: 0.11.2-debian-10-r410
 mongodb-minideb:
   sourceRegistry: registry.scality.com
   image: zenko-dev/minideb
