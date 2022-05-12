@@ -99,12 +99,34 @@ function copy_yamls()
 function copy_docker_image()
 {
     IMAGE_NAME=${1##*/}
+    IMAGE_TRANSPORT=${2:-docker://}
     FULL_PATH=${IMAGES_ROOT}/${IMAGE_NAME/:/\/}
     mkdir -p ${FULL_PATH}
     ${SKOPEO} ${SKOPEO_OPTS} copy \
         --format v2s2 --dest-compress \
-        docker://${1} \
+        --src-daemon-host ${DOCKER_SOCKET:-unix:///var/run/docker.sock} \
+        ${IMAGE_TRANSPORT}${1} \
         dir:${FULL_PATH}
+}
+
+function build_image()
+{
+    local image="$1:$2"
+
+    local argumentNames
+    argumentNames="$(sed -n 's/ARG //p' $1/Dockerfile | sort -u)"
+
+    local -a buildArgs
+    readarray -t buildArgs < <(
+        {
+            yq eval '.[] | .envsubst + "=" + .tag' deps.yaml ;
+            yq eval '.[] | .envsubst + "=" + (.sourceRegistry // "docker.io") + "/" + .image' deps.yaml |
+                sed 's/_TAG=/_IMAGE=/g'
+        } | grep -F "$argumentNames" | sed 's/\(.*\)/--build-arg\n\1/'
+    )
+
+    docker build -t "$image" "${buildArgs[@]}" "$1/"
+    copy_docker_image "$image" 'docker-daemon:'
 }
 
 function copy_oci_image()
@@ -266,6 +288,7 @@ flatten_source_images | while read img ; do
     ${DOCKER} image inspect ${img} > /dev/null 2>&1 || ${DOCKER} ${DOCKER_OPTS} pull ${img}
     copy_docker_image ${img}
 done
+build_image kafka-connect "$(yq eval '.kafka.tag' deps.yaml)"
 get_dashboards
 copy_iam_policies
 dedupe
