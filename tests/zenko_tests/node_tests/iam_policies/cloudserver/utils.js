@@ -1,5 +1,6 @@
 const { makeGETRequest, getResponseBody, makePOSTRequest } = require('../../utils/request');
 
+// eslint-disable-next-line default-param-last
 function makeApiCallGeneric(mode = 'GET', body, userCredentials, query, cb) {
     const fn = mode === 'GET' ? makeGETRequest : makePOSTRequest;
     if (mode === 'GET') {
@@ -40,7 +41,8 @@ function metadataSearchResponseCode(userCredentials, bucketName, cb) {
         null,
         userCredentials,
         `/${bucketName}/?search=${encodeURIComponent('key LIKE "file"')}`,
-        cb);
+        cb,
+    );
 }
 
 function restoreObjectResponseCode(userCredentials, bucketName, cb) {
@@ -52,10 +54,28 @@ function restoreObjectResponseCode(userCredentials, bucketName, cb) {
         },
         userCredentials,
         `/${bucketName}/restore`,
-        cb);
+        cb,
+    );
+}
+
+function createPolicy(action, isAllow = true, resource = '*') {
+    return JSON.stringify({
+        Version: '2012-10-17',
+        Statement: [
+            {
+                Sid: 'Stmt1644586763301',
+                Action: [
+                    action,
+                ],
+                Effect: (isAllow ? 'Allow' : 'Deny'),
+                Resource: resource,
+            },
+        ],
+    });
 }
 
 module.exports = {
     metadataSearchResponseCode,
     restoreObjectResponseCode,
+    createPolicy,
 };
