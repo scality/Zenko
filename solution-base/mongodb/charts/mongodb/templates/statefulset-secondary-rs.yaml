@@ -1,4 +1,4 @@
-{{- if and .Values.replicaSet.enabled (gt .Values.replicaSet.replicas.secondary 0) }}
+{{- if .Values.replicaSet.enabled }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -266,10 +266,6 @@ spec:
           {{ $key }}: "{{ $value }}"
         {{- end }}
       spec:
-        {{- if .Values.persistence.selector }}
-        selector:
-{{ toYaml .Values.persistence.selector | indent 10 }}
-        {{- end }}
         accessModes:
         {{- range .Values.persistence.accessModes }}
           - {{ . | quote }}

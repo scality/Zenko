@@ -250,29 +250,3 @@ in the values file. If the name is not explicitly set it will take the "mongodb.
     {{ template "mongodb.fullname" .}}
   {{- end -}}
 {{- end -}}
-
-
-{{- define "mongodb.servicePort" -}}
-  {{- if .Values.service.port -}}
-    {{ .Values.service.port | toString }}
-  {{- else -}}
-    {{ 27017 | toString }}
-  {{- end -}}
-{{- end -}}
-
-{{- define "mongodb.headlessServiceSuffix" -}}
-{{ template "mongodb.fullname" .}}-headless.{{ .Release.Namespace }}.svc.{{ .Values.clusterDomain }}:{{ template "mongodb.servicePort" . }}
-{{- end -}}
-
-{{/*
-Create the default mongodb replicaset hosts string
-*/}}
-{{- define "mongodb.hosts" -}}
-{{- $secondaryCount := (int (.Values.replicaSet.replicas.secondary)) -}}
-{{- $arbiterCount := (int (.Values.replicaSet.replicas.arbiter)) -}}
-{{- $suffix := include "mongodb.headlessServiceSuffix" . -}}
-{{- $name := include  "mongodb.fullname" . -}}
-{{ $name }}-primary-0.{{ $suffix }}
-{{- range $v := until $secondaryCount}},{{ $name }}-secondary-{{ $v }}.{{ $suffix }}{{- end -}}
-{{- range $v := until $arbiterCount}},{{ $name }}-arbiter-{{ $v }}.{{ $suffix }}{{- end -}}
-{{- end -}}
