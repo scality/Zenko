@@ -1,20 +1,65 @@
-const { makeGETRequest, getResponseBody } = require('../../utils/request');
+const { makeGETRequest, getResponseBody, makePOSTRequest } = require('../../utils/request');
 
-function metadataSearchResponseCode(userCredentials, bucketName, cb) {
-    return makeGETRequest(`/${bucketName}/?search=${encodeURIComponent('key LIKE "file"')}`, (err, response) => {
-        if (err) { return cb(err); }
+// eslint-disable-next-line default-param-last
+function makeApiCallGeneric(mode = 'GET', body, userCredentials, query, cb) {
+    const fn = mode === 'GET' ? makeGETRequest : makePOSTRequest;
+    return fn(query, (err, response) => {
+        if (err) {
+            return cb(err);
+        }
         const { statusCode } = response;
         return getResponseBody(response, (err, res) => {
-            const r = /<Message>(.*)<\/Message>/;
-            const message = res.match(r);
-            if (message !== null) {
-                return cb(null, { statusCode, message: message[1] });
+            if (err) {
+                return cb(err);
             }
-            return cb(null, { statusCode, message });
+            const r = /<Code>(.*)<\/Code>/;
+            const code = res.match(r);
+            if (code !== null) {
+                return cb(null, { statusCode, code: code[1] });
+            }
+            return cb(null, { statusCode, code });
         }, true);
-    }, userCredentials);
+    }, userCredentials, body);
+}
+
+function metadataSearchResponseCode(userCredentials, bucketName, cb) {
+    return makeApiCallGeneric(
+        'GET',
+        null,
+        userCredentials,
+        `/${bucketName}/?search=${encodeURIComponent('key LIKE "file"')}`,
+        cb,
+    );
+}
+
+function restoreObjectResponseCode(userCredentials, bucketName, cb, objectName) {
+    return makeApiCallGeneric(
+        'POST',
+        '<RestoreRequest xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Days>1</Days></RestoreRequest>',
+        userCredentials,
+        `/${bucketName}/${objectName}?restore`,
+        cb,
+    );
+}
+
+function createPolicy(action, isAllow = true, resource = '*') {
+    return JSON.stringify({
+        Version: '2012-10-17',
+        Statement: [
+            {
+                Sid: 'Stmt1644586763301',
+                Action: [
+                    action,
+                ],
+                Effect: (isAllow ? 'Allow' : 'Deny'),
+                Resource: resource,
+            },
+        ],
+    });
 }
 
 module.exports = {
     metadataSearchResponseCode,
+    restoreObjectResponseCode,
+    createPolicy,
 };
