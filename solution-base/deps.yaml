@@ -3,7 +3,7 @@
 # yq eval 'sortKeys(.)' -i deps.yaml
 mongodb:
   image: bitnami/mongodb
-  tag: 4.0.14-debian-9-r24
+  tag: 4.2.20-debian-10-r12
 mongodb-exporter:
   image: bitnami/mongodb-exporter
   tag: 0.11.2-debian-10-r410
@@ -13,7 +13,7 @@ mongodb-minideb:
   tag: base-2.1.0
 mongodb-sharded:
   image: bitnami/mongodb-sharded
-  tag: 4.0.27-debian-9-r111
+  tag: 4.2.20-debian-10-r11
 mongodb-sharded-exporter:
   image: bitnami/mongodb-exporter
   tag: 0.11.2-debian-10-r382

@@ -1,4 +1,4 @@
-{{- if and (and .Values.replicaSet.enabled .Values.replicaSet.pdb.enabled) (gt .Values.replicaSet.replicas.secondary 0) }}
+{{- if and .Values.replicaSet.enabled .Values.replicaSet.pdb.enabled }}
 apiVersion: policy/v1beta1
 kind: PodDisruptionBudget
 metadata:
