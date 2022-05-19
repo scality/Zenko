@@ -5,7 +5,7 @@ ENV LANG C.UTF-8
 
 # Add Node.js PPA
 RUN apt-get update && apt install -y curl
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
