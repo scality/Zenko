@@ -53,17 +53,18 @@ function makeGETRequest(path, cb, userCredentials) {
 /**
  * http request helper method
  * @param {String} path - url path
- * @param {String} body - request body
  * @param {Function} cb - callback(error, response)
+ * @param {object} userCredentials - user credentials
+ * @param {String} body - request body
  * @return {undefined}
  */
-function makePOSTRequest(path, body, cb) {
+function makePOSTRequest(path, cb, userCredentials, body) {
     let options = {
         ...defaultOptions,
         method: 'POST',
         path,
     };
-    options = aws4.sign(options, credentials);
+    options = aws4.sign(options, userCredentials || credentials);
 
     const req = http.request(options, res => cb(null, res));
     req.on('error', err => cb(err));
