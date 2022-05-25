@@ -26,7 +26,7 @@ passlib==1.7.1
 Pipewrench==0.2.4
 pyasn1==0.4.4
 pycparser==2.19
-PyJWT==1.6.4
+PyJWT==2.4.0
 pyOpenSSL==18.0.0
 pyparsing==2.2.2
 pyperclip==1.6.5
