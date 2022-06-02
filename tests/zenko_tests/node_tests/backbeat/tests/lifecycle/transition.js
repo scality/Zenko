@@ -2,7 +2,6 @@ const uuid = require('uuid/v4');
 const { series } = require('async');
 
 const { scalityS3Client, awsS3Client } = require('../../../s3SDK');
-const gcpStorage = require('../../gcpStorage');
 const sharedBlobSvc = require('../../azureSDK');
 const LifecycleUtility = require('../../LifecycleUtility');
 
@@ -14,7 +13,7 @@ const cloudServer = new LifecycleUtility(scalityS3Client)
     .setBucket(srcBucket)
     .setKeyPrefix(keyPrefix);
 
-const cloud = new LifecycleUtility(awsS3Client, sharedBlobSvc, gcpStorage)
+const cloud = new LifecycleUtility(awsS3Client, sharedBlobSvc, null)
     .setKeyPrefix(keyPrefix);
 
 function compareTransitionedData(cb) {
@@ -46,11 +45,6 @@ const locationParams = {
         bucket: process.env.AWS_CRR_BUCKET_NAME,
         supportsVersioning: true,
     },
-    GCP: {
-        name: process.env.GCP_BACKEND_DESTINATION_LOCATION,
-        bucket: process.env.GCP_CRR_BUCKET_NAME,
-        supportsVersioning: false,
-    },
     Azure: {
         name: process.env.AZURE_BACKEND_DESTINATION_LOCATION,
         bucket: process.env.AZURE_CRR_BUCKET_NAME,
@@ -63,15 +57,6 @@ const testsToRun = [{
     to: 'AWS',
 }, {
     from: 'LocalStorage',
-    to: 'GCP',
-}, {
-    from: 'LocalStorage',
-    to: 'Azure',
-}, {
-    from: 'AWS',
-    to: 'GCP',
-}, {
-    from: 'GCP',
     to: 'Azure',
 }];
 
