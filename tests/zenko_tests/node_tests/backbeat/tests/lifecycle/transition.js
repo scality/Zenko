@@ -2,11 +2,8 @@ const uuid = require('uuid/v4');
 const { series } = require('async');
 
 const { scalityS3Client, awsS3Client } = require('../../../s3SDK');
-const gcpStorage = require('../../gcpStorage');
-const sharedBlobSvc = require('../../azureSDK');
 const LifecycleUtility = require('../../LifecycleUtility');
 
-const LIFECYCLE_TIMEOUT = 100000;
 const srcBucket = `transition-bucket-${uuid()}`;
 const keyPrefix = uuid();
 
@@ -14,8 +11,7 @@ const cloudServer = new LifecycleUtility(scalityS3Client)
     .setBucket(srcBucket)
     .setKeyPrefix(keyPrefix);
 
-const cloud = new LifecycleUtility(awsS3Client, sharedBlobSvc, gcpStorage)
-    .setKeyPrefix(keyPrefix);
+const cloud = new LifecycleUtility(awsS3Client).setKeyPrefix(keyPrefix);
 
 function compareTransitionedData(cb) {
     return series([
@@ -46,11 +42,6 @@ const locationParams = {
         bucket: process.env.AWS_CRR_BUCKET_NAME,
         supportsVersioning: true,
     },
-    GCP: {
-        name: process.env.GCP_BACKEND_DESTINATION_LOCATION,
-        bucket: process.env.GCP_CRR_BUCKET_NAME,
-        supportsVersioning: false,
-    },
     Azure: {
         name: process.env.AZURE_BACKEND_DESTINATION_LOCATION,
         bucket: process.env.AZURE_CRR_BUCKET_NAME,
@@ -58,26 +49,14 @@ const locationParams = {
     },
 };
 
+// TODO: ZENKO-4233 enable AZURE/GCP as destination and AWS/AZURE/GCP as source
 const testsToRun = [{
     from: 'LocalStorage',
     to: 'AWS',
-}, {
-    from: 'LocalStorage',
-    to: 'GCP',
-}, {
-    from: 'LocalStorage',
-    to: 'Azure',
-}, {
-    from: 'AWS',
-    to: 'GCP',
-}, {
-    from: 'GCP',
-    to: 'Azure',
 }];
 
 testsToRun.forEach(test => {
-    describe(`transition from ${test.from} to ${test.to}`, () => {
-        this.timeout(LIFECYCLE_TIMEOUT);
+    describe(`Lifecycle transition from ${test.from} to ${test.to}`, () => {
         const fromLoc = locationParams[test.from];
         const toLoc = locationParams[test.to];
 
@@ -94,7 +73,7 @@ testsToRun.forEach(test => {
         ], done));
 
         describe('without versioning', () => {
-            beforeEach(done => cloudServer.createBucket(done));
+            beforeEach(done => cloudServer.createBucket(srcBucket, done));
 
             it('should transition an object', done => {
                 const key = `${keyPrefix}-from-${test.from}-to-${test.to}-`
@@ -107,7 +86,8 @@ testsToRun.forEach(test => {
                 ], done);
             });
 
-            it('should transition an MPU object with 10 parts', done => {
+            // TODO: ZENKO-4232
+            it.skip('should transition an MPU object with 10 parts', done => {
                 const key = `${keyPrefix}-from-${test.from}-to-${test.to}-`
                       + 'nover-mpu';
                 cloudServer.setKey(key);
@@ -121,7 +101,7 @@ testsToRun.forEach(test => {
 
         if (fromLoc.supportsVersioning) {
             describe('with versioning', () => {
-                beforeEach(done => cloudServer.createVersionedBucket(done));
+                beforeEach(done => cloudServer.createVersionedBucket(srcBucket, done));
 
                 it('should transition a single master version', done => {
                     const key = `${keyPrefix}-from-${test.from}-to-`
