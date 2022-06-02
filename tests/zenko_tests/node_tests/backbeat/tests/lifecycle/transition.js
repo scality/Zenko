@@ -2,10 +2,8 @@ const uuid = require('uuid/v4');
 const { series } = require('async');
 
 const { scalityS3Client, awsS3Client } = require('../../../s3SDK');
-const sharedBlobSvc = require('../../azureSDK');
 const LifecycleUtility = require('../../LifecycleUtility');
 
-const LIFECYCLE_TIMEOUT = 100000;
 const srcBucket = `transition-bucket-${uuid()}`;
 const keyPrefix = uuid();
 
@@ -13,7 +11,7 @@ const cloudServer = new LifecycleUtility(scalityS3Client)
     .setBucket(srcBucket)
     .setKeyPrefix(keyPrefix);
 
-const cloud = new LifecycleUtility(awsS3Client, sharedBlobSvc, null)
+const cloud = new LifecycleUtility(awsS3Client)
     .setKeyPrefix(keyPrefix);
 
 function compareTransitionedData(cb) {
@@ -55,14 +53,10 @@ const locationParams = {
 const testsToRun = [{
     from: 'LocalStorage',
     to: 'AWS',
-}, {
-    from: 'LocalStorage',
-    to: 'Azure',
 }];
 
 testsToRun.forEach(test => {
-    describe(`transition from ${test.from} to ${test.to}`, () => {
-        this.timeout(LIFECYCLE_TIMEOUT);
+    describe(`Lifecycle transition from ${test.from} to ${test.to}`, () => {
         const fromLoc = locationParams[test.from];
         const toLoc = locationParams[test.to];
 
@@ -79,7 +73,7 @@ testsToRun.forEach(test => {
         ], done));
 
         describe('without versioning', () => {
-            beforeEach(done => cloudServer.createBucket(done));
+            beforeEach(done => cloudServer.createBucket(srcBucket, done));
 
             it('should transition an object', done => {
                 const key = `${keyPrefix}-from-${test.from}-to-${test.to}-`
@@ -92,7 +86,7 @@ testsToRun.forEach(test => {
                 ], done);
             });
 
-            it('should transition an MPU object with 10 parts', done => {
+            it.skip('should transition an MPU object with 10 parts', done => {
                 const key = `${keyPrefix}-from-${test.from}-to-${test.to}-`
                       + 'nover-mpu';
                 cloudServer.setKey(key);
@@ -105,8 +99,8 @@ testsToRun.forEach(test => {
         });
 
         if (fromLoc.supportsVersioning) {
-            describe('with versioning', () => {
-                beforeEach(done => cloudServer.createVersionedBucket(done));
+            describe.skip('with versioning', () => {
+                beforeEach(done => cloudServer.createVersionedBucket(srcBucket, done));
 
                 it('should transition a single master version', done => {
                     const key = `${keyPrefix}-from-${test.from}-to-`
