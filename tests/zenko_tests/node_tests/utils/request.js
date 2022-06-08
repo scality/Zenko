@@ -51,17 +51,18 @@ function makeGETRequest(path, cb, userCredentials) {
 }
 
 /**
- * http request helper method
+ * http request helper method for POST, PUT, DELETE requests
  * @param {String} path - url path
  * @param {Function} cb - callback(error, response)
  * @param {object} userCredentials - user credentials
  * @param {String} body - request body
+ * @param {String} mode - GET or PUT or POST or DELETE
  * @return {undefined}
  */
-function makePOSTRequest(path, cb, userCredentials, body) {
+function makeUpdateRequest(path, cb, userCredentials, body, mode) {
     let options = {
         ...defaultOptions,
-        method: 'POST',
+        method: mode,
         path,
     };
     options = aws4.sign(options, userCredentials || credentials);
@@ -71,4 +72,4 @@ function makePOSTRequest(path, cb, userCredentials, body) {
     req.end(body);
 }
 
-module.exports = { makePOSTRequest, makeGETRequest, getResponseBody };
+module.exports = { makeUpdateRequest, makeGETRequest, getResponseBody };
