@@ -4,7 +4,7 @@ const { errors } = require('arsenal');
 const VaultClient = require('../../VaultClient');
 const { getS3Client } = require('../../s3SDK');
 const { getSTSClient } = require('../../stsSDK');
-const { metadataSearchResponseCode, restoreObjectResponseCode } = require('./utils');
+const { metadataSearchResponseCode } = require('./utils');
 
 const clientAdmin = VaultClient.getAdminClient();
 
@@ -33,11 +33,6 @@ const testAPIs = [
         API: 'MetadataSearch',
         checkResponse: metadataSearchResponseCode,
         resource: '',
-    },
-    {
-        API: 'RestoreObject',
-        checkResponse: restoreObjectResponseCode,
-        resource: '/*',
     },
 ];
 
@@ -210,20 +205,10 @@ testAPIs.forEach(testAPI => {
                 },
                 buckets: [bucket1, bucket2],
                 assertions: [result => {
-                    if (testAPI.API === 'RestoreObject') {
-                        assert.strictEqual(result.statusCode, 403);
-                        assert.strictEqual(result.code, errors.InvalidObjectState.message);
-                    } else {
-                        assert.strictEqual(result.statusCode, 200);
-                    }
+                    assert.strictEqual(result.statusCode, 200);
                 },
                 result => {
-                    if (testAPI.API === 'RestoreObject') {
-                        assert.strictEqual(result.statusCode, 403);
-                        assert.strictEqual(result.code, errors.InvalidObjectState.message);
-                    } else {
-                        assert.strictEqual(result.statusCode, 200);
-                    }
+                    assert.strictEqual(result.statusCode, 200);
                 }],
             },
             {
@@ -240,12 +225,7 @@ testAPIs.forEach(testAPI => {
                 buckets: [bucket1, bucket2],
                 assertions: [
                     result => {
-                        if (testAPI.API === 'RestoreObject') {
-                            assert.strictEqual(result.statusCode, 403);
-                            assert.strictEqual(result.code, errors.InvalidObjectState.message);
-                        } else {
-                            assert.strictEqual(result.statusCode, 200);
-                        }
+                        assert.strictEqual(result.statusCode, 200);
                     },
                     result => {
                         assert.strictEqual(result.statusCode, 403);
@@ -296,12 +276,7 @@ testAPIs.forEach(testAPI => {
                     assert.strictEqual(result.code, errors.AccessDenied.message);
                 },
                 result => {
-                    if (testAPI.API === 'RestoreObject') {
-                        assert.strictEqual(result.statusCode, 403);
-                        assert.strictEqual(result.code, errors.InvalidObjectState.message);
-                    } else {
-                        assert.strictEqual(result.statusCode, 200);
-                    }
+                    assert.strictEqual(result.statusCode, 200);
                 }],
             },
         ];

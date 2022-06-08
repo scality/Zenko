@@ -1,7 +1,7 @@
 const assert = require('assert');
 const async = require('async');
 const { errors } = require('arsenal');
-const { metadataSearchResponseCode, createPolicy, restoreObjectResponseCode } = require('./utils');
+const { metadataSearchResponseCode, createPolicy } = require('./utils');
 
 const iam = require('../../s3SDK').scalityIAMClient;
 const s3 = require('../../s3SDK').scalityS3Client;
@@ -11,11 +11,6 @@ const testAPIs = [
         API: 'MetadataSearch',
         checkResponse: metadataSearchResponseCode,
         resource: '',
-    },
-    {
-        API: 'RestoreObject',
-        checkResponse: restoreObjectResponseCode,
-        resource: '/*',
     },
 ];
 
@@ -99,12 +94,7 @@ testAPIs.forEach(testAPI => {
                             assert.ifError(err);
                             return next(err);
                         }
-                        if (testAPI.API === 'RestoreObject') {
-                            assert.strictEqual(res.statusCode, 403);
-                            assert.strictEqual(res.code, errors.InvalidObjectState.message);
-                        } else {
-                            assert.strictEqual(res.statusCode, 200);
-                        }
+                        assert.strictEqual(res.statusCode, 200);
                         return next();
                     }, objectName),
                 ],
@@ -143,12 +133,7 @@ testAPIs.forEach(testAPI => {
                             assert.ifError(err);
                             return next(err);
                         }
-                        if (testAPI.API === 'RestoreObject') {
-                            assert.strictEqual(res.statusCode, 403);
-                            assert.strictEqual(res.code, errors.InvalidObjectState.message);
-                        } else {
-                            assert.strictEqual(res.statusCode, 200);
-                        }
+                        assert.strictEqual(res.statusCode, 200);
                         return next();
                     }, objectName),
                     next => testAPI.checkResponse(userCredentials, bucketName2, (err, res) => {
@@ -250,12 +235,7 @@ testAPIs.forEach(testAPI => {
                             assert.ifError(err);
                             return next(err);
                         }
-                        if (testAPI.API === 'RestoreObject') {
-                            assert.strictEqual(res.statusCode, 403);
-                            assert.strictEqual(res.code, errors.InvalidObjectState.message);
-                        } else {
-                            assert.strictEqual(res.statusCode, 200);
-                        }
+                        assert.strictEqual(res.statusCode, 200);
                         return next();
                     }, objectName2),
                 ],
