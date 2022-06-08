@@ -5,7 +5,7 @@ const VaultClient = require('../../VaultClient');
 const { getS3Client } = require('../../s3SDK');
 const { getSTSClient } = require('../../stsSDK');
 const { getTokenForIdentity } = require('../../utils/getWebIdentityToken');
-const { metadataSearchResponseCode, restoreObjectResponseCode } = require('./utils');
+const { metadataSearchResponseCode } = require('./utils');
 
 let iamClient = null;
 let stsClient = null;
@@ -33,10 +33,6 @@ const testAPIs = [
     {
         API: 'MetadataSearch',
         checkResponse: metadataSearchResponseCode,
-    },
-    {
-        API: 'RestoreObject',
-        checkResponse: restoreObjectResponseCode,
     },
 ];
 
@@ -88,37 +84,19 @@ testAPIs.forEach(testAPI => {
                 name: `should be able to perform ${testAPI.API} on all buckets for storage manager role`,
                 oidcIdentity: storageManagerName,
                 roleName: storageManagerRole,
-                assertion: result => {
-                    if (testAPI.API === 'RestoreObject') {
-                        assert.strictEqual(result.statusCode, 403);
-                        return assert.strictEqual(result.code, errors.InvalidObjectState.message);
-                    }
-                    return assert.strictEqual(result.statusCode, 200);
-                },
+                assertion: result => assert.strictEqual(result.statusCode, 200),
             },
             {
                 name: `should be able to perform ${testAPI.API} on all buckets for storage account owner role`,
                 oidcIdentity: storageAccountOwnerName,
                 roleName: storageAccountOwnerRole,
-                assertion: result => {
-                    if (testAPI.API === 'RestoreObject') {
-                        assert.strictEqual(result.statusCode, 403);
-                        return assert.strictEqual(result.code, errors.InvalidObjectState.message);
-                    }
-                    return assert.strictEqual(result.statusCode, 200);
-                },
+                assertion: result => assert.strictEqual(result.statusCode, 200),
             },
             {
                 name: `should be able to perform ${testAPI.API} on all buckets for data consumer role`,
                 oidcIdentity: dataConsumerName,
                 roleName: dataConsumerRole,
-                assertion: result => {
-                    if (testAPI.API === 'RestoreObject') {
-                        assert.strictEqual(result.statusCode, 403);
-                        return assert.strictEqual(result.code, errors.InvalidObjectState.message);
-                    }
-                    return assert.strictEqual(result.statusCode, 200);
-                },
+                assertion: result => assert.strictEqual(result.statusCode, 200),
             },
         ];
 

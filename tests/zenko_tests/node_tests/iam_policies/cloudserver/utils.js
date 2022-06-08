@@ -32,16 +32,6 @@ function metadataSearchResponseCode(userCredentials, bucketName, cb) {
     );
 }
 
-function restoreObjectResponseCode(userCredentials, bucketName, cb, objectName) {
-    return makeApiCallGeneric(
-        'POST',
-        '<RestoreRequest xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Days>1</Days></RestoreRequest>',
-        userCredentials,
-        `/${bucketName}/${objectName}?restore`,
-        cb,
-    );
-}
-
 function createPolicy(action, isAllow = true, resource = '*') {
     return JSON.stringify({
         Version: '2012-10-17',
@@ -60,6 +50,5 @@ function createPolicy(action, isAllow = true, resource = '*') {
 
 module.exports = {
     metadataSearchResponseCode,
-    restoreObjectResponseCode,
     createPolicy,
 };
