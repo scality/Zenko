@@ -11,6 +11,7 @@ locations:
       accessKey: "${AWS_ACCESS_KEY}"
       secretKey: "${AWS_SECRET_KEY}"
       bucketMatch: no
+      repoId: []
   - name: "${AWS_BACKEND_SOURCE_LOCATION}"
     locationType: "location-aws-s3-v1"
     details:
@@ -19,6 +20,7 @@ locations:
       accessKey: "${AWS_ACCESS_KEY}"
       secretKey: "${AWS_SECRET_KEY}"
       bucketMatch: yes
+      repoId: []
   - name: "${RING_S3C_BACKEND_SOURCE_LOCATION}"
     locationType: "location-scality-ring-s3-v1"
     details:
@@ -27,6 +29,7 @@ locations:
       accessKey: "${RING_S3C_ACCESS_KEY}"
       secretKey: "${RING_S3C_SECRET_KEY}"
       bucketMatch: yes
+      repoId: []
 workflows:
   replication: []
   lifecycle: []

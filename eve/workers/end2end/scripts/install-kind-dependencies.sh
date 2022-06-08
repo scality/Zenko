@@ -44,7 +44,9 @@ else
     KEYCLOAK_INGRESS_OPTIONS="$DIR/configs/keycloak_ingress_http.yaml"
 fi
 
-helm repo add --force-update bitnami https://charts.bitnami.com/bitnami
+# Older charts (bitnami/mongodb:7.8) have been removed from bitnami's helm repo: stick to the 
+# commit before removal for now
+helm repo add --force-update bitnami https://raw.githubusercontent.com/bitnami/charts/defb094c658024e4aa8245622dab202874880cbc/bitnami
 helm repo add --force-update pravega https://charts.pravega.io
 helm repo add --force-update codecentric https://codecentric.github.io/helm-charts/
 helm repo add --force-update banzaicloud-stable https://kubernetes-charts.banzaicloud.com
