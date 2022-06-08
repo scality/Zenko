@@ -5,7 +5,31 @@ const VaultClient = require('../../VaultClient');
 const { getS3Client } = require('../../s3SDK');
 const { getSTSClient } = require('../../stsSDK');
 const { getTokenForIdentity } = require('../../utils/getWebIdentityToken');
-const { metadataSearchResponseCode, restoreObjectResponseCode } = require('./utils');
+const {
+    metadataSearchResponseCode,
+    restoreObjectResponseCode,
+    putObjectResponseCode,
+    putObjectAclResponseCode,
+    getObjectResponseCode,
+    getObjectAclResponseCode,
+    deleteObjectResponseCode,
+    getBucketVersioningResponseCode,
+    getBucketCorsResponseCode,
+    getBucketAclResponseCode,
+    getBucketObjectLockConfResponseCode,
+    getBucketObjectRetentionResponseCode,
+    getObjectLegalHoldResponseCode,
+    getObjectTaggingResponseCode,
+    listObjectsV2ResponseCode,
+    listObjectVersionsResponseCode,
+    copyObjectResponseCode,
+    putObjectRetentionResponseCode,
+    putObjectTaggingResponseCode,
+    putObjectLegalHoldTaggingResponseCode,
+    putObjectLockConfigurationResponseCode,
+    deleteObjectsResponseCode,
+    headObjectResponseCode,
+} = require('./utils');
 
 let iamClient = null;
 let stsClient = null;
@@ -37,6 +61,90 @@ const testAPIs = [
     {
         API: 'RestoreObject',
         checkResponse: restoreObjectResponseCode,
+    },
+    {
+        API: 'PutObject',
+        checkResponse: putObjectResponseCode,
+    },
+    {
+        API: 'PutObjectAcl',
+        checkResponse: putObjectAclResponseCode,
+    },
+    {
+        API: 'GetObject',
+        checkResponse: getObjectResponseCode,
+    },
+    {
+        API: 'GetObjectAcl',
+        checkResponse: getObjectAclResponseCode,
+    },
+    {
+        API: 'DeleteObject',
+        checkResponse: deleteObjectResponseCode,
+    },
+    {
+        API: 'GetBucketVersioning',
+        checkResponse: getBucketVersioningResponseCode,
+    },
+    {
+        API: 'GetBucketCors',
+        checkResponse: getBucketCorsResponseCode,
+    },
+    {
+        API: 'GetBucketAcl',
+        checkResponse: getBucketAclResponseCode,
+    },
+    {
+        API: 'GetBucketObjectLockConfiguration',
+        checkResponse: getBucketObjectLockConfResponseCode,
+    },
+    {
+        API: 'ListObjectsV2',
+        checkResponse: listObjectsV2ResponseCode,
+    },
+    {
+        API: 'ListObjectVersions',
+        checkResponse: listObjectVersionsResponseCode,
+    },
+    {
+        API: 'PutObjectLockConfiguration',
+        checkResponse: putObjectLockConfigurationResponseCode,
+    },
+    {
+        API: 'DeleteObjects',
+        checkResponse: deleteObjectsResponseCode,
+    },
+    {
+        API: 'GetObjectRetention',
+        checkResponse: getBucketObjectRetentionResponseCode,
+    },
+    {
+        API: 'GetObjectLegalHold',
+        checkResponse: getObjectLegalHoldResponseCode,
+    },
+    {
+        API: 'PutObjectRetention',
+        checkResponse: putObjectRetentionResponseCode,
+    },
+    {
+        API: 'PutObjectLegalHold',
+        checkResponse: putObjectLegalHoldTaggingResponseCode,
+    },
+    {
+        API: 'HeadObject',
+        checkResponse: headObjectResponseCode,
+    },
+    {
+        API: 'CopyObject',
+        checkResponse: copyObjectResponseCode,
+    },
+    {
+        API: 'GetObjectTagging',
+        checkResponse: getObjectTaggingResponseCode,
+    },
+    {
+        API: 'PutObjectTagging',
+        checkResponse: putObjectTaggingResponseCode,
     },
 ];
 
@@ -82,43 +190,35 @@ testAPIs.forEach(testAPI => {
             ], done);
         });
 
+        after(done => {
+            async.series([
+                next => s3Client.deleteObject({
+                    Bucket: bucket1,
+                    Key: 'file1',
+                }, next),
+                next => s3Client.deleteBucket({ Bucket: bucket1 }, next),
+                next => VaultClient.deleteVaultAccount(clientAdmin, iamClient, accountName, next),
+            ], done);
+        });
 
         const tests = [
             {
                 name: `should be able to perform ${testAPI.API} on all buckets for storage manager role`,
                 oidcIdentity: storageManagerName,
                 roleName: storageManagerRole,
-                assertion: result => {
-                    if (testAPI.API === 'RestoreObject') {
-                        assert.strictEqual(result.statusCode, 403);
-                        return assert.strictEqual(result.code, errors.InvalidObjectState.message);
-                    }
-                    return assert.strictEqual(result.statusCode, 200);
-                },
+                assertion: result => assert.notStrictEqual(result.code, errors.AccessDenied.message),
             },
             {
                 name: `should be able to perform ${testAPI.API} on all buckets for storage account owner role`,
                 oidcIdentity: storageAccountOwnerName,
                 roleName: storageAccountOwnerRole,
-                assertion: result => {
-                    if (testAPI.API === 'RestoreObject') {
-                        assert.strictEqual(result.statusCode, 403);
-                        return assert.strictEqual(result.code, errors.InvalidObjectState.message);
-                    }
-                    return assert.strictEqual(result.statusCode, 200);
-                },
+                assertion: result => assert.notStrictEqual(result.code, errors.AccessDenied.message),
             },
             {
                 name: `should be able to perform ${testAPI.API} on all buckets for data consumer role`,
                 oidcIdentity: dataConsumerName,
                 roleName: dataConsumerRole,
-                assertion: result => {
-                    if (testAPI.API === 'RestoreObject') {
-                        assert.strictEqual(result.statusCode, 403);
-                        return assert.strictEqual(result.code, errors.InvalidObjectState.message);
-                    }
-                    return assert.strictEqual(result.statusCode, 200);
-                },
+                assertion: result => assert.notStrictEqual(result.code, errors.AccessDenied.message),
             },
         ];
 
