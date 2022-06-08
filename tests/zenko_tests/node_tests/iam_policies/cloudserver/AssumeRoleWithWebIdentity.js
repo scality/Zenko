@@ -190,17 +190,6 @@ testAPIs.forEach(testAPI => {
             ], done);
         });
 
-        after(done => {
-            async.series([
-                next => s3Client.deleteObject({
-                    Bucket: bucket1,
-                    Key: 'file1',
-                }, next),
-                next => s3Client.deleteBucket({ Bucket: bucket1 }, next),
-                next => VaultClient.deleteVaultAccount(clientAdmin, iamClient, accountName, next),
-            ], done);
-        });
-
         const tests = [
             {
                 name: `should be able to perform ${testAPI.API} on all buckets for storage manager role`,
