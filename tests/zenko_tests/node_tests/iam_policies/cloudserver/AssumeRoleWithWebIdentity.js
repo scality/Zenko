@@ -5,7 +5,30 @@ const VaultClient = require('../../VaultClient');
 const { getS3Client } = require('../../s3SDK');
 const { getSTSClient } = require('../../stsSDK');
 const { getTokenForIdentity } = require('../../utils/getWebIdentityToken');
-const { metadataSearchResponseCode } = require('./utils');
+const {
+    metadataSearchResponseCode,
+    putObjectResponseCode,
+    putObjectAclResponseCode,
+    getObjectResponseCode,
+    getObjectAclResponseCode,
+    deleteObjectResponseCode,
+    getBucketVersioningResponseCode,
+    getBucketCorsResponseCode,
+    getBucketAclResponseCode,
+    getBucketObjectLockConfResponseCode,
+    getBucketObjectRetentionResponseCode,
+    getObjectLegalHoldResponseCode,
+    getObjectTaggingResponseCode,
+    listObjectsV2ResponseCode,
+    listObjectVersionsResponseCode,
+    copyObjectResponseCode,
+    putObjectRetentionResponseCode,
+    putObjectTaggingResponseCode,
+    putObjectLegalHoldTaggingResponseCode,
+    putObjectLockConfigurationResponseCode,
+    deleteObjectsResponseCode,
+    headObjectResponseCode,
+} = require('./utils');
 
 let iamClient = null;
 let stsClient = null;
@@ -33,6 +56,90 @@ const testAPIs = [
     {
         API: 'MetadataSearch',
         checkResponse: metadataSearchResponseCode,
+    },
+    {
+        API: 'PutObject',
+        checkResponse: putObjectResponseCode,
+    },
+    {
+        API: 'PutObjectAcl',
+        checkResponse: putObjectAclResponseCode,
+    },
+    {
+        API: 'GetObject',
+        checkResponse: getObjectResponseCode,
+    },
+    {
+        API: 'GetObjectAcl',
+        checkResponse: getObjectAclResponseCode,
+    },
+    {
+        API: 'DeleteObject',
+        checkResponse: deleteObjectResponseCode,
+    },
+    {
+        API: 'GetBucketVersioning',
+        checkResponse: getBucketVersioningResponseCode,
+    },
+    {
+        API: 'GetBucketCors',
+        checkResponse: getBucketCorsResponseCode,
+    },
+    {
+        API: 'GetBucketAcl',
+        checkResponse: getBucketAclResponseCode,
+    },
+    {
+        API: 'GetBucketObjectLockConfiguration',
+        checkResponse: getBucketObjectLockConfResponseCode,
+    },
+    {
+        API: 'ListObjectsV2',
+        checkResponse: listObjectsV2ResponseCode,
+    },
+    {
+        API: 'ListObjectVersions',
+        checkResponse: listObjectVersionsResponseCode,
+    },
+    {
+        API: 'PutObjectLockConfiguration',
+        checkResponse: putObjectLockConfigurationResponseCode,
+    },
+    {
+        API: 'DeleteObjects',
+        checkResponse: deleteObjectsResponseCode,
+    },
+    {
+        API: 'GetObjectRetention',
+        checkResponse: getBucketObjectRetentionResponseCode,
+    },
+    {
+        API: 'GetObjectLegalHold',
+        checkResponse: getObjectLegalHoldResponseCode,
+    },
+    {
+        API: 'PutObjectRetention',
+        checkResponse: putObjectRetentionResponseCode,
+    },
+    {
+        API: 'PutObjectLegalHold',
+        checkResponse: putObjectLegalHoldTaggingResponseCode,
+    },
+    {
+        API: 'HeadObject',
+        checkResponse: headObjectResponseCode,
+    },
+    {
+        API: 'CopyObject',
+        checkResponse: copyObjectResponseCode,
+    },
+    {
+        API: 'GetObjectTagging',
+        checkResponse: getObjectTaggingResponseCode,
+    },
+    {
+        API: 'PutObjectTagging',
+        checkResponse: putObjectTaggingResponseCode,
     },
 ];
 
@@ -84,19 +191,19 @@ testAPIs.forEach(testAPI => {
                 name: `should be able to perform ${testAPI.API} on all buckets for storage manager role`,
                 oidcIdentity: storageManagerName,
                 roleName: storageManagerRole,
-                assertion: result => assert.strictEqual(result.statusCode, 200),
+                assertion: result => assert.notStrictEqual(result.code, errors.AccessDenied.message),
             },
             {
                 name: `should be able to perform ${testAPI.API} on all buckets for storage account owner role`,
                 oidcIdentity: storageAccountOwnerName,
                 roleName: storageAccountOwnerRole,
-                assertion: result => assert.strictEqual(result.statusCode, 200),
+                assertion: result => assert.notStrictEqual(result.code, errors.AccessDenied.message),
             },
             {
                 name: `should be able to perform ${testAPI.API} on all buckets for data consumer role`,
                 oidcIdentity: dataConsumerName,
                 roleName: dataConsumerRole,
-                assertion: result => assert.strictEqual(result.statusCode, 200),
+                assertion: result => assert.notStrictEqual(result.code, errors.AccessDenied.message),
             },
         ];
 
