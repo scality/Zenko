@@ -1,8 +1,8 @@
-const { makeGETRequest, getResponseBody, makePOSTRequest } = require('../../utils/request');
+const { makeGETRequest, getResponseBody, makeUpdateRequest } = require('../../utils/request');
 
 // eslint-disable-next-line default-param-last
 function makeApiCallGeneric(mode = 'GET', body, userCredentials, query, cb) {
-    const fn = mode === 'GET' ? makeGETRequest : makePOSTRequest;
+    const fn = mode === 'GET' ? makeGETRequest : makeUpdateRequest;
     return fn(query, (err, response) => {
         if (err) {
             return cb(err);
@@ -19,7 +19,7 @@ function makeApiCallGeneric(mode = 'GET', body, userCredentials, query, cb) {
             }
             return cb(null, { statusCode, code });
         }, true);
-    }, userCredentials, body);
+    }, userCredentials, body, mode);
 }
 
 function metadataSearchResponseCode(userCredentials, bucketName, cb) {
