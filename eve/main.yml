@@ -596,9 +596,13 @@ stages:
         name: Run backbeat end to end tests
         env:
           <<: [*kind-env, *e2e-env, *http-env, *mock-env, *secrets-env]
-        command: bash scripts/run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "backbeat" "default"
+        command: bash scripts/run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "debug" "default"
         workdir: build/eve/workers/end2end
         haltOnFailure: true
+    - ShellCommand:
+        name: sleep
+        command: while true; do echo 'sleep'; sleep 10; done
+        alwaysRun: true
     - ShellCommand: *debug_wait
     - ShellCommand:
         <<: *archive_artifacts
