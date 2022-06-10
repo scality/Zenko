@@ -7,6 +7,8 @@ ENV LANG C.UTF-8
 RUN apt-get update && apt install -y curl
 RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
 
+# test comment
+
 # Install dependencies
 RUN apt-get update && apt-get install -y \
     libgtk2.0-0 \
@@ -26,6 +28,7 @@ RUN apt-get update && apt-get install -y \
     gcc \
     libffi-dev \
     musl-dev \
+    vim \
     libssl1.0-dev && \
     mkdir -p /usr/local/bin/tests/node_tests
 
