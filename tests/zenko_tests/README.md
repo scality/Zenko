@@ -241,16 +241,28 @@ Finally, you can run your keycloak image locally:
 $ docker run -p 8443:8443 -p 8080:8080 --env-file env.list -it -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=admin  keycloak
 ```
 
+### Set up Vault
+
+#### Configure Vault
+
+add the following in `config.json` file under Vault root folder:
+```json
+"jwks": {
+    "interval": 300,
+    "issuer": "http://localhost:8080/auth/realms/myrealm"
+},
+"oidcProvider": "http://localhost:8080/auth/realms/myrealm"
+```
+
+#### Run Vault
+```shell
+$ VAULT_DB_BACKEND=MONGODB yarn start
+```
+
 ### Run clouserver
 
 ```shell
 $ S3METADATA=mongodb REMOTE_MANAGEMENT_DISABLE=1 S3BACKEND=mem S3VAULT=multiple node index.js
-```
-
-### Run Vault
-
-```shell
-$ VAULT_DB_BACKEND=MONGODB yarn start
 ```
 
 ### Generate account and account access key using vaultclient
@@ -279,3 +291,6 @@ ADMIN_ACCESS_KEY_ID=D4IT2AWSB588GO5J9T00 \
 ADMIN_SECRET_ACCESS_KEY=UEEu8tYlsOGGrgf4DAiSZD6apVNPUWqRiPG0nTB6 \
 yarn test_iam_policies
 ```
+
+Make sure the keycloak host and port envs are the same as what configured before in Vault [here](#configure-vault), either http://localhost:8080 or https://localhost:8443
+
