@@ -1,6 +1,65 @@
+# Table of contents
+- [How to write iam policy e2e tests](#how-to-write-iam-policy-e2e-tests)
+- [How to run zenko end2end test locally with zenko-operator](#how-to-run-zenko-end2end-test-locally-with-zenko-operator)
+- [How to run zenko end2end test locally with cloudserver and vault](#how-to-run-zenko-end2end-test-locally-with-cloudserver-and-vault)
+
+
+# How to write iam policy e2e tests
+
+All iam policy controlled tests go under `node_tests/iam_policies`,
+then tests are split into different projects like `cloudserver` and `backbeat`
+which need to interact with `Vault` for iam policy check.
+
+```
+node_tests
+└───backbeat
+└───cloudserver
+└───iam_policies
+│   │
+│   └───cloudserver
+│   │   │   AssumeRole.js
+│   │   │   AssumeRoleWithWebIdentity.js
+│   │   │   IAMUser.js
+│   │
+│   └───backbeat
+│       │   ...
+│   
+└───smoke_tests
+└───ui
+└───utils
+└───...
+```
+
+Under each project ex. cloudserver, we have 3 test files that represent
+3 different entities that need iam permissions to perform operations.
+- IAM user
+- AssumeRole session user
+- AssumeRoleWithWebIdentity session user
+
+In each test file, the test frameworks are defined generically
+for all s3 APIs' permission tests.
+For example, in `AssumeRoleWithWebIdentity.js`, the test process
+is like this:
+- Create an account, use this account to create a bucket,
+and put an object into it.
+- Get web token from keycloak for Storage Manager user,
+Storage Account Owner user or Data Consumer user.
+- Assume Storage Manager role, Storage Account Owner role
+or Data Consumer role using the web token.
+- Use the temporary credentials returned by AssumeRoleWWI
+to perform the action you want to test and check if the response is expected.
+
+Whenever we need to add iam permission tests for a new API, we just add API in [testAPIs list](node_tests/iam_policies/cloudserver/AssumeRoleWithWebIdentity.js#L55), and also define its [request](node_tests/iam_policies/cloudserver/utils.js#L35) with minimum required parameters(query and body).
+We follow the AWS standard, so we can always refer to [aws s3 API documentation](https://docs.aws.amazon.com/AmazonS3/latest/API/API_Operations_Amazon_Simple_Storage_Service.html) for more details about API request syntax.
+
+Note: Instead of checking if the response is a success, we only check code not equal to AccessDenied.
+Because permission check is the first error returned except for missing required parameters error, if we can provide a minimum required query and body for requests, we don't necessarily have to provide the exact correct context and params to get a successful response.
+It doesn't matter if we get other errors like MalFormedACLError or NoSuchCORSConfiguration etc., because these errors always happen after checking its permission.
+
 # How to run zenko end2end test locally with zenko-operator
 
 _For Backbeat tests please see [Using.md](./node_tests/backbeat/Using.md)_
+
 ## Prerequisite
 
 _All with their latest version_
@@ -126,7 +185,7 @@ $ yarn run test_iam_policies
 
 ### Access mongodb
 
-####Get MongoDB credentials
+#### Get MongoDB credentials
 
 ```shell
 $ kubectl get secret mongodb-db-creds -o jsonpath={.data.mongodb-username} | base64 -d
@@ -138,3 +197,100 @@ $ kubectl get secret mongodb-db-creds -o jsonpath={.data.mongodb-password} | bas
 $ kubectl port-forward dev-db-mongodb-primary-0 27021:27017
 ```
 Connect to `localhost:27021` with database `admin` and `username/password` got from above using your local MongoDB GUI (Robo3T, MongoDB Compass, etc...)
+
+# How to run zenko end2end test locally with cloudserver and vault
+
+## Prerequisite
+
+- docker
+- redis
+- mongodb image from scality/ci-mongo
+- A local Vault cloned repository with your ongoing modifications
+
+## Set up mongodb
+```shell
+$ docker run -d --net=host --name ci-mongo scality/ci-mongo
+```
+
+### Set up keycloak
+
+First, cd to the Vault repository
+```shell
+$ cd <vault_repository_folder>/.github/docker/keycloak
+```
+
+Then build your Keycloak image:
+```shell
+$ docker build -t keycloak .
+```
+
+Create a configuration file for Keycloak:
+```shell
+$ cat <<EOF > env.list
+KEYCLOAK_REALM=myrealm
+KEYCLOAK_CLIENT_ID=myclient
+KEYCLOAK_USERNAME=bartsimpson
+KEYCLOAK_PASSWORD=123
+KEYCLOAK_USER_FIRSTNAME=Bart
+KEYCLOAK_USER_LASTNAME=Simpson
+EOF
+```
+
+Finally, you can run your keycloak image locally:
+```shell
+$ docker run -p 8443:8443 -p 8080:8080 --env-file env.list -it -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=admin  keycloak
+```
+
+### Set up Vault
+
+#### Configure Vault
+
+add the following in `config.json` file under Vault root folder:
+```json
+"jwks": {
+    "interval": 300,
+    "issuer": "http://localhost:8080/auth/realms/myrealm"
+},
+"oidcProvider": "http://localhost:8080/auth/realms/myrealm"
+```
+
+#### Run Vault
+```shell
+$ VAULT_DB_BACKEND=MONGODB yarn start
+```
+
+### Run clouserver
+
+```shell
+$ S3METADATA=mongodb REMOTE_MANAGEMENT_DISABLE=1 S3BACKEND=mem S3VAULT=multiple node index.js
+```
+
+### Generate account and account access key using vaultclient
+
+Under vault root folder
+```shell
+$ ADMIN_ACCESS_KEY_ID="D4IT2AWSB588GO5J9T00" ADMIN_SECRET_ACCESS_KEY="UEEu8tYlsOGGrgf4DAiSZD6apVNPUWqRiPG0nTB6" ./node_modules/vaultclient/bin/vaultclient create-account -name account --email acc@ount.fr --port 8600
+$ ADMIN_ACCESS_KEY_ID="D4IT2AWSB588GO5J9T00" ADMIN_SECRET_ACCESS_KEY="UEEu8tYlsOGGrgf4DAiSZD6apVNPUWqRiPG0nTB6" ./node_modules/vaultclient/bin/vaultclient generate-account-access-key --name account --port 8600
+```
+
+### Run end2end tests
+
+```shell
+$ KEYCLOAK_TEST_HOST=http://localhost \
+KEYCLOAK_TEST_PORT=8080 \
+KEYCLOAK_TEST_REALM_NAME=myrealm \
+KEYCLOAK_TEST_CLIENT_ID=myclient \
+CLOUDSERVER_ENDPOINT=http://127.0.0.1:8000 \
+CLOUDSERVER_HOST=127.0.0.1 \
+CLOUDSERVER_PORT=8000 \
+VAULT_STS_ENDPOINT=http://127.0.0.1:8800 \
+VAULT_ENDPOINT=http://127.0.0.1:8600 \
+ZENKO_ACCESS_KEY=<account access key generated previously> \
+ZENKO_SECRET_KEY=<account secret key generated previously> \
+ADMIN_ACCESS_KEY_ID=D4IT2AWSB588GO5J9T00 \
+ADMIN_SECRET_ACCESS_KEY=UEEu8tYlsOGGrgf4DAiSZD6apVNPUWqRiPG0nTB6 \
+yarn test_iam_policies
+```
+
+Make sure the keycloak host and port envs are the same as what configured before in Vault [here](#configure-vault), either http://localhost:8080 or https://localhost:8443
+
