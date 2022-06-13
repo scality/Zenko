@@ -33,7 +33,7 @@ node_tests
 Under each project ex. cloudserver, we have 3 test files that represent
 3 different entities that need iam permissions to perform operations.
 - IAM user
-- AssumeRole session uer
+- AssumeRole session user
 - AssumeRoleWithWebIdentity session user
 
 In each test file, the test frameworks are defined generically
