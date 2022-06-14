@@ -93,6 +93,16 @@ function deleteObjectResponseCode(userCredentials, bucketName, cb, fileName) {
     );
 }
 
+function deleteObjectVersionResponseCode(userCredentials, bucketName, cb, fileName) {
+    return makeApiCallGeneric(
+        'DELETE',
+        null,
+        userCredentials,
+        `/${bucketName}/${fileName}?versionId=0`,
+        cb,
+    );
+}
+
 function getBucketVersioningResponseCode(userCredentials, bucketName, cb) {
     return makeApiCallGeneric(
         'GET',
@@ -253,6 +263,47 @@ function deleteObjectsResponseCode(userCredentials, bucketName, cb, fileName) {
     );
 }
 
+function getReplicationConfigurationResponseCode(userCredentials, bucketName, cb) {
+    return makeApiCallGeneric(
+        'GET',
+        null,
+        userCredentials,
+        `/${bucketName}/?replication`,
+        cb,
+    );
+}
+
+function getLifecycleConfigurationResponseCode(userCredentials, bucketName, cb) {
+    return makeApiCallGeneric(
+        'GET',
+        null,
+        userCredentials,
+        `/${bucketName}/?lifecycle`,
+        cb,
+    );
+}
+
+
+function putLifecycleConfigurationResponseCode(userCredentials, bucketName, cb) {
+    return makeApiCallGeneric(
+        'PUT',
+        '<LifecycleConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"></LifecycleConfiguration>',
+        userCredentials,
+        `/${bucketName}/?lifecycle`,
+        cb,
+    );
+}
+
+function putReplicationConfigurationResponseCode(userCredentials, bucketName, cb) {
+    return makeApiCallGeneric(
+        'PUT',
+        '<ReplicationConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"></ReplicationConfiguration>',
+        userCredentials,
+        `/${bucketName}/?replication`,
+        cb,
+    );
+}
+
 function createPolicy(action, isAllow = true, resource = '*') {
     return JSON.stringify({
         Version: '2012-10-17',
@@ -277,11 +328,16 @@ module.exports = {
     getObjectResponseCode,
     getObjectAclResponseCode,
     deleteObjectResponseCode,
+    deleteObjectVersionResponseCode,
     getBucketVersioningResponseCode,
     getBucketCorsResponseCode,
     getBucketAclResponseCode,
     getBucketObjectLockConfResponseCode,
     getBucketObjectRetentionResponseCode,
+    getReplicationConfigurationResponseCode,
+    getLifecycleConfigurationResponseCode,
+    putLifecycleConfigurationResponseCode,
+    putReplicationConfigurationResponseCode,
     getObjectLegalHoldResponseCode,
     getObjectTaggingResponseCode,
     listObjectsV2ResponseCode,

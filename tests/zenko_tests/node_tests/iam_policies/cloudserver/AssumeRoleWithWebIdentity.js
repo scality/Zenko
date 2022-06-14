@@ -12,11 +12,16 @@ const {
     putObjectAclResponseCode,
     getObjectResponseCode,
     getObjectAclResponseCode,
+    deleteObjectVersionResponseCode,
     deleteObjectResponseCode,
     getBucketVersioningResponseCode,
     getBucketCorsResponseCode,
     getBucketAclResponseCode,
     getBucketObjectLockConfResponseCode,
+    getReplicationConfigurationResponseCode,
+    getLifecycleConfigurationResponseCode,
+    putLifecycleConfigurationResponseCode,
+    putReplicationConfigurationResponseCode,
     getBucketObjectRetentionResponseCode,
     getObjectLegalHoldResponseCode,
     getObjectTaggingResponseCode,
@@ -145,6 +150,26 @@ const testAPIs = [
     {
         API: 'PutObjectTagging',
         checkResponse: putObjectTaggingResponseCode,
+    },
+    {
+        API: 'DeleteObjectVersion',
+        checkResponse: deleteObjectVersionResponseCode,
+    },
+    {
+        API: 'GetBucketReplication',
+        checkResponse: getReplicationConfigurationResponseCode,
+    },
+    {
+        API: 'GetBucketLifecycle',
+        checkResponse: getLifecycleConfigurationResponseCode,
+    },
+    {
+        API: 'PutBucketLifecycle',
+        checkResponse: putLifecycleConfigurationResponseCode,
+    },
+    {
+        API: 'PutBucketReplication',
+        checkResponse: putReplicationConfigurationResponseCode,
     },
 ];
 
