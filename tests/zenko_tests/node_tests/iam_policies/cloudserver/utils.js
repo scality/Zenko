@@ -53,6 +53,17 @@ function putObjectAclResponseCode(userCredentials, bucketName, cb, fileName) {
     );
 }
 
+function putObjectVersionAclResponseCode(userCredentials, bucketName, cb, fileName) {
+    return makeApiCallGeneric(
+        'PUT',
+        '<AccessControlPolicy xmlns="http://s3.amazonaws.com/doc/2006-03-01/">'
+        + '</AccessControlPolicy>',
+        userCredentials,
+        `/${bucketName}/${fileName}?acl&versionId=0`,
+        cb,
+    );
+}
+
 function getObjectResponseCode(userCredentials, bucketName, cb, fileName) {
     return makeApiCallGeneric(
         'GET',
@@ -63,12 +74,32 @@ function getObjectResponseCode(userCredentials, bucketName, cb, fileName) {
     );
 }
 
+function getObjectVersionResponseCode(userCredentials, bucketName, cb, fileName) {
+    return makeApiCallGeneric(
+        'GET',
+        null,
+        userCredentials,
+        `/${bucketName}/${fileName}?versionId=0`,
+        cb,
+    );
+}
+
 function getObjectAclResponseCode(userCredentials, bucketName, cb, fileName) {
     return makeApiCallGeneric(
         'GET',
         null,
         userCredentials,
         `/${bucketName}/${fileName}?acl`,
+        cb,
+    );
+}
+
+function getObjectVersionAclResponseCode(userCredentials, bucketName, cb, fileName) {
+    return makeApiCallGeneric(
+        'GET',
+        null,
+        userCredentials,
+        `/${bucketName}/${fileName}?acl&versionId=0`,
         cb,
     );
 }
@@ -143,6 +174,16 @@ function getBucketObjectRetentionResponseCode(userCredentials, bucketName, cb, f
     );
 }
 
+function getBucketObjectVersionRetentionResponseCode(userCredentials, bucketName, cb, fileName) {
+    return makeApiCallGeneric(
+        'GET',
+        null,
+        userCredentials,
+        `/${bucketName}/${fileName}?retention&versionId=0`,
+        cb,
+    );
+}
+
 function getObjectLegalHoldResponseCode(userCredentials, bucketName, cb, fileName) {
     return makeApiCallGeneric(
         'GET',
@@ -153,12 +194,52 @@ function getObjectLegalHoldResponseCode(userCredentials, bucketName, cb, fileNam
     );
 }
 
+function getObjectVersionLegalHoldResponseCode(userCredentials, bucketName, cb, fileName) {
+    return makeApiCallGeneric(
+        'GET',
+        null,
+        userCredentials,
+        `/${bucketName}/${fileName}?legal-hold&versionId=0`,
+        cb,
+    );
+}
+
 function getObjectTaggingResponseCode(userCredentials, bucketName, cb, fileName) {
     return makeApiCallGeneric(
         'GET',
         null,
         userCredentials,
         `/${bucketName}/${fileName}?tagging`,
+        cb,
+    );
+}
+
+function getObjectVersionTaggingResponseCode(userCredentials, bucketName, cb, fileName) {
+    return makeApiCallGeneric(
+        'GET',
+        null,
+        userCredentials,
+        `/${bucketName}/${fileName}?tagging&versionId=0`,
+        cb,
+    );
+}
+
+function putObjectVersionTaggingResponseCode(userCredentials, bucketName, cb, fileName) {
+    return makeApiCallGeneric(
+        'PUT',
+        null,
+        userCredentials,
+        `/${bucketName}/${fileName}?tagging&versionId=0`,
+        cb,
+    );
+}
+
+function deleteObjectVersionTaggingResponseCode(userCredentials, bucketName, cb, fileName) {
+    return makeApiCallGeneric(
+        'DELETE',
+        null,
+        userCredentials,
+        `/${bucketName}/${fileName}?tagging&versionId=0`,
         cb,
     );
 }
@@ -203,6 +284,17 @@ function putObjectRetentionResponseCode(userCredentials, bucketName, cb, fileNam
     );
 }
 
+function putObjectVersionRetentionResponseCode(userCredentials, bucketName, cb, fileName) {
+    return makeApiCallGeneric(
+        'PUT',
+        '<Retention xmlns="http://s3.amazonaws.com/doc/2006-03-01/"></Retention>',
+        userCredentials,
+        `/${bucketName}/${fileName}?retention&versionId=0`,
+        cb,
+    );
+}
+
+
 function putObjectTaggingResponseCode(userCredentials, bucketName, cb, fileName) {
     return makeApiCallGeneric(
         'PUT',
@@ -219,6 +311,16 @@ function putObjectLegalHoldTaggingResponseCode(userCredentials, bucketName, cb, 
         '<LegalHold xmlns="http://s3.amazonaws.com/doc/2006-03-01/"></LegalHold>',
         userCredentials,
         `/${bucketName}/${fileName}?legal-hold`,
+        cb,
+    );
+}
+
+function putObjectVersionLegalHoldTaggingResponseCode(userCredentials, bucketName, cb, fileName) {
+    return makeApiCallGeneric(
+        'PUT',
+        '<LegalHold xmlns="http://s3.amazonaws.com/doc/2006-03-01/"></LegalHold>',
+        userCredentials,
+        `/${bucketName}/${fileName}?legal-hold&versionId=0`,
         cb,
     );
 }
@@ -314,8 +416,11 @@ module.exports = {
     metadataSearchResponseCode,
     putObjectResponseCode,
     putObjectAclResponseCode,
+    putObjectVersionAclResponseCode,
     getObjectResponseCode,
+    getObjectVersionResponseCode,
     getObjectAclResponseCode,
+    getObjectVersionAclResponseCode,
     deleteObjectResponseCode,
     deleteObjectVersionResponseCode,
     getBucketVersioningResponseCode,
@@ -323,18 +428,25 @@ module.exports = {
     getBucketAclResponseCode,
     getBucketObjectLockConfResponseCode,
     getBucketObjectRetentionResponseCode,
+    getBucketObjectVersionRetentionResponseCode,
     getReplicationConfigurationResponseCode,
     getLifecycleConfigurationResponseCode,
     putLifecycleConfigurationResponseCode,
     putReplicationConfigurationResponseCode,
     getObjectLegalHoldResponseCode,
+    getObjectVersionLegalHoldResponseCode,
     getObjectTaggingResponseCode,
+    getObjectVersionTaggingResponseCode,
     listObjectsV2ResponseCode,
     listObjectVersionsResponseCode,
     copyObjectResponseCode,
     putObjectRetentionResponseCode,
+    putObjectVersionRetentionResponseCode,
     putObjectTaggingResponseCode,
     putObjectLegalHoldTaggingResponseCode,
+    putObjectVersionLegalHoldTaggingResponseCode,
+    deleteObjectVersionTaggingResponseCode,
+    putObjectVersionTaggingResponseCode,
     putObjectLockConfigurationResponseCode,
     deleteObjectsResponseCode,
     headObjectResponseCode,
