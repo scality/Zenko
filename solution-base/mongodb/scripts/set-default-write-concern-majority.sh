@@ -13,4 +13,6 @@ if (!defaultWriteConcern || defaultWriteConcern.w !== 'majority') {
 EOF
 }
 
-set_default_majority
+if [ "${MONGODB_SHARDING_MODE:-}" != "configsvr" ]; then
+    set_default_majority
+fi
