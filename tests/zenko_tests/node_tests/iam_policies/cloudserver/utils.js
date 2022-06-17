@@ -194,6 +194,36 @@ function getBucketObjectVersionRetentionResponseCode(userCredentials, bucketName
     );
 }
 
+function getBucketTaggingResponseCode(userCredentials, bucketName, cb) {
+    return makeApiCallGeneric(
+        'GET',
+        null,
+        userCredentials,
+        `/${bucketName}/?tagging`,
+        cb,
+    );
+}
+
+function putBucketTaggingResponseCode(userCredentials, bucketName, cb) {
+    return makeApiCallGeneric(
+        'PUT',
+        '<Tagging xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><TagSet></TagSet></Tagging>',
+        userCredentials,
+        `/${bucketName}/?tagging`,
+        cb,
+    );
+}
+
+function deleteBucketTaggingResponseCode(userCredentials, bucketName, cb) {
+    return makeApiCallGeneric(
+        'DELETE',
+        null,
+        userCredentials,
+        `/${bucketName}/?tagging`,
+        cb,
+    );
+}
+
 function getObjectLegalHoldResponseCode(userCredentials, bucketName, cb, fileName) {
     return makeApiCallGeneric(
         'GET',
@@ -461,5 +491,8 @@ module.exports = {
     putObjectLockConfigurationResponseCode,
     deleteObjectsResponseCode,
     headObjectResponseCode,
+    getBucketTaggingResponseCode,
+    putBucketTaggingResponseCode,
+    deleteBucketTaggingResponseCode,
     createPolicy,
 };

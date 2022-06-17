@@ -44,6 +44,9 @@ const {
     putObjectLockConfigurationResponseCode,
     deleteObjectsResponseCode,
     headObjectResponseCode,
+    getBucketTaggingResponseCode,
+    putBucketTaggingResponseCode,
+    deleteBucketTaggingResponseCode,
 } = require('./utils');
 
 let iamClient = null;
@@ -220,6 +223,18 @@ const testAPIs = [
     {
         API: 'PutObjectVersionAcl',
         checkResponse: putObjectVersionAclResponseCode,
+    },
+    {
+        API: 'GetBucketTagging',
+        checkResponse: getBucketTaggingResponseCode,
+    },
+    {
+        API: 'PutBucketTagging',
+        checkResponse: putBucketTaggingResponseCode,
+    },
+    {
+        API: 'DeleteBucketTagging',
+        checkResponse: deleteBucketTaggingResponseCode,
     },
 ];
 
