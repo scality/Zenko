@@ -21,7 +21,7 @@ cloudserver:
   sourceRegistry: registry.scality.com/cloudserver
   dashboard: cloudserver-dashboards
   image: cloudserver
-  tag: 8.5.3
+  tag: 8.5.4
   envsubst: CLOUDSERVER_TAG
 jabba:
   sourceRegistry: registry.scality.com/jabba
@@ -81,7 +81,7 @@ vault:
   sourceRegistry: registry.scality.com/vault
   dashboard: vault-dashboards
   image: vault
-  tag: 8.5.9
+  tag: 8.5.10
   envsubst: VAULT_TAG
 zenko-operator:
   sourceRegistry: registry.scality.com/zenko-operator
