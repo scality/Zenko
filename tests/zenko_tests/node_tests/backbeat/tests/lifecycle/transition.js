@@ -86,8 +86,7 @@ testsToRun.forEach(test => {
                 ], done);
             });
 
-            // TODO: ZENKO-4232
-            it.skip('should transition an MPU object with 10 parts', done => {
+            it('should transition a MPU object', done => {
                 const key = `${keyPrefix}-from-${test.from}-to-${test.to}-`
                       + 'nover-mpu';
                 cloudServer.setKey(key);
