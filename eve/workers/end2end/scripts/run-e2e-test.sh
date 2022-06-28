@@ -47,7 +47,9 @@ KEYCLOAK_TEST_CLIENT_ID=${OIDC_CLIENT_ID}
 KEYCLOAK_TEST_GRANT_TYPE="password"
 
 run_e2e_test() {
-    kubectl run ${1} ${POD_NAME} \
+   retries=3
+   while ((retries > 0)); do
+      kubectl run ${1} ${POD_NAME} \
         --image ${E2E_IMAGE} \
         --restart=Never \
         --rm \
@@ -109,7 +111,16 @@ run_e2e_test() {
         --env=MONGO_WRITE_CONCERN=${MONGO_WRITE_CONCERN} \
         --env=MONGO_AUTH_USERNAME=${MONGO_AUTH_USERNAME} \
         --env=MONGO_AUTH_PASSWORD=${MONGO_AUTH_PASSWORD} \
-        --command -- sh -c "${2}"
+        --command -- sh -c "${2}" && break
+
+      echo "something went wrong, let's wait 5 seconds and retry"
+      sleep 5
+      ((retries --))
+   done
+   if ((retries == 0 )); then
+      echo "Failed!"
+      exit 1
+   fi
 }
 
 ## TODO use existing entrypoint
