@@ -122,7 +122,10 @@ stages:
   pre-merge:
     simultaneous_builds: 4
     worker:
-      type: local
+      type: openstack
+      image: focal-server-cloudimg-amd64_2021-04-29
+      flavor: m1.xlarge
+      path: eve/workers/end2end
     steps:
     # Checking whether the content of the branch is only documentation related.
     # This will help in deciding whether the end2end tests
