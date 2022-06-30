@@ -1,100 +1,101 @@
 # Please keep the first level keys sorted
 # to sort keys, use the following command
 # yq eval 'sortKeys(.)' -i deps.yaml
+
 backbeat:
-  sourceRegistry: registry.scality.com/backbeat
-  dashboard: backbeat-dashboards
-  image: backbeat
-  policy: backbeat-policies
-  tag: 8.4.3
-  envsubst: BACKBEAT_TAG
+    sourceRegistry: registry.scality.com/backbeat
+    dashboard: backbeat-dashboards
+    image: backbeat
+    policy: backbeat-policies
+    tag: 8.4.3
+    envsubst: BACKBEAT_TAG
 blobserver:
-  sourceRegistry: registry.scality.com/sf-eng
-  image: blobserver
-  tag: 1.0.8
-  envsubst: BLOBSERVER_TAG
+    sourceRegistry: registry.scality.com/sf-eng
+    image: blobserver
+    tag: 1.0.8
+    envsubst: BLOBSERVER_TAG
 busybox:
-  image: busybox
-  tag: 1.33.0
-  envsubst: BUSYBOX_TAG
+    image: busybox
+    tag: 1.33.0
+    envsubst: BUSYBOX_TAG
 cloudserver:
-  sourceRegistry: registry.scality.com/cloudserver
-  dashboard: cloudserver-dashboards
-  image: cloudserver
-  tag: 8.5.2
-  envsubst: CLOUDSERVER_TAG
+    sourceRegistry: registry.scality.com/cloudserver
+    dashboard: cloudserver-dashboards
+    image: cloudserver
+    tag: 8.5.2
+    envsubst: CLOUDSERVER_TAG
 jabba:
-  sourceRegistry: registry.scality.com/jabba
-  image: jabba
-  tag: 1.0.0
-  envsubst: JABBA_TAG
+    sourceRegistry: registry.scality.com/jabba
+    image: jabba
+    tag: 1.0.0
+    envsubst: JABBA_TAG
 jmx-javaagent:
-  sourceRegistry: banzaicloud
-  image: jmx-javaagent
-  tag: 0.14.0
-  envsubst: JMX_JAVAAGENT_TAG
+    sourceRegistry: banzaicloud
+    image: jmx-javaagent
+    tag: 0.14.0
+    envsubst: JMX_JAVAAGENT_TAG
 kafka:
-  sourceRegistry: ghcr.io/banzaicloud
-  image: kafka
-  tag: 2.13-2.7.0-bzc.1
-  envsubst: KAFKA_TAG
+    sourceRegistry: ghcr.io/banzaicloud
+    image: kafka
+    tag: 2.13-2.7.0-bzc.1
+    envsubst: KAFKA_TAG
 kafka-cruise-control:
-  sourceRegistry: ghcr.io/banzaicloud
-  image: cruise-control
-  tag: 2.5.80
-  envsubst: KAFKA_CRUISECONTROL_TAG
+    sourceRegistry: ghcr.io/banzaicloud
+    image: cruise-control
+    tag: 2.5.80
+    envsubst: KAFKA_CRUISECONTROL_TAG
 mongodb:
-  sourceRegistry: kubedb
-  image: mongo
-  tag: 4.0-v1
-  envsubst: MONGODB_TAG
+    sourceRegistry: kubedb
+    image: mongo
+    tag: 4.0-v1
+    envsubst: MONGODB_TAG
 pensieve-api:
-  sourceRegistry: registry.scality.com/pensieve-api
-  image: pensieve-api
-  tag: 1.3.0
-  envsubst: PENSIEVE_API_TAG
+    sourceRegistry: registry.scality.com/pensieve-api
+    image: pensieve-api
+    tag: 1.3.0
+    envsubst: PENSIEVE_API_TAG
 redis:
-  image: redis
-  tag: 5.0.3
-  envsubst: REDIS_TAG
+    image: redis
+    tag: 5.0.3
+    envsubst: REDIS_TAG
 redis-kubedb:
-  sourceRegistry: kubedb
-  image: redis
-  tag: 5.0.3-v1
-  envsubst: REDIS_KUBEDB_TAG
+    sourceRegistry: kubedb
+    image: redis
+    tag: 5.0.3-v1
+    envsubst: REDIS_KUBEDB_TAG
 redis_exporter:
-  sourceRegistry: oliver006
-  image: redis_exporter
-  tag: v1.29.0
-  envsubst: REDIS_EXPORTER_TAG
+    sourceRegistry: oliver006
+    image: redis_exporter
+    tag: v1.29.0
+    envsubst: REDIS_EXPORTER_TAG
 s3utils:
-  sourceRegistry: registry.scality.com/s3utils
-  image: s3utils
-  tag: 1.12.3
-  envsubst: S3UTILS_TAG
+    sourceRegistry: registry.scality.com/s3utils
+    image: s3utils
+    tag: 1.12.3
+    envsubst: S3UTILS_TAG
 utapi:
-  sourceRegistry: registry.scality.com/sf-eng
-  image: utapi
-  tag: zenko-1.0.0
-  envsubst: UTAPI_TAG
+    sourceRegistry: registry.scality.com/sf-eng
+    image: utapi
+    tag: zenko-1.0.0
+    envsubst: UTAPI_TAG
 vault:
-  sourceRegistry: registry.scality.com/playground/jbertran
-  # dashboard: vault-dashboards
-  image: vault
-  tag: 8.5.9
-  envsubst: VAULT_TAG
+    sourceRegistry: registry.scality.com/playground/jbertran
+    # dashboard: vault-dashboards
+    image: vault
+    tag: 8.5.9
+    envsubst: VAULT_TAG
 zenko-operator:
-  sourceRegistry: registry.scality.com/zenko-operator
-  image: zenko-operator
-  tag: 1.4.4
-  envsubst: ZENKO_OPERATOR_TAG
+    sourceRegistry: registry.scality.com/zenko-operator
+    image: zenko-operator
+    tag: 1.4.4
+    envsubst: ZENKO_OPERATOR_TAG
 zenko-ui:
-  sourceRegistry: registry.scality.com/zenko-ui
-  image: zenko-ui
-  tag: 1.5.0-preview.2
-  envsubst: ZENKO_UI_TAG
+    sourceRegistry: registry.scality.com/zenko-ui
+    image: zenko-ui
+    tag: 1.5.0-preview.2
+    envsubst: ZENKO_UI_TAG
 zookeeper:
-  sourceRegistry: pravega
-  image: zookeeper
-  tag: 0.2.13
-  envsubst: ZOOKEEPER_TAG
+    sourceRegistry: pravega
+    image: zookeeper
+    tag: 0.2.13
+    envsubst: ZOOKEEPER_TAG
