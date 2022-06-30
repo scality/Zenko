@@ -1,7 +1,6 @@
 # Please keep the first level keys sorted
 # to sort keys, use the following command
 # yq eval 'sortKeys(.)' -i deps.yaml
-
 backbeat:
     sourceRegistry: registry.scality.com/backbeat
     dashboard: backbeat-dashboards
@@ -79,10 +78,10 @@ utapi:
     tag: zenko-1.0.0
     envsubst: UTAPI_TAG
 vault:
-    sourceRegistry: registry.scality.com/playground/jbertran
+    sourceRegistry: registry.scality.com/playground/ghivert
     # dashboard: vault-dashboards
     image: vault
-    tag: 8.5.9
+    tag: 8.5.10
     envsubst: VAULT_TAG
 zenko-operator:
     sourceRegistry: registry.scality.com/zenko-operator
