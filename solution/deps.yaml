@@ -53,6 +53,11 @@ pensieve-api:
   image: pensieve-api
   tag: 1.3.1
   envsubst: PENSIEVE_API_TAG
+rclone:
+  sourceRegistry: rclone
+  image: rclone
+  tag: 1.59
+  envsubst: RCLONE_TAG
 redis:
   image: redis
   tag: 5.0.3
