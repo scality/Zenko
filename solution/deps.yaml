@@ -6,7 +6,7 @@ backbeat:
   dashboard: backbeat-dashboards
   image: backbeat
   policy: backbeat-policies
-  tag: 8.4.5
+  tag: 8.4.10
   envsubst: BACKBEAT_TAG
 blobserver:
   sourceRegistry: registry.scality.com/sf-eng
@@ -21,7 +21,7 @@ cloudserver:
   sourceRegistry: registry.scality.com/cloudserver
   dashboard: cloudserver-dashboards
   image: cloudserver
-  tag: 8.5.4
+  tag: 8.5.6
   envsubst: CLOUDSERVER_TAG
 jabba:
   sourceRegistry: registry.scality.com/jabba
@@ -72,6 +72,12 @@ s3utils:
   image: s3utils
   tag: 1.12.3
   envsubst: S3UTILS_TAG
+sorbet:
+  sourceRegistry: registry.scality.com/sorbet
+  policy: sorbet-policies
+  image: sorbet
+  tag: v0.0.6
+  envsubst: SORBET_TAG
 utapi:
   sourceRegistry: registry.scality.com/sf-eng
   image: utapi
@@ -86,7 +92,7 @@ vault:
 zenko-operator:
   sourceRegistry: registry.scality.com/zenko-operator
   image: zenko-operator
-  tag: 1.4.4
+  tag: 1.4.8
   envsubst: ZENKO_OPERATOR_TAG
 zenko-ui:
   sourceRegistry: registry.scality.com/zenko-ui

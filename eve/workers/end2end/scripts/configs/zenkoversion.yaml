@@ -31,6 +31,9 @@ spec:
     backbeat:
       image: '${BACKBEAT_POLICY}'
       tag: '${BACKBEAT_TAG}'
+    sorbet:
+      image: '${SORBET_POLICY}'
+      tag: '${SORBET_TAG}'
   versions:
     management:
       ui:
@@ -69,6 +72,9 @@ spec:
     s3utils:
       image: '${S3UTILS_IMAGE}' 
       tag: '${S3UTILS_TAG}'
+    sorbet:
+      image: '${SORBET_IMAGE}'
+      tag: '${SORBET_TAG}'
     zookeeper:
       image: '${ZOOKEEPER_IMAGE}' 
       tag: '${ZOOKEEPER_TAG}'
