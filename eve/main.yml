@@ -580,6 +580,13 @@ stages:
         <<: *install_mocks
         env:
           <<: [*kind-env, *e2e-env, *http-env]
+    - ShellCommand: &install_sorbet_mocks
+        name: Start mock sorbet service
+        env:
+          <<: [*kind-env, *e2e-env, *http-env]
+        command: sh tests/smoke/deploy-sorbet-resources.sh end2end
+        workdir: build/eve/workers/end2end/operator
+        haltOnFailure: true
     - ShellCommand:
         <<: *configure_end2end_tests
         env:
