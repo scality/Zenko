@@ -5,6 +5,7 @@ set -u
 PWD=$(pwd)
 BUILD_ROOT=${PWD}/_build
 ISO_ROOT=${BUILD_ROOT}/root
+ISO_BINDIR=${ISO_ROOT}/bin
 IMAGES_ROOT=${ISO_ROOT}/images
 SCRIPT_FULL_PATH=$(readlink -f "$0")
 REPOSITORY_DIR=$(dirname "${SCRIPT_FULL_PATH}")/..
@@ -28,6 +29,11 @@ OPERATOR_SDK_OPTS=
 SKOPEO=skopeo
 SKOPEO_OPTS="--override-os linux --insecure-policy"
 
+KAF_VERSION=v0.2.2
+STERN_VERSION=1.21.0
+FZF_VERSION=0.30.0
+FUBECTL_VERSION=ed5f8a8e9feb650ca20100cc094e0f0ce1fd3898
+
 export SOLUTION_REGISTRY=metalk8s-registry-from-config.invalid/${PRODUCT_LOWERNAME}-${VERSION_FULL}
 
 function clean()
@@ -38,6 +44,7 @@ function clean()
 function mkdirs()
 {
     mkdir -p ${ISO_ROOT}
+    mkdir -p ${ISO_BINDIR}
 }
 
 function gen_manifest_yaml()
@@ -278,9 +285,33 @@ function build_iso()
     cat ${ISO_ROOT}/SHA256SUM
 }
 
+function download_tools()
+{
+    # CLI Kafka client all-in-one
+    BINDIR=${ISO_BINDIR} bash <(curl https://raw.githubusercontent.com/birdayz/kaf/master/godownloader.sh) ${KAF_VERSION}
+
+    # tail any pod logs with pattern matching
+    (
+        cd ${BUILD_ROOT} &&
+        curl -LO https://github.com/stern/stern/releases/download/v${STERN_VERSION}/stern_${STERN_VERSION}_linux_amd64.tar.gz &&
+        tar zvxf stern_${STERN_VERSION}_linux_amd64.tar.gz -C ${ISO_BINDIR} stern
+    )
+
+    # fuzzy finder for fubectl
+    (
+        cd ${BUILD_ROOT} &&
+        curl -LO https://github.com/junegunn/fzf/releases/download/${FZF_VERSION}/fzf-${FZF_VERSION}-linux_amd64.tar.gz &&
+        tar zvxf fzf-${FZF_VERSION}-linux_amd64.tar.gz -C ${ISO_BINDIR} fzf
+    )
+
+    # kubectl wrappers with fuzzy matching on any resource
+    curl -o ${ISO_BINDIR}/fubectl.source https://github.com/kubermatic/fubectl/blob/${FUBECTL_VERSION}/fubectl.source
+}
+
 # run everything in order
 clean
 mkdirs
+download_tools
 gen_manifest_yaml
 copy_yamls
 flatten_source_images | while read img ; do
