@@ -20,7 +20,7 @@
       "type": "constant",
       "label": "job",
       "description": "Name of the Kafka job, used to filter only the Kafka instances.",
-      "value": "artesca-data-base-queue-headless"
+      "value": "artesca-data-base-queue"
     },
     {
       "name": "cluster",

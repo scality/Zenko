@@ -88,6 +88,9 @@ spec:
       cruiseControl:
         image: cruise-control
         tag: '${KAFKA_CRUISECONTROL_TAG}'
+      lagExporter:
+        image: kafka-lag-exporter
+        tag: '${KAFKA_LAGEXPORTER_TAG}'
       monitoring:
         image: jmx-javaagent
         tag: '${JMX_JAVAAGENT_TAG}'
