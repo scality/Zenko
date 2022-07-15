@@ -14,11 +14,11 @@ tests:
   - name: Brokers Count
     interval: 1m
     input_series:
-      - series: kafka_server_replicamanager_leadercount{namespace="zenko",service="artesca-data-base-queue-headless",broker="kafka1"}
+      - series: kafka_server_replicamanager_leadercount{namespace="zenko",service="artesca-data-base-queue",broker="kafka1"}
         values: 1 1 1 stale
-      - series: kafka_server_replicamanager_leadercount{namespace="zenko",service="artesca-data-base-queue-headless",broker="kafka2"}
+      - series: kafka_server_replicamanager_leadercount{namespace="zenko",service="artesca-data-base-queue",broker="kafka2"}
         values: 1 1 stale
-      - series: kafka_server_replicamanager_leadercount{namespace="zenko",service="artesca-data-base-queue-headless",broker="kafka3"}
+      - series: kafka_server_replicamanager_leadercount{namespace="zenko",service="artesca-data-base-queue",broker="kafka3"}
         values: 1 stale
     alert_rule_test:
       - alertname: BrokersCountWarning
@@ -49,7 +49,7 @@ tests:
               description: 'Kafka: Broker count is 0'
             exp_labels:
               namespace: zenko
-              service: artesca-data-base-queue-headless
+              service: artesca-data-base-queue
               severity: critical
 
   # ActiveControllerCritical
@@ -57,11 +57,11 @@ tests:
   - name: Active Controller
     interval: 1m
     input_series:
-      - series: kafka_controller_kafkacontroller_activecontrollercount{namespace="zenko",service="artesca-data-base-queue-headless",broker="kafka1"}
+      - series: kafka_controller_kafkacontroller_activecontrollercount{namespace="zenko",service="artesca-data-base-queue",broker="kafka1"}
         values: 1 0 0 0
-      - series: kafka_controller_kafkacontroller_activecontrollercount{namespace="zenko",service="artesca-data-base-queue-headless",broker="kafka2"}
+      - series: kafka_controller_kafkacontroller_activecontrollercount{namespace="zenko",service="artesca-data-base-queue",broker="kafka2"}
         values: 0 0 0 1
-      - series: kafka_controller_kafkacontroller_activecontrollercount{namespace="zenko",service="artesca-data-base-queue-headless",broker="kafka3"}
+      - series: kafka_controller_kafkacontroller_activecontrollercount{namespace="zenko",service="artesca-data-base-queue",broker="kafka3"}
         values: 0 0 0 0
     alert_rule_test:
       - alertname: ActiveControllerCritical
@@ -87,11 +87,11 @@ tests:
   - name: Under Replicated Partitions
     interval: 1m
     input_series:
-      - series: kafka_server_replicamanager_underreplicatedpartitions{namespace="zenko",service="artesca-data-base-queue-headless",broker="kafka1"}
+      - series: kafka_server_replicamanager_underreplicatedpartitions{namespace="zenko",service="artesca-data-base-queue",broker="kafka1"}
         values: 0 1 1 1 0
-      - series: kafka_server_replicamanager_underreplicatedpartitions{namespace="zenko",service="artesca-data-base-queue-headless",broker="kafka2"}
+      - series: kafka_server_replicamanager_underreplicatedpartitions{namespace="zenko",service="artesca-data-base-queue",broker="kafka2"}
         values: 0 0 0 1 0
-      - series: kafka_server_replicamanager_underreplicatedpartitions{namespace="zenko",service="artesca-data-base-queue-headless",broker="kafka3"}
+      - series: kafka_server_replicamanager_underreplicatedpartitions{namespace="zenko",service="artesca-data-base-queue",broker="kafka3"}
         values: 0 0 0 0 0
     alert_rule_test:
       - alertname: UnderReplicatedPartitions
@@ -125,11 +125,11 @@ tests:
   - name: Under Replicated Partitions
     interval: 1m
     input_series:
-      - series: kafka_controller_kafkacontroller_offlinepartitionscount{namespace="zenko",service="artesca-data-base-queue-headless",broker="kafka1"}
+      - series: kafka_controller_kafkacontroller_offlinepartitionscount{namespace="zenko",service="artesca-data-base-queue",broker="kafka1"}
         values: 0 1 1 1 0
-      - series: kafka_controller_kafkacontroller_offlinepartitionscount{namespace="zenko",service="artesca-data-base-queue-headless",broker="kafka2"}
+      - series: kafka_controller_kafkacontroller_offlinepartitionscount{namespace="zenko",service="artesca-data-base-queue",broker="kafka2"}
         values: 0 0 0 1 0
-      - series: kafka_controller_kafkacontroller_offlinepartitionscount{namespace="zenko",service="artesca-data-base-queue-headless",broker="kafka3"}
+      - series: kafka_controller_kafkacontroller_offlinepartitionscount{namespace="zenko",service="artesca-data-base-queue",broker="kafka3"}
         values: 0 0 0 0 0
     alert_rule_test:
       - alertname: OfflinePartitons
@@ -207,11 +207,11 @@ tests:
   - name: Kafka Zookeeper Sync
     interval: 1m
     input_series:
-      - series: kafka_server_sessionexpirelistener_zookeepersyncconnects_total{namespace="zenko",service="artesca-data-base-queue-headless",broker="kafka1"}
+      - series: kafka_server_sessionexpirelistener_zookeepersyncconnects_total{namespace="zenko",service="artesca-data-base-queue",broker="kafka1"}
         values: 1 1 1
-      - series: kafka_server_sessionexpirelistener_zookeepersyncconnects_total{namespace="zenko",service="artesca-data-base-queue-headless",broker="kafka2"}
+      - series: kafka_server_sessionexpirelistener_zookeepersyncconnects_total{namespace="zenko",service="artesca-data-base-queue",broker="kafka2"}
         values: 1 1 0
-      - series: kafka_server_sessionexpirelistener_zookeepersyncconnects_total{namespace="zenko",service="artesca-data-base-queue-headless",broker="kafka3"}
+      - series: kafka_server_sessionexpirelistener_zookeepersyncconnects_total{namespace="zenko",service="artesca-data-base-queue",broker="kafka3"}
         values: 1 1 1
     alert_rule_test:
       - alertname: ZookeeperSyncConnect
