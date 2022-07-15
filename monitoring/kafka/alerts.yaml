@@ -5,7 +5,7 @@ x-inputs:
     value: zenko
   - name: service
     type: constant
-    value: artesca-data-base-queue-headless
+    value: artesca-data-base-queue
   - name: pvc
     type: constant
     value: artesca-data-base-queue
