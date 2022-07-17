@@ -91,6 +91,9 @@ spec:
       monitoring:
         image: '${JMX_JAVAAGENT_IMAGE}'
         tag: '${JMX_JAVAAGENT_TAG}'
+      lagExporter:
+        image: lightbend/kafka-lag-exporter
+        tag: '0.6.8'
     vault:
       image: '${VAULT_IMAGE}'
       tag: '${VAULT_TAG}'

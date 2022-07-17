@@ -587,6 +587,13 @@ stages:
         command: sh tests/smoke/deploy-sorbet-resources.sh end2end
         workdir: build/eve/workers/end2end/operator
         haltOnFailure: true
+    - ShellCommand: &serve_prometheus
+        name: Serve prometheus
+        env:
+          <<: [*kind-env, *e2e-env, *http-env]
+        command: sh tests/smoke/deploy-test-helper-resources.sh
+        workdir: build/eve/workers/end2end/operator
+        haltOnFailure: true
     - ShellCommand:
         <<: *configure_end2end_tests
         env:

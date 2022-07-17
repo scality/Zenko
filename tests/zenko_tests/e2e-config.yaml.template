@@ -30,7 +30,7 @@ locations:
       secretKey: "${RING_S3C_SECRET_KEY}"
       bucketMatch: yes
       repoId: []
-  - name: "coldbackend"
+  - name: "e2e-cold"
     locationType: "location-dmf-v1"
     isCold: true
     details:
