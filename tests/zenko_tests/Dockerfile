@@ -26,6 +26,7 @@ RUN apt-get update && apt-get install -y \
     gcc \
     libffi-dev \
     musl-dev \
+    vim \
     libssl1.0-dev && \
     mkdir -p /usr/local/bin/tests/node_tests
 
@@ -40,6 +41,8 @@ RUN python3 -m pip install -r /tmp/requirements.txt tox && \
     rm -rf ~/.node-gyp && \
     rm -rf /tmp/npm-* && \
     rm -rf /var/cache/apk/*
+
+RUN pip3 --no-cache-dir install --upgrade awscli
 
 COPY ./node_tests/npm_chain.sh ./docker-entrypoint.sh ./wait_for_ceph.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/npm_chain.sh /usr/local/bin/docker-entrypoint.sh /usr/local/bin/wait_for_ceph.sh
