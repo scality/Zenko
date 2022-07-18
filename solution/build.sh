@@ -305,7 +305,7 @@ function download_tools()
     )
 
     # kubectl wrappers with fuzzy matching on any resource
-    curl -o ${ISO_BINDIR}/fubectl.source https://github.com/kubermatic/fubectl/blob/${FUBECTL_VERSION}/fubectl.source
+    curl -o ${ISO_BINDIR}/fubectl.source https://raw.githubusercontent.com/kubermatic/fubectl/${FUBECTL_VERSION}/fubectl.source
 }
 
 # run everything in order
