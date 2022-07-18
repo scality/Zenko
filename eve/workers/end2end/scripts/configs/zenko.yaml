@@ -31,7 +31,7 @@ spec:
   mongodb:
     provider: External
     endpoints:
-      - ${ZENKO_MONGODB_ENDPOINT} 
+      - ${ZENKO_MONGODB_ENDPOINT}
     userSecretName: mongodb-db-creds
     usernameKey: mongodb-username
     passwordKey: mongodb-password
@@ -84,6 +84,10 @@ spec:
       - 10.0.0.0/8
   sorbet:
     enable: true
+    configurationOverrides:
+      e2e-cold:
+        debug: "true"
+        command-timeout: "60s"
   ingress:
     workloadPlaneClass: 'nginx'
     controlPlaneClass: 'nginx'
