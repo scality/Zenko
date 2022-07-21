@@ -6,7 +6,7 @@ backbeat:
   dashboard: backbeat-dashboards
   image: backbeat
   policy: backbeat-policies
-  tag: 8.4.14
+  tag: 8.4.15
   envsubst: BACKBEAT_TAG
 blobserver:
   sourceRegistry: registry.scality.com/sf-eng
@@ -102,7 +102,7 @@ vault:
 zenko-operator:
   sourceRegistry: registry.scality.com/zenko-operator
   image: zenko-operator
-  tag: 1.4.10
+  tag: 1.4.11
   envsubst: ZENKO_OPERATOR_TAG
 zenko-ui:
   sourceRegistry: registry.scality.com/zenko-ui
