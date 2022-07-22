@@ -46,6 +46,7 @@ models:
       AWS_BACKEND_DESTINATION_LOCATION: awsbackendmismatch
       GCP_BACKEND_DESTINATION_LOCATION: gcpbackendmismatch
       AZURE_BACKEND_DESTINATION_LOCATION: azurebackendmismatch
+      COLD_BACKEND_DESTINATION_LOCATION: e2e-cold
       LOCATION_QUOTA_BACKEND: quotabackend
       AWS_BUCKET_NAME: ci-zenko-aws-target-bucket
       AWS_CRR_BUCKET_NAME: ci-zenko-aws-crr-target-bucket
@@ -362,6 +363,13 @@ stages:
         command: bash scripts/install-mocks.sh "default"
         workdir: build/eve/workers/end2end
         haltOnFailure: true
+    - ShellCommand: &install_sorbet_mocks
+        name: Start mock sorbet service
+        env:
+          <<: [*kind-env, *e2e-env, *http-env]
+        command: sh tests/smoke/deploy-sorbet-resources.sh end2end
+        workdir: build/eve/workers/end2end/operator
+        haltOnFailure: true
     - ShellCommand: &configure_end2end_tests
         name: End-to-end configuration
         env:
@@ -466,6 +474,10 @@ stages:
           <<: [*kind-env, *https-env]
     - ShellCommand:
         <<: *install_mocks
+        env:
+          <<: [*kind-env, *e2e-env, *http-env]
+    - ShellCommand:
+        <<: *install_sorbet_mocks
         env:
           <<: [*kind-env, *e2e-env, *http-env]
     - ShellCommand:
@@ -578,6 +590,10 @@ stages:
           <<: [*kind-env, *http-env]
     - ShellCommand:
         <<: *install_mocks
+        env:
+          <<: [*kind-env, *e2e-env, *http-env]
+    - ShellCommand:
+        <<: *install_sorbet_mocks
         env:
           <<: [*kind-env, *e2e-env, *http-env]
     - ShellCommand:

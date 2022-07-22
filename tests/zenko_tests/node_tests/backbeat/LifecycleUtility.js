@@ -186,6 +186,31 @@ class LifecycleUtility extends ReplicationUtility {
         }, cb);
     }
 
+    /**
+     * Put NonCurrentVersion Transition bucket lifecycle configuration
+     *
+     * @param {function} cb - callback function
+     *
+     * @returns undefined
+     */
+    putBucketNCVTLifecycleConfiguration(cb) {
+        this.s3.putBucketLifecycleConfiguration({
+            Bucket: this.bucket,
+            LifecycleConfiguration: {
+                Rules: [{
+                    Status: 'Enabled',
+                    Prefix: this.keyPrefix,
+                    NoncurrentVersionTransitions: [
+                        {
+                            NoncurrentDays: 1,
+                            StorageClass: this.destinationLocation,
+                        },
+                    ],
+                }],
+            },
+        }, cb);
+    }
+
     putBucketExpiration(bucket, rules, cb) {
         this.s3.putBucketLifecycleConfiguration({
             Bucket: bucket,
@@ -193,13 +218,17 @@ class LifecycleUtility extends ReplicationUtility {
         }, cb);
     }
 
-    waitUntilTransitioned(cb) {
+    waitUntilTransitioned(version, cb) {
         let shouldContinue;
+        const params = {
+            Bucket: this.bucket,
+            Key: this.key,
+        };
+        if (version) {
+            params.VersionId = version;
+        }
         return async.doWhilst(
-            next => this.s3.headObject({
-                Bucket: this.bucket,
-                Key: this.key,
-            }, (err, data) => {
+            next => this.s3.headObject(params, (err, data) => {
                 if (err) {
                     return next(err);
                 }

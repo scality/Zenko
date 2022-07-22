@@ -26,10 +26,14 @@ spec:
     triggerExpirationsOneDayEarlierForTesting: true
     lifecycleConductor:
       cronRule: "${BACKBEAT_LCC_CRON_RULE}"
+    lifecycleBucketProcessor:
+      triggerTransitionsOneDayEarlierForTesting: true
+    logging:
+      logLevel: trace
   mongodb:
     provider: External
     endpoints:
-      - ${ZENKO_MONGODB_ENDPOINT} 
+      - ${ZENKO_MONGODB_ENDPOINT}
     userSecretName: mongodb-db-creds
     usernameKey: mongodb-username
     passwordKey: mongodb-password
@@ -80,6 +84,12 @@ spec:
       allowFrom:
       - 172.16.0.0/12
       - 10.0.0.0/8
+  sorbet:
+    enable: true
+    configurationOverrides:
+      e2e-cold:
+        debug: "true"
+        command-timeout: "60s"
   ingress:
     workloadPlaneClass: 'nginx'
     controlPlaneClass: 'nginx'

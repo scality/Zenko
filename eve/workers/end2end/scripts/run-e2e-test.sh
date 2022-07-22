@@ -76,6 +76,7 @@ run_e2e_test() {
         --env=AWS_BACKEND_DESTINATION_LOCATION=awsbackendmismatch \
         --env=GCP_BACKEND_DESTINATION_LOCATION=gcpbackendmismatch \
         --env=AZURE_BACKEND_DESTINATION_LOCATION=azurebackendmismatch \
+        --env=COLD_BACKEND_DESTINATION_LOCATION=e2e-cold \
         --env=LOCATION_QUOTA_BACKEND=quotabackend \
         --env=AWS_BUCKET_NAME=ci-zenko-aws-target-bucket \
         --env=AWS_CRR_BUCKET_NAME=ci-zenko-aws-crr-target-bucket \
