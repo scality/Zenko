@@ -26,6 +26,7 @@ RUN apt-get update && apt-get install -y \
     gcc \
     libffi-dev \
     musl-dev \
+    vim \
     libssl1.0-dev && \
     mkdir -p /usr/local/bin/tests/node_tests
 
