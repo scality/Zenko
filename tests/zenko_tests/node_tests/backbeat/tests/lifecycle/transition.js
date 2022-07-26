@@ -58,7 +58,7 @@ const locationParams = {
         name: process.env.COLD_BACKEND_DESTINATION_LOCATION,
         supportsVersioning: true,
         isCold: true,
-    }
+    },
 };
 
 // TODO: ZENKO-4233 enable AZURE/GCP as destination and AWS/AZURE/GCP as source

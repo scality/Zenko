@@ -485,6 +485,10 @@ stages:
         env:
           <<: [*kind-env, *e2e-env, *https-env, *secrets-env]
     - ShellCommand:
+        <<: *linting_coverage
+        env:
+          <<: [*kind-env, *e2e-env, *http-env, *secrets-env]
+    - ShellCommand:
         <<: *run_end2end_tests
         env:
           <<: [*kind-env, *e2e-env, *https-env, *secrets-env]
@@ -598,6 +602,10 @@ stages:
           <<: [*kind-env, *e2e-env, *http-env]
     - ShellCommand:
         <<: *configure_end2end_tests
+        env:
+          <<: [*kind-env, *e2e-env, *http-env, *secrets-env]
+    - ShellCommand:
+        <<: *linting_coverage
         env:
           <<: [*kind-env, *e2e-env, *http-env, *secrets-env]
     - ShellCommand:

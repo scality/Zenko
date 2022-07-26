@@ -191,7 +191,7 @@ class LifecycleUtility extends ReplicationUtility {
      *
      * @param {function} cb - callback function
      *
-     * @returns undefined
+     * @returns {undefined} undefined
      */
     putBucketNCVTLifecycleConfiguration(cb) {
         this.s3.putBucketLifecycleConfiguration({
