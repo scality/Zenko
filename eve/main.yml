@@ -623,6 +623,9 @@ stages:
         command: bash scripts/run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "backbeat" "default"
         workdir: build/eve/workers/end2end
         haltOnFailure: true
+        # backbeat tests timing out with the default 1200 seconds
+        # ref: http://docs.buildbot.net/latest/manual/configuration/steps/shell_command.html?highlight=shellcommands
+        timeout: 1800
     - ShellCommand: *debug_wait
     - ShellCommand:
         <<: *archive_artifacts

@@ -99,8 +99,15 @@ class LifecycleUtility extends ReplicationUtility {
     }
 
 
-    getObject(cb) {
-        super.getObject(this.bucket, this.key, cb);
+    getObject(versionId, cb) {
+        const params = {
+            Bucket: this.bucket,
+            Key: this.key,
+        };
+        if (versionId) {
+            params.VersionId = versionId;
+        }
+        this.s3.getObject(params, cb);
     }
 
     deleteObject(bucket, key, versionId, cb) {
@@ -218,14 +225,14 @@ class LifecycleUtility extends ReplicationUtility {
         }, cb);
     }
 
-    waitUntilTransitioned(version, cb) {
+    waitUntilTransitioned(versionId, cb) {
         let shouldContinue;
         const params = {
             Bucket: this.bucket,
             Key: this.key,
         };
-        if (version) {
-            params.VersionId = version;
+        if (versionId) {
+            params.VersionId = versionId;
         }
         return async.doWhilst(
             next => this.s3.headObject(params, (err, data) => {
@@ -348,6 +355,62 @@ class LifecycleUtility extends ReplicationUtility {
             }
             return cb(null, res.Uploads.length > 0);
         });
+    }
+
+    /**
+     * Put an object restore request
+     *
+     * @param {string} [versionId] - version id of an object
+     * @param {function} cb - callback function
+     *
+     * @returns {undefined} undefined
+     */
+    putRestoreObject(versionId, cb) {
+        const params = {
+            Bucket: this.bucket,
+            Key: this.key,
+            RestoreRequest: {
+                Days: 1,
+                Tier: 'Standard',
+            },
+        };
+        if (versionId) {
+            params.VersionId = versionId;
+        }
+        this.s3.restoreObject(params, cb);
+    }
+
+    /**
+     * Wait until an archived object is restored
+     *
+     * @param {string} [versionId] - version id of an object
+     * @param {function} cb - callback function
+     *
+     * @returns {undefined} undefined
+     */
+    waitUntilRestored(versionId, cb) {
+        let shouldContinue;
+        const params = {
+            Bucket: this.bucket,
+            Key: this.key,
+        };
+        if (versionId) {
+            params.VersionId = versionId;
+        }
+        return async.doWhilst(
+            next => this.s3.headObject(params, (err, data) => {
+                if (err) {
+                    return next(err);
+                }
+                shouldContinue = data.StorageClass;
+                if (shouldContinue) {
+                    return setTimeout(next, 5000);
+                }
+                return next();
+            }),
+            () => shouldContinue,
+            cb,
+        );
     }
 }
 
