@@ -71,5 +71,5 @@ kubectl run ${POD_NAME} \
 ## wait for updates to trigger zenko upgrades
 sleep 10
 
-kubectl wait --for condition=DeploymentFailure=false --timeout 10m -n ${NAMESPACE} zenko/${ZENKO_NAME}
-kubectl wait --for condition=DeploymentInProgress=false --timeout 10m -n ${NAMESPACE} zenko/${ZENKO_NAME}
+kubectl wait --for condition=DeploymentFailure=false --timeout 15m -n ${NAMESPACE} zenko/${ZENKO_NAME}
+kubectl wait --for condition=DeploymentInProgress=false --timeout 15m -n ${NAMESPACE} zenko/${ZENKO_NAME}
