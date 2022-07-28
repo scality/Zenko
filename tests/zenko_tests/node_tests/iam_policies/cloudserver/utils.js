@@ -1,4 +1,9 @@
+const aws4 = require('aws4');
+const http = require('http');
 const { makeGETRequest, getResponseBody, makeUpdateRequest } = require('../../utils/request');
+
+const DEFAULT_HOST = process.env.CLOUDSERVER_HOST;
+const DEFAULT_PORT = process.env.CLOUDSERVER_PORT || '80';
 
 // eslint-disable-next-line default-param-last
 function makeApiCallGeneric(mode = 'GET', body, userCredentials, query, cb) {
@@ -50,6 +55,40 @@ function putObjectResponseCode(userCredentials, bucketName, cb, fileName) {
         `/${bucketName}/${fileName}`,
         cb,
     );
+}
+
+function putObjectVersionResponseCode(userCredentials, bucketName, cb, fileName) {
+    const signOptions = {
+        host: DEFAULT_HOST,
+        port: DEFAULT_PORT,
+        service: 's3',
+        method: 'PUT',
+        path: `/${bucketName}/${fileName}`,
+        headers: {
+            'x-scal-s3-version-id': '',
+        },
+    };
+
+    const body = null;
+    const options = aws4.sign(signOptions, userCredentials);
+
+    const req = http.request(options, response => {
+        const { statusCode } = response;
+        return getResponseBody(response, (err, res) => {
+            if (err) {
+                return cb(err);
+            }
+            const r = /<Code>(.*)<\/Code>/;
+            const code = res.match(r);
+            if (code !== null) {
+                return cb(null, { statusCode, code: code[1] });
+            }
+            return cb(null, { statusCode, code });
+        }, true);
+    });
+    req.setHeader('x-scal-s3-version-id', '');
+    req.on('error', err => cb(err));
+    req.end(body);
 }
 
 function putObjectAclResponseCode(userCredentials, bucketName, cb, fileName) {
@@ -495,4 +534,5 @@ module.exports = {
     putBucketTaggingResponseCode,
     deleteBucketTaggingResponseCode,
     createPolicy,
+    putObjectVersionResponseCode,
 };
