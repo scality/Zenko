@@ -3,17 +3,22 @@
 create_user() {
     mongo --host "mongodb://127.0.0.1/?replicaSet=${MONGODB_REPLICA_SET_NAME}"  -u 'root' -p "$MONGODB_ROOT_PASSWORD" <<EOF
 user = db.getSiblingDB('admin').getUser('$MONGODB_APP_USERNAME')
+requiredRoles = [
+    { role: 'enableSharding', db: '$MONGODB_APP_DATABASE' },
+    { role: 'readWrite', db: '$MONGODB_APP_DATABASE' },
+    { role: 'read', db: 'local' }
+]
+
 if (user == null) {
     db.getSiblingDB('admin').createUser({
         user: '$MONGODB_APP_USERNAME',
         pwd: '$MONGODB_APP_PASSWORD',
-        roles: [
-            { role: 'enableSharding', db: '$MONGODB_APP_DATABASE' },
-            { role: 'readWrite', db: '$MONGODB_APP_DATABASE' },
-            { role: 'read', db: 'local' }
-        ]
+        roles: requiredRoles
     })
+} else {
+    db.getSiblingDB('admin').grantRolesToUser('$MONGODB_APP_USERNAME', requiredRoles)
 }
+
 EOF
 }
 
