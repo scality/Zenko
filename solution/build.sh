@@ -233,12 +233,21 @@ function get_dashboards()
 function copy_iam_policies()
 {
     components=$(yq eval '.* | select(.policy != "") | .sourceRegistry + "/" + .policy + ":" + .tag' deps.yaml)
+    # TODO: remove once ORAS image release workflow is fixed in Sorbet
+    local skip_sorbet=$(yq eval '.sorbet | .sourceRegistry + "/" + .policy + ":" + .tag' deps.yaml)
+    echo "copy iam policies for registry.scality.com/sorbet/sorbet-policies:v0.0.7"
+    copy_oci_image "registry.scality.com/sorbet/sorbet-policies:v0.0.7"
 
     for policy in ${components}
     do
+        if [ ${policy} = ${skip_sorbet} ]; then
+            continue
+        fi
+
         echo "copy iam policies for ${policy}"
         copy_oci_image ${policy}
     done
+
 }
 
 function dedupe()
