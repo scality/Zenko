@@ -33,9 +33,7 @@ spec:
       tag: '${BACKBEAT_TAG}'
     sorbet:
       image: '${SORBET_POLICY}'
-      # TODO: revert once ORAS image release workflow is fixed in Sorbet
-      # tag: '${SORBET_TAG}'
-      tag: 'v0.0.7'
+      tag: '${SORBET_TAG}'
   versions:
     management:
       ui:
