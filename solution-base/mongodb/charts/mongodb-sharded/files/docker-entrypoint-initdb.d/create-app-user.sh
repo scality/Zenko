@@ -1,1 +1,1 @@
-../../../../../../eve/workers/end2end/scripts/configs/mongodb_init_scripts/create-app-user.sh
+../../../../scripts/create-app-user.sh
