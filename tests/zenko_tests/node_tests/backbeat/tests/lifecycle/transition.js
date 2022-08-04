@@ -128,8 +128,7 @@ testsToRun.forEach(test => {
                 series([
                     next => cloudServer.putObject(Buffer.from(''), next),
                     next => checkTransition(toLoc, cloudServer, cloud, null, next),
-                    // TODO: ZENKO-4302 issue with non-versioned restore
-                    // next => checkRestoration(toLoc, cloudServer, null, next),
+                    next => checkRestoration(toLoc, cloudServer, null, next),
                 ], done);
             });
 
@@ -140,8 +139,7 @@ testsToRun.forEach(test => {
                 series([
                     next => cloudServer.putObject(Buffer.from(key), next),
                     next => checkTransition(toLoc, cloudServer, cloud, null, next),
-                    // TODO: ZENKO-4302 issue with non-versioned restore
-                    // next => checkRestoration(toLoc, cloudServer, null, next),
+                    next => checkRestoration(toLoc, cloudServer, null, next),
                 ], done);
             });
 
@@ -152,8 +150,7 @@ testsToRun.forEach(test => {
                 series([
                     next => cloudServer.putMPU(10, next),
                     next => checkTransition(toLoc, cloudServer, cloud, null, next),
-                    // TODO: ZENKO-4302 issue with non-versioned restore
-                    // next => checkRestoration(toLoc, cloudServer, null, next),
+                    next => checkRestoration(toLoc, cloudServer, null, next),
                 ], done);
             });
         });
