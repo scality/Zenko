@@ -15,6 +15,7 @@ def get_env(key, default=None, error=False):
 RING_S3C_ACCESS_KEY = get_env('RING_S3C_ACCESS_KEY')
 RING_S3C_SECRET_KEY = get_env('RING_S3C_SECRET_KEY')
 RING_S3C_INGESTION_SRC_BUCKET_NAME = get_env('RING_S3C_INGESTION_SRC_BUCKET_NAME')
+RING_S3C_INGESTION_SRC_BUCKET_NAME_NON_VERSIONED = get_env('RING_S3C_INGESTION_SRC_BUCKET_NAME_NON_VERSIONED')
 RING_S3C_ENDPOINT = get_env('RING_S3C_ENDPOINT')
 ENABLE_RING_TESTS = get_env('ENABLE_RING_TESTS')
 VERIFY_CERTIFICATES = get_env('VERIFY_CERTIFICATES', False)
@@ -31,7 +32,7 @@ def bucket_safe_delete(bucketname):
     try:
         bucket = ring_s3c_client.Bucket(bucketname)
         _log.info('Deleting bucket %s' % bucket.name)
-        bucket.objects.all().delete()
+        bucket.object_versions.delete()
         bucket.delete()
     except Exception as exp:
         _log.info('Error deleting bucket %s - %s' % (bucket.name, str(exp)))
@@ -39,3 +40,4 @@ def bucket_safe_delete(bucketname):
 
 _log.info('Removing S3C buckets...')
 bucket_safe_delete(RING_S3C_INGESTION_SRC_BUCKET_NAME)
+bucket_safe_delete(RING_S3C_INGESTION_SRC_BUCKET_NAME_NON_VERSIONED)

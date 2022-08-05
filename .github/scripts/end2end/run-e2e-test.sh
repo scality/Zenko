@@ -97,6 +97,10 @@ run_e2e_test() {
         --env=RING_S3C_ENDPOINT=${RING_S3C_ENDPOINT} \
         --env=RING_S3C_BACKEND_SOURCE_LOCATION=${RING_S3C_BACKEND_SOURCE_LOCATION} \
         --env=RING_S3C_INGESTION_SRC_BUCKET_NAME=${RING_S3C_INGESTION_SRC_BUCKET_NAME} \
+        --env=RING_S3C_BACKEND_SOURCE_LOCATION_NON_VERSIONED=${RING_S3C_BACKEND_SOURCE_LOCATION_NON_VERSIONED} \
+        --env=RING_S3C_INGESTION_SRC_BUCKET_NAME_NON_VERSIONED=${RING_S3C_INGESTION_SRC_BUCKET_NAME_NON_VERSIONED} \
+        --env=RING_S3C_OBJECT_KEY_NON_VERSIONED=${RING_S3C_OBJECT_KEY_NON_VERSIONED} \
+        --env=RING_S3C_OBJECT_KEY_ZERO_BYTE_NON_VERSIONED=${RING_S3C_OBJECT_KEY_ZERO_BYTE_NON_VERSIONED} \
         --env=KEYCLOAK_TEST_USER=${KEYCLOAK_TEST_USER} \
         --env=KEYCLOAK_TEST_PASSWORD=${KEYCLOAK_TEST_PASSWORD} \
         --env=KEYCLOAK_TEST_HOST=${KEYCLOAK_TEST_HOST} \
@@ -125,7 +129,7 @@ elif [ "$STAGE" = "smoke" ]; then
    run_e2e_test '' 'cd node_tests && npm run test_smoke'
 elif [ "$STAGE" = "backbeat" ]; then
    ## TODO: use node js to create and remove buckets
-   run_e2e_test '' 'cd node_tests && npm run test_all_extensions && cd .. && python3 cleans3c.py'
+   run_e2e_test '' 'cd node_tests && npm run test_all_extensions; cd .. && python3 cleans3c.py'
 elif [ "$STAGE" = "iam-policies" ]; then
    run_e2e_test '' 'cd node_tests && npm run test_iam_policies'
 elif [ "$STAGE" = "object-api" ]; then

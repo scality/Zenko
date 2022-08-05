@@ -59,6 +59,56 @@ class IngestionUtility extends ReplicationUtility {
         });
     }
 
+    createIngestionBucketWithReplication(
+        bucketName,
+        ingestionLocation,
+        replicationBucket,
+        replicationLocation,
+        roleArn,
+        cb,
+    ) {
+        const locationNameWithSuffix = `${ingestionLocation}:ingest`;
+        return async.series([
+            next => this.s3.createBucket({
+                Bucket: bucketName,
+                CreateBucketConfiguration: {
+                    LocationConstraint: locationNameWithSuffix,
+                },
+            }, next),
+            // Putting bucket replication here as we also need
+            // to wait for it to be enabled before putting objects.
+            // Waiting is done in the async.series callback, we use
+            // the same one used for ingestion
+            next => this.putBucketReplicationMultipleBackend(
+                bucketName,
+                replicationBucket,
+                roleArn,
+                replicationLocation,
+                next,
+            ),
+        ], err => {
+            if (err) {
+                return cb(err);
+            }
+            // When resuming an ingestion-enabled location,
+            // backbeat gets the list of buckets with ingestion-enabled
+            // to check if the location is valid.
+            // Backbeat sets the list of buckets with ingestion-enabled periodically,
+            // so the list might be outdated for few seconds leading to a 404 API error response.
+            // Also backbeat "ingestion producer" process applies update every 5 seconds.
+            // For this reason, we are waiting 10 seconds to make sure ingestion processes are up-to-date.
+            return setTimeout(() => backbeatAPIUtils.resumeIngestion(ingestionLocation, false, null, (err, body) => {
+                if (err) {
+                    return cb(err);
+                }
+                if (body.code) {
+                    return cb(`error resuming ingestion: ${JSON.stringify(body)}`);
+                }
+                return cb();
+            }), 10000);
+        });
+    }
+
     putObjectWithProperties(bucketName, objectName, content, cb) {
         this.s3.putObject({
             Bucket: bucketName,
