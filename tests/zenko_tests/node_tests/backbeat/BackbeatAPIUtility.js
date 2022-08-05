@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { makeGETRequest, makePOSTRequest, getResponseBody } = require('../utils/request');
+const { makeGETRequest, makeUpdateRequest, getResponseBody } = require('../utils/request');
 
 class BackbeatAPIUtility {
     getReplicationStatus(locationName, cb) {
@@ -26,7 +26,7 @@ class BackbeatAPIUtility {
         if (locationName) {
             path = `${path}/${locationName}`;
         }
-        makePOSTRequest(path, '{}', cb);
+        makeUpdateRequest(path, cb, null, '{}', 'POST');
     }
 
     resumeReplication(locationName, schedule, hoursScheduled, cb) {
@@ -38,7 +38,7 @@ class BackbeatAPIUtility {
             path = `${path}/${locationName}/schedule`;
             requestBody = JSON.stringify({ hours: hoursScheduled });
         }
-        makePOSTRequest(path, requestBody, cb);
+        makeUpdateRequest(path, cb, null, requestBody, 'POST');
     }
 
     getIngestionStatus(locationName, cb) {
@@ -65,7 +65,7 @@ class BackbeatAPIUtility {
         if (locationName) {
             path = `${path}/${locationName}`;
         }
-        makePOSTRequest(path, '{}', cb);
+        makeUpdateRequest(path, cb, null, '{}', 'POST');
     }
 
     resumeIngestion(locationName, schedule, hoursScheduled, cb) {
@@ -77,10 +77,10 @@ class BackbeatAPIUtility {
             path = `${path}/${locationName}/schedule`;
             requestBody = JSON.stringify({ hours: hoursScheduled });
         }
-        return makePOSTRequest(path, requestBody, (err, res) => {
+        return makeUpdateRequest(path, (err, res) => {
             assert.ifError(err);
             return getResponseBody(res, cb);
-        });
+        }, null, requestBody, 'POST');
     }
 }
 
