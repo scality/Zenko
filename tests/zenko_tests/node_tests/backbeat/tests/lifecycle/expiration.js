@@ -149,10 +149,10 @@ describe('Lifecycle Expiration', () => {
 
         it('when objects are still fresh', done => {
             const lifecycleRules = [
-                longExpireDayRule(null, null, false),
-                longExpireDateRule(null, null, false),
-                longExpireVersionedRule(null, null, false),
-                longExpireMPURule(null, null, false),
+                longExpireDayRule(null, null, true),
+                longExpireDateRule(null, null, true),
+                longExpireVersionedRule(null, null, true),
+                longExpireMPURule(null, null, true),
             ];
             async.series([
                 next => utils.putBucketExpiration(bucketName, lifecycleRules, next),
