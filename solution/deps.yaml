@@ -6,7 +6,7 @@ backbeat:
   dashboard: backbeat-dashboards
   image: backbeat
   policy: backbeat-policies
-  tag: 8.4.19
+  tag: 8.4.15
   envsubst: BACKBEAT_TAG
 blobserver:
   sourceRegistry: registry.scality.com/sf-eng
@@ -21,7 +21,7 @@ cloudserver:
   sourceRegistry: registry.scality.com/cloudserver
   dashboard: cloudserver-dashboards
   image: cloudserver
-  tag: 8.5.11
+  tag: 8.5.8
   envsubst: CLOUDSERVER_TAG
 jabba:
   sourceRegistry: registry.scality.com/jabba
@@ -56,7 +56,7 @@ mongodb:
 pensieve-api:
   sourceRegistry: registry.scality.com/pensieve-api
   image: pensieve-api
-  tag: 1.3.2
+  tag: 1.3.1
   envsubst: PENSIEVE_API_TAG
 rclone:
   sourceRegistry: rclone
@@ -86,7 +86,7 @@ sorbet:
   sourceRegistry: registry.scality.com/sorbet
   policy: sorbet-policies
   image: sorbet
-  tag: v0.0.10
+  tag: v0.0.7
   envsubst: SORBET_TAG
 utapi:
   sourceRegistry: registry.scality.com/sf-eng
@@ -100,14 +100,14 @@ vault:
   tag: 8.5.12
   envsubst: VAULT_TAG
 zenko-operator:
-  sourceRegistry: registry.scality.com/playground/wlardier
+  sourceRegistry: registry.scality.com/sf-eng
   image: zenko-operator
-  tag: test1
+  tag: 026bef889a241ca78a10d4194c9e89dc6066b32c
   envsubst: ZENKO_OPERATOR_TAG
 zenko-ui:
   sourceRegistry: registry.scality.com/zenko-ui
   image: zenko-ui
-  tag: 1.5.0-preview.13
+  tag: 1.5.0-preview.9
   envsubst: ZENKO_UI_TAG
 zookeeper:
   sourceRegistry: pravega
