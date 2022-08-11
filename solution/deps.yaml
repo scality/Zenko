@@ -100,9 +100,9 @@ vault:
   tag: 8.5.12
   envsubst: VAULT_TAG
 zenko-operator:
-  sourceRegistry: registry.scality.com/sf-eng
+  sourceRegistry: registry.scality.com/playground/wlardier
   image: zenko-operator
-  tag: 026bef889a241ca78a10d4194c9e89dc6066b32c
+  tag: improvement/ZKOP-181-implement-zkop-generation
   envsubst: ZENKO_OPERATOR_TAG
 zenko-ui:
   sourceRegistry: registry.scality.com/zenko-ui
