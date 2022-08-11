@@ -102,7 +102,7 @@ vault:
 zenko-operator:
   sourceRegistry: registry.scality.com/playground/wlardier
   image: zenko-operator
-  tag: 1.4.51
+  tag: 1.4.63
   envsubst: ZENKO_OPERATOR_TAG
 zenko-ui:
   sourceRegistry: registry.scality.com/zenko-ui
