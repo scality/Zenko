@@ -86,7 +86,7 @@ sorbet:
   sourceRegistry: registry.scality.com/sorbet
   policy: sorbet-policies
   image: sorbet
-  tag: v0.0.10
+  tag: v0.0.11
   envsubst: SORBET_TAG
 utapi:
   sourceRegistry: registry.scality.com/sf-eng
