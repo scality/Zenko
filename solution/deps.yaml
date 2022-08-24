@@ -86,7 +86,7 @@ vault:
   sourceRegistry: registry.scality.com/vault
   dashboard: vault-dashboards
   image: vault
-  tag: 8.4.20
+  tag: 8.4.21
   envsubst: VAULT_TAG
 zenko-operator:
   sourceRegistry: registry.scality.com/zenko-operator
