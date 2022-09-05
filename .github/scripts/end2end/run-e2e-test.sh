@@ -119,6 +119,10 @@ run_e2e_test() {
         --command -- sh -c "${2}"
 }
 
+run_bucket_cleanup () {
+   run_e2e_test '' 'python3 cleans3c.py'
+}
+
 ## TODO use existing entrypoint
 if [ "$STAGE" = "end2end" ]; then
    ## TODO: re-add npm  run test_ui after ZENKO-4033
@@ -129,7 +133,12 @@ elif [ "$STAGE" = "smoke" ]; then
    run_e2e_test '' 'cd node_tests && npm run test_smoke'
 elif [ "$STAGE" = "backbeat" ]; then
    ## TODO: use node js to create and remove buckets
-   run_e2e_test '' 'cd node_tests && npm run test_all_extensions; cd .. && python3 cleans3c.py'
+   set +e
+   run_e2e_test '' 'cd node_tests && npm run test_all_extensions'
+   retcode=$?
+   set -e
+   run_bucket_cleanup
+   exit $retcode
 elif [ "$STAGE" = "iam-policies" ]; then
    run_e2e_test '' 'cd node_tests && npm run test_iam_policies'
 elif [ "$STAGE" = "object-api" ]; then
