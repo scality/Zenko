@@ -1,6 +1,10 @@
 const assert = require('assert');
 const async = require('async');
 
+const werelogs = require('werelogs');
+
+const logger = new werelogs.Logger('IngestionUtility');
+
 const { scalityS3Client, ringS3Client } = require('../s3SDK');
 const ReplicationUtility = require('./ReplicationUtility');
 const BackbeatAPIUtility = require('./BackbeatAPIUtility');
@@ -38,6 +42,7 @@ class IngestionUtility extends ReplicationUtility {
             },
         }, err => {
             if (err) {
+                logger.error(`Failed to create bucket ${bucketName}: ${err}`);
                 return cb(err);
             }
             // When resuming an ingestion-enabled location,
@@ -47,6 +52,7 @@ class IngestionUtility extends ReplicationUtility {
             // so the list might be outdated for few seconds leading to a 404 API error response.
             // Also backbeat "ingestion producer" process applies update every 5 seconds.
             // For this reason, we are waiting 10 seconds to make sure ingestion processes are up-to-date.
+            logger.error(`Created bucket ${bucketName}`);
             return setTimeout(() => backbeatAPIUtils.resumeIngestion(locationName, false, null, (err, body) => {
                 if (err) {
                     return cb(err);
