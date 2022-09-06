@@ -141,6 +141,17 @@ class IngestionUtility extends ReplicationUtility {
                 }
                 status = !err;
                 if (!status) {
+                    logger.error(`Waiting for ingestion of ${key}:${versionId}`);
+                    this.s3.listObjectVersions(
+                        { Bucket: bucketName },
+                        (err, response) => {
+                            if (err) {
+                                logger.error(err);
+                            }
+                            logger.error(response);
+                            logger.error(response.Versions);
+                        },
+                    );
                     return setTimeout(callback, 2000);
                 }
                 return callback();

@@ -78,6 +78,10 @@ env:
   RING_S3C_ENDPOINT: ${{ secrets.RING_S3C_BACKEND_ENDPOINT }}
   RING_S3C_BACKEND_SOURCE_LOCATION: rings3cbackendingestion
   RING_S3C_INGESTION_SRC_BUCKET_NAME: ingestion-test-src-bucket-${{ github.run_id }}-${{ github.run_attempt }}
+  RING_S3C_BACKEND_SOURCE_LOCATION_NON_VERSIONED: rings3cbackendingestionnonversioned
+  RING_S3C_INGESTION_SRC_BUCKET_NAME_NON_VERSIONED: ingestion-test-src-bucket-non-versioned-${{ github.run_id }}-${{ github.run_attempt }}
+  RING_S3C_OBJECT_KEY_NON_VERSIONED: simpleobject-${{ github.run_id }}-${{ github.run_attempt }}
+  RING_S3C_OBJECT_KEY_ZERO_BYTE_NON_VERSIONED: zerobyteobject-${{ github.run_id }}-${{ github.run_attempt }}
   SKOPEO_PATH: "/tmp"
   HELM_VERSION: "v3.5.3"
   YQ_VERSION: "v4.6.3"
