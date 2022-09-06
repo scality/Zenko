@@ -1,9 +1,9 @@
 
 Updates to the install document:
 - Run the part of installer that generates mongodb creds secret
-- Update the volumes yaml file to include volumes for 9 mongo replicas (+ configsvr) instead of 3
-- Rerun the volumes installer step
-- Update crSpec for this:
+- Update the volumes yaml file to include volumes for 9 mongo replicas (+ configsvr) instead of 3, spread on all metadata nodes
+- Rerun the volumes installer step that creates volumes
+- Update crSpec for this topology:
 ```
     mongodb:
       provider: External
