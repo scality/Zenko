@@ -1,0 +1,26 @@
+resources:
+- _build/root/deploy/mongodb-sharded-9-nodes.yaml
+- mongodb-creds.yaml
+- storageclass.yaml
+
+images:
+- name: 'metalk8s-registry-from-config.invalid/zenko-base-2.4.26/bitnami-shell'
+  newName: 'bitnami/bitnami-shell'
+- name: 'metalk8s-registry-from-config.invalid/zenko-base-2.4.26/mongodb-sharded'
+  newName: 'bitnami/mongodb-sharded'
+- name: 'metalk8s-registry-from-config.invalid/zenko-base-2.4.26/mongodb-exporter'
+  newName: 'bitnami/mongodb-exporter'
+
+patchesJson6902:
+- path: patch-pvc-delete-selector.yaml
+  target:
+    group: apps
+    kind: StatefulSet
+    name: data-db-mongodb-sharded-configsvr
+    version: v1
+- path: patch-pvc-delete-selector.yaml
+  target:
+    group: apps
+    kind: StatefulSet
+    name: data-db-mongodb-sharded-shard0-data
+    version: v1

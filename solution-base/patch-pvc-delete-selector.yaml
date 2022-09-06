@@ -1,0 +1,3 @@
+- op: replace
+  path: /spec/volumeClaimTemplates/0/spec/selector
+  value: null
