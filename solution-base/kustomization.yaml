@@ -1,5 +1,5 @@
 resources:
-- _build/root/deploy/mongodb-sharded-9-nodes.yaml
+- mongodb-sharded-9-nodes.yaml
 - mongodb-creds.yaml
 - storageclass.yaml
 
