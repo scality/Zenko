@@ -374,7 +374,9 @@ spec:
         {{- end }}
         {{- if $.Values.shardsvr.persistence.selector }}
         selector:
-{{ toYaml $.Values.shardsvr.persistence.selector | indent 10 }}
+          matchLabels:
+            shard: '{{ $i }}'
+{{ toYaml $.Values.shardsvr.persistence.selector.matchLabels | indent 12 }}
         {{- end }}
         resources:
           requests:
