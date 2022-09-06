@@ -1,0 +1,846 @@
+---
+# Source: mongodb-sharded/templates/initialization-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongodb-sharded-init-scripts
+  labels:
+    app.kubernetes.io/name: mongodb-sharded
+    helm.sh/chart: mongodb-sharded-3.10.1
+    app.kubernetes.io/instance: data-db
+    app.kubernetes.io/managed-by: Helm
+data:
+  create-app-user.sh: |
+    #!/bin/bash
+  
+    create_user() {
+        mongo --host "mongodb://127.0.0.1/?replicaSet=${MONGODB_REPLICA_SET_NAME}"  -u 'root' -p "$MONGODB_ROOT_PASSWORD" <<EOF
+    user = db.getSiblingDB('admin').getUser('$MONGODB_APP_USERNAME')
+    requiredRoles = [
+        { role: 'enableSharding', db: '$MONGODB_APP_DATABASE' },
+        { role: 'readWrite', db: '$MONGODB_APP_DATABASE' },
+        { role: 'read', db: 'local' }
+    ]
+  
+    if (user == null) {
+        db.getSiblingDB('admin').createUser({
+            user: '$MONGODB_APP_USERNAME',
+            pwd: '$MONGODB_APP_PASSWORD',
+            roles: requiredRoles
+        })
+    } else {
+        db.getSiblingDB('admin').grantRolesToUser('$MONGODB_APP_USERNAME', requiredRoles)
+    }
+  
+    EOF
+    }
+  
+    retry() {
+        local count=0
+  
+        while ! "$@" && [ $count -lt 10 ]; do
+            count=$(($count + 1))
+            sleep 5
+        done
+  
+        if [ $count -ge 10 ]; then
+            echo "Failed to create app user."
+            exit 1
+        fi
+    }
+  
+    retry create_user
+  set-default-write-concern-majority.sh: |
+    #!/bin/bash
+  
+    set_default_majority() {
+        mongo --host "mongodb://127.0.0.1/?replicaSet=${MONGODB_REPLICA_SET_NAME}"  -u 'root' -p "$MONGODB_ROOT_PASSWORD" <<EOF
+    conf = rs.config()
+  
+    defaultWriteConcern = conf.settings.getLastErrorDefaults
+  
+    if (!defaultWriteConcern || defaultWriteConcern.w !== 'majority') {
+        defaultWriteConcern.w = 'majority'
+        rs.reconfig(conf)
+    }
+    EOF
+    }
+  
+    set_default_majority
+---
+# Source: mongodb-sharded/templates/replicaset-entrypoint-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: data-db-mongodb-sharded-replicaset-entrypoint
+  labels:
+    app.kubernetes.io/name: mongodb-sharded
+    helm.sh/chart: mongodb-sharded-3.10.1
+    app.kubernetes.io/instance: data-db
+    app.kubernetes.io/managed-by: Helm
+data:
+  replicaset-entrypoint.sh: |-
+    #!/bin/bash
+
+    sleep 5
+
+    . /liblog.sh
+
+    # Perform adaptations depending on the host name
+    if [[ $HOSTNAME =~ (.*)-0$ ]]; then
+      info "Setting node as primary"
+      export MONGODB_REPLICA_SET_MODE=primary
+    else
+      info "Setting node as secondary"
+      export MONGODB_REPLICA_SET_MODE=secondary
+      export MONGODB_INITIAL_PRIMARY_ROOT_PASSWORD="$MONGODB_ROOT_PASSWORD"
+      unset MONGODB_ROOT_PASSWORD
+    fi
+
+    exec /entrypoint.sh /run.sh
+---
+# Source: mongodb-sharded/templates/config-server/config-server-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: data-db-mongodb-sharded-configsvr
+  labels: 
+    app.kubernetes.io/name: mongodb-sharded
+    helm.sh/chart: mongodb-sharded-3.10.1
+    app.kubernetes.io/instance: data-db
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: configsvr
+  annotations:
+    {}
+spec:
+  type: ClusterIP
+  ports:
+    - name: mongodb
+      port: 27017
+      targetPort: mongodb
+      nodePort: null
+    - name: metrics
+      port: 9216
+      targetPort: metrics
+  selector: 
+    app.kubernetes.io/name: mongodb-sharded
+    app.kubernetes.io/instance: data-db
+    app.kubernetes.io/component: configsvr 
+  sessionAffinity: None
+---
+# Source: mongodb-sharded/templates/headless-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: data-db-mongodb-sharded-headless
+  labels:
+    app.kubernetes.io/name: mongodb-sharded
+    helm.sh/chart: mongodb-sharded-3.10.1
+    app.kubernetes.io/instance: data-db
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    {}
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - name: mongodb
+      port: 27017
+  selector: 
+    app.kubernetes.io/name: mongodb-sharded
+    app.kubernetes.io/instance: data-db
+---
+# Source: mongodb-sharded/templates/mongos/mongos-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: data-db-mongodb-sharded
+  labels: 
+    app.kubernetes.io/name: mongodb-sharded
+    helm.sh/chart: mongodb-sharded-3.10.1
+    app.kubernetes.io/instance: data-db
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: mongos
+  annotations:
+    {}  
+spec:
+  type: ClusterIP
+  ports:
+    - name: mongodb
+      port: 27017
+      targetPort: mongodb
+      nodePort: null
+    - name: metrics
+      port: 9216
+      targetPort: metrics
+  selector: 
+    app.kubernetes.io/name: mongodb-sharded
+    app.kubernetes.io/instance: data-db
+    app.kubernetes.io/component: mongos
+  sessionAffinity: None
+---
+# Source: mongodb-sharded/templates/config-server/config-server-statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: data-db-mongodb-sharded-configsvr
+  labels:
+    app.kubernetes.io/name: mongodb-sharded
+    helm.sh/chart: mongodb-sharded-3.10.1
+    app.kubernetes.io/instance: data-db
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: configsvr
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mongodb-sharded
+      app.kubernetes.io/instance: data-db
+      app.kubernetes.io/component: configsvr
+  serviceName: data-db-mongodb-sharded-headless
+  replicas: 9
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mongodb-sharded
+        helm.sh/chart: mongodb-sharded-3.10.1
+        app.kubernetes.io/instance: data-db
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/component: configsvr
+      annotations:
+        prometheus.io/port: '9216'
+        prometheus.io/scrape: "true"
+    spec:
+      serviceAccountName: "default"
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: mongodb-sharded
+                    app.kubernetes.io/instance: data-db
+                    app.kubernetes.io/component: configsvr
+                namespaces:
+                  - "zenko"
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      securityContext:
+        fsGroup: 1001
+      
+      initContainers:
+        - name: volume-permissions
+          image: metalk8s-registry-from-config.invalid/zenko-base-2.4.26/bitnami-shell:10-debian-10-r293
+          imagePullPolicy: "IfNotPresent"
+          command: ["chown", "-R", "1001:1001", "/bitnami/mongodb"]
+          securityContext:
+            runAsUser: 0
+          resources: 
+            {}
+          volumeMounts:
+            - name: datadir
+              mountPath: /bitnami/mongodb
+      containers:
+        - name: mongodb
+          image: metalk8s-registry-from-config.invalid/zenko-base-2.4.26/mongodb-sharded:4.0.27-debian-9-r111
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+          ports:
+            - containerPort: 27017
+              name: mongodb
+          env:
+            - name: MONGODB_ENABLE_NUMACTL
+              value: "no"
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: MONGODB_SYSTEM_LOG_VERBOSITY
+              value: "0"
+            - name: MONGODB_DISABLE_SYSTEM_LOG
+              value: "no"
+            - name: MONGODB_MAX_TIMEOUT
+              value: "120"
+            - name: MONGODB_SHARDING_MODE
+              value: "configsvr"
+            - name: MONGODB_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: MONGODB_PORT_NUMBER
+              value: "27017"
+            - name: MONGODB_INITIAL_PRIMARY_HOST
+              value: data-db-mongodb-sharded-configsvr-0.data-db-mongodb-sharded-headless.zenko.svc.cluster.local
+            - name: MONGODB_REPLICA_SET_NAME
+              value: data-db-mongodb-sharded-configsvr
+            - name: MONGODB_ADVERTISED_HOSTNAME
+              value: "$(MONGODB_POD_NAME).data-db-mongodb-sharded-headless.zenko.svc.cluster.local"
+            - name: MONGODB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-db-creds
+                  key: mongodb-root-password
+            - name: MONGODB_REPLICA_SET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-db-creds
+                  key: mongodb-replica-set-key
+            - name: MONGODB_APP_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-db-creds
+                  key: mongodb-username
+            - name: MONGODB_APP_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-db-creds
+                  key: mongodb-database
+            - name: MONGODB_APP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-db-creds
+                  key: mongodb-password
+            - name: MONGODB_ENABLE_IPV6
+              value: "no"
+            - name: MONGODB_ENABLE_DIRECTORY_PER_DB
+              value: "no"
+          command:
+            - /bin/bash
+            - /entrypoint/replicaset-entrypoint.sh
+          livenessProbe:
+            exec:
+              command:
+                - pgrep
+                - mongod
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 6
+          readinessProbe:
+            exec:
+              command:
+                - mongo
+                - --disableImplicitSessions
+                - --eval
+                - "db.adminCommand('ping')"
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 6
+          volumeMounts:
+            - name: replicaset-entrypoint-configmap
+              mountPath: /entrypoint
+            - name: datadir
+              mountPath: /bitnami/mongodb
+            - name: custom-init-scripts-cm
+              mountPath: /docker-entrypoint-initdb.d/cm
+          resources:
+            {}
+        - name: metrics
+          image: metalk8s-registry-from-config.invalid/zenko-base-2.4.26/mongodb-exporter:0.11.2-debian-10-r382
+          imagePullPolicy: "Always"
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+          env:
+            - name: MONGODB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-db-creds
+                  key: mongodb-root-password
+          command:
+            - sh
+            - -ec
+            - |-
+              #!/bin/sh
+              /bin/mongodb_exporter --web.listen-address ":9216" --mongodb.uri mongodb://root:`echo $MONGODB_ROOT_PASSWORD | sed -r "s/@/%40/g;s/:/%3A/g"`@localhost:27017/admin 
+          ports:
+            - name: metrics
+              containerPort: 9216
+          resources: 
+            {}
+      volumes:
+        - name: replicaset-entrypoint-configmap
+          configMap:
+            name: data-db-mongodb-sharded-replicaset-entrypoint
+        - name: custom-init-scripts-cm
+          configMap:
+            name: mongodb-sharded-init-scripts
+            defaultMode: 0755
+  volumeClaimTemplates:
+    - metadata:
+        name: datadir
+        annotations:
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        selector:
+          matchLabels:
+            app.kubernetes.io/name: mongodb-sharded-config
+            app.kubernetes.io/part-of: zenko
+        resources:
+          requests:
+            storage: "8Gi"
+        storageClassName: ssd-ext4
+---
+# Source: mongodb-sharded/templates/mongos/mongos-dep-sts.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: data-db-mongodb-sharded-mongos
+  labels:
+    app.kubernetes.io/name: mongodb-sharded
+    helm.sh/chart: mongodb-sharded-3.10.1
+    app.kubernetes.io/instance: data-db
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: mongos
+spec:
+  serviceName: data-db-mongodb-sharded
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: RollingUpdate
+  replicas: 9
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mongodb-sharded
+      app.kubernetes.io/instance: data-db
+      app.kubernetes.io/component: mongos
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mongodb-sharded
+        helm.sh/chart: mongodb-sharded-3.10.1
+        app.kubernetes.io/instance: data-db
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/component: mongos
+      annotations:
+        prometheus.io/port: '9216'
+        prometheus.io/scrape: "true"
+    spec:
+      serviceAccountName: "default"
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: mongodb-sharded
+                    app.kubernetes.io/instance: data-db
+                    app.kubernetes.io/component: mongos
+                namespaces:
+                  - "zenko"
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      securityContext:
+        fsGroup: 1001
+      
+      containers:
+        - name: mongos
+          image: metalk8s-registry-from-config.invalid/zenko-base-2.4.26/mongodb-sharded:4.0.27-debian-9-r111
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+          env:
+            - name: MONGODB_ENABLE_NUMACTL
+              value: "no"
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: MONGODB_SHARDING_MODE
+              value: "mongos"
+            - name: MONGODB_MAX_TIMEOUT
+              value: "120"
+            - name: MONGODB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-db-creds
+                  key: mongodb-root-password
+            - name: MONGODB_REPLICA_SET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-db-creds
+                  key: mongodb-replica-set-key
+            - name: MONGODB_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: MONGODB_ADVERTISED_HOSTNAME
+              value: "$(MONGODB_POD_NAME)"
+            - name: MONGODB_PORT_NUMBER
+              value: "27017"
+            - name: MONGODB_CFG_PRIMARY_HOST
+              value: data-db-mongodb-sharded-configsvr.zenko.svc.cluster.local
+            - name: MONGODB_CFG_REPLICA_SET_NAME
+              value: data-db-mongodb-sharded-configsvr
+            - name: MONGODB_SYSTEM_LOG_VERBOSITY
+              value: "0"
+            - name: MONGODB_DISABLE_SYSTEM_LOG
+              value: "no"
+            - name: MONGODB_ENABLE_IPV6
+              value: "no"
+            - name: MONGODB_ENABLE_DIRECTORY_PER_DB
+              value: "no"
+          ports:
+            - name: mongodb
+              containerPort: 27017
+          livenessProbe:
+            exec:
+              command:
+                - mongo
+                - --disableImplicitSessions
+                - --eval
+                - "db.adminCommand('ping')"
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 6
+          readinessProbe:
+            exec:
+              command:
+                - mongo
+                - --disableImplicitSessions
+                - --eval
+                - "db.adminCommand('ping')"
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 6
+          volumeMounts:
+          resources:
+            {}
+        - name: metrics
+          image: metalk8s-registry-from-config.invalid/zenko-base-2.4.26/mongodb-exporter:0.11.2-debian-10-r382
+          imagePullPolicy: "Always"
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+          env:
+            - name: MONGODB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-db-creds
+                  key: mongodb-root-password
+          command:
+            - sh
+            - -ec
+            - |-
+              #!/bin/sh
+              /bin/mongodb_exporter --web.listen-address ":9216" --mongodb.uri mongodb://root:`echo $MONGODB_ROOT_PASSWORD | sed -r "s/@/%40/g;s/:/%3A/g"`@localhost:27017/admin 
+          ports:
+            - name: metrics
+              containerPort: 9216
+          resources:
+            {}
+      volumes:
+---
+# Source: mongodb-sharded/templates/shard/shard-data-statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: data-db-mongodb-sharded-shard0-data
+  labels:
+    app.kubernetes.io/name: mongodb-sharded
+    helm.sh/chart: mongodb-sharded-3.10.1
+    app.kubernetes.io/instance: data-db
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: shardsvr
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mongodb-sharded
+      app.kubernetes.io/instance: data-db
+      app.kubernetes.io/component: shardsvr
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: RollingUpdate
+  serviceName: data-db-mongodb-sharded-headless
+  replicas: 9
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mongodb-sharded
+        helm.sh/chart: mongodb-sharded-3.10.1
+        app.kubernetes.io/instance: data-db
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/component: shardsvr
+        shard: "0"
+      annotations:
+        prometheus.io/port: '9216'
+        prometheus.io/scrape: "true"
+    spec:
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: mongodb-sharded
+                    app.kubernetes.io/instance: data-db
+                    app.kubernetes.io/component: shardsvr
+                namespaces:
+                  - "zenko"
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      serviceAccountName: "default"
+      securityContext:
+        fsGroup: 1001
+      
+      initContainers:
+        - name: volume-permissions
+          image: metalk8s-registry-from-config.invalid/zenko-base-2.4.26/bitnami-shell:10-debian-10-r293
+          imagePullPolicy: "IfNotPresent"
+          command: ["chown", "-R", "1001:1001", "/bitnami/mongodb"]
+          securityContext:
+            runAsUser: 0
+          resources: 
+            {}
+          volumeMounts:
+            - name: datadir
+              mountPath: /bitnami/mongodb
+      containers:
+        - name: mongodb
+          image: metalk8s-registry-from-config.invalid/zenko-base-2.4.26/mongodb-sharded:4.0.27-debian-9-r111
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+          ports:
+            - containerPort: 27017
+              name: mongodb
+          env:
+            - name: MONGODB_ENABLE_NUMACTL
+              value: "no"
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: MONGODB_SYSTEM_LOG_VERBOSITY
+              value: "0"
+            - name: MONGODB_MAX_TIMEOUT
+              value: "120"
+            - name: MONGODB_DISABLE_SYSTEM_LOG
+              value: "no"
+            - name: MONGODB_PORT_NUMBER
+              value: "27017"
+            - name: MONGODB_SHARDING_MODE
+              value: "shardsvr"
+            - name: MONGODB_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: MONGODB_MONGOS_HOST
+              value: data-db-mongodb-sharded
+            - name: MONGODB_MONGOS_PORT_NUMBER
+              value: "27017"
+            - name: MONGODB_INITIAL_PRIMARY_HOST
+              value: data-db-mongodb-sharded-shard0-data-0.data-db-mongodb-sharded-headless.zenko.svc.cluster.local
+            - name: MONGODB_REPLICA_SET_NAME
+              value: data-db-mongodb-sharded-shard-0
+            - name: MONGODB_ADVERTISED_HOSTNAME
+              value: "$(MONGODB_POD_NAME).data-db-mongodb-sharded-headless.zenko.svc.cluster.local"
+            - name: MONGODB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-db-creds
+                  key: mongodb-root-password
+            - name: MONGODB_REPLICA_SET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-db-creds
+                  key: mongodb-replica-set-key
+            - name: MONGODB_APP_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-db-creds
+                  key: mongodb-username
+            - name: MONGODB_APP_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-db-creds
+                  key: mongodb-database
+            - name: MONGODB_APP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-db-creds
+                  key: mongodb-password
+            - name: MONGODB_ENABLE_IPV6
+              value: "no"
+            - name: MONGODB_ENABLE_DIRECTORY_PER_DB
+              value: "no"
+          command:
+            - /bin/bash
+            - /entrypoint/replicaset-entrypoint.sh
+          livenessProbe:
+            exec:
+              command:
+                - pgrep
+                - mongod
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 6
+          readinessProbe:
+            exec:
+              command:
+                - mongo
+                - --disableImplicitSessions
+                - --eval
+                - "db.adminCommand('ping')"
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 6
+          volumeMounts:
+            - name: replicaset-entrypoint-configmap
+              mountPath: /entrypoint
+            - name: datadir
+              mountPath: /bitnami/mongodb
+            - name: custom-init-scripts-cm
+              mountPath: /docker-entrypoint-initdb.d/cm
+          resources:
+            {}
+        - name: metrics
+          image: metalk8s-registry-from-config.invalid/zenko-base-2.4.26/mongodb-exporter:0.11.2-debian-10-r382
+          imagePullPolicy: "Always"
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+          env:
+            - name: MONGODB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-db-creds
+                  key: mongodb-root-password
+          command:
+            - sh
+            - -ec
+            - |-
+              #!/bin/sh
+              /bin/mongodb_exporter --web.listen-address ":9216" --mongodb.uri mongodb://root:`echo $MONGODB_ROOT_PASSWORD | sed -r "s/@/%40/g;s/:/%3A/g"`@localhost:27017/admin 
+          ports:
+            - name: metrics
+              containerPort: 9216
+          resources: 
+            {}
+      volumes:
+        - name: replicaset-entrypoint-configmap
+          configMap:
+            name: data-db-mongodb-sharded-replicaset-entrypoint
+        - name: custom-init-scripts-cm
+          configMap:
+            name: mongodb-sharded-init-scripts
+            defaultMode: 0755
+  volumeClaimTemplates:
+    - metadata:
+        name: datadir
+        annotations:
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        selector:
+          matchLabels:
+            app.kubernetes.io/name: mongodb
+            app.kubernetes.io/part-of: zenko
+        resources:
+          requests:
+            storage: "8Gi"
+        storageClassName: ssd-ext4
+---
+# Source: mongodb-sharded/templates/config-server/config-server-podmonitor.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: data-db-mongodb-sharded-configsvr
+  namespace: zenko
+  labels:
+    app.kubernetes.io/name: mongodb-sharded
+    helm.sh/chart: mongodb-sharded-3.10.1
+    app.kubernetes.io/instance: data-db
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: configsvr
+    metalk8s.scality.com/monitor: ""
+spec:
+  podMetricsEndpoints:
+    - port: metrics
+      path: /metrics
+      interval: 30s
+  namespaceSelector:
+    matchNames:
+      - zenko
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mongodb-sharded
+      app.kubernetes.io/instance: data-db
+      app.kubernetes.io/component: configsvr
+---
+# Source: mongodb-sharded/templates/mongos/mongos-podmonitor.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: data-db-mongodb-sharded-mongos
+  namespace: zenko
+  labels:
+    app.kubernetes.io/name: mongodb-sharded
+    helm.sh/chart: mongodb-sharded-3.10.1
+    app.kubernetes.io/instance: data-db
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: mongos
+    metalk8s.scality.com/monitor: ""
+spec:
+  podMetricsEndpoints:
+    - port: metrics
+      path: /metrics
+      interval: 30s
+  namespaceSelector:
+    matchNames:
+      - zenko
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mongodb-sharded
+      app.kubernetes.io/instance: data-db
+      app.kubernetes.io/component: mongos
+---
+# Source: mongodb-sharded/templates/shard/shard-data-podmonitor.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: data-db-mongodb-sharded-shard0-data
+  namespace: zenko
+  labels:
+    app.kubernetes.io/name: mongodb-sharded
+    helm.sh/chart: mongodb-sharded-3.10.1
+    app.kubernetes.io/instance: data-db
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: shardsvr
+    metalk8s.scality.com/monitor: ""
+spec:
+  podMetricsEndpoints:
+    - port: metrics
+      path: /metrics
+      interval: 30s
+  namespaceSelector:
+    matchNames:
+      - zenko
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mongodb-sharded
+      app.kubernetes.io/instance: data-db
+      app.kubernetes.io/component: shardsvr
