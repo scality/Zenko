@@ -1,0 +1,12 @@
+apiVersion: v1
+data:
+  mongodb-database: ZGF0YWRi
+  mongodb-password: ZGF0YXBhc3M=
+  mongodb-replica-set-key: MDEyMzQ1Njc4OWFiY2RlZg==
+  mongodb-root-password: cm9vdHBhc3M=
+  mongodb-root-username: cm9vdA==
+  mongodb-username: ZGF0YQ==
+kind: Secret
+metadata:
+  name: mongodb-db-creds
+type: Opaque
