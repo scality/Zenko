@@ -1,6 +1,6 @@
 dependencies:
   - name: cert-manager-crds
-    version: v0.11.0
+    version: v1.9.1
     condition: ingress.auto_certificates
     repository: 'file://../cert-manager-crds'
   - name: cert-manager

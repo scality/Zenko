@@ -155,7 +155,7 @@ backbeat:
     replicas: *nodeCount
 
 cosmos:
-  enabled: true
+  enabled: true 
   ## Specify an existing storageClass to use
   # storageClass:
   rbac:

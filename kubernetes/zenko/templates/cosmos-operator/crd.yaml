@@ -1,5 +1,5 @@
 {{- if and .Values.cosmos.enabled (not .Values.cosmos.ci) }}
-apiVersion: apiextensions.k8s.io/v1beta1
+apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   name: cosmoses.zenko.io
@@ -18,11 +18,11 @@ spec:
     plural: cosmoses
     singular: cosmos
   scope: Namespaced
-  subresources:
-    status: {}
-  version: v1alpha1
   versions:
   - name: v1alpha1
     served: true
     storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
 {{- end -}}
