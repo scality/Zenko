@@ -1,0 +1,67 @@
+---
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag'
+        required: true
+      artifacts-name:
+        description: 'Artifacts name to promote'
+        required: true
+
+jobs:
+  verify-release:
+    name: Verify if tag is valid
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: Fetch tags
+        run: git fetch --tags
+      
+      - name: 'Check if tag was already created'
+        shell: bash
+        run: >
+          git show-ref --tags v${{ github.event.inputs.tag }} --quiet \
+          && exit 1 || exit 0
+
+  promote:
+    runs-on: ubuntu-latest
+    needs:
+      - verify-release
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+  
+    - name: Promote artifacts
+      uses: scality/action-artifacts@v3
+      with:
+        method: promote
+        name: ${{ github.event.inputs.artifacts-name }}
+        tag: ${{ github.event.inputs.tag }}
+        url: https://artifacts.scality.net
+        user: ${{ secrets.ARTIFACTS_USER }}
+        password: ${{ secrets.ARTIFACTS_PASSWORD }}
+
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs:
+      - verify-release
+    steps:
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          name: Release ${{ github.event.inputs.tag }}
+          tag_name: v${{ github.event.inputs.tag }}
+          generate_release_notes: true
+          target_commitish: ${{ github.sha }}

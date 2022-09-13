@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "ceph.fullname" . }}
+  labels:
+    app: {{ template "ceph.name" . }}
+    chart: {{ template "ceph.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ template "ceph.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "ceph.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.ceph.image.repository }}:{{ .Values.ceph.image.tag }}"
+          imagePullPolicy: {{ .Values.ceph.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.ceph.service.internalPort }}
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: 500m
+              memory: 1Gi

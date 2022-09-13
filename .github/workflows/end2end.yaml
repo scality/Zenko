@@ -1,0 +1,406 @@
+---
+name: build-iso-and-end2end-test
+
+concurrency:
+  group: "zenko-tests"
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - "documentation/**"
+      - "feature/**"
+      - "improvement/**"
+      - "bugfix/**"
+      - "w/**"
+      - "hotfix/**"
+      - "ci-dev/**"
+      - "user/**"
+
+env:
+  # kind-env
+  WORKER_COUNT: '2'
+  OPERATOR_REPO: git@github.com:scality/zenko-operator.git
+  OPERATOR_IMAGE: ""
+  KIND_NODE_IMAGE: "kindest/node:v1.22.4@sha256:ca3587e6e545a96c07bf82e2c46503d9ef86fc704f44c17577fca7bcabf5f978"
+  VOLUME_ROOT: /artifacts
+  OIDC_REALM: "zenko"
+  OIDC_CLIENT_ID: "zenko-ui"
+  OIDC_USERNAME: 'zenko-end2end'
+  OIDC_PASSWORD: '123'
+  OIDC_FIRST_NAME: 'hello'
+  OIDC_LAST_NAME: 'world'
+  SHELL_UI_NAME: "shell-ui"
+  SHELL_UI_IMAGE: "registry.scality.com/sf-eng/shell-ui:2.9-dev"
+  HTTP_PROXY: ""
+  HTTPS_PROXY: ""
+  BACKBEAT_BUCKET_CHECK_TIMEOUT_S: ""
+  BACKBEAT_LCC_CRON_RULE: ""
+  # e2e-env
+  E2E_IMAGE_NAME: registry.scality.com/zenko/zenko-e2e
+  E2E_IMAGE_TAG: ${{ github.sha }}
+  VAULT_TEST_IMAGE_NAME: ""
+  VAULT_TEST_IMAGE_TAG: ""
+  # http-env
+  UI_ENDPOINT: 'http://ui.zenko.local'
+  OIDC_ENDPOINT: 'http://keycloak.zenko.local'
+  NAVBAR_ENDPOINT: 'http://shell-ui.zenko.local'
+  ENABLE_KEYCLOAK_HTTPS: 'false'
+  # mock-env
+  AZURE_ACCOUNT_NAME: devstoreaccount1
+  AZURE_BACKEND_ENDPOINT: http://azure-mock/devstoreaccount1
+  AZURE_SECRET_KEY: Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==
+  AWS_ENDPOINT: http://aws-mock.zenko.local
+  AWS_ACCESS_KEY: accessKey1
+  AWS_SECRET_KEY: verySecretKey1
+  VERIFY_CERTIFICATES: "false"
+  # secrets-env
+  AWS_BACKEND_SOURCE_LOCATION: awsbackend
+  AWS_BACKEND_DESTINATION_LOCATION: awsbackendmismatch
+  GCP_BACKEND_DESTINATION_LOCATION: gcpbackendmismatch
+  AZURE_BACKEND_DESTINATION_LOCATION: azurebackendmismatch
+  COLD_BACKEND_DESTINATION_LOCATION: e2e-cold
+  LOCATION_QUOTA_BACKEND: quotabackend
+  AWS_BUCKET_NAME: ci-zenko-aws-target-bucket
+  AWS_CRR_BUCKET_NAME: ci-zenko-aws-crr-target-bucket
+  AZURE_CRR_BUCKET_NAME: ci-zenko-azure-crr-target-bucket
+  GCP_CRR_BUCKET_NAME: ci-zenko-gcp-crr-target-bucket
+  GCP_CRR_MPU_BUCKET_NAME: ci-zenko-gcp-crr-mpu-bucket
+  GCP_ACCESS_KEY: ${{ secrets.AWS_GCP_BACKEND_ACCESS_KEY }}
+  GCP_SECRET_KEY: ${{ secrets.AWS_GCP_BACKEND_SECRET_KEY }}
+  GCP_BACKEND_SERVICE_KEY: ${{ secrets.GCP2_SERVICE_KEY }}
+  GCP_BACKEND_SERVICE_EMAIL: ${{ secrets.GCP2_SERVICE_EMAIL }}
+  # Enable this for Ring tests
+  ENABLE_RING_TESTS: "false"
+  RING_S3C_ACCESS_KEY: ${{ secrets.RING_S3C_BACKEND_ACCESS_KEY }}
+  RING_S3C_SECRET_KEY: ${{ secrets.RING_S3C_BACKEND_SECRET_KEY }}
+  RING_S3C_ENDPOINT: ${{ secrets.RING_S3C_BACKEND_ENDPOINT }}
+  RING_S3C_BACKEND_SOURCE_LOCATION: rings3cbackendingestion
+  RING_S3C_INGESTION_SRC_BUCKET_NAME: ingestion-test-src-bucket-${{ github.run_id }}-${{ github.run_attempt }}
+  SKOPEO_PATH: "/tmp"
+  HELM_VERSION: "v3.5.3"
+  YQ_VERSION: "v4.6.3"
+  YQ_BINARY: "yq_linux_amd64"
+  KUSTOMIZE_VERSION: "v4.4.1"
+  GO_VERSION: "1.16.2"
+  SKOPEO_VERSION: "v1.5.2"
+  KUBECTL_VERSION: "1.21.1"
+  TILT_VERSION: "0.23.4"
+  KIND_VERSION: "v0.11.1"
+
+jobs:
+  check-dashboard-versions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: install jq
+        run: |
+          sudo apt-get update && sudo apt-get install -y \
+          jq
+      - name: Verify monitoring dashboard versions
+        run: bash ./.github/scripts/check_versions.sh
+
+  build-doc:
+    runs-on: ubuntu-latest
+    env:
+      ARTIFACTS_USER: "${{ secrets.ARTIFACTS_USER }}"
+      ARTIFACTS_PASSWORD: "${{ secrets.ARTIFACTS_PASSWORD }}"
+      DEBIAN_FRONTEND: "noninteractive"
+      ROOT_DOCUMENTATION_BUILDDIR: "docs/docsource/build"
+      DOCUMENTATION_BUILDDIR: "build"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install required dependencies
+        uses: ./.github/actions/install-doc-dependencies
+      - name: Create build directory
+        run: mkdir ./${{ env.DOCUMENTATION_BUILDDIR }}
+        working-directory: ./docs
+      - name: Build docs
+        run: tox --workdir /tmp/tox -e docs -- html BUILDDIR=${{ env.DOCUMENTATION_BUILDDIR }}
+        working-directory: ./docs
+      - name: Create tar file for documentation
+        run: |
+          tar --create --gzip --directory ./${{ env.ROOT_DOCUMENTATION_BUILDDIR }} --file ./${{ env.ROOT_DOCUMENTATION_BUILDDIR }}/zenko-documentation.tar.gz doctrees html
+      - name: Upload documentation
+        uses: scality/action-artifacts@v3
+        with:
+          method: upload
+          url: https://artifacts.scality.net
+          user: ${{ secrets.ARTIFACTS_USER }}
+          password: ${{ secrets.ARTIFACTS_PASSWORD }}
+          source: ${{ env.ROOT_DOCUMENTATION_BUILDDIR }}
+
+  build-iso:
+    runs-on:
+      - self-hosted
+      - centos7
+      - large
+    steps:
+      - name: Install dependencies
+        shell: bash
+        run: |-
+          sudo yum install -y yum-utils gettext epel-release tar
+          sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+          sudo yum install -y python3 make wget mkisofs git docker-ce docker-ce-cli isomd5sum jq
+          sudo curl --fail -LO https://dl.google.com/go/go${{ env.GO_VERSION }}.linux-amd64.tar.gz
+          sudo tar -C /usr/local -xzf go${{ env.GO_VERSION }}.linux-amd64.tar.gz
+          sudo curl --fail -sSL https://get.helm.sh/helm-${{ env.HELM_VERSION }}-linux-amd64.tar.gz | tar -xvz
+          sudo install linux-amd64/helm /usr/local/bin
+          sudo curl --fail -L https://github.com/mikefarah/yq/releases/download/${{ env.YQ_VERSION }}/${{ env.YQ_BINARY }} -o /usr/bin/yq
+          sudo chmod +x /usr/bin/yq
+          sudo curl -sSL https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${{ env.KUSTOMIZE_VERSION }}/kustomize_${{ env.KUSTOMIZE_VERSION }}_linux_amd64.tar.gz | tar xzvf -
+          sudo mv kustomize /usr/local/bin
+          sudo yum install -y gcc gpgme-devel libassuan-devel btrfs-progs-devel device-mapper-devel
+          sudo git clone --depth 1 --branch ${{ env.SKOPEO_VERSION }} https://github.com/containers/skopeo ${{ env.SKOPEO_PATH }}/src/github.com/containers/skopeo
+          sudo yum -y install https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm
+          sudo yum install -y git
+          cd ${{ env.SKOPEO_PATH }}/src/github.com/containers/skopeo && \
+            sudo PATH="/usr/local/go/bin:$PATH" DISABLE_DOCS=1 make bin/skopeo && \
+            sudo PATH="/usr/local/go/bin:$PATH" DISABLE_DOCS=1 make install
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Wait for Docker daemon to be ready
+        uses: ./.github/actions/wait-docker-ready
+      - name: Docker login
+        run: |-
+          docker login --username "${REGISTRY_LOGIN}" --password "${REGISTRY_PASSWORD}" ${REGISTRY}
+          docker login --username "${DOCKERHUB_LOGIN}" --password "${DOCKERHUB_PASSWORD}"
+          docker login --username "${SCALITY_OCI_RW_USER}" --password "${SCALITY_OCI_RW_PASSWORD}" ${REGISTRY}
+        env:
+          REGISTRY_LOGIN: ${{ secrets.REGISTRY_LOGIN }}
+          REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+          DOCKERHUB_LOGIN: ${{ secrets.DOCKERHUB_LOGIN }}
+          DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+          REGISTRY: "registry.scality.com"
+          SCALITY_OCI_RW_USER: ${{ secrets.SCALITY_OCI_RW_USER }}
+          SCALITY_OCI_RW_PASSWORD: ${{ secrets.SCALITY_OCI_RW_PASSWORD }}
+      - name: Configure GIT
+        run: git config --global url."https://${GIT_ACCESS_TOKEN}@github.com/".insteadOf "https://github.com/"
+        env:
+          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+      - name: Build ISO
+        run: PATH="/usr/local/bin:$PATH" bash -x ./build.sh
+        working-directory: ./solution
+      - name: Build base ISO
+        run: PATH="/usr/local/bin:$PATH" bash -x ./build.sh
+        working-directory: ./solution-base
+      - name: Upload ISO
+        uses: scality/action-artifacts@v3
+        with:
+          method: upload
+          url: https://artifacts.scality.net
+          user: ${{ secrets.ARTIFACTS_USER }}
+          password: ${{ secrets.ARTIFACTS_PASSWORD }}
+          source: "solution/_build"
+      - name: Upload base ISO
+        uses: scality/action-artifacts@v3
+        with:
+          method: upload
+          url: https://artifacts.scality.net
+          user: ${{ secrets.ARTIFACTS_USER }}
+          password: ${{ secrets.ARTIFACTS_PASSWORD }}
+          source: "solution-base/_build"
+
+  build-test-image:
+    runs-on:
+      - self-hosted
+      - centos7
+      - large
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to Registry
+        uses: docker/login-action@v1.10.0
+        with:
+          username: "${{ secrets.REGISTRY_LOGIN }}"
+          password: "${{ secrets.REGISTRY_PASSWORD }}"
+          registry: registry.scality.com
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: buildx-zenko-${{ github.sha }}
+          restore-keys: |
+            buildx-zenko
+      - name: Generate end2end config yaml
+        run: |-
+          cd tests/zenko_tests
+          if [[ "${ENABLE_RING_TESTS}" == "false" ]]; then
+            envsubst < 'e2e-config.yaml.template' > 'e2e-config.yaml'
+          else
+            envsubst < 'ring-e2e-config.yaml.template' > 'e2e-config.yaml'
+          fi
+          cat e2e-config.yaml
+          echo 'Generated e2e-config.yaml file'
+      - name: Build and push CI image
+        uses: docker/build-push-action@v3.1.0
+        with:
+          push: true
+          context: ./tests/zenko_tests
+          tags: "${{ env.E2E_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}"
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+  
+  end2end-http:
+    needs: [build-test-image, check-dashboard-versions]
+    runs-on:
+      - self-hosted
+      - ubuntu
+      - focal
+      - xlarge
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        uses: ./.github/actions/install-end2end-dependencies
+      - name: Wait for Docker daemon to be ready
+        uses: ./.github/actions/wait-docker-ready
+      - name: Login to Registry
+        uses: docker/login-action@v1.10.0
+        with:
+          username: "${{ secrets.REGISTRY_LOGIN }}"
+          password: "${{ secrets.REGISTRY_PASSWORD }}"
+          registry: registry.scality.com
+      - name: Deploy Zenko
+        uses: ./.github/actions/deploy
+        env:
+          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+      - name: Run init CI test
+        run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "end2end" "default"
+        working-directory: ./.github/scripts/end2end
+      - name: Run iam policies tests
+        run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "iam-policies" "default"
+        working-directory: ./.github/scripts/end2end
+      - name: Run cloudserver tests
+        run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "object-api" "default"
+        working-directory: ./.github/scripts/end2end
+      - name: Run smoke tests
+        run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "smoke" "default"
+        working-directory: ./.github/scripts/end2end
+      - name: Debug wait
+        uses: ./.github/actions/debug-wait
+      - name: Archive artifact logs and data
+        uses: ./.github/actions/archive-artifacts
+        if: always()
+      - name: Clean Up
+        run: kind delete cluster
+      - name: Upload artifacts
+        uses: scality/action-artifacts@v3
+        with:
+          method: upload
+          url: https://artifacts.scality.net
+          user: ${{ secrets.ARTIFACTS_USER }}
+          password: ${{ secrets.ARTIFACTS_PASSWORD }}
+          source: /tmp/artifacts
+        if: always()
+
+  end2end-https:
+    needs: [build-test-image, check-dashboard-versions]
+    runs-on:
+      - self-hosted
+      - ubuntu
+      - focal
+      - xlarge
+    env:
+      UI_ENDPOINT: 'https://ui.zenko.local'
+      OIDC_ENDPOINT: 'https://keycloak.zenko.local'
+      NAVBAR_ENDPOINT: 'https://shell-ui.zenko.local'
+      ENABLE_KEYCLOAK_HTTPS: 'true'
+      GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        uses: ./.github/actions/install-end2end-dependencies
+      - name: Wait for Docker daemon to be ready
+        uses: ./.github/actions/wait-docker-ready
+      - name: Login to Registry
+        uses: docker/login-action@v1.10.0
+        with:
+          username: "${{ secrets.REGISTRY_LOGIN }}"
+          password: "${{ secrets.REGISTRY_PASSWORD }}"
+          registry: registry.scality.com
+      - name: Deploy Zenko
+        uses: ./.github/actions/deploy
+      - name: Run init CI test
+        run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "end2end" "default"
+        working-directory: ./.github/scripts/end2end
+      - name: Run smoke tests
+        run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "smoke" "default"
+        working-directory: ./.github/scripts/end2end
+      - name: Run vault e2e tests
+        run: bash vault-e2e-test.sh
+        working-directory: ./.github/scripts/end2end
+      - name: Debug wait
+        uses: ./.github/actions/debug-wait
+      - name: Archive artifact logs and data
+        uses: ./.github/actions/archive-artifacts
+        if: always()
+      - name: Clean Up
+        run: kind delete cluster
+      - name: Upload artifacts
+        uses: scality/action-artifacts@v3
+        with:
+          method: upload
+          url: https://artifacts.scality.net
+          user: ${{ secrets.ARTIFACTS_USER }}
+          password: ${{ secrets.ARTIFACTS_PASSWORD }}
+          source: /tmp/artifacts
+        if: always()
+
+  end2end-sharded:
+    needs: [build-test-image, check-dashboard-versions]
+    runs-on:
+      - self-hosted
+      # Enable this for Ring-based tests
+      # - scality-cloud
+      - ubuntu
+      - focal
+      - xlarge
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        uses: ./.github/actions/install-end2end-dependencies
+      - name: Wait for Docker daemon to be ready
+        uses: ./.github/actions/wait-docker-ready
+      - name: Login to Registry
+        uses: docker/login-action@v1.10.0
+        with:
+          username: "${{ secrets.REGISTRY_LOGIN }}"
+          password: "${{ secrets.REGISTRY_PASSWORD }}"
+          registry: registry.scality.com
+      - name: Deploy Zenko
+        uses: ./.github/actions/deploy
+        env:
+          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          ZENKO_MONGODB_SHARDED: "true"
+      - name: Run backbeat end to end tests
+        run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "backbeat" "default"
+        working-directory: ./.github/scripts/end2end
+      - name: Debug wait
+        uses: ./.github/actions/debug-wait
+      - name: Archive artifact logs and data
+        uses: ./.github/actions/archive-artifacts
+        if: always()
+      - name: Clean Up
+        run: kind delete cluster
+      - name: Upload artifacts
+        uses: scality/action-artifacts@v3
+        with:
+          method: upload
+          url: https://artifacts.scality.net
+          user: ${{ secrets.ARTIFACTS_USER }}
+          password: ${{ secrets.ARTIFACTS_PASSWORD }}
+          source: /tmp/artifacts
+        if: always()

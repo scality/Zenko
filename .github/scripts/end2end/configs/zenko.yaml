@@ -1,0 +1,100 @@
+---
+apiVersion: zenko.io/v1alpha2
+kind: Zenko
+metadata:
+  name: ${ZENKO_NAME}
+  ${ZENKO_ANNOTATIONS}
+spec:
+  version: ${ZENKO_VERSION_NAME}
+  replicas: 1
+  initialConfiguration:
+    locations:
+    - name: us-east-1
+      type: location-file-v1
+    s3API:
+      endpoints:
+      - hostname: s3.zenko.local
+        locationName: us-east-1
+  internalCloudserver:
+    enable: true
+    logging:
+      logLevel: debug
+  cloudserver:
+    logging:
+      logLevel: debug
+  backbeat:
+    triggerExpirationsOneDayEarlierForTesting: true
+    lifecycleConductor:
+      cronRule: "${BACKBEAT_LCC_CRON_RULE}"
+    lifecycleBucketProcessor:
+      triggerTransitionsOneDayEarlierForTesting: true
+    logging:
+      logLevel: trace
+  mongodb:
+    provider: External
+    endpoints:
+      - ${ZENKO_MONGODB_ENDPOINT}
+    userSecretName: mongodb-db-creds
+    usernameKey: mongodb-username
+    passwordKey: mongodb-password
+    databaseName: datadb
+    ${ZENKO_MONGODB_CONFIG}
+  redis:
+    provider: Zenko
+  kafka:
+    provider: Managed
+    jmxJarPath: /opt/jmx_exporter/jmx_prometheus_javaagent-0.14.0.jar
+    persistence:
+      volumeClaimTemplate:
+        size: 20Gi
+        storageClassName: "standard"
+  zookeeper:
+    provider: Managed
+    persistence:
+      volumeClaimTemplate:
+        size: 20Gi
+        storageClassName: "standard"
+  localData:
+    persistence:
+      volumeClaimTemplate:
+        size: 20Gi
+        storageClassName: "standard"
+  vault:
+    enable: true
+    iamIngress:
+      hostname: iam.zenko.local
+    stsIngress:
+      hostname: sts.zenko.local
+  utapi:
+    enable: false
+  management:
+    provider: InCluster
+    ui:
+      ingress:
+        hostname: ui.zenko.local
+      discovery:
+        navbarBundleURL: '${NAVBAR_ENDPOINT}/shell/solution-ui-navbar.1.0.0.js'
+    oidc:
+      provider: '${OIDC_ENDPOINT}/auth/realms/${OIDC_REALM}'
+      uiClientId: ${OIDC_CLIENT_ID}
+      vaultClientId: ${OIDC_CLIENT_ID}
+    api:
+      ingress:
+        hostname: management.zenko.local
+      allowFrom:
+      - 172.16.0.0/12
+      - 10.0.0.0/8
+  sorbet:
+    enable: true
+    configurationOverrides:
+      e2e-cold:
+        debug: "true"
+        command-timeout: "60s"
+  ingress:
+    workloadPlaneClass: 'nginx'
+    controlPlaneClass: 'nginx'
+    ${ZENKO_INGRESS_ANNOTATIONS}
+    ${ZENKO_INGRESS_CERTIFICATES}
+  registry:
+    imagePullSecretNames:
+    - zenko-operator-image-pull

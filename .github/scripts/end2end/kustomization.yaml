@@ -1,0 +1,58 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- ./_build/root/deploy/mongodb-sharded-1-node.yaml
+patchesStrategicMerge:
+- |-
+  apiVersion: apps/v1
+  kind: StatefulSet
+  metadata:
+    name: data-db-mongodb-sharded-configsvr
+  spec:
+    volumeClaimTemplates:
+     - metadata:
+         name: datadir
+         annotations:
+       spec:
+         accessModes:
+         - "ReadWriteOnce"
+         resources:
+           requests:
+             storage: "8Gi"
+         storageClassName: standard
+- |-
+  apiVersion: apps/v1
+  kind: StatefulSet
+  metadata:
+    name: data-db-mongodb-sharded-shard0-data
+  spec:
+    volumeClaimTemplates:
+     - metadata:
+         name: datadir
+         annotations:
+       spec:
+         accessModes:
+         - "ReadWriteOnce"
+         resources:
+           requests:
+             storage: "8Gi"
+         storageClassName: standard
+images:
+- name: metalk8s-registry-from-config.invalid/zenko-base-2.3.11/bitnami-shell
+  newName: docker.io/bitnami/bitnami-shell
+  newTag: 10-debian-10-r293
+- name: metalk8s-registry-from-config.invalid/zenko-base-2.3.11/mongodb-exporter
+  newName: docker.io/bitnami/mongodb-exporter
+  newTag: 0.11.2-debian-10-r382
+- name: metalk8s-registry-from-config.invalid/zenko-base-2.3.11/mongodb-sharded
+  newName: docker.io/bitnami/mongodb-sharded
+  newTag: 4.0.27-debian-9-r111
+- name: metalk8s-registry-from-config.invalid/zenko-base-2.3.18/bitnami-shell
+  newName: docker.io/bitnami/bitnami-shell
+  newTag: 10-debian-10-r293
+- name: metalk8s-registry-from-config.invalid/zenko-base-2.3.18/mongodb-exporter
+  newName: docker.io/bitnami/mongodb-exporter
+  newTag: 0.11.2-debian-10-r382
+- name: metalk8s-registry-from-config.invalid/zenko-base-2.3.18/mongodb-sharded
+  newName: docker.io/bitnami/mongodb-sharded
+  newTag: 4.0.27-debian-9-r111
