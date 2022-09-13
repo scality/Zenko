@@ -1,0 +1,74 @@
+---
+name: "Deploy Zenko"
+description: "Deploy a Zenko instance to run the tests with e2e-http by default"
+
+runs:
+  using: composite
+  steps:
+    - name: Bootstrap kind cluster
+      shell: bash
+      run: |
+        ./bootstrap-kind.sh ${KIND_NODE_IMAGE} ${VOLUME_ROOT} ${WORKER_COUNT}
+      working-directory: ./.github/scripts/end2end
+    - name: Ensure cluster is running
+      shell: bash
+      run: |
+        kubectl get nodes
+        kubectl get pods --all-namespaces
+    - name: Create pull image secret
+      shell: bash
+      run: bash create-pull-image-secret.sh
+      working-directory: ./.github/scripts/end2end
+    - name: Install kind cluster dependencies
+      shell: bash
+      run: bash install-kind-dependencies.sh
+      working-directory: ./.github/scripts/end2end
+    - name: Patch CoreDNS config
+      shell: bash
+      run: bash patch-coredns.sh
+      working-directory: ./.github/scripts/end2end
+    - name: Setup Shell-UI Service
+      shell: bash
+      run: bash deploy-shell-ui.sh
+      working-directory: ./.github/scripts/end2end
+    - name: Setup Keycloak Realm/Client
+      shell: bash
+      run: bash keycloak-helper.sh setup-realm default
+      working-directory: ./.github/scripts/end2end
+    - name: Install operator
+      shell: bash
+      run: |-
+        set -exu;
+        export OPERATOR_IMAGE_NAME=$(yq eval '."zenko-operator" | .sourceRegistry + "/" + .image' solution/deps.yaml)
+        export OPERATOR_IMAGE_TAG=$(yq eval '."zenko-operator".tag' solution/deps.yaml)
+        docker pull ${OPERATOR_IMAGE_NAME}:${OPERATOR_IMAGE_TAG}
+        kind load docker-image ${OPERATOR_IMAGE_NAME}:${OPERATOR_IMAGE_TAG}
+        cd ./.github/scripts/end2end
+        git clone https://${GIT_ACCESS_TOKEN}@github.com/scality/zenko-operator.git operator
+        cd operator
+        git checkout ${OPERATOR_IMAGE_TAG}
+        tilt ci
+    - name: Deploy Zenko Instance
+      shell: bash
+      run: bash deploy-zenko.sh end2end default
+      working-directory: ./.github/scripts/end2end
+    - name: Add Keycloak user
+      shell: bash
+      run: bash keycloak-helper.sh add-user default
+      working-directory: ./.github/scripts/end2end
+    - name: Start external service mocks
+      shell: bash
+      run: bash install-mocks.sh "default"
+      working-directory: ./.github/scripts/end2end
+    - name: Start mock sorbet service
+      shell: bash
+      run: sh tests/smoke/deploy-sorbet-resources.sh end2end
+      working-directory: ./.github/scripts/end2end/operator
+    - name: End-to-end configuration
+      shell: bash
+      run: bash configure-e2e.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "default"
+      working-directory: ./.github/scripts/end2end
+    - name: Linting
+      shell: bash
+      run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "lint" "default"
+      working-directory: ./.github/scripts/end2end

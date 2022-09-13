@@ -1,0 +1,19 @@
+---
+name: "Debug wait"
+description: "If debugging is enabled, wait"
+
+inputs:
+  ENABLE_DEBUG:
+    description: enabling debug wait
+    required: true
+    default: "false"
+
+runs:
+  using: composite
+  steps:
+    - name: Archive artifact logs and data
+      shell: bash
+      run: |-
+          if [ $ENABLE_DEBUG = 'true' ]; then
+            while true; do sleep 10; echo sleep; done
+          fi
