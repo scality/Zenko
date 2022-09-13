@@ -16,6 +16,7 @@ RING_S3C_ACCESS_KEY = get_env('RING_S3C_ACCESS_KEY')
 RING_S3C_SECRET_KEY = get_env('RING_S3C_SECRET_KEY')
 RING_S3C_INGESTION_SRC_BUCKET_NAME = get_env('RING_S3C_INGESTION_SRC_BUCKET_NAME')
 RING_S3C_ENDPOINT = get_env('RING_S3C_ENDPOINT')
+ENABLE_RING_TESTS = get_env('ENABLE_RING_TESTS')
 VERIFY_CERTIFICATES = get_env('VERIFY_CERTIFICATES', False)
 
 s3c = Session(aws_access_key_id=RING_S3C_ACCESS_KEY,
@@ -24,13 +25,16 @@ ring_s3c_client = s3c.resource('s3', endpoint_url=RING_S3C_ENDPOINT,
                       verify=VERIFY_CERTIFICATES)
 
 def bucket_safe_delete(bucketname):
+    # Disable if Ring is not enabled
+    if ENABLE_RING_TESTS == "false":
+        return
     try:
         bucket = ring_s3c_client.Bucket(bucketname)
         _log.info('Deleting bucket %s' % bucket.name)
         bucket.objects.all().delete()
         bucket.delete()
     except Exception as exp:
-        _log.info('Error creating bucket %s - %s' % (bucket.name, str(exp)))
+        _log.info('Error deleting bucket %s - %s' % (bucket.name, str(exp)))
         raise exp
 
 _log.info('Removing S3C buckets...')
