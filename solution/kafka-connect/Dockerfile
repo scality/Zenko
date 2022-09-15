@@ -14,9 +14,8 @@ RUN apk update && apk upgrade && apk add --no-cache curl zip
 
 ARG MONGODB_CONNECTOR_VERSION=1.7.0
 WORKDIR /tmp
-RUN curl -LO https://github.com/mongodb/mongo-kafka/releases/download/r${MONGODB_CONNECTOR_VERSION}/mongodb-kafka-connect-mongodb-${MONGODB_CONNECTOR_VERSION}.zip && \
-    unzip /tmp/*.zip && \
-    mv /tmp/mongodb-kafka-connect-mongodb-1.7.0/lib/mongo-kafka-connect-1.7.0-confluent.jar /tmp/mongo-kafka-connect.jar
+RUN curl -LO https://search.maven.org/remotecontent?filepath=org/mongodb/kafka/mongo-kafka-connect/${MONGODB_CONNECTOR_VERSION}/mongo-kafka-connect-${MONGODB_CONNECTOR_VERSION}-all.jar && \
+    mv /tmp/mongo-kafka-connect-${MONGODB_CONNECTOR_VERSION}-all.jar /tmp/mongo-kafka-connect.jar
 
 # Use Kafka base image
 FROM ${KAFKA_IMAGE}:${KAFKA_TAG}
