@@ -2,7 +2,7 @@
 name: build-iso-and-end2end-test
 
 concurrency:
-  group: "zenko-tests"
+  group: "zenko-tests-${{ github.ref_name }}"
   cancel-in-progress: true
 
 on:
@@ -206,10 +206,7 @@ jobs:
           source: "solution-base/_build"
 
   build-test-image:
-    runs-on:
-      - self-hosted
-      - centos7
-      - large
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -254,7 +251,6 @@ jobs:
   end2end-http:
     needs: [build-test-image, check-dashboard-versions]
     runs-on:
-      - self-hosted
       - ubuntu
       - focal
       - xlarge
@@ -307,7 +303,6 @@ jobs:
   end2end-https:
     needs: [build-test-image, check-dashboard-versions]
     runs-on:
-      - self-hosted
       - ubuntu
       - focal
       - xlarge
@@ -361,7 +356,6 @@ jobs:
   end2end-sharded:
     needs: [build-test-image, check-dashboard-versions]
     runs-on:
-      - self-hosted
       # Enable this for Ring-based tests
       # - scality-cloud
       - ubuntu

@@ -4,11 +4,12 @@
 
 To release the Zenko and Zenko-base ISOs:
 
-1. Update the version in the 'VERSION' file.
-1. Tag and release the Zenko version using the [GitHub release page](https://github.com/scality/Zenko/releases/new).
-1. Retrieve the eve `artifacts_name` of the tagged build. This can be found
-   under the `Build Properties` of the selected eve build.
-1. Tag the selected artifacts using the eve `promote` command:
-   * The `promote` command can be found on the [eve builders page](https://eve.devsca.com/github/scality/zenko/#/builders/bootstrap).
-   * Fill the `artifact source` field with the retrieved `artifacts_name`.
-   * Fill the `tag` field with the Zenko tag.
+1. Update the version in the `VERSION` file and merge the changes (e.g., `2.4.15`).
+2. Start a new promotion using the [Github Actions release workflow](https://github.com/scality/Zenko/actions/workflows/release.yaml)
+   * Select the branch to release.
+   * Specify the tag from the step 1 (e.g., `2.4.15`).
+   * Specify the artifacts to promote.
+     The artifact URL can be found in the commit build you want to promote, under `Annotations`.
+     For example: `https://artifacts.scality.net/builds/github:scality:Zenko:staging-d13ed9e848.build-iso-and-end2end-test.230`
+
+The workflow will automatically create a new GitHub release.
