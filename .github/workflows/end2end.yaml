@@ -16,6 +16,7 @@ on:
       - "hotfix/**"
       - "ci-dev/**"
       - "user/**"
+      - "q/*/**"
 
 env:
   # kind-env
