@@ -291,6 +291,16 @@ jobs:
         if: always()
       - name: Clean Up
         run: kind delete cluster
+      - name: Set status in ARTIFACTS to enable re-run only failed jobs
+        if: success()
+        run: |
+          mkdir -p /tmp/artifacts/build_status/${{ github.job }}
+          echo 'SUCCESSFUL' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
+      - name: Set status in ARTIFACTS to enable re-run only failed jobs
+        if: failure()
+        run: |
+          mkdir -p /tmp/artifacts/build_status/${{ github.job }}
+          echo 'FAILED' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
       - name: Upload artifacts
         uses: scality/action-artifacts@v3
         with:
@@ -344,6 +354,16 @@ jobs:
         if: always()
       - name: Clean Up
         run: kind delete cluster
+      - name: Set status in ARTIFACTS to enable re-run only failed jobs
+        if: success()
+        run: |
+          mkdir -p /tmp/artifacts/build_status/${{ github.job }}
+          echo 'SUCCESSFUL' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
+      - name: Set status in ARTIFACTS to enable re-run only failed jobs
+        if: failure()
+        run: |
+          mkdir -p /tmp/artifacts/build_status/${{ github.job }}
+          echo 'FAILED' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
       - name: Upload artifacts
         uses: scality/action-artifacts@v3
         with:
@@ -390,6 +410,16 @@ jobs:
         if: always()
       - name: Clean Up
         run: kind delete cluster
+      - name: Set status in ARTIFACTS to enable re-run only failed jobs
+        if: success()
+        run: |
+          mkdir -p /tmp/artifacts/build_status/${{ github.job }}
+          echo 'SUCCESSFUL' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
+      - name: Set status in ARTIFACTS to enable re-run only failed jobs
+        if: failure()
+        run: |
+          mkdir -p /tmp/artifacts/build_status/${{ github.job }}
+          echo 'FAILED' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
       - name: Upload artifacts
         uses: scality/action-artifacts@v3
         with:
@@ -399,3 +429,53 @@ jobs:
           password: ${{ secrets.ARTIFACTS_PASSWORD }}
           source: /tmp/artifacts
         if: always()
+
+  write-final-failed-status:
+    runs-on: ubuntu-latest
+    needs:
+      - check-dashboard-versions
+      - build-doc
+      - build-iso
+      - build-test-image
+      - end2end-http
+      - end2end-https
+      - end2end-sharded
+    if: failure()
+    steps:
+      - name: write failure status
+        run: |
+          mkdir -p artifacts
+          echo -n "FAILED" > artifacts/.final_status
+      - name: Upload artifacts
+        uses: scality/action-artifacts@v3
+        with:
+          method: upload
+          url: https://artifacts.scality.net
+          user: ${{ secrets.ARTIFACTS_USER }}
+          password: ${{ secrets.ARTIFACTS_PASSWORD }}
+          source: artifacts
+
+  write-final-success-status:
+    runs-on: ubuntu-latest
+    needs: 
+      - check-dashboard-versions
+      - build-doc
+      - build-iso
+      - build-test-image
+      - end2end-http
+      - end2end-https
+      - end2end-sharded
+    if: success()
+    steps:
+      - name: write success status
+        run: |
+          mkdir -p artifacts
+          echo -n "SUCCESSFUL" > artifacts/.final_status
+      - name: Upload artifacts
+        uses: scality/action-artifacts@v3
+        with:
+          method: upload
+          url: https://artifacts.scality.net
+          user: ${{ secrets.ARTIFACTS_USER }}
+          password: ${{ secrets.ARTIFACTS_PASSWORD }}
+          source: artifacts
