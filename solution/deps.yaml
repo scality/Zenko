@@ -2,11 +2,11 @@
 # to sort keys, use the following command
 # yq eval 'sortKeys(.)' -i deps.yaml
 backbeat:
-  sourceRegistry: registry.scality.com/backbeat
-  dashboard: backbeat-dashboards
-  image: backbeat
-  policy: backbeat-policies
-  tag: 8.4.19
+  sourceRegistry: registry.scality.com/backbeat-dev
+  dashboard: backbeat-ff-dashboards
+  image: backbeat-ff
+  policy: backbeat-ff-policies
+  tag: 8.4.21
   envsubst: BACKBEAT_TAG
 blobserver:
   sourceRegistry: registry.scality.com/sf-eng
