@@ -1,4 +1,3 @@
-const assert = require('assert');
 const uuid = require('uuid/v4');
 const { series } = require('async');
 
@@ -32,20 +31,20 @@ function compareTransitionedColdData(sourceClient, versionId, cb) {
     ], cb);
 }
 
-function checkRestoration(destination, sourceClient, versionId, cb) {
-    if (!destination.supportsRestore) {
-        return process.nextTick(cb);
-    }
-    return series([
-        next => sourceClient.getObject(versionId, err => {
-            assert.strictEqual(err.code, 'InvalidObjectState');
-            assert.strictEqual(err.statusCode, 403);
-            return next();
-        }),
-        next => sourceClient.putRestoreObject(versionId, next),
-        next => sourceClient.waitUntilRestored(versionId, next),
-    ], cb);
-}
+// function checkRestoration(destination, sourceClient, versionId, cb) {
+//     if (!destination.supportsRestore) {
+//         return process.nextTick(cb);
+//     }
+//     return series([
+//         next => sourceClient.getObject(versionId, err => {
+//             assert.strictEqual(err.code, 'InvalidObjectState');
+//             assert.strictEqual(err.statusCode, 403);
+//             return next();
+//         }),
+//         next => sourceClient.putRestoreObject(versionId, next),
+//         next => sourceClient.waitUntilRestored(versionId, next),
+//     ], cb);
+// }
 
 function checkTransition(destination, sourceClient, destinationClient, versionId, cb) {
     if (destination.isCold) {
@@ -136,7 +135,7 @@ testsToRun.forEach(test => {
                 series([
                     next => cloudServer.putObject(Buffer.from(key), next),
                     next => checkTransition(toLoc, cloudServer, cloud, null, next),
-                    next => checkRestoration(toLoc, cloudServer, null, next),
+                    // next => checkRestoration(toLoc, cloudServer, null, next),
                 ], done);
             });
 
