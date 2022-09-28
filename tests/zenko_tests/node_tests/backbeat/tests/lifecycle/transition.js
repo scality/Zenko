@@ -139,6 +139,17 @@ testsToRun.forEach(test => {
                 ], done);
             });
 
+            it('should transition an object 2', done => {
+                const key = `${prefix}nover-n2b-object2`;
+                cloudServer.setKey(key);
+                cloud.setKey(`${srcBucket}/${key}`);
+                series([
+                    next => cloudServer.putObject(Buffer.from(key), next),
+                    next => checkTransition(toLoc, cloudServer, cloud, null, next),
+                    // next => checkRestoration(toLoc, cloudServer, null, next),
+                ], done);
+            });
+
             // it('should transition a MPU object', done => {
             //     const key = `${prefix}nover-mpu`;
             //     cloudServer.setKey(key);
