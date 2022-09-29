@@ -96,10 +96,10 @@ testsToRun.forEach(test => {
         const toLoc = locationParams[test.to];
         const prefix = `${keyPrefix}-from-${test.from}-to-${test.to}-`;
 
-        if (toLoc.isCold) {
-            this.retries(3);
-            this.timeout(120000);
-        }
+        // if (toLoc.isCold) {
+        //     this.retries(3);
+        //     this.timeout(120000);
+        // }
 
         before(() => {
             cloudServer.setSourceLocation(fromLoc.name);
