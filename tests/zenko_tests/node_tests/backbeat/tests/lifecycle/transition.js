@@ -98,7 +98,7 @@ testsToRun.forEach(test => {
 
         if (toLoc.isCold) {
             this.retries(3);
-            this.timeout(120000);
+            this.timeout(360000);
         }
 
         before(() => {
