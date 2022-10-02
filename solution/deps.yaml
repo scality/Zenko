@@ -4,7 +4,7 @@
 backbeat:
   sourceRegistry: registry.scality.com/backbeat-dev
   dashboard: backbeat-ff-dashboards
-  image: backbeat-n2b-2
+  image: backbeat-ff
   policy: backbeat-ff-policies
   tag: 8.4.21
   envsubst: BACKBEAT_TAG
