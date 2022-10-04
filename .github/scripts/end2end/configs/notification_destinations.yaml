@@ -1,0 +1,25 @@
+apiVersion: zenko.io/v1alpha2
+kind: ZenkoNotificationTarget
+metadata:
+  name: ${NOTIF_DEST_NAME}
+  labels:
+    app.kubernetes.io/instance: ${ZENKO_NAME}
+spec:
+  type: kafka
+  host: ${NOTIF_KAFKA_HOST}
+  port: ${NOTIF_KAFKA_PORT}
+  destinationTopic: ${NOTIF_DEST_TOPIC}
+
+---
+
+apiVersion: zenko.io/v1alpha2
+kind: ZenkoNotificationTarget
+metadata:
+  name: ${NOTIF_ALT_DEST_NAME}
+  labels:
+    app.kubernetes.io/instance: ${ZENKO_NAME}
+spec:
+  type: kafka
+  host: ${NOTIF_KAFKA_HOST}
+  port: ${NOTIF_KAFKA_PORT}
+  destinationTopic: ${NOTIF_ALT_DEST_TOPIC}

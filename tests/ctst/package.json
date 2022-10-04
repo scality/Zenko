@@ -1,0 +1,19 @@
+{
+  "name": "zenko-ctst",
+  "version": "1.0.0",
+  "description": "Testing Zenko features with CTST",
+  "main": "index.js",
+  "repository": "git+https://github.com/scality/Zenko.git",
+  "author": "Scality",
+  "license": "ISC",
+  "private": true,
+  "dependencies": {
+    "@types/qs": "^6.9.7",
+    "assert": "^2.0.0",
+    "prometheus-query": "^3.2.0",
+    "qs": "^6.11.0"
+  },
+  "devDependencies": {
+    "cli-testing": "github:scality/cli-testing.git#0.2.0"
+  }
+}

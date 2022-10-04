@@ -39,6 +39,7 @@ env:
   BACKBEAT_LCC_CRON_RULE: ""
   # e2e-env
   E2E_IMAGE_NAME: registry.scality.com/zenko/zenko-e2e
+  E2E_CTST_IMAGE_NAME: registry.scality.com/zenko/zenko-e2e-ctst
   E2E_IMAGE_TAG: ${{ github.sha }}
   VAULT_TEST_IMAGE_NAME: ""
   VAULT_TEST_IMAGE_TAG: ""
@@ -78,6 +79,12 @@ env:
   RING_S3C_ENDPOINT: ${{ secrets.RING_S3C_BACKEND_ENDPOINT }}
   RING_S3C_BACKEND_SOURCE_LOCATION: rings3cbackendingestion
   RING_S3C_INGESTION_SRC_BUCKET_NAME: ingestion-test-src-bucket-${{ github.run_id }}-${{ github.run_attempt }}
+  # CTST end2end tests
+  NOTIF_DEST_NAME: "destination1"
+  NOTIF_DEST_TOPIC: "destination-topic-1"
+  NOTIF_ALT_DEST_NAME: "destination2"
+  NOTIF_ALT_DEST_TOPIC: "destination-topic-2"
+  SUBDOMAIN: "zenko.local"
   SKOPEO_PATH: "/tmp"
   HELM_VERSION: "v3.5.3"
   YQ_VERSION: "v4.27.5"
@@ -307,6 +314,33 @@ jobs:
           cache-from: type=gha,scope=$GITHUB_REF_NAME-test
           cache-to: type=gha,mode=max,scope=$GITHUB_REF_NAME-test
   
+  build-ctst-test-image:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to Registry
+        uses: docker/login-action@v1.10.0
+        with:
+          username: "${{ secrets.REGISTRY_LOGIN }}"
+          password: "${{ secrets.REGISTRY_PASSWORD }}"
+          registry: registry.scality.com
+      - name: Get CTST image tag
+        shell: bash
+        run: |-
+          echo "CTST_TAG=$(sed 's/.*"cli-testing": ".*#\(.*\)".*/\1/;t;d' ./tests/ctst/package.json)" >> $GITHUB_ENV
+      - name: Build and push CI image
+        uses: docker/build-push-action@v3.1.0
+        with:
+          push: true
+          context: ./tests/ctst
+          build-args: CTST_TAG=${{ env.CTST_TAG }}
+          tags: "${{ env.E2E_CTST_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}"
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
   end2end-http:
     needs: [build-kafka, build-test-image, check-dashboard-versions]
     runs-on:
@@ -488,6 +522,63 @@ jobs:
           source: /tmp/artifacts
         if: always()
 
+  ctst-end2end-sharded:
+    needs: [build-kafka, build-ctst-test-image, check-dashboard-versions]
+    runs-on:
+      - ubuntu
+      - focal
+      - xlarge
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        uses: ./.github/actions/install-end2end-dependencies
+      - name: Wait for Docker daemon to be ready
+        uses: ./.github/actions/wait-docker-ready
+      - name: Login to Registry
+        uses: docker/login-action@v1.10.0
+        with:
+          username: "${{ secrets.REGISTRY_LOGIN }}"
+          password: "${{ secrets.REGISTRY_PASSWORD }}"
+          registry: registry.scality.com
+      - name: Deploy Zenko
+        uses: ./.github/actions/deploy
+        env:
+          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          ZENKO_MONGODB_SHARDED: "true"
+      - name: Configure E2E test environment
+        run: bash configure-e2e-ctst.sh
+        working-directory: ./.github/scripts/end2end
+      - name: Run CTST end to end tests
+        run: bash run-e2e-ctst.sh
+        working-directory: ./.github/scripts/end2end
+      - name: Debug wait
+        uses: ./.github/actions/debug-wait
+      - name: Archive artifact logs and data
+        uses: ./.github/actions/archive-artifacts
+        if: always()
+      - name: Clean Up
+        run: kind delete cluster
+      - name: Set status in ARTIFACTS to enable re-run only failed jobs
+        if: success()
+        run: |
+          mkdir -p /tmp/artifacts/build_status/${{ github.job }}
+          echo 'SUCCESSFUL' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
+      - name: Set status in ARTIFACTS to enable re-run only failed jobs
+        if: failure()
+        run: |
+          mkdir -p /tmp/artifacts/build_status/${{ github.job }}
+          echo 'FAILED' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
+      - name: Upload artifacts
+        uses: scality/action-artifacts@v3
+        with:
+          method: upload
+          url: https://artifacts.scality.net
+          user: ${{ secrets.ARTIFACTS_USER }}
+          password: ${{ secrets.ARTIFACTS_PASSWORD }}
+          source: /tmp/artifacts
+        if: always()
+
   write-final-failed-status:
     runs-on: ubuntu-latest
     needs:
@@ -499,6 +590,7 @@ jobs:
       - end2end-http
       - end2end-https
       - end2end-sharded
+      - ctst-end2end-sharded
     if: failure()
     steps:
       - name: write failure status
@@ -525,6 +617,7 @@ jobs:
       - end2end-http
       - end2end-https
       - end2end-sharded
+      - ctst-end2end-sharded
     if: success()
     steps:
       - name: write success status
