@@ -2639,7 +2639,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "kafka_consumergroup_group_max_lag_seconds{namespace=\"${namespace}\",cluster_name=\"${cluster}\",group=~\"$consumer_group\",group!=\"\"}",
+          "expr": "kafka_consumergroup_group_max_lag{namespace=\"${namespace}\",cluster_name=\"${cluster}\",group=~\"$consumer_group\",group!=\"\"}",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -5386,5 +5386,5 @@
   "timezone": "",
   "title": "Kafka",
   "uid": null,
-  "version": 11
+  "version": 12
 }
