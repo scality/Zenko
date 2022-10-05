@@ -21,7 +21,7 @@ spec:
       logLevel: debug
   cloudserver:
     logging:
-      logLevel: debug
+      logLevel: trace
   backbeat:
     triggerExpirationsOneDayEarlierForTesting: true
     lifecycleConductor:
@@ -65,6 +65,8 @@ spec:
       hostname: iam.zenko.local
     stsIngress:
       hostname: sts.zenko.local
+    logging:
+      logLevel: trace
   utapi:
     enable: false
   management:
