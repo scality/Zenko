@@ -21,7 +21,7 @@ cloudserver:
   sourceRegistry: registry.scality.com/cloudserver
   dashboard: cloudserver-dashboards
   image: cloudserver
-  tag: 8.5.13
+  tag: 8.5.16
   envsubst: CLOUDSERVER_TAG
 jabba:
   sourceRegistry: registry.scality.com/jabba
@@ -88,16 +88,17 @@ sorbet:
   image: sorbet
   tag: v0.0.11
   envsubst: SORBET_TAG
-utapi:
-  sourceRegistry: registry.scality.com/sf-eng
-  image: utapi
-  tag: zenko-1.0.0
-  envsubst: UTAPI_TAG
+# To be enabled back when utapi is used in Zenko 2.x
+# utapi:
+#   sourceRegistry: registry.scality.com/sf-eng
+#   image: utapi
+#   tag: zenko-1.0.0
+#   envsubst: UTAPI_TAG
 vault:
   sourceRegistry: registry.scality.com/vault
   dashboard: vault-dashboards
   image: vault
-  tag: 8.5.16
+  tag: 8.5.17
   envsubst: VAULT_TAG
 zenko-operator:
   sourceRegistry: registry.scality.com/zenko-operator
