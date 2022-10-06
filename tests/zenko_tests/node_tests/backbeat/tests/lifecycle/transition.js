@@ -88,7 +88,8 @@ const testsToRun = [{
 }];
 
 testsToRun.forEach(test => {
-    describe(`Lifecycle transition from ${test.from} to ${test.to}`, () => {
+    // eslint-disable-next-line prefer-arrow-callback
+    describe(`Lifecycle transition from ${test.from} to ${test.to}`, function () {
         const srcBucket = `transition-bucket-${uuid()}`;
         const keyPrefix = uuid();
         const cloudServer = new LifecycleUtility(scalityS3Client)
@@ -98,6 +99,13 @@ testsToRun.forEach(test => {
         const fromLoc = locationParams[test.from];
         const toLoc = locationParams[test.to];
         const prefix = `${keyPrefix}-from-${test.from}-to-${test.to}-`;
+
+        // GC comsumer might take a long time to consume its entries.
+        // If it is the case, timeout after 5 minutes and retry.
+        if (toLoc.isCold) {
+            this.retries(3);
+            this.timeout(360000);
+        }
 
         before(() => {
             cloudServer.setSourceLocation(fromLoc.name);
