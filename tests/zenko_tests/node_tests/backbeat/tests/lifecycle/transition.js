@@ -101,10 +101,8 @@ testsToRun.forEach(test => {
         const prefix = `${keyPrefix}-from-${test.from}-to-${test.to}-`;
 
         // GC consumer might take a long time to consume its entries.
-        // If it is the case, timeout after 5 minutes and retry.
         if (toLoc.isCold) {
             this.retries(3);
-            this.timeout(360000);
         }
 
         before(() => {
