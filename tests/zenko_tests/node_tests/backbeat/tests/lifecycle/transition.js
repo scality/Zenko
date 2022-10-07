@@ -100,7 +100,7 @@ testsToRun.forEach(test => {
         const toLoc = locationParams[test.to];
         const prefix = `${keyPrefix}-from-${test.from}-to-${test.to}-`;
 
-        // GC comsumer might take a long time to consume its entries.
+        // GC consumer might take a long time to consume its entries.
         // If it is the case, timeout after 5 minutes and retry.
         if (toLoc.isCold) {
             this.retries(3);
