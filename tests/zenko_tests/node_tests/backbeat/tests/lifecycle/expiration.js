@@ -109,11 +109,16 @@ const longExpireMPURule = (prefix, tag, enabled) => ({
     AbortIncompleteMultipartUpload: { DaysAfterInitiation: 2 },
 });
 
-describe('Lifecycle Expiration', () => {
+describe('Lifecycle Expiration', function () {
     const notTargetObjectPrefix = 'not-exp-target/';
     const targetObjectPrefix = 'exp-target/';
 
     utils.setSourceLocation('us-east-1');
+
+    // GC consumer might take a long time to consume its entries.
+    // If it is the case, timeout after 5 minutes and retry.
+    this.retries(3);
+    this.timeout(360000);
 
     describe('behavior: should not delete objects', () => {
         const bucketName = getBucketName('exp-disabled-');
