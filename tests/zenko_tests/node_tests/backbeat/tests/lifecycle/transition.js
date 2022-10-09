@@ -81,9 +81,6 @@ const locationParams = {
 // TODO: ZENKO-4233 enable AZURE/GCP as destination and AWS/AZURE/GCP as source
 const testsToRun = [{
     from: 'LocalStorage',
-    to: 'AWS',
-}, {
-    from: 'LocalStorage',
     to: 'DMF',
 }];
 
@@ -102,10 +99,10 @@ testsToRun.forEach(test => {
 
         // GC consumer might take a long time to consume its entries.
         // If it is the case, timeout after 5 minutes and retry.
-        if (toLoc.isCold) {
-            this.retries(3);
-            this.timeout(360000);
-        }
+        // if (toLoc.isCold) {
+        //     this.retries(3);
+        //     this.timeout(360000);
+        // }
 
         before(() => {
             cloudServer.setSourceLocation(fromLoc.name);
@@ -129,19 +126,19 @@ testsToRun.forEach(test => {
         describe('without versioning', () => {
             beforeEach(done => cloudServer.createBucket(srcBucket, done));
 
-            it('should transition a 0 byte object', done => {
-                const key = `${prefix}nover-object`;
-                cloudServer.setKey(key);
-                cloud.setKey(`${srcBucket}/${key}`);
-                series([
-                    next => cloudServer.putObject(Buffer.from(''), next),
-                    next => checkTransition(toLoc, cloudServer, cloud, null, next),
-                    next => checkRestoration(toLoc, cloudServer, null, next),
-                ], done);
-            });
+            // it('should transition a 0 byte object', done => {
+            //     const key = `${prefix}nover-object`;
+            //     cloudServer.setKey(key);
+            //     cloud.setKey(`${srcBucket}/${key}`);
+            //     series([
+            //         next => cloudServer.putObject(Buffer.from(''), next),
+            //         next => checkTransition(toLoc, cloudServer, cloud, null, next),
+            //         next => checkRestoration(toLoc, cloudServer, null, next),
+            //     ], done);
+            // });
 
             it('should transition an object', done => {
-                const key = `${prefix}nover-object`;
+                const key = `${prefix}nover-n2bbb-object`;
                 cloudServer.setKey(key);
                 cloud.setKey(`${srcBucket}/${key}`);
                 series([
@@ -151,77 +148,77 @@ testsToRun.forEach(test => {
                 ], done);
             });
 
-            it('should transition a MPU object', done => {
-                const key = `${prefix}nover-mpu`;
-                cloudServer.setKey(key);
-                cloud.setKey(`${srcBucket}/${key}`);
-                series([
-                    next => cloudServer.putMPU(10, next),
-                    next => checkTransition(toLoc, cloudServer, cloud, null, next),
-                    next => checkRestoration(toLoc, cloudServer, null, next),
-                ], done);
-            });
+            // it('should transition a MPU object', done => {
+            //     const key = `${prefix}nover-mpu`;
+            //     cloudServer.setKey(key);
+            //     cloud.setKey(`${srcBucket}/${key}`);
+            //     series([
+            //         next => cloudServer.putMPU(10, next),
+            //         next => checkTransition(toLoc, cloudServer, cloud, null, next),
+            //         next => checkRestoration(toLoc, cloudServer, null, next),
+            //     ], done);
+            // });
         });
 
-        if (fromLoc.supportsVersioning) {
-            describe('with versioning', () => {
-                beforeEach(done => cloudServer.createVersionedBucket(srcBucket, done));
+        // if (fromLoc.supportsVersioning) {
+        //     describe('with versioning', () => {
+        //         beforeEach(done => cloudServer.createVersionedBucket(srcBucket, done));
 
-                it('should transition a single master version', done => {
-                    const key = `${prefix}ver-single-master`;
-                    cloudServer.setKey(key);
-                    cloud.setKey(`${srcBucket}/${key}`);
-                    let versionId = null;
-                    series([
-                        next => cloudServer.putObject(Buffer.from(key), (err, data) => {
-                            if (data) {
-                                versionId = data.VersionId;
-                            }
-                            next(err);
-                        }),
-                        next => checkTransition(toLoc, cloudServer, cloud, versionId, next),
-                        next => checkRestoration(toLoc, cloudServer, versionId, next),
-                    ], done);
-                });
+        //         it('should transition a single master version', done => {
+        //             const key = `${prefix}ver-single-master`;
+        //             cloudServer.setKey(key);
+        //             cloud.setKey(`${srcBucket}/${key}`);
+        //             let versionId = null;
+        //             series([
+        //                 next => cloudServer.putObject(Buffer.from(key), (err, data) => {
+        //                     if (data) {
+        //                         versionId = data.VersionId;
+        //                     }
+        //                     next(err);
+        //                 }),
+        //                 next => checkTransition(toLoc, cloudServer, cloud, versionId, next),
+        //                 next => checkRestoration(toLoc, cloudServer, versionId, next),
+        //             ], done);
+        //         });
 
-                it('should transition the master version', done => {
-                    const key = `${prefix}ver-master`;
-                    cloudServer.setKey(key);
-                    cloud.setKey(`${srcBucket}/${key}`);
-                    let versionId = null;
-                    series([
-                        next => cloudServer.putObject(Buffer.from(`${key}-1`), next),
-                        next => cloudServer.putObject(Buffer.from(`${key}-2`), next),
-                        next => cloudServer.putObject(Buffer.from(`${key}-3`), (err, data) => {
-                            if (data) {
-                                versionId = data.VersionId;
-                            }
-                            next(err);
-                        }),
-                        next => checkTransition(toLoc, cloudServer, cloud, versionId, next),
-                        next => checkRestoration(toLoc, cloudServer, versionId, next),
-                    ], done);
-                });
+        //         it('should transition the master version', done => {
+        //             const key = `${prefix}ver-master`;
+        //             cloudServer.setKey(key);
+        //             cloud.setKey(`${srcBucket}/${key}`);
+        //             let versionId = null;
+        //             series([
+        //                 next => cloudServer.putObject(Buffer.from(`${key}-1`), next),
+        //                 next => cloudServer.putObject(Buffer.from(`${key}-2`), next),
+        //                 next => cloudServer.putObject(Buffer.from(`${key}-3`), (err, data) => {
+        //                     if (data) {
+        //                         versionId = data.VersionId;
+        //                     }
+        //                     next(err);
+        //                 }),
+        //                 next => checkTransition(toLoc, cloudServer, cloud, versionId, next),
+        //                 next => checkRestoration(toLoc, cloudServer, versionId, next),
+        //             ], done);
+        //         });
 
-                it('should transition non current version', done => {
-                    const key = `${prefix}ver-non-current`;
-                    cloudServer.setKey(key);
-                    cloud.setKey(`${srcBucket}/${key}`);
-                    let nonCurrentVersionId = null;
-                    series([
-                        next => cloudServer.putObject(Buffer.from(`${key}-1`), (err, data) => {
-                            if (data) {
-                                nonCurrentVersionId = data.VersionId;
-                            }
-                            next(err);
-                        }),
-                        next => cloudServer.putObject(Buffer.from(`${key}-2`), next),
-                        next => cloudServer.putBucketNCVTLifecycleConfiguration(next),
-                        next => cloudServer.waitUntilTransitioned(nonCurrentVersionId, next),
-                        next => checkRestoration(toLoc, cloudServer, nonCurrentVersionId, next),
-                    ], done);
-                });
-            });
-        }
+        //         it('should transition non current version', done => {
+        //             const key = `${prefix}ver-non-current`;
+        //             cloudServer.setKey(key);
+        //             cloud.setKey(`${srcBucket}/${key}`);
+        //             let nonCurrentVersionId = null;
+        //             series([
+        //                 next => cloudServer.putObject(Buffer.from(`${key}-1`), (err, data) => {
+        //                     if (data) {
+        //                         nonCurrentVersionId = data.VersionId;
+        //                     }
+        //                     next(err);
+        //                 }),
+        //                 next => cloudServer.putObject(Buffer.from(`${key}-2`), next),
+        //                 next => cloudServer.putBucketNCVTLifecycleConfiguration(next),
+        //                 next => cloudServer.waitUntilTransitioned(nonCurrentVersionId, next),
+        //                 next => checkRestoration(toLoc, cloudServer, nonCurrentVersionId, next),
+        //             ], done);
+        //         });
+        //     });
+        // }
     });
 });
