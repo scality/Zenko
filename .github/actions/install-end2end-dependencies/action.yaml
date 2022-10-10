@@ -31,7 +31,6 @@ runs:
           sudo apt-get install -y docker-ce docker-ce-cli containerd.io
           sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
           sudo echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
-          sudo apt-get update && sudo apt-get install -y "kubectl=${{ env.KUBECTL_VERSION }}-*"
           sudo curl -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/${{ env.KIND_VERSION }}/kind-linux-amd64
           sudo chmod +x ./kind
           sudo mv kind /usr/local/bin/
@@ -45,3 +44,7 @@ runs:
           sudo chmod +x /usr/local/bin/tilt
           sudo curl -sSL https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${{ env.KUSTOMIZE_VERSION }}/kustomize_${{ env.KUSTOMIZE_VERSION }}_linux_amd64.tar.gz | sudo tar -xvz
           sudo install kustomize /usr/local/bin
+    - name: Kubectl tool installer
+      uses: Azure/setup-kubectl@v3
+      with:
+        version: 'v${{ env.KUBECTL_VERSION }}'

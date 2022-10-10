@@ -55,7 +55,7 @@ kubectl run ${POD_NAME} \
   --pod-running-timeout=5m \
   --namespace=${NAMESPACE} \
   --image-pull-policy=Always \
-  --serviceaccount="${SERVICE_ACCOUNT}" \
+  --overrides="{ \"spec\": { \"serviceAccount\": \"${SERVICE_ACCOUNT}\" }  }" \
   --env="TOKEN=${TOKEN}" \
   --env="UUID=${UUID}" \
   --env="MANAGEMENT_ENDPOINT=${MANAGEMENT_ENDPOINT}" \
