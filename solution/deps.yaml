@@ -44,9 +44,9 @@ kafka-cruise-control:
   tag: 2.5.86
   envsubst: KAFKA_CRUISECONTROL_TAG
 kafka-lag-exporter:
-  sourceRegistry: lightbend
+  sourceRegistry: seglo
   image: kafka-lag-exporter
-  tag: 0.6.8
+  tag: 0.7.1
   envsubst: KAFKA_LAGEXPORTER_TAG
 mongodb:
   sourceRegistry: kubedb
