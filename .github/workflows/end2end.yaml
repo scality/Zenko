@@ -381,8 +381,7 @@ jobs:
   end2end-sharded:
     needs: [build-test-image, check-dashboard-versions]
     runs-on:
-      # Enable this for Ring-based tests
-      # - scality-cloud
+      - scality-cloud
       - ubuntu
       - focal
       - xlarge
