@@ -54,8 +54,8 @@ MONGODB_NAMESPACE=${SOLUTION_ENV}
 MONGODB_REGISTRY=${SOLUTION_REGISTRY}
 MONGODB_IMAGE_NAME="mongodb"
 MONGODB_IMAGE_TAG=$(yq eval ".mongodb.tag" $SOLUTION_BASE_DIR/deps.yaml)
-MONGODB_INIT_IMAGE_NAME="minideb"
-MONGODB_INIT_IMAGE_TAG=$(yq eval ".mongodb-minideb.tag" $SOLUTION_BASE_DIR/deps.yaml)
+MONGODB_INIT_IMAGE_NAME="bitnami-shell"
+MONGODB_INIT_IMAGE_TAG=$(yq eval ".mongodb-mongodb-shell.tag" $SOLUTION_BASE_DIR/deps.yaml)
 MONGODB_EXPORTER_IMAGE_NAME="mongodb-exporter"
 MONGODB_EXPORTER_IMAGE_TAG=$(yq eval ".mongodb-exporter.tag" $SOLUTION_BASE_DIR/deps.yaml)
 MONGODB_SHARDED_IMAGE_NAME="mongodb-sharded"
@@ -63,7 +63,7 @@ MONGODB_SHARDED_IMAGE_TAG=$(yq eval ".mongodb-sharded.tag" $SOLUTION_BASE_DIR/de
 MONGODB_SHARDED_EXPORTER_IMAGE_NAME="mongodb-exporter"
 MONGODB_SHARDED_EXPORTER_IMAGE_TAG=$(yq eval ".mongodb-sharded-exporter.tag" $SOLUTION_BASE_DIR/deps.yaml)
 MONGODB_SHARDED_SHELL_IMAGE_NAME="bitnami-shell"
-MONGODB_SHARDED_SHELL_IMAGE_TAG=$(yq eval ".mongodb-sharded-shell.tag" $SOLUTION_BASE_DIR/deps.yaml)
+MONGODB_SHARDED_SHELL_IMAGE_TAG=$(yq eval ".mongodb-shell.tag" $SOLUTION_BASE_DIR/deps.yaml)
 MONGODB_STORAGE_CLASS="MONGODB_STORAGE_CLASS"
 
 function flatten_source_images()

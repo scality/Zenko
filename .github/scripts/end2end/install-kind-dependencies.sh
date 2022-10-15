@@ -27,13 +27,9 @@ MONGODB_RS_KEY=0123456789abcdef
 # force a 4.0 image as that's what artesca uses
 DEPS_FILE="$DIR/../../../solution-base/deps.yaml"
 MONGODB_IMAGE_TAG=$(yq eval ".mongodb.tag" $DEPS_FILE)
-MONGODB_INIT_IMAGE_REGISTRY=$(yq eval ".mongodb-minideb.sourceRegistry" $DEPS_FILE)
-MONGODB_INIT_IMAGE_NAME=$(yq eval ".mongodb-minideb.image" $DEPS_FILE)
-MONGODB_INIT_IMAGE_TAG=$(yq eval ".mongodb-minideb.tag" $DEPS_FILE)
+MONGODB_INIT_IMAGE_NAME=$(yq eval ".mongodb-shell.image" $DEPS_FILE)
+MONGODB_INIT_IMAGE_TAG=$(yq eval ".mongodb-shell.tag" $DEPS_FILE)
 MONGODB_EXPORTER_IMAGE_TAG=$(yq eval ".mongodb-exporter.tag" $DEPS_FILE)
-MONGODB_SHARDED_IMAGE_TAG=$(yq eval ".mongodb-sharded.tag" $DEPS_FILE)
-MONGODB_SHARDED_EXPORTER_IMAGE_TAG=$(yq eval ".mongodb-sharded-exporter.tag" $DEPS_FILE)
-MONGODB_SHARDED_SHELL_IMAGE_TAG=$(yq eval ".mongodb-sharded-shell.tag" $DEPS_FILE)
 
 ENABLE_KEYCLOAK_HTTPS=${ENABLE_KEYCLOAK_HTTPS:-'false'}
 ZENKO_MONGODB_SHARDED=${ZENKO_MONGODB_SHARDED:-'false'}
@@ -116,6 +112,8 @@ mongodb_replicaset() {
         --version $BITNAMI_MONGODB_VER \
         -f "${DIR}/configs/mongodb_options.yaml"  \
         --set "volumePermissions.enabled=true" \
+        --set "volumePermissions.image.repository=${MONGODB_INIT_IMAGE_NAME}" \
+        --set "volumePermissions.image.tag=${MONGODB_INIT_IMAGE_TAG}" \
         --set "persistence.storageClass=standard" \
         --set "usePassword=true" \
         --set "mongodbRootPassword=$MONGODB_ROOT_PASSWORD" \
@@ -169,7 +167,7 @@ mongodb_sharded() {
 
     kustomize edit set image \
         $SOLUTION_REGISTRY/mongodb-sharded=$(get_image_from_deps mongodb-sharded) \
-        $SOLUTION_REGISTRY/bitnami-shell=$(get_image_from_deps mongodb-sharded-shell) \
+        $SOLUTION_REGISTRY/bitnami-shell=$(get_image_from_deps mongodb-shell) \
         $SOLUTION_REGISTRY/mongodb-exporter=$(get_image_from_deps mongodb-sharded-exporter)
 
     kubectl apply -k .
