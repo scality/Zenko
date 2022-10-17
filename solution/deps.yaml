@@ -75,7 +75,7 @@ redis_exporter:
 s3utils:
   sourceRegistry: registry.scality.com/s3utils
   image: s3utils
-  tag: 1.13.2
+  tag: 1.13.7
   envsubst: S3UTILS_TAG
 sorbet:
   sourceRegistry: registry.scality.com/sorbet
