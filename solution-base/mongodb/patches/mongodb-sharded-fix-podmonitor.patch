@@ -1,13 +1,20 @@
 diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-podmonitor.yaml b/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-podmonitor.yaml
-index 3c689fc0..2ce5c5db 100644
+index 3c689fc0..e43b5698 100644
 --- a/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-podmonitor.yaml
 +++ b/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-podmonitor.yaml
-@@ -31,5 +31,8 @@ spec:
-   selector:
+@@ -1,6 +1,5 @@
+ {{- if and .Values.shards .Values.metrics.enabled .Values.metrics.podMonitor.enabled }}
+-{{- $replicas := .Values.shards | int }}
+-{{- range $i, $e := until $replicas }}
++{{- $i := 0 }}
+ apiVersion: monitoring.coreos.com/v1
+ kind: PodMonitor
+ metadata:
+@@ -32,4 +31,3 @@ spec:
      matchLabels: {{- include "common.labels.matchLabels" $ | nindent 6 }}
        app.kubernetes.io/component: shardsvr
-+{{- if lt $i (sub $replicas 1) }}
-+---
-+{{- end }}
  {{- end }}
- {{- end }}
+-{{- end }}
+-- 
+2.37.3
+
