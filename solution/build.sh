@@ -319,12 +319,7 @@ mkdirs
 download_tools
 gen_manifest_yaml
 copy_yamls
-KAFKA_IMAGE="$(yq eval '(.kafka.sourceRegistry // "docker.io") + "/" + .kafka.image' deps.yaml)"
-build_image "$KAFKA_IMAGE" "$(yq eval '.kafka.tag' deps.yaml)" \
-    --build-arg "scala_version=$(yq eval '.kafka.tag | split("-").[0]' deps.yaml)" \
-    --build-arg "kafka_version=$(yq eval '.kafka.tag | split("-").[1]' deps.yaml)"
-build_image kafka-connect "$(yq eval '.kafka.tag' deps.yaml)"
-flatten_source_images | grep -v "$KAFKA_IMAGE" | while read img ; do
+flatten_source_images | while read img ; do
     # only pull if the image isnt already local
     ${DOCKER} image inspect ${img} > /dev/null 2>&1 || ${DOCKER} ${DOCKER_OPTS} pull ${img}
     copy_docker_image ${img}

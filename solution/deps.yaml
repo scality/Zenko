@@ -24,10 +24,15 @@ jmx-javaagent:
   tag: 0.14.0
   envsubst: JMX_JAVAAGENT_TAG
 kafka:
-  sourceRegistry: ghcr.io/banzaicloud
+  sourceRegistry: registry.scality.com/zenko
   image: kafka
   tag: 2.13-3.1.2
   envsubst: KAFKA_TAG
+kafka-connect:
+  sourceRegistry: registry.scality.com/zenko
+  image: kafka-connect
+  tag: 2.13-3.1.2
+  envsubst: KAFKA_CONNECT_TAG
 kafka-cruise-control:
   sourceRegistry: ghcr.io/banzaicloud
   image: cruise-control

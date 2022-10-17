@@ -140,6 +140,7 @@ jobs:
       - self-hosted
       - centos7
       - large
+    needs: [build-kafka, check-dashboard-versions]
     steps:
       - name: Install dependencies
         shell: bash
@@ -206,6 +207,74 @@ jobs:
           password: ${{ secrets.ARTIFACTS_PASSWORD }}
           source: "solution-base/_build"
 
+  build-kafka:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Registry
+        uses: docker/login-action@v1.10.0
+        with:
+          username: "${{ secrets.REGISTRY_LOGIN }}"
+          password: "${{ secrets.REGISTRY_PASSWORD }}"
+          registry: registry.scality.com
+
+      - name: Extract environment
+        run: |-
+          sudo curl --fail -L https://github.com/mikefarah/yq/releases/download/${{ env.YQ_VERSION}}/${{ env.YQ_BINARY }} -o /usr/bin/yq
+          sudo chmod +x /usr/bin/yq
+
+          get_image_from_deps() {
+              local dep_name=$1
+              yq eval ".$dep_name | (.sourceRegistry // \"docker.io\") + \"/\" + .image" deps.yaml
+          }
+
+          cd solution/
+          cat <<EOF >> $GITHUB_ENV
+          scala_version=$(yq eval '.kafka.tag | split("-").[0]' deps.yaml)
+          kafka_version=$(yq eval '.kafka.tag | split("-").[1]' deps.yaml)
+          KAFKA_IMAGE=$(get_image_from_deps kafka)
+          KAFKA_TAG=$(yq eval '.kafka.tag' deps.yaml)
+          KAFKA_CONNECT_IMAGE=$(get_image_from_deps kafka-connect)
+          KAFKA_CONNECT_TAG=$(yq eval '.kafka-connect.tag' deps.yaml)
+          JMX_JAVAAGENT_IMAGE=$(get_image_from_deps jmx-javaagent)
+          JMX_JAVAAGENT_TAG=$(yq eval '.jmx-javaagent.tag' deps.yaml)
+          EOF
+
+      - name: Check kafka & kafka-connect versions match
+        run: |-
+          [ "${{ env.KAFKA_TAG }}" = "${{ env.KAFKA_CONNECT_TAG }}" ]
+
+      - name: Build and push kafka
+        uses: docker/build-push-action@v3.1.0
+        with:
+          push: true
+          context: ./solution/kafka
+          build-args: |-
+            scala_version=${{ env.scala_version }}
+            kafka_version=${{ env.kafka_version }}
+          tags: "${{ env.KAFKA_IMAGE }}:${{ env.KAFKA_TAG }}"
+          cache-from: type=gha,scope=$GITHUB_REF_NAME-kafka
+          cache-to: type=gha,mode=max,scope=$GITHUB_REF_NAME-kafka
+
+      - name: Build and push kafka-connect
+        uses: docker/build-push-action@v3.1.0
+        with:
+          push: true
+          context: ./solution/kafka-connect
+          build-args: |-
+            JMX_JAVAAGENT_IMAGE=${{ env.JMX_JAVAAGENT_IMAGE }}
+            JMX_JAVAAGENT_TAG=${{ env.JMX_JAVAAGENT_TAG }}
+            KAFKA_IMAGE=${{ env.KAFKA_IMAGE }}
+            KAFKA_TAG=${{ env.KAFKA_TAG }}
+          tags: "${{ env.KAFKA_CONNECT_IMAGE }}:${{ env.KAFKA_CONNECT_TAG }}"
+          cache-from: type=gha,scope=$GITHUB_REF_NAME-kafka-connect
+          cache-to: type=gha,mode=max,scope=$GITHUB_REF_NAME-kafka-connect
+
   build-test-image:
     runs-on: ubuntu-20.04
     steps:
@@ -219,13 +288,6 @@ jobs:
           username: "${{ secrets.REGISTRY_LOGIN }}"
           password: "${{ secrets.REGISTRY_PASSWORD }}"
           registry: registry.scality.com
-      - name: Cache Docker layers
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache
-          key: buildx-zenko-${{ github.sha }}
-          restore-keys: |
-            buildx-zenko
       - name: Generate end2end config yaml
         run: |-
           cd tests/zenko_tests
@@ -242,15 +304,11 @@ jobs:
           push: true
           context: ./tests/zenko_tests
           tags: "${{ env.E2E_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}"
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
-      - name: Move cache
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+          cache-from: type=gha,scope=$GITHUB_REF_NAME-test
+          cache-to: type=gha,mode=max,scope=$GITHUB_REF_NAME-test
   
   end2end-http:
-    needs: [build-test-image, check-dashboard-versions]
+    needs: [build-kafka, build-test-image, check-dashboard-versions]
     runs-on:
       - ubuntu
       - focal
@@ -312,7 +370,7 @@ jobs:
         if: always()
 
   end2end-https:
-    needs: [build-test-image, check-dashboard-versions]
+    needs: [build-kafka, build-test-image, check-dashboard-versions]
     runs-on:
       - ubuntu
       - focal
@@ -375,7 +433,7 @@ jobs:
         if: always()
 
   end2end-sharded:
-    needs: [build-test-image, check-dashboard-versions]
+    needs: [build-kafka, build-test-image, check-dashboard-versions]
     runs-on:
       # Enable this for Ring-based tests
       # - scality-cloud
@@ -436,6 +494,7 @@ jobs:
       - check-dashboard-versions
       - build-doc
       - build-iso
+      - build-kafka
       - build-test-image
       - end2end-http
       - end2end-https
@@ -461,6 +520,7 @@ jobs:
       - check-dashboard-versions
       - build-doc
       - build-iso
+      - build-kafka
       - build-test-image
       - end2end-http
       - end2end-https
