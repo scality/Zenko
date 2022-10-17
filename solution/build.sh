@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
 set -e
 set -u
 
@@ -118,10 +119,12 @@ function copy_docker_image()
 
 function build_image()
 {
+    local path="${1##*/}"
     local image="$1:$2"
+    shift 2
 
     local argumentNames
-    argumentNames="$(sed -n 's/ARG //p' $1/Dockerfile | sort -u)"
+    argumentNames="$(sed -n 's/ARG \([^=]*\).*/\1/p' "$path/Dockerfile" | sort -u)"
 
     local -a buildArgs
     readarray -t buildArgs < <(
@@ -132,7 +135,8 @@ function build_image()
         } | grep -F "$argumentNames" | sed 's/\(.*\)/--build-arg\n\1/'
     )
 
-    docker build -t "$image" "${buildArgs[@]}" "$1/"
+    # Work around bad expansion of empty array in bash 4.4- (c.f. https://stackoverflow.com/a/7577209)
+    docker build -t "$image" ${buildArgs[@]+"${buildArgs[@]}"} "$@" "$path/"
     copy_docker_image "$image" 'docker-daemon:'
 }
 
@@ -315,12 +319,16 @@ mkdirs
 download_tools
 gen_manifest_yaml
 copy_yamls
-flatten_source_images | while read img ; do
+KAFKA_IMAGE="$(yq eval '(.kafka.sourceRegistry // "docker.io") + "/" + .kafka.image' deps.yaml)"
+build_image "$KAFKA_IMAGE" "$(yq eval '.kafka.tag' deps.yaml)" \
+    --build-arg "scala_version=$(yq eval '.kafka.tag | split("-").[0]' deps.yaml)" \
+    --build-arg "kafka_version=$(yq eval '.kafka.tag | split("-").[1]' deps.yaml)"
+build_image kafka-connect "$(yq eval '.kafka.tag' deps.yaml)"
+flatten_source_images | grep -v "$KAFKA_IMAGE" | while read img ; do
     # only pull if the image isnt already local
     ${DOCKER} image inspect ${img} > /dev/null 2>&1 || ${DOCKER} ${DOCKER_OPTS} pull ${img}
     copy_docker_image ${img}
 done
-build_image kafka-connect "$(yq eval '.kafka.tag' deps.yaml)"
 get_dashboards
 copy_iam_policies
 dedupe
