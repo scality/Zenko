@@ -80,7 +80,7 @@ env:
   RING_S3C_INGESTION_SRC_BUCKET_NAME: ingestion-test-src-bucket-${{ github.run_id }}-${{ github.run_attempt }}
   SKOPEO_PATH: "/tmp"
   HELM_VERSION: "v3.5.3"
-  YQ_VERSION: "v4.6.3"
+  YQ_VERSION: "v4.27.5"
   YQ_BINARY: "yq_linux_amd64"
   KUSTOMIZE_VERSION: "v4.4.1"
   GO_VERSION: "1.16.2"
