@@ -51,9 +51,6 @@ spec:
     backbeat:
       image: '${BACKBEAT_IMAGE}' 
       tag: '${BACKBEAT_TAG}'
-    blobserver:
-      image: '${BLOBSERVER_IMAGE}' 
-      tag: '${BLOBSERVER_TAG}'
     utapi:
       image: '${UTAPI_IMAGE}' 
       tag: '${UTAPI_TAG}'
