@@ -23,11 +23,6 @@ cloudserver:
   image: cloudserver
   tag: 8.5.16
   envsubst: CLOUDSERVER_TAG
-jabba:
-  sourceRegistry: registry.scality.com/jabba
-  image: jabba
-  tag: 1.0.0
-  envsubst: JABBA_TAG
 jmx-javaagent:
   sourceRegistry: banzaicloud
   image: jmx-javaagent

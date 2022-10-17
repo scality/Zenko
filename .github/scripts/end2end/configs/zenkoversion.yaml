@@ -54,9 +54,6 @@ spec:
     blobserver:
       image: '${BLOBSERVER_IMAGE}' 
       tag: '${BLOBSERVER_TAG}'
-    jabba:
-      image: '${JABBA_IMAGE}' 
-      tag: '${JABBA_TAG}'
     utapi:
       image: '${UTAPI_IMAGE}' 
       tag: '${UTAPI_TAG}'
