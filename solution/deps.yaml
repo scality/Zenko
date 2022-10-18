@@ -43,11 +43,6 @@ kafka-lag-exporter:
   image: kafka-lag-exporter
   tag: 0.7.1
   envsubst: KAFKA_LAGEXPORTER_TAG
-mongodb:
-  sourceRegistry: kubedb
-  image: mongo
-  tag: 4.0-v1
-  envsubst: MONGODB_TAG
 pensieve-api:
   sourceRegistry: registry.scality.com/pensieve-api
   image: pensieve-api
