@@ -38,6 +38,7 @@ MONGODB_THREE_NODE_PATH=${ISO_ROOT}/deploy/mongodb-3-nodes.yaml
 MONGODB_SHARDED_SINGLE_NODE_PATH=${ISO_ROOT}/deploy/mongodb-sharded-1-node.yaml
 MONGODB_SHARDED_THREE_NODE_PATH=${ISO_ROOT}/deploy/mongodb-sharded-3-nodes.yaml
 MONGODB_SHARDED_NINE_NODE_PATH=${ISO_ROOT}/deploy/mongodb-sharded-9-nodes.yaml
+MONGODB_SHARDED_NINE_NODE_NINE_SHARDS_PATH=${ISO_ROOT}/deploy/mongodb-sharded-9-nodes-9-shards.yaml
 
 SOLUTION_ENV='SOLUTION_ENV'
 
@@ -164,6 +165,7 @@ function render_mongodb_sharded_yamls()
     echo creating mongodb-sharded ${NODE_COUNT}-node yamls
     CHART_PATH="$SOLUTION_BASE_DIR/mongodb/charts/mongodb-sharded"
 
+    # metrics.podMonitor.enabled generates invalid yaml when shards > 1
     helm template ${MONGODB_SHARDED_NAME} ${CHART_PATH} -n ${MONGODB_NAMESPACE} \
         --set image.registry=${MONGODB_REGISTRY} \
         --set image.repository=${MONGODB_SHARDED_IMAGE_NAME} \
@@ -179,7 +181,7 @@ function render_mongodb_sharded_yamls()
         --set configsvr.persistence.enabled=true \
         --set configsvr.persistence.storageClass=${MONGODB_STORAGE_CLASS} \
         --set metrics.enabled=true \
-        --set metrics.podMonitor.enabled=true \
+        --set metrics.podMonitor.enabled=false \
         --set metrics.podMonitor.namespace= \
         --set metrics.podMonitor.additionalLabels."metalk8s\.scality\.com/monitor"= \
         --set common.initScriptsCM=mongodb-sharded-init-scripts \
@@ -204,6 +206,7 @@ function mongodb_sharded_yamls()
     render_mongodb_sharded_yamls "${MONGODB_SHARDED_SINGLE_NODE_PATH}" 1 1
     render_mongodb_sharded_yamls "${MONGODB_SHARDED_THREE_NODE_PATH}" 1 3
     render_mongodb_sharded_yamls "${MONGODB_SHARDED_NINE_NODE_PATH}" 1 9
+    render_mongodb_sharded_yamls "${MONGODB_SHARDED_NINE_NODE_NINE_SHARDS_PATH}" 9 9
 }
 
 function gen_manifest_yaml()

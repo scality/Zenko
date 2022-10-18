@@ -1,5 +1,7 @@
 resources:
-- mongodb-sharded-9-nodes.yaml
+- ns.yaml
+- mongodb-sharded-9-nodes-9-shards.yaml
+#- mongodb-sharded-9-nodes.yaml
 - mongodb-creds.yaml
 - storageclass.yaml
 
@@ -23,4 +25,52 @@ patchesJson6902:
     group: apps
     kind: StatefulSet
     name: data-db-mongodb-sharded-shard0-data
+    version: v1
+- path: patch-pvc-delete-selector.yaml
+  target:
+    group: apps
+    kind: StatefulSet
+    name: data-db-mongodb-sharded-shard1-data
+    version: v1
+- path: patch-pvc-delete-selector.yaml
+  target:
+    group: apps
+    kind: StatefulSet
+    name: data-db-mongodb-sharded-shard2-data
+    version: v1
+- path: patch-pvc-delete-selector.yaml
+  target:
+    group: apps
+    kind: StatefulSet
+    name: data-db-mongodb-sharded-shard3-data
+    version: v1
+- path: patch-pvc-delete-selector.yaml
+  target:
+    group: apps
+    kind: StatefulSet
+    name: data-db-mongodb-sharded-shard4-data
+    version: v1
+- path: patch-pvc-delete-selector.yaml
+  target:
+    group: apps
+    kind: StatefulSet
+    name: data-db-mongodb-sharded-shard5-data
+    version: v1
+- path: patch-pvc-delete-selector.yaml
+  target:
+    group: apps
+    kind: StatefulSet
+    name: data-db-mongodb-sharded-shard6-data
+    version: v1
+- path: patch-pvc-delete-selector.yaml
+  target:
+    group: apps
+    kind: StatefulSet
+    name: data-db-mongodb-sharded-shard7-data
+    version: v1
+- path: patch-pvc-delete-selector.yaml
+  target:
+    group: apps
+    kind: StatefulSet
+    name: data-db-mongodb-sharded-shard8-data
     version: v1
