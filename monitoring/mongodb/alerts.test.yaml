@@ -30,7 +30,7 @@ tests:
 
   - interval: 1m
     input_series:
-      - series: mongodb_mongod_replset_member_state{namespace="zenko",pod="mongodb-0",state="PRIMARY"}
+      - series: mongodb_rs_members_state{namespace="zenko",pod="mongodb-0",member_state="PRIMARY"}
         values: 1 _
 
     alert_rule_test:
@@ -52,23 +52,23 @@ tests:
 
   - interval: 30s
     input_series:
-      - series: mongodb_mongod_replset_member_health{namespace="zenko",pod="mongodb-0", name="mongodb-0", state="PRIMARY"}
+      - series: mongodb_rs_members_health{namespace="zenko",pod="mongodb-0", member_idx="mongodb-0", member_state="PRIMARY"}
         values: 1 1 1 1
-      - series: mongodb_mongod_replset_member_health{namespace="zenko",pod="mongodb-0", name="mongodb-1", state="SECONDARY"}
+      - series: mongodb_rs_members_health{namespace="zenko",pod="mongodb-0", member_idx="mongodb-1", member_state="SECONDARY"}
         values: 1 1 1 1
-      - series: mongodb_mongod_replset_member_health{namespace="zenko",pod="mongodb-0", name="mongodb-2", state="SECONDARY"}
+      - series: mongodb_rs_members_health{namespace="zenko",pod="mongodb-0", member_idx="mongodb-2", member_state="SECONDARY"}
         values: 1 1 0 0
-      - series: mongodb_mongod_replset_member_health{namespace="zenko",pod="mongodb-1", name="mongodb-0", state="PRIMARY"}
+      - series: mongodb_rs_members_health{namespace="zenko",pod="mongodb-1", member_idx="mongodb-0", member_state="PRIMARY"}
         values: 1 1 1 1
-      - series: mongodb_mongod_replset_member_health{namespace="zenko",pod="mongodb-1", name="mongodb-1", state="SECONDARY"}
+      - series: mongodb_rs_members_health{namespace="zenko",pod="mongodb-1", member_idx="mongodb-1", member_state="SECONDARY"}
         values: 1 1 1 1
-      - series: mongodb_mongod_replset_member_health{namespace="zenko",pod="mongodb-1", name="mongodb-2", state="SECONDARY"}
+      - series: mongodb_rs_members_health{namespace="zenko",pod="mongodb-1", member_idx="mongodb-2", member_state="SECONDARY"}
         values: 1 1 0 0
-      - series: mongodb_mongod_replset_member_health{namespace="zenko",pod="mongodb-2", name="mongodb-0", state="PRIMARY"}
+      - series: mongodb_rs_members_health{namespace="zenko",pod="mongodb-2", member_idx="mongodb-0", member_state="PRIMARY"}
         values: 1 1 _ _
-      - series: mongodb_mongod_replset_member_health{namespace="zenko",pod="mongodb-2", name="mongodb-1", state="SECONDARY"}
+      - series: mongodb_rs_members_health{namespace="zenko",pod="mongodb-2", member_idx="mongodb-1", member_state="SECONDARY"}
         values: 1 1 _ _
-      - series: mongodb_mongod_replset_member_health{namespace="zenko",pod="mongodb-2", name="mongodb-2", state="SECONDARY"}
+      - series: mongodb_rs_members_health{namespace="zenko",pod="mongodb-2", member_idx="mongodb-2", member_state="SECONDARY"}
         values: 1 1 _ _
 
     alert_rule_test:
@@ -88,7 +88,7 @@ tests:
 
   - interval: 30s
     input_series:
-      - series: mongodb_mongod_replset_member_election_date{namespace="zenko", pod="mongodb", set="rs0"}
+      - series: mongodb_rs_members_electionDate{namespace="zenko", pod="mongodb", set="rs0"}
         values: 1+0x9 10+1x10
 
     alert_rule_test:
@@ -107,10 +107,12 @@ tests:
 
   - interval: 1m
     input_series:
-      - series: mongodb_mongod_replset_member_replication_lag{namespace="zenko",pod="mongodb-0", name="mongo-0"}
-        values: 8 12 15
-      - series: mongodb_mongod_replset_member_replication_lag{namespace="zenko",pod="mongodb-1", name="mongo-1"}
-        values: 4 9 12
+      - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="mongodb-0", member_idx="mongo-0", member_state="PRIMARY"}
+        values: 5 25 35
+      - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="mongodb-1", member_idx="mongo-1", member_state="SECONDARY"}
+        values: 0 12 29
+      - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="mongodb-2", member_idx="mongo-2", member_state="SECONDARY"}
+        values: 2 2 31
 
     alert_rule_test:
       - alertname: ReplicationLagWarning
@@ -121,29 +123,16 @@ tests:
         exp_alerts:
           - exp_labels:
               severity: warning
-              name: mongo-0
             exp_annotations:
-              description: Mongodb replication lag is more than 10s on mongo-0
+              description: Mongodb replication lag is more than 10s
               summary: MongoDB replication lag
       - alertname: ReplicationLagWarning
         eval_time: 3m
-        exp_alerts:
-          - exp_labels:
-              severity: warning
-              name: mongo-0
-            exp_annotations:
-              description: Mongodb replication lag is more than 10s on mongo-0
-              summary: MongoDB replication lag
-          - exp_labels:
-              severity: warning
-              name: mongo-1
-            exp_annotations:
-              description: Mongodb replication lag is more than 10s on mongo-1
-              summary: MongoDB replication lag
+        exp_alerts: []
 
   - interval: 1m
     input_series:
-      - series: mongodb_connections{namespace="zenko",pod="mongodb-0",state="current"}
+      - series: mongodb_ss_connections{namespace="zenko",pod="mongodb-0",conn_type="current"}
         values: 90 98 110 110
 
     alert_rule_test:

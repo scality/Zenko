@@ -35,7 +35,7 @@ groups:
 
   - alert: NoPrimary
     expr: |
-      absent_over_time(mongodb_mongod_replset_member_state{namespace="${namespace}",pod=~"${service}.*",state="PRIMARY"}[1m]) == 1
+      absent_over_time(mongodb_rs_members_state{namespace="${namespace}",pod=~"${service}.*",member_state="PRIMARY"}[1m]) == 1
     for: 0m
     labels:
       severity: critical
@@ -45,17 +45,17 @@ groups:
 
   - alert: UnhealthyMemberWarning
     expr: |
-      group by(name, state) (mongodb_mongod_replset_member_health{namespace="${namespace}",pod=~"${service}.*"} != 1)
+      group by(name, state) (mongodb_rs_members_health{namespace="${namespace}",pod=~"${service}.*"} != 1)
     for: 30s
     labels:
       severity: warning
     annotations:
-      description: "Member {{ $labels.name }} ({{ $labels.state }}) is not healthy"
+      description: "Member {{ $labels.member_idx }} ({{ $labels.member_state }}) is not healthy"
       summary: Unhealthy MongoDb member
 
   - alert: TooManyElectionsWarning
     expr: |
-      sum by(set) (changes(mongodb_mongod_replset_member_election_date{namespace="${namespace}",pod=~"${service}.*"}[10m]))
+      sum by(set) (changes(mongodb_rs_members_electionDate{namespace="${namespace}",pod=~"${service}.*"}[10m]))
         > ${tooManyElectionsWarningThreshold}
     for: 0s
     labels:
@@ -66,18 +66,18 @@ groups:
 
   - alert: ReplicationLagWarning
     expr: |
-      sum by(name) (mongodb_mongod_replset_member_replication_lag{namespace="${namespace}",pod=~"${service}.*"})
-        > 10
+      max(mongodb_rs_members_optimeDate{namespace="${namespace}",pod=~"${service}.*",member_state="PRIMARY"}) -
+        min(mongodb_rs_members_optimeDate{namespace="${namespace}",pod=~"${service}.*",member_state="SECONDARY"}) > 10
     for: 30s
     labels:
       severity: warning
     annotations:
-      description: "Mongodb replication lag is more than 10s on {{ $labels.name }}"
+      description: "Mongodb replication lag is more than 10s"
       summary: MongoDB replication lag
 
   - alert: TooManyClientConnectionsWarning
     expr: |
-      sum(mongodb_connections{namespace="${namespace}",pod=~"${service}.*",state="current"})
+      sum(mongodb_ss_connections{namespace="${namespace}",pod=~"${service}.*",conn_type="current"})
         > ${tooManyClientConnectionsWarningThreshold}
     for: 2m
     labels:

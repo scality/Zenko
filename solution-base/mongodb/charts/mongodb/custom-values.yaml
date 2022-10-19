@@ -441,7 +441,7 @@ metrics:
   image:
     registry: docker.io
     repository: bitnami/mongodb-exporter
-    tag: 0.10.0-debian-9-r104
+    tag: 0.34.0-debian-11-r24
     pullPolicy: IfNotPresent
     ## Optionally specify an array of imagePullSecrets.
     ## Secrets must be manually created in the namespace.
@@ -452,7 +452,10 @@ metrics:
 
   ## String with extra arguments to the metrics exporter
   ## ref: https://github.com/percona/mongodb_exporter/blob/master/mongodb_exporter.go
-  extraArgs: ""
+  ##
+  ## We use "--compatible-mode" flag to export old metric: "mongodb_mongod_replset_oplog_head_timestamp"
+  ## for mongoDB and backbeat dashboards.
+  extraArgs: "--collector.diagnosticdata --collector.replicasetstatus --collector.dbstats --collector.topmetrics --compatible-mode"
 
   ## Metrics exporter resource requests and limits
   ## ref: http://kubernetes.io/docs/user-guide/compute-resources/

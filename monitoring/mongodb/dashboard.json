@@ -139,7 +139,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "mongodb_instance_uptime_estimate_seconds{pod=\"${pod}\", namespace=\"${namespace}\"}",
+          "expr": "mongodb_ss_uptime{pod=\"${pod}\", namespace=\"${namespace}\"}",
           "format": "time_series",
           "instant": true,
           "interval": "",
@@ -218,13 +218,13 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum by(pod) (mongodb_connections{pod=\"${pod}\", namespace=\"${namespace}\", state=\"available\"})",
+          "expr": "sum by(pod) (mongodb_ss_connections{pod=\"${pod}\", namespace=\"${namespace}\", conn_type=\"available\"})",
           "format": "time_series",
           "interval": "",
           "instant": false,
           "intervalFactor": 2,
           "legendFormat": "",
-          "metric": "mongodb_connections",
+          "metric": "mongodb_ss_connections",
           "refId": "A",
           "step": 1800
         }
@@ -299,13 +299,13 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum by(pod) (mongodb_connections{pod=\"${pod}\", namespace=\"${namespace}\", state=\"current\"})",
+          "expr": "sum by(pod) (mongodb_ss_connections{pod=\"${pod}\", namespace=\"${namespace}\", conn_type=\"current\"})",
           "format": "time_series",
           "interval": "",
           "instant": false,
           "intervalFactor": 2,
           "legendFormat": "",
-          "metric": "mongodb_connections",
+          "metric": "mongodb_ss_connections",
           "refId": "A",
           "step": 1800
         }
@@ -358,11 +358,11 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "rate(mongodb_op_counters_total{pod=\"${pod}\", namespace=\"${namespace}\"}[$__rate_interval])",
+          "expr": "rate(mongodb_ss_opcounters{pod=\"${pod}\", namespace=\"${namespace}\"}[$__rate_interval])",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
-          "legendFormat": "{{type}}",
+          "legendFormat": "{{legacy_op_type}}",
           "refId": "A",
           "step": 240
         }
@@ -477,11 +477,11 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "rate(mongodb_mongod_metrics_document_total{pod=\"${mongod}\", namespace=\"${namespace}\"}[$__rate_interval])",
+          "expr": "rate(mongodb_ss_metrics_document{pod=\"${mongod}\", namespace=\"${namespace}\"}[$__rate_interval])",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
-          "legendFormat": "{{state}}",
+          "legendFormat": "{{doc_op_type}}",
           "refId": "A",
           "step": 240
         }
@@ -571,12 +571,12 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "rate(mongodb_mongod_metrics_query_executor_total{pod=\"${mongod}\", namespace=\"${namespace}\"}[$__rate_interval])",
+          "expr": "rate(mongodb_ss_metrics_queryExecutor_scanned{pod=\"${mongod}\", namespace=\"${namespace}\"}[$__rate_interval])",
           "format": "time_series",
           "hide": false,
           "interval": "",
           "intervalFactor": 2,
-          "legendFormat": "{{state}}",
+          "legendFormat": "",
           "refId": "A",
           "step": 600
         }
@@ -666,11 +666,11 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum by(type) (rate(mongodb_op_counters_repl_total{pod=\"${mongod}\", namespace=\"${namespace}\"}[$__rate_interval]))",
+          "expr": "sum by(legacy_op_type) (rate(mongodb_ss_opcountersRepl{pod=\"${mongod}\", namespace=\"${namespace}\"}[$__rate_interval]))",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
-          "legendFormat": "{{type}}",
+          "legendFormat": "{{legacy_op_type}}",
           "refId": "A",
           "step": 600
         }
@@ -785,7 +785,7 @@
         },
         {
           "exemplar": true,
-          "expr": "sum(mongodb_mongod_replset_member_health{pod=\"${mongod}\", namespace=\"${namespace}\"})",
+          "expr": "sum(mongodb_rs_members_health{pod=\"${mongod}\", namespace=\"${namespace}\"})",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -884,11 +884,11 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "mongodb_mongod_replset_member_state{pod=\"${mongod}\", namespace=\"${namespace}\"}",
+          "expr": "mongodb_rs_members_state{pod=\"${mongod}\", namespace=\"${namespace}\"}",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
-          "legendFormat": "{{state}}",
+          "legendFormat": "{{member_state}}",
           "refId": "A",
           "step": 240,
           "instant": true
@@ -1084,11 +1084,11 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "mongodb_mongod_replset_oplog_size_bytes{pod=~\"${mongod}\", namespace=\"${namespace}\"}",
+          "expr": "mongodb_oplog_stats_size{pod=~\"${mongod}\", namespace=\"${namespace}\"}",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
-          "legendFormat": "{{type}}",
+          "legendFormat": "{{rs_nm}}",
           "metric": "mongodb_locks_time_acquiring_global_microseconds_total",
           "refId": "A",
           "step": 240
@@ -1197,12 +1197,22 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "mongodb_memory{pod=~\"${pod}\", namespace=\"${namespace}\",type=~\"resident|virtual\"}",
+          "expr": "mongodb_ss_mem_resident{pod=~\"${pod}\", namespace=\"${namespace}\"}",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
-          "legendFormat": "{{pod}}: {{type}}",
+          "legendFormat": "{{pod}}: Resident",
           "refId": "A",
+          "step": 240
+        },
+        {
+          "exemplar": true,
+          "expr": "mongodb_ss_mem_virtual{pod=~\"${pod}\", namespace=\"${namespace}\"}",
+          "format": "time_series",
+          "interval": "",
+          "intervalFactor": 2,
+          "legendFormat": "{{pod}}: Virtual",
+          "refId": "B",
           "step": 240
         }
       ],
@@ -1386,13 +1396,24 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "rate(mongodb_network_bytes_total{pod=~\"${pod}\", namespace=\"${namespace}\"}[$__rate_interval])",
+          "expr": "rate(mongodb_ss_network_bytesIn{pod=~\"${pod}\", namespace=\"${namespace}\"}[$__rate_interval])",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
-          "legendFormat": "{{pod}}: {{state}}",
-          "metric": "mongodb_metrics_operation_total",
+          "legendFormat": "{{pod}}: In",
+          "metric": "mongodb_ss_network_bytesIn",
           "refId": "A",
+          "step": 240
+        },
+        {
+          "exemplar": true,
+          "expr": "rate(mongodb_ss_network_bytesOut{pod=~\"${pod}\", namespace=\"${namespace}\"}[$__rate_interval])",
+          "format": "time_series",
+          "interval": "",
+          "intervalFactor": 2,
+          "legendFormat": "{{pod}}: Out",
+          "metric": "mongodb_ss_network_bytesOut",
+          "refId": "B",
           "step": 240
         }
       ],
@@ -1480,7 +1501,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum by(pod) (rate(container_fs_writes_total{namespace=\"${namespace}\", pod=~\"${pod}\"}[$__rate_interval]))",
+          "expr": "sum by(pod) (rate(container_fs_reads_total{namespace=\"${namespace}\", pod=~\"${pod}\"}[$__rate_interval]))",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "{{pod}}",
@@ -1638,7 +1659,7 @@
           "value": "$__all"
         },
         "datasource": "${DS_PROMETHEUS}",
-        "definition": "label_values(mongodb_connections{namespace=\"${namespace}\"}, pod)",
+        "definition": "label_values(mongodb_ss_connections{namespace=\"${namespace}\"}, pod)",
         "description": null,
         "error": null,
         "hide": 0,
@@ -1648,7 +1669,7 @@
         "name": "pod",
         "options": [],
         "query": {
-          "query": "label_values(mongodb_connections{namespace=\"${namespace}\"}, pod)",
+          "query": "label_values(mongodb_ss_connections{namespace=\"${namespace}\"}, pod)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 1,
@@ -1666,7 +1687,7 @@
           "value": "$__all"
         },
         "datasource": "${DS_PROMETHEUS}",
-        "definition": "label_values(mongodb_mongod_metrics_document_total{namespace=\"${namespace}\", pod=~\"$pod\"}, pod)",
+        "definition": "label_values(mongodb_ss_metrics_document{namespace=\"${namespace}\", pod=~\"$pod\"}, pod)",
         "description": null,
         "error": null,
         "hide": 2,
@@ -1676,7 +1697,7 @@
         "name": "mongod",
         "options": [],
         "query": {
-          "query": "label_values(mongodb_mongod_metrics_document_total{namespace=\"${namespace}\", pod=~\"$pod\"}, pod)",
+          "query": "label_values(mongodb_ss_metrics_document{namespace=\"${namespace}\", pod=~\"$pod\"}, pod)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 1,
@@ -1720,5 +1741,5 @@
   "timezone": "browser",
   "title": "MongoDB",
   "uid": null,
-  "version": 20
+  "version": 21
 }
