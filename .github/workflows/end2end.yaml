@@ -403,6 +403,9 @@ jobs:
         env:
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
           ZENKO_MONGODB_SHARDED: "true"
+      - name: Create kafka topics
+        run: bash create-kafka-topics.sh "end2end" "default"
+        working-directory: ./.github/scripts/end2end
       - name: Run backbeat end to end tests
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "backbeat" "default"
         working-directory: ./.github/scripts/end2end
