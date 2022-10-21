@@ -29,6 +29,9 @@ RUN apt-get update && apt-get install -y \
     libssl1.0-dev && \
     mkdir -p /usr/local/bin/tests/node_tests
 
+RUN apt-get install -y python3.7
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.7 2
+
 COPY ./node_tests/package.json ./node_tests/package-lock.json /usr/local/bin/tests/node_tests/
 COPY ./requirements.txt /tmp
 
