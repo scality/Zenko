@@ -39,4 +39,4 @@ kubectl run kafka-topics \
     --restart=Never \
     --attach=True \
     --command -- bash -c \
-    "echo $KAFKA_TOPIC_LIST | xargs -d ',' -I % kafka-topics.sh --create --topic % --bootstrap-server $KAFKA_HOST
+    "echo $KAFKA_TOPIC_LIST | xargs -d ',' -I % kafka-topics.sh --create --topic % --bootstrap-server $KAFKA_HOST"
