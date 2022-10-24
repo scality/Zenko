@@ -22,11 +22,13 @@ RUN apt-get update && apt-get install -y \
     xvfb \
     nodejs \
     git \
+    python3.7 \
     python3-pip \
     gcc \
     libffi-dev \
     musl-dev \
     libssl1.0-dev && \
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.7 0 && \
     mkdir -p /usr/local/bin/tests/node_tests
 
 COPY ./node_tests/package.json ./node_tests/package-lock.json /usr/local/bin/tests/node_tests/
