@@ -27,19 +27,27 @@ const OBJ_KEY_ZERO_BYTE_NON_VERSIONED = process.env.RING_S3C_OBJECT_KEY_ZERO_BYT
 
 describe('replication of versioned objects in OOB buckets', () => {
 
-    before(done => {
-        INGESTION_DESTINATION_BUCKET = `ingestion-dest-bucket-versioned-${uuid()}`;
-        INGESTION_DESTINATION_BUCKET_NON_VERSIONED = `ingestion-dest-bucket-non-versioned-${uuid()}`;
+    beforeEach(done => {
+        INGESTION_DESTINATION_BUCKET = `dst-bckt-versioned-${uuid()}`;
         KEY_PREFIX = `${INGESTION_SOURCE_BUCKET}-${uuid()}`;
         OBJ_KEY = `${KEY_PREFIX}/object-to-ingest-${uuid()}`;
-        return scalityUtils.createIngestionBucketWithReplication(
-            INGESTION_DESTINATION_BUCKET,
-            INGESTION_LOCATION,
-            REPLICATION_DESTINATION_BUCKET,
-            REPLICATION_LOCATION,
-            ROLE_ARN,
-            done,
-        );
+        async.series([
+            next => scalityUtils.createIngestionBucket(
+                INGESTION_DESTINATION_BUCKET,
+                INGESTION_LOCATION,
+                REPLICATION_DESTINATION_BUCKET,
+                REPLICATION_LOCATION,
+                ROLE_ARN,
+                next,
+            ),
+            next => this.putBucketReplicationMultipleBackend(
+                INGESTION_DESTINATION_BUCKET,
+                REPLICATION_DESTINATION_BUCKET,
+                ROLE_ARN,
+                REPLICATION_LOCATION,
+                next,
+            ),
+        ], done);
     });
 
     afterEach(done => async.series([
@@ -67,6 +75,7 @@ describe('replication of versioned objects in OOB buckets', () => {
     ], done));
 
     it('should replicate a zero byte OOB object', done => async.waterfall([
+
         next => ringS3CUtils.putObject(
             INGESTION_SOURCE_BUCKET,
             OBJ_KEY,
@@ -89,6 +98,14 @@ describe('replication of versioned objects in OOB buckets', () => {
     ], done));
 
     it('should replicate OOB object', done => async.waterfall([
+        next => scalityUtils.createIngestionBucketWithReplication(
+            INGESTION_DESTINATION_BUCKET,
+            INGESTION_LOCATION,
+            REPLICATION_DESTINATION_BUCKET,
+            REPLICATION_LOCATION,
+            ROLE_ARN,
+            next,
+        ),
         next => ringS3CUtils.putObject(
             INGESTION_SOURCE_BUCKET,
             OBJ_KEY,
@@ -111,6 +128,14 @@ describe('replication of versioned objects in OOB buckets', () => {
     ], done));
 
     it('should replicate a MPU OOB object: single 0 byte part', done => async.waterfall([
+        next => scalityUtils.createIngestionBucketWithReplication(
+            INGESTION_DESTINATION_BUCKET,
+            INGESTION_LOCATION,
+            REPLICATION_DESTINATION_BUCKET,
+            REPLICATION_LOCATION,
+            ROLE_ARN,
+            next,
+        ),
         next => ringS3CUtils.completeSinglePartMPU(
             INGESTION_SOURCE_BUCKET,
             OBJ_KEY,
@@ -133,6 +158,14 @@ describe('replication of versioned objects in OOB buckets', () => {
     ], done));
 
     it('should replicate a MPU OOB object: single 1 byte part', done => async.waterfall([
+        next => scalityUtils.createIngestionBucketWithReplication(
+            INGESTION_DESTINATION_BUCKET,
+            INGESTION_LOCATION,
+            REPLICATION_DESTINATION_BUCKET,
+            REPLICATION_LOCATION,
+            ROLE_ARN,
+            next,
+        ),
         next => ringS3CUtils.completeSinglePartMPU(
             INGESTION_SOURCE_BUCKET,
             OBJ_KEY,
@@ -155,6 +188,14 @@ describe('replication of versioned objects in OOB buckets', () => {
     ], done));
 
     it('should replicate a MPU OOB object: single 10 byte part', done => async.waterfall([
+        next => scalityUtils.createIngestionBucketWithReplication(
+            INGESTION_DESTINATION_BUCKET,
+            INGESTION_LOCATION,
+            REPLICATION_DESTINATION_BUCKET,
+            REPLICATION_LOCATION,
+            ROLE_ARN,
+            next,
+        ),
         next => ringS3CUtils.completeMPUAWS(
             INGESTION_SOURCE_BUCKET,
             OBJ_KEY,
@@ -185,14 +226,17 @@ describe('replication of versioned objects in OOB buckets', () => {
 // versioning
 describe('replication of non versioned objects in OOB buckets', () => {
 
-    before(done => scalityUtils.createIngestionBucketWithReplication(
-        INGESTION_DESTINATION_BUCKET_NON_VERSIONED,
-        INGESTION_LOCATION_NON_VERSIONED,
-        REPLICATION_DESTINATION_BUCKET,
-        REPLICATION_LOCATION,
-        ROLE_ARN,
-        done,
-    ));
+    before(done => {
+        INGESTION_DESTINATION_BUCKET_NON_VERSIONED = `dst-bckt-non-versioned-${uuid()}`;
+        scalityUtils.createIngestionBucketWithReplication(
+            INGESTION_DESTINATION_BUCKET_NON_VERSIONED,
+            INGESTION_LOCATION_NON_VERSIONED,
+            REPLICATION_DESTINATION_BUCKET,
+            REPLICATION_LOCATION,
+            ROLE_ARN,
+            done,
+        );
+    });
 
     after(done => async.series([
         next => ringS3CUtils.deleteAllVersions(
@@ -216,7 +260,7 @@ describe('replication of non versioned objects in OOB buckets', () => {
     ], done));
 
     it('Should replicate existing non versioned OOB object', done => async.series([
-        (objData, next) => scalityUtils.waitUntilIngested(
+        next => scalityUtils.waitUntilIngested(
             INGESTION_DESTINATION_BUCKET_NON_VERSIONED,
             OBJ_KEY_NON_VERSIONED,
             'null',
@@ -232,7 +276,7 @@ describe('replication of non versioned objects in OOB buckets', () => {
     ], done));
 
     it('Should replicate existing non versioned zero byte OOB object', done => async.series([
-        (objData, next) => scalityUtils.waitUntilIngested(
+        next => scalityUtils.waitUntilIngested(
             INGESTION_DESTINATION_BUCKET_NON_VERSIONED,
             OBJ_KEY_ZERO_BYTE_NON_VERSIONED,
             'null',
