@@ -11,19 +11,7 @@ KAFKA_HOST_PORT=$(kubectl get secret $BACKBEAT_CONFIG_NAME -o jsonpath='{.data.c
 KAFKA_HOST=${KAFKA_HOST_PORT:1:-1}
 
 UUID=$(kubectl get zenko ${ZENKO_NAME} --namespace ${NAMESPACE} -o jsonpath='{.status.instanceID}')
-
-KAFKA_TOPIC_LIST=''
-# Ingestion topic
-KAFKA_TOPIC_LIST="${KAFKA_TOPIC_LIST},${UUID}.backbeat-ingestion"
-# Replication Topics
-KAFKA_TOPIC_LIST="${KAFKA_TOPIC_LIST},${UUID}.backbeat-replication"
-KAFKA_TOPIC_LIST="${KAFKA_TOPIC_LIST},${UUID}.backbeat-replication-status"
-KAFKA_TOPIC_LIST="${KAFKA_TOPIC_LIST},${UUID}.backbeat-data-mover"
-# GC Topic
-KAFKA_TOPIC_LIST="${KAFKA_TOPIC_LIST},${UUID}.backbeat-gc"
-# Lifecycle Topics
-KAFKA_TOPIC_LIST="${KAFKA_TOPIC_LIST},${UUID}.backbeat-lifecycle-bucket-tasks"
-KAFKA_TOPIC_LIST="${KAFKA_TOPIC_LIST},${UUID}.backbeat-lifecycle-object-tasks"
+INGESTION_KAFKA_TOPIC="${UUID}.backbeat-ingestion"
 
 # Get kafka image name and tag
 KAFKA_REGISTRY_NAME=$(yq eval ".kafka.sourceRegistry" ../../../solution/deps.yaml)
@@ -31,7 +19,7 @@ KAFKA_IMAGE_NAME=$(yq eval ".kafka.image" ../../../solution/deps.yaml)
 KAFKA_IMAGE_TAG=$(yq eval ".kafka.tag" ../../../solution/deps.yaml)
 KAFKA_IMAGE=$KAFKA_REGISTRY_NAME/$KAFKA_IMAGE_NAME:$KAFKA_IMAGE_TAG
 
-# Creating topics
+# Creating ingestion topic
 kubectl run kafka-topics \
     --image=$KAFKA_IMAGE \
     --pod-running-timeout=5m \
@@ -39,4 +27,4 @@ kubectl run kafka-topics \
     --restart=Never \
     --attach=True \
     --command -- bash -c \
-    "echo $KAFKA_TOPIC_LIST | xargs -d ',' -I % kafka-topics.sh --create --topic % --bootstrap-server $KAFKA_HOST"
+    "kafka-topics.sh --create --topic $INGESTION_KAFKA_TOPIC --bootstrap-server $KAFKA_HOST"
