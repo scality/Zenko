@@ -381,6 +381,8 @@ jobs:
       - ubuntu
       - focal
       - xlarge
+    env:
+      ENABLE_RING_TESTS: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
