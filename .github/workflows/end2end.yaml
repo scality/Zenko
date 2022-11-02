@@ -72,7 +72,7 @@ env:
   GCP_BACKEND_SERVICE_KEY: ${{ secrets.GCP2_SERVICE_KEY }}
   GCP_BACKEND_SERVICE_EMAIL: ${{ secrets.GCP2_SERVICE_EMAIL }}
   # Enable this for Ring tests
-  ENABLE_RING_TESTS: "false"
+  ENABLE_RING_TESTS: "true"
   RING_S3C_ACCESS_KEY: ${{ secrets.RING_S3C_BACKEND_ACCESS_KEY }}
   RING_S3C_SECRET_KEY: ${{ secrets.RING_S3C_BACKEND_SECRET_KEY }}
   RING_S3C_ENDPOINT: ${{ secrets.RING_S3C_BACKEND_ENDPOINT }}
@@ -255,6 +255,8 @@ jobs:
       - ubuntu
       - focal
       - xlarge
+    env:
+      ENABLE_RING_TESTS: "false"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -323,6 +325,7 @@ jobs:
       NAVBAR_ENDPOINT: 'https://shell-ui.zenko.local'
       ENABLE_KEYCLOAK_HTTPS: 'true'
       GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+      ENABLE_RING_TESTS: "false"
     steps:
       - name: Checkout
         uses: actions/checkout@v3

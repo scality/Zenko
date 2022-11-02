@@ -27,11 +27,7 @@ def create_ring_buckets():
     RING_S3C_SECRET_KEY = get_env('RING_S3C_SECRET_KEY')
     RING_S3C_INGESTION_SRC_BUCKET_NAME = get_env('RING_S3C_INGESTION_SRC_BUCKET_NAME')
     RING_S3C_ENDPOINT = get_env('RING_S3C_ENDPOINT')
-    ENABLE_RING_TESTS = get_env('ENABLE_RING_TESTS')
 
-    # Disable if Ring is not enabled
-    if ENABLE_RING_TESTS == "false":
-        return
 
     s3c = Session(aws_access_key_id=RING_S3C_ACCESS_KEY,
             aws_secret_access_key=RING_S3C_SECRET_KEY)

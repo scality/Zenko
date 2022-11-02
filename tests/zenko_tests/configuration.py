@@ -106,6 +106,7 @@ def main():
                                     "http://managementapi.zenko.local")
     MANAGEMENT_ENDPOINT = MANAGEMENT_ENDPOINT.rstrip('/')
     NAMESPACE = os.getenv("NAMESPACE", "default")
+    ENABLE_RING_TESTS = os.getenv("ENABLE_RING_TESTS", "false")
 
     try:
         load_k8s_config(config_file=KUBECONFIG)
@@ -117,8 +118,11 @@ def main():
                                        MANAGEMENT_ENDPOINT,
                                        token=TOKEN)
 
-        # create ingestion source bucket
-        create_buckets.create_ring_buckets()
+
+        # Disable if Ring is not enabled
+        if ENABLE_RING_TESTS == "true":
+            # create ingestion source bucket
+            create_buckets.create_ring_buckets()
 
         # create zenko resources
         for account in e2e_config["accounts"]:
@@ -133,6 +137,10 @@ def main():
                                       endpoint["locationName"])
 
         for location in e2e_config["locations"]:
+            # Don't create Ring localtion if RING tests are disabled
+            if location["locationType"] == "location-scality-ring-s3-v1" \
+                and ENABLE_RING_TESTS == "false":
+                continue
             locations.create_location(client, UUID, location)
 
         for wf in e2e_config["workflows"]["replication"]:
@@ -141,8 +149,10 @@ def main():
         for wf in e2e_config["workflows"]["lifecycle"]:
             workflows.create_lifecycle_workflow(client, UUID, wf)
 
-        for wf in e2e_config["workflows"]["ingestion"]:
-            workflows.create_ingestion_workflow(client, UUID, wf)
+        # Disable if Ring is not enabled
+        if ENABLE_RING_TESTS == "true":
+            for wf in e2e_config["workflows"]["ingestion"]:
+                workflows.create_ingestion_workflow(client, UUID, wf)
 
     except Exception as e:
         _log.error("Unable to run set up: %s", e)
