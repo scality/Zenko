@@ -35,9 +35,6 @@ describe('replication of versioned objects in OOB buckets', () => {
             next => scalityUtils.createIngestionBucket(
                 INGESTION_DESTINATION_BUCKET,
                 INGESTION_LOCATION,
-                REPLICATION_DESTINATION_BUCKET,
-                REPLICATION_LOCATION,
-                ROLE_ARN,
                 next,
             ),
             next => this.putBucketReplicationMultipleBackend(
@@ -224,7 +221,7 @@ describe('replication of versioned objects in OOB buckets', () => {
 // this is handled in the "configure e3e" step where we create
 // the non versioned bucket, add objects and then activate the
 // versioning
-describe('replication of non versioned objects in OOB buckets', () => {
+describe.skip('replication of non versioned objects in OOB buckets', () => {
 
     before(done => {
         INGESTION_DESTINATION_BUCKET_NON_VERSIONED = `dst-bckt-non-versioned-${uuid()}`;
