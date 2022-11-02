@@ -435,11 +435,12 @@ jobs:
   end2end-sharded:
     needs: [build-kafka, build-test-image, check-dashboard-versions]
     runs-on:
-      # Enable this for Ring-based tests
-      # - scality-cloud
+      - scality-cloud
       - ubuntu
       - focal
       - xlarge
+    env:
+      ENABLE_RING_TESTS: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
