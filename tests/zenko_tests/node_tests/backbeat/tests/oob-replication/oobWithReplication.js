@@ -37,7 +37,7 @@ describe('replication of versioned objects in OOB buckets', () => {
                 INGESTION_LOCATION,
                 next,
             ),
-            next => this.putBucketReplicationMultipleBackend(
+            next => scalityUtils.putBucketReplicationMultipleBackend(
                 INGESTION_DESTINATION_BUCKET,
                 REPLICATION_DESTINATION_BUCKET,
                 ROLE_ARN,
@@ -57,16 +57,13 @@ describe('replication of versioned objects in OOB buckets', () => {
             INGESTION_DESTINATION_BUCKET,
             next,
         ),
-    ], done));
-
-    after(done => async.series([
         next => scalityUtils.deleteVersionedBucket(
             INGESTION_DESTINATION_BUCKET,
             next,
         ),
         next => awsUtils.deleteAllVersions(
             REPLICATION_DESTINATION_BUCKET,
-            `${INGESTION_SOURCE_BUCKET}/${KEY_PREFIX}`,
+            `${INGESTION_DESTINATION_BUCKET}/${KEY_PREFIX}`,
             next,
         ),
     ], done));
