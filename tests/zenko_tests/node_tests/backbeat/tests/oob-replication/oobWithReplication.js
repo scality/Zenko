@@ -73,13 +73,15 @@ describe('replication of versioned objects in OOB buckets', () => {
         next => ringS3CUtils.putObject(
             INGESTION_SOURCE_BUCKET,
             OBJ_KEY,
-            undefined,
+            null,
             next,
         ),
-        (objData, next) => scalityUtils.waitUntilIngested(
+        (objData, next) => scalityUtils.compareObjectsRINGS3C(
+            INGESTION_SOURCE_BUCKET,
             INGESTION_DESTINATION_BUCKET,
             OBJ_KEY,
             objData.versionId,
+            undefined,
             next,
         ),
         next => scalityUtils.compareObjectsAWS(
