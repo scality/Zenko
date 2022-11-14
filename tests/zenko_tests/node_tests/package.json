@@ -47,7 +47,7 @@
     "test_transition": "mocha --tags ${MOCHA_TAGS} --exit -t 900000 --reporter mocha-multi-reporters --reporter-options configFile=config.json backbeat/tests/lifecycle/transition.js",
     "test_lifecycle": "mocha --tags ${MOCHA_TAGS} --exit -t 1800000 --reporter mocha-multi-reporters --reporter-options configFile=config.json --recursive backbeat/tests/lifecycle",
     "test_ingestion_oob_s3c": "mocha --tags ${MOCHA_TAGS} --exit -t 200000 --retries 5 --reporter mocha-multi-reporters --reporter-options configFile=config.json --recursive backbeat/tests/ingestion",
-    "test_oob_replication": "mocha --tags ${MOCHA_TAGS} --exit -t 100000 --reporter mocha-multi-reporters --reporter-options configFile=config.json --recursive backbeat/tests/oob-replication",
+    "test_oob_replication": "mocha --tags ${MOCHA_TAGS} --exit -t 200000 --retries 3 --reporter mocha-multi-reporters --reporter-options configFile=config.json --recursive backbeat/tests/oob-replication",
     "test_location_quota": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --reporter mocha-multi-reporters --reporter-options configFile=config.json  --recursive cloudserver/locationQuota/tests",
     "test_bucket_get_v2": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --reporter mocha-multi-reporters --reporter-options configFile=config.json --recursive cloudserver/bucketGetV2/tests",
     "test_bucket_policy": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --reporter mocha-multi-reporters --reporter-options configFile=config.json --recursive cloudserver/bucketPolicy/tests",

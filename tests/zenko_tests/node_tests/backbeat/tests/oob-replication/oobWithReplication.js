@@ -74,12 +74,10 @@ describe('replication of versioned objects in OOB buckets', () => {
             null,
             next,
         ),
-        (objData, next) => scalityUtils.compareObjectsRINGS3C(
-            INGESTION_SOURCE_BUCKET,
+        (objData, next) => scalityUtils.waitUntilIngested(
             INGESTION_DESTINATION_BUCKET,
             OBJ_KEY,
             objData.versionId,
-            undefined,
             next,
         ),
         next => scalityUtils.compareObjectsAWS(
@@ -186,7 +184,7 @@ describe('replication of versioned objects in OOB buckets', () => {
 // this is handled in the "configure e3e" step where we create
 // the non versioned bucket, add objects and then activate the
 // versioning
-describe.skip('replication of non versioned objects in OOB buckets', () => {
+describe('replication of non versioned objects in OOB buckets', () => {
 
     before(done => {
         INGESTION_DESTINATION_BUCKET_NON_VERSIONED = `dst-bckt-non-versioned-${uuid()}`;
