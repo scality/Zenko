@@ -3,9 +3,12 @@
 {{- $fullName := include "jabba.fullname" . -}}
 {{- $servicePort := .Values.jabba.service.port -}}
 {{- $ingressPath := .Values.jabba.ingress.path -}}
-  {{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1/Ingress" -}}
+{{- $supportsIngressServiceObject := or (.Capabilities.APIVersions.Has "networking.k8s.io/v1") (.Capabilities.APIVersions.Has "networking.k8s.io/v1beta1") -}}
+{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1" -}}
+apiVersion: networking.k8s.io/v1
+{{- else if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1" -}}
 apiVersion: networking.k8s.io/v1beta1
-  {{- else -}}
+{{- else -}}
 apiVersion: extensions/v1beta1
   {{- end }}
 kind: Ingress
@@ -32,13 +35,26 @@ spec:
   {{- end }}
 {{- end }}
   rules:
-  {{- range default ((list .Values.jabba.endpoint) .Values.jabba.ingress.hosts) }}
+  {{- range default (list .Values.jabba.endpoint) .Values.jabba.ingress.hosts }}
+    {{ if $supportsIngressServiceObject -}}
     - host: {{ . }}
       http:
         paths:
-          - path: {{ $ingressPath }}
-            backend:
-              serviceName: {{ $fullName }}
-              servicePort: http
+        - path: {{ $ingressPath }}
+          pathType: Prefix
+          backend:
+            service:
+              name : {{ $fullName }}
+              port:
+                name: http
+    {{- else -}}
+    - host: {{ . }}
+      http:
+        paths:
+        - path: {{ $ingressPath }}
+          backend:
+            serviceName: {{ $fullName }}
+            servicePort: http
+    {{- end -}}
   {{- end }}
 {{- end }}

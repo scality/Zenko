@@ -41,3 +41,33 @@ Create the name of the service account
     {{ default "default" .Values.serviceAccount.name }}
 {{- end -}}
 {{- end -}}
+
+
+{{/*
+Create a host entry suitable for ingress
+*/}}
+{{- define "grafana.ingress.host_entry" }}
+- host: {{ .domain }}
+  http:
+    paths:
+      - path: {{ .path }}
+        backend:
+          serviceName: {{ .service }}
+          servicePort: {{ .port }}
+{{- end }}
+
+{{/*
+Create a host entry suitable for k8s v1.16+ ingress 
+*/}}
+{{- define "grafana.ingress.host_entry_with_service_obj" }}
+- host: {{ .domain }}
+  http:
+    paths:
+      - path: {{ .path }}
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .service }}
+            port:
+              number: {{ .port }}
+{{- end }}

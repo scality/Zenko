@@ -8,7 +8,10 @@
 {{- $jabbaDomain := printf "%s.%s" .Values.ingress.blob_mgmt_subdomain .Values.ingress.root_domain -}}
 {{- $jabbaServiceName := printf "%s-%s-%s" .Release.Name "opal" "jabba" | trunc 63 | trimSuffix "-" -}}
 {{- $addIssuerAnnotation := and .Values.ingress.auto_certificates (or .Values.ingress.issuer .Values.ingress.cluster_issuer) -}}
-{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1/Ingress" -}}
+{{- $supportsIngressServiceObject := or (.Capabilities.APIVersions.Has "networking.k8s.io/v1") (.Capabilities.APIVersions.Has "networking.k8s.io/v1beta1") -}}
+{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1" -}}
+apiVersion: networking.k8s.io/v1
+{{- else if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1" -}}
 apiVersion: networking.k8s.io/v1beta1
 {{- else -}}
 apiVersion: extensions/v1beta1
@@ -42,13 +45,23 @@ metadata:
 {{- end }}
 spec:
   rules:
+    {{- if $supportsIngressServiceObject -}}
+    {{- include "zenko.ingress.host_entry_with_service_obj" (dict "domain" $cloudserverDomain "service" $cloudserverServiceName) | indent 4 }}
+    {{- include "zenko.ingress.host_entry_with_service_obj" (dict "domain" $blobserverDomain "service" $blobserverServiceName) | indent 4 }}
+    {{- include "zenko.ingress.host_entry_with_service_obj" (dict "domain" $jabbaDomain "service" $jabbaServiceName) | indent 4 }}
+    {{- else -}}
     {{- include "zenko.ingress.host_entry" (dict "domain" $cloudserverDomain "service" $cloudserverServiceName) | indent 4 }}
     {{- include "zenko.ingress.host_entry" (dict "domain" $blobserverDomain "service" $blobserverServiceName) | indent 4 }}
     {{- include "zenko.ingress.host_entry" (dict "domain" $jabbaDomain "service" $jabbaServiceName) | indent 4 }}
+    {{- end }}
 {{/* For backwards compatibiltiy will Zenko <= 1.1 */}}
 {{- if .Values.ingress.hosts }}
   {{- range $host := .Values.ingress.hosts }}
+    {{- if $supportsIngressServiceObject -}}
+    {{- include "zenko.ingress.host_entry_with_service_obj" (dict "domain" $host "service" $cloudserverServiceName) | indent 4 }}
+    {{- else -}}
     {{- include "zenko.ingress.host_entry" (dict "domain" $host "service" $cloudserverServiceName) | indent 4 }}
+    {{- end }}
   {{- end }}
 {{- end }}
 {{- if .Values.ingress.enable_dns_style_buckets }}

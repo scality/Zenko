@@ -94,3 +94,19 @@ Create a host entry suitable for ingress
           serviceName: {{ .service }}
           servicePort: http
 {{- end }}
+
+{{/*
+Create a host entry suitable for k8s v1.16+ ingress 
+*/}}
+{{- define "zenko.ingress.host_entry_with_service_obj" }}
+- host: {{ .domain }}
+  http:
+    paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .service }}
+            port:
+              name: http
+{{- end }}

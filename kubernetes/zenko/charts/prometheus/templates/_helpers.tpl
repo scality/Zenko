@@ -174,3 +174,33 @@ Create the name of the service account to use for the server component
     {{ default "default" .Values.serviceAccounts.server.name }}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Create a host entry suitable for k8s v1.16+ ingress 
+*/}}
+{{- define "prometheus.ingress.host_entry_with_service_obj" }}
+- host: {{ first .url }}
+  http:
+    paths:
+    - path: /{{ rest .url | join "/" }}
+      pathType: Prefix
+      backend:
+        service:
+          name: {{ .service }}
+          port:
+            number: {{ .port }}
+{{- end }}
+
+{{/*
+Create a host entry suitable for ingress
+*/}}
+{{- define "prometheus.ingress.host_entry" }}
+- host: {{ first .url }}
+  http:
+    paths:
+    - path: /{{ rest .url | join "/" }}
+      backend:
+        serviceName: {{ .service }}
+        servicePort: {{ .port }}
+{{- end }}
+

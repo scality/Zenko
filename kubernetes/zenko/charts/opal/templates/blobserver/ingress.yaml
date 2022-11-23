@@ -3,9 +3,12 @@
 {{ $fullName := include "blobserver.fullname" . -}}
 {{- $servicePort := .Values.blobserver.service.port -}}
 {{- $ingressPath := .Values.blobserver.ingress.path -}}
-  {{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1/Ingress" -}}
+{{- $supportsIngressServiceObject := or (.Capabilities.APIVersions.Has "networking.k8s.io/v1") (.Capabilities.APIVersions.Has "networking.k8s.io/v1beta1") -}}
+{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1" -}}
+apiVersion: networking.k8s.io/v1
+{{- else if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1" -}}
 apiVersion: networking.k8s.io/v1beta1
-  {{- else -}}
+{{- else -}}
 apiVersion: extensions/v1beta1
   {{- end }}
 kind: Ingress
@@ -32,7 +35,31 @@ spec:
   {{- end }}
 {{- end }}
   rules:
-  {{- range default ((list .Values.blobserver.endpoint) .Values.blobserver.ingress.hosts) }}
+  {{- range default (list .Values.blobserver.endpoint) .Values.blobserver.ingress.hosts }}
+  {{ if $supportsIngressServiceObject -}}
+  {{- if $root.Values.blobserver.enable_dns_storage_accounts }}
+    - host: '*.{{ . }}'
+      http:
+        paths:
+          - path: {{ $ingressPath }}
+            pathType: Prefix
+            backend:
+              service:
+                name : {{ $fullName }}
+                port:
+                  name: http
+  {{- end }}
+    - host: {{ . }}
+      http:
+        paths:
+          - path: {{ $ingressPath }}
+            pathType: Prefix
+            backend:
+              service:
+                name : {{ $fullName }}
+                port:
+                  name: http
+  {{- else -}}
   {{- if $root.Values.blobserver.enable_dns_storage_accounts }}
     - host: '*.{{ . }}'
       http:
@@ -49,5 +76,6 @@ spec:
             backend:
               serviceName: {{ $fullName }}
               servicePort: http
+  {{- end -}}
   {{- end }}
 {{- end }}

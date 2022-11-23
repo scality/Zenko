@@ -2,9 +2,12 @@
 {{- $fullName := include "grafana.fullname" . -}}
 {{- $servicePort := .Values.service.port -}}
 {{- $ingressPath := .Values.ingress.path -}}
-  {{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1/Ingress" -}}
+{{- $supportsIngressServiceObject := or (.Capabilities.APIVersions.Has "networking.k8s.io/v1") (.Capabilities.APIVersions.Has "networking.k8s.io/v1beta1") -}}
+{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1" -}}
+apiVersion: networking.k8s.io/v1
+{{- else if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1" -}}
 apiVersion: networking.k8s.io/v1beta1
-  {{- else -}}
+{{- else -}}
 apiVersion: extensions/v1beta1
   {{- end }}
 kind: Ingress
@@ -35,12 +38,10 @@ spec:
 {{- end }}
   rules:
   {{- range .Values.ingress.hosts }}
-    - host: {{ . }}
-      http:
-        paths:
-          - path: {{ $ingressPath }}
-            backend:
-              serviceName: {{ $fullName }}
-              servicePort: {{ $servicePort }}
+    {{- if $supportsIngressServiceObject -}}
+    {{- include "grafana.ingress.host_entry_with_service_obj" (dict "domain" . "service" $fullName "path" $ingressPath "port" $servicePort) | indent 4 }}
+    {{- else -}}
+    {{- include "grafana.ingress.host_entry" (dict "domain" . "service" $fullName "path" $ingressPath "port" $servicePort) | indent 4 }}
+    {{- end -}}
   {{- end }}
 {{- end }}

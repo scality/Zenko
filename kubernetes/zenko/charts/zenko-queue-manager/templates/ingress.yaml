@@ -2,9 +2,12 @@
 {{- $fullName := include "kafka-manager.fullname" . -}}
 {{- $servicePort := .Values.service.port -}}
 {{- $ingressPath := .Values.ingress.path -}}
-  {{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1/Ingress" -}}
+{{- $supportsIngressServiceObject := or (.Capabilities.APIVersions.Has "networking.k8s.io/v1") (.Capabilities.APIVersions.Has "networking.k8s.io/v1beta1") -}}
+{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1" -}}
+apiVersion: networking.k8s.io/v1
+{{- else if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1" -}}
 apiVersion: networking.k8s.io/v1beta1
-  {{- else -}}
+{{- else -}}
 apiVersion: extensions/v1beta1
   {{- end }}
 kind: Ingress
@@ -32,12 +35,25 @@ spec:
 {{- end }}
   rules:
   {{- range .Values.ingress.hosts }}
+    {{ if $supportsIngressServiceObject -}}
     - host: {{ . }}
       http:
         paths:
-          - path: {{ $ingressPath }}
-            backend:
-              serviceName: {{ $fullName }}
-              servicePort: kafka-manager
+        - path: {{ $ingressPath }}
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ $fullName }}
+              port:
+                name: kafka-manager
+    {{- else -}}
+    - host: {{ . }}
+      http:
+        paths:
+        - path: {{ $ingressPath }}
+          backend:
+            serviceName: {{ $fullName }}
+            servicePort: kafka-manager
+    {{- end }}
   {{- end }}
 {{- end }}

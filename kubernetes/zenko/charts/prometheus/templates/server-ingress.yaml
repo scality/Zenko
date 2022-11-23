@@ -2,9 +2,12 @@
 {{- $releaseName := .Release.Name -}}
 {{- $serviceName := include "prometheus.server.fullname" . }}
 {{- $servicePort := .Values.server.service.servicePort -}}
-  {{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1/Ingress" -}}
+{{- $supportsIngressServiceObject := or (.Capabilities.APIVersions.Has "networking.k8s.io/v1") (.Capabilities.APIVersions.Has "networking.k8s.io/v1beta1") -}}
+{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1" -}}
+apiVersion: networking.k8s.io/v1
+{{- else if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1" -}}
 apiVersion: networking.k8s.io/v1beta1
-  {{- else -}}
+{{- else -}}
 apiVersion: extensions/v1beta1
   {{- end }}
 kind: Ingress
@@ -26,14 +29,12 @@ metadata:
 spec:
   rules:
   {{- range .Values.server.ingress.hosts }}
-    {{- $url := splitList "/" . }}
-    - host: {{ first $url }}
-      http:
-        paths:
-          - path: /{{ rest $url | join "/" }}
-            backend:
-              serviceName: {{ $serviceName }}
-              servicePort: {{ $servicePort }}
+  {{- $url := splitList "/" . }}
+  {{ if $supportsIngressServiceObject -}}
+  {{- include "prometheus.ingress.host_entry_with_service_obj" (dict "url" $url "service" $serviceName "port" $servicePort) | indent 4 }}
+  {{- else -}}
+  {{- include "prometheus.ingress.host_entry" (dict "url" $url "service" $serviceName "port" $servicePort) | indent 4 }}
+  {{- end }}
   {{- end -}}
 {{- if .Values.server.ingress.tls }}
   tls:
