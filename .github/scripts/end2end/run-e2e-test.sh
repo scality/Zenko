@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 set -exu
 
@@ -13,7 +13,7 @@ NAMESPACE=${4:-default}
 
 BACKBEAT_BUCKET_CHECK_TIMEOUT_S=${BACKBEAT_BUCKET_CHECK_TIMEOUT_S:-10}
 
-POD_NAME="${ZENKO_NAME}-${STAGE}-test"
+POD_NAME="${ZENKO_NAME}-${STAGE//_/-}-test"
 TOKEN=$(get_token)
 
 CLOUDSERVER_SECRET="$(kubectl get secret -l app.kubernetes.io/name=connector-cloudserver-config,app.kubernetes.io/instance=end2end \
