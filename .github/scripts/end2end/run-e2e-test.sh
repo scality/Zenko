@@ -84,6 +84,8 @@ run_e2e_test() {
         --env=AZURE_CRR_BUCKET_NAME=ci-zenko-azure-crr-target-bucket \
         --env=GCP_CRR_BUCKET_NAME=ci-zenko-gcp-crr-target-bucket \
         --env=GCP_CRR_MPU_BUCKET_NAME=ci-zenko-gcp-crr-mpu-bucket \
+        --env=GCP_BACKEND_SERVICE_KEY="${GCP_BACKEND_SERVICE_KEY}" \
+        --env=GCP_BACKEND_SERVICE_EMAIL=${GCP_BACKEND_SERVICE_EMAIL} \
         --env=AZURE_ACCOUNT_NAME=devstoreaccount1 \
         --env=AZURE_BACKEND_ENDPOINT=http://azure-mock/devstoreaccount1 \
         --env=AZURE_SECRET_KEY=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw== \
@@ -125,7 +127,7 @@ elif [ "$STAGE" = "smoke" ]; then
    run_e2e_test '' 'cd node_tests && npm run test_smoke'
 elif [ "$STAGE" = "backbeat" ]; then
    ## TODO: use node js to create and remove buckets
-   run_e2e_test '' 'cd node_tests && npm run test_all_extensions && cd .. && python3 cleans3c.py'
+   run_e2e_test '' 'cd node_tests && ./gcp_shim.sh && npm run test_all_extensions && cd .. && python3 cleans3c.py'
 elif [ "$STAGE" = "iam-policies" ]; then
    run_e2e_test '' 'cd node_tests && npm run test_iam_policies'
 elif [ "$STAGE" = "object-api" ]; then
