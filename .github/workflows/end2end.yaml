@@ -291,10 +291,9 @@ jobs:
       - name: Generate end2end config yaml
         run: |-
           cd tests/zenko_tests
+          envsubst < 'e2e-config.yaml.template' > 'e2e-config.yaml'
           if [[ "${ENABLE_RING_TESTS}" == "false" ]]; then
-            envsubst < 'e2e-config.yaml.template' > 'e2e-config.yaml'
-          else
-            envsubst < 'ring-e2e-config.yaml.template' > 'e2e-config.yaml'
+            yq -i 'del(.locations[] | select(.locationType == "location-scality-ring-s3-v1"))' e2e-config.yaml
           fi
           cat e2e-config.yaml
           echo 'Generated e2e-config.yaml file'

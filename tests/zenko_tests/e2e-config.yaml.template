@@ -21,6 +21,15 @@ locations:
       secretKey: "${AWS_SECRET_KEY}"
       bucketMatch: yes
       repoId: []
+  - name: "${RING_S3C_BACKEND_SOURCE_LOCATION}"
+    locationType: "location-scality-ring-s3-v1"
+    details:
+      bucketName: "${RING_S3C_INGESTION_SRC_BUCKET_NAME}"
+      endpoint: "${RING_S3C_ENDPOINT}"
+      accessKey: "${RING_S3C_ACCESS_KEY}"
+      secretKey: "${RING_S3C_SECRET_KEY}"
+      bucketMatch: yes
+      repoId: []
   - name: "${AZURE_BACKEND_DESTINATION_LOCATION}"
     locationType: "location-azure-v1"
     details:
