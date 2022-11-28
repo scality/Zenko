@@ -88,10 +88,10 @@ run_e2e_test() {
         --env=GCP_SECRET_KEY=${GCP_SECRET_KEY} \
         --env=GCP_BACKEND_SERVICE_KEY="${GCP_BACKEND_SERVICE_KEY}" \
         --env=GCP_BACKEND_SERVICE_EMAIL=${GCP_BACKEND_SERVICE_EMAIL} \
-        --env=AZURE_ACCOUNT_NAME=devstoreaccount1 \
-        --env=AZURE_BACKEND_ENDPOINT=http://azure-mock/devstoreaccount1 \
+        --env=AZURE_ACCOUNT_NAME=${AZURE_ACCOUNT_NAME} \
+        --env=AZURE_BACKEND_ENDPOINT=${AZURE_BACKEND_ENDPOINT} \
         --env=AZURE_SECRET_KEY=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw== \
-        --env=AWS_ENDPOINT=http://aws-mock.zenko.local \
+        --env=AWS_ENDPOINT=${AWS_ENDPOINT} \
         --env=AWS_ACCESS_KEY=accessKey1 \
         --env=AWS_SECRET_KEY=verySecretKey1 \
         --env=VERIFY_CERTIFICATES=false \
