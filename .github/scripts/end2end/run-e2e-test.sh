@@ -84,6 +84,8 @@ run_e2e_test() {
         --env=AZURE_CRR_BUCKET_NAME=ci-zenko-azure-crr-target-bucket \
         --env=GCP_CRR_BUCKET_NAME=ci-zenko-gcp-crr-target-bucket \
         --env=GCP_CRR_MPU_BUCKET_NAME=ci-zenko-gcp-crr-mpu-bucket \
+        --env=GCP_ACCESS_KEY=${GCP_ACCESS_KEY} \
+        --env=GCP_SECRET_KEY=${GCP_SECRET_KEY} \
         --env=GCP_BACKEND_SERVICE_KEY="${GCP_BACKEND_SERVICE_KEY}" \
         --env=GCP_BACKEND_SERVICE_EMAIL=${GCP_BACKEND_SERVICE_EMAIL} \
         --env=AZURE_ACCOUNT_NAME=devstoreaccount1 \

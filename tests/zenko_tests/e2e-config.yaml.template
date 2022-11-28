@@ -21,6 +21,24 @@ locations:
       secretKey: "${AWS_SECRET_KEY}"
       bucketMatch: yes
       repoId: []
+  - name: "${AZURE_BACKEND_DESTINATION_LOCATION}"
+    locationType: "location-azure-v1"
+    details:
+      bucketName: "${AZURE_CRR_BUCKET_NAME}"
+      endpoint: "${AZURE_BACKEND_ENDPOINT}"
+      accessKey: "${AZURE_ACCOUNT_NAME}"
+      secretKey: "${AZURE_SECRET_KEY}"
+      bucketMatch: no
+      repoId: []
+  - name: "${GCP_BACKEND_DESTINATION_LOCATION}"
+    locationType: "location-gcp-v1"
+    details:
+      bucketName: "${GCP_CRR_BUCKET_NAME}"
+      mpuBucketName: "${GCP_CRR_MPU_BUCKET_NAME}"
+      accessKey: "${GCP_ACCESS_KEY}"
+      secretKey: "${GCP_SECRET_KEY}"
+      bucketMatch: no
+      repoId: []
   - name: "${COLD_BACKEND_DESTINATION_LOCATION}"
     locationType: "location-dmf-v1"
     isCold: true
