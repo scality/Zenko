@@ -75,6 +75,35 @@ function dependencies_env()
     echo "ZENKO_VERSION_NAME=${ZENKO_NAME}-version"
 }
 
+create_encryption_secret()
+{
+    PUBLIC=$(mktemp zenko-key.pub.XXXXXX)
+    PRIVATE=$(mktemp zenko-key.XXXXXX)
+    trap 'rm -f "$PUBLIC" "$PRIVATE"' EXIT INT HUP TERM
+
+    openssl genrsa -out "$PRIVATE"
+    openssl rsa -in "$PRIVATE" -pubout -out "$PUBLIC"
+
+    AZURE_SECRET_KEY_ENCRYPTED="$(
+        printf '%s' "${AZURE_SECRET_KEY}" \
+        | openssl pkeyutl -encrypt -pubin -inkey "$PUBLIC" \
+                  -pkeyopt rsa_padding_mode:oaep -pkeyopt rsa_oaep_md:sha256 -pkeyopt rsa_mgf1_md:sha256 \
+        | base64 -w 0
+    )"
+
+    # Zkop expects PKCS#1 format, but with a type of 'PRIVATE KEY' as generated with older openssl
+    sed -i 's/RSA PRIVATE KEY/PRIVATE KEY/' "$PRIVATE"
+    
+    kubectl create secret generic ${ZENKO_NAME}-keypair.v0 \
+        --namespace ${NAMESPACE} \
+        --from-file=publicKey="$PUBLIC" \
+        --from-file=privateKey="$PRIVATE"
+
+    export AZURE_SECRET_KEY_ENCRYPTED
+}
+
+create_encryption_secret
+
 env $(dependencies_env) envsubst < ${ZENKOVERSION_PATH} | kubectl -n ${NAMESPACE} apply -f -
 envsubst < ${ZENKO_CR_PATH} | kubectl -n ${NAMESPACE} apply -f -
 
