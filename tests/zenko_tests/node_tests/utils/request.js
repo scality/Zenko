@@ -56,13 +56,13 @@ function makeGETRequest(path, cb, userCredentials) {
  * @param {Function} cb - callback(error, response)
  * @param {object} userCredentials - user credentials
  * @param {String} body - request body
- * @param {String} mode - GET or PUT or POST or DELETE
+ * @param {String} mode - GET or PUT or POST or DELETE. Default to POST.
  * @return {undefined}
  */
-function makeUpdateRequest(path, cb, userCredentials, body, mode) {
+function makeUpdateRequest(path, cb, userCredentials, body, mode = 'POST') {
     let options = {
         ...defaultOptions,
-        method: mode,
+        method: mode || 'POST',
         path,
     };
     options = aws4.sign(options, userCredentials || credentials);

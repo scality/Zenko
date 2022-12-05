@@ -7,7 +7,7 @@ const {
 const { scalityS3Client, awsS3Client } = require('../../../s3SDK');
 const sharedBlobSvc = require('../../azureSDK');
 const ReplicationUtility = require('../../ReplicationUtility');
-const { makeGETRequest, getResponseBody, makePOSTRequest } = require('../../../utils/request');
+const { makeGETRequest, getResponseBody, makeUpdateRequest } = require('../../../utils/request');
 
 const scalityUtils = new ReplicationUtility(scalityS3Client, sharedBlobSvc);
 const awsUtils = new ReplicationUtility(awsS3Client);
@@ -172,9 +172,8 @@ describe('Backbeat API pending metrics', function () {
                 },
             ),
             next => awsUtils.createVersionedBucket(destFailBucket, next),
-            next => makePOSTRequest(
+            next => makeUpdateRequest(
                 '/_/backbeat/api/crr/failed',
-                postBody,
                 (err, res) => {
                     assert.ifError(err);
                     return getResponseBody(res, (err) => {
@@ -182,6 +181,8 @@ describe('Backbeat API pending metrics', function () {
                         return next();
                     });
                 },
+                undefined,
+                postBody,
             ),
             next => scalityUtils.waitUntilReplicated(
                 srcBucket,
