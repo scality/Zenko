@@ -58,12 +58,14 @@ env:
   # secrets-env
   AWS_BACKEND_SOURCE_LOCATION: awsbackend
   AWS_BACKEND_DESTINATION_LOCATION: awsbackendmismatch
+  AWS_BACKEND_DESTINATION_FAIL_LOCATION: awsbackendfail
   GCP_BACKEND_DESTINATION_LOCATION: gcpbackendmismatch
   AZURE_BACKEND_DESTINATION_LOCATION: azurebackendmismatch
   COLD_BACKEND_DESTINATION_LOCATION: e2e-cold
   LOCATION_QUOTA_BACKEND: quotabackend
   AWS_BUCKET_NAME: ci-zenko-aws-target-bucket
   AWS_CRR_BUCKET_NAME: ci-zenko-aws-crr-target-bucket
+  AWS_FAIL_BUCKET_NAME: ci-zenko-aws-fail-target-bucket
   AZURE_CRR_BUCKET_NAME: ci-zenko-azure-crr-target-bucket
   GCP_CRR_BUCKET_NAME: ci-zenko-gcp-crr-target-bucket
   GCP_CRR_MPU_BUCKET_NAME: ci-zenko-gcp-crr-mpu-bucket

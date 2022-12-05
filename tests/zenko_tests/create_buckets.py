@@ -42,3 +42,20 @@ def create_ring_buckets():
     _log.info('Creating S3C buckets...')
     bucket_safe_create(ring_s3c_client.Bucket(RING_S3C_INGESTION_SRC_BUCKET_NAME))
     ring_s3c_client.Bucket(RING_S3C_INGESTION_SRC_BUCKET_NAME).Versioning().enable()
+
+def create_aws_buckets():
+    VERIFY_CERTIFICATES = get_env('VERIFY_CERTIFICATES', False)
+    AWS_ACCESS_KEY = get_env('AWS_ACCESS_KEY')
+    AWS_SECRET_KEY = get_env('AWS_SECRET_KEY')
+    AWS_FAIL_BUCKET_NAME = get_env('AWS_FAIL_BUCKET_NAME')
+    AWS_ENDPOINT = get_env('AWS_ENDPOINT')
+
+    s3c = Session(aws_access_key_id=AWS_ACCESS_KEY,
+            aws_secret_access_key=AWS_SECRET_KEY)
+    aws_s3c_client = s3c.resource('s3', endpoint_url=AWS_ENDPOINT,
+            verify=VERIFY_CERTIFICATES)
+
+    ## Creating AWS buckets
+    _log.info('Creating AWS buckets...')
+    bucket_safe_create(aws_s3c_client.Bucket(AWS_FAIL_BUCKET_NAME))
+    aws_s3c_client.Bucket(AWS_FAIL_BUCKET_NAME).Versioning().enable()

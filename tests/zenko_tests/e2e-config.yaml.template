@@ -12,6 +12,15 @@ locations:
       secretKey: "${AWS_SECRET_KEY}"
       bucketMatch: no
       repoId: []
+  - name: "${AWS_BACKEND_DESTINATION_FAIL_LOCATION}"
+    locationType: "location-aws-s3-v1"
+    details:
+      bucketName: "${AWS_FAIL_BUCKET_NAME}"
+      endpoint: "${AWS_ENDPOINT}"
+      accessKey: "${AWS_ACCESS_KEY}"
+      secretKey: "${AWS_SECRET_KEY}"
+      bucketMatch: yes
+      repoId: []
   - name: "${AWS_BACKEND_SOURCE_LOCATION}"
     locationType: "location-aws-s3-v1"
     details:
