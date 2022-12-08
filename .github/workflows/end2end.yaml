@@ -91,7 +91,7 @@ env:
 
 jobs:
   check-dashboard-versions:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -105,7 +105,7 @@ jobs:
         run: bash ./.github/scripts/check_versions.sh
 
   build-doc:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     env:
       ARTIFACTS_USER: "${{ secrets.ARTIFACTS_USER }}"
       ARTIFACTS_PASSWORD: "${{ secrets.ARTIFACTS_PASSWORD }}"
