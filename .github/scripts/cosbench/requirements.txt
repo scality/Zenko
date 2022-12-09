@@ -1,4 +1,4 @@
-certifi==2018.4.16
+certifi==2022.12.7
 chardet==3.0.4
 gspread==3.0.1
 httplib2==0.11.3
