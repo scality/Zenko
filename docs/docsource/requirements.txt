@@ -5,30 +5,69 @@
 #    tox -e pip-compile
 #
 -e git+https://github.com/scality/sphinx-tools.git@v3.2#egg=sphinx_scality
-alabaster==0.7.12         # via sphinx
-babel==2.9.1              # via sphinx
-certifi==2021.5.30        # via requests
-chardet==4.0.0            # via requests
-commonmark==0.9.1         # via recommonmark
-docutils==0.17.1          # via recommonmark, sphinx
-idna==2.10                # via requests
-imagesize==1.2.0          # via sphinx
-jinja2==3.0.1             # via sphinx
-markupsafe==2.0.1         # via jinja2
-packaging==21.0           # via sphinx
-pyenchant==3.2.1          # via sphinxcontrib-spelling
-pygments==2.9.0           # via sphinx
-pyparsing==2.4.7          # via packaging
-pytz==2021.1              # via babel
+    # via -r requirements.in
+alabaster==0.7.12
+    # via sphinx
+babel==2.9.1
+    # via sphinx
+certifi==2022.12.7
+    # via requests
+chardet==4.0.0
+    # via requests
+commonmark==0.9.1
+    # via recommonmark
+docutils==0.17.1
+    # via
+    #   recommonmark
+    #   sphinx
+idna==2.10
+    # via requests
+imagesize==1.2.0
+    # via sphinx
+jinja2==3.0.1
+    # via sphinx
+markupsafe==2.0.1
+    # via jinja2
+packaging==21.0
+    # via sphinx
+pyenchant==3.2.1
+    # via sphinxcontrib-spelling
+pygments==2.9.0
+    # via sphinx
+pyparsing==2.4.7
+    # via packaging
+pytz==2021.1
+    # via babel
 recommonmark==0.5.0
-requests==2.25.1          # via sphinx
-six==1.16.0               # via sphinx, sphinxcontrib-spelling
-snowballstemmer==2.1.0    # via sphinx
-sphinx-version-ref==0.1.0
+    # via -r requirements.in
+requests==2.25.1
+    # via sphinx
+six==1.16.0
+    # via
+    #   sphinx
+    #   sphinxcontrib-spelling
+snowballstemmer==2.1.0
+    # via sphinx
 sphinx==1.8.3
+    # via
+    #   -r requirements.in
+    #   recommonmark
+    #   sphinx-scality
+    #   sphinx-version-ref
+    #   sphinxcontrib-plantuml
+    #   sphinxcontrib-spelling
+    #   sphinxcontrib-svg2pdfconverter
+sphinx-version-ref==0.1.0
+    # via -r requirements.in
 sphinxcontrib-plantuml==0.14
-sphinxcontrib-serializinghtml==1.1.5  # via sphinxcontrib-websupport
+    # via -r requirements.in
+sphinxcontrib-serializinghtml==1.1.5
+    # via sphinxcontrib-websupport
 sphinxcontrib-spelling==4.2.0
+    # via -r requirements.in
 sphinxcontrib-svg2pdfconverter==0.1.0
-sphinxcontrib-websupport==1.2.4  # via sphinx
-urllib3==1.26.6           # via requests
+    # via -r requirements.in
+sphinxcontrib-websupport==1.2.4
+    # via sphinx
+urllib3==1.26.6
+    # via requests
