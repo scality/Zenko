@@ -14,7 +14,7 @@ on:
 jobs:
   verify-release:
     name: Verify if tag is valid
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -32,7 +32,7 @@ jobs:
 
   release:
     name: Release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     needs:
       - verify-release
     steps:
@@ -47,7 +47,7 @@ jobs:
           target_commitish: ${{ github.sha }}
 
   promote:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     needs:
       - verify-release
       - release
