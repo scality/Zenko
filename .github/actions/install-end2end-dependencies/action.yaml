@@ -9,28 +9,17 @@ runs:
       shell: bash
       run: |-
           set -exu;
-          sudo apt-get update
-          sudo apt-get install -y \
-            apt-transport-https \
+          sudo dnf update
+          sudo dnf install -y \
+            dnf-plugins-core \
             ca-certificates \
             curl \
             git \
-            gnupg-agent \
-            gnupg2 \
-            software-properties-common \
             m4 \
-            gettext-base \
             jq \
             wget
-          sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-          sudo add-apt-repository \
-            "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
-            $(lsb_release -cs) \
-            stable"
-          sudo apt-get update
-          sudo apt-get install -y docker-ce docker-ce-cli containerd.io
-          sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
-          sudo echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+          sudo dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+          sudo dnf install -y docker-ce docker-ce-cli containerd.io
           sudo curl -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/${{ env.KIND_VERSION }}/kind-linux-amd64
           sudo chmod +x ./kind
           sudo mv kind /usr/local/bin/
@@ -48,3 +37,13 @@ runs:
       uses: Azure/setup-kubectl@v3
       with:
         version: 'v${{ env.KUBECTL_VERSION }}'
+
+# dnf install dnf-plugins-core
+# dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+# docker-ce docker-ce-cli containerd.io
+# kubernetes cli
+# helm
+# kind
+# yq
+# tilt
+# kustomize
