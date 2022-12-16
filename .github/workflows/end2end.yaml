@@ -370,67 +370,67 @@ jobs:
   #       if: always()
 
   # end2end-https:
-    needs: [build-kafka, build-test-image, check-dashboard-versions]
-    runs-on:
-      - ubuntu
-      - focal
-      - xlarge
-    env:
-      UI_ENDPOINT: 'https://ui.zenko.local'
-      OIDC_ENDPOINT: 'https://keycloak.zenko.local'
-      NAVBAR_ENDPOINT: 'https://shell-ui.zenko.local'
-      ENABLE_KEYCLOAK_HTTPS: 'true'
-      GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Install dependencies
-        uses: ./.github/actions/install-end2end-dependencies
-      - name: Wait for Docker daemon to be ready
-        uses: ./.github/actions/wait-docker-ready
-      - name: Login to Registry
-        uses: docker/login-action@v1.10.0
-        with:
-          username: "${{ secrets.REGISTRY_LOGIN }}"
-          password: "${{ secrets.REGISTRY_PASSWORD }}"
-          registry: registry.scality.com
-      - name: Deploy Zenko
-        uses: ./.github/actions/deploy
-      - name: Run init CI test
-        run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "end2end" "default"
-        working-directory: ./.github/scripts/end2end
-      - name: Run smoke tests
-        run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "smoke" "default"
-        working-directory: ./.github/scripts/end2end
-      - name: Run vault e2e tests
-        run: bash vault-e2e-test.sh
-        working-directory: ./.github/scripts/end2end
-      - name: Debug wait
-        uses: ./.github/actions/debug-wait
-      - name: Archive artifact logs and data
-        uses: ./.github/actions/archive-artifacts
-        if: always()
-      - name: Clean Up
-        run: kind delete cluster
-      - name: Set status in ARTIFACTS to enable re-run only failed jobs
-        if: success()
-        run: |
-          mkdir -p /tmp/artifacts/build_status/${{ github.job }}
-          echo 'SUCCESSFUL' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
-      - name: Set status in ARTIFACTS to enable re-run only failed jobs
-        if: failure()
-        run: |
-          mkdir -p /tmp/artifacts/build_status/${{ github.job }}
-          echo 'FAILED' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
-      - name: Upload artifacts
-        uses: scality/action-artifacts@v3
-        with:
-          method: upload
-          url: https://artifacts.scality.net
-          user: ${{ secrets.ARTIFACTS_USER }}
-          password: ${{ secrets.ARTIFACTS_PASSWORD }}
-          source: /tmp/artifacts
-        if: always()
+  #   needs: [build-kafka, build-test-image, check-dashboard-versions]
+  #   runs-on:
+  #     - ubuntu
+  #     - focal
+  #     - xlarge
+  #   env:
+  #     UI_ENDPOINT: 'https://ui.zenko.local'
+  #     OIDC_ENDPOINT: 'https://keycloak.zenko.local'
+  #     NAVBAR_ENDPOINT: 'https://shell-ui.zenko.local'
+  #     ENABLE_KEYCLOAK_HTTPS: 'true'
+  #     GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
+  #     - name: Install dependencies
+  #       uses: ./.github/actions/install-end2end-dependencies
+  #     - name: Wait for Docker daemon to be ready
+  #       uses: ./.github/actions/wait-docker-ready
+  #     - name: Login to Registry
+  #       uses: docker/login-action@v1.10.0
+  #       with:
+  #         username: "${{ secrets.REGISTRY_LOGIN }}"
+  #         password: "${{ secrets.REGISTRY_PASSWORD }}"
+  #         registry: registry.scality.com
+  #     - name: Deploy Zenko
+  #       uses: ./.github/actions/deploy
+  #     - name: Run init CI test
+  #       run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "end2end" "default"
+  #       working-directory: ./.github/scripts/end2end
+  #     - name: Run smoke tests
+  #       run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "smoke" "default"
+  #       working-directory: ./.github/scripts/end2end
+  #     - name: Run vault e2e tests
+  #       run: bash vault-e2e-test.sh
+  #       working-directory: ./.github/scripts/end2end
+  #     - name: Debug wait
+  #       uses: ./.github/actions/debug-wait
+  #     - name: Archive artifact logs and data
+  #       uses: ./.github/actions/archive-artifacts
+  #       if: always()
+  #     - name: Clean Up
+  #       run: kind delete cluster
+  #     - name: Set status in ARTIFACTS to enable re-run only failed jobs
+  #       if: success()
+  #       run: |
+  #         mkdir -p /tmp/artifacts/build_status/${{ github.job }}
+  #         echo 'SUCCESSFUL' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
+  #     - name: Set status in ARTIFACTS to enable re-run only failed jobs
+  #       if: failure()
+  #       run: |
+  #         mkdir -p /tmp/artifacts/build_status/${{ github.job }}
+  #         echo 'FAILED' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
+  #     - name: Upload artifacts
+  #       uses: scality/action-artifacts@v3
+  #       with:
+  #         method: upload
+  #         url: https://artifacts.scality.net
+  #         user: ${{ secrets.ARTIFACTS_USER }}
+  #         password: ${{ secrets.ARTIFACTS_PASSWORD }}
+  #         source: /tmp/artifacts
+  #       if: always()
 
   end2end-sharded:
     needs: [build-kafka, build-test-image, check-dashboard-versions]
