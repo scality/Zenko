@@ -9,7 +9,7 @@ runs:
       shell: bash
       run: |-
           set -exu;
-          sudo dnf update
+          sudo dnf upgrade -y
           sudo dnf install -y \
             dnf-plugins-core \
             ca-certificates \
