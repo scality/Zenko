@@ -1,0 +1,32 @@
+---
+
+name: SSH to runner
+description: 'Open an SSH connection to a runner'
+
+runs:
+  using: "composite"
+  steps:
+    - name: "SSH to runner: Package dependencies for tmate"
+      shell: bash
+      run: |
+        ${{ inputs.sudo }} && sudo_cmd="sudo" || sudo_cmd=""
+        # mxschmitt/action-tmate does not have a check to use yum/dnf instead of apt.
+        # For now, all dependencies needed by tmate are already installed.
+        test -f /etc/lsb-release || $sudo_cmd ln -s /bin/true /bin/apt-get
+    - name: "SSH to runner: Print usage information"
+      shell: bash
+      run: |
+        echo "You can connect to this runner using the ssh command printed in the next step."
+        echo "To connect, you need the ssh key used by your GitHub account."
+        echo "You also need to connected to the VPN."
+        echo "The workflow has been paused."
+        echo "To resume, create a file named 'continue' under $GITHUB_WORKSPACE or under / in the runner."
+    - name: "SSH to runner: Start tmate"
+      uses: mxschmitt/action-tmate@v3
+      with:
+        sudo: true
+        limit-access-to-actor: true
+        tmate-server-host: ${{ secrets.TMATE_SERVER_HOST }}
+        tmate-server-port: ${{ secrets.TMATE_SERVER_PORT }}
+        tmate-server-rsa-fingerprint: ${{ secrets.TMATE_SERVER_RSA_FINGERPRINT }}
+        tmate-server-ed25519-fingerprint: ${{ secrets.TMATE_SERVER_ED25519_FINGERPRINT }}
