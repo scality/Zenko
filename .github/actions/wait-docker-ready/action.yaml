@@ -11,7 +11,7 @@ runs:
           bash -c '
           for i in {1..150}
           do
-            docker info &> /dev/null && exit
+            sudo docker info &> /dev/null && exit
             sleep 2
           done
           echo "Could not reach Docker daemon from buildbot worker" >&2

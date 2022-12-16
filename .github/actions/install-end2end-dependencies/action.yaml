@@ -19,6 +19,7 @@ runs:
             jq \
             wget
           sudo dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+          sudo dnf update
           sudo dnf install -y docker-ce docker-ce-cli containerd.io
           sudo curl -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/${{ env.KIND_VERSION }}/kind-linux-amd64
           sudo chmod +x ./kind
