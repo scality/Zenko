@@ -437,9 +437,10 @@ jobs:
     runs-on:
       # Enable this for Ring-based tests
       # - scality-cloud
-      - ubuntu
-      - focal
+      - self-hosted
+      - redhat7
       - xlarge
+      - gcloud
     steps:
       - name: Checkout
         uses: actions/checkout@v3
