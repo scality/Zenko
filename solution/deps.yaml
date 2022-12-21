@@ -16,7 +16,7 @@ cloudserver:
   sourceRegistry: registry.scality.com/cloudserver
   dashboard: cloudserver-dashboards
   image: cloudserver
-  tag: 8.7.1
+  tag: 8.7.2
   envsubst: CLOUDSERVER_TAG
 jmx-javaagent:
   sourceRegistry: banzaicloud
@@ -46,7 +46,7 @@ kafka-lag-exporter:
 pensieve-api:
   sourceRegistry: registry.scality.com/pensieve-api
   image: pensieve-api
-  tag: 1.3.2
+  tag: 1.4.2
   envsubst: PENSIEVE_API_TAG
 rclone:
   sourceRegistry: rclone
@@ -98,7 +98,7 @@ zenko-operator:
 zenko-ui:
   sourceRegistry: registry.scality.com/zenko-ui
   image: zenko-ui
-  tag: 1.6.5
+  tag: 1.6.6
   envsubst: ZENKO_UI_TAG
 zookeeper:
   sourceRegistry: pravega
