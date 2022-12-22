@@ -21,9 +21,7 @@ RUN curl -LO https://search.maven.org/remotecontent?filepath=org/mongodb/kafka/m
 FROM ${KAFKA_IMAGE}:${KAFKA_TAG}
 
 ARG JMX_JAVAAGENT_TAG
-RUN mkdir -p /etc/jmx-exporter && \
-    curl -L https://raw.githubusercontent.com/prometheus/jmx_exporter/parent-${JMX_JAVAAGENT_TAG}/example_configs/kafka-connect.yml \
-         -o /etc/jmx-exporter/config.yaml
+COPY kafka-connect.yaml /etc/jmx-exporter/config.yaml
 COPY --from=jmx-exporter /opt/jmx_exporter/jmx_prometheus_javaagent-${JMX_JAVAAGENT_TAG}.jar \
      /opt/jmx-exporter/jmx_prometheus.jar
 ENV KAFKA_OPTS=-javaagent:/opt/jmx-exporter/jmx_prometheus.jar=9020:/etc/jmx-exporter/config.yaml
