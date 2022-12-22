@@ -21,7 +21,7 @@ rules:
 
   #kafka.producer:type=producer-topic-metrics,client-id="{clientid}",topic="{topic}"", partition="{partition}"
   #kafka.consumer:type=consumer-fetch-manager-metrics,client-id="{clientid}",topic="{topic}"", partition="{partition}"
-  - pattern: kafka.(.+)<type=(.+)-metrics, client-id=(.+), topic=(.+), partition=(.+)><>(.+-total|compression-rate|.+-avg|.+-replica|.+-lag|.+-lead)
+  - pattern: kafka.(.+)<type=(.+)-metrics, client-id=(.+), topic=(.+), partition=(.+)><>(.+-total|.+-rate|.+-avg|.+-replica|.+-lag|.+-lead)
     name: kafka_$2_$6
     labels:
       clientId: "$3"
@@ -32,7 +32,7 @@ rules:
 
   #kafka.producer:type=producer-topic-metrics,client-id="{clientid}",topic="{topic}"
   #kafka.consumer:type=consumer-fetch-manager-metrics,client-id="{clientid}",topic="{topic}"", partition="{partition}"
-  - pattern: kafka.(.+)<type=(.+)-metrics, client-id=(.+), topic=(.+)><>(.+-total|compression-rate|.+-avg)
+  - pattern: kafka.(.+)<type=(.+)-metrics, client-id=(.+), topic=(.+)><>(.+-total|.+-rate|.+-avg)
     name: kafka_$2_$5
     labels:
       clientId: "$3"
@@ -54,7 +54,7 @@ rules:
   #kafka.consumer:type=consumer-fetch-manager-metrics,client-id="{clientid}"
   #kafka.consumer:type=consumer-coordinator-metrics,client-id="{clientid}"
   #kafka.consumer:type=consumer-metrics,client-id="{clientid}"
-  - pattern: kafka.(.+)<type=(.+)-metrics, client-id=(.*)><>(.+-total|.+-avg|.+-bytes|.+-count|.+-ratio|.+-age|.+-flight|.+-threads|.+-connectors|.+-tasks|.+-ago)
+  - pattern: kafka.(.+)<type=(.+)-metrics, client-id=(.*)><>(.+-total|.+-avg|.+-bytes|.+-count|.+-ratio|.+-rate|.+-age|.+-flight|.+-threads|.+-connectors|.+-tasks|.+-ago)
     name: kafka_$2_$4
     labels:
       clientId: "$3"
@@ -76,7 +76,7 @@ rules:
   #kafka.connect:type=source-task-metrics,connector="{connector}",task="{task}"
   #kafka.connect:type=sink-task-metrics,connector="{connector}",task="{task}"
   #kafka.connect:type=connector-task-metrics,connector="{connector}",task="{task}"
-  - pattern: kafka.connect<type=(.+)-metrics, connector=(.+), task=(.+)><>(.+-total|.+-count|.+-ms|.+-ratio|.+-avg|.+-failures|.+-requests|.+-timestamp|.+-logged|.+-errors|.+-retries|.+-skipped)
+  - pattern: kafka.connect<type=(.+)-metrics, connector=(.+), task=(.+)><>(.+-total|.+-count|.+-ms|.+-ratio|.+-rate|.+-avg|.+-failures|.+-requests|.+-timestamp|.+-logged|.+-errors|.+-retries|.+-skipped)
     name: kafka_connect_$1_$4
     labels:
       connector: "$2"
