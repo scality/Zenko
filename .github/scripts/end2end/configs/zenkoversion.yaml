@@ -15,6 +15,9 @@ spec:
     # kafka:
     #   image: kafka-dashboard
     #   tag: '${ZENKO_VERSION_NAME}'
+    # kafkaConnect:
+    #   image: kafka-connect-dashboard
+    #   tag: '${ZENKO_VERSION_NAME}'
     # mongodb:
     #   image: mongodb-dashboard
     #   tag: '${ZENKO_VERSION_NAME}'

@@ -15,6 +15,9 @@ spec:
     kafka:
       image: kafka-dashboard
       tag: '${VERSION_FULL}'
+    kafkaConnect:
+      image: kafka-connect-dashboard
+      tag: '${VERSION_FULL}'
     mongodb:
       image: mongodb-dashboard
       tag: '${VERSION_FULL}'
