@@ -76,7 +76,7 @@ rules:
   #kafka.connect:type=source-task-metrics,connector="{connector}",task="{task}"
   #kafka.connect:type=sink-task-metrics,connector="{connector}",task="{task}"
   #kafka.connect:type=connector-task-metrics,connector="{connector}",task="{task}"
-  - pattern: kafka.connect<type=(.+)-metrics, connector=(.+), task=(.+)><>(.+-total|.+-count|.+-ms|.+-ratio|.+-rate|.+-avg|.+-failures|.+-requests|.+-timestamp|.+-logged|.+-errors|.+-retries|.+-skipped)
+  - pattern: kafka.connect<type=(.+)-metrics, connector=(.+), task=(.+)><>(.+-total|.+-count-max|.+-count-avg|.+-count|.+-ms|.+-ratio|.+-rate|.+-avg|.+-failures|.+-requests|.+-timestamp|.+-logged|.+-errors|.+-retries|.+-skipped|.+-max|.+-percentage)
     name: kafka_connect_$1_$4
     labels:
       connector: "$2"
