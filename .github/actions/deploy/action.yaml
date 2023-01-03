@@ -46,7 +46,7 @@ runs:
         cd ./.github/scripts/end2end
         git clone https://${GIT_ACCESS_TOKEN}@github.com/scality/zenko-operator.git operator
         cd operator
-        git checkout ${OPERATOR_IMAGE_TAG}
+        git checkout feature/ZKOP-212-custom-exposed-routes
         tilt ci
     - name: Deploy Zenko Instance
       shell: bash
