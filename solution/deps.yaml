@@ -14,7 +14,6 @@ busybox:
   envsubst: BUSYBOX_TAG
 cloudserver:
   sourceRegistry: registry.scality.com/playground/wlardier
-  dashboard: cloudserver-dashboards
   image: cloudserver
   tag: 8.7.191
   envsubst: CLOUDSERVER_TAG
