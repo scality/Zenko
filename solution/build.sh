@@ -77,7 +77,9 @@ function flatten_source_images()
 
 function zenko_operator_tag()
 {
-    yq eval '.zenko-operator.tag' deps.yaml
+#    yq eval '.zenko-operator.tag' deps.yaml
+    echo 'feature/ZKOP-212-custom-exposed-routes'
+
 }
 
 function dependencies_versions_env()
@@ -94,11 +96,11 @@ function copy_yamls()
 
     mkdir -p ${crd_dir} ${role_dir}
 
-    kustomize build "${zenko_operator_repo}/config/artesca-solution/crd?ref=feature/ZKOP-212-custom-exposed-routes" -o ${crd_dir}
-    for file in ${crd_dir}/*.yaml ; do 
+    kustomize build "${zenko_operator_repo}/config/artesca-solution/crd?ref=$(zenko_operator_tag)" -o ${crd_dir}
+    for file in ${crd_dir}/*.yaml ; do
         mv $file ${file%.yaml}_crd.yaml
     done
-    kustomize build "${zenko_operator_repo}/config/artesca-solution/rbac?ref=feature/ZKOP-212-custom-exposed-routes" |
+    kustomize build "${zenko_operator_repo}/config/artesca-solution/rbac?ref=$(zenko_operator_tag)" |
         docker run --rm -i ryane/kfilt:v0.0.5 -k Role,ClusterRole > ${role_dir}/role.yaml
 
     env $(dependencies_versions_env) envsubst < zenkoversion.yaml > ${ISO_ROOT}/zenkoversion.yaml
