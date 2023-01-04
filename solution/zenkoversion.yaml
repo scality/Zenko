@@ -80,7 +80,7 @@ spec:
         image: kafka
         tag: '${KAFKA_TAG}'
       connect:
-        image: ''
+        image: kafka-connect
         tag: '${KAFKA_CONNECT_TAG}'
       cruiseControl:
         image: cruise-control
