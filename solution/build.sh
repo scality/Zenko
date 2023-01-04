@@ -66,7 +66,7 @@ spec:
   operator:
     image:
       name: zenko-operator
-      tag: 'feature/ZKOP-212-custom-exposed-routes'
+      tag: $(zenko_operator_tag)
 EOF
 }
 
