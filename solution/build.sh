@@ -77,9 +77,7 @@ function flatten_source_images()
 
 function zenko_operator_tag()
 {
-#    yq eval '.zenko-operator.tag' deps.yaml
-    echo 'feature/ZKOP-212-custom-exposed-routes'
-
+    yq eval '.zenko-operator.tag' deps.yaml
 }
 
 function dependencies_versions_env()
