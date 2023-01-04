@@ -66,7 +66,7 @@ spec:
   operator:
     image:
       name: zenko-operator
-      tag: $(zenko_operator_tag)
+      tag: '$(zenko_operator_tag)'
 EOF
 }
 
