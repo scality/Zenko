@@ -90,9 +90,9 @@ vault:
   tag: 8.7.0
   envsubst: VAULT_TAG
 zenko-operator:
-  sourceRegistry: registry.scality.com/playground/xinli
+  sourceRegistry: registry.scality.com/playground/wlardier
   image: zenko-operator
-  tag: 1.5.4
+  tag: 1.5.219
   envsubst: ZENKO_OPERATOR_TAG
 zenko-ui:
   sourceRegistry: registry.scality.com/zenko-ui
