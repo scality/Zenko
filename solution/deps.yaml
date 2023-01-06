@@ -16,7 +16,7 @@ cloudserver:
   sourceRegistry: registry.scality.com/cloudserver
   dashboard: cloudserver-dashboards
   image: cloudserver
-  tag: 8.7.3
+  tag: 8.7.4
   envsubst: CLOUDSERVER_TAG
 jmx-javaagent:
   sourceRegistry: banzaicloud
@@ -70,7 +70,7 @@ redis_exporter:
 s3utils:
   sourceRegistry: registry.scality.com/s3utils
   image: s3utils
-  tag: 1.13.11
+  tag: 1.13.14
   envsubst: S3UTILS_TAG
 sorbet:
   sourceRegistry: registry.scality.com/sorbet
