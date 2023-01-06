@@ -104,3 +104,5 @@ spec:
   registry:
     imagePullSecretNames:
     - zenko-operator-image-pull
+  veeamSosApi:
+    enable: ${ZENKO_ENABLE_SOSAPI}

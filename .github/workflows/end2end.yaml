@@ -95,6 +95,7 @@ env:
   KUBECTL_VERSION: "1.21.1"
   TILT_VERSION: "0.23.4"
   KIND_VERSION: "v0.11.1"
+  ZENKO_ENABLE_SOSAPI: false
 
 jobs:
   check-dashboard-versions:
@@ -546,6 +547,7 @@ jobs:
         env:
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
           ZENKO_MONGODB_SHARDED: "true"
+          ZENKO_ENABLE_SOSAPI: true
       - name: Configure E2E test environment
         run: bash configure-e2e-ctst.sh
         working-directory: ./.github/scripts/end2end

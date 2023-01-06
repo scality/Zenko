@@ -85,10 +85,11 @@ export default class Zenko extends World {
                 decision = false;
             }
             try {
-                if (res.stdout) {
+                // Accept empty responses (in case of success)
+                if (res.stdout && res.stdout !== '') {
                     const parsed = JSON.parse(res.stdout);
                     this.parsedResult.push(parsed);
-                } else {
+                } else if (res.stdout !== '') {
                     decision = false;
                 }
             } catch (err) {
