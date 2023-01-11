@@ -6,7 +6,7 @@ const {
 
 const { scalityS3Client, awsS3Client } = require('../../../s3SDK');
 const ReplicationUtility = require('../../ReplicationUtility');
-const { makeGETRequest, makePOSTRequest, getResponseBody } = require('../../../utils/request');
+const { makeGETRequest, makeUpdateRequest, getResponseBody } = require('../../../utils/request');
 
 const scalityUtils = new ReplicationUtility(scalityS3Client);
 const awsUtils = new ReplicationUtility(awsS3Client);
@@ -94,9 +94,8 @@ function performRetries(keys, done) {
             },
         ),
         next => awsUtils.createVersionedBucket(destFailBucket, next),
-        next => makePOSTRequest(
+        next => makeUpdateRequest(
             '/_/backbeat/api/crr/failed',
-            postBody,
             (err, res) => {
                 assert.ifError(err);
                 return getResponseBody(res, (err) => {
@@ -104,6 +103,8 @@ function performRetries(keys, done) {
                     return next();
                 });
             },
+            undefined,
+            postBody,
         ),
         next => times(
             keys.length,

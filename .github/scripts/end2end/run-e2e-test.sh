@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 set -exu
 
@@ -13,7 +13,7 @@ NAMESPACE=${4:-default}
 
 BACKBEAT_BUCKET_CHECK_TIMEOUT_S=${BACKBEAT_BUCKET_CHECK_TIMEOUT_S:-10}
 
-POD_NAME="${ZENKO_NAME}-${STAGE}-test"
+POD_NAME="${ZENKO_NAME}-${STAGE//_/-}-test"
 TOKEN=$(get_token)
 
 CLOUDSERVER_SECRET="$(kubectl get secret -l app.kubernetes.io/name=connector-cloudserver-config,app.kubernetes.io/instance=end2end \
@@ -73,21 +73,27 @@ run_e2e_test() {
         --env=CYPRESS_KEYCLOAK_CLIENT_ID=${OIDC_CLIENT_ID} \
         --env=CYPRESS_KEYCLOAK_REALM=${OIDC_REALM} \
         --env=UI_ENDPOINT=${UI_ENDPOINT} \
-        --env=AWS_BACKEND_SOURCE_LOCATION=awsbackend \
-        --env=AWS_BACKEND_DESTINATION_LOCATION=awsbackendmismatch \
-        --env=GCP_BACKEND_DESTINATION_LOCATION=gcpbackendmismatch \
-        --env=AZURE_BACKEND_DESTINATION_LOCATION=azurebackendmismatch \
-        --env=COLD_BACKEND_DESTINATION_LOCATION=e2e-cold \
-        --env=LOCATION_QUOTA_BACKEND=quotabackend \
-        --env=AWS_BUCKET_NAME=ci-zenko-aws-target-bucket \
-        --env=AWS_CRR_BUCKET_NAME=ci-zenko-aws-crr-target-bucket \
-        --env=AZURE_CRR_BUCKET_NAME=ci-zenko-azure-crr-target-bucket \
-        --env=GCP_CRR_BUCKET_NAME=ci-zenko-gcp-crr-target-bucket \
-        --env=GCP_CRR_MPU_BUCKET_NAME=ci-zenko-gcp-crr-mpu-bucket \
-        --env=AZURE_ACCOUNT_NAME=devstoreaccount1 \
-        --env=AZURE_BACKEND_ENDPOINT=http://azure-mock/devstoreaccount1 \
+        --env=AWS_BACKEND_SOURCE_LOCATION=${AWS_BACKEND_SOURCE_LOCATION} \
+        --env=AWS_BACKEND_DESTINATION_LOCATION=${AWS_BACKEND_DESTINATION_LOCATION} \
+        --env=AWS_S3_FAIL_BACKEND_DESTINATION_LOCATION=${AWS_BACKEND_DESTINATION_FAIL_LOCATION} \
+        --env=GCP_BACKEND_DESTINATION_LOCATION=${GCP_BACKEND_DESTINATION_LOCATION} \
+        --env=AZURE_BACKEND_DESTINATION_LOCATION=${AZURE_BACKEND_DESTINATION_LOCATION} \
+        --env=COLD_BACKEND_DESTINATION_LOCATION=${COLD_BACKEND_DESTINATION_LOCATION} \
+        --env=LOCATION_QUOTA_BACKEND=${LOCATION_QUOTA_BACKEND} \
+        --env=AWS_BUCKET_NAME=${AWS_BUCKET_NAME} \
+        --env=AWS_CRR_BUCKET_NAME=${AWS_CRR_BUCKET_NAME} \
+        --env=AWS_S3_FAIL_BACKBEAT_BUCKET_NAME=${AWS_FAIL_BUCKET_NAME} \
+        --env=AZURE_CRR_BUCKET_NAME=${AZURE_CRR_BUCKET_NAME} \
+        --env=GCP_CRR_BUCKET_NAME=${GCP_CRR_BUCKET_NAME} \
+        --env=GCP_CRR_MPU_BUCKET_NAME=${GCP_CRR_MPU_BUCKET_NAME} \
+        --env=GCP_ACCESS_KEY=${GCP_ACCESS_KEY} \
+        --env=GCP_SECRET_KEY=${GCP_SECRET_KEY} \
+        --env=GCP_BACKEND_SERVICE_KEY="${GCP_BACKEND_SERVICE_KEY}" \
+        --env=GCP_BACKEND_SERVICE_EMAIL=${GCP_BACKEND_SERVICE_EMAIL} \
+        --env=AZURE_ACCOUNT_NAME=${AZURE_ACCOUNT_NAME} \
+        --env=AZURE_BACKEND_ENDPOINT=${AZURE_BACKEND_ENDPOINT} \
         --env=AZURE_SECRET_KEY=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw== \
-        --env=AWS_ENDPOINT=http://aws-mock.zenko.local \
+        --env=AWS_ENDPOINT=${AWS_ENDPOINT} \
         --env=AWS_ACCESS_KEY=accessKey1 \
         --env=AWS_SECRET_KEY=verySecretKey1 \
         --env=VERIFY_CERTIFICATES=false \
@@ -125,7 +131,7 @@ elif [ "$STAGE" = "smoke" ]; then
    run_e2e_test '' 'cd node_tests && npm run test_smoke'
 elif [ "$STAGE" = "backbeat" ]; then
    ## TODO: use node js to create and remove buckets
-   run_e2e_test '' 'cd node_tests && npm run test_all_extensions && cd .. && python3 cleans3c.py'
+   run_e2e_test '' 'cd node_tests && ./gcp_shim.sh && npm run test_all_extensions && cd .. && python3 cleans3c.py'
 elif [ "$STAGE" = "iam-policies" ]; then
    run_e2e_test '' 'cd node_tests && npm run test_iam_policies'
 elif [ "$STAGE" = "object-api" ]; then

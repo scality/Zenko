@@ -68,6 +68,10 @@ kubectl run ${POD_NAME} \
   --env=RING_S3C_ENDPOINT=${RING_S3C_ENDPOINT} \
   --env=RING_S3C_BACKEND_SOURCE_LOCATION=${RING_S3C_BACKEND_SOURCE_LOCATION} \
   --env=RING_S3C_INGESTION_SRC_BUCKET_NAME=${RING_S3C_INGESTION_SRC_BUCKET_NAME} \
+  --env=AWS_ACCESS_KEY=${AWS_ACCESS_KEY} \
+  --env=AWS_SECRET_KEY=${AWS_SECRET_KEY} \
+  --env=AWS_ENDPOINT=${AWS_ENDPOINT} \
+  --env=AWS_FAIL_BUCKET_NAME=${AWS_FAIL_BUCKET_NAME} \
   --command -- python3 configuration.py
 
 ## wait for updates to trigger zenko upgrades

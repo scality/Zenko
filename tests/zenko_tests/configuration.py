@@ -117,7 +117,8 @@ def main():
                                        MANAGEMENT_ENDPOINT,
                                        token=TOKEN)
 
-        # create ingestion source bucket
+        # create buckets
+        create_buckets.create_aws_buckets()
         create_buckets.create_ring_buckets()
 
         # create zenko resources

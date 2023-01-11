@@ -12,6 +12,15 @@ locations:
       secretKey: "${AWS_SECRET_KEY}"
       bucketMatch: no
       repoId: []
+  - name: "${AWS_BACKEND_DESTINATION_FAIL_LOCATION}"
+    locationType: "location-aws-s3-v1"
+    details:
+      bucketName: "${AWS_FAIL_BUCKET_NAME}"
+      endpoint: "${AWS_ENDPOINT}"
+      accessKey: "${AWS_ACCESS_KEY}"
+      secretKey: "${AWS_SECRET_KEY}"
+      bucketMatch: yes
+      repoId: []
   - name: "${AWS_BACKEND_SOURCE_LOCATION}"
     locationType: "location-aws-s3-v1"
     details:
@@ -20,6 +29,24 @@ locations:
       accessKey: "${AWS_ACCESS_KEY}"
       secretKey: "${AWS_SECRET_KEY}"
       bucketMatch: yes
+      repoId: []
+  - name: "${RING_S3C_BACKEND_SOURCE_LOCATION}"
+    locationType: "location-scality-ring-s3-v1"
+    details:
+      bucketName: "${RING_S3C_INGESTION_SRC_BUCKET_NAME}"
+      endpoint: "${RING_S3C_ENDPOINT}"
+      accessKey: "${RING_S3C_ACCESS_KEY}"
+      secretKey: "${RING_S3C_SECRET_KEY}"
+      bucketMatch: yes
+      repoId: []
+  - name: "${GCP_BACKEND_DESTINATION_LOCATION}"
+    locationType: "location-gcp-v1"
+    details:
+      bucketName: "${GCP_CRR_BUCKET_NAME}"
+      mpuBucketName: "${GCP_CRR_MPU_BUCKET_NAME}"
+      accessKey: "${GCP_ACCESS_KEY}"
+      secretKey: "${GCP_SECRET_KEY}"
+      bucketMatch: no
       repoId: []
   - name: "${COLD_BACKEND_DESTINATION_LOCATION}"
     locationType: "location-dmf-v1"

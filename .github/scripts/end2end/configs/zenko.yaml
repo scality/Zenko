@@ -11,6 +11,14 @@ spec:
     locations:
     - name: us-east-1
       type: location-file-v1
+    - name: ${AZURE_BACKEND_DESTINATION_LOCATION}
+      type: location-azure-v1
+      details:
+        bucketName: ${AZURE_CRR_BUCKET_NAME}
+        endpoint: ${AZURE_BACKEND_ENDPOINT}
+        accessKey: ${AZURE_ACCOUNT_NAME}
+        secretKey: ${AZURE_SECRET_KEY_ENCRYPTED}
+        bucketMatch: no
     s3API:
       endpoints:
       - hostname: s3.zenko.local
