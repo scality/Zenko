@@ -18,6 +18,28 @@ on:
       - "user/**"
       - "q/*/**"
 
+  workflow_dispatch:
+    inputs:
+      artifacts-link:
+        description: "Link to federation artifacts to test"
+        required: false
+        type: string
+      connection-timeout-m:
+        type: number
+        required: false
+        description: Timeout for ssh connection to worker (minutes)
+        default: 30
+      completion-delay-m:
+        type: number
+        required: false
+        description: Job completion delay (minutes)
+        default: 30
+      debug:
+        description: Debug (enable the ability to SSH to runners)
+        type: boolean
+        required: false
+        default: false
+
 env:
   # kind-env
   WORKER_COUNT: '2'
@@ -88,6 +110,7 @@ env:
   KUBECTL_VERSION: "1.21.1"
   TILT_VERSION: "0.23.4"
   KIND_VERSION: "v0.11.1"
+  FEDERATION_DIRECTORY: "/srv/scality/s3/s3-offline/federation"
 
 jobs:
   check-dashboard-versions:
@@ -248,6 +271,11 @@ jobs:
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+  s3c-offline-installer-info:
+    uses: ./.github/workflows/s3c-offline-installer-info.yaml
+    secrets: inherit
+    if: ${{ inputs.artifacts-link == null }}
   
   end2end-http:
     needs: [build-test-image, check-dashboard-versions]
@@ -375,13 +403,15 @@ jobs:
         if: always()
 
   end2end-sharded:
-    needs: [build-test-image, check-dashboard-versions]
+    needs: 
+      - build-test-image
+      - check-dashboard-versions
+      - s3c-offline-installer-info
     runs-on:
-      # Enable this for Ring-based tests
-      # - scality-cloud
-      - ubuntu
-      - focal
-      - xlarge
+      - self-hosted
+      - rocky8
+      - large
+      - gcloud
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -395,6 +425,15 @@ jobs:
           username: "${{ secrets.REGISTRY_LOGIN }}"
           password: "${{ secrets.REGISTRY_PASSWORD }}"
           registry: registry.scality.com
+      - name: Install s3c light local
+        uses: ./.github/actions/install-s3c-light-local
+        env:
+          artifacts-link: ${{ needs.s3c-offline-installer-info.outputs.artifacts-link }}
+          archive-name: "s3-offline-rocky8-*.tar.gz"
+          light-archive-artifacts: "s3-offline-light-*.tar.gz*"
+          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          ARTIFACTS_USER: ${{ secrets.ARTIFACTS_USER }}
+          ARTIFACTS_PASSWORD: ${{ secrets.ARTIFACTS_PASSWORD }}
       - name: Deploy Zenko
         uses: ./.github/actions/deploy
         env:

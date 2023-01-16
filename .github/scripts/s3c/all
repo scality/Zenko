@@ -1,0 +1,86 @@
+---
+
+namespace: 'scality'
+
+ansible_connection: ssh
+
+container_name_suffix: "-{{ ansible_host }}"
+
+env_metadata_installID: 0
+env_metadata_replication_group_id: RG001
+
+env_host_data: /tmp/artifacts/data
+env_host_logs: /tmp/artifacts/logs
+
+env_use_system_drive: yes
+
+env_docker_disable_nat: false
+
+# Override ansible connection
+ansible_user: scality
+
+env_user:
+  user: scality
+  group: scality
+
+env_logger:
+
+env_metadata_repdnumber: 1
+
+env_healthcheck_allow_ips:
+  - '{{ ansible_host }}'
+
+location_constraints:
+  dc-1:
+    type: scality
+    legacy_aws_behavior: no
+    connector:
+      sproxyd:
+        data_parts: 9
+        coding_parts: 3
+        erasure_cos: 3
+  legacy: {type: alias, location: dc-1}
+  us-east-1: {type: alias, location: dc-1}
+
+env_s3:
+  rest_endpoints:
+    s3.amazonaws.com: us-east-1
+    localhost: us-east-1
+
+env_replication_endpoints: []
+
+env_deployment_local: yes
+
+env_enable_backbeat: yes
+env_backbeat_extraenv2: 'BACKBEAT_ECHO_TEST_MODE=1;;EXPIRE_ONE_DAY_EARLIER=true;;'
+
+env_backbeat_lifecycle_conductor_cron_rule: '*/10 * * * * *'
+env_backbeat_lifecycle_conductor_filter_enabled: True
+env_backbeat_lifecycle_conductor_filter:
+  deny:
+    buckets: ["bucketdenied"]
+
+env_enable_s3_replication_metrics_probes: yes
+env_vault_cache_ttl: 0
+
+env_metadata:
+  prune: true
+  prune_on_leader: true
+
+env_log_centralization:
+  ssl: no
+
+enabled_repositories:
+  - scality-offline-s3
+
+env_single_host_deployment: true
+
+env_vault_encrypt_master_key: false
+
+env_disable_xfs_precheck: true
+
+env_redis_ip_check: false
+
+gitconfig: "{{ ansible_env.HOME }}/.gitconfig"
+
+env_enable_object_repair: true

@@ -1,0 +1,49 @@
+name: 's3c-offline-installer-info'
+
+on:
+  workflow_call:
+    outputs:
+      artifacts-link:
+        description: "Link to generated federation artifacts"
+        value: ${{ jobs.get-artifacts-info.outputs.artifacts-link }}
+
+jobs:
+  get-artifacts-info:
+    runs-on:
+      - self-hosted
+      - rocky8
+      - large
+      - gcloud
+
+    outputs:
+      artifacts-name: ${{ steps.build-id.outputs.federation-build }}
+      artifacts-link: ${{ steps.artifacts.outputs.link }}
+
+    env:
+      archive_name: "s3-offline-rocky8-*.tar.gz"
+      federation-branch: "development/7.10"
+
+    steps:
+      - name: Install git
+        run: |
+          sudo yum install -y git git-lfs wget
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          lfs: true
+
+      - name: Find latest federation build artifact
+        id: build-id
+        run: >
+          build_id="$(wget --no-verbose
+          --http-user='${{ secrets.ARTIFACTS_USER }}' --http-password='${{ secrets.ARTIFACTS_PASSWORD }}'
+          --no-check-certificate
+          -O -
+          'https://artifacts.scality.net/search/last_success/branch/github/scality/federation/build-tests/${{ env.federation-branch }}')";
+          echo $build_id;
+          echo "federation-build=$build_id" >> $GITHUB_OUTPUT;
+
+      - name: Output artifacts url
+        id: artifacts
+        run: echo "link=https://artifacts.scality.net/builds/${{ steps.build-id.outputs.federation-build }}" >> $GITHUB_OUTPUT
