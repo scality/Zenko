@@ -9,7 +9,7 @@ runs:
       shell: bash
       run: |-
           set -exu;
-          sudo dnf upgrade -y
+          sudo dnf update -y
           sudo dnf install -y \
             ca-certificates \
             curl \
@@ -41,6 +41,7 @@ runs:
           sudo curl -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/${{ env.KIND_VERSION }}/kind-linux-amd64
           sudo chmod +x ./kind
           sudo mv kind /usr/local/bin/
+          sudo kind -h
           sudo curl -sSL https://get.helm.sh/helm-${{ env.HELM_VERSION }}-linux-amd64.tar.gz | sudo tar -xvz
           sudo install linux-amd64/helm /usr/local/bin
           sudo rm -rf linux-amd64
