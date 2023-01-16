@@ -379,7 +379,7 @@ jobs:
     runs-on:
       - self-hosted
       - rocky8
-      - xlarge
+      - large
       - gcloud
     steps:
       - name: Checkout
