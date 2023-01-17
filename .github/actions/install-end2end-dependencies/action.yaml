@@ -9,7 +9,6 @@ runs:
       shell: bash
       run: |-
           set -exu;
-          sudo dnf update -y
           sudo dnf install -y \
             ca-certificates \
             curl \
@@ -34,13 +33,14 @@ runs:
             virtualenv \
             wget
 
-          sudo dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-          sudo dnf update
-          sudo dnf install -y docker-ce docker-ce-cli containerd.io
-          sudo systemctl --now enable docker
           sudo curl -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/${{ env.KIND_VERSION }}/kind-linux-amd64
+          ls -l
+          pwd
           sudo chmod +x ./kind
+          ls -l
           sudo mv kind /usr/local/bin/
+          ls -l /usr/local/bin/
+          sleep 3
           sudo kind -h
           sudo curl -sSL https://get.helm.sh/helm-${{ env.HELM_VERSION }}-linux-amd64.tar.gz | sudo tar -xvz
           sudo install linux-amd64/helm /usr/local/bin
