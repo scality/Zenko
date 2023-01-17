@@ -21,3 +21,5 @@ fi
 ls -l $FEDERATION_DIRECTORY
 
 cd $FEDERATION_DIRECTORY
+
+# install s3c light local with --no-cleanup

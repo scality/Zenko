@@ -43,7 +43,7 @@ runs:
       working-directory: ./.github/scripts/s3c
     - name: Install S3C
       shell: bash
-      run: bash -x install.sh --no-cleanup
+      run: bash -x install.sh
       working-directory: ./.github/scripts/s3c
     - name: Wait for install to settle
       shell: bash

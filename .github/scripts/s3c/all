@@ -1,86 +1,560 @@
 ---
 
-namespace: 'scality'
-
-ansible_connection: ssh
-
-container_name_suffix: "-{{ ansible_host }}"
-
-env_metadata_installID: 0
-env_metadata_replication_group_id: RG001
-
-env_host_data: /tmp/artifacts/data
-env_host_logs: /tmp/artifacts/logs
-
-env_use_system_drive: yes
-
-env_docker_disable_nat: false
-
-# Override ansible connection
-ansible_user: scality
-
-env_user:
-  user: scality
+offline_distribution_bucket: s3-installer-rc
+env_deploy_version: 7.10.7.0
+container_name_default_suffix: ''
+default_python_interpreter: /usr/bin/python3.6
+ansible_python_interpreter: '{{ default_python_interpreter }}'
+python_fallback: >-
+  {{ ((((ansible_os_family | lower) == "redhat") or ((ansible_os_family | lower)
+  == "rocky")) and  (ansible_distribution_major_version | int) >= 8 ) |
+  ternary(default_python_interpreter, "/usr/bin/env python" ) }}
+crictl_version: v1.20.0
+env_s3_frontend_heartbeat_delay_default: 2
+service_wait_timeout_s: 600
+service_wait_timeout_extended_s: 240
+default_user:
+  name: scality
   group: scality
-
-env_logger:
-
-env_metadata_repdnumber: 1
-
-env_healthcheck_allow_ips:
-  - '{{ ansible_host }}'
-
-location_constraints:
-  dc-1:
-    type: scality
-    legacy_aws_behavior: no
-    connector:
-      sproxyd:
-        data_parts: 9
-        coding_parts: 3
-        erasure_cos: 3
-  legacy: {type: alias, location: dc-1}
-  us-east-1: {type: alias, location: dc-1}
-
-env_s3:
-  rest_endpoints:
-    s3.amazonaws.com: us-east-1
-    localhost: us-east-1
-
-env_replication_endpoints: []
-
-env_deployment_local: yes
-
-env_enable_backbeat: yes
-env_backbeat_extraenv2: 'BACKBEAT_ECHO_TEST_MODE=1;;EXPIRE_ONE_DAY_EARLIER=true;;'
-
-env_backbeat_lifecycle_conductor_cron_rule: '*/10 * * * * *'
-env_backbeat_lifecycle_conductor_filter_enabled: True
-env_backbeat_lifecycle_conductor_filter:
-  deny:
-    buckets: ["bucketdenied"]
-
-env_enable_s3_replication_metrics_probes: yes
-env_vault_cache_ttl: 0
-
-env_metadata:
-  prune: true
-  prune_on_leader: true
-
-env_log_centralization:
-  ssl: no
-
-enabled_repositories:
-  - scality-offline-s3
-
-env_single_host_deployment: true
-
-env_vault_encrypt_master_key: false
-
-env_disable_xfs_precheck: true
-
-env_redis_ip_check: false
-
-gitconfig: "{{ ansible_env.HOME }}/.gitconfig"
-
-env_enable_object_repair: true
+defaults:
+  svcbase:
+    og_docker_image_name: registry.scality.com/federation/svc-base
+    og_docker_image_version: '{{ env_deploy_version }}'
+    docker_image_name: scality/svc-base
+  nodesvcbase:
+    og_docker_image_name: registry.scality.com/federation/nodesvc-base
+    og_docker_image_version: '{{ env_deploy_version }}'
+    docker_image_name: scality/nodesvc-base
+  svcbase_alpine:
+    og_docker_image_name: registry.scality.com/federation/svc-base-alpine
+    og_docker_image_version: '{{ env_deploy_version }}'
+    docker_image_name: scality/svc-base-alpine
+  metadata:
+    backup_location: us-east-1
+    docker_image_name: scality/metadata
+    og_docker_image_name: registry.scality.com/metadata/metadata
+    og_docker_image_version: 7.10.8-nodesvc-base
+    install_id: 0
+    site: site_a
+    nb_repd_per_cluster: 5
+    network_latency_ms: 10
+    repd_check_timeout: 300
+    stdout_logfile_maxbytes: 100MB
+    stdout_logfile_backups: 7
+    stderr_logfile_maxbytes: 100MB
+    stderr_logfile_backups: 7
+    check_wsb_in_inventory: true
+  bucket:
+    repd_number: 8
+    bucketd_port: 9000
+    repd_map_port: 4200
+    repd_map_admin_port: 5200
+    repd_base_port: 9043
+    repd_base_admin_port: 9143
+    docker_image_name: scality/metadata
+    stdout_logfile_maxbytes: 100MB
+    stdout_logfile_backups: 7
+    stderr_logfile_maxbytes: 100MB
+    stderr_logfile_backups: 7
+  frontend:
+    docker_image_name: scality/frontend
+    og_docker_image_name: registry.scality.com/s3browser/s3browser
+    og_docker_image_version: 7.10.11
+  vault:
+    og_docker_image_name: registry.scality.com/vault/vault
+    og_docker_image_version: 7.10.17
+    repd_number: 0
+    service_port: 8500
+    admin_port: 8600
+    sts_port: 8650
+    saml_port: 3030
+    ssl_protocols:
+      - TLSv1.2
+      - TLSv1.3
+    repd_map_port: 4300
+    repd_map_admin_port: 5300
+    repd_base_port: 4300
+    repd_base_admin_port: 5300
+    docker_image_name: scality/vault-md
+    encrypt_master_key: true
+    sproxyd_location: us-east-1
+    stdout_logfile_maxbytes: 300MB
+    stdout_logfile_backups: 2
+    stderr_logfile_maxbytes: 100MB
+    stderr_logfile_backups: 7
+  s3:
+    frontend_port: 80
+    frontend_ssl_port: 443
+    frontend_ssl_protocols:
+      - TLSv1.2
+      - TLSv1.3
+    frontend_ssl_ciphers:
+      - ECDHE-ECDSA-AES128-GCM-SHA256
+      - ECDHE-ECDSA-AES256-GCM-SHA384
+      - ECDHE-RSA-AES128-GCM-SHA256
+      - ECDHE-RSA-AES256-GCM-SHA384
+      - ECDHE-ECDSA-AES128-SHA
+      - ECDHE-ECDSA-AES256-SHA
+      - ECDHE-RSA-AES128-SHA
+      - ECDHE-RSA-AES256-SHA
+      - AES128-GCM-SHA256
+      - AES256-GCM-SHA384
+      - AES128-SHA
+      - AES256-SHA
+      - '!aNULL'
+      - '!eNULL'
+      - '!EXPORT'
+      - '!3DES'
+      - '!DES'
+      - '!MD5'
+      - '!PSK'
+      - '!aECDH'
+      - '!RC4'
+    frontend_enable_blacklisting: yes
+    frontend_forward_local_ip: 127.0.0.1
+    service_port: 8000
+    utapi_port: 8100
+    utapi_enabled: yes
+    utapi_expire_metrics: false
+    utapi_reindex_enabled: true
+    utapi_expire_metrics_ttl: 0
+    og_docker_image_name: registry.scality.com/cloudserver/cloudserver
+    og_docker_image_version: 7.10.20-svc-base
+    docker_image_name: scality/s3
+    stdout_logfile_maxbytes: 300MB
+    stdout_logfile_backups: 2
+    stderr_logfile_maxbytes: 100MB
+    stderr_logfile_backups: 7
+  kms:
+    docker_image_name: scality/s3-kms
+  nfsd:
+    og_docker_image_name: registry.scality.com/scality-nfsd/scality-nfsd
+    og_docker_image_version: 7.10.5-svc-base
+    docker_image_name: scality/nfsd
+    service_port: 2049
+    enabled: no
+  portmap:
+    og_docker_image_name: registry.scality.com/federation/portmap
+    og_docker_image_version: '{{ env_deploy_version }}'
+    docker_image_name: scality/portmap
+    service_port: 111
+  sproxyd:
+    port: 8181
+    lazy_get_enabled: 'true'
+    data_parts: 9
+    coding_parts: 3
+    erasure_cos: 3
+    min_redundant_parts_put_ok: -1
+    split_memory_limit: 671088640
+    split_n_get_workers: 20
+    split_n_put_workers: 20
+    split_n_io_workers: 20
+    n_workers: 500
+    n_responders: 500
+    og_docker_image_name: registry.scality.com/federation/sproxyd
+    og_docker_image_version: '{{ env_deploy_version }}'
+    docker_image_name: scality/sproxyd-tengine
+    ring_repository: >-
+      {{ ( (env_artifacts_user | default("")) != "") | ternary( [ "https://",
+      (env_artifacts_user | default("")) , ":", (env_artifacts_password |
+      default("")), "@artifacts.scality.net/builds" ] | join(""),
+      "http://artifacts/builds" ) }}
+    enable: yes
+  cdmi:
+    host: localhost
+    port: 81
+    path: /dewpoint
+    readonly: true
+    stdout_logfile_maxbytes: 100MB
+    stdout_logfile_backups: 7
+    stderr_logfile_maxbytes: 100MB
+    stderr_logfile_backups: 7
+  kafka:
+    og_docker_image_name: registry.scality.com/federation/kafka
+    og_docker_image_version: '{{ env_deploy_version }}'
+    docker_image_name: scality/kafka
+    port: 9092
+    log_retention_hours: 168
+    log_roll_hours: 168
+    protocol_version: 0.10.2.2
+    max_broker_count: 6
+    stdout_logfile_maxbytes: 100MB
+    stdout_logfile_backups: 7
+  kudzu:
+    docker_image_name: scality/kudzu
+    og_docker_image_name: registry.scality.com/federation/kudzu
+    og_docker_image_version: '{{ env_deploy_version }}'
+    stdout_logfile_maxbytes: 100MB
+    stdout_logfile_backups: 7
+    stderr_logfile_maxbytes: 100MB
+    stderr_logfile_backups: 7
+  identisee:
+    api_port: 8700
+    ui_port: 8800
+    og_docker_image_name: registry.scality.com/identisee/identisee
+    og_docker_image_version: 7.10.8-nodesvc-base
+    docker_image_name: scality/identisee
+    stdout_logfile_maxbytes: 100MB
+    stdout_logfile_backups: 7
+    stderr_logfile_maxbytes: 100MB
+    stderr_logfile_backups: 7
+  backbeat:
+    docker_image_name: scality/backbeat
+    og_docker_image_name: registry.scality.com/backbeat/backbeat
+    og_docker_image_version: 7.10.7-nodesvc-base
+    frontend_port: 9080
+    api_port: 8900
+    s3_replication_replay_processor_port: 7600
+    s3_replication_status_processor_port: 7700
+    s3_replication_queue_processor_port: 7800
+    s3_replication_queue_populator_port: 7900
+    enable: no
+    enable_s3_replication_metrics_probes: yes
+    enable_lifecycle_conductor_backlog_control: yes
+    containers_per_server: 1
+    replication_failure_expiry_time_s: 86400
+    replication_source_check_if_size_greater_than_mb: 100
+    stdout_logfile_maxbytes: 100MB
+    stdout_logfile_backups: 7
+    stderr_logfile_maxbytes: 100MB
+    stderr_logfile_backups: 7
+    lifecycle_conductor_filter_enabled: false
+    lifecycle_service_role_name: service-backbeat-lifecycle-1
+    lifecycle_service_user_name: service-backbeat-lifecycle-1
+    lifecycle_service_policy_name: service-backbeat-lifecycle-1
+    lifecycle_service_policy_document:
+      Version: '2012-10-17'
+      Statement:
+        - Sid: LifecycleExpiration
+          Effect: Allow
+          Action:
+            - s3:GetLifecycleConfiguration
+            - s3:GetBucketVersioning
+            - s3:ListBucket
+            - s3:ListBucketVersions
+            - s3:ListBucketMultipartUploads
+            - s3:GetObjectTagging
+            - s3:GetObjectVersionTagging
+            - s3:GetObject
+            - s3:GetObjectVersion
+            - s3:DeleteObject
+            - s3:DeleteObjectVersion
+            - s3:AbortMultipartUpload
+            - s3:ReplicateObject
+          Resource:
+            - '*'
+    populator_batchmaxread: 100
+    populator_cron_rule: '*/5 * * * * *'
+    lifecycle_conductor_port: 7200
+    lifecycle_conductor_cron_rule: 0 12 * * * *
+    lifecycle_conductor_concurrency: 1000
+    lifecycle_bucket_processor_port: 7300
+    lifecycle_bucket_processor_concurrency: 1
+    lifecycle_object_processor_port: 7400
+    lifecycle_object_processor_concurrency: 20
+    replication_replay_topics:
+      - topic_name: backbeat-replication-replay-0
+        retries: 5
+    enable_replication_replay: yes
+  bitrot:
+    enabled: false
+    es_index_prefix: scality-bitrot
+    object_max_check_age: now-1M
+    warn_empty_objects: true
+    catchup_pause_s: 1
+  utapi:
+    enabled: false
+    og_docker_image_name: registry.scality.com/utapi/utapi
+    og_docker_image_version: 7.10.10-nodesvc-base
+    docker_image_name: scality/utapi
+    service_port: 8100
+    ingestion_schedule: '*/5 * * * * *'
+    checkpoint_schedule: '*/30 * * * * *'
+    snapshot_enabled: true
+    snapshot_schedule: 5 0 * * * *
+    max_snapshot_size: P6H
+    reindex_enabled: true
+    repair_schedule: 0 */5 * * * *
+    reindex_schedule: 0 0 0 * * Sun
+    disk_usage_schedule: 0 */5 * * * *
+    expiration_enabled: true
+    expiration_schedule: 15 * * * *
+    metric_retention_days: 45
+    hard_limit: null
+    stdout_logfile_maxbytes: 100MB
+    stdout_logfile_backups: 7
+    stderr_logfile_maxbytes: 100MB
+    stderr_logfile_backups: 7
+    service_user_enabled: false
+    service_user_name: service-utapi-user
+    event_filter_enabled: false
+    event_filter:
+      allow: {}
+      deny: {}
+    prom_metrics_enabled: false
+    prom_metrics_bind_ip: 0.0.0.0
+  warp10:
+    docker_image_name: scality/warp10
+    og_docker_image_name: registry.scality.com/utapi/warp10
+    og_docker_image_version: 7.10.10
+    service_port: 4802
+    maxops: 1000000000
+    maxfetch: 1000000000
+    sensision_enabled: false
+    java_heap_max: 4g
+    java_heap_initial: 1g
+    java_extra_opts: ''
+    nb_nodes: 3
+  bucket_notifications:
+    docker_image_name: scality/backbeat
+    api_port: 8901
+    enabled: no
+    stdout_logfile_maxbytes: 100MB
+    stdout_logfile_backups: 7
+    stderr_logfile_maxbytes: 100MB
+    stderr_logfile_backups: 7
+  leef:
+    enable: no
+    og_docker_image_name: registry.scality.com/federation/leef
+    og_docker_image_version: '{{ env_deploy_version }}'
+    docker_image_name: scality/leef
+    logrotate_rotate_n: 7
+    run_every_s: 300
+  osis:
+    og_docker_image_name: registry.scality.com/osis/osis
+    docker_image_name: scality/osis
+    og_docker_image_version: 1.4.0
+    enabled: no
+    api_port: 9333
+    tomcat_queue_len: 100
+    tomcat_max_conn: 100
+    tomcat_max_threads: 200
+    tomcat_min_spare_threads: 10
+    stdout_logfile_maxbytes: 300MB
+    stdout_logfile_backups_total_size: 600MB
+    stdout_logfile_backups_max_life: 30
+    clean_logfile_backups_after_restart: false
+    healthcheck_timeout: 3000
+    healthcheck_enabled: true
+    redis_healthcheck_enabled: true
+    loggers_enabled: true
+    metrics_enabled: false
+    threaddump_enabled: false
+    endpoints_included: loggers,health,metrics,threaddump
+    console_endpoint: ''
+  s3utils:
+    og_docker_image_name: registry.scality.com/s3utils/s3utils
+    og_docker_image_version: 1.12.5
+    docker_image_name: scality/s3utils
+  object_repair:
+    enabled: true
+    raft_log_batch_size: 100
+    lookback_window: 10000
+    duplicate_keys_window_size: 100000
+    log_level: info
+    dump_level: error
+    log_interval: 300
+  logstash:
+    og_docker_image_name: registry.scality.com/federation/logstash
+    og_docker_image_version: '{{ env_deploy_version }}'
+    docker_image_name: scality/logstash
+  dependencies:
+    nginx:
+      docker_image_name: openresty/openresty
+      docker_image_version: 1.19.9.1-14-alpine-fat
+    k8spause:
+      docker_image_name: registry.k8s.io/pause
+      docker_image_version: '3.6'
+    redis:
+      docker_image_name: redis
+      docker_image_version: 6.2.6-alpine
+      sentinel_port: 16379
+      enable: yes
+      client_connect_backoff:
+        min: 100
+        max: 1000
+        factor: 1.5
+        jitter: 0.1
+        deadline: 5000
+    zookeeper:
+      og_docker_image_name: registry.hub.docker.com/library/zookeeper
+      og_docker_image_version: 3.8.0
+      docker_image_name: zookeeper
+      docker_image_version: 3.8.0
+      port: 22181
+      follower_port: 22888
+      election_port: 23888
+      initialize_over_network: false
+      log_level: INFO
+      log_max_size: 100MB
+      log_max_files: 10
+      autopurge_purgeinterval: '1'
+      autopurge_snapretaincount: '3'
+      4lw_commands_whitelist: '*'
+removed_containers:
+  elk:
+    docker_image_name: scality/elk
+  cosbench:
+    docker_image_name: scality/cosbench
+  elasticsearch:
+    docker_image_name: elasticsearch
+bin: '{{ venv_bin|default("") }}'
+expected_ansible_version: 2.9.27
+tooling_dir: /opt/scality/s3-{{ env_deploy_version | default("unreleased-git") }}/bin
+tooling_symlink: /opt/scality/s3tools
+global_data_host: '{{ data_host | default(ansible_host) }}'
+global_quorum_peer_type: '{{ env_quorum_peer_type | default("participant") }}'
+global_healthcheck_allowed_hosts: >
+  {% set allowed_hosts = ansible_all_ipv4_addresses
+      + ["127.0.0.1", "::1"]
+      + ansible_all_ipv6_addresses -%}
+  {% for host in groups['runners_s3'] -%} {%   do
+  allowed_hosts.extend(hostvars[host].ansible_host
+        | to_ip_addr) -%}
+  {%   if hostvars[host].data_host is defined -%} {%     do
+  allowed_hosts.extend(hostvars[host].data_host
+          | to_ip_addr) -%}
+  {%   endif -%} {% endfor -%} {% if env_healthcheck_allow_ips is defined -%}
+  {%   for host in env_healthcheck_allow_ips -%} {%     do
+  allowed_hosts.extend(host | to_ip_addr) -%} {%   endfor -%} {% endif -%} {{
+  allowed_hosts | unique }}
+_redis_sentinels: >-
+  {% set sentinels = [] -%} {% for runner in groups["auto_metadata_map"] -%}
+  {%   if hostvars[runner].run_redis |
+  default(defaults.dependencies.redis.enable) | bool -%}{% do
+  sentinels.append({"host":hostvars[runner].global_data_host,
+  "port":hostvars[runner].env_redis_sentinel_port |
+  default(defaults.dependencies.redis.sentinel_port)}) -%} {%   endif -%} {%
+  endfor -%}{{ sentinels | list }}
+_redis_client_connect_backoff: >-
+  {{ env_redis_client_connect_backoff |
+  default(defaults.dependencies.redis.client_connect_backoff) }}
+_redis_retry: >-
+  {% set retry = {} -%} {% if (_redis_client_connect_backoff | length) > 0 -%}
+  {% do retry.update({"connectBackoff": _redis_client_connect_backoff}) -%} {%
+  endif -%} {{ retry }}
+global_redis_client_conf_noretry:
+  name: '{{ env_redis_sentinel_cluster_name|default("scality-s3") }}'
+  password: '{{ env_redis_password|default("") }}'
+  sentinelPassword: '{{ env_redis_password|default("") }}'
+  sentinels: '{{ _redis_sentinels }}'
+global_redis_client_conf: >-
+  {% set conf = global_redis_client_conf_noretry -%} {% do conf.update({"retry":
+  _redis_retry }) %}{{ conf }}
+global_backbeat_kafka_connect: >-
+  {%- set hosts = [] -%} {%- for host in groups["auto_kafka_brokers"] -%} {%-  
+  if hostvars[host].run_backbeat | default(True) | bool -%} {%-     do
+  hosts.append( hostvars[host].global_data_host ~ ":" ~
+  hostvars[host].env_backbeat_queue_port | default(defaults.kafka.port) |
+  string) -%} {%-   endif -%} {%- endfor -%}{{ hosts | join(",") }}
+global_backbeat_zk_base_path: /com/scality/backbeat
+global_backbeat_zk_hosts: >-
+  {%- set hosts = [] -%} {%- for host in groups["auto_metadata_map"] -%} {%-  
+  if hostvars[host] -%} {%-   if hostvars[host].run_quorum |
+  default(hostvars[host].run_backbeat) | default(host |
+  is_zk_participant(groups, hostvars)) | bool -%} {%-     do hosts.append(
+  hostvars[host].global_data_host ~ ":" ~ hostvars[host].env_quorum_port |
+  default(hostvars[host].env_backbeat_quorum_port) |
+  default(defaults.dependencies.zookeeper.port) | string ) -%} {%-   endif -%}
+  {%-   endif -%} {%- endfor -%}{{ hosts | join(",") }}
+global_backbeat_zk_connect: '{{ global_backbeat_zk_hosts }}{{ global_backbeat_zk_base_path }}'
+global_zookeeper_port: >-
+  {{ env_quorum_port | default(env_backbeat_quorum_port) |
+  default(defaults.dependencies.zookeeper.port) }}
+global_zookeeper_follower_port: >-
+  {{ env_quorum_follower_port | default(env_backbeat_quorum_follower_port) |
+  default(defaults.dependencies.zookeeper.follower_port) }}
+global_zookeeper_election_port: >-
+  {{ env_quorum_election_port | default(env_backbeat_quorum_election_port) |
+  default(defaults.dependencies.zookeeper.election_port) }}
+global_kafka_protocol_version: '{{ env_kafka_protocol_version | default(defaults.kafka.protocol_version) }}'
+global_kafka_max_broker_count: >-
+  {{ (env_kafka | default({})).max_broker_count |
+  default(defaults.kafka.max_broker_count) }}
+_trusted_proxies: >-
+  {% set trusted_hosts = env_trusted_proxy_cidrs |
+  default(env_s3_trusted_proxy_cidrs) | default([]) -%} {%- if not
+  (env_s3_frontend_enable_blacklisting |
+  default(defaults.s3.frontend_enable_blacklisting) | bool) %} {%- do
+  trusted_hosts.append(env_s3_frontend_forward_local_ip |
+  default(defaults.s3.frontend_forward_local_ip)) %} {%- endif %} {%- for h in
+  groups["runners_s3"] %} {%- do
+  trusted_hosts.append(hostvars[h].global_data_host | to_ip_addr) %} {%- endfor
+  %}{{ trusted_hosts | flatten | unique }}
+_client_ip_header: >-
+  {{ env_client_ip_header | default(env_s3_client_ip_header) |
+  default("x-forwarded-for") }}
+_via_proxy: '{{ env_requests_via_proxy | default(True) }}'
+global_requests:
+  viaProxy: '{{ _via_proxy | bool }}'
+  extractClientIPFromHeader: '{{ _client_ip_header }}'
+  trustedProxyCIDRs: '{{ _trusted_proxies }}'
+systemd_container_dir: /opt/scality/s3containers/
+systemd_container_cfg_path: '{{ systemd_container_dir }}/cfg'
+systemd_container_bin_path: '{{ systemd_container_dir }}/bin'
+systemd_container_template_name: s3c
+container_plugin_defaults:
+  log_directory: '{{ env_pods_log_directory | default(logs_path) | default("") }}'
+  manifest_dir: '{{ systemd_container_cfg_path }}'
+  manifest_mode: '0600'
+  manifest_owner: root
+  manifest_group: root
+  namespace: '{{ namespace }}'
+  network_mode: host
+  pull: no
+  systemd_template: '{{ systemd_container_template_name }}'
+  manage_container_dir: '{{ systemd_container_bin_path }}'
+encrypt_credentials: >-
+  {{ env_vault_encrypt_master_key | default(defaults.vault.encrypt_master_key) |
+  default(True) | bool }}
+global_vault_management_account_id: '000000000000'
+global_iam_service_user_trust_chains:
+  - feature: lifecycle
+    component: backbeat
+    data_account_role_name: '{{ defaults.backbeat.lifecycle_service_role_name }}'
+    data_account_policy_name: '{{ defaults.backbeat.lifecycle_service_policy_name }}'
+    data_account_policy_document: '{{ defaults.backbeat.lifecycle_service_policy_document }}'
+    management_account_user_name: '{{ defaults.backbeat.lifecycle_service_user_name }}'
+    management_account_user_keys_file: >-
+      {{ inventory_dir }}/vault/{{ defaults.backbeat.lifecycle_service_user_name
+      }}-keys.json
+  - feature: utapi
+    component: utapi
+    no_seed: true
+    management_account_user_name: '{{ defaults.utapi.service_user_name }}'
+    management_account_user_keys_file: '{{ inventory_dir }}/vault/{{ defaults.utapi.service_user_name }}-keys.json'
+global_short_version_id: '{{ env_short_version_id | default(False) | bool }}'
+common__data_path: /opt/scality/s3
+data_basepath: >-
+  {{ env_host_data | default(env_host_home) | default(common__data_path) |
+  rstrip("/") }}
+conf_basepath: '{{ env_host_conf | default(data_basepath ~ "/etc") | rstrip("/") }}'
+logs_basepath: >-
+  {{ env_host_logs | default(env_host_home) | default(common__data_path) |
+  rstrip("/") }}
+offline_dest: >-
+  {{ env_offline_dest | default("/opt/scality/s3-offline-" ~ env_deploy_version)
+  }}
+federation_root_dir: '{{ lookup("env", "PWD") }}'
+offline_dir: '{{ federation_root_dir }}/..'
+container_volume_ro_rights: >-
+  {% if ansible_selinux.status == 'enabled' and ansible_selinux.config_mode ==
+  'enforcing' %}z,ro{% else %}ro{% endif %}
+container_volume_rw_rights: >-
+  {% if ansible_selinux.status == 'enabled' and ansible_selinux.config_mode ==
+  'enforcing' %}z{% else %}rw{% endif %}
+use_docker: >-
+  {{ True if (ansible_os_family != "RedHat" and ansible_os_family != "Rocky") or
+  ansible_distribution_major_version | int < 8 else False }}
+is_rhel_7: >-
+  {{ True if ansible_os_family == "RedHat" and
+  ansible_distribution_major_version | int == 7 else False }}
+utapi_event_filter_enabled: >-
+  {{ (env_utapi | default({})).event_filter_enabled |
+  default(defaults.utapi.event_filter_enabled)  | bool }}
+utapi_event_deny_filter: >-
+  {{ ((env_utapi | default({})).event_filter |
+  default(defaults.utapi.event_filter)).deny | default({}) }}
+utapi_event_allow_filter: >-
+  {{ ((env_utapi | default({})).event_filter |
+  default(defaults.utapi.event_filter)).allow | default({}) }}
