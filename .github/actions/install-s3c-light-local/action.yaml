@@ -10,26 +10,33 @@ runs:
       with:
         lfs: true
     - name: Authenticate git requests
+      shell: bash
       run: |
-        git config --global url."https://git:${{ secrets.GIT_ACCESS_TOKEN }}@github.com/".insteadOf git@github.com:
-        echo -e '[url "https://git:${{ secrets.GIT_ACCESS_TOKEN }}@github.com/"]\n\tinsteadOf = git@github.com:' >> ~/.gitconfig
-        echo -e '[url "https://git:${{ secrets.GIT_ACCESS_TOKEN }}@github.com/"]\n\tinsteadOf = ssh://git@github.com/' >> ~/.gitconfig
+        git config --global url."https://git:${{ env.GIT_ACCESS_TOKEN }}@github.com/".insteadOf git@github.com:
+        echo -e '[url "https://git:${{ env.GIT_ACCESS_TOKEN }}@github.com/"]\n\tinsteadOf = git@github.com:' >> ~/.gitconfig
+        echo -e '[url "https://git:${{ env.GIT_ACCESS_TOKEN }}@github.com/"]\n\tinsteadOf = ssh://git@github.com/' >> ~/.gitconfig
     - name: Install requirements
       shell: bash
       run: bash -x requirements.sh
       working-directory: ./.github/scripts/s3c
     - name: Fetch previously generated archive
+      shell: bash
       run: >
         wget --no-verbose --recursive --no-parent --no-host-directories
         --reject "index.html*,.final_status,${{ env.light-archive-artifacts }}"
         --accept "${{ env.archive-name }}*"
         --cut-dirs=2 --execute robots=off
-        --http-user=${{ secrets.ARTIFACTS_USER }} --http-password=${{ secrets.ARTIFACTS_PASSWORD }}
-        "${{ inputs.artifacts-link }}/"
+        --http-user=${{ env.ARTIFACTS_USER }} --http-password=${{ env.ARTIFACTS_PASSWORD }}
+        "${{ env.artifacts-link }}/"
+      working-directory: ./.github/scripts/s3c
     - name: Check downloaded archive SHA-256 sum
+      shell: bash
       run: sha256sum --check ${{ env.archive-name }}.sha256sum
+      working-directory: ./.github/scripts/s3c
     - name: Set archive path
+      shell: bash
       run: echo "FEDERATION_ARCHIVE=$(ls ${{ env.archive-name }})" >> $GITHUB_ENV
+      working-directory: ./.github/scripts/s3c
     - name: Extract downloaded archive
       shell: bash
       run: bash -x unpack.sh
@@ -39,6 +46,7 @@ runs:
       run: bash -x install.sh --no-cleanup
       working-directory: ./.github/scripts/s3c
     - name: Wait for install to settle
+      shell: bash
       run: sleep 30
     - name: Post installation setup
       shell: bash

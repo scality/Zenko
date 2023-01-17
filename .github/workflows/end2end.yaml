@@ -427,10 +427,13 @@ jobs:
           registry: registry.scality.com
       - name: Install s3c light local
         uses: ./.github/actions/install-s3c-light-local
-        with:
+        env:
           artifacts-link: ${{ needs.s3c-offline-installer-info.outputs.artifacts-link }}
           archive-name: "s3-offline-rocky8-*.tar.gz"
           light-archive-artifacts: "s3-offline-light-*.tar.gz*"
+          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          ARTIFACTS_USER: ${{ secrets.ARTIFACTS_USER }}
+          ARTIFACTS_PASSWORD: ${{ secrets.ARTIFACTS_PASSWORD }}
       # - name: Deploy Zenko
       #   uses: ./.github/actions/deploy
       #   env:

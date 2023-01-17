@@ -19,3 +19,6 @@ fi
 # yarn install-s3c --federation-dir="$FEDERATION_DIRECTORY" $@
 
 ls -l $FEDERATION_DIRECTORY
+
+cd $FEDERATION_DIRECTORY
+
