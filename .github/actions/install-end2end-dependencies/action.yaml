@@ -33,13 +33,14 @@ runs:
             virtualenv \
             wget
 
+          which jq
           sudo curl -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/${{ env.KIND_VERSION }}/kind-linux-amd64
-          ls -l
           pwd
           sudo chmod +x ./kind
-          ls -l
           sudo mv kind /usr/local/bin/
-          ls -l /usr/local/bin/
+          ls -l /
+          ls -l /usr/
+          ls -l /usr/local/
           sleep 3
           sudo kind -h
           sudo curl -sSL https://get.helm.sh/helm-${{ env.HELM_VERSION }}-linux-amd64.tar.gz | sudo tar -xvz
