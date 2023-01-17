@@ -270,6 +270,11 @@ jobs:
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+  s3c-offline-installer-info:
+    uses: ./.github/workflows/s3c-offline-installer-info.yaml
+    secrets: inherit
+    if: ${{ inputs.artifacts-link == null }}
   
   # end2end-http:
   #   needs: [build-test-image, check-dashboard-versions]
@@ -397,7 +402,7 @@ jobs:
   #       if: always()
 
   end2end-sharded:
-    needs: [build-test-image, check-dashboard-versions]
+    needs: [build-test-image, check-dashboard-versions, s3c-offline-installer-info]
     runs-on:
       - self-hosted
       - rocky8

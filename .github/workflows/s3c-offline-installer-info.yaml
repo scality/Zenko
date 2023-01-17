@@ -1,14 +1,14 @@
-name: 'get-s3c-offline-installer'
+name: 's3c-offline-installer-info'
 
 on:
   workflow_call:
     outputs:
       artifacts-link:
         description: "Link to generated federation artifacts"
-        value: ${{ jobs.download-archive.outputs.artifacts-link }}
+        value: ${{ jobs.get-artifacts-info.outputs.artifacts-link }}
 
 jobs:
-  download-archive:
+  get-artifacts-info:
     runs-on:
       - self-hosted
       - rocky8
