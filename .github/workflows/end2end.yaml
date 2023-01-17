@@ -280,9 +280,10 @@ jobs:
   end2end-http:
     needs: [build-test-image, check-dashboard-versions]
     runs-on:
-      - ubuntu
-      - focal
-      - xlarge
+      - self-hosted
+      - rocky8
+      - large
+      - gcloud
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -342,9 +343,10 @@ jobs:
   end2end-https:
     needs: [build-test-image, check-dashboard-versions]
     runs-on:
-      - ubuntu
-      - focal
-      - xlarge
+      - self-hosted
+      - rocky8
+      - large
+      - gcloud
     env:
       UI_ENDPOINT: 'https://ui.zenko.local'
       OIDC_ENDPOINT: 'https://keycloak.zenko.local'
