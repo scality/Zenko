@@ -9,6 +9,7 @@ runs:
       shell: bash
       run: |-
           set -exu;
+          sudo dnf update -y
           sudo dnf install -y \
             ca-certificates \
             curl \
@@ -33,21 +34,23 @@ runs:
             virtualenv \
             wget
 
+          sudo dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+          sudo dnf update
+          sudo dnf install -y docker-ce docker-ce-cli containerd.io
+          sudo systemctl --now enable docker
           sudo curl -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/${{ env.KIND_VERSION }}/kind-linux-amd64
           sudo chmod +x ./kind
           sudo mv kind /usr/bin/
-          sudo kind -h
-          kind -h
           sudo curl -sSL https://get.helm.sh/helm-${{ env.HELM_VERSION }}-linux-amd64.tar.gz | sudo tar -xvz
-          sudo install linux-amd64/helm /usr/local/bin
+          sudo install linux-amd64/helm /usr/bin
           sudo rm -rf linux-amd64
-          sudo wget https://github.com/mikefarah/yq/releases/download/${{ env.YQ_VERSION }}/${{ env.YQ_BINARY }} -O /usr/local/bin/yq
-          sudo chmod +x /usr/local/bin/yq
+          sudo wget https://github.com/mikefarah/yq/releases/download/${{ env.YQ_VERSION }}/${{ env.YQ_BINARY }} -O /usr/bin/yq
+          sudo chmod +x /usr/bin/yq
           sudo curl -sSL https://github.com/tilt-dev/tilt/releases/download/v${{ env.TILT_VERSION }}/tilt.${{ env.TILT_VERSION }}.linux.x86_64.tar.gz | sudo tar xzvf -
-          sudo mv tilt /usr/local/bin
-          sudo chmod +x /usr/local/bin/tilt
+          sudo mv tilt /usr/bin
+          sudo chmod +x /usr/bin/tilt
           sudo curl -sSL https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${{ env.KUSTOMIZE_VERSION }}/kustomize_${{ env.KUSTOMIZE_VERSION }}_linux_amd64.tar.gz | sudo tar -xvz
-          sudo install kustomize /usr/local/bin
+          sudo install kustomize /usr/bin
     - name: Kubectl tool installer
       uses: Azure/setup-kubectl@v3
       with:
