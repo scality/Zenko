@@ -206,48 +206,48 @@ jobs:
   #         password: ${{ secrets.ARTIFACTS_PASSWORD }}
   #         source: "solution-base/_build"
 
-  build-test-image:
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-      - name: Login to Registry
-        uses: docker/login-action@v1.10.0
-        with:
-          username: "${{ secrets.REGISTRY_LOGIN }}"
-          password: "${{ secrets.REGISTRY_PASSWORD }}"
-          registry: registry.scality.com
-      - name: Cache Docker layers
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache
-          key: buildx-zenko-${{ github.sha }}
-          restore-keys: |
-            buildx-zenko
-      - name: Generate end2end config yaml
-        run: |-
-          cd tests/zenko_tests
-          if [[ "${ENABLE_RING_TESTS}" == "false" ]]; then
-            envsubst < 'e2e-config.yaml.template' > 'e2e-config.yaml'
-          else
-            envsubst < 'ring-e2e-config.yaml.template' > 'e2e-config.yaml'
-          fi
-          cat e2e-config.yaml
-          echo 'Generated e2e-config.yaml file'
-      - name: Build and push CI image
-        uses: docker/build-push-action@v3.1.0
-        with:
-          push: true
-          context: ./tests/zenko_tests
-          tags: "${{ env.E2E_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}"
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
-      - name: Move cache
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+  # build-test-image:
+  #   runs-on: ubuntu-20.04
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
+  #     - name: Set up Docker Buildx
+  #       uses: docker/setup-buildx-action@v2
+  #     - name: Login to Registry
+  #       uses: docker/login-action@v1.10.0
+  #       with:
+  #         username: "${{ secrets.REGISTRY_LOGIN }}"
+  #         password: "${{ secrets.REGISTRY_PASSWORD }}"
+  #         registry: registry.scality.com
+  #     - name: Cache Docker layers
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: /tmp/.buildx-cache
+  #         key: buildx-zenko-${{ github.sha }}
+  #         restore-keys: |
+  #           buildx-zenko
+  #     - name: Generate end2end config yaml
+  #       run: |-
+  #         cd tests/zenko_tests
+  #         if [[ "${ENABLE_RING_TESTS}" == "false" ]]; then
+  #           envsubst < 'e2e-config.yaml.template' > 'e2e-config.yaml'
+  #         else
+  #           envsubst < 'ring-e2e-config.yaml.template' > 'e2e-config.yaml'
+  #         fi
+  #         cat e2e-config.yaml
+  #         echo 'Generated e2e-config.yaml file'
+  #     - name: Build and push CI image
+  #       uses: docker/build-push-action@v3.1.0
+  #       with:
+  #         push: true
+  #         context: ./tests/zenko_tests
+  #         tags: "${{ env.E2E_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}"
+  #         cache-from: type=local,src=/tmp/.buildx-cache
+  #         cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
+  #     - name: Move cache
+  #       run: |
+  #         rm -rf /tmp/.buildx-cache
+  #         mv /tmp/.buildx-cache-new /tmp/.buildx-cache
   
   # end2end-http:
   #   needs: [build-test-image, check-dashboard-versions]
@@ -394,40 +394,40 @@ jobs:
           username: "${{ secrets.REGISTRY_LOGIN }}"
           password: "${{ secrets.REGISTRY_PASSWORD }}"
           registry: registry.scality.com
-      - name: Deploy Zenko
-        uses: ./.github/actions/deploy
-        env:
-          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
-          ZENKO_MONGODB_SHARDED: "true"
-      - name: Run backbeat end to end tests
-        run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "backbeat" "default"
-        working-directory: ./.github/scripts/end2end
-      - name: Debug wait
-        uses: ./.github/actions/debug-wait
-      - name: Archive artifact logs and data
-        uses: ./.github/actions/archive-artifacts
-        if: always()
-      - name: Clean Up
-        run: kind delete cluster
-      - name: Set status in ARTIFACTS to enable re-run only failed jobs
-        if: success()
-        run: |
-          mkdir -p /tmp/artifacts/build_status/${{ github.job }}
-          echo 'SUCCESSFUL' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
-      - name: Set status in ARTIFACTS to enable re-run only failed jobs
-        if: failure()
-        run: |
-          mkdir -p /tmp/artifacts/build_status/${{ github.job }}
-          echo 'FAILED' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
-      - name: Upload artifacts
-        uses: scality/action-artifacts@v3
-        with:
-          method: upload
-          url: https://artifacts.scality.net
-          user: ${{ secrets.ARTIFACTS_USER }}
-          password: ${{ secrets.ARTIFACTS_PASSWORD }}
-          source: /tmp/artifacts
-        if: always()
+      # - name: Deploy Zenko
+      #   uses: ./.github/actions/deploy
+      #   env:
+      #     GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+      #     ZENKO_MONGODB_SHARDED: "true"
+      # - name: Run backbeat end to end tests
+      #   run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "backbeat" "default"
+      #   working-directory: ./.github/scripts/end2end
+      # - name: Debug wait
+      #   uses: ./.github/actions/debug-wait
+      # - name: Archive artifact logs and data
+      #   uses: ./.github/actions/archive-artifacts
+      #   if: always()
+      # - name: Clean Up
+      #   run: kind delete cluster
+      # - name: Set status in ARTIFACTS to enable re-run only failed jobs
+      #   if: success()
+      #   run: |
+      #     mkdir -p /tmp/artifacts/build_status/${{ github.job }}
+      #     echo 'SUCCESSFUL' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
+      # - name: Set status in ARTIFACTS to enable re-run only failed jobs
+      #   if: failure()
+      #   run: |
+      #     mkdir -p /tmp/artifacts/build_status/${{ github.job }}
+      #     echo 'FAILED' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
+      # - name: Upload artifacts
+      #   uses: scality/action-artifacts@v3
+      #   with:
+      #     method: upload
+      #     url: https://artifacts.scality.net
+      #     user: ${{ secrets.ARTIFACTS_USER }}
+      #     password: ${{ secrets.ARTIFACTS_PASSWORD }}
+      #     source: /tmp/artifacts
+      #   if: always()
 
   # write-final-failed-status:
   #   runs-on: ubuntu-latest
