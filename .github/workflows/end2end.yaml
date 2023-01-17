@@ -402,7 +402,10 @@ jobs:
   #       if: always()
 
   end2end-sharded:
-    needs: [build-test-image, check-dashboard-versions, s3c-offline-installer-info]
+    needs: 
+      - build-test-image
+      - check-dashboard-versions
+      - s3c-offline-installer-info
     runs-on:
       - self-hosted
       - rocky8
@@ -423,6 +426,9 @@ jobs:
           username: "${{ secrets.REGISTRY_LOGIN }}"
           password: "${{ secrets.REGISTRY_PASSWORD }}"
           registry: registry.scality.com
+      - name: Install s3c light local
+        run: |
+          echo ${{ needs.s3c-offline-installer-info.outputs.artifacts-link }}
       - name: Deploy Zenko
         uses: ./.github/actions/deploy
         env:
