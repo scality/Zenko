@@ -18,6 +18,28 @@ on:
       - "user/**"
       - "q/*/**"
 
+  workflow_dispatch:
+    inputs:
+      artifacts-link:
+        description: "Link to federation artifacts to test"
+        required: false
+        type: string
+      connection-timeout-m:
+        type: number
+        required: false
+        description: Timeout for ssh connection to worker (minutes)
+        default: 30
+      completion-delay-m:
+        type: number
+        required: false
+        description: Job completion delay (minutes)
+        default: 30
+      debug:
+        description: Debug (enable the ability to SSH to runners)
+        type: boolean
+        required: false
+        default: false
+
 env:
   # kind-env
   WORKER_COUNT: '2'
