@@ -635,3 +635,5 @@ jobs:
           user: ${{ secrets.ARTIFACTS_USER }}
           password: ${{ secrets.ARTIFACTS_PASSWORD }}
           source: artifacts
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
