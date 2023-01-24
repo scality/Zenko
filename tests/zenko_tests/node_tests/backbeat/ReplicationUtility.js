@@ -49,10 +49,6 @@ class ReplicationUtility {
         return this.s3.deleteObjects(params, cb);
     }
 
-    _deleteBlobList(blobList, containerName, cb) {
-        async.each(blobList, (blob, next) => this.deleteBlob(containerName, blob.name, undefined, next), cb);
-    }
-
     _setS3Client(s3Client) {
         this.s3 = s3Client;
         return this;
@@ -83,20 +79,20 @@ class ReplicationUtility {
     }
 
     deleteAllBlobs(containerName, keyPrefix, cb) {
-        const options = { include: 'metadata' };
-        this.azure.listBlobsSegmented(
-            containerName,
-            null,
-            options,
-            (err, result) => {
-                if (err) {
-                    return cb(err);
-                }
-                // Only delete the blobs put by the current test.
-                const filteredEntries = result.entries.filter(entry => entry.name.startsWith(keyPrefix));
-                return this._deleteBlobList(filteredEntries, containerName, cb);
-            },
-        );
+        (async () => {
+            const client = this.azure.getContainerClient(containerName);
+            const options = { includeMetadata: true };
+            const iter = client.listBlobsFlat(options).byPage({ maxPageSize: 20 });
+
+            // eslint-disable-next-line no-restricted-syntax
+            for await (const response of iter) {
+                const { blobItems } = response.segment;
+                const filteredEntries = blobItems.filter(blobItem => blobItem.name.startsWith(keyPrefix));
+                await Promise.all(filteredEntries.map(
+                    blob => client.deleteBlob(blob, options),
+                ));
+            }
+        })().then(() => cb(null), cb);
     }
 
     deleteAllFiles(bucketName, filePrefix, cb) {
@@ -417,21 +413,25 @@ class ReplicationUtility {
     }
 
     getBlobToText(containerName, blob, cb) {
-        this.azure.getBlobToText(containerName, blob, cb);
+        this.azure.getContainerClient(containerName).downloadToBuffer(blob).then(
+            buffer => cb(null, buffer.toString()),
+            err => cb(err),
+        );
     }
 
     getBlob(containerName, blob, cb) {
-        const request = this.azure.createReadStream(containerName, blob);
-        const data = [];
-        let totalLength = 0;
-        request.on('data', chunk => {
-            totalLength += chunk.length;
-            data.push(chunk);
-        });
-        request.on('end', () => {
-            cb(null, Buffer.concat(data, totalLength));
-        });
-        request.on('error', err => cb(err));
+        this.azure.getContainerClient(containerName).download(blob).then(rsp => {
+            const data = [];
+            let totalLength = 0;
+            rsp.readableStreamBody.on('data', chunk => {
+                totalLength += chunk.length;
+                data.push(chunk);
+            });
+            rsp.readableStreamBody.on('end', () => {
+                cb(null, Buffer.concat(data, totalLength));
+            });
+            rsp.readableStreamBody.on('error', err => cb(err));
+        }, err => cb(err));
     }
 
     getMetadata(bucketName, fileName, cb) {
@@ -571,10 +571,6 @@ class ReplicationUtility {
             Key: key,
             VersionId: versionId,
         }, cb);
-    }
-
-    deleteBlob(containerName, blob, options, cb) {
-        this.azure.deleteBlob(containerName, blob, options, cb);
     }
 
     expectReplicationStatus(bucketName, key, versionId, expectedStatus, cb) {
@@ -778,11 +774,9 @@ class ReplicationUtility {
         return async.series([
             next => this.waitUntilReplicated(srcBucket, key, undefined, next),
             next => this.getObject(srcBucket, key, next),
-            next => this.azure.getBlobProperties(
-                containerName,
-                `${srcBucket}/${key}`,
-                next,
-            ),
+            next => this.azure.getContainerClient(containerName)
+                .getProperties(`${srcBucket}/${key}`)
+                .then(res => next(null, res), next), // may be removed if we use async 2.3+
             next => this.getBlob(
                 containerName,
                 `${srcBucket}/${key}`,
@@ -793,9 +787,8 @@ class ReplicationUtility {
                 return cb(err);
             }
             const srcData = data[1];
-            const destProperties = data[2];
-            const destPropResult = destProperties[0];
-            const destPropResponse = destProperties[1];
+            const destPropResult = data[2];
+            const destPropResponse = destPropResult._response;
             const destDataBuf = data[3];
             assert.strictEqual(srcData.ReplicationStatus, 'COMPLETED');
             // Azure does not have versioning so there is no version metadata
@@ -875,21 +868,17 @@ class ReplicationUtility {
         return async.series([
             next => this.waitUntilReplicated(srcBucket, key, undefined, next),
             next => this.getHeadObject(srcBucket, key, next),
-            next => this.azure.getBlobProperties(
-                containerName,
-                `${srcBucket}/${key}`,
-                next,
-            ),
+            next => this.azure.getContainerClient(containerName)
+                .getProperties(`${srcBucket}/${key}`)
+                .then(res => next(null, res), next), // may be removed if we use async 2.3+
         ], (err, data) => {
             if (err) {
                 return cb(err);
             }
             const srcData = data[1];
-            const destData = data[2];
-            const destResult = destData[0];
-            const destResponse = destData[1];
+            const destResult = data[2];
             const { contentSettings } = destResult;
-            const { headers } = destResponse;
+            const { headers } = destResult._response;
             let expectedVal = srcData.Metadata.customkey;
             assert.strictEqual(
                 expectedVal,
@@ -1022,11 +1011,9 @@ class ReplicationUtility {
                 scalityVersionId,
                 next,
             ),
-            next => this.azure.getBlobMetadata(
-                destContainer,
-                `${srcBucket}/${key}`,
-                next,
-            ),
+            next => this.azure.getContainerClient(destContainer)
+                .getProperties(`${srcBucket}/${key}`)
+                .then(res => next(null, res), next), // may be removed if we use async 2.3+
         ], (err, data) => {
             if (err) {
                 return cb(err);
@@ -1034,7 +1021,7 @@ class ReplicationUtility {
             const srcData = data[1];
             const destData = data[2];
             const destTagSet = [];
-            const destTags = destData[0].metadata.tags;
+            const destTags = destData.metadata.tags;
             if (destTags) {
                 const parsedTags = JSON.parse(destTags);
                 Object.keys(parsedTags).forEach(key => destTagSet.push({
