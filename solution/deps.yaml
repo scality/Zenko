@@ -85,15 +85,15 @@ sorbet:
 #   tag: zenko-1.0.0
 #   envsubst: UTAPI_TAG
 vault:
-  sourceRegistry: registry.scality.com/vault-dev
+  sourceRegistry: registry.scality.com/vault
   dashboard: vault-dashboards
   image: vault
-  tag: 49b14f6db2d2227174bd07e2210371c208c459ea
+  tag: 8.7.0
   envsubst: VAULT_TAG
 zenko-operator:
-  sourceRegistry: registry.scality.com/zenko-operator
+  sourceRegistry: registry.scality.com/sf-eng
   image: zenko-operator
-  tag: 1.5.7
+  tag: 07124c58083a062e4881bcf8929db06f68c0657b
   envsubst: ZENKO_OPERATOR_TAG
 zenko-ui:
   sourceRegistry: registry.scality.com/zenko-ui
