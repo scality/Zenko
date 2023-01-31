@@ -554,6 +554,8 @@ jobs:
         working-directory: ./.github/scripts/end2end
       - name: Run CTST end to end tests
         run: bash run-e2e-ctst.sh
+      - name: Setup tmate session  
+        uses: mxschmitt/action-tmate@v3
         working-directory: ./.github/scripts/end2end
       - name: Debug wait
         uses: ./.github/actions/debug-wait
