@@ -5,11 +5,11 @@ metadata:
 spec:
   selector:
     name: azure-mock
-  clusterIP: None
+  type: ClusterIP
   ports:
-    - name: unused
+    - name: http
       port: 80
-      targetPort: 80
+      targetPort: http
 ---
 apiVersion: v1
 kind: Pod
@@ -26,7 +26,8 @@ spec:
     command: ["azurite", "-l", "/data", "--blobHost", "0.0.0.0","--blobPort", "80"]
     name: azurite
     ports:
-      - containerPort: 80
+      - name: http
+        containerPort: 80
     imagePullPolicy: Always
     resources:
       limits:
