@@ -13,10 +13,10 @@ busybox:
   tag: 1.33.0
   envsubst: BUSYBOX_TAG
 cloudserver:
-  sourceRegistry: registry.scality.com/cloudserver
+  sourceRegistry: registry.scality.com/cloudserver-dev
   dashboard: cloudserver-dashboards
   image: cloudserver
-  tag: 8.7.7
+  tag: 8.7.7-4865054eba58a3c69620a11e7942c07f3902adf2
   envsubst: CLOUDSERVER_TAG
 jmx-javaagent:
   sourceRegistry: banzaicloud
@@ -91,9 +91,9 @@ vault:
   tag: 8.7.2
   envsubst: VAULT_TAG
 zenko-operator:
-  sourceRegistry: registry.scality.com/zenko-operator
+  sourceRegistry: registry.scality.com/sf-eng
   image: zenko-operator
-  tag: 1.5.7
+  tag: 002e9043f0b3e3f45491c8c79c05e457a20d2ef3
   envsubst: ZENKO_OPERATOR_TAG
 zenko-ui:
   sourceRegistry: registry.scality.com/zenko-ui
