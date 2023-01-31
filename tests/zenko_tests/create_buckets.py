@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 from boto3 import Session
+from azure.storage.blob import BlobServiceClient
+from azure.core.credentials import AzureNamedKeyCredential
+from azure.core.exceptions import ResourceExistsError
 import os
 import logging
 
@@ -59,3 +62,18 @@ def create_aws_buckets():
     _log.info('Creating AWS buckets...')
     bucket_safe_create(aws_s3c_client.Bucket(AWS_FAIL_BUCKET_NAME))
     aws_s3c_client.Bucket(AWS_FAIL_BUCKET_NAME).Versioning().enable()
+
+def create_azure_containers():
+    AZURE_BACKEND_ENDPOINT = get_env("AZURE_BACKEND_ENDPOINT")
+    AZURE_ACCOUNT_NAME = get_env("AZURE_ACCOUNT_NAME")
+    AZURE_SECRET_KEY = get_env("AZURE_SECRET_KEY")
+    AZURE_CRR_BUCKET_NAME = get_env("AZURE_CRR_BUCKET_NAME")
+
+    credential = AzureNamedKeyCredential(name=AZURE_ACCOUNT_NAME,
+            key=AZURE_SECRET_KEY)
+    blob_service_client = BlobServiceClient(account_url=AZURE_BACKEND_ENDPOINT,
+            credential=credential)
+    try:
+        blob_service_client.create_container(name=AZURE_CRR_BUCKET_NAME)
+    except ResourceExistsError:
+        _log.info('Container %s already exists!' % AZURE_CRR_BUCKET_NAME)

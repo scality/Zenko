@@ -72,6 +72,9 @@ kubectl run ${POD_NAME} \
   --env=AWS_SECRET_KEY=${AWS_SECRET_KEY} \
   --env=AWS_ENDPOINT=${AWS_ENDPOINT} \
   --env=AWS_FAIL_BUCKET_NAME=${AWS_FAIL_BUCKET_NAME} \
+  --env=AZURE_BACKEND_ENDPOINT=${AZURE_BACKEND_ENDPOINT} \
+  --env=AZURE_SECRET_KEY=${AZURE_SECRET_KEY} \
+  --env=AZURE_CRR_BUCKET_NAME=${AZURE_CRR_BUCKET_NAME} \
   --command -- python3 configuration.py
 
 ## wait for updates to trigger zenko upgrades
