@@ -73,11 +73,11 @@ function dependencies_env()
     echo $(dependencies_dashboard_env)
     echo $(dependencies_policy_env)
     echo "ZENKO_VERSION_NAME=${ZENKO_NAME}-version"
-    if [[ $(yq read ${DEPS_PATH} cloudserver.sourceRegistry) == "registry.scality.com/cloudserver-dev" ]]; then
-        original_image="$(yq read ${DEPS_PATH} cloudserver.sourceRegistry)/$(yq read ${DEPS_PATH} cloudserver.image):$(yq read ${DEPS_PATH} cloudserver.tag)}"
-        original_dashboard="$(yq read ${DEPS_PATH} cloudserver.sourceRegistry)/$(yq read ${DEPS_PATH} cloudserver.dashboard):$(yq read ${DEPS_PATH} cloudserver.tag)}"
-        docker pull "$original_image"
-        oras pull "$original_dashboard"
+    if [[ $(yq '.cloudserver.sourceRegistry' ${DEPS_PATH}) == "registry.scality.com/cloudserver-dev" ]]; then
+        original_image="$(yq '.cloudserver.sourceRegistry' ${DEPS_PATH})/$(yq '.cloudserver.image' ${DEPS_PATH}):$(yq '.cloudserver.tag' ${DEPS_PATH})}"
+        original_dashboard="$(yq '.cloudserver.sourceRegistry' ${DEPS_PATH})/$(yq '.cloudserver.dashboard' ${DEPS_PATH}):$(yq '.cloudserver.tag' ${DEPS_PATH})}"
+        docker pull "${original_image}"
+        oras pull "${original_dashboard}"
         project_version=$(docker run -it "${original_image}" node -p "require('./package.json').version")
         CLOUDSERVER_IMAGE=registry.scality.com/playground/xinli/cloudserver
         CLOUDSERVER_DASHBOARD=registry.scality.com/playground/xinli/cloudserver-dashboard
