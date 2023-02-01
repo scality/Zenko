@@ -68,7 +68,7 @@ redis_exporter:
   tag: v1.43.1
   envsubst: REDIS_EXPORTER_TAG
 s3utils:
-  sourceRegistry: registry.scality.com/playground
+  sourceRegistry: registry.scality.com/playground/xinli
   dashboard: s3utils-dashboards
   image: s3utils
   tag: 1.13.200
