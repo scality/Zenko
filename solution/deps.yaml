@@ -68,9 +68,10 @@ redis_exporter:
   tag: v1.43.1
   envsubst: REDIS_EXPORTER_TAG
 s3utils:
-  sourceRegistry: registry.scality.com/s3utils
+  sourceRegistry: registry.scality.com/playground
+  dashboard: s3utils-dashboards
   image: s3utils
-  tag: 1.13.14
+  tag: 1.13.200
   envsubst: S3UTILS_TAG
 sorbet:
   sourceRegistry: registry.scality.com/sorbet
@@ -93,7 +94,7 @@ vault:
 zenko-operator:
   sourceRegistry: registry.scality.com/sf-eng
   image: zenko-operator
-  tag: b8a5086546b93269cd3b3989d90f711c77b1247b
+  tag: e2f0bfe76f1334dd536e7306f94b71d209fd8093
   envsubst: ZENKO_OPERATOR_TAG
 zenko-ui:
   sourceRegistry: registry.scality.com/zenko-ui
