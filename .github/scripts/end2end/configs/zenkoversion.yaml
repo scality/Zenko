@@ -12,6 +12,9 @@ spec:
     cloudserver:
       image: '${CLOUDSERVER_DASHBOARD}'
       tag: '${CLOUDSERVER_TAG}'
+    s3utils:
+      image: '${S3UTILS_DASHBOARD}'
+      tag: '${S3UTILS_TAG}'
     # kafka:
     #   image: kafka-dashboard
     #   tag: '${ZENKO_VERSION_NAME}'

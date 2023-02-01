@@ -30,6 +30,9 @@ spec:
     zookeeper:
       image: zookeeper-dashboard
       tag: '${VERSION_FULL}'
+    s3utils:
+      image: s3utils-dashboards
+      tag: '${S3UTILS_TAG}'
   policies:
     backbeat:
       image: backbeat-policies
