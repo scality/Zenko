@@ -73,19 +73,22 @@ function dependencies_env()
     echo $(dependencies_dashboard_env)
     echo $(dependencies_policy_env)
     echo "ZENKO_VERSION_NAME=${ZENKO_NAME}-version"
-    if [[ "${CLOUDSERVER_IMAGE}" == *"cloudserver-dev"* ]]; then
-        original_image="${CLOUDSERVER_IMAGE}:${CLOUDSERVER_TAG}"
-        original_dashboard="${CLOUDSERVER_DASHBOARD}:${CLOUDSERVER_TAG}"
+    if [[ $(yq read ${DEPS_PATH} cloudserver.sourceRegistry) == "registry.scality.com/cloudserver-dev" ]]; then
+        original_image="$(yq read ${DEPS_PATH} cloudserver.sourceRegistry)/$(yq read ${DEPS_PATH} cloudserver.image):$(yq read ${DEPS_PATH} cloudserver.tag)}"
+        original_dashboard="$(yq read ${DEPS_PATH} cloudserver.sourceRegistry)/$(yq read ${DEPS_PATH} cloudserver.dashboard):$(yq read ${DEPS_PATH} cloudserver.tag)}"
         docker pull "$original_image"
         oras pull "$original_dashboard"
-        project_version=$(docker run -it "${CLOUDSERVER_IMAGE}:${CLOUDSERVER_TAG}" node -p "require('./package.json').version")
-        echo CLOUDSERVER_IMAGE=registry.scality.com/playground/xinli/cloudserver
-        echo CLOUDSERVER_DASHBOARD=registry.scality.com/playground/xinli/cloudserver-dashboard
-        echo CLOUDSERVER_TAG=${project_version}
+        project_version=$(docker run -it "${original_image}" node -p "require('./package.json').version")
+        CLOUDSERVER_IMAGE=registry.scality.com/playground/xinli/cloudserver
+        CLOUDSERVER_DASHBOARD=registry.scality.com/playground/xinli/cloudserver-dashboard
+        CLOUDSERVER_TAG=${project_version}
         docker tag "${original_image}" "${CLOUDSERVER_IMAGE}:${CLOUDSERVER_TAG}"
         oras copy "${original_dashboard}" "${CLOUDSERVER_DASHBOARD}:${CLOUDSERVER_TAG}"
         docker push "${CLOUDSERVER_IMAGE}:${CLOUDSERVER_TAG}"
         oras push "${CLOUDSERVER_DASHBOARD}:${CLOUDSERVER_TAG}"
+        echo         CLOUDSERVER_IMAGE=registry.scality.com/playground/xinli/cloudserver
+        echo         CLOUDSERVER_DASHBOARD=registry.scality.com/playground/xinli/cloudserver-dashboard
+        echo         CLOUDSERVER_TAG=${project_version}
     fi
 }
 
