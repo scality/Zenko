@@ -74,20 +74,9 @@ function dependencies_env()
     echo $(dependencies_policy_env)
     echo "ZENKO_VERSION_NAME=${ZENKO_NAME}-version"
     if [[ $(yq '.cloudserver.sourceRegistry' ${DEPS_PATH}) == "registry.scality.com/cloudserver-dev" ]]; then
-        original_image="$(yq '.cloudserver.sourceRegistry' ${DEPS_PATH})/$(yq '.cloudserver.image' ${DEPS_PATH}):$(yq '.cloudserver.tag' ${DEPS_PATH})"
-        original_dashboard="$(yq '.cloudserver.sourceRegistry' ${DEPS_PATH})/$(yq '.cloudserver.dashboard' ${DEPS_PATH}):$(yq '.cloudserver.tag' ${DEPS_PATH})"
-        docker pull "${original_image}"
-#        oras pull "${original_dashboard}"
-        project_version=$(docker run "${original_image}" node -p "require('./package.json').version")
-        CLOUDSERVER_IMAGE=registry.scality.com/playground/xinli/cloudserver
-        CLOUDSERVER_DASHBOARD=registry.scality.com/playground/xinli/cloudserver-dashboard
-        CLOUDSERVER_TAG=${project_version}
-        docker tag "${original_image}" "${CLOUDSERVER_IMAGE}:${CLOUDSERVER_TAG}"
-#        oras copy "${original_dashboard}" "${CLOUDSERVER_DASHBOARD}:${CLOUDSERVER_TAG}"
-        docker push "${CLOUDSERVER_IMAGE}:${CLOUDSERVER_TAG}"
-        echo         CLOUDSERVER_IMAGE=registry.scality.com/playground/xinli/cloudserver
-        echo         CLOUDSERVER_DASHBOARD=registry.scality.com/playground/xinli/cloudserver-dashboard
-        echo         CLOUDSERVER_TAG=${project_version}
+      echo         CLOUDSERVER_IMAGE=registry.scality.com/playground/xinli/cloudserver
+      echo         CLOUDSERVER_DASHBOARD=registry.scality.com/playground/xinli/cloudserver-dashboard
+      echo         CLOUDSERVER_TAG=${project_version}
     fi
 }
 
@@ -120,6 +109,24 @@ create_encryption_secret()
 
 create_encryption_secret
 
+if [[ $(yq '.cloudserver.sourceRegistry' ${DEPS_PATH}) == "registry.scality.com/cloudserver-dev" ]]; then
+    curl -LO https://github.com/oras-project/oras/releases/download/v0.16.0/oras_0.16.0_linux_amd64.tar.gz
+    mkdir -p oras-install/
+    tar -zxf oras_0.16.0_*.tar.gz -C oras-install/
+    mv oras-install/oras /usr/local/bin/
+    rm -rf oras_0.16.0_*.tar.gz oras-install/
+    original_image="$(yq '.cloudserver.sourceRegistry' ${DEPS_PATH})/$(yq '.cloudserver.image' ${DEPS_PATH}):$(yq '.cloudserver.tag' ${DEPS_PATH})"
+    original_dashboard="$(yq '.cloudserver.sourceRegistry' ${DEPS_PATH})/$(yq '.cloudserver.dashboard' ${DEPS_PATH}):$(yq '.cloudserver.tag' ${DEPS_PATH})"
+    docker pull "${original_image}"
+    oras pull "${original_dashboard}"
+    project_version=$(docker run "${original_image}" node -p "require('./package.json').version")
+    CLOUDSERVER_IMAGE=registry.scality.com/playground/xinli/cloudserver
+    CLOUDSERVER_DASHBOARD=registry.scality.com/playground/xinli/cloudserver-dashboard
+    CLOUDSERVER_TAG=${project_version}
+    docker tag "${original_image}" "${CLOUDSERVER_IMAGE}:${CLOUDSERVER_TAG}"
+    oras copy "${original_dashboard}" "${CLOUDSERVER_DASHBOARD}:${CLOUDSERVER_TAG}"
+    docker push "${CLOUDSERVER_IMAGE}:${CLOUDSERVER_TAG}"
+fi
 
 
 env $(dependencies_env) envsubst < ${ZENKOVERSION_PATH} | kubectl -n ${NAMESPACE} apply -f -
