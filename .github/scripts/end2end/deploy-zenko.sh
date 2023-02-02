@@ -77,13 +77,13 @@ function dependencies_env()
         original_image="$(yq '.cloudserver.sourceRegistry' ${DEPS_PATH})/$(yq '.cloudserver.image' ${DEPS_PATH}):$(yq '.cloudserver.tag' ${DEPS_PATH})"
         original_dashboard="$(yq '.cloudserver.sourceRegistry' ${DEPS_PATH})/$(yq '.cloudserver.dashboard' ${DEPS_PATH}):$(yq '.cloudserver.tag' ${DEPS_PATH})"
         docker pull "${original_image}"
-        oras pull "${original_dashboard}"
-        project_version=$(docker run -it "${original_image}" node -p "require('./package.json').version")
+#        oras pull "${original_dashboard}"
+        project_version=$(docker run "${original_image}" node -p "require('./package.json').version")
         CLOUDSERVER_IMAGE=registry.scality.com/playground/xinli/cloudserver
         CLOUDSERVER_DASHBOARD=registry.scality.com/playground/xinli/cloudserver-dashboard
         CLOUDSERVER_TAG=${project_version}
         docker tag "${original_image}" "${CLOUDSERVER_IMAGE}:${CLOUDSERVER_TAG}"
-        oras copy "${original_dashboard}" "${CLOUDSERVER_DASHBOARD}:${CLOUDSERVER_TAG}"
+#        oras copy "${original_dashboard}" "${CLOUDSERVER_DASHBOARD}:${CLOUDSERVER_TAG}"
         docker push "${CLOUDSERVER_IMAGE}:${CLOUDSERVER_TAG}"
         echo         CLOUDSERVER_IMAGE=registry.scality.com/playground/xinli/cloudserver
         echo         CLOUDSERVER_DASHBOARD=registry.scality.com/playground/xinli/cloudserver-dashboard
