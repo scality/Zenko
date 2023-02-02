@@ -13,10 +13,10 @@ busybox:
   tag: 1.33.0
   envsubst: BUSYBOX_TAG
 cloudserver:
-  sourceRegistry: registry.scality.com/cloudserver
+  sourceRegistry: registry.scality.com/cloudserver-dev
   dashboard: cloudserver-dashboards
   image: cloudserver
-  tag: 8.7.7
+  tag: 8b1a690f17ae088c65daf5a81d8297440e5f9ce5
   envsubst: CLOUDSERVER_TAG
 jmx-javaagent:
   sourceRegistry: banzaicloud
