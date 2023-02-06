@@ -1,4 +1,4 @@
-import { Before, AfterAll } from '@cucumber/cucumber';
+import { Before, AfterAll, Given } from '@cucumber/cucumber';
 import Zenko from '../world/Zenko';
 
 // HTTPS should not cause any error for CTST
@@ -14,6 +14,10 @@ Before(async function () {
 
 AfterAll(async function () {
     await worlds[process.env.MODE ?? 'ZENKO'].teardown();
+});
+
+Given('a {type} type', async function (type) {
+    await this.prepareForType(type);
 });
 
 export default worlds;

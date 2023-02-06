@@ -1,7 +1,15 @@
 import { setWorldConstructor, World } from '@cucumber/cucumber';
+import qs from 'qs';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { 
     CacheHelper,
+    SuperAdmin,
+    Constants,
+    STS,
     cliModeObject,
+    IAMUserPolicy,
+    IAM,
+    Utils,
 } from 'cli-testing';
 
 interface AwsCliObjectParameters {
@@ -36,6 +44,12 @@ export default class Zenko extends World {
     private options: any = {};
 
     private saved: object = {};
+
+    private static IAMUserName = '';
+
+    private static IAMUserPolicyName = '';
+
+    private static IAMUserAttachedPolicy = '';
 
     private forceFailed = false;
 
@@ -97,6 +111,224 @@ export default class Zenko extends World {
             }
         });
         return decision;
+    }
+
+    /**
+     * This function will dynamically prepare credentials based on the type of
+     * entity provided to let the test run the AWS CLI command using this particular
+     * type of entity.
+     * @param {ScenarioCallerType} type - type of entity, can be 'account', 'storage manager',
+     * 'storage account owner', 'data consumer' or 'iam user'
+     * @returns {undefined}
+     */
+    async prepareForType(type: string): Promise<void> {
+        const savedParameters = JSON.parse(JSON.stringify(this.cliOptions));
+        this.resetGlobalType();
+        switch (type) {
+            case EntityType.ACCOUNT:
+                await this.prepareIamUser();
+                break;
+            case EntityType.STORAGE_MANAGER:
+                await this.prepareARWWI(
+                    this.parameters.StorageManagerUsername || 'storage_manager',
+                    this.parameters.StorageManagerPassword || '123',
+                    'storage-manager-role',
+                );
+                break;
+            case EntityType.STORAGE_ACCOUNT_OWNER:
+                await this.prepareARWWI(
+                    this.parameters.StorageAccountOwnerUsername || 'storage_account_owner',
+                    this.parameters.StorageAccountOwnerPassword || '123',
+                    'storage-account-owner-role',
+                );
+                break;
+            case EntityType.DATA_CONSUMER:
+                await this.prepareARWWI(
+                    this.parameters.DataConsumerUsername || 'data_consumer',
+                    this.parameters.DataConsumerPassword || '123',
+                    'data-consumer-role',
+                );
+                break;
+            default:
+                break;
+        }
+        this.resetCommand();
+        this.cliOptions = savedParameters;
+    }
+
+    /**
+     * As the type of the current request is set as a static variable, this helper
+     * function resets the current configuration to use the account by default
+     * @returns {undefined}
+     */
+    resetGlobalType(): void {
+        this.cliMode.assumed = false;
+        this.cliMode.env = false;
+    }
+
+    /**
+     * Creates an assumed role session using a web identity from the IDP with a
+     * duration of 12 hours.
+     * @param {string} ARWWIName - IDP username of the current STS session
+     * @param {string} ARWWIPassword - IDP password of the current STS session
+     * @param {string} ARWWITargetRole - role to assume. The first role returned
+     * by GetRolesForWebIdentity matching this name will be dynamically chosen
+     * @returns {undefined}
+     */
+    async prepareARWWI(ARWWIName: string, ARWWIPassword: string, ARWWITargetRole: string) {
+        if (!(ARWWIName in CacheHelper.ARWWI)) {
+            const token = await this.getWebIdentityToken(
+                ARWWIName,
+                ARWWIPassword,
+                `ui.${this.parameters.subdomain || Constants.DEFAULT_SUBDOMAIN}`,
+                this.parameters.keycloakPort || `${Constants.DEFAULT_KEYCLOAK_PORT}`,
+                `/auth/realms/${this.parameters.keycloakRealm || Constants.K_REALM}/protocol/openid-connect/token`,
+                this.parameters.keycloakClientId || Constants.K_CLIENT,
+                this.parameters.keycloakGrantType || 'password',
+            );
+            this.options.webIdentityToken = token;
+            if (!this.options.webIdentityToken) {
+                throw new Error('Error when trying to get a WebIdentity token.');
+            }
+            // Getting account ID
+            const account = await SuperAdmin.getAccount({
+                name: this.parameters.AccountName || Constants.ACCOUNT_NAME,
+            });
+            // Getting roles with GetRolesForWebIdentity
+            const roles = await SuperAdmin.getRolesForWebIdentity(this.options.webIdentityToken);
+            // Get the first role with the storage-manager-role name
+            let roleToAssume = '';
+            if (roles.data.data.ListOfRoleArns) {
+                roleToAssume = roles.data.data.ListOfRoleArns.find(
+                    (roleArn: string) => roleArn.includes(ARWWITargetRole) && roleArn.includes(account.id),
+                );
+            } else {
+                roles.data.data.Accounts.forEach((_account: any) => {
+                    roleToAssume = _account.Roles.find(
+                        (role: { Name: string; Arn: string }) =>
+                            role.Arn.includes(ARWWITargetRole) && role.Arn.includes(account.id),
+                    )?.Arn || roleToAssume;
+                });
+            }
+            // Ensure we can assume at least one role
+            if (!roleToAssume) {
+                throw new Error('Error when trying to list roles for web identity.');
+            }
+            // Arn to assume
+            const arn = roleToAssume;
+            this.options.roleArn = arn;
+            // Assume the role and save the credentials
+            const ARWWI = await STS.assumeRoleWithWebIdentity(this.options, this.parameters);
+            if (ARWWI && typeof ARWWI !== 'string' && ARWWI.stdout) {
+                this.parameters.AssumedSession = JSON.parse(ARWWI.stdout).Credentials;
+            } else {
+                throw new Error('Error when trying to Assume Role With Web Identity.');
+            }
+            // Save the session for future scenarios (increases performance)
+            CacheHelper.ARWWI[ARWWIName] = this.parameters.AssumedSession;
+            this.cliMode.parameters.AssumedSession = CacheHelper.ARWWI[ARWWIName];
+            this.cliMode.assumed = true;
+        } else {
+            this.parameters.AssumedSession = CacheHelper.ARWWI[ARWWIName];
+            this.cliMode.parameters.AssumedSession = CacheHelper.ARWWI[ARWWIName];
+            this.cliMode.assumed = true;
+        }
+    }
+
+    /**
+     * HTTP client to request JWT token given the username and password.
+     *
+     * @param {string} username - username of user requesting token
+     * @param {string} password - password of user requesting token
+     * @param {string} host - host URL of keycloak service
+     * @param {number} port - port of keycloak service
+     * @param {string} path - path of keycloak service authentication API
+     * @param {string} clientId - id of the client of the user
+     * @param {string} grantType - grant of the user
+     * @returns {string} the OIDC token
+     */
+    async getWebIdentityToken(
+        username: string,
+        password: string,
+        host: string,
+        port: string,
+        path: string,
+        clientId: string,
+        grantType: string,
+    ) {
+        const baseUrl = this.parameters.ssl === false ? 'http://' : 'https://';
+        const data = qs.stringify({
+            username,
+            password,
+            // eslint-disable-next-line camelcase
+            client_id: clientId,
+            // eslint-disable-next-line camelcase
+            grant_type: grantType,
+        });
+        const config : AxiosRequestConfig = {
+            method: 'post',
+            url: `${baseUrl}${host}:${port}${path}`,
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            data,
+        };
+        const result : AxiosResponse = await axios(config);
+        return result.data.access_token;
+    }
+
+    /**
+     * Creates an IAM user with policy and access keys to be used in the tests.
+     * The IAM user is cached for future tests to reduce the overall test suite
+     * duration.
+     * @returns {undefined}
+     */
+    async prepareIamUser() {
+        Zenko.IAMUserName = Zenko.IAMUserName || `${this.parameters.IAMUserName || 'usertest'}${Utils.randomString()}`;
+        Zenko.IAMUserPolicyName = `IAMUserPolicy-${Zenko.IAMUserName}${Utils.randomString()}`;
+        if (!this.cliMode.parameters.IAMSession) {
+            // Create IAM user
+            this.addCommandParameter({ userName: Zenko.IAMUserName });
+            await IAM.createUser(this.getCommandParameters());
+            this.resetCommand();
+            // Create policy
+            this.addCommandParameter({ policyName: Zenko.IAMUserPolicyName });
+            this.addCommandParameter({ policyPath: '/' });
+            if (process.env.POLICY_DOCUMENT) {
+                this.addCommandParameter({ policyDocument: JSON.parse(process.env.POLICY_DOCUMENT) });
+            } else {
+                this.addCommandParameter({ policyDocument: IAMUserPolicy });
+            }
+            const policy = await IAM.createPolicy(this.getCommandParameters());
+            const account = await SuperAdmin.getAccount({
+                name: this.parameters.AccountName || Constants.ACCOUNT_NAME,
+            });
+            let policyArn = `arn:aws:iam::${account.id}:policy/IAMUserPolicy-${Zenko.IAMUserName}}`;
+            try {
+                policyArn = JSON.parse(policy.stdout).Policy.Arn;
+            } catch (err : any) {
+                process.stderr.write(`Failed to create the IAM User policy.\n
+${JSON.stringify(policy)}\n${err.message}\n`);
+            }
+            this.resetCommand();
+            // Attach user policy
+            this.addCommandParameter({ userName: Zenko.IAMUserName });
+            this.addCommandParameter({ policyArn });
+            // Save the attached policy for cleanup
+            Zenko.IAMUserAttachedPolicy = policyArn;
+            await IAM.attachUserPolicy(this.getCommandParameters());
+            this.resetCommand();
+            // Create credentials for the user
+            this.addCommandParameter({ userName: Zenko.IAMUserName });
+            const accessKey = await IAM.createAccessKey(this.getCommandParameters());
+            this.parameters.IAMSession = JSON.parse(accessKey.stdout).AccessKey;
+            this.cliMode.parameters.IAMSession = this.parameters.IAMSession;
+            this.cliMode.env = true;
+            this.resetCommand();
+        } else {
+            this.parameters.IAMSession = this.cliMode.parameters.IAMSession;
+            this.cliMode.env = true;
+        }
     }
 
     /**

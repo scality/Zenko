@@ -15,3 +15,13 @@ Given('a {string} bucket', async function (versioning) {
         await S3.putBucketVersioning(this.getCommandParameters());
     }
 });
+
+Given('an existing bucket and an Object', async function () {
+    const preName = this.parameters.AccountName || Constants.ACCOUNT_NAME;
+    const bucketName = `${preName}${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase();
+    this.saved.bucketName = bucketName;
+    this.addCommandParameter({ bucket: bucketName });
+    await S3.createBucket(this.getCommandParameters());
+    this.addCommandParameter({ key: 'x'.repeat(10) });
+    await S3.putObject(this.getCommandParameters());
+});
