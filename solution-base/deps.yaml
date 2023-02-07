@@ -15,4 +15,4 @@ mongodb-sharded-exporter:
   tag: 0.34.0-debian-11-r24
 mongodb-shell:
   image: bitnami/bitnami-shell
-  tag: 11-debian-11-r42
+  tag: 11-debian-11-r81
