@@ -400,23 +400,23 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
      * @returns {undefined}
      */
     async prepareIamUser() {
-        Zenko.IAMUserName = Zenko.IAMUserName || `${this.parameters.IAMUserName || 'usertest'}${Utils.randomString()}`;
-        if (!this.cliMode.parameters.IAMSession) {
-            // Create IAM user
-            this.addCommandParameter({ userName: Zenko.IAMUserName });
-            await IAM.createUser(this.getCommandParameters());
-            this.resetCommand();
-            // Create credentials for the user
-            this.addCommandParameter({ userName: Zenko.IAMUserName });
-            const accessKey = await IAM.createAccessKey(this.getCommandParameters());
-            this.parameters.IAMSession = JSON.parse(accessKey.stdout).AccessKey;
-            this.cliMode.parameters.IAMSession = this.parameters.IAMSession;
-            this.cliMode.env = true;
-            this.resetCommand();
-        } else {
-            this.parameters.IAMSession = this.cliMode.parameters.IAMSession;
-            this.cliMode.env = true;
-        }
+        this.saved.userName = `iamusertest${Utils.randomString()}`;
+        // Create IAM user
+        this.addCommandParameter({ userName: this.saved.userName });
+        await IAM.createUser(this.getCommandParameters());
+        this.resetCommand();
+        // Create credentials for the user
+        this.addCommandParameter({ userName: this.saved.userName });
+        const accessKey = await IAM.createAccessKey(this.getCommandParameters());
+        this.parameters.IAMSession = JSON.parse(accessKey.stdout).AccessKey;
+        this.cliMode.parameters.IAMSession = this.parameters.IAMSession;
+        CacheHelper.parameters.IAMSession = this.parameters.IAMSession;
+        this.cliMode.env = true;
+        this.resetCommand();
+    }
+
+    resumeRootOrIamUser() {
+        this.cliMode.env = true;
     }
 
     /**
@@ -508,7 +508,7 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
             const response = await axios.get(`${protocol}s3.${this.parameters.subdomain || Constants.DEFAULT_SUBDOMAIN}` + path);
             return { statusCode: response.status, data: response.data }
         } catch (err: any) {
-            return { statusCode: err.response.status, data: err.response.data };
+            return { statusCode: err.response.status, err: err.response.data };
         }
     }
 }

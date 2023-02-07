@@ -45,11 +45,11 @@ Given('an existing bucket {string} {string} versioning, {string} ObjectLock {str
     }
 });
 
-Given('an object that {string}',
-    async function (objectExists) {
+Given('an object {string} that {string}',
+    async function (objectName, objectExists) {
         this.resetCommand();
         if (objectExists === 'exists') {
-            this.saved.objectName = 'x'.repeat(10);
+            this.saved.objectName = objectName || Utils.randomString();
             this.addCommandParameter({ key: this.saved.objectName });
             this.addCommandParameter({ bucket: this.saved.bucketName });
             this.saved.versionId = extractPropertyFromResults(
