@@ -6,7 +6,7 @@ backbeat:
   dashboard: backbeat-dashboards
   image: backbeat
   policy: backbeat-policies
-  tag: 8.6.3
+  tag: 8.6.4
   envsubst: BACKBEAT_TAG
 busybox:
   image: busybox
