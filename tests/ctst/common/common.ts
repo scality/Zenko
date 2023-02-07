@@ -1,4 +1,4 @@
-import { Given} from '@cucumber/cucumber';
+import { Given } from '@cucumber/cucumber';
 import { Constants, S3, Utils } from 'cli-testing';
 
 Given('a {string} bucket', async function (versioning) {
