@@ -410,6 +410,7 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
             this.addCommandParameter({ userName: Zenko.IAMUserName });
             const accessKey = await IAM.createAccessKey(this.getCommandParameters());
             this.parameters.IAMSession = JSON.parse(accessKey.stdout).AccessKey;
+            this.parameters.IAMUserName = Zenko.IAMUserName;
             this.cliMode.parameters.IAMSession = this.parameters.IAMSession;
             this.cliMode.env = true;
             this.resetCommand();
@@ -417,6 +418,10 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
             this.parameters.IAMSession = this.cliMode.parameters.IAMSession;
             this.cliMode.env = true;
         }
+    }
+
+    resumeRootOrIamUser() {
+        this.cliMode.env = true;
     }
 
     /**
@@ -508,9 +513,9 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
             const response = await axios.get(`${protocol}s3.${this.parameters.subdomain || Constants.DEFAULT_SUBDOMAIN}` + path);
             return { statusCode: response.status, data: response.data }
         } catch (err: any) {
-            return { statusCode: err.response.status, data: err.response.data };
+            return { statusCode: err.response.status, err: err.response.data };
         }
-    }  
+    }
 }
 
 setWorldConstructor(Zenko);

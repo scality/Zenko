@@ -9,6 +9,7 @@ When('the user tries to perform {string} on the bucket', async function (action:
     let userCredentials;
     if ([EntityType.IAM_USER, EntityType.ACCOUNT].includes(this.saved.type)) {
         userCredentials = this.parameters.IAMSession;
+        this.resumeRootOrIamUser();
     } else {
         userCredentials = this.parameters.AssumedSession;
     }
