@@ -214,7 +214,7 @@ const testAPIs = [
 
 When('a {string} tries to perform {string}', function (type : string, action : string) {
     testAPIs.find(api => api.API === action)?.checkResponse(this.parameters.AssumedSession,
-        this.saved.bucketName, (err, res) => {
+        this.saved.bucketName, (err : any, res : any) => {
         if (err) {
             assert.ifError(err);
             return (err);
