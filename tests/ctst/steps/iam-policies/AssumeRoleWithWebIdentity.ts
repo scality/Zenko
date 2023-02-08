@@ -220,6 +220,7 @@ When('a {string} tries to perform {string}', function (type : string, action : s
             return (err);
         }
         this.result = res;
+        return (res);
     }, 'x'.repeat(10));
 });
 
