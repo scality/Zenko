@@ -1,9 +1,176 @@
-const aws4 = require('aws4');
-const http = require('http');
-const { makeGETRequest, getResponseBody, makeUpdateRequest } = require('../../utils/request');
+import http from 'http';
+import aws4 from 'aws4';
+import { makeGETRequest, getResponseBody, makeUpdateRequest } from './request';
 
 const DEFAULT_HOST = process.env.CLOUDSERVER_HOST;
 const DEFAULT_PORT = process.env.CLOUDSERVER_PORT || '80';
+
+const testAPIs = [
+    {
+        API: 'MetadataSearch',
+        checkResponse: metadataSearchResponseCode,
+    },
+    {
+        API: 'RestoreObject',
+        checkResponse: restoreObjectResponseCode,
+    },
+    {
+        API: 'PutObject',
+        checkResponse: putObjectResponseCode,
+    },
+    {
+        API: 'PutObjectAcl',
+        checkResponse: putObjectAclResponseCode,
+    },
+    {
+        API: 'GetObject',
+        checkResponse: getObjectResponseCode,
+    },
+    {
+        API: 'GetObjectAcl',
+        checkResponse: getObjectAclResponseCode,
+    },
+    {
+        API: 'DeleteObject',
+        checkResponse: deleteObjectResponseCode,
+    },
+    {
+        API: 'GetBucketVersioning',
+        checkResponse: getBucketVersioningResponseCode,
+    },
+    {
+        API: 'GetBucketCors',
+        checkResponse: getBucketCorsResponseCode,
+    },
+    {
+        API: 'GetBucketAcl',
+        checkResponse: getBucketAclResponseCode,
+    },
+    {
+        API: 'GetBucketObjectLockConfiguration',
+        checkResponse: getBucketObjectLockConfResponseCode,
+    },
+    {
+        API: 'ListObjectsV2',
+        checkResponse: listObjectsV2ResponseCode,
+    },
+    {
+        API: 'ListObjectVersions',
+        checkResponse: listObjectVersionsResponseCode,
+    },
+    {
+        API: 'PutObjectLockConfiguration',
+        checkResponse: putObjectLockConfigurationResponseCode,
+    },
+    {
+        API: 'DeleteObjects',
+        checkResponse: deleteObjectsResponseCode,
+    },
+    {
+        API: 'GetObjectRetention',
+        checkResponse: getBucketObjectRetentionResponseCode,
+    },
+    {
+        API: 'GetObjectLegalHold',
+        checkResponse: getObjectLegalHoldResponseCode,
+    },
+    {
+        API: 'PutObjectRetention',
+        checkResponse: putObjectRetentionResponseCode,
+    },
+    {
+        API: 'PutObjectLegalHold',
+        checkResponse: putObjectLegalHoldTaggingResponseCode,
+    },
+    {
+        API: 'HeadObject',
+        checkResponse: headObjectResponseCode,
+    },
+    {
+        API: 'CopyObject',
+        checkResponse: copyObjectResponseCode,
+    },
+    {
+        API: 'GetObjectTagging',
+        checkResponse: getObjectTaggingResponseCode,
+    },
+    {
+        API: 'PutObjectTagging',
+        checkResponse: putObjectTaggingResponseCode,
+    },
+    {
+        API: 'DeleteObjectVersion',
+        checkResponse: deleteObjectVersionResponseCode,
+    },
+    {
+        API: 'GetBucketReplication',
+        checkResponse: getReplicationConfigurationResponseCode,
+    },
+    {
+        API: 'GetBucketLifecycle',
+        checkResponse: getLifecycleConfigurationResponseCode,
+    },
+    {
+        API: 'PutBucketLifecycle',
+        checkResponse: putLifecycleConfigurationResponseCode,
+    },
+    {
+        API: 'PutBucketReplication',
+        checkResponse: putReplicationConfigurationResponseCode,
+    },
+    {
+        API: 'GetObjectVersion',
+        checkResponse: getObjectVersionResponseCode,
+    },
+    {
+        API: 'GetObjectVersionRetention',
+        checkResponse: getBucketObjectVersionRetentionResponseCode,
+    },
+    {
+        API: 'PutObjectVersionRetention',
+        checkResponse: putObjectVersionRetentionResponseCode,
+    },
+    {
+        API: 'GetObjectVersionLegalHold',
+        checkResponse: getObjectVersionLegalHoldResponseCode,
+    },
+    {
+        API: 'PutObjectVersionLegalHold',
+        checkResponse: putObjectVersionLegalHoldTaggingResponseCode,
+    },
+    {
+        API: 'GetObjectVersionTagging',
+        checkResponse: getObjectVersionTaggingResponseCode,
+    },
+    {
+        API: 'DeleteObjectVersionTagging',
+        checkResponse: deleteObjectVersionTaggingResponseCode,
+    },
+    {
+        API: 'PutObjectVersionTagging',
+        checkResponse: putObjectVersionTaggingResponseCode,
+    },
+    {
+        API: 'GetObjectVersionAcl',
+        checkResponse: getObjectVersionAclResponseCode,
+    },
+    {
+        API: 'PutObjectVersionAcl',
+        checkResponse: putObjectVersionAclResponseCode,
+    },
+    {
+        API: 'GetBucketTagging',
+        checkResponse: getBucketTaggingResponseCode,
+    },
+    {
+        API: 'PutBucketTagging',
+        checkResponse: putBucketTaggingResponseCode,
+    },
+    {
+        API: 'DeleteBucketTagging',
+        checkResponse: deleteBucketTaggingResponseCode,
+    },
+];
 
 // eslint-disable-next-line default-param-last
 function makeApiCallGeneric(mode = 'GET', body, userCredentials, query, cb) {
@@ -491,48 +658,6 @@ function createPolicy(action, isAllow = true, resource = '*') {
     });
 }
 
-module.exports = {
-    metadataSearchResponseCode,
-    restoreObjectResponseCode,
-    putObjectResponseCode,
-    putObjectAclResponseCode,
-    putObjectVersionAclResponseCode,
-    getObjectResponseCode,
-    getObjectVersionResponseCode,
-    getObjectAclResponseCode,
-    getObjectVersionAclResponseCode,
-    deleteObjectResponseCode,
-    deleteObjectVersionResponseCode,
-    getBucketVersioningResponseCode,
-    getBucketCorsResponseCode,
-    getBucketAclResponseCode,
-    getBucketObjectLockConfResponseCode,
-    getBucketObjectRetentionResponseCode,
-    getBucketObjectVersionRetentionResponseCode,
-    getReplicationConfigurationResponseCode,
-    getLifecycleConfigurationResponseCode,
-    putLifecycleConfigurationResponseCode,
-    putReplicationConfigurationResponseCode,
-    getObjectLegalHoldResponseCode,
-    getObjectVersionLegalHoldResponseCode,
-    getObjectTaggingResponseCode,
-    getObjectVersionTaggingResponseCode,
-    listObjectsV2ResponseCode,
-    listObjectVersionsResponseCode,
-    copyObjectResponseCode,
-    putObjectRetentionResponseCode,
-    putObjectVersionRetentionResponseCode,
-    putObjectTaggingResponseCode,
-    putObjectLegalHoldTaggingResponseCode,
-    putObjectVersionLegalHoldTaggingResponseCode,
-    deleteObjectVersionTaggingResponseCode,
-    putObjectVersionTaggingResponseCode,
-    putObjectLockConfigurationResponseCode,
-    deleteObjectsResponseCode,
-    headObjectResponseCode,
-    getBucketTaggingResponseCode,
-    putBucketTaggingResponseCode,
-    deleteBucketTaggingResponseCode,
-    createPolicy,
-    putObjectVersionResponseCode,
+export {
+    testAPIs,
 };
