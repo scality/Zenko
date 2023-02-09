@@ -16,12 +16,16 @@ Given('a {string} bucket', async function (versioning) {
     }
 });
 
-Given('an existing bucket and an Object', async function () {
+Given('an existing bucket {string} an object', async function (isObject) {
     const preName = this.parameters.AccountName || Constants.ACCOUNT_NAME;
     const bucketName = `${preName}${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase();
     this.saved.bucketName = bucketName;
     this.addCommandParameter({ bucket: bucketName });
     await S3.createBucket(this.getCommandParameters());
-    this.addCommandParameter({ key: 'x'.repeat(10) });
-    await S3.putObject(this.getCommandParameters());
+    if (isObject === 'with') {
+        const objectName = 'x'.repeat(10);
+        this.saved.objectName = objectName;
+        this.addCommandParameter({key: objectName});
+        await S3.putObject(this.getCommandParameters());
+    }
 });

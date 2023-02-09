@@ -8,6 +8,7 @@
   "license": "ISC",
   "private": true,
   "dependencies": {
+    "aws4-axios": "^2.4.9",
     "@types/qs": "^6.9.7",
     "assert": "^2.0.0",
     "prometheus-query": "^3.2.0",
@@ -15,6 +16,6 @@
     "axios": "^0.26.1"
   },
   "devDependencies": {
-    "cli-testing": "github:scality/cli-testing.git#0.2.0"
+    "cli-testing": "github:scality/cli-testing.git#b30ae494b54f7331272ad2004ee063bb4e70b7c3"
   }
 }

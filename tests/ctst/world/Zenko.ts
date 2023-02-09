@@ -1,16 +1,9 @@
 import { setWorldConstructor, World } from '@cucumber/cucumber';
-import qs from 'qs';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import { 
-    CacheHelper,
-    SuperAdmin,
-    Constants,
-    STS,
-    cliModeObject,
-    IAMUserPolicy,
-    IAM,
-    Utils,
-} from 'cli-testing';
+import { aws4Interceptor } from 'aws4-axios'
+
+import { CacheHelper, cliModeObject, Constants, IAM, IAMUserPolicy, S3, STS, SuperAdmin, Utils, } from 'cli-testing';
+import qs = require('qs');
 
 interface AwsCliObjectParameters {
     [key: string]: number | string | undefined | object;
@@ -53,7 +46,9 @@ export default class Zenko extends World {
 
     private forceFailed = false;
 
-    private cliMode : cliModeObject = CacheHelper.createCliModeObject();
+    private cliMode: cliModeObject = CacheHelper.createCliModeObject();
+
+    private originalCliMode: cliModeObject;
 
     /**
      * @constructor
@@ -67,7 +62,7 @@ export default class Zenko extends World {
 
         if (this.parameters.AccountSessionToken) {
             CacheHelper.ARWWI[CacheHelper.AccountName] = {
-                AccessKeyId:  this.parameters.AccountAccessKey,
+                AccessKeyId: this.parameters.AccountAccessKey,
                 SecretAccessKey: this.parameters.AccountSecretKey,
                 SessionToken: this.parameters.AccountSessionToken,
             }
@@ -79,7 +74,7 @@ export default class Zenko extends World {
             CacheHelper.parameters.SecretKey = this.parameters.AccountSecretKey;
             CacheHelper.isPreloadedAccount = true;
         }
-
+        this.originalCliMode = this.cliMode;
     }
 
     /**
@@ -126,6 +121,9 @@ export default class Zenko extends World {
         this.resetGlobalType();
         switch (type) {
             case EntityType.ACCOUNT:
+                await this.prepareRootUser();
+                break;
+            case EntityType.IAM_USER:
                 await this.prepareIamUser();
                 break;
             case EntityType.STORAGE_MANAGER:
@@ -162,8 +160,7 @@ export default class Zenko extends World {
      * @returns {undefined}
      */
     resetGlobalType(): void {
-        this.cliMode.assumed = false;
-        this.cliMode.env = false;
+        this.cliMode = this.originalCliMode;
     }
 
     /**
@@ -265,7 +262,7 @@ export default class Zenko extends World {
             // eslint-disable-next-line camelcase
             grant_type: grantType,
         });
-        const config : AxiosRequestConfig = {
+        const config: AxiosRequestConfig = {
             method: 'post',
             url: `${baseUrl}${host}:${port}${path}`,
             headers: {
@@ -273,17 +270,17 @@ export default class Zenko extends World {
             },
             data,
         };
-        const result : AxiosResponse = await axios(config);
+        const result: AxiosResponse = await axios(config);
         return result.data.access_token;
     }
 
     /**
-     * Creates an IAM user with policy and access keys to be used in the tests.
+     * Creates an root user with policy and access keys to be used in the tests.
      * The IAM user is cached for future tests to reduce the overall test suite
      * duration.
      * @returns {undefined}
      */
-    async prepareIamUser() {
+    async prepareRootUser() {
         Zenko.IAMUserName = Zenko.IAMUserName || `${this.parameters.IAMUserName || 'usertest'}${Utils.randomString()}`;
         Zenko.IAMUserPolicyName = `IAMUserPolicy-${Zenko.IAMUserName}${Utils.randomString()}`;
         if (!this.cliMode.parameters.IAMSession) {
@@ -306,7 +303,7 @@ export default class Zenko extends World {
             let policyArn = `arn:aws:iam::${account.id}:policy/IAMUserPolicy-${Zenko.IAMUserName}}`;
             try {
                 policyArn = JSON.parse(policy.stdout).Policy.Arn;
-            } catch (err : any) {
+            } catch (err: any) {
                 process.stderr.write(`Failed to create the IAM User policy.\n
 ${JSON.stringify(policy)}\n${err.message}\n`);
             }
@@ -320,6 +317,32 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
             this.resetCommand();
             // Create credentials for the user
             this.addCommandParameter({ userName: Zenko.IAMUserName });
+            const accessKey = await IAM.createAccessKey(this.getCommandParameters());
+            this.parameters.IAMSession = JSON.parse(accessKey.stdout).AccessKey;
+            this.cliMode.parameters.IAMSession = this.parameters.IAMSession;
+            this.cliMode.env = true;
+            this.resetCommand();
+        } else {
+            this.parameters.IAMSession = this.cliMode.parameters.IAMSession;
+            this.cliMode.env = true;
+        }
+    }
+
+    /**
+     * Creates an IAM user with policy and access keys to be used in the tests.
+     * The IAM user is cached for future tests to reduce the overall test suite
+     * duration.
+     * @returns {undefined}
+     */
+    async prepareIamUser() {
+        Zenko.IAMUserName = Zenko.IAMUserName || `${this.parameters.IAMUserName || 'usertest'}${Utils.randomString()}`;
+        if (!this.cliMode.parameters.IAMSession) {
+            // Create IAM user
+            this.addCommandParameter({userName: Zenko.IAMUserName});
+            await IAM.createUser(this.getCommandParameters());
+            this.resetCommand();
+            // Create credentials for the user
+            this.addCommandParameter({userName: Zenko.IAMUserName});
             const accessKey = await IAM.createAccessKey(this.getCommandParameters());
             this.parameters.IAMSession = JSON.parse(accessKey.stdout).AccessKey;
             this.cliMode.parameters.IAMSession = this.parameters.IAMSession;
@@ -384,13 +407,57 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
      * @param {object} parameters - the client-provided parameters
      * @returns {undefined}
      */
-    static async init(parameters: any) {}
+    static async init(parameters: any) { }
 
     /**
      * Cleanup function for the Zenko world
      * @returns {undefined}
      */
-    static async teardown() {}
+    static async teardown() { }
+
+    parseCodeFromResponse(response: string) {
+        const r = /<Code>(.*)<\/Code>/;
+        const code = response.match(r);
+        if (code !== null) {
+            return code[1];
+        }
+        return code;
+    }
+
+    async metadataSearchResponseCode(userCredentials, bucketName) {
+        const res = await this.awsS3GetRequest(
+            `/${bucketName}/?search=${encodeURIComponent('key LIKE "file"')}`,
+            userCredentials,
+        );
+        return {statusCode: res.statusCode, code: this.parseCodeFromResponse(res.data)};
+    }
+
+    async awsS3GetRequest(path: string, userCredentials: any) {
+        const interceptor = aws4Interceptor({
+            region: 'us-east-1',
+            service: 's3'
+        },
+            {
+                accessKeyId: userCredentials.AccessKeyId,
+                secretAccessKey: userCredentials.SecretAccessKey,
+            });
+
+        axios.interceptors.request.use(interceptor);
+        const protocol = this.parameters.ssl === false ? 'http://' : 'https://';
+        try {
+            const response = await axios.get(`${protocol}s3.${this.parameters.subdomain || Constants.DEFAULT_SUBDOMAIN}` + path);
+            console.log(response.data);
+            return response.data;
+        } catch (err: any) {
+            console.log(err.response);
+            return { statusCode: err.response.status, data: err.response.data };
+        }
+    }
+
+    async restoreObjectResponseCode() {
+        this.addCommandParameter({ restoreRequest: "Days=1" });
+        return await S3.restoreObject(this.getCommandParameters());
+    }
 }
 
 setWorldConstructor(Zenko);
