@@ -36,7 +36,7 @@ export default class Zenko extends World {
 
     private options: any = {};
 
-    private saved: object = {};
+    private saved: any = {};
 
     private static IAMUserName = '';
 
@@ -47,8 +47,6 @@ export default class Zenko extends World {
     private forceFailed = false;
 
     private cliMode: cliModeObject = CacheHelper.createCliModeObject();
-
-    private originalCliMode: cliModeObject;
 
     /**
      * @constructor
@@ -66,15 +64,17 @@ export default class Zenko extends World {
                 SecretAccessKey: this.parameters.AccountSecretKey,
                 SessionToken: this.parameters.AccountSessionToken,
             }
-            this.cliMode.parameters.AssumedSession = CacheHelper.ARWWI[CacheHelper.AccountName];
-            this.cliMode.assumed = true;
+            // this.cliMode.parameters.AssumedSession = CacheHelper.ARWWI[CacheHelper.AccountName];
+            // this.cliMode.assumed = true;
+            CacheHelper.parameters.AccessKey = this.parameters.AccountAccessKey;
+            CacheHelper.parameters.SecretKey = this.parameters.AccountSecretKey;
+            CacheHelper.parameters.SessionToken = this.parameters.AccountSessionToken;
         } else {
             CacheHelper.AccountName = CacheHelper.parameters.AccountName;
             CacheHelper.parameters.AccessKey = this.parameters.AccountAccessKey;
             CacheHelper.parameters.SecretKey = this.parameters.AccountSecretKey;
             CacheHelper.isPreloadedAccount = true;
         }
-        this.originalCliMode = this.cliMode;
     }
 
     /**
@@ -122,30 +122,35 @@ export default class Zenko extends World {
         switch (type) {
             case EntityType.ACCOUNT:
                 await this.prepareRootUser();
+                this.saved.type = EntityType.IAM_USER;
                 break;
             case EntityType.IAM_USER:
                 await this.prepareIamUser();
+                this.saved.type = EntityType.ACCOUNT;
                 break;
             case EntityType.STORAGE_MANAGER:
                 await this.prepareARWWI(
-                    this.parameters.StorageManagerUsername || 'storage_manager',
-                    this.parameters.StorageManagerPassword || '123',
+                    'storage_manager',
+                    this.parameters.KeycloakTestPassword || '123',
                     'storage-manager-role',
                 );
+                this.saved.type = EntityType.STORAGE_MANAGER;
                 break;
             case EntityType.STORAGE_ACCOUNT_OWNER:
                 await this.prepareARWWI(
-                    this.parameters.StorageAccountOwnerUsername || 'storage_account_owner',
-                    this.parameters.StorageAccountOwnerPassword || '123',
+                    'storage_account_owner',
+                    this.parameters.KeycloakTestPassword || '123',
                     'storage-account-owner-role',
                 );
+                this.saved.type = EntityType.STORAGE_ACCOUNT_OWNER;
                 break;
             case EntityType.DATA_CONSUMER:
                 await this.prepareARWWI(
-                    this.parameters.DataConsumerUsername || 'data_consumer',
-                    this.parameters.DataConsumerPassword || '123',
+                    'data_consumer',
+                    this.parameters.KeycloakTestPassword || '123',
                     'data-consumer-role',
                 );
+                this.saved.type = EntityType.DATA_CONSUMER;
                 break;
             default:
                 break;
@@ -160,7 +165,8 @@ export default class Zenko extends World {
      * @returns {undefined}
      */
     resetGlobalType(): void {
-        this.cliMode = this.originalCliMode;
+        this.cliMode.env = false;
+        this.cliMode.assumed = false;
     }
 
     /**
@@ -177,9 +183,9 @@ export default class Zenko extends World {
             const token = await this.getWebIdentityToken(
                 ARWWIName,
                 ARWWIPassword,
-                `ui.${this.parameters.subdomain || Constants.DEFAULT_SUBDOMAIN}`,
-                this.parameters.keycloakPort || `${Constants.DEFAULT_KEYCLOAK_PORT}`,
-                `/auth/realms/${this.parameters.keycloakRealm || Constants.K_REALM}/protocol/openid-connect/token`,
+                this.parameters.KeycloakHost || 'keycloak.zenko.local',
+                this.parameters.keycloakPort || 80,
+                `/auth/realms/${this.parameters.keycloakRealm || "zenko"}/protocol/openid-connect/token`,
                 this.parameters.keycloakClientId || Constants.K_CLIENT,
                 this.parameters.keycloakGrantType || 'password',
             );
@@ -415,39 +421,32 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
      */
     static async teardown() { }
 
-    parseCodeFromResponse(response: string) {
-        const r = /<Code>(.*)<\/Code>/;
-        const code = response.match(r);
-        if (code !== null) {
-            return code[1];
-        }
-        return code;
-    }
-
     async metadataSearchResponseCode(userCredentials, bucketName) {
-        const res = await this.awsS3GetRequest(
+        return await this.awsS3GetRequest(
             `/${bucketName}/?search=${encodeURIComponent('key LIKE "file"')}`,
             userCredentials,
         );
-        return {statusCode: res.statusCode, code: this.parseCodeFromResponse(res.data)};
     }
 
     async awsS3GetRequest(path: string, userCredentials: any) {
+        const credentials = {
+            accessKeyId: userCredentials.AccessKeyId,
+            secretAccessKey: userCredentials.SecretAccessKey,
+        };
+        if (userCredentials.SessionToken) {
+            credentials['sessionToken'] = userCredentials.SessionToken;
+        }
         const interceptor = aws4Interceptor({
             region: 'us-east-1',
             service: 's3'
-        },
-            {
-                accessKeyId: userCredentials.AccessKeyId,
-                secretAccessKey: userCredentials.SecretAccessKey,
-            });
+        }, credentials);
 
         axios.interceptors.request.use(interceptor);
         const protocol = this.parameters.ssl === false ? 'http://' : 'https://';
         try {
             const response = await axios.get(`${protocol}s3.${this.parameters.subdomain || Constants.DEFAULT_SUBDOMAIN}` + path);
             console.log(response.data);
-            return response.data;
+            return { statusCode: response.status, data: response.data }
         } catch (err: any) {
             console.log(err.response);
             return { statusCode: err.response.status, data: err.response.data };

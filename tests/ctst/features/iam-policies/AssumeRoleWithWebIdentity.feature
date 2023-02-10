@@ -9,8 +9,8 @@ Feature: Assume Role with Web Identity
   @PreMerge
   @IAM-Policies-ARWWI
   Scenario Outline: Assume Role with Web Identity
-    Given a <type> type
-    And an existing bucket "<ifObject>" an object
+    Given an existing bucket "<ifObject>" an object
+    And a <type> type
     When the user tries to perform "<ifS3Standard>" "<action>" on the bucket "<ifObject>" the object
     Then the user should be able to perform successfully
 

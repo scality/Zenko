@@ -16,6 +16,6 @@
     "axios": "^0.26.1"
   },
   "devDependencies": {
-    "cli-testing": "github:scality/cli-testing.git#b30ae494b54f7331272ad2004ee063bb4e70b7c3"
+    "cli-testing": "github:scality/cli-testing.git#4240b65e40c87e75ea4697bc744fbc82fd0cd942"
   }
 }
