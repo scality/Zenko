@@ -276,8 +276,63 @@ export default class Zenko extends World {
             },
             data,
         };
+        console.log("keycloak");
+        console.log(config);
         const result: AxiosResponse = await axios(config);
+        console.log(result);
         return result.data.access_token;
+    }
+
+    /**
+     * Hook Zenko is a utility function to prepare a Zenko
+     * @param {object} parameters - the client-provided parameters
+     * @returns {undefined}
+     */
+    static async init(parameters: any) {
+        if (!CacheHelper.accountAccessKeys) {
+            CacheHelper.adminClient = await Utils.getAdminCredentials(parameters);
+            console.log("adminClient");
+            console.log(CacheHelper.adminClient);
+            let account = null;
+            // Create the account if already exist will not throw any error
+            await SuperAdmin.createAccount({
+                name: parameters.AccountName || Constants.ACCOUNT_NAME,
+            });
+            // Waiting until the account exists, in case of parallel mode.
+            let remaining = Constants.MAX_ACCOUNT_CHECK_RETRIES;
+            while (!account && remaining > 0) {
+                await Utils.sleep(1000);
+                account = (await SuperAdmin.getAccount({
+                    name: parameters.AccountName || Constants.ACCOUNT_NAME,
+                }));
+                remaining--;
+            }
+            if (!account) {
+                throw new Error(`Account ${parameters.AccountName || Constants.ACCOUNT_NAME} not found \
+        after ${Constants.MAX_ACCOUNT_CHECK_RETRIES} retries.`);
+            }
+            if (parameters.AccountName && parameters.AccountAccessKey
+                && parameters.AccountSecretKey) {
+                CacheHelper.parameters.AccessKey = parameters.AccountAccessKey;
+                CacheHelper.parameters.SecretKey = parameters.AccountSecretKey;
+                CacheHelper.isPreloadedAccount = true;
+            } else {
+                const accessKeys = await SuperAdmin.generateAccountAccessKey({
+                    name: parameters.AccountName || Constants.ACCOUNT_NAME,
+                });
+                if (Utils.isAccessKeys(accessKeys)) {
+                    CacheHelper.accountAccessKeys = accessKeys;
+                    CacheHelper.parameters.AccessKey = CacheHelper.accountAccessKeys?.id;
+                    CacheHelper.parameters.SecretKey = CacheHelper.accountAccessKeys?.value;
+                } else {
+                    throw new Error('Failed to generate account access keys');
+                }
+            }
+            CacheHelper.AccountName = CacheHelper.parameters.AccountName || Constants.ACCOUNT_NAME;
+        } else {
+            CacheHelper.parameters.AccessKey = CacheHelper.accountAccessKeys?.id;
+            CacheHelper.parameters.SecretKey = CacheHelper.accountAccessKeys?.value;
+        }
     }
 
     /**
@@ -361,6 +416,15 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
     }
 
     /**
+     * Erases all the environment configuration from prepareForType
+     * @returns {undefined}
+     */
+    endForType(): void {
+        this.cliMode.assumed = false;
+        this.cliMode.env = false;
+    }
+
+    /**
      * Helper function to change the default aws cli command type (iam|sts|s3).
      * @param {string} type - type of the AWS CLI command (sts, iam, s3)
      * @returns {undefined}
@@ -407,13 +471,6 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
             ...this.cliOptions,
         };
     }
-
-    /**
-     * Utility function to prepare Zenko
-     * @param {object} parameters - the client-provided parameters
-     * @returns {undefined}
-     */
-    static async init(parameters: any) { }
 
     /**
      * Cleanup function for the Zenko world

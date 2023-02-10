@@ -15,7 +15,6 @@ When('the user tries to perform {string} {string} on the bucket {string} the obj
     console.log(this);
     if (ifS3Standard === 'notS3Standard'){
         this.saved.ifS3Standard = false;
-        this.result = await this.metadataSearchResponseCode(this.parameters.IAMSession, this.saved.bucketName);
         this.result = await this.metadataSearchResponseCode(userCredentials, this.saved.bucketName);
     } else {
         this.resetCommand();
