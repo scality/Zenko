@@ -1,5 +1,7 @@
-import { Given } from '@cucumber/cucumber';
+import { Given, setDefaultTimeout } from '@cucumber/cucumber';
 import { Constants, S3, Utils } from 'cli-testing';
+
+setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
 
 Given('a {string} bucket', async function (versioning) {
     this.resetCommand();
