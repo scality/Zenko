@@ -1,6 +1,6 @@
 {{- if .Values.mongos.pdb.enabled -}}
 kind: PodDisruptionBudget
-apiVersion: policy/v1beta1
+apiVersion: policy/v1
 metadata:
   name: {{ include "common.names.fullname" . }}-mongos
   labels: {{- include "common.labels.standard" . | nindent 4 }}
