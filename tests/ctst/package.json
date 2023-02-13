@@ -11,9 +11,7 @@
     "aws4-axios": "^2.4.9",
     "@types/qs": "^6.9.7",
     "assert": "^2.0.0",
-    "prometheus-query": "^3.2.0",
-    "qs": "^6.11.0",
-    "axios": "^0.26.1"
+    "prometheus-query": "^3.2.0"
   },
   "devDependencies": {
     "cli-testing": "github:scality/cli-testing.git#85f5b08032790bb8534869636203cd58c60836da"
