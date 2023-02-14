@@ -399,11 +399,11 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
         Zenko.IAMUserName = Zenko.IAMUserName || `${this.parameters.IAMUserName || 'usertest'}${Utils.randomString()}`;
         if (!this.cliMode.parameters.IAMSession) {
             // Create IAM user
-            this.addCommandParameter({userName: Zenko.IAMUserName});
+            this.addCommandParameter({ userName: Zenko.IAMUserName });
             await IAM.createUser(this.getCommandParameters());
             this.resetCommand();
             // Create credentials for the user
-            this.addCommandParameter({userName: Zenko.IAMUserName});
+            this.addCommandParameter({ userName: Zenko.IAMUserName });
             const accessKey = await IAM.createAccessKey(this.getCommandParameters());
             this.parameters.IAMSession = JSON.parse(accessKey.stdout).AccessKey;
             this.cliMode.parameters.IAMSession = this.parameters.IAMSession;
@@ -478,7 +478,7 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
      */
     static async teardown() { }
 
-    async metadataSearchResponseCode(userCredentials, bucketName) {
+    async metadataSearchResponseCode(userCredentials : any, bucketName : string) {
         return await this.awsS3GetRequest(
             `/${bucketName}/?search=${encodeURIComponent('key LIKE "file"')}`,
             userCredentials,
@@ -486,7 +486,7 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
     }
 
     async awsS3GetRequest(path: string, userCredentials: any) {
-        const credentials = {
+        const credentials : any = {
             accessKeyId: userCredentials.AccessKeyId,
             secretAccessKey: userCredentials.SecretAccessKey,
         };
@@ -514,6 +514,200 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
         this.addCommandParameter({ restoreRequest: "Days=1" });
         return await S3.restoreObject(this.getCommandParameters());
     }
+
+    async putObjectResponseCode() {
+        return await S3.putObject(this.getCommandParameters());
+    }
+
+    async putObjectAclResponseCode() {
+        return await S3.putObjectAcl(this.getCommandParameters());
+    }
+
+    // async putObjectVersionAclResponseCode() {
+    //     // this.addCommandParameter({
+    //     //     acl: '<AccessControlPolicy xmlns="http://s3.amazonaws.com/doc/2006-03-01/">'
+    //     //         + '</AccessControlPolicy>'
+    //     // });
+    //     return await S3.putObjectAcl(this.getCommandParameters());
+    // }
+
+    async getObjectResponseCode() {
+        return await S3.getObject(this.getCommandParameters());
+    }
+
+    // async getObjectVersionResponseCode() {
+    //     return await S3.getObject(this.getCommandParameters());
+    // }
+
+    async getObjectAclResponseCode() {
+        return await S3.getObjectAcl(this.getCommandParameters());
+    }
+
+    // async getObjectVersionAclResponseCode() {
+    //     return await S3.getObjectAcl(this.getCommandParameters());
+    // }
+
+    async deleteObjectResponseCode() {
+        return await S3.deleteObject(this.getCommandParameters());
+    }
+
+    // async deleteObjectVersionResponseCode() {
+    //     return await S3.deleteObject(this.getCommandParameters());
+    // }
+
+    async getBucketVersioningResponseCode() {
+        return await S3.getBucketVersioning(this.getCommandParameters());
+    }
+
+    async getBucketCorsResponseCode() {
+        return await S3.getBucketCors(this.getCommandParameters());
+    }
+
+    async getBucketAclResponseCode() {
+        return await S3.getBucketAcl(this.getCommandParameters());
+    }
+
+    async getBucketObjectLockConfResponseCode() {
+        return await S3.getObjectLockConfiguration(this.getCommandParameters());
+    }
+
+    async getBucketObjectRetentionResponseCode() {
+        return await S3.getObjectRetention(this.getCommandParameters());
+    }
+
+    // async getBucketObjectVersionRetentionResponseCode() {
+    //     return await S3.getObjectRetention(this.getCommandParameters());
+    // }
+
+    async getBucketTaggingResponseCode() {
+        return await S3.getBucketTagging(this.getCommandParameters());
+    }
+
+    async putBucketTaggingResponseCode() {
+        this.addCommandParameter({
+            tagging: 'TagSet=[{Key=tag1,Value=value1},{Key=tag2,Value=value2}]'
+        });
+        return await S3.putBucketTagging(this.getCommandParameters());
+    }
+
+    async deleteBucketTaggingResponseCode() {
+        return await S3.deleteBucketTagging(this.getCommandParameters());
+    }
+
+    async getObjectLegalHoldResponseCode() {
+        return await S3.getObjectLegalHold(this.getCommandParameters());
+    }
+
+    // async getObjectVersionLegalHoldResponseCode() {
+    //     return await S3.getObjectLegalHold(this.getCommandParameters());
+    // }
+
+    async LegalHoldResponseCode() {
+        return S3.putObjectLegalHold(this.getCommandParameters());
+    }
+
+    async getObjectVersionTaggingResponseCode() {
+        return await S3.getObjectTagging(this.getCommandParameters());
+    }
+
+    // async putObjectVersionTaggingResponseCode() {
+    //     this.addCommandParameter({
+    //         tagging: 'TagSet=[{Key=string,Value=string},{Key=string,Value=string}]'
+    //     });
+    //     return await S3.putObjectTagging(this.getCommandParameters());
+    // }
+
+    async deleteObjectVersionTaggingResponseCode() {
+        return await S3.deleteObjectTagging(this.getCommandParameters());
+    }
+
+    async listObjectsV2ResponseCode() {
+        return await S3.listObjectsV2(this.getCommandParameters());
+    }
+
+    async listObjectVersionsResponseCode() {
+        return await S3.listObjectVersions(this.getCommandParameters());
+    }
+
+    async copyObjectResponseCode() {
+        return await S3.copyObject(this.getCommandParameters());
+    }
+
+    async putObjectRetentionResponseCode() {
+        return await S3.putObjectRetention(this.getCommandParameters());
+    }
+
+    // async putObjectVersionRetentionResponseCode() {
+    //     return await S3.putObjectRetention(this.getCommandParameters());
+    // }
+
+    async putObjectTaggingResponseCode() {
+        this.addCommandParameter({
+            tagging: 'TagSet=[{Key=string,Value=string},{Key=string,Value=string}]'
+        });
+        return await S3.putObjectTagging(this.getCommandParameters());
+    }
+
+    async putObjectLegalHoldTaggingResponseCode() {
+        return await S3.putObjectLegalHold(this.getCommandParameters());
+    }
+
+    // async putObjectVersionLegalHoldTaggingResponseCode() {
+    //     return await S3.putObjectLegalHold(this.getCommandParameters());
+    // }
+
+    async putObjectLockConfigurationResponseCode() {
+        return await S3.putObjectLockConfiguration(this.getCommandParameters());
+    }
+
+    async headObjectResponseCode() {
+        return await S3.headObject(this.getCommandParameters());
+    }
+
+    async deleteObjectsResponseCode() {
+        this.addCommandParameter({
+            delete: `Objects=[{Key=${this.saved.objectName},VersionId=${this.saved.versionId}}]`
+        });
+        return await S3.deleteObjects(this.getCommandParameters());
+    }
+
+    async getReplicationConfigurationResponseCode() {
+        return await S3.getBucketReplication(this.getCommandParameters());
+    }
+
+    async getLifecycleConfigurationResponseCode() {
+        return await S3.getBucketLifecycleConfiguration(this.getCommandParameters());
+    }
+
+    async putLifecycleConfigurationResponseCode() {
+        // TODO? add lifecycle configuration
+        //'<LifecycleConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"></LifecycleConfiguration>',
+        return await S3.putBucketLifecycleConfiguration(this.getCommandParameters());
+    }
+
+    async putReplicationConfigurationResponseCode() {
+        // TODO? add replication configuration
+        //'<ReplicationConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"></ReplicationConfiguration>',
+        return await S3.putBucketReplication(this.getCommandParameters());
+    }
+
+
+
+    // function createPolicy(action, isAllow = true, resource = '*') {
+    //     return JSON.stringify({
+    //         Version: '2012-10-17',
+    //         Statement: [
+    //             {
+    //                 Sid: 'Stmt1644586763301',
+    //                 Action: [
+    //                     action,
+    //                 ],
+    //                 Effect: (isAllow ? 'Allow' : 'Deny'),
+    //                 Resource: resource,
+    //             },
+    //         ],
+    //     });
+    // }
 }
 
 setWorldConstructor(Zenko);

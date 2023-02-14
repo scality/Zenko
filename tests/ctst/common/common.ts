@@ -41,6 +41,7 @@ Given('we {string} an existing object {string} {string} version-Id {string}',
             objectName = 'x'.repeat(10);
         }
         this.saved.objectName = objectName;
+        this.saved.versionId = versionId;
         this.addCommandParameter({key: objectName});
         this.addCommandParameter({bucket: this.saved.bucketName});
         if (hasVersioning === 'with') {

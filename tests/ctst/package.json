@@ -14,6 +14,6 @@
     "prometheus-query": "^3.2.0"
   },
   "devDependencies": {
-    "cli-testing": "github:scality/cli-testing.git#85f5b08032790bb8534869636203cd58c60836da"
+    "cli-testing": "github:scality/cli-testing.git#0.2.1"
   }
 }
