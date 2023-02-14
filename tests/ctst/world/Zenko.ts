@@ -3,6 +3,7 @@ import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { aws4Interceptor } from 'aws4-axios'
 
 import { CacheHelper, cliModeObject, Constants, IAM, IAMUserPolicy, S3, STS, SuperAdmin, Utils, } from 'cli-testing';
+import { extractEntityArnFromResults, extractPropertyFromResults } from "../common/utils";
 import qs = require('qs');
 import {extractPropertyFromResults} from "../common/utils";
 
@@ -17,6 +18,7 @@ export enum EntityType {
     STORAGE_MANAGER = 'STORAGE_MANAGER',
     STORAGE_ACCOUNT_OWNER = 'STORAGE_ACCOUNT_OWNER',
     DATA_CONSUMER = 'DATA_CONSUMER',
+    ASSUME_ROLE_USER = 'ASSUME_ROLE_USER',
 }
 
 /**
@@ -44,6 +46,8 @@ export default class Zenko extends World {
     private static IAMUserPolicyName = '';
 
     private static IAMUserAttachedPolicy = '';
+
+    private static additionalAccountsCredentials: { [id: string]: { AccessKey: string, SecretKey: string } } = {};
 
     private forceFailed = false;
 
@@ -151,6 +155,10 @@ export default class Zenko extends World {
                     'data-consumer-role',
                 );
                 this.saved.type = EntityType.DATA_CONSUMER;
+                break;
+            case EntityType.ASSUME_ROLE_USER:
+                await this.prepareAssumeRole();
+                this.saved.type = EntityType.ASSUME_ROLE_USER;
                 break;
             default:
                 break;
@@ -282,6 +290,90 @@ export default class Zenko extends World {
         catch (error) {
             throw new Error(`Error when trying to get a WebIdentity token: ${(error as Error).message}`);
         }
+    }
+
+    /**
+     * Creates an assumed role session with a duration of 12 hours.
+     * @Param {boolean} crossAccount - If true, the role will be assumed cross account.
+     * @returns {undefined}
+     * @param crossAccount
+     */
+    async prepareAssumeRole(crossAccount: boolean = false) {
+        // Getting account ID
+        const account = await SuperAdmin.getAccount({
+            name: this.parameters.AccountName || Constants.ACCOUNT_NAME,
+        });
+        Zenko.additionalAccountsCredentials[account.name] = {
+            AccessKey: CacheHelper.parameters.AccessKey,
+            SecretKey: CacheHelper.parameters.SecretKey,
+        };
+
+        this.saved.roleName = `${account.name}${Constants.ROLE_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase();
+        this.addCommandParameter({
+            roleName: this.saved.roleName,
+        });
+        this.addCommandParameter({
+            assumeRolePolicyDocument: Constants.assumeRoleTrustPolicy,
+        })
+        const roleArnToAssume = extractEntityArnFromResults(await IAM.createRole(this.getCommandParameters()), 'Role');
+
+        let accountToBeAssumedFrom = account;
+
+        if (crossAccount) {
+            let account2 = await SuperAdmin.createAccount({
+                name: `${Constants.ACCOUNT_NAME}${Utils.randomString()}`,
+            });
+
+            if (Utils.isAccount(account2)) {
+                account2 = account2 as Utils.Account;
+            } else {
+                throw new Error('Error when trying to create account.');
+            }
+
+            let account2Credentials = await SuperAdmin.generateAccountAccessKey({
+                name: account2.account.name,
+            });
+
+            if (Utils.isAccessKeys(account2Credentials)) {
+                account2Credentials = account2Credentials as Utils.AccessKeys;
+            } else {
+                throw new Error('Error when trying to create account accesskey.');
+            }
+
+            CacheHelper.parameters.AccessKey = account2Credentials.id;
+            CacheHelper.parameters.SecretKey = account2Credentials.value;
+
+            accountToBeAssumedFrom = account2;
+        }
+
+        this.resetCommand();
+        const userName = `${accountToBeAssumedFrom.name}${Constants.USER_NAME_TEST}${Utils.randomString()}`;
+        this.addCommandParameter({userName});
+        await IAM.createUser(this.getCommandParameters());
+
+        this.resetCommand();
+        this.addCommandParameter({ policyName: `${accountToBeAssumedFrom.name}${Constants.POLICY_NAME_TEST}${Utils.randomString()}` });
+        this.addCommandParameter({ policyDocument: Constants.assumeRolePolicy });
+        const assumeRolePolicyArn = extractEntityArnFromResults(await IAM.createPolicy(this.getCommandParameters()), "Policy");
+
+        this.resetCommand();
+        this.addCommandParameter({ userName });
+        this.addCommandParameter({ policyArn: assumeRolePolicyArn });
+        await IAM.attachUserPolicy(this.getCommandParameters());
+
+        this.resetCommand();
+        this.addCommandParameter({userName})
+        this.parameters.IAMSession = extractPropertyFromResults(await IAM.createAccessKey(this.getCommandParameters()), "AccessKey");
+        this.resumeRootOrIamUser();
+
+        this.resetCommand();
+        this.addCommandParameter({ roleArn: roleArnToAssume });
+        this.parameters.AssumedSession = extractPropertyFromResults(await STS.assumeRole(this.getCommandParameters()), "Credentials");
+        this.cliMode.assumed = true;
+        this.cliMode.env = false;
+
+        CacheHelper.parameters.AccessKey = Zenko.additionalAccountsCredentials[account.name].AccessKey;
+        CacheHelper.parameters.SecretKey = Zenko.additionalAccountsCredentials[account.name].SecretKey;
     }
 
     /**
@@ -422,6 +514,11 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
 
     resumeRootOrIamUser() {
         this.cliMode.env = true;
+    }
+
+    resumeAssumedRole() {
+        this.cliMode.env = false;
+        this.cliMode.assumed = true;
     }
 
     /**

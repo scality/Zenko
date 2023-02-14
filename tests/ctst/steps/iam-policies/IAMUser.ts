@@ -21,7 +21,7 @@ function extractPolicyArnFromResults(results: any) {
     }
 }
 
-Given('an IAM policy attached to the user with {string} effect to perform {string} on {string}', async function (effect: string, action: string, resource: string) {
+Given('an IAM policy attached to the entity {string} with {string} effect to perform {string} on {string}', async function (entity: string, effect: string, action: string, resource: string) {
     this.cleanupEntity();
     this.resetCommand();
     this.saved.action = action;
@@ -40,9 +40,18 @@ Given('an IAM policy attached to the user with {string} effect to perform {strin
         })
     });
     this.saved.policyArn = extractPolicyArnFromResults(await IAM.createPolicy(this.getCommandParameters()));
+
     // attach the IAM policy to the user
     this.resetCommand();
-    this.addCommandParameter({userName: this.parameters.IAMUserName});
-    this.addCommandParameter({policyArn: this.saved.policyArn});
-    await IAM.attachUserPolicy(this.getCommandParameters());
+    this.addCommandParameter({ policyArn: this.saved.policyArn });
+    if (entity === 'user') {
+        this.addCommandParameter({ userName: this.parameters.IAMUserName });
+        await IAM.attachUserPolicy(this.getCommandParameters());
+    } else if (entity === 'role') {
+        this.addCommandParameter({ roleName: this.saved.roleName });
+        await IAM.attachRolePolicy(this.getCommandParameters());
+    } else if (entity === 'group') {
+        this.addCommandParameter({ groupName: this.saved.groupName });
+        await IAM.attachGroupPolicy(this.getCommandParameters());
+    }
 });
