@@ -9,17 +9,18 @@ Feature: Assume Role with Web Identity
   @PreMerge
   @IAM-Policies-ARWWI
   Scenario Outline: Assume Role with Web Identity
-    Given an existing bucket "<ifObject>" an object
+    Given an existing bucket "<bucketName>" "<withVersioning>" versioning
+    And we "<haveObject>" an existing object "<objectName>" "<withVersionId>" version-Id "<objectVersionId>"
     And a <type> type
-    When the user tries to perform "<ifS3Standard>" "<action>" on the bucket "<ifObject>" the object
+    When the user tries to perform "<ifS3Standard>" "<action>" on the bucket
     Then the user should be able to perform successfully
 
-  # TODO add ifObject column to the table
+    # TODO add ifObject column to the table
     Examples:
-    | action                           | type                  | ifS3Standard | ifObject |
-    | MetadataSearch                   | STORAGE_MANAGER       | notS3Standard | without |
-    | RestoreObject                    | STORAGE_MANAGER       | S3Standard | with |
-    # | PutObject                        | STORAGE_MANAGER       | Non versioned |
+      | action         | type            | ifS3Standard  | bucketName | withVersioning | haveObject  | objectName | withVersionId | objectVersionId |
+      | MetadataSearch | STORAGE_MANAGER | notS3Standard | myBucket   | without        | do not have | myObject   | without       |                 |
+      | RestoreObject  | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
+# | PutObject                        | STORAGE_MANAGER       | Non versioned |
     # | PutObjectAcl                     | STORAGE_MANAGER       | Non versioned |
     # | GetObject                        | STORAGE_MANAGER       | Non versioned |
     # | GetObjectAcl                     | STORAGE_MANAGER       | Non versioned |
