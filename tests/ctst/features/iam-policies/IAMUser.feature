@@ -24,7 +24,7 @@ Feature: IAM Policies for IAM Users
     Given an existing bucket "<bucketName>" "without" versioning, "without" ObjectLock "" retention mode
     And an object "<objectName>" that "<objectExists>"
     And a IAM_USER type
-    And an IAM policy attached to the user with "Allow" effect to perform "<action>" on "<resource>"
+    And an IAM policy attached to the entity "user" with "Allow" effect to perform "<action>" on "<resource>"
     When the user tries to perform "<action>" on the bucket
     Then the user should be able to perform successfully the "<action>" action
 
@@ -43,7 +43,7 @@ Feature: IAM Policies for IAM Users
     Given an existing bucket "<bucketName>" "without" versioning, "without" ObjectLock "" retention mode
     And an object "<objectName>" that "<objectExists>"
     And a IAM_USER type
-    And an IAM policy attached to the user with "<effect>" effect to perform "<action>" on "<resource>"
+    And an IAM policy attached to the entity "user" with "<effect>" effect to perform "<action>" on "<resource>"
     When the user tries to perform "<action>" on the bucket
     Then the user should receive "AccessDenied" error
 
@@ -65,8 +65,8 @@ Feature: IAM Policies for IAM Users
     Given an existing bucket "<bucketName>" "without" versioning, "without" ObjectLock "" retention mode
     And an object "<objectName>" that "<objectExists>"
     And a IAM_USER type
-    And an IAM policy attached to the user with "Allow" effect to perform "<action>" on "<resource>"
-    And an IAM policy attached to the user with "Deny" effect to perform "<action>" on "<resource>"
+    And an IAM policy attached to the entity "user" with "Allow" effect to perform "<action>" on "<resource>"
+    And an IAM policy attached to the entity "user" with "Deny" effect to perform "<action>" on "<resource>"
     When the user tries to perform "<action>" on the bucket
     Then the user should receive "AccessDenied" error
     Examples:

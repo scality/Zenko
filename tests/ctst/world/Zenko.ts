@@ -3,8 +3,8 @@ import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { aws4Interceptor } from 'aws4-axios'
 
 import { CacheHelper, cliModeObject, Constants, IAM, IAMUserPolicy, S3, STS, SuperAdmin, Utils, } from 'cli-testing';
+import { extractPropertyFromResults } from "../common/utils";
 import qs = require('qs');
-import {extractPropertyFromResults} from "../common/utils";
 
 interface AwsCliObjectParameters {
     [key: string]: number | string | undefined | object;
@@ -17,6 +17,7 @@ export enum EntityType {
     STORAGE_MANAGER = 'STORAGE_MANAGER',
     STORAGE_ACCOUNT_OWNER = 'STORAGE_ACCOUNT_OWNER',
     DATA_CONSUMER = 'DATA_CONSUMER',
+    ASSUME_ROLE_USER = 'ASSUME_ROLE_USER',
 }
 
 /**
@@ -44,6 +45,8 @@ export default class Zenko extends World {
     private static IAMUserPolicyName = '';
 
     private static IAMUserAttachedPolicy = '';
+
+    private static additionalAccountsCredentials: { [id: string]: { AccessKey: string, SecretKey: string } } = {};
 
     private forceFailed = false;
 
@@ -285,6 +288,96 @@ export default class Zenko extends World {
     }
 
     /**
+     * Creates an assumed role session with a duration of 12 hours.
+     * @Param {boolean} crossAccount - If true, the role will be assumed cross account.
+     * @returns {undefined}
+     * @param crossAccount
+     */
+    async prepareAssumeRole(crossAccount: boolean = false) {
+        this.resetGlobalType();
+
+        // Getting default account ID
+        const account = await SuperAdmin.getAccount({
+            name: this.parameters.AccountName || Constants.ACCOUNT_NAME,
+        });
+        Zenko.additionalAccountsCredentials[account.name] = {
+            AccessKey: CacheHelper.parameters.AccessKey,
+            SecretKey: CacheHelper.parameters.SecretKey,
+        };
+
+        // Creating a role to assume
+        this.saved.roleName = `${account.name}${Constants.ROLE_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase();
+        this.addCommandParameter({ roleName: this.saved.roleName });
+        this.addCommandParameter({ assumeRolePolicyDocument: Constants.assumeRoleTrustPolicy });
+        const roleArnToAssume = extractPropertyFromResults(await IAM.createRole(this.getCommandParameters()), 'Role', 'Arn');
+
+        let accountToBeAssumedFrom = account;
+
+        if (crossAccount) {
+            // Creating a second account if its Cross-Account AssumeRole
+            let account2 = await SuperAdmin.createAccount({
+                name: `${Constants.ACCOUNT_NAME}${Utils.randomString()}`,
+            });
+            if (Utils.isAccount(account2)) {
+                account2 = account2 as Utils.Account;
+            } else {
+                throw new Error('Error when trying to create account.');
+            }
+
+            // Creating credentials for the second account
+            let account2Credentials = await SuperAdmin.generateAccountAccessKey({
+                name: account2.account.name,
+            });
+            if (Utils.isAccessKeys(account2Credentials)) {
+                account2Credentials = account2Credentials as Utils.AccessKeys;
+            } else {
+                throw new Error('Error when trying to create account accesskey.');
+            }
+
+            // Set the credentials of the second account as the default credentials
+            CacheHelper.parameters.AccessKey = account2Credentials.id;
+            CacheHelper.parameters.SecretKey = account2Credentials.value;
+
+            accountToBeAssumedFrom = account2.account;
+        }
+
+        // Creating a user in the account to be assumed from
+        this.resetCommand();
+        const userName = `${accountToBeAssumedFrom.name}${Constants.USER_NAME_TEST}${Utils.randomString()}`;
+        this.addCommandParameter({userName});
+        await IAM.createUser(this.getCommandParameters());
+
+        // Creating a policy to allow it to AssumeRole
+        this.resetCommand();
+        this.addCommandParameter({ policyName: `${accountToBeAssumedFrom.name}${Constants.POLICY_NAME_TEST}${Utils.randomString()}` });
+        this.addCommandParameter({ policyDocument: Constants.assumeRolePolicy });
+        const assumeRolePolicyArn = extractPropertyFromResults(await IAM.createPolicy(this.getCommandParameters()), "Policy", "Arn");
+
+        // Attaching the policy to the user
+        this.resetCommand();
+        this.addCommandParameter({ userName });
+        this.addCommandParameter({ policyArn: assumeRolePolicyArn as string });
+        await IAM.attachUserPolicy(this.getCommandParameters());
+
+        // Creating credentials for the user
+        this.resetCommand();
+        this.addCommandParameter({ userName });
+        this.parameters.IAMSession = extractPropertyFromResults(await IAM.createAccessKey(this.getCommandParameters()), "AccessKey");
+        this.resumeRootOrIamUser();
+
+        // Assuming the role
+        this.resetCommand();
+        this.addCommandParameter({ roleArn: roleArnToAssume as string });
+        this.parameters.AssumedSession = extractPropertyFromResults(await STS.assumeRole(this.getCommandParameters()), "Credentials");
+        this.cliMode.assumed = true;
+        this.cliMode.env = false;
+
+        // reset the credentials of default account as the defualt credentials
+        CacheHelper.parameters.AccessKey = Zenko.additionalAccountsCredentials[account.name].AccessKey;
+        CacheHelper.parameters.SecretKey = Zenko.additionalAccountsCredentials[account.name].SecretKey;
+    }
+
+    /**
      * Hook Zenko is a utility function to prepare a Zenko
      * @param {object} parameters - the client-provided parameters
      * @returns {undefined}
@@ -417,6 +510,11 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
 
     resumeRootOrIamUser() {
         this.cliMode.env = true;
+    }
+
+    resumeAssumedRole() {
+        this.cliMode.env = false;
+        this.cliMode.assumed = true;
     }
 
     /**

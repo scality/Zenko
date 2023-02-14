@@ -26,4 +26,9 @@ Given('a {type} type', async function (type) {
     await this.setupEntity(type);
 });
 
+Given('a {string} AssumeRole user', async function (crossAccount: string) {
+    await this.prepareAssumeRole(crossAccount === 'cross account');
+    this.saved.type = EntityType.ASSUME_ROLE_USER;
+});
+
 export default worlds;

@@ -12,6 +12,7 @@ When('the user tries to perform {string} on the bucket', async function (action:
         this.resumeRootOrIamUser();
     } else {
         userCredentials = this.parameters.AssumedSession;
+        this.resumeAssumedRole();
     }
     switch (action) {
         case 'MetadataSearch': {
