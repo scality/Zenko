@@ -184,6 +184,7 @@ When('the user tries to perform {string} {string} on the bucket', async function
         this.saved.ifS3Standard = false;
         const api = testAPIs.find(api => api.API === action);
         // Handle Metadatasearch special case
+        console.log("THIS SAVED BUCKET NAME IS: ", this.saved.bucketName);
         if (action === 'MetadataSearch') {
             this.result = await this.metadataSearchResponseCode(userCredentials, this.saved.bucketName);
         }
