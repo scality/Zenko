@@ -2,7 +2,7 @@ import { When, Then } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
 import {EntityType} from "../../world/Zenko";
 
-When('the user tries to perform {string} {string} on the bucket {string} the object', async function (ifS3Standard: string, action: string, ifObject: string) {
+When('the user tries to perform {string} {string} on the bucket', async function (ifS3Standard: string, action: string) {
     const testAPIs = [
         {
             API: 'MetadataSearch',
@@ -195,7 +195,7 @@ When('the user tries to perform {string} {string} on the bucket {string} the obj
         this.resetCommand();
         this.saved.ifS3Standard = true;
         this.addCommandParameter({bucket: this.saved.bucketName});
-        if (ifObject === 'with') {
+        if (this.saved.objectName && this.saved.objectName != '') {
             this.addCommandParameter({key: this.saved.objectName});
         }
         this.result = await this.restoreObjectResponseCode();
