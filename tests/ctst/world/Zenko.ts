@@ -643,7 +643,7 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
 
     async putObjectTaggingResponseCode() {
         this.addCommandParameter({
-            tagging: 'TagSet=[{Key=string,Value=string},{Key=string,Value=string}]'
+            tagging: 'TagSet=[{Key=string,Value=string}]'
         });
         return await S3.putObjectTagging(this.getCommandParameters());
     }
@@ -686,8 +686,14 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
     }
 
     async putReplicationConfigurationResponseCode() {
+        const replicationConfiguration = `{"Role": "IAM-role-ARN","Rules":[{"Status": "Enabled","Priority": 1,`+
+        `"DeleteMarkerReplication": { "Status": "Disabled" },"Filter" : { "Prefix": "Tax"},`+
+        `"Destination": {"Bucket": "arn:aws:s3:::destination-bucket"}}]}`;
         // TODO? add replication configuration
         //'<ReplicationConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"></ReplicationConfiguration>',
+        this.addCommandParameter({
+            replicationConfiguration: 
+        });
         return await S3.putBucketReplication(this.getCommandParameters());
     }
 

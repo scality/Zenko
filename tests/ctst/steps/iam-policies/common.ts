@@ -98,7 +98,7 @@ When('the user tries to perform {string} {string} on the bucket', async function
         },
         {
             API: 'DeleteObjectVersion',
-            checkResponse: this.deleteObjectVersionResponseCode,
+            checkResponse: this.deleteObjectResponseCode,
         },
         {
             API: 'GetBucketReplication',
