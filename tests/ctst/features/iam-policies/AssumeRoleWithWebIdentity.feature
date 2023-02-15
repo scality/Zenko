@@ -17,7 +17,7 @@ Feature: Assume Role with Web Identity
 
     Examples:
       | action                           | type            | ifS3Standard  | bucketName | withVersioning | haveObject  | objectName | withVersionId | objectVersionId |
-      | MetadataSearch                   | STORAGE_MANAGER | notS3Standard | myBucket   | without        | do not have | myObject   | without       |                 |
+      | MetadataSearch                   | STORAGE_MANAGER | notS3Standard | myBucket   | without        | do not have |    |        |                 |
       | RestoreObject                    | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
       # | PutObject                        | STORAGE_MANAGER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
       # | PutObjectAcl                     | STORAGE_MANAGER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
@@ -59,7 +59,7 @@ Feature: Assume Role with Web Identity
       # | PutBucketTagging                 | STORAGE_MANAGER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
       # | DeleteBucketTagging              | STORAGE_MANAGER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
 
-      # # | MetadataSearch                   | STORAGE_ACCOUNT_OWNER | notS3Standard | myBucket   | without        | do not have | myObject   | without       |                 |
+      # # | MetadataSearch                   | STORAGE_ACCOUNT_OWNER | notS3Standard | myBucket   | without        | do not have |    |        |                 |
       # # | RestoreObject                    | STORAGE_ACCOUNT_OWNER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
       # # | PutObject                        | STORAGE_ACCOUNT_OWNER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
       # # | PutObjectAcl                     | STORAGE_ACCOUNT_OWNER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
@@ -101,7 +101,7 @@ Feature: Assume Role with Web Identity
       # # | PutBucketTagging                 | STORAGE_ACCOUNT_OWNER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
       # # | DeleteBucketTagging              | STORAGE_ACCOUNT_OWNER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
 
-      # # | MetadataSearch                   | DATA_CONSUMER | notS3Standard | myBucket   | without        | do not have | myObject   | without       |                 |
+      # # | MetadataSearch                   | DATA_CONSUMER | notS3Standard | myBucket   | without        | do not have |    |        |                 |
       # # | RestoreObject                    | DATA_CONSUMER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
       # # | PutObject                        | DATA_CONSUMER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
       # # | PutObjectAcl                     | DATA_CONSUMER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
