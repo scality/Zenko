@@ -207,6 +207,7 @@ Then('the user should be able to perform successfully', function () {
     if (this.saved.ifS3Standard) {
         assert.strictEqual(this.result?.err?.includes("AccessDenied"), false);
     } else {
+        console.log("RESULT: ", this.result);
         assert.strictEqual(this.result?.statusCode, 200);
     }
 });
