@@ -19,45 +19,45 @@ Feature: Assume Role with Web Identity
       | action                           | type            | ifS3Standard  | bucketName | withVersioning | haveObject  | objectName | withVersionId | objectVersionId |
       | MetadataSearch                   | STORAGE_MANAGER | notS3Standard | myBucket   | without        | do not have |    |        |                 |
       | RestoreObject                    | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
-      # | PutObject                        | STORAGE_MANAGER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
-      # | PutObjectAcl                     | STORAGE_MANAGER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
-      # | GetObject                        | STORAGE_MANAGER | S3Standard    | myBucket   | without        | have        | myObject   |               |                 |
-      # | GetObjectAcl                     | STORAGE_MANAGER | S3Standard    | myBucket   | without        | have        | myObject   |               |                 |
-      # | DeleteObject                     | STORAGE_MANAGER | S3Standard    | myBucket   | without        | have        | myObject   |               |                 |
-      # | GetBucketVersioning              | STORAGE_MANAGER | S3Standard    | myBucket   | with           | do not have |            |               |                 |
-      # | GetBucketCors                    | STORAGE_MANAGER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
-      # | GetBucketAcl                     | STORAGE_MANAGER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
-      # | GetBucketObjectLockConfiguration | STORAGE_MANAGER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
-      # | ListObjectsV2                    | STORAGE_MANAGER | S3Standard    | myBucket   | without        | have        | myObject   |               |                 |
-      # | ListObjectVersions               | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
-      # | PutObjectLockConfiguration       | STORAGE_MANAGER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
-      # | DeleteObjects                    | STORAGE_MANAGER | S3Standard    | myBucket   | without        | have        | myObject   |               |                 |
-      # | GetObjectRetention               | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
-      # | GetObjectLegalHold               | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
-      # | PutObjectRetention               | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
-      # | PutObjectLegalHold               | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
-      # | HeadObject                       | STORAGE_MANAGER | S3Standard    | myBucket   | without        | have        | myObject   |               |                 |
-      # | CopyObject                       | STORAGE_MANAGER | S3Standard    | myBucket   | without        | have        | myObject   |               |                 |
-      # | GetObjectTagging                 | STORAGE_MANAGER | S3Standard    | myBucket   | without        | have        | myObject   |               |                 |
-      # | PutObjectTagging                 | STORAGE_MANAGER | S3Standard    | myBucket   | without        | have        | myObject   |               |                 |
-      # | DeleteObjectVersion              | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
-      # | GetBucketReplication             | STORAGE_MANAGER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
-      # | GetBucketLifecycle               | STORAGE_MANAGER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
-      # | PutBucketLifecycle               | STORAGE_MANAGER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
-      # | PutBucketReplication             | STORAGE_MANAGER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
-      # | GetObjectVersion                 | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
-      # | GetObjectVersionRetention        | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
-      # | PutObjectVersionRetention        | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
-      # | GetObjectVersionLegalHold        | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
-      # | PutObjectVersionLegalHold        | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
-      # | GetObjectVersionTagging          | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
-      # | DeleteObjectVersionTagging       | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
-      # | PutObjectVersionTagging          | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
-      # | GetObjectVersionAcl              | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
-      # | PutObjectVersionAcl              | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
-      # | GetBucketTagging                 | STORAGE_MANAGER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
-      # | PutBucketTagging                 | STORAGE_MANAGER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
-      # | DeleteBucketTagging              | STORAGE_MANAGER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
+      | PutObject                        | STORAGE_MANAGER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
+      | PutObjectAcl                     | STORAGE_MANAGER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
+      | GetObject                        | STORAGE_MANAGER | S3Standard    | myBucket   | without        | have        | myObject   |               |                 |
+      | GetObjectAcl                     | STORAGE_MANAGER | S3Standard    | myBucket   | without        | have        | myObject   |               |                 |
+      | DeleteObject                     | STORAGE_MANAGER | S3Standard    | myBucket   | without        | have        | myObject   |               |                 |
+      | GetBucketVersioning              | STORAGE_MANAGER | S3Standard    | myBucket   | with           | do not have |            |               |                 |
+      | GetBucketCors                    | STORAGE_MANAGER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
+      | GetBucketAcl                     | STORAGE_MANAGER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
+      | GetBucketObjectLockConfiguration | STORAGE_MANAGER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
+      | ListObjectsV2                    | STORAGE_MANAGER | S3Standard    | myBucket   | without        | have        | myObject   |               |                 |
+      | ListObjectVersions               | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
+      | PutObjectLockConfiguration       | STORAGE_MANAGER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
+      | DeleteObjects                    | STORAGE_MANAGER | S3Standard    | myBucket   | without        | have        | myObject   |               |                 |
+      | GetObjectRetention               | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
+      | GetObjectLegalHold               | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
+      | PutObjectRetention               | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
+      | PutObjectLegalHold               | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
+      | HeadObject                       | STORAGE_MANAGER | S3Standard    | myBucket   | without        | have        | myObject   |               |                 |
+      | CopyObject                       | STORAGE_MANAGER | S3Standard    | myBucket   | without        | have        | myObject   |               |                 |
+      | GetObjectTagging                 | STORAGE_MANAGER | S3Standard    | myBucket   | without        | have        | myObject   |               |                 |
+      | PutObjectTagging                 | STORAGE_MANAGER | S3Standard    | myBucket   | without        | have        | myObject   |               |                 |
+      | DeleteObjectVersion              | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
+      | GetBucketReplication             | STORAGE_MANAGER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
+      | GetBucketLifecycle               | STORAGE_MANAGER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
+      | PutBucketLifecycle               | STORAGE_MANAGER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
+      | PutBucketReplication             | STORAGE_MANAGER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
+      | GetObjectVersion                 | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
+      | GetObjectVersionRetention        | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
+      | PutObjectVersionRetention        | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
+      | GetObjectVersionLegalHold        | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
+      | PutObjectVersionLegalHold        | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
+      | GetObjectVersionTagging          | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
+      | DeleteObjectVersionTagging       | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
+      | PutObjectVersionTagging          | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
+      | GetObjectVersionAcl              | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
+      | PutObjectVersionAcl              | STORAGE_MANAGER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
+      | GetBucketTagging                 | STORAGE_MANAGER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
+      | PutBucketTagging                 | STORAGE_MANAGER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
+      | DeleteBucketTagging              | STORAGE_MANAGER | S3Standard    | myBucket   | without        | do not have |            |               |                 |
 
       # # | MetadataSearch                   | STORAGE_ACCOUNT_OWNER | notS3Standard | myBucket   | without        | do not have |    |        |                 |
       # # | RestoreObject                    | STORAGE_ACCOUNT_OWNER | S3Standard    | myBucket   | with           | have        | myObject   | with          | 1               |
