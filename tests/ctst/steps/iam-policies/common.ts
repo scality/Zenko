@@ -176,10 +176,10 @@ When('the user tries to perform {string} {string} on the bucket', async function
     } else {
         userCredentials = this.parameters.AssumedSession;
     }
-    console.log("userCredentialsuserCredentialsuserCredentials");
-    console.log(userCredentials);
-    console.log("thisthisthis");
-    console.log(this);
+    // console.log("userCredentialsuserCredentialsuserCredentials");
+    // console.log(userCredentials);
+    // console.log("thisthisthis");
+    // console.log(this);
     if (ifS3Standard === 'notS3Standard'){
         this.saved.ifS3Standard = false;
         const api = testAPIs.find(api => api.API === action);

@@ -276,10 +276,10 @@ export default class Zenko extends World {
             },
             data,
         };
-        console.log("keycloak");
-        console.log(config);
+        // console.log("keycloak");
+        // console.log(config);
         const result: AxiosResponse = await axios(config);
-        console.log(result);
+        // console.log(result);
         return result.data.access_token;
     }
 
@@ -291,8 +291,8 @@ export default class Zenko extends World {
     static async init(parameters: any) {
         if (!CacheHelper.accountAccessKeys) {
             CacheHelper.adminClient = await Utils.getAdminCredentials(parameters);
-            console.log("adminClient");
-            console.log(CacheHelper.adminClient);
+            // console.log("adminClient");
+            // console.log(CacheHelper.adminClient);
             let account = null;
             // Create the account if already exist will not throw any error
             await SuperAdmin.createAccount({
