@@ -130,7 +130,7 @@ When('the user tries to perform {string} {string} on the bucket', async function
         },
         {
             API: 'GetObjectVersionLegalHold',
-            checkResponse: this.getObjectVersionLegalHoldResponseCode,
+            checkResponse: this.getObjectLegalHoldResponseCode,
         },
         {
             API: 'PutObjectVersionLegalHold',
@@ -189,9 +189,6 @@ When('the user tries to perform {string} {string} on the bucket', async function
             this.result = await this.metadataSearchResponseCode(userCredentials, this.saved.bucketName);
         }
         // Handle other cases
-        else if (api) {
-            this.result = await api.checkResponse();
-        }
     } else if (api) {
         this.resetCommand();
         this.saved.ifS3Standard = true;
@@ -199,7 +196,8 @@ When('the user tries to perform {string} {string} on the bucket', async function
         if (this.saved.objectName && this.saved.objectName != '') {
             this.addCommandParameter({key: this.saved.objectName});
         }
-        this.result = await api.checkResponse();
+        const boundCheckResponse = api.checkResponse.bind(this);
+        this.result = await boundCheckResponse();
     }
 });
 
