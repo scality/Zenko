@@ -502,10 +502,10 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
         const protocol = this.parameters.ssl === false ? 'http://' : 'https://';
         try {
             const response = await axios.get(`${protocol}s3.${this.parameters.subdomain || Constants.DEFAULT_SUBDOMAIN}` + path);
-            console.log(response.data);
+            console.log("RESPONSE: ", response.data);
             return { statusCode: response.status, data: response.data }
         } catch (err: any) {
-            console.log(err.response);
+            console.log("ERR RESP: ", err.response);
             return { statusCode: err.response.status, data: err.response.data };
         }
     }
