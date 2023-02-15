@@ -180,9 +180,9 @@ When('the user tries to perform {string} {string} on the bucket', async function
     // console.log(userCredentials);
     // console.log("thisthisthis");
     // console.log(this);
+    const api = testAPIs.find(api => api.API === action);
     if (ifS3Standard === 'notS3Standard'){
         this.saved.ifS3Standard = false;
-        const api = testAPIs.find(api => api.API === action);
         // Handle Metadatasearch special case
         console.log("THIS SAVED BUCKET NAME IS: ", this.saved.bucketName);
         if (action === 'MetadataSearch') {
@@ -192,14 +192,14 @@ When('the user tries to perform {string} {string} on the bucket', async function
         else if (api) {
             this.result = await api.checkResponse();
         }
-    } else {
+    } else if (api) {
         this.resetCommand();
         this.saved.ifS3Standard = true;
         this.addCommandParameter({bucket: this.saved.bucketName});
         if (this.saved.objectName && this.saved.objectName != '') {
             this.addCommandParameter({key: this.saved.objectName});
         }
-        this.result = await this.restoreObjectResponseCode();
+        this.result = await api.checkResponse();
     }
 });
 
