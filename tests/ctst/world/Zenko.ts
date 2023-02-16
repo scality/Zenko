@@ -478,7 +478,7 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
      */
     static async teardown() { }
 
-    async metadataSearchResponseCode(userCredentials : any, bucketName : string) {
+    async metadataSearchResponseCode(userCredentials: any, bucketName: string) {
         return await this.awsS3GetRequest(
             `/${bucketName}/?search=${encodeURIComponent('key LIKE "file"')}`,
             userCredentials,
@@ -486,7 +486,7 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
     }
 
     async awsS3GetRequest(path: string, userCredentials: any) {
-        const credentials : any = {
+        const credentials: any = {
             accessKeyId: userCredentials.AccessKeyId,
             secretAccessKey: userCredentials.SecretAccessKey,
         };
@@ -520,6 +520,7 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
     }
 
     async putObjectAclResponseCode() {
+        this.addCommandParameter({ acl: "public-read-write" });
         return await S3.putObjectAcl(this.getCommandParameters());
     }
 
@@ -657,6 +658,9 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
     // }
 
     async putObjectLockConfigurationResponseCode() {
+        this.addCommandParameter({
+            objectLockConfiguration: 'ObjectLockEnabled=Enabled,Rule=[{DefaultRetention={Mode=GOVERNANCE,Days=1}}]'
+        });
         return await S3.putObjectLockConfiguration(this.getCommandParameters());
     }
 
@@ -682,17 +686,46 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
     async putLifecycleConfigurationResponseCode() {
         // TODO? add lifecycle configuration
         //'<LifecycleConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"></LifecycleConfiguration>',
+        this.addCommandParameter({
+            lifecycleConfiguration: JSON.stringify(
+                {
+                    Rules: [
+                        {
+                            Filter: {
+                                Prefix: "documents/"
+                            },
+                            Status: "Enabled",
+                            Transitions: [
+                                {
+                                    Days: 365,
+                                    StorageClass: "GLACIER"
+                                }
+                            ],
+                            Expiration: {
+                                Days: 3650
+                            },
+                            ID: "ExampleRule"
+                        }
+                    ]
+                })
+        });
         return await S3.putBucketLifecycleConfiguration(this.getCommandParameters());
     }
 
     async putReplicationConfigurationResponseCode() {
-        const replicationConfiguration = `{"Role": "IAM-role-ARN","Rules":[{"Status": "Enabled","Priority": 1,`+
-        `"DeleteMarkerReplication": { "Status": "Disabled" },"Filter" : { "Prefix": "Tax"},`+
-        `"Destination": {"Bucket": "arn:aws:s3:::destination-bucket"}}]}`;
         // TODO? add replication configuration
         //'<ReplicationConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"></ReplicationConfiguration>',
         this.addCommandParameter({
-            replicationConfiguration
+            replicationConfiguration: JSON.stringify({
+                Role: "IAM-role-ARN",
+                Rules: [{
+                    Status: "Enabled",
+                    Priority: 1,
+                    DeleteMarkerReplication: { Status: "Disabled" },
+                    Filter: { Prefix: "Tax" },
+                    Destination: { Bucket: "arn:aws:s3:::destination-bucket" }
+                }]
+            })
         });
         return await S3.putBucketReplication(this.getCommandParameters());
     }
