@@ -13,7 +13,7 @@ Feature: Assume Role with Web Identity
     And an object that "<objectExists>" "<withVersionId>" version-Id
     And a <type> type
     When the user tries to perform "<ifS3Standard>" "<action>" on the bucket
-    Then the user should be able to perform successfully
+    Then the user should be able to perform successfully the "<action>" action
 
     Examples:
       | action                           | type            | ifS3Standard  | bucketName | withVersioning | objectExists   | withVersionId |
