@@ -33,19 +33,34 @@ Given('an existing bucket {string} {string} versioning', async function (bucketN
     }
 });
 
-Given('we {string} an existing object {string} {string} version-Id {string}',
-    async function (have, objectName, hasVersioning, versionId) {
+// Given('we {string} an existing object {string} {string} version-Id {string}',
+//     async function (have, objectName, hasVersioning, versionId) {
+//     this.resetCommand();
+//     if (have === 'have') {
+//         if (objectName === '') {
+//             objectName = 'x'.repeat(10);
+//         }
+//         this.saved.objectName = objectName;
+//         this.saved.versionId = versionId;
+//         this.addCommandParameter({key: objectName});
+//         this.addCommandParameter({bucket: this.saved.bucketName});
+//         if (hasVersioning === 'with') {
+//             this.addCommandParameter({versionId});
+//         }
+//         await S3.putObject(this.getCommandParameters());
+//     }
+// });
+
+Given('an object that {string} {string} version-Id',
+    async function (objectExists, withVersioning) {
     this.resetCommand();
-    if (have === 'have') {
-        if (objectName === '') {
-            objectName = 'x'.repeat(10);
-        }
-        this.saved.objectName = objectName;
-        this.saved.versionId = versionId;
-        this.addCommandParameter({key: objectName});
+    if (objectExists === 'exists') {
+        this.saved.objectName = 'x'.repeat(10);
+        this.saved.versionId = '1';
+        this.addCommandParameter({key: this.saved.objectName});
         this.addCommandParameter({bucket: this.saved.bucketName});
-        if (hasVersioning === 'with') {
-            this.addCommandParameter({versionId});
+        if (withVersioning === 'with') {
+            this.addCommandParameter({versionId: this.saved.versionId});
         }
         await S3.putObject(this.getCommandParameters());
     }
