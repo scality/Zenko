@@ -692,7 +692,7 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
         // TODO? add replication configuration
         //'<ReplicationConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"></ReplicationConfiguration>',
         this.addCommandParameter({
-            replicationConfiguration: 
+            replicationConfiguration
         });
         return await S3.putBucketReplication(this.getCommandParameters());
     }
