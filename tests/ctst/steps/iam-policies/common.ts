@@ -203,10 +203,10 @@ When('the user tries to perform {string} {string} on the bucket', async function
 
 Then('the user should be able to perform successfully the {string} action', function (action : string) {
     this.endForType();
+    console.log("RESULT: ", this.result);
     if (this.saved.ifS3Standard) {
         assert.strictEqual(this.result?.err?.includes("AccessDenied"), false);
     } else {
-        console.log("RESULT: ", this.result);
         assert.strictEqual(this.result?.statusCode, 200);
     }
 });
