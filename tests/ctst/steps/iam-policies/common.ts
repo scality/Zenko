@@ -210,3 +210,9 @@ Then('the user should be able to perform successfully the {string} action', func
         assert.strictEqual(this.result?.statusCode, 200);
     }
 });
+
+Then('the user should receive access denied error', function () {
+    this.endForType();
+    console.log("RESULT: ", this.result);
+    assert.strictEqual(this.result?.err?.includes("AccessDenied"), false);
+});

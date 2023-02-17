@@ -607,7 +607,7 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
         return S3.putObjectLegalHold(this.getCommandParameters());
     }
 
-    async getObjectVersionTaggingResponseCode() {
+    async getObjectTaggingResponseCode() {
         return await S3.getObjectTagging(this.getCommandParameters());
     }
 
@@ -684,8 +684,6 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
     }
 
     async putLifecycleConfigurationResponseCode() {
-        // TODO? add lifecycle configuration
-        //'<LifecycleConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"></LifecycleConfiguration>',
         this.addCommandParameter({
             lifecycleConfiguration: JSON.stringify(
                 {
@@ -698,7 +696,7 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
                             Transitions: [
                                 {
                                     Days: 365,
-                                    StorageClass: "GLACIER"
+                                    StorageClass: "e2e-cold"
                                 }
                             ],
                             Expiration: {
@@ -713,17 +711,15 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
     }
 
     async putReplicationConfigurationResponseCode() {
-        // TODO? add replication configuration
-        //'<ReplicationConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"></ReplicationConfiguration>',
         this.addCommandParameter({
             replicationConfiguration: JSON.stringify({
-                Role: "IAM-role-ARN",
+                Role: "IAM-role-ARN", // TODO add ARN here?
                 Rules: [{
                     Status: "Enabled",
                     Priority: 1,
                     DeleteMarkerReplication: { Status: "Disabled" },
                     Filter: { Prefix: "Tax" },
-                    Destination: { Bucket: "arn:aws:s3:::destination-bucket" }
+                    Destination: { Bucket: `arn:aws:s3:::${this.saved.bucketName}` }
                 }]
             })
         });

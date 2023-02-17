@@ -18,46 +18,59 @@ Feature: Assume Role with Web Identity
     Examples:
       | action                           | type            | ifS3Standard  | bucketName | withVersioning | objectExists   | withVersionId |
       | MetadataSearch                   | STORAGE_MANAGER | notS3Standard | my-bucket  | without        | does not exist |               |
-      | RestoreObject                    | STORAGE_MANAGER | S3Standard    | my-bucket  | with           | exists         | with          |
       | PutObject                        | STORAGE_MANAGER | S3Standard    | my-bucket  | without        | does not exist |               |
       | PutObjectAcl                     | STORAGE_MANAGER | S3Standard    | my-bucket  | without        | does not exist |               |
       | GetObject                        | STORAGE_MANAGER | S3Standard    | my-bucket  | without        | exists         |               |
       | GetObjectAcl                     | STORAGE_MANAGER | S3Standard    | my-bucket  | without        | exists         |               |
       | DeleteObject                     | STORAGE_MANAGER | S3Standard    | my-bucket  | without        | exists         |               |
       | GetBucketVersioning              | STORAGE_MANAGER | S3Standard    | my-bucket  | with           | does not exist |               |
-      | GetBucketCors                    | STORAGE_MANAGER | S3Standard    | my-bucket  | without        | does not exist |               |
       | GetBucketAcl                     | STORAGE_MANAGER | S3Standard    | my-bucket  | without        | does not exist |               |
-      | GetBucketObjectLockConfiguration | STORAGE_MANAGER | S3Standard    | my-bucket  | without        | does not exist |               |
       | ListObjectsV2                    | STORAGE_MANAGER | S3Standard    | my-bucket  | without        | exists         |               |
       | ListObjectVersions               | STORAGE_MANAGER | S3Standard    | my-bucket  | with           | exists         | with          |
       | PutObjectLockConfiguration       | STORAGE_MANAGER | S3Standard    | my-bucket  | without        | does not exist |               |
       | DeleteObjects                    | STORAGE_MANAGER | S3Standard    | my-bucket  | without        | exists         |               |
-      | GetObjectRetention               | STORAGE_MANAGER | S3Standard    | my-bucket  | with           | exists         | with          |
-      | GetObjectLegalHold               | STORAGE_MANAGER | S3Standard    | my-bucket  | with           | exists         | with          |
-      | PutObjectRetention               | STORAGE_MANAGER | S3Standard    | my-bucket  | with           | exists         | with          |
-      | PutObjectLegalHold               | STORAGE_MANAGER | S3Standard    | my-bucket  | with           | exists         | with          |
       | HeadObject                       | STORAGE_MANAGER | S3Standard    | my-bucket  | without        | exists         |               |
       | CopyObject                       | STORAGE_MANAGER | S3Standard    | my-bucket  | without        | exists         |               |
       | GetObjectTagging                 | STORAGE_MANAGER | S3Standard    | my-bucket  | without        | exists         |               |
       | PutObjectTagging                 | STORAGE_MANAGER | S3Standard    | my-bucket  | without        | exists         |               |
       | DeleteObjectVersion              | STORAGE_MANAGER | S3Standard    | my-bucket  | with           | exists         | with          |
-      | GetBucketReplication             | STORAGE_MANAGER | S3Standard    | my-bucket  | without        | does not exist |               |
-      | GetBucketLifecycle               | STORAGE_MANAGER | S3Standard    | my-bucket  | without        | does not exist |               |
       | PutBucketLifecycle               | STORAGE_MANAGER | S3Standard    | my-bucket  | without        | does not exist |               |
       | PutBucketReplication             | STORAGE_MANAGER | S3Standard    | my-bucket  | without        | does not exist |               |
       | GetObjectVersion                 | STORAGE_MANAGER | S3Standard    | my-bucket  | with           | exists         | with          |
-      | GetObjectVersionRetention        | STORAGE_MANAGER | S3Standard    | my-bucket  | with           | exists         | with          |
-      | PutObjectVersionRetention        | STORAGE_MANAGER | S3Standard    | my-bucket  | with           | exists         | with          |
-      | GetObjectVersionLegalHold        | STORAGE_MANAGER | S3Standard    | my-bucket  | with           | exists         | with          |
-      | PutObjectVersionLegalHold        | STORAGE_MANAGER | S3Standard    | my-bucket  | with           | exists         | with          |
       | GetObjectVersionTagging          | STORAGE_MANAGER | S3Standard    | my-bucket  | with           | exists         | with          |
       | DeleteObjectVersionTagging       | STORAGE_MANAGER | S3Standard    | my-bucket  | with           | exists         | with          |
       | PutObjectVersionTagging          | STORAGE_MANAGER | S3Standard    | my-bucket  | with           | exists         | with          |
       | GetObjectVersionAcl              | STORAGE_MANAGER | S3Standard    | my-bucket  | with           | exists         | with          |
       | PutObjectVersionAcl              | STORAGE_MANAGER | S3Standard    | my-bucket  | with           | exists         | with          |
-      | GetBucketTagging                 | STORAGE_MANAGER | S3Standard    | my-bucket  | without        | does not exist |               |
       | PutBucketTagging                 | STORAGE_MANAGER | S3Standard    | my-bucket  | without        | does not exist |               |
       | DeleteBucketTagging              | STORAGE_MANAGER | S3Standard    | my-bucket  | without        | does not exist |               |
+
+
+  @2.6.0
+  @PreMerge
+  @IAM-Policies-ARWWI
+  Scenario Outline: Assume Role with Web Identity bucket setting tests
+    Given an existing bucket "<bucketName>" "<withVersioning>" versioning
+    And an object that "<objectExists>" "<withVersionId>" version-Id
+    And a <type> type
+    When the user tries to perform "S3Standard" "<action>" on the bucket
+    Then the user should not receive access denied error
+    
+    | action                           | type             | bucketName | withVersioning | objectExists   | withVersionId |
+    | RestoreObject                    | STORAGE_MANAGER    | my-bucket  | with           | exists         | with          |
+    | GetBucketCors                    | STORAGE_MANAGER    | my-bucket  | without        | does not exist |               |
+    | GetBucketObjectLockConfiguration | STORAGE_MANAGER    | my-bucket  | without        | does not exist |               |
+    | GetObjectRetention               | STORAGE_MANAGER    | my-bucket  | with           | exists         | with          |
+    | GetObjectLegalHold               | STORAGE_MANAGER    | my-bucket  | with           | exists         | with          |
+    | PutObjectRetention               | STORAGE_MANAGER    | my-bucket  | with           | exists         | with          |
+    | PutObjectLegalHold               | STORAGE_MANAGER    | my-bucket  | with           | exists         | with          |
+    | GetBucketReplication             | STORAGE_MANAGER    | my-bucket  | without        | does not exist |               |
+    | GetBucketLifecycle               | STORAGE_MANAGER    | my-bucket  | without        | does not exist |               |
+    | GetObjectVersionRetention        | STORAGE_MANAGER    | my-bucket  | with           | exists         | with          |
+    | GetObjectVersionLegalHold        | STORAGE_MANAGER    | my-bucket  | with           | exists         | with          |
+    | PutObjectVersionRetention        | STORAGE_MANAGER    | my-bucket  | with           | exists         | with          |
+    | PutObjectVersionLegalHold        | STORAGE_MANAGER    | my-bucket  | with           | exists         | with          |
+    | GetBucketTagging                 | STORAGE_MANAGER    | my-bucket  | without        | does not exist |               |
 
 # # | MetadataSearch                   | STORAGE_ACCOUNT_OWNER | notS3Standard | my-bucket   | without        | does not exist |    |        |                 |
 # # | RestoreObject                    | STORAGE_ACCOUNT_OWNER | S3Standard    | my-bucket   | with           | exists        | myObject   | with          | 1               |
