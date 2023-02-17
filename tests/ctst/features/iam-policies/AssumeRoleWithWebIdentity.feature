@@ -56,6 +56,7 @@ Feature: Assume Role with Web Identity
     When the user tries to perform "S3Standard" "<action>" on the bucket
     Then the user should not receive access denied error
     
+    Examples:
     | action                           | type             | bucketName | withVersioning | objectExists   | withVersionId |
     | RestoreObject                    | STORAGE_MANAGER    | my-bucket  | with           | exists         | with          |
     | GetBucketCors                    | STORAGE_MANAGER    | my-bucket  | without        | does not exist |               |
