@@ -211,7 +211,7 @@ Then('the user should be able to perform successfully the {string} action', func
     }
 });
 
-Then('the user should receive access denied error', function () {
+Then('the user should not receive access denied error', function () {
     this.endForType();
     console.log("RESULT: ", this.result);
     assert.strictEqual(this.result?.err?.includes("AccessDenied"), false);
