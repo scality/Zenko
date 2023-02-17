@@ -205,7 +205,7 @@ Then('the user should be able to perform successfully the {string} action', func
     this.endForType();
     console.log("RESULT: ", this.result);
     if (this.saved.ifS3Standard) {
-        assert.strictEqual(this.result?.err?.includes("AccessDenied"), false);
+        assert.strictEqual(this.result?.err, null);
     } else {
         assert.strictEqual(this.result?.statusCode, 200);
     }
