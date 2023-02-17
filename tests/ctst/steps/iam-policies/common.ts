@@ -138,7 +138,7 @@ When('the user tries to perform {string} {string} on the bucket', async function
         },
         {
             API: 'GetObjectVersionTagging',
-            checkResponse: this.getObjectVersionTaggingResponseCode,
+            checkResponse: this.getObjectTaggingResponseCode,
         },
         {
             API: 'DeleteObjectVersionTagging',
