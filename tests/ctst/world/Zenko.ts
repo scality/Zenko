@@ -713,7 +713,7 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
     async putReplicationConfigurationResponseCode() {
         this.addCommandParameter({
             replicationConfiguration: JSON.stringify({
-                Role: "IAM-role-ARN", // TODO add ARN here?
+                Role: "arn:aws:iam::123456789012:role/Example",
                 Rules: [{
                     Status: "Enabled",
                     Priority: 1,
