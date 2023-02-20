@@ -197,8 +197,12 @@ export default class Zenko extends World {
             const account = await SuperAdmin.getAccount({
                 name: this.parameters.AccountName || Constants.ACCOUNT_NAME,
             });
+            console.log("Account:");
+            console.log(account);
             // Getting roles with GetRolesForWebIdentity
             const roles = await SuperAdmin.getRolesForWebIdentity(this.options.webIdentityToken);
+            console.log("Roles:");
+            console.log(roles);
             // Get the first role with the storage-manager-role name
             let roleToAssume = '';
             if (roles.data.data.ListOfRoleArns) {
