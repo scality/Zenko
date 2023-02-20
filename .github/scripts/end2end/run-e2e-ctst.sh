@@ -32,6 +32,15 @@ WORLD_PARAMETERS='{"subdomain":"'${SUBDOMAIN}'","ssl":false,"port":"'${ZENKO_POR
 E2E_IMAGE=$E2E_CTST_IMAGE_NAME:$E2E_IMAGE_TAG
 POD_NAME="${ZENKO_NAME}-ctst-tests"
 
+CTST_VERSION=$(sed 's/.*"cli-testing": ".*#\(.*\)".*/\1/;t;d' ../../../tests/ctst/package.json)
+# Configure keycloak
+docker run \
+    --rm \
+    --network=host \
+    registry.scality.com/cli-testing-dev/cli-testing:"${CTST_VERSION}" /bin/bash \
+    -c "SUBDOMAIN=${SUBDOMAIN} CONTROL_PLANE_INGRESS_ENDPOINT=${OIDC_ENDPOINT} ACCOUNT=${ZENKO_ACCOUNT_NAME} KEYCLOAK_REALM=${KEYCLOAK_TEST_REALM_NAME} /ctst/bin/seedKeycloak.sh"; [[ $? -eq 1 ]] && exit 1 || echo 'Keycloak Configured!'
+
+
 # Running end2end ctst tests
 kubectl run $POD_NAME \
         --pod-running-timeout=5m \
