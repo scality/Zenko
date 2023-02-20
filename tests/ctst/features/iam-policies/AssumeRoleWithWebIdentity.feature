@@ -35,7 +35,7 @@ Feature: Assume Role with Web Identity
       | PutObjectTagging           | STORAGE_MANAGER | S3Standard    | without        | exists         |               |
       | DeleteObjectVersion        | STORAGE_MANAGER | S3Standard    | with           | exists         | with          |
       | PutBucketLifecycle         | STORAGE_MANAGER | S3Standard    | without        | does not exist |               |
-      | PutBucketReplication       | STORAGE_MANAGER | S3Standard    | without        | does not exist |               |
+      | PutBucketReplication       | STORAGE_MANAGER | S3Standard    | with           | does not exist |               |
       | GetObjectVersion           | STORAGE_MANAGER | S3Standard    | with           | exists         | with          |
       | GetObjectVersionTagging    | STORAGE_MANAGER | S3Standard    | with           | exists         | with          |
       | DeleteObjectVersionTagging | STORAGE_MANAGER | S3Standard    | with           | exists         | with          |
