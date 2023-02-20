@@ -179,6 +179,10 @@ export default class Zenko extends World {
      * @returns {undefined}
      */
     async prepareARWWI(ARWWIName: string, ARWWIPassword: string, ARWWITargetRole: string) {
+        console.log("Preparing ARWWI");
+        console.log(ARWWIName);
+        console.log(ARWWIPassword);
+        console.log(ARWWITargetRole);
         if (!(ARWWIName in CacheHelper.ARWWI)) {
             const token = await this.getWebIdentityToken(
                 ARWWIName,
@@ -194,6 +198,8 @@ export default class Zenko extends World {
                 throw new Error('Error when trying to get a WebIdentity token.');
             }
             // Getting account ID
+            console.log("SuperAdmin:");
+            console.log(CacheHelper.adminClient);
             const account = await SuperAdmin.getAccount({
                 name: this.parameters.AccountName || Constants.ACCOUNT_NAME,
             });
