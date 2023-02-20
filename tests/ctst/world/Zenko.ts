@@ -713,17 +713,18 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
     async putReplicationConfigurationResponseCode() {
         this.addCommandParameter({
             replicationConfiguration: JSON.stringify(
-                {
-                    "Role": "arn:aws:iam::123456789012:role/S3-replication-role",
-                    "Rules": [
-                        {
-                            "Status": "Enabled",
-                            "Destination": {
-                                "Bucket": "arn:aws:s3:::AWSDOC-EXAMPLE-BUCKET2"
+                    {
+                        "Role": "arn:aws:iam::123456789012:role/s3-replication-role",
+                        "Rules": [
+                            {
+                                "Status": "Enabled",
+                                "Prefix": "",
+                                "Destination": {
+                                    "Bucket": `arn:aws:s3:::${this.saved.bucketName}`,
+                                }
                             }
-                        }
-                    ]
-                })
+                        ]
+                    })
         });
         return await S3.putBucketReplication(this.getCommandParameters());
     }
