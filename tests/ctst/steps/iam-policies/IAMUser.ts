@@ -21,10 +21,11 @@ function extractPolicyArnFromResults(results: any) {
     }
 }
 
-Given('an existing IAM policy with {string} effect to perform {string} on {string}', async function (effect: string, action: string, resource: string) {
+Given('an IAM policy attached to the user with {string} effect to perform {string} on {string}', async function (effect: string, action: string, resource: string) {
     this.endForType();
     this.resetCommand();
     this.saved.action = action;
+    // create the IAM policy
     this.addCommandParameter({policyName: `${Constants.POLICY_NAME_TEST}${Utils.randomString()}`});
     this.addCommandParameter({
         policyDocument: JSON.stringify({
@@ -39,10 +40,7 @@ Given('an existing IAM policy with {string} effect to perform {string} on {strin
         })
     });
     this.saved.policyArn = extractPolicyArnFromResults(await IAM.createPolicy(this.getCommandParameters()));
-});
-
-Given('attach the IAM policy to the user', async function () {
-    this.endForType();
+    // attach the IAM policy to the user
     this.resetCommand();
     this.addCommandParameter({userName: this.parameters.IAMUserName});
     this.addCommandParameter({policyArn: this.saved.policyArn});
