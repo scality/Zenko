@@ -53,6 +53,7 @@ runs:
       run: bash deploy-zenko.sh end2end default
       working-directory: ./.github/scripts/end2end
     - name: Add Keycloak user
+      if: ${CTST} != "true"
       shell: bash
       run: bash keycloak-helper.sh add-user default
       working-directory: ./.github/scripts/end2end
@@ -69,6 +70,7 @@ runs:
       run: bash configure-e2e.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "default"
       working-directory: ./.github/scripts/end2end
     - name: Linting
+      if: ${CTST} != "true"
       shell: bash
       run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "lint" "default"
       working-directory: ./.github/scripts/end2end
