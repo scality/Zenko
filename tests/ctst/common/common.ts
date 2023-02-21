@@ -41,7 +41,7 @@ Given('an object that {string} {string} version-Id',
         this.addCommandParameter({key: this.saved.objectName});
         this.addCommandParameter({bucket: this.saved.bucketName});
         if (withVersioning === 'with') {
-            this.saved.versionId = '1';
+            this.saved.versionId = '3sL4kqtJlcpXroDTDmJ+rmSpXd3dIbrHY+MTRCxf3vjVBH40Nr8X8gdRQBpUMLUo';
             this.addCommandParameter({versionId: this.saved.versionId});
         }
         await S3.putObject(this.getCommandParameters());
