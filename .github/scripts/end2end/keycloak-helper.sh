@@ -37,6 +37,12 @@ case $COMMAND in
             -r ${OIDC_REALM} \
             --username ${OIDC_USERNAME} \
             --new-password ${OIDC_PASSWORD}
+
+        # attach StorageManager role to user
+        ${KEYCLOAK_EXEC} /opt/jboss/keycloak/bin/kcadm.sh add-roles \
+          -r ${OIDC_REALM} \
+          --uusername ${OIDC_USERNAME} \
+          --rolename "StorageManager"
         ;;
 
     *)

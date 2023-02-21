@@ -46,6 +46,7 @@ env:
   # http-env
   UI_ENDPOINT: 'http://ui.zenko.local'
   OIDC_ENDPOINT: 'http://keycloak.zenko.local'
+  OIDC_HOST: 'keycloak.zenko.local'
   NAVBAR_ENDPOINT: 'http://shell-ui.zenko.local'
   ENABLE_KEYCLOAK_HTTPS: 'false'
   # mock-env
@@ -237,12 +238,10 @@ jobs:
         run: |-
           sudo curl --fail -L https://github.com/mikefarah/yq/releases/download/${{ env.YQ_VERSION}}/${{ env.YQ_BINARY }} -o /usr/bin/yq
           sudo chmod +x /usr/bin/yq
-
           get_image_from_deps() {
               local dep_name=$1
               yq eval ".$dep_name | (.sourceRegistry // \"docker.io\") + \"/\" + .image" deps.yaml
           }
-
           cd solution/
           cat <<EOF >> $GITHUB_ENV
           scala_version=$(yq eval '.kafka.tag | split("-").[0]' deps.yaml)
@@ -254,11 +253,9 @@ jobs:
           JMX_JAVAAGENT_IMAGE=$(get_image_from_deps jmx-javaagent)
           JMX_JAVAAGENT_TAG=$(yq eval '.jmx-javaagent.tag' deps.yaml)
           EOF
-
       - name: Check kafka & kafka-connect versions match
         run: |-
           [ "${{ env.KAFKA_TAG }}" = "${{ env.KAFKA_CONNECT_TAG }}" ]
-
       - name: Build and push kafka
         uses: docker/build-push-action@v3.1.0
         with:
