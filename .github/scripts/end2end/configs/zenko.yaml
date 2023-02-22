@@ -28,10 +28,6 @@ spec:
       cronRule: "${BACKBEAT_LCC_CRON_RULE}"
     lifecycleBucketProcessor:
       triggerTransitionsOneDayEarlierForTesting: true
-    bucketNotification:
-      enable: true
-    oplogPopulator:
-      enable: true
     logging:
       logLevel: trace
   mongodb:
