@@ -30,12 +30,12 @@ export const s3FunctionExtraParams : { [key: string]: Object } = {
     'putObjectTagging': { tagging: 'TagSet=[{Key=string,Value=string}]' },
     'putBucketVersioning': { versioningConfiguration: 'Status=Enabled' },
     'putObjectLockConfiguration': {
-        objectLockConfiguration: 'ObjectLockEnabled=Enabled,Rule=[{DefaultRetention={Mode=GOVERNANCE,Days=1}}]'
+        objectLockConfiguration: '{ "ObjectLockEnabled": "Enabled", "Rule": { "DefaultRetention": { "Mode": "COMPLIANCE", "Days": 50 }}}'
     },
     'deleteObjects': {
         delete: `Objects=[{Key=${'x'.repeat(10)}]`
     },
-    'putLifecycleConfiguration': {
+    'putBucketLifecycleConfiguration': {
         lifecycleConfiguration: JSON.stringify(
             {
                 Rules: [
