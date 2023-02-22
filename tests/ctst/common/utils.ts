@@ -28,6 +28,7 @@ export const s3FunctionExtraParams : { [key: string]: Object } = {
     'putObjectAcl':  { acl: 'public-read-write' },
     'putBucketTagging': { tagging: 'TagSet=[{Key=tag1,Value=value1},{Key=tag2,Value=value2}]' },
     'putObjectTagging': { tagging: 'TagSet=[{Key=string,Value=string}]' },
+    'putBucketVersioning': { versioningConfiguration: 'Status=Enabled' },
     'putObjectLockConfiguration': {
         objectLockConfiguration: 'ObjectLockEnabled=Enabled,Rule=[{DefaultRetention={Mode=GOVERNANCE,Days=1}}]'
     },
@@ -39,9 +40,7 @@ export const s3FunctionExtraParams : { [key: string]: Object } = {
             {
                 Rules: [
                     {
-                        Filter: {
-                            Prefix: "documents/"
-                        },
+                        Prefix: "",
                         Status: "Enabled",
                         Transitions: [
                             {
@@ -66,7 +65,7 @@ export const s3FunctionExtraParams : { [key: string]: Object } = {
                             "Status": "Enabled",
                             "Prefix": "",
                             "Destination": {
-                                "Bucket": "arn:aws:s3:::exampleBucket",
+                                "Bucket": "arn:aws:s3:::examplebucket",
                             }
                         }
                     ]
