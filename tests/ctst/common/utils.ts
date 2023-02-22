@@ -24,17 +24,17 @@ export function extractPropertyFromResults(results: { err: null; stdout: string 
 }
 
 export const s3FunctionExtraParams : { [key: string]: Object } = {
-    'RestoreObject': { restoreRequest: 'Days=1' },
-    'PutObjectAcl':  { acl: 'public-read-write' },
-    'PutBucketTagging': { tagging: 'TagSet=[{Key=tag1,Value=value1},{Key=tag2,Value=value2}]' },
-    'PutObjectTagging': { tagging: 'TagSet=[{Key=string,Value=string}]' },
-    'PutObjectLockConfiguration': {
+    'restoreObject': { restoreRequest: 'Days=1' },
+    'putObjectAcl':  { acl: 'public-read-write' },
+    'putBucketTagging': { tagging: 'TagSet=[{Key=tag1,Value=value1},{Key=tag2,Value=value2}]' },
+    'putObjectTagging': { tagging: 'TagSet=[{Key=string,Value=string}]' },
+    'putObjectLockConfiguration': {
         objectLockConfiguration: 'ObjectLockEnabled=Enabled,Rule=[{DefaultRetention={Mode=GOVERNANCE,Days=1}}]'
     },
-    'DeleteObjects': {
+    'deleteObjects': {
         delete: `Objects=[{Key=${'x'.repeat(10)}]`
     },
-    'PutLifecycleConfiguration': {
+    'putLifecycleConfiguration': {
         lifecycleConfiguration: JSON.stringify(
             {
                 Rules: [
@@ -57,7 +57,7 @@ export const s3FunctionExtraParams : { [key: string]: Object } = {
                 ]
             })
     },
-    'PutBucketReplication': {
+    'putBucketReplication': {
         replicationConfiguration: JSON.stringify(
                 {
                     "Role": "arn:aws:iam::123456789012:role/s3-replication-role",
