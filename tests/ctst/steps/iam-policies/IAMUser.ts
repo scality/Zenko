@@ -1,25 +1,8 @@
 import { Given, setDefaultTimeout } from '@cucumber/cucumber';
 import { Constants, IAM, Utils } from 'cli-testing';
+import {extractPropertyFromResults} from "../../common/utils";
 
 setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
-
-/**
- * Policy are using ARN, not names. This helper will dynamically extract a policy
- * ARN from a CLI result
- * @param {object} results - results from the command line
- * @return {string} - the policy arn, or null if an error occured when
- * parsing results.
- */
-function extractPolicyArnFromResults(results: any) {
-    try {
-        if (results.stdout) {
-            return JSON.parse(results.stdout).Policy.Arn;
-        }
-        return null;
-    } catch (err) {
-        return null;
-    }
-}
 
 Given('an IAM policy attached to the entity {string} with {string} effect to perform {string} on {string}', async function (entity: string, effect: string, action: string, resource: string) {
     this.cleanupEntity();
@@ -39,7 +22,7 @@ Given('an IAM policy attached to the entity {string} with {string} effect to per
             ],
         })
     });
-    this.saved.policyArn = extractPolicyArnFromResults(await IAM.createPolicy(this.getCommandParameters()));
+    this.saved.policyArn = extractPropertyFromResults(await IAM.createPolicy(this.getCommandParameters()), 'Policy', 'Arn');
 
     // attach the IAM policy to the user
     this.resetCommand();

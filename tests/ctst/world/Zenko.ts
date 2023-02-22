@@ -3,7 +3,7 @@ import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { aws4Interceptor } from 'aws4-axios'
 
 import { CacheHelper, cliModeObject, Constants, IAM, IAMUserPolicy, S3, STS, SuperAdmin, Utils, } from 'cli-testing';
-import { extractEntityArnFromResults, extractPropertyFromResults } from "../common/utils";
+import { extractPropertyFromResults } from "../common/utils";
 import qs = require('qs');
 import {extractPropertyFromResults} from "../common/utils";
 
@@ -309,13 +309,9 @@ export default class Zenko extends World {
         };
 
         this.saved.roleName = `${account.name}${Constants.ROLE_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase();
-        this.addCommandParameter({
-            roleName: this.saved.roleName,
-        });
-        this.addCommandParameter({
-            assumeRolePolicyDocument: Constants.assumeRoleTrustPolicy,
-        })
-        const roleArnToAssume = extractEntityArnFromResults(await IAM.createRole(this.getCommandParameters()), 'Role');
+        this.addCommandParameter({ roleName: this.saved.roleName });
+        this.addCommandParameter({ assumeRolePolicyDocument: Constants.assumeRoleTrustPolicy });
+        const roleArnToAssume = extractPropertyFromResults(await IAM.createRole(this.getCommandParameters()), 'Role', 'Arn');
 
         let accountToBeAssumedFrom = account;
 
@@ -354,7 +350,7 @@ export default class Zenko extends World {
         this.resetCommand();
         this.addCommandParameter({ policyName: `${accountToBeAssumedFrom.name}${Constants.POLICY_NAME_TEST}${Utils.randomString()}` });
         this.addCommandParameter({ policyDocument: Constants.assumeRolePolicy });
-        const assumeRolePolicyArn = extractEntityArnFromResults(await IAM.createPolicy(this.getCommandParameters()), "Policy");
+        const assumeRolePolicyArn = extractPropertyFromResults(await IAM.createPolicy(this.getCommandParameters()), "Policy", "Arn");
 
         this.resetCommand();
         this.addCommandParameter({ userName });
