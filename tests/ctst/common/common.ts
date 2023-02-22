@@ -21,9 +21,7 @@ Given('a {string} bucket', async function (versioning) {
 Given('an existing bucket {string} {string} versioning', async function (bucketName, hasVersioning) {
     this.resetCommand();
     const preName = this.parameters.AccountName || Constants.ACCOUNT_NAME;
-    if (bucketName === '') {
-        bucketName = `${preName}${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase();
-    }
+    bucketName = bucketName || `${preName}${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase();
     this.saved.bucketName = bucketName;
     this.addCommandParameter({ bucket: bucketName });
     await S3.createBucket(this.getCommandParameters());

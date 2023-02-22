@@ -63,9 +63,7 @@ export default class Zenko extends World {
                 AccessKeyId: this.parameters.AccountAccessKey,
                 SecretAccessKey: this.parameters.AccountSecretKey,
                 SessionToken: this.parameters.AccountSessionToken,
-            }
-            // this.cliMode.parameters.AssumedSession = CacheHelper.ARWWI[CacheHelper.AccountName];
-            // this.cliMode.assumed = true;
+            };
             CacheHelper.parameters.AccessKey = this.parameters.AccountAccessKey;
             CacheHelper.parameters.SecretKey = this.parameters.AccountSecretKey;
             CacheHelper.parameters.SessionToken = this.parameters.AccountSessionToken;

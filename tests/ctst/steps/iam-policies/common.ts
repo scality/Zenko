@@ -177,10 +177,11 @@ When('the user tries to perform {string} {string} on the bucket', async function
         userCredentials = this.parameters.AssumedSession;
     }
     const api = testAPIs.find(api => api.API === action);
+    assert(api);
     if (ifS3Standard === 'notS3Standard'){
         this.saved.ifS3Standard = false;
         // Handle Metadatasearch special case
-        console.log("THIS SAVED BUCKET NAME IS: ", this.saved.bucketName);
+        console.log("THIS SAVED BUCKET NAME IS: ", this.saved.bucketName); // TODO remove
         if (action === 'MetadataSearch') {
             this.result = await this.metadataSearchResponseCode(userCredentials, this.saved.bucketName);
         }
@@ -202,7 +203,7 @@ When('the user tries to perform {string} {string} on the bucket', async function
 
 Then('the user should be able to perform successfully the {string} action', function (action : string) {
     this.endForType();
-    console.log("RESULT: ", this.result);
+    console.log("RESULT: ", this.result); // TODO remove
     if (this.saved.ifS3Standard) {
         assert.strictEqual(this.result?.err, null);
     } else {
@@ -212,6 +213,6 @@ Then('the user should be able to perform successfully the {string} action', func
 
 Then('the user should receive {string} error', function (error : string) {
     this.endForType();
-    console.log("RESULT: ", this.result);
+    console.log("RESULT: ", this.result); // TODO remove
     assert.strictEqual(this.result.err.includes(error), true);
 });

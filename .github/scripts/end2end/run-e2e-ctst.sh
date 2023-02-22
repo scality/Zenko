@@ -54,4 +54,4 @@ kubectl run $POD_NAME \
         --image-pull-policy=Always \
         --env=TARGET_VERSION=$VERSION  \
         --env=VERBOSE=1 \
-        -- ./run "$COMMAND" $WORLD_PARAMETERS "--parallel $PARALLEL_RUNS --retry $RETRIES --retry-tag-filter @Flaky --tags @IAM-Policies-ARWWI"
+        -- ./run "$COMMAND" $WORLD_PARAMETERS "--parallel $PARALLEL_RUNS --retry $RETRIES --retry-tag-filter @Flaky"

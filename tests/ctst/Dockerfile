@@ -1,4 +1,5 @@
 ARG CTST_TAG
+# TODO remove dev once done testing
 FROM registry.scality.com/cli-testing-dev/cli-testing:$CTST_TAG
 
 COPY package.json /tmp/package.json
