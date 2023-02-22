@@ -1,5 +1,6 @@
 import { Given, setDefaultTimeout } from '@cucumber/cucumber';
 import { Constants, S3, Utils } from 'cli-testing';
+import { extractPropertyFromResults } from './utils';
 
 setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
 
@@ -13,7 +14,7 @@ Given('a {string} bucket', async function (versioning) {
     this.saved.bucketVersioning = versioning;
     if (versioning !== 'Non versioned') {
         const versioningConfiguration = versioning === 'Versioned' ? 'Enabled' : 'Suspended';
-        this.addCommandParameter({ versioningConfiguration: `Status=${versioningConfiguration}`});
+        this.addCommandParameter({ versioningConfiguration: `Status=${versioningConfiguration}` });
         await S3.putBucketVersioning(this.getCommandParameters());
     }
 });
@@ -26,22 +27,20 @@ Given('an existing bucket {string} {string} versioning', async function (bucketN
     this.addCommandParameter({ bucket: bucketName });
     await S3.createBucket(this.getCommandParameters());
     if (hasVersioning === 'with') {
-        this.addCommandParameter({ versioningConfiguration: `Status=Enabled`});
+        this.addCommandParameter({ versioningConfiguration: `Status=Enabled` });
         await S3.putBucketVersioning(this.getCommandParameters());
     }
 });
 
-Given('an object that {string} {string} version-Id',
-    async function (objectExists, withVersioning) {
-    this.resetCommand();
-    if (objectExists === 'exists') {
-        this.saved.objectName = 'x'.repeat(10);
-        this.addCommandParameter({key: this.saved.objectName});
-        this.addCommandParameter({bucket: this.saved.bucketName});
-        if (withVersioning === 'with') {
-            this.saved.versionId = '3sL4kqtJlcpXroDTDmJ+rmSpXd3dIbrHY+MTRCxf3vjVBH40Nr8X8gdRQBpUMLUo';
-            this.addCommandParameter({versionId: this.saved.versionId});
+Given('an object that {string}',
+    async function (objectExists) {
+        this.resetCommand();
+        if (objectExists === 'exists') {
+            this.saved.objectName = 'x'.repeat(10);
+            this.addCommandParameter({ key: this.saved.objectName });
+            this.addCommandParameter({ bucket: this.saved.bucketName });
+            this.saved.versionId = extractPropertyFromResults(
+                await S3.putObject(this.getCommandParameters()), 'VersionId'
+            );
         }
-        await S3.putObject(this.getCommandParameters());
-    }
-});
+    });
