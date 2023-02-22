@@ -12,7 +12,7 @@ export function extractPropertyFromResults(results: { err: null; stdout: string 
             if (jsonResults) {
                 while (propertyChain.length > 0) {
                     // @ts-ignore
-                    res = jsonResults[propertyChain.shift()];
+                    res = res[propertyChain.shift()];
                 }
             }
             return res;
