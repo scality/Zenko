@@ -22,3 +22,54 @@ export function extractPropertyFromResults(results: { err: null; stdout: string 
         return null;
     }
 }
+
+export const s3FunctionExtraParams : { [key: string]: Object } = {
+    'RestoreObject': { restoreRequest: 'Days=1' },
+    'PutObjectAcl':  { acl: 'public-read-write' },
+    'PutBucketTagging': { tagging: 'TagSet=[{Key=tag1,Value=value1},{Key=tag2,Value=value2}]' },
+    'PutObjectTagging': { tagging: 'TagSet=[{Key=string,Value=string}]' },
+    'PutObjectLockConfiguration': {
+        objectLockConfiguration: 'ObjectLockEnabled=Enabled,Rule=[{DefaultRetention={Mode=GOVERNANCE,Days=1}}]'
+    },
+    'DeleteObjects': {
+        delete: `Objects=[{Key=${'x'.repeat(10)}]`
+    },
+    'PutLifecycleConfiguration': {
+        lifecycleConfiguration: JSON.stringify(
+            {
+                Rules: [
+                    {
+                        Filter: {
+                            Prefix: "documents/"
+                        },
+                        Status: "Enabled",
+                        Transitions: [
+                            {
+                                Days: 365,
+                                StorageClass: "e2e-cold"
+                            }
+                        ],
+                        Expiration: {
+                            Days: 3650
+                        },
+                        ID: "ExampleRule"
+                    }
+                ]
+            })
+    },
+    'PutBucketReplication': {
+        replicationConfiguration: JSON.stringify(
+                {
+                    "Role": "arn:aws:iam::123456789012:role/s3-replication-role",
+                    "Rules": [
+                        {
+                            "Status": "Enabled",
+                            "Prefix": "",
+                            "Destination": {
+                                "Bucket": "arn:aws:s3:::exampleBucket",
+                            }
+                        }
+                    ]
+                })
+    }
+}
