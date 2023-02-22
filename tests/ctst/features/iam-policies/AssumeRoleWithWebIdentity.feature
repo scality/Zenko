@@ -1,14 +1,9 @@
-Feature: Assume Role with Web Identity
-    In order to interact with restricted APIs
-    As an Artesca User
-    I want to use a web identity
-    And to subscribe to events I want to be notified on
-    And to receive notifications on buckets/objects activities I have subscribed to
+Feature: IAM Policies for AssumeRoleWithWebIdentity  Users
 
   @2.6.0
   @PreMerge
   @IAM-Policies-ARWWI
-  Scenario Outline: Assume Role with Web Identity
+  Scenario Outline: AssumeRoleWithWebIdentity Users should be able to perform the actions successfully
     Given an existing bucket "" "<withVersioning>" versioning
     And an object that "<objectExists>"
     And a <type> type
@@ -32,14 +27,8 @@ Feature: Assume Role with Web Identity
       | CopyObject                      | STORAGE_MANAGER       | S3Standard    | without        | exists         |
       | GetObjectTagging                | STORAGE_MANAGER       | S3Standard    | without        | exists         |
       | PutObjectTagging                | STORAGE_MANAGER       | S3Standard    | without        | exists         |
-      | DeleteObject                    | STORAGE_MANAGER       | S3Standard    | with           | exists         |
       | PutBucketLifecycleConfiguration | STORAGE_MANAGER       | S3Standard    | without        | does not exist |
-      | GetObject                       | STORAGE_MANAGER       | S3Standard    | with           | exists         |
-      | GetObjectTagging                | STORAGE_MANAGER       | S3Standard    | with           | exists         |
-      | DeleteObjectTagging             | STORAGE_MANAGER       | S3Standard    | with           | exists         |
-      | PutObjectTagging                | STORAGE_MANAGER       | S3Standard    | with           | exists         |
-      | GetObjectAcl                    | STORAGE_MANAGER       | S3Standard    | with           | exists         |
-      | PutObjectAcl                    | STORAGE_MANAGER       | S3Standard    | with           | exists         |
+      | DeleteObjectTagging             | STORAGE_MANAGER       | S3Standard    | without        | exists         |
       | PutBucketTagging                | STORAGE_MANAGER       | S3Standard    | without        | does not exist |
       | DeleteBucketTagging             | STORAGE_MANAGER       | S3Standard    | without        | does not exist |
       | PutBucketReplication            | STORAGE_MANAGER       | S3Standard    | with           | does not exist |
@@ -58,14 +47,8 @@ Feature: Assume Role with Web Identity
       | CopyObject                      | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
       | GetObjectTagging                | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
       | PutObjectTagging                | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
-      | DeleteObject                    | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
       | PutBucketLifecycleConfiguration | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | does not exist |
-      | GetObject                       | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
-      | GetObjectTagging                | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
-      | DeleteObjectTagging             | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
-      | PutObjectTagging                | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
-      | GetObjectAcl                    | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
-      | PutObjectAcl                    | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
+      | DeleteObjectTagging             | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
       | PutBucketTagging                | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | does not exist |
       | DeleteBucketTagging             | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | does not exist |
       | PutBucketReplication            | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | does not exist |
@@ -84,14 +67,8 @@ Feature: Assume Role with Web Identity
       | CopyObject                      | DATA_CONSUMER         | S3Standard    | without        | exists         |
       | GetObjectTagging                | DATA_CONSUMER         | S3Standard    | without        | exists         |
       | PutObjectTagging                | DATA_CONSUMER         | S3Standard    | without        | exists         |
-      | DeleteObject                    | DATA_CONSUMER         | S3Standard    | with           | exists         |
       | PutBucketLifecycleConfiguration | DATA_CONSUMER         | S3Standard    | without        | does not exist |
-      | GetObject                       | DATA_CONSUMER         | S3Standard    | with           | exists         |
-      | GetObjectTagging                | DATA_CONSUMER         | S3Standard    | with           | exists         |
-      | DeleteObjectTagging             | DATA_CONSUMER         | S3Standard    | with           | exists         |
-      | PutObjectTagging                | DATA_CONSUMER         | S3Standard    | with           | exists         |
-      | GetObjectAcl                    | DATA_CONSUMER         | S3Standard    | with           | exists         |
-      | PutObjectAcl                    | DATA_CONSUMER         | S3Standard    | with           | exists         |
+      | DeleteObjectTagging             | DATA_CONSUMER         | S3Standard    | without        | exists         |
       | PutBucketTagging                | DATA_CONSUMER         | S3Standard    | without        | does not exist |
       | DeleteBucketTagging             | DATA_CONSUMER         | S3Standard    | without        | does not exist |
       | PutBucketReplication            | DATA_CONSUMER         | S3Standard    | with           | does not exist |
@@ -100,7 +77,7 @@ Feature: Assume Role with Web Identity
   @2.6.0
   @PreMerge
   @IAM-Policies-ARWWI
-  Scenario Outline: Assume Role with Web Identity bucket setting tests
+  Scenario Outline: AssumeRoleWithWebIdentity Users should receive the expected error other than AccessDenied when performing the actions
     Given an existing bucket "" "<withVersioning>" versioning
     And an object that "<objectExists>"
     And a <type> type
@@ -118,10 +95,6 @@ Feature: Assume Role with Web Identity
       | PutObjectLegalHold              | STORAGE_MANAGER       | with           | exists         | Bucket is missing Object Lock Configuration |
       | GetBucketReplication            | STORAGE_MANAGER       | without        | does not exist | ReplicationConfigurationNotFoundError       |
       | GetBucketLifecycleConfiguration | STORAGE_MANAGER       | without        | does not exist | NoSuchLifecycleConfiguration                |
-      | GetObjectRetention              | STORAGE_MANAGER       | with           | exists         | Bucket is missing Object Lock Configuration |
-      | GetObjectLegalHold              | STORAGE_MANAGER       | with           | exists         | Bucket is missing Object Lock Configuration |
-      | PutObjectRetention              | STORAGE_MANAGER       | with           | exists         | Bucket is missing Object Lock Configuration |
-      | PutObjectLegalHold              | STORAGE_MANAGER       | with           | exists         | Bucket is missing Object Lock Configuration |
       | GetBucketTagging                | STORAGE_MANAGER       | without        | does not exist | NoSuchTagSet                                |
       | PutObjectLockConfiguration      | STORAGE_MANAGER       | with           | does not exist | InvalidBucketState                          |
       | RestoreObject                   | STORAGE_ACCOUNT_OWNER | with           | exists         | InvalidObjectState                          |
@@ -133,10 +106,6 @@ Feature: Assume Role with Web Identity
       | PutObjectLegalHold              | STORAGE_ACCOUNT_OWNER | with           | exists         | Bucket is missing Object Lock Configuration |
       | GetBucketReplication            | STORAGE_ACCOUNT_OWNER | without        | does not exist | ReplicationConfigurationNotFoundError       |
       | GetBucketLifecycleConfiguration | STORAGE_ACCOUNT_OWNER | without        | does not exist | NoSuchLifecycleConfiguration                |
-      | GetObjectRetention              | STORAGE_ACCOUNT_OWNER | with           | exists         | Bucket is missing Object Lock Configuration |
-      | GetObjectLegalHold              | STORAGE_ACCOUNT_OWNER | with           | exists         | Bucket is missing Object Lock Configuration |
-      | PutObjectRetention              | STORAGE_ACCOUNT_OWNER | with           | exists         | Bucket is missing Object Lock Configuration |
-      | PutObjectLegalHold              | STORAGE_ACCOUNT_OWNER | with           | exists         | Bucket is missing Object Lock Configuration |
       | GetBucketTagging                | STORAGE_ACCOUNT_OWNER | without        | does not exist | NoSuchTagSet                                |
       | PutObjectLockConfiguration      | STORAGE_ACCOUNT_OWNER | with           | does not exist | InvalidBucketState                          |
       | RestoreObject                   | DATA_CONSUMER         | with           | exists         | InvalidObjectState                          |
@@ -148,10 +117,6 @@ Feature: Assume Role with Web Identity
       | PutObjectLegalHold              | DATA_CONSUMER         | with           | exists         | Bucket is missing Object Lock Configuration |
       | GetBucketReplication            | DATA_CONSUMER         | without        | does not exist | ReplicationConfigurationNotFoundError       |
       | GetBucketLifecycleConfiguration | DATA_CONSUMER         | without        | does not exist | NoSuchLifecycleConfiguration                |
-      | GetObjectRetention              | DATA_CONSUMER         | with           | exists         | Bucket is missing Object Lock Configuration |
-      | GetObjectLegalHold              | DATA_CONSUMER         | with           | exists         | Bucket is missing Object Lock Configuration |
-      | PutObjectRetention              | DATA_CONSUMER         | with           | exists         | Bucket is missing Object Lock Configuration |
-      | PutObjectLegalHold              | DATA_CONSUMER         | with           | exists         | Bucket is missing Object Lock Configuration |
       | GetBucketTagging                | DATA_CONSUMER         | without        | does not exist | NoSuchTagSet                                |
       | PutObjectLockConfiguration      | DATA_CONSUMER         | with           | does not exist | InvalidBucketState                          |
 
@@ -159,7 +124,7 @@ Feature: Assume Role with Web Identity
   @2.6.0
   @PreMerge
   @IAM-Policies-ARWWI
-  Scenario Outline: Data Consumer with Web Identity cannot perform these bucket actions
+  Scenario Outline: Data Consumer Users should receive AccessDenied when performing these bucket actions
     Given an existing bucket "" "<withVersioning>" versioning
     And an object that "<objectExists>"
     And a DATA_CONSUMER type
