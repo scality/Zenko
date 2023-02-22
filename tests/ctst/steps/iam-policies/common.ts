@@ -32,7 +32,7 @@ When('the user tries to perform {string} {string} on the bucket', async function
         if (this.saved.versionId) {
             this.addCommandParameter({versionId: this.saved.versionId});
         }
-
+        action = action.charAt(0).toLowerCase() + action.slice(1);
         const actionCall = (S3 as {[key: string]: Function})[action];
         if (actionCall) {
             if (action in s3FunctionExtraParams) {

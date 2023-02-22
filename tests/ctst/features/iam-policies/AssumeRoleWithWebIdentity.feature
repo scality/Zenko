@@ -155,3 +155,19 @@ Feature: Assume Role with Web Identity
       | GetBucketTagging                 | DATA_CONSUMER         | without        | does not exist | NoSuchTagSet                                |
       | PutBucketReplication             | DATA_CONSUMER         | with           | does not exist |                                             |
 
+
+  @2.6.0
+  @PreMerge
+  @IAM-Policies-ARWWI
+  Scenario Outline: Data Consumer with Web Identity cannot perform these bucket actions
+    Given an existing bucket "" "<withVersioning>" versioning
+    And an object that "<objectExists>"
+    And a DATA_CONSUMER type
+    When the user tries to perform "S3Standard" "<action>" on the bucket
+    Then the user should receive "AccessDenied" error
+
+    Examples:
+      | action              | withVersioning | objectExists   |
+      | CreateBucket        | with           | does not exist |
+      | DeleteBucket        | with           | does not exist |
+      | PutBucketVersioning | with           | does not exist |
