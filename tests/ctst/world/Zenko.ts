@@ -339,7 +339,7 @@ export default class Zenko extends World {
             CacheHelper.parameters.AccessKey = account2Credentials.id;
             CacheHelper.parameters.SecretKey = account2Credentials.value;
 
-            accountToBeAssumedFrom = account2;
+            accountToBeAssumedFrom = account2.account;
         }
 
         // Creating a user in the account to be assumed from
