@@ -16,84 +16,85 @@ Feature: Assume Role with Web Identity
     Then the user should be able to perform successfully the "<action>" action
 
     Examples:
-      | action                     | type                  | ifS3Standard  | withVersioning | objectExists   |
-      | MetadataSearch             | STORAGE_MANAGER       | notS3Standard | without        | does not exist |
-      | PutObject                  | STORAGE_MANAGER       | S3Standard    | without        | does not exist |
-      | PutObjectAcl               | STORAGE_MANAGER       | S3Standard    | without        | does not exist |
-      | GetObject                  | STORAGE_MANAGER       | S3Standard    | without        | exists         |
-      | GetObjectAcl               | STORAGE_MANAGER       | S3Standard    | without        | exists         |
-      | DeleteObject               | STORAGE_MANAGER       | S3Standard    | without        | exists         |
-      | GetBucketVersioning        | STORAGE_MANAGER       | S3Standard    | with           | does not exist |
-      | GetBucketAcl               | STORAGE_MANAGER       | S3Standard    | without        | does not exist |
-      | ListObjectsV2              | STORAGE_MANAGER       | S3Standard    | without        | exists         |
-      | ListObjectVersions         | STORAGE_MANAGER       | S3Standard    | with           | exists         |
-      | DeleteObjects              | STORAGE_MANAGER       | S3Standard    | without        | exists         |
-      | HeadObject                 | STORAGE_MANAGER       | S3Standard    | without        | exists         |
-      | CopyObject                 | STORAGE_MANAGER       | S3Standard    | without        | exists         |
-      | GetObjectTagging           | STORAGE_MANAGER       | S3Standard    | without        | exists         |
-      | PutObjectTagging           | STORAGE_MANAGER       | S3Standard    | without        | exists         |
-      | DeleteObject               | STORAGE_MANAGER       | S3Standard    | with           | exists         |
-      | PutBucketLifecycle         | STORAGE_MANAGER       | S3Standard    | without        | does not exist |
-      | GetObject                  | STORAGE_MANAGER       | S3Standard    | with           | exists         |
-      | GetObjectTagging           | STORAGE_MANAGER       | S3Standard    | with           | exists         |
-      | DeleteObjectTagging        | STORAGE_MANAGER       | S3Standard    | with           | exists         |
-      | PutObjectTagging           | STORAGE_MANAGER       | S3Standard    | with           | exists         |
-      | GetObjectAcl               | STORAGE_MANAGER       | S3Standard    | with           | exists         |
-      | PutObjectAcl               | STORAGE_MANAGER       | S3Standard    | with           | exists         |
-      | PutBucketTagging           | STORAGE_MANAGER       | S3Standard    | without        | does not exist |
-      | DeleteBucketTagging        | STORAGE_MANAGER       | S3Standard    | without        | does not exist |
-      | MetadataSearch             | STORAGE_ACCOUNT_OWNER | notS3Standard | without        | does not exist |
-      | PutObject                  | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | does not exist |
-      | PutObjectAcl               | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | does not exist |
-      | GetObject                  | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
-      | GetObjectAcl               | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
-      | DeleteObject               | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
-      | GetBucketVersioning        | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | does not exist |
-      | GetBucketAcl               | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | does not exist |
-      | ListObjectsV2              | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
-      | ListObjectVersions         | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
-      | PutObjectLockConfiguration | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | does not exist |
-      | DeleteObjects              | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
-      | HeadObject                 | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
-      | CopyObject                 | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
-      | GetObjectTagging           | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
-      | PutObjectTagging           | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
-      | DeleteObject               | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
-      | PutBucketLifecycle         | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | does not exist |
-      | GetObject                  | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
-      | GetObjectTagging           | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
-      | DeleteObjectTagging        | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
-      | PutObjectTagging           | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
-      | GetObjectAcl               | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
-      | PutObjectAcl               | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
-      | PutBucketTagging           | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | does not exist |
-      | DeleteBucketTagging        | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | does not exist |
-      | MetadataSearch             | DATA_CONSUMER         | notS3Standard | without        | does not exist |
-      | PutObject                  | DATA_CONSUMER         | S3Standard    | without        | does not exist |
-      | PutObjectAcl               | DATA_CONSUMER         | S3Standard    | without        | does not exist |
-      | GetObject                  | DATA_CONSUMER         | S3Standard    | without        | exists         |
-      | GetObjectAcl               | DATA_CONSUMER         | S3Standard    | without        | exists         |
-      | DeleteObject               | DATA_CONSUMER         | S3Standard    | without        | exists         |
-      | GetBucketVersioning        | DATA_CONSUMER         | S3Standard    | with           | does not exist |
-      | GetBucketAcl               | DATA_CONSUMER         | S3Standard    | without        | does not exist |
-      | ListObjectsV2              | DATA_CONSUMER         | S3Standard    | without        | exists         |
-      | ListObjectVersions         | DATA_CONSUMER         | S3Standard    | with           | exists         |
-      | PutObjectLockConfiguration | DATA_CONSUMER         | S3Standard    | without        | does not exist |
-      | DeleteObjects              | DATA_CONSUMER         | S3Standard    | without        | exists         |
-      | HeadObject                 | DATA_CONSUMER         | S3Standard    | without        | exists         |
-      | CopyObject                 | DATA_CONSUMER         | S3Standard    | without        | exists         |
-      | GetObjectTagging           | DATA_CONSUMER         | S3Standard    | without        | exists         |
-      | PutObjectTagging           | DATA_CONSUMER         | S3Standard    | without        | exists         |
-      | DeleteObject               | DATA_CONSUMER         | S3Standard    | with           | exists         |
-      | PutBucketLifecycle         | DATA_CONSUMER         | S3Standard    | without        | does not exist |
-      | GetObject                  | DATA_CONSUMER         | S3Standard    | with           | exists         |
-      | GetObjectTagging           | DATA_CONSUMER         | S3Standard    | with           | exists         |
-      | DeleteObjectTagging        | DATA_CONSUMER         | S3Standard    | with           | exists         |
-      | PutObjectTagging           | DATA_CONSUMER         | S3Standard    | with           | exists         |
-      | GetObjectAcl               | DATA_CONSUMER         | S3Standard    | with           | exists         |
-      | PutObjectAcl               | DATA_CONSUMER         | S3Standard    | with           | exists         |
-      | PutBucketTagging           | DATA_CONSUMER         | S3Standard    | without        | does not exist |
-      | DeleteBucketTagging        | DATA_CONSUMER         | S3Standard    | without        | does not exist |
+      | action                          | type                  | ifS3Standard  | withVersioning | objectExists   |
+      | MetadataSearch                  | STORAGE_MANAGER       | notS3Standard | without        | does not exist |
+      | PutObject                       | STORAGE_MANAGER       | S3Standard    | without        | does not exist |
+      | PutObjectAcl                    | STORAGE_MANAGER       | S3Standard    | without        | does not exist |
+      | GetObject                       | STORAGE_MANAGER       | S3Standard    | without        | exists         |
+      | GetObjectAcl                    | STORAGE_MANAGER       | S3Standard    | without        | exists         |
+      | DeleteObject                    | STORAGE_MANAGER       | S3Standard    | without        | exists         |
+      | GetBucketVersioning             | STORAGE_MANAGER       | S3Standard    | with           | does not exist |
+      | GetBucketAcl                    | STORAGE_MANAGER       | S3Standard    | without        | does not exist |
+      | ListObjectsV2                   | STORAGE_MANAGER       | S3Standard    | without        | exists         |
+      | ListObjectVersions              | STORAGE_MANAGER       | S3Standard    | with           | exists         |
+      | DeleteObjects                   | STORAGE_MANAGER       | S3Standard    | without        | exists         |
+      | HeadObject                      | STORAGE_MANAGER       | S3Standard    | without        | exists         |
+      | CopyObject                      | STORAGE_MANAGER       | S3Standard    | without        | exists         |
+      | GetObjectTagging                | STORAGE_MANAGER       | S3Standard    | without        | exists         |
+      | PutObjectTagging                | STORAGE_MANAGER       | S3Standard    | without        | exists         |
+      | DeleteObject                    | STORAGE_MANAGER       | S3Standard    | with           | exists         |
+      | PutBucketLifecycleConfiguration | STORAGE_MANAGER       | S3Standard    | without        | does not exist |
+      | GetObject                       | STORAGE_MANAGER       | S3Standard    | with           | exists         |
+      | GetObjectTagging                | STORAGE_MANAGER       | S3Standard    | with           | exists         |
+      | DeleteObjectTagging             | STORAGE_MANAGER       | S3Standard    | with           | exists         |
+      | PutObjectTagging                | STORAGE_MANAGER       | S3Standard    | with           | exists         |
+      | GetObjectAcl                    | STORAGE_MANAGER       | S3Standard    | with           | exists         |
+      | PutObjectAcl                    | STORAGE_MANAGER       | S3Standard    | with           | exists         |
+      | PutBucketTagging                | STORAGE_MANAGER       | S3Standard    | without        | does not exist |
+      | DeleteBucketTagging             | STORAGE_MANAGER       | S3Standard    | without        | does not exist |
+      | PutObjectLockConfiguration      | STORAGE_MANAGER       | S3Standard    | without        | does not exist |
+      | MetadataSearch                  | STORAGE_ACCOUNT_OWNER | notS3Standard | without        | does not exist |
+      | PutObject                       | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | does not exist |
+      | PutObjectAcl                    | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | does not exist |
+      | GetObject                       | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
+      | GetObjectAcl                    | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
+      | DeleteObject                    | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
+      | GetBucketVersioning             | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | does not exist |
+      | GetBucketAcl                    | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | does not exist |
+      | ListObjectsV2                   | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
+      | ListObjectVersions              | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
+      | PutObjectLockConfiguration      | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | does not exist |
+      | DeleteObjects                   | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
+      | HeadObject                      | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
+      | CopyObject                      | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
+      | GetObjectTagging                | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
+      | PutObjectTagging                | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
+      | DeleteObject                    | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
+      | PutBucketLifecycleConfiguration | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | does not exist |
+      | GetObject                       | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
+      | GetObjectTagging                | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
+      | DeleteObjectTagging             | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
+      | PutObjectTagging                | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
+      | GetObjectAcl                    | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
+      | PutObjectAcl                    | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
+      | PutBucketTagging                | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | does not exist |
+      | DeleteBucketTagging             | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | does not exist |
+      | MetadataSearch                  | DATA_CONSUMER         | notS3Standard | without        | does not exist |
+      | PutObject                       | DATA_CONSUMER         | S3Standard    | without        | does not exist |
+      | PutObjectAcl                    | DATA_CONSUMER         | S3Standard    | without        | does not exist |
+      | GetObject                       | DATA_CONSUMER         | S3Standard    | without        | exists         |
+      | GetObjectAcl                    | DATA_CONSUMER         | S3Standard    | without        | exists         |
+      | DeleteObject                    | DATA_CONSUMER         | S3Standard    | without        | exists         |
+      | GetBucketVersioning             | DATA_CONSUMER         | S3Standard    | with           | does not exist |
+      | GetBucketAcl                    | DATA_CONSUMER         | S3Standard    | without        | does not exist |
+      | ListObjectsV2                   | DATA_CONSUMER         | S3Standard    | without        | exists         |
+      | ListObjectVersions              | DATA_CONSUMER         | S3Standard    | with           | exists         |
+      | PutObjectLockConfiguration      | DATA_CONSUMER         | S3Standard    | without        | does not exist |
+      | DeleteObjects                   | DATA_CONSUMER         | S3Standard    | without        | exists         |
+      | HeadObject                      | DATA_CONSUMER         | S3Standard    | without        | exists         |
+      | CopyObject                      | DATA_CONSUMER         | S3Standard    | without        | exists         |
+      | GetObjectTagging                | DATA_CONSUMER         | S3Standard    | without        | exists         |
+      | PutObjectTagging                | DATA_CONSUMER         | S3Standard    | without        | exists         |
+      | DeleteObject                    | DATA_CONSUMER         | S3Standard    | with           | exists         |
+      | PutBucketLifecycleConfiguration | DATA_CONSUMER         | S3Standard    | without        | does not exist |
+      | GetObject                       | DATA_CONSUMER         | S3Standard    | with           | exists         |
+      | GetObjectTagging                | DATA_CONSUMER         | S3Standard    | with           | exists         |
+      | DeleteObjectTagging             | DATA_CONSUMER         | S3Standard    | with           | exists         |
+      | PutObjectTagging                | DATA_CONSUMER         | S3Standard    | with           | exists         |
+      | GetObjectAcl                    | DATA_CONSUMER         | S3Standard    | with           | exists         |
+      | PutObjectAcl                    | DATA_CONSUMER         | S3Standard    | with           | exists         |
+      | PutBucketTagging                | DATA_CONSUMER         | S3Standard    | without        | does not exist |
+      | DeleteBucketTagging             | DATA_CONSUMER         | S3Standard    | without        | does not exist |
 
 
   @2.6.0
@@ -107,55 +108,52 @@ Feature: Assume Role with Web Identity
     Then the user should receive "<error>" error
 
     Examples:
-      | action                           | type                  | withVersioning | objectExists   | error                                       |
-      | RestoreObject                    | STORAGE_MANAGER       | with           | exists         | InvalidObjectState                          |
-      | GetBucketCors                    | STORAGE_MANAGER       | without        | does not exist | NoSuchCORSConfiguration                     |
-      | GetBucketObjectLockConfiguration | STORAGE_MANAGER       | without        | does not exist | ObjectLockConfigurationNotFoundError        |
-      | GetObjectRetention               | STORAGE_MANAGER       | with           | exists         | Bucket is missing Object Lock Configuration |
-      | GetObjectLegalHold               | STORAGE_MANAGER       | with           | exists         | Bucket is missing Object Lock Configuration |
-      | PutObjectRetention               | STORAGE_MANAGER       | with           | exists         | Bucket is missing Object Lock Configuration |
-      | PutObjectLegalHold               | STORAGE_MANAGER       | with           | exists         | Bucket is missing Object Lock Configuration |
-      | GetBucketReplication             | STORAGE_MANAGER       | without        | does not exist | ReplicationConfigurationNotFoundError       |
-      | GetBucketLifecycle               | STORAGE_MANAGER       | without        | does not exist | NoSuchLifecycleConfiguration                |
-      | GetObjectRetention               | STORAGE_MANAGER       | with           | exists         | Bucket is missing Object Lock Configuration |
-      | GetObjectLegalHold               | STORAGE_MANAGER       | with           | exists         | Bucket is missing Object Lock Configuration |
-      | PutObjectRetention               | STORAGE_MANAGER       | with           | exists         | Bucket is missing Object Lock Configuration |
-      | PutObjectLegalHold               | STORAGE_MANAGER       | with           | exists         | Bucket is missing Object Lock Configuration |
-      | GetBucketTagging                 | STORAGE_MANAGER       | without        | does not exist | NoSuchTagSet                                |
-      | PutBucketReplication             | STORAGE_MANAGER       | with           | does not exist | Destination bucket must exist               |
-      | PutObjectLockConfiguration       | STORAGE_MANAGER       | without        | does not exist | InvalidBucketState                          |
-      | RestoreObject                    | STORAGE_ACCOUNT_OWNER | with           | exists         | InvalidObjectState                          |
-      | GetBucketCors                    | STORAGE_ACCOUNT_OWNER | without        | does not exist | NoSuchCORSConfiguration                     |
-      | GetBucketObjectLockConfiguration | STORAGE_ACCOUNT_OWNER | without        | does not exist | ObjectLockConfigurationNotFoundError        |
-      | GetObjectRetention               | STORAGE_ACCOUNT_OWNER | with           | exists         | Bucket is missing Object Lock Configuration |
-      | GetObjectLegalHold               | STORAGE_ACCOUNT_OWNER | with           | exists         | Bucket is missing Object Lock Configuration |
-      | PutObjectRetention               | STORAGE_ACCOUNT_OWNER | with           | exists         | Bucket is missing Object Lock Configuration |
-      | PutObjectLegalHold               | STORAGE_ACCOUNT_OWNER | with           | exists         | Bucket is missing Object Lock Configuration |
-      | GetBucketReplication             | STORAGE_ACCOUNT_OWNER | without        | does not exist | ReplicationConfigurationNotFoundError       |
-      | GetBucketLifecycle               | STORAGE_ACCOUNT_OWNER | without        | does not exist | NoSuchLifecycleConfiguration                |
-      | GetObjectRetention               | STORAGE_ACCOUNT_OWNER | with           | exists         | Bucket is missing Object Lock Configuration |
-      | GetObjectLegalHold               | STORAGE_ACCOUNT_OWNER | with           | exists         | Bucket is missing Object Lock Configuration |
-      | PutObjectRetention               | STORAGE_ACCOUNT_OWNER | with           | exists         | Bucket is missing Object Lock Configuration |
-      | PutObjectLegalHold               | STORAGE_ACCOUNT_OWNER | with           | exists         | Bucket is missing Object Lock Configuration |
-      | GetBucketTagging                 | STORAGE_ACCOUNT_OWNER | without        | does not exist | NoSuchTagSet                                |
-      | PutBucketReplication             | STORAGE_ACCOUNT_OWNER | with           | does not exist | Destination bucket must exist               |
-      | PutObjectLockConfiguration       | STORAGE_ACCOUNT_OWNER | without        | does not exist | InvalidBucketState                          |
-      | RestoreObject                    | DATA_CONSUMER         | with           | exists         | InvalidObjectState                          |
-      | GetBucketCors                    | DATA_CONSUMER         | without        | does not exist | NoSuchCORSConfiguration                     |
-      | GetBucketObjectLockConfiguration | DATA_CONSUMER         | without        | does not exist | ObjectLockConfigurationNotFoundError        |
-      | GetObjectRetention               | DATA_CONSUMER         | with           | exists         | Bucket is missing Object Lock Configuration |
-      | GetObjectLegalHold               | DATA_CONSUMER         | with           | exists         | Bucket is missing Object Lock Configuration |
-      | PutObjectRetention               | DATA_CONSUMER         | with           | exists         | Bucket is missing Object Lock Configuration |
-      | PutObjectLegalHold               | DATA_CONSUMER         | with           | exists         | Bucket is missing Object Lock Configuration |
-      | GetBucketReplication             | DATA_CONSUMER         | without        | does not exist | ReplicationConfigurationNotFoundError       |
-      | GetBucketLifecycle               | DATA_CONSUMER         | without        | does not exist | NoSuchLifecycleConfiguration                |
-      | GetObjectRetention               | DATA_CONSUMER         | with           | exists         | Bucket is missing Object Lock Configuration |
-      | GetObjectLegalHold               | DATA_CONSUMER         | with           | exists         | Bucket is missing Object Lock Configuration |
-      | PutObjectRetention               | DATA_CONSUMER         | with           | exists         | Bucket is missing Object Lock Configuration |
-      | PutObjectLegalHold               | DATA_CONSUMER         | with           | exists         | Bucket is missing Object Lock Configuration |
-      | GetBucketTagging                 | DATA_CONSUMER         | without        | does not exist | NoSuchTagSet                                |
-      | PutBucketReplication             | DATA_CONSUMER         | with           | does not exist | Destination bucket must exist               |
-      | PutObjectLockConfiguration       | DATA_CONSUMER         | without        | does not exist | InvalidBucketState                          |
+      | action                          | type                  | withVersioning | objectExists   | error                                       |
+      | RestoreObject                   | STORAGE_MANAGER       | with           | exists         | InvalidObjectState                          |
+      | GetBucketCors                   | STORAGE_MANAGER       | without        | does not exist | NoSuchCORSConfiguration                     |
+      | GetObjectLockConfiguration      | STORAGE_MANAGER       | without        | does not exist | ObjectLockConfigurationNotFoundError        |
+      | GetObjectRetention              | STORAGE_MANAGER       | with           | exists         | Bucket is missing Object Lock Configuration |
+      | GetObjectLegalHold              | STORAGE_MANAGER       | with           | exists         | Bucket is missing Object Lock Configuration |
+      | PutObjectRetention              | STORAGE_MANAGER       | with           | exists         | Bucket is missing Object Lock Configuration |
+      | PutObjectLegalHold              | STORAGE_MANAGER       | with           | exists         | Bucket is missing Object Lock Configuration |
+      | GetBucketReplication            | STORAGE_MANAGER       | without        | does not exist | ReplicationConfigurationNotFoundError       |
+      | GetBucketLifecycleConfiguration | STORAGE_MANAGER       | without        | does not exist | NoSuchLifecycleConfiguration                |
+      | GetObjectRetention              | STORAGE_MANAGER       | with           | exists         | Bucket is missing Object Lock Configuration |
+      | GetObjectLegalHold              | STORAGE_MANAGER       | with           | exists         | Bucket is missing Object Lock Configuration |
+      | PutObjectRetention              | STORAGE_MANAGER       | with           | exists         | Bucket is missing Object Lock Configuration |
+      | PutObjectLegalHold              | STORAGE_MANAGER       | with           | exists         | Bucket is missing Object Lock Configuration |
+      | GetBucketTagging                | STORAGE_MANAGER       | without        | does not exist | NoSuchTagSet                                |
+      | PutBucketReplication            | STORAGE_MANAGER       | with           | does not exist | Destination bucket must exist               |
+      | RestoreObject                   | STORAGE_ACCOUNT_OWNER | with           | exists         | InvalidObjectState                          |
+      | GetBucketCors                   | STORAGE_ACCOUNT_OWNER | without        | does not exist | NoSuchCORSConfiguration                     |
+      | GetObjectLockConfiguration      | STORAGE_ACCOUNT_OWNER | without        | does not exist | ObjectLockConfigurationNotFoundError        |
+      | GetObjectRetention              | STORAGE_ACCOUNT_OWNER | with           | exists         | Bucket is missing Object Lock Configuration |
+      | GetObjectLegalHold              | STORAGE_ACCOUNT_OWNER | with           | exists         | Bucket is missing Object Lock Configuration |
+      | PutObjectRetention              | STORAGE_ACCOUNT_OWNER | with           | exists         | Bucket is missing Object Lock Configuration |
+      | PutObjectLegalHold              | STORAGE_ACCOUNT_OWNER | with           | exists         | Bucket is missing Object Lock Configuration |
+      | GetBucketReplication            | STORAGE_ACCOUNT_OWNER | without        | does not exist | ReplicationConfigurationNotFoundError       |
+      | GetBucketLifecycleConfiguration | STORAGE_ACCOUNT_OWNER | without        | does not exist | NoSuchLifecycleConfiguration                |
+      | GetObjectRetention              | STORAGE_ACCOUNT_OWNER | with           | exists         | Bucket is missing Object Lock Configuration |
+      | GetObjectLegalHold              | STORAGE_ACCOUNT_OWNER | with           | exists         | Bucket is missing Object Lock Configuration |
+      | PutObjectRetention              | STORAGE_ACCOUNT_OWNER | with           | exists         | Bucket is missing Object Lock Configuration |
+      | PutObjectLegalHold              | STORAGE_ACCOUNT_OWNER | with           | exists         | Bucket is missing Object Lock Configuration |
+      | GetBucketTagging                | STORAGE_ACCOUNT_OWNER | without        | does not exist | NoSuchTagSet                                |
+      | PutBucketReplication            | STORAGE_ACCOUNT_OWNER | with           | does not exist | Destination bucket must exist               |
+      | RestoreObject                   | DATA_CONSUMER         | with           | exists         | InvalidObjectState                          |
+      | GetBucketCors                   | DATA_CONSUMER         | without        | does not exist | NoSuchCORSConfiguration                     |
+      | GetObjectLockConfiguration      | DATA_CONSUMER         | without        | does not exist | ObjectLockConfigurationNotFoundError        |
+      | GetObjectRetention              | DATA_CONSUMER         | with           | exists         | Bucket is missing Object Lock Configuration |
+      | GetObjectLegalHold              | DATA_CONSUMER         | with           | exists         | Bucket is missing Object Lock Configuration |
+      | PutObjectRetention              | DATA_CONSUMER         | with           | exists         | Bucket is missing Object Lock Configuration |
+      | PutObjectLegalHold              | DATA_CONSUMER         | with           | exists         | Bucket is missing Object Lock Configuration |
+      | GetBucketReplication            | DATA_CONSUMER         | without        | does not exist | ReplicationConfigurationNotFoundError       |
+      | GetBucketLifecycleConfiguration | DATA_CONSUMER         | without        | does not exist | NoSuchLifecycleConfiguration                |
+      | GetObjectRetention              | DATA_CONSUMER         | with           | exists         | Bucket is missing Object Lock Configuration |
+      | GetObjectLegalHold              | DATA_CONSUMER         | with           | exists         | Bucket is missing Object Lock Configuration |
+      | PutObjectRetention              | DATA_CONSUMER         | with           | exists         | Bucket is missing Object Lock Configuration |
+      | PutObjectLegalHold              | DATA_CONSUMER         | with           | exists         | Bucket is missing Object Lock Configuration |
+      | GetBucketTagging                | DATA_CONSUMER         | without        | does not exist | NoSuchTagSet                                |
+      | PutBucketReplication            | DATA_CONSUMER         | with           | does not exist | Destination bucket must exist               |
 
 
   @2.6.0
