@@ -156,10 +156,6 @@ export default class Zenko extends World {
                 );
                 this.saved.type = EntityType.DATA_CONSUMER;
                 break;
-            case EntityType.ASSUME_ROLE_USER:
-                await this.prepareAssumeRole();
-                this.saved.type = EntityType.ASSUME_ROLE_USER;
-                break;
             default:
                 break;
         }
@@ -299,7 +295,9 @@ export default class Zenko extends World {
      * @param crossAccount
      */
     async prepareAssumeRole(crossAccount: boolean = false) {
-        // Getting account ID
+        this.resetGlobalType();
+
+        // Getting default account ID
         const account = await SuperAdmin.getAccount({
             name: this.parameters.AccountName || Constants.ACCOUNT_NAME,
         });
@@ -308,6 +306,7 @@ export default class Zenko extends World {
             SecretKey: CacheHelper.parameters.SecretKey,
         };
 
+        // Creating a role to assume
         this.saved.roleName = `${account.name}${Constants.ROLE_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase();
         this.addCommandParameter({ roleName: this.saved.roleName });
         this.addCommandParameter({ assumeRolePolicyDocument: Constants.assumeRoleTrustPolicy });
@@ -316,58 +315,65 @@ export default class Zenko extends World {
         let accountToBeAssumedFrom = account;
 
         if (crossAccount) {
+            // Creating a second account if its Cross-Account AssumeRole
             let account2 = await SuperAdmin.createAccount({
                 name: `${Constants.ACCOUNT_NAME}${Utils.randomString()}`,
             });
-
             if (Utils.isAccount(account2)) {
                 account2 = account2 as Utils.Account;
             } else {
                 throw new Error('Error when trying to create account.');
             }
 
+            // Creating credentials for the second account
             let account2Credentials = await SuperAdmin.generateAccountAccessKey({
                 name: account2.account.name,
             });
-
             if (Utils.isAccessKeys(account2Credentials)) {
                 account2Credentials = account2Credentials as Utils.AccessKeys;
             } else {
                 throw new Error('Error when trying to create account accesskey.');
             }
 
+            // Set the credentials of the second account as the default credentials
             CacheHelper.parameters.AccessKey = account2Credentials.id;
             CacheHelper.parameters.SecretKey = account2Credentials.value;
 
             accountToBeAssumedFrom = account2;
         }
 
+        // Creating a user in the account to be assumed from
         this.resetCommand();
         const userName = `${accountToBeAssumedFrom.name}${Constants.USER_NAME_TEST}${Utils.randomString()}`;
         this.addCommandParameter({userName});
         await IAM.createUser(this.getCommandParameters());
 
+        // Creating a policy to allow it to AssumeRole
         this.resetCommand();
         this.addCommandParameter({ policyName: `${accountToBeAssumedFrom.name}${Constants.POLICY_NAME_TEST}${Utils.randomString()}` });
         this.addCommandParameter({ policyDocument: Constants.assumeRolePolicy });
         const assumeRolePolicyArn = extractPropertyFromResults(await IAM.createPolicy(this.getCommandParameters()), "Policy", "Arn");
 
+        // Attaching the policy to the user
         this.resetCommand();
         this.addCommandParameter({ userName });
         this.addCommandParameter({ policyArn: assumeRolePolicyArn });
         await IAM.attachUserPolicy(this.getCommandParameters());
 
+        // Creating credentials for the user
         this.resetCommand();
-        this.addCommandParameter({userName})
+        this.addCommandParameter({ userName });
         this.parameters.IAMSession = extractPropertyFromResults(await IAM.createAccessKey(this.getCommandParameters()), "AccessKey");
         this.resumeRootOrIamUser();
 
+        // Assuming the role
         this.resetCommand();
         this.addCommandParameter({ roleArn: roleArnToAssume });
         this.parameters.AssumedSession = extractPropertyFromResults(await STS.assumeRole(this.getCommandParameters()), "Credentials");
         this.cliMode.assumed = true;
         this.cliMode.env = false;
 
+        // reset the credentials of default account as the defualt credentials
         CacheHelper.parameters.AccessKey = Zenko.additionalAccountsCredentials[account.name].AccessKey;
         CacheHelper.parameters.SecretKey = Zenko.additionalAccountsCredentials[account.name].SecretKey;
     }
