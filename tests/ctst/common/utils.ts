@@ -33,7 +33,7 @@ export const s3FunctionExtraParams : { [key: string]: Object } = {
         objectLockConfiguration: '{ "ObjectLockEnabled": "Enabled", "Rule": { "DefaultRetention": { "Mode": "COMPLIANCE", "Days": 50 }}}'
     },
     'deleteObjects': {
-        delete: `Objects=[{Key=${'x'.repeat(10)}]`
+        delete: `Objects=[{Key=${'x'.repeat(10)}}]`
     },
     'putBucketLifecycleConfiguration': {
         lifecycleConfiguration: JSON.stringify(
