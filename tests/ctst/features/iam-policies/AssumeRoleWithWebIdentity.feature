@@ -21,8 +21,10 @@ Feature: Assume Role with Web Identity
       | PutObject                       | STORAGE_MANAGER       | S3Standard    | without        | does not exist |
       | PutObjectAcl                    | STORAGE_MANAGER       | S3Standard    | without        | does not exist |
       | GetObject                       | STORAGE_MANAGER       | S3Standard    | without        | exists         |
+      | GetObject                       | STORAGE_MANAGER       | S3Standard    | with           | exists         |
       | GetObjectAcl                    | STORAGE_MANAGER       | S3Standard    | without        | exists         |
       | DeleteObject                    | STORAGE_MANAGER       | S3Standard    | without        | exists         |
+      | DeleteObject                    | STORAGE_MANAGER       | S3Standard    | with           | exists         |
       | GetBucketVersioning             | STORAGE_MANAGER       | S3Standard    | with           | does not exist |
       | GetBucketAcl                    | STORAGE_MANAGER       | S3Standard    | without        | does not exist |
       | ListObjectsV2                   | STORAGE_MANAGER       | S3Standard    | without        | exists         |
@@ -31,23 +33,29 @@ Feature: Assume Role with Web Identity
       | HeadObject                      | STORAGE_MANAGER       | S3Standard    | without        | exists         |
       | CopyObject                      | STORAGE_MANAGER       | S3Standard    | without        | exists         |
       | GetObjectTagging                | STORAGE_MANAGER       | S3Standard    | without        | exists         |
+      | GetObjectTagging                | STORAGE_MANAGER       | S3Standard    | with           | exists         |
       | PutObjectTagging                | STORAGE_MANAGER       | S3Standard    | without        | exists         |
-      | DeleteObject                    | STORAGE_MANAGER       | S3Standard    | with           | exists         |
       | PutBucketLifecycleConfiguration | STORAGE_MANAGER       | S3Standard    | without        | does not exist |
       | GetObject                       | STORAGE_MANAGER       | S3Standard    | with           | exists         |
       | GetObjectTagging                | STORAGE_MANAGER       | S3Standard    | with           | exists         |
       | DeleteObjectTagging             | STORAGE_MANAGER       | S3Standard    | with           | exists         |
+      | DeleteObjectTagging             | STORAGE_MANAGER       | S3Standard    | without        | exists         |
+      | PutObjectTagging                | STORAGE_MANAGER       | S3Standard    | without        | exists         |
       | PutObjectTagging                | STORAGE_MANAGER       | S3Standard    | with           | exists         |
       | GetObjectAcl                    | STORAGE_MANAGER       | S3Standard    | with           | exists         |
+      | GetObjectAcl                    | STORAGE_MANAGER       | S3Standard    | without        | exists         |
       | PutObjectAcl                    | STORAGE_MANAGER       | S3Standard    | with           | exists         |
+      | PutObjectAcl                    | STORAGE_MANAGER       | S3Standard    | without        | exists         |
       | PutBucketTagging                | STORAGE_MANAGER       | S3Standard    | without        | does not exist |
       | DeleteBucketTagging             | STORAGE_MANAGER       | S3Standard    | without        | does not exist |
       | MetadataSearch                  | STORAGE_ACCOUNT_OWNER | notS3Standard | without        | does not exist |
       | PutObject                       | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | does not exist |
       | PutObjectAcl                    | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | does not exist |
       | GetObject                       | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
+      | GetObject                       | STORAGE_MANAGER       | S3Standard    | with           | exists         |
       | GetObjectAcl                    | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
       | DeleteObject                    | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
+      | DeleteObject                    | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
       | GetBucketVersioning             | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | does not exist |
       | GetBucketAcl                    | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | does not exist |
       | ListObjectsV2                   | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
@@ -56,14 +64,19 @@ Feature: Assume Role with Web Identity
       | HeadObject                      | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
       | CopyObject                      | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
       | GetObjectTagging                | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
+      | GetObjectTagging                | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
       | PutObjectTagging                | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
-      | DeleteObject                    | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
       | PutBucketLifecycleConfiguration | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | does not exist |
       | GetObject                       | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
       | GetObjectTagging                | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
       | DeleteObjectTagging             | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
+      | DeleteObjectTagging             | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
+      | PutObjectTagging                | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
       | PutObjectTagging                | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
       | GetObjectAcl                    | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
+      | GetObjectAcl                    | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
+      | PutObjectAcl                    | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
+      | PutObjectAcl                    | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
       | PutObjectAcl                    | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
       | PutBucketTagging                | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | does not exist |
       | DeleteBucketTagging             | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | does not exist |
@@ -71,8 +84,10 @@ Feature: Assume Role with Web Identity
       | PutObject                       | DATA_CONSUMER         | S3Standard    | without        | does not exist |
       | PutObjectAcl                    | DATA_CONSUMER         | S3Standard    | without        | does not exist |
       | GetObject                       | DATA_CONSUMER         | S3Standard    | without        | exists         |
+      | GetObject                       | DATA_CONSUMER         | S3Standard    | with           | exists         |
       | GetObjectAcl                    | DATA_CONSUMER         | S3Standard    | without        | exists         |
       | DeleteObject                    | DATA_CONSUMER         | S3Standard    | without        | exists         |
+      | DeleteObject                    | DATA_CONSUMER         | S3Standard    | with           | exists         |
       | GetBucketVersioning             | DATA_CONSUMER         | S3Standard    | with           | does not exist |
       | GetBucketAcl                    | DATA_CONSUMER         | S3Standard    | without        | does not exist |
       | ListObjectsV2                   | DATA_CONSUMER         | S3Standard    | without        | exists         |
@@ -81,15 +96,19 @@ Feature: Assume Role with Web Identity
       | HeadObject                      | DATA_CONSUMER         | S3Standard    | without        | exists         |
       | CopyObject                      | DATA_CONSUMER         | S3Standard    | without        | exists         |
       | GetObjectTagging                | DATA_CONSUMER         | S3Standard    | without        | exists         |
+      | GetObjectTagging                | DATA_CONSUMER         | S3Standard    | with           | exists         |
       | PutObjectTagging                | DATA_CONSUMER         | S3Standard    | without        | exists         |
-      | DeleteObject                    | DATA_CONSUMER         | S3Standard    | with           | exists         |
       | PutBucketLifecycleConfiguration | DATA_CONSUMER         | S3Standard    | without        | does not exist |
       | GetObject                       | DATA_CONSUMER         | S3Standard    | with           | exists         |
       | GetObjectTagging                | DATA_CONSUMER         | S3Standard    | with           | exists         |
       | DeleteObjectTagging             | DATA_CONSUMER         | S3Standard    | with           | exists         |
+      | DeleteObjectTagging             | DATA_CONSUMER         | S3Standard    | without        | exists         |
+      | PutObjectTagging                | DATA_CONSUMER         | S3Standard    | without        | exists         |
       | PutObjectTagging                | DATA_CONSUMER         | S3Standard    | with           | exists         |
       | GetObjectAcl                    | DATA_CONSUMER         | S3Standard    | with           | exists         |
+      | GetObjectAcl                    | DATA_CONSUMER         | S3Standard    | without        | exists         |
       | PutObjectAcl                    | DATA_CONSUMER         | S3Standard    | with           | exists         |
+      | PutObjectAcl                    | DATA_CONSUMER         | S3Standard    | without        | exists         |
       | PutBucketTagging                | DATA_CONSUMER         | S3Standard    | without        | does not exist |
       | DeleteBucketTagging             | DATA_CONSUMER         | S3Standard    | without        | does not exist |
 
