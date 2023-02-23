@@ -46,6 +46,7 @@ env:
   # http-env
   UI_ENDPOINT: 'http://ui.zenko.local'
   OIDC_ENDPOINT: 'http://keycloak.zenko.local'
+  OIDC_HOST: 'keycloak.zenko.local'
   NAVBAR_ENDPOINT: 'http://shell-ui.zenko.local'
   ENABLE_KEYCLOAK_HTTPS: 'false'
   # mock-env
