@@ -8,7 +8,7 @@ Feature: IAM Policies for Assume Role Session Users
   @IAM-Policies-AssumeRole
   Scenario Outline: Assume Role User is not authorized to perform the actions with no IAM policy attached to the role
     Given an existing bucket "" "without" versioning
-    And an object "" that "<objectExists>" "without" version-Id
+    And an object "" that "<objectExists>"
     And a "<ifCrossAccount>" AssumeRole user
     When the user tries to perform "<ifS3Standard>" "<action>" on the bucket
     Then the user should receive "AccessDenied" error
@@ -25,7 +25,7 @@ Feature: IAM Policies for Assume Role Session Users
   @IAM-Policies-AssumeRole
   Scenario Outline: Assume Role User is authorized to perform the actions if the IAM policies that attached to the role have the right permission
     Given an existing bucket "<bucketName>" "without" versioning
-    And an object "<objectName>" that "<objectExists>" "without" version-Id
+    And an object "<objectName>" that "<objectExists>"
     And a "<ifCrossAccount>" AssumeRole user
     And an IAM policy attached to the entity "role" with "Allow" effect to perform "<action>" on "<resource>"
     When the user tries to perform "<ifS3Standard>" "<action>" on the bucket
@@ -49,7 +49,7 @@ Feature: IAM Policies for Assume Role Session Users
   @IAM-Policies-AssumeRole
   Scenario Outline: Assume Role User is not authorized to perform the actions on the resource when they don't have permissions for or explicitly denied in the IAM policies that attached the role that the User assumed
     Given an existing bucket "<bucketName>" "without" versioning
-    And an object "<objectName>" that "<objectExists>" "without" version-Id
+    And an object "<objectName>" that "<objectExists>"
     And a "<ifCrossAccount>" AssumeRole user
     And an IAM policy attached to the entity "role" with "<effect>" effect to perform "<action>" on "<resource>"
     When the user tries to perform "<ifS3Standard>" "<action>" on the bucket
@@ -79,7 +79,7 @@ Feature: IAM Policies for Assume Role Session Users
   @IAM-Policies-AssumeRole
   Scenario Outline: Assume Role User is not authorized to perform the actions on the resource if Allow and Denied are both specified in the IAM policies that attached to the role the User assumed
     Given an existing bucket "<bucketName>" "without" versioning
-    And an object "<objectName>" that "<objectExists>" "without" version-Id
+    And an object "<objectName>" that "<objectExists>"
     And a "<ifCrossAccount>" AssumeRole user
     And an IAM policy attached to the entity "role" with "Allow" effect to perform "<action>" on "<resource>"
     And an IAM policy attached to the entity "role" with "Deny" effect to perform "<action>" on "<resource>"
