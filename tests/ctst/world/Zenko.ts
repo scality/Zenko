@@ -418,7 +418,7 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
      * Erases all the environment configuration from setupEntity
      * @returns {undefined}
      */
-    endForType(): void {
+    cleanupEntity(): void {
         this.cliMode.assumed = false;
         this.cliMode.env = false;
     }
