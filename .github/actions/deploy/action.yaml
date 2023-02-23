@@ -52,7 +52,7 @@ runs:
       shell: bash
       run: bash deploy-zenko.sh end2end default
       working-directory: ./.github/scripts/end2end
-    - name: Add Keycloak user
+    - name: Add Keycloak user and assign StorageManager role
       shell: bash
       run: bash keycloak-helper.sh add-user default
       working-directory: ./.github/scripts/end2end
