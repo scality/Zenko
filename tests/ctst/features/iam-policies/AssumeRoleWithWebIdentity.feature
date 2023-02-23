@@ -42,7 +42,6 @@ Feature: Assume Role with Web Identity
       | PutObjectAcl                    | STORAGE_MANAGER       | S3Standard    | with           | exists         |
       | PutBucketTagging                | STORAGE_MANAGER       | S3Standard    | without        | does not exist |
       | DeleteBucketTagging             | STORAGE_MANAGER       | S3Standard    | without        | does not exist |
-      | PutObjectLockConfiguration      | STORAGE_MANAGER       | S3Standard    | without        | does not exist |
       | MetadataSearch                  | STORAGE_ACCOUNT_OWNER | notS3Standard | without        | does not exist |
       | PutObject                       | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | does not exist |
       | PutObjectAcl                    | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | does not exist |
@@ -53,7 +52,6 @@ Feature: Assume Role with Web Identity
       | GetBucketAcl                    | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | does not exist |
       | ListObjectsV2                   | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
       | ListObjectVersions              | STORAGE_ACCOUNT_OWNER | S3Standard    | with           | exists         |
-      | PutObjectLockConfiguration      | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | does not exist |
       | DeleteObjects                   | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
       | HeadObject                      | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
       | CopyObject                      | STORAGE_ACCOUNT_OWNER | S3Standard    | without        | exists         |
@@ -79,7 +77,6 @@ Feature: Assume Role with Web Identity
       | GetBucketAcl                    | DATA_CONSUMER         | S3Standard    | without        | does not exist |
       | ListObjectsV2                   | DATA_CONSUMER         | S3Standard    | without        | exists         |
       | ListObjectVersions              | DATA_CONSUMER         | S3Standard    | with           | exists         |
-      | PutObjectLockConfiguration      | DATA_CONSUMER         | S3Standard    | without        | does not exist |
       | DeleteObjects                   | DATA_CONSUMER         | S3Standard    | without        | exists         |
       | HeadObject                      | DATA_CONSUMER         | S3Standard    | without        | exists         |
       | CopyObject                      | DATA_CONSUMER         | S3Standard    | without        | exists         |
@@ -124,6 +121,7 @@ Feature: Assume Role with Web Identity
       | PutObjectLegalHold              | STORAGE_MANAGER       | with           | exists         | Bucket is missing Object Lock Configuration |
       | GetBucketTagging                | STORAGE_MANAGER       | without        | does not exist | NoSuchTagSet                                |
       | PutBucketReplication            | STORAGE_MANAGER       | with           | does not exist | Destination bucket must exist               |
+      | PutObjectLockConfiguration      | STORAGE_MANAGER       | without        | does not exist | InvalidBucketState                          |
       | RestoreObject                   | STORAGE_ACCOUNT_OWNER | with           | exists         | InvalidObjectState                          |
       | GetBucketCors                   | STORAGE_ACCOUNT_OWNER | without        | does not exist | NoSuchCORSConfiguration                     |
       | GetObjectLockConfiguration      | STORAGE_ACCOUNT_OWNER | without        | does not exist | ObjectLockConfigurationNotFoundError        |
@@ -139,6 +137,7 @@ Feature: Assume Role with Web Identity
       | PutObjectLegalHold              | STORAGE_ACCOUNT_OWNER | with           | exists         | Bucket is missing Object Lock Configuration |
       | GetBucketTagging                | STORAGE_ACCOUNT_OWNER | without        | does not exist | NoSuchTagSet                                |
       | PutBucketReplication            | STORAGE_ACCOUNT_OWNER | with           | does not exist | Destination bucket must exist               |
+      | PutObjectLockConfiguration      | STORAGE_ACCOUNT_OWNER | without        | does not exist | InvalidBucketState                          |
       | RestoreObject                   | DATA_CONSUMER         | with           | exists         | InvalidObjectState                          |
       | GetBucketCors                   | DATA_CONSUMER         | without        | does not exist | NoSuchCORSConfiguration                     |
       | GetObjectLockConfiguration      | DATA_CONSUMER         | without        | does not exist | ObjectLockConfigurationNotFoundError        |
@@ -154,6 +153,7 @@ Feature: Assume Role with Web Identity
       | PutObjectLegalHold              | DATA_CONSUMER         | with           | exists         | Bucket is missing Object Lock Configuration |
       | GetBucketTagging                | DATA_CONSUMER         | without        | does not exist | NoSuchTagSet                                |
       | PutBucketReplication            | DATA_CONSUMER         | with           | does not exist | Destination bucket must exist               |
+      | PutObjectLockConfiguration      | DATA_CONSUMER         | without        | does not exist | InvalidBucketState                          |
 
 
   @2.6.0
