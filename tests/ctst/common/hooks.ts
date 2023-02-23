@@ -16,4 +16,14 @@ AfterAll(async function () {
     await worlds[process.env.MODE ?? 'ZENKO'].teardown();
 });
 
+defineParameterType({
+    name: 'type',
+    regexp: /(.*)/,
+    transformer: s => <keyof typeof EntityType> s,
+});
+
+Given('a {type} type', async function (type) {
+    await this.setupEntity(type);
+});
+
 export default worlds;
