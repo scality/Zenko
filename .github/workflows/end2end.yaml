@@ -552,6 +552,8 @@ jobs:
           ZENKO_ENABLE_SOSAPI: true
       - name: Configure E2E test environment
         run: bash configure-e2e-ctst.sh
+      - name: Setup tmate session  
+        uses: mxschmitt/action-tmate@v3
         working-directory: ./.github/scripts/end2end
       - name: Run CTST end to end tests
         run: bash run-e2e-ctst.sh
