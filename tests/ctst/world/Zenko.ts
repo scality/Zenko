@@ -116,7 +116,7 @@ export default class Zenko extends World {
      * @returns {undefined}
      */
     async setupEntity(entityType: string): Promise<void> {
-        const keycloakTestPassword = this.parameters.KeycloakTestPassword || '123';
+        const keycloakPassword = this.parameters.KeycloakPassword || '123';
         const savedParameters = JSON.parse(JSON.stringify(this.cliOptions));
         this.resetGlobalType();
         switch (entityType) {
@@ -131,7 +131,7 @@ export default class Zenko extends World {
             case EntityType.STORAGE_MANAGER:
                 await this.prepareARWWI(
                     this.parameters.StorageManagerUsername || 'storage_manager',
-                    keycloakTestPassword,
+                    keycloakPassword,
                     'storage-manager-role',
                 );
                 this.saved.type = EntityType.STORAGE_MANAGER;
@@ -139,7 +139,7 @@ export default class Zenko extends World {
             case EntityType.STORAGE_ACCOUNT_OWNER:
                 await this.prepareARWWI(
                     this.parameters.StorageAccountOwnerUsername || 'storage_account_owner',
-                    keycloakTestPassword,
+                    keycloakPassword,
                     'storage-account-owner-role',
                 );
                 this.saved.type = EntityType.STORAGE_ACCOUNT_OWNER;
@@ -147,7 +147,7 @@ export default class Zenko extends World {
             case EntityType.DATA_CONSUMER:
                 await this.prepareARWWI(
                     this.parameters.DataConsumerUsername || 'data_consumer',
-                    keycloakTestPassword,
+                    keycloakPassword,
                     'data-consumer-role',
                 );
                 this.saved.type = EntityType.DATA_CONSUMER;
@@ -277,7 +277,7 @@ export default class Zenko extends World {
         };
         try {
             const result: AxiosResponse = await axios(config);
-            return result.data.id_token;
+            return result.data.access_token;
         }
         catch (error) {
             throw new Error(`Error when trying to get a WebIdentity token: ${(error as Error).message}`);
@@ -510,7 +510,7 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
         } catch (err: any) {
             return { statusCode: err.response.status, data: err.response.data };
         }
-    }  
+    }
 }
 
 setWorldConstructor(Zenko);
