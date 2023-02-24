@@ -5,7 +5,8 @@ Feature: IAM Policies for Assume Role Session Users
 
   @2.6.0
   @PreMerge
-  @IAM-Policies-AssumeRole
+  @Flaky
+  @IamPoliciesAssumeRole
   Scenario Outline: Assume Role User is not authorized to perform the actions with no IAM policy attached to the role
     Given an existing bucket "" "without" versioning
     And an object "" that "<objectExists>"
@@ -22,7 +23,8 @@ Feature: IAM Policies for Assume Role Session Users
 
   @2.6.0
   @PreMerge
-  @IAM-Policies-AssumeRole
+  @Flaky
+  @IamPoliciesAssumeRole
   Scenario Outline: Assume Role User is authorized to perform the actions if the IAM policies that attached to the role have the right permission
     Given an existing bucket "<bucketName>" "without" versioning
     And an object "<objectName>" that "<objectExists>"
@@ -46,7 +48,8 @@ Feature: IAM Policies for Assume Role Session Users
 
   @2.6.0
   @PreMerge
-  @IAM-Policies-AssumeRole
+  @Flaky
+  @IamPoliciesAssumeRole
   Scenario Outline: Assume Role User is not authorized to perform the actions on the resource when they don't have permissions for or explicitly denied in the IAM policies that attached the role that the User assumed
     Given an existing bucket "<bucketName>" "without" versioning
     And an object "<objectName>" that "<objectExists>"
@@ -76,7 +79,8 @@ Feature: IAM Policies for Assume Role Session Users
 
   @2.6.0
   @PreMerge
-  @IAM-Policies-AssumeRole
+  @Flaky
+  @IamPoliciesAssumeRole
   Scenario Outline: Assume Role User is not authorized to perform the actions on the resource if Allow and Denied are both specified in the IAM policies that attached to the role the User assumed
     Given an existing bucket "<bucketName>" "without" versioning
     And an object "<objectName>" that "<objectExists>"
