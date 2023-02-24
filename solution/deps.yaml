@@ -71,7 +71,7 @@ s3utils:
   sourceRegistry: registry.scality.com/s3utils
   dashboard: s3utils-dashboards
   image: s3utils
-  tag: 1.13.16
+  tag: 1.13.17
   envsubst: S3UTILS_TAG
 sorbet:
   sourceRegistry: registry.scality.com/sorbet
