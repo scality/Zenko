@@ -4,15 +4,14 @@
  * @param {string[]} propertyChain - the property chain to extract, like Policy, Arn
  * @return {string} - the expected property, or null if an error occurred when parsing results.
  */
-export function extractPropertyFromResults(results: { err: null; stdout: string } | any, ...propertyChain: string[]) : any | null {
+export function extractPropertyFromResults(results: { err: null; stdout: string } | any, ...propertyChain: string[]) : string | null {
     try {
         if (results.stdout) {
             const jsonResults = JSON.parse(results.stdout);
             let res = jsonResults;
             if (jsonResults) {
                 while (propertyChain.length > 0) {
-                    // @ts-ignore
-                    res = res[propertyChain.shift()];
+                    res = res[propertyChain.shift() as string];
                 }
             }
             return res;

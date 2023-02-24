@@ -4,6 +4,7 @@ import { aws4Interceptor } from 'aws4-axios'
 
 import { CacheHelper, cliModeObject, Constants, IAM, IAMUserPolicy, S3, STS, SuperAdmin, Utils, } from 'cli-testing';
 import qs = require('qs');
+import {extractPropertyFromResults} from "../common/utils";
 
 interface AwsCliObjectParameters {
     [key: string]: number | string | undefined | object;
@@ -378,7 +379,11 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
             // Create credentials for the user
             this.addCommandParameter({ userName: Zenko.IAMUserName });
             const accessKey = await IAM.createAccessKey(this.getCommandParameters());
-            this.parameters.IAMSession = JSON.parse(accessKey.stdout).AccessKey;
+            if (accessKey.err) {
+                throw new Error(`Error creating the IAM User's access key.\n
+                 ${accessKey.err}`);
+            }
+            this.parameters.IAMSession = extractPropertyFromResults(accessKey, 'AccessKey');
             this.cliMode.parameters.IAMSession = this.parameters.IAMSession;
             this.cliMode.env = true;
             this.resetCommand();
