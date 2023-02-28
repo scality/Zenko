@@ -31,7 +31,7 @@ export default class Zenko extends World {
 
     private parsedResult: any[] = [];
 
-    private commandType = '';
+    private serviceType = '';
 
     private cliOptions: AwsCliObjectParameters = {};
 
@@ -430,11 +430,11 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
 
     /**
      * Helper function to change the default aws cli command type (iam|sts|s3).
-     * @param {string} type - type of the AWS CLI command (sts, iam, s3)
+     * @param {string} service - type of the AWS CLI command (sts, iam, s3)
      * @returns {undefined}
      */
-    setCommandType(type: string): void {
-        this.commandType = type;
+    setCommandServiceType(service: string): void {
+        this.serviceType = service;
     }
 
     /**
