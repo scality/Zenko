@@ -92,7 +92,9 @@ def create_swagger_client(swagger_conf_url, api_url, token=""):
                             token,
                             param_name="X-Authentication-Token",
                             param_in="header")
-    client = SwaggerClient.from_url(swagger_conf_url, http_client=http_client)
+    client = SwaggerClient.from_url(swagger_conf_url, http_client=http_client, config={
+        'validate_swagger_spec': False,
+    })
 
     return client
 
