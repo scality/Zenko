@@ -22,7 +22,7 @@ function extractPolicyArnFromResults(results: any) {
 }
 
 Given('an IAM policy attached to the user with {string} effect to perform {string} on {string}', async function (effect: string, action: string, resource: string) {
-    this.endForType();
+    this.cleanupEntity();
     this.resetCommand();
     this.saved.action = action;
     // create the IAM policy

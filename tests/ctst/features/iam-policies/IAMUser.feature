@@ -4,7 +4,7 @@ Feature: IAM Policies for IAM Users
 
   @2.6.0
   @PreMerge
-  @IAM-Policies-IAMUsers
+  @IamPoliciesIamUsers
   Scenario Outline: User is not authorized to perform the actions without IAM policy
     Given an existing bucket "" "without" versioning, "without" ObjectLock "" retention mode
     And an object "" that "<objectExists>"
@@ -19,7 +19,7 @@ Feature: IAM Policies for IAM Users
 
   @2.6.0
   @PreMerge
-  @IAM-Policies-IAMUsers
+  @IamPoliciesIamUsers
   Scenario Outline: User is authorized to perform the actions that are granted in the IAM policy
     Given an existing bucket "<bucketName>" "without" versioning, "without" ObjectLock "" retention mode
     And an object "<objectName>" that "<objectExists>"
@@ -38,7 +38,7 @@ Feature: IAM Policies for IAM Users
 
   @2.6.0
   @PreMerge
-  @IAM-Policies-IAMUsers
+  @IamPoliciesIamUsers
   Scenario Outline: User is not authorized to perform the actions on the resource that they don't have permissions for or explicitly denied
     Given an existing bucket "<bucketName>" "without" versioning, "without" ObjectLock "" retention mode
     And an object "<objectName>" that "<objectExists>"
@@ -60,7 +60,7 @@ Feature: IAM Policies for IAM Users
 
   @2.6.0
   @PreMerge
-  @IAM-Policies-IAMUsers
+  @IamPoliciesIamUsers
   Scenario Outline: User is not authorized to perform the actions on the resource when Allow and Denied are both specified
     Given an existing bucket "<bucketName>" "without" versioning, "without" ObjectLock "" retention mode
     And an object "<objectName>" that "<objectExists>"
