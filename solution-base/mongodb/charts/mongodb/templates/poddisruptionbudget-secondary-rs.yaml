@@ -1,5 +1,5 @@
 {{- if and (and .Values.replicaSet.enabled .Values.replicaSet.pdb.enabled) (gt .Values.replicaSet.replicas.secondary 0) }}
-apiVersion: policy/v1beta1
+apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
   labels:
