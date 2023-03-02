@@ -2,7 +2,7 @@ import { setWorldConstructor, World } from '@cucumber/cucumber';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { aws4Interceptor } from 'aws4-axios'
 
-import { CacheHelper, cliModeObject, Constants, IAM, IAMUserPolicy, S3, STS, SuperAdmin, Utils, } from 'cli-testing';
+import { CacheHelper, cliModeObject, Constants, IAM, IAMUserPolicy, STS, SuperAdmin, Utils, } from 'cli-testing';
 import { extractPropertyFromResults } from "../common/utils";
 import qs = require('qs');
 
@@ -48,6 +48,8 @@ export default class Zenko extends World {
 
     private static additionalAccountsCredentials: { [id: string]: { AccessKey: string, SecretKey: string } } = {};
 
+    private static serviceUsersCredentials: { [name: string]: { AccessKeyId: string; SecretAccessKey: string } } = {};
+
     private forceFailed = false;
 
     private cliMode: cliModeObject = CacheHelper.createCliModeObject();
@@ -58,6 +60,19 @@ export default class Zenko extends World {
      */
     constructor(options: any) {
         super(options);
+
+        // store service users credentials from world parameters
+        if (this.parameters.ServiceUsersCredentials) {
+             Object.entries(JSON.parse(this.parameters.ServiceUsersCredentials))
+                .forEach((entry : [string, any]) => {
+                    Zenko.serviceUsersCredentials[entry[0] as string] = {
+                        AccessKeyId: entry[1].accessKey as string,
+                        SecretAccessKey: entry[1].secretKey as string,
+
+                    };
+                });
+        }
+
         // Workaround to be able to access global parameters in BeforeAll/AfterAll hooks
         CacheHelper.parameters = this.parameters;
         this.cliMode.parameters = this.parameters;
@@ -375,6 +390,41 @@ export default class Zenko extends World {
         // reset the credentials of default account as the defualt credentials
         CacheHelper.parameters.AccessKey = Zenko.additionalAccountsCredentials[account.name].AccessKey;
         CacheHelper.parameters.SecretKey = Zenko.additionalAccountsCredentials[account.name].SecretKey;
+    }
+
+    /**
+     * Creates an assumed role session as service user with a duration of 12 hours.
+     * @Param {string} serviceUserName - The name of the service user to be used, the same as role name to assume.
+     * @returns {undefined}
+     */
+    async prepareServiceUser(serviceUserName: string) {
+        this.resetGlobalType();
+
+        let roleArnToAssume: string | null = '';
+        // Getting the role to assume
+        this.addCommandParameter({ roleName: serviceUserName });
+        roleArnToAssume = extractPropertyFromResults(await IAM.getRole(this.getCommandParameters()), 'Role', 'Arn');
+        if (!roleArnToAssume) {
+            // if role to assume does not exist in the account, then it should be in the internal services account
+            roleArnToAssume = `arn:aws:iam::${Constants.INTERNAL_SERVICES_ACCOUNT_ID}:role/scality-internal/${serviceUserName}`;
+        }
+
+        // assign the credentials of the service user to the IAM session
+        this.parameters.IAMSession = Zenko.serviceUsersCredentials[serviceUserName];
+        this.resumeRootOrIamUser();
+
+        // Assuming the role as the service user
+        this.resetCommand();
+        this.addCommandParameter({ roleArn: roleArnToAssume });
+        const assumeRoleRes = await STS.assumeRole(this.getCommandParameters());
+        if (assumeRoleRes.err) {
+            throw new Error(`Error when trying to assume role ${roleArnToAssume} as service user ${serviceUserName}.
+            ${assumeRoleRes.err}`);
+        }
+
+        //assign the assumed session credentials to the Assumed session.
+        this.parameters.AssumedSession = extractPropertyFromResults(assumeRoleRes, "Credentials");
+        this.resumeAssumedRole();
     }
 
     /**

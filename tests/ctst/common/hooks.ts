@@ -31,4 +31,9 @@ Given('a {string} AssumeRole user', async function (crossAccount: string) {
     this.saved.type = EntityType.ASSUME_ROLE_USER;
 });
 
+Given('a service user {string}', async function (serviceUserName: string) {
+    await this.prepareServiceUser(serviceUserName);
+    this.saved.type = EntityType.ASSUME_ROLE_USER;
+});
+
 export default worlds;
