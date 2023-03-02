@@ -394,19 +394,20 @@ export default class Zenko extends World {
 
     /**
      * Creates an assumed role session as service user with a duration of 12 hours.
-     * @Param {string} serviceUserName - The name of the service user to be used, the same as role name to assume.
+     * @Param {string} serviceUserName - The name of the service user to be used,
+     * @Param {string} roleName - the role name to assume.
      * @returns {undefined}
      */
-    async prepareServiceUser(serviceUserName: string) {
+    async prepareServiceUser(serviceUserName: string, roleName: string) {
         this.resetGlobalType();
 
-        let roleArnToAssume: string | null = '';
+        let roleArnToAssume: string | null = null;
         // Getting the role to assume
-        this.addCommandParameter({ roleName: serviceUserName });
+        this.addCommandParameter({ roleName: roleName });
         roleArnToAssume = extractPropertyFromResults(await IAM.getRole(this.getCommandParameters()), 'Role', 'Arn');
         if (!roleArnToAssume) {
             // if role to assume does not exist in the account, then it should be in the internal services account
-            roleArnToAssume = `arn:aws:iam::${Constants.INTERNAL_SERVICES_ACCOUNT_ID}:role/scality-internal/${serviceUserName}`;
+            roleArnToAssume = `arn:aws:iam::${Constants.INTERNAL_SERVICES_ACCOUNT_ID}:role/scality-internal/${roleName}`;
         }
 
         // assign the credentials of the service user to the IAM session

@@ -31,8 +31,8 @@ Given('a {string} AssumeRole user', async function (crossAccount: string) {
     this.saved.type = EntityType.ASSUME_ROLE_USER;
 });
 
-Given('a service user {string}', async function (serviceUserName: string) {
-    await this.prepareServiceUser(serviceUserName);
+Given('a service user {string} assuming role {string}', async function (serviceUserName: string, roleName: string) {
+    await this.prepareServiceUser(serviceUserName, roleName);
     this.saved.type = EntityType.ASSUME_ROLE_USER;
 });
 
