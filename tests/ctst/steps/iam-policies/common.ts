@@ -1,7 +1,7 @@
 import { When, Then } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
 import { EntityType } from "../../world/Zenko";
-import { S3 } from 'cli-testing';
+import { CacheHelper, ClientOptions, S3, VaultAuth } from 'cli-testing';
 import { s3FunctionExtraParams } from '../../common/utils';
 
 When('the user tries to perform {string} on the bucket', async function (action: string) {
@@ -44,12 +44,50 @@ When('the user tries to perform {string} on the bucket', async function (action:
     }
 });
 
+When('the user tries to perform vault auth {string}', async function (action: string) {
+    let userCredentials;
+    if ([EntityType.IAM_USER, EntityType.ACCOUNT].includes(this.saved.type)) {
+        userCredentials = this.parameters.IAMSession;
+    } else {
+        userCredentials = this.parameters.AssumedSession;
+    }
+
+    if (!this.parameters.VaultAuthHost) {
+        throw new Error('Vault auth endpoint is not set. Make sure the `VaultAuthHost` world parameter is defined.');
+    }
+
+    const vaultAuthClientOptions: ClientOptions = {
+        AccessKey: userCredentials.AccessKeyId,
+        SecretKey: userCredentials.SecretAccessKey,
+        SessionToken: userCredentials.SessionToken,
+        ip: this.parameters.VaultAuthHost,
+        ssl: CacheHelper.parameters.ssl,
+    }
+
+    switch (action) {
+        case 'GetAccountInfo':
+            this.result = await VaultAuth.getAccounts(null, null, null, {}, vaultAuthClientOptions);
+            break;
+        default:
+            throw new Error(`Action ${action} is not supported`);
+    }
+});
+
 Then('the user should be able to perform successfully the {string} action', function (action : string) {
     this.cleanupEntity();
-    if (this.saved.ifS3Standard) {
-        assert.strictEqual(this.result?.err, null);
-    } else {
-        assert.strictEqual(this.result?.statusCode, 200);
+    switch (action) {
+        case 'MetadataSearch': {
+            assert.strictEqual(this.result?.statusCode, 200);
+            break;
+        }
+        case 'GetAccountInfo': {
+            assert.strictEqual(this.result instanceof Error, false);
+            break;
+        }
+        default: {
+            assert.strictEqual(this.result?.err, null);
+        }
+
     }
 });
 

@@ -44,3 +44,17 @@ Feature: IAM Policies for Backbeat Service Users
     Examples:
       | action                          | withVersioning | objectExists   | serviceUserName         | expectedError                |
       | GetBucketLifecycleConfiguration | with           | does not exist | backbeat-lifecycle-bp-1 | NoSuchLifecycleConfiguration |
+
+  @2.6.0
+  @PreMerge
+  @Flaky
+  @IamPoliciesBackbeatServiceUser
+  Scenario Outline: Backbeat Service Users are authorized to perform the actions
+    Given a service user "<serviceUserName>"
+    When the user tries to perform vault auth "<action>"
+    Then the user should be able to perform successfully the "<action>" action
+
+    Examples:
+      | action         | serviceUserName                |
+      | GetAccountInfo | backbeat-qp-1                  |
+      | GetAccountInfo | backbeat-lifecycle-conductor-1 |
