@@ -1,5 +1,6 @@
 {{- if and .Values.shards .Values.metrics.enabled .Values.metrics.podMonitor.enabled }}
-{{- $i := 0 }}
+{{- $replicas := .Values.shards | int }}
+{{- range $i, $e := until $replicas }}
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
@@ -30,4 +31,5 @@ spec:
   selector:
     matchLabels: {{- include "common.labels.matchLabels" $ | nindent 6 }}
       app.kubernetes.io/component: shardsvr
+{{- end }}
 {{- end }}

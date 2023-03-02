@@ -79,10 +79,10 @@ spec:
               mountPath: {{ $.Values.shardsvr.persistence.mountPath }}
         {{- end }}
         {{- with $.Values.shardsvr.dataNode.initContainers }}
-        {{- include "common.tplvalues.render" ( dict "value" . "context" $ ) | nindent 8}}
+        {{- include "common.tplvalues.render" ( dict "value" . "context" $ ) | nindent 8 }}
         {{- end }}
         {{- with $.Values.common.initContainers }}
-        {{- include "common.tplvalues.render" ( dict "value" . "context" $ ) | nindent 8}}
+        {{- include "common.tplvalues.render" ( dict "value" . "context" $ ) | nindent 8 }}
         {{- end }}
       containers:
         - name: mongodb
@@ -98,7 +98,7 @@ spec:
               name: mongodb
           env:
             - name: MONGODB_ENABLE_NUMACTL
-              value: {{ ternary "yes" "no" $.Values.common.mongodbEnableNumactl | quote}}
+              value: {{ ternary "yes" "no" $.Values.common.mongodbEnableNumactl | quote }}
             - name: BITNAMI_DEBUG
               value: {{ ternary "true" "false" (or $.Values.image.debug $.Values.diagnosticMode.enabled) | quote }}
             - name: MONGODB_SYSTEM_LOG_VERBOSITY
@@ -147,7 +147,6 @@ spec:
                 secretKeyRef:
                   name: {{ include "mongodb-sharded.secret" $ }}
                   key: mongodb-replica-set-key
-            {{- include "mongodb-sharded.appAccountEnvs" $ | nindent 12 }}
             {{- end }}
             - name: MONGODB_ENABLE_IPV6
             {{- if $.Values.common.mongodbEnableIPv6 }}
@@ -186,7 +185,7 @@ spec:
                 name: {{ include "mongodb-sharded.tplValue" ( dict "value" $.Values.shardsvr.dataNode.extraEnvVarsCM "context" $ ) }}
             {{- end }}
             {{- if $.Values.shardsvr.dataNode.extraEnvVarsSecret }}
-            - configMapRef:
+            - secretRef:
                 name: {{ include "mongodb-sharded.tplValue" ( dict "value" $.Values.shardsvr.dataNode.extraEnvVarsSecret "context" $ ) }}
             {{- end }}
           {{- end }}
@@ -215,8 +214,7 @@ spec:
           readinessProbe:
             exec:
               command:
-                - mongo
-                - --disableImplicitSessions
+                - mongosh
                 - --eval
                 - "db.adminCommand('ping')"
             initialDelaySeconds: {{ $.Values.readinessProbe.initialDelaySeconds }}
@@ -286,7 +284,7 @@ spec:
               {{- if $.Values.usePasswordFile }}
               export MONGODB_ROOT_PASSWORD="$(cat "${MONGODB_ROOT_PASSWORD_FILE}")"
               {{- end }}
-              /bin/mongodb_exporter --web.listen-address ":{{ $.Values.metrics.containerPort }}" --mongodb.uri mongodb://root:`echo $MONGODB_ROOT_PASSWORD | sed -r "s/@/%40/g;s/:/%3A/g"`@localhost:{{ $.Values.service.port }}/admin {{ $.Values.metrics.extraArgs }}
+              /bin/mongodb_exporter --web.listen-address ":{{ $.Values.metrics.containerPort }}" --mongodb.uri mongodb://root:`echo $MONGODB_ROOT_PASSWORD | sed -r "s/@/%40/g;s/:/%3A/g"`@localhost:{{ $.Values.service.port }}/admin{{ ternary "?ssl=true" "" $.Values.metrics.useTLS }} {{ $.Values.metrics.extraArgs }}
           {{- end }}
           {{- if $.Values.usePasswordFile }}
           volumeMounts:
@@ -323,10 +321,10 @@ spec:
           resources: {{ toYaml $.Values.metrics.resources | nindent 12 }}
         {{- end }}
         {{- with $.Values.shardsvr.dataNode.sidecars }}
-        {{- include "common.tplvalues.render" ( dict "value" . "context" $ ) | nindent 8}}
+        {{- include "common.tplvalues.render" ( dict "value" . "context" $ ) | nindent 8 }}
         {{- end }}
         {{- with $.Values.common.sidecars }}
-        {{- include "common.tplvalues.render" ( dict "value" . "context" $ ) | nindent 8}}
+        {{- include "common.tplvalues.render" ( dict "value" . "context" $ ) | nindent 8 }}
         {{- end }}
       volumes:
         - name: replicaset-entrypoint-configmap
@@ -372,10 +370,6 @@ spec:
         accessModes:
         {{- range $.Values.shardsvr.persistence.accessModes }}
           - {{ . | quote }}
-        {{- end }}
-        {{- if $.Values.shardsvr.persistence.selector }}
-        selector:
-{{ toYaml $.Values.shardsvr.persistence.selector | indent 10 }}
         {{- end }}
         resources:
           requests:

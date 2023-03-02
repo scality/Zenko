@@ -49,22 +49,22 @@ diagnosticMode:
   args:
     - infinity
 
-## @section MongoDB&reg; Sharded parameters
+## @section MongoDB(&reg;) Sharded parameters
 ##
 
-## Bitnami MongoDB&reg; Sharded image version
+## Bitnami MongoDB(&reg;) Sharded image version
 ## ref: https://hub.docker.com/r/bitnami/mongodb-sharded/tags/
-## @param image.registry MongoDB&reg; Sharded image registry
-## @param image.repository MongoDB&reg; Sharded Image name
-## @param image.tag MongoDB&reg; Sharded image tag (immutable tags are recommended)
-## @param image.pullPolicy MongoDB&reg; Sharded image pull policy
+## @param image.registry MongoDB(&reg;) Sharded image registry
+## @param image.repository MongoDB(&reg;) Sharded Image name
+## @param image.tag MongoDB(&reg;) Sharded image tag (immutable tags are recommended)
+## @param image.pullPolicy MongoDB(&reg;) Sharded image pull policy
 ## @param image.pullSecrets Specify docker-registry secret names as an array
 ## @param image.debug Specify if debug logs should be enabled
 ##
 image:
   registry: docker.io
   repository: bitnami/mongodb-sharded
-  tag: 4.4.11-debian-10-r0
+  tag: 4.4.13-debian-10-r50
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
   ## ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images
@@ -219,7 +219,7 @@ volumePermissions:
   image:
     registry: docker.io
     repository: bitnami/bitnami-shell
-    tag: 10-debian-10-r293
+    tag: 10-debian-10-r404
     pullPolicy: IfNotPresent
     ## Optionally specify an array of imagePullSecrets.
     ## Secrets must be manually created in the namespace.
@@ -310,7 +310,7 @@ livenessProbe:
   initialDelaySeconds: 60
   periodSeconds: 10
   timeoutSeconds: 5
-  failureThreshold: 6
+  failureThreshold: 12
   successThreshold: 1
 ## Configure extra options for readiness probe
 ## This applies to all the MongoDB&reg; in the sharded cluster
@@ -327,7 +327,7 @@ readinessProbe:
   initialDelaySeconds: 60
   periodSeconds: 10
   timeoutSeconds: 5
-  failureThreshold: 6
+  failureThreshold: 12
   successThreshold: 1
 
 ## @section Config Server parameters
@@ -1142,6 +1142,9 @@ metrics:
     ##   - myRegistryKeySecretName
     ##
     pullSecrets: []
+  ## @param metrics.useTLS Whether to connect to MongoDB&reg; with TLS
+  ##
+  useTLS: false
   ## @param metrics.extraArgs String with extra arguments to the metrics exporter
   ## ref: https://github.com/dcu/mongodb_exporter/blob/master/mongodb_exporter.go
   ##

@@ -40,7 +40,7 @@ patchesStrategicMerge:
 images:
 - name: metalk8s-registry-from-config.invalid/zenko-base-2.3.11/bitnami-shell
   newName: docker.io/bitnami/bitnami-shell
-  newTag: 10-debian-10-r293
+  newTag: 10-debian-10-r404
 - name: metalk8s-registry-from-config.invalid/zenko-base-2.3.11/mongodb-exporter
   newName: docker.io/bitnami/mongodb-exporter
   newTag: 0.34.0-debian-11-r24
@@ -49,7 +49,7 @@ images:
   newTag: 4.2.20-debian-10-r11
 - name: metalk8s-registry-from-config.invalid/zenko-base-2.3.18/bitnami-shell
   newName: docker.io/bitnami/bitnami-shell
-  newTag: 10-debian-10-r293
+  newTag: 10-debian-10-r404
 - name: metalk8s-registry-from-config.invalid/zenko-base-2.3.18/mongodb-exporter
   newName: docker.io/bitnami/mongodb-exporter
   newTag: 0.34.0-debian-11-r24
