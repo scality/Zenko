@@ -1,30 +1,29 @@
 annotations:
   category: Database
 apiVersion: v2
-appVersion: 4.4.11
+appVersion: 4.4.13
 dependencies:
-- name: common
-  repository: https://charts.bitnami.com/bitnami
-  tags:
-  - bitnami-common
-  version: 1.x.x
-description: NoSQL document-oriented database that stores JSON-like documents with
-  dynamic schemas, simplifying the integration of data in content-driven applications.
-  Sharded topology.
+  - name: common
+    repository: https://charts.bitnami.com/bitnami
+    tags:
+      - bitnami-common
+    version: 1.x.x
+description: MongoDB(R) is an open source NoSQL database that uses JSON for data storage. MongoDB(TM) Sharded improves scalability and reliability for large datasets by distributing data across multiple machines.
+engine: gotpl
 home: https://github.com/bitnami/charts/tree/master/bitnami/mongodb-sharded
 icon: https://bitnami.com/assets/stacks/mongodb/img/mongodb-stack-220x234.png
 keywords:
-- mongodb
-- database
-- nosql
-- cluster
-- replicaset
-- replication
+  - mongodb
+  - database
+  - nosql
+  - cluster
+  - replicaset
+  - replication
 maintainers:
-- email: containers@bitnami.com
-  name: Bitnami
+  - email: containers@bitnami.com
+    name: Bitnami
 name: mongodb-sharded
 sources:
-- https://github.com/bitnami/bitnami-docker-mongodb-sharded
-- https://mongodb.org
-version: 3.10.1
+  - https://github.com/bitnami/bitnami-docker-mongodb-sharded
+  - https://mongodb.org
+version: 4.1.1

@@ -49,10 +49,6 @@ metadata:
   {{- end -}}
 {{- end -}}
 
-{{- define "mongodb-sharded.configServer.serviceName" -}}
-  {{- printf "%s-configsvr.%s.svc.%s" (include "common.names.fullname" .) .Release.Namespace .Values.clusterDomain -}}
-{{- end -}}
-
 {{- define "mongodb-sharded.configServer.rsName" -}}
   {{- if .Values.configsvr.external.replicasetName -}}
     {{- .Values.configsvr.external.replicasetName }}
@@ -137,7 +133,7 @@ in the values file. If the name is not explicitly set it will take the "common.n
   {{- if .Values.service.name -}}
     {{ .Values.service.name }}
   {{- else -}}
-    {{ include "common.names.fullname" .}}
+    {{ include "common.names.fullname" . }}
   {{- end -}}
 {{- end -}}
 
@@ -267,23 +263,4 @@ mongodb: configSvrNodeConflictingConfig
 {{- include "common.warnings.rollingTag" .Values.image }}
 {{- include "common.warnings.rollingTag" .Values.metrics.image }}
 {{- include "common.warnings.rollingTag" .Values.volumePermissions.image }}
-{{- end -}}
-
-{{/* app credentials environment variables */}}
-{{- define "mongodb-sharded.appAccountEnvs" -}}
-- name: MONGODB_APP_USERNAME
-  valueFrom:
-    secretKeyRef:
-      name: {{ include "mongodb-sharded.secret" $ }}
-      key: mongodb-username
-- name: MONGODB_APP_DATABASE
-  valueFrom:
-    secretKeyRef:
-      name: {{ include "mongodb-sharded.secret" $ }}
-      key: mongodb-database
-- name: MONGODB_APP_PASSWORD
-  valueFrom:
-    secretKeyRef:
-      name: {{ include "mongodb-sharded.secret" $ }}
-      key: mongodb-password
 {{- end -}}
