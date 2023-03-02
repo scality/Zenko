@@ -5,7 +5,6 @@ import { aws4Interceptor } from 'aws4-axios'
 import { CacheHelper, cliModeObject, Constants, IAM, IAMUserPolicy, S3, STS, SuperAdmin, Utils, } from 'cli-testing';
 import { extractPropertyFromResults } from "../common/utils";
 import qs = require('qs');
-import {extractPropertyFromResults} from "../common/utils";
 
 interface AwsCliObjectParameters {
     [key: string]: number | string | undefined | object;
@@ -357,7 +356,7 @@ export default class Zenko extends World {
         // Attaching the policy to the user
         this.resetCommand();
         this.addCommandParameter({ userName });
-        this.addCommandParameter({ policyArn: assumeRolePolicyArn });
+        this.addCommandParameter({ policyArn: assumeRolePolicyArn as string });
         await IAM.attachUserPolicy(this.getCommandParameters());
 
         // Creating credentials for the user
@@ -368,7 +367,7 @@ export default class Zenko extends World {
 
         // Assuming the role
         this.resetCommand();
-        this.addCommandParameter({ roleArn: roleArnToAssume });
+        this.addCommandParameter({ roleArn: roleArnToAssume as string });
         this.parameters.AssumedSession = extractPropertyFromResults(await STS.assumeRole(this.getCommandParameters()), "Credentials");
         this.cliMode.assumed = true;
         this.cliMode.env = false;
