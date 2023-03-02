@@ -7,6 +7,11 @@ COPY ./common /ctst/common
 COPY ./steps /ctst/steps
 COPY ./world /ctst/world
 
+USER root
+
+RUN chmod 0777 -R /tmp/
+RUN chmod 0777 -R /ctst/
+
 WORKDIR /ctst
 
 CMD ["./run"]

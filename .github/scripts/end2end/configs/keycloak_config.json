@@ -19,7 +19,7 @@
       "subGroups": []
     }
   ],
-  "defaultRoles" : [ "uma_authorization", "StorageManager", "offline_access" ],
+  "defaultRoles" : [ "uma_authorization", "offline_access" ],
   "roles": {
     "realm": [
       {
