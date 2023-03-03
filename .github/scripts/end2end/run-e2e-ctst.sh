@@ -30,7 +30,9 @@ BACKBEAT_LCBP_1_CREDS=$(kubectl get secret -l app.kubernetes.io/name=backbeat-lc
 BACKBEAT_LCC_1_CREDS=$(kubectl get secret -l app.kubernetes.io/name=backbeat-lcc-user-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.backbeat-lifecycle-conductor-1\.json}' | base64 -d)
 BACKBEAT_LCOP_1_CREDS=$(kubectl get secret -l app.kubernetes.io/name=backbeat-lcop-user-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.backbeat-lifecycle-op-1\.json}' | base64 -d)
 BACKBEAT_QP_1_CREDS=$(kubectl get secret -l app.kubernetes.io/name=backbeat-qp-user-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.backbeat-qp-1\.json}' | base64 -d)
-SERVICE_USERS_CREDENTIALS=$(echo '{"backbeat-lifecycle-bp-1":'${BACKBEAT_LCBP_1_CREDS}',"backbeat-lifecycle-conductor-1":'${BACKBEAT_LCC_1_CREDS}',"backbeat-lifecycle-op-1":'${BACKBEAT_LCOP_1_CREDS}',"backbeat-qp-1":'${BACKBEAT_QP_1_CREDS}'}' | jq -R)
+SORBET_FWD_2_ACCESSKEY=$(kubectl get secret -l app.kubernetes.io/name=sorbet-fwd-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.accessKey}' | base64 -d)
+SORBET_FWD_2_SECRETKEY=$(kubectl get secret -l app.kubernetes.io/name=sorbet-fwd-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.secretKey}' | base64 -d)
+SERVICE_USERS_CREDENTIALS=$(echo '{"backbeat-lifecycle-bp-1":'${BACKBEAT_LCBP_1_CREDS}',"backbeat-lifecycle-conductor-1":'${BACKBEAT_LCC_1_CREDS}',"backbeat-lifecycle-op-1":'${BACKBEAT_LCOP_1_CREDS}',"backbeat-qp-1":'${BACKBEAT_QP_1_CREDS}',"sorbet-fwd-2":{"accessKey":"'${SORBET_FWD_2_ACCESSKEY}'","secretKey":"'${SORBET_FWD_2_SECRETKEY}'"}}' | jq -R)
 
 # Extracting kafka host from bacbeat's config
 KAFKA_HOST_PORT=$(kubectl get secret -l app.kubernetes.io/name=backbeat-config,app.kubernetes.io/instance=end2end \
