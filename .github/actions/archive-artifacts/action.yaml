@@ -14,5 +14,3 @@ runs:
         kubectl get events -A -o yaml > /tmp/artifacts/data/kind-logs/all-events.log;
         kind export logs /tmp/artifacts/data/kind-logs/kind-export;
         tar zcvf /tmp/artifacts/${{ github.sha }}-${STAGE}-logs-volumes.tgz /tmp/artifacts/data/kind-logs;
-      env:
-         STAGE: end2end-http

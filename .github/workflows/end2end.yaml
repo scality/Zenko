@@ -383,6 +383,8 @@ jobs:
         uses: ./.github/actions/debug-wait
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
+        env:
+          STAGE: end2end-http
         if: always()
       - name: Clean Up
         run: kind delete cluster
@@ -446,6 +448,8 @@ jobs:
         uses: ./.github/actions/debug-wait
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
+        env:
+          STAGE: end2end-https
         if: always()
       - name: Clean Up
         run: kind delete cluster
@@ -502,6 +506,8 @@ jobs:
         uses: ./.github/actions/debug-wait
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
+        env:
+          STAGE: end2end-sharded
         if: always()
       - name: Clean Up
         run: kind delete cluster
@@ -560,6 +566,8 @@ jobs:
         uses: ./.github/actions/debug-wait
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
+        env:
+          STAGE: ctst-end2end-sharded
         if: always()
       - name: Clean Up
         run: kind delete cluster
