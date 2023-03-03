@@ -19,6 +19,10 @@ When('the user tries to perform {string} on the bucket', async function (action:
             this.result = await this.metadataSearchResponseCode(userCredentials, this.saved.bucketName);
             break;
         }
+        case 'PutObjectVersion': {
+            this.result = await this.putObjectVersionResponseCode(userCredentials, this.saved.bucketName, this.saved.objectName);
+            break;
+        }
         default: {
             this.resetCommand();
             this.saved.ifS3Standard = true;

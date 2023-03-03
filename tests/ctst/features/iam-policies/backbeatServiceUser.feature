@@ -30,7 +30,6 @@ Feature: IAM Policies for Backbeat Service Users
       | AbortMultipartUpload | with           | exits          | backbeat-lifecycle-op-1 | backbeat-lifecycle-op-1     |
       | GetObject            | without        | exists         | sorbet-fwd-2            | cold-storage-archive-role-2 |
       | GetObject            | with           | exists         | sorbet-fwd-2            | cold-storage-archive-role-2 |
-      | PutObject            | with           | exists         | sorbet-fwd-2            | cold-storage-restore-role-2 |
       | GetObject            | without        | exists         | sorbet-fwd-2            | cold-storage-restore-role-2 |
       | GetObject            | with           | exists         | sorbet-fwd-2            | cold-storage-restore-role-2 |
 
@@ -45,8 +44,9 @@ Feature: IAM Policies for Backbeat Service Users
     Then the user should receive "<expectedError>" error
 
     Examples:
-      | action                          | withVersioning | objectExists   | serviceUserName         | roleName                | expectedError                |
-      | GetBucketLifecycleConfiguration | with           | does not exist | backbeat-lifecycle-bp-1 | backbeat-lifecycle-bp-1 | NoSuchLifecycleConfiguration |
+      | action                          | withVersioning | objectExists   | serviceUserName         | roleName                    | expectedError                |
+      | GetBucketLifecycleConfiguration | with           | does not exist | backbeat-lifecycle-bp-1 | backbeat-lifecycle-bp-1     | NoSuchLifecycleConfiguration |
+      | PutObjectVersion                | with           | exists         | sorbet-fwd-2            | cold-storage-restore-role-2 | InvalidObjectState           |
 
   @2.6.0
   @PreMerge

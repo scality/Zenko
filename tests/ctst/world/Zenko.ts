@@ -1,5 +1,5 @@
 import { setWorldConstructor, World } from '@cucumber/cucumber';
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosRequestConfig, AxiosResponse, Method, AxiosRequestHeaders } from 'axios';
 import { aws4Interceptor } from 'aws4-axios'
 
 import { CacheHelper, cliModeObject, Constants, IAM, IAMUserPolicy, STS, SuperAdmin, Utils, } from 'cli-testing';
@@ -632,13 +632,23 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
     static async teardown() { }
 
     async metadataSearchResponseCode(userCredentials: any, bucketName: string) {
-        return await this.awsS3GetRequest(
+        return await this.awsS3Request(
+            'GET',
             `/${bucketName}/?search=${encodeURIComponent('key LIKE "file"')}`,
             userCredentials,
         );
     }
 
-    async awsS3GetRequest(path: string, userCredentials: any) {
+    async putObjectVersionResponseCode(userCredentials: any, bucketName: string, objectKey: string) {
+        return await this.awsS3Request(
+            'PUT',
+            `/${bucketName}/${objectKey}`,
+            userCredentials,
+            { 'x-scal-s3-version-id': '' },
+        );
+    }
+
+    async awsS3Request(method: Method, path: string, userCredentials: any, headers: AxiosRequestHeaders={}, payload: any={}) {
         const credentials: any = {
             accessKeyId: userCredentials.AccessKeyId,
             secretAccessKey: userCredentials.SecretAccessKey,
@@ -648,14 +658,20 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
         }
         const interceptor = aws4Interceptor({
             region: 'us-east-1',
-            service: 's3'
+            service: 's3',
         }, credentials);
 
         const axiosInstance = axios.create();
         axiosInstance.interceptors.request.use(interceptor);
         const protocol = this.parameters.ssl === false ? 'http://' : 'https://';
+        const axiosConfig: AxiosRequestConfig = {
+                method: method,
+                url: `${protocol}s3.${this.parameters.subdomain || Constants.DEFAULT_SUBDOMAIN}` + path,
+                headers,
+                data: payload,
+            };
         try {
-            const response = await axiosInstance.get(`${protocol}s3.${this.parameters.subdomain || Constants.DEFAULT_SUBDOMAIN}` + path);
+            const response: AxiosResponse = await axiosInstance(axiosConfig);
             return { statusCode: response.status, data: response.data }
         } catch (err: any) {
             return { statusCode: err.response.status, err: err.response.data };
