@@ -502,10 +502,11 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
             service: 's3'
         }, credentials);
 
-        axios.interceptors.request.use(interceptor);
+        const axiosInstance = axios.create();
+        axiosInstance.interceptors.request.use(interceptor);
         const protocol = this.parameters.ssl === false ? 'http://' : 'https://';
         try {
-            const response = await axios.get(`${protocol}s3.${this.parameters.subdomain || Constants.DEFAULT_SUBDOMAIN}` + path);
+            const response = await axiosInstance.get(`${protocol}s3.${this.parameters.subdomain || Constants.DEFAULT_SUBDOMAIN}` + path);
             return { statusCode: response.status, data: response.data }
         } catch (err: any) {
             return { statusCode: err.response.status, err: err.response.data };
