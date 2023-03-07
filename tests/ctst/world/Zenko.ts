@@ -279,7 +279,7 @@ export default class Zenko extends World {
         try {
             const result: AxiosResponse = await axios(config);
             console.log("RESULT: ", result);
-            return result.data.id_token;
+            return result.data.access_token;
         }
         catch (error) {
             console.log("ERROR: ", error, "RESULT: ", this.result)
