@@ -281,6 +281,7 @@ export default class Zenko extends World {
             return result.data.id_token;
         }
         catch (error) {
+            console.log("ERROR: ", error, "RESULT: ", this.result)
             throw new Error(`Error when trying to get a WebIdentity token: ${(error as Error).message}`);
         }
     }
