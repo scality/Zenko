@@ -190,6 +190,7 @@ export default class Zenko extends World {
                 this.parameters.keycloakGrantType || 'password',
             );
             this.options.webIdentityToken = token;
+            console.log("WEB TOKEN: ", this.options)
             if (!this.options.webIdentityToken) {
                 throw new Error('Error when trying to get a WebIdentity token.');
             }
