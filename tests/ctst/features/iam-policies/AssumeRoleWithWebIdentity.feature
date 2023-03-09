@@ -9,7 +9,7 @@ Feature: Assume Role with Web Identity
   @IAM-Policies-ARWWI
   Scenario Outline: Assume Role with Web Identity
     Given an existing bucket "" "<withVersioning>" versioning, "without" ObjectLock "without" retention mode
-    And an object that "<objectExists>"
+    And an object "" that "<objectExists>"
     And a <type> type
     When the user tries to perform "<action>" on the bucket
     Then the user should be able to perform successfully the "<action>" action
@@ -119,7 +119,7 @@ Feature: Assume Role with Web Identity
   @IAM-Policies-ARWWI
   Scenario Outline: Assume Role with Web Identity bucket setting tests
     Given an existing bucket "" "<withVersioning>" versioning, "without" ObjectLock "without" retention mode
-    And an object that "<objectExists>"
+    And an object "" that "<objectExists>"
     And a <type> type
     When the user tries to perform "<action>" on the bucket
     Then the user should receive "<error>" error
@@ -178,7 +178,7 @@ Feature: Assume Role with Web Identity
   @IAM-Policies-ARWWI
   Scenario Outline: Data Consumer with Web Identity cannot perform these bucket actions
     Given an existing bucket "" "<withVersioning>" versioning, "without" ObjectLock "without" retention mode
-    And an object that "<objectExists>"
+    And an object "" that "<objectExists>"
     And a DATA_CONSUMER type
     When the user tries to perform "<action>" on the bucket
     Then the user should receive "AccessDenied" error
