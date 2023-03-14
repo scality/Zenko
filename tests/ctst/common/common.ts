@@ -7,7 +7,7 @@ setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
 
 Given('a {string} bucket', async function (this: Zenko, versioning: string) {
     this.resetCommand();
-    const preName = this.parameters.AccountName || Constants.ACCOUNT_NAME;
+    const preName = (this.parameters as { AccountName?: string })?.AccountName as string || Constants.ACCOUNT_NAME;
     const bucketName = `${preName}${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase();
     this.addToSaved('bucketName', bucketName);
     this.addCommandParameter({ bucket: bucketName });
@@ -20,6 +20,7 @@ Given('a {string} bucket', async function (this: Zenko, versioning: string) {
     }
 });
 
+// eslint-disable-next-line new-cap
 Given('an existing bucket {string} {string} versioning, {string} ObjectLock {string} retention mode', async function
 (this: Zenko, bucketName: string, withVersioning: string, withObjectLock: string, retentionMode: string) {
     this.resetCommand();
@@ -47,6 +48,7 @@ Given('an existing bucket {string} {string} versioning, {string} ObjectLock {str
     }
 });
 
+// eslint-disable-next-line new-cap
 Given('an object {string} that {string}',
     async function (this: Zenko, objectName: string, objectExists: string) {
         this.resetCommand();
