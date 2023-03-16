@@ -107,17 +107,17 @@ export enum EntityType {
 export default class Zenko extends World {
     private readonly command: string = '';
 
-    private result: any | null = null;
+    private result: object = {};
 
-    private parsedResult: any[] = [];
+    private parsedResult: Result[] = [];
 
     private serviceType = '';
 
     private cliOptions: AwsCliObjectParameters = {};
 
-    private options: any = {};
+    private options: { [key: string]: string } = {};
 
-    private saved: any = {};
+    private saved: { [key: string]: unknown } = {};
 
     private static IAMUserName = '';
 
