@@ -38,6 +38,68 @@ interface ServiceUsersCredentials {
     secretKey: string;
 }
 
+export interface AWSVersionObject {
+    Key: string;
+    VersionId: string;
+}
+
+export interface NotificationDestination {
+    destinationName: string;
+    topic: string;
+    hosts: string;
+}
+export interface Saved {
+    notificationDestinations: NotificationDestination[],
+    notificationsPerDestination: { [key: string]: string[] },
+    bucketName: string,
+    notificationEventType: string,
+    objectNamePrefix: string,
+    filterType: string,
+    objectName: string,
+    objectNameSufix: string,
+    [key: string]: unknown
+}
+
+interface Parameters {
+    [key: string]: unknown;
+}
+
+export interface Result {
+    err: null;
+    stdout: string
+}
+
+interface Role {
+    Name: string;
+    Arn: string;
+}
+
+interface Account {
+    id: string;
+    Arn: string;
+    name: string;
+    Roles: Role[];
+}
+
+interface GetRolesForWIResponse {
+    roles: {
+        ListOfRoleArns: string[];
+        Accounts: Account[];
+    }
+}
+
+interface ICacheHelper {
+    ARWWI: {
+        [key: string]: unknown;
+    };
+}
+
+interface CacheHelperParameters {
+    AccessKey: string,
+    AccountName: string,
+    SecretKey: string,
+}
+
 // Zenko entities
 export enum EntityType {
     ACCOUNT = 'ACCOUNT',
