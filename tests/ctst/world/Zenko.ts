@@ -1,13 +1,92 @@
-import { setWorldConstructor, World } from '@cucumber/cucumber';
+import { setWorldConstructor, World, IWorldOptions } from '@cucumber/cucumber';
 import axios, { AxiosRequestConfig, AxiosResponse, Method, AxiosRequestHeaders } from 'axios';
-import { aws4Interceptor } from 'aws4-axios'
-
-import { CacheHelper, cliModeObject, Constants, IAM, IAMUserPolicy, STS, SuperAdmin, Utils, } from 'cli-testing';
-import { extractPropertyFromResults } from "../common/utils";
+import { aws4Interceptor } from 'aws4-axios';
+import {
+    CacheHelper,
+    ClientOptions,
+    cliModeObject,
+    Constants,
+    IAM,
+    IAMUserPolicy,
+    STS,
+    SuperAdmin,
+    Utils,
+    AWSCliOptions,
+} from 'cli-testing';
+import { Credentials } from 'aws4-axios';
+import { extractPropertyFromResults } from '../common/utils';
 import qs = require('qs');
 
-interface AwsCliObjectParameters {
+export interface AwsCliObjectParameters {
     [key: string]: number | string | undefined | object;
+}
+
+export interface AWSVersionObject {
+    Key: string;
+    VersionId: string;
+}
+
+export interface NotificationDestination {
+    destinationName: string;
+    topic: string;
+    hosts: string;
+}
+export interface Saved {
+    notificationDestinations: NotificationDestination[],
+    notificationsPerDestination: { [key: string]: string[] },
+    bucketName: string,
+    notificationEventType: string,
+    objectNamePrefix: string,
+    filterType: string,
+    objectName: string,
+    objectNameSufix: string,
+    [key: string]: unknown
+}
+
+interface Parameters {
+    [key: string]: unknown;
+}
+
+export interface Result {
+    err: null;
+    stdout: string
+}
+
+interface Role {
+    Name: string;
+    Arn: string;
+}
+
+interface Account {
+    id: string;
+    Arn: string;
+    name: string;
+    Roles: Role[];
+}
+
+interface GetRolesForWIResponse {
+    roles: {
+        ListOfRoleArns: string[];
+        Accounts: Account[];
+    }
+}
+
+interface ICacheHelper {
+    ARWWI: {
+        [key: string]: unknown;
+    };
+}
+
+export interface UserCredentials {
+    AccessKeyId: string;
+    SecretAccessKey: string;
+    SessionToken: string;
+}
+
+interface CacheHelperParameters {
+    AccessKey: string,
+    AccountName: string,
+    SecretKey: string,
 }
 
 // Zenko entities
@@ -324,7 +403,9 @@ export default class Zenko extends World {
         this.saved.roleName = `${account.name}${Constants.ROLE_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase();
         this.addCommandParameter({ roleName: this.saved.roleName });
         this.addCommandParameter({ assumeRolePolicyDocument: Constants.assumeRoleTrustPolicy });
-        const roleArnToAssume = extractPropertyFromResults(await IAM.createRole(this.getCommandParameters()), 'Role', 'Arn');
+        const roleArnToAssume =
+            extractPropertyFromResults((await IAM.createRole(
+                this.getCommandParameters() as AWSCliOptions) as Utils.Command) as Result, 'Role', 'Arn');
 
         let accountToBeAssumedFrom = account;
 
@@ -366,7 +447,9 @@ export default class Zenko extends World {
         this.resetCommand();
         this.addCommandParameter({ policyName: `${accountToBeAssumedFrom.name}${Constants.POLICY_NAME_TEST}${Utils.randomString()}` });
         this.addCommandParameter({ policyDocument: Constants.assumeRolePolicy });
-        const assumeRolePolicyArn = extractPropertyFromResults(await IAM.createPolicy(this.getCommandParameters()), "Policy", "Arn");
+        const assumeRolePolicyArn =
+            extractPropertyFromResults((await IAM.createRole(
+                this.getCommandParameters() as AWSCliOptions) as Utils.Command) as Result, 'Policy', 'Arn');
 
         // Attaching the policy to the user
         this.resetCommand();
@@ -377,13 +460,17 @@ export default class Zenko extends World {
         // Creating credentials for the user
         this.resetCommand();
         this.addCommandParameter({ userName });
-        this.parameters.IAMSession = extractPropertyFromResults(await IAM.createAccessKey(this.getCommandParameters()), "AccessKey");
+        (this.parameters as { IAMSession?: string | null }).IAMSession =
+            extractPropertyFromResults((await IAM.createRole(
+                this.getCommandParameters() as AWSCliOptions) as Utils.Command) as Result, 'AccessKey');
         this.resumeRootOrIamUser();
 
         // Assuming the role
         this.resetCommand();
         this.addCommandParameter({ roleArn: roleArnToAssume as string });
-        this.parameters.AssumedSession = extractPropertyFromResults(await STS.assumeRole(this.getCommandParameters()), "Credentials");
+        (this.parameters as { AssumedSession?: string | null }).AssumedSession =
+            extractPropertyFromResults((await IAM.createRole(
+                this.getCommandParameters() as AWSCliOptions) as Utils.Command) as Result, 'Credentials');
         this.cliMode.assumed = true;
         this.cliMode.env = false;
 
