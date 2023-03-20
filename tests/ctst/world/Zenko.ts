@@ -159,6 +159,7 @@ export default class Zenko extends World {
         this.cliMode.parameters = worldParameters as ClientOptions;
         console.log("1234 - CACHEPARAMS", cacheParameters);
         console.log("1234 - CACHEHELPER", CacheHelper);
+        console.log('1234 - WORLDPARAMS', worldParameters);
 
         if (worldParameters.AccountSessionToken) {
             ((CacheHelper.ARWWI as { [key:string]: unknown })[CacheHelper.AccountName]) = {
