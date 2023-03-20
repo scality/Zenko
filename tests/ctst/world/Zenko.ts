@@ -157,6 +157,8 @@ export default class Zenko extends World {
         // Workaround to be able to access global parameters in BeforeAll/AfterAll hooks
         CacheHelper.parameters = worldParameters;
         this.cliMode.parameters = worldParameters as ClientOptions;
+        console.log("1234 - CACHEPARAMS", cacheParameters);
+        console.log("1234 - CACHEHELPER", CacheHelper);
 
         if (worldParameters.AccountSessionToken) {
             ((CacheHelper.ARWWI as { [key:string]: unknown })[CacheHelper.AccountName]) = {
