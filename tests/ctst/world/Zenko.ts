@@ -17,10 +17,6 @@ import { Credentials } from 'aws4-axios';
 import { extractPropertyFromResults } from '../common/utils';
 import qs = require('qs');
 
-export interface AwsCliObjectParameters {
-    [key: string]: number | string | undefined | object;
-}
-
 export interface AWSVersionObject {
     Key: string;
     VersionId: string;
@@ -30,21 +26,6 @@ export interface NotificationDestination {
     destinationName: string;
     topic: string;
     hosts: string;
-}
-export interface Saved {
-    notificationDestinations: NotificationDestination[],
-    notificationsPerDestination: { [key: string]: string[] },
-    bucketName: string,
-    notificationEventType: string,
-    objectNamePrefix: string,
-    filterType: string,
-    objectName: string,
-    objectNameSufix: string,
-    [key: string]: unknown
-}
-
-interface Parameters {
-    [key: string]: unknown;
 }
 
 export interface Result {
@@ -72,9 +53,7 @@ interface GetRolesForWIResponse {
 }
 
 interface ICacheHelper {
-    ARWWI: {
-        [key: string]: unknown;
-    };
+    ARWWI: Record<string, unknown>;
 }
 
 export interface UserCredentials {
@@ -113,11 +92,11 @@ export default class Zenko extends World {
 
     private serviceType = '';
 
-    private cliOptions: AwsCliObjectParameters = {};
+    private cliOptions: Record<string, unknown> = {};
 
-    private options: { [key: string]: string } = {};
+    private options: Record<string, string> = {};
 
-    private saved: { [key: string]: unknown } = {};
+    private saved: Record<string, unknown> = {};
 
     private static IAMUserName = '';
 
@@ -141,9 +120,9 @@ export default class Zenko extends World {
         super(options);
 
         // store service users credentials from world parameters
-        if ((this.parameters as Parameters).ServiceUsersCredentials) {
+        if ((this.parameters as Record<string, unknown>).ServiceUsersCredentials) {
             Object.entries(JSON.parse(
-                (this.parameters as Parameters).ServiceUsersCredentials as string) as UserCredentials)
+                (this.parameters as Record<string, unknown>).ServiceUsersCredentials as string) as UserCredentials)
                 .forEach(entry => {
                     Zenko.serviceUsersCredentials[entry[0]] = {
                         AccessKeyId: (entry[1] as {accessKey: string}).accessKey,
@@ -152,14 +131,14 @@ export default class Zenko extends World {
                 });
         }
 
-        const worldParameters = this.parameters as Parameters;
+        const worldParameters = this.parameters as Record<string, unknown>;
         // Workaround to be able to access global parameters in BeforeAll/AfterAll hooks
         CacheHelper.parameters = worldParameters;
-        const cacheParameters = CacheHelper.parameters as Parameters;
+        const cacheParameters = CacheHelper.parameters as Record<string, unknown>;
         this.cliMode.parameters = worldParameters as ClientOptions;
 
         if (worldParameters.AccountSessionToken) {
-            ((CacheHelper.ARWWI as { [key:string]: unknown })[CacheHelper.AccountName]) = {
+            ((CacheHelper.ARWWI as Record<string, unknown>)[CacheHelper.AccountName]) = {
                 AccessKeyId: worldParameters.AccountAccessKey,
                 SecretAccessKey: worldParameters.AccountSecretKey,
                 SessionToken: worldParameters.AccountSessionToken,
@@ -218,8 +197,8 @@ export default class Zenko extends World {
      * @returns {undefined}
      */
     async setupEntity(entityType: string): Promise<void> {
-        const saved: Saved = this.getSaved() as Saved;
-        const usedParameters = this.parameters as Parameters;
+        const saved: Record<string, unknown> = this.getSaved() as Record<string, unknown>;
+        const usedParameters = this.parameters as Record<string, unknown>;
         const keycloakPassword = usedParameters.KeycloakTestPassword as string || '123';
         const savedParameters = JSON.parse(JSON.stringify(this.cliOptions)) as object;
         this.resetGlobalType();
@@ -260,7 +239,7 @@ export default class Zenko extends World {
             break;
         }
         this.resetCommand();
-        this.cliOptions = savedParameters as AwsCliObjectParameters;
+        this.cliOptions = savedParameters as Record<string, unknown>;
     }
 
     /**
@@ -283,7 +262,7 @@ export default class Zenko extends World {
      * @returns {undefined}
      */
     async prepareARWWI(ARWWIName: string, ARWWIPassword: string, ARWWITargetRole: string) {
-        const usedParameters = this.parameters as Parameters;
+        const usedParameters = this.parameters as Record<string, unknown>;
 
         if (!(ARWWIName in CacheHelper.ARWWI)) {
             const token: string = await this.getWebIdentityToken(
@@ -711,7 +690,7 @@ export default class Zenko extends World {
      * @param {object} param - an object with a key and a value
      * @returns {undefined}
      */
-    addCommandParameter(param: AwsCliObjectParameters): void {
+    addCommandParameter(param: Record<string, unknown>): void {
         this.cliOptions[Object.keys(param)[0]] = param[Object.keys(param)[0]];
     }
 
@@ -736,7 +715,7 @@ export default class Zenko extends World {
 
     /**
      * Get all mapped parameters
-     * @returns {AwsCliObjectParameters} - an object with the cli command options
+     * @returns {Record<string, unknown>} - an object with the cli command options
      */
     getCommandParameters() {
         return {
@@ -749,7 +728,7 @@ export default class Zenko extends World {
      * Get all saved parameters
      * @returns {Object.<string,*>} - an object with any saved parameters
      */
-    public getSaved(): { [key: string]: unknown } {
+    public getSaved(): Record<string, unknown> {
         return this.saved;
     }
 
