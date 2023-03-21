@@ -156,13 +156,8 @@ export default class Zenko extends World {
      * @param {object} result - contains both stderr and stdout from the CLI command.
      * @returns {boolean} - if the result is a success or a failure
      */
-    checkResult(result: Result | Utils.Command | Result[]): boolean {
-        let usedResult: Result | Utils.Command | Result[];
-        if (!Array.isArray(result)) {
-            usedResult = [result] as Result[];
-        } else {
-            usedResult = result;
-        }
+    checkResult(result: Result | Result[]): boolean {
+        const usedResult: Result[] = Array.isArray(result) ? result : [result];
         let decision = true;
         usedResult.forEach(res => {
             if (!res || res.err || this.forceFailed === true) {
