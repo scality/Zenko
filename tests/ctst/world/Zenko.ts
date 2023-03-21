@@ -29,8 +29,8 @@ export interface NotificationDestination {
 }
 
 export interface Result {
-    err: null;
-    stdout: string
+    err: unknown;
+    stdout: string;
 }
 
 interface Role {
