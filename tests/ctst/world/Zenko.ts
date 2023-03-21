@@ -127,8 +127,8 @@ export default class Zenko extends World {
                 this.parameters.ServiceUsersCredentials as string) as UserCredentials)
                 .forEach(entry => {
                     Zenko.serviceUsersCredentials[entry[0]] = {
-                        AccessKeyId: (entry[1] as {accessKey: string}).accessKey,
-                        SecretAccessKey: (entry[1] as {secretKey: string}).secretKey,
+                        AccessKeyId: (entry[1] as { accessKey: string }).accessKey,
+                        SecretAccessKey: (entry[1] as { secretKey: string }).secretKey,
                     };
                 });
         }
@@ -300,7 +300,7 @@ export default class Zenko extends World {
             const ARWWI = await STS.assumeRoleWithWebIdentity(this.options, usedParameters);
             if (ARWWI && typeof ARWWI !== 'string' && ARWWI.stdout) {
                 usedParameters.AssumedSession =
-                (JSON.parse(ARWWI.stdout) as { Credentials: ClientOptions['AssumedSession'] }).Credentials;
+                    (JSON.parse(ARWWI.stdout) as { Credentials: ClientOptions['AssumedSession'] }).Credentials;
             } else {
                 throw new Error('Error when trying to Assume Role With Web Identity.');
             }
@@ -477,12 +477,12 @@ export default class Zenko extends World {
         if (!roleArnToAssume) {
             // if role to assume does not exist in the account, then it should be in the internal services account
             roleArnToAssume =
-            `arn:aws:iam::${Constants.INTERNAL_SERVICES_ACCOUNT_ID}:role/scality-internal/${roleName}`;
+                `arn:aws:iam::${Constants.INTERNAL_SERVICES_ACCOUNT_ID}:role/scality-internal/${roleName}`;
         }
 
         // assign the credentials of the service user to the IAM session
         this.parameters.IAMSession =
-        Zenko.serviceUsersCredentials[serviceUserName] as UserCredentials;
+            Zenko.serviceUsersCredentials[serviceUserName] as UserCredentials;
         this.resumeRootOrIamUser();
 
         // Assuming the role as the service user
@@ -496,7 +496,7 @@ export default class Zenko extends World {
 
         //assign the assumed session credentials to the Assumed session.
         this.parameters.AssumedSession =
-        extractPropertyFromResults(assumeRoleRes as Result, 'Credentials') as string;
+            extractPropertyFromResults(assumeRoleRes as Result, 'Credentials') as string;
         this.resumeAssumedRole();
     }
 
@@ -589,7 +589,7 @@ export default class Zenko extends World {
             }) as Utils.Account['account'];
             let policyArn = `arn:aws:iam::${account.id as string}:policy/IAMUserPolicy-${Zenko.IAMUserName}}`;
             try {
-                policyArn = (JSON.parse(policy.stdout) as {Policy: {Arn: string}}).Policy.Arn;
+                policyArn = (JSON.parse(policy.stdout) as { Policy: { Arn: string } }).Policy.Arn;
             } catch (err: unknown) {
                 const usedErr = err as { message: string };
                 process.stderr.write('Failed to create the IAM User policy.\n' +
@@ -764,7 +764,7 @@ export default class Zenko extends World {
     }
 
     async awsS3Request(method: Method, path: string,
-        userCredentials: UserCredentials, headers: AxiosRequestHeaders={}, payload: object={}) {
+        userCredentials: UserCredentials, headers: AxiosRequestHeaders = {}, payload: object = {}) {
         const credentials: Credentials = {
             accessKeyId: userCredentials.AccessKeyId,
             secretAccessKey: userCredentials.SecretAccessKey,
@@ -783,7 +783,7 @@ export default class Zenko extends World {
         const axiosConfig: AxiosRequestConfig = {
             method,
             url: `${protocol}s3.${this.parameters.subdomain as string
-            || Constants.DEFAULT_SUBDOMAIN}${path}`,
+                || Constants.DEFAULT_SUBDOMAIN}${path}`,
             headers,
             data: payload,
         };
@@ -791,9 +791,11 @@ export default class Zenko extends World {
             const response: AxiosResponse = await axiosInstance(axiosConfig);
             return { statusCode: response.status, data: response.data as unknown };
         } catch (err: unknown) {
-            return { statusCode:
-                (err as { response: {status: string }}).response.status,
-            err: (err as { response: {data: unknown }}).response.data };
+            return {
+                statusCode:
+                    (err as { response: { status: string } }).response.status,
+                err: (err as { response: { data: unknown } }).response.data,
+            };
         }
     }
 }
