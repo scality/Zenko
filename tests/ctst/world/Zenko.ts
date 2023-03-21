@@ -110,6 +110,8 @@ export default class Zenko extends World {
 
     private forceFailed = false;
 
+    readonly parameters: Record<string, unknown> = {};
+
     private cliMode: cliModeObject = CacheHelper.createCliModeObject();
 
     /**
@@ -120,9 +122,9 @@ export default class Zenko extends World {
         super(options);
 
         // store service users credentials from world parameters
-        if ((this.parameters as Record<string, unknown>).ServiceUsersCredentials) {
+        if (this.parameters.ServiceUsersCredentials) {
             Object.entries(JSON.parse(
-                (this.parameters as Record<string, unknown>).ServiceUsersCredentials as string) as UserCredentials)
+                this.parameters.ServiceUsersCredentials as string) as UserCredentials)
                 .forEach(entry => {
                     Zenko.serviceUsersCredentials[entry[0]] = {
                         AccessKeyId: (entry[1] as {accessKey: string}).accessKey,
@@ -131,7 +133,7 @@ export default class Zenko extends World {
                 });
         }
 
-        const worldParameters = this.parameters as Record<string, unknown>;
+        const worldParameters = this.parameters;
         // Workaround to be able to access global parameters in BeforeAll/AfterAll hooks
         CacheHelper.parameters = worldParameters;
         const cacheParameters = CacheHelper.parameters as Record<string, unknown>;
@@ -197,8 +199,8 @@ export default class Zenko extends World {
      * @returns {undefined}
      */
     async setupEntity(entityType: string): Promise<void> {
-        const saved: Record<string, unknown> = this.getSaved() as Record<string, unknown>;
-        const usedParameters = this.parameters as Record<string, unknown>;
+        const saved: Record<string, unknown> = this.getSaved();
+        const usedParameters = this.parameters;
         const keycloakPassword = usedParameters.KeycloakTestPassword as string || '123';
         const savedParameters = JSON.parse(JSON.stringify(this.cliOptions)) as object;
         this.resetGlobalType();
@@ -262,7 +264,7 @@ export default class Zenko extends World {
      * @returns {undefined}
      */
     async prepareARWWI(ARWWIName: string, ARWWIPassword: string, ARWWITargetRole: string) {
-        const usedParameters = this.parameters as Record<string, unknown>;
+        const usedParameters = this.parameters;
 
         if (!(ARWWIName in CacheHelper.ARWWI)) {
             const token: string = await this.getWebIdentityToken(
@@ -349,8 +351,8 @@ export default class Zenko extends World {
         clientId: string,
         grantType: string,
     ): Promise<string> {
-        (this.parameters as { IAMSession?: object });
-        const baseUrl = (this.parameters as { ssl?: boolean }).ssl === false ? 'http://' : 'https://';
+        this.parameters;
+        const baseUrl = this.parameters.ssl === false ? 'http://' : 'https://';
         const data = qs.stringify({
             username,
             password,
@@ -386,7 +388,7 @@ export default class Zenko extends World {
 
         // Getting default account ID
         const account = await SuperAdmin.getAccount({
-            name: (this.parameters as { AccountName?: string }).AccountName || Constants.ACCOUNT_NAME,
+            name: this.parameters.AccountName as string || Constants.ACCOUNT_NAME,
         }) as Utils.Account['account'];
         Zenko.additionalAccountsCredentials[account.name as string] = {
             AccessKey: (CacheHelper.parameters as CacheHelperParameters).AccessKey,
@@ -449,7 +451,7 @@ export default class Zenko extends World {
         // Creating credentials for the user
         this.resetCommand();
         this.addCommandParameter({ userName });
-        (this.parameters as { IAMSession?: string | null }).IAMSession =
+        this.parameters.IAMSession =
             extractPropertyFromResults((await IAM.createRole(
                 this.getCommandParameters() as AWSCliOptions) as Utils.Command) as Result, 'AccessKey');
         this.resumeRootOrIamUser();
@@ -457,7 +459,7 @@ export default class Zenko extends World {
         // Assuming the role
         this.resetCommand();
         this.addCommandParameter({ roleArn: roleArnToAssume as string });
-        (this.parameters as { AssumedSession?: string | null }).AssumedSession =
+        this.parameters.AssumedSession =
             extractPropertyFromResults((await IAM.createRole(
                 this.getCommandParameters() as AWSCliOptions) as Utils.Command) as Result, 'Credentials');
         this.cliMode.assumed = true;
@@ -491,7 +493,7 @@ export default class Zenko extends World {
         }
 
         // assign the credentials of the service user to the IAM session
-        (this.parameters as {IAMSession: UserCredentials}).IAMSession =
+        this.parameters.IAMSession =
         Zenko.serviceUsersCredentials[serviceUserName] as UserCredentials;
         this.resumeRootOrIamUser();
 
@@ -505,7 +507,7 @@ export default class Zenko extends World {
         }
 
         //assign the assumed session credentials to the Assumed session.
-        (this.parameters as { AssumedSession: string}).AssumedSession =
+        this.parameters.AssumedSession =
         extractPropertyFromResults(assumeRoleRes as Result, 'Credentials') as string;
         this.resumeAssumedRole();
     }
@@ -577,7 +579,7 @@ export default class Zenko extends World {
      * @returns {undefined}
      */
     async prepareRootUser() {
-        Zenko.IAMUserName = Zenko.IAMUserName || `${(this.parameters as { IAMUserName: string }).IAMUserName
+        Zenko.IAMUserName = Zenko.IAMUserName || `${this.parameters.IAMUserName as string
             || 'usertest'}${Utils.randomString()}`;
         Zenko.IAMUserPolicyName = `IAMUserPolicy-${Zenko.IAMUserName}${Utils.randomString()}`;
         if (!this.cliMode.parameters.IAMSession) {
@@ -595,7 +597,7 @@ export default class Zenko extends World {
             }
             const policy = await IAM.createPolicy(this.getCommandParameters());
             const account = await SuperAdmin.getAccount({
-                name: (this.parameters as { AccountName: string }).AccountName || Constants.ACCOUNT_NAME,
+                name: this.parameters.AccountName as string || Constants.ACCOUNT_NAME,
             }) as Utils.Account['account'];
             let policyArn = `arn:aws:iam::${account.id as string}:policy/IAMUserPolicy-${Zenko.IAMUserName}}`;
             try {
@@ -620,14 +622,14 @@ export default class Zenko extends World {
                 throw new Error(`Error creating the IAM User's access key.\n
                  ${accessKey.err}`);
             }
-            (this.parameters as { IAMSession?: string | null }).IAMSession =
+            this.parameters.IAMSession =
                 extractPropertyFromResults(accessKey as Result, 'AccessKey') as string;
             this.cliMode.parameters.IAMSession =
-                (this.parameters as { IAMSession?: ClientOptions['IAMSession'] }).IAMSession;
+                this.parameters.IAMSession as ClientOptions['IAMSession'];
             this.cliMode.env = true;
             this.resetCommand();
         } else {
-            (this.parameters as { IAMSession?: ClientOptions['IAMSession'] }).IAMSession =
+            this.parameters.IAMSession =
                 this.cliMode.parameters.IAMSession;
             this.cliMode.env = true;
         }
@@ -648,12 +650,12 @@ export default class Zenko extends World {
         // Create credentials for the user
         this.addCommandParameter({ userName: this.getSaved().userName as string });
         const accessKey = await IAM.createAccessKey(this.getCommandParameters());
-        (this.parameters as { IAMSession?: string }).IAMSession =
+        this.parameters.IAMSession =
             (JSON.parse(accessKey.stdout) as { AccessKey: string })?.AccessKey;
         this.cliMode.parameters.IAMSession =
-            (this.parameters as { IAMSession?: ClientOptions['IAMSession'] }).IAMSession;
+            this.parameters.IAMSession as ClientOptions['IAMSession'];
         (CacheHelper.parameters as { IAMSession: ClientOptions['IAMSession'] }).IAMSession =
-            (this.parameters as { IAMSession?: ClientOptions['IAMSession'] }).IAMSession;
+            this.parameters.IAMSession as ClientOptions['IAMSession'];
         this.cliMode.env = true;
         this.resetCommand();
     }
@@ -789,10 +791,10 @@ export default class Zenko extends World {
 
         const axiosInstance = axios.create();
         axiosInstance.interceptors.request.use(interceptor);
-        const protocol = (this.parameters as {ssl: boolean}).ssl === false ? 'http://' : 'https://';
+        const protocol = this.parameters.ssl === false ? 'http://' : 'https://';
         const axiosConfig: AxiosRequestConfig = {
             method,
-            url: `${protocol}s3.${(this.parameters as {subdomain: string}).subdomain
+            url: `${protocol}s3.${this.parameters.subdomain as string
             || Constants.DEFAULT_SUBDOMAIN}${path}`,
             headers,
             data: payload,
