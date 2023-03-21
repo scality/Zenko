@@ -133,25 +133,18 @@ export default class Zenko extends World {
                 });
         }
 
-        const worldParameters = this.parameters;
         // Workaround to be able to access global parameters in BeforeAll/AfterAll hooks
-        CacheHelper.parameters = worldParameters;
-        const cacheParameters = CacheHelper.parameters as Record<string, unknown>;
-        this.cliMode.parameters = worldParameters as ClientOptions;
+        CacheHelper.parameters = this.parameters;
+        this.cliMode.parameters = this.parameters as ClientOptions;
 
-        if (worldParameters.AccountSessionToken) {
+        if (this.parameters.AccountSessionToken) {
             ((CacheHelper.ARWWI as Record<string, unknown>)[CacheHelper.AccountName]) = {
-                AccessKeyId: worldParameters.AccountAccessKey,
-                SecretAccessKey: worldParameters.AccountSecretKey,
-                SessionToken: worldParameters.AccountSessionToken,
+                AccessKeyId: this.parameters.AccountAccessKey,
+                SecretAccessKey: this.parameters.AccountSecretKey,
+                SessionToken: this.parameters.AccountSessionToken,
             };
-            cacheParameters.AccessKey = worldParameters.AccountAccessKey;
-            cacheParameters.SecretKey = worldParameters.AccountSecretKey;
-            cacheParameters.SessionToken = worldParameters.AccountSessionToken;
         } else {
-            CacheHelper.AccountName = cacheParameters.AccountName as string;
-            cacheParameters.AccessKey = worldParameters.AccountAccessKey;
-            cacheParameters.SecretKey = worldParameters.AccountSecretKey;
+            CacheHelper.AccountName = this.parameters.AccountName as string;
             CacheHelper.isPreloadedAccount = true;
         }
     }
