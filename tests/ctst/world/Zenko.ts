@@ -251,17 +251,16 @@ export default class Zenko extends World {
      * @returns {undefined}
      */
     async prepareARWWI(ARWWIName: string, ARWWIPassword: string, ARWWITargetRole: string) {
-        const usedParameters = this.parameters;
 
         if (!(ARWWIName in CacheHelper.ARWWI)) {
             const token: string = await this.getWebIdentityToken(
                 ARWWIName,
                 ARWWIPassword,
-                usedParameters.KeycloakHost as string || 'keycloak.zenko.local',
-                usedParameters.keycloakPort as string || '80',
-                `/auth/realms/${usedParameters.keycloakRealm as string || 'zenko'}/protocol/openid-connect/token`,
-                usedParameters.keycloakClientId as string || Constants.K_CLIENT,
-                usedParameters.keycloakGrantType as string || 'password',
+                this.parameters.KeycloakHost as string || 'keycloak.zenko.local',
+                this.parameters.keycloakPort as string || '80',
+                `/auth/realms/${this.parameters.keycloakRealm as string || 'zenko'}/protocol/openid-connect/token`,
+                this.parameters.keycloakClientId as string || Constants.K_CLIENT,
+                this.parameters.keycloakGrantType as string || 'password',
             );
             this.options.webIdentityToken = token;
             if (!this.options.webIdentityToken) {
@@ -269,7 +268,7 @@ export default class Zenko extends World {
             }
             // Getting account ID
             const account = await SuperAdmin.getAccount({
-                name: usedParameters.AccountName as string || Constants.ACCOUNT_NAME,
+                name: this.parameters.AccountName as string || Constants.ACCOUNT_NAME,
             }) as Account;
             // Getting roles with GetRolesForWebIdentity
             // Get the first role with the storage-manager-role name
@@ -283,9 +282,9 @@ export default class Zenko extends World {
             } else {
                 data.roles.Accounts.forEach((_account: Account) => {
                     roleToAssume = _account.Roles.find(
-                        (role: { Name: string; Arn: string }) =>
+                        (role: Role) =>
                             role.Arn.includes(ARWWITargetRole) && role.Arn.includes(account.id),
-                    )?.Arn as string || roleToAssume;
+                    )?.Arn || roleToAssume;
                 });
             }
             // Ensure we can assume at least one role
@@ -296,20 +295,20 @@ export default class Zenko extends World {
             const arn = roleToAssume;
             this.options.roleArn = arn;
             // Assume the role and save the credentials
-            const ARWWI = await STS.assumeRoleWithWebIdentity(this.options, usedParameters);
+            const ARWWI = await STS.assumeRoleWithWebIdentity(this.options, this.parameters);
             if (ARWWI && typeof ARWWI !== 'string' && ARWWI.stdout) {
-                usedParameters.AssumedSession =
+                this.parameters.AssumedSession =
                     (JSON.parse(ARWWI.stdout) as { Credentials: ClientOptions['AssumedSession'] }).Credentials;
             } else {
                 throw new Error('Error when trying to Assume Role With Web Identity.');
             }
             // Save the session for future scenarios (increases performance)
-            (CacheHelper as ICacheHelper).ARWWI[ARWWIName] = usedParameters.AssumedSession;
+            (CacheHelper as ICacheHelper).ARWWI[ARWWIName] = this.parameters.AssumedSession;
             this.cliMode.parameters.AssumedSession =
                 (CacheHelper as ICacheHelper).ARWWI[ARWWIName] as ClientOptions['AssumedSession'];
             this.cliMode.assumed = true;
         } else {
-            usedParameters.AssumedSession =
+            this.parameters.AssumedSession =
                 (CacheHelper as ICacheHelper).ARWWI[ARWWIName] as ClientOptions['AssumedSession'];
             this.cliMode.parameters.AssumedSession =
                 (CacheHelper as ICacheHelper).ARWWI[ARWWIName] as ClientOptions['AssumedSession'];
