@@ -187,7 +187,6 @@ export default class Zenko extends World {
      * @returns {undefined}
      */
     async setupEntity(entityType: string): Promise<void> {
-        const saved: Record<string, unknown> = this.getSaved();
         const usedParameters = this.parameters;
         const keycloakPassword = usedParameters.KeycloakTestPassword as string || '123';
         const savedParameters = JSON.parse(JSON.stringify(this.cliOptions)) as object;
@@ -195,11 +194,11 @@ export default class Zenko extends World {
         switch (entityType) {
         case EntityType.ACCOUNT:
             await this.prepareRootUser();
-            saved.type = EntityType.ACCOUNT;
+            this.saved.type = EntityType.ACCOUNT;
             break;
         case EntityType.IAM_USER:
             await this.prepareIamUser();
-            saved.type = EntityType.IAM_USER;
+            this.saved.type = EntityType.IAM_USER;
             break;
         case EntityType.STORAGE_MANAGER:
             await this.prepareARWWI(
@@ -207,7 +206,7 @@ export default class Zenko extends World {
                     keycloakPassword,
                     'storage-manager-role',
             );
-            saved.type = EntityType.STORAGE_MANAGER;
+            this.saved.type = EntityType.STORAGE_MANAGER;
             break;
         case EntityType.STORAGE_ACCOUNT_OWNER:
             await this.prepareARWWI(
@@ -215,7 +214,7 @@ export default class Zenko extends World {
                     keycloakPassword,
                     'storage-account-owner-role',
             );
-            saved.type = EntityType.STORAGE_ACCOUNT_OWNER;
+            this.saved.type = EntityType.STORAGE_ACCOUNT_OWNER;
             break;
         case EntityType.DATA_CONSUMER:
             await this.prepareARWWI(
@@ -223,7 +222,7 @@ export default class Zenko extends World {
                     keycloakPassword,
                     'data-consumer-role',
             );
-            saved.type = EntityType.DATA_CONSUMER;
+            this.saved.type = EntityType.DATA_CONSUMER;
             break;
         default:
             break;
@@ -384,9 +383,9 @@ export default class Zenko extends World {
         };
 
         // Creating a role to assume
-        this.getSaved().roleName = `${(account).name as string}` +
+        this.saved.roleName = `${(account).name as string}` +
             `${Constants.ROLE_NAME_TEST}${`${Utils.randomString()}`.toLocaleLowerCase()}`;
-        this.addCommandParameter({ roleName: this.getSaved().roleName as string });
+        this.addCommandParameter({ roleName: this.saved.roleName as string });
         this.addCommandParameter({ assumeRolePolicyDocument: Constants.assumeRoleTrustPolicy });
         const roleArnToAssume =
             extractPropertyFromResults((await IAM.createRole(
@@ -632,11 +631,11 @@ export default class Zenko extends World {
     async prepareIamUser() {
         this.saved.userName = `iamusertest${Utils.randomString()}`;
         // Create IAM user
-        this.addCommandParameter({ userName: this.getSaved().userName as string });
+        this.addCommandParameter({ userName: this.saved.userName as string });
         await IAM.createUser(this.getCommandParameters());
         this.resetCommand();
         // Create credentials for the user
-        this.addCommandParameter({ userName: this.getSaved().userName as string });
+        this.addCommandParameter({ userName: this.saved.userName as string });
         const accessKey = await IAM.createAccessKey(this.getCommandParameters());
         this.parameters.IAMSession =
             (JSON.parse(accessKey.stdout) as { AccessKey: string })?.AccessKey;
@@ -720,6 +719,16 @@ export default class Zenko extends World {
      */
     public getSaved(): Record<string, unknown> {
         return this.saved;
+    }
+
+    /**
+     * Get all saved parameters
+     * @param {string} key - key to save
+     * @param {*} value - value to save
+     * @returns {undefined}
+     */
+    public addToSaved(key: string, value: unknown): void {
+        this.saved[key] = value;
     }
 
     /**
