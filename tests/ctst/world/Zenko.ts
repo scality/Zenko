@@ -504,7 +504,7 @@ export default class Zenko extends World {
      * @param {Object.<string,*>} parameters - the client-provided parameters
      * @returns {undefined}
      */
-    static async init(parameters: { [key: string]: unknown }) {
+    static async init(parameters: Record<string, unknown>) {
 
         if (!CacheHelper.accountAccessKeys) {
             // TODO will need to see how VaultClient is typed
