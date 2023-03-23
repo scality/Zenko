@@ -68,6 +68,20 @@ locations:
         - 233aead6-1d7b-4647-a7cf-0d3280b5d1d7
         - 81e78de8-df11-4acd-8ad1-577ff05a68db
       nsId: 65f9fd61-42fe-4a68-9ac0-6ba25311cc85
+  - name: "${AZURE_ARCHIVE_BACKEND_DESTINATION_LOCATION}"
+    locationType: "location-azure-archive-v1"
+    isCold: true
+    details:
+      endpoint: "${AZURE_BACKEND_ENDPOINT}"
+      bucketName: "${AZURE_ARCHIVE_BUCKET_NAME}"
+      queue:
+        type: "location-azure-storage-queue-v1"
+        queueName: "queue"
+        endpoint: "${AZURE_BACKEND_ENDPOINT}"
+      auth:
+        type: "location-azure-shared-key"
+        accountName: "${AZURE_ACCOUNT_NAME}"
+        accountKey: "${AZURE_SECRET_KEY}"
 workflows:
   replication: []
   lifecycle: []

@@ -64,11 +64,13 @@ env:
   GCP_BACKEND_DESTINATION_LOCATION: gcpbackendmismatch
   AZURE_BACKEND_DESTINATION_LOCATION: azurebackendmismatch
   COLD_BACKEND_DESTINATION_LOCATION: e2e-cold
+  AZURE_ARCHIVE_BACKEND_DESTINATION_LOCATION: e2e-azure-archive
   LOCATION_QUOTA_BACKEND: quotabackend
   AWS_BUCKET_NAME: ci-zenko-aws-target-bucket
   AWS_CRR_BUCKET_NAME: ci-zenko-aws-crr-target-bucket
   AWS_FAIL_BUCKET_NAME: ci-zenko-aws-fail-target-bucket
   AZURE_CRR_BUCKET_NAME: ci-zenko-azure-crr-target-bucket
+  AZURE_ARCHIVE_BUCKET_NAME: ci-zenko-azure-target-bucket
   GCP_CRR_BUCKET_NAME: ci-zenko-gcp-crr-target-bucket
   GCP_CRR_MPU_BUCKET_NAME: ci-zenko-gcp-crr-mpu-bucket
   GCP_ACCESS_KEY: ${{ secrets.AWS_GCP_BACKEND_ACCESS_KEY }}
