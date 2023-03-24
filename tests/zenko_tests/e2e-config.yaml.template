@@ -73,7 +73,7 @@ locations:
     isCold: true
     details:
       endpoint: "${AZURE_BACKEND_ENDPOINT}"
-      bucketName: "${AZURE_ARCHIVE_BUCKET_NAME}"
+      bucketName: "${AZURE_CRR_BUCKET_NAME}"
       queue:
         type: "location-azure-storage-queue-v1"
         queueName: "queue"
@@ -82,6 +82,8 @@ locations:
         type: "location-azure-shared-key"
         accountName: "${AZURE_ACCOUNT_NAME}"
         accountKey: "${AZURE_SECRET_KEY}"
+      repoId:
+        - 233aead6-1d7b-4647-a7cf-0d3280b5d1d7
 workflows:
   replication: []
   lifecycle: []
