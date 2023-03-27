@@ -33,7 +33,7 @@ pyparsing==2.2.2
 pyperclip==1.6.5
 python-dateutil==2.7.3
 PyYAML==5.3.1
-redis==2.10.6
+redis==4.5.3
 requests==2.19.1
 ruamel.yaml==0.15.73
 s3transfer==0.1.13
