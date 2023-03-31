@@ -28,44 +28,17 @@ export interface NotificationDestination {
     hosts: string;
 }
 
-export interface Result {
-    err: unknown;
-    stdout: string;
-}
-
-interface Role {
-    Name: string;
-    Arn: string;
-}
-
-interface Account {
-    id: string;
-    Arn: string;
-    name: string;
-    Roles: Role[];
-}
-
 interface GetRolesForWIResponse {
     roles: {
         ListOfRoleArns: string[];
-        Accounts: Account[];
+        Accounts: Utils.AccountObject[];
     }
-}
-
-interface ICacheHelper {
-    ARWWI: Record<string, unknown>;
 }
 
 export interface UserCredentials {
     AccessKeyId: string;
     SecretAccessKey: string;
     SessionToken: string;
-}
-
-interface CacheHelperParameters {
-    AccessKey: string,
-    AccountName: string,
-    SecretKey: string,
 }
 
 // Zenko entities
@@ -88,7 +61,7 @@ export default class Zenko extends World {
 
     private result: object = {};
 
-    private parsedResult: Result[] = [];
+    private parsedResult: Utils.Command[] = [];
 
     private serviceType = '';
 
@@ -156,8 +129,8 @@ export default class Zenko extends World {
      * @param {object} result - contains both stderr and stdout from the CLI command.
      * @returns {boolean} - if the result is a success or a failure
      */
-    checkResult(result: Result | Result[]): boolean {
-        const usedResult: Result[] = Array.isArray(result) ? result : [result];
+    checkResult(result: Utils.Command | Utils.Command[]): boolean {
+        const usedResult: Utils.Command[] = Array.isArray(result) ? result : [result];
         let decision = true;
         usedResult.forEach(res => {
             if (!res || res.err || this.forceFailed === true) {
@@ -166,7 +139,7 @@ export default class Zenko extends World {
             try {
                 // Accept empty responses (in case of success)
                 if (res.stdout && res.stdout !== '') {
-                    const parsed = JSON.parse(res.stdout) as Result;
+                    const parsed = JSON.parse(res.stdout) as Utils.Command;
                     this.parsedResult.push(parsed);
                 } else if (res.stdout !== '') {
                     decision = false;
@@ -269,7 +242,7 @@ export default class Zenko extends World {
             // Getting account ID
             const account = await SuperAdmin.getAccount({
                 name: this.parameters.AccountName as string || Constants.ACCOUNT_NAME,
-            }) as Account;
+            }) as Utils.AccountObject;
             // Getting roles with GetRolesForWebIdentity
             // Get the first role with the storage-manager-role name
             const data: GetRolesForWIResponse =
@@ -277,13 +250,13 @@ export default class Zenko extends World {
             let roleToAssume: string | undefined = '';
             if (data.roles.ListOfRoleArns) {
                 roleToAssume = data.roles.ListOfRoleArns.find(
-                    (roleArn: string) => roleArn.includes(ARWWITargetRole) && roleArn.includes(account.id),
+                    (roleArn: string) => roleArn.includes(ARWWITargetRole) && roleArn.includes(account.id as string),
                 );
             } else {
-                data.roles.Accounts.forEach((_account: Account) => {
-                    roleToAssume = _account.Roles.find(
-                        (role: Role) =>
-                            role.Arn.includes(ARWWITargetRole) && role.Arn.includes(account.id),
+                data.roles.Accounts.forEach((_account: Utils.GRFWIAccount) => {
+                    roleToAssume = _account.Roles?.find(
+                        (role: Utils.Role) =>
+                            role.Arn.includes(ARWWITargetRole) && role.Arn.includes(account.id as string),
                     )?.Arn || roleToAssume;
                 });
             }
@@ -303,15 +276,15 @@ export default class Zenko extends World {
                 throw new Error('Error when trying to Assume Role With Web Identity.');
             }
             // Save the session for future scenarios (increases performance)
-            (CacheHelper as ICacheHelper).ARWWI[ARWWIName] = this.parameters.AssumedSession;
+            CacheHelper.ARWWI[ARWWIName] = this.parameters.AssumedSession as ClientOptions['AssumedSession'];
             this.cliMode.parameters.AssumedSession =
-                (CacheHelper as ICacheHelper).ARWWI[ARWWIName] as ClientOptions['AssumedSession'];
+                CacheHelper.ARWWI[ARWWIName];
             this.cliMode.assumed = true;
         } else {
             this.parameters.AssumedSession =
-                (CacheHelper as ICacheHelper).ARWWI[ARWWIName] as ClientOptions['AssumedSession'];
+                CacheHelper.ARWWI[ARWWIName];
             this.cliMode.parameters.AssumedSession =
-                (CacheHelper as ICacheHelper).ARWWI[ARWWIName] as ClientOptions['AssumedSession'];
+                CacheHelper.ARWWI[ARWWIName];
             this.cliMode.assumed = true;
         }
     }
@@ -377,8 +350,8 @@ export default class Zenko extends World {
             name: this.parameters.AccountName as string || Constants.ACCOUNT_NAME,
         }) as Utils.Account['account'];
         Zenko.additionalAccountsCredentials[account.name as string] = {
-            AccessKey: (CacheHelper.parameters as CacheHelperParameters).AccessKey,
-            SecretKey: (CacheHelper.parameters as CacheHelperParameters).SecretKey,
+            AccessKey: CacheHelper.parameters?.AccessKey as string,
+            SecretKey: CacheHelper.parameters?.SecretKey as string,
         };
 
         // Creating a role to assume
@@ -387,8 +360,8 @@ export default class Zenko extends World {
         this.addCommandParameter({ roleName: this.saved.roleName as string });
         this.addCommandParameter({ assumeRolePolicyDocument: Constants.assumeRoleTrustPolicy });
         const roleArnToAssume =
-            extractPropertyFromResults((await IAM.createRole(
-                this.getCommandParameters() as AWSCliOptions) as Utils.Command) as Result, 'Role', 'Arn');
+            extractPropertyFromResults(await IAM.createRole(
+                this.getCommandParameters() as AWSCliOptions), 'Role', 'Arn');
 
         let accountToBeAssumedFrom = account;
 
@@ -404,8 +377,9 @@ export default class Zenko extends World {
             }) as Utils.AccessKeys;
 
             // Set the credentials of the second account as the default credentials
-            (CacheHelper.parameters as CacheHelperParameters).AccessKey = account2Credentials.id as string;
-            (CacheHelper.parameters as CacheHelperParameters).SecretKey = account2Credentials.value as string;
+            CacheHelper.parameters ??= {};
+            CacheHelper.parameters.AccessKey = account2Credentials.id as string;
+            CacheHelper.parameters.SecretKey = account2Credentials.value as string;
 
             accountToBeAssumedFrom = account2.account;
         }
@@ -419,42 +393,43 @@ export default class Zenko extends World {
         // Creating a policy to allow it to AssumeRole
         this.resetCommand();
         this.addCommandParameter({
-            policyName: `${(accountToBeAssumedFrom).name as string}` +
+            policyName: `${(accountToBeAssumedFrom).name as string }` +
                 `${Constants.POLICY_NAME_TEST}` +
                 `${Utils.randomString()}`,
         });
         this.addCommandParameter({ policyDocument: Constants.assumeRolePolicy });
         const assumeRolePolicyArn =
-            extractPropertyFromResults((await IAM.createRole(
-                this.getCommandParameters() as AWSCliOptions) as Utils.Command) as Result, 'Policy', 'Arn');
+            extractPropertyFromResults(await IAM.createRole(
+                this.getCommandParameters() as AWSCliOptions), 'Policy', 'Arn');
 
         // Attaching the policy to the user
         this.resetCommand();
         this.addCommandParameter({ userName });
-        this.addCommandParameter({ policyArn: assumeRolePolicyArn as string });
+        this.addCommandParameter({ policyArn: assumeRolePolicyArn });
         await IAM.attachUserPolicy(this.getCommandParameters());
 
         // Creating credentials for the user
         this.resetCommand();
         this.addCommandParameter({ userName });
         this.parameters.IAMSession =
-            extractPropertyFromResults((await IAM.createRole(
-                this.getCommandParameters() as AWSCliOptions) as Utils.Command) as Result, 'AccessKey');
+            extractPropertyFromResults(await IAM.createRole(
+                this.getCommandParameters() as AWSCliOptions), 'AccessKey');
         this.resumeRootOrIamUser();
 
         // Assuming the role
         this.resetCommand();
         this.addCommandParameter({ roleArn: roleArnToAssume as string });
         this.parameters.AssumedSession =
-            extractPropertyFromResults((await IAM.createRole(
-                this.getCommandParameters() as AWSCliOptions) as Utils.Command) as Result, 'Credentials');
+            extractPropertyFromResults(await IAM.createRole(
+                this.getCommandParameters() as AWSCliOptions), 'Credentials');
         this.cliMode.assumed = true;
         this.cliMode.env = false;
 
+        CacheHelper.parameters ??= {};
         // reset the credentials of default account as the defualt credentials
-        (CacheHelper.parameters as CacheHelperParameters).AccessKey =
+        CacheHelper.parameters.AccessKey =
             Zenko.additionalAccountsCredentials[account.name as string].AccessKey;
-        (CacheHelper.parameters as CacheHelperParameters).SecretKey =
+        CacheHelper.parameters.SecretKey =
             Zenko.additionalAccountsCredentials[account.name as string].SecretKey;
     }
 
@@ -471,7 +446,7 @@ export default class Zenko extends World {
         // Getting the role to assume
         this.addCommandParameter({ roleName });
         roleArnToAssume =
-            extractPropertyFromResults(await IAM.getRole(this.getCommandParameters()) as Result, 'Role', 'Arn');
+            extractPropertyFromResults(await IAM.getRole(this.getCommandParameters()), 'Role', 'Arn');
         if (!roleArnToAssume) {
             // if role to assume does not exist in the account, then it should be in the internal services account
             roleArnToAssume =
@@ -480,7 +455,7 @@ export default class Zenko extends World {
 
         // assign the credentials of the service user to the IAM session
         this.parameters.IAMSession =
-            Zenko.serviceUsersCredentials[serviceUserName] as UserCredentials;
+            Zenko.serviceUsersCredentials[serviceUserName];
         this.resumeRootOrIamUser();
 
         // Assuming the role as the service user
@@ -494,7 +469,7 @@ export default class Zenko extends World {
 
         //assign the assumed session credentials to the Assumed session.
         this.parameters.AssumedSession =
-            extractPropertyFromResults(assumeRoleRes as Result, 'Credentials') as string;
+            extractPropertyFromResults(assumeRoleRes, 'Credentials');
         this.resumeAssumedRole();
     }
 
@@ -504,7 +479,7 @@ export default class Zenko extends World {
      * @returns {undefined}
      */
     static async init(parameters: Record<string, unknown>) {
-
+        CacheHelper.parameters ??= {};
         if (!CacheHelper.accountAccessKeys) {
             // TODO will need to see how VaultClient is typed
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -531,8 +506,8 @@ export default class Zenko extends World {
             }
             if (parameters.AccountName && parameters.AccountAccessKey
                 && parameters.AccountSecretKey) {
-                (CacheHelper.parameters as CacheHelperParameters).AccessKey = parameters.AccountAccessKey as string;
-                (CacheHelper.parameters as CacheHelperParameters).SecretKey = parameters.AccountSecretKey as string;
+                CacheHelper.parameters.AccessKey = parameters.AccountAccessKey;
+                CacheHelper.parameters.SecretKey = parameters.AccountSecretKey;
                 CacheHelper.isPreloadedAccount = true;
             } else {
                 const accessKeys = await SuperAdmin.generateAccountAccessKey({
@@ -540,21 +515,21 @@ export default class Zenko extends World {
                 });
                 if (Utils.isAccessKeys(accessKeys)) {
                     CacheHelper.accountAccessKeys = accessKeys;
-                    (CacheHelper.parameters as CacheHelperParameters).AccessKey =
-                        CacheHelper.accountAccessKeys?.id as string;
-                    (CacheHelper.parameters as CacheHelperParameters).SecretKey =
-                        CacheHelper.accountAccessKeys?.value as string;
+                    CacheHelper.parameters.AccessKey =
+                        CacheHelper.accountAccessKeys?.id;
+                    CacheHelper.parameters.SecretKey =
+                        CacheHelper.accountAccessKeys?.value;
                 } else {
                     throw new Error('Failed to generate account access keys');
                 }
             }
-            CacheHelper.AccountName = (CacheHelper.parameters as CacheHelperParameters).AccountName
+            CacheHelper.AccountName = CacheHelper.parameters.AccountName as string
                 || Constants.ACCOUNT_NAME;
         } else {
-            (CacheHelper.parameters as CacheHelperParameters).AccessKey =
-                CacheHelper.accountAccessKeys?.id as string;
-            (CacheHelper.parameters as CacheHelperParameters).SecretKey =
-                CacheHelper.accountAccessKeys?.value as string;
+            CacheHelper.parameters.AccessKey =
+                CacheHelper.accountAccessKeys?.id;
+            CacheHelper.parameters.SecretKey =
+                CacheHelper.accountAccessKeys?.value;
         }
     }
 
@@ -609,7 +584,7 @@ export default class Zenko extends World {
                  ${accessKey.err}`);
             }
             this.parameters.IAMSession =
-                extractPropertyFromResults(accessKey as Result, 'AccessKey') as string;
+                extractPropertyFromResults(accessKey, 'AccessKey');
             this.cliMode.parameters.IAMSession =
                 this.parameters.IAMSession as ClientOptions['IAMSession'];
             this.cliMode.env = true;
