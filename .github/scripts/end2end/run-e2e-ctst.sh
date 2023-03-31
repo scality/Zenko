@@ -3,7 +3,7 @@ set -exu
 
 ZENKO_NAME=${1:-end2end}
 COMMAND=${2:-"premerge"}
-PARALLEL_RUNS=${3:-10}
+PARALLEL_RUNS=${3:-2}
 RETRIES=${4:-3}
 
 # Zenko Version
