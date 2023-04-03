@@ -50,7 +50,7 @@ module.exports = {
             },
         }],
         'linebreak-style': [1, 'unix'],
-        'new-cap': [1, { newIsCap: true }],
+        'new-cap': 'off',
         'space-in-parens': [1, 'never'],
         'consistent-return': 1,
         'prefer-arrow-callback': 1,
