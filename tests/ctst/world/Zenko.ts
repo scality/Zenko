@@ -98,10 +98,10 @@ export default class Zenko extends World {
         if (this.parameters.ServiceUsersCredentials) {
             Object.entries(JSON.parse(
                 this.parameters.ServiceUsersCredentials as string) as UserCredentials)
-                .forEach(entry => {
-                    Zenko.serviceUsersCredentials[entry[0]] = {
-                        AccessKeyId: (entry[1] as { accessKey: string }).accessKey,
-                        SecretAccessKey: (entry[1] as { secretKey: string }).secretKey,
+                .forEach(([key, value]) => {
+                    Zenko.serviceUsersCredentials[key] = {
+                        AccessKeyId: value.accessKey,
+                        SecretAccessKey: value.secretKey,
                     };
                 });
         }
@@ -111,10 +111,10 @@ export default class Zenko extends World {
         this.cliMode.parameters = this.parameters as ClientOptions;
 
         if (this.parameters.AccountSessionToken) {
-            ((CacheHelper.ARWWI as Record<string, unknown>)[CacheHelper.AccountName]) = {
-                AccessKeyId: this.parameters.AccountAccessKey,
-                SecretAccessKey: this.parameters.AccountSecretKey,
-                SessionToken: this.parameters.AccountSessionToken,
+            ((CacheHelper.ARWWI as Record<string, ClientOptions['AssumedSession']>)[CacheHelper.AccountName]) = {
+                AccessKeyId: this.parameters.AccountAccessKey as string,
+                SecretAccessKey: this.parameters.AccountSecretKey as string,
+                SessionToken: this.parameters.AccountSessionToken as string,
             };
         } else {
             CacheHelper.AccountName = this.parameters.AccountName as string;
