@@ -41,6 +41,11 @@ export interface UserCredentials {
     SessionToken: string;
 }
 
+interface ServiceUsersCredentials {
+    accessKey: string;
+    secretKey: string;
+}
+
 // Zenko entities
 export enum EntityType {
     ACCOUNT = 'ACCOUNT',
@@ -51,12 +56,42 @@ export enum EntityType {
     ASSUME_ROLE_USER = 'ASSUME_ROLE_USER',
 }
 
+interface ZenkoWorldParameters {
+    subdomain: string;
+    ssl: boolean;
+    port: string;
+    AccountName: string;
+    AdminAccessKey: string;
+    AdminSecretKey: string;
+    AccountAccessKey: string;
+    AccountSecretKey: string;
+    VaultAuthHost: string;
+    NotificationDestination: string;
+    NotificationDestinationTopic: string;
+    NotificationDestinationAlt: string;
+    NotificationDestinationTopicAlt: string;
+    KafkaHosts: string;
+    KeycloakPassword: string;
+    KeycloakHost: string;
+    KeycloakPort: string;
+    keycloakRealm: string;
+    keycloakClientId: string;
+    keycloakGrantType: string;
+    StorageManagerUsername: string;
+    StorageAccountOwnerUsername: string;
+    DataConsumerUsername: string;
+    ServiceUsersCredentials: string;
+    AccountSessionToken: string;
+    AssumedSession: string | object;
+    [key: string]: unknown;
+}
+
 /**
  * Cucumber custom World implementation to support Zenko.
  * This World is reponsible for AWS CLI calls.
  * Shared between all tests (S3, IAM, STS).
  */
-export default class Zenko extends World {
+export default class Zenko extends World<ZenkoWorldParameters> {
     private readonly command: string = '';
 
     private result: object = {};
@@ -83,41 +118,39 @@ export default class Zenko extends World {
 
     private forceFailed = false;
 
-    readonly parameters: Record<string, unknown> = {};
-
     private cliMode: cliModeObject = CacheHelper.createCliModeObject();
 
     /**
      * @constructor
      * @param {Object} options - parameters provided as a CLI parameter when running the tests
      */
-    constructor(options: IWorldOptions) {
+    constructor(options: IWorldOptions<ZenkoWorldParameters>) {
         super(options);
 
         // store service users credentials from world parameters
         if (this.parameters.ServiceUsersCredentials) {
-            Object.entries(JSON.parse(
-                this.parameters.ServiceUsersCredentials as string) as UserCredentials)
-                .forEach(([key, value]) => {
-                    Zenko.serviceUsersCredentials[key] = {
-                        AccessKeyId: value.accessKey,
-                        SecretAccessKey: value.secretKey,
-                    };
-                });
+            const serviceUserCredentials =
+                JSON.parse(this.parameters.ServiceUsersCredentials) as ServiceUsersCredentials;
+            for (const key in serviceUserCredentials) {
+                Zenko.serviceUsersCredentials[key] = {
+                    AccessKeyId: serviceUserCredentials.accessKey,
+                    SecretAccessKey: serviceUserCredentials.secretKey,
+                };
+            }
         }
 
         // Workaround to be able to access global parameters in BeforeAll/AfterAll hooks
-        CacheHelper.parameters = this.parameters;
+        CacheHelper.parameters = this.parameters as Record<string, unknown>;
         this.cliMode.parameters = this.parameters as ClientOptions;
 
         if (this.parameters.AccountSessionToken) {
-            ((CacheHelper.ARWWI as Record<string, ClientOptions['AssumedSession']>)[CacheHelper.AccountName]) = {
-                AccessKeyId: this.parameters.AccountAccessKey as string,
-                SecretAccessKey: this.parameters.AccountSecretKey as string,
-                SessionToken: this.parameters.AccountSessionToken as string,
+            (CacheHelper.ARWWI[CacheHelper.AccountName]) = {
+                AccessKeyId: this.parameters.AccountAccessKey,
+                SecretAccessKey: this.parameters.AccountSecretKey,
+                SessionToken: this.parameters.AccountSessionToken,
             };
         } else {
-            CacheHelper.AccountName = this.parameters.AccountName as string;
+            CacheHelper.AccountName = this.parameters.AccountName;
             CacheHelper.isPreloadedAccount = true;
         }
     }
@@ -175,25 +208,25 @@ export default class Zenko extends World {
             break;
         case EntityType.STORAGE_MANAGER:
             await this.prepareARWWI(
-                    usedParameters.StorageManagerUsername as string || 'storage_manager',
-                    keycloakPassword,
-                    'storage-manager-role',
+                usedParameters.StorageManagerUsername || 'storage_manager',
+                keycloakPassword,
+                'storage-manager-role',
             );
             this.saved.type = EntityType.STORAGE_MANAGER;
             break;
         case EntityType.STORAGE_ACCOUNT_OWNER:
             await this.prepareARWWI(
-                    usedParameters.StorageAccountOwnerUsername as string || 'storage_account_owner',
-                    keycloakPassword,
-                    'storage-account-owner-role',
+                usedParameters.StorageAccountOwnerUsername || 'storage_account_owner',
+                keycloakPassword,
+                'storage-account-owner-role',
             );
             this.saved.type = EntityType.STORAGE_ACCOUNT_OWNER;
             break;
         case EntityType.DATA_CONSUMER:
             await this.prepareARWWI(
-                    usedParameters.DataConsumerUsername as string || 'data_consumer',
-                    keycloakPassword,
-                    'data-consumer-role',
+                usedParameters.DataConsumerUsername || 'data_consumer',
+                keycloakPassword,
+                'data-consumer-role',
             );
             this.saved.type = EntityType.DATA_CONSUMER;
             break;
@@ -229,11 +262,11 @@ export default class Zenko extends World {
             const token: string = await this.getWebIdentityToken(
                 ARWWIName,
                 ARWWIPassword,
-                this.parameters.KeycloakHost as string || 'keycloak.zenko.local',
-                this.parameters.keycloakPort as string || '80',
-                `/auth/realms/${this.parameters.keycloakRealm as string || 'zenko'}/protocol/openid-connect/token`,
-                this.parameters.keycloakClientId as string || Constants.K_CLIENT,
-                this.parameters.keycloakGrantType as string || 'password',
+                this.parameters.KeycloakHost || 'keycloak.zenko.local',
+                this.parameters.KeycloakPort || '80',
+                `/auth/realms/${this.parameters.keycloakRealm || 'zenko'}/protocol/openid-connect/token`,
+                this.parameters.keycloakClientId || Constants.K_CLIENT,
+                this.parameters.keycloakGrantType || 'password',
             );
             this.options.webIdentityToken = token;
             if (!this.options.webIdentityToken) {
@@ -241,7 +274,7 @@ export default class Zenko extends World {
             }
             // Getting account ID
             const account = await SuperAdmin.getAccount({
-                name: this.parameters.AccountName as string || Constants.ACCOUNT_NAME,
+                name: this.parameters.AccountName || Constants.ACCOUNT_NAME,
             }) as Utils.AccountObject;
             // Getting roles with GetRolesForWebIdentity
             // Get the first role with the storage-manager-role name
@@ -270,8 +303,10 @@ export default class Zenko extends World {
             // Assume the role and save the credentials
             const ARWWI = await STS.assumeRoleWithWebIdentity(this.options, this.parameters);
             if (ARWWI && typeof ARWWI !== 'string' && ARWWI.stdout) {
-                this.parameters.AssumedSession =
-                    (JSON.parse(ARWWI.stdout) as { Credentials: ClientOptions['AssumedSession'] }).Credentials;
+                const parsedOutput = JSON.parse(ARWWI.stdout) as { Credentials: ClientOptions['AssumedSession'] };
+                if (parsedOutput && parsedOutput.Credentials) {
+                    this.parameters.AssumedSession = parsedOutput.Credentials;
+                }
             } else {
                 throw new Error('Error when trying to Assume Role With Web Identity.');
             }
@@ -282,7 +317,7 @@ export default class Zenko extends World {
             this.cliMode.assumed = true;
         } else {
             this.parameters.AssumedSession =
-                CacheHelper.ARWWI[ARWWIName];
+                CacheHelper.ARWWI[ARWWIName] as object;
             this.cliMode.parameters.AssumedSession =
                 CacheHelper.ARWWI[ARWWIName];
             this.cliMode.assumed = true;
@@ -347,7 +382,7 @@ export default class Zenko extends World {
 
         // Getting default account ID
         const account = await SuperAdmin.getAccount({
-            name: this.parameters.AccountName as string || Constants.ACCOUNT_NAME,
+            name: this.parameters.AccountName || Constants.ACCOUNT_NAME,
         }) as Utils.Account['account'];
         Zenko.additionalAccountsCredentials[account.name as string] = {
             AccessKey: CacheHelper.parameters?.AccessKey as string,
@@ -419,9 +454,11 @@ export default class Zenko extends World {
         // Assuming the role
         this.resetCommand();
         this.addCommandParameter({ roleArn: roleArnToAssume as string });
-        this.parameters.AssumedSession =
-            extractPropertyFromResults(await IAM.createRole(
-                this.getCommandParameters() as AWSCliOptions), 'Credentials');
+        const res = extractPropertyFromResults(await IAM.createRole(
+            this.getCommandParameters() as AWSCliOptions), 'Credentials');
+        if (res) {
+            this.parameters.AssumedSession = res;
+        }
         this.cliMode.assumed = true;
         this.cliMode.env = false;
 
@@ -558,7 +595,7 @@ export default class Zenko extends World {
             }
             const policy = await IAM.createPolicy(this.getCommandParameters());
             const account = await SuperAdmin.getAccount({
-                name: this.parameters.AccountName as string || Constants.ACCOUNT_NAME,
+                name: this.parameters.AccountName || Constants.ACCOUNT_NAME,
             }) as Utils.Account['account'];
             let policyArn = `arn:aws:iam::${account.id as string}:policy/IAMUserPolicy-${Zenko.IAMUserName}}`;
             try {
@@ -765,7 +802,7 @@ export default class Zenko extends World {
         const protocol = this.parameters.ssl === false ? 'http://' : 'https://';
         const axiosConfig: AxiosRequestConfig = {
             method,
-            url: `${protocol}s3.${this.parameters.subdomain as string
+            url: `${protocol}s3.${this.parameters.subdomain
                 || Constants.DEFAULT_SUBDOMAIN}${path}`,
             headers,
             data: payload,
