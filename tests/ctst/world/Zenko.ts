@@ -129,12 +129,12 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
         // store service users credentials from world parameters
         if (this.parameters.ServiceUsersCredentials) {
-            const serviceUserCredentials =
-                JSON.parse(this.parameters.ServiceUsersCredentials) as ServiceUsersCredentials;
-            for (const key in serviceUserCredentials) {
-                Zenko.serviceUsersCredentials[key] = {
-                    AccessKeyId: serviceUserCredentials.accessKey,
-                    SecretAccessKey: serviceUserCredentials.secretKey,
+            const serviceUserCredentials : Record<string, ServiceUsersCredentials> =
+                JSON.parse(this.parameters.ServiceUsersCredentials);
+            for (const serviceUserName in serviceUserCredentials) {
+                Zenko.serviceUsersCredentials[serviceUserName] = {
+                    AccessKeyId: serviceUserCredentials[serviceUserName].accessKey,
+                    SecretAccessKey: serviceUserCredentials[serviceUserName].secretKey,
                 };
             }
         }
