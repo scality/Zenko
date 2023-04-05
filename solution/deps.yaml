@@ -46,7 +46,7 @@ kafka-lag-exporter:
 pensieve-api:
   sourceRegistry: registry.scality.com/pensieve-api
   image: pensieve-api
-  tag: 1.4.3
+  tag: 1.4.4
   envsubst: PENSIEVE_API_TAG
 rclone:
   sourceRegistry: rclone
@@ -94,7 +94,7 @@ vault:
 zenko-operator:
   sourceRegistry: registry.scality.com/zenko-operator
   image: zenko-operator
-  tag: 1.5.10
+  tag: 1.5.12
   envsubst: ZENKO_OPERATOR_TAG
 zenko-ui:
   sourceRegistry: registry.scality.com/zenko-ui
