@@ -1,5 +1,5 @@
 ARG CTST_TAG
-FROM registry.scality.com/cli-testing-dev/cli-testing:024620d3dd73e64982dab2d7ca349d4289c45d29
+FROM registry.scality.com/cli-testing-dev/cli-testing:f02aaed861baea25424453b6eb92771916c6a68f
 
 COPY package.json /tmp/package.json
 COPY ./features /ctst/features
