@@ -14,10 +14,10 @@
     "prometheus-query": "^3.2.0"
   },
   "devDependencies": {
-    "cli-testing": "github:scality/cli-testing.git#0.2.6",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
     "babel-jest": "^29.3.1",
+    "cli-testing": "github:scality/cli-testing.git#4cd50bd8139508e2e7b7164bf357866ceffa420f",
     "eslint": "^8.28.0"
   },
   "scripts": {
