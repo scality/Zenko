@@ -505,8 +505,14 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         }
 
         //assign the assumed session credentials to the Assumed session.
-        this.parameters.AssumedSession =
-            extractPropertyFromResults(assumeRoleRes, 'Credentials');
+        const res = extractPropertyFromResults(assumeRoleRes, 'Credentials');
+        // necessary to avoid linter error
+        if (res) {
+            this.parameters.AssumedSession = res;
+        } else {
+            throw new Error(`Error when trying to assume role ${roleArnToAssume} as service user ${serviceUserName}.
+            No credentials returned.`);
+        }
         this.resumeAssumedRole();
     }
 

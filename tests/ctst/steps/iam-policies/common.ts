@@ -65,7 +65,7 @@ When('the user tries to perform vault auth {string}', async function (action: st
         SecretKey: userCredentials.SecretAccessKey,
         SessionToken: userCredentials.SessionToken,
         ip: this.parameters.VaultAuthHost,
-        ssl: CacheHelper.parameters.ssl,
+        ssl: CacheHelper.parameters ? CacheHelper.parameters.ssl as boolean : undefined,
     }
 
     switch (action) {
