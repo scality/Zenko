@@ -1158,18 +1158,19 @@
   dependencies:
     regexp-match-indices "1.0.2"
 
-"@cucumber/cucumber@8.1.0":
-  version "8.1.0"
-  resolved "https://registry.yarnpkg.com/@cucumber/cucumber/-/cucumber-8.1.0.tgz#7ad954ae347ffe4b0d3112ad2f1ad2fc33df090f"
-  integrity sha512-4m/Q+eUdqeoUSMU+N9DltfeJ8Vce+LQDOFJECgpkuBHVOs8KdMhCcA+3TWearFcjd0W4UHzg2iPx5MPrCdFWkw==
+"@cucumber/cucumber@8.1.2":
+  version "8.1.2"
+  resolved "https://registry.yarnpkg.com/@cucumber/cucumber/-/cucumber-8.1.2.tgz#591696d350cfce95e936264711d8cbfa0cd5ebf5"
+  integrity sha512-HaAkGa40P8YNCkT6D4hVNFdvTHL3eIJbZmvPI9XKszQA+A7tkBxKjHva8esI4dfdLeZuq5ksNkyjEiHobPxfIA==
   dependencies:
     "@cspotcode/source-map-support" "^0.7.0"
     "@cucumber/ci-environment" "9.0.4"
     "@cucumber/cucumber-expressions" "15.0.2"
     "@cucumber/gherkin" "23.0.1"
     "@cucumber/gherkin-streams" "5.0.1"
-    "@cucumber/gherkin-utils" "^7.0.0"
+    "@cucumber/gherkin-utils" "7.0.0"
     "@cucumber/html-formatter" "19.1.0"
+    "@cucumber/message-streams" "4.0.1"
     "@cucumber/messages" "18.0.0"
     "@cucumber/tag-expressions" "4.1.0"
     assertion-error-formatter "^3.0.0"
@@ -1206,7 +1207,7 @@
     commander "9.1.0"
     source-map-support "0.5.21"
 
-"@cucumber/gherkin-utils@^7.0.0":
+"@cucumber/gherkin-utils@7.0.0":
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/@cucumber/gherkin-utils/-/gherkin-utils-7.0.0.tgz#e7efc5662ad5d4fa95b52b8f5a0beb703603ee0f"
   integrity sha512-tDkSRITTPA6Df501doqeRH3+1jAM4ls6+tlFEVvkvuzTH3C8DXwQ5xBPWmUNmDhR/gJeZ+yj7gDRbDWr7Qc6Zw==
@@ -1226,6 +1227,11 @@
   version "19.1.0"
   resolved "https://registry.yarnpkg.com/@cucumber/html-formatter/-/html-formatter-19.1.0.tgz#d51be63932d9b594014d71e520f659729dcc54d2"
   integrity sha512-VCsRa34SNg9plfziFwOaoCSfsphHUb1Ivk8px8eLJc0rBFLDPDgJcHJtcufAu6AxFamGiptt2dt0XoqVq2Gr/Q==
+
+"@cucumber/message-streams@4.0.1":
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/@cucumber/message-streams/-/message-streams-4.0.1.tgz#a5339d3504594bb2edb5732aaae94dddb24d0970"
+  integrity sha512-Kxap9uP5jD8tHUZVjTWgzxemi/0uOsbGjd4LBOSxcJoOCRbESFwemUzilJuzNTB8pcTQUh8D5oudUyxfkJOKmA==
 
 "@cucumber/messages@18.0.0", "@cucumber/messages@^18.0.0":
   version "18.0.0"
@@ -2457,11 +2463,11 @@ cli-table3@^0.6.0:
   optionalDependencies:
     "@colors/colors" "1.5.0"
 
-"cli-testing@github:scality/cli-testing.git#6108eb85510c48664b2746847bfc87241d71b4c1":
+"cli-testing@github:scality/cli-testing.git#d3d67ebd5e7135631d0aa6a013f306993a0aceaa":
   version "0.2.6"
-  resolved "git+ssh://git@github.com/scality/cli-testing.git#6108eb85510c48664b2746847bfc87241d71b4c1"
+  resolved "git+ssh://git@github.com/scality/cli-testing.git#d3d67ebd5e7135631d0aa6a013f306993a0aceaa"
   dependencies:
-    "@cucumber/cucumber" "8.1.0"
+    "@cucumber/cucumber" "8.1.2"
     "@cucumber/pretty-formatter" "^1.0.0-alpha.1"
     "@types/typescript" "^2.0.0"
     cucumber-junit "^1.7.1"
