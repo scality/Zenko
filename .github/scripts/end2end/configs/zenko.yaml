@@ -94,6 +94,14 @@ spec:
       e2e-cold:
         debug: "true"
         command-timeout: "60s"
+    server:
+      tar:
+        targetSize: 10KB
+        maxObjects: 3
+        maxDelay: "5s"
+      azure:
+        archiveTier: "hot"
+        pollingDelay: "1s"
   ingress:
     workloadPlaneClass: 'nginx'
     controlPlaneClass: 'nginx'
