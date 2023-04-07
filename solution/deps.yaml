@@ -99,7 +99,7 @@ zenko-operator:
 zenko-ui:
   sourceRegistry: registry.scality.com/zenko-ui
   image: zenko-ui
-  tag: 1.6.10
+  tag: 1.6.11
   envsubst: ZENKO_UI_TAG
 zookeeper:
   sourceRegistry: pravega
