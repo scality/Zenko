@@ -77,3 +77,13 @@ export const s3FunctionExtraParams : { [key: string]: Record<string, unknown> } 
             }),
     },
 };
+
+export function safeJsonParse(jsonString: string): { ok: boolean, result: object } {
+    let result = {};
+    try {
+        result = JSON.parse(jsonString) as object;
+    } catch (err) {
+        return { ok: false, result };
+    }
+    return { ok: true, result };
+}

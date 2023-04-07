@@ -1,3 +1,5 @@
+import fs from 'fs';
+import path from 'path';
 import { Given, setDefaultTimeout } from '@cucumber/cucumber';
 import { Constants, S3, Utils } from 'cli-testing';
 import Zenko from 'world/Zenko';
@@ -57,5 +59,25 @@ Given('an object {string} that {string}',
             this.addToSaved('versionId', extractPropertyFromResults(
                 await S3.putObject(this.getCommandParameters()), 'VersionId'
             ));
+        }
+    });
+
+Given('{int} objects {string} of size {int} bytes',
+    async function (this: Zenko, numberObjects: number, objectName: string, sizeBytes: number) {
+        for (let i = 1; i <= numberObjects; i++) { 
+            this.addToSaved('objectName', `${objectName}-${i}` || Utils.randomString());
+            const objectPath = path.join(__dirname, this.getSaved<string>('objectName'));
+            fs.writeFileSync(objectPath, Buffer.alloc(sizeBytes, this.getSaved<string>('objectName')));
+            this.resetCommand();
+            this.addCommandParameter({ key: this.getSaved<string>('objectName') });
+            this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
+            this.addCommandParameter({ body: objectPath });
+            this.addToSaved('versionId', extractPropertyFromResults(
+                await S3.putObject(this.getCommandParameters()), 'VersionId'
+            ));
+            fs.rmSync(objectPath);
+            const createdObjects = this.getSaved<Map<string, string>>('createdObjects') || new Map<string, string>();
+            createdObjects.set(this.getSaved<string>('objectName'), this.getSaved<string>('versionId'));
+            this.addToSaved('createdObjects', createdObjects);
         }
     });
