@@ -27,4 +27,7 @@ data:
       {{- end }}
     fi
 
+    # Disable MongoSH telemtry to support offline deployments
+    mongosh --nodb --eval "disableTelemetry()"
+
     exec /entrypoint.sh /run.sh
