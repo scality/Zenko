@@ -53,7 +53,7 @@
     "test_operator": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --reporter mocha-multi-reporters --reporter-options configFile=config.json ./init_test.js",
     "test_smoke": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --reporter mocha-multi-reporters --reporter-options configFile=config.json --recursive smoke_tests",
     "test_iam_policies": "mocha --tags ${MOCHA_TAGS} --exit -t 15000 --reporter mocha-multi-reporters --reporter-options configFile=config.json --recursive iam_policies",
-    "test_all_extensions": "run-p test_aws_crr test_expiration test_transition",
+    "test_all_extensions": "run-p --aggregate-output test_aws_crr test_expiration test_transition",
     "test_object_api": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --reporter mocha-multi-reporters --reporter-options configFile=config.json --recursive cloudserver/keyFormatVersion/tests",
     "lint": "eslint $(find . -name '*.js' -not -path '*/node_modules/*')"
   },
