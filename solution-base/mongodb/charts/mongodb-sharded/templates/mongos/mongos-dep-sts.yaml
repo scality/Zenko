@@ -84,6 +84,9 @@ spec:
             runAsNonRoot: {{ .Values.securityContext.runAsNonRoot }}
             runAsUser: {{ .Values.securityContext.runAsUser }}
           {{- end }}
+          command:
+            - /bin/bash
+            - /entrypoint/mongos-entrypoint.sh
           env:
             - name: MONGODB_ENABLE_NUMACTL
               value: {{ ternary "yes" "no" $.Values.common.mongodbEnableNumactl | quote }}
@@ -209,6 +212,8 @@ spec:
           {{- end }}
           {{- end }}
           volumeMounts:
+            - name: replicaset-entrypoint-configmap
+              mountPath: /entrypoint
             {{- if .Values.usePasswordFile }}
             - name: secrets
               mountPath: /bitnami/mongodb/secrets/
@@ -299,6 +304,9 @@ spec:
         {{- include "common.tplvalues.render" ( dict "value" . "context" $ ) | nindent 8 }}
         {{- end }}
       volumes:
+        - name: replicaset-entrypoint-configmap
+          configMap:
+            name: {{ include "common.names.fullname" . }}-replicaset-entrypoint
         {{- if .Values.usePasswordFile }}
         - name: secrets
           secret:

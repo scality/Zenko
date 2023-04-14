@@ -4,6 +4,16 @@ metadata:
   name: {{ include "common.names.fullname" . }}-replicaset-entrypoint
   labels: {{- include "common.labels.standard" . | nindent 4 }}
 data:
+  mongos-entrypoint.sh: |-
+    #!/bin/bash
+
+    . /liblog.sh
+
+    # Disable MongoSH telemetry to support offline deployments
+    mongosh --nodb --eval "disableTelemetry()"
+    info "MongoDB Telemetry is now disabled."
+
+    exec /entrypoint.sh /run.sh
   replicaset-entrypoint.sh: |-
     #!/bin/bash
 
@@ -27,7 +37,8 @@ data:
       {{- end }}
     fi
 
-    # Disable MongoSH telemtry to support offline deployments
+    # Disable MongoSH telemetry to support offline deployments
     mongosh --nodb --eval "disableTelemetry()"
+    info "MongoDB Telemetry is now disabled."
 
     exec /entrypoint.sh /run.sh
