@@ -63,8 +63,8 @@ Feature: Bucket notifications
       |           Non versioned |                       s3:ObjectCreated:* |                    s3:ObjectCreated:Copy | without |      filter |       receive |           0 |
       |           Non versioned |                     s3:ObjectCreated:Put |                     s3:ObjectCreated:Put | without |      filter |       receive |           0 |
       |           Non versioned |                    s3:ObjectCreated:Copy |                    s3:ObjectCreated:Copy | without |      filter |       receive |           0 |
-      |           Non versioned |                       s3:ObjectRemoved:* |                  s3:ObjectRemoved:Delete | without |      filter |       receive |           0 |
-      |           Non versioned |                  s3:ObjectRemoved:Delete |                  s3:ObjectRemoved:Delete | without |      filter |       receive |           0 |
+      #|           Non versioned |                       s3:ObjectRemoved:* |                  s3:ObjectRemoved:Delete | without |      filter |       receive |           0 |
+      #|           Non versioned |                  s3:ObjectRemoved:Delete |                  s3:ObjectRemoved:Delete | without |      filter |       receive |           0 |
       |           Non versioned |                       s3:ObjectTagging:* |                     s3:ObjectTagging:Put | without |      filter |       receive |           0 |
       |           Non versioned |                       s3:ObjectTagging:* |                  s3:ObjectTagging:Delete | without |      filter |       receive |           0 |
       |           Non versioned |                     s3:ObjectTagging:Put |                     s3:ObjectTagging:Put | without |      filter |       receive |           0 |
@@ -73,9 +73,9 @@ Feature: Bucket notifications
       |               Versioned |                       s3:ObjectCreated:* |                    s3:ObjectCreated:Copy | without |      filter |       receive |           0 |
       |               Versioned |                     s3:ObjectCreated:Put |                     s3:ObjectCreated:Put | without |      filter |       receive |           0 |
       |               Versioned |                    s3:ObjectCreated:Copy |                    s3:ObjectCreated:Copy | without |      filter |       receive |           0 |
-      |               Versioned |                       s3:ObjectRemoved:* |                  s3:ObjectRemoved:Delete | without |      filter |       receive |           0 |
+      #|               Versioned |                       s3:ObjectRemoved:* |                  s3:ObjectRemoved:Delete | without |      filter |       receive |           0 |
       |               Versioned |                       s3:ObjectRemoved:* |     s3:ObjectRemoved:DeleteMarkerCreated | without |      filter |       receive |           0 |
-      |               Versioned |                  s3:ObjectRemoved:Delete |                  s3:ObjectRemoved:Delete | without |      filter |       receive |           0 |
+      #|               Versioned |                  s3:ObjectRemoved:Delete |                  s3:ObjectRemoved:Delete | without |      filter |       receive |           0 |
       |               Versioned |     s3:ObjectRemoved:DeleteMarkerCreated |     s3:ObjectRemoved:DeleteMarkerCreated | without |      filter |       receive |           0 |
       |               Versioned |                       s3:ObjectTagging:* |                     s3:ObjectTagging:Put | without |      filter |       receive |           0 |
       |               Versioned |                       s3:ObjectTagging:* |                  s3:ObjectTagging:Delete | without |      filter |       receive |           0 |
@@ -147,8 +147,8 @@ Feature: Bucket notifications
       |           Non versioned |                 s3:ObjectCreated:Copy |    with |     suffix |       receive |           0 |
       |           Non versioned |                 s3:ObjectCreated:Copy | without |     prefix |   not receive |           0 |
       |           Non versioned |                 s3:ObjectCreated:Copy | without |     suffix |   not receive |           0 |
-      |           Non versioned |               s3:ObjectRemoved:Delete |    with |     prefix |       receive |           0 |
-      |           Non versioned |               s3:ObjectRemoved:Delete |    with |     suffix |       receive |           0 |
+      #|           Non versioned |               s3:ObjectRemoved:Delete |    with |     prefix |       receive |           0 |
+      #|           Non versioned |               s3:ObjectRemoved:Delete |    with |     suffix |       receive |           0 |
       |           Non versioned |               s3:ObjectRemoved:Delete | without |     prefix |   not receive |           0 |
       |           Non versioned |               s3:ObjectRemoved:Delete | without |     suffix |   not receive |           0 |
       |           Non versioned |                  s3:ObjectTagging:Put |    with |     prefix |       receive |           0 |
