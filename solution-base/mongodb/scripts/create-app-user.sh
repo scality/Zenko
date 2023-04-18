@@ -2,8 +2,25 @@
 
 create_user() {
     mongo --host "mongodb://127.0.0.1/?replicaSet=${MONGODB_REPLICA_SET_NAME}"  -u 'root' -p "$MONGODB_ROOT_PASSWORD" <<EOF
+roleDef = {
+    role: 'inprogViewer', 
+    privileges: [
+        { resource: { cluster: true }, actions: [ 'inprog' ] },
+        { resource: { db: '', collection: '' }, actions: [ 'killCursors' ] }
+    ],
+    roles: []
+}
+
+role = db.getSiblingDB('admin').getRole(roleDef.role)
+if (role == null) {
+    db.getSiblingDB('admin').createRole(roleDef)
+} else {
+    db.getSiblingDB('admin').updateRole(roleDef.role, { privileges: roleDef.privileges, roles: roleDef.roles })
+}
+
 user = db.getSiblingDB('admin').getUser('$MONGODB_APP_USERNAME')
 requiredRoles = [
+    { role: roleDef.role, db: 'admin' },
     { role: 'enableSharding', db: '$MONGODB_APP_DATABASE' },
     { role: 'readWrite', db: '$MONGODB_APP_DATABASE' },
     { role: 'read', db: 'local' }
