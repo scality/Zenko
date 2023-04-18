@@ -534,9 +534,7 @@ jobs:
   ctst-end2end-sharded:
     needs: [build-kafka, build-ctst-test-image, check-dashboard-versions]
     runs-on:
-      - ubuntu
-      - focal
-      - xlarge
+      - ubuntu-22.04-8core
     steps:
       - name: Checkout
         uses: actions/checkout@v3
