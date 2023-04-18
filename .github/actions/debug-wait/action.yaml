@@ -14,6 +14,6 @@ runs:
     - name: Archive artifact logs and data
       shell: bash
       run: |-
-          if [ $ENABLE_DEBUG = 'true' ]; then
+          if [ $INPUT_ENABLE_DEBUG = 'true' ]; then
             while true; do sleep 10; echo sleep; done
           fi

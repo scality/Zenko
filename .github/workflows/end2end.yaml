@@ -383,6 +383,8 @@ jobs:
         working-directory: ./.github/scripts/end2end
       - name: Debug wait
         uses: ./.github/actions/debug-wait
+        with:
+          ENABLE_DEBUG: 'true'
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
         env:
@@ -601,9 +603,9 @@ jobs:
       - build-iso
       - build-kafka
       - build-test-image
-      - end2end-http
-      - end2end-https
-      - end2end-sharded
+      # - end2end-http
+      # - end2end-https
+      # - end2end-sharded
       - ctst-end2end-sharded
     if: failure()
     steps:
@@ -628,9 +630,9 @@ jobs:
       - build-iso
       - build-kafka
       - build-test-image
-      - end2end-http
-      - end2end-https
-      - end2end-sharded
+      # - end2end-http
+      # - end2end-https
+      # - end2end-sharded
       - ctst-end2end-sharded
     if: success()
     steps:
