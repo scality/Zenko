@@ -43,6 +43,4 @@ kubectl run kafka-topics \
     --attach=True \
     --command -- bash -c \
     "kafka-topics.sh --create --topic $NOTIF_DEST_TOPIC --bootstrap-server $KAFKA_HOST_PORT ; \
-        kafka-topics.sh --create --topic $NOTIF_ALT_DEST_TOPIC --bootstrap-server $KAFKA_HOST_PORT ; \
-        kafka-topics.sh --create --topic $OPLOG_TOPIC --bootstrap-server $KAFKA_HOST_PORT ; \
-        kafka-topics.sh --create --topic $NOTIFICATION_TOPIC --bootstrap-server $KAFKA_HOST_PORT"
+        kafka-topics.sh --create --topic $NOTIF_ALT_DEST_TOPIC --bootstrap-server $KAFKA_HOST_PORT"
