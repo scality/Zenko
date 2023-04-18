@@ -539,8 +539,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 await Utils.sleep(1000);
                 const nameTest = parameters.AccountName as string || Constants.ACCOUNT_NAME
                 console.log(`Checking if account ${nameTest} exists...`)
-                console.log("-- parameters.AccountName: ", parameters.AccountName)
-                console.log("-- Constants.ACCOUNT_NAME: ", Constants.ACCOUNT_NAME)
+                console.log("- parameters.AccountName: ", parameters.AccountName)
+                console.log("- Constants.ACCOUNT_NAME: ", Constants.ACCOUNT_NAME)
                 account = (await SuperAdmin.getAccount({
                     name: parameters.AccountName as string || Constants.ACCOUNT_NAME,
                 })) as Utils.Account['account'];
