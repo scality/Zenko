@@ -81,7 +81,17 @@ create_encryption_secret()
     PRIVATE=$(mktemp zenko-key.XXXXXX)
     trap 'rm -f "$PUBLIC" "$PRIVATE"' EXIT INT HUP TERM
 
-    openssl genrsa -out "$PRIVATE"
+    # Get the OpenSSL version
+    OPENSSL_VERSION=$(openssl version | awk '{print $2}')
+
+    # Check if OpenSSL 3.x is being used
+    if [[ $OPENSSL_VERSION =~ ^3\..* ]]; then
+        # Use the "-traditional" flag for OpenSSL 3.x
+        openssl genrsa -out "$PRIVATE" -traditional
+    else
+        openssl genrsa -out "$PRIVATE"
+    fi
+
     openssl rsa -in "$PRIVATE" -pubout -out "$PUBLIC"
 
     AZURE_SECRET_KEY_ENCRYPTED="$(
