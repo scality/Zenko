@@ -290,7 +290,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 );
             } else {
                 data.data.Accounts.forEach((_account: Utils.GRFWIAccount) => {
-                    console.log("-- DISPLAYING _account", _account.Roles)
+                    console.log("-- DISPLAYING _account", _account.Roles, account)
                     roleToAssume = _account.Roles?.find(
                         (role: Utils.Role) =>
                             role.Arn.includes(ARWWITargetRole) && role.Arn.includes(account.id as string),
