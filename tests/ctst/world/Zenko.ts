@@ -282,6 +282,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 (await SuperAdmin.getRolesForWebIdentity(this.options.webIdentityToken)).data as GetRolesForWIResponse;
             let roleToAssume: string | undefined = '';
             console.log("-- DISPLAYING data", data)
+            console.log("-- DISPLAYING data", data.roles.Accounts)
+
             if (data.roles.ListOfRoleArns) {
                 roleToAssume = data.roles.ListOfRoleArns.find(
                     (roleArn: string) => roleArn.includes(ARWWITargetRole) && roleArn.includes(account.id as string),
