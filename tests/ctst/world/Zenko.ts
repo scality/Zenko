@@ -29,7 +29,7 @@ export interface NotificationDestination {
 }
 
 interface GetRolesForWIResponse {
-    roles: {
+    data: {
         ListOfRoleArns: string[];
         Accounts: Utils.AccountObject[];
     }
@@ -282,14 +282,16 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 (await SuperAdmin.getRolesForWebIdentity(this.options.webIdentityToken)).data as GetRolesForWIResponse;
             let roleToAssume: string | undefined = '';
             console.log("-- DISPLAYING data", data)
-            console.log("-- DISPLAYING data", data.roles.Accounts)
+            console.log("-- DISPLAYING data", data.data.Accounts)
 
-            if (data.roles.ListOfRoleArns) {
-                roleToAssume = data.roles.ListOfRoleArns.find(
+            // TODO see necessity of if check: from my understanding, and from what I've seen in both Vault projects
+            // this is not necessary, but I'm not sure
+            if (data.data.ListOfRoleArns) {
+                roleToAssume = data.data.ListOfRoleArns.find(
                     (roleArn: string) => roleArn.includes(ARWWITargetRole) && roleArn.includes(account.id as string),
                 );
             } else {
-                data.roles.Accounts.forEach((_account: Utils.GRFWIAccount) => {
+                data.data.Accounts.forEach((_account: Utils.GRFWIAccount) => {
                     roleToAssume = _account.Roles?.find(
                         (role: Utils.Role) =>
                             role.Arn.includes(ARWWITargetRole) && role.Arn.includes(account.id as string),
