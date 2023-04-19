@@ -8,11 +8,14 @@ runs:
     - name: Wait for Docker daemon to be ready
       shell: bash
       run: |-
-          bash -c '
-          for i in {1..150}
-          do
-            docker info &> /dev/null && exit
-            sleep 2
-          done
-          echo "Could not reach Docker daemon from buildbot worker" >&2
-          exit 1'
+        bash -c '
+        for i in {1..150}
+        do
+          docker info &> /dev/null && exit
+          if [ $i -eq 50 ]; then
+            sudo systemctl restart docker
+          fi
+          sleep 2
+        done
+        echo "Could not reach Docker daemon from buildbot worker" >&2
+        exit 1'
