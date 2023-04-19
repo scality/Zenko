@@ -1,4 +1,3 @@
----
 name: "Setup End2End environment"
 description: "installation of dependencies"
 
@@ -8,51 +7,35 @@ runs:
     - name: Install dependencies
       shell: bash
       run: |-
-          function retry() {
-            local retries=$1
-            local delay=$2
-            shift 2
-
-            local count=1
-            while [ $count -le "$retries" ]; do
-              if ( "$@" ); then
-                return 0
-              fi
-
-              echo "Attempt $count/$retries failed. Retrying in $delay seconds..."
-              sleep "$delay"
-              count=$(( count + 1 ))
-            done
-
-            echo "All attempts failed. Exiting..."
-            exit 1
-          }
-
-          function retry_apt_get() {
-            retry 5 5 sudo apt-get "$@"
+          function run_install_commands() {
+            sudo apt-get update
+            sudo apt-get install -y \
+              apt-transport-https \
+              ca-certificates \
+              curl \
+              git \
+              gnupg-agent \
+              gnupg2 \
+              software-properties-common \
+              m4 \
+              gettext-base \
+              jq \
+              wget
           }
 
           set -exu;
-          retry_apt_get update
-          retry_apt_get install -y \
-            apt-transport-https \
-            ca-certificates \
-            curl \
-            git \
-            gnupg-agent \
-            gnupg2 \
-            software-properties-common \
-            m4 \
-            gettext-base \
-            jq \
-            wget
+          if ! run_install_commands; then
+            echo "Switching to archive.ubuntu.com"
+            sudo sed -i 's/azure\.//' /etc/apt/sources.list
+            run_install_commands
+          fi
           sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
           sudo add-apt-repository \
             "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
             $(lsb_release -cs) \
             stable"
-          retry_apt_get update
-          retry_apt_get install -y docker-ce docker-ce-cli containerd.io
+          sudo apt-get update
+          sudo apt-get install -y docker-ce docker-ce-cli containerd.io
           sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
           sudo echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
           sudo curl -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/${{ env.KIND_VERSION }}/kind-linux-amd64
