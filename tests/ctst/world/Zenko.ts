@@ -281,8 +281,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             const data: GetRolesForWIResponse =
                 (await SuperAdmin.getRolesForWebIdentity(this.options.webIdentityToken)).data as GetRolesForWIResponse;
             let roleToAssume: string | undefined = '';
-            console.log("-- DISPLAYING data", data)
-            console.log("-- DISPLAYING data", data.data.Accounts)
 
             // TODO see necessity of if check: from my understanding, and from what I've seen in both Vault projects
             // this is not necessary, but I'm not sure
@@ -292,6 +290,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 );
             } else {
                 data.data.Accounts.forEach((_account: Utils.GRFWIAccount) => {
+                    console.log("-- DISPLAYING _account", _account.Roles)
                     roleToAssume = _account.Roles?.find(
                         (role: Utils.Role) =>
                             role.Arn.includes(ARWWITargetRole) && role.Arn.includes(account.id as string),
@@ -438,6 +437,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 `${Utils.randomString()}`,
         });
         this.addCommandParameter({ policyDocument: Constants.assumeRolePolicy });
+        console.log("-- COMMAND PARAMETERS", this.getCommandParameters())
         const assumeRolePolicyArn =
             extractPropertyFromResults(await IAM.createRole(
                 this.getCommandParameters() as AWSCliOptions), 'Policy', 'Arn');
