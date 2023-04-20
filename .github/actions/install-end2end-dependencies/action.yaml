@@ -4,10 +4,30 @@ description: "installation of dependencies"
 runs:
   using: composite
   steps:
+    - name: Cache deb packages
+      id: cache-deb
+      uses: actions/cache@v3
+      with:
+        path: ~/deb_cache
+        key: ${{ runner.os }}-deb-${{ hashFiles('.github/actions/install-end2end-dependencies/action.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-deb-
+    - name: Cache binaries
+      id: cache-binaries
+      uses: actions/cache@v3
+      with:
+        path: /usr/local/bin
+        key: ${{ runner.os }}-binaries-${{ hashFiles('.github/actions/install-end2end-dependencies/action.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-binaries-
     - name: Install dependencies
       shell: bash
       run: |-
           function run_install_commands() {
+            if [ -d "$HOME/deb_cache" ]; then
+              sudo cp -R "$HOME/deb_cache/." /var/cache/apt/archives/
+            fi
+            
             sudo apt-get update
             sudo apt-get install -y \
               apt-transport-https \
@@ -21,6 +41,11 @@ runs:
               gettext-base \
               jq \
               wget
+              
+            if [ ! -d "$HOME/deb_cache" ]; then
+              mkdir -p "$HOME/deb_cache"
+              sudo cp -R /var/cache/apt/archives/*.deb "$HOME/deb_cache"
+            fi
           }
 
           set -exu;
