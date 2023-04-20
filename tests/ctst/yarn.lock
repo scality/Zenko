@@ -2497,9 +2497,9 @@ cli-table3@^0.6.0:
   optionalDependencies:
     "@colors/colors" "1.5.0"
 
-"cli-testing@github:scality/cli-testing.git#0f593f2f91a9759a444dd79b59b979cbe557b2a9":
+"cli-testing@github:scality/cli-testing.git#366d2ecb8318cfc9c4c71d4edc3a02a3e042bdde":
   version "0.2.6"
-  resolved "git+ssh://git@github.com/scality/cli-testing.git#0f593f2f91a9759a444dd79b59b979cbe557b2a9"
+  resolved "git+ssh://git@github.com/scality/cli-testing.git#366d2ecb8318cfc9c4c71d4edc3a02a3e042bdde"
   dependencies:
     "@cucumber/cucumber" "^8.1.2"
     "@cucumber/pretty-formatter" "^1.0.0-alpha.1"
@@ -2511,7 +2511,7 @@ cli-table3@^0.6.0:
     ts-node "^10.7.0"
     tsconfig-paths "^4.0.0"
     typescript "^4.7.3"
-    vaultclient "git+https://github.com/scality/vaultclient#bc97d68b4390b85612905b015c53d050a5b74616"
+    vaultclient "git+https://github.com/scality/vaultclient#c8955f5b78ea9f0b9726178e2e667de8d0f9dcae"
 
 cliui@^3.2.0:
   version "3.2.0"
@@ -5995,9 +5995,9 @@ validate-npm-package-license@^3.0.1:
     spdx-correct "^3.0.0"
     spdx-expression-parse "^3.0.0"
 
-"vaultclient@git+https://github.com/scality/vaultclient#bc97d68b4390b85612905b015c53d050a5b74616":
+"vaultclient@git+https://github.com/scality/vaultclient#c8955f5b78ea9f0b9726178e2e667de8d0f9dcae":
   version "8.3.13"
-  resolved "git+https://github.com/scality/vaultclient#bc97d68b4390b85612905b015c53d050a5b74616"
+  resolved "git+https://github.com/scality/vaultclient#c8955f5b78ea9f0b9726178e2e667de8d0f9dcae"
   dependencies:
     arsenal "git+https://github.com/scality/Arsenal#8.1.91"
     commander "2.20.0"
