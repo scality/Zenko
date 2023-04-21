@@ -273,6 +273,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 throw new Error('Error when trying to get a WebIdentity token.');
             }
             // Getting account ID
+            console.log('-- Getting account ', this.parameters.AccountName)
             const account = await SuperAdmin.getAccount({
                 name: this.parameters.AccountName || Constants.ACCOUNT_NAME,
             }) as Utils.AccountObject;
