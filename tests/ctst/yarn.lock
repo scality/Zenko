@@ -2497,9 +2497,9 @@ cli-table3@^0.6.0:
   optionalDependencies:
     "@colors/colors" "1.5.0"
 
-"cli-testing@github:scality/cli-testing.git#e2691ccf3a0073ac39dd4ebc160bdb1207b2ef1f":
+"cli-testing@github:scality/cli-testing.git#775460150e7273156285120041f8e1f63651c1fc":
   version "0.2.6"
-  resolved "git+ssh://git@github.com/scality/cli-testing.git#e2691ccf3a0073ac39dd4ebc160bdb1207b2ef1f"
+  resolved "git+ssh://git@github.com/scality/cli-testing.git#775460150e7273156285120041f8e1f63651c1fc"
   dependencies:
     "@cucumber/cucumber" "^8.1.2"
     "@cucumber/pretty-formatter" "^1.0.0-alpha.1"

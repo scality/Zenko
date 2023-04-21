@@ -276,7 +276,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             console.log('-- Getting account ', this.parameters.AccountName)
             console.log('-- chachehelper account ', CacheHelper.AccountName)
             const account = await SuperAdmin.getAccount({
-                name: this.parameters.AccountName || Constants.ACCOUNT_NAME,
+                accountName: this.parameters.AccountName || Constants.ACCOUNT_NAME,
             }) as Utils.AccountObject;
             // Getting roles with GetRolesForWebIdentity
             // Get the first role with the storage-manager-role name
@@ -388,7 +388,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
         // Getting default account ID
         const account = await SuperAdmin.getAccount({
-            name: this.parameters.AccountName || Constants.ACCOUNT_NAME,
+            accountName: this.parameters.AccountName || Constants.ACCOUNT_NAME,
         }) as Utils.Account['account'];
         Zenko.additionalAccountsCredentials[account.name as string] = {
             AccessKey: CacheHelper.parameters?.AccessKey as string,
@@ -409,7 +409,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         if (crossAccount) {
             // Creating a second account if its Cross-Account AssumeRole
             const account2 = await SuperAdmin.createAccount({
-                name: `${Constants.ACCOUNT_NAME}${Utils.randomString()}`,
+                accountName: `${Constants.ACCOUNT_NAME}${Utils.randomString()}`,
             }) as Utils.Account;
 
             // Creating credentials for the second account
@@ -538,14 +538,14 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             let account = null;
             // Create the account if already exist will not throw any error
             await SuperAdmin.createAccount({
-                name: parameters.AccountName as string || Constants.ACCOUNT_NAME,
+                accountName: parameters.AccountName as string || Constants.ACCOUNT_NAME,
             });
             // Waiting until the account exists, in case of parallel mode.
             let remaining = Constants.MAX_ACCOUNT_CHECK_RETRIES;
             while (!account && remaining > 0) {
                 await Utils.sleep(1000);
                 account = (await SuperAdmin.getAccount({
-                    name: parameters.AccountName as string || Constants.ACCOUNT_NAME,
+                    accountName: parameters.AccountName as string || Constants.ACCOUNT_NAME,
                 })) as Utils.Account['account'];
                 remaining--;
             }
@@ -608,7 +608,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             }
             const policy = await IAM.createPolicy(this.getCommandParameters());
             const account = await SuperAdmin.getAccount({
-                name: this.parameters.AccountName || Constants.ACCOUNT_NAME,
+                accountName: this.parameters.AccountName || Constants.ACCOUNT_NAME,
             }) as Utils.Account['account'];
             let policyArn = `arn:aws:iam::${account.id as string}:policy/IAMUserPolicy-${Zenko.IAMUserName}}`;
             try {
