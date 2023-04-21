@@ -274,6 +274,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             }
             // Getting account ID
             console.log('-- Getting account ', this.parameters.AccountName)
+            console.log('-- chachehelper account ', CacheHelper.AccountName)
             const account = await SuperAdmin.getAccount({
                 name: this.parameters.AccountName || Constants.ACCOUNT_NAME,
             }) as Utils.AccountObject;
