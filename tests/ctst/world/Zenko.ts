@@ -436,10 +436,10 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 `${Constants.POLICY_NAME_TEST}` +
                 `${Utils.randomString()}`,
         });
-        this.addCommandParameter({ assumeRolePolicyDocument: Constants.assumeRolePolicy });
+        this.addCommandParameter({ policyDocument: Constants.assumeRolePolicy });
         console.log("-- COMMAND PARAMETERS", this.getCommandParameters())
         const assumeRolePolicyArn =
-            extractPropertyFromResults(await IAM.createRole(
+            extractPropertyFromResults(await IAM.createPolicy(
                 this.getCommandParameters() as AWSCliOptions), 'Policy', 'Arn');
 
         // Attaching the policy to the user
@@ -451,17 +451,15 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         // Creating credentials for the user
         this.resetCommand();
         this.addCommandParameter({ userName });
-        this.addCommandParameter({ assumeRolePolicyDocument: Constants.assumeRolePolicy });
         this.parameters.IAMSession =
-            extractPropertyFromResults(await IAM.createRole(
+            extractPropertyFromResults(await IAM.createAccessKey(
                 this.getCommandParameters() as AWSCliOptions), 'AccessKey');
         this.resumeRootOrIamUser();
 
         // Assuming the role
         this.resetCommand();
         this.addCommandParameter({ roleArn: roleArnToAssume as string });
-        this.addCommandParameter({ assumeRolePolicyDocument: Constants.assumeRolePolicy });
-        const res = extractPropertyFromResults(await IAM.createRole(
+        const res = extractPropertyFromResults(await STS.assumeRole(
             this.getCommandParameters() as AWSCliOptions), 'Credentials');
         if (res) {
             this.parameters.AssumedSession = res;
