@@ -451,6 +451,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         // Creating credentials for the user
         this.resetCommand();
         this.addCommandParameter({ userName });
+        this.addCommandParameter({ assumeRolePolicyDocument: Constants.assumeRolePolicy });
         this.parameters.IAMSession =
             extractPropertyFromResults(await IAM.createRole(
                 this.getCommandParameters() as AWSCliOptions), 'AccessKey');
@@ -459,6 +460,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         // Assuming the role
         this.resetCommand();
         this.addCommandParameter({ roleArn: roleArnToAssume as string });
+        this.addCommandParameter({ assumeRolePolicyDocument: Constants.assumeRolePolicy });
         const res = extractPropertyFromResults(await IAM.createRole(
             this.getCommandParameters() as AWSCliOptions), 'Credentials');
         if (res) {
