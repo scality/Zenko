@@ -436,7 +436,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 `${Constants.POLICY_NAME_TEST}` +
                 `${Utils.randomString()}`,
         });
-        this.addCommandParameter({ policyDocument: Constants.assumeRolePolicy });
+        this.addCommandParameter({ assumeRolePolicyDocument: Constants.assumeRolePolicy });
         console.log("-- COMMAND PARAMETERS", this.getCommandParameters())
         const assumeRolePolicyArn =
             extractPropertyFromResults(await IAM.createRole(
