@@ -561,7 +561,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 CacheHelper.isPreloadedAccount = true;
             } else {
                 const accessKeys = await SuperAdmin.generateAccountAccessKey({
-                    name: parameters.AccountName as string || Constants.ACCOUNT_NAME,
+                    accountName: parameters.AccountName as string || Constants.ACCOUNT_NAME,
                 });
                 if (Utils.isAccessKeys(accessKeys)) {
                     CacheHelper.accountAccessKeys = accessKeys;
