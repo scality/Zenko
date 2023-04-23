@@ -95,6 +95,19 @@ Then('the user should be able to perform successfully the {string} action', func
     }
 });
 
+Then('the user should not be able to perform the {string} action', function (action : string) {
+    this.cleanupEntity();
+    switch (action) {
+        case 'GetAccountInfo': {
+            assert.strictEqual(this.result instanceof Error, true);
+            break;
+        }
+        default: {
+            assert.strictEqual(this.result?.err, null);
+        }
+    }
+});
+
 Then('the user should receive {string} error', function (error : string) {
     this.cleanupEntity();
     assert.strictEqual(this.result.err.includes(error), true);

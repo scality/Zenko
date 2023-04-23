@@ -10,7 +10,7 @@ Feature: IAM Policies for Backbeat Service Users
   Scenario Outline: Backbeat Service Users are authorized to perform the actions and get success response
     Given an existing bucket "" "<withVersioning>" versioning, "without" ObjectLock "" retention mode
     And an object "" that "<objectExists>"
-    And a service user "<serviceUserName>" assuming role "<roleName>"
+    And a service user "<serviceUserName>" assuming the role "<roleName>" of a user account
     When the user tries to perform "<action>" on the bucket
     Then the user should be able to perform successfully the "<action>" action
 
@@ -39,7 +39,7 @@ Feature: IAM Policies for Backbeat Service Users
   Scenario Outline: Backbeat Service Users are authorized to perform the actions and get expected error response
     Given an existing bucket "" "<withVersioning>" versioning, "without" ObjectLock "" retention mode
     And an object "" that "<objectExists>"
-    And a service user "<serviceUserName>" assuming role "<roleName>"
+    And a service user "<serviceUserName>" assuming the role "<roleName>" of a user account
     When the user tries to perform "<action>" on the bucket
     Then the user should receive "<expectedError>" error
 
@@ -53,11 +53,24 @@ Feature: IAM Policies for Backbeat Service Users
   @Flaky
   @IamPoliciesBackbeatServiceUser
   Scenario Outline: Backbeat Service Users are authorized to perform the actions
-    Given a service user "<serviceUserName>" assuming role "<roleName>"
+    Given a service user "<serviceUserName>" assuming the role "<roleName>" of an internal service account
     When the user tries to perform vault auth "<action>"
     Then the user should be able to perform successfully the "<action>" action
 
     Examples:
       | action         | serviceUserName                | roleName                       |
       | GetAccountInfo | backbeat-qp-1                  | backbeat-qp-1                  |
+      | GetAccountInfo | backbeat-lifecycle-conductor-1 | backbeat-lifecycle-conductor-1 |
+
+  @2.6.0
+  @PreMerge
+  @Flaky
+  @IamPoliciesBackbeatServiceUser
+  Scenario Outline: Backbeat Service Users are not authorized to perform the actions
+    Given a service user "<serviceUserName>" assuming the role "<roleName>" of a user account
+    When the user tries to perform vault auth "<action>"
+    Then the user should not be able to perform the "<action>" action
+
+    Examples:
+      | action         | serviceUserName                | roleName                       |
       | GetAccountInfo | backbeat-lifecycle-conductor-1 | backbeat-lifecycle-conductor-1 |
