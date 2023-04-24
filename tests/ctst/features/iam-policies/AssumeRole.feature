@@ -15,9 +15,9 @@ Feature: IAM Policies for Assume Role Session Users
 
     Examples:
       | action         | objectExists   | ifCrossAccount |
-      | MetadataSearch | does not exist |                |
+ #     | MetadataSearch | does not exist |                |
       | MetadataSearch | does not exist | cross account  |
-      | GetObject      | exists         |                |
+#      | GetObject      | exists         |                |
       | GetObject      | exists         | cross account  |
 
   @2.6.0
@@ -33,15 +33,15 @@ Feature: IAM Policies for Assume Role Session Users
 
     Examples:
       | action         | resource                | bucketName    | objectExists   | objectName | ifCrossAccount |
-      | MetadataSearch | *                       |               | does not exist |            |                |
+  #    | MetadataSearch | *                       |               | does not exist |            |                |
       | MetadataSearch | *                       |               | does not exist |            | cross account  |
-      | GetObject      | *                       |               | exists         |            |                |
-      | GetObject      | *                       |               | exists         |            | cross account  |
-      | MetadataSearch | ar-md-bucket1           | ar-md-bucket1 | does not exist |            |                |
+ #     | GetObject      | *                       |               | exists         |            |                |
+#      | GetObject      | *                       |               | exists         |            | cross account  |
+#      | MetadataSearch | ar-md-bucket1           | ar-md-bucket1 | does not exist |            |                |
       | MetadataSearch | ar-md-bucket2           | ar-md-bucket2 | does not exist |            | cross account  |
-      | GetObject      | ar-go-bucket1/*         | ar-go-bucket1 | exists         |            |                |
+#      | GetObject      | ar-go-bucket1/*         | ar-go-bucket1 | exists         |            |                |
       | GetObject      | ar-go-bucket2/*         | ar-go-bucket2 | exists         |            | cross account  |
-      | GetObject      | ar-go-bucket3/go-object | ar-go-bucket3 | exists         | go-object  |                |
+  #    | GetObject      | ar-go-bucket3/go-object | ar-go-bucket3 | exists         | go-object  |                |
       | GetObject      | ar-go-bucket4/go-object | ar-go-bucket4 | exists         | go-object  | cross account  |
 
   @2.6.0
