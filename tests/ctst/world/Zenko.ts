@@ -414,7 +414,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
             // Creating credentials for the second account
             const account2Credentials = await SuperAdmin.generateAccountAccessKey({
-                name: account2.account.name,
+                accountName: account2.account.name,
             }) as Utils.AccessKeys;
 
             // Set the credentials of the second account as the default credentials
@@ -461,8 +461,14 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         // Assuming the role
         this.resetCommand();
         this.addCommandParameter({ roleArn: roleArnToAssume as string });
+        console.log("-- R to Assume: ", roleArnToAssume);
+        console.log("-- command params: ", this.getCommandParameters());
+        let ar = await STS.assumeRole(
+            this.getCommandParameters() as AWSCliOptions)
+        console.log("-- AR results", ar); // -> invalidAccessKeyId
         const res = extractPropertyFromResults(await STS.assumeRole(
             this.getCommandParameters() as AWSCliOptions), 'Credentials');
+        console.log("-- Result AR: ", res);
         if (res) {
             this.parameters.AssumedSession = res;
         }
