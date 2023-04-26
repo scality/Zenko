@@ -26,6 +26,7 @@ spec:
     triggerExpirationsOneDayEarlierForTesting: true
     lifecycleConductor:
       cronRule: "${BACKBEAT_LCC_CRON_RULE}"
+      forceLegacyListing: false
     lifecycleBucketProcessor:
       triggerTransitionsOneDayEarlierForTesting: true
     logging:
