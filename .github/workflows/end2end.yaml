@@ -443,9 +443,11 @@ jobs:
       - name: Run smoke tests
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "smoke" "default"
         working-directory: ./.github/scripts/end2end
-      - name: Run vault e2e tests
-        run: bash vault-e2e-test.sh
-        working-directory: ./.github/scripts/end2end
+      # Temporarily disabled as CTST will test the same APIs more
+      # extensively.
+      # - name: Run vault e2e tests
+      #   run: bash vault-e2e-test.sh
+      #   working-directory: ./.github/scripts/end2end
       - name: Debug wait
         uses: ./.github/actions/debug-wait
       - name: Archive artifact logs and data
