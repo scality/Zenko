@@ -80,7 +80,7 @@ for i in 1 2; do
     --env="KEYCLOAK_TEST_GRANT_TYPE=${KEYCLOAK_TEST_GRANT_TYPE}" \
     --env="VAULT_TEST_CONFIG=${VAULT_TEST_CONFIG}" \
     --env="VAULT_OIDC_TEST=${VAULT_OIDC_TEST}" \
-    --command -- yarn ft_test
+    --command -- yarn ft_test_sync
   exit_code=$?
   if [ $exit_code -eq 0 ]; then
     # Exit loop if the tests pass
