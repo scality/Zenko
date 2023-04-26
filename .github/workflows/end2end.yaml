@@ -228,7 +228,7 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - name: Login to Registry
-        uses: docker/login-action@v1.10.0
+        uses: docker/login-action@v2
         with:
           username: "${{ secrets.REGISTRY_LOGIN }}"
           password: "${{ secrets.REGISTRY_PASSWORD }}"
@@ -294,7 +294,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Login to Registry
-        uses: docker/login-action@v1.10.0
+        uses: docker/login-action@v2
         with:
           username: "${{ secrets.REGISTRY_LOGIN }}"
           password: "${{ secrets.REGISTRY_PASSWORD }}"
@@ -325,7 +325,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Login to Registry
-        uses: docker/login-action@v1.10.0
+        uses: docker/login-action@v2
         with:
           username: "${{ secrets.REGISTRY_LOGIN }}"
           password: "${{ secrets.REGISTRY_PASSWORD }}"
@@ -358,7 +358,7 @@ jobs:
       - name: Wait for Docker daemon to be ready
         uses: ./.github/actions/wait-docker-ready
       - name: Login to Registry
-        uses: docker/login-action@v1.10.0
+        uses: docker/login-action@v2
         with:
           username: "${{ secrets.REGISTRY_LOGIN }}"
           password: "${{ secrets.REGISTRY_PASSWORD }}"
@@ -428,7 +428,7 @@ jobs:
       - name: Wait for Docker daemon to be ready
         uses: ./.github/actions/wait-docker-ready
       - name: Login to Registry
-        uses: docker/login-action@v1.10.0
+        uses: docker/login-action@v2
         with:
           username: "${{ secrets.REGISTRY_LOGIN }}"
           password: "${{ secrets.REGISTRY_PASSWORD }}"
@@ -489,7 +489,7 @@ jobs:
       - name: Wait for Docker daemon to be ready
         uses: ./.github/actions/wait-docker-ready
       - name: Login to Registry
-        uses: docker/login-action@v1.10.0
+        uses: docker/login-action@v2
         with:
           username: "${{ secrets.REGISTRY_LOGIN }}"
           password: "${{ secrets.REGISTRY_PASSWORD }}"
@@ -545,7 +545,7 @@ jobs:
       - name: Wait for Docker daemon to be ready
         uses: ./.github/actions/wait-docker-ready
       - name: Login to Registry
-        uses: docker/login-action@v1.10.0
+        uses: docker/login-action@v2
         with:
           username: "${{ secrets.REGISTRY_LOGIN }}"
           password: "${{ secrets.REGISTRY_PASSWORD }}"
