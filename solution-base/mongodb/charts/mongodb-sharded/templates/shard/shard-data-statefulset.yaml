@@ -215,7 +215,8 @@ spec:
           readinessProbe:
             exec:
               command:
-                - mongosh
+                - mongo
+                - --disableImplicitSessions
                 - --eval
                 - "db.adminCommand('ping')"
             initialDelaySeconds: {{ $.Values.readinessProbe.initialDelaySeconds }}

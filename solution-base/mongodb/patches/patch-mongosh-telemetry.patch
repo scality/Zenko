@@ -1,0 +1,60 @@
+ .../templates/config-server/config-server-statefulset.yaml  | 3 ++-
+ .../mongodb-sharded/templates/mongos/mongos-dep-sts.yaml    | 6 ++++--
+ .../templates/shard/shard-data-statefulset.yaml             | 3 ++-
+ 3 files changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-statefulset.yaml b/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-statefulset.yaml
+index cb56c0cc..441624be 100644
+--- a/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-statefulset.yaml
++++ b/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-statefulset.yaml
+@@ -208,7 +208,8 @@ spec:
+           readinessProbe:
+             exec:
+               command:
+-                - mongosh
++                - mongo
++                - --disableImplicitSessions
+                 - --eval
+                 - "db.adminCommand('ping')"
+             initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/mongos/mongos-dep-sts.yaml b/solution-base/mongodb/charts/mongodb-sharded/templates/mongos/mongos-dep-sts.yaml
+index fdee2a9a..d38ec09a 100644
+--- a/solution-base/mongodb/charts/mongodb-sharded/templates/mongos/mongos-dep-sts.yaml
++++ b/solution-base/mongodb/charts/mongodb-sharded/templates/mongos/mongos-dep-sts.yaml
+@@ -188,7 +188,8 @@ spec:
+           livenessProbe:
+             exec:
+               command:
+-                - mongosh
++                - mongo
++                - --disableImplicitSessions
+                 - --eval
+                 - "db.adminCommand('ping')"
+             initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+@@ -201,7 +202,8 @@ spec:
+           readinessProbe:
+             exec:
+               command:
+-                - mongosh
++                - mongo
++                - --disableImplicitSessions
+                 - --eval
+                 - "db.adminCommand('ping')"
+             initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-statefulset.yaml b/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-statefulset.yaml
+index 85e76e7b..6214cd46 100644
+--- a/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-statefulset.yaml
++++ b/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-statefulset.yaml
+@@ -215,7 +215,8 @@ spec:
+           readinessProbe:
+             exec:
+               command:
+-                - mongosh
++                - mongo
++                - --disableImplicitSessions
+                 - --eval
+                 - "db.adminCommand('ping')"
+             initialDelaySeconds: {{ $.Values.readinessProbe.initialDelaySeconds }}
+-- 
+2.25.1
+
