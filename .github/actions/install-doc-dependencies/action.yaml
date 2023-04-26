@@ -1,38 +1,44 @@
----
 name: "Install doc dependencies"
 description: "Prepare required packages before building the documentation"
 
 runs:
   using: composite
   steps:
+    - name: Cache deb packages
+      id: cache-deb
+      uses: actions/cache@v3
+      with:
+        path: ~/deb_cache
+        key: ${{ runner.os }}-deb-${{ hashFiles('.github/actions/install-doc-dependencies/action.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-deb-
     - name: Install required dependencies
       shell: bash
       run: |
-        sudo apt-get update
-        sudo apt-get install --no-install-recommends -y \
-          xindy \
-          enchant \
-          git \
-          graphviz \
-          curl \
-          latexmk \
-          make \
-          ghostscript \
-          inkscape \
-          plantuml \
-          python3 \
-          python3-buildbot-worker \
-          texlive-font-utils \
-          python3-pip \
-          texlive-fonts-extra \
-          texlive-fonts-recommended \
-          texlive-latex-extra \
-          texlive-luatex \
-          texlive-xetex \
-          texlive-latex-recommended \
-          tox \
-          emacs \
-          less
+        set -e
+
+        PACKAGES="xindy enchant git graphviz curl latexmk make ghostscript inkscape plantuml python3 python3-buildbot-worker texlive-font-utils python3-pip texlive-fonts-extra texlive-fonts-recommended texlive-latex-extra texlive-luatex texlive-xetex texlive-latex-recommended tox emacs less"
+
+        install_packages() {
+          if [ -d "$HOME/deb_cache" ]; then
+            sudo cp -R "$HOME/deb_cache/." /var/cache/apt/archives/
+          fi
+
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y ${PACKAGES}
+
+          if [ ! -d "$HOME/deb_cache" ]; then
+            mkdir -p "$HOME/deb_cache"
+            sudo cp -R /var/cache/apt/archives/*.deb "$HOME/deb_cache"
+          fi
+        }
+
+        if ! install_packages; then
+          echo "Switching to archive.ubuntu.com"
+          sudo sed -i 's/azure\.//' /etc/apt/sources.list
+          sudo apt-get update
+          install_packages
+        fi
     - name: Override plantuml
       shell: bash
       run: |

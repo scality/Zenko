@@ -20,8 +20,9 @@ spec:
     logging:
       logLevel: debug
   cloudserver:
+    replicas: 2
     logging:
-      logLevel: trace
+      logLevel: debug
   backbeat:
     triggerExpirationsOneDayEarlierForTesting: true
     lifecycleConductor:
@@ -60,13 +61,14 @@ spec:
         size: 20Gi
         storageClassName: "standard"
   vault:
+    replicas: 2
     enable: true
     iamIngress:
       hostname: iam.zenko.local
     stsIngress:
       hostname: sts.zenko.local
     logging:
-      logLevel: trace
+      logLevel: debug
   utapi:
     enable: false
   management:

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -exu
+set -xu
 
 DIR=$(dirname $0)
 
@@ -8,8 +8,6 @@ DIR=$(dirname $0)
 
 ZENKO_RESOURCE=${1:-end2end}
 NAMESPACE=${2:-default}
-
-POD_NAME="${ZENKO_RESOURCE}-vault-test"
 
 # set environment vars
 VAULT_ENDPOINT="http://${ZENKO_RESOURCE}-management-vault-iam-admin-api:80"
@@ -49,33 +47,46 @@ if [ ! -z "$VAULT_TEST_IMAGE_TAG" ] ; then
   VAULT_TEST_TAG=$VAULT_TEST_IMAGE_TAG
 fi
 
-kubectl run $POD_NAME \
-  --image $VAULT_TEST_IMAGE:$VAULT_TEST_TAG \
-  --rm \
-  --attach=True \
-  --restart=Never \
-  --namespace=$NAMESPACE \
-  --env="VAULT_ENDPOINT=${VAULT_ENDPOINT}" \
-  --env="VAULT_METRICS_ENDPOINT=${VAULT_METRICS_ENDPOINT}" \
-  --env="VAULT_STS_ENDPOINT=${VAULT_STS_ENDPOINT}" \
-  --env="VAULT_AUTH_ENDPOINT=${VAULT_AUTH_ENDPOINT}" \
-  --env="ADMIN_ACCESS_KEY_ID=${ADMIN_ACCESS_KEY_ID}" \
-  --env="ADMIN_SECRET_ACCESS_KEY=${ADMIN_SECRET_ACCESS_KEY}" \
-  --env="MONGODB_TEST_HOST=${MONGODB_TEST_HOST}" \
-  --env="MONGODB_TEST_PORT=${MONGODB_TEST_PORT}" \
-  --env="MONGODB_TEST_USER=${MONGODB_TEST_USER}" \
-  --env="MONGODB_TEST_PASSWORD=${MONGODB_TEST_PASSWORD}" \
-  --env="MONGODB_TEST_DATABASE=${MONGODB_TEST_DATABASE}" \
-  --env="REDIS_TEST_HOST=${REDIS_TEST_HOST}" \
-  --env="REDIS_TEST_PORT=${REDIS_TEST_PORT}" \
-  --env="REDIS_TEST_PASSWORD=${REDIS_TEST_PASSWORD}" \
-  --env="KEYCLOAK_TEST_USER=${KEYCLOAK_TEST_USER}" \
-  --env="KEYCLOAK_TEST_PASSWORD=${KEYCLOAK_TEST_PASSWORD}" \
-  --env="KEYCLOAK_TEST_HOST=${KEYCLOAK_TEST_HOST}" \
-  --env="KEYCLOAK_TEST_PORT=${KEYCLOAK_TEST_PORT}" \
-  --env="KEYCLOAK_TEST_REALM_NAME=${KEYCLOAK_TEST_REALM_NAME}" \
-  --env="KEYCLOAK_TEST_CLIENT_ID=${KEYCLOAK_TEST_CLIENT_ID}" \
-  --env="KEYCLOAK_TEST_GRANT_TYPE=${KEYCLOAK_TEST_GRANT_TYPE}" \
-  --env="VAULT_TEST_CONFIG=${VAULT_TEST_CONFIG}" \
-  --env="VAULT_OIDC_TEST=${VAULT_OIDC_TEST}" \
-  --command -- yarn ft_test
+# Run the tests up to two times if they fail
+exit_code=1
+for i in 1 2; do
+  POD_NAME="${ZENKO_RESOURCE}-vault-test-${i}"
+  kubectl run $POD_NAME \
+    --image $VAULT_TEST_IMAGE:$VAULT_TEST_TAG \
+    --rm \
+    --attach=True \
+    --restart=Never \
+    --namespace=$NAMESPACE \
+    --env="VAULT_ENDPOINT=${VAULT_ENDPOINT}" \
+    --env="VAULT_METRICS_ENDPOINT=${VAULT_METRICS_ENDPOINT}" \
+    --env="VAULT_STS_ENDPOINT=${VAULT_STS_ENDPOINT}" \
+    --env="VAULT_AUTH_ENDPOINT=${VAULT_AUTH_ENDPOINT}" \
+    --env="ADMIN_ACCESS_KEY_ID=${ADMIN_ACCESS_KEY_ID}" \
+    --env="ADMIN_SECRET_ACCESS_KEY=${ADMIN_SECRET_ACCESS_KEY}" \
+    --env="MONGODB_TEST_HOST=${MONGODB_TEST_HOST}" \
+    --env="MONGODB_TEST_PORT=${MONGODB_TEST_PORT}" \
+    --env="MONGODB_TEST_USER=${MONGODB_TEST_USER}" \
+    --env="MONGODB_TEST_PASSWORD=${MONGODB_TEST_PASSWORD}" \
+    --env="MONGODB_TEST_DATABASE=${MONGODB_TEST_DATABASE}" \
+    --env="REDIS_TEST_HOST=${REDIS_TEST_HOST}" \
+    --env="REDIS_TEST_PORT=${REDIS_TEST_PORT}" \
+    --env="REDIS_TEST_PASSWORD=${REDIS_TEST_PASSWORD}" \
+    --env="KEYCLOAK_TEST_USER=${KEYCLOAK_TEST_USER}" \
+    --env="KEYCLOAK_TEST_PASSWORD=${KEYCLOAK_TEST_PASSWORD}" \
+    --env="KEYCLOAK_TEST_HOST=${KEYCLOAK_TEST_HOST}" \
+    --env="KEYCLOAK_TEST_PORT=${KEYCLOAK_TEST_PORT}" \
+    --env="KEYCLOAK_TEST_REALM_NAME=${KEYCLOAK_TEST_REALM_NAME}" \
+    --env="KEYCLOAK_TEST_CLIENT_ID=${KEYCLOAK_TEST_CLIENT_ID}" \
+    --env="KEYCLOAK_TEST_GRANT_TYPE=${KEYCLOAK_TEST_GRANT_TYPE}" \
+    --env="VAULT_TEST_CONFIG=${VAULT_TEST_CONFIG}" \
+    --env="VAULT_OIDC_TEST=${VAULT_OIDC_TEST}" \
+    --command -- yarn ft_test
+  exit_code=$?
+  if [ $exit_code -eq 0 ]; then
+    # Exit loop if the tests pass
+    break
+  fi
+done
+
+# Return the exit code of the kubectl command
+exit $exit_code

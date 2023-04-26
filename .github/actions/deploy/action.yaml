@@ -19,6 +19,16 @@ runs:
       shell: bash
       run: bash create-pull-image-secret.sh
       working-directory: ./.github/scripts/end2end
+    - name: Cache Helm repositories and charts
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cache/helm
+          ~/.config/helm
+          ~/.helm
+        key: ${{ runner.os }}-helm-${{ hashFiles('.github/scripts/end2end/install-kind-dependencies.sh') }}
+        restore-keys: |
+          ${{ runner.os }}-helm-
     - name: Install kind cluster dependencies
       shell: bash
       run: bash install-kind-dependencies.sh

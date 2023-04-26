@@ -3,7 +3,22 @@ set -exu
 
 ZENKO_NAME=${1:-end2end}
 COMMAND=${2:-"premerge"}
-PARALLEL_RUNS=${3:-2}
+# Get the current number of vCPUs
+VCPU_COUNT=$(nproc)
+# Calculate the number of parallel runs based on the vCPU count
+# - If there are only 1 vCPU set parallel runs to 1.
+# - If there are between 1 and 4 vCPUs, use 0.5 parallel runs per vCPU.
+# - If there are more than 4 vCPUs, use 0.5 parallel runs for the first 4 vCPUs and 1 parallel run for
+#   each additional vCPU, as Zenko is not CPU bound.
+PARALLEL_RUNS=$(awk -v vcpu=$VCPU_COUNT 'BEGIN {
+  if (vcpu <= 0) {
+    print 1
+  } else if (vcpu >= 1 && vcpu <= 4) {
+    print int(vcpu * 0.5)
+  } else {
+    print (4 * 0.5) + ((vcpu - 4) * 1)
+  }
+}')
 RETRIES=${4:-3}
 
 # Zenko Version
