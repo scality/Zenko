@@ -1,12 +1,22 @@
-import { Before, defineParameterType, Given } from '@cucumber/cucumber';
+import {
+    Before,
+    defineParameterType,
+    Given,
+    setParallelCanAssign,
+    parallelCanAssignHelpers,
+} from '@cucumber/cucumber';
 import Zenko, { EntityType } from '../world/Zenko';
 // HTTPS should not cause any error for CTST
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
+const { atMostOnePicklePerTag } = parallelCanAssignHelpers;
+const noParallelRun = atMostOnePicklePerTag(['@AzureArchive']);
+
+setParallelCanAssign(noParallelRun);
+
 Before(async function (this: Zenko) {
     await Zenko.init(this.parameters);
 });
-
 
 defineParameterType({
     name: 'type',
