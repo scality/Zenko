@@ -109,3 +109,7 @@ spec:
         image: '${REDIS_EXPORTER_IMAGE}'
         tag: '${REDIS_EXPORTER_TAG}'
       kubedb: '${REDIS_KUBEDB_TAG}'
+  featureFlags:
+    lifecycleOptimization: true
+    manageKafkaTopics: true
+    multipleColdLocations: true
