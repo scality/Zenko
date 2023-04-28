@@ -68,10 +68,9 @@ redis_exporter:
   tag: v1.43.1
   envsubst: REDIS_EXPORTER_TAG
 s3utils:
-  sourceRegistry: registry.scality.com/s3utils
-  dashboard: s3utils-dashboards
+  sourceRegistry: registry.scality.com/playground/xinli
   image: s3utils
-  tag: 1.13.17
+  tag: 1.13.200
   envsubst: S3UTILS_TAG
 sorbet:
   sourceRegistry: registry.scality.com/sorbet
