@@ -263,7 +263,7 @@ jobs:
           [ "${{ env.KAFKA_TAG }}" = "${{ env.KAFKA_CONNECT_TAG }}" ]
 
       - name: Build and push kafka
-        uses: docker/build-push-action@v3.1.0
+        uses: docker/build-push-action@v4
         with:
           push: true
           context: ./solution/kafka
@@ -275,7 +275,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=$GITHUB_REF_NAME-kafka
 
       - name: Build and push kafka-connect
-        uses: docker/build-push-action@v3.1.0
+        uses: docker/build-push-action@v4
         with:
           push: true
           context: ./solution/kafka-connect
@@ -311,7 +311,7 @@ jobs:
           cat e2e-config.yaml
           echo 'Generated e2e-config.yaml file'
       - name: Build and push CI image
-        uses: docker/build-push-action@v3.1.0
+        uses: docker/build-push-action@v4
         with:
           push: true
           context: ./tests/zenko_tests
@@ -337,7 +337,7 @@ jobs:
         run: |-
           echo "CTST_TAG=$(sed 's/.*"cli-testing": ".*#\(.*\)".*/\1/;t;d' ./tests/ctst/package.json)" >> $GITHUB_ENV
       - name: Build and push CI image
-        uses: docker/build-push-action@v3.1.0
+        uses: docker/build-push-action@v4
         with:
           push: true
           context: ./tests/ctst
