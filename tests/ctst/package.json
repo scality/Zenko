@@ -11,16 +11,18 @@
     "@types/qs": "^6.9.7",
     "assert": "^2.0.0",
     "aws4-axios": "^2.4.9",
-    "prometheus-query": "^3.2.0"
+    "node-gyp": "^9.3.1",
+    "prometheus-query": "^3.2.0",
+    "qs": "^6.11.1"
   },
   "devDependencies": {
-    "cli-testing": "github:scality/cli-testing.git#0.2.4",
+    "cli-testing": "github:scality/cli-testing.git#0.2.12",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
     "babel-jest": "^29.3.1",
     "eslint": "^8.28.0"
   },
   "scripts": {
-    "lint": "eslint ."
+    "lint": "eslint ./world/Zenko.ts"
   }
 }
