@@ -1,13 +1,49 @@
-import { setWorldConstructor, World } from '@cucumber/cucumber';
+import { setWorldConstructor, World, IWorldOptions } from '@cucumber/cucumber';
 import axios, { AxiosRequestConfig, AxiosResponse, Method, AxiosRequestHeaders } from 'axios';
-import { aws4Interceptor } from 'aws4-axios'
-
-import { CacheHelper, cliModeObject, Constants, IAM, IAMUserPolicy, STS, SuperAdmin, Utils, } from 'cli-testing';
-import { extractPropertyFromResults } from "../common/utils";
+import { aws4Interceptor } from 'aws4-axios';
+import {
+    CacheHelper,
+    ClientOptions,
+    cliModeObject,
+    Constants,
+    IAM,
+    IAMUserPolicy,
+    STS,
+    SuperAdmin,
+    Utils,
+    AWSCliOptions,
+} from 'cli-testing';
+import { Credentials } from 'aws4-axios';
+import { extractPropertyFromResults } from '../common/utils';
 import qs = require('qs');
 
-interface AwsCliObjectParameters {
-    [key: string]: number | string | undefined | object;
+export interface AWSVersionObject {
+    Key: string;
+    VersionId: string;
+}
+
+export interface NotificationDestination {
+    destinationName: string;
+    topic: string;
+    hosts: string;
+}
+
+interface GetRolesForWIResponse {
+    data: {
+        ListOfRoleArns: string[];
+        Accounts: Utils.AccountObject[];
+    }
+}
+
+export interface UserCredentials {
+    AccessKeyId: string;
+    SecretAccessKey: string;
+    SessionToken?: string;
+}
+
+interface ServiceUsersCredentials {
+    accessKey: string;
+    secretKey: string;
 }
 
 // Zenko entities
@@ -20,12 +56,50 @@ export enum EntityType {
     ASSUME_ROLE_USER = 'ASSUME_ROLE_USER',
 }
 
+interface ZenkoWorldParameters {
+    subdomain: string;
+    ssl: boolean;
+    port: string;
+    AccountName: string;
+    AdminAccessKey: string;
+    AdminSecretKey: string;
+    AccountAccessKey: string;
+    AccountSecretKey: string;
+    AccessKey: string;
+    SecretKey: string;
+    VaultAuthHost: string;
+    NotificationDestination: string;
+    NotificationDestinationTopic: string;
+    NotificationDestinationAlt: string;
+    NotificationDestinationTopicAlt: string;
+    KafkaHosts: string;
+    KeycloakPassword: string;
+    KeycloakHost: string;
+    KeycloakPort: string;
+    keycloakRealm: string;
+    keycloakClientId: string;
+    keycloakGrantType: string;
+    StorageManagerUsername: string;
+    StorageAccountOwnerUsername: string;
+    DataConsumerUsername: string;
+    ServiceUsersCredentials: string;
+    AccountSessionToken: string;
+    KeycloakTestPassword: string;
+    AssumedSession: ClientOptions['AssumedSession'];
+    IAMSession: {
+        AccessKeyId: string;
+        SecretAccessKey: string;
+        SessionToken?: string;
+    };
+    [key: string]: unknown;
+}
+
 /**
  * Cucumber custom World implementation to support Zenko.
  * This World is reponsible for AWS CLI calls.
  * Shared between all tests (S3, IAM, STS).
  */
-export default class Zenko extends World {
+export default class Zenko extends World<ZenkoWorldParameters> {
     private readonly command: string = '';
 
     private result: any | null = null;
