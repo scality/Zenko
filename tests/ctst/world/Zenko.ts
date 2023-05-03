@@ -102,17 +102,17 @@ interface ZenkoWorldParameters {
 export default class Zenko extends World<ZenkoWorldParameters> {
     private readonly command: string = '';
 
-    private result: any | null = null;
+    private result: object = {};
 
-    private parsedResult: any[] = [];
+    private parsedResult: Utils.Command[] = [];
 
     private serviceType = '';
 
-    private cliOptions: AwsCliObjectParameters = {};
+    private cliOptions: Record<string, unknown> = {};
 
-    private options: any = {};
+    private options: Record<string, string> = {};
 
-    private saved: any = {};
+    private saved: Record<string, unknown> = {};
 
     private static IAMUserName = '';
 
