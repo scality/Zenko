@@ -700,6 +700,41 @@ ${JSON.stringify(policy)}\n${err.message}\n`);
     }
 
     /**
+     * Get all saved parameters
+     * @returns {Object.<string,*>} - an object with any saved parameters
+     */
+    public getSaved(): Record<string, unknown> {
+        return this.saved;
+    }
+
+    /**
+     * Get all saved parameters
+     * @param {string} key - key to save
+     * @param {*} value - value to save
+     * @returns {undefined}
+     */
+    public addToSaved(key: string, value: unknown): void {
+        this.saved[key] = value;
+    }
+
+    /**
+     * Get all saved result object
+     * @returns {Object.<string,*>} - an object with saved API call results
+     */
+    public getResult(): object {
+        return this.result;
+    }
+
+    /**
+     * Get all saved result object
+     * @param {object} result - an object with API call results
+     * @returns {undefined}
+     */
+    public setResult(result: object): void {
+        this.result = result;
+    }
+
+    /**
      * Cleanup function for the Zenko world
      * @returns {undefined}
      */
