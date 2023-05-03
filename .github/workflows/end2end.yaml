@@ -317,11 +317,34 @@ jobs:
           cache-from: type=gha,scope=$GITHUB_REF_NAME-test
           cache-to: type=gha,mode=max,scope=$GITHUB_REF_NAME-test
   
+  static-tests:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GIT_ACCESS_TOKEN }}
+      - name: Configure GIT
+        run: |
+          git config --global url.https://x-access-token:${{ secrets.GIT_ACCESS_TOKEN }}@github.com/.insteadOf https://github.com/
+          git config --global url.https://x-access-token:${{ secrets.GIT_ACCESS_TOKEN }}@github.com/.insteadOf git@github.com:
+          git config --global url.https://x-access-token:${{ secrets.GIT_ACCESS_TOKEN }}@github.com/.insteadOf ssh://git@github.com/
+        env:
+          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+      - name: Install ctst test dependencies
+        working-directory: tests/ctst
+        run: yarn install
+      - name: Lint ctst tests
+        working-directory: tests/ctst
+        run: yarn lint
+
   build-ctst-test-image:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GIT_ACCESS_TOKEN }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Login to Registry
