@@ -1,25 +1,12 @@
-import { Before, AfterAll, defineParameterType, Given } from '@cucumber/cucumber';
+import { AfterAll, Before, defineParameterType, Given } from '@cucumber/cucumber';
 import Zenko, { EntityType } from '../world/Zenko';
-
 // HTTPS should not cause any error for CTST
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const worlds : any = { // TODO: World doesn't work here becuase Zenko is missing some properties, what to do ?
-    ZENKO: Zenko,
-};
-
 Before(async function () {
-    // TODO related to above
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call 
-    await worlds[process.env.MODE ?? 'ZENKO'].init(this.parameters);
+    await Zenko.init(this.parameters);
 });
 
-AfterAll(async () => {
-    // TODO related to above
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-    await worlds[process.env.MODE ?? 'ZENKO'].teardown();
-});
 
 defineParameterType({
     name: 'type',
@@ -42,4 +29,4 @@ Given('a service user {string} assuming role {string}',
         this.addToSaved('type', EntityType.ASSUME_ROLE_USER);
     });
 
-export default worlds;
+export default Zenko;

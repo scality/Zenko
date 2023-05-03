@@ -1,4 +1,4 @@
-import { setWorldConstructor, World, IWorldOptions } from '@cucumber/cucumber';
+import { World, IWorldOptions, setWorldConstructor } from '@cucumber/cucumber';
 import axios, { AxiosRequestConfig, AxiosResponse, Method, AxiosRequestHeaders } from 'axios';
 import { aws4Interceptor } from 'aws4-axios';
 import {
@@ -56,7 +56,7 @@ export enum EntityType {
     ASSUME_ROLE_USER = 'ASSUME_ROLE_USER',
 }
 
-interface ZenkoWorldParameters {
+export interface ZenkoWorldParameters {
     subdomain: string;
     ssl: boolean;
     port: string;
@@ -107,6 +107,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     private parsedResult: Utils.Command[] = [];
 
     private serviceType = '';
+
+    parameters: ZenkoWorldParameters = {} as ZenkoWorldParameters;
 
     private cliOptions: Record<string, unknown> = {};
 
