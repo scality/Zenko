@@ -136,7 +136,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      */
     constructor(options: IWorldOptions<ZenkoWorldParameters>) {
         super(options);
-
+        this.parameters = options.parameters;
         // store service users credentials from world parameters
         if (this.parameters.ServiceUsersCredentials) {
             const serviceUserCredentials =
