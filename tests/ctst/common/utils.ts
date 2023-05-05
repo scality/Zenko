@@ -1,10 +1,15 @@
+import {
+    Utils,
+} from 'cli-testing';
+
 /**
  * This helper will dynamically extract a property from a CLI result
  * @param {object} results - results from the command line
  * @param {string[]} propertyChain - the property chain to extract, like Policy, Arn
  * @return {string} - the expected property, or null if an error occurred when parsing results.
  */
-export function extractPropertyFromResults(results: { err: null; stdout: string } | any, ...propertyChain: string[]) : string | null {
+export function extractPropertyFromResults<T>
+(results: Utils.Command, ...propertyChain: string[]) : T | null {
     try {
         if (results.stdout) {
             const jsonResults = JSON.parse(results.stdout);
@@ -14,7 +19,7 @@ export function extractPropertyFromResults(results: { err: null; stdout: string 
                     res = res[propertyChain.shift() as string];
                 }
             }
-            return res;
+            return res as T;
         }
         return null;
     } catch (err) {
