@@ -109,3 +109,5 @@ spec:
         image: redis_exporter
         tag: '${REDIS_EXPORTER_TAG}'
       kubedb: '${REDIS_KUBEDB_TAG}'
+  featureFlags:
+    multipleColdLocations: true
