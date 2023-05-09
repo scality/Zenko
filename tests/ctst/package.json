@@ -23,6 +23,6 @@
     "eslint": "^8.28.0"
   },
   "scripts": {
-    "lint": "eslint ./world/Zenko.ts ./common/* ./steps/iam-policies/*"
+    "lint": "eslint ."
   }
 }
