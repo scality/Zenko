@@ -1,4 +1,4 @@
-import { setWorldConstructor, World, IWorldOptions } from '@cucumber/cucumber';
+import { World, IWorldOptions, setWorldConstructor } from '@cucumber/cucumber';
 import axios, { AxiosRequestConfig, AxiosResponse, Method, AxiosRequestHeaders } from 'axios';
 import { aws4Interceptor } from 'aws4-axios';
 import {
@@ -48,7 +48,7 @@ export enum EntityType {
     ASSUME_ROLE_USER = 'ASSUME_ROLE_USER',
 }
 
-interface ZenkoWorldParameters {
+export interface ZenkoWorldParameters {
     subdomain: string;
     ssl: boolean;
     port: string;
@@ -100,6 +100,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
     private serviceType = '';
 
+    parameters: ZenkoWorldParameters = {} as ZenkoWorldParameters;
+
     private cliOptions: Record<string, unknown> = {};
 
     private options: Record<string, string> = {};
@@ -126,7 +128,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      */
     constructor(options: IWorldOptions<ZenkoWorldParameters>) {
         super(options);
-
+        this.parameters = options.parameters;
         // store service users credentials from world parameters
         if (this.parameters.ServiceUsersCredentials) {
             const serviceUserCredentials =
@@ -141,7 +143,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
         // Workaround to be able to access global parameters in BeforeAll/AfterAll hooks
         CacheHelper.parameters = this.parameters;
-        this.cliMode.parameters = this.parameters;
+        this.cliMode.parameters = this.parameters as ClientOptions;
 
         if (this.parameters.AccountSessionToken) {
             (CacheHelper.ARWWI[CacheHelper.AccountName]) = {
@@ -739,10 +741,11 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
     /**
      * Get all saved parameters
-     * @returns {Object.<string,*>} - an object with any saved parameters
+     * @param {string} key - key to recover
+     * @returns {T} - an object with any saved parameters
      */
-    public getSaved(): Record<string, unknown> {
-        return this.saved;
+    public getSaved<T>(key: string): T {
+        return this.saved[key] as T;
     }
 
     /**
