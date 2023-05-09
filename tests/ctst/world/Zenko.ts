@@ -478,16 +478,17 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * @Param {string} internal - if true, target role is attached to an internal account
      * @returns {undefined}
      */
-    async prepareServiceUser(serviceUserName: string, roleName: string, internal: boolean = false) {
+    async prepareServiceUser(serviceUserName: string, roleName: string, internal = false) {
         this.resetGlobalType();
 
         let roleArnToAssume: string | null = null;
         // Getting the role to assume
-        this.addCommandParameter({ roleName: roleName });
+        this.addCommandParameter({ roleName });
         if (internal) {
-            roleArnToAssume = `arn:aws:iam::${Constants.INTERNAL_SERVICES_ACCOUNT_ID}:role/scality-internal/${roleName}`;
+            roleArnToAssume =
+                `arn:aws:iam::${Constants.INTERNAL_SERVICES_ACCOUNT_ID}:role/scality-internal/${roleName}`;
         } else {
-            const role = await IAM.getRole(this.getCommandParameters())
+            const role = await IAM.getRole(this.getCommandParameters());
             if (role.err) {
                 throw new Error(`Error occured when getting ${roleName} for user account`);
             }
