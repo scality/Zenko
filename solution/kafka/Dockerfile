@@ -7,7 +7,7 @@ ARG kafka_distro_base_url=https://dlcdn.apache.org/kafka
 ENV kafka_distro=kafka_$scala_version-$kafka_version.tgz
 ENV kafka_distro_asc=$kafka_distro.asc
 
-RUN apk add --no-cache gnupg
+RUN apk add --no-cache gnupg gnupg-keyboxd
 
 WORKDIR /var/tmp
 
