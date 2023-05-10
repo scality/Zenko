@@ -12,7 +12,7 @@ FROM ${JMX_JAVAAGENT_IMAGE}:${JMX_JAVAAGENT_TAG} AS jmx-exporter
 FROM library/alpine:3.15 AS mongodb-connector
 RUN apk update && apk upgrade && apk add --no-cache curl zip
 
-ARG MONGODB_CONNECTOR_VERSION=1.7.0
+ARG MONGODB_CONNECTOR_VERSION=1.10.0
 WORKDIR /tmp
 RUN curl -LO https://repo1.maven.org/maven2/org/mongodb/kafka/mongo-kafka-connect/${MONGODB_CONNECTOR_VERSION}/mongo-kafka-connect-${MONGODB_CONNECTOR_VERSION}-all.jar && \
     mv /tmp/mongo-kafka-connect-${MONGODB_CONNECTOR_VERSION}-all.jar /tmp/mongo-kafka-connect.jar
