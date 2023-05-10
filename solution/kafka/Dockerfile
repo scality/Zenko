@@ -1,4 +1,4 @@
-FROM alpine:latest AS kafka_dist
+FROM alpine:3.17 AS kafka_dist
 
 ARG scala_version=2.13
 ARG kafka_version=3.1.0
