@@ -6,7 +6,7 @@ backbeat:
   dashboard: backbeat-dashboards
   image: backbeat
   policy: backbeat-policies
-  tag: 8.6.16
+  tag: 8.6.18
   envsubst: BACKBEAT_TAG
 busybox:
   image: busybox
@@ -16,7 +16,7 @@ cloudserver:
   sourceRegistry: registry.scality.com/cloudserver
   dashboard: cloudserver-dashboards
   image: cloudserver
-  tag: 8.7.19
+  tag: 8.7.20
   envsubst: CLOUDSERVER_TAG
 jmx-javaagent:
   sourceRegistry: banzaicloud
@@ -46,7 +46,7 @@ kafka-lag-exporter:
 pensieve-api:
   sourceRegistry: registry.scality.com/pensieve-api
   image: pensieve-api
-  tag: 1.4.6
+  tag: 1.4.7
   envsubst: PENSIEVE_API_TAG
 rclone:
   sourceRegistry: rclone
@@ -77,7 +77,7 @@ sorbet:
   sourceRegistry: registry.scality.com/sorbet
   policy: sorbet-policies
   image: sorbet
-  tag: v0.0.20
+  tag: v0.0.23
   envsubst: SORBET_TAG
 # To be enabled back when utapi is used in Zenko 2.x
 # utapi:
@@ -94,7 +94,7 @@ vault:
 zenko-operator:
   sourceRegistry: registry.scality.com/zenko-operator
   image: zenko-operator
-  tag: 1.5.20
+  tag: 1.5.21
   envsubst: ZENKO_OPERATOR_TAG
 zenko-ui:
   sourceRegistry: registry.scality.com/zenko-ui
