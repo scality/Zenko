@@ -123,6 +123,7 @@ def main():
         create_buckets.create_aws_buckets()
         create_buckets.create_ring_buckets()
         create_buckets.create_azure_containers()
+        create_buckets.create_azure_queues()
 
         # create zenko resources
         for account in e2e_config["accounts"]:

@@ -18,6 +18,8 @@ corefile="
     rewrite name exact azure-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact blob.azure-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact devstoreaccount1.blob.azure-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
+    rewrite name exact queue.azure-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
+    rewrite name exact devstoreaccount1.queue.azure-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact keycloak.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact ui.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact management.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local

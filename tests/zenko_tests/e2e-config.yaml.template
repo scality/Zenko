@@ -73,11 +73,11 @@ locations:
     isCold: true
     details:
       endpoint: "${AZURE_BACKEND_ENDPOINT}"
-      bucketName: "${AZURE_CRR_BUCKET_NAME}"
+      bucketName: "${AZURE_ARCHIVE_BUCKET_NAME}"
       queue:
         type: "location-azure-storage-queue-v1"
-        queueName: "queue"
-        endpoint: "${AZURE_BACKEND_ENDPOINT}"
+        queueName: "${AZURE_ARCHIVE_QUEUE_NAME}"
+        endpoint: "${AZURE_BACKEND_QUEUE_ENDPOINT}"
       auth:
         type: "location-azure-shared-key"
         accountName: "${AZURE_ACCOUNT_NAME}"

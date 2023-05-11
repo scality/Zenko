@@ -7,9 +7,12 @@ spec:
     name: azure-mock
   type: ClusterIP
   ports:
-    - name: http
+    - name: blob
       port: 80
-      targetPort: http
+      targetPort: blob
+    - name: queue
+      port: 81
+      targetPort: queue
 ---
 apiVersion: v1
 kind: Pod
@@ -23,11 +26,13 @@ spec:
   subdomain: azure-mock
   containers:
   - image: mcr.microsoft.com/azure-storage/azurite:3.21.0
-    command: ["azurite", "-l", "/data", "--blobHost", "0.0.0.0","--blobPort", "80"]
+    command: ["azurite", "-l", "/data", "--blobHost", "0.0.0.0", "--blobPort", "80", "--queueHost", "0.0.0.0","--queuePort", "81"]
     name: azurite
     ports:
-      - name: http
+      - name: blob
         containerPort: 80
+      - name: queue
+        containerPort: 81
     imagePullPolicy: Always
     resources:
       limits:
@@ -50,7 +55,7 @@ spec:
           service:
             name: azure-mock
             port:
-              name: http
+              name: blob
         path: /
         pathType: Prefix
   - host: 'azure-mock.zenko.local'
@@ -60,7 +65,7 @@ spec:
           service:
             name: azure-mock
             port:
-              name: http
+              name: blob
         path: /
         pathType: Prefix
   - host: '*.blob.azure-mock.zenko.local'
@@ -70,7 +75,7 @@ spec:
           service:
             name: azure-mock
             port:
-              name: http
+              name: blob
         path: /
         pathType: Prefix
   - host: 'blob.azure-mock.zenko.local'
@@ -80,6 +85,26 @@ spec:
           service:
             name: azure-mock
             port:
-              name: http
+              name: blob
+        path: /
+        pathType: Prefix
+  - host: 'queue.azure-mock.zenko.local'
+    http:
+      paths:
+      - backend:
+          service:
+            name: azure-mock
+            port:
+              name: queue
+        path: /
+        pathType: Prefix
+  - host: '*.queue.azure-mock.zenko.local'
+    http:
+      paths:
+      - backend:
+          service:
+            name: azure-mock
+            port:
+              name: queue
         path: /
         pathType: Prefix
