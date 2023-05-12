@@ -88,6 +88,7 @@ export interface ZenkoWorldParameters {
 
 export interface ApiResult {
     statusCode?: number,
+    stdout?: string | null,
     err?: string | null,
 }
 
@@ -101,7 +102,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
     private result: ApiResult = {};
 
-    private parsedResult: Utils.Command[] = [];
+    private parsedResult: ApiResult[] = [];
 
     private serviceType = '';
 
@@ -166,11 +167,11 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * This function will dynamically determine if the result from the AWS CLI command
      * is a success or a failure. Based on the fact that AWS CLI either return an empty string
      * or a JSON-parsable string.
-     * @param {object} result - contains both stderr and stdout from the CLI command.
+     * @param {Array} result - array with result objects containing both stderr and stdout from the CLI command.
      * @returns {boolean} - if the result is a success or a failure
      */
-    checkResult(result: Utils.Command | Utils.Command[]): boolean {
-        const usedResult: Utils.Command[] = Array.isArray(result) ? result : [result];
+    checkResults(result: ApiResult[]): boolean {
+        const usedResult: ApiResult[] = Array.isArray(result) ? result : [result];
         let decision = true;
         usedResult.forEach(res => {
             if (!res || res.err || this.forceFailed === true) {
@@ -179,7 +180,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             try {
                 // Accept empty responses (in case of success)
                 if (res.stdout && res.stdout !== '') {
-                    const parsed = JSON.parse(res.stdout) as Utils.Command;
+                    const parsed = JSON.parse(res.stdout) as ApiResult;
                     this.parsedResult.push(parsed);
                 } else if (res.stdout !== '') {
                     decision = false;

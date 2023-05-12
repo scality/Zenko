@@ -1,5 +1,6 @@
-const { promises: fsp } = require('fs');
-const { join } = require('path');
+import { promises as fsp } from 'fs';
+import  { join } from 'path';
+import Zenko from 'world/Zenko';
 import { Then, When } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
 import { S3, Utils } from 'cli-testing';
@@ -44,38 +45,39 @@ const invalidCapacityXml = `
     <Used>0</Used>
 </CapacityInfo>`;
 
-async function saveAsFile(name : string, content : string) {
+async function saveAsFile(name: string, content: string) {
     return fsp.writeFile(join('/tmp', name), content);
 }
 
-async function deleteFile(path : string) {
+async function deleteFile(path: string) {
     return fsp.unlink(path);
 }
 
 const veeamPrefix = '.system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c/';
 
-When('I PUT the {string} {string} XML file', async function (isValidObject, objectKey) {
-    this.resetCommand();
-    this.addCommandParameter({ bucket: this.saved.bucketName });
-    this.addCommandParameter({ key: `${veeamPrefix}${objectKey}` });
-    let objectBody;
-    if (objectKey === 'system.xml') {
-        objectBody = (isValidObject === 'valid') ? validSystemXml : invalidSystemXml;
-    } else {
-        objectBody = (isValidObject === 'valid') ? validCapacityXml : invalidCapacityXml;
-    }
-    const tempFileName = `${Utils.randomString()}_${objectKey}`;
-    this.saved.tempFileName = `/tmp/${tempFileName}`;
-    await saveAsFile(tempFileName, objectBody);
-    this.addCommandParameter({ body: this.saved.tempFileName });
-    this.result = await S3.putObject(this.getCommandParameters());
-});
+When('I PUT the {string} {string} XML file',
+    async function (this: Zenko, isValidObject: string, objectKey: string) {
+        this.resetCommand();
+        this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
+        this.addCommandParameter({ key: `${veeamPrefix}${objectKey}` });
+        let objectBody;
+        if (objectKey === 'system.xml') {
+            objectBody = (isValidObject === 'valid') ? validSystemXml : invalidSystemXml;
+        } else {
+            objectBody = (isValidObject === 'valid') ? validCapacityXml : invalidCapacityXml;
+        }
+        const tempFileName = `${Utils.randomString()}_${objectKey}`;
+        this.addToSaved('tempFileName', `/tmp/${tempFileName}`);
+        await saveAsFile(tempFileName, objectBody);
+        this.addCommandParameter({ body: this.getSaved<string>('tempFileName') });
+        this.setResult(await S3.putObject(this.getCommandParameters()));
+    });
 
-Then('the request should be {string}', async function (result) {
+Then('the request should be {string}', async function (this: Zenko, result: string) {
     this.resetCommand();
-    const decision = this.checkResult(this.result);
+    const decision = this.checkResults([this.getResult()]);
     assert.strictEqual(decision, result === 'accepted');
-    this.addCommandParameter({ bucket: this.saved.bucketName });
+    this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
     await S3.deleteBucket(this.getCommandParameters());
-    await deleteFile(this.saved.tempFileName);
+    await deleteFile(this.getSaved<string>('tempFileName'));
 });
