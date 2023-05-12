@@ -86,6 +86,11 @@ export interface ZenkoWorldParameters {
     [key: string]: unknown;
 }
 
+export interface ApiResult {
+    statusCode?: number,
+    err?: string | null,
+}
+
 /**
  * Cucumber custom World implementation to support Zenko.
  * This World is reponsible for AWS CLI calls.
@@ -94,7 +99,7 @@ export interface ZenkoWorldParameters {
 export default class Zenko extends World<ZenkoWorldParameters> {
     private readonly command: string = '';
 
-    private result: object = {};
+    private result: ApiResult = {};
 
     private parsedResult: Utils.Command[] = [];
 
@@ -202,11 +207,11 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         switch (entityType) {
         case EntityType.ACCOUNT:
             await this.prepareRootUser();
-            this.saved.type = EntityType.ACCOUNT;
+            this.addToSaved('type', EntityType.ACCOUNT);
             break;
         case EntityType.IAM_USER:
             await this.prepareIamUser();
-            this.saved.type = EntityType.IAM_USER;
+            this.addToSaved('type', EntityType.IAM_USER);
             break;
         case EntityType.STORAGE_MANAGER:
             await this.prepareARWWI(
@@ -214,7 +219,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 keycloakPassword,
                 'storage-manager-role',
             );
-            this.saved.type = EntityType.STORAGE_MANAGER;
+            this.addToSaved('type', EntityType.STORAGE_MANAGER);
             break;
         case EntityType.STORAGE_ACCOUNT_OWNER:
             await this.prepareARWWI(
@@ -222,7 +227,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 keycloakPassword,
                 'storage-account-owner-role',
             );
-            this.saved.type = EntityType.STORAGE_ACCOUNT_OWNER;
+            this.addToSaved('type', EntityType.STORAGE_ACCOUNT_OWNER);
             break;
         case EntityType.DATA_CONSUMER:
             await this.prepareARWWI(
@@ -230,7 +235,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 keycloakPassword,
                 'data-consumer-role',
             );
-            this.saved.type = EntityType.DATA_CONSUMER;
+            this.addToSaved('type', EntityType.DATA_CONSUMER);
             break;
         default:
             break;
@@ -393,9 +398,9 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         };
 
         // Creating a role to assume
-        this.saved.roleName = `${(account).name!}` +
-            `${Constants.ROLE_NAME_TEST}${`${Utils.randomString()}`.toLocaleLowerCase()}`;
-        this.addCommandParameter({ roleName: this.saved.roleName });
+        this.addToSaved('roleName', `${(account).name!}` +
+            `${Constants.ROLE_NAME_TEST}${`${Utils.randomString()}`.toLocaleLowerCase()}`);
+        this.addCommandParameter({ roleName: this.getSaved<string>('roleName') });
         this.addCommandParameter({ assumeRolePolicyDocument: Constants.assumeRoleTrustPolicy });
         const roleArnToAssume =
             extractPropertyFromResults(await IAM.createRole(
@@ -663,13 +668,13 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * @returns {undefined}
      */
     async prepareIamUser() {
-        this.saved.userName = `iamusertest${Utils.randomString()}`;
+        this.addToSaved('userName', `iamusertest${Utils.randomString()}`);
         // Create IAM user
-        this.addCommandParameter({ userName: this.saved.userName });
+        this.addCommandParameter({ userName: this.getSaved<string>('userName') });
         await IAM.createUser(this.getCommandParameters());
         this.resetCommand();
         // Create credentials for the user
-        this.addCommandParameter({ userName: this.saved.userName });
+        this.addCommandParameter({ userName: this.getSaved<string>('userName') });
         const accessKey = await IAM.createAccessKey(this.getCommandParameters());
         this.parameters.IAMSession =
             (JSON.parse(accessKey.stdout) as { AccessKey: UserCredentials }).AccessKey;
@@ -768,18 +773,18 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
     /**
      * Get all saved result object
-     * @returns {Object.<string,*>} - an object with saved API call results
+     * @returns {ApiResult} - an object with saved API call results
      */
-    public getResult(): object {
+    public getResult(): ApiResult {
         return this.result;
     }
 
     /**
      * Get all saved result object
-     * @param {object} result - an object with API call results
+     * @param {ApiResult} result - an object with API call results
      * @returns {undefined}
      */
-    public setResult(result: object): void {
+    public setResult(result: ApiResult): void {
         this.result = result;
     }
 
