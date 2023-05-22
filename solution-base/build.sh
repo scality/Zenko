@@ -193,6 +193,8 @@ function render_mongodb_sharded_yamls()
         --set 'shardsvr.persistence.selector.matchLabels.app\.kubernetes\.io/part-of=zenko' \
         --set 'configsvr.persistence.selector.matchLabels.app\.kubernetes\.io/name=mongodb-sharded-config' \
         --set 'configsvr.persistence.selector.matchLabels.app\.kubernetes\.io/part-of=zenko' \
+        --set "configsvr.mongodbExtraFlags={--setParameter rollbackTimeLimitSecs=259200}" \
+        --set "shardsvr.dataNode.mongodbExtraFlags={--setParameter rollbackTimeLimitSecs=259200}" \
         --set existingSecret=${MONGODB_NAME}-db-creds >> ${OUTPUT_PATH}
 }
 
