@@ -40,6 +40,9 @@ spec:
     sorbet:
       image: sorbet-policies
       tag: '${SORBET_TAG}'
+    vault:
+      image: vault-policies
+      tag: '${VAULT_TAG}'
   versions:
     management:
       ui:
