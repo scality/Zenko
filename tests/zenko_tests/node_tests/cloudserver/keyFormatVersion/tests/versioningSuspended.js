@@ -197,6 +197,27 @@ describe('Cloudserver : keyFormatVersion : versioning suspended bucket', () => {
             ], done);
         });
 
+        it(`Should not list DeleteMarkers ${vFormat}`, done => {
+            const key = 'first-key-test-delete-marker';
+
+            let countObjects = 0;
+            async.series([
+                next => s3.putObject({ Bucket: BUCKET_NAME[vFormat], Key: key }, next),
+                next => s3.listObjectsV2({ Bucket: BUCKET_NAME[vFormat] }, (err, data) => {
+                    countObjects = data.Contents.length;
+                    assert.strictEqual(data.Contents.some(c => c.Key === key), true);
+                    return next(err);
+                }),
+                next => s3.deleteObject({ Bucket: BUCKET_NAME[vFormat], Key: key }, next),
+                next => s3.listObjectsV2({ Bucket: BUCKET_NAME[vFormat] }, (err, data) => {
+                    assert.strictEqual(data.Contents.length, countObjects - 1);
+                    assert.strictEqual(data.Contents.some(c => c.Key === key), false);
+                    return next(err);
+                }),
+                next => s3.deleteObject({ Bucket: BUCKET_NAME[vFormat], Key: key, VersionId: 'null' }, next),
+            ], done);
+        });
+
         it(`Should return metadata of last version ${vFormat}`, done => {
             const params = {
                 Bucket: BUCKET_NAME[vFormat],
