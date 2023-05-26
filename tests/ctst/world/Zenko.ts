@@ -83,6 +83,12 @@ export interface ZenkoWorldParameters {
         SecretAccessKey: string;
         SessionToken?: string;
     };
+    azureAccountName: string;
+    azureAccountKey: string;
+    azureArchiveContainer: string;
+    AzureArchiveAccessTier: string;
+    azureArchiveManifestTier: string;
+    azureArchiveQueue: string;
     [key: string]: unknown;
 }
 

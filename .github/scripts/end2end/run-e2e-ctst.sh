@@ -54,8 +54,12 @@ KAFKA_HOST_PORT=$(kubectl get secret -l app.kubernetes.io/name=backbeat-config,a
     -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq .kafka.hosts)
 KAFKA_HOST_PORT=${KAFKA_HOST_PORT:1:-1}
 
+# Azure archive tests
+AZURE_ARCHIVE_ACCESS_TIER="Hot"
+AZURE_ARCHIVE_MANIFEST_ACCESS_TIER="Hot"
+
 # Setting CTST world params
-WORLD_PARAMETERS='{"subdomain":"'${SUBDOMAIN}'","ssl":false,"port":"'${ZENKO_PORT}'","AccountName":"'${ZENKO_ACCOUNT_NAME}'","AdminAccessKey":"'${ADMIN_ACCESS_KEY_ID}'","AdminSecretKey":"'${ADMIN_SECRET_ACCESS_KEY}'","VaultAuthHost":"'${VAULT_AUTH_HOST}'","NotificationDestination":"'${NOTIF_DEST_NAME}'","NotificationDestinationTopic":"'${NOTIF_DEST_TOPIC}'","NotificationDestinationAlt":"'${NOTIF_ALT_DEST_NAME}'","NotificationDestinationTopicAlt":"'${NOTIF_ALT_DEST_TOPIC}'","KafkaHosts":"'${KAFKA_HOST_PORT}'","KeycloakPassword":"'${KEYCLOAK_TEST_PASSWORD}'","KeycloakHost":"'${KEYCLOAK_TEST_HOST}'","KeycloakPort":"'${KEYCLOAK_TEST_PORT}'","keycloakRealm":"'${KEYCLOAK_TEST_REALM_NAME}'","keycloakClientId":"'${KEYCLOAK_TEST_CLIENT_ID}'","keycloakGrantType":"'${KEYCLOAK_TEST_GRANT_TYPE}'","StorageManagerUsername":"'${STORAGE_MANAGER_USER_NAME}'","StorageAccountOwnerUsername":"'${STORAGE_ACCOUNT_OWNER_USER_NAME}'","DataConsumerUsername":"'${DATA_CONSUMER_USER_NAME}'","ServiceUsersCredentials":'${SERVICE_USERS_CREDENTIALS}'}'
+WORLD_PARAMETERS='{"subdomain":"'${SUBDOMAIN}'","ssl":false,"port":"'${ZENKO_PORT}'","AccountName":"'${ZENKO_ACCOUNT_NAME}'","AdminAccessKey":"'${ADMIN_ACCESS_KEY_ID}'","AdminSecretKey":"'${ADMIN_SECRET_ACCESS_KEY}'","VaultAuthHost":"'${VAULT_AUTH_HOST}'","NotificationDestination":"'${NOTIF_DEST_NAME}'","NotificationDestinationTopic":"'${NOTIF_DEST_TOPIC}'","NotificationDestinationAlt":"'${NOTIF_ALT_DEST_NAME}'","NotificationDestinationTopicAlt":"'${NOTIF_ALT_DEST_TOPIC}'","KafkaHosts":"'${KAFKA_HOST_PORT}'","KeycloakPassword":"'${KEYCLOAK_TEST_PASSWORD}'","KeycloakHost":"'${KEYCLOAK_TEST_HOST}'","KeycloakPort":"'${KEYCLOAK_TEST_PORT}'","keycloakRealm":"'${KEYCLOAK_TEST_REALM_NAME}'","keycloakClientId":"'${KEYCLOAK_TEST_CLIENT_ID}'","keycloakGrantType":"'${KEYCLOAK_TEST_GRANT_TYPE}'","StorageManagerUsername":"'${STORAGE_MANAGER_USER_NAME}'","StorageAccountOwnerUsername":"'${STORAGE_ACCOUNT_OWNER_USER_NAME}'","DataConsumerUsername":"'${DATA_CONSUMER_USER_NAME}'","ServiceUsersCredentials":'${SERVICE_USERS_CREDENTIALS}',"azureAccountName":"'${AZURE_ACCOUNT_NAME}'","azureAccountKey":"'${AZURE_SECRET_KEY}'","azureArchiveContainer":"'${AZURE_ARCHIVE_BUCKET_NAME}'","AzureArchiveAccessTier":"'${AZURE_ARCHIVE_ACCESS_TIER}'","azureArchiveManifestTier":"'${AZURE_ARCHIVE_MANIFEST_ACCESS_TIER}'","azureArchiveQueue":"'${AZURE_ARCHIVE_QUEUE_NAME}'"}'
 
 E2E_IMAGE=$E2E_CTST_IMAGE_NAME:$E2E_IMAGE_TAG
 POD_NAME="${ZENKO_NAME}-ctst-tests"
@@ -78,5 +82,7 @@ kubectl run $POD_NAME \
         --attach=True \
         --image-pull-policy=Always \
         --env=TARGET_VERSION=$VERSION  \
+        --env=AZURE_BLOB_URL=$AZURE_BACKEND_ENDPOINT  \
+        --env=AZURE_QUEUE_URL=$AZURE_BACKEND_QUEUE_ENDPOINT \
         --env=VERBOSE=1 \
         -- ./run "$COMMAND" $WORLD_PARAMETERS "--parallel $PARALLEL_RUNS --retry $RETRIES --retry-tag-filter @Flaky"
