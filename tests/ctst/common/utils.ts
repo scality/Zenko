@@ -1,4 +1,5 @@
 import { exec } from 'child_process';
+import http from 'http';
 import {
     Utils,
 } from 'cli-testing';
@@ -102,5 +103,29 @@ export function execShellCommand(cmd: string): Promise<string> {
             }
             resolve(stdout || stderr);
         });
+    });
+}
+
+export async function request(options: http.RequestOptions, data: string | undefined):
+    Promise<{response: http.IncomingMessage, body: string}> {
+    return new Promise((resolve, reject) => {
+        const req = http.request(options, res => {
+            const chunks : string[] = [];
+            res.setEncoding('utf8');
+            res.on('data', (chunk: string) => {
+                chunks.push(chunk);
+            });
+            res.once('end', () => {
+                resolve({
+                    response: res,
+                    body: chunks.join(''),
+                });
+            });
+        });
+        req.once('error', reject);
+        if (data) {
+            req.write(data);
+        }
+        req.end();
     });
 }

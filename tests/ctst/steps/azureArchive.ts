@@ -1,8 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import assert from 'assert';
-import { safeJsonParse } from '../common/utils';
-import { Then, When, After, setDefaultTimeout, Given } from '@cucumber/cucumber';
+import { safeJsonParse, request } from '../common/utils';
+import { Given, Then, When, After, setDefaultTimeout } from '@cucumber/cucumber';
 import { AzureHelper, S3, Constants, Utils } from 'cli-testing';
 import util from 'util';
 import { exec } from 'child_process';
@@ -444,6 +444,23 @@ Then('object {string} should expire in {int} days', async function (this: Zenko,
     const realTimeDays = days / (this.parameters.TimeProgressionFactor > 1 ? this.parameters.TimeProgressionFactor : 1);
     assert(diff >= realTimeDays && diff < realTimeDays + 0.005);
 });
+
+Given('that lifecycle is {string} for the {string} location',
+    async function (this: Zenko, status: string, location: string) {
+        let path: string;
+        if (status === 'paused') {
+            path = `/_/lifecycle/pause/${location}`;
+        } else {
+            path = `/_/lifecycle/resume/${location}`;
+        }
+        const options = {
+            hostname: this.parameters.BackbeatApiHost,
+            port: this.parameters.BackbeatApiPort,
+            method: 'POST',
+            path,
+        };
+        await request(options, undefined);
+    });
 
 Given('an azure archive location {string}', async function (this: Zenko, locationName: string) {
     const locationConfig = {

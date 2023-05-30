@@ -85,6 +85,8 @@ export interface ZenkoWorldParameters extends ClientOptions {
     KafkaDeadLetterQueueTopic: string;
     KafkaObjectTaskTopic: string;
     InstanceID: string;
+    BackbeatApiHost: string;
+    BackbeatApiPort: string;
 }
 
 export interface ApiResult {

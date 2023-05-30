@@ -162,6 +162,7 @@ Feature: Azure Archive
         |               Versioned |           2 |        100 |           15 |
         |               Suspended |           2 |        100 |           15 |
 
+
     @2.7.0
     @PreMerge
     @Flaky
@@ -187,4 +188,46 @@ Feature: Azure Archive
         | versioningConfiguration | objectCount | objectSize | restoreDays |
         |           Non versioned |           2 |        100 |           5 |
         |               Versioned |           2 |        100 |           2 |
-        # |               Suspended |           2 |        100 |           2 | 
+        |               Suspended |           2 |        100 |           2 | 
+
+    @2.7.0
+    @PreMerge
+    @Flaky
+    @AzureArchive
+    Scenario Outline: Pause and resume archiving to azure (PutObject after pause)
+    Given a "<versioningConfiguration>" bucket
+    And a transition workflow to "e2e-azure-archive" location
+    And that lifecycle is "paused" for the "e2e-azure-archive" location
+    And <objectCount> objects "obj" of size <objectSize> bytes
+    Then the storage class of object "obj-1" must stay "" for <timeout> seconds
+    And the storage class of object "obj-2" must stay "" for <timeout> seconds
+    Given that lifecycle is "resumed" for the "e2e-azure-archive" location
+    Then object "obj-1" should be "transitioning" and have the storage class "e2e-azure-archive"
+    And object "obj-2" should be "transitioning" and have the storage class "e2e-azure-archive"
+
+    Examples:
+        | versioningConfiguration | objectCount | objectSize | timeout |
+        |           Non versioned |           2 |      30000 |      10 |
+        |               Versioned |           2 |      30000 |      10 |
+        |               Suspended |           2 |      30000 |      10 |
+
+    @2.7.0
+    @PreMerge
+    @Flaky
+    @AzureArchive
+    Scenario Outline: Pause and resume archiving to azure (PutObject before pause)
+    Given a "<versioningConfiguration>" bucket
+    And <objectCount> objects "obj" of size <objectSize> bytes
+    And a transition workflow to "e2e-azure-archive" location
+    And that lifecycle is "paused" for the "e2e-azure-archive" location
+    Then the storage class of object "obj-1" must stay "" for <timeout> seconds
+    And the storage class of object "obj-2" must stay "" for <timeout> seconds
+    Given that lifecycle is "resumed" for the "e2e-azure-archive" location
+    Then object "obj-1" should be "transitioning" and have the storage class "e2e-azure-archive"
+    And object "obj-2" should be "transitioning" and have the storage class "e2e-azure-archive"
+
+    Examples:
+        | versioningConfiguration | objectCount | objectSize | timeout |
+        |           Non versioned |           2 |      30000 |      10 |
+        |               Versioned |           2 |      30000 |      10 |
+        |               Suspended |           2 |      30000 |      10 |

@@ -69,6 +69,10 @@ INSTANCE_ID=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.status.instanceID}'
 AZURE_ARCHIVE_ACCESS_TIER="Hot"
 AZURE_ARCHIVE_MANIFEST_ACCESS_TIER="Hot"
 
+BACKBEAT_API_HOST=$(kubectl get secret -l app.kubernetes.io/name=connector-cloudserver-config,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq .backbeat.host)
+BACKBEAT_API_HOST=${BACKBEAT_API_HOST:1:-1}
+BACKBEAT_API_PORT=$(kubectl get secret -l app.kubernetes.io/name=connector-cloudserver-config,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq .backbeat.port)
+
 # Setting CTST world params
 WORLD_PARAMETERS="$(jq -c <<EOF
 {
@@ -105,7 +109,9 @@ WORLD_PARAMETERS="$(jq -c <<EOF
   "TimeProgressionFactor":"${TIME_PROGRESSION_FACTOR}",
   "KafkaObjectTaskTopic":"${KAFKA_OBJECT_TASK_TOPIC}",
   "KafkaDeadLetterQueueTopic":"${KAFKA_DEAD_LETTER_TOPIC}",
-  "InstanceID":"${INSTANCE_ID}"
+  "InstanceID":"${INSTANCE_ID}",
+  "BackbeatApiHost":"${BACKBEAT_API_HOST}",
+  "BackbeatApiPort":"${BACKBEAT_API_PORT}"
 }
 EOF
 )"
