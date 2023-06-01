@@ -49,7 +49,7 @@ Then('it {string} pass Vault authentication', function (this: Zenko, should: str
         assert.strictEqual(this.getResult().err, null);
         let err = this.getResult().stdout?.includes('AccessDenied');
         if (err) {
-            throw new Error(`Expected AccessDenied error but got ${this.getResult().stdout}`);
+            throw new Error(`Expected no error but got ${this.getResult().stdout}`);
         }
     } else {
         let err = this.getResult().stdout?.includes('AccessDenied');

@@ -34,6 +34,7 @@ When('the user tries to perform {string} on the bucket', async function (this: Z
             this.addCommandParameter({ versionId: this.getSaved<string>('versionId') });
         }
         const usedAction = action.charAt(0).toLowerCase() + action.slice(1);
+        console.log("l37 -- IAM common -- usedAction: ", usedAction);
         const actionCall = S3[usedAction];
         if (actionCall) {
             if (usedAction in s3FunctionExtraParams) {
