@@ -48,9 +48,10 @@ Then('it {string} pass Vault authentication', function (this: Zenko, should: str
     if (should === 'should') {
         assert.strictEqual(this.getResult().err, null);
     } else {
-        let err = (JSON.parse(this.getResult().stdout!) as { Error: object }).Error
-            === undefined ? this.getResult().err : this.getResult().stdout;
-        assert.notStrictEqual(err, null);
+        let err = this.getResult().stdout?.includes('AccessDenied');
+        if (!err) {
+            throw new Error(`Expected AccessDenied error but got ${this.getResult().stdout}`);
+        }
     }
 });
 
