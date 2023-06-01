@@ -1,8 +1,7 @@
 import { Given, Then } from '@cucumber/cucumber';
 import Zenko from '../world/Zenko';
-import { Constants, Utils, S3 } from 'cli-testing';
+import { Utils, S3 } from 'cli-testing';
 import { strict as assert } from 'assert';
-import { all } from 'async';
 
 Given('an object with {string} delete policy', async function (this: Zenko, allow: string) {
     this.resetCommand();
@@ -20,17 +19,20 @@ Given('an object with {string} delete policy', async function (this: Zenko, allo
         this.resetCommand();
         this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
         this.addCommandParameter({ key: this.getSaved<string>('objectName') });
-        this.addCommandParameter({ policy: JSON.stringify({
-            Version: '2012-10-17',
-            Statement: [
-                {
-                    Effect: 'Deny',
-                    Principal: '*',
-                    Action: 's3:*',
-                    Resource: `arn:aws:s3:::${this.getSaved<string>('bucketName')}/${this.getSaved<string>('objectName')}`,
-                },
-            ],
-        }) });
+        this.addCommandParameter({
+            policy: JSON.stringify({
+                Version: '2012-10-17',
+                Statement: [
+                    {
+                        Effect: 'Deny',
+                        Principal: '*',
+                        Action: 's3:*',
+                        Resource: `arn:aws:s3:::${this.getSaved<string>('bucketName')}`
+                            + `/${this.getSaved<string>('objectName')}`,
+                    },
+                ],
+            })
+        });
         await S3.putBucketPolicy(this.getCommandParameters());
     }
 });
