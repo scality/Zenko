@@ -557,6 +557,8 @@ jobs:
         uses: ./.github/actions/install-end2end-dependencies
       - name: Wait for Docker daemon to be ready
         uses: ./.github/actions/wait-docker-ready
+      - name: Kubectl tool installer
+        uses: Azure/setup-kubectl@v3
       - name: Login to Registry
         uses: docker/login-action@v2
         with:
@@ -572,8 +574,14 @@ jobs:
       - name: Configure E2E test environment
         run: bash configure-e2e-ctst.sh
         working-directory: ./.github/scripts/end2end
-      - name: Setup tmate session  
-        uses: mxschmitt/action-tmate@v3
+      - name: "Debug: SSH to runner"
+        uses: scality/actions/action-ssh-to-runner@1.0.0
+        with:
+          sudo: true
+          tmate-server-host: ${{ secrets.TMATE_SERVER_HOST }}
+          tmate-server-port: ${{ secrets.TMATE_SERVER_PORT }}
+          tmate-server-rsa-fingerprint: ${{ secrets.TMATE_SERVER_RSA_FINGERPRINT }}
+          tmate-server-ed25519-fingerprint: ${{ secrets.TMATE_SERVER_ED25519_FINGERPRINT }}
       - name: Run CTST end to end tests
         run: bash run-e2e-ctst.sh
         working-directory: ./.github/scripts/end2end

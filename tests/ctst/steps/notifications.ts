@@ -1,7 +1,6 @@
 import { Then, Given, When, setDefaultTimeout } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
 import Zenko, {
-    ApiResult,
     AWSVersionObject,
 } from '../world/Zenko';
 import { Constants, S3, Utils, KafkaHelper } from 'cli-testing';
