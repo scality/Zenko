@@ -92,9 +92,9 @@ vault:
   tag: 8.7.4
   envsubst: VAULT_TAG
 zenko-operator:
-  sourceRegistry: registry.scality.com/zenko-operator
+  sourceRegistry: registry.scality.com/sf-eng/zenko-operator
   image: zenko-operator
-  tag: 1.5.12
+  tag: fec63d6fbacbfb63a28c3daec8ee234cff982882
   envsubst: ZENKO_OPERATOR_TAG
 zenko-ui:
   sourceRegistry: registry.scality.com/zenko-ui
