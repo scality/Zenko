@@ -16,6 +16,22 @@ Feature: AWS S3 Bucket operations
     # - pass DeleteObjects when all objects
     # - not pass when one object denied
 
+    @2.6.0
+    @PreMerge
+    @Cloudserver-Auth
+    Scenario: Check Authentication on bucket object lock actions with Vault
+        Given a IAM_USER type
+        And an IAM policy attached to the entity "user" with "Allow" effect to perform "<action>" on "*"
+        And an IAM policy attached to the entity "user" with "<allow>" effect to perform "PutBucketObjectLockConfiguration" on "*"
+        And an IAM policy attached to the entity "user" with "<allow>" effect to perform "PutBucketVersioning" on "*"
+        When the user tries to perform "<action>" on the bucket
+        Then it "<should>" pass Vault authentication
+
+        Examples:
+            | action             | allow | should     |
+            | CreateBucket       | Allow | should     |
+            | CreateBucket       | Deny  | should not |
+
 
     @2.6.0
     @PreMerge
@@ -31,8 +47,6 @@ Feature: AWS S3 Bucket operations
 
         Examples:
             | action             | allow | should     |
-            | CreateBucket       | Allow | should     |
-            | CreateBucket       | Deny  | should not |
             | PutObjectRetention | Allow | should     |
             | PutObjectRetention | Deny  | should not |
 

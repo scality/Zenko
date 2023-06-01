@@ -48,7 +48,9 @@ Then('it {string} pass Vault authentication', function (this: Zenko, should: str
     if (should === 'should') {
         assert.strictEqual(this.getResult().err, null);
     } else {
-        assert.notStrictEqual(this.getResult().err, null);
+        let err = (JSON.parse(this.getResult().stdout!) as { Error: object }).Error
+            === undefined ? this.getResult().err : this.getResult().stdout;
+        assert.notStrictEqual(err, null);
     }
 });
 
