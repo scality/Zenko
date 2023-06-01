@@ -31,7 +31,7 @@ Given('an object with {string} delete policy', async function (this: Zenko, allo
                             + `/${this.getSaved<string>('objectName')}`,
                     },
                 ],
-            })
+            });
         });
         await S3.putBucketPolicy(this.getCommandParameters());
     }
