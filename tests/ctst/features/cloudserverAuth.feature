@@ -39,8 +39,7 @@ Feature: AWS S3 Bucket operations
     Scenario: Check Authentication on bucket object lock actions with Vault
         Given a IAM_USER type
         And an IAM policy attached to the entity "user" with "Allow" effect to perform "<action>" on "*"
-        And an IAM policy attached to the entity "user" with "<allow>" effect to perform "PutBucketObjectLockConfiguration" on "*"
-        And an IAM policy attached to the entity "user" with "<allow>" effect to perform "PutBucketVersioning" on "*"
+        And an IAM policy attached to the entity "user" with "<allow>" effect to perform "PutObjectRetention" on "*"
         And an existing bucket "" "" versioning, "with" ObjectLock "" retention mode
         When the user tries to perform "<action>" on the bucket
         Then it "<should>" pass Vault authentication
