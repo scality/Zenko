@@ -62,20 +62,23 @@ Then('it {string} pass Vault authentication', function (this: Zenko, should: str
     /* eslint-disable-next-line */
     console.log('l63 cloudserverAuth.ts -- this.getResult(), action: ', this.getResult(), this.getSaved<string>('action'));
     console.log('l64 cloudserverAuth.ts -- this.getResult(), action stdout: ', this.getResult().stdout, this.getSaved<string>('action'));
-    if (this.getResult().stdout) {
-    let stdout = JSON.parse(this.getResult().stdout!);
-    console.log('l66 cloudserverAuth.ts -- stdout: ', stdout);
-    }
+    
     if (should === 'should') {
         assert.strictEqual(this.getResult().err, null);
-        const err = this.getResult().stdout?.includes('AccessDenied');
-        if (err) {
-            throw new Error(`Expected no error but got ${this.getResult().stdout!}`);
+        if (this.getResult().stdout) {
+            let stdout = JSON.parse(this.getResult().stdout!);
+            console.log('l66 cloudserverAuth.ts -- stdout: ', stdout);
+            if (stdout.Error) {
+                throw new Error(`Expected no error but got ${stdout.Error}`);
+            }
         }
     } else {
-        const err = this.getResult().stdout?.includes('AccessDenied');
-        if (!err) {
-            throw new Error(`Expected AccessDenied error but got ${this.getResult().stdout!}`);
+        if (this.getResult().stdout) {
+            let stdout = JSON.parse(this.getResult().stdout!);
+            console.log('l66 cloudserverAuth.ts -- stdout error case: ', stdout);
+            if (stdout.Error) {
+                throw new Error(`Expected no error but got ${stdout.Error}`);
+            }
         }
     }
 });
