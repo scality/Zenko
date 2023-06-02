@@ -60,7 +60,9 @@ Then('it {string} pass Vault authentication', function (this: Zenko, should: str
 
 
     /* eslint-disable-next-line */
-    console.log('l137 cloudserverAuth.ts -- this.getResult(), action: ', this.getResult(), this.getSaved<string>('action'));
+    console.log('l63 cloudserverAuth.ts -- this.getResult(), action: ', this.getResult(), this.getSaved<string>('action'));
+    console.log('l64 cloudserverAuth.ts -- this.getResult(), action stdout: ', this.getResult().stdout, this.getSaved<string>('action'));
+
     if (should === 'should') {
         assert.strictEqual(this.getResult().err, null);
         const err = this.getResult().stdout?.includes('AccessDenied');
