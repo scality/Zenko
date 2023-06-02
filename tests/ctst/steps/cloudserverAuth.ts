@@ -40,14 +40,14 @@ Given('an object with {string} delete policy', async function (this: Zenko, allo
 When('the user tries to perform DeleteObjects', async function (this: Zenko) {
     this.resetCommand();
     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-    const keys: string[] = [];
+    let keys = '';
     const objectNames = this.getSaved<string[]>('objectNameArray');
     objectNames.forEach((objectName, i) => {
         let key = `{Key=${objectName}}`;
         if (i < objectNames.length - 1) {
             key += ',';
         }
-        keys.push(`{Key=${objectName}}`);
+        keys += key;
     });
     this.addCommandParameter({ delete: `Objects=[${keys}]` });
     this.setResult(await S3.deleteObjects(this.getCommandParameters()));
@@ -63,14 +63,14 @@ Then('it {string} pass Vault authentication', function (this: Zenko, should: str
     console.log('l137 cloudserverAuth.ts -- this.getResult(), action: ', this.getResult(), this.getSaved<string>('action'));
     if (should === 'should') {
         assert.strictEqual(this.getResult().err, null);
-        let err = this.getResult().stdout?.includes('AccessDenied');
+        const err = this.getResult().stdout?.includes('AccessDenied');
         if (err) {
-            throw new Error(`Expected no error but got ${this.getResult().stdout}`);
+            throw new Error(`Expected no error but got ${this.getResult().stdout!}`);
         }
     } else {
-        let err = this.getResult().stdout?.includes('AccessDenied');
+        const err = this.getResult().stdout?.includes('AccessDenied');
         if (!err) {
-            throw new Error(`Expected AccessDenied error but got ${this.getResult().stdout}`);
+            throw new Error(`Expected AccessDenied error but got ${this.getResult().stdout!}`);
         }
     }
 });
