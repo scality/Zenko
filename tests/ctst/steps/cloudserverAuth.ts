@@ -16,7 +16,8 @@ Given('an object with {string} delete policy', async function (this: Zenko, allo
     objectNameArray.push(this.getSaved<string>('objectName'));
     this.addToSaved('objectNameArray', objectNameArray);
     await S3.putObject(this.getCommandParameters());
-    if (allow !== 'allow') {
+    if (allow !== 'Allow') {
+        console.log("l53 cloudserverAuth.ts -- allow !== 'Allow' case");
         this.resetCommand();
 
         this.addCommandParameter({ policyName: `${Constants.POLICY_NAME_TEST}${Utils.randomString()}` });
