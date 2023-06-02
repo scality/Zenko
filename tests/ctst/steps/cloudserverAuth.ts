@@ -1,7 +1,8 @@
 import { Given, When, Then } from '@cucumber/cucumber';
 import Zenko from '../world/Zenko';
-import { Utils, S3 } from 'cli-testing';
+import { Utils, S3, IAM, Constants } from 'cli-testing';
 import { strict as assert } from 'assert';
+import { extractPropertyFromResults } from '../common/utils';
 
 Given('an object with {string} delete policy', async function (this: Zenko, allow: string) {
     this.resetCommand();
@@ -17,23 +18,48 @@ Given('an object with {string} delete policy', async function (this: Zenko, allo
     await S3.putObject(this.getCommandParameters());
     if (allow !== 'allow') {
         this.resetCommand();
-        this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-        this.addCommandParameter({ key: this.getSaved<string>('objectName') });
+
+        this.addCommandParameter({ policyName: `${Constants.POLICY_NAME_TEST}${Utils.randomString()}` });
         this.addCommandParameter({
-            policy: JSON.stringify({
+            policyDocument: JSON.stringify({
                 Version: '2012-10-17',
                 Statement: [
                     {
                         Effect: 'Deny',
-                        Principal: '*',
                         Action: 's3:*',
                         Resource: `arn:aws:s3:::${this.getSaved<string>('bucketName')}`
-                            + `/${this.getSaved<string>('objectName')}`,
+                                             + `/${this.getSaved<string>('objectName')}`,
                     },
                 ],
             }),
         });
-        await S3.putBucketPolicy(this.getCommandParameters());
+        this.addToSaved('policyArn',
+            extractPropertyFromResults(await IAM.createPolicy(this.getCommandParameters()), 'Policy', 'Arn'));
+
+        // attach the IAM policy to the user
+        this.resetCommand();
+        this.addCommandParameter({ policyArn: this.getSaved<string>('policyArn') });
+        this.addCommandParameter({ userName: this.getSaved<string>('userName') });
+        await IAM.attachUserPolicy(this.getCommandParameters());
+
+
+        // this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
+        // this.addCommandParameter({ key: this.getSaved<string>('objectName') });
+        // this.addCommandParameter({
+        //     policy: JSON.stringify({
+        //         Version: '2012-10-17',
+        //         Statement: [
+        //             {
+        //                 Effect: 'Deny',
+        //                 Principal: '*',
+        //                 Action: 's3:*',
+        //                 Resource: `arn:aws:s3:::${this.getSaved<string>('bucketName')}`
+        //                     + `/${this.getSaved<string>('objectName')}`,
+        //             },
+        //         ],
+        //     }),
+        // });
+        // await S3.putBucketPolicy(this.getCommandParameters());
     }
 });
 
@@ -77,7 +103,7 @@ Then('it {string} pass Vault authentication', function (this: Zenko, should: str
             let stdout = JSON.parse(this.getResult().stdout!);
             console.log('l66 cloudserverAuth.ts -- stdout error case: ', stdout);
             if (!stdout.Error) {
-                throw new Error(`Expected no error but got ${stdout.Error}`);
+                throw new Error(`Expected error but got ${stdout.Error}`);
             }
         }
     }
