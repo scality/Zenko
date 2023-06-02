@@ -76,7 +76,7 @@ Then('it {string} pass Vault authentication', function (this: Zenko, should: str
         if (this.getResult().stdout) {
             let stdout = JSON.parse(this.getResult().stdout!);
             console.log('l66 cloudserverAuth.ts -- stdout error case: ', stdout);
-            if (stdout.Error) {
+            if (!stdout.Error) {
                 throw new Error(`Expected no error but got ${stdout.Error}`);
             }
         }
