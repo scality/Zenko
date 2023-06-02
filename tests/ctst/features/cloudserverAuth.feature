@@ -59,7 +59,7 @@ Feature: AWS S3 Bucket operations
         And an existing bucket "" "" versioning, "" ObjectLock "" retention mode
         And an object with "allow" delete policy
         And an object with "<allow>" delete policy
-        When the user tries to perform "DeleteObjects" on the bucket
+        When the user tries to perform DeleteObjects
         Then it "<should>" pass Vault authentication
 
         Examples:

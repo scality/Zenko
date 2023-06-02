@@ -1,4 +1,4 @@
-import { Given, Then } from '@cucumber/cucumber';
+import { Given, When, Then } from '@cucumber/cucumber';
 import Zenko from '../world/Zenko';
 import { Utils, S3 } from 'cli-testing';
 import { strict as assert } from 'assert';
@@ -35,6 +35,22 @@ Given('an object with {string} delete policy', async function (this: Zenko, allo
         });
         await S3.putBucketPolicy(this.getCommandParameters());
     }
+});
+
+When('the user tries to perform DeleteObjects', async function (this: Zenko) {
+    this.resetCommand();
+    this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
+    const keys: string[] = [];
+    const objectNames = this.getSaved<string[]>('objectNameArray');
+    objectNames.forEach((objectName, i) => {
+        let key = `{Key=${objectName}}`;
+        if (i < objectNames.length - 1) {
+            key += ',';
+        }
+        keys.push(`{Key=${objectName}}`);
+    });
+    this.addCommandParameter({ delete: `Objects=[${keys}]` });
+    this.setResult(await S3.deleteObjects(this.getCommandParameters()));
 });
 
 Then('it {string} pass Vault authentication', function (this: Zenko, should: string) {
