@@ -142,6 +142,8 @@ Then('it {string} pass Vault authentication', function (this: Zenko, should: str
             if (!stdout.Errors) {
                 throw new Error(`Expected error but got ${stdout.Errors}`);
             }
+        } else {
+            assert.notStrictEqual(this.getResult().err, null);
         }
     }
 });
