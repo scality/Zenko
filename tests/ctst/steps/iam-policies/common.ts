@@ -55,6 +55,7 @@ When('the user tries to perform vault auth {string}', async function (this: Zenk
     let userCredentials;
     if ([EntityType.IAM_USER, EntityType.ACCOUNT].includes(this.getSaved<EntityType>('type'))) {
         userCredentials = this.parameters.IAMSession;
+        console.log('l57 -- IAM common -- IAM user creds: ', userCredentials);
     } else {
         userCredentials = this.parameters.AssumedSession!;
     }
