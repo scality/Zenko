@@ -55,13 +55,14 @@ Given('an object with user given {string} delete policy', async function (this: 
         this.resetCommand();
         this.addCommandParameter({ policyArn: this.getSaved<string>('policyArn') });
         this.addCommandParameter({ userName: this.getSaved<string>('userName') });
-        await IAM.attachUserPolicy(this.getCommandParameters());
-
+        let ret = await IAM.attachUserPolicy(this.getCommandParameters());
+        /* eslint-disable-next-line */
+        console.log('l60 cloudserverAuth.ts -- ret attach: ', ret);
         
         // TODO delete this as it's for testing
         this.resetCommand();
         this.addCommandParameter({ userName: this.getSaved<string>('userName') });
-        let ret = await IAM.listAttachedUserPolicies(this.getCommandParameters());
+         ret = await IAM.listAttachedUserPolicies(this.getCommandParameters());
         /* eslint-disable-next-line */
         console.log('l84 cloudserverAuth.ts -- username, policy ARN, ret: ',
         this.getSaved<string>('userName'),
