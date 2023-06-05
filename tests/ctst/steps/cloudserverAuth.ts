@@ -63,7 +63,10 @@ Given('an object with user given {string} delete policy', async function (this: 
         this.addCommandParameter({ bucket: this.getSaved<string>('userName') });
         const ret = await IAM.listAttachedUserPolicies(this.getCommandParameters());
         /* eslint-disable-next-line */
-        console.log('l84 cloudserverAuth.ts -- ret: ', ret);
+        console.log('l84 cloudserverAuth.ts -- username, policy ARN, ret: ',
+        this.getSaved<string>('userName'),
+        this.getSaved<string>('policyArn'),
+        ret);
 
 
         // this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
