@@ -150,9 +150,11 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         // Workaround to be able to access global parameters in BeforeAll/AfterAll hooks
         CacheHelper.parameters = this.parameters;
         this.cliMode.parameters = this.parameters as ClientOptions;
+        /* eslint-disable */
         console.log("1234 - CACHEPARAMS", this.parameters);
         console.log("1234 - CACHEHELPER", CacheHelper);
         console.log('1234 - WORLDPARAMS', this.parameters);
+        /* eslint-enable */
 
         if (this.parameters.AccountSessionToken) {
             (CacheHelper.ARWWI[CacheHelper.AccountName]) = {
@@ -215,6 +217,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             break;
         case EntityType.IAM_USER:
             await this.prepareIamUser();
+            /* eslint-disable-next-line */
             console.log('l215 Zenko.ts -- Setup Entity IAM USER');
             this.addToSaved('type', EntityType.IAM_USER);
             break;

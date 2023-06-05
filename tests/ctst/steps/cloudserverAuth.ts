@@ -122,25 +122,28 @@ Then('it {string} pass Vault authentication', function (this: Zenko, should: str
     // change to relevant errord
 
 
-    /* eslint-disable-next-line */
+    /* eslint-disable */
     console.log('l63 cloudserverAuth.ts -- this.getResult(), action: ', this.getResult(), this.getSaved<string>('action'));
     console.log('l64 cloudserverAuth.ts -- this.getResult(), action stdout: ', this.getResult().stdout, this.getSaved<string>('action'));
-    
+    /* eslint-enable */
+    let stdout;
     if (should === 'should') {
         assert.strictEqual(this.getResult().err, null);
         if (this.getResult().stdout) {
-            let stdout = JSON.parse(this.getResult().stdout!);
+            stdout = JSON.parse(this.getResult().stdout!) as DeleteObjectsResult;
+            /* eslint-disable-next-line */
             console.log('l66 cloudserverAuth.ts -- stdout: ', stdout);
-            if (stdout.Error) {
+            if (stdout.Errors) {
                 throw new Error(`Expected no error but got ${stdout.Errors}`);
             }
         }
     } else {
         if (this.getResult().stdout) {
-            let stdout = JSON.parse(this.getResult().stdout!);
+            stdout = JSON.parse(this.getResult().stdout!) as DeleteObjectsResult;
+            /* eslint-disable-next-line */
             console.log('l66 cloudserverAuth.ts -- stdout error case: ', stdout);
             if (!stdout.Errors) {
-                throw new Error(`Expected error but got ${stdout.Errors}`);
+                throw new Error('Expected error but got none');
             }
         } else {
             assert.notStrictEqual(this.getResult().err, null);
