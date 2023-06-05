@@ -148,7 +148,7 @@ Then('it {string} pass Vault authentication', function (this: Zenko, should: str
     }
 });
 
-When('the user tries to perform DeleteObjects', async function (this: Zenko) {
+When('the user tries to perform CreateBucket', async function (this: Zenko) {
     this.resetCommand();
     this.resumeRootOrIamUser();
     const preName = (this.parameters.AccountName || Constants.ACCOUNT_NAME);
