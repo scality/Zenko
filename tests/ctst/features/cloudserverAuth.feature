@@ -57,12 +57,12 @@ Feature: AWS S3 Bucket operations
         Given a IAM_USER type
         And an IAM policy attached to the entity "user" with "Allow" effect to perform "DeleteObjects" on "*"
         And an existing bucket "" "" versioning, "" ObjectLock "" retention mode
-        And an object with "allow" delete policy
+        And an object with "Allow" delete policy
         And an object with "<allow>" delete policy
         When the user tries to perform DeleteObjects
         Then it "<should>" pass Vault authentication
 
         Examples:
             | allow   | should     |
-            | Allowed | should     |
+            | Allow   | should     |
             | Deny    | should not |
