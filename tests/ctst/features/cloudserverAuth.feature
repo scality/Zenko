@@ -28,9 +28,9 @@ Feature: AWS S3 Bucket operations
         Then it "<should>" pass Vault authentication
 
         Examples:
-            | action             | allow | should     |
-            | CreateBucket       | Allow | should     |
-            | CreateBucket       | Deny  | should not |
+            | action       | allow | should     |
+            | CreateBucket | Allow | should     |
+            | CreateBucket | Deny  | should not |
 
 
     @2.6.0
@@ -55,15 +55,15 @@ Feature: AWS S3 Bucket operations
     @Cloudserver-Auth
     Scenario: Check Authentication on DeleteObjects with Vault
         Given a IAM_USER type
-        And an IAM policy attached to the entity "user" with "Allow" effect to perform "*" on "*"
-        And an IAM policy attached to the entity "user" with "Deny" effect to perform "DeleteObjects" on "<resource>"
+        And an IAM policy attached to the entity "user" with "Allow" effect to perform "DeleteObjects" on "<resource1>"
+        And an IAM policy attached to the entity "user" with "<allow>" effect to perform "DeleteObjects" on "<resource2>"
         And an existing bucket "<bucketName>" "" versioning, "" ObjectLock "" retention mode
-        And an object with user given "Allow" delete policy
-        And an object with user given "<allow>" delete policy
+        And an object "<objName1>" that "exists"
+        And an object "<objName2>" that "exists"
         When the user tries to perform DeleteObjects
         Then it "<should>" pass Vault authentication
 
         Examples:
-            | bucketName | resource | allow   | should     |
-            | ca-do-bucket-1 | ca-do-bucket-1 | Allow   | should     |
-            | ca-do-bucket-2 | ca-do-bucket-1 | Deny    | should not |
+            | bucketName     | objName1 | objName2 | resource1           | resource2           | allow | should     |
+            | ca-do-bucket-1 | obj1     | obj2     | ca-do-bucket-1/obj1 | ca-do-bucket-1/obj2 | Allow | should     |
+            | ca-do-bucket-2 | obj1     | obj2     | ca-do-bucket-1/obj1 | ca-do-bucket-1/obj2 | Deny  | should not |

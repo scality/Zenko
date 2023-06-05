@@ -18,86 +18,86 @@ interface DeleteObjectsResult {
     }[];
 }
 
-Given('an object with user given {string} delete policy', async function (this: Zenko, allow: string) {
-    this.resetCommand();
-    this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-    this.addToSaved('objectName', Utils.randomString());
-    this.addCommandParameter({ key: this.getSaved<string>('objectName') });
-    let objectNameArray = this.getSaved<string[]>('objectNameArray');
-    if (!objectNameArray) {
-        objectNameArray = [];
-    }
-    objectNameArray.push(this.getSaved<string>('objectName'));
-    this.addToSaved('objectNameArray', objectNameArray);
-    await S3.putObject(this.getCommandParameters());
-    if (allow !== 'Allow') {
-        console.log("l53 cloudserverAuth.ts -- allow !== 'Allow' case");
-        this.resetCommand();
+// Given('an object with user given {string} delete policy', async function (this: Zenko, allow: string) {
+//     this.resetCommand();
+//     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
+//     this.addToSaved('objectName', Utils.randomString());
+//     this.addCommandParameter({ key: this.getSaved<string>('objectName') });
+//     let objectNameArray = this.getSaved<string[]>('objectNameArray');
+//     if (!objectNameArray) {
+//         objectNameArray = [];
+//     }
+//     objectNameArray.push(this.getSaved<string>('objectName'));
+//     this.addToSaved('objectNameArray', objectNameArray);
+//     await S3.putObject(this.getCommandParameters());
+//     if (allow !== 'Allow') {
+//         console.log("l53 cloudserverAuth.ts -- allow !== 'Allow' case");
+//         this.resetCommand();
 
-        this.addCommandParameter({ policyName: `${Constants.POLICY_NAME_TEST}${Utils.randomString()}` });
-        this.addCommandParameter({
-            policyDocument: JSON.stringify({
-                Version: '2012-10-17',
-                Statement: [
-                    {
-                        Effect: 'Deny',
-                        Action: 's3:*',
-                        Resource: `arn:aws:s3:::${this.getSaved<string>('bucketName')}`
-                                             + `/${this.getSaved<string>('objectName')}`,
-                    },
-                ],
-            }),
-        });
-        this.addToSaved('policyArn',
-            extractPropertyFromResults(await IAM.createPolicy(this.getCommandParameters()), 'Policy', 'Arn'));
+//         this.addCommandParameter({ policyName: `${Constants.POLICY_NAME_TEST}${Utils.randomString()}` });
+//         this.addCommandParameter({
+//             policyDocument: JSON.stringify({
+//                 Version: '2012-10-17',
+//                 Statement: [
+//                     {
+//                         Effect: 'Deny',
+//                         Action: 's3:*',
+//                         Resource: `arn:aws:s3:::${this.getSaved<string>('bucketName')}`
+//                                              + `/${this.getSaved<string>('objectName')}`,
+//                     },
+//                 ],
+//             }),
+//         });
+//         this.addToSaved('policyArn',
+//             extractPropertyFromResults(await IAM.createPolicy(this.getCommandParameters()), 'Policy', 'Arn'));
 
-        // attach the IAM policy to the user
-        this.resetCommand();
-        this.addCommandParameter({ policyArn: this.getSaved<string>('policyArn') });
-        this.addCommandParameter({ userName: this.getSaved<string>('userName') });
-        let ret = await IAM.attachUserPolicy(this.getCommandParameters());
-        /* eslint-disable-next-line */
-        console.log('l60 cloudserverAuth.ts -- ret attach: ', ret);
+//         // attach the IAM policy to the user
+//         this.resetCommand();
+//         this.addCommandParameter({ policyArn: this.getSaved<string>('policyArn') });
+//         this.addCommandParameter({ userName: this.getSaved<string>('userName') });
+//         let ret = await IAM.attachUserPolicy(this.getCommandParameters());
+//         /* eslint-disable-next-line */
+//         console.log('l60 cloudserverAuth.ts -- ret attach: ', ret);
         
-        // TODO delete this as it's for testing
-        this.resetCommand();
-        this.addCommandParameter({ userName: this.getSaved<string>('userName') });
-         ret = await IAM.listAttachedUserPolicies(this.getCommandParameters());
-        /* eslint-disable-next-line */
-        console.log('l84 cloudserverAuth.ts -- username, policy ARN, ret: ',
-        this.getSaved<string>('userName'),
-        this.getSaved<string>('policyArn'),
-        this.getSaved<string>('objectName'),
-        ret);
+//         // TODO delete this as it's for testing
+//         this.resetCommand();
+//         this.addCommandParameter({ userName: this.getSaved<string>('userName') });
+//          ret = await IAM.listAttachedUserPolicies(this.getCommandParameters());
+//         /* eslint-disable-next-line */
+//         console.log('l84 cloudserverAuth.ts -- username, policy ARN, ret: ',
+//         this.getSaved<string>('userName'),
+//         this.getSaved<string>('policyArn'),
+//         this.getSaved<string>('objectName'),
+//         ret);
 
-        // TODO delete this as it's for testing
-        this.resetCommand();
-        this.addCommandParameter({ policyArn: this.getSaved<string>('policyArn') });
-        ret = await IAM.getPolicy(this.getCommandParameters());
-        /* eslint-disable-next-line */
-        console.log('l77 cloudserverAuth.ts -- policy: ',
-        ret);
+//         // TODO delete this as it's for testing
+//         this.resetCommand();
+//         this.addCommandParameter({ policyArn: this.getSaved<string>('policyArn') });
+//         ret = await IAM.getPolicy(this.getCommandParameters());
+//         /* eslint-disable-next-line */
+//         console.log('l77 cloudserverAuth.ts -- policy: ',
+//         ret);
 
 
-        // this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-        // this.addCommandParameter({ key: this.getSaved<string>('objectName') });
-        // this.addCommandParameter({
-        //     policy: JSON.stringify({
-        //         Version: '2012-10-17',
-        //         Statement: [
-        //             {
-        //                 Effect: 'Deny',
-        //                 Principal: '*',
-        //                 Action: 's3:*',
-        //                 Resource: `arn:aws:s3:::${this.getSaved<string>('bucketName')}`
-        //                     + `/${this.getSaved<string>('objectName')}`,
-        //             },
-        //         ],
-        //     }),
-        // });
-        // await S3.putBucketPolicy(this.getCommandParameters());
-    }
-});
+//         // this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
+//         // this.addCommandParameter({ key: this.getSaved<string>('objectName') });
+//         // this.addCommandParameter({
+//         //     policy: JSON.stringify({
+//         //         Version: '2012-10-17',
+//         //         Statement: [
+//         //             {
+//         //                 Effect: 'Deny',
+//         //                 Principal: '*',
+//         //                 Action: 's3:*',
+//         //                 Resource: `arn:aws:s3:::${this.getSaved<string>('bucketName')}`
+//         //                     + `/${this.getSaved<string>('objectName')}`,
+//         //             },
+//         //         ],
+//         //     }),
+//         // });
+//         // await S3.putBucketPolicy(this.getCommandParameters());
+//     }
+// });
 
 When('the user tries to perform DeleteObjects', async function (this: Zenko) {
     this.resetCommand();

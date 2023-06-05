@@ -55,6 +55,12 @@ Given('an object {string} that {string}',
         this.resetCommand();
         if (objectExists === 'exists') {
             this.addToSaved('objectName', objectName || Utils.randomString());
+            let objectNameArray = this.getSaved<string[]>('objectNameArray');
+            if (!objectNameArray) {
+                objectNameArray = [];
+            }
+            objectNameArray.push(this.getSaved<string>('objectName'));
+            this.addToSaved('objectNameArray', objectNameArray);
             this.addCommandParameter({ key: this.getSaved<string>('objectName') });
             this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
             this.addToSaved('versionId', extractPropertyFromResults(
