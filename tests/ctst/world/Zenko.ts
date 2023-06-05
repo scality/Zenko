@@ -215,6 +215,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             break;
         case EntityType.IAM_USER:
             await this.prepareIamUser();
+            console.log('l215 Zenko.ts -- Setup Entity IAM USER');
             this.addToSaved('type', EntityType.IAM_USER);
             break;
         case EntityType.STORAGE_MANAGER:
