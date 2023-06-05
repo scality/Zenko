@@ -21,16 +21,16 @@ Feature: AWS S3 Bucket operations
     @Cloudserver-Auth
     Scenario: Check Authentication on bucket object lock actions with Vault
         Given a IAM_USER type
-        And an IAM policy attached to the entity "user" with "Allow" effect to perform "<action>" on "*"
+        And an IAM policy attached to the entity "user" with "Allow" effect to perform "CreateBucket" on "*"
         And an IAM policy attached to the entity "user" with "<allow>" effect to perform "PutBucketObjectLockConfiguration" on "*"
         And an IAM policy attached to the entity "user" with "<allow>" effect to perform "PutBucketVersioning" on "*"
-        When the user tries to perform "<action>" on the bucket
+        When the user tries to perform CreateBucket
         Then it "<should>" pass Vault authentication
 
         Examples:
-            | action       | allow | should     |
-    #        | CreateBucket | Allow | should     |
-            | CreateBucket | Deny  | should not |
+            | allow | should     |
+            | Allow | should     |
+            | Deny  | should not |
 
 
     @2.6.0
@@ -38,16 +38,16 @@ Feature: AWS S3 Bucket operations
     @Cloudserver-Auth
     Scenario: Check Authentication on bucket object lock actions with Vault
         Given a IAM_USER type
-        And an IAM policy attached to the entity "user" with "Allow" effect to perform "<action>" on "*"
-        And an IAM policy attached to the entity "user" with "<allow>" effect to perform "PutObjectRetention" on "*"
-        And an existing bucket "" "" versioning, "with" ObjectLock "" retention mode
-        When the user tries to perform "<action>" on the bucket
+        And an IAM policy attached to the entity "user" with "Allow" effect to perform "PutObjectRetention" on "*"
+        And an IAM policy attached to the entity "user" with "<allow>" effect to perform "BypassGovernanceRetention" on "*"
+        And an existing bucket "" "" versioning, "with" ObjectLock "GOVERNANCE" retention mode
+        When the user tries to perform "PutObjectRetention" on the bucket
         Then it "<should>" pass Vault authentication
 
         Examples:
-            | action             | allow | should     |
-    #        | PutObjectRetention | Allow | should     |
-            | PutObjectRetention | Deny  | should not |
+            | allow | should     |
+            | Allow | should     |
+            | Deny  | should not |
 
 
     @2.6.0
