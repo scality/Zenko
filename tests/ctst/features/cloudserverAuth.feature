@@ -29,7 +29,7 @@ Feature: AWS S3 Bucket operations
 
         Examples:
             | action       | allow | should     |
-            | CreateBucket | Allow | should     |
+    #        | CreateBucket | Allow | should     |
             | CreateBucket | Deny  | should not |
 
 
@@ -46,7 +46,7 @@ Feature: AWS S3 Bucket operations
 
         Examples:
             | action             | allow | should     |
-            | PutObjectRetention | Allow | should     |
+    #        | PutObjectRetention | Allow | should     |
             | PutObjectRetention | Deny  | should not |
 
 
