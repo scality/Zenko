@@ -66,6 +66,7 @@ Given('an object with user given {string} delete policy', async function (this: 
         console.log('l84 cloudserverAuth.ts -- username, policy ARN, ret: ',
         this.getSaved<string>('userName'),
         this.getSaved<string>('policyArn'),
+        this.getSaved<string>('objectName'),
         ret);
 
 
