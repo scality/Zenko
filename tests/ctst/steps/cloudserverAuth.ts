@@ -101,6 +101,7 @@ Given('an object with user given {string} delete policy', async function (this: 
 
 When('the user tries to perform DeleteObjects', async function (this: Zenko) {
     this.resetCommand();
+    this.resumeRootOrIamUser();
     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
     let keys = '';
     const objectNames = this.getSaved<string[]>('objectNameArray');
