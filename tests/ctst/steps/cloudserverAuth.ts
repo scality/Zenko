@@ -4,7 +4,21 @@ import { Utils, S3, IAM, Constants } from 'cli-testing';
 import { strict as assert } from 'assert';
 import { extractPropertyFromResults } from '../common/utils';
 
-Given('an object with {string} delete policy', async function (this: Zenko, allow: string) {
+interface DeleteObjectsResult {
+    Deleted?: {
+        Key: string;
+        DeleteMarker?: boolean;
+        DeleteMarkerVersionId?: string;
+    }[];
+    Errors?: {
+        Key: string;
+        VersionId?: string;
+        Code: string;
+        Message: string;
+    }[];
+}
+
+Given('an object with user given {string} delete policy', async function (this: Zenko, allow: string) {
     this.resetCommand();
     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
     this.addToSaved('objectName', Utils.randomString());
@@ -42,6 +56,14 @@ Given('an object with {string} delete policy', async function (this: Zenko, allo
         this.addCommandParameter({ policyArn: this.getSaved<string>('policyArn') });
         this.addCommandParameter({ userName: this.getSaved<string>('userName') });
         await IAM.attachUserPolicy(this.getCommandParameters());
+
+        
+        // TODO delete this as it's for testing
+        this.resetCommand();
+        this.addCommandParameter({ bucket: this.getSaved<string>('userName') });
+        const ret = await IAM.listAttachedUserPolicies(this.getCommandParameters());
+        /* eslint-disable-next-line */
+        console.log('l84 cloudserverAuth.ts -- ret: ', ret);
 
 
         // this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
