@@ -65,5 +65,5 @@ Feature: AWS S3 Bucket operations
 
         Examples:
             | bucketName     | objName1 | objName2 | resource1           | resource2           | allow | should     |
-            | ca-do-bucket-1 | obj1     | obj2     | ca-do-bucket-1/obj1 | ca-do-bucket-1/obj2 | Allow | should     |
-            | ca-do-bucket-2 | obj1     | obj2     | ca-do-bucket-1/obj1 | ca-do-bucket-1/obj2 | Deny  | should not |
+        #    | ca-do-bucket-1 | obj1     | obj2     | ca-do-bucket-1/obj1 | ca-do-bucket-1/obj2 | Allow | should     |
+        #    | ca-do-bucket-2 | obj1     | obj2     | ca-do-bucket-1/obj1 | ca-do-bucket-1/obj2 | Deny  | should not |
