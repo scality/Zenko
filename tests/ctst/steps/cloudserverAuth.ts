@@ -158,4 +158,3 @@ When('the user tries to perform CreateBucket', async function (this: Zenko) {
     this.addCommandParameter({ objectLockEnabledForBucket: ' ' });
     this.setResult(await S3.createBucket(this.getCommandParameters()));
 });
-
