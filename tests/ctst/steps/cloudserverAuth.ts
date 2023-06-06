@@ -170,5 +170,5 @@ When('the user tries to perform PutObjectRetention {string} bypass', async funct
     if (withBypass === 'bypass') {
         this.addCommandParameter({ bypassGovernanceRetention: ' ' });
     }
-    this.setResult(await S3.PutObjectRetention(this.getCommandParameters()));
+    this.setResult(await S3.putObjectRetention(this.getCommandParameters()));
 });
