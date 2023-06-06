@@ -40,7 +40,7 @@ Feature: AWS S3 Bucket operations
         Given a IAM_USER type
         And an IAM policy attached to the entity "user" with "Allow" effect to perform "PutObjectRetention" on "*"
         And an IAM policy attached to the entity "user" with "<allow>" effect to perform "BypassGovernanceRetention" on "*"
-        And an existing bucket "" "" versioning, "with" ObjectLock "" retention mode
+        And an existing bucket "" "" versioning, "with" ObjectLock "GOVERNANCE" retention mode
         And an object "" that "exists"
         When the user tries to perform PutObjectRetention "<withBypass>" bypass
         Then it "<should>" pass Vault authentication
