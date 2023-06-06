@@ -1,7 +1,6 @@
 import { Then, Given, When, setDefaultTimeout } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
 import Zenko, {
-    ApiResult,
     AWSVersionObject,
 } from '../world/Zenko';
 import { Constants, S3, Utils, KafkaHelper } from 'cli-testing';
@@ -350,7 +349,6 @@ Then('notifications should be enabled for {string} event in destination {int}',
         await S3.deleteBucket(this.getCommandParameters());
     });
 
-// eslint-disable-next-line new-cap
 Then('i should {string} a notification for {string} event in destination {int}',
     async function (this: Zenko, receive: string, notificationType: string, destination: number) {
 
