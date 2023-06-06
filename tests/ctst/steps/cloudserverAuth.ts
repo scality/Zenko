@@ -1,8 +1,7 @@
-import { Given, When, Then } from '@cucumber/cucumber';
+import { When, Then } from '@cucumber/cucumber';
 import Zenko from '../world/Zenko';
-import { Utils, S3, IAM, Constants } from 'cli-testing';
+import { Utils, S3, Constants } from 'cli-testing';
 import { strict as assert } from 'assert';
-import { extractPropertyFromResults } from '../common/utils';
 
 interface DeleteObjectsResult {
     Deleted?: {
@@ -134,7 +133,7 @@ Then('it {string} pass Vault authentication', function (this: Zenko, should: str
             /* eslint-disable-next-line */
             console.log('l66 cloudserverAuth.ts -- stdout: ', stdout);
             if (stdout.Errors) {
-                throw new Error(`Expected no error but got ${stdout.Errors}`);
+                throw new Error('Expected no error but got errors');
             }
         }
     } else {
@@ -165,7 +164,6 @@ When('the user tries to perform CreateBucket', async function (this: Zenko) {
 When('the user tries to perform PutObjectRetention {string} bypass', async function (this: Zenko, withBypass: string) {
     this.resetCommand();
     this.resumeRootOrIamUser();
-    const preName = (this.parameters.AccountName || Constants.ACCOUNT_NAME);
     this.addCommandParameter({ key: this.getSaved<string>('objectName') });
     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
     this.addCommandParameter({ retention: 'Mode=COMPLIANCE,RetainUntilDate=2025-01-01T00:00:00Z' });
