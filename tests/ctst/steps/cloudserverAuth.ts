@@ -115,10 +115,32 @@ When('the user tries to perform DeleteObjects', async function (this: Zenko) {
     this.setResult(await S3.deleteObjects(this.getCommandParameters()));
 });
 
+When('the user tries to perform CreateBucket', async function (this: Zenko) {
+    this.resetCommand();
+    this.resumeRootOrIamUser();
+    const preName = (this.parameters.AccountName || Constants.ACCOUNT_NAME);
+    const usedBucketName = `${preName}${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase();
+    this.addToSaved('bucketName', usedBucketName);
+    this.addCommandParameter({ bucket: usedBucketName });
+    this.addCommandParameter({ objectLockEnabledForBucket: ' ' });
+    this.setResult(await S3.createBucket(this.getCommandParameters()));
+});
+
+When('the user tries to perform PutObjectRetention {string} bypass', async function (this: Zenko, withBypass: string) {
+    this.resetCommand();
+    this.resumeRootOrIamUser();
+    this.addCommandParameter({ key: this.getSaved<string>('objectName') });
+    this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
+    this.addCommandParameter({ retention: 'Mode=COMPLIANCE,RetainUntilDate=2025-01-01T00:00:00Z' });
+    if (withBypass === 'with') {
+        this.addCommandParameter({ bypassGovernanceRetention: ' ' });
+    }
+    this.setResult(await S3.putObjectRetention(this.getCommandParameters()));
+});
+
 Then('it {string} pass Vault authentication', function (this: Zenko, should: string) {
     this.cleanupEntity();
 
-    // change to relevant errord
 
 
     /* eslint-disable */
@@ -150,25 +172,3 @@ Then('it {string} pass Vault authentication', function (this: Zenko, should: str
     }
 });
 
-When('the user tries to perform CreateBucket', async function (this: Zenko) {
-    this.resetCommand();
-    this.resumeRootOrIamUser();
-    const preName = (this.parameters.AccountName || Constants.ACCOUNT_NAME);
-    const usedBucketName = `${preName}${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase();
-    this.addToSaved('bucketName', usedBucketName);
-    this.addCommandParameter({ bucket: usedBucketName });
-    this.addCommandParameter({ objectLockEnabledForBucket: ' ' });
-    this.setResult(await S3.createBucket(this.getCommandParameters()));
-});
-
-When('the user tries to perform PutObjectRetention {string} bypass', async function (this: Zenko, withBypass: string) {
-    this.resetCommand();
-    this.resumeRootOrIamUser();
-    this.addCommandParameter({ key: this.getSaved<string>('objectName') });
-    this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-    this.addCommandParameter({ retention: 'Mode=COMPLIANCE,RetainUntilDate=2025-01-01T00:00:00Z' });
-    if (withBypass === 'bypass') {
-        this.addCommandParameter({ bypassGovernanceRetention: ' ' });
-    }
-    this.setResult(await S3.putObjectRetention(this.getCommandParameters()));
-});
