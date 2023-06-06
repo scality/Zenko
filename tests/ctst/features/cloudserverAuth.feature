@@ -40,14 +40,16 @@ Feature: AWS S3 Bucket operations
         Given a IAM_USER type
         And an IAM policy attached to the entity "user" with "Allow" effect to perform "PutObjectRetention" on "*"
         And an IAM policy attached to the entity "user" with "<allow>" effect to perform "BypassGovernanceRetention" on "*"
-        And an existing bucket "" "" versioning, "with" ObjectLock "GOVERNANCE" retention mode
-        When the user tries to perform "PutObjectRetention" on the bucket
+        And an existing bucket "" "" versioning, "with" ObjectLock "" retention mode
+        And an object "" that "exists"
+        When the user tries to perform PutObjectRetention "<withBypass>" bypass
         Then it "<should>" pass Vault authentication
 
         Examples:
-            | allow | should     |
-            | Allow | should     |
-            | Deny  | should not |
+            | allow | should     | withBypass |
+            | Allow | should     | with       |
+            | Allow | should not | without    |
+            | Deny  | should not | with       |
 
 
     @2.6.0
@@ -64,6 +66,6 @@ Feature: AWS S3 Bucket operations
         Then it "<should>" pass Vault authentication
 
         Examples:
-            | bucketName     | objName1 | objName2 | resource1           | resource2           | allow | should     |
-        #    | ca-do-bucket-1 | obj1     | obj2     | ca-do-bucket-1/obj1 | ca-do-bucket-1/obj2 | Allow | should     |
-        #    | ca-do-bucket-2 | obj1     | obj2     | ca-do-bucket-1/obj1 | ca-do-bucket-1/obj2 | Deny  | should not |
+            | bucketName | objName1 | objName2 | resource1 | resource2 | allow | should |
+#    | ca-do-bucket-1 | obj1     | obj2     | ca-do-bucket-1/obj1 | ca-do-bucket-1/obj2 | Allow | should     |
+#    | ca-do-bucket-2 | obj1     | obj2     | ca-do-bucket-1/obj1 | ca-do-bucket-1/obj2 | Deny  | should not |
