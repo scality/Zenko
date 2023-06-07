@@ -65,6 +65,7 @@ Then('it {string} pass Vault authentication', function (this: Zenko, should: str
         assert.strictEqual(this.getResult().err, null);
         if (this.getResult().stdout) {
             stdout = JSON.parse(this.getResult().stdout!) as DeleteObjectsResult;
+            console.log(stdout)
             if (stdout.Errors) {
                 throw new Error('Expected no error but got errors');
             }
