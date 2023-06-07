@@ -42,8 +42,8 @@ Feature: AWS S3 Bucket operations
     @Cloudserver-Auth
     Scenario: Check Authentication on DeleteObjects with Vault
         Given a IAM_USER type
-        And an IAM policy attached to the entity "user" with "Allow" effect to perform "DeleteObjects" on "<resource1>"
-        And an IAM policy attached to the entity "user" with "<allow>" effect to perform "DeleteObjects" on "<resource2>"
+        And an IAM policy attached to the entity "user" with "Allow" effect to perform "DeleteObject" on "<resource1>"
+        And an IAM policy attached to the entity "user" with "<allow>" effect to perform "DeleteObject" on "<resource2>"
         And an existing bucket "<bucketName>" "" versioning, "" ObjectLock "" retention mode
         And an object "<objName1>" that "exists"
         And an object "<objName2>" that "exists"
