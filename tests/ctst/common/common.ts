@@ -28,12 +28,16 @@ Given('an existing bucket {string} {string} versioning, {string} ObjectLock {str
         || `${preName}${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase();
     this.addToSaved('bucketName', usedBucketName);
     this.addCommandParameter({ bucket: usedBucketName });
+    if (withObjectLock === 'with') {
+        // Empty strings are used to pass parameters that are used as a flag and do not require a value
+        this.addCommandParameter({ objectLockEnabledForBucket: ' ' });
+    }
     await S3.createBucket(this.getCommandParameters());
     if (withVersioning === 'with') {
         this.addCommandParameter({ versioningConfiguration: 'Status=Enabled' });
         await S3.putBucketVersioning(this.getCommandParameters());
     }
-    if (withObjectLock === 'with') {
+    if (retentionMode === 'GOVERNANCE' || retentionMode === 'COMPLIANCE') {
         this.resetCommand();
         this.addCommandParameter({ bucket: usedBucketName });
         this.addCommandParameter({
