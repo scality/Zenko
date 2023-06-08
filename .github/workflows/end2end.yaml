@@ -563,6 +563,8 @@ jobs:
         uses: ./.github/actions/install-end2end-dependencies
       - name: Wait for Docker daemon to be ready
         uses: ./.github/actions/wait-docker-ready
+      - name: Kubectl tool installer
+        uses: Azure/setup-kubectl@v3
       - name: Login to Registry
         uses: docker/login-action@v2
         with:
