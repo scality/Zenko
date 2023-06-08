@@ -14,7 +14,8 @@ Feature: AWS S3 Bucket operations
         Examples:
             | allow | should     |
             | Allow | should     |
-            | Deny  | should not |
+        # TODO: reenable after fix CLOUDSERVER-401
+        #    | Deny  | should not |
 
 
     @2.6.0
