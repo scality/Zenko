@@ -6,8 +6,9 @@ conf = rs.config()
 
 defaultWriteConcern = conf.settings.getLastErrorDefaults
 
-if (!defaultWriteConcern || defaultWriteConcern.w !== 'majority') {
+if (!defaultWriteConcern || defaultWriteConcern.w !== 'majority' || !defaultWriteConcern.wtimeout || defaultWriteConcern.wtimeout === 0) {
     defaultWriteConcern.w = 'majority'
+    defaultWriteConcern.wtimeout = 30000
     rs.reconfig(conf)
 }
 EOF
