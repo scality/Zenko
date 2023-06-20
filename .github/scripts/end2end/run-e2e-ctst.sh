@@ -39,6 +39,7 @@ KEYCLOAK_TEST_PORT="80"
 KEYCLOAK_TEST_REALM_NAME=${OIDC_REALM}
 KEYCLOAK_TEST_CLIENT_ID=${OIDC_CLIENT_ID}
 KEYCLOAK_TEST_GRANT_TYPE="password"
+SORBET_DEPLOYMENT_NAME="${ZENKO_NAME}-cold-sorbet-azure-e2e-azure-archive"
 
 # get Zenko service users credentials
 BACKBEAT_LCBP_1_CREDS=$(kubectl get secret -l app.kubernetes.io/name=backbeat-lcbp-user-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.backbeat-lifecycle-bp-1\.json}' | base64 -d)
@@ -48,6 +49,12 @@ BACKBEAT_QP_1_CREDS=$(kubectl get secret -l app.kubernetes.io/name=backbeat-qp-u
 SORBET_FWD_2_ACCESSKEY=$(kubectl get secret -l app.kubernetes.io/name=sorbet-fwd-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.accessKey}' | base64 -d)
 SORBET_FWD_2_SECRETKEY=$(kubectl get secret -l app.kubernetes.io/name=sorbet-fwd-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.secretKey}' | base64 -d)
 SERVICE_USERS_CREDENTIALS=$(echo '{"backbeat-lifecycle-bp-1":'${BACKBEAT_LCBP_1_CREDS}',"backbeat-lifecycle-conductor-1":'${BACKBEAT_LCC_1_CREDS}',"backbeat-lifecycle-op-1":'${BACKBEAT_LCOP_1_CREDS}',"backbeat-qp-1":'${BACKBEAT_QP_1_CREDS}',"sorbet-fwd-2":{"accessKey":"'${SORBET_FWD_2_ACCESSKEY}'","secretKey":"'${SORBET_FWD_2_SECRETKEY}'"}}' | jq -R)
+
+# Get backbeat UUID
+UUID=$(kubectl get secret -l app.kubernetes.io/name=backbeat-config,app.kubernetes.io/instance=end2end \
+    -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq .extensions.replication.topic)
+UUID=${UUID%.*}
+UUID=${UUID:1}
 
 # Extracting kafka host from bacbeat's config
 KAFKA_HOST_PORT=$(kubectl get secret -l app.kubernetes.io/name=backbeat-config,app.kubernetes.io/instance=end2end \
@@ -72,6 +79,8 @@ docker run \
     "${E2E_IMAGE}" /bin/bash \
     -c "SUBDOMAIN=${SUBDOMAIN} CONTROL_PLANE_INGRESS_ENDPOINT=${OIDC_ENDPOINT} ACCOUNT=${ZENKO_ACCOUNT_NAME} KEYCLOAK_REALM=${KEYCLOAK_TEST_REALM_NAME} STORAGE_MANAGER=${STORAGE_MANAGER_USER_NAME} STORAGE_ACCOUNT_OWNER=${STORAGE_ACCOUNT_OWNER_USER_NAME} DATA_CONSUMER=${DATA_CONSUMER_USER_NAME} /ctst/bin/seedKeycloak.sh"; [[ $? -eq 1 ]] && exit 1 || echo 'Keycloak Configured!'
 
+# Patch sorbet env
+kubectl set env deployment/${SORBET_DEPLOYMENT_NAME} SORBETD_AZURE_RESTORETIMEOUT=3s
 
 # Running end2end ctst tests
 kubectl run $POD_NAME \
@@ -84,5 +93,6 @@ kubectl run $POD_NAME \
         --env=TARGET_VERSION=$VERSION  \
         --env=AZURE_BLOB_URL=$AZURE_BACKEND_ENDPOINT  \
         --env=AZURE_QUEUE_URL=$AZURE_BACKEND_QUEUE_ENDPOINT \
+        --env=UUID=$UUID \
         --env=VERBOSE=1 \
         -- ./run "$COMMAND" $WORLD_PARAMETERS "--parallel $PARALLEL_RUNS --retry $RETRIES --retry-tag-filter @Flaky"

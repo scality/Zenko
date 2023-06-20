@@ -357,12 +357,22 @@ jobs:
         shell: bash
         run: |-
           echo "CTST_TAG=$(sed 's/.*"cli-testing": ".*#\(.*\)".*/\1/;t;d' ./tests/ctst/package.json)" >> $GITHUB_ENV
+      - name: Extract environment
+        run: |-
+          sudo curl --fail -L https://github.com/mikefarah/yq/releases/download/${{ env.YQ_VERSION}}/${{ env.YQ_BINARY }} -o /usr/bin/yq
+          sudo chmod +x /usr/bin/yq
+          cd solution/
+          cat <<EOF >> $GITHUB_ENV
+          SORBET_TAG=$(yq eval '.sorbet.tag' deps.yaml)
+          EOF
       - name: Build and push CI image
         uses: docker/build-push-action@v4
         with:
           push: true
           context: ./tests/ctst
-          build-args: CTST_TAG=${{ env.CTST_TAG }}
+          build-args: |
+            CTST_TAG=${{ env.CTST_TAG }}
+            SORBET_TAG=${{ env.SORBET_TAG }}
           tags: "${{ env.E2E_CTST_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}"
           cache-from: type=gha
           cache-to: type=gha,mode=max

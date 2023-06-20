@@ -4,8 +4,8 @@ import assert from 'assert';
 import { safeJsonParse } from '../common/utils';
 import { Given, Then, When, After, setDefaultTimeout } from '@cucumber/cucumber';
 import { AzureHelper, S3, Constants, Utils } from 'cli-testing';
+import { exec } from 'child_process';
 import Zenko from 'world/Zenko';
-
 
 setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
 
@@ -338,30 +338,63 @@ Then('manifest containing object {string} should contain {int} objects',
         assert.strictEqual(count, objectCount);
     });
 
-Then('blob for object {string} must be rehydrated', async function (this: Zenko, objectName: string) {
-    let found = false;
-    const {
-        tarName,
-    } = await findObjectPackAndManifest(
-        this,
-        this.getSaved<string>('bucketName'),
-        objectName || this.getSaved<string>('objectName'),
-    );
-    assert(tarName);
-    while (!found) {
-        found = await AzureHelper.blobExists(
-            this.parameters.azureArchiveContainer,
-            `rehydrate/${tarName}`,
-            getAzureCreds(this),
+Then('blob for object {string} must be rehydrated {string} notifying the queue',
+    async function (this: Zenko, objectName: string, notifyQueue: string) {
+        let found = false;
+        const {
+            tarName,
+        } = await findObjectPackAndManifest(
+            this,
+            this.getSaved<string>('bucketName'),
+            objectName || this.getSaved<string>('objectName'),
         );
-    }
-    await AzureHelper.sendBlobCreatedEventToQueue(
-        this.parameters.azureArchiveQueue,
-        this.parameters.azureArchiveContainer,
-        `rehydrate/${tarName}`,
-        getAzureCreds(this),
-    );
-});
+        assert(tarName);
+        while (!found) {
+            found = await AzureHelper.blobExists(
+                this.parameters.azureArchiveContainer,
+                `rehydrate/${tarName}`,
+                getAzureCreds(this),
+            );
+        }
+        if (notifyQueue === 'with') {
+            await AzureHelper.sendBlobCreatedEventToQueue(
+                this.parameters.azureArchiveQueue,
+                this.parameters.azureArchiveContainer,
+                `rehydrate/${tarName}`,
+                getAzureCreds(this),
+            );
+        }
+    });
+
+Then('the storage class of object {string} must stay {string} for {int} seconds',
+    async function (this: Zenko, objectName: string, storageClass: string, seconds: number) {
+        const objName = objectName ||  this.getSaved<string>('objectName');
+        this.resetCommand();
+        this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
+        this.addCommandParameter({ key: objName });
+        const versionId = this.getSaved<Map<string, string>>('createdObjects')?.get(objName);
+        if (versionId) {
+            this.addCommandParameter({ versionId });
+        }
+        let secondsPassed = 0;
+        while (secondsPassed < seconds) {
+            const res = await S3.headObject(this.getCommandParameters());
+            if (res.err) {
+                break;
+            }
+            assert(res.stdout);
+            const parsed = safeJsonParse(res.stdout);
+            assert(parsed.ok);
+            const head = parsed.result as { StorageClass: string | undefined };
+            const expectedClass = storageClass !== '' ? storageClass : undefined;
+            if (head?.StorageClass !== expectedClass) {
+                break;
+            }
+            await Utils.sleep(1000);
+            secondsPassed++;
+        }
+        assert(secondsPassed === seconds);
+    });
 
 When('i restore object {string} for {int} days', async function (this: Zenko, objectName: string, days: number) {
     const objName = objectName ||  this.getSaved<string>('objectName');
@@ -374,6 +407,20 @@ When('i restore object {string} for {int} days', async function (this: Zenko, ob
     }
     this.addCommandParameter({ restoreRequest: `Days=${days}` });
     await S3.restoreObject(this.getCommandParameters());
+});
+
+When('i run sorbetctl to retry failed restore for {string} location', function (this: Zenko, location: string) {
+    const backbeatUUID = process.env.UUID;
+    assert(backbeatUUID);
+    const command = `/ctst/sorbetctl forward list failed --trigger-retry --skip-invalid \
+    --kafka-dead-letter-topic=${backbeatUUID}.cold-dead-letter-${location} \
+    --kafka-object-task-topic=${backbeatUUID}.backbeat-lifecycle-object-tasks \
+    --kafka-brokers ${this.parameters.KafkaHosts}`;
+    exec(command, (error) => {
+        if (error) {
+            throw error;
+        }
+    });
 });
 
 Then('object {string} should expire in {int} days', async function (this: Zenko, objectName: string, days: number) {
