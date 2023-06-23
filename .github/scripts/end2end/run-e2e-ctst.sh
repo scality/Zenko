@@ -73,9 +73,24 @@ docker run \
     -c "SUBDOMAIN=${SUBDOMAIN} CONTROL_PLANE_INGRESS_ENDPOINT=${OIDC_ENDPOINT} ACCOUNT=${ZENKO_ACCOUNT_NAME} KEYCLOAK_REALM=${KEYCLOAK_TEST_REALM_NAME} STORAGE_MANAGER=${STORAGE_MANAGER_USER_NAME} STORAGE_ACCOUNT_OWNER=${STORAGE_ACCOUNT_OWNER_USER_NAME} DATA_CONSUMER=${DATA_CONSUMER_USER_NAME} /ctst/bin/seedKeycloak.sh"; [[ $? -eq 1 ]] && exit 1 || echo 'Keycloak Configured!'
 
 
-# Running end2end ctst tests
+# Create a PersistentVolumeClaim
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: my-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+EOF
+
+# Running end2end ctst tests with volume mount
 kubectl run $POD_NAME \
         --pod-running-timeout=5m \
+        --rm \
         --image=$E2E_IMAGE \
         --restart=Never \
         --attach=True \
@@ -84,11 +99,84 @@ kubectl run $POD_NAME \
         --env=AZURE_BLOB_URL=$AZURE_BACKEND_ENDPOINT  \
         --env=AZURE_QUEUE_URL=$AZURE_BACKEND_QUEUE_ENDPOINT \
         --env=VERBOSE=1 \
-        -- ./run "$COMMAND" $WORLD_PARAMETERS "--parallel $PARALLEL_RUNS --retry $RETRIES --retry-tag-filter @Flaky"
+        --overrides='
+          {
+            "apiVersion": "v1",
+            "spec": {
+              "containers": [
+                {
+                  "name": "'$POD_NAME'",
+                  "image": "'$E2E_IMAGE'",
+                  "args": ["./run", "'$COMMAND'", "'$WORLD_PARAMETERS'", "--parallel", "'$PARALLEL_RUNS'", "--retry", "'$RETRIES'", "--retry-tag-filter", "@Flaky"],
+                  "env": [
+                    {
+                      "name": "TARGET_VERSION",
+                      "value": "'$VERSION'"
+                    },
+                    {
+                      "name": "AZURE_BLOB_URL",
+                      "value": "'$AZURE_BACKEND_ENDPOINT'"
+                    },
+                    {
+                      "name": "AZURE_QUEUE_URL",
+                      "value": "'$AZURE_BACKEND_QUEUE_ENDPOINT'"
+                    },
+                    {
+                      "name": "VERBOSE",
+                      "value": "1"
+                    }
+                  ],
+                  "volumeMounts": [
+                    {
+                      "mountPath": "/ctst/reports",
+                      "name": "my-volume"
+                    }
+                  ]
+                }
+              ],
+              "volumes": [
+                {
+                  "name": "my-volume",
+                  "persistentVolumeClaim": {
+                    "claimName": "my-pvc"
+                  }
+                }
+              ]
+            }
+          }'
 
-kubectl wait --for=condition=completed --timeout=2h pod/$POD_NAME
+# Create a temporary pod to copy the files from the PVC
+kubectl run temp-pod \
+        --rm -i \
+        --image=alpine \
+        --restart=Never \
+        --overrides='
+          {
+            "apiVersion": "v1",
+            "spec": {
+              "containers": [
+                {
+                  "name": "temp-pod",
+                  "image": "alpine",
+                  "command": ["sh"],
+                  "volumeMounts": [
+                    {
+                      "mountPath": "/ctst/reports",
+                      "name": "my-volume"
+                    }
+                  ]
+                }
+              ],
+              "volumes": [
+                {
+                  "name": "my-volume",
+                  "persistentVolumeClaim": {
+                    "claimName": "my-pvc"
+                  }
+                }
+              ]
+            }
+          }'
 
-kubectl cp $POD_NAME:/ctst/reports/report.html /tmp/artifacts/ctst-report.html
-kubectl cp $POD_NAME:/ctst/reports/cucumber-report.json /tmp/artifacts/ctst-cucumber-report.json
-
-kubectl delete pod $POD_NAME
+kubectl cp temp-pod:/ctst/reports/report.html /tmp/artifacts/ctst-report.html
+kubectl cp temp-pod:/ctst/reports/cucumber-report.json /tmp/artifacts/ctst-cucumber-report.json
