@@ -604,6 +604,7 @@ jobs:
           echo 'FAILED' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
       - name: Upload artifacts
         uses: scality/action-artifacts@v3
+        id: artifacts
         with:
           method: upload
           url: https://artifacts.scality.net
@@ -611,6 +612,23 @@ jobs:
           password: ${{ secrets.ARTIFACTS_PASSWORD }}
           source: /tmp/artifacts
         if: always()
+      - name: Report test results on PR
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const result = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha
+            })
+            if (result?.data.length === 1) {
+              await github.rest.issues.createComment({
+                issue_number: result?.data[0].number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: `End-to-end tests completed. The artifacts are available [here](${{ steps.artifacts.outputs.link }}).`
+              })
+            }
 
   write-final-failed-status:
     runs-on: ubuntu-latest

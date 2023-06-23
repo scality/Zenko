@@ -78,7 +78,6 @@ kubectl run $POD_NAME \
         --pod-running-timeout=5m \
         --image=$E2E_IMAGE \
         --restart=Never \
-        --rm \
         --attach=True \
         --image-pull-policy=Always \
         --env=TARGET_VERSION=$VERSION  \
@@ -86,3 +85,10 @@ kubectl run $POD_NAME \
         --env=AZURE_QUEUE_URL=$AZURE_BACKEND_QUEUE_ENDPOINT \
         --env=VERBOSE=1 \
         -- ./run "$COMMAND" $WORLD_PARAMETERS "--parallel $PARALLEL_RUNS --retry $RETRIES --retry-tag-filter @Flaky"
+
+kubectl wait --for=condition=completed --timeout=2h pod/$POD_NAME
+
+kubectl cp $POD_NAME:/ctst/reports/report.html /tmp/artifacts/ctst-report.html
+kubectl cp $POD_NAME:/ctst/reports/cucumber-report.json /tmp/artifacts/ctst-cucumber-report.json
+
+kubectl delete pod $POD_NAME
