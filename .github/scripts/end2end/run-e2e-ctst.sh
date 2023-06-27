@@ -39,7 +39,6 @@ KEYCLOAK_TEST_PORT="80"
 KEYCLOAK_TEST_REALM_NAME=${OIDC_REALM}
 KEYCLOAK_TEST_CLIENT_ID=${OIDC_CLIENT_ID}
 KEYCLOAK_TEST_GRANT_TYPE="password"
-SORBET_DEPLOYMENT_NAME="${ZENKO_NAME}-cold-sorbet-azure-e2e-azure-archive"
 
 # get Zenko service users credentials
 BACKBEAT_LCBP_1_CREDS=$(kubectl get secret -l app.kubernetes.io/name=backbeat-lcbp-user-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.backbeat-lifecycle-bp-1\.json}' | base64 -d)
@@ -51,10 +50,10 @@ SORBET_FWD_2_SECRETKEY=$(kubectl get secret -l app.kubernetes.io/name=sorbet-fwd
 SERVICE_USERS_CREDENTIALS=$(echo '{"backbeat-lifecycle-bp-1":'${BACKBEAT_LCBP_1_CREDS}',"backbeat-lifecycle-conductor-1":'${BACKBEAT_LCC_1_CREDS}',"backbeat-lifecycle-op-1":'${BACKBEAT_LCOP_1_CREDS}',"backbeat-qp-1":'${BACKBEAT_QP_1_CREDS}',"sorbet-fwd-2":{"accessKey":"'${SORBET_FWD_2_ACCESSKEY}'","secretKey":"'${SORBET_FWD_2_SECRETKEY}'"}}' | jq -R)
 
 # Get backbeat UUID
-UUID=$(kubectl get secret -l app.kubernetes.io/name=backbeat-config,app.kubernetes.io/instance=end2end \
+BACKBEAT_UUID=$(kubectl get secret -l app.kubernetes.io/name=backbeat-config,app.kubernetes.io/instance=end2end \
     -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq .extensions.replication.topic)
-UUID=${UUID%.*}
-UUID=${UUID:1}
+BACKBEAT_UUID=${BACKBEAT_UUID%.*}
+BACKBEAT_UUID=${BACKBEAT_UUID:1}
 
 # Extracting kafka host from bacbeat's config
 KAFKA_HOST_PORT=$(kubectl get secret -l app.kubernetes.io/name=backbeat-config,app.kubernetes.io/instance=end2end \
@@ -66,7 +65,7 @@ AZURE_ARCHIVE_ACCESS_TIER="Hot"
 AZURE_ARCHIVE_MANIFEST_ACCESS_TIER="Hot"
 
 # Setting CTST world params
-WORLD_PARAMETERS='{"subdomain":"'${SUBDOMAIN}'","ssl":false,"port":"'${ZENKO_PORT}'","AccountName":"'${ZENKO_ACCOUNT_NAME}'","AdminAccessKey":"'${ADMIN_ACCESS_KEY_ID}'","AdminSecretKey":"'${ADMIN_SECRET_ACCESS_KEY}'","VaultAuthHost":"'${VAULT_AUTH_HOST}'","NotificationDestination":"'${NOTIF_DEST_NAME}'","NotificationDestinationTopic":"'${NOTIF_DEST_TOPIC}'","NotificationDestinationAlt":"'${NOTIF_ALT_DEST_NAME}'","NotificationDestinationTopicAlt":"'${NOTIF_ALT_DEST_TOPIC}'","KafkaHosts":"'${KAFKA_HOST_PORT}'","KeycloakPassword":"'${KEYCLOAK_TEST_PASSWORD}'","KeycloakHost":"'${KEYCLOAK_TEST_HOST}'","KeycloakPort":"'${KEYCLOAK_TEST_PORT}'","keycloakRealm":"'${KEYCLOAK_TEST_REALM_NAME}'","keycloakClientId":"'${KEYCLOAK_TEST_CLIENT_ID}'","keycloakGrantType":"'${KEYCLOAK_TEST_GRANT_TYPE}'","StorageManagerUsername":"'${STORAGE_MANAGER_USER_NAME}'","StorageAccountOwnerUsername":"'${STORAGE_ACCOUNT_OWNER_USER_NAME}'","DataConsumerUsername":"'${DATA_CONSUMER_USER_NAME}'","ServiceUsersCredentials":'${SERVICE_USERS_CREDENTIALS}',"azureAccountName":"'${AZURE_ACCOUNT_NAME}'","azureAccountKey":"'${AZURE_SECRET_KEY}'","azureArchiveContainer":"'${AZURE_ARCHIVE_BUCKET_NAME}'","AzureArchiveAccessTier":"'${AZURE_ARCHIVE_ACCESS_TIER}'","azureArchiveManifestTier":"'${AZURE_ARCHIVE_MANIFEST_ACCESS_TIER}'","azureArchiveQueue":"'${AZURE_ARCHIVE_QUEUE_NAME}'"}'
+WORLD_PARAMETERS='{"subdomain":"'${SUBDOMAIN}'","ssl":false,"port":"'${ZENKO_PORT}'","AccountName":"'${ZENKO_ACCOUNT_NAME}'","AdminAccessKey":"'${ADMIN_ACCESS_KEY_ID}'","AdminSecretKey":"'${ADMIN_SECRET_ACCESS_KEY}'","VaultAuthHost":"'${VAULT_AUTH_HOST}'","NotificationDestination":"'${NOTIF_DEST_NAME}'","NotificationDestinationTopic":"'${NOTIF_DEST_TOPIC}'","NotificationDestinationAlt":"'${NOTIF_ALT_DEST_NAME}'","NotificationDestinationTopicAlt":"'${NOTIF_ALT_DEST_TOPIC}'","KafkaHosts":"'${KAFKA_HOST_PORT}'","KeycloakPassword":"'${KEYCLOAK_TEST_PASSWORD}'","KeycloakHost":"'${KEYCLOAK_TEST_HOST}'","KeycloakPort":"'${KEYCLOAK_TEST_PORT}'","keycloakRealm":"'${KEYCLOAK_TEST_REALM_NAME}'","keycloakClientId":"'${KEYCLOAK_TEST_CLIENT_ID}'","keycloakGrantType":"'${KEYCLOAK_TEST_GRANT_TYPE}'","StorageManagerUsername":"'${STORAGE_MANAGER_USER_NAME}'","StorageAccountOwnerUsername":"'${STORAGE_ACCOUNT_OWNER_USER_NAME}'","DataConsumerUsername":"'${DATA_CONSUMER_USER_NAME}'","ServiceUsersCredentials":'${SERVICE_USERS_CREDENTIALS}',"azureAccountName":"'${AZURE_ACCOUNT_NAME}'","azureAccountKey":"'${AZURE_SECRET_KEY}'","azureArchiveContainer":"'${AZURE_ARCHIVE_BUCKET_NAME}'","AzureArchiveAccessTier":"'${AZURE_ARCHIVE_ACCESS_TIER}'","azureArchiveManifestTier":"'${AZURE_ARCHIVE_MANIFEST_ACCESS_TIER}'","azureArchiveQueue":"'${AZURE_ARCHIVE_QUEUE_NAME}'","backbeatUUID":"'${BACKBEAT_UUID}'"}'
 
 E2E_IMAGE=$E2E_CTST_IMAGE_NAME:$E2E_IMAGE_TAG
 POD_NAME="${ZENKO_NAME}-ctst-tests"
@@ -79,9 +78,6 @@ docker run \
     "${E2E_IMAGE}" /bin/bash \
     -c "SUBDOMAIN=${SUBDOMAIN} CONTROL_PLANE_INGRESS_ENDPOINT=${OIDC_ENDPOINT} ACCOUNT=${ZENKO_ACCOUNT_NAME} KEYCLOAK_REALM=${KEYCLOAK_TEST_REALM_NAME} STORAGE_MANAGER=${STORAGE_MANAGER_USER_NAME} STORAGE_ACCOUNT_OWNER=${STORAGE_ACCOUNT_OWNER_USER_NAME} DATA_CONSUMER=${DATA_CONSUMER_USER_NAME} /ctst/bin/seedKeycloak.sh"; [[ $? -eq 1 ]] && exit 1 || echo 'Keycloak Configured!'
 
-# Patch sorbet env
-kubectl set env deployment/${SORBET_DEPLOYMENT_NAME} SORBETD_AZURE_RESTORETIMEOUT=3s
-
 # Running end2end ctst tests
 kubectl run $POD_NAME \
         --pod-running-timeout=5m \
@@ -93,6 +89,5 @@ kubectl run $POD_NAME \
         --env=TARGET_VERSION=$VERSION  \
         --env=AZURE_BLOB_URL=$AZURE_BACKEND_ENDPOINT  \
         --env=AZURE_QUEUE_URL=$AZURE_BACKEND_QUEUE_ENDPOINT \
-        --env=UUID=$UUID \
         --env=VERBOSE=1 \
         -- ./run "$COMMAND" $WORLD_PARAMETERS "--parallel $PARALLEL_RUNS --retry $RETRIES --retry-tag-filter @Flaky"

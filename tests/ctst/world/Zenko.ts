@@ -90,6 +90,7 @@ export interface ZenkoWorldParameters {
     azureArchiveManifestTier: string;
     azureArchiveQueue: string;
     [key: string]: unknown;
+    backbeatUUID: string;
 }
 
 export interface ApiResult {

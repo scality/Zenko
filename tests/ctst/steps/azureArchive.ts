@@ -410,7 +410,7 @@ When('i restore object {string} for {int} days', async function (this: Zenko, ob
 });
 
 When('i run sorbetctl to retry failed restore for {string} location', function (this: Zenko, location: string) {
-    const backbeatUUID = process.env.UUID;
+    const backbeatUUID = this.parameters.backbeatUUID;
     assert(backbeatUUID);
     const command = `/ctst/sorbetctl forward list failed --trigger-retry --skip-invalid \
     --kafka-dead-letter-topic=${backbeatUUID}.cold-dead-letter-${location} \
