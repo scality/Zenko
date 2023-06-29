@@ -9,11 +9,13 @@
   "private": true,
   "dependencies": {
     "@types/qs": "^6.9.7",
+    "@types/tmp": "^0.2.1",
     "assert": "^2.0.0",
     "aws4-axios": "^2.4.9",
     "node-gyp": "^9.3.1",
     "prometheus-query": "^3.2.0",
-    "qs": "^6.11.1"
+    "qs": "^6.11.1",
+    "tmp": "^0.2.1"
   },
   "devDependencies": {
     "cli-testing": "github:scality/cli-testing.git#0.2.15",
