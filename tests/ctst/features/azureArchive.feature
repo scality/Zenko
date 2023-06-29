@@ -97,10 +97,14 @@ Feature: Azure Archive
     @PreMerge
     @Flaky
     @AzureArchive
+    @WIP
     Scenario Outline: Restore objects from tar
     Given a "<versioningConfiguration>" bucket
     And a transition workflow to "e2e-azure-archive" location
-    And <objectCount> objects "obj" of size <objectSize> bytes
+    And <objectCount> objects "obj" of size <objectSize> bytes with user metadata "x-amz-meta-123=456"
+    And object "obj-2" should have the user metadata with key "x-amz-meta-123" and value "456"
+    And a tag on object "obj-1" with key "tag1" and value "value1"
+    And a tag on object "obj-2" with key "tag2" and value "value2"
     Then the storage class of object "obj-1" must become "e2e-azure-archive"
     And the storage class of object "obj-2" must become "e2e-azure-archive"
     And manifest containing object "obj-1" should "contain" object "obj-2"
@@ -111,10 +115,14 @@ Feature: Azure Archive
     And the storage class of object "obj-2" must become "e2e-azure-archive"
     And object "obj-1" should expire in <restoreDays> days
     And object "obj-1" should have the same data
+    And object "obj-1" should have the tag "tag1" with value "value1"
+    And object "obj-1" should have the user metadata with key "x-amz-meta-123" and value "456"
     When i restore object "obj-2" for <restoreDays> days
     Then the storage class of object "obj-2" must become ""
     And object "obj-2" should expire in <restoreDays> days
     And object "obj-2" should have the same data
+    And object "obj-2" should have the tag "tag2" with value "value2"
+    And object "obj-2" should have the user metadata with key "x-amz-meta-123" and value "456"
 
     Examples:
         | versioningConfiguration | objectCount | objectSize | restoreDays |

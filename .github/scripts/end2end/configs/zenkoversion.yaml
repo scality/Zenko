@@ -10,8 +10,8 @@ spec:
       image: '${BACKBEAT_DASHBOARD}'
       tag: '${BACKBEAT_TAG}'
     cloudserver:
-      image: '${CLOUDSERVER_DASHBOARD}'
-      tag: '${CLOUDSERVER_TAG}'
+      image: registry.scality.com/playground/kgardahaut/cloudserver-dashboards
+      tag: 8.7.25
     s3utils:
       image: '${S3UTILS_DASHBOARD}'
       tag: '${S3UTILS_TAG}'
@@ -55,8 +55,8 @@ spec:
         image: '${PENSIEVE_API_IMAGE}'
         tag: '${PENSIEVE_API_TAG}'
     cloudserver:
-      image: '${CLOUDSERVER_IMAGE}' 
-      tag: '${CLOUDSERVER_TAG}'
+      image: registry.scality.com/playground/kgardahaut/cloudserver
+      tag: 8.7.25
     backbeat:
       image: '${BACKBEAT_IMAGE}' 
       tag: '${BACKBEAT_TAG}'
@@ -64,14 +64,14 @@ spec:
       image: '${UTAPI_IMAGE}' 
       tag: '${UTAPI_TAG}'
     secureChannelProxy:
-      image: '${CLOUDSERVER_IMAGE}' 
-      tag: '${CLOUDSERVER_TAG}'
+      image: registry.scality.com/playground/kgardahaut/cloudserver
+      tag: 8.7.25
     localData:
-      image: '${CLOUDSERVER_IMAGE}' 
-      tag: '${CLOUDSERVER_TAG}'
+      image: registry.scality.com/playground/kgardahaut/cloudserver
+      tag: 8.7.25
     metrics:
-      image: '${CLOUDSERVER_IMAGE}' 
-      tag: '${CLOUDSERVER_TAG}'
+      image: registry.scality.com/playground/kgardahaut/cloudserver
+      tag: 8.7.25
     s3utils:
       image: '${S3UTILS_IMAGE}' 
       tag: '${S3UTILS_TAG}'
