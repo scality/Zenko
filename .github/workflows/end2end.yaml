@@ -577,6 +577,9 @@ jobs:
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
           ZENKO_MONGODB_SHARDED: "true"
           ZENKO_ENABLE_SOSAPI: true
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: always()
       - name: Configure E2E test environment
         run: bash configure-e2e-ctst.sh
         working-directory: ./.github/scripts/end2end
