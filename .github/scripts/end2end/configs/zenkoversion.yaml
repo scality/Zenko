@@ -5,6 +5,8 @@ kind: ZenkoVersion
 metadata:
   name: '${ZENKO_VERSION_NAME}'
 spec:
+  featureFlags:
+    backbeatGCVaultAuthorized: true
   dashboards:
     backbeat:
       image: '${BACKBEAT_DASHBOARD}'

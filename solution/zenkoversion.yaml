@@ -114,3 +114,4 @@ spec:
       kubedb: '${REDIS_KUBEDB_TAG}'
   featureFlags:
     multipleColdLocations: true
+    backbeatGCVaultAuthorized: true
