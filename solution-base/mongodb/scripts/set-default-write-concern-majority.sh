@@ -1,9 +1,7 @@
 #!/bin/bash
 
 get_mongodb_version() {
-    mongo --host "mongodb://127.0.0.1/?replicaSet=${MONGODB_REPLICA_SET_NAME}" -u 'root' -p "$MONGODB_ROOT_PASSWORD" <<EOF
-db.version().split(".")
-EOF
+    echo "$(mongo --quiet --host "mongodb://127.0.0.1/?replicaSet=${MONGODB_REPLICA_SET_NAME}" -u 'root' -p "$MONGODB_ROOT_PASSWORD" --eval 'db.version()')"
 }
 
 set_default_majority_if_mongos() {
@@ -24,9 +22,9 @@ if (!defaultWriteConcern || defaultWriteConcern.w !== 'majority') {
 EOF
 }
 
-version_array=$(get_mongodb_version)
-major=$(echo $version_array | cut -d. -f1)
-minor=$(echo $version_array | cut -d. -f2)
+version=$(get_mongodb_version)
+major=$(echo "$version" | cut -d. -f1)
+minor=$(echo "$version" | cut -d. -f2)
 
 # Handling of MongoDB 4.4+
 if [ "${MONGODB_SHARDING_MODE:-}" == "mongos" ] && [ "$major" -ge 4 ] && [ "$minor" -ge 4 ]; then
