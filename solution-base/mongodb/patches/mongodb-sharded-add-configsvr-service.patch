@@ -22,10 +22,16 @@ index 00000000..fff5cea7
 +apiVersion: v1
 +kind: Service
 +metadata:
-+  name: {{ include "common.names.fullname" . }}-configsvr
++  name: {{ printf "%s-configsvr" (include "common.names.fullname" .) }}
++  namespace: {{ include "common.names.namespace" . | quote }}
 +  labels: {{ include "common.labels.standard" . | nindent 4 }}
 +    app.kubernetes.io/component: configsvr
-+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.service.annotations "context" $ ) | nindent 4 }}
++    {{- if .Values.commonLabels }}
++    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
++    {{- end }}
++  {{- if .Values.commonAnnotations }}
++  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
++  {{- end }}
 +spec:
 +  type: {{ .Values.service.type }}
 +  {{- if and .Values.service.loadBalancerIP (eq .Values.service.type "LoadBalancer") }}
