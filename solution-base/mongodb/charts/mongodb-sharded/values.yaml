@@ -113,7 +113,7 @@ auth:
   ## @param auth.existingSecret Existing secret with MongoDB(&reg;) credentials (keys: `mongodb-password`, `mongodb-root-password`, ` mongodb-replica-set-key`)
   ## NOTE: When it's set the previous parameters are ignored.
   ##
-  existingSecret: ""
+  existingSecret: mongodb-db-creds
   ## @param auth.usePasswordFile Mount credentials as files instead of using environment variables
   ##
   usePasswordFile: false
