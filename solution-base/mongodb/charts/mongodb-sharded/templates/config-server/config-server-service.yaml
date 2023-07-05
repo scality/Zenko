@@ -21,10 +21,10 @@ spec:
   {{- end }}
   ports:
     - name: mongodb
-      port: {{ .Values.service.port }}
+      port: {{ .Values.service.ports.mongodb }}
       targetPort: mongodb
-      {{- if .Values.service.nodePort }}
-      nodePort: {{ .Values.service.nodePort }}
+      {{- if .Values.service.nodePorts.mongodb }}
+      nodePort: {{ .Values.service.nodePorts.mongodb }}
       {{- else if eq .Values.service.type "ClusterIP" }}
       nodePort: null
       {{- end }}
