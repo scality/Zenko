@@ -44,9 +44,9 @@ kafka-lag-exporter:
   tag: 0.7.1
   envsubst: KAFKA_LAGEXPORTER_TAG
 pensieve-api:
-  sourceRegistry: registry.scality.com/pensieve-api
+  sourceRegistry: registry.scality.com/playground/wlardier
   image: pensieve-api
-  tag: 1.4.9
+  tag: 1.4.211
   envsubst: PENSIEVE_API_TAG
 rclone:
   sourceRegistry: rclone

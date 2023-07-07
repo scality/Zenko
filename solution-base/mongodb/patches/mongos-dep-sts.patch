@@ -1,10 +1,10 @@
 diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/mongos/mongos-dep-sts.yaml b/solution-base/mongodb/charts/mongodb-sharded/templates/mongos/mongos-dep-sts.yaml
-index 6be3476e..0bc6f8a9 100644
+index 4bfc807b..883f08f7 100644
 --- a/solution-base/mongodb/charts/mongodb-sharded/templates/mongos/mongos-dep-sts.yaml
 +++ b/solution-base/mongodb/charts/mongodb-sharded/templates/mongos/mongos-dep-sts.yaml
-@@ -84,6 +84,9 @@ spec:
-             runAsNonRoot: {{ .Values.securityContext.runAsNonRoot }}
-             runAsUser: {{ .Values.securityContext.runAsUser }}
+@@ -97,6 +97,9 @@ spec:
+           {{- if .Values.mongos.containerSecurityContext.enabled }}
+           securityContext: {{- omit .Values.mongos.containerSecurityContext "enabled" | toYaml | nindent 12 }}
            {{- end }}
 +          command:
 +            - /bin/bash
@@ -12,23 +12,32 @@ index 6be3476e..0bc6f8a9 100644
            env:
              - name: MONGODB_ENABLE_NUMACTL
                value: {{ ternary "yes" "no" $.Values.common.mongodbEnableNumactl | quote }}
-@@ -209,6 +212,8 @@ spec:
-           {{- end }}
+@@ -138,7 +141,7 @@ spec:
+             - name: MONGODB_PORT_NUMBER
+               value: {{ $.Values.common.containerPorts.mongodb | quote }}
+             - name: MONGODB_CFG_PRIMARY_HOST
+-              value: {{ include "mongodb-sharded.configServer.primaryHost" . }}
++              value: {{ include "mongodb-sharded.configServer.serviceName" . }}
+             - name: MONGODB_CFG_REPLICA_SET_NAME
+               value: {{ include "mongodb-sharded.configServer.rsName" . }}
+             - name: MONGODB_SYSTEM_LOG_VERBOSITY
+@@ -235,6 +238,8 @@ spec:
+           lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.mongos.lifecycleHooks "context" $) | nindent 12 }}
            {{- end }}
            volumeMounts:
 +            - name: replicaset-entrypoint-configmap
 +              mountPath: /entrypoint
-             {{- if .Values.usePasswordFile }}
+             {{- if .Values.auth.usePasswordFile }}
              - name: secrets
                mountPath: /bitnami/mongodb/secrets/
-@@ -299,6 +304,9 @@ spec:
+@@ -328,6 +333,9 @@ spec:
          {{- include "common.tplvalues.render" ( dict "value" . "context" $ ) | nindent 8 }}
          {{- end }}
        volumes:
 +        - name: replicaset-entrypoint-configmap
 +          configMap:
 +            name: {{ include "common.names.fullname" . }}-replicaset-entrypoint
-         {{- if .Values.usePasswordFile }}
+         {{- if .Values.auth.usePasswordFile }}
          - name: secrets
            secret:
 -- 
