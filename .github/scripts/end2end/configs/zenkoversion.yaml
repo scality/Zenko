@@ -116,3 +116,4 @@ spec:
     lifecycleOptimization: true
     manageKafkaTopics: true
     multipleColdLocations: true
+    backbeatGCVaultAuthorized: true
