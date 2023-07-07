@@ -170,7 +170,7 @@ mongodb_sharded() {
         $SOLUTION_REGISTRY/bitnami-shell=$(get_image_from_deps mongodb-shell) \
         $SOLUTION_REGISTRY/mongodb-exporter=$(get_image_from_deps mongodb-sharded-exporter)
 
-    kubectl apply -k . --v=6
+    kubectl apply -k .
 
     kubectl rollout status statefulset data-db-mongodb-sharded-mongos
     kubectl rollout status statefulset data-db-mongodb-sharded-configsvr
