@@ -49,11 +49,16 @@ SORBET_FWD_2_ACCESSKEY=$(kubectl get secret -l app.kubernetes.io/name=sorbet-fwd
 SORBET_FWD_2_SECRETKEY=$(kubectl get secret -l app.kubernetes.io/name=sorbet-fwd-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.secretKey}' | base64 -d)
 SERVICE_USERS_CREDENTIALS=$(echo '{"backbeat-lifecycle-bp-1":'${BACKBEAT_LCBP_1_CREDS}',"backbeat-lifecycle-conductor-1":'${BACKBEAT_LCC_1_CREDS}',"backbeat-lifecycle-op-1":'${BACKBEAT_LCOP_1_CREDS}',"backbeat-qp-1":'${BACKBEAT_QP_1_CREDS}',"sorbet-fwd-2":{"accessKey":"'${SORBET_FWD_2_ACCESSKEY}'","secretKey":"'${SORBET_FWD_2_SECRETKEY}'"}}' | jq -R)
 
-# Get backbeat UUID
-BACKBEAT_UUID=$(kubectl get secret -l app.kubernetes.io/name=backbeat-config,app.kubernetes.io/instance=end2end \
-    -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq .extensions.replication.topic)
-BACKBEAT_UUID=${BACKBEAT_UUID%.*}
-BACKBEAT_UUID=${BACKBEAT_UUID:1}
+# Get KAFKA topics for sorbet
+KAFKA_DEAD_LETTER_TOPIC=$(kubectl get secret -l app.kubernetes.io/name=cold-sorbet-config-e2e-azure-archive,app.kubernetes.io/instance=end2end \
+    -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq '."kafka-dead-letter-topic"')
+KAFKA_DEAD_LETTER_TOPIC=${KAFKA_DEAD_LETTER_TOPIC%.*}
+KAFKA_DEAD_LETTER_TOPIC=${KAFKA_DEAD_LETTER_TOPIC:1}
+
+KAFKA_OBJECT_TASK_TOPIC=$(kubectl get secret -l app.kubernetes.io/name=cold-sorbet-config-e2e-azure-archive,app.kubernetes.io/instance=end2end \
+    -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq '."kafka-object-task-topic"')
+KAFKA_OBJECT_TASK_TOPIC=${KAFKA_OBJECT_TASK_TOPIC%.*}
+KAFKA_OBJECT_TASK_TOPIC=${KAFKA_OBJECT_TASK_TOPIC:1}
 
 # Extracting kafka host from bacbeat's config
 KAFKA_HOST_PORT=$(kubectl get secret -l app.kubernetes.io/name=backbeat-config,app.kubernetes.io/instance=end2end \
@@ -65,7 +70,7 @@ AZURE_ARCHIVE_ACCESS_TIER="Hot"
 AZURE_ARCHIVE_MANIFEST_ACCESS_TIER="Hot"
 
 # Setting CTST world params
-WORLD_PARAMETERS='{"subdomain":"'${SUBDOMAIN}'","ssl":false,"port":"'${ZENKO_PORT}'","AccountName":"'${ZENKO_ACCOUNT_NAME}'","AdminAccessKey":"'${ADMIN_ACCESS_KEY_ID}'","AdminSecretKey":"'${ADMIN_SECRET_ACCESS_KEY}'","VaultAuthHost":"'${VAULT_AUTH_HOST}'","NotificationDestination":"'${NOTIF_DEST_NAME}'","NotificationDestinationTopic":"'${NOTIF_DEST_TOPIC}'","NotificationDestinationAlt":"'${NOTIF_ALT_DEST_NAME}'","NotificationDestinationTopicAlt":"'${NOTIF_ALT_DEST_TOPIC}'","KafkaHosts":"'${KAFKA_HOST_PORT}'","KeycloakPassword":"'${KEYCLOAK_TEST_PASSWORD}'","KeycloakHost":"'${KEYCLOAK_TEST_HOST}'","KeycloakPort":"'${KEYCLOAK_TEST_PORT}'","keycloakRealm":"'${KEYCLOAK_TEST_REALM_NAME}'","keycloakClientId":"'${KEYCLOAK_TEST_CLIENT_ID}'","keycloakGrantType":"'${KEYCLOAK_TEST_GRANT_TYPE}'","StorageManagerUsername":"'${STORAGE_MANAGER_USER_NAME}'","StorageAccountOwnerUsername":"'${STORAGE_ACCOUNT_OWNER_USER_NAME}'","DataConsumerUsername":"'${DATA_CONSUMER_USER_NAME}'","ServiceUsersCredentials":'${SERVICE_USERS_CREDENTIALS}',"azureAccountName":"'${AZURE_ACCOUNT_NAME}'","azureAccountKey":"'${AZURE_SECRET_KEY}'","azureArchiveContainer":"'${AZURE_ARCHIVE_BUCKET_NAME}'","AzureArchiveAccessTier":"'${AZURE_ARCHIVE_ACCESS_TIER}'","azureArchiveManifestTier":"'${AZURE_ARCHIVE_MANIFEST_ACCESS_TIER}'","azureArchiveQueue":"'${AZURE_ARCHIVE_QUEUE_NAME}'","backbeatUUID":"'${BACKBEAT_UUID}'"}'
+WORLD_PARAMETERS='{"subdomain":"'${SUBDOMAIN}'","ssl":false,"port":"'${ZENKO_PORT}'","AccountName":"'${ZENKO_ACCOUNT_NAME}'","AdminAccessKey":"'${ADMIN_ACCESS_KEY_ID}'","AdminSecretKey":"'${ADMIN_SECRET_ACCESS_KEY}'","VaultAuthHost":"'${VAULT_AUTH_HOST}'","NotificationDestination":"'${NOTIF_DEST_NAME}'","NotificationDestinationTopic":"'${NOTIF_DEST_TOPIC}'","NotificationDestinationAlt":"'${NOTIF_ALT_DEST_NAME}'","NotificationDestinationTopicAlt":"'${NOTIF_ALT_DEST_TOPIC}'","KafkaHosts":"'${KAFKA_HOST_PORT}'","KeycloakPassword":"'${KEYCLOAK_TEST_PASSWORD}'","KeycloakHost":"'${KEYCLOAK_TEST_HOST}'","KeycloakPort":"'${KEYCLOAK_TEST_PORT}'","keycloakRealm":"'${KEYCLOAK_TEST_REALM_NAME}'","keycloakClientId":"'${KEYCLOAK_TEST_CLIENT_ID}'","keycloakGrantType":"'${KEYCLOAK_TEST_GRANT_TYPE}'","StorageManagerUsername":"'${STORAGE_MANAGER_USER_NAME}'","StorageAccountOwnerUsername":"'${STORAGE_ACCOUNT_OWNER_USER_NAME}'","DataConsumerUsername":"'${DATA_CONSUMER_USER_NAME}'","ServiceUsersCredentials":'${SERVICE_USERS_CREDENTIALS}',"azureAccountName":"'${AZURE_ACCOUNT_NAME}'","azureAccountKey":"'${AZURE_SECRET_KEY}'","azureArchiveContainer":"'${AZURE_ARCHIVE_BUCKET_NAME}'","AzureArchiveAccessTier":"'${AZURE_ARCHIVE_ACCESS_TIER}'","azureArchiveManifestTier":"'${AZURE_ARCHIVE_MANIFEST_ACCESS_TIER}'","azureArchiveQueue":"'${AZURE_ARCHIVE_QUEUE_NAME}'","kafkaObjectTaskTopic":"'${KAFKA_OBJECT_TASK_TOPIC}'","kafkaDeadLetterQueueTopic":"'${KAFKA_DEAD_LETTER_TOPIC}'"}'
 
 E2E_IMAGE=$E2E_CTST_IMAGE_NAME:$E2E_IMAGE_TAG
 POD_NAME="${ZENKO_NAME}-ctst-tests"

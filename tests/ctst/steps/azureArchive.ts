@@ -368,7 +368,7 @@ Then('blob for object {string} must be rehydrated {string} notifying the queue',
 
 Then('the storage class of object {string} must stay {string} for {int} seconds',
     async function (this: Zenko, objectName: string, storageClass: string, seconds: number) {
-        const objName = objectName ||  this.getSaved<string>('objectName');
+        const objName = objectName || this.getSaved<string>('objectName');
         this.resetCommand();
         this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
         this.addCommandParameter({ key: objName });
@@ -413,9 +413,9 @@ When('i run sorbetctl to retry failed restore for {string} location', function (
     const backbeatUUID = this.parameters.backbeatUUID;
     assert(backbeatUUID);
     const command = `/ctst/sorbetctl forward list failed --trigger-retry --skip-invalid \
-    --kafka-dead-letter-topic=${backbeatUUID}.cold-dead-letter-${location} \
-    --kafka-object-task-topic=${backbeatUUID}.backbeat-lifecycle-object-tasks \
-    --kafka-brokers ${this.parameters.KafkaHosts}`;
+        --kafka-dead-letter-topic=${this.parameters.kafkaDeadLetterQueueTopic} \
+        --kafka-object-task-topic=${this.parameters.kafkaObjectTaskTopic} \
+        --kafka-brokers ${this.parameters.KafkaHosts}`;
     exec(command, (error) => {
         if (error) {
             throw error;
