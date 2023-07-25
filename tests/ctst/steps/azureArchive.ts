@@ -200,8 +200,8 @@ Given('a transition workflow to {string} location', async function (this: Zenko,
     await S3.putBucketLifecycleConfiguration(this.getCommandParameters());
 });
 
-Then('the storage class of object {string} must become {string}',
-    async function (this: Zenko, objectName: string, storageClass: string) {
+Then('object {string} should be {string} and have the storage class {string}',
+    async function (this: Zenko, objectName: string, operation: string, storageClass: string) {
         const objName = objectName ||  this.getSaved<string>('objectName');
         this.resetCommand();
         this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
@@ -210,8 +210,8 @@ Then('the storage class of object {string} must become {string}',
         if (versionId) {
             this.addCommandParameter({ versionId });
         }
-        let transitioned = false;
-        while (!transitioned) {
+        let conditionOk = false;
+        while (!conditionOk) {
             const res = await S3.headObject(this.getCommandParameters());
             if (res.err) {
                 break;
@@ -219,14 +219,22 @@ Then('the storage class of object {string} must become {string}',
             assert(res.stdout);
             const parsed = safeJsonParse(res.stdout);
             assert(parsed.ok);
-            const head = parsed.result as { StorageClass: string | undefined };
+            const head = parsed.result as {
+                StorageClass: string | undefined,
+                Restore: string | undefined,
+            };
             const expectedClass = storageClass !== '' ? storageClass : undefined;
             if (head?.StorageClass === expectedClass) {
-                transitioned = true;
+                conditionOk = true;
+            }
+            if (operation == 'restored') {
+                const restoredCondition = !!head?.Restore &&
+                    head.Restore.includes('ongoing-request="false", expiry-date=');
+                conditionOk = conditionOk && restoredCondition;
             }
             await Utils.sleep(3000);
         }
-        assert(transitioned);
+        assert(conditionOk);
     });
 
 Then('manifest access tier should be valid for object {string}', async function (this: Zenko, objectName: string) {
