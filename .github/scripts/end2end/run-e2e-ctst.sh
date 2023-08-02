@@ -80,6 +80,7 @@ docker run \
     -c "SUBDOMAIN=${SUBDOMAIN} CONTROL_PLANE_INGRESS_ENDPOINT=${OIDC_ENDPOINT} ACCOUNT=${ZENKO_ACCOUNT_NAME} KEYCLOAK_REALM=${KEYCLOAK_TEST_REALM_NAME} STORAGE_MANAGER=${STORAGE_MANAGER_USER_NAME} STORAGE_ACCOUNT_OWNER=${STORAGE_ACCOUNT_OWNER_USER_NAME} DATA_CONSUMER=${DATA_CONSUMER_USER_NAME} /ctst/bin/seedKeycloak.sh"; [[ $? -eq 1 ]] && exit 1 || echo 'Keycloak Configured!'
 
 # Running end2end ctst tests
+# Using overrides as we need to attach a local folder to the pod
 kubectl run $POD_NAME \
         --pod-running-timeout=5m \
         --image=$E2E_IMAGE \
@@ -91,4 +92,30 @@ kubectl run $POD_NAME \
         --env=AZURE_BLOB_URL=$AZURE_BACKEND_ENDPOINT  \
         --env=AZURE_QUEUE_URL=$AZURE_BACKEND_QUEUE_ENDPOINT \
         --env=VERBOSE=1 \
-        -- ./run "$COMMAND" $WORLD_PARAMETERS "--parallel $PARALLEL_RUNS --retry $RETRIES --retry-tag-filter @Flaky"
+        --override-type strategic \
+        --overrides='
+{
+  "apiVersion": "v1",
+  "kind": "Pod",
+  "spec": {
+    "containers": [
+      {
+        "name": "'$POD_NAME'",
+        "volumeMounts": [
+          {
+            "name": "cold-data",
+            "mountPath": "/cold-data"
+          }
+        ]
+      }
+    ],
+    "volumes": [
+      {
+        "name": "cold-data",
+        "persistentVolumeClaim": {
+          "claimName": "sorbet-data"
+        }
+      }
+    ]
+  }
+}' -- ./run "$COMMAND" $WORLD_PARAMETERS "--parallel $PARALLEL_RUNS --retry $RETRIES --retry-tag-filter @Flaky"
