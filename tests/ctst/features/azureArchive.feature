@@ -18,7 +18,7 @@ Feature: Azure Archive
         | versioningConfiguration | objectCount | objectSize |
         |           Non versioned |           2 |        100 |
         |               Versioned |           2 |        100 |
-        # |               Suspended |           2 |        100 |
+        |               Suspended |           2 |        100 |
 
     @2.7.0
     @PreMerge
@@ -36,7 +36,7 @@ Feature: Azure Archive
         | versioningConfiguration | objectCount | objectSize |
         |           Non versioned |           3 |        0 |
         |               Versioned |           3 |        0 |
-        # |               Suspended |           3 |        0 |
+        |               Suspended |           3 |        0 |
 
     @2.7.0
     @PreMerge
@@ -69,7 +69,7 @@ Feature: Azure Archive
         | versioningConfiguration | objectCount | objectSize | packObjectCount |
         |           Non versioned |           6 |          1 |               3 |
         |               Versioned |           6 |          1 |               3 |
-        # |               Suspended |           6 |          1 |               3 |
+        |               Suspended |           6 |          1 |               3 |
 
     @2.7.0
     @PreMerge
@@ -90,7 +90,7 @@ Feature: Azure Archive
         | versioningConfiguration | objectCount | objectSize | packObjectCount |
         |           Non versioned |           2 |      30000 |               1 |
         |               Versioned |           2 |      30000 |               1 |
-        # |               Suspended |           2 |      30000 |               1 |
+        |               Suspended |           2 |      30000 |               1 |
 
 
     @2.7.0
@@ -120,5 +120,5 @@ Feature: Azure Archive
         | versioningConfiguration | objectCount | objectSize | restoreDays |
         |           Non versioned |           2 |        100 |           5 |
         |               Versioned |           2 |        100 |           2 |
-        # |               Suspended |           2 |        100 |           2 |
+        |               Suspended |           2 |        100 |           2 |
 
