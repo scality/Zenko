@@ -402,7 +402,7 @@ class LifecycleUtility extends ReplicationUtility {
                 if (err) {
                     return next(err);
                 }
-                shouldContinue = data.StorageClass;
+                shouldContinue = data.Restore && data.Restore.includes('ongoing-request="false", expiry-date=');
                 if (shouldContinue) {
                     return setTimeout(next, 5000);
                 }
