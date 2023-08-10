@@ -87,8 +87,6 @@ const testsToRun = [{
     to: 'DMF',
 }];
 
-const skipIfDMF = to => (to === 'DMF' ? it.skip : it);
-
 testsToRun.forEach(test => {
     // eslint-disable-next-line prefer-arrow-callback
     describe(`Lifecycle transition from ${test.from} to ${test.to}`, function () {
@@ -131,7 +129,7 @@ testsToRun.forEach(test => {
         describe('without versioning', () => {
             beforeEach(done => cloudServer.createBucket(srcBucket, done));
 
-            skipIfDMF(test.to)('should transition a 0 byte object', done => {
+            it('should transition a 0 byte object', done => {
                 const key = `${prefix}nover-0-byte-object`;
                 cloudServer.setKey(key);
                 cloud.setKey(`${srcBucket}/${key}`);
