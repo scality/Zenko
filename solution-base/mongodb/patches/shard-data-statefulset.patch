@@ -1,0 +1,18 @@
+diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-statefulset.yaml b/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-statefulset.yaml
+index 3f04c43d..091b57ba 100644
+--- a/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-statefulset.yaml
++++ b/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-statefulset.yaml
+@@ -410,7 +410,11 @@ spec:
+         {{- end }}
+         {{- if $.Values.shardsvr.persistence.selector }}
+         selector:
+-{{ toYaml $.Values.shardsvr.persistence.selector | indent 10 }}
++          matchLabels:
++            {{- if gt $.Values.shards 1 }}
++            shard: {{ $i | quote }}
++            {{- end }}
++{{ toYaml $.Values.shardsvr.persistence.selector.matchLabels | indent 12 }}
+         {{- end }}
+         resources:
+           requests:
+mongodb-sharded-fix-podmonitor
