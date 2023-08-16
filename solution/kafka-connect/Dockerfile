@@ -24,6 +24,8 @@ ARG JMX_JAVAAGENT_TAG
 COPY kafka-connect.yaml /etc/jmx-exporter/config.yaml
 COPY --from=jmx-exporter /opt/jmx_exporter/jmx_prometheus_javaagent-${JMX_JAVAAGENT_TAG}.jar \
      /opt/jmx-exporter/jmx_prometheus.jar
+
+COPY connect-log4j.properties ${KAFKA_HOME}/config/
 ENV KAFKA_OPTS=-javaagent:/opt/jmx-exporter/jmx_prometheus.jar=9020:/etc/jmx-exporter/config.yaml
 
 # mongodb ingestor
