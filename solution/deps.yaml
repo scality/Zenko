@@ -34,7 +34,7 @@ kafka-connect:
   tag: 2.13-3.1.2
   envsubst: KAFKA_CONNECT_TAG
 mongodb-connector:
-  tag: 1.10.0
+  tag: 1.10.1
   envsubst: MONGODB_CONNECTOR_TAG
 kafka-cruise-control:
   sourceRegistry: ghcr.io/banzaicloud
