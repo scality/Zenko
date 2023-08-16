@@ -260,6 +260,7 @@ jobs:
           KAFKA_CONNECT_TAG=$(yq eval '.kafka-connect.tag' deps.yaml)
           JMX_JAVAAGENT_IMAGE=$(get_image_from_deps jmx-javaagent)
           JMX_JAVAAGENT_TAG=$(yq eval '.jmx-javaagent.tag' deps.yaml)
+          MONGODB_CONNECTOR_TAG=$(yq eval '.mongodb-connector.tag' deps.yaml)
           EOF
 
       - name: Check kafka & kafka-connect versions match
@@ -288,6 +289,7 @@ jobs:
             JMX_JAVAAGENT_TAG=${{ env.JMX_JAVAAGENT_TAG }}
             KAFKA_IMAGE=${{ env.KAFKA_IMAGE }}
             KAFKA_TAG=${{ env.KAFKA_TAG }}
+            MONGODB_CONNECTOR_TAG=${{ env.MONGODB_CONNECTOR_TAG }}
           tags: "${{ env.KAFKA_CONNECT_IMAGE }}:${{ env.KAFKA_CONNECT_TAG }}"
           cache-from: type=gha,scope=$GITHUB_REF_NAME-kafka-connect
           cache-to: type=gha,mode=max,scope=$GITHUB_REF_NAME-kafka-connect
