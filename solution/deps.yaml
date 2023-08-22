@@ -31,7 +31,7 @@ kafka:
 kafka-connect:
   sourceRegistry: registry.scality.com/zenko
   image: kafka-connect
-  tag: 2.13-3.1.2
+  tag: 2.13-3.1.2-1.10.1
   envsubst: KAFKA_CONNECT_TAG
 mongodb-connector:
   tag: 1.10.1

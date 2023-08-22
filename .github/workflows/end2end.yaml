@@ -259,7 +259,7 @@ jobs:
 
       - name: Check kafka & kafka-connect versions match
         run: |-
-          [ "${{ env.KAFKA_TAG }}" = "${{ env.KAFKA_CONNECT_TAG }}" ]
+          [ "${{ env.KAFKA_TAG }}-${{ env.MONGODB_CONNECTOR_TAG }}" = "${{ env.KAFKA_CONNECT_TAG }}" ]
 
       - name: Build and push kafka
         uses: docker/build-push-action@v3.1.0
