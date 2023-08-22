@@ -29,7 +29,8 @@ ARG kafka_version=3.1.0
 
 ENV KAFKA_VERSION=$kafka_version \
     SCALA_VERSION=$scala_version \
-    KAFKA_HOME=/opt/kafka
+    KAFKA_HOME=/opt/kafka \
+    KAFKA_GC_LOG_OPTS=-Dnogclog
 
 ENV PATH=${PATH}:${KAFKA_HOME}/bin
 
