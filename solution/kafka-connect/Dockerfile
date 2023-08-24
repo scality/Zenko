@@ -12,10 +12,10 @@ FROM ${JMX_JAVAAGENT_IMAGE}:${JMX_JAVAAGENT_TAG} AS jmx-exporter
 FROM library/alpine:3.15 AS mongodb-connector
 RUN apk update && apk upgrade && apk add --no-cache curl zip
 
-ARG MONGODB_CONNECTOR_VERSION=1.10.0
+ARG MONGODB_CONNECTOR_TAG
 WORKDIR /tmp
-RUN curl -LO https://repo1.maven.org/maven2/org/mongodb/kafka/mongo-kafka-connect/${MONGODB_CONNECTOR_VERSION}/mongo-kafka-connect-${MONGODB_CONNECTOR_VERSION}-all.jar && \
-    mv /tmp/mongo-kafka-connect-${MONGODB_CONNECTOR_VERSION}-all.jar /tmp/mongo-kafka-connect.jar
+RUN curl -LO https://repo1.maven.org/maven2/org/mongodb/kafka/mongo-kafka-connect/${MONGODB_CONNECTOR_TAG}/mongo-kafka-connect-${MONGODB_CONNECTOR_TAG}-all.jar && \
+    mv /tmp/mongo-kafka-connect-${MONGODB_CONNECTOR_TAG}-all.jar /tmp/mongo-kafka-connect.jar
 
 # Use Kafka base image
 FROM ${KAFKA_IMAGE}:${KAFKA_TAG}
@@ -24,6 +24,8 @@ ARG JMX_JAVAAGENT_TAG
 COPY kafka-connect.yaml /etc/jmx-exporter/config.yaml
 COPY --from=jmx-exporter /opt/jmx_exporter/jmx_prometheus_javaagent-${JMX_JAVAAGENT_TAG}.jar \
      /opt/jmx-exporter/jmx_prometheus.jar
+
+COPY connect-log4j.properties ${KAFKA_HOME}/config/
 ENV KAFKA_OPTS=-javaagent:/opt/jmx-exporter/jmx_prometheus.jar=9020:/etc/jmx-exporter/config.yaml
 
 # mongodb ingestor

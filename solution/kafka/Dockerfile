@@ -29,13 +29,15 @@ ARG kafka_version=3.1.0
 
 ENV KAFKA_VERSION=$kafka_version \
     SCALA_VERSION=$scala_version \
-    KAFKA_HOME=/opt/kafka
+    KAFKA_HOME=/opt/kafka \
+    KAFKA_GC_LOG_OPTS=-Dnogclog
 
 ENV PATH=${PATH}:${KAFKA_HOME}/bin
 
 RUN mkdir ${KAFKA_HOME} && apt-get update && apt-get install curl -y && apt-get clean
 
 COPY --from=kafka_dist /var/tmp/kafka_$scala_version-$kafka_version ${KAFKA_HOME}
+COPY log4j.properties ${KAFKA_HOME}/config/
 
 RUN chmod a+x ${KAFKA_HOME}/bin/*.sh
 
