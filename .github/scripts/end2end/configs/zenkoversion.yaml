@@ -112,6 +112,14 @@ spec:
         image: '${REDIS_EXPORTER_IMAGE}'
         tag: '${REDIS_EXPORTER_TAG}'
       kubedb: '${REDIS_KUBEDB_TAG}'
+  defaults:
+    backbeatConcurrency:
+      lifecycleBucketProcessor: 30
+      lifecycleObjectProcessor: 20
+    replicaMultipliers:
+      cloudserver: 16
+      internalCloudserver: 4
+      vault: 4
   featureFlags:
     lifecycleOptimization: true
     manageKafkaTopics: true
