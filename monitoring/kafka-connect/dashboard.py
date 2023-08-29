@@ -280,7 +280,7 @@ tasks = [
         )],
         thresholds=[
             Threshold('green', 0, 0.0),
-            *([Threshold(color, 1, 1.)] if color != None else []),
+            *([Threshold(color, 1, 1.)] if color is not None else []),
         ]
     )
     for kind, metric, color in [
