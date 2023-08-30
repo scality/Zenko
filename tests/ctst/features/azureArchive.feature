@@ -108,8 +108,8 @@ Feature: Azure Archive
     And object "obj-2" should be "transitioning" and have the storage class "e2e-azure-archive"
     And manifest containing object "obj-1" should "contain" object "obj-2"
     When i restore object "obj-1" for <restoreDays> days
-    Then blob for object "obj-1" must be rehydrated
-    And blob for object "obj-2" must be rehydrated
+    Then blob for object "obj-1" must be rehydrated "with" notifying the queue
+    And blob for object "obj-2" must be rehydrated "with" notifying the queue
     Then object "obj-1" should be "restored" and have the storage class "e2e-azure-archive"
     And object "obj-1" should expire in <restoreDays> days
     And object "obj-1" should have the same data
@@ -142,9 +142,9 @@ Feature: Azure Archive
     When i restore object "obj-1" for <restoreDays> days
     Then blob for object "obj-1" must be rehydrated "without" notifying the queue
     And blob for object "obj-2" must be rehydrated "without" notifying the queue
-    Then the storage class of object "obj-1" must stay "e2e-azure-archive" for 15 seconds
+    Then object "obj-1" should be "transitioning" and have the storage class "e2e-azure-archive"
     When i run sorbetctl to retry failed restore for "e2e-azure-archive" location
-    Then object "obj-2" should be "restored" and have the storage class "e2e-azure-archive"
+    Then object "obj-1" should be "restored" and have the storage class "e2e-azure-archive"
     And object "obj-1" should expire in <restoreDays> days
     And object "obj-1" should have the same data
 

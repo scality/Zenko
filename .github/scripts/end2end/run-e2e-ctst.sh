@@ -51,14 +51,10 @@ SERVICE_USERS_CREDENTIALS=$(echo '{"backbeat-lifecycle-bp-1":'${BACKBEAT_LCBP_1_
 
 # Get KAFKA topics for sorbet
 KAFKA_DEAD_LETTER_TOPIC=$(kubectl get secret -l app.kubernetes.io/name=cold-sorbet-config-e2e-azure-archive,app.kubernetes.io/instance=end2end \
-    -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq '."kafka-dead-letter-topic"')
-KAFKA_DEAD_LETTER_TOPIC=${KAFKA_DEAD_LETTER_TOPIC%.*}
-KAFKA_DEAD_LETTER_TOPIC=${KAFKA_DEAD_LETTER_TOPIC:1}
+    -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq '."kafka-dead-letter-topic"' | cut -d "\"" -f 2)
 
 KAFKA_OBJECT_TASK_TOPIC=$(kubectl get secret -l app.kubernetes.io/name=cold-sorbet-config-e2e-azure-archive,app.kubernetes.io/instance=end2end \
-    -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq '."kafka-object-task-topic"')
-KAFKA_OBJECT_TASK_TOPIC=${KAFKA_OBJECT_TASK_TOPIC%.*}
-KAFKA_OBJECT_TASK_TOPIC=${KAFKA_OBJECT_TASK_TOPIC:1}
+    -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq '."kafka-object-task-topic"' | cut -d "\"" -f 2)
 
 # Extracting kafka host from bacbeat's config
 KAFKA_HOST_PORT=$(kubectl get secret -l app.kubernetes.io/name=backbeat-config,app.kubernetes.io/instance=end2end \

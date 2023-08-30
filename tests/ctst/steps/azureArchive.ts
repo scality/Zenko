@@ -4,6 +4,7 @@ import assert from 'assert';
 import { safeJsonParse } from '../common/utils';
 import { Given, Then, When, After, setDefaultTimeout } from '@cucumber/cucumber';
 import { AzureHelper, S3, Constants, Utils } from 'cli-testing';
+import util from 'util';
 import { exec } from 'child_process';
 import Zenko from 'world/Zenko';
 
@@ -409,18 +410,16 @@ When('i restore object {string} for {int} days', async function (this: Zenko, ob
     await S3.restoreObject(this.getCommandParameters());
 });
 
-When('i run sorbetctl to retry failed restore for {string} location', function (this: Zenko, location: string) {
-    const backbeatUUID = this.parameters.backbeatUUID;
-    assert(backbeatUUID);
+When('i run sorbetctl to retry failed restore for {string} location', async function (this: Zenko, location: string) {
     const command = `/ctst/sorbetctl forward list failed --trigger-retry --skip-invalid \
         --kafka-dead-letter-topic=${this.parameters.kafkaDeadLetterQueueTopic} \
         --kafka-object-task-topic=${this.parameters.kafkaObjectTaskTopic} \
         --kafka-brokers ${this.parameters.KafkaHosts}`;
-    exec(command, (error) => {
-        if (error) {
-            throw error;
-        }
-    });
+    try {
+        await util.promisify(exec)(command);
+    } catch (err) {
+        assert.ifError(err);
+    }
 });
 
 Then('object {string} should expire in {int} days', async function (this: Zenko, objectName: string, days: number) {

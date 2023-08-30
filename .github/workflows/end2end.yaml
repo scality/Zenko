@@ -358,10 +358,10 @@ jobs:
         run: |-
           echo "CTST_TAG=$(sed 's/.*"cli-testing": ".*#\(.*\)".*/\1/;t;d' ./tests/ctst/package.json)" >> $GITHUB_ENV
       - name: Extract environment
+        working-directory: solution
         run: |-
           sudo curl --fail -L https://github.com/mikefarah/yq/releases/download/${{ env.YQ_VERSION}}/${{ env.YQ_BINARY }} -o /usr/bin/yq
           sudo chmod +x /usr/bin/yq
-          cd solution/
           cat <<EOF >> $GITHUB_ENV
           SORBET_TAG=$(yq eval '.sorbet.tag' deps.yaml)
           EOF
