@@ -44,3 +44,5 @@ kubectl run kafka-topics \
     --command -- bash -c \
     "kafka-topics.sh --create --topic $NOTIF_DEST_TOPIC --bootstrap-server $KAFKA_HOST_PORT ; \
         kafka-topics.sh --create --topic $NOTIF_ALT_DEST_TOPIC --bootstrap-server $KAFKA_HOST_PORT"
+
+kubectl annotate zenko artesca-data zenko.io/time-progression-factor="86400"
