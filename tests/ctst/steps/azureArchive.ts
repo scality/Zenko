@@ -376,6 +376,10 @@ When('i restore object {string} for {int} days', async function (this: Zenko, ob
     await S3.restoreObject(this.getCommandParameters());
 });
 
+When('i wait for {int} days', async function (this: Zenko, days: number) {
+    await Utils.sleep(days * 1000);
+});
+
 Then('object {string} should expire in {int} days', async function (this: Zenko, objectName: string, days: number) {
     const objName = objectName ||  this.getSaved<string>('objectName');
     this.resetCommand();

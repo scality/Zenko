@@ -121,6 +121,9 @@ Feature: Azure Archive
     And object "obj-2" should have the same data
     And object "obj-2" should have the tag "tag2" with value "value2"
     And object "obj-2" should have the user metadata with key "x-amz-meta-123" and value "456"
+    When i wait for <restoreDays> days
+    Then object "obj-1" should be "transitioned" and have the storage class "e2e-azure-archive"
+    Then object "obj-2" should be "transitioned" and have the storage class "e2e-azure-archive"
 
     Examples:
         | versioningConfiguration | objectCount | objectSize | restoreDays |
