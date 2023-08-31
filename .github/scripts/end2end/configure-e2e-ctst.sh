@@ -49,4 +49,5 @@ kubectl run kafka-topics \
     "kafka-topics.sh --create --topic $NOTIF_DEST_TOPIC --bootstrap-server $KAFKA_HOST_PORT ; \
         kafka-topics.sh --create --topic $NOTIF_ALT_DEST_TOPIC --bootstrap-server $KAFKA_HOST_PORT"
 
-kubectl annotate zenko artesca-data zenko.io/time-progression-factor="86400"
+# Change time progression factor to 1 day equal to 1 second
+kubectl annotate zenko ${ZENKO_NAME} zenko.io/time-progression-factor="86400"

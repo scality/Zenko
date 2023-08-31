@@ -437,16 +437,8 @@ When('i restore object {string} for {int} days', async function (this: Zenko, ob
     await S3.restoreObject(this.getCommandParameters());
 });
 
-When('i run sorbetctl to retry failed restore for {string} location', async function (this: Zenko, location: string) {
-    const command = `/ctst/sorbetctl forward list failed --trigger-retry --skip-invalid \
-        --kafka-dead-letter-topic=${this.parameters.kafkaDeadLetterQueueTopic} \
-        --kafka-object-task-topic=${this.parameters.kafkaObjectTaskTopic} \
-        --kafka-brokers ${this.parameters.KafkaHosts}`;
-    try {
-        await util.promisify(exec)(command);
-    } catch (err) {
-        assert.ifError(err);
-    }
+When('i wait for {int} days', async function (this: Zenko, days: number) {
+    await Utils.sleep(days * 1000);
 });
 
 Then('object {string} should expire in {int} days', async function (this: Zenko, objectName: string, days: number) {
