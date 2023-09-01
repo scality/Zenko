@@ -231,6 +231,9 @@ Then('object {string} should be {string} and have the storage class {string}',
                 const restoredCondition = !!head?.Restore &&
                     head.Restore.includes('ongoing-request="false", expiry-date=');
                 conditionOk = conditionOk && restoredCondition;
+            } else if (operation == 'transitioned') {
+                assert.ifError(parsed.result);
+                conditionOk = conditionOk && !head?.Restore;
             }
             await Utils.sleep(3000);
         }
@@ -376,8 +379,8 @@ When('i restore object {string} for {int} days', async function (this: Zenko, ob
     await S3.restoreObject(this.getCommandParameters());
 });
 
-When('i wait for {int} days', async function (this: Zenko, days: number) {
-    await Utils.sleep(days * 1000);
+When('i wait for {int} days', { timeout: 10 * 60 * 1000 }, async function (this: Zenko, days: number) {
+    await Utils.sleep(days * 1000 + (6 * 60 * 1000));
 });
 
 Then('object {string} should expire in {int} days', async function (this: Zenko, objectName: string, days: number) {

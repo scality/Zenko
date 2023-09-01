@@ -1,0 +1,11 @@
+{
+    "customizations": {
+      "codespaces": {
+        "repositories": {
+          "scality/cli-testing": {
+            "permissions": "read-all"
+          }
+        }
+      }
+    }
+  }
