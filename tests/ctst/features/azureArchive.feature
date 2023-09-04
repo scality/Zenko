@@ -127,7 +127,7 @@ Feature: Azure Archive
 
     Examples:
         | versioningConfiguration | objectCount | objectSize | restoreDays |
-        |           Non versioned |           2 |        100 |           5 |
+        |           Non versioned |           2 |        100 |           2 |
         |               Versioned |           2 |        100 |           2 |
         |               Suspended |           2 |        100 |           2 |
 
