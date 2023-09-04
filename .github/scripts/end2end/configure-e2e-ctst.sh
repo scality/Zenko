@@ -18,6 +18,12 @@ UUID=${UUID:1}
 OPLOG_TOPIC="${UUID}.backbeat-oplog"
 NOTIFICATION_TOPIC="${UUID}.backbeat-notification"
 
+kubectl patch zenko ${ZENKO_NAME} --type merge -p '{"spec":{"backbeat":{"triggerExpirationsOneDayEarlierForTesting": false}}}'
+kubectl patch zenko ${ZENKO_NAME} --type merge -p '{"spec":{"backbeat":{"lifecycleBucketProcessor": {"triggerTransitionsOneDayEarlierForTesting" : false}}}}'
+
+# Change time progression factor to 1 day equal to 1 second
+kubectl annotate zenko ${ZENKO_NAME} zenko.io/time-progression-factor="86400"
+
 echo "127.0.0.1 iam.zenko.local ui.zenko.local s3-local-file.zenko.local keycloak.zenko.local \
     sts.zenko.local management.zenko.local s3.zenko.local" | sudo tee -a /etc/hosts
 
@@ -48,6 +54,3 @@ kubectl run kafka-topics \
     --command -- bash -c \
     "kafka-topics.sh --create --topic $NOTIF_DEST_TOPIC --bootstrap-server $KAFKA_HOST_PORT ; \
         kafka-topics.sh --create --topic $NOTIF_ALT_DEST_TOPIC --bootstrap-server $KAFKA_HOST_PORT"
-
-# Change time progression factor to 1 day equal to 1 second
-kubectl annotate zenko ${ZENKO_NAME} zenko.io/time-progression-factor="86400"
