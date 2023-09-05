@@ -127,9 +127,9 @@ Feature: Azure Archive
 
     Examples:
         | versioningConfiguration | objectCount | objectSize | restoreDays |
-        |           Non versioned |           2 |        100 |           2 |
-        |               Versioned |           2 |        100 |           2 |
-        |               Suspended |           2 |        100 |           2 |
+        |           Non versioned |           2 |        100 |           15 |
+        |               Versioned |           2 |        100 |           15 |
+        |               Suspended |           2 |        100 |           15 |
 
     @2.7.0
     @PreMerge

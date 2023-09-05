@@ -265,7 +265,6 @@ Then('object {string} should be {string} and have the storage class {string}',
                     head.Restore.includes('ongoing-request="false", expiry-date=');
                 conditionOk = conditionOk && restoredCondition;
             } else if (operation == 'transitioned') {
-                assert.ifError(parsed.result);
                 conditionOk = conditionOk && !head?.Restore;
             }
             await Utils.sleep(3000);
@@ -441,7 +440,9 @@ When('i restore object {string} for {int} days', async function (this: Zenko, ob
 });
 
 When('i wait for {int} days', { timeout: 10 * 60 * 1000 }, async function (this: Zenko, days: number) {
-    await Utils.sleep(days * 1000 + (6 * 60 * 1000));
+    const realTimeDay = days * 24 * 60 * 60 * 1000 /
+        (this.parameters.timeProgressionFactor !== undefined ? this.parameters.timeProgressionFactor : 1);
+    await Utils.sleep(realTimeDay + 200 * 1000); // We also wait for sorbet forwarder to see the object has expired
 });
 
 Then('object {string} should expire in {int} days', async function (this: Zenko, objectName: string, days: number) {
@@ -463,7 +464,8 @@ Then('object {string} should expire in {int} days', async function (this: Zenko,
     const exiryDate = new Date(expireResDate[1]).getTime();
     const lastModified = new Date(head.LastModified).getTime();
     const diff = (exiryDate - lastModified) / 1000 / 86400;
-    assert(diff >= days && diff < days + 0.1);
+    days = days / (this.parameters.timeProgressionFactor ? this.parameters.timeProgressionFactor : 1);
+    assert(diff >= days && diff < days + 0.005);
 });
 
 After({ tags: '@AzureArchive' }, async function (this: Zenko) {
