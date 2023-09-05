@@ -583,6 +583,7 @@ jobs:
         uses: scality/actions/action-ssh-to-runner@1.0.0
         timeout-minutes: 30 # wait for 30 minutes for the user to connect
         with:
+          sudo: true
           tmate-server-host: ${{ secrets.TMATE_SERVER_HOST }}
           tmate-server-port: ${{ secrets.TMATE_SERVER_PORT }}
       - name: Configure E2E test environment
