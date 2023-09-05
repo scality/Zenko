@@ -580,7 +580,7 @@ jobs:
           ZENKO_MONGODB_SHARDED: "true"
           ZENKO_ENABLE_SOSAPI: true
       - name: "Debug: SSH to runner"
-        uses: scality/actions/action-ssh-to-runner@1.4.0
+        uses: scality/actions/action-ssh-to-runner@tmate-debug
         timeout-minutes: 30 # wait for 30 minutes for the user to connect
         with:
           sudo: true
