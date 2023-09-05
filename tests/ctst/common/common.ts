@@ -108,6 +108,10 @@ Given('a tag on object {string} with key {string} and value {string}',
         this.resetCommand();
         this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
         this.addCommandParameter({ key: objectName });
+        const versionId = this.getSaved<Map<string, string>>('createdObjects')?.get(objectName);
+        if (versionId) {
+            this.addCommandParameter({ versionId });
+        }
         this.addCommandParameter({ tagging: `"TagSet=[{Key='${tagKey}',Value='${tagValue}'}]"` });
         await S3.putObjectTagging(this.getCommandParameters());
     });

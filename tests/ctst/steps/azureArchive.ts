@@ -366,7 +366,7 @@ Then('blob for object {string} must be rehydrated',
     });
 
 Then('blob for object {string} fails to rehydrate',
-    async function (this: Zenko, objectName: string, notifyQueue: string) {
+    async function (this: Zenko, objectName: string) {
         let found = false;
         const {
             tarName,
