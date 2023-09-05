@@ -339,8 +339,8 @@ Then('manifest containing object {string} should contain {int} objects',
         assert.strictEqual(count, objectCount);
     });
 
-Then('blob for object {string} must be rehydrated {string} notifying the queue',
-    async function (this: Zenko, objectName: string, notifyQueue: string) {
+Then('blob for object {string} must be rehydrated',
+    async function (this: Zenko, objectName: string) {
         let found = false;
         const {
             tarName,
@@ -357,9 +357,27 @@ Then('blob for object {string} must be rehydrated {string} notifying the queue',
                 getAzureCreds(this),
             );
         }
-        if (notifyQueue === 'with') {
-            await AzureHelper.sendBlobCreatedEventToQueue(
-                this.parameters.azureArchiveQueue,
+        await AzureHelper.sendBlobCreatedEventToQueue(
+            this.parameters.azureArchiveQueue,
+            this.parameters.azureArchiveContainer,
+            `rehydrate/${tarName}`,
+            getAzureCreds(this),
+        );
+    });
+
+Then('blob for object {string} fails to rehydrate',
+    async function (this: Zenko, objectName: string, notifyQueue: string) {
+        let found = false;
+        const {
+            tarName,
+        } = await findObjectPackAndManifest(
+            this,
+            this.getSaved<string>('bucketName'),
+            objectName || this.getSaved<string>('objectName'),
+        );
+        assert(tarName);
+        while (!found) {
+            found = await AzureHelper.blobExists(
                 this.parameters.azureArchiveContainer,
                 `rehydrate/${tarName}`,
                 getAzureCreds(this),
