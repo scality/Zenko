@@ -111,7 +111,6 @@ spec:
       exporter:
         image: redis_exporter
         tag: '${REDIS_EXPORTER_TAG}'
-      kubedb: '${REDIS_KUBEDB_TAG}'
   defaults:
     backbeatConcurrency:
       lifecycleBucketProcessor: 30
