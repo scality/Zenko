@@ -1,6 +1,9 @@
 #!/bin/bash
 set -exu
 
+DIR=$(dirname $0)
+. "$DIR/common.sh"
+
 ZENKO_NAME=${1:-end2end}
 COMMAND=${2:-"premerge"}
 # Get the current number of vCPUs
@@ -62,10 +65,12 @@ KAFKA_HOST_PORT=$(kubectl get secret -l app.kubernetes.io/name=backbeat-config,a
 KAFKA_HOST_PORT=${KAFKA_HOST_PORT:1:-1}
 
 TIME_PROGRESSION_FACTOR=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath="{.metadata.annotations.zenko\.io/time-progression-factor}")
+INSTANCE_ID=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.status.instanceID}')
 
 # Azure archive tests
 AZURE_ARCHIVE_ACCESS_TIER="Hot"
 AZURE_ARCHIVE_MANIFEST_ACCESS_TIER="Hot"
+TOKEN=$(get_token)
 
 # Setting CTST world params
 WORLD_PARAMETERS="$(jq -c <<EOF
@@ -100,7 +105,9 @@ WORLD_PARAMETERS="$(jq -c <<EOF
   "AzureArchiveQueue":"${AZURE_ARCHIVE_QUEUE_NAME}",
   "TimeProgressionFactor":"${TIME_PROGRESSION_FACTOR}",
   "KafkaObjectTaskTopic":"${KAFKA_OBJECT_TASK_TOPIC}",
-  "KafkaDeadLetterQueueTopic":"${KAFKA_DEAD_LETTER_TOPIC}"
+  "KafkaDeadLetterQueueTopic":"${KAFKA_DEAD_LETTER_TOPIC}",
+  "OIDCToken":"${TOKEN}",
+  "InstanceID":"${INSTANCE_ID}"
 }
 EOF
 )"

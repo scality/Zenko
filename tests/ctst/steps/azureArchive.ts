@@ -407,6 +407,18 @@ Then('object {string} should expire in {int} days', async function (this: Zenko,
     assert(diff >= realTimeDays && diff < realTimeDays + 0.005);
 });
 
+Then('i can get the {string} location details', async function (this: Zenko, locationName: string) {
+    const result = await this.managementAPIRequest('GET', `/config/overlay/view/${this.parameters.InstanceID}`);
+    assert(this.parameters.OIDCToken);
+    if ('err' in result) {
+        assert.ifError(result.err);
+    }
+    if ('data' in result) {
+        const { locations } = result.data as { locations: Record<string, unknown> };
+        assert(locations[locationName]);
+    }
+});
+
 After({ tags: '@AzureArchive' }, async function (this: Zenko) {
     await cleanZenkoBucket(
         this,

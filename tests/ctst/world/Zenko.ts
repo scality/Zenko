@@ -82,6 +82,9 @@ export interface ZenkoWorldParameters extends ClientOptions {
     TimeProgressionFactor: number;
     KafkaDeadLetterQueueTopic: string;
     KafkaObjectTaskTopic: string;
+    OIDCToken: string;
+    InstanceID: string;
+    [key: string]: unknown;
 }
 
 export interface ApiResult {
@@ -835,6 +838,52 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         try {
             const response: AxiosResponse = await axiosInstance(axiosConfig);
             return { statusCode: response.status, data: response.data as unknown };
+            /* eslint-disable */
+        } catch (err: any) {
+            return {
+                statusCode: err.response.status,
+                err: err.response.data,
+            };
+            /* eslint-enable */
+        }
+    }
+
+    /**
+     * 
+     * @param {Method} method HTTP Method
+     * @param {string} path Path to the API endpoint
+     * @param {AxiosRequestHeaders} headers Headers to the request
+     * @param {object} payload Payload to the request
+     * @returns {object} object
+     */
+    async managementAPIRequest(
+        method: Method,
+        path: string,
+        headers: AxiosRequestHeaders = {},
+        payload: object = {}
+    ): Promise<{ statusCode: number; data: object } | { statusCode: number; err: unknown }> {
+        const token = await this.getWebIdentityToken(
+            'zenko-end2end',
+            '123',
+            this.parameters.KeycloakHost || 'keycloak.zenko.local',
+            this.parameters.KeycloakPort || '80',
+            `/auth/realms/${this.parameters.KeycloakRealm || 'zenko'}/protocol/openid-connect/token`,
+            this.parameters.KeycloakClientId || Constants.K_CLIENT,
+            this.parameters.KeycloakGrantType || 'password',
+        );
+        const axiosInstance = axios.create();
+        const protocol = this.parameters.ssl === false ? 'http://' : 'https://';
+        // eslint-disable-next-line no-param-reassign
+        headers['X-Authentication-Token'] = token;
+        const axiosConfig: AxiosRequestConfig = {
+            method,
+            url: `${protocol}management.${this.parameters.subdomain || Constants.DEFAULT_SUBDOMAIN}/api/v1${path}`,
+            headers,
+            data: payload,
+        };
+        try {
+            const response: AxiosResponse = await axiosInstance(axiosConfig);
+            return { statusCode: response.status, data: response.data as object };
             /* eslint-disable */
         } catch (err: any) {
             return {

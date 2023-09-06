@@ -72,6 +72,7 @@ env:
   AWS_FAIL_BUCKET_NAME: ci-zenko-aws-fail-target-bucket
   AZURE_CRR_BUCKET_NAME: ci-zenko-azure-crr-target-bucket
   AZURE_ARCHIVE_BUCKET_NAME: ci-zenko-azure-archive-target-bucket
+  AZURE_ARCHIVE_BUCKET_NAME_2: ci-zenko-azure-archive-target-bucket-2
   AZURE_ARCHIVE_QUEUE_NAME: ci-zenko-azure-archive-target-queue
   GCP_CRR_BUCKET_NAME: ci-zenko-gcp-crr-target-bucket
   GCP_CRR_MPU_BUCKET_NAME: ci-zenko-gcp-crr-mpu-bucket

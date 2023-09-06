@@ -100,6 +100,7 @@ Feature: Azure Archive
     Scenario Outline: Restore objects from tar
     Given a "<versioningConfiguration>" bucket
     And a transition workflow to "e2e-azure-archive" location
+    Then i can get the "e2e-azure-archive" location details
     And <objectCount> objects "obj" of size <objectSize> bytes with user metadata "x-amz-meta-123=456"
     And object "obj-2" should have the user metadata with key "x-amz-meta-123" and value "456"
     And a tag on object "obj-1" with key "tag1" and value "value1"
