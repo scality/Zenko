@@ -19,9 +19,9 @@ cloudserver:
   tag: 8.7.28
   envsubst: CLOUDSERVER_TAG
 jmx-javaagent:
-  sourceRegistry: banzaicloud
+  sourceRegistry: ghcr.io/banzaicloud
   image: jmx-javaagent
-  tag: 0.14.0
+  tag: 0.16.1
   envsubst: JMX_JAVAAGENT_TAG
 kafka:
   sourceRegistry: registry.scality.com/zenko
