@@ -63,7 +63,7 @@ redis:
 redis_exporter:
   sourceRegistry: oliver006
   image: redis_exporter
-  tag: v1.43.1
+  tag: v1.54.0
   envsubst: REDIS_EXPORTER_TAG
 s3utils:
   sourceRegistry: registry.scality.com/s3utils
