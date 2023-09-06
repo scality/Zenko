@@ -56,6 +56,38 @@ function getAzureCreds(
         accountKey: world.parameters.azureAccountKey,
     };
 }
+/**
+ * Verify that an object has well been rehydrated in azure
+ * @param {Zenko} zenko zenko object
+ * @param {string} objectName object name
+ * @returns {string} name of the tar blob
+ */
+async function isObjectRehydrated(zenko: Zenko, objectName: string) {
+    let found = false;
+    const {
+        tarName,
+    } = await findObjectPackAndManifest(
+        zenko,
+        zenko.getSaved<string>('bucketName'),
+        objectName || zenko.getSaved<string>('objectName'),
+    );
+    const start = new Date();
+    assert(tarName);
+    while (!found) {
+        found = await AzureHelper.blobExists(
+            zenko.parameters.azureArchiveContainer,
+            `rehydrate/${tarName}`,
+            getAzureCreds(zenko),
+        );
+        await Utils.sleep(1000);
+
+        //wait for 1 minute max
+        if (new Date().getTime() - start.getTime() > 60000) {
+            return undefined;
+        }
+    }
+    return tarName;
+}
 
 /**
  * finds the names of the manifest and pack blobs
@@ -341,22 +373,8 @@ Then('manifest containing object {string} should contain {int} objects',
 
 Then('blob for object {string} must be rehydrated',
     async function (this: Zenko, objectName: string) {
-        let found = false;
-        const {
-            tarName,
-        } = await findObjectPackAndManifest(
-            this,
-            this.getSaved<string>('bucketName'),
-            objectName || this.getSaved<string>('objectName'),
-        );
+        const tarName = await isObjectRehydrated(this, objectName);
         assert(tarName);
-        while (!found) {
-            found = await AzureHelper.blobExists(
-                this.parameters.azureArchiveContainer,
-                `rehydrate/${tarName}`,
-                getAzureCreds(this),
-            );
-        }
         await AzureHelper.sendBlobCreatedEventToQueue(
             this.parameters.azureArchiveQueue,
             this.parameters.azureArchiveContainer,
@@ -364,25 +382,16 @@ Then('blob for object {string} must be rehydrated',
             getAzureCreds(this),
         );
     });
-
+/**
+ * This is used to intentionally fail rehydration
+ * To do that, we verify that the blob is rehydrated in azure
+ * But we don't send the event to the queue so that
+ * zenko is not aware of the rehydration and mark it as failed
+ */
 Then('blob for object {string} fails to rehydrate',
     async function (this: Zenko, objectName: string) {
-        let found = false;
-        const {
-            tarName,
-        } = await findObjectPackAndManifest(
-            this,
-            this.getSaved<string>('bucketName'),
-            objectName || this.getSaved<string>('objectName'),
-        );
+        const tarName = await isObjectRehydrated(this, objectName);
         assert(tarName);
-        while (!found) {
-            found = await AzureHelper.blobExists(
-                this.parameters.azureArchiveContainer,
-                `rehydrate/${tarName}`,
-                getAzureCreds(this),
-            );
-        }
     });
 
 Then('the storage class of object {string} must stay {string} for {int} seconds',
