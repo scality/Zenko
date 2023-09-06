@@ -115,7 +115,7 @@ create_encryption_secret()
 create_encryption_secret
 
 env $(dependencies_env) envsubst < ${ZENKOVERSION_PATH} | kubectl -n ${NAMESPACE} apply -f -
-envsubst < ${ZENKO_CR_PATH} | kubectl -n ${NAMESPACE} apply -f -
+env $(dependencies_env) envsubst < ${ZENKO_CR_PATH} | kubectl -n ${NAMESPACE} apply -f -
 
 k_cmd="kubectl -n ${NAMESPACE} get zenko/${ZENKO_NAME}"
 for i in $(seq 1 120); do
