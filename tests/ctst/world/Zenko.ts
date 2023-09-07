@@ -89,6 +89,8 @@ export interface ZenkoWorldParameters {
     AzureArchiveAccessTier: string;
     azureArchiveManifestTier: string;
     azureArchiveQueue: string;
+    kafkaObjectTaskTopic: string;
+    kafkaDeadLetterQueueTopic: string;
     [key: string]: unknown;
 }
 
