@@ -10,6 +10,7 @@ export ZENKO_CR_PATH=${3:-'./configs/zenko.yaml'}
 export ZENKOVERSION_PATH=${4:-'./configs/zenkoversion.yaml'}
 export DEPS_PATH=${5:-'../../../solution/deps.yaml'}
 export ZENKO_VERSION_NAME="${ZENKO_NAME}-version"
+export ZENKO_ANNOTATIONS=""
 
 export BACKBEAT_LCC_CRON_RULE=${BACKBEAT_LCC_CRON_RULE:-'*/5 * * * * *'}
 
