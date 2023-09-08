@@ -103,6 +103,9 @@ env:
   TILT_VERSION: "0.23.4"
   KIND_VERSION: "v0.20.0"
   ZENKO_ENABLE_SOSAPI: false
+  EXPIRE_ONE_DAY_EARLIER: true
+  TRANSITION_ONE_DAY_EARLIER: true
+  TIME_PROGRESSION_FACTOR: 1
 
 jobs:
   check-dashboard-versions:
@@ -589,7 +592,7 @@ jobs:
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
           ZENKO_MONGODB_SHARDED: "true"
           ZENKO_ENABLE_SOSAPI: true
-          TIME_PROGRESSION_FACTOR: "86400"
+          TIME_PROGRESSION_FACTOR: 86400
           TRANSITION_ONE_DAY_EARLIER: false
           EXPIRE_ONE_DAY_EARLIER: false
       - name: Configure E2E test environment
