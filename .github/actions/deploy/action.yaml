@@ -61,6 +61,10 @@ runs:
     - name: Deploy Zenko Instance
       shell: bash
       run: bash deploy-zenko.sh end2end default
+      env:
+        TIME_PROGRESSION_FACTOR: ${TIME_PROGRESSION_FACTOR:-1}
+        EXPIRE_ONE_DAY_EARLIER: ${EXPIRE_ONE_DAY_EARLIER:-true}
+        TRANSITION_ONE_DAY_EARLIER: ${TRANSITION_ONE_DAY_EARLIER:-true}
       working-directory: ./.github/scripts/end2end
     - name: Add Keycloak user and assign StorageManager role
       shell: bash

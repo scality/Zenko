@@ -24,11 +24,11 @@ spec:
     logging:
       logLevel: debug
   backbeat:
-    triggerExpirationsOneDayEarlierForTesting: true
+    triggerExpirationsOneDayEarlierForTesting: ${EXPIRE_ONE_DAY_EARLIER:-true}
     lifecycleConductor:
       cronRule: "${BACKBEAT_LCC_CRON_RULE}"
     lifecycleBucketProcessor:
-      triggerTransitionsOneDayEarlierForTesting: true
+      triggerTransitionsOneDayEarlierForTesting: ${TRANSITION_ONE_DAY_EARLIER:-true}
     logging:
       logLevel: trace
   mongodb:

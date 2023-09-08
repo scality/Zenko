@@ -43,6 +43,14 @@ else
     export ZENKO_MONGODB_ENDPOINT="dev-db-mongodb-primary-0.dev-db-mongodb-headless.default.svc.cluster.local:27017"
 fi
 
+if [ -n "${ZENKO_ANNOTATIONS}" ]; then
+    export ZENKO_ANNOTATIONS="${ZENKO_ANNOTATIONS}
+    zenko.io/time-progression-factor: ${TIME_PROGRESSION_FACTOR}"
+else
+    export ZENKO_ANNOTATIONS="annotations:
+    zenko.io/time-progression-factor: ${TIME_PROGRESSION_FACTOR}"
+fi
+
 function dependencies_image_env()
 {
     yq eval '.[] | .envsubst + "=" + (.sourceRegistry // "docker.io") + "/" + .image' ${DEPS_PATH} |

@@ -52,8 +52,8 @@ function getAzureCreds(
     world: Zenko,
 ): {accountName: string, accountKey: string } {
     return {
-        accountName: world.parameters.azureAccountName,
-        accountKey: world.parameters.azureAccountKey,
+        accountName: world.parameters.AzureAccountName,
+        accountKey: world.parameters.AzureAccountKey,
     };
 }
 /**
@@ -75,7 +75,7 @@ async function isObjectRehydrated(zenko: Zenko, objectName: string) {
     assert(tarName);
     while (!found) {
         found = await AzureHelper.blobExists(
-            zenko.parameters.azureArchiveContainer,
+            zenko.parameters.AzureArchiveContainer,
             `rehydrate/${tarName}`,
             getAzureCreds(zenko),
         );
@@ -104,7 +104,7 @@ async function findObjectPackAndManifest(
 ): Promise<{ manifestName?:string, manifest?:manifest, tarName?:string }> {
     // lisintg all blobs in the container
     const blobs = await AzureHelper.listBlobs(
-        world.parameters.azureArchiveContainer,
+        world.parameters.AzureArchiveContainer,
         getAzureCreds(world),
     );
     // filtering the list of blobs only leaving the manifests
@@ -112,7 +112,7 @@ async function findObjectPackAndManifest(
     for (let i = 0; i < manifests.length; i++) {
         // downloading the manifest
         const manifestBuffer = await AzureHelper.downloadBlob(
-            world.parameters.azureArchiveContainer,
+            world.parameters.AzureArchiveContainer,
             manifests[i].name,
             getAzureCreds(world),
         );
@@ -190,19 +190,19 @@ async function cleanAzureContainer(
         );
         if (tarName) {
             await AzureHelper.deleteBlob(
-                world.parameters.azureArchiveContainer,
+                world.parameters.AzureArchiveContainer,
                 tarName,
                 getAzureCreds(world),
             );
             await AzureHelper.deleteBlob(
-                world.parameters.azureArchiveContainer,
+                world.parameters.AzureArchiveContainer,
                 `rehydrate/${tarName}`,
                 getAzureCreds(world),
             );
         }
         if (manifestName) {
             await AzureHelper.deleteBlob(
-                world.parameters.azureArchiveContainer,
+                world.parameters.AzureArchiveContainer,
                 manifestName,
                 getAzureCreds(world),
             );
@@ -234,7 +234,7 @@ Given('a transition workflow to {string} location', async function (this: Zenko,
 });
 
 Then('object {string} should be {string} and have the storage class {string}',
-    async function (this: Zenko, objectName: string, operation: string, storageClass: string) {
+    async function (this: Zenko, objectName: string, objectTransitionStatus: string, storageClass: string) {
         const objName = objectName ||  this.getSaved<string>('objectName');
         this.resetCommand();
         this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
@@ -260,11 +260,11 @@ Then('object {string} should be {string} and have the storage class {string}',
             if (head?.StorageClass === expectedClass) {
                 conditionOk = true;
             }
-            if (operation == 'restored') {
+            if (objectTransitionStatus == 'restored') {
                 const restoredCondition = !!head?.Restore &&
                     head.Restore.includes('ongoing-request="false", expiry-date=');
                 conditionOk = conditionOk && restoredCondition;
-            } else if (operation == 'transitioned') {
+            } else if (objectTransitionStatus == 'cold') {
                 conditionOk = conditionOk && !head?.Restore;
             }
             await Utils.sleep(3000);
@@ -283,11 +283,11 @@ Then('manifest access tier should be valid for object {string}', async function 
     assert(manifestName);
     // manifest access tier
     const manifestProperties = await AzureHelper.getBlobProperties(
-        this.parameters.azureArchiveContainer,
+        this.parameters.AzureArchiveContainer,
         manifestName,
         getAzureCreds(this),
     );
-    assert.strictEqual(manifestProperties.accessTier, this.parameters.azureArchiveManifestTier);
+    assert.strictEqual(manifestProperties.accessTier, this.parameters.AzureArchiveManifestTier);
 });
 
 Then('tar access tier should be valid for object {string}', async function (this: Zenko, objectName: string) {
@@ -301,7 +301,7 @@ Then('tar access tier should be valid for object {string}', async function (this
     assert(tarName);
     // manifest access tier
     const packProperties = await AzureHelper.getBlobProperties(
-        this.parameters.azureArchiveContainer,
+        this.parameters.AzureArchiveContainer,
         tarName,
         getAzureCreds(this),
     );
@@ -378,12 +378,13 @@ Then('blob for object {string} must be rehydrated',
         const tarName = await isObjectRehydrated(this, objectName);
         assert(tarName);
         await AzureHelper.sendBlobCreatedEventToQueue(
-            this.parameters.azureArchiveQueue,
-            this.parameters.azureArchiveContainer,
+            this.parameters.AzureArchiveQueue,
+            this.parameters.AzureArchiveContainer,
             `rehydrate/${tarName}`,
             getAzureCreds(this),
         );
     });
+
 /**
  * This is used to intentionally fail rehydration
  * To do that, we verify that the blob is rehydrated in azure
@@ -439,9 +440,21 @@ When('i restore object {string} for {int} days', async function (this: Zenko, ob
     await S3.restoreObject(this.getCommandParameters());
 });
 
+When('i run sorbetctl to retry failed restore for {string} location', async function (this: Zenko, location: string) {
+    const command = `/ctst/sorbetctl forward list failed --trigger-retry --skip-invalid \
+        --kafka-dead-letter-topic=${this.parameters.KafkaDeadLetterQueueTopic} \
+        --kafka-object-task-topic=${this.parameters.KafkaObjectTaskTopic} \
+        --kafka-brokers ${this.parameters.KafkaHosts}`;
+    try {
+        await util.promisify(exec)(command);
+    } catch (err) {
+        assert.ifError(err);
+    }
+});
+
 When('i wait for {int} days', { timeout: 10 * 60 * 1000 }, async function (this: Zenko, days: number) {
     const realTimeDay = days * 24 * 60 * 60 * 1000 /
-        (this.parameters.timeProgressionFactor !== undefined ? this.parameters.timeProgressionFactor : 1);
+        (this.parameters.TimeProgressionFactor > 1 ? this.parameters.TimeProgressionFactor : 1);
     await Utils.sleep(realTimeDay + 200 * 1000); // We also wait for sorbet forwarder to see the object has expired
 });
 
@@ -461,11 +474,11 @@ Then('object {string} should expire in {int} days', async function (this: Zenko,
     assert(parsed.ok);
     const head = parsed.result as { Restore: string, LastModified: string };
     const expireResDate = head.Restore.match(/expiry-date="+(.*)"/) || [];
-    const exiryDate = new Date(expireResDate[1]).getTime();
+    const expiryDate = new Date(expireResDate[1]).getTime();
     const lastModified = new Date(head.LastModified).getTime();
-    const diff = (exiryDate - lastModified) / 1000 / 86400;
-    days = days / (this.parameters.timeProgressionFactor ? this.parameters.timeProgressionFactor : 1);
-    assert(diff >= days && diff < days + 0.005);
+    const diff = (expiryDate - lastModified) / 1000 / 86400;
+    const realTimeDays = days / (this.parameters.TimeProgressionFactor > 1 ? this.parameters.TimeProgressionFactor : 1);
+    assert(diff >= realTimeDays && diff < realTimeDays + 0.005);
 });
 
 After({ tags: '@AzureArchive' }, async function (this: Zenko) {

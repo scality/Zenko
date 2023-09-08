@@ -49,9 +49,9 @@ export enum EntityType {
 }
 
 export interface ZenkoWorldParameters {
-    subdomain: string;
-    ssl: boolean;
-    port: string;
+    Subdomain: string;
+    SSL: boolean;
+    Port: string;
     AccountName: string;
     AdminAccessKey: string;
     AdminSecretKey: string;
@@ -68,9 +68,9 @@ export interface ZenkoWorldParameters {
     KeycloakPassword: string;
     KeycloakHost: string;
     KeycloakPort: string;
-    keycloakRealm: string;
-    keycloakClientId: string;
-    keycloakGrantType: string;
+    KeycloakRealm: string;
+    KeycloakClientId: string;
+    KeycloakGrantType: string;
     StorageManagerUsername: string;
     StorageAccountOwnerUsername: string;
     DataConsumerUsername: string;
@@ -83,13 +83,15 @@ export interface ZenkoWorldParameters {
         SecretAccessKey: string;
         SessionToken?: string;
     };
-    azureAccountName: string;
-    azureAccountKey: string;
-    azureArchiveContainer: string;
+    AzureAccountName: string;
+    AzureAccountKey: string;
+    AzureArchiveContainer: string;
     AzureArchiveAccessTier: string;
-    azureArchiveManifestTier: string;
-    azureArchiveQueue: string;
-    timeProgressionFactor: number;
+    AzureArchiveManifestTier: string;
+    AzureArchiveQueue: string;
+    TimeProgressionFactor: number;
+    KafkaDeadLetterQueueTopic: string;
+    KafkaObjectTaskTopic: string;
     [key: string]: unknown;
 }
 
@@ -279,9 +281,9 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 ARWWIPassword,
                 this.parameters.KeycloakHost || 'keycloak.zenko.local',
                 this.parameters.KeycloakPort || '80',
-                `/auth/realms/${this.parameters.keycloakRealm || 'zenko'}/protocol/openid-connect/token`,
-                this.parameters.keycloakClientId || Constants.K_CLIENT,
-                this.parameters.keycloakGrantType || 'password',
+                `/auth/realms/${this.parameters.KeycloakRealm || 'zenko'}/protocol/openid-connect/token`,
+                this.parameters.KeycloakClientId || Constants.K_CLIENT,
+                this.parameters.KeycloakGrantType || 'password',
             );
             this.options.webIdentityToken = token;
             if (!this.options.webIdentityToken) {
@@ -362,7 +364,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         grantType: string,
     ): Promise<string> {
         this.parameters;
-        const baseUrl = this.parameters.ssl === false ? 'http://' : 'https://';
+        const baseUrl = this.parameters.SSL === false ? 'http://' : 'https://';
         const data = qs.stringify({
             username,
             password,
@@ -836,10 +838,10 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
         const axiosInstance = axios.create();
         axiosInstance.interceptors.request.use(interceptor);
-        const protocol = this.parameters.ssl === false ? 'http://' : 'https://';
+        const protocol = this.parameters.SSL === false ? 'http://' : 'https://';
         const axiosConfig: AxiosRequestConfig = {
             method,
-            url: `${protocol}s3.${this.parameters.subdomain
+            url: `${protocol}s3.${this.parameters.Subdomain
                 || Constants.DEFAULT_SUBDOMAIN}${path}`,
             headers,
             data: payload,
