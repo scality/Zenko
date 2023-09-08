@@ -4,8 +4,9 @@ import assert from 'assert';
 import { safeJsonParse } from '../common/utils';
 import { Given, Then, When, After, setDefaultTimeout } from '@cucumber/cucumber';
 import { AzureHelper, S3, Constants, Utils } from 'cli-testing';
+import util from 'util';
+import { exec } from 'child_process';
 import Zenko from 'world/Zenko';
-
 
 setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
 
@@ -54,6 +55,38 @@ function getAzureCreds(
         accountName: world.parameters.azureAccountName,
         accountKey: world.parameters.azureAccountKey,
     };
+}
+/**
+ * Verify that an object has well been rehydrated in azure
+ * @param {Zenko} zenko zenko object
+ * @param {string} objectName object name
+ * @returns {string} name of the tar blob
+ */
+async function isObjectRehydrated(zenko: Zenko, objectName: string) {
+    let found = false;
+    const {
+        tarName,
+    } = await findObjectPackAndManifest(
+        zenko,
+        zenko.getSaved<string>('bucketName'),
+        objectName || zenko.getSaved<string>('objectName'),
+    );
+    const start = new Date();
+    assert(tarName);
+    while (!found) {
+        found = await AzureHelper.blobExists(
+            zenko.parameters.azureArchiveContainer,
+            `rehydrate/${tarName}`,
+            getAzureCreds(zenko),
+        );
+        await Utils.sleep(1000);
+
+        //wait for 1 minute max
+        if (new Date().getTime() - start.getTime() > 60000) {
+            return undefined;
+        }
+    }
+    return tarName;
 }
 
 /**
@@ -338,30 +371,58 @@ Then('manifest containing object {string} should contain {int} objects',
         assert.strictEqual(count, objectCount);
     });
 
-Then('blob for object {string} must be rehydrated', async function (this: Zenko, objectName: string) {
-    let found = false;
-    const {
-        tarName,
-    } = await findObjectPackAndManifest(
-        this,
-        this.getSaved<string>('bucketName'),
-        objectName || this.getSaved<string>('objectName'),
-    );
-    assert(tarName);
-    while (!found) {
-        found = await AzureHelper.blobExists(
+Then('blob for object {string} must be rehydrated',
+    async function (this: Zenko, objectName: string) {
+        const tarName = await isObjectRehydrated(this, objectName);
+        assert(tarName);
+        await AzureHelper.sendBlobCreatedEventToQueue(
+            this.parameters.azureArchiveQueue,
             this.parameters.azureArchiveContainer,
             `rehydrate/${tarName}`,
             getAzureCreds(this),
         );
-    }
-    await AzureHelper.sendBlobCreatedEventToQueue(
-        this.parameters.azureArchiveQueue,
-        this.parameters.azureArchiveContainer,
-        `rehydrate/${tarName}`,
-        getAzureCreds(this),
-    );
-});
+    });
+/**
+ * This is used to intentionally fail rehydration
+ * To do that, we verify that the blob is rehydrated in azure
+ * But we don't send the event to the queue so that
+ * zenko is not aware of the rehydration and mark it as failed
+ */
+Then('blob for object {string} fails to rehydrate',
+    async function (this: Zenko, objectName: string) {
+        const tarName = await isObjectRehydrated(this, objectName);
+        assert(tarName);
+    });
+
+Then('the storage class of object {string} must stay {string} for {int} seconds',
+    async function (this: Zenko, objectName: string, storageClass: string, seconds: number) {
+        const objName = objectName || this.getSaved<string>('objectName');
+        this.resetCommand();
+        this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
+        this.addCommandParameter({ key: objName });
+        const versionId = this.getSaved<Map<string, string>>('createdObjects')?.get(objName);
+        if (versionId) {
+            this.addCommandParameter({ versionId });
+        }
+        let secondsPassed = 0;
+        while (secondsPassed < seconds) {
+            const res = await S3.headObject(this.getCommandParameters());
+            if (res.err) {
+                break;
+            }
+            assert(res.stdout);
+            const parsed = safeJsonParse(res.stdout);
+            assert(parsed.ok);
+            const head = parsed.result as { StorageClass: string | undefined };
+            const expectedClass = storageClass !== '' ? storageClass : undefined;
+            if (head?.StorageClass !== expectedClass) {
+                break;
+            }
+            await Utils.sleep(1000);
+            secondsPassed++;
+        }
+        assert(secondsPassed === seconds);
+    });
 
 When('i restore object {string} for {int} days', async function (this: Zenko, objectName: string, days: number) {
     const objName = objectName ||  this.getSaved<string>('objectName');
@@ -374,6 +435,18 @@ When('i restore object {string} for {int} days', async function (this: Zenko, ob
     }
     this.addCommandParameter({ restoreRequest: `Days=${days}` });
     await S3.restoreObject(this.getCommandParameters());
+});
+
+When('i run sorbetctl to retry failed restore for {string} location', async function (this: Zenko, location: string) {
+    const command = `/ctst/sorbetctl forward list failed --trigger-retry --skip-invalid \
+        --kafka-dead-letter-topic=${this.parameters.kafkaDeadLetterQueueTopic} \
+        --kafka-object-task-topic=${this.parameters.kafkaObjectTaskTopic} \
+        --kafka-brokers ${this.parameters.KafkaHosts}`;
+    try {
+        await util.promisify(exec)(command);
+    } catch (err) {
+        assert.ifError(err);
+    }
 });
 
 Then('object {string} should expire in {int} days', async function (this: Zenko, objectName: string, days: number) {
