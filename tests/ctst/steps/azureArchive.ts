@@ -440,6 +440,7 @@ When('i restore object {string} for {int} days', async function (this: Zenko, ob
     await S3.restoreObject(this.getCommandParameters());
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 When('i run sorbetctl to retry failed restore for {string} location', async function (this: Zenko, location: string) {
     const command = `/ctst/sorbetctl forward list failed --trigger-retry --skip-invalid \
         --kafka-dead-letter-topic=${this.parameters.KafkaDeadLetterQueueTopic} \

@@ -51,7 +51,7 @@ When('the user tries to perform PutObjectRetention {string} bypass', async funct
     this.resumeRootOrIamUser();
     this.addCommandParameter({ key: this.getSaved<string>('objectName') });
     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-    let date = new Date();
+    const date = new Date();
     date.setFullYear(date.getFullYear() + 1);
     // Get the string representation in the desired format
     const dateString = date.toISOString();

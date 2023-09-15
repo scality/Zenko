@@ -82,7 +82,7 @@ Given('an object {string} that {string}',
         this.resetCommand();
         if (objectExists === 'exists') {
             this.addToSaved('objectName', objectName || Utils.randomString());
-            let objectNameArray = this.getSaved<string[]>('objectNameArray') || [];
+            const objectNameArray = this.getSaved<string[]>('objectNameArray') || [];
             objectNameArray.push(this.getSaved<string>('objectName'));
             this.addToSaved('objectNameArray', objectNameArray);
             this.addCommandParameter({ key: this.getSaved<string>('objectName') });
