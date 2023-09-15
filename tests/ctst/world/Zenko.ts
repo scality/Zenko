@@ -83,6 +83,7 @@ export interface ZenkoWorldParameters {
         SecretAccessKey: string;
         SessionToken?: string;
     };
+    IAMUserName: string;
     AzureAccountName: string;
     AzureAccountKey: string;
     AzureArchiveContainer: string;
@@ -92,7 +93,6 @@ export interface ZenkoWorldParameters {
     TimeProgressionFactor: number;
     KafkaDeadLetterQueueTopic: string;
     KafkaObjectTaskTopic: string;
-    [key: string]: unknown;
 }
 
 export interface ApiResult {
@@ -114,8 +114,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     private parsedResult: ApiResult[] = [];
 
     private serviceType = '';
-
-    parameters: ZenkoWorldParameters = {} as ZenkoWorldParameters;
 
     private cliOptions: Record<string, unknown> = {};
 
@@ -143,7 +141,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      */
     constructor(options: IWorldOptions<ZenkoWorldParameters>) {
         super(options);
-        this.parameters = options.parameters;
         // store service users credentials from world parameters
         if (this.parameters.ServiceUsersCredentials) {
             const serviceUserCredentials =
@@ -157,7 +154,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         }
 
         // Workaround to be able to access global parameters in BeforeAll/AfterAll hooks
-        CacheHelper.parameters = this.parameters;
+        CacheHelper.parameters = this.parameters as unknown as Record<string, unknown>;
         this.cliMode.parameters = this.parameters as ClientOptions;
 
         if (this.parameters.AccountSessionToken) {
@@ -615,7 +612,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * @returns {undefined}
      */
     async prepareRootUser() {
-        Zenko.IAMUserName = Zenko.IAMUserName || `${this.parameters.IAMUserName as string
+        Zenko.IAMUserName = Zenko.IAMUserName || `${this.parameters.IAMUserName
             || 'usertest'}${Utils.randomString()}`;
         Zenko.IAMUserPolicyName = `IAMUserPolicy-${Zenko.IAMUserName}${Utils.randomString()}`;
         if (!this.cliMode.parameters.IAMSession) {
