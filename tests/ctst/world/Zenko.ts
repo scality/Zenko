@@ -49,9 +49,9 @@ export enum EntityType {
 }
 
 export interface ZenkoWorldParameters {
-    Subdomain: string;
-    SSL: boolean;
-    Port: string;
+    subdomain: string;
+    ssl: boolean;
+    port: string;
     AccountName: string;
     AdminAccessKey: string;
     AdminSecretKey: string;
@@ -68,9 +68,9 @@ export interface ZenkoWorldParameters {
     KeycloakPassword: string;
     KeycloakHost: string;
     KeycloakPort: string;
-    KeycloakRealm: string;
-    KeycloakClientId: string;
-    KeycloakGrantType: string;
+    keycloakRealm: string;
+    keycloakClientId: string;
+    keycloakGrantType: string;
     StorageManagerUsername: string;
     StorageAccountOwnerUsername: string;
     DataConsumerUsername: string;
@@ -281,9 +281,9 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 ARWWIPassword,
                 this.parameters.KeycloakHost || 'keycloak.zenko.local',
                 this.parameters.KeycloakPort || '80',
-                `/auth/realms/${this.parameters.KeycloakRealm || 'zenko'}/protocol/openid-connect/token`,
-                this.parameters.KeycloakClientId || Constants.K_CLIENT,
-                this.parameters.KeycloakGrantType || 'password',
+                `/auth/realms/${this.parameters.keycloakRealm || 'zenko'}/protocol/openid-connect/token`,
+                this.parameters.keycloakClientId || Constants.K_CLIENT,
+                this.parameters.keycloakGrantType || 'password',
             );
             this.options.webIdentityToken = token;
             if (!this.options.webIdentityToken) {
@@ -364,7 +364,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         grantType: string,
     ): Promise<string> {
         this.parameters;
-        const baseUrl = this.parameters.SSL === false ? 'http://' : 'https://';
+        const baseUrl = this.parameters.ssl === false ? 'http://' : 'https://';
         const data = qs.stringify({
             username,
             password,
@@ -838,10 +838,10 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
         const axiosInstance = axios.create();
         axiosInstance.interceptors.request.use(interceptor);
-        const protocol = this.parameters.SSL === false ? 'http://' : 'https://';
+        const protocol = this.parameters.ssl === false ? 'http://' : 'https://';
         const axiosConfig: AxiosRequestConfig = {
             method,
-            url: `${protocol}s3.${this.parameters.Subdomain
+            url: `${protocol}s3.${this.parameters.subdomain
                 || Constants.DEFAULT_SUBDOMAIN}${path}`,
             headers,
             data: payload,

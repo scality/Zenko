@@ -70,9 +70,9 @@ AZURE_ARCHIVE_MANIFEST_ACCESS_TIER="Hot"
 # Setting CTST world params
 WORLD_PARAMETERS="$(jq -c <<EOF
 {
-  "Subdomain":"${SUBDOMAIN}",
-  "SSL":false,
-  "Port":"${ZENKO_PORT}",
+  "subdomain":"${SUBDOMAIN}",
+  "ssl":false,
+  "port":"${ZENKO_PORT}",
   "AccountName":"${ZENKO_ACCOUNT_NAME}",
   "AdminAccessKey":"${ADMIN_ACCESS_KEY_ID}",
   "AdminSecretKey":"${ADMIN_SECRET_ACCESS_KEY}",
@@ -85,9 +85,9 @@ WORLD_PARAMETERS="$(jq -c <<EOF
   "KeycloakPassword":"${KEYCLOAK_TEST_PASSWORD}",
   "KeycloakHost":"${KEYCLOAK_TEST_HOST}",
   "KeycloakPort":"${KEYCLOAK_TEST_PORT}",
-  "KeycloakRealm":"${KEYCLOAK_TEST_REALM_NAME}",
-  "KeycloakClientId":"${KEYCLOAK_TEST_CLIENT_ID}",
-  "KeycloakGrantType":"${KEYCLOAK_TEST_GRANT_TYPE}",
+  "keycloakRealm":"${KEYCLOAK_TEST_REALM_NAME}",
+  "keycloakClientId":"${KEYCLOAK_TEST_CLIENT_ID}",
+  "keycloakGrantType":"${KEYCLOAK_TEST_GRANT_TYPE}",
   "StorageManagerUsername":"${STORAGE_MANAGER_USER_NAME}",
   "StorageAccountOwnerUsername":"${STORAGE_ACCOUNT_OWNER_USER_NAME}",
   "DataConsumerUsername":"${DATA_CONSUMER_USER_NAME}",
