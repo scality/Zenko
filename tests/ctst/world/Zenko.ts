@@ -68,9 +68,9 @@ export interface ZenkoWorldParameters {
     KeycloakPassword: string;
     KeycloakHost: string;
     KeycloakPort: string;
-    keycloakRealm: string;
-    keycloakClientId: string;
-    keycloakGrantType: string;
+    KeycloakRealm: string;
+    KeycloakClientId: string;
+    KeycloakGrantType: string;
     StorageManagerUsername: string;
     StorageAccountOwnerUsername: string;
     DataConsumerUsername: string;
@@ -281,9 +281,9 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 ARWWIPassword,
                 this.parameters.KeycloakHost || 'keycloak.zenko.local',
                 this.parameters.KeycloakPort || '80',
-                `/auth/realms/${this.parameters.keycloakRealm || 'zenko'}/protocol/openid-connect/token`,
-                this.parameters.keycloakClientId || Constants.K_CLIENT,
-                this.parameters.keycloakGrantType || 'password',
+                `/auth/realms/${this.parameters.KeycloakRealm || 'zenko'}/protocol/openid-connect/token`,
+                this.parameters.KeycloakClientId || Constants.K_CLIENT,
+                this.parameters.KeycloakGrantType || 'password',
             );
             this.options.webIdentityToken = token;
             if (!this.options.webIdentityToken) {
