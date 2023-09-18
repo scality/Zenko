@@ -1,11 +1,11 @@
 import { When, Then } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
-import Zenko, { ApiResult, EntityType, UserCredentials } from '../../world/Zenko';
+import Zenko, { ApiResult, EntityType } from '../../world/Zenko';
 import { CacheHelper, ClientOptions, S3, VaultAuth } from 'cli-testing';
 import { s3FunctionExtraParams } from '../../common/utils';
 
 When('the user tries to perform {string} on the bucket', async function (this: Zenko, action: string) {
-    let userCredentials: UserCredentials;
+    let userCredentials;
     if ([EntityType.IAM_USER, EntityType.ACCOUNT].includes(this.getSaved<EntityType>('type'))) {
         userCredentials = this.parameters.IAMSession;
         this.resumeRootOrIamUser();
@@ -13,6 +13,12 @@ When('the user tries to perform {string} on the bucket', async function (this: Z
         userCredentials = this.parameters.AssumedSession!;
         this.resumeAssumedRole();
     }
+
+    if (!userCredentials) {
+        throw new Error('User credentials not set. '
+            + 'Make sure the `IAMSession` and `AssumedSession` world parameter are defined.');
+    }
+    
     switch (action) {
     case 'MetadataSearch': {
         this.setResult(await this.metadataSearchResponseCode(userCredentials, this.getSaved<string>('bucketName')));
@@ -54,6 +60,11 @@ When('the user tries to perform vault auth {string}', async function (this: Zenk
         userCredentials = this.parameters.IAMSession;
     } else {
         userCredentials = this.parameters.AssumedSession!;
+    }
+
+    if (!userCredentials) {
+        throw new Error('User credentials not set. '
+            + 'Make sure the `IAMSession` and `AssumedSession` world parameter are defined.');
     }
 
     if (!this.parameters.VaultAuthHost) {

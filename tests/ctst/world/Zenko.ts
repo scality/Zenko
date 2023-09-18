@@ -48,17 +48,13 @@ export enum EntityType {
     ASSUME_ROLE_USER = 'ASSUME_ROLE_USER',
 }
 
-export interface ZenkoWorldParameters {
-    subdomain: string;
-    ssl: boolean;
-    port: string;
+export interface ZenkoWorldParameters extends ClientOptions {
+    // Make some fields from ClientOptions mandatory
+    IAMSession: NonNullable<ClientOptions['IAMSession']>;
+
     AccountName: string;
-    AdminAccessKey: string;
-    AdminSecretKey: string;
     AccountAccessKey: string;
     AccountSecretKey: string;
-    AccessKey: string;
-    SecretKey: string;
     VaultAuthHost: string;
     NotificationDestination: string;
     NotificationDestinationTopic: string;
@@ -77,13 +73,6 @@ export interface ZenkoWorldParameters {
     ServiceUsersCredentials: string;
     AccountSessionToken: string;
     KeycloakTestPassword: string;
-    AssumedSession: ClientOptions['AssumedSession'];
-    IAMSession: {
-        AccessKeyId: string;
-        SecretAccessKey: string;
-        SessionToken?: string;
-    };
-    IAMUserName: string;
     AzureAccountName: string;
     AzureAccountKey: string;
     AzureArchiveContainer: string;
@@ -103,7 +92,7 @@ export interface ApiResult {
 
 /**
  * Cucumber custom World implementation to support Zenko.
- * This World is reponsible for AWS CLI calls.
+ * This World is responsible for AWS CLI calls.
  * Shared between all tests (S3, IAM, STS).
  */
 export default class Zenko extends World<ZenkoWorldParameters> {
@@ -155,7 +144,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
         // Workaround to be able to access global parameters in BeforeAll/AfterAll hooks
         CacheHelper.parameters = this.parameters as unknown as Record<string, unknown>;
-        this.cliMode.parameters = this.parameters as ClientOptions;
+        this.cliMode.parameters = this.parameters;
 
         if (this.parameters.AccountSessionToken) {
             (CacheHelper.ARWWI[CacheHelper.AccountName]) = {
