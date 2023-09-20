@@ -143,7 +143,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         }
 
         // Workaround to be able to access global parameters in BeforeAll/AfterAll hooks
-        CacheHelper.parameters = this.parameters as unknown as Record<string, unknown>;
+        CacheHelper.parameters = this.parameters;
         this.cliMode.parameters = this.parameters;
 
         if (this.parameters.AccountSessionToken) {
