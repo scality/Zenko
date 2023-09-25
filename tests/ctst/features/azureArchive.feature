@@ -8,8 +8,8 @@ Feature: Azure Archive
     Given a "<versioningConfiguration>" bucket
     And a transition workflow to "e2e-azure-archive" location
     And <objectCount> objects "obj" of size <objectSize> bytes
-    Then object "obj-1" should be "transitioning" and have the storage class "e2e-azure-archive"
-    And object "obj-2" should be "transitioning" and have the storage class "e2e-azure-archive"
+    Then object "obj-1" should be "transitioned" and have the storage class "e2e-azure-archive"
+    And object "obj-2" should be "transitioned" and have the storage class "e2e-azure-archive"
     And manifest containing object "obj-1" should "contain" object "obj-2"
     And manifest access tier should be valid for object "obj-1"
     And tar access tier should be valid for object "obj-1"
@@ -28,9 +28,9 @@ Feature: Azure Archive
     Given a "<versioningConfiguration>" bucket
     And a transition workflow to "e2e-azure-archive" location
     And <objectCount> objects "obj" of size <objectSize> bytes
-    Then object "obj-1" should be "transitioning" and have the storage class "e2e-azure-archive"
-    And object "obj-2" should be "transitioning" and have the storage class "e2e-azure-archive"
-    And object "obj-3" should be "transitioning" and have the storage class "e2e-azure-archive"
+    Then object "obj-1" should be "transitioned" and have the storage class "e2e-azure-archive"
+    And object "obj-2" should be "transitioned" and have the storage class "e2e-azure-archive"
+    And object "obj-3" should be "transitioned" and have the storage class "e2e-azure-archive"
 
     Examples:
         | versioningConfiguration | objectCount | objectSize |
@@ -46,12 +46,12 @@ Feature: Azure Archive
     Given a "<versioningConfiguration>" bucket
     And a transition workflow to "e2e-azure-archive" location
     And <objectCount> objects "obj" of size <objectSize> bytes
-    Then object "obj-1" should be "transitioning" and have the storage class "e2e-azure-archive"
-    And object "obj-2" should be "transitioning" and have the storage class "e2e-azure-archive"
-    And object "obj-3" should be "transitioning" and have the storage class "e2e-azure-archive"
-    And object "obj-4" should be "transitioning" and have the storage class "e2e-azure-archive"
-    And object "obj-5" should be "transitioning" and have the storage class "e2e-azure-archive"
-    And object "obj-6" should be "transitioning" and have the storage class "e2e-azure-archive"
+    Then object "obj-1" should be "transitioned" and have the storage class "e2e-azure-archive"
+    And object "obj-2" should be "transitioned" and have the storage class "e2e-azure-archive"
+    And object "obj-3" should be "transitioned" and have the storage class "e2e-azure-archive"
+    And object "obj-4" should be "transitioned" and have the storage class "e2e-azure-archive"
+    And object "obj-5" should be "transitioned" and have the storage class "e2e-azure-archive"
+    And object "obj-6" should be "transitioned" and have the storage class "e2e-azure-archive"
     And manifest and tar containing object "obj-1" should exist
     And manifest containing object "" should contain <packObjectCount> objects
     And manifest and tar containing object "obj-2" should exist
@@ -79,8 +79,8 @@ Feature: Azure Archive
     Given a "<versioningConfiguration>" bucket
     And a transition workflow to "e2e-azure-archive" location
     And <objectCount> objects "obj" of size <objectSize> bytes
-    Then object "obj-1" should be "transitioning" and have the storage class "e2e-azure-archive"
-    And object "obj-2" should be "transitioning" and have the storage class "e2e-azure-archive"
+    Then object "obj-1" should be "transitioned" and have the storage class "e2e-azure-archive"
+    And object "obj-2" should be "transitioned" and have the storage class "e2e-azure-archive"
     And manifest and tar containing object "obj-1" should exist
     And manifest containing object "" should contain <packObjectCount> objects
     And manifest and tar containing object "obj-2" should exist
@@ -104,8 +104,8 @@ Feature: Azure Archive
     And object "obj-2" should have the user metadata with key "x-amz-meta-123" and value "456"
     And a tag on object "obj-1" with key "tag1" and value "value1"
     And a tag on object "obj-2" with key "tag2" and value "value2"
-    Then object "obj-1" should be "transitioning" and have the storage class "e2e-azure-archive"
-    And object "obj-2" should be "transitioning" and have the storage class "e2e-azure-archive"
+    Then object "obj-1" should be "transitioned" and have the storage class "e2e-azure-archive"
+    And object "obj-2" should be "transitioned" and have the storage class "e2e-azure-archive"
     And manifest containing object "obj-1" should "contain" object "obj-2"
     When i restore object "obj-1" for <restoreDays> days
     Then blob for object "obj-1" must be rehydrated

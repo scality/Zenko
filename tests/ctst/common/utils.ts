@@ -1,3 +1,4 @@
+import { exec } from 'child_process';
 import {
     Utils,
 } from 'cli-testing';
@@ -86,4 +87,20 @@ export function safeJsonParse(jsonString: string): { ok: boolean, result: object
         return { ok: false, result };
     }
     return { ok: true, result };
+}
+
+/**
+ * Executes a shell command and return it as a Promise.
+ * @param {string} cmd The command to execute
+ * @return {Promise<string>} the command output
+ */
+export function execShellCommand(cmd: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+        exec(cmd, (error, stdout, stderr) => {
+            if (error) {
+                reject(error);
+            }
+            resolve(stdout || stderr);
+        });
+    });
 }

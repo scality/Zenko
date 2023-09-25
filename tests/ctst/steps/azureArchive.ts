@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import assert from 'assert';
 import { safeJsonParse } from '../common/utils';
-import { Given, Then, When, After, setDefaultTimeout } from '@cucumber/cucumber';
+import { Then, When, After, setDefaultTimeout } from '@cucumber/cucumber';
 import { AzureHelper, S3, Constants, Utils } from 'cli-testing';
 import util from 'util';
 import { exec } from 'child_process';
@@ -211,67 +211,6 @@ async function cleanAzureContainer(
     }
 }
 
-Given('a transition workflow to {string} location', async function (this: Zenko, location: string) {
-    this.resetCommand();
-    this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-    this.addCommandParameter({
-        lifecycleConfiguration: JSON.stringify({
-            Rules: [
-                {
-                    Status: 'Enabled',
-                    Prefix: '',
-                    Transitions: [
-                        {
-                            Days: 1,
-                            StorageClass: location,
-                        },
-                    ],
-                },
-            ],
-        }),
-    });
-    await S3.putBucketLifecycleConfiguration(this.getCommandParameters());
-});
-
-Then('object {string} should be {string} and have the storage class {string}',
-    async function (this: Zenko, objectName: string, objectTransitionStatus: string, storageClass: string) {
-        const objName = objectName ||  this.getSaved<string>('objectName');
-        this.resetCommand();
-        this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-        this.addCommandParameter({ key: objName });
-        const versionId = this.getSaved<Map<string, string>>('createdObjects')?.get(objName);
-        if (versionId) {
-            this.addCommandParameter({ versionId });
-        }
-        let conditionOk = false;
-        while (!conditionOk) {
-            const res = await S3.headObject(this.getCommandParameters());
-            if (res.err) {
-                break;
-            }
-            assert(res.stdout);
-            const parsed = safeJsonParse(res.stdout);
-            assert(parsed.ok);
-            const head = parsed.result as {
-                StorageClass: string | undefined,
-                Restore: string | undefined,
-            };
-            const expectedClass = storageClass !== '' ? storageClass : undefined;
-            if (head?.StorageClass === expectedClass) {
-                conditionOk = true;
-            }
-            if (objectTransitionStatus == 'restored') {
-                const restoredCondition = !!head?.Restore &&
-                    head.Restore.includes('ongoing-request="false", expiry-date=');
-                conditionOk = conditionOk && restoredCondition;
-            } else if (objectTransitionStatus == 'cold') {
-                conditionOk = conditionOk && !head?.Restore;
-            }
-            await Utils.sleep(3000);
-        }
-        assert(conditionOk);
-    });
-
 Then('manifest access tier should be valid for object {string}', async function (this: Zenko, objectName: string) {
     const {
         manifestName,
@@ -427,20 +366,6 @@ Then('the storage class of object {string} must stay {string} for {int} seconds'
         assert(secondsPassed === seconds);
     });
 
-When('i restore object {string} for {int} days', async function (this: Zenko, objectName: string, days: number) {
-    const objName = objectName ||  this.getSaved<string>('objectName');
-    this.resetCommand();
-    this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-    this.addCommandParameter({ key: objName });
-    const versionId = this.getSaved<Map<string, string>>('createdObjects')?.get(objName);
-    if (versionId) {
-        this.addCommandParameter({ versionId });
-    }
-    this.addCommandParameter({ restoreRequest: `Days=${days}` });
-    await S3.restoreObject(this.getCommandParameters());
-});
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 When('i run sorbetctl to retry failed restore for {string} location', async function (this: Zenko, location: string) {
     const command = `/ctst/sorbetctl forward list failed --trigger-retry --skip-invalid \
         --kafka-dead-letter-topic=${this.parameters.KafkaDeadLetterQueueTopic} \
