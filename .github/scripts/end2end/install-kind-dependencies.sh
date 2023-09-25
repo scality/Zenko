@@ -101,7 +101,7 @@ build_solution_base_manifests() {
     TOTAL_RAM_GB=$(awk '/MemTotal/ {printf "%.0f", $2/1024/1024}' /proc/meminfo)
     # Compute MongoDB settings based on the total RAM
     MONGODB_WIREDTIGER_CACHE_SIZE_GB=$(awk "BEGIN {printf \"%.0f\", ${TOTAL_RAM_GB} * 0.335}")
-    MONGODB_MONGOS_RAM_LIMIT=$(awk "BEGIN {printf \"%.1fGi\", ${TOTAL_RAM_GB} * 0.165}")
+    MONGODB_MONGOS_RAM_LIMIT=$(awk "BEGIN {printf \"%.0fGi\", ${TOTAL_RAM_GB} * 0.165}")
     MONGODB_SHARDSERVER_RAM_SAFE_LIMIT=$(awk "BEGIN {printf \"%.0fGi\", 2 * ${MONGODB_WIREDTIGER_CACHE_SIZE_GB}}")
     MONGODB_SHARDSERVER_RAM_REQUEST=${MONGODB_WIREDTIGER_CACHE_SIZE_GB}Gi
     MONGODB_MONGOS_RAM_REQUEST=$(awk "BEGIN {printf \"%.0fGi\", ${TOTAL_RAM_GB} * 0.033}")
