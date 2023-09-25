@@ -111,6 +111,7 @@ build_solution_base_manifests() {
     sed -i "s/MONGODB_MONGOS_RAM_LIMIT/\"${MONGODB_MONGOS_RAM_LIMIT}\"/g" $DIR/_build/root/deploy/*
     sed -i "s/MONGODB_SHARDSERVER_RAM_SAFE_LIMIT/\"${MONGODB_SHARDSERVER_RAM_SAFE_LIMIT}\"/g" $DIR/_build/root/deploy/*
     sed -i "s/MONGODB_SHARDSERVER_RAM_REQUEST/\"${MONGODB_SHARDSERVER_RAM_REQUEST}\"/g" $DIR/_build/root/deploy/*
+    sed -i "s/MONGODB_MONGOS_RAM_REQUEST/\"${MONGODB_MONGOS_RAM_REQUEST}\"/g" $DIR/_build/root/deploy/*
 }
 
 get_image_from_deps() {
