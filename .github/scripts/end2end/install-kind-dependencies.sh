@@ -107,11 +107,11 @@ build_solution_base_manifests() {
     MONGODB_MONGOS_RAM_REQUEST=$(awk "BEGIN {printf \"%.0fGi\", ${TOTAL_RAM_GB} * 0.033}")
 
     # Replace values before deploying
-    sed -i "s/MONGODB_WIREDTIGER_CACHE_SIZE_GB/\"${MONGODB_WIREDTIGER_CACHE_SIZE_GB}\"/g" $DIR/_build/root/deploy/*
-    sed -i "s/MONGODB_MONGOS_RAM_LIMIT/\"${MONGODB_MONGOS_RAM_LIMIT}\"/g" $DIR/_build/root/deploy/*
-    sed -i "s/MONGODB_SHARDSERVER_RAM_SAFE_LIMIT/\"${MONGODB_SHARDSERVER_RAM_SAFE_LIMIT}\"/g" $DIR/_build/root/deploy/*
-    sed -i "s/MONGODB_SHARDSERVER_RAM_REQUEST/\"${MONGODB_SHARDSERVER_RAM_REQUEST}\"/g" $DIR/_build/root/deploy/*
-    sed -i "s/MONGODB_MONGOS_RAM_REQUEST/\"${MONGODB_MONGOS_RAM_REQUEST}\"/g" $DIR/_build/root/deploy/*
+    sed -i "s/MONGODB_WIREDTIGER_CACHE_SIZE_GB/${MONGODB_WIREDTIGER_CACHE_SIZE_GB}/g" $DIR/_build/root/deploy/*
+    sed -i "s/MONGODB_MONGOS_RAM_LIMIT/${MONGODB_MONGOS_RAM_LIMIT}/g" $DIR/_build/root/deploy/*
+    sed -i "s/MONGODB_SHARDSERVER_RAM_SAFE_LIMIT/${MONGODB_SHARDSERVER_RAM_SAFE_LIMIT}/g" $DIR/_build/root/deploy/*
+    sed -i "s/MONGODB_SHARDSERVER_RAM_REQUEST/${MONGODB_SHARDSERVER_RAM_REQUEST}/g" $DIR/_build/root/deploy/*
+    sed -i "s/MONGODB_MONGOS_RAM_REQUEST/${MONGODB_MONGOS_RAM_REQUEST}/g" $DIR/_build/root/deploy/*
 }
 
 get_image_from_deps() {
