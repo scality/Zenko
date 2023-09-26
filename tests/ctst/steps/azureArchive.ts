@@ -174,6 +174,22 @@ async function cleanZenkoBucket(
 }
 
 /**
+ * Cleans the created test locations
+ * @param {Zenko} world world object
+ * @param {string} locationName bucket name
+ * @returns {void}
+ */
+async function cleanZenkoLocation(
+    world: Zenko,
+    locationName: string,
+): Promise<void> {
+    if (locationName === undefined) {
+        return;
+    }
+    await world.deleteLocation(locationName);
+}
+
+/**
  * Cleans the created test azure blobs
  * @param {Zenko} world world object
  * @param {string} bucketName bucket name
@@ -442,16 +458,32 @@ Given('an azure archive location {string}', async function (this: Zenko, locatio
         assert.ifError(result.err);
     }
     assert.strictEqual(result.statusCode, 201);
+    this.addToSaved('locationName', locationName);
 });
 
 When('i change azure archive location {string} container target', async function (this: Zenko, locationName: string) {
     const result = await this.managementAPIRequest('GET', `/config/overlay/view/${this.parameters.InstanceID}`);
     if ('err' in result) {
         assert.ifError(result.err);
-    }
-    if ('data' in result) {
+    } else {
         const { locations } = result.data as { locations: Record<string, unknown> };
         assert(locations[locationName]);
+        const locationConfig = locations[locationName] as Record<string, unknown>;
+        const details = locationConfig.details as { bucketName: string, auth?: { accountKey?: string } };
+        const auth = details.auth as { accountKey: string };
+        details.bucketName = this.parameters.AzureArchiveContainer2;
+        auth.accountKey = this.parameters.AzureAccountKey ;
+        const putResult = await this.managementAPIRequest('PUT',
+            `/config/${this.parameters.InstanceID}/location/${locationName}`,
+            {},
+            locationConfig);
+        if ('err' in putResult) {
+            assert.ifError(putResult.err);
+        } else {
+            assert.strictEqual((putResult.data as { details: { bucketName: string }}).details.bucketName,
+                this.parameters.AzureArchiveContainer2);
+            assert.strictEqual(putResult.statusCode, 200);
+        }
     }
 });
 
@@ -466,10 +498,15 @@ Then('i can get the {string} location details', async function (this: Zenko, loc
     }
 });
 
+
 After({ tags: '@AzureArchive' }, async function (this: Zenko) {
     await cleanZenkoBucket(
         this,
         this.getSaved<string>('bucketName'),
+    );
+    await cleanZenkoLocation(
+        this,
+        this.getSaved<string>('locationName'),
     );
     await cleanAzureContainer(
         this,

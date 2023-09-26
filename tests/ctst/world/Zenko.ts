@@ -76,6 +76,7 @@ export interface ZenkoWorldParameters extends ClientOptions {
     AzureAccountName: string;
     AzureAccountKey: string;
     AzureArchiveContainer: string;
+    AzureArchiveContainer2: string;
     AzureArchiveAccessTier: string;
     AzureArchiveManifestTier: string;
     AzureArchiveQueue: string;
@@ -892,6 +893,12 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             };
             /* eslint-enable */
         }
+    }
+
+    async deleteLocation(this: Zenko, locationName: string) :
+        Promise<{ statusCode: number; data: object } | { statusCode: number; err: unknown }> {
+        return await this.managementAPIRequest('DELETE',
+            `/config/${this.parameters.InstanceID}/location/${locationName}`);
     }
 }
 

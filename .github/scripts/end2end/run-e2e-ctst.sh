@@ -100,6 +100,7 @@ WORLD_PARAMETERS="$(jq -c <<EOF
   "AzureAccountName":"${AZURE_ACCOUNT_NAME}",
   "AzureAccountKey":"${AZURE_SECRET_KEY}",
   "AzureArchiveContainer":"${AZURE_ARCHIVE_BUCKET_NAME}",
+  "AzureArchiveContainer2":"${AZURE_ARCHIVE_BUCKET_NAME_2}",
   "AzureArchiveAccessTier":"${AZURE_ARCHIVE_ACCESS_TIER}",
   "AzureArchiveManifestTier":"${AZURE_ARCHIVE_MANIFEST_ACCESS_TIER}",
   "AzureArchiveQueue":"${AZURE_ARCHIVE_QUEUE_NAME}",

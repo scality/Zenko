@@ -43,9 +43,13 @@ Feature: Azure Archive
     @Flaky
     @AzureArchive
     @WIP
-    Scenario Outline: Create, read, update and delete azure archive locations
+    Scenario Outline: Create, read, update and delete azure archive location
     Given an azure archive location "e2e-azure-archive-2"
     Then i can get the "e2e-azure-archive-2" location details
+    When i change azure archive location "e2e-azure-archive-2" container target
+    Then i can get the "e2e-azure-archive-2" location details
+    Then i can delete the location "e2e-azure-archive-2"
+
 
     Examples:
         | versioningConfiguration | objectCount | objectSize |
