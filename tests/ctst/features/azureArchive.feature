@@ -42,6 +42,21 @@ Feature: Azure Archive
     @PreMerge
     @Flaky
     @AzureArchive
+    @WIP
+    Scenario Outline: Create, read, update and delete azure archive locations
+    Given an azure archive location "e2e-azure-archive-2"
+    Then i can get the "e2e-azure-archive-2" location details
+
+    Examples:
+        | versioningConfiguration | objectCount | objectSize |
+        |           Non versioned |           3 |        0 |
+        |               Versioned |           3 |        0 |
+        |               Suspended |           3 |        0 |
+
+    @2.7.0
+    @PreMerge
+    @Flaky
+    @AzureArchive
     Scenario Outline: Respect maximum number of objects per archived Tar
     Given a "<versioningConfiguration>" bucket
     And a transition workflow to "e2e-azure-archive" location
@@ -100,7 +115,6 @@ Feature: Azure Archive
     Scenario Outline: Restore objects from tar
     Given a "<versioningConfiguration>" bucket
     And a transition workflow to "e2e-azure-archive" location
-    Then i can get the "e2e-azure-archive" location details
     And <objectCount> objects "obj" of size <objectSize> bytes with user metadata "x-amz-meta-123=456"
     And object "obj-2" should have the user metadata with key "x-amz-meta-123" and value "456"
     And a tag on object "obj-1" with key "tag1" and value "value1"

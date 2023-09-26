@@ -43,6 +43,9 @@ type listingResult = {
     DeleteMarkers: listingObject[],
 }
 
+const AZURE_STORAGE_BLOB_URL = process.env.AZURE_BLOB_URL || 'http://127.0.0.1:10000/devstoreaccount1';
+const AZURE_STORAGE_QUEUE_URL = process.env.AZURE_QUEUE_URL || 'http://127.0.0.1:10001/devstoreaccount1';
+
 /**
  * Returns an object containing azure credentials
  * @param {Zenko} world world object
@@ -148,6 +151,9 @@ async function cleanZenkoBucket(
     world: Zenko,
     bucketName: string,
 ): Promise<void> {
+    if (bucketName === undefined) {
+        return;
+    }
     world.resetCommand();
     world.addCommandParameter({ bucket: bucketName });
     const results = await S3.listObjectVersions(world.getCommandParameters());
@@ -177,7 +183,11 @@ async function cleanAzureContainer(
     world: Zenko,
     bucketName: string,
 ): Promise<void> {
-    const iterator = world.getSaved<Map<string, string>>('createdObjects').keys();
+    const createdObjects = world.getSaved<Map<string, string>>('createdObjects');
+    if (createdObjects === undefined) {
+        return;
+    }
+    const iterator = createdObjects?.keys();
     let currentKey = iterator.next();
     while (currentKey.value) {
         const {
@@ -407,9 +417,46 @@ Then('object {string} should expire in {int} days', async function (this: Zenko,
     assert(diff >= realTimeDays && diff < realTimeDays + 0.005);
 });
 
+Given('an azure archive location {string}', async function (this: Zenko, locationName: string) {
+    const locationConfig = {
+        name: locationName,
+        locationType: 'location-azure-archive-v1',
+        details: {
+            endpoint: AZURE_STORAGE_BLOB_URL,
+            bucketName: this.parameters.AzureArchiveContainer,
+            queue: {
+                type: 'location-azure-storage-queue-v1',
+                queueName: this.parameters.AzureArchiveQueue,
+                endpoint: AZURE_STORAGE_QUEUE_URL,
+            },
+            auth: {
+                type: 'location-azure-shared-key'                ,
+                accountName: this.parameters.AzureAccountName,
+                accountKey: this.parameters.AzureAccountKey,
+            },
+        },
+    };
+    const result = await this.managementAPIRequest('POST', `/config/${this.parameters.InstanceID}/location`, {},
+        locationConfig);
+    if ('err' in result) {
+        assert.ifError(result.err);
+    }
+    assert.strictEqual(result.statusCode, 201);
+});
+
+When('i change azure archive location {string} container target', async function (this: Zenko, locationName: string) {
+    const result = await this.managementAPIRequest('GET', `/config/overlay/view/${this.parameters.InstanceID}`);
+    if ('err' in result) {
+        assert.ifError(result.err);
+    }
+    if ('data' in result) {
+        const { locations } = result.data as { locations: Record<string, unknown> };
+        assert(locations[locationName]);
+    }
+});
+
 Then('i can get the {string} location details', async function (this: Zenko, locationName: string) {
     const result = await this.managementAPIRequest('GET', `/config/overlay/view/${this.parameters.InstanceID}`);
-    assert(this.parameters.OIDCToken);
     if ('err' in result) {
         assert.ifError(result.err);
     }
