@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import assert from 'assert';
 import { safeJsonParse } from '../common/utils';
-import { Then, When, After, setDefaultTimeout } from '@cucumber/cucumber';
+import { Then, When, After, setDefaultTimeout, Given } from '@cucumber/cucumber';
 import { AzureHelper, S3, Constants, Utils } from 'cli-testing';
 import util from 'util';
 import { exec } from 'child_process';
@@ -151,24 +151,27 @@ async function cleanZenkoBucket(
     world: Zenko,
     bucketName: string,
 ): Promise<void> {
-    if (bucketName === undefined) {
+    if (!bucketName) {
         return;
     }
     world.resetCommand();
     world.addCommandParameter({ bucket: bucketName });
-    const results = await S3.listObjectVersions(world.getCommandParameters());
-    const res = safeJsonParse(results.stdout);
-    assert(res.ok);
-    const parsedResults = res.result as listingResult;
-    const versions = parsedResults.Versions || [];
-    const deleteMarkers = parsedResults.DeleteMarkers || [];
-    await Promise.all(versions.concat(deleteMarkers).map(obj => {
-        world.addCommandParameter({ key: obj.Key });
-        world.addCommandParameter({ versionId: obj.VersionId });
-        return S3.deleteObject(world.getCommandParameters());
-    }));
-    world.deleteKeyFromCommand('key');
-    world.deleteKeyFromCommand('versionId');
+    const createdObjects = world.getSaved<Map<string, string>>('createdObjects');
+    if (createdObjects !== undefined) {
+        const results = await S3.listObjectVersions(world.getCommandParameters());
+        const res = safeJsonParse(results.stdout);
+        assert(res.ok);
+        const parsedResults = res.result as listingResult;
+        const versions = parsedResults.Versions || [];
+        const deleteMarkers = parsedResults.DeleteMarkers || [];
+        await Promise.all(versions.concat(deleteMarkers).map(obj => {
+            world.addCommandParameter({ key: obj.Key });
+            world.addCommandParameter({ versionId: obj.VersionId });
+            return S3.deleteObject(world.getCommandParameters());
+        }));
+        world.deleteKeyFromCommand('key');
+        world.deleteKeyFromCommand('versionId');
+    }
     await S3.deleteBucketLifecycle(world.getCommandParameters());
     await S3.deleteBucket(world.getCommandParameters());
 }
@@ -176,17 +179,20 @@ async function cleanZenkoBucket(
 /**
  * Cleans the created test locations
  * @param {Zenko} world world object
- * @param {string} locationName bucket name
+ * @param {string} locationName location name
  * @returns {void}
  */
 async function cleanZenkoLocation(
     world: Zenko,
     locationName: string,
 ): Promise<void> {
-    if (locationName === undefined) {
+    if (!locationName) {
         return;
     }
-    await world.deleteLocation(locationName);
+    const result = await world.deleteLocation(locationName);
+    if ('err' in result) {
+        assert.ifError(result.err);
+    }
 }
 
 /**
@@ -200,7 +206,7 @@ async function cleanAzureContainer(
     bucketName: string,
 ): Promise<void> {
     const createdObjects = world.getSaved<Map<string, string>>('createdObjects');
-    if (createdObjects === undefined) {
+    if (!createdObjects) {
         return;
     }
     const iterator = createdObjects?.keys();
@@ -446,7 +452,7 @@ Given('an azure archive location {string}', async function (this: Zenko, locatio
                 endpoint: AZURE_STORAGE_QUEUE_URL,
             },
             auth: {
-                type: 'location-azure-shared-key'                ,
+                type: 'location-azure-shared-key',
                 accountName: this.parameters.AzureAccountName,
                 accountKey: this.parameters.AzureAccountKey,
             },
@@ -454,9 +460,6 @@ Given('an azure archive location {string}', async function (this: Zenko, locatio
     };
     const result = await this.managementAPIRequest('POST', `/config/${this.parameters.InstanceID}/location`, {},
         locationConfig);
-    if ('err' in result) {
-        assert.ifError(result.err);
-    }
     assert.strictEqual(result.statusCode, 201);
     this.addToSaved('locationName', locationName);
 });

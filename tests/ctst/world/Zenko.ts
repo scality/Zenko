@@ -83,9 +83,7 @@ export interface ZenkoWorldParameters extends ClientOptions {
     TimeProgressionFactor: number;
     KafkaDeadLetterQueueTopic: string;
     KafkaObjectTaskTopic: string;
-    OIDCToken: string;
     InstanceID: string;
-    [key: string]: unknown;
 }
 
 export interface ApiResult {

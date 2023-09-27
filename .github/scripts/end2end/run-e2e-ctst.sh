@@ -1,9 +1,6 @@
 #!/bin/bash
 set -exu
 
-DIR=$(dirname $0)
-. "$DIR/common.sh"
-
 ZENKO_NAME=${1:-end2end}
 COMMAND=${2:-"premerge"}
 # Get the current number of vCPUs
@@ -70,7 +67,6 @@ INSTANCE_ID=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.status.instanceID}'
 # Azure archive tests
 AZURE_ARCHIVE_ACCESS_TIER="Hot"
 AZURE_ARCHIVE_MANIFEST_ACCESS_TIER="Hot"
-TOKEN=$(get_token)
 
 # Setting CTST world params
 WORLD_PARAMETERS="$(jq -c <<EOF
@@ -107,7 +103,6 @@ WORLD_PARAMETERS="$(jq -c <<EOF
   "TimeProgressionFactor":"${TIME_PROGRESSION_FACTOR}",
   "KafkaObjectTaskTopic":"${KAFKA_OBJECT_TASK_TOPIC}",
   "KafkaDeadLetterQueueTopic":"${KAFKA_DEAD_LETTER_TOPIC}",
-  "OIDCToken":"${TOKEN}",
   "InstanceID":"${INSTANCE_ID}"
 }
 EOF
@@ -137,4 +132,30 @@ kubectl run $POD_NAME \
         --env=AZURE_BLOB_URL=$AZURE_BACKEND_ENDPOINT  \
         --env=AZURE_QUEUE_URL=$AZURE_BACKEND_QUEUE_ENDPOINT \
         --env=VERBOSE=1 \
-        -- ./run "$COMMAND" $WORLD_PARAMETERS "--parallel $PARALLEL_RUNS --retry $RETRIES --retry-tag-filter @Flaky --tags "@WIP""
+        --override-type strategic \
+        --overrides='
+{
+  "apiVersion": "v1",
+  "kind": "Pod",
+  "spec": {
+    "containers": [
+      {
+        "name": "'$POD_NAME'",
+        "volumeMounts": [
+          {
+            "name": "cold-data",
+            "mountPath": "/cold-data"
+          }
+        ]
+      }
+    ],
+    "volumes": [
+      {
+        "name": "cold-data",
+        "persistentVolumeClaim": {
+          "claimName": "sorbet-data"
+        }
+      }
+    ]
+  }
+}' -- ./run "$COMMAND" $WORLD_PARAMETERS "--parallel $PARALLEL_RUNS --retry $RETRIES --retry-tag-filter @Flaky --tags @WIP"
