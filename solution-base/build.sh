@@ -174,12 +174,12 @@ function render_mongodb_sharded_yamls()
         --set image.tag=${MONGODB_SHARDED_IMAGE_TAG} \
         --set global.storageClass=${MONGODB_STORAGE_CLASS} \
         --set shards=${SHARD_COUNT} \
-        --set mongos.replicas=${NODE_COUNT} \
+        --set mongos.replicaCount=${NODE_COUNT} \
         --set mongos.useStatefulSet=true \
-        --set shardsvr.dataNode.replicas=${NODE_COUNT} \
+        --set shardsvr.dataNode.replicaCount=${NODE_COUNT} \
         --set shardsvr.persistence.enabled=true \
         --set shardsvr.persistence.storageClass=${MONGODB_STORAGE_CLASS} \
-        --set configsvr.replicas=${NODE_COUNT} \
+        --set configsvr.replicaCount=${NODE_COUNT} \
         --set configsvr.persistence.enabled=true \
         --set configsvr.persistence.storageClass=${MONGODB_STORAGE_CLASS} \
         --set metrics.enabled=true \
