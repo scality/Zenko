@@ -66,10 +66,10 @@ MONGODB_SHARDED_SHELL_IMAGE_NAME="bitnami-shell"
 MONGODB_SHARDED_SHELL_IMAGE_TAG=$(yq eval ".mongodb-shell.tag" $SOLUTION_BASE_DIR/deps.yaml)
 MONGODB_STORAGE_CLASS="MONGODB_STORAGE_CLASS"
 MONGODB_MONGOS_RAM_LIMIT="MONGODB_MONGOS_RAM_LIMIT"
-MONGODB_WIREDTIGER_CACHE_SIZE_GB="MONGODB_WIREDTIGER_CACHE_SIZE_GB"
+MONGODB_SHARDSERVER_RAM_LIMIT="MONGODB_SHARDSERVER_RAM_LIMIT"
+MONGODB_SHARDSERVER_EXTRA_FLAGS="MONGODB_SHARDSERVER_EXTRA_FLAGS"
 MONGODB_SHARDSERVER_RAM_REQUEST="MONGODB_SHARDSERVER_RAM_REQUEST"
 MONGODB_MONGOS_RAM_REQUEST="MONGODB_MONGOS_RAM_REQUEST"
-MONGODB_SHARDSERVER_RAM_SAFE_LIMIT="MONGODB_SHARDSERVER_RAM_SAFE_LIMIT"
 
 function flatten_source_images()
 {
@@ -201,8 +201,8 @@ function render_mongodb_sharded_yamls()
         --set "configsvr.mongodbExtraFlags={--setParameter rollbackTimeLimitSecs=259200}" \
         --set mongos.resources.requests.memory=${MONGODB_MONGOS_RAM_REQUEST} \
         --set mongos.resources.limits.memory=${MONGODB_MONGOS_RAM_LIMIT} \
-        --set "shardsvr.dataNode.mongodbExtraFlags={--wiredTigerCacheSizeGB=${MONGODB_WIREDTIGER_CACHE_SIZE_GB}}" \
-        --set shardsvr.dataNode.resources.limits.memory=${MONGODB_SHARDSERVER_RAM_SAFE_LIMIT} \
+        --set "shardsvr.dataNode.mongodbExtraFlags={${MONGODB_SHARDSERVER_EXTRA_FLAGS}}" \
+        --set shardsvr.dataNode.resources.limits.memory=${MONGODB_SHARDSERVER_RAM_LIMIT} \
         --set shardsvr.dataNode.resources.requests.memory=${MONGODB_SHARDSERVER_RAM_REQUEST} \
         --set existingSecret=${MONGODB_NAME}-db-creds >> ${OUTPUT_PATH}
 }
