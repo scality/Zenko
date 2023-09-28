@@ -246,6 +246,18 @@ function copy_iam_policies()
 
 }
 
+function copy_config()
+{
+    components=$(yq eval '.* | select(.config != "") | .sourceRegistry + "/" + .config + ":" + .tag' deps.yaml)
+
+    for config in ${components}
+    do
+        echo "copy configs for ${config}"
+        copy_oci_image ${config}
+    done
+
+}
+
 function dedupe()
 {
     ${HARDLINK} -c ${IMAGES_ROOT}
@@ -326,6 +338,7 @@ flatten_source_images | while read img ; do
 done
 get_dashboards
 copy_iam_policies
+copy_config
 dedupe
 build_registry_config
 build_iso
