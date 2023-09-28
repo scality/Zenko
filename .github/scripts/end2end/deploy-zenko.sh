@@ -139,4 +139,6 @@ for i in $(seq 1 120); do
     if kubectl wait --for condition=Available --timeout 5s --namespace ${NAMESPACE} zenko/${ZENKO_NAME}; then
         break;
     fi
+    # Debug log to ease understanding of failures in the CI
+    kubectl get pods -A
 done
