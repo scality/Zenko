@@ -48,6 +48,9 @@ spec:
       ui:
         image: zenko-ui
         tag: '${ZENKO_UI_TAG}'
+      uiConfig:
+        image: zenko-ui-config
+        tag: '${ZENKO_UI_TAG}'
       api:
         image: pensieve-api
         tag: '${PENSIEVE_API_TAG}'
