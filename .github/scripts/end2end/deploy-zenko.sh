@@ -49,6 +49,9 @@ if [ "${TIME_PROGRESSION_FACTOR}" -gt 1 ]; then
     zenko.io/time-progression-factor: \"${TIME_PROGRESSION_FACTOR}\""
 fi
 
+export ZENKO_ANNOTATIONS="${ZENKO_ANNOTATIONS:-annotations:}
+    zenko.io/dns-service-address: \"kube-dns.kube-system.svc\""
+
 function dependencies_image_env()
 {
     yq eval '.[] | .envsubst + "=" + (.sourceRegistry // "docker.io") + "/" + .image' ${DEPS_PATH} |
