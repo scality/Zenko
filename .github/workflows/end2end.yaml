@@ -600,8 +600,14 @@ jobs:
       - name: Configure E2E test environment
         run: bash configure-e2e-ctst.sh
         working-directory: ./.github/scripts/end2end
-      - name: Run CTST end to end tests
+      - name: Run CTST end to end tests except OverlayChange tags
         run: bash run-e2e-ctst.sh
+        env: 
+          CTST_TAGS: "not @OverlayChange"
+      - name: Run CTST end to end tests with OverlayChange tags
+        run: bash run-e2e-ctst.sh
+        env: 
+          CTST_TAGS: "@OverlayChange"
         working-directory: ./.github/scripts/end2end
       - name: Debug wait
         uses: ./.github/actions/debug-wait

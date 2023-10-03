@@ -42,7 +42,7 @@ Feature: Azure Archive
     @PreMerge
     @Flaky
     @AzureArchive
-    @WIP
+    @OverlayChange
     Scenario Outline: Create, read, update and delete azure archive location
     Given an azure archive location "<locationName>"
     And a "<versioningConfiguration>" bucket
