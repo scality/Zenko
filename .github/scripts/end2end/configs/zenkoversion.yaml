@@ -3,18 +3,18 @@
 apiVersion: zenko.io/v1alpha1
 kind: ZenkoVersion
 metadata:
-  name: '${ZENKO_VERSION_NAME}'
+  name: "${ZENKO_VERSION_NAME}"
 spec:
   dashboards:
     backbeat:
-      image: '${BACKBEAT_DASHBOARD}'
-      tag: '${BACKBEAT_TAG}'
+      image: "${BACKBEAT_DASHBOARD}"
+      tag: "${BACKBEAT_TAG}"
     cloudserver:
-      image: '${CLOUDSERVER_DASHBOARD}'
-      tag: '${CLOUDSERVER_TAG}'
+      image: "${CLOUDSERVER_DASHBOARD}"
+      tag: "${CLOUDSERVER_TAG}"
     s3utils:
-      image: '${S3UTILS_DASHBOARD}'
-      tag: '${S3UTILS_TAG}'
+      image: "${S3UTILS_DASHBOARD}"
+      tag: "${S3UTILS_TAG}"
     # kafka:
     #   image: kafka-dashboard
     #   tag: '${ZENKO_VERSION_NAME}'
@@ -35,82 +35,85 @@ spec:
     #   tag: '${ZENKO_VERSION_NAME}'
   policies:
     backbeat:
-      image: '${BACKBEAT_POLICY}'
-      tag: '${BACKBEAT_TAG}'
+      image: "${BACKBEAT_POLICY}"
+      tag: "${BACKBEAT_TAG}"
     sorbet:
-      image: '${SORBET_POLICY}'
-      tag: '${SORBET_TAG}'
+      image: "${SORBET_POLICY}"
+      tag: "${SORBET_TAG}"
     vault:
-      image: '${VAULT_POLICY}'
-      tag: '${VAULT_TAG}'
+      image: "${VAULT_POLICY}"
+      tag: "${VAULT_TAG}"
   versions:
     management:
       ui:
-        image: '${ZENKO_UI_IMAGE}'
-        tag: '${ZENKO_UI_TAG}'
+        image: "${ZENKO_UI_IMAGE}"
+        tag: "${ZENKO_UI_TAG}"
+      uiConfig:
+        image: "${ZENKO_UI_CONFIG}"
+        tag: "${ZENKO_UI_TAG}"
       api:
-        image: '${PENSIEVE_API_IMAGE}'
-        tag: '${PENSIEVE_API_TAG}'
+        image: "${PENSIEVE_API_IMAGE}"
+        tag: "${PENSIEVE_API_TAG}"
       pushAPI:
-        image: '${PENSIEVE_API_IMAGE}'
-        tag: '${PENSIEVE_API_TAG}'
+        image: "${PENSIEVE_API_IMAGE}"
+        tag: "${PENSIEVE_API_TAG}"
     cloudserver:
-      image: '${CLOUDSERVER_IMAGE}' 
-      tag: '${CLOUDSERVER_TAG}'
+      image: "${CLOUDSERVER_IMAGE}"
+      tag: "${CLOUDSERVER_TAG}"
     backbeat:
-      image: '${BACKBEAT_IMAGE}' 
-      tag: '${BACKBEAT_TAG}'
+      image: "${BACKBEAT_IMAGE}"
+      tag: "${BACKBEAT_TAG}"
     utapi:
-      image: '${UTAPI_IMAGE}' 
-      tag: '${UTAPI_TAG}'
+      image: "${UTAPI_IMAGE}"
+      tag: "${UTAPI_TAG}"
     secureChannelProxy:
-      image: '${CLOUDSERVER_IMAGE}' 
-      tag: '${CLOUDSERVER_TAG}'
+      image: "${CLOUDSERVER_IMAGE}"
+      tag: "${CLOUDSERVER_TAG}"
     localData:
-      image: '${CLOUDSERVER_IMAGE}' 
-      tag: '${CLOUDSERVER_TAG}'
+      image: "${CLOUDSERVER_IMAGE}"
+      tag: "${CLOUDSERVER_TAG}"
     metrics:
-      image: '${CLOUDSERVER_IMAGE}' 
-      tag: '${CLOUDSERVER_TAG}'
+      image: "${CLOUDSERVER_IMAGE}"
+      tag: "${CLOUDSERVER_TAG}"
     s3utils:
-      image: '${S3UTILS_IMAGE}' 
-      tag: '${S3UTILS_TAG}'
+      image: "${S3UTILS_IMAGE}"
+      tag: "${S3UTILS_TAG}"
     sorbet:
-      image: '${SORBET_IMAGE}'
-      tag: '${SORBET_TAG}'
+      image: "${SORBET_IMAGE}"
+      tag: "${SORBET_TAG}"
     zookeeper:
-      image: '${ZOOKEEPER_IMAGE}' 
-      tag: '${ZOOKEEPER_TAG}'
+      image: "${ZOOKEEPER_IMAGE}"
+      tag: "${ZOOKEEPER_TAG}"
     kafka:
       cluster:
-        image: '${KAFKA_IMAGE}' 
-        tag: '${KAFKA_TAG}'
+        image: "${KAFKA_IMAGE}"
+        tag: "${KAFKA_TAG}"
       connect:
-       image: '${KAFKA_CONNECT_IMAGE}' 
-       tag: '${KAFKA_CONNECT_TAG}'
+        image: "${KAFKA_CONNECT_IMAGE}"
+        tag: "${KAFKA_CONNECT_TAG}"
       cruiseControl:
-        image: '${KAFKA_CRUISECONTROL_IMAGE}'
-        tag: '${KAFKA_CRUISECONTROL_TAG}'
+        image: "${KAFKA_CRUISECONTROL_IMAGE}"
+        tag: "${KAFKA_CRUISECONTROL_TAG}"
       lagExporter:
-        image: '${KAFKA_LAGEXPORTER_IMAGE}'
-        tag: '${KAFKA_LAGEXPORTER_TAG}'
+        image: "${KAFKA_LAGEXPORTER_IMAGE}"
+        tag: "${KAFKA_LAGEXPORTER_TAG}"
       monitoring:
-        image: '${JMX_JAVAAGENT_IMAGE}'
-        tag: '${JMX_JAVAAGENT_TAG}'
+        image: "${JMX_JAVAAGENT_IMAGE}"
+        tag: "${JMX_JAVAAGENT_TAG}"
     vault:
-      image: '${VAULT_IMAGE}'
-      tag: '${VAULT_TAG}'
+      image: "${VAULT_IMAGE}"
+      tag: "${VAULT_TAG}"
     shell:
-      image: '${BUSYBOX_IMAGE}'
-      tag: '${BUSYBOX_TAG}'
-    mongodb: '${MONGODB_TAG}'
+      image: "${BUSYBOX_IMAGE}"
+      tag: "${BUSYBOX_TAG}"
+    mongodb: "${MONGODB_TAG}"
     redis:
       db:
-        image: '${REDIS_IMAGE}'
-        tag: '${REDIS_TAG}'
+        image: "${REDIS_IMAGE}"
+        tag: "${REDIS_TAG}"
       exporter:
-        image: '${REDIS_EXPORTER_IMAGE}'
-        tag: '${REDIS_EXPORTER_TAG}'
+        image: "${REDIS_EXPORTER_IMAGE}"
+        tag: "${REDIS_EXPORTER_TAG}"
   defaults:
     backbeatConcurrency:
       lifecycleBucketProcessor: 30
