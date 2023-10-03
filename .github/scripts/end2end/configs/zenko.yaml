@@ -102,6 +102,7 @@ spec:
       azure:
         archiveTier: "hot"
         pollingDelay: "1s"
+        restoreTimeout: "30s"
   ingress:
     workloadPlaneClass: 'nginx'
     controlPlaneClass: 'nginx'

@@ -38,6 +38,12 @@ KAFKA_IMAGE_NAME=$(yq eval ".kafka.image" ../../../solution/deps.yaml)
 KAFKA_IMAGE_TAG=$(yq eval ".kafka.tag" ../../../solution/deps.yaml)
 KAFKA_IMAGE=$KAFKA_REGISTRY_NAME/$KAFKA_IMAGE_NAME:$KAFKA_IMAGE_TAG
 
+# Cold location topic
+AZURE_ARCHIVE_STATUS_TOPIC="${UUID}.cold-status-e2e-azure-archive"
+AZURE_ARCHIVE_STATUS_TOPIC_2_NV="${UUID}.cold-status-e2e-azure-archive-2-non-versioned"
+AZURE_ARCHIVE_STATUS_TOPIC_2_V="${UUID}.cold-status-e2e-azure-archive-2-versioned"
+AZURE_ARCHIVE_STATUS_TOPIC_2_S="${UUID}.cold-status-e2e-azure-archive-2-suspended"
+
 # Creating bucket notification topic in kafka
 kubectl run kafka-topics \
     --image=$KAFKA_IMAGE \
@@ -47,4 +53,8 @@ kubectl run kafka-topics \
     --attach=True \
     --command -- bash -c \
     "kafka-topics.sh --create --topic $NOTIF_DEST_TOPIC --bootstrap-server $KAFKA_HOST_PORT ; \
-        kafka-topics.sh --create --topic $NOTIF_ALT_DEST_TOPIC --bootstrap-server $KAFKA_HOST_PORT"
+        kafka-topics.sh --create --topic $NOTIF_ALT_DEST_TOPIC --bootstrap-server $KAFKA_HOST_PORT ; \
+        kafka-topics.sh --create --topic $AZURE_ARCHIVE_STATUS_TOPIC --partitions 10 --bootstrap-server $KAFKA_HOST_PORT ; \
+        kafka-topics.sh --create --topic $AZURE_ARCHIVE_STATUS_TOPIC_2_NV --partitions 10 --bootstrap-server $KAFKA_HOST_PORT ; \
+        kafka-topics.sh --create --topic $AZURE_ARCHIVE_STATUS_TOPIC_2_V --partitions 10 --bootstrap-server $KAFKA_HOST_PORT ; \
+        kafka-topics.sh --create --topic $AZURE_ARCHIVE_STATUS_TOPIC_2_S --partitions 10 --bootstrap-server $KAFKA_HOST_PORT"

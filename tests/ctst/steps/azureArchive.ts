@@ -366,6 +366,7 @@ Then('blob for object {string} fails to rehydrate',
     async function (this: Zenko, objectName: string) {
         const tarName = await isObjectRehydrated(this, objectName);
         assert(tarName);
+        await Utils.sleep(60000);
     });
 
 Then('the storage class of object {string} must stay {string} for {int} seconds',
@@ -404,10 +405,15 @@ When('i run sorbetctl to retry failed restore for {string} location', async func
         --kafka-object-task-topic=${this.parameters.KafkaObjectTaskTopic} \
         --kafka-brokers ${this.parameters.KafkaHosts}`;
     try {
-        await util.promisify(exec)(command);
+        const result = await util.promisify(exec)(command);
+        process.stdout.write(`Running command: ${command}\n`);
+        process.stdout.write(`Sorbetctl command result: ${result.stdout}\n`);
+        process.stdout.write(`Sorbetctl command result: ${result.stderr}\n`);
+
     } catch (err) {
         assert.ifError(err);
     }
+    await Utils.sleep(60000);
 });
 
 When('i wait for {int} days', { timeout: 10 * 60 * 1000 }, async function (this: Zenko, days: number) {
@@ -488,6 +494,7 @@ When('i change azure archive location {string} container target', async function
             assert.strictEqual(putResult.statusCode, 200);
         }
     }
+    await Utils.sleep(60000); // Wait for location to be updated
 });
 
 Then('i can get the {string} location details', async function (this: Zenko, locationName: string) {
