@@ -95,6 +95,24 @@ build_solution_base_manifests() {
     MANIFEST_ONLY=true $SOLUTION_BASE_DIR/build.sh
     sed -i 's/SOLUTION_ENV/default/g' $DIR/_build/root/deploy/*
     sed -i 's/MONGODB_STORAGE_CLASS/standard/g' $DIR/_build/root/deploy/*
+
+    # Limits and requests for MongoDB are computed based on the current system
+    # Detect total system RAM in GiB
+    TOTAL_RAM_GB=$(awk '/MemTotal/ {printf "%.0f", $2/1024/1024}' /proc/meminfo)
+  
+    # Compute MongoDB settings based on the total RAM
+    MONGODB_WIRETIGER_CACHE_SIZE_GB=$((TOTAL_RAM_GB * 335 / 1000))
+    MONGODB_MONGOS_RAM_LIMIT=$((TOTAL_RAM_GB * 165 / 1000))Gi
+    MONGODB_SHARDSERVER_RAM_LIMIT=$((2 * MONGODB_WIRETIGER_CACHE_SIZE_GB))Gi
+    MONGODB_SHARDSERVER_RAM_REQUEST=${MONGODB_WIRETIGER_CACHE_SIZE_GB}Gi
+    MONGODB_MONGOS_RAM_REQUEST=$((TOTAL_RAM_GB * 33 / 1000))Gi
+
+    # Replace values before deploying
+    sed -i "s/MONGODB_SHARDSERVER_EXTRA_FLAGS/--wiredTigerCacheSizeGB=${MONGODB_WIRETIGER_CACHE_SIZE_GB}/g" $DIR/_build/root/deploy/*
+    sed -i "s/MONGODB_MONGOS_RAM_LIMIT/${MONGODB_MONGOS_RAM_LIMIT}/g" $DIR/_build/root/deploy/*
+    sed -i "s/MONGODB_SHARDSERVER_RAM_LIMIT/${MONGODB_SHARDSERVER_RAM_LIMIT}/g" $DIR/_build/root/deploy/*
+    sed -i "s/MONGODB_SHARDSERVER_RAM_REQUEST/${MONGODB_SHARDSERVER_RAM_REQUEST}/g" $DIR/_build/root/deploy/*
+    sed -i "s/MONGODB_MONGOS_RAM_REQUEST/${MONGODB_MONGOS_RAM_REQUEST}/g" $DIR/_build/root/deploy/*
 }
 
 get_image_from_deps() {
