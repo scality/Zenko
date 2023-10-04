@@ -80,6 +80,8 @@ spec:
         navbarBundleURL: '${NAVBAR_ENDPOINT}/shell/solution-ui-navbar.1.0.0.js'
     oidc:
       provider: '${OIDC_ENDPOINT}/auth/realms/${OIDC_REALM}'
+      federatedProviders:
+        - '${OIDC_ENDPOINT}/auth/realms/${OIDC_REALM}'
       uiClientId: ${OIDC_CLIENT_ID}
       vaultClientId: ${OIDC_CLIENT_ID}
     api:
