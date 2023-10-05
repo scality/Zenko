@@ -52,10 +52,6 @@ helm repo update
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/${INGRESS_NGINX_VERSION}/deploy/static/provider/kind/deploy.yaml
 kubectl rollout status -n ingress-nginx deployment/ingress-nginx-controller --timeout=10m
 
-helm upgrade --install ingress-nginx ingress-nginx -f $(dirname $0)/ingress-controller-control-plane-test.yaml \
-  --repo https://kubernetes.github.io/ingress-nginx \
-  --namespace ingress-nginx --create-namespace
-
 # cert-manager
 kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/${CERT_MANAGER_VERSION}/cert-manager.yaml
 
