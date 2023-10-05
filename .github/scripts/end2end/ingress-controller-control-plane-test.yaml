@@ -1,0 +1,35 @@
+controller:
+  image:
+    digest: null
+
+  electionID: ingress-control-plane-controller-leader
+
+  ingressClassResource:
+    name: nginx-control-plane
+    controllerValue: "k8s.io/ingress-nginx-control-plane"
+
+  ingressClass: nginx-control-plane
+
+  admissionWebhooks:
+    enabled: false
+
+  kind: DaemonSet
+
+  updateStrategy:
+    type: RollingUpdate
+
+  service:
+    type: ClusterIP
+
+    enableHttp: true
+
+    ports:
+      https: 8443
+  name: nginx-control-plane
+
+defaultBackend:
+  enabled: false
+
+serviceAccount:
+  name: nginx-control-plane
+fullnameOverride: nginx-control-plane
