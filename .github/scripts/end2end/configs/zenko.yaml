@@ -106,7 +106,7 @@ spec:
         pollingDelay: "1s"
   ingress:
     workloadPlaneClass: 'nginx'
-    controlPlaneClass: 'nginx'
+    controlPlaneClass: 'nginx-control-plane'
     ${ZENKO_INGRESS_ANNOTATIONS}
     ${ZENKO_INGRESS_CERTIFICATES}
   registry:
