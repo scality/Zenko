@@ -271,6 +271,7 @@ jobs:
           tags: "${{ env.KAFKA_IMAGE }}:${{ env.KAFKA_TAG }}"
           cache-from: type=gha,scope=$GITHUB_REF_NAME-kafka
           cache-to: type=gha,mode=max,scope=$GITHUB_REF_NAME-kafka
+          provenance: false
 
       - name: Build and push kafka-connect
         uses: docker/build-push-action@v3.1.0
@@ -285,6 +286,7 @@ jobs:
           tags: "${{ env.KAFKA_CONNECT_IMAGE }}:${{ env.KAFKA_CONNECT_TAG }}"
           cache-from: type=gha,scope=$GITHUB_REF_NAME-kafka-connect
           cache-to: type=gha,mode=max,scope=$GITHUB_REF_NAME-kafka-connect
+          provenance: false
 
   build-test-image:
     runs-on: ubuntu-20.04
