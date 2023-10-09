@@ -261,7 +261,7 @@ jobs:
           [ "${{ env.KAFKA_TAG }}" = "${{ env.KAFKA_CONNECT_TAG }}" ]
 
       - name: Build and push kafka
-        uses: docker/build-push-action@v3.1.0
+        uses: docker/build-push-action@v4.2.1
         with:
           push: true
           context: ./solution/kafka
@@ -274,7 +274,7 @@ jobs:
           provenance: false
 
       - name: Build and push kafka-connect
-        uses: docker/build-push-action@v3.1.0
+        uses: docker/build-push-action@v4.2.1
         with:
           push: true
           context: ./solution/kafka-connect
