@@ -177,7 +177,7 @@ Given('a transition workflow to {string} location', async function (this: Zenko,
         const res = await S3.putBucketLifecycleConfiguration(this.getCommandParameters());
         conditionOk = res.err === null;
         // Wait for the transition to be accepted because the deployment of the location's pods can take some time
-        await Utils.sleep(3000); 
+        await Utils.sleep(5000); 
     }
 });
 
@@ -195,7 +195,7 @@ When('i restore object {string} for {int} days', async function (this: Zenko, ob
 });
 
 // wait for object to transition to a location or get restored from it
-Then('object {string} should be {string} and have the storage class {string}',
+Then('object {string} should be {string} and have the storage class {string}', { timeout: 100000 + 20 * 1000 },
     async function (this: Zenko, objectName: string, objectTransitionStatus: string, storageClass: string) {
         const objName = objectName ||  this.getSaved<string>('objectName');
         this.resetCommand();

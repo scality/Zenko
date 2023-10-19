@@ -596,7 +596,6 @@ jobs:
           TIME_PROGRESSION_FACTOR: 86400
           TRANSITION_ONE_DAY_EARLIER: false
           EXPIRE_ONE_DAY_EARLIER: false
-          BACKBEAT_LCC_CRON_RULE: "*/1 * * * * *"
       - name: Configure E2E test environment
         run: bash configure-e2e-ctst.sh
         working-directory: ./.github/scripts/end2end

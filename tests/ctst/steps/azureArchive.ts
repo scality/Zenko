@@ -408,8 +408,6 @@ When('i run sorbetctl to retry failed restore for {string} location', async func
         const result = await util.promisify(exec)(command);
         process.stdout.write(`Running command: ${command}\n`);
         process.stdout.write(`Sorbetctl command result: ${result.stdout}\n`);
-        process.stdout.write(`Sorbetctl command result: ${result.stderr}\n`);
-
     } catch (err) {
         assert.ifError(err);
     }
@@ -468,6 +466,7 @@ Given('an azure archive location {string}', async function (this: Zenko, locatio
         locationConfig);
     assert.strictEqual(result.statusCode, 201);
     this.addToSaved('locationName', locationName);
+    await Utils.sleep(60000); // Wait for location to be updated
 });
 
 When('i change azure archive location {string} container target', async function (this: Zenko, locationName: string) {
