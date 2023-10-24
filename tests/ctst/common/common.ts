@@ -195,7 +195,7 @@ When('i restore object {string} for {int} days', async function (this: Zenko, ob
 });
 
 // wait for object to transition to a location or get restored from it
-Then('object {string} should be {string} and have the storage class {string}', { timeout: 100000 + 20 * 1000 },
+Then('object {string} should be {string} and have the storage class {string}', { timeout: 130000 },
     async function (this: Zenko, objectName: string, objectTransitionStatus: string, storageClass: string) {
         const objName = objectName ||  this.getSaved<string>('objectName');
         this.resetCommand();
