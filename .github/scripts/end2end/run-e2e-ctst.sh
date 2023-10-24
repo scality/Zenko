@@ -33,6 +33,7 @@ STORAGE_ACCOUNT_OWNER_USER_NAME="ctst_storage_account_owner"
 DATA_CONSUMER_USER_NAME="ctst_data_consumer"
 VAULT_AUTH_HOST="${ZENKO_NAME}-connector-vault-auth-api.default.svc.cluster.local"
 ZENKO_PORT="80"
+KEYCLOAK_TEST_USER=${OIDC_USERNAME}
 KEYCLOAK_TEST_PASSWORD=${OIDC_PASSWORD}
 KEYCLOAK_TEST_HOST=${OIDC_HOST}
 KEYCLOAK_TEST_PORT="80"
@@ -83,6 +84,7 @@ WORLD_PARAMETERS="$(jq -c <<EOF
   "NotificationDestinationAlt":"${NOTIF_ALT_DEST_NAME}",
   "NotificationDestinationTopicAlt":"${NOTIF_ALT_DEST_TOPIC}",
   "KafkaHosts":"${KAFKA_HOST_PORT}",
+  "KeycloakUsername":"${KEYCLOAK_TEST_USER}",
   "KeycloakPassword":"${KEYCLOAK_TEST_PASSWORD}",
   "KeycloakHost":"${KEYCLOAK_TEST_HOST}",
   "KeycloakPort":"${KEYCLOAK_TEST_PORT}",

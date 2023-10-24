@@ -366,7 +366,8 @@ Then('blob for object {string} fails to rehydrate',
     async function (this: Zenko, objectName: string) {
         const tarName = await isObjectRehydrated(this, objectName);
         assert(tarName);
-        await Utils.sleep(60000);
+        // restoreTimeout is set to 30s in the config
+        await Utils.sleep(30000);
     });
 
 Then('the storage class of object {string} must stay {string} for {int} seconds',
@@ -405,12 +406,13 @@ When('i run sorbetctl to retry failed restore for {string} location', async func
         --kafka-object-task-topic=${this.parameters.KafkaObjectTaskTopic} \
         --kafka-brokers ${this.parameters.KafkaHosts}`;
     try {
-        const result = await util.promisify(exec)(command);
         process.stdout.write(`Running command: ${command}\n`);
+        const result = await util.promisify(exec)(command);
         process.stdout.write(`Sorbetctl command result: ${result.stdout}\n`);
     } catch (err) {
         assert.ifError(err);
     }
+    // Wait for backbeat to process the retry and update the object MDs
     await Utils.sleep(60000);
 });
 
@@ -466,7 +468,7 @@ Given('an azure archive location {string}', async function (this: Zenko, locatio
         locationConfig);
     assert.strictEqual(result.statusCode, 201);
     this.addToSaved('locationName', locationName);
-    await Utils.sleep(60000); // Wait for location to be updated
+    await Utils.sleep(60000); // Wait for location to be updated TODO: CTST-35
 });
 
 When('i change azure archive location {string} container target', async function (this: Zenko, locationName: string) {
@@ -477,10 +479,10 @@ When('i change azure archive location {string} container target', async function
         const { locations } = result.data as { locations: Record<string, unknown> };
         assert(locations[locationName]);
         const locationConfig = locations[locationName] as Record<string, unknown>;
-        const details = locationConfig.details as { bucketName: string, auth?: { accountKey?: string } };
-        const auth = details.auth as { accountKey: string };
+        const details = locationConfig.details as { bucketName: string, auth: { accountKey: string } };
+        const auth = details.auth;
         details.bucketName = this.parameters.AzureArchiveContainer2;
-        auth.accountKey = this.parameters.AzureAccountKey ;
+        auth.accountKey = this.parameters.AzureAccountKey;
         const putResult = await this.managementAPIRequest('PUT',
             `/config/${this.parameters.InstanceID}/location/${locationName}`,
             {},
@@ -493,6 +495,7 @@ When('i change azure archive location {string} container target', async function
             assert.strictEqual(putResult.statusCode, 200);
         }
     }
+    // This could be checked to see pods status with kubectl TODO: CTST-35
     await Utils.sleep(60000); // Wait for location to be updated
 });
 

@@ -61,6 +61,7 @@ export interface ZenkoWorldParameters extends ClientOptions {
     NotificationDestinationAlt: string;
     NotificationDestinationTopicAlt: string;
     KafkaHosts: string;
+    KeycloakUsername: string;
     KeycloakPassword: string;
     KeycloakHost: string;
     KeycloakPort: string;
@@ -862,8 +863,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         payload: object = {}
     ): Promise<{ statusCode: number; data: object } | { statusCode: number; err: unknown }> {
         const token = await this.getWebIdentityToken(
-            'zenko-end2end',
-            '123',
+            this.parameters.KeycloakUsername || 'zenko-end2end',
+            this.parameters.KeycloakPassword || '123',
             this.parameters.KeycloakHost || 'keycloak.zenko.local',
             this.parameters.KeycloakPort || '80',
             `/auth/realms/${this.parameters.KeycloakRealm || 'zenko'}/protocol/openid-connect/token`,
