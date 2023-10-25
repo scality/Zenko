@@ -70,6 +70,7 @@ def create_azure_containers():
     AZURE_SECRET_KEY = get_env("AZURE_SECRET_KEY")
     AZURE_CRR_BUCKET_NAME = get_env("AZURE_CRR_BUCKET_NAME")
     AZURE_ARCHIVE_BUCKET_NAME = get_env("AZURE_ARCHIVE_BUCKET_NAME")
+    AZURE_ARCHIVE_BUCKET_NAME_2 = get_env("AZURE_ARCHIVE_BUCKET_NAME_2")
 
     credential = AzureNamedKeyCredential(name=AZURE_ACCOUNT_NAME,
             key=AZURE_SECRET_KEY)
@@ -78,7 +79,7 @@ def create_azure_containers():
     
     ## Creating Azure buckets
     _log.info('Creating Azure buckets...')
-    for bucket_name in [AZURE_CRR_BUCKET_NAME, AZURE_ARCHIVE_BUCKET_NAME]:
+    for bucket_name in [AZURE_CRR_BUCKET_NAME, AZURE_ARCHIVE_BUCKET_NAME, AZURE_ARCHIVE_BUCKET_NAME_2]:
         try:
             _log.info('Creating bucket %s' % bucket_name)
             blob_service_client.create_container(name=bucket_name)

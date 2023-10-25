@@ -33,6 +33,7 @@ STORAGE_ACCOUNT_OWNER_USER_NAME="ctst_storage_account_owner"
 DATA_CONSUMER_USER_NAME="ctst_data_consumer"
 VAULT_AUTH_HOST="${ZENKO_NAME}-connector-vault-auth-api.default.svc.cluster.local"
 ZENKO_PORT="80"
+KEYCLOAK_TEST_USER=${OIDC_USERNAME}
 KEYCLOAK_TEST_PASSWORD=${OIDC_PASSWORD}
 KEYCLOAK_TEST_HOST=${OIDC_HOST}
 KEYCLOAK_TEST_PORT="80"
@@ -62,6 +63,7 @@ KAFKA_HOST_PORT=$(kubectl get secret -l app.kubernetes.io/name=backbeat-config,a
 KAFKA_HOST_PORT=${KAFKA_HOST_PORT:1:-1}
 
 TIME_PROGRESSION_FACTOR=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath="{.metadata.annotations.zenko\.io/time-progression-factor}")
+INSTANCE_ID=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.status.instanceID}')
 
 # Azure archive tests
 AZURE_ARCHIVE_ACCESS_TIER="Hot"
@@ -82,6 +84,7 @@ WORLD_PARAMETERS="$(jq -c <<EOF
   "NotificationDestinationAlt":"${NOTIF_ALT_DEST_NAME}",
   "NotificationDestinationTopicAlt":"${NOTIF_ALT_DEST_TOPIC}",
   "KafkaHosts":"${KAFKA_HOST_PORT}",
+  "KeycloakUsername":"${KEYCLOAK_TEST_USER}",
   "KeycloakPassword":"${KEYCLOAK_TEST_PASSWORD}",
   "KeycloakHost":"${KEYCLOAK_TEST_HOST}",
   "KeycloakPort":"${KEYCLOAK_TEST_PORT}",
@@ -95,12 +98,14 @@ WORLD_PARAMETERS="$(jq -c <<EOF
   "AzureAccountName":"${AZURE_ACCOUNT_NAME}",
   "AzureAccountKey":"${AZURE_SECRET_KEY}",
   "AzureArchiveContainer":"${AZURE_ARCHIVE_BUCKET_NAME}",
+  "AzureArchiveContainer2":"${AZURE_ARCHIVE_BUCKET_NAME_2}",
   "AzureArchiveAccessTier":"${AZURE_ARCHIVE_ACCESS_TIER}",
   "AzureArchiveManifestTier":"${AZURE_ARCHIVE_MANIFEST_ACCESS_TIER}",
   "AzureArchiveQueue":"${AZURE_ARCHIVE_QUEUE_NAME}",
   "TimeProgressionFactor":"${TIME_PROGRESSION_FACTOR}",
   "KafkaObjectTaskTopic":"${KAFKA_OBJECT_TASK_TOPIC}",
-  "KafkaDeadLetterQueueTopic":"${KAFKA_DEAD_LETTER_TOPIC}"
+  "KafkaDeadLetterQueueTopic":"${KAFKA_DEAD_LETTER_TOPIC}",
+  "InstanceID":"${INSTANCE_ID}"
 }
 EOF
 )"
