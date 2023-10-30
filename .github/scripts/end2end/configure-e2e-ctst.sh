@@ -15,8 +15,6 @@ UUID=$(kubectl get secret -l app.kubernetes.io/name=backbeat-config,app.kubernet
     -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq .extensions.replication.topic)
 UUID=${UUID%.*}
 UUID=${UUID:1}
-OPLOG_TOPIC="${UUID}.backbeat-oplog"
-NOTIFICATION_TOPIC="${UUID}.backbeat-notification"
 
 echo "127.0.0.1 iam.zenko.local ui.zenko.local s3-local-file.zenko.local keycloak.zenko.local \
     sts.zenko.local management.zenko.local s3.zenko.local" | sudo tee -a /etc/hosts

@@ -6,7 +6,7 @@ backbeat:
   dashboard: backbeat-dashboards
   image: backbeat
   policy: backbeat-policies
-  tag: 8.6.28
+  tag: 8.6.29
   envsubst: BACKBEAT_TAG
 busybox:
   image: busybox
@@ -49,7 +49,7 @@ kafka-lag-exporter:
 pensieve-api:
   sourceRegistry: registry.scality.com/pensieve-api
   image: pensieve-api
-  tag: 1.4.9
+  tag: 1.4.10
   envsubst: PENSIEVE_API_TAG
 rclone:
   sourceRegistry: rclone
