@@ -11,13 +11,6 @@ KAFKA_HOST_PORT=${KAFKA_HOST_PORT:1:-1}
 export NOTIF_KAFKA_HOST=${KAFKA_HOST_PORT%:*}
 export NOTIF_KAFKA_PORT=${KAFKA_HOST_PORT#*:}
 
-UUID=$(kubectl get secret -l app.kubernetes.io/name=backbeat-config,app.kubernetes.io/instance=end2end \
-    -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq .extensions.replication.topic)
-UUID=${UUID%.*}
-UUID=${UUID:1}
-OPLOG_TOPIC="${UUID}.backbeat-oplog"
-NOTIFICATION_TOPIC="${UUID}.backbeat-notification"
-
 echo "127.0.0.1 iam.zenko.local ui.zenko.local s3-local-file.zenko.local keycloak.zenko.local \
     sts.zenko.local management.zenko.local s3.zenko.local" | sudo tee -a /etc/hosts
 
@@ -43,6 +36,4 @@ kubectl run kafka-topics \
     --attach=True \
     --command -- bash -c \
     "kafka-topics.sh --create --topic $NOTIF_DEST_TOPIC --bootstrap-server $KAFKA_HOST_PORT ; \
-        kafka-topics.sh --create --topic $NOTIF_ALT_DEST_TOPIC --bootstrap-server $KAFKA_HOST_PORT ; \
-        kafka-topics.sh --create --topic $OPLOG_TOPIC --bootstrap-server $KAFKA_HOST_PORT ; \
-        kafka-topics.sh --create --topic $NOTIFICATION_TOPIC --bootstrap-server $KAFKA_HOST_PORT"
+        kafka-topics.sh --create --topic $NOTIF_ALT_DEST_TOPIC --bootstrap-server $KAFKA_HOST_PORT"
