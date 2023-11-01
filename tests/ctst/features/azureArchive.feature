@@ -231,3 +231,22 @@ Feature: Azure Archive
         |           Non versioned |           2 |      30000 |      10 |
         |               Versioned |           2 |      30000 |      10 |
         |               Suspended |           2 |      30000 |      10 |
+
+
+    @2.7.0
+    @PreMerge
+    @Flaky
+    @AzureArchive
+    @ColdStorage
+    Scenario Outline: Cannot add object MD to a transitioned object
+    Given a "<versioningConfiguration>" bucket
+    And a transition workflow to "e2e-azure-archive" location
+    And <objectCount> objects "obj" of size <objectSize> bytes
+    Then object "obj-1" should be "transitioned" and have the storage class "e2e-azure-archive"
+    And object "obj-2" should be "transitioned" and have the storage class "e2e-azure-archive"
+    
+    Examples:
+        | versioningConfiguration | objectCount | objectSize | packObjectCount |
+        |           Non versioned |           2 |      30000 |               1 |
+        |               Versioned |           2 |      30000 |               1 |
+        |               Suspended |           2 |      30000 |               1 |
