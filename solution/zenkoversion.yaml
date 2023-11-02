@@ -120,6 +120,11 @@ spec:
       cloudserver: 16
       internalCloudserver: 4
       vault: 4
+    kafkaResources:
+      broker:
+        limitCPU: 3
+      cruiseControl:
+        limitMemory: 3Gi
   featureFlags:
     lifecycleOptimization: true
     manageKafkaTopics: true
