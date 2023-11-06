@@ -527,7 +527,6 @@ Then('i can get the {string} location details', async function (this: Zenko, loc
     }
 });
 
-
 After({ tags: '@AzureArchive' }, async function (this: Zenko) {
     await cleanZenkoBucket(
         this,

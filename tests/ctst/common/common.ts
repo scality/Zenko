@@ -31,6 +31,18 @@ async function addMultipleObjects(this: Zenko, numberObjects: number,
     }
 }
 
+async function addUserMetadataToObject(this: Zenko, objectName: string|undefined, userMD: string) {
+    const objName = objectName || this.getSaved<string>('objectName');
+    const bucketName = this.getSaved<string>('bucketName');
+    this.resetCommand();
+    this.addCommandParameter({ bucket: bucketName });
+    this.addCommandParameter({ key: objName });
+    this.addCommandParameter({ copySource: `${bucketName}/${objName}` });
+    this.addCommandParameter({ metadata: userMD });
+    this.addCommandParameter({ metadataDirective: 'REPLACE' });
+    return await S3.copyObject(this.getCommandParameters());
+}
+
 Given('a {string} bucket', async function (this: Zenko, versioning: string) {
     this.resetCommand();
     const preName = this.parameters.AccountName || Constants.ACCOUNT_NAME;
@@ -154,26 +166,26 @@ Then('object {string} should have the user metadata with key {string} and value 
 
 // add a transition workflow to a bucket
 Given('a transition workflow to {string} location', async function (this: Zenko, location: string) {
-    this.resetCommand();
-    this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-    this.addCommandParameter({
-        lifecycleConfiguration: JSON.stringify({
-            Rules: [
-                {
-                    Status: 'Enabled',
-                    Prefix: '',
-                    Transitions: [
-                        {
-                            Days: 20,
-                            StorageClass: location,
-                        },
-                    ],
-                },
-            ],
-        }),
-    });
     let conditionOk = false;
     while (!conditionOk) {
+        this.resetCommand();
+        this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
+        this.addCommandParameter({
+            lifecycleConfiguration: JSON.stringify({
+                Rules: [
+                    {
+                        Status: 'Enabled',
+                        Prefix: '',
+                        Transitions: [
+                            {
+                                Days: 20,
+                                StorageClass: location,
+                            },
+                        ],
+                    },
+                ],
+            }),
+        });
         const res = await S3.putBucketLifecycleConfiguration(this.getCommandParameters());
         conditionOk = res.err === null;
         // Wait for the transition to be accepted because the deployment of the location's pods can take some time
@@ -249,3 +261,13 @@ When('i delete object {string}', async function (this: Zenko, objectName: string
     }
     await S3.deleteObject(this.getCommandParameters());
 });
+
+Then('i {string} be able to add user metadata to object {string}',
+    async function (this: Zenko, expectedResult: string, objectName: string) {
+        const res = await addUserMetadataToObject.call(this, objectName, 'x-amz-meta-test=test');
+        if (expectedResult === 'should not') {
+            assert(res.err?.includes('InvalidObjectState'));
+        } else {
+            assert.ifError(res.err);
+        }
+    });
