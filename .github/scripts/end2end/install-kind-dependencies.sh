@@ -42,7 +42,7 @@ else
     KEYCLOAK_INGRESS_OPTIONS="$DIR/configs/keycloak_ingress_http.yaml"
 fi
 
-# Older charts (bitnami/mongodb:7.8) have been removed from bitnami's helm repo: stick to the 
+# Older charts (bitnami/mongodb:7.8) have been removed from bitnami's helm repo: stick to the
 # commit before removal for now
 helm repo add --force-update bitnami https://raw.githubusercontent.com/bitnami/charts/defb094c658024e4aa8245622dab202874880cbc/bitnami
 helm repo add --force-update pravega https://charts.pravega.io
@@ -86,7 +86,6 @@ helm upgrade --install --version ${KEYCLOAK_VERSION} keycloak codecentric/keyclo
 
 kubectl rollout status sts/keycloak --timeout=10m
 
-
 # TODO: use zenko-operator install-deps
 kubectl apply -f - <<EOF
 apiVersion: v1
@@ -111,7 +110,7 @@ build_solution_base_manifests() {
     # Limits and requests for MongoDB are computed based on the current system
     # Detect total system RAM in GiB
     TOTAL_RAM_GB=$(awk '/MemTotal/ {printf "%.0f", $2/1024/1024}' /proc/meminfo)
-  
+
     # Compute MongoDB settings based on the total RAM
     MONGODB_WIRETIGER_CACHE_SIZE_GB=$((TOTAL_RAM_GB * 335 / 1000))
     MONGODB_MONGOS_RAM_LIMIT=$((TOTAL_RAM_GB * 165 / 1000))Gi
@@ -133,36 +132,25 @@ get_image_from_deps() {
 }
 
 mongodb_replicaset() {
-    ### TODO:  update to use chart in project
-    kubectl create configmap \
-        --from-file=${DIR}/../../../solution-base/mongodb/scripts mongodb-init-scripts \
-        --dry-run=client -o yaml | kubectl apply -f -
-
-    helm upgrade --install dev-db bitnami/mongodb \
-        --version $BITNAMI_MONGODB_VER \
-        -f "${DIR}/configs/mongodb_options.yaml"  \
+    ### TODO:  update to use chart from solution
+    helm upgrade --install dev-db ${DIR}/../../../solution-base/mongodb/charts/mongodb \
+        -f "${DIR}/configs/mongodb_options.yaml" \
+        --set "image.tag=${MONGODB_IMAGE_TAG}" \
+        --set "metrics.image.tag=${MONGODB_EXPORTER_IMAGE_TAG}" \
         --set "volumePermissions.enabled=true" \
         --set "volumePermissions.image.repository=${MONGODB_INIT_IMAGE_NAME}" \
         --set "volumePermissions.image.tag=${MONGODB_INIT_IMAGE_TAG}" \
         --set "persistence.storageClass=standard" \
-        --set "usePassword=true" \
-        --set "mongodbRootPassword=$MONGODB_ROOT_PASSWORD" \
-        --set "replicaSet.key=$MONGODB_RS_KEY" \
-        --set "extraEnvVars[0].name=MONGODB_APP_USERNAME" \
-        --set "extraEnvVars[0].value=$MONGODB_APP_USERNAME" \
-        --set "extraEnvVars[1].name=MONGODB_APP_PASSWORD" \
-        --set "extraEnvVars[1].value=$MONGODB_APP_PASSWORD" \
-        --set "extraEnvVars[2].name=MONGODB_APP_DATABASE" \
-        --set "extraEnvVars[2].value=$MONGODB_APP_DATABASE" \
-        --set "extraEnvVars[3].name=MONGODB_NAMESPACE" \
-        --set "extraEnvVars[3].value=default" \
+        --set "existingSecret=mongodb-db-creds" \
         --set "replicaSet.pdb.minAvailable.secondary=1" \
         --set "replicaSet.pdb.minAvailable.arbiter=0" \
         --set "replicaSet.replicas.secondary=0" \
         --set "replicaSet.replicas.arbiter=0"
 
     kubectl rollout status statefulset dev-db-mongodb-primary
-    kubectl rollout status statefulset dev-db-mongodb-secondary
+    if kubectl get sts dev-db-mongodb-secondary > /dev/null ; then
+        kubectl rollout status statefulset dev-db-mongodb-secondary
+    fi
 }
 
 retry() {
@@ -221,4 +209,3 @@ if [ $ZENKO_MONGODB_SHARDED = 'true' ]; then
 else
     mongodb_replicaset
 fi
-
