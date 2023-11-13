@@ -57,7 +57,7 @@ spec:
         image: '${PENSIEVE_API_IMAGE}'
         tag: '${PENSIEVE_API_TAG}'
     cloudserver:
-      image: '${CLOUDSERVER_IMAGE}' 
+      image: 'registry.scality.com/playground/cloudserver' 
       tag: '${CLOUDSERVER_TAG}'
     backbeat:
       image: '${BACKBEAT_IMAGE}' 
