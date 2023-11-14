@@ -375,12 +375,4 @@ Then('i should {string} a notification for {string} event in destination {int}',
         );
         const expected = receive === 'receive';
         assert.strictEqual(receivedNotification, expected);
-        if (this.getSaved<string>('bucketVersioning') === 'Non versioned') {
-            await emptyNonVersionedBucket(this);
-        } else {
-            await emptyVersionedBucket(this);
-        }
-        this.resetCommand();
-        this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-        await S3.deleteBucket(this.getCommandParameters());
     });
