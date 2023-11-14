@@ -99,7 +99,7 @@ zenko-ui:
   sourceRegistry: registry.scality.com/zenko-ui
   config: zenko-ui-config
   image: zenko-ui
-  tag: 2.1.6
+  tag: 2.1.7
   envsubst: ZENKO_UI_TAG
 zookeeper:
   sourceRegistry: pravega
