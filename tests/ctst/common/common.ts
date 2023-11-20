@@ -188,7 +188,7 @@ Given('a transition workflow to {string} location', async function (this: Zenko,
         });
         const res = await S3.putBucketLifecycleConfiguration(this.getCommandParameters());
         conditionOk = res.err === null;
-        process.stdout.write(`Cannot create transition workflow: ${res.err}\n`);
+        process.stdout.write(`Cannot create transition workflow: ${res.err as string }\n`);
         // Wait for the transition to be accepted because the deployment of the location's pods can take some time
         await Utils.sleep(5000); 
     }
