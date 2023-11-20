@@ -806,7 +806,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     }
 
     async awsS3Request(method: Method, path: string,
-        userCredentials: UserCredentials, headers: AxiosRequestHeaders = {}, payload: object = {}) {
+        userCredentials: UserCredentials, headers: object = {}, payload: object = {}) {
         const credentials: Credentials = {
             accessKeyId: userCredentials.AccessKeyId,
             secretAccessKey: userCredentials.SecretAccessKey,
@@ -815,9 +815,12 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             credentials['sessionToken'] = userCredentials.SessionToken;
         }
         const interceptor = aws4Interceptor({
-            region: 'us-east-1',
-            service: 's3',
-        }, credentials);
+            options: {
+                region: 'us-east-1',
+                service: 's3',
+            },
+            credentials,
+        });
 
         const axiosInstance = axios.create();
         axiosInstance.interceptors.request.use(interceptor);
