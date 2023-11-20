@@ -864,7 +864,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     async managementAPIRequest(
         method: Method,
         path: string,
-        headers: AxiosRequestHeaders = {},
+        headers: object = {},
         payload: object = {}
     ): Promise<{ statusCode: number; data: object } | { statusCode: number; err: unknown }> {
         const token = await this.getWebIdentityToken(
@@ -879,7 +879,10 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         const axiosInstance = axios.create();
         const protocol = this.parameters.ssl === false ? 'http://' : 'https://';
         // eslint-disable-next-line no-param-reassign
-        headers['X-Authentication-Token'] = token;
+        headers = {
+            ...headers,
+            'X-Authentication-Token': token,
+        };
         const axiosConfig: AxiosRequestConfig = {
             method,
             url: `${protocol}management.${this.parameters.subdomain || Constants.DEFAULT_SUBDOMAIN}/api/v1${path}`,
