@@ -165,7 +165,7 @@ Then('object {string} should have the user metadata with key {string} and value 
     });
 
 // add a transition workflow to a bucket
-Given('a transition workflow to {string} location', async function (this: Zenko, location: string) {
+Given('a transition workflow to {string} location',  { timeout: 160000 }, async function (this: Zenko, location: string) {
     let conditionOk = false;
     while (!conditionOk) {
         this.resetCommand();
@@ -190,7 +190,7 @@ Given('a transition workflow to {string} location', async function (this: Zenko,
         conditionOk = res.err === null;
         process.stdout.write(`Cannot create transition workflow: ${res.err as string }\n`);
         // Wait for the transition to be accepted because the deployment of the location's pods can take some time
-        await Utils.sleep(5000); 
+        await Utils.sleep(16000); 
     }
 });
 
