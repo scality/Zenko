@@ -12,14 +12,6 @@ runs:
         key: ${{ runner.os }}-deb-${{ hashFiles('.github/actions/install-end2end-dependencies/action.yaml') }}
         restore-keys: |
           ${{ runner.os }}-deb-
-    - name: Cache binaries
-      id: cache-binaries
-      uses: actions/cache@v3
-      with:
-        path: /usr/local/bin
-        key: ${{ runner.os }}-binaries-${{ hashFiles('.github/actions/install-end2end-dependencies/action.yaml') }}
-        restore-keys: |
-          ${{ runner.os }}-binaries-
     - name: Install dependencies
       shell: bash
       run: |-
@@ -27,7 +19,7 @@ runs:
             if [ -d "$HOME/deb_cache" ]; then
               sudo cp -R "$HOME/deb_cache/." /var/cache/apt/archives/
             fi
-            
+
             sudo apt-get update
             sudo apt-get install -y \
               apt-transport-https \
@@ -61,22 +53,22 @@ runs:
             stable"
           sudo apt-get update
           sudo apt-get install -y docker-ce docker-ce-cli containerd.io
-          sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
-          sudo echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
-          sudo curl -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/${{ env.KIND_VERSION }}/kind-linux-amd64
-          sudo chmod +x ./kind
-          sudo mv kind /usr/local/bin/
-          sudo curl -sSL https://get.helm.sh/helm-${{ env.HELM_VERSION }}-linux-amd64.tar.gz | sudo tar -xvz
-          sudo install linux-amd64/helm /usr/local/bin
-          sudo rm -rf linux-amd64
-          sudo wget https://github.com/mikefarah/yq/releases/download/${{ env.YQ_VERSION }}/${{ env.YQ_BINARY }} -O /usr/local/bin/yq
-          sudo chmod +x /usr/local/bin/yq
-          sudo curl -sSL https://github.com/tilt-dev/tilt/releases/download/v${{ env.TILT_VERSION }}/tilt.${{ env.TILT_VERSION }}.linux.x86_64.tar.gz | sudo tar xzvf -
-          sudo mv tilt /usr/local/bin
-          sudo chmod +x /usr/local/bin/tilt
-          sudo curl -sSL https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${{ env.KUSTOMIZE_VERSION }}/kustomize_${{ env.KUSTOMIZE_VERSION }}_linux_amd64.tar.gz | sudo tar -xvz
-          sudo install kustomize /usr/local/bin
-    - name: Kubectl tool installer
-      uses: Azure/setup-kubectl@v3
+    - name: Install kind
+      uses: helm/kind-action@v1.5.0
       with:
-        version: 'v${{ env.KUBECTL_VERSION }}'
+        install_only: true
+        version: ${{ env.KIND_VERSION }}
+    - name: Install k8s tools
+      uses: yokawasa/action-setup-kube-tools@v0.9.3
+      with:
+        setup-tools: |
+          helm
+          kubectl
+          kustomize
+          tilt
+          yq
+        helm: ${{ env.HELM_VERSION }}
+        kubectl: ${{ env.KUBECTL_VERSION }}
+        kustomize: ${{ env.KUSTOMIZE_VERSION }}
+        tilt: ${{ env.TILT_VERSION }}
+        yq: ${{ env.YQ_VERSION }}
