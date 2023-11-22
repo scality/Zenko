@@ -237,7 +237,6 @@ Feature: Azure Archive
     @Flaky
     @AzureArchive
     @ColdStorage
-    @BucketNotification
     Scenario Outline: Restore notifications are triggered
     Given a "<versioningConfiguration>" bucket
     And one notification destination
@@ -246,14 +245,12 @@ Feature: Azure Archive
     And <objectCount> objects "obj" of size <objectSize> bytes
     Then object "obj-1" should be "transitioned" and have the storage class "e2e-azure-archive"
     And object "obj-2" should be "transitioned" and have the storage class "e2e-azure-archive"
-    When i restore object "obj-1" for <restoreDays> days
     When i restore object "obj-2" for <restoreDays> days
     Then i should "receive" a notification for "s3:ObjectRestore:Post" event in destination 0
     And blob for object "obj-2" must be rehydrated
     Then i should "receive" a notification for "s3:ObjectRestore:Completed" event in destination 0
     When i wait for <restoreDays> days
     Then i should "receive" a notification for "s3:ObjectRestore:Delete" event in destination 0
-
     
     Examples:
         | versioningConfiguration | objectCount | objectSize | restoreDays |

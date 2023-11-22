@@ -7,6 +7,7 @@ import { AzureHelper, S3, Constants, Utils } from 'cli-testing';
 import util from 'util';
 import { exec } from 'child_process';
 import Zenko from 'world/Zenko';
+import { cleanZenkoBucket } from 'common/common';
 
 setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
 
@@ -31,16 +32,6 @@ type manifest = {
     'upload-date': string,
     'pack-size': number,
     'entries': manifestEntry[],
-}
-
-type listingObject = {
-    Key: string,
-    VersionId: string,
-}
-
-type listingResult = {
-    Versions: listingObject[],
-    DeleteMarkers: listingObject[],
 }
 
 const AZURE_STORAGE_BLOB_URL = process.env.AZURE_BLOB_URL || 'http://127.0.0.1:10000/devstoreaccount1';
@@ -139,41 +130,6 @@ async function findObjectPackAndManifest(
         }
     }
     return {};
-}
-
-/**
- * Cleans the created test bucket
- * @param {Zenko} world world object
- * @param {string} bucketName bucket name
- * @returns {void}
- */
-async function cleanZenkoBucket(
-    world: Zenko,
-    bucketName: string,
-): Promise<void> {
-    if (!bucketName) {
-        return;
-    }
-    world.resetCommand();
-    world.addCommandParameter({ bucket: bucketName });
-    const createdObjects = world.getSaved<Map<string, string>>('createdObjects');
-    if (createdObjects !== undefined) {
-        const results = await S3.listObjectVersions(world.getCommandParameters());
-        const res = safeJsonParse(results.stdout);
-        assert(res.ok);
-        const parsedResults = res.result as listingResult;
-        const versions = parsedResults.Versions || [];
-        const deleteMarkers = parsedResults.DeleteMarkers || [];
-        await Promise.all(versions.concat(deleteMarkers).map(obj => {
-            world.addCommandParameter({ key: obj.Key });
-            world.addCommandParameter({ versionId: obj.VersionId });
-            return S3.deleteObject(world.getCommandParameters());
-        }));
-        world.deleteKeyFromCommand('key');
-        world.deleteKeyFromCommand('versionId');
-    }
-    await S3.deleteBucketLifecycle(world.getCommandParameters());
-    await S3.deleteBucket(world.getCommandParameters());
 }
 
 /**
