@@ -16,7 +16,7 @@ cloudserver:
   sourceRegistry: registry.scality.com/cloudserver-dev
   dashboard: cloudserver-dashboards
   image: cloudserver
-  tag: aca1c79b42203d694b84c0595f1537e6ba5fcac8
+  tag: 42d867df3abdafbcd393d5468f1b236119630b63
   envsubst: CLOUDSERVER_TAG
 jmx-javaagent:
   sourceRegistry: ghcr.io/banzaicloud
