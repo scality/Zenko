@@ -55,8 +55,8 @@ spec:
         image: pensieve-api
         tag: '${PENSIEVE_API_TAG}'
     cloudserver:
-      image: cloudserver
-      tag: '${CLOUDSERVER_TAG}'
+      image: "registry.scality.com/playground/mbenzekri/cloudserver"
+      tag: '8.7.31'
     backbeat:
       image: backbeat
       tag: '${BACKBEAT_TAG}'
