@@ -5,7 +5,7 @@ import Zenko, {
 } from '../world/Zenko';
 import { Constants, S3, Utils, KafkaHelper } from 'cli-testing';
 import { Message } from 'node-rdkafka';
-import { cleanZenkoBucket } from 'common/common';
+import { cleanS3Bucket } from 'common/common';
 
 setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
 
@@ -379,7 +379,7 @@ Then('i should {string} a notification for {string} event in destination {int}',
     });
 
 After({ tags: '@BucketNotification' }, async function (this: Zenko) {
-    await cleanZenkoBucket(
+    await cleanS3Bucket(
         this,
         this.getSaved<string>('bucketName'),
     );

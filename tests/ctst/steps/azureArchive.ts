@@ -7,7 +7,7 @@ import { AzureHelper, S3, Constants, Utils } from 'cli-testing';
 import util from 'util';
 import { exec } from 'child_process';
 import Zenko from 'world/Zenko';
-import { cleanZenkoBucket } from 'common/common';
+import { cleanS3Bucket } from 'common/common';
 
 setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
 
@@ -484,7 +484,7 @@ Then('i can get the {string} location details', async function (this: Zenko, loc
 });
 
 After({ tags: '@AzureArchive' }, async function (this: Zenko) {
-    await cleanZenkoBucket(
+    await cleanS3Bucket(
         this,
         this.getSaved<string>('bucketName'),
     );

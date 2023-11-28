@@ -24,7 +24,7 @@ type listingResult = {
  * @param {string} bucketName bucket name
  * @returns {void}
  */
-export async function cleanZenkoBucket(
+export async function cleanS3Bucket(
     world: Zenko,
     bucketName: string,
 ): Promise<void> {
