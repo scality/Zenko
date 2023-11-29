@@ -9,8 +9,8 @@ runs:
       shell: bash
       run: |-
         set -exu;
-        mkdir -p /tmp/artifacts/data/kind-logs;
-        kubectl get pods -A -o yaml > /tmp/artifacts/data/kind-logs/all-pods.log;
-        kubectl get events -A -o yaml > /tmp/artifacts/data/kind-logs/all-events.log;
-        kind export logs /tmp/artifacts/data/kind-logs/kind-export;
-        tar zcvf /tmp/artifacts/${{ github.sha }}-${STAGE}-logs-volumes.tgz /tmp/artifacts/data/kind-logs;
+        mkdir -p /tmp/artifacts/data/${STAGE}/kind-logs;
+        kubectl get pods -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-pods.log;
+        kubectl get events -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-events.log;
+        kind export logs /tmp/artifacts/data/${STAGE}/kind-logs/kind-export;
+        tar zcvf /tmp/artifacts/${{ github.sha }}-${STAGE}-logs-volumes.tgz /tmp/artifacts/data/${STAGE}/kind-logs;

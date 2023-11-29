@@ -343,6 +343,11 @@ jobs:
           git config --global url.https://x-access-token:${{ secrets.GIT_ACCESS_TOKEN }}@github.com/.insteadOf ssh://git@github.com/
         env:
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          cache: yarn
+          cache-dependency-path: tests/ctst/yarn.lock
       - name: Install ctst test dependencies
         working-directory: tests/ctst
         run: yarn install
@@ -378,8 +383,8 @@ jobs:
             CTST_TAG=${{ env.CTST_TAG }}
             SORBET_TAG=${{ env.SORBET_TAG }}
           tags: "${{ env.E2E_CTST_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}"
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=$GITHUB_REF_NAME-ctst
+          cache-to: type=gha,mode=max,scope=$GITHUB_REF_NAME-ctst
 
   end2end-http:
     needs: [build-kafka, build-test-image, check-dashboard-versions]
