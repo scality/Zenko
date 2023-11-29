@@ -1,10 +1,11 @@
-import { Then, Given, When, setDefaultTimeout } from '@cucumber/cucumber';
+import { Then, Given, When, After, setDefaultTimeout } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
 import Zenko, {
     AWSVersionObject,
 } from '../world/Zenko';
 import { Constants, S3, Utils, KafkaHelper } from 'cli-testing';
 import { Message } from 'node-rdkafka';
+import { cleanS3Bucket } from 'common/common';
 
 setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
 
@@ -375,12 +376,11 @@ Then('i should {string} a notification for {string} event in destination {int}',
         );
         const expected = receive === 'receive';
         assert.strictEqual(receivedNotification, expected);
-        if (this.getSaved<string>('bucketVersioning') === 'Non versioned') {
-            await emptyNonVersionedBucket(this);
-        } else {
-            await emptyVersionedBucket(this);
-        }
-        this.resetCommand();
-        this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-        await S3.deleteBucket(this.getCommandParameters());
     });
+
+After({ tags: '@BucketNotification' }, async function (this: Zenko) {
+    await cleanS3Bucket(
+        this,
+        this.getSaved<string>('bucketName'),
+    );
+});

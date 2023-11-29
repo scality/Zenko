@@ -8,6 +8,51 @@ import assert from 'assert';
 
 setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
 
+type listingObject = {
+    Key: string,
+    VersionId: string,
+}
+
+type listingResult = {
+    Versions: listingObject[],
+    DeleteMarkers: listingObject[],
+}
+
+/**
+ * Cleans the created test bucket
+ * @param {Zenko} world world object
+ * @param {string} bucketName bucket name
+ * @returns {void}
+ */
+export async function cleanS3Bucket(
+    world: Zenko,
+    bucketName: string,
+): Promise<void> {
+    if (!bucketName) {
+        return;
+    }
+    world.resetCommand();
+    world.addCommandParameter({ bucket: bucketName });
+    const createdObjects = world.getSaved<Map<string, string>>('createdObjects');
+    if (createdObjects !== undefined) {
+        const results = await S3.listObjectVersions(world.getCommandParameters());
+        const res = safeJsonParse(results.stdout);
+        assert(res.ok);
+        const parsedResults = res.result as listingResult;
+        const versions = parsedResults.Versions || [];
+        const deleteMarkers = parsedResults.DeleteMarkers || [];
+        await Promise.all(versions.concat(deleteMarkers).map(obj => {
+            world.addCommandParameter({ key: obj.Key });
+            world.addCommandParameter({ versionId: obj.VersionId });
+            return S3.deleteObject(world.getCommandParameters());
+        }));
+        world.deleteKeyFromCommand('key');
+        world.deleteKeyFromCommand('versionId');
+    }
+    await S3.deleteBucketLifecycle(world.getCommandParameters());
+    await S3.deleteBucket(world.getCommandParameters());
+}
+
 async function addMultipleObjects(this: Zenko, numberObjects: number,
     objectName: string, sizeBytes: number, userMD?: string) {
     for (let i = 1; i <= numberObjects; i++) {
