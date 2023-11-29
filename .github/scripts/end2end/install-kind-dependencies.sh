@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 set -exu
 
@@ -34,6 +34,8 @@ MONGODB_EXPORTER_IMAGE_TAG=$(yq eval ".mongodb-exporter.tag" $DEPS_FILE)
 ENABLE_KEYCLOAK_HTTPS=${ENABLE_KEYCLOAK_HTTPS:-'false'}
 ZENKO_MONGODB_SHARDED=${ZENKO_MONGODB_SHARDED:-'false'}
 
+KAFKA_CHART=banzaicloud-stable/kafka-operator
+
 if [ $ENABLE_KEYCLOAK_HTTPS == 'true' ]; then
     KEYCLOAK_INGRESS_OPTIONS="$DIR/configs/keycloak_ingress_https.yaml"
 else
@@ -45,7 +47,17 @@ fi
 helm repo add --force-update bitnami https://raw.githubusercontent.com/bitnami/charts/defb094c658024e4aa8245622dab202874880cbc/bitnami
 helm repo add --force-update pravega https://charts.pravega.io
 helm repo add --force-update codecentric https://codecentric.github.io/helm-charts/
-helm repo add --force-update banzaicloud-stable https://kubernetes-charts.banzaicloud.com
+# BanzaiCloud repo may not work, c.f. https://scality.atlassian.net/browse/AN-225
+helm repo add --force-update banzaicloud-stable https://kubernetes-charts.banzaicloud.com || {
+		echo -n "::notice file=$(basename $0),line=$LINENO,title=Banzaicloud Charts not available::"
+		echo "Failed to add banzaicloud-stable repo, using local checkout"
+
+		kafa_operator="$(mktemp -d)"
+		git -c advice.detachedHead=false clone -q --depth 1 -b "v${KAFKA_OPERATOR_VERSION}" \
+            https://github.com/banzaicloud/koperator "${kafa_operator}"
+
+		KAFKA_CHART="${kafa_operator}/charts/kafka-operator"
+	}
 helm repo update
 
 # nginx-controller
@@ -67,7 +79,7 @@ helm upgrade --install --version ${ZK_OPERATOR_VERSION} -n default zk-operator p
 # kafka
 kafka_crd_url=https://github.com/banzaicloud/koperator/releases/download/v${KAFKA_OPERATOR_VERSION}/kafka-operator.crds.yaml
 kubectl create -f $kafka_crd_url || kubectl replace -f $kafka_crd_url
-helm upgrade --install --version ${KAFKA_OPERATOR_VERSION} -n default kafka-operator banzaicloud-stable/kafka-operator
+helm upgrade --install --version ${KAFKA_OPERATOR_VERSION} -n default kafka-operator ${KAFKA_CHART}
 
 # keycloak
 helm upgrade --install --version ${KEYCLOAK_VERSION} keycloak codecentric/keycloak -f "$DIR/configs/keycloak_options.yaml" -f "${KEYCLOAK_INGRESS_OPTIONS}"
