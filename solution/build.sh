@@ -190,19 +190,20 @@ function generate_local_dashboard()
     local dashboard="${1}/dashboard.json"
     local alert="${1}/alerts.yaml"
 
-    local dashboard_base_dir=${IMAGES_ROOT}/${1##*/}-dashboard/${VERSION}/
-    mkdir -p ${dashboard_base_dir}
+    local component_name="${1##*/}"
+    local dashboard_base_dir="${IMAGES_ROOT}/${component_name}-dashboard/${VERSION}/"
+    mkdir -p "${dashboard_base_dir}"
 
-    jq > ${dashboard_base_dir}/manifest.json <<EOF
+    jq > "${dashboard_base_dir}/manifest.json" <<EOF
 {
     "schemaVersion": 2,
     "mediaType": "application/vnd.oci.image.manifest.v1+json",
     "config": $(generate_manifest_layer "${dashboard_base_dir}" "application/vnd.oci.image.config.v1+json" <<< '{}'),
     "layers": $(jq -s "." \
         <( [ -e "${dashboard}" ] && generate_manifest_layer "${dashboard_base_dir}" "application/grafana-dashboard+json" \
-                                                            "${1}.json" < "${dashboard}" ) \
-        <( [ -e "${alert}" ] && generate_manifest_layer "${dashboard_base_dir}" "prometheus-alerts+yaml" \
-                                                        "${1}.yaml" < "${alert}" ) \
+                                                            "${component_name}-dashboard.json" < "${dashboard}" ) \
+        <( [ -e "${alert}" ] && generate_manifest_layer "${dashboard_base_dir}" "application/prometheus-alerts+yaml" \
+                                                        "${component_name}-alerts.yaml" < "${alert}" ) \
     )
 }
 EOF
