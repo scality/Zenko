@@ -80,7 +80,7 @@ sorbet:
   sourceRegistry: registry.scality.com/sorbet
   policy: sorbet-policies
   image: sorbet
-  tag: v1.1.0
+  tag: v1.1.3
   envsubst: SORBET_TAG
 # To be enabled back when utapi is used in Zenko 2.x
 # utapi:
