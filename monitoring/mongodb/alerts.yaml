@@ -5,10 +5,10 @@ x-inputs:
     value: zenko
   - name: service
     type: constant
-    value: mongodb
+    value: data-db-mongodb-sharded # `mongodb` when not sharded
   - name: pvc
     type: constant
-    value: datadir-mongodb
+    value: datadir-data-db-mongodb # `datadir-mongodb` when not sharded
   - name: tooManyElectionsWarningThreshold
     type: config
     value: 10
@@ -18,20 +18,41 @@ x-inputs:
   - name: remainingDiskSpaceWarningThreshold
     type: config
     value: 0.25
+  - name: replicas
+    type: config
+    value: 3
 
 groups:
 - name: MongoDb
   rules:
 
-  - alert: MongoDbDown
+  - alert: MongoDbDegraded
     expr: |
-      sum(up{namespace="${namespace}",pod=~"${service}.*"}) == 0
-    for: 0m
+      label_replace(
+        sum(up{namespace="${namespace}",pod=~"${service}.*"}) by(job) < ${replicas}
+      , "job", "$1", "job", "(?:${namespace}/)?${service}-?(.*)")
+    for: 30s
+    labels:
+      severity: warning
+    annotations:
+      description: >-
+        Less than 100% of MongoDb {{ $labels.job }} instances are up and healthy:
+        {{ $value }}/${replicas}.
+      summary: MongoDb {{ $labels.job }} service degraded
+
+  - alert: MongoDbCritical
+    expr: |
+      label_replace(
+        sum(up{namespace="${namespace}",pod=~"${service}.*"}) by(job) < ${replicas} / 2
+      , "job", "$1", "job", "(?:${namespace}/)?${service}-?(.*)")
+    for: 30s
     labels:
       severity: critical
     annotations:
-      description: "MongoDb down"
-      summary: MongoDb down
+      description: >-
+        Less than 50% of MongoDb {{ $labels.job }} instances are up and healthy:
+        {{ $value }}/${replicas}.
+      summary: MongoDb {{ $labels.job }} service critical
 
   - alert: NoPrimary
     expr: |
