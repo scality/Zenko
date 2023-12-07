@@ -1,0 +1,70 @@
+name: Test alerts
+
+on:
+  push:
+    branches:
+      - "documentation/**"
+      - "feature/**"
+      - "improvement/**"
+      - "bugfix/**"
+      - "w/**"
+      - "hotfix/**"
+      - "ci-dev/**"
+      - "user/**"
+      - "q/*/**"
+
+jobs:
+  run-alert-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Render and test mongodb alerts 
+        uses: scality/action-prom-render-test@1.0.3
+        with:
+          alert_file_path: monitoring/mongodb/alerts.yaml
+          test_file_path: monitoring/mongodb/alerts.test.yaml
+          alert_inputs: |
+            namespace=zenko
+            service=data-db-mongodb-sharded
+            pvc=datadir-mongodb
+            replicas=3
+          github_token: ${{ secrets.GIT_ACCESS_TOKEN }}
+
+      - name: Render and test kafka alerts 
+        uses: scality/action-prom-render-test@1.0.3
+        with:
+          alert_file_path: monitoring/kafka/alerts.yaml
+          test_file_path: monitoring/kafka/alerts.test.yaml
+          alert_inputs: |
+            namespace=zenko
+            service=artesca-data-base-queue
+            pvc=artesca-data-base-queue
+            cluster=artesca-data-base-queue
+            replicas=3
+          github_token: ${{ secrets.GIT_ACCESS_TOKEN }}
+
+      - name: Render and test redis alerts 
+        uses: scality/action-prom-render-test@1.0.3
+        with:
+          alert_file_path: monitoring/redis/alerts.yaml
+          test_file_path: monitoring/redis/alerts.test.yaml
+          alert_inputs: |
+            namespace=zenko
+            service=artesca-data-base-cache-metrics
+          github_token: ${{ secrets.GIT_ACCESS_TOKEN }}
+
+      - name: Render and test zookeeper alerts 
+        uses: scality/action-prom-render-test@1.0.3
+        with:
+          alert_file_path: monitoring/zookeeper/alerts.yaml
+          test_file_path: monitoring/zookeeper/alerts.test.yaml
+          alert_inputs: |
+            namespace=zenko
+            service=artesca-data-base-quorum-headless
+            pvc=artesca-data-base-quorum
+            replicas=3
+            quorum=3
+          github_token: ${{ secrets.GIT_ACCESS_TOKEN }}
