@@ -86,9 +86,10 @@ tests:
               description: "Less than 50% of MongoDb mongos instances are up and healthy: 1/3."
               summary: MongoDb mongos service critical
 
-  - interval: 1m
+  - name: NoPrimary
+    interval: 1m
     input_series:
-      - series: mongodb_rs_members_state{namespace="zenko",pod="mongodb-0",member_state="PRIMARY"}
+      - series: mongodb_rs_members_state{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-0",member_state="PRIMARY"}
         values: 1 _
 
     alert_rule_test:
@@ -100,31 +101,32 @@ tests:
         exp_alerts:
           - exp_labels:
               namespace: zenko
-              state: PRIMARY
+              member_state: PRIMARY
               severity: critical
             exp_annotations:
-              description: "MongoDb down"
+              description: "MongoDb has no PRIMARY."
               summary: MongoDb down
 
-  - interval: 30s
+  - name: UnhealthyMemberWarning
+    interval: 30s
     input_series:
-      - series: mongodb_rs_members_health{namespace="zenko",pod="mongodb-0", member_idx="mongodb-0", member_state="PRIMARY"}
+      - series: mongodb_rs_members_health{namespace="zenko",pod="data-db-mongodb-sharded-shardsrv-0", member_idx="data-db-mongodb-sharded-shardsrv-0.data-db-mongodb-sharded-headless.svc.cluster.local", member_state="PRIMARY"}
         values: 1 1 1 1
-      - series: mongodb_rs_members_health{namespace="zenko",pod="mongodb-0", member_idx="mongodb-1", member_state="SECONDARY"}
+      - series: mongodb_rs_members_health{namespace="zenko",pod="data-db-mongodb-sharded-shardsrv-0", member_idx="data-db-mongodb-sharded-shardsrv-1.data-db-mongodb-sharded-headless.svc.cluster.local", member_state="SECONDARY"}
         values: 1 1 1 1
-      - series: mongodb_rs_members_health{namespace="zenko",pod="mongodb-0", member_idx="mongodb-2", member_state="SECONDARY"}
+      - series: mongodb_rs_members_health{namespace="zenko",pod="data-db-mongodb-sharded-shardsrv-0", member_idx="data-db-mongodb-sharded-shardsrv-2.data-db-mongodb-sharded-headless.svc.cluster.local", member_state="SECONDARY"}
         values: 1 1 0 0
-      - series: mongodb_rs_members_health{namespace="zenko",pod="mongodb-1", member_idx="mongodb-0", member_state="PRIMARY"}
+      - series: mongodb_rs_members_health{namespace="zenko",pod="data-db-mongodb-sharded-shardsrv-1", member_idx="data-db-mongodb-sharded-shardsrv-0.data-db-mongodb-sharded-headless.svc.cluster.local", member_state="PRIMARY"}
         values: 1 1 1 1
-      - series: mongodb_rs_members_health{namespace="zenko",pod="mongodb-1", member_idx="mongodb-1", member_state="SECONDARY"}
+      - series: mongodb_rs_members_health{namespace="zenko",pod="data-db-mongodb-sharded-shardsrv-1", member_idx="data-db-mongodb-sharded-shardsrv-1.data-db-mongodb-sharded-headless.svc.cluster.local", member_state="SECONDARY"}
         values: 1 1 1 1
-      - series: mongodb_rs_members_health{namespace="zenko",pod="mongodb-1", member_idx="mongodb-2", member_state="SECONDARY"}
+      - series: mongodb_rs_members_health{namespace="zenko",pod="data-db-mongodb-sharded-shardsrv-1", member_idx="data-db-mongodb-sharded-shardsrv-2.data-db-mongodb-sharded-headless.svc.cluster.local", member_state="SECONDARY"}
         values: 1 1 0 0
-      - series: mongodb_rs_members_health{namespace="zenko",pod="mongodb-2", member_idx="mongodb-0", member_state="PRIMARY"}
+      - series: mongodb_rs_members_health{namespace="zenko",pod="data-db-mongodb-sharded-shardsrv-2", member_idx="data-db-mongodb-sharded-shardsrv-0.data-db-mongodb-sharded-headless.svc.cluster.local", member_state="PRIMARY"}
         values: 1 1 _ _
-      - series: mongodb_rs_members_health{namespace="zenko",pod="mongodb-2", member_idx="mongodb-1", member_state="SECONDARY"}
+      - series: mongodb_rs_members_health{namespace="zenko",pod="data-db-mongodb-sharded-shardsrv-2", member_idx="data-db-mongodb-sharded-shardsrv-1.data-db-mongodb-sharded-headless.svc.cluster.local", member_state="SECONDARY"}
         values: 1 1 _ _
-      - series: mongodb_rs_members_health{namespace="zenko",pod="mongodb-2", member_idx="mongodb-2", member_state="SECONDARY"}
+      - series: mongodb_rs_members_health{namespace="zenko",pod="data-db-mongodb-sharded-shardsrv-2", member_idx="data-db-mongodb-sharded-shardsrv-2.data-db-mongodb-sharded-headless.svc.cluster.local", member_state="SECONDARY"}
         values: 1 1 _ _
 
     alert_rule_test:
@@ -135,17 +137,19 @@ tests:
         eval_time: 2m
         exp_alerts:
           - exp_labels:
-              name: mongodb-2
+              member_idx: data-db-mongodb-sharded-shardsrv-2
               severity: warning
-              state: SECONDARY
+              member_state: SECONDARY
             exp_annotations:
-              description: Member mongodb-2 (SECONDARY) is not healthy
+              description: Member data-db-mongodb-sharded-shardsrv-2 (SECONDARY) is not healthy.
               summary: Unhealthy MongoDb member
 
   - interval: 30s
     input_series:
-      - series: mongodb_rs_members_electionDate{namespace="zenko", pod="mongodb", set="rs0"}
+      - series: mongodb_rs_members_electionDate{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-0", job="zenko/data-db-mongodb-sharded-shard0-data"}
         values: 1+0x9 10+1x10
+      - series: mongodb_rs_members_electionDate{namespace="zenko", pod="data-db-mongodb-sharded-cfgsvr-0", job="zenko/data-db-mongodb-sharded-cfgsvr"}
+        values: 1+0x20
 
     alert_rule_test:
       - alertname: TooManyElectionsWarning
@@ -156,39 +160,44 @@ tests:
         exp_alerts:
           - exp_labels:
               severity: warning
-              set: rs0
+              job: shard0-data
             exp_annotations:
-              description: Number of elections is greater than 10 in 10m
+              description: Number of elections in last 10m is greater than 10 for `shard0-data`.
               summary: Too many elections
 
-  - interval: 1m
+  - name: ReplicationLagWarning
+    interval: 1m
     input_series:
-      - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="mongodb-0", member_idx="mongo-0", member_state="PRIMARY"}
-        values: 5 25 35
-      - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="mongodb-1", member_idx="mongo-1", member_state="SECONDARY"}
-        values: 0 12 29
-      - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="mongodb-2", member_idx="mongo-2", member_state="SECONDARY"}
-        values: 2 2 31
+      - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-0", job="zenko/data-db-mongodb-sharded-shard0-data", member_idx="mongo-0", member_state="PRIMARY"}
+        values: 5  25 35
+      - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-1", job="zenko/data-db-mongodb-sharded-shard0-data", member_idx="mongo-1", member_state="SECONDARY"}
+        values: 0  12 29
+      - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-2", job="zenko/data-db-mongodb-sharded-shard0-data", member_idx="mongo-2", member_state="SECONDARY"}
+        values: 2   2 31
+      - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="data-db-mongodb-sharded-configsvr-1", job="zenko/data-db-mongodb-sharded-configsvr", member_idx="mongo-1", member_state="PRIMARY"}
+        values: 71 83 95
 
     alert_rule_test:
       - alertname: ReplicationLagWarning
         eval_time: 1m
         exp_alerts: []
       - alertname: ReplicationLagWarning
-        eval_time: 2m
+        eval_time: 1m30s
         exp_alerts:
           - exp_labels:
               severity: warning
+              job: shard0-data
             exp_annotations:
-              description: Mongodb replication lag is more than 10s
+              description: Mongodb replication lag for `shard0-data` is more than 10s.
               summary: MongoDB replication lag
       - alertname: ReplicationLagWarning
-        eval_time: 3m
+        eval_time: 2m
         exp_alerts: []
 
-  - interval: 1m
+  - name: TooManyClientConnectionsWarning
+    interval: 1m
     input_series:
-      - series: mongodb_ss_connections{namespace="zenko",pod="mongodb-0",conn_type="current"}
+      - series: mongodb_ss_connections{namespace="zenko",pod="data-db-mongodb-sharded-mongos-0", job="zenko/data-db-mongodb-sharded-mongos", conn_type="current"}
         values: 90 98 110 110
 
     alert_rule_test:
@@ -200,11 +209,13 @@ tests:
         exp_alerts:
           - exp_labels:
               severity: warning
+              job: mongos
             exp_annotations:
-              description: Too many client connections
+              description: Too many client connections on `mongos`.
               summary: Too many MongoDB client connections
 
-  - interval: 1m
+  - name: RemainingDiskSpaceWarning
+    interval: 1m
     input_series:
       - series: kubelet_volume_stats_available_bytes{namespace="zenko",persistentvolumeclaim="datadir-mongodb-0"}
         values: 30-5x3
