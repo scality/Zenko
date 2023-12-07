@@ -2,31 +2,89 @@
 # Use github.com/scality/action-prom-render-test@python-renderer python module
 #
 # Render the alerts file with
-# gen-alert render alerts.yaml
+#   alertgen alerts.yaml -i 'namespace=zenko,service=data-db-mongodb-sharded,pvc=datadir-mongodb,replicas=3'
 
-evaluation_interval: 1m
+evaluation_interval: 30s
 
 rule_files:
   - alerts.rendered.yaml
 
 tests:
-  - interval: 30s
+  - name: MongoDbDown
+    interval: 30s
     input_series:
-      - series: up{namespace="zenko", pod="mongodb"}
-        values: 1 1 1 0 0
-
+      - series: up{namespace="zenko", job="zenko/data-db-mongodb-sharded-mongos", pod="data-db-mongodb-sharded-mongos-0"}
+        values: 1 1 0 0 0 0 1 1 1
+      - series: up{namespace="zenko", job="zenko/data-db-mongodb-sharded-mongos", pod="data-db-mongodb-sharded-mongos-1"}
+        values: 1 1 1 1 0 0 0 1 1
+      - series: up{namespace="zenko", job="zenko/data-db-mongodb-sharded-mongos", pod="data-db-mongodb-sharded-mongos-2"}
+        values: 1 1 1 1 1 0 0 0 1
     alert_rule_test:
-      - alertname: MongoDbDown
-        eval_time: 1m
-        exp_alerts: []
-      - alertname: MongoDbDown
-        eval_time: 2m
+      - { alertname: MongoDbDegraded, eval_time: 30s, exp_alerts: [] }
+      - { alertname: MongoDbCritical, eval_time: 30s, exp_alerts: [] }
+
+      - { alertname: MongoDbDegraded, eval_time: 60s, exp_alerts: [] }
+      - { alertname: MongoDbCritical, eval_time: 60s, exp_alerts: [] }
+
+      - { alertname: MongoDbCritical, eval_time: 90s, exp_alerts: [] }
+      - alertname: MongoDbDegraded
+        eval_time: 90s
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              job: mongos
+            exp_annotations:
+              description: "Less than 100% of MongoDb mongos instances are up and healthy: 2/3."
+              summary: MongoDb mongos service degraded
+
+      - { alertname: MongoDbCritical, eval_time: 120s, exp_alerts: [] }
+      - alertname: MongoDbDegraded
+        eval_time: 120s
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              job: mongos
+            exp_annotations:
+              description: "Less than 100% of MongoDb mongos instances are up and healthy: 1/3."
+              summary: MongoDb mongos service degraded
+
+      - alertname: MongoDbDegraded
+        eval_time: 150s
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              job: mongos
+            exp_annotations:
+              description: "Less than 100% of MongoDb mongos instances are up and healthy: 0/3."
+              summary: MongoDb mongos service degraded
+      - alertname: MongoDbCritical
+        eval_time: 150s
         exp_alerts:
           - exp_labels:
               severity: critical
+              job: mongos
             exp_annotations:
-              summary: MongoDb down
-              description: MongoDb down
+              description: "Less than 50% of MongoDb mongos instances are up and healthy: 0/3."
+              summary: MongoDb mongos service critical
+      
+      - alertname: MongoDbDegraded
+        eval_time: 180s
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              job: mongos
+            exp_annotations:
+              description: "Less than 100% of MongoDb mongos instances are up and healthy: 1/3."
+              summary: MongoDb mongos service degraded
+      - alertname: MongoDbCritical
+        eval_time: 180s
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              job: mongos
+            exp_annotations:
+              description: "Less than 50% of MongoDb mongos instances are up and healthy: 1/3."
+              summary: MongoDb mongos service critical
 
   - interval: 1m
     input_series:
@@ -47,8 +105,6 @@ tests:
             exp_annotations:
               description: "MongoDb down"
               summary: MongoDb down
-
-
 
   - interval: 30s
     input_series:
