@@ -13,7 +13,7 @@ busybox:
   tag: 1.33.0
   envsubst: BUSYBOX_TAG
 cloudserver:
-  sourceRegistry: registry.scality.com/playground/mbenzekri/
+  sourceRegistry: registry.scality.com/playground/mbenzekri
   dashboard: cloudserver-dashboards
   image: cloudserver
   tag: 8.7.35
