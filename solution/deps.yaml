@@ -14,7 +14,7 @@ busybox:
   envsubst: BUSYBOX_TAG
 cloudserver:
   sourceRegistry: registry.scality.com/playground/mbenzekri
-  dashboard: cloudserver-dashboards
+  #dashboard: cloudserver-dashboards
   image: cloudserver
   tag: 8.7.35
   envsubst: CLOUDSERVER_TAG
