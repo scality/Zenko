@@ -13,10 +13,10 @@ busybox:
   tag: 1.33.0
   envsubst: BUSYBOX_TAG
 cloudserver:
-  sourceRegistry: registry.scality.com/cloudserver
+  sourceRegistry: registry.scality.com/playground/mbenzekri/cloudserver
   dashboard: cloudserver-dashboards
   image: cloudserver
-  tag: 8.7.30
+  tag: 8.7.35
   envsubst: CLOUDSERVER_TAG
 jmx-javaagent:
   sourceRegistry: banzaicloud
@@ -89,11 +89,11 @@ sorbet:
 #   tag: zenko-1.0.0
 #   envsubst: UTAPI_TAG
 vault:
-  sourceRegistry: registry.scality.com/vault
+  sourceRegistry: registry.scality.com/vault-dev
   dashboard: vault-dashboards
   policy: vault-policies
-  image: vault
-  tag: 8.7.9
+  image: vault-test
+  tag: 269cdece6b1516777d088e9098841070e7112077
   envsubst: VAULT_TAG
 zenko-operator:
   sourceRegistry: registry.scality.com/zenko-operator
