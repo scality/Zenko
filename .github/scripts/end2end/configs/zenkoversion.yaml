@@ -79,8 +79,8 @@ spec:
       image: "${S3UTILS_IMAGE}"
       tag: "${S3UTILS_TAG}"
     sorbet:
-      image: "${SORBET_IMAGE}"
-      tag: "${SORBET_TAG}"
+      image: "registry.scality.com/playground/fferrand/sorbet-140"
+      tag: "v1.1.3"
     zookeeper:
       image: "${ZOOKEEPER_IMAGE}"
       tag: "${ZOOKEEPER_TAG}"
