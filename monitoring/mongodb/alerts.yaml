@@ -5,10 +5,10 @@ x-inputs:
     value: zenko
   - name: service
     type: constant
-    value: mongodb
+    value: data-db-mongodb-sharded # `mongodb` when not sharded
   - name: pvc
     type: constant
-    value: datadir-mongodb
+    value: datadir-data-db-mongodb # `datadir-mongodb` when not sharded
   - name: tooManyElectionsWarningThreshold
     type: config
     value: 10
@@ -18,20 +18,41 @@ x-inputs:
   - name: remainingDiskSpaceWarningThreshold
     type: config
     value: 0.25
+  - name: replicas
+    type: config
+    value: 3
 
 groups:
 - name: MongoDb
   rules:
 
-  - alert: MongoDbDown
+  - alert: MongoDbDegraded
     expr: |
-      sum(up{namespace="${namespace}",pod=~"${service}.*"}) == 0
-    for: 0m
+      label_replace(
+        sum(up{namespace="${namespace}",pod=~"${service}.*"}) by(job) < ${replicas}
+      , "job", "$1", "job", "(?:${namespace}/)?${service}-?(.*)")
+    for: 30s
+    labels:
+      severity: warning
+    annotations:
+      description: >-
+        Less than 100% of MongoDb {{ $labels.job }} instances are up and healthy:
+        {{ $value }}/${replicas}.
+      summary: MongoDb {{ $labels.job }} service degraded
+
+  - alert: MongoDbCritical
+    expr: |
+      label_replace(
+        sum(up{namespace="${namespace}",pod=~"${service}.*"}) by(job) < ${replicas} / 2
+      , "job", "$1", "job", "(?:${namespace}/)?${service}-?(.*)")
+    for: 30s
     labels:
       severity: critical
     annotations:
-      description: "MongoDb down"
-      summary: MongoDb down
+      description: >-
+        Less than 50% of MongoDb {{ $labels.job }} instances are up and healthy:
+        {{ $value }}/${replicas}.
+      summary: MongoDb {{ $labels.job }} service critical
 
   - alert: NoPrimary
     expr: |
@@ -40,50 +61,67 @@ groups:
     labels:
       severity: critical
     annotations:
-      description: "MongoDb down"
+      description: "MongoDb has no PRIMARY."
       summary: MongoDb down
 
   - alert: UnhealthyMemberWarning
     expr: |
-      group by(name, state) (mongodb_rs_members_health{namespace="${namespace}",pod=~"${service}.*"} != 1)
+      label_replace(
+        group by(member_idx, member_state) (
+          mongodb_rs_members_health{namespace="${namespace}",pod=~"${service}.*"} != 1
+        )
+      , "member_idx", "$1", "member_idx", "(${service}[^.]*)\\.${service}.*")
     for: 30s
     labels:
       severity: warning
     annotations:
-      description: "Member {{ $labels.member_idx }} ({{ $labels.member_state }}) is not healthy"
+      description: "Member {{ $labels.member_idx }} ({{ $labels.member_state }}) is not healthy."
       summary: Unhealthy MongoDb member
 
   - alert: TooManyElectionsWarning
     expr: |
-      sum by(set) (changes(mongodb_rs_members_electionDate{namespace="${namespace}",pod=~"${service}.*"}[10m]))
-        > ${tooManyElectionsWarningThreshold}
+      label_replace(
+        sum(changes(mongodb_rs_members_electionDate{namespace="${namespace}",pod=~"${service}.*"}[10m]))
+            by(job) 
+          > ${tooManyElectionsWarningThreshold}
+      , "job", "$1", "job", "(?:${namespace}/)?${service}-?(.*)")
     for: 0s
     labels:
       severity: warning
     annotations:
-      description: "Number of elections is greater than ${tooManyElectionsWarningThreshold} in 10m"
+      description: >-
+        Number of elections in last 10m is greater than ${tooManyElectionsWarningThreshold}
+        for `{{ $labels.job }}`.
       summary: Too many elections
 
   - alert: ReplicationLagWarning
     expr: |
-      max(mongodb_rs_members_optimeDate{namespace="${namespace}",pod=~"${service}.*",member_state="PRIMARY"}) -
-        min(mongodb_rs_members_optimeDate{namespace="${namespace}",pod=~"${service}.*",member_state="SECONDARY"}) > 10
+      label_replace(
+        max(mongodb_rs_members_optimeDate{namespace="${namespace}",pod=~"${service}.*",member_state="PRIMARY"})
+            by(job)
+        -min(mongodb_rs_members_optimeDate{namespace="${namespace}",pod=~"${service}.*",member_state="SECONDARY"})
+            by(job)
+        > 10
+      , "job", "$1", "job", "(?:${namespace}/)?${service}-?(.*)")
     for: 30s
     labels:
       severity: warning
     annotations:
-      description: "Mongodb replication lag is more than 10s"
+      description: "Mongodb replication lag for `{{ $labels.job }}` is more than 10s."
       summary: MongoDB replication lag
 
   - alert: TooManyClientConnectionsWarning
     expr: |
-      sum(mongodb_ss_connections{namespace="${namespace}",pod=~"${service}.*",conn_type="current"})
+      label_replace(
+        sum(mongodb_ss_connections{namespace="${namespace}",pod=~"${service}.*",conn_type="current"})
+            by(job)
         > ${tooManyClientConnectionsWarningThreshold}
+      , "job", "$1", "job", "(?:${namespace}/)?${service}-?(.*)")
     for: 2m
     labels:
       severity: warning
     annotations:
-      description: "Too many client connections"
+      description: "Too many client connections on `{{ $labels.job }}`."
       summary: Too many MongoDB client connections
 
   - alert: RemainingDiskSpaceWarning
