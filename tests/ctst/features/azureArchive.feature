@@ -248,6 +248,7 @@ Feature: Azure Archive
     When i restore object "obj-2" for <restoreDays> days
     Then i should "receive" a notification for "s3:ObjectRestore:Post" event in destination 0
     And blob for object "obj-2" must be rehydrated
+    Then object "obj-2" should be "restored" and have the storage class "e2e-azure-archive"
     Then i should "receive" a notification for "s3:ObjectRestore:Completed" event in destination 0
     When i wait for <restoreDays> days
     Then i should "receive" a notification for "s3:ObjectRestore:Delete" event in destination 0
