@@ -211,26 +211,26 @@ Then('object {string} should have the user metadata with key {string} and value 
 
 // add a transition workflow to a bucket
 Given('a transition workflow to {string} location', async function (this: Zenko, location: string) {
-    this.resetCommand();
-    this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-    this.addCommandParameter({
-        lifecycleConfiguration: JSON.stringify({
-            Rules: [
-                {
-                    Status: 'Enabled',
-                    Prefix: '',
-                    Transitions: [
-                        {
-                            Days: 20,
-                            StorageClass: location,
-                        },
-                    ],
-                },
-            ],
-        }),
-    });
     let conditionOk = false;
     while (!conditionOk) {
+        this.resetCommand();
+        this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
+        this.addCommandParameter({
+            lifecycleConfiguration: JSON.stringify({
+                Rules: [
+                    {
+                        Status: 'Enabled',
+                        Prefix: '',
+                        Transitions: [
+                            {
+                                Days: 20,
+                                StorageClass: location,
+                            },
+                        ],
+                    },
+                ],
+            }),
+        });
         const res = await S3.putBucketLifecycleConfiguration(this.getCommandParameters());
         conditionOk = res.err === null;
         // Wait for the transition to be accepted because the deployment of the location's pods can take some time
