@@ -368,8 +368,6 @@ When('i run sorbetctl to retry failed restore for {string} location', async func
     } catch (err) {
         assert.ifError(err);
     }
-    // Wait for backbeat to process the retry and update the object MDs
-    await Utils.sleep(60000);
 });
 
 When('i wait for {int} days', { timeout: 10 * 60 * 1000 }, async function (this: Zenko, days: number) {
