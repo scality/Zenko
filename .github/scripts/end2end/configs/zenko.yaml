@@ -100,7 +100,7 @@ spec:
       tar:
         targetSize: 10KB
         maxObjects: 3
-        maxDelay: "5s"
+        maxDelay: "15s"
       azure:
         archiveTier: "hot"
         pollingDelay: "1s"
