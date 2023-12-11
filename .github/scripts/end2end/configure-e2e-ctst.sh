@@ -28,7 +28,7 @@ kubectl wait --for condition=DeploymentInProgress=false --timeout 10m zenko/${ZE
 
 # Patch sorbet env
 SORBET_DEPLOYMENT_NAME="${ZENKO_NAME}-cold-sorbet-azure-e2e-azure-archive"
-kubectl set env deployment/${SORBET_DEPLOYMENT_NAME} SORBETD_AZURE_RESTORETIMEOUT=3s
+kubectl set env deployment/${SORBET_DEPLOYMENT_NAME} SORBETD_AZURE_RESTORETIMEOUT=30s
 
 # Get kafka image name and tag
 KAFKA_REGISTRY_NAME=$(yq eval ".kafka.sourceRegistry" ../../../solution/deps.yaml)
