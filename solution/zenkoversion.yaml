@@ -59,7 +59,7 @@ spec:
         tag: '${PENSIEVE_API_TAG}'
     cloudserver:
       image: "registry.scality.com/playground/mbenzekri/cloudserver"
-      tag: '8.7.35-1'
+      tag: '8.7.36'
     backbeat:
       image: backbeat
       tag: '${BACKBEAT_TAG}'
