@@ -168,30 +168,52 @@ tests:
   - name: ReplicationLagWarning
     interval: 1m
     input_series:
-      - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-0", job="zenko/data-db-mongodb-sharded-shard0-data", member_idx="mongo-0", member_state="PRIMARY"}
-        values: 5  25 35
-      - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-1", job="zenko/data-db-mongodb-sharded-shard0-data", member_idx="mongo-1", member_state="SECONDARY"}
-        values: 0  12 29
-      - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-2", job="zenko/data-db-mongodb-sharded-shard0-data", member_idx="mongo-2", member_state="SECONDARY"}
-        values: 2   2 31
-      - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="data-db-mongodb-sharded-configsvr-1", job="zenko/data-db-mongodb-sharded-configsvr", member_idx="mongo-1", member_state="PRIMARY"}
-        values: 71 83 95
+      - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-0", rs_nm="shard0-data", member_idx="data-db-mongodb-sharded-shard0-data-0.data-db-mongodb-sharded-shardsrv-headless.svc.cluster.local", member_state="PRIMARY"}
+        values: 5  35000+1000x10 45000
+      - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-0", rs_nm="shard0-data", member_idx="data-db-mongodb-sharded-shard0-data-1.data-db-mongodb-sharded-shardsrv-headless.svc.cluster.local", member_state="SECONDARY"}
+        values: 0  24000+1000x10 39000
+      - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-0", rs_nm="shard0-data", member_idx="data-db-mongodb-sharded-shard0-data-2.data-db-mongodb-sharded-shardsrv-headless.svc.cluster.local", member_state="SECONDARY"}
+        values: 2   2000+1000x10 41000
+
+      - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-1", rs_nm="shard0-data", member_idx="data-db-mongodb-sharded-shard0-data-0.data-db-mongodb-sharded-shardsrv-headless.svc.cluster.local", member_state="PRIMARY"}
+        values: 5  34000+1000x10 44000
+      - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-1", rs_nm="shard0-data", member_idx="data-db-mongodb-sharded-shard0-data-1.data-db-mongodb-sharded-shardsrv-headless.svc.cluster.local", member_state="SECONDARY"}
+        values: 0  26000+1000x10 40000
+      - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-1", rs_nm="shard0-data", member_idx="data-db-mongodb-sharded-shard0-data-2.data-db-mongodb-sharded-shardsrv-headless.svc.cluster.local", member_state="SECONDARY"}
+        values: 2   1000+1000x10 40000
+
+      - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-2", rs_nm="shard0-data", member_idx="data-db-mongodb-sharded-shard0-data-0.data-db-mongodb-sharded-shardsrv-headless.svc.cluster.local", member_state="PRIMARY"}
+        values: 5  12000+1000x10 43000
+      - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-2", rs_nm="shard0-data", member_idx="data-db-mongodb-sharded-shard0-data-1.data-db-mongodb-sharded-shardsrv-headless.svc.cluster.local", member_state="SECONDARY"}
+        values: 0   9000+1000x10 38000
+      - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-2", rs_nm="shard0-data", member_idx="data-db-mongodb-sharded-shard0-data-2.data-db-mongodb-sharded-shardsrv-headless.svc.cluster.local", member_state="SECONDARY"}
+        values: 2   3000+1000x10 42000
+
+      - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="data-db-mongodb-sharded-configsvr-1", rs_nm="configsvr", member_idx="data-db-mongodb-sharded-cfgsvr-0.data-db-mongodb-sharded-cfgsvr-headless.svc.cluster.local", member_state="PRIMARY"}
+        values: 71  8300  9500
 
     alert_rule_test:
       - alertname: ReplicationLagWarning
         eval_time: 1m
         exp_alerts: []
       - alertname: ReplicationLagWarning
-        eval_time: 1m30s
+        eval_time: 2m
+        exp_alerts: []
+      - alertname: ReplicationLagWarning
+        eval_time: 10m
+        exp_alerts: []
+      - alertname: ReplicationLagWarning
+        eval_time: 11m
         exp_alerts:
           - exp_labels:
               severity: warning
-              job: shard0-data
+              member_idx: data-db-mongodb-sharded-shard0-data-2
+              rs_nm: shard0-data
             exp_annotations:
-              description: Mongodb replication lag for `shard0-data` is more than 10s.
+              description: Mongodb replication lag for `data-db-mongodb-sharded-shard0-data-2` is more than 30 seconds.
               summary: MongoDB replication lag
       - alertname: ReplicationLagWarning
-        eval_time: 2m
+        eval_time: 12m
         exp_alerts: []
 
   - name: TooManyClientConnectionsWarning
