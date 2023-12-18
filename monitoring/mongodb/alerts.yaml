@@ -97,17 +97,19 @@ groups:
   - alert: ReplicationLagWarning
     expr: |
       label_replace(
-        max(mongodb_rs_members_optimeDate{namespace="${namespace}",pod=~"${service}.*",member_state="PRIMARY"})
-            by(job)
-        -min(mongodb_rs_members_optimeDate{namespace="${namespace}",pod=~"${service}.*",member_state="SECONDARY"})
-            by(job)
-        > 10
-      , "job", "$1", "job", "(?:${namespace}/)?${service}-?(.*)")
-    for: 30s
+        max(
+            max(mongodb_rs_members_optimeDate{namespace="${namespace}",pod=~"${service}.*",member_state="PRIMARY"})
+                by(pod, rs_nm)
+            - ignoring(member_idx) group_right
+            min(mongodb_rs_members_optimeDate{namespace="${namespace}",pod=~"${service}.*",member_state="SECONDARY"})
+                by(pod, rs_nm, member_idx)
+        ) by(member_idx, rs_nm) / 1000 > 30
+      , "member_idx", "$1", "member_idx", "(${service}[^.]*)\\.${service}.*")
+    for: 10m
     labels:
       severity: warning
     annotations:
-      description: "Mongodb replication lag for `{{ $labels.job }}` is more than 10s."
+      description: "Mongodb replication lag for `{{ $labels.member_idx }}` is more than 30 seconds."
       summary: MongoDB replication lag
 
   - alert: TooManyClientConnectionsWarning
