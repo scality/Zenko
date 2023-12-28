@@ -191,7 +191,7 @@ function generate_local_dashboard()
     local alert="${1}/alerts.yaml"
 
     local component_name="${1##*/}"
-    local dashboard_base_dir="${IMAGES_ROOT}/${component_name}-dashboard/${VERSION}/"
+    local dashboard_base_dir="${IMAGES_ROOT}/${component_name}-dashboard/${VERSION_FULL}/"
     mkdir -p "${dashboard_base_dir}"
 
     jq > "${dashboard_base_dir}/manifest.json" <<EOF
