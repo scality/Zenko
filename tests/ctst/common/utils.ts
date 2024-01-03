@@ -31,8 +31,8 @@ export function extractPropertyFromResults<T>(results: Utils.Command, ...propert
 export const s3FunctionExtraParams : { [key: string]: Record<string, unknown> } = {
     restoreObject: { restoreRequest: 'Days=1' },
     putObjectAcl:  { acl: 'public-read-write' },
-    putBucketTagging: { tagging: 'TagSet=[{Key=tag1,Value=value1},{Key=tag2,Value=value2}]' },
-    putObjectTagging: { tagging: 'TagSet=[{Key=string,Value=string}]' },
+    putBucketTagging: { tagging: '{"TagSet":[{"Key":"tag1","Value":"value1"},{"Key":"tag2","Value":"value2"}]}' },
+    putObjectTagging: { tagging: '{"TagSet":[{"Key":"string","Value":"string"}]}' },
     putBucketVersioning: { versioningConfiguration: 'Status=Enabled' },
     putObjectLockConfiguration: {
         objectLockConfiguration: '{ "ObjectLockEnabled": "Enabled", "Rule": ' +
