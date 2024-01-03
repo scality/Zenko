@@ -141,6 +141,7 @@ kubectl run $POD_NAME \
         --env=AZURE_QUEUE_URL=$AZURE_BACKEND_QUEUE_ENDPOINT \
         --env=VERBOSE=1 \
         --env=SDK=true \
+        --env=NO_SCRIPT=tyrue \
         --override-type strategic \
         --overrides='
 {

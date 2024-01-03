@@ -10,6 +10,9 @@ PARALLEL_RUNS=${2:-4}
 # which is slower.
 SDK=true
 
+# Minimize startup phase by ignoring deps scripts
+NO_SCRIPT=true
+
 # Zenko Version
 VERSION=$(cat ../../VERSION | grep -Po 'VERSION="\K[^"]*')
 

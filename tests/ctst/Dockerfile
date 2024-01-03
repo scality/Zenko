@@ -1,7 +1,7 @@
 ARG SORBET_TAG
 ARG CTST_TAG
 FROM registry.scality.com/sorbet/sorbet:$SORBET_TAG as sorbet
-FROM registry.scality.com/playground/wlardier/ctst:0.3.0
+FROM registry.scality.com/playground/wlardier/ctst:0.3.1
 
 COPY package.json /tmp/package.json
 COPY ./features /ctst/features
