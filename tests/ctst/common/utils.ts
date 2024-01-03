@@ -40,7 +40,11 @@ export const s3FunctionExtraParams : { [key: string]: Record<string, unknown> } 
         '{ "Mode": "COMPLIANCE", "Days": 50 }}}',
     },
     deleteObjects: {
-        delete: `Objects=[{Key=${'x'.repeat(10)}}]`,
+        delete: JSON.stringify({
+            Objects: [{
+                Key: 'x'.repeat(10),
+            }],
+        }),
     },
     putBucketLifecycleConfiguration: {
         lifecycleConfiguration: JSON.stringify(
