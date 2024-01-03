@@ -5,11 +5,6 @@ ZENKO_NAME=${1:-end2end}
 COMMAND=${2:-"premerge"}
 # Get the current number of vCPUs
 VCPU_COUNT=$(nproc)
-# Calculate the number of parallel runs based on the vCPU count
-# - If there are only 1 vCPU set parallel runs to 1.
-# - If there are between 1 and 4 vCPUs, use 0.5 parallel runs per vCPU.
-# - If there are more than 4 vCPUs, use 0.5 parallel runs for the first 4 vCPUs and 1 parallel run for
-#   each additional vCPU, as Zenko is not CPU bound.
 PARALLEL_RUNS=10
 RETRIES=${4:-3}
 

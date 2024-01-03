@@ -21,7 +21,7 @@
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
     "babel-jest": "^29.3.1",
-    "cli-testing": "github:scality/cli-testing.git#f5faf3637ed30a55b0686b8e57f7b1cee6653a4d",
+    "cli-testing": "github:scality/cli-testing.git#851fc5e4f6d9b2050e1c251788a4480b8bc25e73",
     "eslint": "^8.28.0"
   },
   "scripts": {
