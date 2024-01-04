@@ -5,7 +5,7 @@ ZENKO_NAME=${1:-end2end}
 COMMAND=${2:-"premerge"}
 # Get the current number of vCPUs
 VCPU_COUNT=$(nproc)
-PARALLEL_RUNS=10
+PARALLEL_RUNS=1
 RETRIES=${4:-3}
 
 # Zenko Version
@@ -154,4 +154,4 @@ kubectl run $POD_NAME \
       }
     ]
   }
-}' -- ./run "$COMMAND" $WORLD_PARAMETERS "--parallel $PARALLEL_RUNS --retry $RETRIES --retry-tag-filter @Flaky"
+}' -- ./run "$COMMAND" $WORLD_PARAMETERS "--parallel $PARALLEL_RUNS --fail-fast --retry $RETRIES --retry-tag-filter @Flaky"
