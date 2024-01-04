@@ -33,11 +33,15 @@ When('the user tries to perform {string} on the bucket', async function (this: Z
         this.resetCommand();
         this.addToSaved('ifS3Standard', true);
         this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-        if (this.getSaved<string>('objectName')) {
-            this.addCommandParameter({ key: this.getSaved<string>('objectName') });
-        }
         if (this.getSaved<string>('versionId')) {
             this.addCommandParameter({ versionId: this.getSaved<string>('versionId') });
+        }
+        // if copy object, set copy source as the saved object name, and the key as a new object name
+        if (action === 'CopyObject') {
+            this.addCommandParameter({ copySource: `${this.getSaved<string>('bucketName')}/${this.getSaved<string>('objectName')}` });
+            this.addCommandParameter({ key: 'copyObject' });
+        } else if (this.getSaved<string>('objectName')) {
+            this.addCommandParameter({ key: this.getSaved<string>('objectName') });
         }
         const usedAction = action.charAt(0).toLowerCase() + action.slice(1);
         const actionCall = S3[usedAction];
