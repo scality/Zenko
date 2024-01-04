@@ -5,7 +5,7 @@ ZENKO_NAME=${1:-end2end}
 COMMAND=${2:-"premerge"}
 # Get the current number of vCPUs
 VCPU_COUNT=$(nproc)
-PARALLEL_RUNS=10
+PARALLEL_RUNS=1
 RETRIES=${4:-3}
 
 # Zenko Version
