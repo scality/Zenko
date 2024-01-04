@@ -38,7 +38,9 @@ When('the user tries to perform {string} on the bucket', async function (this: Z
         }
         // if copy object, set copy source as the saved object name, and the key as a new object name
         if (action === 'CopyObject') {
-            this.addCommandParameter({ copySource: `${this.getSaved<string>('bucketName')}/${this.getSaved<string>('objectName')}` });
+            this.addCommandParameter({
+                copySource: `${this.getSaved<string>('bucketName')}/${this.getSaved<string>('objectName')}`,
+            });
             this.addCommandParameter({ key: 'copyObject' });
         } else if (this.getSaved<string>('objectName')) {
             this.addCommandParameter({ key: this.getSaved<string>('objectName') });
