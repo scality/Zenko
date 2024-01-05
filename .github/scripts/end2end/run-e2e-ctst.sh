@@ -140,6 +140,7 @@ kubectl run $POD_NAME \
         --env=AZURE_BLOB_URL=$AZURE_BACKEND_ENDPOINT  \
         --env=AZURE_QUEUE_URL=$AZURE_BACKEND_QUEUE_ENDPOINT \
         --env=VERBOSE=1 \
+        --env=SDK=true \
         --override-type strategic \
         --overrides='
 {
