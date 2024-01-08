@@ -46,13 +46,13 @@ images:
   newTag: 0.34.0-debian-11-r24
 - name: metalk8s-registry-from-config.invalid/zenko-base-2.3.11/mongodb-sharded
   newName: docker.io/bitnami/mongodb-sharded
-  newTag: 5.0.18-debian-11-r15
+  newTag: 6.0.9-debian-11-r0
 - name: metalk8s-registry-from-config.invalid/zenko-base-2.3.18/bitnami-shell
   newName: docker.io/bitnami/bitnami-shell
   newTag: 10-debian-10-r404
 - name: metalk8s-registry-from-config.invalid/zenko-base-2.3.18/mongodb-exporter
   newName: docker.io/bitnami/mongodb-exporter
-  newTag: 0.34.0-debian-11-r24
+  newTag: 0.39.0-debian-11-r79
 - name: metalk8s-registry-from-config.invalid/zenko-base-2.3.18/mongodb-sharded
   newName: docker.io/bitnami/mongodb-sharded
-  newTag: 5.0.18-debian-11-r15
+  newTag: 6.0.9-debian-11-r0
