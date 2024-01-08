@@ -1,21 +1,31 @@
+{{/*
+Copyright VMware, Inc.
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
 {{/* vim: set filetype=mustache: */}}
 {{/*
 Return the proper image name
-{{ include "common.images.image" ( dict "imageRoot" .Values.path.to.the.image "global" $) }}
+{{ include "common.images.image" ( dict "imageRoot" .Values.path.to.the.image "global" .Values.global ) }}
 */}}
 {{- define "common.images.image" -}}
 {{- $registryName := .imageRoot.registry -}}
 {{- $repositoryName := .imageRoot.repository -}}
-{{- $tag := .imageRoot.tag | toString -}}
+{{- $separator := ":" -}}
+{{- $termination := .imageRoot.tag | toString -}}
 {{- if .global }}
     {{- if .global.imageRegistry }}
      {{- $registryName = .global.imageRegistry -}}
     {{- end -}}
 {{- end -}}
+{{- if .imageRoot.digest }}
+    {{- $separator = "@" -}}
+    {{- $termination = .imageRoot.digest | toString -}}
+{{- end -}}
 {{- if $registryName }}
-{{- printf "%s/%s:%s" $registryName $repositoryName $tag -}}
+    {{- printf "%s/%s%s%s" $registryName $repositoryName $separator $termination -}}
 {{- else -}}
-{{- printf "%s:%s" $repositoryName $tag -}}
+    {{- printf "%s%s%s"  $repositoryName $separator $termination -}}
 {{- end -}}
 {{- end -}}
 
@@ -40,7 +50,7 @@ Return the proper Docker Image Registry Secret Names (deprecated: use common.ima
 
   {{- if (not (empty $pullSecrets)) }}
 imagePullSecrets:
-    {{- range $pullSecrets }}
+    {{- range $pullSecrets | uniq }}
   - name: {{ . }}
     {{- end }}
   {{- end }}
@@ -68,7 +78,7 @@ Return the proper Docker Image Registry Secret Names evaluating values as templa
 
   {{- if (not (empty $pullSecrets)) }}
 imagePullSecrets:
-    {{- range $pullSecrets }}
+    {{- range $pullSecrets | uniq }}
   - name: {{ . }}
     {{- end }}
   {{- end }}
