@@ -29,6 +29,9 @@ runs:
         key: ${{ runner.os }}-helm-${{ hashFiles('.github/scripts/end2end/install-kind-dependencies.sh') }}
         restore-keys: |
           ${{ runner.os }}-helm-
+    - name: Generate MongoDB database name
+      shell: bash
+      run: echo "ZENKO_MONGODB_DATABASE=$(cat /proc/sys/kernel/random/uuid)" >> "$GITHUB_ENV"
     - name: Install kind cluster dependencies
       shell: bash
       run: bash install-kind-dependencies.sh
