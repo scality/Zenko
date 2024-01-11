@@ -121,7 +121,7 @@ describe('Lifecycle Expiration', function () {
     this.timeout(360000);
 
     describe('behavior: should not delete objects', () => {
-        const bucketName = getBucketName('exp-disabled-');
+        const bucketName = getBucketName('exp-dis-');
         const objectKey = getObjectKey('exp-disabled-');
 
         before(done => async.series([
@@ -201,7 +201,7 @@ describe('Lifecycle Expiration', function () {
             [4, 6, 0, 0],
         ],
     ].forEach(([description, rules, expected]) => describe(description, () => {
-        const bucketName = getBucketName('exp-bucket-');
+        const bucketName = getBucketName('exp-');
 
         before(done => async.series([
             next => utils.createVersionedBucket(bucketName, next),
@@ -237,7 +237,7 @@ describe('Lifecycle Expiration', function () {
             [4, 6, 0, 0],
         ],
     ].forEach(([description, rules, expected]) => describe(description, () => {
-        const bucketName = getBucketName('exp-tagged-bucket-');
+        const bucketName = getBucketName('exp-tagged-');
 
         before(done => async.series([
             next => utils.createVersionedBucket(bucketName, next),
@@ -273,7 +273,7 @@ describe('Lifecycle Expiration', function () {
             [2, 3, 1, 0],
         ],
     ].forEach(([description, rules, expected]) => describe(description, () => {
-        const bucketName = getBucketName('exp-bucket-');
+        const bucketName = getBucketName('exp-');
         const objectKey = getObjectKey(targetObjectPrefix);
         const notTargetKey = getObjectKey(notTargetObjectPrefix);
 
@@ -312,7 +312,7 @@ describe('Lifecycle Expiration', function () {
             [0, 0, 0, 1],
         ],
     ].forEach(([description, rules, expected]) => describe(description, () => {
-        const bucketName = getBucketName('exp-bucket-');
+        const bucketName = getBucketName('exp-');
         const objectKey = getObjectKey(targetObjectPrefix);
         const notTargetKey = getObjectKey(notTargetObjectPrefix);
 
@@ -347,7 +347,7 @@ describe('Lifecycle Expiration', function () {
                 [0, 4, 2, 0],
             ],
         ].forEach(([description, mode, expected]) => describe(description, () => {
-            const bucketName = getBucketName('object-lock-bucket-');
+            const bucketName = getBucketName('objectlock-');
             const objectKeyPrefix = 'locked-key-';
             const rules = [
                 // should delete current
@@ -370,7 +370,7 @@ describe('Lifecycle Expiration', function () {
         }));
 
         describe('with legal-hold defined', () => {
-            const bucketName = getBucketName('object-lock-bucket-');
+            const bucketName = getBucketName('objectlock-');
             const objectKeyPrefix = 'legal-hold-key-';
             const rules = [
                 // should delete current

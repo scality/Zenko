@@ -22,7 +22,7 @@ MONGODB_ROOT_USERNAME=root
 MONGODB_ROOT_PASSWORD=rootpass
 MONGODB_APP_USERNAME=data
 MONGODB_APP_PASSWORD=datapass
-MONGODB_APP_DATABASE=datadb
+MONGODB_APP_DATABASE="${ZENKO_MONGODB_DATABASE:-'datadb'}"
 MONGODB_RS_KEY=0123456789abcdef
 # force a 4.0 image as that's what artesca uses
 DEPS_FILE="$DIR/../../../solution-base/deps.yaml"

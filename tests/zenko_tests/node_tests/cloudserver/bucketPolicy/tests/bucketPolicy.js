@@ -8,7 +8,7 @@ const uuidV4 = require('uuid/v4');
 const { scalityS3Client, altScalityS3Client } = require('../../../s3SDK');
 const testUtils = require('../../../utils/testUtils');
 
-const bucket = `bpolicy-bucket-${uuidV4()}`;
+const bucket = `bpolicy-${uuidV4()}`;
 const bParam = { Bucket: bucket };
 const objKey = 'bucket-pol-key';
 const oParam = { Bucket: bucket, Key: objKey };
