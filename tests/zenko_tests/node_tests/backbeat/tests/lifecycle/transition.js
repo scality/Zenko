@@ -90,7 +90,7 @@ const testsToRun = [{
 testsToRun.forEach(test => {
     // eslint-disable-next-line prefer-arrow-callback
     describe(`Lifecycle transition from ${test.from} to ${test.to}`, function () {
-        const srcBucket = `transition-bucket-${uuid()}`;
+        const srcBucket = `transition-bucket-${uuid().slice(0, 5)}`;
         const keyPrefix = uuid();
         const cloudServer = new LifecycleUtility(scalityS3Client)
             .setBucket(srcBucket)
