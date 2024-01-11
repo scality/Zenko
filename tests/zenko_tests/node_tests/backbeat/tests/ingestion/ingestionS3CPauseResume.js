@@ -23,7 +23,7 @@ describe('Ingestion pause resume', function () {
     this.timeout(INGESTION_TIMEOUT);
 
     beforeEach(done => {
-        INGESTION_DEST_BUCKET = `ingestion-dest-bucket-${uuid()}`;
+        INGESTION_DEST_BUCKET = `ingestion-${uuid()}`;
         KEY_PREFIX = `${ingestionSrcBucket}-${uuid()}`;
         OBJ_KEY1 = `${KEY_PREFIX}/object-to-ingest-${uuid()}`;
         OBJ_KEY2 = `${KEY_PREFIX}/object-to-ingest-${uuid()}`;
