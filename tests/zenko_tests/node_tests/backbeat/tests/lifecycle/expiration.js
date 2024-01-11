@@ -5,7 +5,7 @@ const { scalityS3Client } = require('../../../s3SDK');
 const LifecycleUtlity = require('../../LifecycleUtility');
 
 const utils = new LifecycleUtlity(scalityS3Client);
-const getBucketName = prefix => `${prefix}${uuid.v4()}`;
+const getBucketName = prefix => `${prefix}${uuid.v4().slice(0, 5)}`;
 const getObjectKey = prefix => `${prefix}${uuid.v4()}`;
 const getObjectKeys = (prefix, count) => Array.from(Array(count)).map((_, n) => getObjectKey(`${prefix}${n}-`));
 
