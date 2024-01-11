@@ -7,7 +7,7 @@ const { scalityS3Client } = require('../../../s3SDK');
 const QuotaUtility = require('../QuotaUtility');
 
 const TEN_MB_BYTES = 10485760;
-const bucket = `quota-bucket-${uuidV4()}`;
+const bucket = `quota-${uuidV4()}`;
 
 const scalityS3 = new QuotaUtility(scalityS3Client);
 

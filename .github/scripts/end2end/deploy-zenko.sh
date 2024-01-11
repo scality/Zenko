@@ -42,6 +42,7 @@ if [ ${ZENKO_MONGODB_SHARDED} == 'true' ]; then
 else 
     export ZENKO_MONGODB_ENDPOINT="dev-db-mongodb-primary-0.dev-db-mongodb-headless.default.svc.cluster.local:27017"
 fi
+export ZENKO_MONGODB_DATABASE="${ZENKO_MONGODB_DATABASE:-'datadb'}"
 
 function dependencies_image_env()
 {
