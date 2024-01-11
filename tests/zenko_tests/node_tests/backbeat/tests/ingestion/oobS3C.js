@@ -15,7 +15,7 @@ let OBJ_KEY;
 
 describe('OOB updates for RING S3C bucket', () => {
     beforeEach(done => {
-        INGESTION_DEST_BUCKET = `ingestion-dest-bucket-${uuid()}`;
+        INGESTION_DEST_BUCKET = `ingestion-${uuid()}`;
         OBJ_KEY = `${KEY_PREFIX}/object-to-ingest-${uuid()}`;
         return scalityUtils.createIngestionBucket(INGESTION_DEST_BUCKET, location, done);
     });

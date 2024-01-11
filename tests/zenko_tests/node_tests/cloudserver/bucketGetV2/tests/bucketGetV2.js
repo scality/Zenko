@@ -4,7 +4,7 @@ const uuidV4 = require('uuid/v4');
 
 const s3 = require('../../../s3SDK').scalityS3Client;
 
-const bucket = `get-v2-bucket-${uuidV4()}`;
+const bucket = `list-v2-${uuidV4()}`;
 
 function putObjects(cb) {
     async.times(10, (n, next) => {
