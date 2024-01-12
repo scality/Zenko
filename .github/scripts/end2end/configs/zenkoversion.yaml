@@ -99,6 +99,9 @@ spec:
       monitoring:
         image: '${JMX_JAVAAGENT_IMAGE}'
         tag: '${JMX_JAVAAGENT_TAG}'
+      cleaner:
+        image: '${KAFKA_CLEANER_IMAGE}'
+        tag: '${KAFKA_CLEANER_TAG}'
     vault:
       image: '${VAULT_IMAGE}'
       tag: '${VAULT_TAG}'
