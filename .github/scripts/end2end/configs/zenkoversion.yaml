@@ -98,7 +98,7 @@ spec:
         image: '${JMX_JAVAAGENT_IMAGE}'
         tag: '${JMX_JAVAAGENT_TAG}'
       cleaner:
-        image: kafka-cleaner-dev
+        image: '${KAFKA_CLEANER_IMAGE}'
         tag: '${KAFKA_CLEANER_TAG}'
     vault:
       image: '${VAULT_IMAGE}'
