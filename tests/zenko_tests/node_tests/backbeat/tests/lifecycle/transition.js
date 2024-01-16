@@ -8,7 +8,7 @@ const LifecycleUtility = require('../../LifecycleUtility');
 function compareTransitionedData(sourceClient, destinationClient, versionId, cb) {
     return series([
         next => sourceClient.getObject(versionId, next),
-        next => sourceClient.putBucketLifecycleConfiguration(new Date(), next),
+        next => sourceClient.putBucketLifecycleConfiguration(new Date(new Date().setUTCHours(0, 0, 0, 0)), next),
         next => sourceClient.waitUntilTransitioned(versionId, next),
         next => destinationClient.getObjectDataFromLocation(next),
         next => sourceClient.getObject(versionId, next),
@@ -27,7 +27,7 @@ function compareTransitionedData(sourceClient, destinationClient, versionId, cb)
 function compareTransitionedColdData(sourceClient, versionId, cb) {
     return series([
         next => sourceClient.getObject(versionId, next),
-        next => sourceClient.putBucketLifecycleConfiguration(new Date(), next),
+        next => sourceClient.putBucketLifecycleConfiguration(new Date(new Date().setUTCHours(0, 0, 0, 0)), next),
         next => sourceClient.waitUntilTransitioned(versionId, next),
     ], cb);
 }
