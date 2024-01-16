@@ -39,8 +39,6 @@ const getExpirationObject = (id, expiration, prefix, tag, enabled) => ({
     Expiration: expiration,
 });
 
-const oneDay = 1000 * 60 * 60 * 24;
-
 const expireDayRule = (prefix, tag, enabled) => getExpirationObject(
     'day expiration',
     { Days: 1 },
@@ -59,7 +57,7 @@ const longExpireDayRule = (prefix, tag, enabled) => getExpirationObject(
 
 const expireDateRule = (prefix, tag, enabled) => getExpirationObject(
     'date expiration',
-    { Date: new Date() },
+    { Date: new Date(new Date().setUTCHours(0, 0, 0, 0)) }, // today at midnight UTC
     prefix,
     tag,
     enabled,
@@ -67,7 +65,7 @@ const expireDateRule = (prefix, tag, enabled) => getExpirationObject(
 
 const longExpireDateRule = (prefix, tag, enabled) => getExpirationObject(
     'date expiration',
-    { Date: new Date(Date.now() + oneDay) },
+    { Date: new Date(new Date().setUTCHours(24, 0, 0, 0)) }, // tomorrow at midnight UTC
     prefix,
     tag,
     enabled,
