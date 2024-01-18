@@ -91,6 +91,7 @@ export interface ZenkoWorldParameters {
     azureArchiveQueue: string;
     kafkaObjectTaskTopic: string;
     kafkaDeadLetterQueueTopic: string;
+    InstanceID: string;
     [key: string]: unknown;
 }
 
