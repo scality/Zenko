@@ -1,9 +1,20 @@
-import { Given, setDefaultTimeout } from '@cucumber/cucumber';
+import { Given, setDefaultTimeout, Then } from '@cucumber/cucumber';
 import { Constants, S3, Utils } from 'cli-testing';
 import Zenko from 'world/Zenko';
 import { extractPropertyFromResults } from './utils';
+import assert from 'assert';
+import { Kafka } from 'kafkajs';
 
 setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
+
+async function getTopicsOffsets(topics:string[], kafkaAdmin:any) {
+    const offsets = [];
+    for (const topic of topics) {
+        const partitions = await kafkaAdmin.fetchTopicOffsets(topic);
+            offsets.push({ topic, partitions });
+    }
+    return offsets;
+}
 
 Given('a {string} bucket', async function (this: Zenko, versioning: string) {
     this.resetCommand();
@@ -64,5 +75,27 @@ Given('an object {string} that {string}',
             this.addToSaved('versionId', extractPropertyFromResults(
                 await S3.putObject(this.getCommandParameters()), 'VersionId'
             ));
+        }
+    });
+
+Then('kafka consumed messages should not take too much place on disk',
+    async function (this: Zenko) {
+        const notToCheckTopics = ['oplog', 'dead-letter'];
+        const kafkaAdmin = new Kafka({ brokers: [this.parameters.KafkaHosts] }).admin();
+        const topics: string[] = (await kafkaAdmin.listTopics()).filter(t => (t.includes(this.parameters.InstanceID) && !notToCheckTopics.includes(t)));
+        const previousOffsets = await getTopicsOffsets(topics, kafkaAdmin);
+
+        await Utils.sleep(35000);
+
+        const newOffsets = await getTopicsOffsets(topics, kafkaAdmin);
+
+        for (let i = 0; i < topics.length; i++) {
+            process.stdout.write(`\nChecking topic ${topics[i]}\n`);
+            for (let j = 0; j < newOffsets[i].partitions.length; j++) {
+                // Checking that the min offset has increased due to kafkacleaner
+                // or that it didn't need to change because there was no new messages
+                assert(newOffsets[i].partitions[j].low > previousOffsets[i].partitions[j].low ||
+                    newOffsets[i].partitions[j].high === newOffsets[i].partitions[j].low);
+            }
         }
     });
