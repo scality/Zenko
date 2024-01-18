@@ -83,6 +83,7 @@ export interface ZenkoWorldParameters {
         SecretAccessKey: string;
         SessionToken?: string;
     };
+    InstanceID: string;
     [key: string]: unknown;
 }
 

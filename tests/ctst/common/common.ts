@@ -1,7 +1,9 @@
-import { Given, setDefaultTimeout } from '@cucumber/cucumber';
+import { Given, setDefaultTimeout, Then } from '@cucumber/cucumber';
 import { Constants, S3, Utils } from 'cli-testing';
 import Zenko from 'world/Zenko';
 import { extractPropertyFromResults } from './utils';
+import assert from 'assert';
+import { Kafka } from 'kafkajs';
 
 setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
 
@@ -64,5 +66,31 @@ Given('an object {string} that {string}',
             this.addToSaved('versionId', extractPropertyFromResults(
                 await S3.putObject(this.getCommandParameters()), 'VersionId'
             ));
+        }
+    });
+
+Then('kafka consumed messages should not take too much place on disk',
+    async function (this: Zenko) {
+        await Utils.sleep(30000); // Sleep to let kafka cleaner do his job (every 30s)
+        const kafkaAdmin = new Kafka({ brokers: [this.parameters.KafkaHosts] }).admin();
+        const topics: string[] = (await kafkaAdmin.listTopics()).filter(t => t.includes(this.parameters.InstanceID));
+        const notToCheckTopics = ['oplog', 'dead-letter'];
+        for (const topic of topics) {
+            if (notToCheckTopics.some(notToCheckTopic => topic.includes(notToCheckTopic))) {
+                continue;
+            }
+            process.stdout.write(`Checking topic ${topic} offsets\n`);
+            const topicOffsets = await kafkaAdmin.fetchTopicOffsets(topic);
+            for (const partition of topicOffsets) {
+                if (topic.includes('bucket-tasks')) {
+                    const diff = parseInt(partition.high) - parseInt(partition.low);
+                    // This offset constantly increases due to ongoing processes,
+                    // we want to check that the cleaner worked by verifying that
+                    // the difference between high and low offsets is not too high
+                    assert(diff < (0.1 * parseInt(partition.high)));
+                } else {
+                    assert.strictEqual(partition.high, partition.low);
+                }
+            }
         }
     });
