@@ -1553,7 +1553,7 @@ metrics:
   ## @param metrics.extraArgs String with extra arguments to the metrics exporter
   ## ref: https://github.com/dcu/mongodb_exporter/blob/master/mongodb_exporter.go
   ##
-  extraArgs: ""
+  extraArgs: "--collector.diagnosticdata --collector.replicasetstatus --collector.dbstats --collector.topmetrics --compatible-mode"
   ## @param metrics.resources Metrics exporter resource requests and limits
   ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
   ##
