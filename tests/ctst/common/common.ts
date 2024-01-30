@@ -169,7 +169,13 @@ Given('a tag on object {string} with key {string} and value {string}',
         if (versionId) {
             this.addCommandParameter({ versionId });
         }
-        this.addCommandParameter({ tagging: `"TagSet=[{Key='${tagKey}',Value='${tagValue}'}]"` });
+        const tags = JSON.stringify({
+            TagSet: [{
+                Key: tagKey,
+                Value: tagValue,
+            }],
+        });
+        this.addCommandParameter({ tagging: `'${tags}'` });
         await S3.putObjectTagging(this.getCommandParameters());
     });
 
