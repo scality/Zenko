@@ -93,6 +93,8 @@ export interface ApiResult {
     statusCode?: number,
     stdout?: string | null,
     err?: string | null,
+    code?: string | null,
+    description?: string | null,
 }
 
 /**
@@ -551,7 +553,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 });
                 /* eslint-disable */
             } catch (err: any) {
-                if (!err.EntityAlreadyExists) {
+                if (!err.EntityAlreadyExists && err.code !== 'EntityAlreadyExists') {
                     throw err;
                 }
             }

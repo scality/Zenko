@@ -14,6 +14,8 @@ USER root
 RUN chmod 0777 -R /tmp/
 RUN chmod 0777 -R /ctst/
 
+ENV SDK=true
+
 WORKDIR /ctst
 
 COPY --from=sorbet /sorbetctl .

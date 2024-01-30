@@ -3,7 +3,7 @@ import  { join } from 'path';
 import Zenko from 'world/Zenko';
 import { Then, When } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
-import { S3, Utils } from 'cli-testing';
+import { CacheHelper, S3, Utils } from 'cli-testing';
 
 const validSystemXml = `
 <?xml version="1.0" encoding="UTF-8"?>
@@ -58,6 +58,7 @@ const veeamPrefix = '.system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c/';
 When('I PUT the {string} {string} XML file',
     async function (this: Zenko, isValidObject: string, objectKey: string) {
         this.resetCommand();
+        CacheHelper.forceMode = 'cli';
         this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
         this.addCommandParameter({ key: `${veeamPrefix}${objectKey}` });
         let objectBody;
@@ -71,6 +72,7 @@ When('I PUT the {string} {string} XML file',
         await saveAsFile(tempFileName, objectBody);
         this.addCommandParameter({ body: this.getSaved<string>('tempFileName') });
         this.setResult(await S3.putObject(this.getCommandParameters()));
+        CacheHelper.forceMode = null;
     });
 
 Then('the request should be {string}', async function (this: Zenko, result: string) {
