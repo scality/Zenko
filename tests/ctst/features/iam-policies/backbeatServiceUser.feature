@@ -27,8 +27,7 @@ Feature: IAM Policies for Backbeat Service Users
       | GetObject            | with           | exists         | backbeat-lifecycle-op-1 | backbeat-lifecycle-op-1     |
       | DeleteObject         | without        | exists         | backbeat-lifecycle-op-1 | backbeat-lifecycle-op-1     |
       | DeleteObject         | with           | exists         | backbeat-lifecycle-op-1 | backbeat-lifecycle-op-1     |
-      | AbortMultipartUpload | with           | exits          | backbeat-lifecycle-op-1 | backbeat-lifecycle-op-1     |
-      | GetObject            | without        | exists         | sorbet-fwd-2            | cold-storage-archive-role-2 |
+      | AbortMultipartUpload | with           | exists         | backbeat-lifecycle-op-1 | backbeat-lifecycle-op-1     |      | GetObject            | without        | exists         | sorbet-fwd-2            | cold-storage-archive-role-2 |
       | GetObject            | with           | exists         | sorbet-fwd-2            | cold-storage-archive-role-2 |
       | GetObject            | without        | exists         | sorbet-fwd-2            | cold-storage-restore-role-2 |
       | GetObject            | with           | exists         | sorbet-fwd-2            | cold-storage-restore-role-2 |

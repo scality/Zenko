@@ -1,6 +1,6 @@
-import { Constants, S3, Utils } from "cli-testing";
-import { extractPropertyFromResults, s3FunctionExtraParams } from "common/utils";
-import Zenko, { EntityType, UserCredentials } from "world/Zenko";
+import { Constants, S3, Utils } from 'cli-testing';
+import { extractPropertyFromResults, s3FunctionExtraParams } from 'common/utils';
+import Zenko, { EntityType, UserCredentials } from 'world/Zenko';
 
 async function runActionAgainstBucket(context: Zenko, action: string) {
     let userCredentials: UserCredentials;
@@ -13,7 +13,8 @@ async function runActionAgainstBucket(context: Zenko, action: string) {
     }
     switch (action) {
     case 'MetadataSearch': {
-        context.setResult(await context.metadataSearchResponseCode(userCredentials, context.getSaved<string>('bucketName')));
+        context.setResult(await context.metadataSearchResponseCode(userCredentials,
+            context.getSaved<string>('bucketName')));
         break;
     }
     case 'PutObjectVersion': {
@@ -25,11 +26,17 @@ async function runActionAgainstBucket(context: Zenko, action: string) {
         context.resetCommand();
         context.addToSaved('ifS3Standard', true);
         context.addCommandParameter({ bucket: context.getSaved<string>('bucketName') });
-        if (context.getSaved<string>('objectName')) {
-            context.addCommandParameter({ key: context.getSaved<string>('objectName') });
-        }
         if (context.getSaved<string>('versionId')) {
             context.addCommandParameter({ versionId: context.getSaved<string>('versionId') });
+        }
+        // if copy object, set copy source as the saved object name, and the key as a new object name
+        if (action === 'CopyObject') {
+            context.addCommandParameter({
+                copySource: `${context.getSaved<string>('bucketName')}/${context.getSaved<string>('objectName')}`,
+            });
+            context.addCommandParameter({ key: 'copyObject' });
+        } else if (context.getSaved<string>('objectName')) {
+            context.addCommandParameter({ key: context.getSaved<string>('objectName') });
         }
         const usedAction = action.charAt(0).toLowerCase() + action.slice(1);
         const actionCall = S3[usedAction];
@@ -46,7 +53,12 @@ async function runActionAgainstBucket(context: Zenko, action: string) {
     }
 }
 
-async function createBucketWithConfiguration(context: Zenko, bucketName: string, withVersioning: string, withObjectLock: string, retentionMode: string) {
+async function createBucketWithConfiguration(
+    context: Zenko,
+    bucketName: string,
+    withVersioning: string,
+    withObjectLock: string,
+    retentionMode: string) {
     context.resetCommand();
     const preName = (context.parameters.AccountName || Constants.ACCOUNT_NAME);
     const usedBucketName = bucketName
@@ -78,7 +90,7 @@ async function createBucketWithConfiguration(context: Zenko, bucketName: string,
 
 async function putObject(context: Zenko, objectName?: string) {
     context.addToSaved('objectName', objectName || Utils.randomString());
-    let objectNameArray = context.getSaved<string[]>('objectNameArray') || [];
+    const objectNameArray = context.getSaved<string[]>('objectNameArray') || [];
     objectNameArray.push(context.getSaved<string>('objectName'));
     context.addToSaved('objectNameArray', objectNameArray);
     context.addCommandParameter({ key: context.getSaved<string>('objectName') });
