@@ -10,6 +10,33 @@ type ActionPermissionsType = ({
     expectedResultOnAllowTest: string;
 });
 
+const needObjectLock = [
+    'PutObjectLegalHold',
+    'PutObjectRetention',
+    'GetObjectLegalHold',
+    'GetObjectRetention',
+];
+
+const needObject = [
+    'PutObjectLegalHold',
+    'PutObjectRetention',
+    'PutObjectTagging',
+    'PutObjectAcl',
+    'GetObject',
+    'GetObjectAcl',
+    'GetObjectLegalHold',
+    'GetObjectRetention',
+    'GetObjectTagging',
+    'DeleteObject',
+    'DeleteObjectTagging',
+    'DeleteObjects',
+    'HeadObject',
+];
+
+const needVersioning = [
+    'PutBucketReplication'
+];
+
 const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'CreateBucket',
@@ -306,6 +333,9 @@ const actionPermissions: ActionPermissionsType[] = [
 ];
 
 export {
-    actionPermissions,
     ActionPermissionsType,
+    needObjectLock,
+    needObject,
+    needVersioning,
+    actionPermissions,
 };

@@ -1,6 +1,6 @@
 import { When, Then, Given } from '@cucumber/cucumber';
 import Zenko from '../../world/Zenko';
-import { ActionPermissionsType, actionPermissions } from './utils';
+import { ActionPermissionsType, actionPermissions, needObject, needObjectLock, needVersioning } from './utils';
 import { createBucketWithConfiguration, putObject, runActionAgainstBucket } from 'steps/utils/utils';
 import assert from 'assert';
 
@@ -16,25 +16,28 @@ type AuthorizationConfiguration = {
     Resource: AuthorizationType,
 };
 
-Given('an action', function (
-    this: Zenko,
-    action: string,
-    withObjectLock: string,
-    withVersioning: string,
-    retentionMode: string,
-    preExistingObject: string) {
+Given('an action {string}', function (this: Zenko, apiName: string) {
+    // dynamically know the config based on the action
     // Ensure that the action is valid and supported
-    this.addToSaved('currentAction', actionPermissions.find(actionPermission => actionPermission.action === action));
+    this.addToSaved('currentAction', actionPermissions.find(actionPermission => actionPermission.action === apiName));
     if (!this.getSaved('currentAction')) {
-        throw new Error(`Action ${action} is not supported yet`);
+        throw new Error(`Action ${apiName} is not supported yet`);
     }
-    this.addToSaved('withVersioning', withVersioning);
-    this.addToSaved('withObjectLock', withObjectLock);
-    this.addToSaved('retentionMode', retentionMode);
-    this.addToSaved('preExistingObject', !!preExistingObject);
+
+    if (needObjectLock.includes(apiName)) {
+        this.addToSaved('withObjectLock', true);
+    }
+
+    if (needObject.includes(apiName)) {
+        this.addToSaved('preExistingObject', true);
+    }
+
+    if (needVersioning.includes(apiName)) {
+        this.addToSaved('withVersioning', true);
+    }
 });
 
-Given('an existing bucket with saved configuration', async function (this: Zenko) {
+Given('an existing bucket prepared for the action', async function (this: Zenko) {
     await createBucketWithConfiguration(this,
         this.getSaved<string>('bucketName'),
         this.getSaved<string>('withVersioning'),
@@ -49,7 +52,8 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
     this: Zenko,
     doesExists: string,
     doesApply: string,
-    isAllow: string) {
+    isAllow: string,
+) {
     const authzConfiguration: AuthorizationConfiguration = {
         Identity: this.getSaved<AuthorizationConfiguration>('authzConfiguration')?.Identity
             || AuthorizationType.NO_RESOURCE,
@@ -76,7 +80,8 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
     this: Zenko,
     doesExists: string,
     doesApply: string,
-    isAllow: string) {
+    isAllow: string,
+) {
     const authzConfiguration: AuthorizationConfiguration = {
         Identity: this.getSaved<AuthorizationConfiguration>('authzConfiguration')?.Identity
             || AuthorizationType.NO_RESOURCE,
@@ -113,7 +118,7 @@ Then('the authorization result is correct', function (this: Zenko) {
     // others are denied
     const isAllowed = (authzConfiguration?.Identity === AuthorizationType.ALLOW
         || authzConfiguration?.Identity === AuthorizationType.IMPLICIT_DENY)
-            && (authzConfiguration?.Resource === AuthorizationType.ALLOW
+        && (authzConfiguration?.Resource === AuthorizationType.ALLOW
             || authzConfiguration?.Resource === AuthorizationType.IMPLICIT_DENY);
     if (!isAllowed) {
         assert.strictEqual(this.getResult().err!.includes('AccessDenied'), true);
