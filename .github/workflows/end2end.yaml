@@ -17,7 +17,6 @@ on:
       - "ci-dev/**"
       - "user/**"
       - "q/*/**"
-
 env:
   # kind-env
   WORKER_COUNT: '2'
@@ -516,6 +515,15 @@ jobs:
           username: "${{ secrets.REGISTRY_LOGIN }}"
           password: "${{ secrets.REGISTRY_PASSWORD }}"
           registry: registry.scality.com
+      # - name: "Debug: SSH to runner"
+      #   uses: scality/actions/action-ssh-to-runner@1.6.0
+      #   timeout-minutes: ${{ fromJSON(github.event.inputs.connection-timeout-m) }}
+      #   continue-on-error: true
+      #   with:
+      #     tmate-server-host: ${{ secrets.TMATE_SERVER_HOST }}
+      #     tmate-server-port: ${{ secrets.TMATE_SERVER_PORT }}
+      #     tmate-server-rsa-fingerprint: ${{ secrets.TMATE_SERVER_RSA_FINGERPRINT }}
+      #     tmate-server-ed25519-fingerprint: ${{ secrets.TMATE_SERVER_ED25519_FINGERPRINT }}
       - name: Deploy Zenko
         uses: ./.github/actions/deploy
         env:
@@ -552,6 +560,8 @@ jobs:
           password: ${{ secrets.ARTIFACTS_PASSWORD }}
           source: /tmp/artifacts
         if: always()
+      # - name: sleep
+      #   run: sleep 28800
 
   ctst-end2end-sharded:
     needs: [build-kafka, lint-and-build-ctst, check-dashboard-versions]
