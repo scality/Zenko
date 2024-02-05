@@ -676,6 +676,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         // Create IAM user
         this.addCommandParameter({ userName: this.getSaved<string>('userName') });
         await IAM.createUser(this.getCommandParameters());
+        // TODO get the arn
         this.resetCommand();
         // Create credentials for the user
         this.addCommandParameter({ userName: this.getSaved<string>('userName') });

@@ -1,6 +1,6 @@
 /**
  * BDD testing require that each scenario is explicitly written in the feature file.
- * However, testing authz scenarios for each APi is too extensive, so thie code
+ * However, testing authz scenarios for each API is too extensive, so this code
  * helps maintaining this test suite.
  */
 

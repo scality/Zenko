@@ -34,7 +34,7 @@ const needObject = [
 ];
 
 const needVersioning = [
-    'PutBucketReplication'
+    'PutBucketReplication',
 ];
 
 const actionPermissions: ActionPermissionsType[] = [

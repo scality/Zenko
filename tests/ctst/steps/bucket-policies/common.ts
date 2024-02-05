@@ -74,6 +74,7 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
         authzConfiguration.Resource = AuthorizationType.NO_RESOURCE;
     }
     this.addToSaved('authzConfiguration', authzConfiguration);
+    // TODO actually create the policy atteched to the current identity
 });
 
 Given('an {string} IAM Policy that {string} with {string} effect for the current API', function (
@@ -102,6 +103,7 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
         authzConfiguration.Identity = AuthorizationType.NO_RESOURCE;
     }
     this.addToSaved('authzConfiguration', authzConfiguration);
+    // TODO actually create the policy atteched to the current identity
 });
 
 When('the user tries to perform the current S3 action on the bucket', async function (this: Zenko) {
