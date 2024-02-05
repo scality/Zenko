@@ -3,49 +3,10 @@ import { strict as assert } from 'assert';
 import Zenko, { ApiResult, EntityType, UserCredentials } from '../../world/Zenko';
 import { CacheHelper, ClientOptions, S3, VaultAuth } from 'cli-testing';
 import { s3FunctionExtraParams } from '../../common/utils';
+import { runActionAgainstBucket } from 'steps/utils/utils';
 
 When('the user tries to perform {string} on the bucket', async function (this: Zenko, action: string) {
-    let userCredentials: UserCredentials;
-    if ([EntityType.IAM_USER, EntityType.ACCOUNT].includes(this.getSaved<EntityType>('type'))) {
-        userCredentials = this.parameters.IAMSession;
-        this.resumeRootOrIamUser();
-    } else {
-        userCredentials = this.parameters.AssumedSession!;
-        this.resumeAssumedRole();
-    }
-    switch (action) {
-    case 'MetadataSearch': {
-        this.setResult(await this.metadataSearchResponseCode(userCredentials, this.getSaved<string>('bucketName')));
-        break;
-    }
-    case 'PutObjectVersion': {
-        this.setResult(await this.putObjectVersionResponseCode(userCredentials,
-            this.getSaved<string>('bucketName'), this.getSaved<string>('objectName')));
-        break;
-    }
-    default: {
-        this.resetCommand();
-        this.addToSaved('ifS3Standard', true);
-        this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-        if (this.getSaved<string>('objectName')) {
-            this.addCommandParameter({ key: this.getSaved<string>('objectName') });
-        }
-        if (this.getSaved<string>('versionId')) {
-            this.addCommandParameter({ versionId: this.getSaved<string>('versionId') });
-        }
-        const usedAction = action.charAt(0).toLowerCase() + action.slice(1);
-        const actionCall = S3[usedAction];
-        if (actionCall) {
-            if (usedAction in s3FunctionExtraParams) {
-                this.addCommandParameter(s3FunctionExtraParams[usedAction]);
-            }
-            this.setResult(await actionCall(this.getCommandParameters()));
-        } else {
-            throw new Error(`Action ${usedAction} is not supported yet`);
-        }
-        break;
-    }
-    }
+    await runActionAgainstBucket(this, action);
 });
 
 When('the user tries to perform vault auth {string}', async function (this: Zenko, action: string) {

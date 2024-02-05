@@ -46,6 +46,7 @@ export enum EntityType {
     STORAGE_ACCOUNT_OWNER = 'STORAGE_ACCOUNT_OWNER',
     DATA_CONSUMER = 'DATA_CONSUMER',
     ASSUME_ROLE_USER = 'ASSUME_ROLE_USER',
+    ASSUME_ROLE_USER_CROSS_ACCOUNT = 'ASSUME_ROLE_USER_CROSS_ACCOUNT',
 }
 
 export interface ZenkoWorldParameters {
@@ -90,6 +91,8 @@ export interface ApiResult {
     statusCode?: number,
     stdout?: string | null,
     err?: string | null,
+    code?: string | null,
+    description?: string | null,
 }
 
 /**
@@ -237,6 +240,14 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 'data-consumer-role',
             );
             this.addToSaved('type', EntityType.DATA_CONSUMER);
+            break;
+        case EntityType.ASSUME_ROLE_USER:
+            await this.prepareAssumeRole(false);
+            this.addToSaved('type', EntityType.ASSUME_ROLE_USER);
+            break;
+        case EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT:
+            await this.prepareAssumeRole(true);
+            this.addToSaved('type', EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT);
             break;
         default:
             break;
@@ -543,7 +554,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 });
                 /* eslint-disable */
             } catch (err: any) {
-                if (!err.EntityAlreadyExists) {
+                if (!err.EntityAlreadyExists && err.code !== 'EntityAlreadyExists') {
                     throw err;
                 }
             }
