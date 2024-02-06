@@ -235,7 +235,7 @@ Then('kafka consumed messages should not take too much place on disk',
     async function (this: Zenko) {
         await Utils.sleep(30000); // Sleep to let kafka cleaner do his job (every 30s)
         const kafkaAdmin = new Kafka({ brokers: [this.parameters.KafkaHosts] }).admin();
-        const topics = (await kafkaAdmin.listTopics()).filter(topic => topic.includes(this.parameters.InstanceId));
+        const topics = (await kafkaAdmin.listTopics()).filter(topic => topic.includes(this.parameters.InstanceID));
         const notToCheckTopics = ['oplog', 'dead-letter'];
         for (const topic of topics) {
             if (notToCheckTopics.some(notToCheckTopic => topic.includes(notToCheckTopic))) {
