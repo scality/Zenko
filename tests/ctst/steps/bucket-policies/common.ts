@@ -3,7 +3,7 @@ import Zenko, { EntityType } from '../../world/Zenko';
 import { ActionPermissionsType, actionPermissions, needObject, needObjectLock, needVersioning } from './utils';
 import { createBucketWithConfiguration, putObject, runActionAgainstBucket } from 'steps/utils/utils';
 import assert from 'assert';
-import { IAM, S3 } from 'cli-testing';
+import { IAM, S3, Utils } from 'cli-testing';
 import { extractPropertyFromResults } from 'common/utils';
 
 enum AuthorizationType {
@@ -187,14 +187,20 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
         process.stdout.write(
             `Bucket Policy to be created: ${
                 JSON.stringify(basePolicy, null, 2)
-            }. Expecting authz ${
+            }Expecting authz ${
                 JSON.stringify(authzConfiguration)
-            }.\n`);
+            }With the current state ${
+                JSON.stringify({
+                    identityType: this.getSaved<string>('identityType'),
+                    identityArn: this.getSaved<string>('identityArn'),
+                    identityName: this.getSaved<string>('identityName'),  
+                })                
+            }\n`);
     }
     // this must be ran as the account
     const createdPolicy = await IAM.createPolicy({
         policyDocument: JSON.stringify(basePolicy),
-        policyName: 'testPolicy',
+        policyName: `policyforauthz-${Utils.randomString()}`,
     });
     const policyArn = extractPropertyFromResults(createdPolicy, 'Policy', 'Arn') as string;
 
