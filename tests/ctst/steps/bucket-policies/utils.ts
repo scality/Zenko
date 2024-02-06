@@ -1,14 +1,10 @@
-type ActionPermissionsType = ({
+type ActionPermissionsType = {
     action: string;
     permissions: string[];
-    
-    expectedResultOnAllowTest?: undefined;
-} | {
-    action: string;
-    permissions: string[];
-    
-    expectedResultOnAllowTest: string;
-});
+    subAuthorizationChecks?: boolean;
+    expectedResultOnAllowTest?: string;
+    excludePermissionOnBucketObjects?: boolean,
+};
 
 const needObjectLock = [
     'PutObjectLegalHold',
@@ -223,7 +219,13 @@ const actionPermissions: ActionPermissionsType[] = [
     },
     {
         action: 'DeleteObjects',
+        permissions: ['s3:DeleteObjects'],
+    },
+    {
+        action: 'DeleteObjects',
         permissions: ['s3:DeleteObject'],
+        subAuthorizationChecks: true,
+        expectedResultOnAllowTest: 'NoSuchKey',
     },
     {
         action: 'ListObjects',
@@ -236,6 +238,7 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'HeadBucket',
         permissions: ['s3:ListBucket'],
+        excludePermissionOnBucketObjects: true,
     },
     {
         action: 'CreateMultipartUpload',

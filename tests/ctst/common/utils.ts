@@ -27,6 +27,10 @@ export function extractPropertyFromResults<T>(results: Utils.Command, ...propert
 }
 
 export const s3FunctionExtraParams : { [key: string]: Record<string, unknown> } = {
+    abortMultiPartUpload: { uploadId: 'fakeId', key: 'multipartUpload' },
+    createMultiPartUpload: { key: 'multipartUpload' },
+    completeMultiPartUpload: { uploadId: 'fakeId', key: 'multipartUpload' },
+    uploadPart: { uploadId: 'fakeId', key: 'multipartUpload', partNumber: 1 },
     restoreObject: { restoreRequest: 'Days=1' },
     putObjectAcl:  { acl: 'public-read-write' },
     putBucketTagging: { tagging: '{"TagSet":[{"Key":"tag1","Value":"value1"},{"Key":"tag2","Value":"value2"}]}' },

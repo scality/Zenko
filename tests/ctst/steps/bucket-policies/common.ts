@@ -51,6 +51,113 @@ Given('an existing bucket prepared for the action', async function (this: Zenko)
     }
 });
 
+Given('an {string} IAM Policy that {string} with {string} effect for the current API', async function (
+    this: Zenko,
+    doesExists: string,
+    doesApply: string,
+    isAllow: string,
+) {
+    // This step needs full access.
+    this.saveAuthMode('base_account');
+    const authzConfiguration: AuthorizationConfiguration = {
+        Identity: this.getSaved<AuthorizationConfiguration>('authzConfiguration')?.Identity
+            || AuthorizationType.NO_RESOURCE,
+        Resource: this.getSaved<AuthorizationConfiguration>('authzConfiguration')?.Resource
+            || AuthorizationType.NO_RESOURCE,
+    };
+    const action = this.getSaved<ActionPermissionsType>('currentAction');
+    let effect = AuthorizationType.DENY;
+    // use the current S3 bucket
+    let resources;
+    if (doesExists === 'existing') {
+        if (doesApply === 'applies') {
+            if (isAllow === 'ALLOW') {
+                authzConfiguration.Identity = AuthorizationType.ALLOW;
+                effect = AuthorizationType.ALLOW;
+            } else {
+                authzConfiguration.Identity = AuthorizationType.DENY;
+                effect = AuthorizationType.DENY;
+            }
+            resources = [
+                `arn:aws:s3:::${this.getSaved<string>('bucketName')}`,
+                `arn:aws:s3:::${this.getSaved<string>('bucketName')}/*`,
+            ];
+        } else {
+            authzConfiguration.Identity = AuthorizationType.IMPLICIT_DENY;
+            // Effect is ALLOW on purpose, to ensure we properly handle implicit denies
+            effect = AuthorizationType.ALLOW;
+            resources = [
+                `arn:aws:s3:::${this.getSaved<string>('bucketName')}badname`,
+                `arn:aws:s3:::${this.getSaved<string>('bucketName')}badname/*`,
+            ];
+        }
+        if (action.excludePermissionOnBucketObjects) {
+            resources.pop();
+        }
+    } else {
+        authzConfiguration.Resource = AuthorizationType.NO_RESOURCE;
+        return;
+    }
+    this.addToSaved('authzConfiguration', authzConfiguration);
+    const basePolicy = {
+        Version: '2012-10-17',
+        Statement: [
+            {
+                Effect: effect,
+                Action: action.permissions,
+                Resource: resources,
+            },
+        ],
+    };
+    if (isAllow === 'ALLOW+DENY') {
+        basePolicy.Statement.push({
+            Effect: effect === AuthorizationType.ALLOW ? AuthorizationType.DENY : AuthorizationType.ALLOW,
+            Action: action.permissions,
+            Resource: resources,
+        });
+    }
+    if (process.env.VERBOSE) {
+        process.stdout.write(
+            `IAM Policy to be created: ${
+                JSON.stringify(basePolicy, null, 2)
+            }Expecting authz ${
+                JSON.stringify(authzConfiguration)
+            }With the current state ${
+                JSON.stringify({
+                    identityType: this.getSaved<string>('identityType'),
+                    identityArn: this.getSaved<string>('identityArn'),
+                    identityName: this.getSaved<string>('identityName'),  
+                })                
+            }\n`);
+    }
+    // this must be ran as the account
+    const createdPolicy = await IAM.createPolicy({
+        policyDocument: JSON.stringify(basePolicy),
+        policyName: `policyforauthz-${Utils.randomString()}`,
+    });
+    const policyArn = extractPropertyFromResults(createdPolicy, 'Policy', 'Arn') as string;
+
+    const identityType = this.getSaved<string>('identityType') as EntityType;
+    // attach the policy to the current identity: role or user
+    if (identityType === EntityType.ASSUME_ROLE_USER || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT) {
+        await IAM.attachRolePolicy({
+            policyArn,
+            roleArn: this.getSaved<string>('identityName'),
+        });
+    }
+    if (identityType === EntityType.IAM_USER) {
+        await IAM.attachUserPolicy({
+            policyArn,
+            userName: this.getSaved<string>('identityName'),
+        });
+    }
+    if (identityType === EntityType.STORAGE_MANAGER) {
+        // TODO: special case because it already has existing permissions
+        // must disable all the tests that change the IAM part
+    }
+    this.setAuthMode('test_identity');
+});
+
 Given('an {string} S3 Bucket Policy that {string} with {string} effect for the current API', async function (
     this: Zenko,
     doesExists: string,
@@ -71,7 +178,7 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
     let resources;
     if (doesExists === 'existing') {
         if (doesApply === 'applies') {
-            if (isAllow === 'allows') {
+            if (isAllow === 'ALLOW') {
                 authzConfiguration.Resource = AuthorizationType.ALLOW;
                 effect = AuthorizationType.ALLOW;
             } else {
@@ -112,79 +219,6 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
     };
     if (process.env.VERBOSE) {
         process.stdout.write(
-            `Policy to be created: ${
-                JSON.stringify(basePolicy, null, 2)
-            }. Expecting authz ${
-                JSON.stringify(authzConfiguration)
-            }.\n`);
-    }
-    // create the bucket policy
-    // TODO this must be run as an account
-    await S3.putBucketPolicy({
-        bucket: this.getSaved<string>('bucketName'),
-        policy: JSON.stringify(basePolicy),
-    });
-    this.setAuthMode('test_identity');
-});
-
-Given('an {string} IAM Policy that {string} with {string} effect for the current API', async function (
-    this: Zenko,
-    doesExists: string,
-    doesApply: string,
-    isAllow: string,
-) {
-    // This step needs full access.
-    this.saveAuthMode('base_account');
-    const authzConfiguration: AuthorizationConfiguration = {
-        Identity: this.getSaved<AuthorizationConfiguration>('authzConfiguration')?.Identity
-            || AuthorizationType.NO_RESOURCE,
-        Resource: this.getSaved<AuthorizationConfiguration>('authzConfiguration')?.Resource
-            || AuthorizationType.NO_RESOURCE,
-    };
-    const action = this.getSaved<ActionPermissionsType>('currentAction');
-    let effect = AuthorizationType.DENY;
-    // use the current S3 bucket
-    let resources;
-    if (doesExists === 'existing') {
-        if (doesApply === 'applies') {
-            if (isAllow === 'allows') {
-                authzConfiguration.Identity = AuthorizationType.ALLOW;
-                effect = AuthorizationType.ALLOW;
-            } else {
-                authzConfiguration.Identity = AuthorizationType.DENY;
-                effect = AuthorizationType.DENY;
-            }
-            resources = [
-                `arn:aws:s3:::${this.getSaved<string>('bucketName')}`,
-                `arn:aws:s3:::${this.getSaved<string>('bucketName')}/*`,
-            ];
-        } else {
-            authzConfiguration.Identity = AuthorizationType.IMPLICIT_DENY;
-            // Effect is ALLOW on purpose, to ensure we properly handle implicit denies
-            effect = AuthorizationType.ALLOW;
-            resources = [
-                `arn:aws:s3:::${this.getSaved<string>('bucketName')}badname`,
-                `arn:aws:s3:::${this.getSaved<string>('bucketName')}badname/*`,
-            ];
-        }
-    } else {
-        authzConfiguration.Resource = AuthorizationType.NO_RESOURCE;
-        return;
-    }
-    this.addToSaved('authzConfiguration', authzConfiguration);
-    // TODO handle ALLOW+DENY
-    const basePolicy = {
-        Version: '2012-10-17',
-        Statement: [
-            {
-                Effect: effect,
-                Action: action.permissions,
-                Resource: resources,
-            },
-        ],
-    };
-    if (process.env.VERBOSE) {
-        process.stdout.write(
             `Bucket Policy to be created: ${
                 JSON.stringify(basePolicy, null, 2)
             }Expecting authz ${
@@ -197,35 +231,15 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
                 })                
             }\n`);
     }
-    // this must be ran as the account
-    const createdPolicy = await IAM.createPolicy({
-        policyDocument: JSON.stringify(basePolicy),
-        policyName: `policyforauthz-${Utils.randomString()}`,
+    await S3.putBucketPolicy({
+        bucket: this.getSaved<string>('bucketName'),
+        policy: JSON.stringify(basePolicy),
     });
-    const policyArn = extractPropertyFromResults(createdPolicy, 'Policy', 'Arn') as string;
-
-    const identityType = this.getSaved<string>('identityType') as EntityType;
-    // attach the policy to the current identity: role or user
-    if (identityType === EntityType.ASSUME_ROLE_USER || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT) {
-        await IAM.attachRolePolicy({
-            policyArn,
-            roleArn: this.getSaved<string>('identityName'),
-        });
-    }
-    if (identityType === EntityType.IAM_USER) {
-        await IAM.attachUserPolicy({
-            policyArn,
-            userName: this.getSaved<string>('identityName'),
-        });
-    }
-    if (identityType === EntityType.STORAGE_MANAGER) {
-        // TODO: special case because it already has existing permissions
-        // must disable all the tests that change the IAM part
-    }
     this.setAuthMode('test_identity');
 });
 
 When('the user tries to perform the current S3 action on the bucket', async function (this: Zenko) {
+    this.addToSaved('objectName', `objectforbptests-${Utils.randomString()}`);
     await runActionAgainstBucket(this, this.getSaved<ActionPermissionsType>('currentAction').action);
 });
 
@@ -242,11 +256,19 @@ Then('the authorization result is correct', function (this: Zenko) {
         && (authzConfiguration?.Resource === AuthorizationType.ALLOW
             || authzConfiguration?.Resource === AuthorizationType.IMPLICIT_DENY);
     if (!isAllowed) {
-        assert.strictEqual(this.getResult().err?.includes('AccessDenied'), true);
+        // special case: DeleteObjects always returns code 200
+        // if the API is allowed but additional checks are denied.
+        if (action.action === 'DeleteObjects' && action.subAuthorizationChecks) {
+            assert.strictEqual(this.getResult().stdout?.includes('AccessDenied'), true);
+        } else {
+            assert.strictEqual(this.getResult().err?.includes('AccessDenied'), true);
+        }
     } else {
         // if allowed, we either check the current action .expectedResultOnAllowTest error, or that there is no error.
         if (action.expectedResultOnAllowTest) {
-            assert.strictEqual(this.getResult().err?.includes(action.expectedResultOnAllowTest), true);
+            assert.strictEqual(
+                this.getResult().err?.includes(action.expectedResultOnAllowTest) ||
+                this.getResult().stdout?.includes(action.expectedResultOnAllowTest), true);
         } else {
             assert.strictEqual(this.getResult().err, null);
         }
