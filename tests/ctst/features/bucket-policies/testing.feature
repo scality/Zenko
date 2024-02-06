@@ -14,7 +14,7 @@ Feature: S3 Bucket Policies Authorization flow for IAM Users
     Scenario Outline: IAM USER: <iamPolicyExists> <iamPolicyApplies> <iamPolicyEffect> IAM Policy and <bucketPolicyExists> <bucketPolicyApplies> <bucketPolicyEffect> S3 Bucket Policy
         Given an action "<action>"
         And an existing bucket prepared for the action
-        And a "IAM_USER" type
+        And a IAM_USER type
         And an "<iamPolicyExists>" IAM Policy that "<iamPolicyApplies>" with "<iamPolicyEffect>" effect for the current API
         And an "<bucketPolicyExists>" S3 Bucket Policy that "<bucketPolicyApplies>" with "<bucketPolicyEffect>" effect for the current API
         When the user tries to perform the current S3 action on the bucket
