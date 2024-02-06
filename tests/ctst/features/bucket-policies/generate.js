@@ -61,26 +61,26 @@ const APIs = [
 const scenarios = [];
 
 const allCombinations = [
-    ['existing', 'applies', 'ALLOW', 'existing', 'applies', 'ALLOW'],
-    ['existing', 'applies', 'ALLOW', 'existing', 'applies', 'DENY'],
-    ['existing', 'applies', 'ALLOW', 'existing', 'applies', 'ALLOW+DENY'],
-    ['existing', 'applies', 'ALLOW', 'existing', 'does not apply', 'ALLOW'],
-    ['existing', 'applies', 'ALLOW', 'non-existing', '', ''],
+    // ['existing', 'applies', 'ALLOW', 'existing', 'applies', 'ALLOW'],
+    // ['existing', 'applies', 'ALLOW', 'existing', 'applies', 'DENY'],
+    // ['existing', 'applies', 'ALLOW', 'existing', 'applies', 'ALLOW+DENY'],
+    // ['existing', 'applies', 'ALLOW', 'existing', 'does not apply', 'ALLOW'],
+    // ['existing', 'applies', 'ALLOW', 'non-existing', '', ''],
     ['existing', 'applies', 'DENY', 'existing', 'applies', 'ALLOW'],
-    ['existing', 'applies', 'DENY', 'existing', 'applies', 'DENY'],
-    ['existing', 'applies', 'DENY', 'existing', 'applies', 'ALLOW+DENY'],
-    ['existing', 'applies', 'DENY', 'existing', 'does not apply', 'ALLOW'],
-    ['existing', 'applies', 'DENY', 'non-existing', '', ''],
-    ['existing', 'does not apply', 'ALLOW', 'existing', 'applies', 'ALLOW'],
-    ['existing', 'does not apply', 'ALLOW', 'existing', 'applies', 'DENY'],
-    ['existing', 'does not apply', 'ALLOW', 'existing', 'applies', 'ALLOW+DENY'],
-    ['existing', 'does not apply', 'ALLOW', 'existing', 'does not apply', 'ALLOW'],
-    ['existing', 'does not apply', 'ALLOW', 'non-existing', '', ''],
-    ['non-existing', '', '', 'existing', 'applies', 'ALLOW'],
-    ['non-existing', '', '', 'existing', 'applies', 'DENY'],
-    ['non-existing', '', '', 'existing', 'applies', 'ALLOW+DENY'],
-    ['non-existing', '', '', 'existing', 'does not apply', 'ALLOW'],
-    ['non-existing', '', '', 'non-existing', '', ''],
+    // ['existing', 'applies', 'DENY', 'existing', 'applies', 'DENY'],
+    // ['existing', 'applies', 'DENY', 'existing', 'applies', 'ALLOW+DENY'],
+    // ['existing', 'applies', 'DENY', 'existing', 'does not apply', 'ALLOW'],
+    // ['existing', 'applies', 'DENY', 'non-existing', '', ''],
+    // ['existing', 'does not apply', 'ALLOW', 'existing', 'applies', 'ALLOW'],
+    // ['existing', 'does not apply', 'ALLOW', 'existing', 'applies', 'DENY'],
+    // ['existing', 'does not apply', 'ALLOW', 'existing', 'applies', 'ALLOW+DENY'],
+    // ['existing', 'does not apply', 'ALLOW', 'existing', 'does not apply', 'ALLOW'],
+    // ['existing', 'does not apply', 'ALLOW', 'non-existing', '', ''],
+    // ['non-existing', '', '', 'existing', 'applies', 'ALLOW'],
+    // ['non-existing', '', '', 'existing', 'applies', 'DENY'],
+    // ['non-existing', '', '', 'existing', 'applies', 'ALLOW+DENY'],
+    // ['non-existing', '', '', 'existing', 'does not apply', 'ALLOW'],
+    // ['non-existing', '', '', 'non-existing', '', ''],
 ];
 
 for (const api of APIs) {
@@ -100,3 +100,5 @@ for (const api of APIs) {
 const output = scenarios.map(scenario => {
     return `| ${scenario.action} | ${scenario.iamPolicyExists} | ${scenario.iamPolicyApplies} | ${scenario.iamPolicyEffect} | ${scenario.bucketPolicyExists} | ${scenario.bucketPolicyApplies} | ${scenario.bucketPolicyEffect} |`;
 }).join('\n');
+
+console.log(output);

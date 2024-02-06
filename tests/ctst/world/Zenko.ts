@@ -219,6 +219,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             this.addToSaved('type', EntityType.IAM_USER);
             break;
         case EntityType.STORAGE_MANAGER:
+            this.addToSaved('identityName', 'StorageManager');
             await this.prepareARWWI(
                 defaultParameters.StorageManagerUsername || 'storage_manager',
                 keycloakPassword,
@@ -227,6 +228,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             this.addToSaved('type', EntityType.STORAGE_MANAGER);
             break;
         case EntityType.STORAGE_ACCOUNT_OWNER:
+            this.addToSaved('identityName', 'StorageAccountOwner');
             await this.prepareARWWI(
                 defaultParameters.StorageAccountOwnerUsername || 'storage_account_owner',
                 keycloakPassword,
@@ -235,6 +237,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             this.addToSaved('type', EntityType.STORAGE_ACCOUNT_OWNER);
             break;
         case EntityType.DATA_CONSUMER:
+            this.addToSaved('identityName', 'DataConsumer');
             await this.prepareARWWI(
                 defaultParameters.DataConsumerUsername || 'data_consumer',
                 keycloakPassword,
@@ -253,6 +256,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         default:
             break;
         }
+        this.saveAuthMode('test_identity');
         this.resetCommand();
         this.cliOptions = savedParameters as Record<string, unknown>;
     }
@@ -420,6 +424,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             extractPropertyFromResults(await IAM.createRole(
                 this.getCommandParameters()), 'Role', 'Arn');
         this.addToSaved('identityArn', roleArnToAssume);
+        this.addToSaved('identityName', this.getSaved<string>('roleName'));
 
         let accountToBeAssumedFrom = account;
 
@@ -680,6 +685,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         this.addCommandParameter({ userName: this.getSaved<string>('userName') });
         const userInfos = await IAM.createUser(this.getCommandParameters());
         this.addToSaved('identityArn', extractPropertyFromResults(userInfos, 'User', 'Arn'));
+        this.addToSaved('identityName', extractPropertyFromResults(userInfos, 'User', 'UserName'));
         this.resetCommand();
         // Create credentials for the user
         this.addCommandParameter({ userName: this.getSaved<string>('userName') });
@@ -710,6 +716,20 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     cleanupEntity(): void {
         this.cliMode.assumed = false;
         this.cliMode.env = false;
+    }
+
+    saveAuthMode(authMode: string): void {
+        // save current cliMode.assumed and cliMode.env in saved for later use
+        this.addToSaved(authMode, {
+            ...this.cliMode.parameters,
+        } as ClientOptions);
+    }
+
+    setAuthMode(authMode: string): void {
+        // restore cliMode.assumed and cliMode.env from saved
+        this.cliMode.parameters = this.getSaved<ClientOptions>(authMode);
+        CacheHelper.parameters!.IAMSession =
+            this.parameters.IAMSession;
     }
 
     /**

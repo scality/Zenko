@@ -3,7 +3,7 @@ import Zenko, { EntityType } from '../../world/Zenko';
 import { ActionPermissionsType, actionPermissions, needObject, needObjectLock, needVersioning } from './utils';
 import { createBucketWithConfiguration, putObject, runActionAgainstBucket } from 'steps/utils/utils';
 import assert from 'assert';
-import { IAM } from 'cli-testing';
+import { IAM, S3 } from 'cli-testing';
 import { extractPropertyFromResults } from 'common/utils';
 
 enum AuthorizationType {
@@ -21,6 +21,7 @@ type AuthorizationConfiguration = {
 Given('an action {string}', function (this: Zenko, apiName: string) {
     // dynamically know the config based on the action
     // Ensure that the action is valid and supported
+    this.saveAuthMode('base_account');
     this.addToSaved('currentAction', actionPermissions.find(actionPermission => actionPermission.action === apiName));
     if (!this.getSaved('currentAction')) {
         throw new Error(`Action ${apiName} is not supported yet`);
@@ -56,6 +57,8 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
     doesApply: string,
     isAllow: string,
 ) {
+    // This step needs full access.
+    this.setAuthMode('base_account');
     const authzConfiguration: AuthorizationConfiguration = {
         Identity: this.getSaved<AuthorizationConfiguration>('authzConfiguration')?.Identity
             || AuthorizationType.NO_RESOURCE,
@@ -93,10 +96,7 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
         return;
     }
     this.addToSaved('authzConfiguration', authzConfiguration);
-    // TODO actually create the policy atteched to the current identity
     const currentIdentityArn = this.getSaved<string>('identityArn');
-    // craft an IAM policy to follow the current configuration, and attach it to the current
-    // identity, if needed
     const basePolicy = {
         Version: '2012-10-17',
         Statement: [
@@ -118,6 +118,79 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
                 JSON.stringify(authzConfiguration)
             }.\n`);
     }
+    // create the bucket policy
+    // TODO this must be run as an account
+    await S3.putBucketPolicy({
+        bucket: this.getSaved<string>('bucketName'),
+        policy: JSON.stringify(basePolicy),
+    });
+    this.setAuthMode('test_identity');
+});
+
+Given('an {string} IAM Policy that {string} with {string} effect for the current API', async function (
+    this: Zenko,
+    doesExists: string,
+    doesApply: string,
+    isAllow: string,
+) {
+    // This step needs full access.
+    this.saveAuthMode('base_account');
+    const authzConfiguration: AuthorizationConfiguration = {
+        Identity: this.getSaved<AuthorizationConfiguration>('authzConfiguration')?.Identity
+            || AuthorizationType.NO_RESOURCE,
+        Resource: this.getSaved<AuthorizationConfiguration>('authzConfiguration')?.Resource
+            || AuthorizationType.NO_RESOURCE,
+    };
+    const action = this.getSaved<ActionPermissionsType>('currentAction');
+    let effect = AuthorizationType.DENY;
+    // use the current S3 bucket
+    let resources;
+    if (doesExists === 'existing') {
+        if (doesApply === 'applies') {
+            if (isAllow === 'allows') {
+                authzConfiguration.Identity = AuthorizationType.ALLOW;
+                effect = AuthorizationType.ALLOW;
+            } else {
+                authzConfiguration.Identity = AuthorizationType.DENY;
+                effect = AuthorizationType.DENY;
+            }
+            resources = [
+                `arn:aws:s3:::${this.getSaved<string>('bucketName')}`,
+                `arn:aws:s3:::${this.getSaved<string>('bucketName')}/*`,
+            ];
+        } else {
+            authzConfiguration.Identity = AuthorizationType.IMPLICIT_DENY;
+            // Effect is ALLOW on purpose, to ensure we properly handle implicit denies
+            effect = AuthorizationType.ALLOW;
+            resources = [
+                `arn:aws:s3:::${this.getSaved<string>('bucketName')}badname`,
+                `arn:aws:s3:::${this.getSaved<string>('bucketName')}badname/*`,
+            ];
+        }
+    } else {
+        authzConfiguration.Resource = AuthorizationType.NO_RESOURCE;
+        return;
+    }
+    this.addToSaved('authzConfiguration', authzConfiguration);
+    // TODO handle ALLOW+DENY
+    const basePolicy = {
+        Version: '2012-10-17',
+        Statement: [
+            {
+                Effect: effect,
+                Action: action.permissions,
+                Resource: resources,
+            },
+        ],
+    };
+    if (process.env.VERBOSE) {
+        process.stdout.write(
+            `Bucket Policy to be created: ${
+                JSON.stringify(basePolicy, null, 2)
+            }. Expecting authz ${
+                JSON.stringify(authzConfiguration)
+            }.\n`);
+    }
     // this must be ran as the account
     const createdPolicy = await IAM.createPolicy({
         policyDocument: JSON.stringify(basePolicy),
@@ -130,7 +203,7 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
     if (identityType === EntityType.ASSUME_ROLE_USER || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT) {
         await IAM.attachRolePolicy({
             policyArn,
-            roleName: this.getSaved<string>('identityName'),
+            roleArn: this.getSaved<string>('identityName'),
         });
     }
     if (identityType === EntityType.IAM_USER) {
@@ -143,35 +216,7 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
         // TODO: special case because it already has existing permissions
         // must disable all the tests that change the IAM part
     }
-});
-
-Given('an {string} IAM Policy that {string} with {string} effect for the current API', function (
-    this: Zenko,
-    doesExists: string,
-    doesApply: string,
-    isAllow: string,
-) {
-    const authzConfiguration: AuthorizationConfiguration = {
-        Identity: this.getSaved<AuthorizationConfiguration>('authzConfiguration')?.Identity
-            || AuthorizationType.NO_RESOURCE,
-        Resource: this.getSaved<AuthorizationConfiguration>('authzConfiguration')?.Resource
-            || AuthorizationType.NO_RESOURCE,
-    };
-    if (doesExists === 'existing') {
-        if (doesApply === 'applies') {
-            if (isAllow === 'allows') {
-                authzConfiguration.Identity = AuthorizationType.ALLOW;
-            } else {
-                authzConfiguration.Identity = AuthorizationType.DENY;
-            }
-        } else {
-            authzConfiguration.Identity = AuthorizationType.IMPLICIT_DENY;
-        }
-    } else {
-        authzConfiguration.Identity = AuthorizationType.NO_RESOURCE;
-    }
-    this.addToSaved('authzConfiguration', authzConfiguration);
-    // TODO actually create the policy atteched to the current identity
+    this.setAuthMode('test_identity');
 });
 
 When('the user tries to perform the current S3 action on the bucket', async function (this: Zenko) {
