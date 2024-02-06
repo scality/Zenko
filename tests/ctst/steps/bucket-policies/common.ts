@@ -111,7 +111,12 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
         ],
     };
     if (process.env.VERBOSE) {
-        process.stdout.write(`Policy to be created: ${JSON.stringify(basePolicy, null, 2)}. Expecting authz ${authzConfiguration}.\n`);
+        process.stdout.write(
+            `Policy to be created: ${
+                JSON.stringify(basePolicy, null, 2)
+            }. Expecting authz ${
+                JSON.stringify(authzConfiguration)
+            }.\n`);
     }
     // this must be ran as the account
     const createdPolicy = await IAM.createPolicy({
