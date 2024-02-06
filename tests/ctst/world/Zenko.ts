@@ -208,6 +208,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         const keycloakPassword = defaultParameters.KeycloakTestPassword || '123';
         const savedParameters = JSON.parse(JSON.stringify(this.cliOptions)) as object;
         this.resetGlobalType();
+        this.addToSaved('identityType', entityType);
         switch (entityType) {
         case EntityType.ACCOUNT:
             await this.prepareRootUser();
@@ -319,6 +320,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             }
             // Arn to assume
             const arn = roleToAssume;
+            this.addToSaved('identityArn', arn);
             this.options.roleArn = arn;
             // Assume the role and save the credentials
             const ARWWI = await STS.assumeRoleWithWebIdentity(this.options, this.parameters);
@@ -417,6 +419,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         const roleArnToAssume =
             extractPropertyFromResults(await IAM.createRole(
                 this.getCommandParameters()), 'Role', 'Arn');
+        this.addToSaved('identityArn', roleArnToAssume);
 
         let accountToBeAssumedFrom = account;
 
@@ -675,8 +678,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         this.addToSaved('userName', `iamusertest${Utils.randomString()}`);
         // Create IAM user
         this.addCommandParameter({ userName: this.getSaved<string>('userName') });
-        await IAM.createUser(this.getCommandParameters());
-        // TODO get the arn
+        const userInfos = await IAM.createUser(this.getCommandParameters());
+        this.addToSaved('identityArn', extractPropertyFromResults(userInfos, 'User', 'Arn'));
         this.resetCommand();
         // Create credentials for the user
         this.addCommandParameter({ userName: this.getSaved<string>('userName') });
