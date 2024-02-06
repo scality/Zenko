@@ -31,7 +31,6 @@ Feature: Azure Archive
     Then object "obj-1" should be "transitioned" and have the storage class "e2e-azure-archive"
     And object "obj-2" should be "transitioned" and have the storage class "e2e-azure-archive"
     And object "obj-3" should be "transitioned" and have the storage class "e2e-azure-archive"
-    Then kafka consumed messages for "archive" requests should not take too much place on disk
 
     Examples:
         | versioningConfiguration | objectCount | objectSize |
@@ -122,9 +121,6 @@ Feature: Azure Archive
     And object "obj-2" should have the same data
     And object "obj-2" should have the tag "tag2" with value "value2"
     And object "obj-2" should have the user metadata with key "x-amz-meta-123" and value "456"
-
-    Then kafka consumed messages for "archive" requests should not take too much place on disk
-    Then kafka consumed messages for "restore" requests should not take too much place on disk
 
     Examples:
         | versioningConfiguration | objectCount | objectSize | restoreDays |

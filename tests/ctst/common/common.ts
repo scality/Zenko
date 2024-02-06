@@ -5,7 +5,7 @@ import { Constants, KafkaHelper, S3, Utils } from 'cli-testing';
 import Zenko from 'world/Zenko';
 import { extractPropertyFromResults, safeJsonParse } from './utils';
 import assert from 'assert';
-import { Message } from 'node-rdkafka';
+import { Kafka } from 'kafkajs';
 
 setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
 
@@ -231,18 +231,21 @@ Then('object {string} should be {string} and have the storage class {string}',
         assert(conditionOk);
     });
 
-Then('kafka consumed messages for {string} requests should not take too much place on disk',
-    async function (this: Zenko, operation: string) {
+Then('kafka consumed messages should not take too much place on disk',
+    async function (this: Zenko) {
         await Utils.sleep(30000); // Sleep to let kafka cleaner do his job (every 30s)
-        const topic = operation === 'archive' ? this.parameters.kafkaArchiveRequestTopic :
-            this.parameters.kafkaRestoreRequestTopic;
-        const result = await KafkaHelper.consumeTopicUntilCondition(
-            topic,
-            this.parameters.KafkaHosts,
-            `ctst_kafka_consumer_group_${Utils.randomString()}`,
-            15000,
-            (msg: Message) => msg.size > 0);
-        assert.strictEqual(result, false);
+        const kafkaAdmin = new Kafka({ brokers: [this.parameters.KafkaHosts] }).admin();
+        const topics = (await kafkaAdmin.listTopics()).filter(topic => topic.includes(this.parameters.InstanceId));
+        const notToCheckTopics = ['oplog', 'dead-letter'];
+        for (const topic of topics) {
+            if (notToCheckTopics.some(notToCheckTopic => topic.includes(notToCheckTopic))) {
+                continue;
+            }
+            const topicOffsets = await kafkaAdmin.fetchTopicOffsets(topic);
+            for (const partition of topicOffsets) {
+                assert.strictEqual(partition.high, partition.low);
+            }
+        }
     });
 
 When('i delete object {string}', async function (this: Zenko, objectName: string) {

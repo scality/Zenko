@@ -93,6 +93,7 @@ export interface ZenkoWorldParameters {
     kafkaDeadLetterQueueTopic: string;
     kafkaArchiveRequestTopic: string;
     kafkaRestoreRequestTopic: string;
+    InstanceId: string;
     [key: string]: unknown;
 }
 
