@@ -37,6 +37,8 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'CreateBucket',
         permissions: ['s3:CreateBucket'],
+        expectedResultOnAllowTest: 'BucketAlreadyOwnedByYou',
+        excludePermissionOnBucketObjects: true,
     },
     {
         action: 'PutBucketAcl',
@@ -250,8 +252,8 @@ const actionPermissions: ActionPermissionsType[] = [
     },
     {
         action: 'CopyObject',
-        permissions: ['s3:GetObject',
-            's3:PutObject'],
+        permissions: ['s3:GetObject', 's3:PutObject'],
+        expectedResultOnAllowTest: 'NoSuchKey',
     },
     {
         action: 'HeadObject',

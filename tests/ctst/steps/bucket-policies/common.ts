@@ -6,6 +6,13 @@ import assert from 'assert';
 import { IAM, S3, Utils } from 'cli-testing';
 import { extractPropertyFromResults } from 'common/utils';
 
+// TODO: test the object lock APIs with the bypass headers checks:
+// - deleteObject
+// - multiDeleteObject
+// - objectputretention
+// need to rerun these APIs with object lock enabled (governance) and check with the bypass header permission
+// TODO add support for CNES use case
+
 enum AuthorizationType {
     ALLOW = 'Allow',
     DENY = 'Deny',
@@ -251,10 +258,18 @@ Then('the authorization result is correct', function (this: Zenko) {
     const authzConfiguration = this.getSaved<AuthorizationConfiguration>('authzConfiguration');
     // allowed in the following case: both allows, one allow + one is implicit
     // others are denied
-    const isAllowed = (authzConfiguration?.Identity === AuthorizationType.ALLOW
-        || authzConfiguration?.Identity === AuthorizationType.IMPLICIT_DENY)
-        && (authzConfiguration?.Resource === AuthorizationType.ALLOW
-            || authzConfiguration?.Resource === AuthorizationType.IMPLICIT_DENY);
+    const authI = authzConfiguration?.Identity;
+    const authR = authzConfiguration?.Resource;
+    const isAllowed = (
+        // case: both allow
+        (authI === AuthorizationType.ALLOW && authR === AuthorizationType.ALLOW) ||
+        // case: one allow, one implicit deny
+        ((authI === AuthorizationType.ALLOW && authR === AuthorizationType.IMPLICIT_DENY) ||
+            (authI === AuthorizationType.IMPLICIT_DENY && authR === AuthorizationType.ALLOW)) ||
+        // case: one allow, one no resource
+        ((authI === AuthorizationType.ALLOW && authR === AuthorizationType.NO_RESOURCE) ||
+            (authI === AuthorizationType.NO_RESOURCE && authR === AuthorizationType.ALLOW))         
+    );
     if (!isAllowed) {
         // special case: DeleteObjects always returns code 200
         // if the API is allowed but additional checks are denied.
