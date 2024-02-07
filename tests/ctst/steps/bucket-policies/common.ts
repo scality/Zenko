@@ -35,7 +35,7 @@ Given('an action {string}', function (this: Zenko, apiName: string) {
     }
 
     if (needObjectLock.includes(apiName)) {
-        this.addToSaved('withObjectLock', true);
+        this.addToSaved('withObjectLock', 'with');
     }
 
     if (needObject.includes(apiName)) {
@@ -43,7 +43,7 @@ Given('an action {string}', function (this: Zenko, apiName: string) {
     }
 
     if (needVersioning.includes(apiName)) {
-        this.addToSaved('withVersioning', true);
+        this.addToSaved('withVersioning', 'with');
     }
 });
 
@@ -279,9 +279,9 @@ Then('the authorization result is correct', function (this: Zenko) {
     })();
     // Special cases: for CreateBucket and DeleteBucket, BP
     // does not apply.
-    if (action.action === 'CreateBucket' || action.action === 'DeleteBucket') {
+    if (action.action === 'CreateBucket') {
         // In this case, we only consider the Identity part.
-        isAllowed = authI === AuthorizationType.ALLOW;        
+        isAllowed = authI === AuthorizationType.ALLOW;
     }
     // TODO disable after S3C-8424 is done
     if (action.action === 'CreateMultipartUpload') {

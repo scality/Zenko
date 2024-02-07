@@ -8,11 +8,11 @@ import {
  * @param {string[]} propertyChain - the property chain to extract, like Policy, Arn
  * @return {string} - the expected property, or null if an error occurred when parsing results.
  */
-export function extractPropertyFromResults<T>(results: Utils.Command, ...propertyChain: string[]) : T | null {
+export function extractPropertyFromResults<T>(results: Utils.Command, ...propertyChain: string[]): T | null {
     try {
         if (results.stdout) {
             const jsonResults = JSON.parse(results.stdout) as Record<string, unknown>;
-            let res : unknown = jsonResults;
+            let res: unknown = jsonResults;
             if (jsonResults) {
                 while (propertyChain.length > 0) {
                     res = (res as Record<string, unknown>)[propertyChain.shift()!];
@@ -26,35 +26,43 @@ export function extractPropertyFromResults<T>(results: Utils.Command, ...propert
     }
 }
 
-export const s3FunctionExtraParams : { [key: string]: Record<string, unknown> } = {
-    abortMultipartUpload: { uploadId: 'fakeId', key: 'multipartUpload' },
-    createMultipartUpload: { key: 'multipartUpload' },
-    completeMultipartUpload: { uploadId: 'fakeId', key: 'multipartUpload' },
-    uploadPart: { uploadId: 'fakeId', key: 'multipartUpload', partNumber: 1 },
-    restoreObject: { restoreRequest: 'Days=1' },
-    putObjectAcl:  { acl: 'public-read-write' },
-    putBucketTagging: { tagging: '{"TagSet":[{"Key":"tag1","Value":"value1"},{"Key":"tag2","Value":"value2"}]}' },
-    putObjectTagging: { tagging: '{"TagSet":[{"Key":"string","Value":"string"}]}' },
-    putBucketVersioning: { versioningConfiguration: 'Status=Enabled' },
-    putObjectRetention: {
+export const s3FunctionExtraParams: { [key: string]: Record<string, unknown>[] } = {
+    abortMultipartUpload: [{ uploadId: 'fakeId' }, { key: 'multipartUpload' }],
+    createMultipartUpload: [{ key: 'multipartUpload' }],
+    completeMultipartUpload: [{ uploadId: 'fakeId' }, { key: 'multipartUpload' }],
+    uploadPart: [{ uploadId: 'fakeId' }, { key: 'multipartUpload' }, { partNumber: 1 }],
+    restoreObject: [{ restoreRequest: 'Days=1' }],
+    putObjectAcl: [{ acl: 'public-read-write' }],
+    putBucketCors: [{ corsConfiguration: JSON.stringify({
+        CORSRules: [{ AllowedMethods: ['GET'], AllowedOrigins: ['*'] }] }) }],
+    putBucketTagging: [{ tagging: '{"TagSet":[{"Key":"tag1","Value":"value1"},{"Key":"tag2","Value":"value2"}]}' }],
+    putObjectTagging: [{ tagging: '{"TagSet":[{"Key":"string","Value":"string"}]}' }],
+    putBucketVersioning: [{ versioningConfiguration: 'Status=Enabled' }],
+    putBucketPolicy: [{
+        policy: JSON.stringify({
+            Version: '2012-10-17',
+            Statement: [{ Effect: 'Allow', Principal: '*', Action: 's3:*', Resource: 'arn:aws:s3:::examplebucket/*' }],
+        }),
+    }],
+    putObjectRetention: [{
         retention: JSON.stringify({
-            RetainUntilDate: '2021-12-31T00:00:00Z',
+            RetainUntilDate: new Date('2021-12-31T00:00:00Z'),
             Mode: 'GOVERNANCE',
         }),
-    },
-    putObjectLockConfiguration: {
+    }],
+    putObjectLockConfiguration: [{
         objectLockConfiguration: '{ "ObjectLockEnabled": "Enabled", "Rule": ' +
-        '{ "DefaultRetention": ' + 
-        '{ "Mode": "COMPLIANCE", "Days": 50 }}}',
-    },
-    deleteObjects: {
+            '{ "DefaultRetention": ' +
+            '{ "Mode": "COMPLIANCE", "Days": 50 }}}',
+    }],
+    deleteObjects: [{
         delete: JSON.stringify({
             Objects: [{
                 Key: 'x'.repeat(10),
             }],
         }),
-    },
-    putBucketLifecycleConfiguration: {
+    }],
+    putBucketLifecycleConfiguration: [{
         lifecycleConfiguration: JSON.stringify(
             {
                 Rules: [
@@ -74,8 +82,8 @@ export const s3FunctionExtraParams : { [key: string]: Record<string, unknown> } 
                     },
                 ],
             }),
-    },
-    putBucketReplication: {
+    }],
+    putBucketReplication: [{
         replicationConfiguration: JSON.stringify(
             {
                 Role: 'arn:aws:iam::123456789012:role/s3-replication-role',
@@ -89,5 +97,5 @@ export const s3FunctionExtraParams : { [key: string]: Record<string, unknown> } 
                     },
                 ],
             }),
-    },
+    }],
 };

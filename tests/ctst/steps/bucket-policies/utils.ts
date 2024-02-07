@@ -18,6 +18,7 @@ const needObject = [
     'PutObjectRetention',
     'PutObjectTagging',
     'PutObjectAcl',
+    'PutObject',
     'GetObject',
     'GetObjectAcl',
     'GetObjectLegalHold',
@@ -60,12 +61,12 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'PutBucketNotificationConfiguration',
         permissions: ['s3:PutBucketNotification'],
+        excludePermissionOnBucketObjects: true,
     },
     {
         action: 'PutBucketPolicy',
         permissions: ['s3:PutBucketPolicy'],
         excludePermissionOnBucketObjects: true,
-        expectedResultOnAllowTest: 'MalformedPolicy',
     },
     {
         action: 'PutBucketReplication',
@@ -73,7 +74,6 @@ const actionPermissions: ActionPermissionsType[] = [
         expectedResultOnAllowTest: 'InvalidRequest: Versioning must be \'Enabled\'',
         excludePermissionOnBucketObjects: true,
     },
-    // initial permission passes, but then fails on destination bucket 
     {
         action: 'PutBucketVersioning',
         permissions: ['s3:PutBucketVersioning'],
@@ -95,7 +95,6 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'PutObjectRetention',
         permissions: ['s3:PutObjectRetention'],
-        expectedResultOnAllowTest: 'NoSuchObjectLockConfiguration',
     },
     {
         action: 'PutObjectTagging',
@@ -104,7 +103,6 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'PutObjectAcl',
         permissions: ['s3:PutObjectAcl'],
-        expectedResultOnAllowTest: 'MalformedXML',
     },
     {
         action: 'PutBucketCors',
@@ -172,7 +170,6 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'GetBucketPolicy',
         permissions: ['s3:GetBucketPolicy'],
-        expectedResultOnAllowTest: 'NoSuchBucketPolicy',
         excludePermissionOnBucketObjects: true,
     },
     {
@@ -194,17 +191,14 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'GetObject',
         permissions: ['s3:GetObject'],
-        expectedResultOnAllowTest: 'NoSuchKey',
     },
     {
         action: 'GetObjectAcl',
         permissions: ['s3:GetObjectAcl'],
-        expectedResultOnAllowTest: 'NoSuchKey',
     },
     {
         action: 'GetObjectLegalHold',
         permissions: ['s3:GetObjectLegalHold'],
-        expectedResultOnAllowTest: 'NoSuchObjectLockConfiguration',
     },
     {
         action: 'GetObjectRetention',
@@ -262,7 +256,6 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'DeleteObjectTagging',
         permissions: ['s3:DeleteObjectTagging'],
-        excludePermissionOnBucketObjects: true,
     },
     {
         action: 'DeleteObjects',
