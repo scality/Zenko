@@ -257,6 +257,7 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'DeleteObjectTagging',
         permissions: ['s3:DeleteObjectTagging'],
+        excludePermissionOnBucketObjects: true,
     },
     {
         action: 'DeleteObjects',

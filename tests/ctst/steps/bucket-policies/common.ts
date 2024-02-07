@@ -205,6 +205,9 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
                 `arn:aws:s3:::${this.getSaved<string>('bucketName')}badname/*`,
             ];
         }
+        if (action.excludePermissionOnBucketObjects) {
+            resources.pop();
+        }
     } else {
         authzConfiguration.Resource = AuthorizationType.NO_RESOURCE;
         return;
