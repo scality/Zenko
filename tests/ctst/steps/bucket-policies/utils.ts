@@ -44,15 +44,18 @@ const actionPermissions: ActionPermissionsType[] = [
         action: 'PutBucketAcl',
         permissions: ['s3:PutBucketAcl'],
         expectedResultOnAllowTest: 'AccessControlListNotSupported',
+        excludePermissionOnBucketObjects: true,
     },
     {
         action: 'PutBucketEncryption',
         permissions: ['s3:PutEncryptionConfiguration'],
+        excludePermissionOnBucketObjects: true,
     },
     {
         action: 'PutBucketLifecycleConfiguration',
         permissions: ['s3:PutLifecycleConfiguration'],
         expectedResultOnAllowTest: 'MalformedXML',
+        excludePermissionOnBucketObjects: true,
     },
     {
         action: 'PutBucketNotificationConfiguration',
@@ -62,16 +65,19 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'PutBucketPolicy',
         permissions: ['s3:PutBucketPolicy'],
+        excludePermissionOnBucketObjects: true,
     },
     {
         action: 'PutBucketReplication',
         permissions: ['s3:PutReplicationConfiguration'],
         expectedResultOnAllowTest: 'Destination bucket must exist',
+        excludePermissionOnBucketObjects: true,
     },
     // initial permission passes, but then fails on destination bucket 
     {
         action: 'PutBucketVersioning',
         permissions: ['s3:PutBucketVersioning'],
+        excludePermissionOnBucketObjects: true,
     },
     {
         action: 'PutObjectLockConfiguration',
@@ -102,15 +108,29 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'PutBucketCors',
         permissions: ['s3:PutBucketCORS'],
+        excludePermissionOnBucketObjects: true,
+    },
+    {
+        action: 'PutBucketTagging',
+        permissions: ['s3:PutBucketTagging'],
+        excludePermissionOnBucketObjects: true,
     },
     {
         action: 'PutBucketWebsite',
         permissions: ['s3:PutBucketWebsite'],
+        excludePermissionOnBucketObjects: true,
     },
     {
         action: 'GetBucketCors',
         permissions: ['s3:GetBucketCORS'],
         expectedResultOnAllowTest: 'NoSuchCORSConfiguration',
+        excludePermissionOnBucketObjects: true,
+    },
+    {
+        action: 'GetBucketTagging',
+        permissions: ['s3:GetBucketTagging'],
+        expectedResultOnAllowTest: 'NoSuchCORSConfiguration',
+        excludePermissionOnBucketObjects: true,
     },
     {
         action: 'GetBucketWebsite',
@@ -120,23 +140,28 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'GetBucketAcl',
         permissions: ['s3:GetBucketAcl'],
+        excludePermissionOnBucketObjects: true,
     },
     {
         action: 'GetBucketEncryption',
         permissions: ['s3:GetEncryptionConfiguration'],
+        excludePermissionOnBucketObjects: true,
     },
     {
         action: 'GetBucketLifecycleConfiguration',
         permissions: ['s3:GetLifecycleConfiguration'],
         expectedResultOnAllowTest: 'NoSuchLifecycleConfiguration',
+        excludePermissionOnBucketObjects: true,
     },
     {
         action: 'GetBucketLocation',
         permissions: ['s3:GetBucketLocation'],
+        excludePermissionOnBucketObjects: true,
     },
     {
         action: 'GetBucketNotificationConfiguration',
         permissions: ['s3:GetBucketNotification'],
+        excludePermissionOnBucketObjects: true,
     },
     {
         action: 'GetObjectVersions',
@@ -151,10 +176,12 @@ const actionPermissions: ActionPermissionsType[] = [
         action: 'GetBucketReplication',
         permissions: ['s3:GetReplicationConfiguration'],
         expectedResultOnAllowTest: 'ReplicationConfigurationNotFoundError',
+        excludePermissionOnBucketObjects: true,
     },
     {
         action: 'GetBucketVersioning',
         permissions: ['s3:GetBucketVersioning'],
+        excludePermissionOnBucketObjects: true,
     },
     {
         action: 'GetObjectLockConfiguration',
@@ -186,30 +213,42 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'DeleteBucketCors',
         permissions: ['s3:PutBucketCORS'],
+        excludePermissionOnBucketObjects: true,
+    },
+    {
+        action: 'DeleteBucketTagging',
+        permissions: ['s3:DeleteBucketTagging'],
+        excludePermissionOnBucketObjects: true,
     },
     {
         action: 'DeleteBucketWebsite',
         permissions: ['s3:DeleteBucketWebsite'],
+        excludePermissionOnBucketObjects: true,
     },
     {
         action: 'DeleteBucket',
         permissions: ['s3:DeleteBucket'],
+        excludePermissionOnBucketObjects: true,
     },
     {
         action: 'DeleteBucketEncryption',
         permissions: ['s3:PutEncryptionConfiguration'],
+        excludePermissionOnBucketObjects: true,
     },
     {
         action: 'DeleteBucketLifecycle',
         permissions: ['s3:PutLifecycleConfiguration'],
+        excludePermissionOnBucketObjects: true,
     },
     {
         action: 'DeleteBucketPolicy',
         permissions: ['s3:DeleteBucketPolicy'],
+        excludePermissionOnBucketObjects: true,
     },
     {
         action: 'DeleteBucketReplication',
         permissions: ['s3:PutReplicationConfiguration'],
+        excludePermissionOnBucketObjects: true,
     },
     {
         action: 'DeleteObject',
@@ -232,10 +271,12 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'ListObjects',
         permissions: ['s3:ListBucket'],
+        excludePermissionOnBucketObjects: true,
     },
     {
         action: 'ListObjectsV2',
         permissions: ['s3:ListBucket'],
+        excludePermissionOnBucketObjects: true,
     },
     {
         action: 'HeadBucket',
@@ -262,6 +303,8 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'ListMultipartUploads',
         permissions: ['s3:ListBucketMultipartUploads'],
+        expectedResultOnAllowTest: 'Forbidden',
+        excludePermissionOnBucketObjects: true,
     },
     {
         action: 'AbortMultipartUpload',
@@ -275,6 +318,7 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'ListObjectVersions',
         permissions: ['s3:ListBucketVersions'],
+        excludePermissionOnBucketObjects: true,
     },
     {
         action: 'MetadataSearch',

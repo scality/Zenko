@@ -21,7 +21,7 @@ Feature: S3 Bucket Policies Authorization flow for IAM Users
         Then the authorization result is correct
         Examples:
             | action                             | iamPolicyExists | iamPolicyApplies | iamPolicyEffect | bucketPolicyExists | bucketPolicyApplies | bucketPolicyEffect |
-             # Everything below is generated
+            # Everything below is generated
             | AbortMultipartUpload               | existing        | applies          | ALLOW           | existing           | applies             | ALLOW              |
             | AbortMultipartUpload               | existing        | applies          | ALLOW           | existing           | applies             | DENY               |
             | AbortMultipartUpload               | existing        | applies          | ALLOW           | existing           | applies             | ALLOW+DENY         |
@@ -282,6 +282,26 @@ Feature: S3 Bucket Policies Authorization flow for IAM Users
             | DeleteObject                       | non-existing    |                  |                 | existing           | applies             | ALLOW+DENY         |
             | DeleteObject                       | non-existing    |                  |                 | existing           | does not apply      | ALLOW              |
             | DeleteObject                       | non-existing    |                  |                 | non-existing       |                     |                    |
+            | DeleteBucketTagging                | existing        | applies          | ALLOW           | existing           | applies             | ALLOW              |
+            | DeleteBucketTagging                | existing        | applies          | ALLOW           | existing           | applies             | DENY               |
+            | DeleteBucketTagging                | existing        | applies          | ALLOW           | existing           | applies             | ALLOW+DENY         |
+            | DeleteBucketTagging                | existing        | applies          | ALLOW           | existing           | does not apply      | ALLOW              |
+            | DeleteBucketTagging                | existing        | applies          | ALLOW           | non-existing       |                     |                    |
+            | DeleteBucketTagging                | existing        | applies          | DENY            | existing           | applies             | ALLOW              |
+            | DeleteBucketTagging                | existing        | applies          | DENY            | existing           | applies             | DENY               |
+            | DeleteBucketTagging                | existing        | applies          | DENY            | existing           | applies             | ALLOW+DENY         |
+            | DeleteBucketTagging                | existing        | applies          | DENY            | existing           | does not apply      | ALLOW              |
+            | DeleteBucketTagging                | existing        | applies          | DENY            | non-existing       |                     |                    |
+            | DeleteBucketTagging                | existing        | does not apply   | ALLOW           | existing           | applies             | ALLOW              |
+            | DeleteBucketTagging                | existing        | does not apply   | ALLOW           | existing           | applies             | DENY               |
+            | DeleteBucketTagging                | existing        | does not apply   | ALLOW           | existing           | applies             | ALLOW+DENY         |
+            | DeleteBucketTagging                | existing        | does not apply   | ALLOW           | existing           | does not apply      | ALLOW              |
+            | DeleteBucketTagging                | existing        | does not apply   | ALLOW           | non-existing       |                     |                    |
+            | DeleteBucketTagging                | non-existing    |                  |                 | existing           | applies             | ALLOW              |
+            | DeleteBucketTagging                | non-existing    |                  |                 | existing           | applies             | DENY               |
+            | DeleteBucketTagging                | non-existing    |                  |                 | existing           | applies             | ALLOW+DENY         |
+            | DeleteBucketTagging                | non-existing    |                  |                 | existing           | does not apply      | ALLOW              |
+            | DeleteBucketTagging                | non-existing    |                  |                 | non-existing       |                     |                    |
             | DeleteObjectTagging                | existing        | applies          | ALLOW           | existing           | applies             | ALLOW              |
             | DeleteObjectTagging                | existing        | applies          | ALLOW           | existing           | applies             | DENY               |
             | DeleteObjectTagging                | existing        | applies          | ALLOW           | existing           | applies             | ALLOW+DENY         |
@@ -582,6 +602,26 @@ Feature: S3 Bucket Policies Authorization flow for IAM Users
             | GetObjectRetention                 | non-existing    |                  |                 | existing           | applies             | ALLOW+DENY         |
             | GetObjectRetention                 | non-existing    |                  |                 | existing           | does not apply      | ALLOW              |
             | GetObjectRetention                 | non-existing    |                  |                 | non-existing       |                     |                    |
+            | GetBucketTagging                   | existing        | applies          | ALLOW           | existing           | applies             | ALLOW              |
+            | GetBucketTagging                   | existing        | applies          | ALLOW           | existing           | applies             | DENY               |
+            | GetBucketTagging                   | existing        | applies          | ALLOW           | existing           | applies             | ALLOW+DENY         |
+            | GetBucketTagging                   | existing        | applies          | ALLOW           | existing           | does not apply      | ALLOW              |
+            | GetBucketTagging                   | existing        | applies          | ALLOW           | non-existing       |                     |                    |
+            | GetBucketTagging                   | existing        | applies          | DENY            | existing           | applies             | ALLOW              |
+            | GetBucketTagging                   | existing        | applies          | DENY            | existing           | applies             | DENY               |
+            | GetBucketTagging                   | existing        | applies          | DENY            | existing           | applies             | ALLOW+DENY         |
+            | GetBucketTagging                   | existing        | applies          | DENY            | existing           | does not apply      | ALLOW              |
+            | GetBucketTagging                   | existing        | applies          | DENY            | non-existing       |                     |                    |
+            | GetBucketTagging                   | existing        | does not apply   | ALLOW           | existing           | applies             | ALLOW              |
+            | GetBucketTagging                   | existing        | does not apply   | ALLOW           | existing           | applies             | DENY               |
+            | GetBucketTagging                   | existing        | does not apply   | ALLOW           | existing           | applies             | ALLOW+DENY         |
+            | GetBucketTagging                   | existing        | does not apply   | ALLOW           | existing           | does not apply      | ALLOW              |
+            | GetBucketTagging                   | existing        | does not apply   | ALLOW           | non-existing       |                     |                    |
+            | GetBucketTagging                   | non-existing    |                  |                 | existing           | applies             | ALLOW              |
+            | GetBucketTagging                   | non-existing    |                  |                 | existing           | applies             | DENY               |
+            | GetBucketTagging                   | non-existing    |                  |                 | existing           | applies             | ALLOW+DENY         |
+            | GetBucketTagging                   | non-existing    |                  |                 | existing           | does not apply      | ALLOW              |
+            | GetBucketTagging                   | non-existing    |                  |                 | non-existing       |                     |                    |
             | GetObjectTagging                   | existing        | applies          | ALLOW           | existing           | applies             | ALLOW              |
             | GetObjectTagging                   | existing        | applies          | ALLOW           | existing           | applies             | DENY               |
             | GetObjectTagging                   | existing        | applies          | ALLOW           | existing           | applies             | ALLOW+DENY         |
@@ -982,6 +1022,26 @@ Feature: S3 Bucket Policies Authorization flow for IAM Users
             | PutObjectRetention                 | non-existing    |                  |                 | existing           | applies             | ALLOW+DENY         |
             | PutObjectRetention                 | non-existing    |                  |                 | existing           | does not apply      | ALLOW              |
             | PutObjectRetention                 | non-existing    |                  |                 | non-existing       |                     |                    |
+            | PutBucketTagging                   | existing        | applies          | ALLOW           | existing           | applies             | ALLOW              |
+            | PutBucketTagging                   | existing        | applies          | ALLOW           | existing           | applies             | DENY               |
+            | PutBucketTagging                   | existing        | applies          | ALLOW           | existing           | applies             | ALLOW+DENY         |
+            | PutBucketTagging                   | existing        | applies          | ALLOW           | existing           | does not apply      | ALLOW              |
+            | PutBucketTagging                   | existing        | applies          | ALLOW           | non-existing       |                     |                    |
+            | PutBucketTagging                   | existing        | applies          | DENY            | existing           | applies             | ALLOW              |
+            | PutBucketTagging                   | existing        | applies          | DENY            | existing           | applies             | DENY               |
+            | PutBucketTagging                   | existing        | applies          | DENY            | existing           | applies             | ALLOW+DENY         |
+            | PutBucketTagging                   | existing        | applies          | DENY            | existing           | does not apply      | ALLOW              |
+            | PutBucketTagging                   | existing        | applies          | DENY            | non-existing       |                     |                    |
+            | PutBucketTagging                   | existing        | does not apply   | ALLOW           | existing           | applies             | ALLOW              |
+            | PutBucketTagging                   | existing        | does not apply   | ALLOW           | existing           | applies             | DENY               |
+            | PutBucketTagging                   | existing        | does not apply   | ALLOW           | existing           | applies             | ALLOW+DENY         |
+            | PutBucketTagging                   | existing        | does not apply   | ALLOW           | existing           | does not apply      | ALLOW              |
+            | PutBucketTagging                   | existing        | does not apply   | ALLOW           | non-existing       |                     |                    |
+            | PutBucketTagging                   | non-existing    |                  |                 | existing           | applies             | ALLOW              |
+            | PutBucketTagging                   | non-existing    |                  |                 | existing           | applies             | DENY               |
+            | PutBucketTagging                   | non-existing    |                  |                 | existing           | applies             | ALLOW+DENY         |
+            | PutBucketTagging                   | non-existing    |                  |                 | existing           | does not apply      | ALLOW              |
+            | PutBucketTagging                   | non-existing    |                  |                 | non-existing       |                     |                    |
             | PutObjectTagging                   | existing        | applies          | ALLOW           | existing           | applies             | ALLOW              |
             | PutObjectTagging                   | existing        | applies          | ALLOW           | existing           | applies             | DENY               |
             | PutObjectTagging                   | existing        | applies          | ALLOW           | existing           | applies             | ALLOW+DENY         |

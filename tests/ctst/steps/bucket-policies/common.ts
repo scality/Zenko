@@ -262,16 +262,16 @@ Then('the authorization result is correct', function (this: Zenko) {
     const authR = authzConfiguration?.Resource;
     const isAllowed = (() => {
         switch (authI) {
-            case AuthorizationType.ALLOW:
-                return authR === AuthorizationType.ALLOW ||
+        case AuthorizationType.ALLOW:
+            return authR === AuthorizationType.ALLOW ||
                     authR === AuthorizationType.IMPLICIT_DENY ||
                     authR === AuthorizationType.NO_RESOURCE;
-            case AuthorizationType.IMPLICIT_DENY:
-                return authR === AuthorizationType.ALLOW;
-            case AuthorizationType.NO_RESOURCE:
-                return authR === AuthorizationType.ALLOW;
-            default:
-                return false;
+        case AuthorizationType.IMPLICIT_DENY:
+            return authR === AuthorizationType.ALLOW;
+        case AuthorizationType.NO_RESOURCE:
+            return authR === AuthorizationType.ALLOW;
+        default:
+            return false;
         }
     })();
     if (!isAllowed) {
