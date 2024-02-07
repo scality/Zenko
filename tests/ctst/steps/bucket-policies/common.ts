@@ -260,16 +260,20 @@ Then('the authorization result is correct', function (this: Zenko) {
     // others are denied
     const authI = authzConfiguration?.Identity;
     const authR = authzConfiguration?.Resource;
-    const isAllowed = (
-        // case: both allow
-        (authI === AuthorizationType.ALLOW && authR === AuthorizationType.ALLOW) ||
-        // case: one allow, one implicit deny
-        ((authI === AuthorizationType.ALLOW && authR === AuthorizationType.IMPLICIT_DENY) ||
-            (authI === AuthorizationType.IMPLICIT_DENY && authR === AuthorizationType.ALLOW)) ||
-        // case: one allow, one no resource
-        ((authI === AuthorizationType.ALLOW && authR === AuthorizationType.NO_RESOURCE) ||
-            (authI === AuthorizationType.NO_RESOURCE && authR === AuthorizationType.ALLOW))         
-    );
+    const isAllowed = (() => {
+        switch (authI) {
+            case AuthorizationType.ALLOW:
+                return authR === AuthorizationType.ALLOW ||
+                    authR === AuthorizationType.IMPLICIT_DENY ||
+                    authR === AuthorizationType.NO_RESOURCE;
+            case AuthorizationType.IMPLICIT_DENY:
+                return authR === AuthorizationType.ALLOW;
+            case AuthorizationType.NO_RESOURCE:
+                return authR === AuthorizationType.ALLOW;
+            default:
+                return false;
+        }
+    })();
     if (!isAllowed) {
         // special case: DeleteObjects always returns code 200
         // if the API is allowed but additional checks are denied.
