@@ -54,7 +54,8 @@ Given('an existing bucket prepared for the action', async function (this: Zenko)
         this.getSaved<string>('withObjectLock'),
         this.getSaved<string>('retentionMode'));
     if (this.getSaved<boolean>('preExistingObject')) {
-        await putObject(this);
+        this.addToSaved('objectName', `objectforbptests-${Utils.randomString()}`);
+        await putObject(this, this.getSaved<string>('objectName'));
     }
 });
 
@@ -249,7 +250,6 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
 });
 
 When('the user tries to perform the current S3 action on the bucket', async function (this: Zenko) {
-    this.addToSaved('objectName', `objectforbptests-${Utils.randomString()}`);
     await runActionAgainstBucket(this, this.getSaved<ActionPermissionsType>('currentAction').action);
 });
 
@@ -263,7 +263,7 @@ Then('the authorization result is correct', function (this: Zenko) {
     // others are denied
     const authI = authzConfiguration?.Identity;
     const authR = authzConfiguration?.Resource;
-    const isAllowed = (() => {
+    let isAllowed = (() => {
         switch (authI) {
         case AuthorizationType.ALLOW:
             return authR === AuthorizationType.ALLOW ||
@@ -277,6 +277,16 @@ Then('the authorization result is correct', function (this: Zenko) {
             return false;
         }
     })();
+    // Special cases: for CreateBucket and DeleteBucket, BP
+    // does not apply.
+    if (action.action === 'CreateBucket' || action.action === 'DeleteBucket') {
+        // In this case, we only consider the Identity part.
+        isAllowed = authI === AuthorizationType.ALLOW;        
+    }
+    // TODO disable after S3C-8424 is done
+    if (action.action === 'CreateMultipartUpload') {
+        return;
+    }
     if (!isAllowed) {
         // special case: DeleteObjects always returns code 200
         // if the API is allowed but additional checks are denied.

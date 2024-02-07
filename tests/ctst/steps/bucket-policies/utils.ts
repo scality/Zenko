@@ -43,34 +43,34 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'PutBucketAcl',
         permissions: ['s3:PutBucketAcl'],
-        expectedResultOnAllowTest: 'AccessControlListNotSupported',
+        expectedResultOnAllowTest: 'MalformedXML',
         excludePermissionOnBucketObjects: true,
     },
     {
         action: 'PutBucketEncryption',
         permissions: ['s3:PutEncryptionConfiguration'],
+        expectedResultOnAllowTest: 'MalformedXML',
         excludePermissionOnBucketObjects: true,
     },
     {
         action: 'PutBucketLifecycleConfiguration',
         permissions: ['s3:PutLifecycleConfiguration'],
-        expectedResultOnAllowTest: 'MalformedXML',
         excludePermissionOnBucketObjects: true,
     },
     {
         action: 'PutBucketNotificationConfiguration',
         permissions: ['s3:PutBucketNotification'],
-        expectedResultOnAllowTest: 'InvalidArgument',
     },
     {
         action: 'PutBucketPolicy',
         permissions: ['s3:PutBucketPolicy'],
         excludePermissionOnBucketObjects: true,
+        expectedResultOnAllowTest: 'MalformedPolicy',
     },
     {
         action: 'PutBucketReplication',
         permissions: ['s3:PutReplicationConfiguration'],
-        expectedResultOnAllowTest: 'Destination bucket must exist',
+        expectedResultOnAllowTest: 'InvalidRequest: Versioning must be \'Enabled\'',
         excludePermissionOnBucketObjects: true,
     },
     // initial permission passes, but then fails on destination bucket 
@@ -95,6 +95,7 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'PutObjectRetention',
         permissions: ['s3:PutObjectRetention'],
+        expectedResultOnAllowTest: 'NoSuchObjectLockConfiguration',
     },
     {
         action: 'PutObjectTagging',
@@ -103,7 +104,7 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'PutObjectAcl',
         permissions: ['s3:PutObjectAcl'],
-        expectedResultOnAllowTest: 'AccessControlListNotSupported',
+        expectedResultOnAllowTest: 'MalformedXML',
     },
     {
         action: 'PutBucketCors',
@@ -129,7 +130,7 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'GetBucketTagging',
         permissions: ['s3:GetBucketTagging'],
-        expectedResultOnAllowTest: 'NoSuchCORSConfiguration',
+        expectedResultOnAllowTest: 'NoSuchTagSet',
         excludePermissionOnBucketObjects: true,
     },
     {
@@ -145,6 +146,7 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'GetBucketEncryption',
         permissions: ['s3:GetEncryptionConfiguration'],
+        expectedResultOnAllowTest: 'ServerSideEncryptionConfigurationNotFoundError',
         excludePermissionOnBucketObjects: true,
     },
     {
@@ -171,6 +173,7 @@ const actionPermissions: ActionPermissionsType[] = [
         action: 'GetBucketPolicy',
         permissions: ['s3:GetBucketPolicy'],
         expectedResultOnAllowTest: 'NoSuchBucketPolicy',
+        excludePermissionOnBucketObjects: true,
     },
     {
         action: 'GetBucketReplication',
@@ -191,10 +194,12 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'GetObject',
         permissions: ['s3:GetObject'],
+        expectedResultOnAllowTest: 'NoSuchKey',
     },
     {
         action: 'GetObjectAcl',
         permissions: ['s3:GetObjectAcl'],
+        expectedResultOnAllowTest: 'NoSuchKey',
     },
     {
         action: 'GetObjectLegalHold',
@@ -217,7 +222,7 @@ const actionPermissions: ActionPermissionsType[] = [
     },
     {
         action: 'DeleteBucketTagging',
-        permissions: ['s3:DeleteBucketTagging'],
+        permissions: ['s3:PutBucketTagging'],
         excludePermissionOnBucketObjects: true,
     },
     {
@@ -261,7 +266,8 @@ const actionPermissions: ActionPermissionsType[] = [
     },
     {
         action: 'DeleteObjects',
-        permissions: ['s3:DeleteObjects'],
+        permissions: ['s3:DeleteObject'],
+        subAuthorizationChecks: true,
     },
     {
         action: 'DeleteObjects',
@@ -304,7 +310,6 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'ListMultipartUploads',
         permissions: ['s3:ListBucketMultipartUploads'],
-        expectedResultOnAllowTest: 'Forbidden',
         excludePermissionOnBucketObjects: true,
     },
     {
@@ -314,7 +319,7 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'CompleteMultipartUpload',
         permissions: ['s3:PutObject'],
-        expectedResultOnAllowTest: 'InvalidPart',
+        expectedResultOnAllowTest: 'NoSuchUpload',
     },
     {
         action: 'ListObjectVersions',
