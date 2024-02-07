@@ -1058,23 +1058,23 @@
 | UploadPart | non-existing |  |  | existing | applies | ALLOW+DENY |
 | UploadPart | non-existing |  |  | existing | does not apply | ALLOW |
 | UploadPart | non-existing |  |  | non-existing |  |  |
-| MetadataSearch | existing | applies | ALLOW | existing | applies | ALLOW |
-| MetadataSearch | existing | applies | ALLOW | existing | applies | DENY |
-| MetadataSearch | existing | applies | ALLOW | existing | applies | ALLOW+DENY |
-| MetadataSearch | existing | applies | ALLOW | existing | does not apply | ALLOW |
-| MetadataSearch | existing | applies | ALLOW | non-existing |  |  |
-| MetadataSearch | existing | applies | DENY | existing | applies | ALLOW |
-| MetadataSearch | existing | applies | DENY | existing | applies | DENY |
-| MetadataSearch | existing | applies | DENY | existing | applies | ALLOW+DENY |
-| MetadataSearch | existing | applies | DENY | existing | does not apply | ALLOW |
-| MetadataSearch | existing | applies | DENY | non-existing |  |  |
-| MetadataSearch | existing | does not apply | ALLOW | existing | applies | ALLOW |
-| MetadataSearch | existing | does not apply | ALLOW | existing | applies | DENY |
-| MetadataSearch | existing | does not apply | ALLOW | existing | applies | ALLOW+DENY |
-| MetadataSearch | existing | does not apply | ALLOW | existing | does not apply | ALLOW |
-| MetadataSearch | existing | does not apply | ALLOW | non-existing |  |  |
-| MetadataSearch | non-existing |  |  | existing | applies | ALLOW |
-| MetadataSearch | non-existing |  |  | existing | applies | DENY |
-| MetadataSearch | non-existing |  |  | existing | applies | ALLOW+DENY |
-| MetadataSearch | non-existing |  |  | existing | does not apply | ALLOW |
-| MetadataSearch | non-existing |  |  | non-existing |  |  |
+| UploadPartCopy | existing | applies | ALLOW | existing | applies | ALLOW |
+| UploadPartCopy | existing | applies | ALLOW | existing | applies | DENY |
+| UploadPartCopy | existing | applies | ALLOW | existing | applies | ALLOW+DENY |
+| UploadPartCopy | existing | applies | ALLOW | existing | does not apply | ALLOW |
+| UploadPartCopy | existing | applies | ALLOW | non-existing |  |  |
+| UploadPartCopy | existing | applies | DENY | existing | applies | ALLOW |
+| UploadPartCopy | existing | applies | DENY | existing | applies | DENY |
+| UploadPartCopy | existing | applies | DENY | existing | applies | ALLOW+DENY |
+| UploadPartCopy | existing | applies | DENY | existing | does not apply | ALLOW |
+| UploadPartCopy | existing | applies | DENY | non-existing |  |  |
+| UploadPartCopy | existing | does not apply | ALLOW | existing | applies | ALLOW |
+| UploadPartCopy | existing | does not apply | ALLOW | existing | applies | DENY |
+| UploadPartCopy | existing | does not apply | ALLOW | existing | applies | ALLOW+DENY |
+| UploadPartCopy | existing | does not apply | ALLOW | existing | does not apply | ALLOW |
+| UploadPartCopy | existing | does not apply | ALLOW | non-existing |  |  |
+| UploadPartCopy | non-existing |  |  | existing | applies | ALLOW |
+| UploadPartCopy | non-existing |  |  | existing | applies | DENY |
+| UploadPartCopy | non-existing |  |  | existing | applies | ALLOW+DENY |
+| UploadPartCopy | non-existing |  |  | existing | does not apply | ALLOW |
+| UploadPartCopy | non-existing |  |  | non-existing |  |  |

@@ -28,6 +28,8 @@ const needObject = [
     'DeleteObjectTagging',
     'DeleteObjects',
     'HeadObject',
+    'UploadPart',
+    'UploadPartCopy',
 ];
 
 const needVersioning = [
@@ -199,6 +201,7 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'GetObjectLegalHold',
         permissions: ['s3:GetObjectLegalHold'],
+        expectedResultOnAllowTest: 'NoSuchObjectLockConfiguration',
     },
     {
         action: 'GetObjectRetention',
@@ -212,6 +215,7 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'DeleteBucketCors',
         permissions: ['s3:PutBucketCORS'],
+        expectedResultOnAllowTest: 'MissingRequestBodyError',
         excludePermissionOnBucketObjects: true,
     },
     {

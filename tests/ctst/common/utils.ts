@@ -30,7 +30,6 @@ export const s3FunctionExtraParams: { [key: string]: Record<string, unknown>[] }
     abortMultipartUpload: [{ uploadId: 'fakeId' }, { key: 'multipartUpload' }],
     createMultipartUpload: [{ key: 'multipartUpload' }],
     completeMultipartUpload: [{ uploadId: 'fakeId' }, { key: 'multipartUpload' }],
-    uploadPart: [{ uploadId: 'fakeId' }, { key: 'multipartUpload' }, { partNumber: 1 }],
     restoreObject: [{ restoreRequest: 'Days=1' }],
     putObjectAcl: [{ acl: 'public-read-write' }],
     putBucketCors: [{ corsConfiguration: JSON.stringify({
@@ -38,17 +37,8 @@ export const s3FunctionExtraParams: { [key: string]: Record<string, unknown>[] }
     putBucketTagging: [{ tagging: '{"TagSet":[{"Key":"tag1","Value":"value1"},{"Key":"tag2","Value":"value2"}]}' }],
     putObjectTagging: [{ tagging: '{"TagSet":[{"Key":"string","Value":"string"}]}' }],
     putBucketVersioning: [{ versioningConfiguration: 'Status=Enabled' }],
-    putBucketPolicy: [{
-        policy: JSON.stringify({
-            Version: '2012-10-17',
-            Statement: [{ Effect: 'Allow', Principal: '*', Action: 's3:*', Resource: 'arn:aws:s3:::examplebucket/*' }],
-        }),
-    }],
     putObjectRetention: [{
-        retention: JSON.stringify({
-            RetainUntilDate: new Date('2021-12-31T00:00:00Z'),
-            Mode: 'GOVERNANCE',
-        }),
+        retention: 'Mode=COMPLIANCE,RetainUntilDate=2022-01-01T00:00:00Z',
     }],
     putObjectLockConfiguration: [{
         objectLockConfiguration: '{ "ObjectLockEnabled": "Enabled", "Rule": ' +

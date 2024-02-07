@@ -58,6 +58,7 @@ const APIs = [
     'PutBucketTagging',
     'PutObjectTagging',
     'UploadPart',
+    'UploadPartCopy',
 ];
 
 const scenarios = [];

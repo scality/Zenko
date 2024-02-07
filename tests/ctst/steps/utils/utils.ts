@@ -38,6 +38,30 @@ async function runActionAgainstBucket(context: Zenko, action: string) {
         } else if (context.getSaved<string>('objectName')) {
             context.addCommandParameter({ key: context.getSaved<string>('objectName') });
         }
+        // iF PUT BUCKET POLICY, CREATETHE POLICY USING THE CURRENT BUCKET NAME IN THE RESOURCE
+        if (action === 'PutBucketPolicy') {
+            context.addCommandParameter({
+                policy: JSON.stringify({
+                    Version: '2012-10-17',
+                    Statement: [{
+                        Effect: 'Allow',
+                        Principal: '*',
+                        Action: 's3:*',
+                        Resource: `arn:aws:s3:::${context.getSaved<string>('bucketName')}/*`,
+                    }],
+                }),
+            });
+        }
+        if (action === 'UploadPart') {
+            context.addCommandParameter({ uploadId: 'fakeId' });
+            context.addCommandParameter({ partNumber: '1' });
+        }
+        if (action === 'UploadPartCopy') {
+            context.addCommandParameter({ uploadId: 'fakeId' });
+            context.addCommandParameter({ partNumber: '1' });
+            context.addCommandParameter({
+                copySource: `${context.getSaved<string>('bucketName')}/${context.getSaved<string>('objectName')}` });
+        }
         const usedAction = action.charAt(0).toLowerCase() + action.slice(1);
         const actionCall = S3[usedAction];
         if (actionCall) {
