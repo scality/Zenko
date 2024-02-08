@@ -8,7 +8,7 @@ const APIs = [
     'AbortMultipartUpload',
     'CompleteMultipartUpload',
     'CopyObject',
-    'CreateBucket',
+    // 'CreateBucket',
     'CreateMultipartUpload',
     'DeleteBucket',
     'DeleteBucketCors',

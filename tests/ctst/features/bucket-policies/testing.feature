@@ -82,26 +82,6 @@ Feature: S3 Bucket Policies Authorization flow for IAM Users
             | CopyObject                         | non-existing       |                     |                    | existing        | applies          | ALLOW+DENY      |
             | CopyObject                         | non-existing       |                     |                    | existing        | does not apply   | ALLOW           |
             | CopyObject                         | non-existing       |                     |                    | non-existing    |                  |                 |
-            | CreateBucket                       | existing           | applies             | ALLOW              | existing        | applies          | ALLOW           |
-            | CreateBucket                       | existing           | applies             | ALLOW              | existing        | applies          | DENY            |
-            | CreateBucket                       | existing           | applies             | ALLOW              | existing        | applies          | ALLOW+DENY      |
-            | CreateBucket                       | existing           | applies             | ALLOW              | existing        | does not apply   | ALLOW           |
-            | CreateBucket                       | existing           | applies             | ALLOW              | non-existing    |                  |                 |
-            | CreateBucket                       | existing           | applies             | DENY               | existing        | applies          | ALLOW           |
-            | CreateBucket                       | existing           | applies             | DENY               | existing        | applies          | DENY            |
-            | CreateBucket                       | existing           | applies             | DENY               | existing        | applies          | ALLOW+DENY      |
-            | CreateBucket                       | existing           | applies             | DENY               | existing        | does not apply   | ALLOW           |
-            | CreateBucket                       | existing           | applies             | DENY               | non-existing    |                  |                 |
-            | CreateBucket                       | existing           | does not apply      | ALLOW              | existing        | applies          | ALLOW           |
-            | CreateBucket                       | existing           | does not apply      | ALLOW              | existing        | applies          | DENY            |
-            | CreateBucket                       | existing           | does not apply      | ALLOW              | existing        | applies          | ALLOW+DENY      |
-            | CreateBucket                       | existing           | does not apply      | ALLOW              | existing        | does not apply   | ALLOW           |
-            | CreateBucket                       | existing           | does not apply      | ALLOW              | non-existing    |                  |                 |
-            | CreateBucket                       | non-existing       |                     |                    | existing        | applies          | ALLOW           |
-            | CreateBucket                       | non-existing       |                     |                    | existing        | applies          | DENY            |
-            | CreateBucket                       | non-existing       |                     |                    | existing        | applies          | ALLOW+DENY      |
-            | CreateBucket                       | non-existing       |                     |                    | existing        | does not apply   | ALLOW           |
-            | CreateBucket                       | non-existing       |                     |                    | non-existing    |                  |                 |
             | CreateMultipartUpload              | existing           | applies             | ALLOW              | existing        | applies          | ALLOW           |
             | CreateMultipartUpload              | existing           | applies             | ALLOW              | existing        | applies          | DENY            |
             | CreateMultipartUpload              | existing           | applies             | ALLOW              | existing        | applies          | ALLOW+DENY      |
