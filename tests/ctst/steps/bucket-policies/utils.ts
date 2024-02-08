@@ -111,7 +111,7 @@ const actionPermissions: ActionPermissionsType[] = [
     },
     {
         action: 'PutObjectRetention',
-        permissions: ['s3:PutObjectRetention'],
+        permissions: ['s3:PutObjectRetention', 's3:BypassGovernanceRetention'],
     },
     {
         action: 'PutObjectTagging',

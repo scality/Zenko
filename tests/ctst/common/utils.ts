@@ -39,6 +39,7 @@ export const s3FunctionExtraParams: { [key: string]: Record<string, unknown>[] }
     putBucketVersioning: [{ versioningConfiguration: 'Status=Enabled' }],
     putObjectRetention: [{
         retention: 'Mode=COMPLIANCE,RetainUntilDate=2080-01-01T00:00:00Z',
+        bypassGovernanceRetention: 'true',
     }],
     putObjectLockConfiguration: [{
         objectLockConfiguration: '{ "ObjectLockEnabled": "Enabled", "Rule": ' +
