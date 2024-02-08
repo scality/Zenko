@@ -38,7 +38,7 @@ export const s3FunctionExtraParams: { [key: string]: Record<string, unknown>[] }
     putObjectTagging: [{ tagging: '{"TagSet":[{"Key":"string","Value":"string"}]}' }],
     putBucketVersioning: [{ versioningConfiguration: 'Status=Enabled' }],
     putObjectRetention: [{
-        retention: 'Mode=COMPLIANCE,RetainUntilDate=2022-01-01T00:00:00Z',
+        retention: 'Mode=COMPLIANCE,RetainUntilDate=2080-01-01T00:00:00Z',
     }],
     putObjectLockConfiguration: [{
         objectLockConfiguration: '{ "ObjectLockEnabled": "Enabled", "Rule": ' +

@@ -36,6 +36,7 @@ Given('an action {string}', function (this: Zenko, apiName: string) {
 
     if (needObjectLock.includes(apiName)) {
         this.addToSaved('withObjectLock', 'with');
+        this.addToSaved('retentionMode', 'GOVERNANCE');
     }
 
     if (needObject.includes(apiName)) {
@@ -229,6 +230,14 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
     }
     this.addToSaved('authzConfiguration', authzConfiguration);
     const currentIdentityArn = this.getSaved<string>('identityArn');
+    let principal = currentIdentityArn;
+    const identityType = this.getSaved<string>('identityType') as EntityType;
+    if (identityType === EntityType.ASSUME_ROLE_USER || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT) {
+        principal = '*';
+    }
+    if (!applies) {
+        principal = `${currentIdentityArn}badname`;
+    }
     const basePolicy = {
         Version: '2012-10-17',
         Statement: [
@@ -237,7 +246,7 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
                 Action: action.permissions,
                 Resource: resources,
                 Principal: {
-                    AWS: applies ? currentIdentityArn : `${currentIdentityArn}badname`,
+                    AWS: principal,
                 },
             },
         ],

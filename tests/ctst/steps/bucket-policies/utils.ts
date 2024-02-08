@@ -49,15 +49,13 @@ const needVersioning = [
 
 const actionPermissions: ActionPermissionsType[] = [
     // Create bucket is not checking any bucket policy
-    // Keeping it as we rely on the MalformedPolicy Error
-    // To only check the IAM part.
-    {
-        action: 'CreateBucket',
-        permissions: ['s3:CreateBucket'],
-        expectedResultOnAllowTest: 'BucketAlreadyOwnedByYou',
-        excludePermissionOnBucketObjects: true,
-        useWildCardBucketName: true,
-    },
+    // {
+    //     action: 'CreateBucket',
+    //     permissions: ['s3:CreateBucket'],
+    //     expectedResultOnAllowTest: 'BucketAlreadyOwnedByYou',
+    //     excludePermissionOnBucketObjects: true,
+    //     useWildCardBucketName: true,
+    // },
     {
         action: 'PutBucketAcl',
         permissions: ['s3:PutBucketAcl'],
@@ -309,6 +307,7 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'UploadPart',
         permissions: ['s3:PutObject'],
+        expectedResultOnAllowTest: 'NoSuchUpload',
     },
     {
         action: 'UploadPartCopy',
