@@ -275,8 +275,8 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
 
 When('the user tries to perform the current S3 action on the bucket', async function (this: Zenko) {
     let action = this.getSaved<ActionPermissionsType>('currentAction').action;
-    if (action.endsWith('Version')) {
-        action = action.slice(0, -7);
+    if (action.includes('Version') && !action.includes('Versioning')) {
+        action = action.replace('Version', '');
     }
     await runActionAgainstBucket(this, this.getSaved<ActionPermissionsType>('currentAction').action);
 });
