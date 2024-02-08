@@ -45,6 +45,7 @@ const needObject = [
 
 const needVersioning = [
     'PutBucketReplication',
+    'ListObjectVersions',
 ];
 
 const actionPermissions: ActionPermissionsType[] = [
@@ -106,6 +107,7 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'PutObjectLegalHold',
         permissions: ['s3:PutObjectLegalHold'],
+        expectedResultOnAllowTest: 'MalformedXML',
     },
     {
         action: 'PutObjectRetention',
@@ -122,6 +124,7 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'PutBucketCors',
         permissions: ['s3:PutBucketCORS'],
+        expectedResultOnAllowTest: 'MissingRequestBodyError',
         excludePermissionOnBucketObjects: true,
     },
     {
@@ -185,6 +188,7 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'GetBucketPolicy',
         permissions: ['s3:GetBucketPolicy'],
+        expectedResultOnAllowTest: 'NoSuchBucketPolicy',
         excludePermissionOnBucketObjects: true,
     },
     {
@@ -228,7 +232,6 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'DeleteBucketCors',
         permissions: ['s3:PutBucketCORS'],
-        expectedResultOnAllowTest: 'MissingRequestBodyError',
         excludePermissionOnBucketObjects: true,
     },
     {

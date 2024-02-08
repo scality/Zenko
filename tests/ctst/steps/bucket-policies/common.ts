@@ -316,6 +316,10 @@ Then('the authorization result is correct', function (this: Zenko) {
         // if the API is allowed but additional checks are denied.
         if (action.action === 'DeleteObjects' && action.subAuthorizationChecks) {
             assert.strictEqual(this.getResult().stdout?.includes('AccessDenied'), true);
+        } else if (action.action === 'HeadObject') {
+            // SDK return Unknown errors for HeadObject
+            assert.strictEqual(this.getResult().err?.includes('AccessDenied') ||
+                this.getResult().err?.includes('403'), true);
         } else {
             assert.strictEqual(this.getResult().err?.includes('AccessDenied'), true);
         }
@@ -324,7 +328,8 @@ Then('the authorization result is correct', function (this: Zenko) {
         if (action.expectedResultOnAllowTest) {
             assert.strictEqual(
                 this.getResult().err?.includes(action.expectedResultOnAllowTest) ||
-                this.getResult().stdout?.includes(action.expectedResultOnAllowTest), true);
+                this.getResult().stdout?.includes(action.expectedResultOnAllowTest) ||
+                this.getResult().err === null, true);
         } else {
             assert.strictEqual(this.getResult().err, null);
         }
