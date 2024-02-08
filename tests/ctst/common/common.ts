@@ -241,6 +241,7 @@ Then('kafka consumed messages should not take too much place on disk',
             if (notToCheckTopics.some(notToCheckTopic => topic.includes(notToCheckTopic))) {
                 continue;
             }
+            process.stdout.write(`Checking topic ${topic} offsets\n`)
             const topicOffsets = await kafkaAdmin.fetchTopicOffsets(topic);
             for (const partition of topicOffsets) {
                 assert.strictEqual(partition.high, partition.low);
