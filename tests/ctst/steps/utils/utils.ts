@@ -38,7 +38,6 @@ async function runActionAgainstBucket(context: Zenko, action: string) {
         } else if (context.getSaved<string>('objectName')) {
             context.addCommandParameter({ key: context.getSaved<string>('objectName') });
         }
-        // iF PUT BUCKET POLICY, CREATETHE POLICY USING THE CURRENT BUCKET NAME IN THE RESOURCE
         if (action === 'PutBucketPolicy') {
             context.addCommandParameter({
                 policy: JSON.stringify({

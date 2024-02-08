@@ -154,16 +154,18 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
     const identityType = this.getSaved<string>('identityType') as EntityType;
     // attach the policy to the current identity: role or user
     if (identityType === EntityType.ASSUME_ROLE_USER || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT) {
-        await IAM.attachRolePolicy({
+        const result = await IAM.attachRolePolicy({
             policyArn,
             roleName: this.getSaved<string>('identityName'),
         });
+        assert.ifError(result.stderr || result.err);
     }
     if (identityType === EntityType.IAM_USER) {
-        await IAM.attachUserPolicy({
+        const result = await IAM.attachUserPolicy({
             policyArn,
             userName: this.getSaved<string>('identityName'),
         });
+        assert.ifError(result.stderr || result.err);
     }
     if (identityType === EntityType.STORAGE_MANAGER) {
         // TODO: special case because it already has existing permissions
@@ -254,10 +256,11 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
                 })                
             }\n`);
     }
-    await S3.putBucketPolicy({
+    const result = await S3.putBucketPolicy({
         bucket: this.getSaved<string>('bucketName'),
         policy: JSON.stringify(basePolicy),
     });
+    assert.ifError(result.stderr || result.err);
     this.setAuthMode('test_identity');
 });
 
