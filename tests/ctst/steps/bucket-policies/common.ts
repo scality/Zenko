@@ -77,8 +77,11 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
     let effect = AuthorizationType.DENY;
     // use the current S3 bucket
     let resources;
+    const applies = doesApply === 'applies';
+    const bucketName = action.useWildCardBucketName ?
+        '*' : this.getSaved<string>('bucketName');
     if (doesExists === 'existing') {
-        if (doesApply === 'applies') {
+        if (applies) {
             if (isAllow === 'ALLOW') {
                 authzConfiguration.Identity = AuthorizationType.ALLOW;
                 effect = AuthorizationType.ALLOW;
@@ -87,20 +90,23 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
                 effect = AuthorizationType.DENY;
             }
             resources = [
-                `arn:aws:s3:::${this.getSaved<string>('bucketName')}`,
-                `arn:aws:s3:::${this.getSaved<string>('bucketName')}/*`,
+                `arn:aws:s3:::${bucketName}`,
+                `arn:aws:s3:::${bucketName}/*`,
             ];
         } else {
             authzConfiguration.Identity = AuthorizationType.IMPLICIT_DENY;
             // Effect is ALLOW on purpose, to ensure we properly handle implicit denies
             effect = AuthorizationType.ALLOW;
             resources = [
-                `arn:aws:s3:::${this.getSaved<string>('bucketName')}badname`,
-                `arn:aws:s3:::${this.getSaved<string>('bucketName')}badname/*`,
+                `arn:aws:s3:::${bucketName}badname`,
+                `arn:aws:s3:::${bucketName}badname/*`,
             ];
         }
         if (action.excludePermissionOnBucketObjects) {
             resources.pop();
+        }
+        if (action.excludePermissionsOnBucket) {
+            resources.shift();
         }
     } else {
         authzConfiguration.Resource = AuthorizationType.NO_RESOURCE;
@@ -150,7 +156,7 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
     if (identityType === EntityType.ASSUME_ROLE_USER || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT) {
         await IAM.attachRolePolicy({
             policyArn,
-            roleArn: this.getSaved<string>('identityName'),
+            roleName: this.getSaved<string>('identityName'),
         });
     }
     if (identityType === EntityType.IAM_USER) {
@@ -184,8 +190,11 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
     let effect = AuthorizationType.DENY;
     // use the current S3 bucket
     let resources;
+    const applies = doesApply === 'applies';
+    const bucketName = action.useWildCardBucketName ?
+        '*' : this.getSaved<string>('bucketName');
     if (doesExists === 'existing') {
-        if (doesApply === 'applies') {
+        if (applies) {
             if (isAllow === 'ALLOW') {
                 authzConfiguration.Resource = AuthorizationType.ALLOW;
                 effect = AuthorizationType.ALLOW;
@@ -194,20 +203,23 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
                 effect = AuthorizationType.DENY;
             }
             resources = [
-                `arn:aws:s3:::${this.getSaved<string>('bucketName')}`,
-                `arn:aws:s3:::${this.getSaved<string>('bucketName')}/*`,
+                `arn:aws:s3:::${bucketName}`,
+                `arn:aws:s3:::${bucketName}/*`,
             ];
         } else {
             authzConfiguration.Resource = AuthorizationType.IMPLICIT_DENY;
             // Effect is ALLOW on purpose, to ensure we properly handle implicit denies
             effect = AuthorizationType.ALLOW;
             resources = [
-                `arn:aws:s3:::${this.getSaved<string>('bucketName')}badname`,
-                `arn:aws:s3:::${this.getSaved<string>('bucketName')}badname/*`,
+                `arn:aws:s3:::${bucketName}`,
+                `arn:aws:s3:::${bucketName}/*`,
             ];
         }
         if (action.excludePermissionOnBucketObjects) {
             resources.pop();
+        }
+        if (action.excludePermissionsOnBucket) {
+            resources.shift();
         }
     } else {
         authzConfiguration.Resource = AuthorizationType.NO_RESOURCE;
@@ -223,7 +235,7 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
                 Action: action.permissions,
                 Resource: resources,
                 Principal: {
-                    AWS: currentIdentityArn,
+                    AWS: applies ? currentIdentityArn : `${currentIdentityArn}badname`,
                 },
             },
         ],

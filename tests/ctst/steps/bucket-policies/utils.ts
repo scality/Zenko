@@ -4,6 +4,8 @@ type ActionPermissionsType = {
     subAuthorizationChecks?: boolean;
     expectedResultOnAllowTest?: string;
     excludePermissionOnBucketObjects?: boolean,
+    excludePermissionsOnBucket?: boolean,
+    useWildCardBucketName?: boolean,
 };
 
 const needObjectLock = [
@@ -30,6 +32,15 @@ const needObject = [
     'HeadObject',
     'UploadPart',
     'UploadPartCopy',
+    'DeleteObjectVersion',
+    'DeleteObjectVersionTagging',
+    'GetObjectVersion',
+    'GetObjectVersionAcl',
+    'GetObjectVersionTagging',
+    'PutObjectVersionAcl',
+    'PutObjectVersionTagging',
+    'PutObjectVersionRetention',
+    'PutObjectVersionLegalHold',
 ];
 
 const needVersioning = [
@@ -37,11 +48,15 @@ const needVersioning = [
 ];
 
 const actionPermissions: ActionPermissionsType[] = [
+    // Create bucket is not checking any bucket policy
+    // Keeping it as we rely on the MalformedPolicy Error
+    // To only check the IAM part.
     {
         action: 'CreateBucket',
         permissions: ['s3:CreateBucket'],
         expectedResultOnAllowTest: 'BucketAlreadyOwnedByYou',
         excludePermissionOnBucketObjects: true,
+        useWildCardBucketName: true,
     },
     {
         action: 'PutBucketAcl',
@@ -296,6 +311,10 @@ const actionPermissions: ActionPermissionsType[] = [
         permissions: ['s3:PutObject'],
     },
     {
+        action: 'UploadPartCopy',
+        permissions: ['s3:PutObject'],
+    },
+    {
         action: 'CopyObject',
         permissions: ['s3:GetObject', 's3:PutObject'],
         expectedResultOnAllowTest: 'NoSuchKey',
@@ -326,6 +345,52 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'MetadataSearch',
         permissions: ['s3:MetadataSearch'],
+    },
+    // Version APIs
+    {
+        action: 'DeleteObjectVersion',
+        permissions: ['s3:DeleteObjectVersion'],
+        expectedResultOnAllowTest: 'NoSuchVersion',
+    },
+    {
+        action: 'DeleteObjectVersionTagging',
+        permissions: ['s3:DeleteObjectVersionTagging'],
+        expectedResultOnAllowTest: 'NoSuchVersion',
+    },
+    {
+        action: 'GetObjectVersion',
+        permissions: ['s3:GetObjectVersion'],
+        expectedResultOnAllowTest: 'NoSuchVersion',
+    },
+    {
+        action: 'GetObjectVersionAcl',
+        permissions: ['s3:GetObjectVersionAcl'],
+        expectedResultOnAllowTest: 'NoSuchVersion',
+    },
+    {
+        action: 'GetObjectVersionTagging',
+        permissions: ['s3:GetObjectVersionTagging'],
+        expectedResultOnAllowTest: 'NoSuchVersion',
+    },
+    {
+        action: 'PutObjectVersionAcl',
+        permissions: ['s3:PutObjectVersionAcl'],
+        expectedResultOnAllowTest: 'NoSuchVersion',
+    },
+    {
+        action: 'PutObjectVersionTagging',
+        permissions: ['s3:PutObjectVersionTagging'],
+        expectedResultOnAllowTest: 'NoSuchVersion',
+    },
+    {
+        action: 'PutObjectVersionRetention',
+        permissions: ['s3:PutObjectVersionRetention'],
+        expectedResultOnAllowTest: 'NoSuchVersion',
+    },
+    {
+        action: 'PutObjectVersionLegalHold',
+        permissions: ['s3:PutObjectVersionLegalHold'],
+        expectedResultOnAllowTest: 'NoSuchVersion',
     },
 ];
 

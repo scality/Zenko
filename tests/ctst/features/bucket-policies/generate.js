@@ -59,6 +59,16 @@ const APIs = [
     'PutObjectTagging',
     'UploadPart',
     'UploadPartCopy',
+    // Verison-related
+    'DeleteObjectVersion',
+    'DeleteObjectVersionTagging',
+    'GetObjectVersion',
+    'GetObjectVersionAcl',
+    'GetObjectVersionTagging',
+    'PutObjectVersionAcl',
+    'PutObjectVersionTagging',
+    'PutObjectVersionRetention',
+    'PutObjectVersionLegalHold',
 ];
 
 const scenarios = [];

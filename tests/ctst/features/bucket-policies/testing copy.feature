@@ -1102,3 +1102,183 @@ Feature: S3 Bucket Policies Authorization flow for ASSUME_ROLE_USER
             | UploadPartCopy                     | non-existing       |                     |                    | existing        | applies          | ALLOW+DENY      |
             | UploadPartCopy                     | non-existing       |                     |                    | existing        | does not apply   | ALLOW           |
             | UploadPartCopy                     | non-existing       |                     |                    | non-existing    |                  |                 |
+            | DeleteObjectVersion                | existing           | applies             | ALLOW              | existing        | applies          | ALLOW           |
+            | DeleteObjectVersion                | existing           | applies             | ALLOW              | existing        | applies          | DENY            |
+            | DeleteObjectVersion                | existing           | applies             | ALLOW              | existing        | applies          | ALLOW+DENY      |
+            | DeleteObjectVersion                | existing           | applies             | ALLOW              | existing        | does not apply   | ALLOW           |
+            | DeleteObjectVersion                | existing           | applies             | ALLOW              | non-existing    |                  |                 |
+            | DeleteObjectVersion                | existing           | applies             | DENY               | existing        | applies          | ALLOW           |
+            | DeleteObjectVersion                | existing           | applies             | DENY               | existing        | applies          | DENY            |
+            | DeleteObjectVersion                | existing           | applies             | DENY               | existing        | applies          | ALLOW+DENY      |
+            | DeleteObjectVersion                | existing           | applies             | DENY               | existing        | does not apply   | ALLOW           |
+            | DeleteObjectVersion                | existing           | applies             | DENY               | non-existing    |                  |                 |
+            | DeleteObjectVersion                | existing           | does not apply      | ALLOW              | existing        | applies          | ALLOW           |
+            | DeleteObjectVersion                | existing           | does not apply      | ALLOW              | existing        | applies          | DENY            |
+            | DeleteObjectVersion                | existing           | does not apply      | ALLOW              | existing        | applies          | ALLOW+DENY      |
+            | DeleteObjectVersion                | existing           | does not apply      | ALLOW              | existing        | does not apply   | ALLOW           |
+            | DeleteObjectVersion                | existing           | does not apply      | ALLOW              | non-existing    |                  |                 |
+            | DeleteObjectVersion                | non-existing       |                     |                    | existing        | applies          | ALLOW           |
+            | DeleteObjectVersion                | non-existing       |                     |                    | existing        | applies          | DENY            |
+            | DeleteObjectVersion                | non-existing       |                     |                    | existing        | applies          | ALLOW+DENY      |
+            | DeleteObjectVersion                | non-existing       |                     |                    | existing        | does not apply   | ALLOW           |
+            | DeleteObjectVersion                | non-existing       |                     |                    | non-existing    |                  |                 |
+            | DeleteObjectVersionTagging         | existing           | applies             | ALLOW              | existing        | applies          | ALLOW           |
+            | DeleteObjectVersionTagging         | existing           | applies             | ALLOW              | existing        | applies          | DENY            |
+            | DeleteObjectVersionTagging         | existing           | applies             | ALLOW              | existing        | applies          | ALLOW+DENY      |
+            | DeleteObjectVersionTagging         | existing           | applies             | ALLOW              | existing        | does not apply   | ALLOW           |
+            | DeleteObjectVersionTagging         | existing           | applies             | ALLOW              | non-existing    |                  |                 |
+            | DeleteObjectVersionTagging         | existing           | applies             | DENY               | existing        | applies          | ALLOW           |
+            | DeleteObjectVersionTagging         | existing           | applies             | DENY               | existing        | applies          | DENY            |
+            | DeleteObjectVersionTagging         | existing           | applies             | DENY               | existing        | applies          | ALLOW+DENY      |
+            | DeleteObjectVersionTagging         | existing           | applies             | DENY               | existing        | does not apply   | ALLOW           |
+            | DeleteObjectVersionTagging         | existing           | applies             | DENY               | non-existing    |                  |                 |
+            | DeleteObjectVersionTagging         | existing           | does not apply      | ALLOW              | existing        | applies          | ALLOW           |
+            | DeleteObjectVersionTagging         | existing           | does not apply      | ALLOW              | existing        | applies          | DENY            |
+            | DeleteObjectVersionTagging         | existing           | does not apply      | ALLOW              | existing        | applies          | ALLOW+DENY      |
+            | DeleteObjectVersionTagging         | existing           | does not apply      | ALLOW              | existing        | does not apply   | ALLOW           |
+            | DeleteObjectVersionTagging         | existing           | does not apply      | ALLOW              | non-existing    |                  |                 |
+            | DeleteObjectVersionTagging         | non-existing       |                     |                    | existing        | applies          | ALLOW           |
+            | DeleteObjectVersionTagging         | non-existing       |                     |                    | existing        | applies          | DENY            |
+            | DeleteObjectVersionTagging         | non-existing       |                     |                    | existing        | applies          | ALLOW+DENY      |
+            | DeleteObjectVersionTagging         | non-existing       |                     |                    | existing        | does not apply   | ALLOW           |
+            | DeleteObjectVersionTagging         | non-existing       |                     |                    | non-existing    |                  |                 |
+            | GetObjectVersion                   | existing           | applies             | ALLOW              | existing        | applies          | ALLOW           |
+            | GetObjectVersion                   | existing           | applies             | ALLOW              | existing        | applies          | DENY            |
+            | GetObjectVersion                   | existing           | applies             | ALLOW              | existing        | applies          | ALLOW+DENY      |
+            | GetObjectVersion                   | existing           | applies             | ALLOW              | existing        | does not apply   | ALLOW           |
+            | GetObjectVersion                   | existing           | applies             | ALLOW              | non-existing    |                  |                 |
+            | GetObjectVersion                   | existing           | applies             | DENY               | existing        | applies          | ALLOW           |
+            | GetObjectVersion                   | existing           | applies             | DENY               | existing        | applies          | DENY            |
+            | GetObjectVersion                   | existing           | applies             | DENY               | existing        | applies          | ALLOW+DENY      |
+            | GetObjectVersion                   | existing           | applies             | DENY               | existing        | does not apply   | ALLOW           |
+            | GetObjectVersion                   | existing           | applies             | DENY               | non-existing    |                  |                 |
+            | GetObjectVersion                   | existing           | does not apply      | ALLOW              | existing        | applies          | ALLOW           |
+            | GetObjectVersion                   | existing           | does not apply      | ALLOW              | existing        | applies          | DENY            |
+            | GetObjectVersion                   | existing           | does not apply      | ALLOW              | existing        | applies          | ALLOW+DENY      |
+            | GetObjectVersion                   | existing           | does not apply      | ALLOW              | existing        | does not apply   | ALLOW           |
+            | GetObjectVersion                   | existing           | does not apply      | ALLOW              | non-existing    |                  |                 |
+            | GetObjectVersion                   | non-existing       |                     |                    | existing        | applies          | ALLOW           |
+            | GetObjectVersion                   | non-existing       |                     |                    | existing        | applies          | DENY            |
+            | GetObjectVersion                   | non-existing       |                     |                    | existing        | applies          | ALLOW+DENY      |
+            | GetObjectVersion                   | non-existing       |                     |                    | existing        | does not apply   | ALLOW           |
+            | GetObjectVersion                   | non-existing       |                     |                    | non-existing    |                  |                 |
+            | GetObjectVersionAcl                | existing           | applies             | ALLOW              | existing        | applies          | ALLOW           |
+            | GetObjectVersionAcl                | existing           | applies             | ALLOW              | existing        | applies          | DENY            |
+            | GetObjectVersionAcl                | existing           | applies             | ALLOW              | existing        | applies          | ALLOW+DENY      |
+            | GetObjectVersionAcl                | existing           | applies             | ALLOW              | existing        | does not apply   | ALLOW           |
+            | GetObjectVersionAcl                | existing           | applies             | ALLOW              | non-existing    |                  |                 |
+            | GetObjectVersionAcl                | existing           | applies             | DENY               | existing        | applies          | ALLOW           |
+            | GetObjectVersionAcl                | existing           | applies             | DENY               | existing        | applies          | DENY            |
+            | GetObjectVersionAcl                | existing           | applies             | DENY               | existing        | applies          | ALLOW+DENY      |
+            | GetObjectVersionAcl                | existing           | applies             | DENY               | existing        | does not apply   | ALLOW           |
+            | GetObjectVersionAcl                | existing           | applies             | DENY               | non-existing    |                  |                 |
+            | GetObjectVersionAcl                | existing           | does not apply      | ALLOW              | existing        | applies          | ALLOW           |
+            | GetObjectVersionAcl                | existing           | does not apply      | ALLOW              | existing        | applies          | DENY            |
+            | GetObjectVersionAcl                | existing           | does not apply      | ALLOW              | existing        | applies          | ALLOW+DENY      |
+            | GetObjectVersionAcl                | existing           | does not apply      | ALLOW              | existing        | does not apply   | ALLOW           |
+            | GetObjectVersionAcl                | existing           | does not apply      | ALLOW              | non-existing    |                  |                 |
+            | GetObjectVersionAcl                | non-existing       |                     |                    | existing        | applies          | ALLOW           |
+            | GetObjectVersionAcl                | non-existing       |                     |                    | existing        | applies          | DENY            |
+            | GetObjectVersionAcl                | non-existing       |                     |                    | existing        | applies          | ALLOW+DENY      |
+            | GetObjectVersionAcl                | non-existing       |                     |                    | existing        | does not apply   | ALLOW           |
+            | GetObjectVersionAcl                | non-existing       |                     |                    | non-existing    |                  |                 |
+            | GetObjectVersionTagging            | existing           | applies             | ALLOW              | existing        | applies          | ALLOW           |
+            | GetObjectVersionTagging            | existing           | applies             | ALLOW              | existing        | applies          | DENY            |
+            | GetObjectVersionTagging            | existing           | applies             | ALLOW              | existing        | applies          | ALLOW+DENY      |
+            | GetObjectVersionTagging            | existing           | applies             | ALLOW              | existing        | does not apply   | ALLOW           |
+            | GetObjectVersionTagging            | existing           | applies             | ALLOW              | non-existing    |                  |                 |
+            | GetObjectVersionTagging            | existing           | applies             | DENY               | existing        | applies          | ALLOW           |
+            | GetObjectVersionTagging            | existing           | applies             | DENY               | existing        | applies          | DENY            |
+            | GetObjectVersionTagging            | existing           | applies             | DENY               | existing        | applies          | ALLOW+DENY      |
+            | GetObjectVersionTagging            | existing           | applies             | DENY               | existing        | does not apply   | ALLOW           |
+            | GetObjectVersionTagging            | existing           | applies             | DENY               | non-existing    |                  |                 |
+            | GetObjectVersionTagging            | existing           | does not apply      | ALLOW              | existing        | applies          | ALLOW           |
+            | GetObjectVersionTagging            | existing           | does not apply      | ALLOW              | existing        | applies          | DENY            |
+            | GetObjectVersionTagging            | existing           | does not apply      | ALLOW              | existing        | applies          | ALLOW+DENY      |
+            | GetObjectVersionTagging            | existing           | does not apply      | ALLOW              | existing        | does not apply   | ALLOW           |
+            | GetObjectVersionTagging            | existing           | does not apply      | ALLOW              | non-existing    |                  |                 |
+            | GetObjectVersionTagging            | non-existing       |                     |                    | existing        | applies          | ALLOW           |
+            | GetObjectVersionTagging            | non-existing       |                     |                    | existing        | applies          | DENY            |
+            | GetObjectVersionTagging            | non-existing       |                     |                    | existing        | applies          | ALLOW+DENY      |
+            | GetObjectVersionTagging            | non-existing       |                     |                    | existing        | does not apply   | ALLOW           |
+            | GetObjectVersionTagging            | non-existing       |                     |                    | non-existing    |                  |                 |
+            | PutObjectVersionAcl                | existing           | applies             | ALLOW              | existing        | applies          | ALLOW           |
+            | PutObjectVersionAcl                | existing           | applies             | ALLOW              | existing        | applies          | DENY            |
+            | PutObjectVersionAcl                | existing           | applies             | ALLOW              | existing        | applies          | ALLOW+DENY      |
+            | PutObjectVersionAcl                | existing           | applies             | ALLOW              | existing        | does not apply   | ALLOW           |
+            | PutObjectVersionAcl                | existing           | applies             | ALLOW              | non-existing    |                  |                 |
+            | PutObjectVersionAcl                | existing           | applies             | DENY               | existing        | applies          | ALLOW           |
+            | PutObjectVersionAcl                | existing           | applies             | DENY               | existing        | applies          | DENY            |
+            | PutObjectVersionAcl                | existing           | applies             | DENY               | existing        | applies          | ALLOW+DENY      |
+            | PutObjectVersionAcl                | existing           | applies             | DENY               | existing        | does not apply   | ALLOW           |
+            | PutObjectVersionAcl                | existing           | applies             | DENY               | non-existing    |                  |                 |
+            | PutObjectVersionAcl                | existing           | does not apply      | ALLOW              | existing        | applies          | ALLOW           |
+            | PutObjectVersionAcl                | existing           | does not apply      | ALLOW              | existing        | applies          | DENY            |
+            | PutObjectVersionAcl                | existing           | does not apply      | ALLOW              | existing        | applies          | ALLOW+DENY      |
+            | PutObjectVersionAcl                | existing           | does not apply      | ALLOW              | existing        | does not apply   | ALLOW           |
+            | PutObjectVersionAcl                | existing           | does not apply      | ALLOW              | non-existing    |                  |                 |
+            | PutObjectVersionAcl                | non-existing       |                     |                    | existing        | applies          | ALLOW           |
+            | PutObjectVersionAcl                | non-existing       |                     |                    | existing        | applies          | DENY            |
+            | PutObjectVersionAcl                | non-existing       |                     |                    | existing        | applies          | ALLOW+DENY      |
+            | PutObjectVersionAcl                | non-existing       |                     |                    | existing        | does not apply   | ALLOW           |
+            | PutObjectVersionAcl                | non-existing       |                     |                    | non-existing    |                  |                 |
+            | PutObjectVersionTagging            | existing           | applies             | ALLOW              | existing        | applies          | ALLOW           |
+            | PutObjectVersionTagging            | existing           | applies             | ALLOW              | existing        | applies          | DENY            |
+            | PutObjectVersionTagging            | existing           | applies             | ALLOW              | existing        | applies          | ALLOW+DENY      |
+            | PutObjectVersionTagging            | existing           | applies             | ALLOW              | existing        | does not apply   | ALLOW           |
+            | PutObjectVersionTagging            | existing           | applies             | ALLOW              | non-existing    |                  |                 |
+            | PutObjectVersionTagging            | existing           | applies             | DENY               | existing        | applies          | ALLOW           |
+            | PutObjectVersionTagging            | existing           | applies             | DENY               | existing        | applies          | DENY            |
+            | PutObjectVersionTagging            | existing           | applies             | DENY               | existing        | applies          | ALLOW+DENY      |
+            | PutObjectVersionTagging            | existing           | applies             | DENY               | existing        | does not apply   | ALLOW           |
+            | PutObjectVersionTagging            | existing           | applies             | DENY               | non-existing    |                  |                 |
+            | PutObjectVersionTagging            | existing           | does not apply      | ALLOW              | existing        | applies          | ALLOW           |
+            | PutObjectVersionTagging            | existing           | does not apply      | ALLOW              | existing        | applies          | DENY            |
+            | PutObjectVersionTagging            | existing           | does not apply      | ALLOW              | existing        | applies          | ALLOW+DENY      |
+            | PutObjectVersionTagging            | existing           | does not apply      | ALLOW              | existing        | does not apply   | ALLOW           |
+            | PutObjectVersionTagging            | existing           | does not apply      | ALLOW              | non-existing    |                  |                 |
+            | PutObjectVersionTagging            | non-existing       |                     |                    | existing        | applies          | ALLOW           |
+            | PutObjectVersionTagging            | non-existing       |                     |                    | existing        | applies          | DENY            |
+            | PutObjectVersionTagging            | non-existing       |                     |                    | existing        | applies          | ALLOW+DENY      |
+            | PutObjectVersionTagging            | non-existing       |                     |                    | existing        | does not apply   | ALLOW           |
+            | PutObjectVersionTagging            | non-existing       |                     |                    | non-existing    |                  |                 |
+            | PutObjectVersionRetention          | existing           | applies             | ALLOW              | existing        | applies          | ALLOW           |
+            | PutObjectVersionRetention          | existing           | applies             | ALLOW              | existing        | applies          | DENY            |
+            | PutObjectVersionRetention          | existing           | applies             | ALLOW              | existing        | applies          | ALLOW+DENY      |
+            | PutObjectVersionRetention          | existing           | applies             | ALLOW              | existing        | does not apply   | ALLOW           |
+            | PutObjectVersionRetention          | existing           | applies             | ALLOW              | non-existing    |                  |                 |
+            | PutObjectVersionRetention          | existing           | applies             | DENY               | existing        | applies          | ALLOW           |
+            | PutObjectVersionRetention          | existing           | applies             | DENY               | existing        | applies          | DENY            |
+            | PutObjectVersionRetention          | existing           | applies             | DENY               | existing        | applies          | ALLOW+DENY      |
+            | PutObjectVersionRetention          | existing           | applies             | DENY               | existing        | does not apply   | ALLOW           |
+            | PutObjectVersionRetention          | existing           | applies             | DENY               | non-existing    |                  |                 |
+            | PutObjectVersionRetention          | existing           | does not apply      | ALLOW              | existing        | applies          | ALLOW           |
+            | PutObjectVersionRetention          | existing           | does not apply      | ALLOW              | existing        | applies          | DENY            |
+            | PutObjectVersionRetention          | existing           | does not apply      | ALLOW              | existing        | applies          | ALLOW+DENY      |
+            | PutObjectVersionRetention          | existing           | does not apply      | ALLOW              | existing        | does not apply   | ALLOW           |
+            | PutObjectVersionRetention          | existing           | does not apply      | ALLOW              | non-existing    |                  |                 |
+            | PutObjectVersionRetention          | non-existing       |                     |                    | existing        | applies          | ALLOW           |
+            | PutObjectVersionRetention          | non-existing       |                     |                    | existing        | applies          | DENY            |
+            | PutObjectVersionRetention          | non-existing       |                     |                    | existing        | applies          | ALLOW+DENY      |
+            | PutObjectVersionRetention          | non-existing       |                     |                    | existing        | does not apply   | ALLOW           |
+            | PutObjectVersionRetention          | non-existing       |                     |                    | non-existing    |                  |                 |
+            | PutObjectVersionLegalHold          | existing           | applies             | ALLOW              | existing        | applies          | ALLOW           |
+            | PutObjectVersionLegalHold          | existing           | applies             | ALLOW              | existing        | applies          | DENY            |
+            | PutObjectVersionLegalHold          | existing           | applies             | ALLOW              | existing        | applies          | ALLOW+DENY      |
+            | PutObjectVersionLegalHold          | existing           | applies             | ALLOW              | existing        | does not apply   | ALLOW           |
+            | PutObjectVersionLegalHold          | existing           | applies             | ALLOW              | non-existing    |                  |                 |
+            | PutObjectVersionLegalHold          | existing           | applies             | DENY               | existing        | applies          | ALLOW           |
+            | PutObjectVersionLegalHold          | existing           | applies             | DENY               | existing        | applies          | DENY            |
+            | PutObjectVersionLegalHold          | existing           | applies             | DENY               | existing        | applies          | ALLOW+DENY      |
+            | PutObjectVersionLegalHold          | existing           | applies             | DENY               | existing        | does not apply   | ALLOW           |
+            | PutObjectVersionLegalHold          | existing           | applies             | DENY               | non-existing    |                  |                 |
+            | PutObjectVersionLegalHold          | existing           | does not apply      | ALLOW              | existing        | applies          | ALLOW           |
+            | PutObjectVersionLegalHold          | existing           | does not apply      | ALLOW              | existing        | applies          | DENY            |
+            | PutObjectVersionLegalHold          | existing           | does not apply      | ALLOW              | existing        | applies          | ALLOW+DENY      |
+            | PutObjectVersionLegalHold          | existing           | does not apply      | ALLOW              | existing        | does not apply   | ALLOW           |
+            | PutObjectVersionLegalHold          | existing           | does not apply      | ALLOW              | non-existing    |                  |                 |
+            | PutObjectVersionLegalHold          | non-existing       |                     |                    | existing        | applies          | ALLOW           |
+            | PutObjectVersionLegalHold          | non-existing       |                     |                    | existing        | applies          | DENY            |
+            | PutObjectVersionLegalHold          | non-existing       |                     |                    | existing        | applies          | ALLOW+DENY      |
+            | PutObjectVersionLegalHold          | non-existing       |                     |                    | existing        | does not apply   | ALLOW           |
+            | PutObjectVersionLegalHold          | non-existing       |                     |                    | non-existing    |                  |                 |
