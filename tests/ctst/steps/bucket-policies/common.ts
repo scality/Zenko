@@ -268,7 +268,7 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
 
 // And an environment setup for the API
 Given('an environment setup for the API', async function (this: Zenko) {
-    let action = this.getSaved<ActionPermissionsType>('currentAction');
+    const action = this.getSaved<ActionPermissionsType>('currentAction');
     if (!action.needsSetup) {
         return;
     }
@@ -344,16 +344,16 @@ Then('the authorization result is correct', function (this: Zenko) {
     const authR = authzConfiguration?.Resource;
     let isAllowed = (() => {
         switch (authI) {
-            case AuthorizationType.ALLOW:
-                return authR === AuthorizationType.ALLOW ||
+        case AuthorizationType.ALLOW:
+            return authR === AuthorizationType.ALLOW ||
                     authR === AuthorizationType.IMPLICIT_DENY ||
                     authR === AuthorizationType.NO_RESOURCE;
-            case AuthorizationType.IMPLICIT_DENY:
-                return authR === AuthorizationType.ALLOW;
-            case AuthorizationType.NO_RESOURCE:
-                return authR === AuthorizationType.ALLOW;
-            default:
-                return false;
+        case AuthorizationType.IMPLICIT_DENY:
+            return authR === AuthorizationType.ALLOW;
+        case AuthorizationType.NO_RESOURCE:
+            return authR === AuthorizationType.ALLOW;
+        default:
+            return false;
         }
     })();
     // Special cases: for CreateBucket and DeleteBucket, BP
