@@ -27,9 +27,6 @@ export function extractPropertyFromResults<T>(results: Utils.Command, ...propert
 }
 
 export const s3FunctionExtraParams: { [key: string]: Record<string, unknown>[] } = {
-    abortMultipartUpload: [{ uploadId: 'fakeId' }, { key: 'multipartUpload' }],
-    createMultipartUpload: [{ key: 'multipartUpload' }],
-    completeMultipartUpload: [{ uploadId: 'fakeId' }, { key: 'multipartUpload' }],
     restoreObject: [{ restoreRequest: 'Days=1' }],
     putObjectAcl: [{ acl: 'public-read-write' }],
     putBucketCors: [{ corsConfiguration: JSON.stringify({

@@ -133,16 +133,13 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
     }
     if (process.env.VERBOSE) {
         process.stdout.write(
-            `IAM Policy to be created: ${
-                JSON.stringify(basePolicy, null, 2)
-            }Expecting authz ${
-                JSON.stringify(authzConfiguration)
-            }With the current state ${
-                JSON.stringify({
-                    identityType: this.getSaved<string>('identityType'),
-                    identityArn: this.getSaved<string>('identityArn'),
-                    identityName: this.getSaved<string>('identityName'),  
-                })                
+            `IAM Policy to be created: ${JSON.stringify(basePolicy, null, 2)
+            }Expecting authz ${JSON.stringify(authzConfiguration)
+            }With the current state ${JSON.stringify({
+                identityType: this.getSaved<string>('identityType'),
+                identityArn: this.getSaved<string>('identityArn'),
+                identityName: this.getSaved<string>('identityName'),
+            })
             }\n`);
     }
     // this must be ran as the account
@@ -194,8 +191,7 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
     // use the current S3 bucket
     let resources;
     const applies = doesApply === 'applies';
-    const bucketName = action.useWildCardBucketName ?
-        '*' : this.getSaved<string>('bucketName');
+    const bucketName = this.getSaved<string>('bucketName');
     if (doesExists === 'existing') {
         if (applies) {
             if (isAllow === 'ALLOW') {
@@ -253,16 +249,13 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
     };
     if (process.env.VERBOSE) {
         process.stdout.write(
-            `Bucket Policy to be created: ${
-                JSON.stringify(basePolicy, null, 2)
-            }Expecting authz ${
-                JSON.stringify(authzConfiguration)
-            }With the current state ${
-                JSON.stringify({
-                    identityType: this.getSaved<string>('identityType'),
-                    identityArn: this.getSaved<string>('identityArn'),
-                    identityName: this.getSaved<string>('identityName'),  
-                })                
+            `Bucket Policy to be created: ${JSON.stringify(basePolicy, null, 2)
+            }Expecting authz ${JSON.stringify(authzConfiguration)
+            }With the current state ${JSON.stringify({
+                identityType: this.getSaved<string>('identityType'),
+                identityArn: this.getSaved<string>('identityArn'),
+                identityName: this.getSaved<string>('identityName'),
+            })
             }\n`);
     }
     const result = await S3.putBucketPolicy({
@@ -271,6 +264,54 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
     });
     assert.ifError(result.stderr || result.err);
     this.setAuthMode('test_identity');
+});
+
+// And an environment setup for the API
+Given('an environment setup for the API', async function (this: Zenko) {
+    let action = this.getSaved<ActionPermissionsType>('currentAction');
+    if (!action.needsSetup) {
+        return;
+    }
+    // Create an IAM policy with full S3 permission on any bucket
+    // and attach it to the current identity
+    this.saveAuthMode('base_account');
+    const basePolicy = {
+        Version: '2012-10-17',
+        Statement: [
+            {
+                Effect: 'Allow',
+                Action: '*',
+                Resource: '*',
+            },
+        ],
+    };
+    const createdPolicy = await IAM.createPolicy({
+        policyDocument: JSON.stringify(basePolicy),
+        policyName: `policyforauthz-${Utils.randomString()}`,
+    });
+    const policyArn = extractPropertyFromResults(createdPolicy, 'Policy', 'Arn') as string;
+    const result = await IAM.attachUserPolicy({
+        policyArn,
+        userName: this.getSaved<string>('identityName'),
+    });
+    assert.ifError(result.stderr || result.err);
+    this.setAuthMode('test_identity');
+    if (action.action === 'CompleteMultipartUpload' || action.action === 'AbortMultipartUpload') {
+        const objectKey = `multipartUpload-${Utils.randomString()}`;
+        const initiateMPUResult = await S3.createMultipartUpload({
+            bucket: this.getSaved<string>('bucketName'),
+            key: objectKey,
+        });
+        assert.ifError(initiateMPUResult.stderr || initiateMPUResult.err);
+        // extract the upload ID
+        this.addToSaved('uploadId', extractPropertyFromResults<string>(initiateMPUResult, 'UploadId'));
+        this.addToSaved('objectName', objectKey);
+    }
+    const detachResult = await IAM.detachUserPolicy({
+        policyArn,
+        userName: this.getSaved<string>('identityName'),
+    });
+    assert.ifError(detachResult.stderr || detachResult.err);
 });
 
 When('the user tries to perform the current S3 action on the bucket', async function (this: Zenko) {
@@ -303,16 +344,16 @@ Then('the authorization result is correct', function (this: Zenko) {
     const authR = authzConfiguration?.Resource;
     let isAllowed = (() => {
         switch (authI) {
-        case AuthorizationType.ALLOW:
-            return authR === AuthorizationType.ALLOW ||
+            case AuthorizationType.ALLOW:
+                return authR === AuthorizationType.ALLOW ||
                     authR === AuthorizationType.IMPLICIT_DENY ||
                     authR === AuthorizationType.NO_RESOURCE;
-        case AuthorizationType.IMPLICIT_DENY:
-            return authR === AuthorizationType.ALLOW;
-        case AuthorizationType.NO_RESOURCE:
-            return authR === AuthorizationType.ALLOW;
-        default:
-            return false;
+            case AuthorizationType.IMPLICIT_DENY:
+                return authR === AuthorizationType.ALLOW;
+            case AuthorizationType.NO_RESOURCE:
+                return authR === AuthorizationType.ALLOW;
+            default:
+                return false;
         }
     })();
     // Special cases: for CreateBucket and DeleteBucket, BP

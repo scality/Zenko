@@ -61,6 +61,9 @@ async function runActionAgainstBucket(context: Zenko, action: string) {
             context.addCommandParameter({
                 copySource: `${context.getSaved<string>('bucketName')}/${context.getSaved<string>('objectName')}` });
         }
+        if (context.getSaved<string>('uploadId')) {
+            context.addCommandParameter({ uploadId: context.getSaved<string>('uploadId') });
+        }
         const usedAction = action.charAt(0).toLowerCase() + action.slice(1);
         const actionCall = S3[usedAction];
         if (actionCall) {

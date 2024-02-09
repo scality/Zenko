@@ -6,6 +6,7 @@ type ActionPermissionsType = {
     excludePermissionOnBucketObjects?: boolean,
     excludePermissionsOnBucket?: boolean,
     useWildCardBucketName?: boolean,
+    needsSetup?: boolean,
 };
 
 const needObjectLock = [
@@ -280,7 +281,6 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'DeleteObjects',
         permissions: ['s3:DeleteObject'],
-        subAuthorizationChecks: true,
     },
     {
         action: 'DeleteObjects',
@@ -338,6 +338,7 @@ const actionPermissions: ActionPermissionsType[] = [
         action: 'CompleteMultipartUpload',
         permissions: ['s3:PutObject'],
         expectedResultOnAllowTest: 'NoSuchUpload',
+        needsSetup: true,
     },
     {
         action: 'ListObjectVersions',
