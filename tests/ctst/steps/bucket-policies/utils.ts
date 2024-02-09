@@ -219,7 +219,6 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'GetObjectLegalHold',
         permissions: ['s3:GetObjectLegalHold'],
-        expectedResultOnAllowTest: 'NoSuchObjectLockConfiguration',
     },
     {
         action: 'GetObjectRetention',
@@ -281,10 +280,6 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'DeleteObjects',
         permissions: ['s3:DeleteObject'],
-    },
-    {
-        action: 'DeleteObjects',
-        permissions: ['s3:DeleteObject'],
         subAuthorizationChecks: true,
         expectedResultOnAllowTest: 'NoSuchKey',
     },
@@ -333,6 +328,7 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'AbortMultipartUpload',
         permissions: ['s3:AbortMultipartUpload'],
+        needsSetup: true,
     },
     {
         action: 'CompleteMultipartUpload',

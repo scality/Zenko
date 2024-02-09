@@ -266,7 +266,6 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
     this.setAuthMode('test_identity');
 });
 
-// And an environment setup for the API
 Given('an environment setup for the API', async function (this: Zenko) {
     const action = this.getSaved<ActionPermissionsType>('currentAction');
     if (!action.needsSetup) {
@@ -306,6 +305,21 @@ Given('an environment setup for the API', async function (this: Zenko) {
         // extract the upload ID
         this.addToSaved('uploadId', extractPropertyFromResults<string>(initiateMPUResult, 'UploadId'));
         this.addToSaved('objectName', objectKey);
+    } else if (action.action === 'GetObjectLegalHold') {
+        // Object needs object lock configuration first
+        const objectLegalHoldConfigResult = await S3.PutObjectLegalHold({
+            bucket: this.getSaved<string>('bucketName'),
+            key: this.getSaved<string>('objectName'),
+            legalHold: 'Status=ON',            
+        });
+        assert.ifError(objectLegalHoldConfigResult.stderr || objectLegalHoldConfigResult.err);
+    } else if (action.action === 'GetObjectRetention') {
+        const objectRetentionResult = await S3.PutObjectRetention({
+            bucket: this.getSaved<string>('bucketName'),
+            key: this.getSaved<string>('objectName'),
+            retention: 'Mode=COMPLIANCE,RetainUntilDate=2080-01-01T00:00:00Z',  
+        });
+        assert.ifError(objectRetentionResult.stderr || objectRetentionResult.err);
     }
     const detachResult = await IAM.detachUserPolicy({
         policyArn,
@@ -318,16 +332,6 @@ When('the user tries to perform the current S3 action on the bucket', async func
     let action = this.getSaved<ActionPermissionsType>('currentAction').action;
     if (action.includes('Version') && !action.includes('Versioning')) {
         action = action.replace('Version', '');
-    }
-    // Some actions require to setup the environment beforehand, otherwise
-    // the error returned by S3 is not AccessDenied, as the resource is
-    // checked before the API is authorized.
-    if (action === 'CompleteMultipartUpload') {
-        this.setAuthMode('base_account');
-        await runActionAgainstBucket(this, 'CreateMultipartUpload');
-        // TODO get the upload id from the result
-        this.addToSaved('uploadId', extractPropertyFromResults<string>(this.getResult() as Utils.Command, 'UploadId'));
-        this.setAuthMode('test_identity');
     }
     await runActionAgainstBucket(this, this.getSaved<ActionPermissionsType>('currentAction').action);
 });
