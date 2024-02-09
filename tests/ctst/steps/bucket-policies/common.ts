@@ -278,6 +278,16 @@ When('the user tries to perform the current S3 action on the bucket', async func
     if (action.includes('Version') && !action.includes('Versioning')) {
         action = action.replace('Version', '');
     }
+    // Some actions require to setup the environment beforehand, otherwise
+    // the error returned by S3 is not AccessDenied, as the resource is
+    // checked before the API is authorized.
+    if (action === 'CompleteMultipartUpload') {
+        this.setAuthMode('base_account');
+        await runActionAgainstBucket(this, 'CreateMultipartUpload');
+        // TODO get the upload id from the result
+        this.addToSaved('uploadId', extractPropertyFromResults<string>(this.getResult() as Utils.Command, 'UploadId'));
+        this.setAuthMode('test_identity');
+    }
     await runActionAgainstBucket(this, this.getSaved<ActionPermissionsType>('currentAction').action);
 });
 
