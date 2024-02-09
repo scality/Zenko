@@ -244,6 +244,11 @@ Then('kafka consumed messages should not take too much place on disk',
             process.stdout.write(`Checking topic ${topic} offsets\n`);
             const topicOffsets = await kafkaAdmin.fetchTopicOffsets(topic);
             for (const partition of topicOffsets) {
+                if (topic.contains('bucket-tasks')) {
+                    const diff = partition.high - partition.low;
+                    // This offset constantly increases due to ongoing processes, we want to check that the cleaner worked by verifying that the difference between high and low offsets is not too high
+                    assert(diff < (0.1 * partition.high));
+                }
                 assert.strictEqual(partition.high, partition.low);
             }
         }
