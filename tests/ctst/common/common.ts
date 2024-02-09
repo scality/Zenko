@@ -235,7 +235,7 @@ Then('kafka consumed messages should not take too much place on disk',
     async function (this: Zenko) {
         await Utils.sleep(30000); // Sleep to let kafka cleaner do his job (every 30s)
         const kafkaAdmin = new Kafka({ brokers: [this.parameters.KafkaHosts] }).admin();
-        const topics: string[] = (await kafkaAdmin.listTopics()).filter(topic => topic.includes(this.parameters.InstanceID));
+        const topics: string[] = (await kafkaAdmin.listTopics()).filter(t => t.includes(this.parameters.InstanceID));
         const notToCheckTopics = ['oplog', 'dead-letter'];
         for (const topic of topics) {
             if (notToCheckTopics.some(notToCheckTopic => topic.includes(notToCheckTopic))) {
@@ -247,7 +247,8 @@ Then('kafka consumed messages should not take too much place on disk',
                 if (topic.includes('bucket-tasks')) {
                     const diff = partition.high - partition.low;
                     // This offset constantly increases due to ongoing processes,
-                    // we want to check that the cleaner worked by verifying that the difference between high and low offsets is not too high
+                    // we want to check that the cleaner worked by verifying that
+                    // the difference between high and low offsets is not too high
                     assert(diff < (0.1 * partition.high));
                 }
                 assert.strictEqual(partition.high, partition.low);
