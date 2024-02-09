@@ -250,8 +250,9 @@ Then('kafka consumed messages should not take too much place on disk',
                     // we want to check that the cleaner worked by verifying that
                     // the difference between high and low offsets is not too high
                     assert(diff < (0.1 * parseInt(partition.high)));
+                } else {
+                    assert.strictEqual(partition.high, partition.low);
                 }
-                assert.strictEqual(partition.high, partition.low);
             }
         }
     });
