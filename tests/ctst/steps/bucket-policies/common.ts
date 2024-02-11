@@ -310,14 +310,14 @@ Given('an environment setup for the API', async function (this: Zenko) {
         this.addToSaved('objectName', objectKey);
     } else if (action.action === 'GetObjectLegalHold') {
         // Object needs object lock configuration first
-        const objectLegalHoldConfigResult = await S3.PutObjectLegalHold({
+        const objectLegalHoldConfigResult = await S3.putObjectLegalHold({
             bucket: this.getSaved<string>('bucketName'),
             key: this.getSaved<string>('objectName'),
             legalHold: 'Status=ON',            
         });
         assert.ifError(objectLegalHoldConfigResult.stderr || objectLegalHoldConfigResult.err);
     } else if (action.action === 'GetObjectRetention') {
-        const objectRetentionResult = await S3.PutObjectRetention({
+        const objectRetentionResult = await S3.putObjectRetention({
             bucket: this.getSaved<string>('bucketName'),
             key: this.getSaved<string>('objectName'),
             retention: 'Mode=COMPLIANCE,RetainUntilDate=2080-01-01T00:00:00Z',  
