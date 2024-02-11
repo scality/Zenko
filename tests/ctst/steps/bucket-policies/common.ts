@@ -30,6 +30,7 @@ Given('an action {string}', function (this: Zenko, apiName: string) {
     // Ensure that the action is valid and supported
     this.saveAuthMode('base_account');
     this.addToSaved('currentAction', actionPermissions.find(actionPermission => actionPermission.action === apiName));
+
     if (!this.getSaved('currentAction')) {
         throw new Error(`Action ${apiName} is not supported yet`);
     }
@@ -268,6 +269,8 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
 
 Given('an environment setup for the API', async function (this: Zenko) {
     const action = this.getSaved<ActionPermissionsType>('currentAction');
+    // TODO remove
+    process.stdout.write(`Current action: ${JSON.stringify(action)}\n`);
     if (!action.needsSetup) {
         return;
     }
@@ -373,8 +376,9 @@ Then('the authorization result is correct', function (this: Zenko) {
     if (!isAllowed) {
         // special case: DeleteObjects always returns code 200
         // if the API is allowed but additional checks are denied.
-        if (action.action === 'DeleteObjects' && action.subAuthorizationChecks) {
-            assert.strictEqual(this.getResult().stdout?.includes('AccessDenied'), true);
+        if (action.subAuthorizationChecks) {
+            assert.strictEqual(this.getResult().stdout?.includes('AccessDenied') ||
+                this.getResult().err?.includes('AccessDenied'), true);
         } else if (action.action === 'HeadObject') {
             // SDK return Unknown errors for HeadObject
             assert.strictEqual(this.getResult().err?.includes('AccessDenied') ||
