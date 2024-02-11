@@ -219,10 +219,12 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'GetObjectLegalHold',
         permissions: ['s3:GetObjectLegalHold'],
+        needsSetup: true,
     },
     {
         action: 'GetObjectRetention',
         permissions: ['s3:GetObjectRetention'],
+        needsSetup: true,
         expectedResultOnAllowTest: 'NoSuchObjectLockConfiguration',
     },
     {
@@ -333,7 +335,7 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'CompleteMultipartUpload',
         permissions: ['s3:PutObject'],
-        expectedResultOnAllowTest: 'NoSuchUpload',
+        expectedResultOnAllowTest: 'MalformedXML',
         needsSetup: true,
     },
     {

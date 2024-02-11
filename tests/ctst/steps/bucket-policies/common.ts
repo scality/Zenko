@@ -373,6 +373,8 @@ Then('the authorization result is correct', function (this: Zenko) {
     if (action.action === 'CreateMultipartUpload') {
         return;
     }
+    // TODO remove log
+    process.stdout.write(`Authorization result: ${JSON.stringify(this.getResult())}\n`);
     if (!isAllowed) {
         // special case: DeleteObjects always returns code 200
         // if the API is allowed but additional checks are denied.
