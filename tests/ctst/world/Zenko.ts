@@ -730,6 +730,15 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         this.cliMode.parameters = this.getSaved<ClientOptions>(authMode);
         CacheHelper.parameters!.IAMSession =
             this.parameters.IAMSession;
+        this.restoreEnvironment();
+    }
+
+    restoreEnvironment() {
+        if ([EntityType.IAM_USER, EntityType.ACCOUNT].includes(this.getSaved<EntityType>('type'))) {
+            this.resumeRootOrIamUser();
+        } else {
+            this.resumeAssumedRole();
+        }
     }
 
     /**
