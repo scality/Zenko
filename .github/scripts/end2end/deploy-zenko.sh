@@ -133,3 +133,4 @@ done
 #     kubectl describe pod -n $ns $pod
 #     kubectl logs -n $ns $pod
 # done
+
