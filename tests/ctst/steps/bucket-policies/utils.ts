@@ -10,8 +10,10 @@ type ActionPermissionsType = {
 };
 
 const needObjectLock = [
-    'PutObjectLegalHold',-
+    'GetObjectLegalHold',
+    'PutObjectLegalHold',
     'GetObjectRetention',
+    'PutObjectRetention',
     'PutObjectVersionLegalHold',
     'PutObjectVersionRetention',
     'GetObjectVersionLegalHold',
