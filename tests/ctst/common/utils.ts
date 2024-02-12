@@ -29,8 +29,7 @@ export function extractPropertyFromResults<T>(results: Utils.Command, ...propert
 export const s3FunctionExtraParams: { [key: string]: Record<string, unknown>[] } = {
     restoreObject: [{ restoreRequest: 'Days=1' }],
     putObjectAcl: [{ acl: 'public-read-write' }],
-    putBucketCors: [{ corsConfiguration: JSON.stringify({
-        CORSRules: [{ AllowedMethods: ['GET'], AllowedOrigins: ['*'] }] }) }],
+    putBucketCors: [{ corsConfiguration: '{"CORSRules":[{"AllowedMethods":["GET"],"AllowedOrigins":["*"]}]}' }],
     putBucketTagging: [{ tagging: '{"TagSet":[{"Key":"tag1","Value":"value1"},{"Key":"tag2","Value":"value2"}]}' }],
     putObjectTagging: [{ tagging: '{"TagSet":[{"Key":"string","Value":"string"}]}' }],
     putBucketVersioning: [{ versioningConfiguration: 'Status=Enabled' }],
