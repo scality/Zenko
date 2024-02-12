@@ -68,7 +68,10 @@ async function runActionAgainstBucket(context: Zenko, action: string) {
         const actionCall = S3[usedAction];
         if (actionCall) {
             if (usedAction in s3FunctionExtraParams) {
-                s3FunctionExtraParams[usedAction].forEach(param => context.addCommandParameter(param));
+                s3FunctionExtraParams[usedAction].forEach(param => {
+                    process.stdout.write(`Adding parameter ${JSON.stringify(param)}\n`);
+                    context.addCommandParameter(param);
+                });
             }
             context.setResult(await actionCall(context.getCommandParameters()));
         } else {

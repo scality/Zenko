@@ -320,9 +320,13 @@ Given('an environment setup for the API', async function (this: Zenko) {
         const objectRetentionResult = await S3.putObjectRetention({
             bucket: this.getSaved<string>('bucketName'),
             key: this.getSaved<string>('objectName'),
-            retention: 'Mode=GOVERNANCE,RetainUntilDate=2080-01-01T00:00:00Z',  
+            retention: 'Mode=GOVERNANCE,RetainUntilDate=2080-01-01T00:00:00Z',
+            bypassGovernanceRetention: 'true',
         });
         assert.ifError(objectRetentionResult.stderr || objectRetentionResult.err);
+    } else if (action.action === 'PutObjectRetention') {
+        // just add bypass to the parameters TODO remove?
+        this.addCommandParameter({ bypassGovernanceRetention: 'true' });
     }
     const detachResult = await IAM.detachUserPolicy({
         policyArn,
@@ -333,19 +337,15 @@ Given('an environment setup for the API', async function (this: Zenko) {
 
 When('the user tries to perform the current S3 action on the bucket', async function (this: Zenko) {
     this.setAuthMode('test_identity');
-    let action = this.getSaved<ActionPermissionsType>('currentAction');
+    const action = {
+        ...this.getSaved<ActionPermissionsType>('currentAction'),
+    };
     if (action.action === 'ListObjectVersions') {
-        action = {
-            ...action,
-            action: 'ListObjects',
-        };
+        action.action = 'ListObjects';
         this.addToSaved('currentAction', action);
     }
     if (action.action.includes('Version') && !action.action.includes('Versioning')) {
-        action = {
-            ...action,
-            action: action.action.replace('Version', ''),
-        };
+        action.action = action.action.replace('Version', '');
         this.addToSaved('currentAction', action);
     }
     await runActionAgainstBucket(this, this.getSaved<ActionPermissionsType>('currentAction').action);
