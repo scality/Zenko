@@ -68,7 +68,7 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
     isAllow: string,
 ) {
     // This step needs full access.
-    this.saveAuthMode('base_account');
+    this.setAuthMode('base_account');
     const authzConfiguration: AuthorizationConfiguration = {
         Identity: this.getSaved<AuthorizationConfiguration>('authzConfiguration')?.Identity
             || AuthorizationType.NO_RESOURCE,
@@ -276,7 +276,7 @@ Given('an environment setup for the API', async function (this: Zenko) {
     }
     // Create an IAM policy with full S3 permission on any bucket
     // and attach it to the current identity
-    this.saveAuthMode('base_account');
+    this.setAuthMode('base_account');
     const basePolicy = {
         Version: '2012-10-17',
         Statement: [
@@ -320,7 +320,7 @@ Given('an environment setup for the API', async function (this: Zenko) {
         const objectRetentionResult = await S3.putObjectRetention({
             bucket: this.getSaved<string>('bucketName'),
             key: this.getSaved<string>('objectName'),
-            retention: 'Mode=COMPLIANCE,RetainUntilDate=2080-01-01T00:00:00Z',  
+            retention: 'Mode=GOVERNANCE,RetainUntilDate=2080-01-01T00:00:00Z',  
         });
         assert.ifError(objectRetentionResult.stderr || objectRetentionResult.err);
     }
@@ -332,7 +332,12 @@ Given('an environment setup for the API', async function (this: Zenko) {
 });
 
 When('the user tries to perform the current S3 action on the bucket', async function (this: Zenko) {
+    this.setAuthMode('test_identity');
     const action = this.getSaved<ActionPermissionsType>('currentAction');
+    if (action.action.includes('Versions') && !action.action.includes('Versioning')) {
+        action.action = action.action.replace('Versions', '');
+        this.addToSaved('currentAction', action);
+    }
     if (action.action.includes('Version') && !action.action.includes('Versioning')) {
         action.action = action.action.replace('Version', '');
         this.addToSaved('currentAction', action);

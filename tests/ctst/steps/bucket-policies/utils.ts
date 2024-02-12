@@ -47,6 +47,15 @@ const needObject = [
 const needVersioning = [
     'PutBucketReplication',
     'ListObjectVersions',
+    'DeleteObjectVersion',
+    'DeleteObjectVersionTagging',
+    'GetObjectVersion',
+    'GetObjectVersionAcl',
+    'GetObjectVersionTagging',
+    'PutObjectVersionAcl',
+    'PutObjectVersionTagging',
+    'PutObjectVersionRetention',
+    'PutObjectVersionLegalHold',
 ];
 
 const actionPermissions: ActionPermissionsType[] = [
@@ -292,6 +301,11 @@ const actionPermissions: ActionPermissionsType[] = [
     },
     {
         action: 'ListObjectsV2',
+        permissions: ['s3:ListBucket'],
+        excludePermissionOnBucketObjects: true,
+    },
+    {
+        action: 'ListObjectsVersions',
         permissions: ['s3:ListBucket'],
         excludePermissionOnBucketObjects: true,
     },

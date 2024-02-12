@@ -35,13 +35,13 @@ export const s3FunctionExtraParams: { [key: string]: Record<string, unknown>[] }
     putObjectTagging: [{ tagging: '{"TagSet":[{"Key":"string","Value":"string"}]}' }],
     putBucketVersioning: [{ versioningConfiguration: 'Status=Enabled' }],
     putObjectRetention: [{
-        retention: 'Mode=COMPLIANCE,RetainUntilDate=2080-01-01T00:00:00Z',
+        retention: 'Mode=GOVERNANCE,RetainUntilDate=2080-01-01T00:00:00Z',
         bypassGovernanceRetention: 'true',
     }],
     putObjectLockConfiguration: [{
         objectLockConfiguration: '{ "ObjectLockEnabled": "Enabled", "Rule": ' +
             '{ "DefaultRetention": ' +
-            '{ "Mode": "COMPLIANCE", "Days": 50 }}}',
+            '{ "Mode": "GOVERNANCE", "Days": 50 }}}',
     }],
     deleteObjects: [{
         delete: JSON.stringify({
