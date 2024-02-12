@@ -818,6 +818,14 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     }
 
     /**
+     * Get the current cli mode
+     * @returns {string} - the current service type
+     */
+    getCliMode() {
+        return this.cliMode;
+    }
+
+    /**
      * Get all saved parameters
      * @param {string} key - key to recover
      * @returns {T} - an object with any saved parameters

@@ -306,6 +306,7 @@ Given('an environment setup for the API', async function (this: Zenko) {
     case 'UploadPartCopy':
         const objectKey = `multipartUpload-${Utils.randomString()}`;
         const initiateMPUResult = await S3.createMultipartUpload({
+            ___mode: this.getCliMode(),
             bucket: this.getSaved<string>('bucketName'),
             key: objectKey,
         });
@@ -317,6 +318,7 @@ Given('an environment setup for the API', async function (this: Zenko) {
     case 'GetObjectLegalHold':
         // Object needs object lock configuration first
         const objectLegalHoldConfigResult = await S3.putObjectLegalHold({
+            ___mode: this.getCliMode(),
             bucket: this.getSaved<string>('bucketName'),
             key: this.getSaved<string>('objectName'),
             legalHold: 'Status=ON',
@@ -325,6 +327,7 @@ Given('an environment setup for the API', async function (this: Zenko) {
         break;
     case 'GetObjectRetention':
         const objectRetentionResult = await S3.putObjectRetention({
+            ___mode: this.getCliMode(),
             bucket: this.getSaved<string>('bucketName'),
             key: this.getSaved<string>('objectName'),
             retention: 'Mode=GOVERNANCE,RetainUntilDate=2080-01-01T00:00:00Z',
