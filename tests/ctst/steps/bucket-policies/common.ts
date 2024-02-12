@@ -332,9 +332,10 @@ Given('an environment setup for the API', async function (this: Zenko) {
 });
 
 When('the user tries to perform the current S3 action on the bucket', async function (this: Zenko) {
-    let action = this.getSaved<ActionPermissionsType>('currentAction').action;
-    if (action.includes('Version') && !action.includes('Versioning')) {
-        action = action.replace('Version', '');
+    const action = this.getSaved<ActionPermissionsType>('currentAction');
+    if (action.action.includes('Version') && !action.action.includes('Versioning')) {
+        action.action = action.action.replace('Version', '');
+        this.addToSaved('currentAction', action);
     }
     await runActionAgainstBucket(this, this.getSaved<ActionPermissionsType>('currentAction').action);
 });
@@ -381,7 +382,7 @@ Then('the authorization result is correct', function (this: Zenko) {
         if (action.subAuthorizationChecks) {
             assert.strictEqual(this.getResult().stdout?.includes('AccessDenied') ||
                 this.getResult().err?.includes('AccessDenied'), true);
-        } else if (action.action === 'HeadObject') {
+        } else if (action.action === 'HeadObject' || action.action === 'HeadBucket') {
             // SDK return Unknown errors for HeadObject
             assert.strictEqual(this.getResult().err?.includes('AccessDenied') ||
                 this.getResult().err?.includes('403'), true);

@@ -340,7 +340,7 @@ const actionPermissions: ActionPermissionsType[] = [
     },
     {
         action: 'ListObjectVersions',
-        permissions: ['s3:ListBucketVersions'],
+        permissions: ['s3:ListBucketVersions', 's3:ListBucket'],
         excludePermissionOnBucketObjects: true,
     },
     {
