@@ -731,6 +731,12 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         CacheHelper.parameters!.IAMSession =
             this.parameters.IAMSession;
         this.restoreEnvironment();
+        this.resetCommand();
+        // TODO remove
+        process.stdout.write(`reset the auth mode to ${authMode}: ${JSON.stringify({
+            params: this.cliMode.parameters,
+            IAMSession: CacheHelper.parameters!.IAMSession,
+        })}\n`);
     }
 
     restoreEnvironment() {

@@ -170,7 +170,6 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
         // TODO: special case because it already has existing permissions
         // must disable all the tests that change the IAM part
     }
-    this.setAuthMode('test_identity');
 });
 
 Given('an {string} S3 Bucket Policy that {string} with {string} effect for the current API', async function (
@@ -264,7 +263,6 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
         policy: JSON.stringify(basePolicy),
     });
     assert.ifError(result.stderr || result.err);
-    this.setAuthMode('test_identity');
 });
 
 Given('an environment setup for the API', async function (this: Zenko) {
@@ -297,6 +295,8 @@ Given('an environment setup for the API', async function (this: Zenko) {
         userName: this.getSaved<string>('identityName'),
     });
     assert.ifError(result.stderr || result.err);
+    // Perform actions as the current user: some APIs require strict checks on the
+    // initiator, so we do that for all APIs to reduce code complexity.
     this.setAuthMode('test_identity');
     if (action.action === 'CompleteMultipartUpload' || action.action === 'AbortMultipartUpload') {
         const objectKey = `multipartUpload-${Utils.randomString()}`;
@@ -333,13 +333,19 @@ Given('an environment setup for the API', async function (this: Zenko) {
 
 When('the user tries to perform the current S3 action on the bucket', async function (this: Zenko) {
     this.setAuthMode('test_identity');
-    const action = this.getSaved<ActionPermissionsType>('currentAction');
-    if (action.action.includes('Versions') && !action.action.includes('Versioning')) {
-        action.action = action.action.replace('Versions', '');
+    let action = this.getSaved<ActionPermissionsType>('currentAction');
+    if (action.action === 'ListObjectVersions') {
+        action = {
+            ...action,
+            action: 'ListObjects',
+        };
         this.addToSaved('currentAction', action);
     }
     if (action.action.includes('Version') && !action.action.includes('Versioning')) {
-        action.action = action.action.replace('Version', '');
+        action = {
+            ...action,
+            action: action.action.replace('Version', ''),
+        };
         this.addToSaved('currentAction', action);
     }
     await runActionAgainstBucket(this, this.getSaved<ActionPermissionsType>('currentAction').action);
@@ -374,10 +380,6 @@ Then('the authorization result is correct', function (this: Zenko) {
     if (action.action === 'CreateBucket') {
         // In this case, we only consider the Identity part.
         isAllowed = authI === AuthorizationType.ALLOW;
-    }
-    // TODO disable after S3C-8424 is done
-    if (action.action === 'CreateMultipartUpload') {
-        return;
     }
     // TODO remove log
     process.stdout.write(`Authorization result: ${JSON.stringify(this.getResult())}\n`);
