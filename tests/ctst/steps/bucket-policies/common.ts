@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 import { When, Then, Given } from '@cucumber/cucumber';
 import Zenko, { EntityType } from '../../world/Zenko';
 import { ActionPermissionsType, actionPermissions, needObject, needObjectLock, needVersioning } from './utils';
@@ -298,7 +299,9 @@ Given('an environment setup for the API', async function (this: Zenko) {
     // Perform actions as the current user: some APIs require strict checks on the
     // initiator, so we do that for all APIs to reduce code complexity.
     this.setAuthMode('test_identity');
-    if (action.action === 'CompleteMultipartUpload' || action.action === 'AbortMultipartUpload') {
+    switch (action.action) {
+    case 'CompleteMultipartUpload':
+    case 'AbortMultipartUpload':
         const objectKey = `multipartUpload-${Utils.randomString()}`;
         const initiateMPUResult = await S3.createMultipartUpload({
             bucket: this.getSaved<string>('bucketName'),
@@ -308,15 +311,17 @@ Given('an environment setup for the API', async function (this: Zenko) {
         // extract the upload ID
         this.addToSaved('uploadId', extractPropertyFromResults<string>(initiateMPUResult, 'UploadId'));
         this.addToSaved('objectName', objectKey);
-    } else if (action.action === 'GetObjectLegalHold') {
+        break;
+    case 'GetObjectLegalHold':
         // Object needs object lock configuration first
         const objectLegalHoldConfigResult = await S3.putObjectLegalHold({
             bucket: this.getSaved<string>('bucketName'),
             key: this.getSaved<string>('objectName'),
-            legalHold: 'Status=ON',            
+            legalHold: 'Status=ON',
         });
         assert.ifError(objectLegalHoldConfigResult.stderr || objectLegalHoldConfigResult.err);
-    } else if (action.action === 'GetObjectRetention') {
+        break;
+    case 'GetObjectRetention':
         const objectRetentionResult = await S3.putObjectRetention({
             bucket: this.getSaved<string>('bucketName'),
             key: this.getSaved<string>('objectName'),
@@ -324,9 +329,16 @@ Given('an environment setup for the API', async function (this: Zenko) {
             bypassGovernanceRetention: 'true',
         });
         assert.ifError(objectRetentionResult.stderr || objectRetentionResult.err);
-    } else if (action.action === 'PutObjectRetention') {
-        // just add bypass to the parameters TODO remove?
+        break;
+    case 'PutObjectRetention':
         this.addCommandParameter({ bypassGovernanceRetention: 'true' });
+        break;
+    case 'CreateMultipartUpload':
+        this.addToSaved('objectName', `objectforbptests-${Utils.randomString()}`);
+        this.addCommandParameter({ key: this.getSaved<string>('objectName') });
+        break;
+    default:
+        break;
     }
     const detachResult = await IAM.detachUserPolicy({
         policyArn,

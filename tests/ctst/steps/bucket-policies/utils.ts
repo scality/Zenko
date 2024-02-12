@@ -122,6 +122,7 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'PutObjectRetention',
         permissions: ['s3:PutObjectRetention', 's3:BypassGovernanceRetention'],
+        needsSetup: true,
     },
     {
         action: 'PutObjectTagging',
@@ -317,6 +318,7 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'CreateMultipartUpload',
         permissions: ['s3:PutObject'],
+        needsSetup: true,
     },
     {
         action: 'UploadPart',
