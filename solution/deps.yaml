@@ -16,7 +16,7 @@ cloudserver:
   sourceRegistry: registry.scality.com/playground/wlardier
   dashboard: cloudserver-dashboards
   image: cloudserver
-  tag: 8.8.928
+  tag: 8.8.929
   envsubst: CLOUDSERVER_TAG
 jmx-javaagent:
   sourceRegistry: banzaicloud
