@@ -721,16 +721,38 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     saveAuthMode(authMode: string): void {
         // save current cliMode.assumed and cliMode.env in saved for later use
         this.addToSaved(authMode, {
-            ...this.cliMode.parameters,
+            cacheSession: {
+                ...CacheHelper.parameters!.IAMSession,
+            },
+            parametersSession: {
+                ...this.parameters,
+            },
+            cliModeParameters: {
+                ...this.cliMode.parameters.IAMSession,
+            },
+            env: this.cliMode.env,
+            assumed: this.cliMode.assumed,
         } as ClientOptions);
     }
 
     setAuthMode(authMode: string): void {
         // restore cliMode.assumed and cliMode.env from saved
-        this.cliMode.parameters = this.getSaved<ClientOptions>(authMode);
-        CacheHelper.parameters!.IAMSession =
-            this.parameters.IAMSession;
-        this.restoreEnvironment();
+        const savedConfiguration = this.getSaved<{
+            cacheSession: {
+                AccessKeyId: string;
+                SecretAccessKey: string;
+                SessionToken?: string | undefined;
+            } | undefined,
+            parametersSession: ZenkoWorldParameters,
+            cliModeParameters: ClientOptions['AssumedSession'],
+            env: boolean,
+            assumed: boolean,
+        }>(authMode);
+        CacheHelper.parameters!.IAMSession = savedConfiguration.cacheSession;
+        this.parameters = savedConfiguration.parametersSession;
+        this.cliMode.parameters.IAMSession = savedConfiguration.cliModeParameters;
+        this.cliMode.env = savedConfiguration.env;
+        this.cliMode.assumed = savedConfiguration.assumed;
         this.resetCommand();
         // TODO remove
         process.stdout.write(`reset the auth mode to ${authMode}: ${JSON.stringify({
