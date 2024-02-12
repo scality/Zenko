@@ -1,4 +1,4 @@
-import { Constants, S3, Utils } from 'cli-testing';
+import { CacheHelper, Constants, S3, Utils } from 'cli-testing';
 import { extractPropertyFromResults, s3FunctionExtraParams } from 'common/utils';
 import Zenko, { EntityType, UserCredentials } from 'world/Zenko';
 
@@ -61,6 +61,9 @@ async function runActionAgainstBucket(context: Zenko, action: string) {
             context.addCommandParameter({
                 copySource: `${context.getSaved<string>('bucketName')}/${context.getSaved<string>('objectName')}` });
         }
+        if (action === 'PutBucketCors') {
+            CacheHelper.forceMode = 'cli';
+        }
         if (context.getSaved<string>('uploadId')) {
             context.addCommandParameter({ uploadId: context.getSaved<string>('uploadId') });
         }
@@ -74,7 +77,9 @@ async function runActionAgainstBucket(context: Zenko, action: string) {
                 });
             }
             context.setResult(await actionCall(context.getCommandParameters()));
+            CacheHelper.forceMode = null;
         } else {
+            CacheHelper.forceMode = null;
             throw new Error(`Action ${usedAction} is not supported yet`);
         }
         break;

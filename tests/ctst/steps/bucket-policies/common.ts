@@ -302,6 +302,8 @@ Given('an environment setup for the API', async function (this: Zenko) {
     switch (action.action) {
     case 'CompleteMultipartUpload':
     case 'AbortMultipartUpload':
+    case 'UploadPart':
+    case 'UploadPartCopy':
         const objectKey = `multipartUpload-${Utils.randomString()}`;
         const initiateMPUResult = await S3.createMultipartUpload({
             bucket: this.getSaved<string>('bucketName'),

@@ -366,47 +366,47 @@ const actionPermissions: ActionPermissionsType[] = [
     // Version APIs
     {
         action: 'DeleteObjectVersion',
-        permissions: ['s3:DeleteObjectVersion'],
+        permissions: ['s3:DeleteObject', 's3:DeleteObjectVersion'],
         expectedResultOnAllowTest: 'NoSuchVersion',
     },
     {
         action: 'DeleteObjectVersionTagging',
-        permissions: ['s3:DeleteObjectVersionTagging'],
+        permissions: ['s3:DeleteObjectTagging', 's3:DeleteObjectVersionTagging'],
         expectedResultOnAllowTest: 'NoSuchVersion',
     },
     {
         action: 'GetObjectVersion',
-        permissions: ['s3:GetObjectVersion'],
+        permissions: ['s3:GetObject', 's3:GetObjectVersion'],
         expectedResultOnAllowTest: 'NoSuchVersion',
     },
     {
         action: 'GetObjectVersionAcl',
-        permissions: ['s3:GetObjectVersionAcl'],
+        permissions: ['s3:GetObjectAcl', 's3:GetObjectVersionAcl'],
         expectedResultOnAllowTest: 'NoSuchVersion',
     },
     {
         action: 'GetObjectVersionTagging',
-        permissions: ['s3:GetObjectVersionTagging'],
+        permissions: ['s3:GetObjectTagging', 's3:GetObjectVersionTagging'],
         expectedResultOnAllowTest: 'NoSuchVersion',
     },
     {
         action: 'PutObjectVersionAcl',
-        permissions: ['s3:PutObjectVersionAcl'],
+        permissions: ['s3:PutObjectAcl', 's3:PutObjectVersionAcl'],
         expectedResultOnAllowTest: 'NoSuchVersion',
     },
     {
         action: 'PutObjectVersionTagging',
-        permissions: ['s3:PutObjectVersionTagging'],
+        permissions: ['s3:PutObjectTagging', 's3:PutObjectVersionTagging'],
         expectedResultOnAllowTest: 'NoSuchVersion',
     },
     {
         action: 'PutObjectVersionRetention',
-        permissions: ['s3:PutObjectVersionRetention'],
+        permissions: ['s3:PutObjectRetention', 's3:PutObjectVersionRetention'],
         expectedResultOnAllowTest: 'NoSuchVersion',
     },
     {
         action: 'PutObjectVersionLegalHold',
-        permissions: ['s3:PutObjectVersionLegalHold'],
+        permissions: ['s3:PutObjectLegalHold', 's3:PutObjectVersionLegalHold'],
         expectedResultOnAllowTest: 'NoSuchVersion',
     },
 ];
