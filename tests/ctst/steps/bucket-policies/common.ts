@@ -7,11 +7,6 @@ import assert from 'assert';
 import { IAM, S3, Utils } from 'cli-testing';
 import { extractPropertyFromResults } from 'common/utils';
 
-// TODO: test the object lock APIs with the bypass headers checks:
-// - deleteObject
-// - multiDeleteObject
-// - objectputretention
-// need to rerun these APIs with object lock enabled (governance) and check with the bypass header permission
 // TODO add support for CNES use case
 
 enum AuthorizationType {

@@ -331,7 +331,7 @@ const actionPermissions: ActionPermissionsType[] = [
     },
     {
         action: 'UploadPartCopy',
-        permissions: ['s3:PutObject'],
+        permissions: ['s3:PutObject', 's3:GetObject'],
     },
     {
         action: 'CopyObject',
