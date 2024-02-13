@@ -332,6 +332,7 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'UploadPartCopy',
         permissions: ['s3:PutObject', 's3:GetObject'],
+        expectedResultOnAllowTest: 'NoSuchUpload',
     },
     {
         action: 'CopyObject',
