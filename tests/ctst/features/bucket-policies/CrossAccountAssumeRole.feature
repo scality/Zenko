@@ -1,6 +1,6 @@
 # This file was generated using generate.js
 
-Feature: S3 Bucket Policies Authorization flow for IAM Users
+Feature: S3 Bucket Policies Authorization flow for IAM Assume Roles (cross account)
     This feature allows you to create and attach bucket policies to S3 buckets.
     IAM Users should have the permissions to perform the actions that they are granted in their bucket policies
     based on the other permissions they also have.
@@ -10,11 +10,11 @@ Feature: S3 Bucket Policies Authorization flow for IAM Users
     @2.6.0
     @PreMerge
     @BucketPolicies
-    @BP-IAM_USER
-    Scenario Outline: IAM USER: <iamPolicyExists> <iamPolicyApplies> <iamPolicyEffect> IAM Policy and <bucketPolicyExists> <bucketPolicyApplies> <bucketPolicyEffect> S3 Bucket Policy
+    @BP-ASSUME_ROLE_USER_CROSS_ACCOUNT
+    Scenario Outline: ASSUME ROLE CROSS ACCOUNT: <iamPolicyExists> <iamPolicyApplies> <iamPolicyEffect> IAM Policy and <bucketPolicyExists> <bucketPolicyApplies> <bucketPolicyEffect> S3 Bucket Policy
         Given an action "<action>"
         And an existing bucket prepared for the action
-        And a IAM_USER type
+        And a ASSUME_ROLE_USER_CROSS_ACCOUNT type
         And an environment setup for the API
         And an "<iamPolicyExists>" IAM Policy that "<iamPolicyApplies>" with "<iamPolicyEffect>" effect for the current API
         And an "<bucketPolicyExists>" S3 Bucket Policy that "<bucketPolicyApplies>" with "<bucketPolicyEffect>" effect for the current API
