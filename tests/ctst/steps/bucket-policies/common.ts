@@ -268,8 +268,6 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
 
 Given('an environment setup for the API', async function (this: Zenko) {
     const action = this.getSaved<ActionPermissionsType>('currentAction');
-    // TODO remove
-    process.stdout.write(`Current action: ${JSON.stringify(action)}\n`);
     if (!action.needsSetup) {
         return;
     }
