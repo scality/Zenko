@@ -3,15 +3,16 @@ import { Constants, S3, Utils } from 'cli-testing';
 import Zenko from 'world/Zenko';
 import { extractPropertyFromResults } from './utils';
 import assert from 'assert';
-import { Kafka } from 'kafkajs';
+import { Admin, Kafka } from 'kafkajs';
 
 setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
 
-async function getTopicsOffsets(topics:string[], kafkaAdmin:any) {
+async function getTopicsOffsets(topics:string[], kafkaAdmin:Admin) {
     const offsets = [];
     for (const topic of topics) {
-        const partitions = await kafkaAdmin.fetchTopicOffsets(topic);
-            offsets.push({ topic, partitions });
+        const partitions: ({ high: string; low: string; })[] =
+        await kafkaAdmin.fetchTopicOffsets(topic);
+        offsets.push({ topic, partitions });
     }
     return offsets;
 }
@@ -82,7 +83,8 @@ Then('kafka consumed messages should not take too much place on disk',
     async function (this: Zenko) {
         const notToCheckTopics = ['oplog', 'dead-letter'];
         const kafkaAdmin = new Kafka({ brokers: [this.parameters.KafkaHosts] }).admin();
-        const topics: string[] = (await kafkaAdmin.listTopics()).filter(t => (t.includes(this.parameters.InstanceID) && !notToCheckTopics.includes(t)));
+        const topics: string[] = (await kafkaAdmin.listTopics())
+            .filter(t => (t.includes(this.parameters.InstanceID) && !notToCheckTopics.includes(t)));
         const previousOffsets = await getTopicsOffsets(topics, kafkaAdmin);
 
         await Utils.sleep(35000);
