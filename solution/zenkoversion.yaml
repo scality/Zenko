@@ -18,6 +18,9 @@ spec:
     kafkaConnect:
       image: kafka-connect-dashboard
       tag: '${VERSION_FULL}'
+    kafkaCleaner:
+      image: kafka-cleaner-dashboard
+      tag: '${VERSION_FULL}'
     mongodb:
       image: mongodb-dashboard
       tag: '${VERSION_FULL}'
@@ -100,6 +103,9 @@ spec:
       monitoring:
         image: jmx-javaagent
         tag: '${JMX_JAVAAGENT_TAG}'
+      cleaner:
+        image: kafka-cleaner-dev
+        tag: '${KAFKA_CLEANER_TAG}'
     vault:
       image: vault
       tag: '${VAULT_TAG}'

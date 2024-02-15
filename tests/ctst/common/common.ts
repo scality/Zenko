@@ -5,6 +5,7 @@ import { Constants, S3, Utils } from 'cli-testing';
 import Zenko from 'world/Zenko';
 import { extractPropertyFromResults, safeJsonParse } from './utils';
 import assert from 'assert';
+import { Admin, Kafka } from 'kafkajs';
 
 setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
 
@@ -86,6 +87,16 @@ async function addUserMetadataToObject(this: Zenko, objectName: string|undefined
     this.addCommandParameter({ metadata: userMD });
     this.addCommandParameter({ metadataDirective: 'REPLACE' });
     return await S3.copyObject(this.getCommandParameters());
+}
+
+async function getTopicsOffsets(topics:string[], kafkaAdmin:Admin) {
+    const offsets = [];
+    for (const topic of topics) {
+        const partitions: ({ high: string; low: string; })[] =
+        await kafkaAdmin.fetchTopicOffsets(topic);
+        offsets.push({ topic, partitions });
+    }
+    return offsets;
 }
 
 Given('a {string} bucket', async function (this: Zenko, versioning: string) {
@@ -322,5 +333,28 @@ Then('i {string} be able to add user metadata to object {string}',
             assert(res.err?.includes('InvalidObjectState'));
         } else {
             assert.ifError(res.err);
+        }
+    });
+
+Then('kafka consumed messages should not take too much place on disk',
+    async function (this: Zenko) {
+        const notToCheckTopics = ['oplog', 'dead-letter'];
+        const kafkaAdmin = new Kafka({ brokers: [this.parameters.KafkaHosts] }).admin();
+        const topics: string[] = (await kafkaAdmin.listTopics())
+            .filter(t => (t.includes(this.parameters.InstanceID) && !notToCheckTopics.includes(t)));
+        const previousOffsets = await getTopicsOffsets(topics, kafkaAdmin);
+
+        await Utils.sleep(35000);
+
+        const newOffsets = await getTopicsOffsets(topics, kafkaAdmin);
+
+        for (let i = 0; i < topics.length; i++) {
+            process.stdout.write(`\nChecking topic ${topics[i]}\n`);
+            for (let j = 0; j < newOffsets[i].partitions.length; j++) {
+                // Checking that the min offset has increased due to kafkacleaner
+                // or that it didn't need to change because there was no new messages
+                assert(newOffsets[i].partitions[j].low > previousOffsets[i].partitions[j].low ||
+                    newOffsets[i].partitions[j].high === newOffsets[i].partitions[j].low);
+            }
         }
     });
