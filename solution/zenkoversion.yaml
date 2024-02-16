@@ -15,6 +15,9 @@ spec:
     kafka:
       image: kafka-dashboard
       tag: '${VERSION_FULL}'
+    kafkaCleaner:
+      image: kafka-cleaner-dashboard
+      tag: '${VERSION_FULL}'
     kafkaConnect:
       image: kafka-connect-dashboard
       tag: '${VERSION_FULL}'
@@ -85,6 +88,9 @@ spec:
       image: zookeeper
       tag: '${ZOOKEEPER_TAG}'
     kafka:
+      cleaner:
+        image: kafka-cleaner
+        tag: '${KAFKA_CLEANER_TAG}'
       cluster:
         image: kafka
         tag: '${KAFKA_TAG}'
