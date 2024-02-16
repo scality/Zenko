@@ -34,9 +34,9 @@ kafka-connect:
   tag: 2.13-3.1.2-1.10.1
   envsubst: KAFKA_CONNECT_TAG
 kafka-cleaner:
-  sourceRegistry: registry.scality.com/kafka-cleaner-dev
+  sourceRegistry: registry.scality.com/kafka-cleaner
   image: kafka-cleaner
-  tag: 70c86f5324105a7be0b19a6937e8361887934569
+  tag: v1.0.0
   envsubst: KAFKA_CLEANER_TAG
 mongodb-connector:
   tag: 1.10.1
