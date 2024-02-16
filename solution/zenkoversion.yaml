@@ -15,11 +15,11 @@ spec:
     kafka:
       image: kafka-dashboard
       tag: '${VERSION_FULL}'
-    kafkaConnect:
-      image: kafka-connect-dashboard
-      tag: '${VERSION_FULL}'
     kafkaCleaner:
       image: kafka-cleaner-dashboard
+      tag: '${VERSION_FULL}'
+    kafkaConnect:
+      image: kafka-connect-dashboard
       tag: '${VERSION_FULL}'
     mongodb:
       image: mongodb-dashboard
@@ -88,6 +88,9 @@ spec:
       image: zookeeper
       tag: '${ZOOKEEPER_TAG}'
     kafka:
+      cleaner:
+        image: kafka-cleaner
+        tag: '${KAFKA_CLEANER_TAG}'
       cluster:
         image: kafka
         tag: '${KAFKA_TAG}'
@@ -103,9 +106,6 @@ spec:
       monitoring:
         image: jmx-javaagent
         tag: '${JMX_JAVAAGENT_TAG}'
-      cleaner:
-        image: kafka-cleaner-dev
-        tag: '${KAFKA_CLEANER_TAG}'
     vault:
       image: vault
       tag: '${VAULT_TAG}'
