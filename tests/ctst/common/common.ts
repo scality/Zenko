@@ -84,7 +84,8 @@ Then('kafka consumed messages should not take too much place on disk',
         const notToCheckTopics = ['oplog', 'dead-letter'];
         const kafkaAdmin = new Kafka({ brokers: [this.parameters.KafkaHosts] }).admin();
         const topics: string[] = (await kafkaAdmin.listTopics())
-            .filter(t => (t.includes(this.parameters.InstanceID) && !notToCheckTopics.includes(t)));
+            .filter(t => (t.includes(this.parameters.InstanceID) &&
+            !notToCheckTopics.some(e => t.includes(e))));
         const previousOffsets = await getTopicsOffsets(topics, kafkaAdmin);
 
         await Utils.sleep(35000);
