@@ -423,8 +423,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         const roleArnToAssume =
             extractPropertyFromResults(await IAM.createRole(
                 this.getCommandParameters()), 'Role', 'Arn');
-        this.addToSaved('identityArn', roleArnToAssume);
-        this.addToSaved('identityName', this.getSaved<string>('roleName'));
 
         let accountToBeAssumedFrom = account;
 
@@ -489,6 +487,10 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         }
         this.cliMode.assumed = true;
         this.cliMode.env = false;
+
+        // Save the identity
+        this.addToSaved('identityArn', roleArnToAssume);
+        this.addToSaved('identityName', this.getSaved<string>('roleName'));
 
         CacheHelper.parameters ??= {};
         // reset the credentials of default account as the defualt credentials

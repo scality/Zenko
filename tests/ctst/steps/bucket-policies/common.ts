@@ -284,11 +284,20 @@ Given('an environment setup for the API', async function (this: Zenko) {
         policyName: `policyforauthz-${Utils.randomString()}`,
     });
     const policyArn = extractPropertyFromResults(createdPolicy, 'Policy', 'Arn') as string;
-    const result = await IAM.attachUserPolicy({
-        policyArn,
-        userName: this.getSaved<string>('identityName'),
-    });
-    assert.ifError(result.stderr || result.err);
+    const identityType = this.getSaved<string>('identityType') as EntityType;
+    if (identityType === EntityType.ASSUME_ROLE_USER || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT) {
+        const result = await IAM.attachRolePolicy({
+            policyArn,
+            roleName: this.getSaved<string>('identityName'),
+        });
+        assert.ifError(result.stderr || result.err);
+    } else {
+        const result = await IAM.attachUserPolicy({
+            policyArn,
+            userName: this.getSaved<string>('identityName'),
+        });
+        assert.ifError(result.stderr || result.err);
+    }
     // Perform actions as the current user: some APIs require strict checks on the
     // initiator, so we do that for all APIs to reduce code complexity.
     this.setAuthMode('test_identity');
@@ -338,11 +347,19 @@ Given('an environment setup for the API', async function (this: Zenko) {
     default:
         break;
     }
-    const detachResult = await IAM.detachUserPolicy({
-        policyArn,
-        userName: this.getSaved<string>('identityName'),
-    });
-    assert.ifError(detachResult.stderr || detachResult.err);
+    if (identityType === EntityType.ASSUME_ROLE_USER || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT) {
+        const result = await IAM.detachRolePolicy({
+            policyArn,
+            roleName: this.getSaved<string>('identityName'),
+        });
+        assert.ifError(result.stderr || result.err);
+    } else {
+        const detachResult = await IAM.detachUserPolicy({
+            policyArn,
+            userName: this.getSaved<string>('identityName'),
+        });
+        assert.ifError(detachResult.stderr || detachResult.err);
+    }
 });
 
 When('the user tries to perform the current S3 action on the bucket', async function (this: Zenko) {
