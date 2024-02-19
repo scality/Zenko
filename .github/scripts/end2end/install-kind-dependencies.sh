@@ -152,7 +152,7 @@ retry() {
 
 mongodb_wait_for_shards() {
     local count=$(kubectl exec -t data-db-mongodb-sharded-mongos-0 -- \
-        mongo admin \
+        mongosh admin \
             -u $MONGODB_ROOT_USERNAME \
             -p $MONGODB_ROOT_PASSWORD \
             --quiet \
@@ -179,7 +179,7 @@ mongodb_sharded() {
     retry mongodb_wait_for_shards "no shards found"
 
     kubectl exec -t data-db-mongodb-sharded-mongos-0 -- \
-        mongo admin \
+        mongosh admin \
             -u $MONGODB_ROOT_USERNAME \
             -p $MONGODB_ROOT_PASSWORD \
             --eval "sh.enableSharding('$MONGODB_APP_DATABASE')"
