@@ -236,8 +236,8 @@ Given('a condition for the bucket policy with {string} {string} {string} expecti
     expect: string,
 ) {
     const conditionForPolicy = {
-        [conditionType]: {
-            [conditionVerb]: conditionValue,
+        [conditionVerb]: {
+            [conditionType]: conditionValue,
         },
     };
     this.addToSaved('conditionForPolicy', conditionForPolicy);
