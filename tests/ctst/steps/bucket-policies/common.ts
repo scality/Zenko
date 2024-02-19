@@ -8,6 +8,7 @@ import {
     needObjectLock,
     needVersioning,
     preCreatedPolicies,
+    writeOperationsOnABucket,
 } from './utils';
 import { createBucketWithConfiguration, putObject, runActionAgainstBucket } from 'steps/utils/utils';
 import assert from 'assert';
@@ -173,13 +174,17 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
     }
 });
 
-Given('a policy granting full access to the bucket', async function (this: Zenko) {
+Given('a policy granting full access to the objects and read access to the bucket', async function (this: Zenko) {
     this.setAuthMode('base_account');
     const authzConfiguration: AuthorizationConfiguration = {
         Identity: this.getSaved<AuthorizationConfiguration>('authzConfiguration')?.Identity
             || AuthorizationType.NO_RESOURCE,
         Resource: AuthorizationType.ALLOW,
     };
+    const action = this.getSaved<ActionPermissionsType>('currentAction');
+    if (writeOperationsOnABucket.includes(action.action)) {
+        authzConfiguration.Resource = AuthorizationType.DENY;
+    }
     this.addToSaved('authzConfiguration', authzConfiguration);
     const bucketName = this.getSaved<string>('bucketName');
     const identityType = this.getSaved<string>('identityType') as EntityType;

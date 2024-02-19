@@ -453,6 +453,37 @@ const preCreatedPolicies = {
     },
 };
 
+const writeOperationsOnABucket = [
+    'DeleteBucket',
+    'DeleteBucketCors',
+    'DeleteBucketEncryption',
+    'DeleteBucketLifecycle',
+    'DeleteBucketPolicy',
+    'DeleteBucketReplication',
+    'DeleteBucketWebsite',
+    'GetBucketAcl',
+    'GetBucketCors',
+    'GetBucketEncryption',
+    'GetBucketLifecycleConfiguration',
+    'GetBucketNotificationConfiguration',
+    'GetBucketPolicy',
+    'GetBucketReplication',
+    'GetBucketVersioning',
+    'GetObjectLockConfiguration',
+    'GetBucketTagging',
+    'ListMultipartUploads',
+    'PutBucketAcl',
+    'PutBucketCors',
+    'PutBucketEncryption',
+    'PutBucketLifecycleConfiguration',
+    'PutBucketNotificationConfiguration',
+    'PutBucketPolicy',
+    'PutBucketReplication',
+    'PutBucketVersioning',
+    'PutObjectLockConfiguration',
+    'PutBucketPolicy',
+];
+
 export {
     ActionPermissionsType,
     needObjectLock,
@@ -460,4 +491,5 @@ export {
     needVersioning,
     actionPermissions,
     preCreatedPolicies,
+    writeOperationsOnABucket,
 };

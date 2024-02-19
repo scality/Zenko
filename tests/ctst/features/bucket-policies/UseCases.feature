@@ -11,7 +11,7 @@ Feature: S3 Bucket Policies Authorization flow use cases
         And a IAM_USER type
         And an environment setup for the API
         And an "non-existing" IAM Policy that "" with "" effect for the current API
-        And a policy granting full access to the bucket
+        And a policy granting full access to the objects and read access to the bucket
         When the user tries to perform the current S3 action on the bucket
         Then the authorization result is correct
         Examples:
