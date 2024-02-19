@@ -4,7 +4,7 @@ Feature: S3 Bucket Policies Authorization flow use cases
 
     # Implement use case from ARTESCA-6574
     Scenario Outline: Use case : bucket policy, all access, <action>
-        Given an action "ListObjectsV2"
+        Given an action "<action>"
         And an existing bucket prepared for the action
         And a IAM_USER type
         And an environment setup for the API

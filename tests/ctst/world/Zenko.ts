@@ -324,10 +324,10 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             }
             // Arn to assume
             const arn = roleToAssume;
-            this.addToSaved('identityArn', arn);
             this.options.roleArn = arn;
             // Assume the role and save the credentials
             const ARWWI = await STS.assumeRoleWithWebIdentity(this.options, this.parameters);
+            this.addToSaved('identityArn', extractPropertyFromResults(ARWWI, 'AssumedRoleUser', 'Arn'));
             if (ARWWI && typeof ARWWI !== 'string' && ARWWI.stdout) {
                 const parsedOutput = JSON.parse(ARWWI.stdout) as { Credentials: ClientOptions['AssumedSession'] };
                 if (parsedOutput && parsedOutput.Credentials) {
