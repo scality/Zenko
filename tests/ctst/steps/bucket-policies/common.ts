@@ -173,7 +173,7 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
     }
 });
 
-Given('a pre-created policy granting full access to the bucket', async function (this: Zenko) {
+Given('a policy granting full access to the bucket', async function (this: Zenko) {
     this.setAuthMode('base_account');
     const authzConfiguration: AuthorizationConfiguration = {
         Identity: this.getSaved<AuthorizationConfiguration>('authzConfiguration')?.Identity
@@ -218,6 +218,28 @@ Given('a pre-created policy granting full access to the bucket', async function 
         policy: JSON.stringify(basePolicy),
     });
     assert.ifError(result.stderr || result.err);
+});
+
+Given('a condition for the bucket policy with {string} {string} {string} expecting {string}', function (
+    this: Zenko,
+    conditionVerb: string,
+    conditionType: string,
+    conditionValue: string,
+    expect: AuthorizationType,
+) {
+    const conditionForPolicy = {
+        [conditionType]: {
+            [conditionVerb]: conditionValue,
+        },
+    };
+    this.addToSaved('conditionForPolicy', conditionForPolicy);
+    this.addToSaved('expectFromConditions', expect);
+});
+
+Given('a retention date set to {int} days', function (this: Zenko, retentionDays: number) {
+    const retentionDate = new Date();
+    retentionDate.setDate(retentionDate.getDate() + retentionDays);
+    this.addToSaved('retention', `Mode=GOVERNANCE,RetainUntilDate=${retentionDate.toISOString()}`);
 });
 
 Given('an {string} S3 Bucket Policy that {string} with {string} effect for the current API', async function (
@@ -272,6 +294,10 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
         authzConfiguration.Resource = AuthorizationType.NO_RESOURCE;
         return;
     }
+    const expectFromConditions = this.getSaved<AuthorizationType>('expectFromConditions');
+    if (expectFromConditions) {
+        authzConfiguration.Resource = expectFromConditions;
+    }
     this.addToSaved('authzConfiguration', authzConfiguration);
     const currentIdentityArn = this.getSaved<string>('identityArn');
     let principal = currentIdentityArn;
@@ -292,9 +318,14 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
                 Principal: {
                     AWS: principal,
                 },
+                Condition: {},
             },
         ],
     };
+    const conditionForPolicy = this.getSaved('conditionForPolicy');
+    if (conditionForPolicy) {
+        basePolicy.Statement[0].Condition = conditionForPolicy;
+    }
     if (process.env.VERBOSE) {
         process.stdout.write(
             `Bucket Policy to be created: ${JSON.stringify(basePolicy, null, 2)
