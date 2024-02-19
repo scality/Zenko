@@ -416,10 +416,48 @@ const actionPermissions: ActionPermissionsType[] = [
     },
 ];
 
+const preCreatedPolicies = {
+    fullAccess: {
+        Version: '2012-10-17',
+        Statement: [
+            {
+                Effect: 'Allow',
+                Principal: {
+                    AWS: [
+                        'arn:aws:iam::id:root',
+                    ],
+                },
+                Action: [
+                    's3:ListBucket',
+                    's3:GetBucketLocation',
+                ],
+                Resource: [
+                    'arn:aws:s3:::name',
+                ],
+            },
+            {
+                Effect: 'Allow',
+                Principal: {
+                    AWS: [
+                        'arn:aws:iam::id:root',
+                    ],
+                },
+                Action: [
+                    's3:*',
+                ],
+                Resource: [
+                    'arn:aws:s3:::name/*',
+                ],
+            },
+        ],
+    },
+};
+
 export {
     ActionPermissionsType,
     needObjectLock,
     needObject,
     needVersioning,
     actionPermissions,
+    preCreatedPolicies,
 };

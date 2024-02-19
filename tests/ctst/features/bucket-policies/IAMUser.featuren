@@ -1263,3 +1263,23 @@ Feature: S3 Bucket Policies Authorization flow for IAM Users
             | PutObjectVersionLegalHold          | non-existing       |                     |                    | existing        | applies          | ALLOW+DENY      |
             | PutObjectVersionLegalHold          | non-existing       |                     |                    | existing        | does not apply   | ALLOW           |
             | PutObjectVersionLegalHold          | non-existing       |                     |                    | non-existing    |                  |                 |
+            | MetadataSearch                     | existing           | applies             | ALLOW              | existing        | applies          | ALLOW           |
+            | MetadataSearch                     | existing           | applies             | ALLOW              | existing        | applies          | DENY            |
+            | MetadataSearch                     | existing           | applies             | ALLOW              | existing        | applies          | ALLOW+DENY      |
+            | MetadataSearch                     | existing           | applies             | ALLOW              | existing        | does not apply   | ALLOW           |
+            | MetadataSearch                     | existing           | applies             | ALLOW              | non-existing    |                  |                 |
+            | MetadataSearch                     | existing           | applies             | DENY               | existing        | applies          | ALLOW           |
+            | MetadataSearch                     | existing           | applies             | DENY               | existing        | applies          | DENY            |
+            | MetadataSearch                     | existing           | applies             | DENY               | existing        | applies          | ALLOW+DENY      |
+            | MetadataSearch                     | existing           | applies             | DENY               | existing        | does not apply   | ALLOW           |
+            | MetadataSearch                     | existing           | applies             | DENY               | non-existing    |                  |                 |
+            | MetadataSearch                     | existing           | does not apply      | ALLOW              | existing        | applies          | ALLOW           |
+            | MetadataSearch                     | existing           | does not apply      | ALLOW              | existing        | applies          | DENY            |
+            | MetadataSearch                     | existing           | does not apply      | ALLOW              | existing        | applies          | ALLOW+DENY      |
+            | MetadataSearch                     | existing           | does not apply      | ALLOW              | existing        | does not apply   | ALLOW           |
+            | MetadataSearch                     | existing           | does not apply      | ALLOW              | non-existing    |                  |                 |
+            | MetadataSearch                     | non-existing       |                     |                    | existing        | applies          | ALLOW           |
+            | MetadataSearch                     | non-existing       |                     |                    | existing        | applies          | DENY            |
+            | MetadataSearch                     | non-existing       |                     |                    | existing        | applies          | ALLOW+DENY      |
+            | MetadataSearch                     | non-existing       |                     |                    | existing        | does not apply   | ALLOW           |
+            | MetadataSearch                     | non-existing       |                     |                    | non-existing    |                  |                 |

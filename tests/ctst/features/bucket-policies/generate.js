@@ -59,7 +59,7 @@ const APIs = [
     'PutObjectTagging',
     'UploadPart',
     'UploadPartCopy',
-    // Verison-related
+    // Version-related
     'DeleteObjectVersion',
     'DeleteObjectVersionTagging',
     'GetObjectVersion',
@@ -69,6 +69,8 @@ const APIs = [
     'PutObjectVersionTagging',
     'PutObjectVersionRetention',
     'PutObjectVersionLegalHold',
+    // Scality-specific
+    'MetadataSearch',
 ];
 
 const scenarios = [];

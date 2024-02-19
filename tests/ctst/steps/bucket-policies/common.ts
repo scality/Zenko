@@ -1,13 +1,18 @@
 /* eslint-disable no-case-declarations */
 import { When, Then, Given } from '@cucumber/cucumber';
 import Zenko, { EntityType } from '../../world/Zenko';
-import { ActionPermissionsType, actionPermissions, needObject, needObjectLock, needVersioning } from './utils';
+import {
+    ActionPermissionsType,
+    actionPermissions,
+    needObject,
+    needObjectLock,
+    needVersioning,
+    preCreatedPolicies,
+} from './utils';
 import { createBucketWithConfiguration, putObject, runActionAgainstBucket } from 'steps/utils/utils';
 import assert from 'assert';
 import { IAM, S3, Utils } from 'cli-testing';
 import { extractPropertyFromResults } from 'common/utils';
-
-// TODO add support for CNES use case
 
 enum AuthorizationType {
     ALLOW = 'Allow',
@@ -166,6 +171,51 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
         // TODO: special case because it already has existing permissions
         // must disable all the tests that change the IAM part
     }
+});
+
+Given('a pre-created policy granting full access to the bucket', async function (this: Zenko) {
+    this.setAuthMode('base_account');
+    const authzConfiguration: AuthorizationConfiguration = {
+        Identity: this.getSaved<AuthorizationConfiguration>('authzConfiguration')?.Identity
+            || AuthorizationType.NO_RESOURCE,
+        Resource: AuthorizationType.ALLOW,
+    };
+    this.addToSaved('authzConfiguration', authzConfiguration);
+    const bucketName = this.getSaved<string>('bucketName');
+    const identityType = this.getSaved<string>('identityType') as EntityType;
+    const currentIdentityArn = this.getSaved<string>('identityArn');
+    let principal = currentIdentityArn;
+    const resources = {
+        bucket: `arn:aws:s3:::${bucketName}`,
+        object: `arn:aws:s3:::${bucketName}/*`,
+    };
+    if (identityType === EntityType.ASSUME_ROLE_USER || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT) {
+        principal = '*';
+    }
+    const basePolicy = {
+        ...preCreatedPolicies.fullAccess,
+    };
+    basePolicy.Statement[0].Principal.AWS = [principal];
+    basePolicy.Statement[0].Resource = [resources.bucket];
+    basePolicy.Statement[1].Principal.AWS = [principal];
+    basePolicy.Statement[1].Resource = [resources.object];
+
+    if (process.env.VERBOSE) {
+        process.stdout.write(
+            `Bucket Policy to be created: ${JSON.stringify(basePolicy, null, 2)
+            }Expecting authz ${JSON.stringify(authzConfiguration)
+            }With the current state ${JSON.stringify({
+                identityType: this.getSaved<string>('identityType'),
+                identityArn: this.getSaved<string>('identityArn'),
+                identityName: this.getSaved<string>('identityName'),
+            })
+            }\n`);
+    }
+    const result = await S3.putBucketPolicy({
+        bucket: this.getSaved<string>('bucketName'),
+        policy: JSON.stringify(basePolicy),
+    });
+    assert.ifError(result.stderr || result.err);
 });
 
 Given('an {string} S3 Bucket Policy that {string} with {string} effect for the current API', async function (
