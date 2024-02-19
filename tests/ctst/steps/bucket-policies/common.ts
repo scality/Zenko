@@ -245,9 +245,9 @@ Given('a condition for the bucket policy with {string} {string} {string} expecti
 });
 
 Given('a retention date set to {string} days', function (this: Zenko, retentionDays: string) {
-    const retentionDate = new Date();
-    retentionDate.setDate(retentionDate.getDate() + Number(retentionDays));
-    this.addToSaved('retention', `Mode=GOVERNANCE,RetainUntilDate=${retentionDate.toISOString()}`);
+    this.addToSaved('objectLockConfiguration', '{ "ObjectLockEnabled": "Enabled", "Rule": ' +
+        '{ "DefaultRetention": ' +
+        `{ "Mode": "GOVERNANCE", "Days": ${retentionDays} }}}`);
 });
 
 Given('an {string} S3 Bucket Policy that {string} with {string} effect for the current API', async function (
@@ -380,11 +380,12 @@ Given('an environment setup for the API', async function (this: Zenko) {
     const identityType = this.getSaved<string>('identityType') as EntityType;
     if (identityType === EntityType.ASSUME_ROLE_USER
         || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT
-        || identityType === EntityType.DATA_CONSUMER) {        const result = await IAM.attachRolePolicy({
-        policyArn,
-        roleName: this.getSaved<string>('identityName'),
-    });
-    assert.ifError(result.stderr || result.err);
+        || identityType === EntityType.DATA_CONSUMER) {
+            const result = await IAM.attachRolePolicy({
+                policyArn,
+                roleName: this.getSaved<string>('identityName'),
+            });
+        assert.ifError(result.stderr || result.err);
     } else {
         const result = await IAM.attachUserPolicy({
             policyArn,
@@ -396,50 +397,50 @@ Given('an environment setup for the API', async function (this: Zenko) {
     // initiator, so we do that for all APIs to reduce code complexity.
     this.setAuthMode('test_identity');
     switch (action.action) {
-    case 'CompleteMultipartUpload':
-    case 'AbortMultipartUpload':
-    case 'UploadPart':
-    case 'UploadPartCopy':
-        const objectKey = `multipartUpload-${Utils.randomString()}`;
-        const initiateMPUResult = await S3.createMultipartUpload({
-            ___mode: this.getCliMode(),
-            bucket: this.getSaved<string>('bucketName'),
-            key: objectKey,
-        });
-        assert.ifError(initiateMPUResult.stderr || initiateMPUResult.err);
-        // extract the upload ID
-        this.addToSaved('uploadId', extractPropertyFromResults<string>(initiateMPUResult, 'UploadId'));
-        this.addToSaved('objectName', objectKey);
-        break;
-    case 'GetObjectLegalHold':
-        // Object needs object lock configuration first
-        const objectLegalHoldConfigResult = await S3.putObjectLegalHold({
-            ___mode: this.getCliMode(),
-            bucket: this.getSaved<string>('bucketName'),
-            key: this.getSaved<string>('objectName'),
-            legalHold: 'Status=ON',
-        });
-        assert.ifError(objectLegalHoldConfigResult.stderr || objectLegalHoldConfigResult.err);
-        break;
-    case 'GetObjectRetention':
-        const objectRetentionResult = await S3.putObjectRetention({
-            ___mode: this.getCliMode(),
-            bucket: this.getSaved<string>('bucketName'),
-            key: this.getSaved<string>('objectName'),
-            retention: 'Mode=GOVERNANCE,RetainUntilDate=2080-01-01T00:00:00Z',
-            bypassGovernanceRetention: 'true',
-        });
-        assert.ifError(objectRetentionResult.stderr || objectRetentionResult.err);
-        break;
-    case 'PutObjectRetention':
-        this.addCommandParameter({ bypassGovernanceRetention: 'true' });
-        break;
-    case 'CreateMultipartUpload':
-        this.addToSaved('objectName', `objectforbptests-${Utils.randomString()}`);
-        this.addCommandParameter({ key: this.getSaved<string>('objectName') });
-        break;
-    default:
-        break;
+        case 'CompleteMultipartUpload':
+        case 'AbortMultipartUpload':
+        case 'UploadPart':
+        case 'UploadPartCopy':
+            const objectKey = `multipartUpload-${Utils.randomString()}`;
+            const initiateMPUResult = await S3.createMultipartUpload({
+                ___mode: this.getCliMode(),
+                bucket: this.getSaved<string>('bucketName'),
+                key: objectKey,
+            });
+            assert.ifError(initiateMPUResult.stderr || initiateMPUResult.err);
+            // extract the upload ID
+            this.addToSaved('uploadId', extractPropertyFromResults<string>(initiateMPUResult, 'UploadId'));
+            this.addToSaved('objectName', objectKey);
+            break;
+        case 'GetObjectLegalHold':
+            // Object needs object lock configuration first
+            const objectLegalHoldConfigResult = await S3.putObjectLegalHold({
+                ___mode: this.getCliMode(),
+                bucket: this.getSaved<string>('bucketName'),
+                key: this.getSaved<string>('objectName'),
+                legalHold: 'Status=ON',
+            });
+            assert.ifError(objectLegalHoldConfigResult.stderr || objectLegalHoldConfigResult.err);
+            break;
+        case 'GetObjectRetention':
+            const objectRetentionResult = await S3.putObjectRetention({
+                ___mode: this.getCliMode(),
+                bucket: this.getSaved<string>('bucketName'),
+                key: this.getSaved<string>('objectName'),
+                retention: 'Mode=GOVERNANCE,RetainUntilDate=2080-01-01T00:00:00Z',
+                bypassGovernanceRetention: 'true',
+            });
+            assert.ifError(objectRetentionResult.stderr || objectRetentionResult.err);
+            break;
+        case 'PutObjectRetention':
+            this.addCommandParameter({ bypassGovernanceRetention: 'true' });
+            break;
+        case 'CreateMultipartUpload':
+            this.addToSaved('objectName', `objectforbptests-${Utils.randomString()}`);
+            this.addCommandParameter({ key: this.getSaved<string>('objectName') });
+            break;
+        default:
+            break;
     }
     if (identityType === EntityType.ASSUME_ROLE_USER
         || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT
@@ -486,16 +487,16 @@ Then('the authorization result is correct', function (this: Zenko) {
     const authR = authzConfiguration?.Resource;
     let isAllowed = (() => {
         switch (authI) {
-        case AuthorizationType.ALLOW:
-            return authR === AuthorizationType.ALLOW ||
+            case AuthorizationType.ALLOW:
+                return authR === AuthorizationType.ALLOW ||
                     authR === AuthorizationType.IMPLICIT_DENY ||
                     authR === AuthorizationType.NO_RESOURCE;
-        case AuthorizationType.IMPLICIT_DENY:
-            return authR === AuthorizationType.ALLOW;
-        case AuthorizationType.NO_RESOURCE:
-            return authR === AuthorizationType.ALLOW;
-        default:
-            return false;
+            case AuthorizationType.IMPLICIT_DENY:
+                return authR === AuthorizationType.ALLOW;
+            case AuthorizationType.NO_RESOURCE:
+                return authR === AuthorizationType.ALLOW;
+            default:
+                return false;
         }
     })();
     // Special cases: for CreateBucket and DeleteBucket, BP

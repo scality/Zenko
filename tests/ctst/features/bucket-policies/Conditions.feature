@@ -22,7 +22,7 @@ Feature: S3 Bucket Policies Conditions
         Then the authorization result is correct
         Examples:
             | conditionVerb | conditionType | conditionValue | expect |
-            | IpAddress     | aws:SourceIp  | 10.0.0.0       | Allow  |
+            | IpAddress     | aws:SourceIp  | 0.0.0.0/0      | Allow  |
             | NotIpAddress  | aws:SourceIp  | 10.0.1.0       | Allow  |
             | IpAddress     | aws:SourceIp  | 192.0.0.1      | Deny   |
 
