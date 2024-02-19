@@ -1,3 +1,8 @@
+{{/*
+Copyright VMware, Inc.
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
 {{/* vim: set filetype=mustache: */}}
 
 {{/*
@@ -10,7 +15,7 @@ Usage:
 {{- if .value.create }}
     {{- default (printf "%s-%s" (include "common.names.fullname" .context) .component) .value.name | quote }}
 {{- else if .context.Values.common.serviceAccount.create }}
-    {{- default (printf "%s-%s" (include "common.names.fullname" .context) .component).context.Values.common.serviceAccount.name | quote }}
+    {{- default (printf "%s-%s" (include "common.names.fullname" .context) .component) .context.Values.common.serviceAccount.name | quote }}
 {{- else -}}
     {{- default "default" .value.name | quote }}
 {{- end }}
@@ -18,7 +23,7 @@ Usage:
 
 {{- define "mongodb-sharded.secret" -}}
   {{- if .Values.auth.existingSecret -}}
-    {{- .Values.auth.existingSecret -}}
+    {{- printf "%s" (tpl .Values.auth.existingSecret $) -}}
   {{- else }}
     {{- include "common.names.fullname" . -}}
   {{- end }}
@@ -30,10 +35,6 @@ Usage:
   {{- else -}}
   {{- printf "%s-configsvr-0.%s-headless.%s.svc.%s" (include "common.names.fullname" . ) (include "common.names.fullname" .) .Release.Namespace .Values.clusterDomain -}}
   {{- end -}}
-{{- end -}}
-
-{{- define "mongodb-sharded.configServer.serviceName" -}}
-  {{- printf "%s-configsvr.%s.svc.%s" (include "common.names.fullname" .) .Release.Namespace .Values.clusterDomain -}}
 {{- end -}}
 
 {{- define "mongodb-sharded.configServer.rsName" -}}
@@ -247,23 +248,4 @@ mongodb: .Values.mongos.servicePerReplica.loadBalancerIPs
 {{- include "common.warnings.rollingTag" .Values.image }}
 {{- include "common.warnings.rollingTag" .Values.metrics.image }}
 {{- include "common.warnings.rollingTag" .Values.volumePermissions.image }}
-{{- end -}}
-
-{{/* app credentials environment variables */}}
-{{- define "mongodb-sharded.appAccountEnvs" -}}
-- name: MONGODB_APP_USERNAME
-  valueFrom:
-    secretKeyRef:
-      name: {{ include "mongodb-sharded.secret" $ }}
-      key: mongodb-username
-- name: MONGODB_APP_DATABASE
-  valueFrom:
-    secretKeyRef:
-      name: {{ include "mongodb-sharded.secret" $ }}
-      key: mongodb-database
-- name: MONGODB_APP_PASSWORD
-  valueFrom:
-    secretKeyRef:
-      name: {{ include "mongodb-sharded.secret" $ }}
-      key: mongodb-password
 {{- end -}}
