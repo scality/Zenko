@@ -154,7 +154,9 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
 
     const identityType = this.getSaved<string>('identityType') as EntityType;
     // attach the policy to the current identity: role or user
-    if (identityType === EntityType.ASSUME_ROLE_USER || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT) {
+    if (identityType === EntityType.ASSUME_ROLE_USER
+        || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT
+        || identityType === EntityType.DATA_CONSUMER) {
         const result = await IAM.attachRolePolicy({
             policyArn,
             roleName: this.getSaved<string>('identityName'),
@@ -196,7 +198,8 @@ Given('a policy granting full access to the objects and read access to the bucke
         object: `arn:aws:s3:::${bucketName}/*`,
     };
     if (identityType === EntityType.ASSUME_ROLE_USER
-        || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT) {
+        || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT
+        || identityType === EntityType.DATA_CONSUMER) {
         principal = '*';
     }
     const basePolicy = {
@@ -230,7 +233,7 @@ Given('a condition for the bucket policy with {string} {string} {string} expecti
     conditionVerb: string,
     conditionType: string,
     conditionValue: string,
-    expect: AuthorizationType,
+    expect: string,
 ) {
     const conditionForPolicy = {
         [conditionType]: {
@@ -307,7 +310,9 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
     const currentIdentityArn = this.getSaved<string>('identityArn');
     let principal = currentIdentityArn;
     const identityType = this.getSaved<string>('identityType') as EntityType;
-    if (identityType === EntityType.ASSUME_ROLE_USER || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT) {
+    if (identityType === EntityType.ASSUME_ROLE_USER
+        || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT
+        || identityType === EntityType.DATA_CONSUMER) {
         principal = '*';
     }
     if (!applies) {
@@ -373,12 +378,13 @@ Given('an environment setup for the API', async function (this: Zenko) {
     });
     const policyArn = extractPropertyFromResults(createdPolicy, 'Policy', 'Arn') as string;
     const identityType = this.getSaved<string>('identityType') as EntityType;
-    if (identityType === EntityType.ASSUME_ROLE_USER || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT) {
-        const result = await IAM.attachRolePolicy({
-            policyArn,
-            roleName: this.getSaved<string>('identityName'),
-        });
-        assert.ifError(result.stderr || result.err);
+    if (identityType === EntityType.ASSUME_ROLE_USER
+        || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT
+        || identityType === EntityType.DATA_CONSUMER) {        const result = await IAM.attachRolePolicy({
+        policyArn,
+        roleName: this.getSaved<string>('identityName'),
+    });
+    assert.ifError(result.stderr || result.err);
     } else {
         const result = await IAM.attachUserPolicy({
             policyArn,
@@ -435,7 +441,9 @@ Given('an environment setup for the API', async function (this: Zenko) {
     default:
         break;
     }
-    if (identityType === EntityType.ASSUME_ROLE_USER || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT) {
+    if (identityType === EntityType.ASSUME_ROLE_USER
+        || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT
+        || identityType === EntityType.DATA_CONSUMER) {
         const result = await IAM.detachRolePolicy({
             policyArn,
             roleName: this.getSaved<string>('identityName'),

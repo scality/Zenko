@@ -43,9 +43,9 @@ Feature: S3 Bucket Policies Conditions
         When the user tries to perform the current S3 action on the bucket
         Then the authorization result is correct
         Examples:
-            | conditionVerb              | conditionType                             | retentionDate | conditionValue | expect  |
-            | "NumNumericLessThanEquals" | "s3:object-lock-remaining-retention-days" | 100           | 100            | "Allow" |
-            | "NumNumericGreaterThan"    | "s3:object-lock-remaining-retention-days" | 100           | 100            | "Deny"  |
-            | "NumNumericEquals"         | "s3:object-lock-remaining-retention-days" | 100           | 100            | "Allow" |
-            | "NumNumericGreaterThan"    | "s3:object-lock-remaining-retention-days" | 100           | 101            | "Allow" |
-            | "NumNumericLessThan"       | "s3:object-lock-remaining-retention-days" | 100           | 101            | "Deny"  |
+            | conditionVerb            | conditionType                           | retentionDate | conditionValue | expect |
+            | NumNumericLessThanEquals | s3:object-lock-remaining-retention-days | 100           | 100            | Allow  |
+            | NumNumericGreaterThan    | s3:object-lock-remaining-retention-days | 100           | 100            | Deny   |
+            | NumNumericEquals         | s3:object-lock-remaining-retention-days | 100           | 100            | Allow  |
+            | NumNumericGreaterThan    | s3:object-lock-remaining-retention-days | 100           | 101            | Allow  |
+            | NumNumericLessThan       | s3:object-lock-remaining-retention-days | 100           | 101            | Deny   |
