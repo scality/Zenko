@@ -244,9 +244,9 @@ Given('a condition for the bucket policy with {string} {string} {string} expecti
     this.addToSaved('expectFromConditions', expect);
 });
 
-Given('a retention date set to {int} days', function (this: Zenko, retentionDays: number) {
+Given('a retention date set to {string} days', function (this: Zenko, retentionDays: string) {
     const retentionDate = new Date();
-    retentionDate.setDate(retentionDate.getDate() + retentionDays);
+    retentionDate.setDate(retentionDate.getDate() + Number(retentionDays));
     this.addToSaved('retention', `Mode=GOVERNANCE,RetainUntilDate=${retentionDate.toISOString()}`);
 });
 
