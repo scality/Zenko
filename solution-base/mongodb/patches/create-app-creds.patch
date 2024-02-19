@@ -7,7 +7,7 @@ index 00000000..886b73d9
 +#!/bin/bash
 +
 +create_user() {
-+    mongo --host $MONGODB_HOSTS -u 'root' -p "$MONGODB_ROOT_PASSWORD" <<EOF
++    mongosh --host $MONGODB_HOSTS -u 'root' -p "$MONGODB_ROOT_PASSWORD" <<EOF
 +user = db.getSiblingDB('admin').getUser('$MONGODB_APP_USERNAME')
 +if (user == null) {
 +    db.getSiblingDB('admin').createUser({
