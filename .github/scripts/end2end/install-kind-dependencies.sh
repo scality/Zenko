@@ -185,7 +185,7 @@ mongodb_wait_for_shards() {
         mongosh admin \
             -u $MONGODB_ROOT_USERNAME \
             -p $MONGODB_ROOT_PASSWORD \
-            --eval 'db.runCommand({ listshards: 1 }).shards.length'
+            --eval "db.runCommand({ listshards: 1 }).shards.length"
     )
 
     [ $count == "1" ]
@@ -211,7 +211,7 @@ mongodb_sharded() {
         mongosh admin \
             -u $MONGODB_ROOT_USERNAME \
             -p $MONGODB_ROOT_PASSWORD \
-            --eval 'sh.enableSharding('$MONGODB_APP_DATABASE')'
+            --eval "sh.enableSharding('$MONGODB_APP_DATABASE')"
 }
 
 build_solution_base_manifests
