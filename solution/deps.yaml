@@ -28,6 +28,11 @@ kafka:
   image: kafka
   tag: 2.13-3.1.2
   envsubst: KAFKA_TAG
+kafka-cleaner:
+  sourceRegistry: registry.scality.com/kafka-cleaner
+  image: kafka-cleaner
+  tag: v1.0.0
+  envsubst: KAFKA_CLEANER_TAG
 kafka-connect:
   sourceRegistry: registry.scality.com/zenko
   image: kafka-connect
