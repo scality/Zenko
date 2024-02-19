@@ -185,6 +185,7 @@ mongodb_wait_for_shards() {
         mongosh admin \
             -u $MONGODB_ROOT_USERNAME \
             -p $MONGODB_ROOT_PASSWORD \
+            --quiet \
             --eval "db.runCommand({ listshards: 1 }).shards.length"
     )
 
