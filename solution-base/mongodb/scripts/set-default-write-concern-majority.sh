@@ -1,7 +1,13 @@
 #!/bin/bash
 
+if which mongo &> /dev/null; then
+    mongoCmd="mongo"
+else
+    mongoCmd="mongosh"
+fi
+
 set_default_majority() {
-    mongo --host "mongodb://127.0.0.1/?replicaSet=${MONGODB_REPLICA_SET_NAME}"  -u 'root' -p "$MONGODB_ROOT_PASSWORD" <<EOF
+    $mongoCmd "mongodb://127.0.0.1:27017/?replicaSet=${MONGODB_REPLICA_SET_NAME}"  -u 'root' -p "$MONGODB_ROOT_PASSWORD" <<EOF
 conf = rs.config()
 
 defaultWriteConcern = conf.settings.getLastErrorDefaults
