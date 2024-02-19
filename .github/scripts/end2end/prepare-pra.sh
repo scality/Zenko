@@ -18,7 +18,7 @@ echo 'ZENKO_UI_INGRESS="ui.dr.zenko.local"' >> "$GITHUB_ENV"
 MONGODB_ROOT_USERNAME="${MONGODB_ROOT_USERNAME:-'root'}"
 MONGODB_ROOT_PASSWORD="${MONGODB_ROOT_PASSWORD:-'rootpass'}"
 
-kubectl exec -it data-db-mongodb-sharded-mongos-0 -- mongo "admin" \
+kubectl exec -it data-db-mongodb-sharded-mongos-0 -- mongosh "admin" \
     -u "root" \
     -p "rootpass" \
     --eval "db.createUser({user:$MONGODB_PRA_USERNAME,pwd:$MONGODB_PRA_PASSWORD,roles:[{role:'enableSharding',db:$MONGODB_PRA_DATABASE },{role:'readWrite',db:$MONGODB_PRA_DATABASE },{role:'read',db:'local'}]})"
