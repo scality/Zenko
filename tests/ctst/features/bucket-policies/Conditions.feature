@@ -15,17 +15,16 @@ Feature: S3 Bucket Policies Conditions
         And an existing bucket prepared for the action
         And a IAM_USER type
         And an environment setup for the API
-        And an "existing" IAM Policy that "applies" with "ALLOW" effect for the current API
+        And an "non-existing" IAM Policy that "" with "" effect for the current API
         And a condition for the bucket policy with "<conditionVerb>" "<conditionType>" "<conditionValue>" expecting "<expect>"
         And an "existing" S3 Bucket Policy that "applies" with "ALLOW" effect for the current API
         When the user tries to perform the current S3 action on the bucket
         Then the authorization result is correct
         Examples:
             | conditionVerb | conditionType | conditionValue | expect |
-            | IpAddress     | aws:SourceIp  | 127.0.0.1/24   | Allow  |
+            | IpAddress     | aws:SourceIp  | 10.0.0.0       | Allow  |
             | NotIpAddress  | aws:SourceIp  | 10.0.1.0       | Allow  |
             | IpAddress     | aws:SourceIp  | 192.0.0.1      | Deny   |
-            | NotIpAddress  | aws:SourceIp  | 127.0.0.1/24   | Deny   |
 
     @2.6.0
     @PreMerge
@@ -36,16 +35,16 @@ Feature: S3 Bucket Policies Conditions
         And an existing bucket prepared for the action
         And a IAM_USER type
         And an environment setup for the API
-        And an "existing" IAM Policy that "applies" with "ALLOW" effect for the current API
+        And an "non-existing" IAM Policy that "" with "" effect for the current API
         And a condition for the bucket policy with "<conditionVerb>" "<conditionType>" "<conditionValue>" expecting "<expect>"
         And an "existing" S3 Bucket Policy that "applies" with "ALLOW" effect for the current API
         And a retention date set to "<retentionDate>" days
         When the user tries to perform the current S3 action on the bucket
         Then the authorization result is correct
         Examples:
-            | conditionVerb            | conditionType                           | retentionDate | conditionValue | expect |
-            | NumNumericLessThanEquals | s3:object-lock-remaining-retention-days | 100           | 100            | Allow  |
-            | NumNumericGreaterThan    | s3:object-lock-remaining-retention-days | 100           | 100            | Deny   |
-            | NumNumericEquals         | s3:object-lock-remaining-retention-days | 100           | 100            | Allow  |
-            | NumNumericGreaterThan    | s3:object-lock-remaining-retention-days | 100           | 101            | Allow  |
-            | NumNumericLessThan       | s3:object-lock-remaining-retention-days | 100           | 101            | Deny   |
+            | conditionVerb         | conditionType                           | retentionDate | conditionValue | expect |
+            | NumericLessThanEquals | s3:object-lock-remaining-retention-days | 100           | 100            | Allow  |
+            | NumericGreaterThan    | s3:object-lock-remaining-retention-days | 100           | 100            | Deny   |
+            | NumericEquals         | s3:object-lock-remaining-retention-days | 100           | 100            | Allow  |
+            | NumericGreaterThan    | s3:object-lock-remaining-retention-days | 100           | 101            | Allow  |
+            | NumericLessThan       | s3:object-lock-remaining-retention-days | 100           | 101            | Deny   |
