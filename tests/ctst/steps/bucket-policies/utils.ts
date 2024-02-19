@@ -482,6 +482,7 @@ const writeOperationsOnABucket = [
     'PutBucketVersioning',
     'PutObjectLockConfiguration',
     'PutBucketPolicy',
+    'MetadataSearch',
 ];
 
 export {
