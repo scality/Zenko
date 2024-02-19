@@ -2,7 +2,9 @@ Feature: S3 Bucket Policies Authorization flow use cases
     Bucket policies feature should ensure the customer use cases are
     supported.
 
-    # Implement use case from ARTESCA-6574
+    @2.6.0
+    @PreMerge
+    @BucketPolicies
     Scenario Outline: Use case : bucket policy, all access, <action>
         Given an action "<action>"
         And an existing bucket prepared for the action

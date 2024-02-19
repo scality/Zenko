@@ -184,12 +184,14 @@ Given('a pre-created policy granting full access to the bucket', async function 
     const bucketName = this.getSaved<string>('bucketName');
     const identityType = this.getSaved<string>('identityType') as EntityType;
     const currentIdentityArn = this.getSaved<string>('identityArn');
-    let principal = currentIdentityArn;
+    const accountId = currentIdentityArn.split(':')[4];
+    let principal = `arn:aws:iam::${accountId}:root`;
     const resources = {
         bucket: `arn:aws:s3:::${bucketName}`,
         object: `arn:aws:s3:::${bucketName}/*`,
     };
-    if (identityType === EntityType.ASSUME_ROLE_USER || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT) {
+    if (identityType === EntityType.ASSUME_ROLE_USER
+        || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT) {
         principal = '*';
     }
     const basePolicy = {
