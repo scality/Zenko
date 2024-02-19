@@ -1,8 +1,8 @@
 diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/_helpers.tpl b/solution-base/mongodb/charts/mongodb-sharded/templates/_helpers.tpl
-index 04b183a2..0fe370f2 100644
+index 2929960d..cfd6ed45 100644
 --- a/solution-base/mongodb/charts/mongodb-sharded/templates/_helpers.tpl
 +++ b/solution-base/mongodb/charts/mongodb-sharded/templates/_helpers.tpl
-@@ -49,6 +49,10 @@ metadata:
+@@ -37,6 +37,10 @@ Usage:
    {{- end -}}
  {{- end -}}
  
@@ -15,7 +15,7 @@ index 04b183a2..0fe370f2 100644
      {{- .Values.configsvr.external.replicasetName }}
 diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-service.yaml b/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-service.yaml
 new file mode 100644
-index 00000000..fff5cea7
+index fad94092..825b0161 100644
 --- /dev/null
 +++ b/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-service.yaml
 @@ -0,0 +1,41 @@
@@ -67,16 +67,3 @@ index 00000000..fff5cea7
 +  selector: {{ include "common.labels.matchLabels" . | nindent 4 }}
 +    app.kubernetes.io/component: configsvr
 +  sessionAffinity: {{ default "None" .Values.service.sessionAffinity }}
-diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/mongos/mongos-dep-sts.yaml b/solution-base/mongodb/charts/mongodb-sharded/templates/mongos/mongos-dep-sts.yaml
-index 08d5959c..9c98cd7f 100644
---- a/solution-base/mongodb/charts/mongodb-sharded/templates/mongos/mongos-dep-sts.yaml
-+++ b/solution-base/mongodb/charts/mongodb-sharded/templates/mongos/mongos-dep-sts.yaml
-@@ -138,7 +138,7 @@ spec:
-             - name: MONGODB_PORT_NUMBER
-               value: {{ $.Values.common.containerPorts.mongodb | quote }}
-             - name: MONGODB_CFG_PRIMARY_HOST
--              value: {{ include "mongodb-sharded.configServer.primaryHost" . }}
-+              value: {{ include "mongodb-sharded.configServer.serviceName" . }}
-             - name: MONGODB_CFG_REPLICA_SET_NAME
-               value: {{ include "mongodb-sharded.configServer.rsName" . }}
-             - name: MONGODB_SYSTEM_LOG_VERBOSITY
