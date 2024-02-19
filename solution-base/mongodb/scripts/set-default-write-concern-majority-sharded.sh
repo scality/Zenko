@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set_default_majority_if_mongos() {
-    mongo --host "mongodb://127.0.0.1/?replicaSet=${MONGODB_REPLICA_SET_NAME}" -u 'root' -p "$MONGODB_ROOT_PASSWORD" <<EOF
+    mongosh --host "mongodb://127.0.0.1/?replicaSet=${MONGODB_REPLICA_SET_NAME}" -u 'root' -p "$MONGODB_ROOT_PASSWORD" <<EOF
 var writeConcern = { w: "majority" }
 db.adminCommand( { setDefaultRWConcern: 1, defaultWriteConcern: writeConcern } )
 EOF
