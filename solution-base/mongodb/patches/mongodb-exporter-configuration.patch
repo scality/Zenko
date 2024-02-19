@@ -15,7 +15,7 @@ index 1a1f7636..f0de8b22 100644
      ## Secrets must be manually created in the namespace.
 @@ -1553,7 +1553,7 @@ metrics:
    ## @param metrics.extraArgs String with extra arguments to the metrics exporter
-   ## ref: https://github.com/dcu/mongodb_exporter/blob/master/mongodb_exporter.go
+   ## ref: https://github.com/percona/mongodb_exporter/blob/main/main.go
    ##
 -  extraArgs: ""
 +  extraArgs: "--collector.diagnosticdata --collector.replicasetstatus --collector.dbstats --collector.topmetrics --compatible-mode"
