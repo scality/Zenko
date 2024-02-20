@@ -80,14 +80,7 @@ spec:
         - name: volume-permissions
           image: {{ include "mongodb-sharded.volumePermissions.image" $ }}
           imagePullPolicy: {{ $.Values.volumePermissions.image.pullPolicy | quote }}
-          command:
-            - /bin/bash
-          args:
-            - -ec
-            - |
-              mkdir -p {{ $.Values.shardsvr.persistence.mountPath }}{{- if $.Values.shardsvr.persistence.subPath }}/{{ include "common.tplvalues.render" (dict "value" $.Values.shardsvr.persistence.subPath "context" $) }}{{- end }}
-              chown {{ $.Values.shardsvr.dataNode.containerSecurityContext.runAsUser }}:{{ $.Values.shardsvr.dataNode.podSecurityContext.fsGroup }} {{ $.Values.shardsvr.persistence.mountPath }}{{- if $.Values.shardsvr.persistence.subPath }}/{{ include "common.tplvalues.render" (dict "value" $.Values.shardsvr.persistence.subPath "context" $) }}{{- end }}
-              find {{ $.Values.shardsvr.persistence.mountPath }} -mindepth 1 -maxdepth 1 -not -name ".snapshot" -not -name "lost+found" | xargs -r chown -R {{ $.Values.shardsvr.dataNode.containerSecurityContext.runAsUser }}:{{ $.Values.shardsvr.dataNode.podSecurityContext.fsGroup }}
+          command: ["chown", "-R", "{{ $.Values.shardsvr.dataNode.containerSecurityContext.runAsUser }}:{{ $.Values.shardsvr.dataNode.podSecurityContext.fsGroup }}", "{{ $.Values.shardsvr.persistence.mountPath }}"]
           securityContext:
             runAsUser: 0
           resources: {{ toYaml $.Values.volumePermissions.resources | nindent 12 }}
@@ -169,6 +162,7 @@ spec:
                   name: {{ include "mongodb-sharded.secret" $ }}
                   key: mongodb-replica-set-key
             {{- end }}
+            {{- include "mongodb-sharded.appAccountEnvs" $ | nindent 12 }}
             {{- end }}
             - name: MONGODB_ENABLE_IPV6
             {{- if $.Values.common.mongodbEnableIPv6 }}
@@ -413,6 +407,10 @@ spec:
         accessModes:
         {{- range $.Values.shardsvr.persistence.accessModes }}
           - {{ . | quote }}
+        {{- end }}
+        {{- if $.Values.shardsvr.persistence.selector }}
+        selector:
+{{ toYaml $.Values.shardsvr.persistence.selector | indent 10 }}
         {{- end }}
         resources:
           requests:
