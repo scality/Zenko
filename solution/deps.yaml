@@ -30,6 +30,7 @@ kafka:
   envsubst: KAFKA_TAG
 kafka-cleaner:
   sourceRegistry: registry.scality.com/kafka-cleaner
+  dashboard: kafka-cleaner-dashboards
   image: kafka-cleaner
   tag: v1.0.0
   envsubst: KAFKA_CLEANER_TAG
