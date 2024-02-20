@@ -21,16 +21,14 @@ When('the user tries to perform DeleteObjects', async function (this: Zenko) {
     this.resetCommand();
     this.resumeRootOrIamUser();
     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-    let keys = '';
     const objectNames = this.getSaved<string[]>('objectNameArray');
-    objectNames.forEach((objectName, i) => {
-        let key = `{Key=${objectName}}`;
-        if (i < objectNames.length - 1) {
-            key += ',';
-        }
-        keys += key;
+    const param: { Objects: { Key: string }[] } = {
+        Objects: [],
+    };
+    objectNames.forEach((objectName: string) => {
+        param.Objects.push({ Key: objectName });
     });
-    this.addCommandParameter({ delete: `Objects=[${keys}]` });
+    this.addCommandParameter({ delete: JSON.stringify(param) });
     this.setResult(await S3.deleteObjects(this.getCommandParameters()));
 });
 
@@ -51,7 +49,7 @@ When('the user tries to perform PutObjectRetention {string} bypass', async funct
     this.resumeRootOrIamUser();
     this.addCommandParameter({ key: this.getSaved<string>('objectName') });
     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-    let date = new Date();
+    const date = new Date();
     date.setFullYear(date.getFullYear() + 1);
     // Get the string representation in the desired format
     const dateString = date.toISOString();

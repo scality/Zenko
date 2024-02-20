@@ -6,6 +6,10 @@ set -exu
 COMMAND=${1:-"premerge"}
 PARALLEL_RUNS=${2:-4}
 
+# Enable SDK - setting this to false will run the CLI mode
+# which is slower.
+SDK=true
+
 # Zenko Version
 VERSION=$(cat ../../VERSION | grep -Po 'VERSION="\K[^"]*')
 
@@ -21,4 +25,4 @@ kubectl run ctst-end2end \
         --attach=True \
         --image-pull-policy=Always \
         --env=TARGET_VERSION=$VERSION  \
-        -- ./run "$COMMAND" $WORLD_PARAMETERS "--parallel $PARALLEL_RUNS"
+        -- ./run "$COMMAND" $WORLD_PARAMETERS --parallel $PARALLEL_RUNS

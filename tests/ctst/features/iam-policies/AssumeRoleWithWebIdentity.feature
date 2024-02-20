@@ -17,8 +17,8 @@ Feature: Assume Role with Web Identity
     Examples:
       | action                          | type                  | withVersioning | objectExists   |
       | MetadataSearch                  | STORAGE_MANAGER       | without        | does not exist |
-      | PutObject                       | STORAGE_MANAGER       | without        | does not exist |
-      | PutObjectAcl                    | STORAGE_MANAGER       | without        | does not exist |
+      | PutObject                       | STORAGE_MANAGER       | without        | exists         |
+      | PutObjectAcl                    | STORAGE_MANAGER       | without        | exists         |
       | GetObject                       | STORAGE_MANAGER       | without        | exists         |
       | GetObject                       | STORAGE_MANAGER       | with           | exists         |
       | GetObjectAcl                    | STORAGE_MANAGER       | without        | exists         |
@@ -48,8 +48,8 @@ Feature: Assume Role with Web Identity
       | DeleteBucketTagging             | STORAGE_MANAGER       | without        | does not exist |
       | PutBucketReplication            | STORAGE_MANAGER       | with           | does not exist |
       | MetadataSearch                  | STORAGE_ACCOUNT_OWNER | without        | does not exist |
-      | PutObject                       | STORAGE_ACCOUNT_OWNER | without        | does not exist |
-      | PutObjectAcl                    | STORAGE_ACCOUNT_OWNER | without        | does not exist |
+      | PutObject                       | STORAGE_ACCOUNT_OWNER | without        | exists         |
+      | PutObjectAcl                    | STORAGE_ACCOUNT_OWNER | without        | exists         |
       | GetObject                       | STORAGE_ACCOUNT_OWNER | without        | exists         |
       | GetObject                       | STORAGE_ACCOUNT_OWNER | with           | exists         |
       | GetObjectAcl                    | STORAGE_ACCOUNT_OWNER | without        | exists         |
@@ -81,8 +81,8 @@ Feature: Assume Role with Web Identity
       | DeleteBucketTagging             | STORAGE_ACCOUNT_OWNER | without        | does not exist |
       | PutBucketReplication            | STORAGE_ACCOUNT_OWNER | with           | does not exist |
       | MetadataSearch                  | DATA_CONSUMER         | without        | does not exist |
-      | PutObject                       | DATA_CONSUMER         | without        | does not exist |
-      | PutObjectAcl                    | DATA_CONSUMER         | without        | does not exist |
+      | PutObject                       | DATA_CONSUMER         | without        | exists         |
+      | PutObjectAcl                    | DATA_CONSUMER         | without        | exists         |
       | GetObject                       | DATA_CONSUMER         | without        | exists         |
       | GetObject                       | DATA_CONSUMER         | with           | exists         |
       | GetObjectAcl                    | DATA_CONSUMER         | without        | exists         |
@@ -128,7 +128,7 @@ Feature: Assume Role with Web Identity
       | action                          | type                  | withVersioning | objectExists   | error                                       |
       | RestoreObject                   | STORAGE_MANAGER       | with           | exists         | InvalidObjectState                          |
       | GetBucketCors                   | STORAGE_MANAGER       | without        | does not exist | NoSuchCORSConfiguration                     |
-      | GetObjectLockConfiguration      | STORAGE_MANAGER       | without        | does not exist | ObjectLockConfigurationNotFoundError        |
+      | GetObjectLockConfiguration      | STORAGE_MANAGER       | without        | exists         | ObjectLockConfigurationNotFoundError        |
       | GetObjectRetention              | STORAGE_MANAGER       | with           | exists         | Bucket is missing Object Lock Configuration |
       | GetObjectLegalHold              | STORAGE_MANAGER       | with           | exists         | Bucket is missing Object Lock Configuration |
       | PutObjectRetention              | STORAGE_MANAGER       | with           | exists         | Bucket is missing Object Lock Configuration |
@@ -140,10 +140,10 @@ Feature: Assume Role with Web Identity
       | PutObjectRetention              | STORAGE_MANAGER       | with           | exists         | Bucket is missing Object Lock Configuration |
       | PutObjectLegalHold              | STORAGE_MANAGER       | with           | exists         | Bucket is missing Object Lock Configuration |
       | GetBucketTagging                | STORAGE_MANAGER       | without        | does not exist | NoSuchTagSet                                |
-      | PutObjectLockConfiguration      | STORAGE_MANAGER       | without        | does not exist | InvalidBucketState                          |
+      | PutObjectLockConfiguration      | STORAGE_MANAGER       | without        | exists         | InvalidBucketState                          |
       | RestoreObject                   | STORAGE_ACCOUNT_OWNER | with           | exists         | InvalidObjectState                          |
       | GetBucketCors                   | STORAGE_ACCOUNT_OWNER | without        | does not exist | NoSuchCORSConfiguration                     |
-      | GetObjectLockConfiguration      | STORAGE_ACCOUNT_OWNER | without        | does not exist | ObjectLockConfigurationNotFoundError        |
+      | GetObjectLockConfiguration      | STORAGE_ACCOUNT_OWNER | without        | exists         | ObjectLockConfigurationNotFoundError        |
       | GetObjectRetention              | STORAGE_ACCOUNT_OWNER | with           | exists         | Bucket is missing Object Lock Configuration |
       | GetObjectLegalHold              | STORAGE_ACCOUNT_OWNER | with           | exists         | Bucket is missing Object Lock Configuration |
       | PutObjectRetention              | STORAGE_ACCOUNT_OWNER | with           | exists         | Bucket is missing Object Lock Configuration |
@@ -155,10 +155,10 @@ Feature: Assume Role with Web Identity
       | PutObjectRetention              | STORAGE_ACCOUNT_OWNER | with           | exists         | Bucket is missing Object Lock Configuration |
       | PutObjectLegalHold              | STORAGE_ACCOUNT_OWNER | with           | exists         | Bucket is missing Object Lock Configuration |
       | GetBucketTagging                | STORAGE_ACCOUNT_OWNER | without        | does not exist | NoSuchTagSet                                |
-      | PutObjectLockConfiguration      | STORAGE_ACCOUNT_OWNER | without        | does not exist | InvalidBucketState                          |
+      | PutObjectLockConfiguration      | STORAGE_ACCOUNT_OWNER | without        | exists         | InvalidBucketState                          |
       | RestoreObject                   | DATA_CONSUMER         | with           | exists         | InvalidObjectState                          |
       | GetBucketCors                   | DATA_CONSUMER         | without        | does not exist | NoSuchCORSConfiguration                     |
-      | GetObjectLockConfiguration      | DATA_CONSUMER         | without        | does not exist | ObjectLockConfigurationNotFoundError        |
+      | GetObjectLockConfiguration      | DATA_CONSUMER         | without        | exists         | ObjectLockConfigurationNotFoundError        |
       | GetObjectRetention              | DATA_CONSUMER         | with           | exists         | Bucket is missing Object Lock Configuration |
       | GetObjectLegalHold              | DATA_CONSUMER         | with           | exists         | Bucket is missing Object Lock Configuration |
       | PutObjectRetention              | DATA_CONSUMER         | with           | exists         | Bucket is missing Object Lock Configuration |
@@ -170,7 +170,7 @@ Feature: Assume Role with Web Identity
       | PutObjectRetention              | DATA_CONSUMER         | with           | exists         | Bucket is missing Object Lock Configuration |
       | PutObjectLegalHold              | DATA_CONSUMER         | with           | exists         | Bucket is missing Object Lock Configuration |
       | GetBucketTagging                | DATA_CONSUMER         | without        | does not exist | NoSuchTagSet                                |
-      | PutObjectLockConfiguration      | DATA_CONSUMER         | without        | does not exist | InvalidBucketState                          |
+      | PutObjectLockConfiguration      | DATA_CONSUMER         | without        | exists         | InvalidBucketState                          |
 
 
   @2.6.0
