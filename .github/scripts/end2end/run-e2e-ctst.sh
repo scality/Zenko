@@ -10,7 +10,7 @@ VCPU_COUNT=$(nproc)
 # - If there are between 1 and 4 vCPUs, use 0.5 parallel runs per vCPU.
 # - If there are more than 4 vCPUs, use 0.5 parallel runs for the first 4 vCPUs and 1 parallel run for
 #   each additional vCPU, as Zenko is not CPU bound.
-PARALLEL_RUNS=20
+PARALLEL_RUNS=1
 RETRIES=${4:-3}
 
 # Zenko Version
