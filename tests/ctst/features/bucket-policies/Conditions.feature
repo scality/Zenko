@@ -30,8 +30,8 @@ Feature: S3 Bucket Policies Conditions
     @PreMerge
     @BucketPolicies
     @BucketPoliciesConditions
-    Scenario Outline: Bucket policies with IP address conditions
-        Given an action "PutObjectLockConfiguration"
+    Scenario Outline: Bucket policies with retention days conditions
+        Given an action "PutObjectRetention"
         And an existing bucket prepared for the action
         And a IAM_USER type
         And an environment setup for the API

@@ -245,9 +245,11 @@ Given('a condition for the bucket policy with {string} {string} {string} expecti
 });
 
 Given('a retention date set to {string} days', function (this: Zenko, retentionDays: string) {
-    this.addToSaved('objectLockConfiguration', '{ "ObjectLockEnabled": "Enabled", "Rule": ' +
-        '{ "DefaultRetention": ' +
-        `{ "Mode": "GOVERNANCE", "Days": ${retentionDays} }}}`);
+    const currentDate = new Date();
+    // date + number of days provided as iso string
+    const targetDate = new Date(currentDate.getTime() + (parseInt(retentionDays, 10) * 24 * 60 * 60 * 1000));
+    const retentionDate = targetDate.toISOString();
+    this.addToSaved('retentionDate', `Mode=GOVERNANCE,RetainUntilDate=${retentionDate}`);
 });
 
 Given('an {string} S3 Bucket Policy that {string} with {string} effect for the current API', async function (
