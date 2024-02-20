@@ -367,6 +367,7 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'MetadataSearch',
         permissions: ['s3:MetadataSearch'],
+        excludePermissionOnBucketObjects: true,
     },
     // Version APIs
     {

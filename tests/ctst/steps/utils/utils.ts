@@ -78,6 +78,8 @@ async function runActionAgainstBucket(context: Zenko, action: string) {
                     const key = Object.keys(param)[0];
                     if (!context.getSaved<string>(key)) {
                         context.addCommandParameter(param);
+                    } else {
+                        context.addCommandParameter({ [key]: context.getSaved<string>(key) });
                     }
                 });
             }
