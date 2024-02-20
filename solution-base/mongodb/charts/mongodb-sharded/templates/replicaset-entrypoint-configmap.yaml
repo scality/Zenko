@@ -13,6 +13,16 @@ metadata:
   annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
   {{- end }}
 data:
+  mongos-entrypoint.sh: |-
+    #!/bin/bash
+
+    . /liblog.sh
+
+    # Disable MongoSH telemetry to support offline deployments
+    mongosh --nodb --eval "disableTelemetry()"
+    info "MongoDB Telemetry is now disabled."
+
+    exec /entrypoint.sh /run.sh
   replicaset-entrypoint.sh: |-
     #!/bin/bash
 
@@ -35,5 +45,9 @@ data:
       unset MONGODB_ROOT_PASSWORD
       {{- end }}
     fi
+
+    # Disable MongoSH telemetry to support offline deployments
+    mongosh --nodb --eval "disableTelemetry()"
+    info "MongoDB Telemetry is now disabled."
 
     exec /entrypoint.sh /run.sh
