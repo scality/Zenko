@@ -44,7 +44,7 @@ Feature: S3 Bucket Policies Conditions
         Examples:
             | conditionVerb         | conditionType                           | retentionDate | conditionValue | expect |
             | NumericLessThanEquals | s3:object-lock-remaining-retention-days | 80            | 100            | Allow  |
-            | NumericGreaterThan    | s3:object-lock-remaining-retention-days | 200           | 100            | Deny   |
+            | NumericGreaterThan    | s3:object-lock-remaining-retention-days | 80            | 100            | Deny   |
             | NumericEquals         | s3:object-lock-remaining-retention-days | 100           | 100            | Allow  |
-            | NumericGreaterThan    | s3:object-lock-remaining-retention-days | 80            | 100            | Allow  |
+            | NumericGreaterThan    | s3:object-lock-remaining-retention-days | 200           | 100            | Allow  |
             | NumericLessThan       | s3:object-lock-remaining-retention-days | 200           | 100            | Deny   |
