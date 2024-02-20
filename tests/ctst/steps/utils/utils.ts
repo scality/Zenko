@@ -2,6 +2,18 @@ import { CacheHelper, Constants, S3, Utils } from 'cli-testing';
 import { extractPropertyFromResults, s3FunctionExtraParams } from 'common/utils';
 import Zenko, { EntityType, UserCredentials } from 'world/Zenko';
 
+enum AuthorizationType {
+    ALLOW = 'Allow',
+    DENY = 'Deny',
+    IMPLICIT_DENY = 'ImplicitDeny',
+    NO_RESOURCE = 'NoResource'
+}
+
+type AuthorizationConfiguration = {
+    Identity: AuthorizationType,
+    Resource: AuthorizationType,
+};
+
 async function runActionAgainstBucket(context: Zenko, action: string) {
     let userCredentials: UserCredentials;
     if ([EntityType.IAM_USER, EntityType.ACCOUNT].includes(context.getSaved<EntityType>('type'))) {
@@ -59,7 +71,8 @@ async function runActionAgainstBucket(context: Zenko, action: string) {
             context.addCommandParameter({ uploadId: 'fakeId' });
             context.addCommandParameter({ partNumber: '1' });
             context.addCommandParameter({
-                copySource: `${context.getSaved<string>('bucketName')}/${context.getSaved<string>('objectName')}` });
+                copySource: `${context.getSaved<string>('bucketName')}/${context.getSaved<string>('objectName')}`,
+            });
         }
         if (action === 'PutBucketCors') {
             CacheHelper.forceMode = 'cli';
@@ -141,8 +154,20 @@ async function putObject(context: Zenko, objectName?: string) {
     ));
 }
 
+function getAuthorizationConfiguration(context: Zenko): AuthorizationConfiguration {
+    return {
+        Identity: context.getSaved<AuthorizationConfiguration>('authzConfiguration')?.Identity
+            || AuthorizationType.NO_RESOURCE,
+        Resource: context.getSaved<AuthorizationConfiguration>('authzConfiguration')?.Resource
+            || AuthorizationType.NO_RESOURCE,
+    };
+}
+
 export {
+    AuthorizationType,
+    AuthorizationConfiguration,
     runActionAgainstBucket,
     createBucketWithConfiguration,
+    getAuthorizationConfiguration,
     putObject,
 };
