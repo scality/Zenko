@@ -405,7 +405,7 @@ jobs:
           username: "${{ secrets.REGISTRY_LOGIN }}"
           password: "${{ secrets.REGISTRY_PASSWORD }}"
           registry: registry.scality.com
-       - name: "Debug: SSH to runner"
+      - name: "Debug: SSH to runner"
         uses: scality/actions/action-ssh-to-runner@1.6.0
         timeout-minutes: ${{ fromJSON(github.event.inputs.connection-timeout-m) }}
         continue-on-error: true
