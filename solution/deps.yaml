@@ -16,7 +16,7 @@ cloudserver:
   sourceRegistry: registry.scality.com/cloudserver
   dashboard: cloudserver-dashboards
   image: cloudserver
-  tag: 8.7.33
+  tag: 8.7.46
   envsubst: CLOUDSERVER_TAG
 jmx-javaagent:
   sourceRegistry: banzaicloud
@@ -89,11 +89,11 @@ sorbet:
 #   tag: zenko-1.0.0
 #   envsubst: UTAPI_TAG
 vault:
-  sourceRegistry: registry.scality.com/vault
+  sourceRegistry: registry.scality.com/playground/wlardier
   dashboard: vault-dashboards
   policy: vault-policies
   image: vault
-  tag: 8.7.11
+  tag: 8.7.305
   envsubst: VAULT_TAG
 zenko-operator:
   sourceRegistry: registry.scality.com/zenko-operator
