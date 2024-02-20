@@ -1,5 +1,5 @@
 import { World, IWorldOptions, setWorldConstructor } from '@cucumber/cucumber';
-import axios, { AxiosRequestConfig, AxiosResponse, Method, AxiosRequestHeaders } from 'axios';
+import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
 import { aws4Interceptor } from 'aws4-axios';
 import {
     CacheHelper,
@@ -46,6 +46,7 @@ export enum EntityType {
     STORAGE_ACCOUNT_OWNER = 'STORAGE_ACCOUNT_OWNER',
     DATA_CONSUMER = 'DATA_CONSUMER',
     ASSUME_ROLE_USER = 'ASSUME_ROLE_USER',
+    ASSUME_ROLE_USER_CROSS_ACCOUNT = 'ASSUME_ROLE_USER_CROSS_ACCOUNT',
 }
 
 export interface ZenkoWorldParameters {
@@ -90,6 +91,8 @@ export interface ApiResult {
     statusCode?: number,
     stdout?: string | null,
     err?: string | null,
+    code?: string | null,
+    description?: string | null,
 }
 
 /**
@@ -205,6 +208,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         const keycloakPassword = defaultParameters.KeycloakTestPassword || '123';
         const savedParameters = JSON.parse(JSON.stringify(this.cliOptions)) as object;
         this.resetGlobalType();
+        this.addToSaved('identityType', entityType);
         switch (entityType) {
         case EntityType.ACCOUNT:
             await this.prepareRootUser();
@@ -215,6 +219,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             this.addToSaved('type', EntityType.IAM_USER);
             break;
         case EntityType.STORAGE_MANAGER:
+            this.addToSaved('identityName', 'StorageManager');
             await this.prepareARWWI(
                 defaultParameters.StorageManagerUsername || 'storage_manager',
                 keycloakPassword,
@@ -223,6 +228,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             this.addToSaved('type', EntityType.STORAGE_MANAGER);
             break;
         case EntityType.STORAGE_ACCOUNT_OWNER:
+            this.addToSaved('identityName', 'StorageAccountOwner');
             await this.prepareARWWI(
                 defaultParameters.StorageAccountOwnerUsername || 'storage_account_owner',
                 keycloakPassword,
@@ -231,6 +237,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             this.addToSaved('type', EntityType.STORAGE_ACCOUNT_OWNER);
             break;
         case EntityType.DATA_CONSUMER:
+            this.addToSaved('identityName', 'DataConsumer');
             await this.prepareARWWI(
                 defaultParameters.DataConsumerUsername || 'data_consumer',
                 keycloakPassword,
@@ -238,9 +245,18 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             );
             this.addToSaved('type', EntityType.DATA_CONSUMER);
             break;
+        case EntityType.ASSUME_ROLE_USER:
+            await this.prepareAssumeRole(false);
+            this.addToSaved('type', EntityType.ASSUME_ROLE_USER);
+            break;
+        case EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT:
+            await this.prepareAssumeRole(true);
+            this.addToSaved('type', EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT);
+            break;
         default:
             break;
         }
+        this.saveAuthMode('test_identity');
         this.resetCommand();
         this.cliOptions = savedParameters as Record<string, unknown>;
     }
@@ -311,6 +327,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             this.options.roleArn = arn;
             // Assume the role and save the credentials
             const ARWWI = await STS.assumeRoleWithWebIdentity(this.options, this.parameters);
+            this.addToSaved('identityArn', extractPropertyFromResults(ARWWI, 'AssumedRoleUser', 'Arn'));
             if (ARWWI && typeof ARWWI !== 'string' && ARWWI.stdout) {
                 const parsedOutput = JSON.parse(ARWWI.stdout) as { Credentials: ClientOptions['AssumedSession'] };
                 if (parsedOutput && parsedOutput.Credentials) {
@@ -471,6 +488,10 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         this.cliMode.assumed = true;
         this.cliMode.env = false;
 
+        // Save the identity
+        this.addToSaved('identityArn', roleArnToAssume);
+        this.addToSaved('identityName', this.getSaved<string>('roleName'));
+
         CacheHelper.parameters ??= {};
         // reset the credentials of default account as the defualt credentials
         CacheHelper.parameters.AccessKey =
@@ -543,7 +564,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 });
                 /* eslint-disable */
             } catch (err: any) {
-                if (!err.EntityAlreadyExists) {
+                if (!err.EntityAlreadyExists && err.code !== 'EntityAlreadyExists') {
                     throw err;
                 }
             }
@@ -664,7 +685,9 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         this.addToSaved('userName', `iamusertest${Utils.randomString()}`);
         // Create IAM user
         this.addCommandParameter({ userName: this.getSaved<string>('userName') });
-        await IAM.createUser(this.getCommandParameters());
+        const userInfos = await IAM.createUser(this.getCommandParameters());
+        this.addToSaved('identityArn', extractPropertyFromResults(userInfos, 'User', 'Arn'));
+        this.addToSaved('identityName', extractPropertyFromResults(userInfos, 'User', 'UserName'));
         this.resetCommand();
         // Create credentials for the user
         this.addCommandParameter({ userName: this.getSaved<string>('userName') });
@@ -695,6 +718,52 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     cleanupEntity(): void {
         this.cliMode.assumed = false;
         this.cliMode.env = false;
+    }
+
+    saveAuthMode(authMode: string): void {
+        // save current cliMode.assumed and cliMode.env in saved for later use
+        this.addToSaved(authMode, {
+            cacheSession: {
+                ...CacheHelper.parameters!.IAMSession,
+            },
+            parametersSession: {
+                ...this.parameters,
+            },
+            cliModeParameters: {
+                ...this.cliMode.parameters.IAMSession,
+            },
+            env: this.cliMode.env,
+            assumed: this.cliMode.assumed,
+        } as ClientOptions);
+    }
+
+    setAuthMode(authMode: string): void {
+        // restore cliMode.assumed and cliMode.env from saved
+        const savedConfiguration = this.getSaved<{
+            cacheSession: {
+                AccessKeyId: string;
+                SecretAccessKey: string;
+                SessionToken?: string | undefined;
+            } | undefined,
+            parametersSession: ZenkoWorldParameters,
+            cliModeParameters: ClientOptions['AssumedSession'],
+            env: boolean,
+            assumed: boolean,
+        }>(authMode);
+        CacheHelper.parameters!.IAMSession = savedConfiguration.cacheSession;
+        this.parameters = savedConfiguration.parametersSession;
+        this.cliMode.parameters.IAMSession = savedConfiguration.cliModeParameters;
+        this.cliMode.env = savedConfiguration.env;
+        this.cliMode.assumed = savedConfiguration.assumed;
+        this.resetCommand();
+    }
+
+    restoreEnvironment() {
+        if ([EntityType.IAM_USER, EntityType.ACCOUNT].includes(this.getSaved<EntityType>('type'))) {
+            this.resumeRootOrIamUser();
+        } else {
+            this.resumeAssumedRole();
+        }
     }
 
     /**
@@ -743,6 +812,14 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             ___mode: this.cliMode,
             ...this.cliOptions,
         };
+    }
+
+    /**
+     * Get the current cli mode
+     * @returns {string} - the current service type
+     */
+    getCliMode() {
+        return this.cliMode;
     }
 
     /**
