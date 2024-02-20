@@ -1,1 +1,1 @@
-/Users/benzekrimaha/work/projects/Zenko/solution-base/mongodb/scripts/create-app-user-sharded.sh
+../../../../scripts/create-app-user-sharded.sh
