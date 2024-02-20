@@ -45,7 +45,7 @@ Then('the user should be able to perform successfully the {string} action', func
         break;
     }
     case 'GetAccountInfo': {
-        assert.strictEqual(this.getResult().code === 'AccessDenied', true);
+        assert.strictEqual(this.getResult() instanceof Error, false);
         break;
     }
     default: {
