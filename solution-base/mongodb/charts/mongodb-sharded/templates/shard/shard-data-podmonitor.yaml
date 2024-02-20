@@ -4,8 +4,7 @@ SPDX-License-Identifier: APACHE-2.0
 */}}
 
 {{- if and .Values.shards .Values.metrics.enabled .Values.metrics.podMonitor.enabled }}
-{{- $replicas := .Values.shards | int }}
-{{- range $i, $e := until $replicas }}
+{{- $i := 0 }}
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
@@ -37,6 +36,4 @@ spec:
     matchLabels: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 6 }}
       app.kubernetes.io/component: shardsvr
       shard: {{ $i | quote }}
----
-{{- end }}
 {{- end }}
