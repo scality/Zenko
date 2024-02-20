@@ -10,15 +10,7 @@ VCPU_COUNT=$(nproc)
 # - If there are between 1 and 4 vCPUs, use 0.5 parallel runs per vCPU.
 # - If there are more than 4 vCPUs, use 0.5 parallel runs for the first 4 vCPUs and 1 parallel run for
 #   each additional vCPU, as Zenko is not CPU bound.
-PARALLEL_RUNS=$(awk -v vcpu=$VCPU_COUNT 'BEGIN {
-  if (vcpu <= 0) {
-    print 1
-  } else if (vcpu >= 1 && vcpu <= 4) {
-    print int(vcpu * 0.5)
-  } else {
-    print (4 * 0.5) + ((vcpu - 4) * 1)
-  }
-}')
+PARALLEL_RUNS=20
 RETRIES=${4:-3}
 
 # Zenko Version
@@ -79,4 +71,4 @@ kubectl run $POD_NAME \
         --image-pull-policy=Always \
         --env=TARGET_VERSION=$VERSION  \
         --env=VERBOSE=1 \
-        -- ./run "$COMMAND" $WORLD_PARAMETERS "--parallel $PARALLEL_RUNS --retry $RETRIES --retry-tag-filter @Flaky"
+        -- ./run "$COMMAND" $WORLD_PARAMETERS --parallel $PARALLEL_RUNS --retry $RETRIES --retry-tag-filter @Flaky
