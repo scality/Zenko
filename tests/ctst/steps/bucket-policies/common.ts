@@ -528,7 +528,7 @@ Then('the authorization result is correct', function (this: Zenko) {
                 this.getResult().stdout?.includes(action.expectedResultOnAllowTest) ||
                 this.getResult().err === null, true);
         } else {
-            assert.strictEqual(this.getResult().err, null);
+            assert.strictEqual(this.getResult().err === null || this.getResult().err === undefined, true);
         }
     }
 });
