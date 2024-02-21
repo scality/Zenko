@@ -4,6 +4,7 @@ import Zenko from 'world/Zenko';
 import { extractPropertyFromResults } from './utils';
 import assert from 'assert';
 import { Admin, Kafka } from 'kafkajs';
+import { createBucketWithConfiguration, putObject } from 'steps/utils/utils';
 
 setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
 
@@ -33,34 +34,13 @@ Given('a {string} bucket', async function (this: Zenko, versioning: string) {
 });
 
 Given('an existing bucket {string} {string} versioning, {string} ObjectLock {string} retention mode', async function
-(this: Zenko, bucketName: string, withVersioning: string, withObjectLock: string, retentionMode: string) {
-    this.resetCommand();
-    const preName = (this.parameters.AccountName || Constants.ACCOUNT_NAME);
-    const usedBucketName = bucketName
-        || `${preName}${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase();
-    this.addToSaved('bucketName', usedBucketName);
-    this.addCommandParameter({ bucket: usedBucketName });
-    if (withObjectLock === 'with') {
-        // Empty strings are used to pass parameters that are used as a flag and do not require a value
-        this.addCommandParameter({ objectLockEnabledForBucket: ' ' });
-    }
-    await S3.createBucket(this.getCommandParameters());
-    if (withVersioning === 'with') {
-        this.addCommandParameter({ versioningConfiguration: 'Status=Enabled' });
-        await S3.putBucketVersioning(this.getCommandParameters());
-    }
-    if (retentionMode === 'GOVERNANCE' || retentionMode === 'COMPLIANCE') {
-        this.resetCommand();
-        this.addCommandParameter({ bucket: usedBucketName });
-        this.addCommandParameter({
-            objectLockConfiguration: '{ ' +
-                '"ObjectLockEnabled": "Enabled",' +
-                '"Rule": {' +
-                '"DefaultRetention":' +
-                `{ "Mode": "${retentionMode}", "Days": 50 }}}`,
-        });
-        await S3.putObjectLockConfiguration(this.getCommandParameters());
-    }
+(
+    this: Zenko,
+    bucketName: string,
+    withVersioning: string,
+    withObjectLock: string,
+    retentionMode: string) {
+    await createBucketWithConfiguration(this, bucketName, withVersioning, withObjectLock, retentionMode);
 });
 
 Given('an object {string} that {string}',
@@ -114,3 +94,10 @@ Then('kafka consumed messages should not take too much place on disk',
             }
         }
     });
+
+Given('an object {string} that {string}', async function (this: Zenko, objectName: string, objectExists: string) {
+    this.resetCommand();
+    if (objectExists === 'exists') {
+        await putObject(this, objectName);
+    }
+});
