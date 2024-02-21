@@ -145,7 +145,7 @@ for i in $(seq 1 200); do
 done
 # auto describe any pod that is still failing at this point
 # include a describe and logs from this pod
-kubectl get pods -A -o jsonpath='{range .items[*]}{.metadata.namespace}{"\t"}{.metadata.name}{"\n"}{end}' | while read ns pod; do
-    kubectl describe pod -n $ns $pod
-    kubectl logs -n $ns $pod
-done
+# kubectl get pods -A -o jsonpath='{range .items[*]}{.metadata.namespace}{"\t"}{.metadata.name}{"\n"}{end}' | while read ns pod; do
+#     kubectl describe pod -n $ns $pod
+#     kubectl logs -n $ns $pod
+# done
