@@ -87,6 +87,7 @@ export interface ZenkoWorldParameters extends ClientOptions {
     InstanceID: string;
     BackbeatApiHost: string;
     BackbeatApiPort: string;
+    KafkaCleanerInterval: string;
 }
 
 export interface ApiResult {

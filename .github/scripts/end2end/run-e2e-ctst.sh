@@ -60,6 +60,8 @@ BACKBEAT_API_HOST=$(kubectl get secret -l app.kubernetes.io/name=connector-cloud
 BACKBEAT_API_HOST=${BACKBEAT_API_HOST:1:-1}
 BACKBEAT_API_PORT=$(kubectl get secret -l app.kubernetes.io/name=connector-cloudserver-config,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq .backbeat.port)
 
+KAFKA_CLEANER_INTERVAL=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.spec.kafkaCleaner.interval}')
+
 # Setting CTST world params
 WORLD_PARAMETERS="$(jq -c <<EOF
 {
@@ -98,7 +100,8 @@ WORLD_PARAMETERS="$(jq -c <<EOF
   "KafkaDeadLetterQueueTopic":"${KAFKA_DEAD_LETTER_TOPIC}",
   "InstanceID":"${INSTANCE_ID}",
   "BackbeatApiHost":"${BACKBEAT_API_HOST}",
-  "BackbeatApiPort":"${BACKBEAT_API_PORT}"
+  "BackbeatApiPort":"${BACKBEAT_API_PORT}",
+  "KafkaCleanerInterval":"${KAFKA_CLEANER_INTERVAL}"
 }
 EOF
 )"
