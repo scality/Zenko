@@ -1,1 +1,1 @@
-../../../../scripts/create-app-user-sharded.sh
+../../../../scripts-sharded/create-app-user-sharded.sh

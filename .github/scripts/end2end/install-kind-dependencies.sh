@@ -135,7 +135,7 @@ get_image_from_deps() {
 mongodb_replicaset() {
     ### TODO:  update to use chart in project
     kubectl create configmap \
-        --from-file=${DIR}/../../../solution-base/mongodb/charts/mongodb/files/docker-entrypoint-initdb.d mongodb-init-scripts \
+        --from-file=${DIR}/../../../solution-base/mongodb/scripts mongodb-init-scripts \
         --dry-run=client -o yaml | kubectl apply -f -
 
     helm upgrade --install dev-db bitnami/mongodb \
