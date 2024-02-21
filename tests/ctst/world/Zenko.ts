@@ -84,6 +84,7 @@ export interface ZenkoWorldParameters {
         SessionToken?: string;
     };
     InstanceID: string;
+    KafkaCleanerInterval: string;
     [key: string]: unknown;
 }
 
