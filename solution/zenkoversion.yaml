@@ -16,7 +16,7 @@ spec:
       image: kafka-dashboard
       tag: '${VERSION_FULL}'
     kafkaCleaner:
-      image: kafka-cleaner-dashboard
+      image: kafka-cleaner-dashboards
       tag: '${VERSION_FULL}'
     kafkaConnect:
       image: kafka-connect-dashboard
