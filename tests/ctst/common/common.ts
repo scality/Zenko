@@ -100,8 +100,10 @@ Then('kafka consumed messages should not take too much place on disk',
             for (let j = 0; j < newOffsets[i].partitions.length; j++) {
                 // Checking that the min offset has increased due to kafkacleaner
                 // or that it didn't need to change because there was no new messages
-                assert(newOffsets[i].partitions[j].low > previousOffsets[i].partitions[j].low ||
-                    newOffsets[i].partitions[j].high === newOffsets[i].partitions[j].low);
+                assert.ok(newOffsets[i].partitions[j].low > previousOffsets[i].partitions[j].low ||
+                    newOffsets[i].partitions[j].high === newOffsets[i].partitions[j].low,
+                `Topic ${topics[i]} partition ${j} low offset has not increased, newOffsets:
+                    ${newOffsets[i].partitions[j].low}, previousOffsets: ${previousOffsets[i].partitions[j].low}`);
             }
         }
     });
