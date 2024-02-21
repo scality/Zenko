@@ -262,7 +262,10 @@ Then('kafka consumed messages should not take too much place on disk',
             !notToCheckTopics.some(e => t.includes(e))));
         const previousOffsets = await getTopicsOffsets(topics, kafkaAdmin);
 
-        await Utils.sleep(35000);
+        const seconds = parseInt(this.parameters.KafkaCleanerInterval);
+
+        // Waiting for kafkacleaner to run
+        await Utils.sleep(seconds * 1000);
 
         const newOffsets = await getTopicsOffsets(topics, kafkaAdmin);
 

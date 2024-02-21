@@ -92,6 +92,7 @@ export interface ZenkoWorldParameters {
     kafkaObjectTaskTopic: string;
     kafkaDeadLetterQueueTopic: string;
     InstanceID: string;
+    KafkaCleanerInterval: string;
     [key: string]: unknown;
 }
 
