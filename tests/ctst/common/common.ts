@@ -107,8 +107,9 @@ Then('kafka consumed messages should not take too much place on disk',
                 // or that it didn't need to change because there was no new messages
                 assert.ok(newOffsets[i].partitions[j].low > previousOffsets[i].partitions[j].low ||
                     newOffsets[i].partitions[j].high === newOffsets[i].partitions[j].low,
-                `Topic ${topics[i]} partition ${j} low offset has not increased, newOffsets:
-                    ${newOffsets[i].partitions[j].low}, previousOffsets: ${previousOffsets[i].partitions[j].low}`);
+                `Topic ${topics[i]} partition ${j} offset has not increased,
+                previousOffsets: ${previousOffsets[i].partitions[j].low} / ${previousOffsets[i].partitions[j].high},
+                newOffsets: ${newOffsets[i].partitions[j].low} / ${newOffsets[i].partitions[j].high}`);
             }
         }
     });
