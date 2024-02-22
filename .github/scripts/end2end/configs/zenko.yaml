@@ -51,6 +51,9 @@ spec:
         storageClassName: "standard"
   kafkaCleaner:
     interval: 30s
+    minPartitionSizeBytes: 0Mb
+    minBatchSize: 0
+    keepAtLeast: 0
   zookeeper:
     provider: Managed
     persistence:
