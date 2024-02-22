@@ -96,7 +96,8 @@ Then('kafka consumed messages should not take too much place on disk',
         // Instead of waiting for a fixed amount of time,
         // we could also check for metrics to see last kafkacleaner run
         
-        await Utils.sleep(seconds * 1000);
+        // 10 seconds added to be sure kafkacleaner had time to process
+        await Utils.sleep(seconds * 1000 + 10000);
 
         const newOffsets = await getTopicsOffsets(topics, kafkaAdmin);
 
