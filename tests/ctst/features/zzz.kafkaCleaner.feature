@@ -3,6 +3,7 @@ Feature: Kafka Cleaner
 
     @2.6.0
     @PreMerge
+    @Flaky
     @AfterAll
     Scenario Outline: Verify that consumed messages gets deleted by kafkacleaner
     Then kafka consumed messages should not take too much place on disk

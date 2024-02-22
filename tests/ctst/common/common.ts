@@ -81,16 +81,21 @@ Given('an object {string} that {string}',
 
 Then('kafka consumed messages should not take too much place on disk',
     async function (this: Zenko) {
-        const notToCheckTopics = ['oplog', 'dead-letter'];
+        const ignoredTopics = ['dead-letter'];
         const kafkaAdmin = new Kafka({ brokers: [this.parameters.KafkaHosts] }).admin();
         const topics: string[] = (await kafkaAdmin.listTopics())
             .filter(t => (t.includes(this.parameters.InstanceID) &&
-            !notToCheckTopics.some(e => t.includes(e))));
+            !ignoredTopics.some(e => t.includes(e))));
         const previousOffsets = await getTopicsOffsets(topics, kafkaAdmin);
 
         const seconds = parseInt(this.parameters.KafkaCleanerInterval);
 
-        // Waiting for kafkacleaner to run
+        // Checking topics offsets before kafkacleaner passes to be sure kafkacleaner works
+        // This function can be improved by consuming messages and
+        // verify that the timestamp is not older than last kafkacleaner run
+        // Instead of waiting for a fixed amount of time,
+        // we could also check for metrics to see last kafkacleaner run
+        
         await Utils.sleep(seconds * 1000);
 
         const newOffsets = await getTopicsOffsets(topics, kafkaAdmin);
