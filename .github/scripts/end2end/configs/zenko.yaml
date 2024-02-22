@@ -51,7 +51,7 @@ spec:
         storageClassName: "standard"
   kafkaCleaner:
     interval: 30s
-    minPartitionSizeBytes: 0Mib
+    minPartitionSizeBytes: 0Mi
     minBatchSize: 0
     keepAtLeast: 0
   zookeeper:
