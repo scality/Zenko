@@ -10,7 +10,7 @@ import Zenko, { EntityType } from '../world/Zenko';
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const { atMostOnePicklePerTag } = parallelCanAssignHelpers;
-const noParallelRun = atMostOnePicklePerTag(['@ColdStorage']);
+const noParallelRun = atMostOnePicklePerTag(['@ColdStorage', '@AfterAll']);
 
 setParallelCanAssign(noParallelRun);
 
