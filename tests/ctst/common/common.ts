@@ -338,17 +338,23 @@ Then('i {string} be able to add user metadata to object {string}',
 
 Then('kafka consumed messages should not take too much place on disk',
     async function (this: Zenko) {
-        const notToCheckTopics = ['oplog', 'dead-letter'];
+        const ignoredTopics = ['dead-letter'];
         const kafkaAdmin = new Kafka({ brokers: [this.parameters.KafkaHosts] }).admin();
         const topics: string[] = (await kafkaAdmin.listTopics())
             .filter(t => (t.includes(this.parameters.InstanceID) &&
-            !notToCheckTopics.some(e => t.includes(e))));
+            !ignoredTopics.some(e => t.includes(e))));
         const previousOffsets = await getTopicsOffsets(topics, kafkaAdmin);
 
         const seconds = parseInt(this.parameters.KafkaCleanerInterval);
 
-        // Waiting for kafkacleaner to run
-        await Utils.sleep(seconds * 1000);
+        // Checking topics offsets before kafkacleaner passes to be sure kafkacleaner works
+        // This function can be improved by consuming messages and
+        // verify that the timestamp is not older than last kafkacleaner run
+        // Instead of waiting for a fixed amount of time,
+        // we could also check for metrics to see last kafkacleaner run
+        
+        // 10 seconds added to be sure kafkacleaner had time to process
+        await Utils.sleep(seconds * 1000 + 10000);
 
         const newOffsets = await getTopicsOffsets(topics, kafkaAdmin);
 
@@ -357,8 +363,11 @@ Then('kafka consumed messages should not take too much place on disk',
             for (let j = 0; j < newOffsets[i].partitions.length; j++) {
                 // Checking that the min offset has increased due to kafkacleaner
                 // or that it didn't need to change because there was no new messages
-                assert(newOffsets[i].partitions[j].low > previousOffsets[i].partitions[j].low ||
-                    newOffsets[i].partitions[j].high === newOffsets[i].partitions[j].low);
+                assert.ok(newOffsets[i].partitions[j].low > previousOffsets[i].partitions[j].low ||
+                    newOffsets[i].partitions[j].high === newOffsets[i].partitions[j].low,
+                `Topic ${topics[i]} partition ${j} offset has not increased,
+                previousOffsets: ${previousOffsets[i].partitions[j].low} / ${previousOffsets[i].partitions[j].high},
+                newOffsets: ${newOffsets[i].partitions[j].low} / ${newOffsets[i].partitions[j].high}`);
             }
         }
     });
