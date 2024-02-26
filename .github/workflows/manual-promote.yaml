@@ -1,0 +1,64 @@
+name: manual-promote
+
+on: push
+
+jobs:
+  release:
+    env:
+      TAG: '2.6.48'
+      SHA1: '0286ef987223bfc8a041ce7a7c7800598b54ff05'
+      ARTIFACT: 'github:scality:Zenko:staging-0286ef9872.build-iso-and-end2end-test.3393'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+          ref: ${{ env.SHA1 }}
+
+    #   - name: Fetch tags
+    #     run: git fetch --tags
+
+      # - name: 'Check if tag matches the branch name'
+      #   shell: bash
+      #   run: >
+      #    [[ "refs/heads/development/${{ env.TAG }}" == "${{ github.ref }}."* ]]
+
+      - name: 'Check if tag is set in VERSION file'
+        shell: bash
+        run: >
+          source VERSION
+          [[ "${{ env.TAG }}" == "$VERSION_FULL" ]]
+
+      - name: 'Check if tag was already created'
+        shell: bash
+        run: >
+          ! git show-ref --tags ${{ env.TAG }} --quiet
+
+    #   - name: Create Release
+    #     uses: softprops/action-gh-release@v1
+    #     env:
+    #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #     with:
+    #       name: Release ${{ env.TAG }}
+    #       tag_name: ${{ env.TAG }}
+    #       generate_release_notes: true
+    #       target_commitish: ${{ env.SHA1 }}
+
+    #   #- name: Promote artifacts
+    #   #  uses: scality/action-artifacts@v4
+    #   #  with:
+    #   #    method: promote
+    #   #    url: https://artifacts.scality.net
+    #   #    name: ${{ env.ARTIFACT }}
+    #   #    tag: ${{ env.TAG }}
+    #   #    user: ${{ secrets.ARTIFACTS_USER }}
+    #   #    password: ${{ secrets.ARTIFACTS_PASSWORD }}
+
+    #   - name: Promote artifacts
+    #     shell: bash
+    #     run: |
+    #       PROMOTED="${{ env.ARTIFACT }}"
+    #       curl -u "${{ secrets.ARTIFACTS_USER }}:${{ secrets.ARTIFACTS_PASSWORD }}" \
+    #            -X GET https://artifacts.scality.net/copy/${{ env.ARTIFACT }}/${PROMOTED//staging*}promoted-${{ env.TAG }}/
