@@ -5,9 +5,9 @@ on: push
 jobs:
   release:
     env:
-      TAG: '2.7.44'
-      SHA1: 'ce8cbb2c35369c94eb4e5be5aa8afe93f9e560e7'
-      ARTIFACT: 'github:scality:Zenko:staging-ce8cbb2c35.build-iso-and-end2end-test.3396'
+      TAG: '2.8.24'
+      SHA1: 3eb5752159d7e97e3b9135d38f4d94f1de2ae34a
+      ARTIFACT: 'github:scality:Zenko:staging-3eb5752159.build-iso-and-end2end-test.3397'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
