@@ -15,6 +15,9 @@ spec:
     s3utils:
       image: "${S3UTILS_DASHBOARD}"
       tag: "${S3UTILS_TAG}"
+    kafkaCleaner:
+      image: "${KAFKA_CLEANER_DASHBOARD}"
+      tag: "${KAFKA_CLEANER_TAG}"
     # kafka:
     #   image: kafka-dashboard
     #   tag: '${ZENKO_VERSION_NAME}'
@@ -85,6 +88,9 @@ spec:
       image: "${ZOOKEEPER_IMAGE}"
       tag: "${ZOOKEEPER_TAG}"
     kafka:
+      cleaner:
+        image: '${KAFKA_CLEANER_IMAGE}'
+        tag: '${KAFKA_CLEANER_TAG}'
       cluster:
         image: "${KAFKA_IMAGE}"
         tag: "${KAFKA_TAG}"
