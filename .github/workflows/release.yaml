@@ -25,6 +25,17 @@ jobs:
       - name: Fetch tags
         run: git fetch --tags
 
+      - name: 'Check if tag matches the branch name'
+        shell: bash
+        run: \
+          [[ "development/${{ github.event.inputs.tag }}" == "${{ github.ref }}."* ]]
+
+      - name: 'Check if tag is set in VERSION file'
+        shell: bash
+        run: \
+          source VERSION
+          [[ "${{ github.event.inputs.tag }}" == "$VERSION_FULL" ]]
+
       - name: 'Check if tag was already created'
         shell: bash
         run: >
