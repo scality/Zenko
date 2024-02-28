@@ -96,6 +96,8 @@ spec:
       e2e-cold:
         debug: "true"
         command-timeout: "60s"
+        pending-job-poll-after-age: "30s"
+        pending-job-poll-check-interval: "5s"
     server:
       tar:
         targetSize: 10KB
