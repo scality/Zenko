@@ -37,10 +37,10 @@ jobs:
           source VERSION
           [[ "${{ github.event.inputs.tag }}" == "$VERSION_FULL" ]]
 
-      - name: 'Check if tag was already created'
+      - name: 'Check if tag has not already been created'
         shell: bash
         run: |
-          ! git show-ref --tags v${{ github.event.inputs.tag }} --quiet
+          ! git show-ref --tags ${{ github.event.inputs.tag }} --quiet
 
   release:
     name: Release
