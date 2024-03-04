@@ -83,6 +83,10 @@ Then('kafka consumed messages should not take too much place on disk',
     async function (this: Zenko) {
         const ignoredTopics = ['dead-letter'];
         const kafkaAdmin = new Kafka({ brokers: [this.parameters.KafkaHosts] }).admin();
+
+        const kafka = new Kafka({ brokers: [this.parameters.KafkaHosts] });
+        const consumer = kafka.consumer({ groupId: 'kafkacleaner' });
+
         const topics: string[] = (await kafkaAdmin.listTopics())
             .filter(t => (t.includes(this.parameters.InstanceID) &&
             !ignoredTopics.some(e => t.includes(e))));
@@ -106,6 +110,26 @@ Then('kafka consumed messages should not take too much place on disk',
             for (let j = 0; j < newOffsets[i].partitions.length; j++) {
                 // Checking that the min offset has increased due to kafkacleaner
                 // or that it didn't need to change because there was no new messages
+                const test = newOffsets[i].partitions[j].low > previousOffsets[i].partitions[j].low ||
+                newOffsets[i].partitions[j].high === newOffsets[i].partitions[j].low;
+
+                if (!test) {
+                    await consumer.connect();
+                    await consumer.subscribe({ topic: topics[i], fromBeginning: true });
+                    await consumer.run({
+                        // eachBatch: async ({ batch }) => {
+                        //   console.log(batch)
+                        // },
+                        eachMessage: async ({ topic, partition, message }) => {
+                            const msg = message.value?.toString() ? message.value?.toString() : '';
+                            const key = message.key?.toString() ? message.key?.toString() : '';
+                            const prefix = `${topic}[${partition} | ${message.offset}] / ${message.timestamp}`;
+                            process.stdout.write(`- ${prefix} ${key} #${msg}`);
+                            await Utils.sleep(1);
+                        },
+                    });
+                    await consumer.disconnect();
+                }
                 assert.ok(newOffsets[i].partitions[j].low > previousOffsets[i].partitions[j].low ||
                     newOffsets[i].partitions[j].high === newOffsets[i].partitions[j].low,
                 `Topic ${topics[i]} partition ${j} offset has not increased,
