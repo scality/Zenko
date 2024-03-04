@@ -85,7 +85,7 @@ Then('kafka consumed messages should not take too much place on disk',
         const kafkaAdmin = new Kafka({ brokers: [this.parameters.KafkaHosts] }).admin();
 
         const kafka = new Kafka({ brokers: [this.parameters.KafkaHosts] });
-        const consumer = kafka.consumer({ groupId: 'kafkacleaner' });
+        const consumer = kafka.consumer({ groupId: Utils.randomString() });
 
         const topics: string[] = (await kafkaAdmin.listTopics())
             .filter(t => (t.includes(this.parameters.InstanceID) &&
@@ -129,6 +129,9 @@ Then('kafka consumed messages should not take too much place on disk',
                         },
                     });
                 }
+                await Utils.sleep(1000);
+                await consumer.stop();
+                await consumer.disconnect();
                 assert.ok(newOffsets[i].partitions[j].low > previousOffsets[i].partitions[j].low ||
                     newOffsets[i].partitions[j].high === newOffsets[i].partitions[j].low,
                 `Topic ${topics[i]} partition ${j} offset has not increased,
