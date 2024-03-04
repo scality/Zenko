@@ -128,7 +128,6 @@ Then('kafka consumed messages should not take too much place on disk',
                             await Utils.sleep(1);
                         },
                     });
-                    await consumer.disconnect();
                 }
                 assert.ok(newOffsets[i].partitions[j].low > previousOffsets[i].partitions[j].low ||
                     newOffsets[i].partitions[j].high === newOffsets[i].partitions[j].low,
