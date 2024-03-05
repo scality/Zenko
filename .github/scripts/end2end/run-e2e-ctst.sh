@@ -72,6 +72,8 @@ docker run \
     "${E2E_IMAGE}" /bin/bash \
     -c "SUBDOMAIN=${SUBDOMAIN} CONTROL_PLANE_INGRESS_ENDPOINT=${OIDC_ENDPOINT} ACCOUNT=${ZENKO_ACCOUNT_NAME} KEYCLOAK_REALM=${KEYCLOAK_TEST_REALM_NAME} STORAGE_MANAGER=${STORAGE_MANAGER_USER_NAME} STORAGE_ACCOUNT_OWNER=${STORAGE_ACCOUNT_OWNER_USER_NAME} DATA_CONSUMER=${DATA_CONSUMER_USER_NAME} /ctst/bin/seedKeycloak.sh"; [[ $? -eq 1 ]] && exit 1 || echo 'Keycloak Configured!'
 
+kubectl set env deploy end2end-backbeat-replication-data-processor RDKAFKA_DEBUG_LOGS=all
+
 # Running end2end ctst tests
 kubectl run $POD_NAME \
         --pod-running-timeout=5m \
