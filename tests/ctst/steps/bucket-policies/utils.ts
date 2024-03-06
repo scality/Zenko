@@ -101,7 +101,6 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'PutBucketReplication',
         permissions: ['s3:PutReplicationConfiguration'],
-        expectedResultOnAllowTest: 'InvalidRequest: Versioning must be \'Enabled\'',
         excludePermissionOnBucketObjects: true,
     },
     {
@@ -139,7 +138,6 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'PutBucketCors',
         permissions: ['s3:PutBucketCORS'],
-        expectedResultOnAllowTest: 'MissingRequestBodyError',
         excludePermissionOnBucketObjects: true,
     },
     {
