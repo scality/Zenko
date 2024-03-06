@@ -107,6 +107,11 @@ env:
   EXPIRE_ONE_DAY_EARLIER: true
   TRANSITION_ONE_DAY_EARLIER: true
   TIME_PROGRESSION_FACTOR: 1
+  # DEBUG WAIT 
+  TMATE_SERVER_HOST: ${{ secrets.TMATE_SERVER_HOST }}
+  TMATE_SERVER_PORT: ${{ secrets.TMATE_SERVER_PORT }}
+  TMATE_SERVER_RSA_FINGERPRINT: ${{ secrets.TMATE_SERVER_RSA_FINGERPRINT }}
+  TMATE_SERVER_ED25519_FINGERPRINT: ${{ secrets.TMATE_SERVER_ED25519_FINGERPRINT }}
 
 jobs:
   check-dashboard-versions:
@@ -423,6 +428,7 @@ jobs:
         working-directory: ./.github/scripts/end2end
       - name: Debug wait
         uses: ./.github/actions/debug-wait
+        timeout-minutes: 60
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
         env:
@@ -490,6 +496,7 @@ jobs:
       #   working-directory: ./.github/scripts/end2end
       - name: Debug wait
         uses: ./.github/actions/debug-wait
+        timeout-minutes: 60
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
         env:
@@ -546,6 +553,7 @@ jobs:
         working-directory: ./.github/scripts/end2end
       - name: Debug wait
         uses: ./.github/actions/debug-wait
+        timeout-minutes: 60
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
         env:
@@ -609,6 +617,7 @@ jobs:
         working-directory: ./.github/scripts/end2end
       - name: Debug wait
         uses: ./.github/actions/debug-wait
+        timeout-minutes: 60
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
         env:
