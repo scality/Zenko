@@ -83,6 +83,9 @@ const APIs = [
 
 const scenarios = [];
 
+// In order, sets the current configuration for:
+// bucketPolicyExists, bucketPolicyApplies, bucketPolicyEffect,
+// iamPolicyExists, iamPolicyApplies, iamPolicyEffect
 const allCombinations = [
     ['existing', 'applies', 'ALLOW', 'existing', 'applies', 'ALLOW'],
     ['existing', 'applies', 'ALLOW', 'existing', 'applies', 'DENY'],

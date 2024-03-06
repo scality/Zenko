@@ -196,9 +196,13 @@ Given('a condition for the bucket policy with {string} {string} {string} expecti
     conditionValue: string,
     expect: string,
 ) {
+    let conditionInPolicy: string | string[] = conditionValue;
+    if (conditionValue.includes(',')) {
+        conditionInPolicy = conditionValue.split(',');
+    }
     const conditionForPolicy = {
         [conditionVerb]: {
-            [conditionType]: conditionValue,
+            [conditionType]: conditionInPolicy,
         },
     };
     this.addToSaved('conditionForPolicy', conditionForPolicy);

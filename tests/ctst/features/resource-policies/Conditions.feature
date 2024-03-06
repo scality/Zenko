@@ -19,10 +19,14 @@ Feature: S3 Bucket Policies Conditions
         When the user tries to perform the current S3 action on the bucket
         Then the authorization result is correct
         Examples:
-            | conditionVerb | conditionType | conditionValue | expect |
-            | IpAddress     | aws:SourceIp  | 0.0.0.0/0      | Allow  |
-            | NotIpAddress  | aws:SourceIp  | 10.0.1.0       | Allow  |
-            | IpAddress     | aws:SourceIp  | 192.0.0.1      | Deny   |
+            | conditionVerb | conditionType | conditionValue     | expect |
+            | IpAddress     | aws:SourceIp  | 0.0.0.0/0          | Allow  |
+            | NotIpAddress  | aws:SourceIp  | 10.0.1.0           | Allow  |
+            | IpAddress     | aws:SourceIp  | 192.0.0.1          | Deny   |
+            | IpAddress     | aws:SourceIp  | 0.0.0.0/0,10.0.2.0 | Allow  |
+            | IpAddress     | aws:SourceIp  | 192.0.0.1,10.0.2.0 | Deny   |
+            | NotIpAddress  | aws:SourceIp  | 0.0.0.0/0,10.0.2.0 | Deny   |
+            | NotIpAddress  | aws:SourceIp  | 192.0.0.1,10.0.2.0 | Allow  |
 
     @2.6.0
     @PreMerge
