@@ -60,7 +60,7 @@ Given('an existing bucket prepared for the action', async function (this: Zenko)
 
 Given('an {string} IAM Policy that {string} with {string} effect for the current API', async function (
     this: Zenko,
-    doesExists: string,
+    doesExist: string,
     doesApply: string,
     isAllow: string,
 ) {
@@ -73,7 +73,7 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
     const applies = doesApply === 'applies';
     const bucketName = action.useWildCardBucketName ?
         '*' : this.getSaved<string>('bucketName');
-    if (doesExists === 'existing') {
+    if (doesExist === 'existing') {
         if (applies) {
             if (isAllow === 'ALLOW') {
                 authzConfiguration.Identity = AuthorizationType.ALLOW;
@@ -218,7 +218,7 @@ Given('a retention date set to {string} days', function (this: Zenko, retentionD
 
 Given('an {string} S3 Bucket Policy that {string} with {string} effect for the current API', async function (
     this: Zenko,
-    doesExists: string,
+    doesExist: string,
     doesApply: string,
     isAllow: string,
 ) {
@@ -230,7 +230,7 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
     let resources;
     const applies = doesApply === 'applies';
     const bucketName = this.getSaved<string>('bucketName');
-    if (doesExists === 'existing') {
+    if (doesExist === 'existing') {
         if (applies) {
             if (isAllow === 'ALLOW') {
                 authzConfiguration.Resource = AuthorizationType.ALLOW;
