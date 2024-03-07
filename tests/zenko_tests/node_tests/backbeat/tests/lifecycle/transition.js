@@ -1,4 +1,5 @@
 const assert = require('assert');
+const console = require('console');
 const uuid = require('uuid/v4');
 const { series } = require('async');
 
@@ -116,21 +117,31 @@ testsToRun.forEach(test => {
             }
         });
 
-        afterEach(done => series([
-            next => cloudServer.deleteVersionedBucket(srcBucket, next),
-            next => {
-                if (toLoc.isCold) {
-                    return next();
+        afterEach(function (done) {
+            series([
+                next => cloudServer.deleteVersionedBucket(srcBucket, next),
+                next => {
+                    if (toLoc.isCold) {
+                        return next();
+                    }
+                    return cloud.clearBucket(next);
+                },
+            ], err => {
+                if (err || (!this.currentTest.isPending() && !this.currentTest.isPassed())) {
+                    const testName = this.currentTest.fullTitle();
+                    const retry = this.currentTest.currentRetry();
+                    console.log(`   FAILED ${testName} [retry #${retry}] : ${srcBucket}`);
                 }
-                return cloud.clearBucket(next);
-            },
-        ], done));
+                done(err);
+            });
+        });
 
         describe('without versioning', () => {
             beforeEach(done => cloudServer.createBucket(srcBucket, done));
 
             it('should transition a 0 byte object', done => {
                 const key = `${prefix}nover-0-byte-object`;
+
                 cloudServer.setKey(key);
                 cloud.setKey(`${srcBucket}/${key}`);
                 series([
