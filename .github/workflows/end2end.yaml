@@ -596,6 +596,7 @@ jobs:
         shell: bash
         run: |-
             while true; do sleep 10; echo sleep; done
+        if: always()
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
         env:
