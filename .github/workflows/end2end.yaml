@@ -140,16 +140,6 @@ jobs:
           mkdir -p /tmp/artifacts/data/${{ github.job }}/act-logs/
           mv tests/workflows/act-*.log /tmp/artifacts/data/check-workflows/act-logs/
           tar zcvf /tmp/artifacts/${{ github.sha }}-${{ github.job }}-act-logs.tgz /tmp/artifacts/data/${{ github.job }}/act-logs;
-      - name: Set status in ARTIFACTS to enable re-run only failed jobs
-        if: success()
-        run: |
-          mkdir -p /tmp/artifacts/build_status/${{ github.job }}
-          echo 'SUCCESSFUL' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
-      - name: Set status in ARTIFACTS to enable re-run only failed jobs
-        if: failure()
-        run: |
-          mkdir -p /tmp/artifacts/build_status/${{ github.job }}
-          echo 'FAILED' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
       - name: Upload artifacts
         uses: scality/action-artifacts@v4
         with:
@@ -449,16 +439,6 @@ jobs:
         if: always()
       - name: Clean Up
         run: kind delete cluster
-      - name: Set status in ARTIFACTS to enable re-run only failed jobs
-        if: success()
-        run: |
-          mkdir -p /tmp/artifacts/build_status/${{ github.job }}
-          echo 'SUCCESSFUL' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
-      - name: Set status in ARTIFACTS to enable re-run only failed jobs
-        if: failure()
-        run: |
-          mkdir -p /tmp/artifacts/build_status/${{ github.job }}
-          echo 'FAILED' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
       - name: Upload artifacts
         uses: scality/action-artifacts@v4
         with:
@@ -517,16 +497,6 @@ jobs:
         if: always()
       - name: Clean Up
         run: kind delete cluster
-      - name: Set status in ARTIFACTS to enable re-run only failed jobs
-        if: success()
-        run: |
-          mkdir -p /tmp/artifacts/build_status/${{ github.job }}
-          echo 'SUCCESSFUL' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
-      - name: Set status in ARTIFACTS to enable re-run only failed jobs
-        if: failure()
-        run: |
-          mkdir -p /tmp/artifacts/build_status/${{ github.job }}
-          echo 'FAILED' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
       - name: Upload artifacts
         uses: scality/action-artifacts@v4
         with:
@@ -574,16 +544,6 @@ jobs:
         if: always()
       - name: Clean Up
         run: kind delete cluster
-      - name: Set status in ARTIFACTS to enable re-run only failed jobs
-        if: success()
-        run: |
-          mkdir -p /tmp/artifacts/build_status/${{ github.job }}
-          echo 'SUCCESSFUL' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
-      - name: Set status in ARTIFACTS to enable re-run only failed jobs
-        if: failure()
-        run: |
-          mkdir -p /tmp/artifacts/build_status/${{ github.job }}
-          echo 'FAILED' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
       - name: Upload artifacts
         uses: scality/action-artifacts@v4
         with:
@@ -635,16 +595,6 @@ jobs:
         if: always()
       - name: Clean Up
         run: kind delete cluster
-      - name: Set status in ARTIFACTS to enable re-run only failed jobs
-        if: success()
-        run: |
-          mkdir -p /tmp/artifacts/build_status/${{ github.job }}
-          echo 'SUCCESSFUL' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
-      - name: Set status in ARTIFACTS to enable re-run only failed jobs
-        if: failure()
-        run: |
-          mkdir -p /tmp/artifacts/build_status/${{ github.job }}
-          echo 'FAILED' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
       - name: Upload artifacts
         uses: scality/action-artifacts@v4
         with:
