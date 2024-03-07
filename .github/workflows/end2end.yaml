@@ -192,18 +192,12 @@ jobs:
           source: ${{ env.ROOT_DOCUMENTATION_BUILDDIR }}
 
   build-iso:
-    runs-on:
-      - self-hosted
-      - centos7
-      - large
+    runs-on: ubuntu-20.04
     needs: [build-kafka, check-dashboard-versions]
     steps:
       - name: Install dependencies
         shell: bash
         run: |-
-          sudo yum install -y yum-utils gettext epel-release tar
-          sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-          sudo yum install -y python3 make wget mkisofs git docker-ce docker-ce-cli isomd5sum jq
           sudo curl --fail -LO https://dl.google.com/go/go${{ env.GO_VERSION }}.linux-amd64.tar.gz
           sudo tar -C /usr/local -xzf go${{ env.GO_VERSION }}.linux-amd64.tar.gz
           sudo curl --fail -sSL https://get.helm.sh/helm-${{ env.HELM_VERSION }}-linux-amd64.tar.gz | tar -xvz
@@ -212,15 +206,14 @@ jobs:
           sudo chmod +x /usr/bin/yq
           sudo curl -sSL https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${{ env.KUSTOMIZE_VERSION }}/kustomize_${{ env.KUSTOMIZE_VERSION }}_linux_amd64.tar.gz | tar xzvf -
           sudo mv kustomize /usr/local/bin
-          sudo yum install -y gcc gpgme-devel libassuan-devel btrfs-progs-devel device-mapper-devel
+          sudo apt-get update
+          sudo apt-get install libgpgme-dev libassuan-dev libbtrfs-dev libdevmapper-dev pkg-config hardlink mkisofs isomd5sum
           sudo git clone --depth 1 --branch ${{ env.SKOPEO_VERSION }} https://github.com/containers/skopeo ${{ env.SKOPEO_PATH }}/src/github.com/containers/skopeo
-          sudo yum -y install https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm
-          sudo yum install -y git
           cd ${{ env.SKOPEO_PATH }}/src/github.com/containers/skopeo && \
             sudo PATH="/usr/local/go/bin:$PATH" DISABLE_DOCS=1 make bin/skopeo && \
             sudo PATH="/usr/local/go/bin:$PATH" DISABLE_DOCS=1 make install
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Wait for Docker daemon to be ready
         uses: ./.github/actions/wait-docker-ready
       - name: Docker login
@@ -247,7 +240,7 @@ jobs:
         run: PATH="/usr/local/bin:$PATH" bash -x ./build.sh
         working-directory: ./solution-base
       - name: Upload ISO
-        uses: scality/action-artifacts@v3
+        uses: scality/action-artifacts@v4
         with:
           method: upload
           url: https://artifacts.scality.net
@@ -255,7 +248,7 @@ jobs:
           password: ${{ secrets.ARTIFACTS_PASSWORD }}
           source: "solution/_build"
       - name: Upload base ISO
-        uses: scality/action-artifacts@v3
+        uses: scality/action-artifacts@v4
         with:
           method: upload
           url: https://artifacts.scality.net
