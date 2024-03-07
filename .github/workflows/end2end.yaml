@@ -110,7 +110,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: install jq
@@ -124,9 +124,9 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '16'
           cache: yarn
@@ -151,7 +151,7 @@ jobs:
           mkdir -p /tmp/artifacts/build_status/${{ github.job }}
           echo 'FAILED' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
       - name: Upload artifacts
-        uses: scality/action-artifacts@v3
+        uses: scality/action-artifacts@v4
         with:
           method: upload
           url: https://artifacts.scality.net
@@ -170,7 +170,7 @@ jobs:
       DOCUMENTATION_BUILDDIR: "build"
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install required dependencies
         uses: ./.github/actions/install-doc-dependencies
       - name: Create build directory
@@ -183,7 +183,7 @@ jobs:
         run: |
           tar --create --gzip --directory ./${{ env.ROOT_DOCUMENTATION_BUILDDIR }} --file ./${{ env.ROOT_DOCUMENTATION_BUILDDIR }}/zenko-documentation.tar.gz doctrees html
       - name: Upload documentation
-        uses: scality/action-artifacts@v3
+        uses: scality/action-artifacts@v4
         with:
           method: upload
           url: https://artifacts.scality.net
@@ -267,13 +267,13 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to Registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: "${{ secrets.REGISTRY_LOGIN }}"
           password: "${{ secrets.REGISTRY_PASSWORD }}"
@@ -307,7 +307,7 @@ jobs:
           [ "${{ env.KAFKA_TAG }}-${{ env.MONGODB_CONNECTOR_TAG }}" = "${{ env.KAFKA_CONNECT_TAG }}" ]
 
       - name: Build and push kafka
-        uses: docker/build-push-action@v3.1.0
+        uses: docker/build-push-action@v5
         with:
           push: true
           context: ./solution/kafka
@@ -319,7 +319,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=$GITHUB_REF_NAME-kafka
 
       - name: Build and push kafka-connect
-        uses: docker/build-push-action@v3.1.0
+        uses: docker/build-push-action@v5
         with:
           push: true
           context: ./solution/kafka-connect
@@ -337,11 +337,11 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       - name: Login to Registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: "${{ secrets.REGISTRY_LOGIN }}"
           password: "${{ secrets.REGISTRY_PASSWORD }}"
@@ -356,7 +356,7 @@ jobs:
           cat e2e-config.yaml
           echo 'Generated e2e-config.yaml file'
       - name: Build and push CI image
-        uses: docker/build-push-action@v3.1.0
+        uses: docker/build-push-action@v5
         with:
           push: true
           context: ./tests/zenko_tests
@@ -368,7 +368,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.GIT_ACCESS_TOKEN }}
       - name: Configure GIT
@@ -378,7 +378,7 @@ jobs:
           git config --global url.https://x-access-token:${{ secrets.GIT_ACCESS_TOKEN }}@github.com/.insteadOf ssh://git@github.com/
         env:
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: '16'
           cache: yarn
@@ -390,9 +390,9 @@ jobs:
         working-directory: tests/ctst
         run: yarn lint
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       - name: Login to Registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: "${{ secrets.REGISTRY_LOGIN }}"
           password: "${{ secrets.REGISTRY_PASSWORD }}"
@@ -402,7 +402,7 @@ jobs:
         run: |-
           echo "CTST_TAG=$(sed 's/.*"cli-testing": ".*#\(.*\)".*/\1/;t;d' ./tests/ctst/package.json)" >> $GITHUB_ENV
       - name: Build and push CI image
-        uses: docker/build-push-action@v3.1.0
+        uses: docker/build-push-action@v5
         with:
           push: true
           context: ./tests/ctst
@@ -419,13 +419,13 @@ jobs:
       - xlarge
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install dependencies
         uses: ./.github/actions/install-end2end-dependencies
       - name: Wait for Docker daemon to be ready
         uses: ./.github/actions/wait-docker-ready
       - name: Login to Registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: "${{ secrets.REGISTRY_LOGIN }}"
           password: "${{ secrets.REGISTRY_PASSWORD }}"
@@ -467,7 +467,7 @@ jobs:
           mkdir -p /tmp/artifacts/build_status/${{ github.job }}
           echo 'FAILED' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
       - name: Upload artifacts
-        uses: scality/action-artifacts@v3
+        uses: scality/action-artifacts@v4
         with:
           method: upload
           url: https://artifacts.scality.net
@@ -490,13 +490,13 @@ jobs:
       GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install dependencies
         uses: ./.github/actions/install-end2end-dependencies
       - name: Wait for Docker daemon to be ready
         uses: ./.github/actions/wait-docker-ready
       - name: Login to Registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: "${{ secrets.REGISTRY_LOGIN }}"
           password: "${{ secrets.REGISTRY_PASSWORD }}"
@@ -535,7 +535,7 @@ jobs:
           mkdir -p /tmp/artifacts/build_status/${{ github.job }}
           echo 'FAILED' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
       - name: Upload artifacts
-        uses: scality/action-artifacts@v3
+        uses: scality/action-artifacts@v4
         with:
           method: upload
           url: https://artifacts.scality.net
@@ -552,13 +552,13 @@ jobs:
       # - scality-cloud
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install dependencies
         uses: ./.github/actions/install-end2end-dependencies
       - name: Wait for Docker daemon to be ready
         uses: ./.github/actions/wait-docker-ready
       - name: Login to Registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: "${{ secrets.REGISTRY_LOGIN }}"
           password: "${{ secrets.REGISTRY_PASSWORD }}"
@@ -592,7 +592,7 @@ jobs:
           mkdir -p /tmp/artifacts/build_status/${{ github.job }}
           echo 'FAILED' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
       - name: Upload artifacts
-        uses: scality/action-artifacts@v3
+        uses: scality/action-artifacts@v4
         with:
           method: upload
           url: https://artifacts.scality.net
@@ -607,7 +607,7 @@ jobs:
       - ubuntu-22.04-8core
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install dependencies
         uses: ./.github/actions/install-end2end-dependencies
       - name: Wait for Docker daemon to be ready
@@ -615,7 +615,7 @@ jobs:
       - name: Kubectl tool installer
         uses: Azure/setup-kubectl@v3
       - name: Login to Registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: "${{ secrets.REGISTRY_LOGIN }}"
           password: "${{ secrets.REGISTRY_PASSWORD }}"
@@ -653,7 +653,7 @@ jobs:
           mkdir -p /tmp/artifacts/build_status/${{ github.job }}
           echo 'FAILED' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
       - name: Upload artifacts
-        uses: scality/action-artifacts@v3
+        uses: scality/action-artifacts@v4
         with:
           method: upload
           url: https://artifacts.scality.net
@@ -681,7 +681,7 @@ jobs:
           mkdir -p artifacts
           echo -n "FAILED" > artifacts/.final_status
       - name: Upload artifacts
-        uses: scality/action-artifacts@v3
+        uses: scality/action-artifacts@v4
         with:
           method: upload
           url: https://artifacts.scality.net
@@ -709,7 +709,7 @@ jobs:
           mkdir -p artifacts
           echo -n "SUCCESSFUL" > artifacts/.final_status
       - name: Upload artifacts
-        uses: scality/action-artifacts@v3
+        uses: scality/action-artifacts@v4
         with:
           method: upload
           url: https://artifacts.scality.net

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Tests for GHA workflows",
   "scripts": {
+    "postinstall": "yarn --cwd node_modules/@kie/act-js node scripts/postinstall.js 0.2.59",
     "test": "jest --testTimeout=120000"
   },
   "license": "Apache-2.0",

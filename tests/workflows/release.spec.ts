@@ -178,7 +178,7 @@ test.each([
             }],
             'promote': [{
                 // Need to explicitely pass token, the GITHUB_TOKEN does not seem to be set
-                uses: 'scality/action-artifacts@v3',
+                uses: 'scality/action-artifacts@v4',
                 mockWith: {
                     with: {
                         token: "my-token",
