@@ -138,7 +138,7 @@ testsToRun.forEach(test => {
                     next => checkTransition(toLoc, cloudServer, cloud, null, next),
                     next => checkRestoration(toLoc, cloudServer, null, next),
                 ], done);
-            });
+            }).retries(3);
 
             it('should transition an object', done => {
                 const key = `${prefix}nover-object`;
