@@ -6,10 +6,10 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag'
+        description: Tag
         required: true
       artifacts-name:
-        description: 'Artifacts name to promote'
+        description: Artifacts name to promote
         required: true
 
 jobs:
@@ -26,21 +26,21 @@ jobs:
       - name: Fetch tags
         run: git fetch --tags
 
-      - name: 'Check if tag matches the branch name'
+      - name: Check if tag matches the branch name
         shell: bash
         run: |
           [[ "refs/heads/development/${{ github.event.inputs.tag }}" == "${{ github.ref }}."* ]]
 
-      - name: 'Check if tag is set in VERSION file'
+      - name: Check if tag matches VERSION file
         shell: bash
         run: |
           source VERSION
           [[ "${{ github.event.inputs.tag }}" == "$VERSION_FULL" ]]
 
-      - name: 'Check if tag was already created'
+      - name: Check if tag has not already been created
         shell: bash
         run: |
-          ! git show-ref --tags v${{ github.event.inputs.tag }} --quiet
+          ! git show-ref --tags ${{ github.event.inputs.tag }} --quiet
 
   release:
     name: Release
@@ -65,11 +65,11 @@ jobs:
       - release
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: Promote artifacts
-      uses: scality/action-artifacts@v3
+      uses: scality/action-artifacts@v4
       with:
         method: promote
         name: ${{ github.event.inputs.artifacts-name }}
