@@ -742,6 +742,37 @@ jobs:
           source: /tmp/artifacts
         if: always()
 
+  mongo-patches-check:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: run patch
+        run: make -C solution-base/mongodb patch
+      - name: Check if patches were applied right
+        run: |
+          git diff --exit-code || { echo "Error: Changes detected after running 'make fetch-mongodb-sharded'. Please ensure step is completed."; exit 1; }
+      - name: Set status in ARTIFACTS to enable re-run only failed jobs
+        if: success()
+        run: |
+          mkdir -p /tmp/artifacts/build_status/${{ github.job }}
+          echo 'SUCCESSFUL' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
+      - name: Set status in ARTIFACTS to enable re-run only failed jobs
+        if: failure()
+        run: |
+          mkdir -p /tmp/artifacts/build_status/${{ github.job }}
+          echo 'FAILED' > /tmp/artifacts/build_status/${{ github.job }}/.final_status
+      - name: Upload artifacts
+        uses: scality/action-artifacts@v3
+        with:
+          method: upload
+          url: https://artifacts.scality.net
+          user: ${{ secrets.ARTIFACTS_USER }}
+          password: ${{ secrets.ARTIFACTS_PASSWORD }}
+          source: /tmp/artifacts
+        if: always()
+      
+
   write-final-failed-status:
     runs-on: ubuntu-latest
     needs:
@@ -754,6 +785,7 @@ jobs:
       - end2end-https
       - end2end-sharded
       - ctst-end2end-sharded
+      - mongo-patches-check
     if: failure()
     steps:
       - name: write failure status
