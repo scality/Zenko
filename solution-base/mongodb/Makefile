@@ -6,7 +6,7 @@ CHART_MONGO_REPLICASET_VERSION:="7.8.0"
 CHART_MONGO_SHARDED_VERSION:="6.6.7"
 
 PATCH_DIR:="${ROOT_DIR}/patches"
-PATCH_FILES:="$(shell ls -d ${PATCH_DIR}/*)"
+PATCH_FILES := $(shell ls -d ${PATCH_DIR}/* | tr '\n' ' ')
 
 HELM=helm
 
@@ -25,7 +25,12 @@ fetch-mongodb-sharded:
 		--version ${CHART_MONGO_SHARDED_VERSION} \
 		--untar \
 		--untardir ${CHART_DIR}
-
 patch:
-	@git apply --check ${PATCH_FILES}
-	@git apply ${PATCH_FILES}
+	@for patch_file in $(PATCH_FILES); do \
+		if [ "$$patch_file" != "${PATCH_DIR}/create-app-creds.patch" ] && [ "$$patch_file" != "${PATCH_DIR}/mongodb-sharded-add-configsvr-service.patch" ] && [ "$$patch_file" != "${PATCH_DIR}/credentials-from-secret.patch" ]; then \
+		echo "Applying patch: $$patch_file"; \
+		cd $(PATCH_DIR) && git apply --check "$$patch_file" || exit 1; \
+		cd $(PATCH_DIR) && git apply "$$patch_file"; \
+		fi; \
+	done
+
