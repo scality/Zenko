@@ -36,5 +36,4 @@ kubectl run kafka-topics \
     --attach=True \
     --command -- bash -c \
     "kafka-topics.sh --create --topic $NOTIF_DEST_TOPIC --bootstrap-server $KAFKA_HOST_PORT ; \
-        kafka-topics.sh --create --topic $NOTIF_ALT_DEST_TOPIC --bootstrap-server $KAFKA_HOST_PORT ; \
-        kafka-topics.sh --create --topic $UUID.backbeat-replication-group-awsbackendmismatch --bootstrap-server $KAFKA_HOST_PORT"
+        kafka-topics.sh --create --topic $NOTIF_ALT_DEST_TOPIC --bootstrap-server $KAFKA_HOST_PORT"
