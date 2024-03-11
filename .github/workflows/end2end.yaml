@@ -593,11 +593,6 @@ jobs:
         run: bash run-e2e-ctst.sh
         working-directory: ./.github/scripts/end2end
       - name: Archive artifact logs and data
-        shell: bash
-        run: |-
-            while true; do sleep 10; echo sleep; done
-        if: always()
-      - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
         env:
           STAGE: ctst-end2end-sharded
