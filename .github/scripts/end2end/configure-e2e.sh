@@ -64,7 +64,7 @@ kubectl run kafka-topics \
     --attach=True \
     --command -- bash -c \
     "kafka-topics.sh --create --topic $UUID.backbeat-replication-replay-0 --partitions 5 --bootstrap-server $KAFKA_HOST_PORT ; \
-      kafka-topics.sh --create --topic $UUID.backbeat-data-mover --partitions 5 --bootstrap-server $KAFKA_HOST_PORT ; \"
+      kafka-topics.sh --create --topic $UUID.backbeat-data-mover --partitions 5 --bootstrap-server $KAFKA_HOST_PORT"
 
 kubectl run ${POD_NAME} \
   --image ${E2E_IMAGE} \
