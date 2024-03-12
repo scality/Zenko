@@ -10,6 +10,9 @@ KAFKA_HOST_PORT=${KAFKA_HOST_PORT:1:-1}
 # Removing the port
 export NOTIF_KAFKA_HOST=${KAFKA_HOST_PORT%:*}
 export NOTIF_KAFKA_PORT=${KAFKA_HOST_PORT#*:}
+NAMESPACE=${3:-default}
+
+UUID=$(kubectl get zenko ${ZENKO_NAME} --namespace ${NAMESPACE} -o jsonpath='{.status.instanceID}')
 
 echo "127.0.0.1 iam.zenko.local ui.zenko.local s3-local-file.zenko.local keycloak.zenko.local \
     sts.zenko.local management.zenko.local s3.zenko.local" | sudo tee -a /etc/hosts
