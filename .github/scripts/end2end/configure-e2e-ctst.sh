@@ -21,6 +21,13 @@ kubectl wait --for condition=DeploymentInProgress=true --timeout 10m zenko/${ZEN
 kubectl wait --for condition=DeploymentFailure=false --timeout 10m zenko/${ZENKO_NAME}
 kubectl wait --for condition=DeploymentInProgress=false --timeout 10m zenko/${ZENKO_NAME}
 
+KAFKA_REGISTRY_NAME=$(yq eval ".kafka.sourceRegistry" ../../../solution/deps.yaml)
+KAFKA_IMAGE_NAME=$(yq eval ".kafka.image" ../../../solution/deps.yaml)
+KAFKA_IMAGE_TAG=$(yq eval ".kafka.tag" ../../../solution/deps.yaml)
+KAFKA_IMAGE=$KAFKA_REGISTRY_NAME/$KAFKA_IMAGE_NAME:$KAFKA_IMAGE_TAG
+KAFKA_HOST_PORT=$(kubectl get secret -l app.kubernetes.io/name=backbeat-config,app.kubernetes.io/instance=end2end \
+    -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq .kafka.hosts)
+KAFKA_HOST_PORT=${KAFKA_HOST_PORT:1:-1}
 # Creating bucket notification topics in kafka
 kubectl run kafka-topics \
     --image=$KAFKA_IMAGE \
