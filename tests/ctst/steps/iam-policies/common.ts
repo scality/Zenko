@@ -97,5 +97,5 @@ Then('the user should be able to perform successfully the {string} action', func
 
 Then('the user should receive {string} error', function (this: Zenko, error: string) {
     this.cleanupEntity();
-    assert.strictEqual(this.getResult().err!.includes(error), true);
+    assert.strictEqual(this.getResult().err!.includes(error), true, `Received ${this.getResult().err},was expecting ${error}`);
 });
