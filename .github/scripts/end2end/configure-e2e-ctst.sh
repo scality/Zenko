@@ -20,20 +20,3 @@ envsubst < ./configs/notification_destinations.yaml | kubectl apply -f -
 kubectl wait --for condition=DeploymentInProgress=true --timeout 10m zenko/${ZENKO_NAME}
 kubectl wait --for condition=DeploymentFailure=false --timeout 10m zenko/${ZENKO_NAME}
 kubectl wait --for condition=DeploymentInProgress=false --timeout 10m zenko/${ZENKO_NAME}
-
-# Get kafka image name and tag
-KAFKA_REGISTRY_NAME=$(yq eval ".kafka.sourceRegistry" ../../../solution/deps.yaml)
-KAFKA_IMAGE_NAME=$(yq eval ".kafka.image" ../../../solution/deps.yaml)
-KAFKA_IMAGE_TAG=$(yq eval ".kafka.tag" ../../../solution/deps.yaml)
-KAFKA_IMAGE=$KAFKA_REGISTRY_NAME/$KAFKA_IMAGE_NAME:$KAFKA_IMAGE_TAG
-
-# Creating bucket notification topic in kafka
-kubectl run kafka-topics \
-    --image=$KAFKA_IMAGE \
-    --pod-running-timeout=5m \
-    --rm \
-    --restart=Never \
-    --attach=True \
-    --command -- bash -c \
-    "kafka-topics.sh --create --topic $NOTIF_DEST_TOPIC --bootstrap-server $KAFKA_HOST_PORT ; \
-        kafka-topics.sh --create --topic $NOTIF_ALT_DEST_TOPIC --bootstrap-server $KAFKA_HOST_PORT"
