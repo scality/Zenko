@@ -27,10 +27,10 @@ fetch-mongodb-sharded:
 		--untardir ${CHART_DIR}
 patch:
 	@for patch_file in $(PATCH_FILES); do \
-		if [ "$$patch_file" != "${PATCH_DIR}/create-app-creds.patch" ] && [ "$$patch_file" != "${PATCH_DIR}/mongodb-sharded-add-configsvr-service.patch" ] && [ "$$patch_file" != "${PATCH_DIR}/credentials-from-secret.patch" ]; then \
+		if [ "$$patch_file" != "${PATCH_DIR}/create-app-creds.patch" ] && [ "$$patch_file" != "${PATCH_DIR}/credentials-from-secret.patch" ]; then \
 		echo "Applying patch: $$patch_file"; \
-		cd $(PATCH_DIR) && git apply --check "$$patch_file" || exit 1; \
-		cd $(PATCH_DIR) && git apply "$$patch_file"; \
+		cd $(PATCH_DIR) && git apply --3way --check "$$patch_file" || exit 1; \
+		cd $(PATCH_DIR) && git apply --3way "$$patch_file"; \
 		fi; \
 	done
 
