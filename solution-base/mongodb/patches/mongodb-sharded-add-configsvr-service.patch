@@ -16,7 +16,7 @@ index 2929960d..cfd6ed45 100644
 diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-service.yaml b/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-service.yaml
 new file mode 100644
 index fad94092..825b0161 100644
---- a/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-service.yaml
+--- /dev/null
 +++ b/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-service.yaml
 @@ -0,0 +1,41 @@
 +apiVersion: v1

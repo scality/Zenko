@@ -651,7 +651,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      - name: run patch
+      - name: run patches
         run: make -C solution-base/mongodb patch
       - name: Check if patches were applied right
         run: |
