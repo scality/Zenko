@@ -54,8 +54,12 @@ KAFKA_HOST_PORT=$(kubectl get secret -l app.kubernetes.io/name=backbeat-config,a
     -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq .kafka.hosts)
 KAFKA_HOST_PORT=${KAFKA_HOST_PORT:1:-1}
 
+INSTANCE_ID=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.status.instanceID}')
+
+KAFKA_CLEANER_INTERVAL=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.spec.kafkaCleaner.interval}')
+
 # Setting CTST world params
-WORLD_PARAMETERS='{"subdomain":"'${SUBDOMAIN}'","ssl":false,"port":"'${ZENKO_PORT}'","AccountName":"'${ZENKO_ACCOUNT_NAME}'","AdminAccessKey":"'${ADMIN_ACCESS_KEY_ID}'","AdminSecretKey":"'${ADMIN_SECRET_ACCESS_KEY}'","VaultAuthHost":"'${VAULT_AUTH_HOST}'","NotificationDestination":"'${NOTIF_DEST_NAME}'","NotificationDestinationTopic":"'${NOTIF_DEST_TOPIC}'","NotificationDestinationAlt":"'${NOTIF_ALT_DEST_NAME}'","NotificationDestinationTopicAlt":"'${NOTIF_ALT_DEST_TOPIC}'","KafkaHosts":"'${KAFKA_HOST_PORT}'","KeycloakPassword":"'${KEYCLOAK_TEST_PASSWORD}'","KeycloakHost":"'${KEYCLOAK_TEST_HOST}'","KeycloakPort":"'${KEYCLOAK_TEST_PORT}'","keycloakRealm":"'${KEYCLOAK_TEST_REALM_NAME}'","keycloakClientId":"'${KEYCLOAK_TEST_CLIENT_ID}'","keycloakGrantType":"'${KEYCLOAK_TEST_GRANT_TYPE}'","StorageManagerUsername":"'${STORAGE_MANAGER_USER_NAME}'","StorageAccountOwnerUsername":"'${STORAGE_ACCOUNT_OWNER_USER_NAME}'","DataConsumerUsername":"'${DATA_CONSUMER_USER_NAME}'","ServiceUsersCredentials":'${SERVICE_USERS_CREDENTIALS}'}'
+WORLD_PARAMETERS='{"subdomain":"'${SUBDOMAIN}'","ssl":false,"port":"'${ZENKO_PORT}'","AccountName":"'${ZENKO_ACCOUNT_NAME}'","AdminAccessKey":"'${ADMIN_ACCESS_KEY_ID}'","AdminSecretKey":"'${ADMIN_SECRET_ACCESS_KEY}'","VaultAuthHost":"'${VAULT_AUTH_HOST}'","NotificationDestination":"'${NOTIF_DEST_NAME}'","NotificationDestinationTopic":"'${NOTIF_DEST_TOPIC}'","NotificationDestinationAlt":"'${NOTIF_ALT_DEST_NAME}'","NotificationDestinationTopicAlt":"'${NOTIF_ALT_DEST_TOPIC}'","KafkaHosts":"'${KAFKA_HOST_PORT}'","KeycloakPassword":"'${KEYCLOAK_TEST_PASSWORD}'","KeycloakHost":"'${KEYCLOAK_TEST_HOST}'","KeycloakPort":"'${KEYCLOAK_TEST_PORT}'","keycloakRealm":"'${KEYCLOAK_TEST_REALM_NAME}'","keycloakClientId":"'${KEYCLOAK_TEST_CLIENT_ID}'","keycloakGrantType":"'${KEYCLOAK_TEST_GRANT_TYPE}'","StorageManagerUsername":"'${STORAGE_MANAGER_USER_NAME}'","StorageAccountOwnerUsername":"'${STORAGE_ACCOUNT_OWNER_USER_NAME}'","DataConsumerUsername":"'${DATA_CONSUMER_USER_NAME}'","ServiceUsersCredentials":'${SERVICE_USERS_CREDENTIALS}',"InstanceID":"'${INSTANCE_ID}'","KafkaCleanerInterval":"'${KAFKA_CLEANER_INTERVAL}'"}'
 
 E2E_IMAGE=$E2E_CTST_IMAGE_NAME:$E2E_IMAGE_TAG
 POD_NAME="${ZENKO_NAME}-ctst-tests"
@@ -67,7 +71,6 @@ docker run \
     --network=host \
     "${E2E_IMAGE}" /bin/bash \
     -c "SUBDOMAIN=${SUBDOMAIN} CONTROL_PLANE_INGRESS_ENDPOINT=${OIDC_ENDPOINT} ACCOUNT=${ZENKO_ACCOUNT_NAME} KEYCLOAK_REALM=${KEYCLOAK_TEST_REALM_NAME} STORAGE_MANAGER=${STORAGE_MANAGER_USER_NAME} STORAGE_ACCOUNT_OWNER=${STORAGE_ACCOUNT_OWNER_USER_NAME} DATA_CONSUMER=${DATA_CONSUMER_USER_NAME} /ctst/bin/seedKeycloak.sh"; [[ $? -eq 1 ]] && exit 1 || echo 'Keycloak Configured!'
-
 
 # Running end2end ctst tests
 kubectl run $POD_NAME \
