@@ -396,7 +396,8 @@ Then('object {string} should expire in {int} days', async function (this: Zenko,
     const lastModified = new Date(head.LastModified).getTime();
     const diff = (expiryDate - lastModified) / 1000 / 86400;
     const realTimeDays = days / (this.parameters.TimeProgressionFactor > 1 ? this.parameters.TimeProgressionFactor : 1);
-    assert(diff >= realTimeDays && diff < realTimeDays + 0.005);
+    assert.ok(diff >= realTimeDays && diff < realTimeDays + 0.005,
+        `Expected ${realTimeDays} but got ${diff} ; ${this.parameters.TimeProgressionFactor}`);
 });
 
 Given('that lifecycle is {string} for the {string} location',
