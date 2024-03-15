@@ -126,7 +126,6 @@ Feature: Azure Archive
     @Flaky
     @AzureArchive
     @ColdStorage
-    @WIP
     Scenario Outline: Restore an already restored object
     Given a "<versioningConfiguration>" bucket
     And a transition workflow to "e2e-azure-archive" location
@@ -162,7 +161,6 @@ Feature: Azure Archive
     @Flaky
     @AzureArchive
     @ColdStorage
-    @WIP
     Scenario Outline: Restore an object that has already been restored and expired
     Given a "<versioningConfiguration>" bucket
     And a transition workflow to "e2e-azure-archive" location

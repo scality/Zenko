@@ -373,7 +373,7 @@ When('i run sorbetctl to retry failed restore for {string} location', async func
 When('i wait for {int} days', { timeout: 10 * 60 * 1000 }, async function (this: Zenko, days: number) {
     const realTimeDay = days * 24 * 60 * 60 * 1000 /
         (this.parameters.TimeProgressionFactor > 1 ? this.parameters.TimeProgressionFactor : 1);
-    await Utils.sleep(realTimeDay + 200 * 1000); // We also wait for sorbet forwarder to see the object has expired
+    await Utils.sleep(realTimeDay);
 });
 
 Then('object {string} should expire in {int} days', async function (this: Zenko, objectName: string, days: number) {
