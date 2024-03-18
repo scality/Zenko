@@ -25,4 +25,4 @@ kubectl run ctst-end2end \
         --attach=True \
         --image-pull-policy=Always \
         --env=TARGET_VERSION=$VERSION  \
-        -- ./run "$COMMAND" $WORLD_PARAMETERS "--parallel $PARALLEL_RUNS"
+        -- ./run "$COMMAND" $WORLD_PARAMETERS --parallel $PARALLEL_RUNS
