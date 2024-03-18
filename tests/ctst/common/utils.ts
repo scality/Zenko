@@ -28,25 +28,31 @@ export function extractPropertyFromResults<T>(results: Utils.Command, ...propert
     }
 }
 
-export const s3FunctionExtraParams : { [key: string]: Record<string, unknown> } = {
-    restoreObject: { restoreRequest: 'Days=1' },
-    putObjectAcl:  { acl: 'public-read-write' },
-    putBucketTagging: { tagging: '{"TagSet":[{"Key":"tag1","Value":"value1"},{"Key":"tag2","Value":"value2"}]}' },
-    putObjectTagging: { tagging: '{"TagSet":[{"Key":"string","Value":"string"}]}' },
-    putBucketVersioning: { versioningConfiguration: 'Status=Enabled' },
-    putObjectLockConfiguration: {
+export const s3FunctionExtraParams: { [key: string]: Record<string, unknown>[] } = {
+    restoreObject: [{ restoreRequest: 'Days=1' }],
+    putObjectAcl: [{ acl: 'public-read-write' }],
+    putBucketCors: [{ corsConfiguration: '\'{"CORSRules":[{"AllowedMethods":["GET"],"AllowedOrigins":["*"]}]}\'' }],
+    putBucketTagging: [{ tagging: '{"TagSet":[{"Key":"tag1","Value":"value1"},{"Key":"tag2","Value":"value2"}]}' }],
+    putObjectTagging: [{ tagging: '{"TagSet":[{"Key":"string","Value":"string"}]}' }],
+    putBucketVersioning: [{ versioningConfiguration: 'Status=Enabled' }],
+    putObjectLegalHold: [{ legalHold: 'Status=ON' }],
+    putObjectRetention: [{
+        retention: 'Mode=GOVERNANCE,RetainUntilDate=2080-01-01T00:00:00Z',
+        bypassGovernanceRetention: 'true',
+    }],
+    putObjectLockConfiguration: [{
         objectLockConfiguration: '{ "ObjectLockEnabled": "Enabled", "Rule": ' +
-        '{ "DefaultRetention": ' + 
-        '{ "Mode": "COMPLIANCE", "Days": 50 }}}',
-    },
-    deleteObjects: {
+            '{ "DefaultRetention": ' +
+            '{ "Mode": "GOVERNANCE", "Days": 50 }}}',
+    }],
+    deleteObjects: [{
         delete: JSON.stringify({
             Objects: [{
                 Key: 'x'.repeat(10),
             }],
         }),
-    },
-    putBucketLifecycleConfiguration: {
+    }],
+    putBucketLifecycleConfiguration: [{
         lifecycleConfiguration: JSON.stringify(
             {
                 Rules: [
@@ -66,8 +72,8 @@ export const s3FunctionExtraParams : { [key: string]: Record<string, unknown> } 
                     },
                 ],
             }),
-    },
-    putBucketReplication: {
+    }],
+    putBucketReplication: [{
         replicationConfiguration: JSON.stringify(
             {
                 Role: 'arn:aws:iam::123456789012:role/s3-replication-role',
@@ -81,7 +87,7 @@ export const s3FunctionExtraParams : { [key: string]: Record<string, unknown> } 
                     },
                 ],
             }),
-    },
+    }],
 };
 
 export function safeJsonParse(jsonString: string): { ok: boolean, result: object } {
