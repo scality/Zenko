@@ -59,7 +59,7 @@ Then('the user should not be able to perform the {string} action', function (thi
     this.cleanupEntity();
     switch (action) {
     case 'GetAccountInfo': {
-        assert.strictEqual(this.getResult() instanceof Error, true);
+        assert.strictEqual(this.getResult().code === 'AccessDenied', true);
         break;
     }
     default: {

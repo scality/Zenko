@@ -744,9 +744,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             cacheSession: {
                 ...CacheHelper.parameters!.IAMSession,
             },
-            parametersSession: {
-                ...this.parameters,
-            },
             cliModeParameters: {
                 ...this.cliMode.parameters.IAMSession,
             },
@@ -763,13 +760,11 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 SecretAccessKey: string;
                 SessionToken?: string | undefined;
             } | undefined,
-            parametersSession: ZenkoWorldParameters,
             cliModeParameters: ClientOptions['AssumedSession'],
             env: boolean,
             assumed: boolean,
         }>(authMode);
         CacheHelper.parameters!.IAMSession = savedConfiguration.cacheSession;
-        this.parameters = savedConfiguration.parametersSession;
         this.cliMode.parameters.IAMSession = savedConfiguration.cliModeParameters;
         this.cliMode.env = savedConfiguration.env;
         this.cliMode.assumed = savedConfiguration.assumed;
