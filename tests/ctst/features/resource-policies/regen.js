@@ -2,6 +2,10 @@
  * BDD testing require that each scenario is explicitly written in the feature file.
  * However, testing authz scenarios for each API is too extensive, so this code
  * helps maintaining this test suite.
+ * When editing the feature files, make sure to re-run this script to ensure that
+ * all the tests scenarios are consistent. You can add a new S3 API to test under
+ * APIs, and a scenario combination under allCombinations.
+ * When applying the script, make sure to have the changes in a separate commit.
  * Usage: node regen.js
  */
 const fs = require('fs');

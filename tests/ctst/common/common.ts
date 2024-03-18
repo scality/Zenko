@@ -43,22 +43,6 @@ Given('an existing bucket {string} {string} versioning, {string} ObjectLock {str
     await createBucketWithConfiguration(this, bucketName, withVersioning, withObjectLock, retentionMode);
 });
 
-Given('an object {string} that {string}',
-    async function (this: Zenko, objectName: string, objectExists: string) {
-        this.resetCommand();
-        if (objectExists === 'exists') {
-            this.addToSaved('objectName', objectName || Utils.randomString());
-            let objectNameArray = this.getSaved<string[]>('objectNameArray') || [];
-            objectNameArray.push(this.getSaved<string>('objectName'));
-            this.addToSaved('objectNameArray', objectNameArray);
-            this.addCommandParameter({ key: this.getSaved<string>('objectName') });
-            this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-            this.addToSaved('versionId', extractPropertyFromResults(
-                await S3.putObject(this.getCommandParameters()), 'VersionId'
-            ));
-        }
-    });
-
 Then('kafka consumed messages should not take too much place on disk',
     async function (this: Zenko) {
         const ignoredTopics = ['dead-letter'];
