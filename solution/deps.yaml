@@ -6,7 +6,7 @@ backbeat:
   dashboard: backbeat-dashboards
   image: backbeat
   policy: backbeat-policies
-  tag: 8.6.38
+  tag: 8.6.39
   envsubst: BACKBEAT_TAG
 busybox:
   image: busybox
@@ -86,7 +86,7 @@ sorbet:
   sourceRegistry: registry.scality.com/sorbet
   policy: sorbet-policies
   image: sorbet
-  tag: v1.1.8
+  tag: v1.1.9
   envsubst: SORBET_TAG
 # To be enabled back when utapi is used in Zenko 2.x
 # utapi:
@@ -104,7 +104,7 @@ vault:
 zenko-operator:
   sourceRegistry: registry.scality.com/zenko-operator
   image: zenko-operator
-  tag: 1.5.43
+  tag: 1.5.44
   envsubst: ZENKO_OPERATOR_TAG
 zenko-ui:
   sourceRegistry: registry.scality.com/zenko-ui
