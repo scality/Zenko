@@ -338,19 +338,20 @@ Then('kafka consumed messages should not take too much place on disk',
                         newOffsets[i].partitions[j].low === previousOffsets[i].partitions[j].high &&
                         previousOffsets[i].partitions[j].high !== '0';
                     if (newMessagesAfterClean) {
-                        process.stdout.write(`Possible new messages after clean for topic ${topics[i]} rechecking after`);
-                        continue
+                        process.stdout.write(`New messages after clean for topic ${topics[i]} rechecking after`);
+                        continue;
                     }
                     assert.ok(lowOffsetIncreased || noNewMessages,
                         `Topic ${topics[i]} partition ${j} offset has not increased,
-                        previousOffsets: ${previousOffsets[i].partitions[j].low} / ${previousOffsets[i].partitions[j].high},
+                        previousOffsets: ${previousOffsets[i].partitions[j].low} /\
+                         ${previousOffsets[i].partitions[j].high},
                         newOffsets: ${newOffsets[i].partitions[j].low} / ${newOffsets[i].partitions[j].high}`);
                     topics.splice(i, 1);
                 }
             }
         }
 
-        assert(topics.length === 0, `Topics ${topics} still have not been cleaned`);
+        assert(topics.length === 0, `Topics ${topics.join(', ')} still have not been cleaned`);
     });
 
 Given('an object {string} that {string}', async function (this: Zenko, objectName: string, objectExists: string) {
