@@ -1,0 +1,1 @@
+../../../../scripts/set-default-write-concern-majority.sh

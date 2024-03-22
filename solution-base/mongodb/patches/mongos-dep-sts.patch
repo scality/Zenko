@@ -1,8 +1,8 @@
 diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/mongos/mongos-dep-sts.yaml b/solution-base/mongodb/charts/mongodb-sharded/templates/mongos/mongos-dep-sts.yaml
-index 4bfc807b..883f08f7 100644
+index 73890420..e7fd18a6 100644
 --- a/solution-base/mongodb/charts/mongodb-sharded/templates/mongos/mongos-dep-sts.yaml
 +++ b/solution-base/mongodb/charts/mongodb-sharded/templates/mongos/mongos-dep-sts.yaml
-@@ -97,6 +97,9 @@ spec:
+@@ -92,6 +92,9 @@ spec:
            {{- if .Values.mongos.containerSecurityContext.enabled }}
            securityContext: {{- omit .Values.mongos.containerSecurityContext "enabled" | toYaml | nindent 12 }}
            {{- end }}
@@ -12,7 +12,7 @@ index 4bfc807b..883f08f7 100644
            env:
              - name: MONGODB_ENABLE_NUMACTL
                value: {{ ternary "yes" "no" $.Values.common.mongodbEnableNumactl | quote }}
-@@ -138,7 +141,7 @@ spec:
+@@ -133,7 +136,7 @@ spec:
              - name: MONGODB_PORT_NUMBER
                value: {{ $.Values.common.containerPorts.mongodb | quote }}
              - name: MONGODB_CFG_PRIMARY_HOST
@@ -21,7 +21,7 @@ index 4bfc807b..883f08f7 100644
              - name: MONGODB_CFG_REPLICA_SET_NAME
                value: {{ include "mongodb-sharded.configServer.rsName" . }}
              - name: MONGODB_SYSTEM_LOG_VERBOSITY
-@@ -235,6 +238,8 @@ spec:
+@@ -230,6 +233,8 @@ spec:
            lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.mongos.lifecycleHooks "context" $) | nindent 12 }}
            {{- end }}
            volumeMounts:
@@ -30,7 +30,7 @@ index 4bfc807b..883f08f7 100644
              {{- if .Values.auth.usePasswordFile }}
              - name: secrets
                mountPath: /bitnami/mongodb/secrets/
-@@ -328,6 +333,9 @@ spec:
+@@ -323,6 +328,9 @@ spec:
          {{- include "common.tplvalues.render" ( dict "value" . "context" $ ) | nindent 8 }}
          {{- end }}
        volumes:
@@ -40,6 +40,3 @@ index 4bfc807b..883f08f7 100644
          {{- if .Values.auth.usePasswordFile }}
          - name: secrets
            secret:
--- 
-2.25.1
-

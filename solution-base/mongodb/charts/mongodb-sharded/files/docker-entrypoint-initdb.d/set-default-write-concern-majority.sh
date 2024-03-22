@@ -1,1 +1,0 @@
-../../../../scripts/set-default-write-concern-majority-sharded.sh

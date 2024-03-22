@@ -1,8 +1,8 @@
 diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-statefulset.yaml b/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-statefulset.yaml
-index 019a8534..76bcdc30 100644
+index 6a45fed9..ca78c8ae 100644
 --- a/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-statefulset.yaml
 +++ b/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-statefulset.yaml
-@@ -82,14 +82,7 @@ spec:
+@@ -77,14 +77,7 @@ spec:
          - name: volume-permissions
            image: {{ include "mongodb-sharded.volumePermissions.image" . }}
            imagePullPolicy: {{ .Values.volumePermissions.image.pullPolicy | quote }}
@@ -11,18 +11,18 @@ index 019a8534..76bcdc30 100644
 -          args:
 -            - -ec
 -            - |
--              mkdir -p {{ .Values.configsvr.persistence.mountPath }}{{- if .Values.configsvr.persistence.subPath }}/{{ .Values.configsvr.persistence.subPath }}{{- end }}
--              chmod 700 {{ .Values.configsvr.persistence.mountPath }}
+-              mkdir -p {{ .Values.configsvr.persistence.mountPath }}{{- if .Values.configsvr.persistence.subPath }}/{{ include "common.tplvalues.render" (dict "value" .Values.configsvr.persistence.subPath "context" $) }}{{- end }}
+-              chown {{ .Values.configsvr.containerSecurityContext.runAsUser }}:{{ .Values.configsvr.podSecurityContext.fsGroup }} {{ .Values.configsvr.persistence.mountPath }}{{- if .Values.configsvr.persistence.subPath }}/{{ include "common.tplvalues.render" (dict "value" .Values.configsvr.persistence.subPath "context" $) }}{{- end }}
 -              find {{ .Values.configsvr.persistence.mountPath }} -mindepth 1 -maxdepth 1 -not -name ".snapshot" -not -name "lost+found" | xargs -r chown -R {{ .Values.configsvr.containerSecurityContext.runAsUser }}:{{ .Values.configsvr.podSecurityContext.fsGroup }}
 +          command: ["chown", "-R", "{{ .Values.configsvr.containerSecurityContext.runAsUser }}:{{ .Values.configsvr.podSecurityContext.fsGroup }}", "{{ .Values.configsvr.persistence.mountPath }}"]
            securityContext:
              runAsUser: 0
            resources: {{ toYaml .Values.volumePermissions.resources | nindent 12 }}
 diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-statefulset.yaml b/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-statefulset.yaml
-index e4c30083..48699b94 100644
+index 3827a7de..8a97e555 100644
 --- a/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-statefulset.yaml
 +++ b/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-statefulset.yaml
-@@ -85,14 +85,7 @@ spec:
+@@ -80,14 +80,7 @@ spec:
          - name: volume-permissions
            image: {{ include "mongodb-sharded.volumePermissions.image" $ }}
            imagePullPolicy: {{ $.Values.volumePermissions.image.pullPolicy | quote }}
@@ -31,13 +31,10 @@ index e4c30083..48699b94 100644
 -          args:
 -            - -ec
 -            - |
--              mkdir -p {{ $.Values.shardsvr.persistence.mountPath }}{{- if $.Values.shardsvr.persistence.subPath }}/{{ $.Values.shardsvr.persistence.subPath }}{{- end }}
--              chmod 700 {{ $.Values.shardsvr.persistence.mountPath }}
+-              mkdir -p {{ $.Values.shardsvr.persistence.mountPath }}{{- if $.Values.shardsvr.persistence.subPath }}/{{ include "common.tplvalues.render" (dict "value" $.Values.shardsvr.persistence.subPath "context" $) }}{{- end }}
+-              chown {{ $.Values.shardsvr.dataNode.containerSecurityContext.runAsUser }}:{{ $.Values.shardsvr.dataNode.podSecurityContext.fsGroup }} {{ $.Values.shardsvr.persistence.mountPath }}{{- if $.Values.shardsvr.persistence.subPath }}/{{ include "common.tplvalues.render" (dict "value" $.Values.shardsvr.persistence.subPath "context" $) }}{{- end }}
 -              find {{ $.Values.shardsvr.persistence.mountPath }} -mindepth 1 -maxdepth 1 -not -name ".snapshot" -not -name "lost+found" | xargs -r chown -R {{ $.Values.shardsvr.dataNode.containerSecurityContext.runAsUser }}:{{ $.Values.shardsvr.dataNode.podSecurityContext.fsGroup }}
 +          command: ["chown", "-R", "{{ $.Values.shardsvr.dataNode.containerSecurityContext.runAsUser }}:{{ $.Values.shardsvr.dataNode.podSecurityContext.fsGroup }}", "{{ $.Values.shardsvr.persistence.mountPath }}"]
            securityContext:
              runAsUser: 0
            resources: {{ toYaml $.Values.volumePermissions.resources | nindent 12 }}
--- 
-2.25.1
-

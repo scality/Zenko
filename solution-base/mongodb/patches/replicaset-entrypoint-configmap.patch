@@ -1,10 +1,10 @@
 diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/replicaset-entrypoint-configmap.yaml b/solution-base/mongodb/charts/mongodb-sharded/templates/replicaset-entrypoint-configmap.yaml
-index 22bdc5d7..36526df2 100644
+index 0427ec0c..763dc446 100644
 --- a/solution-base/mongodb/charts/mongodb-sharded/templates/replicaset-entrypoint-configmap.yaml
 +++ b/solution-base/mongodb/charts/mongodb-sharded/templates/replicaset-entrypoint-configmap.yaml
-@@ -4,6 +4,16 @@ metadata:
-   name: {{ include "common.names.fullname" . }}-replicaset-entrypoint
-   labels: {{- include "common.labels.standard" . | nindent 4 }}
+@@ -13,6 +13,16 @@ metadata:
+   annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+   {{- end }}
  data:
 +  mongos-entrypoint.sh: |-
 +    #!/bin/bash
@@ -19,13 +19,12 @@ index 22bdc5d7..36526df2 100644
    replicaset-entrypoint.sh: |-
      #!/bin/bash
  
-@@ -29,5 +39,6 @@ data:
+@@ -36,4 +46,8 @@ data:
+       {{- end }}
+     fi
  
 +    # Disable MongoSH telemetry to support offline deployments
 +    mongosh --nodb --eval "disableTelemetry()"
 +    info "MongoDB Telemetry is now disabled."
- 
++
      exec /entrypoint.sh /run.sh
--- 
-2.25.1
-

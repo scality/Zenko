@@ -1,21 +1,31 @@
+{{/*
+Copyright VMware, Inc.
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
 {{/* vim: set filetype=mustache: */}}
 {{/*
 Return the proper image name
-{{ include "common.images.image" ( dict "imageRoot" .Values.path.to.the.image "global" $) }}
+{{ include "common.images.image" ( dict "imageRoot" .Values.path.to.the.image "global" .Values.global ) }}
 */}}
 {{- define "common.images.image" -}}
 {{- $registryName := .imageRoot.registry -}}
 {{- $repositoryName := .imageRoot.repository -}}
-{{- $tag := .imageRoot.tag | toString -}}
+{{- $separator := ":" -}}
+{{- $termination := .imageRoot.tag | toString -}}
 {{- if .global }}
     {{- if .global.imageRegistry }}
      {{- $registryName = .global.imageRegistry -}}
     {{- end -}}
 {{- end -}}
+{{- if .imageRoot.digest }}
+    {{- $separator = "@" -}}
+    {{- $termination = .imageRoot.digest | toString -}}
+{{- end -}}
 {{- if $registryName }}
-{{- printf "%s/%s:%s" $registryName $repositoryName $tag -}}
+    {{- printf "%s/%s%s%s" $registryName $repositoryName $separator $termination -}}
 {{- else -}}
-{{- printf "%s:%s" $repositoryName $tag -}}
+    {{- printf "%s%s%s"  $repositoryName $separator $termination -}}
 {{- end -}}
 {{- end -}}
 
@@ -40,7 +50,7 @@ Return the proper Docker Image Registry Secret Names (deprecated: use common.ima
 
   {{- if (not (empty $pullSecrets)) }}
 imagePullSecrets:
-    {{- range $pullSecrets }}
+    {{- range $pullSecrets | uniq }}
   - name: {{ . }}
     {{- end }}
   {{- end }}
@@ -68,8 +78,24 @@ Return the proper Docker Image Registry Secret Names evaluating values as templa
 
   {{- if (not (empty $pullSecrets)) }}
 imagePullSecrets:
-    {{- range $pullSecrets }}
+    {{- range $pullSecrets | uniq }}
   - name: {{ . }}
     {{- end }}
   {{- end }}
 {{- end -}}
+
+{{/*
+Return the proper image version (ingores image revision/prerelease info & fallbacks to chart appVersion)
+{{ include "common.images.version" ( dict "imageRoot" .Values.path.to.the.image "chart" .Chart ) }}
+*/}}
+{{- define "common.images.version" -}}
+{{- $imageTag := .imageRoot.tag | toString -}}
+{{/* regexp from https://github.com/Masterminds/semver/blob/23f51de38a0866c5ef0bfc42b3f735c73107b700/version.go#L41-L44 */}}
+{{- if regexMatch `^([0-9]+)(\.[0-9]+)?(\.[0-9]+)?(-([0-9A-Za-z\-]+(\.[0-9A-Za-z\-]+)*))?(\+([0-9A-Za-z\-]+(\.[0-9A-Za-z\-]+)*))?$` $imageTag -}}
+    {{- $version := semver $imageTag -}}
+    {{- printf "%d.%d.%d" $version.Major $version.Minor $version.Patch -}}
+{{- else -}}
+    {{- print .chart.AppVersion -}}
+{{- end -}}
+{{- end -}}
+
