@@ -300,40 +300,63 @@ Then('i {string} be able to add user metadata to object {string}',
         }
     });
 
-Then('kafka consumed messages should not take too much place on disk',
+Then('kafka consumed messages should not take too much place on disk', { timeout: 130000 },
     async function (this: Zenko) {
         const ignoredTopics = ['dead-letter'];
         const kafkaAdmin = new Kafka({ brokers: [this.parameters.KafkaHosts] }).admin();
         const topics: string[] = (await kafkaAdmin.listTopics())
             .filter(t => (t.includes(this.parameters.InstanceID) &&
             !ignoredTopics.some(e => t.includes(e))));
-        const previousOffsets = await getTopicsOffsets(topics, kafkaAdmin);
 
+        const timeStart = new Date().getTime();
         const seconds = parseInt(this.parameters.KafkaCleanerInterval);
 
-        // Checking topics offsets before kafkacleaner passes to be sure kafkacleaner works
-        // This function can be improved by consuming messages and
-        // verify that the timestamp is not older than last kafkacleaner run
-        // Instead of waiting for a fixed amount of time,
-        // we could also check for metrics to see last kafkacleaner run
-        
-        // 10 seconds added to be sure kafkacleaner had time to process
-        await Utils.sleep(seconds * 1000 + 10000);
+        while (topics.length > 0 && new Date().getTime() - timeStart < 120000) {
+            const previousOffsets = await getTopicsOffsets(topics, kafkaAdmin);
+            // Checking topics offsets before kafkacleaner passes to be sure kafkacleaner works
+            // This function can be improved by consuming messages and
+            // verify that the timestamp is not older than last kafkacleaner run
+            // Instead of waiting for a fixed amount of time,
+            // we could also check for metrics to see last kafkacleaner run
 
-        const newOffsets = await getTopicsOffsets(topics, kafkaAdmin);
+            // 10 seconds added to be sure kafkacleaner had time to process
+            await Utils.sleep(seconds * 1000 + 10000);
 
-        for (let i = 0; i < topics.length; i++) {
-            process.stdout.write(`\nChecking topic ${topics[i]}\n`);
-            for (let j = 0; j < newOffsets[i].partitions.length; j++) {
-                // Checking that the min offset has increased due to kafkacleaner
-                // or that it didn't need to change because there was no new messages
-                assert.ok(newOffsets[i].partitions[j].low > previousOffsets[i].partitions[j].low ||
-                    newOffsets[i].partitions[j].high === newOffsets[i].partitions[j].low,
-                `Topic ${topics[i]} partition ${j} offset has not increased,
-                previousOffsets: ${previousOffsets[i].partitions[j].low} / ${previousOffsets[i].partitions[j].high},
-                newOffsets: ${newOffsets[i].partitions[j].low} / ${newOffsets[i].partitions[j].high}`);
+            const newOffsets = await getTopicsOffsets(topics, kafkaAdmin);
+
+            for (let i = 0; i < topics.length; i++) {
+                process.stdout.write(`\nChecking topic ${topics[i]}\n`);
+                for (let j = 0; j < newOffsets[i].partitions.length; j++) {
+                    const newMessagesAfterClean =
+                        newOffsets[i].partitions[j].low === previousOffsets[i].partitions[j].high &&
+                        previousOffsets[i].partitions[j].high !== '0';
+
+                    if (newMessagesAfterClean) {
+                        // If new messages appeared after we gathered the offsets, we need to recheck after
+                        process.stdout.write(`New messages after clean for topic ${topics[i]} rechecking after`);
+                        continue;
+                    }
+
+                    const lowOffsetIncreased = newOffsets[i].partitions[j].low > previousOffsets[i].partitions[j].low;
+                    const allMessagesCleaned = newOffsets[i].partitions[j].high === newOffsets[i].partitions[j].low;
+
+                    // If the low offset increased it means the topic has been cleaned
+                    // If low offset is the same as high offset,
+                    // it means the topic is completly cleaned even though lowOffset didnt increased
+                    assert.ok(lowOffsetIncreased || allMessagesCleaned,
+                        `Topic ${topics[i]} partition ${j} offset has not increased,
+                        previousOffsets: ${previousOffsets[i].partitions[j].low} /\
+                         ${previousOffsets[i].partitions[j].high},
+                        newOffsets: ${newOffsets[i].partitions[j].low} / ${newOffsets[i].partitions[j].high}`);
+
+                    // Topic is cleaned, we don't need to check it anymore
+                    topics.splice(i, 1);
+                }
             }
         }
+
+        // If a topic remains in this array, it means it has not been cleaned
+        assert(topics.length === 0, `Topics ${topics.join(', ')} still have not been cleaned`);
     });
 
 Given('an object {string} that {string}', async function (this: Zenko, objectName: string, objectExists: string) {
