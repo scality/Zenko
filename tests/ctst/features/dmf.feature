@@ -25,6 +25,27 @@ Feature: DMF
     @PreMerge
     @Dmf
     @ColdStorage
+    Scenario Outline: Retry after failure
+    Given a "<versioningConfiguration>" bucket
+    And a transition workflow to "e2e-cold" location
+    And <objectCount> objects "obj" of size <objectSize> bytes that will need <retryNumber> command retries
+    Then object "obj-1.scal-retry-command-2" should be "transitioned" and have the storage class "e2e-cold"
+    And object "obj-2.scal-retry-command-2" should be "transitioned" and have the storage class "e2e-cold"
+    And dmf volume should contain <objectCount> objects
+    When i delete object "obj-1.scal-retry-command-2"
+    And i delete object "obj-2.scal-retry-command-2"
+    Then dmf volume should contain 0 objects
+
+    Examples:
+    | versioningConfiguration | objectCount | objectSize | retryNumber |
+    |           Non versioned |           2 |        100 |           2 |
+    |               Versioned |           2 |        100 |           2 |
+    |               Suspended |           2 |        100 |           2 |
+
+    @2.7.0
+    @PreMerge
+    @Dmf
+    @ColdStorage
     Scenario Outline: Deletion of a restored object
     Given a "<versioningConfiguration>" bucket
     And a transition workflow to "e2e-cold" location
