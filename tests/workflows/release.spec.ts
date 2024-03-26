@@ -169,7 +169,7 @@ test.each([
             }],
             'release': [{
                 // Need to explicitely pass token, the GITHUB_TOKEN does not seem to be set
-                uses: 'softprops/action-gh-release@v1',
+                uses: 'softprops/action-gh-release@v2',
                 mockWith: {
                     with: {
                         token: "my-token",
