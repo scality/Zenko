@@ -59,9 +59,9 @@ Feature: DMF
 
     Examples:
     | versioningConfiguration | objectCount | objectSize | retryNumber |
-    |           Non versioned |           2 |        100 |           2 |
-    |               Versioned |           2 |        100 |           2 |
-    |               Suspended |           2 |        100 |           2 |
+    |           Non versioned |           2 |        100 |           1 |
+    |               Versioned |           2 |        100 |           1 |
+    |               Suspended |           2 |        100 |           1 |
 
     @2.7.0
     @PreMerge
