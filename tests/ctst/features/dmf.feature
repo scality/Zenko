@@ -49,7 +49,7 @@ Feature: DMF
     Scenario Outline: Retry job after failure
     Given a "<versioningConfiguration>" bucket
     And a transition workflow to "e2e-cold" location
-    And <objectCount> objects "obj" of size <objectSize> bytes <retryNumber> job retries on "archive" operation
+    And <objectCount> objects "obj" of size <objectSize> bytes that will need <retryNumber> job retries on "archive" operation
     Then object "obj-1.scal-retry-archive-job-2" should be "transitioned" and have the storage class "e2e-cold"
     And object "obj-2.scal-retry-archive-job-2" should be "transitioned" and have the storage class "e2e-cold"
     And dmf volume should contain <objectCount> objects
