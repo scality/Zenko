@@ -37,5 +37,5 @@ runs:
         cat /tmp/artifacts/data/${STAGE}/kafka-topics.log | xargs -P 15 -I {} \
             sh -c "kubectl exec -in ${NAMESPACE} ${KAFKA} -c kafka -- \
                    env KAFKA_OPTS= kafka-console-consumer.sh --bootstrap-server :9092 --topic {} \
-                                                             --from-beginning --timeout-ms 100 \
+                                                             --from-beginning --timeout-ms 60000 \
                    > /tmp/artifacts/data/${STAGE}/kafka-messages-{}.log"
