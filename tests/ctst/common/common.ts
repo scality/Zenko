@@ -10,6 +10,12 @@ import { createBucketWithConfiguration, putObject } from 'steps/utils/utils';
 
 setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
 
+type retryDmf = {
+    commandRetryNumber?: number,
+    jobRetryNumber?: number,
+    jobRetryOP?: string,
+}
+
 type listingObject = {
     Key: string,
     VersionId: string,
@@ -56,9 +62,20 @@ export async function cleanS3Bucket(
 }
 
 async function addMultipleObjects(this: Zenko, numberObjects: number,
-    objectName: string, sizeBytes: number, userMD?: string) {
+    objectName: string, sizeBytes: number, userMD?: string,
+    retryDMF?: retryDmf) {
+    assert(!retryDMF?.commandRetryNumber || !retryDMF?.jobRetryNumber,
+        'Cannot have both retryCommandNumber and retryJobNumber');
     for (let i = 1; i <= numberObjects; i++) {
-        this.addToSaved('objectName', `${objectName}-${i}` || Utils.randomString());
+        let objectNameFinal = `${objectName}-${i}`;
+
+        if (retryDMF?.commandRetryNumber) {
+            objectNameFinal = `${objectNameFinal}.scal-retry-command-${retryDMF.commandRetryNumber}`;
+        } else if (retryDMF?.jobRetryNumber && retryDMF.jobRetryOP) {
+            objectNameFinal = `${objectNameFinal}.scal-retry-${retryDMF.jobRetryOP}-job-${retryDMF.jobRetryNumber}`;
+        }
+
+        this.addToSaved('objectName', `${objectNameFinal}` || Utils.randomString());
         const objectPath = tmpNameSync({prefix: this.getSaved<string>('objectName')});
         fs.writeFileSync(objectPath, Buffer.alloc(sizeBytes, this.getSaved<string>('objectName')));
         this.resetCommand();
@@ -68,6 +85,7 @@ async function addMultipleObjects(this: Zenko, numberObjects: number,
         if (userMD) {
             this.addCommandParameter({ metadata: JSON.stringify(userMD) });
         }
+        process.stdout.write(`\nAdding object ${objectNameFinal}\n`);
         this.addToSaved('versionId', extractPropertyFromResults(
             await S3.putObject(this.getCommandParameters()), 'VersionId')
         );
@@ -133,6 +151,20 @@ Given('{int} objects {string} of size {int} bytes',
 Given('{int} objects {string} of size {int} bytes with user metadata {string}',
     async function (this: Zenko, numberObjects: number, objectName: string, sizeBytes: number, userMD: string) {
         await addMultipleObjects.call(this, numberObjects, objectName, sizeBytes, userMD);
+    });
+
+Given('{int} objects {string} of size {int} bytes that will need {int} job retries on {string} operation',
+    async function (this: Zenko, numberObjects: number, objectName: string, sizeBytes: number,
+        numberOfRetries: string, retryOP: string) {
+        await addMultipleObjects.call(this, numberObjects, objectName, sizeBytes, undefined,
+            { jobRetryNumber: parseInt(numberOfRetries), jobRetryOP: retryOP });
+    });
+
+Given('{int} objects {string} of size {int} bytes that will need {int} command retries',
+    async function (this: Zenko, numberObjects: number, objectName: string, sizeBytes: number,
+        numberOfRetries: string) {
+        await addMultipleObjects.call(this, numberObjects, objectName, sizeBytes, undefined,
+            { commandRetryNumber: parseInt(numberOfRetries)});
     });
 
 Given('a tag on object {string} with key {string} and value {string}',
