@@ -50,8 +50,8 @@ Feature: DMF
     Given a "<versioningConfiguration>" bucket
     And a transition workflow to "e2e-cold" location
     And <objectCount> objects "obj" of size <objectSize> bytes <retryNumber> job retries on "archive" operation
-    Then object "obj-1.scal-retry-command-2" should be "transitioned" and have the storage class "e2e-cold"
-    And object "obj-2.scal-retry-command-2" should be "transitioned" and have the storage class "e2e-cold"
+    Then object "obj-1.scal-retry-archive-job-2" should be "transitioned" and have the storage class "e2e-cold"
+    And object "obj-2.scal-retry-archive-job-2" should be "transitioned" and have the storage class "e2e-cold"
     And dmf volume should contain <objectCount> objects
     When i delete object "obj-1.scal-retry-archive-job-2"
     And i delete object "obj-2.scal-retry-archive-job-2"
