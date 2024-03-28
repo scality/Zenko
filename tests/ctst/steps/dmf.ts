@@ -1,7 +1,8 @@
-import { Then, setDefaultTimeout } from '@cucumber/cucumber';
+import { Then, Given, setDefaultTimeout } from '@cucumber/cucumber';
 import assert from 'assert';
 import { Constants } from 'cli-testing';
 import { execShellCommand } from 'common/utils';
+import Zenko from 'world/Zenko';
 
 setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
 
@@ -16,3 +17,12 @@ Then('dmf volume should contain {int} objects', async (objectCount: number) => {
     }
     assert(conditionOk);
 });
+
+Given('a flaky backend that will require {int} retries for {string}',
+    function (this: Zenko, retryNumber: number, op: string) {
+        assert(["restore", "archive", "command"].includes(op), `Invalid operation ${op}`);
+        assert(retryNumber > 0, `Invalid retry number ${retryNumber}`);
+
+        this.addToSaved('backendFlakynessRetryNumber', retryNumber);
+        this.addToSaved('backendFlakyness', op);
+    });

@@ -10,70 +10,39 @@ import { createBucketWithConfiguration, putObject } from 'steps/utils/utils';
 
 setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
 
-type retryDmf = {
-    commandRetryNumber?: number,
-    jobRetryNumber?: number,
-    jobRetryOP?: string,
-}
-
-type listingObject = {
-    Key: string,
-    VersionId: string,
-}
-
-type listingResult = {
-    Versions: listingObject[],
-    DeleteMarkers: listingObject[],
-}
-
 /**
- * Cleans the created test bucket
- * @param {Zenko} world world object
- * @param {string} bucketName bucket name
- * @returns {void}
+ * @param {Zenko} this world object
+ * @param {string} objectName object name
+ * @returns {string} the object name based on the backend flakyness
  */
-export async function cleanS3Bucket(
-    world: Zenko,
-    bucketName: string,
-): Promise<void> {
-    if (!bucketName) {
-        return;
+function getObjectNameWithBackendFlakiness(this: Zenko, objectName: string) {
+    let objectNameFinal;
+    const backendFlakynessRetryNumber = this.getSaved<string>('backendFlakynessRetryNumber');
+    const backendFlakyness = this.getSaved<string>('backendFlakyness');
+
+    if (!backendFlakyness || !backendFlakynessRetryNumber) {
+        return objectName;
     }
-    world.resetCommand();
-    world.addCommandParameter({ bucket: bucketName });
-    const createdObjects = world.getSaved<Map<string, string>>('createdObjects');
-    if (createdObjects !== undefined) {
-        const results = await S3.listObjectVersions(world.getCommandParameters());
-        const res = safeJsonParse(results.stdout);
-        assert(res.ok);
-        const parsedResults = res.result as listingResult;
-        const versions = parsedResults.Versions || [];
-        const deleteMarkers = parsedResults.DeleteMarkers || [];
-        await Promise.all(versions.concat(deleteMarkers).map(obj => {
-            world.addCommandParameter({ key: obj.Key });
-            world.addCommandParameter({ versionId: obj.VersionId });
-            return S3.deleteObject(world.getCommandParameters());
-        }));
-        world.deleteKeyFromCommand('key');
-        world.deleteKeyFromCommand('versionId');
+
+    switch (backendFlakyness) {
+    case 'command':
+        objectNameFinal = `${objectName}.scal-retry-command-${backendFlakynessRetryNumber}`;
+        break;
+    case 'archive':
+    case 'restore':
+        objectNameFinal = `${objectName}.scal-retry-${backendFlakyness}-job-${backendFlakynessRetryNumber}`;
+        break;
+    default:
+        process.stdout.write(`Unknown backend flakyness ${backendFlakyness}\n`);
+        return objectName;
     }
-    await S3.deleteBucketLifecycle(world.getCommandParameters());
-    await S3.deleteBucket(world.getCommandParameters());
+    return objectNameFinal;
 }
 
 async function addMultipleObjects(this: Zenko, numberObjects: number,
-    objectName: string, sizeBytes: number, userMD?: string,
-    retryDMF?: retryDmf) {
-    assert(!retryDMF?.commandRetryNumber || !retryDMF?.jobRetryNumber,
-        'Cannot have both retryCommandNumber and retryJobNumber');
+    objectName: string, sizeBytes: number, userMD?: string) {
     for (let i = 1; i <= numberObjects; i++) {
-        let objectNameFinal = `${objectName}-${i}`;
-
-        if (retryDMF?.commandRetryNumber) {
-            objectNameFinal = `${objectNameFinal}.scal-retry-command-${retryDMF.commandRetryNumber}`;
-        } else if (retryDMF?.jobRetryNumber && retryDMF.jobRetryOP) {
-            objectNameFinal = `${objectNameFinal}.scal-retry-${retryDMF.jobRetryOP}-job-${retryDMF.jobRetryNumber}`;
-        }
+        const objectNameFinal = getObjectNameWithBackendFlakiness.call(this, `${objectName}-${i}`);
 
         this.addToSaved('objectName', `${objectNameFinal}` || Utils.randomString());
         const objectPath = tmpNameSync({prefix: this.getSaved<string>('objectName')});
@@ -85,7 +54,7 @@ async function addMultipleObjects(this: Zenko, numberObjects: number,
         if (userMD) {
             this.addCommandParameter({ metadata: JSON.stringify(userMD) });
         }
-        process.stdout.write(`\nAdding object ${objectNameFinal}\n`);
+        process.stdout.write(`Adding object ${objectNameFinal}\n`);
         this.addToSaved('versionId', extractPropertyFromResults(
             await S3.putObject(this.getCommandParameters()), 'VersionId')
         );
@@ -139,20 +108,6 @@ Given('{int} objects {string} of size {int} bytes',
 Given('{int} objects {string} of size {int} bytes with user metadata {string}',
     async function (this: Zenko, numberObjects: number, objectName: string, sizeBytes: number, userMD: string) {
         await addMultipleObjects.call(this, numberObjects, objectName, sizeBytes, userMD);
-    });
-
-Given('{int} objects {string} of size {int} bytes that will need {int} job retries on {string} operation',
-    async function (this: Zenko, numberObjects: number, objectName: string, sizeBytes: number,
-        numberOfRetries: string, retryOP: string) {
-        await addMultipleObjects.call(this, numberObjects, objectName, sizeBytes, undefined,
-            { jobRetryNumber: parseInt(numberOfRetries), jobRetryOP: retryOP });
-    });
-
-Given('{int} objects {string} of size {int} bytes that will need {int} command retries',
-    async function (this: Zenko, numberObjects: number, objectName: string, sizeBytes: number,
-        numberOfRetries: string) {
-        await addMultipleObjects.call(this, numberObjects, objectName, sizeBytes, undefined,
-            { commandRetryNumber: parseInt(numberOfRetries)});
     });
 
 Given('a tag on object {string} with key {string} and value {string}',
@@ -234,7 +189,7 @@ Given('a transition workflow to {string} location', async function (this: Zenko,
 });
 
 When('i restore object {string} for {int} days', async function (this: Zenko, objectName: string, days: number) {
-    const objName = objectName ||  this.getSaved<string>('objectName');
+    const objName = getObjectNameWithBackendFlakiness.call(this, objectName) ||  this.getSaved<string>('objectName');
     this.resetCommand();
     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
     this.addCommandParameter({ key: objName });
@@ -247,9 +202,10 @@ When('i restore object {string} for {int} days', async function (this: Zenko, ob
 });
 
 // wait for object to transition to a location or get restored from it
-Then('object {string} should be {string} and have the storage class {string}',
-    async function (this: Zenko, objectName: string, operation: string, storageClass: string) {
-        const objName = objectName ||  this.getSaved<string>('objectName');
+Then('object {string} should be {string} and have the storage class {string}', { timeout: 130000 },
+    async function (this: Zenko, objectName: string, objectTransitionStatus: string, storageClass: string) {
+        const objName =
+            getObjectNameWithBackendFlakiness.call(this, objectName) || this.getSaved<string>('objectName');
         this.resetCommand();
         this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
         this.addCommandParameter({ key: objName });
@@ -289,7 +245,7 @@ Then('object {string} should be {string} and have the storage class {string}',
     });
 
 When('i delete object {string}', async function (this: Zenko, objectName: string) {
-    const objName = objectName ||  this.getSaved<string>('objectName');
+    const objName = getObjectNameWithBackendFlakiness.call(this, objectName) ||  this.getSaved<string>('objectName');
     this.resetCommand();
     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
     this.addCommandParameter({ key: objName });
