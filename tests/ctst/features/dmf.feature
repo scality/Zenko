@@ -46,15 +46,30 @@ Feature: DMF
     @PreMerge
     @Dmf
     @ColdStorage
-    Scenario Outline: Retry job after failure
+    Scenario Outline: Retry archive job after failure
     Given a "<versioningConfiguration>" bucket
     And a transition workflow to "e2e-cold" location
     And <objectCount> objects "obj" of size <objectSize> bytes that will need <retryNumber> job retries on "archive" operation
     Then object "obj-1.scal-retry-archive-job-1" should be "transitioned" and have the storage class "e2e-cold"
     And object "obj-2.scal-retry-archive-job-1" should be "transitioned" and have the storage class "e2e-cold"
-    And dmf volume should contain <objectCount> objects
     When i delete object "obj-1.scal-retry-archive-job-1"
     And i delete object "obj-2.scal-retry-archive-job-1"
+    Then dmf volume should contain 0 objects
+
+    @2.7.0
+    @PreMerge
+    @Dmf
+    @ColdStorage
+    Scenario Outline: Retry restore job after failure
+    Given a "<versioningConfiguration>" bucket
+    And a transition workflow to "e2e-cold" location
+    And <objectCount> objects "obj" of size <objectSize> bytes that will need <retryNumber> job retries on "restore" operation
+    Then object "obj-1.scal-retry-restore-job-1" should be "transitioned" and have the storage class "e2e-cold"
+    And object "obj-2.scal-retry-restore-job-1" should be "transitioned" and have the storage class "e2e-cold"
+    When i restore object "obj-1.scal-retry-restore-job-1" for 5 days
+    Then object "obj-1.scal-retry-restore-job-1" should be "restored" and have the storage class "e2e-cold"
+    When i delete object "obj-1.scal-retry-restore-job-1"
+    And i delete object "obj-2.scal-retry-restore-job-1"
     Then dmf volume should contain 0 objects
 
     Examples:

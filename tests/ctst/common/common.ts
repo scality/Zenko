@@ -85,7 +85,7 @@ async function addMultipleObjects(this: Zenko, numberObjects: number,
         if (userMD) {
             this.addCommandParameter({ metadata: JSON.stringify(userMD) });
         }
-        process.stdout.write(`\nAdding object ${objectNameFinal}\n`);
+        process.stdout.write(`Adding object ${objectNameFinal}\n`);
         this.addToSaved('versionId', extractPropertyFromResults(
             await S3.putObject(this.getCommandParameters()), 'VersionId')
         );
