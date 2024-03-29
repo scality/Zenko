@@ -20,7 +20,7 @@ function getObjectNameWithBackendFlakiness(this: Zenko, objectName: string) {
     const backendFlakynessRetryNumber = this.getSaved<string>('backendFlakynessRetryNumber');
     const backendFlakyness = this.getSaved<string>('backendFlakyness');
 
-    if (!backendFlakyness || !backendFlakynessRetryNumber) {
+    if (!backendFlakyness || !backendFlakynessRetryNumber || !objectName) {
         return objectName;
     }
 
@@ -203,8 +203,8 @@ When('i restore object {string} for {int} days', async function (this: Zenko, ob
 
 // wait for object to transition to a location or get restored from it
 Then('object {string} should be {string} and have the storage class {string}', { timeout: 130000 },
-    async function (this: Zenko, objectName: string, objectTransitionStatus: string, storageClass: string) {
-        const objName =
+    async function (this: Zenko, objectName: string, operation: string, storageClass: string) {
+    const objName =
             getObjectNameWithBackendFlakiness.call(this, objectName) || this.getSaved<string>('objectName');
         this.resetCommand();
         this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
