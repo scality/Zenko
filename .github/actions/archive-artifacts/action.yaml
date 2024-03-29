@@ -34,8 +34,10 @@ runs:
                    env KAFKA_OPTS= kafka-consumer-groups.sh --bootstrap-server :9092 --describe --all-groups \
                    > /tmp/artifacts/data/${STAGE}/kafka-offsets.log
 
-        cat /tmp/artifacts/data/${STAGE}/kafka-topics.log | xargs -P 15 -I {} \
-            sh -c "kubectl exec -in ${NAMESPACE} ${KAFKA} -c kafka -- \
-                   env KAFKA_OPTS= kafka-console-consumer.sh --bootstrap-server :9092 --topic {} \
-                                                             --from-beginning --timeout-ms 60000 \
-                   > /tmp/artifacts/data/${STAGE}/kafka-messages-{}.log"
+        KAFKA_SERVICE=$(kubectl get services -n ${NAMESPACE} -lkafka_cr=${ZENKO_NAME:-end2end}-base-queue -o jsonpath='{.items[0].metadata.name}')
+        kubectl run -n ${NAMESPACE} kcat --image=edenhill/kcat:1.7.1 --restart=Never --command -- sleep 300        
+        kubectl wait -n ${NAMESPACE} pod kcat --for=condition=ready
+        cat /tmp/artifacts/data/${STAGE}/kafka-topics.log | grep -v '^__' | xargs -P 15 -I {} \
+            sh -c "kubectl exec -i -n ${NAMESPACE} kcat -- \
+                       kcat -L -b ${KAFKA_SERVICE} -t {}  -C -o beginning -e -q -J \
+                       > /tmp/artifacts/data/${STAGE}/kafka-messages-{}.log"
