@@ -300,18 +300,22 @@ Then('i {string} be able to add user metadata to object {string}',
         }
     });
 
-Then('kafka consumed messages should not take too much place on disk', { timeout: 130000 },
+Then('kafka consumed messages should not take too much place on disk', { timeout: -1 },
     async function (this: Zenko) {
+        const kfkcIntervalSeconds = parseInt(this.parameters.KafkaCleanerInterval);
+
+        setTimeout(() => {
+            assert.fail('Kafka cleaner did not clean the topics');
+        }, (kfkcIntervalSeconds * 1000 + 3000) * 5); // Timeout after 5 kafkacleaner intervals
+
         const ignoredTopics = ['dead-letter'];
         const kafkaAdmin = new Kafka({ brokers: [this.parameters.KafkaHosts] }).admin();
         const topics: string[] = (await kafkaAdmin.listTopics())
             .filter(t => (t.includes(this.parameters.InstanceID) &&
             !ignoredTopics.some(e => t.includes(e))));
 
-        const timeStart = new Date().getTime();
-        const seconds = parseInt(this.parameters.KafkaCleanerInterval);
 
-        while (topics.length > 0 && new Date().getTime() - timeStart < 120000) {
+        while (topics.length > 0) {
             const previousOffsets = await getTopicsOffsets(topics, kafkaAdmin);
             // Checking topics offsets before kafkacleaner passes to be sure kafkacleaner works
             // This function can be improved by consuming messages and
@@ -319,8 +323,8 @@ Then('kafka consumed messages should not take too much place on disk', { timeout
             // Instead of waiting for a fixed amount of time,
             // we could also check for metrics to see last kafkacleaner run
 
-            // 10 seconds added to be sure kafkacleaner had time to process
-            await Utils.sleep(seconds * 1000 + 10000);
+            // 3 seconds added to be sure kafkacleaner had time to process
+            await Utils.sleep(kfkcIntervalSeconds * 1000 + 3000);
 
             const newOffsets = await getTopicsOffsets(topics, kafkaAdmin);
 
