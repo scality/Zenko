@@ -7,5 +7,6 @@ const jestConfig: Config.InitialOptions = {
   },
   clearMocks: true,
   resetMocks: true,
+  maxWorkers: 1,
 };
 export default jestConfig;

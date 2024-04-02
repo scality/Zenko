@@ -36,6 +36,21 @@ async function currentBranch(repo: string = 'zenko') {
     return stdout.trim();
 }
 
+function withVersionFile(versionFile: string, repo: string = 'zenko') {
+    const f = async () => {
+        const targetVersionFile = github.repo.getPath(repo) + '/VERSION';
+
+        // Commit the new VERSION file
+        await exec('cp ' + path.resolve(__dirname, versionFile) + ' ' + targetVersionFile);
+        await exec('git -C ' + github.repo.getPath(repo) + ' commit --no-sign -m "bump version" -- ' + targetVersionFile);
+
+        // Update artifact name to match the new version
+        act.setInput("artifacts-name", "github:scality:Zenko:staging-"+(await getCommitHash()).slice(0, 10)+".build-iso-and-end2end-test.3454");
+    };
+    f.toString = () => " and VERSION file is " + versionFile;
+    return f;
+}
+
 beforeEach(async () => {
     github = new MockGithub({
         repo: {
@@ -110,7 +125,7 @@ afterEach(async () => {
 });
 
 const Pass = { toString: () => "pass", value: () => 0 };
-const Fail = { toString: () => "fail",value: () => 1 };
+const Fail = { toString: () => "fail", value: () => 1 };
 
 test.each([
     ['Check if tag matches the branch name', Fail, '2.4.1', ''],
@@ -119,12 +134,13 @@ test.each([
     ['Check if tag has not already been created', Fail, '2.3.7-rc.1', withGitTag('2.3.7-rc.1')],
     ['Promote artifacts', Fail, '2.3.7-rc.1', withArtifact('github:scality:Zenko:staging-ac5768a8c6.build-iso-and-end2end-test.3454')],
     ['Promote artifacts', Pass, '2.3.7-rc.1', ''],
+    ['Promote artifacts', Pass, '2.3.7', withVersionFile("VERSION-2.3.7")],
 ])("%s should %s when version is %s%s", async (stepName, status, tag, ...configs) => {
 
-    configs.filter(c => !!c).forEach(async c => {
+    for(var c of configs.filter(c => !!c)) {
         assert(typeof c === 'function');
         await c();
-    });
+    }
 
     act.setInput("tag", tag);
 
@@ -155,6 +171,7 @@ test.each([
                     generate_release_notes: true,
                     name: "Release " + tag,
                     body: "",
+                    prerelease: tag === '2.3.7-rc.1',
                 })
                 .reply({ status: 201, data: {
                     id: 123,
@@ -169,7 +186,7 @@ test.each([
             }],
             'release': [{
                 // Need to explicitely pass token, the GITHUB_TOKEN does not seem to be set
-                uses: 'softprops/action-gh-release@v1',
+                uses: 'softprops/action-gh-release@v2',
                 mockWith: {
                     with: {
                         token: "my-token",
