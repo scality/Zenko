@@ -1,10 +1,14 @@
-import { Then, Given, setDefaultTimeout } from '@cucumber/cucumber';
+import { Then, Given, setDefaultTimeout, After } from '@cucumber/cucumber';
 import assert from 'assert';
 import { Constants } from 'cli-testing';
 import { execShellCommand } from 'common/utils';
 import Zenko from 'world/Zenko';
 
 setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
+
+async function cleanDmfVolume(Zenko: Zenko) {
+    await execShellCommand('rm -rf /cold-data/*');
+}
 
 Then('dmf volume should contain {int} objects', async (objectCount: number) => {
     let conditionOk = false;
@@ -20,9 +24,13 @@ Then('dmf volume should contain {int} objects', async (objectCount: number) => {
 
 Given('a flaky backend that will require {int} retries for {string}',
     function (this: Zenko, retryNumber: number, op: string) {
-        assert(["restore", "archive", "command"].includes(op), `Invalid operation ${op}`);
+        assert(['restore', 'archive', 'command'].includes(op), `Invalid operation ${op}`);
         assert(retryNumber > 0, `Invalid retry number ${retryNumber}`);
 
-        this.addToSaved('backendFlakynessRetryNumber', retryNumber);
-        this.addToSaved('backendFlakyness', op);
+        this.addToSaved('backendFlakinessRetryNumber', retryNumber);
+        this.addToSaved('backendFlakiness', op);
     });
+
+After({ tags: '@Dmf' }, async function (this: Zenko) {
+    await cleanDmfVolume(this);
+});

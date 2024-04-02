@@ -23,7 +23,6 @@ Feature: DMF
     @2.7.0
     @PreMerge
     @Dmf
-    @ColdStorage
     Scenario Outline: Retry DMF job/command upon failure
     Given a "<versioningConfiguration>" bucket
     And a flaky backend that will require <retryNumber> retries for "<operation>"
@@ -52,7 +51,6 @@ Feature: DMF
     @2.7.0
     @PreMerge
     @Dmf
-    @ColdStorage
     Scenario Outline: Deletion of a restored object
     Given a "<versioningConfiguration>" bucket
     And a transition workflow to "e2e-cold" location

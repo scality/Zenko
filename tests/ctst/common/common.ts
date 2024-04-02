@@ -17,23 +17,23 @@ setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
  */
 function getObjectNameWithBackendFlakiness(this: Zenko, objectName: string) {
     let objectNameFinal;
-    const backendFlakynessRetryNumber = this.getSaved<string>('backendFlakynessRetryNumber');
-    const backendFlakyness = this.getSaved<string>('backendFlakyness');
+    const backendFlakinessRetryNumber = this.getSaved<string>('backendFlakinessRetryNumber');
+    const backendFlakiness = this.getSaved<string>('backendFlakiness');
 
-    if (!backendFlakyness || !backendFlakynessRetryNumber || !objectName) {
+    if (!backendFlakiness || !backendFlakinessRetryNumber || !objectName) {
         return objectName;
     }
 
-    switch (backendFlakyness) {
+    switch (backendFlakiness) {
     case 'command':
-        objectNameFinal = `${objectName}.scal-retry-command-${backendFlakynessRetryNumber}`;
+        objectNameFinal = `${objectName}.scal-retry-command-${backendFlakinessRetryNumber}`;
         break;
     case 'archive':
     case 'restore':
-        objectNameFinal = `${objectName}.scal-retry-${backendFlakyness}-job-${backendFlakynessRetryNumber}`;
+        objectNameFinal = `${objectName}.scal-retry-${backendFlakiness}-job-${backendFlakinessRetryNumber}`;
         break;
     default:
-        process.stdout.write(`Unknown backend flakyness ${backendFlakyness}\n`);
+        process.stdout.write(`Unknown backend flakyness ${backendFlakiness}\n`);
         return objectName;
     }
     return objectNameFinal;
