@@ -304,7 +304,7 @@ Then('kafka consumed messages should not take too much place on disk', { timeout
     async function (this: Zenko) {
         const kfkcIntervalSeconds = parseInt(this.parameters.KafkaCleanerInterval);
 
-        setTimeout(() => {
+        const timeoutID = setTimeout(() => {
             assert.fail('Kafka cleaner did not clean the topics');
         }, (kfkcIntervalSeconds * 1000 + 3000) * 5); // Timeout after 5 kafkacleaner intervals
 
@@ -358,6 +358,7 @@ Then('kafka consumed messages should not take too much place on disk', { timeout
                 }
             }
         }
+        clearTimeout(timeoutID);
 
         // If a topic remains in this array, it means it has not been cleaned
         assert(topics.length === 0, `Topics ${topics.join(', ')} still have not been cleaned`);
