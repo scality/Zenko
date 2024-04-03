@@ -2,16 +2,9 @@ name: Test alerts
 
 on:
   push:
-    branches:
-      - "documentation/**"
-      - "feature/**"
-      - "improvement/**"
-      - "bugfix/**"
-      - "w/**"
-      - "hotfix/**"
-      - "ci-dev/**"
-      - "user/**"
-      - "q/*/**"
+    branches-ignore:
+      - 'development/**'
+      - 'q/*'
 
 jobs:
   run-alert-tests:
