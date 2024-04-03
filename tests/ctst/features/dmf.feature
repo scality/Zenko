@@ -23,6 +23,7 @@ Feature: DMF
     @2.7.0
     @PreMerge
     @Dmf
+    @Flaky
     Scenario Outline: Retry DMF job/command upon failure
     Given a "<versioningConfiguration>" bucket
     And a flaky backend that will require <retryNumber> retries for "<operation>"
