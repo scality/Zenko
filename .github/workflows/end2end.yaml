@@ -7,16 +7,9 @@ concurrency:
 
 on:
   push:
-    branches:
-      - "documentation/**"
-      - "feature/**"
-      - "improvement/**"
-      - "bugfix/**"
-      - "w/**"
-      - "hotfix/**"
-      - "ci-dev/**"
-      - "user/**"
-      - "q/*/**"
+    branches-ignore:
+      - 'development/**'
+      - 'q/*'
 
 env:
   # kind-env
