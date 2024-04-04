@@ -314,51 +314,55 @@ Then('kafka consumed messages should not take too much place on disk', { timeout
             .filter(t => (t.includes(this.parameters.InstanceID) &&
             !ignoredTopics.some(e => t.includes(e))));
 
+        try {
+            while (topics.length > 0) {
+                const previousOffsets = await getTopicsOffsets(topics, kafkaAdmin);
+                // Checking topics offsets before kafkacleaner passes to be sure kafkacleaner works
+                // This function can be improved by consuming messages and
+                // verify that the timestamp is not older than last kafkacleaner run
+                // Instead of waiting for a fixed amount of time,
+                // we could also check for metrics to see last kafkacleaner run
 
-        while (topics.length > 0) {
-            const previousOffsets = await getTopicsOffsets(topics, kafkaAdmin);
-            // Checking topics offsets before kafkacleaner passes to be sure kafkacleaner works
-            // This function can be improved by consuming messages and
-            // verify that the timestamp is not older than last kafkacleaner run
-            // Instead of waiting for a fixed amount of time,
-            // we could also check for metrics to see last kafkacleaner run
+                // 3 seconds added to be sure kafkacleaner had time to process
+                await Utils.sleep(kfkcIntervalSeconds * 1000 + 3000);
 
-            // 3 seconds added to be sure kafkacleaner had time to process
-            await Utils.sleep(kfkcIntervalSeconds * 1000 + 3000);
+                const newOffsets = await getTopicsOffsets(topics, kafkaAdmin);
 
-            const newOffsets = await getTopicsOffsets(topics, kafkaAdmin);
+                for (let i = 0; i < topics.length; i++) {
+                    process.stdout.write(`\nChecking topic ${topics[i]}\n`);
+                    for (let j = 0; j < newOffsets[i].partitions.length; j++) {
+                        const newMessagesAfterClean =
+                            newOffsets[i].partitions[j].low === previousOffsets[i].partitions[j].high &&
+                            previousOffsets[i].partitions[j].high !== '0';
 
-            for (let i = 0; i < topics.length; i++) {
-                process.stdout.write(`\nChecking topic ${topics[i]}\n`);
-                for (let j = 0; j < newOffsets[i].partitions.length; j++) {
-                    const newMessagesAfterClean =
-                        newOffsets[i].partitions[j].low === previousOffsets[i].partitions[j].high &&
-                        previousOffsets[i].partitions[j].high !== '0';
+                        if (newMessagesAfterClean) {
+                            // If new messages appeared after we gathered the offsets, we need to recheck after
+                            process.stdout.write(`New messages after clean for topic ${topics[i]} rechecking after`);
+                            continue;
+                        }
 
-                    if (newMessagesAfterClean) {
-                        // If new messages appeared after we gathered the offsets, we need to recheck after
-                        process.stdout.write(`New messages after clean for topic ${topics[i]} rechecking after`);
-                        continue;
+                        const lowOffsetIncreased = newOffsets[i].partitions[j].low >
+                            previousOffsets[i].partitions[j].low;
+                        const allMessagesCleaned = newOffsets[i].partitions[j].high ===
+                            newOffsets[i].partitions[j].low;
+
+                        // If the low offset increased it means the topic has been cleaned
+                        // If low offset is the same as high offset,
+                        // it means the topic is completly cleaned even though lowOffset didnt increased
+                        assert.ok(lowOffsetIncreased || allMessagesCleaned,
+                            `Topic ${topics[i]} partition ${j} offset has not increased,
+                            previousOffsets: ${previousOffsets[i].partitions[j].low} /\
+                            ${previousOffsets[i].partitions[j].high},
+                            newOffsets: ${newOffsets[i].partitions[j].low} / ${newOffsets[i].partitions[j].high}`);
+
+                        // Topic is cleaned, we don't need to check it anymore
+                        topics.splice(i, 1);
                     }
-
-                    const lowOffsetIncreased = newOffsets[i].partitions[j].low > previousOffsets[i].partitions[j].low;
-                    const allMessagesCleaned = newOffsets[i].partitions[j].high === newOffsets[i].partitions[j].low;
-
-                    // If the low offset increased it means the topic has been cleaned
-                    // If low offset is the same as high offset,
-                    // it means the topic is completly cleaned even though lowOffset didnt increased
-                    assert.ok(lowOffsetIncreased || allMessagesCleaned,
-                        `Topic ${topics[i]} partition ${j} offset has not increased,
-                        previousOffsets: ${previousOffsets[i].partitions[j].low} /\
-                         ${previousOffsets[i].partitions[j].high},
-                        newOffsets: ${newOffsets[i].partitions[j].low} / ${newOffsets[i].partitions[j].high}`);
-
-                    // Topic is cleaned, we don't need to check it anymore
-                    topics.splice(i, 1);
                 }
             }
+        } finally {
+            clearTimeout(timeoutID);
         }
-        clearTimeout(timeoutID);
 
         // If a topic remains in this array, it means it has not been cleaned
         assert(topics.length === 0, `Topics ${topics.join(', ')} still have not been cleaned`);
