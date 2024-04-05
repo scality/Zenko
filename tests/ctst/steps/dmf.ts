@@ -6,7 +6,7 @@ import Zenko from 'world/Zenko';
 
 setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
 
-async function cleanDmfVolume(Zenko: Zenko) {
+async function cleanDmfVolume() {
     await execShellCommand('rm -rf /cold-data/*');
 }
 
@@ -31,6 +31,6 @@ Given('a flaky backend that will require {int} retries for {string}',
         this.addToSaved('backendFlakiness', op);
     });
 
-After({ tags: '@Dmf' }, async function (this: Zenko) {
-    await cleanDmfVolume(this);
+After({ tags: '@Dmf' }, async () => {
+    await cleanDmfVolume();
 });
