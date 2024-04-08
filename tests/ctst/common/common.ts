@@ -10,10 +10,41 @@ import { createBucketWithConfiguration, putObject } from 'steps/utils/utils';
 
 setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
 
+/**
+ * @param {Zenko} this world object
+ * @param {string} objectName object name
+ * @returns {string} the object name based on the backend flakyness
+ */
+function getObjectNameWithBackendFlakiness(this: Zenko, objectName: string) {
+    let objectNameFinal;
+    const backendFlakinessRetryNumber = this.getSaved<string>('backendFlakinessRetryNumber');
+    const backendFlakiness = this.getSaved<string>('backendFlakiness');
+
+    if (!backendFlakiness || !backendFlakinessRetryNumber || !objectName) {
+        return objectName;
+    }
+
+    switch (backendFlakiness) {
+    case 'command':
+        objectNameFinal = `${objectName}.scal-retry-command-${backendFlakinessRetryNumber}`;
+        break;
+    case 'archive':
+    case 'restore':
+        objectNameFinal = `${objectName}.scal-retry-${backendFlakiness}-job-${backendFlakinessRetryNumber}`;
+        break;
+    default:
+        process.stdout.write(`Unknown backend flakyness ${backendFlakiness}\n`);
+        return objectName;
+    }
+    return objectNameFinal;
+}
+
 async function addMultipleObjects(this: Zenko, numberObjects: number,
     objectName: string, sizeBytes: number, userMD?: string) {
     for (let i = 1; i <= numberObjects; i++) {
-        this.addToSaved('objectName', `${objectName}-${i}` || Utils.randomString());
+        const objectNameFinal = getObjectNameWithBackendFlakiness.call(this, `${objectName}-${i}`);
+
+        this.addToSaved('objectName', `${objectNameFinal}` || Utils.randomString());
         const objectPath = tmpNameSync({prefix: this.getSaved<string>('objectName')});
         fs.writeFileSync(objectPath, Buffer.alloc(sizeBytes, this.getSaved<string>('objectName')));
         this.resetCommand();
@@ -23,6 +54,7 @@ async function addMultipleObjects(this: Zenko, numberObjects: number,
         if (userMD) {
             this.addCommandParameter({ metadata: JSON.stringify(userMD) });
         }
+        process.stdout.write(`Adding object ${objectNameFinal}\n`);
         this.addToSaved('versionId', extractPropertyFromResults(
             await S3.putObject(this.getCommandParameters()), 'VersionId')
         );
@@ -157,7 +189,7 @@ Given('a transition workflow to {string} location', async function (this: Zenko,
 });
 
 When('i restore object {string} for {int} days', async function (this: Zenko, objectName: string, days: number) {
-    const objName = objectName ||  this.getSaved<string>('objectName');
+    const objName = getObjectNameWithBackendFlakiness.call(this, objectName) ||  this.getSaved<string>('objectName');
     this.resetCommand();
     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
     this.addCommandParameter({ key: objName });
@@ -170,9 +202,10 @@ When('i restore object {string} for {int} days', async function (this: Zenko, ob
 });
 
 // wait for object to transition to a location or get restored from it
-Then('object {string} should be {string} and have the storage class {string}',
+Then('object {string} should be {string} and have the storage class {string}', { timeout: 130000 },
     async function (this: Zenko, objectName: string, operation: string, storageClass: string) {
-        const objName = objectName ||  this.getSaved<string>('objectName');
+        const objName =
+            getObjectNameWithBackendFlakiness.call(this, objectName) || this.getSaved<string>('objectName');
         this.resetCommand();
         this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
         this.addCommandParameter({ key: objName });
@@ -212,7 +245,7 @@ Then('object {string} should be {string} and have the storage class {string}',
     });
 
 When('i delete object {string}', async function (this: Zenko, objectName: string) {
-    const objName = objectName ||  this.getSaved<string>('objectName');
+    const objName = getObjectNameWithBackendFlakiness.call(this, objectName) ||  this.getSaved<string>('objectName');
     this.resetCommand();
     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
     this.addCommandParameter({ key: objName });
