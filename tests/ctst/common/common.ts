@@ -308,13 +308,13 @@ Then('kafka consumed messages should not take too much place on disk', { timeout
             assert.fail('Kafka cleaner did not clean the topics');
         }, (kfkcIntervalSeconds * 1000 + 3000) * 5); // Timeout after 5 kafkacleaner intervals
 
-        const ignoredTopics = ['dead-letter'];
-        const kafkaAdmin = new Kafka({ brokers: [this.parameters.KafkaHosts] }).admin();
-        const topics: string[] = (await kafkaAdmin.listTopics())
-            .filter(t => (t.includes(this.parameters.InstanceID) &&
-            !ignoredTopics.some(e => t.includes(e))));
-
         try {
+            const ignoredTopics = ['dead-letter'];
+            const kafkaAdmin = new Kafka({ brokers: [this.parameters.KafkaHosts] }).admin();
+            const topics: string[] = (await kafkaAdmin.listTopics())
+                .filter(t => (t.includes(this.parameters.InstanceID) &&
+                !ignoredTopics.some(e => t.includes(e))));
+
             while (topics.length > 0) {
                 const previousOffsets = await getTopicsOffsets(topics, kafkaAdmin);
                 // Checking topics offsets before kafkacleaner passes to be sure kafkacleaner works
@@ -360,12 +360,12 @@ Then('kafka consumed messages should not take too much place on disk', { timeout
                     }
                 }
             }
+
+            // If a topic remains in this array, it means it has not been cleaned
+            assert(topics.length === 0, `Topics ${topics.join(', ')} still have not been cleaned`);
         } finally {
             clearTimeout(timeoutID);
         }
-
-        // If a topic remains in this array, it means it has not been cleaned
-        assert(topics.length === 0, `Topics ${topics.join(', ')} still have not been cleaned`);
     });
 
 Given('an object {string} that {string}', async function (this: Zenko, objectName: string, objectExists: string) {
