@@ -85,6 +85,7 @@ s3utils:
 sorbet:
   sourceRegistry: ghcr.io/scality
   policy: sorbet/sorbet-policies
+  dashboard: sorbet/sorbet-dashboards
   image: sorbet
   tag: v1.1.9
   envsubst: SORBET_TAG
