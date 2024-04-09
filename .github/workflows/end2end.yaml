@@ -31,8 +31,8 @@ env:
   BACKBEAT_BUCKET_CHECK_TIMEOUT_S: ""
   BACKBEAT_LCC_CRON_RULE: ""
   # e2e-env
-  E2E_IMAGE_NAME: registry.scality.com/zenko/zenko-e2e
-  E2E_CTST_IMAGE_NAME: registry.scality.com/zenko/zenko-e2e-ctst
+  E2E_IMAGE_NAME: ghcr.io/scality/zenko/zenko-e2e
+  E2E_CTST_IMAGE_NAME: ghcr.io/scality/zenko/zenko-e2e-ctst
   E2E_IMAGE_TAG: ${{ github.sha }}
   VAULT_TEST_IMAGE_NAME: ""
   VAULT_TEST_IMAGE_TAG: ""
@@ -200,20 +200,14 @@ jobs:
       - name: Login to Registry
         uses: docker/login-action@v2
         with:
-          username: "${{ secrets.REGISTRY_LOGIN }}"
-          password: "${{ secrets.REGISTRY_PASSWORD }}"
-          registry: registry.scality.com
+          username: "${{ github.repository_owner }}"
+          password: "${{ github.token }}"
+          registry: ghcr.io
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
           username: "${{ secrets.DOCKERHUB_LOGIN }}"
           password: "${{ secrets.DOCKERHUB_PASSWORD }}"
-      - name: Login to OCI Registry
-        uses: docker/login-action@v2
-        with:
-          username: "${{ secrets.SCALITY_OCI_RW_USER }}"
-          password: "${{ secrets.SCALITY_OCI_RW_PASSWORD }}"
-          registry: registry.scality.com
       - name: Configure GIT
         run: git config --global url."https://${GIT_ACCESS_TOKEN}@github.com/".insteadOf "https://github.com/"
         env:
@@ -253,9 +247,9 @@ jobs:
       - name: Login to Registry
         uses: docker/login-action@v3
         with:
-          username: "${{ secrets.REGISTRY_LOGIN }}"
-          password: "${{ secrets.REGISTRY_PASSWORD }}"
-          registry: registry.scality.com
+          username: "${{ github.repository_owner }}"
+          password: "${{ github.token }}"
+          registry: ghcr.io
 
       - name: Extract environment
         run: |-
@@ -321,9 +315,9 @@ jobs:
       - name: Login to Registry
         uses: docker/login-action@v3
         with:
-          username: "${{ secrets.REGISTRY_LOGIN }}"
-          password: "${{ secrets.REGISTRY_PASSWORD }}"
-          registry: registry.scality.com
+          username: "${{ github.repository_owner }}"
+          password: "${{ github.token }}"
+          registry: ghcr.io
       - name: Generate end2end config yaml
         run: |-
           cd tests/zenko_tests
@@ -339,8 +333,8 @@ jobs:
           push: true
           context: ./tests/zenko_tests
           tags: "${{ env.E2E_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}"
-          cache-from: type=gha,scope=$GITHUB_REF_NAME-test
-          cache-to: type=gha,mode=max,scope=$GITHUB_REF_NAME-test
+          cache-from: type=gha,scope=end2end-test
+          cache-to: type=gha,mode=max,scope=end2end-test
 
   lint-and-build-ctst:
     runs-on: ubuntu-20.04
@@ -372,9 +366,9 @@ jobs:
       - name: Login to Registry
         uses: docker/login-action@v3
         with:
-          username: "${{ secrets.REGISTRY_LOGIN }}"
-          password: "${{ secrets.REGISTRY_PASSWORD }}"
-          registry: registry.scality.com
+          username: "${{ github.repository_owner }}"
+          password: "${{ github.token }}"
+          registry: ghcr.io
       - name: Get CTST image tag
         shell: bash
         run: |-
@@ -386,8 +380,8 @@ jobs:
           context: ./tests/ctst
           build-args: CTST_TAG=${{ env.CTST_TAG }}
           tags: "${{ env.E2E_CTST_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}"
-          cache-from: type=gha,scope=$GITHUB_REF_NAME-ctst
-          cache-to: type=gha,mode=max,scope=$GITHUB_REF_NAME-ctst
+          cache-from: type=gha,scope=end2end-ctst
+          cache-to: type=gha,mode=max,scope=end2end-ctst
 
   end2end-http:
     needs: [build-kafka, build-test-image, check-dashboard-versions]
@@ -405,9 +399,9 @@ jobs:
       - name: Login to Registry
         uses: docker/login-action@v3
         with:
-          username: "${{ secrets.REGISTRY_LOGIN }}"
-          password: "${{ secrets.REGISTRY_PASSWORD }}"
-          registry: registry.scality.com
+          username: "${{ github.repository_owner }}"
+          password: "${{ github.token }}"
+          registry: ghcr.io
       - name: Deploy Zenko
         uses: ./.github/actions/deploy
         env:
@@ -466,9 +460,9 @@ jobs:
       - name: Login to Registry
         uses: docker/login-action@v3
         with:
-          username: "${{ secrets.REGISTRY_LOGIN }}"
-          password: "${{ secrets.REGISTRY_PASSWORD }}"
-          registry: registry.scality.com
+          username: "${{ github.repository_owner }}"
+          password: "${{ github.token }}"
+          registry: ghcr.io
       - name: Deploy Zenko
         uses: ./.github/actions/deploy
       - name: Run init CI test
@@ -518,9 +512,9 @@ jobs:
       - name: Login to Registry
         uses: docker/login-action@v3
         with:
-          username: "${{ secrets.REGISTRY_LOGIN }}"
-          password: "${{ secrets.REGISTRY_PASSWORD }}"
-          registry: registry.scality.com
+          username: "${{ github.repository_owner }}"
+          password: "${{ github.token }}"
+          registry: ghcr.io
       - name: Deploy Zenko
         uses: ./.github/actions/deploy
         env:

@@ -83,9 +83,9 @@ Then login from CLI, using your registry Username and the CLI secret you just ge
 
 
 ```shell
-$ docker login registry.scality.com
-User name: <Username on registry.scality.com>
-Password: <Generated CLI secret>
+$ docker login ghcr.io
+User name: <Username on github>
+Password: <Github personal access token>
 ```
 
 ***
