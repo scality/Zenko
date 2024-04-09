@@ -198,13 +198,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Login to Registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: "${{ github.repository_owner }}"
           password: "${{ github.token }}"
           registry: ghcr.io
       - name: Login to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: "${{ secrets.DOCKERHUB_LOGIN }}"
           password: "${{ secrets.DOCKERHUB_PASSWORD }}"
@@ -555,7 +555,7 @@ jobs:
       - name: Wait for Docker daemon to be ready
         uses: ./.github/actions/wait-docker-ready
       - name: Kubectl tool installer
-        uses: Azure/setup-kubectl@v3
+        uses: Azure/setup-kubectl@v4
       - name: Login to Registry
         uses: docker/login-action@v3
         with:
