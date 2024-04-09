@@ -24,7 +24,7 @@ jmx-javaagent:
   tag: 0.14.0
   envsubst: JMX_JAVAAGENT_TAG
 kafka:
-  sourceRegistry: registry.scality.com/zenko
+  sourceRegistry: ghcr.io/scality/zenko
   image: kafka
   tag: 2.13-3.1.2
   envsubst: KAFKA_TAG
@@ -35,7 +35,7 @@ kafka-cleaner:
   tag: v1.0.2
   envsubst: KAFKA_CLEANER_TAG
 kafka-connect:
-  sourceRegistry: registry.scality.com/zenko
+  sourceRegistry: ghcr.io/scality/zenko
   image: kafka-connect
   tag: 2.13-3.1.2-1.10.1
   envsubst: KAFKA_CONNECT_TAG
