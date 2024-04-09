@@ -13,8 +13,8 @@ busybox:
   tag: 1.33.0
   envsubst: BUSYBOX_TAG
 cloudserver:
-  sourceRegistry: registry.scality.com/cloudserver
-  dashboard: cloudserver-dashboards
+  sourceRegistry: ghcr.io/scality
+  dashboard: cloudserver/cloudserver-dashboards
   image: cloudserver
   tag: 8.7.47
   envsubst: CLOUDSERVER_TAG
