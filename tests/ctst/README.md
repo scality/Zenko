@@ -20,10 +20,10 @@ folders. The image can be built and pushed with the following steps:
 cd ./tests/ctst/
 
 # Building the image
-docker build --build-arg CTST_TAG=0.2.0 . -t registry.scality.com/playground/<username>/custom-ctst:0.2.0
+docker build --build-arg CTST_TAG=0.2.0 . -t ghcr.io/scality/playground/<username>/custom-ctst:0.2.0
 
 # Pushing the custom image into a repository
-docker push registry.scality.com/playground/<username>/custom-ctst:0.2.0
+docker push ghcr.io/scality/playground/<username>/custom-ctst:0.2.0
 ```
 
 Running the tests can be done with the following steps:
