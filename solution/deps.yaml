@@ -29,8 +29,8 @@ kafka:
   tag: 2.13-3.1.2
   envsubst: KAFKA_TAG
 kafka-cleaner:
-  sourceRegistry: registry.scality.com/kafka-cleaner
-  dashboard: kafka-cleaner-dashboards
+  sourceRegistry: ghcr.io/scality
+  dashboard: kafka-cleaner/kafka-cleaner-dashboards
   image: kafka-cleaner
   tag: v1.0.2
   envsubst: KAFKA_CLEANER_TAG
