@@ -102,8 +102,8 @@ zenko-operator:
   tag: 1.5.44
   envsubst: ZENKO_OPERATOR_TAG
 zenko-ui:
-  sourceRegistry: registry.scality.com/zenko-ui
-  config: zenko-ui-config
+  sourceRegistry: ghcr.io/scality
+  config: zenko-ui/zenko-ui-config
   image: zenko-ui
   tag: 2.2.7
   envsubst: ZENKO_UI_TAG
