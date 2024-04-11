@@ -111,7 +111,7 @@
 
     // Use 'postCreateCommand' to run commands after the container is created.
     // "postCreateCommand": "docker --version",
-    "postCreateCommand": "bash .devcontainer/setup.sh"
+    "postStartCommand": "bash .devcontainer/startup.sh"
     // Configure tool-specific properties.
     // "customizations": {},
 
