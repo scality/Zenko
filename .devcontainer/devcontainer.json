@@ -103,7 +103,8 @@
         "ZENKO_ENABLE_SOSAPI": "false",
         "EXPIRE_ONE_DAY_EARLIER": "true",
         "TRANSITION_ONE_DAY_EARLIER": "true",
-        "TIME_PROGRESSION_FACTOR": "1"
+        "TIME_PROGRESSION_FACTOR": "1",
+        "ZENKO_MONGODB_DATABASE": "zenko-database"
     },
 
     // Use 'forwardPorts' to make a list of ports inside the container available locally.
