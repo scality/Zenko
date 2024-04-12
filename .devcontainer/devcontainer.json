@@ -11,7 +11,7 @@
         "ghcr.io/devcontainers/features/sshd:1": {},
         "ghcr.io/devcontainers-contrib/features/kind:1": {},
         "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
-            "version": "1.21.1",
+            "version": "latest",
             "minikube": "none",
             "helm": "3.5.3"
         }
@@ -107,9 +107,8 @@
         "EXPIRE_ONE_DAY_EARLIER": "true",
         "TRANSITION_ONE_DAY_EARLIER": "true",
         "TIME_PROGRESSION_FACTOR": "1",
-        "ZENKO_MONGODB_DATABASE": "zenko-database",
-        "GIT_ACCESS_TOKEN":"${GITHUB_TOKEN}"
-    },
+        "ZENKO_MONGODB_DATABASE": "zenko-database"
+        },
 
     // Use 'forwardPorts' to make a list of ports inside the container available locally.
     // "forwardPorts": [],

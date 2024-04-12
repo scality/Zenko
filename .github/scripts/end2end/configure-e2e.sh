@@ -54,7 +54,7 @@ kubectl run ${POD_NAME} \
   --restart=Never \
   --pod-running-timeout=5m \
   --namespace=${NAMESPACE} \
-  --image-pull-policy=Always \
+  --image-pull-policy=IfNotPresent \
   --overrides="{ \"spec\": { \"serviceAccount\": \"${SERVICE_ACCOUNT}\" }  }" \
   --env="TOKEN=${TOKEN}" \
   --env="UUID=${UUID}" \
