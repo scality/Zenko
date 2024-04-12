@@ -21,6 +21,9 @@
             "repositories": {
                 "scality/cli-testing": {
                     "permissions": "write-all"
+                },
+                "scality/zenko-operator": {
+                    "permissions": "write-all"
                 }
             }
         }
