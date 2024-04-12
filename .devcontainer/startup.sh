@@ -10,5 +10,5 @@ bash .github/scripts/end2end/create-pull-image-secret.sh
 bash .github/scripts/end2end/install-kind-dependencies.sh
 bash .github/scripts/end2end/patch-coredns.sh
 bash .github/scripts/end2end/deploy-shell-ui.sh
-#bash .github/scripts/end2end/keycloak-helper.sh setup-realm default
-#bash .devcontainer/startup-zkop.sh
+bash .github/scripts/end2end/keycloak-helper.sh setup-realm default
+bash .devcontainer/startup-zkop.sh
