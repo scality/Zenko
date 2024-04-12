@@ -1,3 +1,5 @@
+#!/bin/bash
+
 set -exu;
 export OPERATOR_IMAGE_NAME=$(yq eval '."zenko-operator" | .sourceRegistry + "/" + .image' solution/deps.yaml)
 export OPERATOR_IMAGE_TAG=$(yq eval '."zenko-operator".tag' solution/deps.yaml)

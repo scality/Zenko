@@ -1,3 +1,5 @@
+#!/bin/bash
+
 CURRENT_DIR=$(pwd)
 
 cd .github/scripts/end2end/
