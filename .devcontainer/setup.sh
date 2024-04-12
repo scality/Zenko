@@ -44,9 +44,12 @@ bash configure-e2e.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "default"
 
 bash configure-e2e-ctst.sh
 
-cd $BASE_DIR
-bash .devcontainer/build-ctst-image.sh
+docker image prune -af
 
-echo "alias run_ctst=\"bash /workspaces/Zenko/.github/scripts/end2end/run-e2e-ctst.sh\"" >> $HOME/.bashrc
-echo "alias run_ctst=\"bash /workspaces/Zenko/.github/scripts/end2end/run-e2e-ctst.sh\"" >> $HOME/.bashrc
-source $HOME/.bashrc
+cd $BASE_DIR
+
+CTST_TAG=$(sed 's/.*"cli-testing": ".*#\(.*\)".*/\1/;t;d' ./tests/ctst/package.json)
+SORBET_TAG=$(yq eval '.sorbet.tag' solution/deps.yaml)
+docker build --build-arg CTST_TAG=$CTST_TAG --build-arg SORBET_TAG=$SORBET_TAG -t $E2E_CTST_IMAGE_NAME:$E2E_IMAGE_TAG ./tests/ctst
+kind load docker-image  ${E2E_CTST_IMAGE_NAME}:${E2E_IMAGE_TAG}
+docker rmi ${E2E_CTST_IMAGE_NAME}:${E2E_IMAGE_TAG}

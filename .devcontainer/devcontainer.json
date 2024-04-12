@@ -10,6 +10,7 @@
         "ghcr.io/devcontainers/features/node:1": {},
         "ghcr.io/devcontainers/features/sshd:1": {},
         "ghcr.io/devcontainers-contrib/features/kind:1": {},
+        "ghcr.io/devcontainers/features/aws-cli:1": {},
         "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
             "version": "latest",
             "minikube": "none",
@@ -107,15 +108,16 @@
         "EXPIRE_ONE_DAY_EARLIER": "true",
         "TRANSITION_ONE_DAY_EARLIER": "true",
         "TIME_PROGRESSION_FACTOR": "1",
-        "ZENKO_MONGODB_DATABASE": "zenko-database"
+        "ZENKO_MONGODB_DATABASE": "zenko-database",
+        "ZENKO_MONGODB_SHARDED": "true" 
         },
 
     // Use 'forwardPorts' to make a list of ports inside the container available locally.
     // "forwardPorts": [],
 
     // Use 'postCreateCommand' to run commands after the container is created.
-    // "postCreateCommand": "docker --version",
-    "postStartCommand": "bash .devcontainer/startup.sh"
+    "postCreateCommand": "bash .devcontainer/setup.sh"
+    // "postStartCommand": "bash .devcontainer/startup.sh"
     // Configure tool-specific properties.
     // "customizations": {},
 
