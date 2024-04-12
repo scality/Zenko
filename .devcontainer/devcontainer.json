@@ -107,7 +107,8 @@
         "EXPIRE_ONE_DAY_EARLIER": "true",
         "TRANSITION_ONE_DAY_EARLIER": "true",
         "TIME_PROGRESSION_FACTOR": "1",
-        "ZENKO_MONGODB_DATABASE": "zenko-database"
+        "ZENKO_MONGODB_DATABASE": "zenko-database",
+        "GIT_ACCESS_TOKEN":"${GITHUB_TOKEN}"
     },
 
     // Use 'forwardPorts' to make a list of ports inside the container available locally.
