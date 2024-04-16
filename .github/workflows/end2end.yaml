@@ -471,9 +471,6 @@ jobs:
       - build-iso
       - build-kafka
       - build-test-image
-      - end2end-http
-      - end2end-https
-      - end2end-sharded
       - ctst-end2end-sharded
     if: success()
     steps:
