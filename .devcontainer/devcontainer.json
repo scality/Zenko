@@ -21,10 +21,14 @@
         "codespaces": {
             "repositories": {
                 "scality/cli-testing": {
-                    "permissions": "write-all"
+                    "permissions": {
+                        "contents": "read"
+                    }
                 },
                 "scality/zenko-operator": {
-                    "permissions": "write-all"
+                    "permissions": {
+                        "contents": "read"
+                    }
                 }
             }
         }
