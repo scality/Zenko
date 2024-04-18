@@ -20,6 +20,7 @@ PARALLEL_RUNS=$(awk -v vcpu=$VCPU_COUNT 'BEGIN {
   }
 }')
 RETRIES=${4:-3}
+JUNIT_REPORT_PATH=${JUNIT_REPORT_PATH:-"ctst-junit.xml"}
 
 # Zenko Version
 VERSION=$(cat ../../../VERSION | grep -Po 'VERSION="\K[^"]*')
@@ -91,4 +92,41 @@ kubectl run $POD_NAME \
         --image-pull-policy=IfNotPresent \
         --env=TARGET_VERSION=$VERSION  \
         --env=VERBOSE=1 \
-        -- ./run "$COMMAND" $WORLD_PARAMETERS --parallel $PARALLEL_RUNS --retry $RETRIES --retry-tag-filter @Flaky
+        --override-type strategic \
+        --overrides='
+{
+  "apiVersion": "v1",
+  "kind": "Pod",
+  "spec": {
+    "containers": [
+      {
+        "name": "'$POD_NAME'",
+        "volumeMounts": [
+          {
+            "name": "cold-data",
+            "mountPath": "/cold-data"
+          },
+          {
+            "name": "reports",
+            "mountPath": "/reports"
+          }
+        ]
+      }
+    ],
+    "volumes": [
+      {
+        "name": "cold-data",
+        "persistentVolumeClaim": {
+          "claimName": "sorbet-data"
+        }
+      },
+      {
+        "name": "reports",
+        "hostPath": {
+          "path": "/data/reports",
+          "type": "DirectoryOrCreate"
+        }
+      }
+    ]
+  }
+}' -- ./run "$COMMAND" $WORLD_PARAMETERS --parallel $PARALLEL_RUNS --retry $RETRIES --retry-tag-filter @Flaky --format junit:$JUNIT_REPORT_PATH
