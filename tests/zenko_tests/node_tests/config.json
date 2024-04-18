@@ -1,6 +1,6 @@
 {
     "reporterEnabled": "spec, mocha-junit-reporter",
     "mochaJunitReporterReporterOptions": {
-        "mochaFile": "junit-node-[hash].xml"
+        "mochaFile": "/artifacts/junit-node-[hash].xml"
     }
 }

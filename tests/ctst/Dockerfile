@@ -3,6 +3,8 @@ ARG CTST_TAG
 FROM registry.scality.com/sorbet/sorbet:$SORBET_TAG as sorbet
 FROM registry.scality.com/cli-testing/cli-testing:$CTST_TAG
 
+VOLUME /artifacts
+
 COPY package.json /tmp/package.json
 COPY ./features /ctst/features
 COPY ./common /ctst/common

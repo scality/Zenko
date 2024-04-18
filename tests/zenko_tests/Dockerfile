@@ -1,5 +1,7 @@
 FROM ubuntu:18.04
 
+VOLUME /artifacts
+
 ENV MOCHA_TAGS not:flaky
 ENV LANG C.UTF-8
 

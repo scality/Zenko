@@ -100,7 +100,7 @@ env:
   EXPIRE_ONE_DAY_EARLIER: true
   TRANSITION_ONE_DAY_EARLIER: true
   TIME_PROGRESSION_FACTOR: 1
-  # DEBUG WAIT 
+  # DEBUG WAIT
   TMATE_SERVER_HOST: ${{ secrets.TMATE_SERVER_HOST }}
   TMATE_SERVER_PORT: ${{ secrets.TMATE_SERVER_PORT }}
   TMATE_SERVER_RSA_FINGERPRINT: ${{ secrets.TMATE_SERVER_RSA_FINGERPRINT }}
@@ -445,6 +445,16 @@ jobs:
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
+      - name: Upload results
+        if: "!cancelled() && env.TRUNK_TOKEN"
+        uses: trunk-io/analytics-uploader@main
+        with:
+          junit-paths: /artifacts/data/artifacts/*.xml
+          org-slug: ${{ github.repository_owner }}
+          token: ${{ env.TRUNK_TOKEN }}
+        env:
+          TRUNK_TOKEN: ${{ secrets.TRUNK_TOKEN }}
+        continue-on-error: true
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
         env:
@@ -495,6 +505,15 @@ jobs:
       - name: Run smoke tests
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "smoke" "default"
         working-directory: ./.github/scripts/end2end
+      - name: Upload results
+        if: "!cancelled() && env.TRUNK_TOKEN"
+        uses: trunk-io/analytics-uploader@main
+        with:
+          junit-paths: /artifacts/data/artifacts/*.xml
+          org-slug: ${{ github.repository_owner }}
+          token: ${{ env.TRUNK_TOKEN }}
+        env:
+          TRUNK_TOKEN: ${{ secrets.TRUNK_TOKEN }}
       # Temporarily disabled as CTST will test the same APIs more
       # extensively.
       # - name: Run vault e2e tests
@@ -547,6 +566,15 @@ jobs:
       - name: Run backbeat end to end tests
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "backbeat" "default"
         working-directory: ./.github/scripts/end2end
+      - name: Upload results
+        if: "!cancelled() && env.TRUNK_TOKEN"
+        uses: trunk-io/analytics-uploader@main
+        with:
+          junit-paths: /artifacts/data/artifacts/*.xml
+          org-slug: ${{ github.repository_owner }}
+          token: ${{ env.TRUNK_TOKEN }}
+        env:
+          TRUNK_TOKEN: ${{ secrets.TRUNK_TOKEN }}
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
@@ -601,6 +629,15 @@ jobs:
       - name: Run CTST end to end tests
         run: bash run-e2e-ctst.sh
         working-directory: ./.github/scripts/end2end
+      - name: Upload results
+        if: "!cancelled() && env.TRUNK_TOKEN"
+        uses: trunk-io/analytics-uploader@main
+        with:
+          junit-paths: /artifacts/data/artifacts/*.xml
+          org-slug: ${{ github.repository_owner }}
+          token: ${{ env.TRUNK_TOKEN }}
+        env:
+          TRUNK_TOKEN: ${{ secrets.TRUNK_TOKEN }}
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
@@ -650,7 +687,7 @@ jobs:
 
   write-final-success-status:
     runs-on: ubuntu-latest
-    needs: 
+    needs:
       - check-dashboard-versions
       - check-workflows
       - build-doc

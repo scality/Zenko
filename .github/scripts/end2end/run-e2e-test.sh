@@ -120,7 +120,35 @@ run_e2e_test() {
         --env=MONGO_WRITE_CONCERN=${MONGO_WRITE_CONCERN} \
         --env=MONGO_AUTH_USERNAME=${MONGO_AUTH_USERNAME} \
         --env=MONGO_AUTH_PASSWORD=${MONGO_AUTH_PASSWORD} \
-        --command -- sh -c "${2}"
+        --override-type strategic \
+        --overrides='
+{
+  "apiVersion": "v1",
+  "kind": "Pod",
+  "spec": {
+    "containers": [
+      {
+        "name": "'$POD_NAME'",
+        "volumeMounts": [
+          {
+            "name": "artifacts",
+            "mountPath": "/artifacts"
+          }
+        ]
+      }
+    ],
+    "volumes": [
+      {
+        "name": "artifacts",
+        "hostPath": {
+          "path": "/data/artifacts",
+          "type": "DirectoryOrCreate"
+        }
+      }
+    ]
+  }
+}' -- sh -c "${2}"
+
 }
 
 ## TODO use existing entrypoint

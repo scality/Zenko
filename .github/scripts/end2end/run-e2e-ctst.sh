@@ -143,6 +143,10 @@ kubectl run $POD_NAME \
           {
             "name": "cold-data",
             "mountPath": "/cold-data"
+          },
+          {
+            "name": "artifacts",
+            "mountPath": "/artifacts"
           }
         ]
       }
@@ -153,7 +157,14 @@ kubectl run $POD_NAME \
         "persistentVolumeClaim": {
           "claimName": "sorbet-data"
         }
+      },
+      {
+        "name": "artifacts",
+        "hostPath": {
+          "path": "/data/artifacts",
+          "type": "DirectoryOrCreate"
+        }
       }
     ]
   }
-}' -- ./run "$COMMAND" $WORLD_PARAMETERS --parallel $PARALLEL_RUNS --retry $RETRIES --retry-tag-filter @Flaky
+}' -- ./run "$COMMAND" $WORLD_PARAMETERS --parallel $PARALLEL_RUNS --retry $RETRIES --retry-tag-filter @Flaky --format junit:/artifacts/ctst-junit.xml
