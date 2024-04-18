@@ -1,0 +1,59 @@
+{
+    "name": "Codespace",
+    "build": {
+        "context": ".",
+        "dockerfile": "Dockerfile"
+    },
+    "features": {
+        "ghcr.io/devcontainers/features/docker-in-docker": {},
+        "ghcr.io/devcontainers/features/github-cli:1": {},
+        "ghcr.io/devcontainers/features/node:1": {},
+        "ghcr.io/devcontainers/features/sshd:1": {},
+        "ghcr.io/devcontainers-contrib/features/kind:1": {},
+        "ghcr.io/devcontainers/features/aws-cli:1": {},
+        "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
+            "version": "latest",
+            "minikube": "none",
+            "helm": "3.5.3"
+        }
+    },
+    "customizations": {
+        "codespaces": {
+            "repositories": {
+                "scality/cli-testing": {
+                    "permissions": {
+                        "contents": "read"
+                    }
+                },
+                "scality/zenko-operator": {
+                    "permissions": {
+                        "contents": "read"
+                    }
+                }
+            }
+        }
+    },
+    "containerEnv": {
+        "ZENKO_MONGODB_DATABASE": "zenko-database",
+        "ZENKO_MONGODB_SHARDED": "true" 
+        },
+
+    // Use 'forwardPorts' to make a list of ports inside the container available locally.
+    // "forwardPorts": [],
+
+    "secrets": {
+        "TEST_LOGIN": {
+            "description": "Login registry."
+        },
+        "REGISTRY_PASSWORD": {
+            "description": "Password registry."
+        }
+    },
+    // Use 'postCreateCommand' to run commands after the container is created.
+    // "postStartCommand": "bash .devcontainer/startup.sh"
+    // Configure tool-specific properties.
+    // "customizations": {},
+
+    // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+    // "remoteUser": "root"
+}
