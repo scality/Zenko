@@ -53,7 +53,7 @@ kafka-lag-exporter:
   tag: 0.7.1
   envsubst: KAFKA_LAGEXPORTER_TAG
 pensieve-api:
-  sourceRegistry: registry.scality.com/pensieve-api
+  sourceRegistry: ghcr.io/scality
   image: pensieve-api
   tag: 1.4.10
   envsubst: PENSIEVE_API_TAG
