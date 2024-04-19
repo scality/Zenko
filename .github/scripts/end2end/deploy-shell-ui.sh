@@ -4,7 +4,7 @@ set -exu
 
 NS=''
 
-SHELL_UI_IMAGE=${SHELL_UI_IMAGE:-registry.scality.com/playground/jbwatenberg/shell-ui:2.9-dev}
+SHELL_UI_IMAGE=${SHELL_UI_IMAGE:-ghcr.io/scality/metalk8s/shell-ui:v127.0.0}
 
 cat <<EOF | kubectl apply ${NS} -f -
 apiVersion: apps/v1
