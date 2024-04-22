@@ -91,7 +91,7 @@ sorbet:
   envsubst: SORBET_TAG
 # To be enabled back when utapi is used in Zenko 2.x
 # utapi:
-#   sourceRegistry: registry.scality.com/sf-eng
+#   sourceRegistry: ghcr.io/scality
 #   image: utapi
 #   tag: zenko-1.0.0
 #   envsubst: UTAPI_TAG
