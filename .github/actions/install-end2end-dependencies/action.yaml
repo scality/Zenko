@@ -6,7 +6,7 @@ runs:
   steps:
     - name: Cache deb packages
       id: cache-deb
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/deb_cache
         key: ${{ runner.os }}-deb-${{ hashFiles('.github/actions/install-end2end-dependencies/action.yaml') }}
@@ -14,7 +14,7 @@ runs:
           ${{ runner.os }}-deb-
     - name: Cache binaries
       id: cache-binaries
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: /usr/local/bin
         key: ${{ runner.os }}-binaries-${{ hashFiles('.github/actions/install-end2end-dependencies/action.yaml') }}
@@ -77,6 +77,6 @@ runs:
           sudo curl -sSL https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${{ env.KUSTOMIZE_VERSION }}/kustomize_${{ env.KUSTOMIZE_VERSION }}_linux_amd64.tar.gz | sudo tar -xvz
           sudo install kustomize /usr/local/bin
     - name: Kubectl tool installer
-      uses: Azure/setup-kubectl@v3
+      uses: Azure/setup-kubectl@v4
       with:
         version: 'v${{ env.KUBECTL_VERSION }}'

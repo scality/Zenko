@@ -6,7 +6,7 @@ runs:
   steps:
     - name: Cache deb packages
       id: cache-deb
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/deb_cache
         key: ${{ runner.os }}-deb-${{ hashFiles('.github/actions/install-doc-dependencies/action.yaml') }}

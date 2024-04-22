@@ -7,7 +7,7 @@ DIR=$(dirname $0)
 . "$DIR/common.sh"
 
 ZENKO_NAME=${1:-end2end}
-E2E_IMAGE=${2:-registry.scality.com/zenko/zenko-e2e:latest}
+E2E_IMAGE=${2:-ghcr.io/scality/zenko/zenko-e2e:latest}
 STAGE=${3:-end2end}
 NAMESPACE=${4:-default}
 
