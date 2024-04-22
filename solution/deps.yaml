@@ -103,7 +103,7 @@ vault:
   tag: 8.7.12
   envsubst: VAULT_TAG
 zenko-operator:
-  sourceRegistry: registry.scality.com/zenko-operator
+  sourceRegistry: ghcr.io/scality
   image: zenko-operator
   tag: 1.5.44
   envsubst: ZENKO_OPERATOR_TAG
