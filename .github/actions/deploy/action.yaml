@@ -20,7 +20,7 @@ runs:
       run: bash create-pull-image-secret.sh
       working-directory: ./.github/scripts/end2end
     - name: Cache Helm repositories and charts
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cache/helm
