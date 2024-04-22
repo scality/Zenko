@@ -1,0 +1,49 @@
+---
+name: migrate
+
+on:
+  push:
+    branches-ignore:
+    - development/**
+    - q/*/**
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Sync ${{ github.event.repository.name }}/kafka
+      run: |
+        docker run --rm quay.io/skopeo/stable:v1.15.0 sync \
+            --src docker --dest docker --all --preserve-digests --retry-times 3 \
+            --src-creds ${{ secrets.REGISTRY_LOGIN }}:${{ secrets.REGISTRY_PASSWORD }} \
+            --dest-creds ${{ github.repository_owner }}:${{ github.token }} \
+            registry.scality.com/zenko/kafka \
+            ghcr.io/scality/zenko
+
+    - name: Sync ${{ github.event.repository.name }}/kafka-connect
+      run: |
+        # Explicitely specify list of tags, to skip broken `2.13-3.1.2` tag
+        cat <<EOF > sync.yaml
+        registry.scality.com:
+          images:
+            zenko/kafka-connect:
+              - "2.13-3.1.2-test"
+              - "2.13-3.1.2-1.10.1"
+        EOF
+
+        docker run --rm -v $(pwd)/sync.yaml:/sync.yaml quay.io/skopeo/stable:v1.15.0 sync \
+            --src yaml --dest docker --all --preserve-digests --retry-times 3 \
+            --src-creds ${{ secrets.REGISTRY_LOGIN }}:${{ secrets.REGISTRY_PASSWORD }} \
+            --dest-creds ${{ github.repository_owner }}:${{ github.token }} \
+            /sync.yaml \
+            ghcr.io/scality/zenko
+
+    - name: Sync ${{ github.event.repository.name }}/kafka-cruise-control
+      run: |
+        docker run --rm quay.io/skopeo/stable:v1.15.0 sync \
+            --src docker --dest docker --all --preserve-digests --retry-times 3 \
+            --src-creds ${{ secrets.REGISTRY_LOGIN }}:${{ secrets.REGISTRY_PASSWORD }} \
+            --dest-creds ${{ github.repository_owner }}:${{ github.token }} \
+            registry.scality.com/zenko-dev/kafka-cruise-control \
+            ghcr.io/scality/zenko
