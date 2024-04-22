@@ -119,7 +119,7 @@ Edit file `/doc/examples/zenkoversion-1.2-dev.yaml` by changing the versions
 _For example:_
 ```diff
 vault:
-  image: registry.scality.com/vault/vault
+  image: ghcr.io/scality/vault2
 -      tag: '8.3.6'
 +      tag: '8.4.0'
   shell:
