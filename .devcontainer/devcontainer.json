@@ -64,6 +64,11 @@
                     "permissions": {
                         "contents": "read"
                     }
+                },
+                "scality/kafka-cleaner": {
+                    "permissions": {
+                        "contents": "read"
+                    }
                 }
             }
         }
