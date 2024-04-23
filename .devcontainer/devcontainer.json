@@ -72,15 +72,6 @@
         "ZENKO_MONGODB_DATABASE": "zenko-database",
         "ZENKO_MONGODB_SHARDED": "true" 
         },
-
-    "secrets": {
-        "REGISTRY_LOGIN": {
-            "description": "Login registry."
-        },
-        "REGISTRY_PASSWORD": {
-            "description": "Password registry."
-        }
-    },
     // Use 'postCreateCommand' to run commands after the container is created.
     "postCreateCommand": "bash .devcontainer/setup.sh"
 }
