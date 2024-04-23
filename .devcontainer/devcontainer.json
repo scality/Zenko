@@ -29,6 +29,41 @@
                     "permissions": {
                         "contents": "read"
                     }
+                },
+                "scality/sorbet": {
+                    "permissions": {
+                        "contents": "read"
+                    }
+                },
+                "scality/backbeat": {
+                    "permissions": {
+                        "contents": "read"
+                    }
+                },
+                "scality/cloudserver": {
+                    "permissions": {
+                        "contents": "read"
+                    }
+                },
+                "scality/vault2": {
+                    "permissions": {
+                        "contents": "read"
+                    }
+                },
+                "scality/pensieve-api": {
+                    "permissions": {
+                        "contents": "read"
+                    }
+                },
+                "scality/s3utils": {
+                    "permissions": {
+                        "contents": "read"
+                    }
+                },
+                "scality/zenko-ui": {
+                    "permissions": {
+                        "contents": "read"
+                    }
                 }
             }
         }
