@@ -91,7 +91,7 @@ kubectl run $POD_NAME \
         --restart=Never \
         --rm \
         --attach=True \
-        --image-pull-policy=Always \
+        --image-pull-policy=IfNotPresent \
         --env=TARGET_VERSION=$VERSION  \
         --env=AZURE_BLOB_URL=$AZURE_BACKEND_ENDPOINT  \
         --env=AZURE_QUEUE_URL=$AZURE_BACKEND_QUEUE_ENDPOINT \
