@@ -384,7 +384,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=end2end-ctst
 
   ctst-end2end-sharded:
-    needs: [build-kafka, lint-and-build-ctst, check-dashboard-versions]
+    needs: [build-kafka, check-dashboard-versions]
     runs-on:
       - ubuntu-22.04-8core
     steps:
