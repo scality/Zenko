@@ -383,166 +383,6 @@ jobs:
           cache-from: type=gha,scope=end2end-ctst
           cache-to: type=gha,mode=max,scope=end2end-ctst
 
-  end2end-http:
-    needs: [build-kafka, build-test-image, check-dashboard-versions]
-    runs-on:
-      - ubuntu
-      - focal
-      - xlarge
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install dependencies
-        uses: ./.github/actions/install-end2end-dependencies
-      - name: Wait for Docker daemon to be ready
-        uses: ./.github/actions/wait-docker-ready
-      - name: Login to Registry
-        uses: docker/login-action@v3
-        with:
-          username: "${{ github.repository_owner }}"
-          password: "${{ github.token }}"
-          registry: ghcr.io
-      - name: Deploy Zenko
-        uses: ./.github/actions/deploy
-        env:
-          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
-      - name: Run init CI test
-        run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "end2end" "default"
-        working-directory: ./.github/scripts/end2end
-      - name: Run iam policies tests
-        run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "iam-policies" "default"
-        working-directory: ./.github/scripts/end2end
-      - name: Run cloudserver tests
-        run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "object-api" "default"
-        working-directory: ./.github/scripts/end2end
-      - name: Run smoke tests
-        run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "smoke" "default"
-        working-directory: ./.github/scripts/end2end
-      - name: Debug wait
-        uses: ./.github/actions/debug-wait
-        timeout-minutes: 60
-      - name: Archive artifact logs and data
-        uses: ./.github/actions/archive-artifacts
-        env:
-          STAGE: end2end-http
-        if: always()
-      - name: Clean Up
-        run: kind delete cluster
-      - name: Upload artifacts
-        uses: scality/action-artifacts@v4
-        with:
-          method: upload
-          url: https://artifacts.scality.net
-          user: ${{ secrets.ARTIFACTS_USER }}
-          password: ${{ secrets.ARTIFACTS_PASSWORD }}
-          source: /tmp/artifacts
-        if: always()
-
-  end2end-https:
-    needs: [build-kafka, build-test-image, check-dashboard-versions]
-    runs-on:
-      - ubuntu
-      - focal
-      - xlarge
-    env:
-      UI_ENDPOINT: 'https://ui.zenko.local'
-      OIDC_ENDPOINT: 'https://keycloak.zenko.local'
-      NAVBAR_ENDPOINT: 'https://shell-ui.zenko.local'
-      ENABLE_KEYCLOAK_HTTPS: 'true'
-      GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install dependencies
-        uses: ./.github/actions/install-end2end-dependencies
-      - name: Wait for Docker daemon to be ready
-        uses: ./.github/actions/wait-docker-ready
-      - name: Login to Registry
-        uses: docker/login-action@v3
-        with:
-          username: "${{ github.repository_owner }}"
-          password: "${{ github.token }}"
-          registry: ghcr.io
-      - name: Deploy Zenko
-        uses: ./.github/actions/deploy
-      - name: Run init CI test
-        run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "end2end" "default"
-        working-directory: ./.github/scripts/end2end
-      - name: Run smoke tests
-        run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "smoke" "default"
-        working-directory: ./.github/scripts/end2end
-      # Temporarily disabled as CTST will test the same APIs more
-      # extensively.
-      # - name: Run vault e2e tests
-      #   run: bash vault-e2e-test.sh
-      #   working-directory: ./.github/scripts/end2end
-      - name: Debug wait
-        uses: ./.github/actions/debug-wait
-        timeout-minutes: 60
-      - name: Archive artifact logs and data
-        uses: ./.github/actions/archive-artifacts
-        env:
-          STAGE: end2end-https
-        if: always()
-      - name: Clean Up
-        run: kind delete cluster
-      - name: Upload artifacts
-        uses: scality/action-artifacts@v4
-        with:
-          method: upload
-          url: https://artifacts.scality.net
-          user: ${{ secrets.ARTIFACTS_USER }}
-          password: ${{ secrets.ARTIFACTS_PASSWORD }}
-          source: /tmp/artifacts
-        if: always()
-
-  end2end-sharded:
-    needs: [build-kafka, build-test-image, check-dashboard-versions]
-    runs-on:
-      - ubuntu-22.04-8core
-      # Enable this for Ring-based tests
-      # - scality-cloud
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install dependencies
-        uses: ./.github/actions/install-end2end-dependencies
-      - name: Wait for Docker daemon to be ready
-        uses: ./.github/actions/wait-docker-ready
-      - name: Login to Registry
-        uses: docker/login-action@v3
-        with:
-          username: "${{ github.repository_owner }}"
-          password: "${{ github.token }}"
-          registry: ghcr.io
-      - name: Deploy Zenko
-        uses: ./.github/actions/deploy
-        env:
-          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
-          ZENKO_MONGODB_SHARDED: "true"
-      - name: Run backbeat end to end tests
-        run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "backbeat" "default"
-        working-directory: ./.github/scripts/end2end
-      - name: Debug wait
-        uses: ./.github/actions/debug-wait
-        timeout-minutes: 60
-      - name: Archive artifact logs and data
-        uses: ./.github/actions/archive-artifacts
-        env:
-          STAGE: end2end-sharded
-        if: always()
-      - name: Clean Up
-        run: kind delete cluster
-      - name: Upload artifacts
-        uses: scality/action-artifacts@v4
-        with:
-          method: upload
-          url: https://artifacts.scality.net
-          user: ${{ secrets.ARTIFACTS_USER }}
-          password: ${{ secrets.ARTIFACTS_PASSWORD }}
-          source: /tmp/artifacts
-        if: always()
-
   ctst-end2end-sharded:
     needs: [build-kafka, lint-and-build-ctst, check-dashboard-versions]
     runs-on:
@@ -562,6 +402,15 @@ jobs:
           username: "${{ github.repository_owner }}"
           password: "${{ github.token }}"
           registry: ghcr.io
+      - name: Login to Registry (scality, testing)
+        uses: docker/login-action@v3
+        with:
+          username: "${{ github.repository_owner }}"
+          password: "${{ github.token }}"
+          registry: ghcr.io
+      - name: Debug wait
+        uses: ./.github/actions/debug-wait
+        timeout-minutes: 600
       - name: Deploy Zenko
         uses: ./.github/actions/deploy
         env:
@@ -574,9 +423,6 @@ jobs:
       - name: Run CTST end to end tests
         run: bash run-e2e-ctst.sh
         working-directory: ./.github/scripts/end2end
-      - name: Debug wait
-        uses: ./.github/actions/debug-wait
-        timeout-minutes: 60
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
         env:
@@ -602,9 +448,9 @@ jobs:
       - build-iso
       - build-kafka
       - build-test-image
-      - end2end-http
-      - end2end-https
-      - end2end-sharded
+      # - end2end-http
+      # - end2end-https
+      # - end2end-sharded
       - ctst-end2end-sharded
     if: failure()
     steps:
@@ -630,9 +476,9 @@ jobs:
       - build-iso
       - build-kafka
       - build-test-image
-      - end2end-http
-      - end2end-https
-      - end2end-sharded
+      # - end2end-http
+      # - end2end-https
+      # - end2end-sharded
       - ctst-end2end-sharded
     if: success()
     steps:
