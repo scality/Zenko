@@ -105,7 +105,7 @@ vault:
   dashboard: vault-dashboards
   policy: vault-policies
   image: vault
-  tag: 8.8.311
+  tag: 8.8.313
   envsubst: VAULT_TAG
 zenko-operator:
   sourceRegistry: registry.scality.com/playground/wlardier

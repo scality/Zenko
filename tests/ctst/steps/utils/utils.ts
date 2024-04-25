@@ -1,5 +1,6 @@
 import { CacheHelper, Constants, S3, Utils } from 'cli-testing';
 import { extractPropertyFromResults, s3FunctionExtraParams } from 'common/utils';
+import { deleteFile, saveAsFile } from 'steps/sosapi';
 import Zenko, { EntityType, UserCredentials } from 'world/Zenko';
 
 enum AuthorizationType {
@@ -147,11 +148,23 @@ async function putObject(context: Zenko, objectName?: string) {
     const objectNameArray = context.getSaved<string[]>('objectNameArray') || [];
     objectNameArray.push(context.getSaved<string>('objectName'));
     context.addToSaved('objectNameArray', objectNameArray);
+    const objectSize = context.getSaved<number>('objectSize') || 0;
+    if (objectSize > 0) {
+        const tempFileName = `${Utils.randomString()}_${context.getSaved<string>('objectName')}`;
+        context.addToSaved('tempFileName', `/tmp/${tempFileName}`);
+        // create a body of the same length as the object size
+        const objectBody = 'a'.repeat(objectSize);
+        await saveAsFile(tempFileName, objectBody);
+        context.addCommandParameter({ body: context.getSaved<string>('tempFileName') });
+    }
     context.addCommandParameter({ key: context.getSaved<string>('objectName') });
     context.addCommandParameter({ bucket: context.getSaved<string>('bucketName') });
     context.addToSaved('versionId', extractPropertyFromResults(
         await S3.putObject(context.getCommandParameters()), 'VersionId'
     ));
+    if (objectSize > 0) {
+        await deleteFile(context.getSaved<string>('tempFileName'));
+    }
 }
 
 function getAuthorizationConfiguration(context: Zenko): AuthorizationConfiguration {

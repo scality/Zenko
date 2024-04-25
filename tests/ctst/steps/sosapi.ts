@@ -45,11 +45,11 @@ const invalidCapacityXml = `
     <Used>0</Used>
 </CapacityInfo>`;
 
-async function saveAsFile(name: string, content: string) {
+export async function saveAsFile(name: string, content: string) {
     return fsp.writeFile(join('/tmp', name), content);
 }
 
-async function deleteFile(path: string) {
+export async function deleteFile(path: string) {
     return fsp.unlink(path);
 }
 

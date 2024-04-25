@@ -8,6 +8,7 @@
   "license": "ISC",
   "private": true,
   "dependencies": {
+    "@kubernetes/client-node": "^0.20.0",
     "@types/qs": "^6.9.7",
     "assert": "^2.0.0",
     "aws4-axios": "^3.3.0",
@@ -20,7 +21,7 @@
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
     "babel-jest": "^29.3.1",
-    "cli-testing": "github:scality/cli-testing.git#0.3.1",
+    "cli-testing": "github:scality/cli-testing.git#8eca5691a6a18265d9f61be8b46fd33f12948246",
     "eslint": "^8.28.0"
   },
   "scripts": {

@@ -111,6 +111,9 @@ spec:
     vault:
       image: '${VAULT_IMAGE}'
       tag: '${VAULT_TAG}'
+    scuba:
+      image: '${SCUBA_IMAGE}'
+      tag: '${SCUBA_TAG}'
     shell:
       image: '${BUSYBOX_IMAGE}'
       tag: '${BUSYBOX_TAG}'

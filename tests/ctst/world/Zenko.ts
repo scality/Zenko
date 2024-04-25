@@ -15,6 +15,7 @@ import {
 import { Credentials } from 'aws4-axios';
 import { extractPropertyFromResults } from '../common/utils';
 import qs = require('qs');
+import Werelogs from 'werelogs';
 
 export interface AWSVersionObject {
     Key: string;
@@ -50,6 +51,7 @@ export enum EntityType {
 }
 
 export interface ZenkoWorldParameters {
+    logger?: Werelogs.Logger;
     subdomain: string;
     ssl: boolean;
     port: string;
@@ -758,6 +760,10 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         this.cliMode.env = savedConfiguration.env;
         this.cliMode.assumed = savedConfiguration.assumed;
         this.resetCommand();
+    }
+
+    getAuthMode() {
+        return this.getSaved<ClientOptions>('test_identity');
     }
 
     restoreEnvironment() {

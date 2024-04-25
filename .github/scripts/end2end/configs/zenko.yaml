@@ -76,6 +76,8 @@ spec:
       logLevel: debug
   utapi:
     enable: false
+  scuba:
+    replicas: 1
   management:
     provider: InCluster
     ui:

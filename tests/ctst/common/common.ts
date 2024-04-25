@@ -1,7 +1,6 @@
 import { Given, setDefaultTimeout, Then } from '@cucumber/cucumber';
 import { Constants, S3, Utils } from 'cli-testing';
 import Zenko from 'world/Zenko';
-import { extractPropertyFromResults } from './utils';
 import assert from 'assert';
 import { Admin, Kafka } from 'kafkajs';
 import { createBucketWithConfiguration, putObject } from 'steps/utils/utils';

@@ -46,6 +46,7 @@ const needObject = [
     'PutObjectVersionTagging',
     'PutObjectVersionRetention',
     'PutObjectVersionLegalHold',
+    'RestoreObject',
 ];
 
 const needVersioning = [
@@ -361,6 +362,10 @@ const actionPermissions: ActionPermissionsType[] = [
         action: 'ListObjectVersions',
         permissions: ['s3:ListBucketVersions', 's3:ListBucket'],
         excludePermissionOnBucketObjects: true,
+    },
+    {
+        action: 'RestoreObject',
+        permissions: ['s3:RestoreObject'],
     },
     {
         action: 'MetadataSearch',

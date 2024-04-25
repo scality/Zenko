@@ -352,7 +352,7 @@ jobs:
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
       - uses: actions/setup-node@v4
         with:
-          node-version: '16'
+          node-version: '20'
           cache: yarn
           cache-dependency-path: tests/ctst/yarn.lock
       - name: Install ctst test dependencies
@@ -424,7 +424,7 @@ jobs:
         run: bash run-e2e-ctst.sh
         working-directory: ./.github/scripts/end2end
       - name: Debug Sleep
-        run: sleep 3600
+        run: sleep 20000
         if: always()
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts

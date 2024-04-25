@@ -46,6 +46,10 @@ Given('an action {string}', function (this: Zenko, apiName: string) {
     }
 });
 
+Given('an upload size of {string} B', function (this: Zenko, size: string) {
+    this.addToSaved('objectSize', parseInt(size, 10));
+});
+
 Given('an existing bucket prepared for the action', async function (this: Zenko) {
     await createBucketWithConfiguration(this,
         this.getSaved<string>('bucketName'),
@@ -475,5 +479,17 @@ Then('the authorization result is correct', function (this: Zenko) {
         } else {
             assert.strictEqual(this.getResult().err === null || this.getResult().err === undefined, true);
         }
+    }
+});
+
+Then('the API should {string} with {string}', function (this: Zenko, result: string, expected: string) {
+    this.cleanupEntity();
+    switch (result) {
+    case 'success':
+        assert.strictEqual(this.getResult().err, null);
+        break;
+    case 'fail':
+        assert.strictEqual(this.getResult().err?.includes(expected), true);
+        break;
     }
 });
