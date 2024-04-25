@@ -3426,9 +3426,9 @@ cli-table3@^0.6.0:
   optionalDependencies:
     "@colors/colors" "1.5.0"
 
-"cli-testing@github:scality/cli-testing.git#0.3.1":
-  version "0.3.1"
-  resolved "git+ssh://git@github.com/scality/cli-testing.git#0097fb858c0ca48dc3d7429f9709a997bad4f8aa"
+"cli-testing@github:scality/cli-testing.git#0.4.1":
+  version "0.4.1"
+  resolved "git+ssh://git@github.com/scality/cli-testing.git#85c10652d358ab50b4cad4f52ff428f6f95f119c"
   dependencies:
     "@aws-sdk/client-iam" "^3.484.0"
     "@aws-sdk/client-s3" "^3.484.0"
@@ -3449,6 +3449,7 @@ cli-table3@^0.6.0:
     tsconfig-paths "^4.0.0"
     typescript "^4.7.3"
     vaultclient "git+https://github.com/scality/vaultclient#8.3.18"
+    werelogs scality/werelogs#8.1.4
 
 cliui@^3.2.0:
   version "3.2.0"
@@ -6212,6 +6213,13 @@ webidl-conversions@^3.0.0:
 werelogs@scality/werelogs#8.1.3:
   version "8.1.3"
   resolved "git+ssh://git@github.com/scality/werelogs.git#e1574238a607a5421e7872d53355c6a0c8cec9b3"
+  dependencies:
+    fast-safe-stringify "^2.1.1"
+    safe-json-stringify "^1.2.0"
+
+werelogs@scality/werelogs#8.1.4:
+  version "8.1.4"
+  resolved "https://codeload.github.com/scality/werelogs/tar.gz/d6bec11df034c88a12959791eb7dd60913eb5f47"
   dependencies:
     fast-safe-stringify "^2.1.1"
     safe-json-stringify "^1.2.0"
