@@ -79,7 +79,7 @@ kubectl run $POD_NAME \
         --restart=Never \
         --rm \
         --attach=True \
-        --image-pull-policy=Always \
+        --image-pull-policy=IfNotPresent \
         --env=TARGET_VERSION=$VERSION  \
         --env=VERBOSE=1 \
         -- ./run "$COMMAND" $WORLD_PARAMETERS --parallel $PARALLEL_RUNS --retry $RETRIES --retry-tag-filter @Flaky
