@@ -1,0 +1,82 @@
+{
+    "name": "Codespace",
+    "build": {
+        "context": ".",
+        "dockerfile": "Dockerfile"
+    },
+    "features": {
+        "ghcr.io/devcontainers/features/docker-in-docker": {},
+        "ghcr.io/devcontainers/features/github-cli:1": {},
+        "ghcr.io/devcontainers/features/node:1": {},
+        "ghcr.io/devcontainers/features/sshd:1": {},
+        "ghcr.io/devcontainers-contrib/features/kind:1": {},
+        "ghcr.io/devcontainers/features/aws-cli:1": {},
+        "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
+            "version": "latest",
+            "minikube": "none",
+            "helm": "3.5.3"
+        }
+    },
+    "customizations": {
+        "codespaces": {
+            "repositories": {
+                "scality/cli-testing": {
+                    "permissions": {
+                        "contents": "read"
+                    }
+                },
+                "scality/zenko-operator": {
+                    "permissions": {
+                        "contents": "read"
+                    }
+                },
+                "scality/sorbet": {
+                    "permissions": {
+                        "contents": "read"
+                    }
+                },
+                "scality/backbeat": {
+                    "permissions": {
+                        "contents": "read"
+                    }
+                },
+                "scality/cloudserver": {
+                    "permissions": {
+                        "contents": "read"
+                    }
+                },
+                "scality/vault2": {
+                    "permissions": {
+                        "contents": "read"
+                    }
+                },
+                "scality/pensieve-api": {
+                    "permissions": {
+                        "contents": "read"
+                    }
+                },
+                "scality/s3utils": {
+                    "permissions": {
+                        "contents": "read"
+                    }
+                },
+                "scality/zenko-ui": {
+                    "permissions": {
+                        "contents": "read"
+                    }
+                },
+                "scality/kafka-cleaner": {
+                    "permissions": {
+                        "contents": "read"
+                    }
+                }
+            }
+        }
+    },
+    "containerEnv": {
+        "ZENKO_MONGODB_DATABASE": "zenko-database",
+        "ZENKO_MONGODB_SHARDED": "true" 
+        },
+    // Use 'postCreateCommand' to run commands after the container is created.
+    "postCreateCommand": "bash .devcontainer/setup.sh"
+}
