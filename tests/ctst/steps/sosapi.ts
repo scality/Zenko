@@ -1,9 +1,8 @@
-import { promises as fsp } from 'fs';
-import  { join } from 'path';
 import Zenko from 'world/Zenko';
 import { Then, When } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
 import { CacheHelper, S3, Utils } from 'cli-testing';
+import { deleteFile, saveAsFile } from './utils/utils';
 
 const validSystemXml = `
 <?xml version="1.0" encoding="UTF-8"?>
@@ -44,14 +43,6 @@ const invalidCapacityXml = `
     <Available>1099511627776</Available>
     <Used>0</Used>
 </CapacityInfo>`;
-
-async function saveAsFile(name: string, content: string) {
-    return fsp.writeFile(join('/tmp', name), content);
-}
-
-async function deleteFile(path: string) {
-    return fsp.unlink(path);
-}
 
 const veeamPrefix = '.system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c/';
 
