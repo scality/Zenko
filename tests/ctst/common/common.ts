@@ -1,12 +1,13 @@
 import fs from 'fs';
 import { tmpNameSync } from 'tmp';
+import assert from 'assert';
 import { Given, setDefaultTimeout, Then, When } from '@cucumber/cucumber';
 import { Constants, S3, Utils } from 'cli-testing';
 import Zenko from 'world/Zenko';
 import { extractPropertyFromResults, safeJsonParse } from './utils';
-import assert from 'assert';
 import { Admin, Kafka } from 'kafkajs';
-import { createBucketWithConfiguration, putObject } from 'steps/utils/utils';
+import { createBucketWithConfiguration, putObject, runActionAgainstBucket } from 'steps/utils/utils';
+import { ActionPermissionsType } from 'steps/bucket-policies/utils';
 
 setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
 
@@ -122,15 +123,19 @@ async function addUserMetadataToObject(this: Zenko, objectName: string|undefined
     return await S3.copyObject(this.getCommandParameters());
 }
 
-async function getTopicsOffsets(topics:string[], kafkaAdmin:Admin) {
+async function getTopicsOffsets(topics: string[], kafkaAdmin: Admin) {
     const offsets = [];
     for (const topic of topics) {
         const partitions: ({ high: string; low: string; })[] =
-        await kafkaAdmin.fetchTopicOffsets(topic);
+            await kafkaAdmin.fetchTopicOffsets(topic);
         offsets.push({ topic, partitions });
     }
     return offsets;
 }
+
+Given('an account', async function (this: Zenko) {
+    await this.createAccount();
+});
 
 Given('a {string} bucket', async function (this: Zenko, versioning: string) {
     this.resetCommand();
@@ -406,4 +411,96 @@ Given('an object {string} that {string}', async function (this: Zenko, objectNam
     if (objectExists === 'exists') {
         await putObject(this, objectName);
     }
+});
+
+When('the user tries to perform the current S3 action on the bucket {int} times with a {int} ms delay',
+    async function (this: Zenko, numberOfRuns: number, delay: number) {
+        this.setAuthMode('test_identity');
+        const action = {
+            ...this.getSaved<ActionPermissionsType>('currentAction'),
+        };
+        if (action.action === 'ListObjectVersions') {
+            action.action = 'ListObjects';
+            this.addToSaved('currentAction', action);
+        }
+        if (action.action.includes('Version') && !action.action.includes('Versioning')) {
+            action.action = action.action.replace('Version', '');
+            this.addToSaved('currentAction', action);
+        }
+        for (let i = 0; i < numberOfRuns; i++) {
+            // For repeated WRITE actions, we want to change the object name
+            if (action.action === 'PutObject') {
+                this.addToSaved('objectName', `objectrepeat-${Utils.randomString()}`);
+            } else if (action.action === 'CopyObject' || action.action === 'UploadPartCopy') {
+                this.addToSaved('copyObject', `objectrepeatcopy-${Utils.randomString()}`);
+            }
+            await runActionAgainstBucket(this, this.getSaved<ActionPermissionsType>('currentAction').action);
+            if (this.getResult().err) {
+                // stop at any error, the error will be evaluated in a separated step
+                return;
+            }
+            await Utils.sleep(delay);
+        }
+    });
+
+Then('the API should {string} with {string}', function (this: Zenko, result: string, expected: string) {
+    this.cleanupEntity();
+    const action = this.getSaved<ActionPermissionsType>('currentAction');
+    switch (result) {
+    case 'success':
+        if (action.expectedResultOnAllowTest) {
+            assert.strictEqual(
+                this.getResult().err?.includes(action.expectedResultOnAllowTest) ||
+                    this.getResult().stdout?.includes(action.expectedResultOnAllowTest) ||
+                    this.getResult().err === null, true);
+        } else {
+            assert.strictEqual(!!this.getResult().err, false);
+        }
+        break;
+    case 'fail':
+        assert.strictEqual(this.getResult().err?.includes(expected), true);
+        break;
+    }
+});
+
+Then('the operation finished without error', function (this: Zenko) {
+    this.cleanupEntity();
+    assert.strictEqual(!!this.getResult().err, false);
+});
+
+Given('an upload size of {int} B for the object {string}', async function (
+    this: Zenko,
+    size: number,
+    objectName: string
+) {
+    this.addToSaved('objectSize', size);
+    if (this.getSaved<boolean>('preExistingObject')) {
+        if (objectName) {
+            this.addToSaved('objectName', objectName);
+        } else {
+            this.addToSaved('objectName', `object-${Utils.randomString()}`);
+        }
+        await putObject(this, this.getSaved<string>('objectName'));
+    }
+});
+
+When('I PUT an object with size {int}', async function (this: Zenko, size: number) {
+    if (size > 0) {
+        this.addToSaved('objectSize', size);
+    }
+    this.addToSaved('objectName', `object-${Utils.randomString()}`);
+    const result = await putObject(this, this.getSaved<string>('objectName'));
+    this.setResult(result);
+});
+
+When('i delete object {string}', async function (this: Zenko, objectName: string) {
+    const objName = objectName || this.getSaved<string>('objectName');
+    this.resetCommand();
+    this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
+    this.addCommandParameter({ key: objName });
+    const versionId = this.getSaved<Map<string, string>>('createdObjects')?.get(objName);
+    if (versionId) {
+        this.addCommandParameter({ versionId });
+    }
+    await S3.deleteObject(this.getCommandParameters());
 });

@@ -1,3 +1,5 @@
+import { promises as fsp } from 'fs';
+import  { join } from 'path';
 import { CacheHelper, Constants, S3, Utils } from 'cli-testing';
 import { extractPropertyFromResults, s3FunctionExtraParams } from 'common/utils';
 import Zenko, { EntityType, UserCredentials } from 'world/Zenko';
@@ -13,6 +15,37 @@ type AuthorizationConfiguration = {
     Identity: AuthorizationType,
     Resource: AuthorizationType,
 };
+
+export async function saveAsFile(name: string, content: string) {
+    return fsp.writeFile(join('/tmp', name), content);
+}
+
+export async function deleteFile(path: string) {
+    return fsp.unlink(path);
+}
+
+async function uploadSetup(context: Zenko, action: string) {
+    if (action !== 'PutObject' && action !== 'UploadPart') {
+        return;
+    }
+    const objectSize = context.getSaved<number>('objectSize') || 0;
+    if (objectSize > 0) {
+        const tempFileName = `${Utils.randomString()}_${context.getSaved<string>('objectName')}`;
+        context.addToSaved('tempFileName', `/tmp/${tempFileName}`);
+        const objectBody = 'a'.repeat(objectSize);
+        await saveAsFile(tempFileName, objectBody);
+        context.addCommandParameter({ body: context.getSaved<string>('tempFileName') });
+    }
+}
+async function uploadTeardown(context: Zenko, action: string) {
+    if (action !== 'PutObject' && action !== 'UploadPart') {
+        return;
+    }
+    const objectSize = context.getSaved<number>('objectSize') || 0;
+    if (objectSize > 0) {
+        await deleteFile(context.getSaved<string>('tempFileName'));
+    }
+}
 
 async function runActionAgainstBucket(context: Zenko, action: string) {
     let userCredentials: UserCredentials;
@@ -50,7 +83,7 @@ async function runActionAgainstBucket(context: Zenko, action: string) {
             context.addCommandParameter({
                 copySource: `${context.getSaved<string>('bucketName')}/${context.getSaved<string>('objectName')}`,
             });
-            context.addCommandParameter({ key: 'copyObject' });
+            context.addCommandParameter({ key: context.getSaved<string>('copyObject') || 'copyObject' });
         } else if (context.getSaved<string>('objectName')) {
             context.addCommandParameter({ key: context.getSaved<string>('objectName') });
         }
@@ -67,13 +100,18 @@ async function runActionAgainstBucket(context: Zenko, action: string) {
                 }),
             });
         }
+        await uploadSetup(context, action);
         if (action === 'UploadPart') {
-            context.addCommandParameter({ uploadId: 'fakeId' });
-            context.addCommandParameter({ partNumber: '1' });
+            context.addCommandParameter({ uploadId: context.getSaved<string>('uploadId') || 'fakeId' });
+            const partNumber = context.getSaved<number>('partNumber') + 1 || 1;
+            context.addToSaved('partNumber', partNumber);
+            context.addCommandParameter({ partNumber: `${partNumber}` });
         }
         if (action === 'UploadPartCopy') {
-            context.addCommandParameter({ uploadId: 'fakeId' });
-            context.addCommandParameter({ partNumber: '1' });
+            context.addCommandParameter({ uploadId: context.getSaved<string>('uploadId') || 'fakeId' });
+            const partNumber = context.getSaved<number>('partNumber') + 1 || 1;
+            context.addToSaved('partNumber', partNumber);
+            context.addCommandParameter({ partNumber: `${partNumber}` });
             context.addCommandParameter({
                 copySource: `${context.getSaved<string>('bucketName')}/${context.getSaved<string>('objectName')}`,
             });
@@ -101,6 +139,7 @@ async function runActionAgainstBucket(context: Zenko, action: string) {
                 });
             }
             context.setResult(await actionCall(context.getCommandParameters()));
+            await uploadTeardown(context, action);
             CacheHelper.forceMode = null;
         } else {
             CacheHelper.forceMode = null;
@@ -114,9 +153,9 @@ async function runActionAgainstBucket(context: Zenko, action: string) {
 async function createBucketWithConfiguration(
     context: Zenko,
     bucketName: string,
-    withVersioning: string,
-    withObjectLock: string,
-    retentionMode: string) {
+    withVersioning?: string,
+    withObjectLock?: string,
+    retentionMode?: string) {
     context.resetCommand();
     const preName = (context.parameters.AccountName || Constants.ACCOUNT_NAME);
     const usedBucketName = bucketName
@@ -151,11 +190,15 @@ async function putObject(context: Zenko, objectName?: string) {
     const objectNameArray = context.getSaved<string[]>('objectNameArray') || [];
     objectNameArray.push(context.getSaved<string>('objectName'));
     context.addToSaved('objectNameArray', objectNameArray);
+    await uploadSetup(context, 'PutObject');
     context.addCommandParameter({ key: context.getSaved<string>('objectName') });
     context.addCommandParameter({ bucket: context.getSaved<string>('bucketName') });
+    const result = await S3.putObject(context.getCommandParameters());
     context.addToSaved('versionId', extractPropertyFromResults(
-        await S3.putObject(context.getCommandParameters()), 'VersionId'
+        result, 'VersionId'
     ));
+    await uploadTeardown(context, 'PutObject');
+    return result;
 }
 
 function getAuthorizationConfiguration(context: Zenko): AuthorizationConfiguration {

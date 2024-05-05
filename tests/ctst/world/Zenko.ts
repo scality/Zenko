@@ -15,6 +15,7 @@ import {
 import { Credentials } from 'aws4-axios';
 import { extractPropertyFromResults } from '../common/utils';
 import qs = require('qs');
+import Werelogs from 'werelogs';
 
 export interface AWSVersionObject {
     Key: string;
@@ -53,6 +54,7 @@ export interface ZenkoWorldParameters extends ClientOptions {
     // Make some fields from ClientOptions mandatory
     IAMSession: NonNullable<ClientOptions['IAMSession']>;
 
+    logger?: Werelogs.Logger;
     AccountName: string;
     AccountAccessKey: string;
     AccountSecretKey: string;
@@ -399,6 +401,19 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         }
     }
 
+    async createAccount(name?: string) {
+        this.resetGlobalType();
+        const accountName = name || `${Constants.ACCOUNT_NAME}${Utils.randomString()}`;
+        this.parameters.AccountName = accountName;
+
+        await SuperAdmin.createAccount({ accountName });
+
+        const credentials = await SuperAdmin.generateAccountAccessKey({ accountName });
+
+        Zenko.saveAccountAccessKeys(credentials.id!, credentials.value!);
+        CacheHelper.AccountName = accountName;
+    }
+
     /**
      * Creates an assumed role session with a duration of 12 hours.
      * @param {boolean} crossAccount - If true, the role will be assumed cross account.
@@ -602,11 +617,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                     accountName: parameters.AccountName || Constants.ACCOUNT_NAME,
                 });
                 if (Utils.isAccessKeys(accessKeys)) {
-                    CacheHelper.accountAccessKeys = accessKeys;
-                    CacheHelper.parameters.AccessKey =
-                        CacheHelper.accountAccessKeys?.id;
-                    CacheHelper.parameters.SecretKey =
-                        CacheHelper.accountAccessKeys?.value;
+                    this.saveAccountAccessKeys(accessKeys.id!, accessKeys.value!);
                 } else {
                     throw new Error('Failed to generate account access keys');
                 }
@@ -619,6 +630,20 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             CacheHelper.parameters.SecretKey =
                 CacheHelper.accountAccessKeys?.value;
         }
+    }
+
+    static saveAccountAccessKeys(accessKey: string, secretKey: string) {
+        CacheHelper.accountAccessKeys = {
+            id: accessKey,
+            value: secretKey,
+        };
+        if (!CacheHelper.parameters) {
+            CacheHelper.parameters = {};
+        }
+        CacheHelper.parameters.AccessKey =
+            CacheHelper.accountAccessKeys?.id;
+        CacheHelper.parameters.SecretKey =
+            CacheHelper.accountAccessKeys?.value;
     }
 
     /**

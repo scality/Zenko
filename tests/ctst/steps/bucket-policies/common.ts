@@ -335,7 +335,7 @@ Given('an environment setup for the API', async function (this: Zenko) {
             roleName: this.getSaved<string>('identityName'),
         });
         assert.ifError(result.stderr || result.err);
-    } else {
+    } else if (identityType === EntityType.IAM_USER) { // accounts do not have any policy
         const result = await IAM.attachUserPolicy({
             policyArn,
             userName: this.getSaved<string>('identityName'),
@@ -397,7 +397,7 @@ Given('an environment setup for the API', async function (this: Zenko) {
             roleName: this.getSaved<string>('identityName'),
         });
         assert.ifError(result.stderr || result.err);
-    } else {
+    } else if (identityType === EntityType.IAM_USER) { // accounts do not have any policy
         const detachResult = await IAM.detachUserPolicy({
             policyArn,
             userName: this.getSaved<string>('identityName'),
