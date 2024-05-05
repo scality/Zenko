@@ -1,4 +1,11 @@
-import { Before, defineParameterType, Given, setParallelCanAssign, parallelCanAssignHelpers } from '@cucumber/cucumber';
+import {
+    Before,
+    After,
+    defineParameterType,
+    Given,
+    setParallelCanAssign,
+    parallelCanAssignHelpers,
+} from '@cucumber/cucumber';
 import Zenko, { EntityType } from '../world/Zenko';
 // HTTPS should not cause any error for CTST
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -12,6 +19,9 @@ Before(async function (this: Zenko) {
     await Zenko.init(this.parameters);
 });
 
+After(function (this: Zenko) {
+    this.resetSaved();
+});
 
 defineParameterType({
     name: 'type',

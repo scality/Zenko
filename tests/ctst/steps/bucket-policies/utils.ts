@@ -21,6 +21,7 @@ const needObjectLock = [
 ];
 
 const needObject = [
+    'CopyObject',
     'PutObjectLegalHold',
     'PutObjectRetention',
     'PutObjectTagging',
@@ -46,6 +47,7 @@ const needObject = [
     'PutObjectVersionTagging',
     'PutObjectVersionRetention',
     'PutObjectVersionLegalHold',
+    'RestoreObject',
 ];
 
 const needVersioning = [
@@ -325,12 +327,12 @@ const actionPermissions: ActionPermissionsType[] = [
     {
         action: 'UploadPart',
         permissions: ['s3:PutObject'],
-        expectedResultOnAllowTest: 'NoSuchUpload',
+        needsSetup: true,
     },
     {
         action: 'UploadPartCopy',
         permissions: ['s3:PutObject', 's3:GetObject'],
-        expectedResultOnAllowTest: 'NoSuchUpload',
+        needsSetup: true,
     },
     {
         action: 'CopyObject',
@@ -361,6 +363,11 @@ const actionPermissions: ActionPermissionsType[] = [
         action: 'ListObjectVersions',
         permissions: ['s3:ListBucketVersions', 's3:ListBucket'],
         excludePermissionOnBucketObjects: true,
+    },
+    {
+        action: 'RestoreObject',
+        permissions: ['s3:RestoreObject'],
+        expectedResultOnAllowTest: 'InvalidObjectState',
     },
     {
         action: 'MetadataSearch',
