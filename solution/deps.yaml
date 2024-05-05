@@ -97,11 +97,11 @@ sorbet:
 #   tag: zenko-1.0.0
 #   envsubst: UTAPI_TAG
 vault:
-  sourceRegistry: ghcr.io/scality
-  dashboard: vault2/vault-dashboards
-  policy: vault2/vault-policies
-  image: vault2
-  tag: 8.8.4
+  sourceRegistry: registry.scality.com/playground/mbenzekri
+  dashboard: vault-dashboards
+  policy: vault-policies
+  image: vault
+  tag: 8.8.999
   envsubst: VAULT_TAG
 zenko-operator:
   sourceRegistry: ghcr.io/scality
