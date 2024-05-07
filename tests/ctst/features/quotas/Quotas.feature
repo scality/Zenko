@@ -10,7 +10,7 @@ Feature: Quota Management for APIs
     Scenario Outline: Quotas are evaluated during write operations
         Given an action "<action>"
         And an upload size of <uploadSize> B for the object ""
-        And a "STORAGE_MANAGER" type
+        And a STORAGE_MANAGER type
         And a bucket quota set to <bucketQuota> B
         And an account quota set to <accountQuota> B
         And a "<userType>" type
@@ -60,7 +60,7 @@ Feature: Quota Management for APIs
     @NonVersioned
     Scenario Outline: Quotas are affected by deletion operations
         Given an action "DeleteObject"
-        And a "STORAGE_MANAGER" type
+        And a STORAGE_MANAGER type
         And a bucket quota set to 10000 B
         And an account quota set to 10000 B
         And an upload size of 1000 B for the object "obj-1"
@@ -93,9 +93,9 @@ Feature: Quota Management for APIs
     Scenario Outline: Object restoration implements strict quotas
         Given an action "<action>"
         And a transition workflow to "e2e-cold" location
-        And an upload size of <uploadSize> B
+        And an upload size of <uploadSize> B for the object ""
         Then object "" should be "transitioned" and have the storage class "e2e-cold"
-        Given a "STORAGE_MANAGER" type
+        Given a STORAGE_MANAGER type
         And a bucket quota set to <bucketQuota> B
         And an account quota set to <accountQuota> B
         And a "<userType>" type
