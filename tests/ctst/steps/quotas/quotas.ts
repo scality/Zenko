@@ -103,6 +103,7 @@ Given('a bucket quota set to {int} B', async function (this: Zenko, quota: numbe
     this.addCommandParameter({
         bucket: this.getSaved<string>('bucketName'),
     });
+    this.resumeAssumedRole();
     const result: Command = await Scality.updateBucketQuota(
         this.parameters,
         this.getCliMode(),
@@ -124,6 +125,7 @@ Given('an account quota set to {int} B', async function (this: Zenko, quota: num
     this.addCommandParameter({
         quotaMax: String(quota),
     });
+    this.resumeAssumedRole();
     const result: Command = await Scality.updateAccountQuota(
         this.parameters,
         this.getCliMode(),

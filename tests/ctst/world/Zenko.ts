@@ -343,13 +343,17 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             CacheHelper.ARWWI[ARWWIName] = this.parameters.AssumedSession;
             this.cliMode.parameters.AssumedSession =
                 CacheHelper.ARWWI[ARWWIName];
+            CacheHelper.parameters!.AssumedSession = CacheHelper.ARWWI[ARWWIName];
             this.cliMode.assumed = true;
+            this.cliMode.env = false;
         } else {
             this.parameters.AssumedSession =
                 CacheHelper.ARWWI[ARWWIName];
             this.cliMode.parameters.AssumedSession =
                 CacheHelper.ARWWI[ARWWIName];
+            CacheHelper.parameters!.AssumedSession = CacheHelper.ARWWI[ARWWIName];
             this.cliMode.assumed = true;
+            this.cliMode.env = false;
         }
     }
 
