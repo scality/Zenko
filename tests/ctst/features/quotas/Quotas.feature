@@ -13,7 +13,7 @@ Feature: Quota Management for APIs
         And a STORAGE_MANAGER type
         And a bucket quota set to <bucketQuota> B
         And an account quota set to <accountQuota> B
-        And a "<userType>" type
+        And a <userType> type
         And an environment setup for the API
         And an "existing" IAM Policy that "applies" with "ALLOW" effect for the current API
         When the user tries to perform the current S3 action on the bucket 20 times with a 400 ms delay
@@ -66,7 +66,7 @@ Feature: Quota Management for APIs
         And an upload size of 1000 B for the object "obj-1"
         And a bucket quota set to <bucketQuota> B
         And an account quota set to <accountQuota> B
-        And a "<userType>" type
+        And a <userType> type
         And an environment setup for the API
         And an "existing" IAM Policy that "applies" with "ALLOW" effect for the current API
         When I PUT an object with size <uploadSize>
@@ -98,7 +98,7 @@ Feature: Quota Management for APIs
         Given a STORAGE_MANAGER type
         And a bucket quota set to <bucketQuota> B
         And an account quota set to <accountQuota> B
-        And a "<userType>" type
+        And a <userType> type
         And an environment setup for the API
         And an "existing" IAM Policy that "applies" with "ALLOW" effect for the current API
         When i restore object "" for 5 days
