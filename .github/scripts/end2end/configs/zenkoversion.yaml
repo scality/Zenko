@@ -17,6 +17,9 @@ spec:
     s3utils:
       image: '${S3UTILS_DASHBOARD}'
       tag: '${S3UTILS_TAG}'
+    scuba:
+      image: '${SCUBA_DASHBOARD}'
+      tag: '${SCUBA_TAG}'
     kafkaCleaner:
       image: '${KAFKA_CLEANER_DASHBOARD}'
       tag: '${KAFKA_CLEANER_TAG}'
