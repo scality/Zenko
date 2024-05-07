@@ -91,6 +91,7 @@ Before({tags: '@Quotas'}, async function ({ gherkinDocument, pickle }) {
     world.resetGlobalType();
     Zenko.saveAccountAccessKeys(config.AccessKey, config.SecretKey);
     world.addToSaved('bucketName', key);
+    world.parameters.AccountName = key;
 });
 
 Given('a bucket quota set to {int} B', async function (this: Zenko, quota: number) {
