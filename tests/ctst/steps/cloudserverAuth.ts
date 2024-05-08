@@ -19,7 +19,7 @@ interface DeleteObjectsResult {
 
 When('the user tries to perform DeleteObjects', async function (this: Zenko) {
     this.resetCommand();
-    this.resumeRootOrIamUser();
+    this.resumeIamUser();
     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
     const objectNames = this.getSaved<string[]>('objectNameArray');
     const param: { Objects: { Key: string }[] } = {
@@ -34,7 +34,7 @@ When('the user tries to perform DeleteObjects', async function (this: Zenko) {
 
 When('the user tries to perform CreateBucket', async function (this: Zenko) {
     this.resetCommand();
-    this.resumeRootOrIamUser();
+    this.resumeIamUser();
     const preName = (this.parameters.AccountName || Constants.ACCOUNT_NAME);
     const usedBucketName = `${preName}${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase();
     this.addToSaved('bucketName', usedBucketName);
@@ -46,7 +46,7 @@ When('the user tries to perform CreateBucket', async function (this: Zenko) {
 
 When('the user tries to perform PutObjectRetention {string} bypass', async function (this: Zenko, withBypass: string) {
     this.resetCommand();
-    this.resumeRootOrIamUser();
+    this.resumeIamUser();
     this.addCommandParameter({ key: this.getSaved<string>('objectName') });
     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
     const date = new Date();

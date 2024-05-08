@@ -7,7 +7,6 @@ import {
     cliModeObject,
     Constants,
     IAM,
-    IAMUserPolicy,
     STS,
     SuperAdmin,
     Utils,
@@ -75,7 +74,6 @@ export interface ZenkoWorldParameters extends ClientOptions {
     StorageAccountOwnerUsername: string;
     DataConsumerUsername: string;
     ServiceUsersCredentials: string;
-    AccountSessionToken: string;
     KeycloakTestPassword: string;
     AzureAccountName: string;
     AzureAccountKey: string;
@@ -157,16 +155,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         CacheHelper.parameters = this.parameters as unknown as Record<string, unknown>;
         this.cliMode.parameters = this.parameters;
 
-        if (this.parameters.AccountSessionToken) {
-            (CacheHelper.ARWWI[CacheHelper.AccountName]) = {
-                AccessKeyId: this.parameters.AccountAccessKey,
-                SecretAccessKey: this.parameters.AccountSecretKey,
-                SessionToken: this.parameters.AccountSessionToken,
-            };
-        } else {
-            CacheHelper.AccountName = this.parameters.AccountName;
-            CacheHelper.isPreloadedAccount = true;
-        }
+        CacheHelper.AccountName = this.parameters.AccountName;
+        CacheHelper.isPreloadedAccount = true;
     }
 
     /**
@@ -284,8 +274,9 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * @returns {undefined}
      */
     async prepareARWWI(ARWWIName: string, ARWWIPassword: string, ARWWITargetRole: string) {
-
-        if (!(ARWWIName in CacheHelper.ARWWI)) {
+        const accountName = this.parameters.AccountName || Constants.ACCOUNT_NAME;
+        const key = `${accountName}_${ARWWIName}`;
+        if (!(key in CacheHelper.ARWWI)) {
             const token = await this.getWebIdentityToken(
                 ARWWIName,
                 ARWWIPassword,
@@ -301,7 +292,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             }
             // Getting account ID
             const account = await SuperAdmin.getAccount({
-                accountName: this.parameters.AccountName || Constants.ACCOUNT_NAME,
+                accountName,
             });
             // Getting roles with GetRolesForWebIdentity
             // Get the first role with the storage-manager-role name
@@ -340,18 +331,18 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 throw new Error('Error when trying to Assume Role With Web Identity.');
             }
             // Save the session for future scenarios (increases performance)
-            CacheHelper.ARWWI[ARWWIName] = this.parameters.AssumedSession;
+            CacheHelper.ARWWI[key] = this.parameters.AssumedSession;
             this.cliMode.parameters.AssumedSession =
-                CacheHelper.ARWWI[ARWWIName];
-            CacheHelper.parameters!.AssumedSession = CacheHelper.ARWWI[ARWWIName];
+                CacheHelper.ARWWI[key];
+            CacheHelper.parameters!.AssumedSession = CacheHelper.ARWWI[key];
             this.cliMode.assumed = true;
             this.cliMode.env = false;
         } else {
             this.parameters.AssumedSession =
-                CacheHelper.ARWWI[ARWWIName];
+                CacheHelper.ARWWI[key];
             this.cliMode.parameters.AssumedSession =
-                CacheHelper.ARWWI[ARWWIName];
-            CacheHelper.parameters!.AssumedSession = CacheHelper.ARWWI[ARWWIName];
+                CacheHelper.ARWWI[key];
+            CacheHelper.parameters!.AssumedSession = CacheHelper.ARWWI[key];
             this.cliMode.assumed = true;
             this.cliMode.env = false;
         }
@@ -407,15 +398,16 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
     async createAccount(name?: string) {
         this.resetGlobalType();
-        const accountName = name || `${Constants.ACCOUNT_NAME}${Utils.randomString()}`;
-        this.parameters.AccountName = accountName;
-
-        await SuperAdmin.createAccount({ accountName });
-
-        const credentials = await SuperAdmin.generateAccountAccessKey({ accountName });
-
-        Zenko.saveAccountAccessKeys(credentials.id!, credentials.value!);
-        CacheHelper.AccountName = accountName;
+        if (this.getSaved<string>('accountName')) {
+            Zenko.restoreAccountAccessKeys();
+        } else {
+            const accountName = name || `${Constants.ACCOUNT_NAME}${Utils.randomString()}`;
+            this.parameters.AccountName = accountName;
+            await SuperAdmin.createAccount({ accountName });
+            const credentials = await SuperAdmin.generateAccountAccessKey({ accountName });
+            Zenko.saveAccountAccessKeys(credentials.id!, credentials.value!);
+            CacheHelper.AccountName = accountName;
+        }
     }
 
     /**
@@ -495,7 +487,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         this.parameters.IAMSession =
             extractPropertyFromResults(await IAM.createAccessKey(
                 this.getCommandParameters()), 'AccessKey')!;
-        this.resumeRootOrIamUser();
+        this.resumeIamUser();
 
         // Assuming the role
         this.resetCommand();
@@ -551,7 +543,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         // assign the credentials of the service user to the IAM session
         this.parameters.IAMSession =
             Zenko.serviceUsersCredentials[serviceUserName];
-        this.resumeRootOrIamUser();
+        this.resumeIamUser();
 
         // Assuming the role as the service user
         this.resetCommand();
@@ -650,66 +642,12 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             CacheHelper.accountAccessKeys?.value;
     }
 
-    /**
-     * Creates an root user with policy and access keys to be used in the tests.
-     * The IAM user is cached for future tests to reduce the overall test suite
-     * duration.
-     * @returns {undefined}
-     */
-    async prepareRootUser() {
-        Zenko.IAMUserName = Zenko.IAMUserName || `${this.parameters.IAMUserName
-            || 'usertest'}${Utils.randomString()}`;
-        Zenko.IAMUserPolicyName = `IAMUserPolicy-${Zenko.IAMUserName}${Utils.randomString()}`;
-        if (!this.cliMode.parameters.IAMSession) {
-            // Create IAM user
-            this.addCommandParameter({ userName: Zenko.IAMUserName });
-            await IAM.createUser(this.getCommandParameters());
-            this.resetCommand();
-            // Create policy
-            this.addCommandParameter({ policyName: Zenko.IAMUserPolicyName });
-            this.addCommandParameter({ policyPath: '/' });
-            if (process.env.POLICY_DOCUMENT) {
-                this.addCommandParameter({ policyDocument: JSON.parse(process.env.POLICY_DOCUMENT) as object });
-            } else {
-                this.addCommandParameter({ policyDocument: IAMUserPolicy });
-            }
-            const policy = await IAM.createPolicy(this.getCommandParameters());
-            const account = await SuperAdmin.getAccount({
-                accountName: this.parameters.AccountName || Constants.ACCOUNT_NAME,
-            });
-            let policyArn = `arn:aws:iam::${account.id!}:policy/IAMUserPolicy-${Zenko.IAMUserName}}`;
-            try {
-                policyArn = (JSON.parse(policy.stdout) as { Policy: { Arn: string } }).Policy.Arn;
-            } catch (err: unknown) {
-                const usedErr = err as { message: string };
-                process.stderr.write('Failed to create the IAM User policy.\n' +
-                    `${JSON.stringify(policy)}\n${usedErr.message}\n`);
-            }
-            this.resetCommand();
-            // Attach user policy
-            this.addCommandParameter({ userName: Zenko.IAMUserName });
-            this.addCommandParameter({ policyArn });
-            // Save the attached policy for cleanup
-            Zenko.IAMUserAttachedPolicy = policyArn;
-            await IAM.attachUserPolicy(this.getCommandParameters());
-            this.resetCommand();
-            // Create credentials for the user
-            this.addCommandParameter({ userName: Zenko.IAMUserName });
-            const accessKey = await IAM.createAccessKey(this.getCommandParameters());
-            if (accessKey.err) {
-                throw new Error(`Error creating the IAM User's access key.\n
-                 ${accessKey.err}`);
-            }
-            this.parameters.IAMSession =
-                extractPropertyFromResults(accessKey, 'AccessKey')!;
-            this.cliMode.parameters.IAMSession =
-                this.parameters.IAMSession;
-            this.cliMode.env = true;
-            this.resetCommand();
-        } else {
-            this.parameters.IAMSession =
-                this.cliMode.parameters.IAMSession;
-            this.cliMode.env = true;
+    static restoreAccountAccessKeys() {
+        if (CacheHelper.accountAccessKeys) {
+            CacheHelper.parameters!.AccessKey =
+                CacheHelper.accountAccessKeys.id;
+            CacheHelper.parameters!.SecretKey =
+                CacheHelper.accountAccessKeys.value;
         }
     }
 
@@ -740,7 +678,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         this.resetCommand();
     }
 
-    resumeRootOrIamUser() {
+    resumeIamUser() {
         this.cliMode.env = true;
     }
 
@@ -793,7 +731,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
     restoreEnvironment() {
         if ([EntityType.IAM_USER, EntityType.ACCOUNT].includes(this.getSaved<EntityType>('type'))) {
-            this.resumeRootOrIamUser();
+            this.resumeIamUser();
         } else {
             this.resumeAssumedRole();
         }

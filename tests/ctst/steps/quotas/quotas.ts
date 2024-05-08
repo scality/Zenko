@@ -89,9 +89,12 @@ Before({tags: '@Quotas'}, async function ({ gherkinDocument, pickle }) {
     world.parameters.logger?.debug('Scenario key', { key, from: `${pickle.astNodeIds[1]}`, configuration });
     const config = configuration[key];
     world.resetGlobalType();
-    Zenko.saveAccountAccessKeys(config.AccessKey, config.SecretKey);
+    // Save the bucket name for the scenario
     world.addToSaved('bucketName', key);
+    // Save the account name for the scenario
+    Zenko.saveAccountAccessKeys(config.AccessKey, config.SecretKey);
     world.parameters.AccountName = key;
+    world.addToSaved('accountName', key);
 });
 
 Given('a bucket quota set to {int} B', async function (this: Zenko, quota: number) {

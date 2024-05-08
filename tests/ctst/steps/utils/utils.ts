@@ -49,12 +49,26 @@ async function uploadTeardown(context: Zenko, action: string) {
 
 async function runActionAgainstBucket(context: Zenko, action: string) {
     let userCredentials: UserCredentials;
-    if ([EntityType.IAM_USER, EntityType.ACCOUNT].includes(context.getSaved<EntityType>('type'))) {
+    switch (context.getSaved<EntityType>('type')) {
+    case EntityType.IAM_USER:
         userCredentials = context.parameters.IAMSession;
-        context.resumeRootOrIamUser();
-    } else {
+        context.resumeIamUser();
+        break;
+    case EntityType.ASSUME_ROLE_USER:
+    case EntityType.DATA_CONSUMER:
+    case EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT:
+    case EntityType.STORAGE_ACCOUNT_OWNER:
+    case EntityType.STORAGE_MANAGER:
         userCredentials = context.parameters.AssumedSession!;
         context.resumeAssumedRole();
+        break;
+    default:
+        userCredentials = {
+            AccessKeyId: context.parameters.AccessKey!,
+            SecretAccessKey: context.parameters.SecretKey!,
+        };
+        context.resetGlobalType();
+        break;
     }
     if (!userCredentials) {
         throw new Error('User credentials not set. '

@@ -64,6 +64,10 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
     doesApply: string,
     isAllow: string,
 ) {
+    const identityType = this.getSaved<string>('identityType') as EntityType;
+    if (identityType === EntityType.ACCOUNT) {
+        return;
+    }
     // This step needs full access.
     this.setAuthMode('base_account');
     const authzConfiguration = getAuthorizationConfiguration(this);
@@ -129,7 +133,6 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
     });
     const policyArn = extractPropertyFromResults(createdPolicy, 'Policy', 'Arn') as string;
 
-    const identityType = this.getSaved<string>('identityType') as EntityType;
     if (identityType === EntityType.ASSUME_ROLE_USER
         || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT
         || identityType === EntityType.DATA_CONSUMER) {
@@ -222,6 +225,10 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
     doesApply: string,
     isAllow: string,
 ) {
+    const identityType = this.getSaved<string>('identityType') as EntityType;
+    if (identityType === EntityType.ACCOUNT) {
+        return;
+    }
     // This step needs full access.
     this.setAuthMode('base_account');
     const authzConfiguration = getAuthorizationConfiguration(this);
@@ -269,7 +276,6 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
     this.addToSaved('authzConfiguration', authzConfiguration);
     const currentIdentityArn = this.getSaved<string>('identityArn');
     let principal = currentIdentityArn;
-    const identityType = this.getSaved<string>('identityType') as EntityType;
     if (identityType === EntityType.ASSUME_ROLE_USER
         || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT
         || identityType === EntityType.DATA_CONSUMER) {
