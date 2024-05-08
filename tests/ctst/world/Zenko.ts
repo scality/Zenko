@@ -214,7 +214,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         this.addToSaved('identityType', entityType);
         switch (entityType) {
         case EntityType.ACCOUNT:
-            await this.prepareRootUser();
+            await this.createAccount();
             this.addToSaved('type', EntityType.ACCOUNT);
             break;
         case EntityType.IAM_USER:
