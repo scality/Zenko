@@ -268,7 +268,8 @@ When('i restore object {string} for {int} days', async function (this: Zenko, ob
         this.addCommandParameter({ versionId });
     }
     this.addCommandParameter({ restoreRequest: `Days=${days}` });
-    await S3.restoreObject(this.getCommandParameters());
+    const result = await S3.restoreObject(this.getCommandParameters());
+    this.setResult(result);
 });
 
 // wait for object to transition to a location or get restored from it
@@ -491,16 +492,4 @@ When('I PUT an object with size {int}', async function (this: Zenko, size: numbe
     this.addToSaved('objectName', `object-${Utils.randomString()}`);
     const result = await putObject(this, this.getSaved<string>('objectName'));
     this.setResult(result);
-});
-
-When('i delete object {string}', async function (this: Zenko, objectName: string) {
-    const objName = objectName || this.getSaved<string>('objectName');
-    this.resetCommand();
-    this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-    this.addCommandParameter({ key: objName });
-    const versionId = this.getSaved<Map<string, string>>('createdObjects')?.get(objName);
-    if (versionId) {
-        this.addCommandParameter({ versionId });
-    }
-    await S3.deleteObject(this.getCommandParameters());
 });
