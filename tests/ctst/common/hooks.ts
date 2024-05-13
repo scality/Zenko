@@ -8,6 +8,7 @@ import {
 } from '@cucumber/cucumber';
 import Zenko, { EntityType } from '../world/Zenko';
 import { Scality } from 'cli-testing';
+import { cleanAzureContainer, cleanZenkoBucket } from 'steps/azureArchive';
 // HTTPS should not cause any error for CTST
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
@@ -55,6 +56,17 @@ After({ tags: '@Quotas' }, async function () {
     if (resultBucket.err || resultAccount.err) {
         throw new Error('Unable to delete quotas');
     }
+});
+
+After({ tags: '@AzureArchive' }, async function (this: Zenko) {
+    await cleanZenkoBucket(
+        this,
+        this.getSaved<string>('bucketName'),
+    );
+    await cleanAzureContainer(
+        this,
+        this.getSaved<string>('bucketName'),
+    );
 });
 
 defineParameterType({

@@ -144,7 +144,7 @@ async function findObjectPackAndManifest(
  * @param {string} bucketName bucket name
  * @returns {void}
  */
-async function cleanZenkoBucket(
+export async function cleanZenkoBucket(
     world: Zenko,
     bucketName: string,
 ): Promise<void> {
@@ -176,7 +176,7 @@ async function cleanZenkoBucket(
  * @param {string} bucketName bucket name
  * @returns {void}
  */
-async function cleanAzureContainer(
+export async function cleanAzureContainer(
     world: Zenko,
     bucketName: string,
 ): Promise<void> {
@@ -400,15 +400,4 @@ Then('object {string} should expire in {int} days', async function (this: Zenko,
     const lastModified = new Date(head.LastModified).getTime();
     const diff = (exiryDate - lastModified) / 1000 / 86400;
     assert(diff >= days && diff < days + 0.1);
-});
-
-After({ tags: '@AzureArchive' }, async function (this: Zenko) {
-    await cleanZenkoBucket(
-        this,
-        this.getSaved<string>('bucketName'),
-    );
-    await cleanAzureContainer(
-        this,
-        this.getSaved<string>('bucketName'),
-    );
 });
