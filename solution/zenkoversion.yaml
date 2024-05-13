@@ -36,6 +36,9 @@ spec:
     s3utils:
       image: s3utils-dashboards
       tag: '${S3UTILS_TAG}'
+    scuba:
+      image: scuba-dashboards
+      tag: '${SCUBA_TAG}'
   policies:
     backbeat:
       image: backbeat-policies
@@ -78,6 +81,9 @@ spec:
     s3utils:
       image: s3utils
       tag: '${S3UTILS_TAG}'
+    scuba:
+      image: scuba
+      tag: '${SCUBA_TAG}'
     sorbet:
       image: sorbet
       tag: '${SORBET_TAG}'

@@ -15,6 +15,9 @@ spec:
     s3utils:
       image: '${S3UTILS_DASHBOARD}'
       tag: '${S3UTILS_TAG}'
+    scuba:
+      image: '${SCUBA_DASHBOARD}'
+      tag: '${SCUBA_TAG}'
     kafkaCleaner:
       image: '${KAFKA_CLEANER_DASHBOARD}'
       tag: '${KAFKA_CLEANER_TAG}'
@@ -109,6 +112,9 @@ spec:
     vault:
       image: '${VAULT_IMAGE}'
       tag: '${VAULT_TAG}'
+    scuba:
+      image: '${SCUBA_IMAGE}'
+      tag: '${SCUBA_TAG}'
     shell:
       image: '${BUSYBOX_IMAGE}'
       tag: '${BUSYBOX_TAG}'

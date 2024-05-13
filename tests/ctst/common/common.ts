@@ -1,12 +1,11 @@
-import fs from 'fs';
-import { tmpNameSync } from 'tmp';
 import { Given, setDefaultTimeout, Then, When } from '@cucumber/cucumber';
 import { Constants, S3, Utils } from 'cli-testing';
 import Zenko from 'world/Zenko';
-import { extractPropertyFromResults, safeJsonParse } from './utils';
+import { safeJsonParse } from './utils';
 import assert from 'assert';
 import { Admin, Kafka } from 'kafkajs';
-import { createBucketWithConfiguration, putObject } from 'steps/utils/utils';
+import { createBucketWithConfiguration, putObject, runActionAgainstBucket } from 'steps/utils/utils';
+import { ActionPermissionsType } from 'steps/bucket-policies/utils';
 
 setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
 
@@ -33,7 +32,7 @@ function getObjectNameWithBackendFlakiness(this: Zenko, objectName: string) {
         objectNameFinal = `${objectName}.scal-retry-${backendFlakiness}-job-${backendFlakinessRetryNumber}`;
         break;
     default:
-        process.stdout.write(`Unknown backend flakyness ${backendFlakiness}\n`);
+        this.parameters.logger?.debug('Unknown backend flakyness', { backendFlakiness });
         return objectName;
     }
     return objectNameFinal;
@@ -41,43 +40,45 @@ function getObjectNameWithBackendFlakiness(this: Zenko, objectName: string) {
 
 async function addMultipleObjects(this: Zenko, numberObjects: number,
     objectName: string, sizeBytes: number, userMD?: string) {
+    let lastResult = null;
     for (let i = 1; i <= numberObjects; i++) {
-        const objectNameFinal = getObjectNameWithBackendFlakiness.call(this, `${objectName}-${i}`);
-
-        this.addToSaved('objectName', `${objectNameFinal}` || Utils.randomString());
-        const objectPath = tmpNameSync({prefix: this.getSaved<string>('objectName')});
-        fs.writeFileSync(objectPath, Buffer.alloc(sizeBytes, this.getSaved<string>('objectName')));
-        this.resetCommand();
-        this.addCommandParameter({ key: this.getSaved<string>('objectName') });
-        this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-        this.addCommandParameter({ body: objectPath });
+        const objectNameFinal = getObjectNameWithBackendFlakiness.call(this, `${objectName}-${i}`) ||
+            Utils.randomString();
+        if (sizeBytes > 0) {
+            this.addToSaved('objectSize', sizeBytes);
+        }
         if (userMD) {
             this.addCommandParameter({ metadata: JSON.stringify(userMD) });
         }
-        process.stdout.write(`Adding object ${objectNameFinal}\n`);
-        this.addToSaved('versionId', extractPropertyFromResults(
-            await S3.putObject(this.getCommandParameters()), 'VersionId')
-        );
-        fs.rmSync(objectPath);
+        this.addToSaved('objectName', objectNameFinal);
+        this.resetCommand();
+        this.parameters.logger?.debug('Adding object', { objectName: objectNameFinal });
+        lastResult = await putObject(this, objectNameFinal);
         const createdObjects = this.getSaved<Map<string, string>>('createdObjects') || new Map<string, string>();
         createdObjects.set(this.getSaved<string>('objectName'), this.getSaved<string>('versionId'));
         this.addToSaved('createdObjects', createdObjects);
     }
+    return lastResult;
 }
 
-async function getTopicsOffsets(topics:string[], kafkaAdmin:Admin) {
+async function getTopicsOffsets(topics: string[], kafkaAdmin: Admin) {
     const offsets = [];
     for (const topic of topics) {
         const partitions: ({ high: string; low: string; })[] =
-        await kafkaAdmin.fetchTopicOffsets(topic);
+            await kafkaAdmin.fetchTopicOffsets(topic);
         offsets.push({ topic, partitions });
     }
     return offsets;
 }
 
+Given('an account', async function (this: Zenko) {
+    await this.createAccount();
+});
+
 Given('a {string} bucket', async function (this: Zenko, versioning: string) {
     this.resetCommand();
-    const preName = this.parameters.AccountName || Constants.ACCOUNT_NAME;
+    const preName = this.getSaved<string>('accountName') ||
+        this.parameters.AccountName || Constants.ACCOUNT_NAME;
     const bucketName = `${preName}${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase();
     this.addToSaved('bucketName', bucketName);
     this.addCommandParameter({ bucket: bucketName });
@@ -198,7 +199,8 @@ When('i restore object {string} for {int} days', async function (this: Zenko, ob
         this.addCommandParameter({ versionId });
     }
     this.addCommandParameter({ restoreRequest: `Days=${days}` });
-    await S3.restoreObject(this.getCommandParameters());
+    const result = await S3.restoreObject(this.getCommandParameters());
+    this.setResult(result);
 });
 
 // wait for object to transition to a location or get restored from it
@@ -262,7 +264,7 @@ Then('kafka consumed messages should not take too much place on disk',
         const kafkaAdmin = new Kafka({ brokers: [this.parameters.KafkaHosts] }).admin();
         const topics: string[] = (await kafkaAdmin.listTopics())
             .filter(t => (t.includes(this.parameters.InstanceID) &&
-            !ignoredTopics.some(e => t.includes(e))));
+                !ignoredTopics.some(e => t.includes(e))));
         const previousOffsets = await getTopicsOffsets(topics, kafkaAdmin);
 
         const seconds = parseInt(this.parameters.KafkaCleanerInterval);
@@ -272,14 +274,14 @@ Then('kafka consumed messages should not take too much place on disk',
         // verify that the timestamp is not older than last kafkacleaner run
         // Instead of waiting for a fixed amount of time,
         // we could also check for metrics to see last kafkacleaner run
-        
+
         // 10 seconds added to be sure kafkacleaner had time to process
         await Utils.sleep(seconds * 1000 + 10000);
 
         const newOffsets = await getTopicsOffsets(topics, kafkaAdmin);
 
         for (let i = 0; i < topics.length; i++) {
-            process.stdout.write(`\nChecking topic ${topics[i]}\n`);
+            this.parameters.logger?.debug('Checking topic', { topic: topics[i] });
             for (let j = 0; j < newOffsets[i].partitions.length; j++) {
                 // Checking that the min offset has increased due to kafkacleaner
                 // or that it didn't need to change because there was no new messages
@@ -297,4 +299,83 @@ Given('an object {string} that {string}', async function (this: Zenko, objectNam
     if (objectExists === 'exists') {
         await putObject(this, objectName);
     }
+});
+
+When('the user tries to perform the current S3 action on the bucket {int} times with a {int} ms delay',
+    async function (this: Zenko, numberOfRuns: number, delay: number) {
+        this.setAuthMode('test_identity');
+        const action = {
+            ...this.getSaved<ActionPermissionsType>('currentAction'),
+        };
+        if (action.action.includes('Version') && !action.action.includes('Versioning')) {
+            action.action = action.action.replace('Version', '');
+            this.addToSaved('currentAction', action);
+        }
+        for (let i = 0; i < numberOfRuns; i++) {
+            // For repeated WRITE actions, we want to change the object name
+            if (action.action === 'PutObject') {
+                this.addToSaved('objectName', `objectrepeat-${Utils.randomString()}`);
+            } else if (action.action === 'CopyObject') {
+                this.addToSaved('copyObject', `objectrepeatcopy-${Utils.randomString()}`);
+            }
+            await runActionAgainstBucket(this, this.getSaved<ActionPermissionsType>('currentAction').action);
+            if (this.getResult().err) {
+                // stop at any error, the error will be evaluated in a separated step
+                return;
+            }
+            await Utils.sleep(delay);
+        }
+    });
+
+Then('the API should {string} with {string}', function (this: Zenko, result: string, expected: string) {
+    this.cleanupEntity();
+    const action = this.getSaved<ActionPermissionsType>('currentAction');
+    switch (result) {
+    case 'succeed':
+        if (action.expectedResultOnAllowTest) {
+            assert.strictEqual(
+                this.getResult().err?.includes(action.expectedResultOnAllowTest) ||
+                    this.getResult().stdout?.includes(action.expectedResultOnAllowTest) ||
+                    this.getResult().err === null, true);
+        } else {
+            assert.strictEqual(!!this.getResult().err, false);
+        }
+        break;
+    case 'fail':
+        assert.strictEqual(this.getResult().err?.includes(expected), true);
+        break;
+    default:
+        throw new Error('The API should have a correct expected result defined');
+    }
+});
+
+Then('the operation finished without error', function (this: Zenko) {
+    this.cleanupEntity();
+    assert.strictEqual(!!this.getResult().err, false);
+});
+
+Given('an upload size of {int} B for the object {string}', async function (
+    this: Zenko,
+    size: number,
+    objectName: string
+) {
+    this.addToSaved('objectSize', size);
+    if (this.getSaved<boolean>('preExistingObject')) {
+        if (objectName) {
+            this.addToSaved('objectName', objectName);
+        } else {
+            this.addToSaved('objectName', `object-${Utils.randomString()}`);
+        }
+        await putObject(this, this.getSaved<string>('objectName'));
+    }
+});
+
+When('I PUT an object with size {int}', async function (this: Zenko, size: number) {
+    if (size > 0) {
+        this.addToSaved('objectSize', size);
+    }
+    this.addToSaved('objectName', `object-${Utils.randomString()}`);
+    const result = await addMultipleObjects.call(
+        this, 1, this.getSaved<string>('objectName'), size);
+    this.setResult(result!);
 });

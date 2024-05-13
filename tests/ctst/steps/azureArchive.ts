@@ -274,7 +274,7 @@ Then('object {string} should have the same data', async function (this: Zenko, o
     const objectPath = path.join(__dirname, '../utils/api', Constants.OUTFILE_NAME);
     const objectBuffer = fs.readFileSync(objectPath);
     fs.rmSync(objectPath);
-    const expectedContent = Buffer.alloc(Buffer.byteLength(objectBuffer), objName);
+    const expectedContent = Buffer.alloc(Buffer.byteLength(objectBuffer), 'a');
     assert.strictEqual(objectBuffer.toString(), expectedContent.toString());
 });
 
