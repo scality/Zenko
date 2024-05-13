@@ -55,6 +55,11 @@
                         "contents": "read"
                     }
                 },
+                "scality/scuba": {
+                    "permissions": {
+                        "contents": "read"
+                    }
+                },
                 "scality/s3utils": {
                     "permissions": {
                         "contents": "read"
