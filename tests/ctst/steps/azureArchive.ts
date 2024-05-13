@@ -152,7 +152,10 @@ async function cleanZenkoBucket(
     world.addCommandParameter({ bucket: bucketName });
     const results = await S3.listObjectVersions(world.getCommandParameters());
     const res = safeJsonParse(results.stdout);
-    assert(res.ok);
+    if (!res.ok) {
+        world.parameters.logger?.error('Error listing objects', { res, results });
+        throw new Error('Error listing objects');
+    }
     const parsedResults = res.result as listingResult;
     const versions = parsedResults.Versions || [];
     const deleteMarkers = parsedResults.DeleteMarkers || [];

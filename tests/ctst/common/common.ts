@@ -42,6 +42,7 @@ async function addMultipleObjects(this: Zenko, numberObjects: number,
     objectName: string, sizeBytes: number, userMD?: string) {
     let lastResult = null;
     for (let i = 1; i <= numberObjects; i++) {
+        this.resetCommand();
         const objectNameFinal = getObjectNameWithBackendFlakiness.call(this, `${objectName}-${i}`) ||
             Utils.randomString();
         if (sizeBytes > 0) {
@@ -51,7 +52,6 @@ async function addMultipleObjects(this: Zenko, numberObjects: number,
             this.addCommandParameter({ metadata: JSON.stringify(userMD) });
         }
         this.addToSaved('objectName', objectNameFinal);
-        this.resetCommand();
         this.parameters.logger?.debug('Adding object', { objectName: objectNameFinal });
         lastResult = await putObject(this, objectNameFinal);
         const createdObjects = this.getSaved<Map<string, string>>('createdObjects') || new Map<string, string>();
