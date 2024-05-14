@@ -106,6 +106,10 @@ WORLD_PARAMETERS="$(jq -c <<EOF
 EOF
 )"
 
+# Set up environment variables for testing
+kubectl set env deployment end2end-connector-cloudserver SCUBA_HEALTHCHECK_FREQUENCY=100
+kubectl rollout status deployment end2end-connector-cloudserver
+
 E2E_IMAGE=$E2E_CTST_IMAGE_NAME:$E2E_IMAGE_TAG
 POD_NAME="${ZENKO_NAME}-ctst-tests"
 
@@ -116,6 +120,11 @@ docker run \
     --network=host \
     "${E2E_IMAGE}" /bin/bash \
     -c "SUBDOMAIN=${SUBDOMAIN} CONTROL_PLANE_INGRESS_ENDPOINT=${OIDC_ENDPOINT} ACCOUNT=${ZENKO_ACCOUNT_NAME} KEYCLOAK_REALM=${KEYCLOAK_TEST_REALM_NAME} STORAGE_MANAGER=${STORAGE_MANAGER_USER_NAME} STORAGE_ACCOUNT_OWNER=${STORAGE_ACCOUNT_OWNER_USER_NAME} DATA_CONSUMER=${DATA_CONSUMER_USER_NAME} /ctst/bin/seedKeycloak.sh"; [[ $? -eq 1 ]] && exit 1 || echo 'Keycloak Configured!'
+
+# Grant access to Kube API (insecure, only for testing)
+kubectl create clusterrolebinding serviceaccounts-cluster-admin \
+  --clusterrole=cluster-admin \
+  --group=system:serviceaccounts
 
 # Running end2end ctst tests
 # Using overrides as we need to attach a local folder to the pod

@@ -16,7 +16,7 @@ cloudserver:
   sourceRegistry: ghcr.io/scality
   dashboard: cloudserver/cloudserver-dashboards
   image: cloudserver
-  tag: 8.8.20
+  tag: 8.8.23
   envsubst: CLOUDSERVER_TAG
 jmx-javaagent:
   sourceRegistry: ghcr.io/banzaicloud
@@ -75,8 +75,14 @@ s3utils:
   sourceRegistry: ghcr.io/scality
   dashboard: s3utils/s3utils-dashboards
   image: s3utils
-  tag: 1.14.5
+  tag: 1.14.6
   envsubst: S3UTILS_TAG
+scuba:
+  sourceRegistry: ghcr.io/scality
+  dashboard: scuba/scuba-dashboards
+  image: scuba
+  tag: 1.0.0
+  envsubst: SCUBA_TAG
 sorbet:
   sourceRegistry: ghcr.io/scality
   policy: sorbet/sorbet-policies
@@ -95,12 +101,12 @@ vault:
   dashboard: vault2/vault-dashboards
   policy: vault2/vault-policies
   image: vault2
-  tag: 8.8.4
+  tag: 8.8.5
   envsubst: VAULT_TAG
 zenko-operator:
   sourceRegistry: ghcr.io/scality
   image: zenko-operator
-  tag: 1.5.45
+  tag: 1.5.46
   envsubst: ZENKO_OPERATOR_TAG
 zenko-ui:
   sourceRegistry: ghcr.io/scality
