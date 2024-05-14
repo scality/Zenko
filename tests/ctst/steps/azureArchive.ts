@@ -2,12 +2,11 @@ import fs from 'fs';
 import path from 'path';
 import assert from 'assert';
 import { safeJsonParse, request } from '../common/utils';
-import { Given, Then, When, After, setDefaultTimeout } from '@cucumber/cucumber';
+import { Given, Then, When, setDefaultTimeout } from '@cucumber/cucumber';
 import { AzureHelper, S3, Constants, Utils } from 'cli-testing';
 import util from 'util';
 import { exec } from 'child_process';
 import Zenko from 'world/Zenko';
-import { cleanS3Bucket } from 'common/common';
 
 setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
 
@@ -138,7 +137,7 @@ async function findObjectPackAndManifest(
  * @param {string} locationName location name
  * @returns {void}
  */
-async function cleanZenkoLocation(
+export async function cleanZenkoLocation(
     world: Zenko,
     locationName: string,
 ): Promise<void> {
@@ -157,7 +156,7 @@ async function cleanZenkoLocation(
  * @param {string} bucketName bucket name
  * @returns {void}
  */
-async function cleanAzureContainer(
+export async function cleanAzureContainer(
     world: Zenko,
     bucketName: string,
 ): Promise<void> {
@@ -262,7 +261,7 @@ Then('object {string} should have the same data', async function (this: Zenko, o
     const objectPath = path.join(__dirname, '../utils/api', Constants.OUTFILE_NAME);
     const objectBuffer = fs.readFileSync(objectPath);
     fs.rmSync(objectPath);
-    const expectedContent = Buffer.alloc(Buffer.byteLength(objectBuffer), objName);
+    const expectedContent = Buffer.alloc(Buffer.byteLength(objectBuffer), 'a');
     assert.strictEqual(objectBuffer.toString(), expectedContent.toString());
 });
 
@@ -480,19 +479,4 @@ Then('i can get the {string} location details', async function (this: Zenko, loc
         const { locations } = result.data as { locations: Record<string, unknown> };
         assert(locations[locationName]);
     }
-});
-
-After({ tags: '@AzureArchive' }, async function (this: Zenko) {
-    await cleanS3Bucket(
-        this,
-        this.getSaved<string>('bucketName'),
-    );
-    await cleanZenkoLocation(
-        this,
-        this.getSaved<string>('locationName'),
-    );
-    await cleanAzureContainer(
-        this,
-        this.getSaved<string>('bucketName'),
-    );
 });

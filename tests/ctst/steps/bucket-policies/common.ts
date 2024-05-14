@@ -64,6 +64,10 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
     doesApply: string,
     isAllow: string,
 ) {
+    const identityType = this.getSaved<string>('identityType') as EntityType;
+    if (identityType === EntityType.ACCOUNT) {
+        return;
+    }
     // This step needs full access.
     this.setAuthMode('base_account');
     const authzConfiguration = getAuthorizationConfiguration(this);
@@ -129,7 +133,6 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
     });
     const policyArn = extractPropertyFromResults(createdPolicy, 'Policy', 'Arn') as string;
 
-    const identityType = this.getSaved<string>('identityType') as EntityType;
     if (identityType === EntityType.ASSUME_ROLE_USER
         || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT
         || identityType === EntityType.DATA_CONSUMER) {
@@ -222,6 +225,10 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
     doesApply: string,
     isAllow: string,
 ) {
+    const identityType = this.getSaved<string>('identityType') as EntityType;
+    if (identityType === EntityType.ACCOUNT) {
+        return;
+    }
     // This step needs full access.
     this.setAuthMode('base_account');
     const authzConfiguration = getAuthorizationConfiguration(this);
@@ -269,7 +276,6 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
     this.addToSaved('authzConfiguration', authzConfiguration);
     const currentIdentityArn = this.getSaved<string>('identityArn');
     let principal = currentIdentityArn;
-    const identityType = this.getSaved<string>('identityType') as EntityType;
     if (identityType === EntityType.ASSUME_ROLE_USER
         || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT
         || identityType === EntityType.DATA_CONSUMER) {
@@ -335,7 +341,7 @@ Given('an environment setup for the API', async function (this: Zenko) {
             roleName: this.getSaved<string>('identityName'),
         });
         assert.ifError(result.stderr || result.err);
-    } else {
+    } else if (identityType === EntityType.IAM_USER) { // accounts do not have any policy
         const result = await IAM.attachUserPolicy({
             policyArn,
             userName: this.getSaved<string>('identityName'),
@@ -349,7 +355,6 @@ Given('an environment setup for the API', async function (this: Zenko) {
     case 'CompleteMultipartUpload':
     case 'AbortMultipartUpload':
     case 'UploadPart':
-    case 'UploadPartCopy':
         const objectKey = `multipartUpload-${Utils.randomString()}`;
         const initiateMPUResult = await S3.createMultipartUpload({
             ___mode: this.getCliMode(),
@@ -359,6 +364,22 @@ Given('an environment setup for the API', async function (this: Zenko) {
         assert.ifError(initiateMPUResult.stderr || initiateMPUResult.err);
         this.addToSaved('uploadId', extractPropertyFromResults<string>(initiateMPUResult, 'UploadId'));
         this.addToSaved('objectName', objectKey);
+        break;
+    case 'UploadPartCopy':
+        // create an object to copy from
+        const copyObjectKey = `objectforcopy-${Utils.randomString()}`;
+        await putObject(this, copyObjectKey);
+        this.addToSaved('objectName', copyObjectKey);
+        // create an object for the MPU as copyObject
+        const objectKeyCopy = `multipartUpload-${Utils.randomString()}`;
+        const initiateMPUResultCopy = await S3.createMultipartUpload({
+            ___mode: this.getCliMode(),
+            bucket: this.getSaved<string>('bucketName'),
+            key: objectKeyCopy,
+        });
+        assert.ifError(initiateMPUResultCopy.stderr || initiateMPUResultCopy.err);
+        this.addToSaved('uploadId', extractPropertyFromResults<string>(initiateMPUResultCopy, 'UploadId'));
+        this.addToSaved('copyObject', objectKeyCopy);
         break;
     case 'GetObjectLegalHold':
         const objectLegalHoldConfigResult = await S3.putObjectLegalHold({
@@ -397,7 +418,7 @@ Given('an environment setup for the API', async function (this: Zenko) {
             roleName: this.getSaved<string>('identityName'),
         });
         assert.ifError(result.stderr || result.err);
-    } else {
+    } else if (identityType === EntityType.IAM_USER) { // accounts do not have any policy
         const detachResult = await IAM.detachUserPolicy({
             policyArn,
             userName: this.getSaved<string>('identityName'),
