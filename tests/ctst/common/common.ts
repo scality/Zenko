@@ -338,10 +338,11 @@ Then('i {string} be able to add user metadata to object {string}',
 Then('kafka consumed messages should not take too much place on disk', { timeout: -1 },
     async function (this: Zenko) {
         const kfkcIntervalSeconds = parseInt(this.parameters.KafkaCleanerInterval);
+        const checkInterval = kfkcIntervalSeconds * (1000 + 3000);
 
         const timeoutID = setTimeout(() => {
             assert.fail('Kafka cleaner did not clean the topics');
-        }, (kfkcIntervalSeconds * 1000 + 3000) * 5); // Timeout after 5 kafkacleaner intervals
+        }, checkInterval * 5); // Timeout after 5 kafkacleaner intervals
 
         try {
             const ignoredTopics = ['dead-letter'];
@@ -359,7 +360,7 @@ Then('kafka consumed messages should not take too much place on disk', { timeout
                 // we could also check for metrics to see last kafkacleaner run
 
                 // 3 seconds added to be sure kafkacleaner had time to process
-                await Utils.sleep(kfkcIntervalSeconds * 1000 + 3000);
+                await Utils.sleep(checkInterval);
 
                 const newOffsets = await getTopicsOffsets(topics, kafkaAdmin);
 
@@ -368,7 +369,7 @@ Then('kafka consumed messages should not take too much place on disk', { timeout
                     for (let j = 0; j < newOffsets[i].partitions.length; j++) {
                         const newMessagesAfterClean =
                             newOffsets[i].partitions[j].low === previousOffsets[i].partitions[j].high &&
-                            previousOffsets[i].partitions[j].high !== '0';
+                            newOffsets[i].partitions[j].high > previousOffsets[i].partitions[j].high;
 
                         if (newMessagesAfterClean) {
                             // If new messages appeared after we gathered the offsets, we need to recheck after
