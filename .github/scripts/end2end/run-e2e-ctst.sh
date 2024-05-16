@@ -7,6 +7,7 @@ COMMAND=${2:-"premerge"}
 VCPU_COUNT=$(nproc)
 PARALLEL_RUNS=4
 RETRIES=${4:-3}
+JUNIT_REPORT_PATH=${JUNIT_REPORT_PATH:-"ctst-junit.xml"}
 
 # Zenko Version
 VERSION=$(cat ../../../VERSION | grep -Po 'VERSION="\K[^"]*')
@@ -152,6 +153,10 @@ kubectl run $POD_NAME \
           {
             "name": "cold-data",
             "mountPath": "/cold-data"
+          },
+          {
+            "name": "reports",
+            "mountPath": "/reports"
           }
         ]
       }
@@ -162,7 +167,14 @@ kubectl run $POD_NAME \
         "persistentVolumeClaim": {
           "claimName": "sorbet-data"
         }
+      },
+      {
+        "name": "reports",
+        "hostPath": {
+          "path": "/data/reports",
+          "type": "DirectoryOrCreate"
+        }
       }
     ]
   }
-}' -- ./run "$COMMAND" $WORLD_PARAMETERS --parallel $PARALLEL_RUNS --retry $RETRIES --retry-tag-filter @Flaky
+}' -- ./run "$COMMAND" $WORLD_PARAMETERS --parallel $PARALLEL_RUNS --retry $RETRIES --retry-tag-filter @Flaky --format junit:$JUNIT_REPORT_PATH
