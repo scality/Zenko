@@ -45,6 +45,7 @@ KEYCLOAK_TEST_PORT="80"
 KEYCLOAK_TEST_REALM_NAME=${OIDC_REALM}
 KEYCLOAK_TEST_CLIENT_ID=${OIDC_CLIENT_ID}
 KEYCLOAK_TEST_GRANT_TYPE="password"
+MOCHA_FILE=${MOCHA_FILE:-}
 
 run_e2e_test() {
     kubectl run ${1} ${POD_NAME} \
@@ -120,7 +121,36 @@ run_e2e_test() {
         --env=MONGO_WRITE_CONCERN=${MONGO_WRITE_CONCERN} \
         --env=MONGO_AUTH_USERNAME=${MONGO_AUTH_USERNAME} \
         --env=MONGO_AUTH_PASSWORD=${MONGO_AUTH_PASSWORD} \
-        --command -- sh -c "${2}"
+        --env=MOCHA_FILE=${MOCHA_FILE} \
+        --override-type strategic \
+        --overrides='
+{
+  "apiVersion": "v1",
+  "kind": "Pod",
+  "spec": {
+    "containers": [
+      {
+        "name": "'$POD_NAME'",
+        "volumeMounts": [
+          {
+            "name": "reports",
+            "mountPath": "/reports"
+          }
+        ]
+      }
+    ],
+    "volumes": [
+      {
+        "name": "reports",
+        "hostPath": {
+          "path": "/data/reports",
+          "type": "DirectoryOrCreate"
+        }
+      }
+    ]
+  }
+}' -- sh -c "${2}"
+
 }
 
 ## TODO use existing entrypoint
