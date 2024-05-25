@@ -77,7 +77,7 @@ function getObjectNameWithBackendFlakiness(this: Zenko, objectName: string) {
         objectNameFinal = `${objectName}.scal-retry-${backendFlakiness}-job-${backendFlakinessRetryNumber}`;
         break;
     default:
-        this.parameters.logger?.debug('Unknown backend flakyness', { backendFlakiness });
+        this.logger.debug('Unknown backend flakyness', { backendFlakiness });
         return objectName;
     }
     return objectNameFinal;
@@ -97,7 +97,7 @@ async function addMultipleObjects(this: Zenko, numberObjects: number,
             this.addCommandParameter({ metadata: JSON.stringify(userMD) });
         }
         this.addToSaved('objectName', objectNameFinal);
-        this.parameters.logger?.debug('Adding object', { objectName: objectNameFinal });
+        this.logger.debug('Adding object', { objectName: objectNameFinal });
         lastResult = await putObject(this, objectNameFinal);
         const createdObjects = this.getSaved<Map<string, string>>('createdObjects') || new Map<string, string>();
         createdObjects.set(this.getSaved<string>('objectName'), this.getSaved<string>('versionId'));
@@ -365,7 +365,7 @@ Then('kafka consumed messages should not take too much place on disk', { timeout
                 const newOffsets = await getTopicsOffsets(topics, kafkaAdmin);
 
                 for (let i = 0; i < topics.length; i++) {
-                    process.stdout.write(`\nChecking topic ${topics[i]}\n`);
+                    this.logger.debug('Checking topic', { topic: topics[i] });
                     for (let j = 0; j < newOffsets[i].partitions.length; j++) {
                         const newMessagesAfterClean =
                             newOffsets[i].partitions[j].low === previousOffsets[i].partitions[j].high &&
@@ -373,7 +373,7 @@ Then('kafka consumed messages should not take too much place on disk', { timeout
 
                         if (newMessagesAfterClean) {
                             // If new messages appeared after we gathered the offsets, we need to recheck after
-                            process.stdout.write(`New messages after clean for topic ${topics[i]} rechecking after`);
+                            this.logger.warn('New messages after clean', { topic: topics[i] });
                             continue;
                         }
 

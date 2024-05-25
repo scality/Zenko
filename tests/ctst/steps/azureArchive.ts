@@ -361,9 +361,9 @@ When('i run sorbetctl to retry failed restore for {string} location', async func
         --kafka-object-task-topic=${this.parameters.KafkaObjectTaskTopic} \
         --kafka-brokers ${this.parameters.KafkaHosts}`;
     try {
-        process.stdout.write(`Running command: ${command}\n`);
+        this.logger.debug('Running command', { command, location });
         const result = await util.promisify(exec)(command);
-        process.stdout.write(`Sorbetctl command result: ${result.stdout}\n`);
+        this.logger.debug('Sorbetctl command result', { result: result.stdout });
     } catch (err) {
         assert.ifError(err);
     }

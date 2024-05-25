@@ -88,9 +88,7 @@ Before({tags: '@Quotas'}, async function ({ gherkinDocument, pickle }) {
 
     const configuration: typeof output = JSON.parse(fs.readFileSync(`/tmp/${featureName}`, 'utf8')) as typeof output;
     const key = hashStringAndKeepFirst20Characters(`${pickle.astNodeIds[1]}`);
-    world.parameters.logger?.debug('Scenario key', { key, from: `${pickle.astNodeIds[1]}`, configuration });
-    const config = configuration[key];
-    world.resetGlobalType();
+    world.logger.debug('Scenario key', { key, from: `${pickle.astNodeIds[1]}`, configuration });
     // Save the bucket name for the scenario
     world.addToSaved('bucketName', key);
     // Save the account name for the scenario
@@ -115,7 +113,7 @@ Given('a bucket quota set to {int} B', async function (this: Zenko, quota: numbe
         this.getCliMode(),
         this.getCommandParameters());
 
-    this.parameters.logger?.debug('UpdateBucketQuota result', {
+    this.logger.debug('UpdateBucketQuota result', {
         result,
     });
 
@@ -138,7 +136,7 @@ Given('an account quota set to {int} B', async function (this: Zenko, quota: num
         this.getCliMode(),
         this.getCommandParameters());
 
-    this.parameters.logger?.debug('UpdateAccountQuota result', {
+    this.logger.debug('UpdateAccountQuota result', {
         result,
     });
 

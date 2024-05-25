@@ -120,7 +120,7 @@ export async function request(options: http.RequestOptions, data: string | undef
     Promise<{response: http.IncomingMessage, body: string}> {
     return new Promise((resolve, reject) => {
         const req = http.request(options, res => {
-            const chunks : string[] = [];
+            const chunks: string[] = [];
             res.setEncoding('utf8');
             res.on('data', (chunk: string) => {
                 chunks.push(chunk);

@@ -142,7 +142,7 @@ async function runActionAgainstBucket(context: Zenko, action: string) {
         if (actionCall) {
             if (usedAction in s3FunctionExtraParams) {
                 s3FunctionExtraParams[usedAction].forEach(param => {
-                    context.parameters.logger?.debug('Adding parameter', { param });
+                    world.logger.debug('Adding parameter', { param });
                     // Keys that are set in the scenarios take precedence over the
                     // ones set in the extra params.
                     const key = Object.keys(param)[0];
@@ -182,7 +182,7 @@ async function createBucketWithConfiguration(
         // Empty strings are used to pass parameters that are used as a flag and do not require a value
         context.addCommandParameter({ objectLockEnabledForBucket: ' ' });
     }
-    context.parameters.logger?.debug('Creating bucket',
+    world.logger.debug('Creating bucket',
         { bucket: usedBucketName, withObjectLock, retentionMode, withVersioning });
     await S3.createBucket(context.getCommandParameters());
     if (withVersioning === 'with') {

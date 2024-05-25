@@ -52,8 +52,6 @@ export enum EntityType {
 export interface ZenkoWorldParameters extends ClientOptions {
     // Make some fields from ClientOptions mandatory
     IAMSession: NonNullable<ClientOptions['IAMSession']>;
-
-    logger?: Werelogs.Logger;
     AccountName: string;
     AccountAccessKey: string;
     AccountSecretKey: string;
@@ -132,6 +130,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     private forceFailed = false;
 
     private cliMode: cliModeObject = CacheHelper.createCliModeObject();
+
+    logger: Werelogs.RequestLogger = new Werelogs.Logger('CTST').newRequestLogger();
 
     /**
      * @constructor
@@ -315,7 +315,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             }
             // Ensure we can assume at least one role
             if (!roleToAssume) {
-                this.parameters.logger?.error('No role found for web identity', {
+                this.logger.error('No role found for web identity', {
                     accountName,
                     ARWWIName,
                     ARWWITargetRole,
@@ -329,7 +329,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             this.options.roleArn = arn;
             // Assume the role and save the credentials
             const ARWWI = await STS.assumeRoleWithWebIdentity(this.options, this.parameters);
-            this.parameters.logger?.debug('Assumed role with web identity', ARWWI);
+            this.logger.debug('Assumed role with web identity', ARWWI);
             this.addToSaved('identityArn', extractPropertyFromResults(ARWWI, 'AssumedRoleUser', 'Arn'));
             if (ARWWI && typeof ARWWI !== 'string' && ARWWI.stdout) {
                 const parsedOutput = JSON.parse(ARWWI.stdout) as { Credentials: ClientOptions['AssumedSession'] };
