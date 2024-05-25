@@ -8,24 +8,20 @@ import {
  * This helper will dynamically extract a property from a CLI result
  * @param {object} results - results from the command line
  * @param {string[]} propertyChain - the property chain to extract, like Policy, Arn
- * @return {string} - the expected property, or null if an error occurred when parsing results.
+ * @return {string} - the expected property
  */
-export function extractPropertyFromResults<T>(results: Utils.Command, ...propertyChain: string[]) : T | null {
-    try {
-        if (results.stdout) {
-            const jsonResults = JSON.parse(results.stdout) as Record<string, unknown>;
-            let res : unknown = jsonResults;
-            if (jsonResults) {
-                while (propertyChain.length > 0) {
-                    res = (res as Record<string, unknown>)[propertyChain.shift()!];
-                }
+export function extractPropertyFromResults<T>(results: Utils.Command, ...propertyChain: string[]): T {
+    if (results.stdout) {
+        const jsonResults = JSON.parse(results.stdout) as Record<string, unknown>;
+        let res: unknown = jsonResults;
+        if (jsonResults) {
+            while (propertyChain.length > 0) {
+                res = (res as Record<string, unknown>)[propertyChain.shift()!];
             }
-            return res as T;
         }
-        return null;
-    } catch (err) {
-        return null;
+        return res as T;
     }
+    throw new Error('Property not found in results');
 }
 
 export const s3FunctionExtraParams: { [key: string]: Record<string, unknown>[] } = {
