@@ -35,21 +35,18 @@ After({ tags: '@Quotas' }, async function () {
     // restore account
     await world.createAccount();
     await world.setupEntity(EntityType.STORAGE_MANAGER);
-    world.resumeAssumedRole();
+    await world.setupEntity('StorageManager');
     world.addCommandParameter({
         bucket: world.getSaved<string>('bucketName'),
     });
     const resultBucket = await Scality.deleteBucketQuota(
         world.parameters,
-        world.getCliMode(),
         world.getCommandParameters());
     world.logger.debug('DeleteBucketQuota result', {
         resultBucket,
         parameters: world.getCommandParameters(),
     });
-    const resultAccount = await Scality.deleteAccountQuota(
-        world.parameters,
-        world.getCliMode());
+    const resultAccount = await Scality.deleteAccountQuota(world.parameters);
 
     world.logger.debug('DeleteAccountQuota result', {
         resultAccount,
@@ -87,19 +84,16 @@ Given('a {type} type', async function (this: Zenko, type: string) {
 
 Given('a {string} AssumeRole user', async function (this: Zenko, crossAccount: string) {
     await this.prepareAssumeRole(crossAccount === 'cross account');
-    this.addToSaved('type', EntityType.ASSUME_ROLE_USER);
 });
 
 Given('a service user {string} assuming the role {string} of an internal service account',
     async function (this: Zenko, serviceUserName: string, roleName: string) {
         await this.prepareServiceUser(serviceUserName, roleName, true);
-        this.addToSaved('type', EntityType.ASSUME_ROLE_USER);
     });
 
 Given('a service user {string} assuming the role {string} of a user account',
     async function (this: Zenko, serviceUserName: string, roleName: string) {
         await this.prepareServiceUser(serviceUserName, roleName);
-        this.addToSaved('type', EntityType.ASSUME_ROLE_USER);
     });
 
 export default Zenko;

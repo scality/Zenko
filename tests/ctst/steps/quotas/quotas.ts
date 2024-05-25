@@ -4,7 +4,7 @@ import lockFile from 'proper-lockfile';
 import { createHash } from 'crypto';
 import { Given, Before, When } from '@cucumber/cucumber';
 import Zenko from '../../world/Zenko';
-import { Scality, Command, CacheHelper, Constants, Utils } from 'cli-testing';
+import { Scality, Command, CacheHelper, Constants, Utils, AWSCredentials, Identity, IdentityEnum } from 'cli-testing';
 import { createJobAndWaitForCompletion } from 'steps/utils/kubernetes';
 import { createBucketWithConfiguration, putObject } from 'steps/utils/utils';
 
@@ -21,7 +21,7 @@ function hashStringAndKeepFirst20Characters(input: string) {
 Before({tags: '@Quotas'}, async function ({ gherkinDocument, pickle }) {
     let initiated = false;
     let releaseLock: (() => Promise<void>) | false = false;
-    const output: { [key: string]: { AccessKey: string, SecretKey: string }} = {};
+    const output: Record<string, AWSCredentials> = {};
     const world = this as Zenko;
 
     await Zenko.init(world.parameters);
@@ -57,8 +57,8 @@ Before({tags: '@Quotas'}, async function ({ gherkinDocument, pickle }) {
                         isBucketNonVersioned ? '' : 'with');
                     await putObject(world);
                     output[scenarioWithExampleID] = {
-                        AccessKey: CacheHelper.parameters?.AccessKey || Constants.DEFAULT_ACCESS_KEY,
-                        SecretKey: CacheHelper.parameters?.SecretKey || Constants.DEFAULT_SECRET_KEY,
+                        accessKeyId: CacheHelper.parameters?.AccessKey || Constants.DEFAULT_ACCESS_KEY,
+                        secretAccessKey: CacheHelper.parameters?.SecretKey || Constants.DEFAULT_SECRET_KEY,
                     };
                 }
             }
@@ -89,11 +89,12 @@ Before({tags: '@Quotas'}, async function ({ gherkinDocument, pickle }) {
     const configuration: typeof output = JSON.parse(fs.readFileSync(`/tmp/${featureName}`, 'utf8')) as typeof output;
     const key = hashStringAndKeepFirst20Characters(`${pickle.astNodeIds[1]}`);
     world.logger.debug('Scenario key', { key, from: `${pickle.astNodeIds[1]}`, configuration });
+    Identity.resetIdentity();
     // Save the bucket name for the scenario
     world.addToSaved('bucketName', key);
     // Save the account name for the scenario
-    Zenko.saveAccountAccessKeys(config.AccessKey, config.SecretKey);
-    world.addToSaved('accountName', key);
+    Identity.addIdentity(IdentityEnum.ACCOUNT, key, configuration[key]);
+    Identity.useIdentity(IdentityEnum.ACCOUNT, key);
 });
 
 Given('a bucket quota set to {int} B', async function (this: Zenko, quota: number) {
@@ -107,10 +108,9 @@ Given('a bucket quota set to {int} B', async function (this: Zenko, quota: numbe
         bucket: this.getSaved<string>('bucketName'),
     });
     // This API is only valid for storage managers
-    this.resumeAssumedRole();
+    this.useSavedIdentity();
     const result: Command = await Scality.updateBucketQuota(
         this.parameters,
-        this.getCliMode(),
         this.getCommandParameters());
 
     this.logger.debug('UpdateBucketQuota result', {
@@ -130,10 +130,9 @@ Given('an account quota set to {int} B', async function (this: Zenko, quota: num
         quotaMax: String(quota),
     });
     // This API is only valid for storage managers
-    this.resumeAssumedRole();
+    this.useSavedIdentity();
     const result: Command = await Scality.updateAccountQuota(
         this.parameters,
-        this.getCliMode(),
         this.getCommandParameters());
 
     this.logger.debug('UpdateAccountQuota result', {

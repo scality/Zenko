@@ -1,5 +1,5 @@
 import { Given, setDefaultTimeout } from '@cucumber/cucumber';
-import { Constants, IAM, Utils } from 'cli-testing';
+import { Constants, IAM, Identity, Utils } from 'cli-testing';
 import { extractPropertyFromResults } from '../../common/utils';
 import Zenko from 'world/Zenko';
 
@@ -7,7 +7,7 @@ setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
 
 Given('an IAM policy attached to the entity {string} with {string} effect to perform {string} on {string}',
     async function (this: Zenko, entity: string, effect: string, action: string, resource: string) {
-        this.cleanupEntity();
+        Identity.resetIdentity();
         this.resetCommand();
         this.addToSaved('action', action);
         // create the IAM policy

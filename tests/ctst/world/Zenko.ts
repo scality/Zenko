@@ -10,11 +10,14 @@ import {
     Command,
     Constants,
     IAM,
+    Identity,
+    IdentityEnum,
     STS,
     SuperAdmin,
     Utils,
+    AWSCredentials,
 } from 'cli-testing';
-import { Credentials } from 'aws4-axios';
+
 import { extractPropertyFromResults } from '../common/utils';
 
 interface ServiceUsersCredentials {
@@ -34,8 +37,6 @@ export enum EntityType {
 }
 
 export interface ZenkoWorldParameters extends ClientOptions {
-    // Make some fields from ClientOptions mandatory
-    IAMSession: NonNullable<ClientOptions['IAMSession']>;
     AccountName: string;
     AccountAccessKey: string;
     AccountSecretKey: string;
@@ -93,19 +94,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
     private saved: Record<string, unknown> = {};
 
-    private static IAMUserName = '';
-
-    private static IAMUserPolicyName = '';
-
-    private static IAMUserAttachedPolicy = '';
-
-    private static additionalAccountsCredentials: { [id: string]: { AccessKey: string, SecretKey: string } } = {};
-
-    private static serviceUsersCredentials: { [name: string]: { AccessKeyId: string; SecretAccessKey: string } } = {};
-
     private forceFailed = false;
-
-    private cliMode: cliModeObject = CacheHelper.createCliModeObject();
 
     logger: Werelogs.RequestLogger = new Werelogs.Logger('CTST').newRequestLogger();
 
@@ -120,19 +109,22 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             const serviceUserCredentials =
                 JSON.parse(this.parameters.ServiceUsersCredentials) as Record<string, ServiceUsersCredentials>;
             for (const serviceUserName in serviceUserCredentials) {
-                Zenko.serviceUsersCredentials[serviceUserName] = {
-                    AccessKeyId: serviceUserCredentials[serviceUserName].accessKey,
-                    SecretAccessKey: serviceUserCredentials[serviceUserName].secretKey,
-                };
+                Identity.addIdentity(IdentityEnum.SERVICE_USER, serviceUserName, {
+                    accessKeyId: serviceUserCredentials[serviceUserName].accessKey,
+                    secretAccessKey: serviceUserCredentials[serviceUserName].secretKey,
+                });
             }
         }
 
         // Workaround to be able to access global parameters in BeforeAll/AfterAll hooks
-        CacheHelper.parameters = this.parameters as unknown as Record<string, unknown>;
-        this.cliMode.parameters = this.parameters;
+        CacheHelper.cacheParameters(this.parameters);
 
-        CacheHelper.AccountName = this.parameters.AccountName;
-        CacheHelper.isPreloadedAccount = true;
+        if (this.parameters.AccountName) {
+            Identity.addIdentity(IdentityEnum.ACCOUNT, this.parameters.AccountName, {
+                accessKeyId: this.parameters.AccountAccessKey,
+                secretAccessKey: this.parameters.AccountSecretKey,
+            }, true, true);
+        }
     }
 
     /**
@@ -173,90 +165,64 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * @returns {undefined}
      */
     async setupEntity(entityType: string): Promise<void> {
-        const defaultParameters = this.parameters;
-        const keycloakPassword = defaultParameters.KeycloakTestPassword || '123';
         const savedParameters = JSON.parse(JSON.stringify(this.cliOptions)) as object;
-        this.resetGlobalType();
+        Identity.resetIdentity();
         this.addToSaved('identityType', entityType);
+
         switch (entityType) {
         case EntityType.ACCOUNT:
             await this.createAccount();
-            this.addToSaved('type', EntityType.ACCOUNT);
             break;
         case EntityType.IAM_USER:
             await this.prepareIamUser();
-            this.addToSaved('type', EntityType.IAM_USER);
             break;
         case EntityType.STORAGE_MANAGER:
-            this.addToSaved('identityName', 'StorageManager');
-            await this.prepareARWWI(
-                defaultParameters.StorageManagerUsername || 'storage_manager',
-                keycloakPassword,
-                'storage-manager-role',
-            );
-            this.addToSaved('type', EntityType.STORAGE_MANAGER);
+            await this.prepareARWWI(this.parameters.StorageManagerUsername || 'storage_manager',
+                'storage-manager-role', this.parameters.KeycloakTestPassword, 'StorageManager');
             break;
         case EntityType.STORAGE_ACCOUNT_OWNER:
-            this.addToSaved('identityName', 'StorageAccountOwner');
-            await this.prepareARWWI(
-                defaultParameters.StorageAccountOwnerUsername || 'storage_account_owner',
-                keycloakPassword,
-                'storage-account-owner-role',
-            );
-            this.addToSaved('type', EntityType.STORAGE_ACCOUNT_OWNER);
+            await this.prepareARWWI(this.parameters.StorageAccountOwnerUsername || 'storage_account_owner',
+                'storage-account-owner-role', this.parameters.KeycloakTestPassword, 'StorageAccountOwner');
             break;
         case EntityType.DATA_CONSUMER:
-            this.addToSaved('identityName', 'DataConsumer');
-            await this.prepareARWWI(
-                defaultParameters.DataConsumerUsername || 'data_consumer',
-                keycloakPassword,
-                'data-consumer-role',
-            );
-            this.addToSaved('type', EntityType.DATA_CONSUMER);
+            await this.prepareARWWI(this.parameters.DataConsumerUsername || 'data_consumer',
+                'data-consumer-role', this.parameters.KeycloakTestPassword, 'DataConsumer');
             break;
         case EntityType.ASSUME_ROLE_USER:
             await this.prepareAssumeRole(false);
-            this.addToSaved('type', EntityType.ASSUME_ROLE_USER);
             break;
         case EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT:
             await this.prepareAssumeRole(true);
-            this.addToSaved('type', EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT);
             break;
         default:
             break;
         }
-        this.saveAuthMode('test_identity');
+
         this.resetCommand();
         this.cliOptions = savedParameters as Record<string, unknown>;
-    }
-
-    /**
-     * As the type of the current request is set as a static variable, this helper
-     * function resets the current configuration to use the account by default
-     * @returns {undefined}
-     */
-    resetGlobalType(): void {
-        this.cliMode.env = false;
-        this.cliMode.assumed = false;
     }
 
     /**
      * Creates an assumed role session using a web identity from the IDP with a
      * duration of 12 hours.
      * @param {string} ARWWIName - IDP username of the current STS session
-     * @param {string} ARWWIPassword - IDP password of the current STS session
      * @param {string} ARWWITargetRole - role to assume. The first role returned
      * by GetRolesForWebIdentity matching this name will be dynamically chosen
+     * @param {string} ARWWIPassword - IDP password of the current STS session
+     * @param {string} identityNameForScenario - name of the identity to save for
+     * the scenario
      * @returns {undefined}
      */
-    async prepareARWWI(ARWWIName: string, ARWWIPassword: string, ARWWITargetRole: string) {
+    async prepareARWWI(ARWWIName: string, ARWWITargetRole: string, ARWWIPassword: string,
+        identityNameForScenario: string) {
         const accountName = this.getSaved<string>('accountName') ||
             this.parameters.AccountName || Constants.ACCOUNT_NAME;
         const key = `${accountName}_${ARWWIName}`;
-        if (!(key in CacheHelper.ARWWI)) {
+
+        if (!Identity.hasIdentity(IdentityEnum.ASSUMED_ROLE, key)) {
             const webIdentityToken = await this.getWebIdentityToken(
                 ARWWIName,
-                ARWWIPassword,
+                ARWWIPassword || '123',
                 this.parameters.KeycloakHost || 'keycloak.zenko.local',
                 this.parameters.KeycloakPort || '80',
                 `/auth/realms/${this.parameters.KeycloakRealm || 'zenko'}/protocol/openid-connect/token`,
@@ -309,29 +275,17 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             this.addToSaved('identityArn', extractPropertyFromResults(ARWWI, 'AssumedRoleUser', 'Arn'));
 
             if (ARWWI && typeof ARWWI !== 'string' && ARWWI.stdout) {
-                const parsedOutput = JSON.parse(ARWWI.stdout) as { Credentials: ClientOptions['AssumedSession'] };
+                const parsedOutput = JSON.parse(ARWWI.stdout) as { Credentials: AWSCredentials };
                 if (parsedOutput && parsedOutput.Credentials) {
-                    this.parameters.AssumedSession = parsedOutput.Credentials;
+                    Identity.addIdentity(IdentityEnum.ASSUMED_ROLE, key, parsedOutput.Credentials, true);
                 }
             } else {
                 throw new Error('Error when trying to Assume Role With Web Identity.');
             }
-            // Save the session for future scenarios (increases performance)
-            CacheHelper.ARWWI[key] = this.parameters.AssumedSession;
-            this.cliMode.parameters.AssumedSession =
-                CacheHelper.ARWWI[key];
-            CacheHelper.parameters!.AssumedSession = CacheHelper.ARWWI[key];
-            this.cliMode.assumed = true;
-            this.cliMode.env = false;
         } else {
-            this.parameters.AssumedSession =
-                CacheHelper.ARWWI[key];
-            this.cliMode.parameters.AssumedSession =
-                CacheHelper.ARWWI[key];
-            CacheHelper.parameters!.AssumedSession = CacheHelper.ARWWI[key];
-            this.cliMode.assumed = true;
-            this.cliMode.env = false;
+            Identity.useIdentity(IdentityEnum.ASSUMED_ROLE, key);
         }
+        this.saveIdentityInformation(identityNameForScenario, IdentityEnum.ASSUMED_ROLE);
     }
 
     /**
@@ -383,17 +337,18 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     }
 
     async createAccount(name?: string, force?: boolean) {
-        this.resetGlobalType();
-        if (!force && this.getSaved<string>('accountName')) {
-            Zenko.restoreAccountAccessKeys();
-        } else {
-            const accountName = name || `${Constants.ACCOUNT_NAME}${Utils.randomString()}`;
-            this.addToSaved('accountName', accountName);
+        Identity.resetIdentity();
+        let accountName = Identity.getCurrentAccountName();
+        if (force || accountName) {
+            accountName = name || `${Constants.ACCOUNT_NAME}${Utils.randomString()}`;
             await SuperAdmin.createAccount({ accountName });
             const credentials = await SuperAdmin.generateAccountAccessKey({ accountName });
-            Zenko.saveAccountAccessKeys(credentials.id!, credentials.value!);
-            CacheHelper.AccountName = accountName;
+            Identity.addIdentity(IdentityEnum.ACCOUNT, accountName, credentials);
         }
+        Identity.useIdentity(IdentityEnum.ACCOUNT, accountName);
+
+        // Save the identity
+        this.saveIdentityInformation(accountName, IdentityEnum.ACCOUNT);
     }
 
     /**
@@ -402,21 +357,22 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * @returns {undefined}
      */
     async prepareAssumeRole(crossAccount = false) {
-        this.resetGlobalType();
+        Identity.resetIdentity();
 
         // Getting default account ID
         const account = await SuperAdmin.getAccount({
             accountName: this.parameters.AccountName || Constants.ACCOUNT_NAME,
         });
-        Zenko.additionalAccountsCredentials[account.name!] = {
-            AccessKey: CacheHelper.parameters!.AccessKey as string,
-            SecretKey: CacheHelper.parameters!.SecretKey as string,
-        };
+
+        Identity.addIdentity(IdentityEnum.ACCOUNT, account.name, {
+            accessKeyId: this.parameters.AccountAccessKey,
+            secretAccessKey: this.parameters.AccountSecretKey,
+        });
 
         // Creating a role to assume
-        this.addToSaved('roleName', `${(account).name!}` +
-            `${Constants.ROLE_NAME_TEST}${`${Utils.randomString()}`.toLocaleLowerCase()}`);
-        this.addCommandParameter({ roleName: this.getSaved<string>('roleName') });
+        const roleName = `${account.name}${Constants.ROLE_NAME_TEST}${Utils.randomString()}`;
+        this.addToSaved('roleName', roleName);
+        this.addCommandParameter({ roleName });
         this.addCommandParameter({ assumeRolePolicyDocument: Constants.assumeRoleTrustPolicy });
         const roleArnToAssume =
             extractPropertyFromResults(await IAM.createRole(
@@ -435,24 +391,21 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 accountName: account2.account.name,
             });
 
-            // Set the credentials of the second account as the default credentials
-            CacheHelper.parameters ??= {};
-            CacheHelper.parameters.AccessKey = account2Credentials.id;
-            CacheHelper.parameters.SecretKey = account2Credentials.value;
+            Identity.addIdentity(IdentityEnum.ACCOUNT, account2.account.name, account2Credentials, true);
 
             accountToBeAssumedFrom = account2.account;
         }
 
         // Creating a user in the account to be assumed from
         this.resetCommand();
-        const userName = `${accountToBeAssumedFrom.name!}${Constants.USER_NAME_TEST}${Utils.randomString()}`;
+        const userName = `${accountToBeAssumedFrom.name}${Constants.USER_NAME_TEST}${Utils.randomString()}`;
         this.addCommandParameter({ userName });
         await IAM.createUser(this.getCommandParameters());
 
         // Creating a policy to allow it to AssumeRole
         this.resetCommand();
         this.addCommandParameter({
-            policyName: `${(accountToBeAssumedFrom).name!}` +
+            policyName: `${(accountToBeAssumedFrom).name}` +
                 `${Constants.POLICY_NAME_TEST}` +
                 `${Utils.randomString()}`,
         });
@@ -470,32 +423,26 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         // Creating credentials for the user
         this.resetCommand();
         this.addCommandParameter({ userName });
-        this.parameters.IAMSession =
-            extractPropertyFromResults(await IAM.createAccessKey(
-                this.getCommandParameters()), 'AccessKey')!;
-        this.resumeIamUser();
+        Identity.addIdentity(IdentityEnum.IAM_USER, userName, {
+            accessKeyId: extractPropertyFromResults(await IAM.createAccessKey(
+                this.getCommandParameters()), 'AccessKey', 'AccessKeyId'),
+            secretAccessKey: extractPropertyFromResults(await IAM.createAccessKey(
+                this.getCommandParameters()), 'AccessKey', 'SecretAccessKey'),
+        });
+        Identity.useIdentity(IdentityEnum.IAM_USER, userName);
 
         // Assuming the role
         this.resetCommand();
         this.addCommandParameter({ roleArn: roleArnToAssume });
-        const res = extractPropertyFromResults<ClientOptions['AssumedSession']>(await STS.assumeRole(
+        const res = extractPropertyFromResults<AWSCredentials>(await STS.assumeRole(
             this.getCommandParameters()), 'Credentials');
-        if (res) {
-            this.parameters.AssumedSession = res;
-        }
-        this.cliMode.assumed = true;
-        this.cliMode.env = false;
+        Identity.addIdentity(IdentityEnum.ASSUMED_ROLE, roleName, res, true);
+
+        Identity.useIdentity(IdentityEnum.ACCOUNT, account.name);
 
         // Save the identity
         this.addToSaved('identityArn', roleArnToAssume);
-        this.addToSaved('identityName', this.getSaved<string>('roleName'));
-
-        CacheHelper.parameters ??= {};
-        // reset the credentials of default account as the defualt credentials
-        CacheHelper.parameters.AccessKey =
-            Zenko.additionalAccountsCredentials[account.name!].AccessKey;
-        CacheHelper.parameters.SecretKey =
-            Zenko.additionalAccountsCredentials[account.name!].SecretKey;
+        this.saveIdentityInformation(roleName, IdentityEnum.ASSUMED_ROLE);
     }
 
     /**
@@ -506,7 +453,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * @returns {undefined}
      */
     async prepareServiceUser(serviceUserName: string, roleName: string, internal = false) {
-        this.resetGlobalType();
+        Identity.resetIdentity();
 
         let roleArnToAssume: string | null = null;
         // Getting the role to assume
@@ -526,10 +473,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             }
         }
 
-        // assign the credentials of the service user to the IAM session
-        this.parameters.IAMSession =
-            Zenko.serviceUsersCredentials[serviceUserName];
-        this.resumeIamUser();
+        // Assign the credentials of the service user to the IAM session.
+        Identity.useIdentity(IdentityEnum.SERVICE_USER, serviceUserName);
 
         // Assuming the role as the service user
         this.resetCommand();
@@ -540,16 +485,12 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             ${assumeRoleRes.err}`);
         }
 
-        //assign the assumed session credentials to the Assumed session.
-        const res = extractPropertyFromResults<ClientOptions['AssumedSession']>(assumeRoleRes, 'Credentials');
-        // necessary to avoid linter error
-        if (res) {
-            this.parameters.AssumedSession = res;
-        } else {
-            throw new Error(`Error when trying to assume role ${roleArnToAssume} as service user ${serviceUserName}.
-            No credentials returned.`);
-        }
-        this.resumeAssumedRole();
+        // Assign the assumed session credentials to the Assumed session.
+        const res = extractPropertyFromResults<AWSCredentials>(assumeRoleRes, 'Credentials');
+        Identity.addIdentity(IdentityEnum.ASSUMED_ROLE, roleName, res, true);
+
+        // Save the identity
+        this.saveIdentityInformation(serviceUserName, IdentityEnum.SERVICE_USER);
     }
 
     /**
@@ -558,85 +499,54 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * @returns {undefined}
      */
     static async init(parameters: ZenkoWorldParameters) {
-        CacheHelper.parameters ??= {};
-        if (!CacheHelper.accountAccessKeys) {
+        const accountName = parameters.AccountName || Constants.ACCOUNT_NAME;
+        if (!Identity.hasIdentity(IdentityEnum.ACCOUNT, accountName)) {
             CacheHelper.adminClient = await Utils.getAdminCredentials(parameters);
-
+    
             let account = null;
+
             // Create the account if already exist will not throw any error
             try {
-                await SuperAdmin.createAccount({
-                    accountName: parameters.AccountName || Constants.ACCOUNT_NAME,
-                });
+                await SuperAdmin.createAccount({ accountName });
                 /* eslint-disable */
-            } catch (err: any) {
-                if (!err.EntityAlreadyExists && err.code !== 'EntityAlreadyExists') {
-                    throw err;
+                } catch (err: any) {
+                    if (!err.EntityAlreadyExists && err.code !== 'EntityAlreadyExists') {
+                        throw err;
+                    }
                 }
-            }
-            /* eslint-enable */
+                /* eslint-enable */
             // Waiting until the account exists, in case of parallel mode.
             let remaining = Constants.MAX_ACCOUNT_CHECK_RETRIES;
-                account = await SuperAdmin.getAccount({ accountName });
+            account = await SuperAdmin.getAccount({ accountName });
             while (!account && remaining > 0) {
                 await Utils.sleep(1000);
-                account = (await SuperAdmin.getAccount({
-                    accountName: parameters.AccountName || Constants.ACCOUNT_NAME,
-                }));
+                account = await SuperAdmin.getAccount({ accountName });
                 remaining--;
             }
             if (!account) {
-                throw new Error(`Account ${parameters.AccountName
-                    || Constants.ACCOUNT_NAME} not found \
-        after ${Constants.MAX_ACCOUNT_CHECK_RETRIES} retries.`);
+                throw new Error(`Account ${accountName} not found.`);
             }
-            if (parameters.AccountName && parameters.AccountAccessKey
-                && parameters.AccountSecretKey) {
-                CacheHelper.parameters.AccessKey = parameters.AccountAccessKey;
-                CacheHelper.parameters.SecretKey = parameters.AccountSecretKey;
-                CacheHelper.isPreloadedAccount = true;
-            } else {
-                const accessKeys = await SuperAdmin.generateAccountAccessKey({
-                    accountName: parameters.AccountName || Constants.ACCOUNT_NAME,
-                });
-                if (Utils.isAccessKeys(accessKeys)) {
-                    this.saveAccountAccessKeys(accessKeys.id!, accessKeys.value!);
-                } else {
+    
+            // Account was found, generate access keys if not provided
+            const accountAccessKeys: AWSCredentials = {
+                accessKeyId: parameters.AccountAccessKey || '',
+                secretAccessKey: parameters.AccountSecretKey || '',
+            };
+    
+            if (!parameters.AccountName || !accountAccessKeys.accessKeyId || !accountAccessKeys.secretAccessKey) {
+                const accessKeys = await SuperAdmin.generateAccountAccessKey({ accountName });
+                if (!Utils.isAccessKeys(accessKeys)) {
                     throw new Error('Failed to generate account access keys');
                 }
+                accountAccessKeys.accessKeyId = accessKeys.accessKeyId;
+                accountAccessKeys.secretAccessKey = accessKeys.secretAccessKey;
             }
-            CacheHelper.AccountName = CacheHelper.parameters.AccountName as string
-                || Constants.ACCOUNT_NAME;
+    
+            Identity.addIdentity(IdentityEnum.ACCOUNT, accountName, accountAccessKeys, true, true);
         } else {
-            CacheHelper.parameters.AccessKey =
-                CacheHelper.accountAccessKeys?.id;
-            CacheHelper.parameters.SecretKey =
-                CacheHelper.accountAccessKeys?.value;
+            Identity.useIdentity(IdentityEnum.ACCOUNT, accountName);
         }
-    }
-
-    static saveAccountAccessKeys(accessKey: string, secretKey: string) {
-        CacheHelper.accountAccessKeys = {
-            id: accessKey,
-            value: secretKey,
-        };
-        if (!CacheHelper.parameters) {
-            CacheHelper.parameters = {};
-        }
-        CacheHelper.parameters.AccessKey =
-            CacheHelper.accountAccessKeys?.id;
-        CacheHelper.parameters.SecretKey =
-            CacheHelper.accountAccessKeys?.value;
-    }
-
-    static restoreAccountAccessKeys() {
-        if (CacheHelper.accountAccessKeys) {
-            CacheHelper.parameters!.AccessKey =
-                CacheHelper.accountAccessKeys.id;
-            CacheHelper.parameters!.SecretKey =
-                CacheHelper.accountAccessKeys.value;
-        }
-    }
+    }    
 
     /**
      * Creates an IAM user with policy and access keys to be used in the tests.
@@ -645,92 +555,35 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * @returns {undefined}
      */
     async prepareIamUser() {
-        this.addToSaved('userName', `iamusertest${Utils.randomString()}`);
+        const userName = `iamusertest${Utils.randomString()}`;
+        this.addToSaved('userName', userName);
         // Create IAM user
-        this.addCommandParameter({ userName: this.getSaved<string>('userName') });
+        this.addCommandParameter({ userName });
         const userInfos = await IAM.createUser(this.getCommandParameters());
-        this.addToSaved('identityArn', extractPropertyFromResults(userInfos, 'User', 'Arn'));
-        this.addToSaved('identityName', extractPropertyFromResults(userInfos, 'User', 'UserName'));
         this.resetCommand();
         // Create credentials for the user
-        this.addCommandParameter({ userName: this.getSaved<string>('userName') });
-        const accessKey = await IAM.createAccessKey(this.getCommandParameters());
-        this.parameters.IAMSession =
-            (JSON.parse(accessKey.stdout) as { AccessKey: UserCredentials }).AccessKey;
-        this.cliMode.parameters.IAMSession =
-            this.parameters.IAMSession;
-        CacheHelper.parameters!.IAMSession =
-            this.parameters.IAMSession;
-        this.cliMode.env = true;
+        this.addCommandParameter({ userName });
+        const result = await IAM.createAccessKey(this.getCommandParameters());
+        const credentials = (JSON.parse(result.stdout) as { AccessKey: AWSCredentials }).AccessKey;
+        Identity.addIdentity(IdentityEnum.IAM_USER, userName, {
+            accessKeyId: credentials.accessKeyId,
+            secretAccessKey: credentials.secretAccessKey,
+        }, true);
         this.resetCommand();
+
+        this.addToSaved('identityArn', extractPropertyFromResults(userInfos, 'User', 'Arn'));
+        this.saveIdentityInformation(extractPropertyFromResults(userInfos, 'User', 'UserName'), IdentityEnum.IAM_USER);
     }
 
-    resumeIamUser() {
-        this.cliMode.env = true;
+    saveIdentityInformation(name: string, identity: IdentityEnum) {
+        this.addToSaved('identityNameForScenario', name);
+        this.addToSaved('identityTypeForScenario', identity);
     }
 
-    resumeAssumedRole() {
-        this.cliMode.env = false;
-        this.cliMode.assumed = true;
-    }
-
-    /**
-     * Erases all the environment configuration from setupEntity
-     * @returns {undefined}
-     */
-    cleanupEntity(): void {
-        this.cliMode.assumed = false;
-        this.cliMode.env = false;
-    }
-
-    saveAuthMode(authMode: string): void {
-        // save current cliMode.assumed and cliMode.env in saved for later use
-        this.addToSaved(authMode, {
-            cacheSession: {
-                ...CacheHelper.parameters!.IAMSession,
-            },
-            cliModeParameters: {
-                ...this.cliMode.parameters.IAMSession,
-            },
-            env: this.cliMode.env,
-            assumed: this.cliMode.assumed,
-        } as ClientOptions);
-    }
-
-    setAuthMode(authMode: string): void {
-        // restore cliMode.assumed and cliMode.env from saved
-        const savedConfiguration = this.getSaved<{
-            cacheSession: {
-                AccessKeyId: string;
-                SecretAccessKey: string;
-                SessionToken?: string | undefined;
-            } | undefined,
-            cliModeParameters: ClientOptions['AssumedSession'],
-            env: boolean,
-            assumed: boolean,
-        }>(authMode);
-        CacheHelper.parameters!.IAMSession = savedConfiguration.cacheSession;
-        this.cliMode.parameters.IAMSession = savedConfiguration.cliModeParameters;
-        this.cliMode.env = savedConfiguration.env;
-        this.cliMode.assumed = savedConfiguration.assumed;
-        this.resetCommand();
-    }
-
-    restoreEnvironment() {
-        if ([EntityType.IAM_USER, EntityType.ACCOUNT].includes(this.getSaved<EntityType>('type'))) {
-            this.resumeIamUser();
-        } else {
-            this.resumeAssumedRole();
-        }
-    }
-
-    /**
-     * Helper function to change the default aws cli command type (iam|sts|s3).
-     * @param {string} service - type of the AWS CLI command (sts, iam, s3)
-     * @returns {undefined}
-     */
-    setCommandServiceType(service: string): void {
-        this.serviceType = service;
+    useSavedIdentity() {
+        Identity.useIdentity(
+            this.getSaved<IdentityEnum>('identityTypeForScenario'),
+            this.getSaved<string>('identityNameForScenario'));
     }
 
     /**
@@ -767,17 +620,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      */
     getCommandParameters() {
         return {
-            ___mode: this.cliMode,
             ...this.cliOptions,
         };
-    }
-
-    /**
-     * Get the current cli mode
-     * @returns {string} - the current service type
-     */
-    getCliMode() {
-        return this.cliMode;
     }
 
     /**
@@ -831,7 +675,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     static async teardown() { }
 
-    async metadataSearchResponseCode(userCredentials: UserCredentials, bucketName: string) {
+    async metadataSearchResponseCode(userCredentials: AWSCredentials, bucketName: string) {
         return await this.awsS3Request(
             'GET',
             `/${bucketName}/?search=${encodeURIComponent('key LIKE "file"')}`,
@@ -839,7 +683,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         );
     }
 
-    async putObjectVersionResponseCode(userCredentials: UserCredentials, bucketName: string, objectKey: string) {
+    async putObjectVersionResponseCode(userCredentials: AWSCredentials, bucketName: string, objectKey: string) {
         return await this.awsS3Request(
             'PUT',
             `/${bucketName}/${objectKey}`,
@@ -849,20 +693,13 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     }
 
     async awsS3Request(method: Method, path: string,
-        userCredentials: UserCredentials, headers: object = {}, payload: object = {}) {
-        const credentials: Credentials = {
-            accessKeyId: userCredentials.AccessKeyId,
-            secretAccessKey: userCredentials.SecretAccessKey,
-        };
-        if (userCredentials.SessionToken) {
-            credentials['sessionToken'] = userCredentials.SessionToken;
-        }
+        userCredentials: AWSCredentials, headers: object = {}, payload: object = {}) : Promise<Command> {
         const interceptor = aws4Interceptor({
             options: {
                 region: 'us-east-1',
                 service: 's3',
             },
-            credentials,
+            credentials: userCredentials,
         });
 
         const axiosInstance = axios.create();
@@ -877,10 +714,15 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         };
         try {
             const response: AxiosResponse = await axiosInstance(axiosConfig);
-            return { statusCode: response.status, data: response.data as unknown };
-            /* eslint-disable */
+            return {
+                stdout: '',
+                statusCode: response.status,
+                data: response.data as unknown,
+            };
+        /* eslint-disable */
         } catch (err: any) {
             return {
+                stdout: '',
                 statusCode: err.response.status,
                 err: err.response.data,
             };

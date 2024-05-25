@@ -1,9 +1,17 @@
 import { promises as fsp } from 'fs';
 import { join } from 'path';
-import { CacheHelper, Constants, S3, Utils } from 'cli-testing';
+import {
+    CacheHelper,
+    Constants,
+    Identity,
+    S3,
+    Utils,
+    AWSCredentials,
+    AWSVersionObject,
+    Command,
+} from 'cli-testing';
 import { extractPropertyFromResults, s3FunctionExtraParams } from 'common/utils';
 import Zenko from 'world/Zenko';
-import { Command } from 'cli-testing/utils/utils';
 
 enum AuthorizationType {
     ALLOW = 'Allow',
@@ -49,28 +57,8 @@ async function uploadTeardown(world: Zenko, action: string) {
 }
 
 async function runActionAgainstBucket(world: Zenko, action: string) {
-    let userCredentials: UserCredentials;
-    switch (world.getSaved<EntityType>('type')) {
-    case EntityType.IAM_USER:
-        userCredentials = world.parameters.IAMSession;
-        world.resumeIamUser();
-        break;
-    case EntityType.ASSUME_ROLE_USER:
-    case EntityType.DATA_CONSUMER:
-    case EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT:
-    case EntityType.STORAGE_ACCOUNT_OWNER:
-    case EntityType.STORAGE_MANAGER:
-        userCredentials = world.parameters.AssumedSession!;
-        world.resumeAssumedRole();
-        break;
-    default:
-        userCredentials = {
-            AccessKeyId: world.parameters.AccessKey!,
-            SecretAccessKey: world.parameters.SecretKey!,
-        };
-        world.resetGlobalType();
-        break;
-    }
+    world.useSavedIdentity();
+    const userCredentials: AWSCredentials = Identity.getCurrentCredentials();
     if (!userCredentials) {
         throw new Error('User credentials not set. '
             + 'Make sure the `IAMSession` and `AssumedSession` world parameter are defined.');
