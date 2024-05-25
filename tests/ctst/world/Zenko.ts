@@ -107,8 +107,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
     private cliOptions: Record<string, unknown> = {};
 
-    private options: Record<string, string> = {};
-
     private saved: Record<string, unknown> = {};
 
     private static IAMUserName = '';
@@ -272,7 +270,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             this.parameters.AccountName || Constants.ACCOUNT_NAME;
         const key = `${accountName}_${ARWWIName}`;
         if (!(key in CacheHelper.ARWWI)) {
-            const token = await this.getWebIdentityToken(
+            const webIdentityToken = await this.getWebIdentityToken(
                 ARWWIName,
                 ARWWIPassword,
                 this.parameters.KeycloakHost || 'keycloak.zenko.local',
@@ -281,8 +279,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 this.parameters.KeycloakClientId || Constants.K_CLIENT,
                 this.parameters.KeycloakGrantType || 'password',
             );
-            this.options.webIdentityToken = token;
-            if (!this.options.webIdentityToken) {
+            if (webIdentityToken) {
                 throw new Error('Error when trying to get a WebIdentity token.');
             }
             // Getting account ID
@@ -291,24 +288,24 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             });
             // Getting roles with GetRolesForWebIdentity
             // Get the first role with the storage-manager-role name
-            const data =
-                (await SuperAdmin.getRolesForWebIdentity(this.options.webIdentityToken)).data;
-            let roleToAssume: string | undefined = '';
+            const data = (await SuperAdmin.getRolesForWebIdentity(webIdentityToken)).data;
+            let roleArn: string | undefined = '';
 
             if (data.ListOfRoleArns) {
-                roleToAssume = data.ListOfRoleArns.find(
-                    (roleArn: string) => roleArn.includes(ARWWITargetRole) && roleArn.includes(account.id!),
+                roleArn = data.ListOfRoleArns.find(
+                    (roleArn: string) => roleArn.includes(ARWWITargetRole) && roleArn.includes(account.id),
                 );
             } else {
                 data.Accounts.forEach((_account: Utils.GRFWIAccount) => {
-                    roleToAssume = _account.Roles?.find(
-                        (role: Utils.Role) =>
-                            role.Arn.includes(ARWWITargetRole) && role.Arn.includes(account.id!),
-                    )?.Arn || roleToAssume;
+                    roleArn = _account.Roles?.find(
+                        (role: Role) =>
+                            role.Arn!.includes(ARWWITargetRole) && role.Arn!.includes(account.id),
+                    )?.Arn || roleArn;
                 });
             }
+
             // Ensure we can assume at least one role
-            if (!roleToAssume) {
+            if (!roleArn) {
                 this.logger.error('No role found for web identity', {
                     accountName,
                     ARWWIName,
@@ -318,13 +315,15 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 });
                 throw new Error('Error when trying to list roles for web identity.');
             }
-            // Arn to assume
-            const arn = roleToAssume;
-            this.options.roleArn = arn;
+
             // Assume the role and save the credentials
-            const ARWWI = await STS.assumeRoleWithWebIdentity(this.options, this.parameters);
+            const ARWWI = await STS.assumeRoleWithWebIdentity({
+                roleArn,
+                webIdentityToken,
+            }, this.parameters);
             this.logger.debug('Assumed role with web identity', ARWWI);
             this.addToSaved('identityArn', extractPropertyFromResults(ARWWI, 'AssumedRoleUser', 'Arn'));
+
             if (ARWWI && typeof ARWWI !== 'string' && ARWWI.stdout) {
                 const parsedOutput = JSON.parse(ARWWI.stdout) as { Credentials: ClientOptions['AssumedSession'] };
                 if (parsedOutput && parsedOutput.Credentials) {
