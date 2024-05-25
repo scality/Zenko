@@ -1,11 +1,9 @@
 import { Then, Given, When, After, setDefaultTimeout } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
-import Zenko, {
-    AWSVersionObject,
-} from '../world/Zenko';
-import { Constants, S3, Utils, KafkaHelper } from 'cli-testing';
+import { Constants, S3, Utils, KafkaHelper, AWSVersionObject, NotificationDestination } from 'cli-testing';
 import { Message } from 'node-rdkafka';
 import { cleanS3Bucket } from 'common/common';
+import Zenko from 'world/Zenko';
 
 setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
 
@@ -23,12 +21,6 @@ const allNotificationTypes = [
 
 interface NotificationConfig {
     QueueConfigurations: QueueConfiguration[];
-}
-
-interface NotificationDestination {
-    destinationName: string;
-    topic: string;
-    hosts: string;
 }
 
 interface Notification {

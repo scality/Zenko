@@ -1,6 +1,8 @@
 import { World, IWorldOptions, setWorldConstructor } from '@cucumber/cucumber';
 import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
 import { aws4Interceptor } from 'aws4-axios';
+import qs from 'qs';
+import Werelogs from 'werelogs';
 import {
     CacheHelper,
     ClientOptions,
@@ -13,25 +15,6 @@ import {
 } from 'cli-testing';
 import { Credentials } from 'aws4-axios';
 import { extractPropertyFromResults } from '../common/utils';
-import qs = require('qs');
-import Werelogs from 'werelogs';
-
-export interface AWSVersionObject {
-    Key: string;
-    VersionId: string;
-}
-
-export interface NotificationDestination {
-    destinationName: string;
-    topic: string;
-    hosts: string;
-}
-
-export interface UserCredentials {
-    AccessKeyId: string;
-    SecretAccessKey: string;
-    SessionToken?: string;
-}
 
 interface ServiceUsersCredentials {
     accessKey: string;
