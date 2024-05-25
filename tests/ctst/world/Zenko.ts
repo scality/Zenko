@@ -576,6 +576,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             /* eslint-enable */
             // Waiting until the account exists, in case of parallel mode.
             let remaining = Constants.MAX_ACCOUNT_CHECK_RETRIES;
+                account = await SuperAdmin.getAccount({ accountName });
             while (!account && remaining > 0) {
                 await Utils.sleep(1000);
                 account = (await SuperAdmin.getAccount({

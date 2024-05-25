@@ -75,7 +75,7 @@ async function deleteObject(world: Zenko, putDeleteMarker = false) {
     if (world.getSaved<string>('bucketVersioning') !== 'Non versioned' && !putDeleteMarker) {
         const putResult = world.getResult();
         const versionId =
-            (JSON.parse(putResult.stdout!) as AWSVersionObject).VersionId;
+            (JSON.parse(putResult.stdout) as AWSVersionObject).VersionId;
         world.addCommandParameter({ versionId });
     }
     await S3.deleteObject(world.getCommandParameters());

@@ -308,7 +308,7 @@ Then('object {string} should be {string} and have the storage class {string}', {
             } else if (objectTransitionStatus == 'cold') {
                 conditionOk = conditionOk && !head?.Restore;
             }
-            await Utils.sleep(3000);
+            await Utils.sleep(1000);
         }
         assert(conditionOk);
     });
