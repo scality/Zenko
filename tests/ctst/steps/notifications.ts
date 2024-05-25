@@ -48,39 +48,6 @@ interface QueueConfiguration {
     Events: string[];
 }
 
-async function emptyNonVersionedBucket(world: Zenko) {
-    world.resetCommand();
-    world.addCommandParameter({ bucket: world.getSaved<string>('bucketName') });
-    const results = await S3.listObjects(world.getCommandParameters());
-    const objects = (JSON.parse(results.stdout || '{}') as { Contents?: AWSVersionObject[] })?.Contents || [];
-    await Promise.all(objects.map(obj => {
-        world.deleteKeyFromCommand('key');
-        world.addCommandParameter({ key: obj.Key });
-        return S3.deleteObject(world.getCommandParameters());
-    }));
-}
-
-async function emptyVersionedBucket(world: Zenko) {
-    world.resetCommand();
-    world.addCommandParameter({ bucket: world.getSaved<string>('bucketName') });
-    const results = await S3.listObjectVersions(world.getCommandParameters());
-    const parsedResults = JSON.parse(results.stdout || '{}') as Record<string, unknown>;
-    const versions = parsedResults.Versions as AWSVersionObject[] || [];
-    const deleteMarkers = parsedResults.DeleteMarkers as AWSVersionObject[] || [];
-    await Promise.all(deleteMarkers.map(obj => {
-        world.deleteKeyFromCommand('key');
-        world.addCommandParameter({ key: obj.Key });
-        world.addCommandParameter({ versionId: obj.VersionId });
-        return S3.deleteObject(world.getCommandParameters());
-    }));
-    await Promise.all(versions.map(obj => {
-        world.deleteKeyFromCommand('key');
-        world.addCommandParameter({ key: obj.Key });
-        world.addCommandParameter({ versionId: obj.VersionId });
-        return S3.deleteObject(world.getCommandParameters());
-    }));
-}
-
 async function putObject(world: Zenko) {
     world.resetCommand();
     world.addCommandParameter({ bucket: world.getSaved<string>('bucketName') });
