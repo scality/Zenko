@@ -1,7 +1,7 @@
 import { When, Then } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
 import Zenko, { ApiResult, EntityType } from '../../world/Zenko';
-import { CacheHelper, ClientOptions, VaultAuth } from 'cli-testing';
+import { CacheHelper, ClientOptions, Command, VaultAuth } from 'cli-testing';
 import { runActionAgainstBucket } from 'steps/utils/utils';
 
 When('the user tries to perform {string} on the bucket', async function (this: Zenko, action: string) {
@@ -35,7 +35,7 @@ When('the user tries to perform vault auth {string}', async function (this: Zenk
 
     switch (action) {
     case 'GetAccountInfo':
-        this.setResult(await VaultAuth.getAccounts(null, null, null, {}, vaultAuthClientOptions) as ApiResult);
+        this.setResult(await VaultAuth.getAccounts(null, null, null, {}, vaultAuthClientOptions) as Command);
         break;
     default:
         throw new Error(`Action ${action} is not supported`);

@@ -1,6 +1,7 @@
 import { exec } from 'child_process';
 import http from 'http';
 import {
+    Command,
     Utils,
 } from 'cli-testing';
 
@@ -10,7 +11,7 @@ import {
  * @param {string[]} propertyChain - the property chain to extract, like Policy, Arn
  * @return {string} - the expected property
  */
-export function extractPropertyFromResults<T>(results: Utils.Command, ...propertyChain: string[]): T {
+export function extractPropertyFromResults<T>(results: Command, ...propertyChain: string[]): T {
     if (results.stdout) {
         const jsonResults = JSON.parse(results.stdout) as Record<string, unknown>;
         let res: unknown = jsonResults;

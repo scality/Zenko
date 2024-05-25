@@ -2,7 +2,8 @@ import { promises as fsp } from 'fs';
 import { join } from 'path';
 import { CacheHelper, Constants, S3, Utils } from 'cli-testing';
 import { extractPropertyFromResults, s3FunctionExtraParams } from 'common/utils';
-import Zenko, { EntityType, UserCredentials } from 'world/Zenko';
+import Zenko from 'world/Zenko';
+import { Command } from 'cli-testing/utils/utils';
 
 enum AuthorizationType {
     ALLOW = 'Allow',

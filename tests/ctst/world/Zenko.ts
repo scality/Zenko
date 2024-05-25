@@ -4,7 +4,7 @@ import { aws4Interceptor } from 'aws4-axios';
 import {
     CacheHelper,
     ClientOptions,
-    cliModeObject,
+    Command,
     Constants,
     IAM,
     STS,
@@ -89,14 +89,6 @@ export interface ZenkoWorldParameters extends ClientOptions {
     KafkaCleanerInterval: string;
 }
 
-export interface ApiResult {
-    statusCode?: number,
-    stdout?: string | null,
-    err?: string | null,
-    code?: string | null,
-    description?: string | null,
-}
-
 /**
  * Cucumber custom World implementation to support Zenko.
  * This World is responsible for AWS CLI calls.
@@ -105,11 +97,13 @@ export interface ApiResult {
 export default class Zenko extends World<ZenkoWorldParameters> {
     private readonly command: string = '';
 
-    private result: ApiResult = {};
+    private result: Command = {
+        err: '',
+        stdout: '',
+        stderr: '',
+    };
 
-    private parsedResult: ApiResult[] = [];
-
-    private serviceType = '';
+    private parsedResult: Command[] = [];
 
     private cliOptions: Record<string, unknown> = {};
 
@@ -166,8 +160,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * @param {Array} result - array with result objects containing both stderr and stdout from the CLI command.
      * @returns {boolean} - if the result is a success or a failure
      */
-    checkResults(result: ApiResult[]): boolean {
-        const usedResult: ApiResult[] = Array.isArray(result) ? result : [result];
+    checkResults(result: Command[]): boolean {
+        const usedResult: Command[] = Array.isArray(result) ? result : [result];
         let decision = true;
         usedResult.forEach(res => {
             if (!res || res.err || this.forceFailed === true) {
@@ -176,7 +170,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             try {
                 // Accept empty responses (in case of success)
                 if (res.stdout && res.stdout !== '') {
-                    const parsed = JSON.parse(res.stdout) as ApiResult;
+                    const parsed = JSON.parse(res.stdout) as Command;
                     this.parsedResult.push(parsed);
                 } else if (res.stdout !== '') {
                     decision = false;
@@ -831,18 +825,18 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
     /**
      * Get all saved result object
-     * @returns {ApiResult} - an object with saved API call results
+     * @returns {Command} - an object with saved API call results
      */
-    public getResult(): ApiResult {
+    public getResult(): Command {
         return this.result;
     }
 
     /**
      * Get all saved result object
-     * @param {ApiResult} result - an object with API call results
+     * @param {Command} result - an object with API call results
      * @returns {undefined}
      */
-    public setResult(result: ApiResult): void {
+    public setResult(result: Command): void {
         this.result = result;
     }
 
