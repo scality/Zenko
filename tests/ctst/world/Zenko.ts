@@ -1,5 +1,6 @@
 import { World, IWorldOptions, setWorldConstructor } from '@cucumber/cucumber';
 import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
+import { Role } from '@aws-sdk/client-iam';
 import { aws4Interceptor } from 'aws4-axios';
 import qs from 'qs';
 import Werelogs from 'werelogs';
