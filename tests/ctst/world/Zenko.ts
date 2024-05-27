@@ -16,6 +16,7 @@ import {
     SuperAdmin,
     Utils,
     AWSCredentials,
+    Logger,
 } from 'cli-testing';
 
 import { extractPropertyFromResults } from '../common/utils';
@@ -104,6 +105,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      */
     constructor(options: IWorldOptions<ZenkoWorldParameters>) {
         super(options);
+        Logger.createLogger(this);
         // store service users credentials from world parameters
         if (this.parameters.ServiceUsersCredentials) {
             const serviceUserCredentials =
