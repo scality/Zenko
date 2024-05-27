@@ -10,7 +10,7 @@ import {
  * @param {string[]} propertyChain - the property chain to extract, like Policy, Arn
  * @return {string} - the expected property
  */
-export function extractPropertyFromResults<T>(results: Command, ...propertyChain: string[]): T {
+export function extractPropertyFromResults<T>(results: Command, ...propertyChain: string[]): T | null {
     if (results.stdout) {
         const jsonResults = JSON.parse(results.stdout) as Record<string, unknown>;
         let res: unknown = jsonResults;
@@ -21,7 +21,7 @@ export function extractPropertyFromResults<T>(results: Command, ...propertyChain
         }
         return res as T;
     }
-    throw new Error('Property not found in results');
+    return null;
 }
 
 export const s3FunctionExtraParams: { [key: string]: Record<string, unknown>[] } = {

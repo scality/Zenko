@@ -130,7 +130,11 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
         policyDocument: JSON.stringify(basePolicy),
         policyName: `policyforauthz-${Utils.randomString()}`,
     });
-    const policyArn = extractPropertyFromResults<string>(createdPolicy, 'Policy', 'Arn') ;
+    const policyArn = extractPropertyFromResults<string>(createdPolicy, 'Policy', 'Arn');
+
+    if (!policyArn) {
+        throw new Error('Policy creation failed: no policy ARN');
+    }
 
     if (identityType === EntityType.ASSUME_ROLE_USER
         || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT
@@ -332,6 +336,11 @@ Given('an environment setup for the API', async function (this: Zenko) {
         policyName: `policyforauthz-${Utils.randomString()}`,
     });
     const policyArn = extractPropertyFromResults<string>(createdPolicy, 'Policy', 'Arn');
+
+    if (!policyArn) {
+        throw new Error('Policy creation failed: no policy ARN');
+    }
+
     const identityType = this.getSaved<string>('identityType') as EntityType;
     if (identityType === EntityType.ASSUME_ROLE_USER
         || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT

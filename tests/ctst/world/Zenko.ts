@@ -427,9 +427,9 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         this.addCommandParameter({ userName });
         Identity.addIdentity(IdentityEnum.IAM_USER, userName, {
             accessKeyId: extractPropertyFromResults(await IAM.createAccessKey(
-                this.getCommandParameters()), 'AccessKey', 'AccessKeyId'),
+                this.getCommandParameters()), 'AccessKey', 'AccessKeyId')!,
             secretAccessKey: extractPropertyFromResults(await IAM.createAccessKey(
-                this.getCommandParameters()), 'AccessKey', 'SecretAccessKey'),
+                this.getCommandParameters()), 'AccessKey', 'SecretAccessKey')!,
         });
         Identity.useIdentity(IdentityEnum.IAM_USER, userName);
 
@@ -438,6 +438,11 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         this.addCommandParameter({ roleArn: roleArnToAssume });
         const res = extractPropertyFromResults<AWSCredentials>(await STS.assumeRole(
             this.getCommandParameters()), 'Credentials');
+
+        if (!res) {
+            throw new Error('Error when trying to assume role');
+        }
+
         Identity.addIdentity(IdentityEnum.ASSUMED_ROLE, roleName, res, true);
 
         Identity.useIdentity(IdentityEnum.ACCOUNT, account.name);
@@ -489,6 +494,11 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
         // Assign the assumed session credentials to the Assumed session.
         const res = extractPropertyFromResults<AWSCredentials>(assumeRoleRes, 'Credentials');
+
+        if (!res) {
+            throw new Error(`Error when trying to assume role ${roleArnToAssume} as service user ${serviceUserName}`);
+        }
+
         Identity.addIdentity(IdentityEnum.ASSUMED_ROLE, roleName, res, true);
 
         // Save the identity
@@ -574,7 +584,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         this.resetCommand();
 
         this.addToSaved('identityArn', extractPropertyFromResults(userInfos, 'User', 'Arn'));
-        this.saveIdentityInformation(extractPropertyFromResults(userInfos, 'User', 'UserName'), IdentityEnum.IAM_USER);
+        this.saveIdentityInformation(userName, IdentityEnum.IAM_USER);
     }
 
     saveIdentityInformation(name: string, identity: IdentityEnum) {
