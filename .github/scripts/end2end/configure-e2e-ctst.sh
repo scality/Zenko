@@ -28,7 +28,7 @@ kubectl patch zenko $ZENKO_NAME --type merge -p '{"spec":{"sorbet":{"configurati
 kubectl patch zenko $ZENKO_NAME --type merge -p '{"spec":{"sorbet":{"configurationOverrides":{"e2e-cold":{"pending-job-poll-after-age":"10s"}}}}}'
 kubectl patch zenko $ZENKO_NAME --type merge -p '{"spec":{"sorbet":{"configurationOverrides":{"e2e-cold":{"pending-job-poll-check-interval":"10s"}}}}}'
 
-kubectl patch zenko $ZENKO_NAME --type merge -p '{"spec":{"sorbet":{"server":{"azure":{"restoreTimeout":"3s"}}}}}'
+kubectl patch zenko $ZENKO_NAME --type merge -p '{"spec":{"sorbet":{"server":{"azure":{"restoreTimeout":"15s"}}}}}'
 
 # Get kafka image name and tag
 KAFKA_REGISTRY_NAME=$(yq eval ".kafka.sourceRegistry" ../../../solution/deps.yaml)
