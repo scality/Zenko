@@ -3,6 +3,7 @@ Feature: DMF
     @2.7.0
     @PreMerge
     @Dmf
+    @Flaky
     Scenario Outline: Deletion of an archived object
     Given a "<versioningConfiguration>" bucket
     And a transition workflow to "e2e-cold" location
