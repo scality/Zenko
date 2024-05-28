@@ -112,7 +112,7 @@ zenko-ui:
   sourceRegistry: ghcr.io/scality
   config: zenko-ui/zenko-ui-config
   image: zenko-ui
-  tag: 2.2.7
+  tag: 2.2.11
   envsubst: ZENKO_UI_TAG
 zookeeper:
   sourceRegistry: pravega
