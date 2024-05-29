@@ -179,7 +179,7 @@ mongodb_sharded() {
 
     kustomize edit set image \
         $SOLUTION_REGISTRY/mongodb-sharded=$(get_image_from_deps mongodb-sharded) \
-        $SOLUTION_REGISTRY/bitnami-shell=$(get_image_from_deps mongodb-shell) \
+        $SOLUTION_REGISTRY/os-shell=$(get_image_from_deps mongodb-shell) \
         $SOLUTION_REGISTRY/mongodb-exporter=$(get_image_from_deps mongodb-sharded-exporter)
 
     kubectl apply -k .
