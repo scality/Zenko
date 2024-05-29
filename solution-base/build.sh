@@ -54,15 +54,15 @@ MONGODB_NAMESPACE=${SOLUTION_ENV}
 MONGODB_REGISTRY=${SOLUTION_REGISTRY}
 MONGODB_IMAGE_NAME="mongodb"
 MONGODB_IMAGE_TAG=$(yq eval ".mongodb.tag" $SOLUTION_BASE_DIR/deps.yaml)
-MONGODB_INIT_IMAGE_NAME="bitnami-shell"
-MONGODB_INIT_IMAGE_TAG=$(yq eval ".mongodb-mongodb-shell.tag" $SOLUTION_BASE_DIR/deps.yaml)
+MONGODB_INIT_IMAGE_NAME=MONGODB_SHARDED_SHELL_IMAGE_NAME=$(yq eval ".mongodb-shell.image" $SOLUTION_BASE_DIR/deps.yaml | awk -F'/' '{print $NF}')
+MONGODB_INIT_IMAGE_TAG=$(yq eval ".mongodb-shell.tag" $SOLUTION_BASE_DIR/deps.yaml)
 MONGODB_EXPORTER_IMAGE_NAME="mongodb-exporter"
 MONGODB_EXPORTER_IMAGE_TAG=$(yq eval ".mongodb-exporter.tag" $SOLUTION_BASE_DIR/deps.yaml)
 MONGODB_SHARDED_IMAGE_NAME="mongodb-sharded"
 MONGODB_SHARDED_IMAGE_TAG=$(yq eval ".mongodb-sharded.tag" $SOLUTION_BASE_DIR/deps.yaml)
 MONGODB_SHARDED_EXPORTER_IMAGE_NAME="mongodb-exporter"
 MONGODB_SHARDED_EXPORTER_IMAGE_TAG=$(yq eval ".mongodb-sharded-exporter.tag" $SOLUTION_BASE_DIR/deps.yaml)
-MONGODB_SHARDED_SHELL_IMAGE_NAME="bitnami-shell"
+MONGODB_SHARDED_SHELL_IMAGE_NAME=$(yq eval ".mongodb-shell.image" $SOLUTION_BASE_DIR/deps.yaml | awk -F'/' '{print $NF}')
 MONGODB_SHARDED_SHELL_IMAGE_TAG=$(yq eval ".mongodb-shell.tag" $SOLUTION_BASE_DIR/deps.yaml)
 MONGODB_STORAGE_CLASS="MONGODB_STORAGE_CLASS"
 
