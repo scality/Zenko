@@ -94,6 +94,7 @@ export interface ZenkoWorldParameters {
     kafkaDeadLetterQueueTopic: string;
     InstanceID: string;
     KafkaCleanerInterval: string;
+    SorbetdRestoreTimeout: string;
     [key: string]: unknown;
 }
 
