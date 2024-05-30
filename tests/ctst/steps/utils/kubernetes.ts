@@ -58,7 +58,13 @@ export async function createJobAndWaitForCompletion(world: Zenko, jobName: strin
                 '/apis/batch/v1/namespaces/default/jobs',
                 {},
                 (type: string, apiObj, watchObj) => {
-                    if (job.metadata?.name && expectedJobName &&
+                    world.parameters.logger?.debug('watching job', {
+                        type,
+                        apiObj,
+                        watchObj,
+                        jobNameoriginal: job.metadata?.name,
+                    });
+                    if (expectedJobName &&
                         (watchObj.object?.metadata?.name as string)?.startsWith?.(expectedJobName)) {
                         if (watchObj.object?.status?.succeeded) {
                             world.parameters.logger?.debug('job succeeded', {
