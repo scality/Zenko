@@ -53,19 +53,18 @@ export async function createJobAndWaitForCompletion(world: Zenko, jobName: strin
 
         const expectedJobName = response.body.metadata?.name;
 
+        /* eslint-disable */
         await new Promise<void>((resolve, reject) => {
             void watchClient.watch(
                 '/apis/batch/v1/namespaces/default/jobs',
                 {},
                 (type: string, apiObj, watchObj) => {
-                    /* eslint-disable */
                     world.parameters.logger?.debug('watching job', {
                         type,
                         apiObj,
                         watchObj,
                         jobNameoriginal: job.metadata?.name,
                     });
-                    /* eslint-enable */
                     if (expectedJobName &&
                         (watchObj.object?.metadata?.name as string)?.startsWith?.(expectedJobName)) {
                         if (watchObj.object?.status?.succeeded) {
@@ -84,6 +83,7 @@ export async function createJobAndWaitForCompletion(world: Zenko, jobName: strin
                     }
                 }, reject);
         });
+        /* eslint-enable */
     } catch (err: unknown) {
         world.parameters.logger?.error('error creating job', {
             jobName,
