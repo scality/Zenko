@@ -18,7 +18,7 @@ function hashStringAndKeepFirst20Characters(input: string) {
  * times, which affects the performance of the tests.
  * The steps are: create an account, then create a simple bucket
  */
-Before({tags: '@Quotas'}, async function ({ gherkinDocument, pickle }) {
+Before({ tags: '@Quotas', timeout: 1200000 }, async function ({ gherkinDocument, pickle }) {
     let initiated = false;
     let releaseLock: (() => Promise<void>) | false = false;
     const output: { [key: string]: { AccessKey: string, SecretKey: string }} = {};
