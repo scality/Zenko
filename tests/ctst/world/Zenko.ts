@@ -252,21 +252,31 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
             // Getting roles with GetRolesForWebIdentity
             // Get the first role with the storage-manager-role name
-            const data = (await SuperAdmin.getRolesForWebIdentity(webIdentityToken)).data;
             let roleArn: string | undefined = '';
+            let callNumber = 1;
+            let nextMarker: string | undefined;
+            do {
+                const GRFWIResponse = await SuperAdmin.getRolesForWebIdentity(webIdentityToken, nextMarker);
 
-            if (data.ListOfRoleArns) {
-                roleArn = data.ListOfRoleArns.find(
-                    (roleArn: string) => roleArn.includes(ARWWITargetRole) && roleArn.includes(account.id),
-                );
-            } else {
-                data.Accounts.forEach((_account: Utils.GRFWIAccount) => {
-                    roleArn = _account.Roles?.find(
-                        (role: Role) =>
-                            role.Arn!.includes(ARWWITargetRole) && role.Arn!.includes(account.id),
+                this.logger.debug('getting roles for web identity', {
+                    data: GRFWIResponse.data,
+                    callNumber,
+                });
+
+                GRFWIResponse.data.Accounts.forEach(_account => {
+                    roleArn = _account.Roles.find(
+                        role => role.Arn.includes(ARWWITargetRole) &&
+                            role.Arn.includes(account.id),
                     )?.Arn || roleArn;
                 });
-            }
+
+                if (roleArn) {
+                    break;
+                }
+
+                nextMarker = GRFWIResponse.data.IsTruncated ? GRFWIResponse.data.Marker : undefined;
+                callNumber++;
+            } while (callNumber < 100);
 
             // Ensure we can assume at least one role
             if (!roleArn) {
@@ -274,8 +284,9 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                     accountName,
                     ARWWIName,
                     ARWWITargetRole,
-                    data,
                     account,
+                    callNumber,
+                    nextMarker,
                 });
                 throw new Error('Error when trying to list roles for web identity.');
             }
@@ -284,7 +295,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             const ARWWI = await STS.assumeRoleWithWebIdentity({
                 roleArn,
                 webIdentityToken,
-            }, this.parameters);
+            });
             this.logger.debug('Assumed role with web identity', ARWWI);
             this.addToSaved('identityArn', extractPropertyFromResults(ARWWI, 'AssumedRoleUser', 'Arn'));
 
