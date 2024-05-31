@@ -105,10 +105,9 @@ Given('a bucket quota set to {int} B', async function (this: Zenko, quota: numbe
         bucket: this.getSaved<string>('bucketName'),
     });
     // This API is only valid for storage managers
-    this.resumeAssumedRole();
+    this.useSavedIdentity();
     const result: Command = await Scality.updateBucketQuota(
         this.parameters,
-        this.getCliMode(),
         this.getCommandParameters());
 
     this.logger.debug('UpdateBucketQuota result', {
@@ -128,10 +127,9 @@ Given('an account quota set to {int} B', async function (this: Zenko, quota: num
         quotaMax: String(quota),
     });
     // This API is only valid for storage managers
-    this.resumeAssumedRole();
+    this.useSavedIdentity();
     const result: Command = await Scality.updateAccountQuota(
         this.parameters,
-        this.getCliMode(),
         this.getCommandParameters());
 
     this.logger.debug('UpdateAccountQuota result', {

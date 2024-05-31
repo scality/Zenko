@@ -404,7 +404,7 @@ Given('an object {string} that {string}', async function (this: Zenko, objectNam
 
 When('the user tries to perform the current S3 action on the bucket {int} times with a {int} ms delay',
     async function (this: Zenko, numberOfRuns: number, delay: number) {
-        this.setAuthMode('test_identity');
+        this.useSavedIdentity();
         const action = {
             ...this.getSaved<ActionPermissionsType>('currentAction'),
         };
@@ -429,7 +429,6 @@ When('the user tries to perform the current S3 action on the bucket {int} times 
     });
 
 Then('the API should {string} with {string}', function (this: Zenko, result: string, expected: string) {
-    this.cleanupEntity();
     const action = this.getSaved<ActionPermissionsType>('currentAction');
     switch (result) {
     case 'succeed':
@@ -451,7 +450,7 @@ Then('the API should {string} with {string}', function (this: Zenko, result: str
 });
 
 Then('the operation finished without error', function (this: Zenko) {
-    this.cleanupEntity();
+    this.useSavedIdentity();
     assert.strictEqual(!!this.getResult().err, false);
 });
 

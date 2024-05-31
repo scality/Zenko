@@ -19,7 +19,7 @@ interface DeleteObjectsResult {
 
 When('the user tries to perform DeleteObjects', async function (this: Zenko) {
     this.resetCommand();
-    this.resumeIamUser();
+    this.useSavedIdentity();
     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
     const objectNames = this.getSaved<string[]>('objectNameArray');
     const param: { Objects: { Key: string }[] } = {
@@ -34,7 +34,7 @@ When('the user tries to perform DeleteObjects', async function (this: Zenko) {
 
 When('the user tries to perform CreateBucket', async function (this: Zenko) {
     this.resetCommand();
-    this.resumeIamUser();
+    this.useSavedIdentity();
     const preName = this.getSaved<string>('accountName') ||
         this.parameters.AccountName || Constants.ACCOUNT_NAME;
     const usedBucketName = `${preName}${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase();
@@ -47,7 +47,7 @@ When('the user tries to perform CreateBucket', async function (this: Zenko) {
 
 When('the user tries to perform PutObjectRetention {string} bypass', async function (this: Zenko, withBypass: string) {
     this.resetCommand();
-    this.resumeIamUser();
+    this.useSavedIdentity();
     this.addCommandParameter({ key: this.getSaved<string>('objectName') });
     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
     const date = new Date();
@@ -62,8 +62,6 @@ When('the user tries to perform PutObjectRetention {string} bypass', async funct
 });
 
 Then('it {string} pass Vault authentication', function (this: Zenko, should: string) {
-    this.cleanupEntity();
-
     let stdout;
     if (should === 'should') {
         assert.strictEqual(this.getResult().err, null);
