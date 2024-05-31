@@ -2,13 +2,11 @@ import fs from 'fs';
 import path from 'path';
 import assert from 'assert';
 import { safeJsonParse, request } from '../common/utils';
-import { Given, Then, When, setDefaultTimeout } from '@cucumber/cucumber';
+import { Given, Then, When } from '@cucumber/cucumber';
 import { AzureHelper, S3, Constants, Utils } from 'cli-testing';
 import util from 'util';
 import { exec } from 'child_process';
 import Zenko from 'world/Zenko';
-
-setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
 
 type manifestEntry = {
     'archive-id': string,

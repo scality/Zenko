@@ -1,11 +1,9 @@
-import { Then, Given, When, After, setDefaultTimeout } from '@cucumber/cucumber';
+import { Then, Given, When, After } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
-import { Constants, S3, Utils, KafkaHelper, AWSVersionObject, NotificationDestination } from 'cli-testing';
+import { S3, Utils, KafkaHelper, AWSVersionObject, NotificationDestination } from 'cli-testing';
 import { Message } from 'node-rdkafka';
 import { cleanS3Bucket } from 'common/common';
 import Zenko from 'world/Zenko';
-
-setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
 
 const KAFKA_TESTS_TIMEOUT = Number(process.env.KAFKA_TESTS_TIMEOUT) || 60000;
 
