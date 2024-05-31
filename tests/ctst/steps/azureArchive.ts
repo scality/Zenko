@@ -320,6 +320,10 @@ Then('blob for object {string} must be rehydrated',
 Then('blob for object {string} fails to rehydrate',
     async function (this: Zenko, objectName: string) {
         const tarName = await isObjectRehydrated(this, objectName);
+
+        // wait for restore to fail and end up in dead letter queue
+        const restoreTimeoutSeconds = parseInt(this.parameters.SorbetdRestoreTimeout);
+        await Utils.sleep(restoreTimeoutSeconds * 1000 + 1000);
         assert(tarName);
         // restoreTimeout is set to 30s in the config
         await Utils.sleep(30000);
