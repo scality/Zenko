@@ -17,6 +17,8 @@ const noParallelRun = atMostOnePicklePerTag(['@AfterAll']);
 setParallelCanAssign(noParallelRun);
 
 Before(async function (this: Zenko) {
+    this.resetSaved();
+    Identity.resetIdentity();
     await Zenko.init(this.parameters);
 });
 
@@ -32,21 +34,17 @@ After({ tags: '@Quotas' }, async function () {
     // restore account
     await world.createAccount();
     await world.setupEntity(EntityType.STORAGE_MANAGER);
-    world.resumeAssumedRole();
     world.addCommandParameter({
         bucket: world.getSaved<string>('bucketName'),
     });
     const resultBucket = await Scality.deleteBucketQuota(
         world.parameters,
-        world.getCliMode(),
         world.getCommandParameters());
     world.logger?.debug('DeleteBucketQuota result', {
         resultBucket,
         parameters: world.getCommandParameters(),
     });
-    const resultAccount = await Scality.deleteAccountQuota(
-        world.parameters,
-        world.getCliMode());
+    const resultAccount = await Scality.deleteAccountQuota(world.parameters);
 
     world.logger?.debug('DeleteAccountQuota result', {
         resultAccount,
