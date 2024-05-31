@@ -1,3 +1,4 @@
+import { ListObjectVersionsOutput } from '@aws-sdk/client-s3';
 import { Given, setDefaultTimeout, Then, When } from '@cucumber/cucumber';
 import { Constants, S3, Utils } from 'cli-testing';
 import Zenko from 'world/Zenko';
@@ -8,16 +9,6 @@ import { createBucketWithConfiguration, putObject, runActionAgainstBucket } from
 import { ActionPermissionsType } from 'steps/bucket-policies/utils';
 
 setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
-
-type listingObject = {
-    Key: string,
-    VersionId: string,
-}
-
-type listingResult = {
-    Versions: listingObject[],
-    DeleteMarkers: listingObject[],
-}
 
 /**
  * Cleans the created test bucket
@@ -39,7 +30,7 @@ export async function cleanS3Bucket(
         const results = await S3.listObjectVersions(world.getCommandParameters());
         const res = safeJsonParse(results.stdout);
         assert(res.ok);
-        const parsedResults = res.result as listingResult;
+        const parsedResults = res.result as ListObjectVersionsOutput;
         const versions = parsedResults.Versions || [];
         const deleteMarkers = parsedResults.DeleteMarkers || [];
         await Promise.all(versions.concat(deleteMarkers).map(obj => {
