@@ -1,3 +1,5 @@
+import { exec } from 'child_process';
+import http from 'http';
 import {
     Utils,
 } from 'cli-testing';
@@ -87,3 +89,53 @@ export const s3FunctionExtraParams: { [key: string]: Record<string, unknown>[] }
             }),
     }],
 };
+
+export function safeJsonParse(jsonString: string): { ok: boolean, result: object } {
+    let result = {};
+    try {
+        result = JSON.parse(jsonString) as object;
+    } catch (err) {
+        return { ok: false, result };
+    }
+    return { ok: true, result };
+}
+
+/**
+ * Executes a shell command and return it as a Promise.
+ * @param {string} cmd The command to execute
+ * @return {Promise<string>} the command output
+ */
+export function execShellCommand(cmd: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+        exec(cmd, (error, stdout, stderr) => {
+            if (error) {
+                return reject(error);
+            }
+            return resolve(stdout || stderr);
+        });
+    });
+}
+
+export async function request(options: http.RequestOptions, data: string | undefined):
+    Promise<{response: http.IncomingMessage, body: string}> {
+    return new Promise((resolve, reject) => {
+        const req = http.request(options, res => {
+            const chunks: string[] = [];
+            res.setEncoding('utf8');
+            res.on('data', (chunk: string) => {
+                chunks.push(chunk);
+            });
+            res.once('end', () => {
+                resolve({
+                    response: res,
+                    body: chunks.join(''),
+                });
+            });
+        });
+        req.once('error', reject);
+        if (data) {
+            req.write(data);
+        }
+        req.end();
+    });
+}
