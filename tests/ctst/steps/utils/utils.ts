@@ -126,7 +126,10 @@ async function runActionAgainstBucket(world: Zenko, action: string) {
             world.addCommandParameter({ uploadId: world.getSaved<string>('uploadId') });
         }
         const usedAction = action.charAt(0).toLowerCase() + action.slice(1);
-        const actionCall = S3[usedAction];
+        const actionCall: (params: unknown) => Promise<Command> =
+        // @ts-expect-error the function is dynamically called
+            S3[usedAction] as (params: unknown) => Promise<Command>;
+
         if (actionCall) {
             if (usedAction in s3FunctionExtraParams) {
                 s3FunctionExtraParams[usedAction].forEach(param => {
