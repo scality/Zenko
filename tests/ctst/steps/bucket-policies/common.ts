@@ -57,6 +57,18 @@ Given('an existing bucket prepared for the action', async function (this: Zenko)
     }
 });
 
+Given('a permission to perform the {string} action', function (this: Zenko, action: string) {
+    const currentAction = this.getSaved<ActionPermissionsType>('currentAction');
+    const permissionsForAction = actionPermissions.find(actionPermission => actionPermission.action === action);
+    if (!permissionsForAction) {
+        throw new Error(`Action ${action} is not supported yet`);
+    }
+    currentAction.permissions = currentAction.permissions.concat(permissionsForAction.permissions);
+    this.addToSaved('currentAction', {
+        ...currentAction,
+    });
+});
+
 Given('an {string} IAM Policy that {string} with {string} effect for the current API', async function (
     this: Zenko,
     doesExist: string,
