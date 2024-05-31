@@ -8,10 +8,6 @@ import { Scality, Command, CacheHelper, Constants, Utils } from 'cli-testing';
 import { createJobAndWaitForCompletion } from 'steps/utils/kubernetes';
 import { createBucketWithConfiguration, putObject } from 'steps/utils/utils';
 
-function hashStringAndKeepFirst20Characters(input: string) {
-    return createHash('sha256').update(input).digest('hex').slice(0, 20);
-}
-
 /**
  * The objective of this hook is to prepare all the buckets and accounts
  * we use during quota checks, so that we avoid running the job multiple
