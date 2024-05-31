@@ -106,9 +106,9 @@ export function execShellCommand(cmd: string): Promise<string> {
     return new Promise((resolve, reject) => {
         exec(cmd, (error, stdout, stderr) => {
             if (error) {
-                reject(error);
+                return reject(error);
             }
-            resolve(stdout || stderr);
+            return resolve(stdout || stderr);
         });
     });
 }
