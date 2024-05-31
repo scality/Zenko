@@ -21,15 +21,6 @@ kubectl wait --for condition=DeploymentInProgress=true --timeout 10m zenko/${ZEN
 kubectl wait --for condition=DeploymentFailure=false --timeout 10m zenko/${ZENKO_NAME}
 kubectl wait --for condition=DeploymentInProgress=false --timeout 10m zenko/${ZENKO_NAME}
 
-# Patch sorbet env
-kubectl patch zenko $ZENKO_NAME --type merge -p '{"spec":{"sorbet":{"configurationOverrides":{"e2e-azure-archive":{"pending-job-poll-after-age":"10s"}}}}}'
-kubectl patch zenko $ZENKO_NAME --type merge -p '{"spec":{"sorbet":{"configurationOverrides":{"e2e-azure-archive":{"pending-job-poll-check-interval":"10s"}}}}}'
-
-kubectl patch zenko $ZENKO_NAME --type merge -p '{"spec":{"sorbet":{"configurationOverrides":{"e2e-cold":{"pending-job-poll-after-age":"10s"}}}}}'
-kubectl patch zenko $ZENKO_NAME --type merge -p '{"spec":{"sorbet":{"configurationOverrides":{"e2e-cold":{"pending-job-poll-check-interval":"10s"}}}}}'
-
-kubectl patch zenko $ZENKO_NAME --type merge -p '{"spec":{"sorbet":{"server":{"azure":{"restoreTimeout":"15s"}}}}}'
-
 # Get kafka image name and tag
 KAFKA_REGISTRY_NAME=$(yq eval ".kafka.sourceRegistry" ../../../solution/deps.yaml)
 KAFKA_IMAGE_NAME=$(yq eval ".kafka.image" ../../../solution/deps.yaml)
