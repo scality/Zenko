@@ -82,23 +82,17 @@ export interface ZenkoWorldParameters extends ClientOptions {
  * Shared between all tests (S3, IAM, STS).
  */
 export default class Zenko extends World<ZenkoWorldParameters> {
-    private readonly command: string = '';
-
     private result: Command = {
         err: '',
         stdout: '',
         stderr: '',
     };
 
-    private parsedResult: Command[] = [];
-
-    private cliOptions: Record<string, unknown> = {};
+    private commandParameters: Record<string, unknown> = {};
 
     private saved: Record<string, unknown> = {};
 
-    private forceFailed = false;
-
-    logger: Werelogs.RequestLogger = new Werelogs.Logger('CTST').newRequestLogger();
+    public logger: Werelogs.RequestLogger = new Werelogs.Logger('CTST').newRequestLogger();
 
     /**
      * @constructor
@@ -113,16 +107,18 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 JSON.parse(this.parameters.ServiceUsersCredentials) as Record<string, ServiceUsersCredentials>;
             for (const serviceUserName in serviceUserCredentials) {
                 if (!Identity.hasIdentity(IdentityEnum.SERVICE_USER, serviceUserName, this.parameters.AccountName)) {
-                Identity.addIdentity(IdentityEnum.SERVICE_USER, serviceUserName, {
-                    accessKeyId: serviceUserCredentials[serviceUserName].accessKey,
-                    secretAccessKey: serviceUserCredentials[serviceUserName].secretKey,
+                    Identity.addIdentity(IdentityEnum.SERVICE_USER, serviceUserName, {
+                        accessKeyId: serviceUserCredentials[serviceUserName].accessKey,
+                        secretAccessKey: serviceUserCredentials[serviceUserName].secretKey,
                     }, this.parameters.AccountName);
                 }
             }
         }
 
         // Workaround to be able to access global parameters in BeforeAll/AfterAll hooks
-        CacheHelper.cacheParameters(this.parameters);
+        CacheHelper.cacheParameters({
+            ...this.parameters,
+        });
 
         if (this.parameters.AccountName && !Identity.hasIdentity(IdentityEnum.ACCOUNT, this.parameters.AccountName)) {
             Identity.addIdentity(IdentityEnum.ACCOUNT, this.parameters.AccountName, {
@@ -146,8 +142,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     }
 
     /**
-     * This function will dynamically determine if the result from the AWS CLI command
-     * is a success or a failure. Based on the fact that AWS CLI either return an empty string
+     * This function will dynamically determine if the result from the AWS command
+     * is a success or a failure. Based on the fact that AWS either return an empty string
      * or a JSON-parsable string.
      * @param {Array} result - array with result objects containing both stderr and stdout from the CLI command.
      * @returns {boolean} - if the result is a success or a failure
@@ -156,14 +152,13 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         const usedResult: Command[] = Array.isArray(result) ? result : [result];
         let decision = true;
         usedResult.forEach(res => {
-            if (!res || res.err || this.forceFailed === true) {
+            if (!res || res.err) {
                 decision = false;
             }
             try {
                 // Accept empty responses (in case of success)
                 if (res.stdout && res.stdout !== '') {
-                    const parsed = JSON.parse(res.stdout) as Command;
-                    this.parsedResult.push(parsed);
+                    JSON.parse(res.stdout) as Command;
                 } else if (res.stdout !== '') {
                     decision = false;
                 }
@@ -183,7 +178,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * @returns {undefined}
      */
     async setupEntity(entityType: string): Promise<void> {
-        const savedParameters = JSON.parse(JSON.stringify(this.cliOptions)) as object;
+        const savedParameters = JSON.parse(JSON.stringify(this.commandParameters)) as object;
         this.addToSaved('identityType', entityType);
 
         switch (entityType) {
@@ -216,7 +211,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         }
 
         this.resetCommand();
-        this.cliOptions = savedParameters as Record<string, unknown>;
+        this.commandParameters = savedParameters as Record<string, unknown>;
     }
 
     /**
@@ -368,7 +363,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         }
 
         await SuperAdmin.createAccount({ accountName });
-            const credentials = await SuperAdmin.generateAccountAccessKey({ accountName });
+        const credentials = await SuperAdmin.generateAccountAccessKey({ accountName });
         Identity.addIdentity(IdentityEnum.ACCOUNT, accountName, credentials, undefined, true, true);
 
         // Save the identity
@@ -537,6 +532,10 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      */
     static async init(parameters: ZenkoWorldParameters) {
         const accountName = parameters.AccountName || Constants.ACCOUNT_NAME;
+        CacheHelper.logger.debug('Initializing Zenko', {
+            accountName,
+            parameters,
+        });
         if (!Identity.hasIdentity(IdentityEnum.ACCOUNT, accountName)) {
             CacheHelper.adminClient = await Utils.getAdminCredentials(parameters);
     
@@ -545,18 +544,18 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             // Create the account if already exist will not throw any error
             try {
                 await SuperAdmin.createAccount({ accountName });
-                /* eslint-disable */
-                } catch (err: any) {
-                    if (!err.EntityAlreadyExists && err.code !== 'EntityAlreadyExists') {
-                        throw err;
-                    }
+            /* eslint-disable */
+            } catch (err: any) {
+                if (!err.EntityAlreadyExists && err.code !== 'EntityAlreadyExists') {
+                    throw err;
                 }
-                /* eslint-enable */
+            }
+            /* eslint-enable */
             // Waiting until the account exists, in case of parallel mode.
             let remaining = Constants.MAX_ACCOUNT_CHECK_RETRIES;
             account = await SuperAdmin.getAccount({ accountName });
             while (!account && remaining > 0) {
-                await Utils.sleep(1000);
+                await Utils.sleep(500);
                 account = await SuperAdmin.getAccount({ accountName });
                 remaining--;
             }
@@ -639,7 +638,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * @returns {undefined}
      */
     addCommandParameter(param: Record<string, unknown>): void {
-        this.cliOptions[Object.keys(param)[0]] = param[Object.keys(param)[0]];
+        this.commandParameters[Object.keys(param)[0]] = param[Object.keys(param)[0]];
     }
 
     /**
@@ -647,7 +646,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * @returns {undefined}
      */
     resetCommand(): void {
-        this.cliOptions = {};
+        this.commandParameters = {};
     }
 
     /**
@@ -656,18 +655,18 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * @returns {undefined}
      */
     deleteKeyFromCommand(key: string): void {
-        if (key in this.cliOptions) {
-            delete this.cliOptions[key];
+        if (key in this.commandParameters) {
+            delete this.commandParameters[key];
         }
     }
 
     /**
      * Get all mapped parameters
-     * @returns {Record<string, unknown>} - an object with the cli command options
+     * @returns {Record<string, unknown>} - an object with the api command options
      */
     getCommandParameters() {
         return {
-            ...this.cliOptions,
+            ...this.commandParameters,
         };
     }
 
