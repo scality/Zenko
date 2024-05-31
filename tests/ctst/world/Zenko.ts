@@ -884,6 +884,61 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             /* eslint-enable */
         }
     }
+
+    /**
+     * 
+     * @param {Method} method HTTP Method
+     * @param {string} path Path to the API endpoint
+     * @param {AxiosRequestHeaders} headers Headers to the request
+     * @param {object} payload Payload to the request
+     * @returns {object} object
+     */
+    async managementAPIRequest(
+        method: Method,
+        path: string,
+        headers: object = {},
+        payload: object = {}
+    ): Promise<{ statusCode: number; data: object } | { statusCode: number; err: unknown }> {
+        const token = await this.getWebIdentityToken(
+            this.parameters.KeycloakUsername || 'zenko-end2end',
+            this.parameters.KeycloakPassword || '123',
+            this.parameters.KeycloakHost || 'keycloak.zenko.local',
+            this.parameters.KeycloakPort || '80',
+            `/auth/realms/${this.parameters.KeycloakRealm || 'zenko'}/protocol/openid-connect/token`,
+            this.parameters.KeycloakClientId || Constants.K_CLIENT,
+            this.parameters.KeycloakGrantType || 'password',
+        );
+        const axiosInstance = axios.create();
+        const protocol = this.parameters.ssl === false ? 'http://' : 'https://';
+        // eslint-disable-next-line no-param-reassign
+        headers = {
+            ...headers,
+            'X-Authentication-Token': token,
+        };
+        const axiosConfig: AxiosRequestConfig = {
+            method,
+            url: `${protocol}management.${this.parameters.subdomain || Constants.DEFAULT_SUBDOMAIN}/api/v1${path}`,
+            headers,
+            data: payload,
+        };
+        try {
+            const response: AxiosResponse = await axiosInstance(axiosConfig);
+            return { statusCode: response.status, data: response.data as object };
+            /* eslint-disable */
+        } catch (err: any) {
+            return {
+                statusCode: err.response.status,
+                err: err.response.data,
+            };
+            /* eslint-enable */
+        }
+    }
+
+    async deleteLocation(this: Zenko, locationName: string) :
+        Promise<{ statusCode: number; data: object } | { statusCode: number; err: unknown }> {
+        return await this.managementAPIRequest('DELETE',
+            `/config/${this.parameters.InstanceID}/location/${locationName}`);
+    }
 }
 
 setWorldConstructor(Zenko);
