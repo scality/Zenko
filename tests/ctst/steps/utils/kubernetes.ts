@@ -68,6 +68,8 @@ export async function createJobAndWaitForCompletion(world: Zenko, jobName: strin
                         } else if (watchObj.object?.status?.failed) {
                             world.parameters.logger?.debug('job failed', {
                                 job: job.metadata,
+                                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                                object: watchObj.object,
                             });
                             reject(new Error('job failed'));
                         }

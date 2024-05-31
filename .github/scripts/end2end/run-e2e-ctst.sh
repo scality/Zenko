@@ -62,6 +62,7 @@ BACKBEAT_API_HOST=${BACKBEAT_API_HOST:1:-1}
 BACKBEAT_API_PORT=$(kubectl get secret -l app.kubernetes.io/name=connector-cloudserver-config,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq .backbeat.port)
 
 KAFKA_CLEANER_INTERVAL=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.spec.kafkaCleaner.interval}')
+SORBETD_RESTORE_TIMEOUT=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.spec.sorbet.server.azure.restoreTimeout}')
 
 # Setting CTST world params
 WORLD_PARAMETERS="$(jq -c <<EOF
@@ -102,7 +103,8 @@ WORLD_PARAMETERS="$(jq -c <<EOF
   "InstanceID":"${INSTANCE_ID}",
   "BackbeatApiHost":"${BACKBEAT_API_HOST}",
   "BackbeatApiPort":"${BACKBEAT_API_PORT}",
-  "KafkaCleanerInterval":"${KAFKA_CLEANER_INTERVAL}"
+  "KafkaCleanerInterval":"${KAFKA_CLEANER_INTERVAL}",
+  "SorbetdRestoreTimeout":"${SORBETD_RESTORE_TIMEOUT}"
 }
 EOF
 )"

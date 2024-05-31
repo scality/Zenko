@@ -103,6 +103,11 @@ spec:
       e2e-cold:
         debug: "true"
         command-timeout: "60s"
+        pending-job-poll-after-age: "10s"
+        pending-job-poll-check-interval: "10s"
+      e2e-azure-archive:
+        pending-job-poll-after-age: "10s"
+        pending-job-poll-check-interval: "10s"
     server:
       tar:
         targetSize: 10KB
@@ -110,8 +115,7 @@ spec:
         maxDelay: "15s"
       azure:
         archiveTier: "hot"
-        pollingDelay: "1s"
-        restoreTimeout: "30s"
+        restoreTimeout: "15s"
   ingress:
     workloadPlaneClass: 'nginx'
     controlPlaneClass: 'nginx-control-plane'
