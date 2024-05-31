@@ -16,22 +16,6 @@ import { extractPropertyFromResults } from '../common/utils';
 import qs = require('qs');
 import Werelogs from 'werelogs';
 
-export interface AWSVersionObject {
-    Key: string;
-    VersionId: string;
-}
-
-export interface NotificationDestination {
-    destinationName: string;
-    topic: string;
-    hosts: string;
-}
-
-export interface UserCredentials {
-    AccessKeyId: string;
-    SecretAccessKey: string;
-    SessionToken?: string;
-}
 
 interface ServiceUsersCredentials {
     accessKey: string;
@@ -49,7 +33,7 @@ export enum EntityType {
     ASSUME_ROLE_USER_CROSS_ACCOUNT = 'ASSUME_ROLE_USER_CROSS_ACCOUNT',
 }
 
-export interface ZenkoWorldParameters {
+export interface ZenkoWorldParameters extends ClientOptions {
     logger?: Werelogs.Logger;
     subdomain: string;
     ssl: boolean;

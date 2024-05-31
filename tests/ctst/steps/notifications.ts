@@ -3,7 +3,7 @@ import { strict as assert } from 'assert';
 import Zenko, {
     AWSVersionObject,
 } from '../world/Zenko';
-import { Constants, S3, Utils, KafkaHelper } from 'cli-testing';
+import { S3, Utils, KafkaHelper, AWSVersionObject, NotificationDestination } from 'cli-testing';
 import { Message } from 'node-rdkafka';
 
 setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
@@ -22,12 +22,6 @@ const allNotificationTypes = [
 
 interface NotificationConfig {
     QueueConfigurations: QueueConfiguration[];
-}
-
-interface NotificationDestination {
-    destinationName: string;
-    topic: string;
-    hosts: string;
 }
 
 interface Notification {
