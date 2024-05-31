@@ -143,8 +143,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     }
 
     /**
-     * This function will dynamically determine if the result from the AWS CLI command
-     * is a success or a failure. Based on the fact that AWS CLI either return an empty string
+     * This function will dynamically determine if the result from the AWS command
+     * is a success or a failure. Based on the fact that AWS either return an empty string
      * or a JSON-parsable string.
      * @param {Array} result - array with result objects containing both stderr and stdout from the CLI command.
      * @returns {boolean} - if the result is a success or a failure
