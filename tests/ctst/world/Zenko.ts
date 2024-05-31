@@ -10,6 +10,7 @@ import {
     STS,
     SuperAdmin,
     Utils,
+    Logger,
 } from 'cli-testing';
 import { Credentials } from 'aws4-axios';
 import { extractPropertyFromResults } from '../common/utils';
@@ -34,7 +35,6 @@ export enum EntityType {
 }
 
 export interface ZenkoWorldParameters extends ClientOptions {
-    logger?: Werelogs.Logger;
     subdomain: string;
     ssl: boolean;
     port: string;
@@ -117,6 +117,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
     private cliMode: cliModeObject = CacheHelper.createCliModeObject();
 
+    public logger: Werelogs.RequestLogger = new Werelogs.Logger('CTST').newRequestLogger();
+
     /**
      * @constructor
      * @param {Object} options - parameters provided as a CLI parameter when running the tests
@@ -124,6 +126,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     constructor(options: IWorldOptions<ZenkoWorldParameters>) {
         super(options);
         this.parameters = options.parameters;
+        Logger.createLogger(this);
         // store service users credentials from world parameters
         if (this.parameters.ServiceUsersCredentials) {
             const serviceUserCredentials =
@@ -262,6 +265,11 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         const accountName = this.getSaved<string>('accountName') ||
             this.parameters.AccountName || Constants.ACCOUNT_NAME;
         const key = `${accountName}_${ARWWIName}`;
+        this.logger.debug('preparing ARWWI', {
+            accountName,
+            key,
+        });
+
         if (!(key in CacheHelper.ARWWI)) {
             const token = await this.getWebIdentityToken(
                 ARWWIName,
@@ -280,6 +288,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             const account = await SuperAdmin.getAccount({
                 accountName,
             });
+            this.logger.debug('Got account', account);
+
             // Getting roles with GetRolesForWebIdentity
             // Get the first role with the storage-manager-role name
             const data =
@@ -300,6 +310,14 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             }
             // Ensure we can assume at least one role
             if (!roleToAssume) {
+                this.logger.error('No role found for web identity', {
+                    accountName,
+                    ARWWIName,
+                    ARWWITargetRole,
+                    account,
+                    callNumber,
+                    nextMarker,
+                });
                 throw new Error('Error when trying to list roles for web identity.');
             }
             // Arn to assume
@@ -307,7 +325,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             this.options.roleArn = arn;
             // Assume the role and save the credentials
             const ARWWI = await STS.assumeRoleWithWebIdentity(this.options, this.parameters);
-            this.parameters.logger?.debug('Assumed role with web identity', ARWWI);
+            this.logger.debug('Assumed role with web identity', ARWWI);
             this.addToSaved('identityArn', extractPropertyFromResults(ARWWI, 'AssumedRoleUser', 'Arn'));
             if (ARWWI && typeof ARWWI !== 'string' && ARWWI.stdout) {
                 const parsedOutput = JSON.parse(ARWWI.stdout) as { Credentials: ClientOptions['AssumedSession'] };
@@ -551,6 +569,11 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * @returns {undefined}
      */
     static async init(parameters: ZenkoWorldParameters) {
+        const accountName = parameters.AccountName || Constants.ACCOUNT_NAME;
+        CacheHelper.logger.debug('Initializing Zenko', {
+            accountName,
+            parameters,
+        });
         CacheHelper.parameters ??= {};
         if (!CacheHelper.accountAccessKeys) {
             CacheHelper.adminClient = await Utils.getAdminCredentials(parameters);
