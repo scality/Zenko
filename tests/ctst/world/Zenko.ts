@@ -35,42 +35,41 @@ export enum EntityType {
 }
 
 export interface ZenkoWorldParameters extends ClientOptions {
-    subdomain: string;
-    ssl: boolean;
-    port: string;
     AccountName: string;
-    AdminAccessKey: string;
-    AdminSecretKey: string;
     AccountAccessKey: string;
     AccountSecretKey: string;
-    AccessKey: string;
-    SecretKey: string;
     VaultAuthHost: string;
     NotificationDestination: string;
     NotificationDestinationTopic: string;
     NotificationDestinationAlt: string;
     NotificationDestinationTopicAlt: string;
     KafkaHosts: string;
+    KeycloakUsername: string;
     KeycloakPassword: string;
     KeycloakHost: string;
     KeycloakPort: string;
-    keycloakRealm: string;
-    keycloakClientId: string;
-    keycloakGrantType: string;
+    KeycloakRealm: string;
+    KeycloakClientId: string;
+    KeycloakGrantType: string;
     StorageManagerUsername: string;
     StorageAccountOwnerUsername: string;
     DataConsumerUsername: string;
     ServiceUsersCredentials: string;
     KeycloakTestPassword: string;
-    AssumedSession: ClientOptions['AssumedSession'];
-    IAMSession: {
-        AccessKeyId: string;
-        SecretAccessKey: string;
-        SessionToken?: string;
-    };
+    AzureAccountName: string;
+    AzureAccountKey: string;
+    AzureArchiveContainer: string;
+    AzureArchiveContainer2: string;
+    AzureArchiveAccessTier: string;
+    AzureArchiveManifestTier: string;
+    AzureArchiveQueue: string;
+    TimeProgressionFactor: number;
+    KafkaDeadLetterQueueTopic: string;
+    KafkaObjectTaskTopic: string;
     InstanceID: string;
+    BackbeatApiHost: string;
+    BackbeatApiPort: string;
     KafkaCleanerInterval: string;
-    [key: string]: unknown;
 }
 
 export interface ApiResult {
