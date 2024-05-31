@@ -57,25 +57,4 @@ After({ tags: '@Quotas' }, async function () {
     }
 });
 
-defineParameterType({
-    name: 'type',
-    regexp: /(.*)/,
-    transformer: s => <keyof typeof EntityType>s,
-});
-
-Given('a {type} type', async function (this: Zenko, type: string) {
-    await this.setupEntity(type);
-});
-
-Given('a {string} AssumeRole user', async function (this: Zenko, crossAccount: string) {
-    await this.prepareAssumeRole(crossAccount === 'cross account');
-    this.addToSaved('type', EntityType.ASSUME_ROLE_USER);
-});
-
-Given('a service user {string} assuming role {string}',
-    async function (this: Zenko, serviceUserName: string, roleName: string) {
-        await this.prepareServiceUser(serviceUserName, roleName);
-        this.addToSaved('type', EntityType.ASSUME_ROLE_USER);
-    });
-
 export default Zenko;
