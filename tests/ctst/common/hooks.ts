@@ -40,7 +40,7 @@ After({ tags: '@Quotas' }, async function () {
         world.parameters,
         world.getCliMode(),
         world.getCommandParameters());
-    world.parameters.logger?.debug('DeleteBucketQuota result', {
+    world.logger?.debug('DeleteBucketQuota result', {
         resultBucket,
         parameters: world.getCommandParameters(),
     });
@@ -48,7 +48,7 @@ After({ tags: '@Quotas' }, async function () {
         world.parameters,
         world.getCliMode());
 
-    world.parameters.logger?.debug('DeleteAccountQuota result', {
+    world.logger?.debug('DeleteAccountQuota result', {
         resultAccount,
         parameters: world.getCommandParameters(),
     });

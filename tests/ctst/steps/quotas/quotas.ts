@@ -115,7 +115,7 @@ Given('a bucket quota set to {int} B', async function (this: Zenko, quota: numbe
         this.getCliMode(),
         this.getCommandParameters());
 
-    this.parameters.logger?.debug('UpdateBucketQuota result', {
+    this.logger.debug('UpdateBucketQuota result', {
         result,
     });
 
@@ -138,7 +138,7 @@ Given('an account quota set to {int} B', async function (this: Zenko, quota: num
         this.getCliMode(),
         this.getCommandParameters());
 
-    this.parameters.logger?.debug('UpdateAccountQuota result', {
+    this.logger.debug('UpdateAccountQuota result', {
         result,
     });
 
