@@ -438,7 +438,6 @@ When('the user tries to perform the current S3 action on the bucket {int} times 
     });
 
 Then('the API should {string} with {string}', function (this: Zenko, result: string, expected: string) {
-    this.useSavedIdentity();
     const action = this.getSaved<ActionPermissionsType>('currentAction');
     switch (result) {
     case 'succeed':

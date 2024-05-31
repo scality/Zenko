@@ -1,6 +1,6 @@
 import { When, Then } from '@cucumber/cucumber';
 import Zenko from '../world/Zenko';
-import { Utils, S3, Constants, Identity } from 'cli-testing';
+import { Utils, S3, Constants } from 'cli-testing';
 import { strict as assert } from 'assert';
 
 interface DeleteObjectsResult {
@@ -62,8 +62,6 @@ When('the user tries to perform PutObjectRetention {string} bypass', async funct
 });
 
 Then('it {string} pass Vault authentication', function (this: Zenko, should: string) {
-    Identity.resetIdentity();
-
     let stdout;
     if (should === 'should') {
         assert.strictEqual(this.getResult().err, null);

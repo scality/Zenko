@@ -20,6 +20,8 @@ const noParallelRun = atMostOnePicklePerTag(['@ColdStorage', '@AfterAll']);
 setParallelCanAssign(noParallelRun);
 
 Before(async function (this: Zenko) {
+    this.resetSaved();
+    Identity.resetIdentity();
     await Zenko.init(this.parameters);
 });
 
@@ -35,7 +37,6 @@ After({ tags: '@Quotas' }, async function () {
     // restore account
     await world.createAccount();
     await world.setupEntity(EntityType.STORAGE_MANAGER);
-    await world.setupEntity('StorageManager');
     world.addCommandParameter({
         bucket: world.getSaved<string>('bucketName'),
     });
@@ -70,30 +71,6 @@ After({ tags: '@AzureArchive' }, async function (this: Zenko) {
         this,
         this.getSaved<string>('bucketName'),
     );
-});
-
-defineParameterType({
-    name: 'type',
-    regexp: /(.*)/,
-    transformer: s => <keyof typeof EntityType> s,
-});
-
-Given('a {type} type', async function (this: Zenko, type: string) {
-    await this.setupEntity(type);
-});
-
-Given('a {string} AssumeRole user', async function (this: Zenko, crossAccount: string) {
-    await this.prepareAssumeRole(crossAccount === 'cross account');
-});
-
-Given('a service user {string} assuming the role {string} of an internal service account',
-    async function (this: Zenko, serviceUserName: string, roleName: string) {
-        await this.prepareServiceUser(serviceUserName, roleName, true);
-    });
-
-Given('a service user {string} assuming the role {string} of a user account',
-    async function (this: Zenko, serviceUserName: string, roleName: string) {
-        await this.prepareServiceUser(serviceUserName, roleName);
     });
 
 export default Zenko;

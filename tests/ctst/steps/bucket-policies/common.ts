@@ -152,6 +152,7 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
         });
         assert.ifError(result.stderr || result.err);
     }
+    this.useSavedIdentity();
 });
 
 Given('a policy granting full access to the objects and read access to the bucket', async function (this: Zenko) {
@@ -193,6 +194,7 @@ Given('a policy granting full access to the objects and read access to the bucke
         policy: JSON.stringify(basePolicy),
     });
     assert.ifError(result.stderr || result.err);
+    this.useSavedIdentity();
 });
 
 Given('a condition for the bucket policy with {string} {string} {string} expecting {string}', function (
@@ -311,6 +313,7 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
         policy: JSON.stringify(basePolicy),
     });
     assert.ifError(result.stderr || result.err);
+    this.useSavedIdentity();
 });
 
 Given('an environment setup for the API', async function (this: Zenko) {
@@ -430,6 +433,7 @@ Given('an environment setup for the API', async function (this: Zenko) {
         });
         assert.ifError(detachResult.stderr || detachResult.err);
     }
+    this.useSavedIdentity();
 });
 
 When('the user tries to perform the current S3 action on the bucket', async function (this: Zenko) {
@@ -449,7 +453,6 @@ When('the user tries to perform the current S3 action on the bucket', async func
 });
 
 Then('the authorization result is correct', function (this: Zenko) {
-    Identity.resetIdentity();
     const action = this.getSaved<ActionPermissionsType>('currentAction');
     // based on the saved authzConfiguration, check if the result is as expected
     // We only consider Allow or Deny here.

@@ -40,4 +40,5 @@ Given('an IAM policy attached to the entity {string} with {string} effect to per
             this.addCommandParameter({ groupName: this.getSaved<string>('groupName') });
             await IAM.attachGroupPolicy(this.getCommandParameters());
         }
+        this.useSavedIdentity();
     });

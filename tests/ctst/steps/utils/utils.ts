@@ -6,7 +6,6 @@ import {
     Identity,
     S3,
     Utils,
-    AWSCredentials,
     AWSVersionObject,
     Command,
 } from 'cli-testing';
@@ -58,7 +57,7 @@ async function uploadTeardown(world: Zenko, action: string) {
 
 async function runActionAgainstBucket(world: Zenko, action: string) {
     world.useSavedIdentity();
-    const userCredentials: AWSCredentials = Identity.getCurrentCredentials();
+    const userCredentials = Identity.getCurrentCredentials();
     if (!userCredentials) {
         throw new Error('User credentials not set. '
             + 'Make sure the `IAMSession` and `AssumedSession` world parameter are defined.');

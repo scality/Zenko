@@ -12,6 +12,7 @@ When('the user tries to perform vault auth {string}', async function (this: Zenk
     const userCredentials = Identity.getCredentialsForIdentity(
         this.getSaved<IdentityEnum>('identityTypeForScenario'),
         this.getSaved<string>('identityNameForScenario'),
+        this.getSaved<string>('accountNameForScenario'),
     );
 
     if (!userCredentials) {
@@ -41,7 +42,6 @@ When('the user tries to perform vault auth {string}', async function (this: Zenk
 });
 
 Then('the user should be able to perform successfully the {string} action', function (this: Zenko, action: string) {
-    Identity.resetIdentity();
     switch (action) {
     case 'MetadataSearch': {
         assert.strictEqual(this.getResult().statusCode, 200);
@@ -59,7 +59,6 @@ Then('the user should be able to perform successfully the {string} action', func
 });
 
 Then('the user should not be able to perform the {string} action', function (this: Zenko, action : string) {
-    Identity.resetIdentity();
     switch (action) {
     case 'GetAccountInfo': {
         assert.strictEqual(this.getResult().code === 'AccessDenied', true);
@@ -72,6 +71,5 @@ Then('the user should not be able to perform the {string} action', function (thi
 });
 
 Then('the user should receive {string} error', function (this: Zenko, error : string) {
-    Identity.resetIdentity();
     assert.strictEqual(this.getResult().err!.includes(error), true);
 });
