@@ -1,5 +1,6 @@
 import { exec } from 'child_process';
 import http from 'http';
+import { createHash } from 'crypto';
 import {
     Utils,
 } from 'cli-testing';
@@ -138,4 +139,8 @@ export async function request(options: http.RequestOptions, data: string | undef
         }
         req.end();
     });
+}
+
+export function hashStringAndKeepFirst20Characters(input: string) {
+    return createHash('sha256').update(input).digest('hex').slice(0, 20);
 }
