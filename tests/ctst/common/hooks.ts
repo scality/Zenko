@@ -18,7 +18,7 @@ import { hashStringAndKeepFirst20Characters } from './utils';
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const { atMostOnePicklePerTag } = parallelCanAssignHelpers;
-const noParallelRun = atMostOnePicklePerTag(['@AzureArchive', '@Dmf', '@AfterAll']);
+const noParallelRun = atMostOnePicklePerTag(['@ColdStorage', '@AfterAll']);
 
 setParallelCanAssign(noParallelRun);
 
