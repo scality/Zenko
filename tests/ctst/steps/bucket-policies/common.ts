@@ -19,13 +19,12 @@ import {
     runActionAgainstBucket,
 } from 'steps/utils/utils';
 import assert from 'assert';
-import { IAM, S3, Utils } from 'cli-testing';
+import { IAM, Identity, S3, Utils } from 'cli-testing';
 import { extractPropertyFromResults } from 'common/utils';
 
 Given('an action {string}', function (this: Zenko, apiName: string) {
     // dynamically know the config based on the action
     // Ensure that the action is valid and supported
-    this.saveAuthMode('base_account');
     this.addToSaved('currentAction', actionPermissions.find(actionPermission => actionPermission.action === apiName));
 
     if (!this.getSaved('currentAction')) {
@@ -58,6 +57,18 @@ Given('an existing bucket prepared for the action', async function (this: Zenko)
     }
 });
 
+Given('a permission to perform the {string} action', function (this: Zenko, action: string) {
+    const currentAction = this.getSaved<ActionPermissionsType>('currentAction');
+    const permissionsForAction = actionPermissions.find(actionPermission => actionPermission.action === action);
+    if (!permissionsForAction) {
+        throw new Error(`Action ${action} is not supported yet`);
+    }
+    currentAction.permissions = currentAction.permissions.concat(permissionsForAction.permissions);
+    this.addToSaved('currentAction', {
+        ...currentAction,
+    });
+});
+
 Given('an {string} IAM Policy that {string} with {string} effect for the current API', async function (
     this: Zenko,
     doesExist: string,
@@ -69,7 +80,7 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
         return;
     }
     // This step needs full access.
-    this.setAuthMode('base_account');
+    Identity.resetIdentity();
     const authzConfiguration = getAuthorizationConfiguration(this);
     const action = this.getSaved<ActionPermissionsType>('currentAction');
     let effect = AuthorizationType.DENY;
@@ -131,28 +142,33 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
         policyDocument: JSON.stringify(basePolicy),
         policyName: `policyforauthz-${Utils.randomString()}`,
     });
-    const policyArn = extractPropertyFromResults(createdPolicy, 'Policy', 'Arn') as string;
+    const policyArn = extractPropertyFromResults<string>(createdPolicy, 'Policy', 'Arn');
+
+    if (!policyArn) {
+        throw new Error('Policy creation failed: no policy ARN');
+    }
 
     if (identityType === EntityType.ASSUME_ROLE_USER
         || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT
         || identityType === EntityType.DATA_CONSUMER) {
         const result = await IAM.attachRolePolicy({
             policyArn,
-            roleName: this.getSaved<string>('identityName'),
+            roleName: this.getSaved<string>('identityNameForScenario'),
         });
         assert.ifError(result.stderr || result.err);
     }
     if (identityType === EntityType.IAM_USER) {
         const result = await IAM.attachUserPolicy({
             policyArn,
-            userName: this.getSaved<string>('identityName'),
+            userName: this.getSaved<string>('identityNameForScenario'),
         });
         assert.ifError(result.stderr || result.err);
     }
+    this.useSavedIdentity();
 });
 
 Given('a policy granting full access to the objects and read access to the bucket', async function (this: Zenko) {
-    this.setAuthMode('base_account');
+    Identity.resetIdentity();
     const authzConfiguration: AuthorizationConfiguration = {
         Identity: this.getSaved<AuthorizationConfiguration>('authzConfiguration')?.Identity
             || AuthorizationType.NO_RESOURCE,
@@ -190,6 +206,7 @@ Given('a policy granting full access to the objects and read access to the bucke
         policy: JSON.stringify(basePolicy),
     });
     assert.ifError(result.stderr || result.err);
+    this.useSavedIdentity();
 });
 
 Given('a condition for the bucket policy with {string} {string} {string} expecting {string}', function (
@@ -230,7 +247,7 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
         return;
     }
     // This step needs full access.
-    this.setAuthMode('base_account');
+    Identity.resetIdentity();
     const authzConfiguration = getAuthorizationConfiguration(this);
     const action = this.getSaved<ActionPermissionsType>('currentAction');
     let effect = AuthorizationType.DENY;
@@ -298,7 +315,8 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
             },
         ],
     };
-    const conditionForPolicy = this.getSaved('conditionForPolicy');
+    const conditionForPolicy =
+        this.getSaved<{ [key: string]: string | string[] }>('conditionForPolicy');
     if (conditionForPolicy) {
         basePolicy.Statement[0].Condition = conditionForPolicy;
     }
@@ -307,6 +325,7 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
         policy: JSON.stringify(basePolicy),
     });
     assert.ifError(result.stderr || result.err);
+    this.useSavedIdentity();
 });
 
 Given('an environment setup for the API', async function (this: Zenko) {
@@ -316,7 +335,7 @@ Given('an environment setup for the API', async function (this: Zenko) {
     }
     // Create an IAM policy with full S3 permission on any bucket
     // and attach it to the current identity
-    this.setAuthMode('base_account');
+    Identity.resetIdentity();
     const basePolicy = {
         Version: '2012-10-17',
         Statement: [
@@ -331,33 +350,37 @@ Given('an environment setup for the API', async function (this: Zenko) {
         policyDocument: JSON.stringify(basePolicy),
         policyName: `policyforauthz-${Utils.randomString()}`,
     });
-    const policyArn = extractPropertyFromResults(createdPolicy, 'Policy', 'Arn') as string;
+    const policyArn = extractPropertyFromResults<string>(createdPolicy, 'Policy', 'Arn');
+
+    if (!policyArn) {
+        throw new Error('Policy creation failed: no policy ARN');
+    }
+
     const identityType = this.getSaved<string>('identityType') as EntityType;
     if (identityType === EntityType.ASSUME_ROLE_USER
         || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT
         || identityType === EntityType.DATA_CONSUMER) {
         const result = await IAM.attachRolePolicy({
             policyArn,
-            roleName: this.getSaved<string>('identityName'),
+            roleName: this.getSaved<string>('identityNameForScenario'),
         });
         assert.ifError(result.stderr || result.err);
     } else if (identityType === EntityType.IAM_USER) { // accounts do not have any policy
         const result = await IAM.attachUserPolicy({
             policyArn,
-            userName: this.getSaved<string>('identityName'),
+            userName: this.getSaved<string>('identityNameForScenario'),
         });
         assert.ifError(result.stderr || result.err);
     }
     // Perform actions as the current user: some APIs require strict checks on the
     // initiator, so we do that for all APIs to reduce code complexity.
-    this.setAuthMode('test_identity');
+    this.useSavedIdentity();
     switch (action.action) {
     case 'CompleteMultipartUpload':
     case 'AbortMultipartUpload':
     case 'UploadPart':
         const objectKey = `multipartUpload-${Utils.randomString()}`;
         const initiateMPUResult = await S3.createMultipartUpload({
-            ___mode: this.getCliMode(),
             bucket: this.getSaved<string>('bucketName'),
             key: objectKey,
         });
@@ -373,7 +396,6 @@ Given('an environment setup for the API', async function (this: Zenko) {
         // create an object for the MPU as copyObject
         const objectKeyCopy = `multipartUpload-${Utils.randomString()}`;
         const initiateMPUResultCopy = await S3.createMultipartUpload({
-            ___mode: this.getCliMode(),
             bucket: this.getSaved<string>('bucketName'),
             key: objectKeyCopy,
         });
@@ -383,7 +405,6 @@ Given('an environment setup for the API', async function (this: Zenko) {
         break;
     case 'GetObjectLegalHold':
         const objectLegalHoldConfigResult = await S3.putObjectLegalHold({
-            ___mode: this.getCliMode(),
             bucket: this.getSaved<string>('bucketName'),
             key: this.getSaved<string>('objectName'),
             legalHold: 'Status=ON',
@@ -392,7 +413,6 @@ Given('an environment setup for the API', async function (this: Zenko) {
         break;
     case 'GetObjectRetention':
         const objectRetentionResult = await S3.putObjectRetention({
-            ___mode: this.getCliMode(),
             bucket: this.getSaved<string>('bucketName'),
             key: this.getSaved<string>('objectName'),
             retention: 'Mode=GOVERNANCE,RetainUntilDate=2080-01-01T00:00:00Z',
@@ -415,20 +435,21 @@ Given('an environment setup for the API', async function (this: Zenko) {
         || identityType === EntityType.DATA_CONSUMER) {
         const result = await IAM.detachRolePolicy({
             policyArn,
-            roleName: this.getSaved<string>('identityName'),
+            roleName: this.getSaved<string>('identityNameForScenario'),
         });
         assert.ifError(result.stderr || result.err);
     } else if (identityType === EntityType.IAM_USER) { // accounts do not have any policy
         const detachResult = await IAM.detachUserPolicy({
             policyArn,
-            userName: this.getSaved<string>('identityName'),
+            userName: this.getSaved<string>('identityNameForScenario'),
         });
         assert.ifError(detachResult.stderr || detachResult.err);
     }
+    this.useSavedIdentity();
 });
 
 When('the user tries to perform the current S3 action on the bucket', async function (this: Zenko) {
-    this.setAuthMode('test_identity');
+    this.useSavedIdentity();
     const action = {
         ...this.getSaved<ActionPermissionsType>('currentAction'),
     };
@@ -444,7 +465,6 @@ When('the user tries to perform the current S3 action on the bucket', async func
 });
 
 Then('the authorization result is correct', function (this: Zenko) {
-    this.cleanupEntity();
     const action = this.getSaved<ActionPermissionsType>('currentAction');
     // based on the saved authzConfiguration, check if the result is as expected
     // We only consider Allow or Deny here.

@@ -1,14 +1,12 @@
 import fs from 'fs';
 import path from 'path';
 import assert from 'assert';
-import { safeJsonParse } from '../common/utils';
-import { Then, When, After, setDefaultTimeout } from '@cucumber/cucumber';
+import { safeJsonParse, request } from '../common/utils';
+import { Given, Then, When } from '@cucumber/cucumber';
 import { AzureHelper, S3, Constants, Utils } from 'cli-testing';
 import util from 'util';
 import { exec } from 'child_process';
 import Zenko from 'world/Zenko';
-
-setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
 
 type manifestEntry = {
     'archive-id': string,
@@ -33,15 +31,8 @@ type manifest = {
     'entries': manifestEntry[],
 }
 
-type listingObject = {
-    Key: string,
-    VersionId: string,
-}
-
-type listingResult = {
-    Versions: listingObject[],
-    DeleteMarkers: listingObject[],
-}
+const AZURE_STORAGE_BLOB_URL = process.env.AZURE_BLOB_URL || 'http://127.0.0.1:10000/devstoreaccount1';
+const AZURE_STORAGE_QUEUE_URL = process.env.AZURE_QUEUE_URL || 'http://127.0.0.1:10001/devstoreaccount1';
 
 /**
  * Returns an object containing azure credentials
@@ -52,8 +43,8 @@ function getAzureCreds(
     world: Zenko,
 ): {accountName: string, accountKey: string } {
     return {
-        accountName: world.parameters.azureAccountName,
-        accountKey: world.parameters.azureAccountKey,
+        accountName: world.parameters.AzureAccountName,
+        accountKey: world.parameters.AzureAccountKey,
     };
 }
 /**
@@ -75,7 +66,7 @@ async function isObjectRehydrated(zenko: Zenko, objectName: string) {
     assert(tarName);
     while (!found) {
         found = await AzureHelper.blobExists(
-            zenko.parameters.azureArchiveContainer,
+            zenko.parameters.AzureArchiveContainer,
             `rehydrate/${tarName}`,
             getAzureCreds(zenko),
         );
@@ -104,7 +95,7 @@ async function findObjectPackAndManifest(
 ): Promise<{ manifestName?:string, manifest?:manifest, tarName?:string }> {
     // lisintg all blobs in the container
     const blobs = await AzureHelper.listBlobs(
-        world.parameters.azureArchiveContainer,
+        world.parameters.AzureArchiveContainer,
         getAzureCreds(world),
     );
     // filtering the list of blobs only leaving the manifests
@@ -112,7 +103,7 @@ async function findObjectPackAndManifest(
     for (let i = 0; i < manifests.length; i++) {
         // downloading the manifest
         const manifestBuffer = await AzureHelper.downloadBlob(
-            world.parameters.azureArchiveContainer,
+            world.parameters.AzureArchiveContainer,
             manifests[i].name,
             getAzureCreds(world),
         );
@@ -139,35 +130,22 @@ async function findObjectPackAndManifest(
 }
 
 /**
- * Cleans the created test bucket
+ * Cleans the created test locations
  * @param {Zenko} world world object
- * @param {string} bucketName bucket name
+ * @param {string} locationName location name
  * @returns {void}
  */
-export async function cleanZenkoBucket(
+export async function cleanZenkoLocation(
     world: Zenko,
-    bucketName: string,
+    locationName: string,
 ): Promise<void> {
-    world.resetCommand();
-    world.addCommandParameter({ bucket: bucketName });
-    const results = await S3.listObjectVersions(world.getCommandParameters());
-    const res = safeJsonParse(results.stdout);
-    if (!res.ok) {
-        world.parameters.logger?.error('Error listing objects', { res, results });
-        throw new Error('Error listing objects');
+    if (!locationName) {
+        return;
     }
-    const parsedResults = res.result as listingResult;
-    const versions = parsedResults.Versions || [];
-    const deleteMarkers = parsedResults.DeleteMarkers || [];
-    await Promise.all(versions.concat(deleteMarkers).map(obj => {
-        world.addCommandParameter({ key: obj.Key });
-        world.addCommandParameter({ versionId: obj.VersionId });
-        return S3.deleteObject(world.getCommandParameters());
-    }));
-    world.deleteKeyFromCommand('key');
-    world.deleteKeyFromCommand('versionId');
-    await S3.deleteBucketLifecycle(world.getCommandParameters());
-    await S3.deleteBucket(world.getCommandParameters());
+    const result = await world.deleteLocation(locationName);
+    if ('err' in result) {
+        assert.ifError(result.err);
+    }
 }
 
 /**
@@ -180,7 +158,11 @@ export async function cleanAzureContainer(
     world: Zenko,
     bucketName: string,
 ): Promise<void> {
-    const iterator = world.getSaved<Map<string, string>>('createdObjects').keys();
+    const createdObjects = world.getSaved<Map<string, string>>('createdObjects');
+    if (!createdObjects) {
+        return;
+    }
+    const iterator = createdObjects?.keys();
     let currentKey = iterator.next();
     while (currentKey.value) {
         const {
@@ -193,19 +175,19 @@ export async function cleanAzureContainer(
         );
         if (tarName) {
             await AzureHelper.deleteBlob(
-                world.parameters.azureArchiveContainer,
+                world.parameters.AzureArchiveContainer,
                 tarName,
                 getAzureCreds(world),
             );
             await AzureHelper.deleteBlob(
-                world.parameters.azureArchiveContainer,
+                world.parameters.AzureArchiveContainer,
                 `rehydrate/${tarName}`,
                 getAzureCreds(world),
             );
         }
         if (manifestName) {
             await AzureHelper.deleteBlob(
-                world.parameters.azureArchiveContainer,
+                world.parameters.AzureArchiveContainer,
                 manifestName,
                 getAzureCreds(world),
             );
@@ -225,11 +207,11 @@ Then('manifest access tier should be valid for object {string}', async function 
     assert(manifestName);
     // manifest access tier
     const manifestProperties = await AzureHelper.getBlobProperties(
-        this.parameters.azureArchiveContainer,
+        this.parameters.AzureArchiveContainer,
         manifestName,
         getAzureCreds(this),
     );
-    assert.strictEqual(manifestProperties.accessTier, this.parameters.azureArchiveManifestTier);
+    assert.strictEqual(manifestProperties.accessTier, this.parameters.AzureArchiveManifestTier);
 });
 
 Then('tar access tier should be valid for object {string}', async function (this: Zenko, objectName: string) {
@@ -243,7 +225,7 @@ Then('tar access tier should be valid for object {string}', async function (this
     assert(tarName);
     // manifest access tier
     const packProperties = await AzureHelper.getBlobProperties(
-        this.parameters.azureArchiveContainer,
+        this.parameters.AzureArchiveContainer,
         tarName,
         getAzureCreds(this),
     );
@@ -320,12 +302,13 @@ Then('blob for object {string} must be rehydrated',
         const tarName = await isObjectRehydrated(this, objectName);
         assert(tarName);
         await AzureHelper.sendBlobCreatedEventToQueue(
-            this.parameters.azureArchiveQueue,
-            this.parameters.azureArchiveContainer,
+            this.parameters.AzureArchiveQueue,
+            this.parameters.AzureArchiveContainer,
             `rehydrate/${tarName}`,
             getAzureCreds(this),
         );
     });
+
 /**
  * This is used to intentionally fail rehydration
  * To do that, we verify that the blob is rehydrated in azure
@@ -340,6 +323,8 @@ Then('blob for object {string} fails to rehydrate',
         const restoreTimeoutSeconds = parseInt(this.parameters.SorbetdRestoreTimeout);
         await Utils.sleep(restoreTimeoutSeconds * 1000 + 1000);
         assert(tarName);
+        // restoreTimeout is set to 30s in the config
+        await Utils.sleep(30000);
     });
 
 Then('the storage class of object {string} must stay {string} for {int} seconds',
@@ -374,14 +359,22 @@ Then('the storage class of object {string} must stay {string} for {int} seconds'
 
 When('i run sorbetctl to retry failed restore for {string} location', async function (this: Zenko, location: string) {
     const command = `/ctst/sorbetctl forward list failed --trigger-retry --skip-invalid \
-        --kafka-dead-letter-topic=${this.parameters.kafkaDeadLetterQueueTopic} \
-        --kafka-object-task-topic=${this.parameters.kafkaObjectTaskTopic} \
+        --kafka-dead-letter-topic=${this.parameters.KafkaDeadLetterQueueTopic} \
+        --kafka-object-task-topic=${this.parameters.KafkaObjectTaskTopic} \
         --kafka-brokers ${this.parameters.KafkaHosts}`;
     try {
-        await util.promisify(exec)(command);
+        this.logger.debug('Running command', { command, location });
+        const result = await util.promisify(exec)(command);
+        this.logger.debug('Sorbetctl command result', { result: result.stdout });
     } catch (err) {
         assert.ifError(err);
     }
+});
+
+When('i wait for {int} days', { timeout: 10 * 60 * 1000 }, async function (this: Zenko, days: number) {
+    const realTimeDay = days * 24 * 60 * 60 * 1000 /
+        (this.parameters.TimeProgressionFactor > 1 ? this.parameters.TimeProgressionFactor : 1);
+    await Utils.sleep(realTimeDay);
 });
 
 Then('object {string} should expire in {int} days', async function (this: Zenko, objectName: string, days: number) {
@@ -400,8 +393,92 @@ Then('object {string} should expire in {int} days', async function (this: Zenko,
     assert(parsed.ok);
     const head = parsed.result as { Restore: string, LastModified: string };
     const expireResDate = head.Restore.match(/expiry-date="+(.*)"/) || [];
-    const exiryDate = new Date(expireResDate[1]).getTime();
+    const expiryDate = new Date(expireResDate[1]).getTime();
     const lastModified = new Date(head.LastModified).getTime();
-    const diff = (exiryDate - lastModified) / 1000 / 86400;
-    assert(diff >= days && diff < days + 0.1);
+    const diff = (expiryDate - lastModified) / 1000 / 86400;
+    const realTimeDays = days / (this.parameters.TimeProgressionFactor > 1 ? this.parameters.TimeProgressionFactor : 1);
+    assert.ok(diff >= realTimeDays && diff < realTimeDays + 0.005,
+        `Expected ${realTimeDays} but got ${diff} ; ${this.parameters.TimeProgressionFactor}`);
+});
+
+Given('that lifecycle is {string} for the {string} location',
+    async function (this: Zenko, status: string, location: string) {
+        let path: string;
+        if (status === 'paused') {
+            path = `/_/lifecycle/pause/${location}`;
+        } else {
+            path = `/_/lifecycle/resume/${location}`;
+        }
+        const options = {
+            hostname: this.parameters.BackbeatApiHost,
+            port: this.parameters.BackbeatApiPort,
+            method: 'POST',
+            path,
+        };
+        await request(options, undefined);
+    });
+
+Given('an azure archive location {string}', async function (this: Zenko, locationName: string) {
+    const locationConfig = {
+        name: locationName,
+        locationType: 'location-azure-archive-v1',
+        details: {
+            endpoint: AZURE_STORAGE_BLOB_URL,
+            bucketName: this.parameters.AzureArchiveContainer,
+            queue: {
+                type: 'location-azure-storage-queue-v1',
+                queueName: this.parameters.AzureArchiveQueue,
+                endpoint: AZURE_STORAGE_QUEUE_URL,
+            },
+            auth: {
+                type: 'location-azure-shared-key',
+                accountName: this.parameters.AzureAccountName,
+                accountKey: this.parameters.AzureAccountKey,
+            },
+        },
+    };
+    const result = await this.managementAPIRequest('POST', `/config/${this.parameters.InstanceID}/location`, {},
+        locationConfig);
+    assert.strictEqual(result.statusCode, 201);
+    this.addToSaved('locationName', locationName);
+    await Utils.sleep(60000); // Wait for location to be updated TODO: CTST-35
+});
+
+When('i change azure archive location {string} container target', async function (this: Zenko, locationName: string) {
+    const result = await this.managementAPIRequest('GET', `/config/overlay/view/${this.parameters.InstanceID}`);
+    if ('err' in result) {
+        assert.ifError(result.err);
+    } else {
+        const { locations } = result.data as { locations: Record<string, unknown> };
+        assert(locations[locationName]);
+        const locationConfig = locations[locationName] as Record<string, unknown>;
+        const details = locationConfig.details as { bucketName: string, auth: { accountKey: string } };
+        const auth = details.auth;
+        details.bucketName = this.parameters.AzureArchiveContainer2;
+        auth.accountKey = this.parameters.AzureAccountKey;
+        const putResult = await this.managementAPIRequest('PUT',
+            `/config/${this.parameters.InstanceID}/location/${locationName}`,
+            {},
+            locationConfig);
+        if ('err' in putResult) {
+            assert.ifError(putResult.err);
+        } else {
+            assert.strictEqual((putResult.data as { details: { bucketName: string }}).details.bucketName,
+                this.parameters.AzureArchiveContainer2);
+            assert.strictEqual(putResult.statusCode, 200);
+        }
+    }
+    // This could be checked to see pods status with kubectl TODO: CTST-35
+    await Utils.sleep(60000); // Wait for location to be updated
+});
+
+Then('i can get the {string} location details', async function (this: Zenko, locationName: string) {
+    const result = await this.managementAPIRequest('GET', `/config/overlay/view/${this.parameters.InstanceID}`);
+    if ('err' in result) {
+        assert.ifError(result.err);
+    }
+    if ('data' in result) {
+        const { locations } = result.data as { locations: Record<string, unknown> };
+        assert(locations[locationName]);
+    }
 });

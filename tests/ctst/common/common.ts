@@ -1,3 +1,4 @@
+import { ListObjectVersionsOutput } from '@aws-sdk/client-s3';
 import { Given, setDefaultTimeout, Then, When } from '@cucumber/cucumber';
 import { Constants, S3, Utils } from 'cli-testing';
 import Zenko from 'world/Zenko';
@@ -8,6 +9,41 @@ import { createBucketWithConfiguration, putObject, runActionAgainstBucket } from
 import { ActionPermissionsType } from 'steps/bucket-policies/utils';
 
 setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
+
+/**
+ * Cleans the created test bucket
+ * @param {Zenko} world world object
+ * @param {string} bucketName bucket name
+ * @returns {void}
+ */
+export async function cleanS3Bucket(
+    world: Zenko,
+    bucketName: string,
+): Promise<void> {
+    if (!bucketName) {
+        return;
+    }
+    world.resetCommand();
+    world.addCommandParameter({ bucket: bucketName });
+    const createdObjects = world.getSaved<Map<string, string>>('createdObjects');
+    if (createdObjects !== undefined) {
+        const results = await S3.listObjectVersions(world.getCommandParameters());
+        const res = safeJsonParse(results.stdout);
+        assert(res.ok);
+        const parsedResults = res.result as ListObjectVersionsOutput;
+        const versions = parsedResults.Versions || [];
+        const deleteMarkers = parsedResults.DeleteMarkers || [];
+        await Promise.all(versions.concat(deleteMarkers).map(obj => {
+            world.addCommandParameter({ key: obj.Key });
+            world.addCommandParameter({ versionId: obj.VersionId });
+            return S3.deleteObject(world.getCommandParameters());
+        }));
+        world.deleteKeyFromCommand('key');
+        world.deleteKeyFromCommand('versionId');
+    }
+    await S3.deleteBucketLifecycle(world.getCommandParameters());
+    await S3.deleteBucket(world.getCommandParameters());
+}
 
 /**
  * @param {Zenko} this world object
@@ -32,7 +68,7 @@ function getObjectNameWithBackendFlakiness(this: Zenko, objectName: string) {
         objectNameFinal = `${objectName}.scal-retry-${backendFlakiness}-job-${backendFlakinessRetryNumber}`;
         break;
     default:
-        this.parameters.logger?.debug('Unknown backend flakyness', { backendFlakiness });
+        this.logger.debug('Unknown backend flakyness', { backendFlakiness });
         return objectName;
     }
     return objectNameFinal;
@@ -52,13 +88,25 @@ async function addMultipleObjects(this: Zenko, numberObjects: number,
             this.addCommandParameter({ metadata: JSON.stringify(userMD) });
         }
         this.addToSaved('objectName', objectNameFinal);
-        this.parameters.logger?.debug('Adding object', { objectName: objectNameFinal });
+        this.logger.debug('Adding object', { objectName: objectNameFinal });
         lastResult = await putObject(this, objectNameFinal);
         const createdObjects = this.getSaved<Map<string, string>>('createdObjects') || new Map<string, string>();
         createdObjects.set(this.getSaved<string>('objectName'), this.getSaved<string>('versionId'));
         this.addToSaved('createdObjects', createdObjects);
     }
     return lastResult;
+}
+
+async function addUserMetadataToObject(this: Zenko, objectName: string|undefined, userMD: string) {
+    const objName = objectName || this.getSaved<string>('objectName');
+    const bucketName = this.getSaved<string>('bucketName');
+    this.resetCommand();
+    this.addCommandParameter({ bucket: bucketName });
+    this.addCommandParameter({ key: objName });
+    this.addCommandParameter({ copySource: `${bucketName}/${objName}` });
+    this.addCommandParameter({ metadata: userMD });
+    this.addCommandParameter({ metadataDirective: 'REPLACE' });
+    return await S3.copyObject(this.getCommandParameters());
 }
 
 async function getTopicsOffsets(topics: string[], kafkaAdmin: Admin) {
@@ -168,25 +216,33 @@ Then('object {string} should have the user metadata with key {string} and value 
 
 // add a transition workflow to a bucket
 Given('a transition workflow to {string} location', async function (this: Zenko, location: string) {
+    let conditionOk = false;
     this.resetCommand();
     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-    this.addCommandParameter({
-        lifecycleConfiguration: JSON.stringify({
-            Rules: [
-                {
-                    Status: 'Enabled',
-                    Prefix: '',
-                    Transitions: [
-                        {
-                            Days: 1,
-                            StorageClass: location,
-                        },
-                    ],
-                },
-            ],
-        }),
+    const lifecycleConfiguration = JSON.stringify({
+        Rules: [
+            {
+                Status: 'Enabled',
+                Prefix: '',
+                Transitions: [
+                    {
+                        Days: 20,
+                        StorageClass: location,
+                    },
+                ],
+            },
+        ],
     });
-    await S3.putBucketLifecycleConfiguration(this.getCommandParameters());
+    this.addCommandParameter({
+        lifecycleConfiguration,
+    });
+    const commandParameters = this.getCommandParameters();
+    while (!conditionOk) {
+        const res = await S3.putBucketLifecycleConfiguration(commandParameters);
+        conditionOk = res.err === null;
+        // Wait for the transition to be accepted because the deployment of the location's pods can take some time
+        await Utils.sleep(5000); 
+    }
 });
 
 When('i restore object {string} for {int} days', async function (this: Zenko, objectName: string, days: number) {
@@ -205,7 +261,7 @@ When('i restore object {string} for {int} days', async function (this: Zenko, ob
 
 // wait for object to transition to a location or get restored from it
 Then('object {string} should be {string} and have the storage class {string}', { timeout: 130000 },
-    async function (this: Zenko, objectName: string, operation: string, storageClass: string) {
+    async function (this: Zenko, objectName: string, objectTransitionStatus: string, storageClass: string) {
         const objName =
             getObjectNameWithBackendFlakiness.call(this, objectName) || this.getSaved<string>('objectName');
         this.resetCommand();
@@ -232,7 +288,7 @@ Then('object {string} should be {string} and have the storage class {string}', {
             if (head?.StorageClass === expectedClass) {
                 conditionOk = true;
             }
-            if (operation == 'restored') {
+            if (objectTransitionStatus == 'restored') {
                 const isRestored = !!head?.Restore &&
                     head.Restore.includes('ongoing-request="false", expiry-date=');
                 // if restore didn't get initiated fail immediately
@@ -240,8 +296,10 @@ Then('object {string} should be {string} and have the storage class {string}', {
                     head.Restore.includes('ongoing-request="true"');
                 assert(isRestored || isPendingRestore, 'Restore didn\'t get initiated');
                 conditionOk = conditionOk && isRestored;
+            } else if (objectTransitionStatus == 'cold') {
+                conditionOk = conditionOk && !head?.Restore;
             }
-            await Utils.sleep(3000);
+            await Utils.sleep(1000);
         }
         assert(conditionOk);
     });
@@ -257,6 +315,16 @@ When('i delete object {string}', async function (this: Zenko, objectName: string
     }
     await S3.deleteObject(this.getCommandParameters());
 });
+
+Then('i {string} be able to add user metadata to object {string}',
+    async function (this: Zenko, expectedResult: string, objectName: string) {
+        const res = await addUserMetadataToObject.call(this, objectName, 'x-amz-meta-test=test');
+        if (expectedResult === 'should not') {
+            assert(res.err?.includes('InvalidObjectState'));
+        } else {
+            assert.ifError(res.err);
+        }
+    });
 
 Then('kafka consumed messages should not take too much place on disk', { timeout: -1 },
     async function (this: Zenko) {
@@ -288,7 +356,7 @@ Then('kafka consumed messages should not take too much place on disk', { timeout
                 const newOffsets = await getTopicsOffsets(topics, kafkaAdmin);
 
                 for (let i = 0; i < topics.length; i++) {
-                    process.stdout.write(`\nChecking topic ${topics[i]}\n`);
+                    this.logger.debug('Checking topic', { topic: topics[i] });
                     for (let j = 0; j < newOffsets[i].partitions.length; j++) {
                         const newMessagesAfterClean =
                             newOffsets[i].partitions[j].low === previousOffsets[i].partitions[j].high &&
@@ -296,7 +364,7 @@ Then('kafka consumed messages should not take too much place on disk', { timeout
 
                         if (newMessagesAfterClean) {
                             // If new messages appeared after we gathered the offsets, we need to recheck after
-                            process.stdout.write(`New messages after clean for topic ${topics[i]} rechecking after`);
+                            this.logger.warn('New messages after clean', { topic: topics[i] });
                             continue;
                         }
 
@@ -336,7 +404,7 @@ Given('an object {string} that {string}', async function (this: Zenko, objectNam
 
 When('the user tries to perform the current S3 action on the bucket {int} times with a {int} ms delay',
     async function (this: Zenko, numberOfRuns: number, delay: number) {
-        this.setAuthMode('test_identity');
+        this.useSavedIdentity();
         const action = {
             ...this.getSaved<ActionPermissionsType>('currentAction'),
         };
@@ -361,7 +429,6 @@ When('the user tries to perform the current S3 action on the bucket {int} times 
     });
 
 Then('the API should {string} with {string}', function (this: Zenko, result: string, expected: string) {
-    this.cleanupEntity();
     const action = this.getSaved<ActionPermissionsType>('currentAction');
     switch (result) {
     case 'succeed':
@@ -383,7 +450,7 @@ Then('the API should {string} with {string}', function (this: Zenko, result: str
 });
 
 Then('the operation finished without error', function (this: Zenko) {
-    this.cleanupEntity();
+    this.useSavedIdentity();
     assert.strictEqual(!!this.getResult().err, false);
 });
 

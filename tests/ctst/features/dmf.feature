@@ -3,6 +3,7 @@ Feature: DMF
     @2.7.0
     @PreMerge
     @Dmf
+    @ColdStorage
     Scenario Outline: Deletion of an archived object
     Given a "<versioningConfiguration>" bucket
     And a transition workflow to "e2e-cold" location
@@ -23,6 +24,7 @@ Feature: DMF
     @2.7.0
     @PreMerge
     @Dmf
+    @ColdStorage
     @Flaky
     Scenario Outline: Retry DMF job/command upon failure
     Given a "<versioningConfiguration>" bucket
@@ -52,6 +54,7 @@ Feature: DMF
     @2.7.0
     @PreMerge
     @Dmf
+    @ColdStorage
     Scenario Outline: Deletion of a restored object
     Given a "<versioningConfiguration>" bucket
     And a transition workflow to "e2e-cold" location

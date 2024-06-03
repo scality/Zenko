@@ -47,7 +47,7 @@ export async function createJobAndWaitForCompletion(world: Zenko, jobName: strin
         job.metadata = metadata;
 
         const response = await batchClient!.createNamespacedJob('default', job);
-        world.parameters.logger?.debug('job created', {
+        world.logger.debug('job created', {
             job: response.body.metadata,
         });
 
@@ -61,12 +61,12 @@ export async function createJobAndWaitForCompletion(world: Zenko, jobName: strin
                     if (job.metadata?.name && expectedJobName &&
                         (watchObj.object?.metadata?.name as string)?.startsWith?.(expectedJobName)) {
                         if (watchObj.object?.status?.succeeded) {
-                            world.parameters.logger?.debug('job succeeded', {
+                            world.logger.debug('job succeeded', {
                                 job: job.metadata,
                             });
                             resolve();
                         } else if (watchObj.object?.status?.failed) {
-                            world.parameters.logger?.debug('job failed', {
+                            world.logger.debug('job failed', {
                                 job: job.metadata,
                                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                                 object: watchObj.object,
@@ -77,7 +77,7 @@ export async function createJobAndWaitForCompletion(world: Zenko, jobName: strin
                 }, reject);
         });
     } catch (err: unknown) {
-        world.parameters.logger?.error('error creating job', {
+        world.logger.error('error creating job', {
             jobName,
             err,
         });

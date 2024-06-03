@@ -4,6 +4,7 @@ Feature: Azure Archive
     @PreMerge
     @Flaky
     @AzureArchive
+    @ColdStorage
     Scenario Outline: Archive objects when timeout is reached
     Given a "<versioningConfiguration>" bucket
     And a transition workflow to "e2e-azure-archive" location
@@ -24,6 +25,7 @@ Feature: Azure Archive
     @PreMerge
     @Flaky
     @AzureArchive
+    @ColdStorage
     Scenario Outline: Archive 0 byte objects
     Given a "<versioningConfiguration>" bucket
     And a transition workflow to "e2e-azure-archive" location
@@ -42,6 +44,7 @@ Feature: Azure Archive
     @PreMerge
     @Flaky
     @AzureArchive
+    @ColdStorage
     Scenario Outline: Respect maximum number of objects per archived Tar
     Given a "<versioningConfiguration>" bucket
     And a transition workflow to "e2e-azure-archive" location
@@ -75,6 +78,7 @@ Feature: Azure Archive
     @PreMerge
     @Flaky
     @AzureArchive
+    @ColdStorage
     Scenario Outline: Respect maximum size of an archived Tar
     Given a "<versioningConfiguration>" bucket
     And a transition workflow to "e2e-azure-archive" location
@@ -97,6 +101,7 @@ Feature: Azure Archive
     @PreMerge
     @Flaky
     @AzureArchive
+    @ColdStorage
     Scenario Outline: Restore objects from tar
     Given a "<versioningConfiguration>" bucket
     And a transition workflow to "e2e-azure-archive" location
@@ -132,6 +137,7 @@ Feature: Azure Archive
     @PreMerge
     @Flaky
     @AzureArchive
+    @ColdStorage
     Scenario Outline: Failed restore objects from tar must be retried and restored
     Given a "<versioningConfiguration>" bucket
     And a transition workflow to "e2e-azure-archive" location
