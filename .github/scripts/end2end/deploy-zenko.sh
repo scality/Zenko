@@ -10,6 +10,12 @@ export ZENKO_CR_PATH=${3:-'./configs/zenko.yaml'}
 export ZENKOVERSION_PATH=${4:-'./configs/zenkoversion.yaml'}
 export DEPS_PATH=${5:-'../../../solution/deps.yaml'}
 export ZENKO_VERSION_NAME="${ZENKO_NAME}-version"
+export ZENKO_MONGODB_SECRET_NAME=${ZENKO_MONGODB_SECRET_NAME:-'mongodb-db-creds'}
+export ZENKO_IAM_INGRESS=${ZENKO_IAM_INGRESS:-'iam.zenko.local'}
+export ZENKO_STS_INGRESS=${ZENKO_STS_INGRESS:-'sts.zenko.local'}
+export ZENKO_MANAGEMENT_INGRESS=${ZENKO_MANAGEMENT_INGRESS:-'management.zenko.local'}
+export ZENKO_S3_INGRESS=${ZENKO_S3_INGRESS:-'s3.zenko.local'}
+export ZENKO_UI_INGRESS=${ZENKO_UI_INGRESS:-'ui.zenko.local'}
 
 export BACKBEAT_LCC_CRON_RULE=${BACKBEAT_LCC_CRON_RULE:-'*/5 * * * * *'}
 
@@ -20,10 +26,10 @@ if [ ${ENABLE_KEYCLOAK_HTTPS} == 'true' ]; then
         nginx.ingress.kubernetes.io/ssl-redirect: 'false'"
     export ZENKO_INGRESS_CERTIFICATES='certificates:
     - hosts:
-      - ui.zenko.local
-      - management.zenko.local
-      - iam.zenko.local
-      - sts.zenko.local'
+      - ${ZENKO_UI_INGRESS}
+      - ${ZENKO_MANAGEMENT_INGRESS}
+      - ${ZENKO_IAM_INGRESS}
+      - ${ZENKO_STS_INGRESS}'
 else
     export ZENKO_INGRESS_ANNOTATIONS="annotations:
       nginx.ingress.kubernetes.io/proxy-body-size: 0m"
