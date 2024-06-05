@@ -2,13 +2,11 @@ import fs from 'fs';
 import path from 'path';
 import assert from 'assert';
 import { safeJsonParse, request } from '../common/utils';
-import { Given, Then, When, setDefaultTimeout } from '@cucumber/cucumber';
+import { Given, Then, When } from '@cucumber/cucumber';
 import { AzureHelper, S3, Constants, Utils } from 'cli-testing';
 import util from 'util';
 import { exec } from 'child_process';
 import Zenko from 'world/Zenko';
-
-setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
 
 type manifestEntry = {
     'archive-id': string,
@@ -365,9 +363,9 @@ When('i run sorbetctl to retry failed restore for {string} location', async func
         --kafka-object-task-topic=${this.parameters.KafkaObjectTaskTopic} \
         --kafka-brokers ${this.parameters.KafkaHosts}`;
     try {
-        process.stdout.write(`Running command: ${command}\n`);
+        this.logger.debug('Running command', { command, location });
         const result = await util.promisify(exec)(command);
-        process.stdout.write(`Sorbetctl command result: ${result.stdout}\n`);
+        this.logger.debug('Sorbetctl command result', { result: result.stdout });
     } catch (err) {
         assert.ifError(err);
     }

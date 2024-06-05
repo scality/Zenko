@@ -1,10 +1,7 @@
-import { Then, Given, setDefaultTimeout, After } from '@cucumber/cucumber';
+import { Then, Given, After } from '@cucumber/cucumber';
 import assert from 'assert';
-import { Constants } from 'cli-testing';
 import { execShellCommand } from 'common/utils';
 import Zenko from 'world/Zenko';
-
-setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
 
 async function cleanDmfVolume() {
     await execShellCommand('rm -rf /cold-data/*');

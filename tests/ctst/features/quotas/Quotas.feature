@@ -70,6 +70,7 @@ Feature: Quota Management for APIs
     @NonVersioned
     Scenario Outline: Quotas are affected by deletion operations
         Given an action "DeleteObject"
+        And a permission to perform the "PutObject" action
         And a STORAGE_MANAGER type
         And a bucket quota set to 10000 B
         And an account quota set to 10000 B
