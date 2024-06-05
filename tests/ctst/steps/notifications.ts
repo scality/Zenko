@@ -1,13 +1,9 @@
-import { Then, Given, When, After, setDefaultTimeout } from '@cucumber/cucumber';
+import { Then, Given, When, After } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
-import Zenko, {
-    AWSVersionObject,
-} from '../world/Zenko';
-import { Constants, S3, Utils, KafkaHelper } from 'cli-testing';
+import { S3, Utils, KafkaHelper, AWSVersionObject, NotificationDestination } from 'cli-testing';
 import { Message } from 'node-rdkafka';
 import { cleanS3Bucket } from 'common/common';
-
-setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
+import Zenko from 'world/Zenko';
 
 const KAFKA_TESTS_TIMEOUT = Number(process.env.KAFKA_TESTS_TIMEOUT) || 60000;
 
@@ -25,12 +21,6 @@ interface NotificationConfig {
     QueueConfigurations: QueueConfiguration[];
 }
 
-interface NotificationDestination {
-    destinationName: string;
-    topic: string;
-    hosts: string;
-}
-
 interface Notification {
     s3: {
         bucket: {
@@ -46,39 +36,6 @@ interface Notification {
 interface QueueConfiguration {
     QueueArn: string;
     Events: string[];
-}
-
-async function emptyNonVersionedBucket(world: Zenko) {
-    world.resetCommand();
-    world.addCommandParameter({ bucket: world.getSaved<string>('bucketName') });
-    const results = await S3.listObjects(world.getCommandParameters());
-    const objects = (JSON.parse(results.stdout || '{}') as { Contents?: AWSVersionObject[] })?.Contents || [];
-    await Promise.all(objects.map(obj => {
-        world.deleteKeyFromCommand('key');
-        world.addCommandParameter({ key: obj.Key });
-        return S3.deleteObject(world.getCommandParameters());
-    }));
-}
-
-async function emptyVersionedBucket(world: Zenko) {
-    world.resetCommand();
-    world.addCommandParameter({ bucket: world.getSaved<string>('bucketName') });
-    const results = await S3.listObjectVersions(world.getCommandParameters());
-    const parsedResults = JSON.parse(results.stdout || '{}') as Record<string, unknown>;
-    const versions = parsedResults.Versions as AWSVersionObject[] || [];
-    const deleteMarkers = parsedResults.DeleteMarkers as AWSVersionObject[] || [];
-    await Promise.all(deleteMarkers.map(obj => {
-        world.deleteKeyFromCommand('key');
-        world.addCommandParameter({ key: obj.Key });
-        world.addCommandParameter({ versionId: obj.VersionId });
-        return S3.deleteObject(world.getCommandParameters());
-    }));
-    await Promise.all(versions.map(obj => {
-        world.deleteKeyFromCommand('key');
-        world.addCommandParameter({ key: obj.Key });
-        world.addCommandParameter({ versionId: obj.VersionId });
-        return S3.deleteObject(world.getCommandParameters());
-    }));
 }
 
 async function putObject(world: Zenko) {
@@ -116,7 +73,7 @@ async function deleteObject(world: Zenko, putDeleteMarker = false) {
     if (world.getSaved<string>('bucketVersioning') !== 'Non versioned' && !putDeleteMarker) {
         const putResult = world.getResult();
         const versionId =
-            (JSON.parse(putResult.stdout!) as AWSVersionObject).VersionId;
+            (JSON.parse(putResult.stdout) as AWSVersionObject).VersionId;
         world.addCommandParameter({ versionId });
     }
     await S3.deleteObject(world.getCommandParameters());

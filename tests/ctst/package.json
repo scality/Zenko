@@ -22,13 +22,17 @@
     "tmp": "^0.2.1"
   },
   "devDependencies": {
+    "@aws-sdk/client-iam": "^3.582.0",
+    "@aws-sdk/client-s3": "^3.583.0",
+    "@aws-sdk/client-sts": "^3.583.0",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
     "babel-jest": "^29.3.1",
-    "cli-testing": "github:scality/cli-testing.git#0.4.3",
+    "cli-testing": "github:scality/cli-testing.git#c37d7415ebe68eda24e62e6c1896efafe6294d03",
     "eslint": "^8.28.0"
   },
   "scripts": {
+    "build": "tsc --build tsconfig.json",
     "lint": "eslint ."
   }
 }
