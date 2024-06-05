@@ -50,7 +50,6 @@ Feature: IAM Policies for Backbeat Service Users
 
   @2.6.0
   @PreMerge
-  @Flaky
   @IamPoliciesBackbeatServiceUser
   Scenario Outline: Backbeat Service Users are authorized to perform the actions
     Given a service user "<serviceUserName>" assuming the role "<roleName>" of an internal service account
@@ -64,7 +63,6 @@ Feature: IAM Policies for Backbeat Service Users
 
   @2.6.0
   @PreMerge
-  @Flaky
   @IamPoliciesBackbeatServiceUser
   Scenario Outline: Backbeat Service Users are not authorized to perform the actions
     Given a service user "<serviceUserName>" assuming the role "<roleName>" of a user account

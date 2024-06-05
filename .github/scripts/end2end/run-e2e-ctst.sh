@@ -3,22 +3,7 @@ set -exu
 
 ZENKO_NAME=${1:-end2end}
 COMMAND=${2:-"premerge"}
-# Get the current number of vCPUs
-VCPU_COUNT=$(nproc)
-# Calculate the number of parallel runs based on the vCPU count
-# - If there are only 1 vCPU set parallel runs to 1.
-# - If there are between 1 and 4 vCPUs, use 0.5 parallel runs per vCPU.
-# - If there are more than 4 vCPUs, use 0.5 parallel runs for the first 4 vCPUs and 1 parallel run for
-#   each additional vCPU, as Zenko is not CPU bound.
-PARALLEL_RUNS=$(awk -v vcpu=$VCPU_COUNT 'BEGIN {
-  if (vcpu <= 0) {
-    print 1
-  } else if (vcpu >= 1 && vcpu <= 4) {
-    print int(vcpu * 0.5)
-  } else {
-    print (4 * 0.5) + ((vcpu - 4) * 1)
-  }
-}')
+PARALLEL_RUNS=4
 RETRIES=${4:-3}
 JUNIT_REPORT_PATH=${JUNIT_REPORT_PATH:-"ctst-junit.xml"}
 
@@ -72,7 +57,7 @@ KAFKA_CLEANER_INTERVAL=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.spec.kaf
 SORBETD_RESTORE_TIMEOUT=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.spec.sorbet.server.azure.restoreTimeout}')
 
 # Setting CTST world params
-WORLD_PARAMETERS='{"subdomain":"'${SUBDOMAIN}'","ssl":false,"port":"'${ZENKO_PORT}'","AccountName":"'${ZENKO_ACCOUNT_NAME}'","AdminAccessKey":"'${ADMIN_ACCESS_KEY_ID}'","AdminSecretKey":"'${ADMIN_SECRET_ACCESS_KEY}'","VaultAuthHost":"'${VAULT_AUTH_HOST}'","NotificationDestination":"'${NOTIF_DEST_NAME}'","NotificationDestinationTopic":"'${NOTIF_DEST_TOPIC}'","NotificationDestinationAlt":"'${NOTIF_ALT_DEST_NAME}'","NotificationDestinationTopicAlt":"'${NOTIF_ALT_DEST_TOPIC}'","KafkaHosts":"'${KAFKA_HOST_PORT}'","KeycloakPassword":"'${KEYCLOAK_TEST_PASSWORD}'","KeycloakHost":"'${KEYCLOAK_TEST_HOST}'","KeycloakPort":"'${KEYCLOAK_TEST_PORT}'","keycloakRealm":"'${KEYCLOAK_TEST_REALM_NAME}'","keycloakClientId":"'${KEYCLOAK_TEST_CLIENT_ID}'","keycloakGrantType":"'${KEYCLOAK_TEST_GRANT_TYPE}'","StorageManagerUsername":"'${STORAGE_MANAGER_USER_NAME}'","StorageAccountOwnerUsername":"'${STORAGE_ACCOUNT_OWNER_USER_NAME}'","DataConsumerUsername":"'${DATA_CONSUMER_USER_NAME}'","ServiceUsersCredentials":'${SERVICE_USERS_CREDENTIALS}',"azureAccountName":"'${AZURE_ACCOUNT_NAME}'","azureAccountKey":"'${AZURE_SECRET_KEY}'","azureArchiveContainer":"'${AZURE_ARCHIVE_BUCKET_NAME}'","AzureArchiveAccessTier":"'${AZURE_ARCHIVE_ACCESS_TIER}'","azureArchiveManifestTier":"'${AZURE_ARCHIVE_MANIFEST_ACCESS_TIER}'","azureArchiveQueue":"'${AZURE_ARCHIVE_QUEUE_NAME}'","kafkaObjectTaskTopic":"'${KAFKA_OBJECT_TASK_TOPIC}'","kafkaDeadLetterQueueTopic":"'${KAFKA_DEAD_LETTER_TOPIC}'","KafkaCleanerInterval":"'${KAFKA_CLEANER_INTERVAL}'","InstanceID":"'${INSTANCE_ID}'","SorbetdRestoreTimeout":"'${SORBETD_RESTORE_TIMEOUT}'"}'
+WORLD_PARAMETERS='{"subdomain":"'${SUBDOMAIN}'","ssl":false,"port":"'${ZENKO_PORT}'","AccountName":"'${ZENKO_ACCOUNT_NAME}'","AdminAccessKey":"'${ADMIN_ACCESS_KEY_ID}'","AdminSecretKey":"'${ADMIN_SECRET_ACCESS_KEY}'","VaultAuthHost":"'${VAULT_AUTH_HOST}'","NotificationDestination":"'${NOTIF_DEST_NAME}'","NotificationDestinationTopic":"'${NOTIF_DEST_TOPIC}'","NotificationDestinationAlt":"'${NOTIF_ALT_DEST_NAME}'","NotificationDestinationTopicAlt":"'${NOTIF_ALT_DEST_TOPIC}'","KafkaHosts":"'${KAFKA_HOST_PORT}'","KeycloakPassword":"'${KEYCLOAK_TEST_PASSWORD}'","KeycloakHost":"'${KEYCLOAK_TEST_HOST}'","KeycloakPort":"'${KEYCLOAK_TEST_PORT}'","KeycloakRealm":"'${KEYCLOAK_TEST_REALM_NAME}'","KeycloakClientId":"'${KEYCLOAK_TEST_CLIENT_ID}'","KeycloakGrantType":"'${KEYCLOAK_TEST_GRANT_TYPE}'","StorageManagerUsername":"'${STORAGE_MANAGER_USER_NAME}'","StorageAccountOwnerUsername":"'${STORAGE_ACCOUNT_OWNER_USER_NAME}'","DataConsumerUsername":"'${DATA_CONSUMER_USER_NAME}'","ServiceUsersCredentials":'${SERVICE_USERS_CREDENTIALS}',"AzureAccountName":"'${AZURE_ACCOUNT_NAME}'","AzureAccountKey":"'${AZURE_SECRET_KEY}'","AzureArchiveContainer":"'${AZURE_ARCHIVE_BUCKET_NAME}'","AzureArchiveAccessTier":"'${AZURE_ARCHIVE_ACCESS_TIER}'","AzureArchiveManifestTier":"'${AZURE_ARCHIVE_MANIFEST_ACCESS_TIER}'","AzureArchiveQueue":"'${AZURE_ARCHIVE_QUEUE_NAME}'","KafkaObjectTaskTopic":"'${KAFKA_OBJECT_TASK_TOPIC}'","KafkaDeadLetterQueueTopic":"'${KAFKA_DEAD_LETTER_TOPIC}'","KafkaCleanerInterval":"'${KAFKA_CLEANER_INTERVAL}'","InstanceID":"'${INSTANCE_ID}'","SorbetdRestoreTimeout":"'${SORBETD_RESTORE_TIMEOUT}'"}'
 
 # Set up environment variables for testing
 kubectl set env deployment end2end-connector-cloudserver SCUBA_HEALTHCHECK_FREQUENCY=100
