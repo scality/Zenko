@@ -434,6 +434,8 @@ jobs:
         env:
           TRUNK_TOKEN: ${{ secrets.TRUNK_TOKEN }}
         continue-on-error: true
+      - name: sleep
+        run: sleep 3600
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
         env:
