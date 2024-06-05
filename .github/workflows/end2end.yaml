@@ -409,6 +409,9 @@ jobs:
         uses: ./.github/actions/deploy
         env:
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+      - name: Debug wait
+        uses: ./.github/actions/debug-wait
+        timeout-minutes: 60
       - name: Run init CI test
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "end2end" "default"
         working-directory: ./.github/scripts/end2end
@@ -421,9 +424,6 @@ jobs:
       - name: Run smoke tests
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "smoke" "default"
         working-directory: ./.github/scripts/end2end
-      - name: Debug wait
-        uses: ./.github/actions/debug-wait
-        timeout-minutes: 60
       - name: Upload results
         if: "!cancelled() && env.TRUNK_TOKEN"
         uses: trunk-io/analytics-uploader@main
