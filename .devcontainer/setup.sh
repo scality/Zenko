@@ -4,6 +4,11 @@ env_variables=$(yq eval '.env | to_entries | .[] | .key + "=" + .value' .github/
 export GIT_ACCESS_TOKEN=${GITHUB_TOKEN}
 export E2E_IMAGE_TAG=latest
 
+if ! docker info > /dev/null 2>&1; then
+  echo "This script uses docker, and it isn't running - please start docker and try again!"
+  exit 1
+fi
+
 array_length=`yq ".runs.steps | length - 1" .github/actions/deploy/action.yaml`
 for i in $(seq 0 $array_length); do
     step=`yq ".runs.steps[$i]" .github/actions/deploy/action.yaml`

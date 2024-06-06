@@ -482,6 +482,11 @@ jobs:
       - name: Deploy second Zenko for PRA
         run: bash deploy-zenko.sh end2end-pra default
         working-directory: ./.github/scripts/end2end
+      - name: Deploy second Sorbet for PRA
+        run: bash deploy-sorbet-resources.sh end2end-pra
+        working-directory: ./.github/scripts/end2end/operator/tests/smoke
+        env:
+          SORBETD_NAME: mock-sorbet-pra
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
         env:
