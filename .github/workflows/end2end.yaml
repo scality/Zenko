@@ -458,7 +458,7 @@ jobs:
           STAGE: end2end-http
         if: always()
       - name: sleep
-        run: sleep 3600
+        run: sleep 7200
       - name: Clean Up
         run: kind delete cluster
       - name: Upload artifacts
