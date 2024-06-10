@@ -423,6 +423,9 @@ jobs:
           username: "${{ github.repository_owner }}"
           password: "${{ github.token }}"
           registry: ghcr.io
+      - name: Debug wait
+        uses: ./.github/actions/debug-wait
+        timeout-minutes: 60
       - name: Deploy Zenko
         uses: ./.github/actions/deploy
         env:
@@ -439,9 +442,6 @@ jobs:
       - name: Run smoke tests
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "smoke" "default"
         working-directory: ./.github/scripts/end2end
-      - name: Debug wait
-        uses: ./.github/actions/debug-wait
-        timeout-minutes: 60
       - name: Upload results
         if: "!cancelled() && env.TRUNK_TOKEN"
         uses: trunk-io/analytics-uploader@main
@@ -457,6 +457,8 @@ jobs:
         env:
           STAGE: end2end-http
         if: always()
+      - name: sleep
+        run: sleep 7200
       - name: Clean Up
         run: kind delete cluster
       - name: Upload artifacts
