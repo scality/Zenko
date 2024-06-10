@@ -494,6 +494,9 @@ jobs:
           username: "${{ github.repository_owner }}"
           password: "${{ github.token }}"
           registry: ghcr.io
+      - name: Debug wait
+        uses: ./.github/actions/debug-wait
+        timeout-minutes: 60
       - name: Deploy Zenko
         uses: ./.github/actions/deploy
       - name: Run init CI test
@@ -517,9 +520,8 @@ jobs:
       # - name: Run vault e2e tests
       #   run: bash vault-e2e-test.sh
       #   working-directory: ./.github/scripts/end2end
-      - name: Debug wait
-        uses: ./.github/actions/debug-wait
-        timeout-minutes: 60
+      - - name: sleep
+        run: sleep 7200
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
         env:
