@@ -520,7 +520,7 @@ jobs:
       # - name: Run vault e2e tests
       #   run: bash vault-e2e-test.sh
       #   working-directory: ./.github/scripts/end2end
-      - - name: sleep
+      - name: sleep
         run: sleep 7200
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
