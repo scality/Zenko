@@ -94,7 +94,7 @@ WORLD_PARAMETERS="$(jq -c <<EOF
   "InstanceID":"${INSTANCE_ID}",
   "KafkaCleanerInterval":"${KAFKA_CLEANER_INTERVAL}",
   "SorbetdRestoreTimeout":"${SORBETD_RESTORE_TIMEOUT}",
-  "TimeProgressionFactor":"${TIME_PROGRESSION_FACTOR}'"
+  "TimeProgressionFactor":"${TIME_PROGRESSION_FACTOR}"
 }
 EOF
 )"
