@@ -3,7 +3,7 @@ set -exu
 
 ZENKO_NAME=${1:-end2end}
 COMMAND=${2:-"premerge"}
-PARALLEL_RUNS=4
+PARALLEL_RUNS=${PARALLEL_RUNS:-$(( ( $(nproc) + 1 ) / 2 ))}
 RETRIES=${4:-3}
 JUNIT_REPORT_PATH=${JUNIT_REPORT_PATH:-"ctst-junit.xml"}
 
