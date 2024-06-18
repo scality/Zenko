@@ -60,16 +60,16 @@ function getObjectNameWithBackendFlakiness(this: Zenko, objectName: string) {
     }
 
     switch (backendFlakiness) {
-    case 'command':
-        objectNameFinal = `${objectName}.scal-retry-command-${backendFlakinessRetryNumber}`;
-        break;
-    case 'archive':
-    case 'restore':
-        objectNameFinal = `${objectName}.scal-retry-${backendFlakiness}-job-${backendFlakinessRetryNumber}`;
-        break;
-    default:
-        this.logger.debug('Unknown backend flakyness', { backendFlakiness });
-        return objectName;
+        case 'command':
+            objectNameFinal = `${objectName}.scal-retry-command-${backendFlakinessRetryNumber}`;
+            break;
+        case 'archive':
+        case 'restore':
+            objectNameFinal = `${objectName}.scal-retry-${backendFlakiness}-job-${backendFlakinessRetryNumber}`;
+            break;
+        default:
+            this.logger.debug('Unknown backend flakyness', { backendFlakiness });
+            return objectName;
     }
     return objectNameFinal;
 }
@@ -97,7 +97,7 @@ async function addMultipleObjects(this: Zenko, numberObjects: number,
     return lastResult;
 }
 
-async function addUserMetadataToObject(this: Zenko, objectName: string|undefined, userMD: string) {
+async function addUserMetadataToObject(this: Zenko, objectName: string | undefined, userMD: string) {
     const objName = objectName || this.getSaved<string>('objectName');
     const bucketName = this.getSaved<string>('bucketName');
     this.resetCommand();
@@ -140,12 +140,12 @@ Given('a {string} bucket', async function (this: Zenko, versioning: string) {
 });
 
 Given('an existing bucket {string} {string} versioning, {string} ObjectLock {string} retention mode', async function
-(
-    this: Zenko,
-    bucketName: string,
-    withVersioning: string,
-    withObjectLock: string,
-    retentionMode: string) {
+    (
+        this: Zenko,
+        bucketName: string,
+        withVersioning: string,
+        withObjectLock: string,
+        retentionMode: string) {
     await createBucketWithConfiguration(this, bucketName, withVersioning, withObjectLock, retentionMode);
 });
 
@@ -189,7 +189,7 @@ Then('object {string} should have the tag {string} with value {string}',
         }
         await S3.getObjectTagging(this.getCommandParameters()).then(res => {
             const parsed = safeJsonParse(res.stdout);
-            const head = parsed.result as { TagSet: [{Key: string, Value: string}] | undefined };
+            const head = parsed.result as { TagSet: [{ Key: string, Value: string }] | undefined };
             assert(head.TagSet?.some(tag => tag.Key === tagKey && tag.Value === tagValue));
         });
     });
@@ -208,7 +208,7 @@ Then('object {string} should have the user metadata with key {string} and value 
         assert(res.stdout);
         const parsed = safeJsonParse(res.stdout);
         assert(parsed.ok);
-        const head = parsed.result as { Metadata: {[key: string]: string} | undefined };
+        const head = parsed.result as { Metadata: { [key: string]: string } | undefined };
         assert(head.Metadata);
         assert(head.Metadata[userMDKey]);
         assert(head.Metadata[userMDKey] === userMDValue);
@@ -241,12 +241,12 @@ Given('a transition workflow to {string} location', async function (this: Zenko,
         const res = await S3.putBucketLifecycleConfiguration(commandParameters);
         conditionOk = res.err === null;
         // Wait for the transition to be accepted because the deployment of the location's pods can take some time
-        await Utils.sleep(5000); 
+        await Utils.sleep(5000);
     }
 });
 
 When('i restore object {string} for {int} days', async function (this: Zenko, objectName: string, days: number) {
-    const objName = getObjectNameWithBackendFlakiness.call(this, objectName) ||  this.getSaved<string>('objectName');
+    const objName = getObjectNameWithBackendFlakiness.call(this, objectName) || this.getSaved<string>('objectName');
     this.resetCommand();
     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
     this.addCommandParameter({ key: objName });
@@ -305,7 +305,7 @@ Then('object {string} should be {string} and have the storage class {string}', {
     });
 
 When('i delete object {string}', async function (this: Zenko, objectName: string) {
-    const objName = getObjectNameWithBackendFlakiness.call(this, objectName) ||  this.getSaved<string>('objectName');
+    const objName = getObjectNameWithBackendFlakiness.call(this, objectName) || this.getSaved<string>('objectName');
     this.resetCommand();
     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
     this.addCommandParameter({ key: objName });
@@ -328,37 +328,38 @@ Then('i {string} be able to add user metadata to object {string}',
 
 Then('kafka consumed messages should not take too much place on disk', { timeout: -1 },
     async function (this: Zenko) {
+        let timeoutID;
         const kfkcIntervalSeconds = parseInt(this.parameters.KafkaCleanerInterval);
         const checkInterval = kfkcIntervalSeconds * 1000 + 5000; // Adjusted for timing
-    
-        const timeoutID = setTimeout(() => {
-            assert.fail('Kafka cleaner did not clean the topics within the expected time');
-        }, checkInterval * 5); // Timeout after 5 Kafka cleaner intervals
-    
+
         try {
             const ignoredTopics = ['dead-letter'];
             const kafkaAdmin = new Kafka({ brokers: [this.parameters.KafkaHosts] }).admin();
             const topics: string[] = (await kafkaAdmin.listTopics())
                 .filter(t => (t.includes(this.parameters.InstanceID) &&
                 !ignoredTopics.some(e => t.includes(e))));
-    
+
+            timeoutID = setTimeout(() => {
+                assert.fail('Kafka cleaner did not clean the topics within the expected time');
+            }, (topics.length || 1) * checkInterval * 5); // Timeout after 5 Kafka cleaner intervals
+
             while (topics.length > 0) {
                 const previousOffsets = await getTopicsOffsets(topics, kafkaAdmin);
                 await Utils.sleep(checkInterval);
-    
+
                 const newOffsets = await getTopicsOffsets(topics, kafkaAdmin);
-    
+
                 for (let i = 0; i < topics.length; i++) {
                     this.logger.debug('Checking topic', { topic: topics[i] });
                     let topicCleaned = true;
                     for (let j = 0; j < newOffsets[i].partitions.length; j++) {
                         const partition = newOffsets[i].partitions[j];
-    
+
                         // Ensure we're accessing the correct partition details
                         const lowOffsetIncreased = parseInt(partition.low) >
                             parseInt(previousOffsets[i].partitions[j].low);
                         const allMessagesCleaned = partition.high === partition.low;
-    
+
                         if (!(lowOffsetIncreased || allMessagesCleaned)) {
                             // Log warning if the condition is not met for this partition
                             this.logger.warn(`Partition ${j} of topic ${topics[i]} not cleaned as expected`);
@@ -371,7 +372,7 @@ Then('kafka consumed messages should not take too much place on disk', { timeout
                     }
                 }
             }
-    
+
             assert(topics.length === 0, `Topics ${topics.join(', ')} still have not been cleaned`);
         } finally {
             clearTimeout(timeoutID);
@@ -414,21 +415,21 @@ When('the user tries to perform the current S3 action on the bucket {int} times 
 Then('the API should {string} with {string}', function (this: Zenko, result: string, expected: string) {
     const action = this.getSaved<ActionPermissionsType>('currentAction');
     switch (result) {
-    case 'succeed':
-        if (action.expectedResultOnAllowTest) {
-            assert.strictEqual(
-                this.getResult().err?.includes(action.expectedResultOnAllowTest) ||
+        case 'succeed':
+            if (action.expectedResultOnAllowTest) {
+                assert.strictEqual(
+                    this.getResult().err?.includes(action.expectedResultOnAllowTest) ||
                     this.getResult().stdout?.includes(action.expectedResultOnAllowTest) ||
                     this.getResult().err === null, true);
-        } else {
-            assert.strictEqual(!!this.getResult().err, false);
-        }
-        break;
-    case 'fail':
-        assert.strictEqual(this.getResult().err?.includes(expected), true);
-        break;
-    default:
-        throw new Error('The API should have a correct expected result defined');
+            } else {
+                assert.strictEqual(!!this.getResult().err, false);
+            }
+            break;
+        case 'fail':
+            assert.strictEqual(this.getResult().err?.includes(expected), true);
+            break;
+        default:
+            throw new Error('The API should have a correct expected result defined');
     }
 });
 
