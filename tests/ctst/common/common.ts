@@ -60,16 +60,16 @@ function getObjectNameWithBackendFlakiness(this: Zenko, objectName: string) {
     }
 
     switch (backendFlakiness) {
-        case 'command':
-            objectNameFinal = `${objectName}.scal-retry-command-${backendFlakinessRetryNumber}`;
-            break;
-        case 'archive':
-        case 'restore':
-            objectNameFinal = `${objectName}.scal-retry-${backendFlakiness}-job-${backendFlakinessRetryNumber}`;
-            break;
-        default:
-            this.logger.debug('Unknown backend flakyness', { backendFlakiness });
-            return objectName;
+    case 'command':
+        objectNameFinal = `${objectName}.scal-retry-command-${backendFlakinessRetryNumber}`;
+        break;
+    case 'archive':
+    case 'restore':
+        objectNameFinal = `${objectName}.scal-retry-${backendFlakiness}-job-${backendFlakinessRetryNumber}`;
+        break;
+    default:
+        this.logger.debug('Unknown backend flakyness', { backendFlakiness });
+        return objectName;
     }
     return objectNameFinal;
 }
@@ -140,12 +140,12 @@ Given('a {string} bucket', async function (this: Zenko, versioning: string) {
 });
 
 Given('an existing bucket {string} {string} versioning, {string} ObjectLock {string} retention mode', async function
-    (
-        this: Zenko,
-        bucketName: string,
-        withVersioning: string,
-        withObjectLock: string,
-        retentionMode: string) {
+(
+    this: Zenko,
+    bucketName: string,
+    withVersioning: string,
+    withObjectLock: string,
+    retentionMode: string) {
     await createBucketWithConfiguration(this, bucketName, withVersioning, withObjectLock, retentionMode);
 });
 
@@ -415,21 +415,21 @@ When('the user tries to perform the current S3 action on the bucket {int} times 
 Then('the API should {string} with {string}', function (this: Zenko, result: string, expected: string) {
     const action = this.getSaved<ActionPermissionsType>('currentAction');
     switch (result) {
-        case 'succeed':
-            if (action.expectedResultOnAllowTest) {
-                assert.strictEqual(
-                    this.getResult().err?.includes(action.expectedResultOnAllowTest) ||
+    case 'succeed':
+        if (action.expectedResultOnAllowTest) {
+            assert.strictEqual(
+                this.getResult().err?.includes(action.expectedResultOnAllowTest) ||
                     this.getResult().stdout?.includes(action.expectedResultOnAllowTest) ||
                     this.getResult().err === null, true);
-            } else {
-                assert.strictEqual(!!this.getResult().err, false);
-            }
-            break;
-        case 'fail':
-            assert.strictEqual(this.getResult().err?.includes(expected), true);
-            break;
-        default:
-            throw new Error('The API should have a correct expected result defined');
+        } else {
+            assert.strictEqual(!!this.getResult().err, false);
+        }
+        break;
+    case 'fail':
+        assert.strictEqual(this.getResult().err?.includes(expected), true);
+        break;
+    default:
+        throw new Error('The API should have a correct expected result defined');
     }
 });
 
