@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { KubernetesHelper, Utils } from 'cli-testing';
 import Zenko from 'world/Zenko';
-import { V1Job, Watch, V1ObjectMeta } from '@kubernetes/client-node';
+import { V1Job, Watch, V1ObjectMeta, AppsV1Api, V1Deployment } from '@kubernetes/client-node';
 
 export function createKubeBatchClient(world: Zenko) {
     if (!KubernetesHelper.clientBatch) {
@@ -22,6 +22,13 @@ export function createKubeWatchClient(world: Zenko) {
         KubernetesHelper.init(world.parameters);
     }
     return KubernetesHelper.clientWatch as Watch;
+}
+
+export function createKubeAppsV1Client(world: Zenko) {
+    if (!KubernetesHelper.clientApps) {
+        KubernetesHelper.init(world.parameters);
+    }
+    return KubernetesHelper.clientApps as AppsV1Api;
 }
 
 export async function createJobAndWaitForCompletion(world: Zenko, jobName: string, customMetadata?: string) {
@@ -83,4 +90,75 @@ export async function createJobAndWaitForCompletion(world: Zenko, jobName: strin
         });
         throw err;
     }
+}
+
+export async function waitForDataServicesToStabilize(world: Zenko, namespace = 'default') {
+    let allRunning = false;
+    const startTime = Date.now();
+    const timeout = 15 * 60 * 1000;
+    const annotationKey = 'operator.zenko.io/dependencies';
+    const dataServices = ['connector-cloudserver-config', 'backbeat-config'];
+
+    const appsClient = createKubeAppsV1Client(world);
+
+    world.logger.info('Waiting for data services to stabilize', {
+        namespace,
+    });
+
+    // First list all deployments, and then filter the ones with an annotation that matches the data services
+    const deployments: V1Deployment[] = [];
+    const serviceDeployments = await appsClient.listNamespacedDeployment(namespace);
+    for (const deployment of serviceDeployments.body.items) {
+        const annotations = deployment.metadata?.annotations;
+        if (annotations && dataServices.some(service => annotations[annotationKey]?.includes(service))) {
+            deployments.push(deployment);
+        }
+    }
+
+    world.logger.info('Got the list of deployments to check for stabilization', {
+        deployments: deployments.map(deployment => deployment.metadata?.name),
+    });
+
+    while (!allRunning && Date.now() - startTime < timeout) {
+        allRunning = true;
+
+        // get the deployments in the array, and check in loop if they are ready
+        for (const deployment of deployments) {
+            const deploymentName = deployment.metadata?.name;
+            if (!deploymentName) {
+                throw new Error('Deployment name not found');
+            }
+
+            const deploymentStatus = await appsClient.readNamespacedDeploymentStatus(deploymentName, namespace);
+            const replicas = deploymentStatus.body.status?.replicas;
+            const readyReplicas = deploymentStatus.body.status?.readyReplicas;
+            const updatedReplicas = deploymentStatus.body.status?.updatedReplicas;
+            const availableReplicas = deploymentStatus.body.status?.availableReplicas;
+
+            world.logger.info('Checking deployment status', {
+                deployment: deploymentName,
+                replicas,
+                readyReplicas,
+                updatedReplicas,
+                availableReplicas,
+            });
+
+            if (replicas !== readyReplicas || replicas !== updatedReplicas || replicas !== availableReplicas) {
+                allRunning = false;
+                world.logger.debug('Waiting for data service to stabilize', {
+                    deployment: deploymentName,
+                    replicas,
+                    readyReplicas,
+                });
+            }
+        }
+
+        await Utils.sleep(1000);
+    }
+
+    if (!allRunning) {
+        throw new Error('Data services did not stabilize');
+    }
+
+    return allRunning;
 }

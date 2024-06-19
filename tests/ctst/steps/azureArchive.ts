@@ -7,6 +7,7 @@ import { AzureHelper, S3, Constants, Utils } from 'cli-testing';
 import util from 'util';
 import { exec } from 'child_process';
 import Zenko from 'world/Zenko';
+import { waitForDataServicesToStabilize } from './utils/kubernetes';
 
 type manifestEntry = {
     'archive-id': string,
@@ -41,7 +42,7 @@ const AZURE_STORAGE_QUEUE_URL = process.env.AZURE_QUEUE_URL || 'http://127.0.0.1
  */
 function getAzureCreds(
     world: Zenko,
-): {accountName: string, accountKey: string } {
+): { accountName: string, accountKey: string } {
     return {
         accountName: world.parameters.AzureAccountName,
         accountKey: world.parameters.AzureAccountKey,
@@ -92,7 +93,7 @@ async function findObjectPackAndManifest(
     world: Zenko,
     bucketName: string,
     objectName: string,
-): Promise<{ manifestName?:string, manifest?:manifest, tarName?:string }> {
+): Promise<{ manifestName?: string, manifest?: manifest, tarName?: string }> {
     // lisintg all blobs in the container
     const blobs = await AzureHelper.listBlobs(
         world.parameters.AzureArchiveContainer,
@@ -246,7 +247,7 @@ Then('manifest and tar containing object {string} should exist', async function 
 });
 
 Then('object {string} should have the same data', async function (this: Zenko, objectName: string) {
-    const objName = objectName ||  this.getSaved<string>('objectName');
+    const objName = objectName || this.getSaved<string>('objectName');
     this.resetCommand();
     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
     this.addCommandParameter({ key: objName });
@@ -273,7 +274,7 @@ Then('manifest containing object {string} should {string} object {string}',
             objectName1,
         );
         assert(manifest);
-        const found = manifest.entries.find((entry:manifestEntry) =>
+        const found = manifest.entries.find((entry: manifestEntry) =>
             entry?.origin['object-key'] === objectName2,
         );
         if (condition === 'contain') {
@@ -378,7 +379,7 @@ When('i wait for {int} days', { timeout: 10 * 60 * 1000 }, async function (this:
 });
 
 Then('object {string} should expire in {int} days', async function (this: Zenko, objectName: string, days: number) {
-    const objName = objectName ||  this.getSaved<string>('objectName');
+    const objName = objectName || this.getSaved<string>('objectName');
     this.resetCommand();
     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
     this.addCommandParameter({ key: objName });
@@ -418,59 +419,60 @@ Given('that lifecycle is {string} for the {string} location',
         await request(options, undefined);
     });
 
-Given('an azure archive location {string}', async function (this: Zenko, locationName: string) {
-    const locationConfig = {
-        name: locationName,
-        locationType: 'location-azure-archive-v1',
-        details: {
-            endpoint: AZURE_STORAGE_BLOB_URL,
-            bucketName: this.parameters.AzureArchiveContainer,
-            queue: {
-                type: 'location-azure-storage-queue-v1',
-                queueName: this.parameters.AzureArchiveQueue,
-                endpoint: AZURE_STORAGE_QUEUE_URL,
+Given('an azure archive location {string}', { timeout: 15 * 60 * 1000 },
+    async function (this: Zenko, locationName: string) {
+        const locationConfig = {
+            name: locationName,
+            locationType: 'location-azure-archive-v1',
+            details: {
+                endpoint: AZURE_STORAGE_BLOB_URL,
+                bucketName: this.parameters.AzureArchiveContainer,
+                queue: {
+                    type: 'location-azure-storage-queue-v1',
+                    queueName: this.parameters.AzureArchiveQueue,
+                    endpoint: AZURE_STORAGE_QUEUE_URL,
+                },
+                auth: {
+                    type: 'location-azure-shared-key',
+                    accountName: this.parameters.AzureAccountName,
+                    accountKey: this.parameters.AzureAccountKey,
+                },
             },
-            auth: {
-                type: 'location-azure-shared-key',
-                accountName: this.parameters.AzureAccountName,
-                accountKey: this.parameters.AzureAccountKey,
-            },
-        },
-    };
-    const result = await this.managementAPIRequest('POST', `/config/${this.parameters.InstanceID}/location`, {},
-        locationConfig);
-    assert.strictEqual(result.statusCode, 201);
-    this.addToSaved('locationName', locationName);
-    await Utils.sleep(60000); // Wait for location to be updated TODO: CTST-35
-});
-
-When('i change azure archive location {string} container target', async function (this: Zenko, locationName: string) {
-    const result = await this.managementAPIRequest('GET', `/config/overlay/view/${this.parameters.InstanceID}`);
-    if ('err' in result) {
-        assert.ifError(result.err);
-    } else {
-        const { locations } = result.data as { locations: Record<string, unknown> };
-        assert(locations[locationName]);
-        const locationConfig = locations[locationName] as Record<string, unknown>;
-        const details = locationConfig.details as { bucketName: string, auth: { accountKey: string } };
-        const auth = details.auth;
-        details.bucketName = this.parameters.AzureArchiveContainer2;
-        auth.accountKey = this.parameters.AzureAccountKey;
-        const putResult = await this.managementAPIRequest('PUT',
-            `/config/${this.parameters.InstanceID}/location/${locationName}`,
-            {},
+        };
+        const result = await this.managementAPIRequest('POST', `/config/${this.parameters.InstanceID}/location`, {},
             locationConfig);
-        if ('err' in putResult) {
-            assert.ifError(putResult.err);
+        assert.strictEqual(result.statusCode, 201);
+        this.addToSaved('locationName', locationName);
+        await waitForDataServicesToStabilize(this);
+    });
+
+When('i change azure archive location {string} container target', { timeout: 15 * 60 * 1000 },
+    async function (this: Zenko, locationName: string) {
+        const result = await this.managementAPIRequest('GET', `/config/overlay/view/${this.parameters.InstanceID}`);
+        if ('err' in result) {
+            assert.ifError(result.err);
         } else {
-            assert.strictEqual((putResult.data as { details: { bucketName: string }}).details.bucketName,
-                this.parameters.AzureArchiveContainer2);
-            assert.strictEqual(putResult.statusCode, 200);
+            const { locations } = result.data as { locations: Record<string, unknown> };
+            assert(locations[locationName]);
+            const locationConfig = locations[locationName] as Record<string, unknown>;
+            const details = locationConfig.details as { bucketName: string, auth: { accountKey: string } };
+            const auth = details.auth;
+            details.bucketName = this.parameters.AzureArchiveContainer2;
+            auth.accountKey = this.parameters.AzureAccountKey;
+            const putResult = await this.managementAPIRequest('PUT',
+                `/config/${this.parameters.InstanceID}/location/${locationName}`,
+                {},
+                locationConfig);
+            if ('err' in putResult) {
+                assert.ifError(putResult.err);
+            } else {
+                assert.strictEqual((putResult.data as { details: { bucketName: string } }).details.bucketName,
+                    this.parameters.AzureArchiveContainer2);
+                assert.strictEqual(putResult.statusCode, 200);
+            }
         }
-    }
-    // This could be checked to see pods status with kubectl TODO: CTST-35
-    await Utils.sleep(60000); // Wait for location to be updated
-});
+        await waitForDataServicesToStabilize(this);
+    });
 
 Then('i can get the {string} location details', async function (this: Zenko, locationName: string) {
     const result = await this.managementAPIRequest('GET', `/config/overlay/view/${this.parameters.InstanceID}`);
