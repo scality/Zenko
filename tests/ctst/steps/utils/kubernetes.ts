@@ -137,6 +137,7 @@ export async function waitForZenkoToStabilize(world: Zenko) {
             'zenkos',
         ).catch((err) => {
             world.logger.error('Error getting Zenko CR', {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 err,
             });
             return null;
