@@ -1,7 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { KubernetesHelper, Utils } from 'cli-testing';
 import Zenko from 'world/Zenko';
-import { V1Job, Watch, V1ObjectMeta, AppsV1Api, V1Deployment } from '@kubernetes/client-node';
+import {
+    V1Job,
+    Watch,
+    V1ObjectMeta,
+    AppsV1Api,
+    V1Deployment,
+    AppsApi,
+    CustomObjectsApi,    
+} from '@kubernetes/client-node';
 
 export function createKubeBatchClient(world: Zenko) {
     if (!KubernetesHelper.clientBatch) {
@@ -25,10 +33,24 @@ export function createKubeWatchClient(world: Zenko) {
 }
 
 export function createKubeAppsV1Client(world: Zenko) {
+    if (!KubernetesHelper.clientAppsV1) {
+        KubernetesHelper.init(world.parameters);
+    }
+    return KubernetesHelper.clientAppsV1 as AppsV1Api;
+}
+
+export function createKubeAppsClient(world: Zenko) {
     if (!KubernetesHelper.clientApps) {
         KubernetesHelper.init(world.parameters);
     }
-    return KubernetesHelper.clientApps as AppsV1Api;
+    return KubernetesHelper.clientApps as AppsApi;
+}
+
+export function createKubeCustomObjectClient(world: Zenko) {
+    if (!KubernetesHelper.customObject) {
+        KubernetesHelper.init(world.parameters);
+    }
+    return KubernetesHelper.customObject as CustomObjectsApi;
 }
 
 export async function createJobAndWaitForCompletion(world: Zenko, jobName: string, customMetadata?: string) {
@@ -89,6 +111,61 @@ export async function createJobAndWaitForCompletion(world: Zenko, jobName: strin
             err,
         });
         throw err;
+    }
+}
+
+export async function waitForZenkoToStabilize(world: Zenko) {
+    // Look at Zenko CR status, and wait for the .status.conditions[i].DeploymentFailure .status to be false,
+    // same for DeploymentInProgress, and true for Available
+    const timeout = 15 * 60 * 1000;
+    const startTime = Date.now();
+    let status = false;
+    let deploymentFailure = false;
+    let deploymentInProgress = false;
+    let available = false;
+
+    world.logger.info('Waiting for Zenko to stabilize');
+    // use kube client to look at the cr named "zenko"
+    const zenkoClient = createKubeCustomObjectClient(world);
+
+    while (!status && Date.now() - startTime < timeout) {
+        const zenkoCR = await zenkoClient.getNamespacedCustomObject(
+            'zenko.io',
+            'v1alpha2',
+            'default',
+            'zenkos',
+            'zenko',
+        );
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const conditions: any = zenkoCR.body;
+
+        world.logger.info('Checking Zenko CR status', {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            conditions,
+        });
+
+        if (conditions.status.DeploymentFailure) {
+            deploymentFailure = true;
+        }
+        
+        if (conditions.status.DeploymentInProgress) {
+            deploymentInProgress = true;
+        }
+
+        if (conditions.status.Available) {
+            available = true;
+        }
+
+        if (!deploymentFailure && !deploymentInProgress && available) {
+            status = true;
+        }
+
+        await Utils.sleep(1000);        
+    }
+
+    if (!status) {
+        throw new Error('Zenko did not stabilize');
     }
 }
 
