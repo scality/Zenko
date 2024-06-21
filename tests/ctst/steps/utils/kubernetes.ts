@@ -114,7 +114,7 @@ export async function createJobAndWaitForCompletion(world: Zenko, jobName: strin
     }
 }
 
-export async function waitForZenkoToStabilize(world: Zenko) {
+export async function waitForZenkoToStabilize(world: Zenko, namespace = 'default') {
     // Look at Zenko CR status, and wait for the .status.conditions[i].DeploymentFailure .status to be false,
     // same for DeploymentInProgress, and true for Available
     const timeout = 15 * 60 * 1000;
@@ -132,9 +132,9 @@ export async function waitForZenkoToStabilize(world: Zenko) {
         const zenkoCR = await zenkoClient.getNamespacedCustomObject(
             'zenko.io',
             'v1alpha2',
-            'default',
+            namespace,
             'zenko',
-            'zenkos',
+            'end2end',
         ).catch((err) => {
             world.logger.error('Error getting Zenko CR', {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
