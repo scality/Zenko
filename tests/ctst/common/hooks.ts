@@ -1,13 +1,13 @@
 import {
     Before,
     After,
-    defineParameterType,
-    Given,
     setParallelCanAssign,
     parallelCanAssignHelpers,
 } from '@cucumber/cucumber';
-import Zenko, { EntityType } from '../world/Zenko';
-import { Scality } from 'cli-testing';
+import Zenko from '../world/Zenko';
+import { Identity } from 'cli-testing';
+import { prepareQuotaScenarios, quotaScenarioteardown } from 'steps/quotas/quotas';
+
 // HTTPS should not cause any error for CTST
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
@@ -17,65 +17,17 @@ const noParallelRun = atMostOnePicklePerTag(['@AfterAll']);
 setParallelCanAssign(noParallelRun);
 
 Before(async function (this: Zenko) {
+    this.resetSaved();
+    Identity.resetIdentity();
     await Zenko.init(this.parameters);
 });
 
-After(function (this: Zenko) {
-    this.resetSaved();
+Before({ tags: '@Quotas', timeout: 1200000 }, async function (scenarioOptions) {
+    await prepareQuotaScenarios(this as Zenko, scenarioOptions);
 });
 
 After({ tags: '@Quotas' }, async function () {
-    // Remove any quota at the end of the scenario, in case
-    // the account gets reused, placed after the global After
-    // hook to make sure it is executed first.
-    const world = this as Zenko;
-    // restore account
-    await world.createAccount();
-    await world.setupEntity(EntityType.STORAGE_MANAGER);
-    world.resumeAssumedRole();
-    world.addCommandParameter({
-        bucket: world.getSaved<string>('bucketName'),
-    });
-    const resultBucket = await Scality.deleteBucketQuota(
-        world.parameters,
-        world.getCliMode(),
-        world.getCommandParameters());
-    world.parameters.logger?.debug('DeleteBucketQuota result', {
-        resultBucket,
-        parameters: world.getCommandParameters(),
-    });
-    const resultAccount = await Scality.deleteAccountQuota(
-        world.parameters,
-        world.getCliMode());
-
-    world.parameters.logger?.debug('DeleteAccountQuota result', {
-        resultAccount,
-        parameters: world.getCommandParameters(),
-    });
-    if (resultBucket.err || resultAccount.err) {
-        throw new Error('Unable to delete quotas');
-    }
+    await quotaScenarioteardown(this as Zenko);
 });
-
-defineParameterType({
-    name: 'type',
-    regexp: /(.*)/,
-    transformer: s => <keyof typeof EntityType>s,
-});
-
-Given('a {type} type', async function (this: Zenko, type: string) {
-    await this.setupEntity(type);
-});
-
-Given('a {string} AssumeRole user', async function (this: Zenko, crossAccount: string) {
-    await this.prepareAssumeRole(crossAccount === 'cross account');
-    this.addToSaved('type', EntityType.ASSUME_ROLE_USER);
-});
-
-Given('a service user {string} assuming role {string}',
-    async function (this: Zenko, serviceUserName: string, roleName: string) {
-        await this.prepareServiceUser(serviceUserName, roleName);
-        this.addToSaved('type', EntityType.ASSUME_ROLE_USER);
-    });
 
 export default Zenko;

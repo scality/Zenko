@@ -1,7 +1,7 @@
 import { When, Then } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
-import Zenko, { ApiResult, EntityType } from '../../world/Zenko';
-import { CacheHelper, ClientOptions, VaultAuth } from 'cli-testing';
+import Zenko from '../../world/Zenko';
+import { CacheHelper, ClientOptions, Command, Identity, IdentityEnum, VaultAuth } from 'cli-testing';
 import { runActionAgainstBucket } from 'steps/utils/utils';
 
 When('the user tries to perform {string} on the bucket', async function (this: Zenko, action: string) {
@@ -9,11 +9,15 @@ When('the user tries to perform {string} on the bucket', async function (this: Z
 });
 
 When('the user tries to perform vault auth {string}', async function (this: Zenko, action: string) {
-    let userCredentials;
-    if ([EntityType.IAM_USER, EntityType.ACCOUNT].includes(this.getSaved<EntityType>('type'))) {
-        userCredentials = this.parameters.IAMSession;
-    } else {
-        userCredentials = this.parameters.AssumedSession!;
+    const userCredentials = Identity.getCredentialsForIdentity(
+        this.getSaved<IdentityEnum>('identityTypeForScenario'),
+        this.getSaved<string>('identityNameForScenario'),
+        this.getSaved<string>('accountNameForScenario'),
+    );
+
+    if (!userCredentials) {
+        throw new Error('User credentials not set. '
+            + 'Make sure the `IAMSession` and `AssumedSession` world parameter are defined.');
     }
 
     if (!this.parameters.VaultAuthHost) {
@@ -21,16 +25,16 @@ When('the user tries to perform vault auth {string}', async function (this: Zenk
     }
 
     const vaultAuthClientOptions: ClientOptions = {
-        AccessKey: userCredentials.AccessKeyId,
-        SecretKey: userCredentials.SecretAccessKey,
-        SessionToken: userCredentials.SessionToken,
+        AccessKey: userCredentials.accessKeyId,
+        SecretKey: userCredentials.secretAccessKey,
+        SessionToken: userCredentials.sessionToken,
         ip: this.parameters.VaultAuthHost,
         ssl: CacheHelper.parameters ? CacheHelper.parameters.ssl as boolean : undefined,
     };
 
     switch (action) {
     case 'GetAccountInfo':
-        this.setResult(await VaultAuth.getAccounts(null, null, null, {}, vaultAuthClientOptions) as ApiResult);
+        this.setResult(await VaultAuth.getAccounts(null, null, null, {}, vaultAuthClientOptions) as Command);
         break;
     default:
         throw new Error(`Action ${action} is not supported`);
@@ -38,7 +42,6 @@ When('the user tries to perform vault auth {string}', async function (this: Zenk
 });
 
 Then('the user should be able to perform successfully the {string} action', function (this: Zenko, action: string) {
-    this.cleanupEntity();
     switch (action) {
     case 'MetadataSearch': {
         assert.strictEqual(this.getResult().statusCode, 200);
@@ -55,7 +58,18 @@ Then('the user should be able to perform successfully the {string} action', func
     }
 });
 
+Then('the user should not be able to perform the {string} action', function (this: Zenko, action : string) {
+    switch (action) {
+    case 'GetAccountInfo': {
+        assert.strictEqual(this.getResult().code === 'AccessDenied', true);
+        break;
+    }
+    default: {
+        assert.strictEqual(this.getResult().err, null);
+    }
+    }
+});
+
 Then('the user should receive {string} error', function (this: Zenko, error: string) {
-    this.cleanupEntity();
     assert.strictEqual(this.getResult().err!.includes(error), true);
 });
