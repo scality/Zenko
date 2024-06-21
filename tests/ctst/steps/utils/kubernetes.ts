@@ -133,9 +133,19 @@ export async function waitForZenkoToStabilize(world: Zenko) {
             'zenko.io',
             'v1alpha2',
             'default',
-            'zenkos',
             'zenko',
-        );
+            'zenkos',
+        ).catch((err) => {
+            world.logger.error('Error getting Zenko CR', {
+                err,
+            });
+            return null;
+        });
+
+        if (!zenkoCR) {
+            await Utils.sleep(1000);
+            continue;
+        }
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const conditions: any = zenkoCR.body;
