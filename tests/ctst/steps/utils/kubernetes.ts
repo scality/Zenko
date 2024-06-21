@@ -128,12 +128,31 @@ export async function waitForZenkoToStabilize(world: Zenko, namespace = 'default
     // use kube client to look at the cr named "zenko"
     const zenkoClient = createKubeCustomObjectClient(world);
 
+    // list all custom objects in the namespace
+    const zenkoCRs = await zenkoClient.listNamespacedCustomObject(
+        'zenko.io',
+        'v1alpha2',
+        namespace,
+        'zenkos',
+    ).catch((err) => {
+        world.logger.error('Error listing Zenko CRs', {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            err,
+        });
+        return null;
+    });
+
+    world.logger.info('Got the list of Zenko CRs', {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        zenkoCRs,
+    });
+
     while (!status && Date.now() - startTime < timeout) {
         const zenkoCR = await zenkoClient.getNamespacedCustomObject(
             'zenko.io',
             'v1alpha2',
             namespace,
-            'zenko',
+            'zenkos',
             'end2end',
         ).catch((err) => {
             world.logger.error('Error getting Zenko CR', {
