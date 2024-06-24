@@ -7,7 +7,7 @@ import { AzureHelper, S3, Constants, Utils } from 'cli-testing';
 import util from 'util';
 import { exec } from 'child_process';
 import Zenko from 'world/Zenko';
-import { waitForDataServicesToStabilize, waitForZenkoToStabilize } from './utils/kubernetes';
+import { waitForZenkoToStabilize } from './utils/kubernetes';
 
 type manifestEntry = {
     'archive-id': string,
@@ -444,7 +444,6 @@ Given('an azure archive location {string}', { timeout: 15 * 60 * 1000 },
         assert.strictEqual(result.statusCode, 201);
         this.addToSaved('locationName', locationName);
         await waitForZenkoToStabilize(this);
-        await waitForDataServicesToStabilize(this);
     });
 
 When('i change azure archive location {string} container target', { timeout: 15 * 60 * 1000 },
@@ -473,7 +472,6 @@ When('i change azure archive location {string} container target', { timeout: 15 
             }
         }
         await waitForZenkoToStabilize(this);
-        await waitForDataServicesToStabilize(this);
     });
 
 Then('i can get the {string} location details', async function (this: Zenko, locationName: string) {

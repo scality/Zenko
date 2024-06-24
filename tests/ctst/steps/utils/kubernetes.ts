@@ -11,6 +11,16 @@ import {
     CustomObjectsApi,    
 } from '@kubernetes/client-node';
 
+type ZenkoStatusValue = {
+    lastTransitionTime: string,
+    message: string,
+    status: 'True' | 'False',
+    reason?: string,
+    type: 'DeploymentFailure' | 'DeploymentInProgress' | 'Available',
+};
+
+type ZenkoStatus = ZenkoStatusValue[];
+
 export function createKubeBatchClient(world: Zenko) {
     if (!KubernetesHelper.clientBatch) {
         KubernetesHelper.init(world.parameters);
@@ -114,38 +124,39 @@ export async function createJobAndWaitForCompletion(world: Zenko, jobName: strin
     }
 }
 
-export async function waitForZenkoToStabilize(world: Zenko, namespace = 'default') {
-    // Look at Zenko CR status, and wait for the .status.conditions[i].DeploymentFailure .status to be false,
-    // same for DeploymentInProgress, and true for Available
+export async function waitForZenkoToStabilize(world: Zenko, needsReconciliation = false, namespace = 'default') {
+    // ZKOP pulls the overlay configuration from Pensieve every 5 seconds
+    // So the status might not be updated immediately after the overlay is applied.
+    // So, this function will first wait till we detect a reconciliation
+    // (deploymentInProgress = true), and then wait for the status to be available
     const timeout = 15 * 60 * 1000;
     const startTime = Date.now();
     let status = false;
-    let deploymentFailure = false;
-    let deploymentInProgress = false;
-    let available = false;
+    let deploymentFailure: ZenkoStatusValue = {
+        lastTransitionTime: '',
+        message: '',
+        status: 'False',
+        type: 'DeploymentFailure',
+    };
+    let deploymentInProgress: ZenkoStatusValue = {
+        lastTransitionTime: '',
+        message: '',
+        status: 'False',
+        type: 'DeploymentInProgress',
+    };
+    let available: ZenkoStatusValue = {
+        lastTransitionTime: '',
+        message: '',
+        status: 'False',
+        type: 'Available',
+    };
+    // If needsReconciliation is true, we expect a reconciliation
+    // otherwise, we can use the function as a sanity check of the
+    // zenko status.
+    let reconciliationDetected = !needsReconciliation;
 
-    world.logger.info('Waiting for Zenko to stabilize');
-    // use kube client to look at the cr named "zenko"
+    world.logger.debug('Waiting for Zenko to stabilize');
     const zenkoClient = createKubeCustomObjectClient(world);
-
-    // list all custom objects in the namespace
-    const zenkoCRs = await zenkoClient.listNamespacedCustomObject(
-        'zenko.io',
-        'v1alpha2',
-        namespace,
-        'zenkos',
-    ).catch((err) => {
-        world.logger.error('Error listing Zenko CRs', {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            err,
-        });
-        return null;
-    });
-
-    world.logger.info('Got the list of Zenko CRs', {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        zenkoCRs,
-    });
 
     while (!status && Date.now() - startTime < timeout) {
         const zenkoCR = await zenkoClient.getNamespacedCustomObject(
@@ -154,10 +165,9 @@ export async function waitForZenkoToStabilize(world: Zenko, namespace = 'default
             namespace,
             'zenkos',
             'end2end',
-        ).catch((err) => {
+        ).catch(err => {
             world.logger.error('Error getting Zenko CR', {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                err,
+                err: err as unknown,
             });
             return null;
         });
@@ -167,27 +177,42 @@ export async function waitForZenkoToStabilize(world: Zenko, namespace = 'default
             continue;
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const conditions: any = zenkoCR.body;
+        const conditions: ZenkoStatus = (zenkoCR.body as {
+            status: {
+                conditions: ZenkoStatus,
+            },
+        })?.status?.conditions || [];
 
-        world.logger.info('Checking Zenko CR status', {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            conditions,
+        conditions.forEach(condition => {
+            if (condition.type === 'DeploymentFailure') {
+                deploymentFailure = condition;
+            } else if (condition.type === 'DeploymentInProgress') {
+                deploymentInProgress = condition;
+            } else if (condition.type === 'Available') {
+                available = condition;
+            }
         });
 
-        if (conditions.status.DeploymentFailure) {
-            deploymentFailure = true;
-        }
-        
-        if (conditions.status.DeploymentInProgress) {
-            deploymentInProgress = true;
+        world.logger.debug('Checking Zenko CR status', {
+            conditions,
+            deploymentFailure,
+            deploymentInProgress,
+            available,
+        });
+
+        if (!reconciliationDetected &&
+            deploymentInProgress.status === 'True' &&
+            deploymentInProgress.reason === 'Reconciling'
+        ) {
+            reconciliationDetected = true;
+            continue;
         }
 
-        if (conditions.status.Available) {
-            available = true;
-        }
-
-        if (!deploymentFailure && !deploymentInProgress && available) {
+        if (reconciliationDetected &&
+            deploymentFailure.status === 'False' &&
+            deploymentInProgress.status === 'False' &&
+            available.status === 'True'
+        ) {
             status = true;
         }
 
