@@ -3,6 +3,7 @@
 env_variables=$(yq eval '.env | to_entries | .[] | .key + "=" + .value' .github/workflows/end2end.yaml | sed 's/\${{[^}]*}}//g') && export $env_variables
 export GIT_ACCESS_TOKEN=${GITHUB_TOKEN}
 export E2E_IMAGE_TAG=latest
+docker login -u docker -p ${GITHUB_TOKEN} ghcr.io
 
 array_length=`yq ".runs.steps | length - 1" .github/actions/deploy/action.yaml`
 for i in $(seq 0 $array_length); do
