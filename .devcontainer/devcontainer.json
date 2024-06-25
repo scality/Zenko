@@ -83,5 +83,6 @@
         "ZENKO_MONGODB_SHARDED": "true" 
         },
     // Use 'postCreateCommand' to run commands after the container is created.
-    "postCreateCommand": "bash .devcontainer/setup.sh"
+    "onCreateCommand": "bash .devcontainer/setup.sh",
+    "postStartCommand": "bash .devcontainer/start.sh"
 }
