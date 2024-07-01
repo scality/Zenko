@@ -328,9 +328,12 @@ Then('i {string} be able to add user metadata to object {string}',
 
 Then('kafka consumed messages should not take too much place on disk', { timeout: -1 },
     async function (this: Zenko) {
-        let timeoutID;
         const kfkcIntervalSeconds = parseInt(this.parameters.KafkaCleanerInterval);
         const checkInterval = kfkcIntervalSeconds * 1000 + 5000;
+
+        const timeoutID = setTimeout(() => {
+            assert.fail('Kafka cleaner did not clean the topics within the expected time');
+        }, checkInterval * 5); // Timeout after 5 Kafka cleaner intervals
 
         try {
             const ignoredTopics = ['dead-letter'];
@@ -338,10 +341,6 @@ Then('kafka consumed messages should not take too much place on disk', { timeout
             const topics: string[] = (await kafkaAdmin.listTopics())
                 .filter(t => (t.includes(this.parameters.InstanceID) &&
                 !ignoredTopics.some(e => t.includes(e))));
-
-            timeoutID = setTimeout(() => {
-                assert.fail('Kafka cleaner did not clean the topics within the expected time');
-            }, (topics.length || 1) * checkInterval * 5); // Timeout after 5 Kafka cleaner intervals
 
             const previousOffsets = await getTopicsOffsets(topics, kafkaAdmin);
 
@@ -376,7 +375,7 @@ Then('kafka consumed messages should not take too much place on disk', { timeout
                         const allMessagesCleaned = parseInt(newOffsetPartition.low) + 1 >=
                             parseInt(newOffsetPartition.high);
 
-                        // We consider one topic as xleaned if kafkacleaner affected the
+                        // We consider one topic as cleaned if kafkacleaner affected the
                         // offset (low) or all messages are cleaned.
                         if (lowOffsetIncreased || allMessagesCleaned) {
                             topicCleaned = true;
