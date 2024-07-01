@@ -64,7 +64,7 @@ beforeEach(async () => {
                     {
                         src: path.resolve(__dirname, "VERSION-2.3.7-rc.1"),
                         dest: "VERSION",
-                    }
+                    },
                 ],
             },
         },
@@ -158,6 +158,20 @@ test.each([
                 .setIndex()
                 .reply({ status: 200, data: "PASSED\n", repeat: 2 }),
 
+            // Mock release notes generation
+            moctokit.rest.repos
+                .listReleases()
+                .reply({ status: 200, data: [{ tag_name: '2.3.6', id: 123 }]}),
+            moctokit.rest.repos
+                .generateReleaseNotes({
+                    owner: "scality",
+                    repo: "Zenko",
+                    previous_tag_name: '2.3.6',
+                    tag_name: tag,
+                    target_commitish: await getCommitHash(),
+                })
+                .reply({ status: 200, data: { body: "something changed" }}),
+
             // Mock release creation: check existing release and create a new one
             moctokit.rest.repos
                 .getReleaseByTag()
@@ -168,15 +182,15 @@ test.each([
                     repo: "Zenko",
                     tag_name: tag,
                     target_commitish: await getCommitHash(),
-                    generate_release_notes: true,
+                    generate_release_notes: false,
                     name: "Release " + tag,
-                    body: "",
+                    body: "something changed",
                     prerelease: tag === '2.3.7-rc.1',
                 })
                 .reply({ status: 201, data: {
                     id: 123,
-                    upload_url: 'http://uploads.github.com/repos/scality/Zenko/releases/123/assets{?name,label}',
-                    html_url: 'http://github.com/repos/scality/Zenko/releases/123',
+                    upload_url: 'http://uploads.github.com/repos/scality/Zenko/releases/456/assets{?name,label}',
+                    html_url: 'http://github.com/repos/scality/Zenko/releases/456',
                 }}),
         ],
         mockSteps: {
@@ -190,6 +204,14 @@ test.each([
                 mockWith: {
                     with: {
                         token: "my-token",
+                    }
+                }
+            }, {
+                // Need to explicitely pass token, the GITHUB_TOKEN does not seem to be set
+                uses: 'actions/github-script@v7',
+                mockWith: {
+                    with: {
+                        'github-token': "my-token",
                     }
                 }
             }],
