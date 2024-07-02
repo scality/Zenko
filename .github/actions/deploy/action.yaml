@@ -51,9 +51,11 @@ runs:
     - name: Install operator
       shell: bash
       run: |-
-        set -exu;
+        set -ex;
         export OPERATOR_IMAGE_NAME=$(yq eval '."zenko-operator" | .sourceRegistry + "/" + .image' solution/deps.yaml)
-        export OPERATOR_IMAGE_TAG=$(yq eval '."zenko-operator".tag' solution/deps.yaml)
+        if [[ -z "${OPERATOR_IMAGE_TAG}" ]]; then
+          export OPERATOR_IMAGE_TAG=$(yq eval '."zenko-operator".tag' solution/deps.yaml)
+        fi
         docker pull ${OPERATOR_IMAGE_NAME}:${OPERATOR_IMAGE_TAG}
         kind load docker-image ${OPERATOR_IMAGE_NAME}:${OPERATOR_IMAGE_TAG}
         cd ./.github/scripts/end2end

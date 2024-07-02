@@ -24,12 +24,12 @@ if [ ${ENABLE_KEYCLOAK_HTTPS} == 'true' ]; then
     export ZENKO_INGRESS_ANNOTATIONS="annotations:
         nginx.ingress.kubernetes.io/proxy-body-size: 0m
         nginx.ingress.kubernetes.io/ssl-redirect: 'false'"
-    export ZENKO_INGRESS_CERTIFICATES='certificates:
+    export ZENKO_INGRESS_CERTIFICATES="certificates:
     - hosts:
       - ${ZENKO_UI_INGRESS}
       - ${ZENKO_MANAGEMENT_INGRESS}
       - ${ZENKO_IAM_INGRESS}
-      - ${ZENKO_STS_INGRESS}'
+      - ${ZENKO_STS_INGRESS}"
 else
     export ZENKO_INGRESS_ANNOTATIONS="annotations:
       nginx.ingress.kubernetes.io/proxy-body-size: 0m"
