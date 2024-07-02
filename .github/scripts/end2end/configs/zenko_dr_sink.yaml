@@ -1,0 +1,46 @@
+apiVersion: zenko.io/v1alpha1
+kind: ZenkoDRSink
+metadata:
+  name: end2end-pra-dr-sink
+spec:
+  mongodb:
+    provider: External
+    enableSharding: true
+    endpoints:
+      - data-db-mongodb-sharded.default.svc.cluster.local:27017
+    userSecretName: mongodb-db-creds-pra
+    usernameKey: mongodb-username
+    passwordKey: mongodb-password
+    databaseName: "pradb"
+    writeConcern: "majority"
+  kafka:
+    managed:
+      zkAddresses:
+        - end2end-pra-base-quorum-headless:2181
+      persistence:
+        volumeClaimTemplate:
+          size: 5Gi
+          storageClassName: "standard"
+    connect:
+      sink:
+        replicas: 1
+        sourceDBName: "zenko-database"
+    versions:
+      cleaner:
+        image:  '${KAFKA_CLEANER_IMAGE}'
+        tag:    '${KAFKA_CLEANER_TAG}'
+      cluster:
+        image:  '${KAFKA_IMAGE}'
+        tag:    '${KAFKA_TAG}'
+      connect:
+        image: '${KAFKA_CONNECT_IMAGE}' 
+        tag:   '${KAFKA_CONNECT_TAG}'
+      cruiseControl:
+        image: '${KAFKA_CRUISECONTROL_IMAGE}'
+        tag: '${KAFKA_CRUISECONTROL_TAG}'
+      lagExporter:
+        image: '${KAFKA_LAGEXPORTER_IMAGE}'
+        tag: '${KAFKA_LAGEXPORTER_TAG}'
+      monitoring:
+        image: '${JMX_JAVAAGENT_IMAGE}'
+        tag: '${JMX_JAVAAGENT_TAG}'

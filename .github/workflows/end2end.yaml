@@ -487,6 +487,12 @@ jobs:
         working-directory: ./.github/scripts/end2end/operator/tests/smoke
         env:
           SORBETD_NAME: mock-sorbet-pra
+      - name: Deploy zenko dr sink
+        run : cat zenko_dr_sink.yaml | envsubst | kubectl apply -f -
+        working-directory: ./.github/scripts/end2end/configs
+      - name: Deploy zenko dr source
+        run : cat zenko_dr_source.yaml | envsubst | kubectl apply -f -
+        working-directory: ./.github/scripts/end2end/configs
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
         env:
