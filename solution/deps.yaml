@@ -121,5 +121,5 @@ zenko-ui:
 zookeeper:
   sourceRegistry: pravega
   image: zookeeper
-  tag: 0.2.14
+  tag: 0.2.15
   envsubst: ZOOKEEPER_TAG
