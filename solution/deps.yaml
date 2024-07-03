@@ -10,7 +10,7 @@ backbeat:
   envsubst: BACKBEAT_TAG
 busybox:
   image: busybox
-  tag: 1.33.0
+  tag: 1.36.1
   envsubst: BUSYBOX_TAG
 cloudserver:
   sourceRegistry: ghcr.io/scality
