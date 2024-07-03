@@ -64,7 +64,7 @@ rclone:
   envsubst: RCLONE_TAG
 redis:
   image: redis
-  tag: 7.0.4
+  tag: 7.0.15
   envsubst: REDIS_TAG
 redis-kubedb:
   sourceRegistry: kubedb
