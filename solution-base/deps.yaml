@@ -9,7 +9,7 @@ mongodb-exporter:
   tag: 0.34.0-debian-11-r31
 mongodb-sharded:
   image: bitnami/mongodb-sharded
-  tag: 5.0.18-debian-11-r15
+  tag: 5.0.24-debian-11-r20
 mongodb-sharded-exporter:
   image: bitnami/mongodb-exporter
   tag: 0.37.0-debian-11-r33
