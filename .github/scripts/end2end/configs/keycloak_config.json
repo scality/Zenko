@@ -2,28 +2,26 @@
   "realm" : "${OIDC_REALM}",
   "enabled" : true,
   "groups" : [
-    {
-      "name": "AccountTest::DataConsumer",
-      "path": "/AccountTest::DataConsumer",
-      "attributes": {},
-      "realmRoles": [],
-      "clientRoles": {},
-      "subGroups": []
-    },
-    {
-      "name": "AccountTest::StorageAccountOwner",
-      "path": "/AccountTest::StorageAccountOwner",
-      "attributes": {},
-      "realmRoles": [],
-      "clientRoles": {},
-      "subGroups": []
-    }
   ],
   "defaultRoles" : [ "uma_authorization", "offline_access" ],
   "roles": {
     "realm": [
       {
         "name": "StorageManager",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "id1",
+        "attributes": {}
+      },
+      {
+        "name": "AccountTest::DataConsumer",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "id1",
+        "attributes": {}
+      },
+      {
+        "name": "AccountTest::StorageAccountOwner",
         "composite": false,
         "clientRole": false,
         "containerId": "id1",
@@ -134,7 +132,8 @@
       "requiredActions": [],
       "realmRoles": [
         "uma_authorization",
-        "offline_access"
+        "offline_access",
+        "AccountTest::DataConsumer"
       ],
       "clientRoles": {
         "account": [
@@ -143,9 +142,7 @@
         ]
       },
       "notBefore": 0,
-      "groups": [
-        "/AccountTest::DataConsumer"
-      ]
+      "groups": []
     },
     {
       "username": "storage_account_owner",
@@ -173,7 +170,8 @@
       "requiredActions": [],
       "realmRoles": [
         "uma_authorization",
-        "offline_access"
+        "offline_access",
+        "AccountTest::StorageAccountOwner"
       ],
       "clientRoles": {
         "account": [
@@ -182,9 +180,7 @@
         ]
       },
       "notBefore": 0,
-      "groups": [
-        "/AccountTest::StorageAccountOwner"
-      ]
+      "groups": []
     }
   ],
   "clients" : [ {
