@@ -476,7 +476,7 @@ jobs:
         uses: ./.github/actions/deploy
         env:
           ZENKO_MONGODB_SHARDED: "true"
-          OPERATOR_IMAGE_TAG: "784163337244df4110ae6c551ffe8ba2fba9a91e"
+          OPERATOR_IMAGE_TAG: 1.6.0-preview.1
       - name: Prepare PRA environment
         run: bash prepare-pra.sh
         working-directory: ./.github/scripts/end2end
