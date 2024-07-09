@@ -804,7 +804,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         payload: object = {}
     ): Promise<{ statusCode: number; data: object } | { statusCode: number; err: unknown }> {
         const token = await this.getWebIdentityToken(
-            this.parameters.KeycloakUsername || 'zenko-end2end',
+            this.parameters.KeycloakUsername || 'storage_manager',
             this.parameters.KeycloakPassword || '123',
             this.parameters.KeycloakHost || 'keycloak.zenko.local',
             this.parameters.KeycloakPort || '80',

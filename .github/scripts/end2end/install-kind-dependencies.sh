@@ -82,6 +82,8 @@ kubectl create -f $kafka_crd_url || kubectl replace -f $kafka_crd_url
 helm upgrade --install --version ${KAFKA_OPERATOR_VERSION} -n default kafka-operator ${KAFKA_CHART}
 
 # keycloak
+envsubst < $DIR/configs/keycloak_config.json > $DIR/configs/keycloak-realm.json
+kubectl create configmap keycloak-realm --from-file=$DIR/configs/keycloak-realm.json
 helm upgrade --install --version ${KEYCLOAK_VERSION} keycloak codecentric/keycloak -f "$DIR/configs/keycloak_options.yaml" -f "${KEYCLOAK_INGRESS_OPTIONS}"
 
 kubectl rollout status sts/keycloak --timeout=10m

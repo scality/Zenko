@@ -49,10 +49,6 @@ runs:
       shell: bash
       run: bash deploy-shell-ui.sh
       working-directory: ./.github/scripts/end2end
-    - name: Setup Keycloak Realm/Client
-      shell: bash
-      run: bash keycloak-helper.sh setup-realm default
-      working-directory: ./.github/scripts/end2end
     - name: Install operator
       shell: bash
       run: |-
@@ -74,9 +70,9 @@ runs:
       shell: bash
       run: bash deploy-zenko.sh end2end default
       working-directory: ./.github/scripts/end2end
-    - name: Add Keycloak user and assign StorageManager role
+    - name: Set user instance ids
       shell: bash
-      run: bash keycloak-helper.sh add-user default
+      run: bash keycloak-helper.sh set-user-instance-ids default
       working-directory: ./.github/scripts/end2end
     - name: Start external service mocks
       shell: bash

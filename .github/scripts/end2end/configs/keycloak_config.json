@@ -7,24 +7,27 @@
   "roles": {
     "realm": [
       {
+        "id": "63168398-203f-4e27-aa45-cbbe945c8593",
         "name": "StorageManager",
         "composite": false,
         "clientRole": false,
-        "containerId": "id1",
+        "containerId": "${OIDC_REALM}",
         "attributes": {}
       },
       {
+        "id": "3500844c-c325-422d-a010-b674617c99f3",
         "name": "AccountTest::DataConsumer",
         "composite": false,
         "clientRole": false,
-        "containerId": "id1",
+        "containerId": "${OIDC_REALM}",
         "attributes": {}
       },
       {
+        "id": "7bf3a4e1-3cc3-49bc-a871-a7c3cd43e9f0",
         "name": "AccountTest::StorageAccountOwner",
         "composite": false,
         "clientRole": false,
-        "containerId": "id1",
+        "containerId": "${OIDC_REALM}",
         "attributes": {}
       }
     ]
