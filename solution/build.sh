@@ -30,10 +30,10 @@ OPERATOR_SDK_OPTS=
 SKOPEO=skopeo
 SKOPEO_OPTS="--override-os linux --insecure-policy"
 
-KAF_VERSION=v0.2.2
-STERN_VERSION=1.21.0
-FZF_VERSION=0.30.0
-FUBECTL_VERSION=ed5f8a8e9feb650ca20100cc094e0f0ce1fd3898
+KAF_VERSION=v0.2.8
+STERN_VERSION=1.30.0
+FZF_VERSION=0.54.0
+FUBECTL_VERSION=6abf81a4d275d49351127458d4dd8f6468f0366a
 
 export SOLUTION_REGISTRY=metalk8s-registry-from-config.invalid/${PRODUCT_LOWERNAME}-${VERSION_FULL}
 
@@ -306,7 +306,7 @@ function download_tools()
     # fuzzy finder for fubectl
     (
         cd ${BUILD_ROOT} &&
-        curl -LO https://github.com/junegunn/fzf/releases/download/${FZF_VERSION}/fzf-${FZF_VERSION}-linux_amd64.tar.gz &&
+        curl -LO https://github.com/junegunn/fzf/releases/download/v${FZF_VERSION}/fzf-${FZF_VERSION}-linux_amd64.tar.gz &&
         tar zvxf fzf-${FZF_VERSION}-linux_amd64.tar.gz -C ${ISO_BINDIR} fzf
     )
 
