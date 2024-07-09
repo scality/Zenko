@@ -55,7 +55,7 @@ kafka-lag-exporter:
 pensieve-api:
   sourceRegistry: ghcr.io/scality
   image: pensieve-api
-  tag: 1.4.10
+  tag: 1.4.11
   envsubst: PENSIEVE_API_TAG
 rclone:
   sourceRegistry: rclone
