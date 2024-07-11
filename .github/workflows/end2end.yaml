@@ -451,6 +451,90 @@ jobs:
           source: /tmp/artifacts
         if: always()
 
+  end2end-pra:
+    needs: [build-kafka, build-test-image, check-dashboard-versions]
+    runs-on:
+      - ubuntu
+      - focal
+      - xlarge
+    env:
+      GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        uses: ./.github/actions/install-end2end-dependencies
+      - name: Wait for Docker daemon to be ready
+        uses: ./.github/actions/wait-docker-ready
+      - name: Login to Registry
+        uses: docker/login-action@v3
+        with:
+          username: "${{ github.repository_owner }}"
+          password: "${{ github.token }}"
+          registry: ghcr.io
+      - name: Deploy Zenko
+        uses: ./.github/actions/deploy
+        env:
+          ZENKO_MONGODB_SHARDED: "true"
+        with:
+          zkop_tag: 1.6.0-preview.1
+      - name: Prepare PRA environment
+        run: bash prepare-pra.sh
+        working-directory: ./.github/scripts/end2end
+      - name: Deploy second Zenko for PRA
+        run: bash deploy-zenko.sh end2end-pra default
+        working-directory: ./.github/scripts/end2end
+      - name: Deploy second Sorbet for PRA
+        run: bash deploy-sorbet-resources.sh end2end-pra
+        working-directory: ./.github/scripts/end2end/operator/tests/smoke
+        env:
+          SORBETD_NAME: mock-sorbet-pra
+      - name: Extract environment
+        run: |-
+          sudo curl --fail -L https://github.com/mikefarah/yq/releases/download/${{ env.YQ_VERSION}}/${{ env.YQ_BINARY }} -o /usr/bin/yq
+          sudo chmod +x /usr/bin/yq
+
+          get_image_from_deps() {
+              local dep_name=$1
+              yq eval ".$dep_name | (.sourceRegistry // \"docker.io\") + \"/\" + .image" deps.yaml
+          }
+
+          cd solution/
+          cat <<EOF >> $GITHUB_ENV
+          KAFKA_IMAGE=$(get_image_from_deps kafka)
+          KAFKA_TAG=$(yq eval '.kafka.tag' deps.yaml)
+          KAFKA_CONNECT_IMAGE=$(get_image_from_deps kafka-connect)
+          KAFKA_CONNECT_TAG=$(yq eval '.kafka-connect.tag' deps.yaml)
+          JMX_JAVAAGENT_IMAGE=$(get_image_from_deps jmx-javaagent)
+          JMX_JAVAAGENT_TAG=$(yq eval '.jmx-javaagent.tag' deps.yaml)
+          MONGODB_CONNECTOR_TAG=$(yq eval '.mongodb-connector.tag' deps.yaml)
+          KAFKA_CLEANER_IMAGE=$(get_image_from_deps kafka-cleaner)
+          KAFKA_CLEANER_TAG=$(yq eval '.kafka-cleaner.tag' deps.yaml)
+          KAFKA_CRUISECONTROL_IMAGE=$(get_image_from_deps kafka-cruise-control)
+          KAFKA_CRUISECONTROL_TAG=$(yq eval '.kafka-cruise-control.tag' deps.yaml)
+          KAFKA_LAGEXPORTER_IMAGE=$(get_image_from_deps kafka-lag-exporter)
+          KAFKA_LAGEXPORTER_TAG=$(yq eval '.kafka-lag-exporter.tag' deps.yaml)
+          EOF
+      - name: Deploy zenko dr components
+        run: bash deploy-dr.sh
+        working-directory: ./.github/scripts/end2end
+      - name: Archive artifact logs and data
+        uses: ./.github/actions/archive-artifacts
+        env:
+          STAGE: end2end-pra
+        if: always()
+      - name: Clean Up
+        run: kind delete cluster
+      - name: Upload artifacts
+        uses: scality/action-artifacts@v4
+        with:
+          method: upload
+          url: https://artifacts.scality.net
+          user: ${{ secrets.ARTIFACTS_USER }}
+          password: ${{ secrets.ARTIFACTS_PASSWORD }}
+          source: /tmp/artifacts
+        if: always()
+
   end2end-https:
     needs: [build-kafka, build-test-image, check-dashboard-versions]
     runs-on:
