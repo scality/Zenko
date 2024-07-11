@@ -2,6 +2,11 @@
 name: "Deploy Zenko"
 description: "Deploy a Zenko instance to run the tests with e2e-http by default"
 
+inputs:
+  zkop_tag:
+    description: "The tag of the Zenko Operator image to use"
+    required: false
+    default: ""
 runs:
   using: composite
   steps:
@@ -53,7 +58,9 @@ runs:
       run: |-
         set -exu;
         export OPERATOR_IMAGE_NAME=$(yq eval '."zenko-operator" | .sourceRegistry + "/" + .image' solution/deps.yaml)
-        export OPERATOR_IMAGE_TAG=$(yq eval '."zenko-operator".tag' solution/deps.yaml)
+        if ! [ -n "${OPERATOR_IMAGE_TAG}" ]; then
+          export OPERATOR_IMAGE_TAG=$(yq eval '."zenko-operator".tag' solution/deps.yaml)
+        fi
         docker pull ${OPERATOR_IMAGE_NAME}:${OPERATOR_IMAGE_TAG}
         kind load docker-image ${OPERATOR_IMAGE_NAME}:${OPERATOR_IMAGE_TAG}
         cd ./.github/scripts/end2end
@@ -61,6 +68,8 @@ runs:
         cd operator
         git checkout ${OPERATOR_IMAGE_TAG}
         tilt ci
+      env:
+        OPERATOR_IMAGE_TAG: ${{ inputs.zkop_tag }}
     - name: Deploy Zenko Instance
       shell: bash
       run: bash deploy-zenko.sh end2end default
