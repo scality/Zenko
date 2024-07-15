@@ -104,3 +104,11 @@ rules:
     name: kafka_connect_worker_rebalance_$1
     help: "Kafka Connect JMX metric rebalance information"
     type: GAUGE
+
+  #com.mongodb.kafka.connect:connector=mongodb-source,task=source-task-0,type=source-task-metrics:
+  - pattern: "com.mongodb.kafka.connect<type=(.+)-task-metrics, connector=(.+), task=(.+)><>(.+): (.+)"
+    name: kafka_connect_mongodb_$1_task_metrics_$4
+    labels:
+      connector: "$2"
+      task: "$3"
+    type: UNTYPED
