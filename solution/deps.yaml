@@ -10,7 +10,7 @@ backbeat:
   envsubst: BACKBEAT_TAG
 busybox:
   image: busybox
-  tag: 1.33.0
+  tag: 1.36.1
   envsubst: BUSYBOX_TAG
 cloudserver:
   sourceRegistry: ghcr.io/scality
@@ -32,15 +32,15 @@ kafka-cleaner:
   sourceRegistry: ghcr.io/scality
   dashboard: kafka-cleaner/kafka-cleaner-dashboards
   image: kafka-cleaner
-  tag: v1.0.2
+  tag: v1.0.3
   envsubst: KAFKA_CLEANER_TAG
 kafka-connect:
   sourceRegistry: ghcr.io/scality/zenko
   image: kafka-connect
-  tag: 2.13-3.1.2-1.10.1
+  tag: 2.13-3.1.2-1.13.0
   envsubst: KAFKA_CONNECT_TAG
 mongodb-connector:
-  tag: 1.10.1
+  tag: 1.13.0
   envsubst: MONGODB_CONNECTOR_TAG
 kafka-cruise-control:
   sourceRegistry: ghcr.io/banzaicloud
@@ -55,16 +55,16 @@ kafka-lag-exporter:
 pensieve-api:
   sourceRegistry: ghcr.io/scality
   image: pensieve-api
-  tag: 1.4.10
+  tag: 1.4.11
   envsubst: PENSIEVE_API_TAG
 rclone:
   sourceRegistry: rclone
   image: rclone
-  tag: 1.59.2
+  tag: 1.67.0
   envsubst: RCLONE_TAG
 redis:
   image: redis
-  tag: 7.0.4
+  tag: 7.0.15
   envsubst: REDIS_TAG
 redis-kubedb:
   sourceRegistry: kubedb
@@ -74,13 +74,13 @@ redis-kubedb:
 redis_exporter:
   sourceRegistry: oliver006
   image: redis_exporter
-  tag: v1.43.1
+  tag: v1.61.0
   envsubst: REDIS_EXPORTER_TAG
 s3utils:
   sourceRegistry: ghcr.io/scality
   dashboard: s3utils/s3utils-dashboards
   image: s3utils
-  tag: 1.14.10
+  tag: 1.14.12
   envsubst: S3UTILS_TAG
 scuba:
   sourceRegistry: ghcr.io/scality
@@ -93,7 +93,7 @@ sorbet:
   policy: sorbet/sorbet-policies
   dashboard: sorbet/sorbet-dashboards
   image: sorbet
-  tag: v1.1.9
+  tag: v1.1.10
   envsubst: SORBET_TAG
 # To be enabled back when utapi is used in Zenko 2.x
 # utapi:
@@ -111,7 +111,7 @@ vault:
 zenko-operator:
   sourceRegistry: ghcr.io/scality
   image: zenko-operator
-  tag: 1.5.49
+  tag: 1.5.50
   envsubst: ZENKO_OPERATOR_TAG
 zenko-ui:
   sourceRegistry: ghcr.io/scality
@@ -121,5 +121,5 @@ zenko-ui:
 zookeeper:
   sourceRegistry: pravega
   image: zookeeper
-  tag: 0.2.14
+  tag: 0.2.15
   envsubst: ZOOKEEPER_TAG
