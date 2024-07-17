@@ -381,7 +381,9 @@ jobs:
         with:
           push: true
           context: ./tests/ctst
-          build-args: CTST_TAG=${{ env.CTST_TAG }}
+          build-args: |
+            CTST_TAG=${{ env.CTST_TAG }}
+            DRCTL_TAG=83e99fe51e18e34c79c29611c55e8378777542f9
           tags: "${{ env.E2E_CTST_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}"
           cache-from: type=gha,scope=end2end-ctst
           cache-to: type=gha,mode=max,scope=end2end-ctst
@@ -452,7 +454,7 @@ jobs:
         if: always()
 
   end2end-pra:
-    needs: [build-kafka, build-test-image, check-dashboard-versions]
+    needs: [build-kafka, build-test-image, check-dashboard-versions, lint-and-build-ctst]
     runs-on:
       - ubuntu
       - focal
@@ -517,6 +519,11 @@ jobs:
           EOF
       - name: Deploy zenko dr components
         run: bash deploy-dr.sh
+      - name: Configure E2E test environment
+        run: bash configure-e2e-ctst.sh
+        working-directory: ./.github/scripts/end2end
+      - name: Run CTST end to end tests
+        run: bash run-e2e-ctst.sh
         working-directory: ./.github/scripts/end2end
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
