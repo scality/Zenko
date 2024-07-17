@@ -6,7 +6,7 @@ import {
 } from '@cucumber/cucumber';
 import Zenko from '../world/Zenko';
 import { Identity } from 'cli-testing';
-import { prepareQuotaScenarios, quotaScenarioteardown } from 'steps/quotas/quotas';
+import { prepareQuotaScenarios, teardownQuotaScenarios } from 'steps/quotas/quotas';
 import { cleanS3Bucket } from './common';
 import { cleanAzureContainer, cleanZenkoLocation } from 'steps/azureArchive';
 
@@ -29,7 +29,7 @@ Before({ tags: '@Quotas', timeout: 1200000 }, async function (scenarioOptions) {
 });
 
 After({ tags: '@Quotas' }, async function () {
-    await quotaScenarioteardown(this as Zenko);
+    await teardownQuotaScenarios(this as Zenko);
 });
 
 After({ tags: '@AzureArchive' }, async function (this: Zenko) {
