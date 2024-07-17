@@ -56,17 +56,7 @@ WORLD_PARAMETERS="$(jq -c <<EOF
   "AdminAccessKey":"${ADMIN_ACCESS_KEY_ID}",
   "AdminSecretKey":"${ADMIN_SECRET_ACCESS_KEY}",
   "VaultAuthHost":"${VAULT_AUTH_HOST}",
-  "NotificationDestination":"${NOTIF_DEST_NAME}",
-  "NotificationDestinationTopic":"${NOTIF_DEST_TOPIC}",
-  "NotificationDestinationAlt":"${NOTIF_ALT_DEST_NAME}",
-  "NotificationDestinationTopicAlt":"${NOTIF_ALT_DEST_TOPIC}",
   "KafkaHosts":"${KAFKA_HOST_PORT}",
-  "KeycloakPassword":"${KEYCLOAK_TEST_PASSWORD}",
-  "KeycloakHost":"${KEYCLOAK_TEST_HOST}",
-  "KeycloakPort":"${KEYCLOAK_TEST_PORT}",
-  "KeycloakRealm":"${KEYCLOAK_TEST_REALM_NAME}",
-  "KeycloakClientId":"${KEYCLOAK_TEST_CLIENT_ID}",
-  "KeycloakGrantType":"${KEYCLOAK_TEST_GRANT_TYPE}",
   "StorageManagerUsername":"${STORAGE_MANAGER_USER_NAME}",
   "StorageAccountOwnerUsername":"${STORAGE_ACCOUNT_OWNER_USER_NAME}",
   "DataConsumerUsername":"${DATA_CONSUMER_USER_NAME}",
@@ -148,4 +138,4 @@ kubectl run $POD_NAME \
       }
     ]
   }
-}' -- ./run "$COMMAND" $WORLD_PARAMETERS --parallel $PARALLEL_RUNS --tags "~@PRA" --retry $RETRIES --retry-tag-filter @Flaky --format junit:$JUNIT_REPORT_PATH
+}' -- ./run "$COMMAND" $WORLD_PARAMETERS --parallel $PARALLEL_RUNS --retry $RETRIES --tags @PRA --retry-tag-filter @Flaky --format junit:$JUNIT_REPORT_PATH
