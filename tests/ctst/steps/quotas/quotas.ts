@@ -89,7 +89,7 @@ export async function prepareQuotaScenarios(world: Zenko, scenarioConfiguration:
     Identity.addIdentity(IdentityEnum.ACCOUNT, key, configuration[key], undefined, true, true);
 }
 
-export async function quotaScenarioteardown(world: Zenko) {
+export async function teardownQuotaScenarios(world: Zenko) {
     // Remove any quota at the end of the scenario, in case
     // the account gets reused, placed after the global After
     // hook to make sure it is executed first.
