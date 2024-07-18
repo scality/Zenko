@@ -493,7 +493,7 @@ jobs:
         run: bash configure-e2e-ctst.sh
         working-directory: ./.github/scripts/end2end
       - name: Run CTST end to end tests
-        run: bash run-e2e-ctst.sh
+        run: bash run-e2e-pra-ctst.sh
         working-directory: ./.github/scripts/end2end
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
