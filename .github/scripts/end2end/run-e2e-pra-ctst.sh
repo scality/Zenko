@@ -14,8 +14,8 @@ VERSION=$(cat ../../../VERSION | grep -Po 'VERSION="\K[^"]*')
 ZENKO_ACCOUNT_NAME="zenko-ctst"
 ADMIN_ACCESS_KEY_ID=$(kubectl get secret end2end-management-vault-admin-creds.v1 -o jsonpath='{.data.accessKey}' | base64 -d)
 ADMIN_SECRET_ACCESS_KEY=$(kubectl get secret end2end-management-vault-admin-creds.v1  -o jsonpath='{.data.secretKey}' | base64 -d)
-ADMIN_PRA_ACCESS_KEY_ID=$(kubectl get secret end2end-pra-management-vault-admin-creds.v1 -o jsonpath='{.data.accessKey}' | base64 -d)
-ADMIN_PRA_SECRET_ACCESS_KEY=$(kubectl get secret end2end-pra-management-vault-admin-creds.v1  -o jsonpath='{.data.secretKey}' | base64 -d)
+DR_ADMIN_ACCESS_KEY_ID=$(kubectl get secret end2end-pra-management-vault-admin-creds.v1 -o jsonpath='{.data.accessKey}' | base64 -d)
+DR_ADMIN_SECRET_ACCESS_KEY=$(kubectl get secret end2end-pra-management-vault-admin-creds.v1  -o jsonpath='{.data.secretKey}' | base64 -d)
 STORAGE_MANAGER_USER_NAME="ctst_storage_manager"
 STORAGE_ACCOUNT_OWNER_USER_NAME="ctst_storage_account_owner"
 DATA_CONSUMER_USER_NAME="ctst_data_consumer"
@@ -50,11 +50,14 @@ KAFKA_CLEANER_INTERVAL=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.spec.kaf
 WORLD_PARAMETERS="$(jq -c <<EOF
 {
   "subdomain":"${SUBDOMAIN}",
+  "DRSubdomain":"${DR_SUBDOMAIN}",
   "ssl":false,
   "port":"${ZENKO_PORT}",
   "AccountName":"${ZENKO_ACCOUNT_NAME}",
   "AdminAccessKey":"${ADMIN_ACCESS_KEY_ID}",
   "AdminSecretKey":"${ADMIN_SECRET_ACCESS_KEY}",
+  "DRAdminAccessKey":"${DR_ADMIN_ACCESS_KEY_ID}",
+  "DRAdminSecretKey":"${DR_ADMIN_SECRET_ACCESS_KEY}",
   "VaultAuthHost":"${VAULT_AUTH_HOST}",
   "KafkaHosts":"${KAFKA_HOST_PORT}",
   "StorageManagerUsername":"${STORAGE_MANAGER_USER_NAME}",
