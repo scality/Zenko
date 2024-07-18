@@ -43,6 +43,9 @@ export interface ZenkoWorldParameters extends ClientOptions {
     AccountName: string;
     AccountAccessKey: string;
     AccountSecretKey: string;
+    DRAccountAccessKey: string;
+    DRAccounSecretKey: string;
+    DRSubdomain: string;
     VaultAuthHost: string;
     NotificationDestination: string;
     NotificationDestinationTopic: string;
