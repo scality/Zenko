@@ -6,11 +6,14 @@ export MONGODB_PRA_DATABASE="${MONGODB_PRA_DATABASE:-'pradb'}"
 export ZENKO_MONGODB_DATABASE="${MONGODB_PRA_DATABASE}"
 export ZENKO_MONGODB_SECRET_NAME="mongodb-db-creds-pra"
 
-export ZENKO_IAM_INGRESS="iam.zenko-pra.local"
-export ZENKO_STS_INGRESS="sts.zenko-pra.local"
-export ZENKO_MANAGEMENT_INGRESS="management.zenko-pra.local"
-export ZENKO_S3_INGRESS="s3.zenko-pra.local"
-export ZENKO_UI_INGRESS="ui.zenko-pra.local"
+echo 'ZENKO_MONGODB_DATABASE="pradb"' >> $GITHUB_ENV
+echo 'ZENKO_MONGODB_SECRET_NAME="mongodb-db-creds-pra"' >> $GITHUB_ENV
+
+echo 'ZENKO_IAM_INGRESS="iam.zenko-pra.local"' >> $GITHUB_ENV
+echo 'ZENKO_STS_INGRESS="sts.zenko-pra.local"' >> $GITHUB_ENV
+echo 'ZENKO_MANAGEMENT_INGRESS="management.zenko-pra.local"' >> $GITHUB_ENV
+echo 'ZENKO_S3_INGRESS="s3.zenko-pra.local"' >> $GITHUB_ENV
+echo 'ZENKO_UI_INGRESS="ui.zenko-pra.local"' >> $GITHUB_ENV
 
 MONGODB_ROOT_USERNAME="${MONGODB_ROOT_USERNAME:-'root'}"
 MONGODB_ROOT_PASSWORD="${MONGODB_ROOT_PASSWORD:-'rootpass'}"
