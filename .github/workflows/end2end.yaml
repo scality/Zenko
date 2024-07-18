@@ -488,8 +488,6 @@ jobs:
         env:
           ZENKO_MONGODB_SHARDED: "true"
           ZENKO_MONGODB_DATABASE: "pradb"
-        with:
-          zkop_tag: 1.6.0-preview.1
         working-directory: ./.github/scripts/end2end
       - name: Deploy second Sorbet for PRA
         run: bash deploy-sorbet-resources.sh end2end-pra
