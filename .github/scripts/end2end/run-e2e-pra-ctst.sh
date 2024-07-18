@@ -46,6 +46,12 @@ INSTANCE_ID=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.status.instanceID}'
 
 KAFKA_CLEANER_INTERVAL=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.spec.kafkaCleaner.interval}')
 
+kubectl --dry-run=client create secret generic drctl-s3-creds \
+        --from-literal=accessKey=${ADMIN_ACCESS_KEY_ID} \
+        --from-literal=secretAccessKey=${ADMIN_SECRET_ACCESS_KEY} \
+        -o yaml |
+        kubectl apply -f -
+
 # Setting CTST world params
 WORLD_PARAMETERS="$(jq -c <<EOF
 {
