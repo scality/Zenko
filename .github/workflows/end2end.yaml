@@ -485,6 +485,10 @@ jobs:
         working-directory: ./.github/scripts/end2end
       - name: Deploy second Zenko for PRA
         run: bash deploy-zenko.sh end2end-pra default
+        env:
+          ZENKO_MONGODB_SHARDED: "true"
+        with:
+          zkop_tag: 1.6.0-preview.1
         working-directory: ./.github/scripts/end2end
       - name: Deploy second Sorbet for PRA
         run: bash deploy-sorbet-resources.sh end2end-pra
