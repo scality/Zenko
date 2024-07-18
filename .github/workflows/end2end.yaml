@@ -81,6 +81,7 @@ env:
   NOTIF_ALT_DEST_NAME: "destination2"
   NOTIF_ALT_DEST_TOPIC: "destination-topic-2"
   SUBDOMAIN: "zenko.local"
+  DR_SUBDOMAIN: "dr.zenko.local"
   SKOPEO_PATH: "/tmp"
   HELM_VERSION: "v3.5.3"
   YQ_VERSION: "v4.27.5"
