@@ -456,10 +456,7 @@ jobs:
 
   end2end-pra:
     needs: [build-kafka, build-test-image, check-dashboard-versions, lint-and-build-ctst]
-    runs-on:
-      - ubuntu
-      - focal
-      - xlarge
+    runs-on: ubuntu-22.04-16core
     env:
       GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
     steps:
