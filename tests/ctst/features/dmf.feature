@@ -73,3 +73,22 @@ Feature: DMF
     |           Non versioned |           2 |        100 |           1 |
     |               Versioned |           2 |        100 |           1 |
     |               Suspended |           2 |        100 |           1 |
+
+    @2.7.0
+    @PreMerge
+    @Dmf
+    @ColdStorage
+    Scenario Outline: Overwriting of a cold object
+    Given a "<versioningConfiguration>" bucket
+    And a transition workflow to "e2e-cold" location
+    And <objectCount> objects "obj" of size <objectSize> bytes
+    Then object "obj-1" should be "transitioned" and have the storage class "e2e-cold"
+    And dmf volume should contain <objectCount> objects
+    Given <objectCount> objects "obj" of size <objectSize> bytes
+    Then object "obj-1" should be "transitioned" and have the storage class "e2e-cold"
+    Then dmf volume should contain 1 objects
+
+    Examples:
+    | versioningConfiguration | objectCount | objectSize |
+    |           Non versioned |           1 |        100 |
+    |               Suspended |           1 |        100 |
