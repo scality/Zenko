@@ -99,6 +99,11 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
     public zenkoDrCtl: ZenkoDrctl | null = null;
 
+    private sites: Record<string, {
+        subdomain: string;
+        identityName: string;
+    }> = {};
+
     public logger: Werelogs.RequestLogger = new Werelogs.Logger('CTST').newRequestLogger();
 
     /**
@@ -145,7 +150,33 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 accessKeyId: this.parameters.AdminAccessKey,
                 secretAccessKey: this.parameters.AdminSecretKey,
             });
+            this.sites["source"] = {
+                subdomain: this.parameters.DRSubdomain,
+                identityName: 'admin',
+            };
         }
+
+        if (this.parameters.DRAdminAccessKey && this.parameters.DRAdminSecretKey && this.parameters.DRSubdomain && 
+            !Identity.hasIdentity(IdentityEnum.ADMIN, 'dradmin')) {
+            this.sites["sink"] = {
+                subdomain: this.parameters.DRSubdomain,
+                identityName: 'dradmin',
+            };
+            Identity.addIdentity(IdentityEnum.ADMIN, 'dradmin', {
+                accessKeyId: this.parameters.DRAdminAccessKey,
+                secretAccessKey: this.parameters.DRAdminSecretKey,
+            });
+        }
+    }
+
+    /**
+     * Change the identity and subdomain for s3 operations
+     * @param {string} site - the site to use
+     * @returns {undefined}
+     */
+    useSite(site: string) {
+        Identity.useIdentity(IdentityEnum.ADMIN, this.sites[site].identityName);
+        CacheHelper.parameters.subdomain = this.sites[site].subdomain;
     }
 
     /**

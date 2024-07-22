@@ -11,6 +11,7 @@ import {
 } from 'cli-testing';
 import { extractPropertyFromResults, s3FunctionExtraParams } from 'common/utils';
 import Zenko from 'world/Zenko';
+import assert from 'assert';
 
 enum AuthorizationType {
     ALLOW = 'Allow',
@@ -252,6 +253,79 @@ async function emptyVersionedBucket(world: Zenko) {
     }));
 }
 
+async function verifyObjectLocation(this: Zenko, objectName: string, objectTransitionStatus: string, storageClass: string) {
+    const objName =
+        getObjectNameWithBackendFlakiness.call(this, objectName) || this.getSaved<string>('objectName');
+    this.resetCommand();
+    this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
+    this.addCommandParameter({ key: objName });
+    const versionId = this.getSaved<Map<string, string>>('createdObjects')?.get(objName);
+    if (versionId) {
+        this.addCommandParameter({ versionId });
+    }
+    let conditionOk = false;
+    while (!conditionOk) {
+        const res = await S3.headObject(this.getCommandParameters());
+        if (res.err) {
+            break;
+        }
+        assert(res.stdout);
+        const parsed = safeJsonParse(res.stdout);
+        assert(parsed.ok);
+        const head = parsed.result as {
+            StorageClass: string | undefined,
+            Restore: string | undefined,
+        };
+        const expectedClass = storageClass !== '' ? storageClass : undefined;
+        if (head?.StorageClass === expectedClass) {
+            conditionOk = true;
+        }
+        if (objectTransitionStatus == 'restored') {
+            const isRestored = !!head?.Restore &&
+                head.Restore.includes('ongoing-request="false", expiry-date=');
+            // if restore didn't get initiated fail immediately
+            const isPendingRestore = !!head?.Restore &&
+                head.Restore.includes('ongoing-request="true"');
+            assert(isRestored || isPendingRestore, 'Restore didn\'t get initiated');
+            conditionOk = conditionOk && isRestored;
+        } else if (objectTransitionStatus == 'cold') {
+            conditionOk = conditionOk && !head?.Restore;
+        }
+        await Utils.sleep(1000);
+    }
+    assert(conditionOk);
+}
+
+/**
+ * @param {Zenko} this world object
+ * @param {string} objectName object name
+ * @returns {string} the object name based on the backend flakyness
+ */
+function getObjectNameWithBackendFlakiness(this: Zenko, objectName: string) {
+    let objectNameFinal;
+    const backendFlakinessRetryNumber = this.getSaved<string>('backendFlakinessRetryNumber');
+    const backendFlakiness = this.getSaved<string>('backendFlakiness');
+
+    if (!backendFlakiness || !backendFlakinessRetryNumber || !objectName) {
+        return objectName;
+    }
+
+    switch (backendFlakiness) {
+    case 'command':
+        objectNameFinal = `${objectName}.scal-retry-command-${backendFlakinessRetryNumber}`;
+        break;
+    case 'archive':
+    case 'restore':
+        objectNameFinal = `${objectName}.scal-retry-${backendFlakiness}-job-${backendFlakinessRetryNumber}`;
+        break;
+    default:
+        this.logger.debug('Unknown backend flakyness', { backendFlakiness });
+        return objectName;
+    }
+    return objectNameFinal;
+}
+
+
 export {
     AuthorizationType,
     AuthorizationConfiguration,
@@ -261,4 +335,6 @@ export {
     putObject,
     emptyNonVersionedBucket,
     emptyVersionedBucket,
+    verifyObjectLocation,
+    getObjectNameWithBackendFlakiness,
 };

@@ -1,7 +1,10 @@
-import { Given } from '@cucumber/cucumber';
+import { Given, Then } from '@cucumber/cucumber';
 import Zenko from 'world/Zenko';
 import ZenkoDrctl from './dr/drctl';
 import { displayCRStatus, displayDRSinkStatus, displayDRSourceStatus } from './utils/kubernetes';
+import { 
+    verifyObjectLocation,
+} from 'steps/utils/utils';
 
 export function preparePRA(world: Zenko) {
     // eslint-disable-next-line no-param-reassign
@@ -34,4 +37,15 @@ Given('a DR installed', { timeout: 130000 }, async function (this: Zenko) {
         sourceS3UserSecretName: 'end2end-management-vault-admin-creds.v1',
     });
     return;
+});
+
+Then('object {string} should be {string} and have the storage class {string} on {string} site',
+    async function (this: Zenko, objName: string, objectTransitionStatus: string, storageClass: string, site: string) {
+    this.resetCommand();
+    if (site === 'DR')
+        this.useSite("sink");
+    else
+        this.useSite("source");
+
+    await verifyObjectLocation.call(this, objName, objectTransitionStatus, storageClass);
 });

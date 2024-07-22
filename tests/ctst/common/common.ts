@@ -5,7 +5,13 @@ import Zenko from 'world/Zenko';
 import { safeJsonParse } from './utils';
 import assert from 'assert';
 import { Admin, Kafka } from 'kafkajs';
-import { createBucketWithConfiguration, putObject, runActionAgainstBucket } from 'steps/utils/utils';
+import { 
+    createBucketWithConfiguration,
+    putObject,
+    runActionAgainstBucket,
+    getObjectNameWithBackendFlakiness,
+    verifyObjectLocation,
+} from 'steps/utils/utils';
 import { ActionPermissionsType } from 'steps/bucket-policies/utils';
 
 setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
@@ -43,35 +49,6 @@ export async function cleanS3Bucket(
     }
     await S3.deleteBucketLifecycle(world.getCommandParameters());
     await S3.deleteBucket(world.getCommandParameters());
-}
-
-/**
- * @param {Zenko} this world object
- * @param {string} objectName object name
- * @returns {string} the object name based on the backend flakyness
- */
-function getObjectNameWithBackendFlakiness(this: Zenko, objectName: string) {
-    let objectNameFinal;
-    const backendFlakinessRetryNumber = this.getSaved<string>('backendFlakinessRetryNumber');
-    const backendFlakiness = this.getSaved<string>('backendFlakiness');
-
-    if (!backendFlakiness || !backendFlakinessRetryNumber || !objectName) {
-        return objectName;
-    }
-
-    switch (backendFlakiness) {
-    case 'command':
-        objectNameFinal = `${objectName}.scal-retry-command-${backendFlakinessRetryNumber}`;
-        break;
-    case 'archive':
-    case 'restore':
-        objectNameFinal = `${objectName}.scal-retry-${backendFlakiness}-job-${backendFlakinessRetryNumber}`;
-        break;
-    default:
-        this.logger.debug('Unknown backend flakyness', { backendFlakiness });
-        return objectName;
-    }
-    return objectNameFinal;
 }
 
 async function addMultipleObjects(this: Zenko, numberObjects: number,
@@ -260,49 +237,8 @@ When('i restore object {string} for {int} days', async function (this: Zenko, ob
 });
 
 // wait for object to transition to a location or get restored from it
-Then('object {string} should be {string} and have the storage class {string}', { timeout: 130000 },
-    async function (this: Zenko, objectName: string, objectTransitionStatus: string, storageClass: string) {
-        const objName =
-            getObjectNameWithBackendFlakiness.call(this, objectName) || this.getSaved<string>('objectName');
-        this.resetCommand();
-        this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-        this.addCommandParameter({ key: objName });
-        const versionId = this.getSaved<Map<string, string>>('createdObjects')?.get(objName);
-        if (versionId) {
-            this.addCommandParameter({ versionId });
-        }
-        let conditionOk = false;
-        while (!conditionOk) {
-            const res = await S3.headObject(this.getCommandParameters());
-            if (res.err) {
-                break;
-            }
-            assert(res.stdout);
-            const parsed = safeJsonParse(res.stdout);
-            assert(parsed.ok);
-            const head = parsed.result as {
-                StorageClass: string | undefined,
-                Restore: string | undefined,
-            };
-            const expectedClass = storageClass !== '' ? storageClass : undefined;
-            if (head?.StorageClass === expectedClass) {
-                conditionOk = true;
-            }
-            if (objectTransitionStatus == 'restored') {
-                const isRestored = !!head?.Restore &&
-                    head.Restore.includes('ongoing-request="false", expiry-date=');
-                // if restore didn't get initiated fail immediately
-                const isPendingRestore = !!head?.Restore &&
-                    head.Restore.includes('ongoing-request="true"');
-                assert(isRestored || isPendingRestore, 'Restore didn\'t get initiated');
-                conditionOk = conditionOk && isRestored;
-            } else if (objectTransitionStatus == 'cold') {
-                conditionOk = conditionOk && !head?.Restore;
-            }
-            await Utils.sleep(1000);
-        }
-        assert(conditionOk);
-    });
+Then('object {string} should be {string} and have the storage class {string}', { timeout: 130000 }, verifyObjectLocation
+    );
 
 When('i delete object {string}', async function (this: Zenko, objectName: string) {
     const objName = getObjectNameWithBackendFlakiness.call(this, objectName) ||  this.getSaved<string>('objectName');
