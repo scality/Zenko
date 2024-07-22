@@ -2,7 +2,6 @@ import util from 'util';
 import { exec } from 'child_process';
 
 import Zenko from 'world/Zenko';
-import assert from 'assert';
 
 type InstallConfig = {
     sourceZenkoDrInstance?: string;

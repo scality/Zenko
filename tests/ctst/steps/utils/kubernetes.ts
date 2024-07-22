@@ -293,3 +293,79 @@ export async function waitForDataServicesToStabilize(world: Zenko, timeout = 15 
 
     return allRunning;
 }
+
+export async function displayCRStatus(world: Zenko, namespace = 'default') {
+    const zenkoClient = createKubeCustomObjectClient(world);
+
+    const zenkoCR = await zenkoClient.getNamespacedCustomObject(
+        'zenko.io',
+        'v1alpha2',
+        namespace,
+        'zenkos',
+        'end2end',
+    ).catch(err => {
+        world.logger.error('Error getting Zenko CR', {
+            err: err as unknown,
+        });
+        return null;
+    });
+
+    if (!zenkoCR) {
+        return;
+    }
+
+    world.logger.debug('Checking Zenko CR status', {
+        zenkoCR,
+    });
+}
+
+// same but for end2end-dr-source and end2end-dr-sink
+export async function displayDRSourceStatus(world: Zenko, namespace = 'default') {
+    const zenkoClient = createKubeCustomObjectClient(world);
+
+    const zenkoCR = await zenkoClient.getNamespacedCustomObject(
+        'zenko.io',
+        'v1alpha2',
+        namespace,
+        'zenkodrsource',
+        'end2end-dr-source',
+    ).catch(err => {
+        world.logger.error('Error getting Zenko CR', {
+            err: err as unknown,
+        });
+        return null;
+    });
+
+    if (!zenkoCR) {
+        return;
+    }
+
+    world.logger.debug('Checking Zenko DR Source CR status', {
+        zenkoCR,
+    });
+}
+
+export async function displayDRSinkStatus(world: Zenko, namespace = 'default') {
+    const zenkoClient = createKubeCustomObjectClient(world);
+
+    const zenkoCR = await zenkoClient.getNamespacedCustomObject(
+        'zenko.io',
+        'v1alpha2',
+        namespace,
+        'zenkodrsink',
+        'end2end-dr-sink',
+    ).catch(err => {
+        world.logger.error('Error getting Zenko CR', {
+            err: err as unknown,
+        });
+        return null;
+    });
+
+    if (!zenkoCR) {
+        return;
+    }
+
+    world.logger.debug('Checking Zenko DR Sink CR status', {
+        zenkoCR,
+    });
+}

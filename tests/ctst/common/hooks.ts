@@ -7,7 +7,7 @@ import {
 import Zenko from '../world/Zenko';
 import { Identity } from 'cli-testing';
 import { prepareQuotaScenarios, teardownQuotaScenarios } from 'steps/quotas/quotas';
-import ZenkoDrctl from 'steps/dr/drctl';
+import { displayDebuggingInformation, preparePRA, teardownPRA } from 'steps/pra';
 
 // HTTPS should not cause any error for CTST
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -24,8 +24,14 @@ Before(async function (this: Zenko) {
 });
 
 Before({ tags: '@PRA' }, function () {
-    const world = this as Zenko;
-    world.zenkoDrCtl = new ZenkoDrctl(world);
+    preparePRA(this as Zenko);
+});
+
+After({ tags: '@PRA' }, async function (this, results) {
+    if (results.result?.status === 'FAILED') {
+        await displayDebuggingInformation(this as Zenko);
+    }
+    teardownPRA(this as Zenko);
 });
 
 Before({ tags: '@Quotas', timeout: 1200000 }, async function (scenarioOptions) {
