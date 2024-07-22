@@ -11,10 +11,6 @@ export function preparePRA(world: Zenko) {
     world.zenkoDrCtl = new ZenkoDrctl(world);
 }
 
-export function teardownPRA(world: Zenko) {
-    // in case of error
-}
-
 export async function displayDebuggingInformation(world: Zenko) {
     await displayCRStatus(world);
     await displayDRSinkStatus(world);
@@ -41,11 +37,12 @@ Given('a DR installed', { timeout: 130000 }, async function (this: Zenko) {
 
 Then('object {string} should be {string} and have the storage class {string} on {string} site',
     async function (this: Zenko, objName: string, objectTransitionStatus: string, storageClass: string, site: string) {
-    this.resetCommand();
-    if (site === 'DR')
-        this.useSite("sink");
-    else
-        this.useSite("source");
+        this.resetCommand();
+        if (site === 'DR') {
+            this.useSite('sink');
+        } else {
+            this.useSite('source');
+        }
 
-    await verifyObjectLocation.call(this, objName, objectTransitionStatus, storageClass);
+        await verifyObjectLocation.call(this, objName, objectTransitionStatus, storageClass);
 });

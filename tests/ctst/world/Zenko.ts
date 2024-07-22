@@ -150,7 +150,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 accessKeyId: this.parameters.AdminAccessKey,
                 secretAccessKey: this.parameters.AdminSecretKey,
             });
-            this.sites["source"] = {
+            this.sites['source'] = {
                 subdomain: this.parameters.DRSubdomain,
                 identityName: 'admin',
             };
@@ -158,14 +158,14 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
         if (this.parameters.DRAdminAccessKey && this.parameters.DRAdminSecretKey && this.parameters.DRSubdomain && 
             !Identity.hasIdentity(IdentityEnum.ADMIN, 'dradmin')) {
-            this.sites["sink"] = {
-                subdomain: this.parameters.DRSubdomain,
-                identityName: 'dradmin',
-            };
             Identity.addIdentity(IdentityEnum.ADMIN, 'dradmin', {
                 accessKeyId: this.parameters.DRAdminAccessKey,
                 secretAccessKey: this.parameters.DRAdminSecretKey,
             });
+            this.sites['sink'] = {
+                subdomain: this.parameters.DRSubdomain,
+                identityName: 'dradmin',
+            };
         }
     }
 
