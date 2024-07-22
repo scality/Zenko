@@ -3,7 +3,7 @@ set -exu
 
 ZENKO_NAME=${1:-end2end}
 COMMAND=${2:-"premerge"}
-PARALLEL_RUNS=${PARALLEL_RUNS:-$(( ( $(nproc) + 1 ) / 2 ))}
+PARALLEL_RUNS=1
 RETRIES=${4:-3}
 JUNIT_REPORT_PATH=${JUNIT_REPORT_PATH:-"ctst-junit.xml"}
 
@@ -115,17 +115,7 @@ kubectl run $POD_NAME \
 {
   "apiVersion": "v1",
   "kind": "Pod",
-  "spec": {
-    "containers": [
-      {
-        "name": "'$POD_NAME'",
-        "volumeMounts": [
-          {
-            "name": "cold-data",
-            "mountPath": "/cold-data"
-          },
-          {
-            "name": "reports",
+  "spec": {PARALLEL_RUNS
             "mountPath": "/reports"
           }
         ]

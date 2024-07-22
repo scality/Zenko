@@ -1,7 +1,7 @@
 import { Given } from '@cucumber/cucumber';
 import Zenko from 'world/Zenko';
 
-Given('a PRA installed', async function (this: Zenko) {
+Given('a DR installed', { timeout: 130000 }, async function (this: Zenko) {
     await this.zenkoDrCtl?.install({
         sourceZenkoDrInstance: 'end2end',
         sinkZenkoDrInstance: 'end2end-pra',

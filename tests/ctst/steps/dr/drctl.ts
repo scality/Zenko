@@ -145,8 +145,10 @@ export default class ZenkoDrctl {
             this.world.logger.debug('running zenko-drctl command', { command });
             const result = await util.promisify(exec)(command);
             this.world.logger.debug('zenko-drctl command result', { result });
+            return result.stdout;
         } catch (err) {
-            assert.ifError(err);
+            this.world.logger.debug('zenko-drctl command failed', { err });
+            throw new Error('Failed to run zenko-drctl command');
         }
     }
 
