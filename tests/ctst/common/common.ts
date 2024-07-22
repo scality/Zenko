@@ -237,7 +237,8 @@ When('i restore object {string} for {int} days', async function (this: Zenko, ob
 });
 
 // wait for object to transition to a location or get restored from it
-Then('object {string} should be {string} and have the storage class {string}', { timeout: 130000 }, verifyObjectLocation);
+Then('object {string} should be {string} and have the storage class {string}',
+    { timeout: 130000 }, verifyObjectLocation);
 
 When('i delete object {string}', async function (this: Zenko, objectName: string) {
     const objName = getObjectNameWithBackendFlakiness.call(this, objectName) || this.getSaved<string>('objectName');

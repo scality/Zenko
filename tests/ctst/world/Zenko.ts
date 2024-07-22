@@ -45,7 +45,7 @@ export interface ZenkoWorldParameters extends ClientOptions {
     AccountAccessKey: string;
     AccountSecretKey: string;
     DRAccountAccessKey: string;
-    DRAccounSecretKey: string;
+    DRAccountSecretKey: string;
     DRSubdomain: string;
     VaultAuthHost: string;
     NotificationDestination: string;
@@ -156,11 +156,11 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             };
         }
 
-        if (this.parameters.DRAdminAccessKey && this.parameters.DRAdminSecretKey && this.parameters.DRSubdomain && 
+        if (this.parameters.DRAccountAccessKey && this.parameters.DRAccountSecretKey && this.parameters.DRSubdomain && 
             !Identity.hasIdentity(IdentityEnum.ADMIN, 'dradmin')) {
             Identity.addIdentity(IdentityEnum.ADMIN, 'dradmin', {
-                accessKeyId: this.parameters.DRAdminAccessKey,
-                secretAccessKey: this.parameters.DRAdminSecretKey,
+                accessKeyId: this.parameters.DRAccountAccessKey,
+                secretAccessKey: this.parameters.DRAccountSecretKey,
             });
             this.sites['sink'] = {
                 subdomain: this.parameters.DRSubdomain,

@@ -45,4 +45,4 @@ Then('object {string} should be {string} and have the storage class {string} on 
         }
 
         await verifyObjectLocation.call(this, objName, objectTransitionStatus, storageClass);
-});
+    });

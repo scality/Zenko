@@ -32,7 +32,6 @@ After({ tags: '@PRA' }, async function (this, results) {
     if (results.result?.status === 'FAILED') {
         await displayDebuggingInformation(this as Zenko);
     }
-    teardownPRA(this as Zenko);
 });
 
 Before({ tags: '@Quotas', timeout: 1200000 }, async function (scenarioOptions) {
