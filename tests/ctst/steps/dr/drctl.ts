@@ -138,8 +138,7 @@ export default class ZenkoDrctl {
     }
 
     private async runCommand(action: string, params: string, timeout = 600, wait = true) {
-        const command = `/ctst/zenko-drctl install ${wait ? '--wait' : ''} ${timeout > 0 ?
-            `--timeout ${timeout}` : ''} ${params}`;
+        const command = `/ctst/zenko-drctl ${action} ${params}`;
         try {
             this.world.logger.debug('running zenko-drctl command', { command });
             const result = await util.promisify(exec)(command);
