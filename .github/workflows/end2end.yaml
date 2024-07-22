@@ -93,6 +93,9 @@ env:
   TILT_VERSION: "0.23.4"
   KIND_VERSION: "v0.12.0"
   ZENKO_ENABLE_SOSAPI: false
+  TIME_PROGRESSION_FACTOR: 1
+  EXPIRE_ONE_DAY_EARLIER: true
+  TRANSITION_ONE_DAY_EARLIER: true
   JUNIT_REPORT_PATH: /reports/ctst-junit.xml
   # DEBUG WAIT
   TMATE_SERVER_HOST: ${{ secrets.TMATE_SERVER_HOST }}
@@ -384,7 +387,7 @@ jobs:
           context: ./tests/ctst
           build-args: |
             CTST_TAG=${{ env.CTST_TAG }}
-            DRCTL_TAG=83e99fe51e18e34c79c29611c55e8378777542f9
+            DRCTL_TAG=v1.0.0
           tags: "${{ env.E2E_CTST_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}"
           cache-from: type=gha,scope=end2end-ctst
           cache-to: type=gha,mode=max,scope=end2end-ctst
@@ -660,6 +663,9 @@ jobs:
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
           ZENKO_MONGODB_SHARDED: "true"
           ZENKO_ENABLE_SOSAPI: true
+          TIME_PROGRESSION_FACTOR: 86400
+          TRANSITION_ONE_DAY_EARLIER: false
+          EXPIRE_ONE_DAY_EARLIER: false
       - name: Configure E2E test environment
         run: bash configure-e2e-ctst.sh
         working-directory: ./.github/scripts/end2end
