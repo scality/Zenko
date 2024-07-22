@@ -33,8 +33,6 @@ Given('a DR installed', { timeout: 130000 }, async function (this: Zenko) {
         sourceS3UserSecretName: 'end2end-management-vault-admin-creds.v1',
         sourceS3Endpoint: 'http://s3.zenko.local',
         sinkS3Endpoint: 'http://s3.dr.zenko.local',
-        sinkKubeconfigPath: '/etc/kubernetes/admin.conf',
-        sourceKubeconfigPath: '/etc/kubernetes/admin.conf',
     });
     return;
 });
