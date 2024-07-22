@@ -21,5 +21,6 @@ ENV SDK=true
 WORKDIR /ctst
 
 COPY --from=drctl /zenko-drctl .
+COPY $HOME/.kube/config /ctst/kubeconfig
 
 CMD ["./run"]
