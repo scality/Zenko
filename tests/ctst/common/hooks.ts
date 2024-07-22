@@ -13,7 +13,7 @@ import ZenkoDrctl from 'steps/dr/drctl';
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const { atMostOnePicklePerTag } = parallelCanAssignHelpers;
-const noParallelRun = atMostOnePicklePerTag(['@AfterAll']);
+const noParallelRun = atMostOnePicklePerTag(['@AfterAll', '@PRA']);
 
 setParallelCanAssign(noParallelRun);
 
