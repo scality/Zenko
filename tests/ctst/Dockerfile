@@ -1,5 +1,6 @@
 ARG CTST_TAG
 ARG DRCTL_TAG
+ARG HOME
 
 FROM ghcr.io/scality/zenko-drctl:$DRCTL_TAG as drctl
 FROM ghcr.io/scality/cli-testing:$CTST_TAG

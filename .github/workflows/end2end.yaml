@@ -388,6 +388,7 @@ jobs:
           build-args: |
             CTST_TAG=${{ env.CTST_TAG }}
             DRCTL_TAG=v1.0.0
+            HOME=/home/runner
           tags: "${{ env.E2E_CTST_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}"
           cache-from: type=gha,scope=end2end-ctst
           cache-to: type=gha,mode=max,scope=end2end-ctst
