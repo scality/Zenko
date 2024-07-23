@@ -92,9 +92,6 @@ spec:
           {{- if .Values.mongos.containerSecurityContext.enabled }}
           securityContext: {{- omit .Values.mongos.containerSecurityContext "enabled" | toYaml | nindent 12 }}
           {{- end }}
-          command:
-            - /bin/bash
-            - /entrypoint/mongos-entrypoint.sh
           env:
             - name: MONGODB_ENABLE_NUMACTL
               value: {{ ternary "yes" "no" $.Values.common.mongodbEnableNumactl | quote }}
@@ -136,7 +133,7 @@ spec:
             - name: MONGODB_PORT_NUMBER
               value: {{ $.Values.common.containerPorts.mongodb | quote }}
             - name: MONGODB_CFG_PRIMARY_HOST
-              value: {{ include "mongodb-sharded.configServer.serviceName" . }}
+              value: {{ include "mongodb-sharded.configServer.primaryHost" . }}
             - name: MONGODB_CFG_REPLICA_SET_NAME
               value: {{ include "mongodb-sharded.configServer.rsName" . }}
             - name: MONGODB_SYSTEM_LOG_VERBOSITY
@@ -233,8 +230,6 @@ spec:
           lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.mongos.lifecycleHooks "context" $) | nindent 12 }}
           {{- end }}
           volumeMounts:
-            - name: replicaset-entrypoint-configmap
-              mountPath: /entrypoint
             {{- if .Values.auth.usePasswordFile }}
             - name: secrets
               mountPath: /bitnami/mongodb/secrets/
@@ -328,9 +323,6 @@ spec:
         {{- include "common.tplvalues.render" ( dict "value" . "context" $ ) | nindent 8 }}
         {{- end }}
       volumes:
-        - name: replicaset-entrypoint-configmap
-          configMap:
-            name: {{ include "common.names.fullname" . }}-replicaset-entrypoint
         {{- if .Values.auth.usePasswordFile }}
         - name: secrets
           secret:

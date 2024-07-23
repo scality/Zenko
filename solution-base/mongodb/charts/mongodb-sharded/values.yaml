@@ -118,7 +118,7 @@ auth:
   ## @param auth.existingSecret Existing secret with MongoDB(&reg;) credentials (keys: `mongodb-password`, `mongodb-root-password`, `mongodb-replica-set-key`)
   ## NOTE: When it's set the previous parameters are ignored.
   ##
-  existingSecret: mongodb-db-creds
+  existingSecret: ""
   ## @param auth.usePasswordFile Mount credentials as files instead of using environment variables
   ##
   usePasswordFile: false
@@ -1567,7 +1567,7 @@ metrics:
   ## @param metrics.extraArgs String with extra arguments to the metrics exporter
   ## ref: https://github.com/percona/mongodb_exporter/blob/main/main.go
   ##
-  extraArgs: "--collector.diagnosticdata --collector.replicasetstatus --collector.dbstats --collector.topmetrics --compatible-mode"
+  extraArgs: ""
   ## @param metrics.resources Metrics exporter resource requests and limits
   ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
   ##

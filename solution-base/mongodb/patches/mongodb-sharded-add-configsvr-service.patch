@@ -18,7 +18,7 @@ new file mode 100644
 index fad94092..825b0161 100644
 --- /dev/null
 +++ b/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-service.yaml
-@@ -0,0 +1,41 @@
+@@ -0,0 +1,48 @@
 +apiVersion: v1
 +kind: Service
 +metadata:
@@ -67,16 +67,3 @@ index fad94092..825b0161 100644
 +  selector: {{ include "common.labels.matchLabels" . | nindent 4 }}
 +    app.kubernetes.io/component: configsvr
 +  sessionAffinity: {{ default "None" .Values.service.sessionAffinity }}
-diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/mongos/mongos-dep-sts.yaml b/solution-base/mongodb/charts/mongodb-sharded/templates/mongos/mongos-dep-sts.yaml
-index 73890420..3be705a0 100644
---- a/solution-base/mongodb/charts/mongodb-sharded/templates/mongos/mongos-dep-sts.yaml
-+++ b/solution-base/mongodb/charts/mongodb-sharded/templates/mongos/mongos-dep-sts.yaml
-@@ -133,7 +133,7 @@ spec:
-             - name: MONGODB_PORT_NUMBER
-               value: {{ $.Values.common.containerPorts.mongodb | quote }}
-             - name: MONGODB_CFG_PRIMARY_HOST
--              value: {{ include "mongodb-sharded.configServer.primaryHost" . }}
-+              value: {{ include "mongodb-sharded.configServer.serviceName" . }}
-             - name: MONGODB_CFG_REPLICA_SET_NAME
-               value: {{ include "mongodb-sharded.configServer.rsName" . }}
-             - name: MONGODB_SYSTEM_LOG_VERBOSITY
