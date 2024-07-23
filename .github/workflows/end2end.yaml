@@ -387,7 +387,7 @@ jobs:
           context: ./tests/ctst
           build-args: |
             CTST_TAG=${{ env.CTST_TAG }}
-            DRCTL_TAG=v1.0.0
+            DRCTL_TAG=707ca99633af0fa71b21917b43d35af218efff16
           tags: "${{ env.E2E_CTST_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}"
           cache-from: type=gha,scope=end2end-ctst
           cache-to: type=gha,mode=max,scope=end2end-ctst
