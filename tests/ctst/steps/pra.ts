@@ -24,7 +24,7 @@ Given('a DR installed', { timeout: 130000 }, async function (this: Zenko) {
         kafkaPersistenceSize: '1Gi',
         kafkaPersistenceStorageClassName: 'standard',
         locations: 'e2e-cold',
-        s3Bucket: '__dump-db',
+        s3Bucket: 'dump-db',
         sinkZenkoInstance: 'end2end-pra',
         sinkZenkoNamespace: 'default',
         sourceZenkoInstance: 'end2end',

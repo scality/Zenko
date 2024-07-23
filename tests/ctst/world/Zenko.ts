@@ -99,11 +99,13 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
     public zenkoDrCtl: ZenkoDrctl | null = null;
 
-    private sites: Record<string, {
-        subdomain: string;
-        identityName: string;
-        identityType: IdentityEnum;
-    }> = {};
+    private sites: {
+        [key: string]: {
+            subdomain: string;
+            identityName: string;
+            identityType: IdentityEnum;
+        };
+      } = {};
 
     public logger: Werelogs.RequestLogger = new Werelogs.Logger('CTST').newRequestLogger();
 
