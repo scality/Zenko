@@ -137,8 +137,9 @@ export default class ZenkoDrctl {
         this.world = world;
     }
 
-    private async runCommand(action: string, params: string, timeout = 600, wait = true) {
-        const command = `/ctst/zenko-drctl ${action} ${params}`;
+    private async runCommand(action: string, params: string, wait = true, timeout = 0) {
+        const command = `/ctst/zenko-drctl install ${wait ? '--wait' : ''} ${timeout > 0 ?
+            `--timeout ${timeout}` : ''} ${params}`;
         try {
             this.world.logger.debug('running zenko-drctl command', { command });
             const result = await util.promisify(exec)(command);
@@ -150,33 +151,33 @@ export default class ZenkoDrctl {
         }
     }
 
-    async install(config: InstallConfig) {
-        return this.runCommand('install', this.paramToCli(config));
+    async install(config: InstallConfig): Promise<string> {
+        return this.runCommand('install', this.paramToCli(config), false);
     }
 
-    async uninstall(config: UninstallConfig) {
-        return this.runCommand('uninstall', this.paramToCli(config));
+    async uninstall(config: UninstallConfig): Promise<string> {
+        return this.runCommand('uninstall', this.paramToCli(config), true);
     }
 
-    async bootstrapDump(config: BootstrapDumpConfig) {
-        return this.runCommand('bootstrap dump', this.paramToCli(config));
+    async bootstrapDump(config: BootstrapDumpConfig): Promise<string> {
+        return this.runCommand('bootstrap dump', this.paramToCli(config), false);
     }
 
-    async bootstrapLoad(config: BootstrapLoadConfig) {
-        return this.runCommand('bootstrap load', this.paramToCli(config));
+    async bootstrapLoad(config: BootstrapLoadConfig): Promise<string> {
+        return this.runCommand('bootstrap load', this.paramToCli(config), false);
     }
 
-    async failover(config: FailoverConfig) {
-        return this.runCommand('failover', this.paramToCli(config));
+    async failover(config: FailoverConfig): Promise<string> {
+        return this.runCommand('failover', this.paramToCli(config), true);
     }
 
-    async status(config: StatusConfig) {
-        return this.runCommand('status', this.paramToCli(config));
+    async status(config: StatusConfig): Promise<string> {
+        return this.runCommand('status', this.paramToCli(config), false);
     }
 
     // TODO: can we test volume create/delete commands (use metalk8s) in Zenko?
     async kafkaGetVolume(config: VolumeGetConfig) {
-        return this.runCommand('get volume', this.paramToCli(config));
+        return this.runCommand('get volume', this.paramToCli(config), false);
     }
 
     paramToCli(params: Record<string, unknown>): string {
