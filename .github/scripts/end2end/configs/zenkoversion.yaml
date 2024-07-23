@@ -84,6 +84,9 @@ spec:
     sorbet:
       image: '${SORBET_IMAGE}'
       tag: '${SORBET_TAG}'
+    drctl:
+      image: '${DRCTL_IMAGE}'
+      tag: '${DRCTL_TAG}'
     zookeeper:
       image: '${ZOOKEEPER_IMAGE}' 
       tag: '${ZOOKEEPER_TAG}'
