@@ -158,6 +158,11 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
         if (this.parameters.DRAccountAccessKey && this.parameters.DRAccountSecretKey && this.parameters.DRSubdomain && 
             !Identity.hasIdentity(IdentityEnum.ADMIN, 'dradmin')) {
+                this.logger.debug('Adding DR admin identity', {
+                    DRAccountAccessKey: this.parameters.DRAccountAccessKey,
+                    DRAccountSecretKey: this.parameters.DRAccountSecretKey,
+                    DRSubdomain: this.parameters.DRSubdomain,
+                });
             Identity.addIdentity(IdentityEnum.ADMIN, 'dradmin', {
                 accessKeyId: this.parameters.DRAccountAccessKey,
                 secretAccessKey: this.parameters.DRAccountSecretKey,
