@@ -76,7 +76,7 @@ runs:
         OPERATOR_IMAGE_TAG: ${{ inputs.zkop_tag }}
     - name: Deploy Zenko Instance
       shell: bash
-      run: bash deploy-zenko.sh end2end default './configs/zenko.yaml' ${{ inputs.zenko_version }}
+      run: bash deploy-zenko.sh end2end default './configs/zenko.yaml' ${{ inputs.zenko_version_path }}
       working-directory: ./.github/scripts/end2end
     - name: Add Keycloak user and assign StorageManager role
       shell: bash
