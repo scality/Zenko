@@ -39,9 +39,9 @@ Then('object {string} should be {string} and have the storage class {string} on 
     async function (this: Zenko, objName: string, objectTransitionStatus: string, storageClass: string, site: string) {
         this.resetCommand();
         if (site === 'DR') {
-            this.useSite('sink');
+            Zenko.useSite('sink');
         } else {
-            this.useSite('source');
+            Zenko.useSite('source');
         }
 
         await verifyObjectLocation.call(this, objName, objectTransitionStatus, storageClass);

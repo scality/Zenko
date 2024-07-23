@@ -22,6 +22,7 @@ import {
 
 import { extractPropertyFromResults } from '../common/utils';
 import ZenkoDrctl from 'steps/dr/drctl';
+import assert from 'assert';
 
 
 interface ServiceUsersCredentials {
@@ -44,9 +45,9 @@ export interface ZenkoWorldParameters extends ClientOptions {
     AccountName: string;
     AccountAccessKey: string;
     AccountSecretKey: string;
-    DRAccountAccessKey: string;
-    DRAccountSecretKey: string;
-    DRSubdomain: string;
+    DRAdminAccessKey?: string;
+    DRAdminSecretKey?: string;
+    DRSubdomain?: string;
     VaultAuthHost: string;
     NotificationDestination: string;
     NotificationDestinationTopic: string;
@@ -99,15 +100,18 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
     public zenkoDrCtl: ZenkoDrctl | null = null;
 
-    private sites: {
+    static sites: {
         [key: string]: {
             subdomain: string;
             identityName: string;
-            identityType: IdentityEnum;
+            accountName: string;
         };
       } = {};
 
     public logger: Werelogs.RequestLogger = new Werelogs.Logger('CTST').newRequestLogger();
+
+    static readonly PRIMARY_SITE_NAME = 'admin';
+    static readonly SECONDARY_SITE_NAME = 'dradmin';
 
     /**
      * @constructor
@@ -148,40 +152,44 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         }
 
         if (this.parameters.AdminAccessKey && this.parameters.AdminSecretKey &&
-            !Identity.hasIdentity(IdentityEnum.ADMIN, 'admin')) {
-            Identity.addIdentity(IdentityEnum.ADMIN, 'admin', {
+            !Identity.hasIdentity(IdentityEnum.ADMIN, Zenko.PRIMARY_SITE_NAME)) {
+            Identity.addIdentity(IdentityEnum.ADMIN, Zenko.PRIMARY_SITE_NAME, {
                 accessKeyId: this.parameters.AdminAccessKey,
                 secretAccessKey: this.parameters.AdminSecretKey,
             });
-            this.sites['source'] = {
-                subdomain: this.parameters.DRSubdomain,
-                identityName: 'admin',
-                identityType: IdentityEnum.ADMIN,
-            };
         }
 
+        Zenko.sites['source'] = {
+            subdomain: this.parameters.subdomain!,
+            identityName: Zenko.PRIMARY_SITE_NAME,
+            accountName: this.parameters.AccountName,
+        };
+
         this.logger.debug('verify if should add DR admin identity', {
-            DRAccountAccessKey: this.parameters.DRAccountAccessKey,
-            DRAccountSecretKey: this.parameters.DRAccountSecretKey,
+            DRAdminAccessKey: this.parameters.DRAdminAccessKey,
+            DRAdminSecretKey: this.parameters.DRAdminSecretKey,
             DRSubdomain: this.parameters.DRSubdomain,
+            result: this.needsSecondarySite(),
         });
-        if (this.parameters.DRAccountAccessKey && this.parameters.DRAccountSecretKey && this.parameters.DRSubdomain && 
-            !Identity.hasIdentity(IdentityEnum.ACCOUNT, 'dradmin')) {
-            this.logger.debug('Adding DR admin identity', {
-                DRAccountAccessKey: this.parameters.DRAccountAccessKey,
-                DRAccountSecretKey: this.parameters.DRAccountSecretKey,
-                DRSubdomain: this.parameters.DRSubdomain,
-            });
-            Identity.addIdentity(IdentityEnum.ACCOUNT, 'dradmin', {
-                accessKeyId: this.parameters.DRAccountAccessKey,
-                secretAccessKey: this.parameters.DRAccountSecretKey,
-            });
-            this.sites['sink'] = {
-                subdomain: this.parameters.DRSubdomain,
-                identityName: 'dradmin',
-                identityType: IdentityEnum.ACCOUNT,
+        if (this.needsSecondarySite()) {
+            if (!Identity.hasIdentity(IdentityEnum.ADMIN, Zenko.SECONDARY_SITE_NAME)) {
+                Identity.addIdentity(IdentityEnum.ADMIN, Zenko.SECONDARY_SITE_NAME, {
+                    accessKeyId: this.parameters.DRAdminAccessKey!,
+                    secretAccessKey: this.parameters.DRAdminSecretKey!,
+                });
+            }
+            Zenko.sites['sink'] = {
+                subdomain: this.parameters.DRSubdomain!,
+                identityName: Zenko.SECONDARY_SITE_NAME,
+                accountName: `dr${this.parameters.AccountName}`,
             };
+        } else {
+            delete Zenko.sites['sink'];
         }
+    }
+
+    private needsSecondarySite() {
+        return this.parameters.DRAdminAccessKey && this.parameters.DRAdminSecretKey && this.parameters.DRSubdomain;
     }
 
     /**
@@ -189,9 +197,9 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * @param {string} site - the site to use
      * @returns {undefined}
      */
-    useSite(site: string) {
-        Identity.useIdentity( this.sites[site].identityType, this.sites[site].identityName);
-        CacheHelper.parameters.subdomain = this.sites[site].subdomain;
+    static useSite(site: string) {
+        Identity.useIdentity(IdentityEnum.ADMIN, Zenko.sites[site].identityName);
+        CacheHelper.parameters.subdomain = Zenko.sites[site].subdomain;
     }
 
     /**
@@ -593,58 +601,71 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * @returns {undefined}
      */
     static async init(parameters: ZenkoWorldParameters) {
-        const accountName = parameters.AccountName || Constants.ACCOUNT_NAME;
         CacheHelper.logger.debug('Initializing Zenko', {
-            accountName,
             parameters,
         });
-        if (!Identity.hasIdentity(IdentityEnum.ACCOUNT, accountName)) {
-            CacheHelper.adminClient = await Utils.getAdminCredentials(parameters);
-    
-            let account = null;
+        // Create the default account for each site configured
+        // and generate access keys for it
+        for (const siteKey in Zenko.sites) {
+            const site = Zenko.sites[siteKey];
+            this.useSite(siteKey);
+            const accountName = site.accountName;
+            assert(accountName, `Account name is not defined for site ${siteKey}`);
+            CacheHelper.logger.debug('Initializing account for Zenko site', {
+                siteKey,
+                accountName,
+            });
 
-            // Create the account if already exist will not throw any error
-            try {
-                await SuperAdmin.createAccount({ accountName });
-            /* eslint-disable */
-            } catch (err: any) {
-                if (!err.EntityAlreadyExists && err.code !== 'EntityAlreadyExists') {
-                    throw err;
+            if (!Identity.hasIdentity(IdentityEnum.ACCOUNT, accountName)) {
+                await Utils.getAdminCredentials(parameters, site.identityName);
+        
+                let account = null;
+
+                // Create the account if already exist will not throw any error
+                try {
+                    await SuperAdmin.createAccount({ accountName });
+                /* eslint-disable */
+                } catch (err: any) {
+                    if (!err.EntityAlreadyExists && err.code !== 'EntityAlreadyExists') {
+                        throw err;
+                    }
                 }
-            }
-            /* eslint-enable */
-            // Waiting until the account exists, in case of parallel mode.
-            let remaining = Constants.MAX_ACCOUNT_CHECK_RETRIES;
-            account = await SuperAdmin.getAccount({ accountName });
-            while (!account && remaining > 0) {
-                await Utils.sleep(500);
+                /* eslint-enable */
+                // Waiting until the account exists, in case of parallel mode.
+                let remaining = Constants.MAX_ACCOUNT_CHECK_RETRIES;
                 account = await SuperAdmin.getAccount({ accountName });
-                remaining--;
-            }
-            if (!account) {
-                throw new Error(`Account ${accountName} not found.`);
-            }
-    
-            // Account was found, generate access keys if not provided
-            const accountAccessKeys = Identity.getCredentialsForIdentity(
-                IdentityEnum.ACCOUNT, accountName) || {
-                accessKeyId: '',
-                secretAccessKey: '',
-            };
-    
-            if (!parameters.AccountName || !accountAccessKeys.accessKeyId || !accountAccessKeys.secretAccessKey) {
-                const accessKeys = await SuperAdmin.generateAccountAccessKey({ accountName });
-                if (!Utils.isAccessKeys(accessKeys)) {
-                    throw new Error('Failed to generate account access keys');
+                while (!account && remaining > 0) {
+                    await Utils.sleep(500);
+                    account = await SuperAdmin.getAccount({ accountName });
+                    remaining--;
                 }
-                accountAccessKeys.accessKeyId = accessKeys.accessKeyId;
-                accountAccessKeys.secretAccessKey = accessKeys.secretAccessKey;
+                if (!account) {
+                    throw new Error(`Account ${accountName} not found in site ${siteKey}.`);
+                }
+        
+                // Account was found, generate access keys if not provided
+                const accountAccessKeys = Identity.getCredentialsForIdentity(
+                    IdentityEnum.ACCOUNT, accountName) || {
+                    accessKeyId: '',
+                    secretAccessKey: '',
+                };
+        
+                if (!accountAccessKeys.accessKeyId || !accountAccessKeys.secretAccessKey) {
+                    const accessKeys = await SuperAdmin.generateAccountAccessKey({ accountName });
+                    if (!Utils.isAccessKeys(accessKeys)) {
+                        throw new Error('Failed to generate account access keys for site ${siteKey}');
+                    }
+                    accountAccessKeys.accessKeyId = accessKeys.accessKeyId;
+                    accountAccessKeys.secretAccessKey = accessKeys.secretAccessKey;
+                }
+        
+                Identity.addIdentity(IdentityEnum.ACCOUNT, accountName, accountAccessKeys, undefined, true, true);
+            } else {
+                Identity.useIdentity(IdentityEnum.ACCOUNT, accountName);
             }
-    
-            Identity.addIdentity(IdentityEnum.ACCOUNT, accountName, accountAccessKeys, undefined, true, true);
-        } else {
-            Identity.useIdentity(IdentityEnum.ACCOUNT, accountName);
         }
+        // Fallback to the primary site at the end of the init by default
+        this.useSite(this.PRIMARY_SITE_NAME);
     }    
 
     /**
