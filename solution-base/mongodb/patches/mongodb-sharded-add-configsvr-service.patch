@@ -18,7 +18,7 @@ new file mode 100644
 index fad94092..825b0161 100644
 --- /dev/null
 +++ b/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-service.yaml
-@@ -0,0 +1,48 @@
+@@ -0,0 +1,47 @@
 +apiVersion: v1
 +kind: Service
 +metadata:
@@ -41,7 +41,6 @@ index fad94092..825b0161 100644
 +  loadBalancerSourceRanges:
 +  {{ with .Values.service.loadBalancerSourceRanges }}
 +{{ toYaml . | indent 4 }}
-+  {{- end }}
 +  {{- end }}
 +  {{- if and (eq .Values.service.type "ClusterIP") .Values.service.clusterIP }}
 +  clusterIP: {{ .Values.service.clusterIP }}
