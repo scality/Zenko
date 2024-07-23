@@ -102,6 +102,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     private sites: Record<string, {
         subdomain: string;
         identityName: string;
+        identityType: IdentityEnum;
     }> = {};
 
     public logger: Werelogs.RequestLogger = new Werelogs.Logger('CTST').newRequestLogger();
@@ -153,6 +154,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             this.sites['source'] = {
                 subdomain: this.parameters.DRSubdomain,
                 identityName: 'admin',
+                identityType: IdentityEnum.ADMIN,
             };
         }
 
@@ -175,6 +177,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             this.sites['sink'] = {
                 subdomain: this.parameters.DRSubdomain,
                 identityName: 'dradmin',
+                identityType: IdentityEnum.ACCOUNT,
             };
         }
     }
@@ -185,7 +188,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * @returns {undefined}
      */
     useSite(site: string) {
-        Identity.useIdentity(IdentityEnum.ADMIN, this.sites[site].identityName);
+        Identity.useIdentity( this.sites[site].identityType, this.sites[site].identityName);
         CacheHelper.parameters.subdomain = this.sites[site].subdomain;
     }
 
