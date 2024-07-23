@@ -37,6 +37,10 @@ Usage:
   {{- end -}}
 {{- end -}}
 
+{{- define "mongodb-sharded.configServer.serviceName" -}}
+  {{- printf "%s-configsvr.%s.svc.%s" (include "common.names.fullname" .) .Release.Namespace .Values.clusterDomain -}}
+{{- end -}}
+
 {{- define "mongodb-sharded.configServer.rsName" -}}
   {{- if .Values.configsvr.external.replicasetName -}}
     {{- .Values.configsvr.external.replicasetName }}
