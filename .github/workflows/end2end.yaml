@@ -480,7 +480,7 @@ jobs:
         env:
           ZENKO_MONGODB_SHARDED: "true"
         with:
-          zkop_tag: 1.6.0-preview.1
+          zkop_tag: 1.6.0-preview.2
           zenko_version_path: './configs/zenkoversion-pra.yaml'
       - name: Prepare PRA environment
         run: bash prepare-pra.sh
