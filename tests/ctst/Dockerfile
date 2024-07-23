@@ -1,6 +1,6 @@
 ARG CTST_TAG
 ARG DRCTL_TAG
-ARG HOME
+ARG KUBECONFIG_PATH
 
 FROM ghcr.io/scality/zenko-drctl:$DRCTL_TAG as drctl
 FROM ghcr.io/scality/cli-testing:$CTST_TAG
@@ -22,6 +22,5 @@ ENV SDK=true
 WORKDIR /ctst
 
 COPY --from=drctl /zenko-drctl .
-COPY $HOME/.kube/config /ctst/kubeconfig
 
 CMD ["./run"]
