@@ -5,6 +5,7 @@ import { displayCRStatus, displayDRSinkStatus, displayDRSourceStatus } from './u
 import { 
     verifyObjectLocation,
 } from 'steps/utils/utils';
+import { Identity, IdentityEnum } from 'cli-testing';
 
 export function preparePRA(world: Zenko) {
     // eslint-disable-next-line no-param-reassign
@@ -38,11 +39,16 @@ Given('a DR installed', { timeout: 130000 }, async function (this: Zenko) {
 Then('object {string} should be {string} and have the storage class {string} on {string} site',
     async function (this: Zenko, objName: string, objectTransitionStatus: string, storageClass: string, site: string) {
         this.resetCommand();
+        let accountName: string;
         if (site === 'DR') {
             Zenko.useSite('sink');
+            accountName = Zenko.sites['sink'].accountName;
         } else {
             Zenko.useSite('source');
+            accountName = Zenko.sites['source'].accountName
         }
+
+        Identity.useIdentity(IdentityEnum.ACCOUNT, accountName);
 
         await verifyObjectLocation.call(this, objName, objectTransitionStatus, storageClass);
     });
