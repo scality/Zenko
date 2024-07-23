@@ -19,8 +19,8 @@ export async function displayDebuggingInformation(world: Zenko) {
 
 Given('a DR installed', { timeout: 130000 }, async function (this: Zenko) {
     await this.zenkoDrCtl?.install({
-        sourceZenkoDrInstance: 'end2end',
-        sinkZenkoDrInstance: 'end2end-pra',
+        sourceZenkoDrInstance: 'end2end-source',
+        sinkZenkoDrInstance: 'end2end-pra-sink',
         kafkaPersistenceSize: '1Gi',
         kafkaPersistenceStorageClassName: 'standard',
         locations: 'e2e-cold',
