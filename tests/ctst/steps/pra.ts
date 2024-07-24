@@ -45,7 +45,7 @@ Then('object {string} should be {string} and have the storage class {string} on 
             accountName = Zenko.sites['sink'].accountName;
         } else {
             Zenko.useSite('source');
-            accountName = Zenko.sites['source'].accountName
+            accountName = Zenko.sites['source'].accountName;
         }
 
         Identity.useIdentity(IdentityEnum.ACCOUNT, accountName);
