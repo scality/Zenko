@@ -623,7 +623,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             });
 
             if (!Identity.hasIdentity(IdentityEnum.ACCOUNT, accountName)) {
-                this.useSite(siteKey, parameters);
+                // eslint-disable-next-line no-param-reassign
+                parameters.subdomain = Zenko.sites[siteKey].subdomain;
                 await Utils.getAdminCredentials(parameters, site.adminIdentityName);
         
                 let account = null;
