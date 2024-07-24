@@ -147,7 +147,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             Zenko.sites['source'] = {
                 subdomain: this.parameters.subdomain!,
                 accountName: this.parameters.AccountName,
-                adminIdentityName: Zenko.PRIMARY_SITE_NAME
+                adminIdentityName: Zenko.PRIMARY_SITE_NAME,
             };
         }
 
@@ -180,7 +180,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             Zenko.sites['sink'] = {
                 subdomain: this.parameters.DRSubdomain!,
                 accountName: `dr${this.parameters.AccountName}`,
-                adminIdentityName: Zenko.SECONDARY_SITE_NAME
+                adminIdentityName: Zenko.SECONDARY_SITE_NAME,
             };
         } else {
             delete Zenko.sites['sink'];
