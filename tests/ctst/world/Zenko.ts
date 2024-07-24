@@ -105,6 +105,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             subdomain: string;
             accountName: string;
             adminIdentityName: string;
+            aak: string;
+            ask: string;
         };
       } = {};
 
@@ -200,11 +202,18 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * @returns {undefined}
      */
     static useSite(site: string, options?: ZenkoWorldParameters) {
-        Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites[site].accountName);
         CacheHelper.parameters.subdomain = Zenko.sites[site].subdomain;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        CacheHelper.Parameters.AdminAccessKey = Zenko.sites[site].aak;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        CacheHelper.Parameters.AdminSecretKey = Zenko.sites[site].ask;
         if (options) {
             // eslint-disable-next-line no-param-reassign
             options.subdomain = Zenko.sites[site].subdomain;
+            // eslint-disable-next-line no-param-reassign
+            options.AdminAccessKey = Zenko.sites[site].aak;
+            // eslint-disable-next-line no-param-reassign
+            options.AdminSecretKey = Zenko.sites[site].ask;
         }
     }
 
@@ -624,16 +633,24 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
             if (!Identity.hasIdentity(IdentityEnum.ACCOUNT, accountName)) {
                 // eslint-disable-next-line no-param-reassign
-                parameters.subdomain = Zenko.sites[siteKey].subdomain;
+                this.useSite(siteKey, parameters);
                 await Utils.getAdminCredentials(parameters, site.adminIdentityName);
         
                 let account = null;
-
+                CacheHelper.logger.debug('Creating account', {
+                    accountName,
+                    subdomain: parameters.subdomain,
+                    adminIdentityName: site.adminIdentityName,
+                });
                 // Create the account if already exist will not throw any error
                 try {
                     await SuperAdmin.createAccount({ accountName });
                 /* eslint-disable */
                 } catch (err: any) {
+                    CacheHelper.logger.debug('Error while creating account', {
+                        accountName,
+                        err,
+                    });
                     if (!err.EntityAlreadyExists && err.code !== 'EntityAlreadyExists') {
                         throw err;
                     }
@@ -679,6 +696,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         }
         // Fallback to the primary site at the end of the init by default
         this.useSite('source', parameters);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        Identity.useIdentity(IdentityEnum.Account, this.sites['source'].accountName);
     }    
 
     /**
