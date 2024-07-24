@@ -658,6 +658,11 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                     accountAccessKeys.accessKeyId = accessKeys.accessKeyId;
                     accountAccessKeys.secretAccessKey = accessKeys.secretAccessKey;
                 }
+
+                CacheHelper.logger.debug('Adding account identity', {
+                    accountName,
+                    accountAccessKeys,
+                });
         
                 Identity.addIdentity(IdentityEnum.ACCOUNT, accountName, accountAccessKeys, undefined, true, true);
             } else {
@@ -665,7 +670,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             }
         }
         // Fallback to the primary site at the end of the init by default
-        this.useSite(this.PRIMARY_SITE_NAME);
+        this.useSite('source');
     }    
 
     /**
