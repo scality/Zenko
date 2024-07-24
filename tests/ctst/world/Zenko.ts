@@ -104,6 +104,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         [key: string]: {
             subdomain: string;
             accountName: string;
+            adminIdentityName: string;
         };
       } = {};
 
@@ -146,6 +147,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             Zenko.sites['source'] = {
                 subdomain: this.parameters.subdomain!,
                 accountName: this.parameters.AccountName,
+                adminIdentityName: Zenko.PRIMARY_SITE_NAME
             };
         }
 
@@ -178,6 +180,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             Zenko.sites['sink'] = {
                 subdomain: this.parameters.DRSubdomain!,
                 accountName: `dr${this.parameters.AccountName}`,
+                adminIdentityName: Zenko.SECONDARY_SITE_NAME
             };
         } else {
             delete Zenko.sites['sink'];
@@ -193,10 +196,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * @param {string} site - the site to use
      * @returns {undefined}
      */
-    async useSite(site: string) {
-        if (!Identity.hasIdentity(IdentityEnum.ACCOUNT, Zenko.sites[site].accountName)) {
-            await this.createAccount(Zenko.sites[site].accountName);
-        }
+    static useSite(site: string) {
         Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites[site].accountName);
         CacheHelper.parameters.subdomain = Zenko.sites[site].subdomain;
     }
@@ -607,7 +607,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         // and generate access keys for it
         for (const siteKey in Zenko.sites) {
             const site = Zenko.sites[siteKey];
-            this.useSite(siteKey);
+            Identity.useIdentity(IdentityEnum.ADMIN, site.adminIdentityName);
             const accountName = site.accountName;
             assert(accountName, `Account name is not defined for site ${siteKey}`);
             CacheHelper.logger.debug('Initializing account for Zenko site', {
@@ -616,7 +616,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             });
 
             if (!Identity.hasIdentity(IdentityEnum.ACCOUNT, accountName)) {
-                await Utils.getAdminCredentials(parameters, site.identityName);
+                await Utils.getAdminCredentials(parameters, site.adminIdentityName);
         
                 let account = null;
 
