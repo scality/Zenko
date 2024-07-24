@@ -628,12 +628,20 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 await Utils.getAdminCredentials(parameters, site.adminIdentityName);
         
                 let account = null;
-
+                CacheHelper.logger.debug('Creating account', {
+                    accountName,
+                    subdomain: parameters.subdomain,
+                    adminIdentityName: site.adminIdentityName,
+                });
                 // Create the account if already exist will not throw any error
                 try {
                     await SuperAdmin.createAccount({ accountName });
                 /* eslint-disable */
                 } catch (err: any) {
+                    CacheHelper.logger.debug('Error while creating account', {
+                        accountName,
+                        err,
+                    });
                     if (!err.EntityAlreadyExists && err.code !== 'EntityAlreadyExists') {
                         throw err;
                     }
