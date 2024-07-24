@@ -198,7 +198,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * @returns {undefined}
      */
     static useSite(site: string) {
-        Identity.useIdentity(IdentityEnum.ADMIN, Zenko.sites[site].identityName);
+        Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites[site].accountName);
         CacheHelper.parameters.subdomain = Zenko.sites[site].subdomain;
     }
 

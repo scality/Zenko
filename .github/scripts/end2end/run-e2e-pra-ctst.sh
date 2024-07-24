@@ -80,9 +80,15 @@ EOF
 kubectl set env deployment end2end-connector-cloudserver SCUBA_HEALTHCHECK_FREQUENCY=100
 kubectl rollout status deployment end2end-connector-cloudserver
 
+kubectl set env deployment end2end-pra-connector-cloudserver SCUBA_HEALTHCHECK_FREQUENCY=100
+kubectl rollout status deployment end2end-pra-connector-cloudserver
+
 # disable moniroting of count-items
 kubectl set env cronjob end2end-ops-count-items PROMETHEUS_POLLING_ATTEMPTS=1
 kubectl set env cronjob end2end-ops-count-items PROMETHEUS_POLLING_PERIOD=1
+
+kubectl set env cronjob end2end-pra-ops-count-items PROMETHEUS_POLLING_ATTEMPTS=1
+kubectl set env cronjob end2end-pra-ops-count-items PROMETHEUS_POLLING_PERIOD=1
 
 E2E_IMAGE=$E2E_CTST_IMAGE_NAME:$E2E_IMAGE_TAG
 POD_NAME="${ZENKO_NAME}-ctst-tests"
