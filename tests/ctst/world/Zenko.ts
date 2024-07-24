@@ -175,7 +175,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                     secretAccessKey: this.parameters.DRAdminSecretKey!,
                 });
             }
-            this.createAccount(`dr${this.parameters.AccountName}`);
             Zenko.sites['sink'] = {
                 subdomain: this.parameters.DRSubdomain!,
                 accountName: `dr${this.parameters.AccountName}`,
@@ -194,7 +193,10 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * @param {string} site - the site to use
      * @returns {undefined}
      */
-    static useSite(site: string) {
+    async useSite(site: string) {
+        if (!Identity.hasIdentity(IdentityEnum.ACCOUNT, Zenko.sites[site].accountName)) {
+            await this.createAccount(Zenko.sites[site].accountName);
+        }
         Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites[site].accountName);
         CacheHelper.parameters.subdomain = Zenko.sites[site].subdomain;
     }
