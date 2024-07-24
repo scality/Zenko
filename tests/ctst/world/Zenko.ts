@@ -621,7 +621,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 const beforeSubdomain = parameters.subdomain;
                 parameters.subdomain = site.subdomain;
                 await Utils.getAdminCredentials(parameters, site.adminIdentityName);
-                parameters.subdomain = beforeSubdomain
+                parameters.subdomain = beforeSubdomain;
         
                 let account = null;
 
