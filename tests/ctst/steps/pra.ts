@@ -41,10 +41,10 @@ Then('object {string} should be {string} and have the storage class {string} on 
         this.resetCommand();
         let accountName: string;
         if (site === 'DR') {
-            Zenko.useSite('sink');
+            Zenko.useSite('sink', this.parameters);
             accountName = Zenko.sites['sink'].accountName;
         } else {
-            Zenko.useSite('source');
+            Zenko.useSite('source', this.parameters);
             accountName = Zenko.sites['source'].accountName;
         }
 

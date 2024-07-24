@@ -196,11 +196,16 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     /**
      * Change the identity and subdomain for s3 operations
      * @param {string} site - the site to use
+     * @param {Object} options - the client-provided parameters
      * @returns {undefined}
      */
-    static useSite(site: string) {
+    static useSite(site: string, options?: ZenkoWorldParameters) {
         Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites[site].accountName);
         CacheHelper.parameters.subdomain = Zenko.sites[site].subdomain;
+        if (options) {
+            // eslint-disable-next-line no-param-reassign
+            options.subdomain = Zenko.sites[site].subdomain;
+        }
     }
 
     /**
@@ -618,10 +623,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             });
 
             if (!Identity.hasIdentity(IdentityEnum.ACCOUNT, accountName)) {
-                const beforeSubdomain = parameters.subdomain;
-                parameters.subdomain = site.subdomain;
+                this.useSite(siteKey, parameters);
                 await Utils.getAdminCredentials(parameters, site.adminIdentityName);
-                parameters.subdomain = beforeSubdomain;
         
                 let account = null;
 
@@ -674,7 +677,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             }
         }
         // Fallback to the primary site at the end of the init by default
-        this.useSite('source');
+        this.useSite('source', parameters);
     }    
 
     /**
