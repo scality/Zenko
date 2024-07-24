@@ -150,6 +150,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 subdomain: this.parameters.subdomain!,
                 accountName: this.parameters.AccountName,
                 adminIdentityName: Zenko.PRIMARY_SITE_NAME,
+                aak: this.parameters.AccountAccessKey,
+                ask: this.parameters.AccountSecretKey,
             };
         }
 
@@ -183,6 +185,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 subdomain: this.parameters.DRSubdomain!,
                 accountName: `dr${this.parameters.AccountName}`,
                 adminIdentityName: Zenko.SECONDARY_SITE_NAME,
+                aak: this.parameters.DRAdminAccessKey!,
+                ask: this.parameters.DRAdminSecretKey!,
             };
         } else {
             delete Zenko.sites['sink'];
@@ -204,9 +208,9 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     static useSite(site: string, options?: ZenkoWorldParameters) {
         CacheHelper.parameters.subdomain = Zenko.sites[site].subdomain;
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        CacheHelper.Parameters.AdminAccessKey = Zenko.sites[site].aak;
+        CacheHelper.parameters.AdminAccessKey = Zenko.sites[site].aak;
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        CacheHelper.Parameters.AdminSecretKey = Zenko.sites[site].ask;
+        CacheHelper.parameters.AdminSecretKey = Zenko.sites[site].ask;
         if (options) {
             // eslint-disable-next-line no-param-reassign
             options.subdomain = Zenko.sites[site].subdomain;
@@ -697,7 +701,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         // Fallback to the primary site at the end of the init by default
         this.useSite('source', parameters);
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        Identity.useIdentity(IdentityEnum.Account, this.sites['source'].accountName);
+        Identity.useIdentity(IdentityEnum.ACCOUNT, this.sites['source'].accountName);
     }    
 
     /**
