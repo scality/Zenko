@@ -102,7 +102,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
     static sites: {
         [key: string]: {
-            subdomain: string;
             accountName: string;
             adminIdentityName: string;
         };
@@ -144,11 +143,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 accessKeyId: this.parameters.AccountAccessKey,
                 secretAccessKey: this.parameters.AccountSecretKey,
             });
-            Zenko.sites['source'] = {
-                subdomain: this.parameters.subdomain!,
-                accountName: this.parameters.AccountName,
-                adminIdentityName: Zenko.PRIMARY_SITE_NAME,
-            };
         }
 
         if (this.parameters.AccountName) {
@@ -161,51 +155,35 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             Identity.addIdentity(IdentityEnum.ADMIN, Zenko.PRIMARY_SITE_NAME, {
                 accessKeyId: this.parameters.AdminAccessKey,
                 secretAccessKey: this.parameters.AdminSecretKey,
-            });
+            }, undefined, undefined, undefined, this.parameters.subdomain);
+
+            Zenko.sites['source'] = {
+                accountName: this.parameters.AccountName,
+                adminIdentityName: Zenko.PRIMARY_SITE_NAME,
+            };
+        } else {
+            delete Zenko.sites['source'];
         }
 
-        this.logger.debug('verify if should add DR admin identity', {
-            DRAdminAccessKey: this.parameters.DRAdminAccessKey,
-            DRAdminSecretKey: this.parameters.DRAdminSecretKey,
-            DRSubdomain: this.parameters.DRSubdomain,
-            result: this.needsSecondarySite(),
-        });
         if (this.needsSecondarySite()) {
             if (!Identity.hasIdentity(IdentityEnum.ADMIN, Zenko.SECONDARY_SITE_NAME)) {
                 Identity.addIdentity(IdentityEnum.ADMIN, Zenko.SECONDARY_SITE_NAME, {
                     accessKeyId: this.parameters.DRAdminAccessKey!,
                     secretAccessKey: this.parameters.DRAdminSecretKey!,
-                });
+                }, undefined, undefined, undefined, this.parameters.DRSubdomain);
             }
+
             Zenko.sites['sink'] = {
-                subdomain: this.parameters.DRSubdomain!,
                 accountName: `dr${this.parameters.AccountName}`,
                 adminIdentityName: Zenko.SECONDARY_SITE_NAME,
             };
         } else {
             delete Zenko.sites['sink'];
         }
-
-        Zenko.useSite('source');
     }
 
     private needsSecondarySite() {
         return this.parameters.DRAdminAccessKey && this.parameters.DRAdminSecretKey && this.parameters.DRSubdomain;
-    }
-
-    /**
-     * Change the identity and subdomain for s3 operations
-     * @param {string} site - the site to use
-     * @param {Object} options - the client-provided parameters
-     * @returns {undefined}
-     */
-    static useSite(site: string, options?: ZenkoWorldParameters) {
-        Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites[site].accountName);
-        CacheHelper.parameters.subdomain = Zenko.sites[site].subdomain;
-        if (options) {
-            // eslint-disable-next-line no-param-reassign
-            options.subdomain = Zenko.sites[site].subdomain;
-        }
     }
 
     /**
@@ -623,15 +601,13 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             });
 
             if (!Identity.hasIdentity(IdentityEnum.ACCOUNT, accountName)) {
-                // eslint-disable-next-line no-param-reassign
-                parameters.subdomain = Zenko.sites[siteKey].subdomain;
-                await Utils.getAdminCredentials(parameters, site.adminIdentityName);
-        
+                Identity.useIdentity(IdentityEnum.ADMIN, site.adminIdentityName);
+
                 let account = null;
                 CacheHelper.logger.debug('Creating account', {
                     accountName,
-                    subdomain: parameters.subdomain,
                     adminIdentityName: site.adminIdentityName,
+                    credentials: Identity.getCurrentCredentials(),
                 });
                 // Create the account if already exist will not throw any error
                 try {
@@ -681,12 +657,10 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 });
         
                 Identity.addIdentity(IdentityEnum.ACCOUNT, accountName, accountAccessKeys, undefined, true, true);
-            } else {
-                Identity.useIdentity(IdentityEnum.ACCOUNT, accountName);
             }
         }
-        // Fallback to the primary site at the end of the init by default
-        this.useSite('source', parameters);
+        // Fallback to the primary site's account at the end of the init by default
+        Identity.useIdentity(IdentityEnum.ACCOUNT, this.sites[Zenko.PRIMARY_SITE_NAME].accountName);
     }    
 
     /**

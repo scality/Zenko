@@ -39,16 +39,11 @@ Given('a DR installed', { timeout: 130000 }, async function (this: Zenko) {
 Then('object {string} should be {string} and have the storage class {string} on {string} site',
     async function (this: Zenko, objName: string, objectTransitionStatus: string, storageClass: string, site: string) {
         this.resetCommand();
-        let accountName: string;
         if (site === 'DR') {
-            Zenko.useSite('sink', this.parameters);
-            accountName = Zenko.sites['sink'].accountName;
+            Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites[Zenko.SECONDARY_SITE_NAME].accountName);
         } else {
-            Zenko.useSite('source', this.parameters);
-            accountName = Zenko.sites['source'].accountName;
+            Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites[Zenko.PRIMARY_SITE_NAME].accountName);
         }
-
-        Identity.useIdentity(IdentityEnum.ACCOUNT, accountName);
 
         await verifyObjectLocation.call(this, objName, objectTransitionStatus, storageClass);
     });
