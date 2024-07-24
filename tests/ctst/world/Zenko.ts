@@ -103,7 +103,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     static sites: {
         [key: string]: {
             subdomain: string;
-            identityName: string;
             accountName: string;
         };
       } = {};
@@ -144,6 +143,10 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 accessKeyId: this.parameters.AccountAccessKey,
                 secretAccessKey: this.parameters.AccountSecretKey,
             });
+            Zenko.sites['source'] = {
+                subdomain: this.parameters.subdomain!,
+                accountName: this.parameters.AccountName,
+            };
         }
 
         if (this.parameters.AccountName) {
@@ -159,12 +162,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             });
         }
 
-        Zenko.sites['source'] = {
-            subdomain: this.parameters.subdomain!,
-            identityName: Zenko.PRIMARY_SITE_NAME,
-            accountName: this.parameters.AccountName,
-        };
-
         this.logger.debug('verify if should add DR admin identity', {
             DRAdminAccessKey: this.parameters.DRAdminAccessKey,
             DRAdminSecretKey: this.parameters.DRAdminSecretKey,
@@ -178,9 +175,9 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                     secretAccessKey: this.parameters.DRAdminSecretKey!,
                 });
             }
+            this.createAccount(`dr${this.parameters.AccountName}`);
             Zenko.sites['sink'] = {
                 subdomain: this.parameters.DRSubdomain!,
-                identityName: Zenko.SECONDARY_SITE_NAME,
                 accountName: `dr${this.parameters.AccountName}`,
             };
         } else {
@@ -198,7 +195,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * @returns {undefined}
      */
     static useSite(site: string) {
-        Identity.useIdentity(IdentityEnum.ADMIN, Zenko.sites[site].identityName);
+        Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites[site].accountName);
         CacheHelper.parameters.subdomain = Zenko.sites[site].subdomain;
     }
 
@@ -425,8 +422,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
     async createAccount(name?: string, force?: boolean) {
         Identity.resetIdentity();
-        const accountName = this.getSaved<string>('accountName') ||
-            name || `${Constants.ACCOUNT_NAME}${Utils.randomString()}`;
+        const accountName = name || this.getSaved<string>('accountName') ||
+            `${Constants.ACCOUNT_NAME}${Utils.randomString()}`;
         if (Identity.hasIdentity(IdentityEnum.ACCOUNT, accountName) && !force) {
             Identity.useIdentity(IdentityEnum.ACCOUNT, accountName);
             return;
