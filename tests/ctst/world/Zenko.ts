@@ -185,6 +185,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         } else {
             delete Zenko.sites['sink'];
         }
+
+        Zenko.useSite('source');
     }
 
     private needsSecondarySite() {
@@ -616,7 +618,10 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             });
 
             if (!Identity.hasIdentity(IdentityEnum.ACCOUNT, accountName)) {
+                const beforeSubdomain = parameters.subdomain;
+                parameters.subdomain = site.subdomain;
                 await Utils.getAdminCredentials(parameters, site.adminIdentityName);
+                parameters.subdomain = beforeSubdomain
         
                 let account = null;
 
