@@ -40,9 +40,9 @@ Then('object {string} should be {string} and have the storage class {string} on 
     async function (this: Zenko, objName: string, objectTransitionStatus: string, storageClass: string, site: string) {
         this.resetCommand();
         if (site === 'DR') {
-            Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites[Zenko.SECONDARY_SITE_NAME].accountName);
+            Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['sink'].accountName);
         } else {
-            Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites[Zenko.PRIMARY_SITE_NAME].accountName);
+            Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
         }
 
         await verifyObjectLocation.call(this, objName, objectTransitionStatus, storageClass);

@@ -660,7 +660,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             }
         }
         // Fallback to the primary site's account at the end of the init by default
-        Identity.useIdentity(IdentityEnum.ACCOUNT, this.sites['source']?.accountName || CacheHelper.parameters.AccountName!);
+        Identity.useIdentity(IdentityEnum.ACCOUNT, this.sites['source']?.accountName
+            || CacheHelper.parameters.AccountName!);
     }    
 
     /**
