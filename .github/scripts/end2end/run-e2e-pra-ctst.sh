@@ -65,7 +65,7 @@ WORLD_PARAMETERS="$(jq -c <<EOF
   "DataConsumerUsername":"${DATA_CONSUMER_USER_NAME}",
   "ServiceUsersCredentials":${SERVICE_USERS_CREDENTIALS},
   "InstanceID":"${INSTANCE_ID}",
-  "KafkaCleanerInterval":"${KAFKA_CLEANER_INTERVAL}",
+  "KafkaCleanerInterval":"${KAFKA_CLEANER_INTERVAL}"
 }
 EOF
 )"
