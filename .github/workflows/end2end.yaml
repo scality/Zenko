@@ -507,6 +507,7 @@ jobs:
         working-directory: ./.github/scripts/end2end
       - name: debug
         run: sleep 3600
+        if: always()
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
         env:

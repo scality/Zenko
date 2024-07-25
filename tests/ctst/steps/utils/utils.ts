@@ -271,26 +271,25 @@ async function verifyObjectLocation(this: Zenko, objectName: string,
             break;
         }
         assert(res.stdout);
-        const parsed = safeJsonParse(res.stdout);
-        assert(parsed.ok);
-        const head = parsed.result as {
+        const parsed = safeJsonParse<{
             StorageClass: string | undefined,
             Restore: string | undefined,
-        };
+        }>(res.stdout);
+        assert(parsed.ok);
         const expectedClass = storageClass !== '' ? storageClass : undefined;
-        if (head?.StorageClass === expectedClass) {
+        if (parsed.result?.StorageClass === expectedClass) {
             conditionOk = true;
         }
         if (objectTransitionStatus == 'restored') {
-            const isRestored = !!head?.Restore &&
-                head.Restore.includes('ongoing-request="false", expiry-date=');
+            const isRestored = !!parsed.result?.Restore &&
+                parsed.result.Restore.includes('ongoing-request="false", expiry-date=');
             // if restore didn't get initiated fail immediately
-            const isPendingRestore = !!head?.Restore &&
-                head.Restore.includes('ongoing-request="true"');
+            const isPendingRestore = !!parsed.result?.Restore &&
+                parsed.result.Restore.includes('ongoing-request="true"');
             assert(isRestored || isPendingRestore, 'Restore didn\'t get initiated');
             conditionOk = conditionOk && isRestored;
         } else if (objectTransitionStatus == 'cold') {
-            conditionOk = conditionOk && !head?.Restore;
+            conditionOk = conditionOk && !parsed.result?.Restore;
         }
         await Utils.sleep(1000);
     }

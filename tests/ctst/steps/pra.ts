@@ -7,6 +7,7 @@ import {
 } from 'steps/utils/utils';
 import { Identity, IdentityEnum, Utils } from 'cli-testing';
 import { safeJsonParse } from 'common/utils';
+import assert from 'assert';
 
 enum ZenkoDrSinkPhases {
     ZenkoDRSinkPhaseNew = 'New',
@@ -86,7 +87,7 @@ async function waitForPhase(
             break;
         }
 
-        const parsedStatus = safeJsonParse(currentStatus);
+        const parsedStatus = safeJsonParse<DrState>(currentStatus);
 
         if (!parsedStatus.ok) {
             world.logger.debug('Failed to parse DR status, retrying', {
@@ -97,9 +98,9 @@ async function waitForPhase(
         }
 
         if (target === 'sink') {
-            phase = (parsedStatus.result as DrState).sink.crStatus.phase;
+            phase = (parsedStatus.result)!.sink.crStatus.phase;
         } else {
-            phase = (parsedStatus.result as DrState).source.crStatus.phase;
+            phase = (parsedStatus.result)!.source.crStatus.phase;
         }
 
         world.logger.debug('current phase', {
@@ -205,3 +206,17 @@ Then('object {string} should be {string} and have the storage class {string} on 
 
         await verifyObjectLocation.call(this, objName, objectTransitionStatus, storageClass);
     });
+
+Then('the kafka DR volume exists', { timeout: 60000 }, async function (this: Zenko) {
+    const volume = await this.zenkoDrCtl?.volumeGet({
+        volumeName: 'kafka',
+        timeout: 60,
+    });
+    this.logger.debug('kafka volume', { volume });
+    assert(volume);
+    const volumeParsed = safeJsonParse<{'volume phase': string, 'volume name': string}>(volume);
+    if (!volumeParsed.ok) {
+        throw new Error('Failed to parse volume');
+    }
+    assert(volumeParsed.result!['volume phase'] === 'Bound');
+});

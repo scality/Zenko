@@ -146,7 +146,7 @@ export default class ZenkoDrctl {
             return result.stdout;
         } catch (err) {
             this.world.logger.debug('zenko-drctl command failed', { err });
-            throw new Error('Failed to run zenko-drctl command');
+            return null;
         }
     }
 
@@ -175,7 +175,7 @@ export default class ZenkoDrctl {
     }
 
     // TODO: can we test volume create/delete commands (use metalk8s) in Zenko?
-    async kafkaGetVolume(config: VolumeGetConfig) {
+    async volumeGet(config: VolumeGetConfig) {
         return this.runCommand('get volume', this.paramToCli(config));
     }
 
