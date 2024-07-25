@@ -370,6 +370,15 @@ export async function displayDRSinkStatus(world: Zenko, namespace = 'default') {
     });
 }
 
+export async function getPVCFromLabel(world: Zenko, label: string, value: string, namespace = 'default') {
+    const coreClient = createKubeCoreClient(world);
+
+    const pvcList = await coreClient.listNamespacedPersistentVolumeClaim(namespace);
+    const pvc = pvcList.body.items.find(pvc => pvc.metadata?.labels?.[label] === value);
+
+    return pvc;
+}
+
 export async function createSecret(
     world: Zenko,
     secretName: string,

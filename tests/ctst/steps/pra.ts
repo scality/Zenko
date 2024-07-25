@@ -6,6 +6,7 @@ import {
     displayCRStatus,
     displayDRSinkStatus,
     displayDRSourceStatus,
+    getPVCFromLabel,
 } from './utils/kubernetes';
 import { 
     verifyObjectLocation,
@@ -89,7 +90,7 @@ async function waitForPhase(
                 currentStatus,
             });
             await Utils.sleep(1000);
-            break;
+            continue;
         }
 
         const parsedStatus = safeJsonParse<DrState>(currentStatus);
@@ -99,7 +100,7 @@ async function waitForPhase(
                 parsedStatus,
             });
             await Utils.sleep(1000);
-            break;
+            continue;
         }
 
         if (target === 'sink') {
@@ -222,11 +223,14 @@ Then('object {string} should be {string} and have the storage class {string} on 
     });
 
 Then('the kafka DR volume exists', { timeout: 60000 }, async function (this: Zenko) {
+    const volumeClaim = await getPVCFromLabel(this, 'kafka_cr', 'end2end-pra-sink-base-queue');
+    this.logger.debug('kafka volume claim', { volumeClaim });
+    assert(volumeClaim);
     const volume = await this.zenkoDrCtl?.volumeGet({
-        volumeName: 'kafka',
+        volumeName: volumeClaim.metadata?.name,
         timeout: 60,
     });
-    this.logger.debug('kafka volume', { volume });
+    this.logger.debug('kafka volume from drctl', { volume });
     assert(volume);
     const volumeParsed = safeJsonParse<{'volume phase': string, 'volume name': string}>(volume);
     if (!volumeParsed.ok) {
