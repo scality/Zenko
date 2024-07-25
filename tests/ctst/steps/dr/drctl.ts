@@ -122,8 +122,8 @@ type StatusConfig = {
     sourceZenkoNamespace?: string;
     sinkZenkoInstance?: string;
     sinkZenkoNamespace?: string;
-    sourceZenkoDRInstance?: string;
-    sinkZenkoDRInstance?: string;
+    sourceZenkoDrInstance?: string;
+    sinkZenkoDrInstance?: string;
     output?: string;
 };
 

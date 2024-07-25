@@ -325,9 +325,9 @@ export async function displayDRSourceStatus(world: Zenko, namespace = 'default')
 
     const zenkoCR = await zenkoClient.getNamespacedCustomObject(
         'zenko.io',
-        'v1alpha2',
+        'v1alpha1',
         namespace,
-        'zenkodrsource',
+        'zenkodrsources',
         'end2end-dr-source',
     ).catch(err => {
         world.logger.error('Error getting Zenko CR', {
@@ -350,9 +350,9 @@ export async function displayDRSinkStatus(world: Zenko, namespace = 'default') {
 
     const zenkoCR = await zenkoClient.getNamespacedCustomObject(
         'zenko.io',
-        'v1alpha2',
+        'v1alpha1',
         namespace,
-        'zenkodrsink',
+        'zenkodrsinks',
         'end2end-dr-sink',
     ).catch(err => {
         world.logger.error('Error getting Zenko CR', {
