@@ -9,6 +9,7 @@ import {
     getPVCFromLabel,
 } from './utils/kubernetes';
 import { 
+    restoreObject,
     verifyObjectLocation,
 } from 'steps/utils/utils';
 import { Identity, IdentityEnum, SuperAdmin, Utils } from 'cli-testing';
@@ -217,12 +218,14 @@ Then('the DR source should be in phase {string}', { timeout: 360000 }, async fun
     await waitForPhase(this, 'source', targetPhase);
 });
 
-Then('object {string} should be {string} and have the storage class {string} on DR site',
-    async function (this: Zenko, objName: string, objectTransitionStatus: string, storageClass: string) {
+Then('object {string} should be {string} and have the storage class {string} on {string} site',
+    async function (this: Zenko, objName: string, objectTransitionStatus: string, storageClass: string, site: string) {
         this.resetCommand();
-        // use source account: it should have been replicated
-        Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
-
+        if (site === 'DR') {
+            Identity.useIdentity(IdentityEnum.ACCOUNT, `${Zenko.sites['source'].accountName}-replicated`);
+        } else {
+            Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
+        }
         await verifyObjectLocation.call(this, objName, objectTransitionStatus, storageClass);
     });
 
@@ -277,3 +280,66 @@ Given('access keys for the replicated account', async () => {
     });
     Identity.addIdentity(IdentityEnum.ACCOUNT, targetAccount, credentials, undefined, true);
 });
+
+Then('the kafka DR volume exists', { timeout: 60000 }, async function (this: Zenko) {
+    const volumeClaim = await getPVCFromLabel(this, 'kafka_cr', 'end2end-pra-sink-base-queue');
+    this.logger.debug('kafka volume claim', { volumeClaim });
+    assert(volumeClaim);
+    const volume = await this.zenkoDrCtl?.volumeGet({
+        volumeName: volumeClaim.metadata?.name,
+        timeout: 60,
+    });
+    this.logger.debug('kafka volume from drctl', { volume });
+    assert(volume);
+    const volumeParsed = safeJsonParse<{'volume phase': string, 'volume name': string}>(volume);
+    if (!volumeParsed.ok) {
+        throw new Error('Failed to parse volume');
+    }
+    assert(volumeParsed.result!['volume phase'] === 'Bound');
+});
+
+When('I uninstall DR', { timeout: 360000 }, async function (this: Zenko) {
+    await this.zenkoDrCtl?.uninstall({
+        sourceZenkoDrInstance: 'end2end-source',
+        sinkZenkoDrInstance: 'end2end-pra-sink',
+        wait: true,
+        timeout: '300000',
+    });
+});
+
+Then('the DR custom resources should be deleted', { timeout: 360000 }, async function (this: Zenko) {
+    const drSource = await getDRSource(this);
+    const drSink = await getDRSink(this);
+
+    assert(!drSource);
+    assert(!drSink);
+});
+
+Given('access keys for the replicated account', async () => {
+    Identity.useIdentity(IdentityEnum.ADMIN, Zenko.sites['sink'].adminIdentityName);
+    // The account is the one from the source cluster: it replaces the sink account
+    // after the bootstrap phases
+    const targetAccount = Zenko.sites['source'].accountName;
+
+    // ensure the account is replicated
+    const account = await SuperAdmin.getAccount({
+        accountName: targetAccount,
+    });
+    assert(account);
+
+    const credentials = await SuperAdmin.generateAccountAccessKey({
+        accountName: targetAccount,
+    });
+    Identity.addIdentity(IdentityEnum.ACCOUNT, `${targetAccount}-replicated`, credentials, undefined, true);
+});
+
+When('i restore object {string} for {int} days on {string} site',
+    async function (this: Zenko, objectName: string, days: number, site: string) {
+        this.resetCommand();
+        if (site === 'DR') {
+            Identity.useIdentity(IdentityEnum.ACCOUNT, `${Zenko.sites['source'].accountName}-replicated`);
+        } else {
+            Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
+        }
+        await restoreObject.call(this, objectName, days);
+    });

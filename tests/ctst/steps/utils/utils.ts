@@ -296,6 +296,20 @@ async function verifyObjectLocation(this: Zenko, objectName: string,
     assert(conditionOk);
 }
 
+async function restoreObject(this: Zenko, objectName: string, days: number) {
+    const objName = getObjectNameWithBackendFlakiness.call(this, objectName) ||  this.getSaved<string>('objectName');
+    this.resetCommand();
+    this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
+    this.addCommandParameter({ key: objName });
+    const versionId = this.getSaved<Map<string, string>>('createdObjects')?.get(objName);
+    if (versionId) {
+        this.addCommandParameter({ versionId });
+    }
+    this.addCommandParameter({ restoreRequest: `Days=${days}` });
+    const result = await S3.restoreObject(this.getCommandParameters());
+    this.setResult(result);
+}
+
 /**
  * @param {Zenko} this world object
  * @param {string} objectName object name
@@ -337,4 +351,5 @@ export {
     emptyVersionedBucket,
     verifyObjectLocation,
     getObjectNameWithBackendFlakiness,
+    restoreObject,
 };

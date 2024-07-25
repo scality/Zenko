@@ -11,6 +11,7 @@ import {
     runActionAgainstBucket,
     getObjectNameWithBackendFlakiness,
     verifyObjectLocation,
+    restoreObject,
 } from 'steps/utils/utils';
 import { ActionPermissionsType } from 'steps/bucket-policies/utils';
 
@@ -220,17 +221,7 @@ Given('a transition workflow to {string} location', async function (this: Zenko,
 });
 
 When('i restore object {string} for {int} days', async function (this: Zenko, objectName: string, days: number) {
-    const objName = getObjectNameWithBackendFlakiness.call(this, objectName) ||  this.getSaved<string>('objectName');
-    this.resetCommand();
-    this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-    this.addCommandParameter({ key: objName });
-    const versionId = this.getSaved<Map<string, string>>('createdObjects')?.get(objName);
-    if (versionId) {
-        this.addCommandParameter({ versionId });
-    }
-    this.addCommandParameter({ restoreRequest: `Days=${days}` });
-    const result = await S3.restoreObject(this.getCommandParameters());
-    this.setResult(result);
+    await restoreObject.call(this, objectName, days);
 });
 
 // wait for object to transition to a location or get restored from it
