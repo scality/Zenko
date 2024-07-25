@@ -73,12 +73,16 @@ async function waitForPhase(
 
         if (target === 'sink') {
             currentStatus = await world.zenkoDrCtl?.status({
+                sinkZenkoNamespace: 'default',
+                sourceZenkoNamespace: 'default',
                 sinkZenkoDrInstance: 'end2end-pra-sink',
                 sourceZenkoDrInstance: 'end2end-source',
                 output: 'json',
             });
         } else {
             currentStatus = await world.zenkoDrCtl?.status({
+                sinkZenkoNamespace: 'default',
+                sourceZenkoNamespace: 'default',
                 sourceZenkoDrInstance: 'end2end-source',
                 sinkZenkoDrInstance: 'end2end-pra-sink',
                 output: 'json',

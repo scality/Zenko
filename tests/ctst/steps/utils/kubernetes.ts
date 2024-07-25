@@ -397,9 +397,18 @@ export async function createSecret(
     };
 
     try {
+        await coreClient.deleteNamespacedSecret(secretName, namespace);
+    } catch (err) {
+        world.logger.debug('Secret does not exist, creating new', {
+            secretName,
+            namespace,
+        });
+    }
+
+    try {
         const response = await coreClient.createNamespacedSecret(namespace, secret);
         return response;
-    } catch(err) {
+    } catch (err) {
         world.logger.error('Error creating secret', {
             namespace,
             secret,
