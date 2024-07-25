@@ -1,7 +1,12 @@
 import { Given, Then } from '@cucumber/cucumber';
 import Zenko from 'world/Zenko';
 import ZenkoDrctl from './dr/drctl';
-import { displayCRStatus, displayDRSinkStatus, displayDRSourceStatus } from './utils/kubernetes';
+import {
+    createSecret,
+    displayCRStatus,
+    displayDRSinkStatus,
+    displayDRSourceStatus,
+} from './utils/kubernetes';
 import { 
     verifyObjectLocation,
 } from 'steps/utils/utils';
@@ -119,6 +124,13 @@ async function waitForPhase(
 }
 
 Given('a DR installed', { timeout: 130000 }, async function (this: Zenko) {
+    Identity.resetIdentity();
+    const credentials = Identity.getCurrentCredentials();
+    // create the secret to store the s3 credentials
+    await createSecret(this, this.parameters.S3UserSecretName!, {
+        accessKey: credentials.accessKeyId,
+        secretAccessKey: credentials.secretAccessKey,
+    });
     await this.zenkoDrCtl?.install({
         sourceZenkoDrInstance: 'end2end-source',
         sinkZenkoDrInstance: 'end2end-pra-sink',
@@ -132,6 +144,8 @@ Given('a DR installed', { timeout: 130000 }, async function (this: Zenko) {
         sourceZenkoNamespace: 'default',
         sourceS3Endpoint: 'http://s3.zenko.local',
         sinkS3Endpoint: 'http://s3.dr.zenko.local',
+        sinkS3UserSecretName: this.parameters.S3UserSecretName,
+        sourceS3UserSecretName: this.parameters.S3UserSecretName,
     });
     return;
 });

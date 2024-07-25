@@ -25,14 +25,14 @@ export function createKubeBatchClient(world: Zenko) {
     if (!KubernetesHelper.clientBatch) {
         KubernetesHelper.init(world.parameters);
     }
-    return KubernetesHelper.clientBatch;
+    return KubernetesHelper.clientBatch!;
 }
 
 export function createKubeCoreClient(world: Zenko) {
     if (!KubernetesHelper.clientBatch) {
         KubernetesHelper.init(world.parameters);
     }
-    return KubernetesHelper.clientCore;
+    return KubernetesHelper.clientCore!;
 }
 
 export function createKubeWatchClient(world: Zenko) {
@@ -67,7 +67,7 @@ export async function createJobAndWaitForCompletion(world: Zenko, jobName: strin
     const batchClient = createKubeBatchClient(world);
     const watchClient = createKubeWatchClient(world);
     try {
-        const cronJob = await batchClient!.readNamespacedCronJob(jobName, 'default');
+        const cronJob = await batchClient.readNamespacedCronJob(jobName, 'default');
         const cronJobSpec = cronJob.body.spec?.jobTemplate.spec;
         const job = new V1Job();
         const metadata = new V1ObjectMeta();
@@ -85,7 +85,7 @@ export async function createJobAndWaitForCompletion(world: Zenko, jobName: strin
         }
         job.metadata = metadata;
 
-        const response = await batchClient!.createNamespacedJob('default', job);
+        const response = await batchClient.createNamespacedJob('default', job);
         world.logger.debug('job created', {
             job: response.body.metadata,
         });
@@ -368,4 +368,26 @@ export async function displayDRSinkStatus(world: Zenko, namespace = 'default') {
     world.logger.debug('Checking Zenko DR Sink CR status', {
         zenkoCR,
     });
+}
+
+export async function createSecret(
+    world: Zenko,
+    secretName: string,
+    data: Record<string, string>,
+    namespace = 'default',
+) {
+    const coreClient = createKubeCoreClient(world);
+
+    const secret = {
+        apiVersion: 'v1',
+        kind: 'Secret',
+        metadata: {
+            name: secretName,
+        },
+        data,
+    };
+
+    const response = await coreClient.createNamespacedSecret(namespace, secret);
+
+    return response;
 }

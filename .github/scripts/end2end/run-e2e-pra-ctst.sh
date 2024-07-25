@@ -36,6 +36,7 @@ BACKBEAT_QP_1_CREDS=$(kubectl get secret -l app.kubernetes.io/name=backbeat-qp-u
 SORBET_FWD_2_ACCESSKEY=$(kubectl get secret -l app.kubernetes.io/name=sorbet-fwd-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.accessKey}' | base64 -d)
 SORBET_FWD_2_SECRETKEY=$(kubectl get secret -l app.kubernetes.io/name=sorbet-fwd-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.secretKey}' | base64 -d)
 SERVICE_USERS_CREDENTIALS=$(echo '{"backbeat-lifecycle-bp-1":'${BACKBEAT_LCBP_1_CREDS}',"backbeat-lifecycle-conductor-1":'${BACKBEAT_LCC_1_CREDS}',"backbeat-lifecycle-op-1":'${BACKBEAT_LCOP_1_CREDS}',"backbeat-qp-1":'${BACKBEAT_QP_1_CREDS}',"sorbet-fwd-2":{"accessKey":"'${SORBET_FWD_2_ACCESSKEY}'","secretKey":"'${SORBET_FWD_2_SECRETKEY}'"}}' | jq -R)
+S3_USER_SCRET_NAME="drctl-s3-creds"
 
 # Extracting kafka host from bacbeat's config
 KAFKA_HOST_PORT=$(kubectl get secret -l app.kubernetes.io/name=backbeat-config,app.kubernetes.io/instance=end2end \
@@ -45,12 +46,6 @@ KAFKA_HOST_PORT=${KAFKA_HOST_PORT:1:-1}
 INSTANCE_ID=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.status.instanceID}')
 
 KAFKA_CLEANER_INTERVAL=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.spec.kafkaCleaner.interval}')
-
-kubectl --dry-run=client create secret generic drctl-s3-creds \
-        --from-literal=accessKey=${ADMIN_ACCESS_KEY_ID} \
-        --from-literal=secretAccessKey=${ADMIN_SECRET_ACCESS_KEY} \
-        -o yaml |
-        kubectl apply -f -
 
 # Setting CTST world params
 WORLD_PARAMETERS="$(jq -c <<EOF
@@ -71,7 +66,8 @@ WORLD_PARAMETERS="$(jq -c <<EOF
   "DataConsumerUsername":"${DATA_CONSUMER_USER_NAME}",
   "ServiceUsersCredentials":${SERVICE_USERS_CREDENTIALS},
   "InstanceID":"${INSTANCE_ID}",
-  "KafkaCleanerInterval":"${KAFKA_CLEANER_INTERVAL}"
+  "KafkaCleanerInterval":"${KAFKA_CLEANER_INTERVAL}",
+  "S3UserSecretName":"${S3_USER_SCRET_NAME}",
 }
 EOF
 )"
