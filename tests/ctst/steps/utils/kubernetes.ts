@@ -328,7 +328,7 @@ export async function displayDRSourceStatus(world: Zenko, namespace = 'default')
         'v1alpha1',
         namespace,
         'zenkodrsources',
-        'end2end-dr-source',
+        'end2end-source',
     ).catch(err => {
         world.logger.error('Error getting Zenko CR', {
             err: err as unknown,
@@ -353,7 +353,7 @@ export async function displayDRSinkStatus(world: Zenko, namespace = 'default') {
         'v1alpha1',
         namespace,
         'zenkodrsinks',
-        'end2end-dr-sink',
+        'end2end-pra-sink',
     ).catch(err => {
         world.logger.error('Error getting Zenko CR', {
             err: err as unknown,
