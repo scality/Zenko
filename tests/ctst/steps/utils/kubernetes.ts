@@ -396,7 +396,15 @@ export async function createSecret(
         data,
     };
 
-    const response = await coreClient.createNamespacedSecret(namespace, secret);
-
-    return response;
+    try {
+        const response = await coreClient.createNamespacedSecret(namespace, secret);
+        return response;
+    } catch(err) {
+        world.logger.error('Error creating secret', {
+            namespace,
+            secret,
+            err,
+        });
+        throw err;
+    }
 }
