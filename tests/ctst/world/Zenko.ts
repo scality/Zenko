@@ -105,7 +105,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             accountName: string;
             adminIdentityName: string;
         };
-      } = {};
+    } = {};
 
     public logger: Werelogs.RequestLogger = new Werelogs.Logger('CTST').newRequestLogger();
 
@@ -407,13 +407,17 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         }
     }
 
-    async createAccount(name?: string, force?: boolean) {
+    async createAccount(name?: string, force?: boolean, adminClientName?: string) {
         Identity.resetIdentity();
         const accountName = name || this.getSaved<string>('accountName') ||
             `${Constants.ACCOUNT_NAME}${Utils.randomString()}`;
         if (Identity.hasIdentity(IdentityEnum.ACCOUNT, accountName) && !force) {
             Identity.useIdentity(IdentityEnum.ACCOUNT, accountName);
             return;
+        }
+
+        if (adminClientName && Identity.hasIdentity(IdentityEnum.ADMIN, adminClientName)) {
+            Identity.useIdentity(IdentityEnum.ADMIN, adminClientName);
         }
 
         await SuperAdmin.createAccount({ accountName });
@@ -634,14 +638,14 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 if (!account) {
                     throw new Error(`Account ${accountName} not found in site ${siteKey}.`);
                 }
-        
+
                 // Account was found, generate access keys if not provided
                 const accountAccessKeys = Identity.getCredentialsForIdentity(
                     IdentityEnum.ACCOUNT, accountName) || {
                     accessKeyId: '',
                     secretAccessKey: '',
                 };
-        
+
                 if (!accountAccessKeys.accessKeyId || !accountAccessKeys.secretAccessKey) {
                     const accessKeys = await SuperAdmin.generateAccountAccessKey({ accountName });
                     if (!Utils.isAccessKeys(accessKeys)) {
@@ -655,14 +659,13 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                     accountName,
                     accountAccessKeys,
                 });
-        
                 Identity.addIdentity(IdentityEnum.ACCOUNT, accountName, accountAccessKeys, undefined, true, true);
             }
         }
         // Fallback to the primary site's account at the end of the init by default
         Identity.useIdentity(IdentityEnum.ACCOUNT, this.sites['source']?.accountName
             || CacheHelper.parameters.AccountName!);
-    }    
+    }
 
     /**
      * Creates an IAM user with policy and access keys to be used in the tests.
