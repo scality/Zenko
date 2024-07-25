@@ -125,10 +125,9 @@ async function waitForPhase(
 }
 
 Given('a DR installed', { timeout: 130000 }, async function (this: Zenko) {
-    Identity.resetIdentity();
+    Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
     const credentials = Identity.getCurrentCredentials();
-    // create the secret to store the s3 credentials
-    await createSecret(this, this.parameters.S3UserSecretName!, {
+    await createSecret(this, 'drctl-s3-creds', {
         accessKey: credentials.accessKeyId,
         secretAccessKey: credentials.secretAccessKey,
     });
@@ -145,8 +144,6 @@ Given('a DR installed', { timeout: 130000 }, async function (this: Zenko) {
         sourceZenkoNamespace: 'default',
         sourceS3Endpoint: 'http://s3.zenko.local',
         sinkS3Endpoint: 'http://s3.dr.zenko.local',
-        sinkS3UserSecretName: this.parameters.S3UserSecretName,
-        sourceS3UserSecretName: this.parameters.S3UserSecretName,
     });
     return;
 });
