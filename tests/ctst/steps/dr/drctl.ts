@@ -137,7 +137,7 @@ export default class ZenkoDrctl {
         this.world = world;
     }
 
-    private async runCommand(action: string, params: string, timeout = 600, wait = true) {
+    private async runCommand(action: string, params: string, throwOnError = false) {
         const command = `/ctst/zenko-drctl ${action} ${params}`;
         try {
             this.world.logger.debug('running zenko-drctl command', { command });
@@ -146,16 +146,19 @@ export default class ZenkoDrctl {
             return result.stdout;
         } catch (err) {
             this.world.logger.debug('zenko-drctl command failed', { err });
+            if (throwOnError) {
+                throw err;
+            }
             return null;
         }
     }
 
     async install(config: InstallConfig) {
-        return this.runCommand('install', this.paramToCli(config));
+        return this.runCommand('install', this.paramToCli(config), true);
     }
 
     async uninstall(config: UninstallConfig) {
-        return this.runCommand('uninstall', this.paramToCli(config));
+        return this.runCommand('uninstall', this.paramToCli(config), true);
     }
 
     async bootstrapDump(config: BootstrapDumpConfig) {

@@ -13,9 +13,11 @@ Feature: PRA operations
     And object "obj-2" should be "transitioned" and have the storage class "e2e-cold"
     And dmf volume should contain <objectCount> objects
     Given a DR installed
-    Then the DR sink should be in phase "Running"
-    And the DR source should be in phase "Running"
+    Then the DR source should be in phase "Running"
+    And the DR sink should be in phase "Running"
     And object "obj-1" should be "transitioned" and have the storage class "e2e-cold" on "DR" site
+    And the kafka DR volume exists
+    Then the DR custom resources should be deleted
 
     Examples:
     | versioningConfiguration | objectCount | objectSize |

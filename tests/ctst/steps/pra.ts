@@ -1,11 +1,11 @@
-import { Given, Then } from '@cucumber/cucumber';
+import { Given, Then, When } from '@cucumber/cucumber';
 import Zenko from 'world/Zenko';
 import ZenkoDrctl from './dr/drctl';
 import {
     createSecret,
     displayCRStatus,
-    displayDRSinkStatus,
-    displayDRSourceStatus,
+    getDRSink,
+    getDRSource,
     getPVCFromLabel,
 } from './utils/kubernetes';
 import { 
@@ -54,8 +54,13 @@ export function preparePRA(world: Zenko) {
 
 export async function displayDebuggingInformation(world: Zenko) {
     await displayCRStatus(world);
-    await displayDRSinkStatus(world);
-    await displayDRSourceStatus(world);
+    const drSource = await getDRSource(world);
+    const drSink = await getDRSink(world);
+
+    world.logger.debug('Zenko DR custom resources', {
+        drSink,
+        drSource,
+    });
 }
 
 async function waitForPhase(
@@ -184,7 +189,7 @@ Then('the DR sink should be in phase {string}', { timeout: 360000 }, async funct
     await waitForPhase(this, 'sink', targetPhase);
 });
 
-Then('the DR source should be in phase {string}', { timeout: 130000 }, async function (this: Zenko, state: string) {
+Then('the DR source should be in phase {string}', { timeout: 360000 }, async function (this: Zenko, state: string) {
     let targetPhase;
     switch (state) {
     case 'New':
@@ -239,4 +244,22 @@ Then('the kafka DR volume exists', { timeout: 60000 }, async function (this: Zen
         throw new Error('Failed to parse volume');
     }
     assert(volumeParsed.result!['volume phase'] === 'Bound');
+});
+
+
+When('I uninstall DR', { timeout: 360000 }, async function (this: Zenko) {
+    await this.zenkoDrCtl?.uninstall({
+        sourceZenkoDrInstance: 'end2end-source',
+        sinkZenkoDrInstance: 'end2end-pra-sink',
+        wait: true,
+        timeout: '300000',
+    });
+});
+
+Then('the DR custom resources should be deleted', { timeout: 360000 }, async function (this: Zenko) {
+    const drSource = await getDRSource(this);
+    const drSink = await getDRSink(this);
+
+    assert(!drSource);
+    assert(!drSink);
 });

@@ -319,8 +319,7 @@ export async function displayCRStatus(world: Zenko, namespace = 'default') {
     });
 }
 
-// same but for end2end-dr-source and end2end-dr-sink
-export async function displayDRSourceStatus(world: Zenko, namespace = 'default') {
+export async function getDRSource(world: Zenko, namespace = 'default') {
     const zenkoClient = createKubeCustomObjectClient(world);
 
     const zenkoCR = await zenkoClient.getNamespacedCustomObject(
@@ -330,22 +329,15 @@ export async function displayDRSourceStatus(world: Zenko, namespace = 'default')
         'zenkodrsources',
         'end2end-source',
     ).catch(err => {
-        world.logger.error('Error getting Zenko CR', {
+        world.logger.debug('Error getting Zenko CR', {
             err: err as unknown,
         });
-        return null;
     });
 
-    if (!zenkoCR) {
-        return;
-    }
-
-    world.logger.debug('Checking Zenko DR Source CR status', {
-        zenkoCR,
-    });
+    return zenkoCR?.body;
 }
 
-export async function displayDRSinkStatus(world: Zenko, namespace = 'default') {
+export async function getDRSink(world: Zenko, namespace = 'default') {
     const zenkoClient = createKubeCustomObjectClient(world);
 
     const zenkoCR = await zenkoClient.getNamespacedCustomObject(
@@ -355,19 +347,12 @@ export async function displayDRSinkStatus(world: Zenko, namespace = 'default') {
         'zenkodrsinks',
         'end2end-pra-sink',
     ).catch(err => {
-        world.logger.error('Error getting Zenko CR', {
+        world.logger.debug('Error getting Zenko CR', {
             err: err as unknown,
         });
-        return null;
     });
-
-    if (!zenkoCR) {
-        return;
-    }
-
-    world.logger.debug('Checking Zenko DR Sink CR status', {
-        zenkoCR,
-    });
+    
+    return zenkoCR?.body;
 }
 
 export async function getPVCFromLabel(world: Zenko, label: string, value: string, namespace = 'default') {
