@@ -247,6 +247,8 @@ When('I uninstall DR', { timeout: 360000 }, async function (this: Zenko) {
     await this.zenkoDrCtl?.uninstall({
         sourceZenkoDrInstance: 'end2end-source',
         sinkZenkoDrInstance: 'end2end-pra-sink',
+        sinkZenkoNamespace: 'default',
+        sourceZenkoNamespace: 'default',
         wait: true,
         timeout: '6m',
     });
