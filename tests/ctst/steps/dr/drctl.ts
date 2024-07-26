@@ -179,7 +179,7 @@ export default class ZenkoDrctl {
 
     // TODO: can we test volume create/delete commands (use metalk8s) in Zenko?
     async volumeGet(config: VolumeGetConfig) {
-        return this.runCommand('get volume', this.paramToCli(config));
+        return this.runCommand('volume get', this.paramToCli(config));
     }
 
     paramToCli(params: Record<string, unknown>): string {

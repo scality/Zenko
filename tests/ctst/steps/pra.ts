@@ -275,5 +275,6 @@ Given('access keys for the replicated account', async () => {
     const credentials = await SuperAdmin.generateAccountAccessKey({
         accountName: targetAccount,
     });
+    // This will replace the source account, and use the sink endpoint instead.
     Identity.addIdentity(IdentityEnum.ACCOUNT, targetAccount, credentials, undefined, true);
 });
