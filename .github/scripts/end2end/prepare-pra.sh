@@ -21,7 +21,7 @@ MONGODB_ROOT_PASSWORD="${MONGODB_ROOT_PASSWORD:-'rootpass'}"
 kubectl exec -it data-db-mongodb-sharded-mongos-0 -- mongo "admin" \
     -u "root" \
     -p "rootpass" \
-    --eval "db.createUser({user:$MONGODB_PRA_USERNAME,pwd:$MONGODB_PRA_PASSWORD,roles:[{role:'enableSharding',db:$MONGODB_PRA_DATABASE },{role:'readWriteAnyDatabase'}]})"
+    --eval "db.createUser({user:$MONGODB_PRA_USERNAME,pwd:$MONGODB_PRA_PASSWORD,roles:[{role:'enableSharding',db:$MONGODB_PRA_DATABASE },{role:'readWriteAnyDatabase',db:'admin'}]})"
 
 
 kubectl -n ${PRA_NAMESPACE} apply -f - <<EOF
