@@ -148,7 +148,7 @@ Given('a DR installed', { timeout: 130000 }, async function (this: Zenko) {
         sourceZenkoInstance: 'end2end',
         sourceZenkoNamespace: 'default',
         sourceS3Endpoint: 'http://s3.zenko.local',
-        sinkS3Endpoint: 'http://s3.dr.zenko.local',
+        sinkS3Endpoint: 'http://s3.zenko.local',
     });
     return;
 });
