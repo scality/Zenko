@@ -231,7 +231,7 @@ Then('the kafka DR volume exists', { timeout: 60000 }, async function (this: Zen
     this.logger.debug('kafka volume claim', { volumeClaim });
     assert(volumeClaim);
     const volume = await this.zenkoDrCtl?.volumeGet({
-        volumeName: volumeClaim.metadata?.name,
+        volumeName: volumeClaim.spec?.volumeName,
         timeout: '60s',
     });
     this.logger.debug('kafka volume from drctl', { volume });
