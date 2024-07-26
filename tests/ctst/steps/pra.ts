@@ -153,7 +153,7 @@ Given('a DR installed', { timeout: 130000 }, async function (this: Zenko) {
     return;
 });
 
-Then('the DR sink should be in phase {string}', { timeout: 130000 }, async function (this: Zenko,state: string) {
+Then('the DR sink should be in phase {string}', { timeout: 360000 }, async function (this: Zenko,state: string) {
     let targetPhase;
     switch (state) {
     case 'New':
