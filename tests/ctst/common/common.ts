@@ -1,6 +1,6 @@
 import { ListObjectVersionsOutput } from '@aws-sdk/client-s3';
 import { Given, setDefaultTimeout, Then, When } from '@cucumber/cucumber';
-import { Constants, S3, Utils } from 'cli-testing';
+import { Constants, S3, Utils, Identity, IdentityEnum } from 'cli-testing';
 import Zenko from 'world/Zenko';
 import { safeJsonParse } from './utils';
 import assert from 'assert';
@@ -13,6 +13,7 @@ import {
     verifyObjectLocation,
     restoreObject,
 } from 'steps/utils/utils';
+
 import { ActionPermissionsType } from 'steps/bucket-policies/utils';
 
 setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
@@ -128,6 +129,18 @@ Given('an existing bucket {string} {string} versioning, {string} ObjectLock {str
 
 Given('{int} objects {string} of size {int} bytes',
     async function (this: Zenko, numberObjects: number, objectName: string, sizeBytes: number) {
+        await addMultipleObjects.call(this, numberObjects, objectName, sizeBytes);
+    });
+
+Given('{int} objects {string} of size {int} bytes on {string} site',
+    async function (this: Zenko, numberObjects: number, objectName: string, sizeBytes: number, site: string) {
+        this.resetCommand();
+
+        if (site === 'DR') {
+            Identity.useIdentity(IdentityEnum.ACCOUNT, `${Zenko.sites['source'].accountName}-replicated`);
+        } else {
+            Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
+        }
         await addMultipleObjects.call(this, numberObjects, objectName, sizeBytes);
     });
 
