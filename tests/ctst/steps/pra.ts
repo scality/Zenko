@@ -133,8 +133,8 @@ Given('a DR installed', { timeout: 130000 }, async function (this: Zenko) {
     Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
     const credentials = Identity.getCurrentCredentials();
     await createSecret(this, 'drctl-s3-creds', {
-        accessKey: credentials.accessKeyId,
-        secretAccessKey: credentials.secretAccessKey,
+        accessKey: Buffer.from(credentials.accessKeyId).toString('base64'),
+        secretAccessKey: Buffer.from(credentials.secretAccessKey).toString('base64'),
     });
     await this.zenkoDrCtl?.install({
         sourceZenkoDrInstance: 'end2end-source',
