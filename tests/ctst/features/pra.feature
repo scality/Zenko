@@ -16,7 +16,7 @@ Feature: PRA operations
     Then the DR source should be in phase "Running"
     And the DR sink should be in phase "Running"
     Given access keys for the replicated account
-    Then object "obj-1" should be "transitioned" and have the storage class "e2e-cold" on "DR" site
+    Then object "obj-1" should be "transitioned" and have the storage class "e2e-cold" on DR site
     And the kafka DR volume exists
     When I uninstall DR
     Then the DR custom resources should be deleted
