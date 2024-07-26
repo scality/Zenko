@@ -232,7 +232,7 @@ Then('the kafka DR volume exists', { timeout: 60000 }, async function (this: Zen
     assert(volumeClaim);
     const volume = await this.zenkoDrCtl?.volumeGet({
         volumeName: volumeClaim.metadata?.name,
-        timeout: 60,
+        timeout: '60s',
     });
     this.logger.debug('kafka volume from drctl', { volume });
     assert(volume);
@@ -248,7 +248,7 @@ When('I uninstall DR', { timeout: 360000 }, async function (this: Zenko) {
         sourceZenkoDrInstance: 'end2end-source',
         sinkZenkoDrInstance: 'end2end-pra-sink',
         wait: true,
-        timeout: '300000',
+        timeout: '6m',
     });
 });
 
@@ -276,5 +276,5 @@ Given('access keys for the replicated account', async () => {
         accountName: targetAccount,
     });
     // This will replace the source account, and use the sink endpoint instead.
-    Identity.addIdentity(IdentityEnum.ACCOUNT, targetAccount, credentials, undefined, true);
+    Identity.addIdentity(IdentityEnum.ACCOUNT, `${targetAccount}-replicated`, credentials, undefined, true);
 });

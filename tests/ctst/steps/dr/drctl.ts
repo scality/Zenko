@@ -86,12 +86,12 @@ type VolumeGetConfig = {
     targetZenkoNamespace?: string;
     volumeName?: string;
     volumeNodeName?: string;
-    timeout?: number;
+    timeout?: string;
 };
 
 type FailoverConfig = {
     wait?: boolean;
-    timeout?: number;
+    timeout?: string;
     sinkKubeconfigPath?: string;
     sinkKubeconfigData?: string;
     sinkZenkoInstance?: string;
