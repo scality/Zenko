@@ -278,7 +278,7 @@ Given('access keys for the replicated account', async () => {
     const credentials = await SuperAdmin.generateAccountAccessKey({
         accountName: targetAccount,
     });
-    Identity.addIdentity(IdentityEnum.ACCOUNT, targetAccount, credentials, undefined, true);
+    Identity.addIdentity(IdentityEnum.ACCOUNT, `${targetAccount}-replicated`, credentials, undefined, true);
 });
 
 Then('the kafka DR volume exists', { timeout: 60000 }, async function (this: Zenko) {
@@ -313,24 +313,6 @@ Then('the DR custom resources should be deleted', { timeout: 360000 }, async fun
 
     assert(!drSource);
     assert(!drSink);
-});
-
-Given('access keys for the replicated account', async () => {
-    Identity.useIdentity(IdentityEnum.ADMIN, Zenko.sites['sink'].adminIdentityName);
-    // The account is the one from the source cluster: it replaces the sink account
-    // after the bootstrap phases
-    const targetAccount = Zenko.sites['source'].accountName;
-
-    // ensure the account is replicated
-    const account = await SuperAdmin.getAccount({
-        accountName: targetAccount,
-    });
-    assert(account);
-
-    const credentials = await SuperAdmin.generateAccountAccessKey({
-        accountName: targetAccount,
-    });
-    Identity.addIdentity(IdentityEnum.ACCOUNT, `${targetAccount}-replicated`, credentials, undefined, true);
 });
 
 When('i restore object {string} for {int} days on {string} site',
