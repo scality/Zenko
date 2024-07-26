@@ -65,13 +65,11 @@ async function waitForPhase(
     timeout = 130000,
 ): Promise<boolean> {
     const start = Date.now();
-    let currentPhase;
-    
+
     while (Date.now() - start < timeout) {
-        let currentStatus;
         let phase;
 
-        currentStatus = await world.zenkoDrCtl?.status({
+        const currentStatus = await world.zenkoDrCtl?.status({
             sinkZenkoNamespace: 'default',
             sourceZenkoNamespace: 'default',
             sinkZenkoDrInstance: 'end2end-pra-sink',
@@ -87,9 +85,22 @@ async function waitForPhase(
             continue;
         }
 
-        const parsedStatus = safeJsonParse<DrState>(currentStatus);
+        const lines = currentStatus.split('\n');
+        let parsedStatus: DrState | null = null;
 
-        if (!parsedStatus.ok) {
+        for (const line of lines) {
+            try {
+                const json = safeJsonParse<DrState>(line);
+                if (json.ok && json.result?.source && json.result?.source) {
+                    parsedStatus = json.result;
+                    break;
+                }
+            } catch (e) {
+                continue;
+            }
+        }
+
+        if (!parsedStatus) {
             world.logger.debug('Failed to parse DR status, retrying', {
                 parsedStatus,
             });
@@ -98,9 +109,9 @@ async function waitForPhase(
         }
 
         if (target === 'sink') {
-            phase = (parsedStatus.result)!.sink.crStatus.phase;
+            phase = parsedStatus.sink.crStatus.phase;
         } else {
-            phase = (parsedStatus.result)!.source.crStatus.phase;
+            phase = parsedStatus.source.crStatus.phase;
         }
 
         world.logger.debug('current phase', {
@@ -108,7 +119,7 @@ async function waitForPhase(
             target,
         });
 
-        if (currentPhase === state) {
+        if (phase === state) {
             return true;
         }
         

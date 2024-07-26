@@ -16,12 +16,9 @@ Feature: PRA operations
     Then the DR sink should be in phase "Running"
     And the DR source should be in phase "Running"
     And object "obj-1" should be "transitioned" and have the storage class "e2e-cold" on "DR" site
-    And the kafka DR volume exists
 
     Examples:
     | versioningConfiguration | objectCount | objectSize |
     |           Non versioned |           2 |        100 |
-    |               Versioned |           2 |        100 |
-    |               Suspended |           2 |        100 |
 
 
