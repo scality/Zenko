@@ -42,10 +42,16 @@ runs:
                        kcat -L -b ${KAFKA_SERVICE} -t {}  -C -o beginning -e -q -J \
                        > /tmp/artifacts/data/${STAGE}/kafka-messages-{}.log"
 
-        KAFKA_SERVICE=$(kubectl get services -n ${NAMESPACE} -lkafka_cr=${ZENKO_NAME:-end2end-pra}-sink-base-queue -o jsonpath='{.items[0].metadata.name}')
+        KAFKA_SERVICE_PRA=$(kubectl get services -n ${NAMESPACE} -lkafka_cr=${ZENKO_NAME:-end2end-pra}-sink-base-queue -o jsonpath='{.items[0].metadata.name}')
+        KAFKA_PRA=$(kubectl get pods -n ${NAMESPACE} -lkafka_cr=${ZENKO_NAME_PRA:-end2end-pra}-sink-base-queue -o jsonpath='{.items[0].metadata.name}')
+
+        kubectl exec -in ${NAMESPACE} ${KAFKA_PRA} -c kafka -- \
+            env KAFKA_OPTS= kafka-topics.sh --bootstrap-server :9092 --list \
+            > /tmp/artifacts/data/${STAGE}/kafka-topics-pra.log
+
         kubectl run -n ${NAMESPACE} k2cat --image=edenhill/kcat:1.7.1 --restart=Never --command -- sleep 300
         kubectl wait -n ${NAMESPACE} pod k2cat --for=condition=ready
-        cat /tmp/artifacts/data/${STAGE}/kafka-topics.log | grep -v '^__' | xargs -P 15 -I {} \
+        cat /tmp/artifacts/data/${STAGE}/kafka-topics-pra.log | grep -v '^__' | xargs -P 15 -I {} \
             sh -c "kubectl exec -i -n ${NAMESPACE} k2cat -- \
-                       kcat -L -b ${KAFKA_SERVICE} -t {}  -C -o beginning -e -q -J \
+                       kcat -L -b ${KAFKA_SERVICE_PRA} -t {}  -C -o beginning -e -q -J \
                        > /tmp/artifacts/data/${STAGE}/kafka-messages-pra-{}.log"
