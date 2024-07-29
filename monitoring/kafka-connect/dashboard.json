@@ -16,7 +16,14 @@
       "value": "zenko"
     },
     {
-      "description": "Name of the kafka connect job to filter metrics",
+      "description": "Regex matching the name of the Kafka job/cluster, used to filter only the Kafka instances.",
+      "label": "Cluster selector",
+      "name": "selector",
+      "type": "constant",
+      "value": "artesca-data-(.*-)?base-queue-connector-metrics"
+    },
+    {
+      "description": "DEPRECATED - Name of the kafka connect job to filter metrics",
       "label": "Job",
       "name": "job",
       "type": "constant",
@@ -113,7 +120,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "sum(up{job=\"${job}\", namespace=\"${namespace}\"})",
+          "expr": "sum(up{job=\"$instance\", namespace=\"${namespace}\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -194,7 +201,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "sum(kafka_connect_connector_status{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}) - sum(kafka_connect_connector_status{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", status=\"running\"})",
+          "expr": "sum(kafka_connect_connector_status{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\"}) - sum(kafka_connect_connector_status{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", status=\"running\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -268,7 +275,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "sum(kafka_connect_worker_connector_total_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
+          "expr": "sum(kafka_connect_worker_connector_total_task_count{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -342,7 +349,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "sum(kafka_connect_worker_connector_running_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
+          "expr": "sum(kafka_connect_worker_connector_running_task_count{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -424,7 +431,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "sum(kafka_connect_worker_connector_paused_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
+          "expr": "sum(kafka_connect_worker_connector_paused_task_count{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -506,7 +513,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "sum(kafka_connect_worker_connector_failed_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
+          "expr": "sum(kafka_connect_worker_connector_failed_task_count{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -588,7 +595,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "sum(kafka_connect_worker_connector_unassigned_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
+          "expr": "sum(kafka_connect_worker_connector_unassigned_task_count{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -670,7 +677,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "sum(kafka_connect_worker_connector_destroyed_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
+          "expr": "sum(kafka_connect_worker_connector_destroyed_task_count{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -738,7 +745,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "sum(kafka_connect_connector_status{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}) by(status)",
+          "expr": "sum(kafka_connect_connector_status{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\"}) by(status)",
           "format": "time_series",
           "hide": false,
           "instant": true,
@@ -806,7 +813,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "sum(kafka_connect_worker_connector_running_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
+          "expr": "sum(kafka_connect_worker_connector_running_task_count{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
           "format": "time_series",
           "hide": false,
           "instant": true,
@@ -820,7 +827,7 @@
         },
         {
           "datasource": null,
-          "expr": "sum(kafka_connect_worker_connector_failed_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
+          "expr": "sum(kafka_connect_worker_connector_failed_task_count{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
           "format": "time_series",
           "hide": false,
           "instant": true,
@@ -834,7 +841,7 @@
         },
         {
           "datasource": null,
-          "expr": "sum(kafka_connect_worker_connector_paused_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
+          "expr": "sum(kafka_connect_worker_connector_paused_task_count{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
           "format": "time_series",
           "hide": false,
           "instant": true,
@@ -848,7 +855,7 @@
         },
         {
           "datasource": null,
-          "expr": "sum(kafka_connect_worker_connector_unassigned_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
+          "expr": "sum(kafka_connect_worker_connector_unassigned_task_count{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
           "format": "time_series",
           "hide": false,
           "instant": true,
@@ -862,7 +869,7 @@
         },
         {
           "datasource": null,
-          "expr": "sum(kafka_connect_worker_connector_destroyed_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
+          "expr": "sum(kafka_connect_worker_connector_destroyed_task_count{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
           "format": "time_series",
           "hide": false,
           "instant": true,
@@ -995,7 +1002,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "sum(kafka_connect_connector_status{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", status!=\"\"}) by (status)",
+          "expr": "sum(kafka_connect_connector_status{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", status!=\"\"}) by (status)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -1082,7 +1089,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "sum(kafka_connect_worker_connector_running_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
+          "expr": "sum(kafka_connect_worker_connector_running_task_count{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -1096,7 +1103,7 @@
         },
         {
           "datasource": null,
-          "expr": "sum(kafka_connect_worker_connector_failed_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
+          "expr": "sum(kafka_connect_worker_connector_failed_task_count{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -1110,7 +1117,7 @@
         },
         {
           "datasource": null,
-          "expr": "sum(kafka_connect_worker_connector_paused_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
+          "expr": "sum(kafka_connect_worker_connector_paused_task_count{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -1124,7 +1131,7 @@
         },
         {
           "datasource": null,
-          "expr": "sum(kafka_connect_worker_connector_destroyed_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
+          "expr": "sum(kafka_connect_worker_connector_destroyed_task_count{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -1138,7 +1145,7 @@
         },
         {
           "datasource": null,
-          "expr": "sum(kafka_connect_worker_connector_unassigned_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
+          "expr": "sum(kafka_connect_worker_connector_unassigned_task_count{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -1412,7 +1419,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "count(kafka_connect_app_info{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", start_time_ms!=\"\"}) by (instance, start_time_ms)",
+          "expr": "count(kafka_connect_app_info{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", start_time_ms!=\"\"}) by (instance, start_time_ms)",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1426,7 +1433,7 @@
         },
         {
           "datasource": null,
-          "expr": "count(kafka_connect_app_info{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", version!=\"\"}) by (instance, version)",
+          "expr": "count(kafka_connect_app_info{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", version!=\"\"}) by (instance, version)",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1440,7 +1447,7 @@
         },
         {
           "datasource": null,
-          "expr": "sum(kafka_connect_worker_connector_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}) by (instance)",
+          "expr": "sum(kafka_connect_worker_connector_count{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\"}) by (instance)",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1454,7 +1461,7 @@
         },
         {
           "datasource": null,
-          "expr": "sum(kafka_connect_worker_connector_startup_success_total{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}) by (instance)",
+          "expr": "sum(kafka_connect_worker_connector_startup_success_total{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\"}) by (instance)",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1468,7 +1475,7 @@
         },
         {
           "datasource": null,
-          "expr": "sum(kafka_connect_worker_connector_startup_failure_total{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}) by (instance)",
+          "expr": "sum(kafka_connect_worker_connector_startup_failure_total{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\"}) by (instance)",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1482,7 +1489,7 @@
         },
         {
           "datasource": null,
-          "expr": "sum(kafka_connect_worker_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}) by (instance)",
+          "expr": "sum(kafka_connect_worker_task_count{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\"}) by (instance)",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1496,7 +1503,7 @@
         },
         {
           "datasource": null,
-          "expr": "sum(kafka_connect_worker_task_startup_success_total{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}) by (instance)",
+          "expr": "sum(kafka_connect_worker_task_startup_success_total{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\"}) by (instance)",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1510,7 +1517,7 @@
         },
         {
           "datasource": null,
-          "expr": "sum(kafka_connect_worker_task_startup_failure_total{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}) by (instance)",
+          "expr": "sum(kafka_connect_worker_task_startup_failure_total{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\"}) by (instance)",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1600,7 +1607,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "kafka_connect_network_io_rate{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}",
+          "expr": "kafka_connect_network_io_rate{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -1686,7 +1693,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "kafka_connect_incoming_byte_rate{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}",
+          "expr": "kafka_connect_incoming_byte_rate{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -1772,7 +1779,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "kafka_connect_outgoing_byte_rate{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}",
+          "expr": "kafka_connect_outgoing_byte_rate{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -1858,7 +1865,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "kafka_connect_connection_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}",
+          "expr": "kafka_connect_connection_count{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -1944,7 +1951,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "kafka_connect_failed_authentication_total{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}",
+          "expr": "kafka_connect_failed_authentication_total{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -2030,7 +2037,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "kafka_connect_successful_authentication_rate{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}",
+          "expr": "kafka_connect_successful_authentication_rate{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -2116,7 +2123,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "kafka_connect_request_rate{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}",
+          "expr": "kafka_connect_request_rate{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -2202,7 +2209,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "kafka_connect_response_rate{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}",
+          "expr": "kafka_connect_response_rate{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -2288,7 +2295,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "kafka_connect_io_ratio{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}",
+          "expr": "kafka_connect_io_ratio{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -2750,7 +2757,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "label_replace(label_replace(label_replace(count(kafka_connect_connector_info{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", status!=\"\"}) by(instance, status), \"status\", \"1\", \"status\", \"running\"), \"status\", \"2\", \"status\", \"paused\"), \"status\", \"3\", \"status\", \"stopped\")",
+          "expr": "label_replace(label_replace(label_replace(count(kafka_connect_connector_info{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", status!=\"\"}) by(instance, status), \"status\", \"1\", \"status\", \"running\"), \"status\", \"2\", \"status\", \"paused\"), \"status\", \"3\", \"status\", \"stopped\")",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2764,7 +2771,7 @@
         },
         {
           "datasource": null,
-          "expr": "count(kafka_connect_connector_info{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", connector_type!=\"\"}) by(instance, connector_type)",
+          "expr": "count(kafka_connect_connector_info{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", connector_type!=\"\"}) by(instance, connector_type)",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2778,7 +2785,7 @@
         },
         {
           "datasource": null,
-          "expr": "count(kafka_connect_connector_info{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", connector_version!=\"\"}) by(instance, connector_version)",
+          "expr": "count(kafka_connect_connector_info{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", connector_version!=\"\"}) by(instance, connector_version)",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2792,7 +2799,7 @@
         },
         {
           "datasource": null,
-          "expr": "count(kafka_connect_connector_info{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", connector_class!=\"\"}) by(instance, connector_class)",
+          "expr": "count(kafka_connect_connector_info{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", connector_class!=\"\"}) by(instance, connector_class)",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2806,7 +2813,7 @@
         },
         {
           "datasource": null,
-          "expr": "sum(kafka_connect_worker_connector_total_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}) by(instance)",
+          "expr": "sum(kafka_connect_worker_connector_total_task_count{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}) by(instance)",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2820,7 +2827,7 @@
         },
         {
           "datasource": null,
-          "expr": "sum(kafka_connect_worker_connector_running_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}) by(instance)",
+          "expr": "sum(kafka_connect_worker_connector_running_task_count{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}) by(instance)",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2834,7 +2841,7 @@
         },
         {
           "datasource": null,
-          "expr": "sum(kafka_connect_worker_connector_failed_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}) by(instance)",
+          "expr": "sum(kafka_connect_worker_connector_failed_task_count{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}) by(instance)",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2848,7 +2855,7 @@
         },
         {
           "datasource": null,
-          "expr": "sum(kafka_connect_worker_connector_paused_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}) by(instance)",
+          "expr": "sum(kafka_connect_worker_connector_paused_task_count{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}) by(instance)",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2862,7 +2869,7 @@
         },
         {
           "datasource": null,
-          "expr": "sum(kafka_connect_worker_connector_destroyed_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}) by(instance)",
+          "expr": "sum(kafka_connect_worker_connector_destroyed_task_count{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}) by(instance)",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2876,7 +2883,7 @@
         },
         {
           "datasource": null,
-          "expr": "sum(kafka_connect_worker_connector_unassigned_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}) by(instance)",
+          "expr": "sum(kafka_connect_worker_connector_unassigned_task_count{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}) by(instance)",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2998,7 +3005,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "kafka_connect_worker_rebalance_rebalance_avg_time_ms{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}",
+          "expr": "kafka_connect_worker_rebalance_rebalance_avg_time_ms{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -3083,7 +3090,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "kafka_connect_worker_rebalance_time_since_last_rebalance_ms{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}",
+          "expr": "kafka_connect_worker_rebalance_time_since_last_rebalance_ms{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -3198,7 +3205,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "kafka_connect_connector_task_batch_size_avg{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
+          "expr": "kafka_connect_connector_task_batch_size_avg{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -3284,7 +3291,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "kafka_connect_connector_task_batch_size_max{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
+          "expr": "kafka_connect_connector_task_batch_size_max{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -3370,7 +3377,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "kafka_connect_connector_task_offset_commit_success_percentage{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
+          "expr": "kafka_connect_connector_task_offset_commit_success_percentage{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -3456,7 +3463,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "kafka_connect_connector_task_offset_commit_avg_time_ms{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
+          "expr": "kafka_connect_connector_task_offset_commit_avg_time_ms{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -3542,7 +3549,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "kafka_connect_connector_task_running_ratio{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
+          "expr": "kafka_connect_connector_task_running_ratio{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -3657,7 +3664,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "kafka_connect_task_error_total_record_failures{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
+          "expr": "kafka_connect_task_error_total_record_failures{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -3743,7 +3750,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "kafka_connect_task_error_total_record_errors{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
+          "expr": "kafka_connect_task_error_total_record_errors{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -3829,7 +3836,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "kafka_connect_task_error_total_records_skipped{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
+          "expr": "kafka_connect_task_error_total_records_skipped{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -3915,7 +3922,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "kafka_connect_task_error_total_errors_logged{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
+          "expr": "kafka_connect_task_error_total_errors_logged{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -4001,7 +4008,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "kafka_connect_task_error_total_retries{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
+          "expr": "kafka_connect_task_error_total_retries{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -4087,7 +4094,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "kafka_connect_task_error_deadletterqueue_produce_requests{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
+          "expr": "kafka_connect_task_error_deadletterqueue_produce_requests{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -4173,7 +4180,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "kafka_connect_task_error_deadletterqueue_produce_failures{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
+          "expr": "kafka_connect_task_error_deadletterqueue_produce_failures{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -4288,7 +4295,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "kafka_connect_source_task_poll_batch_avg_time_ms{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", task!=\"\"}",
+          "expr": "kafka_connect_source_task_poll_batch_avg_time_ms{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", task!=\"\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -4374,7 +4381,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "kafka_connect_source_task_poll_batch_max_time_ms{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", task!=\"\"}",
+          "expr": "kafka_connect_source_task_poll_batch_max_time_ms{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", task!=\"\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -4460,7 +4467,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "kafka_connect_source_task_source_record_poll_rate{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", task!=\"\"}",
+          "expr": "kafka_connect_source_task_source_record_poll_rate{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", task!=\"\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -4546,7 +4553,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "kafka_connect_source_task_source_record_write_rate{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", task!=\"\"}",
+          "expr": "kafka_connect_source_task_source_record_write_rate{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", task!=\"\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -4632,7 +4639,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "kafka_connect_source_task_source_record_active_count_avg{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", task!=\"\"}",
+          "expr": "kafka_connect_source_task_source_record_active_count_avg{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", task!=\"\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -4718,7 +4725,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "kafka_connect_source_task_source_record_active_count_max{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", task!=\"\"}",
+          "expr": "kafka_connect_source_task_source_record_active_count_max{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", task!=\"\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -4833,7 +4840,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "kafka_connect_sink_task_partition_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", task!=\"\"}",
+          "expr": "kafka_connect_sink_task_partition_count{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", task!=\"\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -4919,7 +4926,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "kafka_connect_sink_task_put_batch_avg_time_ms{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", task!=\"\"}",
+          "expr": "kafka_connect_sink_task_put_batch_avg_time_ms{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", task!=\"\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -5005,7 +5012,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "kafka_connect_sink_task_put_batch_max_time_ms{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", task!=\"\"}",
+          "expr": "kafka_connect_sink_task_put_batch_max_time_ms{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", task!=\"\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -5122,7 +5129,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "rate(process_cpu_seconds_total{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}[$__rate_interval])",
+          "expr": "rate(process_cpu_seconds_total{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\"}[$__rate_interval])",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -5210,7 +5217,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "sum(jvm_memory_bytes_used{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}) without(area)",
+          "expr": "sum(jvm_memory_bytes_used{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\"}) without(area)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -5224,7 +5231,7 @@
         },
         {
           "datasource": null,
-          "expr": "jvm_memory_bytes_max{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", area=\"heap\"}",
+          "expr": "jvm_memory_bytes_max{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\", area=\"heap\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -5312,7 +5319,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "sum(rate(jvm_gc_collection_seconds_sum{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}[$__rate_interval])) without(gc)",
+          "expr": "sum(rate(jvm_gc_collection_seconds_sum{job=\"$instance\", namespace=\"${namespace}\", instance=~\"$instance\"}[$__rate_interval])) without(gc)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -5430,5 +5437,5 @@
   "timezone": "",
   "title": "Kafka Connect",
   "uid": null,
-  "version": 1
+  "version": 2
 }

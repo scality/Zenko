@@ -24,213 +24,213 @@ from scalgrafanalib import (
 
 class Metrics:
     connector_status = metrics.Metric(
-        'kafka_connect_connector_status', 'status', 'instance', job='${job}', namespace='${namespace}'
+        'kafka_connect_connector_status', 'status', 'instance', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"')
 
     connector_info = metrics.Metric(
         'kafka_connect_connector_info', 'status', 'connector',
         'connector_type', 'connector_class', 'connector_version',
-        'instance', job='${job}', namespace='${namespace}',
+        'instance', job='$instance', namespace='${namespace}',
     ).with_defaults('instance=~"$instance"', 'connector=~"$connector"')
 
     app_info = metrics.Metric(
-        'kafka_connect_app_info', 'start_time_ms', 'version', 'instance', job='${job}', namespace='${namespace}'
+        'kafka_connect_app_info', 'start_time_ms', 'version', 'instance', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"')
 
     network_io_rate = metrics.Metric(
-        'kafka_connect_network_io_rate', 'instance', job='${job}', namespace='${namespace}'
+        'kafka_connect_network_io_rate', 'instance', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"')
 
     incoming_byte_rate = metrics.Metric(
-        'kafka_connect_incoming_byte_rate', 'instance', job='${job}', namespace='${namespace}'
+        'kafka_connect_incoming_byte_rate', 'instance', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"')
 
     outgoing_byte_rate = metrics.Metric(
-        'kafka_connect_outgoing_byte_rate', 'instance', job='${job}', namespace='${namespace}'
+        'kafka_connect_outgoing_byte_rate', 'instance', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"')
 
     connection_count = metrics.Metric(
-        'kafka_connect_connection_count', 'instance', job='${job}', namespace='${namespace}'
+        'kafka_connect_connection_count', 'instance', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"')
 
     failed_authentication_total = metrics.Metric(
-        'kafka_connect_failed_authentication_total', 'instance', job='${job}', namespace='${namespace}'
+        'kafka_connect_failed_authentication_total', 'instance', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"')
 
     successful_authentication_rate = metrics.Metric(
-        'kafka_connect_successful_authentication_rate', 'instance', job='${job}', namespace='${namespace}'
+        'kafka_connect_successful_authentication_rate', 'instance', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"')
 
     request_rate = metrics.Metric(
-        'kafka_connect_request_rate', 'instance', job='${job}', namespace='${namespace}'
+        'kafka_connect_request_rate', 'instance', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"')
 
     response_rate = metrics.Metric(
-        'kafka_connect_response_rate', 'instance', job='${job}', namespace='${namespace}'
+        'kafka_connect_response_rate', 'instance', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"')
 
     io_ratio = metrics.Metric(
-        'kafka_connect_io_ratio', 'instance', job='${job}', namespace='${namespace}'
+        'kafka_connect_io_ratio', 'instance', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"')
 
     worker_connector_count = metrics.Metric(
-        'kafka_connect_worker_connector_count', 'instance', job='${job}', namespace='${namespace}'
+        'kafka_connect_worker_connector_count', 'instance', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"')
 
     worker_task_count = metrics.Metric(
-        'kafka_connect_worker_task_count', 'instance', job='${job}', namespace='${namespace}'
+        'kafka_connect_worker_task_count', 'instance', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"')
 
     worker_task_startup_success_total = metrics.Metric(
-        'kafka_connect_worker_task_startup_success_total', 'instance', job='${job}', namespace='${namespace}'
+        'kafka_connect_worker_task_startup_success_total', 'instance', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"')
 
     worker_task_startup_failure_total = metrics.Metric(
-        'kafka_connect_worker_task_startup_failure_total', 'instance', job='${job}', namespace='${namespace}'
+        'kafka_connect_worker_task_startup_failure_total', 'instance', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"')
 
     worker_rebalance_rebalance_avg_time_ms = metrics.Metric(
-        'kafka_connect_worker_rebalance_rebalance_avg_time_ms', 'instance', job='${job}', namespace='${namespace}'
+        'kafka_connect_worker_rebalance_rebalance_avg_time_ms', 'instance', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"')
 
     worker_rebalance_time_since_last_rebalance_ms = metrics.Metric(
-        'kafka_connect_worker_rebalance_time_since_last_rebalance_ms', 'instance', job='${job}', namespace='${namespace}'
+        'kafka_connect_worker_rebalance_time_since_last_rebalance_ms', 'instance', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"')
 
     worker_connector_startup_success_total = metrics.Metric(
-        'kafka_connect_worker_connector_startup_success_total', 'instance', job='${job}', namespace='${namespace}'
+        'kafka_connect_worker_connector_startup_success_total', 'instance', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"')
 
     worker_connector_startup_failure_total = metrics.Metric(
-        'kafka_connect_worker_connector_startup_failure_total', 'instance', job='${job}', namespace='${namespace}'
+        'kafka_connect_worker_connector_startup_failure_total', 'instance', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"')
 
     worker_connector_total_task_count = metrics.Metric(
-        'kafka_connect_worker_connector_total_task_count', 'instance', 'connector', job='${job}', namespace='${namespace}'
+        'kafka_connect_worker_connector_total_task_count', 'instance', 'connector', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"', 'connector=~"$connector"')
 
     worker_connector_running_task_count = metrics.Metric(
-        'kafka_connect_worker_connector_running_task_count', 'instance', 'connector', job='${job}', namespace='${namespace}'
+        'kafka_connect_worker_connector_running_task_count', 'instance', 'connector', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"', 'connector=~"$connector"')
 
     worker_connector_paused_task_count = metrics.Metric(
-        'kafka_connect_worker_connector_paused_task_count', 'instance', 'connector', job='${job}', namespace='${namespace}'
+        'kafka_connect_worker_connector_paused_task_count', 'instance', 'connector', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"', 'connector=~"$connector"')
 
     worker_connector_failed_task_count = metrics.Metric(
-        'kafka_connect_worker_connector_failed_task_count', 'instance', 'connector', job='${job}', namespace='${namespace}'
+        'kafka_connect_worker_connector_failed_task_count', 'instance', 'connector', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"', 'connector=~"$connector"')
 
     worker_connector_unassigned_task_count = metrics.Metric(
-        'kafka_connect_worker_connector_unassigned_task_count', 'instance', 'connector', job='${job}', namespace='${namespace}'
+        'kafka_connect_worker_connector_unassigned_task_count', 'instance', 'connector', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"', 'connector=~"$connector"')
 
     worker_connector_destroyed_task_count = metrics.Metric(
-        'kafka_connect_worker_connector_destroyed_task_count', 'instance', 'connector', job='${job}', namespace='${namespace}'
+        'kafka_connect_worker_connector_destroyed_task_count', 'instance', 'connector', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"', 'connector=~"$connector"')
 
     connector_task_batch_size_avg = metrics.Metric(
-        'kafka_connect_connector_task_batch_size_avg', 'instance', 'connector', 'task', job='${job}', namespace='${namespace}'
+        'kafka_connect_connector_task_batch_size_avg', 'instance', 'connector', 'task', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"', 'connector=~"$connector"')
 
     connector_task_batch_size_max = metrics.Metric(
-        'kafka_connect_connector_task_batch_size_max', 'instance', 'connector', 'task', job='${job}', namespace='${namespace}'
+        'kafka_connect_connector_task_batch_size_max', 'instance', 'connector', 'task', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"', 'connector=~"$connector"')
 
     connector_task_offset_commit_success_percentage = metrics.Metric(
-        'kafka_connect_connector_task_offset_commit_success_percentage', 'instance', 'connector', 'task', job='${job}', namespace='${namespace}'
+        'kafka_connect_connector_task_offset_commit_success_percentage', 'instance', 'connector', 'task', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"', 'connector=~"$connector"')
 
     connector_task_offset_commit_avg_time_ms = metrics.Metric(
-        'kafka_connect_connector_task_offset_commit_avg_time_ms', 'instance', 'connector', 'task', job='${job}', namespace='${namespace}'
+        'kafka_connect_connector_task_offset_commit_avg_time_ms', 'instance', 'connector', 'task', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"', 'connector=~"$connector"')
 
     connector_task_running_ratio = metrics.Metric(
-        'kafka_connect_connector_task_running_ratio', 'instance', 'connector', 'task', job='${job}', namespace='${namespace}'
+        'kafka_connect_connector_task_running_ratio', 'instance', 'connector', 'task', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"', 'connector=~"$connector"')
 
     task_error_total_record_failures = metrics.Metric(
-        'kafka_connect_task_error_total_record_failures', 'instance', 'connector', 'task', job='${job}', namespace='${namespace}'
+        'kafka_connect_task_error_total_record_failures', 'instance', 'connector', 'task', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"', 'connector=~"$connector"')
 
     task_error_total_record_errors = metrics.Metric(
-        'kafka_connect_task_error_total_record_errors', 'instance', 'connector', 'task', job='${job}', namespace='${namespace}'
+        'kafka_connect_task_error_total_record_errors', 'instance', 'connector', 'task', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"', 'connector=~"$connector"')
 
     task_error_total_records_skipped = metrics.Metric(
-        'kafka_connect_task_error_total_records_skipped', 'instance', 'connector', 'task', job='${job}', namespace='${namespace}'
+        'kafka_connect_task_error_total_records_skipped', 'instance', 'connector', 'task', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"', 'connector=~"$connector"')
 
     task_error_total_errors_logged = metrics.Metric(
-        'kafka_connect_task_error_total_errors_logged', 'instance', 'connector', 'task', job='${job}', namespace='${namespace}'
+        'kafka_connect_task_error_total_errors_logged', 'instance', 'connector', 'task', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"', 'connector=~"$connector"')
 
     task_error_total_retries = metrics.Metric(
-        'kafka_connect_task_error_total_retries', 'instance', 'connector', 'task', job='${job}', namespace='${namespace}'
+        'kafka_connect_task_error_total_retries', 'instance', 'connector', 'task', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"', 'connector=~"$connector"')
 
     task_error_deadletterqueue_produce_requests = metrics.Metric(
-        'kafka_connect_task_error_deadletterqueue_produce_requests', 'instance', 'connector', 'task', job='${job}', namespace='${namespace}'
+        'kafka_connect_task_error_deadletterqueue_produce_requests', 'instance', 'connector', 'task', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"', 'connector=~"$connector"')
 
     task_error_deadletterqueue_produce_failures = metrics.Metric(
-        'kafka_connect_task_error_deadletterqueue_produce_failures', 'instance', 'connector', 'task', job='${job}', namespace='${namespace}'
+        'kafka_connect_task_error_deadletterqueue_produce_failures', 'instance', 'connector', 'task', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"', 'connector=~"$connector"')
 
     source_task_poll_batch_avg_time_ms = metrics.Metric(
-        'kafka_connect_source_task_poll_batch_avg_time_ms', 'instance', 'connector', 'task', job='${job}', namespace='${namespace}'
+        'kafka_connect_source_task_poll_batch_avg_time_ms', 'instance', 'connector', 'task', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"', 'connector=~"$connector"', 'task!=""')
 
     source_task_poll_batch_max_time_ms = metrics.Metric(
-        'kafka_connect_source_task_poll_batch_max_time_ms', 'instance', 'connector', 'task', job='${job}', namespace='${namespace}'
+        'kafka_connect_source_task_poll_batch_max_time_ms', 'instance', 'connector', 'task', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"', 'connector=~"$connector"', 'task!=""')
 
     source_task_source_record_poll_rate = metrics.Metric(
-        'kafka_connect_source_task_source_record_poll_rate', 'instance', 'connector', 'task', job='${job}', namespace='${namespace}'
+        'kafka_connect_source_task_source_record_poll_rate', 'instance', 'connector', 'task', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"', 'connector=~"$connector"', 'task!=""')
 
     source_task_source_record_write_rate = metrics.Metric(
-        'kafka_connect_source_task_source_record_write_rate', 'instance', 'connector', 'task', job='${job}', namespace='${namespace}'
+        'kafka_connect_source_task_source_record_write_rate', 'instance', 'connector', 'task', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"', 'connector=~"$connector"', 'task!=""')
 
     source_task_source_record_active_count = metrics.Metric(
-        'kafka_connect_source_task_source_record_active_count', 'instance', 'connector', 'task', job='${job}', namespace='${namespace}'
+        'kafka_connect_source_task_source_record_active_count', 'instance', 'connector', 'task', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"', 'connector=~"$connector"', 'task!=""')
 
     source_task_source_record_active_count_avg = metrics.Metric(
-        'kafka_connect_source_task_source_record_active_count_avg', 'instance', 'connector', 'task', job='${job}', namespace='${namespace}'
+        'kafka_connect_source_task_source_record_active_count_avg', 'instance', 'connector', 'task', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"', 'connector=~"$connector"', 'task!=""')
 
     source_task_source_record_active_count_max = metrics.Metric(
-        'kafka_connect_source_task_source_record_active_count_max', 'instance', 'connector', 'task', job='${job}', namespace='${namespace}'
+        'kafka_connect_source_task_source_record_active_count_max', 'instance', 'connector', 'task', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"', 'connector=~"$connector"', 'task!=""')
 
     sink_task_partition_count = metrics.Metric(
-        'kafka_connect_sink_task_partition_count', 'instance', 'connector', 'task', job='${job}', namespace='${namespace}'
+        'kafka_connect_sink_task_partition_count', 'instance', 'connector', 'task', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"', 'connector=~"$connector"', 'task!=""')  
 
     sink_task_put_batch_avg_time_ms = metrics.Metric(
-        'kafka_connect_sink_task_put_batch_avg_time_ms', 'instance', 'connector', 'task', job='${job}', namespace='${namespace}'
+        'kafka_connect_sink_task_put_batch_avg_time_ms', 'instance', 'connector', 'task', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"', 'connector=~"$connector"', 'task!=""')
 
     sink_task_put_batch_max_time_ms = metrics.Metric(
-        'kafka_connect_sink_task_put_batch_max_time_ms', 'instance', 'connector', 'task', job='${job}', namespace='${namespace}'
+        'kafka_connect_sink_task_put_batch_max_time_ms', 'instance', 'connector', 'task', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"', 'connector=~"$connector"', 'task!=""')
 
     process_cpu_seconds_total = metrics.CounterMetric(
-        'process_cpu_seconds_total', 'instance', job='${job}', namespace='${namespace}'
+        'process_cpu_seconds_total', 'instance', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"')
 
     jvm_memory_bytes_used = metrics.Metric(
-        'jvm_memory_bytes_used', 'area', 'instance', job='${job}', namespace='${namespace}'
+        'jvm_memory_bytes_used', 'area', 'instance', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"')
 
     jvm_memory_bytes_max = metrics.Metric(
-        'jvm_memory_bytes_max', 'area', 'instance', job='${job}', namespace='${namespace}'
+        'jvm_memory_bytes_max', 'area', 'instance', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"')
 
     jvm_gc_collection_seconds = metrics.BucketMetric(
-        'jvm_gc_collection_seconds', 'gc', 'instance', job='${job}', namespace='${namespace}'
+        'jvm_gc_collection_seconds', 'gc', 'instance', job='$instance', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"')
 
 
@@ -242,7 +242,7 @@ up = Stat(
     maxValue='${replicas}',
     reduceCalc='last',
     targets=[Target(
-        expr='sum(up{job="${job}", namespace="${namespace}"})',
+        expr='sum(up{job="$instance", namespace="${namespace}"})',
     )],
     thresholdType='percentage',
     thresholds=[
@@ -748,9 +748,15 @@ dashboard = (
                 value='zenko',
             ),
             ConstantInput(
+                name='selector',
+                label='Cluster selector',
+                description='Regex matching the name of the Kafka job/cluster, used to filter only the Kafka instances.',
+                value='artesca-data-(.*-)?base-queue-connector-metrics',
+            ),
+            ConstantInput(
                 name='job',
                 label='Job',
-                description='Name of the kafka connect job to filter metrics',
+                description='DEPRECATED - Name of the kafka connect job to filter metrics',
                 value='artesca-data-base-queue-connector-metrics',
             ),
             ConstantInput(
