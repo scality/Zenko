@@ -219,6 +219,7 @@ Then('the DR source should be in phase {string}', { timeout: 360000 }, async fun
 });
 
 Then('object {string} should be {string} and have the storage class {string} on {string} site',
+    { timeout: 360000 },
     async function (this: Zenko, objName: string, objectTransitionStatus: string, storageClass: string, site: string) {
         this.resetCommand();
         if (site === 'DR') {
