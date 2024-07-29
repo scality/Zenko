@@ -9,6 +9,7 @@ import {
     getPVCFromLabel,
 } from './utils/kubernetes';
 import { 
+    restoreObject,
     verifyObjectLocation,
 } from 'steps/utils/utils';
 import { Constants, Identity, IdentityEnum, SuperAdmin, Utils } from 'cli-testing';
@@ -288,3 +289,14 @@ Given('access keys for the replicated account', { timeout: 360000 }, async () =>
 
     Identity.addIdentity(IdentityEnum.ACCOUNT, `${targetAccount}-replicated`, credentials, undefined, true);
 });
+
+When('i restore object {string} for {int} days on {string} site',
+    async function (this: Zenko, objectName: string, days: number, site: string) {
+        this.resetCommand();
+        if (site === 'DR') {
+            Identity.useIdentity(IdentityEnum.ACCOUNT, `${Zenko.sites['source'].accountName}-replicated`);
+        } else {
+            Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
+        }
+        await restoreObject.call(this, objectName, days);
+    });
