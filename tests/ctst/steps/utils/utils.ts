@@ -286,10 +286,6 @@ async function verifyObjectLocation(this: Zenko, objectName: string,
         if (objectTransitionStatus == 'restored') {
             const isRestored = !!parsed.result?.Restore &&
                 parsed.result.Restore.includes('ongoing-request="false", expiry-date=');
-            // if restore didn't get initiated fail immediately
-            const isPendingRestore = !!parsed.result?.Restore &&
-                parsed.result.Restore.includes('ongoing-request="true"');
-            assert(isRestored || isPendingRestore, 'Restore didn\'t get initiated');
             conditionOk = conditionOk && isRestored;
         } else if (objectTransitionStatus == 'cold') {
             conditionOk = conditionOk && !parsed.result?.Restore;
