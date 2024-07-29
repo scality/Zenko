@@ -387,7 +387,7 @@ jobs:
           context: ./tests/ctst
           build-args: |
             CTST_TAG=${{ env.CTST_TAG }}
-            DRCTL_TAG=v1.0.1
+            DRCTL_TAG=afbb04a57973e391b4cbcaacca444a4d5da0a540
           tags: "${{ env.E2E_CTST_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}"
           cache-from: type=gha,scope=end2end-ctst
           cache-to: type=gha,mode=max,scope=end2end-ctst
@@ -458,7 +458,7 @@ jobs:
         if: always()
 
   end2end-pra:
-    needs: [build-kafka, build-test-image, check-dashboard-versions, lint-and-build-ctst]
+    needs: [build-kafka, check-dashboard-versions, lint-and-build-ctst]
     runs-on: ubuntu-22.04-16core
     env:
       GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
@@ -494,9 +494,20 @@ jobs:
       - name: Configure E2E test environment
         run: bash configure-e2e-ctst.sh
         working-directory: ./.github/scripts/end2end
+      - name: "Debug: SSH to runner"
+        uses: scality/actions/action-ssh-to-runner@1.5.0
+        with:
+          tmate-server-host: ${{ secrets.TMATE_SERVER_HOST }}
+          tmate-server-port: ${{ secrets.TMATE_SERVER_PORT }}
+          tmate-server-rsa-fingerprint: ${{ secrets.TMATE_SERVER_RSA_FINGERPRINT }}
+          tmate-server-ed25519-fingerprint: ${{ secrets.TMATE_SERVER_ED25519_FINGERPRINT }}
+        timeout-minutes: 30
       - name: Run CTST end to end tests
         run: bash run-e2e-pra-ctst.sh
         working-directory: ./.github/scripts/end2end
+      - name: debug
+        run: sleep 7000
+        if: always()
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
         env:
