@@ -6,11 +6,14 @@ export MONGODB_PRA_DATABASE="${MONGODB_PRA_DATABASE:-'pradb'}"
 export ZENKO_MONGODB_DATABASE="${MONGODB_PRA_DATABASE}"
 export ZENKO_MONGODB_SECRET_NAME="mongodb-db-creds-pra"
 
-export ZENKO_IAM_INGRESS="iam.zenko-pra.local"
-export ZENKO_STS_INGRESS="sts.zenko-pra.local"
-export ZENKO_MANAGEMENT_INGRESS="management.zenko-pra.local"
-export ZENKO_S3_INGRESS="s3.zenko-pra.local"
-export ZENKO_UI_INGRESS="ui.zenko-pra.local"
+echo 'ZENKO_MONGODB_DATABASE="pradb"' >> $GITHUB_ENV
+echo 'ZENKO_MONGODB_SECRET_NAME="mongodb-db-creds-pra"' >> $GITHUB_ENV
+
+echo 'ZENKO_IAM_INGRESS="iam.dr.zenko.local"' >> $GITHUB_ENV
+echo 'ZENKO_STS_INGRESS="sts.dr.zenko.local"' >> $GITHUB_ENV
+echo 'ZENKO_MANAGEMENT_INGRESS="management.dr.zenko.local"' >> $GITHUB_ENV
+echo 'ZENKO_S3_INGRESS="s3.dr.zenko.local"' >> $GITHUB_ENV
+echo 'ZENKO_UI_INGRESS="ui.dr.zenko.local"' >> $GITHUB_ENV
 
 MONGODB_ROOT_USERNAME="${MONGODB_ROOT_USERNAME:-'root'}"
 MONGODB_ROOT_PASSWORD="${MONGODB_ROOT_PASSWORD:-'rootpass'}"
@@ -18,7 +21,7 @@ MONGODB_ROOT_PASSWORD="${MONGODB_ROOT_PASSWORD:-'rootpass'}"
 kubectl exec -it data-db-mongodb-sharded-mongos-0 -- mongo "admin" \
     -u "root" \
     -p "rootpass" \
-    --eval "db.createUser({user:$MONGODB_PRA_USERNAME,pwd:$MONGODB_PRA_PASSWORD,roles:[{role:'enableSharding',db:$MONGODB_PRA_DATABASE },{role:'readWrite',db:$MONGODB_PRA_DATABASE },{role:'read',db:'local'}]})"
+    --eval "db.createUser({user:$MONGODB_PRA_USERNAME,pwd:$MONGODB_PRA_PASSWORD,roles:[{role:'enableSharding',db:$MONGODB_PRA_DATABASE },{role:'readWriteAnyDatabase',db:'admin'}]})"
 
 
 kubectl -n ${PRA_NAMESPACE} apply -f - <<EOF
