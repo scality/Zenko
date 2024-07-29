@@ -81,6 +81,7 @@ env:
   NOTIF_ALT_DEST_NAME: "destination2"
   NOTIF_ALT_DEST_TOPIC: "destination-topic-2"
   SUBDOMAIN: "zenko.local"
+  DR_SUBDOMAIN: "dr.zenko.local"
   SKOPEO_PATH: "/tmp"
   HELM_VERSION: "v3.5.3"
   YQ_VERSION: "v4.27.5"
@@ -92,6 +93,9 @@ env:
   TILT_VERSION: "0.23.4"
   KIND_VERSION: "v0.12.0"
   ZENKO_ENABLE_SOSAPI: false
+  TIME_PROGRESSION_FACTOR: 1
+  EXPIRE_ONE_DAY_EARLIER: true
+  TRANSITION_ONE_DAY_EARLIER: true
   JUNIT_REPORT_PATH: /reports/ctst-junit.xml
   # DEBUG WAIT
   TMATE_SERVER_HOST: ${{ secrets.TMATE_SERVER_HOST }}
@@ -381,7 +385,9 @@ jobs:
         with:
           push: true
           context: ./tests/ctst
-          build-args: CTST_TAG=${{ env.CTST_TAG }}
+          build-args: |
+            CTST_TAG=${{ env.CTST_TAG }}
+            DRCTL_TAG=v1.0.1
           tags: "${{ env.E2E_CTST_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}"
           cache-from: type=gha,scope=end2end-ctst
           cache-to: type=gha,mode=max,scope=end2end-ctst
@@ -452,11 +458,8 @@ jobs:
         if: always()
 
   end2end-pra:
-    needs: [build-kafka, build-test-image, check-dashboard-versions]
-    runs-on:
-      - ubuntu
-      - focal
-      - xlarge
+    needs: [build-kafka, build-test-image, check-dashboard-versions, lint-and-build-ctst]
+    runs-on: ubuntu-22.04-16core
     env:
       GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
     steps:
@@ -477,46 +480,22 @@ jobs:
         env:
           ZENKO_MONGODB_SHARDED: "true"
         with:
-          zkop_tag: 1.6.0-preview.1
+          zkop_tag: 1.6.0-preview.2
+          zenko_version_path: './configs/zenkoversion-pra.yaml'
       - name: Prepare PRA environment
         run: bash prepare-pra.sh
         working-directory: ./.github/scripts/end2end
       - name: Deploy second Zenko for PRA
-        run: bash deploy-zenko.sh end2end-pra default
-        working-directory: ./.github/scripts/end2end
-      - name: Deploy second Sorbet for PRA
-        run: bash deploy-sorbet-resources.sh end2end-pra
-        working-directory: ./.github/scripts/end2end/operator/tests/smoke
+        run: bash deploy-zenko.sh end2end-pra default './configs/zenko.yaml' './configs/zenkoversion-pra.yaml'
         env:
-          SORBETD_NAME: mock-sorbet-pra
-      - name: Extract environment
-        run: |-
-          sudo curl --fail -L https://github.com/mikefarah/yq/releases/download/${{ env.YQ_VERSION}}/${{ env.YQ_BINARY }} -o /usr/bin/yq
-          sudo chmod +x /usr/bin/yq
-
-          get_image_from_deps() {
-              local dep_name=$1
-              yq eval ".$dep_name | (.sourceRegistry // \"docker.io\") + \"/\" + .image" deps.yaml
-          }
-
-          cd solution/
-          cat <<EOF >> $GITHUB_ENV
-          KAFKA_IMAGE=$(get_image_from_deps kafka)
-          KAFKA_TAG=$(yq eval '.kafka.tag' deps.yaml)
-          KAFKA_CONNECT_IMAGE=$(get_image_from_deps kafka-connect)
-          KAFKA_CONNECT_TAG=$(yq eval '.kafka-connect.tag' deps.yaml)
-          JMX_JAVAAGENT_IMAGE=$(get_image_from_deps jmx-javaagent)
-          JMX_JAVAAGENT_TAG=$(yq eval '.jmx-javaagent.tag' deps.yaml)
-          MONGODB_CONNECTOR_TAG=$(yq eval '.mongodb-connector.tag' deps.yaml)
-          KAFKA_CLEANER_IMAGE=$(get_image_from_deps kafka-cleaner)
-          KAFKA_CLEANER_TAG=$(yq eval '.kafka-cleaner.tag' deps.yaml)
-          KAFKA_CRUISECONTROL_IMAGE=$(get_image_from_deps kafka-cruise-control)
-          KAFKA_CRUISECONTROL_TAG=$(yq eval '.kafka-cruise-control.tag' deps.yaml)
-          KAFKA_LAGEXPORTER_IMAGE=$(get_image_from_deps kafka-lag-exporter)
-          KAFKA_LAGEXPORTER_TAG=$(yq eval '.kafka-lag-exporter.tag' deps.yaml)
-          EOF
-      - name: Deploy zenko dr components
-        run: bash deploy-dr.sh
+          ZENKO_MONGODB_SHARDED: "true"
+          ZENKO_MONGODB_DATABASE: "pradb"
+        working-directory: ./.github/scripts/end2end
+      - name: Configure E2E test environment
+        run: bash configure-e2e-ctst.sh
+        working-directory: ./.github/scripts/end2end
+      - name: Run CTST end to end tests
+        run: bash run-e2e-pra-ctst.sh
         working-directory: ./.github/scripts/end2end
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
