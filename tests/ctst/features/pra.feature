@@ -27,11 +27,10 @@ Feature: PRA operations
     When i restore object "obj-1" for 2 days on "Primary" site
     Then object "obj-1" should be "restored" and have the storage class "e2e-cold" on "Primary" site
     And object "obj-1" should be "transitioned" and have the storage class "e2e-cold" on "DR" site
-    When i restore object "obj-2" for 2 days on "DR" site
-    Then object "obj-2" should be "restored" and have the storage class "e2e-cold" on "DR" site
-    And object "obj-2" should be "transitioned" and have the storage class "e2e-cold" on "Primary" site
+    When i restore object "obj2-1" for 2 days on "DR" site
+    Then object "obj2-1" should be "restored" and have the storage class "e2e-cold" on "DR" site
+    And object "obj2-1" should be "transitioned" and have the storage class "e2e-cold" on "Primary" site
 
-    Then object "obj-1" should be "transitioned" and have the storage class "e2e-cold" on "DR" site
     And the kafka DR volume exists
     When I uninstall DR
     Then the DR custom resources should be deleted
