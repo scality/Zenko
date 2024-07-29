@@ -200,7 +200,7 @@ Given('a transition workflow to {string} location', async function (this: Zenko,
                 Prefix: '',
                 Transitions: [
                     {
-                        Days: 20,
+                        Days: 0,
                         StorageClass: location,
                     },
                 ],
