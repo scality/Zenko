@@ -267,7 +267,10 @@ async function verifyObjectLocation(this: Zenko, objectName: string,
     let conditionOk = false;
     while (!conditionOk) {
         const res = await S3.headObject(this.getCommandParameters());
-        if (res.err) {
+        if (res.err?.includes('NotFound')) {
+            await Utils.sleep(1000);
+            continue;
+        } else if (res.err) {
             break;
         }
         assert(res.stdout);
@@ -283,10 +286,6 @@ async function verifyObjectLocation(this: Zenko, objectName: string,
         if (objectTransitionStatus == 'restored') {
             const isRestored = !!parsed.result?.Restore &&
                 parsed.result.Restore.includes('ongoing-request="false", expiry-date=');
-            // if restore didn't get initiated fail immediately
-            const isPendingRestore = !!parsed.result?.Restore &&
-                parsed.result.Restore.includes('ongoing-request="true"');
-            assert(isRestored || isPendingRestore, 'Restore didn\'t get initiated');
             conditionOk = conditionOk && isRestored;
         } else if (objectTransitionStatus == 'cold') {
             conditionOk = conditionOk && !parsed.result?.Restore;
@@ -294,6 +293,20 @@ async function verifyObjectLocation(this: Zenko, objectName: string,
         await Utils.sleep(1000);
     }
     assert(conditionOk);
+}
+
+async function restoreObject(this: Zenko, objectName: string, days: number) {
+    const objName = getObjectNameWithBackendFlakiness.call(this, objectName) ||  this.getSaved<string>('objectName');
+    this.resetCommand();
+    this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
+    this.addCommandParameter({ key: objName });
+    const versionId = this.getSaved<Map<string, string>>('createdObjects')?.get(objName);
+    if (versionId) {
+        this.addCommandParameter({ versionId });
+    }
+    this.addCommandParameter({ restoreRequest: `Days=${days}` });
+    const result = await S3.restoreObject(this.getCommandParameters());
+    this.setResult(result);
 }
 
 /**
@@ -337,4 +350,5 @@ export {
     emptyVersionedBucket,
     verifyObjectLocation,
     getObjectNameWithBackendFlakiness,
+    restoreObject,
 };

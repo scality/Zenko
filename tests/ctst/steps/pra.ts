@@ -9,6 +9,7 @@ import {
     getPVCFromLabel,
 } from './utils/kubernetes';
 import { 
+    restoreObject,
     verifyObjectLocation,
 } from 'steps/utils/utils';
 import { Constants, Identity, IdentityEnum, SuperAdmin, Utils } from 'cli-testing';
@@ -217,12 +218,15 @@ Then('the DR source should be in phase {string}', { timeout: 360000 }, async fun
     await waitForPhase(this, 'source', targetPhase);
 });
 
-Then('object {string} should be {string} and have the storage class {string} on DR site',
-    async function (this: Zenko, objName: string, objectTransitionStatus: string, storageClass: string) {
+Then('object {string} should be {string} and have the storage class {string} on {string} site',
+    { timeout: 360000 },
+    async function (this: Zenko, objName: string, objectTransitionStatus: string, storageClass: string, site: string) {
         this.resetCommand();
-        // use source account: it should have been replicated
-        Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
-
+        if (site === 'DR') {
+            Identity.useIdentity(IdentityEnum.ACCOUNT, `${Zenko.sites['source'].accountName}-replicated`);
+        } else {
+            Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
+        }
         await verifyObjectLocation.call(this, objName, objectTransitionStatus, storageClass);
     });
 
@@ -288,3 +292,14 @@ Given('access keys for the replicated account', { timeout: 360000 }, async () =>
 
     Identity.addIdentity(IdentityEnum.ACCOUNT, `${targetAccount}-replicated`, credentials, undefined, true);
 });
+
+When('i restore object {string} for {int} days on {string} site',
+    async function (this: Zenko, objectName: string, days: number, site: string) {
+        this.resetCommand();
+        if (site === 'DR') {
+            Identity.useIdentity(IdentityEnum.ACCOUNT, `${Zenko.sites['source'].accountName}-replicated`);
+        } else {
+            Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
+        }
+        await restoreObject.call(this, objectName, days);
+    });
