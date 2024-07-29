@@ -21,6 +21,8 @@ import {
 } from 'cli-testing';
 
 import { extractPropertyFromResults } from '../common/utils';
+import ZenkoDrctl from 'steps/dr/drctl';
+import assert from 'assert';
 
 
 interface ServiceUsersCredentials {
@@ -92,6 +94,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     private commandParameters: Record<string, unknown> = {};
 
     private saved: Record<string, unknown> = {};
+
+    public zenkoDrCtl: ZenkoDrctl | null = null;
 
     public logger: Werelogs.RequestLogger = new Werelogs.Logger('CTST').newRequestLogger();
 

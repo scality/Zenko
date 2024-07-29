@@ -24,11 +24,11 @@ spec:
     logging:
       logLevel: debug
   backbeat:
-    triggerExpirationsOneDayEarlierForTesting: true
+    triggerExpirationsOneDayEarlierForTesting: ${EXPIRE_ONE_DAY_EARLIER}
     lifecycleConductor:
       cronRule: "${BACKBEAT_LCC_CRON_RULE}"
     lifecycleBucketProcessor:
-      triggerTransitionsOneDayEarlierForTesting: true
+      triggerTransitionsOneDayEarlierForTesting: ${TRANSITION_ONE_DAY_EARLIER}
     logging:
       logLevel: trace
   mongodb:
@@ -101,6 +101,8 @@ spec:
       e2e-cold:
         debug: "true"
         command-timeout: "60s"
+        pending-job-poll-after-age: "10s"
+        pending-job-poll-check-interval: "10s"
   ingress:
     workloadPlaneClass: 'nginx'
     controlPlaneClass: 'nginx'
