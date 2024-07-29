@@ -34,11 +34,10 @@ export async function cleanS3Bucket(
     const createdObjects = world.getSaved<Map<string, string>>('createdObjects');
     if (createdObjects !== undefined) {
         const results = await S3.listObjectVersions(world.getCommandParameters());
-        const res = safeJsonParse(results.stdout);
+        const res = safeJsonParse<ListObjectVersionsOutput>(results.stdout);
         assert(res.ok);
-        const parsedResults = res.result as ListObjectVersionsOutput;
-        const versions = parsedResults.Versions || [];
-        const deleteMarkers = parsedResults.DeleteMarkers || [];
+        const versions = res.result!.Versions || [];
+        const deleteMarkers = res.result!.DeleteMarkers || [];
         await Promise.all(versions.concat(deleteMarkers).map(obj => {
             world.addCommandParameter({ key: obj.Key });
             world.addCommandParameter({ versionId: obj.VersionId });
@@ -165,9 +164,8 @@ Then('object {string} should have the tag {string} with value {string}',
             this.addCommandParameter({ versionId });
         }
         await S3.getObjectTagging(this.getCommandParameters()).then(res => {
-            const parsed = safeJsonParse(res.stdout);
-            const head = parsed.result as { TagSet: [{Key: string, Value: string}] | undefined };
-            assert(head.TagSet?.some(tag => tag.Key === tagKey && tag.Value === tagValue));
+            const parsed = safeJsonParse<{ TagSet: [{Key: string, Value: string}] | undefined }>(res.stdout);
+            assert(parsed.result!.TagSet?.some(tag => tag.Key === tagKey && tag.Value === tagValue));
         });
     });
 
@@ -183,12 +181,11 @@ Then('object {string} should have the user metadata with key {string} and value 
         const res = await S3.headObject(this.getCommandParameters());
         assert.ifError(res.stderr);
         assert(res.stdout);
-        const parsed = safeJsonParse(res.stdout);
+        const parsed = safeJsonParse<{ Metadata: {[key: string]: string} | undefined }>(res.stdout);
         assert(parsed.ok);
-        const head = parsed.result as { Metadata: {[key: string]: string} | undefined };
-        assert(head.Metadata);
-        assert(head.Metadata[userMDKey]);
-        assert(head.Metadata[userMDKey] === userMDValue);
+        assert(parsed.result!.Metadata);
+        assert(parsed.result!.Metadata[userMDKey]);
+        assert(parsed.result!.Metadata[userMDKey] === userMDValue);
     });
 
 // add a transition workflow to a bucket
@@ -203,7 +200,7 @@ Given('a transition workflow to {string} location', async function (this: Zenko,
                 Prefix: '',
                 Transitions: [
                     {
-                        Days: 20,
+                        Days: 0,
                         StorageClass: location,
                     },
                 ],
