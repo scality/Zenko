@@ -7,7 +7,7 @@ set -exu
 ZENKO_NAME=${1:-end2end}
 E2E_IMAGE=${2:-ghcr.io/scality/zenko/zenko-e2e:latest}
 NAMESPACE=${3:-default}
-KEYCLOAK_HOST=keycloak.dr.zenko.local
+export KEYCLOAK_HOST=keycloak.dr.zenko.local
 
 SERVICE_ACCOUNT="${ZENKO_NAME}-config"
 POD_NAME="${ZENKO_NAME}-config"
