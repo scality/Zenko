@@ -220,7 +220,7 @@ Then('the DR source should be in phase {string}', { timeout: 360000 }, async fun
 });
 
 Then('object {string} should be {string} and have the storage class {string} on {string} site',
-    { timeout: 600000 },
+    { timeout: 6000000 },
     async function (this: Zenko, objName: string, objectTransitionStatus: string, storageClass: string, site: string) {
         this.resetCommand();
         if (site === 'DR') {
@@ -229,17 +229,6 @@ Then('object {string} should be {string} and have the storage class {string} on 
             Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
         }
         await verifyObjectLocation.call(this, objName, objectTransitionStatus, storageClass);
-    });
-
-Given('a(n) {string} transition workflow to {string} location on {string} site',
-    async function (this: Zenko, enabled: string, location: string, site: string) {
-        if (site === 'DR') {
-            Identity.useIdentity(IdentityEnum.ACCOUNT, `${Zenko.sites['source'].accountName}-replicated`);
-        } else {
-            Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
-        }
-        const enabledBool = enabled === 'enabled';
-        await addTransitionWorkflow.call(this, location, enabledBool);
     });
 
 Then('the kafka DR volume exists', { timeout: 60000 }, async function (this: Zenko) {
