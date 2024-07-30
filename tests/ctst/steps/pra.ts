@@ -9,6 +9,7 @@ import {
     getPVCFromLabel,
 } from './utils/kubernetes';
 import { 
+    addTransitionWorkflow,
     restoreObject,
     verifyObjectLocation,
 } from 'steps/utils/utils';
@@ -229,6 +230,16 @@ Then('object {string} should be {string} and have the storage class {string} on 
         }
         await verifyObjectLocation.call(this, objName, objectTransitionStatus, storageClass);
     });
+
+Given('a(n) {string} transition workflow to {string} location on {string} site', async function (this: Zenko, enabled: string, location: string, site: string) {
+    if (site === 'DR') {
+        Identity.useIdentity(IdentityEnum.ACCOUNT, `${Zenko.sites['source'].accountName}-replicated`);
+    } else {
+        Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
+    }
+    const enabledBool = enabled === 'enabled';
+    await addTransitionWorkflow.call(this, location, enabledBool);
+});
 
 Then('the kafka DR volume exists', { timeout: 60000 }, async function (this: Zenko) {
     const volumeClaim = await getPVCFromLabel(this, 'kafka_cr', 'end2end-pra-sink-base-queue');
