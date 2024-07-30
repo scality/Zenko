@@ -387,7 +387,7 @@ jobs:
           context: ./tests/ctst
           build-args: |
             CTST_TAG=${{ env.CTST_TAG }}
-            DRCTL_TAG=afbb04a57973e391b4cbcaacca444a4d5da0a540
+            DRCTL_TAG=v1.0.2
           tags: "${{ env.E2E_CTST_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}"
           cache-from: type=gha,scope=end2end-ctst
           cache-to: type=gha,mode=max,scope=end2end-ctst
@@ -491,23 +491,25 @@ jobs:
           ZENKO_MONGODB_SHARDED: "true"
           ZENKO_MONGODB_DATABASE: "pradb"
         working-directory: ./.github/scripts/end2end
-      - name: Configure E2E test environment
+      - name: Add Keycloak pra user and assign StorageManager role
+        shell: bash
+        run: bash keycloak-helper.sh add-user default end2end-pra
+        env:
+          OIDC_USERNAME: 'zenko-end2end-pra'
+          OIDC_EMAIL: 'e2e-pra@zenko.local'
+        working-directory: ./.github/scripts/end2end
+      - name: Configure E2E PRA test environment
+        run: bash configure-e2e-pra.sh
+        working-directory: ./.github/scripts/end2end
+        env:
+          OIDC_USERNAME: 'zenko-end2end-pra'
+          OIDC_EMAIL: 'e2e-pra@zenko.local'
+      - name: Configure E2E CTST test environment
         run: bash configure-e2e-ctst.sh
         working-directory: ./.github/scripts/end2end
-      - name: "Debug: SSH to runner"
-        uses: scality/actions/action-ssh-to-runner@1.5.0
-        with:
-          tmate-server-host: ${{ secrets.TMATE_SERVER_HOST }}
-          tmate-server-port: ${{ secrets.TMATE_SERVER_PORT }}
-          tmate-server-rsa-fingerprint: ${{ secrets.TMATE_SERVER_RSA_FINGERPRINT }}
-          tmate-server-ed25519-fingerprint: ${{ secrets.TMATE_SERVER_ED25519_FINGERPRINT }}
-        timeout-minutes: 30
       - name: Run CTST end to end tests
         run: bash run-e2e-pra-ctst.sh
         working-directory: ./.github/scripts/end2end
-      - name: debug
-        run: sleep 7000
-        if: always()
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
         env:

@@ -253,6 +253,37 @@ async function emptyVersionedBucket(world: Zenko) {
     }));
 }
 
+async function addTransitionWorkflow(this: Zenko, location: string, enabled = true) {
+    let conditionOk = false;
+    this.resetCommand();
+    this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
+    const enabledStr = enabled ? 'Enabled' : 'Disabled';
+    const lifecycleConfiguration = JSON.stringify({
+        Rules: [
+            {
+                Status: enabledStr,
+                Prefix: '',
+                Transitions: [
+                    {
+                        Days: 0,
+                        StorageClass: location,
+                    },
+                ],
+            },
+        ],
+    });
+    this.addCommandParameter({
+        lifecycleConfiguration,
+    });
+    const commandParameters = this.getCommandParameters();
+    while (!conditionOk) {
+        const res = await S3.putBucketLifecycleConfiguration(commandParameters);
+        conditionOk = res.err === null;
+        // Wait for the transition to be accepted because the deployment of the location's pods can take some time
+        await Utils.sleep(5000); 
+    }
+}
+
 async function verifyObjectLocation(this: Zenko, objectName: string,
     objectTransitionStatus: string, storageClass: string) {
     const objName =
@@ -351,4 +382,5 @@ export {
     verifyObjectLocation,
     getObjectNameWithBackendFlakiness,
     restoreObject,
+    addTransitionWorkflow,
 };

@@ -12,6 +12,7 @@ import {
     getObjectNameWithBackendFlakiness,
     verifyObjectLocation,
     restoreObject,
+    addTransitionWorkflow,
 } from 'steps/utils/utils';
 import { ActionPermissionsType } from 'steps/bucket-policies/utils';
 
@@ -203,33 +204,7 @@ Then('object {string} should have the user metadata with key {string} and value 
 
 // add a transition workflow to a bucket
 Given('a transition workflow to {string} location', async function (this: Zenko, location: string) {
-    let conditionOk = false;
-    this.resetCommand();
-    this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-    const lifecycleConfiguration = JSON.stringify({
-        Rules: [
-            {
-                Status: 'Enabled',
-                Prefix: '',
-                Transitions: [
-                    {
-                        Days: 0,
-                        StorageClass: location,
-                    },
-                ],
-            },
-        ],
-    });
-    this.addCommandParameter({
-        lifecycleConfiguration,
-    });
-    const commandParameters = this.getCommandParameters();
-    while (!conditionOk) {
-        const res = await S3.putBucketLifecycleConfiguration(commandParameters);
-        conditionOk = res.err === null;
-        // Wait for the transition to be accepted because the deployment of the location's pods can take some time
-        await Utils.sleep(5000); 
-    }
+    await addTransitionWorkflow.call(this, location);
 });
 
 When('i restore object {string} for {int} days', async function (this: Zenko, objectName: string, days: number) {

@@ -98,7 +98,7 @@ sorbet:
 drctl:
   sourceRegistry: ghcr.io/scality
   image: zenko-drctl
-  tag: afbb04a57973e391b4cbcaacca444a4d5da0a540
+  tag: v1.0.2
   envsubst: DRCTL_TAG
 # To be enabled back when utapi is used in Zenko 2.x
 # utapi:
