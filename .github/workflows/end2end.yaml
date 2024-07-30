@@ -506,6 +506,7 @@ jobs:
           tmate-server-rsa-fingerprint: ${{ secrets.TMATE_SERVER_RSA_FINGERPRINT }}
           tmate-server-ed25519-fingerprint: ${{ secrets.TMATE_SERVER_ED25519_FINGERPRINT }}
         timeout-minutes: 30
+        if: always()
       - name: Run CTST end to end tests
         run: bash run-e2e-pra-ctst.sh
         working-directory: ./.github/scripts/end2end
