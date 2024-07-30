@@ -127,6 +127,36 @@ type StatusConfig = {
     output?: string;
 };
 
+type ReplicationPauseConfig = {
+    sourceKubeconfigPath?: string;
+    sourceKubeconfigData?: string;
+    sinkKubeconfigPath?: string;
+    sinkKubeconfigData?: string;
+    sourceZenkoInstance?: string;
+    sourceZenkoNamespace?: string;
+    sinkZenkoInstance?: string;
+    sinkZenkoNamespace?: string;
+    sourceZenkoDrInstance?: string;
+    sinkZenkoDrInstance?: string;
+    wait?: boolean;
+    timeout?: string;
+};
+
+type ReplicationResumeConfig = {
+    sourceKubeconfigPath?: string;
+    sourceKubeconfigData?: string;
+    sinkKubeconfigPath?: string;
+    sinkKubeconfigData?: string;
+    sourceZenkoInstance?: string;
+    sourceZenkoNamespace?: string;
+    sinkZenkoInstance?: string;
+    sinkZenkoNamespace?: string;
+    sourceZenkoDrInstance?: string;
+    sinkZenkoDrInstance?: string;
+    wait?: boolean;
+    timeout?: string;
+};
+
 /**
  * Helper class to run Drctl tool
  */
@@ -179,6 +209,14 @@ export default class ZenkoDrctl {
 
     async volumeGet(config: VolumeGetConfig) {
         return this.runCommand('volume get', this.paramToCli(config));
+    }
+
+    async replicationPause(config: ReplicationPauseConfig) {
+        return this.runCommand('replication pause', this.paramToCli(config));
+    }
+
+    async replicationResume(config: ReplicationResumeConfig) {
+        return this.runCommand('replication resume', this.paramToCli(config));
     }
 
     paramToCli(params: Record<string, unknown>): string {

@@ -8,4 +8,3 @@ get_token() {
         https://localhost/auth/realms/${OIDC_REALM}/protocol/openid-connect/token | \
         jq -cr '.id_token'
 }
-
