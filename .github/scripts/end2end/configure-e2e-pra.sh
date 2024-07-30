@@ -4,6 +4,9 @@ set -exu
 
 . "$(dirname $0)/common.sh"
 
+OIDC_USERNAME=${OIDC_USERNAME:-zenko-end2end-pra}
+OIDC_EMAIL=${OIDC_EMAIL:-e2e-pra@zenko.local}
+
 INSTANCE_ID=$(kubectl get zenko end2end-pra -o jsonpath='{.status.instanceID}')
 TOKEN=$(get_token)
 
