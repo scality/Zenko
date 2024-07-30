@@ -16,7 +16,6 @@ Feature: PRA operations
     Then the DR source should be in phase "Running"
     And the DR sink should be in phase "Running"
     Given access keys for the replicated account
-    And a "disabled" transition workflow to "e2e-cold" location on "DR" site
     Then object "obj-1" should be "transitioned" and have the storage class "e2e-cold" on "DR" site
     And object "obj-2" should be "transitioned" and have the storage class "e2e-cold" on "DR" site
 
