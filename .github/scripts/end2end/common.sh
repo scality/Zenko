@@ -1,5 +1,5 @@
 get_token() {
-    HOST={$1-keycloak.zenko.local}
+    HOST={$KEYCLOAK_HOST-keycloak.zenko.local}
     curl -k -H "Host: ${HOST}" \
         -d "client_id=${OIDC_CLIENT_ID}" \
         -d "username=${OIDC_USERNAME}" \
