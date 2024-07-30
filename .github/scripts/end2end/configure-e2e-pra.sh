@@ -15,6 +15,37 @@ VAULT_ENDPOINT="http://${ZENKO_NAME}-connector-vault-sts-api"
 UUID=$(kubectl get zenko ${ZENKO_NAME} --namespace ${NAMESPACE} -o jsonpath='{.status.instanceID}')
 TOKEN=$(get_token)
 
+cat <<EOF | kubectl apply -f -
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ${SERVICE_ACCOUNT}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: ${SERVICE_ACCOUNT}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - '*'
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: ${SERVICE_ACCOUNT}
+subjects:
+- kind: ServiceAccount
+  name: ${SERVICE_ACCOUNT}
+roleRef:
+  kind: Role
+  name: ${SERVICE_ACCOUNT}
+  apiGroup: rbac.authorization.k8s.io
+EOF
 
 kubectl run ${POD_NAME} \
   --image ${E2E_IMAGE} \
