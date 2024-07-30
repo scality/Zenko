@@ -491,6 +491,10 @@ jobs:
           ZENKO_MONGODB_SHARDED: "true"
           ZENKO_MONGODB_DATABASE: "pradb"
         working-directory: ./.github/scripts/end2end
+      - name: End-to-end configuration
+        shell: bash
+        run: bash configure-e2e.sh "end2end-pra" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "default"
+        working-directory: ./.github/scripts/end2end
       - name: Configure E2E test environment
         run: bash configure-e2e-ctst.sh
         working-directory: ./.github/scripts/end2end
