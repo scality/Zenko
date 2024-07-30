@@ -8,7 +8,7 @@ import {
     getDRSource,
     getPVCFromLabel,
 } from './utils/kubernetes';
-import { 
+import {
     restoreObject,
     verifyObjectLocation,
 } from 'steps/utils/utils';
@@ -46,6 +46,23 @@ interface DrState {
             phase: ZenkoDrSinkPhases;
         },
     };
+}
+
+async function installPRA(world: Zenko, sinkS3Endpoint = 'http://s3.zenko.local') {
+    return world.zenkoDrCtl?.install({
+        sourceZenkoDrInstance: 'end2end-source',
+        sinkZenkoDrInstance: 'end2end-pra-sink',
+        kafkaPersistenceSize: '1Gi',
+        kafkaPersistenceStorageClassName: 'standard',
+        locations: 'e2e-cold', // comma-separated list
+        s3Bucket: 'dump-db',
+        sinkZenkoInstance: 'end2end-pra',
+        sinkZenkoNamespace: 'default',
+        sourceZenkoInstance: 'end2end',
+        sourceZenkoNamespace: 'default',
+        sourceS3Endpoint: 'http://s3.zenko.local',
+        sinkS3Endpoint,
+    });
 }
 
 export function preparePRA(world: Zenko) {
@@ -128,7 +145,6 @@ async function waitForPhase(
         if (phase === state) {
             return true;
         }
-        
         await Utils.sleep(1000);
     }
 
@@ -142,24 +158,22 @@ Given('a DR installed', { timeout: 130000 }, async function (this: Zenko) {
         accessKey: Buffer.from(credentials.accessKeyId).toString('base64'),
         secretAccessKey: Buffer.from(credentials.secretAccessKey).toString('base64'),
     });
-    await this.zenkoDrCtl?.install({
-        sourceZenkoDrInstance: 'end2end-source',
-        sinkZenkoDrInstance: 'end2end-pra-sink',
-        kafkaPersistenceSize: '1Gi',
-        kafkaPersistenceStorageClassName: 'standard',
-        locations: 'e2e-cold',
-        s3Bucket: 'dump-db',
-        sinkZenkoInstance: 'end2end-pra',
-        sinkZenkoNamespace: 'default',
-        sourceZenkoInstance: 'end2end',
-        sourceZenkoNamespace: 'default',
-        sourceS3Endpoint: 'http://s3.zenko.local',
-        sinkS3Endpoint: 'http://s3.zenko.local',
-    });
+    await installPRA(this);
     return;
 });
 
-Then('the DR sink should be in phase {string}', { timeout: 360000 }, async function (this: Zenko,state: string) {
+Given('a DR failing to be installed', { timeout: 130000 }, async function (this: Zenko) {
+    Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
+    const credentials = Identity.getCurrentCredentials();
+    await createSecret(this, 'drctl-s3-creds', {
+        accessKey: Buffer.from(credentials.accessKeyId).toString('base64'),
+        secretAccessKey: Buffer.from(credentials.secretAccessKey).toString('base64'),
+    });
+    await installPRA(this, 'http://s3.dr.zenko.local');
+    return;
+});
+
+Then('the DR sink should be in phase {string}', { timeout: 360000 }, async function (this: Zenko, state: string) {
     let targetPhase;
     switch (state) {
     case 'New':
@@ -218,16 +232,32 @@ Then('the DR source should be in phase {string}', { timeout: 360000 }, async fun
     await waitForPhase(this, 'source', targetPhase);
 });
 
-Then('object {string} should be {string} and have the storage class {string} on {string} site',
+Then('object {string} should {string} be {string} and have the storage class {string} on {string} site',
     { timeout: 360000 },
-    async function (this: Zenko, objName: string, objectTransitionStatus: string, storageClass: string, site: string) {
+    async function (
+        this: Zenko,
+        objName: string,
+        isVerb: string,
+        objectTransitionStatus: string,
+        storageClass: string,
+        site: string) {
         this.resetCommand();
         if (site === 'DR') {
             Identity.useIdentity(IdentityEnum.ACCOUNT, `${Zenko.sites['source'].accountName}-replicated`);
         } else {
             Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
         }
-        await verifyObjectLocation.call(this, objName, objectTransitionStatus, storageClass);
+        try {
+            await verifyObjectLocation.call(this, objName, objectTransitionStatus, storageClass);
+            if (isVerb === 'not') {
+                throw new Error(`Object ${objName} should not be ${objectTransitionStatus}`);
+            }
+        } catch (err) {
+            if (isVerb !== 'not') {
+                throw err;
+            }
+            assert(err);
+        }
     });
 
 Then('the kafka DR volume exists', { timeout: 60000 }, async function (this: Zenko) {
@@ -245,6 +275,28 @@ Then('the kafka DR volume exists', { timeout: 60000 }, async function (this: Zen
         throw new Error('Failed to parse volume');
     }
     assert(volumeParsed.result!['volume phase'] === 'Bound');
+});
+
+When('I pause the DR', { timeout: 360000 }, async function (this: Zenko) {
+    await this.zenkoDrCtl?.replicationPause({
+        sourceZenkoDrInstance: 'end2end-source',
+        sinkZenkoDrInstance: 'end2end-pra-sink',
+        sinkZenkoNamespace: 'default',
+        sourceZenkoNamespace: 'default',
+        wait: true,
+        timeout: '6m',
+    });
+});
+
+When('I resume the DR', { timeout: 360000 }, async function (this: Zenko) {
+    await this.zenkoDrCtl?.replicationResume({
+        sourceZenkoDrInstance: 'end2end-source',
+        sinkZenkoDrInstance: 'end2end-pra-sink',
+        sinkZenkoNamespace: 'default',
+        sourceZenkoNamespace: 'default',
+        wait: true,
+        timeout: '6m',
+    });
 });
 
 When('I uninstall DR', { timeout: 360000 }, async function (this: Zenko) {
