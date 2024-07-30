@@ -491,13 +491,20 @@ jobs:
           ZENKO_MONGODB_SHARDED: "true"
           ZENKO_MONGODB_DATABASE: "pradb"
         working-directory: ./.github/scripts/end2end
-      - name: End-to-end configuration for DR site
+      - name: Add Keycloak user and assign StorageManager role
         shell: bash
-        run: bash configure-e2e-pra.sh "end2end-pra" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "default"
+        run: bash keycloak-helper.sh add-user default end2end-pra
+        env:
+          OIDC_USERNAME: 'zenko-end2end-pra'
+        working-directory: ./.github/scripts/end2end
+      - name: Configure E2E PRA test environment
+        run: bash configure-e2e-pra.sh
         working-directory: ./.github/scripts/end2end
       - name: Configure E2E CTST test environment
         run: bash configure-e2e-ctst.sh
         working-directory: ./.github/scripts/end2end
+        env:
+          OIDC_USERNAME: 'zenko-end2end-pra'
       - name: "Debug: SSH to runner"
         uses: scality/actions/action-ssh-to-runner@1.5.0
         with:
