@@ -491,11 +491,12 @@ jobs:
           ZENKO_MONGODB_SHARDED: "true"
           ZENKO_MONGODB_DATABASE: "pradb"
         working-directory: ./.github/scripts/end2end
-      - name: Add Keycloak user and assign StorageManager role
+      - name: Add Keycloak pra user and assign StorageManager role
         shell: bash
         run: bash keycloak-helper.sh add-user default end2end-pra
         env:
           OIDC_USERNAME: 'zenko-end2end-pra'
+          OIDC_EMAIL: 'e2e-pra@zenko.local'
         working-directory: ./.github/scripts/end2end
       - name: Configure E2E PRA test environment
         run: bash configure-e2e-pra.sh
