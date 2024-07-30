@@ -521,9 +521,6 @@ jobs:
       - name: Run CTST end to end tests
         run: bash run-e2e-pra-ctst.sh
         working-directory: ./.github/scripts/end2end
-      - name: debug
-        run: sleep 7000
-        if: always()
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
         env:
