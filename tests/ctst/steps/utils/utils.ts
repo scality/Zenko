@@ -253,7 +253,7 @@ async function emptyVersionedBucket(world: Zenko) {
     }));
 }
 
-async function addTransitionWorkflow(this: Zenko, location: string, enabled: boolean = true) {
+async function addTransitionWorkflow(this: Zenko, location: string, enabled = true) {
     let conditionOk = false;
     this.resetCommand();
     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
