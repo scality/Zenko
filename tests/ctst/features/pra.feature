@@ -10,8 +10,8 @@ Feature: PRA operations
     Given a "<versioningConfiguration>" bucket
     And a transition workflow to "e2e-cold" location
     And <objectCount> objects "obj" of size <objectSize> bytes on "Primary" site
-    Then object "obj-1" should "" be "transitioned" and have the storage class "e2e-cold"
-    And object "obj-2" should "" be "transitioned" and have the storage class "e2e-cold"
+    Then object "obj-1" should be "transitioned" and have the storage class "e2e-cold"
+    And object "obj-2" should be "transitioned" and have the storage class "e2e-cold"
     And dmf volume should contain <objectCount> objects
     # Deploy PRA
     Given a DR installed
