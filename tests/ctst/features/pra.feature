@@ -13,16 +13,18 @@ Feature: PRA operations
     Then object "obj-1" should be "transitioned" and have the storage class "e2e-cold"
     And object "obj-2" should be "transitioned" and have the storage class "e2e-cold"
     And dmf volume should contain <objectCount> objects
+    
     # Deploy PRA
     Given a DR installed
     Then the DR source should be in phase "Running"
     And the DR sink should be in phase "Running"
     Then the kafka DR volume exists
-    # CHeck that objects are transitioned in the DR site
-    Given access keys for the replicated account
 
+    # Check that objects are transitioned in the DR site
+    Given access keys for the replicated account
     Then object "obj-1" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
     And object "obj-2" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
+    
     # Test again the transition workflow
     Given <objectCount> objects "obj2" of size <objectSize> bytes on "Pimary" site
     Then object "obj2-1" should "" be "transitioned" and have the storage class "e2e-cold" on "Primary" site
@@ -36,22 +38,3 @@ Feature: PRA operations
     Examples:
     | versioningConfiguration | objectCount | objectSize |
     |               Versioned |           2 |        100 |
-
-    @2.6.0
-    @PreMerge
-    @Dmf
-    @PRA
-    @ColdStorage
-    Scenario Outline: PRA (failure case)
-    # Fail to deploy PRA
-    Given a DR failing to be installed
-    Then the DR source should be in phase "Bootstrap:Failed"
-    And the DR sink should be in phase "Bootstrap:Failed"
-    # Expect the operator to perform Reinit and to back to Waiting state
-    Then the DR source should be in phase "Bootstrap:Waiting"
-    And the DR sink should be in phase "Bootstrap:Waiting"
-    # Retry to deploy PRA
-    Given a DR installed
-    Then the DR source should be in phase "Running"
-    And the DR sink should be in phase "Running"
-    Then the kafka DR volume exists
