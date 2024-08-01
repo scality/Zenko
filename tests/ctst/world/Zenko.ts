@@ -663,7 +663,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             }
         }
 
-        const accountName = this.sites['source']?.accountName || CacheHelper.parameters.AccountName!
+        const accountName = this.sites['source']?.accountName || CacheHelper.parameters.AccountName!;
         const accountAccessKeys = Identity.getCredentialsForIdentity(
             IdentityEnum.ACCOUNT, this.sites['source']?.accountName
             || CacheHelper.parameters.AccountName!) || {
