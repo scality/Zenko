@@ -161,8 +161,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 accountName: this.parameters.AccountName.concat(Utils.randomString()),
                 adminIdentityName: Zenko.PRIMARY_SITE_NAME,
             };
-        } else {
-            delete Zenko.sites['source'];
         }
 
         if (this.needsSecondarySite()) {
@@ -177,8 +175,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 accountName: `dr${this.parameters.AccountName}`.concat(Utils.randomString()),
                 adminIdentityName: Zenko.SECONDARY_SITE_NAME,
             };
-        } else {
-            delete Zenko.sites['sink'];
         }
 
         this.logger.debug('Zenko sites', {
