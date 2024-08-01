@@ -662,9 +662,27 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 Identity.addIdentity(IdentityEnum.ACCOUNT, accountName, accountAccessKeys, undefined, true, true);
             }
         }
+
+        const accountName = this.sites['source']?.accountName || CacheHelper.parameters.AccountName!
+        const accountAccessKeys = Identity.getCredentialsForIdentity(
+            IdentityEnum.ACCOUNT, this.sites['source']?.accountName
+            || CacheHelper.parameters.AccountName!) || {
+            accessKeyId: '',
+            secretAccessKey: '',
+        };
+
+        if (!accountAccessKeys.accessKeyId || !accountAccessKeys.secretAccessKey) {
+            const accessKeys = await SuperAdmin.generateAccountAccessKey({ accountName });
+            if (!Utils.isAccessKeys(accessKeys)) {
+                throw new Error('Failed to generate account access keys for site ${siteKey}');
+            }
+            accountAccessKeys.accessKeyId = accessKeys.accessKeyId;
+            accountAccessKeys.secretAccessKey = accessKeys.secretAccessKey;
+            Identity.addIdentity(IdentityEnum.ACCOUNT, accountName, accountAccessKeys, undefined, true, true);
+        }
+
         // Fallback to the primary site's account at the end of the init by default
-        Identity.useIdentity(IdentityEnum.ACCOUNT, this.sites['source']?.accountName
-            || CacheHelper.parameters.AccountName!);
+        Identity.useIdentity(IdentityEnum.ACCOUNT, accountName);
     }
 
     /**
