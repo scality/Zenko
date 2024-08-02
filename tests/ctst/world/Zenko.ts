@@ -158,7 +158,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             }, undefined, undefined, undefined, this.parameters.subdomain);
 
             Zenko.sites['source'] = {
-                accountName: this.parameters.AccountName.concat(Utils.randomString()),
+                accountName: Identity.defaultAccountName,
                 adminIdentityName: Zenko.PRIMARY_SITE_NAME,
             };
         }
