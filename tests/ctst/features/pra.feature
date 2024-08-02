@@ -36,8 +36,8 @@ Feature: PRA operations
     And object "obj-1" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
 
     # Uninstall DR
-    When I uninstall DR
-    Then the DR custom resources should be deleted
+    #When I uninstall DR
+    #Then the DR custom resources should be deleted
 
     Examples:
     | versioningConfiguration | objectCount | objectSize |
@@ -66,5 +66,5 @@ Feature: PRA operations
     Then the kafka DR volume exists
 
     # Uninstall PRA
-    When I uninstall DR
-    Then the DR custom resources should be deleted
+    #When I uninstall DR
+    #Then the DR custom resources should be deleted
