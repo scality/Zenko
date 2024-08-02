@@ -172,7 +172,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             }
 
             Zenko.sites['sink'] = {
-                accountName: `dr${this.parameters.AccountName}`.concat(Utils.randomString()),
+                accountName: `dr${this.parameters.AccountName}`,
                 adminIdentityName: Zenko.SECONDARY_SITE_NAME,
             };
         }
