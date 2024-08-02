@@ -35,36 +35,6 @@ Feature: PRA operations
     Then object "obj-1" should "" be "restored" and have the storage class "e2e-cold" on "Primary" site
     And object "obj-1" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
 
-    # Uninstall DR
-    #When I uninstall DR
-    #Then the DR custom resources should be deleted
-
     Examples:
     | versioningConfiguration | objectCount | objectSize |
     |               Versioned |           2 |        100 |
-
-
-    @2.6.0
-    @PreMerge
-    @Dmf
-    @PRA
-    @ColdStorage
-    Scenario Outline: PRA (failure case)
-    # Fail to deploy PRA
-    Given a DR failing to be installed
-    Then the DR source should be in phase "Bootstrap:Failed"
-    And the DR sink should be in phase "Bootstrap:Failed"
-
-    # Expect the operator to perform Reinit and to back to Waiting state
-    Then the DR source should be in phase "Bootstrap:Waiting"
-    And the DR sink should be in phase "Bootstrap:Waiting"
-
-    # Retry to deploy PRA
-    Given a DR installed
-    Then the DR source should be in phase "Running"
-    And the DR sink should be in phase "Running"
-    Then the kafka DR volume exists
-
-    # Uninstall PRA
-    #When I uninstall DR
-    #Then the DR custom resources should be deleted
