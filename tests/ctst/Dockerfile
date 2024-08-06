@@ -1,10 +1,8 @@
 ARG CTST_TAG
 ARG DRCTL_TAG
-ARG KUBECONFIG_PATH
 
 FROM ghcr.io/scality/zenko-drctl:$DRCTL_TAG as drctl
 FROM ghcr.io/scality/cli-testing:$CTST_TAG
-
 
 COPY package.json /tmp/package.json
 COPY ./features /ctst/features

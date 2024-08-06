@@ -70,7 +70,6 @@ WORLD_PARAMETERS="$(jq -c <<EOF
   "StorageManagerUsername":"${STORAGE_MANAGER_USER_NAME}",
   "StorageAccountOwnerUsername":"${STORAGE_ACCOUNT_OWNER_USER_NAME}",
   "DataConsumerUsername":"${DATA_CONSUMER_USER_NAME}",
-  "ServiceUsersCredentials":${SERVICE_USERS_CREDENTIALS},
   "InstanceID":"${INSTANCE_ID}",
   "KafkaCleanerInterval":"${KAFKA_CLEANER_INTERVAL}"
 }
@@ -87,8 +86,8 @@ kubectl set env cronjob end2end-ops-count-items PROMETHEUS_POLLING_PERIOD=1
 
 E2E_IMAGE=$E2E_CTST_IMAGE_NAME:$E2E_IMAGE_TAG
 POD_NAME="${ZENKO_NAME}-ctst-tests"
-
 CTST_VERSION=$(sed 's/.*"cli-testing": ".*#\(.*\)".*/\1/;t;d' ../../../tests/ctst/package.json)
+
 # Configure keycloak
 docker run \
     --rm \

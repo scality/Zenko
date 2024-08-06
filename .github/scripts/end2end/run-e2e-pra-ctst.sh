@@ -5,7 +5,7 @@ ZENKO_NAME=${1:-end2end}
 COMMAND=${2:-"premerge"}
 PARALLEL_RUNS=${PARALLEL_RUNS:-$(( ( $(nproc) + 1 ) / 2 ))}
 RETRIES=${4:-3}
-JUNIT_REPORT_PATH=${JUNIT_REPORT_PATH:-"ctst-junit.xml"}
+JUNIT_REPORT_PATH=${JUNIT_REPORT_PATH:-"pra-ctst-junit.xml"}
 
 # Zenko Version
 VERSION=$(cat ../../../VERSION | grep -Po 'VERSION="\K[^"]*')
@@ -75,13 +75,12 @@ kubectl set env deployment end2end-connector-cloudserver SCUBA_HEALTHCHECK_FREQU
 kubectl rollout status deployment end2end-connector-cloudserver
 
 # disable moniroting of count-items
-kubectl set env cronjob end2end-ops-count-items PROMETHEUS_POLLING_ATTEMPTS=1
-kubectl set env cronjob end2end-ops-count-items PROMETHEUS_POLLING_PERIOD=1
+kubectl set env cronjob end2end-ops-count-items PROMETHEUS_POLLING_ATTEMPTS=1 PROMETHEUS_POLLING_PERIOD=1
 
 E2E_IMAGE=$E2E_CTST_IMAGE_NAME:$E2E_IMAGE_TAG
 POD_NAME="${ZENKO_NAME}-ctst-tests"
-
 CTST_VERSION=$(sed 's/.*"cli-testing": ".*#\(.*\)".*/\1/;t;d' ../../../tests/ctst/package.json)
+
 # Configure keycloak
 docker run \
     --rm \

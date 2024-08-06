@@ -486,6 +486,7 @@ jobs:
         working-directory: ./.github/scripts/end2end
       - name: Deploy second Zenko for PRA
         run: bash deploy-zenko.sh end2end-pra
+        env:
           ZENKO_MONGODB_SHARDED: "true"
           ZENKO_MONGODB_DATABASE: "pradb"
         working-directory: ./.github/scripts/end2end
