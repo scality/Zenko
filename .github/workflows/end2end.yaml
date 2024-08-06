@@ -499,16 +499,15 @@ jobs:
           OIDC_EMAIL: 'e2e-pra@zenko.local'
         working-directory: ./.github/scripts/end2end
       - name: Configure E2E PRA test environment
-        run: bash configure-e2e.sh end2end-pra
+        run: bash configure-e2e.sh end2end-pra ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} default
         working-directory: ./.github/scripts/end2end
         env:
           OIDC_USERNAME: 'zenko-end2end-pra'
-          OIDC_EMAIL: 'e2e-pra@zenko.local'
       - name: Configure E2E CTST test environment
         run: bash configure-e2e-ctst.sh
         working-directory: ./.github/scripts/end2end
       - name: Run CTST end to end tests
-        run: bash run-e2e-pra-ctst.sh
+        run: bash run-e2e-ctst.sh "" "" "" "" --tags @PRA
         working-directory: ./.github/scripts/end2end
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
@@ -684,7 +683,7 @@ jobs:
         run: bash configure-e2e-ctst.sh
         working-directory: ./.github/scripts/end2end
       - name: Run CTST end to end tests
-        run: bash run-e2e-ctst.sh
+        run: bash run-e2e-ctst.sh "" "" "" "" --tags 'not @PRA'
         working-directory: ./.github/scripts/end2end
       - name: Upload results
         if: "!cancelled() && env.TRUNK_TOKEN"
