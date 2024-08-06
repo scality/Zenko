@@ -481,11 +481,12 @@ jobs:
           ZENKO_MONGODB_SHARDED: "true"
         with:
           zkop_tag: 1.6.0-preview.2
+          zenko_version_path: './configs/zenkoversion-pra.yaml'
       - name: Prepare PRA environment
         run: bash prepare-pra.sh
         working-directory: ./.github/scripts/end2end
       - name: Deploy second Zenko for PRA
-        run: bash deploy-zenko.sh end2end-pra
+        run: bash deploy-zenko.sh end2end-pra default './configs/zenko.yaml' './configs/zenkoversion-pra.yaml'
         env:
           ZENKO_MONGODB_SHARDED: "true"
           ZENKO_MONGODB_DATABASE: "pradb"
