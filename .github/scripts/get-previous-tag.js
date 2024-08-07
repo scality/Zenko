@@ -12,7 +12,11 @@ function getPreviousTag(version, allReleases) {
         // Find the latest release with the same prefix
         previous_tags = allReleases.filter(r => r.tag_name.startsWith(version));
         if (previous_tags.length > 0) {
-            return previous_tags.sort().reverse()[0].tag_name;
+            // Use a custom sort function, to ensure 'natural' sort of numeric parts
+            const compare = new Intl.Collator(undefined, { numeric: true }).compare;
+            return previous_tags.sort(
+                (a, b) => compare(a.tag_name, b.tag_name)
+            ).reverse()[0].tag_name;
         }
     }
 }
