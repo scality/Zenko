@@ -7,10 +7,10 @@ inputs:
     description: "The tag of the Zenko Operator image to use"
     required: false
     default: ""
-  zenko_version_path:
-    description: "The path to the ZenkoVersion file"
+  extra_components:
+    description: "Extra components to add to zenkoversion"
     required: false
-    default: "./configs/zenkoversion.yaml"
+    default: ""
 runs:
   using: composite
   steps:
@@ -76,8 +76,10 @@ runs:
         OPERATOR_IMAGE_TAG: ${{ inputs.zkop_tag }}
     - name: Deploy Zenko Instance
       shell: bash
-      run: bash deploy-zenko.sh end2end default './configs/zenko.yaml' ${{ inputs.zenko_version_path }}
+      run: bash deploy-zenko.sh end2end default
       working-directory: ./.github/scripts/end2end
+      env:
+        EXTRA_COMPONENTS: ${{ inputs.extra_components }}
     - name: Add Keycloak user and assign StorageManager role
       shell: bash
       run: bash keycloak-helper.sh add-user default
