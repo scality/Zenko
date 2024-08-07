@@ -146,6 +146,7 @@ test.each([
 
     const result = await act.runEvent("workflow_dispatch", {
         logFile: process.env.ACT_LOG ? "act-release-"+expect.getState().currentTestName+".log" : undefined,
+        verbose: process.env.ACT_VERBOSE ? true : false,
         mockApi: [
             // Mock artifact promotion: copy, retrieve workflow run and set index
             mockapi.mock.artifacts.root
