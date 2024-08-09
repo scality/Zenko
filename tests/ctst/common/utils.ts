@@ -87,12 +87,12 @@ export const s3FunctionExtraParams: { [key: string]: Record<string, unknown>[] }
     }],
 };
 
-export function safeJsonParse(jsonString: string): { ok: boolean, result: object } {
-    let result = {};
+export function safeJsonParse<T>(jsonString: string): { ok: boolean, result: T | null } {
+    let result: T;
     try {
-        result = JSON.parse(jsonString) as object;
+        result = JSON.parse(jsonString) as T;
     } catch (err) {
-        return { ok: false, result };
+        return { ok: false, result: null };
     }
     return { ok: true, result };
 }
