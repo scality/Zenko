@@ -5,6 +5,9 @@ ZENKO_NAME=${1:-end2end}
 COMMAND=${2:-"premerge"}
 PARALLEL_RUNS=${PARALLEL_RUNS:-$(( ( $(nproc) + 1 ) / 2 ))}
 RETRIES=${4:-3}
+
+shift 4
+
 JUNIT_REPORT_PATH=${JUNIT_REPORT_PATH:-"ctst-junit.xml"}
 
 # Zenko Version
@@ -14,6 +17,8 @@ VERSION=$(cat ../../../VERSION | grep -Po 'VERSION="\K[^"]*')
 ZENKO_ACCOUNT_NAME="zenko-ctst"
 ADMIN_ACCESS_KEY_ID=$(kubectl get secret end2end-management-vault-admin-creds.v1 -o jsonpath='{.data.accessKey}' | base64 -d)
 ADMIN_SECRET_ACCESS_KEY=$(kubectl get secret end2end-management-vault-admin-creds.v1  -o jsonpath='{.data.secretKey}' | base64 -d)
+ADMIN_PRA_ACCESS_KEY_ID=$(kubectl get secret end2end-pra-management-vault-admin-creds.v1 -o jsonpath='{.data.accessKey}' | base64 -d)
+ADMIN_PRA_SECRET_ACCESS_KEY=$(kubectl get secret end2end-pra-management-vault-admin-creds.v1  -o jsonpath='{.data.secretKey}' | base64 -d)
 STORAGE_MANAGER_USER_NAME="ctst_storage_manager"
 STORAGE_ACCOUNT_OWNER_USER_NAME="ctst_storage_account_owner"
 DATA_CONSUMER_USER_NAME="ctst_data_consumer"
@@ -43,6 +48,9 @@ KAFKA_DEAD_LETTER_TOPIC=$(kubectl get secret -l app.kubernetes.io/name=cold-sorb
 KAFKA_OBJECT_TASK_TOPIC=$(kubectl get secret -l app.kubernetes.io/name=cold-sorbet-config-e2e-azure-archive,app.kubernetes.io/instance=end2end \
     -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq '."kafka-object-task-topic"' | cut -d "\"" -f 2)
 
+DR_ADMIN_ACCESS_KEY_ID=$(kubectl get secret end2end-pra-management-vault-admin-creds.v1 -o jsonpath='{.data.accessKey}' | base64 -d)
+DR_ADMIN_SECRET_ACCESS_KEY=$(kubectl get secret end2end-pra-management-vault-admin-creds.v1  -o jsonpath='{.data.secretKey}' | base64 -d)
+
 # Extracting kafka host from bacbeat's config
 KAFKA_HOST_PORT=$(kubectl get secret -l app.kubernetes.io/name=backbeat-config,app.kubernetes.io/instance=end2end \
     -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq .kafka.hosts)
@@ -66,6 +74,7 @@ SORBETD_RESTORE_TIMEOUT=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.spec.so
 WORLD_PARAMETERS="$(jq -c <<EOF
 {
   "subdomain":"${SUBDOMAIN}",
+  "DRSubdomain":"${DR_SUBDOMAIN}",
   "ssl":false,
   "port":"${ZENKO_PORT}",
   "AccountName":"${ZENKO_ACCOUNT_NAME}",
@@ -102,7 +111,10 @@ WORLD_PARAMETERS="$(jq -c <<EOF
   "BackbeatApiHost":"${BACKBEAT_API_HOST}",
   "BackbeatApiPort":"${BACKBEAT_API_PORT}",
   "KafkaCleanerInterval":"${KAFKA_CLEANER_INTERVAL}",
-  "SorbetdRestoreTimeout":"${SORBETD_RESTORE_TIMEOUT}"
+  "SorbetdRestoreTimeout":"${SORBETD_RESTORE_TIMEOUT}",
+  "TimeProgressionFactor":"${TIME_PROGRESSION_FACTOR}",
+  "DRAdminAccessKey":"${DR_ADMIN_ACCESS_KEY_ID}",
+  "DRAdminSecretKey":"${DR_ADMIN_SECRET_ACCESS_KEY}"
 }
 EOF
 )"
@@ -117,8 +129,8 @@ kubectl set env cronjob end2end-ops-count-items PROMETHEUS_POLLING_PERIOD=1
 
 E2E_IMAGE=$E2E_CTST_IMAGE_NAME:$E2E_IMAGE_TAG
 POD_NAME="${ZENKO_NAME}-ctst-tests"
-
 CTST_VERSION=$(sed 's/.*"cli-testing": ".*#\(.*\)".*/\1/;t;d' ../../../tests/ctst/package.json)
+
 # Configure keycloak
 docker run \
     --rm \
@@ -181,4 +193,4 @@ kubectl run $POD_NAME \
       }
     ]
   }
-}' -- ./run "$COMMAND" $WORLD_PARAMETERS --parallel $PARALLEL_RUNS --retry $RETRIES --retry-tag-filter @Flaky --format junit:$JUNIT_REPORT_PATH
+}' -- ./run "$COMMAND" $WORLD_PARAMETERS --parallel $PARALLEL_RUNS --retry $RETRIES --retry-tag-filter @Flaky --format junit:$JUNIT_REPORT_PATH "$@"
