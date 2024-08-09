@@ -27,6 +27,13 @@ corefile="
     rewrite name exact sts.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact iam.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact shell-ui.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
+    rewrite name exact keycloak.dr.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
+    rewrite name exact ui.dr.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
+    rewrite name exact management.dr.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
+    rewrite name exact s3.dr.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
+    rewrite name exact sts.dr.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
+    rewrite name exact iam.dr.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
+    rewrite name exact shell-ui.dr.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     kubernetes cluster.local in-addr.arpa ip6.arpa {
         pods insecure
         fallthrough in-addr.arpa ip6.arpa

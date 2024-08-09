@@ -53,7 +53,13 @@ def create_account_secret(name, credentials, namespace="default"):
         string_data=credentials,
     )
 
-    res = core.create_namespaced_secret(namespace, body=secret)
+    try:
+        res = core.create_namespaced_secret(namespace, body=secret)
+    except ApiException as e:
+        if e.status == 409:
+            _log.warning("secret already exists")
+        else:
+            raise e
 
     _log.info("created account secret")
 
