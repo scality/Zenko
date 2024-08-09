@@ -92,6 +92,7 @@ env:
   KUBECTL_VERSION: "1.30.0"
   TILT_VERSION: "0.23.4"
   KIND_VERSION: "v0.12.0"
+  DRCTL_TAG: "v1.0.2"
   ZENKO_ENABLE_SOSAPI: false
   TIME_PROGRESSION_FACTOR: 1
   EXPIRE_ONE_DAY_EARLIER: true
@@ -387,7 +388,7 @@ jobs:
           context: ./tests/ctst
           build-args: |
             CTST_TAG=${{ env.CTST_TAG }}
-            DRCTL_TAG=v1.0.2
+            DRCTL_TAG=${{ env.DRCTL_TAG}}
           tags: "${{ env.E2E_CTST_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}"
           cache-from: type=gha,scope=end2end-ctst
           cache-to: type=gha,mode=max,scope=end2end-ctst
@@ -484,7 +485,7 @@ jobs:
           extra_components: |
             drctl:
                   image: ghcr.io/scality/zenko-drctl
-                  tag: v1.0.2
+                  tag: ${{ env.DRCTL_TAG }}
       - name: Prepare PRA environment
         run: bash prepare-pra.sh
         working-directory: ./.github/scripts/end2end
@@ -496,7 +497,7 @@ jobs:
           EXTRA_COMPONENTS: |
             drctl:
                   image: 'ghcr.io/scality/zenko-drctl'
-                  tag: 'v1.0.2'
+                  tag: ${{ env.DRCTL_TAG }}
         working-directory: ./.github/scripts/end2end
       - name: Add Keycloak pra user and assign StorageManager role
         shell: bash
