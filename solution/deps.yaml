@@ -80,7 +80,7 @@ s3utils:
   sourceRegistry: ghcr.io/scality
   dashboard: s3utils/s3utils-dashboards
   image: s3utils
-  tag: 1.14.12
+  tag: 1.14.13
   envsubst: S3UTILS_TAG
 scuba:
   sourceRegistry: ghcr.io/scality
