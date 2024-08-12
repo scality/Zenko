@@ -34,6 +34,7 @@ groups:
     for: 1m
     labels:
       severity: warning
+      service: ${service}
     annotations:
       summary: 'Not all expected brokers are online.'
       description: 'Kafka: Broker count is down'
@@ -44,6 +45,7 @@ groups:
     for: 1m
     labels:
       severity: critical
+      service: ${service}
     annotations:
       summary: 'No Brokers online'
       description: 'Kafka: Broker count is 0'
@@ -53,6 +55,7 @@ groups:
     for: 1m
     labels:
       severity: critical
+      service: ${service}
     annotations:
       description: >-
         No broker in the cluster is reporting as the active controller in the last 1 minute interval. During steady state there should
@@ -64,6 +67,7 @@ groups:
     for: 1m
     labels:
       severity: critical
+      service: ${service}
     annotations:
       description: >-
         Under-replicated partitions means that one or more replicas are not available. This is usually because a broker is down.  Restart
@@ -75,6 +79,7 @@ groups:
     for: 1m
     labels:
       severity: critical
+      service: ${service}
     annotations:
       description: >-
         After successful leader election, if the leader for partition dies, then the partition moves to the OfflinePartition state.
@@ -91,6 +96,7 @@ groups:
     for: 2m
     labels:
       severity: warning
+      service: ${service}
     annotations:
       description: 'Kafka Broker has low disk space'
       summary: 'Kafka Broker has low disk space'
@@ -101,6 +107,7 @@ groups:
     for: 1m
     labels:
       severity: warning
+      service: ${service}
     annotations:
       summary: 'Zookeeper Sync Disconected'
       description: 'Kafka Zookeeper Sync Disconected'
@@ -116,6 +123,7 @@ groups:
     for: 5m
     labels:
       severity: warning
+      service: ${service}
     annotations:
       summary: 'Kafka: consumer lag is too high for {{ $labels.group }}'
       description: |
