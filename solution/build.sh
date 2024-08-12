@@ -88,20 +88,23 @@ function dependencies_versions_env()
 
 function copy_yamls()
 {
+    local deploy_dir="${ISO_ROOT}/operator/deploy"
     local crd_dir="${ISO_ROOT}/operator/deploy/crds"
-    local role_dir="${ISO_ROOT}/operator/deploy"
     local zenko_operator_repo='https://github.com/scality/zenko-operator'
 
-    mkdir -p ${crd_dir} ${role_dir}
+    mkdir -p ${deploy_dir} ${crd_dir}
 
     kustomize build "${zenko_operator_repo}/config/artesca-solution/crd?ref=$(zenko_operator_tag)" -o ${crd_dir}
     for file in ${crd_dir}/*.yaml ; do 
         mv $file ${file%.yaml}_crd.yaml
     done
     kustomize build "${zenko_operator_repo}/config/artesca-solution/rbac?ref=$(zenko_operator_tag)" |
-        docker run --rm -i ryane/kfilt:v0.0.5 -k Role,ClusterRole > ${role_dir}/role.yaml
+        docker run --rm -i ryane/kfilt:v0.0.5 -k Role,ClusterRole > ${deploy_dir}/role.yaml
 
     env $(dependencies_versions_env) envsubst < zenkoversion.yaml > ${ISO_ROOT}/zenkoversion.yaml
+
+    # ignoring errors here as webhooks are only available starting from zenko-operator 1.6.0
+    kustomize build "${zenko_operator_repo}/config/artesca-solution/webhooks?ref=$(zenko_operator_tag)" -o ${deploy_dir}/webhooks.yaml || true
 }
 
 function copy_docker_image()
