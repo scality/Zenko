@@ -478,8 +478,6 @@ jobs:
           registry: ghcr.io
       - name: Deploy Zenko
         uses: ./.github/actions/deploy
-        env:
-          ZENKO_MONGODB_SHARDED: "true"
         with:
           zkop_tag: 1.6.0-preview.2
           extra_components: |
@@ -492,7 +490,6 @@ jobs:
       - name: Deploy second Zenko for PRA
         run: bash deploy-zenko.sh end2end-pra default './configs/zenko.yaml'
         env:
-          ZENKO_MONGODB_SHARDED: "true"
           ZENKO_MONGODB_DATABASE: "pradb"
           EXTRA_COMPONENTS: |
             drctl:
@@ -625,7 +622,6 @@ jobs:
         uses: ./.github/actions/deploy
         env:
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
-          ZENKO_MONGODB_SHARDED: "true"
       - name: Run backbeat end to end tests
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "backbeat" "default"
         working-directory: ./.github/scripts/end2end
@@ -682,7 +678,6 @@ jobs:
         uses: ./.github/actions/deploy
         env:
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
-          ZENKO_MONGODB_SHARDED: "true"
           ZENKO_ENABLE_SOSAPI: true
           TIME_PROGRESSION_FACTOR: 86400
           TRANSITION_ONE_DAY_EARLIER: false
