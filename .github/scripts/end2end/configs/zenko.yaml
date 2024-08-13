@@ -3,7 +3,10 @@ apiVersion: zenko.io/v1alpha2
 kind: Zenko
 metadata:
   name: ${ZENKO_NAME}
-  ${ZENKO_ANNOTATIONS}
+  annotations:
+    zenko.io/x-backbeat-oneshard-replicaset: data-db-mongodb-sharded-shard-0
+    zenko.io/x-backbeat-oneshard-replicaset-hosts: data-db-mongodb-sharded-shard0-data-0.data-db-mongodb-sharded-headless.default.svc.cluster.local:27017
+${ZENKO_ANNOTATIONS}
 spec:
   version: ${ZENKO_VERSION_NAME}
   replicas: 1
