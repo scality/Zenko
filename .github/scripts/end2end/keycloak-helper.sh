@@ -6,6 +6,7 @@ DIR=$(dirname "$0")
 
 COMMAND=${1:-''}
 NAMESPACE=${2:-default}
+ZENKO_NAME=${3:-end2end}
 
 KEYCLOAK_EXEC="kubectl -n ${NAMESPACE} exec -i keycloak-0 --"
 
@@ -28,7 +29,9 @@ case $COMMAND in
     "add-user")
         refresh_creds
 
-        export INSTANCE_ID=`kubectl -n ${NAMESPACE} get zenko -o jsonpath='{.items[0].status.instanceID}'`
+        export INSTANCE_ID=`kubectl -n ${NAMESPACE} get zenko ${ZENKO_NAME} -o jsonpath='{.status.instanceID}'`
+        
+        export OIDC_EMAIL=${OIDC_EMAIL:-"e2e@zenko.local"}
 
         envsubst < $DIR/configs/keycloak_user.json | \
             ${KEYCLOAK_EXEC} /opt/jboss/keycloak/bin/kcadm.sh create users -r ${OIDC_REALM} -f -
