@@ -37,21 +37,14 @@ else
 fi
 
 # TODO: use kustomize
-ZENKO_MONGODB_SHARDED=${ZENKO_MONGODB_SHARDED:-'false'}
-if [ "${ZENKO_MONGODB_SHARDED}" = 'true' ]; then
-    export ZENKO_ANNOTATIONS="annotations:
-    zenko.io/x-backbeat-oneshard-replicaset: data-db-mongodb-sharded-shard-0
-    zenko.io/x-backbeat-oneshard-replicaset-hosts: data-db-mongodb-sharded-shard0-data-0.data-db-mongodb-sharded-headless.default.svc.cluster.local:27017"
-    export ZENKO_MONGODB_ENDPOINT="data-db-mongodb-sharded.default.svc.cluster.local:27017"
-    export ZENKO_MONGODB_CONFIG="writeConcern: 'majority'
+export ZENKO_ANNOTATIONS="annotations:"
+export ZENKO_MONGODB_ENDPOINT="data-db-mongodb-sharded.default.svc.cluster.local:27017"
+export ZENKO_MONGODB_CONFIG="writeConcern: 'majority'
     enableSharding: true"
-else 
-    export ZENKO_MONGODB_ENDPOINT="dev-db-mongodb-primary-0.dev-db-mongodb-headless.default.svc.cluster.local:27017"
-fi
 export ZENKO_MONGODB_DATABASE="${ZENKO_MONGODB_DATABASE:-'datadb'}"
 
 if [ "${TIME_PROGRESSION_FACTOR}" -gt 1 ]; then
-    export ZENKO_ANNOTATIONS="${ZENKO_ANNOTATIONS:-annotations:}
+    export ZENKO_ANNOTATIONS="$ZENKO_ANNOTATIONS
     zenko.io/time-progression-factor: \"${TIME_PROGRESSION_FACTOR}\""
 fi
 
