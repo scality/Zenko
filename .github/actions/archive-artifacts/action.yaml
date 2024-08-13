@@ -16,6 +16,7 @@ runs:
         tar zcvf /tmp/artifacts/${{ github.sha }}-${STAGE}-logs-volumes.tgz /tmp/artifacts/data/${STAGE}/kind-logs;
     - name: Dump kafka
       shell: bash
+      continue-on-error: true
       run: |-
         set -exu
 
