@@ -35,7 +35,7 @@ tests:
               description: 'Kafka: Broker count is down'
             exp_labels:
               severity: warning
-              service: ${service}
+              kafkaCluster: ${cluster}
       - alertname: BrokersCountCritical
         eval_time: 3m
         exp_alerts: []
@@ -50,7 +50,8 @@ tests:
               description: 'Kafka: Broker count is 0'
             exp_labels:
               namespace: zenko
-              service: ${service}
+              service: artesca-data-base-queue
+              kafkaCluster: ${cluster}
               severity: critical
 
   # ActiveControllerCritical
@@ -79,7 +80,7 @@ tests:
               summary: 'Kafka: No active controller'
             exp_labels:
               severity: critical
-              service: ${service}
+              kafkaCluster: ${cluster}
       - alertname: ActiveControllerCritical
         eval_time: 3m
         exp_alerts: []
@@ -110,7 +111,7 @@ tests:
               summary: 'Kafka: 1 under-replicated partitons'
             exp_labels:
               severity: critical
-              service: ${service}
+              kafkaCluster: ${cluster}
       - alertname: UnderReplicatedPartitions
         eval_time: 3m
         exp_alerts:
@@ -122,7 +123,7 @@ tests:
               summary: 'Kafka: 2 under-replicated partitons'
             exp_labels:
               severity: critical
-              service: ${service}
+              kafkaCluster: ${cluster}
 
   # OfflinePartitons
   ##################################################################################################
@@ -151,7 +152,7 @@ tests:
               summary: 'Kafka: 1 offline partitons'
             exp_labels:
               severity: critical
-              service: ${service}
+              kafkaCluster: ${cluster}
       - alertname: OfflinePartitons
         eval_time: 3m
         exp_alerts:
@@ -164,7 +165,7 @@ tests:
               summary: 'Kafka: 2 offline partitons'
             exp_labels:
               severity: critical
-              service: ${service}
+              kafkaCluster: ${cluster}
   
   # RemainingDiskSpaceWarning
   ##################################################################################################
@@ -204,7 +205,7 @@ tests:
               namespace: zenko
               persistentvolumeclaim: artesca-data-base-queue-1
               severity: warning
-              service: ${service}
+              kafkaCluster: ${cluster}
       - alertname: RemainingDiskSpaceWarning
         eval_time: 5d8h
         exp_alerts: []
@@ -232,7 +233,7 @@ tests:
               summary: Zookeeper Sync Disconected
             exp_labels:
               severity: warning
-              service: ${service}
+              kafkaCluster: ${cluster}
 
    # ConsumerLagWarning
   ##################################################################################################
@@ -282,7 +283,7 @@ tests:
               cluster_name: artesca-data-base-queue
               group: notification
               severity: warning
-              service: ${service}
+              kafkaCluster: ${cluster}
       - alertname: ConsumerLagWarning
         eval_time: 20m
         exp_alerts:
@@ -299,7 +300,7 @@ tests:
               cluster_name: artesca-data-base-queue
               group: replication
               severity: warning
-              service: ${service}
+              kafkaCluster: ${cluster}
           - exp_annotations:
               description:  |
                 Kafka consumer lag has been more more than 300 seconds
@@ -313,4 +314,4 @@ tests:
               cluster_name: artesca-data-base-queue
               group: notification
               severity: warning
-              service: ${service}
+              kafkaCluster: ${cluster}
