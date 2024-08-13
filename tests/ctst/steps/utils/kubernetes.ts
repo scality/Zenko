@@ -25,14 +25,14 @@ export function createKubeBatchClient(world: Zenko) {
     if (!KubernetesHelper.clientBatch) {
         KubernetesHelper.init(world.parameters);
     }
-    return KubernetesHelper.clientBatch;
+    return KubernetesHelper.clientBatch!;
 }
 
 export function createKubeCoreClient(world: Zenko) {
     if (!KubernetesHelper.clientBatch) {
         KubernetesHelper.init(world.parameters);
     }
-    return KubernetesHelper.clientCore;
+    return KubernetesHelper.clientCore!;
 }
 
 export function createKubeWatchClient(world: Zenko) {
@@ -67,7 +67,7 @@ export async function createJobAndWaitForCompletion(world: Zenko, jobName: strin
     const batchClient = createKubeBatchClient(world);
     const watchClient = createKubeWatchClient(world);
     try {
-        const cronJob = await batchClient!.readNamespacedCronJob(jobName, 'default');
+        const cronJob = await batchClient.readNamespacedCronJob(jobName, 'default');
         const cronJobSpec = cronJob.body.spec?.jobTemplate.spec;
         const job = new V1Job();
         const metadata = new V1ObjectMeta();
@@ -85,7 +85,7 @@ export async function createJobAndWaitForCompletion(world: Zenko, jobName: strin
         }
         job.metadata = metadata;
 
-        const response = await batchClient!.createNamespacedJob('default', job);
+        const response = await batchClient.createNamespacedJob('default', job);
         world.logger.debug('job created', {
             job: response.body.metadata,
         });
@@ -292,4 +292,113 @@ export async function waitForDataServicesToStabilize(world: Zenko, timeout = 15 
     }
 
     return allRunning;
+}
+
+export async function displayCRStatus(world: Zenko, namespace = 'default') {
+    const zenkoClient = createKubeCustomObjectClient(world);
+
+    const zenkoCR = await zenkoClient.getNamespacedCustomObject(
+        'zenko.io',
+        'v1alpha2',
+        namespace,
+        'zenkos',
+        'end2end',
+    ).catch(err => {
+        world.logger.error('Error getting Zenko CR', {
+            err: err as unknown,
+        });
+        return null;
+    });
+
+    if (!zenkoCR) {
+        return;
+    }
+
+    world.logger.debug('Checking Zenko CR status', {
+        zenkoCR,
+    });
+}
+
+export async function getDRSource(world: Zenko, namespace = 'default') {
+    const zenkoClient = createKubeCustomObjectClient(world);
+
+    const zenkoCR = await zenkoClient.getNamespacedCustomObject(
+        'zenko.io',
+        'v1alpha1',
+        namespace,
+        'zenkodrsources',
+        'end2end-source',
+    ).catch(err => {
+        world.logger.debug('Error getting Zenko CR', {
+            err: err as unknown,
+        });
+    });
+
+    return zenkoCR?.body;
+}
+
+export async function getDRSink(world: Zenko, namespace = 'default') {
+    const zenkoClient = createKubeCustomObjectClient(world);
+
+    const zenkoCR = await zenkoClient.getNamespacedCustomObject(
+        'zenko.io',
+        'v1alpha1',
+        namespace,
+        'zenkodrsinks',
+        'end2end-pra-sink',
+    ).catch(err => {
+        world.logger.debug('Error getting Zenko CR', {
+            err: err as unknown,
+        });
+    });
+    
+    return zenkoCR?.body;
+}
+
+export async function getPVCFromLabel(world: Zenko, label: string, value: string, namespace = 'default') {
+    const coreClient = createKubeCoreClient(world);
+
+    const pvcList = await coreClient.listNamespacedPersistentVolumeClaim(namespace);
+    const pvc = pvcList.body.items.find(pvc => pvc.metadata?.labels?.[label] === value);
+
+    return pvc;
+}
+
+export async function createSecret(
+    world: Zenko,
+    secretName: string,
+    data: Record<string, string>,
+    namespace = 'default',
+) {
+    const coreClient = createKubeCoreClient(world);
+
+    const secret = {
+        apiVersion: 'v1',
+        kind: 'Secret',
+        metadata: {
+            name: secretName,
+        },
+        data,
+    };
+
+    try {
+        await coreClient.deleteNamespacedSecret(secretName, namespace);
+    } catch (err) {
+        world.logger.debug('Secret does not exist, creating new', {
+            secretName,
+            namespace,
+        });
+    }
+
+    try {
+        const response = await coreClient.createNamespacedSecret(namespace, secret);
+        return response;
+    } catch (err) {
+        world.logger.error('Error creating secret', {
+            namespace,
+            secret,
+            err,
+        });
+        throw err;
+    }
 }
