@@ -18,6 +18,12 @@ cloudserver:
   image: cloudserver
   tag: 8.8.30
   envsubst: CLOUDSERVER_TAG
+drctl:
+  sourceRegistry: ghcr.io/scality
+  image: zenko-drctl
+  tag: v1.0.3
+  envsubst: DRCTL_TAG
+  toolName: zenko-drctl
 fubectl:
   tag: 6abf81a4d275d49351127458d4dd8f6468f0366a
   envsubst: FUBECTL_VERSION
@@ -110,11 +116,6 @@ sorbet:
   image: sorbet
   tag: v1.1.11
   envsubst: SORBET_TAG
-drctl:
-  sourceRegistry: ghcr.io/scality
-  image: zenko-drctl
-  tag: v1.0.2
-  envsubst: DRCTL_TAG
 stern: # tail any pod logs with pattern matchin
   tag: 1.30.0
   envsubst: STERN_VERSION
