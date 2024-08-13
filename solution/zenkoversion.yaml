@@ -112,6 +112,9 @@ spec:
       monitoring:
         image: jmx-javaagent
         tag: '${JMX_JAVAAGENT_TAG}'
+      listener:
+        image: haproxy
+        tag: '${HAPROXY_TAG}'
     vault:
       image: vault2
       tag: '${VAULT_TAG}'

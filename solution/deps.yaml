@@ -34,6 +34,10 @@ fzf: # fuzzy finder for fubectl
   envsubst: FZF_VERSION
   toolUrl: https://github.com/junegunn/fzf/releases/download/v${FZF_VERSION}/fzf-${FZF_VERSION}-linux_amd64.tar.gz
   toolName: fzf
+haproxy:
+  image: haproxy
+  tag: 3.0.3-alpine
+  envsubst: HAPROXY_TAG
 jmx-javaagent:
   sourceRegistry: banzaicloud
   image: jmx-javaagent
