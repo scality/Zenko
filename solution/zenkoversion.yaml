@@ -66,6 +66,9 @@ spec:
     backbeat:
       image: backbeat
       tag: '${BACKBEAT_TAG}'
+    drctl:
+      image: zenko-drctl
+      tag: ${DRCTL_TAG}
     utapi:
       image: utapi
       tag: '${UTAPI_TAG}'

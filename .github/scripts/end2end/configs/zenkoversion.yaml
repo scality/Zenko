@@ -66,6 +66,9 @@ spec:
     backbeat:
       image: '${BACKBEAT_IMAGE}' 
       tag: '${BACKBEAT_TAG}'
+    drctl:
+      image: '${DRCTL_IMAGE}'
+      tag: '${DRCTL_TAG}'
     utapi:
       image: '${UTAPI_IMAGE}' 
       tag: '${UTAPI_TAG}'

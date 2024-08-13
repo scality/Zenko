@@ -309,6 +309,15 @@ function download_tools()
         esac
     )
     done
+
+    # Extract tools from images
+    yq eval '.[] | select(has("toolName") and (has("toolUrl")|not)) | .sourceRegistry + "/" + .image + ":" + .tag + " " + .toolName' deps.yaml |\
+    while read -r image toolName; do
+        local container
+        container=$(docker create $image $toolName)
+        docker cp "$container:$toolName" ${ISO_BINDIR}/
+        docker rm "$container"
+    done
 }
 
 # run everything in order
