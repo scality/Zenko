@@ -18,11 +18,26 @@ cloudserver:
   image: cloudserver
   tag: 8.8.30
   envsubst: CLOUDSERVER_TAG
+fubectl:
+  tag: 6abf81a4d275d49351127458d4dd8f6468f0366a
+  envsubst: FUBECTL_VERSION
+  toolUrl: https://raw.githubusercontent.com/kubermatic/fubectl/${FUBECTL_VERSION}/fubectl.source
+  toolName: fubectl.source
+fzf: # fuzzy finder for fubectl
+  tag: 0.54.0
+  envsubst: FZF_VERSION
+  toolUrl: https://github.com/junegunn/fzf/releases/download/v${FZF_VERSION}/fzf-${FZF_VERSION}-linux_amd64.tar.gz
+  toolName: fzf
 jmx-javaagent:
   sourceRegistry: banzaicloud
   image: jmx-javaagent
   tag: 0.14.0
   envsubst: JMX_JAVAAGENT_TAG
+kaf: # CLI Kafka client all-in-one
+  tag: 0.2.8
+  envsubst: KAF_VERSION
+  toolUrl: https://github.com/birdayz/kaf/releases/download/v${KAF_VERSION}/kaf_${KAF_VERSION}_Linux_x86_64.tar.gz
+  toolName: kaf
 kafka:
   sourceRegistry: ghcr.io/scality/zenko
   image: kafka
@@ -39,9 +54,6 @@ kafka-connect:
   image: kafka-connect
   tag: 2.13-3.1.2-1.13.0
   envsubst: KAFKA_CONNECT_TAG
-mongodb-connector:
-  tag: 1.13.0
-  envsubst: MONGODB_CONNECTOR_TAG
 kafka-cruise-control:
   sourceRegistry: ghcr.io/banzaicloud
   image: cruise-control
@@ -52,6 +64,9 @@ kafka-lag-exporter:
   image: kafka-lag-exporter
   tag: 0.7.1
   envsubst: KAFKA_LAGEXPORTER_TAG
+mongodb-connector:
+  tag: 1.13.0
+  envsubst: MONGODB_CONNECTOR_TAG
 pensieve-api:
   sourceRegistry: ghcr.io/scality
   image: pensieve-api
@@ -100,6 +115,11 @@ drctl:
   image: zenko-drctl
   tag: v1.0.2
   envsubst: DRCTL_TAG
+stern: # tail any pod logs with pattern matchin
+  tag: 1.30.0
+  envsubst: STERN_VERSION
+  toolUrl: https://github.com/stern/stern/releases/download/v${STERN_VERSION}/stern_${STERN_VERSION}_linux_amd64.tar.gz
+  toolName: stern
 # To be enabled back when utapi is used in Zenko 2.x
 # utapi:
 #   sourceRegistry: ghcr.io/scality
