@@ -35,25 +35,3 @@ index 43cd645b..46ac9e25 100644
  metadata:
    name: {{ printf "%s-shard%d-data" (include "common.names.fullname" $ ) $i }}
    labels: {{- include "common.labels.standard" $ | nindent 4 }}
-diff --git a/solution-base/mongodb/charts/mongodb/templates/poddisruptionbudget-arbiter-rs.yaml b/solution-base/mongodb/charts/mongodb/templates/poddisruptionbudget-arbiter-rs.yaml
-index d5ad8760..85f0c657 100644
---- a/solution-base/mongodb/charts/mongodb/templates/poddisruptionbudget-arbiter-rs.yaml
-+++ b/solution-base/mongodb/charts/mongodb/templates/poddisruptionbudget-arbiter-rs.yaml
-@@ -1,5 +1,5 @@
- {{- if and (and .Values.replicaSet.enabled .Values.replicaSet.pdb.enabled) (gt .Values.replicaSet.replicas.arbiter 0) }}
--apiVersion: policy/v1beta1
-+apiVersion: policy/v1
- kind: PodDisruptionBudget
- metadata:
-   labels:
-diff --git a/solution-base/mongodb/charts/mongodb/templates/poddisruptionbudget-secondary-rs.yaml b/solution-base/mongodb/charts/mongodb/templates/poddisruptionbudget-secondary-rs.yaml
-index c64efa51..91be500f 100644
---- a/solution-base/mongodb/charts/mongodb/templates/poddisruptionbudget-secondary-rs.yaml
-+++ b/solution-base/mongodb/charts/mongodb/templates/poddisruptionbudget-secondary-rs.yaml
-@@ -1,5 +1,5 @@
- {{- if and (and .Values.replicaSet.enabled .Values.replicaSet.pdb.enabled) (gt .Values.replicaSet.replicas.secondary 0) }}
--apiVersion: policy/v1beta1
-+apiVersion: policy/v1
- kind: PodDisruptionBudget
- metadata:
-   labels:
