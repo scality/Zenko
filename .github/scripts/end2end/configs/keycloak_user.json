@@ -5,7 +5,7 @@
   "emailVerified": true,
   "firstName": "${OIDC_FIRST_NAME}",
   "lastName": "${OIDC_LAST_NAME}",
-  "email": "e2e@zenko.local",
+  "email": "${OIDC_EMAIL}",
   "attributes": {
     "instanceIds": [
         "${INSTANCE_ID}"

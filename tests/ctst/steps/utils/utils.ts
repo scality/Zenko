@@ -9,8 +9,9 @@ import {
     AWSVersionObject,
     Command,
 } from 'cli-testing';
-import { extractPropertyFromResults, s3FunctionExtraParams } from 'common/utils';
+import { extractPropertyFromResults, s3FunctionExtraParams, safeJsonParse } from 'common/utils';
 import Zenko from 'world/Zenko';
+import assert from 'assert';
 
 enum AuthorizationType {
     ALLOW = 'Allow',
@@ -252,6 +253,123 @@ async function emptyVersionedBucket(world: Zenko) {
     }));
 }
 
+async function addTransitionWorkflow(this: Zenko, location: string, enabled = true) {
+    let conditionOk = false;
+    this.resetCommand();
+    this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
+    const enabledStr = enabled ? 'Enabled' : 'Disabled';
+    const lifecycleConfiguration = JSON.stringify({
+        Rules: [
+            {
+                Status: enabledStr,
+                Prefix: '',
+                Transitions: [
+                    {
+                        Days: 0,
+                        StorageClass: location,
+                    },
+                ],
+            },
+        ],
+    });
+    this.addCommandParameter({
+        lifecycleConfiguration,
+    });
+    const commandParameters = this.getCommandParameters();
+    while (!conditionOk) {
+        const res = await S3.putBucketLifecycleConfiguration(commandParameters);
+        conditionOk = res.err === null;
+        // Wait for the transition to be accepted because the deployment of the location's pods can take some time
+        await Utils.sleep(5000); 
+    }
+}
+
+async function verifyObjectLocation(this: Zenko, objectName: string,
+    objectTransitionStatus: string, storageClass: string) {
+    const objName =
+        getObjectNameWithBackendFlakiness.call(this, objectName) || this.getSaved<string>('objectName');
+    this.resetCommand();
+    this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
+    this.addCommandParameter({ key: objName });
+    const versionId = this.getSaved<Map<string, string>>('createdObjects')?.get(objName);
+    if (versionId) {
+        this.addCommandParameter({ versionId });
+    }
+    let conditionOk = false;
+    while (!conditionOk) {
+        const res = await S3.headObject(this.getCommandParameters());
+        if (res.err?.includes('NotFound')) {
+            await Utils.sleep(1000);
+            continue;
+        } else if (res.err) {
+            break;
+        }
+        assert(res.stdout);
+        const parsed = safeJsonParse<{
+            StorageClass: string | undefined,
+            Restore: string | undefined,
+        }>(res.stdout);
+        assert(parsed.ok);
+        const expectedClass = storageClass !== '' ? storageClass : undefined;
+        if (parsed.result?.StorageClass === expectedClass) {
+            conditionOk = true;
+        }
+        if (objectTransitionStatus == 'restored') {
+            const isRestored = !!parsed.result?.Restore &&
+                parsed.result.Restore.includes('ongoing-request="false", expiry-date=');
+            conditionOk = conditionOk && isRestored;
+        } else if (objectTransitionStatus == 'cold') {
+            conditionOk = conditionOk && !parsed.result?.Restore;
+        }
+        await Utils.sleep(1000);
+    }
+    assert(conditionOk);
+}
+
+async function restoreObject(this: Zenko, objectName: string, days: number) {
+    const objName = getObjectNameWithBackendFlakiness.call(this, objectName) ||  this.getSaved<string>('objectName');
+    this.resetCommand();
+    this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
+    this.addCommandParameter({ key: objName });
+    const versionId = this.getSaved<Map<string, string>>('createdObjects')?.get(objName);
+    if (versionId) {
+        this.addCommandParameter({ versionId });
+    }
+    this.addCommandParameter({ restoreRequest: `Days=${days}` });
+    const result = await S3.restoreObject(this.getCommandParameters());
+    this.setResult(result);
+}
+
+/**
+ * @param {Zenko} this world object
+ * @param {string} objectName object name
+ * @returns {string} the object name based on the backend flakyness
+ */
+function getObjectNameWithBackendFlakiness(this: Zenko, objectName: string) {
+    let objectNameFinal;
+    const backendFlakinessRetryNumber = this.getSaved<string>('backendFlakinessRetryNumber');
+    const backendFlakiness = this.getSaved<string>('backendFlakiness');
+
+    if (!backendFlakiness || !backendFlakinessRetryNumber || !objectName) {
+        return objectName;
+    }
+
+    switch (backendFlakiness) {
+    case 'command':
+        objectNameFinal = `${objectName}.scal-retry-command-${backendFlakinessRetryNumber}`;
+        break;
+    case 'archive':
+    case 'restore':
+        objectNameFinal = `${objectName}.scal-retry-${backendFlakiness}-job-${backendFlakinessRetryNumber}`;
+        break;
+    default:
+        this.logger.debug('Unknown backend flakyness', { backendFlakiness });
+        return objectName;
+    }
+    return objectNameFinal;
+}
+
+
 export {
     AuthorizationType,
     AuthorizationConfiguration,
@@ -261,4 +379,8 @@ export {
     putObject,
     emptyNonVersionedBucket,
     emptyVersionedBucket,
+    verifyObjectLocation,
+    getObjectNameWithBackendFlakiness,
+    restoreObject,
+    addTransitionWorkflow,
 };
