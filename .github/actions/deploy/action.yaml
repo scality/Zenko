@@ -7,10 +7,6 @@ inputs:
     description: "The tag of the Zenko Operator image to use"
     required: false
     default: ""
-  extra_components:
-    description: "Extra components to add to zenkoversion"
-    required: false
-    default: ""
 runs:
   using: composite
   steps:
@@ -78,8 +74,6 @@ runs:
       shell: bash
       run: bash deploy-zenko.sh end2end default
       working-directory: ./.github/scripts/end2end
-      env:
-        EXTRA_COMPONENTS: ${{ inputs.extra_components }}
     - name: Add Keycloak user and assign StorageManager role
       shell: bash
       run: bash keycloak-helper.sh add-user default
