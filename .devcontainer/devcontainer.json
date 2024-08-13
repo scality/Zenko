@@ -80,7 +80,6 @@
     },
     "containerEnv": {
         "ZENKO_MONGODB_DATABASE": "zenko-database",
-        "ZENKO_MONGODB_SHARDED": "true" 
         },
     // Use 'postCreateCommand' to run commands after the container is created.
     "postCreateCommand": "bash .devcontainer/setup.sh"
