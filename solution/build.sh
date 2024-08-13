@@ -30,11 +30,6 @@ OPERATOR_SDK_OPTS=
 SKOPEO=skopeo
 SKOPEO_OPTS="--override-os linux --insecure-policy"
 
-KAF_VERSION=v0.2.8
-STERN_VERSION=1.30.0
-FZF_VERSION=0.54.0
-FUBECTL_VERSION=6abf81a4d275d49351127458d4dd8f6468f0366a
-
 export SOLUTION_REGISTRY=metalk8s-registry-from-config.invalid/${PRODUCT_LOWERNAME}-${VERSION_FULL}
 
 function clean()
@@ -220,7 +215,7 @@ function get_local_dashboards()
 
 function get_component_dashboards()
 {
-    components=$(yq eval '.* | select(.dashboard != "") | .sourceRegistry + "/" + .dashboard + ":" + .tag' deps.yaml)
+    components=$(yq eval '.* | select(has("dashboard")) | .sourceRegistry + "/" + .dashboard + ":" + .tag' deps.yaml)
 
     for dashboard in ${components}
     do
@@ -237,7 +232,7 @@ function get_dashboards()
 
 function copy_iam_policies()
 {
-    components=$(yq eval '.* | select(.policy != "") | .sourceRegistry + "/" + .policy + ":" + .tag' deps.yaml)
+    components=$(yq eval '.* | select(has("policy")) | .sourceRegistry + "/" + .policy + ":" + .tag' deps.yaml)
 
     for policy in ${components}
     do
@@ -293,25 +288,27 @@ function build_iso()
 
 function download_tools()
 {
-    # CLI Kafka client all-in-one
-    BINDIR=${ISO_BINDIR} bash <(curl https://raw.githubusercontent.com/birdayz/kaf/master/godownloader.sh) ${KAF_VERSION}
-
-    # tail any pod logs with pattern matching
+    # Download every tool
+    yq eval '.[] | select(has("toolUrl")) | .toolUrl + " " + .tag + " " + .toolName + " " + .envsubst' deps.yaml |\
+    while read -r url tag toolName envsubst; do
     (
-        cd ${BUILD_ROOT} &&
-        curl -LO https://github.com/stern/stern/releases/download/v${STERN_VERSION}/stern_${STERN_VERSION}_linux_amd64.tar.gz &&
-        tar zvxf stern_${STERN_VERSION}_linux_amd64.tar.gz -C ${ISO_BINDIR} stern
-    )
+        url="$(env "$envsubst=$tag" envsubst "\$$envsubst" <<< "$url")"
+        filename=${url##*/}
 
-    # fuzzy finder for fubectl
-    (
-        cd ${BUILD_ROOT} &&
-        curl -LO https://github.com/junegunn/fzf/releases/download/v${FZF_VERSION}/fzf-${FZF_VERSION}-linux_amd64.tar.gz &&
-        tar zvxf fzf-${FZF_VERSION}-linux_amd64.tar.gz -C ${ISO_BINDIR} fzf
-    )
+        cd "${BUILD_ROOT}"
+        curl -LO "$url"
 
-    # kubectl wrappers with fuzzy matching on any resource
-    curl -o ${ISO_BINDIR}/fubectl.source https://raw.githubusercontent.com/kubermatic/fubectl/${FUBECTL_VERSION}/fubectl.source
+        # Flag to flatten the directory structure of tarballs, when needed
+        FLATTEN=--transform='s/.*\///g'
+
+        case "$filename" in
+        *.tar.gz) tar $FLATTEN -zvxf "${filename}" -C "${ISO_BINDIR}" "${toolName}";;
+        *.tar.bz) tar $FLATTEN -jvxf "${filename}" -C "${ISO_BINDIR}" "${toolName}";;
+        *.tar)    tar $FLATTEN -vxf "${filename}" -C "${ISO_BINDIR}" "${toolName}";;
+        *)        cp "${filename}" "${ISO_BINDIR}/${toolName}" ;;
+        esac
+    )
+    done
 }
 
 # run everything in order
