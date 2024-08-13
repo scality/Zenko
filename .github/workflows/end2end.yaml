@@ -92,7 +92,6 @@ env:
   KUBECTL_VERSION: "1.30.0"
   TILT_VERSION: "0.23.4"
   KIND_VERSION: "v0.12.0"
-  DRCTL_TAG: "v1.0.2"
   ZENKO_ENABLE_SOSAPI: false
   TIME_PROGRESSION_FACTOR: 1
   EXPIRE_ONE_DAY_EARLIER: true
@@ -381,6 +380,10 @@ jobs:
         shell: bash
         run: |-
           echo "CTST_TAG=$(sed 's/.*"cli-testing": ".*#\(.*\)".*/\1/;t;d' ./tests/ctst/package.json)" >> $GITHUB_ENV
+      - name: Get CTST image tag
+        shell: bash
+        run: |-
+          echo "DRCTL_TAG=$(yq eval .drctl.tag solution/deps.yaml)" >> $GITHUB_ENV
       - name: Build and push CI image
         uses: docker/build-push-action@v5
         with:
@@ -478,12 +481,6 @@ jobs:
           registry: ghcr.io
       - name: Deploy Zenko
         uses: ./.github/actions/deploy
-        with:
-          zkop_tag: 1.6.0-preview.2
-          extra_components: |
-            drctl:
-                  image: ghcr.io/scality/zenko-drctl
-                  tag: ${{ env.DRCTL_TAG }}
       - name: Prepare PRA environment
         run: bash prepare-pra.sh
         working-directory: ./.github/scripts/end2end
@@ -491,10 +488,6 @@ jobs:
         run: bash deploy-zenko.sh end2end-pra default './configs/zenko.yaml'
         env:
           ZENKO_MONGODB_DATABASE: "pradb"
-          EXTRA_COMPONENTS: |
-            drctl:
-                  image: 'ghcr.io/scality/zenko-drctl'
-                  tag: ${{ env.DRCTL_TAG }}
         working-directory: ./.github/scripts/end2end
       - name: Add Keycloak pra user and assign StorageManager role
         shell: bash
