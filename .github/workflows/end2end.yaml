@@ -434,6 +434,7 @@ jobs:
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
+        if: failure() && runner.debug == '1'
       - name: Upload results
         if: "!cancelled() && env.TRUNK_TOKEN"
         uses: trunk-io/analytics-uploader@main
@@ -507,6 +508,20 @@ jobs:
       - name: Run CTST end to end tests
         run: bash run-e2e-ctst.sh "" "" "" "" --tags @PRA
         working-directory: ./.github/scripts/end2end
+      - name: Debug wait
+        uses: ./.github/actions/debug-wait
+        timeout-minutes: 60
+        if: failure() && runner.debug == '1'
+      - name: Upload results
+        if: "!cancelled() && env.TRUNK_TOKEN"
+        uses: trunk-io/analytics-uploader@main
+        with:
+          junit-paths: /artifacts/data/reports/*.xml
+          org-slug: ${{ github.repository_owner }}
+          token: ${{ env.TRUNK_TOKEN }}
+        env:
+          TRUNK_TOKEN: ${{ secrets.TRUNK_TOKEN }}
+        continue-on-error: true
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
         env:
@@ -575,6 +590,7 @@ jobs:
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
+        if: failure() && runner.debug == '1'
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
         env:
@@ -631,6 +647,7 @@ jobs:
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
+        if: failure() && runner.debug == '1'
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
         env:
@@ -694,6 +711,7 @@ jobs:
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
+        if: failure() && runner.debug == '1'
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
         env:
@@ -722,6 +740,7 @@ jobs:
       - end2end-http
       - end2end-https
       - end2end-sharded
+      - end2end-pra
       - ctst-end2end-sharded
     if: failure()
     steps:
@@ -750,6 +769,7 @@ jobs:
       - end2end-http
       - end2end-https
       - end2end-sharded
+      - end2end-pra
       - ctst-end2end-sharded
     if: success()
     steps:
