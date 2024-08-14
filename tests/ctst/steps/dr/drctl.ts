@@ -11,7 +11,9 @@ type InstallConfig = {
     sinkKafkaReplicas?: number;
     sinkConnectorReplicas?: number;
     kafkaClusterLocation?: string;
-    kafkaNodePortStartingPort?: number;
+    kafkaExternalIps?: string;
+    kafkaExternalIpsDiscovery?: boolean;
+    kafkaExternalPort?: number;
     kafkaPersistenceExistingPv?: string;
     kafkaPersistenceSize?: string;
     kafkaPersistenceStorageClassName?: string;

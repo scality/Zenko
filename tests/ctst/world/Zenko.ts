@@ -53,6 +53,7 @@ export interface ZenkoWorldParameters extends ClientOptions {
     NotificationDestinationTopic: string;
     NotificationDestinationAlt: string;
     NotificationDestinationTopicAlt: string;
+    KafkaExternalIps: string;
     KafkaHosts: string;
     KeycloakUsername: string;
     KeycloakPassword: string;
