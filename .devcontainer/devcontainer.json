@@ -74,6 +74,11 @@
                     "permissions": {
                         "contents": "read"
                     }
+                },
+                "scality/zenko-drctl": {
+                    "permissions": {
+                        "contents": "read"
+                    }
                 }
             }
         }
