@@ -53,7 +53,10 @@ async function installPRA(world: Zenko, sinkS3Endpoint = 'http://s3.zenko.local'
         sourceZenkoDrInstance: 'end2end-source',
         sinkZenkoDrInstance: 'end2end-pra-sink',
         kafkaPersistenceSize: '1Gi',
-        kafkaPersistenceStorageClassName: 'standard',
+        kafkaPersistenceStorageClassName: '-',
+        kafkaPersistenceSelector: 'brokerId=0,app=kafka-dr-sink',
+        kafkaExternalIps: world.parameters.KafkaExternalIps,
+        kafkaExternalIpsDiscovery: !world.parameters.KafkaExternalIps,
         locations: 'e2e-cold', // comma-separated list
         s3Bucket: 'dump-db',
         sinkZenkoInstance: 'end2end-pra',

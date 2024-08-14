@@ -67,6 +67,7 @@ WORLD_PARAMETERS="$(jq -c <<EOF
   "NotificationDestinationTopic":"${NOTIF_DEST_TOPIC}",
   "NotificationDestinationAlt":"${NOTIF_ALT_DEST_NAME}",
   "NotificationDestinationTopicAlt":"${NOTIF_ALT_DEST_TOPIC}",
+  "KafkaExternalIPs": "${KAFKA_EXTERNAL_IP:-}",
   "KafkaHosts":"${KAFKA_HOST_PORT}",
   "KeycloakPassword":"${KEYCLOAK_TEST_PASSWORD}",
   "KeycloakHost":"${KEYCLOAK_TEST_HOST}",
