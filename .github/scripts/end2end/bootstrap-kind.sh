@@ -33,7 +33,6 @@ connect_registry() {
 add_workers() {
     local count=0
     while [ $count -lt $WORKER_NODE_COUNT ]; do
-        count=$((count+1))
         echo "- role: worker
   image: ${NODE_IMAGE}
   extraMounts:
@@ -41,6 +40,14 @@ add_workers() {
     containerPath: /data
   - hostPath: ${HOME}/.docker/config.json
     containerPath: /var/lib/kubelet/config.json"
+        # Extra port mapping for kafka external listener
+        if [ $count -eq 0 ]; then
+          echo "  extraPortMappings:
+  - containerPort: 9094
+    hostPort: 9094
+    protocol: TCP"
+        fi
+        count=$((count+1))
     done
 }
 
