@@ -3,6 +3,7 @@ import Zenko from 'world/Zenko';
 import ZenkoDrctl from './dr/drctl';
 import {
     createSecret,
+    deletePodsByLabel,
     displayCRStatus,
     getDRSink,
     getDRSource,
@@ -71,6 +72,7 @@ async function installPRA(world: Zenko, sinkS3Endpoint = 'http://s3.zenko.local'
         // prometheusHostname: 'prom.dr.zenko.local', // could be any name, cert will be auto-generated
         prometheusExternalIpsDiscovery: true,
         prometheusDisableTls: true,
+        forceRotateServiceCredentials: true,
         ...kafkaExternalIpOption,
     });
 }
@@ -168,6 +170,8 @@ Given('a DR installed', { timeout: 360000 }, async function (this: Zenko) {
         accessKey: Buffer.from(credentials.accessKeyId).toString('base64'),
         secretAccessKey: Buffer.from(credentials.secretAccessKey).toString('base64'),
     });
+    await deletePodsByLabel(this,
+        'app.kubernetes.io/name=sorbet-fwd-user-create,app.kubernetes.io/instance=end2end-pra');
     await installPRA(this);
     return;
 });
