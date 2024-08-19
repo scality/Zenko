@@ -63,6 +63,22 @@ export function createKubeCustomObjectClient(world: Zenko) {
     return KubernetesHelper.customObject as CustomObjectsApi;
 }
 
+export async function deletePodsByLabel(world: Zenko, label: string, namespace = 'default') {
+    const coreClient = createKubeCoreClient(world);
+
+    try {
+        await coreClient.deleteCollectionNamespacedPod(
+            namespace, undefined, undefined, undefined, undefined, undefined, label);
+    } catch (err) {
+        world.logger.error('Error deleting pods by label', {
+            label,
+            namespace,
+            err,
+        });
+        throw err;
+    }
+}
+
 export async function createJobAndWaitForCompletion(world: Zenko, jobName: string, customMetadata?: string) {
     const batchClient = createKubeBatchClient(world);
     const watchClient = createKubeWatchClient(world);
