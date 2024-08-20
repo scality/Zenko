@@ -16,7 +16,6 @@ KAFKA_OPERATOR_VERSION=0.25.1
 INGRESS_NGINX_VERSION=controller-v1.8.1
 PROMETHEUS_VERSION=v0.52.1
 KEYCLOAK_VERSION=18.4.4
-BITNAMI_MONGODB_VER=7.8.0
 
 MONGODB_ROOT_USERNAME=root
 MONGODB_ROOT_PASSWORD=rootpass
@@ -24,15 +23,8 @@ MONGODB_APP_USERNAME=data
 MONGODB_APP_PASSWORD=datapass
 MONGODB_APP_DATABASE="${ZENKO_MONGODB_DATABASE:-'datadb'}"
 MONGODB_RS_KEY=0123456789abcdef
-# force a 4.0 image as that's what artesca uses
-DEPS_FILE="$DIR/../../../solution-base/deps.yaml"
-MONGODB_IMAGE_TAG=$(yq eval ".mongodb.tag" $DEPS_FILE)
-MONGODB_INIT_IMAGE_NAME=$(yq eval ".mongodb-shell.image" $DEPS_FILE)
-MONGODB_INIT_IMAGE_TAG=$(yq eval ".mongodb-shell.tag" $DEPS_FILE)
-MONGODB_EXPORTER_IMAGE_TAG=$(yq eval ".mongodb-exporter.tag" $DEPS_FILE)
 
 ENABLE_KEYCLOAK_HTTPS=${ENABLE_KEYCLOAK_HTTPS:-'false'}
-ZENKO_MONGODB_SHARDED=${ZENKO_MONGODB_SHARDED:-'false'}
 
 KAFKA_CHART=banzaicloud-stable/kafka-operator
 
@@ -65,13 +57,22 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/${IN
 kubectl rollout status -n ingress-nginx deployment/ingress-nginx-controller --timeout=10m
 
 # cert-manager
-kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/${CERT_MANAGER_VERSION}/cert-manager.yaml
+kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/${CERT_MANAGER_VERSION}/cert-manager.yaml --wait
+# kubectl apply --validate=false -f - <<EOF
+# apiVersion: cert-manager.io/v1
+# kind: ClusterIssuer
+# metadata:
+#   name: artesca-root-ca-issuer
+# spec:
+#   selfSigned: {}
+# EOF
 
 # prometheus
 # last-applied-configuration can end up larger than 256kB  which is too large for an annotation
 # so if apply fails, replace can work
 prom_url=https://raw.githubusercontent.com/coreos/prometheus-operator/${PROMETHEUS_VERSION}/bundle.yaml
-kubectl create -f $prom_url || kubectl replace -f $prom_url
+kubectl create -f $prom_url || kubectl replace -f $prom_url --wait
+envsubst < configs/prometheus.yaml | kubectl apply -f -
 
 # zookeeper
 helm upgrade --install --version ${ZK_OPERATOR_VERSION} -n default zk-operator pravega/zookeeper-operator --set "watchNamespace=default"
@@ -132,39 +133,6 @@ get_image_from_deps() {
     yq eval ".$dep_name | (.sourceRegistry // \"docker.io\") + \"/\" + .image + \":\" + .tag" $SOLUTION_BASE_DIR/deps.yaml
 }
 
-mongodb_replicaset() {
-    ### TODO:  update to use chart in project
-    kubectl create configmap \
-        --from-file=${DIR}/../../../solution-base/mongodb/scripts mongodb-init-scripts \
-        --dry-run=client -o yaml | kubectl apply -f -
-
-    helm upgrade --install dev-db bitnami/mongodb \
-        --version $BITNAMI_MONGODB_VER \
-        -f "${DIR}/configs/mongodb_options.yaml"  \
-        --set "volumePermissions.enabled=true" \
-        --set "volumePermissions.image.repository=${MONGODB_INIT_IMAGE_NAME}" \
-        --set "volumePermissions.image.tag=${MONGODB_INIT_IMAGE_TAG}" \
-        --set "persistence.storageClass=standard" \
-        --set "usePassword=true" \
-        --set "mongodbRootPassword=$MONGODB_ROOT_PASSWORD" \
-        --set "replicaSet.key=$MONGODB_RS_KEY" \
-        --set "extraEnvVars[0].name=MONGODB_APP_USERNAME" \
-        --set "extraEnvVars[0].value=$MONGODB_APP_USERNAME" \
-        --set "extraEnvVars[1].name=MONGODB_APP_PASSWORD" \
-        --set "extraEnvVars[1].value=$MONGODB_APP_PASSWORD" \
-        --set "extraEnvVars[2].name=MONGODB_APP_DATABASE" \
-        --set "extraEnvVars[2].value=$MONGODB_APP_DATABASE" \
-        --set "extraEnvVars[3].name=MONGODB_NAMESPACE" \
-        --set "extraEnvVars[3].value=default" \
-        --set "replicaSet.pdb.minAvailable.secondary=1" \
-        --set "replicaSet.pdb.minAvailable.arbiter=0" \
-        --set "replicaSet.replicas.secondary=0" \
-        --set "replicaSet.replicas.arbiter=0"
-
-    kubectl rollout status statefulset dev-db-mongodb-primary
-    kubectl rollout status statefulset dev-db-mongodb-secondary
-}
-
 retry() {
     local count=0
     local errMsg=${1:-'reached max retry attempts'}
@@ -216,9 +184,5 @@ mongodb_sharded() {
 }
 
 build_solution_base_manifests
-if [ $ZENKO_MONGODB_SHARDED = 'true' ]; then
-    mongodb_sharded
-else
-    mongodb_replicaset
-fi
+mongodb_sharded
 

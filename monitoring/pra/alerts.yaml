@@ -1,0 +1,88 @@
+x-inputs:
+  - name: namespace
+    type: constant
+    value: zenko
+  - name: kafka_connect_src_job
+    type: constant
+    value: artesca-data-dr-source-base-queue-connector-metrics
+  - name: kafka_connect_sink_job
+    type: constant
+    value: artesca-data-dr-base-queue-connector-metrics
+  - name: dr_sink_instance
+    type: constant
+    value: artesca-data-dr
+  - name: rto_alert_threshold
+    type: config
+    value: 3600 # 1 hour
+  - name: mongo_jobs
+    type: constant
+    value: zenko/data-db-mongodb-sharded-shard.*
+  - name: lifecycle_jobs
+    type: constant
+    value: artesca-data-backbeat-lifecycle-.*-headless
+
+groups:
+- name: PraAlerts
+  rules:
+
+  - alert: DrResourcePausedWhileOtherRunning
+    expr: |
+      (sum(up{drSinkInstance="",job="${kafka_connect_src_job}", namespace="${namespace}"}) or vector(0)) 
+      !=
+      (sum(up{drSinkInstance="${dr_sink_instance}", job="${kafka_connect_sink_job}", namespace="${namespace}"}) or vector(0))
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: 'DR Resource Paused While Other Running'
+      description: 'One site s DR resource is paused while the other is not. This could lead to data inconsistency between sites.'
+
+  - alert: DrResourcePausedForTooLong
+    expr: |
+      (sum(up{drSinkInstance="", job="${kafka_connect_src_job}", namespace="${namespace}"}) or vector(0)) == 0
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: 'DR resource paused for too long'
+      description: 'The DR resource has been paused for more than 5 minutes.'
+
+  - alert: KafkaConnectOutageSource
+    expr: |
+      sum(rate(kafka_connect_task_error_total_record_errors{drSinkInstance="", job="${kafka_connect_src_job}"}[$__rate_interval])) > 0
+      or
+      sum(rate(kafka_connect_task_error_total_record_failures{drSinkInstance="", job="${kafka_connect_src_job}"}[$__rate_interval])) > 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      description: >-
+        Kafka-connect on source is not working nominally. The rate of errors or failures has exceeded 0. This could lead DR to get out of sync if not addressed promptly.
+      summary: 'Kafka Connect not working'
+
+  - alert: KafkaConnectOutageSink
+    expr: |
+      sum(rate(kafka_connect_task_error_total_record_errors{drSinkInstance="${dr_sink_instance}", job="${kafka_connect_sink_job}"}[$__rate_interval])) > 0
+      or
+      sum(rate(kafka_connect_task_error_total_record_failures{drSinkInstance="${dr_sink_instance}", job="${kafka_connect_sink_job}"}[$__rate_interval])) > 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      description: >-
+        Kafka-connect on sink is not working nominally. The rate of errors or failures has exceeded 0. This could lead to data loss if not addressed promptly.
+      summary: 'Kafka Connect not working'
+
+  - alert: WriteTimesLatency
+    expr: |
+      (
+        sum(s3_lifecycle_last_timestamp_ms{drSinkInstance="", job=~"${lifecycle_jobs}",namespace="${namespace}"})
+        -
+        sum(mongodb_ss_repl_lastWrite_lastWriteDate{drSinkInstance="${dr_sink_instance}", job=~"${mongo_jobs}", namespace="${namespace}"})
+      ) > ${rto_alert_threshold} * 1000
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: 'Write times latency'
+      description: 'The difference in write times between the source and protected sites is more than half of the Recovery Time Objective (12 hours). This could lead to data inconsistency between sites.'
