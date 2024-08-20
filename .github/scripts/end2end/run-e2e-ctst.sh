@@ -68,6 +68,7 @@ WORLD_PARAMETERS="$(jq -c <<EOF
   "NotificationDestinationAlt":"${NOTIF_ALT_DEST_NAME}",
   "NotificationDestinationTopicAlt":"${NOTIF_ALT_DEST_TOPIC}",
   "KafkaExternalIps": "${KAFKA_EXTERNAL_IP:-}",
+  "PrometheusService":"${PROMETHEUS_NAME}-operated.default.svc.cluster.local",
   "KafkaHosts":"${KAFKA_HOST_PORT}",
   "KeycloakPassword":"${KEYCLOAK_TEST_PASSWORD}",
   "KeycloakHost":"${KEYCLOAK_TEST_HOST}",
