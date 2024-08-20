@@ -1,0 +1,48 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: ${PROMETHEUS_NAME}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - services
+  - endpoints
+  verbs:
+  - '*'
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: ${PROMETHEUS_NAME}
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: default
+roleRef:
+  kind: Role
+  name: ${PROMETHEUS_NAME}
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: ${PROMETHEUS_NAME}
+  labels:
+    prometheus: ${PROMETHEUS_NAME}
+spec:
+  version: v2.35.0
+  evaluationInterval: 30s
+  logFormat: logfmt
+  logLevel: info
+  podMonitorNamespaceSelector: {}
+  podMonitorSelector:
+    matchLabels:
+      metalk8s.scality.com/monitor: ""
+  probeSelector:
+    matchLabels:
+      metalk8s.scality.com/monitor: ""
+  ruleSelector:
+    matchLabels:
+      metalk8s.scality.com/monitor: ""
