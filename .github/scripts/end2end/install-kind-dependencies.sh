@@ -57,13 +57,22 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/${IN
 kubectl rollout status -n ingress-nginx deployment/ingress-nginx-controller --timeout=10m
 
 # cert-manager
-kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/${CERT_MANAGER_VERSION}/cert-manager.yaml
+kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/${CERT_MANAGER_VERSION}/cert-manager.yaml --wait
+# kubectl apply --validate=false -f - <<EOF
+# apiVersion: cert-manager.io/v1
+# kind: ClusterIssuer
+# metadata:
+#   name: artesca-root-ca-issuer
+# spec:
+#   selfSigned: {}
+# EOF
 
 # prometheus
 # last-applied-configuration can end up larger than 256kB  which is too large for an annotation
 # so if apply fails, replace can work
 prom_url=https://raw.githubusercontent.com/coreos/prometheus-operator/${PROMETHEUS_VERSION}/bundle.yaml
-kubectl create -f $prom_url || kubectl replace -f $prom_url
+kubectl create -f $prom_url || kubectl replace -f $prom_url --wait
+envsubst < configs/prometheus.yaml | kubectl apply -f -
 
 # zookeeper
 helm upgrade --install --version ${ZK_OPERATOR_VERSION} -n default zk-operator pravega/zookeeper-operator --set "watchNamespace=default"

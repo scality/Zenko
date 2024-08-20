@@ -67,6 +67,10 @@ async function installPRA(world: Zenko, sinkS3Endpoint = 'http://s3.zenko.local'
         sourceZenkoNamespace: 'default',
         sourceS3Endpoint: 'http://s3.zenko.local',
         sinkS3Endpoint,
+        prometheusService: world.parameters.PrometheusService,
+        // prometheusHostname: 'prom.dr.zenko.local', // could be any name, cert will be auto-generated
+        prometheusExternalIpsDiscovery: true,
+        prometheusDisableTls: true,
         ...kafkaExternalIpOption,
     });
 }

@@ -42,6 +42,7 @@ env:
   OIDC_HOST: 'keycloak.zenko.local'
   NAVBAR_ENDPOINT: 'http://shell-ui.zenko.local'
   ENABLE_KEYCLOAK_HTTPS: 'false'
+  PROMETHEUS_NAME: "prometheus"
   # mock-env
   AZURE_ACCOUNT_NAME: devstoreaccount1
   AZURE_BACKEND_ENDPOINT: http://devstoreaccount1.blob.azure-mock.zenko.local
