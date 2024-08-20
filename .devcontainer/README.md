@@ -6,7 +6,7 @@
 To run the CTST tests in the codespace, simply head to `.github/script/end2end/` and run `run-e2e-ctst.sh` script.
 
 ```bash
-    cd .github/script/end2end/
+    cd .github/scripts/end2end/
     bash run-e2e-ctst.sh
 ```
 

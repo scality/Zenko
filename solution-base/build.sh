@@ -29,35 +29,15 @@ SKOPEO=skopeo
 SKOPEO_OPTS="--override-os linux --insecure-policy"
 SOLUTION_REGISTRY=metalk8s-registry-from-config.invalid/${PRODUCT_LOWERNAME}-${VERSION_FULL}
 
-KUBEDB_SCRIPT_BRANCH_TAG=89fab34cf2f5d9e0bcc3c2d5b0f0599f94ff0dca
-
-KUBEDB_OPERATOR_PATH=${ISO_ROOT}/deploy/kubedb.yaml
-KUBEDB_CATALOGS_PATH=${ISO_ROOT}/deploy/kubedb-catalogs.yaml
-MONGODB_SINGLE_NODE_PATH=${ISO_ROOT}/deploy/mongodb-1-node.yaml
-MONGODB_THREE_NODE_PATH=${ISO_ROOT}/deploy/mongodb-3-nodes.yaml
 MONGODB_SHARDED_SINGLE_NODE_PATH=${ISO_ROOT}/deploy/mongodb-sharded-1-node.yaml
 MONGODB_SHARDED_THREE_NODE_PATH=${ISO_ROOT}/deploy/mongodb-sharded-3-nodes.yaml
 
 SOLUTION_ENV='SOLUTION_ENV'
 
-export KUBEDB_NAMESPACE=${SOLUTION_ENV}
-export KUBEDB_SERVICE_ACCOUNT=kubedb-operator
-export KUBEDB_IMAGE_NAME=operator
-export KUBEDB_OPERATOR_NAME=kubedb-operator
-export KUBEDB_CERT_NAME=kubedb-operator-apiserver-cert
-export KUBEDB_DOCKER_REGISTRY=${SOLUTION_REGISTRY}
-export KUBEDB_PRIORITY_CLASS=system-cluster-critical
-
 MONGODB_NAME="mongodb"
 MONGODB_SHARDED_NAME="data-db"
 MONGODB_NAMESPACE=${SOLUTION_ENV}
 MONGODB_REGISTRY=${SOLUTION_REGISTRY}
-MONGODB_IMAGE_NAME="mongodb"
-MONGODB_IMAGE_TAG=$(yq eval ".mongodb.tag" $SOLUTION_BASE_DIR/deps.yaml)
-MONGODB_INIT_IMAGE_NAME=MONGODB_SHARDED_SHELL_IMAGE_NAME=$(yq eval ".mongodb-shell.image" $SOLUTION_BASE_DIR/deps.yaml | awk -F'/' '{print $NF}')
-MONGODB_INIT_IMAGE_TAG=$(yq eval ".mongodb-shell.tag" $SOLUTION_BASE_DIR/deps.yaml)
-MONGODB_EXPORTER_IMAGE_NAME="mongodb-exporter"
-MONGODB_EXPORTER_IMAGE_TAG=$(yq eval ".mongodb-exporter.tag" $SOLUTION_BASE_DIR/deps.yaml)
 MONGODB_SHARDED_IMAGE_NAME="mongodb-sharded"
 MONGODB_SHARDED_IMAGE_TAG=$(yq eval ".mongodb-sharded.tag" $SOLUTION_BASE_DIR/deps.yaml)
 MONGODB_SHARDED_EXPORTER_IMAGE_NAME="mongodb-exporter"
@@ -87,75 +67,6 @@ function mkdirs()
     echo making dirs
     mkdir -p ${ISO_ROOT}/deploy
     mkdir -p ${IMAGES_ROOT}
-}
-
-function kubedb_yamls()
-{
-    echo merging kubedb yamls
-    operator_yamls=(
-        certs
-        operator
-        service-account
-        rbac-list
-        user-roles
-        appcatalog-user-roles
-        validating-webhook
-        mutating-webhook
-        psp-operator
-        psp-mongodb
-        psp-redis
-    )
-    catalog_yamls=(
-        kubedb-catalog-mongodb
-        kubedb-catalog-redis
-    )
-
-    for y in "${operator_yamls[@]}"; do
-        cat ${SOLUTION_BASE_DIR}/kubedb/${y}.yaml | envsubst >> ${KUBEDB_OPERATOR_PATH}
-        echo --- >> ${KUBEDB_OPERATOR_PATH}
-    done
-
-    for y in "${catalog_yamls[@]}"; do
-        cat ${SOLUTION_BASE_DIR}/kubedb/${y}.yaml | envsubst >> ${KUBEDB_CATALOGS_PATH}
-        echo --- >> ${KUBEDB_CATALOGS_PATH}
-    done
-}
-
-function render_mongodb_yamls()
-{
-    local OUTPUT_PATH=${1:-${OPERATOR_PATH}}
-    local NODE_COUNT=${2:-1}
-    local ADD_OPTIONS=${3:-""}
-
-    echo creating mongodb ${NODE_COUNT}-node yamls
-    CHART_PATH="$SOLUTION_BASE_DIR/mongodb/charts/mongodb"
-
-    helm template ${MONGODB_NAME} ${CHART_PATH} -n ${MONGODB_NAMESPACE} \
-        -f "${CHART_PATH}/custom-values.yaml" \
-        --set "image.registry=${MONGODB_REGISTRY}" \
-        --set "image.repository=${MONGODB_IMAGE_NAME}" \
-        --set "image.tag=${MONGODB_IMAGE_TAG}" \
-        --set "volumePermissions.image.registry=${MONGODB_REGISTRY}" \
-        --set "volumePermissions.image.repository=${MONGODB_INIT_IMAGE_NAME}" \
-        --set "volumePermissions.image.tag=${MONGODB_INIT_IMAGE_TAG}" \
-        --set "metrics.image.registry=${MONGODB_REGISTRY}" \
-        --set "metrics.image.repository=${MONGODB_EXPORTER_IMAGE_NAME}" \
-        --set "metrics.image.tag=${MONGODB_EXPORTER_IMAGE_TAG}" \
-        --set "persistence.storageClass=${MONGODB_STORAGE_CLASS}" \
-        --set "existingSecret=${MONGODB_NAME}-db-creds" \
-        --set "volumePermissions.enabled=true" \
-        --set "replicaSet.enabled=true" \
-        --set "${ADD_OPTIONS}" >> ${OUTPUT_PATH}
-}
-
-function mongodb_yamls()
-{
-
-    render_mongodb_yamls "${MONGODB_SINGLE_NODE_PATH}" 1 \
-        "replicaSet.pdb.minAvailable.secondary=0,replicaSet.pdb.minAvailable.arbiter=0,replicaSet.replicas.secondary=0,replicaSet.replicas.arbiter=0" 
-
-    render_mongodb_yamls "${MONGODB_THREE_NODE_PATH}" 3 \
-        "replicaSet.pdb.minAvailable.secondary=1,replicaSet.pdb.minAvailable.arbiter=0,replicaSet.replicas.secondary=2,replicaSet.replicas.arbiter=0" 
 }
 
 function render_mongodb_sharded_yamls()
@@ -291,8 +202,6 @@ MANIFEST_ONLY=${MANIFEST_ONLY:-'false'}
 # run everything in order
 clean
 mkdirs
-kubedb_yamls
-mongodb_yamls
 mongodb_sharded_yamls
 gen_manifest_yaml
 

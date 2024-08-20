@@ -39,6 +39,9 @@ spec:
     scuba:
       image: scuba-dashboards
       tag: '${SCUBA_TAG}'
+    dr:
+      image: dr-dashboards
+      tag: '${VERSION_FULL}'
   policies:
     backbeat:
       image: backbeat-policies
@@ -66,6 +69,9 @@ spec:
     backbeat:
       image: backbeat
       tag: '${BACKBEAT_TAG}'
+    drctl:
+      image: zenko-drctl
+      tag: ${DRCTL_TAG}
     utapi:
       image: utapi
       tag: '${UTAPI_TAG}'
@@ -109,6 +115,9 @@ spec:
       monitoring:
         image: jmx-javaagent
         tag: '${JMX_JAVAAGENT_TAG}'
+      listener:
+        image: haproxy
+        tag: '${HAPROXY_TAG}'
     vault:
       image: vault2
       tag: '${VAULT_TAG}'
