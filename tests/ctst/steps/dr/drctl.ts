@@ -11,7 +11,9 @@ type InstallConfig = {
     sinkKafkaReplicas?: number;
     sinkConnectorReplicas?: number;
     kafkaClusterLocation?: string;
-    kafkaNodePortStartingPort?: number;
+    kafkaExternalIps?: string;
+    kafkaExternalIpsDiscovery?: boolean;
+    kafkaExternalPort?: number;
     kafkaPersistenceExistingPv?: string;
     kafkaPersistenceSize?: string;
     kafkaPersistenceStorageClassName?: string;
@@ -19,6 +21,14 @@ type InstallConfig = {
     kafkaPersistenceSelector?: string;
     locations?: string;
     s3Bucket?: string;
+
+    prometheusExternalIps?: string;
+    prometheusExternalIpsDiscovery?: boolean;
+    prometheusService?: string;
+    prometheusIngressClass?: string;
+    prometheusHostname?: string;
+    prometheusDisableTls?: boolean;
+    prometheusTlsSecretName?: string;
 
     sourceKubeconfigPath?: string;
     sourceKubeconfigData?: string;

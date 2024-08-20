@@ -69,6 +69,9 @@ spec:
     backbeat:
       image: "${BACKBEAT_IMAGE}"
       tag: "${BACKBEAT_TAG}"
+    drctl:
+      image: "${DRCTL_IMAGE}"
+      tag: "${DRCTL_TAG}"
     utapi:
       image: "${UTAPI_IMAGE}"
       tag: "${UTAPI_TAG}"
@@ -107,11 +110,11 @@ spec:
         image: "${KAFKA_LAGEXPORTER_IMAGE}"
         tag: "${KAFKA_LAGEXPORTER_TAG}"
       monitoring:
-        image: "${JMX_JAVAAGENT_IMAGE}"
-        tag: "${JMX_JAVAAGENT_TAG}"
-      cleaner:
-        image: "${KAFKA_CLEANER_IMAGE}"
-        tag: "${KAFKA_CLEANER_TAG}"
+        image: '${JMX_JAVAAGENT_IMAGE}'
+        tag: '${JMX_JAVAAGENT_TAG}'
+      listener:
+        image: haproxy
+        tag: '${HAPROXY_TAG}'
     vault:
       image: "${VAULT_IMAGE}"
       tag: "${VAULT_TAG}"
@@ -130,7 +133,6 @@ spec:
         image: '${REDIS_EXPORTER_IMAGE}'
         tag: '${REDIS_EXPORTER_TAG}'
       kubedb: '${REDIS_KUBEDB_TAG}'
-    ${EXTRA_COMPONENTS}
   defaults:
     backbeatConcurrency:
       lifecycleBucketProcessor: 30

@@ -49,11 +49,16 @@ interface DrState {
 }
 
 async function installPRA(world: Zenko, sinkS3Endpoint = 'http://s3.zenko.local') {
+    const kafkaExternalIpOption = world.parameters.KafkaExternalIps ?
+        { kafkaExternalIps: world.parameters.KafkaExternalIps } :
+        { kafkaExternalIpsDiscovery: true };
+
     return world.zenkoDrCtl?.install({
         sourceZenkoDrInstance: 'end2end-source',
         sinkZenkoDrInstance: 'end2end-pra-sink',
         kafkaPersistenceSize: '1Gi',
-        kafkaPersistenceStorageClassName: 'standard',
+        kafkaPersistenceStorageClassName: '-',
+        kafkaPersistenceSelector: 'app=kafka-dr-sink',
         locations: 'e2e-cold', // comma-separated list
         s3Bucket: 'dump-db',
         sinkZenkoInstance: 'end2end-pra',
@@ -62,6 +67,11 @@ async function installPRA(world: Zenko, sinkS3Endpoint = 'http://s3.zenko.local'
         sourceZenkoNamespace: 'default',
         sourceS3Endpoint: 'http://s3.zenko.local',
         sinkS3Endpoint,
+        prometheusService: world.parameters.PrometheusService,
+        // prometheusHostname: 'prom.dr.zenko.local', // could be any name, cert will be auto-generated
+        prometheusExternalIpsDiscovery: true,
+        prometheusDisableTls: true,
+        ...kafkaExternalIpOption,
     });
 }
 

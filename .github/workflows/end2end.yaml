@@ -42,6 +42,7 @@ env:
   OIDC_HOST: 'keycloak.zenko.local'
   NAVBAR_ENDPOINT: 'http://shell-ui.zenko.local'
   ENABLE_KEYCLOAK_HTTPS: 'false'
+  PROMETHEUS_NAME: "prometheus"
   # mock-env
   AZURE_ACCOUNT_NAME: devstoreaccount1
   AZURE_BACKEND_ENDPOINT: http://devstoreaccount1.blob.azure-mock.zenko.local
@@ -97,7 +98,6 @@ env:
   KUBECTL_VERSION: "1.30.0"
   TILT_VERSION: "0.23.4"
   KIND_VERSION: "v0.20.0"
-  DRCTL_TAG: "v1.0.2"
   ZENKO_ENABLE_SOSAPI: false
   EXPIRE_ONE_DAY_EARLIER: true
   TRANSITION_ONE_DAY_EARLIER: true
@@ -389,10 +389,9 @@ jobs:
       - name: Extract environment
         working-directory: solution
         run: |-
-          sudo curl --fail -L https://github.com/mikefarah/yq/releases/download/${{ env.YQ_VERSION}}/${{ env.YQ_BINARY }} -o /usr/bin/yq
-          sudo chmod +x /usr/bin/yq
           cat <<EOF >> $GITHUB_ENV
           SORBET_TAG=$(yq eval '.sorbet.tag' deps.yaml)
+          DRCTL_TAG=$(yq eval .drctl.tag deps.yaml)
           EOF
       - name: Build and push CI image
         uses: docker/build-push-action@v5
@@ -445,6 +444,7 @@ jobs:
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
+        if: failure() && runner.debug == '1'
       - name: Upload results
         if: "!cancelled() && env.TRUNK_TOKEN"
         uses: trunk-io/analytics-uploader@main
@@ -492,26 +492,13 @@ jobs:
           registry: ghcr.io
       - name: Deploy Zenko
         uses: ./.github/actions/deploy
-        env:
-          ZENKO_MONGODB_SHARDED: "true"
-        with:
-          zkop_tag: 1.6.0-preview.2
-          extra_components: |
-            drctl:
-                  image: ghcr.io/scality/zenko-drctl
-                  tag: ${{ env.DRCTL_TAG }}
       - name: Prepare PRA environment
         run: bash prepare-pra.sh
         working-directory: ./.github/scripts/end2end
       - name: Deploy second Zenko for PRA
         run: bash deploy-zenko.sh end2end-pra default './configs/zenko.yaml'
         env:
-          ZENKO_MONGODB_SHARDED: "true"
           ZENKO_MONGODB_DATABASE: "pradb"
-          EXTRA_COMPONENTS: |
-            drctl:
-                  image: 'ghcr.io/scality/zenko-drctl'
-                  tag: ${{ env.DRCTL_TAG }}
         working-directory: ./.github/scripts/end2end
       - name: Add Keycloak pra user and assign StorageManager role
         shell: bash
@@ -531,6 +518,20 @@ jobs:
       - name: Run CTST end to end tests
         run: bash run-e2e-ctst.sh "" "" "" "" --tags @PRA
         working-directory: ./.github/scripts/end2end
+      - name: Debug wait
+        uses: ./.github/actions/debug-wait
+        timeout-minutes: 60
+        if: failure() && runner.debug == '1'
+      - name: Upload results
+        if: "!cancelled() && env.TRUNK_TOKEN"
+        uses: trunk-io/analytics-uploader@main
+        with:
+          junit-paths: /artifacts/data/reports/*.xml
+          org-slug: ${{ github.repository_owner }}
+          token: ${{ env.TRUNK_TOKEN }}
+        env:
+          TRUNK_TOKEN: ${{ secrets.TRUNK_TOKEN }}
+        continue-on-error: true
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
         env:
@@ -599,6 +600,7 @@ jobs:
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
+        if: failure() && runner.debug == '1'
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
         env:
@@ -639,7 +641,6 @@ jobs:
         uses: ./.github/actions/deploy
         env:
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
-          ZENKO_MONGODB_SHARDED: "true"
       - name: Run backbeat end to end tests
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "backbeat" "default"
         working-directory: ./.github/scripts/end2end
@@ -656,6 +657,7 @@ jobs:
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
+        if: failure() && runner.debug == '1'
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
         env:
@@ -696,7 +698,6 @@ jobs:
         uses: ./.github/actions/deploy
         env:
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
-          ZENKO_MONGODB_SHARDED: "true"
           ZENKO_ENABLE_SOSAPI: true
           TIME_PROGRESSION_FACTOR: 86400
           TRANSITION_ONE_DAY_EARLIER: false
@@ -720,6 +721,7 @@ jobs:
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
+        if: failure() && runner.debug == '1'
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
         env:
@@ -748,6 +750,7 @@ jobs:
       - end2end-http
       - end2end-https
       - end2end-sharded
+      - end2end-pra
       - ctst-end2end-sharded
     if: failure()
     steps:
@@ -776,6 +779,7 @@ jobs:
       - end2end-http
       - end2end-https
       - end2end-sharded
+      - end2end-pra
       - ctst-end2end-sharded
     if: success()
     steps:
