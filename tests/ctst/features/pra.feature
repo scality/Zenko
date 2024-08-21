@@ -36,8 +36,20 @@ Feature: PRA operations
     And object "obj-1" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
 
     # Uninstall DR
-    #When I uninstall DR
-    #Then the DR custom resources should be deleted
+    When I uninstall DR
+    Then the DR custom resources should be deleted
+
+    # Re-add objects to bucket
+    Given <objectCount> objects "obj3" of size <objectSize> bytes on "Primary" site
+    Then object "obj3-1" should "" be "transitioned" and have the storage class "e2e-cold" on "Primary" site
+
+    # Deploy PRA again
+    Given a DR installed
+    Then the DR source should be in phase "Running"
+    And the DR sink should be in phase "Running"
+    Given access keys for the replicated account
+    Then object "obj3-1" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
+    And object "obj3-2" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
 
     Examples:
     | versioningConfiguration | objectCount | objectSize |
