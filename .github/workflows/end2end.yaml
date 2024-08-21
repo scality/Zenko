@@ -711,35 +711,7 @@ jobs:
           source: /tmp/artifacts
         if: always()
 
-  write-final-failed-status:
-    runs-on: ubuntu-latest
-    needs:
-      - check-dashboard-versions
-      - build-doc
-      - build-iso
-      - build-kafka
-      - build-test-image
-      - end2end-http
-      - end2end-https
-      - end2end-sharded
-      - end2end-pra
-      - ctst-end2end-sharded
-    if: failure()
-    steps:
-      - name: write failure status
-        run: |
-          mkdir -p artifacts
-          echo -n "FAILED" > artifacts/.final_status
-      - name: Upload artifacts
-        uses: scality/action-artifacts@v4
-        with:
-          method: upload
-          url: https://artifacts.scality.net
-          user: ${{ secrets.ARTIFACTS_USER }}
-          password: ${{ secrets.ARTIFACTS_PASSWORD }}
-          source: artifacts
-
-  write-final-success-status:
+  write-final-status:
     runs-on: ubuntu-latest
     needs:
       - check-dashboard-versions
@@ -753,17 +725,11 @@ jobs:
       - end2end-sharded
       - end2end-pra
       - ctst-end2end-sharded
-    if: success()
     steps:
-      - name: write success status
-        run: |
-          mkdir -p artifacts
-          echo -n "SUCCESSFUL" > artifacts/.final_status
-      - name: Upload artifacts
-        uses: scality/action-artifacts@v4
+      - name: Upload final status
+        if: always()
+        uses: scality/actions/upload_final_status@1.8.0
         with:
-          method: upload
-          url: https://artifacts.scality.net
-          user: ${{ secrets.ARTIFACTS_USER }}
-          password: ${{ secrets.ARTIFACTS_PASSWORD }}
-          source: artifacts
+          ARTIFACTS_USER: ${{ secrets.ARTIFACTS_USER }}
+          ARTIFACTS_PASSWORD: ${{ secrets.ARTIFACTS_PASSWORD }}
+          JOBS_RESULTS: ${{ join(needs.*.result) }}
