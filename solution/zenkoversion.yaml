@@ -40,7 +40,7 @@ spec:
       image: scuba-dashboards
       tag: '${SCUBA_TAG}'
     dr:
-      image: dr-dashboards
+      image: dr-dashboard
       tag: '${VERSION_FULL}'
   policies:
     backbeat:
