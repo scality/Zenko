@@ -110,7 +110,7 @@ spec:
         image: '${JMX_JAVAAGENT_IMAGE}'
         tag: '${JMX_JAVAAGENT_TAG}'
       listener:
-        image: haproxy
+        image: '${HAPROXY_IMAGE}'
         tag: '${HAPROXY_TAG}'
     vault:
       image: '${VAULT_IMAGE}'
