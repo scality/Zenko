@@ -62,7 +62,7 @@ kafka-cleaner:
 kafka-connect:
   sourceRegistry: ghcr.io/scality/zenko
   image: kafka-connect
-  tag: 2.13-3.1.2-1.10.1
+  tag: 2.13-3.1.2-1.13.0
   envsubst: KAFKA_CONNECT_TAG
 mongodb-connector:
   tag: 1.10.1
