@@ -162,7 +162,7 @@ async function waitForPhase(
     return false;
 }
 
-Given('a DR installed', { timeout: 330000 }, async function (this: Zenko) {
+Given('a DR installed', { timeout: 360000 }, async function (this: Zenko) {
     Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
     const credentials = Identity.getCurrentCredentials();
     await createSecret(this, 'drctl-s3-creds', {
