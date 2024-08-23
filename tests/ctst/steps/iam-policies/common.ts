@@ -64,6 +64,10 @@ Then('the user should not be able to perform the {string} action', function (thi
         assert.strictEqual(this.getResult().code === 'AccessDenied', true);
         break;
     }
+    case 'PutObject': {
+        assert.strictEqual(this.getResult().code === 'AccessDenied', true);
+        break;
+    }
     default: {
         assert.strictEqual(this.getResult().err, null);
     }

@@ -20,6 +20,9 @@ Feature: PRA operations
     And the DR sink should be in phase "Running"
     Then the kafka DR volume exists
 
+    And 1 objects "deny" of size <objectSize> bytes on "DR" site
+    Then the user should not be able to perform the "PutObject" action on "DR" site
+
     # Check that objects are transitioned in the DR site
     Given access keys for the replicated account
     Then object "obj-1" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
