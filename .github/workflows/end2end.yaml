@@ -705,6 +705,10 @@ jobs:
       - name: Configure E2E test environment
         run: bash configure-e2e-ctst.sh
         working-directory: ./.github/scripts/end2end
+      - name: Debug wait
+        uses: ./.github/actions/debug-wait
+        timeout-minutes: 60
+        if: always()
       - name: Run CTST end to end tests
         run: bash run-e2e-ctst.sh "" "" "" "" --tags 'not @PRA'
         working-directory: ./.github/scripts/end2end
@@ -718,10 +722,6 @@ jobs:
         env:
           TRUNK_TOKEN: ${{ secrets.TRUNK_TOKEN }}
         continue-on-error: true
-      - name: Debug wait
-        uses: ./.github/actions/debug-wait
-        timeout-minutes: 60
-        if: failure() && runner.debug == '1'
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
         env:
