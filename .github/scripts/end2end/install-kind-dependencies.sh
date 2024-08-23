@@ -183,13 +183,6 @@ mongodb_sharded() {
             -u $MONGODB_ROOT_USERNAME \
             -p $MONGODB_ROOT_PASSWORD \
             --eval "sh.enableSharding('$MONGODB_APP_DATABASE')"
-    
-    OPLOG_SIZE=10240
-    kubectl exec -t data-db-mongodb-sharded-mongos-0 -- \
-        mongosh admin \
-            -u $MONGODB_ROOT_USERNAME \
-            -p $MONGODB_ROOT_PASSWORD \
-            --eval "db.adminCommand({ replSetResizeOplog: 1, size: $OPLOG_SIZE })"
 }
 
 build_solution_base_manifests
