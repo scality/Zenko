@@ -15,6 +15,7 @@ import {
 } from 'steps/utils/utils';
 import { Constants, Identity, IdentityEnum, SuperAdmin, Utils } from 'cli-testing';
 import { safeJsonParse } from 'common/utils';
+import { PrometheusDriver } from 'prometheus-query';
 import assert from 'assert';
 import { EntityType } from 'world/Zenko';
 
@@ -320,8 +321,19 @@ Then('the kafka DR volume exists', { timeout: volumeTimeout + 2000 }, async func
     assert(volumeParsed.result!['volume phase'] === 'Bound');
 });
 
+Then('prometheus should scrap federated metrics from DR sink', { timeout: 60000 }, async function (this: Zenko) {
+    const prom = new PrometheusDriver({
+        endpoint: `http://${this.parameters.PrometheusService}:9090`,
+        baseURL: '/api/v1',
+    });
+
+    const t = Date.now();
+    const metrics = await prom.series('{drSinkInstance="end2end-pra-sink"}', t - 60 * 1000, t);
+    assert(metrics.length > 0);
+});
+
 const failoverTimeout = 360000;
-When ('I request the failover state for the DR', { timeout: failoverTimeout + 2000 }, async function (this: Zenko) {
+When('I request the failover state for the DR', { timeout: failoverTimeout + 2000 }, async function (this: Zenko) {
     await this.zenkoDrCtl?.failover({
         sinkZenkoNamespace: 'default',
         wait: true,
@@ -330,7 +342,7 @@ When ('I request the failover state for the DR', { timeout: failoverTimeout + 20
 });
 
 const failbackTimeout = 360000;
-When ('I resume operations for the DR', { timeout: failbackTimeout + 2000 }, async function (this: Zenko) {
+When('I resume operations for the DR', { timeout: failbackTimeout + 2000 }, async function (this: Zenko) {
     await this.zenkoDrCtl?.failback({
         sinkZenkoNamespace: 'default',
         wait: true,
