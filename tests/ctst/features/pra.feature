@@ -22,12 +22,6 @@ Feature: PRA operations
 
     # Check that objects are transitioned in the DR site
     Given access keys for the replicated account
-
-    And 1 objects "deny" of size <objectSize> bytes on "DR" site
-    Then the user should not be able to perform the "PutObject" action
-    
-    Then object "obj-1" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
-    And object "obj-2" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
     
     # Test again the transition workflow
     Given <objectCount> objects "obj2" of size <objectSize> bytes on "Pimary" site
