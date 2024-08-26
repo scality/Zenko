@@ -506,6 +506,9 @@ jobs:
       - name: Configure E2E CTST test environment
         run: bash configure-e2e-ctst.sh
         working-directory: ./.github/scripts/end2end
+      - name: Debug wait
+        uses: ./.github/actions/debug-wait
+        timeout-minutes: 60
       - name: Run CTST end to end tests
         run: bash run-e2e-ctst.sh "" "" "" "" --tags @PRA
         working-directory: ./.github/scripts/end2end
