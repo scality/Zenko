@@ -78,7 +78,7 @@ kafka-lag-exporter:
   tag: 0.7.1
   envsubst: KAFKA_LAGEXPORTER_TAG
 mongodb-connector:
-  tag: 1.13.0
+  tag: 1.10.1
   envsubst: MONGODB_CONNECTOR_TAG
 pensieve-api:
   sourceRegistry: ghcr.io/scality
