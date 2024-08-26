@@ -52,7 +52,7 @@ spec:
         size: 20Gi
         storageClassName: "standard"
   kafkaCleaner:
-    interval: 5m
+    interval: 30s
     minPartitionSizeBytes: 0Mi
     minBatchSize: 0
     keepAtLeast: 0
