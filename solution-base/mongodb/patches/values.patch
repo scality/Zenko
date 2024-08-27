@@ -7,7 +7,7 @@ index b55ebd40..9cb2131f 100644
    registry: docker.io
    repository: bitnami/mongodb-sharded
 -  tag: 6.0.10-debian-11-r8
-+  tag: 6.0.13-debian-11-r20
++  tag: 6.0.12-debian-11-r5
    digest: ""
    ## Specify a imagePullPolicy
    ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
