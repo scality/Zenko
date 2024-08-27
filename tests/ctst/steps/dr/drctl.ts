@@ -52,6 +52,8 @@ type InstallConfig = {
     sinkS3Region?: string;
 
     forceRotateServiceCredentials?: boolean;
+
+    timeout?: string;
 };
 
 type BootstrapDumpConfig = {

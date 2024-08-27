@@ -48,7 +48,7 @@ interface DrState {
     };
 }
 
-async function installPRA(world: Zenko, sinkS3Endpoint = 'http://s3.zenko.local') {
+async function installPRA(world: Zenko, sinkS3Endpoint = 'http://s3.zenko.local', timeout: string = '30m') {
     const kafkaExternalIpOption = world.parameters.KafkaExternalIps ?
         { kafkaExternalIps: world.parameters.KafkaExternalIps } :
         { kafkaExternalIpsDiscovery: true };
@@ -162,14 +162,15 @@ async function waitForPhase(
     return false;
 }
 
-Given('a DR installed', { timeout: 330000 }, async function (this: Zenko) {
+const installTimeout = 360000;
+Given('a DR installed', { timeout: installTimeout }, async function (this: Zenko) {
     Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
     const credentials = Identity.getCurrentCredentials();
     await createSecret(this, 'drctl-s3-creds', {
         accessKey: Buffer.from(credentials.accessKeyId).toString('base64'),
         secretAccessKey: Buffer.from(credentials.secretAccessKey).toString('base64'),
     });
-    await installPRA(this);
+    await installPRA(this, undefined, installTimeout.toString() + 'ms');
     return;
 });
 
