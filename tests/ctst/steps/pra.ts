@@ -15,6 +15,7 @@ import {
 import { Constants, Identity, IdentityEnum, S3, SuperAdmin, Utils } from 'cli-testing';
 import { safeJsonParse } from 'common/utils';
 import assert from 'assert';
+import { EntityType } from 'world/Zenko';
 
 enum ZenkoDrSinkPhases {
     ZenkoDRSinkPhaseNew = 'New',
@@ -281,6 +282,10 @@ When('the user tries to perform PutObject on {string} site', async function (thi
         Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
     }
     this.resetCommand();
+    this.addToSaved('accountName', Zenko.sites['source'].accountName);
+
+    await this.setupEntity(EntityType.DATA_ACCESSOR);
+    
     const preName = this.getSaved<string>('accountName') ||
         this.parameters.AccountName || Constants.ACCOUNT_NAME;
 

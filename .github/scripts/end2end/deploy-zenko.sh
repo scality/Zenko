@@ -37,7 +37,8 @@ else
 fi
 
 # TODO: use kustomize
-export ZENKO_ANNOTATIONS="annotations:"
+export ZENKO_ANNOTATIONS="annotations:
+    vault.scality/data-accessor: 'true'"
 export ZENKO_MONGODB_ENDPOINT="data-db-mongodb-sharded.default.svc.cluster.local:27017"
 export ZENKO_MONGODB_CONFIG="writeConcern: 'majority'
     enableSharding: true"

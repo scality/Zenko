@@ -37,6 +37,7 @@ export enum EntityType {
     STORAGE_MANAGER = 'STORAGE_MANAGER',
     STORAGE_ACCOUNT_OWNER = 'STORAGE_ACCOUNT_OWNER',
     DATA_CONSUMER = 'DATA_CONSUMER',
+    DATA_ACCESSOR = 'DATA_ACCESSOR',
     ASSUME_ROLE_USER = 'ASSUME_ROLE_USER',
     ASSUME_ROLE_USER_CROSS_ACCOUNT = 'ASSUME_ROLE_USER_CROSS_ACCOUNT',
 }
@@ -66,6 +67,7 @@ export interface ZenkoWorldParameters extends ClientOptions {
     StorageManagerUsername: string;
     StorageAccountOwnerUsername: string;
     DataConsumerUsername: string;
+    DataAccessorUsername: string;
     ServiceUsersCredentials: string;
     KeycloakTestPassword: string;
     AzureAccountName: string;
@@ -223,7 +225,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * entity provided to let the test run the AWS CLI command using this particular
      * type of entity.
      * @param {ScenarioCallerType} entityType - type of entity, can be 'account', 'storage manager',
-     * 'storage account owner', 'data consumer' or 'iam user'
+     * 'storage account owner', 'data consumer', 'data accessor' or 'iam user'
      * @returns {undefined}
      */
     async setupEntity(entityType: string): Promise<void> {
@@ -247,6 +249,10 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         case EntityType.DATA_CONSUMER:
             await this.prepareARWWI(this.parameters.DataConsumerUsername || 'data_consumer',
                 'data-consumer-role', this.parameters.KeycloakTestPassword);
+            break;
+        case EntityType.DATA_ACCESSOR:
+            await this.prepareARWWI(this.parameters.DataAccessorUsername || 'data_accessor',
+                'data-accessor-role', this.parameters.KeycloakTestPassword);
             break;
         case EntityType.ASSUME_ROLE_USER:
             await this.prepareAssumeRole(false);
