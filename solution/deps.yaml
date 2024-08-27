@@ -62,10 +62,10 @@ kafka-cleaner:
 kafka-connect:
   sourceRegistry: ghcr.io/scality/zenko
   image: kafka-connect
-  tag: 2.13-3.1.2-1.10.1
+  tag: 2.13-3.1.2-1.13.0
   envsubst: KAFKA_CONNECT_TAG
 mongodb-connector:
-  tag: 1.10.1
+  tag: 1.13.0
   envsubst: MONGODB_CONNECTOR_TAG
 kafka-cruise-control:
   sourceRegistry: ghcr.io/banzaicloud
@@ -78,7 +78,7 @@ kafka-lag-exporter:
   tag: 0.7.1
   envsubst: KAFKA_LAGEXPORTER_TAG
 mongodb-connector:
-  tag: 1.10.1
+  tag: 1.13.0
   envsubst: MONGODB_CONNECTOR_TAG
 pensieve-api:
   sourceRegistry: ghcr.io/scality
