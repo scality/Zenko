@@ -50,6 +50,8 @@ type InstallConfig = {
     sinkSs3AccessKeyField?: string;
     sinkS3SecretKeyField?: string;
     sinkS3Region?: string;
+
+    forceRotateServiceCredentials?: boolean;
 };
 
 type BootstrapDumpConfig = {
