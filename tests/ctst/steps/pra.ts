@@ -12,7 +12,7 @@ import {
     restoreObject,
     verifyObjectLocation,
 } from 'steps/utils/utils';
-import { Constants, Identity, IdentityEnum, SuperAdmin, Utils } from 'cli-testing';
+import { Constants, Identity, IdentityEnum, S3, SuperAdmin, Utils } from 'cli-testing';
 import { safeJsonParse } from 'common/utils';
 import assert from 'assert';
 
@@ -273,6 +273,22 @@ Then('object {string} should {string} be {string} and have the storage class {st
             assert(err);
         }
     });
+
+When('the user tries to perform PutObject on {string} site', async function (this: Zenko, site: string) {
+    if (site === 'DR') {
+        Identity.useIdentity(IdentityEnum.ACCOUNT, `${Zenko.sites['source'].accountName}-replicated`);
+    } else {
+        Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
+    }
+    this.resetCommand();
+    const preName = this.getSaved<string>('accountName') ||
+        this.parameters.AccountName || Constants.ACCOUNT_NAME;
+
+    this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
+    this.addCommandParameter({ key: `${Utils.randomString()}` });
+
+    this.setResult(await S3.putObject(this.getCommandParameters()));
+});
 
 Then('the kafka DR volume exists', { timeout: 60000 }, async function (this: Zenko) {
     const volumeClaim = await getPVCFromLabel(this, 'kafka_cr', 'end2end-pra-sink-base-queue');

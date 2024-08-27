@@ -20,6 +20,9 @@ Feature: PRA operations
     And the DR sink should be in phase "Running"
     Then the kafka DR volume exists
 
+    When the user tries to perform PutObject on "DR" site
+    Then it "should not" pass Vault authentication
+
     # Check that objects are transitioned in the DR site
     Given access keys for the replicated account
     Then object "obj-1" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
