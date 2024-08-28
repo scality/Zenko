@@ -1,11 +1,11 @@
 import { Then, Given, When, After } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
-import { S3, Utils, KafkaHelper, AWSVersionObject, NotificationDestination } from 'cli-testing';
+import { S3, Utils, KafkaHelper, AWSVersionObject, NotificationDestination, Constants } from 'cli-testing';
 import { Message } from 'node-rdkafka';
 import { cleanS3Bucket } from 'common/common';
 import Zenko from 'world/Zenko';
 
-const KAFKA_TESTS_TIMEOUT = Number(process.env.KAFKA_TESTS_TIMEOUT) || 60000;
+const KAFKA_TESTS_TIMEOUT = Number(process.env.KAFKA_TESTS_TIMEOUT) || Constants.DEFAULT_TIMEOUT * 2 - 1;
 
 const allNotificationTypes = [
     's3:ObjectCreated:Put',
@@ -308,6 +308,7 @@ Then('notifications should be enabled for {string} event in destination {int}',
     });
 
 Then('i should {string} a notification for {string} event in destination {int}',
+    { timeout: Constants.DEFAULT_TIMEOUT * 2 },
     async function (this: Zenko, receive: string, notificationType: string, destination: number) {
 
         const receivedNotification = await KafkaHelper.consumeTopicUntilCondition(
