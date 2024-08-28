@@ -19,7 +19,6 @@ module.exports = {
         '*.js',
     ],
     rules: {
-        //'@typescript-eslint/no-unsafe-member-access': "off",
         'strict': [2, 'global'],
         'indent': [2, 4],
         'no-mixed-spaces-and-tabs': 2,

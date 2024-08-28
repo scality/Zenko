@@ -1,3 +1,5 @@
+// Kubernetes client may not return types variables
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Given, Then, When } from '@cucumber/cucumber';
 import Zenko from 'world/Zenko';
 import ZenkoDrctl from './dr/drctl';

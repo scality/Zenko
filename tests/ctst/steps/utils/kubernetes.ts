@@ -1,15 +1,18 @@
+// Kubernetes client may not return types variables
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { KubernetesHelper, Utils } from 'cli-testing';
 import Zenko from 'world/Zenko';
 import {
     V1Job,
-    Watch,
     V1ObjectMeta,
     AppsV1Api,
     V1Deployment,
     AppsApi,
     CustomObjectsApi,
-} from '@kubernetes/client-node';
+    CoreV1Api,
+} from '@kubernetes/client-node/dist/gen';
+import { Watch } from '@kubernetes/client-node';
 
 type ZenkoStatusValue = {
     lastTransitionTime: string,
@@ -28,7 +31,7 @@ export function createKubeBatchClient(world: Zenko) {
     return KubernetesHelper.clientBatch!;
 }
 
-export function createKubeCoreClient(world: Zenko) {
+export function createKubeCoreClient(world: Zenko): CoreV1Api {
     if (!KubernetesHelper.clientBatch) {
         KubernetesHelper.init(world.parameters);
     }
@@ -67,8 +70,11 @@ export async function createJobAndWaitForCompletion(world: Zenko, jobName: strin
     const batchClient = createKubeBatchClient(world);
     const watchClient = createKubeWatchClient(world);
     try {
-        const cronJob = await batchClient.readNamespacedCronJob(jobName, 'default');
-        const cronJobSpec = cronJob.body.spec?.jobTemplate.spec;
+        const cronJob = await batchClient.readNamespacedCronJob({
+            name: jobName,
+            namespace: 'default',
+        });
+        const cronJobSpec = cronJob.spec?.jobTemplate.spec;
         const job = new V1Job();
         const metadata = new V1ObjectMeta();
         job.apiVersion = 'batch/v1';
@@ -85,12 +91,15 @@ export async function createJobAndWaitForCompletion(world: Zenko, jobName: strin
         }
         job.metadata = metadata;
 
-        const response = await batchClient.createNamespacedJob('default', job);
+        const response = await batchClient.createNamespacedJob({
+            namespace: 'default',
+            job,
+        });
         world.logger.debug('job created', {
-            job: response.body.metadata,
+            job: response.metadata,
         });
 
-        const expectedJobName = response.body.metadata?.name;
+        const expectedJobName = response.metadata?.name;
 
         await new Promise<void>((resolve, reject) => {
             void watchClient.watch(
@@ -160,14 +169,16 @@ export async function waitForZenkoToStabilize(
 
     while (!status && Date.now() - startTime < timeout) {
         const zenkoCR = await zenkoClient.getNamespacedCustomObject(
-            'zenko.io',
-            'v1alpha2',
-            namespace,
-            'zenkos',
-            'end2end',
-        ).catch(err => {
+            {
+                group: 'zenko.io',
+                version: 'v1alpha2',
+                namespace,
+                plural: 'zenkos',
+                name: 'end2end',
+            },
+        ).catch((err: unknown) => {
             world.logger.error('Error getting Zenko CR', {
-                err: err as unknown,
+                err,
             });
             return null;
         });
@@ -238,8 +249,10 @@ export async function waitForDataServicesToStabilize(world: Zenko, timeout = 15 
 
     // First list all deployments, and then filter the ones with an annotation that matches the data services
     const deployments: V1Deployment[] = [];
-    const serviceDeployments = await appsClient.listNamespacedDeployment(namespace);
-    for (const deployment of serviceDeployments.body.items) {
+    const serviceDeployments = await appsClient.listNamespacedDeployment({
+        namespace,
+    });
+    for (const deployment of serviceDeployments.items) {
         const annotations = deployment.metadata?.annotations;
         if (annotations && dataServices.some(service => annotations[annotationKey]?.includes(service))) {
             deployments.push(deployment);
@@ -260,11 +273,14 @@ export async function waitForDataServicesToStabilize(world: Zenko, timeout = 15 
                 throw new Error('Deployment name not found');
             }
 
-            const deploymentStatus = await appsClient.readNamespacedDeploymentStatus(deploymentName, namespace);
-            const replicas = deploymentStatus.body.status?.replicas;
-            const readyReplicas = deploymentStatus.body.status?.readyReplicas;
-            const updatedReplicas = deploymentStatus.body.status?.updatedReplicas;
-            const availableReplicas = deploymentStatus.body.status?.availableReplicas;
+            const deploymentStatus = await appsClient.readNamespacedDeploymentStatus({
+                name: deploymentName,
+                namespace,
+            });
+            const replicas = deploymentStatus.status?.replicas;
+            const readyReplicas = deploymentStatus.status?.readyReplicas;
+            const updatedReplicas = deploymentStatus.status?.updatedReplicas;
+            const availableReplicas = deploymentStatus.status?.availableReplicas;
 
             world.logger.debug('Checking deployment status', {
                 deployment: deploymentName,
@@ -297,15 +313,15 @@ export async function waitForDataServicesToStabilize(world: Zenko, timeout = 15 
 export async function displayCRStatus(world: Zenko, namespace = 'default') {
     const zenkoClient = createKubeCustomObjectClient(world);
 
-    const zenkoCR = await zenkoClient.getNamespacedCustomObject(
-        'zenko.io',
-        'v1alpha2',
+    const zenkoCR = await zenkoClient.getNamespacedCustomObject({
+        group: 'zenko.io',
+        version: 'v1alpha2',
         namespace,
-        'zenkos',
-        'end2end',
-    ).catch(err => {
+        plural: 'zenkos',
+        name: 'end2end',
+    }).catch((err: unknown) => {
         world.logger.error('Error getting Zenko CR', {
-            err: err as unknown,
+            err,
         });
         return null;
     });
@@ -322,44 +338,46 @@ export async function displayCRStatus(world: Zenko, namespace = 'default') {
 export async function getDRSource(world: Zenko, namespace = 'default') {
     const zenkoClient = createKubeCustomObjectClient(world);
 
-    const zenkoCR = await zenkoClient.getNamespacedCustomObject(
-        'zenko.io',
-        'v1alpha1',
+    const zenkoCR = await zenkoClient.getNamespacedCustomObject({
+        group: 'zenko.io',
+        version: 'v1alpha2',
         namespace,
-        'zenkodrsources',
-        'end2end-source',
-    ).catch(err => {
+        plural: 'zenkos',
+        name: 'end2end',
+    }).catch((err: unknown) => {
         world.logger.debug('Error getting Zenko CR', {
-            err: err as unknown,
+            err,
         });
     });
 
-    return zenkoCR?.body;
+    return zenkoCR?.body as unknown;
 }
 
 export async function getDRSink(world: Zenko, namespace = 'default') {
     const zenkoClient = createKubeCustomObjectClient(world);
 
-    const zenkoCR = await zenkoClient.getNamespacedCustomObject(
-        'zenko.io',
-        'v1alpha1',
+    const zenkoCR = await zenkoClient.getNamespacedCustomObject({
+        group: 'zenko.io',
+        version: 'v1alpha2',
         namespace,
-        'zenkodrsinks',
-        'end2end-pra-sink',
-    ).catch(err => {
+        plural: 'zenkos',
+        name: 'end2end',
+    }).catch((err: Error) => {
         world.logger.debug('Error getting Zenko CR', {
             err: err as unknown,
         });
     });
     
-    return zenkoCR?.body;
+    return zenkoCR?.body as unknown;
 }
 
 export async function getPVCFromLabel(world: Zenko, label: string, value: string, namespace = 'default') {
     const coreClient = createKubeCoreClient(world);
 
-    const pvcList = await coreClient.listNamespacedPersistentVolumeClaim(namespace);
-    const pvc = pvcList.body.items.find(pvc => pvc.metadata?.labels?.[label] === value);
+    const pvcList = await coreClient.listNamespacedPersistentVolumeClaim({
+        namespace,
+    });
+    const pvc = pvcList.items.find(pvc => pvc.metadata?.labels?.[label] === value);
 
     return pvc;
 }
@@ -382,7 +400,10 @@ export async function createSecret(
     };
 
     try {
-        await coreClient.deleteNamespacedSecret(secretName, namespace);
+        await coreClient.deleteNamespacedSecret({
+            name: secretName,
+            namespace,
+        });
     } catch (err) {
         world.logger.debug('Secret does not exist, creating new', {
             secretName,
@@ -391,13 +412,16 @@ export async function createSecret(
     }
 
     try {
-        const response = await coreClient.createNamespacedSecret(namespace, secret);
+        const response = await coreClient.createNamespacedSecret({
+            namespace,
+            body: secret,
+        });
         return response;
-    } catch (err) {
+    } catch (err: Error) {
         world.logger.error('Error creating secret', {
             namespace,
             secret,
-            err,
+            err: err as unknown,
         });
         throw err;
     }
