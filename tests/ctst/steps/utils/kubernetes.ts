@@ -417,11 +417,11 @@ export async function createSecret(
             body: secret,
         });
         return response;
-    } catch (err: Error) {
+    } catch (err: unknown) {
         world.logger.error('Error creating secret', {
             namespace,
             secret,
-            err: err as unknown,
+            err,
         });
         throw err;
     }
