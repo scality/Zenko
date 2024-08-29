@@ -90,7 +90,7 @@ export async function createJobAndWaitForCompletion(world: Zenko, jobName: strin
 
         const response = await batchClient.createNamespacedJob({
             namespace: 'default',
-            job,
+            body: job,
         });
         world.logger.debug('job created', {
             job: response.metadata,
