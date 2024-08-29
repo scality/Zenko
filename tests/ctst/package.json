@@ -28,7 +28,7 @@
     "@typescript-eslint/eslint-plugin": "^8.3.0",
     "@typescript-eslint/parser": "^8.3.0",
     "babel-jest": "^29.3.1",
-    "cli-testing": "github:scality/cli-testing.git#dc703d8f87e1e5d372e1ae17c6eadd42a10baf88",
+    "cli-testing": "github:scality/cli-testing.git#4d83b3eb0bc49f514b3bd94db4ccecf2183896ca",
     "eslint": "^9.9.1",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-scality": "scality/Guidelines#ccec42b0aa16be669d0a09a247b71d337c953036",
