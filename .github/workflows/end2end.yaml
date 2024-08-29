@@ -152,7 +152,7 @@ jobs:
         if: always()
 
   build-doc:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
     env:
       ARTIFACTS_USER: "${{ secrets.ARTIFACTS_USER }}"
       ARTIFACTS_PASSWORD: "${{ secrets.ARTIFACTS_PASSWORD }}"
