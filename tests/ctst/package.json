@@ -23,11 +23,17 @@
     "@aws-sdk/client-iam": "^3.582.0",
     "@aws-sdk/client-s3": "^3.583.0",
     "@aws-sdk/client-sts": "^3.583.0",
-    "@typescript-eslint/eslint-plugin": "^5.45.0",
-    "@typescript-eslint/parser": "^5.45.0",
+    "@eslint/eslintrc": "^3.1.0",
+    "@eslint/js": "^9.9.1",
+    "@typescript-eslint/eslint-plugin": "^8.3.0",
+    "@typescript-eslint/parser": "^8.3.0",
     "babel-jest": "^29.3.1",
-    "cli-testing": "github:scality/cli-testing.git#a49c1e74ae4ae08c717e3bea1495cb8e89be7ea9",
-    "eslint": "^8.28.0"
+    "cli-testing": "github:scality/cli-testing.git#dc703d8f87e1e5d372e1ae17c6eadd42a10baf88",
+    "eslint": "^9.9.1",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-scality": "scality/Guidelines#ccec42b0aa16be669d0a09a247b71d337c953036",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-jsdoc": "^50.2.2"
   },
   "scripts": {
     "build": "tsc --build tsconfig.json",

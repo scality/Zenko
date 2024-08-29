@@ -1,5 +1,3 @@
-// Kubernetes client may not return types variables
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Given, Then, When } from '@cucumber/cucumber';
 import Zenko from 'world/Zenko';
 import ZenkoDrctl from './dr/drctl';
@@ -78,7 +76,7 @@ async function installPRA(world: Zenko, sinkS3Endpoint = 'http://s3.zenko.local'
 }
 
 export function preparePRA(world: Zenko) {
-    // eslint-disable-next-line no-param-reassign
+     
     world.zenkoDrCtl = new ZenkoDrctl(world);
 }
 

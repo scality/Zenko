@@ -1,6 +1,3 @@
-// Kubernetes client may not return types variables
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { KubernetesHelper, Utils } from 'cli-testing';
 import Zenko from 'world/Zenko';
 import {
@@ -116,7 +113,6 @@ export async function createJobAndWaitForCompletion(world: Zenko, jobName: strin
                         } else if (watchObj.object?.status?.failed) {
                             world.logger.debug('job failed', {
                                 job: job.metadata,
-                                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                                 object: watchObj.object,
                             });
                             reject(new Error('job failed'));

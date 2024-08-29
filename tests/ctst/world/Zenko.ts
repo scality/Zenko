@@ -387,9 +387,9 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         const data = qs.stringify({
             username,
             password,
-            // eslint-disable-next-line camelcase
+             
             client_id: clientId,
-            // eslint-disable-next-line camelcase
+             
             grant_type: grantType,
         });
         const config: AxiosRequestConfig = {
@@ -618,7 +618,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 // Create the account if already exist will not throw any error
                 try {
                     await SuperAdmin.createAccount({ accountName });
-                /* eslint-disable */
+                 
                 } catch (err: any) {
                     CacheHelper.logger.debug('Error while creating account', {
                         accountName,
@@ -628,7 +628,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                         throw err;
                     }
                 }
-                /* eslint-enable */
+                 
                 // Waiting until the account exists, in case of parallel mode.
                 let remaining = Constants.MAX_ACCOUNT_CHECK_RETRIES;
                 account = await SuperAdmin.getAccount({ accountName });
@@ -820,7 +820,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * Cleanup function for the Zenko world
      * @returns {undefined}
      */
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
     static async teardown() { }
 
     async metadataSearchResponseCode(userCredentials: AWSCredentials, bucketName: string) {
@@ -867,14 +866,14 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 statusCode: response.status,
                 data: response.data as unknown,
             };
-        /* eslint-disable */
+         
         } catch (err: any) {
             return {
                 stdout: '',
                 statusCode: err.response.status,
                 err: err.response.data,
             };
-            /* eslint-enable */
+             
         }
     }
 
@@ -903,7 +902,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         );
         const axiosInstance = axios.create();
         const protocol = this.parameters.ssl === false ? 'http://' : 'https://';
-        // eslint-disable-next-line no-param-reassign
+         
         headers = {
             ...headers,
             'X-Authentication-Token': token,
@@ -917,13 +916,13 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         try {
             const response: AxiosResponse = await axiosInstance(axiosConfig);
             return { statusCode: response.status, data: response.data as object };
-            /* eslint-disable */
+             
         } catch (err: any) {
             return {
                 statusCode: err.response.status,
                 err: err.response.data,
             };
-            /* eslint-enable */
+             
         }
     }
 

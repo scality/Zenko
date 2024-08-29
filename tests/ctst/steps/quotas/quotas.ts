@@ -1,4 +1,4 @@
-/* eslint-disable no-case-declarations */
+ 
 import fs from 'fs';
 import lockFile from 'proper-lockfile';
 import { Given, When, ITestCaseHookParameter } from '@cucumber/cucumber';

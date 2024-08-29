@@ -1,4 +1,4 @@
-/* eslint-disable no-case-declarations */
+ 
 import { When, Then, Given } from '@cucumber/cucumber';
 import Zenko, { EntityType } from '../../world/Zenko';
 import {

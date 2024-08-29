@@ -218,7 +218,7 @@ When('i subscribe to {string} notifications for destination {int} with {string} 
         await Utils.sleep(10000);
     });
 
-// eslint-disable-next-line new-cap
+ 
 When('i unsubscribe from {string} notifications for destination {int}',
     async function (this: Zenko, notificationType: string, destination: number) {
         this.resetCommand();
@@ -251,7 +251,7 @@ When('i unsubscribe from {string} notifications for destination {int}',
         await Utils.sleep(10000);
     });
 
-// eslint-disable-next-line new-cap
+ 
 When('a {string} event is triggered {string} {string}',
     async function (this: Zenko, notificationType: string, enable: string, filterType: string) {
         this.resetCommand();
