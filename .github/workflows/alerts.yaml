@@ -63,3 +63,18 @@ jobs:
             replicas=3
             quorum=3
           github_token: ${{ secrets.GIT_ACCESS_TOKEN }}
+      
+      - name: Render and test dr alerts
+        uses: scality/action-prom-render-test@1.0.3
+        with:
+          alert_file_path: monitoring/dr/alerts.yaml
+          test_file_path: monitoring/dr/alerts.test.yaml
+          alert_inputs: |
+            namespace=zenko
+            kafka_connect_src_job=artesca-data-dr-source-base-queue-connector-metrics
+            kafka_connect_sink_job=artesca-data-dr-base-queue-connector-metrics
+            dr_sink_instance=artesca-data-dr
+            rto_alert_threshold=30
+            mongo_jobs=zenko/data-db-mongodb-sharded-shard.*
+            lifecycle_jobs=artesca-data-backbeat-lifecycle-.*-headless
+          github_token: ${{ secrets.GIT_ACCESS_TOKEN }}
