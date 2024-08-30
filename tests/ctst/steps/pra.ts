@@ -13,7 +13,7 @@ import {
     restoreObject,
     verifyObjectLocation,
 } from 'steps/utils/utils';
-import { Constants, Identity, IdentityEnum, SuperAdmin, Utils } from 'cli-testing';
+import { CacheHelper, Constants, Identity, IdentityEnum, SuperAdmin, Utils } from 'cli-testing';
 import { safeJsonParse } from 'common/utils';
 import assert from 'assert';
 import { EntityType } from 'world/Zenko';
@@ -73,7 +73,7 @@ async function installPRA(world: Zenko, sinkS3Endpoint = 'http://s3.zenko.local'
         // prometheusHostname: 'prom.dr.zenko.local', // could be any name, cert will be auto-generated
         prometheusExternalIpsDiscovery: true,
         prometheusDisableTls: true,
-        forceRotateServiceCredentials: world.praInstallCount > 0,
+        forceRotateServiceCredentials: (CacheHelper.savedAcrossTests[Zenko.PRA_INSTALL_COUNT_KEY] as number) > 0,
         ...kafkaExternalIpOption,
         timeout,
     });
@@ -173,8 +173,12 @@ Given('a DR installed', { timeout: installTimeout + 2000 }, async function (this
         accessKey: Buffer.from(credentials.accessKeyId).toString('base64'),
         secretAccessKey: Buffer.from(credentials.secretAccessKey).toString('base64'),
     });
-    await installPRA(this, undefined, `${installTimeout.toString()}ms`);
-    this.praInstallCount += 1;
+
+    // Timeout is set to 1 second less than the cucumber
+    // timeout to see the command timeout instead of the step timeout
+
+    await installPRA(this, undefined, `${(installTimeout - 1000).toString()}ms`);
+    (CacheHelper.savedAcrossTests[Zenko.PRA_INSTALL_COUNT_KEY] as number) += 1;
     return;
 });
 
