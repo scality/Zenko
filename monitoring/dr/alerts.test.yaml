@@ -1,0 +1,88 @@
+# These tests are meant to go hand-in-hand with the rendered alert rule.
+# Use github.com/scality/action-prom-render-test@python-renderer python module
+#
+# Render the alerts file with
+# gen-alert render alerts.yaml
+evaluation_interval: 1m
+rule_files:
+  - alerts.rendered.yaml
+
+tests:
+  - interval: 1m
+    input_series:
+      - series: up{job="artesca-data-dr-source-base-queue-connector-metrics", namespace="zenko"}
+        values: _x7
+      - series: up{drSinkInstance="artesca-data-dr", job="artesca-data-dr-base-queue-connector-metrics", namespace="zenko"}
+        values: 1x7
+      - series: kafka_connect_task_error_total_record_errors{job="artesca-data-dr-source-base-queue-connector-metrics"}
+        values: 0 1 2x5
+      - series: kafka_connect_task_error_total_record_failures{job="artesca-data-dr-source-base-queue-connector-metrics"}
+        values: 0x7
+      - series: kafka_connect_task_error_total_record_errors{drSinkInstance="artesca-data-dr", job="artesca-data-dr-base-queue-connector-metrics"}
+        values: 0 1 2x5
+      - series: kafka_connect_task_error_total_record_failures{drSinkInstance="artesca-data-dr", job="artesca-data-dr-base-queue-connector-metrics"}
+        values: 0 1x6
+      - series: s3_lifecycle_last_timestamp_ms{ job="artesca-data-backbeat-lifecycle-.*-headless", namespace="zenko"}
+        values: 10000000x3 
+      - series: mongodb_ss_repl_lastWrite_lastWriteDate{drSinkInstance="artesca-data-dr", job="zenko/data-db-mongodb-sharded-shard.*", namespace="zenko"}
+        values: 5000000x3
+    alert_rule_test:
+      - alertname: DrResourcePausedWhileOtherRunning
+        eval_time: 1m
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+            exp_annotations:
+              summary: 'DR Resource Paused While Other Running'
+              description: 'One site''s DR resource is paused while the other is not. This could lead to data inconsistency between sites.'
+      - alertname: DrResourcePausedForTooLong
+        eval_time: 4m59s
+        exp_alerts: []
+      - alertname: DrResourcePausedForTooLong
+        eval_time: 5m 
+        exp_alerts:
+          - exp_labels:
+              severity: "warning"
+            exp_annotations:
+              summary: 'DR resource paused for too long'
+              description: 'The DR resource has been paused for more than 5 minutes.'
+      - alertname: DrResourcePausedForTooLong
+        eval_time: 6m      # Grace period check
+        exp_alerts:
+          - exp_labels:
+              severity: "warning"
+            exp_annotations:
+              summary: 'DR resource paused for too long'
+              description: 'The DR resource has been paused for more than 5 minutes.'
+      - alertname: KafkaConnectOutageSource
+        eval_time: 1m
+        exp_alerts: []
+      - alertname: KafkaConnectOutageSource
+        eval_time: 2m
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+            exp_annotations:
+              description: >-
+                Kafka-connect on source is not working nominally. The rate of errors or failures has exceeded 0. This could lead DR to get out of sync if not addressed promptly.
+              summary: 'Kafka Connect not working'
+      - alertname: KafkaConnectOutageSink
+        eval_time: 1m
+        exp_alerts: []
+      - alertname: KafkaConnectOutageSink
+        eval_time: 2m
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+            exp_annotations:
+              description: >-
+                Kafka-connect on sink is not working nominally. The rate of errors or failures has exceeded 0. This could lead DR to get out of sync if not addressed promptly.
+              summary: 'Kafka Connect not working'
+      - alertname: WriteTimesLatency
+        eval_time: 1m
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+            exp_annotations:
+              summary: 'Write times latency'
+              description: 'The difference in write times between the source and protected sites is more than half of the Recovery Time Objective (12 hours). This could lead to data inconsistency between sites.'
