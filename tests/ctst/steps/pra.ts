@@ -73,6 +73,7 @@ async function installPRA(world: Zenko, sinkS3Endpoint = 'http://s3.zenko.local'
         prometheusDisableTls: true,
         forceRotateServiceCredentials: world.praInstallCount > 0,
         ...kafkaExternalIpOption,
+        timeout
     });
 }
 
