@@ -16,7 +16,7 @@ h11==0.7.0
 h2==3.0.1
 hpack==3.0.0
 hyperframe==5.1.0
-idna==2.7
+idna==3.7
 jmespath==0.9.3
 jsonschema==3.2.0
 kaitaistruct==0.8
