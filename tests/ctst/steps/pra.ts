@@ -3,6 +3,7 @@ import Zenko from 'world/Zenko';
 import ZenkoDrctl from './dr/drctl';
 import {
     createSecret,
+    deletePodsByLabel,
     displayCRStatus,
     getDRSink,
     getDRSource,
@@ -171,6 +172,8 @@ Given('a DR installed', { timeout: installTimeout }, async function (this: Zenko
         accessKey: Buffer.from(credentials.accessKeyId).toString('base64'),
         secretAccessKey: Buffer.from(credentials.secretAccessKey).toString('base64'),
     });
+    await deletePodsByLabel(this,
+        'app.kubernetes.io/name=sorbet-fwd-user-create,app.kubernetes.io/instance=end2end-pra');
     await installPRA(this, undefined, `${installTimeout.toString()}ms`);
     this.praInstallCount += 1;
     return;

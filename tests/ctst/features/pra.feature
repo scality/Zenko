@@ -35,6 +35,26 @@ Feature: PRA operations
     Then object "obj-1" should "" be "restored" and have the storage class "e2e-cold" on "Primary" site
     And object "obj-1" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
 
+    # Restore on DR site
+    When i restore object "obj2-1" for 2 days on "DR" site
+    Then object "obj2-1" should "" be "restored" and have the storage class "e2e-cold" on "DR" site
+    And object "obj2-1" should "" be "transitioned" and have the storage class "e2e-cold" on "Primary" site
+
+    # Pause / Resume DR
+    When I pause the DR
+    Then the DR source should be in phase "Paused"
+    
+    Given <objectCount> objects "obj3" of size <objectSize> bytes on "Pimary" site
+    Then object "obj3-1" should "" be "transitioned" and have the storage class "e2e-cold" on "Primary" site
+    And object "obj3-2" should "" be "transitioned" and have the storage class "e2e-cold" on "Primary" site    
+    Then object "obj3-1" should "not" be "transitioned" and have the storage class "e2e-cold" on "DR" site
+    And object "obj3-2" should "not" be "transitioned" and have the storage class "e2e-cold" on "DR" site
+
+    When I resume the DR
+    Then the DR source should be in phase "Running"
+    Then object "obj3-1" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
+    And object "obj3-2" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
+
     # Uninstall DR
     When I uninstall DR
     Then the DR custom resources should be deleted
