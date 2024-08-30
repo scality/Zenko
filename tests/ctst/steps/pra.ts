@@ -275,7 +275,7 @@ Then('object {string} should {string} be {string} and have the storage class {st
         }
     });
 
-When('the user tries to perform PutObject on {string} site', async function (this: Zenko, site: string) {
+When('the DATA_ACCESSOR user tries to perform PutObject on {string} site', async function (this: Zenko, site: string) {
     if (site === 'DR') {
         Identity.useIdentity(IdentityEnum.ACCOUNT, `${Zenko.sites['source'].accountName}-replicated`);
     } else {
