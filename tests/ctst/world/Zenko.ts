@@ -114,7 +114,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     static readonly PRIMARY_SITE_NAME = 'admin';
     static readonly SECONDARY_SITE_NAME = 'dradmin';
 
-    public hasDRAlreadyBeenInstalled = false;
+    public praInstallCount = 0;
 
     /**
      * @constructor

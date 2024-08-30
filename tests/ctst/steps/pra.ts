@@ -71,7 +71,7 @@ async function installPRA(world: Zenko, sinkS3Endpoint = 'http://s3.zenko.local'
         // prometheusHostname: 'prom.dr.zenko.local', // could be any name, cert will be auto-generated
         prometheusExternalIpsDiscovery: true,
         prometheusDisableTls: true,
-        forceRotateServiceCredentials: world.hasDRAlreadyBeenInstalled,
+        forceRotateServiceCredentials: world.praInstallCount > 0,
         ...kafkaExternalIpOption,
     });
 }
@@ -171,7 +171,7 @@ Given('a DR installed', { timeout: installTimeout }, async function (this: Zenko
         secretAccessKey: Buffer.from(credentials.secretAccessKey).toString('base64'),
     });
     await installPRA(this, undefined, `${installTimeout.toString()}ms`);
-    this.hasDRAlreadyBeenInstalled = true;
+    this.praInstallCount += 1;
     return;
 });
 
