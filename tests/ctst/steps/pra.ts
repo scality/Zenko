@@ -3,7 +3,6 @@ import Zenko from 'world/Zenko';
 import ZenkoDrctl from './dr/drctl';
 import {
     createSecret,
-    deletePodsByLabel,
     displayCRStatus,
     getDRSink,
     getDRSource,
@@ -74,7 +73,7 @@ async function installPRA(world: Zenko, sinkS3Endpoint = 'http://s3.zenko.local'
         prometheusDisableTls: true,
         forceRotateServiceCredentials: world.praInstallCount > 0,
         ...kafkaExternalIpOption,
-        timeout
+        timeout,
     });
 }
 
@@ -165,15 +164,13 @@ async function waitForPhase(
 }
 
 const installTimeout = 360000;
-Given('a DR installed', { timeout: installTimeout }, async function (this: Zenko) {
+Given('a DR installed', { timeout: installTimeout + 2000 }, async function (this: Zenko) {
     Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
     const credentials = Identity.getCurrentCredentials();
     await createSecret(this, 'drctl-s3-creds', {
         accessKey: Buffer.from(credentials.accessKeyId).toString('base64'),
         secretAccessKey: Buffer.from(credentials.secretAccessKey).toString('base64'),
     });
-    await deletePodsByLabel(this,
-        'app.kubernetes.io/name=sorbet-fwd-user-create,app.kubernetes.io/instance=end2end-pra');
     await installPRA(this, undefined, `${installTimeout.toString()}ms`);
     this.praInstallCount += 1;
     return;
