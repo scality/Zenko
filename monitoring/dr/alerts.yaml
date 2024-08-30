@@ -35,7 +35,7 @@ groups:
       severity: warning
     annotations:
       summary: 'DR Resource Paused While Other Running'
-      description: 'One site s DR resource is paused while the other is not. This could lead to data inconsistency between sites.'
+      description: 'One site''s DR resource is paused while the other is not. This could lead to data inconsistency between sites.'
 
   - alert: DrResourcePausedForTooLong
     expr: |
@@ -49,9 +49,9 @@ groups:
 
   - alert: KafkaConnectOutageSource
     expr: |
-      sum(rate(kafka_connect_task_error_total_record_errors{drSinkInstance="", job="${kafka_connect_src_job}"}[$__rate_interval])) > 0
+      sum(rate(kafka_connect_task_error_total_record_errors{drSinkInstance="", job="${kafka_connect_src_job}"}[2m])) > 0
       or
-      sum(rate(kafka_connect_task_error_total_record_failures{drSinkInstance="", job="${kafka_connect_src_job}"}[$__rate_interval])) > 0
+      sum(rate(kafka_connect_task_error_total_record_failures{drSinkInstance="", job="${kafka_connect_src_job}"}[2m])) > 0
     for: 1m
     labels:
       severity: critical
@@ -62,15 +62,15 @@ groups:
 
   - alert: KafkaConnectOutageSink
     expr: |
-      sum(rate(kafka_connect_task_error_total_record_errors{drSinkInstance="${dr_sink_instance}", job="${kafka_connect_sink_job}"}[$__rate_interval])) > 0
+      sum(rate(kafka_connect_task_error_total_record_errors{drSinkInstance="${dr_sink_instance}", job="${kafka_connect_sink_job}"}[2m])) > 0
       or
-      sum(rate(kafka_connect_task_error_total_record_failures{drSinkInstance="${dr_sink_instance}", job="${kafka_connect_sink_job}"}[$__rate_interval])) > 0
+      sum(rate(kafka_connect_task_error_total_record_failures{drSinkInstance="${dr_sink_instance}", job="${kafka_connect_sink_job}"}[2m])) > 0
     for: 1m
     labels:
       severity: critical
     annotations:
       description: >-
-        Kafka-connect on sink is not working nominally. The rate of errors or failures has exceeded 0. This could lead to data loss if not addressed promptly.
+        Kafka-connect on sink is not working nominally. The rate of errors or failures has exceeded 0. This could lead DR to get out of sync if not addressed promptly.
       summary: 'Kafka Connect not working'
 
   - alert: WriteTimesLatency
