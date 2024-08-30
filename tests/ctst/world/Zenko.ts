@@ -115,8 +115,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
     static readonly PRIMARY_SITE_NAME = 'admin';
     static readonly SECONDARY_SITE_NAME = 'dradmin';
-
-    public praInstallCount = 0;
+    static readonly PRA_INSTALL_COUNT_KEY = 'praInstallCount';
 
     /**
      * @constructor
@@ -143,6 +142,9 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         CacheHelper.cacheParameters({
             ...this.parameters,
         });
+
+        CacheHelper.savedAcrossTests[Zenko.PRA_INSTALL_COUNT_KEY] = 0;
+
 
         if (this.parameters.AccountName && !Identity.hasIdentity(IdentityEnum.ACCOUNT, this.parameters.AccountName)) {
             Identity.addIdentity(IdentityEnum.ACCOUNT, this.parameters.AccountName, {
