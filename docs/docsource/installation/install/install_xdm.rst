@@ -66,9 +66,6 @@ Deploy |product| Operator
    .. parsed-literal::
 
       /srv/scality/metalk8s-{{version-number}}/solutions.sh import --archive $ZENKO_BASE_ISO
-      sed "s/SOLUTION_ENV/zenko/g" /srv/scality/zenko-base-|version|/deploy/kubedb.yaml | kubectl apply -f -
-      kubectl -n zenko rollout status --timeout 10m deploy kubedb-operator
-      kubectl apply -f /srv/scality/zenko-base-|version|/deploy/kubedb-catalogs.yaml
       sed "s/SOLUTION_ENV/zenko/g" /srv/scality/zenko-base-|version|/deploy/kafka.yaml | kubectl apply -f -
       sed "s/SOLUTION_ENV/zenko/g" /srv/scality/zenko-base-|version|/deploy/zookeeper.yaml | kubectl apply -f -
 
@@ -238,13 +235,11 @@ Deploy |product|
         version: |version|
         replicas: 1
         mongodb:
-          provider: KubeDB
           persistence:
             volumeClaimTemplate:
               size: 300Gi
               storageClassName: sc-300-g
         redis:
-          provider: KubeDB
           persistence:
             volumeClaimTemplate:
               size: 10Gi
