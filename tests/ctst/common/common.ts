@@ -308,9 +308,9 @@ Then('kafka consumed messages should not take too much place on disk', { timeout
 
             // If a topic remains in this array, it means it has not been cleaned
             assert(topics.length === 0, `Topics ${topics.join(', ')} still have not been cleaned`);
-        } catch(err: any) {
+        } catch (err: unknown) {
             this.logger.error('Error while checking Kafka cleaner', { err });
-            assert.fail(err);
+            assert.fail(err as Error);
         } finally {
             clearTimeout(timeoutID);
         }
