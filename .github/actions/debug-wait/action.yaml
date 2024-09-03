@@ -6,7 +6,7 @@ runs:
   using: composite
   steps:
     - name: "Debug: SSH to runner"
-      uses: scality/actions/action-ssh-to-runner@1.6.0
+      uses: scality/actions/action-ssh-to-runner@1.8.0
       continue-on-error: true
       with:
         tmate-server-host: ${{ env.TMATE_SERVER_HOST }}

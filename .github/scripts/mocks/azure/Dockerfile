@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/azure-storage/azurite:3.21.0
+FROM mcr.microsoft.com/azure-storage/azurite:3.31.0
 
 RUN apk add -U --no-cache python3 py3-pip ca-certificates \
     && apk add -U --no-cache --virtual .build-deps \
