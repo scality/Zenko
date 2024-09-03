@@ -237,15 +237,15 @@ Then('i {string} be able to add user metadata to object {string}',
         }
     });
 
-const kafkaCleanerTimeout = 1800000; // 30min
+const kafkaCleanerTimeout = 900000; // 15min
 Then('kafka consumed messages should not take too much place on disk', { timeout: kafkaCleanerTimeout },
     async function (this: Zenko) {
         const kfkcIntervalSeconds = parseInt(this.parameters.KafkaCleanerInterval);
-        const checkInterval = kfkcIntervalSeconds * (1000 + 5000);
+        const checkInterval = kfkcIntervalSeconds * 1000 + 5000;
 
         const timeoutID = setTimeout(() => {
             assert.fail('Kafka cleaner did not clean the topics within the expected time');
-        }, Math.min(kafkaCleanerTimeout, checkInterval * 10)); // Timeout after 10 Kafka cleaner intervals
+        }, Math.min(kafkaCleanerTimeout, checkInterval * 25)); // Timeout after 25 Kafka cleaner intervals
 
         try {
             const ignoredTopics = ['dead-letter'];
