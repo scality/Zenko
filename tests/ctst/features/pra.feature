@@ -41,10 +41,18 @@ Feature: PRA operations
     And the DATA_ACCESSOR user tries to perform PutObject on "DR" site
     Then it "should not" pass Vault authentication
 
+    # Switch to failover
+    When I request the failover state for the DR
+    Then the DR sink should be in phase "Failover"
+
     # Restore on DR site
     When i restore object "obj2-1" for 2 days on "DR" site
     Then object "obj2-1" should "" be "restored" and have the storage class "e2e-cold" on "DR" site
     And object "obj2-1" should "" be "transitioned" and have the storage class "e2e-cold" on "Primary" site
+
+    # Switch to failback
+    When I resume operations for the DR
+    Then the DR sink should be in phase "Running"
 
     # Pause / Resume DR
     When I pause the DR
