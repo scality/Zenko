@@ -22,7 +22,7 @@ spec:
   hostname: devstoreaccount1
   subdomain: azure-mock
   containers:
-  - image: mcr.microsoft.com/azure-storage/azurite:3.21.0
+  - image: mcr.microsoft.com/azure-storage/azurite:3.31.0
     command: ["azurite", "-l", "/data", "--blobHost", "0.0.0.0","--blobPort", "80"]
     name: azurite
     ports:
