@@ -101,6 +101,22 @@ Given('an account', async function (this: Zenko) {
     await this.createAccount();
 });
 
+Given('a {string} bucket with dot', async function (this: Zenko, versioning: string) {
+    this.resetCommand();
+    const preName = this.getSaved<string>('accountName') ||
+        this.parameters.AccountName || Constants.ACCOUNT_NAME;
+    const bucketName = `${preName}.${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase();
+    this.addToSaved('bucketName', bucketName);
+    this.addCommandParameter({ bucket: bucketName });
+    await S3.createBucket(this.getCommandParameters());
+    this.addToSaved('bucketVersioning', versioning);
+    if (versioning !== 'Non versioned') {
+        const versioningConfiguration = versioning === 'Versioned' ? 'Enabled' : 'Suspended';
+        this.addCommandParameter({ versioningConfiguration: `Status=${versioningConfiguration}` });
+        await S3.putBucketVersioning(this.getCommandParameters());
+    }
+});
+
 Given('a {string} bucket', async function (this: Zenko, versioning: string) {
     this.resetCommand();
     const preName = this.getSaved<string>('accountName') ||
