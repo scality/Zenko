@@ -10,21 +10,22 @@ async function runCronjob(this: Zenko, job: string, site?: string) {
     }
 
     switch (job) {
-        case 'CountItems':
-            await createJobAndWaitForCompletion(this, `${zenkoName}-ops-count-items`);
-            break;
-        case 'EnsureVaultSeeds':
-            await createJobAndWaitForCompletion(this, `${zenkoName}-ops-vault-check-seeds`);
-            break;
-        default:
-            throw new Error(`Unknown job: ${job}`);
+    case 'CountItems':
+        await createJobAndWaitForCompletion(this, `${zenkoName}-ops-count-items`);
+        break;
+    case 'EnsureVaultSeeds':
+        await createJobAndWaitForCompletion(this, `${zenkoName}-ops-vault-check-seeds`);
+        break;
+    default:
+        throw new Error(`Unknown job: ${job}`);
     }
 }
 
 When('the {string} cronjobs completes without error', { timeout: 1200000 }, async function (this: Zenko, job: string) {
-    runCronjob.call(this, job);
+    await runCronjob.call(this, job);
 });
 
-When('the {string} cronjobs completes without error on {string} site', { timeout: 1200000 }, async function (this: Zenko, job: string, site: string) {
-    runCronjob.call(this, job, site);
-});
+When('the {string} cronjobs completes without error on {string} site', { timeout: 1200000 },
+    async function (this: Zenko, job: string, site: string) {
+        await runCronjob.call(this, job, site);
+    });
