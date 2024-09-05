@@ -56,6 +56,7 @@ spec:
     minPartitionSizeBytes: 0Mi
     minBatchSize: 0
     keepAtLeast: 0
+    logLevel: trace
   zookeeper:
     provider: Managed
     persistence:
