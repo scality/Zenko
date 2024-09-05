@@ -3,6 +3,14 @@
   "enabled" : true,
   "groups" : [
     {
+      "name": "AccountTest::DataAccessor",
+      "path": "/AccountTest::DataAccessor",
+      "attributes": {},
+      "realmRoles": [],
+      "clientRoles": {},
+      "subGroups": []
+    },
+    {
       "name": "AccountTest::DataConsumer",
       "path": "/AccountTest::DataConsumer",
       "attributes": {},
