@@ -285,9 +285,6 @@ When('the DATA_ACCESSOR user tries to perform PutObject on {string} site', async
     this.addToSaved('accountName', Zenko.sites['source'].accountName);
 
     await this.setupEntity(EntityType.DATA_ACCESSOR);
-    
-    const preName = this.getSaved<string>('accountName') ||
-        this.parameters.AccountName || Constants.ACCOUNT_NAME;
 
     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
     this.addCommandParameter({ key: `${Utils.randomString()}` });
