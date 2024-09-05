@@ -23,9 +23,6 @@ Feature: PRA operations
     # Check that objects are transitioned in the DR site
     Given access keys for the replicated account
 
-    When the DATA_ACCESSOR user tries to perform PutObject on "DR" site
-    Then it "should not" pass Vault authentication
-
     Then object "obj-1" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
     And object "obj-2" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
     
@@ -38,6 +35,9 @@ Feature: PRA operations
     When i restore object "obj-1" for 2 days on "Primary" site
     Then object "obj-1" should "" be "restored" and have the storage class "e2e-cold" on "Primary" site
     And object "obj-1" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
+
+    When the DATA_ACCESSOR user tries to perform PutObject on "DR" site
+    Then it "should not" pass Vault authentication
 
     # Restore on DR site
     When i restore object "obj2-1" for 2 days on "DR" site
