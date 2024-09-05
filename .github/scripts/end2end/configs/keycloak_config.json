@@ -2,6 +2,30 @@
   "realm" : "${OIDC_REALM}",
   "enabled" : true,
   "groups" : [
+    {
+      "name": "AccountTest::DataAccessor",
+      "path": "/AccountTest::DataAccessor",
+      "attributes": {},
+      "realmRoles": [],
+      "clientRoles": {},
+      "subGroups": []
+    },
+    {
+      "name": "AccountTest::DataConsumer",
+      "path": "/AccountTest::DataConsumer",
+      "attributes": {},
+      "realmRoles": [],
+      "clientRoles": {},
+      "subGroups": []
+    },
+    {
+      "name": "AccountTest::StorageAccountOwner",
+      "path": "/AccountTest::StorageAccountOwner",
+      "attributes": {},
+      "realmRoles": [],
+      "clientRoles": {},
+      "subGroups": []
+    }
   ],
   "defaultRoles" : [ "uma_authorization", "offline_access" ],
   "roles": {
