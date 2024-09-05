@@ -23,11 +23,10 @@
     "@aws-sdk/client-iam": "^3.582.0",
     "@aws-sdk/client-s3": "^3.583.0",
     "@aws-sdk/client-sts": "^3.583.0",
-    "@typescript-eslint/eslint-plugin": "^5.45.0",
-    "@typescript-eslint/parser": "^5.45.0",
-    "babel-jest": "^29.3.1",
-    "cli-testing": "github:scality/cli-testing.git#v1.2.0",
-    "eslint": "^8.28.0"
+    "cli-testing": "github:scality/cli-testing.git#0744e229cb8c3dc19eb2f5bbb603c3ba0f583aa0",
+    "eslint": "^9.9.1",
+    "eslint-config-scality": "scality/Guidelines#8.3.0",
+    "typescript-eslint": "^8.4.0"
   },
   "scripts": {
     "build": "tsc --build tsconfig.json",
