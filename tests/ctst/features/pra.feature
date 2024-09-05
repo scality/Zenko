@@ -37,7 +37,7 @@ Feature: PRA operations
     And object "obj-1" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
 
     # Test the readonly
-    When the "EnsureVaultSeeds" cronjobs completes without error on "DR" site
+    When the "EnsureVaultSeeds" cronjobs completes without error on "Primary" site
     And the DATA_ACCESSOR user tries to perform PutObject on "DR" site
     Then it "should not" pass Vault authentication
 
