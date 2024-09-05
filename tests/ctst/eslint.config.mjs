@@ -22,7 +22,7 @@ export default tseslint.config(
             '**/build',
             '**/coverage',
             '**/dist',
-            '**/node_modules',
+            '**/node_modules/**/*',
             '**/package',
             '**/reports',
             '**/eslint.config.mjs',
