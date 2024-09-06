@@ -9,16 +9,7 @@ async function runCronjob(this: Zenko, job: string, site?: string) {
         zenkoName += '-pra';
     }
 
-    switch (job) {
-    case 'CountItems':
-        await createJobAndWaitForCompletion(this, `${zenkoName}-ops-count-items`);
-        break;
-    case 'EnsureVaultSeeds':
-        await createJobAndWaitForCompletion(this, `${zenkoName}-ops-vault-check-seeds`);
-        break;
-    default:
-        throw new Error(`Unknown job: ${job}`);
-    }
+    await createJobAndWaitForCompletion(this, `${zenkoName}-ops-${job}`);
 }
 
 When('the {string} cronjobs completes without error', { timeout: 1200000 }, async function (this: Zenko, job: string) {
