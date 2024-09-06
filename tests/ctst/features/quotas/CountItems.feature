@@ -8,5 +8,5 @@ Feature: CountItems measures the utilization metrics
 Scenario Outline: Countitems runs without error and compute utilization metrics
     Given an existing bucket "" "without" versioning, "without" ObjectLock "without" retention mode
     And an object "" that "exists"
-    When the "CountItems" cronjobs completes without error
+    When the "count-items" cronjobs completes without error
     Then the operation finished without error
