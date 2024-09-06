@@ -332,6 +332,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
                 nextMarker = GRFWIResponse.data.IsTruncated ? GRFWIResponse.data.Marker : undefined;
                 callNumber++;
+                await Utils.sleep(500);
             } while (callNumber < 100);
 
             // Ensure we can assume at least one role
