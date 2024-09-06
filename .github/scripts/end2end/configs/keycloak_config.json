@@ -1,14 +1,20 @@
 {
   "realm" : "${OIDC_REALM}",
   "enabled" : true,
-  "groups" : [
-  ],
   "defaultRoles" : [ "uma_authorization", "offline_access" ],
   "roles": {
     "realm": [
       {
         "id": "63168398-203f-4e27-aa45-cbbe945c8593",
         "name": "StorageManager",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "${OIDC_REALM}",
+        "attributes": {}
+      },
+      {
+        "id": "f3b3b3b4-1b3b-4b3b-8b3b-3b3b3b3b3b3b",
+        "name": "AccountTest::DataAccessor",
         "composite": false,
         "clientRole": false,
         "containerId": "${OIDC_REALM}",
