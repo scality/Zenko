@@ -22,6 +22,7 @@ ADMIN_PRA_SECRET_ACCESS_KEY=$(kubectl get secret end2end-pra-management-vault-ad
 STORAGE_MANAGER_USER_NAME="ctst_storage_manager"
 STORAGE_ACCOUNT_OWNER_USER_NAME="ctst_storage_account_owner"
 DATA_CONSUMER_USER_NAME="ctst_data_consumer"
+DATA_ACCESSOR_USER_NAME="ctst_data_accessor"
 VAULT_AUTH_HOST="${ZENKO_NAME}-connector-vault-auth-api.default.svc.cluster.local"
 ZENKO_PORT="80"
 KEYCLOAK_TEST_PASSWORD=${OIDC_PASSWORD}
@@ -93,6 +94,7 @@ WORLD_PARAMETERS="$(jq -c <<EOF
   "StorageManagerUsername":"${STORAGE_MANAGER_USER_NAME}",
   "StorageAccountOwnerUsername":"${STORAGE_ACCOUNT_OWNER_USER_NAME}",
   "DataConsumerUsername":"${DATA_CONSUMER_USER_NAME}",
+  "DataAccessorUsername":"${DATA_ACCESSOR_USER_NAME}",
   "ServiceUsersCredentials":${SERVICE_USERS_CREDENTIALS},
   "AzureAccountName":"${AZURE_ACCOUNT_NAME}",
   "AzureAccountKey":"${AZURE_SECRET_KEY}",
@@ -129,7 +131,7 @@ docker run \
     --rm \
     --network=host \
     "${E2E_IMAGE}" /bin/bash \
-    -c "SUBDOMAIN=${SUBDOMAIN} CONTROL_PLANE_INGRESS_ENDPOINT=${OIDC_ENDPOINT} ACCOUNT=${ZENKO_ACCOUNT_NAME} KEYCLOAK_REALM=${KEYCLOAK_TEST_REALM_NAME} STORAGE_MANAGER=${STORAGE_MANAGER_USER_NAME} STORAGE_ACCOUNT_OWNER=${STORAGE_ACCOUNT_OWNER_USER_NAME} DATA_CONSUMER=${DATA_CONSUMER_USER_NAME} /ctst/bin/seedKeycloak.sh"; [[ $? -eq 1 ]] && exit 1 || echo 'Keycloak Configured!'
+    -c "SUBDOMAIN=${SUBDOMAIN} CONTROL_PLANE_INGRESS_ENDPOINT=${OIDC_ENDPOINT} ACCOUNT=${ZENKO_ACCOUNT_NAME} KEYCLOAK_REALM=${KEYCLOAK_TEST_REALM_NAME} STORAGE_MANAGER=${STORAGE_MANAGER_USER_NAME} STORAGE_ACCOUNT_OWNER=${STORAGE_ACCOUNT_OWNER_USER_NAME} DATA_CONSUMER=${DATA_CONSUMER_USER_NAME} DATA_ACCESSOR=${DATA_ACCESSOR_USER_NAME} /ctst/bin/seedKeycloak.sh"; [[ $? -eq 1 ]] && exit 1 || echo 'Keycloak Configured!'
 
 # Grant access to Kube API (insecure, only for testing)
 kubectl create clusterrolebinding serviceaccounts-cluster-admin \

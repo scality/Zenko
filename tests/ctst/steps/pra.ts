@@ -12,9 +12,10 @@ import {
     restoreObject,
     verifyObjectLocation,
 } from 'steps/utils/utils';
-import { Constants, Identity, IdentityEnum, SuperAdmin, Utils } from 'cli-testing';
+import { Constants, Identity, IdentityEnum, S3, SuperAdmin, Utils } from 'cli-testing';
 import { safeJsonParse } from 'common/utils';
 import assert from 'assert';
+import { EntityType } from 'world/Zenko';
 
 enum ZenkoDrSinkPhases {
     ZenkoDRSinkPhaseNew = 'New',
@@ -272,6 +273,34 @@ Then('object {string} should {string} be {string} and have the storage class {st
             }
             assert(err);
         }
+    });
+
+When('the DATA_ACCESSOR user tries to perform PutObject on {string} site', { timeout: 5 * 60 * 1000 },
+    async function (this: Zenko, site: string) {
+        if (site === 'DR') {
+            Identity.useIdentity(IdentityEnum.ACCOUNT, `${Zenko.sites['source'].accountName}-replicated`);
+        } else {
+            Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
+        }
+        this.resetCommand();
+        this.addToSaved('accountName', Zenko.sites['source'].accountName);
+
+        // At this point, the role may take some time to be propagated
+        // so, tolerate up to 5m of retries
+        let conditionOk = false;
+        while (!conditionOk) {
+            try {
+                await this.setupEntity(EntityType.DATA_ACCESSOR);
+                conditionOk = true;
+            } catch (err) {
+                this.logger.error('Failed to setup entity', { err });
+            }
+        }
+
+        this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
+        this.addCommandParameter({ key: `${Utils.randomString()}` });
+
+        this.setResult(await S3.putObject(this.getCommandParameters()));
     });
 
 Then('the kafka DR volume exists', { timeout: 60000 }, async function (this: Zenko) {
