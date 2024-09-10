@@ -4,7 +4,7 @@
 backbeat:
   sourceRegistry: ghcr.io/scality
   dashboard: backbeat/backbeat-dashboards
-  image: backbeat
+  image: playground/wlardier/backbeat
   policy: backbeat/backbeat-policies
   tag: 8.6.48
   envsubst: BACKBEAT_TAG
