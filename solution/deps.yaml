@@ -6,7 +6,7 @@ backbeat:
   dashboard: backbeat/backbeat-dashboards
   image: playground/wlardier/backbeat
   policy: backbeat/backbeat-policies
-  tag: 8.6.48
+  tag: 8.6.518
   envsubst: BACKBEAT_TAG
 busybox:
   image: busybox
