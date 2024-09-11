@@ -33,8 +33,6 @@ spec:
       triggerTransitionsOneDayEarlierForTesting: ${TRANSITION_ONE_DAY_EARLIER}
     logging:
       logLevel: trace
-    oplogPopulator:
-      useSingleChangeStream: true
   mongodb:
     provider: External
     endpoints:
