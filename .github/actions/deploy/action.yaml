@@ -57,12 +57,12 @@ runs:
         if ! [ -n "${OPERATOR_IMAGE_TAG}" ]; then
           export OPERATOR_IMAGE_TAG=$(yq eval '."zenko-operator".tag' solution/deps.yaml)
         fi
-        docker pull ${OPERATOR_IMAGE_NAME}:${OPERATOR_IMAGE_TAG}
-        kind load docker-image ${OPERATOR_IMAGE_NAME}:${OPERATOR_IMAGE_TAG}
+        docker pull ghcr.io/scality/playground/wlardier/zenko-operator:1.6.500
+        kind load docker-image ghcr.io/scality/playground/wlardier/zenko-operator:1.6.500
         cd ./.github/scripts/end2end
         git clone https://${GIT_ACCESS_TOKEN}@github.com/scality/zenko-operator.git operator
         cd operator
-        git checkout ${OPERATOR_IMAGE_TAG}
+        git checkout 0d04e99de1f23413a80b8bd6220af5fa435a636e
         tilt ci
       env:
         OPERATOR_IMAGE_TAG: ${{ inputs.zkop_tag }}
