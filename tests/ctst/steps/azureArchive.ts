@@ -393,6 +393,8 @@ Then('object {string} should expire in {int} days', async function (this: Zenko,
     const parsed = safeJsonParse(res.stdout);
     assert(parsed.ok);
     const head = parsed.result as { Restore: string, LastModified: string };
+    // eslint-disable-next-line no-console
+    console.log('head', JSON.stringify(head));
     const expireResDate = head.Restore.match(/expiry-date="+(.*)"/) || [];
     const expiryDate = new Date(expireResDate[1]).getTime();
     const lastModified = new Date(head.LastModified).getTime();
@@ -400,6 +402,13 @@ Then('object {string} should expire in {int} days', async function (this: Zenko,
     const realTimeDays = days / (this.parameters.TimeProgressionFactor > 1 ? this.parameters.TimeProgressionFactor : 1);
     assert.ok(diff >= realTimeDays && diff < realTimeDays + 0.005,
         `Expected ${realTimeDays} but got ${diff} ; ${this.parameters.TimeProgressionFactor}`);
+    // ensure object is expired by trying to GET it
+    this.resetCommand();
+    this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
+    this.addCommandParameter({ key: objName });
+    const res2 = await S3.getObject(this.getCommandParameters());
+    // eslint-disable-next-line no-console
+    console.log('res2', JSON.stringify(res2));
 });
 
 Given('that lifecycle is {string} for the {string} location',
