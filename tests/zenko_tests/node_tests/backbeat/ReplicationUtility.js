@@ -60,6 +60,13 @@ class ReplicationUtility {
                 return cb(err);
             }
             let versions = data.Versions;
+            /* eslint-disable */
+            console.log('deleting bucket', {
+                bucketName,
+                keyPrefix,
+                versions,
+                data,
+            });
             let deleteMarkers = data.DeleteMarkers;
             // If replicating to a multiple backend bucket, we only want to
             // remove versions that we have put with our tests.
