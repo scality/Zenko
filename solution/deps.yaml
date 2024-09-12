@@ -141,4 +141,11 @@ zenko-operator:
 zenko-ui:
   sourceRegistry: ghcr.io/scality
   config: zenko-ui/zenko-ui-config
-  image: zenko-uiongoing-request
+  image: zenko-ui
+  tag: 2.1.8
+  envsubst: ZENKO_UI_TAG
+zookeeper:
+  sourceRegistry: pravega
+  image: zookeeper
+  tag: 0.2.15
+  envsubst: ZOOKEEPER_TAG
