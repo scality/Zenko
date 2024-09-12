@@ -405,6 +405,10 @@ class ReplicationUtility {
         });
     }
 
+    listObjectVersions(bucketName, cb) {
+        this.s3.listObjectVersions({ Bucket: bucketName }, cb);
+    }
+
     getObject(bucketName, objName, cb) {
         this.s3.getObject({
             Bucket: bucketName,
@@ -707,6 +711,9 @@ class ReplicationUtility {
                 destData.ContentLength,
             );
             this._compareObjectBody(srcData.Body, destData.Body);
+            /* eslint-disable */
+            console.log(JSON.stringify({srcData, destData, srcBucket, destBucket, key, optionalField}));
+            /* eslint-enable */
             const srcUserMD = srcData.Metadata;
             assert.strictEqual(
                 srcUserMD[`${destAWSLocation}-version-id`],
