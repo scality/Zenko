@@ -299,6 +299,8 @@ async function verifyObjectLocation(this: Zenko, objectName: string,
     let conditionOk = false;
     while (!conditionOk) {
         const res = await S3.headObject(this.getCommandParameters());
+        // eslint-disable-next-line no-console
+        console.log(JSON.stringify(res));
         if (res.err?.includes('NotFound')) {
             await Utils.sleep(1000);
             continue;
@@ -324,6 +326,9 @@ async function verifyObjectLocation(this: Zenko, objectName: string,
         }
         await Utils.sleep(1000);
     }
+    const res2 = await S3.getObject(this.getCommandParameters());
+    // eslint-disable-next-line no-console
+    console.log(JSON.stringify(res2));
     assert(conditionOk);
 }
 
