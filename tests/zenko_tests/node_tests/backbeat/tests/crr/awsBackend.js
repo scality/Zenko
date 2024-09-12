@@ -6,8 +6,8 @@ const ReplicationUtility = require('../../ReplicationUtility');
 
 const scalityUtils = new ReplicationUtility(scalityS3Client);
 const awsUtils = new ReplicationUtility(awsS3Client);
-const srcBucket = `source-bucket-${Date.now()}`;
-const destBucket = process.env.AWS_CRR_BUCKET_NAME;
+let srcBucket = `source-bucket-${Date.now()}`;
+let destBucket = process.env.AWS_CRR_BUCKET_NAME;
 const destLocation = process.env.AWS_BACKEND_DESTINATION_LOCATION;
 const hex = crypto.createHash('md5')
     .update(Math.random().toString())
@@ -35,6 +35,10 @@ describe('Replication with AWS backend', function () {
             destLocation,
             next,
         ),
+        next => {
+            srcBucket = `source-bucket-${Date.now()}`;
+            return next();
+        }
     ], done));
 
     afterEach(done => series([
