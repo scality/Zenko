@@ -3,10 +3,10 @@
 # yq eval 'sortKeys(.)' -i deps.yaml
 backbeat:
   sourceRegistry: ghcr.io/scality
-  dashboard: backbeat/backbeat-dashboards
-  image: backbeat
-  policy: backbeat/backbeat-policies
-  tag: 8.6.48
+  dashboard: playground/wlardier/backbeat-dashboards
+  image: playground/wlardier/backbeat
+  policy: playground/wlardier/backbeat-policies
+  tag: 8.6.49
   envsubst: BACKBEAT_TAG
 busybox:
   image: busybox
@@ -77,9 +77,6 @@ kafka-lag-exporter:
   image: kafka-lag-exporter
   tag: 0.7.1
   envsubst: KAFKA_LAGEXPORTER_TAG
-mongodb-connector:
-  tag: 1.13.0
-  envsubst: MONGODB_CONNECTOR_TAG
 pensieve-api:
   sourceRegistry: ghcr.io/scality
   image: pensieve-api

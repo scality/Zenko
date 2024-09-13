@@ -60,6 +60,13 @@ class ReplicationUtility {
                 return cb(err);
             }
             let versions = data.Versions;
+            /* eslint-disable */
+            console.log('deleting bucket', {
+                bucketName,
+                keyPrefix,
+                versions,
+                data,
+            });
             let deleteMarkers = data.DeleteMarkers;
             // If replicating to a multiple backend bucket, we only want to
             // remove versions that we have put with our tests.
@@ -405,6 +412,10 @@ class ReplicationUtility {
         });
     }
 
+    listObjectVersions(bucketName, cb) {
+        this.s3.listObjectVersions({ Bucket: bucketName }, cb);
+    }
+
     getObject(bucketName, objName, cb) {
         this.s3.getObject({
             Bucket: bucketName,
@@ -707,6 +718,9 @@ class ReplicationUtility {
                 destData.ContentLength,
             );
             this._compareObjectBody(srcData.Body, destData.Body);
+            /* eslint-disable */
+            console.log(JSON.stringify({srcData, destData, srcBucket, destBucket, key, optionalField}));
+            /* eslint-enable */
             const srcUserMD = srcData.Metadata;
             assert.strictEqual(
                 srcUserMD[`${destAWSLocation}-version-id`],
