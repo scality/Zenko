@@ -112,6 +112,15 @@ type FailoverConfig = {
     sinkZenkoNamespace?: string;
 };
 
+type FailbackConfig = {
+    wait?: boolean;
+    timeout?: string;
+    sinkKubeconfigPath?: string;
+    sinkKubeconfigData?: string;
+    sinkZenkoInstance?: string;
+    sinkZenkoNamespace?: string;
+};
+
 type UninstallConfig = {
     sinkZenkoDrInstance?: string;
     sourceZenkoDrInstance?: string;
@@ -215,6 +224,10 @@ export default class ZenkoDrctl {
 
     async failover(config: FailoverConfig) {
         return this.runCommand('failover', this.paramToCli(config));
+    }
+
+    async failback(config: FailbackConfig) {
+        return this.runCommand('failback', this.paramToCli(config));
     }
 
     async status(config: StatusConfig) {
