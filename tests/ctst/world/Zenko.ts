@@ -215,6 +215,10 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                     decision = false;
                 }
             } catch (err) {
+                CacheHelper.logger.debug('Error when parsing JSON', {
+                    err,
+                    stdout: res.stdout,
+                });
                 decision = res.stdout === '';
             }
         });
@@ -394,7 +398,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         clientId: string,
         grantType: string,
     ): Promise<string> {
-        this.parameters;
         const baseUrl = this.parameters.ssl === false ? 'http://' : 'https://';
         const data = qs.stringify({
             username,
@@ -832,7 +835,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * Cleanup function for the Zenko world
      * @returns {undefined}
      */
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
     static async teardown() { }
 
     async metadataSearchResponseCode(userCredentials: AWSCredentials, bucketName: string) {

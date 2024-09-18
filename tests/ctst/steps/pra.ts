@@ -131,7 +131,8 @@ async function waitForPhase(
                     parsedStatus = json.result;
                     break;
                 }
-            } catch (e) {
+            } catch (err) {
+                world.logger.debug('Failed to parse DR status line', { line, err });
                 continue;
             }
         }
