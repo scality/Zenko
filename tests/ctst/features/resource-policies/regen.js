@@ -152,8 +152,15 @@ const output = scenarios.map(scenario => {
     const paddedBucketPolicyApplies = scenario.bucketPolicyApplies.padEnd(longest.bucketPolicyApplies);
     const paddedBucketPolicyEffect = scenario.bucketPolicyEffect.padEnd(longest.bucketPolicyEffect);
 
-    // eslint-disable-next-line max-len
-    return `            | ${paddedAction} | ${paddedBucketPolicyExists} | ${paddedBucketPolicyApplies} | ${paddedBucketPolicyEffect} | ${paddedIamPolicyExists} | ${paddedIamPolicyApplies} | ${paddedIamPolicyEffect} |`;
+    return (   
+        '           ',
+        paddedAction,
+        paddedBucketPolicyExists,
+        paddedBucketPolicyApplies,
+        paddedBucketPolicyEffect,
+        paddedIamPolicyExists,
+        paddedIamPolicyApplies,
+        paddedIamPolicyEffect).join(' | ');
 }).join('\n');
 
 targetFiles.forEach(file => {
