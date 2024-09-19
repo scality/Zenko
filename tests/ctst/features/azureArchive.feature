@@ -17,7 +17,7 @@ Feature: Azure Archive
     And object "obj-2" should be "restored" and have the storage class "e2e-cold"
     And object "obj-1" should expire in <restoreDays> days
     And object "obj-2" should expire in <restoreDays> days
-    When i restore object "obj-1" for 30 days
+    When i restore object "obj-1" for 255 days
     And i restore object "obj-2" for 5 days
     Then object "obj-1" should expire in 30 days
     And object "obj-2" should expire in 5 days
