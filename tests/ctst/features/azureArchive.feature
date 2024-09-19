@@ -29,9 +29,9 @@ Feature: Azure Archive
 
     Examples:
         | versioningConfiguration | objectCount | objectSize |  restoreDays |  coldLocationName |
-        |           Non versioned |           2 |        100 |           15 | e2e-azure-acrhive |
-        |               Versioned |           2 |        100 |           15 | e2e-azure-acrhive |
-        |               Suspended |           2 |        100 |           15 | e2e-azure-acrhive |
+        |           Non versioned |           2 |        100 |           15 | e2e-azure-archive |
+        |               Versioned |           2 |        100 |           15 | e2e-azure-archive |
+        |               Suspended |           2 |        100 |           15 | e2e-azure-archive |
         |           Non versioned |           2 |        100 |           15 |          e2e-cold |
         |               Versioned |           2 |        100 |           15 |          e2e-cold |
         |               Suspended |           2 |        100 |           15 |          e2e-cold |
