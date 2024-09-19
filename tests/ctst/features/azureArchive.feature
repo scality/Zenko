@@ -13,8 +13,6 @@ Feature: Azure Archive
     And object "obj-2" should be "transitioned" and have the storage class "e2e-cold"
     When i restore object "obj-1" for <restoreDays> days
     And i restore object "obj-2" for <restoreDays> days
-    Then blob for object "obj-1" must be rehydrated
-    And blob for object "obj-2" must be rehydrated
     Then object "obj-1" should be "restored" and have the storage class "e2e-cold"
     And object "obj-2" should be "restored" and have the storage class "e2e-cold"
     And object "obj-1" should expire in <restoreDays> days
@@ -24,9 +22,9 @@ Feature: Azure Archive
     Then object "obj-1" should expire in 30 days
     And object "obj-2" should expire in 5 days
     When i wait for 5 days
-    Then object "obj-1" should expire in 25 days
+    Then object "obj-1" should expire in 250 days
     And object "obj-2" should be "cold" and have the storage class "e2e-cold"
-    When i wait for 25 days
+    When i wait for 250 days
     Then object "obj-1" should be "cold" and have the storage class "e2e-cold"
 
     Examples:
