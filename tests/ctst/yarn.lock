@@ -4812,9 +4812,9 @@ cli-table3@^0.6.0:
   optionalDependencies:
     "@colors/colors" "1.5.0"
 
-"cli-testing@github:scality/cli-testing.git#9071a63286c5348e0648adba65becefea5f8b281":
+"cli-testing@github:scality/cli-testing.git#e41a05aaac9d6aaa7e15aa89a59be88e4629eabe":
   version "1.2.0"
-  resolved "git+ssh://git@github.com/scality/cli-testing.git#9071a63286c5348e0648adba65becefea5f8b281"
+  resolved "git+ssh://git@github.com/scality/cli-testing.git#e41a05aaac9d6aaa7e15aa89a59be88e4629eabe"
   dependencies:
     "@aws-crypto/sha256-universal" "^5.2.0"
     "@aws-sdk/client-iam" "^3.484.0"
@@ -4836,7 +4836,7 @@ cli-table3@^0.6.0:
     ts-node "^10.7.0"
     tsconfig-paths "^4.0.0"
     typescript "^4.7.3"
-    vaultclient "git+https://github.com/scality/vaultclient#f114938e0e5e24cee6f76a9277da42a1b24853ab"
+    vaultclient "git+https://github.com/scality/vaultclient#b7646cc191c0e3be2c8994d36c3e313aef26ef40"
     werelogs scality/werelogs#8.1.4
 
 cliui@^3.2.0:
@@ -7732,9 +7732,9 @@ validate-npm-package-license@^3.0.1:
     spdx-correct "^3.0.0"
     spdx-expression-parse "^3.0.0"
 
-"vaultclient@git+https://github.com/scality/vaultclient#f114938e0e5e24cee6f76a9277da42a1b24853ab":
+"vaultclient@git+https://github.com/scality/vaultclient#b7646cc191c0e3be2c8994d36c3e313aef26ef40":
   version "8.3.18"
-  resolved "git+https://github.com/scality/vaultclient#f114938e0e5e24cee6f76a9277da42a1b24853ab"
+  resolved "git+https://github.com/scality/vaultclient#b7646cc191c0e3be2c8994d36c3e313aef26ef40"
   dependencies:
     "@aws-crypto/sha256-universal" "^2.0.1"
     "@smithy/signature-v4" "^2.1.1"
