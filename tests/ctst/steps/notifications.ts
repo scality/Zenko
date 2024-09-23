@@ -161,6 +161,7 @@ When('i subscribe to {string} notifications for destination {int}',
             notificationConfig.QueueConfigurations.push(destinationConfig.QueueConfigurations[0]);
             this.addCommandParameter({ notificationConfiguration: `'${JSON.stringify(notificationConfig)}'` });
         } catch (error) {
+            this.logger.debug('Error parsing notification configuration', { error });
             // Put new config if old doesn't exist
             this.addCommandParameter({ notificationConfiguration: `'${JSON.stringify(destinationConfig)}'` });
         }
@@ -210,6 +211,7 @@ When('i subscribe to {string} notifications for destination {int} with {string} 
             notificationConfig.QueueConfigurations.push(destinationConfig.QueueConfigurations[0]);
             this.addCommandParameter({ notificationConfiguration: `'${JSON.stringify(notificationConfig)}'` });
         } catch (error) {
+            this.logger.debug('Error putting notification configuration', { error });
             // Put new config it old doesn't exist
             this.addCommandParameter({ notificationConfiguration: `'${JSON.stringify(destinationConfig)}'` });
         }
@@ -218,7 +220,6 @@ When('i subscribe to {string} notifications for destination {int} with {string} 
         await Utils.sleep(10000);
     });
 
-// eslint-disable-next-line new-cap
 When('i unsubscribe from {string} notifications for destination {int}',
     async function (this: Zenko, notificationType: string, destination: number) {
         this.resetCommand();
@@ -251,7 +252,6 @@ When('i unsubscribe from {string} notifications for destination {int}',
         await Utils.sleep(10000);
     });
 
-// eslint-disable-next-line new-cap
 When('a {string} event is triggered {string} {string}',
     async function (this: Zenko, notificationType: string, enable: string, filterType: string) {
         this.resetCommand();
@@ -327,6 +327,7 @@ Then('i should {string} a notification for {string} event in destination {int}',
                     }
                     return false;
                 } catch (error) {
+                    this.logger.debug('error when parsing notification message', { error });
                     return false;
                 }
             },

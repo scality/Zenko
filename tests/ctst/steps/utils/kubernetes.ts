@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { KubernetesHelper, Utils } from 'cli-testing';
 import Zenko from 'world/Zenko';
 import {
@@ -9,6 +8,9 @@ import {
     V1Deployment,
     AppsApi,
     CustomObjectsApi,
+    V1PersistentVolumeClaim,
+    CoreV1Api,
+    BatchV1Api,
 } from '@kubernetes/client-node';
 
 type ZenkoStatusValue = {
@@ -21,46 +23,52 @@ type ZenkoStatusValue = {
 
 type ZenkoStatus = ZenkoStatusValue[];
 
-export function createKubeBatchClient(world: Zenko) {
+export function createKubeBatchClient(world: Zenko): BatchV1Api {
     if (!KubernetesHelper.clientBatch) {
         KubernetesHelper.init(world.parameters);
     }
-    return KubernetesHelper.clientBatch!;
+    // @ts-expect-error kube client class is not stable yet
+    return KubernetesHelper.clientBatch;
 }
 
-export function createKubeCoreClient(world: Zenko) {
+export function createKubeCoreClient(world: Zenko): CoreV1Api {
     if (!KubernetesHelper.clientBatch) {
         KubernetesHelper.init(world.parameters);
     }
-    return KubernetesHelper.clientCore!;
+    // @ts-expect-error kube client class is not stable yet
+    return KubernetesHelper.clientCore;
 }
 
-export function createKubeWatchClient(world: Zenko) {
+export function createKubeWatchClient(world: Zenko): Watch {
     if (!KubernetesHelper.clientWatch) {
         KubernetesHelper.init(world.parameters);
     }
-    return KubernetesHelper.clientWatch as Watch;
+    // @ts-expect-error kube client class is not stable yet
+    return KubernetesHelper.clientWatch;
 }
 
-export function createKubeAppsV1Client(world: Zenko) {
+export function createKubeAppsV1Client(world: Zenko): AppsV1Api {
     if (!KubernetesHelper.clientAppsV1) {
         KubernetesHelper.init(world.parameters);
     }
-    return KubernetesHelper.clientAppsV1 as AppsV1Api;
+    // @ts-expect-error kube client class is not stable yet
+    return KubernetesHelper.clientAppsV1;
 }
 
-export function createKubeAppsClient(world: Zenko) {
+export function createKubeAppsClient(world: Zenko): AppsApi {
     if (!KubernetesHelper.clientApps) {
         KubernetesHelper.init(world.parameters);
     }
-    return KubernetesHelper.clientApps as AppsApi;
+    // @ts-expect-error kube client class is not stable yet
+    return KubernetesHelper.clientApps;
 }
 
-export function createKubeCustomObjectClient(world: Zenko) {
+export function createKubeCustomObjectClient(world: Zenko): CustomObjectsApi {
     if (!KubernetesHelper.customObject) {
         KubernetesHelper.init(world.parameters);
     }
-    return KubernetesHelper.customObject as CustomObjectsApi;
+    // @ts-expect-error kube client class is not stable yet
+    return KubernetesHelper.customObject;
 }
 
 export async function createJobAndWaitForCompletion(world: Zenko, jobName: string, customMetadata?: string) {
@@ -107,7 +115,6 @@ export async function createJobAndWaitForCompletion(world: Zenko, jobName: strin
                         } else if (watchObj.object?.status?.failed) {
                             world.logger.debug('job failed', {
                                 job: job.metadata,
-                                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                                 object: watchObj.object,
                             });
                             reject(new Error('job failed'));
@@ -359,7 +366,7 @@ export async function getPVCFromLabel(world: Zenko, label: string, value: string
     const coreClient = createKubeCoreClient(world);
 
     const pvcList = await coreClient.listNamespacedPersistentVolumeClaim(namespace);
-    const pvc = pvcList.body.items.find(pvc => pvc.metadata?.labels?.[label] === value);
+    const pvc = pvcList.body.items.find((pvc: V1PersistentVolumeClaim) => pvc.metadata?.labels?.[label] === value);
 
     return pvc;
 }
@@ -387,6 +394,7 @@ export async function createSecret(
         world.logger.debug('Secret does not exist, creating new', {
             secretName,
             namespace,
+            err,
         });
     }
 

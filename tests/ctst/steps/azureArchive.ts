@@ -110,7 +110,6 @@ async function findObjectPackAndManifest(
         );
         const { ok, result } = safeJsonParse(manifestBuffer.toString());
         if (!ok) {
-            // eslint-disable-next-line no-continue
             continue;
         }
         const manifestJson = result as manifest;
