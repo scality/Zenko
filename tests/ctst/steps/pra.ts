@@ -12,9 +12,10 @@ import {
     restoreObject,
     verifyObjectLocation,
 } from 'steps/utils/utils';
-import { Constants, Identity, IdentityEnum, SuperAdmin, Utils } from 'cli-testing';
+import { Constants, Identity, IdentityEnum, S3, SuperAdmin, Utils } from 'cli-testing';
 import { safeJsonParse } from 'common/utils';
 import assert from 'assert';
+import { EntityType } from 'world/Zenko';
 
 enum ZenkoDrSinkPhases {
     ZenkoDRSinkPhaseNew = 'New',
@@ -130,7 +131,8 @@ async function waitForPhase(
                     parsedStatus = json.result;
                     break;
                 }
-            } catch (e) {
+            } catch (err) {
+                world.logger.debug('Failed to parse DR status line', { line, err });
                 continue;
             }
         }
@@ -274,13 +276,42 @@ Then('object {string} should {string} be {string} and have the storage class {st
         }
     });
 
-Then('the kafka DR volume exists', { timeout: 60000 }, async function (this: Zenko) {
+When('the DATA_ACCESSOR user tries to perform PutObject on {string} site', { timeout: 5 * 60 * 1000 },
+    async function (this: Zenko, site: string) {
+        if (site === 'DR') {
+            Identity.useIdentity(IdentityEnum.ACCOUNT, `${Zenko.sites['source'].accountName}-replicated`);
+        } else {
+            Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
+        }
+        this.resetCommand();
+        this.addToSaved('accountName', Zenko.sites['source'].accountName);
+
+        // At this point, the role may take some time to be propagated
+        // so, tolerate up to 5m of retries
+        let conditionOk = false;
+        while (!conditionOk) {
+            try {
+                await this.setupEntity(EntityType.DATA_ACCESSOR);
+                conditionOk = true;
+            } catch (err) {
+                this.logger.error('Failed to setup entity', { err });
+            }
+        }
+
+        this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
+        this.addCommandParameter({ key: `${Utils.randomString()}` });
+
+        this.setResult(await S3.putObject(this.getCommandParameters()));
+    });
+
+const volumeTimeout = 60000;
+Then('the kafka DR volume exists', { timeout: volumeTimeout + 2000 }, async function (this: Zenko) {
     const volumeClaim = await getPVCFromLabel(this, 'kafka_cr', 'end2end-pra-sink-base-queue');
     this.logger.debug('kafka volume claim', { volumeClaim });
     assert(volumeClaim);
     const volume = await this.zenkoDrCtl?.volumeGet({
         volumeName: volumeClaim.spec?.volumeName,
-        timeout: '60s',
+        timeout: `${volumeTimeout.toString()}ms`,
     });
     this.logger.debug('kafka volume from drctl', { volume });
     assert(volume);
@@ -291,36 +322,57 @@ Then('the kafka DR volume exists', { timeout: 60000 }, async function (this: Zen
     assert(volumeParsed.result!['volume phase'] === 'Bound');
 });
 
-When('I pause the DR', { timeout: 360000 }, async function (this: Zenko) {
+const failoverTimeout = 360000;
+When ('I request the failover state for the DR', { timeout: failoverTimeout + 2000 }, async function (this: Zenko) {
+    await this.zenkoDrCtl?.failover({
+        sinkZenkoNamespace: 'default',
+        wait: true,
+        timeout: `${failoverTimeout.toString()}ms`,
+    });
+});
+
+const failbackTimeout = 360000;
+When ('I resume operations for the DR', { timeout: failbackTimeout + 2000 }, async function (this: Zenko) {
+    await this.zenkoDrCtl?.failback({
+        sinkZenkoNamespace: 'default',
+        wait: true,
+        timeout: `${failbackTimeout.toString()}ms`,
+    });
+});
+
+const pauseTimeout = 360000;
+When('I pause the DR', { timeout: pauseTimeout + 2000 }, async function (this: Zenko) {
     await this.zenkoDrCtl?.replicationPause({
         sourceZenkoDrInstance: 'end2end-source',
         sinkZenkoDrInstance: 'end2end-pra-sink',
         sinkZenkoNamespace: 'default',
         sourceZenkoNamespace: 'default',
         wait: true,
-        timeout: '6m',
+        timeout: `${pauseTimeout.toString()}ms`,
     });
 });
 
-When('I resume the DR', { timeout: 360000 }, async function (this: Zenko) {
+const resumeTimeout = 360000;
+When('I resume the DR', { timeout: resumeTimeout + 2000 }, async function (this: Zenko) {
     await this.zenkoDrCtl?.replicationResume({
         sourceZenkoDrInstance: 'end2end-source',
         sinkZenkoDrInstance: 'end2end-pra-sink',
         sinkZenkoNamespace: 'default',
         sourceZenkoNamespace: 'default',
         wait: true,
-        timeout: '6m',
+        timeout: `${resumeTimeout.toString()}ms`,
     });
 });
 
-When('I uninstall DR', { timeout: 360000 }, async function (this: Zenko) {
+const uninstallTimeout = 360000;
+When('I uninstall DR', { timeout: uninstallTimeout + 2000 }, async function (this: Zenko) {
     await this.zenkoDrCtl?.uninstall({
         sourceZenkoDrInstance: 'end2end-source',
         sinkZenkoDrInstance: 'end2end-pra-sink',
         sinkZenkoNamespace: 'default',
         sourceZenkoNamespace: 'default',
         wait: true,
-        timeout: '6m',
+        timeout: `${uninstallTimeout.toString()}ms`,
     });
 });
 
