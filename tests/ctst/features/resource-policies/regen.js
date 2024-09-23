@@ -8,7 +8,7 @@
  * When applying the script, make sure to have the changes in a separate commit.
  * Usage: node regen.js
  */
-const fs = require('fs');
+import fs from 'fs';
 
 const targetFiles = [
     './AssumeRole.feature',
@@ -152,10 +152,18 @@ const output = scenarios.map(scenario => {
     const paddedBucketPolicyApplies = scenario.bucketPolicyApplies.padEnd(longest.bucketPolicyApplies);
     const paddedBucketPolicyEffect = scenario.bucketPolicyEffect.padEnd(longest.bucketPolicyEffect);
 
-    return `            | ${paddedAction} | ${paddedBucketPolicyExists} | ${paddedBucketPolicyApplies} | ${paddedBucketPolicyEffect} | ${paddedIamPolicyExists} | ${paddedIamPolicyApplies} | ${paddedIamPolicyEffect} |`;
+    return (   
+        '           ',
+        paddedAction,
+        paddedBucketPolicyExists,
+        paddedBucketPolicyApplies,
+        paddedBucketPolicyEffect,
+        paddedIamPolicyExists,
+        paddedIamPolicyApplies,
+        paddedIamPolicyEffect).join(' | ');
 }).join('\n');
 
-targetFiles.forEach((file) => {
+targetFiles.forEach(file => {
     const filePath = `${__dirname}/${file}`;
     const fileContent = fs.readFileSync(filePath, 'utf-8');
     const startIndex = fileContent.indexOf('Everything below is generated');
@@ -163,10 +171,14 @@ targetFiles.forEach((file) => {
     const endIndex = fileContent.length;
     
     if (startIndex !== -1 && endIndex !== -1) {
-        const newContent = fileContent.substring(0, startIndexNextLine) + '\n' + output + '\n' + fileContent.substring(endIndex);
+        const newContent =
+            `${fileContent.substring(0, startIndexNextLine)  }\n${  output  }\n${  fileContent.substring(endIndex)}`;
         fs.writeFileSync(filePath, newContent, 'utf-8');
+        // eslint-disable-next-line no-console
         console.log(`Content in ${file} replaced.`);
     } else {
-        console.error(`Couldn't find the specified markers in ${file}. Make sure the file contains the markers as specified.`);
+        // eslint-disable-next-line no-console
+        console.error(
+            `Couldn't find the specified markers in ${file}. Make sure the file contains the markers as specified.`);
     }
 });

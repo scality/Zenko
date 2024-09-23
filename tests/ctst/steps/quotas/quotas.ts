@@ -1,4 +1,3 @@
-/* eslint-disable no-case-declarations */
 import fs from 'fs';
 import lockFile from 'proper-lockfile';
 import { Given, When, ITestCaseHookParameter } from '@cucumber/cucumber';
@@ -37,6 +36,7 @@ export async function prepareQuotaScenarios(world: Zenko, scenarioConfiguration:
         try {
             releaseLock = await lockFile.lock(filePath, { stale: Constants.DEFAULT_TIMEOUT / 2 });
         } catch (err) {
+            world.logger.error('Unable to acquire lock', { err });
             releaseLock = false;
         }
     }
