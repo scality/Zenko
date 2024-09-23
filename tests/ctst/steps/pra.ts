@@ -117,8 +117,7 @@ async function waitForPhase(
             world.logger.debug('Failed to get DR status, retrying', {
                 currentStatus,
             });
-            await Utils.sleep(1000);
-            continue;
+            throw new Error('Failed to get DR status');
         }
 
         const lines = currentStatus.split('\n');
