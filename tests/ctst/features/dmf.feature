@@ -123,6 +123,6 @@ Feature: DMF
 
     Examples:
         | versioningConfiguration | objectCount | objectSize | restoreDays |
-        |           Non versioned |           2 |        100 |           15 |
-        |               Versioned |           2 |        100 |           15 |
-        |               Suspended |           2 |        100 |           15 |
+        |           Non versioned |           2 |        100 |          15 |
+        |               Versioned |           2 |        100 |          15 |
+        |               Suspended |           2 |        100 |          15 |
