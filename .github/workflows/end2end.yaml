@@ -88,14 +88,14 @@ env:
   SUBDOMAIN: "zenko.local"
   DR_SUBDOMAIN: "dr.zenko.local"
   SKOPEO_PATH: "/tmp"
-  HELM_VERSION: "v3.5.3"
-  YQ_VERSION: "v4.27.5"
+  HELM_VERSION: "v3.15.4"
+  YQ_VERSION: "v4.44.3"
   YQ_BINARY: "yq_linux_amd64"
-  KUSTOMIZE_VERSION: "v4.4.1"
-  GO_VERSION: "1.16.2"
-  SKOPEO_VERSION: "v1.5.2"
-  KUBECTL_VERSION: "1.30.0"
-  TILT_VERSION: "0.23.4"
+  KUSTOMIZE_VERSION: "v5.4.3"
+  GO_VERSION: "1.23.0"
+  SKOPEO_VERSION: "v1.16.1"
+  KUBECTL_VERSION: "1.31.0"
+  TILT_VERSION: "0.33.19"
   KIND_VERSION: "v0.12.0"
   ZENKO_ENABLE_SOSAPI: false
   EXPIRE_ONE_DAY_EARLIER: true
@@ -112,7 +112,7 @@ env:
 
 jobs:
   check-dashboard-versions:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -126,7 +126,7 @@ jobs:
         run: bash ./.github/scripts/check_versions.sh
 
   check-workflows:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -187,7 +187,7 @@ jobs:
           source: ${{ env.ROOT_DOCUMENTATION_BUILDDIR }}
 
   build-iso:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs: [build-kafka, check-dashboard-versions]
     steps:
       - name: Install dependencies
@@ -248,7 +248,7 @@ jobs:
           source: "solution-base/_build"
 
   build-kafka:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -299,7 +299,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=kafka-connect-${{ env.KAFKA_CONNECT_TAG }}
 
   build-test-image:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -330,7 +330,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=end2end-test
 
   lint-and-build-ctst:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
