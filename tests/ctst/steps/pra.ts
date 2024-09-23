@@ -217,6 +217,7 @@ Then('the DR sink should be in phase {string}', { timeout: 360000 }, async funct
     }
 
     await waitForPhase(this, 'sink', targetPhase);
+    assert(false);
 });
 
 Then('the DR source should be in phase {string}', { timeout: 360000 }, async function (this: Zenko, state: string) {
