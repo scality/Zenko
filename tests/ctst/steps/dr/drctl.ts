@@ -148,6 +148,7 @@ type StatusConfig = {
     sourceZenkoDrInstance?: string;
     sinkZenkoDrInstance?: string;
     output?: string;
+    outputFormat?: string;
 };
 
 type ReplicationPauseConfig = {
