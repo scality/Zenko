@@ -110,15 +110,14 @@ async function waitForPhase(
             sourceZenkoNamespace: 'default',
             sinkZenkoDrInstance: 'end2end-pra-sink',
             sourceZenkoDrInstance: 'end2end-source',
-            output: 'json',
+            outputFormat: 'json',
         });
 
         if (!currentStatus) {
-            world.logger.debug('Failed to get DR status, retrying', {
+            world.logger.debug('Failed to get DR status', {
                 currentStatus,
             });
-            await Utils.sleep(1000);
-            continue;
+            throw new Error('Failed to get DR status');
         }
 
         const lines = currentStatus.split('\n');
@@ -217,7 +216,8 @@ Then('the DR sink should be in phase {string}', { timeout: 360000 }, async funct
         throw new Error(`Unknown state ${state}`);
     }
 
-    await waitForPhase(this, 'sink', targetPhase);
+    const res = await waitForPhase(this, 'sink', targetPhase);
+    assert(res);
 });
 
 Then('the DR source should be in phase {string}', { timeout: 360000 }, async function (this: Zenko, state: string) {
@@ -245,7 +245,8 @@ Then('the DR source should be in phase {string}', { timeout: 360000 }, async fun
         throw new Error(`Unknown state ${state}`);
     }
 
-    await waitForPhase(this, 'source', targetPhase);
+    const res = await waitForPhase(this, 'source', targetPhase);
+    assert(res);
 });
 
 Then('object {string} should {string} be {string} and have the storage class {string} on {string} site',
