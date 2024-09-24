@@ -16,6 +16,7 @@ import { Constants, Identity, IdentityEnum, S3, SuperAdmin, Utils } from 'cli-te
 import { safeJsonParse } from 'common/utils';
 import assert from 'assert';
 import { EntityType } from 'world/Zenko';
+import { writeOperationsOnABucket } from './bucket-policies/utils';
 
 enum ZenkoDrSinkPhases {
     ZenkoDRSinkPhaseNew = 'New',
@@ -111,6 +112,10 @@ async function waitForPhase(
             sinkZenkoDrInstance: 'end2end-pra-sink',
             sourceZenkoDrInstance: 'end2end-source',
             output: 'json',
+        });
+
+        world.logger.warn('current status', {
+            currentStatus,
         });
 
         if (!currentStatus) {
