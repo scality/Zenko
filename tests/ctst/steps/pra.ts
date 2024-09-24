@@ -16,7 +16,6 @@ import { Constants, Identity, IdentityEnum, S3, SuperAdmin, Utils } from 'cli-te
 import { safeJsonParse } from 'common/utils';
 import assert from 'assert';
 import { EntityType } from 'world/Zenko';
-import { writeOperationsOnABucket } from './bucket-policies/utils';
 
 enum ZenkoDrSinkPhases {
     ZenkoDRSinkPhaseNew = 'New',
