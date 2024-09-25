@@ -258,5 +258,98 @@ tests:
             exp_annotations:
               description: MongoDb has low disk space
               summary: MongoDb has low disk space
+    
+
+  - name: MongoDbPodRecovering
+    interval: 1m
+    input_series:
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-mongos-0", rs_state="3"}
+        values: 3x1440
+
+    alert_rule_test:
+      - alertname: MongoDbPodRecovering
+        eval_time: 1d
+        exp_alerts:
+          - exp_labels:
+              namespace: zenko
+              severity: critical
+              pod: data-db-mongodb-sharded-mongos-0
+              rs_state: 3
+            exp_annotations:
+              description: "MongoDB pod `data-db-mongodb-sharded-mongos-0` has been in the 'RECOVERING' state more than 24 hours. The instance may be failing to catch up and recover."
+              summary: MongoDB is recovering
+          - exp_labels:
+              namespace: zenko
+              pod: data-db-mongodb-sharded-mongos-0
+              rs_state: 3
+              severity: warning
+            exp_annotations:
+              description: "MongoDB pod `data-db-mongodb-sharded-mongos-0` has been in 'RECOVERING' state for more than 1 hour. This may be expected if the 'Resync a Data Services MongoDB Member' procedure has recently been executed."
+              summary: MongoDB is recovering
+
+  - name: MongoDbInvalidState
+    interval: 1m
+    input_series:
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-mongos-0", rs_state="6"}
+        values: 6x10
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-mongos-0", rs_state="8"}
+        values: 0x10
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-mongos-0", rs_state="10"}
+        values: 0x10
+
+    alert_rule_test:
+      - alertname: MongoDbInvalidState
+        eval_time: 5m
+        exp_alerts:
+          - exp_labels:
+              namespace: zenko
+              severity: critical
+              pod: data-db-mongodb-sharded-mongos-0
+              rs_state: 6
+            exp_annotations:
+              description: "MongoDB pod `data-db-mongodb-sharded-mongos-0` is in an invalid state state (`6`)."
+              summary: "MongoDB node in an invalid state: 6 (UNKNOWN), 8 (DOWN), 10 (REMOVED)"
+
+  - name: MongoDbPodStartup2
+    interval: 1m
+    input_series:
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-mongos-0", rs_state="5"}
+        values: 5x60
+
+    alert_rule_test:
+      - alertname: MongoDbPodStartup2
+        eval_time: 1h
+        exp_alerts:
+          - exp_labels:
+              namespace: zenko
+              severity: warning
+              pod: data-db-mongodb-sharded-mongos-0
+              rs_state: 5
+            exp_annotations:
+              description: "MongoDB pod `data-db-mongodb-sharded-mongos-0` has been in the 'STARTUP2' state for more than 1 hour. Please ensure that the instance is running properly."
+              summary: MongoDB node in STARTUP2 state for too long
+    
+
+  - name: MongoDbRSNotSynced
+    interval: 1m
+    input_series:
+      - series: mongodb_rs_members_state{namespace="zenko", rs_nm="rs0", pod="data-db-mongodb-sharded-mongos-0", member_state="SECONDARY"}
+        values: 0x10
+      - series: mongodb_rs_members_state{namespace="zenko", rs_nm="rs0", pod="data-db-mongodb-sharded-mongos-1", member_state="SECONDARY"}
+        values: 0x10
+      - series: mongodb_rs_members_state{namespace="zenko", rs_nm="rs0", pod="data-db-mongodb-sharded-mongos-2", member_state="SECONDARY"}
+        values: 1x10
+  
+    alert_rule_test:
+      - alertname: MongoDbRSNotSynced
+        eval_time: 10m
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              rs_nm: rs0
+            exp_annotations:
+              description: "MongoDB replica set `rs0` is not in the expected state. It currently has `1` SECONDARY members instead of the expected number. Please ensure that all instance are running properly."
+              summary: MongoDB replica set out of sync
+
 
 
