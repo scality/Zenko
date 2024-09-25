@@ -139,3 +139,54 @@ groups:
     annotations:
       description: 'MongoDb has low disk space'
       summary: 'MongoDb has low disk space'
+  
+  - alert: MongoDbPodRecovering
+    expr: |
+      mongodb_rs_members_state{namespace="${namespace}", pod=~"${service}.*"} == 3
+    for: 1h
+    labels:
+      severity: warning
+    annotations:
+      description: "MongoDB pod `{{ $labels.pod }}` has been in 'RECOVERING' state for more than 1 hour. This may be expected if the 'Resync a Data Services MongoDB Member' procedure has recently been executed."
+      summary: MongoDB is recovering
+
+  - alert: MongoDbPodRecovering
+    expr: |
+      mongodb_rs_members_state{namespace="${namespace}", pod=~"${service}.*"} == 3
+    for: 1d
+    labels:
+      severity: critical
+    annotations:
+      description: "MongoDB pod `{{ $labels.pod }}` has been in the 'RECOVERING' state more than 24 hours. The instance may be failing to catch up and recover."
+      summary: MongoDB is recovering
+
+  - alert: MongoDbInvalidState
+    expr: |
+      mongodb_rs_members_state{namespace="${namespace}", pod=~"${service}.*", rs_state=~"6|8|10"} > 0
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      description: "MongoDB pod `{{ $labels.pod }}` is in an invalid state state (`{{ $labels.rs_state }}`)."
+      summary: "MongoDB node in an invalid state: 6 (UNKNOWN), 8 (DOWN), 10 (REMOVED)"
+
+
+  - alert: MongoDbPodStartup2
+    expr: |
+      mongodb_rs_members_state{namespace="${namespace}", pod=~"${service}.*"} == 5
+    for: 1h
+    labels:
+      severity: warning
+    annotations:
+      description: "MongoDB pod `{{ $labels.pod }}` has been in the 'STARTUP2' state for more than 1 hour. Please ensure that the instance is running properly."
+      summary: MongoDB node in STARTUP2 state for too long
+
+  - alert: MongoDbRSNotSynced
+    expr: |
+      sum by (rs_nm) (mongodb_rs_members_state{namespace="${namespace}", pod=~"${service}.*", member_state="SECONDARY"}) != (${replicas} - 1)
+    for: 10m
+    labels:
+      severity: warning
+    annotations:
+      description: "MongoDB replica set `{{ $labels.rs_nm }}` is not in the expected state. It currently has `{{ $value }}` SECONDARY members instead of the expected number. Please ensure that all instance are running properly."
+      summary: MongoDB replica set out of sync
