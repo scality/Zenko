@@ -442,6 +442,13 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         this.saveIdentityInformation(accountName, IdentityEnum.ACCOUNT, accountName);
     }
 
+    async deleteAccount(name: string) {
+        if (!name) {
+            throw new Error('No account name provided');
+        }
+        await SuperAdmin.deleteAccount({ accountName: name });
+    }
+
     /**
      * Creates an assumed role session with a duration of 12 hours.
      * @param {boolean} crossAccount - If true, the role will be assumed cross account.
@@ -476,6 +483,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             });
 
             Identity.addIdentity(IdentityEnum.ACCOUNT, account2.account.name, account2Credentials, undefined, true);
+            this.addToSaved('crossAccountName', account2.account.name);
 
             accountToBeAssumedFrom = account2.account.name;
         }

@@ -8,6 +8,9 @@ import Zenko from '../world/Zenko';
 import { Identity } from 'cli-testing';
 import { prepareQuotaScenarios, teardownQuotaScenarios } from 'steps/quotas/quotas';
 import { displayDebuggingInformation, preparePRA } from 'steps/pra';
+import {
+    cleanupAccount,
+} from './utils';
 import { cleanS3Bucket } from './common';
 
 // HTTPS should not cause any error for CTST
@@ -53,6 +56,18 @@ After(async function (this: Zenko, results) {
 
 After({ tags: '@Quotas' }, async function () {
     await teardownQuotaScenarios(this as Zenko);
+});
+
+After({ tags: '@BP-ASSUME_ROLE_USER_CROSS_ACCOUNT'}, async function (this: Zenko, results) {
+    const crossAccountName = this.getSaved<string>('crossAccountName');
+
+    if (results.result?.status === 'FAILED' || !crossAccountName) {
+        this.logger.warn('cross account was not cleaned for test', {
+            crossAccountName,
+        });
+        return;
+    }
+    await cleanupAccount(this, crossAccountName);
 });
 
 export default Zenko;

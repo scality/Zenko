@@ -181,7 +181,7 @@ Then('object {string} should have the tag {string} with value {string}',
             this.addCommandParameter({ versionId });
         }
         await S3.getObjectTagging(this.getCommandParameters()).then(res => {
-            const parsed = safeJsonParse<{ TagSet: [{Key: string, Value: string}] | undefined }>(res.stdout);
+            const parsed = safeJsonParse<{ TagSet: [{ Key: string, Value: string }] | undefined }>(res.stdout);
             assert(parsed.result!.TagSet?.some(tag => tag.Key === tagKey && tag.Value === tagValue));
         });
     });
@@ -198,7 +198,7 @@ Then('object {string} should have the user metadata with key {string} and value 
         const res = await S3.headObject(this.getCommandParameters());
         assert.ifError(res.stderr);
         assert(res.stdout);
-        const parsed = safeJsonParse<{ Metadata: {[key: string]: string} | undefined }>(res.stdout);
+        const parsed = safeJsonParse<{ Metadata: { [key: string]: string } | undefined }>(res.stdout);
         assert(parsed.ok);
         assert(parsed.result!.Metadata);
         assert(parsed.result!.Metadata[userMDKey]);
