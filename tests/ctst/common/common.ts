@@ -5,7 +5,7 @@ import Zenko from 'world/Zenko';
 import { safeJsonParse } from './utils';
 import assert from 'assert';
 import { Admin, Kafka } from 'kafkajs';
-import { 
+import {
     createBucketWithConfiguration,
     putObject,
     runActionAgainstBucket,
@@ -75,7 +75,7 @@ async function addMultipleObjects(this: Zenko, numberObjects: number,
     return lastResult;
 }
 
-async function addUserMetadataToObject(this: Zenko, objectName: string|undefined, userMD: string) {
+async function addUserMetadataToObject(this: Zenko, objectName: string | undefined, userMD: string) {
     const objName = objectName || this.getSaved<string>('objectName');
     const bucketName = this.getSaved<string>('bucketName');
     this.resetCommand();
@@ -251,7 +251,7 @@ Then('kafka consumed messages should not take too much place on disk', { timeout
             const kafkaAdmin = new Kafka({ brokers: [this.parameters.KafkaHosts] }).admin();
             const topics: string[] = (await kafkaAdmin.listTopics())
                 .filter(t => (t.includes(this.parameters.InstanceID) &&
-                !ignoredTopics.some(e => t.includes(e))));
+                    !ignoredTopics.some(e => t.includes(e))));
 
             const previousOffsets = await getTopicsOffsets(topics, kafkaAdmin);
 
