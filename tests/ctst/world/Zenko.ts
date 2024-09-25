@@ -943,6 +943,25 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         return await this.managementAPIRequest('DELETE',
             `/config/${this.parameters.InstanceID}/location/${locationName}`);
     }
+
+    saveCreatedObject(objectName: string, versionId: string) {
+        const createdObjects = this.getSaved<Map<string, string[]>>('createdObjects') || new Map<string, string[]>();
+        createdObjects.set(objectName, (createdObjects.get(objectName) || []).concat(versionId));
+        this.addToSaved('createdObjects', createdObjects);
+        this.addToSaved('lastVersionId', versionId);
+    }
+
+    getCreatedObjects() {
+        return this.getSaved<Map<string, string[]>>('createdObjects');
+    }
+
+    getCreatedObject(objectName: string) {
+        return this.getSaved<Map<string, string[]>>('createdObjects')?.get(objectName);
+    }
+
+    getLatestObjectVersion(objectName: string) {
+        return this.getSaved<Map<string, string[]>>('createdObjects')?.get(objectName)?.slice(-1)[0];
+    }
 }
 
 setWorldConstructor(Zenko);
