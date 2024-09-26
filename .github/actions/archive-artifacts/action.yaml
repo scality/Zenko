@@ -12,6 +12,9 @@ runs:
         mkdir -p /tmp/artifacts/data/${STAGE}/kind-logs;
         kubectl get pods -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-pods.log;
         kubectl get events -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-events.log;
+        kubectl get zenko -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-zenkos.log;
+        kubectl get zenkodrsource -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-zenkodrsources.log;
+        kubectl get zenkodrsink -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-zenkodrsinks.log;
         kind export logs /tmp/artifacts/data/${STAGE}/kind-logs/kind-export;
         tar zcvf /tmp/artifacts/${{ github.sha }}-${STAGE}-logs-volumes.tgz /tmp/artifacts/data/${STAGE}/kind-logs;
     - name: Dump kafka
