@@ -71,9 +71,8 @@ async function installPRA(world: Zenko, sinkS3Endpoint = 'http://s3.zenko.local'
         sourceS3Endpoint: 'http://s3.zenko.local',
         sinkS3Endpoint,
         prometheusService: world.parameters.PrometheusService,
-        // prometheusHostname: 'prom.dr.zenko.local', // could be any name, cert will be auto-generated
+        prometheusHostname: 'prom.dr.zenko.local',
         prometheusExternalIpsDiscovery: true,
-        prometheusDisableTls: true,
         forceRotateServiceCredentials: (CacheHelper.savedAcrossTests[Zenko.PRA_INSTALL_COUNT_KEY] as number) > 0,
         ...kafkaExternalIpOption,
         timeout,
