@@ -31,6 +31,7 @@ corefile="
     rewrite name exact s3.dr.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact sts.dr.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact iam.dr.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
+    rewrite name exact prom.dr.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact shell-ui.dr.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     kubernetes cluster.local in-addr.arpa ip6.arpa {
         pods insecure
