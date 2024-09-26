@@ -13,7 +13,6 @@ import { displayDebuggingInformation, preparePRA } from 'steps/pra';
 import {
     cleanupAccount,
 } from './utils';
-import { cleanS3Bucket } from './common';
 
 // HTTPS should not cause any error for CTST
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
