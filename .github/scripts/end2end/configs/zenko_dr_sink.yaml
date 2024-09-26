@@ -11,7 +11,7 @@ spec:
     userSecretName: mongodb-db-creds-pra
     usernameKey: mongodb-username
     passwordKey: mongodb-password
-    databaseName: "pradb"
+    databaseName: pradb
     writeConcern: "majority"
   kafka:
     managed:
