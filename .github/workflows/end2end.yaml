@@ -430,7 +430,7 @@ jobs:
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
         env:
-          STAGE: end2end-http
+          STAGE: ${{ github.job }}.${{ github.run_attempt }}
         if: always()
       - name: Clean Up
         run: kind delete cluster
@@ -495,7 +495,7 @@ jobs:
         timeout-minutes: 60
         if: failure() && runner.debug == '1'
       - name: Upload results
-        if: "!cancelled() && env.TRUNK_TOKEN"
+        if: env.TRUNK_TOKEN && !cancelled()
         uses: trunk-io/analytics-uploader@main
         with:
           junit-paths: /artifacts/data/reports/*.xml
@@ -507,7 +507,7 @@ jobs:
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
         env:
-          STAGE: end2end-pra
+          STAGE: ${{ github.job }}.${{ github.run_attempt }}
         if: always()
       - name: Clean Up
         run: kind delete cluster
@@ -554,8 +554,12 @@ jobs:
       - name: Run smoke tests
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "smoke" "default"
         working-directory: ./.github/scripts/end2end
+      - name: Debug wait
+        uses: ./.github/actions/debug-wait
+        timeout-minutes: 60
+        if: failure() && runner.debug == '1'
       - name: Upload results
-        if: "!cancelled() && env.TRUNK_TOKEN"
+        if: env.TRUNK_TOKEN && !cancelled()
         uses: trunk-io/analytics-uploader@main
         with:
           junit-paths: /artifacts/data/reports/*.xml
@@ -569,14 +573,10 @@ jobs:
       # - name: Run vault e2e tests
       #   run: bash vault-e2e-test.sh
       #   working-directory: ./.github/scripts/end2end
-      - name: Debug wait
-        uses: ./.github/actions/debug-wait
-        timeout-minutes: 60
-        if: failure() && runner.debug == '1'
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
         env:
-          STAGE: end2end-https
+          STAGE: ${{ github.job }}.${{ github.run_attempt }}
         if: always()
       - name: Clean Up
         run: kind delete cluster
@@ -617,7 +617,7 @@ jobs:
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "backbeat" "default"
         working-directory: ./.github/scripts/end2end
       - name: Upload results
-        if: "!cancelled() && env.TRUNK_TOKEN"
+        if: env.TRUNK_TOKEN && !cancelled()
         uses: trunk-io/analytics-uploader@main
         with:
           junit-paths: /artifacts/data/reports/*.xml
@@ -633,7 +633,7 @@ jobs:
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
         env:
-          STAGE: end2end-sharded
+          STAGE: ${{ github.job }}.${{ github.run_attempt }}
         if: always()
       - name: Clean Up
         run: kind delete cluster
@@ -681,7 +681,7 @@ jobs:
         run: bash run-e2e-ctst.sh "" "" "" "" --tags 'not @PRA'
         working-directory: ./.github/scripts/end2end
       - name: Upload results
-        if: "!cancelled() && env.TRUNK_TOKEN"
+        if: env.TRUNK_TOKEN && !cancelled()
         uses: trunk-io/analytics-uploader@main
         with:
           junit-paths: /artifacts/data/reports/*.xml
@@ -697,7 +697,7 @@ jobs:
       - name: Archive artifact logs and data
         uses: ./.github/actions/archive-artifacts
         env:
-          STAGE: ctst-end2end-sharded
+          STAGE: ${{ github.job }}.${{ github.run_attempt }}
         if: always()
       - name: Clean Up
         run: kind delete cluster
@@ -727,9 +727,9 @@ jobs:
       - ctst-end2end-sharded
     steps:
       - name: Upload final status
-        if: always()
         uses: scality/actions/upload_final_status@1.8.0
         with:
           ARTIFACTS_USER: ${{ secrets.ARTIFACTS_USER }}
           ARTIFACTS_PASSWORD: ${{ secrets.ARTIFACTS_PASSWORD }}
           JOBS_RESULTS: ${{ join(needs.*.result) }}
+        if: always()
