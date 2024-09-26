@@ -52,8 +52,7 @@ Given('an existing bucket prepared for the action', async function (this: Zenko)
         this.getSaved<string>('withObjectLock'),
         this.getSaved<string>('retentionMode'));
     if (this.getSaved<boolean>('preExistingObject')) {
-        this.addToSaved('objectName', `objectforbptests-${Utils.randomString()}`);
-        await putObject(this, this.getSaved<string>('objectName'));
+        await putObject(this, `objectforbptests-${Utils.randomString()}`);
     }
 });
 

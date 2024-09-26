@@ -478,7 +478,7 @@ jobs:
       - name: Deploy second Zenko for PRA
         run: bash deploy-zenko.sh end2end-pra default './configs/zenko.yaml'
         env:
-          ZENKO_MONGODB_DATABASE: "pradb"
+          ZENKO_MONGODB_DATABASE: pradb
         working-directory: ./.github/scripts/end2end
       - name: Add Keycloak pra user and assign StorageManager role
         shell: bash
