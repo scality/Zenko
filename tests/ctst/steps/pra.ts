@@ -326,7 +326,7 @@ Then('the kafka DR volume exists', { timeout: volumeTimeout + 2000 }, async func
 const failoverTimeout = 360000;
 When ('I request the failover state for the DR', { timeout: failoverTimeout + 2000 }, async function (this: Zenko) {
     await this.zenkoDrCtl?.failover({
-        sinkZenkoNamespace: 'default',
+        sinkZenkoDrNamespace: 'default',
         wait: true,
         timeout: `${failoverTimeout.toString()}ms`,
     });
