@@ -109,7 +109,7 @@ type FailoverConfig = {
     sinkKubeconfigPath?: string;
     sinkKubeconfigData?: string;
     sinkZenkoInstance?: string;
-    sinkZenkoNamespace?: string;
+    sinkZenkoDrNamespace?: string;
 };
 
 type FailbackConfig = {
