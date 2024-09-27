@@ -13,3 +13,4 @@ runs:
         tmate-server-port: ${{ env.TMATE_SERVER_PORT }}
         tmate-server-rsa-fingerprint: ${{ env.TMATE_SERVER_RSA_FINGERPRINT }}
         tmate-server-ed25519-fingerprint: ${{ env.TMATE_SERVER_ED25519_FINGERPRINT }}
+      if: job.status == 'failure' && runner.debug == '1'
