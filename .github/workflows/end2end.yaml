@@ -13,7 +13,7 @@ on:
 
 env:
   # kind-env
-  WORKER_COUNT: '2'
+  WORKER_COUNT: '3'
   OPERATOR_REPO: git@github.com:scality/zenko-operator.git
   OPERATOR_IMAGE: ""
   KIND_NODE_IMAGE: "kindest/node:v1.23.4@sha256:0e34f0d0fd448aa2f2819cfd74e99fe5793a6e4938b328f657c8e3f81ee0dfb9"
