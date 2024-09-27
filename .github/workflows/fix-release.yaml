@@ -1,0 +1,22 @@
+name: Fix release
+
+on:
+  push:
+    branches-ignore:
+      - 'development/**'
+      - 'q/*'
+
+jobs:
+  fix-release:
+    runs-on: ubuntu-latest
+    steps:
+    - shell: bash
+      run: |
+        echo -n "SUCCESSFUL" > .final_status
+        curl -u "${ARTIFACTS_USER}:${ARTIFACTS_PASSWORD}" ${ARTIFACTS_URL}/upload/${ARTIFACT_NAME}/.final_status \
+             --upload-file .final_status
+      env:
+        ARTIFACTS_USER: ${{ secrets.ARTIFACTS_USER }}
+        ARTIFACTS_PASSWORD: ${{ secrets.ARTIFACTS_PASSWORD }}
+        ARTIFACTS_URL: https://artifacts.scality.net
+        ARTIFACT_NAME: github:scality:Zenko:staging-e1a6126af4.build-iso-and-end2end-test.5907
