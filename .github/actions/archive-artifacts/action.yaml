@@ -15,7 +15,7 @@ inputs:
     required: true
   stage:
     description: Stage name
-    default: ${{ github.job }}.${{ github.run_attempt }}
+    default: ${{ github.job }}
     required: true
   trunk_token:
     description: Trunk token
@@ -35,9 +35,19 @@ runs:
     - name: Publish test report
       uses: mikepenz/action-junit-report@v4
       with:
-        check_name: ${{ inputs.stage}}
+        annotate_only: true
+        check_name: ${{ inputs.stage }}
+        job_summary: false
         report_paths: ${{ inputs.junit-paths }}
       continue-on-error: true
+
+    - name: Upload test reports
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.stage }}-test-report
+        path: ${{ inputs.junit-paths }}
+        overwrite: true
+        retention-days: 5
 
     - name: Upload results
       if: inputs.trunk_token && job.status != 'cancelled'
@@ -51,17 +61,22 @@ runs:
     - name: Archive artifact logs and data
       shell: bash
       run: |-
-        set -exu;
-        mkdir -p /tmp/artifacts/data/${STAGE}/kind-logs;
-        kubectl get pods -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-pods.log;
-        kubectl get events -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-events.log;
-        kubectl get zenko -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-zenkos.log;
-        kubectl get zenkodrsource -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-zenkodrsources.log;
-        kubectl get zenkodrsink -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-zenkodrsinks.log;
-        kind export logs /tmp/artifacts/data/${STAGE}/kind-logs/kind-export;
-        tar zcvf /tmp/artifacts/${{ github.sha }}-${STAGE}-logs-volumes.tgz /tmp/artifacts/data/${STAGE}/kind-logs;
+        set -exu
+
+        mkdir -p /tmp/artifacts/data/${STAGE}/kind-logs
+        kubectl get pods -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-pods.log
+        kubectl get events -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-events.log
+        kubectl get zenko -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-zenkos.log
+        kubectl get zenkodrsource -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-zenkodrsources.log
+        kubectl get zenkodrsink -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-zenkodrsinks.log
+        kind export logs /tmp/artifacts/data/${STAGE}/kind-logs/kind-export
+        tar zcvf /tmp/artifacts/${{ github.sha }}-${STAGE}-logs-volumes.tgz /tmp/artifacts/data/${STAGE}/kind-logs
+        
+        mkdir -p /tmp/artifacts/data/${STAGE}/tests
+        cp -r ${JUNIT_PATHS} /tmp/artifacts/data/${STAGE}/tests
       env:
-        STAGE: ${{ inputs.stage }}
+        STAGE: ${{ inputs.stage }}.${{ github.run_attempt }}
+        JUNIT_PATHS: ${{ inputs.junit-paths }}
       continue-on-error: true
 
     - name: Dump kafka
@@ -91,7 +106,7 @@ runs:
                        kcat -L -b ${KAFKA_SERVICE} -t {}  -C -o beginning -e -q -J \
                        > /tmp/artifacts/data/${STAGE}/kafka-messages-{}.log"
       env:
-        STAGE: ${{ inputs.stage }}
+        STAGE: ${{ inputs.stage }}.${{ github.run_attempt }}
         NAMESPACE: ${{ inputs.zenko-namespace }}
         ZENKO_NAME: ${{ inputs.zenko-name }}
       continue-on-error: true
