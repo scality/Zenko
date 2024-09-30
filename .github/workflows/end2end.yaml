@@ -640,6 +640,9 @@ jobs:
       - end2end-sharded
       - end2end-pra
       - ctst-end2end-sharded
+    if: always()
+    permissions:
+      checks: write
     steps:
       - name: Upload final status
         uses: scality/actions/upload_final_status@1.9.0
@@ -647,4 +650,54 @@ jobs:
           ARTIFACTS_USER: ${{ secrets.ARTIFACTS_USER }}
           ARTIFACTS_PASSWORD: ${{ secrets.ARTIFACTS_PASSWORD }}
           JOBS_RESULTS: ${{ join(needs.*.result) }}
-        if: always()
+
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v4
+
+      - name: List test reports
+        run: |
+          REPORT_PATHS=
+          CHECK_NAMES=
+          for REPORT in *-test-report ; do
+            REPORT_PATHS="${REPORT_PATHS}\n${REPORT}/*.xml"
+            CHECK_NAMES="${CHECK_NAMES}\n${REPORT%-test-report}"
+          done
+
+          echo -e "REPORT_PATHS<<EOF$REPORT_PATHS\nEOF" >> "$GITHUB_ENV" 
+          echo -e "CHECK_NAMES<<EOF$CHECK_NAMES\nEOF" >> "$GITHUB_ENV" 
+
+      - name: Generate test summary
+        uses: mikepenz/action-junit-report@v4
+        id: summary
+        with:
+          annotate_only: true # Do not generate a Check or summary
+          check_retries: true # Check for retries
+          job_summary: false  # No job summary
+          report_paths: ${{ env.REPORT_PATHS }}
+          check_name: ${{ env.CHECK_NAMES }}
+        continue-on-error:  true
+
+      - name: Publish summary
+        run: |
+          NO_ERROR='<tr><td>-</td><td>No test annotations available</td><td>-</td></tr>'
+          DETAILED_SUMMARY=${DETAILED_SUMMARY//$NO_ERROR}
+          FLAKY_SUMMARY=${FLAKY_SUMMARY//$NO_ERROR}
+          SUMMARY="${SUMMARY} ${DETAILED_SUMMARY} ${FLAKY_SUMMARY}"
+
+          echo "${SUMMARY}" >> $GITHUB_STEP_SUMMARY
+          echo "SUMMARY=${SUMMARY}" >> $GITHUB_ENV
+        env:
+          SUMMARY: ${{ steps.summary.outputs.summary }}
+          DETAILED_SUMMARY: ${{ steps.summary.outputs.detailed_summary }}
+          FLAKY_SUMMARY: ${{ steps.summary.outputs.flaky_summary }}
+
+      - name: Publish check with test results
+        uses: mikepenz/action-junit-report@v4
+        with:
+          check_name: 🧪 Test results # Create a new aggregate check
+          job_summary: false          # No job summary
+          summary: ${{ env.SUMMARY }} # Use the summary from the previous step (in the check)
+          report_paths: '*-test-report/*.xml'
+          update_check: ${{ github.run_attempt > 1}} # Update existing aggregate check on retry
+          job_name: 🧪 Test results   # Need to specify the check_name in case of update
+        continue-on-error:  true

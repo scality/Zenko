@@ -15,7 +15,7 @@ inputs:
     required: true
   stage:
     description: Stage name
-    default: ${{ github.job }}.${{ github.run_attempt }}
+    default: ${{ github.job }}
     required: true
   trunk_token:
     description: Trunk token
@@ -36,11 +36,18 @@ runs:
       uses: mikepenz/action-junit-report@v4
       with:
         annotate_only: true
-        check_name: ${{ inputs.stage}}
+        check_name: ${{ inputs.stage }}
         report_paths: ${{ inputs.junit-paths }}
-        job_summary: ${{ job.status != 'success' }} # Only show the summary if the job failed
-        detailed_summary: true
+        job_summary: false
       continue-on-error: true
+
+    - name: Upload test reports
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.stage }}-test-report
+        path: ${{ inputs.junit-paths }}
+        overwrite: true
+        retention-days: 5
 
     - name: Upload results
       if: inputs.trunk_token && job.status != 'cancelled'
@@ -64,8 +71,12 @@ runs:
         kubectl get zenkodrsink -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-zenkodrsinks.log
         kind export logs /tmp/artifacts/data/${STAGE}/kind-logs/kind-export
         tar zcvf /tmp/artifacts/${{ github.sha }}-${STAGE}-logs-volumes.tgz /tmp/artifacts/data/${STAGE}/kind-logs
+        
+        mkdir -p /tmp/artifacts/data/${STAGE}/tests
+        cp -r ${JUNIT_PATHS} /tmp/artifacts/data/${STAGE}/tests
       env:
-        STAGE: ${{ inputs.stage }}
+        STAGE: ${{ inputs.stage }}.${{ github.run_attempt }}
+        JUNIT_PATHS: ${{ inputs.junit-paths }}
       continue-on-error: true
 
     - name: Dump kafka
@@ -95,7 +106,7 @@ runs:
                        kcat -L -b ${KAFKA_SERVICE} -t {}  -C -o beginning -e -q -J \
                        > /tmp/artifacts/data/${STAGE}/kafka-messages-{}.log"
       env:
-        STAGE: ${{ inputs.stage }}
+        STAGE: ${{ inputs.stage }}.${{ github.run_attempt }}
         NAMESPACE: ${{ inputs.zenko-namespace }}
         ZENKO_NAME: ${{ inputs.zenko-name }}
       continue-on-error: true
