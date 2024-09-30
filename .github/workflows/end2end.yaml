@@ -424,8 +424,8 @@ jobs:
         working-directory: ./.github/scripts/end2end
       - name: Debug wait
         uses: ./.github/actions/debug-wait
-        timeout-minutes: 60
-        if: failure() && runner.debug == '1'
+        timeout-minutes: 600
+        if: always()
       - name: Upload results
         if: "!cancelled() && env.TRUNK_TOKEN"
         uses: trunk-io/analytics-uploader@main
