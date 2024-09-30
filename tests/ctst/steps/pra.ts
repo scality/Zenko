@@ -298,6 +298,9 @@ When('the DATA_ACCESSOR user tries to perform PutObject on {string} site', { tim
             } catch (err) {
                 this.logger.error('Failed to setup entity', { err });
             }
+            if (!conditionOk) {
+                await Utils.sleep(1000);
+            }
         }
 
         await putObject(this);
