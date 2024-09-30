@@ -105,7 +105,7 @@ spec:
       e2e-cold:
         # for mock DMF, we need to override the endpoint to use in-cluster service: otherwise it
         # relies on external hostname (ok thanks to coredns patch), but TLS cert is not valid
-        s3-endpoint: http://end2end-internal-s3api.default.svc.cluster.local
+        s3-endpoint: http://${ZENKO_NAME}-internal-s3api.default.svc.cluster.local
         debug: "true"
         command-timeout: "60s"
         pending-job-poll-after-age: "10s"
