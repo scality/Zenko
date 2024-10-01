@@ -61,6 +61,8 @@ nodes:
     nodeRegistration:
       kubeletExtraArgs:
         node-labels: "ingress-ready=true"
+    kind: KubeletConfiguration
+    cgroupDriver: systemd
   extraMounts:
   - hostPath: ${VOLUME_ROOT}/data
     containerPath: /data
