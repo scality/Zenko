@@ -585,7 +585,7 @@ jobs:
       - name: Wait for Docker daemon to be ready
         uses: ./.github/actions/wait-docker-ready
       - name: Kubectl tool installer
-        uses: Azure/setup-kubectl@v3
+        uses: Azure/setup-kubectl@v4
       - name: Login to Registry
         uses: docker/login-action@v2
         with:
