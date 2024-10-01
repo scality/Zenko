@@ -61,6 +61,7 @@ nodes:
     nodeRegistration:
       kubeletExtraArgs:
         node-labels: "ingress-ready=true"
+  - |
     kind: KubeletConfiguration
     cgroupDriver: systemd
   extraMounts:
