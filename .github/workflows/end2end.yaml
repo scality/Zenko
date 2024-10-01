@@ -468,6 +468,8 @@ jobs:
         if: always()
       - name: Deploy Zenko
         uses: ./.github/actions/deploy
+      - name: Sleep 1h
+        run: sleep 1h
       - name: Prepare PRA environment
         run: bash prepare-pra.sh
         working-directory: ./.github/scripts/end2end
