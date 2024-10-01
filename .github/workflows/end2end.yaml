@@ -466,7 +466,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v4
         with:
-          node-version: '16'
+          node-version: '20'
           cache: yarn
           cache-dependency-path: tests/workflows/yarn.lock
       - name: Wait for Docker daemon to be ready
