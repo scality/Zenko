@@ -462,6 +462,10 @@ jobs:
           username: "${{ github.repository_owner }}"
           password: "${{ github.token }}"
           registry: ghcr.io
+      - name: Debug wait
+        uses: ./.github/actions/debug-wait
+        timeout-minutes: 60
+        if: always()
       - name: Deploy Zenko
         uses: ./.github/actions/deploy
       - name: Prepare PRA environment
