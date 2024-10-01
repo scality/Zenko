@@ -454,6 +454,9 @@ jobs:
         uses: actions/checkout@v4
       - name: Install dependencies
         uses: ./.github/actions/install-end2end-dependencies
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
       - name: Wait for Docker daemon to be ready
         uses: ./.github/actions/wait-docker-ready
       - name: Login to Registry
