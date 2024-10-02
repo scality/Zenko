@@ -470,6 +470,7 @@ jobs:
         uses: ./.github/actions/deploy
       - name: Sleep 1h
         run: sleep 1h
+        if: always()
       - name: Prepare PRA environment
         run: bash prepare-pra.sh
         working-directory: ./.github/scripts/end2end
