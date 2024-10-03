@@ -333,10 +333,6 @@ tests:
   - name: MongoDbRSNotSynced
     interval: 1m
     input_series:
-      - series: mongodb_rs_members_state{namespace="zenko", rs_nm="rs0", pod="data-db-mongodb-sharded-mongos-0", member_state="SECONDARY"}
-        values: 0x10
-      - series: mongodb_rs_members_state{namespace="zenko", rs_nm="rs0", pod="data-db-mongodb-sharded-mongos-1", member_state="SECONDARY"}
-        values: 0x10
       - series: mongodb_rs_members_state{namespace="zenko", rs_nm="rs0", pod="data-db-mongodb-sharded-mongos-2", member_state="SECONDARY"}
         values: 1x10
   
