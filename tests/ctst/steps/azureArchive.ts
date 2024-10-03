@@ -385,6 +385,9 @@ Then('object {string} should expire in {int} days', async function (this: Zenko,
     if (versionId) {
         this.addCommandParameter({ versionId });
     }
+    this.logger.debug('+++++++++', {
+        parameters: this.getCommandParameters(),
+    });
     const res = await S3.headObject(this.getCommandParameters());
     assert.ifError(res.err);
     assert(res.stdout);
