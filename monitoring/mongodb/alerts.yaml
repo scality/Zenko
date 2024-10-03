@@ -183,7 +183,7 @@ groups:
 
   - alert: MongoDbRSNotSynced
     expr: |
-      sum by (rs_nm) (mongodb_rs_members_state{namespace="${namespace}", pod=~"${service}.*", member_state="SECONDARY"}) != (${replicas} - 1)
+      count by (rs_nm, instance) (mongodb_rs_members_state{namespace="${namespace}", pod=~"${service}.*", member_state="SECONDARY"}) != (${replicas} - 1)
     for: 10m
     labels:
       severity: warning
