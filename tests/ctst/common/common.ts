@@ -15,6 +15,7 @@ import {
     addTransitionWorkflow,
 } from 'steps/utils/utils';
 import { ActionPermissionsType } from 'steps/bucket-policies/utils';
+import constants from './constants';
 
 setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
 
@@ -31,33 +32,33 @@ export async function cleanS3Bucket(
     if (!bucketName) {
         return;
     }
-    try {
-        Identity.useIdentity(IdentityEnum.ACCOUNT, world.getSaved<string>('accountName') ||
-            world.parameters.AccountName);
-        world.resetCommand();
-        world.addCommandParameter({ bucket: bucketName });
-        const createdObjects = world.getCreatedObjects();
-        if (createdObjects !== undefined) {
-            const results = await S3.listObjectVersions(world.getCommandParameters());
-            const res = safeJsonParse<ListObjectVersionsOutput>(results.stdout);
-            if (!res.ok) {
-                throw results;
-            }
-            const versions = res.result!.Versions || [];
-            const deleteMarkers = res.result!.DeleteMarkers || [];
-            await Promise.all(versions.concat(deleteMarkers).map(obj => {
-                world.addCommandParameter({ key: obj.Key });
-                world.addCommandParameter({ versionId: obj.VersionId });
-                return S3.deleteObject(world.getCommandParameters());
-            }));
-            world.deleteKeyFromCommand('key');
-            world.deleteKeyFromCommand('versionId');
-        }
-        await S3.deleteBucketLifecycle(world.getCommandParameters());
-        await S3.deleteBucket(world.getCommandParameters());
-    } catch (err) {
-        world.logger.warn('Error cleaning bucket', { bucketName, err });
+    if (world.getSaved<string>('objectLockMode') === constants.complianceRetention) {
+        // Do not try to clean a bucket with compliance retention
+        return;
     }
+    Identity.useIdentity(IdentityEnum.ACCOUNT, world.getSaved<string>('accountName') ||
+        world.parameters.AccountName);
+    world.resetCommand();
+    world.addCommandParameter({ bucket: bucketName });
+    const createdObjects = world.getCreatedObjects();
+    if (createdObjects !== undefined) {
+        const results = await S3.listObjectVersions(world.getCommandParameters());
+        const res = safeJsonParse<ListObjectVersionsOutput>(results.stdout);
+        if (!res.ok) {
+            throw results;
+        }
+        const versions = res.result!.Versions || [];
+        const deleteMarkers = res.result!.DeleteMarkers || [];
+        await Promise.all(versions.concat(deleteMarkers).map(obj => {
+            world.addCommandParameter({ key: obj.Key });
+            world.addCommandParameter({ versionId: obj.VersionId });
+            return S3.deleteObject(world.getCommandParameters());
+        }));
+        world.deleteKeyFromCommand('key');
+        world.deleteKeyFromCommand('versionId');
+    }
+    await S3.deleteBucketLifecycle(world.getCommandParameters());
+    await S3.deleteBucket(world.getCommandParameters());
 }
 
 async function addMultipleObjects(this: Zenko, numberObjects: number,
