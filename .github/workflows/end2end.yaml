@@ -381,9 +381,7 @@ jobs:
   end2end-http:
     needs: [build-kafka, build-test-image, check-dashboard-versions]
     runs-on:
-      - ubuntu
-      - focal
-      - xlarge
+      - ubuntu-22.04-8core
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -528,9 +526,7 @@ jobs:
   end2end-https:
     needs: [build-kafka, build-test-image, check-dashboard-versions]
     runs-on:
-      - ubuntu
-      - focal
-      - xlarge
+      - ubuntu-22.04-8core
     env:
       UI_ENDPOINT: 'https://ui.zenko.local'
       OIDC_ENDPOINT: 'https://keycloak.zenko.local'
