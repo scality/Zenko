@@ -72,7 +72,7 @@ async function addMultipleObjects(this: Zenko, numberObjects: number,
             this.addToSaved('objectSize', sizeBytes);
         }
         if (userMD) {
-            this.addCommandParameter({ metadata: JSON.stringify(userMD) });
+            this.addToSaved('userMetadata', userMD);
         }
         lastResult = await putObject(this, objectNameFinal);
     }
