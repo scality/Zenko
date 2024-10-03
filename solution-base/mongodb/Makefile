@@ -3,7 +3,7 @@ CHART_DIR:="${ROOT_DIR}/charts"
 
 CHART_REPO:="https://charts.bitnami.com/bitnami"
 CHART_MONGO_REPLICASET_VERSION:="7.8.0"
-CHART_MONGO_SHARDED_VERSION:="5.1.4"
+CHART_MONGO_SHARDED_VERSION:="6.6.7"
 
 PATCH_DIR:="${ROOT_DIR}/patches"
 PATCH_FILES:="$(shell ls -d ${PATCH_DIR}/*)"

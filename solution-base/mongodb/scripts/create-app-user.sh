@@ -1,7 +1,7 @@
 #!/bin/bash
 
-create_user() {
-    mongo --host "mongodb://127.0.0.1/?replicaSet=${MONGODB_REPLICA_SET_NAME}"  -u 'root' -p "$MONGODB_ROOT_PASSWORD" <<EOF
+create_user() {  
+    mongosh "mongodb://127.0.0.1:27017/?replicaSet=${MONGODB_REPLICA_SET_NAME}"  -u 'root' -p "$MONGODB_ROOT_PASSWORD" <<EOF
 roleDef = {
     role: 'inprogViewer', 
     privileges: [
