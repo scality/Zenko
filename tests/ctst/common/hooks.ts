@@ -60,10 +60,6 @@ After({ tags: '@Quotas' }, async function () {
 });
 
 After({ tags: '@AzureArchive' }, async function (this: Zenko) {
-    await cleanS3Bucket(
-        this,
-        this.getSaved<string>('bucketName'),
-    );
     await cleanZenkoLocation(
         this,
         this.getSaved<string>('locationName'),
