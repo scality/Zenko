@@ -47,6 +47,7 @@ async function uploadSetup(world: Zenko, action: string) {
         world.addCommandParameter({ body: world.getSaved<string>('tempFileName') });
     }
 }
+
 async function uploadTeardown(world: Zenko, action: string) {
     if (action !== 'PutObject' && action !== 'UploadPart') {
         return;
@@ -54,6 +55,7 @@ async function uploadTeardown(world: Zenko, action: string) {
     const objectSize = world.getSaved<number>('objectSize') || 0;
     if (objectSize > 0) {
         await deleteFile(world.getSaved<string>('tempFileName'));
+        world.deleteKeyFromCommand('body');
     }
 }
 
@@ -208,6 +210,10 @@ async function putObject(world: Zenko, objectName?: string) {
     await uploadSetup(world, 'PutObject');
     world.addCommandParameter({ key: finalObjectName });
     world.addCommandParameter({ bucket: world.getSaved<string>('bucketName') });
+    const userMetadata = world.getSaved<string>('userMetadata');
+    if (userMetadata) {
+        world.addCommandParameter({ metadata: JSON.stringify(userMetadata) });
+    }
     const result = await S3.putObject(world.getCommandParameters());
     const versionId = extractPropertyFromResults<string>(result, 'VersionId');
     world.saveCreatedObject(finalObjectName, versionId || '');
