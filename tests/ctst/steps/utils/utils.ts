@@ -12,6 +12,7 @@ import {
 import { extractPropertyFromResults, s3FunctionExtraParams, safeJsonParse } from 'common/utils';
 import Zenko from 'world/Zenko';
 import assert from 'assert';
+import constants from 'common/constants';
 
 enum AuthorizationType {
     ALLOW = 'Allow',
@@ -181,7 +182,8 @@ async function createBucketWithConfiguration(
         world.addCommandParameter({ versioningConfiguration: 'Status=Enabled' });
         await S3.putBucketVersioning(world.getCommandParameters());
     }
-    if (retentionMode === 'GOVERNANCE' || retentionMode === 'COMPLIANCE') {
+    if (retentionMode === constants.governanceRetention || retentionMode === constants.complianceRetention) {
+        world.addToSaved('objectLockMode', retentionMode);
         world.resetCommand();
         world.addCommandParameter({ bucket: usedBucketName });
         world.addCommandParameter({
