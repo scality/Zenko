@@ -296,7 +296,6 @@ Then('notifications should be enabled for {string} event in destination {int}',
                     (this.getSaved<NotificationDestination[]>('notificationDestinations')[destination]).destinationName;
             }) as QueueConfiguration;
         assert(destinationConfiguration.Events.includes(notificationType));
-        await S3.deleteBucket(this.getCommandParameters());
     });
 
 Then('i should {string} a notification for {string} event in destination {int}',
