@@ -360,10 +360,10 @@ When('I resume the DR', { timeout: resumeTimeout + 2000 }, async function (this:
     await this.zenkoDrCtl?.replicationResume({
         sourceZenkoDrInstance: 'end2end-source',
         sinkZenkoDrInstance: 'end2end-pra-sink',
-        sinkZenkoNamespace: 'default',
-        sourceZenkoNamespace: 'default',
+        sinkZenkoDrNamespace: 'default',
+        sourceZenkoDrNamespace: 'default',
         wait: true,
-        timeout: `${resumeTimeout.toString()}ms`,
+        timeout: `${pauseTimeout.toString()}ms`,
     });
 });
 
@@ -372,8 +372,8 @@ When('I uninstall DR', { timeout: uninstallTimeout + 2000 }, async function (thi
     await this.zenkoDrCtl?.uninstall({
         sourceZenkoDrInstance: 'end2end-source',
         sinkZenkoDrInstance: 'end2end-pra-sink',
-        sinkZenkoNamespace: 'default',
-        sourceZenkoNamespace: 'default',
+        sinkZenkoDrNamespace: 'default',
+        sourceZenkoDrNamespace: 'default',
         wait: true,
         timeout: `${uninstallTimeout.toString()}ms`,
     });
