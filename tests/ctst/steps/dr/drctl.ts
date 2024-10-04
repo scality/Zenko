@@ -108,7 +108,7 @@ type FailoverConfig = {
     timeout?: string;
     sinkKubeconfigPath?: string;
     sinkKubeconfigData?: string;
-    sinkZenkoInstance?: string;
+    sinkZenkoDrInstance?: string;
     sinkZenkoDrNamespace?: string;
 };
 
@@ -117,8 +117,8 @@ type FailbackConfig = {
     timeout?: string;
     sinkKubeconfigPath?: string;
     sinkKubeconfigData?: string;
-    sinkZenkoInstance?: string;
-    sinkZenkoNamespace?: string;
+    sinkZenkoDrInstance?: string;
+    sinkZenkoDrNamespace?: string;
 };
 
 type UninstallConfig = {

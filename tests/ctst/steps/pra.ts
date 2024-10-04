@@ -340,6 +340,7 @@ const failoverTimeout = 360000;
 When('I request the failover state for the DR', { timeout: failoverTimeout + 2000 }, async function (this: Zenko) {
     await this.zenkoDrCtl?.failover({
         sinkZenkoDrNamespace: 'default',
+        sinkZenkoDrInstance: 'end2end-pra-sink',
         wait: true,
         timeout: `${failoverTimeout.toString()}ms`,
     });
@@ -348,7 +349,8 @@ When('I request the failover state for the DR', { timeout: failoverTimeout + 200
 const failbackTimeout = 360000;
 When('I resume operations for the DR', { timeout: failbackTimeout + 2000 }, async function (this: Zenko) {
     await this.zenkoDrCtl?.failback({
-        sinkZenkoNamespace: 'default',
+        sinkZenkoDrNamespace: 'default',
+        sinkZenkoDrInstance: 'end2end-pra-sink',
         wait: true,
         timeout: `${failbackTimeout.toString()}ms`,
     });
