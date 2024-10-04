@@ -122,18 +122,16 @@ type FailbackConfig = {
 };
 
 type UninstallConfig = {
-    sinkZenkoDrInstance?: string;
-    sourceZenkoDrInstance?: string;
     wait?: boolean;
     timeout?: string;
     sourceKubeconfigPath?: string;
     sourceKubeconfigData?: string;
     sinkKubeconfigPath?: string;
     sinkKubeconfigData?: string;
-    sinkZenkoInstance?: string;
-    sinkZenkoNamespace?: string;
-    sourceZenkoInstance?: string;
-    sourceZenkoNamespace?: string;
+    sinkZenkoDrInstance?: string;
+    sinkZenkoDrNamespace?: string;
+    sourceZenkoDrInstance?: string;
+    sourceZenkoDrNamespace?: string;
 };
 
 type StatusConfig = {
@@ -169,10 +167,8 @@ type ReplicationResumeConfig = {
     sourceKubeconfigData?: string;
     sinkKubeconfigPath?: string;
     sinkKubeconfigData?: string;
-    sourceZenkoInstance?: string;
-    sourceZenkoNamespace?: string;
-    sinkZenkoInstance?: string;
-    sinkZenkoNamespace?: string;
+    sourceZenkoDrNamespace?: string;
+    sinkZenkoDrNamespace?: string;
     sourceZenkoDrInstance?: string;
     sinkZenkoDrInstance?: string;
     wait?: boolean;
