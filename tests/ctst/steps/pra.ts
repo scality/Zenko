@@ -361,8 +361,8 @@ When('I pause the DR', { timeout: pauseTimeout + 2000 }, async function (this: Z
     await this.zenkoDrCtl?.replicationPause({
         sourceZenkoDrInstance: 'end2end-source',
         sinkZenkoDrInstance: 'end2end-pra-sink',
-        sinkZenkoNamespace: 'default',
-        sourceZenkoNamespace: 'default',
+        sinkZenkoDrNamespace: 'default',
+        sourceZenkoDrNamespace: 'default',
         wait: true,
         timeout: `${pauseTimeout.toString()}ms`,
     });
