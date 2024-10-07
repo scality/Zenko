@@ -16,7 +16,7 @@ env:
   WORKER_COUNT: '2'
   OPERATOR_REPO: git@github.com:scality/zenko-operator.git
   OPERATOR_IMAGE: ""
-  KIND_NODE_IMAGE: "kindest/node:v1.27.16@sha256:3fd82731af34efe19cd54ea5c25e882985bafa2c9baefe14f8deab1737d9fabe"
+  KIND_NODE_IMAGE: "kindest/node:v1.28.13@sha256:45d319897776e11167e4698f6b14938eb4d52eb381d9e3d7a9086c16c69a8110"
   VOLUME_ROOT: /artifacts
   OIDC_REALM: "zenko"
   OIDC_CLIENT_ID: "zenko-ui"
