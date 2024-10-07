@@ -2,7 +2,7 @@
 
 set -exu
 
-NODE_IMAGE=${1:-kindest/node:v1.23.4@sha256:0e34f0d0fd448aa2f2819cfd74e99fe5793a6e4938b328f657c8e3f81ee0dfb9}
+NODE_IMAGE=${1:-kindest/node:v1.27.16@sha256:3fd82731af34efe19cd54ea5c25e882985bafa2c9baefe14f8deab1737d9fabe}
 VOLUME_ROOT=${2:-/artifacts}
 WORKER_NODE_COUNT=${3:-0}
 CLUSTER_NAME=${CLUSTER_NAME:-kind}
@@ -36,6 +36,12 @@ add_workers() {
         count=$((count+1))
         echo "- role: worker
   image: ${NODE_IMAGE}
+  kubeadmConfigPatches:
+  - |
+    kind: InitConfiguration
+    nodeRegistration:
+      kubeletExtraArgs:
+        node-labels: 'ingress-ready=true'
   extraMounts:
   - hostPath: ${VOLUME_ROOT}/data
     containerPath: /data
@@ -61,6 +67,9 @@ nodes:
     nodeRegistration:
       kubeletExtraArgs:
         node-labels: "ingress-ready=true"
+  - |
+    kind: KubeletConfiguration
+    cgroupDriver: systemd
   extraMounts:
   - hostPath: ${VOLUME_ROOT}/data
     containerPath: /data
