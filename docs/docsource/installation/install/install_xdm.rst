@@ -66,9 +66,6 @@ Deploy |product| Operator
    .. parsed-literal::
 
       /srv/scality/metalk8s-{{version-number}}/solutions.sh import --archive $ZENKO_BASE_ISO
-      sed "s/SOLUTION_ENV/zenko/g" /srv/scality/zenko-base-|version|/deploy/kubedb.yaml | kubectl apply -f -
-      kubectl -n zenko rollout status --timeout 10m deploy kubedb-operator
-      kubectl apply -f /srv/scality/zenko-base-|version|/deploy/kubedb-catalogs.yaml
       sed "s/SOLUTION_ENV/zenko/g" /srv/scality/zenko-base-|version|/deploy/kafka.yaml | kubectl apply -f -
       sed "s/SOLUTION_ENV/zenko/g" /srv/scality/zenko-base-|version|/deploy/zookeeper.yaml | kubectl apply -f -
 
@@ -225,6 +222,21 @@ Deploy |product|
 
 #. Refer to *MetalK8s Operation* to create volumes for |product|.
 
+#. Create a secret for MongoDB credentials:
+
+   .. parsed-literal::
+      
+      cat <<EOF | kubectl apply -n zenko -f -
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: mongodb-db-creds
+      type: Opaque
+      stringData:
+        mongodb-username: admin
+        mongodb-password: password
+      EOF
+
 #. Create a resource for |product|:
 
    .. parsed-literal::
@@ -238,17 +250,15 @@ Deploy |product|
         version: |version|
         replicas: 1
         mongodb:
-          provider: KubeDB
-          persistence:
-            volumeClaimTemplate:
-              size: 300Gi
-              storageClassName: sc-300-g
+          databaseName: eb1e786d-da1e-3fc5-83d2-46f083ab9764
+          endpoints:
+          - data-db-mongodb-sharded-mongos-0.data-db-mongodb-sharded.zenko.svc:27017
+          passwordKey: mongodb-password
+          provider: External
+          userSecretName: mongodb-db-creds
+          usernameKey: mongodb-username
         redis:
-          provider: KubeDB
-          persistence:
-            volumeClaimTemplate:
-              size: 10Gi
-              storageClassName: sc-10-g
+          provider: Zenko
         kafka:
           provider: Managed
           persistence:
