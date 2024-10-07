@@ -110,15 +110,14 @@ async function waitForPhase(
             sourceZenkoNamespace: 'default',
             sinkZenkoDrInstance: 'end2end-pra-sink',
             sourceZenkoDrInstance: 'end2end-source',
-            output: 'json',
+            outputFormat: 'json',
         });
 
         if (!currentStatus) {
-            world.logger.debug('Failed to get DR status, retrying', {
+            world.logger.debug('Failed to get DR status', {
                 currentStatus,
             });
-            await Utils.sleep(1000);
-            continue;
+            throw new Error('Failed to get DR status');
         }
 
         const lines = currentStatus.split('\n');
@@ -217,7 +216,8 @@ Then('the DR sink should be in phase {string}', { timeout: 360000 }, async funct
         throw new Error(`Unknown state ${state}`);
     }
 
-    await waitForPhase(this, 'sink', targetPhase);
+    const res = await waitForPhase(this, 'sink', targetPhase);
+    assert(res);
 });
 
 Then('the DR source should be in phase {string}', { timeout: 360000 }, async function (this: Zenko, state: string) {
@@ -245,7 +245,8 @@ Then('the DR source should be in phase {string}', { timeout: 360000 }, async fun
         throw new Error(`Unknown state ${state}`);
     }
 
-    await waitForPhase(this, 'source', targetPhase);
+    const res = await waitForPhase(this, 'source', targetPhase);
+    assert(res);
 });
 
 Then('object {string} should {string} be {string} and have the storage class {string} on {string} site',
@@ -328,7 +329,8 @@ Then('the kafka DR volume exists', { timeout: volumeTimeout + 2000 }, async func
 const failoverTimeout = 360000;
 When ('I request the failover state for the DR', { timeout: failoverTimeout + 2000 }, async function (this: Zenko) {
     await this.zenkoDrCtl?.failover({
-        sinkZenkoNamespace: 'default',
+        sinkZenkoDrNamespace: 'default',
+        sinkZenkoDrInstance: 'end2end-pra-sink',
         wait: true,
         timeout: `${failoverTimeout.toString()}ms`,
     });
@@ -337,7 +339,8 @@ When ('I request the failover state for the DR', { timeout: failoverTimeout + 20
 const failbackTimeout = 360000;
 When ('I resume operations for the DR', { timeout: failbackTimeout + 2000 }, async function (this: Zenko) {
     await this.zenkoDrCtl?.failback({
-        sinkZenkoNamespace: 'default',
+        sinkZenkoDrNamespace: 'default',
+        sinkZenkoDrInstance: 'end2end-pra-sink',
         wait: true,
         timeout: `${failbackTimeout.toString()}ms`,
     });
@@ -348,8 +351,8 @@ When('I pause the DR', { timeout: pauseTimeout + 2000 }, async function (this: Z
     await this.zenkoDrCtl?.replicationPause({
         sourceZenkoDrInstance: 'end2end-source',
         sinkZenkoDrInstance: 'end2end-pra-sink',
-        sinkZenkoNamespace: 'default',
-        sourceZenkoNamespace: 'default',
+        sinkZenkoDrNamespace: 'default',
+        sourceZenkoDrNamespace: 'default',
         wait: true,
         timeout: `${pauseTimeout.toString()}ms`,
     });
@@ -360,10 +363,10 @@ When('I resume the DR', { timeout: resumeTimeout + 2000 }, async function (this:
     await this.zenkoDrCtl?.replicationResume({
         sourceZenkoDrInstance: 'end2end-source',
         sinkZenkoDrInstance: 'end2end-pra-sink',
-        sinkZenkoNamespace: 'default',
-        sourceZenkoNamespace: 'default',
+        sinkZenkoDrNamespace: 'default',
+        sourceZenkoDrNamespace: 'default',
         wait: true,
-        timeout: `${resumeTimeout.toString()}ms`,
+        timeout: `${pauseTimeout.toString()}ms`,
     });
 });
 
@@ -372,8 +375,8 @@ When('I uninstall DR', { timeout: uninstallTimeout + 2000 }, async function (thi
     await this.zenkoDrCtl?.uninstall({
         sourceZenkoDrInstance: 'end2end-source',
         sinkZenkoDrInstance: 'end2end-pra-sink',
-        sinkZenkoNamespace: 'default',
-        sourceZenkoNamespace: 'default',
+        sinkZenkoDrNamespace: 'default',
+        sourceZenkoDrNamespace: 'default',
         wait: true,
         timeout: `${uninstallTimeout.toString()}ms`,
     });
