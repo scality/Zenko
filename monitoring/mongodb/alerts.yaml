@@ -183,10 +183,10 @@ groups:
 
   - alert: MongoDbRSNotSynced
     expr: |
-      sum by (rs_nm) (mongodb_rs_members_state{namespace="${namespace}", pod=~"${service}.*", member_state="SECONDARY"}) != (${replicas} - 1)
+      group by(rs_nm) ( count by(rs_nm, pod) (mongodb_rs_members_state{namespace="${namespace}", pod=~"${service}.*", member_state="SECONDARY"}) != (${replicas} - 1) )
     for: 10m
     labels:
       severity: warning
     annotations:
-      description: "MongoDB replica set `{{ $labels.rs_nm }}` is not in the expected state. It currently has `{{ $value }}` SECONDARY members instead of the expected number. Please ensure that all instance are running properly."
+      description: "MongoDB replica set `{{ $labels.rs_nm }}` is not in the expected state. It does not have the expected number of SECONDARY members. Please ensure that all instances are running properly."
       summary: MongoDB replica set out of sync
