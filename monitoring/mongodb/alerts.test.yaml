@@ -329,27 +329,51 @@ tests:
               description: "MongoDB pod `data-db-mongodb-sharded-mongos-0` has been in the 'STARTUP2' state for more than 1 hour. Please ensure that the instance is running properly."
               summary: MongoDB node in STARTUP2 state for too long
     
-
   - name: MongoDbRSNotSynced
     interval: 1m
     input_series:
-      - series: mongodb_rs_members_state{namespace="zenko", rs_nm="rs0", pod="data-db-mongodb-sharded-mongos-0", member_state="SECONDARY"}
-        values: 0x10
-      - series: mongodb_rs_members_state{namespace="zenko", rs_nm="rs0", pod="data-db-mongodb-sharded-mongos-1", member_state="SECONDARY"}
-        values: 0x10
-      - series: mongodb_rs_members_state{namespace="zenko", rs_nm="rs0", pod="data-db-mongodb-sharded-mongos-2", member_state="SECONDARY"}
-        values: 1x10
-  
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-0", member_state="PRIMARY", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-0"}
+        values: 1x20
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-0", member_state="SECONDARY", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-1"}
+        values: 2x20
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-0", member_state="SECONDARY", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-2"}
+        values: 2x8 stale
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-0", member_state="(not reachable/healthy)", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-2"}
+        values: stale _x8 8x10
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-1", member_state="PRIMARY", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-0"}
+        values: 1x20
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-1", member_state="SECONDARY", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-1"}
+        values: 2x20
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-1", member_state="SECONDARY", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-2"}
+        values: 2x8 stale
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-1", member_state="(not reachable/healthy)", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-2"}
+        values: stale _x8 8x10
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-2", member_state="PRIMARY", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-0"}
+        values: 1x8 stale
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-2", member_state="SECONDARY", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-1"}
+        values: 2x8 stale
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-2", member_state="SECONDARY", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-2"}
+        values: 2x8 stale
+
     alert_rule_test:
       - alertname: MongoDbRSNotSynced
+        eval_time: 5m
+        exp_alerts: []
+
+      - alertname: MongoDbRSNotSynced
         eval_time: 10m
+        exp_alerts: []
+
+      - alertname: MongoDbRSNotSynced
+        eval_time: 18m
+        exp_alerts: []
+
+      - alertname: MongoDbRSNotSynced
+        eval_time: 19m
         exp_alerts:
           - exp_labels:
               severity: warning
-              rs_nm: rs0
+              rs_nm: data-db-mongodb-sharded-shard-0
             exp_annotations:
-              description: "MongoDB replica set `rs0` is not in the expected state. It currently has `1` SECONDARY members instead of the expected number. Please ensure that all instance are running properly."
+              description: "MongoDB replica set `data-db-mongodb-sharded-shard-0` is not in the expected state. It does not have the expected number of SECONDARY members. Please ensure that all instances are running properly."
               summary: MongoDB replica set out of sync
-
-
-
