@@ -1,9 +1,9 @@
-import { Then, Given, When, After } from '@cucumber/cucumber';
+import { Then, Given, When } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
 import { S3, Utils, KafkaHelper, AWSVersionObject, NotificationDestination } from 'cli-testing';
 import { Message } from 'node-rdkafka';
-import { cleanS3Bucket } from 'common/common';
 import Zenko from 'world/Zenko';
+import { putObject } from './utils/utils';
 
 const KAFKA_TESTS_TIMEOUT = Number(process.env.KAFKA_TESTS_TIMEOUT) || 60000;
 
@@ -38,16 +38,8 @@ interface QueueConfiguration {
     Events: string[];
 }
 
-async function putObject(world: Zenko) {
-    world.resetCommand();
-    world.addCommandParameter({ bucket: world.getSaved<string>('bucketName') });
-    world.addCommandParameter({ key: world.getSaved<string>('objectName') });
-    const result = await S3.putObject(world.getCommandParameters());
-    world.setResult(result);
-}
-
-async function copyObject(world: Zenko) {
-    await putObject(world);
+async function copyObject(world: Zenko, sourceObject: string) {
+    await putObject(world, sourceObject);
     world.resetCommand();
     let objName = `object-${Utils.randomString()}`.toLocaleLowerCase();
     if (world.getSaved<string>('filterType')) {
@@ -59,17 +51,17 @@ async function copyObject(world: Zenko) {
     world.addCommandParameter({ key: objName });
     world.addCommandParameter({
         copySource:
-            `${world.getSaved<string>('bucketName')}/${world.getSaved<string>('objectName') }`,
+            `${world.getSaved<string>('bucketName')}/${sourceObject}`,
     });
     world.addToSaved('objectName', objName);
     await S3.copyObject(world.getCommandParameters());
 }
 
-async function deleteObject(world: Zenko, putDeleteMarker = false) {
-    await putObject(world);
+async function deleteObject(world: Zenko, objName: string, putDeleteMarker = false) {
+    await putObject(world, objName);
     world.resetCommand();
     world.addCommandParameter({ bucket: world.getSaved<string>('bucketName') });
-    world.addCommandParameter({ key: world.getSaved<string>('objectName') });
+    world.addCommandParameter({ key: objName });
     if (world.getSaved<string>('bucketVersioning') !== 'Non versioned' && !putDeleteMarker) {
         const putResult = world.getResult();
         const versionId =
@@ -79,8 +71,8 @@ async function deleteObject(world: Zenko, putDeleteMarker = false) {
     await S3.deleteObject(world.getCommandParameters());
 }
 
-async function putTag(world: Zenko) {
-    await putObject(world);
+async function putTag(world: Zenko, objName: string) {
+    await putObject(world, objName);
     world.resetCommand();
     const tags = JSON.stringify({
         TagSet: [{
@@ -89,24 +81,24 @@ async function putTag(world: Zenko) {
         }],
     });
     world.addCommandParameter({ bucket: world.getSaved<string>('bucketName') });
-    world.addCommandParameter({ key: world.getSaved<string>('objectName') });
+    world.addCommandParameter({ key: objName });
     world.addCommandParameter({ tagging: `'${tags}'` });
     await S3.putObjectTagging(world.getCommandParameters());
 }
 
-async function deleteTag(world: Zenko) {
-    await putTag(world);
+async function deleteTag(world: Zenko, objName: string) {
+    await putTag(world, objName);
     world.resetCommand();
     world.addCommandParameter({ bucket: world.getSaved<string>('bucketName') });
-    world.addCommandParameter({ key: world.getSaved<string>('objectName') });
+    world.addCommandParameter({ key: objName });
     await S3.deleteObjectTagging(world.getCommandParameters());
 }
 
-async function putAcl(world: Zenko) {
-    await putObject(world);
+async function putAcl(world: Zenko, objName: string) {
+    await putObject(world, objName);
     world.resetCommand();
     world.addCommandParameter({ bucket: world.getSaved<string>('bucketName') });
-    world.addCommandParameter({ key: world.getSaved<string>('objectName') });
+    world.addCommandParameter({ key: objName });
     world.addCommandParameter({ acl: 'public-read' });
     await S3.putObjectAcl(world.getCommandParameters());
 }
@@ -265,25 +257,25 @@ When('a {string} event is triggered {string} {string}',
         this.addToSaved('objectName', objName);
         switch (notificationType) {
         case 's3:ObjectCreated:Put':
-            await putObject(this);
+            await putObject(this, objName);
             break;
         case 's3:ObjectCreated:Copy':
-            await copyObject(this);
+            await copyObject(this, objName);
             break;
         case 's3:ObjectRemoved:Delete':
-            await deleteObject(this);
+            await deleteObject(this, objName);
             break;
         case 's3:ObjectTagging:Put':
-            await putTag(this);
+            await putTag(this, objName);
             break;
         case 's3:ObjectTagging:Delete':
-            await deleteTag(this);
+            await deleteTag(this, objName);
             break;
         case 's3:ObjectAcl:Put':
-            await putAcl(this);
+            await putAcl(this, objName);
             break;
         case 's3:ObjectRemoved:DeleteMarkerCreated':
-            await deleteObject(this, true);
+            await deleteObject(this, objName, true);
             break;
         default:
             break;
@@ -304,7 +296,6 @@ Then('notifications should be enabled for {string} event in destination {int}',
                     (this.getSaved<NotificationDestination[]>('notificationDestinations')[destination]).destinationName;
             }) as QueueConfiguration;
         assert(destinationConfiguration.Events.includes(notificationType));
-        await S3.deleteBucket(this.getCommandParameters());
     });
 
 Then('i should {string} a notification for {string} event in destination {int}',
@@ -336,9 +327,3 @@ Then('i should {string} a notification for {string} event in destination {int}',
         assert.strictEqual(receivedNotification, expected);
     });
 
-After({ tags: '@BucketNotification' }, async function (this: Zenko) {
-    await cleanS3Bucket(
-        this,
-        this.getSaved<string>('bucketName'),
-    );
-});

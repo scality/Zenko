@@ -1,9 +1,16 @@
 import { exec } from 'child_process';
 import http from 'http';
 import { createHash } from 'crypto';
+import { Command, IAM, Identity, IdentityEnum } from 'cli-testing';
 import {
-    Command,
-} from 'cli-testing';
+    AttachedPolicy,
+    Group,
+    Policy,
+    Role,
+    User,
+} from '@aws-sdk/client-iam';
+import { AWSCliOptions } from 'cli-testing';
+import Zenko from 'world/Zenko';
 
 /**
  * This helper will dynamically extract a property from a CLI result
@@ -139,4 +146,154 @@ export async function request(options: http.RequestOptions, data: string | undef
 
 export function hashStringAndKeepFirst20Characters(input: string) {
     return createHash('sha256').update(input).digest('hex').slice(0, 20);
+}
+
+export async function listAllEntities<T extends User | Role | Group | Policy>(
+    listFn: (params: AWSCliOptions) => Promise<Command>,
+    responseKey: string,
+): Promise<T[]> {
+    let marker;
+    const allEntities: T[] = [];
+    let parsedResponse;
+    do {
+        const response = await listFn({ marker });
+        if (response.err) {
+            throw new Error(response.err);
+        }
+        parsedResponse = JSON.parse(response.stdout);
+        const entities = parsedResponse[responseKey] || [];
+        entities.forEach((entity: T) => {
+            if (entity.Path?.includes('/scality-internal/')) {
+                return;
+            }
+            allEntities.push(entity);
+        });
+        marker = parsedResponse.Marker;
+    } while (parsedResponse.IsTruncated);
+    return allEntities;
+};
+
+export async function listAttachedPolicies<T extends AttachedPolicy>(
+    listFn: (params: AWSCliOptions) => Promise<Command>,
+): Promise<T[]> {
+    let marker;
+    const allPolicies: T[] = [];
+    let parsedResponse;
+    do {
+        const response = await listFn({ marker });
+        if (response.err) {
+            throw new Error(response.err);
+        }
+        parsedResponse = JSON.parse(response.stdout);
+        const policies = parsedResponse.AttachedPolicies || [];
+        policies.forEach((policy: T) => {
+            if (policy.PolicyArn?.includes('/scality-internal/')) {
+                return;
+            }
+            allPolicies.push(policy);
+        });
+        marker = parsedResponse.Marker;
+    } while (parsedResponse.IsTruncated);
+    return allPolicies;
+}
+
+export async function cleanupAccount(world: Zenko, accountName: string) {
+    try {
+        await world.deleteAccount(accountName);
+    } catch (err) {
+        world.logger?.debug('Account has attached resources',{
+            accountName,
+            err,
+        });
+    }
+
+    try {
+        Identity.useIdentity(IdentityEnum.ACCOUNT, accountName);
+
+        // List and detach policies for each user
+        const allUsers = await listAllEntities<User>(IAM.listUsers, 'Users');
+        for (const user of allUsers) {
+            const allUserPolicies = await listAttachedPolicies<AttachedPolicy>(
+                params => IAM.listAttachedUserPolicies({ userName: user.UserName, ...params }),
+            );
+            for (const policy of allUserPolicies) {
+                const result = await IAM.detachUserPolicy({
+                    userName: user.UserName, policyArn: policy.PolicyArn });
+                if (result.err) {
+                    throw new Error(result.err);
+                }
+            }
+        }
+
+        // List and detach policies for each group
+        const allGroups = await listAllEntities<Group>(IAM.listGroups, 'Groups');
+        for (const group of allGroups) {
+            const allGroupPolicies = await listAttachedPolicies<AttachedPolicy>(
+                params => IAM.listAttachedGroupPolicies({ groupName: group.GroupName, ...params }),
+            );
+            for (const policy of allGroupPolicies) {
+                const result = await IAM.detachGroupPolicy({
+                    groupName: group.GroupName, policyArn: policy.PolicyArn });
+                if (result.err) {
+                    throw new Error(result.err);
+                }
+            }
+        }
+
+        // List and detach policies for each role
+        const allRoles = await listAllEntities<Role>(IAM.listRoles, 'Roles');
+        for (const role of allRoles) {
+            const allRolePolicies = await listAttachedPolicies<AttachedPolicy>(
+                params => IAM.listAttachedRolePolicies({ roleName: role.RoleName, ...params }),
+            );
+            for (const policy of allRolePolicies) {
+                const result = await IAM.detachRolePolicy({
+                    roleName: role.RoleName, policyArn: policy.PolicyArn });
+                if (result.err) {
+                    throw new Error(result.err);
+                }
+            }
+        }
+
+        // Delete all policies
+        const allPolicies = await listAllEntities<Policy>(IAM.listPolicies, 'Policies');
+        for (const policy of allPolicies) {
+            const result = await IAM.deletePolicy({ policyArn: policy.Arn });
+            if (result.err) {
+                throw new Error(result.err);
+            }
+        }
+
+        // Delete all roles
+        for (const role of allRoles) {
+            const result = await IAM.deleteRole({ roleName: role.RoleName });
+            if (result.err) {
+                throw new Error(result.err);
+            }
+        }
+
+        // Delete all groups
+        for (const group of allGroups) {
+            const result = await IAM.deleteGroup({ groupName: group.GroupName });
+            if (result.err) {
+                throw new Error(result.err);
+            }
+        }
+
+        // Delete all users
+        for (const user of allUsers) {
+            const result = await IAM.deleteUser({ userName: user.UserName });
+            if (result.err) {
+                throw new Error(result.err);
+            }
+        }
+
+        // Finally, delete the account
+        await world.deleteAccount(accountName);
+    } catch (err) {
+        world.logger.warn('Error while deleting cross account', {
+            accountName,
+            error: err,
+        });
+    }
 }
