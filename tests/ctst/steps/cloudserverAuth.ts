@@ -21,13 +21,13 @@ When('the user tries to perform DeleteObjects', async function (this: Zenko) {
     this.resetCommand();
     this.useSavedIdentity();
     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-    const objectNames = this.getSaved<string[]>('objectNameArray');
+    const objects = this.getCreatedObjects();
     const param: { Objects: { Key: string }[] } = {
         Objects: [],
     };
-    objectNames.forEach((objectName: string) => {
-        param.Objects.push({ Key: objectName });
-    });
+    for (const key of objects) {
+        param.Objects.push({ Key: key[0] });
+    }
     this.addCommandParameter({ delete: JSON.stringify(param) });
     this.setResult(await S3.deleteObjects(this.getCommandParameters()));
 });

@@ -71,6 +71,5 @@ Then('the request should be {string}', async function (this: Zenko, result: stri
     const decision = this.checkResults([this.getResult()]);
     assert.strictEqual(decision, result === 'accepted');
     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-    await S3.deleteBucket(this.getCommandParameters());
     await deleteFile(this.getSaved<string>('tempFileName'));
 });
