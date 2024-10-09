@@ -157,7 +157,7 @@ export async function cleanAzureContainer(
     world: Zenko,
     bucketName: string,
 ): Promise<void> {
-    const createdObjects = world.getSaved<Map<string, string>>('createdObjects');
+    const createdObjects = world.getCreatedObjects();
     if (!createdObjects) {
         return;
     }
@@ -249,7 +249,7 @@ Then('object {string} should have the same data', async function (this: Zenko, o
     this.resetCommand();
     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
     this.addCommandParameter({ key: objName });
-    const versionId = this.getSaved<Map<string, string>>('createdObjects')?.get(objName);
+    const versionId = this.getLatestObjectVersion(objName);
     if (versionId) {
         this.addCommandParameter({ versionId });
     }
@@ -332,7 +332,7 @@ Then('the storage class of object {string} must stay {string} for {int} seconds'
         this.resetCommand();
         this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
         this.addCommandParameter({ key: objName });
-        const versionId = this.getSaved<Map<string, string>>('createdObjects')?.get(objName);
+        const versionId = this.getLatestObjectVersion(objName);
         if (versionId) {
             this.addCommandParameter({ versionId });
         }
@@ -381,7 +381,7 @@ Then('object {string} should expire in {int} days', async function (this: Zenko,
     this.resetCommand();
     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
     this.addCommandParameter({ key: objName });
-    const versionId = this.getSaved<Map<string, string>>('createdObjects')?.get(objName);
+    const versionId = this.getLatestObjectVersion(objName);
     if (versionId) {
         this.addCommandParameter({ versionId });
     }
