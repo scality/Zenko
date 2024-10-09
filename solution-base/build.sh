@@ -31,6 +31,14 @@ SOLUTION_REGISTRY=metalk8s-registry-from-config.invalid/${PRODUCT_LOWERNAME}-${V
 
 MONGODB_SHARDED_SINGLE_NODE_PATH=${ISO_ROOT}/deploy/mongodb-sharded-1-node.yaml
 MONGODB_SHARDED_THREE_NODE_PATH=${ISO_ROOT}/deploy/mongodb-sharded-3-nodes.yaml
+MONGODB_SHARDED_THREE_NODE_THREE_SHARDS_PATH=${ISO_ROOT}/deploy/mongodb-sharded-3-nodes-3-shards.yaml
+MONGODB_SHARDED_SIX_NODE_PATH=${ISO_ROOT}/deploy/mongodb-sharded-6-nodes.yaml
+MONGODB_SHARDED_SIX_NODE_THREE_SHARDS_PATH=${ISO_ROOT}/deploy/mongodb-sharded-6-nodes-3-shards.yaml
+MONGODB_SHARDED_SIX_NODE_SIX_SHARDS_PATH=${ISO_ROOT}/deploy/mongodb-sharded-6-nodes-6-shards.yaml
+MONGODB_SHARDED_NINE_NODE_PATH=${ISO_ROOT}/deploy/mongodb-sharded-9-nodes.yaml
+MONGODB_SHARDED_NINE_NODE_THREE_SHARDS_PATH=${ISO_ROOT}/deploy/mongodb-sharded-9-nodes-3-shards.yaml
+MONGODB_SHARDED_NINE_NODE_SIX_SHARDS_PATH=${ISO_ROOT}/deploy/mongodb-sharded-9-nodes-6-shards.yaml
+MONGODB_SHARDED_NINE_NODE_NINE_SHARDS_PATH=${ISO_ROOT}/deploy/mongodb-sharded-9-nodes-9-shards.yaml
 
 SOLUTION_ENV='SOLUTION_ENV'
 
@@ -121,7 +129,15 @@ function render_mongodb_sharded_yamls()
 function mongodb_sharded_yamls()
 {
     render_mongodb_sharded_yamls "${MONGODB_SHARDED_SINGLE_NODE_PATH}" 1 1
-    render_mongodb_sharded_yamls "${MONGODB_SHARDED_THREE_NODE_PATH}" 1 3 
+    render_mongodb_sharded_yamls "${MONGODB_SHARDED_THREE_NODE_PATH}" 1 3
+    render_mongodb_sharded_yamls "${MONGODB_SHARDED_THREE_NODE_THREE_SHARDS_PATH}" 3 3
+    render_mongodb_sharded_yamls "${MONGODB_SHARDED_SIX_NODE_PATH}" 1 6
+    render_mongodb_sharded_yamls "${MONGODB_SHARDED_SIX_NODE_THREE_SHARDS_PATH}" 3 6
+    render_mongodb_sharded_yamls "${MONGODB_SHARDED_SIX_NODE_SIX_SHARDS_PATH}" 6 6
+    render_mongodb_sharded_yamls "${MONGODB_SHARDED_NINE_NODE_PATH}" 1 9
+    render_mongodb_sharded_yamls "${MONGODB_SHARDED_NINE_NODE_THREE_SHARDS_PATH}" 3 9
+    render_mongodb_sharded_yamls "${MONGODB_SHARDED_NINE_NODE_SIX_SHARDS_PATH}" 6 9
+    render_mongodb_sharded_yamls "${MONGODB_SHARDED_NINE_NODE_NINE_SHARDS_PATH}" 9 9
 }
 
 function gen_manifest_yaml()
