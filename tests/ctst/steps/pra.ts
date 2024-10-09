@@ -9,10 +9,11 @@ import {
     getPVCFromLabel,
 } from './utils/kubernetes';
 import {
+    putObject,
     restoreObject,
     verifyObjectLocation,
 } from 'steps/utils/utils';
-import { Constants, Identity, IdentityEnum, S3, SuperAdmin, Utils } from 'cli-testing';
+import { Constants, Identity, IdentityEnum, SuperAdmin, Utils } from 'cli-testing';
 import { safeJsonParse } from 'common/utils';
 import assert from 'assert';
 import { EntityType } from 'world/Zenko';
@@ -298,10 +299,7 @@ When('the DATA_ACCESSOR user tries to perform PutObject on {string} site', { tim
             }
         }
 
-        this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-        this.addCommandParameter({ key: `${Utils.randomString()}` });
-
-        this.setResult(await S3.putObject(this.getCommandParameters()));
+        await putObject(this);
     });
 
 const volumeTimeout = 60000;

@@ -12,6 +12,7 @@ import {
 import { extractPropertyFromResults, s3FunctionExtraParams, safeJsonParse } from 'common/utils';
 import Zenko from 'world/Zenko';
 import assert from 'assert';
+import constants from 'common/constants';
 
 enum AuthorizationType {
     ALLOW = 'Allow',
@@ -46,6 +47,7 @@ async function uploadSetup(world: Zenko, action: string) {
         world.addCommandParameter({ body: world.getSaved<string>('tempFileName') });
     }
 }
+
 async function uploadTeardown(world: Zenko, action: string) {
     if (action !== 'PutObject' && action !== 'UploadPart') {
         return;
@@ -53,6 +55,7 @@ async function uploadTeardown(world: Zenko, action: string) {
     const objectSize = world.getSaved<number>('objectSize') || 0;
     if (objectSize > 0) {
         await deleteFile(world.getSaved<string>('tempFileName'));
+        world.deleteKeyFromCommand('body');
     }
 }
 
@@ -78,8 +81,8 @@ async function runActionAgainstBucket(world: Zenko, action: string) {
         world.resetCommand();
         world.addToSaved('ifS3Standard', true);
         world.addCommandParameter({ bucket: world.getSaved<string>('bucketName') });
-        if (world.getSaved<string>('versionId')) {
-            world.addCommandParameter({ versionId: world.getSaved<string>('versionId') });
+        if (world.getSaved<string>('lastVersionId')) {
+            world.addCommandParameter({ versionId: world.getSaved<string>('lastVersionId') });
         }
         // if copy object, set copy source as the saved object name, and the key as a new object name
         if (action === 'CopyObject') {
@@ -181,7 +184,8 @@ async function createBucketWithConfiguration(
         world.addCommandParameter({ versioningConfiguration: 'Status=Enabled' });
         await S3.putBucketVersioning(world.getCommandParameters());
     }
-    if (retentionMode === 'GOVERNANCE' || retentionMode === 'COMPLIANCE') {
+    if (retentionMode === constants.governanceRetention || retentionMode === constants.complianceRetention) {
+        world.addToSaved('objectLockMode', retentionMode);
         world.resetCommand();
         world.addCommandParameter({ bucket: usedBucketName });
         world.addCommandParameter({
@@ -196,18 +200,25 @@ async function createBucketWithConfiguration(
 }
 
 async function putObject(world: Zenko, objectName?: string) {
-    world.addToSaved('objectName', objectName || Utils.randomString());
-    const objectNameArray = world.getSaved<string[]>('objectNameArray') || [];
-    objectNameArray.push(world.getSaved<string>('objectName'));
-    world.addToSaved('objectNameArray', objectNameArray);
+    world.resetCommand();
+    let finalObjectName = objectName;
+    if (!finalObjectName) {
+        finalObjectName = `${Utils.randomString()}`;
+    }
+    world.addToSaved('objectName', finalObjectName);
+    world.logger.debug('Adding object', { objectName: finalObjectName });
     await uploadSetup(world, 'PutObject');
-    world.addCommandParameter({ key: world.getSaved<string>('objectName') });
+    world.addCommandParameter({ key: finalObjectName });
     world.addCommandParameter({ bucket: world.getSaved<string>('bucketName') });
+    const userMetadata = world.getSaved<string>('userMetadata');
+    if (userMetadata) {
+        world.addCommandParameter({ metadata: JSON.stringify(userMetadata) });
+    }
     const result = await S3.putObject(world.getCommandParameters());
-    world.addToSaved('versionId', extractPropertyFromResults(
-        result, 'VersionId'
-    ));
+    const versionId = extractPropertyFromResults<string>(result, 'VersionId');
+    world.saveCreatedObject(finalObjectName, versionId || '');
     await uploadTeardown(world, 'PutObject');
+    world.setResult(result);
     return result;
 }
 
@@ -291,7 +302,7 @@ async function verifyObjectLocation(this: Zenko, objectName: string,
     this.resetCommand();
     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
     this.addCommandParameter({ key: objName });
-    const versionId = this.getSaved<Map<string, string>>('createdObjects')?.get(objName);
+    const versionId = this.getLatestObjectVersion(objName);
     if (versionId) {
         this.addCommandParameter({ versionId });
     }
@@ -331,7 +342,7 @@ async function restoreObject(this: Zenko, objectName: string, days: number) {
     this.resetCommand();
     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
     this.addCommandParameter({ key: objName });
-    const versionId = this.getSaved<Map<string, string>>('createdObjects')?.get(objName);
+    const versionId = this.getLatestObjectVersion(objName);
     if (versionId) {
         this.addCommandParameter({ versionId });
     }
