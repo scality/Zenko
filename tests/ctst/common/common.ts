@@ -5,7 +5,7 @@ import Zenko from 'world/Zenko';
 import { safeJsonParse } from './utils';
 import assert from 'assert';
 import { Admin, Kafka } from 'kafkajs';
-import { 
+import {
     createBucketWithConfiguration,
     putObject,
     runActionAgainstBucket,
@@ -15,6 +15,7 @@ import {
     addTransitionWorkflow,
 } from 'steps/utils/utils';
 import { ActionPermissionsType } from 'steps/bucket-policies/utils';
+import constants from './constants';
 
 setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
 
@@ -31,13 +32,21 @@ export async function cleanS3Bucket(
     if (!bucketName) {
         return;
     }
+    if (world.getSaved<string>('objectLockMode') === constants.complianceRetention) {
+        // Do not try to clean a bucket with compliance retention
+        return;
+    }
+    Identity.useIdentity(IdentityEnum.ACCOUNT, world.getSaved<string>('accountName') ||
+        world.parameters.AccountName);
     world.resetCommand();
     world.addCommandParameter({ bucket: bucketName });
-    const createdObjects = world.getSaved<Map<string, string>>('createdObjects');
+    const createdObjects = world.getCreatedObjects();
     if (createdObjects !== undefined) {
         const results = await S3.listObjectVersions(world.getCommandParameters());
         const res = safeJsonParse<ListObjectVersionsOutput>(results.stdout);
-        assert(res.ok);
+        if (!res.ok) {
+            throw results;
+        }
         const versions = res.result!.Versions || [];
         const deleteMarkers = res.result!.DeleteMarkers || [];
         await Promise.all(versions.concat(deleteMarkers).map(obj => {
@@ -63,19 +72,14 @@ async function addMultipleObjects(this: Zenko, numberObjects: number,
             this.addToSaved('objectSize', sizeBytes);
         }
         if (userMD) {
-            this.addCommandParameter({ metadata: JSON.stringify(userMD) });
+            this.addToSaved('userMetadata', userMD);
         }
-        this.addToSaved('objectName', objectNameFinal);
-        this.logger.debug('Adding object', { objectName: objectNameFinal });
         lastResult = await putObject(this, objectNameFinal);
-        const createdObjects = this.getSaved<Map<string, string>>('createdObjects') || new Map<string, string>();
-        createdObjects.set(this.getSaved<string>('objectName'), this.getSaved<string>('versionId'));
-        this.addToSaved('createdObjects', createdObjects);
     }
     return lastResult;
 }
 
-async function addUserMetadataToObject(this: Zenko, objectName: string|undefined, userMD: string) {
+async function addUserMetadataToObject(this: Zenko, objectName: string | undefined, userMD: string) {
     const objName = objectName || this.getSaved<string>('objectName');
     const bucketName = this.getSaved<string>('bucketName');
     this.resetCommand();
@@ -154,7 +158,7 @@ Given('a tag on object {string} with key {string} and value {string}',
         this.resetCommand();
         this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
         this.addCommandParameter({ key: objectName });
-        const versionId = this.getSaved<Map<string, string>>('createdObjects')?.get(objectName);
+        const versionId = this.getLatestObjectVersion(objectName);
         if (versionId) {
             this.addCommandParameter({ versionId });
         }
@@ -173,12 +177,12 @@ Then('object {string} should have the tag {string} with value {string}',
         this.resetCommand();
         this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
         this.addCommandParameter({ key: objectName });
-        const versionId = this.getSaved<Map<string, string>>('createdObjects')?.get(objectName);
+        const versionId = this.getLatestObjectVersion(objectName);
         if (versionId) {
             this.addCommandParameter({ versionId });
         }
         await S3.getObjectTagging(this.getCommandParameters()).then(res => {
-            const parsed = safeJsonParse<{ TagSet: [{Key: string, Value: string}] | undefined }>(res.stdout);
+            const parsed = safeJsonParse<{ TagSet: [{ Key: string, Value: string }] | undefined }>(res.stdout);
             assert(parsed.result!.TagSet?.some(tag => tag.Key === tagKey && tag.Value === tagValue));
         });
     });
@@ -188,14 +192,14 @@ Then('object {string} should have the user metadata with key {string} and value 
         this.resetCommand();
         this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
         this.addCommandParameter({ key: objectName });
-        const versionId = this.getSaved<Map<string, string>>('createdObjects')?.get(objectName);
+        const versionId = this.getLatestObjectVersion(objectName);
         if (versionId) {
             this.addCommandParameter({ versionId });
         }
         const res = await S3.headObject(this.getCommandParameters());
         assert.ifError(res.stderr);
         assert(res.stdout);
-        const parsed = safeJsonParse<{ Metadata: {[key: string]: string} | undefined }>(res.stdout);
+        const parsed = safeJsonParse<{ Metadata: { [key: string]: string } | undefined }>(res.stdout);
         assert(parsed.ok);
         assert(parsed.result!.Metadata);
         assert(parsed.result!.Metadata[userMDKey]);
@@ -220,7 +224,7 @@ When('i delete object {string}', async function (this: Zenko, objectName: string
     this.resetCommand();
     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
     this.addCommandParameter({ key: objName });
-    const versionId = this.getSaved<Map<string, string>>('createdObjects')?.get(objName);
+    const versionId = this.getLatestObjectVersion(objName);
     if (versionId) {
         this.addCommandParameter({ versionId });
     }
@@ -251,7 +255,7 @@ Then('kafka consumed messages should not take too much place on disk', { timeout
             const kafkaAdmin = new Kafka({ brokers: [this.parameters.KafkaHosts] }).admin();
             const topics: string[] = (await kafkaAdmin.listTopics())
                 .filter(t => (t.includes(this.parameters.InstanceID) &&
-                !ignoredTopics.some(e => t.includes(e))));
+                    !ignoredTopics.some(e => t.includes(e))));
 
             const previousOffsets = await getTopicsOffsets(topics, kafkaAdmin);
 
@@ -378,12 +382,7 @@ Given('an upload size of {int} B for the object {string}', async function (
 ) {
     this.addToSaved('objectSize', size);
     if (this.getSaved<boolean>('preExistingObject')) {
-        if (objectName) {
-            this.addToSaved('objectName', objectName);
-        } else {
-            this.addToSaved('objectName', `object-${Utils.randomString()}`);
-        }
-        await putObject(this, this.getSaved<string>('objectName'));
+        await putObject(this, objectName);
     }
 });
 
@@ -391,8 +390,7 @@ When('I PUT an object with size {int}', async function (this: Zenko, size: numbe
     if (size > 0) {
         this.addToSaved('objectSize', size);
     }
-    this.addToSaved('objectName', `object-${Utils.randomString()}`);
     const result = await addMultipleObjects.call(
-        this, 1, this.getSaved<string>('objectName'), size);
+        this, 1, `object-${Utils.randomString()}`, size);
     this.setResult(result!);
 });

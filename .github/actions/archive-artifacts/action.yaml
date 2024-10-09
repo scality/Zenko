@@ -45,3 +45,21 @@ runs:
             sh -c "kubectl exec -i -n ${NAMESPACE} kcat -- \
                        kcat -L -b ${KAFKA_SERVICE} -t {}  -C -o beginning -e -q -J \
                        > /tmp/artifacts/data/${STAGE}/kafka-messages-{}.log"
+    - name: Dump MongoDB
+      shell: bash
+      continue-on-error: true
+      run: |-
+        set -exu
+
+        ZENKO_MONGODB_DATABASE="${ZENKO_MONGODB_DATABASE:-zenko-database}"
+        MONGODB_ROOT_USERNAME="${MONGODB_ROOT_USERNAME:-root}"
+        MONGODB_ROOT_PASSWORD="${MONGODB_ROOT_PASSWORD:-rootpass}"
+        NAMESPACE="${NAMESPACE:-default}"
+        DUMP_DIR="/tmp/mongodb.dump"
+
+        kubectl exec -n ${NAMESPACE} data-db-mongodb-sharded-mongos-0 -- mongodump --db ${ZENKO_MONGODB_DATABASE} -u ${MONGODB_ROOT_USERNAME} -p ${MONGODB_ROOT_PASSWORD} --authenticationDatabase admin --out ${DUMP_DIR}
+
+        kubectl exec -n ${NAMESPACE} data-db-mongodb-sharded-mongos-0 -- bash -c "for bson_file in ${DUMP_DIR}/${ZENKO_MONGODB_DATABASE}/*.bson; do json_file=\"${DUMP_DIR}/\$(basename \${bson_file} .bson).json\"; bsondump --outFile \${json_file} \${bson_file}; done"
+
+        mkdir -p /tmp/artifacts/data/${STAGE}/mongodb-dump
+        kubectl cp ${NAMESPACE}/data-db-mongodb-sharded-mongos-0:${DUMP_DIR} /tmp/artifacts/data/${STAGE}/mongodb-dump

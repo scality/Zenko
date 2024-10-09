@@ -42,7 +42,7 @@ export ZENKO_ANNOTATIONS="annotations:"
 export ZENKO_MONGODB_ENDPOINT="data-db-mongodb-sharded.default.svc.cluster.local:27017"
 export ZENKO_MONGODB_CONFIG="writeConcern: 'majority'
     enableSharding: true"
-export ZENKO_MONGODB_DATABASE="${ZENKO_MONGODB_DATABASE:-'datadb'}"
+export ZENKO_MONGODB_DATABASE="${ZENKO_MONGODB_DATABASE:-datadb}"
 
 if [ "${TIME_PROGRESSION_FACTOR}" -gt 1 ]; then
     export ZENKO_ANNOTATIONS="$ZENKO_ANNOTATIONS

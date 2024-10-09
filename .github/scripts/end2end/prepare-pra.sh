@@ -6,7 +6,7 @@ export MONGODB_PRA_DATABASE="${MONGODB_PRA_DATABASE:-'pradb'}"
 export ZENKO_MONGODB_DATABASE="${MONGODB_PRA_DATABASE}"
 export ZENKO_MONGODB_SECRET_NAME="mongodb-db-creds-pra"
 
-echo 'ZENKO_MONGODB_DATABASE="pradb"' >> "$GITHUB_ENV"
+echo 'ZENKO_MONGODB_DATABASE=pradb' >> "$GITHUB_ENV"
 echo 'ZENKO_MONGODB_SECRET_NAME="mongodb-db-creds-pra"' >> "$GITHUB_ENV"
 
 echo 'ZENKO_IAM_INGRESS="iam.dr.zenko.local"' >> "$GITHUB_ENV"
