@@ -21,7 +21,7 @@ cloudserver:
 drctl:
   sourceRegistry: ghcr.io/scality
   image: zenko-drctl
-  tag: v1.0.4
+  tag: 353e9d5638a9d664dbbfad8694c68f09da55ac4e # v1.0.5
   envsubst: DRCTL_TAG
   toolName: zenko-drctl
 fubectl:
@@ -136,7 +136,7 @@ vault:
 zenko-operator:
   sourceRegistry: ghcr.io/scality
   image: zenko-operator
-  tag: 1.6.1
+  tag: b7b557bcaef70f16a907ffd7d42cbe0f022c75dc # 1.6.3
   envsubst: ZENKO_OPERATOR_TAG
 zenko-ui:
   sourceRegistry: ghcr.io/scality
