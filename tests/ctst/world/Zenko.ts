@@ -946,6 +946,14 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         }
     }
 
+    async addWebsiteEndpoint(this: Zenko, endpoint: string) :
+        Promise<{ statusCode: number; data: object } | { statusCode: number; err: unknown }> {
+        return await this.managementAPIRequest('POST',
+            `/config/${this.parameters.InstanceID}/website/endpoint`,
+            {},
+            { endpoint });
+    }
+
     async deleteLocation(this: Zenko, locationName: string) :
         Promise<{ statusCode: number; data: object } | { statusCode: number; err: unknown }> {
         return await this.managementAPIRequest('DELETE',
