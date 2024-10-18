@@ -32,6 +32,7 @@ corefile="
     rewrite name exact sts.dr.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact iam.dr.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact shell-ui.dr.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
+    rewrite name exact website.mywebsite.com ingress-nginx-controller.ingress-nginx.svc.cluster.local
     kubernetes cluster.local in-addr.arpa ip6.arpa {
         pods insecure
         fallthrough in-addr.arpa ip6.arpa
