@@ -111,7 +111,7 @@ async function waitForPhase(
             sourceZenkoNamespace: 'default',
             sinkZenkoDrInstance: 'end2end-pra-sink',
             sourceZenkoDrInstance: 'end2end-source',
-            output: 'json',
+            outputFormat: 'json',
         });
 
         if (!currentStatus) {
