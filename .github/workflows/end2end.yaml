@@ -16,7 +16,7 @@ env:
   WORKER_COUNT: '2'
   OPERATOR_REPO: git@github.com:scality/zenko-operator.git
   OPERATOR_IMAGE: ""
-  KIND_NODE_IMAGE: "kindest/node:v1.23.4@sha256:0e34f0d0fd448aa2f2819cfd74e99fe5793a6e4938b328f657c8e3f81ee0dfb9"
+  KIND_NODE_IMAGE: "kindest/node:v1.24.17@sha256:bad10f9b98d54586cba05a7eaa1b61c6b90bfc4ee174fdc43a7b75ca75c95e51"
   VOLUME_ROOT: /artifacts
   OIDC_REALM: "zenko"
   OIDC_CLIENT_ID: "zenko-ui"
@@ -92,7 +92,7 @@ env:
   SKOPEO_VERSION: "v1.16.1"
   KUBECTL_VERSION: "1.31.0"
   TILT_VERSION: "0.33.19"
-  KIND_VERSION: "v0.12.0"
+  KIND_VERSION: "v0.24.0"
   ZENKO_ENABLE_SOSAPI: false
   TIME_PROGRESSION_FACTOR: 1
   EXPIRE_ONE_DAY_EARLIER: true
