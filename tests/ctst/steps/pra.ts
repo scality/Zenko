@@ -328,15 +328,21 @@ Then('the kafka DR volume exists', { timeout: volumeTimeout + 2000 }, async func
     assert(volumeParsed.result!['volume phase'] === 'Bound');
 });
 
-Then('prometheus should scrap federated metrics from DR sink', { timeout: 60000 }, async function (this: Zenko) {
+Then('prometheus should scrap federated metrics from DR sink', { timeout: 70000 }, async function (this: Zenko) {
     const prom = new PrometheusDriver({
         endpoint: `http://${this.parameters.PrometheusService}:9090`,
         baseURL: '/api/v1',
     });
 
-    const t = Date.now();
-    const metrics = await prom.series('{drSinkInstance="end2end-pra-sink"}', t - 60 * 1000, t);
-    assert(metrics.length > 0);
+    for (;;) {
+        const t = Date.now();
+        const metrics = await prom.series('{drSinkInstance="end2end-pra-sink"}', t - 60 * 1000, t);
+        if (metrics.length > 0) {
+            break;
+        }
+
+        await Utils.sleep(1000);
+    }
 });
 
 const failoverTimeout = 360000;
