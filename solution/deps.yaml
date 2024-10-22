@@ -80,7 +80,7 @@ mongodb-connector:
 pensieve-api:
   sourceRegistry: ghcr.io/scality
   image: pensieve-api
-  tag: 1.6.0
+  tag: 1.6.2
   envsubst: PENSIEVE_API_TAG
 rclone:
   sourceRegistry: rclone
@@ -136,7 +136,7 @@ vault:
 zenko-operator:
   sourceRegistry: ghcr.io/scality
   image: zenko-operator
-  tag: 1.6.1
+  tag: v1.6.2
   envsubst: ZENKO_OPERATOR_TAG
 zenko-ui:
   sourceRegistry: ghcr.io/scality
