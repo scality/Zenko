@@ -106,9 +106,6 @@ env:
   # Mocha reporter configuration
   MOCHA_FILE: /reports/test-results-[hash].xml
 
-permissions:
-  pull-requests: write
-
 jobs:
   check-dashboard-versions:
     runs-on: ubuntu-22.04
