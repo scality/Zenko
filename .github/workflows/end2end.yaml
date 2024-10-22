@@ -107,7 +107,7 @@ env:
   MOCHA_FILE: /reports/test-results-[hash].xml
 
 permissions:
-  pull_requests: write
+  pull-requests: write
 
 jobs:
   check-dashboard-versions:
