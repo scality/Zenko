@@ -106,10 +106,17 @@ env:
   # Mocha reporter configuration
   MOCHA_FILE: /reports/test-results-[hash].xml
 
+permissions:
+  pull_requests: write
+
 jobs:
   check-dashboard-versions:
     runs-on: ubuntu-22.04
     steps:
+      - name: Collect Workflow Telemetry test
+        uses: catchpoint/workflow-telemetry-action@v2
+        with:
+          theme: 'dark'
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -124,6 +131,10 @@ jobs:
   check-workflows:
     runs-on: ubuntu-22.04
     steps:
+      - name: Collect Workflow Telemetry test
+        uses: catchpoint/workflow-telemetry-action@v2
+        with:
+          theme: 'dark'
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup node
@@ -160,6 +171,10 @@ jobs:
       ROOT_DOCUMENTATION_BUILDDIR: "docs/docsource/build"
       DOCUMENTATION_BUILDDIR: "build"
     steps:
+      - name: Collect Workflow Telemetry test
+        uses: catchpoint/workflow-telemetry-action@v2
+        with:
+          theme: 'dark'
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install required dependencies
@@ -186,6 +201,10 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [build-kafka, check-dashboard-versions]
     steps:
+      - name: Collect Workflow Telemetry test
+        uses: catchpoint/workflow-telemetry-action@v2
+        with:
+          theme: 'dark'
       - name: Install dependencies
         shell: bash
         run: |-
@@ -246,6 +265,10 @@ jobs:
   build-kafka:
     runs-on: ubuntu-22.04
     steps:
+      - name: Collect Workflow Telemetry test
+        uses: catchpoint/workflow-telemetry-action@v2
+        with:
+          theme: 'dark'
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -297,6 +320,10 @@ jobs:
   build-test-image:
     runs-on: ubuntu-22.04
     steps:
+      - name: Collect Workflow Telemetry test
+        uses: catchpoint/workflow-telemetry-action@v2
+        with:
+          theme: 'dark'
       - name: Checkout
         uses: actions/checkout@v4
       - name: Set up Docker Buildx
@@ -328,6 +355,10 @@ jobs:
   lint-and-build-ctst:
     runs-on: ubuntu-22.04
     steps:
+      - name: Collect Workflow Telemetry test
+        uses: catchpoint/workflow-telemetry-action@v2
+        with:
+          theme: 'dark'
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -385,6 +416,10 @@ jobs:
       - focal
       - xlarge
     steps:
+      - name: Collect Workflow Telemetry test
+        uses: catchpoint/workflow-telemetry-action@v2
+        with:
+          theme: 'dark'
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install dependencies
@@ -452,6 +487,8 @@ jobs:
     steps:
       - name: Collect Workflow Telemetry test
         uses: catchpoint/workflow-telemetry-action@v2
+        with:
+          theme: 'dark'
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install dependencies
@@ -536,6 +573,10 @@ jobs:
       ENABLE_KEYCLOAK_HTTPS: 'true'
       GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
     steps:
+      - name: Collect Workflow Telemetry test
+        uses: catchpoint/workflow-telemetry-action@v2
+        with:
+          theme: 'dark'
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install dependencies
@@ -599,6 +640,10 @@ jobs:
       # Enable this for Ring-based tests
       # - scality-cloud
     steps:
+      - name: Collect Workflow Telemetry test
+        uses: catchpoint/workflow-telemetry-action@v2
+        with:
+          theme: 'dark'
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install dependencies
@@ -654,8 +699,10 @@ jobs:
     runs-on:
       - ubuntu-22.04-8core
     steps:
-      - name: Collect Workflow Telemetry
+      - name: Collect Workflow Telemetry test
         uses: catchpoint/workflow-telemetry-action@v2
+        with:
+          theme: 'dark'
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install dependencies
