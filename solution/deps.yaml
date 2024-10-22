@@ -72,7 +72,7 @@ kafka-cruise-control:
 kafka-lag-exporter:
   sourceRegistry: seglo
   image: kafka-lag-exporter
-  tag: 0.7.1
+  tag: 0.7.3
   envsubst: KAFKA_LAGEXPORTER_TAG
 mongodb-connector:
   tag: 1.13.0
