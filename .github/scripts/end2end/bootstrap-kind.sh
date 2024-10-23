@@ -2,7 +2,7 @@
 
 set -exu
 
-NODE_IMAGE=${1:-kindest/node:v1.24.17@sha256:bad10f9b98d54586cba05a7eaa1b61c6b90bfc4ee174fdc43a7b75ca75c95e51}
+NODE_IMAGE=${1:-kindest/node:v1.25.16@sha256:6110314339b3b44d10da7d27881849a87e092124afab5956f2e10ecdb463b025}
 VOLUME_ROOT=${2:-/artifacts}
 WORKER_NODE_COUNT=${3:-0}
 CLUSTER_NAME=${CLUSTER_NAME:-kind}
