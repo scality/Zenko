@@ -121,6 +121,77 @@ jobs:
       - name: Verify monitoring dashboard versions
         run: bash ./.github/scripts/check_versions.sh
 
+  check-alerts:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Render and test mongodb alerts 
+        uses: scality/action-prom-render-test@1.0.3
+        with:
+          alert_file_path: monitoring/mongodb/alerts.yaml
+          test_file_path: monitoring/mongodb/alerts.test.yaml
+          alert_inputs: |
+            namespace=zenko
+            service=data-db-mongodb-sharded
+            pvc=datadir-mongodb
+            replicas=3
+          github_token: ${{ secrets.GIT_ACCESS_TOKEN }}
+
+      - name: Render and test kafka alerts 
+        uses: scality/action-prom-render-test@1.0.3
+        with:
+          alert_file_path: monitoring/kafka/alerts.yaml
+          test_file_path: monitoring/kafka/alerts.test.yaml
+          alert_inputs: |
+            namespace=zenko
+            service=artesca-data-base-queue
+            pvc=artesca-data-base-queue
+            cluster=artesca-data-base-queue
+            replicas=3
+            maxConsumerLagMessagesWarningThreshold=1000
+            maxConsumerLagSecondsWarningThreshold=300
+          github_token: ${{ secrets.GIT_ACCESS_TOKEN }}
+
+      - name: Render and test redis alerts 
+        uses: scality/action-prom-render-test@1.0.3
+        with:
+          alert_file_path: monitoring/redis/alerts.yaml
+          test_file_path: monitoring/redis/alerts.test.yaml
+          alert_inputs: |
+            namespace=zenko
+            service=artesca-data-base-cache-metrics
+          github_token: ${{ secrets.GIT_ACCESS_TOKEN }}
+
+      - name: Render and test zookeeper alerts 
+        uses: scality/action-prom-render-test@1.0.3
+        with:
+          alert_file_path: monitoring/zookeeper/alerts.yaml
+          test_file_path: monitoring/zookeeper/alerts.test.yaml
+          alert_inputs: |
+            namespace=zenko
+            service=artesca-data-base-quorum-headless
+            pvc=artesca-data-base-quorum
+            replicas=3
+            quorum=3
+          github_token: ${{ secrets.GIT_ACCESS_TOKEN }}
+      
+      - name: Render and test dr alerts
+        uses: scality/action-prom-render-test@1.0.3
+        with:
+          alert_file_path: monitoring/dr/alerts.yaml
+          test_file_path: monitoring/dr/alerts.test.yaml
+          alert_inputs: |
+            namespace=zenko
+            kafka_connect_src_job=artesca-data-dr-source-base-queue-connector-metrics
+            kafka_connect_sink_job=artesca-data-dr-base-queue-connector-metrics
+            dr_sink_instance=artesca-data-dr
+            rto_alert_threshold=30
+            mongo_jobs=zenko/data-db-mongodb-sharded-shard.*
+            lifecycle_jobs=artesca-data-backbeat-lifecycle-.*-headless
+          github_token: ${{ secrets.GIT_ACCESS_TOKEN }}
+
   check-workflows:
     runs-on: ubuntu-22.04
     steps:
@@ -379,7 +450,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=end2end-ctst
 
   end2end-http:
-    needs: [build-kafka, build-test-image, check-dashboard-versions]
+    needs: [build-kafka, build-test-image]
     runs-on:
       - ubuntu
       - focal
@@ -428,7 +499,7 @@ jobs:
         run: kind delete cluster
 
   end2end-pra:
-    needs: [build-kafka, check-dashboard-versions, lint-and-build-ctst]
+    needs: [build-kafka, lint-and-build-ctst]
     runs-on: ubuntu-22.04-16core
     env:
       GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
@@ -488,7 +559,7 @@ jobs:
         run: kind delete cluster
 
   end2end-https:
-    needs: [build-kafka, build-test-image, check-dashboard-versions]
+    needs: [build-kafka, build-test-image]
     runs-on:
       - ubuntu
       - focal
@@ -540,7 +611,7 @@ jobs:
         run: kind delete cluster
 
   end2end-sharded:
-    needs: [build-kafka, build-test-image, check-dashboard-versions]
+    needs: [build-kafka, build-test-image]
     runs-on:
       - ubuntu-22.04-8core
       # Enable this for Ring-based tests
@@ -580,7 +651,7 @@ jobs:
         run: kind delete cluster
 
   ctst-end2end-sharded:
-    needs: [build-kafka, lint-and-build-ctst, check-dashboard-versions]
+    needs: [build-kafka, lint-and-build-ctst]
     runs-on:
       - ubuntu-22.04-8core
     steps:
@@ -629,6 +700,7 @@ jobs:
   write-final-status:
     runs-on: ubuntu-latest
     needs:
+      - check-alerts
       - check-dashboard-versions
       - check-workflows
       - build-doc
