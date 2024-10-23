@@ -85,26 +85,29 @@ runs:
         set -exu
 
         KAFKA=$(kubectl get pods -n ${NAMESPACE} -lkafka_cr=${ZENKO_NAME}-base-queue -o jsonpath='{.items[0].metadata.name}')
+        KAFKA_PATH="/tmp/artifacts/data/${STAGE}/kafka"
+        
+        mkdir -p ${KAFKA_PATH}
 
         kubectl exec -in ${NAMESPACE} ${KAFKA} -c kafka -- \
             env KAFKA_OPTS= kafka-topics.sh --bootstrap-server :9092 --list \
-            > /tmp/artifacts/data/${STAGE}/kafka-topics.log
+            > ${KAFKA_PATH}/kafka-topics.log
 
         kubectl exec -in ${NAMESPACE} ${KAFKA} -c kafka -- \
             env KAFKA_OPTS= kafka-consumer-groups.sh --bootstrap-server :9092 --list \
-            > /tmp/artifacts/data/${STAGE}/kafka-consumer-groups.log
+            > ${KAFKA_PATH}/kafka-consumer-groups.log
 
         kubectl exec -in ${NAMESPACE} ${KAFKA} -c kafka  -- \
                    env KAFKA_OPTS= kafka-consumer-groups.sh --bootstrap-server :9092 --describe --all-groups \
-                   > /tmp/artifacts/data/${STAGE}/kafka-offsets.log
+                   > ${KAFKA_PATH}/kafka-offsets.log
 
         KAFKA_SERVICE=$(kubectl get services -n ${NAMESPACE} -lkafka_cr=${ZENKO_NAME}-base-queue -o jsonpath='{.items[0].metadata.name}')
         kubectl run -n ${NAMESPACE} kcat --image=edenhill/kcat:1.7.1 --restart=Never --command -- sleep 300        
         kubectl wait -n ${NAMESPACE} pod kcat --for=condition=ready
-        cat /tmp/artifacts/data/${STAGE}/kafka-topics.log | grep -v '^__' | xargs -P 15 -I {} \
+        cat ${KAFKA_PATH}/kafka-topics.log | grep -v '^__' | xargs -P 15 -I {} \
             sh -c "kubectl exec -i -n ${NAMESPACE} kcat -- \
                        kcat -L -b ${KAFKA_SERVICE} -t {}  -C -o beginning -e -q -J \
-                       > /tmp/artifacts/data/${STAGE}/kafka-messages-{}.log"
+                       > ${KAFKA_PATH}/kafka-messages-{}.log"
       env:
         STAGE: ${{ inputs.stage }}.${{ github.run_attempt }}
         NAMESPACE: ${{ inputs.zenko-namespace }}
