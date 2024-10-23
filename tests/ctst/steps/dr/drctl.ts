@@ -108,8 +108,8 @@ type FailoverConfig = {
     timeout?: string;
     sinkKubeconfigPath?: string;
     sinkKubeconfigData?: string;
-    sinkZenkoInstance?: string;
-    sinkZenkoNamespace?: string;
+    sinkZenkoDrInstance?: string;
+    sinkZenkoDrNamespace?: string;
 };
 
 type FailbackConfig = {
@@ -117,23 +117,21 @@ type FailbackConfig = {
     timeout?: string;
     sinkKubeconfigPath?: string;
     sinkKubeconfigData?: string;
-    sinkZenkoInstance?: string;
-    sinkZenkoNamespace?: string;
+    sinkZenkoDrInstance?: string;
+    sinkZenkoDrNamespace?: string;
 };
 
 type UninstallConfig = {
-    sinkZenkoDrInstance?: string;
-    sourceZenkoDrInstance?: string;
     wait?: boolean;
     timeout?: string;
     sourceKubeconfigPath?: string;
     sourceKubeconfigData?: string;
     sinkKubeconfigPath?: string;
     sinkKubeconfigData?: string;
-    sinkZenkoInstance?: string;
-    sinkZenkoNamespace?: string;
-    sourceZenkoInstance?: string;
-    sourceZenkoNamespace?: string;
+    sinkZenkoDrInstance?: string;
+    sinkZenkoDrNamespace?: string;
+    sourceZenkoDrInstance?: string;
+    sourceZenkoDrNamespace?: string;
 };
 
 type StatusConfig = {
@@ -148,6 +146,7 @@ type StatusConfig = {
     sourceZenkoDrInstance?: string;
     sinkZenkoDrInstance?: string;
     output?: string;
+    outputFormat?: string;
 };
 
 type ReplicationPauseConfig = {
@@ -155,10 +154,8 @@ type ReplicationPauseConfig = {
     sourceKubeconfigData?: string;
     sinkKubeconfigPath?: string;
     sinkKubeconfigData?: string;
-    sourceZenkoInstance?: string;
-    sourceZenkoNamespace?: string;
-    sinkZenkoInstance?: string;
-    sinkZenkoNamespace?: string;
+    sourceZenkoDrNamespace?: string;
+    sinkZenkoDrNamespace?: string;
     sourceZenkoDrInstance?: string;
     sinkZenkoDrInstance?: string;
     wait?: boolean;
@@ -170,10 +167,8 @@ type ReplicationResumeConfig = {
     sourceKubeconfigData?: string;
     sinkKubeconfigPath?: string;
     sinkKubeconfigData?: string;
-    sourceZenkoInstance?: string;
-    sourceZenkoNamespace?: string;
-    sinkZenkoInstance?: string;
-    sinkZenkoNamespace?: string;
+    sourceZenkoDrNamespace?: string;
+    sinkZenkoDrNamespace?: string;
     sourceZenkoDrInstance?: string;
     sinkZenkoDrInstance?: string;
     wait?: boolean;

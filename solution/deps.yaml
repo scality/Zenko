@@ -6,7 +6,7 @@ backbeat:
   dashboard: backbeat/backbeat-dashboards
   image: backbeat
   policy: backbeat/backbeat-policies
-  tag: 8.6.48
+  tag: 8.6.49
   envsubst: BACKBEAT_TAG
 busybox:
   image: busybox
@@ -16,12 +16,12 @@ cloudserver:
   sourceRegistry: ghcr.io/scality
   dashboard: cloudserver/cloudserver-dashboards
   image: cloudserver
-  tag: 8.8.32
+  tag: 8.8.35
   envsubst: CLOUDSERVER_TAG
 drctl:
   sourceRegistry: ghcr.io/scality
   image: zenko-drctl
-  tag: v1.0.4
+  tag: v1.0.6
   envsubst: DRCTL_TAG
   toolName: zenko-drctl
 fubectl:
@@ -72,7 +72,7 @@ kafka-cruise-control:
 kafka-lag-exporter:
   sourceRegistry: seglo
   image: kafka-lag-exporter
-  tag: 0.7.1
+  tag: 0.7.3
   envsubst: KAFKA_LAGEXPORTER_TAG
 mongodb-connector:
   tag: 1.13.0
@@ -80,7 +80,7 @@ mongodb-connector:
 pensieve-api:
   sourceRegistry: ghcr.io/scality
   image: pensieve-api
-  tag: 1.6.1
+  tag: 1.6.2
   envsubst: PENSIEVE_API_TAG
 rclone:
   sourceRegistry: rclone
@@ -100,13 +100,13 @@ s3utils:
   sourceRegistry: ghcr.io/scality
   dashboard: s3utils/s3utils-dashboards
   image: s3utils
-  tag: 1.14.13
+  tag: 1.14.14
   envsubst: S3UTILS_TAG
 scuba:
   sourceRegistry: ghcr.io/scality
   dashboard: scuba/scuba-dashboards
   image: scuba
-  tag: 1.0.2
+  tag: 1.0.7
   envsubst: SCUBA_TAG
 sorbet:
   sourceRegistry: ghcr.io/scality
@@ -136,7 +136,7 @@ vault:
 zenko-operator:
   sourceRegistry: ghcr.io/scality
   image: zenko-operator
-  tag: 1.6.1
+  tag: v1.6.3
   envsubst: ZENKO_OPERATOR_TAG
 zenko-ui:
   sourceRegistry: ghcr.io/scality
