@@ -64,9 +64,10 @@ runs:
         docker pull ${OPERATOR_IMAGE_NAME}:${OPERATOR_IMAGE_TAG}
         kind load docker-image ${OPERATOR_IMAGE_NAME}:${OPERATOR_IMAGE_TAG}
         cd ./.github/scripts/end2end
-        git clone https://${GIT_ACCESS_TOKEN}@github.com/scality/zenko-operator.git operator
+        git init operator
         cd operator
-        git checkout ${OPERATOR_IMAGE_TAG}
+        git fetch --depth 1 --no-tags https://${GIT_ACCESS_TOKEN}@github.com/scality/zenko-operator.git ${OPERATOR_IMAGE_TAG}
+        git checkout FETCH_HEAD
         tilt ci
       env:
         OPERATOR_IMAGE_TAG: ${{ inputs.zkop_tag }}
