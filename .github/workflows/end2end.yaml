@@ -121,6 +121,10 @@ jobs:
       - name: Verify monitoring dashboard versions
         run: bash ./.github/scripts/check_versions.sh
 
+  check-alerts:
+    uses: ./.github/workflows/alerts.yaml
+    secrets: inherit
+
   check-workflows:
     runs-on: ubuntu-22.04
     steps:
@@ -379,7 +383,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=end2end-ctst
 
   end2end-http:
-    needs: [build-kafka, build-test-image, check-dashboard-versions]
+    needs: [build-kafka, build-test-image]
     runs-on:
       - ubuntu
       - focal
@@ -428,7 +432,7 @@ jobs:
         run: kind delete cluster
 
   end2end-pra:
-    needs: [build-kafka, check-dashboard-versions, lint-and-build-ctst]
+    needs: [build-kafka, lint-and-build-ctst]
     runs-on: ubuntu-22.04-16core
     env:
       GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
@@ -488,7 +492,7 @@ jobs:
         run: kind delete cluster
 
   end2end-https:
-    needs: [build-kafka, build-test-image, check-dashboard-versions]
+    needs: [build-kafka, build-test-image]
     runs-on:
       - ubuntu
       - focal
@@ -540,7 +544,7 @@ jobs:
         run: kind delete cluster
 
   end2end-sharded:
-    needs: [build-kafka, build-test-image, check-dashboard-versions]
+    needs: [build-kafka, build-test-image]
     runs-on:
       - ubuntu-22.04-8core
       # Enable this for Ring-based tests
@@ -580,7 +584,7 @@ jobs:
         run: kind delete cluster
 
   ctst-end2end-sharded:
-    needs: [build-kafka, lint-and-build-ctst, check-dashboard-versions]
+    needs: [build-kafka, lint-and-build-ctst]
     runs-on:
       - ubuntu-22.04-8core
     steps:
@@ -629,6 +633,7 @@ jobs:
   write-final-status:
     runs-on: ubuntu-latest
     needs:
+      - check-alerts
       - check-dashboard-versions
       - check-workflows
       - build-doc
