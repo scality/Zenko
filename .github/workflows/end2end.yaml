@@ -16,7 +16,7 @@ env:
   WORKER_COUNT: '2'
   OPERATOR_REPO: git@github.com:scality/zenko-operator.git
   OPERATOR_IMAGE: ""
-  KIND_NODE_IMAGE: "kindest/node:v1.23.4@sha256:0e34f0d0fd448aa2f2819cfd74e99fe5793a6e4938b328f657c8e3f81ee0dfb9"
+  KIND_NODE_IMAGE: "kindest/node:v1.27.16@sha256:3fd82731af34efe19cd54ea5c25e882985bafa2c9baefe14f8deab1737d9fabe"
   VOLUME_ROOT: /artifacts
   OIDC_REALM: "zenko"
   OIDC_CLIENT_ID: "zenko-ui"
@@ -97,7 +97,7 @@ env:
   SKOPEO_VERSION: "v1.16.1"
   KUBECTL_VERSION: "1.31.0"
   TILT_VERSION: "0.33.19"
-  KIND_VERSION: "v0.12.0"
+  KIND_VERSION: "v0.24.0"
   ZENKO_ENABLE_SOSAPI: false
   EXPIRE_ONE_DAY_EARLIER: true
   TRANSITION_ONE_DAY_EARLIER: true
@@ -426,32 +426,15 @@ jobs:
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
         if: failure() && runner.debug == '1'
-      - name: Upload results
-        if: "!cancelled() && env.TRUNK_TOKEN"
-        uses: trunk-io/analytics-uploader@main
-        with:
-          junit-paths: /artifacts/data/reports/*.xml
-          org-slug: ${{ github.repository_owner }}
-          token: ${{ env.TRUNK_TOKEN }}
-        env:
-          TRUNK_TOKEN: ${{ secrets.TRUNK_TOKEN }}
-        continue-on-error: true
-      - name: Archive artifact logs and data
+      - name: Archive and publish artifacts
         uses: ./.github/actions/archive-artifacts
-        env:
-          STAGE: ${{ github.job }}.${{ github.run_attempt }}
+        with:
+          user: ${{ secrets.ARTIFACTS_USER }}
+          password: ${{ secrets.ARTIFACTS_PASSWORD }}
+          trunk_token: ${{ secrets.TRUNK_TOKEN }}
         if: always()
       - name: Clean Up
         run: kind delete cluster
-      - name: Upload artifacts
-        uses: scality/action-artifacts@v4
-        with:
-          method: upload
-          url: https://artifacts.scality.net
-          user: ${{ secrets.ARTIFACTS_USER }}
-          password: ${{ secrets.ARTIFACTS_PASSWORD }}
-          source: /tmp/artifacts
-        if: always()
 
   end2end-pra:
     needs: [build-kafka, check-dashboard-versions, lint-and-build-ctst]
@@ -503,32 +486,15 @@ jobs:
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
         if: failure() && runner.debug == '1'
-      - name: Upload results
-        if: env.TRUNK_TOKEN && !cancelled()
-        uses: trunk-io/analytics-uploader@main
-        with:
-          junit-paths: /artifacts/data/reports/*.xml
-          org-slug: ${{ github.repository_owner }}
-          token: ${{ env.TRUNK_TOKEN }}
-        env:
-          TRUNK_TOKEN: ${{ secrets.TRUNK_TOKEN }}
-        continue-on-error: true
-      - name: Archive artifact logs and data
+      - name: Archive and publish artifacts
         uses: ./.github/actions/archive-artifacts
-        env:
-          STAGE: ${{ github.job }}.${{ github.run_attempt }}
+        with:
+          user: ${{ secrets.ARTIFACTS_USER }}
+          password: ${{ secrets.ARTIFACTS_PASSWORD }}
+          trunk_token: ${{ secrets.TRUNK_TOKEN }}
         if: always()
       - name: Clean Up
         run: kind delete cluster
-      - name: Upload artifacts
-        uses: scality/action-artifacts@v4
-        with:
-          method: upload
-          url: https://artifacts.scality.net
-          user: ${{ secrets.ARTIFACTS_USER }}
-          password: ${{ secrets.ARTIFACTS_PASSWORD }}
-          source: /tmp/artifacts
-        if: always()
 
   end2end-https:
     needs: [build-kafka, build-test-image, check-dashboard-versions]
@@ -563,41 +529,24 @@ jobs:
       - name: Run smoke tests
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "smoke" "default"
         working-directory: ./.github/scripts/end2end
-      - name: Debug wait
-        uses: ./.github/actions/debug-wait
-        timeout-minutes: 60
-        if: failure() && runner.debug == '1'
-      - name: Upload results
-        if: env.TRUNK_TOKEN && !cancelled()
-        uses: trunk-io/analytics-uploader@main
-        with:
-          junit-paths: /artifacts/data/reports/*.xml
-          org-slug: ${{ github.repository_owner }}
-          token: ${{ env.TRUNK_TOKEN }}
-        env:
-          TRUNK_TOKEN: ${{ secrets.TRUNK_TOKEN }}
-        continue-on-error: true
       # Temporarily disabled as CTST will test the same APIs more
       # extensively.
       # - name: Run vault e2e tests
       #   run: bash vault-e2e-test.sh
       #   working-directory: ./.github/scripts/end2end
-      - name: Archive artifact logs and data
+      - name: Debug wait
+        uses: ./.github/actions/debug-wait
+        timeout-minutes: 60
+        if: failure() && runner.debug == '1'
+      - name: Archive and publish artifacts
         uses: ./.github/actions/archive-artifacts
-        env:
-          STAGE: ${{ github.job }}.${{ github.run_attempt }}
+        with:
+          user: ${{ secrets.ARTIFACTS_USER }}
+          password: ${{ secrets.ARTIFACTS_PASSWORD }}
+          trunk_token: ${{ secrets.TRUNK_TOKEN }}
         if: always()
       - name: Clean Up
         run: kind delete cluster
-      - name: Upload artifacts
-        uses: scality/action-artifacts@v4
-        with:
-          method: upload
-          url: https://artifacts.scality.net
-          user: ${{ secrets.ARTIFACTS_USER }}
-          password: ${{ secrets.ARTIFACTS_PASSWORD }}
-          source: /tmp/artifacts
-        if: always()
 
   end2end-sharded:
     needs: [build-kafka, build-test-image, check-dashboard-versions]
@@ -625,36 +574,19 @@ jobs:
       - name: Run backbeat end to end tests
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "backbeat" "default"
         working-directory: ./.github/scripts/end2end
-      - name: Upload results
-        if: env.TRUNK_TOKEN && !cancelled()
-        uses: trunk-io/analytics-uploader@main
-        with:
-          junit-paths: /artifacts/data/reports/*.xml
-          org-slug: ${{ github.repository_owner }}
-          token: ${{ env.TRUNK_TOKEN }}
-        env:
-          TRUNK_TOKEN: ${{ secrets.TRUNK_TOKEN }}
-        continue-on-error: true
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
         if: failure() && runner.debug == '1'
-      - name: Archive artifact logs and data
+      - name: Archive and publish artifacts
         uses: ./.github/actions/archive-artifacts
-        env:
-          STAGE: ${{ github.job }}.${{ github.run_attempt }}
+        with:
+          user: ${{ secrets.ARTIFACTS_USER }}
+          password: ${{ secrets.ARTIFACTS_PASSWORD }}
+          trunk_token: ${{ secrets.TRUNK_TOKEN }}
         if: always()
       - name: Clean Up
         run: kind delete cluster
-      - name: Upload artifacts
-        uses: scality/action-artifacts@v4
-        with:
-          method: upload
-          url: https://artifacts.scality.net
-          user: ${{ secrets.ARTIFACTS_USER }}
-          password: ${{ secrets.ARTIFACTS_PASSWORD }}
-          source: /tmp/artifacts
-        if: always()
 
   ctst-end2end-sharded:
     needs: [build-kafka, lint-and-build-ctst, check-dashboard-versions]
@@ -689,36 +621,19 @@ jobs:
       - name: Run CTST end to end tests
         run: bash run-e2e-ctst.sh "" "" "" "" --tags 'not @PRA'
         working-directory: ./.github/scripts/end2end
-      - name: Upload results
-        if: env.TRUNK_TOKEN && !cancelled()
-        uses: trunk-io/analytics-uploader@main
-        with:
-          junit-paths: /artifacts/data/reports/*.xml
-          org-slug: ${{ github.repository_owner }}
-          token: ${{ env.TRUNK_TOKEN }}
-        env:
-          TRUNK_TOKEN: ${{ secrets.TRUNK_TOKEN }}
-        continue-on-error: true
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
         if: failure() && runner.debug == '1'
-      - name: Archive artifact logs and data
+      - name: Archive and publish artifacts
         uses: ./.github/actions/archive-artifacts
-        env:
-          STAGE: ${{ github.job }}.${{ github.run_attempt }}
+        with:
+          user: ${{ secrets.ARTIFACTS_USER }}
+          password: ${{ secrets.ARTIFACTS_PASSWORD }}
+          trunk_token: ${{ secrets.TRUNK_TOKEN }}
         if: always()
       - name: Clean Up
         run: kind delete cluster
-      - name: Upload artifacts
-        uses: scality/action-artifacts@v4
-        with:
-          method: upload
-          url: https://artifacts.scality.net
-          user: ${{ secrets.ARTIFACTS_USER }}
-          password: ${{ secrets.ARTIFACTS_PASSWORD }}
-          source: /tmp/artifacts
-        if: always()
 
   write-final-status:
     runs-on: ubuntu-latest
@@ -736,7 +651,7 @@ jobs:
       - ctst-end2end-sharded
     steps:
       - name: Upload final status
-        uses: scality/actions/upload_final_status@1.8.0
+        uses: scality/actions/upload_final_status@1.9.0
         with:
           ARTIFACTS_USER: ${{ secrets.ARTIFACTS_USER }}
           ARTIFACTS_PASSWORD: ${{ secrets.ARTIFACTS_PASSWORD }}

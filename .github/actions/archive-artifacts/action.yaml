@@ -1,30 +1,79 @@
 ---
-name: "Archive artifact logs and data"
-description: "Archive logs, pods and events"
+name: Archive artifact logs and data
+description: Archive logs, pods and events
+
+inputs:
+  user:
+    description: Artifacts user
+    required: true
+  password:
+    description: Artifacts password
+    required: true
+  junit-paths:
+    description: Path to junit reports
+    default: /artifacts/data/reports/*.xml
+    required: true
+  stage:
+    description: Stage name
+    default: ${{ github.job }}.${{ github.run_attempt }}
+    required: true
+  trunk_token:
+    description: Trunk token
+    required: false
+  zenko-name:
+    description: Zenko name
+    default: end2end
+    required: false
+  zenko-namespace:
+    description: Namespace
+    default: default
+    required: false
 
 runs:
   using: composite
   steps:
+    - name: Publish test report
+      uses: mikepenz/action-junit-report@v4
+      with:
+        annotate_only: true
+        check_name: ${{ inputs.stage}}
+        report_paths: ${{ inputs.junit-paths }}
+        job_summary: ${{ job.status != 'success' }} # Only show the summary if the job failed
+        detailed_summary: true
+      continue-on-error: true
+
+    - name: Upload results
+      if: inputs.trunk_token && job.status != 'cancelled'
+      uses: trunk-io/analytics-uploader@v1.4.0
+      with:
+        junit-paths: ${{ inputs.junit-paths }}
+        org-slug: ${{ github.repository_owner }}
+        token: ${{ inputs.trunk_token }}
+      continue-on-error: true
+
     - name: Archive artifact logs and data
       shell: bash
       run: |-
-        set -exu;
-        mkdir -p /tmp/artifacts/data/${STAGE}/kind-logs;
-        kubectl get pods -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-pods.log;
-        kubectl get events -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-events.log;
-        kubectl get zenko -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-zenkos.log;
-        kubectl get zenkodrsource -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-zenkodrsources.log;
-        kubectl get zenkodrsink -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-zenkodrsinks.log;
-        kind export logs /tmp/artifacts/data/${STAGE}/kind-logs/kind-export;
-        tar zcvf /tmp/artifacts/${{ github.sha }}-${STAGE}-logs-volumes.tgz /tmp/artifacts/data/${STAGE}/kind-logs;
+        set -exu
+
+        mkdir -p /tmp/artifacts/data/${STAGE}/kind-logs
+        kubectl get pods -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-pods.log
+        kubectl get events -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-events.log
+        kubectl get zenko -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-zenkos.log
+        kubectl get zenkodrsource -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-zenkodrsources.log
+        kubectl get zenkodrsink -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-zenkodrsinks.log
+        kind export logs /tmp/artifacts/data/${STAGE}/kind-logs/kind-export
+        tar zcvf /tmp/artifacts/${{ github.sha }}-${STAGE}-logs-volumes.tgz /tmp/artifacts/data/${STAGE}/kind-logs
+      env:
+        STAGE: ${{ inputs.stage }}
+      continue-on-error: true
+
     - name: Dump kafka
       shell: bash
-      continue-on-error: true
       run: |-
         set -exu
 
-        NAMESPACE=${NAMESPACE:-default}
-        KAFKA=$(kubectl get pods -n ${NAMESPACE} -lkafka_cr=${ZENKO_NAME:-end2end}-base-queue -o jsonpath='{.items[0].metadata.name}')
+        KAFKA=$(kubectl get pods -n ${NAMESPACE} -lkafka_cr=${ZENKO_NAME}-base-queue -o jsonpath='{.items[0].metadata.name}')
 
         kubectl exec -in ${NAMESPACE} ${KAFKA} -c kafka -- \
             env KAFKA_OPTS= kafka-topics.sh --bootstrap-server :9092 --list \
@@ -38,16 +87,21 @@ runs:
                    env KAFKA_OPTS= kafka-consumer-groups.sh --bootstrap-server :9092 --describe --all-groups \
                    > /tmp/artifacts/data/${STAGE}/kafka-offsets.log
 
-        KAFKA_SERVICE=$(kubectl get services -n ${NAMESPACE} -lkafka_cr=${ZENKO_NAME:-end2end}-base-queue -o jsonpath='{.items[0].metadata.name}')
+        KAFKA_SERVICE=$(kubectl get services -n ${NAMESPACE} -lkafka_cr=${ZENKO_NAME}-base-queue -o jsonpath='{.items[0].metadata.name}')
         kubectl run -n ${NAMESPACE} kcat --image=edenhill/kcat:1.7.1 --restart=Never --command -- sleep 300        
         kubectl wait -n ${NAMESPACE} pod kcat --for=condition=ready
         cat /tmp/artifacts/data/${STAGE}/kafka-topics.log | grep -v '^__' | xargs -P 15 -I {} \
             sh -c "kubectl exec -i -n ${NAMESPACE} kcat -- \
                        kcat -L -b ${KAFKA_SERVICE} -t {}  -C -o beginning -e -q -J \
                        > /tmp/artifacts/data/${STAGE}/kafka-messages-{}.log"
+      env:
+        STAGE: ${{ inputs.stage }}
+        NAMESPACE: ${{ inputs.zenko-namespace }}
+        ZENKO_NAME: ${{ inputs.zenko-name }}
+      continue-on-error: true
+
     - name: Dump MongoDB
       shell: bash
-      continue-on-error: true
       run: |-
         set -exu
 
@@ -57,9 +111,29 @@ runs:
         NAMESPACE="${NAMESPACE:-default}"
         DUMP_DIR="/tmp/mongodb.dump"
 
-        kubectl exec -n ${NAMESPACE} data-db-mongodb-sharded-mongos-0 -- mongodump --db ${ZENKO_MONGODB_DATABASE} -u ${MONGODB_ROOT_USERNAME} -p ${MONGODB_ROOT_PASSWORD} --authenticationDatabase admin --out ${DUMP_DIR}
+        kubectl exec -n ${NAMESPACE} data-db-mongodb-sharded-mongos-0 -- mongodump \
+            --db ${ZENKO_MONGODB_DATABASE} -u ${MONGODB_ROOT_USERNAME} -p ${MONGODB_ROOT_PASSWORD} \
+            --authenticationDatabase admin --out ${DUMP_DIR}
 
-        kubectl exec -n ${NAMESPACE} data-db-mongodb-sharded-mongos-0 -- bash -c "for bson_file in ${DUMP_DIR}/${ZENKO_MONGODB_DATABASE}/*.bson; do json_file=\"${DUMP_DIR}/\$(basename \${bson_file} .bson).json\"; bsondump --outFile \${json_file} \${bson_file}; done"
+        kubectl exec -n ${NAMESPACE} data-db-mongodb-sharded-mongos-0 -- bash -c \
+            "for bson_file in ${DUMP_DIR}/${ZENKO_MONGODB_DATABASE}/*.bson; do \
+               json_file=\"${DUMP_DIR}/\$(basename \${bson_file} .bson).json\"; \
+               bsondump --outFile \${json_file} \${bson_file}; \
+             done"
 
         mkdir -p /tmp/artifacts/data/${STAGE}/mongodb-dump
         kubectl cp ${NAMESPACE}/data-db-mongodb-sharded-mongos-0:${DUMP_DIR} /tmp/artifacts/data/${STAGE}/mongodb-dump
+      env:
+        STAGE: ${{ inputs.stage }}.${{ github.run_attempt }}
+        NAMESPACE: ${{ inputs.zenko-namespace }}
+        ZENKO_NAME: ${{ inputs.zenko-name }}
+      continue-on-error: true
+
+    - name: Upload artifacts                               # move into `archive-artifacts` action
+      uses: scality/action-artifacts@v4
+      with:
+        method: upload
+        url: https://artifacts.scality.net
+        user: ${{ inputs.user }}
+        password: ${{ inputs.password }}
+        source: /tmp/artifacts
