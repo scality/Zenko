@@ -308,9 +308,15 @@ async function verifyObjectLocation(this: Zenko, objectName: string,
         this.addCommandParameter({ versionId });
     }
     let conditionOk = false;
+
+    const startTime = Date.now();
+
     while (!conditionOk) {
         const res = await S3.headObject(this.getCommandParameters());
         if (res.err?.includes('NotFound')) {
+            if (Date.now() - startTime > 300000) {
+                throw new Error('Object not found after 300 seconds');
+            }
             await Utils.sleep(1000);
             continue;
         } else if (res.err) {
