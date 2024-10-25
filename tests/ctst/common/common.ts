@@ -105,20 +105,31 @@ Given('an account', async function (this: Zenko) {
     await this.createAccount();
 });
 
-Given('a {string} bucket', async function (this: Zenko, versioning: string) {
-    this.resetCommand();
-    const preName = this.getSaved<string>('accountName') ||
-        this.parameters.AccountName || Constants.ACCOUNT_NAME;
-    const bucketName = `${preName}${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase();
-    this.addToSaved('bucketName', bucketName);
-    this.addCommandParameter({ bucket: bucketName });
-    await S3.createBucket(this.getCommandParameters());
-    this.addToSaved('bucketVersioning', versioning);
+async function createBucket(world: Zenko, versioning: string, bucketName: string) {
+    world.resetCommand();
+    world.addToSaved('bucketName', bucketName);
+    world.addCommandParameter({ bucket: bucketName });
+    await S3.createBucket(world.getCommandParameters());
+    world.addToSaved('bucketVersioning', versioning);
     if (versioning !== 'Non versioned') {
         const versioningConfiguration = versioning === 'Versioned' ? 'Enabled' : 'Suspended';
-        this.addCommandParameter({ versioningConfiguration: `Status=${versioningConfiguration}` });
-        await S3.putBucketVersioning(this.getCommandParameters());
+        world.addCommandParameter({ versioningConfiguration: `Status=${versioningConfiguration}` });
+        await S3.putBucketVersioning(world.getCommandParameters());
     }
+}
+
+Given('a {string} bucket with dot', async function (this: Zenko, versioning: string) {
+    const preName = this.getSaved<string>('accountName') ||
+        this.parameters.AccountName || Constants.ACCOUNT_NAME;
+    await createBucket(this, versioning,
+        `${preName}.${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase());
+});
+
+Given('a {string} bucket', async function (this: Zenko, versioning: string) {
+    const preName = this.getSaved<string>('accountName') ||
+        this.parameters.AccountName || Constants.ACCOUNT_NAME;
+    await createBucket(this, versioning,
+        `${preName}${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase());
 });
 
 Given('an existing bucket {string} {string} versioning, {string} ObjectLock {string} retention mode', async function
