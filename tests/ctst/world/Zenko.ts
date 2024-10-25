@@ -914,7 +914,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         method: Method,
         path: string,
         headers: object = {},
-        payload: object = {}
+        payload: object | string = {},
     ): Promise<{ statusCode: number; data: object } | { statusCode: number; err: unknown }> {
         const token = await this.getWebIdentityToken(
             this.parameters.KeycloakUsername || 'zenko-end2end',
@@ -940,15 +940,41 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         };
         try {
             const response: AxiosResponse = await axiosInstance(axiosConfig);
+            this.logger.debug('Management API request', {
+                method,
+                path,
+                headers,
+                payload,
+                response: response.data,
+                statusCode: response.status,
+            });
             return { statusCode: response.status, data: response.data as object };
             /* eslint-disable */
         } catch (err: any) {
+            this.logger.debug('Error when making management API request', {
+                method,
+                path,
+                headers,
+                payload,
+                err: err.response.data,
+                status: err.response.status,
+            });
             return {
                 statusCode: err.response.status,
                 err: err.response.data,
             };
             /* eslint-enable */
         }
+    }
+
+    async addWebsiteEndpoint(this: Zenko, endpoint: string) :
+        Promise<{ statusCode: number; data: object } | { statusCode: number; err: unknown }> {
+        return await this.managementAPIRequest('POST',
+            `/config/${this.parameters.InstanceID}/website/endpoint`,
+            {
+                'Content-Type': 'application/json',
+            },
+            `"${endpoint}"`);
     }
 
     async deleteLocation(this: Zenko, locationName: string) :
