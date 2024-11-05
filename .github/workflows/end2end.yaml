@@ -458,6 +458,10 @@ jobs:
       - name: Prepare PRA environment
         run: bash prepare-pra.sh
         working-directory: ./.github/scripts/end2end
+      - name: Debug wait
+        uses: ./.github/actions/debug-wait
+        timeout-minutes: 60
+        if: always()
       - name: Deploy second Zenko for PRA
         run: bash deploy-zenko.sh end2end-pra default './configs/zenko.yaml'
         env:
@@ -481,10 +485,6 @@ jobs:
       - name: Run CTST end to end tests
         run: bash run-e2e-ctst.sh "" "" "" "" --tags @PRA
         working-directory: ./.github/scripts/end2end
-      - name: Debug wait
-        uses: ./.github/actions/debug-wait
-        timeout-minutes: 60
-        if: failure() && runner.debug == '1'
       - name: Archive and publish artifacts
         uses: ./.github/actions/archive-artifacts
         with:
