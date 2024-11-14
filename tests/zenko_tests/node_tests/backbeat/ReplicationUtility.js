@@ -1,6 +1,7 @@
 const assert = require('assert');
 const crypto = require('crypto');
 const async = require('async');
+const { jsutil } = require('arsenal');
 
 const { scalityS3Client, awsS3Client } = require('../s3SDK');
 
@@ -596,8 +597,9 @@ class ReplicationUtility {
                 Key: key,
                 VersionId: versionId,
             }, (err, data) => {
+                const cbOnce = jsutil.once(callback);
                 if (err) {
-                    return callback(err);
+                    return cbOnce(err);
                 }
                 status = data.ReplicationStatus;
                 assert.notStrictEqual(
@@ -606,9 +608,9 @@ class ReplicationUtility {
                     `Unexpected CRR failure occurred: ${JSON.stringify(data)}`,
                 );
                 if (status === 'PENDING' || status === 'PROCESSING') {
-                    return setTimeout(callback, 2000);
+                    return setTimeout(cbOnce, 2000);
                 }
-                return callback();
+                return cbOnce();
             }),
             () => (status === 'PENDING' || status === 'PROCESSING'),
             cb,
@@ -622,14 +624,15 @@ class ReplicationUtility {
         const expectedCode = client === 'azure' ? 'BlobNotFound' : 'NoSuchKey';
         return async.doWhilst(
             callback => this[method](bucketName, key, err => {
+                const cbOnce = jsutil.once(callback);
                 if (err && err.code !== expectedCode) {
-                    return callback(err);
+                    return cbOnce(err);
                 }
                 objectExists = err === null;
                 if (!objectExists) {
-                    return callback();
+                    return cbOnce();
                 }
-                return setTimeout(callback, 2000);
+                return setTimeout(cbOnce, 2000);
             }),
             () => objectExists,
             cb,
@@ -644,8 +647,9 @@ class ReplicationUtility {
                 Bucket: bucketName,
                 Key: key,
             }, (err, data) => {
+                const cbOnce = jsutil.once(callback);
                 if (err) {
-                    return callback(err);
+                    return cbOnce(err);
                 }
                 const statuses = [];
                 // We cannot rely on the global status for one-to-many, so check
@@ -657,9 +661,9 @@ class ReplicationUtility {
                 });
                 shouldContinue = statuses.includes('PENDING');
                 if (shouldContinue) {
-                    return setTimeout(callback, 2000);
+                    return setTimeout(cbOnce, 2000);
                 }
-                return callback();
+                return cbOnce();
             }),
             () => shouldContinue,
             cb,
@@ -674,14 +678,15 @@ class ReplicationUtility {
                 Bucket: bucketName,
                 Key: key,
             }, (err, data) => {
+                const cbOnce = jsutil.once(callback);
                 if (err) {
-                    return callback(err);
+                    return cbOnce(err);
                 }
                 shouldContinue = data.ReplicationStatus === 'FAILED';
                 if (shouldContinue) {
-                    return setTimeout(callback, 2000);
+                    return setTimeout(cbOnce, 2000);
                 }
-                return callback();
+                return cbOnce();
             }),
             () => shouldContinue,
             cb,
