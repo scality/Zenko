@@ -14,7 +14,7 @@ busybox:
   envsubst: BUSYBOX_TAG
 cloudserver:
   sourceRegistry: ghcr.io/scality/playground/kgardahaut
-  dashboard: cloudserver/cloudserver-dashboards
+  dashboard: cloudserver-dashboards
   image: cloudserver
   tag: 8.8.35
   envsubst: CLOUDSERVER_TAG
