@@ -590,7 +590,6 @@ class ReplicationUtility {
 
     // Continue getting head object while the status is PENDING or PROCESSING.
     waitUntilReplicated(bucketName, key, versionId, cb) {
-        let status;
         return async.doWhilst(
             callback => this.s3.headObject({
                 Bucket: bucketName,
@@ -601,18 +600,18 @@ class ReplicationUtility {
                 if (err) {
                     return cbOnce(err);
                 }
-                status = data.ReplicationStatus;
+                const status = data.ReplicationStatus;
                 assert.notStrictEqual(
                     status,
                     'FAILED',
                     `Unexpected CRR failure occurred: ${JSON.stringify(data)}`,
                 );
                 if (status === 'PENDING' || status === 'PROCESSING') {
-                    return setTimeout(cbOnce, 2000);
+                    return setTimeout(() => cbOnce(null, status), 2000);
                 }
-                return cbOnce();
+                return cbOnce(null, status);
             }),
-            () => (status === 'PENDING' || status === 'PROCESSING'),
+            status => (status === 'PENDING' || status === 'PROCESSING'),
             cb,
         );
     }
