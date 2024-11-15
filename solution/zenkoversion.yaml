@@ -65,7 +65,7 @@ spec:
         tag: '${PENSIEVE_API_TAG}'
     cloudserver:
       image: cloudserver
-      tag: '${CLOUDSERVER_TAG}'
+      tag: 'f7c4f97e219a280c42313e10fec14e07387817ec'
     backbeat:
       image: backbeat
       tag: '${BACKBEAT_TAG}'
