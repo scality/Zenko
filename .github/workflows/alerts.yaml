@@ -1,10 +1,11 @@
 name: Test alerts
 
 on:
-  push:
-    branches-ignore:
-      - 'development/**'
-      - 'q/*'
+  workflow_call:
+    secrets:
+      GIT_ACCESS_TOKEN:
+        description: 'GitHub token'
+        required: true
 
 jobs:
   run-alert-tests:
