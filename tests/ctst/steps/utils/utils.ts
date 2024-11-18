@@ -274,6 +274,7 @@ async function copyObject(world: Zenko, srcObjectName?: string, dstObjectName?: 
     const versionId = extractPropertyFromResults<string>(result, 'VersionId');
     world.saveCreatedObject(key, versionId || '');
     world.setResult(result);
+    return result;
 }
 
 async function putObject(world: Zenko, objectName?: string, content?: string) {
