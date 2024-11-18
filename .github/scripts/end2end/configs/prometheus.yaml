@@ -36,13 +36,19 @@ spec:
   evaluationInterval: 30s
   logFormat: logfmt
   logLevel: info
+  serviceMonitorNamespaceSelector: {}
+  serviceMonitorSelector:
+    matchLabels:
+      metalk8s.scality.com/monitor: ""
   podMonitorNamespaceSelector: {}
   podMonitorSelector:
     matchLabels:
       metalk8s.scality.com/monitor: ""
+  probeNamespaceSelector: {}
   probeSelector:
     matchLabels:
       metalk8s.scality.com/monitor: ""
+  ruleNamespaceSelector: {}
   ruleSelector:
     matchLabels:
       metalk8s.scality.com/monitor: ""
