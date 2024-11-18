@@ -7,6 +7,8 @@ import assert from 'assert';
 import { Admin, Kafka } from 'kafkajs';
 import {
     createBucketWithConfiguration,
+    putMpuObject,
+    copyObject,
     putObject,
     runActionAgainstBucket,
     getObjectNameWithBackendFlakiness,
@@ -62,7 +64,7 @@ export async function cleanS3Bucket(
 }
 
 async function addMultipleObjects(this: Zenko, numberObjects: number,
-    objectName: string, sizeBytes: number, userMD?: string) {
+    objectName: string, sizeBytes: number, userMD?: string, parts?: number) {
     let lastResult = null;
     for (let i = 1; i <= numberObjects; i++) {
         this.resetCommand();
@@ -74,7 +76,9 @@ async function addMultipleObjects(this: Zenko, numberObjects: number,
         if (userMD) {
             this.addToSaved('userMetadata', userMD);
         }
-        lastResult = await putObject(this, objectNameFinal);
+        lastResult = parts === undefined
+            ? await putObject(this, objectNameFinal)
+            : await putMpuObject(this, parts, objectNameFinal);
     }
     return lastResult;
 }
@@ -144,7 +148,20 @@ Given('an existing bucket {string} {string} versioning, {string} ObjectLock {str
 
 Given('{int} objects {string} of size {int} bytes',
     async function (this: Zenko, numberObjects: number, objectName: string, sizeBytes: number) {
-        await addMultipleObjects.call(this, numberObjects, objectName, sizeBytes);
+        const result = await addMultipleObjects.call(this, numberObjects, objectName, sizeBytes);
+        assert.ifError(result?.stderr || result?.err);
+    });
+
+Given('{int} mpu objects {string} of size {int} bytes',
+    async function (this: Zenko, numberObjects: number, objectName: string, sizeBytes: number) {
+        const result = await addMultipleObjects.call(this, numberObjects, objectName, sizeBytes, undefined, 1);
+        assert.ifError(result?.stderr || result?.err);
+    });
+
+Given('{string} is copied to {string}',
+    async function (this: Zenko, sourceObject: string, destinationObject: string) {
+        const result = await copyObject(this, sourceObject, destinationObject);
+        assert.ifError(result?.stderr || result?.err);
     });
 
 Given('{int} objects {string} of size {int} bytes on {string} site',
@@ -156,12 +173,20 @@ Given('{int} objects {string} of size {int} bytes on {string} site',
         } else {
             Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
         }
-        await addMultipleObjects.call(this, numberObjects, objectName, sizeBytes);
+        const result = await addMultipleObjects.call(this, numberObjects, objectName, sizeBytes);
+        assert.ifError(result?.stderr || result?.err);
     });
 
 Given('{int} objects {string} of size {int} bytes with user metadata {string}',
     async function (this: Zenko, numberObjects: number, objectName: string, sizeBytes: number, userMD: string) {
-        await addMultipleObjects.call(this, numberObjects, objectName, sizeBytes, userMD);
+        const result = await addMultipleObjects.call(this, numberObjects, objectName, sizeBytes, userMD);
+        assert.ifError(result?.stderr || result?.err);
+    });
+
+Given('{int} mpu objects {string} of size {int} bytes with user metadata {string}',
+    async function (this: Zenko, numberObjects: number, objectName: string, sizeBytes: number, userMD: string) {
+        const result = await addMultipleObjects.call(this, numberObjects, objectName, sizeBytes, userMD);
+        assert.ifError(result?.stderr || result?.err);
     });
 
 Given('a tag on object {string} with key {string} and value {string}',
