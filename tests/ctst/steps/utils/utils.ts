@@ -199,6 +199,84 @@ async function createBucketWithConfiguration(
     }
 }
 
+async function putMpuObject(world: Zenko, parts: number = 2, objectName: string, content?: string) {
+    const key = objectName || `${Utils.randomString()}`;
+    const bucket = world.getSaved<string>('bucketName');
+
+    world.resetCommand();
+    world.addToSaved('objectName', objectName);
+    world.logger.debug('Adding mpu object', { objectName });
+    world.addCommandParameter({ key });
+    world.addCommandParameter({ bucket });
+    const userMetadata = world.getSaved<string>('userMetadata');
+    if (userMetadata) {
+        world.addCommandParameter({ metadata: JSON.stringify(userMetadata) });
+    }
+
+    const initiateMPUResult = await S3.createMultipartUpload(world.getCommandParameters());
+    assert.ifError(initiateMPUResult.stderr || initiateMPUResult.err);
+    const uploadId = extractPropertyFromResults<string>(initiateMPUResult, 'UploadId');
+
+    await uploadSetup(world, 'UploadPart', content);
+    const body = world.getSaved<string>('tempFileName');
+
+    const uploadedParts = [];
+    for (let i = 0; i < parts; i++) {
+        world.resetCommand();
+        world.addCommandParameter({ key });
+        world.addCommandParameter({ bucket });
+        world.addCommandParameter({ partNumber: (i+1).toString() });
+        world.addCommandParameter({ uploadId });
+        if (body) {
+            world.addCommandParameter({ body });
+        }
+
+        const uploadPartResult = await S3.uploadPart(world.getCommandParameters());
+        assert.ifError(uploadPartResult.stderr || uploadPartResult.err);
+
+        uploadedParts.push({
+            ETag: extractPropertyFromResults<string>(uploadPartResult, 'ETag'),
+            PartNumber: (i+1).toString(),
+        });
+    }
+
+    await uploadTeardown(world, 'UploadPart');
+
+    world.resetCommand();
+    world.addCommandParameter({ key });
+    world.addCommandParameter({ bucket });
+    world.addCommandParameter({ uploadId });
+    world.addCommandParameter({ multipartUpload: JSON.stringify({ Parts: uploadedParts }) });
+
+    const result = await S3.completeMultipartUpload(world.getCommandParameters());
+    const versionId = extractPropertyFromResults<string>(result, 'VersionId');
+    world.saveCreatedObject(objectName, versionId || '');
+    world.setResult(result);
+    return result;
+}
+
+async function copyObject(world: Zenko, srcObjectName?: string, dstObjectName?: string) {
+    const bucket = world.getSaved<string>('bucketName');
+    const key = dstObjectName || world.getSaved<string>('objectName');
+    const copySource = `${bucket}/${srcObjectName || world.getSaved<string>('objectName')}`;
+
+    world.resetCommand();
+    world.addCommandParameter({ copySource });
+    world.addCommandParameter({ bucket });
+    world.addCommandParameter({ key });
+
+    const userMetadata = world.getSaved<string>('userMetadata');
+    if (userMetadata) {
+        world.addCommandParameter({ metadata: JSON.stringify(userMetadata) });
+    }
+
+    const result = await S3.copyObject(world.getCommandParameters());
+    const versionId = extractPropertyFromResults<string>(result, 'VersionId');
+    world.saveCreatedObject(key, versionId || '');
+    world.setResult(result);
+    return result;
+}
+
 async function putObject(world: Zenko, objectName?: string, content?: string) {
     world.resetCommand();
     let finalObjectName = objectName;
@@ -394,6 +472,8 @@ export {
     runActionAgainstBucket,
     createBucketWithConfiguration,
     getAuthorizationConfiguration,
+    putMpuObject,
+    copyObject,
     putObject,
     emptyNonVersionedBucket,
     emptyVersionedBucket,
