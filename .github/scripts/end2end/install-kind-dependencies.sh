@@ -59,7 +59,9 @@ kubectl rollout status -n ingress-nginx deployment/ingress-nginx-controller --ti
 # cert-manager
 kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/${CERT_MANAGER_VERSION}/cert-manager.yaml --wait
 kubectl rollout status -n cert-manager deployment/cert-manager-webhook --timeout=10m
-kubectl apply -f - <<EOF
+
+retries=20
+until kubectl apply -f - <<EOF
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
@@ -67,6 +69,10 @@ metadata:
 spec:
   selfSigned: {}
 EOF
+do
+    ((--retries)) || { echo "Failed to create ClusterIssuer"; exit 1; }
+    sleep 1
+done
 
 # prometheus
 # last-applied-configuration can end up larger than 256kB  which is too large for an annotation
