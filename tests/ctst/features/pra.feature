@@ -18,7 +18,8 @@ Feature: PRA operations
     Given a DR installed
     Then the DR source should be in phase "Running"
     And the DR sink should be in phase "Running"
-    Then the kafka DR volume exists
+    And the kafka DR volume exists
+    And prometheus should scrap federated metrics from DR sink
 
     # Check that objects are transitioned in the DR site
     Given access keys for the replicated account
