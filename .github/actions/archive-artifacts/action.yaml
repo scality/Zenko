@@ -44,7 +44,7 @@ runs:
 
     - name: Upload results
       if: inputs.trunk_token && job.status != 'cancelled'
-      uses: trunk-io/analytics-uploader@v1.4.0
+      uses: trunk-io/analytics-uploader@v1
       with:
         junit-paths: ${{ inputs.junit-paths }}
         org-slug: ${{ github.repository_owner }}
