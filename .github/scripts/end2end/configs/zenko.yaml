@@ -31,6 +31,8 @@ spec:
       cronRule: "${BACKBEAT_LCC_CRON_RULE}"
     lifecycleBucketProcessor:
       triggerTransitionsOneDayEarlierForTesting: ${TRANSITION_ONE_DAY_EARLIER}
+    ingestionProcessor:
+      concurrency: 2
     logging:
       logLevel: trace
   mongodb:
