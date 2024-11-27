@@ -55,8 +55,8 @@ Feature: IAM Policies for IAM Users
       | GetObject      | Allow  | iu-go-bucket3-1/*        | iu-go-bucket3 | exists         |            |
       | GetObject      | Allow  | iu-go-bucket4/go-object1 | iu-go-bucket4 | exists         | go-object  |
       | GetObject      | Deny   | *                        | iu-go-bucket5 | exists         |            |
-      | GetObject      | Deny   | iu-go-bucket5/*          | iu-go-bucket5 | exists         |            |
-      | GetObject      | Deny   | iu-go-bucket6/go-object  | iu-go-bucket6 | exists         | go-object  |
+      | GetObject      | Deny   | iu-go-bucket6/*          | iu-go-bucket6 | exists         |            |
+      | GetObject      | Deny   | iu-go-bucket7/go-object  | iu-go-bucket7 | exists         | go-object  |
 
   @2.6.0
   @PreMerge
@@ -70,9 +70,9 @@ Feature: IAM Policies for IAM Users
     When the user tries to perform "<action>" on the bucket
     Then the user should receive "AccessDenied" error
     Examples:
-      | action         | resource                | bucketName    | objectExists   | objectName |
-      | MetadataSearch | *                       | iu-md-bucket5 | does not exist |            |
-      | MetadataSearch | iu-md-bucket6           | iu-md-bucket6 | does not exist |            |
-      | GetObject      | *                       | iu-go-bucket7 | exists         |            |
-      | GetObject      | iu-go-bucket8/*         | iu-go-bucket8 | exists         |            |
-      | GetObject      | iu-go-bucket9/go-object | iu-go-bucket9 | exists         | go-object  |
+      | action         | resource                 | bucketName     | objectExists   | objectName |
+      | MetadataSearch | *                        | iu-md-bucket5  | does not exist |            |
+      | MetadataSearch | iu-md-bucket6            | iu-md-bucket6  | does not exist |            |
+      | GetObject      | *                        | iu-go-bucket8  | exists         |            |
+      | GetObject      | iu-go-bucket9/*          | iu-go-bucket9  | exists         |            |
+      | GetObject      | iu-go-bucket10/go-object | iu-go-bucket10 | exists         | go-object  |
