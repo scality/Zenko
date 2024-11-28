@@ -13,10 +13,10 @@ busybox:
   tag: 1.36.1
   envsubst: BUSYBOX_TAG
 cloudserver:
-  sourceRegistry: ghcr.io/scality
+  sourceRegistry: ghcr.io/scality/playground/wlardier
   dashboard: cloudserver/cloudserver-dashboards
   image: cloudserver
-  tag: 8.8.36
+  tag: 8.8.1061
   envsubst: CLOUDSERVER_TAG
 drctl:
   sourceRegistry: ghcr.io/scality
@@ -103,10 +103,10 @@ s3utils:
   tag: 1.14.14
   envsubst: S3UTILS_TAG
 scuba:
-  sourceRegistry: ghcr.io/scality
+  sourceRegistry: ghcr.io/scality/playground/wlardier
   dashboard: scuba/scuba-dashboards
   image: scuba
-  tag: 1.0.8
+  tag: 1.0.54
   envsubst: SCUBA_TAG
 sorbet:
   sourceRegistry: ghcr.io/scality
