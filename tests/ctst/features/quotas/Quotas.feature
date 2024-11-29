@@ -107,8 +107,8 @@ Feature: Quota Management for APIs
         Given an action "DeleteObject"
         And a permission to perform the "PutObject" action
         And a STORAGE_MANAGER type
-        And a bucket quota set to 10000 B
-        And an account quota set to 10000 B
+        And a bucket quota set to 1000 B
+        And an account quota set to 1000 B
         And an upload size of 1000 B for the object "obj-1"
         And a bucket quota set to <bucketQuota> B
         And an account quota set to <accountQuota> B
@@ -119,14 +119,58 @@ Feature: Quota Management for APIs
         And I PUT an object with size <uploadSize>
         Then the API should "fail" with "QuotaExceeded"
         When the "count-items" cronjobs completes without error
+        # Wait for inflights to be read by SCUBA
         When I wait 3 seconds
         # At this point if negative inflights are not supported, write should
         # not be possible, as the previous inflights are now part of the current
         # metrics.
         And i delete object "obj-1"
+        # Wait for inflights to be read by SCUBA
         And I wait 3 seconds
         And I PUT an object with size <uploadSize>
         Then the API should "succeed" with ""
+
+        Examples:
+            | uploadSize | bucketQuota | accountQuota | userType |
+            | 100        | 200         | 0            | ACCOUNT  |
+            | 100        | 0           | 200          | ACCOUNT  |
+            | 100        | 200         | 200          | ACCOUNT  |
+            | 100        | 200         | 0            | IAM_USER |
+            | 100        | 0           | 200          | IAM_USER |
+            | 100        | 200         | 200          | IAM_USER |
+
+    @2.6.0
+    @PreMerge
+    @Quotas
+    @CronJob
+    @DataDeletion
+    @NonVersioned
+    Scenario Outline: Negative inflights do not allow to bypass the quota
+        Given an action "DeleteObject"
+        And a permission to perform the "PutObject" action
+        And a STORAGE_MANAGER type
+        And a bucket quota set to 1000 B
+        And an account quota set to 1000 B
+        And an upload size of 1000 B for the object "obj-1"
+        And a bucket quota set to <bucketQuota> B
+        And an account quota set to <accountQuota> B
+        And a <userType> type
+        And an environment setup for the API
+        And an "existing" IAM Policy that "applies" with "ALLOW" effect for the current API
+        When I wait 3 seconds
+        And I PUT an object with size <uploadSize>
+        Then the API should "fail" with "QuotaExceeded"
+        When the "count-items" cronjobs completes without error
+        # Wait for inflights to be read by SCUBA
+        When I wait 3 seconds
+        # At this point if negative inflights are not supported, write should
+        # not be possible, as the previous inflights are now part of the current
+        # metrics.
+        And i delete object "obj-1"
+        # Wait for inflights to be read by SCUBA
+        And I wait 3 seconds
+        And I PUT an object with size 1000
+        Then the API should "fail" with "QuotaExceeded"
 
         Examples:
             | uploadSize | bucketQuota | accountQuota | userType |
