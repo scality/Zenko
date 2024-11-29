@@ -192,8 +192,9 @@ Feature: Quota Management for APIs
         And an "existing" IAM Policy that "applies" with "ALLOW" effect for the current API
         When i restore object "" for 5 days
         Then the API should "succeed" with ""
+        And object "obj-1" should be "restored" and have the storage class "e2e-cold"
         Given a STORAGE_MANAGER type
-        And object "obj-1" should expire in 5 days
+        Then object "obj-1" should expire in 5 days
         When i wait for 5 days
         Then object "obj-1" should be "cold" and have the storage class "e2e-cold"
 
