@@ -108,6 +108,9 @@ spec:
         command-timeout: "60s"
         pending-job-poll-after-age: "10s"
         pending-job-poll-check-interval: "10s"
+  scuba:
+    logging:
+      logLevel: debug
   ingress:
     workloadPlaneClass: 'nginx'
     controlPlaneClass: 'nginx'
