@@ -72,11 +72,9 @@ Feature: Quota Management for APIs
         Given an action "DeleteObject"
         And a permission to perform the "PutObject" action
         And a STORAGE_MANAGER type
-        And a bucket quota set to 10000 B
-        And an account quota set to 10000 B
-        And an upload size of 1000 B for the object "obj-1"
         And a bucket quota set to <bucketQuota> B
         And an account quota set to <accountQuota> B
+        And an upload size of 200 B for the object "obj-1"
         And a <userType> type
         And an environment setup for the API
         And an "existing" IAM Policy that "applies" with "ALLOW" effect for the current API
