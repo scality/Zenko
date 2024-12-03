@@ -54,7 +54,13 @@ After(async function (this: Zenko, results) {
     );
 });
 
-After({ tags: '@Quotas' }, async function () {
+After({ tags: '@Quotas' }, async function (this: Zenko, results) {
+    if (results.result?.status === 'FAILED') {
+        this.logger.warn('quota was not cleaned for test', {
+            bucket: this.getSaved<string>('bucketName'),
+        });
+        return;
+    }
     await teardownQuotaScenarios(this as Zenko);
 });
 
