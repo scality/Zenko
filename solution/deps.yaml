@@ -6,7 +6,7 @@ backbeat:
   dashboard: backbeat/backbeat-dashboards
   image: backbeat
   policy: backbeat/backbeat-policies
-  tag: 8.6.52
+  tag: 8.6.53
   envsubst: BACKBEAT_TAG
 busybox:
   image: busybox
@@ -16,7 +16,7 @@ cloudserver:
   sourceRegistry: ghcr.io/scality
   dashboard: cloudserver/cloudserver-dashboards
   image: cloudserver
-  tag: 8.8.36
+  tag: 8.8.38
   envsubst: CLOUDSERVER_TAG
 drctl:
   sourceRegistry: ghcr.io/scality
@@ -100,13 +100,13 @@ s3utils:
   sourceRegistry: ghcr.io/scality
   dashboard: s3utils/s3utils-dashboards
   image: s3utils
-  tag: 1.14.14
+  tag: 1.14.15
   envsubst: S3UTILS_TAG
 scuba:
   sourceRegistry: ghcr.io/scality
   dashboard: scuba/scuba-dashboards
   image: scuba
-  tag: 1.0.8
+  tag: 1.0.9
   envsubst: SCUBA_TAG
 sorbet:
   sourceRegistry: ghcr.io/scality
