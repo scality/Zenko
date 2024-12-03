@@ -71,9 +71,34 @@ export function createKubeCustomObjectClient(world: Zenko): CustomObjectsApi {
     return KubernetesHelper.customObject;
 }
 
+// Do not check job result, only wait till it completes
+export async function waitForExistingJobCompletion(world: Zenko, jobName: string) {
+    const watchClient = createKubeWatchClient(world);
+    try {
+        await new Promise<void>(resolve => {
+            void watchClient.watch(
+                '/apis/batch/v1/namespaces/default/jobs',
+                {},
+                (type: string, apiObj, watchObj) => {
+                    if ((watchObj.object?.metadata?.name as string)?.startsWith?.(jobName)) {
+                        if (watchObj.object?.status?.succeeded || watchObj.object?.status?.failed) {
+                            resolve();
+                        }
+                    }
+                }, () => resolve());
+        });
+    } catch (err: unknown) {
+        world.logger.error('error waiting for job completion', {
+            jobName,
+            err,
+        });
+    }
+}
+
 export async function createJobAndWaitForCompletion(world: Zenko, jobName: string, customMetadata?: string) {
     const batchClient = createKubeBatchClient(world);
     const watchClient = createKubeWatchClient(world);
+    await waitForExistingJobCompletion(world, jobName);
     try {
         const cronJob = await batchClient.readNamespacedCronJob(jobName, 'default');
         const cronJobSpec = cronJob.body.spec?.jobTemplate.spec;
