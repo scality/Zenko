@@ -1,3 +1,4 @@
+import fs from 'fs';
 import * as path from 'path';
 import lockFile from 'proper-lockfile';
 import { KubernetesHelper, Utils } from 'cli-testing';
@@ -84,6 +85,10 @@ export async function createJobAndWaitForCompletion(
     const lockFilePath = path.join('/tmp', `${jobName}.lock`);
     let releaseLock: (() => Promise<void>) | false = false;
 
+    if (!fs.existsSync(lockFilePath)) {
+        fs.writeFileSync(lockFilePath, 'job');
+    }
+
     try {
         // Acquire lock on the file
         releaseLock = await lockFile.lock(lockFilePath, { stale: 600000 });
@@ -148,6 +153,7 @@ export async function createJobAndWaitForCompletion(
         // Ensure the lock is released
         if (releaseLock) {
             await releaseLock();
+            fs.unlinkSync(lockFilePath);
             world.logger.debug(`Released lock for job: ${jobName}`);
         }
     }
