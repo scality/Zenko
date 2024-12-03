@@ -90,8 +90,8 @@ export async function createJobAndWaitForCompletion(
     }
 
     try {
-        // Acquire lock on the file
-        releaseLock = await lockFile.lock(lockFilePath, { stale: 600000 });
+        // Acquire lock on the file with 1s delay and 10 minutes timeout
+        releaseLock = await lockFile.lock(lockFilePath, { stale: 1000, retries: 600 });
         world.logger.debug(`Acquired lock for job: ${jobName}`);
 
         // Read the cron job and prepare the job spec
@@ -153,7 +153,6 @@ export async function createJobAndWaitForCompletion(
         // Ensure the lock is released
         if (releaseLock) {
             await releaseLock();
-            fs.unlinkSync(lockFilePath);
             world.logger.debug(`Released lock for job: ${jobName}`);
         }
     }
