@@ -103,7 +103,7 @@ s3utils:
   tag: 1.14.14
   envsubst: S3UTILS_TAG
 scuba:
-  sourceRegistry: ghcr.io/scality/playground/wlardierghcr.io/scality/playground/wlardier
+  sourceRegistry: ghcr.io/scality/playground/wlardier
   dashboard: scuba/scuba-dashboards
   image: scuba
   tag: 1.0.61
