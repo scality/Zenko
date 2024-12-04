@@ -78,11 +78,11 @@ Feature: Quota Management for APIs
         And a <userType> type
         And an environment setup for the API
         And an "existing" IAM Policy that "applies" with "ALLOW" effect for the current API
-        When I wait 3 seconds
+        When I wait 6 seconds
         And I PUT an object with size <uploadSize>
         Then the API should "fail" with "QuotaExceeded"
         When i delete object "obj-1"
-        And I wait 3 seconds
+        And I wait 6 seconds
         And I PUT an object with size <uploadSize>
         Then the API should "succeed" with ""
 
