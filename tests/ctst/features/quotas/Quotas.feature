@@ -147,11 +147,9 @@ Feature: Quota Management for APIs
         Given an action "DeleteObject"
         And a permission to perform the "PutObject" action
         And a STORAGE_MANAGER type
-        And a bucket quota set to 1000 B
-        And an account quota set to 1000 B
-        And an upload size of 1000 B for the object "obj-1"
         And a bucket quota set to <bucketQuota> B
         And an account quota set to <accountQuota> B
+        And an upload size of <uploadSize> B for the object "obj-1"
         And a <userType> type
         And an environment setup for the API
         And an "existing" IAM Policy that "applies" with "ALLOW" effect for the current API
@@ -160,13 +158,13 @@ Feature: Quota Management for APIs
         Then the API should "fail" with "QuotaExceeded"
         When the "count-items" cronjobs completes without error
         # Wait for inflights to be read by SCUBA
-        When I wait 3 seconds
+        When I wait 6 seconds
         # At this point if negative inflights are not supported, write should
         # not be possible, as the previous inflights are now part of the current
         # metrics.
         And i delete object "obj-1"
         # Wait for inflights to be read by SCUBA
-        And I wait 3 seconds
+        And I wait 6 seconds
         And I PUT an object with size 1000
         Then the API should "fail" with "QuotaExceeded"
 
