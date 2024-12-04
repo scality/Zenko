@@ -86,15 +86,15 @@ export async function createJobAndWaitForCompletion(
     let releaseLock: (() => Promise<void>) | false = false;
 
     if (!fs.existsSync(lockFilePath)) {
-        fs.writeFileSync(lockFilePath, 'job');
+        fs.writeFileSync(lockFilePath, '');
     }
-
-    // Wait 1s to make the lock stale
-    await Utils.sleep(1000);
 
     try {
         // Acquire lock on the file with 0.5s staleness and 1200 retries
-        releaseLock = await lockFile.lock(lockFilePath, { stale: 500, retries: 1200 });
+        releaseLock = await lockFile.lock(lockFilePath, {
+            stale: 5000,
+            retries: 1200,
+        });
         world.logger.debug(`Acquired lock for job: ${jobName}`);
 
         // Read the cron job and prepare the job spec
