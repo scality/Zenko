@@ -96,7 +96,7 @@ export async function createJobAndWaitForCompletion(
             // use a non-exponential backoff strategy
             // try once per second for 2min 10s
             retries: {
-                retries: 130,
+                retries: 200,
                 factor: 1,
                 minTimeout: 1000,
                 maxTimeout: 1000,

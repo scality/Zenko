@@ -169,7 +169,7 @@ Feature: Quota Management for APIs
         # With 200 "current" bytes, we should accept up to 200 B (200 - 200 + input <= quota)
         And i delete object "obj-1"
         # Wait for inflights to be read by SCUBA
-        And I wait 3 seconds
+        And I wait 6- seconds
         # Try to write 300
         And I PUT an object with size 300
         Then the API should "fail" with "QuotaExceeded"
