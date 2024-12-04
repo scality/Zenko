@@ -91,12 +91,11 @@ export async function createJobAndWaitForCompletion(
 
     try {
         releaseLock = await lockFile.lock(lockFilePath, {
-            // Expect the job does not take more than 2 minutes to complete
-            stale: 2 * 60 * 1000,
-            // use a non-exponential backoff strategy
-            // try once per second for 2min 10s
+            // Expect the jobs in the queue does not take more than 5 minutes to complete
+            stale: 10 * 60 * 1000,
+            // use a linear backoff strategy
             retries: {
-                retries: 130,
+                retries: 610,
                 factor: 1,
                 minTimeout: 1000,
                 maxTimeout: 1000,
