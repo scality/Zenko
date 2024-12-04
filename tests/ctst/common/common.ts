@@ -378,8 +378,7 @@ When('the user tries to perform the current S3 action on the bucket {int} times 
             }
             await runActionAgainstBucket(this, this.getSaved<ActionPermissionsType>('currentAction').action);
             if (this.getResult().err) {
-                // stop at any error, the error will be evaluated in a separated step
-                return;
+                this.logger.debug('Error during repeated action', { error: this.getResult().err });
             }
             await Utils.sleep(delay);
         }
