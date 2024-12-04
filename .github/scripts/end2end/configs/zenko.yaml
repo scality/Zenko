@@ -121,6 +121,9 @@ spec:
       azure:
         archiveTier: "hot"
         restoreTimeout: "15s"
+  scuba:
+    logging:
+      logLevel: debug
   ingress:
     workloadPlaneClass: 'nginx'
     controlPlaneClass: 'nginx-control-plane'

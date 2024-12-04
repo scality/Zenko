@@ -6,6 +6,7 @@ import { Scality, Command, Utils, AWSCredentials, Constants, Identity, IdentityE
 import { createJobAndWaitForCompletion } from '../utils/kubernetes';
 import { createBucketWithConfiguration, putObject } from '../utils/utils';
 import { hashStringAndKeepFirst20Characters } from 'common/utils';
+import assert from 'assert';
 
 export async function prepareQuotaScenarios(world: Zenko, scenarioConfiguration: ITestCaseHookParameter) {
     /**
@@ -136,6 +137,16 @@ Given('a bucket quota set to {int} B', async function (this: Zenko, quota: numbe
         result,
     });
 
+    // Ensure the quota is set
+    const resultGet: Command = await Scality.getBucketQuota(
+        this.parameters,
+        this.getCommandParameters());
+    this.logger.debug('GetBucketQuota result', {
+        resultGet,
+    });
+
+    assert(resultGet.stdout.includes(`${quota}`));
+
     if (result.err) {
         throw new Error(result.err);
     }
@@ -157,6 +168,9 @@ Given('an account quota set to {int} B', async function (this: Zenko, quota: num
     this.logger.debug('UpdateAccountQuota result', {
         result,
     });
+
+    // Ensure the quota is set
+    assert(JSON.parse(result.stdout).quota === quota);
 
     if (result.err) {
         throw new Error(result.err);
