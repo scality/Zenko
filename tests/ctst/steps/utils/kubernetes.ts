@@ -90,10 +90,17 @@ export async function createJobAndWaitForCompletion(
     }
 
     try {
-        // Acquire lock on the file with 0.5s staleness and 1200 retries
         releaseLock = await lockFile.lock(lockFilePath, {
-            stale: 5000,
-            retries: 1200,
+            // Expect the job does not take more than 2 minutes to complete
+            stale: 2 * 60 * 1000,
+            // use a non-exponential backoff strategy
+            // try once per second for 2min
+            retries: {
+                retries: 120,
+                factor: 1,
+                minTimeout: 1000,
+                maxTimeout: 1000,
+            },
         });
         world.logger.debug(`Acquired lock for job: ${jobName}`);
 
