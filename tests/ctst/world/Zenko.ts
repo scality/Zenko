@@ -4,6 +4,8 @@ import { AccessKey } from '@aws-sdk/client-iam';
 import { Credentials } from '@aws-sdk/client-sts';
 import { aws4Interceptor } from 'aws4-axios';
 import qs from 'qs';
+import fs from 'fs';
+import lockFile from 'proper-lockfile';
 import Werelogs from 'werelogs';
 import {
     CacheHelper,
@@ -633,24 +635,36 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
             if (!Identity.hasIdentity(IdentityEnum.ACCOUNT, accountName)) {
                 Identity.useIdentity(IdentityEnum.ADMIN, site.adminIdentityName);
-
+                const filePath = `/tmp/account-init-${accountName}.json`;
+                if (!fs.existsSync(filePath)) {
+                    fs.writeFileSync(filePath, JSON.stringify({
+                        ready: false,
+                    }));
+                }
                 let account = null;
-                CacheHelper.logger.debug('Creating account', {
-                    accountName,
-                    adminIdentityName: site.adminIdentityName,
-                    credentials: Identity.getCurrentCredentials(),
-                });
-                // Create the account if already exist will not throw any error
+                let releaseLock: (() => Promise<void>) | null = null;
                 try {
-                    await SuperAdmin.createAccount({ accountName });
-                /* eslint-disable */
-                } catch (err: any) {
-                    CacheHelper.logger.debug('Error while creating account', {
-                        accountName,
-                        err,
+                    releaseLock = await lockFile.lock(filePath, {
+                        stale: Constants.DEFAULT_TIMEOUT / 2,
+                        retries: {
+                            retries: 5,
+                            factor: 3,
+                            minTimeout: 1000,
+                            maxTimeout: 5000,
+                        }
                     });
-                    if (!err.EntityAlreadyExists && err.code !== 'EntityAlreadyExists') {
-                        throw err;
+
+                    try {
+                        await SuperAdmin.createAccount({ accountName });
+                        /* eslint-disable */
+                    } catch (err: any) {
+                        if (!err.EntityAlreadyExists && err.code !== 'EntityAlreadyExists') {
+                            throw err;
+                        }
+                    }
+                } finally {
+                    if (releaseLock) {
+                        await releaseLock();
                     }
                 }
                 /* eslint-enable */
@@ -693,7 +707,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         const accountName = this.sites['source']?.accountName || CacheHelper.parameters.AccountName!;
         const accountAccessKeys = Identity.getCredentialsForIdentity(
             IdentityEnum.ACCOUNT, this.sites['source']?.accountName
-            || CacheHelper.parameters.AccountName!) || {
+        || CacheHelper.parameters.AccountName!) || {
             accessKeyId: '',
             secretAccessKey: '',
         };
@@ -865,7 +879,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     }
 
     async awsS3Request(method: Method, path: string,
-        userCredentials: AWSCredentials, headers: object = {}, payload: object = {}) : Promise<Command> {
+        userCredentials: AWSCredentials, headers: object = {}, payload: object = {}): Promise<Command> {
         const interceptor = aws4Interceptor({
             options: {
                 region: 'us-east-1',
@@ -891,7 +905,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 statusCode: response.status,
                 data: response.data as unknown,
             };
-        /* eslint-disable */
+            /* eslint-disable */
         } catch (err: any) {
             return {
                 stdout: '',
@@ -967,7 +981,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         }
     }
 
-    async addWebsiteEndpoint(this: Zenko, endpoint: string) :
+    async addWebsiteEndpoint(this: Zenko, endpoint: string):
         Promise<{ statusCode: number; data: object } | { statusCode: number; err: unknown }> {
         return await this.managementAPIRequest('POST',
             `/config/${this.parameters.InstanceID}/website/endpoint`,
@@ -977,7 +991,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             `"${endpoint}"`);
     }
 
-    async deleteLocation(this: Zenko, locationName: string) :
+    async deleteLocation(this: Zenko, locationName: string):
         Promise<{ statusCode: number; data: object } | { statusCode: number; err: unknown }> {
         return await this.managementAPIRequest('DELETE',
             `/config/${this.parameters.InstanceID}/location/${locationName}`);
