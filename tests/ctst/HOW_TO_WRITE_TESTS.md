@@ -14,7 +14,7 @@ parallel with other tests.
 In parallel, the tests can run in any order. It's not because a test works at a
 given time, that it will work if the test order changes after adding new ones
 or renaming files. You must ensure the scenarios are fully idempotent.
-"Flakies" are, mostly due to non-idempotent tests, then bugs. It is rarely due
+"Flakies" are mostly due to non-idempotent tests, then bugs. It is rarely due
 to the platform.
 
 **Rule #2**
@@ -40,7 +40,9 @@ Examples:
 - Location creation;
 - Bucket Website endpoints.
 
-... must be created before the test start, or in a dedicated set of test.
+... must be created before the test start, or in a dedicated set of tests,
+that is, a set of test executed before all tests having a specific tag
+used for identifying the feature(s).
 
 **Rule #4**
 
@@ -66,12 +68,15 @@ possible. Solutions exist:
 
 **Rule #5**
 
-> Avoid scenarios with no value.
+> Focus on validating features.
 
 It is tempting to write scenarios that test more than what is needed
-at the integration testing layer: please trust your unit and functional
-tests. If a scenario has too many variants, then likely they can be tested
-in lower layers. Please focus on validating a feature.
+at the acceptance testing layer: please use unit and functional tests to fully
+validate the behavior of each component; and end-to-end tests only to ensure
+that the product-level feature is working as expected per the requirements.
+Making good use of unit and functional tests makes testing all cases, including
+corner cases or error handling, much easier, leading to higher quality; and
+improves velocity by having a much faster feedback loop.
 
 **Rule #6**
 
@@ -79,12 +84,8 @@ in lower layers. Please focus on validating a feature.
 
 Some tests might need to "sleep" for some time, either static or using
 more complex logic. The subsequent assertions must take into account
-any operation on the platform that might be asynchronous.
-
-Example: we run a Kubernetes job in tests that look idempotent. However,
-the job itself might not be idempotent and run in parallel, leading to
-some resources being skipped by a previous job that would take longer than
-expected, and the test results will differ from what is expected.
+any operation on the platform that might be asynchronous and take place
+during the sleep time.
 
 **Rule #7**
 
