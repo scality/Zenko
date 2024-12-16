@@ -91,10 +91,15 @@ during the sleep time.
 
 > Avoid using the @Flaky tag.
 
-If a test is marked as flaky, it is likely not idempotent, or we did not
-do our job correctly to understand the problem. Please fix the test.
-
-If an issue exists in the product, prefer fixing the bug first.
+Whenever there is a flaky, there is an issue : either a bug (corner case or
+race condition) in the product, or simply an issue in the test. So the
+issue should be fixed either way. More often than not, retrying the build
+(i.e. ignoring the flaky) or automating the retry with @Flaky is just
+masking a bug, and leaving it in production instead of fixing it : so it
+must not be done. One frequent problem in flaky tests is that they are not
+idempotent, or that we did not do our job correctly to understand the
+problem. Flaky tests must be investigated, and issues in the tests must be
+fixed to ensure we don't ignore an actual problem in the product.
 
 **Rule #8**
 
@@ -118,5 +123,5 @@ specific tags.
 
 > Validate your test before merging.
 
-If a test pass once, please ensure it passes for the good reasons.
+If a test passes once, please ensure it passes for the good reasons.
 False positives are hard to detect once merged.
