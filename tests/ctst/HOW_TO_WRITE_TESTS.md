@@ -1,6 +1,6 @@
 # How to write a test that runs in parallel
 
-Writting intergation / behavior tests that run in parallel is not trivial.
+Writing integration / behavior tests that runs in parallel is not trivial.
 This page lists all the rules to follow when writing a test that runs in
 parallel with other tests.
 
