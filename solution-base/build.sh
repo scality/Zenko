@@ -33,6 +33,7 @@ MONGODB_SHARDED_SINGLE_NODE_PATH=${ISO_ROOT}/deploy/mongodb-sharded-1-node.yaml
 MONGODB_SHARDED_THREE_NODE_PATH=${ISO_ROOT}/deploy/mongodb-sharded-3-nodes.yaml
 MONGODB_SHARDED_THREE_NODE_THREE_SHARDS_PATH=${ISO_ROOT}/deploy/mongodb-sharded-3-nodes-3-shards.yaml
 MONGODB_SHARDED_SIX_NODE_PATH=${ISO_ROOT}/deploy/mongodb-sharded-6-nodes.yaml
+MONGODB_SHARDED_SIX_NODE_TWO_SHARDS_PATH=${ISO_ROOT}/deploy/mongodb-sharded-6-nodes-2-shards.yaml
 MONGODB_SHARDED_SIX_NODE_THREE_SHARDS_PATH=${ISO_ROOT}/deploy/mongodb-sharded-6-nodes-3-shards.yaml
 MONGODB_SHARDED_SIX_NODE_SIX_SHARDS_PATH=${ISO_ROOT}/deploy/mongodb-sharded-6-nodes-6-shards.yaml
 MONGODB_SHARDED_NINE_NODE_PATH=${ISO_ROOT}/deploy/mongodb-sharded-9-nodes.yaml
@@ -132,6 +133,7 @@ function mongodb_sharded_yamls()
     render_mongodb_sharded_yamls "${MONGODB_SHARDED_THREE_NODE_PATH}" 1 3
     render_mongodb_sharded_yamls "${MONGODB_SHARDED_THREE_NODE_THREE_SHARDS_PATH}" 3 3
     render_mongodb_sharded_yamls "${MONGODB_SHARDED_SIX_NODE_PATH}" 1 6
+    render_mongodb_sharded_yamls "${MONGODB_SHARDED_SIX_NODE_TWO_SHARDS_PATH}" 2 6
     render_mongodb_sharded_yamls "${MONGODB_SHARDED_SIX_NODE_THREE_SHARDS_PATH}" 3 6
     render_mongodb_sharded_yamls "${MONGODB_SHARDED_SIX_NODE_SIX_SHARDS_PATH}" 6 6
     render_mongodb_sharded_yamls "${MONGODB_SHARDED_NINE_NODE_PATH}" 1 9
