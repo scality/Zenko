@@ -34,48 +34,51 @@ generate_kustomization() {
         exit 1
     }
 
-    # Generate kustomization file
+    # Create initial kustomization
     cat > "$kustomization_file" << EOF
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
 - ./_build/root/deploy/${base_yaml}
 patches:
-- patch: |-
-    - op: replace
-      path: /spec/volumeClaimTemplates/0
-      value:
-        metadata:
-          name: datadir
-        spec:
-          accessModes: ["ReadWriteOnce"]
-          resources:
-            requests:
-              storage: "8Gi"
-          storageClassName: standard
-  target:
-    kind: StatefulSet
-    name: data-db-mongodb-sharded-configsvr
+  - target:
+      kind: StatefulSet
+      name: data-db-mongodb-sharded-configsvr
+    patch: |
+      - op: add
+        path: /spec/volumeClaimTemplates/-
+        value:
+          metadata:
+            name: datadir
+          spec:
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: "8Gi"
+            storageClassName: standard
 EOF
 
     # Add shard patches
     for ((i=0; i<shard_count; i++)); do
         cat >> "$kustomization_file" << EOF
-- patch: |-
-    - op: replace
-      path: /spec/volumeClaimTemplates/0
-      value:
-        metadata:
-          name: datadir
-        spec:
-          accessModes: ["ReadWriteOnce"]
-          resources:
-            requests:
-              storage: "8Gi"
-          storageClassName: standard
-  target:
-    kind: StatefulSet
-    name: data-db-mongodb-sharded-shard${i}-data
+  - target:
+      kind: StatefulSet
+      name: data-db-mongodb-sharded-shard${i}-data
+    patch: |
+      - op: add
+        path: /spec/volumeClaimTemplates/-
+        value:
+          metadata:
+            name: datadir
+          spec:
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: "8Gi"
+            storageClassName: standard
 EOF
     done
+
+    echo "Generated kustomization file: $kustomization_file"
+    cat "$kustomization_file"
 }
