@@ -24,6 +24,10 @@ MONGODB_APP_PASSWORD=datapass
 MONGODB_APP_DATABASE=${ZENKO_MONGODB_DATABASE:-datadb}
 MONGODB_RS_KEY=0123456789abcdef
 
+MONGODB_SHARD_COUNT=${MONGODB_SHARD_COUNT:-1}
+
+source "${DIR}/generate-kustomization.sh" && generate_kustomization "${NODE_COUNT:-1}" "${MONGODB_SHARD_COUNT}"
+
 ENABLE_KEYCLOAK_HTTPS=${ENABLE_KEYCLOAK_HTTPS:-'false'}
 
 KAFKA_CHART=banzaicloud-stable/kafka-operator
@@ -186,7 +190,7 @@ mongodb_wait_for_shards() {
             --eval "db.runCommand({ listshards: 1 }).shards.length"
     )
 
-    [ $count == "1" ]
+    [ $count == "$MONGODB_SHARD_COUNT" ]
 }
 
 mongodb_sharded() {
@@ -201,7 +205,10 @@ mongodb_sharded() {
 
     kubectl rollout status statefulset data-db-mongodb-sharded-mongos
     kubectl rollout status statefulset data-db-mongodb-sharded-configsvr
-    kubectl rollout status statefulset data-db-mongodb-sharded-shard0-data
+
+    for ((i=0; i<MONGODB_SHARD_COUNT; i++)); do
+        kubectl rollout status statefulset "data-db-mongodb-sharded-shard${i}-data"
+    done
 
     retry mongodb_wait_for_shards "no shards found"
 
