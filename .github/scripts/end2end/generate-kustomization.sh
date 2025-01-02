@@ -33,7 +33,7 @@ resources:
 patchesStrategicMerge:
 EOF
 
-    # Add configsvr patch with correct path to append volumeClaimTemplates
+    # Add configsvr patch with correct path to add volumeClaimTemplates
     cat >> "$kustomization_file" << EOF
 - |-
   apiVersion: apps/v1
@@ -42,18 +42,18 @@ EOF
     name: data-db-mongodb-sharded-configsvr
   spec:
     volumeClaimTemplates:
-    - metadata:
-        name: datadir
-      spec:
-        accessModes:
-        - "ReadWriteOnce"
-        resources:
-          requests:
-            storage: "8Gi"
-        storageClassName: standard
+      - metadata:
+          name: datadir
+        spec:
+          accessModes:
+            - "ReadWriteOnce"
+          resources:
+            requests:
+              storage: "8Gi"
+          storageClassName: standard
 EOF
 
-    # Add shard patches with correct path to append volumeClaimTemplates
+    # Add shard patches for N shards with correct path to add volumeClaimTemplates
     for ((i=0; i<shard_count; i++)); do
         cat >> "$kustomization_file" << EOF
 - |-
@@ -63,17 +63,17 @@ EOF
     name: data-db-mongodb-sharded-shard${i}-data
   spec:
     volumeClaimTemplates:
-    - metadata:
-        name: datadir
-      spec:
-        accessModes:
-        - "ReadWriteOnce"
-        resources:
-          requests:
-            storage: "8Gi"
-        storageClassName: standard
+      - metadata:
+          name: datadir
+        spec:
+          accessModes:
+            - "ReadWriteOnce"
+          resources:
+            requests:
+              storage: "8Gi"
+          storageClassName: standard
 EOF
     done
 
-    cat $kustomization_file
+    cat "$kustomization_file"
 }
