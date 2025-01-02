@@ -30,46 +30,50 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
 - ./_build/root/deploy/${base_yaml}
-patches:
+patchesStrategicMerge:
 EOF
 
     # Add configsvr patch with correct path to append volumeClaimTemplates
     cat >> "$kustomization_file" << EOF
-- patch: |
-    - op: add
-      path: /spec/volumeClaimTemplates/-
-      value:
-        metadata:
-          name: datadir
-        spec:
-          accessModes: ["ReadWriteOnce"]
-          resources:
-            requests:
-              storage: "8Gi"
-          storageClassName: standard
-  target:
-    kind: StatefulSet
+- |-
+  apiVersion: apps/v1
+  kind: StatefulSet
+  metadata:
     name: data-db-mongodb-sharded-configsvr
+  spec:
+    volumeClaimTemplates:
+    - metadata:
+        name: datadir
+      spec:
+        accessModes:
+        - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "8Gi"
+        storageClassName: standard
 EOF
 
     # Add shard patches with correct path to append volumeClaimTemplates
     for ((i=0; i<shard_count; i++)); do
         cat >> "$kustomization_file" << EOF
-- patch: |
-    - op: add
-      path: /spec/volumeClaimTemplates/-
-      value:
-        metadata:
-          name: datadir
-        spec:
-          accessModes: ["ReadWriteOnce"]
-          resources:
-            requests:
-              storage: "8Gi"
-          storageClassName: standard
-  target:
-    kind: StatefulSet
+- |-
+  apiVersion: apps/v1
+  kind: StatefulSet
+  metadata:
     name: data-db-mongodb-sharded-shard${i}-data
+  spec:
+    volumeClaimTemplates:
+    - metadata:
+        name: datadir
+      spec:
+        accessModes:
+        - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "8Gi"
+        storageClassName: standard
 EOF
     done
+
+    cat $kustomization_file
 }
