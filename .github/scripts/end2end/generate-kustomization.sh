@@ -33,5 +33,4 @@ kind: Kustomization
 resources:
 - ${DIR}/_build/root/deploy/${base_yaml}
 EOF
-    done
 }
