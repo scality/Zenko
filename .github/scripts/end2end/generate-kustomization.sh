@@ -46,7 +46,7 @@ EOF
     volumeClaimTemplates:
     - metadata:
         name: datadir
-        annotations:
+        annotations: {}
       spec:
         accessModes:
         - "ReadWriteOnce"
@@ -68,7 +68,7 @@ EOF
     volumeClaimTemplates:
     - metadata:
         name: datadir
-        annotations:
+        annotations: {}
       spec:
         accessModes:
         - "ReadWriteOnce"
