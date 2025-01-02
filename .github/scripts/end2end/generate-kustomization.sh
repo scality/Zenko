@@ -10,7 +10,7 @@ readonly VALID_TOPOLOGIES=(
 generate_kustomization() {
     local node_count=$1
     local shard_count=$2
-    local kustomization_file="/tmp/kustomization.yaml"
+    local kustomization_file="${DIR}/kustomization.yaml"
     local base_yaml="mongodb-sharded-${node_count}-node"
 
     touch "$kustomization_file"
@@ -31,7 +31,7 @@ generate_kustomization() {
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-- ./_build/root/deploy/${base_yaml}
+- ${DIR}/_build/root/deploy/${base_yaml}
 patchesStrategicMerge:
 EOF
 
