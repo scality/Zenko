@@ -76,8 +76,4 @@ EOF
          storageClassName: standard
 EOF
     done
-
-    cat "$kustomization_file"
 }
-
-generate_kustomization 1 2
