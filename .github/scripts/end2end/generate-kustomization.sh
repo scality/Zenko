@@ -44,7 +44,7 @@ EOF
     volumeClaimTemplates:
      - metadata:
          name: datadir
-         annotation:
+         annotations:
        spec:
          accessModes:
          - "ReadWriteOnce"
@@ -66,7 +66,7 @@ EOF
     volumeClaimTemplates:
      - metadata:
          name: datadir
-         annotation:
+         annotations:
        spec:
          accessModes:
          - "ReadWriteOnce"
@@ -80,4 +80,4 @@ EOF
     cat "$kustomization_file"
 }
 
-# generate_kustomization 1 2
+# generate_kustomization 1 1
