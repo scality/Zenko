@@ -13,6 +13,8 @@ generate_kustomization() {
     local kustomization_file="./_build/root/deploy/kustomization.yaml"
     local base_yaml="mongodb-sharded-${node_count}-node"
 
+    touch "$kustomization_file"
+
     # Adjust file name if there are multiple shards
     [[ "$shard_count" -gt 1 ]] && base_yaml="${base_yaml}-${shard_count}-shards"
     base_yaml="${base_yaml}.yaml"
