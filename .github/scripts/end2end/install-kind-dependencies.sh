@@ -203,8 +203,11 @@ mongodb_sharded() {
 
     kubectl apply -k "${DIR}"
 
-    kubectl rollout status statefulset data-db-mongodb-sharded-mongos
-    kubectl rollout status statefulset data-db-mongodb-sharded-configsvr
+    kubectl rollout status statefulset data-db-mongodb-sharded-mongos --timeout=5m
+    # display logs of mongos
+    kubectl logs -f statefulset/data-db-mongodb-sharded-mongos
+    kubectl rollout status statefulset data-db-mongodb-sharded-configsvr --timeout=5m
+
 
     for ((i=0; i<MONGODB_SHARD_COUNT; i++)); do
         kubectl rollout status statefulset "data-db-mongodb-sharded-shard${i}-data"
