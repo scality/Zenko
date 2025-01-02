@@ -37,5 +37,8 @@ spec:
     matchLabels: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 6 }}
       app.kubernetes.io/component: shardsvr
       shard: {{ $i | quote }}
+{{- if lt $i (sub $replicas 1) }}
+---
+{{- end }}
 {{- end }}
 {{- end }}
