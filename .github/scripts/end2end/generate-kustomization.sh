@@ -8,8 +8,8 @@ readonly VALID_TOPOLOGIES=(
 )
 
 generate_kustomization() {
-    local node_count=1
-    local shard_count=1
+    local node_count="$1"
+    local shard_count="$2"
     local kustomization_file="kustomization.yaml"
     local base_yaml="mongodb-sharded-${node_count}-node"
 
