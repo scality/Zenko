@@ -79,5 +79,3 @@ EOF
 EOF
     done
 }
-
-generate_kustomization "$@"
