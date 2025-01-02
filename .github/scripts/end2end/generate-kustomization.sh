@@ -10,7 +10,7 @@ readonly VALID_TOPOLOGIES=(
 generate_kustomization() {
     local node_count=$1
     local shard_count=$2
-    local kustomization_file="kustomization.yaml"
+    local kustomization_file="./_build/root/deploy/kustomization.yaml"
     local base_yaml="mongodb-sharded-${node_count}-node"
 
     # Adjust file name if there are multiple shards
