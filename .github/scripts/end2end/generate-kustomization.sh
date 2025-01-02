@@ -32,7 +32,6 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
 - ${DIR}/_build/root/deploy/${base_yaml}
-patches:
 EOF
     done
 }
