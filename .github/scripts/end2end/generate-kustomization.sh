@@ -26,56 +26,13 @@ generate_kustomization() {
         exit 1
     }
 
-    # Generate base kustomization file
+    # Generate base kustomization file with the right base resource
     cat > "$kustomization_file" << EOF
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
 - ${DIR}/_build/root/deploy/${base_yaml}
 patches:
-EOF
-
-    # Add configsvr patch with correct path to add volumeClaimTemplates
-    cat >> "$kustomization_file" << EOF
-- patch: |
-    apiVersion: apps/v1
-    kind: StatefulSet
-    metadata:
-      name: data-db-mongodb-sharded-configsvr
-    spec:
-      volumeClaimTemplates:
-       - metadata:
-           name: datadir
-           annotations: {}
-         spec:
-           accessModes:
-           - "ReadWriteOnce"
-           resources:
-             requests:
-               storage: "8Gi"
-           storageClassName: standard
-EOF
-
-    # Add shard patches for N shards with correct path to add volumeClaimTemplates
-    for ((i=0; i<shard_count; i++)); do
-        cat >> "$kustomization_file" << EOF
-- patch: |
-    apiVersion: apps/v1
-    kind: StatefulSet
-    metadata:
-      name: data-db-mongodb-sharded-shard${i}-data
-    spec:
-      volumeClaimTemplates:
-       - metadata:
-           name: datadir
-           annotations: {}
-         spec:
-           accessModes:
-           - "ReadWriteOnce"
-           resources:
-             requests:
-               storage: "8Gi"
-           storageClassName: standard
 EOF
     done
 }
