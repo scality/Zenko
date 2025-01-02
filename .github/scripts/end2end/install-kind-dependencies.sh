@@ -201,6 +201,11 @@ mongodb_sharded() {
         $SOLUTION_REGISTRY/os-shell=$(get_image_from_deps mongodb-shell) \
         $SOLUTION_REGISTRY/mongodb-exporter=$(get_image_from_deps mongodb-sharded-exporter)
 
+    # cat the current kustomize file
+    cat kustomization.yaml
+
+    cat ./_build/root/deploy/mongodb-sharded-1-node-2-shards.yaml
+
     kubectl apply -k .
 
     kubectl rollout status statefulset data-db-mongodb-sharded-mongos
