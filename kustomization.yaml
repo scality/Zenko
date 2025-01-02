@@ -1,0 +1,50 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- ./_build/root/deploy/mongodb-sharded-1-node-2-shards.yaml
+patches:
+- patch: |
+    - op: add
+      path: /spec/volumeClaimTemplates/-
+      value:
+        metadata:
+          name: datadir
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: "8Gi"
+          storageClassName: standard
+  target:
+    kind: StatefulSet
+    name: data-db-mongodb-sharded-configsvr
+- patch: |
+    - op: add
+      path: /spec/volumeClaimTemplates/-
+      value:
+        metadata:
+          name: datadir
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: "8Gi"
+          storageClassName: standard
+  target:
+    kind: StatefulSet
+    name: data-db-mongodb-sharded-shard0-data
+- patch: |
+    - op: add
+      path: /spec/volumeClaimTemplates/-
+      value:
+        metadata:
+          name: datadir
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: "8Gi"
+          storageClassName: standard
+  target:
+    kind: StatefulSet
+    name: data-db-mongodb-sharded-shard1-data

@@ -4,18 +4,7 @@ set -euo pipefail
 
 # Constants for valid topologies for CI tests
 readonly VALID_TOPOLOGIES=(
-    "1:1"  # 1 node, 1 shard
-    "1:2"  # 1 node, 2 shards
-    "3:1"  # 3 nodes, 1 shard
-    "3:3"  # 3 nodes, 3 shards
-    "6:1"  # 6 nodes, 1 shard
-    "6:3"  # 6 nodes, 3 shards
-    "6:2"  # 6 nodes, 2 shards
-    "6:6"  # 6 nodes, 6 shards
-    "9:1"  # 9 nodes, 1 shard
-    "9:3"  # 9 nodes, 3 shards
-    "9:6"  # 9 nodes, 6 shards
-    "9:9"  # 9 nodes, 9 shards
+    "1:1" "1:2" "3:1" "3:3" "6:1" "6:3" "6:2" "6:6" "9:1" "9:3" "9:6" "9:9"
 )
 
 generate_kustomization() {
@@ -23,7 +12,8 @@ generate_kustomization() {
     local shard_count=$2
     local kustomization_file="kustomization.yaml"
     local base_yaml="mongodb-sharded-${node_count}-node"
-    
+
+    # Adjust file name if there are multiple shards
     [[ "$shard_count" -gt 1 ]] && base_yaml="${base_yaml}-${shard_count}-shards"
     base_yaml="${base_yaml}.yaml"
 
@@ -34,6 +24,7 @@ generate_kustomization() {
         exit 1
     }
 
+    # Generate base kustomization file
     cat > "$kustomization_file" << EOF
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
@@ -42,7 +33,7 @@ resources:
 patches:
 EOF
 
-    # Add configsvr patch
+    # Add configsvr patch with correct path to append volumeClaimTemplates
     cat >> "$kustomization_file" << EOF
 - patch: |
     - op: add
@@ -61,7 +52,7 @@ EOF
     name: data-db-mongodb-sharded-configsvr
 EOF
 
-    # Add shard patches
+    # Add shard patches with correct path to append volumeClaimTemplates
     for ((i=0; i<shard_count; i++)); do
         cat >> "$kustomization_file" << EOF
 - patch: |
@@ -81,7 +72,4 @@ EOF
     name: data-db-mongodb-sharded-shard${i}-data
 EOF
     done
-
-    echo "Generated kustomization file: $kustomization_file"
-    cat "$kustomization_file"
 }
