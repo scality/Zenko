@@ -204,8 +204,6 @@ mongodb_sharded() {
     # cat the current kustomize file
     cat "${DIR}/kustomization.yaml"
 
-    cat ./_build/root/deploy/mongodb-sharded-1-node-2-shards.yaml
-
     kubectl apply -k "${DIR}"
 
     kubectl rollout status statefulset data-db-mongodb-sharded-mongos
