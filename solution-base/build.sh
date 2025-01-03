@@ -84,7 +84,7 @@ function render_mongodb_sharded_yamls()
     local OUTPUT_PATH=${1:-${OPERATOR_PATH}}
     local SHARD_COUNT=${2:-1}
     local NODE_COUNT=${3:-1}
-    local ADD_OPTIONS=${4:-""}
+    local REPLICA_COUNT=${3:-${NODE_COUNT}}
 
     echo creating mongodb-sharded ${NODE_COUNT}-node yamls
     CHART_PATH="$SOLUTION_BASE_DIR/mongodb/charts/mongodb-sharded"
@@ -97,10 +97,10 @@ function render_mongodb_sharded_yamls()
         --set shards=${SHARD_COUNT} \
         --set mongos.replicaCount=${NODE_COUNT} \
         --set mongos.useStatefulSet=true \
-        --set shardsvr.dataNode.replicaCount=${NODE_COUNT} \
+        --set shardsvr.dataNode.replicaCount=${REPLICA_COUNT} \
         --set shardsvr.persistence.enabled=true \
         --set shardsvr.persistence.storageClass=${MONGODB_STORAGE_CLASS} \
-        --set configsvr.replicaCount=${NODE_COUNT} \
+        --set configsvr.replicaCount=${REPLICA_COUNT} \
         --set configsvr.persistence.enabled=true \
         --set configsvr.persistence.storageClass=${MONGODB_STORAGE_CLASS} \
         --set metrics.enabled=true \
@@ -130,18 +130,20 @@ function render_mongodb_sharded_yamls()
 
 function mongodb_sharded_yamls()
 {
-    render_mongodb_sharded_yamls "${MONGODB_SHARDED_SINGLE_NODE_PATH}" 1 1
-    render_mongodb_sharded_yamls "${MONGODB_SHARDED_SINGLE_NODE_TWO_SHARDS_PATH}" 2 1
-    render_mongodb_sharded_yamls "${MONGODB_SHARDED_THREE_NODE_PATH}" 1 3
-    render_mongodb_sharded_yamls "${MONGODB_SHARDED_THREE_NODE_THREE_SHARDS_PATH}" 3 3
-    render_mongodb_sharded_yamls "${MONGODB_SHARDED_SIX_NODE_PATH}" 1 6
-    render_mongodb_sharded_yamls "${MONGODB_SHARDED_SIX_NODE_TWO_SHARDS_PATH}" 2 6
-    render_mongodb_sharded_yamls "${MONGODB_SHARDED_SIX_NODE_THREE_SHARDS_PATH}" 3 6
-    render_mongodb_sharded_yamls "${MONGODB_SHARDED_SIX_NODE_SIX_SHARDS_PATH}" 6 6
-    render_mongodb_sharded_yamls "${MONGODB_SHARDED_NINE_NODE_PATH}" 1 9
-    render_mongodb_sharded_yamls "${MONGODB_SHARDED_NINE_NODE_THREE_SHARDS_PATH}" 3 9
-    render_mongodb_sharded_yamls "${MONGODB_SHARDED_NINE_NODE_SIX_SHARDS_PATH}" 6 9
-    render_mongodb_sharded_yamls "${MONGODB_SHARDED_NINE_NODE_NINE_SHARDS_PATH}" 9 9
+    # For now we maximize the number of replicas to 3, so each shard is a P-S-S
+    # Do we want to support more combinations that is, N replicas?
+    render_mongodb_sharded_yamls "${MONGODB_SHARDED_SINGLE_NODE_PATH}" 1 1 1
+    render_mongodb_sharded_yamls "${MONGODB_SHARDED_SINGLE_NODE_TWO_SHARDS_PATH}" 2 1 1
+    render_mongodb_sharded_yamls "${MONGODB_SHARDED_THREE_NODE_PATH}" 1 3 3
+    render_mongodb_sharded_yamls "${MONGODB_SHARDED_THREE_NODE_THREE_SHARDS_PATH}" 3 3 3
+    render_mongodb_sharded_yamls "${MONGODB_SHARDED_SIX_NODE_PATH}" 1 6 3
+    render_mongodb_sharded_yamls "${MONGODB_SHARDED_SIX_NODE_TWO_SHARDS_PATH}" 2 6 3
+    render_mongodb_sharded_yamls "${MONGODB_SHARDED_SIX_NODE_THREE_SHARDS_PATH}" 3 6 3
+    render_mongodb_sharded_yamls "${MONGODB_SHARDED_SIX_NODE_SIX_SHARDS_PATH}" 6 6 3
+    render_mongodb_sharded_yamls "${MONGODB_SHARDED_NINE_NODE_PATH}" 1 9 3
+    render_mongodb_sharded_yamls "${MONGODB_SHARDED_NINE_NODE_THREE_SHARDS_PATH}" 3 9 3
+    render_mongodb_sharded_yamls "${MONGODB_SHARDED_NINE_NODE_SIX_SHARDS_PATH}" 6 9 3
+    render_mongodb_sharded_yamls "${MONGODB_SHARDED_NINE_NODE_NINE_SHARDS_PATH}" 9 9 3
 }
 
 function gen_manifest_yaml()
