@@ -18,7 +18,7 @@ import {
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const { atMostOnePicklePerTag } = parallelCanAssignHelpers;
-const noParallelRun = atMostOnePicklePerTag(['@AfterAll', '@PRA', '@ColdStorage', '@Utilization']);
+const noParallelRun = atMostOnePicklePerTag(['@AfterAll', '@PRA', '@ColdStorage']);
 
 setParallelCanAssign(noParallelRun);
 
