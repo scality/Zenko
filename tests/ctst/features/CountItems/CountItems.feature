@@ -5,6 +5,7 @@ Feature: CountItems measures the utilization metrics
 @PreMerge
 @CronJob
 @CountItems
+@Utilization
 Scenario Outline: Countitems runs without error and compute utilization metrics
     Given an existing bucket "" "without" versioning, "without" ObjectLock "without" retention mode
     And an object "" that "exists"
