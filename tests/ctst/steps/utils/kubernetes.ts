@@ -1,3 +1,5 @@
+import fs from 'fs';
+import * as path from 'path';
 import { KubernetesHelper, Utils } from 'cli-testing';
 import Zenko from 'world/Zenko';
 import {
@@ -71,12 +73,42 @@ export function createKubeCustomObjectClient(world: Zenko): CustomObjectsApi {
     return KubernetesHelper.customObject;
 }
 
-export async function createJobAndWaitForCompletion(world: Zenko, jobName: string, customMetadata?: string) {
+export async function createJobAndWaitForCompletion(
+    world: Zenko,
+    jobName: string,
+    customMetadata?: string
+) {
     const batchClient = createKubeBatchClient(world);
     const watchClient = createKubeWatchClient(world);
+
+    const lockFilePath = path.join('/tmp', `${jobName}.lock`);
+
+    let lockAquired = false;
+    let tries = 600;
+    while (!lockAquired && tries > 0) {
+        try {
+            fs.writeFileSync(lockFilePath, 'lock', {
+                flag: 'wx',
+            });
+            lockAquired = true;
+        } catch {
+            world.logger.debug(`Failed to acquire lock for job: ${jobName}`, {
+                tries,
+            });            
+        }
+        tries--;
+        if (!lockAquired) {
+            await Utils.sleep(1000);
+        }
+    }
+
     try {
+        world.logger.debug(`Acquired lock for job: ${jobName}`);
+
+        // Read the cron job and prepare the job spec
         const cronJob = await batchClient.readNamespacedCronJob(jobName, 'default');
         const cronJobSpec = cronJob.body.spec?.jobTemplate.spec;
+
         const job = new V1Job();
         const metadata = new V1ObjectMeta();
         job.apiVersion = 'batch/v1';
@@ -87,49 +119,52 @@ export async function createJobAndWaitForCompletion(world: Zenko, jobName: strin
             'cronjob.kubernetes.io/instantiate': 'ctst',
         };
         if (customMetadata) {
-            metadata.annotations = {
-                custom: customMetadata,
-            };
+            metadata.annotations.custom = customMetadata;
         }
         job.metadata = metadata;
 
+        // Create the job
         const response = await batchClient.createNamespacedJob('default', job);
-        world.logger.debug('job created', {
-            job: response.body.metadata,
-        });
+        world.logger.debug('Job created', { job: response.body.metadata });
 
         const expectedJobName = response.body.metadata?.name;
 
+        // Watch for job completion
         await new Promise<void>((resolve, reject) => {
             void watchClient.watch(
                 '/apis/batch/v1/namespaces/default/jobs',
                 {},
                 (type: string, apiObj, watchObj) => {
-                    if (job.metadata?.name && expectedJobName &&
-                        (watchObj.object?.metadata?.name as string)?.startsWith?.(expectedJobName)) {
+                    if (
+                        expectedJobName &&
+                        (watchObj.object?.metadata?.name as string)?.startsWith?.(expectedJobName)
+                    ) {
                         if (watchObj.object?.status?.succeeded) {
-                            world.logger.debug('job succeeded', {
-                                job: job.metadata,
-                            });
+                            world.logger.debug('Job succeeded', { job: job.metadata });
                             resolve();
                         } else if (watchObj.object?.status?.failed) {
-                            world.logger.debug('job failed', {
+                            world.logger.debug('Job failed', {
                                 job: job.metadata,
                                 object: watchObj.object,
                             });
-                            reject(new Error('job failed'));
+                            reject(new Error('Job failed'));
                         }
                     }
-                }, reject);
+                },
+                reject
+            );
         });
     } catch (err: unknown) {
-        world.logger.error('error creating job', {
+        world.logger.error('Error creating or waiting for job completion', {
             jobName,
             err,
         });
         throw err;
+    } finally {
+        fs.unlinkSync(lockFilePath);
     }
 }
+
 
 export async function waitForZenkoToStabilize(
     world: Zenko, needsReconciliation = false, timeout = 15 * 60 * 1000, namespace = 'default') {
