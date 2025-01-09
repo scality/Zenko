@@ -377,8 +377,9 @@ When('the user tries to perform the current S3 action on the bucket {int} times 
                 this.addToSaved('copyObject', `objectrepeatcopy-${Utils.randomString()}`);
             }
             await runActionAgainstBucket(this, this.getSaved<ActionPermissionsType>('currentAction').action);
-            if (this.getResult().err) {
+            if (this.getResult().err && this.getResult().retryable?.throttling !== true) {
                 this.logger.debug('Error during repeated action', { error: this.getResult().err });
+                break;
             }
             await Utils.sleep(delay);
         }
