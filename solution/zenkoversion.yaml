@@ -71,7 +71,7 @@ spec:
       tag: '${CLOUDSERVER_TAG}'
     backbeat:
       image: backbeat
-      tag: '${BACKBEAT_TAG}'
+      tag: 'd1c459d66317bfd002776b69d1f421a7eb87dfcc'
     drctl:
       image: zenko-drctl
       tag: ${DRCTL_TAG}
