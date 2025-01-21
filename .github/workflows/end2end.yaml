@@ -75,10 +75,10 @@ env:
   GCP_BACKEND_SERVICE_KEY: ${{ secrets.GCP_BACKEND_SERVICE_KEY }}
   GCP_BACKEND_SERVICE_EMAIL: ${{ secrets.GCP_BACKEND_SERVICE_EMAIL }}
   # Enable this for Ring tests
-  ENABLE_RING_TESTS: "false"
-  RING_S3C_ACCESS_KEY: ${{ secrets.RING_S3C_BACKEND_ACCESS_KEY }}
-  RING_S3C_SECRET_KEY: ${{ secrets.RING_S3C_BACKEND_SECRET_KEY }}
-  RING_S3C_ENDPOINT: ${{ secrets.RING_S3C_BACKEND_ENDPOINT }}
+  ENABLE_RING_TESTS: "true"
+  RING_S3C_ACCESS_KEY: accessKey1
+  RING_S3C_SECRET_KEY: verySecretKey1
+  RING_S3C_ENDPOINT: http://s3c.local:8000
   RING_S3C_BACKEND_SOURCE_LOCATION: rings3cbackendingestion
   RING_S3C_INGESTION_SRC_BUCKET_NAME: ingestion-test-src-bucket-${{ github.run_id }}-${{ github.run_attempt }}
   # CTST end2end tests
@@ -320,9 +320,6 @@ jobs:
         run: |-
           cd tests/zenko_tests
           envsubst < 'e2e-config.yaml.template' > 'e2e-config.yaml'
-          if [[ "${ENABLE_RING_TESTS}" == "false" ]]; then
-            yq -i 'del(.locations[] | select(.locationType == "location-scality-ring-s3-v1"))' e2e-config.yaml
-          fi
           cat e2e-config.yaml
           echo 'Generated e2e-config.yaml file'
       - name: Build and push CI image
@@ -556,8 +553,6 @@ jobs:
     needs: [build-kafka, build-test-image]
     runs-on:
       - ubuntu-22.04-8core
-      # Enable this for Ring-based tests
-      # - scality-cloud
     steps:
       - name: Checkout
         uses: actions/checkout@v4
