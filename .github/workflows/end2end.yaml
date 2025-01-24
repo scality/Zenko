@@ -75,7 +75,7 @@ env:
   GCP_BACKEND_SERVICE_KEY: ${{ secrets.GCP_BACKEND_SERVICE_KEY }}
   GCP_BACKEND_SERVICE_EMAIL: ${{ secrets.GCP_BACKEND_SERVICE_EMAIL }}
   # Enable this for Ring tests
-  ENABLE_RING_TESTS: "true"
+  ENABLE_RING_TESTS: "false"
   RING_S3C_ACCESS_KEY: accessKey1
   RING_S3C_SECRET_KEY: verySecretKey1
   RING_S3C_ENDPOINT: http://s3c.local:8000
@@ -553,6 +553,8 @@ jobs:
     needs: [build-kafka, build-test-image]
     runs-on:
       - ubuntu-22.04-8core
+    env:
+      ENABLE_RING_TESTS: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -570,6 +572,8 @@ jobs:
         uses: ./.github/actions/deploy
         env:
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+        with:
+          deploy_metadata: ${{ env.ENABLE_RING_TESTS }}
       - name: Run backbeat end to end tests
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "backbeat" "default"
         working-directory: ./.github/scripts/end2end
