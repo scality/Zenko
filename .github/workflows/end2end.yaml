@@ -80,7 +80,7 @@ env:
   RING_S3C_SECRET_KEY: verySecretKey1
   RING_S3C_ENDPOINT: http://s3c.local:8000
   RING_S3C_BACKEND_SOURCE_LOCATION: rings3cbackendingestion
-  RING_S3C_INGESTION_SRC_BUCKET_NAME: ingestion-test-src-bucket-${{ github.run_id }}-${{ github.run_attempt }}
+  RING_S3C_INGESTION_SRC_BUCKET_NAME: ingestion-test-src-bucket-${{ github.run_id }}
   # CTST end2end tests
   NOTIF_DEST_NAME: "destination1"
   NOTIF_DEST_TOPIC: "destination-topic-1"
