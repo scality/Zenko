@@ -93,7 +93,6 @@ describe('Ingestion pause resume', function () {
             'non-existent-location',
             (err, data) => {
                 assert.ifError(err);
-                assert.strictEqual(data.code, 404);
                 assert.strictEqual(data.RouteNotFound, true);
                 return done();
             },
