@@ -109,3 +109,6 @@ sleep 10
 
 kubectl wait --for condition=DeploymentFailure=false --timeout 25m -n ${NAMESPACE} zenko/${ZENKO_NAME}
 kubectl wait --for condition=DeploymentInProgress=false --timeout 25m -n ${NAMESPACE} zenko/${ZENKO_NAME}
+
+# wait for ingestion processor to start consuming from Kafka
+wait_for_consumer_group $UUID.backbeat-ingestion-group 300
