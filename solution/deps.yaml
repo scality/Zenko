@@ -13,10 +13,10 @@ busybox:
   tag: 1.36.1
   envsubst: BUSYBOX_TAG
 cloudserver:
-  sourceRegistry: ghcr.io/scality
+  sourceRegistry: ghcr.io/scality/playground
   dashboard: cloudserver/cloudserver-dashboards
   image: cloudserver
-  tag: 8.8.39
+  tag: 8.8.40
   envsubst: CLOUDSERVER_TAG
 drctl:
   sourceRegistry: ghcr.io/scality
@@ -78,9 +78,9 @@ mongodb-connector:
   tag: 1.13.0
   envsubst: MONGODB_CONNECTOR_TAG
 pensieve-api:
-  sourceRegistry: ghcr.io/scality
+  sourceRegistry: ghcr.io/scality/playground
   image: pensieve-api
-  tag: 1.6.2
+  tag: 1.6.3
   envsubst: PENSIEVE_API_TAG
 rclone:
   sourceRegistry: rclone
@@ -97,16 +97,16 @@ redis_exporter:
   tag: v1.61.0
   envsubst: REDIS_EXPORTER_TAG
 s3utils:
-  sourceRegistry: ghcr.io/scality
+  sourceRegistry: ghcr.io/scality/playground
   dashboard: s3utils/s3utils-dashboards
   image: s3utils
   tag: 1.14.15
   envsubst: S3UTILS_TAG
 scuba:
-  sourceRegistry: ghcr.io/scality
+  sourceRegistry:  ghcr.io/scality/playground
   dashboard: scuba/scuba-dashboards
   image: scuba
-  tag: 1.0.9
+  tag: 1.0.10
   envsubst: SCUBA_TAG
 sorbet:
   sourceRegistry: ghcr.io/scality
