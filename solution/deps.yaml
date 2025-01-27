@@ -16,7 +16,7 @@ cloudserver:
   sourceRegistry: ghcr.io/scality/playground
   dashboard: cloudserver/cloudserver-dashboards
   image: cloudserver
-  tag: 8.8.40
+  tag: 8.8.41
   envsubst: CLOUDSERVER_TAG
 drctl:
   sourceRegistry: ghcr.io/scality
