@@ -111,4 +111,5 @@ kubectl wait --for condition=DeploymentFailure=false --timeout 25m -n ${NAMESPAC
 kubectl wait --for condition=DeploymentInProgress=false --timeout 25m -n ${NAMESPACE} zenko/${ZENKO_NAME}
 
 # wait for ingestion processor to start consuming from Kafka
-wait_for_consumer_group $NAMESPACE $UUID.backbeat-ingestion-group 1 300
+ingestion_processor_replicas=$(kubectl -n $NAMESPACE get deploy/end2end-backbeat-ingestion-processor -o jsonpath='{.spec.replicas}')
+wait_for_consumer_group $NAMESPACE $UUID.backbeat-ingestion-group $ingestion_processor_replicas 300
