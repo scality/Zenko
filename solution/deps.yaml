@@ -16,7 +16,7 @@ cloudserver:
   sourceRegistry: ghcr.io/scality
   dashboard: cloudserver/cloudserver-dashboards
   image: cloudserver
-  tag: 8.8.39
+  tag: 8.8.43
   envsubst: CLOUDSERVER_TAG
 drctl:
   sourceRegistry: ghcr.io/scality
@@ -80,7 +80,7 @@ mongodb-connector:
 pensieve-api:
   sourceRegistry: ghcr.io/scality
   image: pensieve-api
-  tag: 1.6.2
+  tag: 1.6.3
   envsubst: PENSIEVE_API_TAG
 rclone:
   sourceRegistry: rclone
@@ -100,13 +100,13 @@ s3utils:
   sourceRegistry: ghcr.io/scality
   dashboard: s3utils/s3utils-dashboards
   image: s3utils
-  tag: 1.14.15
+  tag: 1.14.18
   envsubst: S3UTILS_TAG
 scuba:
   sourceRegistry: ghcr.io/scality
   dashboard: scuba/scuba-dashboards
   image: scuba
-  tag: 1.0.9
+  tag: 1.0.11
   envsubst: SCUBA_TAG
 sorbet:
   sourceRegistry: ghcr.io/scality
