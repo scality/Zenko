@@ -64,14 +64,15 @@ wait_for_all_pods_behind_services() {
 
 # wait for consumer group to be in a stable state (no rebance + at least one consumer connected)
 wait_for_consumer_group() {
+    namespace=$1
     # Getting the name of the first kafka pod
-    kafka_pod=$(kubectl get pods -l brokerId=0,kafka_cr=end2end-base-queue,app=kafka -o jsonpath='{.items[0].metadata.name}')
-    consumer_group=$1
+    kafka_pod=$(kubectl get pods -n $namespace -l brokerId=0,kafka_cr=end2end-base-queue,app=kafka -o jsonpath='{.items[0].metadata.name}')
+    consumer_group=$2
     # When a pod is restarted the previous consumer is kept in the group until the session timeout expires
-    expected_members=$2
-    timeout_s=$3
-    interval_s=${4:-5}
-    kubectl exec -it $kafka_pod -- bash -c '
+    expected_members=$3
+    timeout_s=$4
+    interval_s=${5:-5}
+    kubectl exec -it $kafka_pod -n $namespace -- bash -c '
 export KAFKA_OPTS=
 consumer_group=$1
 expected_members=$2
