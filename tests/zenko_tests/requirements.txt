@@ -22,7 +22,7 @@ jsonschema==4.23.0
 kaitaistruct==0.10
 kubernetes==30.1.0
 ldap3==2.9.1
-mitmproxy==10.4.2
+mitmproxy==11.1.2
 passlib==1.7.4
 Pipewrench==0.2.4
 pyasn1==0.6.0
