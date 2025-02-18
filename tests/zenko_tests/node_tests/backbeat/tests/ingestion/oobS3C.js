@@ -26,6 +26,11 @@ describe('OOB updates for RING S3C bucket', () => {
             null,
             next,
         ),
+        next => ringS3CUtils.putBucketVersioning(
+            ingestionSrcBucket,
+            'Enabled',
+            next,
+        ),
         next => scalityUtils.waitUntilEmpty(INGESTION_DEST_BUCKET, next),
         next => scalityUtils.deleteVersionedBucket(
             INGESTION_DEST_BUCKET,
@@ -157,6 +162,56 @@ describe('OOB updates for RING S3C bucket', () => {
             INGESTION_DEST_BUCKET,
             OBJ_KEY,
             mpuData.VersionId,
+            undefined,
+            next,
+        ),
+    ], done));
+
+    it('should receive OOB update with a versioning suspended object', done => async.series([
+        next => ringS3CUtils.putBucketVersioning(
+            ingestionSrcBucket,
+            'Suspended',
+            next,
+        ),
+        next => ringS3CUtils.putObject(
+            ingestionSrcBucket,
+            OBJ_KEY,
+            Buffer.alloc(1),
+            next,
+        ),
+        next => scalityUtils.compareObjectsRINGS3C(
+            ingestionSrcBucket,
+            INGESTION_DEST_BUCKET,
+            OBJ_KEY,
+            'null',
+            undefined,
+            next,
+        ),
+    ], done));
+
+    it('should receive OOB update with a null version of a versioned object', done => async.series([
+        next => ringS3CUtils.putObject(
+            ingestionSrcBucket,
+            OBJ_KEY,
+            Buffer.alloc(1),
+            next,
+        ),
+        next => ringS3CUtils.putBucketVersioning(
+            ingestionSrcBucket,
+            'Suspended',
+            next,
+        ),
+        next => ringS3CUtils.putObject(
+            ingestionSrcBucket,
+            OBJ_KEY,
+            Buffer.alloc(1),
+            next,
+        ),
+        next => scalityUtils.compareObjectsRINGS3C(
+            ingestionSrcBucket,
+            INGESTION_DEST_BUCKET,
+            OBJ_KEY,
+            'null',
             undefined,
             next,
         ),

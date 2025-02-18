@@ -487,6 +487,15 @@ class ReplicationUtility {
         ], err => cb(err));
     }
 
+    putBucketVersioning(bucketName, status, cb) {
+        this.s3.putBucketVersioning({
+            Bucket: bucketName,
+            VersioningConfiguration: {
+                Status: status,
+            },
+        }, cb);
+    }
+
     putBucketReplicationMultipleBackend(
         srcBucket,
         destBucket,
