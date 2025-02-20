@@ -61,3 +61,41 @@ wait_for_all_pods_behind_services() {
         done
     done
 }
+
+# wait for consumer group to be in a stable state (no rebance + at least one consumer connected)
+wait_for_consumer_group() {
+    namespace=$1
+    # Getting the name of the first kafka pod
+    kafka_pod=$(kubectl get pods -n $namespace -l brokerId=0,kafka_cr=end2end-base-queue,app=kafka -o jsonpath='{.items[0].metadata.name}')
+    consumer_group=$2
+    # When a pod is restarted the previous consumer is kept in the group until the session timeout expires
+    expected_members=$3
+    timeout_s=$4
+    interval_s=${5:-5}
+    kubectl exec -it $kafka_pod -n $namespace -- bash -c '
+export KAFKA_OPTS=
+consumer_group=$1
+expected_members=$2
+timeout_s=$3
+interval_s=$4
+start_time=$(date +%s)
+while true; do
+    # The state becomes "Stable" when no rebalance is happening and at least one consumer is connected
+    state=$(kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --group $consumer_group --state | awk '"'"'NF>1 && $(NF-1) != "STATE" {print (NF>1?$(NF-1):"None")} {next}'"'"')
+    members=$(kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --group $consumer_group --state | awk '"'"'NF>1 && $NF != "#MEMBERS" {print (NF>1?$NF:"None")} {next}'"'"')
+    echo "Consumer group $consumer_group state: $state, members: $members"
+    if [ "$state" == "Stable" ] && [ "$members" -eq "$expected_members" ]; then
+        echo "Consumer group $consumer_group is now consuming."
+        exit 0
+    fi
+    # Check if we have reached the timeout
+    current_time=$(date +%s)
+    elapsed_time=$((current_time - start_time))
+    if [ "$elapsed_time" -ge "$timeout_s" ]; then
+        echo "Error: Timed out waiting for consumer group $consumer_group to start consuming."
+        exit 1
+    fi
+    sleep $interval_s
+done
+' -- "$consumer_group" "$expected_members" "$timeout_s" "$interval_s"
+}

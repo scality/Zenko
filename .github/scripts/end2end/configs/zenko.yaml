@@ -34,7 +34,7 @@ spec:
     ingestionProcessor:
       concurrency: 2
     logging:
-      logLevel: trace
+      logLevel: debug
   mongodb:
     provider: External
     endpoints:
