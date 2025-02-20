@@ -9,32 +9,44 @@ const scalityUtils = new IngestionUtility(scalityS3Client, ringS3Client);
 const ringS3CUtils = new IngestionUtility(ringS3Client);
 const ingestionSrcBucket = process.env.RING_S3C_INGESTION_SRC_BUCKET_NAME;
 const srcLocation = process.env.RING_S3C_BACKEND_SOURCE_LOCATION;
+const ingestionNonVersionedSrcBucket = process.env.RING_S3C_INGESTION_SRC_NON_VERSIONED_BUCKET_NAME;
+// Multiplying by 3 to account for the 3 types of objects: simple, zero-byte, and multipart
+const nonVersionedObjectCount = parseInt(process.env.RING_S3C_INGESTION_NON_VERSIONED_OBJECT_COUNT_PER_TYPE, 10) * 3;
+const srcNonVersionedLocation = process.env.RING_S3C_BACKEND_SOURCE_NON_VERSIONED_LOCATION;
 const location = srcLocation;
 let INGESTION_DEST_BUCKET;
 let KEY_PREFIX;
 let OBJ_KEY;
 
 describe('Ingesting existing data from RING S3C bucket', () => {
-    beforeEach(() => {
+    beforeEach(function () {
         INGESTION_DEST_BUCKET = `ingestion-${uuid()}`;
         KEY_PREFIX = `${ingestionSrcBucket}-${uuid()}`;
         OBJ_KEY = `${KEY_PREFIX}/object-to-ingest-${uuid()}`;
+        this.testState = {
+            skipCleanup: false,
+        };
     });
 
-    afterEach(done => async.series([
-        next => ringS3CUtils.deleteAllVersions(
-            ingestionSrcBucket,
-            null,
-            next,
-        ),
-        next => ringS3CUtils.putBucketVersioning(
-            ingestionSrcBucket,
-            'Enabled',
-            next,
-        ),
-        next => scalityUtils.waitUntilEmpty(INGESTION_DEST_BUCKET, next),
-        next => scalityUtils.deleteVersionedBucket(INGESTION_DEST_BUCKET, next),
-    ], done));
+    afterEach(function (done) {
+        if (this.testState.skipCleanup) {
+            return done();
+        }
+        return async.series([
+            next => ringS3CUtils.deleteAllVersions(
+                ingestionSrcBucket,
+                null,
+                next,
+            ),
+            next => ringS3CUtils.putBucketVersioning(
+                ingestionSrcBucket,
+                'Enabled',
+                next,
+            ),
+            next => scalityUtils.waitUntilEmpty(INGESTION_DEST_BUCKET, next),
+            next => scalityUtils.deleteVersionedBucket(INGESTION_DEST_BUCKET, next),
+        ], done);
+    });
 
     it('should ingest an object', done => async.waterfall([
         // object
@@ -356,4 +368,40 @@ describe('Ingesting existing data from RING S3C bucket', () => {
             next,
         ),
     ], done));
+
+    // The source bucket used in this test has non versioned objects of 3 types: simple, zero-byte, and multipart
+    // These non versioned objects were put before creating the location as the bucket has to be versioned
+    // for the location to be created, and once it's versioned can't be set to non versioned again. This is
+    // done to avoid having to create the location during the tests which might impact other tests running
+    // in parallel.
+    it('should ingest all non versioned objects', function (done) {
+        // skipping cleanup as deleting the ingestion bucket requires
+        // deleting all objects which will delete the source bucket objects
+        this.testState.skipCleanup = true;
+        async.waterfall([
+            next => scalityUtils.createIngestionBucket(
+                INGESTION_DEST_BUCKET,
+                srcNonVersionedLocation,
+                next,
+            ),
+            next => ringS3CUtils.s3.listObjectVersions({
+                Bucket: ingestionNonVersionedSrcBucket,
+            }, next),
+            (data, next) => {
+                assert.strictEqual(data.Versions.length, nonVersionedObjectCount);
+                assert.strictEqual(data.DeleteMarkers.length, 0);
+                async.forEach(data.Versions, (version, cb) => {
+                    scalityUtils.compareObjectsRINGS3C(
+                        ingestionNonVersionedSrcBucket,
+                        INGESTION_DEST_BUCKET,
+                        version.Key,
+                        'null',
+                        undefined,
+                        cb,
+                    );
+                }, next);
+            },
+        ], done);
+    });
 });
+

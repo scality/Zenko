@@ -81,6 +81,9 @@ env:
   RING_S3C_ENDPOINT: http://s3c.local:8000
   RING_S3C_BACKEND_SOURCE_LOCATION: rings3cbackendingestion
   RING_S3C_INGESTION_SRC_BUCKET_NAME: ingestion-test-src-bucket-${{ github.run_id }}
+  RING_S3C_BACKEND_SOURCE_NON_VERSIONED_LOCATION: rings3cbackendingestionnonversioned
+  RING_S3C_INGESTION_SRC_NON_VERSIONED_BUCKET_NAME: ingestion-test-src-non-versioned-bucket-${{ github.run_id }}
+  RING_S3C_INGESTION_NON_VERSIONED_OBJECT_COUNT_PER_TYPE: 2
   # CTST end2end tests
   NOTIF_DEST_NAME: "destination1"
   NOTIF_DEST_TOPIC: "destination-topic-1"
