@@ -1,8 +1,8 @@
 diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-statefulset.yaml b/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-statefulset.yaml
-index 6a45fed9..ca78c8ae 100644
+index 87057f69..202a5a30 100644
 --- a/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-statefulset.yaml
 +++ b/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-statefulset.yaml
-@@ -77,14 +77,7 @@ spec:
+@@ -78,14 +78,7 @@ spec:
          - name: volume-permissions
            image: {{ include "mongodb-sharded.volumePermissions.image" . }}
            imagePullPolicy: {{ .Values.volumePermissions.image.pullPolicy | quote }}
@@ -17,12 +17,12 @@ index 6a45fed9..ca78c8ae 100644
 +          command: ["chown", "-R", "{{ .Values.configsvr.containerSecurityContext.runAsUser }}:{{ .Values.configsvr.podSecurityContext.fsGroup }}", "{{ .Values.configsvr.persistence.mountPath }}"]
            securityContext:
              runAsUser: 0
-           resources: {{ toYaml .Values.volumePermissions.resources | nindent 12 }}
+           {{- if .Values.volumePermissions.resources }}
 diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-statefulset.yaml b/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-statefulset.yaml
-index 3827a7de..8a97e555 100644
+index 89883c12..0e6ed5a0 100644
 --- a/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-statefulset.yaml
 +++ b/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-statefulset.yaml
-@@ -80,14 +80,7 @@ spec:
+@@ -81,14 +81,7 @@ spec:
          - name: volume-permissions
            image: {{ include "mongodb-sharded.volumePermissions.image" $ }}
            imagePullPolicy: {{ $.Values.volumePermissions.image.pullPolicy | quote }}
@@ -37,4 +37,4 @@ index 3827a7de..8a97e555 100644
 +          command: ["chown", "-R", "{{ $.Values.shardsvr.dataNode.containerSecurityContext.runAsUser }}:{{ $.Values.shardsvr.dataNode.podSecurityContext.fsGroup }}", "{{ $.Values.shardsvr.persistence.mountPath }}"]
            securityContext:
              runAsUser: 0
-           resources: {{ toYaml $.Values.volumePermissions.resources | nindent 12 }}
+           {{- if $.Values.volumePermissions.resources }}

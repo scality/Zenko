@@ -1,13 +1,13 @@
 diff --git a/solution-base/mongodb/charts/mongodb-sharded/values.yaml b/solution-base/mongodb/charts/mongodb-sharded/values.yaml
-index 368576d2..68255050 100644
+index d934cc7b..83f60e80 100644
 --- a/solution-base/mongodb/charts/mongodb-sharded/values.yaml
 +++ b/solution-base/mongodb/charts/mongodb-sharded/values.yaml
-@@ -1567,7 +1567,7 @@ metrics:
+@@ -1768,7 +1768,7 @@ metrics:
    ## @param metrics.extraArgs String with extra arguments to the metrics exporter
    ## ref: https://github.com/percona/mongodb_exporter/blob/main/main.go
    ##
 -  extraArgs: ""
 +  extraArgs: "--collector.diagnosticdata --collector.replicasetstatus --collector.dbstats --collector.topmetrics --compatible-mode"
-   ## @param metrics.resources Metrics exporter resource requests and limits
-   ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
+   ## @param metrics.resourcesPreset Set container resources according to one common preset (allowed values: none, nano, small, medium, large, xlarge, 2xlarge). This is ignored if metrics.resources is set (metrics.resources is recommended for production).
+   ## More information: https://github.com/bitnami/charts/blob/main/bitnami/common/templates/_resources.tpl#L15
    ##
