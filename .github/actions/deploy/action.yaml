@@ -7,6 +7,10 @@ inputs:
     description: "The tag of the Zenko Operator image to use"
     required: false
     default: ""
+  deploy_metadata:
+    description: "Deploy a metadata cluster alongside Zenko"
+    required: false
+    default: "false"
 runs:
   using: composite
   steps:
@@ -83,6 +87,11 @@ runs:
       shell: bash
       run: sh tests/smoke/deploy-sorbet-resources.sh end2end
       working-directory: ./.github/scripts/end2end/operator
+    - name: Deploy metadata
+      shell: bash
+      run: ./deploy-metadata.sh
+      working-directory: ./.github/scripts/end2end
+      if: ${{ inputs.deploy_metadata == 'true' }}
     - name: End-to-end configuration
       shell: bash
       run: bash configure-e2e.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "default"

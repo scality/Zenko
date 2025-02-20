@@ -76,11 +76,11 @@ env:
   GCP_BACKEND_SERVICE_EMAIL: ${{ secrets.GCP_BACKEND_SERVICE_EMAIL }}
   # Enable this for Ring tests
   ENABLE_RING_TESTS: "false"
-  RING_S3C_ACCESS_KEY: ${{ secrets.RING_S3C_BACKEND_ACCESS_KEY }}
-  RING_S3C_SECRET_KEY: ${{ secrets.RING_S3C_BACKEND_SECRET_KEY }}
-  RING_S3C_ENDPOINT: ${{ secrets.RING_S3C_BACKEND_ENDPOINT }}
+  RING_S3C_ACCESS_KEY: accessKey1
+  RING_S3C_SECRET_KEY: verySecretKey1
+  RING_S3C_ENDPOINT: http://s3c.local:8000
   RING_S3C_BACKEND_SOURCE_LOCATION: rings3cbackendingestion
-  RING_S3C_INGESTION_SRC_BUCKET_NAME: ingestion-test-src-bucket-${{ github.run_id }}-${{ github.run_attempt }}
+  RING_S3C_INGESTION_SRC_BUCKET_NAME: ingestion-test-src-bucket-${{ github.run_id }}
   # CTST end2end tests
   NOTIF_DEST_NAME: "destination1"
   NOTIF_DEST_TOPIC: "destination-topic-1"
@@ -320,9 +320,6 @@ jobs:
         run: |-
           cd tests/zenko_tests
           envsubst < 'e2e-config.yaml.template' > 'e2e-config.yaml'
-          if [[ "${ENABLE_RING_TESTS}" == "false" ]]; then
-            yq -i 'del(.locations[] | select(.locationType == "location-scality-ring-s3-v1"))' e2e-config.yaml
-          fi
           cat e2e-config.yaml
           echo 'Generated e2e-config.yaml file'
       - name: Build and push CI image
@@ -556,8 +553,8 @@ jobs:
     needs: [build-kafka, build-test-image]
     runs-on:
       - ubuntu-22.04-8core
-      # Enable this for Ring-based tests
-      # - scality-cloud
+    env:
+      ENABLE_RING_TESTS: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -575,6 +572,8 @@ jobs:
         uses: ./.github/actions/deploy
         env:
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+        with:
+          deploy_metadata: ${{ env.ENABLE_RING_TESTS }}
       - name: Run backbeat end to end tests
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "backbeat" "default"
         working-directory: ./.github/scripts/end2end
