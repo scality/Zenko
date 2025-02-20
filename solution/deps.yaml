@@ -57,7 +57,7 @@ kafka-cleaner:
   sourceRegistry: ghcr.io/scality
   dashboard: kafka-cleaner/kafka-cleaner-dashboards
   image: kafka-cleaner
-  tag: v1.0.3
+  tag: v1.0.4
   envsubst: KAFKA_CLEANER_TAG
 kafka-connect:
   sourceRegistry: ghcr.io/scality/zenko
