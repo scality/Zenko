@@ -131,7 +131,7 @@ vault:
   dashboard: vault/vault-dashboards
   policy: vault/vault-policies
   image: vault
-  tag: 8.10.2
+  tag: 8.10.3
   envsubst: VAULT_TAG
 zenko-operator:
   sourceRegistry: ghcr.io/scality
