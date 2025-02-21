@@ -127,7 +127,7 @@ stern: # tail any pod logs with pattern matchin
 #   tag: zenko-1.0.0
 #   envsubst: UTAPI_TAG
 vault:
-  sourceRegistry: ghcr.io/scality/playground/
+  sourceRegistry: ghcr.io/scality/playground
   dashboard: vault/vault-dashboards
   policy: vault/vault-policies
   image: vault
