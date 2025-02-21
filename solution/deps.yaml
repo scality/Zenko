@@ -3,9 +3,9 @@
 # yq eval 'sortKeys(.)' -i deps.yaml
 backbeat:
   sourceRegistry: ghcr.io/scality/playground/welansari
-  dashboard: backbeat/backbeat-dashboards
+  dashboard: backbeat-dashboards
   image: backbeat
-  policy: backbeat/backbeat-policies
+  policy: backbeat-policies
   tag: 9.0.2
   envsubst: BACKBEAT_TAG
 busybox:
