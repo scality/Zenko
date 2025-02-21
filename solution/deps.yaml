@@ -2,7 +2,7 @@
 # to sort keys, use the following command
 # yq eval 'sortKeys(.)' -i deps.yaml
 backbeat:
-  sourceRegistry: ghcr.io/scality/playground/welansari
+  sourceRegistry: ghcr.io/scality
   dashboard: backbeat-dashboards
   image: backbeat
   policy: backbeat-policies
