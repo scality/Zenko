@@ -361,6 +361,7 @@ When('i run sorbetctl to retry failed restore for {string} location', async func
     const command = `/ctst/sorbetctl forward list failed --trigger-retry --skip-invalid \
         --kafka-dead-letter-topic=${this.parameters.KafkaDeadLetterQueueTopic} \
         --kafka-object-task-topic=${this.parameters.KafkaObjectTaskTopic} \
+        --kafka-gc-request-topic=${this.parameters.KafkaGCRequestTopic} \
         --kafka-brokers ${this.parameters.KafkaHosts}`;
     try {
         this.logger.debug('Running command', { command, location });

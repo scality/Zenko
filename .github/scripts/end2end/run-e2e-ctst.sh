@@ -48,6 +48,9 @@ KAFKA_DEAD_LETTER_TOPIC=$(kubectl get secret -l app.kubernetes.io/name=cold-sorb
 
 KAFKA_OBJECT_TASK_TOPIC=$(kubectl get secret -l app.kubernetes.io/name=cold-sorbet-config-e2e-azure-archive,app.kubernetes.io/instance=end2end \
     -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq '."kafka-object-task-topic"' | cut -d "\"" -f 2)
+  
+KAFKA_GC_REQUEST_TOPIC=$(kubectl get secret -l app.kubernetes.io/name=cold-sorbet-config-e2e-azure-archive,app.kubernetes.io/instance=end2end \
+    -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq '."kafka-gc-request-topic"' | cut -d "\"" -f 2)
 
 DR_ADMIN_ACCESS_KEY_ID=$(kubectl get secret end2end-pra-management-vault-admin-creds.v1 -o jsonpath='{.data.accessKey}' | base64 -d)
 DR_ADMIN_SECRET_ACCESS_KEY=$(kubectl get secret end2end-pra-management-vault-admin-creds.v1  -o jsonpath='{.data.secretKey}' | base64 -d)
@@ -110,6 +113,7 @@ WORLD_PARAMETERS="$(jq -c <<EOF
   "AzureArchiveQueue":"${AZURE_ARCHIVE_QUEUE_NAME}",
   "TimeProgressionFactor":"${TIME_PROGRESSION_FACTOR}",
   "KafkaObjectTaskTopic":"${KAFKA_OBJECT_TASK_TOPIC}",
+  "KafkaGCRequestTopic":"${KAFKA_GC_REQUEST_TOPIC}",
   "KafkaDeadLetterQueueTopic":"${KAFKA_DEAD_LETTER_TOPIC}",
   "InstanceID":"${INSTANCE_ID}",
   "BackbeatApiHost":"${BACKBEAT_API_HOST}",
