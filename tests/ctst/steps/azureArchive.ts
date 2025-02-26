@@ -365,7 +365,10 @@ When('i run sorbetctl to retry failed restore for {string} location', async func
     try {
         this.logger.debug('Running command', { command, location });
         const result = await util.promisify(exec)(command);
-        this.logger.debug('Sorbetctl command result', { result: result.stdout });
+        this.logger.debug('Sorbetctl command result', {
+            stdout: result.stdout,
+            stderr: result.stderr,
+        });
     } catch (err) {
         assert.ifError(err);
     }
