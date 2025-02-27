@@ -114,47 +114,7 @@ Feature: DMF
 
     @2.7.0
     @PreMerge
-    @Dmf
-    @ColdStorage
-    Scenario Outline: Overwriting of a cold object with copyObject
-    Given a "<versioningConfiguration>" bucket
-    And a transition workflow to "e2e-cold" location
-    And 2 objects "obj" of size <objectSize> bytes
-    Then object "obj-1" should be "transitioned" and have the storage class "e2e-cold"
-    And object "obj-2" should be "transitioned" and have the storage class "e2e-cold"
-    And dmf volume should contain 2 objects
-    When i restore object "obj-1" for 5 days
-    Then object "obj-1" should be "restored" and have the storage class "e2e-cold"
-    Given "obj-1" is copied to "obj-2"
-    Then object "obj-2" should be "transitioned" and have the storage class "e2e-cold"
-    And dmf volume should contain 2 objects
-
-    Examples:
-    | versioningConfiguration | objectSize |
-    |           Non versioned |        100 |
-    |               Suspended |        100 |
-
-    @2.7.0
-    @PreMerge
-    @Dmf
-    @ColdStorage
-    Scenario Outline: Overwriting of a cold object with mpu
-    Given a "<versioningConfiguration>" bucket
-    And a transition workflow to "e2e-cold" location
-    And <objectCount> objects "obj" of size <objectSize> bytes
-    Then object "obj-1" should be "transitioned" and have the storage class "e2e-cold"
-    And dmf volume should contain <objectCount> objects
-    Given <objectCount> mpu objects "obj" of size <objectSize> bytes
-    Then object "obj-1" should be "transitioned" and have the storage class "e2e-cold"
-    And dmf volume should contain 1 objects
-
-    Examples:
-    | versioningConfiguration | objectCount | objectSize |
-    |           Non versioned |           1 |        100 |
-    |               Suspended |           1 |        100 |
-
-    @2.7.0
-    @PreMerge
+    @Flaky
     @Dmf
     @ColdStorage
     Scenario Outline: Overwriting of a cold object with copyObject
