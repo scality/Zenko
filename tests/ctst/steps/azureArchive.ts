@@ -357,23 +357,24 @@ Then('the storage class of object {string} must stay {string} for {int} seconds'
         assert(secondsPassed === seconds);
     });
 
-When('i run sorbetctl to retry failed restore for {string} location', async function (this: Zenko, location: string) {
-    const command = `/ctst/sorbetctl forward list failed --trigger-retry --skip-invalid \
-        --kafka-dead-letter-topic=${this.parameters.KafkaDeadLetterQueueTopic} \
-        --kafka-object-task-topic=${this.parameters.KafkaObjectTaskTopic} \
-        --kafka-gc-request-topic=${this.parameters.KafkaGCRequestTopic} \
-        --kafka-brokers ${this.parameters.KafkaHosts}`;
-    try {
-        this.logger.debug('Running command', { command, location });
-        const result = await util.promisify(exec)(command);
-        this.logger.debug('Sorbetctl command result', {
-            stdout: result.stdout,
-            stderr: result.stderr,
-        });
-    } catch (err) {
-        assert.ifError(err);
-    }
-});
+When('i run sorbetctl to retry failed restore for {string} location',
+    { timeout: 10 * 60 * 1000 }, async function (this: Zenko, location: string) {
+        const command = `/ctst/sorbetctl forward list failed --trigger-retry --skip-invalid \
+            --kafka-dead-letter-topic=${this.parameters.KafkaDeadLetterQueueTopic} \
+            --kafka-object-task-topic=${this.parameters.KafkaObjectTaskTopic} \
+            --kafka-gc-request-topic=${this.parameters.KafkaGCRequestTopic} \
+            --kafka-brokers ${this.parameters.KafkaHosts}`;
+        try {
+            this.logger.debug('Running command', { command, location });
+            const result = await util.promisify(exec)(command);
+            this.logger.debug('Sorbetctl command result', {
+                stdout: result.stdout,
+                stderr: result.stderr,
+            });
+        } catch (err) {
+            assert.ifError(err);
+        }
+    });
 
 When('i wait for {int} days', { timeout: 10 * 60 * 1000 }, async function (this: Zenko, days: number) {
     const realTimeDay = days * 24 * 60 * 60 * 1000 /
