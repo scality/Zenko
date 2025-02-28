@@ -136,7 +136,7 @@ vault:
 zenko-operator:
   sourceRegistry: ghcr.io/scality
   image: zenko-operator
-  tag: v1.7.0
+  tag: ed43a7d7283f4c425f98615023d22ad1052c76d2
   envsubst: ZENKO_OPERATOR_TAG
 zenko-ui:
   sourceRegistry: ghcr.io/scality
