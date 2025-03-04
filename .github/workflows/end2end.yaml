@@ -113,7 +113,7 @@ env:
 
 jobs:
   check-dashboard-versions:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -131,7 +131,7 @@ jobs:
     secrets: inherit
 
   check-workflows:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -192,7 +192,7 @@ jobs:
           source: ${{ env.ROOT_DOCUMENTATION_BUILDDIR }}
 
   build-iso:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: [build-kafka, check-dashboard-versions]
     steps:
       - name: Install dependencies
@@ -253,7 +253,7 @@ jobs:
           source: "solution-base/_build"
 
   build-kafka:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -304,7 +304,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=kafka-connect-${{ env.KAFKA_CONNECT_TAG }}
 
   build-test-image:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -332,7 +332,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=end2end-test
 
   lint-and-build-ctst:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -439,7 +439,7 @@ jobs:
 
   end2end-pra:
     needs: [build-kafka, lint-and-build-ctst]
-    runs-on: ubuntu-22.04-16core
+    runs-on: ubuntu-24.04-16core
     env:
       GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
     steps:
@@ -552,7 +552,7 @@ jobs:
   end2end-sharded:
     needs: [build-kafka, build-test-image]
     runs-on:
-      - ubuntu-22.04-8core
+      - ubuntu-24.04-8core
     env:
       ENABLE_RING_TESTS: "true"
     steps:
@@ -594,7 +594,7 @@ jobs:
   ctst-end2end-sharded:
     needs: [build-kafka, lint-and-build-ctst]
     runs-on:
-      - ubuntu-22.04-8core
+      - ubuntu-24.04-8core
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -639,7 +639,7 @@ jobs:
         run: kind delete cluster
 
   write-final-status:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs:
       - check-alerts
       - check-dashboard-versions
