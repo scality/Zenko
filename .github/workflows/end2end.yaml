@@ -142,7 +142,7 @@ jobs:
           cache: yarn
           cache-dependency-path: tests/workflows/yarn.lock
       - name: Install dependencies
-        run: yarn --cwd tests/workflows install
+        run: yarn --cwd tests/workflows install --frozen-lockfile
       - name: Run workflows tests
         run: ACT_LOG=true yarn --cwd tests/workflows test
       - name: Collect logs
