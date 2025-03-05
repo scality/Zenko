@@ -105,6 +105,9 @@ beforeEach(async () => {
     act.setWorkflowFile('.github/workflows/release.yaml');
     act.setInput("artifacts-name", "github:scality:Zenko:staging-"+(await getCommitHash()).slice(0, 10)+".build-iso-and-end2end-test.3454");
 
+    // Add additional supported platform, as it is not yet automatically setup by act-js
+    act.setPlatforms('ubuntu-24.04', 'ghcr.io/catthehacker/ubuntu:act-24.04')
+
     // Set secrets
     act.setSecret('ARTIFACTS_USER', 'foo');
     act.setSecret('ARTIFACTS_PASSWORD', 'bar');
