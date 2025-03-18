@@ -27,6 +27,32 @@ Feature: S3 Bucket Policies Conditions
             | IpAddress     | aws:SourceIp  | 192.0.0.1,10.0.2.0 | Deny   |
             | NotIpAddress  | aws:SourceIp  | 0.0.0.0/0,10.0.2.0 | Deny   |
             | NotIpAddress  | aws:SourceIp  | 192.0.0.1,10.0.2.0 | Allow  |
+            # kubernetes pods, including CTST, have an IP in this range
+            | IpAddress     | aws:SourceIp  | 10.0.0.0/8         | Allow  |
+            | NotIpAddress  | aws:SourceIp  | 10.0.0.0/8         | Deny   |
+
+    @2.11.0
+    @PreMerge
+    @BucketPolicies
+    @BucketPoliciesConditions
+    @SSL
+    Scenario Outline: Bucket policies with SSL address conditions
+        Given an action "GetObject"
+        And an existing bucket prepared for the action
+        And a IAM_USER type
+        And an environment setup for the API
+        And an "non-existing" IAM Policy that "" with "" effect for the current API
+        And a condition for the bucket policy with "<conditionVerb>" "<conditionType>" "<conditionValue>" expecting "<expect>"
+        And an "existing" S3 Bucket Policy that "applies" with "ALLOW" effect for the current API
+        And SSL is "<ssl>" for S3 API calls
+        When the user tries to perform the current S3 action on the bucket
+        Then the authorization result is correct
+        Examples:
+            | ssl      | conditionVerb | conditionType       | conditionValue | expect |
+            | enabled  | Bool          | aws:SecureTransport | true           | Allow  |
+            | enabled  | Bool          | aws:SecureTransport | false          | Deny   |
+            | disabled | Bool          | aws:SecureTransport | true           | Deny   |
+            | disabled | Bool          | aws:SecureTransport | false          | Allow  |
 
     @2.6.0
     @PreMerge

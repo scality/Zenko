@@ -1,6 +1,6 @@
 import { ListObjectVersionsOutput } from '@aws-sdk/client-s3';
 import { Given, setDefaultTimeout, Then, When } from '@cucumber/cucumber';
-import { Constants, Identity, IdentityEnum, S3, Utils } from 'cli-testing';
+import { CacheHelper, Constants, Identity, IdentityEnum, S3, Utils } from 'cli-testing';
 import Zenko from 'world/Zenko';
 import { safeJsonParse } from './utils';
 import assert from 'assert';
@@ -207,6 +207,18 @@ Given('a tag on object {string} with key {string} and value {string}',
         this.addCommandParameter({ tagging: `'${tags}'` });
         await S3.putObjectTagging(this.getCommandParameters());
     });
+
+Given('SSL is {string} for S3 API calls', function (this: Zenko, ssl: string) {
+    if (ssl === 'enabled') {
+        CacheHelper.parameters.ssl = true;
+        CacheHelper.parameters.port = '443';
+        this.logger.debug('SSL is enabled');
+    } else {
+        CacheHelper.parameters.ssl = false;
+        CacheHelper.parameters.port = '80';
+        this.logger.debug('SSL is disabled');
+    }
+});
 
 Then('object {string} should have the tag {string} with value {string}',
     async function (this: Zenko, objectName: string, tagKey: string, tagValue: string) {
