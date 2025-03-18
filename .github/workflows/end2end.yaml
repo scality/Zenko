@@ -626,8 +626,8 @@ jobs:
         working-directory: ./.github/scripts/end2end
       - name: Debug wait
         uses: ./.github/actions/debug-wait
-        timeout-minutes: 60
-        if: failure() && runner.debug == '1'
+        timeout-minutes: 280
+        if: always()
       - name: Archive and publish artifacts
         uses: ./.github/actions/archive-artifacts
         with:
