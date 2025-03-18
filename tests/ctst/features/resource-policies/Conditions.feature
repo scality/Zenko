@@ -35,7 +35,6 @@ Feature: S3 Bucket Policies Conditions
     @PreMerge
     @BucketPolicies
     @BucketPoliciesConditions
-    @SSL
     Scenario Outline: Bucket policies with SSL address conditions
         Given an action "GetObject"
         And an existing bucket prepared for the action

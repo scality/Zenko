@@ -43,6 +43,9 @@ Before({ tags: '@Quotas', timeout: 1200000 }, async function (scenarioOptions) {
 });
 
 After(async function (this: Zenko, results) {
+    // Reset any configuration set on the endpoint (ssl, port)
+    CacheHelper.parameters.ssl = this.parameters.ssl;
+    CacheHelper.parameters.port = this.parameters.port;
     if (results.result?.status === 'FAILED') {
         this.logger.warn('bucket was not cleaned for test', {
             bucket: this.getSaved<string>('bucketName'),
@@ -86,11 +89,6 @@ After({ tags: '@BP-ASSUME_ROLE_USER_CROSS_ACCOUNT'}, async function (this: Zenko
         return;
     }
     await cleanupAccount(this, crossAccountName);
-});
-
-After({ tags: '@SSL'}, async function (this: Zenko) {
-    CacheHelper.parameters.ssl = this.parameters.ssl;
-    CacheHelper.parameters.port = this.parameters.port;
 });
 
 export default Zenko;
