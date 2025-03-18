@@ -5,7 +5,7 @@ import {
     parallelCanAssignHelpers,
 } from '@cucumber/cucumber';
 import Zenko from '../world/Zenko';
-import { Identity } from 'cli-testing';
+import { CacheHelper, Identity } from 'cli-testing';
 import { prepareQuotaScenarios, teardownQuotaScenarios } from 'steps/quotas/quotas';
 import { cleanS3Bucket } from './common';
 import { cleanAzureContainer, cleanZenkoLocation } from 'steps/azureArchive';
@@ -86,6 +86,10 @@ After({ tags: '@BP-ASSUME_ROLE_USER_CROSS_ACCOUNT'}, async function (this: Zenko
         return;
     }
     await cleanupAccount(this, crossAccountName);
+});
+
+After({ tags: '@SSL'}, async function (this: Zenko) {
+    CacheHelper.parameters.ssl = this.parameters.ssl;
 });
 
 export default Zenko;
