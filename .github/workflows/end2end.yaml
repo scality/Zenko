@@ -60,6 +60,7 @@ env:
   AZURE_BACKEND_DESTINATION_LOCATION: azurebackendmismatch
   COLD_BACKEND_DESTINATION_LOCATION: e2e-cold
   AZURE_ARCHIVE_BACKEND_DESTINATION_LOCATION: e2e-azure-archive
+  MIRIA_BACKEND_DESTINATION_LOCATION: e2e-miria-archive
   LOCATION_QUOTA_BACKEND: quotabackend
   AWS_BUCKET_NAME: ci-zenko-aws-target-bucket
   AWS_CRR_BUCKET_NAME: ci-zenko-aws-crr-target-bucket

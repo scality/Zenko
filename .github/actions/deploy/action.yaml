@@ -86,6 +86,16 @@ runs:
     - name: Start mock sorbet service
       shell: bash
       run: sh tests/smoke/deploy-sorbet-resources.sh end2end
+      env:
+        SORBETD_NAME: mock-sorbet
+      working-directory: ./.github/scripts/end2end/operator
+    - name: Start mock miria service
+      shell: bash
+      run: |
+        sed -i 's/sorbet-data/miria-data/g' tests/smoke/deploy-sorbet-resources.sh
+        tests/smoke/deploy-sorbet-resources.sh end2end
+      env:
+        SORBETD_NAME: mock-miria
       working-directory: ./.github/scripts/end2end/operator
     - name: Deploy metadata
       shell: bash
