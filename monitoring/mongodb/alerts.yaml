@@ -106,18 +106,18 @@ groups:
         max by(rs_nm, member_idx) (
           (
             max by(pod, rs_nm) (
-              mongodb_rs_members_optimeDate{namespace="${namespace}",pod=~"${service}.*",member_state="PRIMARY"}
+              mongodb_rs_members_optimeDate{namespace="${namespace}", pod=~"${service}.*", member_state="PRIMARY"}
             )
             - ignoring(member_idx) group_right min by(pod, rs_nm, member_idx) (
-              mongodb_rs_members_optimeDate{namespace="${namespace}",pod=~"${service}.*",member_state="SECONDARY"}
+              mongodb_rs_members_optimeDate{namespace="${namespace}", pod=~"${service}.*", member_state="SECONDARY"}
             )
           ) / scalar(
-            max (
-              (mongodb_mongod_replset_oplog_head_timestamp{namespace="${namespace}",pod=~"${service}.*"}
+            max by(rs_nm) (
+              (mongodb_mongod_replset_oplog_head_timestamp{namespace="${namespace}", pod=~"${service}.*"}
               - on(pod)
-              mongodb_mongod_replset_oplog_tail_timestamp{namespace="${namespace}",pod=~"${service}.*"})
+              mongodb_mongod_replset_oplog_tail_timestamp{namespace="${namespace}", pod=~"${service}.*"})
               * on(pod) group_left()
-              (mongodb_mongod_replset_my_state{namespace="${namespace}",pod=~"${service}.*"} == 1)
+              (mongodb_mongod_replset_my_state{namespace="${namespace}", pod=~"${service}.*"} == 1)
             )
           )
         ) * 100 > ${replicationLagWarningThreshold},
@@ -136,18 +136,18 @@ groups:
         max by(rs_nm, member_idx) (
           (
             max by(pod, rs_nm) (
-              mongodb_rs_members_optimeDate{namespace="${namespace}",pod=~"${service}.*",member_state="PRIMARY"}
+              mongodb_rs_members_optimeDate{namespace="${namespace}", pod=~"${service}.*", member_state="PRIMARY"}
             )
             - ignoring(member_idx) group_right min by(pod, rs_nm, member_idx) (
-              mongodb_rs_members_optimeDate{namespace="${namespace}",pod=~"${service}.*",member_state="SECONDARY"}
+              mongodb_rs_members_optimeDate{namespace="${namespace}", pod=~"${service}.*", member_state="SECONDARY"}
             )
           ) / scalar(
-            max (
-              (mongodb_mongod_replset_oplog_head_timestamp{namespace="${namespace}",pod=~"${service}.*"}
+            max by(rs_nm) (
+              (mongodb_mongod_replset_oplog_head_timestamp{namespace="${namespace}", pod=~"${service}.*"}
               - on(pod)
-              mongodb_mongod_replset_oplog_tail_timestamp{namespace="${namespace}",pod=~"${service}.*"})
+              mongodb_mongod_replset_oplog_tail_timestamp{namespace="${namespace}", pod=~"${service}.*"})
               * on(pod) group_left()
-              (mongodb_mongod_replset_my_state{namespace="${namespace}",pod=~"${service}.*"} == 1)
+              (mongodb_mongod_replset_my_state{namespace="${namespace}", pod=~"${service}.*"} == 1)
             )
           )
         ) * 100 > ${replicationLagCriticalThreshold},

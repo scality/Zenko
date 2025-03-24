@@ -196,6 +196,11 @@ tests:
       - series: mongodb_mongod_replset_my_state{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-2"}
         values: 2+0x12
 
+      - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="data-db-mongodb-sharded-configsvr-1", rs_nm="configsvr", member_idx="data-db-mongodb-sharded-configsvr-0.data-db-mongodb-sharded-configsvr-headless.svc.cluster.local", member_state="PRIMARY"}
+        values: 71  8300  9500
+      - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="data-db-mongodb-sharded-configsvr-1", rs_nm="configsvr", member_idx="data-db-mongodb-sharded-configsvr-1.data-db-mongodb-sharded-configsvr-headless.svc.cluster.local", member_state="SECONDARY"}
+        values: 50  8200  9400
+
       # We simulate a constant oplog window for this test. In real life, the oplog window can increase
       # or decrease depending on the load.
       - series: mongodb_mongod_replset_oplog_head_timestamp{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-0"}
