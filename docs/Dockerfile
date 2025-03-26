@@ -1,37 +1,36 @@
-FROM docker.io/ubuntu:18.04
+FROM docker.io/ubuntu:22.04
 
 RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get update && \
     apt-get install --no-install-recommends -y \
-        xindy \
-        enchant \
+        curl \
+        emacs \
+        enchant-2 \
+        ghostscript \
         git \
         graphviz \
-        curl \
-        latexmk \
-        make \
-        ghostscript \
         inkscape \
+        latexmk \
+        less \
+        make \
         plantuml \
         python3 \
         python3-buildbot-worker \
-        texlive-font-utils \
         python3-pip \
+        texlive-font-utils \
         texlive-fonts-extra \
         texlive-fonts-recommended \
         texlive-latex-extra \
+        texlive-latex-recommended \
         texlive-luatex \
         texlive-xetex \
-        texlive-latex-recommended \
         tox \
-	emacs \
-	less \
-        && \
-    apt-get clean && \
+        xindy \
+    && apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 # Override plantuml.jar
 RUN curl -f -Lo /usr/share/plantuml/plantuml.jar \
-	https://sourceforge.net/projects/plantuml/files/plantuml.1.2019.9.jar
+    https://sourceforge.net/projects/plantuml/files/plantuml.1.2019.9.jar
 
 WORKDIR /home/zenko/docs
