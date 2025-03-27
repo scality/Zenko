@@ -21,6 +21,12 @@ x-inputs:
   - name: replicas
     type: config
     value: 3
+  - name: replicationLagWarningThreshold
+    type: config
+    value: 70
+  - name: replicationLagCriticalThreshold
+    type: config
+    value: 90
 
 groups:
 - name: MongoDb
@@ -97,20 +103,65 @@ groups:
   - alert: ReplicationLagWarning
     expr: |
       label_replace(
-        max(
-            max(mongodb_rs_members_optimeDate{namespace="${namespace}",pod=~"${service}.*",member_state="PRIMARY"})
-                by(pod, rs_nm)
-            - ignoring(member_idx) group_right
-            min(mongodb_rs_members_optimeDate{namespace="${namespace}",pod=~"${service}.*",member_state="SECONDARY"})
-                by(pod, rs_nm, member_idx)
-        ) by(member_idx, rs_nm) / 1000 > 30
-      , "member_idx", "$1", "member_idx", "(${service}[^.]*)\\.${service}.*")
-    for: 10m
+        max by(rs_nm, member_idx) (
+          (
+            max by(pod, rs_nm) (
+              mongodb_rs_members_optimeDate{namespace="${namespace}", pod=~"${service}.*", member_state="PRIMARY"}
+            )
+            - ignoring(member_idx) group_right min by(pod, rs_nm, member_idx) (
+              mongodb_rs_members_optimeDate{namespace="${namespace}", pod=~"${service}.*", member_state="SECONDARY"}
+            )
+          ) / scalar(
+            max by(rs_nm) (
+              (mongodb_mongod_replset_oplog_head_timestamp{namespace="${namespace}", pod=~"${service}.*"}
+              - on(pod)
+              mongodb_mongod_replset_oplog_tail_timestamp{namespace="${namespace}", pod=~"${service}.*"})
+              * on(pod) group_left()
+              (mongodb_mongod_replset_my_state{namespace="${namespace}", pod=~"${service}.*"} == 1)
+            )
+          )
+        ) * 100 > ${replicationLagWarningThreshold},
+        "member_idx", "$1", "member_idx", "(${service}[^.]*)\\.${service}.*"
+      )
+    for: 8m
     labels:
       severity: warning
     annotations:
-      description: "Mongodb replication lag for `{{ $labels.member_idx }}` is more than 30 seconds."
-      summary: MongoDB replication lag
+      description: "The replication lag for `{{ $labels.member_idx }}` has exceeded ${replicationLagWarningThreshold}% of the journal window duration. This condition may occur during periods of elevated load and does not necessitate immediate intervention."
+      summary: MongoDB replication lag is high
+
+  - alert: ReplicationLagWarning
+    expr: |
+      label_replace(
+        max by(rs_nm, member_idx) (
+          (
+            max by(pod, rs_nm) (
+              mongodb_rs_members_optimeDate{namespace="${namespace}", pod=~"${service}.*", member_state="PRIMARY"}
+            )
+            - ignoring(member_idx) group_right min by(pod, rs_nm, member_idx) (
+              mongodb_rs_members_optimeDate{namespace="${namespace}", pod=~"${service}.*", member_state="SECONDARY"}
+            )
+          ) / scalar(
+            max by(rs_nm) (
+              (mongodb_mongod_replset_oplog_head_timestamp{namespace="${namespace}", pod=~"${service}.*"}
+              - on(pod)
+              mongodb_mongod_replset_oplog_tail_timestamp{namespace="${namespace}", pod=~"${service}.*"})
+              * on(pod) group_left()
+              (mongodb_mongod_replset_my_state{namespace="${namespace}", pod=~"${service}.*"} == 1)
+            )
+          )
+        ) * 100 > ${replicationLagCriticalThreshold},
+        "member_idx", "$1", "member_idx", "(${service}[^.]*)\\.${service}.*"
+      )
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      description: |
+        Replication lag for `{{ $labels.member_idx }}` exceeds ${replicationLagCriticalThreshold}% of the oplog window. 
+        If this occurs frequently during peak usage, it indicates a potential sizing issue. 
+        Please contact a Scality representative for assistance.
+      summary: MongoDB replication lag is critical
 
   - alert: TooManyClientConnectionsWarning
     expr: |

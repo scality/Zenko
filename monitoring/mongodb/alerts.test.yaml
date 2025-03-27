@@ -173,24 +173,40 @@ tests:
       - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-0", rs_nm="shard0-data", member_idx="data-db-mongodb-sharded-shard0-data-1.data-db-mongodb-sharded-shardsrv-headless.svc.cluster.local", member_state="SECONDARY"}
         values: 0  24000+1000x10 39000
       - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-0", rs_nm="shard0-data", member_idx="data-db-mongodb-sharded-shard0-data-2.data-db-mongodb-sharded-shardsrv-headless.svc.cluster.local", member_state="SECONDARY"}
-        values: 2   2000+1000x10 41000
+        values: 2  2000+1000x7 7000+0x2 41000
 
       - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-1", rs_nm="shard0-data", member_idx="data-db-mongodb-sharded-shard0-data-0.data-db-mongodb-sharded-shardsrv-headless.svc.cluster.local", member_state="PRIMARY"}
         values: 5  34000+1000x10 44000
       - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-1", rs_nm="shard0-data", member_idx="data-db-mongodb-sharded-shard0-data-1.data-db-mongodb-sharded-shardsrv-headless.svc.cluster.local", member_state="SECONDARY"}
         values: 0  26000+1000x10 40000
       - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-1", rs_nm="shard0-data", member_idx="data-db-mongodb-sharded-shard0-data-2.data-db-mongodb-sharded-shardsrv-headless.svc.cluster.local", member_state="SECONDARY"}
-        values: 2   1000+1000x10 40000
+        values: 2   1000+1000x7 6000+0x2 40000
 
       - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-2", rs_nm="shard0-data", member_idx="data-db-mongodb-sharded-shard0-data-0.data-db-mongodb-sharded-shardsrv-headless.svc.cluster.local", member_state="PRIMARY"}
         values: 5  12000+1000x10 43000
       - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-2", rs_nm="shard0-data", member_idx="data-db-mongodb-sharded-shard0-data-1.data-db-mongodb-sharded-shardsrv-headless.svc.cluster.local", member_state="SECONDARY"}
         values: 0   9000+1000x10 38000
       - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-2", rs_nm="shard0-data", member_idx="data-db-mongodb-sharded-shard0-data-2.data-db-mongodb-sharded-shardsrv-headless.svc.cluster.local", member_state="SECONDARY"}
-        values: 2   3000+1000x10 42000
+        values: 2   3000+1000x7 8000+0x2 42000
 
-      - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="data-db-mongodb-sharded-configsvr-1", rs_nm="configsvr", member_idx="data-db-mongodb-sharded-cfgsvr-0.data-db-mongodb-sharded-cfgsvr-headless.svc.cluster.local", member_state="PRIMARY"}
+      - series: mongodb_mongod_replset_my_state{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-0"}
+        values: 1+0x12
+      - series: mongodb_mongod_replset_my_state{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-1"}
+        values: 2+0x12
+      - series: mongodb_mongod_replset_my_state{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-2"}
+        values: 2+0x12
+
+      - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="data-db-mongodb-sharded-configsvr-1", rs_nm="configsvr", member_idx="data-db-mongodb-sharded-configsvr-0.data-db-mongodb-sharded-configsvr-headless.svc.cluster.local", member_state="PRIMARY"}
         values: 71  8300  9500
+      - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="data-db-mongodb-sharded-configsvr-1", rs_nm="configsvr", member_idx="data-db-mongodb-sharded-configsvr-1.data-db-mongodb-sharded-configsvr-headless.svc.cluster.local", member_state="SECONDARY"}
+        values: 50  8200  9400
+
+      # We simulate a constant oplog window for this test. In real life, the oplog window can increase
+      # or decrease depending on the load.
+      - series: mongodb_mongod_replset_oplog_head_timestamp{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-0"}
+        values: 38000+1000x12
+      - series: mongodb_mongod_replset_oplog_tail_timestamp{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-0"}
+        values: 1000+1000x12
 
     alert_rule_test:
       - alertname: ReplicationLagWarning
@@ -201,7 +217,14 @@ tests:
         exp_alerts: []
       - alertname: ReplicationLagWarning
         eval_time: 10m
-        exp_alerts: []
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              member_idx: data-db-mongodb-sharded-shard0-data-2
+              rs_nm: shard0-data
+            exp_annotations:
+              description: "The replication lag for `data-db-mongodb-sharded-shard0-data-2` has exceeded 70% of the journal window duration. This condition may occur during periods of elevated load and does not necessitate immediate intervention."
+              summary: MongoDB replication lag is high
       - alertname: ReplicationLagWarning
         eval_time: 11m
         exp_alerts:
@@ -210,8 +233,18 @@ tests:
               member_idx: data-db-mongodb-sharded-shard0-data-2
               rs_nm: shard0-data
             exp_annotations:
-              description: Mongodb replication lag for `data-db-mongodb-sharded-shard0-data-2` is more than 30 seconds.
-              summary: MongoDB replication lag
+              description: "The replication lag for `data-db-mongodb-sharded-shard0-data-2` has exceeded 70% of the journal window duration. This condition may occur during periods of elevated load and does not necessitate immediate intervention."
+              summary: MongoDB replication lag is high
+          - exp_labels:
+              severity: critical
+              member_idx: data-db-mongodb-sharded-shard0-data-2
+              rs_nm: shard0-data
+            exp_annotations:
+              description: |
+                Replication lag for `data-db-mongodb-sharded-shard0-data-2` exceeds 90% of the oplog window. 
+                If this occurs frequently during peak usage, it indicates a potential sizing issue. 
+                Please contact a Scality representative for assistance.
+              summary: MongoDB replication lag is critical
       - alertname: ReplicationLagWarning
         eval_time: 12m
         exp_alerts: []
