@@ -578,13 +578,13 @@ jobs:
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
         with:
           deploy_metadata: ${{ env.ENABLE_RING_TESTS }}
-      - name: Run backbeat end to end tests
-        run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "backbeat" "default"
-        working-directory: ./.github/scripts/end2end
+        timeout-minutes: 15
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
-        if: failure() && runner.debug == '1'
+      - name: Run backbeat end to end tests
+        run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "backbeat" "default"
+        working-directory: ./.github/scripts/end2end
       - name: Archive and publish artifacts
         uses: ./.github/actions/archive-artifacts
         with:
