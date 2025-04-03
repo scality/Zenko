@@ -163,6 +163,27 @@ jobs:
           password: ${{ secrets.ARTIFACTS_PASSWORD }}
           source: /tmp/artifacts
         if: always()
+    
+  check-mongo-patches:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: fetch mongo charts
+        run: make fetch-mongodb-sharded
+        working-directory: ./solution-base/mongodb
+      - name: apply patches to charts
+        run: make patch
+        working-directory: ./solution-base/mongodb
+      - name: compare with upstream charts and fail if diff exists
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Differences found between committed patches and applied patches:"
+            git diff
+            exit 1
+          else
+            echo "No differences found. All patches match their committed versions."
+          fi
 
   build-doc:
     runs-on: ubuntu-22.04
