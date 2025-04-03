@@ -7,8 +7,8 @@ index 6b321eab..764c6b25 100644
            securityContext: {{- include "common.compatibility.renderSecurityContext" (dict "secContext" .Values.mongos.containerSecurityContext "context" $) | nindent 12 }}
            {{- end }}
 +          command:
-++            - /bin/bash
-++            - /entrypoint/mongos-entrypoint.sh
++            - /bin/bash
++            - /entrypoint/mongos-entrypoint.sh
            env:
              - name: MONGODB_ENABLE_NUMACTL
                value: {{ ternary "yes" "no" $.Values.common.mongodbEnableNumactl | quote }}
