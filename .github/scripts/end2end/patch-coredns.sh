@@ -24,6 +24,7 @@ corefile="
     rewrite name exact ui.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact management.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact s3.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
+    rewrite name exact utilization.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact sts.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact iam.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact shell-ui.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
