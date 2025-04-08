@@ -103,10 +103,10 @@ s3utils:
   tag: 1.14.18
   envsubst: S3UTILS_TAG
 scuba:
-  sourceRegistry: ghcr.io/scality
+  sourceRegistry: ghcr.io/scality/playground/wlardier
   dashboard: scuba/scuba-dashboards
   image: scuba
-  tag: 1.0.11
+  tag: 1.1.47
   envsubst: SCUBA_TAG
 sorbet:
   sourceRegistry: ghcr.io/scality
@@ -127,16 +127,16 @@ stern: # tail any pod logs with pattern matchin
 #   tag: zenko-1.0.0
 #   envsubst: UTAPI_TAG
 vault:
-  sourceRegistry: ghcr.io/scality
-  dashboard: vault2/vault-dashboards
-  policy: vault2/vault-policies
+  sourceRegistry: ghcr.io/scality/playground/wlardier
+  dashboard: vault-dashboards
+  policy: vault-policies
   image: vault2
-  tag: 8.10.1
+  tag: 8.10.100
   envsubst: VAULT_TAG
 zenko-operator:
-  sourceRegistry: ghcr.io/scality
+  sourceRegistry: ghcr.io/scality/playground/wlardier
   image: zenko-operator
-  tag: v1.7.3
+  tag: 1.7.102
   envsubst: ZENKO_OPERATOR_TAG
 zenko-ui:
   sourceRegistry: ghcr.io/scality
