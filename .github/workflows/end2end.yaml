@@ -250,10 +250,19 @@ jobs:
         with:
           username: "${{ secrets.DOCKERHUB_LOGIN }}"
           password: "${{ secrets.DOCKERHUB_PASSWORD }}"
+      - name: Get token to access ZKOP
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.ACTIONS_APP_ID }}
+          private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: |
+            zenko-operator
       - name: Configure GIT
-        run: git config --global url."https://${GIT_ACCESS_TOKEN}@github.com/".insteadOf "https://github.com/"
+        run: git config --global url."https://git:${{ env.GIT_ACCESS_TOKEN }}@github.com/".insteadOf "https://github.com/"
         env:
-          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
       - name: Build ISO
         run: PATH="/usr/local/bin:$PATH" bash -x ./build.sh
         working-directory: ./solution
@@ -362,14 +371,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GIT_ACCESS_TOKEN }}
+          persist-credentials: false # otherwise, the token is not passed to the next steps
+      - name: Get token to access private repositories
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.ACTIONS_APP_ID }}
+          private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
+          repositories: |
+            cli-testing
       - name: Configure GIT
         run: |
-          git config --global url.https://x-access-token:${{ secrets.GIT_ACCESS_TOKEN }}@github.com/.insteadOf https://github.com/
-          git config --global url.https://x-access-token:${{ secrets.GIT_ACCESS_TOKEN }}@github.com/.insteadOf git@github.com:
-          git config --global url.https://x-access-token:${{ secrets.GIT_ACCESS_TOKEN }}@github.com/.insteadOf ssh://git@github.com/
+          git config --global url.https://x-access-token:${{ env.GIT_ACCESS_TOKEN }}@github.com/.insteadOf https://github.com/
+          git config --global url.https://x-access-token:${{ env.GIT_ACCESS_TOKEN }}@github.com/.insteadOf github.com:
+          git config --global url.https://x-access-token:${{ env.GIT_ACCESS_TOKEN }}@github.com/.insteadOf ssh://git@github.com/
         env:
-          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -432,10 +449,19 @@ jobs:
           username: "${{ github.repository_owner }}"
           password: "${{ github.token }}"
           registry: ghcr.io
+      - name: Get token to access private repositories
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.ACTIONS_APP_ID }}
+          private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: |
+            zenko-operator
       - name: Deploy Zenko
         uses: ./.github/actions/deploy
         env:
-          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
       - name: Run init CI test
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "end2end" "default"
         working-directory: ./.github/scripts/end2end
@@ -465,8 +491,6 @@ jobs:
   end2end-pra:
     needs: [build-kafka, lint-and-build-ctst]
     runs-on: ubuntu-24.04-16core
-    env:
-      GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -480,8 +504,19 @@ jobs:
           username: "${{ github.repository_owner }}"
           password: "${{ github.token }}"
           registry: ghcr.io
+      - name: Get token to access private repositories
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.ACTIONS_APP_ID }}
+          private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: |
+            zenko-operator
       - name: Deploy Zenko
         uses: ./.github/actions/deploy
+        env:
+          GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
       - name: Prepare PRA environment
         run: bash prepare-pra.sh
         working-directory: ./.github/scripts/end2end
@@ -533,7 +568,6 @@ jobs:
       OIDC_ENDPOINT: 'https://keycloak.zenko.local'
       NAVBAR_ENDPOINT: 'https://shell-ui.zenko.local'
       ENABLE_KEYCLOAK_HTTPS: 'true'
-      GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -547,8 +581,19 @@ jobs:
           username: "${{ github.repository_owner }}"
           password: "${{ github.token }}"
           registry: ghcr.io
+      - name: Get token to access private repositories
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.ACTIONS_APP_ID }}
+          private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: |
+            zenko-operator
       - name: Deploy Zenko
         uses: ./.github/actions/deploy
+        env:
+          GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
       - name: Run init CI test
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "end2end" "default"
         working-directory: ./.github/scripts/end2end
@@ -593,10 +638,20 @@ jobs:
           username: "${{ github.repository_owner }}"
           password: "${{ github.token }}"
           registry: ghcr.io
+      - name: Get token to access private repositories
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.ACTIONS_APP_ID }}
+          private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: |
+            metadata
+            zenko-operator
       - name: Deploy Zenko
         uses: ./.github/actions/deploy
         env:
-          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
         with:
           deploy_metadata: ${{ env.ENABLE_RING_TESTS }}
       - name: Run backbeat end to end tests
@@ -635,10 +690,19 @@ jobs:
           username: "${{ github.repository_owner }}"
           password: "${{ github.token }}"
           registry: ghcr.io
+      - name: Get token to access private repositories
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.ACTIONS_APP_ID }}
+          private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: |
+            zenko-operator
       - name: Deploy Zenko
         uses: ./.github/actions/deploy
         env:
-          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
           ZENKO_ENABLE_SOSAPI: true
           TIME_PROGRESSION_FACTOR: 86400
           TRANSITION_ONE_DAY_EARLIER: false

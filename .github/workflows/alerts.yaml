@@ -15,6 +15,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Get token to access private repositories
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.ACTIONS_APP_ID }}
+          private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: action-prom-render-test
+
       - name: Render and test mongodb alerts 
         uses: scality/action-prom-render-test@1.0.3
         with:
@@ -25,7 +34,7 @@ jobs:
             service=data-db-mongodb-sharded
             pvc=datadir-mongodb
             replicas=3
-          github_token: ${{ secrets.GIT_ACCESS_TOKEN }}
+          github_token: ${{ steps.app-token.outputs.token }}
 
       - name: Render and test kafka alerts 
         uses: scality/action-prom-render-test@1.0.3
@@ -40,7 +49,7 @@ jobs:
             replicas=3
             maxConsumerLagMessagesWarningThreshold=1000
             maxConsumerLagSecondsWarningThreshold=300
-          github_token: ${{ secrets.GIT_ACCESS_TOKEN }}
+          github_token: ${{ steps.app-token.outputs.token }}
 
       - name: Render and test redis alerts 
         uses: scality/action-prom-render-test@1.0.3
@@ -50,7 +59,7 @@ jobs:
           alert_inputs: |
             namespace=zenko
             service=artesca-data-base-cache-metrics
-          github_token: ${{ secrets.GIT_ACCESS_TOKEN }}
+          github_token: ${{ steps.app-token.outputs.token }}
 
       - name: Render and test zookeeper alerts 
         uses: scality/action-prom-render-test@1.0.3
@@ -63,7 +72,7 @@ jobs:
             pvc=artesca-data-base-quorum
             replicas=3
             quorum=3
-          github_token: ${{ secrets.GIT_ACCESS_TOKEN }}
+          github_token: ${{ steps.app-token.outputs.token }}
       
       - name: Render and test dr alerts
         uses: scality/action-prom-render-test@1.0.3
@@ -78,4 +87,4 @@ jobs:
             rto_alert_threshold=30
             mongo_jobs=zenko/data-db-mongodb-sharded-shard.*
             lifecycle_jobs=artesca-data-backbeat-lifecycle-.*-headless
-          github_token: ${{ secrets.GIT_ACCESS_TOKEN }}
+          github_token: ${{ steps.app-token.outputs.token }}
