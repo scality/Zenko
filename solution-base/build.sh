@@ -121,7 +121,25 @@ function render_mongodb_sharded_yamls()
         --set configsvr.serviceAccount.create=false \
         --set mongos.serviceAccount.create=false \
         --set shardsvr.dataNode.serviceAccount.create=false \
-        --set shardsvr.arbiter.serviceAccount.create=false
+        --set shardsvr.arbiter.serviceAccount.create=false \
+        --set 'configsvr.extraEnvVars[0].name=MONGODB_APP_USERNAME' \
+        --set 'configsvr.extraEnvVars[0].valueFrom.secretKeyRef.name=mongodb-db-creds' \
+        --set 'configsvr.extraEnvVars[0].valueFrom.secretKeyRef.key=mongodb-username' \
+        --set 'configsvr.extraEnvVars[1].name=MONGODB_APP_DATABASE' \
+        --set 'configsvr.extraEnvVars[1].valueFrom.secretKeyRef.name=mongodb-db-creds' \
+        --set 'configsvr.extraEnvVars[1].valueFrom.secretKeyRef.key=mongodb-database' \
+        --set 'configsvr.extraEnvVars[2].name=MONGODB_APP_PASSWORD' \
+        --set 'configsvr.extraEnvVars[2].valueFrom.secretKeyRef.name=mongodb-db-creds' \
+        --set 'configsvr.extraEnvVars[2].valueFrom.secretKeyRef.key=mongodb-password' \
+        --set 'shardsvr.dataNode.extraEnvVars[0].name=MONGODB_APP_USERNAME' \
+        --set 'shardsvr.dataNode.extraEnvVars[0].valueFrom.secretKeyRef.name=mongodb-db-creds' \
+        --set 'shardsvr.dataNode.extraEnvVars[0].valueFrom.secretKeyRef.key=mongodb-username' \
+        --set 'shardsvr.dataNode.extraEnvVars[1].name=MONGODB_APP_DATABASE' \
+        --set 'shardsvr.dataNode.extraEnvVars[1].valueFrom.secretKeyRef.name=mongodb-db-creds' \
+        --set 'shardsvr.dataNode.extraEnvVars[1].valueFrom.secretKeyRef.key=mongodb-database' \
+        --set 'shardsvr.dataNode.extraEnvVars[2].name=MONGODB_APP_PASSWORD' \
+        --set 'shardsvr.dataNode.extraEnvVars[2].valueFrom.secretKeyRef.name=mongodb-db-creds' \
+        --set 'shardsvr.dataNode.extraEnvVars[2].valueFrom.secretKeyRef.key=mongodb-password'
 }
 
 function mongodb_sharded_yamls()

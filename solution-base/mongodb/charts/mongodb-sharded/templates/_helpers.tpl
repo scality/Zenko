@@ -253,21 +253,3 @@ mongodb: .Values.mongos.servicePerReplica.loadBalancerIPs
 {{- include "common.warnings.rollingTag" .Values.metrics.image }}
 {{- include "common.warnings.rollingTag" .Values.volumePermissions.image }}
 {{- end -}}
-{{/* app credentials environment variables */}}
-{{- define "mongodb-sharded.appAccountEnvs" -}}
-- name: MONGODB_APP_USERNAME
-  valueFrom:
-    secretKeyRef:
-      name: {{ include "mongodb-sharded.secret" $ }}
-      key: mongodb-username
-- name: MONGODB_APP_DATABASE
-  valueFrom:
-    secretKeyRef:
-      name: {{ include "mongodb-sharded.secret" $ }}
-      key: mongodb-database
-- name: MONGODB_APP_PASSWORD
-  valueFrom:
-    secretKeyRef:
-      name: {{ include "mongodb-sharded.secret" $ }}
-      key: mongodb-password
-{{- end -}}
