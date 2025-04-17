@@ -103,10 +103,10 @@ s3utils:
   tag: 1.14.18
   envsubst: S3UTILS_TAG
 scuba:
-  sourceRegistry: ghcr.io/scality/playground/wlardier
+  sourceRegistry: ghcr.io/scality
   dashboard: scuba/scuba-dashboards
   image: scuba
-  tag: 1.1.47
+  tag: 1.1.0-preview.9
   envsubst: SCUBA_TAG
 sorbet:
   sourceRegistry: ghcr.io/scality
@@ -136,7 +136,7 @@ vault:
 zenko-operator:
   sourceRegistry: ghcr.io/scality/playground/wlardier
   image: zenko-operator
-  tag: 1.7.102
+  tag: 1.7.108
   envsubst: ZENKO_OPERATOR_TAG
 zenko-ui:
   sourceRegistry: ghcr.io/scality
