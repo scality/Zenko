@@ -66,7 +66,7 @@ runs:
         cd ./.github/scripts/end2end
         git init operator
         cd operator
-        git fetch --depth 1 --no-tags https://git:${GIT_ACCESS_TOKEN}@github.com/scality/zenko-operator.git development/1.7
+        git fetch --depth 1 --no-tags https://git:${GIT_ACCESS_TOKEN}@github.com/scality/zenko-operator.git 4ee9b0de5c147c077c25f25f874c20621c079769
         git checkout FETCH_HEAD
         tilt ci
       env:
