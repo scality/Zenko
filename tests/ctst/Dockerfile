@@ -13,6 +13,7 @@ COPY ./steps /ctst/steps
 COPY ./world /ctst/world
 
 USER root
+RUN npm install typescript@5.8.3 -g
 
 RUN chmod 0777 -R /tmp/
 RUN chmod 0777 -R /ctst/
