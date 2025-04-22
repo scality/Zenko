@@ -23,7 +23,7 @@ Feature: Scality Utilization Reporting (SUR) API
     @UtilizationAPI
     Scenario Outline: IAM users with correct permissions can retrieve utilization metrics
         Given a IAM_USER type
-        And an IAM policy attached to the entity "user" with "Allow" effect to perform "sur:GetMetrics" on "*"
+        And an IAM policy attached to the entity "user" with "Allow" effect to perform "sur:GetMetrics" on "arn:scality:sur:::*"
         When the user retrieves utilization metrics using scubaclient for metric type "<metricType>"
         Then the latest utilization metrics are retrieved
 
@@ -54,7 +54,7 @@ Feature: Scality Utilization Reporting (SUR) API
     @UtilizationAPI
     Scenario Outline: IAM users with explicit deny policy cannot retrieve utilization metrics
         Given a IAM_USER type
-        And an IAM policy attached to the entity "user" with "Deny" effect to perform "sur:GetMetrics" on "*"
+        And an IAM policy attached to the entity "user" with "Deny" effect to perform "sur:GetMetrics" on "arn:scality:sur:::*"
         When the user retrieves utilization metrics using scubaclient for metric type "<metricType>"
         Then the user should receive "403" error
 

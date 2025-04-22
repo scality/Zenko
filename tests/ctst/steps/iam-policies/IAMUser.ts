@@ -17,7 +17,7 @@ Given('an IAM policy attached to the entity {string} with {string} effect to per
                     {
                         Effect: effect === 'Allow' ? 'Allow' : 'Deny',
                         Action: action,
-                        Resource: `arn:aws:s3:::${resource}`,
+                        Resource: resource,
                     },
                 ],
             }),
