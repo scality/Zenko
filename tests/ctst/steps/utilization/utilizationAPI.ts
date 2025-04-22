@@ -1,21 +1,25 @@
-import { When, Then } from '@cucumber/cucumber';
+import { When, Then, ITestCaseHookParameter } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
 import Zenko from '../../world/Zenko';
-import { Identity, IdentityEnum } from 'cli-testing';
 import { Command } from 'cli-testing';
+import { Identity } from 'cli-testing';
 import ScubaClient, { ScubaMetrics } from 'scubaclient';
+import { prepareMetricsScenarios } from '../../common/utils';
+
+export async function prepareUtilizationScenarios(world: Zenko, scenarioConfiguration: ITestCaseHookParameter) {
+    await prepareMetricsScenarios(world, scenarioConfiguration, {
+        versioning: '',
+        jobNamespace: 'utilization-setup'
+    });
+}
 
 When('the user retrieves utilization metrics using scubaclient for metric type {string}',
     async function (this: Zenko, metricType: string) {
-        const identityType = this.getSaved<IdentityEnum>('identityTypeForScenario');
-        const identityName = this.getSaved<string>('identityNameForScenario');
-        const accountName = this.getSaved<string>('accountNameForScenario');
-
-        const userCredentials = Identity.getCredentialsForIdentity(
-            identityType,
-            identityName,
-            accountName
-        );
+        // Get the current identity settings from Zenko world
+        const accountName = this.getSaved<string>('accountName');
+        
+        // Get credentials for the current identity (already set up by the "Given a TYPE type" step)
+        const userCredentials = Identity.getCurrentCredentials();
 
         if (!userCredentials) {
             throw new Error('User credentials not found');
@@ -56,14 +60,22 @@ When('the user retrieves utilization metrics using scubaclient for metric type {
             throw new Error(`Unsupported metric type: ${metricType}`);
         }
 
-        // @ts-expect-error SUR client does not yet has the "location" type listed
-        const response = await client.getLatestMetrics(metricType, metricName);
-        const command: Command = {
-            err: '',
-            stdout: JSON.stringify(response),
-            stderr: '',
-        };
-        this.setResult(command);
+        try {
+            // @ts-expect-error SUR client does not yet has the "location" type listed
+            const response = await client.getLatestMetrics(metricType, metricName);
+            const command: Command = {
+                err: '',
+                stdout: JSON.stringify(response),
+                stderr: '',
+            };
+            this.setResult(command);
+        } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
+            this.setResult({
+                err: err.message,
+                stdout: '',
+                stderr: err.message,
+            });
+        }
     });
 
 Then('the latest utilization metrics are retrieved',
