@@ -74,6 +74,10 @@ BACKBEAT_API_PORT=$(kubectl get secret -l app.kubernetes.io/name=connector-cloud
 KAFKA_CLEANER_INTERVAL=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.spec.kafkaCleaner.interval}')
 SORBETD_RESTORE_TIMEOUT=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.spec.sorbet.server.azure.restoreTimeout}')
 
+# Utilization service
+UTILIZATION_SERVICE_HOST=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.spec.scuba.api.ingress.hostname}')
+UTILIZATION_SERVICE_PORT="80"
+
 # Setting CTST world params
 WORLD_PARAMETERS="$(jq -c <<EOF
 {
@@ -122,7 +126,9 @@ WORLD_PARAMETERS="$(jq -c <<EOF
   "SorbetdRestoreTimeout":"${SORBETD_RESTORE_TIMEOUT}",
   "TimeProgressionFactor":"${TIME_PROGRESSION_FACTOR}",
   "DRAdminAccessKey":"${DR_ADMIN_ACCESS_KEY_ID}",
-  "DRAdminSecretKey":"${DR_ADMIN_SECRET_ACCESS_KEY}"
+  "DRAdminSecretKey":"${DR_ADMIN_SECRET_ACCESS_KEY}",
+  "UtilizationServiceHost":"${UTILIZATION_SERVICE_HOST}",
+  "UtilizationServicePort":"${UTILIZATION_SERVICE_PORT}"
 }
 EOF
 )"
