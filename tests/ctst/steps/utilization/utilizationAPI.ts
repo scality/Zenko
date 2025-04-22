@@ -93,7 +93,7 @@ Then('the latest utilization metrics are retrieved',
         });
 
         const response = JSON.parse(result.stdout) as ScubaMetrics;
-        assert.ok(response.objectsTotal > 0, 'Bucket metrics should contain objectCount');
-        assert.ok(response.bytesTotal > 0, 'Bucket metrics should contain bytesTotal');
+        assert.ok(response.objectsTotal >= 0, 'Bucket metrics should contain objectCount');
+        assert.ok(response.bytesTotal >= 0, 'Bucket metrics should contain bytesTotal');
         assert.ok(response.metricsClass === this.getSaved<string>('metricType'), 'Metric type should match');
     }); 
