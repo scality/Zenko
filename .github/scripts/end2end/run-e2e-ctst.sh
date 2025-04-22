@@ -141,6 +141,8 @@ kubectl rollout status deployment end2end-connector-cloudserver
 kubectl set env cronjob end2end-ops-count-items PROMETHEUS_POLLING_ATTEMPTS=1
 kubectl set env cronjob end2end-ops-count-items PROMETHEUS_POLLING_PERIOD=1
 
+kubectl set env deploy end2end-ops-scuba-external-api SCUBA_LOG_LEVEL=trace
+
 E2E_IMAGE=$E2E_CTST_IMAGE_NAME:$E2E_IMAGE_TAG
 POD_NAME="${ZENKO_NAME}-ctst-tests"
 CTST_VERSION=$(sed 's/.*"cli-testing": ".*#\(.*\)".*/\1/;t;d' ../../../tests/ctst/package.json)
