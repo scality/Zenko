@@ -87,6 +87,8 @@ export interface ZenkoWorldParameters extends ClientOptions {
     BackbeatApiPort: string;
     KafkaCleanerInterval: string;
     SorbetdRestoreTimeout: string;
+    UtilizationServiceHost: string;
+    UtilizationServicePort: string;
     [key: string]: unknown;
 }
 
