@@ -9,7 +9,7 @@ Feature: Scality Utilization Reporting (SUR) API
     Scenario Outline: Default roles can retrieve utilization metrics
         Given an existing bucket "" "without" versioning, "without" ObjectLock "" retention mode
         When I PUT an object with size 100
-        And the "count-items" cronjob completes without error
+        And the "count-items" cronjobs completes without error
         Given a <userType> type
         When the user retrieves utilization metrics using scubaclient for metric type "<metricType>"
         Then the latest utilization metrics are retrieved
@@ -33,7 +33,7 @@ Feature: Scality Utilization Reporting (SUR) API
     Scenario Outline: IAM users with correct permissions can retrieve utilization metrics
         Given an existing bucket "" "without" versioning, "without" ObjectLock "" retention mode
         When I PUT an object with size 100
-        And the "count-items" cronjob completes without error
+        And the "count-items" cronjobs completes without error
         Given a <userType> type
         When the user retrieves utilization metrics using scubaclient for metric type "<metricType>"
         Then the latest utilization metrics are retrieved
