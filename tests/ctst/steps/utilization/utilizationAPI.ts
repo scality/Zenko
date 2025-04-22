@@ -35,7 +35,7 @@ When('the user retrieves utilization metrics using scubaclient for metric type {
                         sessionToken: userCredentials.sessionToken,
                     },
                     region: 'us-east-1',
-                    service: 'sur',
+                    service: 's3',
                 },
             },
         });
