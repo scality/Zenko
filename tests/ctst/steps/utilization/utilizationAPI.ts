@@ -70,6 +70,9 @@ When('the user retrieves utilization metrics using scubaclient for metric type {
             };
             this.setResult(command);
         } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
+            this.logger.debug('Error retrieving utilization metrics', {
+                err: err.message,
+            });
             this.setResult({
                 err: err.message,
                 stdout: '',
@@ -82,6 +85,12 @@ Then('the latest utilization metrics are retrieved',
     function (this: Zenko) {
         const result = this.getResult();
         assert.strictEqual(result.err, '', `Expected no error but got: ${result.err}`);
+
+        this.logger.debug('Utilization metrics', {
+            stdout: result.stdout,
+            stderr: result.stderr,
+            err: result.err,
+        });
 
         const response = JSON.parse(result.stdout) as ScubaMetrics;
         assert.ok(response.objectsTotal > 0, 'Bucket metrics should contain objectCount');
