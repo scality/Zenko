@@ -3,8 +3,8 @@ import { Constants, IAM, Identity, Utils } from 'cli-testing';
 import { extractPropertyFromResults } from '../../common/utils';
 import Zenko from 'world/Zenko';
 
-Given('an IAM policy attached to the entity {string} with {string} effect to perform {string} on {string}',
-    async function (this: Zenko, entity: string, effect: string, action: string, resource: string) {
+Given('an IAM policy attached to the entity {string} with {string} effect to perform {string} {string} on {string}',
+    async function (this: Zenko, entity: string, effect: string, service: string, action: string, resource: string) {
         Identity.resetIdentity();
         this.resetCommand();
         this.addToSaved('action', action);
@@ -16,7 +16,7 @@ Given('an IAM policy attached to the entity {string} with {string} effect to per
                 Statement: [
                     {
                         Effect: effect === 'Allow' ? 'Allow' : 'Deny',
-                        Action: action,
+                        Action: `${service}:${action}`,
                         Resource: resource,
                     },
                 ],
