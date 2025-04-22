@@ -7,6 +7,7 @@ import {
 import Zenko from '../world/Zenko';
 import { CacheHelper, Identity } from 'cli-testing';
 import { prepareQuotaScenarios, teardownQuotaScenarios } from 'steps/quotas/quotas';
+import { prepareUtilizationScenarios } from 'steps/utilization/utilizationAPI';
 import { cleanS3Bucket } from './common';
 import { cleanAzureContainer, cleanZenkoLocation } from 'steps/azureArchive';
 import { displayDebuggingInformation, preparePRA } from 'steps/pra';
@@ -40,6 +41,10 @@ After({ tags: '@PRA' }, async function (this, results) {
 
 Before({ tags: '@Quotas', timeout: 1200000 }, async function (scenarioOptions) {
     await prepareQuotaScenarios(this as Zenko, scenarioOptions);
+});
+
+Before({ tags: '@UtilizationAPI', timeout: 1200000 }, async function (scenarioOptions) {
+    await prepareUtilizationScenarios(this as Zenko, scenarioOptions);
 });
 
 After(async function (this: Zenko, results) {
