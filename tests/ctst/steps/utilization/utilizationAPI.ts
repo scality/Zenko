@@ -59,7 +59,6 @@ When('the user retrieves utilization metrics using scubaclient for metric type {
         }
 
         try {
-            // @ts-expect-error SUR client does not yet has the "location" type listed
             const response = await client.getLatestMetrics(metricType, metricName);
             const command: Command = {
                 err: '',
