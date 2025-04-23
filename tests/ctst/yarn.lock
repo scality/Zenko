@@ -6603,9 +6603,9 @@ sax@>=0.6.0:
   resolved "https://registry.yarnpkg.com/sax/-/sax-1.4.1.tgz#44cc8988377f126304d3b3fc1010c733b929ef0f"
   integrity sha512-+aWOz7yVScEGoKNd4PA10LZ8sk0A/z5+nXQG5giUO5rprX9jgYsTdov9qCchZiPIZezbZH+jRut8nPodFAX4Jg==
 
-"scubaclient@git+https://github.com/scality/scubaclient#^1.1.0":
-  version "1.1.0"
-  resolved "git+https://github.com/scality/scubaclient#0831c516f090f49c377a9182af429bc1da5d8e58"
+"scubaclient@git+https://github.com/scality/scubaclient#^1.1.1":
+  version "1.1.1"
+  resolved "git+https://github.com/scality/scubaclient#c3a56f98768feac145b764402491967ee711063a"
   dependencies:
     "@aws-crypto/sha256-js" "^5.2.0"
     "@smithy/signature-v4" "^2.1.1"
