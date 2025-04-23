@@ -85,6 +85,7 @@ spec:
         {{- with $.Values.common.initContainers }}
         {{- include "common.tplvalues.render" ( dict "value" . "context" $ ) | nindent 8 }}
         {{- end }}
+        {{- include "mongodb-sharded.initContainer.prepareLogDir" $ | nindent 8 }}
       {{- end }}
       containers:
         - name: mongos
