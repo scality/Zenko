@@ -17,7 +17,7 @@ export ZENKO_STS_INGRESS=${ZENKO_STS_INGRESS:-'sts.zenko.local'}
 export ZENKO_MANAGEMENT_INGRESS=${ZENKO_MANAGEMENT_INGRESS:-'management.zenko.local'}
 export ZENKO_S3_INGRESS=${ZENKO_S3_INGRESS:-'s3.zenko.local'}
 export ZENKO_UI_INGRESS=${ZENKO_UI_INGRESS:-'ui.zenko.local'}
-export ZENKO_SUR_API_INGRESS=${ZENKO_SUR_API_INGRESS:-'utilization.zenko.local'}
+export ZENKO_SUR_INGRESS=${ZENKO_SUR_INGRESS:-'utilization.zenko.local'}
 
 export BACKBEAT_LCC_CRON_RULE=${BACKBEAT_LCC_CRON_RULE:-'*/5 * * * * *'}
 
@@ -32,7 +32,7 @@ if [ ${ENABLE_KEYCLOAK_HTTPS} == 'true' ]; then
       - ${ZENKO_MANAGEMENT_INGRESS}
       - ${ZENKO_IAM_INGRESS}
       - ${ZENKO_STS_INGRESS}
-      - ${ZENKO_SUR_API_INGRESS}"
+      - ${ZENKO_SUR_INGRESS}"
 else
     export ZENKO_INGRESS_ANNOTATIONS="annotations:
       nginx.ingress.kubernetes.io/proxy-body-size: 0m"
