@@ -8,7 +8,8 @@ Feature: Quota Management for APIs
     @CronJob
     @DataWrite
     Scenario Outline: Quotas are evaluated during write operations
-        Given an action "<action>"
+        Given the environment is set up with bucket created with data, and count-items created the metrics
+        And an action "<action>"
         And an upload size of <uploadSize> B for the object ""
         And a STORAGE_MANAGER type
         And a bucket quota set to <bucketQuota> B
@@ -69,7 +70,8 @@ Feature: Quota Management for APIs
     @DataDeletion
     @NonVersioned
     Scenario Outline: Quotas are affected by deletion operations
-        Given an action "DeleteObject"
+        Given the environment is set up with bucket created with data, and count-items created the metrics
+        And an action "DeleteObject"
         And a permission to perform the "PutObject" action
         And a STORAGE_MANAGER type
         And a bucket quota set to <bucketQuota> B
@@ -102,7 +104,8 @@ Feature: Quota Management for APIs
     @DataDeletion
     @NonVersioned
     Scenario Outline: Quotas are affected by deletion operations between count items runs
-        Given an action "DeleteObject"
+        Given the environment is set up with bucket created with data, and count-items created the metrics
+        And an action "DeleteObject"
         And a permission to perform the "PutObject" action
         And a STORAGE_MANAGER type
         And a bucket quota set to 1000 B
@@ -139,7 +142,8 @@ Feature: Quota Management for APIs
     @DataDeletion
     @NonVersioned
     Scenario Outline: Negative inflights do not allow to bypass the quota
-        Given an action "DeleteObject"
+        Given the environment is set up with bucket created with data, and count-items created the metrics
+        And an action "DeleteObject"
         And a permission to perform the "PutObject" action
         And a STORAGE_MANAGER type
         And a bucket quota set to <bucketQuota> B
@@ -174,7 +178,8 @@ Feature: Quota Management for APIs
     @Dmf
     @ColdStorage
     Scenario Outline: Object restoration implements strict quotas
-        Given an action "<action>"
+        Given the environment is set up with bucket created with data, and count-items created the metrics
+        And an action "<action>"
         And a STORAGE_MANAGER type
         And a transition workflow to "e2e-cold" location
         And an upload size of <uploadSize> B for the object ""
@@ -208,7 +213,8 @@ Feature: Quota Management for APIs
     @ColdStorage
     @Only
     Scenario Outline: Restored object expiration updates quotas
-        Given an action "<action>"
+        Given the environment is set up with bucket created with data, and count-items created the metrics
+        And an action "<action>"
         And a STORAGE_MANAGER type
         And a transition workflow to "e2e-cold" location
         And an upload size of <uploadSize> B for the object "obj-1"

@@ -7,7 +7,8 @@ Feature: Scality Utilization Reporting (SUR) API
     @Utilization
     @UtilizationAPI
     Scenario Outline: Default roles can retrieve utilization metrics
-        Given a STORAGE_MANAGER type
+        Given the environment is set up with bucket created, test data uploaded, and count-items ran
+        And a STORAGE_MANAGER type
         When the user retrieves utilization metrics using scubaclient for metric type "<metricType>"
         Then the latest utilization metrics are retrieved
 
@@ -22,7 +23,8 @@ Feature: Scality Utilization Reporting (SUR) API
     @Utilization
     @UtilizationAPI
     Scenario Outline: IAM users with correct permissions can retrieve utilization metrics
-        Given a IAM_USER type
+        Given the environment is set up with bucket created, test data uploaded, and count-items ran
+        And a IAM_USER type
         And an IAM policy attached to the entity "user" with "Allow" effect to perform "sur" "GetMetrics" on "arn:scality:sur:::*"
         When the user retrieves utilization metrics using scubaclient for metric type "<metricType>"
         Then the latest utilization metrics are retrieved
@@ -38,7 +40,8 @@ Feature: Scality Utilization Reporting (SUR) API
     @Utilization
     @UtilizationAPI
     Scenario Outline: Unauthorized users cannot retrieve utilization metrics
-        Given a IAM_USER type
+        Given the environment is set up with bucket created, test data uploaded, and count-items ran
+        And a IAM_USER type
         When the user retrieves utilization metrics using scubaclient for metric type "<metricType>"
         Then the user should receive "403" error
 
@@ -53,7 +56,8 @@ Feature: Scality Utilization Reporting (SUR) API
     @Utilization
     @UtilizationAPI
     Scenario Outline: IAM users with explicit deny policy cannot retrieve utilization metrics
-        Given a IAM_USER type
+        Given the environment is set up with bucket created, test data uploaded, and count-items ran
+        And a IAM_USER type
         And an IAM policy attached to the entity "user" with "Deny" effect to perform "sur" "GetMetrics" on "arn:scality:sur:::*"
         When the user retrieves utilization metrics using scubaclient for metric type "<metricType>"
         Then the user should receive "403" error
