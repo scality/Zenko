@@ -9,7 +9,8 @@ import { prepareMetricsScenarios } from '../../common/utils';
 export async function prepareUtilizationScenarios(world: Zenko, scenarioConfiguration: ITestCaseHookParameter) {
     await prepareMetricsScenarios(world, scenarioConfiguration, {
         versioning: '',
-        jobNamespace: 'utilization-setup'
+        jobNamespace: 'utilization-setup',
+        jobName: 'end2end-ops-count-items'
     });
 }
 

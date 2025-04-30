@@ -306,8 +306,8 @@ export async function cleanupAccount(world: Zenko, accountName: string) {
 
 interface PrepareScenarioOptions {
     versioning?: string;
-    jobName?: string;
     jobNamespace?: string;
+    jobName?: string;
 }
 
 /**
@@ -318,7 +318,7 @@ interface PrepareScenarioOptions {
 export async function prepareMetricsScenarios(
     world: Zenko, 
     scenarioConfiguration: ITestCaseHookParameter,
-    options: PrepareScenarioOptions = {}
+    options: PrepareScenarioOptions = {},
 ): Promise<void> {
     const { gherkinDocument, pickle } = scenarioConfiguration;
     const featureName = gherkinDocument.feature?.name?.replace(/ /g, '-').toLowerCase() || 'metrics';
@@ -397,6 +397,7 @@ export async function prepareMetricsScenarios(
     world.addToSaved('bucketName', key);
     world.addToSaved('accountName', key);
     world.addToSaved('accountNameForScenario', key);
+    world.addToSaved('metricsEnvironmentSetup', true);
     
     if (configuration[key]) {
         Identity.addIdentity(IdentityEnum.ACCOUNT, key, configuration[key], undefined, true, true);
