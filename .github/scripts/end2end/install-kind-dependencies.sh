@@ -190,7 +190,7 @@ mongodb_wait_for_shards() {
             --eval "db.runCommand({ listshards: 1 }).shards.length"
     )
 
-    [ $count == "1" ]
+    [ $count == "$MONGODB_SHARD_COUNT" ]
 }
 
 mongodb_sharded() {
@@ -201,11 +201,14 @@ mongodb_sharded() {
         $SOLUTION_REGISTRY/os-shell=$(get_image_from_deps mongodb-shell) \
         $SOLUTION_REGISTRY/mongodb-exporter=$(get_image_from_deps mongodb-sharded-exporter)
 
-    kubectl apply -k .
+    kubectl apply -k "${DIR}"
 
-    kubectl rollout status statefulset data-db-mongodb-sharded-mongos
-    kubectl rollout status statefulset data-db-mongodb-sharded-configsvr
-    kubectl rollout status statefulset data-db-mongodb-sharded-shard0-data
+    kubectl rollout status statefulset data-db-mongodb-sharded-mongos --timeout=5m
+    kubectl rollout status statefulset data-db-mongodb-sharded-configsvr --timeout=5m
+
+    for ((i=0; i<MONGODB_SHARD_COUNT; i++)); do
+        kubectl rollout status statefulset "data-db-mongodb-sharded-shard${i}-data" --timeout=5m
+    done
 
     retry mongodb_wait_for_shards "no shards found"
 
