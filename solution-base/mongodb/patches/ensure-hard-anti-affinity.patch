@@ -1,0 +1,13 @@
+diff --git a/solution-base/mongodb/charts/mongodb-sharded/values.yaml b/solution-base/mongodb/charts/mongodb-sharded/values.yaml
+index 83f60e80..f083c7c9 100644
+--- a/solution-base/mongodb/charts/mongodb-sharded/values.yaml
++++ b/solution-base/mongodb/charts/mongodb-sharded/values.yaml
+@@ -799,7 +799,7 @@ mongos:
+   ## @param mongos.podAntiAffinityPreset Mongos Pod anti-affinity preset. Ignored if `affinity` is set. Allowed values: `soft` or `hard`
+   ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+   ##
+-  podAntiAffinityPreset: soft
++  podAntiAffinityPreset: hard
+   ## Node affinity preset
+   ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+   ##
