@@ -1,18 +1,22 @@
 diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-podmonitor.yaml b/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-podmonitor.yaml
-index d2c9c0cb..657764ac 100644
+index d2c9c0cb..a01a0d68 100644
 --- a/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-podmonitor.yaml
 +++ b/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-podmonitor.yaml
-@@ -4,8 +4,7 @@ SPDX-License-Identifier: APACHE-2.0
+@@ -4,12 +4,10 @@ SPDX-License-Identifier: APACHE-2.0
  */}}
  
  {{- if and .Values.shards .Values.metrics.enabled .Values.metrics.podMonitor.enabled }}
 -{{- $replicas := .Values.shards | int }}
 -{{- range $i, $e := until $replicas }}
-+{{- $i := 0 }}
  apiVersion: monitoring.coreos.com/v1
  kind: PodMonitor
  metadata:
-@@ -36,7 +35,4 @@ spec:
+-  name: {{ printf "%s-shard%d-data" (include "common.names.fullname" $ ) $i }}
++  name: {{ printf "%s-shards-data" (include "common.names.fullname" $ ) }}
+   namespace: {{ default (include "common.names.namespace" $) $.Values.metrics.podMonitor.namespace | quote }}
+   labels: {{- include "common.labels.standard" ( dict "customLabels" $.Values.commonLabels "context" $ ) | nindent 4 }}
+     app.kubernetes.io/component: shardsvr
+@@ -36,7 +34,4 @@ spec:
    selector:
      matchLabels: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 6 }}
        app.kubernetes.io/component: shardsvr

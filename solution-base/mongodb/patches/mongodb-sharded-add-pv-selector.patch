@@ -1,3 +1,18 @@
+diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-statefulset.yaml b/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-statefulset.yaml
+index d19d608f..c3c3d30e 100644
+--- a/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-statefulset.yaml
++++ b/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-statefulset.yaml
+@@ -438,6 +438,10 @@ spec:
+         {{- range .Values.configsvr.persistence.accessModes }}
+           - {{ . | quote }}
+         {{- end }}
++        {{- if .Values.configsvr.persistence.selector }}
++        selector:
++{{ toYaml .Values.configsvr.persistence.selector | indent 10 }}
++        {{- end }}
+         resources:
+           requests:
+             storage: {{ .Values.configsvr.persistence.size | quote }}
 diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-statefulset.yaml b/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-statefulset.yaml
 index 5e648381..a54852e3 100644
 --- a/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-statefulset.yaml
