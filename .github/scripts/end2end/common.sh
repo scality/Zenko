@@ -4,7 +4,7 @@ get_token() {
         -d "username=${OIDC_USERNAME}" \
         -d "password=${OIDC_PASSWORD}" \
         -d "grant_type=password" \
-        -d 'scope=openid' \
+        -d "scope=openid" \
         https://localhost/auth/realms/${OIDC_REALM}/protocol/openid-connect/token | \
         jq -cr '.id_token'
 }
