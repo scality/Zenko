@@ -233,6 +233,40 @@ testsToRun.forEach(test => {
                     ], done);
                 });
             });
+
+            describe('with versioning suspended', () => {
+                beforeEach(done => cloudServer.createVersionedBucket(srcBucket, done));
+
+                it('should transition an object', done => {
+                    const key = `${prefix}ver-suspended-master`;
+                    cloudServer.setKey(key);
+                    cloud.setKey(`${srcBucket}/${key}`);
+                    let versionId = null;
+                    series([
+                        next => cloudServer.putBucketVersioningConfiguration('Suspended', next),
+                        next => cloudServer.putObject(Buffer.from(key), (err, data) => {
+                            if (data) {
+                                versionId = data.VersionId;
+                            }
+                            next(err);
+                        }),
+                        next => checkTransition(toLoc, cloudServer, cloud, versionId, next),
+                        next => checkRestoration(toLoc, cloudServer, versionId, next),
+                    ], done);
+                });
+
+                it('should transition non-versioned object', done => {
+                    const key = `${prefix}ver-suspended-master`;
+                    cloudServer.setKey(key);
+                    cloud.setKey(`${srcBucket}/${key}`);
+                    series([
+                        next => cloudServer.putObject(Buffer.from(key), next),
+                        next => cloudServer.putBucketVersioningConfiguration('Suspended', next),
+                        next => checkTransition(toLoc, cloudServer, cloud, null, next),
+                        next => checkRestoration(toLoc, cloudServer, null, next),
+                    ], done);
+                });
+            });
         }
     });
 });
