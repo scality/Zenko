@@ -24,6 +24,10 @@ MONGODB_APP_PASSWORD=datapass
 MONGODB_APP_DATABASE=${ZENKO_MONGODB_DATABASE:-datadb}
 MONGODB_RS_KEY=0123456789abcdef
 
+MONGODB_SHARD_COUNT=${MONGODB_SHARD_COUNT:-1}
+
+source "${DIR}/generate-kustomization.sh" && generate_kustomization "${NODE_COUNT:-1}" "${MONGODB_SHARD_COUNT}"
+
 ENABLE_KEYCLOAK_HTTPS=${ENABLE_KEYCLOAK_HTTPS:-'false'}
 
 KAFKA_CHART=banzaicloud-stable/kafka-operator
