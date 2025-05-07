@@ -84,7 +84,8 @@ function render_mongodb_sharded_yamls()
     local OUTPUT_PATH=${1:-${OPERATOR_PATH}}
     local SHARD_COUNT=${2:-1}
     local NODE_COUNT=${3:-1}
-    local REPLICA_COUNT=${3:-${NODE_COUNT}}
+    local MAX_REPLICA_PER_SHARD=3
+    local REPLICA_COUNT=$(( $3 > $MAX_REPLICA_PER_SHARD ? $MAX_REPLICA_PER_SHARD : $3 ))
 
     echo creating mongodb-sharded ${NODE_COUNT}-node yamls
     CHART_PATH="$SOLUTION_BASE_DIR/mongodb/charts/mongodb-sharded"
@@ -100,7 +101,7 @@ function render_mongodb_sharded_yamls()
         --set shardsvr.dataNode.replicaCount=${REPLICA_COUNT} \
         --set shardsvr.persistence.enabled=true \
         --set shardsvr.persistence.storageClass=${MONGODB_STORAGE_CLASS} \
-        --set configsvr.replicaCount=${REPLICA_COUNT} \
+        --set configsvr.replicaCount=$(( $NODE_COUNT > 2 ? 3 : 1 )) \
         --set configsvr.persistence.enabled=true \
         --set configsvr.persistence.storageClass=${MONGODB_STORAGE_CLASS} \
         --set metrics.enabled=true \
