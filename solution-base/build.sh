@@ -32,6 +32,7 @@ SOLUTION_REGISTRY=metalk8s-registry-from-config.invalid/${PRODUCT_LOWERNAME}-${V
 MONGODB_SHARDED_SINGLE_NODE_PATH=${ISO_ROOT}/deploy/mongodb-sharded-1-node.yaml
 MONGODB_SHARDED_SINGLE_NODE_TWO_SHARDS_PATH=${ISO_ROOT}/deploy/mongodb-sharded-1-node-2-shards.yaml
 MONGODB_SHARDED_THREE_NODE_PATH=${ISO_ROOT}/deploy/mongodb-sharded-3-nodes.yaml
+MONGODB_SHARDED_THREE_NODE_TWO_SHARDS_PATH=${ISO_ROOT}/deploy/mongodb-sharded-3-nodes-2-shards.yaml
 MONGODB_SHARDED_THREE_NODE_THREE_SHARDS_PATH=${ISO_ROOT}/deploy/mongodb-sharded-3-nodes-3-shards.yaml
 MONGODB_SHARDED_SIX_NODE_PATH=${ISO_ROOT}/deploy/mongodb-sharded-6-nodes.yaml
 MONGODB_SHARDED_SIX_NODE_TWO_SHARDS_PATH=${ISO_ROOT}/deploy/mongodb-sharded-6-nodes-2-shards.yaml
@@ -160,6 +161,7 @@ function mongodb_sharded_yamls()
     render_mongodb_sharded_yamls "${MONGODB_SHARDED_SINGLE_NODE_PATH}" 1 1 1
     render_mongodb_sharded_yamls "${MONGODB_SHARDED_SINGLE_NODE_TWO_SHARDS_PATH}" 2 1 1
     render_mongodb_sharded_yamls "${MONGODB_SHARDED_THREE_NODE_PATH}" 1 3 3
+    render_mongodb_sharded_yamls "${MONGODB_SHARDED_THREE_NODE_TWO_SHARDS_PATH}" 2 3 3
     render_mongodb_sharded_yamls "${MONGODB_SHARDED_THREE_NODE_THREE_SHARDS_PATH}" 3 3 3
     render_mongodb_sharded_yamls "${MONGODB_SHARDED_SIX_NODE_PATH}" 1 6 3
     render_mongodb_sharded_yamls "${MONGODB_SHARDED_SIX_NODE_TWO_SHARDS_PATH}" 2 6 3
