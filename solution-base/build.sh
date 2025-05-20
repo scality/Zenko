@@ -42,6 +42,10 @@ MONGODB_SHARDED_NINE_NODE_PATH=${ISO_ROOT}/deploy/mongodb-sharded-9-nodes.yaml
 MONGODB_SHARDED_NINE_NODE_THREE_SHARDS_PATH=${ISO_ROOT}/deploy/mongodb-sharded-9-nodes-3-shards.yaml
 MONGODB_SHARDED_NINE_NODE_SIX_SHARDS_PATH=${ISO_ROOT}/deploy/mongodb-sharded-9-nodes-6-shards.yaml
 MONGODB_SHARDED_NINE_NODE_NINE_SHARDS_PATH=${ISO_ROOT}/deploy/mongodb-sharded-9-nodes-9-shards.yaml
+MONGODB_SHARDED_TWELVE_NODE_PATH=${ISO_ROOT}/deploy/mongodb-sharded-12-nodes.yaml
+MONGODB_SHARDED_TWELVE_NODE_FOUR_SHARDS_PATH=${ISO_ROOT}/deploy/mongodb-sharded-12-nodes-4-shards.yaml
+MONGODB_SHARDED_TWELVE_NODE_EIGHT_SHARDS_PATH=${ISO_ROOT}/deploy/mongodb-sharded-12-nodes-8-shards.yaml
+MONGODB_SHARDED_TWELVE_NODE_TWELVE_SHARDS_PATH=${ISO_ROOT}/deploy/mongodb-sharded-12-nodes-12-shards.yaml
 
 SOLUTION_ENV='SOLUTION_ENV'
 
@@ -171,6 +175,10 @@ function mongodb_sharded_yamls()
     render_mongodb_sharded_yamls "${MONGODB_SHARDED_NINE_NODE_THREE_SHARDS_PATH}" 3 9 3
     render_mongodb_sharded_yamls "${MONGODB_SHARDED_NINE_NODE_SIX_SHARDS_PATH}" 6 9 3
     render_mongodb_sharded_yamls "${MONGODB_SHARDED_NINE_NODE_NINE_SHARDS_PATH}" 9 9 3
+    render_mongodb_sharded_yamls "${MONGODB_SHARDED_TWELVE_NODE_PATH}" 1 12 3
+    render_mongodb_sharded_yamls "${MONGODB_SHARDED_TWELVE_NODE_FOUR_SHARDS_PATH}" 4 12 3
+    render_mongodb_sharded_yamls "${MONGODB_SHARDED_TWELVE_NODE_EIGHT_SHARDS_PATH}" 8 12 3
+    render_mongodb_sharded_yamls "${MONGODB_SHARDED_TWELVE_NODE_TWELVE_SHARDS_PATH}" 12 12 3
 }
 
 function gen_manifest_yaml()
