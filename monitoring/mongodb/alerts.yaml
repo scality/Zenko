@@ -234,7 +234,11 @@ groups:
 
   - alert: MongoDbRSNotSynced
     expr: |
-      group by(rs_nm) ( count by(rs_nm, pod) (mongodb_rs_members_state{namespace="${namespace}", pod=~"${service}.*", member_state="SECONDARY"}) != (${replicas} - 1) )
+      count by (rs_nm) (
+          group by (rs_nm, member_idx) (
+              mongodb_rs_members_state{member_state="SECONDARY", namespace="${namespace}", pod=~"${service}.*"}
+          )
+      ) != (${replicas} - 1)
     for: 10m
     labels:
       severity: warning
