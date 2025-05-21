@@ -410,3 +410,161 @@ tests:
             exp_annotations:
               description: "MongoDB replica set `data-db-mongodb-sharded-shard-0` is not in the expected state. It does not have the expected number of SECONDARY members. Please ensure that all instances are running properly."
               summary: MongoDB replica set out of sync
+
+  - name: MongoDbRSNotSynced_MultiShardOneFailsOneHealthy
+    interval: 1m
+    input_series:
+      # Reported by exporter on pod="data-db-mongodb-sharded-shard0-data-0"
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-0", member_state="PRIMARY", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-0"}
+        values: 1x20
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-0", member_state="SECONDARY", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-1"}
+        values: 2x20
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-0", member_state="SECONDARY", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-2"}
+        values: 2x8 stale
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-0", member_state="(not reachable/healthy)", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-2"}
+        values: stale _x8 1x12
+
+      # Reported by exporter on pod="data-db-mongodb-sharded-shard0-data-1"
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-1", member_state="PRIMARY", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-0"}
+        values: 1x20
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-1", member_state="SECONDARY", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-1"}
+        values: 2x20
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-1", member_state="SECONDARY", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-2"}
+        values: 2x8 stale
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-1", member_state="(not reachable/healthy)", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-2"}
+        values: stale _x8 1x12
+
+      # Reported by exporter on pod="data-db-mongodb-sharded-shard0-data-2"
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-2", member_state="PRIMARY", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-0"}
+        values: 1x8 stale
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-2", member_state="SECONDARY", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-1"}
+        values: 2x8 stale
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-2", member_state="SECONDARY", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-2"}
+        values: 2x8 stale
+
+      # Reported by exporter on pod="data-db-mongodb-sharded-shard1-data-0"
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard1-data-0", member_state="PRIMARY", rs_nm="data-db-mongodb-sharded-shard-1", member_idx="shard1-data-0"}
+        values: 1x20
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard1-data-0", member_state="SECONDARY", rs_nm="data-db-mongodb-sharded-shard-1", member_idx="shard1-data-1"}
+        values: 2x20
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard1-data-0", member_state="SECONDARY", rs_nm="data-db-mongodb-sharded-shard-1", member_idx="shard1-data-2"}
+        values: 2x20
+
+      # Reported by exporter on pod="data-db-mongodb-sharded-shard1-data-1"
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard1-data-1", member_state="PRIMARY", rs_nm="data-db-mongodb-sharded-shard-1", member_idx="shard1-data-0"}
+        values: 1x20
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard1-data-1", member_state="SECONDARY", rs_nm="data-db-mongodb-sharded-shard-1", member_idx="shard1-data-1"}
+        values: 2x20
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard1-data-1", member_state="SECONDARY", rs_nm="data-db-mongodb-sharded-shard-1", member_idx="shard1-data-2"}
+        values: 2x20
+
+      # Reported by exporter on pod="data-db-mongodb-sharded-shard1-data-2"
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard1-data-2", member_state="PRIMARY", rs_nm="data-db-mongodb-sharded-shard-1", member_idx="shard1-data-0"}
+        values: 1x20
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard1-data-2", member_state="SECONDARY", rs_nm="data-db-mongodb-sharded-shard-1", member_idx="shard1-data-1"}
+        values: 2x20
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard1-data-2", member_state="SECONDARY", rs_nm="data-db-mongodb-sharded-shard-1", member_idx="shard1-data-2"}
+        values: 2x20
+    alert_rule_test:
+      - alertname: MongoDbRSNotSynced
+        eval_time: 5m
+        exp_alerts: []
+      - alertname: MongoDbRSNotSynced
+        eval_time: 10m
+        exp_alerts: []
+      - alertname: MongoDbRSNotSynced
+        eval_time: 18m
+        exp_alerts: []
+      - alertname: MongoDbRSNotSynced
+        eval_time: 19m
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              rs_nm: data-db-mongodb-sharded-shard-0
+            exp_annotations:
+              description: "MongoDB replica set `data-db-mongodb-sharded-shard-0` is not in the expected state. It does not have the expected number of SECONDARY members. Please ensure that all instances are running properly."
+              summary: MongoDB replica set out of sync
+
+  - name: MongoDbRSNotSynced_TwoShardsFailSimultaneously
+    interval: 1m
+    input_series:
+      # Reported by exporter on pod="data-db-mongodb-sharded-shard0-data-0" for shard-0
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-0", member_state="PRIMARY", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-0"}
+        values: 1x20 
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-0", member_state="SECONDARY", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-1"}
+        values: 2x20
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-0", member_state="SECONDARY", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-2"}
+        values: 2x8 stale 
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-0", member_state="(not reachable/healthy)", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-2"}
+        values: stale _x8 1x12 
+
+      # Reported by exporter on pod="data-db-mongodb-sharded-shard0-data-1" for shard-0
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-1", member_state="PRIMARY", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-0"}
+        values: 1x20
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-1", member_state="SECONDARY", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-1"}
+        values: 2x20
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-1", member_state="SECONDARY", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-2"}
+        values: 2x8 stale
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-1", member_state="(not reachable/healthy)", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-2"}
+        values: stale _x8 1x12
+
+      # Reported by exporter on pod="data-db-mongodb-sharded-shard0-data-2" for shard-0 (this exporter's metrics also go stale)
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-2", member_state="PRIMARY", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-0"}
+        values: 1x8 stale
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-2", member_state="SECONDARY", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-1"}
+        values: 2x8 stale
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-2", member_state="SECONDARY", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-2"}
+        values: 2x8 stale
+
+      # Reported by exporter on pod="data-db-mongodb-sharded-shard1-data-0" for shard-1
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard1-data-0", member_state="PRIMARY", rs_nm="data-db-mongodb-sharded-shard-1", member_idx="shard1-data-0"}
+        values: 1x20
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard1-data-0", member_state="SECONDARY", rs_nm="data-db-mongodb-sharded-shard-1", member_idx="shard1-data-1"}
+        values: 2x20
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard1-data-0", member_state="SECONDARY", rs_nm="data-db-mongodb-sharded-shard-1", member_idx="shard1-data-2"}
+        values: 2x8 stale # shard1-data-2 is SECONDARY for 8 mins
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard1-data-0", member_state="(not reachable/healthy)", rs_nm="data-db-mongodb-sharded-shard-1", member_idx="shard1-data-2"}
+        values: stale _x8 1x12 # Then not SECONDARY
+
+      # Reported by exporter on pod="data-db-mongodb-sharded-shard1-data-1" for shard-1
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard1-data-1", member_state="PRIMARY", rs_nm="data-db-mongodb-sharded-shard-1", member_idx="shard1-data-0"}
+        values: 1x20
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard1-data-1", member_state="SECONDARY", rs_nm="data-db-mongodb-sharded-shard-1", member_idx="shard1-data-1"}
+        values: 2x20
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard1-data-1", member_state="SECONDARY", rs_nm="data-db-mongodb-sharded-shard-1", member_idx="shard1-data-2"}
+        values: 2x8 stale # shard1-data-2 is SECONDARY for 8 mins
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard1-data-1", member_state="(not reachable/healthy)", rs_nm="data-db-mongodb-sharded-shard-1", member_idx="shard1-data-2"}
+        values: stale _x8 1x12 # Then not SECONDARY
+
+      # Reported by exporter on pod="data-db-mongodb-sharded-shard1-data-2" for shard-1 (this exporter's metrics also go stale)
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard1-data-2", member_state="PRIMARY", rs_nm="data-db-mongodb-sharded-shard-1", member_idx="shard1-data-0"}
+        values: 1x8 stale
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard1-data-2", member_state="SECONDARY", rs_nm="data-db-mongodb-sharded-shard-1", member_idx="shard1-data-1"}
+        values: 2x8 stale
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard1-data-2", member_state="SECONDARY", rs_nm="data-db-mongodb-sharded-shard-1", member_idx="shard1-data-2"}
+        values: 2x8 stale
+    alert_rule_test:
+      - alertname: MongoDbRSNotSynced
+        eval_time: 5m 
+        exp_alerts: []
+      - alertname: MongoDbRSNotSynced
+        eval_time: 10m 
+        exp_alerts: []
+      - alertname: MongoDbRSNotSynced
+        eval_time: 18m 
+        exp_alerts: []
+      - alertname: MongoDbRSNotSynced
+        eval_time: 19m 
+        exp_alerts:
+          - exp_labels: # Expected alert for shard-0
+              severity: warning
+              rs_nm: data-db-mongodb-sharded-shard-0
+            exp_annotations:
+              description: "MongoDB replica set `data-db-mongodb-sharded-shard-0` is not in the expected state. It does not have the expected number of SECONDARY members. Please ensure that all instances are running properly."
+              summary: MongoDB replica set out of sync
+          - exp_labels: # Expected alert for shard-1
+              severity: warning
+              rs_nm: data-db-mongodb-sharded-shard-1
+            exp_annotations:
+              description: "MongoDB replica set `data-db-mongodb-sharded-shard-1` is not in the expected state. It does not have the expected number of SECONDARY members. Please ensure that all instances are running properly."
+              summary: MongoDB replica set out of sync
