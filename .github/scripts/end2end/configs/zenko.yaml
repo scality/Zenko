@@ -4,8 +4,6 @@ kind: Zenko
 metadata:
   name: ${ZENKO_NAME}
   ${ZENKO_ANNOTATIONS}
-    zenko.io/x-backbeat-oneshard-replicaset: data-db-mongodb-sharded-shard-0
-    zenko.io/x-backbeat-oneshard-replicaset-hosts: ${ZENKO_BACKBEAT_SHARD_HOSTS}
 spec:
   version: ${ZENKO_VERSION_NAME}
   replicas: 1
