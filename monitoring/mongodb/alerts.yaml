@@ -241,6 +241,7 @@ groups:
       ) != (${replicas} - 1)
     for: 10m
     labels:
+      rs_nm: "{{ $labels.rs_nm }}"
       severity: warning
     annotations:
       description: "MongoDB replica set `{{ $labels.rs_nm }}` is not in the expected state. It does not have the expected number of SECONDARY members. Please ensure that all instances are running properly."

@@ -518,7 +518,7 @@ jobs:
         with:
           username: "${{ github.repository_owner }}"
           password: "${{ github.token }}"
-          registry: ghcr.io/zenko-dev/zenko-operator
+          registry: ghcr.io
       - name: Get token to access private repositories
         uses: actions/create-github-app-token@v1
         id: app-token

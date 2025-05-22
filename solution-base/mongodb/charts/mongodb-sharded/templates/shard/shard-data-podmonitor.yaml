@@ -4,10 +4,11 @@ SPDX-License-Identifier: APACHE-2.0
 */}}
 
 {{- if and .Values.shards .Values.metrics.enabled .Values.metrics.podMonitor.enabled }}
+{{- $i := 0 }}
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
-  name: {{ printf "%s-shards-data" (include "common.names.fullname" $ ) }}
+  name: {{ printf "%s-shard%d-data" (include "common.names.fullname" $ ) $i }}
   namespace: {{ default (include "common.names.namespace" $) $.Values.metrics.podMonitor.namespace | quote }}
   labels: {{- include "common.labels.standard" ( dict "customLabels" $.Values.commonLabels "context" $ ) | nindent 4 }}
     app.kubernetes.io/component: shardsvr

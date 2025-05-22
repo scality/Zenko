@@ -131,17 +131,7 @@ create_encryption_secret()
     export AZURE_SECRET_KEY_ENCRYPTED
 }
 
-generate_shard_hosts() {
-    local hosts=""
-    for ((i=0; i<MONGODB_SHARD_COUNT; i++)); do
-        if [ $i -gt 0 ]; then hosts+=","; fi
-        hosts+="data-db-mongodb-sharded-shard${i}-data-0.data-db-mongodb-sharded-headless.default.svc.cluster.local:27017"
-    done
-    export ZENKO_BACKBEAT_SHARD_HOSTS="$hosts"
-}
-
 create_encryption_secret
-generate_shard_hosts
 
 env $(dependencies_env) envsubst < ${ZENKOVERSION_PATH} | kubectl -n ${NAMESPACE} apply -f -
 env $(dependencies_env) envsubst < ${ZENKO_CR_PATH} | kubectl -n ${NAMESPACE} apply -f -

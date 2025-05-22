@@ -24,9 +24,14 @@ MONGODB_APP_PASSWORD=datapass
 MONGODB_APP_DATABASE=${ZENKO_MONGODB_DATABASE:-datadb}
 MONGODB_RS_KEY=0123456789abcdef
 
-MONGODB_SHARD_COUNT=${MONGODB_SHARD_COUNT:-1}
+# Constants for valid topologies for CI tests
+# We support multiple shards per host, or one shard per host, up to 9 nodes
+# The first number is the number of nodes, the second is the number of shards
+readonly MONGODB_VALID_TOPOLOGIES=(
+    "1:1" "1:2" "3:1" "3:3" "6:1" "6:2" "6:6" "9:1" "9:3" "9:9" "12:1" "12:4" "12:12"
+)
 
-source "${DIR}/generate-kustomization.sh" && generate_kustomization "${NODE_COUNT:-1}" "${MONGODB_SHARD_COUNT}"
+MONGODB_SHARD_COUNT=${MONGODB_SHARD_COUNT:-1}
 
 ENABLE_KEYCLOAK_HTTPS=${ENABLE_KEYCLOAK_HTTPS:-'false'}
 
@@ -116,29 +121,58 @@ stringData:
   mongodb-replica-set-key: $MONGODB_RS_KEY
 EOF
 
+# Validate that the current topology is correct
+get_mongodb_topology_file() {
+    local node_count=$1
+    local shard_count=$2
+
+    local base_yaml_name="mongodb-sharded-${node_count}-node"
+
+    # Validate topology
+    local topology_key="${node_count}:${shard_count}"
+    if [[ ! " ${MONGODB_VALID_TOPOLOGIES[*]} " =~ " ${topology_key} " ]]; then
+        echo "Error: Invalid topology - ${node_count} nodes, ${shard_count} shards"
+        exit 1
+    fi
+
+    # Adjust base YAML name if there are multiple shards
+    [[ "$shard_count" -gt 1 ]] && base_yaml_name="${base_yaml_name}-${shard_count}-shards"
+    base_yaml_name="${base_yaml_name}.yaml"
+
+    # ensure base file exists
+    local base_yaml_path="${DIR}/_build/root/deploy/${base_yaml_name}"
+    if [ ! -f "$base_yaml_path" ]; then
+        echo "Error: Base YAML file not found at ${base_yaml_path}"
+        exit 1
+    fi
+
+    echo "$base_yaml_path"
+}
+
+# MongoDB selectors are not supported in the CI.
+# So we remove them and let the provisioner handle the
+# volume provisioning.
+patch_mongodb_selector() {
+    local base_yaml_path=$1
+    local shard_count=$2
+
+    # Remove volume selectors from mongos StatefulSet
+    yq eval 'select(.kind == "StatefulSet" and .metadata.name == "data-db-mongodb-sharded-mongos") |= del(.spec.volumeClaimTemplates[].spec.selector)' -i "$base_yaml_path"
+    
+    # Remove volume selectors from configsvr StatefulSet  
+    yq eval 'select(.kind == "StatefulSet" and .metadata.name == "data-db-mongodb-sharded-configsvr") |= del(.spec.volumeClaimTemplates[].spec.selector)' -i "$base_yaml_path"
+    
+    # Remove volume selectors from shard StatefulSets
+    for ((i=0; i<shard_count; i++)); do
+        yq eval "select(.kind == \"StatefulSet\" and .metadata.name == \"data-db-mongodb-sharded-shard${i}-data\") |= del(.spec.volumeClaimTemplates[].spec.selector)" -i "$base_yaml_path"
+    done
+}
+
 build_solution_base_manifests() {
     echo 'build solution-base manifests'
     MANIFEST_ONLY=true $SOLUTION_BASE_DIR/build.sh
     sed -i 's/SOLUTION_ENV/default/g' $DIR/_build/root/deploy/*
     sed -i 's/MONGODB_STORAGE_CLASS/standard/g' $DIR/_build/root/deploy/*
-
-    # Limits and requests for MongoDB are computed based on the current system
-    # Detect total system RAM in GiB
-    TOTAL_RAM_GB=$(awk '/MemTotal/ {printf "%.0f", $2/1024/1024}' /proc/meminfo)
-  
-    # Compute MongoDB settings based on the total RAM
-    MONGODB_WIRETIGER_CACHE_SIZE_GB=$((TOTAL_RAM_GB * 335 / 1000))
-    MONGODB_MONGOS_RAM_LIMIT=$((TOTAL_RAM_GB * 165 / 1000))Gi
-    MONGODB_SHARDSERVER_RAM_LIMIT=$((2 * MONGODB_WIRETIGER_CACHE_SIZE_GB))Gi
-    MONGODB_SHARDSERVER_RAM_REQUEST=${MONGODB_WIRETIGER_CACHE_SIZE_GB}Gi
-    MONGODB_MONGOS_RAM_REQUEST=$((TOTAL_RAM_GB * 33 / 1000))Gi
-
-    # Replace values before deploying
-    sed -i "s/MONGODB_SHARDSERVER_EXTRA_FLAGS/--wiredTigerCacheSizeGB=${MONGODB_WIRETIGER_CACHE_SIZE_GB}/g" $DIR/_build/root/deploy/*
-    sed -i "s/MONGODB_MONGOS_RAM_LIMIT/${MONGODB_MONGOS_RAM_LIMIT}/g" $DIR/_build/root/deploy/*
-    sed -i "s/MONGODB_SHARDSERVER_RAM_LIMIT/${MONGODB_SHARDSERVER_RAM_LIMIT}/g" $DIR/_build/root/deploy/*
-    sed -i "s/MONGODB_SHARDSERVER_RAM_REQUEST/${MONGODB_SHARDSERVER_RAM_REQUEST}/g" $DIR/_build/root/deploy/*
-    sed -i "s/MONGODB_MONGOS_RAM_REQUEST/${MONGODB_MONGOS_RAM_REQUEST}/g" $DIR/_build/root/deploy/*
 
     # Limits and requests for MongoDB are computed based on the current system
     # Detect total system RAM in GiB
@@ -193,13 +227,19 @@ mongodb_wait_for_shards() {
 
 mongodb_sharded() {
     local SOLUTION_REGISTRY=metalk8s-registry-from-config.invalid/zenko-base-${VERSION_FULL}
+    local node_count=${NODE_COUNT:-1}
+    local shard_count=${MONGODB_SHARD_COUNT}
 
-    kustomize edit set image \
-        $SOLUTION_REGISTRY/mongodb-sharded=$(get_image_from_deps mongodb-sharded) \
-        $SOLUTION_REGISTRY/os-shell=$(get_image_from_deps mongodb-shell) \
-        $SOLUTION_REGISTRY/mongodb-exporter=$(get_image_from_deps mongodb-sharded-exporter)
+    local base_yaml_path=$(get_mongodb_topology_file $node_count $shard_count)
 
-    kubectl apply -k "${DIR}"
+    sed -i "s|${SOLUTION_REGISTRY}/mongodb-sharded:.*|$(get_image_from_deps mongodb-sharded)|g" "$base_yaml_path"
+    sed -i "s|${SOLUTION_REGISTRY}/os-shell:.*|$(get_image_from_deps mongodb-shell)|g" "$base_yaml_path"
+    sed -i "s|${SOLUTION_REGISTRY}/mongodb-exporter:.*|$(get_image_from_deps mongodb-sharded-exporter)|g" "$base_yaml_path"
+
+    # Ensure we use no selector as the provisioner cannot handle them
+    patch_mongodb_selector "$base_yaml_path" "$shard_count"
+
+    kubectl apply -f "$base_yaml_path"
 
     kubectl rollout status statefulset data-db-mongodb-sharded-mongos --timeout=5m
     kubectl rollout status statefulset data-db-mongodb-sharded-configsvr --timeout=5m
