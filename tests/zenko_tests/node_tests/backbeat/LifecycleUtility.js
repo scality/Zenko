@@ -175,6 +175,15 @@ class LifecycleUtility extends ReplicationUtility {
         }
     }
 
+    putBucketVersioningConfiguration(status, cb) {
+        this.s3.putBucketVersioning({
+            Bucket: this.bucket,
+            VersioningConfiguration: {
+                Status: status,
+            },
+        }, cb);
+    }
+
     putBucketLifecycleConfiguration(transitionDate, cb) {
         this.s3.putBucketLifecycleConfiguration({
             Bucket: this.bucket,
