@@ -18,7 +18,6 @@ export ZENKO_MANAGEMENT_INGRESS=${ZENKO_MANAGEMENT_INGRESS:-'management.zenko.lo
 export ZENKO_S3_INGRESS=${ZENKO_S3_INGRESS:-'s3.zenko.local'}
 export ZENKO_UI_INGRESS=${ZENKO_UI_INGRESS:-'ui.zenko.local'}
 export ZENKO_SUR_INGRESS=${ZENKO_SUR_INGRESS:-'utilization.zenko.local'}
-export MONGODB_SHARD_COUNT=${MONGODB_SHARD_COUNT:-1}
 
 export BACKBEAT_LCC_CRON_RULE=${BACKBEAT_LCC_CRON_RULE:-'*/5 * * * * *'}
 
