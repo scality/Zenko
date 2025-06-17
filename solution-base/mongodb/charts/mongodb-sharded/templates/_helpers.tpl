@@ -1,5 +1,5 @@
 {{/*
-Copyright VMware, Inc.
+Copyright Broadcom, Inc. All Rights Reserved.
 SPDX-License-Identifier: APACHE-2.0
 */}}
 
@@ -60,7 +60,7 @@ Init container definition to recover log dir.
   {{- if .Values.configsvr.external.host -}}
   {{- .Values.configsvr.external.host }}
   {{- else -}}
-  {{- printf "%s-configsvr-0.%s-headless.%s.svc.%s" (include "common.names.fullname" . ) (include "common.names.fullname" .) .Release.Namespace .Values.clusterDomain -}}
+  {{- printf "%s-configsvr-0.%s-headless.%s.svc.%s" (include "common.names.fullname" . ) (include "common.names.fullname" .) (include "common.names.namespace" .) .Values.clusterDomain -}}
   {{- end -}}
 {{- end -}}
 
