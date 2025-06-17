@@ -34,17 +34,15 @@ upgraded charts:
 `git diff -- solution-base/mongodb/charts/mongodb-sharded/values.yaml > solution-base/mongodb/patches/secret-name.patch`
 (this operation needs to be done for every patch).
 **Note**: This step is only necessary if the patch does not apply
-automatically.
+automatically. Do it from the root of the repository.
 
 7. Once the patches are updated, apply them to the charts with the command
 `make patch`.
 
 8. After upgrading, you may need to apply additional changes that are not
-directly handled by the charts or patches. For example, when upgrading to
-MongoDB 6.0, you need to switch from using `mongo` to `mongosh`. Refer to
-the release notes for the new version (e.g.,
-`https://www.mongodb.com/docs/v6.0/release-notes/6.0/`) for details on these
-additional changes.
+directly handled by the charts or patches. Please carefully review the new
+logic added by the new chart version, and ensure they remain compatible with
+our use case.
 
 9. Passing CI tests is not enough, you must also perform an upgrade check with
 the product(s) using this Zenko version, before merging the upgrade PR. Some
