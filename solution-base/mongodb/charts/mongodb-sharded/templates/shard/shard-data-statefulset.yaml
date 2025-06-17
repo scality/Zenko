@@ -156,7 +156,7 @@ spec:
             {{- if $.Values.auth.enabled }}
             - name: MONGODB_ROOT_USER
               value: {{ $.Values.auth.rootUser | quote }}
-            {{- if $.Values.auth.usePasswordFile }}
+            {{- if $.Values.auth.usePasswordFiles }}
             - name: MONGODB_ROOT_PASSWORD_FILE
               value: "/bitnami/mongodb/secrets/mongodb-root-password"
             - name: MONGODB_REPLICA_SET_KEY_FILE
@@ -240,8 +240,8 @@ spec:
           readinessProbe: {{- include "common.tplvalues.render" (dict "value" (omit $.Values.shardsvr.dataNode.readinessProbe "enabled") "context" $) | nindent 12 }}
             exec:
               command:
-                - /bin/sh 
-                - -c 
+                - /bin/sh
+                - -c
                 - mongosh --port $MONGODB_PORT_NUMBER --eval "db.adminCommand('ping')"
           {{- end }}
           {{- if $.Values.shardsvr.dataNode.customStartupProbe }}
@@ -268,6 +268,9 @@ spec:
             - name: empty-dir
               mountPath: /opt/bitnami/mongodb/logs
               subPath: app-logs-dir
+            - name: empty-dir
+              mountPath: /.mongodb
+              subPath: app-mongosh-dir
             - name: replicaset-entrypoint-configmap
               mountPath: /entrypoint
             - name: datadir
@@ -279,7 +282,7 @@ spec:
             - name: config
               mountPath: /bitnami/mongodb/conf/
             {{- end }}
-            {{- if $.Values.auth.usePasswordFile }}
+            {{- if $.Values.auth.usePasswordFiles }}
             - name: secrets
               mountPath: /bitnami/mongodb/secrets/
             {{- end }}
@@ -313,7 +316,7 @@ spec:
           {{- if $.Values.auth.enabled }}
             - name: MONGODB_ROOT_USER
               value: {{ $.Values.auth.rootUser | quote }}
-          {{- if $.Values.auth.usePasswordFile }}
+          {{- if $.Values.auth.usePasswordFiles }}
             - name: MONGODB_ROOT_PASSWORD_FILE
               value: "/bitnami/mongodb/secrets/mongodb-root-password"
           {{- else }}
@@ -333,7 +336,7 @@ spec:
             - -ec
             - |-
               #!/bin/sh
-              {{- if $.Values.auth.usePasswordFile }}
+              {{- if $.Values.auth.usePasswordFiles }}
               export MONGODB_ROOT_PASSWORD="$(cat "${MONGODB_ROOT_PASSWORD_FILE}")"
               {{- end }}
               /bin/mongodb_exporter --collect-all --compatible-mode --web.listen-address ":{{ $.Values.metrics.containerPorts.metrics }}" --mongodb.uri mongodb://$(echo $MONGODB_ROOT_USER):$(echo $MONGODB_ROOT_PASSWORD | sed -r "s/@/%40/g;s/:/%3A/g")@localhost:{{ $.Values.common.containerPorts.mongodb }}/admin{{ ternary "?ssl=true" "" $.Values.metrics.useTLS }} {{ $.Values.metrics.extraArgs }}
@@ -342,7 +345,7 @@ spec:
             - name: empty-dir
               mountPath: /tmp
               subPath: tmp-dir
-            {{- if $.Values.auth.usePasswordFile }}
+            {{- if $.Values.auth.usePasswordFiles }}
             - name: secrets
               mountPath: /bitnami/mongodb/secrets/
             {{- end }}
@@ -354,8 +357,7 @@ spec:
           livenessProbe: {{- include "common.tplvalues.render" (dict "value" $.Values.metrics.customLivenessProbe "context" $) | nindent 12 }}
           {{- else if $.Values.metrics.livenessProbe.enabled }}
           livenessProbe: {{- include "common.tplvalues.render" (dict "value" (omit $.Values.metrics.livenessProbe "enabled") "context" $) | nindent 12 }}
-            httpGet:
-              path: /metrics
+            tcpSocket:
               port: metrics
           {{- end }}
           {{- if $.Values.metrics.customReadinessProbe }}
@@ -392,7 +394,7 @@ spec:
         - name: replicaset-entrypoint-configmap
           configMap:
             name: {{ printf "%s-replicaset-entrypoint" (include "common.names.fullname" $) }}
-        {{- if $.Values.auth.usePasswordFile }}
+        {{- if $.Values.auth.usePasswordFiles }}
         - name: secrets
           secret:
             secretName: {{ include "mongodb-sharded.secret" $ }}
@@ -420,7 +422,15 @@ spec:
         {{- if $.Values.shardsvr.dataNode.extraVolumes }}
           {{- include "common.tplvalues.render" ( dict "value" $.Values.shardsvr.dataNode.extraVolumes "context" $ ) | nindent 8 }}
         {{- end }}
-  {{- if and $.Values.shardsvr.persistence.enabled }}
+  {{- if not $.Values.shardsvr.persistence.enabled }}
+        - name: datadir
+          emptyDir: {}
+  {{- else }}
+  {{- if $.Values.shardsvr.persistentVolumeClaimRetentionPolicy.enabled }}
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: {{ $.Values.shardsvr.persistentVolumeClaimRetentionPolicy.whenDeleted }}
+    whenScaled: {{ $.Values.shardsvr.persistentVolumeClaimRetentionPolicy.whenScaled }}
+  {{- end }}
   volumeClaimTemplates:
     - apiVersion: v1
       kind: PersistentVolumeClaim
@@ -434,9 +444,6 @@ spec:
           {{- end }}
           {{- if $.Values.shardsvr.persistence.annotations }}
           {{- include "common.tplvalues.render" ( dict "value" $.Values.shardsvr.persistence.annotations "context" $) | nindent 10 }}
-          {{- end }}
-          {{- if $.Values.shardsvr.persistence.resourcePolicy }}
-            helm.sh/resource-policy: {{ $.Values.shardsvr.persistence.resourcePolicy | quote }}
           {{- end }}
         {{- end }}
         {{- end }}
@@ -452,10 +459,11 @@ spec:
         resources:
           requests:
             storage: {{ $.Values.shardsvr.persistence.size | quote }}
+        {{- with $.Values.shardsvr.persistence.selector }}
+        selector:
+          {{- include "common.tplvalues.render" (dict "value" $.Values.shardsvr.persistence.selector "context" (merge $ (dict "Index" $i))) | nindent 10 }}
+        {{- end }}
         {{- include "common.storage.class" (dict "persistence" $.Values.shardsvr.persistence "global" $.Values.global) | nindent 8 }}
-  {{- else }}
-    - name: datadir
-      emptyDir: {}
   {{- end }}
 {{- if lt $i (sub $replicas 1) }}
 ---
