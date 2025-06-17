@@ -1,5 +1,5 @@
 diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/replicaset-entrypoint-configmap.yaml b/solution-base/mongodb/charts/mongodb-sharded/templates/replicaset-entrypoint-configmap.yaml
-index 0427ec0c..dde278bd 100644
+index 29a3ca2c..efc39f08 100644
 --- a/solution-base/mongodb/charts/mongodb-sharded/templates/replicaset-entrypoint-configmap.yaml
 +++ b/solution-base/mongodb/charts/mongodb-sharded/templates/replicaset-entrypoint-configmap.yaml
 @@ -13,6 +13,13 @@ metadata:

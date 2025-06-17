@@ -1,5 +1,5 @@
 diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-podmonitor.yaml b/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-podmonitor.yaml
-index d2c9c0cb..657764ac 100644
+index d3642ca2..dd3afaad 100644
 --- a/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-podmonitor.yaml
 +++ b/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-podmonitor.yaml
 @@ -4,8 +4,7 @@ SPDX-License-Identifier: APACHE-2.0
