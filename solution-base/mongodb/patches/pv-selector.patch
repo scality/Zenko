@@ -1,0 +1,26 @@
+diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-statefulset.yaml b/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-statefulset.yaml
+index d82fb6c8..f48a8e70 100644
+--- a/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-statefulset.yaml
++++ b/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-statefulset.yaml
+@@ -450,7 +450,7 @@ spec:
+             storage: {{ .Values.configsvr.persistence.size | quote }}
+         {{- with .Values.configsvr.persistence.selector }}
+         selector:
+-          {{- include "common.tplvalues.render" (dict "value" .Values.configsvr.persistence.selector "context" $) | nindent 10 }}
++{{ toYaml $.Values.shardsvr.persistence.selector | indent 10 }}
+         {{- end }}
+         {{- include "common.storage.class" (dict "persistence" .Values.configsvr.persistence "global" .Values.global) | nindent 8 }}
+   {{- end }}
+diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-statefulset.yaml b/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-statefulset.yaml
+index d6a593a6..68974ddd 100644
+--- a/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-statefulset.yaml
++++ b/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-statefulset.yaml
+@@ -457,7 +457,7 @@ spec:
+             storage: {{ $.Values.shardsvr.persistence.size | quote }}
+         {{- with $.Values.shardsvr.persistence.selector }}
+         selector:
+-          {{- include "common.tplvalues.render" (dict "value" $.Values.shardsvr.persistence.selector "context" (merge $ (dict "Index" $i))) | nindent 10 }}
++{{ toYaml $.Values.shardsvr.persistence.selector | indent 10 }}
+         {{- end }}
+         {{- include "common.storage.class" (dict "persistence" $.Values.shardsvr.persistence "global" $.Values.global) | nindent 8 }}
+   {{- end }}
