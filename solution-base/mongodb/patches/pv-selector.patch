@@ -7,7 +7,7 @@ index d82fb6c8..f48a8e70 100644
          {{- with .Values.configsvr.persistence.selector }}
          selector:
 -          {{- include "common.tplvalues.render" (dict "value" .Values.configsvr.persistence.selector "context" $) | nindent 10 }}
-+{{ toYaml $.Values.shardsvr.persistence.selector | indent 10 }}
++{{ toYaml $.Values.configsvr.persistence.selector | indent 10 }}
          {{- end }}
          {{- include "common.storage.class" (dict "persistence" .Values.configsvr.persistence "global" .Values.global) | nindent 8 }}
    {{- end }}

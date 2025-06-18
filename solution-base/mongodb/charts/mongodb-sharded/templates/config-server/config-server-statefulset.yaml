@@ -450,7 +450,7 @@ spec:
             storage: {{ .Values.configsvr.persistence.size | quote }}
         {{- with .Values.configsvr.persistence.selector }}
         selector:
-{{ toYaml $.Values.shardsvr.persistence.selector | indent 10 }}
+{{ toYaml $.Values.configsvr.persistence.selector | indent 10 }}
         {{- end }}
         {{- include "common.storage.class" (dict "persistence" .Values.configsvr.persistence "global" .Values.global) | nindent 8 }}
   {{- end }}
