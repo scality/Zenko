@@ -97,6 +97,11 @@ runs:
       env:
         SORBETD_NAME: mock-miria
       working-directory: ./.github/scripts/end2end/operator
+    - name: Set logging level to debug for sorbet
+      shell: bash
+      run: |
+        kubectl set env deployment/mock-sorbet LOG_VERBOSE=debug
+      working-directory: ./.github/scripts/end2end/operator
     - name: Deploy metadata
       shell: bash
       run: ./deploy-metadata.sh
