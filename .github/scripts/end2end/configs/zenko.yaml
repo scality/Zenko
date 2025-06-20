@@ -20,11 +20,11 @@ spec:
   internalCloudserver:
     enable: true
     logging:
-      logLevel: debug
+      logLevel: trace
   cloudserver:
     replicas: 2
     logging:
-      logLevel: debug
+      logLevel: trace
   backbeat:
     triggerExpirationsOneDayEarlierForTesting: ${EXPIRE_ONE_DAY_EARLIER}
     lifecycleConductor:
@@ -34,7 +34,7 @@ spec:
     ingestionProcessor:
       concurrency: 2
     logging:
-      logLevel: debug
+      logLevel: trace
   mongodb:
     provider: External
     endpoints:

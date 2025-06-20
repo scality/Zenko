@@ -144,3 +144,6 @@ for i in $(seq 1 120); do
     # Debug log to ease understanding of failures in the CI
     kubectl get pods -A
 done
+
+# set LOG_VERBOSE to debug for sorbet deployment specifically
+
