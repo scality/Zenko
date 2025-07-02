@@ -6,17 +6,17 @@ backbeat:
   dashboard: backbeat/backbeat-dashboards
   image: backbeat
   policy: backbeat/backbeat-policies
-  tag: 9.0.4-hotfix.1
+  tag: 9.0.12
   envsubst: BACKBEAT_TAG
 busybox:
   image: busybox
   tag: 1.36.1
   envsubst: BUSYBOX_TAG
 cloudserver:
-  sourceRegistry: ghcr.io/scality
+  sourceRegistry: ghcr.io/scality/playground/wlardier
   dashboard: cloudserver/cloudserver-dashboards
   image: cloudserver
-  tag: 9.0.7-hotfix.1
+  tag: 9.0.100
   envsubst: CLOUDSERVER_TAG
 drctl:
   sourceRegistry: ghcr.io/scality
@@ -136,7 +136,7 @@ vault:
 zenko-operator:
   sourceRegistry: ghcr.io/scality
   image: zenko-operator
-  tag: v1.7.4
+  tag: v1.7.5
   envsubst: ZENKO_OPERATOR_TAG
 zenko-ui:
   sourceRegistry: ghcr.io/scality
