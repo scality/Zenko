@@ -130,6 +130,10 @@ spec:
     controlPlaneClass: 'nginx-control-plane'
     ${ZENKO_INGRESS_ANNOTATIONS}
     ${ZENKO_INGRESS_CERTIFICATES}
+  egress:
+    extraCACerts:
+      - secretName: zenko-root-ca 
+        secretAttributeName: ca.crt
   registry:
     imagePullSecretNames:
     - zenko-operator-image-pull

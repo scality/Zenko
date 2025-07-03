@@ -10,6 +10,8 @@ import logging
 logging.basicConfig(level=logging.INFO)
 _log = logging.getLogger('create_buckets')
 
+VERIFY_CERTIFICATES = os.environ.get('VERIFY_CERTIFICATES', 'false').lower() == 'true'
+
 def get_env(key, default=None, error=False):
     if not error:
         return os.environ.get(key, default)
@@ -70,7 +72,6 @@ def put_singlepart_mpu(bucket, object_name, body):
         raise exp
 
 def create_ring_buckets():
-    VERIFY_CERTIFICATES = get_env('VERIFY_CERTIFICATES', False)
     RING_S3C_ACCESS_KEY = get_env('RING_S3C_ACCESS_KEY')
     RING_S3C_SECRET_KEY = get_env('RING_S3C_SECRET_KEY')
     RING_S3C_ENDPOINT = get_env('RING_S3C_ENDPOINT')
@@ -113,7 +114,6 @@ def create_ring_buckets():
     non_versioned_bucket.Versioning().enable()
 
 def create_aws_buckets():
-    VERIFY_CERTIFICATES = get_env('VERIFY_CERTIFICATES', False)
     AWS_ACCESS_KEY = get_env('AWS_ACCESS_KEY')
     AWS_SECRET_KEY = get_env('AWS_SECRET_KEY')
     AWS_FAIL_BUCKET_NAME = get_env('AWS_FAIL_BUCKET_NAME')
@@ -140,8 +140,8 @@ def create_azure_containers():
     credential = AzureNamedKeyCredential(name=AZURE_ACCOUNT_NAME,
             key=AZURE_SECRET_KEY)
     blob_service_client = BlobServiceClient(account_url=AZURE_BACKEND_ENDPOINT,
-            credential=credential)
-    
+            credential=credential,
+            connection_verify=VERIFY_CERTIFICATES)
     ## Creating Azure buckets
     _log.info('Creating Azure buckets...')
     for bucket_name in [AZURE_CRR_BUCKET_NAME, AZURE_ARCHIVE_BUCKET_NAME, AZURE_ARCHIVE_BUCKET_NAME_2]:
@@ -161,7 +161,8 @@ def create_azure_queues():
             key=AZURE_SECRET_KEY)
 
     queue_client = QueueServiceClient(account_url=AZURE_BACKEND_QUEUE_ENDPOINT,
-            credential=credential)
+            credential=credential,
+            connection_verify=VERIFY_CERTIFICATES)
 
     ## Creating Azure queue
     _log.info('Creating Azure queues...')

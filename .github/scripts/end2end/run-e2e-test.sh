@@ -135,10 +135,21 @@ run_e2e_test() {
     "containers": [
       {
         "name": "'$POD_NAME'",
+        "env": [
+          {
+            "name": "NODE_EXTRA_CA_CERTS",
+            "value": "/etc/ssl/certs/ca-cert.pem"
+          }
+        ],
         "volumeMounts": [
           {
             "name": "reports",
             "mountPath": "/reports"
+          },
+          {
+            "name": "ca-cert",
+            "mountPath": "/etc/ssl/certs",
+            "readOnly": true
           }
         ]
       }
@@ -149,6 +160,18 @@ run_e2e_test() {
         "hostPath": {
           "path": "/data/reports",
           "type": "DirectoryOrCreate"
+        }
+      },
+      {
+        "name": "ca-cert",
+        "secret": {
+          "secretName": "zenko-root-ca",
+          "items": [
+            {
+              "key": "ca.crt",
+              "path": "ca-cert.pem"
+            }
+          ]
         }
       }
     ]
