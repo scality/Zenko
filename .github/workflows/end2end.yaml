@@ -57,6 +57,7 @@ env:
   AWS_BACKEND_SOURCE_LOCATION: awsbackend
   AWS_BACKEND_DESTINATION_LOCATION: awsbackendmismatch
   AWS_BACKEND_DESTINATION_FAIL_LOCATION: awsbackendfail
+  AWS_BACKEND_DESTINATION_REPLICATION_CTST_LOCATION: awsbackendreplicationctst
   GCP_BACKEND_DESTINATION_LOCATION: gcpbackendmismatch
   AZURE_BACKEND_DESTINATION_LOCATION: azurebackendmismatch
   COLD_BACKEND_DESTINATION_LOCATION: e2e-cold
@@ -66,6 +67,7 @@ env:
   AWS_BUCKET_NAME: ci-zenko-aws-target-bucket
   AWS_CRR_BUCKET_NAME: ci-zenko-aws-crr-target-bucket
   AWS_FAIL_BUCKET_NAME: ci-zenko-aws-fail-target-bucket
+  AWS_REPLICATION_CTST_BUCKET_NAME: ci-zenko-aws-replication-ctst-bucket
   AZURE_CRR_BUCKET_NAME: ci-zenko-azure-crr-target-bucket
   AZURE_ARCHIVE_BUCKET_NAME: ci-zenko-azure-archive-target-bucket
   AZURE_ARCHIVE_BUCKET_NAME_2: ci-zenko-azure-archive-target-bucket-2

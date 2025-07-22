@@ -14,6 +14,7 @@ corefile="
     rewrite name exact ci-zenko-aws-crr-target-bucket.aws-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact ci-zenko-aws-fail-target-bucket.aws-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact ci-zenko-aws-target-bucket.aws-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
+    rewrite name exact ci-zenko-aws-replication-ctst-bucket.aws-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact aws-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact azure-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact blob.azure-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local

@@ -89,6 +89,18 @@ export interface ZenkoWorldParameters extends ClientOptions {
     SorbetdRestoreTimeout: string;
     UtilizationServiceHost: string;
     UtilizationServicePort: string;
+    AwsBackendDestinationReplicationLocation: string;
+    AwsReplicationBucketName: string;
+    AwsReplicationEndpoint: string;
+    AwsReplicationAccessKey: string;
+    AwsReplicationSecretKey: string;
+    AwsReplicationLocationType: string;
+    AwsReplicationRegion: string;
+    MongodbReplicaSet: string;
+    MongodbAuthUsername: string;
+    MongodbAuthPassword: string;
+    MongodbDatabase: string;
+    S3UtilsTag: string;
     [key: string]: unknown;
 }
 
