@@ -15,6 +15,7 @@ import {
     verifyObjectLocation,
     restoreObject,
     addTransitionWorkflow,
+    putBucketReplication,
 } from 'steps/utils/utils';
 import { ActionPermissionsType } from 'steps/bucket-policies/utils';
 import constants from './constants';
@@ -258,6 +259,12 @@ Then('object {string} should have the user metadata with key {string} and value 
 Given('a transition workflow to {string} location', async function (this: Zenko, location: string) {
     await addTransitionWorkflow.call(this, location);
 });
+
+Given('a replication configuration to {string} location',
+    async function (this: Zenko, replicationLocation: string) {
+        this.addToSaved('replicationLocation', replicationLocation);
+        await putBucketReplication.call(this, this.getSaved<string>('bucketName'), replicationLocation);
+    });
 
 When('i restore object {string} for {int} days', async function (this: Zenko, objectName: string, days: number) {
     await restoreObject.call(this, objectName, days);
