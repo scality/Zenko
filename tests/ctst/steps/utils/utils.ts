@@ -13,6 +13,8 @@ import { extractPropertyFromResults, s3FunctionExtraParams, safeJsonParse } from
 import Zenko from 'world/Zenko';
 import assert from 'assert';
 import constants from 'common/constants';
+import { getLocationConfigs } from './kubernetes';
+import { S3Client } from '@aws-sdk/client-s3';
 
 enum AuthorizationType {
     ALLOW = 'Allow',
@@ -300,6 +302,24 @@ async function putObject(world: Zenko, objectName?: string, content?: string) {
     return result;
 }
 
+async function getObject(world: Zenko, objectKey: string, bucketName: string): Promise<Utils.Command> {
+    const result = await S3.getObject({
+        key: objectKey,
+        bucket: bucketName,
+    });
+
+    return result;
+}
+
+async function headObject(world: Zenko, objectKey: string, bucketName: string): Promise<Utils.Command> {
+    const result = await S3.headObject({
+        key: objectKey,
+        bucket: bucketName,
+    });
+
+    return result;
+}
+
 function getAuthorizationConfiguration(world: Zenko): AuthorizationConfiguration {
     return {
         Identity: world.getSaved<AuthorizationConfiguration>('authzConfiguration')?.Identity
@@ -371,6 +391,71 @@ async function addTransitionWorkflow(this: Zenko, location: string, enabled = tr
         conditionOk = res.err === null;
         // Wait for the transition to be accepted because the deployment of the location's pods can take some time
         await Utils.sleep(5000); 
+    }
+}
+
+async function getReplicationLocationConfig(world: Zenko, location: string): Promise<{
+        destinationBucket: string;
+        locationType: string;
+        bucketMatch: boolean;
+        awsS3Client: S3Client;
+    }> {
+    const locationsConfigs = await getLocationConfigs(world);
+    if (!locationsConfigs[location]) {
+        throw new Error(`Unsupported replication location: '${location}'`);
+    }
+    return {
+        destinationBucket: locationsConfigs[location].details.bucketName,
+        locationType: locationsConfigs[location].type,
+        bucketMatch: locationsConfigs[location].details.bucketMatch,
+        awsS3Client: new S3Client({
+            region: locationsConfigs[location].details.region,
+            endpoint: `https://${locationsConfigs[location].details.awsEndpoint}`,
+            credentials: {
+                accessKeyId: locationsConfigs[location].details.credentials.accessKey,
+                secretAccessKey: locationsConfigs[location].details.credentials.secretKey,
+            },
+            tls: false,
+            maxAttempts: 1,
+            forcePathStyle: true,
+        }),
+    };
+}
+
+async function putBucketReplication(
+    this: Zenko,
+    srcBucket: string,
+    replicationLocation: string
+) {
+    this.resetCommand();
+    this.addCommandParameter({ bucket: srcBucket });
+    this.addCommandParameter({
+        replicationConfiguration: JSON.stringify({
+            Role: 'arn:aws:iam::root:role/s3-replication-role',
+            Rules: [
+                {
+                    Prefix: '',
+                    Destination: {
+                        // eslint-disable-next-line max-len
+                        // https://documentation.scality.com/Artesca/4.0.1/data_management/bucket_operations/replication_workflow/create_a_replication_workflow.html
+                        Bucket: `arn:aws:s3:::${srcBucket}`,
+                        StorageClass: replicationLocation,
+                    },
+                    Status: 'Enabled',
+                },
+            ],
+        }),
+    });
+    
+    const commandParameters = this.getCommandParameters();
+    const res = await S3.putBucketReplication(commandParameters);
+    if (res.err) {
+        this.logger.error('Failed to put bucket replication', {
+            srcBucket,
+            replicationLocation,
+            error: res.err,
+        });
+        throw new Error(`Failed to put bucket replication, err : ${res.err}`);
     }
 }
 
@@ -475,10 +560,14 @@ export {
     putMpuObject,
     copyObject,
     putObject,
+    getObject,
+    headObject,
     emptyNonVersionedBucket,
     emptyVersionedBucket,
     verifyObjectLocation,
     getObjectNameWithBackendFlakiness,
     restoreObject,
     addTransitionWorkflow,
+    getReplicationLocationConfig,
+    putBucketReplication,
 };
