@@ -15,10 +15,11 @@ Given('{int} versions of objects {string} of size {int} bytes with {int} threads
 ) {
     const bucketName = this.getSaved<string>('bucketName');
     this.addToSaved('objectName', objectName);
+    let processedCounter = 0;
 
     await Promise.all(Array.from({length: numberOfThreads}, async () => {
         for (let i = 0; i < numberOfVerionsPerThreads; i++) {
-            const tempFileName = `${Utils.randomString()}_${this.getSaved<string>('objectName')}`;
+            const tempFileName = `${Utils.randomString()}_${objectName}`;
             const objectBody = 'a'.repeat(sizeBytes);
             await saveAsFile(tempFileName, objectBody);
 
@@ -27,6 +28,10 @@ Given('{int} versions of objects {string} of size {int} bytes with {int} threads
                 key: objectName,
                 body: tempFileName,
             });
+
+            processedCounter++;
+            this.logger.debug(`processed ${processedCounter + i + 1}`);
+            this.logger.debug(`Put object ${objectName} with size ${sizeBytes} bytes in bucket ${bucketName}`);
         }
     }));
 });
@@ -45,7 +50,7 @@ Then('{int} versions of objects {string} should exist', async function (
     const res = safeJsonParse<ListObjectsV2Output>(results.stdout);
     assert.ok(res.ok, `Failed to list objects in bucket ${bucketName}: ${res.error}`);
     assert.equal(
-        res.result?.Contents,
+        res.result?.Contents?.length,
         1,
         `Expected 1 object with prefix ${objectName} in bucket ${bucketName}, found ${res.result?.Contents?.length}`
     );
