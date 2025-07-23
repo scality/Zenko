@@ -1,9 +1,10 @@
 import {Given, Then} from '@cucumber/cucumber';
 import Zenko from 'world/Zenko';
-import {S3} from 'cli-testing';
+import {S3, Utils} from 'cli-testing';
 import {ListObjectsV2Output, ListObjectVersionsOutput} from '@aws-sdk/client-s3';
 import {safeJsonParse} from 'common/utils';
 import assert from 'assert';
+import {saveAsFile} from './utils/utils';
 
 Given('{int} versions of objects {string} of size {int} bytes with {int} threads', async function (
     this: Zenko,
@@ -17,10 +18,14 @@ Given('{int} versions of objects {string} of size {int} bytes with {int} threads
 
     await Promise.all(Array.from({length: numberOfThreads}, async () => {
         for (let i = 0; i < numberOfVerionsPerThreads; i++) {
+            const tempFileName = `${Utils.randomString()}_${this.getSaved<string>('objectName')}`;
+            const objectBody = 'a'.repeat(sizeBytes);
+            await saveAsFile(tempFileName, objectBody);
+
             await S3.putObject({
                 bucket: bucketName,
                 key: objectName,
-                body: Buffer.alloc(sizeBytes, 'a').toString('utf8'),
+                body: tempFileName,
             });
         }
     }));
