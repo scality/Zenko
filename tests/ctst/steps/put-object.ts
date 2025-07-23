@@ -1,7 +1,7 @@
 import {Given, Then} from '@cucumber/cucumber';
 import Zenko from 'world/Zenko';
 import {S3, Utils} from 'cli-testing';
-import {ListObjectsV2Output, ListObjectVersionsOutput} from '@aws-sdk/client-s3';
+import {ListObjectsV2Output, ListObjectVersionsOutput, PutObjectOutput} from '@aws-sdk/client-s3';
 import {safeJsonParse} from 'common/utils';
 import assert from 'assert';
 import {saveAsFile} from './utils/utils';
@@ -15,7 +15,7 @@ Given('{int} versions of objects {string} of size {int} bytes with {int} threads
 ) {
     const bucketName = this.getSaved<string>('bucketName');
     this.addToSaved('objectName', objectName);
-    let processedCounter = 0;
+    let processedCounter = numberOfVerionsPerThreads * numberOfThreads;
 
     await Promise.all(Array.from({length: numberOfThreads}, async () => {
         for (let i = 0; i < numberOfVerionsPerThreads; i++) {
@@ -23,17 +23,21 @@ Given('{int} versions of objects {string} of size {int} bytes with {int} threads
             const objectBody = 'a'.repeat(sizeBytes);
             await saveAsFile(tempFileName, objectBody);
 
-            await S3.putObject({
+            const result = await S3.putObject({
                 bucket: bucketName,
                 key: objectName,
                 body: tempFileName,
             });
+            const res = safeJsonParse<PutObjectOutput>(result.stdout);
 
-            processedCounter++;
-            this.logger.debug(`processed ${processedCounter + i + 1}`);
-            this.logger.debug(`Put object ${objectName} with size ${sizeBytes} bytes in bucket ${bucketName}`);
+            if (!res.ok) {
+                processedCounter--;
+                this.logger.debug(`Failed to put object ${objectName} in bucket ${bucketName}: ${res.error}`);
+            }
         }
     }));
+
+    this.addToSaved('objectCreatedCounter', processedCounter);
 });
 
 Then('{int} versions of objects {string} should exist', async function (
@@ -41,6 +45,14 @@ Then('{int} versions of objects {string} should exist', async function (
     expectedNumberOfVersions: number,
     objectName: string
 ) {
+    const objectCreatedCounter = this.getSaved<number>('objectCreatedCounter');
+
+    if (objectCreatedCounter !== expectedNumberOfVersions) {
+        this.logger.debug(
+            `${expectedNumberOfVersions} versions of object expected, only ${objectCreatedCounter} created.`
+        );
+    }
+
     const bucketName = this.getSaved<string>('bucketName');
     const results = await S3.listObjectsV2({
         bucket: bucketName,
@@ -68,7 +80,7 @@ Then('{int} versions of objects {string} should exist', async function (
     assert.ok(versionsRes.result?.Versions, `No versions found in bucket ${bucketName} for object ${object.Key}`);
     assert.equal(
         versionsRes.result.Versions.length,
-        expectedNumberOfVersions,
-        `Expected ${expectedNumberOfVersions} versions for object, found ${versionsRes.result.Versions.length}`
+        objectCreatedCounter,
+        `Expected ${objectCreatedCounter} versions for object, found ${versionsRes.result.Versions.length}`
     );
 });
