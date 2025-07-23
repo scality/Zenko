@@ -1,8 +1,8 @@
 # Table of contents
+
 - [How to write iam policy e2e tests](#how-to-write-iam-policy-e2e-tests)
 - [How to run zenko end2end test locally with zenko-operator](#how-to-run-zenko-end2end-test-locally-with-zenko-operator)
 - [How to run zenko end2end test locally with cloudserver and vault](#how-to-run-zenko-end2end-test-locally-with-cloudserver-and-vault)
-
 
 # How to write iam policy e2e tests
 
@@ -75,12 +75,13 @@ _All with their latest version_
 ## Deploy zenko environment
 
 ### Login to docker registry
-    Zenko-operator deployment will need to access private images from the scality registry.
 
-You will need to connect to Harbor, then go into your user profile to generate a “CLI secret”, which you will user as password
-
-Then login from CLI, using your registry Username and the CLI secret you just generated as password:
-
+Zenko-operator deployment will need to access private images from the scality registry.
+Refer to the appropriate documentation for your environment to get the credentials.
+You will need to connect to Harbor, then go into your user profile to generate a
+“CLI secret”, which you will use as password
+Then login from CLI, using your registry Username and the CLI secret you just 
+generated as password:
 
 ```shell
 $ docker login ghcr.io
@@ -96,6 +97,7 @@ $ git clone https://github.com/scality/zenko-operator.git
 $ cd zenko-operator
 ```
 ***
+
 ### Adapt config to create ingress for s3api endpoint
 
 Edit file `/doc/examples/zenko-1.2-dev.yaml` by adding this at the end of the file
@@ -141,22 +143,25 @@ Run the script:
 #### Get access key
 
 ```shell
-$ export ADMIN_ACCESS_KEY=$(kubectl get secret dev-management-vault-admin-creds.v1  -n default -o  jsonpath='{.data.accessKey}' | base64 -d)
+$ export ADMIN_ACCESS_KEY=$(kubectl get secret dev-management-vault-admin-creds.v1 -n default -o  jsonpath='{.data.accessKey}' | base64 -d)
 ```
 
 #### Get secret key
 
 ```shell
-$ export ADMIN_SECRET_KEY=$(kubectl get secret dev-management-vault-admin-creds.v1  -n default -o  jsonpath='{.data.secretKey}' | base64 -d)
+$ export ADMIN_SECRET_KEY=$(kubectl get secret dev-management-vault-admin-creds.v1 -n default -o  jsonpath='{.data.secretKey}' | base64 -d)
 ```
 
 #### Edit hosts file
+
 ```shell
 $ sudo vi /etc/hosts
 # add this line:
 127.0.0.1  iam.zenko.local ui.zenko.local s3-local-file.zenko.local keycloak.zenko.local sts.zenko.local management.zenko.local s3.zenko.local
 ```
+
 #### Come to your local vaultclient root folder and create an account and generate access key
+
 ```shell
 $ ADMIN_ACCESS_KEY_ID=$ADMIN_ACCESS_KEY ADMIN_SECRET_ACCESS_KEY=$ADMIN_SECRET_KEY ./bin/vaultclient create-account --name account --email acc@ount.fr --host iam.zenko.local --port 80
 $ ADMIN_ACCESS_KEY_ID=$ADMIN_ACCESS_KEY ADMIN_SECRET_ACCESS_KEY=$ADMIN_SECRET_KEY ./bin/vaultclient generate-account-access-key --name account --host iam.zenko.local --port 80
@@ -193,9 +198,11 @@ $ kubectl get secret mongodb-db-creds -o jsonpath={.data.mongodb-password} | bas
 ```
 
 #### Forward mongodb port from inside cluster to local
+
 ```shell
 $ kubectl port-forward dev-db-mongodb-primary-0 27021:27017
 ```
+
 Connect to `localhost:27021` with database `admin` and `username/password` got from above using your local MongoDB GUI (Robo3T, MongoDB Compass, etc...)
 
 # How to run zenko end2end test locally with cloudserver and vault
@@ -215,16 +222,19 @@ $ docker run -d --net=host --name ci-mongo scality/ci-mongo
 ### Set up keycloak
 
 First, cd to the Vault repository
+
 ```shell
 $ cd <vault_repository_folder>/.github/docker/keycloak
 ```
 
 Then build your Keycloak image:
+
 ```shell
 $ docker build -t keycloak .
 ```
 
 Create a configuration file for Keycloak:
+
 ```shell
 $ cat <<EOF > env.list
 KEYCLOAK_REALM=myrealm
@@ -237,15 +247,17 @@ EOF
 ```
 
 Finally, you can run your keycloak image locally:
+
 ```shell
-$ docker run -p 8443:8443 -p 8080:8080 --env-file env.list -it -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=admin  keycloak
+$ docker run -p 8443:8443 -p 8080:8080 --env-file env.list -it -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=admin keycloak
 ```
 
 ### Set up Vault
 
 #### Configure Vault
 
-add the following in `config.json` file under Vault root folder:
+Add the following in `config.json` file under Vault root folder:
+
 ```json
 "jwks": {
     "interval": 300,
@@ -255,6 +267,7 @@ add the following in `config.json` file under Vault root folder:
 ```
 
 #### Run Vault
+
 ```shell
 $ VAULT_DB_BACKEND=MONGODB yarn start
 ```
@@ -268,6 +281,7 @@ $ S3METADATA=mongodb REMOTE_MANAGEMENT_DISABLE=1 S3BACKEND=mem S3VAULT=multiple 
 ### Generate account and account access key using vaultclient
 
 Under vault root folder
+
 ```shell
 $ ADMIN_ACCESS_KEY_ID="D4IT2AWSB588GO5J9T00" ADMIN_SECRET_ACCESS_KEY="UEEu8tYlsOGGrgf4DAiSZD6apVNPUWqRiPG0nTB6" ./node_modules/vaultclient/bin/vaultclient create-account -name account --email acc@ount.fr --port 8600
 $ ADMIN_ACCESS_KEY_ID="D4IT2AWSB588GO5J9T00" ADMIN_SECRET_ACCESS_KEY="UEEu8tYlsOGGrgf4DAiSZD6apVNPUWqRiPG0nTB6" ./node_modules/vaultclient/bin/vaultclient generate-account-access-key --name account --port 8600
@@ -293,4 +307,3 @@ yarn test_iam_policies
 ```
 
 Make sure the keycloak host and port envs are the same as what configured before in Vault [here](#configure-vault), either http://localhost:8080 or https://localhost:8443
-

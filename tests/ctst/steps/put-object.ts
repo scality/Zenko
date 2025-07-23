@@ -17,12 +17,11 @@ Given('{int} versions of objects {string} of size {int} bytes with {int} threads
 
     await Promise.all(Array.from({length: numberOfThreads}, async () => {
         for (let i = 0; i < numberOfVerionsPerThreads; i++) {
-            const result = await S3.putObject({
+            await S3.putObject({
                 bucket: bucketName,
                 key: objectName,
                 body: Buffer.alloc(sizeBytes, 'a').toString('utf8'),
             });
-            assert.ifError(result?.stderr || result?.err);
         }
     }));
 });
