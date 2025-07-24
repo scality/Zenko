@@ -6,19 +6,19 @@ import {safeJsonParse} from 'common/utils';
 import assert from 'assert';
 import {saveAsFile} from './utils/utils';
 
-Given('{int} versions of objects {string} of size {int} bytes with {int} threads', async function (
+Given('{int} threads each uploading {int} versions of object {string} of size {int} bytes', async function (
     this: Zenko,
-    numberOfVerionsPerThreads: number,
+    numberOfThread: number,
+    numberOfVerionPerThread: number,
     objectName: string,
     sizeBytes: number,
-    numberOfThreads: number
 ) {
     const bucketName = this.getSaved<string>('bucketName');
     this.addToSaved('objectName', objectName);
-    let processedCounter = numberOfVerionsPerThreads * numberOfThreads;
+    let processedCounter = numberOfVerionPerThread * numberOfThread;
 
-    await Promise.all(Array.from({length: numberOfThreads}, async () => {
-        for (let i = 0; i < numberOfVerionsPerThreads; i++) {
+    await Promise.all(Array.from({length: numberOfThread}, async () => {
+        for (let i = 0; i < numberOfVerionPerThread; i++) {
             const tempFileName = `${Utils.randomString()}_${objectName}`;
             const objectBody = 'a'.repeat(sizeBytes);
             await saveAsFile(tempFileName, objectBody);

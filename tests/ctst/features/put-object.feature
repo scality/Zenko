@@ -4,5 +4,5 @@ Feature: Put Object operations
     @PreMerge
     Scenario Outline: Handle versionId collision on PutObject
     Given a "Versioned" bucket
-    And 100 versions of objects "obj" of size 100 bytes with 10 threads
+    And 10 threads each uploading 100 versions of object "obj" of size 100 bytes
     Then 1000 versions of objects "obj" should exist 
