@@ -211,7 +211,6 @@ Feature: Quota Management for APIs
     @Restore
     @Dmf
     @ColdStorage
-    @Only
     Scenario Outline: Restored object expiration updates quotas
         Given the environment is set up with bucket created with data, and count-items created the metrics
         And an action "<action>"
