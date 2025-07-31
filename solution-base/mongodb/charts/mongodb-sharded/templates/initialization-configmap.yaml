@@ -1,0 +1,9 @@
+{{ if  (.Files.Glob "files/docker-entrypoint-initdb.d/*[sh|js|json]") }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongodb-sharded-init-scripts
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+data:
+{{ tpl (.Files.Glob "files/docker-entrypoint-initdb.d/*[sh|js|json]").AsConfig . | indent 2 }}
+{{ end }}
