@@ -27,7 +27,13 @@ function withGitTag(tag: string, repo: string = 'zenko') {
 
 function withArtifact(artifactsName: string) {
     const f = () => act.setInput("artifacts-name", artifactsName);
-    f.toString = () => " and artifact " + artifactsName
+    f.toString = () => " and artifact " + artifactsName;
+    return f;
+}
+
+function withoutArtifact() {
+    const f = () => act.deleteInput("artifacts-name");
+    f.toString = () => " and no artifact";
     return f;
 }
 
@@ -138,6 +144,7 @@ test.each([
     ['Promote artifacts', Fail, '2.3.7-rc.1', withArtifact('github:scality:Zenko:staging-ac5768a8c6.build-iso-and-end2end-test.3454')],
     ['Promote artifacts', Pass, '2.3.7-rc.1', ''],
     ['Promote artifacts', Pass, '2.3.7', withVersionFile("VERSION-2.3.7")],
+    ['Promote artifacts', Pass, '2.3.7-rc.1', withoutArtifact()],
 ])("%s should %s when version is %s%s", async (stepName, status, tag, ...configs) => {
 
     for(var c of configs.filter(c => !!c)) {
@@ -161,6 +168,25 @@ test.each([
             mockapi.mock.artifacts.root
                 .setIndex()
                 .reply({ status: 200, data: "PASSED\n", repeat: 2 }),
+
+            // Mock automatic artifact discovery
+            moctokit.rest.actions
+                .listWorkflowRuns()
+                .reply({
+                    status: 200,
+                    data: {
+                        total_count: 1,
+                        workflow_runs: [{
+                            id: 1234,
+                            conclusion: "success",
+                            head_branch: "development/2.3",
+                            head_sha: await getCommitHash(),
+                            name: "build-iso-and-end2end-test",
+                            run_number: 3454,
+                            status: "completed",
+                        }],
+                    }
+                }),
 
             // Mock release notes generation
             moctokit.rest.repos
@@ -201,6 +227,14 @@ test.each([
             'verify-release': [{
                 name: 'Fetch tags',
                 mockWith: 'echo "tags fetched"'
+            }, {
+                // Need to explicitely pass token, the GITHUB_TOKEN does not seem to be set
+                uses: 'actions/github-script@v7',
+                mockWith: {
+                    with: {
+                        'github-token': "my-token",
+                    }
+                }
             }],
             'release': [{
                 // Need to explicitely pass token, the GITHUB_TOKEN does not seem to be set
