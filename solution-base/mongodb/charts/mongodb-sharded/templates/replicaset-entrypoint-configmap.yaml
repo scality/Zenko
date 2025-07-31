@@ -1,5 +1,5 @@
 {{- /*
-Copyright VMware, Inc.
+Copyright Broadcom, Inc. All Rights Reserved.
 SPDX-License-Identifier: APACHE-2.0
 */}}
 
@@ -13,13 +13,6 @@ metadata:
   annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
   {{- end }}
 data:
-  mongos-entrypoint.sh: |-
-    #!/bin/bash
-    . /liblog.sh
-    # Disable MongoSH telemetry to support offline deployments
-    mongosh --nodb --eval "disableTelemetry()"
-    info "MongoDB Telemetry is now disabled."
-    exec /entrypoint.sh /run.sh
   replicaset-entrypoint.sh: |-
     #!/bin/bash
 
@@ -34,7 +27,7 @@ data:
     else
       info "Setting node as secondary"
       export MONGODB_REPLICA_SET_MODE=secondary
-      {{- if .Values.auth.usePasswordFile }}
+      {{- if .Values.auth.usePasswordFiles }}
       export MONGODB_INITIAL_PRIMARY_ROOT_PASSWORD_FILE="$MONGODB_ROOT_PASSWORD_FILE"
       unset MONGODB_ROOT_PASSWORD_FILE
       {{- else }}
@@ -42,9 +35,5 @@ data:
       unset MONGODB_ROOT_PASSWORD
       {{- end }}
     fi
-
-    # Disable MongoSH telemetry to support offline deployments
-    mongosh --nodb --eval "disableTelemetry()"
-    info "MongoDB Telemetry is now disabled."
 
     exec /entrypoint.sh /run.sh
