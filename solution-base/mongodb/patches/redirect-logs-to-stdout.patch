@@ -1,5 +1,5 @@
 diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/_helpers.tpl b/solution-base/mongodb/charts/mongodb-sharded/templates/_helpers.tpl
-index cfd6ed45..4d6d13fc 100644
+index cb923aaa..69e915ea 100644
 --- a/solution-base/mongodb/charts/mongodb-sharded/templates/_helpers.tpl
 +++ b/solution-base/mongodb/charts/mongodb-sharded/templates/_helpers.tpl
 @@ -29,6 +29,33 @@ Usage:
@@ -37,10 +37,10 @@ index cfd6ed45..4d6d13fc 100644
    {{- if .Values.configsvr.external.host -}}
    {{- .Values.configsvr.external.host }}
 diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-statefulset.yaml b/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-statefulset.yaml
-index 77b628c4..c3c3d30e 100644
+index 3083dfed..f8ba683f 100644
 --- a/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-statefulset.yaml
 +++ b/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-statefulset.yaml
-@@ -102,6 +102,7 @@ spec:
+@@ -109,6 +109,7 @@ spec:
          {{- with .Values.common.initContainers }}
          {{- include "common.tplvalues.render" ( dict "value" . "context" $ ) | nindent 8 }}
          {{- end }}
@@ -49,7 +49,7 @@ index 77b628c4..c3c3d30e 100644
          - name: mongodb
            image: {{ include "mongodb-sharded.image" . }}
 diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/mongos/mongos-dep-sts.yaml b/solution-base/mongodb/charts/mongodb-sharded/templates/mongos/mongos-dep-sts.yaml
-index 2d5aac4f..538fab11 100644
+index 3d6a01cd..2ad766f3 100644
 --- a/solution-base/mongodb/charts/mongodb-sharded/templates/mongos/mongos-dep-sts.yaml
 +++ b/solution-base/mongodb/charts/mongodb-sharded/templates/mongos/mongos-dep-sts.yaml
 @@ -85,6 +85,7 @@ spec:
@@ -61,7 +61,7 @@ index 2d5aac4f..538fab11 100644
        containers:
          - name: mongos
 diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-arbiter-statefulset.yaml b/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-arbiter-statefulset.yaml
-index d5023a0d..08b16907 100644
+index d5df317d..6ebc9b3c 100644
 --- a/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-arbiter-statefulset.yaml
 +++ b/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-arbiter-statefulset.yaml
 @@ -84,6 +84,7 @@ spec:
@@ -73,10 +73,10 @@ index d5023a0d..08b16907 100644
        containers:
          - name: {{ printf "%s-arbiter" (include "common.names.fullname" $) }}
 diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-statefulset.yaml b/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-statefulset.yaml
-index d34f51a0..7685106b 100644
+index 46fbe695..4a161c8b 100644
 --- a/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-statefulset.yaml
 +++ b/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-statefulset.yaml
-@@ -105,6 +105,7 @@ spec:
+@@ -112,6 +112,7 @@ spec:
          {{- with $.Values.common.initContainers }}
          {{- include "common.tplvalues.render" ( dict "value" . "context" $ ) | nindent 8 }}
          {{- end }}

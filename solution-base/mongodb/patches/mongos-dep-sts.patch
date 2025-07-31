@@ -1,5 +1,5 @@
 diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/mongos/mongos-dep-sts.yaml b/solution-base/mongodb/charts/mongodb-sharded/templates/mongos/mongos-dep-sts.yaml
-index 6b321eab..764c6b25 100644
+index 3d6a01cd..941642b4 100644
 --- a/solution-base/mongodb/charts/mongodb-sharded/templates/mongos/mongos-dep-sts.yaml
 +++ b/solution-base/mongodb/charts/mongodb-sharded/templates/mongos/mongos-dep-sts.yaml
 @@ -93,6 +93,9 @@ spec:
@@ -21,7 +21,7 @@ index 6b321eab..764c6b25 100644
              - name: MONGODB_CFG_REPLICA_SET_NAME
                value: {{ include "mongodb-sharded.configServer.rsName" . }}
              - name: MONGODB_SYSTEM_LOG_VERBOSITY
-@@ -233,6 +236,8 @@ spec:
+@@ -232,6 +235,8 @@ spec:
            lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.mongos.lifecycleHooks "context" $) | nindent 12 }}
            {{- end }}
            volumeMounts:
@@ -30,7 +30,7 @@ index 6b321eab..764c6b25 100644
              - name: empty-dir
                mountPath: /tmp
                subPath: tmp-dir
-@@ -349,6 +354,9 @@ spec:
+@@ -350,6 +355,9 @@ spec:
          {{- include "common.tplvalues.render" ( dict "value" . "context" $ ) | nindent 8 }}
          {{- end }}
        volumes:
@@ -39,4 +39,4 @@ index 6b321eab..764c6b25 100644
 +            name: {{ include "common.names.fullname" . }}-replicaset-entrypoint
          - name: empty-dir
            emptyDir: {}
-         {{- if .Values.auth.usePasswordFile }}
+         {{- if .Values.auth.usePasswordFiles }}

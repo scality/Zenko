@@ -1,5 +1,5 @@
 diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-statefulset.yaml b/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-statefulset.yaml
-index 87057f69..202a5a30 100644
+index 3083dfed..da71ec47 100644
 --- a/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-statefulset.yaml
 +++ b/solution-base/mongodb/charts/mongodb-sharded/templates/config-server/config-server-statefulset.yaml
 @@ -78,14 +78,7 @@ spec:
@@ -19,7 +19,7 @@ index 87057f69..202a5a30 100644
              runAsUser: 0
            {{- if .Values.volumePermissions.resources }}
 diff --git a/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-statefulset.yaml b/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-statefulset.yaml
-index 89883c12..0e6ed5a0 100644
+index 46fbe695..72265b3d 100644
 --- a/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-statefulset.yaml
 +++ b/solution-base/mongodb/charts/mongodb-sharded/templates/shard/shard-data-statefulset.yaml
 @@ -81,14 +81,7 @@ spec:
