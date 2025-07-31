@@ -90,7 +90,11 @@ function render_mongodb_sharded_yamls()
     echo creating mongodb-sharded ${NODE_COUNT}-node yamls
     CHART_PATH="$SOLUTION_BASE_DIR/mongodb/charts/mongodb-sharded"
 
+    # We use "insecure" images in an Artesca / metalk8s context,
+    # so we need to allow it. These images are actually not insecure,
+    # in our case.
     helm template ${MONGODB_SHARDED_NAME} ${CHART_PATH} -n ${MONGODB_NAMESPACE} \
+        --set global.security.allowInsecureImages=true \
         --set image.registry=${MONGODB_REGISTRY} \
         --set image.repository=${MONGODB_SHARDED_IMAGE_NAME} \
         --set image.tag=${MONGODB_SHARDED_IMAGE_TAG} \
