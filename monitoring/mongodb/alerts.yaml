@@ -103,24 +103,38 @@ groups:
   - alert: ReplicationLagWarning
     expr: |
       label_replace(
-        max by(rs_nm, member_idx) (
-          (
-            max by(pod, rs_nm) (
-              mongodb_rs_members_optimeDate{namespace="${namespace}", pod=~"${service}.*", member_state="PRIMARY"}
+        (
+          max by(rs_nm, member_idx) (
+            (
+              max by(pod, rs_nm) (
+                mongodb_rs_members_optimeDate{namespace="${namespace}", pod=~"${service}.*", member_state="PRIMARY"}
+              )
+              - ignoring(member_idx) group_right min by(pod, rs_nm, member_idx) (
+                mongodb_rs_members_optimeDate{namespace="${namespace}", pod=~"${service}.*", member_state="SECONDARY"}
+              )
+            ) / scalar(
+              max by(rs_nm) (
+                (mongodb_mongod_replset_oplog_head_timestamp{namespace="${namespace}", pod=~"${service}.*"}
+                - on(pod)
+                mongodb_mongod_replset_oplog_tail_timestamp{namespace="${namespace}", pod=~"${service}.*"})
+                * on(pod) group_left()
+                (mongodb_mongod_replset_my_state{namespace="${namespace}", pod=~"${service}.*"} == 1)
+              )
             )
-            - ignoring(member_idx) group_right min by(pod, rs_nm, member_idx) (
-              mongodb_rs_members_optimeDate{namespace="${namespace}", pod=~"${service}.*", member_state="SECONDARY"}
+          ) * 100 > ${replicationLagWarningThreshold}
+        )
+        AND on(rs_nm)
+        (
+          sum by (rs_nm) (
+            (
+              mongodb_oplog_stats_storageStats_size{namespace="${namespace}", pod=~"${service}.*"}
+              / 
+              mongodb_oplog_stats_storageStats_maxSize{namespace="${namespace}", pod=~"${service}.*"}
             )
-          ) / scalar(
-            max by(rs_nm) (
-              (mongodb_mongod_replset_oplog_head_timestamp{namespace="${namespace}", pod=~"${service}.*"}
-              - on(pod)
-              mongodb_mongod_replset_oplog_tail_timestamp{namespace="${namespace}", pod=~"${service}.*"})
-              * on(pod) group_left()
-              (mongodb_mongod_replset_my_state{namespace="${namespace}", pod=~"${service}.*"} == 1)
-            )
-          )
-        ) * 100 > ${replicationLagWarningThreshold},
+            * on(pod) group_left()
+            (mongodb_mongod_replset_my_state{namespace="${namespace}", pod=~"${service}.*"} == 1)
+          ) >= 0.95
+        ),
         "member_idx", "$1", "member_idx", "(${service}[^.]*)\\.${service}.*"
       )
     for: 8m
@@ -133,24 +147,38 @@ groups:
   - alert: ReplicationLagWarning
     expr: |
       label_replace(
-        max by(rs_nm, member_idx) (
-          (
-            max by(pod, rs_nm) (
-              mongodb_rs_members_optimeDate{namespace="${namespace}", pod=~"${service}.*", member_state="PRIMARY"}
+        (
+          max by(rs_nm, member_idx) (
+            (
+              max by(pod, rs_nm) (
+                mongodb_rs_members_optimeDate{namespace="${namespace}", pod=~"${service}.*", member_state="PRIMARY"}
+              )
+              - ignoring(member_idx) group_right min by(pod, rs_nm, member_idx) (
+                mongodb_rs_members_optimeDate{namespace="${namespace}", pod=~"${service}.*", member_state="SECONDARY"}
+              )
+            ) / scalar(
+              max by(rs_nm) (
+                (mongodb_mongod_replset_oplog_head_timestamp{namespace="${namespace}", pod=~"${service}.*"}
+                - on(pod)
+                mongodb_mongod_replset_oplog_tail_timestamp{namespace="${namespace}", pod=~"${service}.*"})
+                * on(pod) group_left()
+                (mongodb_mongod_replset_my_state{namespace="${namespace}", pod=~"${service}.*"} == 1)
+              )
             )
-            - ignoring(member_idx) group_right min by(pod, rs_nm, member_idx) (
-              mongodb_rs_members_optimeDate{namespace="${namespace}", pod=~"${service}.*", member_state="SECONDARY"}
+          ) * 100 > ${replicationLagCriticalThreshold}
+        )
+        AND on(rs_nm)
+        (
+          sum by (rs_nm) (
+            (
+              mongodb_oplog_stats_storageStats_size{namespace="${namespace}", pod=~"${service}.*"}
+              / 
+              mongodb_oplog_stats_storageStats_maxSize{namespace="${namespace}", pod=~"${service}.*"}
             )
-          ) / scalar(
-            max by(rs_nm) (
-              (mongodb_mongod_replset_oplog_head_timestamp{namespace="${namespace}", pod=~"${service}.*"}
-              - on(pod)
-              mongodb_mongod_replset_oplog_tail_timestamp{namespace="${namespace}", pod=~"${service}.*"})
-              * on(pod) group_left()
-              (mongodb_mongod_replset_my_state{namespace="${namespace}", pod=~"${service}.*"} == 1)
-            )
-          )
-        ) * 100 > ${replicationLagCriticalThreshold},
+            * on(pod) group_left()
+            (mongodb_mongod_replset_my_state{namespace="${namespace}", pod=~"${service}.*"} == 1)
+          ) >= 0.95
+        ),
         "member_idx", "$1", "member_idx", "(${service}[^.]*)\\.${service}.*"
       )
     for: 2m
