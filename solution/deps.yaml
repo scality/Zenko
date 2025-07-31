@@ -113,7 +113,7 @@ sorbet:
   policy: sorbet/sorbet-policies
   dashboard: sorbet/sorbet-dashboards
   image: sorbet
-  tag: v1.1.13
+  tag: v1.2.0-preview.1
   envsubst: SORBET_TAG
 stern: # tail any pod logs with pattern matchin
   tag: 1.30.0
