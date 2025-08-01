@@ -169,9 +169,9 @@ tests:
     interval: 1m
     input_series:
       - series: mongodb_oplog_stats_storageStats_maxSize{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-0", rs_nm="shard0-data"}
-        values: 10000x15
+        values: 100000x15
       - series: mongodb_oplog_stats_storageStats_size{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-0", rs_nm="shard0-data"}
-        values: 96000x15
+        values: 51000x15
 
       - series: mongodb_rs_members_optimeDate{namespace="zenko",pod="data-db-mongodb-sharded-shard0-data-0", rs_nm="shard0-data", member_idx="data-db-mongodb-sharded-shard0-data-0.data-db-mongodb-sharded-shardsrv-headless.svc.cluster.local", member_state="PRIMARY"}
         values: 5  35000+1000x10 45000

@@ -27,6 +27,9 @@ x-inputs:
   - name: replicationLagCriticalThreshold
     type: config
     value: 90
+  - name: replicationLagOplogSizeThreshold
+    type: config
+    value: 0.5
 
 groups:
 - name: MongoDb
@@ -133,7 +136,7 @@ groups:
             )
             * on(pod) group_left()
             (mongodb_mongod_replset_my_state{namespace="${namespace}", pod=~"${service}.*"} == 1)
-          ) >= 0.95
+          ) >= ${replicationLagOplogSizeThreshold}
         ),
         "member_idx", "$1", "member_idx", "(${service}[^.]*)\\.${service}.*"
       )
@@ -177,7 +180,7 @@ groups:
             )
             * on(pod) group_left()
             (mongodb_mongod_replset_my_state{namespace="${namespace}", pod=~"${service}.*"} == 1)
-          ) >= 0.95
+          ) >= ${replicationLagOplogSizeThreshold}
         ),
         "member_idx", "$1", "member_idx", "(${service}[^.]*)\\.${service}.*"
       )
