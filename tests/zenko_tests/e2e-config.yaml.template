@@ -30,10 +30,12 @@ locations:
       secretKey: "${AWS_SECRET_KEY}"
       bucketMatch: yes
       repoId: []
-  - name: "${AWS_BACKEND_DESTINATION_REPLICATION_CTST_LOCATION}"
+  - name: "${AWS_BACKEND_DESTINATION_REPLICATION_FAIL_CTST_LOCATION}"
+    # This location is used for a specific test that temporarily removes its bucket
+    # Consider using other locations first
     locationType: "location-aws-s3-v1"
     details:
-      bucketName: "${AWS_REPLICATION_CTST_BUCKET_NAME}"
+      bucketName: "${AWS_REPLICATION_FAIL_CTST_BUCKET_NAME}"
       endpoint: "${AWS_ENDPOINT}"
       accessKey: "${AWS_ACCESS_KEY}"
       secretKey: "${AWS_SECRET_KEY}"

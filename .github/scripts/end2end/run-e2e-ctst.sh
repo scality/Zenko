@@ -78,20 +78,6 @@ SORBETD_RESTORE_TIMEOUT=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.spec.so
 UTILIZATION_SERVICE_HOST=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.spec.scuba.api.ingress.hostname}')
 UTILIZATION_SERVICE_PORT="80"
 
-MONGODB_REPLICASET=$(kubectl get secrets -l app.kubernetes.io/name=connector-cloudserver-config -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq -r .mongodb.replicaSetHosts)
-MONGODB_AUTH_USERNAME=$(kubectl get secrets -l app.kubernetes.io/name=connector-cloudserver-config -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq -r .mongodb.authCredentials.username)
-MONGODB_AUTH_PASSWORD=$(kubectl get secrets -l app.kubernetes.io/name=connector-cloudserver-config -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq -r .mongodb.authCredentials.password)
-MONGODB_DATABASE=$(kubectl get secrets -l app.kubernetes.io/name=connector-cloudserver-config -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq -r .mongodb.database)
-
-S3_UTILS_TAG=$(yq eval ".s3utils.tag" ../../../solution/deps.yaml)
-
-LOCATION_CONFIGS=$(kubectl get secrets -l app.kubernetes.io/name=connector-cloudserver-config -o jsonpath='{.items[0].data.locationConfig\.json}' | base64 -di | jq -r .)
-AWS_REPLICATION_ENDPOINT="http://$(echo "$LOCATION_CONFIGS" | jq -r --arg loc "$AWS_BACKEND_DESTINATION_REPLICATION_CTST_LOCATION" '.[$loc].details.awsEndpoint')"
-AWS_REPLICATION_ACCESS_KEY=$(echo "$LOCATION_CONFIGS" | jq -r --arg loc "$AWS_BACKEND_DESTINATION_REPLICATION_CTST_LOCATION" '.[$loc].details.credentials.accessKey')
-AWS_REPLICATION_SECRET_KEY=$(echo "$LOCATION_CONFIGS" | jq -r --arg loc "$AWS_BACKEND_DESTINATION_REPLICATION_CTST_LOCATION" '.[$loc].details.credentials.secretKey')
-AWS_REPLICATION_LOCATION_TYPE=$(echo "$LOCATION_CONFIGS" | jq -r --arg loc "$AWS_BACKEND_DESTINATION_REPLICATION_CTST_LOCATION" '.[$loc].type')
-AWS_REPLICATION_REGION=$(echo "$LOCATION_CONFIGS" | jq -r --arg loc "$AWS_BACKEND_DESTINATION_REPLICATION_CTST_LOCATION" '.[$loc].details.region')
-
 # Setting CTST world params
 WORLD_PARAMETERS="$(jq -c <<EOF
 {
@@ -142,19 +128,7 @@ WORLD_PARAMETERS="$(jq -c <<EOF
   "DRAdminAccessKey":"${DR_ADMIN_ACCESS_KEY_ID}",
   "DRAdminSecretKey":"${DR_ADMIN_SECRET_ACCESS_KEY}",
   "UtilizationServiceHost":"${UTILIZATION_SERVICE_HOST}",
-  "UtilizationServicePort":"${UTILIZATION_SERVICE_PORT}",
-  "AwsBackendDestinationReplicationLocation":"${AWS_BACKEND_DESTINATION_REPLICATION_CTST_LOCATION}",
-  "AwsReplicationBucketName":"${AWS_REPLICATION_CTST_BUCKET_NAME}",
-  "AwsReplicationEndpoint":"${AWS_REPLICATION_ENDPOINT}",
-  "AwsReplicationAccessKey":"${AWS_REPLICATION_ACCESS_KEY}",
-  "AwsReplicationSecretKey":"${AWS_REPLICATION_SECRET_KEY}",
-  "AwsReplicationLocationType":"${AWS_REPLICATION_LOCATION_TYPE}",
-  "AwsReplicationRegion":"${AWS_REPLICATION_REGION}",
-  "MongodbReplicaSet":"${MONGODB_REPLICASET}",
-  "MongodbAuthUsername":"${MONGODB_AUTH_USERNAME}",
-  "MongodbAuthPassword":"${MONGODB_AUTH_PASSWORD}",
-  "MongodbDatabase":"${MONGODB_DATABASE}",
-  "S3UtilsTag":"${S3_UTILS_TAG}"
+  "UtilizationServicePort":"${UTILIZATION_SERVICE_PORT}"
 }
 EOF
 )"
