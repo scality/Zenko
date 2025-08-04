@@ -57,11 +57,7 @@ env:
   AWS_BACKEND_SOURCE_LOCATION: awsbackend
   AWS_BACKEND_DESTINATION_LOCATION: awsbackendmismatch
   AWS_BACKEND_DESTINATION_FAIL_LOCATION: awsbackendfail
-<<<<<<< HEAD
   AWS_BACKEND_DESTINATION_REPLICATION_FAIL_CTST_LOCATION: awsbackendreplicationctstfail
-=======
-  AWS_BACKEND_DESTINATION_REPLICATION_CTST_LOCATION: awsbackendreplicationctst
->>>>>>> 7325ac24 (add tests for crr existing objects)
   GCP_BACKEND_DESTINATION_LOCATION: gcpbackendmismatch
   AZURE_BACKEND_DESTINATION_LOCATION: azurebackendmismatch
   COLD_BACKEND_DESTINATION_LOCATION: e2e-cold
