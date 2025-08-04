@@ -153,3 +153,4 @@ spec:
     manageKafkaTopics: true
     multipleColdLocations: true
     backbeatGCVaultAuthorized: true
+    enableVersionIdV2Format: true
