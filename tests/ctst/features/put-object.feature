@@ -1,6 +1,6 @@
 Feature: Put Object operations
 
-    @2.6.0
+    @2.12.0
     @PreMerge
     Scenario Outline: Handle versionId collision on PutObject
     Given a "Versioned" bucket

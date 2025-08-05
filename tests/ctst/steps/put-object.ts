@@ -17,7 +17,7 @@ Given('{int} threads each uploading {int} versions of object {string} of size {i
     this.addToSaved('objectName', objectName);
     let processedCounter = numberOfVerionPerThread * numberOfThread;
 
-    await Promise.all(Array.from({length: numberOfThread}, async () => {
+    await Promise.all(Array.from({ length: numberOfThread }, async () => {
         for (let i = 0; i < numberOfVerionPerThread; i++) {
             const tempFileName = `${Utils.randomString()}_${objectName}`;
             const objectBody = 'a'.repeat(sizeBytes);
