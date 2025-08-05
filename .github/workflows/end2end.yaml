@@ -155,6 +155,7 @@ jobs:
           mkdir -p /tmp/artifacts/data/${{ github.job }}/act-logs/
           mv tests/workflows/act-*.log /tmp/artifacts/data/check-workflows/act-logs/
           tar zcvf /tmp/artifacts/${{ github.sha }}-${{ github.job }}-act-logs.tgz /tmp/artifacts/data/${{ github.job }}/act-logs;
+        if: always()
       - name: Upload artifacts
         uses: scality/action-artifacts@v4
         with:
