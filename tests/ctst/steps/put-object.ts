@@ -4,7 +4,8 @@ import {S3, Utils} from 'cli-testing';
 import {ListObjectsV2Output, ListObjectVersionsOutput, PutObjectOutput} from '@aws-sdk/client-s3';
 import {safeJsonParse} from 'common/utils';
 import assert from 'assert';
-import {saveAsFile} from './utils/utils';
+import {deleteFile, saveAsFile} from './utils/utils';
+import {join} from 'path';
 
 Given('{int} threads each uploading {int} versions of object {string} of size {int} bytes', async function (
     this: Zenko,
@@ -17,12 +18,12 @@ Given('{int} threads each uploading {int} versions of object {string} of size {i
     this.addToSaved('objectName', objectName);
     let processedCounter = numberOfVerionPerThread * numberOfThread;
 
+    const tempFileName = `${Utils.randomString()}_${objectName}`;
+    const objectBody = 'a'.repeat(sizeBytes);
+    await saveAsFile(tempFileName, objectBody);
+
     await Promise.all(Array.from({ length: numberOfThread }, async () => {
         for (let i = 0; i < numberOfVerionPerThread; i++) {
-            const tempFileName = `${Utils.randomString()}_${objectName}`;
-            const objectBody = 'a'.repeat(sizeBytes);
-            await saveAsFile(tempFileName, objectBody);
-
             const result = await S3.putObject({
                 bucket: bucketName,
                 key: objectName,
@@ -38,6 +39,7 @@ Given('{int} threads each uploading {int} versions of object {string} of size {i
     }));
 
     this.addToSaved('objectCreatedCounter', processedCounter);
+    await deleteFile(join('/tmp', tempFileName));
 });
 
 Then('{int} versions of objects {string} should exist', async function (
