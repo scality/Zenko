@@ -1,11 +1,10 @@
 import {Given, Then} from '@cucumber/cucumber';
 import Zenko from 'world/Zenko';
-import {S3, Utils} from 'cli-testing';
+import {S3} from 'cli-testing';
 import {ListObjectsV2Output, ListObjectVersionsOutput, PutObjectOutput} from '@aws-sdk/client-s3';
 import {safeJsonParse} from 'common/utils';
 import assert from 'assert';
-import {deleteFile, saveAsFile} from './utils/utils';
-import {join} from 'path';
+import {uploadSetup, uploadTeardown} from './utils/utils';
 
 Given('{int} threads each uploading {int} versions of object {string} of size {int} bytes', async function (
     this: Zenko,
@@ -14,13 +13,13 @@ Given('{int} threads each uploading {int} versions of object {string} of size {i
     objectName: string,
     sizeBytes: number,
 ) {
+    let processedCounter = numberOfVerionPerThread * numberOfThread;
     const bucketName = this.getSaved<string>('bucketName');
     this.addToSaved('objectName', objectName);
-    let processedCounter = numberOfVerionPerThread * numberOfThread;
+    this.addToSaved('objectSize', sizeBytes);
 
-    const tempFileName = `${Utils.randomString()}_${objectName}`;
-    const objectBody = 'a'.repeat(sizeBytes);
-    await saveAsFile(tempFileName, objectBody);
+    await uploadSetup(this, 'PutObject', bucketName);
+    const tempFileName = this.getSaved<string>('tempFileName');
 
     await Promise.all(Array.from({ length: numberOfThread }, async () => {
         for (let i = 0; i < numberOfVerionPerThread; i++) {
@@ -39,7 +38,7 @@ Given('{int} threads each uploading {int} versions of object {string} of size {i
     }));
 
     this.addToSaved('objectCreatedCounter', processedCounter);
-    await deleteFile(join('/tmp', tempFileName));
+    await uploadTeardown(this, 'PutObject');
 });
 
 Then('{int} versions of objects {string} should exist', async function (

@@ -34,7 +34,7 @@ export async function deleteFile(path: string) {
     return fsp.unlink(path);
 }
 
-async function uploadSetup(world: Zenko, action: string, body?: string) {
+export async function uploadSetup(world: Zenko, action: string, body?: string) {
     if (action !== 'PutObject' && action !== 'UploadPart') {
         return;
     }
@@ -48,7 +48,7 @@ async function uploadSetup(world: Zenko, action: string, body?: string) {
     }
 }
 
-async function uploadTeardown(world: Zenko, action: string) {
+export async function uploadTeardown(world: Zenko, action: string) {
     if (action !== 'PutObject' && action !== 'UploadPart') {
         return;
     }
