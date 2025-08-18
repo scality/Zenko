@@ -1,5 +1,5 @@
 diff --git a/solution-base/mongodb/charts/mongodb-sharded/values.yaml b/solution-base/mongodb/charts/mongodb-sharded/values.yaml
-index cac7dba1..b7543dff 100644
+index cac7dba1..3480a9b9 100644
 --- a/solution-base/mongodb/charts/mongodb-sharded/values.yaml
 +++ b/solution-base/mongodb/charts/mongodb-sharded/values.yaml
 @@ -132,7 +132,7 @@ auth:
@@ -29,6 +29,15 @@ index cac7dba1..b7543dff 100644
    ## @param configsvr.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
    ## Example:
    ## resources:
+@@ -688,7 +688,7 @@ configsvr:
+     enabled: true
+     seLinuxOptions: {}
+     runAsUser: 1001
+-    runAsGroup: 1001
++    runAsGroup: 0
+     runAsNonRoot: true
+     privileged: false
+     readOnlyRootFilesystem: true
 @@ -782,7 +782,7 @@ mongos:
    ## @param mongos.resourcesPreset Set container resources according to one common preset (allowed values: none, nano, micro, small, medium, large, xlarge, 2xlarge). This is ignored if mongos.resources is set (mongos.resources is recommended for production).
    ## More information: https://github.com/bitnami/charts/blob/main/bitnami/common/templates/_resources.tpl#L15
@@ -38,6 +47,15 @@ index cac7dba1..b7543dff 100644
    ## @param mongos.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
    ## Example:
    ## resources:
+@@ -1044,7 +1044,7 @@ mongos:
+     enabled: true
+     seLinuxOptions: {}
+     runAsUser: 1001
+-    runAsGroup: 1001
++    runAsGroup: 0
+     runAsNonRoot: true
+     privileged: false
+     readOnlyRootFilesystem: true
 @@ -1139,7 +1139,7 @@ shardsvr:
      ## @param shardsvr.dataNode.resourcesPreset Set container resources according to one common preset (allowed values: none, nano, micro, small, medium, large, xlarge, 2xlarge). This is ignored if shardsvr.dataNode.resources is set (shardsvr.dataNode.resources is recommended for production).
      ## More information: https://github.com/bitnami/charts/blob/main/bitnami/common/templates/_resources.tpl#L15
@@ -47,6 +65,15 @@ index cac7dba1..b7543dff 100644
      ## @param shardsvr.dataNode.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
      ## Example:
      ## resources:
+@@ -1353,7 +1353,7 @@ shardsvr:
+       enabled: true
+       seLinuxOptions: {}
+       runAsUser: 1001
+-      runAsGroup: 1001
++      runAsGroup: 0
+       runAsNonRoot: true
+       privileged: false
+       readOnlyRootFilesystem: true
 @@ -1515,7 +1515,7 @@ shardsvr:
      ## @param shardsvr.arbiter.resourcesPreset Set container resources according to one common preset (allowed values: none, nano, micro, small, medium, large, xlarge, 2xlarge). This is ignored if shardsvr.arbiter.resources is set (shardsvr.arbiter.resources is recommended for production).
      ## More information: https://github.com/bitnami/charts/blob/main/bitnami/common/templates/_resources.tpl#L15
@@ -56,6 +83,15 @@ index cac7dba1..b7543dff 100644
      ## @param shardsvr.arbiter.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
      ## Example:
      ## resources:
+@@ -1702,7 +1702,7 @@ shardsvr:
+       enabled: true
+       seLinuxOptions: {}
+       runAsUser: 1001
+-      runAsGroup: 1001
++      runAsGroup: 0
+       runAsNonRoot: true
+       privileged: false
+       readOnlyRootFilesystem: true
 @@ -1815,11 +1815,11 @@ metrics:
    ## @param metrics.extraArgs String with extra arguments to the metrics exporter
    ## ref: https://github.com/percona/mongodb_exporter/blob/main/main.go
@@ -70,3 +106,16 @@ index cac7dba1..b7543dff 100644
    ## @param metrics.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
    ## Example:
    ## resources:
+@@ -1849,10 +1849,10 @@ metrics:
+     enabled: true
+     seLinuxOptions: {}
+     runAsUser: 1001
+-    runAsGroup: 1001
++    runAsGroup: 0
+     runAsNonRoot: true
+     privileged: false
+-    readOnlyRootFilesystem: true
++    readOnlyRootFilesystem: false
+     allowPrivilegeEscalation: false
+     capabilities:
+       drop: ["ALL"]
