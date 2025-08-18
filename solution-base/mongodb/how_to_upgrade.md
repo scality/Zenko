@@ -22,7 +22,7 @@ configuration values for a specified version:
 can be found in
 `https://github.com/bitnami/charts/blob/main/bitnami/mongodb-sharded/Chart.yaml`.
 
-4. Bump mongodb sharded version in charts: `CHART_MONGO_SHARDED_VERSION` in the
+4. Bump mongodb-sharded chart version : `CHART_MONGO_SHARDED_VERSION` in the
 `solution-base/mongodb/Makefile` file (e.g. `CHART_MONGO_SHARDED_VERSION:="9.3.6"`).
 This version can be found from the output of the above `helm search` command.
 
