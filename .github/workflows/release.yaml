@@ -9,13 +9,15 @@ on:
         description: Tag
         required: true
       artifacts-name:
-        description: Artifacts name to promote
-        required: true
+        description: Artifacts name to promote (optional - will be auto-detected if not provided)
+        required: false
 
 jobs:
   verify-release:
     name: Verify if tag is valid
     runs-on: ubuntu-24.04
+    outputs:
+      artifacts-name: ${{ steps.get-artifacts-name.outputs.artifacts-name }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,6 +43,18 @@ jobs:
         shell: bash
         run: |
           ! git show-ref --tags ${{ github.event.inputs.tag }} --quiet
+
+      - name: Auto-derive artifacts name if not provided
+        uses: actions/github-script@v7
+        id: get-artifacts-name
+        with:
+          script: |
+            const { getBuildArtifact } = require('./.github/scripts/get-build-artifact');
+            const artifactsName = process.env.ARTIFACTS_NAME
+                || await getBuildArtifact(github, context, core);
+            core.setOutput('artifacts-name', artifactsName);
+        env:
+          ARTIFACTS_NAME: ${{ github.event.inputs.artifacts-name }}
 
   release:
     name: Release
@@ -114,7 +128,7 @@ jobs:
       uses: scality/action-artifacts@v4
       with:
         method: promote
-        name: ${{ github.event.inputs.artifacts-name }}
+        name: ${{ needs.verify-release.outputs.artifacts-name }}
         tag: ${{ github.event.inputs.tag }}
         url: https://artifacts.scality.net
         user: ${{ secrets.ARTIFACTS_USER }}
