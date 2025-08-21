@@ -18,8 +18,7 @@
     "prometheus-query": "^3.4.0",
     "proper-lockfile": "^4.1.2",
     "qs": "^6.13.0",
-    "scubaclient": "git+https://github.com/scality/scubaclient#^1.1.2",
-    "uuid": "^11.1.0"
+    "scubaclient": "git+https://github.com/scality/scubaclient#^1.1.2"
   },
   "devDependencies": {
     "@aws-sdk/client-iam": "^3.582.0",
