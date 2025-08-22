@@ -21,6 +21,12 @@ for i in $(seq 0 $array_length); do
             # Inject env 'generated' from previous steps
             source "$GITHUB_ENV"
 
+            # Inject variables
+            # We use `sed` to replace github variable references and avoid bad substitution error from bash
+            env_variables=$(yq '.runs.steps[$i].env | to_entries | .[] | .key + "=\"" + .value + "\""' .github/actions/deploy/action.yaml \
+                | sed 's/\${{.*}}//')
+            eval "$env_variables"
+
             if [ "$working_dir" != "null" ]; then
                 echo "Changing working dir: $working_dir"
                 cd $working_dir
