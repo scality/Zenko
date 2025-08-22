@@ -25,10 +25,9 @@ for i in $(seq 0 $array_length); do
                 echo "Changing working dir: $working_dir"
                 cd $working_dir
             fi
+
             echo "Run command: $run_command"
-            while IFS= read -r line; do
-                eval $line
-            done <<< "$run_command";
+            eval "$run_command";
         fi
     )
 done
