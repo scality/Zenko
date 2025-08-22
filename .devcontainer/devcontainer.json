@@ -97,5 +97,5 @@
         "ZENKO_MONGODB_DATABASE": "zenko-database"
     },
     // Use 'postCreateCommand' to run commands after the container is created.
-    "postCreateCommand": "bash .devcontainer/setup.sh"
+    "postCreateCommand": ".devcontainer/setup.sh"
 }
