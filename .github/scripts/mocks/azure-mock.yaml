@@ -26,7 +26,14 @@ spec:
   subdomain: azure-mock
   containers:
   - image: mcr.microsoft.com/azure-storage/azurite:3.35.0
-    command: ["azurite", "-l", "/data", "--blobHost", "0.0.0.0", "--blobPort", "80", "--queueHost", "0.0.0.0","--queuePort", "81"]
+    command: [
+      "azurite",
+      "-l", "/data",
+      "--blobHost", "0.0.0.0",
+      "--blobPort", "80",
+      "--queueHost", "0.0.0.0",
+      "--queuePort", "81",
+    ]
     name: azurite
     ports:
       - name: blob
@@ -46,7 +53,16 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: azure-mock
+  annotations:
+    cert-manager.io/cluster-issuer: "artesca-root-ca-issuer"
 spec:
+  tls:
+    - secretName: zenko-tls-azure
+      hosts:
+        - "azure-mock.zenko.local" 
+        - "*.azure-mock.zenko.local"
+        - "*.blob.azure-mock.zenko.local"
+        - "*.queue.azure-mock.zenko.local"
   rules:
   - host: '*.azure-mock.zenko.local'
     http:
@@ -99,6 +115,26 @@ spec:
         path: /
         pathType: Prefix
   - host: '*.queue.azure-mock.zenko.local'
+    http:
+      paths:
+      - backend:
+          service:
+            name: azure-mock
+            port:
+              name: queue
+        path: /
+        pathType: Prefix
+  - host: 'devstoreaccount1.blob.azure-mock.zenko.local'
+    http:
+      paths:
+      - backend:
+          service:
+            name: azure-mock
+            port:
+              name: blob
+        path: /
+        pathType: Prefix
+  - host: 'devstoreaccount1.queue.azure-mock.zenko.local'
     http:
       paths:
       - backend:
