@@ -1,9 +1,9 @@
-ARG SORBET_TAG
-ARG CTST_TAG
-ARG DRCTL_TAG
+ARG SORBET_TAG=latest
+ARG CTST_TAG=latest
+ARG DRCTL_TAG=latest
 
-FROM ghcr.io/scality/sorbet:$SORBET_TAG as sorbet
-FROM ghcr.io/scality/zenko-drctl:$DRCTL_TAG as drctl
+FROM ghcr.io/scality/sorbet:$SORBET_TAG AS sorbet
+FROM ghcr.io/scality/zenko-drctl:$DRCTL_TAG AS drctl
 FROM ghcr.io/scality/cli-testing:$CTST_TAG
 
 COPY package.json /tmp/package.json
