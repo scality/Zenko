@@ -19,7 +19,13 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-body-size: 0m
     nginx.ingress.kubernetes.io/proxy-buffering: "off"
     nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+    cert-manager.io/cluster-issuer: "artesca-root-ca-issuer"
 spec:
+  tls:
+    - secretName: aws-mock-tls
+      hosts:
+        - "aws-mock.zenko.local"
+        - "*.aws-mock.zenko.local"
   rules:
   - host: 'aws-mock.zenko.local'
     http:
