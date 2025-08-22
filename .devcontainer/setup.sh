@@ -6,6 +6,8 @@ env_variables=$(yq eval '.env | to_entries | .[] | .key + "=" + .value' .github/
 export GIT_ACCESS_TOKEN=${GITHUB_TOKEN}
 export E2E_IMAGE_TAG=latest
 
+GITHUB_ENV=$(mktemp /tmp/github_env.XXXXXX)
+
 array_length=$(yq ".runs.steps | length - 1" .github/actions/deploy/action.yaml)
 for i in $(seq 0 $array_length); do
     #step=$(yq ".runs.steps[$i]" .github/actions/deploy/action.yaml)
@@ -16,6 +18,9 @@ for i in $(seq 0 $array_length); do
     # We can't run `configure-e2e.sh` here because it needs an image that is not yet built and sent to kind, will be run after
     (
         if [[ "$run_command" != "null" && "$run_command" != *"configure-e2e.sh"* && "$run_command" != *"run-e2e-test.sh"* ]]; then
+            # Inject env 'generated' from previous steps
+            source "$GITHUB_ENV"
+
             if [ "$working_dir" != "null" ]; then
                 echo "Changing working dir: $working_dir"
                 cd $working_dir
