@@ -13,10 +13,10 @@ busybox:
   tag: 1.36.1
   envsubst: BUSYBOX_TAG
 cloudserver:
-  sourceRegistry: ghcr.io/scality
+  sourceRegistry: ghcr.io/scality/playground/welansari
   dashboard: cloudserver/cloudserver-dashboards
   image: cloudserver
-  tag: 9.1.0-preview.1
+  tag: 9.1.0
   envsubst: CLOUDSERVER_TAG
 drctl:
   sourceRegistry: ghcr.io/scality
