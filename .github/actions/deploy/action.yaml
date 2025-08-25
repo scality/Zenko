@@ -55,20 +55,7 @@ runs:
       working-directory: ./.github/scripts/end2end
     - name: Install operator
       shell: bash
-      run: |-
-        set -exu;
-        export OPERATOR_IMAGE_NAME=$(yq eval '."zenko-operator" | .sourceRegistry + "/" + .image' solution/deps.yaml)
-        if ! [ -n "${OPERATOR_IMAGE_TAG}" ]; then
-          export OPERATOR_IMAGE_TAG=$(yq eval '."zenko-operator".tag' solution/deps.yaml)
-        fi
-        docker pull ${OPERATOR_IMAGE_NAME}:${OPERATOR_IMAGE_TAG}
-        kind load docker-image ${OPERATOR_IMAGE_NAME}:${OPERATOR_IMAGE_TAG}
-        cd ./.github/scripts/end2end
-        git init operator
-        cd operator
-        git fetch --depth 1 --no-tags https://git:${GIT_ACCESS_TOKEN}@github.com/scality/zenko-operator.git ${OPERATOR_IMAGE_TAG}
-        git checkout FETCH_HEAD
-        tilt ci
+      run: ./.github/scripts/end2end/deploy-zkop.sh
       env:
         OPERATOR_IMAGE_TAG: ${{ inputs.zkop_tag }}
     - name: Deploy Zenko Instance

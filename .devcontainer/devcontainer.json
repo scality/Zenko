@@ -9,7 +9,7 @@
         "ghcr.io/devcontainers/features/github-cli:1": {},
         "ghcr.io/devcontainers/features/node:1": {},
         "ghcr.io/devcontainers/features/sshd:1": {},
-        "ghcr.io/devcontainers-contrib/features/kind:1": {},
+        "ghcr.io/devcontainers-extra/features/kind:1": {},
         "ghcr.io/devcontainers/features/aws-cli:1": {},
         "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
             "version": "latest",
@@ -79,13 +79,23 @@
                     "permissions": {
                         "contents": "read"
                     }
+                },
+                "scality/metadata": {
+                    "permissions": {
+                        "contents": "read"
+                    }
+                },
+                "scality/metadata-operator": {
+                    "permissions": {
+                        "contents": "read"
+                    }
                 }
             }
         }
     },
     "containerEnv": {
-        "ZENKO_MONGODB_DATABASE": "zenko-database",
-        },
+        "ZENKO_MONGODB_DATABASE": "zenko-database"
+    },
     // Use 'postCreateCommand' to run commands after the container is created.
-    "postCreateCommand": "bash .devcontainer/setup.sh"
+    "postCreateCommand": ".devcontainer/setup.sh"
 }
