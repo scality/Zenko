@@ -2,11 +2,11 @@
 # to sort keys, use the following command
 # yq eval 'sortKeys(.)' -i deps.yaml
 mongodb-sharded:
-  image: bitnami/mongodb-sharded
+  image: bitnamilegacy/mongodb-sharded
   tag: 7.0.6-debian-12-r0
 mongodb-sharded-exporter:
-  image: bitnami/mongodb-exporter
+  image: bitnamilegacy/mongodb-exporter
   tag: 0.40.0-debian-12-r12
 mongodb-shell:
-  image: bitnami/os-shell
+  image: bitnamilegacy/os-shell
   tag: 12-debian-12-r22
