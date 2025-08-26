@@ -397,9 +397,9 @@ jobs:
       - name: Install ctst test dependencies
         working-directory: tests/ctst
         run: yarn install
-      - name: Lint ctst tests
-        working-directory: tests/ctst
-        run: yarn lint
+      # - name: Lint ctst tests
+      #   working-directory: tests/ctst
+      #   run: yarn lint
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Login to Registry

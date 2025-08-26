@@ -181,6 +181,8 @@ async function createBucketWithConfiguration(
     }
     world.logger.debug('Creating bucket',
         { bucket: usedBucketName, withObjectLock, retentionMode, withVersioning });
+    
+    console.log("AAAAAAAA 21", world.getCommandParameters());
     await S3.createBucket(world.getCommandParameters());
     if (withVersioning === 'with') {
         world.addCommandParameter({ versioningConfiguration: 'Status=Enabled' });
@@ -399,9 +401,6 @@ async function getReplicationLocationConfig(world: Zenko, location: string): Pro
         locationType: string;
         bucketMatch: boolean;
         awsS3Client: S3Client;
-        accessKey: string;
-        secretKey: string;
-        endpoint: string;
     }> {
     const locationsConfigs = await getLocationConfigs(world);
     if (!locationsConfigs[location]) {
@@ -413,7 +412,7 @@ async function getReplicationLocationConfig(world: Zenko, location: string): Pro
         bucketMatch: locationsConfigs[location].details.bucketMatch,
         awsS3Client: new S3Client({
             region: locationsConfigs[location].details.region,
-            endpoint: `http://${locationsConfigs[location].details.awsEndpoint}`,
+            endpoint: `https://${locationsConfigs[location].details.awsEndpoint}`,
             credentials: {
                 accessKeyId: locationsConfigs[location].details.credentials.accessKey,
                 secretAccessKey: locationsConfigs[location].details.credentials.secretKey,
@@ -421,10 +420,10 @@ async function getReplicationLocationConfig(world: Zenko, location: string): Pro
             tls: false,
             maxAttempts: 1,
             forcePathStyle: true,
-        }),
-        accessKey: locationsConfigs[location].details.credentials.accessKey,
-        secretKey: locationsConfigs[location].details.credentials.secretKey,
-        endpoint: `http://${locationsConfigs[location].details.awsEndpoint}`,
+        })
+        // accessKey: locationsConfigs[location].details.credentials.accessKey,
+        // secretKey: locationsConfigs[location].details.credentials.secretKey,
+        // endpoint: `https://${locationsConfigs[location].details.awsEndpoint}`,
     };
 }
 

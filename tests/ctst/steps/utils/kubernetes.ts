@@ -187,8 +187,8 @@ export async function createJobAndWaitForCompletion(
 export async function createAndRunPod(
     world: Zenko,
     podManifest: V1Pod,
-    waitForCompletion = true,
-    cleanup = true,
+    waitForCompletion = false,
+    cleanup = false,
     timeout = 300000, // 5 minutes default
 ) {
     const clientCore = createKubeCoreClient(world);
