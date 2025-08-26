@@ -1,9 +1,9 @@
 import { When, Then } from '@cucumber/cucumber';
 import Zenko from '../world/Zenko';
-import { createAndRunPod, getMongoDBConfig, getZenkoVersion } from 'steps/utils/kubernetes';
+import { createAndRunPod, getZenkoVersion } from 'steps/utils/kubernetes';
 import assert from 'assert';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
-import { Utils } from 'cli-testing';
+import { IdentityEnum, Identity, Utils } from 'cli-testing';
 import { getObject, headObject, getReplicationLocationConfig } from 'steps/utils/utils';
 import { safeJsonParse } from 'common/utils';
 
@@ -15,10 +15,13 @@ When('I run the job to replicate existing objects with status {string}',
     ) {
         const sourceBucket = this.getSaved<string>('bucketName');
         const replicationLocation = this.getSaved<string>('replicationLocation');
-        const { replicaSetHosts } = await getMongoDBConfig(this);
         const { locationType } = await getReplicationLocationConfig(this, replicationLocation);
         const zenkoVersion = await getZenkoVersion(this);
         const s3utilsVersion = zenkoVersion.spec.versions.s3utils;
+        const credentials = Identity.getCredentialsForIdentity(
+            IdentityEnum.ACCOUNT,
+            this.parameters.AccountName
+        );
         const podManifest = {
             apiVersion: 'v1',
             kind: 'Pod',
@@ -39,38 +42,9 @@ When('I run the job to replicate existing objects with status {string}',
                         command: ['node'],
                         args: ['crrExistingObjects.js', sourceBucket],
                         env: [
-                            {
-                                name: 'MONGODB_REPLICASET', 
-                                value: replicaSetHosts.join(',')
-                            },
-                            { 
-                                name: 'MONGODB_AUTH_USERNAME', 
-                                valueFrom: { 
-                                    secretKeyRef: { 
-                                        name: 'mongodb-db-creds', 
-                                        key: 'mongodb-username' 
-                                    } 
-                                } 
-                            },
-                            { 
-                                name: 'MONGODB_AUTH_PASSWORD', 
-                                valueFrom: { 
-                                    secretKeyRef: { 
-                                        name: 'mongodb-db-creds', 
-                                        key: 'mongodb-password' 
-                                    } 
-                                } 
-                            },
-                            { 
-                                name: 'MONGODB_DATABASE', 
-                                valueFrom: { 
-                                    secretKeyRef: { 
-                                        name: 'mongodb-db-creds', 
-                                        key: 'mongodb-database' 
-                                    } 
-                                } 
-                            },
-                            { name: 'MONGODB_SHARD_COLLECTIONS', value: 'true' },
+                            { name: 'ACCESS_KEY', value: credentials?.accessKeyId },
+                            { name: 'SECRET_KEY', value: credentials?.secretAccessKey },
+                            { name: 'ENDPOINT', value: `http://s3.${credentials?.subDomain}` },
                             { name: 'STORAGE_TYPE', value: locationType },
                             { name: 'TARGET_REPLICATION_STATUS', value: sourceObjectStatus },
                             { name: 'SITE_NAME', value: replicationLocation },
@@ -83,12 +57,12 @@ When('I run the job to replicate existing objects with status {string}',
         await createAndRunPod(this, podManifest);
     });
 
-Then('the object should eventually be replicated',
+Then('the object should eventually be replicated', { timeout: 360_000 },
     async function (this: Zenko) {
         const objectName = this.getSaved<string>('objectName');
         const bucketSource = this.getSaved<string>('bucketName');
         const startTime = Date.now();
-        const replicationTimeoutMs = 90_000;
+        const replicationTimeoutMs = 300_000;
         while (Date.now() - startTime < replicationTimeoutMs) {
             await new Promise(resolve => setTimeout(resolve, 3000));
 

@@ -410,7 +410,7 @@ async function getReplicationLocationConfig(world: Zenko, location: string): Pro
         bucketMatch: locationsConfigs[location].details.bucketMatch,
         awsS3Client: new S3Client({
             region: locationsConfigs[location].details.region,
-            endpoint: `http://${locationsConfigs[location].details.awsEndpoint}`,
+            endpoint: `https://${locationsConfigs[location].details.awsEndpoint}`,
             credentials: {
                 accessKeyId: locationsConfigs[location].details.credentials.accessKey,
                 secretAccessKey: locationsConfigs[location].details.credentials.secretKey,
