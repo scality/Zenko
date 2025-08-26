@@ -227,8 +227,8 @@ export async function createAndRunPod(
                             }
                         }
                     },
-                    (err) => {
-                        world.logger.debug("Watch error callback triggered", { podName, err });
+                    err => {
+                        world.logger.debug('Watch error callback triggered', { podName, err });
                         clearTimeout(timeoutId);
                         reject(err);
                     }

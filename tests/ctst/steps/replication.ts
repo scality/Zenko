@@ -1,6 +1,6 @@
 import { When, Then } from '@cucumber/cucumber';
 import Zenko from '../world/Zenko';
-import { createAndRunPod, getMongoDBConfig, getZenkoVersion } from 'steps/utils/kubernetes';
+import { createAndRunPod, getZenkoVersion } from 'steps/utils/kubernetes';
 import assert from 'assert';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { Utils } from 'cli-testing';
@@ -15,8 +15,8 @@ When('I run the job to replicate existing objects with status {string}',
     ) {
         const sourceBucket = this.getSaved<string>('bucketName');
         const replicationLocation = this.getSaved<string>('replicationLocation');
-        const { replicaSetHosts } = await getMongoDBConfig(this);
-        const { locationType } = await getReplicationLocationConfig(this, replicationLocation);
+        const { locationType, accessKey, secretKey, endpoint } = 
+            await getReplicationLocationConfig(this, replicationLocation);
         const zenkoVersion = await getZenkoVersion(this);
         const s3utilsVersion = zenkoVersion.spec.versions.s3utils;
         const podManifest = {
@@ -39,37 +39,9 @@ When('I run the job to replicate existing objects with status {string}',
                         command: ['node'],
                         args: ['crrExistingObjects.js', sourceBucket],
                         env: [
-                            {
-                                name: 'MONGODB_REPLICASET', 
-                                value: replicaSetHosts.join(',')
-                            },
-                            { 
-                                name: 'MONGODB_AUTH_USERNAME', 
-                                valueFrom: { 
-                                    secretKeyRef: { 
-                                        name: 'mongodb-db-creds', 
-                                        key: 'mongodb-username' 
-                                    } 
-                                } 
-                            },
-                            { 
-                                name: 'MONGODB_AUTH_PASSWORD', 
-                                valueFrom: { 
-                                    secretKeyRef: { 
-                                        name: 'mongodb-db-creds', 
-                                        key: 'mongodb-password' 
-                                    } 
-                                } 
-                            },
-                            { 
-                                name: 'MONGODB_DATABASE', 
-                                valueFrom: { 
-                                    secretKeyRef: { 
-                                        name: 'mongodb-db-creds', 
-                                        key: 'mongodb-database' 
-                                    } 
-                                } 
-                            },
+                            { name: 'ACCESS_KEY', value: accessKey },
+                            { name: 'SECRET_KEY', value: secretKey },
+                            { name: 'ENDPOINT', value: endpoint },
                             { name: 'MONGODB_SHARD_COLLECTIONS', value: 'true' },
                             { name: 'STORAGE_TYPE', value: locationType },
                             { name: 'TARGET_REPLICATION_STATUS', value: sourceObjectStatus },

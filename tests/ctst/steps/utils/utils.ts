@@ -399,6 +399,9 @@ async function getReplicationLocationConfig(world: Zenko, location: string): Pro
         locationType: string;
         bucketMatch: boolean;
         awsS3Client: S3Client;
+        accessKey: string;
+        secretKey: string;
+        endpoint: string;
     }> {
     const locationsConfigs = await getLocationConfigs(world);
     if (!locationsConfigs[location]) {
@@ -419,6 +422,9 @@ async function getReplicationLocationConfig(world: Zenko, location: string): Pro
             maxAttempts: 1,
             forcePathStyle: true,
         }),
+        accessKey: locationsConfigs[location].details.credentials.accessKey,
+        secretKey: locationsConfigs[location].details.credentials.secretKey,
+        endpoint: `http://${locationsConfigs[location].details.awsEndpoint}`,
     };
 }
 
