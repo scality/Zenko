@@ -13,6 +13,7 @@ import {
     V1PersistentVolumeClaim,
     CoreV1Api,
     BatchV1Api,
+    V1Pod,
 } from '@kubernetes/client-node';
 
 type ZenkoStatusValue = {
@@ -24,6 +25,24 @@ type ZenkoStatusValue = {
 };
 
 type ZenkoStatus = ZenkoStatusValue[];
+
+type ZenkoVersion = {
+    apiVersion: string;
+    kind: string;
+    metadata: {
+        name: string;
+    };
+    spec: ZenkoVersionSpec;
+};
+
+type ZenkoVersionSpec = {
+    versions: {
+        s3utils: {
+            image: string;
+            tag: string;
+        };
+    };
+};
 
 export function createKubeBatchClient(world: Zenko): BatchV1Api {
     if (!KubernetesHelper.clientBatch) {
@@ -165,6 +184,74 @@ export async function createJobAndWaitForCompletion(
     }
 }
 
+export async function createAndRunPod(
+    world: Zenko,
+    podManifest: V1Pod,
+    waitForCompletion = true,
+    cleanup = true,
+    timeout = 300000, // 5 minutes default
+) {
+    const clientCore = createKubeCoreClient(world);
+    const watchClient = createKubeWatchClient(world);
+
+    try {
+        const response = await clientCore.createNamespacedPod('default', podManifest);
+        const podName = response.body.metadata?.name;
+        if (waitForCompletion && podName) {
+            world.logger.debug('Waiting for pod completion', { podName });
+
+            await new Promise<void>((resolve, reject) => {
+                const timeoutId = setTimeout(() => {
+                    reject(new Error(`Pod ${podName} did not complete within ${timeout}ms`));
+                }, timeout);
+
+                void watchClient.watch(
+                    '/api/v1/namespaces/default/pods',
+                    {},
+                    (type: string, apiObj, watchObj) => {
+                        if (watchObj.object?.metadata?.name === podName) {
+                            const phase = watchObj.object?.status?.phase;
+                            world.logger.debug('Pod status update', { podName, phase });
+                            
+                            if (phase === 'Succeeded') {
+                                clearTimeout(timeoutId);
+                                world.logger.debug('Pod completed successfully', { podName });
+                                resolve();
+                            } else if (phase === 'Failed') {
+                                clearTimeout(timeoutId);
+                                world.logger.error('Pod failed', { 
+                                    podName, 
+                                    status: watchObj.object?.status 
+                                });
+                                reject(new Error(`Pod ${podName} failed`));
+                            }
+                        }
+                    },
+                    (err) => {
+                        world.logger.debug("Watch error callback triggered", { podName, err });
+                        clearTimeout(timeoutId);
+                        reject(err);
+                    }
+                );
+            });
+        }
+
+        // Cleanup if requested
+        if (cleanup && podName) {
+            world.logger.debug('Cleaning up pod', { podName });
+            try {
+                await clientCore.deleteNamespacedPod(podName, 'default');
+            } catch (cleanupErr) {
+                world.logger.warn('Failed to cleanup pod', { podName, err: cleanupErr });
+            }
+        }
+
+        return response.body;
+    } catch (err: unknown) {
+        world.logger.error('Failed to create and run pod:', { err });
+        throw new Error(`Failed to create and run pod: ${err}`);
+    }
+}
 
 export async function waitForZenkoToStabilize(
     world: Zenko, needsReconciliation = false, timeout = 15 * 60 * 1000, namespace = 'default') {
@@ -445,3 +532,86 @@ export async function createSecret(
         throw err;
     }
 }
+
+export async function getMongoDBConfig(
+    world: Zenko,
+    namespace = 'default',
+) : Promise<{replicaSetHosts: string[]}> {
+    const customObjectClient = createKubeCustomObjectClient(world);
+    try {
+        // Get replicaSetHosts from Zenko CR
+        const zenkoCR = await customObjectClient.getNamespacedCustomObject(
+            'zenko.io',
+            'v1alpha2',
+            namespace,
+            'zenkos',
+            'end2end'
+        );
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const mongodbSpec = (zenkoCR.body as any)?.spec?.mongodb;
+        const mongodbConfig = {
+            replicaSetHosts: mongodbSpec?.endpoints || [],
+        };
+
+        return mongodbConfig;
+    } catch (err) {
+        world.logger.debug('Error getting MongoDB config from secret and CR', {namespace, err});
+        throw err;
+    }
+}
+
+export async function getLocationConfigs(
+    world: Zenko,
+    namespace = 'default',
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+): Promise<Record<string, any>> {
+    const coreClient = createKubeCoreClient(world);
+    try {
+        // Get location configurations from connector-cloudserver-config secret
+        const secretList = await coreClient.listNamespacedSecret(
+            namespace,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            'app.kubernetes.io/name=connector-cloudserver-config'
+        );
+
+        const secret = secretList.body.items[0];
+        const locationConfigData = secret.data?.['locationConfig.json'];
+        if (!locationConfigData) {
+            throw new Error('locationConfig.json not found in secret');
+        }
+
+        const locationConfigJson = Buffer.from(locationConfigData, 'base64').toString('utf-8');
+        return JSON.parse(locationConfigJson);
+    } catch (err) {
+        world.logger.debug('Error getting location configs from secret', { namespace, err });
+        throw err;
+    }
+}
+
+export async function getZenkoVersion(
+    world: Zenko,
+    namespace = 'default',
+): Promise<ZenkoVersion> {
+    const customObjectClient = createKubeCustomObjectClient(world);
+    try {
+        const zenkoVersionList = await customObjectClient.listNamespacedCustomObject(
+            'zenko.io',
+            'v1alpha1',
+            namespace,
+            'zenkoversions'
+        );
+        const zenkoVersionItems = (zenkoVersionList.body as { items: ZenkoVersion[] })?.items;
+        if (!zenkoVersionItems || zenkoVersionItems.length === 0) {
+            throw new Error('No ZenkoVersion resources found');
+        }
+
+        return zenkoVersionItems[0];
+    } catch (err) {
+        world.logger.debug('Error getting ZenkoVersion resource', { namespace, err });
+        throw err;
+    }
+}
+
