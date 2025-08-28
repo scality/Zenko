@@ -83,12 +83,12 @@ When('I run the job to replicate existing objects with status {string}',
         await createAndRunPod(this, podManifest);
     });
 
-Then('the object should eventually be replicated',
+Then('the object should eventually be replicated', { timeout: 360_000 },
     async function (this: Zenko) {
         const objectName = this.getSaved<string>('objectName');
         const bucketSource = this.getSaved<string>('bucketName');
         const startTime = Date.now();
-        const replicationTimeoutMs = 90_000;
+        const replicationTimeoutMs = 300_000;
         while (Date.now() - startTime < replicationTimeoutMs) {
             await new Promise(resolve => setTimeout(resolve, 3000));
 

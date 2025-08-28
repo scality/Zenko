@@ -1,10 +1,12 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -e
 
 env_variables=$(yq eval '.env | to_entries | .[] | .key + "=" + .value' .github/workflows/end2end.yaml | sed 's/\${{[^}]*}}//g') && export $env_variables
 export GIT_ACCESS_TOKEN=${GITHUB_TOKEN}
 export E2E_IMAGE_TAG=latest
+
+GITHUB_ENV=$(mktemp /tmp/github_env.XXXXXX)
 
 array_length=$(yq ".runs.steps | length - 1" .github/actions/deploy/action.yaml)
 for i in $(seq 0 $array_length); do
@@ -16,14 +18,22 @@ for i in $(seq 0 $array_length); do
     # We can't run `configure-e2e.sh` here because it needs an image that is not yet built and sent to kind, will be run after
     (
         if [[ "$run_command" != "null" && "$run_command" != *"configure-e2e.sh"* && "$run_command" != *"run-e2e-test.sh"* ]]; then
+            # Inject env 'generated' from previous steps
+            source "$GITHUB_ENV"
+
+            # Inject variables
+            # We use `sed` to replace github variable references and avoid bad substitution error from bash
+            env_variables=$(yq '.runs.steps[$i].env | to_entries | .[] | .key + "=\"" + .value + "\""' .github/actions/deploy/action.yaml \
+                | sed 's/\${{.*}}//')
+            eval "$env_variables"
+
             if [ "$working_dir" != "null" ]; then
                 echo "Changing working dir: $working_dir"
                 cd $working_dir
             fi
+
             echo "Run command: $run_command"
-            while IFS= read -r line; do
-                eval $line
-            done <<< "$run_command";
+            eval "$run_command";
         fi
     )
 done

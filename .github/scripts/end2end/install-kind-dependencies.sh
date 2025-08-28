@@ -67,19 +67,55 @@ kubectl rollout status -n ingress-nginx deployment/ingress-nginx-controller --ti
 kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/${CERT_MANAGER_VERSION}/cert-manager.yaml --wait
 kubectl rollout status -n cert-manager deployment/cert-manager-webhook --timeout=10m
 
-retries=20
-until kubectl apply -f - <<EOF
+# === CERTIFICATE AUTHORITY SETUP ===
+# We need a self-signed root CA certificate for signing certificates for mock services
+# (Azure mock, AWS mock). This enables HTTPS testing with proper certificate validation.
+
+echo "Waiting for cert-manager webhook to be ready..."
+kubectl wait --for=condition=Available --timeout=60s deployment/cert-manager-webhook -n cert-manager
+
+cat <<'EOF' | kubectl apply -f -
+---
+# Bootstrap self-signed ClusterIssuer for creating the root CA
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: bootstrap-selfsigned
+spec:
+  selfSigned: {}
+---
+# Root CA certificate that will act as our custom CA
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: root-ca
+  namespace: cert-manager
+spec:
+  secretName: root-ca
+  isCA: true
+  commonName: root-ca
+  issuerRef:
+    name: bootstrap-selfsigned
+    kind: ClusterIssuer
+---
+# Production ClusterIssuer that uses our root CA for signing service certificates
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
   name: artesca-root-ca-issuer
 spec:
-  selfSigned: {}
+  ca:
+    secretName: root-ca
 EOF
-do
-    ((--retries)) || { echo "Failed to create ClusterIssuer"; exit 1; }
-    sleep 1
-done
+
+kubectl wait --for=condition=Ready --timeout=240s certificate/root-ca -n cert-manager
+kubectl wait --for=condition=Ready --timeout=240s clusterissuer/artesca-root-ca-issuer
+
+# Copy root CA secret to default namespace for applications to use
+echo "Copying root CA certificate to default namespace..."
+kubectl get secret root-ca -n cert-manager -o json | 
+  jq '.metadata.namespace="default" | .metadata.name="zenko-root-ca"' | 
+  kubectl apply -f -
 
 # prometheus
 # last-applied-configuration can end up larger than 256kB  which is too large for an annotation
