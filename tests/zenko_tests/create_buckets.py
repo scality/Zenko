@@ -116,8 +116,9 @@ def create_ring_buckets():
 def create_aws_buckets():
     AWS_ACCESS_KEY = get_env('AWS_ACCESS_KEY')
     AWS_SECRET_KEY = get_env('AWS_SECRET_KEY')
-    AWS_FAIL_BUCKET_NAME = get_env('AWS_FAIL_BUCKET_NAME')
     AWS_ENDPOINT = get_env('AWS_ENDPOINT')
+    AWS_FAIL_BUCKET_NAME = get_env('AWS_FAIL_BUCKET_NAME')
+    AWS_REPLICATION_FAIL_CTST_BUCKET_NAME = get_env('AWS_REPLICATION_FAIL_CTST_BUCKET_NAME')
 
     s3c = Session(aws_access_key_id=AWS_ACCESS_KEY,
             aws_secret_access_key=AWS_SECRET_KEY)
@@ -127,7 +128,9 @@ def create_aws_buckets():
     ## Creating AWS buckets
     _log.info('Creating AWS buckets...')
     bucket_safe_create(aws_s3c_client.Bucket(AWS_FAIL_BUCKET_NAME))
+    bucket_safe_create(aws_s3c_client.Bucket(AWS_REPLICATION_FAIL_CTST_BUCKET_NAME))
     aws_s3c_client.Bucket(AWS_FAIL_BUCKET_NAME).Versioning().enable()
+    aws_s3c_client.Bucket(AWS_REPLICATION_FAIL_CTST_BUCKET_NAME).Versioning().enable()
 
 def create_azure_containers():
     AZURE_BACKEND_ENDPOINT = get_env("AZURE_BACKEND_ENDPOINT")

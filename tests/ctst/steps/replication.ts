@@ -1,13 +1,19 @@
-import { When, Then } from '@cucumber/cucumber';
+import { Given, When, Then } from '@cucumber/cucumber';
 import Zenko from '../world/Zenko';
 import { createAndRunPod, getZenkoVersion } from 'steps/utils/kubernetes';
 import assert from 'assert';
-import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { IdentityEnum, Identity, Utils } from 'cli-testing';
+import { 
+    GetObjectCommand,
+    DeleteBucketCommand,
+    CreateBucketCommand,
+    PutBucketVersioningCommand
+} from '@aws-sdk/client-s3';
 import { getObject, headObject, getReplicationLocationConfig } from 'steps/utils/utils';
 import { safeJsonParse } from 'common/utils';
+import { replicationLockTags } from 'common/hooks';
 
-When('I run the job to replicate existing objects with status {string}',
+When('the job to replicate existing objects with status {string} is executed',
     { timeout: 600000 },
     async function (
         this: Zenko,
@@ -57,12 +63,12 @@ When('I run the job to replicate existing objects with status {string}',
         await createAndRunPod(this, podManifest);
     });
 
-Then('the object should eventually be replicated',
-    async function (this: Zenko) {
+Then('the object should eventually {string} replicated', { timeout: 360_000 },
+    async function (this: Zenko, replicate: 'be' | 'fail to be') {
         const objectName = this.getSaved<string>('objectName');
         const bucketSource = this.getSaved<string>('bucketName');
         const startTime = Date.now();
-        const replicationTimeoutMs = 90_000;
+        const replicationTimeoutMs = 300_000;
         while (Date.now() - startTime < replicationTimeoutMs) {
             await new Promise(resolve => setTimeout(resolve, 3000));
 
@@ -79,15 +85,27 @@ Then('the object should eventually be replicated',
             }>(response.stdout || '{}');
             assert(parsed.ok);
             const replicationStatus = parsed.result?.ReplicationStatus;
-            assert.notStrictEqual(replicationStatus, 'FAILED', `replication failed for object ${objectName}`);
-            if (replicationStatus === 'COMPLETED') {
-                return;
+            
+            if (replicate === 'be') {
+                assert.notStrictEqual(replicationStatus, 'FAILED', `replication failed for object ${objectName}`);
+                if (replicationStatus === 'COMPLETED') {
+                    return;
+                }
+            } else if (replicate === 'fail to be') {
+                assert.notStrictEqual(
+                    replicationStatus,
+                    'COMPLETED',
+                    `expected replication to fail for object ${objectName}`
+                );
+                if (replicationStatus === 'FAILED') {
+                    return;
+                }
             }
             if (replicationStatus === 'PENDING' || replicationStatus === 'PROCESSING') {
                 continue;
             }
         }
-        assert.fail(`Timeout: Object '${objectName}' was not replicated successfully until timeout`);
+        assert.fail(`Timeout: Object '${objectName}' is still pending/processing after timeout`);
     });
 
 Then(
@@ -147,3 +165,41 @@ Then(
             'REPLICA'
         );
     });
+
+Given('a deleted destination bucket on that location', async function (this: Zenko) {
+    const replicationLocation = this.getSaved<string>('replicationLocation');
+    const scenarioTags = this.getSaved<string[]>('scenarioTags') || [];
+    const lockTag = `@Lock${replicationLocation}`;
+    const hasTestLock = scenarioTags.includes(lockTag);
+    assert.strictEqual(
+        hasTestLock, true,
+        'This step can only be run when the tag @Lock$replicationLocation is configured'
+    );
+    assert.strictEqual(
+        true, replicationLockTags.includes(lockTag),
+        `The tag ${lockTag} must be added to the replicationLockTags array in common/hooks.ts`
+    );
+
+    const { destinationBucket, awsS3Client } =
+        await getReplicationLocationConfig(this, replicationLocation);
+    const command = new DeleteBucketCommand({
+        Bucket: destinationBucket,
+    });
+    await awsS3Client.send(command);
+});
+
+When('the destination bucket on the location is created again', async function (this: Zenko) {
+    const { destinationBucket, awsS3Client } = 
+        await getReplicationLocationConfig(this, this.getSaved<string>('replicationLocation'));
+    const command = new CreateBucketCommand({
+        Bucket: destinationBucket,
+    });
+    await awsS3Client.send(command);
+    const versioningCommand = new PutBucketVersioningCommand({
+        Bucket: destinationBucket,
+        VersioningConfiguration: {
+            Status: 'Enabled',
+        },
+    });
+    await awsS3Client.send(versioningCommand);
+});

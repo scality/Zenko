@@ -3,6 +3,7 @@ import {
     After,
     setParallelCanAssign,
     parallelCanAssignHelpers,
+    ITestCaseHookParameter,
 } from '@cucumber/cucumber';
 import Zenko from '../world/Zenko';
 import { CacheHelper, Identity } from 'cli-testing';
@@ -19,13 +20,25 @@ import {
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const { atMostOnePicklePerTag } = parallelCanAssignHelpers;
-const noParallelRun = atMostOnePicklePerTag(['@AfterAll', '@PRA', '@ColdStorage']);
+
+export const replicationLockTags = [
+    '@Lockawsbackendreplicationctstfail',
+];
+const noParallelRun = atMostOnePicklePerTag([
+    '@AfterAll',
+    '@PRA',
+    '@ColdStorage',
+    ...replicationLockTags
+]);
 
 setParallelCanAssign(noParallelRun);
 
-Before(async function (this: Zenko) {
+Before(async function (this: Zenko, scenario: ITestCaseHookParameter) {
     this.resetSaved();
     Identity.resetIdentity();
+    // Store scenario tags for access in step definitions
+    const scenarioTags = scenario.pickle.tags?.map(tag => tag.name) || [];
+    this.addToSaved('scenarioTags', scenarioTags);
     await Zenko.init(this.parameters);
 });
 
