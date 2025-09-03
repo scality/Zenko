@@ -13,7 +13,7 @@ click==8.1.7
 cryptography==43.0.0
 docutils==0.21.2
 h11==0.14.0
-h2==4.1.0
+h2==4.3.0
 hpack==4.0.0
 hyperframe==6.0.1
 idna==3.8
