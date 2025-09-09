@@ -7,20 +7,31 @@ FROM ghcr.io/scality/zenko-drctl:$DRCTL_TAG AS drctl
 FROM ghcr.io/scality/cli-testing:$CTST_TAG
 
 COPY package.json /tmp/package.json
+
+USER root
+RUN npm install typescript@5.8.3 -g
+
+# CTST does it if needed, but better to merge dependencies
+# here so we benefit from Docker layer caching
+WORKDIR /ctst
+RUN merge-packages /tmp/package.json package.json --output package.json && \
+    jq 'del(.devDependencies)' package.json > package.json.tmp && \
+    mv package.json.tmp package.json && \
+    echo "Merged package.json:" && cat package.json && \
+    yarn install --prod --network-concurrency=1 && \
+    yarn cache clean && \
+    echo "Dependencies pre-installed at build time - runtime will skip installation" && \
+    touch .init
+
 COPY ./features /ctst/features
 COPY ./common /ctst/common
 COPY ./steps /ctst/steps
 COPY ./world /ctst/world
 
-USER root
-RUN npm install typescript@5.8.3 -g
-
 RUN chmod 0777 -R /tmp/
 RUN chmod 0777 -R /ctst/
 
 ENV SDK=true
-
-WORKDIR /ctst
 
 COPY --from=sorbet /sorbetctl .
 COPY --from=drctl /zenko-drctl .
