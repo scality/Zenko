@@ -3,7 +3,6 @@ import Zenko from 'world/Zenko';
 import ZenkoDrctl from './dr/drctl';
 import {
     createSecret,
-    displayCRStatus,
     getDRSink,
     getDRSource,
     getPVCFromLabel,
@@ -85,7 +84,6 @@ export function preparePRA(world: Zenko) {
 }
 
 export async function displayDebuggingInformation(world: Zenko) {
-    await displayCRStatus(world);
     const drSource = await getDRSource(world);
     const drSink = await getDRSink(world);
 

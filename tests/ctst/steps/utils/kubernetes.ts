@@ -15,6 +15,7 @@ import {
     BatchV1Api,
     V1Pod,
 } from '@kubernetes/client-node';
+import { ZenkoCR } from 'world/ZenkoCR';
 
 type ZenkoStatusValue = {
     lastTransitionTime: string,
@@ -284,7 +285,7 @@ export async function waitForZenkoToStabilize(
     // zenko status.
     let reconciliationDetected = !needsReconciliation;
 
-    world.logger.debug('Waiting for Zenko to stabilize');
+    world.logger.info('Waiting for Zenko to stabilize');
     const zenkoClient = createKubeCustomObjectClient(world);
 
     while (!status && Date.now() - startTime < timeout) {
@@ -295,7 +296,7 @@ export async function waitForZenkoToStabilize(
             'zenkos',
             'end2end',
         ).catch(err => {
-            world.logger.debug('Error getting Zenko CR', {
+            world.logger.info('Error getting Zenko CR', {
                 err: err as unknown,
             });
             return null;
@@ -322,7 +323,7 @@ export async function waitForZenkoToStabilize(
             }
         });
 
-        world.logger.debug('Checking Zenko CR status', {
+        world.logger.info('Checking Zenko CR status', {
             conditions,
             deploymentFailure,
             deploymentInProgress,
@@ -421,31 +422,6 @@ export async function waitForDataServicesToStabilize(world: Zenko, timeout = 15 
     }
 
     return allRunning;
-}
-
-export async function displayCRStatus(world: Zenko, namespace = 'default') {
-    const zenkoClient = createKubeCustomObjectClient(world);
-
-    const zenkoCR = await zenkoClient.getNamespacedCustomObject(
-        'zenko.io',
-        'v1alpha2',
-        namespace,
-        'zenkos',
-        'end2end',
-    ).catch(err => {
-        world.logger.debug('Error getting Zenko CR', {
-            err: err as unknown,
-        });
-        return null;
-    });
-
-    if (!zenkoCR) {
-        return;
-    }
-
-    world.logger.debug('Checking Zenko CR status', {
-        zenkoCR,
-    });
 }
 
 export async function getDRSource(world: Zenko, namespace = 'default') {
@@ -696,10 +672,19 @@ export async function execCommandWithVolumeAccess(
     };
 
     try {
-        await createAndRunPod(world, podManifest, true, cleanup, timeout);
+        await createAndRunPod(world, podManifest, true, false, timeout);
         
         const coreClient = createKubeCoreClient(world);
         const logs = await coreClient.readNamespacedPodLog(podName, namespace);
+        
+        if (cleanup) {
+            try {
+                await coreClient.deleteNamespacedPod(podName, namespace);
+                world.logger.debug('Pod cleaned up after log retrieval', { podName });
+            } catch (cleanupErr) {
+                world.logger.warn('Failed to cleanup pod after log retrieval', { podName, err: cleanupErr });
+            }
+        }
         
         return logs.body.trim();
     } catch (error) {
@@ -708,6 +693,12 @@ export async function execCommandWithVolumeAccess(
             podName, 
             error: error instanceof Error ? error.message : String(error)
         });
+        
+        if (cleanup) {
+            const coreClient = createKubeCoreClient(world);
+            await coreClient.deleteNamespacedPod(podName, namespace);
+        }
+        
         throw error;
     }
 }
@@ -733,5 +724,54 @@ export async function execInCluster(
         });
         throw error;
     }
+}
+
+/**
+ * Wait for deployment rollout to complete
+ */
+export async function waitForDeploymentRollout(
+    appsClient: AppsV1Api,
+    deploymentName: string,
+    namespace: string,
+    timeoutMs = 120000,
+) {
+    const startTime = Date.now();
+
+    while (Date.now() - startTime < timeoutMs) {
+        const deployment = await appsClient.readNamespacedDeployment(deploymentName, namespace);
+        const status = deployment.body.status;
+
+        if (status?.readyReplicas === status?.replicas &&
+            status?.updatedReplicas === status?.replicas &&
+            status?.replicas && status.replicas > 0) {
+            return;
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 2000));
+    }
+
+    throw new Error(`Deployment ${deploymentName} rollout timed out after ${timeoutMs}ms`);
+}
+
+/**
+ * Get Zenko Custom Resource
+ */
+export async function getZenkoCR(world: Zenko, namespace = 'default', name = 'end2end'): Promise<ZenkoCR | undefined> {
+    const zenkoClient = createKubeCustomObjectClient(world);
+    
+    const zenkoCR = await zenkoClient.getNamespacedCustomObject(
+        'zenko.io',
+        'v1alpha2',
+        namespace,
+        'zenkos',
+        name,
+    ).catch(err => {
+        world.logger.debug('Error getting Zenko CR', {
+            err: err as unknown,
+        });
+        return;
+    });
+
+    return zenkoCR?.body as ZenkoCR;
 }
 

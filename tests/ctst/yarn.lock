@@ -4709,6 +4709,13 @@ werelogs@scality/werelogs#8.2.0:
     fast-safe-stringify "^2.1.1"
     safe-json-stringify "^1.2.0"
 
+werelogs@scality/werelogs#8.2.2:
+  version "8.2.2"
+  resolved "https://codeload.github.com/scality/werelogs/tar.gz/e53bef5145697bf8af940dcbe59408988d64854f"
+  dependencies:
+    fast-safe-stringify "^2.1.1"
+    safe-json-stringify "^1.2.0"
+
 which-typed-array@^1.1.16, which-typed-array@^1.1.2:
   version "1.1.19"
   resolved "https://registry.yarnpkg.com/which-typed-array/-/which-typed-array-1.1.19.tgz#df03842e870b6b88e117524a4b364b6fc689f956"

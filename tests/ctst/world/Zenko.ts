@@ -89,6 +89,7 @@ export interface ZenkoWorldParameters extends ClientOptions {
     SorbetdRestoreTimeout: string;
     UtilizationServiceHost: string;
     UtilizationServicePort: string;
+    Namespace: string;
     [key: string]: unknown;
 }
 
@@ -122,6 +123,11 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     static readonly PRIMARY_SITE_NAME = 'admin';
     static readonly SECONDARY_SITE_NAME = 'dradmin';
     static readonly PRA_INSTALL_COUNT_KEY = 'praInstallCount';
+    
+    // Static CTST configuration values
+    static readonly ACCOUNT_NAME = 'zenko-ctst';
+    static readonly SSL_ENABLED = false;
+    static readonly PORT = '80';
 
     /**
      * @constructor

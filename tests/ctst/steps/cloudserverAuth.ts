@@ -35,8 +35,7 @@ When('the user tries to perform DeleteObjects', async function (this: Zenko) {
 When('the user tries to perform CreateBucket', async function (this: Zenko) {
     this.resetCommand();
     this.useSavedIdentity();
-    const preName = this.getSaved<string>('accountName') ||
-        this.parameters.AccountName || Constants.ACCOUNT_NAME;
+    const preName = this.getSaved<string>('accountName') || Zenko.ACCOUNT_NAME;
     const usedBucketName = `${preName}${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase();
     this.addToSaved('bucketName', usedBucketName);
     this.addCommandParameter({ bucket: usedBucketName });

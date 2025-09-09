@@ -124,15 +124,13 @@ async function createBucket(world: Zenko, versioning: string, bucketName: string
 }
 
 Given('a {string} bucket with dot', async function (this: Zenko, versioning: string) {
-    const preName = this.getSaved<string>('accountName') ||
-        this.parameters.AccountName || Constants.ACCOUNT_NAME;
+    const preName = this.getSaved<string>('accountName') || Zenko.ACCOUNT_NAME;
     await createBucket(this, versioning,
         `${preName}.${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase());
 });
 
 Given('a {string} bucket', async function (this: Zenko, versioning: string) {
-    const preName = this.getSaved<string>('accountName') ||
-        this.parameters.AccountName || Constants.ACCOUNT_NAME;
+    const preName = this.getSaved<string>('accountName') || Zenko.ACCOUNT_NAME;
     await createBucket(this, versioning,
         `${preName}${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase());
 });
