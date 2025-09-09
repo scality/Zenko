@@ -174,7 +174,7 @@ export async function createJobAndWaitForCompletion(
             );
         });
     } catch (err: unknown) {
-        world.logger.error('Error creating or waiting for job completion', {
+        world.logger.debug('Error creating or waiting for job completion', {
             jobName,
             err,
         });
@@ -219,7 +219,7 @@ export async function createAndRunPod(
                                 resolve();
                             } else if (phase === 'Failed') {
                                 clearTimeout(timeoutId);
-                                world.logger.error('Pod failed', { 
+                                world.logger.debug('Pod failed', { 
                                     podName, 
                                     status: watchObj.object?.status 
                                 });
@@ -248,7 +248,7 @@ export async function createAndRunPod(
 
         return response.body;
     } catch (err: unknown) {
-        world.logger.error('Failed to create and run pod:', { err });
+        world.logger.debug('Failed to create and run pod:', { err });
         throw new Error(`Failed to create and run pod: ${err}`);
     }
 }
@@ -295,7 +295,7 @@ export async function waitForZenkoToStabilize(
             'zenkos',
             'end2end',
         ).catch(err => {
-            world.logger.error('Error getting Zenko CR', {
+            world.logger.debug('Error getting Zenko CR', {
                 err: err as unknown,
             });
             return null;
@@ -433,7 +433,7 @@ export async function displayCRStatus(world: Zenko, namespace = 'default') {
         'zenkos',
         'end2end',
     ).catch(err => {
-        world.logger.error('Error getting Zenko CR', {
+        world.logger.debug('Error getting Zenko CR', {
             err: err as unknown,
         });
         return null;
@@ -524,7 +524,7 @@ export async function createSecret(
         const response = await coreClient.createNamespacedSecret(namespace, secret);
         return response;
     } catch (err) {
-        world.logger.error('Error creating secret', {
+        world.logger.debug('Error creating secret', {
             namespace,
             secret,
             err,
@@ -612,6 +612,126 @@ export async function getZenkoVersion(
     } catch (err) {
         world.logger.debug('Error getting ZenkoVersion resource', { namespace, err });
         throw err;
+    }
+}
+
+/**
+ * Execute a shell command in a pod with host volume access
+ * Simplified to only support host path mounting for system volumes
+ * @param world - The Zenko world object
+ * @param command - The command to execute
+ * @param options - The options for the command execution
+ * @returns The output of the command
+ */
+export async function execCommandWithVolumeAccess(
+    world: Zenko,
+    command: string,
+    options: {
+        volumeMountPath?: string;
+        hostPath?: string;
+        image?: string;
+        namespace?: string;
+        timeout?: number;
+        cleanup?: boolean;
+    } = {}
+): Promise<string> {
+    const {
+        volumeMountPath = '/cold-data',
+        hostPath = '/cold-data',
+        image = 'alpine:3.22',
+        namespace = 'default',
+        timeout = 30000,
+        cleanup = true,
+    } = options;
+
+    // Generate unique pod name to prevent conflicts between concurrent tests
+    const timestamp = Date.now();
+    const randomId = Math.random().toString(36).substring(2, 8);
+    const testContext = world.getSaved?.('bucketName') || 'test';
+    const podName = `ctst-exec-${testContext}-${timestamp}-${randomId}`.toLowerCase();
+    
+    const podManifest: V1Pod = {
+        apiVersion: 'v1',
+        kind: 'Pod',
+        metadata: {
+            name: podName,
+            namespace,
+            labels: {
+                'app.kubernetes.io/name': 'ctst-command-executor',
+                'app.kubernetes.io/component': 'test-utility',
+                'ctst.test/execution-id': `${timestamp}-${randomId}`
+            }
+        },
+        spec: {
+            restartPolicy: 'Never',
+            securityContext: {
+                runAsNonRoot: false,
+                fsGroup: 0
+            },
+            containers: [{
+                name: 'executor',
+                image,
+                command: ['/bin/sh', '-c', command],
+                securityContext: {
+                    runAsUser: 0,
+                    allowPrivilegeEscalation: false,
+                    readOnlyRootFilesystem: false,
+                    capabilities: {
+                        drop: ['ALL']
+                    }
+                },
+                volumeMounts: [{
+                    name: 'host-volume',
+                    mountPath: volumeMountPath
+                }]
+            }],
+            volumes: [{
+                name: 'host-volume',
+                hostPath: {
+                    path: hostPath,
+                    type: 'DirectoryOrCreate'
+                }
+            }]
+        }
+    };
+
+    try {
+        await createAndRunPod(world, podManifest, true, cleanup, timeout);
+        
+        const coreClient = createKubeCoreClient(world);
+        const logs = await coreClient.readNamespacedPodLog(podName, namespace);
+        
+        return logs.body.trim();
+    } catch (error) {
+        world.logger.debug('Command execution failed', { 
+            command, 
+            podName, 
+            error: error instanceof Error ? error.message : String(error)
+        });
+        throw error;
+    }
+}
+
+/**
+ * Execute command in Kubernetes cluster with host volume access
+ * Designed for concurrent test execution without conflicts
+ * Uses unique pod names and labels for isolation
+ */
+export async function execInCluster(
+    world: Zenko, 
+    command: string,
+    volumeOptions?: Parameters<typeof execCommandWithVolumeAccess>[2]
+): Promise<string> {
+    world.logger.debug('Executing command in cluster', { command });
+    
+    try {
+        return await execCommandWithVolumeAccess(world, command, volumeOptions);
+    } catch (error) {
+        world.logger.debug('Kubernetes command execution failed', {
+            command,
+            error,
+        });
+        throw error;
     }
 }
 
