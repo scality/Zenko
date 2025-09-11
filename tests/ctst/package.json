@@ -9,6 +9,7 @@
   "private": true,
   "dependencies": {
     "@kubernetes/client-node": "^0.21.0",
+    "@types/node": "^18.19.121",
     "@types/proper-lockfile": "^4.1.4",
     "@types/qs": "^6.9.15",
     "assert": "^2.1.0",
@@ -16,9 +17,8 @@
     "kafkajs": "^2.2.4",
     "node-gyp": "^10.2.0",
     "prometheus-query": "^3.4.0",
-    "proper-lockfile": "^4.1.2",
     "qs": "^6.13.0",
-    "scubaclient": "git+https://github.com/scality/scubaclient#^1.1.2",
+    "scubaclient": "git+https://github.com/scality/scubaclient#^1.1.3",
     "werelogs": "scality/werelogs#8.2.2"
   },
   "devDependencies": {
@@ -26,7 +26,7 @@
     "@aws-sdk/client-s3": "^3.583.0",
     "@aws-sdk/client-sts": "^3.583.0",
     "@eslint/compat": "^1.1.1",
-    "cli-testing": "github:scality/cli-testing.git#1.2.4",
+    "cli-testing": "github:scality/cli-testing.git#83e8f3d0636de162390e78012ca8b05b94af8b77",
     "eslint": "^9.9.1",
     "eslint-config-scality": "scality/Guidelines#8.3.0",
     "typescript-eslint": "^8.4.0"

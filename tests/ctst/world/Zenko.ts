@@ -4,8 +4,6 @@ import { AccessKey } from '@aws-sdk/client-iam';
 import { Credentials } from '@aws-sdk/client-sts';
 import { aws4Interceptor } from 'aws4-axios';
 import qs from 'qs';
-import fs from 'fs';
-import lockFile from 'proper-lockfile';
 import Werelogs from 'werelogs';
 import {
     CacheHelper,
@@ -20,6 +18,7 @@ import {
     Utils,
     AWSCredentials,
     Logger,
+    coordinate,
 } from 'cli-testing';
 
 import { extractPropertyFromResults } from '../common/utils';
@@ -644,72 +643,68 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
             if (!Identity.hasIdentity(IdentityEnum.ACCOUNT, accountName)) {
                 Identity.useIdentity(IdentityEnum.ADMIN, site.adminIdentityName);
-                const filePath = `/tmp/account-init-${accountName}.json`;
-                if (!fs.existsSync(filePath)) {
-                    fs.writeFileSync(filePath, JSON.stringify({
-                        ready: false,
-                    }));
-                }
-                let account = null;
-                let releaseLock: (() => Promise<void>) | null = null;
-                try {
-                    releaseLock = await lockFile.lock(filePath, {
-                        stale: Constants.DEFAULT_TIMEOUT / 2,
-                        retries: {
-                            retries: 5,
-                            factor: 3,
-                            minTimeout: 1000,
-                            maxTimeout: 5000,
+                
+                await coordinate(
+                    {
+                        lockName: `account-init-${accountName}`,
+                        timeout: Constants.DEFAULT_TIMEOUT / 2,
+                        logger: CacheHelper.logger,
+                    },
+                    // Work function: executed exactly once
+                    async () => {
+                        try {
+                            await SuperAdmin.createAccount({ accountName });
+                        } catch (err) {
+                            if (!(err as { EntityAlreadyExists: boolean }).EntityAlreadyExists &&
+                                (err as { code: string }).code !== 'EntityAlreadyExists') {
+                                throw err;
+                            }
                         }
-                    });
-
-                    try {
-                        await SuperAdmin.createAccount({ accountName });
-                        /* eslint-disable */
-                    } catch (err: any) {
-                        if (!err.EntityAlreadyExists && err.code !== 'EntityAlreadyExists') {
-                            throw err;
+                    },
+                    // Post-processing function: executed by all workers
+                    async () => {
+                        // Waiting until the account exists, in case of parallel mode.
+                        let remaining = Constants.MAX_ACCOUNT_CHECK_RETRIES;
+                        let account = await SuperAdmin.getAccount({ accountName });
+                        while (!account && remaining > 0) {
+                            await Utils.sleep(500);
+                            account = await SuperAdmin.getAccount({ accountName });
+                            remaining--;
                         }
-                    }
-                } finally {
-                    if (releaseLock) {
-                        await releaseLock();
-                    }
-                }
-                /* eslint-enable */
-                // Waiting until the account exists, in case of parallel mode.
-                let remaining = Constants.MAX_ACCOUNT_CHECK_RETRIES;
-                account = await SuperAdmin.getAccount({ accountName });
-                while (!account && remaining > 0) {
-                    await Utils.sleep(500);
-                    account = await SuperAdmin.getAccount({ accountName });
-                    remaining--;
-                }
-                if (!account) {
-                    throw new Error(`Account ${accountName} not found in site ${siteKey}.`);
-                }
+                        if (!account) {
+                            throw new Error(`Account ${accountName} not found in site ${siteKey}.`);
+                        }
 
-                // Account was found, generate access keys if not provided
-                const accountAccessKeys = Identity.getCredentialsForIdentity(
-                    IdentityEnum.ACCOUNT, accountName) || {
-                    accessKeyId: '',
-                    secretAccessKey: '',
-                };
+                        // Account was found, generate access keys if not provided
+                        const accountAccessKeys = Identity.getCredentialsForIdentity(
+                            IdentityEnum.ACCOUNT, accountName) || {
+                            accessKeyId: '',
+                            secretAccessKey: '',
+                        };
 
-                if (!accountAccessKeys.accessKeyId || !accountAccessKeys.secretAccessKey) {
-                    const accessKeys = await SuperAdmin.generateAccountAccessKey({ accountName });
-                    if (!Utils.isAccessKeys(accessKeys)) {
-                        throw new Error('Failed to generate account access keys for site ${siteKey}');
+                        if (!accountAccessKeys.accessKeyId || !accountAccessKeys.secretAccessKey) {
+                            const accessKeys = await SuperAdmin.generateAccountAccessKey({ accountName });
+                            if (!Utils.isAccessKeys(accessKeys)) {
+                                throw new Error(`Failed to generate account access keys for site ${siteKey}`);
+                            }
+                            accountAccessKeys.accessKeyId = accessKeys.accessKeyId;
+                            accountAccessKeys.secretAccessKey = accessKeys.secretAccessKey;
+                        }
+
+                        CacheHelper.logger.debug('Adding account identity', {
+                            accountName,
+                            accountAccessKeys,
+                        });
+                        Identity.addIdentity(
+                            IdentityEnum.ACCOUNT,
+                            accountName,
+                            accountAccessKeys,
+                            undefined,
+                            true,
+                            true,
+                        );
                     }
-                    accountAccessKeys.accessKeyId = accessKeys.accessKeyId;
-                    accountAccessKeys.secretAccessKey = accessKeys.secretAccessKey;
-                }
-
-                CacheHelper.logger.debug('Adding account identity', {
-                    accountName,
-                    accountAccessKeys,
-                });
-                Identity.addIdentity(IdentityEnum.ACCOUNT, accountName, accountAccessKeys, undefined, true, true);
+                );
             }
         }
 

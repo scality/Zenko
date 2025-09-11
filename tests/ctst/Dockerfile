@@ -1,6 +1,7 @@
 ARG SORBET_TAG=latest
 ARG CTST_TAG=latest
 ARG DRCTL_TAG=latest
+ARG GIT_ACCESS_TOKEN=
 
 FROM ghcr.io/scality/sorbet:$SORBET_TAG AS sorbet
 FROM ghcr.io/scality/zenko-drctl:$DRCTL_TAG AS drctl
@@ -9,7 +10,12 @@ FROM ghcr.io/scality/cli-testing:$CTST_TAG
 COPY package.json /tmp/package.json
 
 USER root
-RUN npm install typescript@5.8.3 -g
+RUN npm install typescript@5.9.2 -g
+
+# Configure git to use the access token for private repositories
+RUN git config --global url.https://x-access-token:${GIT_ACCESS_TOKEN}@github.com/.insteadOf https://github.com/ && \
+    git config --global url.https://x-access-token:${GIT_ACCESS_TOKEN}@github.com/.insteadOf github.com: && \
+    git config --global url.https://x-access-token:${GIT_ACCESS_TOKEN}@github.com/.insteadOf ssh://git@github.com/
 
 # CTST does it if needed, but better to merge dependencies
 # here so we benefit from Docker layer caching

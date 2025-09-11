@@ -54,8 +54,9 @@ kubectl run $POD_NAME \
         --rm \
         --attach=True \
         --image-pull-policy=IfNotPresent \
-        --env=TARGET_VERSION=$VERSION  \
-        --env=AZURE_BLOB_URL=$AZURE_BACKEND_ENDPOINT  \
+        --env=TARGET_VERSION=$VERSION \
+        --env=SEED_KEYCLOAK_DEFAULT_ROLES=true \
+        --env=AZURE_BLOB_URL=$AZURE_BACKEND_ENDPOINT \
         --env=AZURE_QUEUE_URL=$AZURE_BACKEND_QUEUE_ENDPOINT \
         --env=VERBOSE=1 \
         --override-type strategic \

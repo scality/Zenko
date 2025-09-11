@@ -1,8 +1,8 @@
 import Werelogs from 'werelogs';
 import { BeforeAll } from '@cucumber/cucumber';
-import { CacheHelper } from 'cli-testing';
-import lockFile from 'proper-lockfile';
-import * as fs from 'fs';
+import { CacheHelper, coordinate } from 'cli-testing';
+import fs from 'fs';
+import path from 'path';
 import {
     KubeConfig,
     CoreV1Api,
@@ -12,6 +12,7 @@ import {
     V1Pod,
     V1Service,
     V1ClusterRoleBinding,
+    V1ConfigMap,
 } from '@kubernetes/client-node';
 import Zenko, { ZenkoWorldParameters } from 'world/Zenko';
 import { getZenkoCR, waitForDeploymentRollout, waitForZenkoToStabilize } from 'steps/utils/kubernetes';
@@ -44,9 +45,6 @@ type ZenkoInstanceInfo = {
 
 const logger = new Werelogs.Logger('CTST').newRequestLogger();
 
-const SETUP_COMPLETED_FILE = '/tmp/ctst-setup-completed';
-const SETUP_TIMEOUT = 60_000;
-
 function initializeKubernetesClients() {
     const kc = new KubeConfig();
     kc.loadFromDefault();
@@ -57,100 +55,6 @@ function initializeKubernetesClients() {
         appsClient: kc.makeApiClient(AppsV1Api),
         rbacClient: kc.makeApiClient(RbacAuthorizationV1Api),
     };
-}
-
-/**
- * Thread-safe setup coordinator using file locks
- * Ensures only one worker performs setup while others wait
- */
-async function coordinateSetup(parameters: ZenkoWorldParameters): Promise<void> {
-    const workerId = `worker-${process.pid}`;
-
-    if (!fs.existsSync(SETUP_COMPLETED_FILE)) {
-        fs.writeFileSync(SETUP_COMPLETED_FILE, JSON.stringify({
-            ready: false,
-        }));
-    }
-
-    let releaseLock: (() => Promise<void>) | null = null;
-    try {
-        releaseLock = await lockFile.lock(SETUP_COMPLETED_FILE, {
-            stale: SETUP_TIMEOUT,
-            retries: {
-                retries: 5,
-                factor: 3,
-                minTimeout: 1000,
-                maxTimeout: 5000,
-            }
-        });
-
-        const setupData = JSON.parse(fs.readFileSync(SETUP_COMPLETED_FILE, 'utf8'));
-        if (setupData.ready) {
-            logger.info(`${workerId} found setup already completed by ${setupData.completedBy || 'unknown'}`);
-            await extractAndCacheParameters(parameters);
-        } else {
-            logger.info(`${workerId} performing CTST cluster setup...`);
-            await setupClusterConfiguration(parameters);
-            logger.info(`${workerId} setup configuration completed, writing completion file...`);
-            fs.writeFileSync(SETUP_COMPLETED_FILE, JSON.stringify({
-                ready: true,
-                completedBy: workerId,
-                completedAt: new Date().toISOString(),
-                pid: process.pid
-            }));
-            logger.info(`${workerId} extracting and caching parameters...`);
-            await extractAndCacheParameters(parameters);
-            logger.info(`CTST cluster setup completed by ${workerId}`);
-        }
-    } catch (error) {
-        // Only handle lock-related errors with fallback behavior
-        if ((error as { code?: string }).code === 'ELOCKED') {
-            logger.warn(`${workerId} could not acquire lock, waiting
-                for setup completion`, { error: (error as { message?: string }).message });
-            
-            // Poll for completion since another worker is doing the setup
-            let attempts = 0;
-            const maxAttempts = 450; // Wait up to 15 minutes (10min stabilization + 5min buffer)
-            const pollInterval = 2000; // 2 seconds
-            
-            while (attempts < maxAttempts) {
-                try {
-                    const setupData = JSON.parse(fs.readFileSync(SETUP_COMPLETED_FILE, 'utf8'));
-                    if (setupData.ready) {
-                        logger.info(`${workerId} detected setup completion by ${setupData.completedBy},
-                            proceeding with parameter extraction`);
-                        await extractAndCacheParameters(parameters);
-                        return;
-                    }
-                } catch (readError) {
-                    logger.info(`${workerId} could not read setup file, retrying...`, { readError });
-                }
-                
-                attempts++;
-                await new Promise(resolve => setTimeout(resolve, pollInterval));
-            }
-            
-            // If we've waited long enough, try to proceed anyway
-            logger.error(`${workerId} timed out waiting for setup completion,
-                attempting parameter extraction anyway`);
-            try {
-                await extractAndCacheParameters(parameters);
-                return;
-            } catch (fallbackError) {
-                logger.error(`${workerId} fallback parameter extraction also failed`, { fallbackError });
-                throw new Error(`Setup coordination failed: could not acquire lock
-                    and fallback failed. Original lock error: ${(error as { message?: string }).message}`);
-            }
-        } else {
-            // For non-lock errors (actual setup failures), re-throw immediately
-            logger.error(`${workerId} setup failed with non-lock error`, { error });
-            throw error;
-        }
-    } finally {
-        if (releaseLock) {
-            await releaseLock();
-        }
-    }
 }
 
 /**
@@ -192,7 +96,6 @@ async function extractPRACredentials(coreClient: CoreV1Api, parameters: ZenkoWor
     let praAdminSecretKey = parameters.DRAdminSecretKey;
 
     if (parameters.DRSubdomain) {
-        // Check if PRA secret exists and extract credentials in one call
         try {
             const praAdminSecret = await coreClient
                 .readNamespacedSecret('end2end-pra-management-vault-admin-creds.v1', parameters.Namespace);
@@ -203,7 +106,6 @@ async function extractPRACredentials(coreClient: CoreV1Api, parameters: ZenkoWor
         } catch (error) {
             if ((error as { response?: { statusCode?: number } }).response?.statusCode === 404) {
                 logger.info('PRA secret not found, no PRA setup detected - skipping PRA credential extraction');
-                // PRA is not set up, skip entirely and use parameters/defaults
             } else {
                 logger.warn('Error reading PRA secret, skipping PRA credential extraction', {
                     error: (error as { message?: string }).message,
@@ -380,7 +282,6 @@ async function extractZenkoCRInfo(parameters: ZenkoWorldParameters): Promise<Zen
     let utilizationServiceHost = parameters.UtilizationServiceHost;
 
     if (!instanceId || !timeProgressionFactor) {
-        // Zenko world is not yet created in global hooks.
         const zenkoBody = await getZenkoCR({
             parameters,
             logger,
@@ -428,30 +329,16 @@ async function setupClusterConfiguration(parameters: ZenkoWorldParameters): Prom
         setupMockServices(coreClient, parameters),
         setupNotificationTargets(customObjectClient, parameters),
         applyDeploymentModifications(appsClient, parameters),
+        setupStorageLocations(parameters),
     ];
 
     await Promise.allSettled(setupTasks);
 
-    // Setup storage locations after infrastructure is ready
-    logger.info('Infrastructure setup completed, creating storage locations...');
-    await setupStorageLocations();
-
     logger.info('Setup tasks completed, waiting for Zenko to stabilize (up to 10 minutes)...');
+
+    await waitForZenkoToStabilize({ parameters, logger } as Zenko, true, 10 * 60 * 1000, parameters.Namespace);
     
-    // Wait for Zenko deployment to stabilize with proper timeout
-    const stabilizationTimeout = 10 * 60 * 1000; // 10 minutes
-    const stabilizationPromise = waitForZenkoToStabilize({ parameters, logger } as Zenko, true);
-    const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Zenko stabilization timed out after 10 minutes')), stabilizationTimeout);
-    });
-    
-    try {
-        await Promise.race([stabilizationPromise, timeoutPromise]);
-        logger.info('Zenko stabilization completed successfully');
-    } catch (error) {
-        logger.error('Zenko stabilization failed or timed out', { error });
-        throw error; // Let the setup fail if stabilization fails
-    }
+    logger.info('Zenko stabilization completed successfully');
 }
 
 /**
@@ -590,6 +477,60 @@ async function setupKafkaTopics(coreClient: CoreV1Api, parameters: ZenkoWorldPar
 }
 
 /**
+ * Create AWS mock configmap with metadata
+ */
+async function createAwsMockConfigMap(coreClient: CoreV1Api, parameters: ZenkoWorldParameters): Promise<void> {
+    try {
+        // Try to find the tar.gz file in possible locations:
+        // Docker container path (from GitHub workflow copy) is prioritized
+        const possiblePaths = [
+            '/ctst/mock-metadata.tar.gz', // Docker container location
+            path.join(__dirname, '../../../..', '.github/scripts/mocks/aws/mock-metadata.tar.gz'),
+            path.join(process.cwd(), '.github/scripts/mocks/aws/mock-metadata.tar.gz'),
+        ];
+
+        let tarGzPath: string | null = null;
+        for (const tarPath of possiblePaths) {
+            if (fs.existsSync(tarPath)) {
+                tarGzPath = tarPath;
+                break;
+            }
+        }
+
+        if (!tarGzPath) {
+            throw new Error(`AWS mock metadata file not found. Searched paths: ${possiblePaths.join(', ')}`);
+        }
+
+        // Read the tar.gz file and create configmap with it
+        const tarGzContent = fs.readFileSync(tarGzPath);
+        const configMapData = {
+            'mock-metadata.tar.gz': tarGzContent.toString('base64'),
+        };
+        logger.info('Using mock-metadata.tar.gz file', { tarGzPath });
+
+        const awsMockConfigMap: V1ConfigMap = {
+            apiVersion: 'v1',
+            kind: 'ConfigMap',
+            metadata: {
+                name: 'aws-mock',
+                namespace: parameters.Namespace,
+            },
+            binaryData: configMapData,
+        };
+
+        await coreClient.createNamespacedConfigMap(parameters.Namespace, awsMockConfigMap);
+        logger.info('AWS mock configmap created successfully');
+    } catch (error) {
+        if ((error as { response?: { statusCode: number } }).response?.statusCode === 409) {
+            logger.info('AWS mock configmap already exists');
+        } else {
+            logger.error('Failed to create AWS mock configmap', { error });
+            throw error;
+        }
+    }
+}
+
+/**
  * Setup mock services
  */
 async function setupMockServices(coreClient: CoreV1Api, parameters: ZenkoWorldParameters): Promise<void> {
@@ -603,6 +544,8 @@ async function setupMockServices(coreClient: CoreV1Api, parameters: ZenkoWorldPa
         });
         return;
     }
+
+    await createAwsMockConfigMap(coreClient, parameters);
 
     const azureMockService: V1Service = {
         apiVersion: 'v1',
@@ -650,14 +593,101 @@ async function setupMockServices(coreClient: CoreV1Api, parameters: ZenkoWorldPa
         },
     };
 
+    const awsMockService: V1Service = {
+        apiVersion: 'v1',
+        kind: 'Service',
+        metadata: {
+            name: 'aws-mock',
+            namespace: parameters.Namespace,
+        },
+        spec: {
+            selector: { name: 'aws-mock' },
+            type: 'ClusterIP',
+            ports: [
+                { name: 'http', port: 80, targetPort: 'http' },
+            ],
+        },
+    };
+
+    const awsMockPod: V1Pod = {
+        apiVersion: 'v1',
+        kind: 'Pod',
+        metadata: {
+            name: 'aws-mock-pod',
+            namespace: parameters.Namespace,
+            labels: { name: 'aws-mock', component: 'mock' },
+        },
+        spec: {
+            initContainers: [
+                {
+                    name: 'setup',
+                    image: 'zenko/cloudserver:latest',
+                    imagePullPolicy: 'Always',
+                    command: ['tar', '-xvf', '/static-config/mock-metadata.tar.gz', '-C', '/usr/src/app'],
+                    volumeMounts: [
+                        {
+                            name: 'configmap',
+                            mountPath: '/static-config',
+                        },
+                        {
+                            name: 'metadata',
+                            mountPath: '/usr/src/app/localMetadata',
+                        },
+                    ],
+                },
+            ],
+            containers: [
+                {
+                    name: 'aws-mock',
+                    image: 'zenko/cloudserver:latest',
+                    ports: [
+                        { name: 'http', containerPort: 8000 },
+                    ],
+                    env: [
+                        { name: 'LOG_LEVEL', value: 'trace' },
+                        { name: 'REMOTE_MANAGEMENT_DISABLE', value: '1' },
+                        { name: 'ENDPOINT', value: 'aws-mock.zenko.local' },
+                        { name: 'S3BACKEND', value: 'file' },
+                    ],
+                    volumeMounts: [
+                        {
+                            name: 'metadata',
+                            mountPath: '/usr/src/app/localMetadata',
+                        },
+                    ],
+                    resources: {
+                        limits: { cpu: '1', memory: '2Gi' },
+                        requests: { cpu: '1', memory: '2Gi' },
+                    },
+                },
+            ],
+            volumes: [
+                {
+                    name: 'metadata',
+                    emptyDir: {},
+                },
+                {
+                    name: 'configmap',
+                    configMap: {
+                        name: 'aws-mock',
+                    },
+                },
+            ],
+        },
+    };
+
     await Promise.allSettled([
         coreClient.createNamespacedService(parameters.Namespace, azureMockService),
         coreClient.createNamespacedPod(parameters.Namespace, azureMockPod),
+        coreClient.createNamespacedService(parameters.Namespace, awsMockService),
+        coreClient.createNamespacedPod(parameters.Namespace, awsMockPod),
     ]);
 
     logger.info('Mock services deployment initiated', {
         azureMockService,
         azureMockPod,
+        awsMockService,
+        awsMockPod,
     });
 }
 
@@ -762,13 +792,186 @@ async function applyDeploymentModifications(appsClient: AppsV1Api, parameters: Z
 }
 
 /**
- * Setup storage locations - placeholder for future implementation
- * TODO: Implement proper location creation via Management API with Keycloak auth
+ * Setup storage locations via Management API
  */
-async function setupStorageLocations(): Promise<void> {
-    logger.info('Storage location setup placeholder - locations will be created by individual tests');
-    // For now, let individual tests create their own locations as they do currently
-    // This can be enhanced later to create common locations during setup
+async function setupStorageLocations(parameters: ZenkoWorldParameters): Promise<void> {
+    if (!parameters.InstanceID) {
+        logger.info('InstanceID not available, skipping storage location setup');
+        return;
+    }
+
+    logger.info('Setting up storage locations...');
+
+    // Create a minimal Zenko instance for Management API calls
+    const zenkoInstance = {
+        parameters,
+        managementAPIRequest: async (
+            method: string,
+            path: string,
+            headers: Record<string, string> = {},
+            body?: unknown,
+        ) => {
+            const axios = (await import('axios')).default;
+            const baseURL = `http://management.${parameters.subdomain}`;
+            
+            try {
+                const response = await axios({
+                    method,
+                    url: `${baseURL}${path}`,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...headers,
+                    },
+                    data: body,
+                });
+                return { statusCode: response.status, data: response.data };
+            } catch (error: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
+                if (error.response) {
+                    return { statusCode: error.response.status, err: error.response.data };
+                }
+                return { statusCode: 500, err: error.message };
+            }
+        },
+        logger,
+    };
+
+    const locations = [
+        // AWS Backend Source Location
+        {
+            name: 'awsbackend',
+            locationType: 'location-aws-s3-v1',
+            details: {
+                bucketName: 'ci-zenko-aws-target-bucket',
+                endpoint: `aws-mock.${parameters.Namespace}.svc.cluster.local`,
+                accessKey: 'accessKey1',
+                secretKey: 'verySecretKey1',
+                bucketMatch: true,
+                repoId: [],
+            },
+        },
+        // AWS Backend Destination Location (for replication)
+        {
+            name: 'awsbackendmismatch',
+            locationType: 'location-aws-s3-v1',
+            legacyAwsBehavior: true,
+            details: {
+                bucketName: 'ci-zenko-aws-crr-target-bucket',
+                endpoint: `aws-mock.${parameters.Namespace}.svc.cluster.local`,
+                accessKey: 'accessKey1',
+                secretKey: 'verySecretKey1',
+                bucketMatch: false,
+                repoId: [],
+            },
+        },
+        // AWS Backend Fail Location (for failure testing)
+        {
+            name: 'awsbackendfail',
+            locationType: 'location-aws-s3-v1',
+            details: {
+                bucketName: 'ci-zenko-aws-fail-target-bucket',
+                endpoint: `aws-mock.${parameters.Namespace}.svc.cluster.local`,
+                accessKey: 'accessKey1',
+                secretKey: 'verySecretKey1',
+                bucketMatch: true,
+                repoId: [],
+            },
+        },
+        // AWS Backend Replication Fail CTST Location
+        {
+            name: 'awsbackendreplicationctstfail',
+            locationType: 'location-aws-s3-v1',
+            details: {
+                bucketName: 'ci-zenko-aws-replication-fail-ctst-bucket',
+                endpoint: `aws-mock.${parameters.Namespace}.svc.cluster.local`,
+                accessKey: 'accessKey1',
+                secretKey: 'verySecretKey1',
+                bucketMatch: false,
+                repoId: [],
+            },
+        },
+        // Cold Storage Location (used in dmf.feature, quotas.feature, pra.feature)
+        {
+            name: 'e2e-cold',
+            locationType: 'location-dmf-v1',
+            isCold: true,
+            details: {
+                endpoint: 'ws://mock-sorbet:5001/session',
+                username: 'user1',
+                password: 'pass1',
+                repoId: [
+                    '233aead6-1d7b-4647-a7cf-0d3280b5d1d7',
+                    '81e78de8-df11-4acd-8ad1-577ff05a68db',
+                ],
+                nsId: '65f9fd61-42fe-4a68-9ac0-6ba25311cc85',
+            },
+        },
+        // Azure Archive Location (used extensively in azureArchive.feature with hardcoded name)
+        {
+            name: 'e2e-azure-archive',
+            locationType: 'location-azure-archive-v1',
+            isCold: true,
+            details: {
+                // eslint-disable-next-line max-len
+                endpoint: `https://${parameters.AzureAccountName}.blob.azure-mock.${parameters.Namespace}.svc.cluster.local`,
+                bucketName: parameters.AzureArchiveContainer,
+                queue: {
+                    type: 'location-azure-storage-queue-v1',
+                    queueName: parameters.AzureArchiveQueue,
+                    // eslint-disable-next-line max-len
+                    endpoint: `https://${parameters.AzureAccountName}.queue.azure-mock.${parameters.Namespace}.svc.cluster.local`,
+                },
+                auth: {
+                    type: 'location-azure-shared-key',
+                    accountName: parameters.AzureAccountName,
+                    accountKey: parameters.AzureAccountKey,
+                },
+                repoId: ['233aead6-1d7b-4647-a7cf-0d3280b5d1d7'],
+            },
+        },
+    ];
+
+    const creationResults = await Promise.allSettled(
+        locations.map(async location => {
+            try {
+                const result = await zenkoInstance.managementAPIRequest(
+                    'POST',
+                    `/config/${parameters.InstanceID}/location`,
+                    {},
+                    location
+                );
+
+                if (result.statusCode === 201) {
+                    logger.info(`Successfully created location: ${location.name}`);
+                    return { location: location.name, success: true };
+                } else if (result.statusCode === 409) {
+                    logger.info(`Location already exists: ${location.name}`);
+                    return { location: location.name, success: true, existed: true };
+                } else {
+                    logger.error(`Failed to create location ${location.name}`, {
+                        statusCode: result.statusCode,
+                        error: result.err || result.data,
+                    });
+                    return { location: location.name, success: false, error: result.err || result.data };
+                }
+            } catch (error) {
+                logger.error(`Exception creating location ${location.name}`, { error });
+                return { location: location.name, success: false, error };
+            }
+        })
+    );
+
+    // Log results
+    const successful = creationResults.filter(r => r.status === 'fulfilled' && r.value.success);
+    const failed = creationResults.filter(r => r.status === 'rejected' || !r.value?.success);
+
+    logger.info(`Storage location setup completed: ${successful.length} successful, ${failed.length} failed`);
+
+    if (failed.length > 0) {
+        const failedNames = failed.map(r => 
+            r.status === 'fulfilled' ? r.value.location : 'unknown'
+        );
+        logger.warn(`Failed to create locations: ${failedNames.join(', ')}`);
+    }
 }
 
 /**
@@ -809,7 +1012,19 @@ async function setupClusterRBAC(rbacClient: RbacAuthorizationV1Api): Promise<voi
 }
 
 BeforeAll({ timeout: 15 * 60 * 1000 }, async function () {
-    await coordinateSetup(this.parameters as ZenkoWorldParameters);
-    // print the final parameters
+    await coordinate(
+        {
+            lockName: 'ctst-setup',
+            timeout: 15 * 60 * 1000,
+            logger,
+        },
+        async () => {
+            logger.info('Performing CTST cluster setup...');
+            await setupClusterConfiguration(this.parameters as ZenkoWorldParameters);
+        },
+        async () => {
+            await extractAndCacheParameters(this.parameters as ZenkoWorldParameters);
+        }
+    );
     logger.info('Final parameters:', { parameters: this.parameters, cachedParameters: CacheHelper.parameters });
 });
