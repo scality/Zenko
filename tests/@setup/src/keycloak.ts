@@ -39,7 +39,7 @@ async function getKeycloakConfig(k8s: KubernetesClient, namespace: string): Prom
     try {
         // Look for Keycloak service
         const services = await k8s.coreApi.listNamespacedService(namespace);
-        const keycloakService = services.body.items.find(svc =>
+        const keycloakService = services.items.find(svc =>
             svc.metadata?.name?.toLowerCase().includes('keycloak') ||
             svc.metadata?.name?.toLowerCase().includes('auth')
         );
@@ -50,7 +50,7 @@ async function getKeycloakConfig(k8s: KubernetesClient, namespace: string): Prom
 
         // Look for Keycloak admin credentials
         const secrets = await k8s.coreApi.listNamespacedSecret(namespace);
-        const keycloakSecret = secrets.body.items.find(secret =>
+        const keycloakSecret = secrets.items.find(secret =>
             secret.metadata?.name?.toLowerCase().includes('keycloak') &&
             (secret.metadata?.name?.toLowerCase().includes('admin') ||
                 secret.metadata?.name?.toLowerCase().includes('credentials'))

@@ -33,11 +33,11 @@ async function setupAWSBuckets(k8s: KubernetesClient, options: BucketsOptions): 
     const awsSecret = await k8s.coreApi.readNamespacedSecret('aws-mock-credentials', options.namespace);
     const awsConfig = {
         credentials: {
-            accessKeyId: Buffer.from(awsSecret.body.data!['aws-access-key-id'], 'base64').toString(),
-            secretAccessKey: Buffer.from(awsSecret.body.data!['aws-secret-access-key'], 'base64').toString()
-        },
-        region: Buffer.from(awsSecret.body.data!['aws-region'], 'base64').toString(),
-        endpoint: Buffer.from(awsSecret.body.data!['aws-endpoint'], 'base64').toString(),
+        accessKeyId: Buffer.from(awsSecret.data!['aws-access-key-id'], 'base64').toString(),
+        secretAccessKey: Buffer.from(awsSecret.data!['aws-secret-access-key'], 'base64').toString()
+    },
+    region: Buffer.from(awsSecret.data!['aws-region'], 'base64').toString(),
+    endpoint: Buffer.from(awsSecret.data!['aws-endpoint'], 'base64').toString(),
         forcePathStyle: true
     };
 
@@ -105,10 +105,10 @@ async function setupAzureBuckets(k8s: KubernetesClient, options: BucketsOptions)
 
     // Get Azure credentials from mock service
     const azureSecret = await k8s.coreApi.readNamespacedSecret('azure-mock-credentials', options.namespace);
-    const accountName = Buffer.from(azureSecret.body.data!['account-name'], 'base64').toString();
-    const accountKey = Buffer.from(azureSecret.body.data!['account-key'], 'base64').toString();
-    const blobEndpoint = Buffer.from(azureSecret.body.data!['blob-endpoint'], 'base64').toString();
-    const queueEndpoint = Buffer.from(azureSecret.body.data!['queue-endpoint'], 'base64').toString();
+    const accountName = Buffer.from(azureSecret.data!['account-name'], 'base64').toString();
+    const accountKey = Buffer.from(azureSecret.data!['account-key'], 'base64').toString();
+    const blobEndpoint = Buffer.from(azureSecret.data!['blob-endpoint'], 'base64').toString();
+    const queueEndpoint = Buffer.from(azureSecret.data!['queue-endpoint'], 'base64').toString();
 
     const blobSharedKeyCredential = new BlobStorageSharedKeyCredential(accountName, accountKey);
     const queueSharedKeyCredential = new StorageSharedKeyCredential(accountName, accountKey);

@@ -173,7 +173,7 @@ export class KubernetesClient {
         while (Date.now() - startTime < timeoutMs) {
             try {
                 const deployment = await this.appsApi.readNamespacedDeployment(name, namespace);
-                const status = deployment.body.status;
+                const status = deployment.status;
 
                 if (status?.readyReplicas === status?.replicas && status?.replicas && status.replicas > 0) {
                     logger.debug(`Deployment ${name} is ready`);

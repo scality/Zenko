@@ -67,9 +67,12 @@ async function extractAdminCredentials(coreClient: CoreV1Api, parameters: ZenkoW
 
     if (!adminAccessKey || !adminSecretKey) {
         const adminSecret = await coreClient
-            .readNamespacedSecret('end2end-management-vault-admin-creds.v1', parameters.Namespace);
-        adminAccessKey = Buffer.from(adminSecret.body.data?.accessKey || '', 'base64').toString();
-        adminSecretKey = Buffer.from(adminSecret.body.data?.secretKey || '', 'base64').toString();
+            .readNamespacedSecret({
+                name: 'end2end-management-vault-admin-creds.v1',
+                namespace: parameters.Namespace
+            });
+        adminAccessKey = Buffer.from(adminSecret.data?.accessKey || '', 'base64').toString();
+        adminSecretKey = Buffer.from(adminSecret.data?.secretKey || '', 'base64').toString();
     }
 
     const finalAdminAccessKey = adminAccessKey || parameters.AdminAccessKey || 'admin';
@@ -98,10 +101,13 @@ async function extractPRACredentials(coreClient: CoreV1Api, parameters: ZenkoWor
     if (parameters.DRSubdomain) {
         try {
             const praAdminSecret = await coreClient
-                .readNamespacedSecret('end2end-pra-management-vault-admin-creds.v1', parameters.Namespace);
+                .readNamespacedSecret({
+                    name: 'end2end-pra-management-vault-admin-creds.v1',
+                    namespace: parameters.Namespace
+                });
             
-            praAdminAccessKey = Buffer.from(praAdminSecret.body.data?.accessKey || '', 'base64').toString();
-            praAdminSecretKey = Buffer.from(praAdminSecret.body.data?.secretKey || '', 'base64').toString();
+            praAdminAccessKey = Buffer.from(praAdminSecret.data?.accessKey || '', 'base64').toString();
+            praAdminSecretKey = Buffer.from(praAdminSecret.data?.secretKey || '', 'base64').toString();
             logger.info('PRA credentials extracted from Kubernetes secret');
         } catch (error) {
             if ((error as { response?: { statusCode?: number } }).response?.statusCode === 404) {
@@ -137,16 +143,26 @@ async function extractServiceCredentials(coreClient: CoreV1Api, parameters: Zenk
     }
 
     const serviceUserSecrets = await Promise.allSettled([
-        coreClient.listNamespacedSecret(parameters.Namespace, undefined, undefined, undefined, undefined,
-            'app.kubernetes.io/name=backbeat-lcbp-user-creds,app.kubernetes.io/instance=end2end'),
-        coreClient.listNamespacedSecret(parameters.Namespace, undefined, undefined, undefined, undefined,
-            'app.kubernetes.io/name=backbeat-lcc-user-creds,app.kubernetes.io/instance=end2end'),
-        coreClient.listNamespacedSecret(parameters.Namespace, undefined, undefined, undefined, undefined,
-            'app.kubernetes.io/name=backbeat-lcop-user-creds,app.kubernetes.io/instance=end2end'),
-        coreClient.listNamespacedSecret(parameters.Namespace, undefined, undefined, undefined, undefined,
-            'app.kubernetes.io/name=backbeat-qp-user-creds,app.kubernetes.io/instance=end2end'),
-        coreClient.listNamespacedSecret(parameters.Namespace, undefined, undefined, undefined, undefined,
-            'app.kubernetes.io/name=sorbet-fwd-creds,app.kubernetes.io/instance=end2end'),
+        coreClient.listNamespacedSecret({
+            namespace: parameters.Namespace,
+            labelSelector: 'app.kubernetes.io/name=backbeat-lcbp-user-creds,app.kubernetes.io/instance=end2end'
+        }),
+        coreClient.listNamespacedSecret({
+            namespace: parameters.Namespace,
+            labelSelector: 'app.kubernetes.io/name=backbeat-lcc-user-creds,app.kubernetes.io/instance=end2end'
+        }),
+        coreClient.listNamespacedSecret({
+            namespace: parameters.Namespace,
+            labelSelector: 'app.kubernetes.io/name=backbeat-lcop-user-creds,app.kubernetes.io/instance=end2end'
+        }),
+        coreClient.listNamespacedSecret({
+            namespace: parameters.Namespace,
+            labelSelector: 'app.kubernetes.io/name=backbeat-qp-user-creds,app.kubernetes.io/instance=end2end'
+        }),
+        coreClient.listNamespacedSecret({
+            namespace: parameters.Namespace,
+            labelSelector: 'app.kubernetes.io/name=sorbet-fwd-creds,app.kubernetes.io/instance=end2end'
+        }),
     ]);
 
     const credentials: Record<string, ServiceUserCredentials> = {};
@@ -159,18 +175,18 @@ async function extractServiceCredentials(coreClient: CoreV1Api, parameters: Zenk
     ];
 
     serviceCredentialHandlers.forEach(({ index, key, name }) => {
-        if (serviceUserSecrets[index].status === 'fulfilled' && serviceUserSecrets[index].value.body.items.length > 0) {
+        if (serviceUserSecrets[index].status === 'fulfilled' && serviceUserSecrets[index].value.items.length > 0) {
             const data =
-                Buffer.from(serviceUserSecrets[index].value.body.items[0].data?.[key] || '', 'base64').toString();
+                Buffer.from(serviceUserSecrets[index].value.items[0].data?.[key] || '', 'base64').toString();
             credentials[name] = JSON.parse(data) as ServiceUserCredentials;
         }
     });
 
-    if (serviceUserSecrets[4].status === 'fulfilled' && serviceUserSecrets[4].value.body.items.length > 0) {
+    if (serviceUserSecrets[4].status === 'fulfilled' && serviceUserSecrets[4].value.items.length > 0) {
         const sorbetAccessKey =
-            Buffer.from(serviceUserSecrets[4].value.body.items[0].data?.accessKey || '', 'base64').toString();
+            Buffer.from(serviceUserSecrets[4].value.items[0].data?.accessKey || '', 'base64').toString();
         const sorbetSecretKey =
-            Buffer.from(serviceUserSecrets[4].value.body.items[0].data?.secretKey || '', 'base64').toString();
+            Buffer.from(serviceUserSecrets[4].value.items[0].data?.secretKey || '', 'base64').toString();
         credentials['sorbet-fwd-2'] = {
             accessKey: sorbetAccessKey,
             secretKey: sorbetSecretKey,
@@ -199,13 +215,13 @@ async function extractKafkaConfiguration(coreClient: CoreV1Api, parameters: Zenk
 
     if (!kafkaHosts || !backbeatApiHost) {
         configExtractionTasks.push(
-            coreClient.listNamespacedSecret(
-                parameters.Namespace, undefined, undefined, undefined, undefined,
-                'app.kubernetes.io/name=backbeat-config,app.kubernetes.io/instance=end2end'
-            ).then(backbeatConfigSecrets => {
-                if (backbeatConfigSecrets.body.items.length > 0) {
+            coreClient.listNamespacedSecret({
+                namespace: parameters.Namespace,
+                labelSelector: 'app.kubernetes.io/name=backbeat-config,app.kubernetes.io/instance=end2end'
+            }).then(backbeatConfigSecrets => {
+                if (backbeatConfigSecrets.items.length > 0) {
                     const configData = Buffer.from(
-                        backbeatConfigSecrets.body.items[0].data?.['config.json'] || '',
+                        backbeatConfigSecrets.items[0].data?.['config.json'] || '',
                         'base64',
                     ).toString();
                     const config = JSON.parse(configData);
@@ -215,13 +231,13 @@ async function extractKafkaConfiguration(coreClient: CoreV1Api, parameters: Zenk
         );
 
         configExtractionTasks.push(
-            coreClient.listNamespacedSecret(
-                parameters.Namespace, undefined, undefined, undefined, undefined,
-                'app.kubernetes.io/name=connector-cloudserver-config,app.kubernetes.io/instance=end2end'
-            ).then(cloudserverConfigSecrets => {
-                if (cloudserverConfigSecrets.body.items.length > 0) {
+            coreClient.listNamespacedSecret({
+                namespace: parameters.Namespace,
+                labelSelector: 'app.kubernetes.io/name=connector-cloudserver-config,app.kubernetes.io/instance=end2end'
+            }).then(cloudserverConfigSecrets => {
+                if (cloudserverConfigSecrets.items.length > 0) {
                     const cloudserverConfigData = Buffer.from(
-                        cloudserverConfigSecrets.body.items[0].data?.['config.json'] || '',
+                        cloudserverConfigSecrets.items[0].data?.['config.json'] || '',
                         'base64',
                     ).toString();
                     const cloudserverConfig = JSON.parse(cloudserverConfigData);
@@ -234,13 +250,14 @@ async function extractKafkaConfiguration(coreClient: CoreV1Api, parameters: Zenk
 
     if (!kafkaDeadLetterTopic || !kafkaObjectTaskTopic || !kafkaGCRequestTopic) {
         configExtractionTasks.push(
-            coreClient.listNamespacedSecret(
-                parameters.Namespace, undefined, undefined, undefined, undefined,
-                'app.kubernetes.io/name=cold-sorbet-config-e2e-azure-archive,app.kubernetes.io/instance=end2end'
-            ).then(sorbetConfigSecrets => {
-                if (sorbetConfigSecrets.body.items.length > 0) {
+            coreClient.listNamespacedSecret({
+                namespace: parameters.Namespace,
+                // eslint-disable-next-line max-len
+                labelSelector: 'app.kubernetes.io/name=cold-sorbet-config-e2e-azure-archive,app.kubernetes.io/instance=end2end'
+            }).then(sorbetConfigSecrets => {
+                if (sorbetConfigSecrets.items.length > 0) {
                     const sorbetConfigData =
-                        Buffer.from(sorbetConfigSecrets.body.items[0].data?.['config.json'] || '', 'base64').toString();
+                        Buffer.from(sorbetConfigSecrets.items[0].data?.['config.json'] || '', 'base64').toString();
                     const sorbetConfig = JSON.parse(sorbetConfigData);
                     kafkaDeadLetterTopic = kafkaDeadLetterTopic || sorbetConfig['kafka-dead-letter-topic'] || '';
                     kafkaObjectTaskTopic = kafkaObjectTaskTopic || sorbetConfig['kafka-object-task-topic'] || '';
@@ -416,13 +433,13 @@ async function setupKafkaTopics(coreClient: CoreV1Api, parameters: ZenkoWorldPar
     // Extract UUID from backbeat config like the old script
     let uuid = parameters.Namespace;
     try {
-        const backbeatConfigSecrets = await coreClient.listNamespacedSecret(
-            parameters.Namespace, undefined, undefined, undefined, undefined,
-            'app.kubernetes.io/name=backbeat-config,app.kubernetes.io/instance=end2end'
-        );
-        if (backbeatConfigSecrets.body.items.length > 0) {
+        const backbeatConfigSecrets = await coreClient.listNamespacedSecret({
+            namespace: parameters.Namespace,
+            labelSelector: 'app.kubernetes.io/name=backbeat-config,app.kubernetes.io/instance=end2end'
+        });
+        if (backbeatConfigSecrets.items.length > 0) {
             const configData = Buffer.from(
-                backbeatConfigSecrets.body.items[0].data?.['config.json'] || '',
+                backbeatConfigSecrets.items[0].data?.['config.json'] || '',
                 'base64',
             ).toString();
             const config = JSON.parse(configData);
@@ -470,7 +487,7 @@ async function setupKafkaTopics(coreClient: CoreV1Api, parameters: ZenkoWorldPar
         },
     };
 
-    await coreClient.createNamespacedPod(parameters.Namespace, kafkaTopicsPod);
+    await coreClient.createNamespacedPod({ namespace: parameters.Namespace, body: kafkaTopicsPod });
     logger.info('Kafka topics setup initiated', {
         kafkaTopicsPod,
     });
@@ -518,7 +535,7 @@ async function createAwsMockConfigMap(coreClient: CoreV1Api, parameters: ZenkoWo
             binaryData: configMapData,
         };
 
-        await coreClient.createNamespacedConfigMap(parameters.Namespace, awsMockConfigMap);
+        await coreClient.createNamespacedConfigMap({ namespace: parameters.Namespace, body: awsMockConfigMap });
         logger.info('AWS mock configmap created successfully');
     } catch (error) {
         if ((error as { response?: { statusCode: number } }).response?.statusCode === 409) {
@@ -534,11 +551,12 @@ async function createAwsMockConfigMap(coreClient: CoreV1Api, parameters: ZenkoWo
  * Setup mock services
  */
 async function setupMockServices(coreClient: CoreV1Api, parameters: ZenkoWorldParameters): Promise<void> {
-    const existingPods = await coreClient.listNamespacedPod(
-        parameters.Namespace, undefined, undefined, undefined, undefined, 'component=mock'
-    );
+    const existingPods = await coreClient.listNamespacedPod({
+        namespace: parameters.Namespace,
+        labelSelector: 'component=mock'
+    });
 
-    if (existingPods.body.items.length > 0) {
+    if (existingPods.items.length > 0) {
         logger.info('Mock services already deployed', {
             existingPods,
         });
@@ -677,10 +695,10 @@ async function setupMockServices(coreClient: CoreV1Api, parameters: ZenkoWorldPa
     };
 
     await Promise.allSettled([
-        coreClient.createNamespacedService(parameters.Namespace, azureMockService),
-        coreClient.createNamespacedPod(parameters.Namespace, azureMockPod),
-        coreClient.createNamespacedService(parameters.Namespace, awsMockService),
-        coreClient.createNamespacedPod(parameters.Namespace, awsMockPod),
+        coreClient.createNamespacedService({ namespace: parameters.Namespace, body: azureMockService }),
+        coreClient.createNamespacedPod({ namespace: parameters.Namespace, body: azureMockPod }),
+        coreClient.createNamespacedService({ namespace: parameters.Namespace, body: awsMockService }),
+        coreClient.createNamespacedPod({ namespace: parameters.Namespace, body: awsMockPod }),
     ]);
 
     logger.info('Mock services deployment initiated', {
@@ -731,9 +749,13 @@ async function setupNotificationTargets(customObjectClient: CustomObjectsApi, pa
             },
         };
 
-        await customObjectClient.createNamespacedCustomObject(
-            'zenko.io', 'v1alpha2', parameters.Namespace, 'zenkonotificationtargets', notificationTarget
-        ).catch(err => {
+        await customObjectClient.createNamespacedCustomObject({
+            group: 'zenko.io',
+            version: 'v1alpha2',
+            namespace: parameters.Namespace,
+            plural: 'zenkonotificationtargets',
+            body: notificationTarget
+        }).catch(err => {
             if (err.response?.statusCode !== 409) {
                 throw err;
             }
@@ -751,9 +773,10 @@ async function setupNotificationTargets(customObjectClient: CustomObjectsApi, pa
 async function applyDeploymentModifications(appsClient: AppsV1Api, parameters: ZenkoWorldParameters): Promise<void> {
     const deploymentName = 'end2end-connector-cloudserver';
 
-    const deployment = await appsClient.readNamespacedDeployment(deploymentName, parameters.Namespace);
+    // eslint-disable-next-line max-len
+    const deployment = await appsClient.readNamespacedDeployment({ name: deploymentName, namespace: parameters.Namespace });
 
-    const containers = deployment.body.spec?.template?.spec?.containers || [];
+    const containers = deployment.spec?.template?.spec?.containers || [];
     const cloudserverContainer = containers.find(c => c.name === 'cloudserver');
 
     if (!cloudserverContainer) {
@@ -775,13 +798,11 @@ async function applyDeploymentModifications(appsClient: AppsV1Api, parameters: Z
         });
     }
 
-    await appsClient.patchNamespacedDeployment(
-        deploymentName,
-        parameters.Namespace,
-        deployment.body,
-        undefined, undefined, undefined, undefined, undefined,
-        { headers: { 'Content-Type': 'application/merge-patch+json' } }
-    );
+    await appsClient.patchNamespacedDeployment({
+        name: deploymentName,
+        namespace: parameters.Namespace,
+        body: deployment
+    });
 
     await waitForDeploymentRollout(appsClient, deploymentName, parameters.Namespace);
 
@@ -999,7 +1020,7 @@ async function setupClusterRBAC(rbacClient: RbacAuthorizationV1Api): Promise<voi
     };
 
     try {
-        await rbacClient.createClusterRoleBinding(clusterRoleBinding);
+        await rbacClient.createClusterRoleBinding({ body: clusterRoleBinding });
         logger.info('Cluster RBAC binding created successfully');
     } catch (error) {
         if ((error as { response?: { statusCode: number } }).response?.statusCode === 409) {

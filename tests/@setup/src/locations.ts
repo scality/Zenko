@@ -82,7 +82,7 @@ async function getManagementEndpoint(k8s: KubernetesClient, namespace: string): 
     try {
         // Try to find Management API service
         const services = await k8s.coreApi.listNamespacedService(namespace);
-        const mgmtService = services.body.items.find(svc =>
+        const mgmtService = services.items.find(svc =>
             svc.metadata?.name?.includes('management') ||
             svc.metadata?.name?.includes('api') ||
             svc.metadata?.name?.includes('zenko-management')
@@ -106,7 +106,7 @@ async function getManagementCredentials(k8s: KubernetesClient, namespace: string
     try {
         // Look for admin credentials in secrets
         const secrets = await k8s.coreApi.listNamespacedSecret(namespace);
-        const adminSecret = secrets.body.items.find(secret =>
+        const adminSecret = secrets.items.find(secret =>
             secret.metadata?.name?.includes('admin') ||
             secret.metadata?.name?.includes('management') ||
             secret.metadata?.name?.includes('credentials')

@@ -30,7 +30,7 @@ export async function setupRBAC(options: RBACOptions): Promise<void> {
 
     // Get all service accounts in the namespace
     const serviceAccounts = await k8s.coreApi.listNamespacedServiceAccount(options.namespace);
-    const zenkoServiceAccounts = serviceAccounts.body.items.filter(sa =>
+    const zenkoServiceAccounts = serviceAccounts.items.filter(sa =>
         sa.metadata?.name?.includes('zenko') ||
         sa.metadata?.name?.includes('cloudserver') ||
         sa.metadata?.name?.includes('backbeat') ||

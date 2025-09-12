@@ -45,7 +45,7 @@ export async function setupDNS(options: DNSOptions): Promise<void> {
     }
 
     // Parse current Corefile
-    const currentCorefile = coreDnsConfigMap.body.data?.['Corefile'] || '';
+    const currentCorefile = coreDnsConfigMap.data?.['Corefile'] || '';
 
     // Generate rewrite rules for test domains
     const rewriteRules = generateRewriteRules(options.subdomain, options.namespace);
@@ -63,7 +63,7 @@ export async function setupDNS(options: DNSOptions): Promise<void> {
     const updatedConfigMap = {
         ...coreDnsConfigMap.body,
         data: {
-            ...coreDnsConfigMap.body.data,
+            ...coreDnsConfigMap.data,
             'Corefile': newCorefile
         }
     };
@@ -179,10 +179,10 @@ async function restartCoreDNS(k8s: KubernetesClient): Promise<void> {
         const deployment = await k8s.appsApi.readNamespacedDeployment('coredns', 'kube-system');
 
         // Add/update restart annotation to trigger rolling restart
-        const annotations = deployment.body.spec?.template.metadata?.annotations || {};
+        const annotations = deployment.spec?.template.metadata?.annotations || {};
         annotations['kubectl.kubernetes.io/restartedAt'] = new Date().toISOString();
 
-        deployment.body.spec!.template.metadata!.annotations = annotations;
+        deployment.spec!.template.metadata!.annotations = annotations;
 
         await k8s.appsApi.replaceNamespacedDeployment('coredns', 'kube-system', deployment.body);
 
