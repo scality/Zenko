@@ -26,7 +26,7 @@
     "@aws-sdk/client-s3": "^3.583.0",
     "@aws-sdk/client-sts": "^3.583.0",
     "@eslint/compat": "^1.1.1",
-    "cli-testing": "github:scality/cli-testing.git#83e8f3d0636de162390e78012ca8b05b94af8b77",
+    "cli-testing": "github:scality/cli-testing.git#5931b87f9394bec1c1370caf9ba5162cceffac0c",
     "eslint": "^9.9.1",
     "eslint-config-scality": "scality/Guidelines#8.3.0",
     "typescript-eslint": "^8.4.0"
