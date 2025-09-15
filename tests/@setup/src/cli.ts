@@ -4,7 +4,6 @@ import { Command } from 'commander';
 import { setupMocks } from './mocks';
 import { setupBuckets } from './buckets';
 import { setupLocations } from './locations';
-import { setupKeycloak } from './keycloak';
 import { setupDNS } from './dns';
 import { setupRBAC } from './rbac';
 import { logger } from './utils/logger';
@@ -89,18 +88,6 @@ program
     });
 
 program
-    .command('keycloak')
-    .description('Setup Keycloak realm, users, and roles')
-    .action(async () => {
-        const globalOptions = program.opts();
-        await setupKeycloak({
-            namespace: globalOptions.namespace || 'default',
-            instanceId: globalOptions.instanceId,
-            dryRun: globalOptions.dryRun,
-        });
-    });
-
-program
     .command('dns')
     .description('Configure CoreDNS for test domains')
     .action(async () => {
@@ -125,7 +112,7 @@ program
 
 async function runSetup(options: any) {
     try {
-    logger.info('🚀 Starting Zenko test environment setup');
+        logger.info('🚀 Starting Zenko test environment setup');
 
         const tasks = [];
 
@@ -178,39 +165,29 @@ async function runSetup(options: any) {
             });
         }
 
-        if (options.keycloak) {
-            tasks.push({
-                name: 'Keycloak', fn: () => setupKeycloak({
-                    namespace: options.namespace || 'default',
-                    instanceId: options.instanceId,
-                    dryRun: options.dryRun,
-                })
-            });
-        }
-
         for (const task of tasks) {
-      logger.info(`📝 Setting up ${task.name}...`);
-      
-      if (options.dryRun) {
-        logger.info(`  [DRY RUN] Would execute ${task.name} setup`);
-        continue;
-      }
-      
-      try {
-        await task.fn();
-        logger.info(`  ✅ ${task.name} setup completed`);
-      } catch (error) {
-        logger.error(`  ❌ ${task.name} setup failed`, { error: error instanceof Error ? error.message : String(error) });
-        throw error;
-      }
+            logger.info(`📝 Setting up ${task.name}...`);
+
+            if (options.dryRun) {
+                logger.info(`  [DRY RUN] Would execute ${task.name} setup`);
+                continue;
+            }
+
+            try {
+                await task.fn();
+                logger.info(`  ✅ ${task.name} setup completed`);
+            } catch (error) {
+                logger.error(`  ❌ ${task.name} setup failed`, { error: error instanceof Error ? error.message : String(error) });
+                throw error;
+            }
         }
 
-    logger.info('🎉 Zenko test environment setup completed successfully!');
-    
-  } catch (error) {
-    logger.error('💥 Setup failed', { error: error instanceof Error ? error.message : String(error) });
-    process.exit(1);
-  }
+        logger.info('🎉 Zenko test environment setup completed successfully!');
+
+    } catch (error) {
+        logger.error('💥 Setup failed', { error: error instanceof Error ? error.message : String(error) });
+        process.exit(1);
+    }
 }
 
 program.parse();

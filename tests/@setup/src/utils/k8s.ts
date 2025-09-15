@@ -33,15 +33,17 @@ export class KubernetesClient {
 
     async ensureNamespace(namespace: string): Promise<void> {
         try {
-            await this.coreApi.readNamespace(namespace);
+            await this.coreApi.readNamespace({ name: namespace });
             logger.debug(`Namespace ${namespace} exists`);
         } catch (error: any) {
             if (error.response?.statusCode === 404) {
                 logger.info(`Creating namespace ${namespace}`);
                 await this.coreApi.createNamespace({
-                    apiVersion: 'v1',
-                    kind: 'Namespace',
-                    metadata: { name: namespace }
+                    body: {
+                        apiVersion: 'v1',
+                        kind: 'Namespace',
+                        metadata: { name: namespace }
+                    }
                 });
             } else {
                 throw error;
@@ -60,103 +62,109 @@ export class KubernetesClient {
 
         try {
             switch (kind) {
-            case 'Deployment':
-                try {
-                    await this.appsApi.readNamespacedDeployment(
-                        metadata.name,
-                        metadata.namespace || 'default',
-                    );
-                    await this.appsApi.replaceNamespacedDeployment(
-                        metadata.name,
-                        metadata.namespace || 'default',
-                        manifest,
-                    );
-                } catch (error: any) {
-                    if (error.response?.statusCode === 404) {
-                        await this.appsApi.createNamespacedDeployment(
-                            metadata.namespace || 'default',
-                            manifest,
+                case 'Deployment':
+                    try {
+                        await this.appsApi.readNamespacedDeployment(
+                            { name: metadata.name, namespace: metadata.namespace || 'default' }
                         );
-                    } else {
-                        throw error;
-                    }
-                }
-                break;
-
-            case 'Service':
-                try {
-                    await this.coreApi.readNamespacedService(
-                        metadata.name,
-                        metadata.namespace || 'default',
-                    );
-                    await this.coreApi.replaceNamespacedService(
-                        metadata.name,
-                        metadata.namespace || 'default',
-                        manifest,
-                    );
-                } catch (error: any) {
-                    if (error.response?.statusCode === 404) {
-                        await this.coreApi.createNamespacedService(metadata.namespace || 'default', manifest);
-                    } else {
-                        throw error;
-                    }
-                }
-                break;
-
-            case 'ConfigMap':
-                try {
-                    await this.coreApi.readNamespacedConfigMap(
-                        metadata.name,
-                        metadata.namespace || 'default',
-                    );
-                    await this.coreApi.replaceNamespacedConfigMap(
-                        metadata.name,
-                        metadata.namespace || 'default',
-                        manifest,
-                    );
-                } catch (error: any) {
-                    if (error.response?.statusCode === 404) {
-                        await this.coreApi.createNamespacedConfigMap(metadata.namespace || 'default', manifest);
-                    } else {
-                        throw error;
-                    }
-                }
-                break;
-
-            case 'Secret':
-                try {
-                    await this.coreApi.readNamespacedSecret(
-                        metadata.name,
-                        metadata.namespace || 'default',
-                    );
-                    await this.coreApi.replaceNamespacedSecret(
-                        metadata.name,
-                        metadata.namespace || 'default',
-                        manifest,
-                    );
-                } catch (error: any) {
-                    if (error.response?.statusCode === 404) {
-                        await this.coreApi.createNamespacedSecret(
-                            metadata.namespace || 'default',
-                            manifest,
+                        await this.appsApi.replaceNamespacedDeployment(
+                            {
+                                name: metadata.name,
+                                namespace: metadata.namespace || 'default',
+                                body: manifest,
+                            },
                         );
-                    } else {
-                        throw error;
+                    } catch (error: any) {
+                        if (error.response?.statusCode === 404) {
+                            await this.appsApi.createNamespacedDeployment(
+                                metadata.namespace || 'default',
+                                manifest,
+                            );
+                        } else {
+                            throw error;
+                        }
                     }
-                }
-                break;
+                    break;
 
-            default:
-                // Handle custom resources
-                // eslint-disable-next-line no-case-declarations
-                const [group, version] = apiVersion.split('/');
-                await this.customObjectsApi.createNamespacedCustomObject(
-                    group,
-                    version,
-                    metadata.namespace || 'default',
-                    `${kind.toLowerCase()}s`,
-                    manifest
-                );
+                case 'Service':
+                    try {
+                        await this.coreApi.readNamespacedService(
+                            { name: metadata.name, namespace: metadata.namespace || 'default' }
+                        );
+                        await this.coreApi.replaceNamespacedService(
+                            {
+                                name: metadata.name,
+                                namespace: metadata.namespace || 'default',
+                                body: manifest,
+                            },
+                        );
+                    } catch (error: any) {
+                        if (error.response?.statusCode === 404) {
+                            await this.coreApi.createNamespacedService(metadata.namespace || 'default', manifest);
+                        } else {
+                            throw error;
+                        }
+                    }
+                    break;
+
+                case 'ConfigMap':
+                    try {
+                        await this.coreApi.readNamespacedConfigMap(
+                            { name: metadata.name, namespace: metadata.namespace || 'default' }
+                        );
+                        await this.coreApi.replaceNamespacedConfigMap(
+                            {
+                                name: metadata.name,
+                                namespace: metadata.namespace || 'default',
+                                body: manifest,
+                            },
+                        );
+                    } catch (error: any) {
+                        if (error.response?.statusCode === 404) {
+                            await this.coreApi.createNamespacedConfigMap(metadata.namespace || 'default', manifest);
+                        } else {
+                            throw error;
+                        }
+                    }
+                    break;
+
+                case 'Secret':
+                    try {
+                        await this.coreApi.readNamespacedSecret(
+                            { name: metadata.name, namespace: metadata.namespace || 'default' }
+                        );
+                        await this.coreApi.replaceNamespacedSecret(
+                            {
+                                name: metadata.name,
+                                namespace: metadata.namespace || 'default',
+                                body: manifest,
+                            },
+                        );
+                    } catch (error: any) {
+                        if (error.response?.statusCode === 404) {
+                            await this.coreApi.createNamespacedSecret(
+                                metadata.namespace || 'default',
+                                manifest,
+                            );
+                        } else {
+                            throw error;
+                        }
+                    }
+                    break;
+
+                default:
+                    // Handle custom resources
+                    // eslint-disable-next-line no-case-declarations
+                    const [group, version] = apiVersion.split('/');
+                    await this.customObjectsApi.createNamespacedCustomObject(
+                        {
+                            group,
+                            version,
+                            plural: `${kind.toLowerCase()}s`,
+                            body: manifest,
+                            namespace: metadata.namespace || 'default',
+                        },
+                    );
             }
         } catch (error: any) {
             if (error.response?.statusCode === 409) {
@@ -172,7 +180,7 @@ export class KubernetesClient {
 
         while (Date.now() - startTime < timeoutMs) {
             try {
-                const deployment = await this.appsApi.readNamespacedDeployment(name, namespace);
+                const deployment = await this.appsApi.readNamespacedDeployment({ name, namespace });
                 const status = deployment.status;
 
                 if (status?.readyReplicas === status?.replicas && status?.replicas && status.replicas > 0) {

@@ -30,14 +30,17 @@ async function setupAWSBuckets(k8s: KubernetesClient, options: BucketsOptions): 
     logger.info('Creating AWS test buckets');
 
     // Get AWS credentials from mock service
-    const awsSecret = await k8s.coreApi.readNamespacedSecret('aws-mock-credentials', options.namespace);
+    const awsSecret = await k8s.coreApi.readNamespacedSecret({
+        name: 'aws-mock-credentials',
+        namespace: options.namespace,
+    });
     const awsConfig = {
         credentials: {
-        accessKeyId: Buffer.from(awsSecret.data!['aws-access-key-id'], 'base64').toString(),
-        secretAccessKey: Buffer.from(awsSecret.data!['aws-secret-access-key'], 'base64').toString()
-    },
-    region: Buffer.from(awsSecret.data!['aws-region'], 'base64').toString(),
-    endpoint: Buffer.from(awsSecret.data!['aws-endpoint'], 'base64').toString(),
+            accessKeyId: Buffer.from(awsSecret.data!['aws-access-key-id'], 'base64').toString(),
+            secretAccessKey: Buffer.from(awsSecret.data!['aws-secret-access-key'], 'base64').toString()
+        },
+        region: Buffer.from(awsSecret.data!['aws-region'], 'base64').toString(),
+        endpoint: Buffer.from(awsSecret.data!['aws-endpoint'], 'base64').toString(),
         forcePathStyle: true
     };
 
@@ -104,7 +107,10 @@ async function setupAzureBuckets(k8s: KubernetesClient, options: BucketsOptions)
     logger.info('Creating Azure test containers and queues');
 
     // Get Azure credentials from mock service
-    const azureSecret = await k8s.coreApi.readNamespacedSecret('azure-mock-credentials', options.namespace);
+    const azureSecret = await k8s.coreApi.readNamespacedSecret({
+        name: 'azure-mock-credentials',
+        namespace: options.namespace,
+    });
     const accountName = Buffer.from(azureSecret.data!['account-name'], 'base64').toString();
     const accountKey = Buffer.from(azureSecret.data!['account-key'], 'base64').toString();
     const blobEndpoint = Buffer.from(azureSecret.data!['blob-endpoint'], 'base64').toString();

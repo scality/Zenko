@@ -29,7 +29,9 @@ export async function setupRBAC(options: RBACOptions): Promise<void> {
     };
 
     // Get all service accounts in the namespace
-    const serviceAccounts = await k8s.coreApi.listNamespacedServiceAccount(options.namespace);
+    const serviceAccounts = await k8s.coreApi.listNamespacedServiceAccount({
+        namespace: options.namespace,
+    });
     const zenkoServiceAccounts = serviceAccounts.items.filter(sa =>
         sa.metadata?.name?.includes('zenko') ||
         sa.metadata?.name?.includes('cloudserver') ||
@@ -39,11 +41,16 @@ export async function setupRBAC(options: RBACOptions): Promise<void> {
 
     // Apply cluster role
     try {
-        await k8s.rbacApi.createClusterRole(clusterRole);
+        await k8s.rbacApi.createClusterRole({
+            body: clusterRole,
+        });
     } catch (error: any) {
         if (error.response?.statusCode === 409) {
             logger.debug('ClusterRole zenko-test-admin already exists');
-            await k8s.rbacApi.replaceClusterRole('zenko-test-admin', clusterRole);
+            await k8s.rbacApi.replaceClusterRole({
+                name: 'zenko-test-admin',
+                body: clusterRole,
+            });
         } else {
             throw error;
         }
@@ -73,12 +80,17 @@ export async function setupRBAC(options: RBACOptions): Promise<void> {
         };
 
         try {
-            await k8s.rbacApi.createClusterRoleBinding(clusterRoleBinding);
+            await k8s.rbacApi.createClusterRoleBinding({
+                body: clusterRoleBinding,
+            });
             logger.debug(`Created ClusterRoleBinding for ${saName}`);
         } catch (error: any) {
             if (error.response?.statusCode === 409) {
                 logger.debug(`ClusterRoleBinding for ${saName} already exists`);
-                await k8s.rbacApi.replaceClusterRoleBinding(`zenko-test-admin-${saName}`, clusterRoleBinding);
+                await k8s.rbacApi.replaceClusterRoleBinding({
+                    name: `zenko-test-admin-${saName}`,
+                    body: clusterRoleBinding,
+                });
             } else {
                 throw error;
             }
@@ -105,11 +117,16 @@ export async function setupRBAC(options: RBACOptions): Promise<void> {
     };
 
     try {
-        await k8s.rbacApi.createClusterRoleBinding(defaultRoleBinding);
+        await k8s.rbacApi.createClusterRoleBinding({
+            body: defaultRoleBinding,
+        });
     } catch (error: any) {
         if (error.response?.statusCode === 409) {
             logger.debug(`Default ClusterRoleBinding already exists`);
-            await k8s.rbacApi.replaceClusterRoleBinding(`zenko-test-admin-default-${options.namespace}`, defaultRoleBinding);
+            await k8s.rbacApi.replaceClusterRoleBinding({
+                name: `zenko-test-admin-default-${options.namespace}`,
+                body: defaultRoleBinding,
+            });
         } else {
             throw error;
         }

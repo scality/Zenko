@@ -15,7 +15,10 @@ export async function setupDNS(options: DNSOptions): Promise<void> {
     // Get the current CoreDNS ConfigMap
     let coreDnsConfigMap;
     try {
-        coreDnsConfigMap = await k8s.coreApi.readNamespacedConfigMap('coredns', 'kube-system');
+        coreDnsConfigMap = await k8s.coreApi.readNamespacedConfigMap({
+            name: 'coredns',
+            namespace: 'kube-system',
+        });
     } catch (error: any) {
         if (error.response?.statusCode === 404) {
             logger.warn('CoreDNS ConfigMap not found, attempting to find alternative');
@@ -27,7 +30,10 @@ export async function setupDNS(options: DNSOptions): Promise<void> {
 
             for (const alt of alternatives) {
                 try {
-                    coreDnsConfigMap = await k8s.coreApi.readNamespacedConfigMap(alt.name, alt.namespace);
+                    coreDnsConfigMap = await k8s.coreApi.readNamespacedConfigMap({
+                        name: alt.name,
+                        namespace: alt.namespace,
+                    });
                     break;
                 } catch (e) {
                     continue;
@@ -61,14 +67,18 @@ export async function setupDNS(options: DNSOptions): Promise<void> {
 
     // Update the ConfigMap
     const updatedConfigMap = {
-        ...coreDnsConfigMap.body,
+        ...coreDnsConfigMap,
         data: {
             ...coreDnsConfigMap.data,
             'Corefile': newCorefile
         }
     };
 
-    await k8s.coreApi.replaceNamespacedConfigMap('coredns', 'kube-system', updatedConfigMap);
+    await k8s.coreApi.replaceNamespacedConfigMap({
+        name: 'coredns',
+        namespace: 'kube-system',
+        body: updatedConfigMap,
+    });
 
     // Restart CoreDNS deployment to pick up changes
     await restartCoreDNS(k8s);
@@ -176,7 +186,10 @@ function addRewriteRules(currentCorefile: string, rewriteRules: string, subdomai
 async function restartCoreDNS(k8s: KubernetesClient): Promise<void> {
     try {
         // Get CoreDNS deployment
-        const deployment = await k8s.appsApi.readNamespacedDeployment('coredns', 'kube-system');
+        const deployment = await k8s.appsApi.readNamespacedDeployment({
+            name: 'coredns',
+            namespace: 'kube-system',
+        });
 
         // Add/update restart annotation to trigger rolling restart
         const annotations = deployment.spec?.template.metadata?.annotations || {};
@@ -184,7 +197,11 @@ async function restartCoreDNS(k8s: KubernetesClient): Promise<void> {
 
         deployment.spec!.template.metadata!.annotations = annotations;
 
-        await k8s.appsApi.replaceNamespacedDeployment('coredns', 'kube-system', deployment.body);
+        await k8s.appsApi.replaceNamespacedDeployment({
+            name: 'coredns',
+            namespace: 'kube-system',
+            body: deployment,
+        });
 
         logger.debug('CoreDNS deployment restart triggered');
 

@@ -11,7 +11,6 @@ This tool replaces 22+ setup scripts scattered across Bash, Python, and TypeScri
 - **Mock Services**: AWS S3 (CloudServer) and Azure (Azurite) mock deployments
 - **Test Buckets**: Automated creation across AWS, Azure, and Ring providers
 - **Storage Locations**: Management API configuration for all storage backends
-- **Keycloak Setup**: Realm, users, and role configuration
 - **DNS Configuration**: CoreDNS rewrite rules for test domains
 - **RBAC Permissions**: Service account cluster-admin permissions
 
@@ -52,7 +51,7 @@ zenko-setup all --namespace=my-namespace --subdomain=test.local
 
 Skip specific components:
 ```bash
-zenko-setup all --skip-mocks --skip-keycloak
+zenko-setup all --skip-mocks
 ```
 
 ### Individual Components
@@ -67,9 +66,6 @@ zenko-setup buckets --provider=aws
 
 # Storage locations
 zenko-setup locations
-
-# Keycloak realm and users
-zenko-setup keycloak
 
 # DNS configuration
 zenko-setup dns
