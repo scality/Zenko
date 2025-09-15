@@ -3350,9 +3350,9 @@ cli-table3@0.6.5, cli-table3@^0.6.0:
   optionalDependencies:
     "@colors/colors" "1.5.0"
 
-"cli-testing@github:scality/cli-testing.git#5931b87f9394bec1c1370caf9ba5162cceffac0c":
+"cli-testing@github:scality/cli-testing.git#a30c83ed93e14d38cd4397d9393ed64bfed5c369":
   version "1.3.0"
-  resolved "git+ssh://git@github.com/scality/cli-testing.git#5931b87f9394bec1c1370caf9ba5162cceffac0c"
+  resolved "git+ssh://git@github.com/scality/cli-testing.git#a30c83ed93e14d38cd4397d9393ed64bfed5c369"
   dependencies:
     "@aws-crypto/sha256-universal" "^5.2.0"
     "@aws-sdk/client-iam" "^3.879.0"
