@@ -1,259 +1,146 @@
-# Zenko Test Setup CLI
+# Zenko Test Environment Setup
 
-Unified CLI tool for Zenko test environment setup, consolidating all scattered setup scripts into a single TypeScript-based containerized solution.
+Simple scripts to setup and run tests against any Zenko cluster using Kubernetes Jobs.
 
-## Overview
+## Quick Start
 
-This tool replaces 22+ setup scripts scattered across Bash, Python, and TypeScript by providing a single, consistent interface for setting up Zenko test environments.
-
-## Features
-
-- **Mock Services**: AWS S3 (CloudServer) and Azure (Azurite) mock deployments
-- **Test Buckets**: Automated creation across AWS, Azure, and Ring providers
-- **Storage Locations**: Management API configuration for all storage backends
-- **DNS Configuration**: CoreDNS rewrite rules for test domains
-- **RBAC Permissions**: Service account cluster-admin permissions
-
-## Installation
-
-### Container Usage (Recommended)
-
+### 1. Setup Test Environment
 ```bash
-docker run --rm -v ~/.kube:/root/.kube \
-  -e NAMESPACE=default \
-  -e SUBDOMAIN=zenko.local \
-  -e INSTANCE_ID=xyz123 \
-  ghcr.io/scality/zenko-test-setup:latest \
-  all --verbose
+# Using default kubeconfig
+./setup-tests.sh
+
+# Using specific kubeconfig
+./setup-tests.sh /path/to/kubeconfig
+
+# With custom options
+./setup-tests.sh ~/.kube/config --no-metadata --no-tls
 ```
 
-### Local Development
-
+### 2. Run Tests
 ```bash
-# Clone and install
-yarn install
+# Run CTST tests (default)
+./run-tests.sh
 
-# Build
-yarn build
+# Run specific test type
+./run-tests.sh ~/.kube/config ctst
+./run-tests.sh ~/.kube/config e2e
+./run-tests.sh ~/.kube/config smoke
 
-# Run locally
-yarn dev -- all --namespace=default --subdomain=zenko.local
+# Run CTST with specific tags
+./run-tests.sh ~/.kube/config ctst --tags @PRA
+./run-tests.sh ~/.kube/config ctst --tags 'not @PRA'
 ```
-
-## Usage
-
-### Complete Setup
-
-Run all setup tasks:
-```bash
-zenko-setup all --namespace=my-namespace --subdomain=test.local
-```
-
-Skip specific components:
-```bash
-zenko-setup all --skip-mocks
-```
-
-### Individual Components
-
-Setup specific components:
-```bash
-# Mock services only
-zenko-setup mocks --aws-only
-
-# Buckets for specific provider
-zenko-setup buckets --provider=aws
-
-# Storage locations
-zenko-setup locations
-
-# DNS configuration
-zenko-setup dns
-
-# RBAC permissions
-zenko-setup rbac
-```
-
-### Options
-
-Global options available for all commands:
-
-- `--namespace <namespace>`: Kubernetes namespace (default: default)
-- `--subdomain <subdomain>`: DNS subdomain (default: zenko.local)
-- `--instance-id <id>`: Zenko instance ID for role assignments
-- `--kubeconfig <path>`: Path to kubeconfig file
-- `--dry-run`: Show what would be done without executing
-- `--verbose`: Enable verbose logging
 
 ## Environment Variables
 
-Configure via environment variables:
+Set these before running the scripts to customize behavior:
+
+### Setup Configuration
+```bash
+export NAMESPACE="default"              # Kubernetes namespace
+export INSTANCE_ID="end2end"           # Zenko instance name  
+export SUBDOMAIN="zenko.local"         # Base domain for services
+export GIT_ACCESS_TOKEN="your-token"   # For metadata deployment
+export METADATA_NAMESPACE="metadata"   # Metadata service namespace
+export SETUP_IMAGE="ghcr.io/scality/zenko-setup:latest"  # Setup container image
+export LOG_LEVEL="debug"               # Logging verbosity
+export JOB_TIMEOUT="1800"              # Job timeout in seconds
+```
+
+### Test Configuration  
+```bash
+export E2E_IMAGE="ghcr.io/scality/zenko/zenko-e2e:latest"       # E2E test container
+export E2E_CTST_IMAGE="ghcr.io/scality/zenko/zenko-e2e-ctst:latest" # CTST test container
+export OIDC_REALM="zenko"                   # Keycloak realm
+export OIDC_USERNAME="storage_manager"     # Test user
+export OIDC_PASSWORD="123"                 # Test password
+export OIDC_HOST="keycloak.zenko.local"    # Keycloak hostname
+
+# CTST-specific configuration
+export PARALLEL_RUNS="4"                   # Number of parallel test runs
+export RETRIES="3"                         # Test retry count
+export JUNIT_REPORT_PATH="ctst-junit.xml"  # JUnit report path
+export AZURE_ACCOUNT_NAME="devstoreaccount1"  # Azure storage account
+export AZURE_SECRET_KEY="..."              # Azure storage key
+```
+
+## Requirements
+
+- `kubectl` configured to access your cluster
+- Appropriate RBAC permissions in the target cluster (created automatically)
+
+## How It Works
+
+1. **Setup Script** (`./setup-tests.sh`):
+   - Creates RBAC permissions (ServiceAccount + ClusterRoleBinding) 
+   - Runs a Kubernetes Job with the zenko-setup container
+   - Configures buckets, accounts, endpoints, workflows, TLS, etc.
+   - Waits for Zenko to stabilize
+
+2. **Test Script** (`./run-tests.sh`):  
+   - Verifies Zenko is deployed and ready
+   - Runs test containers as Kubernetes Jobs
+   - Streams logs and reports results
+
+Both scripts use Kubernetes Jobs in the cluster - no local Docker required.
+
+## Examples
 
 ```bash
-export NAMESPACE=my-namespace
-export SUBDOMAIN=test.local
-export INSTANCE_ID=abc123
-export KUBECONFIG=/path/to/kubeconfig
-export LOG_LEVEL=debug
-```
+# Setup development environment
+export NAMESPACE="dev-env" 
+export INSTANCE_ID="my-zenko"
+./setup-tests.sh ~/.kube/dev-config
 
-## Container Environment
+# Run CTST tests
+./run-tests.sh ~/.kube/dev-config ctst
 
-The container requires:
+# Run with custom metadata deployment
+export GIT_ACCESS_TOKEN="ghp_xxx"
+export METADATA_NAMESPACE="s3c"
+./setup-tests.sh ~/.kube/prod-config
 
-1. **Kubernetes Access**: Mount kubeconfig or use in-cluster config
-2. **Network Access**: Ability to reach Kubernetes API and services
+# Skip TLS setup
+./setup-tests.sh ~/.kube/config --no-tls
 
-Example with kubeconfig mount:
-```bash
-docker run --rm \
-  -v ~/.kube:/root/.kube:ro \
-  -e NAMESPACE=zenko-test \
-  -e SUBDOMAIN=test.local \
-  ghcr.io/scality/zenko-test-setup:latest \
-  all
-```
-
-Example with in-cluster config (when running in Kubernetes):
-```yaml
-apiVersion: v1
-kind: Pod
-spec:
-  containers:
-  - name: setup
-    image: ghcr.io/scality/zenko-test-setup:latest
-    args: ["all", "--namespace=zenko-test"]
-    env:
-    - name: NAMESPACE
-      value: "zenko-test"
-  serviceAccountName: zenko-setup # with cluster-admin permissions
-```
-
-## Integration Examples
-
-### CTST Integration
-
-Replace existing setup logic:
-```typescript
-// Before: Complex setup in BeforeAll
-beforeAll(async () => {
-  // Call container instead of individual scripts
-  await exec('docker run --rm -v ~/.kube:/root/.kube ghcr.io/scality/zenko-test-setup:latest all');
-  
-  // Keep only info extraction
-  await extractInstanceInfo();
-  await extractCredentials();
-});
-```
-
-### GitHub Workflows
-
-Replace multiple script calls:
-```yaml
-# Before: Multiple script executions
-- name: Setup Mocks
-  run: .github/scripts/end2end/install-mocks.sh
-- name: Setup Keycloak  
-  run: .github/scripts/end2end/keycloak-helper.sh
-
-# After: Single container call
-- name: Setup Test Environment
-  run: |
-    docker run --rm \
-      -v ${{ env.KUBECONFIG }}:/root/.kube/config \
-      -e NAMESPACE=${{ env.NAMESPACE }} \
-      ghcr.io/scality/zenko-test-setup:latest \
-      all --verbose
-```
-
-### Node.js Test Integration
-
-```bash
-# Replace Python scripts
-# Before: python tests/zenko_tests/create_buckets.py
-# After: 
-docker run --rm -v ~/.kube:/root/.kube ghcr.io/scality/zenko-test-setup:latest buckets
-```
-
-## Development
-
-### Project Structure
-
-```
-src/
-├── cli.ts         # Main CLI interface
-├── mocks.ts       # AWS/Azure mock deployment
-├── buckets.ts     # Bucket creation (all providers)
-├── locations.ts   # Storage locations via Management API
-├── keycloak.ts    # Realm/users/roles
-├── dns.ts         # CoreDNS configuration
-├── rbac.ts        # Service account permissions
-└── utils/
-    ├── logger.ts  # Logging utilities
-    └── k8s.ts     # Kubernetes client wrapper
-```
-
-### Building
-
-```bash
-# Install dependencies
-yarn install
-
-# Build TypeScript
-yarn build
-
-# Run tests
-yarn test
-
-# Lint code
-yarn lint
-```
-
-### Container Build
-
-```bash
-# Build container image
-docker build -t zenko-test-setup:latest .
-
-# Test container
-docker run --rm zenko-test-setup:latest --help
+# Setup for remote cluster with custom timeout
+export JOB_TIMEOUT="3600"  # 1 hour
+./setup-tests.sh ~/.kube/remote-cluster-config
+./run-tests.sh ~/.kube/remote-cluster-config e2e
 ```
 
 ## Troubleshooting
 
-### Common Issues
+### Job Failed or Timed Out
+The scripts now automatically show detailed logs and status when jobs fail, including:
+- Job status and description
+- Pod status and details  
+- Complete job logs
 
-1. **Kubeconfig not found**: Ensure kubeconfig is mounted at `/root/.kube/config`
-2. **Permission denied**: Service account needs cluster-admin permissions
-3. **DNS changes not applied**: CoreDNS pods may need manual restart
-4. **Management API unavailable**: Check Zenko deployment status
-
-### Debug Mode
-
-Enable verbose logging:
 ```bash
-zenko-setup all --verbose
+# Check job status manually if needed
+kubectl get jobs -n ${NAMESPACE} -l app=zenko-setup
+
+# Get job logs manually if needed
+kubectl logs job/zenko-setup-123456 -n ${NAMESPACE}
+
+# Delete failed jobs
+kubectl delete jobs -n ${NAMESPACE} -l app=zenko-setup
 ```
 
-Check container logs:
+### RBAC Issues
 ```bash
-docker logs <container-id>
+# Verify service account exists
+kubectl get serviceaccount zenko-setup -n ${NAMESPACE}
+
+# Check cluster role binding
+kubectl get clusterrolebinding zenko-setup
 ```
 
-### Dry Run
+### Remote Cluster Setup
+For remote clusters, ensure:
+- Your kubeconfig has proper credentials
+- Network connectivity to the cluster
+- Sufficient RBAC permissions in the target namespace
 
-Test what would be executed:
-```bash
-zenko-setup all --dry-run --verbose
-```
-
-## Contributing
-
-1. Follow TypeScript best practices
-2. Add tests for new functionality  
-3. Update documentation
-4. Ensure container builds successfully
-
-## License
-
-Apache License 2.0
+The scripts will automatically create the needed ServiceAccount and ClusterRoleBinding.

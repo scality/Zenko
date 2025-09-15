@@ -53,7 +53,7 @@ done
 (
     cd .github/scripts/end2end
 
-    bash configure-e2e-ctst.sh
+    bash configure-hosts.sh
 )
 
 docker image prune -af

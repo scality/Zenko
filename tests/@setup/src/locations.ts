@@ -1,11 +1,13 @@
 import axios from 'axios';
+import * as fs from 'fs';
+import * as path from 'path';
 import { KubernetesClient } from './utils/k8s';
 import { logger } from './utils/logger';
 
 export interface LocationsOptions {
     namespace: string;
     instanceId?: string;
-    dryRun?: boolean;
+    configFile?: string;
 }
 
 interface StorageLocation {
@@ -14,62 +16,49 @@ interface StorageLocation {
     details: any;
 }
 
+interface LocationsConfig {
+    locations: StorageLocation[];
+}
+
+function loadLocationsConfig(configFile?: string): LocationsConfig {
+    const defaultConfigPath = path.join(__dirname, '..', 'configs', 'locations.json');
+    const configPath = configFile ? path.resolve(configFile) : defaultConfigPath;
+
+    if (!fs.existsSync(configPath)) {
+        throw new Error(`Locations configuration file not found: ${configPath}`);
+    }
+
+    try {
+        const configData = fs.readFileSync(configPath, 'utf-8');
+        return JSON.parse(configData) as LocationsConfig;
+    } catch (error) {
+        throw new Error(`Failed to parse locations configuration: ${error instanceof Error ? error.message : String(error)}`);
+    }
+}
+
 export async function setupLocations(options: LocationsOptions): Promise<void> {
     const k8s = new KubernetesClient();
 
     logger.info('Setting up storage locations via Management API');
 
+    // Load locations configuration
+    const config = loadLocationsConfig(options.configFile);
+
     // Get Management API endpoint and credentials
     const managementEndpoint = await getManagementEndpoint(k8s, options.namespace);
     const credentials = await getManagementCredentials(k8s, options.namespace);
 
-    const locations: StorageLocation[] = [
-        {
-            name: 'aws-s3-mock',
-            locationType: 'location-s3-v1',
-            details: {
-                endpoint: `http://cloudserver-mock.${options.namespace}.svc.cluster.local:8000`,
-                bucketName: 'ci-zenko-aws-target-bucket',
-                accessKey: 'accessKey1',
-                secretKey: 'verySecretKey1',
-                bucketMatch: false,
-                pathStyle: true
-            }
-        },
-        {
-            name: 'azure-blob-mock',
-            locationType: 'location-azure-v1',
-            details: {
-                endpoint: `http://azurite-mock.${options.namespace}.svc.cluster.local:10000/devstoreaccount1`,
-                containerName: 'ci-zenko-azure-target-container',
-                accountName: 'devstoreaccount1',
-                accountKey: 'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw=='
-            }
-        },
-        {
-            name: 'dmf-tape',
-            locationType: 'location-dmf-v1',
-            details: {
-                endpoint: 'http://dmf-service:7778',
-                repoId: ['repoId'],
-                nsId: 'nsId',
-                username: 'username',
-                password: 'password'
-            }
-        },
-        {
-            name: 'ring-s3c',
-            locationType: 'location-s3-v1',
-            details: {
-                endpoint: 'http://ring-s3c:8080',
-                bucketName: 'ci-zenko-ring-target-bucket',
-                accessKey: 'ring-access-key',
-                secretKey: 'ring-secret-key',
-                bucketMatch: false,
-                pathStyle: true
-            }
+    // Process locations and replace namespace placeholders
+    const locations: StorageLocation[] = config.locations.map(location => ({
+        ...location,
+        details: {
+            ...location.details,
+            endpoint: location.details.endpoint?.replace('{namespace}', options.namespace)
         }
-    ];
+    }));
+
+
+    // Create locations via Management API
 
     for (const location of locations) {
         await createStorageLocation(managementEndpoint, credentials, location);

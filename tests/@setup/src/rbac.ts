@@ -3,7 +3,6 @@ import { logger } from './utils/logger';
 
 export interface RBACOptions {
     namespace: string;
-    dryRun?: boolean;
 }
 
 export async function setupRBAC(options: RBACOptions): Promise<void> {

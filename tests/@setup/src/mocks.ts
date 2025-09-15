@@ -7,7 +7,6 @@ export interface MocksOptions {
     instanceId?: string;
     awsOnly?: boolean;
     azureOnly?: boolean;
-    dryRun?: boolean;
 }
 
 export async function setupMocks(options: MocksOptions): Promise<void> {

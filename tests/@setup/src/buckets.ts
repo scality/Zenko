@@ -3,30 +3,92 @@ import { BlobServiceClient, StorageSharedKeyCredential as BlobStorageSharedKeyCr
 import { QueueServiceClient, StorageSharedKeyCredential } from '@azure/storage-queue';
 import { KubernetesClient } from './utils/k8s';
 import { logger } from './utils/logger';
+import * as fs from 'fs';
+import * as path from 'path';
+
+export interface BucketObject {
+    key: string;
+    body: string;
+}
+
+export interface AWSBucket {
+    name: string;
+    versioning: boolean;
+    objects: BucketObject[];
+}
+
+export interface AzureBlob {
+    name: string;
+    content: string;
+}
+
+export interface AzureContainer {
+    name: string;
+    blobs: AzureBlob[];
+}
+
+export interface AzureQueue {
+    name: string;
+}
+
+export interface RingBucket {
+    name: string;
+    objects: BucketObject[];
+}
+
+export interface BucketsConfig {
+    aws: {
+        buckets: AWSBucket[];
+    };
+    azure: {
+        containers: AzureContainer[];
+        queues: AzureQueue[];
+    };
+    ring: {
+        buckets: RingBucket[];
+    };
+}
 
 export interface BucketsOptions {
     namespace: string;
     provider?: 'aws' | 'azure' | 'ring';
-    dryRun?: boolean;
+    configFile?: string;
+}
+
+function loadBucketsConfig(configFile?: string): BucketsConfig {
+    const defaultConfigPath = path.join(__dirname, '..', 'configs', 'buckets.json');
+    const configPath = configFile ? path.resolve(configFile) : defaultConfigPath;
+    
+    if (!fs.existsSync(configPath)) {
+        throw new Error(`Buckets configuration file not found: ${configPath}`);
+    }
+    
+    try {
+        const configData = fs.readFileSync(configPath, 'utf-8');
+        return JSON.parse(configData) as BucketsConfig;
+    } catch (error) {
+        throw new Error(`Failed to parse buckets configuration: ${error instanceof Error ? error.message : String(error)}`);
+    }
 }
 
 export async function setupBuckets(options: BucketsOptions): Promise<void> {
     const k8s = new KubernetesClient();
+    const config = loadBucketsConfig(options.configFile);
 
     if (!options.provider || options.provider === 'aws') {
-        await setupAWSBuckets(k8s, options);
+        await setupAWSBuckets(k8s, options, config.aws.buckets);
     }
 
     if (!options.provider || options.provider === 'azure') {
-        await setupAzureBuckets(k8s, options);
+        await setupAzureBuckets(k8s, options, config.azure);
     }
 
     if (!options.provider || options.provider === 'ring') {
-        await setupRingBuckets(k8s, options);
+        await setupRingBuckets(k8s, options, config.ring.buckets);
     }
 }
 
-async function setupAWSBuckets(k8s: KubernetesClient, options: BucketsOptions): Promise<void> {
+async function setupAWSBuckets(k8s: KubernetesClient, options: BucketsOptions, buckets: AWSBucket[]): Promise<void> {
     logger.info('Creating AWS test buckets');
 
     // Get AWS credentials from mock service
@@ -46,55 +108,40 @@ async function setupAWSBuckets(k8s: KubernetesClient, options: BucketsOptions): 
 
     const s3Client = new S3Client(awsConfig);
 
-    // Standard test buckets
-    const buckets = [
-        'ci-zenko-aws-source-bucket',
-        'ci-zenko-aws-target-bucket',
-        'ci-zenko-aws-versioned-bucket',
-        'ci-zenko-aws-lifecycle-bucket',
-        'ci-zenko-aws-replication-bucket',
-        'ci-zenko-aws-notification-bucket'
-    ];
-
-    for (const bucketName of buckets) {
+    for (const bucket of buckets) {
         try {
-            await s3Client.send(new CreateBucketCommand({ Bucket: bucketName }));
-            logger.debug(`Created bucket: ${bucketName}`);
+            await s3Client.send(new CreateBucketCommand({ Bucket: bucket.name }));
+            logger.debug(`Created bucket: ${bucket.name}`);
 
-            // Enable versioning on versioned and replication buckets
-            if (bucketName.includes('versioned') || bucketName.includes('replication')) {
+            // Enable versioning if specified
+            if (bucket.versioning) {
                 await s3Client.send(new PutBucketVersioningCommand({
-                    Bucket: bucketName,
+                    Bucket: bucket.name,
                     VersioningConfiguration: {
                         Status: 'Enabled'
                     }
                 }));
-                logger.debug(`Enabled versioning on: ${bucketName}`);
+                logger.debug(`Enabled versioning on: ${bucket.name}`);
             }
 
-            // Add test objects to source bucket
-            if (bucketName.includes('source')) {
-                const testObjects = [
-                    { Key: 'test-object-1.txt', Body: 'Test content 1' },
-                    { Key: 'test-object-2.txt', Body: 'Test content 2' },
-                    { Key: 'folder/nested-object.txt', Body: 'Nested content' }
-                ];
-
-                for (const obj of testObjects) {
-                    await s3Client.send(new PutObjectCommand({
-                        Bucket: bucketName,
-                        Key: obj.Key,
-                        Body: obj.Body
-                    }));
-                }
-                logger.debug(`Added test objects to: ${bucketName}`);
+            // Add test objects from configuration
+            for (const obj of bucket.objects) {
+                await s3Client.send(new PutObjectCommand({
+                    Bucket: bucket.name,
+                    Key: obj.key,
+                    Body: obj.body
+                }));
+            }
+            
+            if (bucket.objects.length > 0) {
+                logger.debug(`Added ${bucket.objects.length} test objects to: ${bucket.name}`);
             }
 
         } catch (error: any) {
             if (error.name === 'BucketAlreadyOwnedByYou' || error.name === 'BucketAlreadyExists') {
-                logger.debug(`Bucket ${bucketName} already exists`);
+                logger.debug(`Bucket ${bucket.name} already exists`);
             } else {
-                logger.error(`Failed to create bucket ${bucketName}: ${error.message}`);
+                logger.error(`Failed to create bucket ${bucket.name}: ${error.message}`);
                 throw error;
             }
         }
@@ -103,7 +150,7 @@ async function setupAWSBuckets(k8s: KubernetesClient, options: BucketsOptions): 
     logger.info(`Created ${buckets.length} AWS test buckets`);
 }
 
-async function setupAzureBuckets(k8s: KubernetesClient, options: BucketsOptions): Promise<void> {
+async function setupAzureBuckets(k8s: KubernetesClient, options: BucketsOptions, azureConfig: { containers: AzureContainer[]; queues: AzureQueue[] }): Promise<void> {
     logger.info('Creating Azure test containers and queues');
 
     // Get Azure credentials from mock service
@@ -122,76 +169,59 @@ async function setupAzureBuckets(k8s: KubernetesClient, options: BucketsOptions)
     // Setup blob containers
     const blobServiceClient = new BlobServiceClient(blobEndpoint, blobSharedKeyCredential);
 
-    const containers = [
-        'ci-zenko-azure-source-container',
-        'ci-zenko-azure-target-container',
-        'ci-zenko-azure-archive-container',
-        'ci-zenko-azure-lifecycle-container'
-    ];
-
-    for (const containerName of containers) {
+    for (const container of azureConfig.containers) {
         try {
-            const containerClient = blobServiceClient.getContainerClient(containerName);
+            const containerClient = blobServiceClient.getContainerClient(container.name);
             await containerClient.create();
-            logger.debug(`Created container: ${containerName}`);
+            logger.debug(`Created container: ${container.name}`);
 
-            // Add test blobs to source container
-            if (containerName.includes('source')) {
-                const testBlobs = [
-                    { name: 'test-blob-1.txt', content: 'Azure test content 1' },
-                    { name: 'test-blob-2.txt', content: 'Azure test content 2' },
-                    { name: 'folder/nested-blob.txt', content: 'Azure nested content' }
-                ];
-
-                for (const blob of testBlobs) {
-                    const blockBlobClient = containerClient.getBlockBlobClient(blob.name);
-                    await blockBlobClient.upload(blob.content, blob.content.length);
-                }
-                logger.debug(`Added test blobs to: ${containerName}`);
+            // Add blobs from configuration
+            for (const blob of container.blobs) {
+                const blockBlobClient = containerClient.getBlockBlobClient(blob.name);
+                await blockBlobClient.upload(blob.content, blob.content.length);
+            }
+            
+            if (container.blobs.length > 0) {
+                logger.debug(`Added ${container.blobs.length} test blobs to: ${container.name}`);
             }
 
         } catch (error: any) {
             if (error.statusCode === 409) {
-                logger.debug(`Container ${containerName} already exists`);
+                logger.debug(`Container ${container.name} already exists`);
             } else {
-                logger.error(`Failed to create container ${containerName}: ${error.message}`);
+                logger.error(`Failed to create container ${container.name}: ${error.message}`);
                 throw error;
             }
         }
     }
 
-    // Setup queues for notification testing
+    // Setup queues from configuration
     const queueServiceClient = new QueueServiceClient(queueEndpoint, queueSharedKeyCredential);
 
-    const queues = [
-        'ci-zenko-azure-notifications-queue',
-        'ci-zenko-azure-status-queue'
-    ];
-
-    for (const queueName of queues) {
+    for (const queue of azureConfig.queues) {
         try {
-            const queueClient = queueServiceClient.getQueueClient(queueName);
+            const queueClient = queueServiceClient.getQueueClient(queue.name);
             await queueClient.create();
-            logger.debug(`Created queue: ${queueName}`);
+            logger.debug(`Created queue: ${queue.name}`);
         } catch (error: any) {
             if (error.statusCode === 409) {
-                logger.debug(`Queue ${queueName} already exists`);
+                logger.debug(`Queue ${queue.name} already exists`);
             } else {
-                logger.error(`Failed to create queue ${queueName}: ${error.message}`);
+                logger.error(`Failed to create queue ${queue.name}: ${error.message}`);
                 throw error;
             }
         }
     }
 
-    logger.info(`Created ${containers.length} Azure containers and ${queues.length} queues`);
+    logger.info(`Created ${azureConfig.containers.length} Azure containers and ${azureConfig.queues.length} queues`);
 }
 
-async function setupRingBuckets(k8s: KubernetesClient, options: BucketsOptions): Promise<void> {
+async function setupRingBuckets(k8s: KubernetesClient, options: BucketsOptions, buckets: RingBucket[]): Promise<void> {
     logger.info('Creating Ring/S3C test buckets');
 
     // Ring buckets are typically created through S3 API against Ring storage
     // This would require Ring/S3C credentials and endpoint configuration
-    // For now, create a placeholder configuration
+    // For now, create a configuration based on the input buckets
 
     const ringConfig = {
         apiVersion: 'v1',
@@ -201,15 +231,14 @@ async function setupRingBuckets(k8s: KubernetesClient, options: BucketsOptions):
             namespace: options.namespace
         },
         data: {
-            'buckets.json': JSON.stringify([
-                'ci-zenko-ring-source-bucket',
-                'ci-zenko-ring-target-bucket',
-                'ci-zenko-ring-archive-bucket'
-            ], null, 2)
+            'buckets.json': JSON.stringify(buckets.map(bucket => ({
+                name: bucket.name,
+                objects: bucket.objects
+            })), null, 2)
         }
     };
 
     await k8s.applyManifest(ringConfig, options.namespace);
 
-    logger.info('Ring bucket configuration created (actual buckets require Ring/S3C setup)');
+    logger.info(`Ring bucket configuration created for ${buckets.length} buckets (actual buckets require Ring/S3C setup)`);
 }

@@ -59,5 +59,5 @@ this can be used to check if CTST is working properly
 >
 > Some tests may require some additional configuration before running the tests.
 >
-> Please refer to `.github/scripts/end2end/configure-e2e-ctst.sh` to see the configuration applied
+> Please refer to `.github/scripts/end2end/configure-hosts.sh` to see the configuration applied
 in the CI for CTST tests.

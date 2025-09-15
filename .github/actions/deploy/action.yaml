@@ -7,10 +7,6 @@ inputs:
     description: "The tag of the Zenko Operator image to use"
     required: false
     default: ""
-  deploy_metadata:
-    description: "Deploy a metadata cluster alongside Zenko"
-    required: false
-    default: "false"
 runs:
   using: composite
   steps:
@@ -62,14 +58,6 @@ runs:
       shell: bash
       run: bash deploy-zenko.sh end2end default
       working-directory: ./.github/scripts/end2end
-    - name: Add Keycloak user and assign StorageManager role
-      shell: bash
-      run: bash keycloak-helper.sh set-user-instance-ids default
-      working-directory: ./.github/scripts/end2end
-    - name: Start external service mocks
-      shell: bash
-      run: bash install-mocks.sh "default"
-      working-directory: ./.github/scripts/end2end
     - name: Start mock sorbet service
       shell: bash
       run: sh tests/smoke/deploy-sorbet-resources.sh end2end
@@ -84,14 +72,9 @@ runs:
       env:
         SORBETD_NAME: mock-miria
       working-directory: ./.github/scripts/end2end/operator
-    - name: Deploy metadata
+    - name: Configure DNS for CTST
       shell: bash
-      run: ./deploy-metadata.sh
-      working-directory: ./.github/scripts/end2end
-      if: ${{ inputs.deploy_metadata == 'true' }}
-    - name: End-to-end configuration
-      shell: bash
-      run: bash configure-e2e.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "default"
+      run: bash configure-hosts.sh
       working-directory: ./.github/scripts/end2end
     - name: Linting
       shell: bash

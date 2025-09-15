@@ -1,215 +1,155 @@
+import * as fs from 'fs';
+import * as path from 'path';
 import { KubernetesClient } from './utils/k8s';
 import { logger } from './utils/logger';
 
 export interface DNSOptions {
     namespace: string;
-    subdomain: string;
-    dryRun?: boolean;
+    subdomain?: string;
 }
 
-export async function setupDNS(options: DNSOptions): Promise<void> {
-    const k8s = new KubernetesClient();
+// Define interfaces for our JSON configuration files for type safety
+interface Location {
+    details: {
+        endpoint: string;
+        bucketName?: string;
+    };
+}
+interface Endpoint {
+    hostname: string;
+}
 
-    logger.info('Setting up CoreDNS configuration for test domains');
+/**
+ * Generates rewrite rules from the provided JSON config files.
+ * @returns A string containing all the dynamic rewrite rules.
+ */
+function generateDynamicRules(): string {
+    const configDir = path.join(__dirname, '..', 'config');
+    const locations: { locations: Location[] } = JSON.parse(fs.readFileSync(path.join(configDir, 'locations.json'), 'utf8'));
+    const endpoints: { endpoints: Endpoint[] } = JSON.parse(fs.readFileSync(path.join(configDir, 'endpoints.json'), 'utf8'));
 
-    // Get the current CoreDNS ConfigMap
-    let coreDnsConfigMap;
+    const rules: string[] = [];
+    const destination = 'ingress-nginx-controller.ingress-nginx.svc.cluster.local';
+
+    // This mapping helps create bucket-specific hostnames based on the endpoint.
+    const mockServiceMap: { [key: string]: string } = {
+        'cloudserver-mock': 'aws-mock.zenko.local',
+        'azurite-mock': 'azure-mock.zenko.local',
+    };
+
+    // 1. Generate rules from locations.json for bucket-specific hostnames
+    for (const loc of locations.locations) {
+        if (!loc.details.bucketName) continue;
+
+        for (const serviceKey in mockServiceMap) {
+            if (loc.details.endpoint.includes(serviceKey)) {
+                const publicDomain = mockServiceMap[serviceKey];
+                const source = `${loc.details.bucketName}.${publicDomain}`;
+                rules.push(`    rewrite name exact ${source} ${destination}`);
+                break; // Move to the next location once a match is found
+            }
+        }
+    }
+
+    // 2. Generate rules from endpoints.json
+    for (const ep of endpoints.endpoints) {
+        rules.push(`    rewrite name exact ${ep.hostname} ${destination}`);
+    }
+
+    if (rules.length > 0) {
+        return `# Dynamically generated rules\n` + rules.join('\n');
+    }
+    return '# No dynamic rules generated';
+}
+
+/**
+ * Reads the template and injects dynamic rules to create the final Corefile.
+ * @param options - Contains the namespace for placeholder replacement.
+ * @returns The complete and final Corefile content as a string.
+ */
+function generateCorefile(options: DNSOptions): string {
+    const templatePath = path.join(__dirname, '..', 'config', 'dns.conf');
+    const corefileTemplate = fs.readFileSync(templatePath, 'utf8');
+    
+    const dynamicRules = generateDynamicRules();
+
+    // Replace placeholders in the template
+    const finalCorefile = corefileTemplate
+        .replace('{{dynamic_rules}}', dynamicRules)
+        .replace(/{namespace}/g, options.namespace); // Replace any namespace placeholders if they exist
+
+    return finalCorefile;
+}
+
+/**
+ * Restarts the CoreDNS deployment to apply configuration changes.
+ */
+async function restartCoreDNS(k8s: KubernetesClient): Promise<void> {
     try {
-        coreDnsConfigMap = await k8s.coreApi.readNamespacedConfigMap({
+        logger.debug('Attempting to restart CoreDNS deployment...');
+        const patch = [
+            {
+                op: 'add',
+                path: '/spec/template/metadata/annotations/kubectl.kubernetes.io~1restartedAt',
+                value: new Date().toISOString(),
+            },
+        ];
+
+        await k8s.appsApi.patchNamespacedDeployment({
             name: 'coredns',
             namespace: 'kube-system',
+            body: patch,
         });
+
+        logger.info('CoreDNS deployment restart triggered.');
+        await k8s.waitForDeployment('coredns', 'kube-system', 60000); 
+        logger.info('CoreDNS deployment is ready.');
+    } catch (error: any) {
+        const errorBody = error.response ? JSON.stringify(error.response.body) : error.message;
+        logger.warn(`Could not restart CoreDNS deployment: ${errorBody}. A manual restart may be needed.`);
+    }
+}
+
+/**
+ * Main function to set up DNS by overwriting the CoreDNS ConfigMap.
+ */
+export async function setupDNS(options: DNSOptions): Promise<void> {
+    const k8s = new KubernetesClient();
+    const configMapName = 'coredns';
+    const configMapNamespace = 'kube-system';
+
+    logger.info('Generating CoreDNS configuration...');
+    const newCorefile = generateCorefile(options);
+
+    const configMapBody = {
+        apiVersion: 'v1',
+        kind: 'ConfigMap',
+        metadata: { name: configMapName, namespace: configMapNamespace },
+        data: { 'Corefile': newCorefile },
+    };
+
+    logger.info(`Applying CoreDNS ConfigMap to ${configMapNamespace}/${configMapName}...`);
+    try {
+        // This is the "create or replace" logic, equivalent to `kubectl apply`
+        await k8s.coreApi.replaceNamespacedConfigMap({
+            name: configMapName,
+            namespace: configMapNamespace,
+            body: configMapBody,
+        });
+        logger.info('CoreDNS ConfigMap successfully replaced.');
     } catch (error: any) {
         if (error.response?.statusCode === 404) {
-            logger.warn('CoreDNS ConfigMap not found, attempting to find alternative');
-            // Try different possible names/namespaces
-            const alternatives = [
-                { name: 'coredns-custom', namespace: 'kube-system' },
-                { name: 'coredns', namespace: 'kube-dns' }
-            ];
-
-            for (const alt of alternatives) {
-                try {
-                    coreDnsConfigMap = await k8s.coreApi.readNamespacedConfigMap({
-                        name: alt.name,
-                        namespace: alt.namespace,
-                    });
-                    break;
-                } catch (e) {
-                    continue;
-                }
-            }
-
-            if (!coreDnsConfigMap) {
-                logger.warn('Could not find CoreDNS ConfigMap, creating custom DNS setup');
-                await createCustomDNSSetup(k8s, options);
-                return;
-            }
+            await k8s.coreApi.createNamespacedConfigMap({
+                namespace: configMapNamespace,
+                body: configMapBody,
+            });
+            logger.info('CoreDNS ConfigMap successfully created.');
         } else {
+            logger.error('Failed to apply CoreDNS ConfigMap:', error);
             throw error;
         }
     }
 
-    // Parse current Corefile
-    const currentCorefile = coreDnsConfigMap.data?.['Corefile'] || '';
-
-    // Generate rewrite rules for test domains
-    const rewriteRules = generateRewriteRules(options.subdomain, options.namespace);
-
-    // Check if our rules already exist
-    if (currentCorefile.includes(`# Zenko test rewrite rules for ${options.subdomain}`)) {
-        logger.debug('DNS rewrite rules already configured');
-        return;
-    }
-
-    // Add our rewrite rules to the Corefile
-    const newCorefile = addRewriteRules(currentCorefile, rewriteRules, options.subdomain);
-
-    // Update the ConfigMap
-    const updatedConfigMap = {
-        ...coreDnsConfigMap,
-        data: {
-            ...coreDnsConfigMap.data,
-            'Corefile': newCorefile
-        }
-    };
-
-    await k8s.coreApi.replaceNamespacedConfigMap({
-        name: 'coredns',
-        namespace: 'kube-system',
-        body: updatedConfigMap,
-    });
-
-    // Restart CoreDNS deployment to pick up changes
     await restartCoreDNS(k8s);
-
-    logger.info('CoreDNS configuration updated successfully');
-}
-
-async function createCustomDNSSetup(k8s: KubernetesClient, options: DNSOptions): Promise<void> {
-    logger.info('Creating custom DNS setup for test environment');
-
-    // Create a custom CoreDNS deployment for test domains
-    const customCorefile = `
-# Zenko test DNS configuration
-${options.subdomain}:53 {
-    rewrite name regex (.+\\.)?aws-mock\\.${options.subdomain} cloudserver-mock.${options.namespace}.svc.cluster.local
-    rewrite name regex (.+\\.)?azure-mock\\.${options.subdomain} azurite-mock.${options.namespace}.svc.cluster.local
-    rewrite name regex iam\\.${options.subdomain} zenko-iam.${options.namespace}.svc.cluster.local
-    rewrite name regex ui\\.${options.subdomain} zenko-ui.${options.namespace}.svc.cluster.local
-    rewrite name regex s3\\.${options.subdomain} zenko-s3.${options.namespace}.svc.cluster.local
-    forward . /etc/resolv.conf
-    cache 30
-    errors
-    log
-}
-
-.:53 {
-    forward . /etc/resolv.conf
-    cache 30
-    errors
-    log
-}
-`;
-
-    const customDNSConfigMap = {
-        apiVersion: 'v1',
-        kind: 'ConfigMap',
-        metadata: {
-            name: 'zenko-test-coredns',
-            namespace: options.namespace
-        },
-        data: {
-            'Corefile': customCorefile.trim()
-        }
-    };
-
-    await k8s.applyManifest(customDNSConfigMap, options.namespace);
-    logger.info('Custom DNS ConfigMap created');
-}
-
-function generateRewriteRules(subdomain: string, namespace: string): string {
-    return `
-# Zenko test rewrite rules for ${subdomain}
-rewrite name regex (.+\\.)?aws-mock\\.${subdomain} cloudserver-mock.${namespace}.svc.cluster.local
-rewrite name regex (.+\\.)?azure-mock\\.${subdomain} azurite-mock.${namespace}.svc.cluster.local
-rewrite name regex iam\\.${subdomain} zenko-iam.${namespace}.svc.cluster.local
-rewrite name regex ui\\.${subdomain} zenko-ui.${namespace}.svc.cluster.local
-rewrite name regex s3\\.${subdomain} zenko-s3.${namespace}.svc.cluster.local
-rewrite name regex management\\.${subdomain} zenko-management.${namespace}.svc.cluster.local`;
-}
-
-function addRewriteRules(currentCorefile: string, rewriteRules: string, subdomain: string): string {
-    // Find the main server block (.:53 or similar)
-    const lines = currentCorefile.split('\\n');
-    const newLines = [];
-    let insideMainBlock = false;
-    let foundMainBlock = false;
-
-    for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
-
-        // Detect main server block
-        if (line.trim().match(/^\\.:53\\s*{/) || line.trim().match(/^\\. {/)) {
-            insideMainBlock = true;
-            foundMainBlock = true;
-            newLines.push(line);
-            // Add our rewrite rules right after the opening brace
-            newLines.push(rewriteRules);
-            continue;
-        }
-
-        // Detect end of server block
-        if (insideMainBlock && line.trim() === '}') {
-            insideMainBlock = false;
-        }
-
-        newLines.push(line);
-    }
-
-    // If no main block found, add our own
-    if (!foundMainBlock) {
-        newLines.push('');
-        newLines.push(`# Zenko test server block`);
-        newLines.push(`.:53 {`);
-        newLines.push(rewriteRules);
-        newLines.push('    forward . /etc/resolv.conf');
-        newLines.push('    cache 30');
-        newLines.push('    errors');
-        newLines.push('    log');
-        newLines.push('}');
-    }
-
-    return newLines.join('\\n');
-}
-
-async function restartCoreDNS(k8s: KubernetesClient): Promise<void> {
-    try {
-        // Get CoreDNS deployment
-        const deployment = await k8s.appsApi.readNamespacedDeployment({
-            name: 'coredns',
-            namespace: 'kube-system',
-        });
-
-        // Add/update restart annotation to trigger rolling restart
-        const annotations = deployment.spec?.template.metadata?.annotations || {};
-        annotations['kubectl.kubernetes.io/restartedAt'] = new Date().toISOString();
-
-        deployment.spec!.template.metadata!.annotations = annotations;
-
-        await k8s.appsApi.replaceNamespacedDeployment({
-            name: 'coredns',
-            namespace: 'kube-system',
-            body: deployment,
-        });
-
-        logger.debug('CoreDNS deployment restart triggered');
-
-        // Wait a bit for the restart to take effect
-        await new Promise(resolve => setTimeout(resolve, 10000));
-
-    } catch (error: any) {
-        logger.warn(`Could not restart CoreDNS deployment: ${error.message}`);
-        logger.info('DNS changes will take effect when CoreDNS pods are restarted');
-    }
+    logger.info('CoreDNS setup completed successfully.');
 }

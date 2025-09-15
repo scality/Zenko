@@ -1,0 +1,129 @@
+{
+  "locations": [
+    {
+      "name": "awsbackend",
+      "locationType": "location-s3-v1",
+      "details": {
+        "endpoint": "http://cloudserver-mock.{namespace}.svc.cluster.local:8000",
+        "bucketName": "ci-zenko-aws-target-bucket",
+        "accessKey": "accessKey1",
+        "secretKey": "verySecretKey1",
+        "bucketMatch": true,
+        "pathStyle": true
+      }
+    },
+    {
+      "name": "awsbackendmismatch",
+      "locationType": "location-s3-v1",
+      "details": {
+        "endpoint": "http://cloudserver-mock.{namespace}.svc.cluster.local:8000",
+        "bucketName": "ci-zenko-aws-crr-target-bucket",
+        "accessKey": "accessKey1",
+        "secretKey": "verySecretKey1",
+        "bucketMatch": false,
+        "pathStyle": true
+      }
+    },
+    {
+      "name": "awsbackendfail",
+      "locationType": "location-s3-v1",
+      "details": {
+        "endpoint": "http://cloudserver-mock.{namespace}.svc.cluster.local:8000",
+        "bucketName": "ci-zenko-aws-fail-target-bucket",
+        "accessKey": "accessKey1",
+        "secretKey": "verySecretKey1",
+        "bucketMatch": false,
+        "pathStyle": true
+      }
+    },
+    {
+      "name": "azurebackendmismatch",
+      "locationType": "location-azure-v1",
+      "details": {
+        "endpoint": "http://azurite-mock.{namespace}.svc.cluster.local:10000/devstoreaccount1",
+        "containerName": "ci-zenko-azure-crr-target-bucket",
+        "accountName": "devstoreaccount1",
+        "accountKey": "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw=="
+      }
+    },
+    {
+      "name": "e2e-azure-archive",
+      "locationType": "location-azure-v1",
+      "details": {
+        "endpoint": "http://azurite-mock.{namespace}.svc.cluster.local:10000/devstoreaccount1",
+        "containerName": "ci-zenko-azure-archive-target-bucket",
+        "accountName": "devstoreaccount1",
+        "accountKey": "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw=="
+      }
+    },
+    {
+      "name": "gcpbackendmismatch",
+      "locationType": "location-gcp-v1",
+      "details": {
+        "endpoint": "https://storage.googleapis.com",
+        "bucketName": "ci-zenko-gcp-crr-target-bucket",
+        "accessKey": "gcp-access-key",
+        "secretKey": "gcp-secret-key",
+        "bucketMatch": false
+      }
+    },
+    {
+      "name": "e2e-cold",
+      "locationType": "location-dmf-v1",
+      "details": {
+        "endpoint": "http://dmf-service:7778",
+        "repoId": ["repoId"],
+        "nsId": "nsId",
+        "username": "username",
+        "password": "password"
+      }
+    },
+    {
+      "name": "e2e-miria-archive",
+      "locationType": "location-dmf-v1",
+      "details": {
+        "endpoint": "http://mock-miria:7778",
+        "repoId": ["repoId"],
+        "nsId": "nsId",
+        "username": "username",
+        "password": "password"
+      }
+    },
+    {
+      "name": "quotabackend",
+      "locationType": "location-s3-v1",
+      "details": {
+        "endpoint": "http://cloudserver-mock.{namespace}.svc.cluster.local:8000",
+        "bucketName": "ci-zenko-quota-test-bucket",
+        "accessKey": "accessKey1",
+        "secretKey": "verySecretKey1",
+        "bucketMatch": true,
+        "pathStyle": true
+      }
+    },
+    {
+      "name": "rings3cbackendingestion",
+      "locationType": "location-s3-v1",
+      "details": {
+        "endpoint": "http://s3c.local:8000",
+        "bucketName": "ingestion-test-src-bucket",
+        "accessKey": "accessKey1",
+        "secretKey": "verySecretKey1",
+        "bucketMatch": false,
+        "pathStyle": true
+      }
+    },
+    {
+      "name": "rings3cbackendingestionnonversioned",
+      "locationType": "location-s3-v1",
+      "details": {
+        "endpoint": "http://s3c.local:8000",
+        "bucketName": "ingestion-test-src-non-versioned-bucket",
+        "accessKey": "accessKey1",
+        "secretKey": "verySecretKey1",
+        "bucketMatch": false,
+        "pathStyle": true
+      }
+    }
+  ]
+}

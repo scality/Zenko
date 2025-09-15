@@ -1,0 +1,71 @@
+{
+  "replication": [
+    {
+      "name": "aws-to-azure-replication",
+      "sourceBucket": "ci-zenko-aws-source-bucket",
+      "sourceLocation": "aws-test-location",
+      "targetBucket": "ci-zenko-azure-target-container", 
+      "targetLocation": "azure-test-location",
+      "enabled": true,
+      "description": "Replicate from AWS mock to Azure mock"
+    },
+    {
+      "name": "versioned-replication",
+      "sourceBucket": "ci-zenko-aws-versioned-bucket",
+      "sourceLocation": "aws-test-location",
+      "targetBucket": "ci-zenko-aws-replication-bucket",
+      "targetLocation": "aws-test-location",
+      "enabled": true,
+      "description": "Versioned bucket replication within AWS"
+    }
+  ],
+  "lifecycle": [
+    {
+      "name": "aws-lifecycle-transition",
+      "bucketName": "ci-zenko-aws-lifecycle-bucket",
+      "rules": [
+        {
+          "id": "transition-to-azure",
+          "status": "Enabled",
+          "filter": { "prefix": "archive/" },
+          "transitions": [
+            {
+              "days": 30,
+              "storageClass": "azure-test-location"
+            }
+          ]
+        },
+        {
+          "id": "expire-old-objects",
+          "status": "Enabled", 
+          "filter": { "prefix": "temp/" },
+          "expiration": { "days": 90 }
+        }
+      ]
+    },
+    {
+      "name": "azure-lifecycle-cleanup",
+      "bucketName": "ci-zenko-azure-lifecycle-container",
+      "rules": [
+        {
+          "id": "cleanup-logs",
+          "status": "Enabled",
+          "filter": { "prefix": "logs/" },
+          "expiration": { "days": 7 }
+        }
+      ]
+    }
+  ],
+  "ingestion": [
+    {
+      "name": "ring-to-aws-ingestion",
+      "sourceBucket": "ci-zenko-ring-source-bucket", 
+      "sourceLocation": "ring-test-location",
+      "targetBucket": "ci-zenko-aws-target-bucket",
+      "targetLocation": "aws-test-location",
+      "schedule": "0 2 * * *",
+      "enabled": true,
+      "description": "Daily ingestion from Ring to AWS at 2 AM"
+    }
+  ]
+}

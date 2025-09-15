@@ -93,7 +93,7 @@ steps:
   - name: Setup CTST Prerequisites  
     run: bash setup-ctst-local.sh
   - name: Run All E2E Tests via CTST
-    run: bash run-e2e-ctst.sh
+    run: ./run-tests.sh ~/.kube/config ctst
 ```
 
 ## **Local Development Support**

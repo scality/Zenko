@@ -12,74 +12,75 @@ on:
       - 'q/*'
 
 env:
-  # kind-env
+  # Core infrastructure
   WORKER_COUNT: '2'
-  OPERATOR_REPO: git@github.com:scality/zenko-operator.git
-  OPERATOR_IMAGE: ""
   KIND_NODE_IMAGE: "kindest/node:v1.31.9@sha256:b94a3a6c06198d17f59cca8c6f486236fa05e2fb359cbd75dabbfc348a10b211"
   VOLUME_ROOT: /artifacts
+  SHELL_UI_NAME: "shell-ui"
+  SHELL_UI_IMAGE: "ghcr.io/scality/metalk8s/shell-ui:v127.0.0"
+  PROMETHEUS_NAME: "prometheus"
+  
+  # Test images
+  E2E_IMAGE_NAME: ghcr.io/scality/zenko/zenko-e2e
+  E2E_CTST_IMAGE_NAME: ghcr.io/scality/zenko/zenko-e2e-ctst
+  E2E_IMAGE_TAG: ${{ github.sha }}
+  
+  # External provider secrets (for real backends)
+  GCP_ACCESS_KEY: ${{ secrets.AWS_GCP_BACKEND_ACCESS_KEY }}
+  GCP_SECRET_KEY: ${{ secrets.AWS_GCP_BACKEND_SECRET_KEY }}
+  GCP_BACKEND_SERVICE_KEY: ${{ secrets.GCP_BACKEND_SERVICE_KEY }}
+  GCP_BACKEND_SERVICE_EMAIL: ${{ secrets.GCP_BACKEND_SERVICE_EMAIL }}
+  
+  # Feature flags
+  ENABLE_RING_TESTS: "false"
+  
+  # Domains
+  SUBDOMAIN: "zenko.local"
+  DR_SUBDOMAIN: "dr.zenko.local"
+  
+  # OIDC/Keycloak (still needed for test execution)
   OIDC_REALM: "zenko"
   OIDC_CLIENT_ID: "zenko-ui"
   OIDC_USERNAME: 'storage_manager'
   OIDC_PASSWORD: '123'
   OIDC_FIRST_NAME: 'hello'
   OIDC_LAST_NAME: 'world'
-  SHELL_UI_NAME: "shell-ui"
-  SHELL_UI_IMAGE: "ghcr.io/scality/metalk8s/shell-ui:v127.0.0"
-  HTTP_PROXY: ""
-  HTTPS_PROXY: ""
-  BACKBEAT_BUCKET_CHECK_TIMEOUT_S: ""
-  BACKBEAT_LCC_CRON_RULE: ""
-  # e2e-env
-  E2E_IMAGE_NAME: ghcr.io/scality/zenko/zenko-e2e
-  E2E_CTST_IMAGE_NAME: ghcr.io/scality/zenko/zenko-e2e-ctst
-  E2E_IMAGE_TAG: ${{ github.sha }}
-  VAULT_TEST_IMAGE_NAME: ""
-  VAULT_TEST_IMAGE_TAG: ""
-  # http-env
-  UI_ENDPOINT: 'http://ui.zenko.local'
   OIDC_ENDPOINT: 'http://keycloak.zenko.local'
   OIDC_HOST: 'keycloak.zenko.local'
-  NAVBAR_ENDPOINT: 'http://shell-ui.zenko.local'
-  ENABLE_KEYCLOAK_HTTPS: 'false'
-  KEYCLOAK_VERSION: '18.4.4'
-  PROMETHEUS_NAME: "prometheus"
-  # mock-env
+  
+  # Test environment endpoints (dynamically configured but need base values)
+  UI_ENDPOINT: 'http://ui.zenko.local'
+  
+  # Mock service configurations (from our setup tool configs)
   AZURE_ACCOUNT_NAME: devstoreaccount1
   AZURE_BACKEND_ENDPOINT: https://devstoreaccount1.blob.azure-mock.zenko.local
-  AZURE_BACKEND_QUEUE_ENDPOINT: https://devstoreaccount1.queue.azure-mock.zenko.local
   AZURE_SECRET_KEY: Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==
   AWS_ENDPOINT: https://aws-mock.zenko.local
   AWS_ACCESS_KEY: accessKey1
   AWS_SECRET_KEY: verySecretKey1
   VERIFY_CERTIFICATES: "false"
-  # secrets-env
+  
+  # Backend locations (from our locations.ts config)
   AWS_BACKEND_SOURCE_LOCATION: awsbackend
   AWS_BACKEND_DESTINATION_LOCATION: awsbackendmismatch
   AWS_BACKEND_DESTINATION_FAIL_LOCATION: awsbackendfail
-  AWS_BACKEND_DESTINATION_REPLICATION_FAIL_CTST_LOCATION: awsbackendreplicationctstfail
   GCP_BACKEND_DESTINATION_LOCATION: gcpbackendmismatch
   AZURE_BACKEND_DESTINATION_LOCATION: azurebackendmismatch
   COLD_BACKEND_DESTINATION_LOCATION: e2e-cold
   AZURE_ARCHIVE_BACKEND_DESTINATION_LOCATION: e2e-azure-archive
   MIRIA_BACKEND_DESTINATION_LOCATION: e2e-miria-archive
   LOCATION_QUOTA_BACKEND: quotabackend
+  
+  # Bucket names (from our buckets.json config)
   AWS_BUCKET_NAME: ci-zenko-aws-target-bucket
   AWS_CRR_BUCKET_NAME: ci-zenko-aws-crr-target-bucket
   AWS_FAIL_BUCKET_NAME: ci-zenko-aws-fail-target-bucket
-  AWS_REPLICATION_FAIL_CTST_BUCKET_NAME: ci-zenko-aws-replication-fail-ctst-bucket
   AZURE_CRR_BUCKET_NAME: ci-zenko-azure-crr-target-bucket
   AZURE_ARCHIVE_BUCKET_NAME: ci-zenko-azure-archive-target-bucket
-  AZURE_ARCHIVE_BUCKET_NAME_2: ci-zenko-azure-archive-target-bucket-2
-  AZURE_ARCHIVE_QUEUE_NAME: ci-zenko-azure-archive-target-queue
   GCP_CRR_BUCKET_NAME: ci-zenko-gcp-crr-target-bucket
   GCP_CRR_MPU_BUCKET_NAME: ci-zenko-gcp-crr-mpu-bucket
-  GCP_ACCESS_KEY: ${{ secrets.AWS_GCP_BACKEND_ACCESS_KEY }}
-  GCP_SECRET_KEY: ${{ secrets.AWS_GCP_BACKEND_SECRET_KEY }}
-  GCP_BACKEND_SERVICE_KEY: ${{ secrets.GCP_BACKEND_SERVICE_KEY }}
-  GCP_BACKEND_SERVICE_EMAIL: ${{ secrets.GCP_BACKEND_SERVICE_EMAIL }}
-  # Enable this for Ring tests
-  ENABLE_RING_TESTS: "false"
+  
+  # Ring/S3C test configuration
   RING_S3C_ACCESS_KEY: accessKey1
   RING_S3C_SECRET_KEY: verySecretKey1
   RING_S3C_ENDPOINT: http://s3c.local:8000
@@ -88,13 +89,32 @@ env:
   RING_S3C_BACKEND_SOURCE_NON_VERSIONED_LOCATION: rings3cbackendingestionnonversioned
   RING_S3C_INGESTION_SRC_NON_VERSIONED_BUCKET_NAME: ingestion-test-src-non-versioned-bucket
   RING_S3C_INGESTION_NON_VERSIONED_OBJECT_COUNT_PER_TYPE: 2
-  # CTST end2end tests
-  NOTIF_DEST_NAME: "destination1"
-  NOTIF_DEST_TOPIC: "destination-topic-1"
-  NOTIF_ALT_DEST_NAME: "destination2"
-  NOTIF_ALT_DEST_TOPIC: "destination-topic-2"
-  SUBDOMAIN: "zenko.local"
-  DR_SUBDOMAIN: "dr.zenko.local"
+  
+  # Test timeouts
+  BACKBEAT_BUCKET_CHECK_TIMEOUT_S: ""
+  
+  # MongoDB configuration (for tests that need direct DB access)
+  MONGO_DATABASE: ""
+  MONGO_READ_PREFERENCE: ""
+  MONGO_REPLICA_SET_HOSTS: ""
+  MONGO_SHARD_COLLECTION: ""
+  MONGO_WRITE_CONCERN: ""
+  MONGO_AUTH_USERNAME: ""
+  MONGO_AUTH_PASSWORD: ""
+  
+  # Keycloak test configuration (for OAuth tests)
+  KEYCLOAK_TEST_USER: ${OIDC_USERNAME}
+  KEYCLOAK_TEST_PASSWORD: ${OIDC_PASSWORD}
+  KEYCLOAK_TEST_HOST: keycloak.zenko.local
+  KEYCLOAK_TEST_PORT: "80"
+  KEYCLOAK_TEST_REALM_NAME: ${OIDC_REALM}
+  KEYCLOAK_TEST_CLIENT_ID: ${OIDC_CLIENT_ID}
+  KEYCLOAK_TEST_GRANT_TYPE: "password"
+  
+  # Test framework configuration  
+  STAGE: "dev"
+  
+  # Test reporting
   SKOPEO_PATH: "/tmp"
   HELM_VERSION: "v3.15.4"
   YQ_VERSION: "v4.44.3"
@@ -136,6 +156,22 @@ jobs:
   check-alerts:
     uses: ./.github/workflows/alerts.yaml
     secrets: inherit
+
+  build-setup-image:
+    runs-on: ubuntu-24.04
+    outputs:
+      image: ${{ steps.build-image.outputs.image }}
+      digest: ${{ steps.build-image.outputs.digest }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Build setup image
+        id: build-image  
+        uses: ./.github/actions/build-setup-image
+        with:
+          registry: ghcr.io
+          image-name: zenko-setup
+          tag: ${{ github.sha }}
 
   check-workflows:
     runs-on: ubuntu-24.04
@@ -354,12 +390,6 @@ jobs:
           username: "${{ github.repository_owner }}"
           password: "${{ github.token }}"
           registry: ghcr.io
-      - name: Generate end2end config yaml
-        run: |-
-          cd tests/zenko_tests
-          envsubst < 'e2e-config.yaml.template' > 'e2e-config.yaml'
-          cat e2e-config.yaml
-          echo 'Generated e2e-config.yaml file'
       - name: Build and push CI image
         uses: docker/build-push-action@v5
         with:
@@ -439,7 +469,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=end2end-ctst
 
   end2end-pra:
-    needs: [build-kafka, lint-and-build-ctst]
+    needs: [build-kafka, lint-and-build-ctst, build-setup-image]
     runs-on: ubuntu-24.04-16core
     steps:
       - name: Checkout
@@ -475,24 +505,22 @@ jobs:
         env:
           ZENKO_MONGODB_DATABASE: pradb
         working-directory: ./.github/scripts/end2end
-      - name: Add Keycloak pra user and assign StorageManager role
+      - name: Configure PRA test users (handled by CTST)
         shell: bash
-        run: bash keycloak-helper.sh add-user default end2end-pra
+        run: echo "PRA users configured by CTST setup"
+      - name: Setup PRA test environment
         env:
-          OIDC_USERNAME: 'zenko-end2end-pra'
-          OIDC_EMAIL: 'e2e-pra@zenko.local'
-        working-directory: ./.github/scripts/end2end
-      - name: Configure E2E PRA test environment
-        run: bash configure-e2e.sh end2end-pra ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} default
-        working-directory: ./.github/scripts/end2end
-        env:
-          OIDC_USERNAME: 'zenko-end2end-pra'
-      - name: Configure E2E CTST test environment
-        run: bash configure-e2e-ctst.sh
+          INSTANCE_ID: "end2end-pra"
+          SETUP_IMAGE: ${{ needs.build-setup-image.outputs.image }}
+          GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: ./setup-tests.sh ~/.kube/config
+        working-directory: ./tests/@setup
+      - name: Configure hosts file
+        run: bash configure-hosts.sh
         working-directory: ./.github/scripts/end2end
       - name: Run CTST end to end tests
-        run: bash run-e2e-ctst.sh "" "" "" "" --tags @PRA
-        working-directory: ./.github/scripts/end2end
+        run: ./run-tests.sh ~/.kube/config ctst --tags @PRA
+        working-directory: ./tests/@setup
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
@@ -508,7 +536,7 @@ jobs:
         run: kind delete cluster
 
   end2end-2-shards-http:
-    needs: [build-kafka, build-test-image]
+    needs: [build-kafka, build-test-image, build-setup-image]
     runs-on:
       - ubuntu-24.04-8core
     env:
@@ -539,6 +567,12 @@ jobs:
         uses: ./.github/actions/deploy
         env:
           GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
+      - name: Setup test environment
+        env:
+          SETUP_IMAGE: ${{ needs.build-setup-image.outputs.image }}
+          GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: ./setup-tests.sh ~/.kube/config
+        working-directory: ./tests/@setup
       - name: Run init CI test
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "end2end" "default"
         working-directory: ./.github/scripts/end2end
@@ -550,9 +584,6 @@ jobs:
         working-directory: ./.github/scripts/end2end
       - name: Run smoke tests
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "smoke" "default"
-        working-directory: ./.github/scripts/end2end
-      - name: Enable HTTPS
-        run: bash enable-https.sh
         working-directory: ./.github/scripts/end2end
       - name: Run smoke tests
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "smoke" "default"
@@ -572,7 +603,7 @@ jobs:
         run: kind delete cluster
 
   end2end-sharded:
-    needs: [build-kafka, build-test-image]
+    needs: [build-kafka, build-test-image, build-setup-image]
     runs-on:
       - ubuntu-24.04-8core
     env:
@@ -602,10 +633,17 @@ jobs:
             zenko-operator
       - name: Deploy Zenko
         uses: ./.github/actions/deploy
+      - name: Setup test environment
         env:
+          SETUP_IMAGE: ${{ needs.build-setup-image.outputs.image }}
           GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
-        with:
-          deploy_metadata: ${{ env.ENABLE_RING_TESTS }}
+        run: |
+          if [[ "${{ env.ENABLE_RING_TESTS }}" == "true" ]]; then
+            ./setup-tests.sh ~/.kube/config setup --metadata
+          else
+            ./setup-tests.sh ~/.kube/config setup --rbac --dns --buckets --locations --accounts --endpoints --workflows --tls
+          fi
+        working-directory: ./tests/@setup
       - name: Run backbeat end to end tests
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "backbeat" "default"
         working-directory: ./.github/scripts/end2end
@@ -624,7 +662,7 @@ jobs:
         run: kind delete cluster
 
   ctst-end2end-sharded:
-    needs: [build-kafka, lint-and-build-ctst]
+    needs: [build-kafka, lint-and-build-ctst, build-setup-image]
     runs-on:
       - ubuntu-24.04-8core
     steps:
@@ -659,12 +697,18 @@ jobs:
           TIME_PROGRESSION_FACTOR: 86400
           TRANSITION_ONE_DAY_EARLIER: false
           EXPIRE_ONE_DAY_EARLIER: false
-      - name: Configure E2E test environment
-        run: bash configure-e2e-ctst.sh
+      - name: Setup test environment
+        env:
+          SETUP_IMAGE: ${{ needs.build-setup-image.outputs.image }}
+          GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: ./setup-tests.sh ~/.kube/config
+        working-directory: ./tests/@setup
+      - name: Configure hosts file
+        run: bash configure-hosts.sh
         working-directory: ./.github/scripts/end2end
       - name: Run CTST end to end tests
-        run: bash run-e2e-ctst.sh "" "" "" "" --tags 'not @PRA'
-        working-directory: ./.github/scripts/end2end
+        run: ./run-tests.sh ~/.kube/config ctst --tags 'not @PRA'
+        working-directory: ./tests/@setup
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
