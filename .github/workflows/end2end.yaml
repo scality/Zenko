@@ -74,6 +74,8 @@ env:
   GCP_SECRET_KEY: ${{ secrets.AWS_GCP_BACKEND_SECRET_KEY }}
   GCP_BACKEND_SERVICE_KEY: ${{ secrets.GCP_BACKEND_SERVICE_KEY }}
   GCP_BACKEND_SERVICE_EMAIL: ${{ secrets.GCP_BACKEND_SERVICE_EMAIL }}
+  CRR_LOCATION_NAME: crr-location
+  CRR_LOCATION_ACCOUNT_NAME: crr-site-account
   # Enable this for Ring tests
   ENABLE_RING_TESTS: "false"
   RING_S3C_ACCESS_KEY: accessKey1

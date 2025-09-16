@@ -91,6 +91,8 @@ def create_account(client, token, uuid, account_name, namespace="default"):
                               namespace=namespace)
 
         _log.info("created account")
+
+        return creds["Credentials"]
     except Exception as e:
         raise Exception(
             "Failed to create account '%s': %s" % (account_name, e))

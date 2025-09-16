@@ -106,6 +106,7 @@ kubectl run ${POD_NAME} \
   --env=AZURE_ARCHIVE_BUCKET_NAME=${AZURE_ARCHIVE_BUCKET_NAME} \
   --env=AZURE_ARCHIVE_BUCKET_NAME_2=${AZURE_ARCHIVE_BUCKET_NAME_2} \
   --env=AZURE_ARCHIVE_QUEUE_NAME=${AZURE_ARCHIVE_QUEUE_NAME} \
+  --env=CRR_LOCATION_ACCOUNT_NAME=${CRR_LOCATION_ACCOUNT_NAME} \
   --command -- python3 configuration.py
 
 ## wait for updates to trigger zenko upgrades

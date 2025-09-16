@@ -1,5 +1,6 @@
 accounts:
   - "zenko"
+  - "${CRR_LOCATION_ACCOUNT_NAME}"
 endpoints: []
 locations:
   - name: "${AWS_BACKEND_DESTINATION_LOCATION}"
@@ -113,6 +114,13 @@ locations:
       password: "pass1"
       repoId:
         - 65f9fd61-42fe-4a68-9ac0-6ba25311cc85
+  - name: "${CRR_LOCATION_NAME}"
+    locationType: "location-scality-crr-v1"
+    details:
+      endpoint: "http://s3.${SUBDOMAIN}:80"
+      stsEndpoint: "http://sts.${SUBDOMAIN}:80"
+      accessKey: ""
+      secretKey: ""
 workflows:
   replication: []
   lifecycle: []
