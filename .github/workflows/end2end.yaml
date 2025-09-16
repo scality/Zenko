@@ -513,13 +513,13 @@ jobs:
           INSTANCE_ID: "end2end-pra"
           SETUP_IMAGE: ${{ needs.build-setup-image.outputs.image }}
           GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
-        run: ./setup-tests.sh ~/.kube/config
+        run: ./setup-tests.sh --kubeconfig ~/.kube/config
         working-directory: ./tests/@setup
       - name: Configure hosts file
         run: bash configure-hosts.sh
         working-directory: ./.github/scripts/end2end
       - name: Run CTST end to end tests
-        run: ./run-tests.sh ~/.kube/config ctst --tags @PRA
+        run: ./run-tests.sh --kubeconfig ~/.kube/config --type ctst -- --tags @PRA
         working-directory: ./tests/@setup
       - name: Debug wait
         uses: ./.github/actions/debug-wait
@@ -571,7 +571,7 @@ jobs:
         env:
           SETUP_IMAGE: ${{ needs.build-setup-image.outputs.image }}
           GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
-        run: ./setup-tests.sh ~/.kube/config
+        run: ./setup-tests.sh --kubeconfig ~/.kube/config
         working-directory: ./tests/@setup
       - name: Run init CI test
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "end2end" "default"
@@ -639,9 +639,9 @@ jobs:
           GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           if [[ "${{ env.ENABLE_RING_TESTS }}" == "true" ]]; then
-            ./setup-tests.sh ~/.kube/config setup --metadata
+            ./setup-tests.sh --kubeconfig ~/.kube/config -- setup --metadata
           else
-            ./setup-tests.sh ~/.kube/config setup --rbac --dns --buckets --locations --accounts --endpoints --workflows --tls
+            ./setup-tests.sh --kubeconfig ~/.kube/config -- setup --rbac --dns --buckets --locations --accounts --endpoints --workflows --tls
           fi
         working-directory: ./tests/@setup
       - name: Run backbeat end to end tests
@@ -701,13 +701,13 @@ jobs:
         env:
           SETUP_IMAGE: ${{ needs.build-setup-image.outputs.image }}
           GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
-        run: ./setup-tests.sh ~/.kube/config
+        run: ./setup-tests.sh --kubeconfig ~/.kube/config
         working-directory: ./tests/@setup
       - name: Configure hosts file
         run: bash configure-hosts.sh
         working-directory: ./.github/scripts/end2end
       - name: Run CTST end to end tests
-        run: ./run-tests.sh ~/.kube/config ctst --tags 'not @PRA'
+        run: ./run-tests.sh --kubeconfig ~/.kube/config --type ctst -- --tags 'not @PRA'
         working-directory: ./tests/@setup
       - name: Debug wait
         uses: ./.github/actions/debug-wait
