@@ -63,13 +63,16 @@ When('the job to replicate existing objects with status {string} is executed',
         await createAndRunPod(this, podManifest);
     });
 
-Then('the object should eventually {string} replicated', { timeout: 360_000 },
-    async function (this: Zenko, replicate: 'be' | 'fail to be') {
+Then('the object replication should {string} within {int} seconds', { timeout: 600_000 },
+    async function (
+        this: Zenko,
+        expectedOutcome: 'succeed' | 'fail' | 'never happen',
+        replicationTimeout: number
+    ) {
         const objectName = this.getSaved<string>('objectName');
         const bucketSource = this.getSaved<string>('bucketName');
         const startTime = Date.now();
-        const replicationTimeoutMs = 300_000;
-        while (Date.now() - startTime < replicationTimeoutMs) {
+        while (Date.now() - startTime < replicationTimeout * 1000) {
             await new Promise(resolve => setTimeout(resolve, 3000));
 
             const response = await headObject(this, objectName, bucketSource);
@@ -86,26 +89,30 @@ Then('the object should eventually {string} replicated', { timeout: 360_000 },
             assert(parsed.ok);
             const replicationStatus = parsed.result?.ReplicationStatus;
             
-            if (replicate === 'be') {
-                assert.notStrictEqual(replicationStatus, 'FAILED', `replication failed for object ${objectName}`);
-                if (replicationStatus === 'COMPLETED') {
-                    return;
-                }
-            } else if (replicate === 'fail to be') {
-                assert.notStrictEqual(
-                    replicationStatus,
-                    'COMPLETED',
-                    `expected replication to fail for object ${objectName}`
-                );
-                if (replicationStatus === 'FAILED') {
-                    return;
-                }
-            }
-            if (replicationStatus === 'PENDING' || replicationStatus === 'PROCESSING') {
+            switch (replicationStatus) {
+            case 'PENDING':
+            case 'PROCESSING':
+                assert.notStrictEqual(expectedOutcome, 'never happen', 
+                    `replication status is ${replicationStatus}, but expected to never happen`);
                 continue;
+            case 'COMPLETED':
+                assert.strictEqual(expectedOutcome, 'succeed', 
+                    `replication is completed, but expected outcome was '${expectedOutcome}'`);
+                return;
+            case 'FAILED':
+                assert.strictEqual(expectedOutcome, 'fail', 
+                    `replication is failed, but expected outcome was '${expectedOutcome}'`);
+                return;
+            case undefined:
+                // If we don't expect a replication to happen, the replication status should remain undefined
+                assert.strictEqual(expectedOutcome, 'never happen',
+                    `got undefined replication status for expected outcome '${expectedOutcome}'`);
+                return;
+            default:
+                throw new Error(`Unexpected replication status: ${replicationStatus}`);
             }
         }
-        assert.fail(`Timeout: Object '${objectName}' is still pending/processing after timeout`);
+        assert.fail(`Timeout: Object '${objectName}' is still in pending/processing state after timeout`);
     });
 
 Then(
