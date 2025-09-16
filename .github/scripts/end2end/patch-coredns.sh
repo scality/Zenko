@@ -11,16 +11,6 @@ corefile="
         lameduck 5s
     }
     ready
-    rewrite name exact ci-zenko-aws-crr-target-bucket.aws-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
-    rewrite name exact ci-zenko-aws-fail-target-bucket.aws-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
-    rewrite name exact ci-zenko-aws-target-bucket.aws-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
-    rewrite name exact ci-zenko-aws-replication-fail-ctst-bucket.aws-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
-    rewrite name exact aws-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
-    rewrite name exact azure-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
-    rewrite name exact blob.azure-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
-    rewrite name exact devstoreaccount1.blob.azure-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
-    rewrite name exact queue.azure-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
-    rewrite name exact devstoreaccount1.queue.azure-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact keycloak.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact ui.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact management.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
@@ -29,16 +19,6 @@ corefile="
     rewrite name exact sts.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact iam.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact shell-ui.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
-    rewrite name exact keycloak.dr.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
-    rewrite name exact ui.dr.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
-    rewrite name exact management.dr.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
-    rewrite name exact s3.dr.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
-    rewrite name exact sts.dr.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
-    rewrite name exact iam.dr.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
-    rewrite name exact prom.dr.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
-    rewrite name exact shell-ui.dr.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
-    rewrite name exact website.mywebsite.com ingress-nginx-controller.ingress-nginx.svc.cluster.local
-    rewrite name exact s3c.local s3c-cloudserver.metadata.svc.cluster.local
     kubernetes cluster.local in-addr.arpa ip6.arpa {
         pods insecure
         fallthrough in-addr.arpa ip6.arpa

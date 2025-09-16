@@ -81,12 +81,75 @@ subjects:
 EOF
 }
 
-# Converts a bash array into a YAML sequence for the Job manifest.
-# Usage: array_to_yaml_list "my_array[@]"
 array_to_yaml_list() {
     local -n arr=$1
     for item in "${arr[@]}"; do
         echo "        - \"${item}\""
+    done
+}
+
+show_failure_details() {
+    local job_name="$1"
+    echo "Job Description"
+    kubectl --kubeconfig="${KUBECONFIG_FILE}" describe "job/${job_name}" -n "${NAMESPACE}" || true
+    echo "Pod Status"
+    kubectl --kubeconfig="${KUBECONFIG_FILE}" get pods -l job-name="${job_name}" -n "${NAMESPACE}" -o wide || true
+    echo "Pod Logs (last 100 lines)"
+    kubectl --kubeconfig="${KUBECONFIG_FILE}" logs -l job-name="${job_name}" -n "${NAMESPACE}" --tail=100 || true
+}
+
+monitor_job_and_stream_logs() {
+    local job_name="$1"
+    local timeout="$2"
+    
+    echo "Waiting for job '${job_name}' to start... (timeout: ${timeout}s)"
+
+    local pod_name=""
+    local pod_find_start_time=$(date +%s)
+    while [[ -z "$pod_name" ]]; do
+        if (( $(date +%s) - pod_find_start_time > 60 )); then
+            echo "Error: Timed out waiting for pod to be created for job ${job_name}" >&2
+            return 1
+        fi
+        pod_name=$(kubectl --kubeconfig="${KUBECONFIG_FILE}" get pods -l "job-name=${job_name}" -n "${NAMESPACE}" -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || echo "")
+        sleep 2
+    done
+
+    echo "Pod '${pod_name}' found. Waiting for it to become ready..."
+    if ! kubectl --kubeconfig="${KUBECONFIG_FILE}" wait --for=condition=Ready "pod/${pod_name}" -n "${NAMESPACE}" --timeout=180s; then
+        echo "Error: Pod '${pod_name}' did not become ready in time." >&2
+        return 1
+    fi
+
+    echo "Streaming logs from pod: ${pod_name}"
+    kubectl --kubeconfig="${KUBECONFIG_FILE}" logs -f "${pod_name}" -c "test" -n "${NAMESPACE}" &
+    local log_pid=$!
+
+    trap "kill ${log_pid} 2>/dev/null || true" RETURN
+
+    local start_time=$(date +%s)
+    while true; do
+        local current_time=$(date +%s)
+        if (( current_time - start_time > timeout )); then
+            echo "Error: Test job '${job_name}' timed out after ${timeout} seconds!" >&2
+            return 1
+        fi
+
+        local succeeded=$(kubectl --kubeconfig="${KUBECONFIG_FILE}" get job "${job_name}" -n "${NAMESPACE}" -o jsonpath='{.status.succeeded}' 2>/dev/null || echo "0")
+        if [[ "$succeeded" -ge 1 ]]; then
+            echo "Test job '${job_name}' completed successfully."
+            sleep 2
+            return 0
+        fi
+
+        local failed=$(kubectl --kubeconfig="${KUBECONFIG_FILE}" get job "${job_name}" -n "${NAMESPACE}" -o jsonpath='{.status.failed}' 2>/dev/null || echo "0")
+        if [[ "$failed" -ge 1 ]]; then
+            echo "Error: Test job '${job_name}' failed!" >&2
+            sleep 2
+            return 1
+        fi
+
+        sleep 5
     done
 }
 
@@ -217,14 +280,9 @@ ${volume_mounts_yaml:-""}
 ${volumes_yaml:-""}
 EOF
 
-    echo "Waiting for job '${job_name}' to complete and streaming logs (timeout: ${JOB_TIMEOUT}s)..."
-    kubectl --kubeconfig="${KUBECONFIG_FILE}" logs -f "job/${job_name}" -n "${NAMESPACE}" &
-    
-    if kubectl --kubeconfig="${KUBECONFIG_FILE}" wait --for=condition=complete "job/${job_name}" -n "${NAMESPACE}" --timeout="${JOB_TIMEOUT}s"; then
-        echo "Job completed successfully."
-    else
-        echo "Job failed or timed out."
-        echo "Error: Test run failed." >&2
+    if ! monitor_job_and_stream_logs "${job_name}" "${JOB_TIMEOUT}"; then
+        show_failure_details "${job_name}"
+        echo "Error: Test run failed for job '${job_name}'." >&2
         exit 1
     fi
 }
@@ -282,6 +340,8 @@ main() {
     fi
 
     create_job "${TEST_TYPE}"
+
+    echo "Test run completed successfully."
 }
 
 main "$@"

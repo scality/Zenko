@@ -43,25 +43,16 @@ array_to_yaml_list() {
 
 cleanup() {
     echo "Starting cleanup of all resources managed by this script..."
-
-    echo "Deleting ClusterRoleBinding '${CLUSTER_ROLE_BINDING_NAME}'..."
     kubectl --kubeconfig="${KUBECONFIG_FILE}" delete clusterrolebinding "${CLUSTER_ROLE_BINDING_NAME}" --ignore-not-found=true
-
-    echo "Deleting ClusterRole '${CLUSTER_ROLE_NAME}'..."
     kubectl --kubeconfig="${KUBECONFIG_FILE}" delete clusterrole "${CLUSTER_ROLE_NAME}" --ignore-not-found=true
-
-    echo "Deleting ServiceAccount '${SERVICE_ACCOUNT_NAME}' in namespace '${NAMESPACE}'..."
     kubectl --kubeconfig="${KUBECONFIG_FILE}" delete serviceaccount "${SERVICE_ACCOUNT_NAME}" -n "${NAMESPACE}" --ignore-not-found=true
-
-    echo "Deleting setup Jobs in namespace '${NAMESPACE}'..."
     kubectl --kubeconfig="${KUBECONFIG_FILE}" delete job -n "${NAMESPACE}" -l "managed-by=${MANAGED_BY_LABEL}" --ignore-not-found=true
-
     echo "Cleanup complete."
 }
 
 apply_rbac() {
-    echo "Applying RBAC permissions..."
-    cat <<EOF > rbac.yaml
+    echo "Applying minimal bootstrap RBAC permissions..."
+    cat <<EOF | kubectl --kubeconfig="${KUBECONFIG_FILE}" apply -f -
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -77,9 +68,21 @@ metadata:
   labels:
     managed-by: ${MANAGED_BY_LABEL}
 rules:
-- apiGroups: ["", "apps", "batch", "rbac.authorization.k8s.io", "zenko.io", "networking.k8s.io"]
-  resources: ["*"]
+- apiGroups: [""]
+  resources: ["namespaces", "services", "secrets", "serviceaccounts", "configmaps"]
   verbs: ["*"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "create", "update", "patch"]
+- apiGroups: ["rbac.authorization.k8s.io"]
+  resources: ["clusterroles", "clusterrolebindings"]
+  verbs: ["*"]
+- apiGroups: ["zenko.io"]
+  resources: ["*"]
+  verbs: ["get"]
+- apiGroups: ["apiextensions.k8s.io"]
+  resources: ["customresourcedefinitions"]
+  verbs: ["get", "list"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -96,8 +99,71 @@ subjects:
   name: ${SERVICE_ACCOUNT_NAME}
   namespace: ${NAMESPACE}
 EOF
-    cat rbac.yaml
-    kubectl --kubeconfig="${KUBECONFIG_FILE}" apply -f rbac.yaml
+}
+
+show_failure_details() {
+    local job_name="$1"
+    echo "Job Description"
+    kubectl --kubeconfig="${KUBECONFIG_FILE}" describe "job/${job_name}" -n "${NAMESPACE}" || true
+    echo "Pod Status"
+    kubectl --kubeconfig="${KUBECONFIG_FILE}" get pods -l job-name="${job_name}" -n "${NAMESPACE}" -o wide || true
+    echo "Pod Logs (last 100 lines)"
+    kubectl --kubeconfig="${KUBECONFIG_FILE}" logs -l job-name="${job_name}" -n "${NAMESPACE}" --tail=100 || true
+}
+
+monitor_job_and_stream_logs() {
+    local job_name="$1"
+    local timeout="$2"
+    
+    echo "Waiting for job '${job_name}' to start... (timeout: ${timeout}s)"
+
+    local pod_name=""
+    local pod_find_start_time=$(date +%s)
+    while [[ -z "$pod_name" ]]; do
+        if (( $(date +%s) - pod_find_start_time > 60 )); then
+            echo "Error: Timed out waiting for pod to be created for job ${job_name}" >&2
+            return 1
+        fi
+        pod_name=$(kubectl --kubeconfig="${KUBECONFIG_FILE}" get pods -l "job-name=${job_name}" -n "${NAMESPACE}" -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || echo "")
+        sleep 2
+    done
+
+    echo "Pod '${pod_name}' found. Waiting for it to become ready..."
+    if ! kubectl --kubeconfig="${KUBECONFIG_FILE}" wait --for=condition=Ready "pod/${pod_name}" -n "${NAMESPACE}" --timeout=120s; then
+        echo "Error: Pod '${pod_name}' did not become ready in time." >&2
+        return 1
+    fi
+
+    echo "Streaming logs from pod: ${pod_name}"
+    kubectl --kubeconfig="${KUBECONFIG_FILE}" logs -f "${pod_name}" -c "setup" -n "${NAMESPACE}" &
+    local log_pid=$!
+
+    trap "kill ${log_pid} 2>/dev/null || true" RETURN
+
+    local start_time=$(date +%s)
+    while true; do
+        local current_time=$(date +%s)
+        if (( current_time - start_time > timeout )); then
+            echo "Error: Setup job '${job_name}' timed out after ${timeout} seconds!" >&2
+            return 1
+        fi
+
+        local succeeded=$(kubectl --kubeconfig="${KUBECONFIG_FILE}" get job "${job_name}" -n "${NAMESPACE}" -o jsonpath='{.status.succeeded}' 2>/dev/null || echo "0")
+        if [[ "$succeeded" -ge 1 ]]; then
+            echo "Setup job '${job_name}' completed successfully."
+            sleep 2
+            return 0
+        fi
+
+        local failed=$(kubectl --kubeconfig="${KUBECONFIG_FILE}" get job "${job_name}" -n "${NAMESPACE}" -o jsonpath='{.status.failed}' 2>/dev/null || echo "0")
+        if [[ "$failed" -ge 1 ]]; then
+            echo "Error: Setup job '${job_name}' failed!" >&2
+            sleep 2
+            return 1
+        fi
+
+        sleep 5
+    done
 }
 
 create_job() {
@@ -112,9 +178,7 @@ create_job() {
         "--instance-id" "${INSTANCE_ID}"
         "--metadata-namespace" "${METADATA_NAMESPACE}"
     )
-    if [[ -n "${GIT_ACCESS_TOKEN:-}" ]]; then
-        setup_args+=("--git-access-token" "${GIT_ACCESS_TOKEN}")
-    fi
+    [[ -n "${GIT_ACCESS_TOKEN:-}" ]] && setup_args+=("--git-access-token" "${GIT_ACCESS_TOKEN}")
     setup_args+=("${additional_args_ref[@]}")
     
     local setup_args_yaml
@@ -123,7 +187,7 @@ create_job() {
     echo "Creating setup job: ${job_name}..."
     echo "Setup container args: ${setup_args[*]}"
 
-    cat <<EOF > job.yaml
+    cat <<EOF | kubectl --kubeconfig="${KUBECONFIG_FILE}" apply -f -
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -158,20 +222,9 @@ ${setup_args_yaml}
             memory: "1Gi"
             cpu: "500m"
 EOF
-    cat job.yaml
-    kubectl --kubeconfig="${KUBECONFIG_FILE}" apply -f job.yaml
-
-    echo "Waiting for job '${job_name}' to complete and streaming logs (timeout: ${JOB_TIMEOUT}s)..."
-    kubectl --kubeconfig="${KUBECONFIG_FILE}" logs -f "job/${job_name}" -n "${NAMESPACE}" &
     
-    if kubectl --kubeconfig="${KUBECONFIG_FILE}" wait --for=condition=complete "job/${job_name}" -n "${NAMESPACE}" --timeout="${JOB_TIMEOUT}s"; then
-        echo "Setup completed successfully."
-    else
-        echo "Error: Setup job failed or timed out." >&2
-        echo "--- Job Description ---"
-        kubectl --kubeconfig="${KUBECONFIG_FILE}" describe "job/${job_name}" -n "${NAMESPACE}" || true
-        echo "--- Pod Status ---"
-        kubectl --kubeconfig="${KUBECONFIG_FILE}" get pods -l job-name="${job_name}" -n "${NAMESPACE}" -o wide || true
+    if ! monitor_job_and_stream_logs "${job_name}" "${JOB_TIMEOUT}"; then
+        show_failure_details "${job_name}"
         exit 1
     fi
 }

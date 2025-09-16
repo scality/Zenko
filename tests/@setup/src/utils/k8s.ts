@@ -45,7 +45,7 @@ export class KubernetesClient {
             await this.coreApi.readNamespace({ name: namespace });
             logger.debug(`Namespace ${namespace} exists`);
         } catch (error: any) {
-            if (error.response?.statusCode === 404) {
+            if (error.code === 404) {
                 logger.info(`Creating namespace ${namespace}`);
                 await this.coreApi.createNamespace({
                     body: {
@@ -84,11 +84,12 @@ export class KubernetesClient {
                         },
                     );
                 } catch (error: any) {
-                    if (error.response?.statusCode === 404) {
-                        await this.appsApi.createNamespacedDeployment(
-                            metadata.namespace || 'default',
-                            manifest,
-                        );
+                    // Kubernetes API error - check for 404 not found
+                    if (error.code === 404) {
+                        await this.appsApi.createNamespacedDeployment({
+                            namespace: metadata.namespace || 'default',
+                            body: manifest,
+                        });
                     } else {
                         throw error;
                     }
@@ -108,8 +109,11 @@ export class KubernetesClient {
                         },
                     );
                 } catch (error: any) {
-                    if (error.response?.statusCode === 404) {
-                        await this.coreApi.createNamespacedService(metadata.namespace || 'default', manifest);
+                    if (error.code === 404) {
+                        await this.coreApi.createNamespacedService({
+                            namespace: metadata.namespace || 'default',
+                            body: manifest,
+                        });
                     } else {
                         throw error;
                     }
@@ -129,8 +133,11 @@ export class KubernetesClient {
                         },
                     );
                 } catch (error: any) {
-                    if (error.response?.statusCode === 404) {
-                        await this.coreApi.createNamespacedConfigMap(metadata.namespace || 'default', manifest);
+                    if (error.code === 404) {
+                        await this.coreApi.createNamespacedConfigMap({
+                            namespace: metadata.namespace || 'default',
+                            body: manifest,
+                        });
                     } else {
                         throw error;
                     }
@@ -150,11 +157,11 @@ export class KubernetesClient {
                         },
                     );
                 } catch (error: any) {
-                    if (error.response?.statusCode === 404) {
-                        await this.coreApi.createNamespacedSecret(
-                            metadata.namespace || 'default',
-                            manifest,
-                        );
+                    if (error.code === 404) {
+                        await this.coreApi.createNamespacedSecret({
+                            namespace: metadata.namespace || 'default',
+                            body: manifest,
+                        });
                     } else {
                         throw error;
                     }
@@ -176,7 +183,7 @@ export class KubernetesClient {
                 );
             }
         } catch (error: any) {
-            if (error.response?.statusCode === 409) {
+            if (error.code === 409) {
                 logger.debug(`Resource ${kind}/${metadata.name} already exists`);
             } else {
                 throw error;
