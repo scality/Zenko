@@ -1,157 +1,150 @@
 #!/bin/bash
-set -euox pipefail
+set -euo pipefail
 
-# Simple script to setup test environment on any Zenko cluster
-# Usage: ./setup-tests.sh [path-to-kubeconfig] [additional-options]
+NAMESPACE="${NAMESPACE:-default}"
+INSTANCE_ID="${INSTANCE_ID:-end2end}"
+SUBDOMAIN="${SUBDOMAIN:-zenko.local}"
+SETUP_IMAGE="${SETUP_IMAGE:-ghcr.io/scality/zenko-setup:latest}"
+LOG_LEVEL="${LOG_LEVEL:-info}"
+METADATA_NAMESPACE="${METADATA_NAMESPACE:-metadata}"
+JOB_TIMEOUT="${JOB_TIMEOUT:-1800}"
+KUBECONFIG_FILE="${KUBECONFIG_FILE:-${HOME}/.kube/config}"
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-KUBECONFIG_FILE="${1:-$HOME/.kube/config}"
-shift || true  # Remove first argument, keep rest as additional options
+SERVICE_ACCOUNT_NAME="zenko-setup"
+CLUSTER_ROLE_NAME="zenko-setup-role"
+CLUSTER_ROLE_BINDING_NAME="zenko-setup-binding"
+MANAGED_BY_LABEL="zenko-setup-script"
 
-# Default environment variables - modify these as needed
-export NAMESPACE="${NAMESPACE:-default}"
-export INSTANCE_ID="${INSTANCE_ID:-end2end}"
-export SUBDOMAIN="${SUBDOMAIN:-zenko.local}"
-export SETUP_IMAGE="${SETUP_IMAGE:-ghcr.io/scality/zenko-setup:latest}"
-export LOG_LEVEL="${LOG_LEVEL:-info}"
-export METADATA_NAMESPACE="${METADATA_NAMESPACE:-metadata}"
-export JOB_TIMEOUT="${JOB_TIMEOUT:-1800}"
+usage() {
+    cat <<EOF
+Usage: $(basename "$0") [OPTIONS] [-- ADDITIONAL_SETUP_ARGS]
 
-# Optional environment variables (set them before running this script if needed)
-# export GIT_ACCESS_TOKEN="your-token-here"
+Options:
+  --kubeconfig <path>  Path to the kubeconfig file. Defaults to ~/.kube/config.
+  --cleanup            Remove all resources created by this script and exit.
+  --help               Display this help message and exit.
 
-echo "=== Zenko Test Environment Setup ==="
-echo "Kubeconfig: ${KUBECONFIG_FILE}"
-echo "Namespace: ${NAMESPACE}"
-echo "Instance ID: ${INSTANCE_ID}"
-echo "Subdomain: ${SUBDOMAIN}"
-echo "Setup Image: ${SETUP_IMAGE}"
-echo "Additional options: $*"
-echo
-
-# Verify kubeconfig exists and is accessible
-if [[ ! -f "${KUBECONFIG_FILE}" ]]; then
-    echo "Error: Kubeconfig file not found: ${KUBECONFIG_FILE}"
+ADDITIONAL_SETUP_ARGS:
+  Any arguments placed after '--' will be passed directly to the setup container.
+EOF
     exit 1
-fi
+}
 
-# Test cluster connectivity
-echo "Testing cluster connectivity..."
-if ! kubectl --kubeconfig="${KUBECONFIG_FILE}" cluster-info >/dev/null 2>&1; then
-    echo "Error: Cannot connect to Kubernetes cluster"
-    echo "Please check your kubeconfig file: ${KUBECONFIG_FILE}"
-    exit 1
-fi
-echo "Connected to cluster"
+check_deps() {
+    command -v kubectl >/dev/null || { echo "Error: kubectl is not installed. Please install it to continue." >&2; exit 1; }
+}
 
-# Setup RBAC if needed
-echo "Setting up RBAC permissions..."
-cat <<EOF | kubectl --kubeconfig="${KUBECONFIG_FILE}" apply -f -
+array_to_yaml_list() {
+    local -n arr=$1
+    for item in "${arr[@]}"; do
+        echo "        - \"${item}\""
+    done
+}
+
+cleanup() {
+    echo "Starting cleanup of all resources managed by this script..."
+
+    echo "Deleting ClusterRoleBinding '${CLUSTER_ROLE_BINDING_NAME}'..."
+    kubectl --kubeconfig="${KUBECONFIG_FILE}" delete clusterrolebinding "${CLUSTER_ROLE_BINDING_NAME}" --ignore-not-found=true
+
+    echo "Deleting ClusterRole '${CLUSTER_ROLE_NAME}'..."
+    kubectl --kubeconfig="${KUBECONFIG_FILE}" delete clusterrole "${CLUSTER_ROLE_NAME}" --ignore-not-found=true
+
+    echo "Deleting ServiceAccount '${SERVICE_ACCOUNT_NAME}' in namespace '${NAMESPACE}'..."
+    kubectl --kubeconfig="${KUBECONFIG_FILE}" delete serviceaccount "${SERVICE_ACCOUNT_NAME}" -n "${NAMESPACE}" --ignore-not-found=true
+
+    echo "Deleting setup Jobs in namespace '${NAMESPACE}'..."
+    kubectl --kubeconfig="${KUBECONFIG_FILE}" delete job -n "${NAMESPACE}" -l "managed-by=${MANAGED_BY_LABEL}" --ignore-not-found=true
+
+    echo "Cleanup complete."
+}
+
+apply_rbac() {
+    echo "Applying RBAC permissions..."
+    cat <<EOF > rbac.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: zenko-setup
+  name: ${SERVICE_ACCOUNT_NAME}
   namespace: ${NAMESPACE}
+  labels:
+    managed-by: ${MANAGED_BY_LABEL}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: zenko-setup
+  name: ${CLUSTER_ROLE_NAME}
+  labels:
+    managed-by: ${MANAGED_BY_LABEL}
 rules:
-# Core API permissions
-- apiGroups: [""]
-  resources: ["*"]
-  verbs: ["*"]
-# Apps API permissions  
-- apiGroups: ["apps"]
-  resources: ["*"]
-  verbs: ["*"]
-# Batch API permissions
-- apiGroups: ["batch"]
-  resources: ["*"]
-  verbs: ["*"]
-# RBAC permissions
-- apiGroups: ["rbac.authorization.k8s.io"]
-  resources: ["*"]
-  verbs: ["*"]
-# Custom resources (Zenko CRDs)
-- apiGroups: ["zenko.io"]
-  resources: ["*"]
-  verbs: ["*"]
-# Networking
-- apiGroups: ["networking.k8s.io"]
+- apiGroups: ["", "apps", "batch", "rbac.authorization.k8s.io", "zenko.io", "networking.k8s.io"]
   resources: ["*"]
   verbs: ["*"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: zenko-setup
+  name: ${CLUSTER_ROLE_BINDING_NAME}
+  labels:
+    managed-by: ${MANAGED_BY_LABEL}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: zenko-setup
+  name: ${CLUSTER_ROLE_NAME}
 subjects:
 - kind: ServiceAccount
-  name: zenko-setup
+  name: ${SERVICE_ACCOUNT_NAME}
   namespace: ${NAMESPACE}
 EOF
+    cat rbac.yaml
+    kubectl --kubeconfig="${KUBECONFIG_FILE}" apply -f rbac.yaml
+}
 
-# Build the setup command arguments
-SETUP_ARGS=("all")
-SETUP_ARGS+=("--namespace" "${NAMESPACE}")
-SETUP_ARGS+=("--subdomain" "${SUBDOMAIN}")
+create_job() {
+    local -n additional_args_ref=$1
+    local job_name="zenko-setup-$(date +%s)"
 
-# Add instance ID if provided
-if [[ -n "${INSTANCE_ID}" ]]; then
-    SETUP_ARGS+=("--instance-id" "${INSTANCE_ID}")
-fi
+    local -a setup_args
+    setup_args=(
+        "all"
+        "--namespace" "${NAMESPACE}"
+        "--subdomain" "${SUBDOMAIN}"
+        "--instance-id" "${INSTANCE_ID}"
+        "--metadata-namespace" "${METADATA_NAMESPACE}"
+    )
+    if [[ -n "${GIT_ACCESS_TOKEN:-}" ]]; then
+        setup_args+=("--git-access-token" "${GIT_ACCESS_TOKEN}")
+    fi
+    setup_args+=("${additional_args_ref[@]}")
+    
+    local setup_args_yaml
+    setup_args_yaml=$(array_to_yaml_list setup_args)
 
-# Add git access token if provided
-if [[ -n "${GIT_ACCESS_TOKEN:-}" ]]; then
-    SETUP_ARGS+=("--git-access-token" "${GIT_ACCESS_TOKEN}")
-fi
+    echo "Creating setup job: ${job_name}..."
+    echo "Setup container args: ${setup_args[*]}"
 
-# Add metadata namespace
-SETUP_ARGS+=("--metadata-namespace" "${METADATA_NAMESPACE}")
-
-# Add any additional command line arguments passed to this script
-SETUP_ARGS+=("$@")
-
-# Convert args array to YAML format for kubectl
-SETUP_ARGS_YAML=""
-for arg in "${SETUP_ARGS[@]}"; do
-    SETUP_ARGS_YAML+="        - \"${arg}\"
-"
-done
-
-# Create the Job
-JOB_NAME="zenko-setup-$(date +%s)"
-echo "Creating setup job: ${JOB_NAME}..."
-echo "Setup args: ${SETUP_ARGS[*]}"
-
-cat <<EOF | kubectl --kubeconfig="${KUBECONFIG_FILE}" apply -f -
+    cat <<EOF > job.yaml
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: ${JOB_NAME}
+  name: ${job_name}
   namespace: ${NAMESPACE}
   labels:
     app: zenko-setup
-    managed-by: local-script
+    managed-by: ${MANAGED_BY_LABEL}
 spec:
   ttlSecondsAfterFinished: 300
   backoffLimit: 1
   activeDeadlineSeconds: ${JOB_TIMEOUT}
   template:
     spec:
-      serviceAccountName: zenko-setup
+      serviceAccountName: ${SERVICE_ACCOUNT_NAME}
       restartPolicy: Never
       containers:
       - name: setup
         image: ${SETUP_IMAGE}
         args:
-${SETUP_ARGS_YAML}
+${setup_args_yaml}
         env:
         - name: LOG_LEVEL
           value: "${LOG_LEVEL}"
@@ -165,40 +158,71 @@ ${SETUP_ARGS_YAML}
             memory: "1Gi"
             cpu: "500m"
 EOF
+    cat job.yaml
+    kubectl --kubeconfig="${KUBECONFIG_FILE}" apply -f job.yaml
 
-# Wait for job completion
-echo "Waiting for job ${JOB_NAME} to complete (timeout: ${JOB_TIMEOUT}s)..."
-if kubectl --kubeconfig="${KUBECONFIG_FILE}" wait --for=condition=complete "job/${JOB_NAME}" -n "${NAMESPACE}" --timeout="${JOB_TIMEOUT}s"; then
-    echo
-    echo "Setup completed successfully!"
-    echo
-    echo "Your Zenko test environment is ready."
-    echo "You can now run tests with: ./run-tests.sh ${KUBECONFIG_FILE}"
-    echo
+    echo "Waiting for job '${job_name}' to complete (timeout: ${JOB_TIMEOUT}s)..."
+    if kubectl --kubeconfig="${KUBECONFIG_FILE}" wait --for=condition=complete "job/${job_name}" -n "${NAMESPACE}" --timeout="${JOB_TIMEOUT}s"; then
+        echo "Setup completed successfully."
+        echo "Setup job logs (last 50 lines):"
+        kubectl --kubeconfig="${KUBECONFIG_FILE}" logs "job/${job_name}" -n "${NAMESPACE}" --tail=50 || true
+    else
+        echo "Error: Setup job failed or timed out." >&2
+        echo "--- Job Description ---"
+        kubectl --kubeconfig="${KUBECONFIG_FILE}" describe "job/${job_name}" -n "${NAMESPACE}" || true
+        echo "--- Pod Status ---"
+        kubectl --kubeconfig="${KUBECONFIG_FILE}" get pods -l job-name="${job_name}" -n "${NAMESPACE}" -o wide || true
+        echo "--- Full Job Logs ---"
+        kubectl --kubeconfig="${KUBECONFIG_FILE}" logs "job/${job_name}" -n "${NAMESPACE}" || true
+        exit 1
+    fi
+}
+
+main() {
+    ACTION="run"
+    ADDITIONAL_ARGS=()
+
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --kubeconfig)
+                KUBECONFIG_FILE="$2"
+                shift 2
+                ;;
+            --cleanup)
+                ACTION="cleanup"
+                shift 1
+                ;;
+            --help)
+                usage
+                ;;
+            --)
+                shift
+                ADDITIONAL_ARGS=("$@")
+                break
+                ;;
+            *)
+                echo "Error: Unknown option: $1" >&2
+                usage
+                ;;
+        esac
+    done
+
+    check_deps
+
+    if [[ "${ACTION}" == "cleanup" ]]; then
+        cleanup
+        exit 0
+    fi
     
-    # Show logs for debugging even on success
-    echo "Setup job logs:"
-    kubectl --kubeconfig="${KUBECONFIG_FILE}" logs "job/${JOB_NAME}" -n "${NAMESPACE}" --tail=50 || true
-    echo
-else
-    echo
-    echo "Setup job failed or timed out!"
-    echo
+    echo "Starting Zenko test environment setup..."
+    echo "Using kubeconfig: ${KUBECONFIG_FILE}"
+
+    cleanup
     
-    # Get detailed job status
-    echo "Job status:"
-    kubectl --kubeconfig="${KUBECONFIG_FILE}" describe "job/${JOB_NAME}" -n "${NAMESPACE}" || true
-    echo
+    apply_rbac
+    create_job ADDITIONAL_ARGS
     
-    # Get pod status and logs
-    echo "Pod status:"
-    kubectl --kubeconfig="${KUBECONFIG_FILE}" get pods -l job-name="${JOB_NAME}" -n "${NAMESPACE}" -o wide || true
-    echo
-    
-    echo "Setup job logs:"
-    kubectl --kubeconfig="${KUBECONFIG_FILE}" logs "job/${JOB_NAME}" -n "${NAMESPACE}" || true
-    echo
-    
-    echo "Setup failed!"
-    exit 1
-fi
+    echo "Zenko test environment is ready."
+}
+
+main "$@"

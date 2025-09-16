@@ -20,8 +20,6 @@ export default tseslint.config(
     includeIgnoreFile(gitignorePath),
     {
         rules: {
-            // CucumberJS steps start with an uppercase
-            'new-cap': 'off',
             '@typescript-eslint/no-explicit-any': 'off',
         },
     },

@@ -1,87 +1,75 @@
 #!/bin/bash
 set -euo pipefail
 
-# Simple script to run tests against a Zenko cluster
-# Usage: ./run-tests.sh [path-to-kubeconfig] [test-type]
+NAMESPACE="${NAMESPACE:-default}"
+INSTANCE_ID="${INSTANCE_ID:-end2end}"
+SUBDOMAIN="${SUBDOMAIN:-zenko.local}"
+E2E_IMAGE="${E2E_IMAGE:-ghcr.io/scality/zenko/zenko-e2e:latest}"
+E2E_CTST_IMAGE="${E2E_CTST_IMAGE:-ghcr.io/scality/zenko/zenko-e2e-ctst:latest}"
+JOB_TIMEOUT="${JOB_TIMEOUT:-3600}"
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-KUBECONFIG_FILE="${1:-$HOME/.kube/config}"
-TEST_TYPE="${2:-ctst}"  # ctst, e2e, smoke, etc.
+PARALLEL_RUNS="${PARALLEL_RUNS:-$(( ( $(nproc || echo 2) + 1 ) / 2 ))}"
+JUNIT_REPORT_PATH="${JUNIT_REPORT_PATH:-/reports/ctst-junit.xml}"
 
-# For CTST, capture additional arguments (like --tags @PRA)
-shift 2 || true
-ADDITIONAL_ARGS=("$@")
+MANAGED_BY_LABEL="zenko-run-tests-script"
+CLUSTER_ROLE_BINDING_NAME="ctst-cluster-admin-for-${NAMESPACE}"
 
-# Default environment variables - modify these as needed
-export NAMESPACE="${NAMESPACE:-default}"
-export INSTANCE_ID="${INSTANCE_ID:-end2end}"
-export SUBDOMAIN="${SUBDOMAIN:-zenko.local}"
-export E2E_IMAGE="${E2E_IMAGE:-ghcr.io/scality/zenko/zenko-e2e:latest}"
-export E2E_CTST_IMAGE="${E2E_CTST_IMAGE:-ghcr.io/scality/zenko/zenko-e2e-ctst:latest}"
-export JOB_TIMEOUT="${JOB_TIMEOUT:-3600}"
+usage() {
+    cat <<EOF
+Usage: $(basename "$0") [OPTIONS] [-- ADDITIONAL_TEST_ARGS]
 
-# Test environment endpoints
-export OIDC_REALM="${OIDC_REALM:-zenko}"
-export OIDC_CLIENT_ID="${OIDC_CLIENT_ID:-zenko-ui}"
-export OIDC_USERNAME="${OIDC_USERNAME:-storage_manager}"
-export OIDC_PASSWORD="${OIDC_PASSWORD:-123}"
-export OIDC_HOST="${OIDC_HOST:-keycloak.zenko.local}"
-export OIDC_ENDPOINT="http://keycloak-http.${NAMESPACE}.svc.cluster.local:8080/realms/${OIDC_REALM}"
-export MANAGEMENT_ENDPOINT="http://zenko-connector.${NAMESPACE}.svc.cluster.local:8000/api/v1"
-export S3_ENDPOINT="http://cloudserver.${NAMESPACE}.svc.cluster.local:80"
+Options:
+  --type <type>        Required. The type of test to run (e2e, smoke, ctst).
+  --kubeconfig <path>  Path to the kubeconfig file. Defaults to ~/.kube/config.
+  --cleanup            Remove all resources created by this script and exit.
+  --help               Display this help message and exit.
 
-# CTST-specific environment variables
-export PARALLEL_RUNS="${PARALLEL_RUNS:-$(( ( $(nproc) + 1 ) / 2 ))}"
-export RETRIES="${RETRIES:-3}"
-export JUNIT_REPORT_PATH="${JUNIT_REPORT_PATH:-ctst-junit.xml}"
-export DR_SUBDOMAIN="${DR_SUBDOMAIN:-dr.zenko.local}"
-export AZURE_ACCOUNT_NAME="${AZURE_ACCOUNT_NAME:-devstoreaccount1}"
-export AZURE_SECRET_KEY="${AZURE_SECRET_KEY:-Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==}"
-export AZURE_ARCHIVE_BUCKET_NAME="${AZURE_ARCHIVE_BUCKET_NAME:-archive-container}"
-export AZURE_ARCHIVE_BUCKET_NAME_2="${AZURE_ARCHIVE_BUCKET_NAME_2:-archive-container-2}"
-export AZURE_ARCHIVE_QUEUE_NAME="${AZURE_ARCHIVE_QUEUE_NAME:-archive-queue}"
-export AZURE_BACKEND_ENDPOINT="${AZURE_BACKEND_ENDPOINT:-}"
-export AZURE_BACKEND_QUEUE_ENDPOINT="${AZURE_BACKEND_QUEUE_ENDPOINT:-}"
-
-echo "=== Zenko Test Execution ==="
-echo "Kubeconfig: ${KUBECONFIG_FILE}"
-echo "Test Type: ${TEST_TYPE}"
-echo "Namespace: ${NAMESPACE}"
-echo "Instance ID: ${INSTANCE_ID}"
-echo "Subdomain: ${SUBDOMAIN}"
-echo
-
-# Verify kubeconfig exists and is accessible
-if [[ ! -f "${KUBECONFIG_FILE}" ]]; then
-    echo "Error: Kubeconfig file not found: ${KUBECONFIG_FILE}"
+ADDITIONAL_TEST_ARGS:
+  Any arguments placed after '--' will be passed directly to the test command.
+  Example for ctst: -- --tags @PRA --tags ~@Flaky
+EOF
     exit 1
-fi
+}
 
-# Test cluster connectivity
-echo "Testing cluster connectivity..."
-if ! kubectl --kubeconfig="${KUBECONFIG_FILE}" cluster-info >/dev/null 2>&1; then
-    echo "Error: Cannot connect to Kubernetes cluster"
-    exit 1
-fi
-echo "Connected to cluster"
+check_deps() {
+    echo "Checking for required dependencies..."
+    command -v kubectl >/dev/null || { echo "Error: kubectl is not installed. Please install it to continue." >&2; exit 1; }
+    command -v jq >/dev/null || { echo "Error: jq is not installed. Please install it to continue." >&2; exit 1; }
+    echo "All dependencies are satisfied."
+}
 
-# Check if Zenko is deployed and ready
-echo "Checking Zenko deployment..."
-if ! kubectl --kubeconfig="${KUBECONFIG_FILE}" get zenko "${INSTANCE_ID}" -n "${NAMESPACE}" >/dev/null 2>&1; then
-    echo "Error: Zenko instance '${INSTANCE_ID}' not found in namespace '${NAMESPACE}'"
-    echo "Please run setup first: ./setup-tests.sh ${KUBECONFIG_FILE}"
-    exit 1
-fi
-echo "Zenko instance found"
+cleanup() {
+    echo "Starting cleanup of script-managed resources..."
+    echo "Deleting ClusterRoleBinding '${CLUSTER_ROLE_BINDING_NAME}'..."
+    kubectl --kubeconfig="${KUBECONFIG_FILE}" delete clusterrolebinding "${CLUSTER_ROLE_BINDING_NAME}" --ignore-not-found=true
 
-# Handle CTST-specific setup
-if [[ "${TEST_TYPE}" == "ctst" ]]; then
-    echo "Setting up CTST cluster-admin permissions..."
+    echo "Deleting test Jobs in namespace '${NAMESPACE}' with label 'managed-by=${MANAGED_BY_LABEL}'..."
+    kubectl --kubeconfig="${KUBECONFIG_FILE}" delete job -n "${NAMESPACE}" -l "managed-by=${MANAGED_BY_LABEL}" --ignore-not-found=true
+    echo "Cleanup complete."
+}
+
+run_checks() {
+    echo "Performing prerequisite checks..."
+    [[ -f "${KUBECONFIG_FILE}" ]] || { echo "Error: Kubeconfig file not found: ${KUBECONFIG_FILE}" >&2; exit 1; }
+    
+    echo "Testing cluster connectivity..."
+    kubectl --kubeconfig="${KUBECONFIG_FILE}" cluster-info >/dev/null || { echo "Error: Cannot connect to Kubernetes cluster." >&2; exit 1; }
+    
+    echo "Checking for Zenko instance '${INSTANCE_ID}' in namespace '${NAMESPACE}'..."
+    kubectl --kubeconfig="${KUBECONFIG_FILE}" get zenko "${INSTANCE_ID}" -n "${NAMESPACE}" >/dev/null || \
+        { echo "Error: Zenko instance not found. Please ensure Zenko is deployed." >&2; exit 1; }
+    echo "All checks passed."
+}
+
+setup_ctst_permissions() {
+    echo "Applying CTST cluster-admin permissions for ServiceAccount 'default' in namespace '${NAMESPACE}'..."
     cat <<EOF | kubectl --kubeconfig="${KUBECONFIG_FILE}" apply -f -
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: ctst-cluster-admin
+  name: ${CLUSTER_ROLE_BINDING_NAME}
+  labels:
+    managed-by: ${MANAGED_BY_LABEL}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -91,92 +79,117 @@ subjects:
   name: default
   namespace: ${NAMESPACE}
 EOF
+}
 
-    # Get VERSION from the repository
-    VERSION=$(cat ../../../VERSION 2>/dev/null | grep -Po 'VERSION="\K[^"]*' || echo "unknown")
+# Converts a bash array into a YAML sequence for the Job manifest.
+# Usage: array_to_yaml_list "my_array[@]"
+array_to_yaml_list() {
+    local -n arr=$1
+    for item in "${arr[@]}"; do
+        echo "        - \"${item}\""
+    done
+}
+
+create_job() {
+    local test_type="$1"
+    local job_name="zenko-${test_type}-test-$(date +%s)"
+    local test_image=""
+    local -a test_command
+    local env_vars_yaml=""
+    local volumes_yaml=""
+    local volume_mounts_yaml=""
     
-    # Build CTST world parameters
-    WORLD_PARAMETERS=$(jq -c --null-input \
-        --arg namespace "${NAMESPACE}" \
-        --arg subdomain "${SUBDOMAIN}" \
-        --arg dr_subdomain "${DR_SUBDOMAIN}" \
-        --arg keycloak_username "${OIDC_USERNAME}" \
-        --arg keycloak_password "${OIDC_PASSWORD}" \
-        --arg keycloak_host "${OIDC_HOST}" \
-        --arg keycloak_realm "${OIDC_REALM}" \
-        --arg keycloak_client_id "${OIDC_CLIENT_ID}" \
-        --arg azure_account_name "${AZURE_ACCOUNT_NAME}" \
-        --arg azure_account_key "${AZURE_SECRET_KEY}" \
-        --arg azure_archive_container "${AZURE_ARCHIVE_BUCKET_NAME}" \
-        --arg azure_archive_container2 "${AZURE_ARCHIVE_BUCKET_NAME_2}" \
-        --arg azure_archive_queue "${AZURE_ARCHIVE_QUEUE_NAME}" \
-        '{
-            "Namespace": $namespace,
-            "subdomain": $subdomain,
-            "DRSubdomain": $dr_subdomain,
-            "KeycloakUsername": $keycloak_username,
-            "KeycloakPassword": $keycloak_password,
-            "KeycloakHost": $keycloak_host,
-            "KeycloakRealm": $keycloak_realm,
-            "KeycloakClientId": $keycloak_client_id,
-            "AzureAccountName": $azure_account_name,
-            "AzureAccountKey": $azure_account_key,
-            "AzureArchiveContainer": $azure_archive_container,
-            "AzureArchiveContainer2": $azure_archive_container2,
-            "AzureArchiveQueue": $azure_archive_queue
-        }')
-fi
+    echo "Configuring Job for test type: ${test_type}"
 
-# Select test image and command based on test type
-case "${TEST_TYPE}" in
-    ctst)
-        TEST_IMAGE="${E2E_CTST_IMAGE}"
-        # CTST uses a custom command with world parameters
-        TEST_COMMAND=("./run" "premerge" "${WORLD_PARAMETERS}" "--parallel" "${PARALLEL_RUNS}" "--retry" "${RETRIES}" "--retry-tag-filter" "@Flaky" "--format" "junit:${JUNIT_REPORT_PATH}")
-        # Add any additional arguments passed to the script
-        TEST_COMMAND+=("${ADDITIONAL_ARGS[@]}")
-        ;;
-    e2e)
-        TEST_IMAGE="${E2E_IMAGE}" 
-        TEST_COMMAND=("npm" "run" "test:e2e")
-        ;;
-    smoke)
-        TEST_IMAGE="${E2E_IMAGE}"
-        TEST_COMMAND=("npm" "run" "test:smoke")
-        ;;
-    *)
-        echo "Error: Unknown test type '${TEST_TYPE}'"
-        echo "Available types: ctst, e2e, smoke"
-        exit 1
-        ;;
-esac
+    case "${test_type}" in
+        ctst)
+            local version
+            version=$(grep -Po 'VERSION="\K[^"]*' ../../../VERSION 2>/dev/null || echo "unknown")
+            
+            test_image="${E2E_CTST_IMAGE}"
+            
+            local world_parameters
+            world_parameters=$(jq -cn \
+                --arg namespace "${NAMESPACE}" \
+                --arg subdomain "${SUBDOMAIN}" \
+                --arg dr_subdomain "${DR_SUBDOMAIN:-dr.zenko.local}" \
+                --arg keycloak_username "${OIDC_USERNAME:-storage_manager}" \
+                --arg keycloak_password "${OIDC_PASSWORD:-123}" \
+                --arg keycloak_host "${OIDC_HOST:-keycloak.zenko.local}" \
+                --arg keycloak_realm "${OIDC_REALM:-zenko}" \
+                --arg keycloak_client_id "${OIDC_CLIENT_ID:-zenko-ui}" \
+                '{ "Namespace": $namespace, "subdomain": $subdomain, "DRSubdomain": $dr_subdomain, "KeycloakUsername": $keycloak_username, "KeycloakPassword": $keycloak_password, "KeycloakHost": $keycloak_host, "KeycloakRealm": $keycloak_realm, "KeycloakClientId": $keycloak_client_id }')
 
-echo "Test Image: ${TEST_IMAGE}"
-echo "Test Command: ${TEST_COMMAND[*]}"
-echo
+            test_command=(
+                "./run" "premerge" "${world_parameters}"
+                "--parallel" "${PARALLEL_RUNS}"
+                "--retry" "${RETRIES:-3}"
+                "--retry-tag-filter" "@Flaky"
+                "--format" "junit:${JUNIT_REPORT_PATH}"
+            )
+            test_command+=("${ADDITIONAL_ARGS[@]}")
 
-# Create the test Job
-JOB_NAME="zenko-test-${TEST_TYPE}-$(date +%s)"
-echo "Creating test job: ${JOB_NAME}..."
+            env_vars_yaml=$(cat <<EOF
+        - name: TARGET_VERSION
+          value: "${version}"
+        - name: SEED_KEYCLOAK_DEFAULT_ROLES
+          value: "true"
+        - name: VERBOSE
+          value: "1"
+EOF
+)
+            volume_mounts_yaml=$(cat <<EOF
+        - name: reports
+          mountPath: /reports
+EOF
+)
+            volumes_yaml=$(cat <<EOF
+      - name: reports
+        hostPath:
+          path: /tmp/zenko-test-reports
+          type: DirectoryOrCreate
+EOF
+)
+            ;;
+        e2e|smoke)
+            test_image="${E2E_IMAGE}"
+            test_command=("npm" "run" "test:${test_type}")
+            test_command+=("${ADDITIONAL_ARGS[@]}")
+            
+            env_vars_yaml=$(cat <<EOF
+        - name: NAMESPACE
+          value: "${NAMESPACE}"
+        - name: S3_ENDPOINT
+          value: "http://cloudserver.${NAMESPACE}.svc.cluster.local:80"
+        - name: MANAGEMENT_ENDPOINT
+          value: "http://zenko-connector.${NAMESPACE}.svc.cluster.local:8000/api/v1"
+        # Add other common env vars here if needed
+EOF
+)
+            ;;
+        *)
+            echo "Error: Unknown test type '${test_type}' specified." >&2
+            exit 1
+            ;;
+    esac
 
-# Convert test command array to YAML format for kubectl
-TEST_COMMAND_YAML=""
-for cmd in "${TEST_COMMAND[@]}"; do
-    TEST_COMMAND_YAML+="        - \"${cmd}\"\\n"
-done
+    local command_yaml
+    command_yaml=$(array_to_yaml_list test_command)
 
-# Build the Job manifest based on test type
-if [[ "${TEST_TYPE}" == "ctst" ]]; then
+    echo "Creating test job: ${job_name}"
+    echo "Test Image: ${test_image}"
+    echo "Test Command: ${test_command[*]}"
+
     cat <<EOF | kubectl --kubeconfig="${KUBECONFIG_FILE}" apply -f -
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: ${JOB_NAME}
+  name: ${job_name}
   namespace: ${NAMESPACE}
   labels:
     app: zenko-test
-    test-type: ${TEST_TYPE}
-    managed-by: local-script
+    test-type: ${test_type}
+    managed-by: ${MANAGED_BY_LABEL}
 spec:
   ttlSecondsAfterFinished: 600
   backoffLimit: 0
@@ -186,115 +199,91 @@ spec:
       restartPolicy: Never
       containers:
       - name: test
-        image: ${TEST_IMAGE}
+        image: ${test_image}
         command:
-$(echo -e "${TEST_COMMAND_YAML}")
+${command_yaml}
         env:
-        - name: TARGET_VERSION
-          value: "${VERSION:-unknown}"
-        - name: SEED_KEYCLOAK_DEFAULT_ROLES
-          value: "true"
-        - name: AZURE_BLOB_URL
-          value: "${AZURE_BACKEND_ENDPOINT}"
-        - name: AZURE_QUEUE_URL
-          value: "${AZURE_BACKEND_QUEUE_ENDPOINT}"
-        - name: VERBOSE
-          value: "1"
+${env_vars_yaml}
         resources:
           requests:
             memory: "1Gi"
             cpu: "500m"
           limits:
             memory: "4Gi"
-            cpu: "2000m"
+            cpu: "2"
         volumeMounts:
-        - name: cold-data
-          mountPath: /cold-data
-        - name: reports
-          mountPath: /reports
+${volume_mounts_yaml:-""}
       volumes:
-      - name: cold-data
-        persistentVolumeClaim:
-          claimName: sorbet-data
-      - name: reports
-        hostPath:
-          path: /data/reports
-          type: DirectoryOrCreate
+${volumes_yaml:-""}
 EOF
-else
-    # Regular e2e/smoke tests
-    cat <<EOF | kubectl --kubeconfig="${KUBECONFIG_FILE}" apply -f -
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: ${JOB_NAME}
-  namespace: ${NAMESPACE}
-  labels:
-    app: zenko-test
-    test-type: ${TEST_TYPE}
-    managed-by: local-script
-spec:
-  ttlSecondsAfterFinished: 600
-  backoffLimit: 0
-  activeDeadlineSeconds: ${JOB_TIMEOUT}
-  template:
-    spec:
-      restartPolicy: Never
-      containers:
-      - name: test
-        image: ${TEST_IMAGE}
-        command:
-$(echo -e "${TEST_COMMAND_YAML}")
-        env:
-        - name: NAMESPACE
-          value: "${NAMESPACE}"
-        - name: INSTANCE_ID
-          value: "${INSTANCE_ID}"
-        - name: SUBDOMAIN
-          value: "${SUBDOMAIN}"
-        - name: OIDC_REALM
-          value: "${OIDC_REALM}"
-        - name: OIDC_CLIENT_ID
-          value: "${OIDC_CLIENT_ID}"
-        - name: OIDC_USERNAME
-          value: "${OIDC_USERNAME}"
-        - name: OIDC_PASSWORD
-          value: "${OIDC_PASSWORD}"
-        - name: OIDC_ENDPOINT
-          value: "${OIDC_ENDPOINT}"
-        - name: MANAGEMENT_ENDPOINT
-          value: "${MANAGEMENT_ENDPOINT}"
-        - name: S3_ENDPOINT
-          value: "${S3_ENDPOINT}"
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "200m"
-          limits:
-            memory: "2Gi"
-            cpu: "1000m"
-        volumeMounts:
-        - name: test-results
-          mountPath: /tmp/test-results
-      volumes:
-      - name: test-results
-        emptyDir: {}
-EOF
-fi
 
-# Wait for test job completion
-echo "Waiting for test job ${JOB_NAME} to complete (timeout: ${JOB_TIMEOUT}s)..."
-if kubectl --kubeconfig="${KUBECONFIG_FILE}" wait --for=condition=complete "job/${JOB_NAME}" -n "${NAMESPACE}" --timeout="${JOB_TIMEOUT}s"; then
-    echo
-    echo "Tests completed successfully!"
-    echo
-    echo "Test results:"
-    kubectl --kubeconfig="${KUBECONFIG_FILE}" logs "job/${JOB_NAME}" -n "${NAMESPACE}" || true
-else
-    echo
-    echo "Test job failed or timed out. Getting logs..."
-    kubectl --kubeconfig="${KUBECONFIG_FILE}" logs "job/${JOB_NAME}" -n "${NAMESPACE}" || true
-    echo
-    echo "Tests failed!"
-    exit 1
-fi
+    echo "Waiting for job '${job_name}' to complete (timeout: ${JOB_TIMEOUT}s)..."
+    if kubectl --kubeconfig="${KUBECONFIG_FILE}" wait --for=condition=complete "job/${job_name}" -n "${NAMESPACE}" --timeout="${JOB_TIMEOUT}s"; then
+        echo "Job completed successfully."
+        echo "Fetching logs for job '${job_name}'..."
+        kubectl --kubeconfig="${KUBECONFIG_FILE}" logs "job/${job_name}" -n "${NAMESPACE}"
+    else
+        echo "Job failed or timed out."
+        echo "Fetching logs for job '${job_name}'..."
+        kubectl --kubeconfig="${KUBECONFIG_FILE}" logs "job/${job_name}" -n "${NAMESPACE}" || true
+        echo "Error: Test run failed." >&2
+        exit 1
+    fi
+}
+
+main() {
+    KUBECONFIG_FILE="${HOME}/.kube/config"
+    TEST_TYPE=""
+    ACTION="run"
+    ADDITIONAL_ARGS=()
+
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --type)
+                TEST_TYPE="$2"
+                shift 2
+                ;;
+            --kubeconfig)
+                KUBECONFIG_FILE="$2"
+                shift 2
+                ;;
+            --cleanup)
+                ACTION="cleanup"
+                shift 1
+                ;;
+            --help)
+                usage
+                ;;
+            --)
+                shift
+                ADDITIONAL_ARGS=("$@")
+                break
+                ;;
+            *)
+                echo "Error: Unknown option: $1" >&2
+                exit 1
+                ;;
+        esac
+    done
+
+    if [[ "${ACTION}" == "cleanup" ]]; then
+        cleanup
+        exit 0
+    fi
+    
+    if [[ -z "${TEST_TYPE}" ]]; then
+        echo "Error: Test type is required. Use --type <e2e|smoke|ctst>." >&2
+        exit 1
+    fi
+
+    check_deps
+    run_checks
+
+    if [[ "${TEST_TYPE}" == "ctst" ]]; then
+        setup_ctst_permissions
+    fi
+
+    create_job "${TEST_TYPE}"
+}
+
+main "$@"

@@ -21,13 +21,13 @@ export class KubernetesClient {
                 // Try in-cluster config first (when running as a Pod)
                 this.kc.loadFromCluster();
                 logger.debug('Using in-cluster Kubernetes configuration');
-            } catch (clusterError) {
+            } catch {
                 try {
                     // Fallback to default (local kubeconfig)
                     this.kc.loadFromDefault();
                     logger.debug('Using default Kubernetes configuration');
                 } catch (defaultError) {
-                    logger.error('Failed to load Kubernetes configuration. Tried in-cluster and default configurations.');
+                    logger.error('Failed to load Kubernetes configuration.');
                     throw defaultError;
                 }
             }
