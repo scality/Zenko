@@ -505,9 +505,6 @@ jobs:
         env:
           ZENKO_MONGODB_DATABASE: pradb
         working-directory: ./.github/scripts/end2end
-      - name: Configure PRA test users (handled by CTST)
-        shell: bash
-        run: echo "PRA users configured by CTST setup"
       - name: Setup PRA test environment
         env:
           INSTANCE_ID: "end2end-pra"

@@ -22,7 +22,7 @@ inputs:
 outputs:
   image:
     description: 'Full image name with tag'
-    value: ${{ steps.meta.outputs.tags }}
+    value: ${{ inputs.registry }}/${{ github.repository_owner }}/${{ inputs.image-name }}:${{ inputs.tag }}
   digest:
     description: 'Image digest'
     value: ${{ steps.build.outputs.digest }}
