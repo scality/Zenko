@@ -125,11 +125,11 @@ def main():
         create_buckets.create_azure_containers()
         create_buckets.create_azure_queues()
 
-        account_creds = {}
+        accounts_creds = {}
 
         # create zenko resources
         for account in e2e_config["accounts"]:
-            account_creds[account] = accounts.create_account(client,
+            accounts_creds[account] = accounts.create_account(client,
                                     TOKEN,
                                     UUID,
                                     account,
@@ -140,7 +140,7 @@ def main():
                                       endpoint["locationName"])
 
         for location in e2e_config["locations"]:
-            locations.create_location(client, UUID, location, account_creds)
+            locations.create_location(client, UUID, location, accounts_creds)
 
         for wf in e2e_config["workflows"]["replication"]:
             workflows.create_replication_workflow(client, UUID, wf)

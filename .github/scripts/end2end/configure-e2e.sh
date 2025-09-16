@@ -11,7 +11,8 @@ NAMESPACE=${3:-default}
 SERVICE_ACCOUNT="${ZENKO_NAME}-config"
 POD_NAME="${ZENKO_NAME}-config"
 MANAGEMENT_ENDPOINT="http://${ZENKO_NAME}-management-orbit-api:5001"
-VAULT_ENDPOINT="http://${ZENKO_NAME}-connector-vault-sts-api"
+IAM_ENDPOINT="http://${ZENKO_NAME}-management-vault-iam-admin-api"
+STS_ENDPOINT="http://${ZENKO_NAME}-connector-vault-sts-api"
 UUID=$(kubectl get zenko ${ZENKO_NAME} --namespace ${NAMESPACE} -o jsonpath='{.status.instanceID}')
 TOKEN=$(get_token)
 
@@ -80,7 +81,8 @@ kubectl run ${POD_NAME} \
   --env="TOKEN=${TOKEN}" \
   --env="UUID=${UUID}" \
   --env="MANAGEMENT_ENDPOINT=${MANAGEMENT_ENDPOINT}" \
-  --env="VAULT_ENDPOINT=${VAULT_ENDPOINT}" \
+  --env="IAM_ENDPOINT=${IAM_ENDPOINT}" \
+  --env="STS_ENDPOINT=${STS_ENDPOINT}" \
   --env="NAMESPACE=${NAMESPACE}" \
   --env=VERIFY_CERTIFICATES=false \
   --env=ENABLE_RING_TESTS=${ENABLE_RING_TESTS} \
@@ -106,7 +108,10 @@ kubectl run ${POD_NAME} \
   --env=AZURE_ARCHIVE_BUCKET_NAME=${AZURE_ARCHIVE_BUCKET_NAME} \
   --env=AZURE_ARCHIVE_BUCKET_NAME_2=${AZURE_ARCHIVE_BUCKET_NAME_2} \
   --env=AZURE_ARCHIVE_QUEUE_NAME=${AZURE_ARCHIVE_QUEUE_NAME} \
-  --env=CRR_LOCATION_ACCOUNT_NAME=${CRR_LOCATION_ACCOUNT_NAME} \
+  --env=CRR_SOURCE_LOCATION_NAME=${CRR_SOURCE_LOCATION_NAME} \
+  --env=CRR_DESTINATION_LOCATION_NAME=${CRR_DESTINATION_LOCATION_NAME} \
+  --env=CRR_SOURCE_ACCOUNT_NAME=${CRR_SOURCE_ACCOUNT_NAME} \
+  --env=CRR_DESTINATION_ACCOUNT_NAME=${CRR_DESTINATION_ACCOUNT_NAME} \
   --command -- python3 configuration.py
 
 ## wait for updates to trigger zenko upgrades

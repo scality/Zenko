@@ -6,7 +6,9 @@ import os
 
 _log = logging.getLogger("end2end configuration")
 
-def setup_crr_site(account_creds):
+IAM_ENDPOINT = os.getenv("IAM_ENDPOINT", "http://iam.zenko.local")
+
+def _setup_crr_iam_resources(account_creds):
     """
     Sets up a CRR site by creating the user, role and policy.
     :param account_creds: credentials of the crr site account
@@ -17,7 +19,7 @@ def setup_crr_site(account_creds):
             aws_access_key_id=account_creds["AccessKeyId"],
             aws_secret_access_key=account_creds["SecretAccessKey"],
             aws_session_token=account_creds["SessionToken"],
-        ).client("iam")
+        ).client('iam', endpoint_url=IAM_ENDPOINT, region_name='us-east-1')
 
         user = iam_client.create_user(UserName="crr-user")
         credentials = iam_client.create_access_key(UserName="crr-user")
@@ -64,7 +66,7 @@ def setup_crr_site(account_creds):
     except Exception as e:
         raise Exception("Failed to setup CRR site: %s" % e)
 
-def create_location(client, uuid, location, account_creds):
+def create_location(client, uuid, location, accounts_creds):
     """
     Creates a location
     :param client: swagger client
@@ -77,9 +79,12 @@ def create_location(client, uuid, location, account_creds):
     if ENABLE_RING_TESTS == "false" and location["locationType"] == "location-scality-ring-s3-v1":
         return
     
-    CRR_LOCATION_ACCOUNT_NAME = os.environ['CRR_LOCATION_ACCOUNT_NAME']
     if location["locationType"] == "location-scality-crr-v1":
-        user_creds = setup_crr_site(account_creds[CRR_LOCATION_ACCOUNT_NAME])
+        account_name = os.environ['CRR_SOURCE_ACCOUNT_NAME']
+        if location["name"] == os.environ['CRR_DESTINATION_LOCATION_NAME']:
+            account_name = os.environ['CRR_DESTINATION_ACCOUNT_NAME']
+
+        user_creds = _setup_crr_iam_resources(accounts_creds[account_name])
         location["details"]["accessKey"] = user_creds["accessKey"]
         location["details"]["secretKey"] = user_creds["secretKey"]
 
@@ -98,7 +103,7 @@ def create_location(client, uuid, location, account_creds):
             .result
         )
 
-        _log.info("location created")
+        _log.info("location %s created", location["name"])
     except Exception as e:
         raise Exception(
             "Failed to create location '%s': %s" % (location["name"], e))
