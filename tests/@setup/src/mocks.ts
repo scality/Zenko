@@ -1,5 +1,8 @@
+import { V1Ingress, V1Pod, V1Service } from '@kubernetes/client-node';
 import { KubernetesClient } from './utils/k8s';
 import { logger } from './utils/logger';
+import * as fs from 'fs';
+import * as path from 'path';
 
 export interface MocksOptions {
     namespace: string;
@@ -23,214 +26,475 @@ export async function setupMocks(options: MocksOptions): Promise<void> {
 }
 
 async function setupAwsMocks(k8s: KubernetesClient, options: MocksOptions): Promise<void> {
-    logger.info('Setting up AWS S3 mock (CloudServer)');
+    logger.info('Setting up AWS S3 mock');
 
-    // CloudServer deployment for S3 API mocking
-    const cloudServerDeployment = {
-        apiVersion: 'apps/v1',
-        kind: 'Deployment',
-        metadata: {
-            name: 'cloudserver-mock',
-            namespace: options.namespace,
-            labels: {
-                app: 'cloudserver-mock',
-                component: 'aws-mock'
-            }
-        },
-        spec: {
-            replicas: 1,
-            selector: {
-                matchLabels: {
-                    app: 'cloudserver-mock'
-                }
-            },
-            template: {
-                metadata: {
-                    labels: {
-                        app: 'cloudserver-mock'
-                    }
-                },
-                spec: {
-                    containers: [{
-                        name: 'cloudserver',
-                        image: 'ghcr.io/scality/cloudserver:latest',
-                        ports: [{ containerPort: 8000 }],
-                        env: [
-                            { name: 'SCALITY_ACCESS_KEY_ID', value: 'accessKey1' },
-                            { name: 'SCALITY_SECRET_ACCESS_KEY', value: 'verySecretKey1' },
-                            { name: 'S3BACKEND', value: 'mem' },
-                            { name: 'LOG_LEVEL', value: 'info' },
-                            { name: 'REMOTE_MANAGEMENT_DISABLE', value: '1' }
-                        ],
-                        readinessProbe: {
-                            httpGet: {
-                                path: '/',
-                                port: 8000
-                            },
-                            initialDelaySeconds: 10,
-                            periodSeconds: 5
-                        }
-                    }]
-                }
-            }
-        }
-    };
+    // Create ConfigMap with mock-metadata.tar.gz
+    await createAwsMockConfigMap(k8s, options);
 
-    // CloudServer service
-    const cloudServerService = {
+    // AWS mock service
+    const awsMockService: V1Service = {
         apiVersion: 'v1',
         kind: 'Service',
         metadata: {
-            name: 'cloudserver-mock',
-            namespace: options.namespace,
-            labels: {
-                app: 'cloudserver-mock'
-            }
+            name: 'aws-mock',
+            namespace: options.namespace
         },
         spec: {
             selector: {
-                app: 'cloudserver-mock'
+                name: 'aws-mock'
             },
+            type: 'ClusterIP',
             ports: [{
-                port: 8000,
-                targetPort: 8000,
-                name: 's3'
+                name: 'http',
+                port: 80,
+                targetPort: 'http'
             }]
         }
     };
 
-    // AWS credentials secret for testing
-    const awsCredsSecret = {
+    // AWS mock pod
+    const awsMockPod = {
         apiVersion: 'v1',
-        kind: 'Secret',
+        kind: 'Pod',
         metadata: {
-            name: 'aws-mock-credentials',
-            namespace: options.namespace
+            name: 'aws-mock-pod',
+            namespace: options.namespace,
+            labels: {
+                name: 'aws-mock',
+                component: 'mock'
+            }
         },
-        type: 'Opaque',
-        stringData: {
-            'aws-access-key-id': 'accessKey1',
-            'aws-secret-access-key': 'verySecretKey1',
-            'aws-region': 'us-east-1',
-            'aws-endpoint': `http://cloudserver-mock.${options.namespace}.svc.cluster.local:8000`
+        spec: {
+            initContainers: [{
+                name: 'setup',
+                image: 'zenko/cloudserver:latest',
+                imagePullPolicy: 'Always',
+                command: ['tar', '-xvf', '/static-config/mock-metadata.tar.gz', '-C', '/usr/src/app'],
+                volumeMounts: [
+                    {
+                        name: 'configmap',
+                        mountPath: '/static-config'
+                    },
+                    {
+                        name: 'metadata',
+                        mountPath: '/usr/src/app/localMetadata'
+                    }
+                ]
+            }],
+            containers: [{
+                name: 'aws-mock',
+                image: 'zenko/cloudserver:latest',
+                env: [
+                    { name: 'LOG_LEVEL', value: 'trace' },
+                    { name: 'REMOTE_MANAGEMENT_DISABLE', value: '1' },
+                    { name: 'ENDPOINT', value: 'aws-mock.zenko.local' },
+                    { name: 'S3BACKEND', value: 'file' }
+                ],
+                ports: [{
+                    name: 'http',
+                    containerPort: 8000
+                }],
+                volumeMounts: [{
+                    name: 'metadata',
+                    mountPath: '/usr/src/app/localMetadata'
+                }],
+                resources: {
+                    limits: {
+                        cpu: '1',
+                        memory: '2Gi'
+                    },
+                    requests: {
+                        cpu: '1',
+                        memory: '2Gi'
+                    }
+                }
+            }],
+            volumes: [
+                {
+                    name: 'metadata',
+                    emptyDir: {}
+                },
+                {
+                    name: 'configmap',
+                    configMap: {
+                        name: 'aws-mock'
+                    }
+                }
+            ]
         }
     };
 
-    await k8s.applyManifest(cloudServerDeployment, options.namespace);
-    await k8s.applyManifest(cloudServerService, options.namespace);
-    await k8s.applyManifest(awsCredsSecret, options.namespace);
+    // AWS mock ingress
+    const awsMockIngress: V1Ingress = {
+        apiVersion: 'networking.k8s.io/v1',
+        kind: 'Ingress',
+        metadata: {
+            name: 'aws-mock',
+            namespace: options.namespace,
+            annotations: {
+                'nginx.ingress.kubernetes.io/proxy-body-size': '0m',
+                'nginx.ingress.kubernetes.io/proxy-buffering': 'off',
+                'nginx.ingress.kubernetes.io/proxy-request-buffering': 'off',
+                'cert-manager.io/cluster-issuer': 'artesca-root-ca-issuer'
+            }
+        },
+        spec: {
+            tls: [{
+                secretName: 'aws-mock-tls',
+                hosts: [
+                    'aws-mock.zenko.local',
+                    '*.aws-mock.zenko.local'
+                ]
+            }],
+            rules: [
+                {
+                    host: 'aws-mock.zenko.local',
+                    http: {
+                        paths: [{
+                            backend: {
+                                service: {
+                                    name: 'aws-mock',
+                                    port: {
+                                        name: 'http'
+                                    }
+                                }
+                            },
+                            path: '/',
+                            pathType: 'Prefix'
+                        }]
+                    }
+                },
+                {
+                    host: '*.aws-mock.zenko.local',
+                    http: {
+                        paths: [{
+                            backend: {
+                                service: {
+                                    name: 'aws-mock',
+                                    port: {
+                                        name: 'http'
+                                    }
+                                }
+                            },
+                            path: '/',
+                            pathType: 'Prefix'
+                        }]
+                    }
+                }
+            ]
+        }
+    };
 
-    // Wait for deployment to be ready
-    await k8s.waitForDeployment('cloudserver-mock', options.namespace);
+    await k8s.applyManifest(awsMockService, options.namespace);
+    await k8s.applyManifest(awsMockPod, options.namespace);
+    await k8s.applyManifest(awsMockIngress, options.namespace);
 
     logger.info('AWS S3 mock setup completed');
+
+    // wait for the pod to be ready
+    await k8s.waitForPod('aws-mock-pod', options.namespace);
+}
+
+async function createAwsMockConfigMap(k8s: KubernetesClient, options: MocksOptions): Promise<void> {
+    try {
+        // Try to find the tar.gz file in possible locations
+        const possiblePaths = [
+            '/setup/mock-metadata.tar.gz', // Docker container location
+            path.join(__dirname, '../../../..', '.github/scripts/mocks/aws/mock-metadata.tar.gz'),
+            path.join(process.cwd(), '.github/scripts/mocks/aws/mock-metadata.tar.gz'),
+        ];
+
+        let tarGzPath: string | null = null;
+        for (const tarPath of possiblePaths) {
+            if (fs.existsSync(tarPath)) {
+                tarGzPath = tarPath;
+                break;
+            }
+        }
+
+        if (!tarGzPath) {
+            throw new Error(`AWS mock metadata file not found. Searched paths: ${possiblePaths.join(', ')}`);
+        }
+
+        // Read the tar.gz file and create configmap with it
+        const tarGzContent = fs.readFileSync(tarGzPath);
+        const configMapData = {
+            'mock-metadata.tar.gz': tarGzContent.toString('base64'),
+        };
+        logger.info('Using mock-metadata.tar.gz file', { tarGzPath });
+
+        const awsMockConfigMap = {
+            apiVersion: 'v1',
+            kind: 'ConfigMap',
+            metadata: {
+                name: 'aws-mock',
+                namespace: options.namespace,
+            },
+            binaryData: configMapData,
+        };
+
+        await k8s.applyManifest(awsMockConfigMap, options.namespace);
+        logger.info('AWS mock configmap created successfully');
+    } catch (error: any) {
+        if (error?.statusCode === 409) {
+            logger.info('AWS mock configmap already exists');
+        } else {
+            logger.error('Failed to create AWS mock configmap', { error });
+            throw error;
+        }
+    }
 }
 
 async function setupAzureMocks(k8s: KubernetesClient, options: MocksOptions): Promise<void> {
     logger.info('Setting up Azure Blob/Queue mock (Azurite)');
 
-    // Azurite deployment for Azure Storage API mocking
-    const azuriteDeployment = {
-        apiVersion: 'apps/v1',
-        kind: 'Deployment',
-        metadata: {
-            name: 'azurite-mock',
-            namespace: options.namespace,
-            labels: {
-                app: 'azurite-mock',
-                component: 'azure-mock'
-            }
-        },
-        spec: {
-            replicas: 1,
-            selector: {
-                matchLabels: {
-                    app: 'azurite-mock'
-                }
-            },
-            template: {
-                metadata: {
-                    labels: {
-                        app: 'azurite-mock'
-                    }
-                },
-                spec: {
-                    containers: [{
-                        name: 'azurite',
-                        image: 'mcr.microsoft.com/azure-storage/azurite:latest',
-                        ports: [
-                            { containerPort: 10000, name: 'blob' },
-                            { containerPort: 10001, name: 'queue' },
-                            { containerPort: 10002, name: 'table' }
-                        ],
-                        command: [
-                            'azurite',
-                            '--blobHost', '0.0.0.0',
-                            '--queueHost', '0.0.0.0',
-                            '--tableHost', '0.0.0.0',
-                            '--location', '/workspace',
-                            '--debug', '/workspace/debug.log'
-                        ],
-                        readinessProbe: {
-                            httpGet: {
-                                path: '/',
-                                port: 10000
-                            },
-                            initialDelaySeconds: 10,
-                            periodSeconds: 5
-                        }
-                    }]
-                }
-            }
-        }
-    };
-
-    // Azurite service
-    const azuriteService = {
+    // Azure mock service
+    const azureMockService: V1Service = {
         apiVersion: 'v1',
         kind: 'Service',
         metadata: {
-            name: 'azurite-mock',
-            namespace: options.namespace,
-            labels: {
-                app: 'azurite-mock'
-            }
+            name: 'azure-mock',
+            namespace: options.namespace
         },
         spec: {
             selector: {
-                app: 'azurite-mock'
+                name: 'azure-mock'
             },
+            type: 'ClusterIP',
             ports: [
-                { port: 10000, targetPort: 10000, name: 'blob' },
-                { port: 10001, targetPort: 10001, name: 'queue' },
-                { port: 10002, targetPort: 10002, name: 'table' }
+                {
+                    name: 'blob',
+                    port: 80,
+                    targetPort: 'blob'
+                },
+                {
+                    name: 'queue',
+                    port: 81,
+                    targetPort: 'queue'
+                }
             ]
         }
     };
 
-    // Azure credentials secret for testing
-    const azureCredsSecret = {
+    // Azure mock pod
+    const azureMockPod: V1Pod = {
         apiVersion: 'v1',
-        kind: 'Secret',
+        kind: 'Pod',
         metadata: {
-            name: 'azure-mock-credentials',
-            namespace: options.namespace
+            name: 'azure-mock-pod',
+            namespace: options.namespace,
+            labels: {
+                name: 'azure-mock',
+                component: 'mock'
+            }
         },
-        type: 'Opaque',
-        stringData: {
-            'account-name': 'devstoreaccount1',
-            'account-key': 'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==',
-            'blob-endpoint': `http://azurite-mock.${options.namespace}.svc.cluster.local:10000/devstoreaccount1`,
-            'queue-endpoint': `http://azurite-mock.${options.namespace}.svc.cluster.local:10001/devstoreaccount1`
+        spec: {
+            hostname: 'devstoreaccount1',
+            subdomain: 'azure-mock',
+            containers: [{
+                name: 'azurite',
+                image: 'mcr.microsoft.com/azure-storage/azurite:3.35.0',
+                command: [
+                    'azurite',
+                    '-l', '/data',
+                    '--blobHost', '0.0.0.0',
+                    '--blobPort', '80',
+                    '--queueHost', '0.0.0.0',
+                    '--queuePort', '81'
+                ],
+                ports: [
+                    {
+                        name: 'blob',
+                        containerPort: 80
+                    },
+                    {
+                        name: 'queue',
+                        containerPort: 81
+                    }
+                ],
+                imagePullPolicy: 'Always',
+                resources: {
+                    limits: {
+                        cpu: '1',
+                        memory: '2Gi'
+                    },
+                    requests: {
+                        cpu: '1',
+                        memory: '2Gi'
+                    }
+                }
+            }]
         }
     };
 
-    await k8s.applyManifest(azuriteDeployment, options.namespace);
-    await k8s.applyManifest(azuriteService, options.namespace);
-    await k8s.applyManifest(azureCredsSecret, options.namespace);
+    // Azure mock ingress
+    const azureMockIngress: V1Ingress = {
+        apiVersion: 'networking.k8s.io/v1',
+        kind: 'Ingress',
+        metadata: {
+            name: 'azure-mock',
+            namespace: options.namespace,
+            annotations: {
+                'cert-manager.io/cluster-issuer': 'artesca-root-ca-issuer'
+            }
+        },
+        spec: {
+            tls: [{
+                secretName: 'zenko-tls-azure',
+                hosts: [
+                    'azure-mock.zenko.local',
+                    '*.azure-mock.zenko.local',
+                    '*.blob.azure-mock.zenko.local',
+                    '*.queue.azure-mock.zenko.local'
+                ]
+            }],
+            rules: [
+                {
+                    host: '*.azure-mock.zenko.local',
+                    http: {
+                        paths: [{
+                            backend: {
+                                service: {
+                                    name: 'azure-mock',
+                                    port: {
+                                        name: 'blob'
+                                    }
+                                }
+                            },
+                            path: '/',
+                            pathType: 'Prefix'
+                        }]
+                    }
+                },
+                {
+                    host: 'azure-mock.zenko.local',
+                    http: {
+                        paths: [{
+                            backend: {
+                                service: {
+                                    name: 'azure-mock',
+                                    port: {
+                                        name: 'blob'
+                                    }
+                                }
+                            },
+                            path: '/',
+                            pathType: 'Prefix'
+                        }]
+                    }
+                },
+                {
+                    host: '*.blob.azure-mock.zenko.local',
+                    http: {
+                        paths: [{
+                            backend: {
+                                service: {
+                                    name: 'azure-mock',
+                                    port: {
+                                        name: 'blob'
+                                    }
+                                }
+                            },
+                            path: '/',
+                            pathType: 'Prefix'
+                        }]
+                    }
+                },
+                {
+                    host: 'blob.azure-mock.zenko.local',
+                    http: {
+                        paths: [{
+                            backend: {
+                                service: {
+                                    name: 'azure-mock',
+                                    port: {
+                                        name: 'blob'
+                                    }
+                                }
+                            },
+                            path: '/',
+                            pathType: 'Prefix'
+                        }]
+                    }
+                },
+                {
+                    host: 'queue.azure-mock.zenko.local',
+                    http: {
+                        paths: [{
+                            backend: {
+                                service: {
+                                    name: 'azure-mock',
+                                    port: {
+                                        name: 'queue'
+                                    }
+                                }
+                            },
+                            path: '/',
+                            pathType: 'Prefix'
+                        }]
+                    }
+                },
+                {
+                    host: '*.queue.azure-mock.zenko.local',
+                    http: {
+                        paths: [{
+                            backend: {
+                                service: {
+                                    name: 'azure-mock',
+                                    port: {
+                                        name: 'queue'
+                                    }
+                                }
+                            },
+                            path: '/',
+                            pathType: 'Prefix'
+                        }]
+                    }
+                },
+                {
+                    host: 'devstoreaccount1.blob.azure-mock.zenko.local',
+                    http: {
+                        paths: [{
+                            backend: {
+                                service: {
+                                    name: 'azure-mock',
+                                    port: {
+                                        name: 'blob'
+                                    }
+                                }
+                            },
+                            path: '/',
+                            pathType: 'Prefix'
+                        }]
+                    }
+                },
+                {
+                    host: 'devstoreaccount1.queue.azure-mock.zenko.local',
+                    http: {
+                        paths: [{
+                            backend: {
+                                service: {
+                                    name: 'azure-mock',
+                                    port: {
+                                        name: 'queue'
+                                    }
+                                }
+                            },
+                            path: '/',
+                            pathType: 'Prefix'
+                        }]
+                    }
+                }
+            ]
+        }
+    };
 
-    // Wait for deployment to be ready
-    await k8s.waitForDeployment('azurite-mock', options.namespace);
+    await k8s.applyManifest(azureMockService, options.namespace);
+    await k8s.applyManifest(azureMockPod, options.namespace);
+    await k8s.applyManifest(azureMockIngress, options.namespace);
 
     logger.info('Azure Storage mock setup completed');
+
+    // wait for the pod to be ready
+    await k8s.waitForPod('azure-mock-pod', options.namespace);
 }

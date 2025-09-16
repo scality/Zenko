@@ -5,6 +5,7 @@ export class KubernetesClient {
     private kc: k8s.KubeConfig;
     public coreApi: k8s.CoreV1Api;
     public appsApi: k8s.AppsV1Api;
+    public networkingApi: k8s.NetworkingV1Api;
     public customObjectsApi: k8s.CustomObjectsApi;
     public rbacApi: k8s.RbacAuthorizationV1Api;
     public batchApi: k8s.BatchV1Api;
@@ -35,6 +36,7 @@ export class KubernetesClient {
 
         this.coreApi = this.kc.makeApiClient(k8s.CoreV1Api);
         this.appsApi = this.kc.makeApiClient(k8s.AppsV1Api);
+        this.networkingApi = this.kc.makeApiClient(k8s.NetworkingV1Api);
         this.customObjectsApi = this.kc.makeApiClient(k8s.CustomObjectsApi);
         this.rbacApi = this.kc.makeApiClient(k8s.RbacAuthorizationV1Api);
         this.batchApi = this.kc.makeApiClient(k8s.BatchV1Api);
@@ -168,6 +170,54 @@ export class KubernetesClient {
                 }
                 break;
 
+            case 'Pod':
+                try {
+                    await this.coreApi.readNamespacedPod(
+                        { name: metadata.name, namespace: metadata.namespace || 'default' }
+                    );
+                    await this.coreApi.replaceNamespacedPod(
+                        {
+                            name: metadata.name,
+                            namespace: metadata.namespace || 'default',
+                            body: manifest,
+                        },
+                    );
+                } catch (error: any) {
+                    if (error.code === 404) {
+                        await this.coreApi.createNamespacedPod({
+                            namespace: metadata.namespace || 'default',
+                            body: manifest,
+                        });
+                    } else {
+                        throw error;
+                    }
+                }
+                break;
+
+            case 'Ingress':
+                try {
+                    await this.networkingApi.readNamespacedIngress(
+                        { name: metadata.name, namespace: metadata.namespace || 'default' }
+                    );
+                    await this.networkingApi.replaceNamespacedIngress(
+                        {
+                            name: metadata.name,
+                            namespace: metadata.namespace || 'default',
+                            body: manifest,
+                        },
+                    );
+                } catch (error: any) {
+                    if (error.code === 404) {
+                        await this.networkingApi.createNamespacedIngress({
+                            namespace: metadata.namespace || 'default',
+                            body: manifest,
+                        });
+                    } else {
+                        throw error;
+                    }
+                }
+                break;
+
             default:
                 // Handle custom resources
                 // eslint-disable-next-line no-case-declarations
@@ -189,6 +239,30 @@ export class KubernetesClient {
                 throw error;
             }
         }
+    }
+
+    async waitForPod(name: string, namespace: string, timeoutMs: number = 300000): Promise<void> {
+        const startTime = Date.now();
+
+        while (Date.now() - startTime < timeoutMs) {
+            try {
+                const pod = await this.coreApi.readNamespacedPod({ name, namespace });
+                const status = pod.status;
+
+                if (status?.phase === 'Running') {
+                    logger.debug(`Pod ${name} is ready`);
+                    return;
+                }
+
+                logger.debug(`Waiting for pod ${name} to be ready...`, { status });
+                await new Promise(resolve => setTimeout(resolve, 5000));
+            } catch (error) {
+                logger.debug(`Error checking pod ${name}: ${error}`);
+                await new Promise(resolve => setTimeout(resolve, 5000));
+            }
+        }
+
+        throw new Error(`Timeout waiting for pod ${name} to be ready after ${timeoutMs}ms`);
     }
 
     async waitForDeployment(name: string, namespace: string, timeoutMs: number = 300000): Promise<void> {

@@ -34,6 +34,9 @@ RUN yarn install --prod --network-concurrency=1
 # Copy source code
 COPY . .
 
+# Copy mock-metadata.tar.gz for AWS mock setup
+COPY mocks/mock-metadata.tar.gz /setup/mock-metadata.tar.gz
+
 # Build TypeScript
 RUN yarn build
 

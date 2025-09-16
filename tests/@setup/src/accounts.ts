@@ -1,5 +1,6 @@
 import { KubernetesClient } from './utils/k8s';
 import { logger } from './utils/logger';
+import { getManagementCredentials } from './utils/management';
 import * as fs from 'fs';
 import * as path from 'path';
 import axios from 'axios';
@@ -43,7 +44,7 @@ export async function setupAccounts(options: AccountsOptions): Promise<void> {
     logger.info('Setting up test accounts via Management API');
 
     // Get management API endpoint and credentials
-    const { managementEndpoint, authToken } = await getManagementCredentials(k8s, options);
+    const { managementEndpoint, authToken } = await getManagementCredentials(options.namespace);
 
     // Get instance ID from Zenko CR if not provided
     const instanceId = options.instanceId || await getInstanceId(k8s, options);
@@ -65,34 +66,6 @@ export async function setupAccounts(options: AccountsOptions): Promise<void> {
     logger.info(`Successfully created ${config.accounts.length} test accounts`);
 }
 
-async function getManagementCredentials(k8s: KubernetesClient, options: AccountsOptions): Promise<{ managementEndpoint: string; authToken: string }> {
-    // Get management API endpoint from service
-    const managementService = await k8s.coreApi.readNamespacedService({
-        name: 'zenko-management',
-        namespace: options.namespace,
-    });
-
-    const managementPort = managementService.spec?.ports?.find(p => p.name === 'http')?.port || 8080;
-    const managementEndpoint = `http://zenko-management.${options.namespace}.svc.cluster.local:${managementPort}`;
-
-    // Get admin credentials for authentication
-    const adminSecret = await k8s.coreApi.readNamespacedSecret({
-        name: 'zenko-admin',
-        namespace: options.namespace,
-    });
-
-    if (!adminSecret.data) {
-        throw new Error('Failed to retrieve admin credentials from zenko-admin secret');
-    }
-
-    const accessKey = Buffer.from(adminSecret.data['access-key'], 'base64').toString();
-    const secretKey = Buffer.from(adminSecret.data['secret-key'], 'base64').toString();
-
-    // Create admin auth token (basic auth for management API)
-    const authToken = Buffer.from(`${accessKey}:${secretKey}`).toString('base64');
-
-    return { managementEndpoint, authToken };
-}
 
 async function getInstanceId(k8s: KubernetesClient, options: AccountsOptions): Promise<string | null> {
     try {
@@ -130,20 +103,37 @@ async function createAccount(
         email: account.email,
     };
 
-    const response = await axios.post(
-        `${managementEndpoint}/api/v1/config/${instanceId}/user`,
-        accountPayload,
-        {
-            headers: {
-                'Authorization': `Basic ${authToken}`,
-                'Content-Type': 'application/json',
-            },
-            timeout: 30000,
-        }
-    );
+    let response;
+    try {
+        response = await axios.post(
+            `${managementEndpoint}/api/v1/config/${instanceId}/user`,
+            accountPayload,
+            {
+                headers: {
+                    'X-Authentication-Token': authToken,
+                    'Content-Type': 'application/json',
+                },
+                timeout: 30000,
+            }
+        );
 
-    if (response.status !== 201 && response.status !== 200) {
-        throw new Error(`Management API returned status ${response.status}: ${JSON.stringify(response.data)}`);
+        if (response.status !== 201 && response.status !== 200) {
+            throw new Error(`Management API returned status ${response.status}: ${JSON.stringify(response.data)}`);
+        }
+    } catch (error: any) {
+        if (error.response?.status === 409) {
+            logger.debug(`Account ${account.name} already exists`);
+            return; // Account already exists, don't fail
+        } else if (error.code === 'ECONNREFUSED') {
+            logger.warn(`Management API not available at ${managementEndpoint}, skipping account ${account.name}`);
+            return; // Skip this account but don't fail the whole process
+        } else if (error.response?.status === 404) {
+            logger.warn(`Management API endpoint not found at ${managementEndpoint}, skipping account ${account.name}`);
+            return; // Skip this account but don't fail the whole process
+        } else {
+            logger.error(`Failed to create account ${account.name}: ${error.message}`);
+            throw error;
+        }
     }
 
     // Store account credentials in a Kubernetes secret for later use in tests

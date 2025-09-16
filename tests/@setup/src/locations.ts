@@ -44,9 +44,15 @@ export async function setupLocations(options: LocationsOptions): Promise<void> {
     // Load locations configuration
     const config = loadLocationsConfig(options.configFile);
 
-    // Get Management API endpoint and credentials
-    const managementEndpoint = await getManagementEndpoint(k8s, options.namespace);
-    const credentials = await getManagementCredentials(k8s, options.namespace);
+    // Get Management API endpoint and OIDC token
+    const managementEndpoint = await getManagementEndpoint(options.namespace);
+    const token = await getManagementToken();
+    
+    // Get instance ID
+    const instanceId = await getInstanceId(k8s, options.namespace);
+    if (!instanceId) {
+        throw new Error('Instance ID is required for location creation. Ensure UUID environment variable is set or Zenko CR exists');
+    }
 
     // Process locations and replace namespace placeholders
     const locations: StorageLocation[] = config.locations.map(location => ({
@@ -59,82 +65,79 @@ export async function setupLocations(options: LocationsOptions): Promise<void> {
 
 
     // Create locations via Management API
-
     for (const location of locations) {
-        await createStorageLocation(managementEndpoint, credentials, location);
+        await createStorageLocation(managementEndpoint, token, instanceId, location);
     }
 
     logger.info(`Created ${locations.length} storage locations`);
 }
 
-async function getManagementEndpoint(k8s: KubernetesClient, namespace: string): Promise<string> {
-    try {
-        // Try to find Management API service
-        const services = await k8s.coreApi.listNamespacedService({ namespace });
-        const mgmtService = services.items.find(svc =>
-            svc.metadata?.name?.includes('management') ||
-            svc.metadata?.name?.includes('api') ||
-            svc.metadata?.name?.includes('zenko-management')
-        );
+async function getManagementEndpoint(namespace: string): Promise<string> {
+    // Use the standard Zenko naming pattern: {ZENKO_NAME}-management-orbit-api:5001
+    const zenkoName = process.env.ZENKO_NAME || 'end2end';
+    return `http://${zenkoName}-management-orbit-api.${namespace}.svc.cluster.local:5001`;
+}
 
-        if (mgmtService) {
-            const serviceName = mgmtService.metadata!.name;
-            const port = mgmtService.spec?.ports?.[0]?.port || 8443;
-            return `http://${serviceName}.${namespace}.svc.cluster.local:${port}`;
+async function getManagementToken(): Promise<string> {
+    // Get OIDC token from environment (set by get_token script)
+    const token = process.env.TOKEN;
+    if (!token) {
+        throw new Error('TOKEN environment variable is required for OIDC authentication');
+    }
+
+    logger.debug('Using OIDC token for authentication');
+    return token;
+}
+
+async function getInstanceId(k8s: KubernetesClient, namespace: string): Promise<string | null> {
+    try {
+        // Try to get instance ID from Zenko CR or environment
+        const uuid = process.env.UUID;
+        if (uuid) {
+            return uuid;
         }
 
-        // Fallback to common endpoint
-        return `http://zenko-management.${namespace}.svc.cluster.local:8443`;
+        // Fallback: Try to get instance ID from Zenko CR
+        const customObjects = k8s.customObjectsApi;
+        const zenkoList = await customObjects.listNamespacedCustomObject({
+            group: 'zenko.io',
+            version: 'v1alpha1',
+            namespace: namespace,
+            plural: 'zenkos',
+        });
+
+        const zenkos = zenkoList.body as any;
+        if (zenkos.items && zenkos.items.length > 0) {
+            return zenkos.items[0].spec?.instanceId || zenkos.items[0].metadata?.name;
+        }
+
+        return null;
     } catch (error) {
-        logger.warn('Could not determine Management API endpoint, using default');
-        return `http://zenko-management.${namespace}.svc.cluster.local:8443`;
+        logger.debug(`Failed to retrieve instance ID: ${error instanceof Error ? error.message : String(error)}`);
+        return null;
     }
 }
 
-async function getManagementCredentials(k8s: KubernetesClient, namespace: string): Promise<{ accessKey: string; secretKey: string }> {
+async function createStorageLocation(endpoint: string, token: string, instanceId: string, location: StorageLocation): Promise<void> {
     try {
-        // Look for admin credentials in secrets
-        const secrets = await k8s.coreApi.listNamespacedSecret({ namespace });
-        const adminSecret = secrets.items.find(secret =>
-            secret.metadata?.name?.includes('admin') ||
-            secret.metadata?.name?.includes('management') ||
-            secret.metadata?.name?.includes('credentials')
-        );
+        // Add bootstrapList if not present (required by API)
+        const locationDetails = {
+            ...location.details,
+            bootstrapList: location.details.bootstrapList || []
+        };
 
-        if (adminSecret?.data) {
-            const accessKey = adminSecret.data['access-key'] || adminSecret.data['accessKey'] || adminSecret.data['AWS_ACCESS_KEY_ID'];
-            const secretKey = adminSecret.data['secret-key'] || adminSecret.data['secretKey'] || adminSecret.data['AWS_SECRET_ACCESS_KEY'];
+        const locationPayload = {
+            name: location.name,
+            locationType: location.locationType,
+            details: locationDetails
+        };
 
-            if (accessKey && secretKey) {
-                return {
-                    accessKey: Buffer.from(accessKey, 'base64').toString(),
-                    secretKey: Buffer.from(secretKey, 'base64').toString()
-                };
-            }
-        }
-    } catch (error) {
-        logger.debug('Could not find admin credentials in secrets');
-    }
-
-    // Return default test credentials
-    logger.warn('Using default test credentials for Management API');
-    return {
-        accessKey: 'accessKey1',
-        secretKey: 'verySecretKey1'
-    };
-}
-
-async function createStorageLocation(endpoint: string, credentials: { accessKey: string; secretKey: string }, location: StorageLocation): Promise<void> {
-    try {
         const response = await axios.post(
-            `${endpoint}/api/v1/config/${location.name}/location`,
-            {
-                locationType: location.locationType,
-                locationDetails: location.details
-            },
+            `${endpoint}/api/v1/config/${instanceId}/location`,
+            locationPayload,
             {
                 headers: {
-                    'Authorization': `AWS ${credentials.accessKey}:${credentials.secretKey}`,
+                    'X-Authentication-Token': token,
                     'Content-Type': 'application/json'
                 },
                 timeout: 30000
@@ -142,7 +145,7 @@ async function createStorageLocation(endpoint: string, credentials: { accessKey:
         );
 
         if (response.status === 200 || response.status === 201) {
-            logger.debug(`Created storage location: ${location.name}`);
+            logger.info(`Created storage location: ${location.name}`);
         } else {
             logger.warn(`Unexpected response creating location ${location.name}: ${response.status}`);
         }
@@ -150,11 +153,24 @@ async function createStorageLocation(endpoint: string, credentials: { accessKey:
     } catch (error: any) {
         if (error.response?.status === 409) {
             logger.debug(`Storage location ${location.name} already exists`);
+            return; // Don't throw, just skip
+        } else if (error.response?.status === 501) {
+            logger.warn(`Location type ${location.locationType} not supported for location ${location.name}, skipping`);
+            return; // Don't throw, just skip
         } else if (error.code === 'ECONNREFUSED') {
             logger.warn(`Management API not available at ${endpoint}, skipping location ${location.name}`);
+            return; // Don't throw, just skip
+        } else if (error.response?.status === 404) {
+            logger.warn(`Management API endpoint not found at ${endpoint}, skipping location ${location.name}`);
+            return; // Don't throw, just skip
         } else {
-            logger.error(`Failed to create storage location ${location.name}: ${error.message}`);
-            // Don't throw - continue with other locations
+            logger.error(`Failed to create storage location ${location.name}: ${error.message}`, { 
+                status: error.response?.status,
+                statusText: error.response?.statusText,
+                data: error.response?.data,
+                url: `${endpoint}/api/v1/config/${instanceId}/location`
+            });
+            return; // Don't throw, just skip and log the details
         }
     }
 }
