@@ -8,75 +8,20 @@ export interface DNSOptions {
     subdomain?: string;
 }
 
-// Define interfaces for our JSON configuration files for type safety
-interface Location {
-    details: {
-        endpoint: string;
-        bucketName?: string;
-    };
-}
-interface Endpoint {
-    hostname: string;
-}
-
 /**
- * Generates rewrite rules from the provided JSON config files.
- * @returns A string containing all the dynamic rewrite rules.
- */
-function generateDynamicRules(): string {
-    const configDir = path.join(__dirname, '..', 'config');
-    const locations: { locations: Location[] } = JSON.parse(fs.readFileSync(path.join(configDir, 'locations.json'), 'utf8'));
-    const endpoints: { endpoints: Endpoint[] } = JSON.parse(fs.readFileSync(path.join(configDir, 'endpoints.json'), 'utf8'));
-
-    const rules: string[] = [];
-    const destination = 'ingress-nginx-controller.ingress-nginx.svc.cluster.local';
-
-    // This mapping helps create bucket-specific hostnames based on the endpoint.
-    const mockServiceMap: { [key: string]: string } = {
-        'cloudserver-mock': 'aws-mock.zenko.local',
-        'azurite-mock': 'azure-mock.zenko.local',
-    };
-
-    // 1. Generate rules from locations.json for bucket-specific hostnames
-    for (const loc of locations.locations) {
-        if (!loc.details.bucketName) continue;
-
-        for (const serviceKey in mockServiceMap) {
-            if (loc.details.endpoint.includes(serviceKey)) {
-                const publicDomain = mockServiceMap[serviceKey];
-                const source = `${loc.details.bucketName}.${publicDomain}`;
-                rules.push(`    rewrite name exact ${source} ${destination}`);
-                break; // Move to the next location once a match is found
-            }
-        }
-    }
-
-    // 2. Generate rules from endpoints.json
-    for (const ep of endpoints.endpoints) {
-        rules.push(`    rewrite name exact ${ep.hostname} ${destination}`);
-    }
-
-    if (rules.length > 0) {
-        return `# Dynamically generated rules\n` + rules.join('\n');
-    }
-    return '# No dynamic rules generated';
-}
-
-/**
- * Reads the template and injects dynamic rules to create the final Corefile.
- * @param options - Contains the namespace for placeholder replacement.
+ * Reads the template and replaces placeholders to create the final Corefile.
+ * @param options - Contains the namespace and subdomain for placeholder replacement.
  * @returns The complete and final Corefile content as a string.
  */
 function generateCorefile(options: DNSOptions): string {
-    const templatePath = path.join(__dirname, '..', 'config', 'dns.conf');
+    const templatePath = path.join(__dirname, '..', 'configs', 'dns.conf');
     const corefileTemplate = fs.readFileSync(templatePath, 'utf8');
     
-    const dynamicRules = generateDynamicRules();
-
     // Replace placeholders in the template
+    const subdomain = options.subdomain || 'zenko.local';
     const finalCorefile = corefileTemplate
-        .replace('{{dynamic_rules}}', dynamicRules)
-        .replace(/{namespace}/g, options.namespace); // Replace any namespace placeholders if they exist
+        .replace(/{{namespace}}/g, options.namespace)
+        .replace(/{{subdomain}}/g, subdomain);
 
     return finalCorefile;
 }
@@ -118,7 +63,7 @@ export async function setupDNS(options: DNSOptions): Promise<void> {
     const configMapName = 'coredns';
     const configMapNamespace = 'kube-system';
 
-    logger.info('Generating CoreDNS configuration...');
+    logger.info('Generating CoreDNS configuration from template...');
     const newCorefile = generateCorefile(options);
 
     const configMapBody = {

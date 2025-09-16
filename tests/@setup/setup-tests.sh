@@ -161,19 +161,17 @@ EOF
     cat job.yaml
     kubectl --kubeconfig="${KUBECONFIG_FILE}" apply -f job.yaml
 
-    echo "Waiting for job '${job_name}' to complete (timeout: ${JOB_TIMEOUT}s)..."
+    echo "Waiting for job '${job_name}' to complete and streaming logs (timeout: ${JOB_TIMEOUT}s)..."
+    kubectl --kubeconfig="${KUBECONFIG_FILE}" logs -f "job/${job_name}" -n "${NAMESPACE}" &
+    
     if kubectl --kubeconfig="${KUBECONFIG_FILE}" wait --for=condition=complete "job/${job_name}" -n "${NAMESPACE}" --timeout="${JOB_TIMEOUT}s"; then
         echo "Setup completed successfully."
-        echo "Setup job logs (last 50 lines):"
-        kubectl --kubeconfig="${KUBECONFIG_FILE}" logs "job/${job_name}" -n "${NAMESPACE}" --tail=50 || true
     else
         echo "Error: Setup job failed or timed out." >&2
         echo "--- Job Description ---"
         kubectl --kubeconfig="${KUBECONFIG_FILE}" describe "job/${job_name}" -n "${NAMESPACE}" || true
         echo "--- Pod Status ---"
         kubectl --kubeconfig="${KUBECONFIG_FILE}" get pods -l job-name="${job_name}" -n "${NAMESPACE}" -o wide || true
-        echo "--- Full Job Logs ---"
-        kubectl --kubeconfig="${KUBECONFIG_FILE}" logs "job/${job_name}" -n "${NAMESPACE}" || true
         exit 1
     fi
 }

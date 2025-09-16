@@ -217,15 +217,13 @@ ${volume_mounts_yaml:-""}
 ${volumes_yaml:-""}
 EOF
 
-    echo "Waiting for job '${job_name}' to complete (timeout: ${JOB_TIMEOUT}s)..."
+    echo "Waiting for job '${job_name}' to complete and streaming logs (timeout: ${JOB_TIMEOUT}s)..."
+    kubectl --kubeconfig="${KUBECONFIG_FILE}" logs -f "job/${job_name}" -n "${NAMESPACE}" &
+    
     if kubectl --kubeconfig="${KUBECONFIG_FILE}" wait --for=condition=complete "job/${job_name}" -n "${NAMESPACE}" --timeout="${JOB_TIMEOUT}s"; then
         echo "Job completed successfully."
-        echo "Fetching logs for job '${job_name}'..."
-        kubectl --kubeconfig="${KUBECONFIG_FILE}" logs "job/${job_name}" -n "${NAMESPACE}"
     else
         echo "Job failed or timed out."
-        echo "Fetching logs for job '${job_name}'..."
-        kubectl --kubeconfig="${KUBECONFIG_FILE}" logs "job/${job_name}" -n "${NAMESPACE}" || true
         echo "Error: Test run failed." >&2
         exit 1
     fi
