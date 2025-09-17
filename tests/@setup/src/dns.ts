@@ -20,7 +20,6 @@ function generateCorefile(options: DNSOptions): string {
     // Replace placeholders in the template
     const subdomain = options.subdomain || 'zenko.local';
     const finalCorefile = corefileTemplate
-        .replace(/{{namespace}}/g, options.namespace)
         .replace(/{{subdomain}}/g, subdomain);
 
     return finalCorefile;

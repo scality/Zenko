@@ -1,6 +1,6 @@
 import { KubernetesClient } from './utils/k8s';
 import { logger } from './utils/logger';
-import { getManagementCredentials } from './utils/management';
+import { getManagementEndpoint, getManagementToken } from './utils/management';
 import * as fs from 'fs';
 import * as path from 'path';
 import axios from 'axios';
@@ -44,7 +44,8 @@ export async function setupAccounts(options: AccountsOptions): Promise<void> {
     logger.info('Setting up test accounts via Management API');
 
     // Get management API endpoint and credentials
-    const { managementEndpoint, authToken } = await getManagementCredentials(options.namespace);
+    const managementEndpoint = await getManagementEndpoint(options.namespace);
+    const authToken = await getManagementToken();
 
     // Get instance ID from Zenko CR if not provided
     const instanceId = options.instanceId || await getInstanceId(k8s, options);

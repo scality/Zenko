@@ -45,8 +45,8 @@ env:
   OIDC_PASSWORD: '123'
   OIDC_FIRST_NAME: 'hello'
   OIDC_LAST_NAME: 'world'
-  OIDC_ENDPOINT: 'http://keycloak.zenko.local'
   OIDC_HOST: 'keycloak.zenko.local'
+  OIDC_ENDPOINT: 'http://keycloak.zenko.local'
   
   # Test environment endpoints (dynamically configured but need base values)
   UI_ENDPOINT: 'http://ui.zenko.local'
@@ -105,7 +105,7 @@ env:
   # Keycloak test configuration (for OAuth tests)
   KEYCLOAK_TEST_USER: ${OIDC_USERNAME}
   KEYCLOAK_TEST_PASSWORD: ${OIDC_PASSWORD}
-  KEYCLOAK_TEST_HOST: keycloak.zenko.local
+  KEYCLOAK_TEST_HOST: ${OIDC_HOST}
   KEYCLOAK_TEST_PORT: "80"
   KEYCLOAK_TEST_REALM_NAME: ${OIDC_REALM}
   KEYCLOAK_TEST_CLIENT_ID: ${OIDC_CLIENT_ID}

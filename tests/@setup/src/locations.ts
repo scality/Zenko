@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { KubernetesClient } from './utils/k8s';
 import { logger } from './utils/logger';
+import { getManagementEndpoint, getManagementToken } from './utils/management';
 
 export interface LocationsOptions {
     namespace: string;
@@ -70,23 +71,6 @@ export async function setupLocations(options: LocationsOptions): Promise<void> {
     }
 
     logger.info(`Created ${locations.length} storage locations`);
-}
-
-async function getManagementEndpoint(namespace: string): Promise<string> {
-    // Use the standard Zenko naming pattern: {ZENKO_NAME}-management-orbit-api:5001
-    const zenkoName = process.env.ZENKO_NAME || 'end2end';
-    return `http://${zenkoName}-management-orbit-api.${namespace}.svc.cluster.local:5001`;
-}
-
-async function getManagementToken(): Promise<string> {
-    // Get OIDC token from environment (set by get_token script)
-    const token = process.env.TOKEN;
-    if (!token) {
-        throw new Error('TOKEN environment variable is required for OIDC authentication');
-    }
-
-    logger.debug('Using OIDC token for authentication');
-    return token;
 }
 
 async function getInstanceId(k8s: KubernetesClient, namespace: string): Promise<string | null> {
