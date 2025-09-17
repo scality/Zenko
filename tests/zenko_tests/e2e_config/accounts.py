@@ -31,12 +31,13 @@ def get_credentials(token, account_id):
     return res
 
 
-def create_account_secret(name, credentials, namespace="default"):
+def create_account_secret(name, credentials, account_id, namespace="default"):
     """
     Create a k8s secret resource for account
 
     :param name: secret name
     :param credentials: sts assume role credentials
+    :param account_id: account id
     :param namespace: k8s namespace
     """
     _log.info("creating account secret")
@@ -50,7 +51,12 @@ def create_account_secret(name, credentials, namespace="default"):
                 "type": "end2end",
             },
         ),
-        string_data=credentials,
+        string_data={
+            "AccessKeyId": credentials["AccessKeyId"],
+            "SecretAccessKey": credentials["SecretAccessKey"],
+            "SessionToken": credentials["SessionToken"],
+            "AccountId": account_id,
+        },
     )
 
     try:
@@ -88,6 +94,7 @@ def create_account(client, token, uuid, account_name, namespace="default"):
         creds = get_credentials(token, res.id)
         create_account_secret(name="end2end-account-%s" % (res.userName),
                               credentials=creds["Credentials"],
+                              account_id=res.id,
                               namespace=namespace)
 
         _log.info("created account")

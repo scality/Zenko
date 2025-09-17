@@ -37,6 +37,16 @@ ADMIN_SECRET_ACCESS_KEY=$(kubectl get secret end2end-management-vault-admin-cred
 ZENKO_ACCESS_KEY=$(kubectl get secret end2end-account-zenko -o jsonpath='{.data.AccessKeyId}' | base64 -d)
 ZENKO_SECRET_KEY=$(kubectl get secret end2end-account-zenko -o jsonpath='{.data.SecretAccessKey}' | base64 -d)
 ZENKO_SESSION_TOKEN=$(kubectl get secret end2end-account-zenko -o jsonpath='{.data.SessionToken}' | base64 -d)
+SOURCE_ACCESS_KEY=$(kubectl get secret "end2end-account-${CRR_SOURCE_ACCOUNT_NAME}" -o jsonpath='{.data.AccessKeyId}' | base64 -d)
+SOURCE_SECRET_KEY=$(kubectl get secret "end2end-account-${CRR_SOURCE_ACCOUNT_NAME}" -o jsonpath='{.data.SecretAccessKey}' | base64 -d)
+SOURCE_SESSION_TOKEN=$(kubectl get secret "end2end-account-${CRR_SOURCE_ACCOUNT_NAME}" -o jsonpath='{.data.SessionToken}' | base64 -d)
+SOURCE_ACCOUNT_ID=$(kubectl get secret "end2end-account-${CRR_SOURCE_ACCOUNT_NAME}" -o jsonpath='{.data.AccountId}' | base64 -d)
+CRR_SOURCE_INFO="{\"AccessKeyId\":\"${SOURCE_ACCESS_KEY}\",\"SecretAccessKey\":\"${SOURCE_SECRET_KEY}\",\"SessionToken\":\"${SOURCE_SESSION_TOKEN}\",\"AccountId\":\"${SOURCE_ACCOUNT_ID}\"}"
+DESTINATION_ACCESS_KEY=$(kubectl get secret "end2end-account-${CRR_DESTINATION_ACCOUNT_NAME}" -o jsonpath='{.data.AccessKeyId}' | base64 -d)
+DESTINATION_SECRET_KEY=$(kubectl get secret "end2end-account-${CRR_DESTINATION_ACCOUNT_NAME}" -o jsonpath='{.data.SecretAccessKey}' | base64 -d)
+DESTINATION_SESSION_TOKEN=$(kubectl get secret "end2end-account-${CRR_DESTINATION_ACCOUNT_NAME}" -o jsonpath='{.data.SessionToken}' | base64 -d)
+DESTINATION_ACCOUNT_ID=$(kubectl get secret "end2end-account-${CRR_DESTINATION_ACCOUNT_NAME}" -o jsonpath='{.data.AccountId}' | base64 -d)
+CRR_DESTINATION_INFO="{\"AccessKeyId\":\"${DESTINATION_ACCESS_KEY}\",\"SecretAccessKey\":\"${DESTINATION_SECRET_KEY}\",\"SessionToken\":\"${DESTINATION_SESSION_TOKEN}\",\"AccountId\":\"${DESTINATION_ACCOUNT_ID}\"}"
 OIDC_FULLNAME="${OIDC_FIRST_NAME} ${OIDC_LAST_NAME}"
 KEYCLOAK_TEST_USER="${OIDC_USERNAME}-norights"
 KEYCLOAK_TEST_PASSWORD=${OIDC_PASSWORD}
@@ -124,6 +134,11 @@ run_e2e_test() {
         --env=MONGO_WRITE_CONCERN=${MONGO_WRITE_CONCERN} \
         --env=MONGO_AUTH_USERNAME=${MONGO_AUTH_USERNAME} \
         --env=MONGO_AUTH_PASSWORD=${MONGO_AUTH_PASSWORD} \
+        --env=CRR_SOURCE_LOCATION_NAME=${CRR_SOURCE_LOCATION_NAME} \
+        --env=CRR_SOURCE_INFO=${CRR_SOURCE_INFO} \
+        --env=CRR_DESTINATION_LOCATION_NAME=${CRR_DESTINATION_LOCATION_NAME} \
+        --env=CRR_DESTINATION_INFO=${CRR_DESTINATION_INFO} \
+        --env=CRR_ROLE_NAME=${CRR_ROLE_NAME} \
         --env=MOCHA_FILE=${MOCHA_FILE} \
         --override-type strategic \
         --overrides='
