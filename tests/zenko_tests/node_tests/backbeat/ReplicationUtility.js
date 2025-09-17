@@ -521,6 +521,12 @@ class ReplicationUtility {
         }, cb);
     }
 
+    deleteBucketReplication(bucketName, cb) {
+        this.s3.deleteBucketReplication({
+            Bucket: bucketName,
+        }, cb);
+    }
+
     getHeadObject(bucketName, key, cb) {
         this.s3.headObject({
             Bucket: bucketName,
@@ -752,6 +758,40 @@ class ReplicationUtility {
         });
     }
 
+    compareObjectsCRR(srcBucket, destClient, destBucket, key, userMetadataField, cb) {
+        return async.series([
+            next => this.waitUntilReplicated(srcBucket, key, undefined, next),
+            next => this.getObject(srcBucket, key, next),
+            next => destClient.getObject(destBucket, key, next),
+        ], (err, data) => {
+            if (err) {
+                return cb(err);
+            }
+            const srcData = data[1];
+            const destData = data[2];
+            assert.strictEqual(srcData.ReplicationStatus, 'COMPLETED');
+            assert.strictEqual(destData.ReplicationStatus, 'REPLICA');
+            assert.strictEqual(
+                srcData.ContentLength,
+                destData.ContentLength,
+            );
+            this._compareObjectBody(srcData.Body, destData.Body);
+            const srcUserMD = srcData.Metadata;
+            assert.strictEqual(
+                srcData.VersionId,
+                destData.VersionId,
+            );
+            if (userMetadataField) {
+                const destUserMD = destData.Metadata;
+                assert.strictEqual(
+                    srcUserMD[userMetadataField],
+                    destUserMD[userMetadataField],
+                );
+            }
+            return cb();
+        });
+    }
+
     compareObjectsOneToMany(
         srcBucket,
         awsDestBucket,
@@ -968,6 +1008,23 @@ class ReplicationUtility {
         });
     }
 
+    compareACLsCRR(srcBucket, destClient, destBucket, key, cb) {
+        return async.series([
+            next => this.waitUntilReplicated(srcBucket, key, undefined, next),
+            next => this.getObjectACL(srcBucket, key, next),
+            next => destClient.getObjectACL(destBucket, key, next),
+        ], (err, data) => {
+            if (err) {
+                return cb(err);
+            }
+            assert.strictEqual(
+                data[1].Grants[0].Permission,
+                data[2].Grants[0].Permission,
+            );
+            return cb();
+        });
+    }
+
     compareObjectTagsAWS(
         srcBucket,
         destBucket,
@@ -999,6 +1056,43 @@ class ReplicationUtility {
             const srcData = data[1];
             const destData = data[2];
             // Version IDs will differ in the response, so just compare tag set.
+            assert.deepStrictEqual(srcData.TagSet, destData.TagSet);
+            return cb();
+        });
+    }
+
+    compareObjectTagCRR(
+        srcBucket,
+        destClient,
+        destBucket,
+        key,
+        cb,
+    ) {
+        return async.series([
+            next => this.waitUntilReplicated(
+                srcBucket,
+                key,
+                undefined,
+                next,
+            ),
+            next => this.getObjectTagging(
+                srcBucket,
+                key,
+                undefined,
+                next,
+            ),
+            next => destClient.getObjectTagging(
+                destBucket,
+                key,
+                null,
+                next,
+            ),
+        ], (err, data) => {
+            if (err) {
+                return cb(err);
+            }
+            const srcData = data[1];
+            const destData = data[2];
             assert.deepStrictEqual(srcData.TagSet, destData.TagSet);
             return cb();
         });
@@ -1092,6 +1186,19 @@ class ReplicationUtility {
     assertNoObject(bucketName, key, cb) {
         this.getObject(bucketName, key, err => {
             assert.strictEqual(err.code, 'NoSuchKey');
+            return cb();
+        });
+    }
+
+    assertVersionCount(bucketName, expectedCount, cb) {
+        this.s3.listObjectVersions({
+            Bucket: bucketName,
+        }, (err, data) => {
+            if (err) {
+                return cb(err);
+            }
+            const totalCount = data.Versions.length + data.DeleteMarkers.length;
+            assert.strictEqual(totalCount, expectedCount);
             return cb();
         });
     }
