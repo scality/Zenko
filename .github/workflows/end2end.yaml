@@ -74,6 +74,7 @@ env:
   GCP_SECRET_KEY: ${{ secrets.AWS_GCP_BACKEND_SECRET_KEY }}
   GCP_BACKEND_SERVICE_KEY: ${{ secrets.GCP_BACKEND_SERVICE_KEY }}
   GCP_BACKEND_SERVICE_EMAIL: ${{ secrets.GCP_BACKEND_SERVICE_EMAIL }}
+  DEPLOY_CRR_LOCATIONS: "true"
   CRR_SOURCE_LOCATION_NAME: crr-source-location
   CRR_DESTINATION_LOCATION_NAME: crr-destination-location
   CRR_SOURCE_ACCOUNT_NAME: crr-source-account
@@ -438,6 +439,8 @@ jobs:
   end2end-pra:
     needs: [build-kafka, lint-and-build-ctst]
     runs-on: ubuntu-24.04-16core
+    env:
+      DEPLOY_CRR_LOCATIONS: "false"
     steps:
       - name: Checkout
         uses: actions/checkout@v4

@@ -79,8 +79,12 @@ def create_location(client, uuid, location, accounts_creds):
     ENABLE_RING_TESTS = os.environ['ENABLE_RING_TESTS']
     if ENABLE_RING_TESTS == "false" and location["locationType"] == "location-scality-ring-s3-v1":
         return
-    
+
+    DEPLOY_CRR_LOCATIONS = os.getenv('DEPLOY_CRR_LOCATIONS', 'true')
     if location["locationType"] == "location-scality-crr-v1":
+        if DEPLOY_CRR_LOCATIONS == "false":
+            return
+
         account_name = os.environ['CRR_SOURCE_ACCOUNT_NAME']
         if location["name"] == os.environ['CRR_DESTINATION_LOCATION_NAME']:
             account_name = os.environ['CRR_DESTINATION_ACCOUNT_NAME']
