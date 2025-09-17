@@ -496,7 +496,7 @@ class ReplicationUtility {
         }, cb);
     }
 
-    putBucketReplicationMultipleBackend(
+    putBucketReplication(
         srcBucket,
         destBucket,
         roleArn,

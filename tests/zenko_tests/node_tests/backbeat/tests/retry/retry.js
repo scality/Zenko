@@ -131,7 +131,7 @@ describe('Backbeat replication retry', function () {
 
     beforeEach(done => series([
         next => scalityUtils.createVersionedBucket(srcBucket, next),
-        next => scalityUtils.putBucketReplicationMultipleBackend(
+        next => scalityUtils.putBucketReplication(
             srcBucket,
             destFailBucket,
             roleArn,

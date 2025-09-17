@@ -123,7 +123,7 @@ describe('Backbeat replication metrics data', function dF() {
 
     beforeEach(done => series([
         next => scalityUtils.createVersionedBucket(srcBucket, next),
-        next => scalityUtils.putBucketReplicationMultipleBackend(
+        next => scalityUtils.putBucketReplication(
             srcBucket,
             'placeholder',
             roleArn,

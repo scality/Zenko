@@ -67,7 +67,7 @@ describe('Backbeat API pending metrics', function () {
 
         before(done => series([
             next => scalityUtils.createVersionedBucket(srcBucket, next),
-            next => scalityUtils.putBucketReplicationMultipleBackend(
+            next => scalityUtils.putBucketReplication(
                 srcBucket,
                 'placeholder',
                 roleArn,
@@ -114,7 +114,7 @@ describe('Backbeat API pending metrics', function () {
 
         before(done => series([
             next => scalityUtils.createVersionedBucket(srcBucket, next),
-            next => scalityUtils.putBucketReplicationMultipleBackend(
+            next => scalityUtils.putBucketReplication(
                 srcBucket,
                 destFailBucket,
                 roleArn,
