@@ -112,6 +112,7 @@ kubectl run ${POD_NAME} \
   --env=CRR_DESTINATION_LOCATION_NAME=${CRR_DESTINATION_LOCATION_NAME} \
   --env=CRR_SOURCE_ACCOUNT_NAME=${CRR_SOURCE_ACCOUNT_NAME} \
   --env=CRR_DESTINATION_ACCOUNT_NAME=${CRR_DESTINATION_ACCOUNT_NAME} \
+  --env=CRR_ROLE_NAME=${CRR_ROLE_NAME} \
   --command -- python3 configuration.py
 
 ## wait for updates to trigger zenko upgrades

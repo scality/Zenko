@@ -78,6 +78,7 @@ env:
   CRR_DESTINATION_LOCATION_NAME: crr-destination-location
   CRR_SOURCE_ACCOUNT_NAME: crr-source-account
   CRR_DESTINATION_ACCOUNT_NAME: crr-destination-account
+  CRR_ROLE_NAME: crr-role
   # Enable this for Ring tests
   ENABLE_RING_TESTS: "false"
   RING_S3C_ACCESS_KEY: accessKey1

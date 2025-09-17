@@ -7,6 +7,7 @@ import os
 _log = logging.getLogger("end2end configuration")
 
 IAM_ENDPOINT = os.getenv("IAM_ENDPOINT", "http://iam.zenko.local")
+CRR_ROLE_NAME = os.getenv("CRR_ROLE_NAME", "crr-role")
 
 def _setup_crr_iam_resources(account_creds):
     """
@@ -25,7 +26,7 @@ def _setup_crr_iam_resources(account_creds):
         credentials = iam_client.create_access_key(UserName="crr-user")
 
         iam_client.create_role(
-            RoleName="crr-role",
+            RoleName=CRR_ROLE_NAME,
             AssumeRolePolicyDocument='''{
                 "Version": "2012-10-17",
                 "Statement": [
@@ -55,7 +56,7 @@ def _setup_crr_iam_resources(account_creds):
         )
 
         iam_client.attach_role_policy(
-            RoleName="crr-role",
+            RoleName=CRR_ROLE_NAME,
             PolicyArn=policy["Policy"]["Arn"]
         )
 
