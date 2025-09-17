@@ -28,10 +28,8 @@ export async function setupMocks(options: MocksOptions): Promise<void> {
 async function setupAwsMocks(k8s: KubernetesClient, options: MocksOptions): Promise<void> {
     logger.info('Setting up AWS S3 mock');
 
-    // Create ConfigMap with mock-metadata.tar.gz
     await createAwsMockConfigMap(k8s, options);
 
-    // AWS mock service
     const awsMockService: V1Service = {
         apiVersion: 'v1',
         kind: 'Service',
@@ -197,31 +195,17 @@ async function setupAwsMocks(k8s: KubernetesClient, options: MocksOptions): Prom
 
 async function createAwsMockConfigMap(k8s: KubernetesClient, options: MocksOptions): Promise<void> {
     try {
-        // Try to find the tar.gz file in possible locations
-        const possiblePaths = [
-            '/setup/mock-metadata.tar.gz', // Docker container location
-            path.join(__dirname, '../../../..', '.github/scripts/mocks/aws/mock-metadata.tar.gz'),
-            path.join(process.cwd(), '.github/scripts/mocks/aws/mock-metadata.tar.gz'),
-        ];
+        const tarPath = '/setup/mock-metadata.tar.gz';
 
-        let tarGzPath: string | null = null;
-        for (const tarPath of possiblePaths) {
-            if (fs.existsSync(tarPath)) {
-                tarGzPath = tarPath;
-                break;
-            }
+        if (!fs.existsSync(tarPath)) {
+            throw new Error(`AWS mock metadata file not found. Searched paths: ${tarPath}`);
         }
 
-        if (!tarGzPath) {
-            throw new Error(`AWS mock metadata file not found. Searched paths: ${possiblePaths.join(', ')}`);
-        }
-
-        // Read the tar.gz file and create configmap with it
-        const tarGzContent = fs.readFileSync(tarGzPath);
+        const tarGzContent = fs.readFileSync(tarPath);
         const configMapData = {
             'mock-metadata.tar.gz': tarGzContent.toString('base64'),
         };
-        logger.info('Using mock-metadata.tar.gz file', { tarGzPath });
+        logger.info('Using mock-metadata.tar.gz file', { tarPath });
 
         const awsMockConfigMap = {
             apiVersion: 'v1',
@@ -248,7 +232,6 @@ async function createAwsMockConfigMap(k8s: KubernetesClient, options: MocksOptio
 async function setupAzureMocks(k8s: KubernetesClient, options: MocksOptions): Promise<void> {
     logger.info('Setting up Azure Blob/Queue mock (Azurite)');
 
-    // Azure mock service
     const azureMockService: V1Service = {
         apiVersion: 'v1',
         kind: 'Service',
@@ -276,7 +259,6 @@ async function setupAzureMocks(k8s: KubernetesClient, options: MocksOptions): Pr
         }
     };
 
-    // Azure mock pod
     const azureMockPod: V1Pod = {
         apiVersion: 'v1',
         kind: 'Pod',
@@ -327,7 +309,6 @@ async function setupAzureMocks(k8s: KubernetesClient, options: MocksOptions): Pr
         }
     };
 
-    // Azure mock ingress
     const azureMockIngress: V1Ingress = {
         apiVersion: 'networking.k8s.io/v1',
         kind: 'Ingress',
@@ -495,6 +476,5 @@ async function setupAzureMocks(k8s: KubernetesClient, options: MocksOptions): Pr
 
     logger.info('Azure Storage mock setup completed');
 
-    // wait for the pod to be ready
     await k8s.waitForPod('azure-mock-pod', options.namespace);
 }

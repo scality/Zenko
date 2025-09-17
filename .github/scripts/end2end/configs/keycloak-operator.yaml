@@ -1,0 +1,13 @@
+# Keycloak Operator CRDs and Deployment
+# This will be applied via kubectl in the script
+# The operator manages Keycloak instances
+
+# Note: CRDs and operator deployment will be applied via URLs in script
+# This file serves as documentation
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: keycloak-operator-system
+---
+# The actual operator will be deployed via kubectl apply -f URL

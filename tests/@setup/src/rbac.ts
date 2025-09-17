@@ -11,7 +11,6 @@ export async function setupRBAC(options: RBACOptions): Promise<void> {
 
     logger.info('Setting up comprehensive RBAC permissions for all services');
 
-    // Create comprehensive cluster role for both setup and test operations
     const clusterRole = {
         apiVersion: 'rbac.authorization.k8s.io/v1',
         kind: 'ClusterRole',
@@ -27,7 +26,6 @@ export async function setupRBAC(options: RBACOptions): Promise<void> {
         ]
     };
 
-    // Get all service accounts in the namespace
     const serviceAccounts = await k8s.coreApi.listNamespacedServiceAccount({
         namespace: options.namespace,
     });
@@ -38,7 +36,6 @@ export async function setupRBAC(options: RBACOptions): Promise<void> {
         sa.metadata?.name?.includes('operator')
     );
 
-    // Apply comprehensive cluster role
     try {
         await k8s.rbacApi.createClusterRole({
             body: clusterRole,
@@ -47,23 +44,16 @@ export async function setupRBAC(options: RBACOptions): Promise<void> {
     } catch (error: any) {
         if (error.response?.statusCode === 409) {
             logger.debug('ClusterRole zenko-admin already exists, attempting to update');
-            try {
-                await k8s.rbacApi.replaceClusterRole({
-                    name: 'zenko-admin',
-                    body: clusterRole,
-                });
-                logger.debug('ClusterRole zenko-admin updated');
-            } catch (replaceError: any) {
-                logger.debug('Failed to replace ClusterRole, it may already be correct', { error: replaceError.message });
-                // Continue execution as the role likely exists and is functional
-            }
+            await k8s.rbacApi.replaceClusterRole({
+                name: 'zenko-admin',
+                body: clusterRole,
+            });
+            logger.debug('ClusterRole zenko-admin updated');
         } else {
             throw error;
         }
     }
 
-    // Create comprehensive cluster role binding for setup service account first
-    // (so it keeps permissions during the process)
     const setupRoleBinding = {
         apiVersion: 'rbac.authorization.k8s.io/v1',
         kind: 'ClusterRoleBinding',
@@ -90,21 +80,16 @@ export async function setupRBAC(options: RBACOptions): Promise<void> {
     } catch (error: any) {
         if (error.response?.statusCode === 409) {
             logger.debug('Setup ClusterRoleBinding already exists, attempting to update');
-            try {
-                await k8s.rbacApi.replaceClusterRoleBinding({
-                    name: 'zenko-admin-setup',
-                    body: setupRoleBinding,
-                });
-                logger.debug('Setup ClusterRoleBinding updated');
-            } catch (replaceError: any) {
-                logger.debug('Failed to replace setup ClusterRoleBinding, it may already be correct', { error: replaceError.message });
-            }
+            await k8s.rbacApi.replaceClusterRoleBinding({
+                name: 'zenko-admin-setup',
+                body: setupRoleBinding,
+            });
+            logger.debug('Setup ClusterRoleBinding updated');
         } else {
             throw error;
         }
     }
 
-    // Create cluster role bindings for each service account
     for (const sa of zenkoServiceAccounts) {
         const saName = sa.metadata?.name;
         if (!saName) continue;
@@ -136,14 +121,8 @@ export async function setupRBAC(options: RBACOptions): Promise<void> {
             if (error.response?.statusCode === 409) {
                 logger.debug(`ClusterRoleBinding for ${saName} already exists, attempting to update`);
                 try {
-                    await k8s.rbacApi.replaceClusterRoleBinding({
-                        name: `zenko-admin-${saName}`,
-                        body: clusterRoleBinding,
-                    });
-                    logger.debug(`ClusterRoleBinding for ${saName} updated`);
                 } catch (replaceError: any) {
                     logger.debug(`Failed to replace ClusterRoleBinding for ${saName}, it may already be correct`, { error: replaceError.message });
-                    // Continue execution as the binding likely exists and is functional
                 }
             } else {
                 throw error;
@@ -151,7 +130,6 @@ export async function setupRBAC(options: RBACOptions): Promise<void> {
         }
     }
 
-    // Create role binding for default service account in namespace
     const defaultRoleBinding = {
         apiVersion: 'rbac.authorization.k8s.io/v1',
         kind: 'ClusterRoleBinding',
@@ -186,7 +164,6 @@ export async function setupRBAC(options: RBACOptions): Promise<void> {
                 logger.debug(`Default ClusterRoleBinding updated`);
             } catch (replaceError: any) {
                 logger.debug(`Failed to replace default ClusterRoleBinding, it may already be correct`, { error: replaceError.message });
-                // Continue execution as the binding likely exists and is functional
             }
         } else {
             throw error;
@@ -194,11 +171,8 @@ export async function setupRBAC(options: RBACOptions): Promise<void> {
     }
 
     logger.info(`RBAC setup completed for ${zenkoServiceAccounts.length + 1} service accounts`);
-    
-    // Now cleanup old RBAC resources (zenko-test-admin from previous versions)
+
     await cleanupOldRBACResources(k8s, options.namespace);
-    
-    // Finally cleanup bootstrap RBAC (at the end, so we maintain permissions throughout)
     await cleanupBootstrapRBAC(k8s, options.namespace);
 }
 
@@ -217,30 +191,23 @@ async function cleanupBootstrapRBAC(k8s: any, namespace: string): Promise<void> 
             }
             logger.debug(`Cleaned up bootstrap ${resource.type}: ${resource.name}`);
         } catch (error: any) {
-            if (error.response?.statusCode === 404) {
-                logger.debug(`Bootstrap ${resource.type} ${resource.name} not found (already cleaned up)`);
-            } else {
-                logger.debug(`Failed to cleanup bootstrap ${resource.type} ${resource.name}:`, { error: error.message });
-                // Don't fail setup for cleanup issues
-            }
+            logger.debug(`Failed to cleanup bootstrap ${resource.type} ${resource.name}:`, { error: error.message });
         }
     }
     logger.debug('Bootstrap RBAC cleanup completed');
 }
 
 async function cleanupOldRBACResources(k8s: any, namespace: string): Promise<void> {
-    // Clean up old zenko-test-admin resources from previous versions
     const oldResources = [
         { type: 'clusterrole', name: 'zenko-test-admin' },
     ];
 
-    // Get all cluster role bindings that start with zenko-test-admin
     try {
         const bindings = await k8s.rbacApi.listClusterRoleBinding();
-        const oldBindings = bindings.items.filter((binding: any) => 
+        const oldBindings = bindings.items.filter((binding: any) =>
             binding.metadata?.name?.startsWith('zenko-test-admin-')
         );
-        
+
         for (const binding of oldBindings) {
             oldResources.push({ type: 'clusterrolebinding', name: binding.metadata.name });
         }
@@ -257,12 +224,7 @@ async function cleanupOldRBACResources(k8s: any, namespace: string): Promise<voi
             }
             logger.debug(`Cleaned up old ${resource.type}: ${resource.name}`);
         } catch (error: any) {
-            if (error.response?.statusCode === 404) {
-                logger.debug(`Old ${resource.type} ${resource.name} not found (already cleaned up)`);
-            } else {
-                logger.debug(`Failed to cleanup old ${resource.type} ${resource.name}:`, { error: error.message });
-                // Don't fail setup for cleanup issues
-            }
+            logger.debug(`Failed to cleanup old ${resource.type} ${resource.name}:`, { error: error.message });
         }
     }
     logger.debug('Old RBAC resources cleanup completed');

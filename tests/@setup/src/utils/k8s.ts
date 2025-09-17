@@ -385,4 +385,45 @@ export class KubernetesClient {
             }
         }
     }
+
+    async createNamespace(namespace: string): Promise<void> {
+        await this.coreApi.createNamespace({
+            body: {
+                apiVersion: 'v1',
+                kind: 'Namespace',
+                metadata: { name: namespace }
+            }
+        });
+    }
+
+    async waitForStatefulSetReady(name: string, namespace: string, timeoutMs: number = 300000): Promise<void> {
+        logger.info(`Waiting for StatefulSet ${name} to be ready...`);
+        const startTime = Date.now();
+    
+        while (Date.now() - startTime < timeoutMs) {
+            try {
+                const sts = await this.appsApi.readNamespacedStatefulSet({ name, namespace });
+                const specReplicas = sts.spec?.replicas ?? 0;
+                const status = sts.status;
+    
+                if (
+                    status &&
+                    status.readyReplicas === specReplicas &&
+                    status.currentReplicas === specReplicas &&
+                    status.updatedReplicas === specReplicas
+                ) {
+                    logger.info(`StatefulSet ${name} is ready.`);
+                    return;
+                }
+    
+                logger.debug(`Waiting for StatefulSet ${name} (${status?.readyReplicas || 0}/${specReplicas})`);
+                await new Promise(resolve => setTimeout(resolve, 5000));
+            } catch (error) {
+                logger.debug(`Error checking StatefulSet ${name}: ${error}`);
+                await new Promise(resolve => setTimeout(resolve, 5000));
+            }
+        }
+    
+        throw new Error(`StatefulSet ${name} did not become ready within ${timeoutMs}ms`);
+    }
 }

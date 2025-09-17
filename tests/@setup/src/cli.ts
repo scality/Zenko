@@ -2,16 +2,11 @@
 
 import { Command } from 'commander';
 import { setupMocks } from './mocks';
-import { setupBuckets } from './buckets';
 import { setupLocations } from './locations';
-import { setupAccounts } from './accounts';
-import { setupEndpoints } from './endpoints';
 import { setupWorkflows } from './workflows';
-import { setupTLSWithOpenSSL } from './tls';
 import { setupDNS } from './dns';
 import { setupRBAC } from './rbac';
 import { setupMetadata } from './metadata';
-import { setupCTSTLocal } from './ctst-local';
 import { waitForZenkoToStabilize } from './utils/zenko-status';
 import { logger } from './utils/logger';
 
@@ -33,9 +28,6 @@ program
     .command('all')
     .description('Run complete setup (all tasks, use --no-<task> to exclude specific tasks)')
     .option('--config <path>', 'Path to setup configuration file')
-    .option('--buckets-config <path>', 'Path to buckets configuration file')
-    .option('--accounts-config <path>', 'Path to accounts configuration file')
-    .option('--endpoints-config <path>', 'Path to endpoints configuration file')
     .option('--workflows-config <path>', 'Path to workflows configuration file')
     .option('--locations-config <path>', 'Path to locations configuration file')
     .option('--git-access-token <token>', 'Git access token for metadata repository')
@@ -44,33 +36,20 @@ program
     .option('--no-dns', 'Skip DNS setup')
     .option('--no-mocks', 'Skip mock services setup')
     .option('--no-locations', 'Skip storage locations setup')
-    .option('--no-accounts', 'Skip test accounts setup')
-    .option('--no-endpoints', 'Skip S3 endpoints setup')
     .option('--no-workflows', 'Skip workflows setup')
-    .option('--no-buckets', 'Skip test buckets setup')
-    .option('--no-metadata', 'Skip metadata service setup')
-    .option('--no-ctst-local', 'Skip CTST local environment setup')
-    .option('--no-tls', 'Skip TLS certificates setup')
+    .option('--no-metadata', 'Skip Metadata service setup')
     .action(async (options) => {
         const globalOptions = program.opts();
         await runSetup({
             ...globalOptions,
-            // Run everything for 'all' command, unless specifically excluded
             rbac: !options.noRbac,
             dns: !options.noDns,
             mocks: !options.noMocks,
             locations: !options.noLocations,
-            accounts: !options.noAccounts,
-            endpoints: !options.noEndpoints,
             workflows: !options.noWorkflows,
-            buckets: !options.noBuckets,
             metadata: !options.noMetadata,
             ctstLocal: !options.noCtstLocal,
-            tls: !options.noTls,
             configFile: options.config,
-            bucketsConfig: options.bucketsConfig,
-            accountsConfig: options.accountsConfig,
-            endpointsConfig: options.endpointsConfig,
             workflowsConfig: options.workflowsConfig,
             locationsConfig: options.locationsConfig,
             gitAccessToken: options.gitAccessToken,
@@ -86,16 +65,9 @@ program
     .option('--mocks', 'Setup mock services')
     .option('--locations', 'Setup storage locations')
     .option('--accounts', 'Create test accounts')
-    .option('--endpoints', 'Create S3 endpoints')
     .option('--workflows', 'Create workflows')
-    .option('--buckets', 'Create test buckets')
     .option('--metadata', 'Deploy metadata service')
-    .option('--ctst-local', 'Setup CTST local development environment')
-    .option('--tls', 'Setup TLS certificates')
     .option('--config <path>', 'Path to setup configuration file')
-    .option('--buckets-config <path>', 'Path to buckets configuration file')
-    .option('--accounts-config <path>', 'Path to accounts configuration file')
-    .option('--endpoints-config <path>', 'Path to endpoints configuration file')
     .option('--workflows-config <path>', 'Path to workflows configuration file')
     .option('--locations-config <path>', 'Path to locations configuration file')
     .option('--git-access-token <token>', 'Git access token for metadata repository')
@@ -109,17 +81,9 @@ program
             dns: options.dns || false,
             mocks: options.mocks || false,
             locations: options.locations || false,
-            accounts: options.accounts || false,
-            endpoints: options.endpoints || false,
             workflows: options.workflows || false,
-            buckets: options.buckets || false,
             metadata: options.metadata || false,
-            ctstLocal: options['ctst-local'] || false,
-            tls: options.tls || false,
             configFile: options.config,
-            bucketsConfig: options.bucketsConfig,
-            accountsConfig: options.accountsConfig,
-            endpointsConfig: options.endpointsConfig,
             workflowsConfig: options.workflowsConfig,
             locationsConfig: options.locationsConfig,
             gitAccessToken: options.gitAccessToken,
@@ -144,20 +108,6 @@ program
     });
 
 program
-    .command('buckets')
-    .description('Create test buckets across all providers')
-    .option('--provider <provider>', 'Specific provider (aws|azure|ring)')
-    .option('--config <path>', 'Path to buckets configuration file')
-    .action(async (options) => {
-        const globalOptions = program.opts();
-        await setupBuckets({
-            namespace: globalOptions.namespace || 'default',
-            provider: options.provider,
-            configFile: options.config,
-        });
-    });
-
-program
     .command('locations')
     .description('Setup storage locations via Management API')
     .option('--config <path>', 'Path to locations configuration file')
@@ -170,33 +120,7 @@ program
         });
     });
 
-program
-    .command('accounts')
-    .description('Create test accounts via Management API')
-    .option('--config <path>', 'Path to accounts configuration file')
-    .action(async (options) => {
-        const globalOptions = program.opts();
-        await setupAccounts({
-            namespace: globalOptions.namespace || 'default',
-            instanceId: globalOptions.instanceId,
-            configFile: options.config,
-        });
-    });
-
-program
-    .command('endpoints')
-    .description('Create S3 endpoints via Management API')
-    .option('--config <path>', 'Path to endpoints configuration file')
-    .action(async (options) => {
-        const globalOptions = program.opts();
-        await setupEndpoints({
-            namespace: globalOptions.namespace || 'default',
-            instanceId: globalOptions.instanceId,
-            configFile: options.config,
-        });
-    });
-
-program
+    program
     .command('workflows')
     .description('Create replication/lifecycle/ingestion workflows')
     .option('--config <path>', 'Path to workflows configuration file')
@@ -208,19 +132,6 @@ program
             instanceId: globalOptions.instanceId,
             configFile: options.config,
             workflowType: options.type,
-        });
-    });
-
-
-program
-    .command('tls')
-    .description('Setup TLS certificates for HTTPS testing')
-    .option('--domains <domains>', 'Comma-separated list of domains to include in certificate')
-    .action(async (options) => {
-        const globalOptions = program.opts();
-        await setupTLSWithOpenSSL({
-            namespace: globalOptions.namespace || 'default',
-            domains: options.domains ? options.domains.split(',') : undefined,
         });
     });
 
@@ -260,36 +171,15 @@ program
         });
     });
 
-program
-    .command('ctst-local')
-    .description('Setup CTST local development environment')
-    .option('--skip-hosts-file', 'Skip /etc/hosts file setup')
-    .option('--skip-rbac', 'Skip RBAC permissions setup')
-    .option('--skip-dns', 'Skip DNS configuration')
-    .option('--skip-zenko-wait', 'Skip waiting for Zenko to be ready')
-    .action(async (options) => {
-        const globalOptions = program.opts();
-        await setupCTSTLocal({
-            namespace: globalOptions.namespace || 'default',
-            instanceId: globalOptions.instanceId,
-            subdomain: globalOptions.subdomain || 'zenko.local',
-            skipHostsFile: options.skipHostsFile,
-            skipRBAC: options.skipRbac,
-            skipDNS: options.skipDns,
-            skipZenkoWait: options.skipZenkoWait,
-        });
-    });
-
 async function runSetup(options: any) {
     try {
         logger.info('Starting Zenko test environment setup');
 
-        // First, wait for Zenko to be ready
         logger.info('Checking Zenko readiness...');
         await waitForZenkoToStabilize({
             namespace: options.namespace || 'default',
             instanceId: options.instanceId || 'end2end',
-            timeout: 10 * 60 * 1000, // 10 minutes
+            timeout: 10 * 60 * 1000,
         });
 
         const tasks = [];
@@ -331,26 +221,6 @@ async function runSetup(options: any) {
             });
         }
 
-        if (options.accounts) {
-            tasks.push({
-                name: 'Test Accounts', fn: () => setupAccounts({
-                    namespace: options.namespace || 'default',
-                    instanceId: options.instanceId,
-                    configFile: options.accountsConfig,
-                })
-            });
-        }
-
-        if (options.endpoints) {
-            tasks.push({
-                name: 'S3 Endpoints', fn: () => setupEndpoints({
-                    namespace: options.namespace || 'default',
-                    instanceId: options.instanceId,
-                    configFile: options.endpointsConfig,
-                })
-            });
-        }
-
         if (options.workflows) {
             tasks.push({
                 name: 'Workflows', fn: () => setupWorkflows({
@@ -361,40 +231,12 @@ async function runSetup(options: any) {
             });
         }
 
-        if (options.buckets) {
-            tasks.push({
-                name: 'Test Buckets', fn: () => setupBuckets({
-                    namespace: options.namespace || 'default',
-                    configFile: options.bucketsConfig,
-                })
-            });
-        }
-
         if (options.metadata) {
             tasks.push({
                 name: 'Metadata Service', fn: () => setupMetadata({
                     gitAccessToken: options.gitAccessToken || process.env.GIT_ACCESS_TOKEN,
                     namespace: options.metadataNamespace || 'metadata',
                     timeout: 300,
-                })
-            });
-        }
-
-        if (options.ctstLocal) {
-            tasks.push({
-                name: 'CTST Local Environment', fn: () => setupCTSTLocal({
-                    namespace: options.namespace || 'default',
-                    instanceId: options.instanceId,
-                    subdomain: options.subdomain || 'zenko.local',
-                })
-            });
-        }
-
-        if (options.tls) {
-            tasks.push({
-                name: 'TLS Certificates', fn: () => setupTLSWithOpenSSL({
-                    namespace: options.namespace || 'default',
-                    domains: ['*.zenko.local'],
                 })
             });
         }
@@ -412,7 +254,6 @@ async function runSetup(options: any) {
         }
 
         logger.info('Zenko test environment setup completed successfully!');
-
     } catch (error) {
         logger.error('Setup failed', { error: error instanceof Error ? error.message : String(error) });
         process.exit(1);

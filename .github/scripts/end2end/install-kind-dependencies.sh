@@ -15,8 +15,6 @@ CERT_MANAGER_VERSION=v1.13.3
 KAFKA_OPERATOR_VERSION=0.25.1
 INGRESS_NGINX_VERSION=controller-v1.10.3
 PROMETHEUS_VERSION=v0.52.1
-KEYCLOAK_VERSION=${KEYCLOAK_VERSION:-'18.4.4'}
-
 MONGODB_ROOT_USERNAME=root
 MONGODB_ROOT_PASSWORD=rootpass
 MONGODB_APP_USERNAME=data
@@ -33,19 +31,11 @@ readonly MONGODB_VALID_TOPOLOGIES=(
 
 MONGODB_SHARD_COUNT=${MONGODB_SHARD_COUNT:-1}
 
-ENABLE_KEYCLOAK_HTTPS=${ENABLE_KEYCLOAK_HTTPS:-'false'}
-
 KAFKA_CHART=banzaicloud-stable/kafka-operator
-
-if [ $ENABLE_KEYCLOAK_HTTPS == 'true' ]; then
-    KEYCLOAK_INGRESS_OPTIONS="$DIR/configs/keycloak_ingress_https.yaml"
-else
-    KEYCLOAK_INGRESS_OPTIONS="$DIR/configs/keycloak_ingress_http.yaml"
-fi
 
 helm repo add --force-update bitnami https://charts.bitnami.com/bitnami
 helm repo add --force-update pravega https://charts.pravega.io
-helm repo add --force-update codecentric https://codecentric.github.io/helm-charts/
+# Note: codecentric charts no longer needed - using Keycloak operator
 # BanzaiCloud repo may not work, c.f. https://scality.atlassian.net/browse/AN-225
 helm repo add --force-update banzaicloud-stable https://kubernetes-charts.banzaicloud.com || {
 		echo -n "::notice file=$(basename $0),line=$LINENO,title=Banzaicloud Charts not available::"
@@ -137,12 +127,55 @@ kafka_crd_url=https://github.com/banzaicloud/koperator/releases/download/v${KAFK
 kubectl create -f $kafka_crd_url || kubectl replace -f $kafka_crd_url
 helm upgrade --install --version ${KAFKA_OPERATOR_VERSION} -n default kafka-operator ${KAFKA_CHART}
 
-# keycloak
-envsubst < $DIR/configs/keycloak_config.json > $DIR/configs/keycloak-realm.json
-kubectl create configmap keycloak-realm --from-file=$DIR/configs/keycloak-realm.json
-helm upgrade --install --version ${KEYCLOAK_VERSION} keycloak codecentric/keycloak -f "$DIR/configs/keycloak_options.yaml" -f "${KEYCLOAK_INGRESS_OPTIONS}"
+# PostgreSQL Operator (CloudNativePG)
+echo "Installing CloudNativePG PostgreSQL operator..."
+kubectl apply --server-side -f https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/release-1.24/releases/cnpg-1.24.0.yaml
 
-kubectl rollout status sts/keycloak --timeout=10m
+# Wait for PostgreSQL operator to be ready
+kubectl wait --for=condition=Available --timeout=300s deployment/cnpg-controller-manager -n cnpg-system
+
+# Deploy PostgreSQL cluster for Keycloak
+echo "Deploying PostgreSQL cluster for Keycloak..."
+kubectl apply -f "$DIR/configs/postgresql-cluster.yaml"
+
+# Wait for PostgreSQL cluster to be ready
+echo "Waiting for PostgreSQL cluster to be ready..."
+kubectl wait --for=condition=Ready --timeout=600s cluster/keycloak-postgres --namespace=default || {
+    echo "PostgreSQL cluster not ready yet, checking status..."
+    kubectl describe cluster keycloak-postgres
+    kubectl get pods -l cnpg.io/cluster=keycloak-postgres
+    echo "Continuing anyway..."
+}
+
+# Keycloak Operator
+echo "Installing Keycloak operator..."
+kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/26.0.2/kubernetes/keycloaks.k8s.keycloak.org-v1.yml
+kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/26.0.2/kubernetes/keycloakrealmimports.k8s.keycloak.org-v1.yml
+kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/26.0.2/kubernetes/kubernetes.yml
+
+# Wait for Keycloak operator to be ready
+kubectl wait --for=condition=Available --timeout=300s deployment/keycloak-operator -n default
+
+# Deploy Keycloak instance
+echo "Deploying Keycloak instance..."
+kubectl apply -f "$DIR/configs/keycloak-instance.yaml"
+
+# Deploy Keycloak ingress
+kubectl apply -f "$DIR/configs/keycloak-ingress-operators.yaml"
+
+# Wait for Keycloak to be ready
+kubectl wait --for=condition=Ready --timeout=600s keycloak/keycloak
+
+# Import Keycloak realm configuration
+echo "Importing Keycloak realm configuration..."
+# Set environment variables for realm import
+export OIDC_REALM="zenko"
+export OIDC_CLIENT_ID="zenko-ui" 
+export UI_ENDPOINT="http://ui.zenko.local"
+export OIDC_USERNAME="zenko"
+export INSTANCE_ID="test-instance"
+
+envsubst < $DIR/configs/keycloak-realm-import.yaml | kubectl apply -f -
 
 
 # TODO: use zenko-operator install-deps

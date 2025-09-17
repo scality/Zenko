@@ -1,0 +1,45 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: keycloak-postgres
+  namespace: default
+spec:
+  instances: 1
+  
+  # PostgreSQL configuration
+  postgresql:
+    parameters:
+      max_connections: "200"
+      shared_buffers: "256MB"
+      effective_cache_size: "1GB"
+      
+  # Bootstrap configuration
+  bootstrap:
+    initdb:
+      database: keycloak
+      owner: keycloak
+      secret:
+        name: keycloak-postgres-credentials
+        
+  # Storage configuration
+  storage:
+    size: 10Gi
+    storageClass: "standard"
+    
+---
+# Secret for PostgreSQL credentials
+apiVersion: v1
+kind: Secret
+metadata:
+  name: keycloak-postgres-credentials
+  namespace: default
+type: kubernetes.io/basic-auth
+stringData:
+  username: keycloak
+  password: keycloak123
+  
+# Note: CloudNativePG automatically creates services:
+# - keycloak-postgres-rw (read-write service)  
+# - keycloak-postgres-ro (read-only service)
+# - keycloak-postgres-r (read service)
+# No need to create manual services

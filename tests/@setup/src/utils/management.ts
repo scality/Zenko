@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { logger } from './logger';
+import { IngestionWorkflow, LifecycleWorkflow, ReplicationWorkflow } from './types';
 
 // Disable SSL verification for all requests
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -38,105 +39,144 @@ export async function getManagementToken(subdomain: string = 'zenko.local'): Pro
         username,
     });
 
-    try {
-        // Direct HTTP request matching working shell script
-        const tokenUrl = `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/token`;
-        logger.debug('Making direct OIDC token request to:', { tokenUrl });
+    // Direct HTTP request matching working shell script
+    const tokenUrl = `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/token`;
+    logger.debug('Making direct OIDC token request to:', { tokenUrl });
 
-        const requestData = {
-            // eslint-disable-next-line camelcase
-            client_id: clientId,
-            username,
-            password,
-            // eslint-disable-next-line camelcase
-            grant_type: 'password',
-            scope: 'openid'
-        };
+    const requestData = {
+        // eslint-disable-next-line camelcase
+        client_id: clientId,
+        username,
+        password,
+        // eslint-disable-next-line camelcase
+        grant_type: 'password',
+        scope: 'openid'
+    };
 
-        logger.debug('Request parameters:', {
-            clientId,
-            username,
-            grant: 'password',
-            scope: 'openid',
-            password,
-        });
+    const response = await axios.post(tokenUrl, new URLSearchParams(requestData), {
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        timeout: 10000
+    });
 
-        const response = await axios.post(tokenUrl, new URLSearchParams(requestData), {
+    if (!response.data.id_token) {
+        logger.error('No id_token in response:', { data: response.data });
+        throw new Error('No id_token received from Keycloak');
+    }
+
+    logger.info('Successfully obtained OIDC token from Keycloak', {
+        tokenLength: response.data.id_token.length,
+    });
+
+    return response.data.id_token;
+}
+
+export async function getInstanceId(): Promise<string | null> {
+    return process.env.INSTANCE_ID || 'end2end';
+}
+
+export async function createReplicationWorkflow(
+    managementEndpoint: string,
+    authToken: string,
+    instanceId: string,
+    workflow: ReplicationWorkflow,
+): Promise<void> {
+    const workflowPayload = {
+        workflowId: workflow.name,
+        type: 'replication',
+        enabled: workflow.enabled,
+        source: {
+            bucket: workflow.sourceBucket,
+            location: workflow.sourceLocation,
+        },
+        destination: {
+            bucket: workflow.targetBucket,
+            location: workflow.targetLocation,
+        },
+    };
+
+    const response = await axios.post(
+        `${managementEndpoint}/api/v1/config/${instanceId}/workflow`,
+        workflowPayload,
+        {
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
+                'X-Authentication-Token': authToken,
+                'Content-Type': 'application/json',
             },
-            timeout: 10000
-        });
-
-        logger.debug('Keycloak authentication completed successfully');
-        logger.debug('Response status:', { status: response.status });
-        logger.debug('Response data keys:', Object.keys(response.data || {}));
-
-        if (!response.data.id_token) {
-            logger.error('No id_token in response:', { data: response.data });
-            throw new Error('No id_token received from Keycloak');
+            timeout: 30000,
         }
+    );
 
-        logger.info('Successfully obtained OIDC token from Keycloak', {
-            tokenLength: response.data.id_token.length,
-        });
+    if (response.status !== 201 && response.status !== 200) {
+        throw new Error(`Management API returned status ${response.status}: ${JSON.stringify(response.data)}`);
+    }
+}
 
-        return response.data.id_token;
-    } catch (error) {
-        // Enhanced error logging for axios errors
-        const errorDetails: any = {
-            message: error instanceof Error ? error.message : String(error),
-            name: error instanceof Error ? error.name : 'Unknown',
-        };
+export async function createLifecycleWorkflow(
+    managementEndpoint: string,
+    authToken: string,
+    instanceId: string,
+    workflow: LifecycleWorkflow,
+): Promise<void> {
+    const workflowPayload = {
+        workflowId: workflow.name,
+        type: 'lifecycle',
+        bucketName: workflow.bucketName,
+        rules: workflow.rules,
+    };
 
-        // Handle axios specific errors
-        if (error && typeof error === 'object') {
-            const err = error as any;
-            if (err.code) {
-                errorDetails.code = err.code;
-            }
-
-            // Axios response errors
-            if (err.response) {
-                errorDetails.httpStatus = err.response.status;
-                errorDetails.httpStatusText = err.response.statusText;
-                errorDetails.requestUrl = err.response.config?.url;
-                errorDetails.responseData = err.response.data;
-                logger.error('HTTP Response Error:', {
-                    status: err.response.status,
-                    statusText: err.response.statusText,
-                    url: err.response.config?.url,
-                    data: err.response.data
-                });
-            }
-
-            // Axios request errors (no response received)
-            if (err.request && !err.response) {
-                errorDetails.requestUrl = err.request.path || err.request.url;
-                errorDetails.requestMethod = err.request.method;
-                logger.error('Network/Request Error:', {
-                    url: err.request.path || err.request.url,
-                    method: err.request.method,
-                    message: err.message
-                });
-            }
+    const response = await axios.post(
+        `${managementEndpoint}/api/v1/config/${instanceId}/lifecycle`,
+        workflowPayload,
+        {
+            headers: {
+                'X-Authentication-Token': authToken,
+                'Content-Type': 'application/json',
+            },
+            timeout: 30000,
         }
+    );
 
-        logger.error('Failed to authenticate with Keycloak:', errorDetails);
+    if (response.status !== 201 && response.status !== 200) {
+        throw new Error(`Management API returned status ${response.status}: ${JSON.stringify(response.data)}`);
+    }
+}
 
-        let errorMessage = 'OIDC authentication failed';
-        if (errorDetails.code === 'ENOTFOUND') {
-            errorMessage += ': Cannot resolve hostname. Check DNS configuration.';
-        } else if (errorDetails.code === 'ECONNREFUSED') {
-            errorMessage += ': Connection refused. Service may not be running.';
-        } else if (errorDetails.httpStatus === 404) {
-            errorMessage += ': Token endpoint not found (${errorDetails.requestUrl}). Check realm/path configuration.';
-        } else if (errorDetails.httpStatus) {
-            errorMessage += `: HTTP ${errorDetails.httpStatus} ${errorDetails.httpStatusText || ''}`;
-        } else if (errorDetails.message) {
-            errorMessage += ': ${errorDetails.message}';
+export async function createIngestionWorkflow(
+    managementEndpoint: string,
+    authToken: string,
+    instanceId: string,
+    workflow: IngestionWorkflow,
+): Promise<void> {
+    const workflowPayload = {
+        workflowId: workflow.name,
+        type: 'ingestion',
+        enabled: workflow.enabled,
+        schedule: workflow.schedule,
+        source: {
+            bucket: workflow.sourceBucket,
+            location: workflow.sourceLocation,
+        },
+        destination: {
+            bucket: workflow.targetBucket,
+            location: workflow.targetLocation,
+        },
+    };
+
+    const response = await axios.post(
+        `${managementEndpoint}/api/v1/config/${instanceId}/workflow`,
+        workflowPayload,
+        {
+            headers: {
+                'X-Authentication-Token': authToken,
+                'Content-Type': 'application/json',
+            },
+            timeout: 30000,
         }
+    );
 
-        throw new Error(errorMessage);
+    if (response.status !== 201 && response.status !== 200) {
+        throw new Error(`Management API returned status ${response.status}: ${JSON.stringify(response.data)}`);
     }
 }

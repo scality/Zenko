@@ -1,0 +1,9 @@
+# CloudNativePG Operator Installation
+# This will install the CloudNativePG operator for PostgreSQL management
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cnpg-system
+---
+# Note: The actual operator manifest will be applied via kubectl in the script
+# This file serves as documentation for the operator deployment

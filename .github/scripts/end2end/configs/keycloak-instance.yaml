@@ -1,0 +1,53 @@
+apiVersion: k8s.keycloak.org/v2alpha1
+kind: Keycloak
+metadata:
+  name: keycloak
+  namespace: default
+spec:
+  instances: 1
+  
+  # Database configuration
+  db:
+    vendor: postgres
+    host: keycloak-postgres-rw
+    port: 5432
+    database: keycloak
+    usernameSecret:
+      name: keycloak-postgres-credentials
+      key: username
+    passwordSecret:
+      name: keycloak-postgres-credentials
+      key: password
+      
+  # HTTP configuration  
+  http:
+    tlsSecret: ""  # Will be configured for HTTPS later if needed
+    
+  # Hostname configuration
+  hostname:
+    hostname: keycloak.zenko.local
+    
+  # Additional configuration
+  additionalOptions:
+    - name: keycloak.migration.action
+      value: import
+    - name: keycloak.migration.provider  
+      value: singleFile
+    - name: keycloak.migration.file
+      value: /config/keycloak-realm.json
+      
+---
+# Service for Keycloak
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak-service
+  namespace: default
+spec:
+  selector:
+    app: keycloak
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+  type: ClusterIP

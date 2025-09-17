@@ -17,7 +17,6 @@ function generateCorefile(options: DNSOptions): string {
     const templatePath = path.join(__dirname, '..', 'configs', 'dns.conf');
     const corefileTemplate = fs.readFileSync(templatePath, 'utf8');
     
-    // Replace placeholders in the template
     const subdomain = options.subdomain || 'zenko.local';
     const finalCorefile = corefileTemplate
         .replace(/{{subdomain}}/g, subdomain);
@@ -56,7 +55,7 @@ async function restartCoreDNS(k8s: KubernetesClient): Promise<void> {
 
 /**
  * Main function to set up DNS by overwriting the CoreDNS ConfigMap.
- */
+ */ 
 export async function setupDNS(options: DNSOptions): Promise<void> {
     const k8s = new KubernetesClient();
     const configMapName = 'coredns';
@@ -74,7 +73,6 @@ export async function setupDNS(options: DNSOptions): Promise<void> {
 
     logger.info(`Applying CoreDNS ConfigMap to ${configMapNamespace}/${configMapName}...`);
     try {
-        // This is the "create or replace" logic, equivalent to `kubectl apply`
         await k8s.coreApi.replaceNamespacedConfigMap({
             name: configMapName,
             namespace: configMapNamespace,
