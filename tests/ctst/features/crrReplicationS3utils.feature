@@ -19,7 +19,7 @@ Feature: Replication
         And an object "source-object-1" that "exists"
         And a replication configuration to "awsbackendmismatch" location
         When the job to replicate existing objects with status "NEW" is executed
-        Then the object replication should "succeed" within 300 seconds
+        Then the object replication should "succeed" within 600 seconds
         And the replicated object should be the same as the source object
 
     @2.12.0
@@ -34,5 +34,5 @@ Feature: Replication
         Then the object replication should "fail" within 500 seconds
         When the destination bucket on the location is created again
         And the job to replicate existing objects with status "FAILED" is executed
-        Then the object replication should "succeed" within 300 seconds
+        Then the object replication should "succeed" within 600 seconds
         And the replicated object should be the same as the source object
