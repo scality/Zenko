@@ -19,26 +19,15 @@ spec:
     name: artesca-root-ca-issuer
     kind: ClusterIssuer
   dnsNames:
-  - ui.zenko.local
   - management.zenko.local
   - s3.zenko.local
   - iam.zenko.local
   - sts.zenko.local
   - keycloak.zenko.local
-  - shell-ui.zenko.local
 EOF
 
 # Wait for certificate to be ready
 kubectl wait --for=condition=Ready --timeout=2m certificate/zenko-tls
-
-# Update Shell-UI ingress to use HTTPS
-kubectl patch ingress shell-ui --type=json -p '[
-  {
-    "op": "replace", 
-    "path": "/spec/tls", 
-    "value": [{"hosts": ["shell-ui.zenko.local"], "secretName": "zenko-tls"}]
-  }
-]'
 
 # Get current Zenko instance name
 ZENKO_NAME=$(kubectl get zenko -o jsonpath='{.items[0].metadata.name}')
@@ -51,7 +40,6 @@ kubectl patch zenko/${ZENKO_NAME} --type=merge -p '{
       "certificates": [
         {
           "hosts": [
-            "ui.zenko.local",
             "management.zenko.local",
             "iam.zenko.local",
             "sts.zenko.local",
@@ -72,9 +60,7 @@ kubectl patch zenko/${ZENKO_NAME} --type=merge -p '{
 kubectl wait --for condition=Available --timeout 5m zenko/${ZENKO_NAME}
 
 # Update environment variables to use HTTPS URLs
-echo "UI_ENDPOINT=https://ui.zenko.local" >> $GITHUB_ENV
 echo "OIDC_ENDPOINT=https://keycloak.zenko.local" >> $GITHUB_ENV
-echo "NAVBAR_ENDPOINT=https://shell-ui.zenko.local" >> $GITHUB_ENV
 echo "OIDC_HOST=keycloak.zenko.local" >> $GITHUB_ENV
 echo "ENABLE_KEYCLOAK_HTTPS=true" >> $GITHUB_ENV
 

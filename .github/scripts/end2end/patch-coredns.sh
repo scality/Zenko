@@ -22,21 +22,17 @@ corefile="
     rewrite name exact queue.azure-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact devstoreaccount1.queue.azure-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact keycloak.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
-    rewrite name exact ui.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact management.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact s3.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact utilization.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact sts.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact iam.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
-    rewrite name exact shell-ui.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact keycloak.dr.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
-    rewrite name exact ui.dr.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact management.dr.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact s3.dr.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact sts.dr.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact iam.dr.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact prom.dr.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
-    rewrite name exact shell-ui.dr.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact website.mywebsite.com ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact s3c.local s3c-cloudserver.metadata.svc.cluster.local
     kubernetes cluster.local in-addr.arpa ip6.arpa {

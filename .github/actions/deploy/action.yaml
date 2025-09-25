@@ -49,10 +49,6 @@ runs:
       shell: bash
       run: bash patch-coredns.sh
       working-directory: ./.github/scripts/end2end
-    - name: Setup Shell-UI Service
-      shell: bash
-      run: bash deploy-shell-ui.sh
-      working-directory: ./.github/scripts/end2end
     - name: Install operator
       shell: bash
       run: ./.github/scripts/end2end/deploy-zkop.sh

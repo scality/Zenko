@@ -16,7 +16,7 @@ UUID=$(kubectl get secret -l app.kubernetes.io/name=backbeat-config,app.kubernet
 UUID=${UUID%.*}
 UUID=${UUID:1}
 
-echo "127.0.0.1 iam.zenko.local ui.zenko.local s3-local-file.zenko.local keycloak.zenko.local \
+echo "127.0.0.1 iam.zenko.local s3-local-file.zenko.local keycloak.zenko.local \
     sts.zenko.local management.zenko.local s3.zenko.local website.mywebsite.com utilization.zenko.local" | sudo tee -a /etc/hosts
 
 # Add bucket notification target

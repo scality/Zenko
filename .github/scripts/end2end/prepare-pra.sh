@@ -13,7 +13,6 @@ echo 'ZENKO_IAM_INGRESS="iam.dr.zenko.local"' >> "$GITHUB_ENV"
 echo 'ZENKO_STS_INGRESS="sts.dr.zenko.local"' >> "$GITHUB_ENV"
 echo 'ZENKO_MANAGEMENT_INGRESS="management.dr.zenko.local"' >> "$GITHUB_ENV"
 echo 'ZENKO_S3_INGRESS="s3.dr.zenko.local"' >> "$GITHUB_ENV"
-echo 'ZENKO_UI_INGRESS="ui.dr.zenko.local"' >> "$GITHUB_ENV"
 echo 'ZENKO_SUR_INGRESS="utilization.dr.zenko.local"' >> "$GITHUB_ENV"
 
 MONGODB_ROOT_USERNAME="${MONGODB_ROOT_USERNAME:-'root'}"

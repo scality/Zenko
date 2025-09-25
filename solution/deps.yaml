@@ -138,12 +138,6 @@ zenko-operator:
   image: zenko-operator
   tag: v1.8.0-preview.1
   envsubst: ZENKO_OPERATOR_TAG
-zenko-ui:
-  sourceRegistry: ghcr.io/scality
-  config: zenko-ui/zenko-ui-config
-  image: zenko-ui
-  tag: 3.2.7
-  envsubst: ZENKO_UI_TAG
 zookeeper:
   sourceRegistry: pravega
   image: zookeeper

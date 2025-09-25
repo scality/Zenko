@@ -24,8 +24,6 @@ env:
   OIDC_PASSWORD: '123'
   OIDC_FIRST_NAME: 'hello'
   OIDC_LAST_NAME: 'world'
-  SHELL_UI_NAME: "shell-ui"
-  SHELL_UI_IMAGE: "ghcr.io/scality/metalk8s/shell-ui:v127.0.0"
   HTTP_PROXY: ""
   HTTPS_PROXY: ""
   BACKBEAT_BUCKET_CHECK_TIMEOUT_S: ""
@@ -40,7 +38,6 @@ env:
   UI_ENDPOINT: 'http://ui.zenko.local'
   OIDC_ENDPOINT: 'http://keycloak.zenko.local'
   OIDC_HOST: 'keycloak.zenko.local'
-  NAVBAR_ENDPOINT: 'http://shell-ui.zenko.local'
   ENABLE_KEYCLOAK_HTTPS: 'false'
   KEYCLOAK_VERSION: '18.4.4'
   PROMETHEUS_NAME: "prometheus"

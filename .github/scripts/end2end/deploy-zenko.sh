@@ -16,7 +16,6 @@ export ZENKO_IAM_INGRESS=${ZENKO_IAM_INGRESS:-'iam.zenko.local'}
 export ZENKO_STS_INGRESS=${ZENKO_STS_INGRESS:-'sts.zenko.local'}
 export ZENKO_MANAGEMENT_INGRESS=${ZENKO_MANAGEMENT_INGRESS:-'management.zenko.local'}
 export ZENKO_S3_INGRESS=${ZENKO_S3_INGRESS:-'s3.zenko.local'}
-export ZENKO_UI_INGRESS=${ZENKO_UI_INGRESS:-'ui.zenko.local'}
 export ZENKO_SUR_INGRESS=${ZENKO_SUR_INGRESS:-'utilization.zenko.local'}
 
 export BACKBEAT_LCC_CRON_RULE=${BACKBEAT_LCC_CRON_RULE:-'*/5 * * * * *'}
@@ -28,7 +27,6 @@ if [ ${ENABLE_KEYCLOAK_HTTPS} == 'true' ]; then
         nginx.ingress.kubernetes.io/ssl-redirect: 'false'"
     export ZENKO_INGRESS_CERTIFICATES="certificates:
     - hosts:
-      - ${ZENKO_UI_INGRESS}
       - ${ZENKO_MANAGEMENT_INGRESS}
       - ${ZENKO_IAM_INGRESS}
       - ${ZENKO_STS_INGRESS}
