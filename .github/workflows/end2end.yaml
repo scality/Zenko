@@ -35,7 +35,6 @@ env:
   VAULT_TEST_IMAGE_NAME: ""
   VAULT_TEST_IMAGE_TAG: ""
   # http-env
-  UI_ENDPOINT: 'http://ui.zenko.local'
   OIDC_ENDPOINT: 'http://keycloak.zenko.local'
   OIDC_HOST: 'keycloak.zenko.local'
   ENABLE_KEYCLOAK_HTTPS: 'false'
