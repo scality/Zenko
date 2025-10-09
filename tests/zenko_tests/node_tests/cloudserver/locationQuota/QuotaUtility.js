@@ -1,6 +1,17 @@
 const crypto = require('crypto');
 const async = require('async');
 const assert = require('assert');
+const {
+    CreateBucketCommand,
+    DeleteBucketCommand,
+    PutObjectCommand,
+    DeleteObjectCommand,
+    ListObjectsV2Command,
+    CreateMultipartUploadCommand,
+    AbortMultipartUploadCommand,
+    ListMultipartUploadsCommand,
+    UploadPartCommand,
+} = require('@aws-sdk/client-s3');
 
 const quotaLocation = process.env.LOCATION_QUOTA_BACKEND;
 const quotaSize = 0.1;
@@ -17,7 +28,11 @@ class QuotaUtility {
     _deleteAllObjects(objList, bucketName, cb) {
         async.each(
             objList.Contents,
-            (obj, next) => this.s3.deleteObject({ Bucket: bucketName, Key: obj.Key }, next),
+            (obj, next) => {
+                this.s3.send(new DeleteObjectCommand({ Bucket: bucketName, Key: obj.Key }))
+                    .then(() => next())
+                    .catch(next);
+            },
             cb,
         );
     }
@@ -25,11 +40,15 @@ class QuotaUtility {
     _abortAllMpus(mpuList, bucketName, cb) {
         async.each(
             mpuList.Uploads,
-            (mpu, next) => this.s3.abortMultipartUpload({
-                Bucket: bucketName,
-                Key: mpu.Key,
-                UploadId: mpu.UploadId,
-            }, next),
+            (mpu, next) => {
+                this.s3.send(new AbortMultipartUploadCommand({
+                    Bucket: bucketName,
+                    Key: mpu.Key,
+                    UploadId: mpu.UploadId,
+                }))
+                    .then(() => next())
+                    .catch(next);
+            },
             cb,
         );
     }
@@ -53,7 +72,9 @@ class QuotaUtility {
                 LocationConstraint: quotaLocation,
             },
         };
-        return this.s3.createBucket(params, cb);
+        return this.s3.send(new CreateBucketCommand(params))
+            .then(() => cb())
+            .catch(cb);
     }
 
     /**
@@ -64,15 +85,19 @@ class QuotaUtility {
      */
     deleteQuotaBucket(bucketName, cb) {
         async.series({
-            objList: next => this.s3.listObjects({ Bucket: bucketName }, next),
-            mpuList: next => this.s3.listMultipartUploads({ Bucket: bucketName }, next),
+            objList: async () => this.s3.send(new ListObjectsV2Command({ Bucket: bucketName })),
+            mpuList: async () => this.s3.send(new ListMultipartUploadsCommand({ Bucket: bucketName })),
         }, (err, results) => {
             assert.ifError(err, `Error listing: ${err}`);
             async.series([
                 next => this._deleteAllObjects(results.objList, bucketName, next),
                 next => this._abortAllMpus(results.mpuList, bucketName, next),
-                next => this.deleteBucket(bucketName, next),
-            ], err => cb(err));
+                next => {
+                    this.deleteBucket(bucketName)
+                        .then(() => next())
+                        .catch(next);
+                },
+            ], cb);
         });
     }
 
@@ -92,37 +117,39 @@ class QuotaUtility {
         async.times(numberObjs, (n, next) => {
             const key = `${bucketName}/${hex}/quota-object${Date.now()}${n}`;
             process.stdout.write(`Putting object ${n + 1}/${numberObjs}\n`);
-            this.putObject(bucketName, key, body, next);
+            this.putObject(bucketName, key, body)
+                .then(() => next())
+                .catch(next);
         }, cb);
     }
 
-    putObject(bucketName, objectName, body, cb) {
-        this.s3.putObject({
+    async putObject(bucketName, objectName, body) {
+        return this.s3.send(new PutObjectCommand({
             Bucket: bucketName,
             Key: objectName,
             Body: body,
-        }, cb);
+        }));
     }
 
-    createMPU(bucketName, objectName, cb) {
-        this.s3.createMultipartUpload({
+    async createMPU(bucketName, objectName) {
+        return this.s3.send(new CreateMultipartUploadCommand({
             Bucket: bucketName,
             Key: objectName,
-        }, cb);
+        }));
     }
 
-    putPart(bucketName, objectName, body, uploadId, partNumber, cb) {
-        this.s3.uploadPart({
+    async putPart(bucketName, objectName, body, uploadId, partNumber) {
+        return this.s3.send(new UploadPartCommand({
             Bucket: bucketName,
             Key: objectName,
             Body: body,
             UploadId: uploadId,
             PartNumber: partNumber,
-        }, cb);
+        }));
     }
 
-    deleteBucket(bucketName, cb) {
-        this.s3.deleteBucket({ Bucket: bucketName }, cb);
+    async deleteBucket(bucketName) {
+        return this.s3.send(new DeleteBucketCommand({ Bucket: bucketName }));
     }
 }
 

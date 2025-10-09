@@ -1,9 +1,16 @@
 const assert = require('assert');
-const async = require('async');
 const werelogs = require('werelogs');
 const { MetadataWrapper } = require('arsenal').storage.metadata;
 const { versioning } = require('arsenal');
 const { BucketInfo } = require('arsenal').models;
+const {
+    CreateBucketCommand,
+    DeleteBucketCommand,
+    PutObjectCommand,
+    DeleteObjectCommand,
+    GetObjectCommand,
+    ListObjectsV2Command,
+} = require('@aws-sdk/client-s3');
 const s3 = require('../../../s3SDK').scalityS3Client;
 
 const logger = new werelogs.Logger('keyFormatVersion', 'debug', 'debug');
@@ -16,16 +23,16 @@ const BUCKET_NAME = {
 };
 const ownerInfo = {};
 
-function putObjects(bucketName, cb) {
-    async.timesSeries(10, (n, next) => {
-        s3.putObject({ Bucket: bucketName, Key: `key-${n}` }, next);
-    }, cb);
+async function putObjects(bucketName) {
+    await Promise.all(Array.from({ length: 10 }, (_, n) => s3.send(new PutObjectCommand(
+        { Bucket: bucketName, Key: `key-${n}` },
+    ))));
 }
 
-function emptyBucket(bucketName, cb) {
-    async.timesSeries(10, (n, next) => {
-        s3.deleteObject({ Bucket: bucketName, Key: `key-${n}` }, next);
-    }, cb);
+async function emptyBucket(bucketName) {
+    await Promise.all(Array.from({ length: 10 }, (_, n) => s3.send(new DeleteObjectCommand(
+        { Bucket: bucketName, Key: `key-${n}` },
+    ))));
 }
 
 function expectedKeyList(startKey, endKey) {
@@ -39,22 +46,17 @@ function expectedKeyList(startKey, endKey) {
 describe('Cloudserver : keyFormatVersion : non versioned bucket', () => {
     let metadata;
 
-    function getBucketOwnerInfo(cb) {
-        async.series([
-            next => s3.createBucket({ Bucket: 'tmp-bucket' }, next),
-            next => metadata.getBucket('tmp-bucket', logger, (err, res) => {
-                if (err) {
-                    return next(err);
-                }
-                ownerInfo._owner = res._owner;
-                ownerInfo._ownerDisplayName = res._ownerDisplayName;
-                return next();
-            }),
-            next => s3.deleteBucket({ Bucket: 'tmp-bucket' }, next),
-        ], cb);
+    async function getBucketOwnerInfo() {
+        await s3.send(new CreateBucketCommand({ Bucket: 'tmp-bucket' }));
+        const bucketInfo = await new Promise((resolve, reject) => {
+            metadata.getBucket('tmp-bucket', logger, (err, res) => (err ? reject(err) : resolve(res)));
+        });
+        ownerInfo._owner = bucketInfo._owner;
+        ownerInfo._ownerDisplayName = bucketInfo._ownerDisplayName;
+        await s3.send(new DeleteBucketCommand({ Bucket: 'tmp-bucket' }));
     }
 
-    function createBucket(vFormat, cb) {
+    async function createBucket(vFormat) {
         const bucketMD = BucketInfo.fromObj({
             _name: BUCKET_NAME[vFormat],
             _owner: ownerInfo._owner,
@@ -82,113 +84,98 @@ describe('Cloudserver : keyFormatVersion : non versioned bucket', () => {
             _isNFS: null,
             ingestion: null,
         });
-        async.series([
-            next => {
-                metadata.client.defaultBucketKeyFormat = vFormat;
-                return next();
-            },
-            next => metadata.createBucket(BUCKET_NAME[vFormat], bucketMD, logger, next),
-        ], cb);
+
+        metadata.client.defaultBucketKeyFormat = vFormat;
+
+        await new Promise((resolve, reject) => {
+            metadata.createBucket(BUCKET_NAME[vFormat], bucketMD, logger, err => (err ? reject(err) : resolve()));
+        });
     }
 
-    before(done => {
-        async.series([
-            next => {
-                const opts = {
-                    mongodb: {
-                        replicaSetHosts: process.env.MONGO_REPLICA_SET_HOSTS,
-                        // TODO: replace with env var
-                        replicaSet: 'rs0',
-                        writeConcern: process.env.MONGO_WRITE_CONCERN,
-                        readPreference: process.env.MONGO_READ_PREFERENCE,
-                        shardCollections: process.env.MONGO_SHARD_COLLECTION === 'true',
-                        database: process.env.MONGO_DATABASE,
-                        authCredentials: {
-                            password: process.env.MONGO_AUTH_PASSWORD,
-                            username: process.env.MONGO_AUTH_USERNAME,
-                        },
-                    },
-                };
-                metadata = new MetadataWrapper(IMPL_NAME, opts, null, logger);
-                metadata.setup(next);
+    before(async () => {
+        const opts = {
+            mongodb: {
+                replicaSetHosts: process.env.MONGO_REPLICA_SET_HOSTS,
+                // TODO: replace with env var
+                replicaSet: 'rs0',
+                writeConcern: process.env.MONGO_WRITE_CONCERN,
+                readPreference: process.env.MONGO_READ_PREFERENCE,
+                shardCollections: process.env.MONGO_SHARD_COLLECTION === 'true',
+                database: process.env.MONGO_DATABASE,
+                authCredentials: {
+                    password: process.env.MONGO_AUTH_PASSWORD,
+                    username: process.env.MONGO_AUTH_USERNAME,
+                },
             },
-            next => getBucketOwnerInfo(next),
-            next => createBucket(BucketVersioningKeyFormat.v0, next),
-            next => createBucket(BucketVersioningKeyFormat.v1, next),
-            next => putObjects(BUCKET_NAME.v0, next),
-            next => putObjects(BUCKET_NAME.v1, next),
-        ], err => {
-            assert.ifError(err);
-            done();
+        };
+        metadata = new MetadataWrapper(IMPL_NAME, opts, null, logger);
+        await new Promise((resolve, reject) => {
+            metadata.setup(err => (err ? reject(err) : resolve()));
         });
+
+        await getBucketOwnerInfo();
+        await createBucket(BucketVersioningKeyFormat.v0);
+        await createBucket(BucketVersioningKeyFormat.v1);
+        await putObjects(BUCKET_NAME.v0);
+        await putObjects(BUCKET_NAME.v1);
     });
 
-    after(done => {
-        async.series([
-            next => emptyBucket(BUCKET_NAME.v0, next),
-            next => emptyBucket(BUCKET_NAME.v1, next),
-            next => s3.deleteBucket({ Bucket: BUCKET_NAME.v0 }, next),
-            next => s3.deleteBucket({ Bucket: BUCKET_NAME.v1 }, next),
-            next => metadata.close(next),
-        ], err => {
-            assert.ifError(err);
-            done();
+    after(async () => {
+        await emptyBucket(BUCKET_NAME.v0);
+        await emptyBucket(BUCKET_NAME.v1);
+        await s3.send(new DeleteBucketCommand({ Bucket: BUCKET_NAME.v0 }));
+        await s3.send(new DeleteBucketCommand({ Bucket: BUCKET_NAME.v1 }));
+
+        await new Promise((resolve, reject) => {
+            metadata.close(err => (err ? reject(err) : resolve()));
         });
     });
 
     ['v0', 'v1'].forEach(vFormat => {
-        it(`Should return object metadata ${vFormat}`, done => {
+        it(`Should return object metadata ${vFormat}`, async () => {
             const params = {
                 Bucket: BUCKET_NAME[vFormat],
                 Key: 'key-2',
             };
-            s3.getObject(params, (err, data) => {
-                assert.ifError(err);
-                assert(data);
-                return done();
-            });
+            const data = await s3.send(new GetObjectCommand(params));
+            assert(data);
         });
 
-        it(`Should list all objects in bucket ${vFormat}`, done => {
+        it(`Should list all objects in bucket ${vFormat}`, async () => {
             const params = {
                 Bucket: BUCKET_NAME[vFormat],
             };
-            s3.listObjectsV2(params, (err, data) => {
-                assert.ifError(err);
-                const keyList = [];
-                data.Contents.forEach(object => keyList.push(object.Key));
-                assert.deepStrictEqual(keyList, expectedKeyList(0, 9));
-                return done();
-            });
+            const data = await s3.send(new ListObjectsV2Command(params));
+            const keyList = [];
+            data.Contents.forEach(object => keyList.push(object.Key));
+            assert.deepStrictEqual(keyList, expectedKeyList(0, 9));
         });
 
-        it(`Should only list object with prefix ${vFormat}`, done => {
+        it(`Should only list object with prefix ${vFormat}`, async () => {
             const params = {
                 Bucket: BUCKET_NAME[vFormat],
                 Prefix: 'key-2',
             };
-            s3.listObjectsV2(params, (err, data) => {
-                assert.ifError(err);
-                assert.strictEqual(data.Contents.length, 1);
-                assert.strictEqual(data.Contents[0].Key, 'key-2');
-                return done();
-            });
+            const data = await s3.send(new ListObjectsV2Command(params));
+            assert.strictEqual(data.Contents.length, 1);
+            assert.strictEqual(data.Contents[0].Key, 'key-2');
         });
 
-        it(`Should remove object from bucket ${vFormat}`, done => {
-            async.series([
-                next => s3.putObject({ Bucket: BUCKET_NAME[vFormat], Key: 'key-to-delete' }, next),
-                next => s3.deleteObject({ Bucket: BUCKET_NAME[vFormat], Key: 'key-to-delete' }, next),
-                next => s3.getObject({ Bucket: BUCKET_NAME[vFormat], Key: 'key-to-delete' }, err => {
-                    assert.strictEqual(err.code, 'NoSuchKey');
-                    return next();
-                }),
-                next => s3.listObjectsV2({ Bucket: BUCKET_NAME[vFormat] }, (err, data) => {
-                    assert.ifError(err);
-                    assert.strictEqual(data.Contents.length, 10);
-                    return next();
-                }),
-            ], done);
+        it(`Should remove object from bucket ${vFormat}`, async () => {
+            await s3.send(new PutObjectCommand({ Bucket: BUCKET_NAME[vFormat], Key: 'key-to-delete' }));
+            await s3.send(new DeleteObjectCommand({ Bucket: BUCKET_NAME[vFormat], Key: 'key-to-delete' }));
+
+            try {
+                await s3.send(new GetObjectCommand({ Bucket: BUCKET_NAME[vFormat], Key: 'key-to-delete' }));
+                throw new Error('Expected NoSuchKey error');
+            } catch (err) {
+                if (err.name !== 'NoSuchKey') {
+                    throw err;
+                }
+            }
+
+            const data = await s3.send(new ListObjectsV2Command({ Bucket: BUCKET_NAME[vFormat] }));
+            assert.strictEqual(data.Contents.length, 10);
         });
     });
 });
