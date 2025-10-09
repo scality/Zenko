@@ -1,41 +1,42 @@
-const assert = require('assert');
-const async = require('async');
+const {
+    AbortMultipartUploadCommand,
+    DeleteBucketCommand,
+    DeleteObjectCommand,
+    ListMultipartUploadsCommand,
+    ListObjectsCommand,
+} = require('@aws-sdk/client-s3');
 const { scalityS3Client } = require('../s3SDK');
 
 const testUtils = {};
 
-testUtils.deleteAllObjects = (objList, bucketName, cb) => {
-    async.each(
-        objList.Contents,
-        (obj, next) => scalityS3Client.deleteObject({ Bucket: bucketName, Key: obj.Key }, next),
-        cb,
-    );
+testUtils.deleteAllObjects = async (objList, bucketName) => {
+    if (!objList.Contents || objList.Contents.length === 0) {
+        return;
+    }
+    await Promise.all(objList.Contents.map(obj => scalityS3Client.send(
+        new DeleteObjectCommand({ Bucket: bucketName, Key: obj.Key }),
+    )));
 };
 
-testUtils.abortAllMpus = (mpuList, bucketName, cb) => {
-    async.each(
-        mpuList.Uploads,
-        (mpu, next) => scalityS3Client.abortMultipartUpload({
-            Bucket: bucketName,
-            Key: mpu.Key,
-            UploadId: mpu.UploadId,
-        }, next),
-        cb,
-    );
+testUtils.abortAllMpus = async (mpuList, bucketName) => {
+    if (!mpuList.Uploads || mpuList.Uploads.length === 0) {
+        return;
+    }
+    await Promise.all(mpuList.Uploads.map(mpu => scalityS3Client.send(new AbortMultipartUploadCommand({
+        Bucket: bucketName,
+        Key: mpu.Key,
+        UploadId: mpu.UploadId,
+    }))));
 };
 
-testUtils.emptyDeleteBucket = (bucketName, cb) => {
-    async.series({
-        objList: next => scalityS3Client.listObjects({ Bucket: bucketName }, next),
-        mpuList: next => scalityS3Client.listMultipartUploads({ Bucket: bucketName }, next),
-    }, (err, results) => {
-        assert.ifError(err, `Error listing: ${err}`);
-        async.series([
-            next => testUtils.deleteAllObjects(results.objList, bucketName, next),
-            next => testUtils.abortAllMpus(results.mpuList, bucketName, next),
-            next => scalityS3Client.deleteBucket({ Bucket: bucketName }, next),
-        ], err => cb(err));
-    });
+testUtils.emptyDeleteBucket = async bucketName => {
+    const [objList, mpuList] = await Promise.all([
+        scalityS3Client.send(new ListObjectsCommand({ Bucket: bucketName })),
+        scalityS3Client.send(new ListMultipartUploadsCommand({ Bucket: bucketName })),
+    ]);
+    await testUtils.deleteAllObjects(objList, bucketName);
+    await testUtils.abortAllMpus(mpuList, bucketName);
+    await scalityS3Client.send(new DeleteBucketCommand({ Bucket: bucketName }));
 };
 
 module.exports = testUtils;

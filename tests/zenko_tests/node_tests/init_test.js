@@ -1,7 +1,14 @@
 const assert = require('assert');
-
-const uuidV4 = require('uuid/v4');
-const async = require('async');
+const { v4: uuidV4 } = require('uuid');
+const {
+    CreateBucketCommand,
+    DeleteBucketCommand,
+    DeleteObjectCommand,
+    GetObjectCommand,
+    ListBucketsCommand,
+    ListObjectsCommand,
+    PutObjectCommand,
+} = require('@aws-sdk/client-s3');
 
 const s3 = require('./s3SDK').scalityS3Client;
 
@@ -10,39 +17,33 @@ const key = `object-key-${uuidV4()}`;
 const body = 'testbody';
 
 describe('Test Configuration', () => {
-    it('should create a bucket and upload an object', done => {
-        async.series([
-            next => s3.createBucket({
-                Bucket: bucket,
-                CreateBucketConfiguration: {
-                    LocationConstraint: 'us-east-1',
-                },
-            }, next),
-            next => s3.listBuckets((err, res) => {
-                assert.ifError(err);
-                assert.strictEqual(res.Buckets.length, 1);
-                assert.strictEqual(res.Buckets[0].Name, bucket);
-                next();
-            }),
-            next => s3.putObject({
-                Bucket: bucket, Key: key, Body: body,
-            }, next),
-            next => s3.getObject(
-                { Bucket: bucket, Key: key },
-                (err, res) => {
-                    assert.ifError(err);
-                    assert.strictEqual(body, res.Body.toString());
-                    next();
-                },
-            ),
-            next => s3.listObjects({ Bucket: bucket }, (err, res) => {
-                assert.ifError(err);
-                assert.strictEqual(res.Contents.length, 1);
-                assert.strictEqual(res.Contents[0].Key, key);
-                next();
-            }),
-            next => s3.deleteObject({ Bucket: bucket, Key: key }, next),
-            next => s3.deleteBucket({ Bucket: bucket }, next),
-        ], done);
+    it('should create a bucket and upload an object', async () => {
+        await s3.send(new CreateBucketCommand({
+            Bucket: bucket,
+            CreateBucketConfiguration: {
+                LocationConstraint: 'us-east-1',
+            },
+        }));
+        const listBucketsRes = await s3.send(new ListBucketsCommand({}));
+        assert.strictEqual(listBucketsRes.Buckets.length, 1);
+        assert.strictEqual(listBucketsRes.Buckets[0].Name, bucket);
+        await s3.send(new PutObjectCommand({
+            Bucket: bucket, Key: key, Body: body,
+        }));
+        const getObjectRes = await s3.send(new GetObjectCommand(
+            { Bucket: bucket, Key: key },
+        ));
+        const chunks = [];
+        // eslint-disable-next-line no-restricted-syntax
+        for await (const chunk of getObjectRes.Body) {
+            chunks.push(chunk);
+        }
+        const resBody = Buffer.concat(chunks).toString('utf-8');
+        assert.strictEqual(body, resBody);
+        const listObjectsRes = await s3.send(new ListObjectsCommand({ Bucket: bucket }));
+        assert.strictEqual(listObjectsRes.Contents.length, 1);
+        assert.strictEqual(listObjectsRes.Contents[0].Key, key);
+        await s3.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
+        await s3.send(new DeleteBucketCommand({ Bucket: bucket }));
     });
 });

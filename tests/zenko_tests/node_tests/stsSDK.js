@@ -1,21 +1,20 @@
-const { STS } = require('aws-sdk');
+const { STSClient } = require('@aws-sdk/client-sts');
 
 function getSTSClient(accessKey, secretKey, sessionToken) {
     const config = {
         endpoint: process.env.VAULT_STS_ENDPOINT,
-        sslEnabled: false,
         region: 'us-east-1',
-        apiVersion: '2011-06-15',
-        signatureVersion: 'v4',
-        signatureCache: false,
-        accessKeyId: accessKey,
-        secretAccessKey: secretKey,
-        maxRetries: 0,
+        maxAttempts: 1,
+        tls: false,
+        credentials: {
+            accessKeyId: accessKey,
+            secretAccessKey: secretKey,
+        },
     };
     if (sessionToken) {
-        config.sessionToken = sessionToken;
+        config.credentials.sessionToken = sessionToken;
     }
-    return new STS(config);
+    return new STSClient(config);
 }
 
 module.exports = {

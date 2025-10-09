@@ -1,130 +1,83 @@
-const async = require('async');
 const fs = require('fs');
-const { IAM } = require('aws-sdk');
+const {
+    IAMClient,
+    DetachUserPolicyCommand,
+    DetachRolePolicyCommand,
+    DeleteUserCommand,
+    DeleteRoleCommand,
+    DeletePolicyCommand,
+    paginateListAttachedUserPolicies,
+    paginateListAttachedRolePolicies,
+    paginateListUsers,
+    paginateListRoles,
+    paginateListPolicies,
+} = require('@aws-sdk/client-iam');
+const { NodeHttpHandler } = require('@aws-sdk/node-http-handler');
 const vaultclient = require('vaultclient');
 const https = require('https');
 
-function _deleteAttachedUserPolicies(iamClient, userName, cb) {
-    let truncated = true;
-
-    async.whilst(
-        () => truncated,
-        done => iamClient.listAttachedUserPolicies(
-            { UserName: userName },
-            (err, res) => {
-                if (err) {
-                    return done(err);
-                }
-
-                truncated = res.IsTruncated;
-                return async.forEach(
-                    res.AttachedPolicies,
-                    (policy, next) => iamClient.detachUserPolicy({
-                        PolicyArn: policy.PolicyArn,
-                        UserName: userName,
-                    }, next),
-                    done,
-                );
-            },
-        ),
-        cb,
-    );
+async function _deleteAttachedUserPolicies(iamClient, userName) {
+    const paginator = paginateListAttachedUserPolicies({ client: iamClient }, { UserName: userName });
+    // eslint-disable-next-line no-restricted-syntax
+    for await (const page of paginator) {
+        if (page.AttachedPolicies && page.AttachedPolicies.length > 0) {
+            await Promise.all(page.AttachedPolicies.map(policy => iamClient.send(new DetachUserPolicyCommand({
+                PolicyArn: policy.PolicyArn,
+                UserName: userName,
+            }))));
+        }
+    }
 }
 
-function _deleteAttachedRolePolicies(iamClient, roleName, cb) {
-    let truncated = true;
-
-    async.whilst(
-        () => truncated,
-        done => iamClient.listAttachedRolePolicies(
-            { RoleName: roleName },
-            (err, res) => {
-                if (err) {
-                    return done(err);
-                }
-
-                truncated = res.IsTruncated;
-                return async.forEach(
-                    res.AttachedPolicies,
-                    (policy, next) => iamClient.detachRolePolicy({
-                        PolicyArn: policy.PolicyArn,
-                        RoleName: roleName,
-                    }, next),
-                    done,
-                );
-            },
-        ),
-        cb,
-    );
+async function _deleteAttachedRolePolicies(iamClient, roleName) {
+    const paginator = paginateListAttachedRolePolicies({ client: iamClient }, { RoleName: roleName });
+    // eslint-disable-next-line no-restricted-syntax
+    for await (const page of paginator) {
+        if (page.AttachedPolicies && page.AttachedPolicies.length > 0) {
+            await Promise.all(page.AttachedPolicies.map(policy => iamClient.send(new DetachRolePolicyCommand({
+                PolicyArn: policy.PolicyArn,
+                RoleName: roleName,
+            }))));
+        }
+    }
 }
 
-function _deleteUsers(iamClient, cb) {
-    let truncated = true;
-
-    async.whilst(
-        () => truncated,
-        done => iamClient.listUsers((err, res) => {
-            if (err) {
-                return done(err);
-            }
-
-            truncated = res.IsTruncated;
-            return async.forEach(
-                res.Users,
-                (user, next) => async.series([
-                    next => _deleteAttachedUserPolicies(iamClient, user.UserName, next),
-                    next => iamClient.deleteUser({ UserName: user.UserName }, next),
-                ], next),
-                done,
-            );
-        }),
-        cb,
-    );
+async function _deleteUsers(iamClient) {
+    const paginator = paginateListUsers({ client: iamClient }, {});
+    // eslint-disable-next-line no-restricted-syntax
+    for await (const page of paginator) {
+        if (page.Users && page.Users.length > 0) {
+            await Promise.all(page.Users.map(async user => {
+                await _deleteAttachedUserPolicies(iamClient, user.UserName);
+                await iamClient.send(new DeleteUserCommand({ UserName: user.UserName }));
+            }));
+        }
+    }
 }
 
-function _deleteRoles(iamClient, cb) {
-    let truncated = true;
-
-    async.whilst(
-        () => truncated,
-        done => iamClient.listRoles((err, res) => {
-            if (err) {
-                return done(err);
-            }
-
-            truncated = res.IsTruncated;
-            return async.forEach(
-                res.Roles,
-                (role, next) => async.series([
-                    next => _deleteAttachedRolePolicies(iamClient, role.RoleName, next),
-                    next => iamClient.deleteRole({ RoleName: role.RoleName }, next),
-                ], next),
-                done,
-            );
-        }),
-        cb,
-    );
+async function _deleteRoles(iamClient) {
+    const paginator = paginateListRoles({ client: iamClient }, {});
+    // eslint-disable-next-line no-restricted-syntax
+    for await (const page of paginator) {
+        if (page.Roles && page.Roles.length > 0) {
+            await Promise.all(page.Roles.map(async role => {
+                await _deleteAttachedRolePolicies(iamClient, role.RoleName);
+                await iamClient.send(new DeleteRoleCommand({ RoleName: role.RoleName }));
+            }));
+        }
+    }
 }
 
-function _deletePolicies(iamClient, cb) {
-    let truncated = true;
-
-    async.whilst(
-        () => truncated,
-        done => iamClient.listPolicies((err, res) => {
-            if (err) {
-                return done(err);
-            }
-
-            truncated = res.IsTruncated;
-            return async.forEach(
-                res.Policies,
-                (policy, next) => iamClient.deletePolicy({ PolicyArn: policy.Arn }, next),
-                done,
-            );
-        }),
-        cb,
-    );
+async function _deletePolicies(iamClient) {
+    const paginator = paginateListPolicies({ client: iamClient }, { Scope: 'Local' });
+    // eslint-disable-next-line no-restricted-syntax
+    for await (const page of paginator) {
+        if (page.Policies && page.Policies.length > 0) {
+            await Promise.all(page.Policies.map(policy => iamClient.send(
+                new DeletePolicyCommand({ PolicyArn: policy.Arn }),
+            )));
+        }
+    }
 }
 
 class VaultClient {
@@ -140,40 +93,40 @@ class VaultClient {
     static getIamClient(accessKey, secretKey, sessionToken) {
         const endpoint = process.env.VAULT_ENDPOINT
         || 'http://localhost:8600';
-        let ca;
-        let httpOptions;
+        const info = {
+            endpoint,
+            region: 'us-east-1',
+            maxAttempts: 1,
+            tls: false,
+            credentials: {
+                accessKeyId: accessKey,
+                secretAccessKey: secretKey,
+            },
+        };
+
         if (endpoint.startsWith('https://')) {
-            ca = fs.readFileSync(
+            const ca = fs.readFileSync(
                 process.env.VAULT_SSL_CA || '/conf/ca.crt',
                 'ascii',
             );
-            httpOptions = {
-                agent: new https.Agent({
+            info.requestHandler = new NodeHttpHandler({
+                httpsAgent: new https.Agent({
                     ca: [ca],
                 }),
-            };
+            });
+            info.tls = true;
         }
-        const info = {
-            endpoint,
-            httpOptions,
-            sslEnabled: httpOptions !== undefined,
-            region: 'us-east-1',
-            apiVersion: '2010-05-08',
-            signatureVersion: 'v4',
-            accessKeyId: accessKey,
-            secretAccessKey: secretKey,
-            maxRetries: 0,
-        };
+
         if (sessionToken) {
-            info.sessionToken = sessionToken;
+            info.credentials.sessionToken = sessionToken;
         }
-        return new IAM(info);
+        return new IAMClient(info);
     }
 
     /**
      * Get endpoint information
      *
-     * @return {object} Vault endpoint information
+     * @returns {object} Vault endpoint information
      */
     static getEndpointInformation() {
         let host = '127.0.0.1';
@@ -215,7 +168,7 @@ class VaultClient {
     /**
      * Get an admin client
      *
-     * @return {vaultclient.Client} Vault client for admin calls
+     * @returns {vaultclient.Client} Vault client for admin calls
      */
     static getAdminClient() {
         const adminCredentials = {
@@ -241,17 +194,16 @@ class VaultClient {
      * @param {vaultclient.Client} adminClient - Vault client for admin calls
      * @param {object} iamClient - IAM client
      * @param {string} accountName - account name
-     * @param {function} cb - callback
      *
-     * @return {undefined}
+     * @returns {Promise<void>} Promise that resolves when account deletion is complete
      */
-    static deleteVaultAccount(adminClient, iamClient, accountName, cb) {
-        async.waterfall([
-            next => _deleteUsers(iamClient, next),
-            next => _deleteRoles(iamClient, next),
-            next => _deletePolicies(iamClient, next),
-            next => adminClient.deleteAccount(accountName, next),
-        ], cb);
+    static async deleteVaultAccount(adminClient, iamClient, accountName) {
+        await _deleteUsers(iamClient);
+        await _deleteRoles(iamClient);
+        await _deletePolicies(iamClient);
+        await new Promise((resolve, reject) => {
+            adminClient.deleteAccount(accountName, err => (err ? reject(err) : resolve()));
+        });
     }
 }
 module.exports = VaultClient;
