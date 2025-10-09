@@ -141,6 +141,11 @@ helm upgrade --install --version ${KEYCLOAK_VERSION} keycloak codecentric/keyclo
 
 kubectl rollout status sts/keycloak --timeout=10m
 
+if [ "$METADATA_STORE" = "metadata" ]; then
+    # Deploy MDOP for metadata backend only if required
+    # (mongodb is alway deployed, as it is needed for vault, sorbet and pensieve anyway)
+    kubectl apply -k ${DIR}/mdop
+fi
 
 # TODO: use zenko-operator install-deps
 kubectl apply -f - <<EOF

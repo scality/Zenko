@@ -74,6 +74,11 @@ kafka-lag-exporter:
   image: kafka-lag-exporter
   tag: 0.7.3
   envsubst: KAFKA_LAGEXPORTER_TAG
+metadata:
+  sourceRegistry: ghcr.io/scality
+  image: metadata
+  tag: 7.70.40-nodesvc-base
+  envsubst: METADATA_TAG
 mongodb-connector:
   tag: 1.13.0
   envsubst: MONGODB_CONNECTOR_TAG

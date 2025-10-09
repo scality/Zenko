@@ -123,6 +123,13 @@ spec:
       exporter:
         image: '${REDIS_EXPORTER_IMAGE}'
         tag: '${REDIS_EXPORTER_TAG}'
+    metadata:
+      bucketd:
+        image: ${METADATA_IMAGE}
+        tag: ${METADATA_TAG}
+      repd:
+        image: ${METADATA_IMAGE}
+        tag: ${METADATA_TAG}
   defaults:
     backbeatConcurrency:
       lifecycleBucketProcessor: 30

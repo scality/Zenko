@@ -42,6 +42,14 @@ spec:
     passwordKey: mongodb-password
     databaseName: ${ZENKO_MONGODB_DATABASE}
     ${ZENKO_MONGODB_CONFIG}
+  metadata: # this section is removed when METADATA_STORE=mongo
+    raftSessions: 2
+    raftReplicas: 5
+    bucketdReplicas: 5
+    persistence:
+      volumeClaimTemplate:
+        size: 1Gi
+        storageClassName: standard
   redis:
     provider: Zenko
   kafka:

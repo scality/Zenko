@@ -1,0 +1,25 @@
+namespace: default
+namePrefix: mdop-
+
+# omit webhooks for now
+resources:
+- https://github.com/scality/metadata-operator/config/manager?ref=v1.0.0-preview.2 # 788eb8844b6d8a60899871597c37de704134c098
+- https://github.com/scality/metadata-operator/config/crd?ref=v1.0.0-preview.2 # 788eb8844b6d8a60899871597c37de704134c098
+- https://github.com/scality/metadata-operator/config/rbac?ref=v1.0.0-preview.2 # 788eb8844b6d8a60899871597c37de704134c098
+
+images:
+- name: ghcr.io/scality/metadata-operator
+  newTag: v1.0.0-preview.2 # 788eb8844b6d8a60899871597c37de704134c098
+
+patches:
+- target:
+    group: apps
+    version: v1
+    kind: Deployment
+    name: controller-manager
+  patch: |-
+    - op: add
+      path: /spec/template/spec/containers/0/env
+      value:
+      - name: ENABLE_WEBHOOKS
+        value: "false"

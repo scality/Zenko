@@ -24,7 +24,7 @@ for i in $(seq 0 $array_length); do
             # Inject variables
             # We use `sed` to replace github variable references and avoid bad substitution error from bash
             env_variables=$(yq '.runs.steps[$i].env | to_entries | .[] | .key + "=\"" + .value + "\""' .github/actions/deploy/action.yaml \
-                | sed 's/\${{.*}}//')
+                | sed -e 's/\${{ *env.\([a-zA-Z0-9.]*\) *}}/\1/' -e 's/\${{.*}}//')
             eval "$env_variables"
 
             if [ "$working_dir" != "null" ]; then

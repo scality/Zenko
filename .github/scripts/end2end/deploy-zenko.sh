@@ -130,11 +130,25 @@ create_encryption_secret()
 
 create_encryption_secret
 
-env $(dependencies_env) envsubst < ${ZENKOVERSION_PATH} | kubectl -n ${NAMESPACE} apply -f -
-env $(dependencies_env) envsubst < ${ZENKO_CR_PATH} | kubectl -n ${NAMESPACE} apply -f -
+zenkoVersionFilter=''
+zenkoFilter=''
+maxRetries=120
+if [ "${METADATA_STORE:-mongo}" = "mongo" ]; then
+    # When mongo is used, drop the metadata section from both zenko and zenkoversion
+    # NOTE: ideally we may want to drop only from the zenko; but since we don't embed metadata in
+    # the "production" zenkoversion, best to keep the same behavior in tests as well
+    zenkoVersionFilter='del(.spec.versions.metadata)'
+    zenkoFilter='del(.spec.metadata)'
+
+    # Increase timeout, it takes some time to deploy metadata
+    maxRetries=180
+fi
+
+env $(dependencies_env) envsubst < ${ZENKOVERSION_PATH} | yq "${zenkoVersionFilter}" | kubectl -n ${NAMESPACE} apply -f -
+env $(dependencies_env) envsubst < ${ZENKO_CR_PATH} | yq "${zenkoFilter}" | kubectl -n ${NAMESPACE} apply -f -
 
 k_cmd="kubectl -n ${NAMESPACE} get zenko/${ZENKO_NAME}"
-for i in $(seq 1 120); do
+for i in $(seq 1 $maxRetries); do
     conditions=$($k_cmd -o "jsonpath={.status.conditions}")
     if kubectl wait --for condition=Available --timeout 5s --namespace ${NAMESPACE} zenko/${ZENKO_NAME}; then
         break;

@@ -15,7 +15,7 @@ inputs:
     required: true
   stage:
     description: Stage name
-    default: ${{ github.job }}.${{ github.run_attempt }}
+    default: ${{ github.job }}.${{ join(matrix.*, ' - ') || 'default' }}.${{ github.run_attempt }}
     required: true
   trunk_token:
     description: Trunk token

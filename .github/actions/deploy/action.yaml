@@ -11,6 +11,10 @@ inputs:
     description: "Deploy a metadata cluster alongside Zenko"
     required: false
     default: "false"
+  metadata_store:
+    description: The backend database for metadata (metadata or mongo)
+    required: false
+    default: mongo
 runs:
   using: composite
   steps:
@@ -41,10 +45,17 @@ runs:
     - name: Generate MongoDB database name
       shell: bash
       run: echo "ZENKO_MONGODB_DATABASE=$(cat /proc/sys/kernel/random/uuid)" >> "$GITHUB_ENV"
+    - name: Authenticate git requests
+      shell: bash
+      run: git config --global --add url.https://git:$GIT_ACCESS_TOKEN@github.com/.insteadOf https://github.com/
+      env:
+        GIT_ACCESS_TOKEN: ${{ env.GIT_ACCESS_TOKEN }}
     - name: Install kind cluster dependencies
       shell: bash
       run: bash install-kind-dependencies.sh
       working-directory: ./.github/scripts/end2end
+      env:
+        METADATA_STORE: ${{ inputs.metadata_store }}
     - name: Patch CoreDNS config
       shell: bash
       run: bash patch-coredns.sh
@@ -58,6 +69,8 @@ runs:
       shell: bash
       run: bash deploy-zenko.sh end2end default
       working-directory: ./.github/scripts/end2end
+      env:
+        METADATA_STORE: ${{ inputs.metadata_store }}
     - name: Add Keycloak user and assign StorageManager role
       shell: bash
       run: bash keycloak-helper.sh set-user-instance-ids default

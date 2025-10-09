@@ -474,6 +474,7 @@ jobs:
         run: bash deploy-zenko.sh end2end-pra default './configs/zenko.yaml'
         env:
           ZENKO_MONGODB_DATABASE: pradb
+          METADATA_STORE: mongo
         working-directory: ./.github/scripts/end2end
       - name: Add Keycloak pra user and assign StorageManager role
         shell: bash
@@ -572,11 +573,17 @@ jobs:
         run: kind delete cluster
 
   end2end-sharded:
+    strategy:
+      fail-fast: false
+      matrix:
+        metastore:
+          - mongo
+          - metadata
     needs: [build-kafka, build-test-image]
     runs-on:
       - ubuntu-24.04-8core
     env:
-      ENABLE_RING_TESTS: "true"
+      ENABLE_RING_TESTS: ${{ matrix.metastore == 'mongo' && 'true' || 'false' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -599,6 +606,7 @@ jobs:
           owner: ${{ github.repository_owner }}
           repositories: |
             metadata
+            metadata-operator
             zenko-operator
       - name: Deploy Zenko
         uses: ./.github/actions/deploy
@@ -606,6 +614,7 @@ jobs:
           GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
         with:
           deploy_metadata: ${{ env.ENABLE_RING_TESTS }}
+          metadata_store: ${{ matrix.metastore }}
       - name: Run backbeat end to end tests
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "backbeat" "default"
         working-directory: ./.github/scripts/end2end
@@ -624,6 +633,12 @@ jobs:
         run: kind delete cluster
 
   ctst-end2end-sharded:
+    strategy:
+      fail-fast: false
+      matrix:
+        metastore:
+          - mongo
+          - metadata
     needs: [build-kafka, lint-and-build-ctst]
     runs-on:
       - ubuntu-24.04-8core
@@ -650,6 +665,7 @@ jobs:
           private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
           repositories: |
+            metadata-operator
             zenko-operator
       - name: Deploy Zenko
         uses: ./.github/actions/deploy
@@ -659,6 +675,8 @@ jobs:
           TIME_PROGRESSION_FACTOR: 86400
           TRANSITION_ONE_DAY_EARLIER: false
           EXPIRE_ONE_DAY_EARLIER: false
+        with:
+          metadata_store: ${{ matrix.metastore }}
       - name: Configure E2E test environment
         run: bash configure-e2e-ctst.sh
         working-directory: ./.github/scripts/end2end
