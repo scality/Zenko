@@ -1,6 +1,23 @@
 const assert = require('assert');
-const async = require('async');
 const { errors } = require('arsenal');
+const {
+    CreateRoleCommand,
+    DeleteRoleCommand,
+    AttachRolePolicyCommand,
+    DetachRolePolicyCommand,
+    CreatePolicyCommand,
+    DeletePolicyCommand,
+    CreateUserCommand,
+    CreateAccessKeyCommand,
+    AttachUserPolicyCommand,
+} = require('@aws-sdk/client-iam');
+const { AssumeRoleCommand } = require('@aws-sdk/client-sts');
+const {
+    CreateBucketCommand,
+    PutObjectCommand,
+    DeleteObjectCommand,
+    DeleteBucketCommand,
+} = require('@aws-sdk/client-s3');
 const VaultClient = require('../../VaultClient');
 const { getS3Client } = require('../../s3SDK');
 const { getSTSClient } = require('../../stsSDK');
@@ -77,107 +94,81 @@ testAPIs.forEach(testAPI => {
 
     describe(`iam policies - cloudserver - AssumeRole - ${testAPI.API}`, () => {
 
-        before(done => {
-            async.series([
-                // create account1, generateAccountAccessKey for it and get account1 iam client
-                next => clientAdmin.createAccount(account1Name, account1Info, (err, res) => {
-                    if (err) {
-                        return next(err);
-                    }
-                    iamAccount1Id = res.account.id;
-                    return next();
-                }),
-                next => clientAdmin.generateAccountAccessKey(
-                    account1Name,
-                    next,
-                    { externalAccessKey: externalAccessKey1, externalSecretKey: externalSecretKey1 },
-                ),
-                next => {
-                    iamAccount1Client = VaultClient.getIamClient(externalAccessKey1, externalSecretKey1);
-                    next();
-                },
-                // create account2, generateAccountAccessKey for it, get account2 iam client
-                // create a user under account2, create access key for the user and get user sts client
-                next => clientAdmin.createAccount(account2Name, account2Info, next),
-                next => clientAdmin.generateAccountAccessKey(
-                    account2Name,
-                    () => next(),
-                    { externalAccessKey: externalAccessKey2, externalSecretKey: externalSecretKey2 },
-                ),
-                next => {
-                    iamAccount2Client = VaultClient.getIamClient(externalAccessKey2, externalSecretKey2);
-                    next();
-                },
-                next => iamAccount2Client.createUser({ UserName: userName }, next),
-                next => iamAccount2Client.createAccessKey(
-                    { UserName: userName },
-                    (err, result) => {
-                        if (err) {
-                            return next(err);
-                        }
-                        stsClient = getSTSClient(result.AccessKey.AccessKeyId, result.AccessKey.SecretAccessKey);
-                        return next();
-                    },
-                ),
-                // create allowAssumeRole policy and attach it to the user created above
-                next => iamAccount2Client.createPolicy({
-                    PolicyName: 'allowAssumeRolePolicy',
-                    PolicyDocument: allowAssumeRolePolicy,
-                }, (err, result) => {
-                    if (err) {
-                        return next(err);
-                    }
-                    allowAssumeRolePolicyArn = result.Policy.Arn;
-                    return iamAccount2Client.attachUserPolicy({
-                        UserName: userName,
-                        PolicyArn: allowAssumeRolePolicyArn,
-                    }, next);
-                }),
-                // get account1 s3 client, create 2 buckets and put 2 objects respectively
-                next => {
-                    s3Account1Client = getS3Client(externalAccessKey1, externalSecretKey1);
-                    next();
-                },
-                next => s3Account1Client.createBucket({ Bucket: bucket1 }, next),
-                next => s3Account1Client.putObject({ Bucket: bucket1, Key: 'file1' }, next),
-                next => s3Account1Client.createBucket({ Bucket: bucket2 }, next),
-                next => s3Account1Client.putObject({ Bucket: bucket2, Key: 'file1' }, next),
-            ], done);
-        });
-
-        after(done => {
-            async.series([
-                next => s3Account1Client.deleteObject({
-                    Bucket: bucket1,
-                    Key: 'file1',
-                }, next),
-                next => s3Account1Client.deleteObject({
-                    Bucket: bucket2,
-                    Key: 'file1',
-                }, next),
-                next => s3Account1Client.deleteBucket({ Bucket: bucket1 }, next),
-                next => s3Account1Client.deleteBucket({ Bucket: bucket2 }, next),
-                next => VaultClient.deleteVaultAccount(clientAdmin, iamAccount1Client, account1Name, next),
-                next => VaultClient.deleteVaultAccount(clientAdmin, iamAccount2Client, account2Name, next),
-            ], done);
-        });
-
-        function cleanUp(roleName, policyArn, err, done) {
-            return async.series([
-                next => iamAccount1Client.detachRolePolicy({
-                    RoleName: roleName, PolicyArn: policyArn,
-                }, next),
-                next => iamAccount1Client.deletePolicy({ PolicyArn: policyArn }, next),
-                next => iamAccount1Client.deleteRole({ RoleName: roleName }, next),
-            ], _err => {
-                if (err) {
-                    return done(err);
-                }
-                if (_err) {
-                    return done(_err);
-                }
-                return done();
+        before(async () => {
+            const res = await new Promise((resolve, reject) => {
+                clientAdmin.createAccount(account1Name, account1Info, (err, res) => (err ? reject(err) : resolve(res)));
             });
+            iamAccount1Id = res.account.id;
+
+            await new Promise((resolve, reject) => {
+                clientAdmin.generateAccountAccessKey(
+                    account1Name,
+                    err => (err ? reject(err) : resolve()),
+                    { externalAccessKey: externalAccessKey1, externalSecretKey: externalSecretKey1 },
+                );
+            });
+
+            iamAccount1Client = VaultClient.getIamClient(externalAccessKey1, externalSecretKey1);
+            await new Promise((resolve, reject) => {
+                clientAdmin.createAccount(account2Name, account2Info, err => (err ? reject(err) : resolve()));
+            });
+
+            await new Promise((resolve, reject) => {
+                clientAdmin.generateAccountAccessKey(
+                    account2Name,
+                    err => (err ? reject(err) : resolve()),
+                    { externalAccessKey: externalAccessKey2, externalSecretKey: externalSecretKey2 },
+                );
+            });
+
+            iamAccount2Client = VaultClient.getIamClient(externalAccessKey2, externalSecretKey2);
+            await iamAccount2Client.send(new CreateUserCommand({ UserName: userName }));
+            const result = await iamAccount2Client.send(new CreateAccessKeyCommand({ UserName: userName }));
+            stsClient = getSTSClient(result.AccessKey.AccessKeyId, result.AccessKey.SecretAccessKey);
+            const policyResult = await iamAccount2Client.send(new CreatePolicyCommand({
+                PolicyName: 'allowAssumeRolePolicy',
+                PolicyDocument: allowAssumeRolePolicy,
+            }));
+            allowAssumeRolePolicyArn = policyResult.Policy.Arn;
+            await iamAccount2Client.send(new AttachUserPolicyCommand({
+                UserName: userName,
+                PolicyArn: allowAssumeRolePolicyArn,
+            }));
+
+            s3Account1Client = getS3Client(externalAccessKey1, externalSecretKey1);
+            await s3Account1Client.send(new CreateBucketCommand({ Bucket: bucket1 }));
+            await s3Account1Client.send(new PutObjectCommand({ Bucket: bucket1, Key: 'file1' }));
+            await s3Account1Client.send(new CreateBucketCommand({ Bucket: bucket2 }));
+            await s3Account1Client.send(new PutObjectCommand({ Bucket: bucket2, Key: 'file1' }));
+        });
+
+        after(async () => {
+            await s3Account1Client.send(new DeleteObjectCommand({
+                Bucket: bucket1,
+                Key: 'file1',
+            }));
+            await s3Account1Client.send(new DeleteObjectCommand({
+                Bucket: bucket2,
+                Key: 'file1',
+            }));
+            await s3Account1Client.send(new DeleteBucketCommand({ Bucket: bucket1 }));
+            await s3Account1Client.send(new DeleteBucketCommand({ Bucket: bucket2 }));
+            await VaultClient.deleteVaultAccount(clientAdmin, iamAccount1Client, account1Name);
+            await VaultClient.deleteVaultAccount(clientAdmin, iamAccount2Client, account2Name);
+        });
+
+        async function cleanUp(roleName, policyArn, err) {
+            try {
+                await iamAccount1Client.send(new DetachRolePolicyCommand({
+                    RoleName: roleName, PolicyArn: policyArn,
+                }));
+                await iamAccount1Client.send(new DeletePolicyCommand({ PolicyArn: policyArn }));
+                await iamAccount1Client.send(new DeleteRoleCommand({ RoleName: roleName }));
+            } catch (cleanupErr) {
+                if (err) throw err;
+                throw cleanupErr;
+            }
+            if (err) throw err;
         }
 
         const tests = [
@@ -314,55 +305,59 @@ testAPIs.forEach(testAPI => {
         tests.forEach((test, i) => {
             it(
                 test.name,
-                done => {
+                async () => {
                     const roleName = `test-role-${i}`;
                     const policyName = `test-policy-${i}`;
                     let policyArn = null;
-                    async.series([
+
+                    try {
                         // create a role under account1 and attach different policy to it
-                        next => iamAccount1Client.createRole({
+                        await iamAccount1Client.send(new CreateRoleCommand({
                             RoleName: roleName,
                             AssumeRolePolicyDocument: trustPolicy,
-                        }, next),
-                        next => iamAccount1Client.createPolicy({
+                        }));
+
+                        const res = await iamAccount1Client.send(new CreatePolicyCommand({
                             PolicyName: policyName,
                             PolicyDocument: JSON.stringify(test.policy),
-                        }, (err, res) => {
-                            if (err) {
-                                return done(err);
-                            }
-                            policyArn = res.Policy.Arn;
-                            return iamAccount1Client.attachRolePolicy({
-                                RoleName: roleName,
-                                PolicyArn: policyArn,
-                            }, next);
-                        }),
+                        }));
+                        policyArn = res.Policy.Arn;
+                        await iamAccount1Client.send(new AttachRolePolicyCommand({
+                            RoleName: roleName,
+                            PolicyArn: policyArn,
+                        }));
+
                         // user under account2 assume the role under account1
-                        next => stsClient.assumeRole({
+                        const assumeRoleRes = await stsClient.send(new AssumeRoleCommand({
                             RoleArn: `arn:aws:iam::${iamAccount1Id}:role/${roleName}`,
                             RoleSessionName: 'test-session',
-                        }, (err, res) => {
-                            if (err) {
-                                return done(err);
-                            }
-                            const sessionUserCredentials = {
-                                accessKeyId: res.Credentials.AccessKeyId,
-                                secretAccessKey: res.Credentials.SecretAccessKey,
-                                sessionToken: res.Credentials.SessionToken,
-                            };
-                            return async.eachOf(test.buckets, (bucket, idx, eachCb) => {
-                                // make request on specific buckets using session user's credentials
-                                // and see if can get the correct response
-                                testAPI.checkResponse(sessionUserCredentials, bucket, (err, res) => {
-                                    if (err) {
-                                        assert.ifError(err);
-                                        return done(err);
-                                    }
-                                    test.assertions[idx](res);
-                                    return eachCb();
-                                }, 'file1');
-                            }, next);
-                        })], err => cleanUp(roleName, policyArn, err, done));
+                        }));
+
+                        const sessionUserCredentials = {
+                            accessKeyId: assumeRoleRes.Credentials.AccessKeyId,
+                            secretAccessKey: assumeRoleRes.Credentials.SecretAccessKey,
+                            sessionToken: assumeRoleRes.Credentials.SessionToken,
+                        };
+
+                        const results = await Promise.all(test.buckets.map(bucket => new Promise((resolve, reject) => {
+                            // make request on specific buckets using session user's credentials
+                            // and see if can get the correct response
+                            testAPI.checkResponse(
+                                sessionUserCredentials,
+                                bucket,
+                                (err, res) => (err ? reject(err) : resolve(res)),
+                                'file1',
+                            );
+                        })));
+
+                        results.forEach((result, idx) => {
+                            test.assertions[idx](result);
+                        });
+
+                        await cleanUp(roleName, policyArn);
+                    } catch (err) {
+                        await cleanUp(roleName, policyArn, err);
+                    }
                 },
             );
         });
