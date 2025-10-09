@@ -1,5 +1,14 @@
 const async = require('async');
-
+const {
+    CreateUserCommand,
+    ListUsersCommand,
+    GetUserCommand,
+    UpdateUserCommand,
+    DeleteUserCommand,
+    CreateAccessKeyCommand,
+    ListAccessKeysCommand,
+    DeleteAccessKeyCommand,
+} = require('@aws-sdk/client-iam');
 const VaultClient = require('../../VaultClient');
 
 const clientAdmin = VaultClient.getAdminClient();
@@ -27,15 +36,17 @@ describe('IAM users: ', () => {
         return done();
     }));
 
-    afterEach(done => VaultClient.deleteVaultAccount(clientAdmin, iamAccountClient, accountName, done));
+    afterEach(async () => {
+        await VaultClient.deleteVaultAccount(clientAdmin, iamAccountClient, accountName);
+    });
 
-    it('should be able to perform CRUD operations on a user', done => async.series([
-        next => iamAccountClient.createUser({ UserName: userName }, next),
-        next => iamAccountClient.listUsers({}, next),
-        next => iamAccountClient.getUser({ UserName: userName }, next),
-        next => iamAccountClient.updateUser({ UserName: userName, NewPath: randomPath }, next),
-        next => iamAccountClient.deleteUser({ UserName: userName }, next),
-    ], done));
+    it('should be able to perform CRUD operations on a user', async () => {
+        await iamAccountClient.send(new CreateUserCommand({ UserName: userName }));
+        await iamAccountClient.send(new ListUsersCommand({}));
+        await iamAccountClient.send(new GetUserCommand({ UserName: userName }));
+        await iamAccountClient.send(new UpdateUserCommand({ UserName: userName, NewPath: randomPath }));
+        await iamAccountClient.send(new DeleteUserCommand({ UserName: userName }));
+    });
 });
 
 describe('IAM user - Access Keys: ', () => {
@@ -50,26 +61,23 @@ describe('IAM user - Access Keys: ', () => {
             return done(err);
         }
         iamAccountClient = VaultClient.getIamClient(externalAccessKey, externalSecretKey);
-        return iamAccountClient.createUser({ UserName: userName }, done);
+        return iamAccountClient.send(new CreateUserCommand({ UserName: userName }))
+            .then(() => done())
+            .catch(done);
     }));
 
-    afterEach(done => iamAccountClient.deleteUser(
-        { UserName: userName },
-        () => VaultClient.deleteVaultAccount(clientAdmin, iamAccountClient, accountName, done),
-    ));
+    afterEach(async () => {
+        await iamAccountClient.send(new DeleteUserCommand({ UserName: userName }));
+        await VaultClient.deleteVaultAccount(clientAdmin, iamAccountClient, accountName);
+    });
 
-    it('should be able to create, list and delete user access keys', done => async.series([
-        next => iamAccountClient.createAccessKey({ UserName: userName }, (err, result) => {
-            if (err) {
-                return next(err);
-            }
-            keyPair = result.AccessKey;
-            return next();
-        }),
-        next => iamAccountClient.listAccessKeys({ UserName: userName }, next),
-        next => iamAccountClient.deleteAccessKey({
+    it('should be able to create, list and delete user access keys', async () => {
+        const res = await iamAccountClient.send(new CreateAccessKeyCommand({ UserName: userName }));
+        keyPair = res.AccessKey;
+        await iamAccountClient.send(new ListAccessKeysCommand({ UserName: userName }));
+        await iamAccountClient.send(new DeleteAccessKeyCommand({
             UserName: userName,
             AccessKeyId: keyPair.AccessKeyId,
-        }, next),
-    ], done));
+        }));
+    });
 });
