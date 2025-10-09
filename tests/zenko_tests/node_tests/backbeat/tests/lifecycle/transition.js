@@ -1,5 +1,4 @@
 const assert = require('assert');
-const console = require('console');
 const uuid = require('uuid/v4');
 const { series } = require('async');
 
@@ -39,8 +38,8 @@ function checkRestoration(destination, sourceClient, versionId, cb) {
     }
     return series([
         next => sourceClient.getObject(versionId, err => {
-            assert.strictEqual(err.code, 'InvalidObjectState');
-            assert.strictEqual(err.statusCode, 403);
+            assert.strictEqual(err.Code, 'InvalidObjectState');
+            assert.strictEqual(err.$metadata?.httpStatusCode, 403);
             return next();
         }),
         next => sourceClient.putRestoreObject(versionId, next),
@@ -130,6 +129,7 @@ testsToRun.forEach(test => {
                 if (err || (!this.currentTest.isPending() && !this.currentTest.isPassed())) {
                     const testName = this.currentTest.fullTitle();
                     const retry = this.currentTest.currentRetry();
+                    // eslint-disable-next-line no-console
                     console.log(`   FAILED ${testName} [retry #${retry}] : ${srcBucket}`);
                 }
                 done(err);

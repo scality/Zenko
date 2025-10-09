@@ -2,6 +2,7 @@ const assert = require('assert');
 const async = require('async');
 const uuid = require('uuid/v4');
 
+const { ListObjectVersionsCommand } = require('@aws-sdk/client-s3');
 const { scalityS3Client, ringS3Client } = require('../../../s3SDK');
 const IngestionUtility = require('../../IngestionUtility');
 
@@ -193,12 +194,16 @@ describe('Ingesting existing data from RING S3C bucket', () => {
             next,
         ),
         next => scalityUtils.waitUntilDeleted(INGESTION_DEST_BUCKET, OBJ_KEY, null, next),
-        next => scalityUtils.s3.listObjectVersions({
+        next => scalityUtils.s3.send(new ListObjectVersionsCommand({
             Bucket: INGESTION_DEST_BUCKET,
-        }, (err, data) => next(err, data)),
-        (zenkoData, next) => ringS3CUtils.s3.listObjectVersions({
+        }))
+            .then(data => next(null, data))
+            .catch(next),
+        (zenkoData, next) => ringS3CUtils.s3.send(new ListObjectVersionsCommand({
             Bucket: ingestionSrcBucket,
-        }, (err, data) => next(err, zenkoData, data)),
+        }))
+            .then(data => next(null, zenkoData, data))
+            .catch(next),
     ], (err, zenkoData, s3cData) => {
         if (err) {
             return done(err);
@@ -384,13 +389,19 @@ describe('Ingesting existing data from RING S3C bucket', () => {
                 srcNonVersionedLocation,
                 next,
             ),
-            next => ringS3CUtils.s3.listObjectVersions({
-                Bucket: ingestionNonVersionedSrcBucket,
-            }, next),
+            next => {
+                ringS3CUtils.s3.send(new ListObjectVersionsCommand({
+                    Bucket: ingestionNonVersionedSrcBucket,
+                }))
+                    .then(data => next(null, data))
+                    .catch(next);
+            },
             (data, next) => {
-                assert.strictEqual(data.Versions.length, nonVersionedObjectCount);
-                assert.strictEqual(data.DeleteMarkers.length, 0);
-                async.forEach(data.Versions, (version, cb) => {
+                const versions = data.Versions || [];
+                const deleteMarkers = data.DeleteMarkers || [];
+                assert.strictEqual(versions.length, nonVersionedObjectCount);
+                assert.strictEqual(deleteMarkers.length, 0);
+                async.forEach(versions, (version, cb) => {
                     scalityUtils.compareObjectsRINGS3C(
                         ingestionNonVersionedSrcBucket,
                         INGESTION_DEST_BUCKET,
