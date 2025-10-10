@@ -3,10 +3,10 @@
 # yq eval 'sortKeys(.)' -i deps.yaml
 mongodb-sharded:
   image: bitnamilegacy/mongodb-sharded
-  tag: 7.0.6-debian-12-r0
+  tag: 7.0.9-debian-12-r2
 mongodb-sharded-exporter:
   image: bitnamilegacy/mongodb-exporter
-  tag: 0.40.0-debian-12-r12
+  tag: 0.40.0-debian-12-r40
 mongodb-shell:
   image: bitnamilegacy/os-shell
-  tag: 12-debian-12-r22
+  tag: 12-debian-12-r51
