@@ -89,7 +89,7 @@ rclone:
   envsubst: RCLONE_TAG
 redis:
   image: redis
-  tag: 7.2.5
+  tag: 7.2.11
   envsubst: REDIS_TAG
 redis_exporter:
   sourceRegistry: oliver006
