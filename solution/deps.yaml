@@ -30,7 +30,7 @@ fubectl:
   toolUrl: https://raw.githubusercontent.com/kubermatic/fubectl/${FUBECTL_VERSION}/fubectl.source
   toolName: fubectl.source
 fzf: # fuzzy finder for fubectl
-  tag: 0.54.0
+  tag: 0.65.2
   envsubst: FZF_VERSION
   toolUrl: https://github.com/junegunn/fzf/releases/download/v${FZF_VERSION}/fzf-${FZF_VERSION}-linux_amd64.tar.gz
   toolName: fzf
