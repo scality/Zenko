@@ -94,7 +94,7 @@ redis:
 redis_exporter:
   sourceRegistry: oliver006
   image: redis_exporter
-  tag: v1.61.0
+  tag: v1.78.0
   envsubst: REDIS_EXPORTER_TAG
 s3utils:
   sourceRegistry: ghcr.io/scality
