@@ -14,6 +14,12 @@ let INGESTION_DEST_BUCKET;
 let OBJ_KEY;
 
 describe('OOB updates for RING S3C bucket', () => {
+    before(function () {
+        if (process.env.ENABLE_RING_TESTS === 'false') {
+            this.skip();
+        }
+    });
+
     beforeEach(done => {
         INGESTION_DEST_BUCKET = `ingestion-${uuid()}`;
         OBJ_KEY = `${KEY_PREFIX}/object-to-ingest-${uuid()}`;

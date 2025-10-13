@@ -20,6 +20,12 @@ let OBJ_DATA;
 const INGESTION_TIMEOUT = 300000;
 
 describe('Ingestion pause resume', function () {
+    before(function () {
+        if (process.env.ENABLE_RING_TESTS === 'false') {
+            this.skip();
+        }
+    });
+
     this.timeout(INGESTION_TIMEOUT);
 
     beforeEach(done => {
