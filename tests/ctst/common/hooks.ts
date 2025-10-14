@@ -5,7 +5,7 @@ import {
     parallelCanAssignHelpers,
     ITestCaseHookParameter,
 } from '@cucumber/cucumber';
-import Zenko from '../world/Zenko';
+import Zenko, { ZenkoWorldParameters } from '../world/Zenko';
 import { CacheHelper, Identity } from 'cli-testing';
 import { prepareQuotaScenarios, teardownQuotaScenarios } from 'steps/quotas/quotas';
 import { prepareUtilizationScenarios } from 'steps/utilization/utilizationAPI';
@@ -27,7 +27,6 @@ export const replicationLockTags = [
 const noParallelRun = atMostOnePicklePerTag([
     '@AfterAll',
     '@PRA',
-    '@ColdStorage',
     ...replicationLockTags
 ]);
 
@@ -39,7 +38,8 @@ Before(async function (this: Zenko, scenario: ITestCaseHookParameter) {
     // Store scenario tags for access in step definitions
     const scenarioTags = scenario.pickle.tags?.map(tag => tag.name) || [];
     this.addToSaved('scenarioTags', scenarioTags);
-    await Zenko.init(this.parameters);
+    // Use cached parameters which include extracted credentials from K8s secrets
+    await Zenko.init(CacheHelper.parameters as ZenkoWorldParameters);
 });
 
 Before({ tags: '@PRA' }, function () {

@@ -59,6 +59,23 @@ possible. Solutions exist:
   relative checks.
 - As a last resort, we might have a dedicated test suite.
 
+### Cold Storage Tests and Parallel Execution
+
+Previously, `@ColdStorage` tests were forced to run sequentially due to shared 
+DMF volume access. This has been resolved with the following improvements:
+
+- **Bucket-specific file isolation**: The sorbet mock backend now uses S3 alias 
+  naming (`/cold-data/data/s3-aliases/{bucket}-{key}-{versionId}/`) which provides
+  perfect isolation between parallel test runs.
+- **Intelligent file counting**: DMF volume checks now scan only for files 
+  belonging to the specific test's bucket name.
+- **Per-test cleanup**: Each test cleans up only its own files, preventing 
+  interference with parallel tests.
+
+This means `@ColdStorage` tests can now run with full parallelization, 
+significantly reducing test execution time. Please follow the rules for parallel
+execution, if you are using `@ColdStorage` tests.
+
 ## 5. Focus on validating features.
 
 We only want to assert against externally visible state, as given in the

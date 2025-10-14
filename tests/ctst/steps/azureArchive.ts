@@ -32,8 +32,8 @@ type manifest = {
     'entries': manifestEntry[],
 }
 
-const AZURE_STORAGE_BLOB_URL = process.env.AZURE_BLOB_URL || 'http://127.0.0.1:10000/devstoreaccount1';
-const AZURE_STORAGE_QUEUE_URL = process.env.AZURE_QUEUE_URL || 'http://127.0.0.1:10001/devstoreaccount1';
+const AZURE_STORAGE_BLOB_URL = process.env.AZURE_BLOB_URL || 'https://devstoreaccount1.blob.azure-mock.zenko.local';
+const AZURE_STORAGE_QUEUE_URL = process.env.AZURE_QUEUE_URL || 'https://devstoreaccount1.queue.azure-mock.zenko.local';
 
 /**
  * Returns an object containing azure credentials

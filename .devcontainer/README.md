@@ -3,11 +3,11 @@
 
 ## Running CTST tests in the codespace
 
-To run the CTST tests in the codespace, simply head to `.github/script/end2end/` and run `run-e2e-ctst.sh` script.
+To run the CTST tests in the codespace, simply head to `tests/@setup/` and run the `run-tests.sh` script.
 
 ```bash
-    cd .github/scripts/end2end/
-    bash run-e2e-ctst.sh
+    cd tests/@setup/
+    ./run-tests.sh ~/.kube/config ctst
 ```
 
 ## Accessing s3 service

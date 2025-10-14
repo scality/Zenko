@@ -61,3 +61,12 @@ postgresql:
       enabled: true
       additionalLabels:
         release: prometheus-operator
+    image:
+      repository: bitnamilegacy/postgres-exporter
+      tag: 0.10.0
+  image:
+    repository: bitnamilegacy/postgresql
+    tag: 11.14.0
+  volumePermissions:
+    image:
+      repository: bitnamilegacy/os-shell

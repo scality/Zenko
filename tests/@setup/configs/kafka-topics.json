@@ -1,0 +1,40 @@
+{
+  "notificationTopics": [
+    {
+      "name": "NOTIF_DEST_TOPIC",
+      "envVar": "NOTIF_DEST_TOPIC",
+      "default": "notification-dest-topic",
+      "partitions": 1,
+      "description": "Primary notification destination topic"
+    },
+    {
+      "name": "NOTIF_ALT_DEST_TOPIC", 
+      "envVar": "NOTIF_ALT_DEST_TOPIC",
+      "default": "notification-alt-dest-topic",
+      "partitions": 1,
+      "description": "Alternative notification destination topic"
+    }
+  ],
+  "azureArchiveTopics": [
+    {
+      "suffix": "cold-status-e2e-azure-archive",
+      "partitions": 10,
+      "description": "Main Azure archive cold status topic"
+    },
+    {
+      "suffix": "cold-status-e2e-azure-archive-2-non-versioned",
+      "partitions": 10,
+      "description": "Azure archive cold status topic for non-versioned buckets"
+    },
+    {
+      "suffix": "cold-status-e2e-azure-archive-2-versioned",
+      "partitions": 10,
+      "description": "Azure archive cold status topic for versioned buckets"
+    },
+    {
+      "suffix": "cold-status-e2e-azure-archive-2-suspended",
+      "partitions": 10,
+      "description": "Azure archive cold status topic for suspended buckets"
+    }
+  ]
+}

@@ -24,5 +24,6 @@ kubectl run ctst-end2end \
         --rm \
         --attach=True \
         --image-pull-policy=Always \
-        --env=TARGET_VERSION=$VERSION  \
+        --env=TARGET_VERSION=$VERSION \
+        --env=LOG_LEVEL=debug \
         -- ./run "$COMMAND" $WORLD_PARAMETERS --parallel $PARALLEL_RUNS

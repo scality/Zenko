@@ -4,8 +4,6 @@ import { AccessKey } from '@aws-sdk/client-iam';
 import { Credentials } from '@aws-sdk/client-sts';
 import { aws4Interceptor } from 'aws4-axios';
 import qs from 'qs';
-import fs from 'fs';
-import lockFile from 'proper-lockfile';
 import Werelogs from 'werelogs';
 import {
     CacheHelper,
@@ -20,6 +18,7 @@ import {
     Utils,
     AWSCredentials,
     Logger,
+    WorkCoordination,
 } from 'cli-testing';
 
 import { extractPropertyFromResults } from '../common/utils';
@@ -49,6 +48,8 @@ export interface ZenkoWorldParameters extends ClientOptions {
     AccountSecretKey: string;
     DRAdminAccessKey?: string;
     DRAdminSecretKey?: string;
+    DRAccountAccessKey?: string;
+    DRAccountSecretKey?: string;
     DRSubdomain?: string;
     VaultAuthHost: string;
     NotificationDestination: string;
@@ -89,6 +90,7 @@ export interface ZenkoWorldParameters extends ClientOptions {
     SorbetdRestoreTimeout: string;
     UtilizationServiceHost: string;
     UtilizationServicePort: string;
+    Namespace: string;
     [key: string]: unknown;
 }
 
@@ -123,6 +125,11 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     static readonly SECONDARY_SITE_NAME = 'dradmin';
     static readonly PRA_INSTALL_COUNT_KEY = 'praInstallCount';
 
+    // Static CTST configuration values
+    static readonly ACCOUNT_NAME = 'zenko-ctst';
+    static readonly SSL_ENABLED = false;
+    static readonly PORT = '80';
+
     /**
      * @constructor
      * @param {Object} options - parameters provided as a CLI parameter when running the tests
@@ -130,6 +137,13 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     constructor(options: IWorldOptions<ZenkoWorldParameters>) {
         super(options);
         Logger.createLogger(this);
+        
+        // Merge CacheHelper parameters (from setup script) into this.parameters
+        // CacheHelper contains credentials extracted from Kubernetes secrets
+        // Object.assign mutates the existing object (allowed despite readonly)
+        const cached = CacheHelper.parameters as Partial<ZenkoWorldParameters>;
+        Object.assign(this.parameters, cached);
+        
         // store service users credentials from world parameters
         if (this.parameters.ServiceUsersCredentials) {
             const serviceUserCredentials =
@@ -144,15 +158,12 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             }
         }
 
-        // Workaround to be able to access global parameters in BeforeAll/AfterAll hooks
-        CacheHelper.cacheParameters({
-            ...this.parameters,
-        });
-
         CacheHelper.savedAcrossTests[Zenko.PRA_INSTALL_COUNT_KEY] = 0;
 
-
-        if (this.parameters.AccountName && !Identity.hasIdentity(IdentityEnum.ACCOUNT, this.parameters.AccountName)) {
+        // Only add account identity if valid credentials exist (not admin credentials)
+        if (this.parameters.AccountName && this.parameters.AccountAccessKey && this.parameters.AccountSecretKey && 
+            this.parameters.AccountAccessKey !== this.parameters.AdminAccessKey &&
+            !Identity.hasIdentity(IdentityEnum.ACCOUNT, this.parameters.AccountName)) {
             Identity.addIdentity(IdentityEnum.ACCOUNT, this.parameters.AccountName, {
                 accessKeyId: this.parameters.AccountAccessKey,
                 secretAccessKey: this.parameters.AccountSecretKey,
@@ -164,40 +175,66 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             Identity.defaultAccountName = this.parameters.AccountName;
         }
 
-        if (this.parameters.AdminAccessKey && this.parameters.AdminSecretKey &&
-            !Identity.hasIdentity(IdentityEnum.ADMIN, Zenko.PRIMARY_SITE_NAME)) {
-            Identity.addIdentity(IdentityEnum.ADMIN, Zenko.PRIMARY_SITE_NAME, {
-                accessKeyId: this.parameters.AdminAccessKey,
-                secretAccessKey: this.parameters.AdminSecretKey,
-            }, undefined, undefined, undefined, this.parameters.subdomain);
-
-            Zenko.sites['source'] = {
-                accountName: Identity.defaultAccountName,
-                adminIdentityName: Zenko.PRIMARY_SITE_NAME,
-            };
-        }
-
-        if (this.needsSecondarySite()) {
-            if (!Identity.hasIdentity(IdentityEnum.ADMIN, Zenko.SECONDARY_SITE_NAME)) {
-                Identity.addIdentity(IdentityEnum.ADMIN, Zenko.SECONDARY_SITE_NAME, {
-                    accessKeyId: this.parameters.DRAdminAccessKey!,
-                    secretAccessKey: this.parameters.DRAdminSecretKey!,
-                }, undefined, undefined, undefined, this.parameters.DRSubdomain);
-            }
-
-            Zenko.sites['sink'] = {
-                accountName: `dr${this.parameters.AccountName}`,
-                adminIdentityName: Zenko.SECONDARY_SITE_NAME,
-            };
-        }
+        Zenko.initializeIdentitiesAndSites(this.parameters);
 
         this.logger.debug('Zenko sites', {
             sites: Zenko.sites,
         });
     }
 
-    private needsSecondarySite() {
-        return this.parameters.DRAdminAccessKey && this.parameters.DRAdminSecretKey && this.parameters.DRSubdomain;
+    /**
+     * Initialize identities and sites from parameters
+     * Can be called from both instance constructor and static init method
+     */
+    private static initializeIdentitiesAndSites(parameters: ZenkoWorldParameters): void {
+        // Setup primary site identity
+        if (parameters.AdminAccessKey && parameters.AdminSecretKey &&
+            !Identity.hasIdentity(IdentityEnum.ADMIN, Zenko.PRIMARY_SITE_NAME)) {
+            Identity.addIdentity(IdentityEnum.ADMIN, Zenko.PRIMARY_SITE_NAME, {
+                accessKeyId: parameters.AdminAccessKey,
+                secretAccessKey: parameters.AdminSecretKey,
+            }, undefined, undefined, undefined, parameters.subdomain);
+
+            const accountName = Identity.defaultAccountName || parameters.AccountName;
+            Zenko.sites['source'] = {
+                accountName,
+                adminIdentityName: Zenko.PRIMARY_SITE_NAME,
+            };
+
+            // Also setup the account identity if valid credentials are provided (not admin credentials)
+            if (parameters.AccountAccessKey && parameters.AccountSecretKey && accountName &&
+                parameters.AccountAccessKey !== parameters.AdminAccessKey &&
+                !Identity.hasIdentity(IdentityEnum.ACCOUNT, accountName)) {
+                Identity.addIdentity(IdentityEnum.ACCOUNT, accountName, {
+                    accessKeyId: parameters.AccountAccessKey,
+                    secretAccessKey: parameters.AccountSecretKey,
+                }, undefined, true, true);
+            }
+        }
+
+        // Setup secondary site identity (for PRA/DR)
+        if (parameters.DRAdminAccessKey && parameters.DRAdminSecretKey && parameters.DRSubdomain &&
+            !Identity.hasIdentity(IdentityEnum.ADMIN, Zenko.SECONDARY_SITE_NAME)) {
+            Identity.addIdentity(IdentityEnum.ADMIN, Zenko.SECONDARY_SITE_NAME, {
+                accessKeyId: parameters.DRAdminAccessKey,
+                secretAccessKey: parameters.DRAdminSecretKey,
+            }, undefined, undefined, undefined, parameters.DRSubdomain);
+
+            const drAccountName = `dr${parameters.AccountName}`;
+            Zenko.sites['sink'] = {
+                accountName: drAccountName,
+                adminIdentityName: Zenko.SECONDARY_SITE_NAME,
+            };
+
+            // Also setup the DR account identity if credentials are provided
+            if (parameters.DRAccountAccessKey && parameters.DRAccountSecretKey && drAccountName &&
+                !Identity.hasIdentity(IdentityEnum.ACCOUNT, drAccountName)) {
+                Identity.addIdentity(IdentityEnum.ACCOUNT, drAccountName, {
+                    accessKeyId: parameters.DRAccountAccessKey,
+                    secretAccessKey: parameters.DRAccountSecretKey,
+                }, undefined, true, true);
+            }
+        }
     }
 
     /**
@@ -621,65 +658,91 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * @returns {undefined}
      */
     static async init(parameters: ZenkoWorldParameters) {
-        CacheHelper.logger.debug('Initializing Zenko', {
+        CacheHelper.logger.info('Initializing Zenko', {
             parameters,
+            sites: Zenko.sites,
         });
+
+        // Merge CLI parameters with cached parameters from setup script
+        // CacheHelper.parameters contains credentials extracted from K8s and takes precedence
+        const params = {
+            ...parameters,
+            ...(CacheHelper.parameters as Partial<ZenkoWorldParameters>),
+        };
+        
+        Zenko.initializeIdentitiesAndSites(params);
+
         // Create the default account for each site configured
         // and generate access keys for it
         for (const siteKey in Zenko.sites) {
             const site = Zenko.sites[siteKey];
+            CacheHelper.logger.info('Using identity for Zenko site', {
+                siteKey,
+                site,
+            });
             Identity.useIdentity(IdentityEnum.ADMIN, site.adminIdentityName);
             const accountName = site.accountName;
             assert(accountName, `Account name is not defined for site ${siteKey}`);
-            CacheHelper.logger.debug('Initializing account for Zenko site', {
+            CacheHelper.logger.info('Initializing account for Zenko site', {
                 siteKey,
                 accountName,
             });
 
             if (!Identity.hasIdentity(IdentityEnum.ACCOUNT, accountName)) {
                 Identity.useIdentity(IdentityEnum.ADMIN, site.adminIdentityName);
-                const filePath = `/tmp/account-init-${accountName}.json`;
-                if (!fs.existsSync(filePath)) {
-                    fs.writeFileSync(filePath, JSON.stringify({
-                        ready: false,
-                    }));
-                }
-                let account = null;
-                let releaseLock: (() => Promise<void>) | null = null;
-                try {
-                    releaseLock = await lockFile.lock(filePath, {
-                        stale: Constants.DEFAULT_TIMEOUT / 2,
-                        retries: {
-                            retries: 5,
-                            factor: 3,
-                            minTimeout: 1000,
-                            maxTimeout: 5000,
-                        }
-                    });
 
-                    try {
-                        await SuperAdmin.createAccount({ accountName });
-                        /* eslint-disable */
-                    } catch (err: any) {
-                        if (!err.EntityAlreadyExists && err.code !== 'EntityAlreadyExists') {
-                            throw err;
+                CacheHelper.logger.info('Creating account for Zenko site', {
+                    siteKey,
+                    accountName,
+                });
+
+                await WorkCoordination.runOnceAcrossWorkers(
+                    {
+                        lockName: `account-init-${accountName}`,
+                        timeout: Constants.DEFAULT_TIMEOUT / 2,
+                        logger: CacheHelper.logger,
+                    },
+                    // Work function: executed exactly once
+                    async () => {
+                        try {
+                            CacheHelper.logger.info('Creating account for Zenko site', {
+                                siteKey,
+                                accountName,
+                            });
+                            await SuperAdmin.createAccount({ accountName });
+                        } catch (err) {
+                            if (!(err as { EntityAlreadyExists: boolean }).EntityAlreadyExists &&
+                                (err as { code: string }).code !== 'EntityAlreadyExists') {
+                                CacheHelper.logger.error('Error when creating account', {
+                                    siteKey,
+                                    accountName,
+                                    err,
+                                });
+                                throw err;
+                            }
                         }
                     }
-                } finally {
-                    if (releaseLock) {
-                        await releaseLock();
-                    }
-                }
-                /* eslint-enable */
+                );
+
+                CacheHelper.logger.info('Account created', {
+                    siteKey,
+                    accountName,
+                });
+
+                // Post-processing: executed by all workers
                 // Waiting until the account exists, in case of parallel mode.
                 let remaining = Constants.MAX_ACCOUNT_CHECK_RETRIES;
-                account = await SuperAdmin.getAccount({ accountName });
+                let account = await SuperAdmin.getAccount({ accountName });
                 while (!account && remaining > 0) {
                     await Utils.sleep(500);
                     account = await SuperAdmin.getAccount({ accountName });
                     remaining--;
                 }
                 if (!account) {
+                    CacheHelper.logger.error('Account not found', {
+                        siteKey,
+                        accountName,
+                    });
                     throw new Error(`Account ${accountName} not found in site ${siteKey}.`);
                 }
 
@@ -691,19 +754,35 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 };
 
                 if (!accountAccessKeys.accessKeyId || !accountAccessKeys.secretAccessKey) {
+                    CacheHelper.logger.info('Generating access keys for Zenko site', {
+                        siteKey,
+                        accountName,
+                    });
                     const accessKeys = await SuperAdmin.generateAccountAccessKey({ accountName });
                     if (!Utils.isAccessKeys(accessKeys)) {
-                        throw new Error('Failed to generate account access keys for site ${siteKey}');
+                        CacheHelper.logger.error('Failed to generate access keys', {
+                            siteKey,
+                            accountName,
+                        });
+                        throw new Error(`Failed to generate account access keys for site ${siteKey}`);
                     }
                     accountAccessKeys.accessKeyId = accessKeys.accessKeyId;
                     accountAccessKeys.secretAccessKey = accessKeys.secretAccessKey;
                 }
 
                 CacheHelper.logger.debug('Adding account identity', {
+                    siteKey,
                     accountName,
                     accountAccessKeys,
                 });
-                Identity.addIdentity(IdentityEnum.ACCOUNT, accountName, accountAccessKeys, undefined, true, true);
+                Identity.addIdentity(
+                    IdentityEnum.ACCOUNT,
+                    accountName,
+                    accountAccessKeys,
+                    undefined,
+                    true,
+                    true,
+                );
             }
         }
 
@@ -716,8 +795,16 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         };
 
         if (!accountAccessKeys.accessKeyId || !accountAccessKeys.secretAccessKey) {
+            CacheHelper.logger.info('Generating account access keys for Zenko site', {
+                siteKey: 'source',
+                accountName,
+            });
             const accessKeys = await SuperAdmin.generateAccountAccessKey({ accountName });
             if (!Utils.isAccessKeys(accessKeys)) {
+                CacheHelper.logger.error('Failed to generate account access keys', {
+                    siteKey: 'source',
+                    accountName,
+                });
                 throw new Error('Failed to generate account access keys for site ${siteKey}');
             }
             accountAccessKeys.accessKeyId = accessKeys.accessKeyId;
@@ -726,6 +813,10 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         }
 
         // Fallback to the primary site's account at the end of the init by default
+        CacheHelper.logger.info('Using account identity for Zenko site', {
+            siteKey: 'source',
+            accountName,
+        });
         Identity.useIdentity(IdentityEnum.ACCOUNT, accountName);
     }
 
