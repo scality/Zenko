@@ -83,34 +83,29 @@ async function checkBucketExists(s3Client: S3Client, bucketName: string): Promis
 }
 
 /**
- * Resolve secret value from environment variable
- * @param value - the input string
- * @returns Resolved value
- */
-export function resolveSecretValue(value: string): string {
-    if (typeof value === 'string' && value.startsWith('env:')) {
-        const secretName = value.split(':')[1];
-        const secretValue = process.env[secretName];
-
-        if (secretValue === undefined) {
-            logger.warn(`Environment variable "${secretName}" is not set`);
-            return value;
-        }
-
-        return secretValue;
-    }
-
-    return value;
-}
-
-/**
  * Recursively resolve env: prefixes in an object
- * @param obj - Object to resolve
- * @returns Resolved object
+ * Supports formats:
+ * - env:VAR_NAME - uses env var or returns original value if not set
+ * - env:VAR_NAME:default - uses env var or returns default if not set
+ * @param obj - Object, array, or string to resolve
+ * @returns Resolved value
  */
 export function resolveEnvValues(obj: any): any {
     if (typeof obj === 'string' && obj.startsWith('env:')) {
-        return resolveSecretValue(obj);
+        const parts = obj.split(':');
+        const secretName = parts[1];
+        const defaultValue = parts[2];
+        const secretValue = process.env[secretName];
+
+        if (secretValue === undefined) {
+            if (defaultValue !== undefined) {
+                return defaultValue;
+            }
+            logger.warn(`Environment variable "${secretName}" is not set`);
+            return obj;
+        }
+
+        return secretValue;
     }
 
     if (Array.isArray(obj)) {
@@ -175,10 +170,10 @@ export async function createResourcesForLocations(locations: StorageLocation[]):
 async function createS3Bucket(location: StorageLocation): Promise<void> {
     const { details, createResources } = location;
 
-    const accessKey = resolveSecretValue(details.accessKey);
-    const secretKey = resolveSecretValue(details.secretKey);
-    const bucketName = resolveSecretValue(details.bucketName);
-    const endpoint = resolveSecretValue(details.endpoint);
+    const accessKey = resolveEnvValues(details.accessKey);
+    const secretKey = resolveEnvValues(details.secretKey);
+    const bucketName = resolveEnvValues(details.bucketName);
+    const endpoint = resolveEnvValues(details.endpoint);
 
     if (!accessKey || !secretKey || !bucketName || !endpoint) {
         logger.warn(`Missing S3 credentials or config for location ${location.name}, skipping bucket creation`);
@@ -233,10 +228,10 @@ async function createAzureContainer(location: StorageLocation): Promise<void> {
     const { details } = location;
 
     // Get credentials (could be in details or details.auth)
-    const accountName = resolveSecretValue(details.auth?.accountName || details.accessKey);
-    const accountKey = resolveSecretValue(details.auth?.accountKey || details.secretKey);
-    const bucketName = resolveSecretValue(details.bucketName);
-    const endpoint = resolveSecretValue(details.endpoint);
+    const accountName = resolveEnvValues(details.auth?.accountName || details.accessKey);
+    const accountKey = resolveEnvValues(details.auth?.accountKey || details.secretKey);
+    const bucketName = resolveEnvValues(details.bucketName);
+    const endpoint = resolveEnvValues(details.endpoint);
 
     if (!accountName || !accountKey || !bucketName || !endpoint) {
         logger.warn(`Missing Azure credentials or config for location ${location.name}, skipping container creation`);
@@ -273,10 +268,10 @@ async function createAzureContainer(location: StorageLocation): Promise<void> {
 async function createAzureQueue(location: StorageLocation): Promise<void> {
     const { details } = location;
 
-    const accountName = resolveSecretValue(details.auth?.accountName);
-    const accountKey = resolveSecretValue(details.auth?.accountKey);
-    const queueName = resolveSecretValue(details.queue?.queueName);
-    const queueEndpoint = resolveSecretValue(details.queue?.endpoint);
+    const accountName = resolveEnvValues(details.auth?.accountName);
+    const accountKey = resolveEnvValues(details.auth?.accountKey);
+    const queueName = resolveEnvValues(details.queue?.queueName);
+    const queueEndpoint = resolveEnvValues(details.queue?.endpoint);
 
     if (!accountName || !accountKey || !queueName || !queueEndpoint) {
         logger.warn(`Missing Azure queue credentials or config for location ${location.name}, skipping queue creation`);

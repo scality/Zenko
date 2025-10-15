@@ -20,11 +20,11 @@ inputs:
   trunk_token:
     description: Trunk token
     required: false
-  zenko-name:
+  zenko_name:
     description: Zenko name
     default: end2end
     required: false
-  zenko-namespace:
+  zenko_namespace:
     description: Namespace
     default: default
     required: false
@@ -99,8 +99,8 @@ runs:
                        > ${KAFKA_PATH}/kafka-messages-{}.log"
       env:
         STAGE: ${{ inputs.stage }}
-        NAMESPACE: ${{ inputs.zenko-namespace }}
-        ZENKO_NAME: ${{ inputs.zenko-name }}
+        NAMESPACE: ${{ inputs.zenko_namespace }}
+        ZENKO_NAME: ${{ inputs.zenko_name }}
       continue-on-error: true
 
     - name: Dump MongoDB
@@ -128,8 +128,8 @@ runs:
         kubectl cp ${NAMESPACE}/data-db-mongodb-sharded-mongos-0:${DUMP_DIR} /tmp/artifacts/data/${STAGE}/mongodb-dump
       env:
         STAGE: ${{ inputs.stage }}
-        NAMESPACE: ${{ inputs.zenko-namespace }}
-        ZENKO_NAME: ${{ inputs.zenko-name }}
+        NAMESPACE: ${{ inputs.zenko_namespace }}
+        ZENKO_NAME: ${{ inputs.zenko_name }}
       continue-on-error: true
 
     - name: Upload artifacts                               # move into `archive-artifacts` action

@@ -5,7 +5,6 @@ NAMESPACE="${NAMESPACE:-default}"
 ZENKO_NAME="${ZENKO_NAME:-end2end}"
 SUBDOMAIN="${SUBDOMAIN:-zenko}"
 SETUP_IMAGE="${SETUP_IMAGE:-ghcr.io/scality/zenko-setup:latest}"
-LOG_LEVEL="${LOG_LEVEL:-info}"
 METADATA_NAMESPACE="${METADATA_NAMESPACE:-metadata}"
 JOB_TIMEOUT="${JOB_TIMEOUT:-1800}"
 KUBECONFIG_FILE="${KUBECONFIG_FILE:-${HOME}/.kube/config}"
@@ -114,6 +113,7 @@ run_setup_job() {
     setup_args+=(
         "--namespace" "${NAMESPACE}"
         "--subdomain" "${SUBDOMAIN}"
+        "--zenko-name" "${ZENKO_NAME}"
         "--metadata-namespace" "${METADATA_NAMESPACE}"
     )
     [[ -n "${GIT_ACCESS_TOKEN:-}" ]] && setup_args+=("--git-access-token" "${GIT_ACCESS_TOKEN}")
@@ -145,78 +145,82 @@ spec:
         args:
 $(for arg in "${setup_args[@]}"; do echo "        - \"${arg}\""; done)
         env:
-        - name: LOG_LEVEL
-          value: "${LOG_LEVEL}"
         - name: KAFKA_IMAGE
           value: "${kafka_image}"
         - name: KAFKA_TAG
           value: "${kafka_tag}"
         - name: GIT_ACCESS_TOKEN
-          value: "${GIT_ACCESS_TOKEN:-}"
+          value: "${GIT_ACCESS_TOKEN}"
         - name: GCP_ACCESS_KEY
-          value: "${GCP_ACCESS_KEY:-}"
+          value: "${GCP_ACCESS_KEY}"
         - name: GCP_SECRET_KEY
-          value: "${GCP_SECRET_KEY:-}"
+          value: "${GCP_SECRET_KEY}"
         - name: RING_S3C_ACCESS_KEY
-          value: "${RING_S3C_ACCESS_KEY:-accessKey1}"
+          value: "${RING_S3C_ACCESS_KEY}"
         - name: RING_S3C_SECRET_KEY
-          value: "${RING_S3C_SECRET_KEY:-verySecretKey1}"
+          value: "${RING_S3C_SECRET_KEY}"
         - name: RING_S3C_ENDPOINT
-          value: "${RING_S3C_ENDPOINT:-http://s3c.local:8000}"
+          value: "${RING_S3C_ENDPOINT}"
         - name: RING_S3C_BACKEND_SOURCE_LOCATION
-          value: "${RING_S3C_BACKEND_SOURCE_LOCATION:-rings3cbackendingestion}"
+          value: "${RING_S3C_BACKEND_SOURCE_LOCATION}"
         - name: RING_S3C_INGESTION_SRC_BUCKET_NAME
-          value: "${RING_S3C_INGESTION_SRC_BUCKET_NAME:-ingestion-test-src-bucket}"
+          value: "${RING_S3C_INGESTION_SRC_BUCKET_NAME}"
         - name: RING_S3C_BACKEND_SOURCE_NON_VERSIONED_LOCATION
-          value: "${RING_S3C_BACKEND_SOURCE_NON_VERSIONED_LOCATION:-rings3cbackendingestionnonversioned}"
+          value: "${RING_S3C_BACKEND_SOURCE_NON_VERSIONED_LOCATION}"
         - name: RING_S3C_INGESTION_SRC_NON_VERSIONED_BUCKET_NAME
-          value: "${RING_S3C_INGESTION_SRC_NON_VERSIONED_BUCKET_NAME:-ingestion-test-src-non-versioned-bucket}"
+          value: "${RING_S3C_INGESTION_SRC_NON_VERSIONED_BUCKET_NAME}"
         - name: RING_S3C_INGESTION_NON_VERSIONED_OBJECT_COUNT_PER_TYPE
-          value: "${RING_S3C_INGESTION_NON_VERSIONED_OBJECT_COUNT_PER_TYPE:-2}"
+          value: "${RING_S3C_INGESTION_NON_VERSIONED_OBJECT_COUNT_PER_TYPE}"
         - name: AWS_BACKEND_SOURCE_LOCATION
-          value: "${AWS_BACKEND_SOURCE_LOCATION:-awsbackend}"
+          value: "${AWS_BACKEND_SOURCE_LOCATION}"
         - name: AWS_BACKEND_DESTINATION_LOCATION
-          value: "${AWS_BACKEND_DESTINATION_LOCATION:-awsbackendmismatch}"
+          value: "${AWS_BACKEND_DESTINATION_LOCATION}"
         - name: AWS_BACKEND_DESTINATION_FAIL_LOCATION
-          value: "${AWS_BACKEND_DESTINATION_FAIL_LOCATION:-awsbackendfail}"
+          value: "${AWS_BACKEND_DESTINATION_FAIL_LOCATION}"
         - name: AWS_BUCKET_NAME
-          value: "${AWS_BUCKET_NAME:-ci-zenko-aws-target-bucket}"
+          value: "${AWS_BUCKET_NAME}"
         - name: AWS_CRR_BUCKET_NAME
-          value: "${AWS_CRR_BUCKET_NAME:-ci-zenko-aws-crr-target-bucket}"
+          value: "${AWS_CRR_BUCKET_NAME}"
         - name: AWS_FAIL_BUCKET_NAME
-          value: "${AWS_FAIL_BUCKET_NAME:-ci-zenko-aws-fail-target-bucket}"
+          value: "${AWS_FAIL_BUCKET_NAME}"
         - name: AWS_ENDPOINT
-          value: "${AWS_ENDPOINT:-https://aws-mock.zenko.local}"
+          value: "${AWS_ENDPOINT}"
         - name: AWS_ACCESS_KEY
-          value: "${AWS_ACCESS_KEY:-accessKey1}"
+          value: "${AWS_ACCESS_KEY}"
         - name: AWS_SECRET_KEY
-          value: "${AWS_SECRET_KEY:-verySecretKey1}"
+          value: "${AWS_SECRET_KEY}"
         - name: AZURE_BACKEND_DESTINATION_LOCATION
-          value: "${AZURE_BACKEND_DESTINATION_LOCATION:-azurebackendmismatch}"
+          value: "${AZURE_BACKEND_DESTINATION_LOCATION}"
         - name: AZURE_ARCHIVE_BACKEND_DESTINATION_LOCATION
-          value: "${AZURE_ARCHIVE_BACKEND_DESTINATION_LOCATION:-e2e-azure-archive}"
+          value: "${AZURE_ARCHIVE_BACKEND_DESTINATION_LOCATION}"
         - name: AZURE_BACKEND_ENDPOINT
-          value: "${AZURE_BACKEND_ENDPOINT:-https://devstoreaccount1.blob.azure-mock.zenko.local}"
+          value: "${AZURE_BACKEND_ENDPOINT}"
         - name: AZURE_BACKEND_QUEUE_ENDPOINT
-          value: "${AZURE_BACKEND_QUEUE_ENDPOINT:-https://devstoreaccount1.queue.azure-mock.zenko.local}"
+          value: "${AZURE_BACKEND_QUEUE_ENDPOINT}"
         - name: AZURE_CRR_BUCKET_NAME
-          value: "${AZURE_CRR_BUCKET_NAME:-ci-zenko-azure-crr-target-bucket}"
-        - name: AZURE_ARCHIVE_BUCKET_NAME
-          value: "${AZURE_ARCHIVE_BUCKET_NAME:-ci-zenko-azure-archive-target-bucket}"
+          value: "${AZURE_CRR_BUCKET_NAME}"
         - name: AZURE_ACCOUNT_NAME
-          value: "${AZURE_ACCOUNT_NAME:-devstoreaccount1}"
+          value: "${AZURE_ACCOUNT_NAME}"
         - name: AZURE_SECRET_KEY
-          value: "${AZURE_SECRET_KEY:-Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==}"
+          value: "${AZURE_SECRET_KEY}"
         - name: GCP_BACKEND_DESTINATION_LOCATION
-          value: "${GCP_BACKEND_DESTINATION_LOCATION:-gcpbackendmismatch}"
+          value: "${GCP_BACKEND_DESTINATION_LOCATION}"
         - name: GCP_CRR_BUCKET_NAME
-          value: "${GCP_CRR_BUCKET_NAME:-ci-zenko-gcp-crr-target-bucket}"
+          value: "${GCP_CRR_BUCKET_NAME}"
         - name: GCP_CRR_MPU_BUCKET_NAME
-          value: "${GCP_CRR_MPU_BUCKET_NAME:-ci-zenko-gcp-crr-mpu-bucket}"
+          value: "${GCP_CRR_MPU_BUCKET_NAME}"
         - name: COLD_BACKEND_DESTINATION_LOCATION
-          value: "${COLD_BACKEND_DESTINATION_LOCATION:-e2e-cold}"
+          value: "${COLD_BACKEND_DESTINATION_LOCATION}"
         - name: MIRIA_BACKEND_DESTINATION_LOCATION
-          value: "${MIRIA_BACKEND_DESTINATION_LOCATION:-e2e-miria-archive}"
+          value: "${MIRIA_BACKEND_DESTINATION_LOCATION}"
+        - name: NOTIF_DEST_NAME
+          value: "${NOTIF_DEST_NAME}"
+        - name: NOTIF_DEST_TOPIC
+          value: "${NOTIF_DEST_TOPIC}"
+        - name: NOTIF_ALT_DEST_NAME
+          value: "${NOTIF_ALT_DEST_NAME}"
+        - name: NOTIF_ALT_DEST_TOPIC
+          value: "${NOTIF_ALT_DEST_TOPIC}"
         resources:
           requests:
             memory: "256Mi"

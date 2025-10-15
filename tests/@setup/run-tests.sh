@@ -18,6 +18,17 @@ OIDC_REALM="${OIDC_REALM:-zenko}"
 OIDC_CLIENT_ID="${OIDC_CLIENT_ID:-zenko-ui}"
 PARALLEL_RUNS="${PARALLEL_RUNS:-}"
 
+# MongoDB for tests connecting to MongoDB directly
+CLOUDSERVER_SECRET="$(kubectl get secret -l app.kubernetes.io/name=connector-cloudserver-config,app.kubernetes.io/instance=end2end \
+   -o jsonpath="{.items[0].data.config\.json}" | base64 -di)"
+MONGO_DATABASE=$(echo "${CLOUDSERVER_SECRET}" | jq -r '.mongodb.database')
+MONGO_READ_PREFERENCE=$(echo "${CLOUDSERVER_SECRET}" | jq -r '.mongodb.readPreference')
+MONGO_REPLICA_SET_HOSTS=$(echo "${CLOUDSERVER_SECRET}" | jq -r '.mongodb.replicaSetHosts')
+MONGO_SHARD_COLLECTION=$(echo "${CLOUDSERVER_SECRET}" | jq -r '.mongodb.shardCollections')
+MONGO_WRITE_CONCERN=$(echo "${CLOUDSERVER_SECRET}" | jq -r '.mongodb.writeConcern')
+MONGO_AUTH_USERNAME=$(echo "${CLOUDSERVER_SECRET}" | jq -r '.mongodb.authCredentials.username')
+MONGO_AUTH_PASSWORD=$(echo "${CLOUDSERVER_SECRET}" | jq -r '.mongodb.authCredentials.password')
+
 # Script-internal variables
 MANAGED_BY_LABEL="zenko-run-tests-script"
 CLUSTER_ROLE_BINDING_NAME="ctst-cluster-admin-for-${NAMESPACE}"
@@ -29,13 +40,16 @@ Usage: $(basename "$0") [OPTIONS] [-- ADDITIONAL_TEST_ARGS]
 Runs Zenko integration tests as a Kubernetes Job.
 
 Options:
-  --type <type>        Required. Test type to run (e2e, smoke, ctst).
+  --type <type>        Required. Test type to run (e2e, smoke, backbeat, ctst).
   --kubeconfig <path>  Path to the kubeconfig file.
   --cleanup            Remove resources created by this script and exit.
   --help               Display this help message and exit.
 
 ADDITIONAL_TEST_ARGS:
-  Arguments after '--' are passed directly to the test command.
+  For ctst: Arguments after '--' are passed directly to the test command (e.g., --tags @PRA).
+  For e2e:  First argument after '--' must be an npm script name (e.g., test_operator, test_iam_policies, test_object_api).
+  For smoke: No additional arguments needed.
+  For backbeat: No additional arguments needed.
 EOF
     exit 1
 }
@@ -152,13 +166,22 @@ run_test_job() {
             world_params=$(jq -cn \
                 --arg namespace "${NAMESPACE}" \
                 --arg subdomain "${SUBDOMAIN}" \
+                --arg zenko_name "${INSTANCE_ID:-end2end}" \
                 --arg dr_subdomain "${DR_SUBDOMAIN:-dr.zenko.local}" \
                 --arg keycloak_username "${OIDC_USERNAME:-storage_manager}" \
                 --arg keycloak_password "${OIDC_PASSWORD:-123}" \
                 --arg keycloak_host "${OIDC_HOST:-keycloak.zenko.local}" \
                 --arg keycloak_realm "${OIDC_REALM:-zenko}" \
                 --arg keycloak_client_id "${OIDC_CLIENT_ID:-zenko-ui}" \
-                '{ "Namespace": $namespace, "subdomain": $subdomain, "DRSubdomain": $dr_subdomain, "KeycloakUsername": $keycloak_username, "KeycloakPassword": $keycloak_password, "KeycloakHost": $keycloak_host, "KeycloakRealm": $keycloak_realm, "KeycloakClientId": $keycloak_client_id }')
+                --arg azure_account_name "${AZURE_ACCOUNT_NAME:-devstoreaccount1}" \
+                --arg azure_account_key "${AZURE_SECRET_KEY:-Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==}" \
+                --arg kafka_external_ips "${KAFKA_EXTERNAL_IPS}" \
+                --arg prometheus_name "${PROMETHEUS_NAME}" \
+                --arg notification_destination "${NOTIFICATION_DESTINATION}" \
+                --arg notification_destination_topic "${NOTIFICATION_DESTINATION_TOPIC}" \
+                --arg notification_destination_alt "${NOTIFICATION_DESTINATION_ALT}" \
+                --arg notification_destination_topic_alt "${NOTIFICATION_DESTINATION_TOPIC_ALT}" \
+                '{ "Namespace": $namespace, "subdomain": $subdomain, "ZenkoName": $zenko_name, "DRSubdomain": $dr_subdomain, "KeycloakUsername": $keycloak_username, "KeycloakPassword": $keycloak_password, "KeycloakHost": $keycloak_host, "KeycloakRealm": $keycloak_realm, "KeycloakClientId": $keycloak_client_id, "AzureAccountName": $azure_account_name, "AzureAccountKey": $azure_account_key, "KafkaExternalIps": $kafka_external_ips, "PrometheusService": $prometheus_service, "NotificationDestination": $notification_destination, "NotificationDestinationTopic": $notification_destination_topic, "NotificationDestinationAlt": $notification_destination_alt, "NotificationDestinationTopicAlt": $notification_destination_topic_alt }')
             local parallel_runs=${PARALLEL_RUNS:-$(( ( $(nproc || echo 2) + 1 ) / 2 ))}
             test_command=(
                 "./run" "premerge" "${world_params}" "--parallel" "${parallel_runs}"
@@ -166,16 +189,27 @@ run_test_job() {
                 "--format" "junit:/reports/ctst-junit.xml"
             )
             ;;
-        e2e|smoke)
+        e2e)
             test_image="${E2E_IMAGE}"
-            test_command=("npm" "run" "test:${test_type}")
+            if [[ ${#additional_args_ref[@]} -eq 0 ]]; then
+                echo "Error: e2e test type requires a test script name" >&2
+                exit 1
+            fi
+            test_command=("sh" "-c" "cd node_tests && npm run ${additional_args_ref[0]}")
+            ;;
+        smoke)
+            test_image="${E2E_IMAGE}"
+            test_command=("sh" "-c" "cd node_tests && npm run test_smoke")
+            ;;
+        backbeat)
+            test_image="${E2E_IMAGE}"
+            test_command=("sh" "-c" "cd node_tests && ./gcp_shim.sh && npm run test_all_extensions && cd .. && python3 cleans3c.py")
             ;;
         *)
             echo "Error: Unknown test type '${test_type}'." >&2
             exit 1
             ;;
     esac
-    test_command+=("${additional_args_ref[@]}")
 
     echo "Creating test job: ${job_name}"
     echo "  Image: ${test_image}"

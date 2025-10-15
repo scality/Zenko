@@ -50,5 +50,3 @@ RUN chmod +x /usr/local/bin/npm_chain.sh /usr/local/bin/docker-entrypoint.sh /us
 COPY . /usr/local/bin/tests/
 
 WORKDIR /usr/local/bin/tests
-
-CMD [ "docker-entrypoint.sh" ]

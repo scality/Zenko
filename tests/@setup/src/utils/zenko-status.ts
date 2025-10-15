@@ -14,7 +14,7 @@ type ZenkoStatus = ZenkoStatusValue[];
 
 interface ZenkoStatusOptions {
     namespace: string;
-    zenkoName?: string;
+    zenkoName: string;
     timeout?: number;
 }
 
@@ -24,7 +24,7 @@ interface ZenkoStatusOptions {
  * @returns Promise that resolves when Zenko is stabilized
  */
 export async function waitForZenkoToStabilize(options: ZenkoStatusOptions): Promise<void> {
-    const { namespace, zenkoName = 'end2end', timeout = 15 * 60 * 1000 } = options;
+    const { namespace, zenkoName, timeout = 15 * 60 * 1000 } = options;
 
     const startTime = Date.now();
     let status = false;

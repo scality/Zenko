@@ -14,10 +14,9 @@ for i in $(seq 0 $array_length); do
     working_dir=$(yq ".runs.steps[$i].working-directory" .github/actions/deploy/action.yaml)
     run_command=$(yq ".runs.steps[$i].run" .github/actions/deploy/action.yaml)
 
-    # We don't want to run `run-e2e-test.sh` because it is used for linting here, user will run it manually if needed after deployment
     # We can't run `configure-e2e.sh` here because it needs an image that is not yet built and sent to kind, will be run after
     (
-        if [[ "$run_command" != "null" && "$run_command" != *"configure-e2e.sh"* && "$run_command" != *"run-e2e-test.sh"* ]]; then
+        if [[ "$run_command" != "null" && "$run_command" != *"configure-e2e.sh"* ]]; then
             # Inject env 'generated' from previous steps
             source "$GITHUB_ENV"
 

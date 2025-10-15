@@ -5,7 +5,7 @@ import { logger } from './utils/logger';
 import { getInstanceId, getManagementEndpoint, getManagementToken } from './utils/management';
 import config from '../configs/locations.json';
 import { waitForZenkoToStabilize } from './utils/zenko-status';
-import { createResourcesForLocations, resolveSecretValue, resolveEnvValues, sanitizeLocationForAPI, StorageLocation } from './utils/resource-creation';
+import { createResourcesForLocations, resolveEnvValues, sanitizeLocationForAPI, StorageLocation } from './utils/resource-creation';
 import * as k8s from './utils/k8s';
 import { waitForResourceVersionChange } from './utils/k8s';
 import { verifyS3CReadiness } from './metadata';
@@ -69,8 +69,8 @@ export async function setupLocations(options: LocationsOptions): Promise<void> {
         await createStorageLocation(managementEndpoint, token, instanceId, sanitizedLocation);
 
         if (location.bootstrapIngestion && location.createResources?.createBucket) {
-            const locationName = resolveSecretValue(location.name);
-            const sourceBucket = resolveSecretValue(location.details.bucketName);
+            const locationName = resolveEnvValues(location.name);
+            const sourceBucket = resolveEnvValues(location.details.bucketName);
             locationsToBootstrap.push({ locationName, sourceBucket });
         }
     }
@@ -295,7 +295,7 @@ async function createStorageLocation(
         bootstrapList: location.details.bootstrapList || []
     };
 
-    const locationName = resolveSecretValue(location.name);
+    const locationName = resolveEnvValues(location.name);
 
     const locationPayload = {
         name: locationName,

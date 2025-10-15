@@ -1,12 +1,15 @@
 import * as k8s from './utils/k8s';
 import { logger } from './utils/logger';
 import kafkaTopicsConfig from '../configs/kafka-topics.json';
+import notificationDestinationsConfig from '../configs/notification-destinations.json';
 import { getInstanceId } from './utils/management';
+import { resolveEnvValues } from './utils/resource-creation';
 import KubernetesHelper from 'cli-testing/utils/KubernetesHelper';
 
 export interface NotificationOptions {
     namespace: string;
     configFile?: string;
+    zenkoName: string;
 }
 
 export interface TopicInfo {
@@ -49,11 +52,11 @@ export async function setupNotifications(options: NotificationOptions): Promise<
     const namespace = options.namespace || 'default';
 
     // Check if backbeat config secret exists before proceeding
-    await checkBackbeatConfigAvailability(namespace, instanceId);
+    await checkBackbeatConfigAvailability(namespace, instanceId, options.zenkoName);
 
-    const kafkaConfig = await getKafkaConfig(namespace);
-    const uuid = await getUUIDFromBackbeat(namespace, instanceId);
-    await applyNotificationDestinations(namespace, kafkaConfig.hosts, kafkaConfig.port);
+    const kafkaConfig = await getKafkaConfig(namespace, options.zenkoName);
+    const uuid = await getUUIDFromBackbeat(namespace, instanceId, options.zenkoName);
+    await applyNotificationDestinations(namespace, options.zenkoName, kafkaConfig.hosts, kafkaConfig.port);
     await createKafkaTopics(kafkaConfig, uuid, namespace);
 }
 
@@ -68,7 +71,7 @@ export function getTopicNames(uuid: string): TopicInfo[] {
 
     // Add notification topics
     for (const notifTopic of kafkaTopicsConfig.notificationTopics) {
-        const topicName = process.env[notifTopic.envVar] || notifTopic.default;
+        const topicName = resolveEnvValues(notifTopic.name);
         topics.push({
             name: topicName,
             partitions: notifTopic.partitions,
@@ -96,10 +99,14 @@ export function getTopicNames(uuid: string): TopicInfo[] {
 export function getTopicEnvVars(): Record<string, string> {
     const envVars: Record<string, string> = {};
 
-    // Only notification topic environment variables (which have actual envVar definitions)
+    // Only notification topic environment variables
     for (const notifTopic of kafkaTopicsConfig.notificationTopics) {
-        const topicName = process.env[notifTopic.envVar] || notifTopic.default;
-        envVars[notifTopic.envVar] = topicName;
+        const topicName = resolveEnvValues(notifTopic.name);
+        // Extract env var name from env:VAR_NAME format
+        if (notifTopic.name.startsWith('env:')) {
+            const envVarName = notifTopic.name.split(':')[1];
+            envVars[envVarName] = topicName;
+        }
     }
 
     return envVars;
@@ -111,9 +118,7 @@ export function getTopicEnvVars(): Record<string, string> {
  * @param instanceId - Instance ID
  * @returns Promise that resolves when the backbeat config is available
  */
-async function checkBackbeatConfigAvailability(namespace: string, instanceId: string): Promise<void> {
-    const zenkoName = process.env.ZENKO_NAME || 'end2end';
-
+async function checkBackbeatConfigAvailability(namespace: string, instanceId: string, zenkoName: string): Promise<void> {
     // Use enhanced utility to get secrets by labels
     const secrets = await KubernetesHelper.getSecretsByLabels(
         namespace,
@@ -130,11 +135,10 @@ async function checkBackbeatConfigAvailability(namespace: string, instanceId: st
  * @param namespace - Namespace
  * @returns Kafka configuration
  */
-async function getKafkaConfig(namespace: string): Promise<KafkaConfig> {
+async function getKafkaConfig(namespace: string, zenkoName: string): Promise<KafkaConfig> {
     logger.info('Getting Kafka configuration from backbeat config');
 
     const instanceId = await getInstanceId();
-    const zenkoName = process.env.ZENKO_NAME || 'end2end';
 
     // Use enhanced utility to get secrets by labels
     const secrets = await KubernetesHelper.getSecretsByLabels(
@@ -175,10 +179,8 @@ async function getKafkaConfig(namespace: string): Promise<KafkaConfig> {
  * @param instanceId - Instance ID
  * @returns UUID
  */
-async function getUUIDFromBackbeat(namespace: string, instanceId: string): Promise<string> {
+async function getUUIDFromBackbeat(namespace: string, instanceId: string, zenkoName: string): Promise<string> {
     logger.info('Getting UUID from backbeat config');
-
-    const zenkoName = process.env.ZENKO_NAME || 'end2end';
 
     // Use enhanced utility to get secrets by labels
     const secrets = await KubernetesHelper.getSecretsByLabels(
@@ -216,66 +218,50 @@ async function getUUIDFromBackbeat(namespace: string, instanceId: string): Promi
 /**
  * Apply notification destinations configuration
  * @param namespace - Namespace
+ * @param zenkoName - Zenko name
  * @param kafkaHost - Kafka host
  * @param kafkaPort - Kafka port
  * @returns Promise that resolves when the notification destinations are applied
  */
-async function applyNotificationDestinations(namespace: string, kafkaHost: string, kafkaPort: string): Promise<void> {
+async function applyNotificationDestinations(namespace: string, zenkoName: string, kafkaHost: string, kafkaPort: string): Promise<void> {
     logger.debug('Applying notification destinations configuration');
 
-    // Get topic names from environment or use defaults from config
-    const notifDestTopic = process.env[kafkaTopicsConfig.notificationTopics[0].envVar] || kafkaTopicsConfig.notificationTopics[0].default;
-    const notifAltDestTopic = process.env[kafkaTopicsConfig.notificationTopics[1].envVar] || kafkaTopicsConfig.notificationTopics[1].default;
-
-    // Create ZenkoNotificationTarget resources (the correct CRD that actually exists)
-    const zenkoName = process.env.ZENKO_NAME || 'end2end';
     const [kafkaHostOnly, kafkaPortOnly] = kafkaHost.split(':');
-
-    const primaryNotificationTarget = {
-        apiVersion: 'zenko.io/v1alpha2',
-        kind: 'ZenkoNotificationTarget',
-        metadata: {
-            name: 'kafka-destination',
-            namespace,
-            labels: {
-                'app.kubernetes.io/instance': zenkoName
-            }
-        },
-        spec: {
-            type: 'kafka',
-            host: kafkaHostOnly,
-            port: parseInt(kafkaPortOnly || kafkaPort, 10),
-            destinationTopic: notifDestTopic
-        }
-    };
-
-    const altNotificationTarget = {
-        apiVersion: 'zenko.io/v1alpha2',
-        kind: 'ZenkoNotificationTarget',
-        metadata: {
-            name: 'kafka-alt-destination',
-            namespace,
-            labels: {
-                'app.kubernetes.io/instance': zenkoName
-            }
-        },
-        spec: {
-            type: 'kafka',
-            host: kafkaHostOnly,
-            port: parseInt(kafkaPortOnly || kafkaPort, 10),
-            destinationTopic: notifAltDestTopic
-        }
-    };
+    const group = 'zenko.io';
+    const version = 'v1alpha2';
+    const plural = 'zenkonotificationtargets';
 
     try {
-        const group = 'zenko.io';
-        const version = 'v1alpha2';
-        const plural = 'zenkonotificationtargets';
+        // Create notification destinations from configuration
+        for (const destination of notificationDestinationsConfig.destinations) {
+            const destinationName = resolveEnvValues(destination.name);
+            const destinationTopic = resolveEnvValues(destination.topic);
 
-        await KubernetesHelper.applyCustomResource(primaryNotificationTarget, namespace, group, version, plural);
-        await KubernetesHelper.applyCustomResource(altNotificationTarget, namespace, group, version, plural);
+            const notificationTarget = {
+                apiVersion: 'zenko.io/v1alpha2',
+                kind: 'ZenkoNotificationTarget',
+                metadata: {
+                    name: destinationName,
+                    namespace,
+                    labels: {
+                        'app.kubernetes.io/instance': zenkoName
+                    }
+                },
+                spec: {
+                    type: 'kafka',
+                    host: kafkaHostOnly,
+                    port: parseInt(kafkaPortOnly || kafkaPort, 10),
+                    destinationTopic: destinationTopic
+                }
+            };
 
-        logger.info('Notification destinations applied successfully');
+            logger.debug('Applying notification destination', { name: destinationName, topic: destinationTopic });
+            await KubernetesHelper.applyCustomResource(notificationTarget, namespace, group, version, plural);
+        }
+
+        logger.info('Notification destinations applied successfully', { 
+            count: notificationDestinationsConfig.destinations.length 
+        });
     } catch (error) {
         logger.error('Failed to apply notification destinations', { error });
         throw error;
@@ -297,7 +283,7 @@ async function createKafkaTopics(kafkaConfig: KafkaConfig, uuid: string, namespa
 
     // Add notification topics
     for (const notifTopic of kafkaTopicsConfig.notificationTopics) {
-        const topicName = process.env[notifTopic.envVar] || notifTopic.default;
+        const topicName = resolveEnvValues(notifTopic.name);
         topics.push({ name: topicName, partitions: notifTopic.partitions });
     }
 

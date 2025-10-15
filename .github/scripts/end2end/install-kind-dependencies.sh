@@ -125,8 +125,6 @@ kubectl create -f $prom_url || kubectl replace -f $prom_url --wait
 # wait for the resource to exist
 kubectl wait --for=condition=established --timeout=10m crd/alertmanagers.monitoring.coreos.com
 
-# Set PROMETHEUS_NAME for envsubst
-export PROMETHEUS_NAME="prometheus-test"
 envsubst < configs/prometheus.yaml | kubectl apply -f -
 
 # zookeeper

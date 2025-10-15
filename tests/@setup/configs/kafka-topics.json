@@ -1,16 +1,12 @@
 {
   "notificationTopics": [
     {
-      "name": "NOTIF_DEST_TOPIC",
-      "envVar": "NOTIF_DEST_TOPIC",
-      "default": "notification-dest-topic",
+      "name": "env:NOTIF_DEST_TOPIC",
       "partitions": 1,
       "description": "Primary notification destination topic"
     },
     {
-      "name": "NOTIF_ALT_DEST_TOPIC", 
-      "envVar": "NOTIF_ALT_DEST_TOPIC",
-      "default": "notification-alt-dest-topic",
+      "name": "env:NOTIF_ALT_DEST_TOPIC",
       "partitions": 1,
       "description": "Alternative notification destination topic"
     }

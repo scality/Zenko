@@ -38,7 +38,6 @@ export SUBDOMAIN="zenko.local"
 export GIT_ACCESS_TOKEN="your-token"
 export METADATA_NAMESPACE="metadata"
 export SETUP_IMAGE="ghcr.io/scality/zenko-setup:latest"
-export LOG_LEVEL="debug"
 export JOB_TIMEOUT="1800"
 ```
 

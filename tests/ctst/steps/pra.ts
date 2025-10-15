@@ -69,7 +69,8 @@ async function installPRA(world: Zenko, sinkS3Endpoint = 'http://s3.zenko.local'
         sourceZenkoNamespace: 'default',
         sourceS3Endpoint: 'http://s3.zenko.local',
         sinkS3Endpoint,
-        prometheusService: world.parameters.PrometheusService,
+        prometheusService:
+            `${world.parameters.PrometheusName}-operated.${world.parameters.subdomain}.svc.cluster.local`,
         prometheusHostname: 'prom.dr.zenko.local',
         prometheusExternalIpsDiscovery: true,
         forceRotateServiceCredentials: (CacheHelper.savedAcrossTests[Zenko.PRA_INSTALL_COUNT_KEY] as number) > 0,

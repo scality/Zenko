@@ -125,8 +125,8 @@ program
         }
         const globalOptions = program.opts();
         await setupMocks({
-            namespace: globalOptions.namespace || 'default',
-            subdomain: globalOptions.subdomain || 'zenko.local',
+            namespace: globalOptions.namespace,
+            subdomain: globalOptions.subdomain,
             awsOnly: options.awsOnly,
             azureOnly: options.azureOnly,
         });
@@ -143,10 +143,10 @@ program
         }
         const globalOptions = program.opts();
         await setupLocations({
-            namespace: globalOptions.namespace || 'default',
-            subdomain: globalOptions.subdomain || 'zenko.local',
+            namespace: globalOptions.namespace,
+            subdomain: globalOptions.subdomain,
             configFile: options.config,
-            zenkoName: globalOptions.zenkoName || 'end2end',
+            zenkoName: globalOptions.zenkoName,
         });
         setupFlags.locations = true;
     });
@@ -166,11 +166,11 @@ program
             throw new Error('instance ID is required for workflow setup. Ensure UUID environment variable is set or Zenko CR exists');
         }
         await setupWorkflows({
-            namespace: globalOptions.namespace || 'default',
+            namespace: globalOptions.namespace,
             configFile: options.config,
             workflowType: options.type,
             instanceId,
-            zenkoName: globalOptions.zenkoName || 'end2end',
+            zenkoName: globalOptions.zenkoName,
         });
     });
 
@@ -183,8 +183,8 @@ program
         }
         const globalOptions = program.opts();
         await setupDNS({
-            namespace: globalOptions.namespace || 'default',
-            subdomain: globalOptions.subdomain || 'zenko.local',
+            namespace: globalOptions.namespace,
+            subdomain: globalOptions.subdomain,
         });
         setupFlags.dns = true;
     });
@@ -195,7 +195,7 @@ program
     .action(async () => {
         const globalOptions = program.opts();
         await setupRBAC({
-            namespace: globalOptions.namespace || 'default',
+            namespace: globalOptions.namespace,
         });
         setupFlags.rbac = true;
         logger.debug('RBAC setup flag set');
@@ -230,8 +230,9 @@ program
         }
         const globalOptions = program.opts();
         await setupNotifications({
-            namespace: globalOptions.namespace || 'default',
+            namespace: globalOptions.namespace,
             configFile: options.config,
+            zenkoName: globalOptions.zenkoName,
         });
     });
 
@@ -241,8 +242,8 @@ async function runSetup(options: any) {
         logger.info('Checking Zenko readiness...');
         initKubernetes();
         await waitForZenkoToStabilize({
-            namespace: options.namespace || 'default',
-            zenkoName: options.zenkoName || 'end2end',
+            namespace: options.namespace,
+            zenkoName: options.zenkoName,
             timeout: 10 * 60 * 1000,
         });
 
@@ -253,7 +254,7 @@ async function runSetup(options: any) {
             tasks.push({
                 name: 'RBAC', fn: async () => {
                     await setupRBAC({
-                        namespace: options.namespace || 'default',
+                        namespace: options.namespace,
                     });
                     setupFlags.rbac = true;
                     logger.debug('RBAC setup flag set');
@@ -268,8 +269,8 @@ async function runSetup(options: any) {
                         throw new Error('RBAC setup is required before DNS setup');
                     }
                     await setupDNS({
-                        namespace: options.namespace || 'default',
-                        subdomain: options.subdomain || 'zenko.local',
+                        namespace: options.namespace,
+                        subdomain: options.subdomain,
                     });
                     setupFlags.dns = true;
                 }
@@ -285,7 +286,7 @@ async function runSetup(options: any) {
 
                     await setupMetadata({
                         gitAccessToken: options.gitAccessToken || process.env.GIT_ACCESS_TOKEN,
-                        namespace: options.metadataNamespace || 'metadata',
+                        namespace: options.metadataNamespace,
                         timeout: 300,
                     });
                     setupFlags.metadata = true;
@@ -304,8 +305,8 @@ async function runSetup(options: any) {
                         throw new Error('DNS setup is required before mocks setup');
                     }
                     await setupMocks({
-                        namespace: options.namespace || 'default',
-                        subdomain: options.subdomain || 'zenko.local',
+                        namespace: options.namespace,
+                        subdomain: options.subdomain,
                     });
                     setupFlags.mocks = true;
                 }
@@ -319,7 +320,7 @@ async function runSetup(options: any) {
                         throw new Error('DNS setup is required before accounts setup');
                     }
                     await setupAccounts({
-                        namespace: options.namespace || 'default',
+                        namespace: options.namespace,
                         accounts: options.accounts === true ? undefined : options.accounts, // Allow array of account names
                     });
                     setupFlags.accounts = true;
@@ -337,10 +338,10 @@ async function runSetup(options: any) {
                         throw new Error('Accounts setup is required before locations setup');
                     }
                     await setupLocations({
-                        namespace: options.namespace || 'default',
-                        subdomain: options.subdomain || 'zenko.local',
+                        namespace: options.namespace,
+                        subdomain: options.subdomain,
                         configFile: options.locationsConfig,
-                        zenkoName: options.zenkoName || 'end2end',
+                        zenkoName: options.zenkoName,
                     });
                     setupFlags.locations = true;
                 }
@@ -358,10 +359,10 @@ async function runSetup(options: any) {
                         throw new Error('Locations setup is required before workflows setup');
                     }
                     await setupWorkflows({
-                        namespace: options.namespace || 'default',
+                        namespace: options.namespace,
                         configFile: options.workflowsConfig,
                         instanceId,
-                        zenkoName: options.zenkoName || 'end2end',
+                        zenkoName: options.zenkoName,
                     });
                 }
             });
@@ -378,8 +379,9 @@ async function runSetup(options: any) {
                         throw new Error('Locations setup is required before notifications setup');
                     }
                     await setupNotifications({
-                        namespace: options.namespace || 'default',
+                        namespace: options.namespace,
                         configFile: options.notificationsConfig,
+                        zenkoName: options.zenkoName,
                     });
                 }
             });

@@ -10,6 +10,10 @@ inputs:
   git_access_token:
     description: "GitHub access token for accessing private repositories"
     required: true
+  zenko_name:
+    description: "The name of the Zenko instance to deploy"
+    required: false
+    default: "end2end"
 runs:
   using: composite
   steps:
@@ -60,7 +64,7 @@ runs:
         GIT_ACCESS_TOKEN: ${{ inputs.git_access_token }}
     - name: Deploy Zenko Instance
       shell: bash
-      run: bash deploy-zenko.sh end2end default
+      run: bash deploy-zenko.sh ${{ inputs.zenko_name }} default
       working-directory: ./.github/scripts/end2end
     - name: Add Keycloak user and assign StorageManager role
       shell: bash

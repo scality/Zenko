@@ -43,6 +43,7 @@ export enum EntityType {
 }
 
 export interface ZenkoWorldParameters extends ClientOptions {
+    ZenkoName: string;
     AccountName: string;
     AccountAccessKey: string;
     AccountSecretKey: string;
@@ -58,7 +59,7 @@ export interface ZenkoWorldParameters extends ClientOptions {
     NotificationDestinationTopicAlt: string;
     KafkaExternalIps: string;
     KafkaHosts: string;
-    PrometheusService: string;
+    PrometheusName: string;
     KeycloakUsername: string;
     KeycloakPassword: string;
     KeycloakHost: string;

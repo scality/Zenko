@@ -381,47 +381,50 @@ async function extractAndCacheParameters(parameters: ZenkoWorldParameters): Prom
         extractZenkoCRInfo(parameters),
     ]);
 
+    const subdomain = parameters.subdomain || 'zenko.local';
+    const zenkoName = parameters.ZenkoName || 'end2end';
+
     const setupParameters = {
+        // Parameters from the environment
         ...parameters,
+        // Parameters dynamically extracted from the cluster
         ...adminCreds,
         ...praCreds,
         ...serviceCredentials,
         ...kafkaConfig,
         ...zenkoInfo,
+        // Constants, CTST-specific
+        UtilizationServicePort: '80',
+        VaultAuthHost: `${zenkoName}-connector-vault-auth-api.${subdomain}.svc.cluster.local`,
+        PrometheusService: `${parameters.PrometheusName}-operated.${subdomain}.svc.cluster.local`,
+        StorageManagerUsername: 'ctst_storage_manager',
+        StorageAccountOwnerUsername: 'ctst_storage_account_owner',
+        DataConsumerUsername: 'ctst_data_consumer',
+        DataAccessorUsername: 'ctst_data_accessor',
+        AzureArchiveAccessTier: 'Hot',
+        AzureArchiveManifestTier: 'Hot',
+        KeycloakGrantType: 'password',
+        KeycloakHost: `keycloak.${subdomain}`,
+        KeycloakPort: '80',
+        AzureArchiveContainer: 'ci-zenko-azure-archive-target-bucket',
+        AzureArchiveContainer2: 'ci-zenko-azure-archive-target-bucket-2',
+        AzureArchiveQueue: 'ci-zenko-azure-archive-target-queue',
         AccountName: Zenko.ACCOUNT_NAME,
         ssl: Zenko.SSL_ENABLED,
         port: Zenko.PORT,
-        VaultAuthHost: parameters.VaultAuthHost || 'end2end-connector-vault-auth-api.default.svc.cluster.local',
-        UtilizationServicePort: parameters.UtilizationServicePort || '80',
-        NotificationDestination: parameters.NotificationDestination || 'ctst-notif-dest',
-        NotificationDestinationTopic: parameters.NotificationDestinationTopic || 'ctst-notif-topic',
-        NotificationDestinationAlt: parameters.NotificationDestinationAlt || 'ctst-notif-dest-alt',
-        NotificationDestinationTopicAlt: parameters.NotificationDestinationTopicAlt || 'ctst-notif-topic-alt',
-        KafkaExternalIps: parameters.KafkaExternalIps || '',
-        PrometheusService: parameters.PrometheusService || 'prometheus-operated.default.svc.cluster.local',
-        StorageManagerUsername: parameters.StorageManagerUsername || 'ctst_storage_manager',
-        StorageAccountOwnerUsername: parameters.StorageAccountOwnerUsername || 'ctst_storage_account_owner',
-        DataConsumerUsername: parameters.DataConsumerUsername || 'ctst_data_consumer',
-        DataAccessorUsername: parameters.DataAccessorUsername || 'ctst_data_accessor',
-        AzureArchiveAccessTier: parameters.AzureArchiveAccessTier || 'Hot',
-        AzureArchiveManifestTier: parameters.AzureArchiveManifestTier || 'Hot',
-
-        KeycloakUsername: parameters.KeycloakUsername || 'testuser',
-        KeycloakPassword: parameters.KeycloakPassword || 'testpass',
-        KeycloakPort: parameters.KeycloakPort || '80',
-        KeycloakGrantType: parameters.KeycloakGrantType || 'password',
-        KeycloakHost: parameters.KeycloakHost || 'keycloak.zenko.local',
-        KeycloakRealm: parameters.KeycloakRealm || 'zenko',
-        KeycloakClientId: parameters.KeycloakClientId || 'zenko-ui',
-
-        AzureAccountName: parameters.AzureAccountName || 'devstoreaccount1',
-        AzureAccountKey: parameters.AzureAccountKey ||
-            'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==',
-        AzureArchiveContainer: parameters.AzureArchiveContainer || 'archive-container',
-        AzureArchiveContainer2: parameters.AzureArchiveContainer2 || 'archive-container-2',
-        AzureArchiveQueue: parameters.AzureArchiveQueue || 'archive-queue',
-
-        subdomain: parameters.subdomain || 'zenko.local',
+        // Passed and required parameters
+        subdomain,
+        NotificationDestination: parameters.NotificationDestination,
+        NotificationDestinationTopic: parameters.NotificationDestinationTopic,
+        NotificationDestinationAlt: parameters.NotificationDestinationAlt,
+        NotificationDestinationTopicAlt: parameters.NotificationDestinationTopicAlt,
+        KafkaExternalIps: parameters.KafkaExternalIps,
+        KeycloakUsername: parameters.KeycloakUsername,
+        KeycloakPassword: parameters.KeycloakPassword,
+        KeycloakRealm: parameters.KeycloakRealm,
+        KeycloakClientId: parameters.KeycloakClientId,
+        AzureAccountName: parameters.AzureAccountName,
+        AzureAccountKey: parameters.AzureAccountKey,
     };
 
     CacheHelper.cacheParameters(setupParameters);
