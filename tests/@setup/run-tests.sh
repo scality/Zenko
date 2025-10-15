@@ -203,7 +203,7 @@ run_test_job() {
             ;;
         backbeat)
             test_image="${E2E_IMAGE}"
-            test_command=("sh" "-c" "cd node_tests && ./gcp_shim.sh && npm run test_all_extensions && cd .. && python3 cleans3c.py")
+            test_command=("sh" "-c" "cd node_tests && ./gcp_shim.sh && npm run test_all_extensions")
             ;;
         *)
             echo "Error: Unknown test type '${test_type}'." >&2

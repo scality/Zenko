@@ -32,16 +32,6 @@ RUN apt-get update && apt-get install -y \
     mkdir -p /usr/local/bin/tests/node_tests
 
 COPY ./node_tests/package.json ./node_tests/yarn.lock /usr/local/bin/tests/node_tests/
-COPY ./requirements.txt /tmp
-
-RUN python3 -m pip install -r /tmp/requirements.txt tox && \
-    cd /usr/local/bin/tests/node_tests && \
-    yarn install && \
-    rm -rf /var/cache/apk/* && \
-    yarn cache clear --force && \
-    rm -rf ~/.node-gyp && \
-    rm -rf /tmp/npm-* && \
-    rm -rf /var/cache/apk/*
 
 # Copy Tests
 COPY . /usr/local/bin/tests/
