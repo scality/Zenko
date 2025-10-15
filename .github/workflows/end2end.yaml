@@ -78,7 +78,7 @@ env:
   AWS_FAIL_BUCKET_NAME: ci-zenko-aws-fail-target-bucket
   AZURE_CRR_BUCKET_NAME: ci-zenko-azure-crr-target-bucket
   GCP_CRR_BUCKET_NAME: ci-zenko-gcp-crr-target-bucket
-  GCP_CRR_MPU_BUCKET_NAME: 
+  GCP_CRR_MPU_BUCKET_NAME: ci-zenko-gcp-crr-mpu-bucket
   # Ring/S3C test configuration
   RING_S3C_ACCESS_KEY: accessKey1
   RING_S3C_SECRET_KEY: verySecretKey1
