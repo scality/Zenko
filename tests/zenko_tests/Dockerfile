@@ -1,7 +1,7 @@
 FROM ubuntu:22.04
 
-ENV MOCHA_TAGS not:flaky
-ENV LANG C.UTF-8
+ENV MOCHA_TAGS=not:flaky
+ENV LANG=C.UTF-8
 
 # Add Node.js PPA
 RUN apt-get update && apt install -y curl
@@ -32,6 +32,10 @@ RUN apt-get update && apt-get install -y \
     mkdir -p /usr/local/bin/tests/node_tests
 
 COPY ./node_tests/package.json ./node_tests/yarn.lock /usr/local/bin/tests/node_tests/
+
+# Install dependencies
+RUN npm install --global yarn
+RUN yarn install
 
 # Copy Tests
 COPY . /usr/local/bin/tests/
