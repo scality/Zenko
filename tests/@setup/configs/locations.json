@@ -92,6 +92,33 @@
       }
     },
     {
+      "name": "env:AZURE_ARCHIVE_BACKEND_DESTINATION_LOCATION",
+      "locationType": "location-azure-archive-v1",
+      "isCold": true,
+      "createResources": {
+        "createContainer": true,
+        "createQueue": false,
+        "skipLocationCreation": true
+      },
+      "details": {
+        "endpoint": "env:AZURE_BACKEND_ENDPOINT",
+        "bucketName": "env:AZURE_ARCHIVE_BUCKET_NAME_2",
+        "queue": {
+          "type": "location-azure-storage-queue-v1",
+          "queueName": "archive-queue",
+          "endpoint": "env:AZURE_BACKEND_QUEUE_ENDPOINT"
+        },
+        "auth": {
+          "type": "location-azure-shared-key",
+          "accountName": "env:AZURE_ACCOUNT_NAME",
+          "accountKey": "env:AZURE_SECRET_KEY"
+        },
+        "repoId": [
+          "233aead6-1d7b-4647-a7cf-0d3280b5d1d7"
+        ]
+      }
+    },
+    {
       "name": "env:GCP_BACKEND_DESTINATION_LOCATION",
       "locationType": "location-gcp-v1",
       "details": {

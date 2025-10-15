@@ -86,7 +86,6 @@ async function checkBucketExists(s3Client: S3Client, bucketName: string): Promis
  * Recursively resolve env: prefixes in an object
  * Supports formats:
  * - env:VAR_NAME - uses env var or returns original value if not set
- * - env:VAR_NAME:default - uses env var or returns default if not set
  * @param obj - Object, array, or string to resolve
  * @returns Resolved value
  */
@@ -94,13 +93,9 @@ export function resolveEnvValues(obj: any): any {
     if (typeof obj === 'string' && obj.startsWith('env:')) {
         const parts = obj.split(':');
         const secretName = parts[1];
-        const defaultValue = parts[2];
         const secretValue = process.env[secretName];
 
         if (secretValue === undefined) {
-            if (defaultValue !== undefined) {
-                return defaultValue;
-            }
             logger.warn(`Environment variable "${secretName}" is not set`);
             return obj;
         }

@@ -197,6 +197,8 @@ $(for arg in "${setup_args[@]}"; do echo "        - \"${arg}\""; done)
           value: "${AZURE_BACKEND_ENDPOINT}"
         - name: AZURE_BACKEND_QUEUE_ENDPOINT
           value: "${AZURE_BACKEND_QUEUE_ENDPOINT}"
+        - name: AZURE_ARCHIVE_BUCKET_NAME
+          value: "${AZURE_ARCHIVE_BUCKET_NAME}"
         - name: AZURE_CRR_BUCKET_NAME
           value: "${AZURE_CRR_BUCKET_NAME}"
         - name: AZURE_ACCOUNT_NAME
