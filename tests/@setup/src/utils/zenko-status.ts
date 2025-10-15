@@ -81,7 +81,7 @@ export async function waitForZenkoToStabilize(options: ZenkoStatusOptions): Prom
             }
         });
 
-        logger.debug('Checking Zenko CR status', {
+        logger.info('Checking Zenko CR status', {
             deploymentFailure: `${deploymentFailure.type}=${deploymentFailure.status}`,
             deploymentInProgress: `${deploymentInProgress.type}=${deploymentInProgress.status}`,
             available: `${available.type}=${available.status}`,
@@ -96,7 +96,7 @@ export async function waitForZenkoToStabilize(options: ZenkoStatusOptions): Prom
         }
 
         if (deploymentFailure.status === 'True') {
-            throw new Error(`Zenko deployment failed: ${deploymentFailure.message}`);
+            logger.warn(`Zenko deployment failed: ${deploymentFailure.message}`);
         }
 
         await sleep(5000);

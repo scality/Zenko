@@ -177,10 +177,10 @@ run_test_job() {
                 --arg azure_account_key "${AZURE_SECRET_KEY:-Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==}" \
                 --arg kafka_external_ips "${KAFKA_EXTERNAL_IPS:-}" \
                 --arg prometheus_name "${PROMETHEUS_NAME}" \
-                --arg notification_destination "${NOTIFICATION_DESTINATION}" \
-                --arg notification_destination_topic "${NOTIFICATION_DESTINATION_TOPIC}" \
-                --arg notification_destination_alt "${NOTIFICATION_DESTINATION_ALT}" \
-                --arg notification_destination_topic_alt "${NOTIFICATION_DESTINATION_TOPIC_ALT}" \
+                --arg notification_destination "${NOTIF_DEST_NAME}" \
+                --arg notification_destination_topic "${NOTIF_DEST_TOPIC}" \
+                --arg notification_destination_alt "${NOTIF_ALT_DEST_NAME}" \
+                --arg notification_destination_topic_alt "${NOTIF_ALT_DEST_TOPIC}" \
                 '{ "Namespace": $namespace, "subdomain": $subdomain, "ZenkoName": $zenko_name, "DRSubdomain": $dr_subdomain, "KeycloakUsername": $keycloak_username, "KeycloakPassword": $keycloak_password, "KeycloakHost": $keycloak_host, "KeycloakRealm": $keycloak_realm, "KeycloakClientId": $keycloak_client_id, "AzureAccountName": $azure_account_name, "AzureAccountKey": $azure_account_key, "KafkaExternalIps": $kafka_external_ips, "PrometheusService": $prometheus_service, "NotificationDestination": $notification_destination, "NotificationDestinationTopic": $notification_destination_topic, "NotificationDestinationAlt": $notification_destination_alt, "NotificationDestinationTopicAlt": $notification_destination_topic_alt }')
             local parallel_runs=${PARALLEL_RUNS:-$(( ( $(nproc || echo 2) + 1 ) / 2 ))}
             test_command=(

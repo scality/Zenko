@@ -33,9 +33,10 @@ RUN apt-get update && apt-get install -y \
 
 COPY ./node_tests/package.json ./node_tests/yarn.lock /usr/local/bin/tests/node_tests/
 
-# Install dependencies
+# Install yarn
 RUN npm install --global yarn
-RUN yarn install
+# Install yarn dependencies
+RUN yarn install --cwd /usr/local/bin/tests/node_tests
 
 # Copy Tests
 COPY . /usr/local/bin/tests/
