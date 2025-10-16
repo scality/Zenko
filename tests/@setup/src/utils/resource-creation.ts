@@ -15,6 +15,7 @@ import {
     StorageSharedKeyCredential as QueueStorageSharedKeyCredential,
 } from '@azure/storage-queue';
 import { logger } from './logger';
+import { sleep } from 'cli-testing/utils/utils';
 
 export interface StorageLocation {
     name: string;
@@ -37,7 +38,7 @@ export interface StorageLocation {
  */
 async function retryOperation<T>(
     operation: () => Promise<T>,
-    maxRetries: number = 3
+    maxRetries: number = 10
 ): Promise<T> {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
@@ -48,11 +49,15 @@ async function retryOperation<T>(
             const isInternalError = error.name === 'InternalError';
             const isServiceNotReady = error.message?.includes('Deserialization error') || 
                                       error.message?.includes('Expected closing tag') ||
-                                      error.code === 'ECONNREFUSED';
+                                      error.message?.includes('UnknownError') ||
+                                      error.code === 'ECONNREFUSED' ||
+                                      error.code === 'ECONNRESET' ||
+                                      error.code === 'ETIMEDOUT';
             const isRetryable = isServerError || isInternalError || isServiceNotReady;
             
             if (attempt < maxRetries && isRetryable) {
-                const delayMs = 1000 * Math.pow(2, attempt - 1);
+                // Exponential backoff with max delay cap of 10 seconds
+                const delayMs = Math.min(1000 * Math.pow(2, attempt - 1), 10000);
                 logger.warn(`Operation failed (attempt ${attempt}/${maxRetries}), retrying in ${delayMs}ms...`, {
                     error: error.message
                 });
@@ -70,14 +75,16 @@ async function retryOperation<T>(
  */
 async function checkBucketExists(s3Client: S3Client, bucketName: string): Promise<boolean> {
     try {
-        await s3Client.send(new HeadBucketCommand({ Bucket: bucketName }));
+        await retryOperation(async () => {
+            await s3Client.send(new HeadBucketCommand({ Bucket: bucketName }));
+        });
         return true;
     } catch (error: any) {
         if (error instanceof NoSuchBucket || error.$metadata?.httpStatusCode === 404) {
             return false;
         }
         // Other errors (permissions, network, etc.) - log and treat as unknown
-        logger.warn(`Could not check if bucket ${bucketName} exists: ${error.message}`);
+        logger.warn(`Could not check if bucket ${bucketName} exists: ${error.name || error.message}`);
         return false;
     }
 }

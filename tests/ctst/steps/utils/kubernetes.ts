@@ -435,7 +435,7 @@ export async function execCommandWithVolumeAccess(
     initKubernetes(world);
     const {
         volumeMountPath = '/cold-data',
-        hostPath = '/cold-data',
+        hostPath = '/data/sorbet-data-0',
         image = 'alpine:3.22',
         namespace = 'default',
         timeout = 30000,

@@ -256,15 +256,15 @@ cat <<EOT
         # Environment variables for the old test suite
         # This will probably be removed in the future
         - name: S3_ENDPOINT
-          value: "http://cloudserver.${NAMESPACE}.svc.cluster.local:80"
+          value: "http://${INSTANCE_ID}-connector-s3api.${NAMESPACE}.svc.cluster.local:80"
         - name: CLOUDSERVER_ENDPOINT
-          value: "http://cloudserver.${NAMESPACE}.svc.cluster.local:80"
+          value: "http://${INSTANCE_ID}-connector-s3api.${NAMESPACE}.svc.cluster.local:80"
         - name: CLOUDSERVER_HOST
-          value: "cloudserver.${NAMESPACE}.svc.cluster.local"
+          value: "${INSTANCE_ID}-connector-s3api.${NAMESPACE}.svc.cluster.local"
         - name: CLOUDSERVER_PORT
           value: "80"
         - name: VAULT_ENDPOINT
-          value: "http://zenko-connector.${NAMESPACE}.svc.cluster.local:8000"
+          value: "http://${INSTANCE_ID}-management-vault-iam-admin-api.${NAMESPACE}.svc.cluster.local:80"
         - name: ZENKO_ACCESS_KEY
           valueFrom:
             secretKeyRef:
@@ -349,6 +349,8 @@ $(if [[ "$test_type" == "ctst" ]]; then
 cat <<'EOT'
         - name: reports
           mountPath: /reports
+        - name: cold-data
+          mountPath: /cold-data
 EOT
 fi)
       volumes:
@@ -358,6 +360,9 @@ cat <<'EOT'
         hostPath:
           path: /tmp/zenko-test-reports
           type: DirectoryOrCreate
+      - name: cold-data
+        persistentVolumeClaim:
+          claimName: sorbet-data
 EOT
 fi)
 EOF
