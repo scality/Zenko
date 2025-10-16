@@ -40,8 +40,7 @@ const scalityIAMClient = new IAM({
     httpOptions: { timeout: 0 },
 });
 
-const verifyCerts = process.env.VERIFY_CERTIFICATES
-    ? process.env.VERIFY_CERTIFICATES : true;
+const verifyCerts = false;
 
 const awsS3Client = new S3({
     accessKeyId: process.env.AWS_ACCESS_KEY,

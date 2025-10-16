@@ -56,7 +56,6 @@ env:
   AWS_ENDPOINT: https://aws-mock.zenko.local
   AWS_ACCESS_KEY: accessKey1
   AWS_SECRET_KEY: verySecretKey1
-  VERIFY_CERTIFICATES: "false"
   # Notification destinations
   NOTIF_DEST_NAME: destination1
   NOTIF_DEST_TOPIC: "destination-topic-1"

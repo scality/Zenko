@@ -1,6 +1,0 @@
-{
-  "video": false,
-  "retries": 2,
-  "chromeWebSecurity": false,
-  "defaultCommandTimeout": 10000
-}

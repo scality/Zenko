@@ -181,7 +181,7 @@ run_test_job() {
                 --arg notification_destination_topic "${NOTIF_DEST_TOPIC}" \
                 --arg notification_destination_alt "${NOTIF_ALT_DEST_NAME}" \
                 --arg notification_destination_topic_alt "${NOTIF_ALT_DEST_TOPIC}" \
-                '{ "Namespace": $namespace, "subdomain": $subdomain, "ZenkoName": $zenko_name, "DRSubdomain": $dr_subdomain, "KeycloakUsername": $keycloak_username, "KeycloakPassword": $keycloak_password, "KeycloakHost": $keycloak_host, "KeycloakRealm": $keycloak_realm, "KeycloakClientId": $keycloak_client_id, "AzureAccountName": $azure_account_name, "AzureAccountKey": $azure_account_key, "KafkaExternalIps": $kafka_external_ips, "PrometheusService": $prometheus_service, "NotificationDestination": $notification_destination, "NotificationDestinationTopic": $notification_destination_topic, "NotificationDestinationAlt": $notification_destination_alt, "NotificationDestinationTopicAlt": $notification_destination_topic_alt }')
+                '{ "Namespace": $namespace, "subdomain": $subdomain, "ZenkoName": $zenko_name, "DRSubdomain": $dr_subdomain, "KeycloakUsername": $keycloak_username, "KeycloakPassword": $keycloak_password, "KeycloakHost": $keycloak_host, "KeycloakRealm": $keycloak_realm, "KeycloakClientId": $keycloak_client_id, "AzureAccountName": $azure_account_name, "AzureAccountKey": $azure_account_key, "KafkaExternalIps": $kafka_external_ips, "NotificationDestination": $notification_destination, "NotificationDestinationTopic": $notification_destination_topic, "NotificationDestinationAlt": $notification_destination_alt, "NotificationDestinationTopicAlt": $notification_destination_topic_alt }')
             local parallel_runs=${PARALLEL_RUNS:-$(( ( $(nproc || echo 2) + 1 ) / 2 ))}
             test_command=(
                 "./run" "premerge" "${world_params}" "--parallel" "${parallel_runs}"
@@ -250,12 +250,92 @@ cat <<EOT
         - name: VERBOSE
           value: "1"
 EOT
-  else # e2e/smoke
+else
 cat <<EOT
+        # Environment variables for the old test suite
+        # This will probably be removed in the future
         - name: S3_ENDPOINT
           value: "http://cloudserver.${NAMESPACE}.svc.cluster.local:80"
-        - name: MANAGEMENT_ENDPOINT
-          value: "http://zenko-connector.${NAMESPACE}.svc.cluster.local:8000/api/v1"
+        - name: CLOUDSERVER_ENDPOINT
+          value: "http://cloudserver.${NAMESPACE}.svc.cluster.local:80"
+        - name: CLOUDSERVER_HOST
+          value: "cloudserver.${NAMESPACE}.svc.cluster.local"
+        - name: CLOUDSERVER_PORT
+          value: "80"
+        - name: VAULT_ENDPOINT
+          value: "http://zenko-connector.${NAMESPACE}.svc.cluster.local:8000"
+        - name: ZENKO_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: end2end-account-zenko
+              key: accessKey
+        - name: ZENKO_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: end2end-account-zenko
+              key: secretKey
+        - name: MONGO_DATABASE
+          value: "${MONGO_DATABASE}"
+        - name: MONGO_READ_PREFERENCE
+          value: "${MONGO_READ_PREFERENCE}"
+        - name: MONGO_REPLICA_SET_HOSTS
+          value: "${MONGO_REPLICA_SET_HOSTS}"
+        - name: MONGO_SHARD_COLLECTION
+          value: "${MONGO_SHARD_COLLECTION}"
+        - name: MONGO_WRITE_CONCERN
+          value: "${MONGO_WRITE_CONCERN}"
+        - name: MONGO_AUTH_USERNAME
+          value: "${MONGO_AUTH_USERNAME}"
+        - name: MONGO_AUTH_PASSWORD
+          value: "${MONGO_AUTH_PASSWORD}"
+        - name: AWS_ACCESS_KEY
+          value: "${AWS_ACCESS_KEY:-}"
+        - name: AWS_SECRET_KEY
+          value: "${AWS_SECRET_KEY:-}"
+        - name: AWS_ENDPOINT
+          value: "${AWS_ENDPOINT:-}"
+        - name: AWS_BACKEND_SOURCE_LOCATION
+          value: "${AWS_BACKEND_SOURCE_LOCATION:-}"
+        - name: AWS_BACKEND_DESTINATION_LOCATION
+          value: "${AWS_BACKEND_DESTINATION_LOCATION:-}"
+        - name: AWS_CRR_BUCKET_NAME
+          value: "${AWS_CRR_BUCKET_NAME:-}"
+        - name: AZURE_ACCOUNT_NAME
+          value: "${AZURE_ACCOUNT_NAME}"
+        - name: AZURE_SECRET_KEY
+          value: "${AZURE_SECRET_KEY}"
+        - name: AZURE_BACKEND_DESTINATION_LOCATION
+          value: "${AZURE_BACKEND_DESTINATION_LOCATION}"
+        - name: AZURE_ARCHIVE_BACKEND_DESTINATION_LOCATION
+          value: "${AZURE_ARCHIVE_BACKEND_DESTINATION_LOCATION}"
+        - name: AZURE_BACKEND_ENDPOINT
+          value: "${AZURE_BACKEND_ENDPOINT}"
+        - name: AZURE_CRR_BUCKET_NAME
+          value: "${AZURE_CRR_BUCKET_NAME}"
+        - name: GCP_BACKEND_DESTINATION_LOCATION
+          value: "${GCP_BACKEND_DESTINATION_LOCATION}"
+        - name: GCP_CRR_BUCKET_NAME
+          value: "${GCP_CRR_BUCKET_NAME}"
+        - name: GCP_CRR_MPU_BUCKET_NAME
+          value: "${GCP_CRR_MPU_BUCKET_NAME}"
+        - name: RING_S3C_ACCESS_KEY
+          value: "${RING_S3C_ACCESS_KEY}"
+        - name: RING_S3C_SECRET_KEY
+          value: "${RING_S3C_SECRET_KEY}"
+        - name: RING_S3C_ENDPOINT
+          value: "${RING_S3C_ENDPOINT:-}"
+        - name: RING_S3C_BACKEND_SOURCE_LOCATION
+          value: "${RING_S3C_BACKEND_SOURCE_LOCATION:-}"
+        - name: RING_S3C_INGESTION_SRC_BUCKET_NAME
+          value: "${RING_S3C_INGESTION_SRC_BUCKET_NAME:-}"
+        - name: RING_S3C_BACKEND_SOURCE_NON_VERSIONED_LOCATION
+          value: "${RING_S3C_BACKEND_SOURCE_NON_VERSIONED_LOCATION:-}"
+        - name: RING_S3C_INGESTION_SRC_NON_VERSIONED_BUCKET_NAME
+          value: "${RING_S3C_INGESTION_SRC_NON_VERSIONED_BUCKET_NAME:-}"
+        - name: RING_S3C_INGESTION_NON_VERSIONED_OBJECT_COUNT_PER_TYPE
+          value: "${RING_S3C_INGESTION_NON_VERSIONED_OBJECT_COUNT_PER_TYPE:-}"
+        - name: COLD_BACKEND_DESTINATION_LOCATION
+          value: "${COLD_BACKEND_DESTINATION_LOCATION:-}"
 EOT
 fi)
         volumeMounts:
