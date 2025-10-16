@@ -188,6 +188,7 @@ run_test_job() {
                 "--retry" "3" "--retry-tag-filter" "@Flaky"
                 "--format" "junit:/reports/ctst-junit.xml"
             )
+            test_command+=("${additional_args_ref[@]}")
             ;;
         e2e)
             test_image="${E2E_IMAGE}"
@@ -268,12 +269,17 @@ cat <<EOT
           valueFrom:
             secretKeyRef:
               name: end2end-account-zenko
-              key: accessKey
+              key: AccessKeyId
         - name: ZENKO_SECRET_KEY
           valueFrom:
             secretKeyRef:
               name: end2end-account-zenko
-              key: secretKey
+              key: SecretAccessKey
+        - name: ZENKO_SESSION_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: end2end-account-zenko
+              key: SessionToken
         - name: MONGO_DATABASE
           value: "${MONGO_DATABASE}"
         - name: MONGO_READ_PREFERENCE
