@@ -137,7 +137,13 @@ wait_for_job() {
     echo "Pod is ready. Streaming logs..."
     kubectl --kubeconfig "${KUBECONFIG_FILE}" logs -f "${pod_name}" -n "${NAMESPACE}"
 
-    echo "Log stream finished. Checking job final status..."
+    echo "Log stream finished. Waiting for job to complete..."
+    if ! kubectl --kubeconfig "${KUBECONFIG_FILE}" wait "job/${job_name}" -n "${NAMESPACE}" --for=condition=Complete --timeout=60s 2>/dev/null; then
+        # Job didn't complete successfully, it may have failed
+        echo "Job did not complete successfully."
+    fi
+
+    echo "Checking job final status..."
     local succeeded
     succeeded=$(kubectl --kubeconfig "${KUBECONFIG_FILE}" get "job/${job_name}" -n "${NAMESPACE}" -o jsonpath='{.status.succeeded}')
 

@@ -8,7 +8,7 @@ async function cleanDmfVolume() {
 }
 
 Then('dmf volume should contain {int} objects',
-    { timeout: 2 * 60 * 1000 }, async function (objectCount: number) {
+    { timeout: 2 * 60 * 1000 }, async (objectCount: number) => {
         let conditionOk = false;
         const maxAttempts = 60;
         let attempts = 0;
@@ -30,7 +30,8 @@ Then('dmf volume should contain {int} objects',
         
         if (!conditionOk) {
             const actualCount = await execShellCommand('find /cold-data -type f | wc -l');
-            throw new Error(`DMF volume check failed: expected ${objectCount * 2} files, found ${actualCount.trim()} files after ${attempts} attempts`);
+            throw new Error(`DMF volume check failed: expected ${objectCount * 2} files` +
+                `, found ${actualCount.trim()} files after ${attempts} attempts`);
         }
         
         assert(conditionOk);
