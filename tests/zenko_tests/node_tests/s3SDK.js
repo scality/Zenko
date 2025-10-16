@@ -1,3 +1,4 @@
+const https = require('https');
 const { S3 } = require('aws-sdk');
 const { IAM } = require('aws-sdk');
 
@@ -40,12 +41,10 @@ const scalityIAMClient = new IAM({
     httpOptions: { timeout: 0 },
 });
 
-const verifyCerts = false;
-
 const awsS3Client = new S3({
     accessKeyId: process.env.AWS_ACCESS_KEY,
     secretAccessKey: process.env.AWS_SECRET_KEY,
-    sslEnabled: verifyCerts,
+    sslEnabled: process.env.AWS_ENDPOINT.startsWith('https://'),
     endpoint: process.env.AWS_ENDPOINT,
     apiVersions: { s3: '2006-03-01' },
     signatureCache: false,
@@ -53,7 +52,13 @@ const awsS3Client = new S3({
     region: 'us-east-1',
     s3ForcePathStyle: true,
     maxRetries: 0,
-    httpOptions: { timeout: 0 },
+    httpOptions: {
+        timeout: 0,
+        agent: new https.Agent({
+            // We use a mock, not a real AWS
+            rejectUnauthorized: false,
+        }),
+    },
 });
 
 const ringS3Client = new S3({

@@ -3,7 +3,7 @@ set -euo pipefail
 
 NAMESPACE="${NAMESPACE:-default}"
 ZENKO_NAME="${ZENKO_NAME:-end2end}"
-SUBDOMAIN="${SUBDOMAIN:-zenko}"
+SUBDOMAIN="${SUBDOMAIN:-zenko.local}"
 SETUP_IMAGE="${SETUP_IMAGE:-ghcr.io/scality/zenko-setup:latest}"
 METADATA_NAMESPACE="${METADATA_NAMESPACE:-metadata}"
 JOB_TIMEOUT="${JOB_TIMEOUT:-1800}"

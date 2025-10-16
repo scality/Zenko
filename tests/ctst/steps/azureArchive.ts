@@ -33,21 +33,27 @@ type manifest = {
 }
 
 /**
- * Get Azure blob URL based on world parameters
+ * Get Azure blob URL based on environment or world parameters
  * @param {Zenko} world world object
  * @returns {string} Azure blob URL
  */
 function getAzureBlobUrl(world: Zenko): string {
+    if (process.env.AZURE_BLOB_URL) {
+        return process.env.AZURE_BLOB_URL;
+    }
     const subdomain = world.parameters.subdomain || 'zenko.local';
     return `https://devstoreaccount1.blob.azure-mock.${subdomain}`;
 }
 
 /**
- * Get Azure queue URL based on world parameters
+ * Get Azure queue URL based on environment or world parameters
  * @param {Zenko} world world object
  * @returns {string} Azure queue URL
  */
 function getAzureQueueUrl(world: Zenko): string {
+    if (process.env.AZURE_QUEUE_URL) {
+        return process.env.AZURE_QUEUE_URL;
+    }
     const subdomain = world.parameters.subdomain || 'zenko.local';
     return `https://devstoreaccount1.queue.azure-mock.${subdomain}`;
 }

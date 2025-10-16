@@ -33,6 +33,10 @@ MONGO_AUTH_PASSWORD=$(echo "${CLOUDSERVER_SECRET}" | jq -r '.mongodb.authCredent
 MANAGED_BY_LABEL="zenko-run-tests-script"
 CLUSTER_ROLE_BINDING_NAME="ctst-cluster-admin-for-${NAMESPACE}"
 
+# Admin credentials
+ADMIN_ACCESS_KEY_ID=$(kubectl get secret end2end-management-vault-admin-creds.v1 -o jsonpath='{.data.accessKey}' | base64 -d)
+ADMIN_SECRET_ACCESS_KEY=$(kubectl get secret end2end-management-vault-admin-creds.v1  -o jsonpath='{.data.secretKey}' | base64 -d)
+
 usage() {
     cat <<EOF
 Usage: $(basename "$0") [OPTIONS] [-- ADDITIONAL_TEST_ARGS]
@@ -187,7 +191,7 @@ run_test_job() {
                 --arg notification_destination_topic "${NOTIF_DEST_TOPIC}" \
                 --arg notification_destination_alt "${NOTIF_ALT_DEST_NAME}" \
                 --arg notification_destination_topic_alt "${NOTIF_ALT_DEST_TOPIC}" \
-                '{ "Namespace": $namespace, "subdomain": $subdomain, "ZenkoName": $zenko_name, "DRSubdomain": $dr_subdomain, "KeycloakUsername": $keycloak_username, "KeycloakPassword": $keycloak_password, "KeycloakHost": $keycloak_host, "KeycloakRealm": $keycloak_realm, "KeycloakClientId": $keycloak_client_id, "AzureAccountName": $azure_account_name, "AzureAccountKey": $azure_account_key, "KafkaExternalIps": $kafka_external_ips, "NotificationDestination": $notification_destination, "NotificationDestinationTopic": $notification_destination_topic, "NotificationDestinationAlt": $notification_destination_alt, "NotificationDestinationTopicAlt": $notification_destination_topic_alt }')
+                '{ "Namespace": $namespace, "subdomain": $subdomain, "ZenkoName": $zenko_name, "DRSubdomain": $dr_subdomain, "KeycloakUsername": $keycloak_username, "KeycloakPassword": $keycloak_password, "KeycloakHost": $keycloak_host, "KeycloakRealm": $keycloak_realm, "KeycloakClientId": $keycloak_client_id, "AzureAccountName": $azure_account_name, "AzureAccountKey": $azure_account_key, "KafkaExternalIps": $kafka_external_ips, "NotificationDestination": $notification_destination, "NotificationDestinationTopic": $notification_destination_topic, "NotificationDestinationAlt": $notification_destination_alt, "NotificationDestinationTopicAlt": $notification_destination_topic_alt, "PrometheusName": $prometheus_name }')
             local parallel_runs=${PARALLEL_RUNS:-$(( ( $(nproc || echo 2) + 1 ) / 2 ))}
             test_command=(
                 "./run" "premerge" "${world_params}" "--parallel" "${parallel_runs}"
@@ -256,6 +260,10 @@ cat <<EOT
           value: "true"
         - name: VERBOSE
           value: "1"
+        - name: AZURE_BLOB_URL
+          value: "https://devstoreaccount1.blob.azure-mock.${SUBDOMAIN}"
+        - name: AZURE_QUEUE_URL
+          value: "https://devstoreaccount1.queue.azure-mock.${SUBDOMAIN}"
 EOT
 else
 cat <<EOT
@@ -318,6 +326,8 @@ cat <<EOT
           value: "${AZURE_SECRET_KEY}"
         - name: AZURE_BACKEND_DESTINATION_LOCATION
           value: "${AZURE_BACKEND_DESTINATION_LOCATION}"
+        - name: VERIFY_CERTIFICATES
+          value: "false"
         - name: AZURE_ARCHIVE_BACKEND_DESTINATION_LOCATION
           value: "${AZURE_ARCHIVE_BACKEND_DESTINATION_LOCATION}"
         - name: AZURE_BACKEND_ENDPOINT
