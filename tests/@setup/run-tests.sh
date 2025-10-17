@@ -294,6 +294,16 @@ cat <<EOT
             secretKeyRef:
               name: end2end-account-zenko
               key: SessionToken
+        - name: ADMIN_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: end2end-management-vault-admin-creds.v1
+              key: accessKey
+        - name: ADMIN_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: end2end-management-vault-admin-creds.v1
+              key: secretKey
         - name: MONGO_DATABASE
           value: "${MONGO_DATABASE}"
         - name: MONGO_READ_PREFERENCE
@@ -309,17 +319,17 @@ cat <<EOT
         - name: MONGO_AUTH_PASSWORD
           value: "${MONGO_AUTH_PASSWORD}"
         - name: AWS_ACCESS_KEY
-          value: "${AWS_ACCESS_KEY:-}"
+          value: "${AWS_ACCESS_KEY}"
         - name: AWS_SECRET_KEY
-          value: "${AWS_SECRET_KEY:-}"
+          value: "${AWS_SECRET_KEY}"
         - name: AWS_ENDPOINT
-          value: "${AWS_ENDPOINT:-}"
+          value: "${AWS_ENDPOINT}"
         - name: AWS_BACKEND_SOURCE_LOCATION
-          value: "${AWS_BACKEND_SOURCE_LOCATION:-}"
+          value: "${AWS_BACKEND_SOURCE_LOCATION}"
         - name: AWS_BACKEND_DESTINATION_LOCATION
-          value: "${AWS_BACKEND_DESTINATION_LOCATION:-}"
+          value: "${AWS_BACKEND_DESTINATION_LOCATION}"
         - name: AWS_CRR_BUCKET_NAME
-          value: "${AWS_CRR_BUCKET_NAME:-}"
+          value: "${AWS_CRR_BUCKET_NAME}"
         - name: AZURE_ACCOUNT_NAME
           value: "${AZURE_ACCOUNT_NAME}"
         - name: AZURE_SECRET_KEY
@@ -345,19 +355,19 @@ cat <<EOT
         - name: RING_S3C_SECRET_KEY
           value: "${RING_S3C_SECRET_KEY}"
         - name: RING_S3C_ENDPOINT
-          value: "${RING_S3C_ENDPOINT:-}"
+          value: "${RING_S3C_ENDPOINT}"
         - name: RING_S3C_BACKEND_SOURCE_LOCATION
-          value: "${RING_S3C_BACKEND_SOURCE_LOCATION:-}"
+          value: "${RING_S3C_BACKEND_SOURCE_LOCATION}"
         - name: RING_S3C_INGESTION_SRC_BUCKET_NAME
-          value: "${RING_S3C_INGESTION_SRC_BUCKET_NAME:-}"
+          value: "${RING_S3C_INGESTION_SRC_BUCKET_NAME}"
         - name: RING_S3C_BACKEND_SOURCE_NON_VERSIONED_LOCATION
-          value: "${RING_S3C_BACKEND_SOURCE_NON_VERSIONED_LOCATION:-}"
+          value: "${RING_S3C_BACKEND_SOURCE_NON_VERSIONED_LOCATION}"
         - name: RING_S3C_INGESTION_SRC_NON_VERSIONED_BUCKET_NAME
-          value: "${RING_S3C_INGESTION_SRC_NON_VERSIONED_BUCKET_NAME:-}"
+          value: "${RING_S3C_INGESTION_SRC_NON_VERSIONED_BUCKET_NAME}"
         - name: RING_S3C_INGESTION_NON_VERSIONED_OBJECT_COUNT_PER_TYPE
-          value: "${RING_S3C_INGESTION_NON_VERSIONED_OBJECT_COUNT_PER_TYPE:-}"
+          value: "${RING_S3C_INGESTION_NON_VERSIONED_OBJECT_COUNT_PER_TYPE}"
         - name: COLD_BACKEND_DESTINATION_LOCATION
-          value: "${COLD_BACKEND_DESTINATION_LOCATION:-}"
+          value: "${COLD_BACKEND_DESTINATION_LOCATION}"
 EOT
 fi)
         volumeMounts:

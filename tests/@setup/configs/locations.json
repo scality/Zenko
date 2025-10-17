@@ -71,6 +71,7 @@
       "isCold": true,
       "createResources": {
         "createContainer": true,
+        "createBucket": true,
         "createQueue": true
       },
       "details": {
@@ -97,6 +98,7 @@
       "isCold": true,
       "createResources": {
         "createContainer": true,
+        "createBucket": true,
         "createQueue": false,
         "skipLocationCreation": true
       },
