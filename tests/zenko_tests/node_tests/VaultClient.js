@@ -144,7 +144,7 @@ class VaultClient {
         let httpOptions;
         if (endpoint.startsWith('https://')) {
             ca = fs.readFileSync(
-                process.env.VAULT_SSL_CA || '/conf/ca.crt',
+                '/conf/ca.crt',
                 'ascii',
             );
             httpOptions = {
@@ -190,15 +190,15 @@ class VaultClient {
             const https = process.env.VAULT_ENDPOINT.startsWith('https://');
             if (https) {
                 ca = fs.readFileSync(
-                    process.env.VAULT_SSL_CA || '/conf/ca.crt',
+                    '/conf/ca.crt',
                     'ascii',
                 );
                 cert = fs.readFileSync(
-                    process.env.VAULT_SSL_CERT || '/conf/test.crt',
+                    '/conf/test.crt',
                     'ascii',
                 );
                 key = fs.readFileSync(
-                    process.env.VAULT_SSL_KEY || '/conf/test.key',
+                    '/conf/test.key',
                     'ascii',
                 );
             }

@@ -37,6 +37,10 @@ CLUSTER_ROLE_BINDING_NAME="ctst-cluster-admin-for-${NAMESPACE}"
 ADMIN_ACCESS_KEY_ID=$(kubectl get secret end2end-management-vault-admin-creds.v1 -o jsonpath='{.data.accessKey}' | base64 -d)
 ADMIN_SECRET_ACCESS_KEY=$(kubectl get secret end2end-management-vault-admin-creds.v1  -o jsonpath='{.data.secretKey}' | base64 -d)
 
+# Specific to old test suite
+VAULT_STS_ENDPOINT="http://${INSTANCE_ID}-connector-vault-sts-api:80"
+VAULT_ENDPOINT="http://${INSTANCE_ID}-management-vault-iam-admin-api:80"
+
 usage() {
     cat <<EOF
 Usage: $(basename "$0") [OPTIONS] [-- ADDITIONAL_TEST_ARGS]
@@ -368,6 +372,18 @@ cat <<EOT
           value: "${RING_S3C_INGESTION_NON_VERSIONED_OBJECT_COUNT_PER_TYPE}"
         - name: COLD_BACKEND_DESTINATION_LOCATION
           value: "${COLD_BACKEND_DESTINATION_LOCATION}"
+        - name: OIDC_PASSWORD
+          value: "${OIDC_PASSWORD}"
+        - name: OIDC_HOST
+          value: "${OIDC_HOST}"
+        - name: OIDC_REALM
+          value: "${OIDC_REALM}"
+        - name: OIDC_CLIENT_ID
+          value: "${OIDC_CLIENT_ID}"
+        - name: VAULT_STS_ENDPOINT
+          value: "${VAULT_STS_ENDPOINT}"
+        - name: VAULT_ENDPOINT
+          value: "${VAULT_ENDPOINT}"
 EOT
 fi)
         volumeMounts:
