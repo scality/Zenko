@@ -382,7 +382,6 @@ async function extractAndCacheParameters(parameters: ZenkoWorldParameters): Prom
     ]);
 
     const subdomain = parameters.subdomain || 'zenko.local';
-    const zenkoName = parameters.ZenkoName || 'end2end';
 
     const setupParameters = {
         // Parameters from the environment
@@ -395,8 +394,8 @@ async function extractAndCacheParameters(parameters: ZenkoWorldParameters): Prom
         ...zenkoInfo,
         // Constants, CTST-specific
         UtilizationServicePort: '80',
-        VaultAuthHost: `${zenkoName}-connector-vault-auth-api.${subdomain}.svc.cluster.local`,
-        PrometheusService: `${parameters.PrometheusName}-operated.${subdomain}.svc.cluster.local`,
+        VaultAuthHost: 'end2end-connector-vault-auth-api.default.svc.cluster.local',
+        PrometheusService: `${parameters.PrometheusName}-operated.default.svc.cluster.local`,
         StorageManagerUsername: 'ctst_storage_manager',
         StorageAccountOwnerUsername: 'ctst_storage_account_owner',
         DataConsumerUsername: 'ctst_data_consumer',
