@@ -3,6 +3,29 @@ const crypto = require('crypto');
 const async = require('async');
 const { jsutil } = require('arsenal');
 
+const {
+    ListObjectVersionsCommand,
+    PutObjectCommand,
+    CopyObjectCommand,
+    CreateMultipartUploadCommand,
+    UploadPartCommand,
+    CompleteMultipartUploadCommand,
+    AbortMultipartUploadCommand,
+    UploadPartCopyCommand,
+    GetObjectCommand,
+    CreateBucketCommand,
+    PutBucketVersioningCommand,
+    DeleteBucketCommand,
+    PutBucketReplicationCommand,
+    DeleteBucketReplicationCommand,
+    HeadObjectCommand,
+    GetObjectAclCommand,
+    PutObjectAclCommand,
+    PutObjectTaggingCommand,
+    DeleteObjectTaggingCommand,
+    GetObjectTaggingCommand,
+    DeleteObjectCommand,
+} = require('@aws-sdk/client-s3');
 const { scalityS3Client, awsS3Client } = require('../s3SDK');
 
 const srcLocation = process.env.AWS_BACKEND_SOURCE_LOCATION;
@@ -38,16 +61,21 @@ class ReplicationUtility {
         if (versionList.length < 1) {
             return cb();
         }
-        const params = {
-            Bucket: bucketName,
-            Delete: {
-                Objects: versionList.map(item => {
-                    const temp = { Key: item.Key, VersionId: item.VersionId };
-                    return temp;
-                }),
-            },
-        };
-        return this.s3.deleteObjects(params, cb);
+
+        const deletePromises = versionList.map(item => {
+            const params = {
+                Bucket: bucketName,
+                Key: item.Key,
+            };
+            if (item.VersionId) {
+                params.VersionId = item.VersionId;
+            }
+            return this.s3.send(new DeleteObjectCommand(params));
+        });
+
+        return Promise.all(deletePromises)
+            .then(() => cb())
+            .catch(cb);
     }
 
     _setS3Client(s3Client) {
@@ -56,27 +84,28 @@ class ReplicationUtility {
     }
 
     deleteAllVersions(bucketName, keyPrefix, cb) {
-        this.s3.listObjectVersions({ Bucket: bucketName }, (err, data) => {
-            if (err) {
-                return cb(err);
-            }
-            let versions = data.Versions;
-            let deleteMarkers = data.DeleteMarkers;
-            // If replicating to a multiple backend bucket, we only want to
-            // remove versions that we have put with our tests.
-            if (keyPrefix) {
-                versions = versions.filter(version => version.Key.startsWith(keyPrefix));
-                deleteMarkers = deleteMarkers.filter(marker => marker.Key.startsWith(keyPrefix));
-            }
-            return async.series([
-                next => this._deleteVersionList(
-                    deleteMarkers,
-                    bucketName,
-                    next,
-                ),
-                next => this._deleteVersionList(versions, bucketName, next),
-            ], err => cb(err));
-        });
+        this.s3.send(new ListObjectVersionsCommand({ Bucket: bucketName }))
+            .then(data => {
+                let versions = data.Versions || [];
+                let deleteMarkers = data.DeleteMarkers || [];
+
+                // If replicating to a multiple backend bucket, we only want to
+                // remove versions that we have put with our tests.
+                if (keyPrefix) {
+                    versions = versions.filter(version => version.Key.startsWith(keyPrefix));
+                    deleteMarkers = deleteMarkers.filter(marker => marker.Key.startsWith(keyPrefix));
+                }
+
+                if (versions.length === 0 && deleteMarkers.length === 0) {
+                    return cb();
+                }
+
+                return async.series([
+                    next => this._deleteVersionList(deleteMarkers, bucketName, next),
+                    next => this._deleteVersionList(versions, bucketName, next),
+                ], cb);
+            })
+            .catch(cb);
     }
 
     deleteAllBlobs(containerName, keyPrefix, cb) {
@@ -102,69 +131,86 @@ class ReplicationUtility {
     }
 
     putObject(bucketName, objectName, content, cb) {
-        this.s3.putObject({
+        const params = {
             Bucket: bucketName,
             Key: objectName,
-            Body: content,
-        }, cb);
+        };
+        if (content) {
+            params.Body = content;
+        }
+        this.s3.send(new PutObjectCommand(params))
+            .then(data => cb(null, data))
+            .catch(cb);
     }
 
     putObjectWithContentType(bucketName, objectName, content, cb) {
-        this.s3.putObject({
+        this.s3.send(new PutObjectCommand({
             Bucket: bucketName,
             Key: objectName,
             ContentType: 'image/png',
             Body: content,
-        }, cb);
+        }))
+            .then(data => cb(null, data))
+            .catch(cb);
     }
 
     putObjectWithUserMetadata(bucketName, objectName, content, cb) {
-        this.s3.putObject({
+        this.s3.send(new PutObjectCommand({
             Bucket: bucketName,
             Key: objectName,
             Metadata: { customKey: 'customValue' },
             Body: content,
-        }, cb);
+        }))
+            .then(data => cb(null, data))
+            .catch(cb);
     }
 
     putObjectWithCacheControl(bucketName, objectName, content, cb) {
-        this.s3.putObject({
+        this.s3.send(new PutObjectCommand({
             Bucket: bucketName,
             Key: objectName,
             CacheControl: 'test-cache-control',
             Body: content,
-        }, cb);
+        }))
+            .then(data => cb(null, data))
+            .catch(cb);
     }
 
     putObjectWithContentDisposition(bucketName, objectName, content, cb) {
-        this.s3.putObject({
+        this.s3.send(new PutObjectCommand({
             Bucket: bucketName,
             Key: objectName,
             ContentDisposition: 'test-content-disposition',
             Body: content,
-        }, cb);
+        }))
+            .then(data => cb(null, data))
+            .catch(cb);
     }
 
     putObjectWithContentEncoding(bucketName, objectName, content, cb) {
-        this.s3.putObject({
+        this.s3.send(new PutObjectCommand({
             Bucket: bucketName,
             Key: objectName,
             ContentEncoding: 'ascii',
             Body: content,
-        }, cb);
+        }))
+            .then(data => cb(null, data))
+            .catch(cb);
     }
 
     putObjectWithContentLanguage(bucketName, objectName, content, cb) {
-        this.s3.putObject({
+        this.s3.send(new PutObjectCommand({
             Bucket: bucketName,
             Key: objectName,
             ContentLanguage: 'test-content-language',
             Body: content,
-        }, cb);
+        }))
+            .then(data => cb(null, data))
+            .catch(cb);
     }
 
     putObjectWithProperties(bucketName, objectName, content, cb) {
-        this.s3.putObject({
+        this.s3.send(new PutObjectCommand({
             Bucket: bucketName,
             Key: objectName,
             Metadata: { customKey: 'customValue' },
@@ -174,15 +220,19 @@ class ReplicationUtility {
             ContentEncoding: 'ascii',
             ContentLanguage: 'test-content-language',
             Body: content,
-        }, cb);
+        }))
+            .then(data => cb(null, data))
+            .catch(cb);
     }
 
     copyObject(bucketName, copySource, objectName, cb) {
-        this.s3.copyObject({
+        this.s3.send(new CopyObjectCommand({
             Bucket: bucketName,
             CopySource: copySource,
             Key: objectName,
-        }, cb);
+        }))
+            .then(data => cb(null, data))
+            .catch(cb);
     }
 
     genericCompleteMPU(
@@ -214,16 +264,12 @@ class ReplicationUtility {
             });
         }
         return async.waterfall([
-            next => this.s3.createMultipartUpload(
-                initiateMPUParams,
-                (err, data) => {
-                    if (err) {
-                        return next(err);
-                    }
+            next => this.s3.send(new CreateMultipartUploadCommand(initiateMPUParams))
+                .then(data => {
                     uploadId = data.UploadId;
                     return next();
-                },
-            ),
+                })
+                .catch(next),
             next => async.mapLimit(partNumbers, 2, (partNumber, callback) => {
                 const uploadPartParams = {
                     Bucket: bucketName,
@@ -233,15 +279,9 @@ class ReplicationUtility {
                     Body: Buffer.alloc(partSize).fill(partNumber + 1),
                 };
 
-                return this.s3.uploadPart(
-                    uploadPartParams,
-                    (err, data) => {
-                        if (err) {
-                            return callback(err);
-                        }
-                        return callback(null, data.ETag);
-                    },
-                );
+                return this.s3.send(new UploadPartCommand(uploadPartParams))
+                    .then(data => callback(null, data.ETag))
+                    .catch(callback);
             }, (err, results) => {
                 if (err) {
                     return next(err);
@@ -261,15 +301,22 @@ class ReplicationUtility {
                     },
                     UploadId: uploadId,
                 };
-                return this.s3.completeMultipartUpload(params, next);
+                return this.s3.send(new CompleteMultipartUploadCommand(params))
+                    .then(data => next(null, data))
+                    .catch(next);
             },
         ], (err, data) => {
             if (err) {
-                return this.s3.abortMultipartUpload({
+                return this.s3.send(new AbortMultipartUploadCommand({
                     Bucket: bucketName,
                     Key: objectName,
                     UploadId: uploadId,
-                }, () => cb(err));
+                })).then(() => cb(err)).catch(abortErr => {
+                    const aggregateError = new Error(`Original error: ${err}; Abort failed: ${abortErr}`);
+                    aggregateError.originalError = err;
+                    aggregateError.abortError = abortErr;
+                    cb(aggregateError);
+                });
             }
             return cb(null, data);
         });
@@ -347,16 +394,15 @@ class ReplicationUtility {
         let ETags = [];
         const partNumbers = Array.from(Array(howManyParts).keys());
         return async.waterfall([
-            next => this.s3.createMultipartUpload({
+            next => this.s3.send(new CreateMultipartUploadCommand({
                 Bucket: bucketName,
                 Key: objectName,
-            }, (err, data) => {
-                if (err) {
-                    return next(err);
-                }
-                uploadId = data.UploadId;
-                return next();
-            }),
+            }))
+                .then(data => {
+                    uploadId = data.UploadId;
+                    return next();
+                })
+                .catch(next),
             next => async.mapLimit(partNumbers, 2, (partNumber, callback) => {
                 const uploadPartCopyParams = {
                     Bucket: bucketName,
@@ -367,15 +413,9 @@ class ReplicationUtility {
                     PartNumber: partNumber + 1,
                     UploadId: uploadId,
                 };
-                return this.s3.uploadPartCopy(
-                    uploadPartCopyParams,
-                    (err, data) => {
-                        if (err) {
-                            return callback(err);
-                        }
-                        return callback(null, data.ETag);
-                    },
-                );
+                return this.s3.send(new UploadPartCopyCommand(uploadPartCopyParams))
+                    .then(data => callback(null, data.ETag))
+                    .catch(callback);
             }, (err, results) => {
                 if (err) {
                     return next(err);
@@ -383,7 +423,7 @@ class ReplicationUtility {
                 ETags = results;
                 return next();
             }),
-            next => this.s3.completeMultipartUpload({
+            next => this.s3.send(new CompleteMultipartUploadCommand({
                 Bucket: bucketName,
                 Key: objectName,
                 MultipartUpload: {
@@ -393,30 +433,49 @@ class ReplicationUtility {
                     })),
                 },
                 UploadId: uploadId,
-            }, next),
+            }))
+                .then(data => next(null, data))
+                .catch(next),
         ], err => {
             if (err) {
-                return this.s3.abortMultipartUpload({
+                return this.s3.send(new AbortMultipartUploadCommand({
                     Bucket: bucketName,
                     Key: objectName,
                     UploadId: uploadId,
-                }, () => cb(err));
+                })).then(() => cb(err)).catch(abortErr => {
+                    const aggregateError = new Error(`Original error: ${err}; Abort failed: ${abortErr}`);
+                    aggregateError.originalError = err;
+                    aggregateError.abortError = abortErr;
+                    cb(aggregateError);
+                });
             }
             return cb();
         });
     }
 
     getObject(bucketName, objName, cb) {
-        this.s3.getObject({
+        this.s3.send(new GetObjectCommand({
             Bucket: bucketName,
             Key: objName,
-        }, cb);
+        }))
+            .then(async (data) => {
+                if (data.Body) {
+                    const chunks = [];
+                    // eslint-disable-next-line no-restricted-syntax
+                    for await (const chunk of data.Body) {
+                        chunks.push(chunk);
+                    }
+                    data.Body = Buffer.concat(chunks);
+                }
+                cb(null, data);
+            })
+            .catch(cb);
     }
 
     getBlobToText(containerName, blob, cb) {
         this.azure.getContainerClient(containerName).downloadToBuffer(blob).then(
             buffer => cb(null, buffer.toString()),
-            err => cb(err),
+            cb,
         );
     }
 
@@ -432,7 +491,7 @@ class ReplicationUtility {
                 cb(null, Buffer.concat(data, totalLength));
             });
             rsp.readableStreamBody.on('error', err => cb(err));
-        }, err => cb(err));
+        }, cb);
     }
 
     getMetadata(bucketName, fileName, cb) {
@@ -448,52 +507,66 @@ class ReplicationUtility {
     }
 
     createBucket(bucketName, cb) {
-        this.s3.createBucket({ Bucket: bucketName }, cb);
+        this.s3.send(new CreateBucketCommand({ Bucket: bucketName }))
+            .then(data => cb(null, data))
+            .catch(cb);
     }
 
     createVersionedBucket(bucketName, cb) {
         return async.series([
-            next => this.s3.createBucket({ Bucket: bucketName }, next),
-            next => this.s3.putBucketVersioning({
+            next => this.s3.send(new CreateBucketCommand({ Bucket: bucketName }))
+                .then(() => next())
+                .catch(next),
+            next => this.s3.send(new PutBucketVersioningCommand({
                 Bucket: bucketName,
                 VersioningConfiguration: {
                     Status: 'Enabled',
                 },
-            }, next),
-        ], err => cb(err));
+            }))
+                .then(() => next())
+                .catch(next),
+        ], cb);
     }
 
     createVersionedBucketAWS(bucketName, cb) {
         return async.series([
-            next => this.s3.createBucket({
+            next => this.s3.send(new CreateBucketCommand({
                 Bucket: bucketName,
                 CreateBucketConfiguration: {
                     LocationConstraint: srcLocation,
                 },
-            }, next),
-            next => this.s3.putBucketVersioning({
+            }))
+                .then(() => next())
+                .catch(next),
+            next => this.s3.send(new PutBucketVersioningCommand({
                 Bucket: bucketName,
                 VersioningConfiguration: {
                     Status: 'Enabled',
                 },
-            }, next),
-        ], err => cb(err));
+            }))
+                .then(() => next())
+                .catch(next),
+        ], cb);
     }
 
     deleteVersionedBucket(bucketName, cb) {
         return async.series([
             next => this.deleteAllVersions(bucketName, undefined, next),
-            next => this.s3.deleteBucket({ Bucket: bucketName }, next),
-        ], err => cb(err));
+            next => this.s3.send(new DeleteBucketCommand({ Bucket: bucketName }))
+                .then(() => next())
+                .catch(next),
+        ], cb);
     }
 
     putBucketVersioning(bucketName, status, cb) {
-        this.s3.putBucketVersioning({
+        this.s3.send(new PutBucketVersioningCommand({
             Bucket: bucketName,
             VersioningConfiguration: {
                 Status: status,
             },
-        }, cb);
+        }))
+            .then(data => cb(null, data))
+            .catch(cb);
     }
 
     putBucketReplication(
@@ -503,7 +576,7 @@ class ReplicationUtility {
         storageClass,
         cb,
     ) {
-        this.s3.putBucketReplication({
+        this.s3.send(new PutBucketReplicationCommand({
             Bucket: srcBucket,
             ReplicationConfiguration: {
                 Role: roleArn,
@@ -518,39 +591,49 @@ class ReplicationUtility {
                     },
                 ],
             },
-        }, cb);
+        }))
+            .then(data => cb(null, data))
+            .catch(cb);
     }
 
     deleteBucketReplication(bucketName, cb) {
-        this.s3.deleteBucketReplication({
+        this.s3.send(new DeleteBucketReplicationCommand({
             Bucket: bucketName,
-        }, cb);
+        }))
+            .then(data => cb(null, data))
+            .catch(cb);
     }
 
     getHeadObject(bucketName, key, cb) {
-        this.s3.headObject({
+        this.s3.send(new HeadObjectCommand({
             Bucket: bucketName,
             Key: key,
-        }, cb);
+        }))
+            .then(data => cb(null, data))
+            .catch(cb);
     }
 
     getObjectACL(bucketName, key, cb) {
-        this.s3.getObjectAcl({
+        this.s3.send(new GetObjectAclCommand({
             Bucket: bucketName,
             Key: key,
-        }, cb);
+        }))
+            .then(data => cb(null, data))
+            .catch(cb);
     }
 
     putObjectACL(bucketName, key, cb) {
-        this.s3.putObjectAcl({
+        this.s3.send(new PutObjectAclCommand({
             Bucket: bucketName,
             Key: key,
             ACL: 'public-read',
-        }, cb);
+        }))
+            .then(data => cb(null, data))
+            .catch(cb);
     }
 
     putObjectTagging(bucketName, key, versionId, cb) {
-        this.s3.putObjectTagging({
+        this.s3.send(new PutObjectTaggingCommand({
             Bucket: bucketName,
             Key: key,
             VersionId: versionId,
@@ -562,70 +645,82 @@ class ReplicationUtility {
                     },
                 ],
             },
-        }, cb);
+        }))
+            .then(data => cb(null, data))
+            .catch(cb);
     }
 
     deleteObjectTagging(bucketName, key, versionId, cb) {
-        this.s3.deleteObjectTagging({
+        this.s3.send(new DeleteObjectTaggingCommand({
             Bucket: bucketName,
             Key: key,
             VersionId: versionId,
-        }, cb);
+        }))
+            .then(data => cb(null, data))
+            .catch(cb);
     }
 
     getObjectTagging(bucketName, key, versionId, cb) {
-        this.s3.getObjectTagging({
+        this.s3.send(new GetObjectTaggingCommand({
             Bucket: bucketName,
             Key: key,
             VersionId: versionId,
-        }, cb);
+        }))
+            .then(data => cb(null, data))
+            .catch(cb);
     }
 
     deleteObject(bucketName, key, versionId, cb) {
-        this.s3.deleteObject({
+        const params = {
             Bucket: bucketName,
             Key: key,
-            VersionId: versionId,
-        }, cb);
+        };
+        if (versionId) {
+            params.VersionId = versionId;
+        }
+        this.s3.send(new DeleteObjectCommand(params))
+            .then(data => cb(null, data))
+            .catch(cb);
     }
 
     expectReplicationStatus(bucketName, key, versionId, expectedStatus, cb) {
-        this.s3.headObject({
+        this.s3.send(new HeadObjectCommand({
             Bucket: bucketName,
             Key: key,
             VersionId: versionId,
-        }, (err, data) => {
-            if (err) {
-                return cb(err);
-            }
-            assert.strictEqual(data.ReplicationStatus, expectedStatus);
-            return cb();
-        });
+        }))
+            .then(data => {
+                assert.strictEqual(data.ReplicationStatus, expectedStatus);
+                return cb();
+            })
+            .catch(cb);
     }
 
     // Continue getting head object while the status is PENDING or PROCESSING.
     waitUntilReplicated(bucketName, key, versionId, cb) {
         return async.doWhilst(
-            callback => this.s3.headObject({
+            callback => this.s3.send(new HeadObjectCommand({
                 Bucket: bucketName,
                 Key: key,
                 VersionId: versionId,
-            }, (err, data) => {
-                const cbOnce = jsutil.once(callback);
-                if (err) {
+            }))
+                .then(data => {
+                    const cbOnce = jsutil.once(callback);
+                    const status = data.ReplicationStatus;
+                    assert.notStrictEqual(
+                        status,
+                        'FAILED',
+                        `Unexpected CRR failure occurred: ${JSON.stringify(data)}`,
+                    );
+                    if (status === 'PENDING' || status === 'PROCESSING') {
+                        return setTimeout(() => cbOnce(null, status), 2000);
+                    }
+                    return cbOnce(null, status);
+                })
+                .catch(err => {
+                    const cbOnce = jsutil.once(callback);
                     return cbOnce(err);
-                }
-                const status = data.ReplicationStatus;
-                assert.notStrictEqual(
-                    status,
-                    'FAILED',
-                    `Unexpected CRR failure occurred: ${JSON.stringify(data)}`,
-                );
-                if (status === 'PENDING' || status === 'PROCESSING') {
-                    return setTimeout(() => cbOnce(null, status), 2000);
-                }
-                return cbOnce(null, status);
-            }),
+                }),
             status => (status === 'PENDING' || status === 'PROCESSING'),
             cb,
         );
@@ -639,8 +734,11 @@ class ReplicationUtility {
         return async.doWhilst(
             callback => this[method](bucketName, key, err => {
                 const cbOnce = jsutil.once(callback);
-                if (err && err.code !== expectedCode) {
-                    return cbOnce(err);
+                if (err) {
+                    const errorCode = err.name || err.code;
+                    if (errorCode !== expectedCode) {
+                        return cbOnce(err);
+                    }
                 }
                 objectExists = err === null;
                 if (!objectExists) {
@@ -657,28 +755,30 @@ class ReplicationUtility {
     waitWhilePendingCRR(bucketName, key, cb) {
         let shouldContinue;
         return async.doWhilst(
-            callback => this.s3.headObject({
+            callback => this.s3.send(new HeadObjectCommand({
                 Bucket: bucketName,
                 Key: key,
-            }, (err, data) => {
-                const cbOnce = jsutil.once(callback);
-                if (err) {
-                    return cbOnce(err);
-                }
-                const statuses = [];
-                // We cannot rely on the global status for one-to-many, so check
-                // each of the destination statuses.
-                Object.keys(data.Metadata).forEach(key => {
-                    if (key.includes('replication-status')) {
-                        statuses.push(data.Metadata[key]);
+            }))
+                .then(data => {
+                    const cbOnce = jsutil.once(callback);
+                    const statuses = [];
+                    // We cannot rely on the global status for one-to-many, so check
+                    // each of the destination statuses.
+                    Object.keys(data.Metadata).forEach(key => {
+                        if (key.includes('replication-status')) {
+                            statuses.push(data.Metadata[key]);
+                        }
+                    });
+                    shouldContinue = statuses.includes('PENDING');
+                    if (shouldContinue) {
+                        return setTimeout(cbOnce, 2000);
                     }
-                });
-                shouldContinue = statuses.includes('PENDING');
-                if (shouldContinue) {
-                    return setTimeout(cbOnce, 2000);
-                }
-                return cbOnce();
-            }),
+                    return cbOnce();
+                })
+                .catch(err => {
+                    const cbOnce = jsutil.once(callback);
+                    return cbOnce(err);
+                }),
             () => shouldContinue,
             cb,
         );
@@ -688,20 +788,22 @@ class ReplicationUtility {
     waitWhileFailedCRR(bucketName, key, cb) {
         let shouldContinue;
         return async.doWhilst(
-            callback => this.s3.headObject({
+            callback => this.s3.send(new HeadObjectCommand({
                 Bucket: bucketName,
                 Key: key,
-            }, (err, data) => {
-                const cbOnce = jsutil.once(callback);
-                if (err) {
+            }))
+                .then(data => {
+                    const cbOnce = jsutil.once(callback);
+                    shouldContinue = data.ReplicationStatus === 'FAILED';
+                    if (shouldContinue) {
+                        return setTimeout(cbOnce, 2000);
+                    }
+                    return cbOnce();
+                })
+                .catch(err => {
+                    const cbOnce = jsutil.once(callback);
                     return cbOnce(err);
-                }
-                shouldContinue = data.ReplicationStatus === 'FAILED';
-                if (shouldContinue) {
-                    return setTimeout(cbOnce, 2000);
-                }
-                return cbOnce();
-            }),
+                }),
             () => shouldContinue,
             cb,
         );
@@ -718,6 +820,7 @@ class ReplicationUtility {
             if (err) {
                 return cb(err);
             }
+
             const srcData = data[1];
             const destData = data[2];
             assert.strictEqual(srcData.ReplicationStatus, 'COMPLETED');
@@ -1185,22 +1288,23 @@ class ReplicationUtility {
 
     assertNoObject(bucketName, key, cb) {
         this.getObject(bucketName, key, err => {
-            assert.strictEqual(err.code, 'NoSuchKey');
+            assert.strictEqual(err.name, 'NoSuchKey');
             return cb();
         });
     }
 
     assertVersionCount(bucketName, expectedCount, cb) {
-        this.s3.listObjectVersions({
+        this.s3.send(new ListObjectVersionsCommand({
             Bucket: bucketName,
-        }, (err, data) => {
-            if (err) {
-                return cb(err);
-            }
-            const totalCount = data.Versions.length + data.DeleteMarkers.length;
-            assert.strictEqual(totalCount, expectedCount);
-            return cb();
-        });
+        }))
+            .then(data => {
+                const versions = data.Versions || [];
+                const deleteMarkers = data.DeleteMarkers || [];
+                const totalCount = versions.length + deleteMarkers.length;
+                assert.strictEqual(totalCount, expectedCount);
+                cb();
+            })
+            .catch(cb);
     }
 }
 

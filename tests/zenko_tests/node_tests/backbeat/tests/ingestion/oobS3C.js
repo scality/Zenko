@@ -1,6 +1,7 @@
 const async = require('async');
 const uuid = require('uuid/v4');
 
+const { ListObjectVersionsCommand } = require('@aws-sdk/client-s3');
 const { scalityS3Client, ringS3Client } = require('../../../s3SDK');
 const IngestionUtility = require('../../IngestionUtility');
 
@@ -109,9 +110,11 @@ describe('OOB updates for RING S3C bucket', () => {
             null,
             next,
         ),
-        (objData, next) => ringS3CUtils.s3.listObjectVersions({
+        (objData, next) => ringS3CUtils.s3.send(new ListObjectVersionsCommand({
             Bucket: ingestionSrcBucket,
-        }, next),
+        }))
+            .then(data => next(null, data))
+            .catch(next),
         (objData1, next) => scalityUtils.compareObjectsRINGS3C(
             ingestionSrcBucket,
             INGESTION_DEST_BUCKET,

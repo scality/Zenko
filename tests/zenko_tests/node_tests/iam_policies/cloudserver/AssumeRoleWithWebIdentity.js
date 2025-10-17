@@ -1,6 +1,14 @@
 const assert = require('assert');
 const async = require('async');
 const { errors } = require('arsenal');
+const {
+    CreateBucketCommand,
+    PutObjectCommand,
+    DeleteObjectCommand,
+    DeleteBucketCommand,
+} = require('@aws-sdk/client-s3');
+const { GetRoleCommand } = require('@aws-sdk/client-iam');
+const { AssumeRoleWithWebIdentityCommand } = require('@aws-sdk/client-sts');
 const VaultClient = require('../../VaultClient');
 const { getS3Client } = require('../../s3SDK');
 const { getSTSClient } = require('../../stsSDK');
@@ -62,7 +70,7 @@ const accountInfo = {
 const externalAccessKey = 'DZMMJUPWIUK8IWXRP0HQ';
 const externalSecretKey = 'iTuJdlidzrLipymvAGrLP66Yxghl4NQxLZR3cLlu';
 
-const duration = '1000';
+const duration = 1000;
 
 const storageManagerName = 'storage_manager';
 const storageAccountOwnerName = 'storage_account_owner';
@@ -242,7 +250,6 @@ testAPIs.forEach(testAPI => {
     const bucket1 = `bucket1-${testAPI.API.toLowerCase()}`;
 
     describe(`iam policies - cloudserver - AssumeRoleWithWebIdentity - ${testAPI.API}`, () => {
-
         before(done => {
             async.series([
                 // create an account, generateAccountAccessKey for it
@@ -262,22 +269,26 @@ testAPIs.forEach(testAPI => {
                 // use s3 client to create a bucket and put 2 objects
                 next => {
                     async.series([
-                        next => s3Client.createBucket({ Bucket: bucket1 }, next),
-                        next => s3Client.putObject({ Bucket: bucket1, Key: 'file1' }, next),
+                        next => {
+                            s3Client.send(new CreateBucketCommand({ Bucket: bucket1 }))
+                                .then(() => next(), next);
+                        },
+                        next => {
+                            s3Client.send(new PutObjectCommand({ Bucket: bucket1, Key: 'file1' }))
+                                .then(() => next(), next);
+                        },
                     ], next);
                 },
             ], done);
         });
 
-        after(done => {
-            async.series([
-                next => s3Client.deleteObject({
-                    Bucket: bucket1,
-                    Key: 'file1',
-                }, next),
-                next => s3Client.deleteBucket({ Bucket: bucket1 }, next),
-                next => VaultClient.deleteVaultAccount(clientAdmin, iamClient, accountName, next),
-            ], done);
+        after(async () => {
+            await s3Client.send(new DeleteObjectCommand({
+                Bucket: bucket1,
+                Key: 'file1',
+            }));
+            await s3Client.send(new DeleteBucketCommand({ Bucket: bucket1 }));
+            await VaultClient.deleteVaultAccount(clientAdmin, iamClient, accountName);
         });
 
         const tests = [
@@ -302,46 +313,35 @@ testAPIs.forEach(testAPI => {
         ];
 
         tests.forEach((test, i) => {
-            it(test.name, done => {
-                let jwtToken = null;
-                let roleArn = null;
-                async.waterfall([
-                    next => getTokenForIdentity(test.oidcIdentity, (err, token) => {
-                        assert.ifError(err);
-                        jwtToken = token;
-                        next();
-                    }),
-                    next => iamClient.getRole({ RoleName: test.roleName }, (err, res) => {
-                        assert.ifError(err);
-                        roleArn = res.Role.Arn;
-                        next();
-                    }),
-                    next => stsClient.assumeRoleWithWebIdentity({
-                        RoleArn: roleArn,
-                        DurationSeconds: duration,
-                        WebIdentityToken: jwtToken,
-                        RoleSessionName: `session-name-test-${i}-${testAPI.API.toLowerCase()}`,
-                    }, (err, res) => {
-                        assert.ifError(err);
-                        return next(null, res);
-                    }),
-                    (res, next) => {
-                        const sessionUserCredentials = {
-                            accessKeyId: res.Credentials.AccessKeyId,
-                            secretAccessKey: res.Credentials.SecretAccessKey,
-                            sessionToken: res.Credentials.SessionToken,
-                        };
-                        // make metadataSearch request using session user's credentials
-                        // and see if can get the correct response
-                        testAPI.checkResponse(sessionUserCredentials, bucket1, (err, res) => {
-                            if (err) {
-                                assert.ifError(err);
-                                return done(err);
-                            }
-                            test.assertion(res);
-                            return next();
-                        }, 'file1');
-                    }], done);
+            it(test.name, async () => {
+                const jwtToken = await new Promise((resolve, reject) => {
+                    getTokenForIdentity(test.oidcIdentity, (err, token) => (err ? reject(err) : resolve(token)));
+                });
+
+                const roleRes = await iamClient.send(new GetRoleCommand({ RoleName: test.roleName }));
+                const roleArn = roleRes.Role.Arn;
+                const assumeRoleRes = await stsClient.send(new AssumeRoleWithWebIdentityCommand({
+                    RoleArn: roleArn,
+                    DurationSeconds: duration,
+                    WebIdentityToken: jwtToken,
+                    RoleSessionName: `session-name-test-${i}-${testAPI.API.toLowerCase()}`,
+                }));
+                const sessionUserCredentials = {
+                    accessKeyId: assumeRoleRes.Credentials.AccessKeyId,
+                    secretAccessKey: assumeRoleRes.Credentials.SecretAccessKey,
+                    sessionToken: assumeRoleRes.Credentials.SessionToken,
+                };
+
+                const result = await new Promise((resolve, reject) => {
+                    testAPI.checkResponse(
+                        sessionUserCredentials,
+                        bucket1,
+                        (err, result) => (err ? reject(err) : resolve(result)),
+                        'file1',
+                    );
+                });
+
+                test.assertion(result);
             });
         });
     });

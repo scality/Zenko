@@ -4,6 +4,14 @@
 const assert = require('assert');
 const async = require('async');
 const uuidV4 = require('uuid/v4');
+const {
+    CreateBucketCommand,
+    PutBucketPolicyCommand,
+    DeleteBucketPolicyCommand,
+    CreateMultipartUploadCommand,
+    AbortMultipartUploadCommand,
+    GetBucketLocationCommand,
+} = require('@aws-sdk/client-s3');
 
 const { scalityS3Client, altScalityS3Client } = require('../../../s3SDK');
 const testUtils = require('../../../utils/testUtils');
@@ -90,58 +98,57 @@ function getPolicyParams(paramsToChange) {
 }
 
 describe('Bucket policies', () => {
-    beforeEach(done => {
-        scalityS3Client.createBucket(
-            {
-                Bucket: bucket,
-                CreateBucketConfiguration: { LocationConstraint: 'us-east-1' },
-            },
-            done,
-        );
+    beforeEach(async () => {
+        await scalityS3Client.send(new CreateBucketCommand({
+            Bucket: bucket,
+            CreateBucketConfiguration: { LocationConstraint: 'us-east-1' },
+        }));
     });
 
-    afterEach(done => testUtils.emptyDeleteBucket(bucket, done));
+    afterEach(async () => {
+        await testUtils.emptyDeleteBucket(bucket);
+    });
 
     describe('with no bucket policy', () => {
-        it('should deny request from alternate account', done => {
-            altScalityS3Client.getBucketLocation(bParam, err => {
-                assert.strictEqual(err.code, 'AccessDenied');
-                done();
-            });
+        it('should deny request from alternate account', async () => {
+            try {
+                await altScalityS3Client.send(new GetBucketLocationCommand(bParam));
+                throw new Error('Expected AccessDenied error');
+            } catch (err) {
+                assert.strictEqual(err.name, 'AccessDenied');
+            }
         });
     });
 
     describe('with basic bucket policy', () => {
-        it(`should ${allow}: Abort MPU`, done => {
+        it(`should ${allow}: Abort MPU`, async () => {
             const params = getPolicyParams([
                 { key: 'Action', value: 's3:AbortMultipartUpload' },
                 { key: 'Resource', value: objArn },
             ]);
-            async.waterfall([
-                next => scalityS3Client.putBucketPolicy(params, next),
-                (policyData, next) => scalityS3Client.createMultipartUpload({ Bucket: bucket, Key: mpuKey }, next),
-                (mpuData, next) => {
-                    const uId = mpuData.UploadId;
-                    altScalityS3Client.abortMultipartUpload({ Bucket: bucket, Key: mpuKey, UploadId: uId }, next);
-                },
-            ], err => {
-                assert.ifError(err);
-                done();
-            });
+
+            await scalityS3Client.send(new PutBucketPolicyCommand(params));
+            const mpuData = await scalityS3Client.send(new CreateMultipartUploadCommand(
+                { Bucket: bucket, Key: mpuKey },
+            ));
+            const uId = mpuData.UploadId;
+            await altScalityS3Client.send(new AbortMultipartUploadCommand(
+                { Bucket: bucket, Key: mpuKey, UploadId: uId },
+            ));
         });
 
         it(`should not ${allow} because bucket owner action: `
-        + 'DeleteBucketPolicy', done => {
+        + 'DeleteBucketPolicy', async () => {
             const params = getPolicyParams(
                 [{ key: 'Action', value: 's3:DeleteBucketPolicy' }],
             );
-            scalityS3Client.putBucketPolicy(params, err => {
-                assert.ifError(err);
-                altScalityS3Client.deleteBucketPolicy(bParam, err => {
-                    assert.strictEqual(err.code, 'MethodNotAllowed');
-                    done();
-                });
-            });
+            await scalityS3Client.send(new PutBucketPolicyCommand(params));
+            try {
+                await altScalityS3Client.send(new DeleteBucketPolicyCommand(bParam));
+                throw new Error('Expected MethodNotAllowed error');
+            } catch (err) {
+                assert.strictEqual(err.name, 'MethodNotAllowed');
+            }
         });
 
         it(`should ${allow}: DeleteBucketWebsite`, done => {

@@ -1,6 +1,13 @@
 const assert = require('assert');
 const async = require('async');
 
+const {
+    CreateBucketCommand,
+    GetObjectCommand,
+    HeadObjectCommand,
+    ListObjectVersionsCommand,
+    PutObjectCommand,
+} = require('@aws-sdk/client-s3');
 const { scalityS3Client, ringS3Client } = require('../s3SDK');
 const ReplicationUtility = require('./ReplicationUtility');
 const BackbeatAPIUtility = require('./BackbeatAPIUtility');
@@ -14,53 +21,78 @@ class IngestionUtility extends ReplicationUtility {
     }
 
     getSourceObject(bucketName, objName, versionId, cb) {
-        this.ringS3C.getObject({
+        this.ringS3C.send(new GetObjectCommand({
             Bucket: bucketName,
             Key: objName,
             VersionId: versionId,
-        }, cb);
+        }))
+            .then(async (data) => {
+                if (data.Body) {
+                    const chunks = [];
+                    // eslint-disable-next-line no-restricted-syntax
+                    for await (const chunk of data.Body) {
+                        chunks.push(chunk);
+                    }
+                    data.Body = Buffer.concat(chunks);
+                }
+                cb(null, data);
+            })
+            .catch(cb);
     }
 
     getDestObject(bucketName, objName, versionId, cb) {
-        this.s3.getObject({
+        this.s3.send(new GetObjectCommand({
             Bucket: bucketName,
             Key: objName,
             VersionId: versionId,
-        }, cb);
+        }))
+            .then(async (data) => {
+                if (data.Body) {
+                    const chunks = [];
+                    // eslint-disable-next-line no-restricted-syntax
+                    for await (const chunk of data.Body) {
+                        chunks.push(chunk);
+                    }
+                    data.Body = Buffer.concat(chunks);
+                }
+                cb(null, data);
+            })
+            .catch(cb);
     }
 
     createIngestionBucket(bucketName, locationName, cb) {
         const locationNameWithSuffix = `${locationName}:ingest`;
-        return this.s3.createBucket({
+        this.s3.send(new CreateBucketCommand({
             Bucket: bucketName,
             CreateBucketConfiguration: {
                 LocationConstraint: locationNameWithSuffix,
             },
-        }, err => {
-            if (err) {
-                return cb(err);
-            }
-            // When resuming an ingestion-enabled location,
-            // backbeat gets the list of buckets with ingestion-enabled
-            // to check if the location is valid.
-            // Backbeat sets the list of buckets with ingestion-enabled periodically,
-            // so the list might be outdated for few seconds leading to a 404 API error response.
-            // Also backbeat "ingestion producer" process applies update every 5 seconds.
-            // For this reason, we are waiting 10 seconds to make sure ingestion processes are up-to-date.
-            return setTimeout(() => backbeatAPIUtils.resumeIngestion(locationName, false, null, (err, body) => {
-                if (err) {
-                    return cb(err);
-                }
-                if (body.code) {
-                    return cb(`error resuming ingestion: ${JSON.stringify(body)}`);
-                }
-                return cb();
-            }), 10000);
-        });
+        }))
+            .then(() => {
+                // When resuming an ingestion-enabled location,
+                // backbeat gets the list of buckets with ingestion-enabled
+                // to check if the location is valid.
+                // Backbeat sets the list of buckets with ingestion-enabled periodically,
+                // so the list might be outdated for few seconds leading to a 404 API error response.
+                // Also backbeat "ingestion producer" process applies update every 5 seconds.
+                // For this reason, we are waiting 10 seconds to make sure ingestion processes are up-to-date.
+                setTimeout(() => {
+                    backbeatAPIUtils.resumeIngestion(locationName, false, null, (err, body) => {
+                        if (err) {
+                            return cb(err);
+                        }
+                        if (body.code) {
+                            return cb(`error resuming ingestion: ${JSON.stringify(body)}`);
+                        }
+                        return cb();
+                    });
+                }, 10000);
+            })
+            .catch(cb);
     }
 
     putObjectWithProperties(bucketName, objectName, content, cb) {
-        this.s3.putObject({
+        this.s3.send(new PutObjectCommand({
             Bucket: bucketName,
             Key: objectName,
             ContentType: 'image/png',
@@ -68,27 +100,29 @@ class IngestionUtility extends ReplicationUtility {
             ContentDisposition: 'test-content-disposition',
             ContentEncoding: 'ascii',
             Body: content,
-        }, cb);
+        }))
+            .then(data => cb(null, data))
+            .catch(cb);
     }
 
     waitUntilIngested(bucketName, key, versionId, cb) {
-        let status;
-        const expectedCode = 'NotFound';
+        let status = false;
         return async.doWhilst(
-            callback => this.s3.headObject({
+            callback => this.s3.send(new HeadObjectCommand({
                 Bucket: bucketName,
                 Key: key,
                 VersionId: versionId,
-            }, err => {
-                if (err && err.code !== expectedCode) {
-                    return callback(err);
-                }
-                status = !err;
-                if (!status) {
+            }))
+                .then(() => {
+                    status = true;
+                    return callback();
+                })
+                .catch(err => {
+                    if (err.name !== 'NotFound') {
+                        return callback(err);
+                    }
                     return setTimeout(callback, 2000);
-                }
-                return callback();
-            }),
+                }),
             () => !status,
             cb,
         );
@@ -115,18 +149,17 @@ class IngestionUtility extends ReplicationUtility {
     waitUntilEmpty(bucketName, cb) {
         let objectsEmpty;
         return async.doWhilst(
-            callback => this.s3.listObjectVersions({ Bucket: bucketName }, (err, data) => {
-                if (err) {
-                    return cb(err);
-                }
-                const versionLength = data.Versions.length;
-                const deleteLength = data.DeleteMarkers.length;
-                objectsEmpty = (versionLength + deleteLength) === 0;
-                if (objectsEmpty) {
-                    return callback();
-                }
-                return setTimeout(callback, 2000);
-            }),
+            callback => this.s3.send(new ListObjectVersionsCommand({ Bucket: bucketName }))
+                .then(data => {
+                    const versionLength = (data.Versions || []).length;
+                    const deleteLength = (data.DeleteMarkers || []).length;
+                    objectsEmpty = (versionLength + deleteLength) === 0;
+                    if (objectsEmpty) {
+                        return callback();
+                    }
+                    return setTimeout(callback, 2000);
+                })
+                .catch(callback),
             () => !objectsEmpty,
             cb,
         );
@@ -134,12 +167,7 @@ class IngestionUtility extends ReplicationUtility {
 
     compareObjectsRINGS3C(srcBucket, destBucket, key, versionId, optionalFields, cb) {
         return async.series([
-            next => this.waitUntilIngested(
-                destBucket,
-                key,
-                versionId,
-                next,
-            ),
+            next => this.waitUntilIngested(destBucket, key, versionId, next),
             next => this.getSourceObject(srcBucket, key, versionId, next),
             next => this.getDestObject(destBucket, key, versionId, next),
         ], (err, data) => {

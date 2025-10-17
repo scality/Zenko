@@ -1,5 +1,21 @@
 const async = require('async');
 
+const {
+    CreateBucketCommand,
+    CreateMultipartUploadCommand,
+    DeleteBucketCommand,
+    DeleteObjectCommand,
+    GetObjectCommand,
+    HeadObjectCommand,
+    ListObjectsCommand,
+    ListObjectVersionsCommand,
+    ListMultipartUploadsCommand,
+    PutBucketLifecycleConfigurationCommand,
+    PutBucketVersioningCommand,
+    PutObjectLegalHoldCommand,
+    PutObjectLockConfigurationCommand,
+    RestoreObjectCommand,
+} = require('@aws-sdk/client-s3');
 const ReplicationUtility = require('./ReplicationUtility');
 
 const BUCKET_CHECK_TIMEOUT_S = process.env.BACKBEAT_BUCKET_CHECK_TIMEOUT_S
@@ -38,31 +54,37 @@ class LifecycleUtility extends ReplicationUtility {
     }
 
     createBucket(bucket, cb) {
-        this.s3.createBucket({
+        this.s3.send(new CreateBucketCommand({
             Bucket: bucket,
             CreateBucketConfiguration: {
                 LocationConstraint: this.sourceLocation,
             },
-        }, cb);
+        }))
+            .then(data => cb(null, data))
+            .catch(cb);
     }
 
     createVersionedBucket(bucket, cb) {
         return async.series([
             next => this.createBucket(bucket, next),
-            next => this.s3.putBucketVersioning({
+            next => this.s3.send(new PutBucketVersioningCommand({
                 Bucket: bucket,
                 VersioningConfiguration: {
                     Status: 'Enabled',
                 },
-            }, next),
-        ], err => cb(err));
+            }))
+                .then(() => next())
+                .catch(next),
+        ], cb);
     }
 
     deleteVersionedBucket(bucketName, cb) {
         return async.series([
             next => this.deleteAllVersions(bucketName, undefined, next),
-            next => this.s3.deleteBucket({ Bucket: bucketName }, next),
-        ], err => cb(err));
+            next => this.s3.send(new DeleteBucketCommand({ Bucket: bucketName }))
+                .then(() => next())
+                .catch(cb),
+        ], cb);
     }
 
     putObject(data, cb) {
@@ -88,12 +110,14 @@ class LifecycleUtility extends ReplicationUtility {
         async.forEachSeries(keys, (key, done) => {
             async.timesLimit(count, 10, (n, tdone) => async.waterfall([
                 next => super.putObject(bucket, key, Buffer.alloc(1024), next),
-                (info, next) => this.s3.putObjectLegalHold({
+                (info, next) => this.s3.send(new PutObjectLegalHoldCommand({
                     Bucket: bucket,
                     Key: key,
                     LegalHold: { Status: 'ON' },
                     VersionId: info.VersionId,
-                }, next),
+                }))
+                    .then(data => next(null, data))
+                    .catch(cb),
             ], tdone), done);
         }, cb);
     }
@@ -107,22 +131,38 @@ class LifecycleUtility extends ReplicationUtility {
         if (versionId) {
             params.VersionId = versionId;
         }
-        this.s3.getObject(params, cb);
+        this.s3.send(new GetObjectCommand(params))
+            .then(async (data) => {
+                if (data.Body) {
+                    const chunks = [];
+                    // eslint-disable-next-line no-restricted-syntax
+                    for await (const chunk of data.Body) {
+                        chunks.push(chunk);
+                    }
+                    data.Body = Buffer.concat(chunks);
+                }
+                cb(null, data);
+            })
+            .catch(cb);
     }
 
     deleteObject(bucket, key, versionId, cb) {
-        this.s3.deleteObject({
+        this.s3.send(new DeleteObjectCommand({
             Bucket: bucket,
             Key: key,
             VersionId: versionId,
-        }, cb);
+        }))
+            .then(data => cb(null, data))
+            .catch(cb);
     }
 
     createMultipartUpload(bucket, key, cb) {
-        this.s3.createMultipartUpload({
+        this.s3.send(new CreateMultipartUploadCommand({
             Bucket: bucket,
             Key: key,
-        }, cb);
+        }))
+            .then(data => cb(null, data))
+            .catch(cb);
     }
 
     putMPU(howManyParts, cb) {
@@ -176,16 +216,18 @@ class LifecycleUtility extends ReplicationUtility {
     }
 
     putBucketVersioningConfiguration(status, cb) {
-        this.s3.putBucketVersioning({
+        this.s3.send(new PutBucketVersioningCommand({
             Bucket: this.bucket,
             VersioningConfiguration: {
                 Status: status,
             },
-        }, cb);
+        }))
+            .then(data => cb(null, data))
+            .catch(cb);
     }
 
     putBucketLifecycleConfiguration(transitionDate, cb) {
-        this.s3.putBucketLifecycleConfiguration({
+        const lifecycleConfig = {
             Bucket: this.bucket,
             LifecycleConfiguration: {
                 Rules: [{
@@ -199,7 +241,11 @@ class LifecycleUtility extends ReplicationUtility {
                     ],
                 }],
             },
-        }, cb);
+        };
+
+        this.s3.send(new PutBucketLifecycleConfigurationCommand(lifecycleConfig))
+            .then(data => cb(null, data))
+            .catch(cb);
     }
 
     /**
@@ -210,7 +256,7 @@ class LifecycleUtility extends ReplicationUtility {
      * @returns {undefined} undefined
      */
     putBucketNCVTLifecycleConfiguration(cb) {
-        this.s3.putBucketLifecycleConfiguration({
+        this.s3.send(new PutBucketLifecycleConfigurationCommand({
             Bucket: this.bucket,
             LifecycleConfiguration: {
                 Rules: [{
@@ -224,14 +270,18 @@ class LifecycleUtility extends ReplicationUtility {
                     ],
                 }],
             },
-        }, cb);
+        }))
+            .then(data => cb(null, data))
+            .catch(cb);
     }
 
     putBucketExpiration(bucket, rules, cb) {
-        this.s3.putBucketLifecycleConfiguration({
+        this.s3.send(new PutBucketLifecycleConfigurationCommand({
             Bucket: bucket,
             LifecycleConfiguration: { Rules: rules },
-        }, cb);
+        }))
+            .then(data => cb(null, data))
+            .catch(cb);
     }
 
     waitUntilTransitioned(versionId, cb) {
@@ -244,16 +294,15 @@ class LifecycleUtility extends ReplicationUtility {
             params.VersionId = versionId;
         }
         return async.doWhilst(
-            next => this.s3.headObject(params, (err, data) => {
-                if (err) {
-                    return next(err);
-                }
-                shouldContinue = data.StorageClass !== this.destinationLocation;
-                if (shouldContinue) {
-                    return setTimeout(next, 5000);
-                }
-                return next();
-            }),
+            next => this.s3.send(new HeadObjectCommand(params))
+                .then(data => {
+                    shouldContinue = data.StorageClass !== this.destinationLocation;
+                    if (shouldContinue) {
+                        return setTimeout(next, 5000);
+                    }
+                    return next();
+                })
+                .catch(cb),
             () => shouldContinue,
             cb,
         );
@@ -264,7 +313,7 @@ class LifecycleUtility extends ReplicationUtility {
             return process.nextTick(cb);
         }
 
-        return this.s3.putObjectLockConfiguration({
+        return this.s3.send(new PutObjectLockConfigurationCommand({
             Bucket: bucket,
             ObjectLockConfiguration: {
                 ObjectLockEnabled: 'Enabled',
@@ -275,17 +324,21 @@ class LifecycleUtility extends ReplicationUtility {
                     },
                 },
             },
-        }, cb);
+        }))
+            .then(data => cb(null, data))
+            .catch(cb);
     }
 
     createObjectLockedBucket(bucket, mode, cb) {
         return async.series([
-            next => this.s3.createBucket({
+            next => this.s3.send(new CreateBucketCommand({
                 Bucket: bucket,
                 ObjectLockEnabledForBucket: true,
-            }, next),
+            }))
+                .then(() => next())
+                .catch(cb),
             next => this.putObjectLockConfiguration(bucket, mode, next),
-        ], err => cb(err));
+        ], cb);
     }
 
     waitUntilBucketState(bucket, expectedState, cb) {
@@ -319,51 +372,51 @@ class LifecycleUtility extends ReplicationUtility {
     }
 
     hasObjects(bucket, count, cb) {
-        this.s3.listObjects({ Bucket: bucket }, (err, res) => {
-            if (err) {
-                return cb(err);
-            }
-            if (typeof count === 'number') {
-                return cb(null, res.Contents.length === count);
-            }
-            return cb(null, res.Contents.length > 0);
-        });
+        this.s3.send(new ListObjectsCommand({ Bucket: bucket }))
+            .then(res => {
+                const contents = res.Contents || [];
+                if (typeof count === 'number') {
+                    return cb(null, contents.length === count);
+                }
+                return cb(null, contents.length > 0);
+            })
+            .catch(cb);
     }
 
     hasDeleteMarkers(bucket, count, cb) {
-        this.s3.listObjectVersions({ Bucket: bucket }, (err, res) => {
-            if (err) {
-                return cb(err);
-            }
-            if (typeof count === 'number') {
-                return cb(null, res.DeleteMarkers.length === count);
-            }
-            return cb(null, res.DeleteMarkers.length > 0);
-        });
+        this.s3.send(new ListObjectVersionsCommand({ Bucket: bucket }))
+            .then(res => {
+                const deleteMarkers = res.DeleteMarkers || [];
+                if (typeof count === 'number') {
+                    return cb(null, deleteMarkers.length === count);
+                }
+                return cb(null, deleteMarkers.length > 0);
+            })
+            .catch(cb);
     }
 
     hasVersionedObjects(bucket, count, cb) {
-        this.s3.listObjectVersions({ Bucket: bucket }, (err, res) => {
-            if (err) {
-                return cb(err);
-            }
-            if (typeof count === 'number') {
-                return cb(null, res.Versions.length === count);
-            }
-            return cb(null, res.Versions.length > 0);
-        });
+        this.s3.send(new ListObjectVersionsCommand({ Bucket: bucket }))
+            .then(res => {
+                const versions = res.Versions || [];
+                if (typeof count === 'number') {
+                    return cb(null, versions.length === count);
+                }
+                return cb(null, versions.length > 0);
+            })
+            .catch(cb);
     }
 
     hasIncompleteMPUs(bucket, count, cb) {
-        this.s3.listMultipartUploads({ Bucket: bucket }, (err, res) => {
-            if (err) {
-                return cb(err);
-            }
-            if (typeof count === 'number') {
-                return cb(null, res.Uploads.length === count);
-            }
-            return cb(null, res.Uploads.length > 0);
-        });
+        this.s3.send(new ListMultipartUploadsCommand({ Bucket: bucket }))
+            .then(res => {
+                const uploads = res.Uploads || [];
+                if (typeof count === 'number') {
+                    return cb(null, uploads.length === count);
+                }
+                return cb(null, uploads.length > 0);
+            })
+            .catch(cb);
     }
 
     /**
@@ -386,7 +439,9 @@ class LifecycleUtility extends ReplicationUtility {
         if (versionId) {
             params.VersionId = versionId;
         }
-        this.s3.restoreObject(params, cb);
+        this.s3.send(new RestoreObjectCommand(params))
+            .then(data => cb(null, data))
+            .catch(cb);
     }
 
     /**
@@ -407,16 +462,15 @@ class LifecycleUtility extends ReplicationUtility {
             params.VersionId = versionId;
         }
         return async.doWhilst(
-            next => this.s3.headObject(params, (err, data) => {
-                if (err) {
-                    return next(err);
-                }
-                shouldContinue = data.Restore && data.Restore.includes('ongoing-request="false", expiry-date=');
-                if (shouldContinue) {
-                    return setTimeout(next, 5000);
-                }
-                return next();
-            }),
+            next => this.s3.send(new HeadObjectCommand(params))
+                .then(data => {
+                    shouldContinue = data.Restore?.includes('ongoing-request="false", expiry-date=');
+                    if (shouldContinue) {
+                        return setTimeout(next, 5000);
+                    }
+                    return next();
+                })
+                .catch(next),
             () => shouldContinue,
             cb,
         );
