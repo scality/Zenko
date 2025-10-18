@@ -16,7 +16,7 @@
     "@aws-sdk/client-sts": "^3.901.0",
     "@aws-sdk/node-http-handler": "^3.374.0",
     "@azure/storage-blob": "^12.12.0",
-    "@google-cloud/storage": "^7.12.1",
+    "@google-cloud/storage": "^7.17.2",
     "arsenal": "scality/Arsenal#8.1.38",
     "async": "2.1.2",
     "aws4": "^1.11.0",
