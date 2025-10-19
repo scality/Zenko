@@ -420,6 +420,7 @@ async function extractAndCacheParameters(parameters: ZenkoWorldParameters): Prom
         KafkaExternalIps: parameters.KafkaExternalIps,
         KeycloakUsername: parameters.KeycloakUsername,
         KeycloakPassword: parameters.KeycloakPassword,
+        KeycloakTestPassword: parameters.KeycloakPassword,
         KeycloakRealm: parameters.KeycloakRealm,
         KeycloakClientId: parameters.KeycloakClientId,
         AzureAccountName: parameters.AzureAccountName,
