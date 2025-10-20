@@ -38,6 +38,9 @@ RUN chmod 0777 -R /tmp/
 RUN chmod 0777 -R /ctst/
 
 ENV SDK=true
+ENV ACCOUNT=zenko-ctst
+ENV VERBOSE=1
+ENV SEED_KEYCLOAK_DEFAULT_ROLES=true
 
 COPY --from=sorbet /sorbetctl .
 COPY --from=drctl /zenko-drctl .

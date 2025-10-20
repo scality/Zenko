@@ -260,10 +260,6 @@ $(if [[ "$test_type" == "ctst" ]]; then
 cat <<EOT
         - name: TARGET_VERSION
           value: "${version}"
-        - name: SEED_KEYCLOAK_DEFAULT_ROLES
-          value: "true"
-        - name: VERBOSE
-          value: "1"
         - name: AZURE_BLOB_URL
           value: "https://devstoreaccount1.blob.azure-mock.${SUBDOMAIN}"
         - name: AZURE_QUEUE_URL
