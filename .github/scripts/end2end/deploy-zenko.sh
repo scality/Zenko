@@ -135,34 +135,43 @@ create_encryption_secret
 env $(dependencies_env) envsubst < ${ZENKOVERSION_PATH} | kubectl -n ${NAMESPACE} apply -f -
 env $(dependencies_env) envsubst < ${ZENKO_CR_PATH} | kubectl -n ${NAMESPACE} apply -f -
 
-# --- TEMP FIX: newer Ubuntu kernel has a cgroupv2 incompatibility with Zookeeper and Kafka ---
-
+# --- TEMP FIX START ---
 # --- ZOOKEEPER ---
-ZK_STS_NAME="${ZENKO_NAME}-base-quorum"
-echo "Waiting for Zookeeper StatefulSet (${ZK_STS_NAME}) to be created..."
+ZK_CR_NAME="${ZENKO_NAME}-base-quorum"
+ZK_RESOURCE_TYPE="zookeepercluster"
+
+echo "Waiting for ${ZK_RESOURCE_TYPE} CR (${ZK_CR_NAME}) to be created..."
 for i in $(seq 1 30); do
-    # Check if the resource exists.
-    # We redirect stdout/stderr to /dev/null to silence "NotFound" errors
-    if kubectl get statefulset ${ZK_STS_NAME} -n ${NAMESPACE} > /dev/null 2>&1; then
-        echo "Zookeeper StatefulSet found."
+    if kubectl get ${ZK_RESOURCE_TYPE} ${ZK_CR_NAME} -n ${NAMESPACE} > /dev/null 2>&1; then
+        echo "ZookeeperCluster CR found."
         break
     fi
-    echo "Waiting for Zookeeper StatefulSet to appear... (${i}/30)"
+    echo "Waiting for ${ZK_RESOURCE_TYPE} CR to appear... (${i}/30)"
     sleep 2
 done
 
-# Fail if it never appeared
-if ! kubectl get statefulset ${ZK_STS_NAME} -n ${NAMESPACE} > /dev/null 2>&1; then
-    echo "Timed out waiting for Zookeeper StatefulSet ${ZK_STS_NAME}."
+if ! kubectl get ${ZK_RESOURCE_TYPE} ${ZK_CR_NAME} -n ${NAMESPACE} > /dev/null 2>&1; then
+    echo "Timed out waiting for ZookeeperCluster CR ${ZK_CR_NAME}."
     exit 1
 fi
 
-echo "Patching Zookeeper StatefulSet to add JAVA_TOOL_OPTIONS..."
-kubectl -n ${NAMESPACE} patch statefulset ${ZK_STS_NAME} --type='strategic' \
-  -p '{"spec":{"template":{"spec":{"containers":[{"name":"zookeeper","env":[{"name":"JAVA_TOOL_OPTIONS","value":"-XX:-UseContainerSupport -Xmx512m -XX:ActiveProcessorCount=1"}]}]}}}}'
+echo "Patching ${ZK_RESOURCE_TYPE} CR to fix cgroup bug while keeping JMX enabled..."
+kubectl patch ${ZK_RESOURCE_TYPE} ${ZK_CR_NAME} -n ${NAMESPACE} --type merge \
+  -p '{
+    "spec": {
+      "pod": {
+        "env": [
+          {
+            "name": "JVMFLAGS",
+            "value": "-Xmx512m -Xms512m -XX:-UseContainerSupport -XX:ActiveProcessorCount=1 -Djava.awt.headless=true -Dzookeeper.log.dir=/data/logs -Dzookeeper.root.logger=INFO,CONSOLE -Dlog4j.configuration=file:/data/conf/log4j.properties"
+          }
+        ]
+      }
+    }
+  }'
 
-echo "Waiting for Zookeeper pod (${ZK_STS_NAME}-0) to become Ready..."
-kubectl wait --for=condition=Ready pod/${ZK_STS_NAME}-0 \
+echo "Waiting for Zookeeper pod (${ZK_CR_NAME}-0) to become Ready..."
+kubectl wait --for=condition=Ready pod/${ZK_CR_NAME}-0 \
   --timeout=300s -n ${NAMESPACE}
 
 # --- KAFKA ---
@@ -177,7 +186,6 @@ for i in $(seq 1 30); do
     sleep 2
 done
 
-# Fail if it never appeared
 if ! kubectl get statefulset ${KAFKA_STS_NAME} -n ${NAMESPACE} > /dev/null 2>&1; then
     echo "Timed out waiting for Kafka StatefulSet ${KAFKA_STS_NAME}."
     exit 1
@@ -189,7 +197,7 @@ kubectl -n ${NAMESPACE} patch statefulset ${KAFKA_STS_NAME} --type='strategic' \
 
 echo "All components patched. Waiting for Zenko to become Available..."
 
-# --- NEW LOGIC END ---
+# --- TEMP FIX END ---
 
 k_cmd="kubectl -n ${NAMESPACE} get zenko/${ZENKO_NAME}"
 for i in $(seq 1 120); do

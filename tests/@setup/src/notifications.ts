@@ -312,6 +312,12 @@ async function createKafkaTopics(kafkaConfig: KafkaConfig, uuid: string, namespa
         spec: {
             template: {
                 spec: {
+                    env: [
+                        {
+                            name: 'JAVA_TOOL_OPTIONS',
+                            value: 'JAVA_TOOL_OPTIONS=-XX:-UseContainerSupport -Xmx512m -XX:ActiveProcessorCount=1'
+                        }
+                    ],
                     containers: [{
                         name: 'kafka-topics',
                         image: kafkaConfig.image,
