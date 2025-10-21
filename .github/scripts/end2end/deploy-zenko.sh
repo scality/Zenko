@@ -137,34 +137,59 @@ env $(dependencies_env) envsubst < ${ZENKO_CR_PATH} | kubectl -n ${NAMESPACE} ap
 
 # --- TEMP FIX: newer Ubuntu kernel has a cgroupv2 incompatibility with Zookeeper and Kafka ---
 
-# 1. Wait for the Zookeeper STS to be created (STS name from logs)
-echo "Waiting for Zookeeper StatefulSet (${ZENKO_NAME}-base-quorum) to exist..."
-kubectl wait --for=condition=Exists statefulset/${ZENKO_NAME}-base-quorum \
-  --timeout=120s -n ${NAMESPACE}
+# --- ZOOKEEPER ---
+ZK_STS_NAME="${ZENKO_NAME}-base-quorum"
+echo "Waiting for Zookeeper StatefulSet (${ZK_STS_NAME}) to be created..."
+for i in $(seq 1 30); do
+    # Check if the resource exists.
+    # We redirect stdout/stderr to /dev/null to silence "NotFound" errors
+    if kubectl get statefulset ${ZK_STS_NAME} -n ${NAMESPACE} > /dev/null 2>&1; then
+        echo "Zookeeper StatefulSet found."
+        break
+    fi
+    echo "Waiting for Zookeeper StatefulSet to appear... (${i}/30)"
+    sleep 2
+done
 
-# 2. Patch the Zookeeper STS to fix its crash loop
+# Fail if it never appeared
+if ! kubectl get statefulset ${ZK_STS_NAME} -n ${NAMESPACE} > /dev/null 2>&1; then
+    echo "Timed out waiting for Zookeeper StatefulSet ${ZK_STS_NAME}."
+    exit 1
+fi
+
 echo "Patching Zookeeper StatefulSet to add JAVA_TOOL_OPTIONS..."
-kubectl -n ${NAMESPACE} patch statefulset ${ZENKO_NAME}-base-quorum --type='strategic' \
+kubectl -n ${NAMESPACE} patch statefulset ${ZK_STS_NAME} --type='strategic' \
   -p '{"spec":{"template":{"spec":{"containers":[{"name":"zookeeper","env":[{"name":"JAVA_TOOL_OPTIONS","value":"-XX:-UseContainerSupport -Xmx512m -XX:ActiveProcessorCount=1"}]}]}}}}'
 
-# 3. Wait for the Zookeeper pod to be patched, restart, and become Ready
-echo "Waiting for Zookeeper pod (${ZENKO_NAME}-base-quorum-0) to become Ready..."
-kubectl wait --for=condition=Ready pod/${ZENKO_NAME}-base-quorum-0 \
+echo "Waiting for Zookeeper pod (${ZK_STS_NAME}-0) to become Ready..."
+kubectl wait --for=condition=Ready pod/${ZK_STS_NAME}-0 \
   --timeout=300s -n ${NAMESPACE}
 
-# 4. NOW that ZK is ready, wait for the Kafka operator to create the Kafka STS (STS name from logs)
-echo "Waiting for Kafka StatefulSet (${ZENKO_NAME}-base-queue) to exist..."
-kubectl wait --for=condition=Exists statefulset/${ZENKO_NAME}-base-queue \
-  --timeout=120s -n ${NAMESPACE}
+# --- KAFKA ---
+KAFKA_STS_NAME="${ZENKO_NAME}-base-queue"
+echo "Waiting for Kafka StatefulSet (${KAFKA_STS_NAME}) to be created..."
+for i in $(seq 1 30); do
+    if kubectl get statefulset ${KAFKA_STS_NAME} -n ${NAMESPACE} > /dev/null 2>&1; then
+        echo "Kafka StatefulSet found."
+        break
+    fi
+    echo "Waiting for Kafka StatefulSet to appear... (${i}/30)"
+    sleep 2
+done
 
-# 5. Patch the new Kafka STS to prevent it from crashing too
+# Fail if it never appeared
+if ! kubectl get statefulset ${KAFKA_STS_NAME} -n ${NAMESPACE} > /dev/null 2>&1; then
+    echo "Timed out waiting for Kafka StatefulSet ${KAFKA_STS_NAME}."
+    exit 1
+fi
+
 echo "Patching Kafka StatefulSet to add JAVA_TOOL_OPTIONS..."
-kubectl -n ${NAMESPACE} patch statefulset ${ZENKO_NAME}-base-queue --type='strategic' \
+kubectl -n ${NAMESPACE} patch statefulset ${KAFKA_STS_NAME} --type='strategic' \
   -p '{"spec":{"template":{"spec":{"containers":[{"name":"kafka","env":[{"name":"JAVA_TOOL_OPTIONS","value":"-XX:-UseContainerSupport -Xmx512m -XX:ActiveProcessorCount=1"}]}]}}}}'
 
 echo "All components patched. Waiting for Zenko to become Available..."
 
-# -- END OF TEMP FIX ---
+# --- NEW LOGIC END ---
 
 k_cmd="kubectl -n ${NAMESPACE} get zenko/${ZENKO_NAME}"
 for i in $(seq 1 120); do
