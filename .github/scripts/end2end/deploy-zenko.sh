@@ -137,20 +137,25 @@ env $(dependencies_env) envsubst < ${ZENKO_CR_PATH} | kubectl -n ${NAMESPACE} ap
 
 # --- ZOOKEEPER ---
 ZK_STS_NAME="${ZENKO_NAME}-base-quorum"
-ZK_CONTAINER_NAME="zookeeper"
+ZK_CONTAINER_NAME="zookeeper" # Confirmed container name
 ZK_POD_NAME="${ZK_STS_NAME}-0"
 
-for i in $(seq 1 60); do # Give it up to 120 seconds
+echo "Waiting for Zookeeper StatefulSet (${ZK_STS_NAME})..."
+for i in $(seq 1 60); do
     if kubectl get statefulset ${ZK_STS_NAME} -n ${NAMESPACE} > /dev/null 2>&1; then
+        echo "Zookeeper StatefulSet found."
         break
     fi
     sleep 2
 done
 
 if ! kubectl get statefulset ${ZK_STS_NAME} -n ${NAMESPACE} > /dev/null 2>&1; then
+    echo "ERROR: Timed out waiting for Zookeeper StatefulSet ${ZK_STS_NAME}."
     exit 1
 fi
 
+echo "Patching Zookeeper StatefulSet (${ZK_STS_NAME}) template to add JVMFLAGS..."
+# Using JVMFLAGS based on colleague's working patch, but keeping JMX enabled
 kubectl -n ${NAMESPACE} patch statefulset ${ZK_STS_NAME} --type='strategic' \
   -p '{
     "spec": {
@@ -161,7 +166,7 @@ kubectl -n ${NAMESPACE} patch statefulset ${ZK_STS_NAME} --type='strategic' \
               "name": "'"${ZK_CONTAINER_NAME}"'",
               "env": [
                 {
-                  "name": "SERVER_JVMFLAGS",
+                  "name": "JVMFLAGS", # Using the var name from the working CR patch
                   "value": "-Xmx512m -Xms512m -XX:-UseContainerSupport -XX:ActiveProcessorCount=1 -Djava.awt.headless=true -Dzookeeper.log.dir=/data/logs -Dzookeeper.root.logger=INFO,CONSOLE -Dlog4j.configuration=file:/data/conf/log4j.properties"
                 }
               ]
@@ -172,34 +177,59 @@ kubectl -n ${NAMESPACE} patch statefulset ${ZK_STS_NAME} --type='strategic' \
     }
   }'
 
+echo "Deleting Zookeeper pod (${ZK_POD_NAME}) to apply patch..."
 kubectl delete pod ${ZK_POD_NAME} -n ${NAMESPACE} --ignore-not-found=true --wait=false
 
+echo "Waiting for Zookeeper pod (${ZK_POD_NAME}) to become Ready..."
 if ! kubectl wait --for=condition=Ready pod/${ZK_POD_NAME} --timeout=300s -n ${NAMESPACE}; then
+    echo "ERROR: Zookeeper pod ${ZK_POD_NAME} failed to become Ready after patching StatefulSet with JVMFLAGS."
+    echo "Dumping Pod Logs:"
     kubectl logs pod/${ZK_POD_NAME} -n ${NAMESPACE} --tail=100 || echo "Could not get logs for ${ZK_POD_NAME}."
+    echo "Describing Pod:"
     kubectl describe pod ${ZK_POD_NAME} -n ${NAMESPACE} || echo "Could not describe pod ${ZK_POD_NAME}."
     exit 1
 fi
+echo "Zookeeper pod ${ZK_POD_NAME} is Ready."
 
 # --- KAFKA ---
 KAFKA_STS_NAME="${ZENKO_NAME}-base-queue"
-KAFKA_CONTAINER_NAME="kafka"
+KAFKA_CONTAINER_NAME="kafka" # As seen in pod YAML previously
+KAFKA_POD_NAME="${KAFKA_STS_NAME}-0"
 
-for i in $(seq 1 120); do
+echo "Waiting for Kafka StatefulSet (${KAFKA_STS_NAME})..."
+for i in $(seq 1 150); do
     if kubectl get statefulset ${KAFKA_STS_NAME} -n ${NAMESPACE} > /dev/null 2>&1; then
+        echo "Kafka StatefulSet found."
         break
     fi
     sleep 2
 done
 
 if ! kubectl get statefulset ${KAFKA_STS_NAME} -n ${NAMESPACE} > /dev/null 2>&1; then
-    echo "Timed out waiting for Kafka StatefulSet ${KAFKA_STS_NAME}."
+    echo "ERROR: Timed out waiting for Kafka StatefulSet ${KAFKA_STS_NAME}."
     exit 1
 fi
 
+echo "Patching Kafka StatefulSet (${KAFKA_STS_NAME})..."
+# Using standard JAVA_TOOL_OPTIONS for Kafka
 kubectl -n ${NAMESPACE} patch statefulset ${KAFKA_STS_NAME} --type='strategic' \
   -p '{"spec":{"template":{"spec":{"containers":[{"name":"'"${KAFKA_CONTAINER_NAME}"'","env":[{"name":"JAVA_TOOL_OPTIONS","value":"-XX:-UseContainerSupport -Xmx512m -XX:ActiveProcessorCount=1"}]}]}}}}'
 
-# --- TEMP FIX END ---
+echo "Deleting Kafka pod (${KAFKA_POD_NAME}) to apply patch..."
+kubectl delete pod ${KAFKA_POD_NAME} -n ${NAMESPACE} --ignore-not-found=true --wait=false
+
+echo "Waiting for Kafka pod (${KAFKA_POD_NAME}) to become Ready..."
+if ! kubectl wait --for=condition=Ready pod/${KAFKA_POD_NAME} --timeout=300s -n ${NAMESPACE}; then
+    echo "ERROR: Kafka pod ${KAFKA_POD_NAME} failed to become Ready after patching StatefulSet."
+    echo "Dumping Pod Logs:"
+    kubectl logs pod/${KAFKA_POD_NAME} -n ${NAMESPACE} --tail=100 || echo "Could not get logs for ${KAFKA_POD_NAME}."
+    echo "Describing Pod:"
+    kubectl describe pod ${KAFKA_POD_NAME} -n ${NAMESPACE} || echo "Could not describe pod ${KAFKA_POD_NAME}."
+    exit 1
+fi
+echo "Kafka pod ${KAFKA_POD_NAME} is Ready."
+
+echo "Waiting for Zenko CR (${ZENKO_NAME}) to become Available..."
 
 k_cmd="kubectl -n ${NAMESPACE} get zenko/${ZENKO_NAME}"
 for i in $(seq 1 120); do
