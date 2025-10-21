@@ -191,43 +191,43 @@ if ! kubectl wait --for=condition=Ready pod/${ZK_POD_NAME} --timeout=300s -n ${N
 fi
 echo "Zookeeper pod ${ZK_POD_NAME} is Ready."
 
-# --- KAFKA ---
-KAFKA_STS_NAME="${ZENKO_NAME}-base-queue"
-KAFKA_CONTAINER_NAME="kafka" # As seen in pod YAML previously
-KAFKA_POD_NAME="${KAFKA_STS_NAME}-0"
+# # --- KAFKA ---
+# KAFKA_STS_NAME="${ZENKO_NAME}-base-queue"
+# KAFKA_CONTAINER_NAME="kafka" # As seen in pod YAML previously
+# KAFKA_POD_NAME="${KAFKA_STS_NAME}-0"
 
-echo "Waiting for Kafka StatefulSet (${KAFKA_STS_NAME})..."
-for i in $(seq 1 150); do
-    if kubectl get statefulset ${KAFKA_STS_NAME} -n ${NAMESPACE} > /dev/null 2>&1; then
-        echo "Kafka StatefulSet found."
-        break
-    fi
-    sleep 2
-done
+# echo "Waiting for Kafka StatefulSet (${KAFKA_STS_NAME})..."
+# for i in $(seq 1 150); do
+#     if kubectl get statefulset ${KAFKA_STS_NAME} -n ${NAMESPACE} > /dev/null 2>&1; then
+#         echo "Kafka StatefulSet found."
+#         break
+#     fi
+#     sleep 2
+# done
 
-if ! kubectl get statefulset ${KAFKA_STS_NAME} -n ${NAMESPACE} > /dev/null 2>&1; then
-    echo "ERROR: Timed out waiting for Kafka StatefulSet ${KAFKA_STS_NAME}."
-    exit 1
-fi
+# if ! kubectl get statefulset ${KAFKA_STS_NAME} -n ${NAMESPACE} > /dev/null 2>&1; then
+#     echo "ERROR: Timed out waiting for Kafka StatefulSet ${KAFKA_STS_NAME}."
+#     exit 1
+# fi
 
-echo "Patching Kafka StatefulSet (${KAFKA_STS_NAME})..."
-# Using standard JAVA_TOOL_OPTIONS for Kafka
-kubectl -n ${NAMESPACE} patch statefulset ${KAFKA_STS_NAME} --type='strategic' \
-  -p '{"spec":{"template":{"spec":{"containers":[{"name":"'"${KAFKA_CONTAINER_NAME}"'","env":[{"name":"JAVA_TOOL_OPTIONS","value":"-XX:-UseContainerSupport -Xmx512m -XX:ActiveProcessorCount=1"}]}]}}}}'
+# echo "Patching Kafka StatefulSet (${KAFKA_STS_NAME})..."
+# # Using standard JAVA_TOOL_OPTIONS for Kafka
+# kubectl -n ${NAMESPACE} patch statefulset ${KAFKA_STS_NAME} --type='strategic' \
+#   -p '{"spec":{"template":{"spec":{"containers":[{"name":"'"${KAFKA_CONTAINER_NAME}"'","env":[{"name":"JAVA_TOOL_OPTIONS","value":"-XX:-UseContainerSupport -Xmx512m -XX:ActiveProcessorCount=1"}]}]}}}}'
 
-echo "Deleting Kafka pod (${KAFKA_POD_NAME}) to apply patch..."
-kubectl delete pod ${KAFKA_POD_NAME} -n ${NAMESPACE} --ignore-not-found=true --wait=false
+# echo "Deleting Kafka pod (${KAFKA_POD_NAME}) to apply patch..."
+# kubectl delete pod ${KAFKA_POD_NAME} -n ${NAMESPACE} --ignore-not-found=true --wait=false
 
-echo "Waiting for Kafka pod (${KAFKA_POD_NAME}) to become Ready..."
-if ! kubectl wait --for=condition=Ready pod/${KAFKA_POD_NAME} --timeout=300s -n ${NAMESPACE}; then
-    echo "ERROR: Kafka pod ${KAFKA_POD_NAME} failed to become Ready after patching StatefulSet."
-    echo "Dumping Pod Logs:"
-    kubectl logs pod/${KAFKA_POD_NAME} -n ${NAMESPACE} --tail=100 || echo "Could not get logs for ${KAFKA_POD_NAME}."
-    echo "Describing Pod:"
-    kubectl describe pod ${KAFKA_POD_NAME} -n ${NAMESPACE} || echo "Could not describe pod ${KAFKA_POD_NAME}."
-    exit 1
-fi
-echo "Kafka pod ${KAFKA_POD_NAME} is Ready."
+# echo "Waiting for Kafka pod (${KAFKA_POD_NAME}) to become Ready..."
+# if ! kubectl wait --for=condition=Ready pod/${KAFKA_POD_NAME} --timeout=300s -n ${NAMESPACE}; then
+#     echo "ERROR: Kafka pod ${KAFKA_POD_NAME} failed to become Ready after patching StatefulSet."
+#     echo "Dumping Pod Logs:"
+#     kubectl logs pod/${KAFKA_POD_NAME} -n ${NAMESPACE} --tail=100 || echo "Could not get logs for ${KAFKA_POD_NAME}."
+#     echo "Describing Pod:"
+#     kubectl describe pod ${KAFKA_POD_NAME} -n ${NAMESPACE} || echo "Could not describe pod ${KAFKA_POD_NAME}."
+#     exit 1
+# fi
+# echo "Kafka pod ${KAFKA_POD_NAME} is Ready."
 
 echo "Waiting for Zenko CR (${ZENKO_NAME}) to become Available..."
 
