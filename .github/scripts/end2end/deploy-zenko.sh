@@ -135,18 +135,15 @@ create_encryption_secret
 env $(dependencies_env) envsubst < ${ZENKOVERSION_PATH} | kubectl -n ${NAMESPACE} apply -f -
 env $(dependencies_env) envsubst < ${ZENKO_CR_PATH} | kubectl -n ${NAMESPACE} apply -f -
 
-# --- TEMP FIX START ---
 # --- ZOOKEEPER ---
 ZK_CR_NAME="${ZENKO_NAME}-base-quorum"
 ZK_RESOURCE_TYPE="zookeepercluster"
+ZK_POD_NAME="${ZK_CR_NAME}-0"
 
-echo "Waiting for ${ZK_RESOURCE_TYPE} CR (${ZK_CR_NAME}) to be created..."
 for i in $(seq 1 30); do
     if kubectl get ${ZK_RESOURCE_TYPE} ${ZK_CR_NAME} -n ${NAMESPACE} > /dev/null 2>&1; then
-        echo "ZookeeperCluster CR found."
         break
     fi
-    echo "Waiting for ${ZK_RESOURCE_TYPE} CR to appear... (${i}/30)"
     sleep 2
 done
 
@@ -155,14 +152,13 @@ if ! kubectl get ${ZK_RESOURCE_TYPE} ${ZK_CR_NAME} -n ${NAMESPACE} > /dev/null 2
     exit 1
 fi
 
-echo "Patching ${ZK_RESOURCE_TYPE} CR to fix cgroup bug while keeping JMX enabled..."
 kubectl patch ${ZK_RESOURCE_TYPE} ${ZK_CR_NAME} -n ${NAMESPACE} --type merge \
   -p '{
     "spec": {
       "pod": {
         "env": [
           {
-            "name": "JVMFLAGS",
+            "name": "SERVER_JVMFLAGS",
             "value": "-Xmx512m -Xms512m -XX:-UseContainerSupport -XX:ActiveProcessorCount=1 -Djava.awt.headless=true -Dzookeeper.log.dir=/data/logs -Dzookeeper.root.logger=INFO,CONSOLE -Dlog4j.configuration=file:/data/conf/log4j.properties"
           }
         ]
@@ -170,22 +166,19 @@ kubectl patch ${ZK_RESOURCE_TYPE} ${ZK_CR_NAME} -n ${NAMESPACE} --type merge \
     }
   }'
 
-echo "Deleting existing Zookeeper pod (${ZK_POD_NAME}) to apply patched configuration..."
 kubectl delete pod ${ZK_POD_NAME} -n ${NAMESPACE} --ignore-not-found=true --wait=false
 
-echo "Waiting for Zookeeper pod (${ZK_CR_NAME}-0) to become Ready..."
-kubectl wait --for=condition=Ready pod/${ZK_CR_NAME}-0 \
+kubectl wait --for=condition=Ready pod/${ZK_POD_NAME} \
   --timeout=300s -n ${NAMESPACE}
 
 # --- KAFKA ---
 KAFKA_STS_NAME="${ZENKO_NAME}-base-queue"
-echo "Waiting for Kafka StatefulSet (${KAFKA_STS_NAME}) to be created..."
+KAFKA_CONTAINER_NAME="kafka"
+
 for i in $(seq 1 30); do
     if kubectl get statefulset ${KAFKA_STS_NAME} -n ${NAMESPACE} > /dev/null 2>&1; then
-        echo "Kafka StatefulSet found."
         break
     fi
-    echo "Waiting for Kafka StatefulSet to appear... (${i}/30)"
     sleep 2
 done
 
@@ -194,11 +187,8 @@ if ! kubectl get statefulset ${KAFKA_STS_NAME} -n ${NAMESPACE} > /dev/null 2>&1;
     exit 1
 fi
 
-echo "Patching Kafka StatefulSet to add JAVA_TOOL_OPTIONS..."
 kubectl -n ${NAMESPACE} patch statefulset ${KAFKA_STS_NAME} --type='strategic' \
-  -p '{"spec":{"template":{"spec":{"containers":[{"name":"kafka","env":[{"name":"JAVA_TOOL_OPTIONS","value":"-XX:-UseContainerSupport -Xmx512m -XX:ActiveProcessorCount=1"}]}]}}}}'
-
-echo "All components patched. Waiting for Zenko to become Available..."
+  -p '{"spec":{"template":{"spec":{"containers":[{"name":"'"${KAFKA_CONTAINER_NAME}"'","env":[{"name":"JAVA_TOOL_OPTIONS","value":"-XX:-UseContainerSupport -Xmx512m -XX:ActiveProcessorCount=1"}]}]}}}}'
 
 # --- TEMP FIX END ---
 
