@@ -166,7 +166,7 @@ kubectl -n ${NAMESPACE} patch statefulset ${ZK_STS_NAME} --type='strategic' \
               "name": "'"${ZK_CONTAINER_NAME}"'",
               "env": [
                 {
-                  "name": "JVMFLAGS", # Using the var name from the working CR patch
+                  "name": "JVMFLAGS",
                   "value": "-Xmx512m -Xms512m -XX:-UseContainerSupport -XX:ActiveProcessorCount=1 -Djava.awt.headless=true -Dzookeeper.log.dir=/data/logs -Dzookeeper.root.logger=INFO,CONSOLE -Dlog4j.configuration=file:/data/conf/log4j.properties"
                 }
               ]
