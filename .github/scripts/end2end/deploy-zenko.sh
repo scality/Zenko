@@ -175,7 +175,7 @@ kubectl wait --for=condition=Ready pod/${ZK_POD_NAME} \
 KAFKA_STS_NAME="${ZENKO_NAME}-base-queue"
 KAFKA_CONTAINER_NAME="kafka"
 
-for i in $(seq 1 30); do
+for i in $(seq 1 120); do
     if kubectl get statefulset ${KAFKA_STS_NAME} -n ${NAMESPACE} > /dev/null 2>&1; then
         break
     fi
