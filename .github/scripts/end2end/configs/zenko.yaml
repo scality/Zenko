@@ -48,7 +48,7 @@ spec:
     provider: Managed
     env:
     - name: JAVA_TOOL_OPTIONS
-      value: "-XX:-UseContainerSupport"
+      value: "-XX:-UseContainerSupport -Xmx512m -XX:ActiveProcessorCount=1"
     jmxJarPath: /opt/jmx_exporter/jmx_prometheus_javaagent-${JMX_JAVAAGENT_TAG}.jar
     persistence:
       volumeClaimTemplate:
@@ -63,7 +63,7 @@ spec:
     provider: Managed
     env:
     - name: JAVA_TOOL_OPTIONS
-      value: "-XX:-UseContainerSupport"
+      value: "-XX:-UseContainerSupport -Xmx512m -XX:ActiveProcessorCount=1"
     persistence:
       volumeClaimTemplate:
         size: 20Gi
