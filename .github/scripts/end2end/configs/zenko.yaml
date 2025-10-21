@@ -46,6 +46,9 @@ spec:
     provider: Zenko
   kafka:
     provider: Managed
+    env:
+    - name: JAVA_TOOL_OPTIONS
+      value: "-XX:-UseContainerSupport"
     jmxJarPath: /opt/jmx_exporter/jmx_prometheus_javaagent-${JMX_JAVAAGENT_TAG}.jar
     persistence:
       volumeClaimTemplate:
@@ -58,6 +61,9 @@ spec:
     keepAtLeast: 0
   zookeeper:
     provider: Managed
+    env:
+    - name: JAVA_TOOL_OPTIONS
+      value: "-XX:-UseContainerSupport"
     persistence:
       volumeClaimTemplate:
         size: 20Gi
