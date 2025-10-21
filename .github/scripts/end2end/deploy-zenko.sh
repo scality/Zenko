@@ -170,6 +170,9 @@ kubectl patch ${ZK_RESOURCE_TYPE} ${ZK_CR_NAME} -n ${NAMESPACE} --type merge \
     }
   }'
 
+echo "Deleting existing Zookeeper pod (${ZK_POD_NAME}) to apply patched configuration..."
+kubectl delete pod ${ZK_POD_NAME} -n ${NAMESPACE} --ignore-not-found=true --wait=false
+
 echo "Waiting for Zookeeper pod (${ZK_CR_NAME}-0) to become Ready..."
 kubectl wait --for=condition=Ready pod/${ZK_CR_NAME}-0 \
   --timeout=300s -n ${NAMESPACE}
