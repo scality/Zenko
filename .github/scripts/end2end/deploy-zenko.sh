@@ -136,40 +136,49 @@ env $(dependencies_env) envsubst < ${ZENKOVERSION_PATH} | kubectl -n ${NAMESPACE
 env $(dependencies_env) envsubst < ${ZENKO_CR_PATH} | kubectl -n ${NAMESPACE} apply -f -
 
 # --- ZOOKEEPER ---
-ZK_CR_NAME="${ZENKO_NAME}-base-quorum"
-ZK_RESOURCE_TYPE="zookeepercluster"
-ZK_POD_NAME="${ZK_CR_NAME}-0"
+ZK_STS_NAME="${ZENKO_NAME}-base-quorum"
+ZK_CONTAINER_NAME="zookeeper"
+ZK_POD_NAME="${ZK_STS_NAME}-0"
 
-for i in $(seq 1 30); do
-    if kubectl get ${ZK_RESOURCE_TYPE} ${ZK_CR_NAME} -n ${NAMESPACE} > /dev/null 2>&1; then
+for i in $(seq 1 60); do # Give it up to 120 seconds
+    if kubectl get statefulset ${ZK_STS_NAME} -n ${NAMESPACE} > /dev/null 2>&1; then
         break
     fi
     sleep 2
 done
 
-if ! kubectl get ${ZK_RESOURCE_TYPE} ${ZK_CR_NAME} -n ${NAMESPACE} > /dev/null 2>&1; then
-    echo "Timed out waiting for ZookeeperCluster CR ${ZK_CR_NAME}."
+if ! kubectl get statefulset ${ZK_STS_NAME} -n ${NAMESPACE} > /dev/null 2>&1; then
     exit 1
 fi
 
-kubectl patch ${ZK_RESOURCE_TYPE} ${ZK_CR_NAME} -n ${NAMESPACE} --type merge \
+kubectl -n ${NAMESPACE} patch statefulset ${ZK_STS_NAME} --type='strategic' \
   -p '{
     "spec": {
-      "pod": {
-        "env": [
-          {
-            "name": "SERVER_JVMFLAGS",
-            "value": "-Xmx512m -Xms512m -XX:-UseContainerSupport -XX:ActiveProcessorCount=1 -Djava.awt.headless=true -Dzookeeper.log.dir=/data/logs -Dzookeeper.root.logger=INFO,CONSOLE -Dlog4j.configuration=file:/data/conf/log4j.properties"
-          }
-        ]
+      "template": {
+        "spec": {
+          "containers": [
+            {
+              "name": "'"${ZK_CONTAINER_NAME}"'",
+              "env": [
+                {
+                  "name": "SERVER_JVMFLAGS",
+                  "value": "-Xmx512m -Xms512m -XX:-UseContainerSupport -XX:ActiveProcessorCount=1 -Djava.awt.headless=true -Dzookeeper.log.dir=/data/logs -Dzookeeper.root.logger=INFO,CONSOLE -Dlog4j.configuration=file:/data/conf/log4j.properties"
+                }
+              ]
+            }
+          ]
+        }
       }
     }
   }'
 
 kubectl delete pod ${ZK_POD_NAME} -n ${NAMESPACE} --ignore-not-found=true --wait=false
 
-kubectl wait --for=condition=Ready pod/${ZK_POD_NAME} \
-  --timeout=300s -n ${NAMESPACE}
+if ! kubectl wait --for=condition=Ready pod/${ZK_POD_NAME} --timeout=300s -n ${NAMESPACE}; then
+    kubectl logs pod/${ZK_POD_NAME} -n ${NAMESPACE} --tail=100 || echo "Could not get logs for ${ZK_POD_NAME}."
+    kubectl describe pod ${ZK_POD_NAME} -n ${NAMESPACE} || echo "Could not describe pod ${ZK_POD_NAME}."
+    exit 1
+fi
 
 # --- KAFKA ---
 KAFKA_STS_NAME="${ZENKO_NAME}-base-queue"
