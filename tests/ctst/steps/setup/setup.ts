@@ -26,7 +26,7 @@ type ServiceUserCredentials = {
 };
 
 type ZenkoInstanceInfo = {
-    TimeProgressionFactor: number;
+    TimeProgressionFactor?: number;
     InstanceID?: string;
     KafkaCleanerInterval?: string;
     SorbetdRestoreTimeout?: string;
@@ -300,27 +300,42 @@ async function extractKafkaConfiguration(coreClient: CoreV1Api, parameters: Zenk
  * Extract Zenko Custom Resource information
  */
 async function extractZenkoCRInfo(parameters: ZenkoWorldParameters): Promise<ZenkoInstanceInfo> {
-    let timeProgressionFactor = parameters.TimeProgressionFactor;
-    let instanceId = parameters.InstanceID;
-    let kafkaCleanerInterval = parameters.KafkaCleanerInterval;
-    let sorbetdRestoreTimeout = parameters.SorbetdRestoreTimeout;
-    let utilizationServiceHost = parameters.UtilizationServiceHost;
+    const zenkoBody = await getZenkoCR({
+        parameters,
+        logger,
+    } as Zenko, parameters.Namespace, 'end2end');
 
-    if (!instanceId || !timeProgressionFactor) {
-        const zenkoBody = await getZenkoCR({
-            parameters,
-            logger,
-        } as Zenko, parameters.Namespace, 'end2end');
+    let timeProgressionFactor: number | undefined;
+    let instanceId: string | undefined;
+    let kafkaCleanerInterval: string | undefined;
+    let sorbetdRestoreTimeout: string | undefined;
+    let utilizationServiceHost: string | undefined;
 
-        if (zenkoBody) {
-            timeProgressionFactor = timeProgressionFactor ||
-                parseInt(zenkoBody.metadata?.annotations?.['zenko.io/time-progression-factor'] || '1', 10);
-            instanceId = instanceId || zenkoBody.status?.instanceID || '';
-            kafkaCleanerInterval = kafkaCleanerInterval || zenkoBody.spec?.kafkaCleaner?.interval || '';
-            sorbetdRestoreTimeout = sorbetdRestoreTimeout ||
-                zenkoBody.spec?.sorbet?.server?.azure?.restoreTimeout || '';
-            utilizationServiceHost = utilizationServiceHost || zenkoBody.spec?.scuba?.api?.ingress?.hostname || '';
+    if (zenkoBody) {
+        const rawAnnotationValue = zenkoBody.metadata?.annotations?.['zenko.io/time-progression-factor'];
+        logger.info('Reading time-progression-factor from Zenko CR', {
+            rawAnnotationValue,
+            allAnnotations: zenkoBody.metadata?.annotations,
+        });
+
+        timeProgressionFactor = parseInt(rawAnnotationValue || '', 10);
+        if (isNaN(timeProgressionFactor)) {
+            logger.info('time-progression-factor annotation not found or invalid, will be undefined', {
+                rawAnnotationValue,
+            });
+            timeProgressionFactor = undefined;
+        } else {
+            logger.info('Parsed time-progression-factor from annotation', {
+                timeProgressionFactor,
+            });
         }
+
+        instanceId = zenkoBody.status?.instanceID || '';
+        kafkaCleanerInterval = zenkoBody.spec?.kafkaCleaner?.interval || '';
+        sorbetdRestoreTimeout = zenkoBody.spec?.sorbet?.server?.azure?.restoreTimeout || '';
+        utilizationServiceHost = zenkoBody.spec?.scuba?.api?.ingress?.hostname || '';
+    } else {
+        logger.warn('Zenko CR not found, all values will be undefined');
     }
 
     logger.info('Extracted Zenko Custom Resource information', {
@@ -331,13 +346,19 @@ async function extractZenkoCRInfo(parameters: ZenkoWorldParameters): Promise<Zen
         utilizationServiceHost,
     });
 
-    return {
-        TimeProgressionFactor: timeProgressionFactor || 1,
+    const result: ZenkoInstanceInfo = {
         InstanceID: instanceId,
         KafkaCleanerInterval: kafkaCleanerInterval,
         SorbetdRestoreTimeout: sorbetdRestoreTimeout,
         UtilizationServiceHost: utilizationServiceHost,
     };
+
+    // Only include TimeProgressionFactor if it was actually found in the CR
+    if (timeProgressionFactor !== undefined) {
+        result.TimeProgressionFactor = timeProgressionFactor;
+    }
+
+    return result;
 }
 
 /**

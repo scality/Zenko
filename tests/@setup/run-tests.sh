@@ -18,7 +18,13 @@ OIDC_REALM="${OIDC_REALM:-zenko}"
 OIDC_CLIENT_ID="${OIDC_CLIENT_ID:-zenko-ui}"
 PARALLEL_RUNS="${PARALLEL_RUNS:-}"
 
-# MongoDB for tests connecting to MongoDB directly
+# Script-internal variables
+MANAGED_BY_LABEL="zenko-run-tests-script"
+CLUSTER_ROLE_BINDING_NAME="ctst-cluster-admin-for-${NAMESPACE}"
+
+# Admin credentials
+ADMIN_ACCESS_KEY_ID=$(kubectl get secret end2end-management-vault-admin-creds.v1 -o jsonpath='{.data.accessKey}' | base64 -d)
+ADMIN_SECRET_ACCESS_KEY=$(kubectl get secret end2end-management-vault-admin-creds.v1  -o jsonpath='{.data.secretKey}' | base64 -d)
 CLOUDSERVER_SECRET="$(kubectl get secret -l app.kubernetes.io/name=connector-cloudserver-config,app.kubernetes.io/instance=end2end \
    -o jsonpath="{.items[0].data.config\.json}" | base64 -di)"
 MONGO_DATABASE=$(echo "${CLOUDSERVER_SECRET}" | jq -r '.mongodb.database')
@@ -28,14 +34,6 @@ MONGO_SHARD_COLLECTION=$(echo "${CLOUDSERVER_SECRET}" | jq -r '.mongodb.shardCol
 MONGO_WRITE_CONCERN=$(echo "${CLOUDSERVER_SECRET}" | jq -r '.mongodb.writeConcern')
 MONGO_AUTH_USERNAME=$(echo "${CLOUDSERVER_SECRET}" | jq -r '.mongodb.authCredentials.username')
 MONGO_AUTH_PASSWORD=$(echo "${CLOUDSERVER_SECRET}" | jq -r '.mongodb.authCredentials.password')
-
-# Script-internal variables
-MANAGED_BY_LABEL="zenko-run-tests-script"
-CLUSTER_ROLE_BINDING_NAME="ctst-cluster-admin-for-${NAMESPACE}"
-
-# Admin credentials
-ADMIN_ACCESS_KEY_ID=$(kubectl get secret end2end-management-vault-admin-creds.v1 -o jsonpath='{.data.accessKey}' | base64 -d)
-ADMIN_SECRET_ACCESS_KEY=$(kubectl get secret end2end-management-vault-admin-creds.v1  -o jsonpath='{.data.secretKey}' | base64 -d)
 
 # Specific to old test suite
 VAULT_STS_ENDPOINT="http://${INSTANCE_ID}-connector-vault-sts-api:80"

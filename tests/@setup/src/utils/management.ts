@@ -415,7 +415,8 @@ export async function generateAccountAccessKey(
         );
 
         if (response.status !== 201 && response.status !== 200) {
-            throw new Error(`Access key generation failed. Returned ${response.status}: ${JSON.stringify(response.data)}`);
+            throw new Error(
+                `Access key generation failed. Returned ${response.status}: ${JSON.stringify(response.data)}`);
         }
 
         logger.debug('Access key generated successfully', {

@@ -15,7 +15,6 @@ import {
     StorageSharedKeyCredential as QueueStorageSharedKeyCredential,
 } from '@azure/storage-queue';
 import { logger } from './logger';
-import { sleep } from 'cli-testing/utils/utils';
 
 export interface StorageLocation {
     name: string;

@@ -279,7 +279,7 @@ Then('object {string} should have the same data', async function (this: Zenko, o
     }
     const res = await S3.getObject(this.getCommandParameters());
     assert.ifError(res.err);
-    const objectPath = path.join(__dirname, '../utils/api', Constants.OUTFILE_NAME);
+    const objectPath = path.join(__dirname, '../build/utils/api', Constants.OUTFILE_NAME);
     const objectBuffer = fs.readFileSync(objectPath);
     fs.rmSync(objectPath);
     const expectedContent = Buffer.alloc(Buffer.byteLength(objectBuffer), 'a');

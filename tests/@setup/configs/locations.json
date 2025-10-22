@@ -233,6 +233,46 @@
           "accountKey": "env:AZURE_SECRET_KEY"
         }
       }
+    },
+    {
+      "name": "ctst-azure-archive-target",
+      "locationType": "location-azure-archive-v1",
+      "createResources": {
+        "createContainer": true,
+        "createQueue": true,
+        "skipLocationCreation": true
+      },
+      "details": {
+        "endpoint": "env:AZURE_BACKEND_ENDPOINT",
+        "bucketName": "ci-zenko-azure-archive-target-bucket",
+        "queue": {
+          "type": "location-azure-storage-queue-v1",
+          "queueName": "ci-zenko-azure-archive-target-queue",
+          "endpoint": "env:AZURE_BACKEND_QUEUE_ENDPOINT"
+        },
+        "auth": {
+          "type": "location-azure-shared-key",
+          "accountName": "env:AZURE_ACCOUNT_NAME",
+          "accountKey": "env:AZURE_SECRET_KEY"
+        }
+      }
+    },
+    {
+      "name": "ctst-azure-archive-target-bucket-2",
+      "locationType": "location-azure-archive-v1",
+      "createResources": {
+        "createContainer": true,
+        "skipLocationCreation": true
+      },
+      "details": {
+        "endpoint": "env:AZURE_BACKEND_ENDPOINT",
+        "bucketName": "ci-zenko-azure-archive-target-bucket-2",
+        "auth": {
+          "type": "location-azure-shared-key",
+          "accountName": "env:AZURE_ACCOUNT_NAME",
+          "accountKey": "env:AZURE_SECRET_KEY"
+        }
+      }
     }
   ]
 }

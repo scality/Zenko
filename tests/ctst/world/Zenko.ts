@@ -145,20 +145,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         const cached = CacheHelper.parameters as Partial<ZenkoWorldParameters>;
         Object.assign(this.parameters, cached);
         
-        // store service users credentials from world parameters
-        if (this.parameters.ServiceUsersCredentials) {
-            const serviceUserCredentials =
-                JSON.parse(this.parameters.ServiceUsersCredentials) as Record<string, ServiceUsersCredentials>;
-            for (const serviceUserName in serviceUserCredentials) {
-                if (!Identity.hasIdentity(IdentityEnum.SERVICE_USER, serviceUserName, this.parameters.AccountName)) {
-                    Identity.addIdentity(IdentityEnum.SERVICE_USER, serviceUserName, {
-                        accessKeyId: serviceUserCredentials[serviceUserName].accessKey,
-                        secretAccessKey: serviceUserCredentials[serviceUserName].secretKey,
-                    }, this.parameters.AccountName);
-                }
-            }
-        }
-
         CacheHelper.savedAcrossTests[Zenko.PRA_INSTALL_COUNT_KEY] = 0;
 
         // Only add account identity if valid credentials exist (not admin credentials)
@@ -174,6 +160,36 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         if (this.parameters.AccountName) {
             Identity.useIdentity(IdentityEnum.ACCOUNT, this.parameters.AccountName);
             Identity.defaultAccountName = this.parameters.AccountName;
+        }
+
+        // Store service users credentials from world parameters
+        if (this.parameters.ServiceUsersCredentials) {
+            const serviceUserCredentials =
+                JSON.parse(this.parameters.ServiceUsersCredentials) as Record<string, ServiceUsersCredentials>;
+            for (const serviceUserName in serviceUserCredentials) {
+                if (!Identity.hasIdentity(IdentityEnum.SERVICE_USER, serviceUserName, this.parameters.AccountName)) {
+                    Identity.addIdentity(IdentityEnum.SERVICE_USER, serviceUserName, {
+                        accessKeyId: serviceUserCredentials[serviceUserName].accessKey,
+                        secretAccessKey: serviceUserCredentials[serviceUserName].secretKey,
+                    }, this.parameters.AccountName);
+                }
+            }
+        }
+
+        // Also check for service user credentials spread directly in parameters
+        // Service users have credentials with accessKey and secretKey properties
+        const serviceUserNames = ['backbeat-lifecycle-bp-1', 'backbeat-lifecycle-conductor-1', 
+            'backbeat-lifecycle-op-1', 'backbeat-qp-1', 'sorbet-fwd-2'];
+        for (const serviceUserName of serviceUserNames) {
+            const creds = this.parameters[serviceUserName];
+            if (creds && typeof creds === 'object' && 'accessKey' in creds && 'secretKey' in creds) {
+                if (!Identity.hasIdentity(IdentityEnum.SERVICE_USER, serviceUserName, this.parameters.AccountName)) {
+                    Identity.addIdentity(IdentityEnum.SERVICE_USER, serviceUserName, {
+                        accessKeyId: creds.accessKey as string,
+                        secretAccessKey: creds.secretKey as string,
+                    }, this.parameters.AccountName);
+                }
+            }
         }
 
         Zenko.initializeIdentitiesAndSites(this.parameters);
