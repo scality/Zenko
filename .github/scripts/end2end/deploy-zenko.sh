@@ -46,7 +46,7 @@ export ZENKO_MONGODB_CONFIG="writeConcern: 'majority'
     enableSharding: true"
 export ZENKO_MONGODB_DATABASE="${ZENKO_MONGODB_DATABASE:-datadb}"
 
-if [ "${TIME_PROGRESSION_FACTOR}" -gt 1 ]; then
+if [ -n "${TIME_PROGRESSION_FACTOR:-}" ] && [ "${TIME_PROGRESSION_FACTOR}" -gt 1 ]; then
     export ZENKO_ANNOTATIONS="$ZENKO_ANNOTATIONS
     zenko.io/time-progression-factor: \"${TIME_PROGRESSION_FACTOR}\""
 fi

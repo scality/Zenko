@@ -2,7 +2,7 @@ import { S3Client, HeadBucketCommand, NoSuchBucket } from '@aws-sdk/client-s3';
 
 import { logger } from './utils/logger';
 import KubernetesHelper from 'cli-testing/utils/KubernetesHelper';
-import { initKubernetes } from './utils/k8s';
+import { initKubernetes, getDeploymentGeneration, waitForDeploymentRestart } from './utils/k8s';
 import { sleep } from 'cli-testing/utils/utils';
 
 export interface MetadataOptions {
@@ -29,13 +29,17 @@ export async function setupMetadata(options: MetadataOptions): Promise<void> {
         }
         await KubernetesHelper.waitForStatefulSetReady('s3c-metadata-repd', namespace, timeoutMs);
 
+        // Restart bucketd and wait for new generation
+        const bucketdInitialGen = await getDeploymentGeneration(namespace, 's3c-metadata-bucketd');
         await KubernetesHelper.restartDeployment('s3c-metadata-bucketd', namespace);
-        await KubernetesHelper.waitForDeployment('s3c-metadata-bucketd', namespace, timeoutMs);
+        await waitForDeploymentRestart(namespace, 's3c-metadata-bucketd', bucketdInitialGen, timeoutMs);
 
         await patchCloudserverConfig(namespace);
 
+        // Restart cloudserver and wait for new generation
+        const cloudserverInitialGen = await getDeploymentGeneration(namespace, 's3c-cloudserver');
         await KubernetesHelper.restartDeployment('s3c-cloudserver', namespace);
-        await KubernetesHelper.waitForDeployment('s3c-cloudserver', namespace, timeoutMs);
+        await waitForDeploymentRestart(namespace, 's3c-cloudserver', cloudserverInitialGen, timeoutMs);
 
         // Small delay to allow Service endpoints to update after pod readiness
         logger.info('Waiting for Service endpoints to update...');
