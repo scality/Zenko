@@ -29,7 +29,7 @@
     "@azure/storage-queue": "^12.27.0",
     "@types/jsonwebtoken": "^9.0.10",
     "axios": "^1.12.2",
-    "cli-testing": "github:scality/cli-testing.git#7fa8c44b6ecaf6a87584c098a74f83d73b34f5fd",
+    "cli-testing": "github:scality/cli-testing.git#b760df046ddcd33c093c7bdcf0480fd24dfc0ed8",
     "commander": "^14.0.1",
     "dotenv": "^17.2.2",
     "jsonwebtoken": "^9.0.2",
