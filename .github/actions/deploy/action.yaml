@@ -65,9 +65,6 @@ runs:
     - name: Deploy Zenko Instance
       shell: bash
       run: bash deploy-zenko.sh ${{ inputs.zenko_name }} default
-      env:
-        TIME_PROGRESSION_FACTOR: ${{ inputs.TIME_PROGRESSION_FACTOR }}
-        ZENKO_ENABLE_SOSAPI: ${{ inputs.ZENKO_ENABLE_SOSAPI }}
       working-directory: ./.github/scripts/end2end
     - name: Add Keycloak user and assign StorageManager role
       shell: bash
