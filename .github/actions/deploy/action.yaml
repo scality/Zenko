@@ -14,14 +14,6 @@ inputs:
     description: "The name of the Zenko instance to deploy"
     required: false
     default: "end2end"
-  TIME_PROGRESSION_FACTOR:
-    description: "Time progression factor for accelerated testing (in seconds, e.g., 86400 for 1 day)"
-    required: false
-    default: "1"
-  ZENKO_ENABLE_SOSAPI:
-    description: "Enable Veeam SOS API"
-    required: false
-    default: "false"
 runs:
   using: composite
   steps:

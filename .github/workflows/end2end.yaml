@@ -694,6 +694,7 @@ jobs:
         uses: ./.github/actions/deploy
         with:
           git_access_token: ${{ steps.app-token.outputs.token }}
+        env:
           ZENKO_ENABLE_SOSAPI: true
           TIME_PROGRESSION_FACTOR: 86400
           TRANSITION_ONE_DAY_EARLIER: false

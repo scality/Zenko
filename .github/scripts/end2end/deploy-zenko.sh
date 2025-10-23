@@ -135,59 +135,8 @@ create_encryption_secret
 env $(dependencies_env) envsubst < ${ZENKOVERSION_PATH} | kubectl -n ${NAMESPACE} apply -f -
 env $(dependencies_env) envsubst < ${ZENKO_CR_PATH} | kubectl -n ${NAMESPACE} apply -f -
 
-ZK_STS_NAME="${ZENKO_NAME}-base-quorum"
-ZK_CONTAINER_NAME="zookeeper"
-ZK_POD_NAME="${ZK_STS_NAME}-0"
-
-echo "Waiting for Zookeeper StatefulSet (${ZK_STS_NAME})..."
-for i in $(seq 1 60); do
-    if kubectl get statefulset ${ZK_STS_NAME} -n ${NAMESPACE} > /dev/null 2>&1; then
-        echo "Zookeeper StatefulSet found."
-        break
-    fi
-    sleep 2
-done
-
-if ! kubectl get statefulset ${ZK_STS_NAME} -n ${NAMESPACE} > /dev/null 2>&1; then
-    echo "ERROR: Timed out waiting for Zookeeper StatefulSet ${ZK_STS_NAME}."
-    exit 1
-fi
-
-echo "Patching Zookeeper StatefulSet (${ZK_STS_NAME}) template to add JVMFLAGS..."
-kubectl -n ${NAMESPACE} patch statefulset ${ZK_STS_NAME} --type='strategic' \
-  -p '{
-    "spec": {
-      "template": {
-        "spec": {
-          "containers": [
-            {
-              "name": "'"${ZK_CONTAINER_NAME}"'",
-              "env": [
-                {
-                  "name": "JVMFLAGS",
-                  "value": "-Xmx512m -Xms512m -XX:-UseContainerSupport -XX:ActiveProcessorCount=1 -Djava.awt.headless=true -Dzookeeper.log.dir=/data/logs -Dzookeeper.root.logger=INFO,CONSOLE -Dlog4j.configuration=file:/data/conf/log4j.properties"
-                }
-              ]
-            }
-          ]
-        }
-      }
-    }
-  }'
-
-echo "Deleting Zookeeper pod (${ZK_POD_NAME}) to apply patch..."
-kubectl delete pod ${ZK_POD_NAME} -n ${NAMESPACE} --ignore-not-found=true --wait=false
-
-echo "Waiting for Zookeeper pod (${ZK_POD_NAME}) to become Ready..."
-if ! kubectl wait --for=condition=Ready pod/${ZK_POD_NAME} --timeout=300s -n ${NAMESPACE}; then
-    echo "ERROR: Zookeeper pod ${ZK_POD_NAME} failed to become Ready after patching StatefulSet with JVMFLAGS."
-    echo "Dumping Pod Logs:"
-    kubectl logs pod/${ZK_POD_NAME} -n ${NAMESPACE} --tail=100 || echo "Could not get logs for ${ZK_POD_NAME}."
-    echo "Describing Pod:"
-    kubectl describe pod ${ZK_POD_NAME} -n ${NAMESPACE} || echo "Could not describe pod ${ZK_POD_NAME}."
-    exit 1
-fi
-echo "Zookeeper pod ${ZK_POD_NAME} is Ready."
+# Fix Zookeeper memory issues on newer Ubuntu GHA runners
+bash ${DIR}/fix-zookeeper.sh "${ZENKO_NAME}" "${NAMESPACE}"
 
 echo "Waiting for Zenko CR (${ZENKO_NAME}) to become Available..."
 
