@@ -7,6 +7,7 @@ import { setupWorkflows } from './workflows';
 import { setupDNS } from './dns';
 import { setupRBAC } from './rbac';
 import { setupMetadata } from './metadata';
+import { setupKafkaTopics } from './kafka-topics';
 import { setupNotifications } from './notifications';
 import { setupAccounts } from './accounts';
 import { waitForZenkoToStabilize } from './utils/zenko-status';
@@ -53,6 +54,7 @@ program
     .option('--no-accounts', 'Skip accounts setup')
     .option('--no-workflows', 'Skip workflows setup')
     .option('--no-metadata', 'Skip Metadata service setup')
+    .option('--no-kafka-topics', 'Skip Kafka topics setup')
     .option('--no-notifications', 'Skip notifications setup')
     .action(async (options) => {
         const globalOptions = program.opts();
@@ -65,6 +67,7 @@ program
             accounts: !options.noAccounts,
             workflows: !options.noWorkflows,
             metadata: !options.noMetadata,
+            kafkaTopics: !options.noKafkaTopics,
             notifications: !options.noNotifications,
             ctstLocal: !options.noCtstLocal,
             configFile: options.config,
@@ -85,7 +88,8 @@ program
     .option('--accounts', 'Create test accounts')
     .option('--workflows', 'Create workflows')
     .option('--metadata', 'Deploy metadata service')
-    .option('--notifications', 'Setup Kafka notifications')
+    .option('--kafka-topics', 'Setup Kafka topics')
+    .option('--notifications', 'Setup notification destinations')
     .option('--config <path>', 'Path to setup configuration file')
     .option('--workflows-config <path>', 'Path to workflows configuration file')
     .option('--locations-config <path>', 'Path to locations configuration file')
@@ -102,6 +106,7 @@ program
             locations: options.locations || false,
             workflows: options.workflows || false,
             metadata: options.metadata || false,
+            kafkaTopics: options.kafkaTopics || false,
             notifications: options.notifications || false,
             configFile: options.config,
             workflowsConfig: options.workflowsConfig,
@@ -221,8 +226,19 @@ program
     });
 
 program
+    .command('kafka-topics')
+    .description('Setup Kafka topics for replication, data-mover, and lifecycle operations')
+    .action(async () => {
+        const globalOptions = program.opts();
+        await setupKafkaTopics({
+            namespace: globalOptions.namespace,
+            zenkoName: globalOptions.zenkoName,
+        });
+    });
+
+program
     .command('notifications')
-    .description('Setup Kafka notification topics and destinations')
+    .description('Setup notification destinations (ZenkoNotificationTarget CRs)')
     .option('--config <path>', 'Path to notification destinations configuration file')
     .action(async (options) => {
         if (!setupFlags.locations) {
@@ -362,6 +378,24 @@ async function runSetup(options: any) {
                         namespace: options.namespace,
                         configFile: options.workflowsConfig,
                         instanceId,
+                        zenkoName: options.zenkoName,
+                    });
+                }
+            });
+        }
+
+        if (options.kafkaTopics) {
+            const instanceId = await getInstanceId();
+            if (!instanceId) {
+                throw new Error('instance ID is required for Kafka topics setup. Ensure UUID environment variable is set or Zenko CR exists');
+            }
+            tasks.push({
+                name: 'Kafka Topics', fn: async () => {
+                    if (!setupFlags.locations) {
+                        throw new Error('Locations setup is required before Kafka topics setup');
+                    }
+                    await setupKafkaTopics({
+                        namespace: options.namespace,
                         zenkoName: options.zenkoName,
                     });
                 }

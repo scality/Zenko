@@ -11,11 +11,23 @@
       "description": "Alternative notification destination topic"
     }
   ],
-  "azureArchiveTopics": [
+  "backbeatTopics": [
+    {
+      "suffix": "backbeat-replication-replay-0",
+      "partitions": 5,
+      "description": "Backbeat replication replay topic"
+    },
+    {
+      "suffix": "backbeat-data-mover",
+      "partitions": 5,
+      "description": "Backbeat data mover topic for lifecycle transitions"
+    }
+  ],
+  "lifecycleTopics": [
     {
       "suffix": "cold-status-e2e-azure-archive",
       "partitions": 10,
-      "description": "Main Azure archive cold status topic"
+      "description": "Main Azure archive cold status topic for lifecycle transitions"
     },
     {
       "suffix": "cold-status-e2e-azure-archive-2-non-versioned",
