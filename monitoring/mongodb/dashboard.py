@@ -220,7 +220,7 @@ class Metrics:
     ).with_defaults(JOB_FILTER)
 
     SS_METRICS_CURSOR_OPEN = metrics.Metric(
-        "mongodb_ss_metrics_cursor_open", "job", namespace="${namespace}"
+        "mongodb_ss_metrics_cursor_open", "job", namespace="${namespace}", rs_state=RS_STATE_PRIMARY
     ).with_defaults(JOB_FILTER)
 
     SS_METRICS_TTL_DELETED_DOCUMENTS = metrics.CounterMetric(
@@ -231,7 +231,7 @@ class Metrics:
     ).with_defaults(JOB_FILTER)
 
     SS_METRICS_CURSOR_TOTAL_OPENED = metrics.CounterMetric(
-        "mongodb_ss_metrics_cursor_totalOpened", "job", namespace="${namespace}"
+        "mongodb_ss_metrics_cursor_totalOpened", "job", namespace="${namespace}", rs_state=RS_STATE_PRIMARY
     ).with_defaults(JOB_FILTER)
 
     SS_GLOBAL_LOCK_ACTIVE_CLIENTS_READERS = metrics.Metric(
@@ -518,7 +518,7 @@ mongodb_services_state = mongodb_stat(
     orientation="horizontal",
     targets=[
         Target(
-            expr="sum(" + Metrics.UP() + ") by (pod)",
+            expr="sum(" + Metrics.UP() + ") by (job)",
             legendFormat="{{pod}}",
         )
     ],
@@ -531,14 +531,16 @@ version_panel = Stat(
     colorMode="none",
     orientation="horizontal",
     textMode="auto",
-    # The version is stored in the "mongodb" field of the metric
-    reduceCalc={"calcs": ["lastNotNull"], "fields": "/^mongodb$/", "values": False},
+    reduceOptions={
+        "calcs": ["lastNotNull"],
+        "fields": "/^mongodb$/",
+        "values": False,
+    },
     targets=[
         Target(
-            expr="count by (mongodb) (" + Metrics.VERSION_INFO() + ") > 0",
+            expr="group by (mongodb) (" + Metrics.VERSION_INFO() + ")",
             format="table",
             instant=True,
-            legendFormat="{{mongodb}}",
         )
     ],
 )
@@ -665,8 +667,8 @@ docs_distribution_pie = PieChart(
     unit="short",
     targets=[
         Target(
-            expr="sum by (job) (" + Metrics.DBSTATS_OBJECTS() + ")",
-            legendFormat="{{ job }}",
+            expr="sum by (pod) (" + Metrics.DBSTATS_OBJECTS() + ")",
+            legendFormat="{{ pod }}",
         )
     ],
     description="Distribution of user documents across all shards",
@@ -682,8 +684,8 @@ index_size_distribution_pie = PieChart(
     unit=UNITS.BYTES,
     targets=[
         Target(
-            expr="sum by (job) (" + Metrics.DBSTATS_INDEX_SIZE() + ")",
-            legendFormat="{{ job }}",
+            expr="sum by (pod) (" + Metrics.DBSTATS_INDEX_SIZE() + ")",
+            legendFormat="{{ pod }}",
         )
     ],
     description="Distribution of user index sizes across all shards",
@@ -788,7 +790,7 @@ mongos_cursors = mongodb_stat(
     decimals=0,
     targets=[
         Target(
-            expr="sum by (job) (" + Metrics.SS_METRICS_CURSOR_OPEN() + ")",
+            expr="sum by (pod) (" + Metrics.SS_METRICS_CURSOR_OPEN() + ")",
         )
     ],
 )
@@ -797,7 +799,7 @@ active_connections = mongodb_timeseries(
     "Active connections",
     [
         Target(
-            expr="sum by(job) (" + Metrics.SS_CONNECTIONS(conn_type="current") + ")",
+            expr="sum by(pod) (" + Metrics.SS_CONNECTIONS(conn_type="current") + ")",
             legendFormat="__auto",
         )
     ],
@@ -825,16 +827,16 @@ ops_shard_servers = mongodb_timeseries(
     "Data operations",
     [
         Target(
-            expr="sum by (job) (rate("
+            expr="sum by (pod) (rate("
             + Metrics.SS_OPCOUNTERS(legacy_op_type=["query", "getmore"])
             + "))",
-            legendFormat="Read - {{ job }}",
+            legendFormat="Read - {{ pod }}",
         ),
         Target(
-            expr="sum by (job) (rate("
+            expr="sum by (pod) (rate("
             + Metrics.SS_OPCOUNTERS(legacy_op_type=["insert", "update", "delete"])
             + "))",
-            legendFormat="Write - {{ job }}",
+            legendFormat="Write - {{ pod }}",
         ),
     ],
     legendDisplayMode="table",
@@ -951,6 +953,7 @@ disk_writes = mongodb_timeseries(
             expr="sum by(pod) (rate("
             + Metrics.CONTAINER_FS_WRITES_TOTAL(f'pod=~"{POD_PATTERN}"')
             + "))",
+            legendFormat="{{ pod }}"
         )
     ],
     legendDisplayMode="table",
@@ -1090,6 +1093,7 @@ op_queue_size = mongodb_timeseries(
             expr="sum by(pod) ("
             + Metrics.SS_GLOBAL_LOCK_CURRENT_QUEUE(count_type=["readers", "writers"])
             + ")",
+            legendFormat="{{ pod }}",
         )
     ],
     unit="none",
