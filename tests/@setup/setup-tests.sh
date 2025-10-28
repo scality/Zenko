@@ -177,12 +177,16 @@ $(for arg in "${setup_args[@]}"; do echo "        - \"${arg}\""; done)
           value: "${AWS_BACKEND_DESTINATION_LOCATION}"
         - name: AWS_BACKEND_DESTINATION_FAIL_LOCATION
           value: "${AWS_BACKEND_DESTINATION_FAIL_LOCATION}"
+        - name: AWS_BACKEND_DESTINATION_REPLICATION_FAIL_CTST_LOCATION
+          value: "${AWS_BACKEND_DESTINATION_REPLICATION_FAIL_CTST_LOCATION}"
         - name: AWS_BUCKET_NAME
           value: "${AWS_BUCKET_NAME}"
         - name: AWS_CRR_BUCKET_NAME
           value: "${AWS_CRR_BUCKET_NAME}"
         - name: AWS_FAIL_BUCKET_NAME
           value: "${AWS_FAIL_BUCKET_NAME}"
+        - name: AWS_REPLICATION_FAIL_CTST_BUCKET_NAME
+          value: "${AWS_REPLICATION_FAIL_CTST_BUCKET_NAME}"
         - name: AWS_ENDPOINT
           value: "${AWS_ENDPOINT}"
         - name: AWS_ACCESS_KEY

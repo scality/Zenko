@@ -51,6 +51,23 @@
       }
     },
     {
+      "name": "env:AWS_BACKEND_DESTINATION_REPLICATION_FAIL_CTST_LOCATION",
+      "locationType": "location-aws-s3-v1",
+      "createResources": {
+        "createBucket": true,
+        "enableVersioning": true,
+        "skipLocationCreation": true
+      },
+      "details": {
+        "endpoint": "env:AWS_ENDPOINT",
+        "bucketName": "env:AWS_REPLICATION_FAIL_CTST_BUCKET_NAME",
+        "accessKey": "env:AWS_ACCESS_KEY",
+        "secretKey": "env:AWS_SECRET_KEY",
+        "bucketMatch": false,
+        "repoId": []
+      }
+    },
+    {
       "name": "env:AZURE_BACKEND_DESTINATION_LOCATION",
       "locationType": "location-azure-v1",
       "createResources": {
