@@ -70,6 +70,8 @@ env:
   COLD_BACKEND_DESTINATION_LOCATION: e2e-cold
   AZURE_ARCHIVE_BACKEND_DESTINATION_LOCATION: e2e-azure-archive
   MIRIA_BACKEND_DESTINATION_LOCATION: e2e-miria-archive
+  AWS_BACKEND_DESTINATION_REPLICATION_FAIL_CTST_LOCATION: awsbackendreplicationctstfail
+  AWS_REPLICATION_FAIL_CTST_BUCKET_NAME: ci-zenko-aws-replication-fail-ctst-bucket
   LOCATION_QUOTA_BACKEND: quotabackend
   # Bucket names
   AWS_BUCKET_NAME: ci-zenko-aws-target-bucket
