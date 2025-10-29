@@ -1,0 +1,43 @@
+apiVersion: zenko.io/v1alpha1
+kind: ZenkoDRSource
+metadata:
+  name: end2end-dr-source
+spec:
+  locationNames:
+  - e2e-cold
+  mongodb:
+    provider: External
+    enableSharding: true
+    endpoints:
+      - data-db-mongodb-sharded.default.svc.cluster.local:27017
+    userSecretName: mongodb-db-creds
+    usernameKey: mongodb-username
+    passwordKey: mongodb-password
+    databaseName: "zenko-database"
+    writeConcern: "majority"
+  kafka:
+    external:
+      brokers:
+        - end2end-pra-dr-sink-base-queue-0:9092
+    connect:
+      source:
+        replicas: 1
+    versions:
+      cleaner:
+        image:  '${KAFKA_CLEANER_IMAGE}'
+        tag:    '${KAFKA_CLEANER_TAG}'
+      cluster:
+        image:  '${KAFKA_IMAGE}'
+        tag:    '${KAFKA_TAG}'
+      connect:
+        image: '${KAFKA_CONNECT_IMAGE}' 
+        tag:   '${KAFKA_CONNECT_TAG}'
+      cruiseControl:
+        image: '${KAFKA_CRUISECONTROL_IMAGE}'
+        tag: '${KAFKA_CRUISECONTROL_TAG}'
+      lagExporter:
+        image: '${KAFKA_LAGEXPORTER_IMAGE}'
+        tag: '${KAFKA_LAGEXPORTER_TAG}'
+      monitoring:
+        image: '${JMX_JAVAAGENT_IMAGE}'
+        tag: '${JMX_JAVAAGENT_TAG}'

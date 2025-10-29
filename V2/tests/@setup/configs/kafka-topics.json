@@ -1,0 +1,48 @@
+{
+  "notificationTopics": [
+    {
+      "name": "env:NOTIF_DEST_TOPIC",
+      "partitions": 1,
+      "description": "Primary notification destination topic"
+    },
+    {
+      "name": "env:NOTIF_ALT_DEST_TOPIC",
+      "partitions": 1,
+      "description": "Alternative notification destination topic"
+    }
+  ],
+  "backbeatTopics": [
+    {
+      "suffix": "backbeat-replication-replay-0",
+      "partitions": 5,
+      "description": "Backbeat replication replay topic"
+    },
+    {
+      "suffix": "backbeat-data-mover",
+      "partitions": 5,
+      "description": "Backbeat data mover topic for lifecycle transitions"
+    }
+  ],
+  "lifecycleTopics": [
+    {
+      "suffix": "cold-status-e2e-azure-archive",
+      "partitions": 10,
+      "description": "Main Azure archive cold status topic for lifecycle transitions"
+    },
+    {
+      "suffix": "cold-status-e2e-azure-archive-2-non-versioned",
+      "partitions": 10,
+      "description": "Azure archive cold status topic for non-versioned buckets"
+    },
+    {
+      "suffix": "cold-status-e2e-azure-archive-2-versioned",
+      "partitions": 10,
+      "description": "Azure archive cold status topic for versioned buckets"
+    },
+    {
+      "suffix": "cold-status-e2e-azure-archive-2-suspended",
+      "partitions": 10,
+      "description": "Azure archive cold status topic for suspended buckets"
+    }
+  ]
+}

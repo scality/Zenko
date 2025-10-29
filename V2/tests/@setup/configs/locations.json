@@ -1,0 +1,295 @@
+{
+  "locations": [
+    {
+      "name": "env:AWS_BACKEND_SOURCE_LOCATION",
+      "locationType": "location-aws-s3-v1",
+      "legacyAwsBehavior": true,
+      "createResources": {
+        "createBucket": true,
+        "enableVersioning": true
+      },
+      "details": {
+        "endpoint": "env:AWS_ENDPOINT",
+        "bucketName": "env:AWS_BUCKET_NAME",
+        "accessKey": "env:AWS_ACCESS_KEY",
+        "secretKey": "env:AWS_SECRET_KEY",
+        "bucketMatch": true,
+        "repoId": []
+      }
+    },
+    {
+      "name": "env:AWS_BACKEND_DESTINATION_LOCATION",
+      "locationType": "location-aws-s3-v1",
+      "createResources": {
+        "createBucket": true,
+        "enableVersioning": true
+      },
+      "details": {
+        "endpoint": "env:AWS_ENDPOINT",
+        "bucketName": "env:AWS_CRR_BUCKET_NAME",
+        "accessKey": "env:AWS_ACCESS_KEY",
+        "secretKey": "env:AWS_SECRET_KEY",
+        "bucketMatch": false,
+        "repoId": []
+      }
+    },
+    {
+      "name": "env:AWS_BACKEND_DESTINATION_FAIL_LOCATION",
+      "locationType": "location-aws-s3-v1",
+      "createResources": {
+        "createBucket": true,
+        "enableVersioning": true,
+        "skipLocationCreation": true
+      },
+      "details": {
+        "endpoint": "env:AWS_ENDPOINT",
+        "bucketName": "env:AWS_FAIL_BUCKET_NAME",
+        "accessKey": "env:AWS_ACCESS_KEY",
+        "secretKey": "env:AWS_SECRET_KEY",
+        "bucketMatch": false,
+        "repoId": []
+      }
+    },
+    {
+      "name": "env:AWS_BACKEND_DESTINATION_REPLICATION_FAIL_CTST_LOCATION",
+      "locationType": "location-aws-s3-v1",
+      "createResources": {
+        "createBucket": true,
+        "enableVersioning": true,
+        "skipLocationCreation": true
+      },
+      "details": {
+        "endpoint": "env:AWS_ENDPOINT",
+        "bucketName": "env:AWS_REPLICATION_FAIL_CTST_BUCKET_NAME",
+        "accessKey": "env:AWS_ACCESS_KEY",
+        "secretKey": "env:AWS_SECRET_KEY",
+        "bucketMatch": false,
+        "repoId": []
+      }
+    },
+    {
+      "name": "env:AZURE_BACKEND_DESTINATION_LOCATION",
+      "locationType": "location-azure-v1",
+      "createResources": {
+        "createContainer": true
+      },
+      "details": {
+        "endpoint": "env:AZURE_BACKEND_ENDPOINT",
+        "bucketName": "env:AZURE_CRR_BUCKET_NAME",
+        "accessKey": "env:AZURE_ACCOUNT_NAME",
+        "secretKey": "env:AZURE_SECRET_KEY",
+        "bucketMatch": false,
+        "repoId": []
+      }
+    },
+    {
+      "name": "env:AZURE_ARCHIVE_BACKEND_DESTINATION_LOCATION",
+      "locationType": "location-azure-archive-v1",
+      "isCold": true,
+      "createResources": {
+        "createContainer": true,
+        "createBucket": true,
+        "createQueue": true
+      },
+      "details": {
+        "endpoint": "env:AZURE_BACKEND_ENDPOINT",
+        "bucketName": "env:AZURE_ARCHIVE_BUCKET_NAME",
+        "queue": {
+          "type": "location-azure-storage-queue-v1",
+          "queueName": "archive-queue",
+          "endpoint": "env:AZURE_BACKEND_QUEUE_ENDPOINT"
+        },
+        "auth": {
+          "type": "location-azure-shared-key",
+          "accountName": "env:AZURE_ACCOUNT_NAME",
+          "accountKey": "env:AZURE_SECRET_KEY"
+        },
+        "repoId": [
+          "233aead6-1d7b-4647-a7cf-0d3280b5d1d7"
+        ]
+      }
+    },
+    {
+      "name": "env:AZURE_ARCHIVE_BACKEND_DESTINATION_LOCATION",
+      "locationType": "location-azure-archive-v1",
+      "isCold": true,
+      "createResources": {
+        "createContainer": true,
+        "createBucket": true,
+        "createQueue": false,
+        "skipLocationCreation": true
+      },
+      "details": {
+        "endpoint": "env:AZURE_BACKEND_ENDPOINT",
+        "bucketName": "env:AZURE_ARCHIVE_BUCKET_NAME_2",
+        "queue": {
+          "type": "location-azure-storage-queue-v1",
+          "queueName": "archive-queue",
+          "endpoint": "env:AZURE_BACKEND_QUEUE_ENDPOINT"
+        },
+        "auth": {
+          "type": "location-azure-shared-key",
+          "accountName": "env:AZURE_ACCOUNT_NAME",
+          "accountKey": "env:AZURE_SECRET_KEY"
+        },
+        "repoId": [
+          "233aead6-1d7b-4647-a7cf-0d3280b5d1d7"
+        ]
+      }
+    },
+    {
+      "name": "env:GCP_BACKEND_DESTINATION_LOCATION",
+      "locationType": "location-gcp-v1",
+      "details": {
+        "bucketName": "env:GCP_CRR_BUCKET_NAME",
+        "mpuBucketName": "env:GCP_CRR_MPU_BUCKET_NAME",
+        "accessKey": "env:GCP_ACCESS_KEY",
+        "secretKey": "env:GCP_SECRET_KEY",
+        "bucketMatch": false,
+        "repoId": []
+      }
+    },
+    {
+      "name": "env:COLD_BACKEND_DESTINATION_LOCATION",
+      "locationType": "location-dmf-v1",
+      "isCold": true,
+      "details": {
+        "endpoint": "ws://mock-sorbet:5001/session",
+        "username": "user1",
+        "password": "pass1",
+        "repoId": [
+          "233aead6-1d7b-4647-a7cf-0d3280b5d1d7",
+          "81e78de8-df11-4acd-8ad1-577ff05a68db"
+        ],
+        "nsId": "65f9fd61-42fe-4a68-9ac0-6ba25311cc85"
+      }
+    },
+    {
+      "name": "env:MIRIA_BACKEND_DESTINATION_LOCATION",
+      "locationType": "location-miria-v1",
+      "isCold": true,
+      "details": {
+        "endpoint": "ws://mock-miria:5001/session",
+        "username": "user1",
+        "password": "pass1",
+        "repoId": [
+          "65f9fd61-42fe-4a68-9ac0-6ba25311cc85"
+        ]
+      }
+    },
+    {
+      "name": "env:RING_S3C_BACKEND_SOURCE_LOCATION",
+      "locationType": "location-scality-ring-s3-v1",
+      "bootstrapIngestion": true,
+      "createResources": {
+        "createBucket": true,
+        "enableVersioning": true
+      },
+      "details": {
+        "endpoint": "env:RING_S3C_ENDPOINT",
+        "bucketName": "env:RING_S3C_INGESTION_SRC_BUCKET_NAME",
+        "accessKey": "env:RING_S3C_ACCESS_KEY",
+        "secretKey": "env:RING_S3C_SECRET_KEY",
+        "bucketMatch": true,
+        "repoId": []
+      }
+    },
+    {
+      "name": "env:RING_S3C_BACKEND_SOURCE_NON_VERSIONED_LOCATION",
+      "locationType": "location-scality-ring-s3-v1",
+      "createResources": {
+        "createBucket": true,
+        "enableVersioning": true,
+        "addTestObjects": true
+      },
+      "details": {
+        "endpoint": "env:RING_S3C_ENDPOINT",
+        "bucketName": "env:RING_S3C_INGESTION_SRC_NON_VERSIONED_BUCKET_NAME",
+        "accessKey": "env:RING_S3C_ACCESS_KEY",
+        "secretKey": "env:RING_S3C_SECRET_KEY",
+        "bucketMatch": true,
+        "repoId": []
+      }
+    },
+    {
+      "name": "ctst-azure-archive-container-1",
+      "locationType": "location-azure-archive-v1",
+      "createResources": {
+        "createContainer": true,
+        "createQueue": true,
+        "skipLocationCreation": true
+      },
+      "details": {
+        "endpoint": "env:AZURE_BACKEND_ENDPOINT",
+        "bucketName": "archive-container",
+        "queue": {
+          "type": "location-azure-storage-queue-v1",
+          "queueName": "archive-queue",
+          "endpoint": "env:AZURE_BACKEND_QUEUE_ENDPOINT"
+        },
+        "auth": {
+          "type": "location-azure-shared-key",
+          "accountName": "env:AZURE_ACCOUNT_NAME",
+          "accountKey": "env:AZURE_SECRET_KEY"
+        }
+      }
+    },
+    {
+      "name": "ctst-azure-archive-container-2",
+      "locationType": "location-azure-archive-v1",
+      "createResources": {
+        "createContainer": true,
+        "skipLocationCreation": true
+      },
+      "details": {
+        "endpoint": "env:AZURE_BACKEND_ENDPOINT",
+        "bucketName": "archive-container-2",
+        "auth": {
+          "type": "location-azure-shared-key",
+          "accountName": "env:AZURE_ACCOUNT_NAME",
+          "accountKey": "env:AZURE_SECRET_KEY"
+        }
+      }
+    },
+    {
+      "name": "ctst-azure-archive-target",
+      "locationType": "location-azure-archive-v1",
+      "createResources": {
+        "createContainer": true,
+        "createQueue": true,
+        "skipLocationCreation": true
+      },
+      "details": {
+        "endpoint": "env:AZURE_BACKEND_ENDPOINT",
+        "bucketName": "ci-zenko-azure-archive-target-bucket",
+        "queue": {
+          "type": "location-azure-storage-queue-v1",
+          "queueName": "ci-zenko-azure-archive-target-queue",
+          "endpoint": "env:AZURE_BACKEND_QUEUE_ENDPOINT"
+        },
+        "auth": {
+          "type": "location-azure-shared-key",
+          "accountName": "env:AZURE_ACCOUNT_NAME",
+          "accountKey": "env:AZURE_SECRET_KEY"
+        }
+      }
+    },
+    {
+      "name": "ctst-azure-archive-target-bucket-2",
+      "locationType": "location-azure-archive-v1",
+      "createResources": {
+        "createContainer": true,
+        "skipLocationCreation": true
+      },
+      "details": {
+        "endpoint": "env:AZURE_BACKEND_ENDPOINT",
+        "bucketName": "ci-zenko-azure-archive-target-bucket-2",
+        "auth": {
+          "type": "location-azure-shared-key",
+          "accountName": "env:AZURE_ACCOUNT_NAME",
+          "accountKey": "env:AZURE_SECRET_KEY"
+        }
+      }
+    }
+  ]
+}

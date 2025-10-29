@@ -1,0 +1,140 @@
+---
+apiVersion: zenko.io/v1alpha2
+kind: Zenko
+metadata:
+  name: ${ZENKO_NAME}
+  ${ZENKO_ANNOTATIONS}
+spec:
+  version: ${ZENKO_VERSION_NAME}
+  replicas: 1
+  initialConfiguration:
+    locations:
+    - name: us-east-1
+      type: location-file-v1
+    s3API:
+      endpoints:
+      - hostname: ${ZENKO_S3_INGRESS}
+        locationName: us-east-1
+  internalCloudserver:
+    enable: true
+    logging:
+      logLevel: debug
+  cloudserver:
+    replicas: 2
+    logging:
+      logLevel: debug
+  backbeat:
+    triggerExpirationsOneDayEarlierForTesting: ${EXPIRE_ONE_DAY_EARLIER}
+    lifecycleConductor:
+      cronRule: "${BACKBEAT_LCC_CRON_RULE}"
+    lifecycleBucketProcessor:
+      triggerTransitionsOneDayEarlierForTesting: ${TRANSITION_ONE_DAY_EARLIER}
+    ingestionProcessor:
+      concurrency: 2
+    logging:
+      logLevel: debug
+  mongodb:
+    provider: External
+    endpoints:
+      - ${ZENKO_MONGODB_ENDPOINT}
+    userSecretName: ${ZENKO_MONGODB_SECRET_NAME}
+    usernameKey: mongodb-username
+    passwordKey: mongodb-password
+    databaseName: ${ZENKO_MONGODB_DATABASE}
+    ${ZENKO_MONGODB_CONFIG}
+  redis:
+    provider: Zenko
+  kafka:
+    provider: Managed
+    persistence:
+      volumeClaimTemplate:
+        size: 20Gi
+        storageClassName: "standard"
+  kafkaCleaner:
+    interval: 1m
+    minPartitionSizeBytes: 0Mi
+    minBatchSize: 0
+    keepAtLeast: 0
+  zookeeper:
+    provider: Managed
+    persistence:
+      volumeClaimTemplate:
+        size: 20Gi
+        storageClassName: "standard"
+  localData:
+    persistence:
+      volumeClaimTemplate:
+        size: 20Gi
+        storageClassName: "standard"
+  vault:
+    replicas: 2
+    enable: true
+    iamIngress:
+      hostname: ${ZENKO_IAM_INGRESS}
+    stsIngress:
+      hostname: ${ZENKO_STS_INGRESS}
+    logging:
+      logLevel: debug
+  utapi:
+    enable: false
+  scuba:
+    replicas: 1
+    api:
+      replicas: 1
+      ingress:
+        hostname: ${ZENKO_SUR_INGRESS}
+  management:
+    provider: InCluster
+    ui:
+      ingress:
+        hostname: ${ZENKO_UI_INGRESS}
+      discovery:
+        navbarBundleURL: '${NAVBAR_ENDPOINT}/shell/solution-ui-navbar.1.0.0.js'
+    oidc:
+      provider: '${OIDC_ENDPOINT}/auth/realms/${OIDC_REALM}'
+      federatedProviders:
+        - '${OIDC_ENDPOINT}/auth/realms/${OIDC_REALM}'
+      uiClientId: ${OIDC_CLIENT_ID}
+      vaultClientId: ${OIDC_CLIENT_ID}
+    api:
+      ingress:
+        hostname: ${ZENKO_MANAGEMENT_INGRESS}
+      allowFrom:
+      - 172.16.0.0/12
+      - 10.0.0.0/8
+  sorbet:
+    enable: true
+    configurationOverrides:
+      e2e-cold:
+        # for mock DMF, we need to override the endpoint to use in-cluster service: otherwise it
+        # relies on external hostname (ok thanks to coredns patch), but TLS cert is not valid
+        s3-endpoint: http://${ZENKO_NAME}-internal-s3api.default.svc.cluster.local
+        debug: "true"
+        command-timeout: "60s"
+        pending-job-poll-after-age: "10s"
+        pending-job-poll-check-interval: "10s"
+      e2e-azure-archive:
+        pending-job-poll-after-age: "10s"
+        pending-job-poll-check-interval: "10s"
+    server:
+      tar:
+        targetSize: 10KB
+        maxObjects: 3
+        maxDelay: "15s"
+      azure:
+        archiveTier: "hot"
+        restoreTimeout: "15s"
+  ingress:
+    workloadPlaneClass: 'nginx'
+    controlPlaneClass: 'nginx-control-plane'
+    ${ZENKO_INGRESS_ANNOTATIONS}
+    ${ZENKO_INGRESS_CERTIFICATES}
+  egress:
+    extraCACerts:
+      - secretName: zenko-root-ca 
+        secretAttributeName: ca.crt
+  registry:
+    imagePullSecretNames:
+    - zenko-operator-image-pull
+  veeamSosApi:
+    enable: ${ZENKO_ENABLE_SOSAPI}

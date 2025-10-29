@@ -1,0 +1,31 @@
+{
+  "accounts": [
+    {
+      "name": "zenko",
+      "email": "zenko@zenko.local",
+      "role": "storage-manager-role",
+      "quota": null,
+      "description": "Primary test account for Zenko operations"
+    },
+    {
+      "name": "testuser1",
+      "email": "testuser1@zenko.local",
+      "role": "storage-manager-role",
+      "quota": 1000,
+      "description": "Test user with 1GB quota limit"
+    },
+    {
+      "name": "testuser2", 
+      "email": "testuser2@zenko.local",
+      "role": "storage-manager-role",
+      "quota": null,
+      "description": "Test user with unlimited quota"
+    }
+  ],
+  "config": {
+    "defaultRole": "storage-manager-role",
+    "stsSessionDuration": 43200,
+    "createSecrets": true,
+    "secretNamePrefix": "end2end-account"
+  }
+}

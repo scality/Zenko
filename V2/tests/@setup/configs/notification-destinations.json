@@ -1,0 +1,15 @@
+{
+  "destinations": [
+    {
+      "name": "env:NOTIF_DEST_NAME",
+      "topic": "env:NOTIF_DEST_TOPIC",
+      "description": "Primary notification destination"
+    },
+    {
+      "name": "env:NOTIF_ALT_DEST_NAME",
+      "topic": "env:NOTIF_ALT_DEST_TOPIC",
+      "description": "Alternative notification destination"
+    }
+  ]
+}
+

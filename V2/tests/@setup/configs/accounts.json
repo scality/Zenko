@@ -1,0 +1,24 @@
+{
+  "accounts": [
+    {
+      "name": "zenko",
+      "email": "zenko@zenko.local",
+      "role": "storage-manager-role",
+      "quota": null,
+      "description": "Default test account for Zenko end-to-end tests"
+    },
+    {
+      "name": "testuser",
+      "email": "testuser@zenko.local",
+      "role": "storage-manager-role",
+      "quota": null,
+      "description": "Additional test user account"
+    }
+  ],
+  "config": {
+    "defaultRole": "storage-manager-role",
+    "stsSessionDuration": 43200,
+    "createSecrets": true,
+    "secretNamePrefix": "end2end-account"
+  }
+}

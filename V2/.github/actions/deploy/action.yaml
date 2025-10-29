@@ -1,0 +1,90 @@
+---
+name: "Deploy Zenko"
+description: "Deploy a Zenko instance to run the tests with e2e-http by default"
+
+inputs:
+  zkop_tag:
+    description: "The tag of the Zenko Operator image to use"
+    required: false
+    default: ""
+  git_access_token:
+    description: "GitHub access token for accessing private repositories"
+    required: true
+  zenko_name:
+    description: "The name of the Zenko instance to deploy"
+    required: false
+    default: "end2end"
+runs:
+  using: composite
+  steps:
+    - name: Bootstrap kind cluster
+      shell: bash
+      run: |
+        ./bootstrap-kind.sh ${KIND_NODE_IMAGE} ${VOLUME_ROOT} ${WORKER_COUNT}
+      working-directory: ./.github/scripts/end2end
+    - name: Ensure cluster is running
+      shell: bash
+      run: |
+        kubectl get nodes
+        kubectl get pods --all-namespaces
+    - name: Create pull image secret
+      shell: bash
+      run: bash create-pull-image-secret.sh
+      working-directory: ./.github/scripts/end2end
+    - name: Cache Helm repositories and charts
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/helm
+          ~/.config/helm
+          ~/.helm
+        key: ${{ runner.os }}-helm-${{ hashFiles('.github/scripts/end2end/install-kind-dependencies.sh') }}
+        restore-keys: |
+          ${{ runner.os }}-helm-
+    - name: Generate MongoDB database name
+      shell: bash
+      run: echo "ZENKO_MONGODB_DATABASE=$(cat /proc/sys/kernel/random/uuid)" >> "$GITHUB_ENV"
+    - name: Install kind cluster dependencies
+      shell: bash
+      run: bash install-kind-dependencies.sh
+      working-directory: ./.github/scripts/end2end
+    - name: Patch CoreDNS config
+      shell: bash
+      run: bash patch-coredns.sh
+      working-directory: ./.github/scripts/end2end
+    - name: Setup Shell-UI Service
+      shell: bash
+      run: bash deploy-shell-ui.sh
+      working-directory: ./.github/scripts/end2end
+    - name: Install operator
+      shell: bash
+      run: ./.github/scripts/end2end/deploy-zkop.sh
+      env:
+        OPERATOR_IMAGE_TAG: ${{ inputs.zkop_tag }}
+        GIT_ACCESS_TOKEN: ${{ inputs.git_access_token }}
+    - name: Deploy Zenko Instance
+      shell: bash
+      run: bash deploy-zenko.sh ${{ inputs.zenko_name }} default
+      working-directory: ./.github/scripts/end2end
+    - name: Add Keycloak user and assign StorageManager role
+      shell: bash
+      run: bash keycloak-helper.sh set-user-instance-ids default
+      working-directory: ./.github/scripts/end2end
+    - name: Start mock sorbet service
+      shell: bash
+      run: sh tests/smoke/deploy-sorbet-resources.sh end2end
+      env:
+        SORBETD_NAME: mock-sorbet
+      working-directory: ./.github/scripts/end2end/operator
+    - name: Start mock miria service
+      shell: bash
+      run: |
+        sed -i 's/sorbet-data/miria-data/g' tests/smoke/deploy-sorbet-resources.sh
+        tests/smoke/deploy-sorbet-resources.sh end2end
+      env:
+        SORBETD_NAME: mock-miria
+      working-directory: ./.github/scripts/end2end/operator
+    - name: Configure DNS for CTST
+      shell: bash
+      run: bash configure-hosts.sh
+      working-directory: ./.github/scripts/end2end

@@ -1,0 +1,753 @@
+---
+name: build-iso-and-end2end-test
+
+concurrency:
+  group: "zenko-tests-${{ github.ref_name }}"
+  cancel-in-progress: true
+
+on:
+  push:
+    branches-ignore:
+      - 'development/**'
+      - 'q/*'
+
+env:
+  # Core infrastructure
+  WORKER_COUNT: '2'
+  KIND_NODE_IMAGE: "kindest/node:v1.31.9@sha256:b94a3a6c06198d17f59cca8c6f486236fa05e2fb359cbd75dabbfc348a10b211"
+  VOLUME_ROOT: /artifacts
+  SHELL_UI_NAME: "shell-ui"
+  SHELL_UI_IMAGE: "ghcr.io/scality/metalk8s/shell-ui:v127.0.0"
+  PROMETHEUS_NAME: "prometheus"
+  # Test images
+  E2E_IMAGE_NAME: ghcr.io/scality/zenko/zenko-e2e
+  E2E_CTST_IMAGE_NAME: ghcr.io/scality/zenko/zenko-e2e-ctst
+  E2E_IMAGE_TAG: ${{ github.sha }}
+  # Zenko
+  ZENKO_NAME: "end2end"
+  # External provider secrets (for real backends)
+  GCP_ACCESS_KEY: ${{ secrets.AWS_GCP_BACKEND_ACCESS_KEY }}
+  GCP_SECRET_KEY: ${{ secrets.AWS_GCP_BACKEND_SECRET_KEY }}
+  GCP_BACKEND_SERVICE_KEY: ${{ secrets.GCP_BACKEND_SERVICE_KEY }}
+  GCP_BACKEND_SERVICE_EMAIL: ${{ secrets.GCP_BACKEND_SERVICE_EMAIL }}
+  # Feature flags
+  ENABLE_RING_TESTS: "false"
+  # Domains
+  SUBDOMAIN: "zenko.local"
+  DR_SUBDOMAIN: "dr.zenko.local"
+  # OIDC/Keycloak (still needed for test execution)
+  OIDC_REALM: "zenko"
+  OIDC_CLIENT_ID: "zenko-ui"
+  OIDC_USERNAME: 'storage_manager'
+  OIDC_PASSWORD: '123'
+  OIDC_FIRST_NAME: 'hello'
+  OIDC_LAST_NAME: 'world'
+  OIDC_HOST: 'keycloak.zenko.local'
+  OIDC_ENDPOINT: 'http://keycloak.zenko.local'
+  # Test environment endpoints (dynamically configured but need base values)
+  UI_ENDPOINT: 'http://ui.zenko.local'
+  # Mock service configurations (from our setup tool configs)
+  AZURE_ACCOUNT_NAME: devstoreaccount1
+  AZURE_BACKEND_ENDPOINT: https://devstoreaccount1.blob.azure-mock.zenko.local
+  AZURE_BACKEND_QUEUE_ENDPOINT: https://devstoreaccount1.queue.azure-mock.zenko.local
+  AZURE_ARCHIVE_BUCKET_NAME: ci-zenko-azure-archive-target-bucket
+  AZURE_ARCHIVE_BUCKET_NAME_2: ci-zenko-azure-archive-target-bucket-2
+  AZURE_SECRET_KEY: Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==
+  AWS_ENDPOINT: https://aws-mock.zenko.local
+  AWS_ACCESS_KEY: accessKey1
+  AWS_SECRET_KEY: verySecretKey1
+  # Notification destinations
+  NOTIF_DEST_NAME: destination1
+  NOTIF_DEST_TOPIC: "destination-topic-1"
+  NOTIF_ALT_DEST_NAME: "destination2"
+  NOTIF_ALT_DEST_TOPIC: "destination-topic-2"
+  # Backend locations
+  AWS_BACKEND_SOURCE_LOCATION: awsbackend
+  AWS_BACKEND_DESTINATION_LOCATION: awsbackendmismatch
+  AWS_BACKEND_DESTINATION_FAIL_LOCATION: awsbackendfail
+  GCP_BACKEND_DESTINATION_LOCATION: gcpbackendmismatch
+  AZURE_BACKEND_DESTINATION_LOCATION: azurebackendmismatch
+  COLD_BACKEND_DESTINATION_LOCATION: e2e-cold
+  AZURE_ARCHIVE_BACKEND_DESTINATION_LOCATION: e2e-azure-archive
+  MIRIA_BACKEND_DESTINATION_LOCATION: e2e-miria-archive
+  LOCATION_QUOTA_BACKEND: quotabackend
+  # Bucket names
+  AWS_BUCKET_NAME: ci-zenko-aws-target-bucket
+  AWS_CRR_BUCKET_NAME: ci-zenko-aws-crr-target-bucket
+  AWS_FAIL_BUCKET_NAME: ci-zenko-aws-fail-target-bucket
+  AZURE_CRR_BUCKET_NAME: ci-zenko-azure-crr-target-bucket
+  GCP_CRR_BUCKET_NAME: ci-zenko-gcp-crr-target-bucket
+  GCP_CRR_MPU_BUCKET_NAME: ci-zenko-gcp-crr-mpu-bucket
+  # Ring/S3C test configuration
+  RING_S3C_ACCESS_KEY: accessKey1
+  RING_S3C_SECRET_KEY: verySecretKey1
+  RING_S3C_ENDPOINT: http://s3c.local:8000
+  RING_S3C_BACKEND_SOURCE_LOCATION: rings3cbackendingestion
+  RING_S3C_INGESTION_SRC_BUCKET_NAME: ingestion-test-src-bucket
+  RING_S3C_BACKEND_SOURCE_NON_VERSIONED_LOCATION: rings3cbackendingestionnonversioned
+  RING_S3C_INGESTION_SRC_NON_VERSIONED_BUCKET_NAME: ingestion-test-src-non-versioned-bucket
+  RING_S3C_INGESTION_NON_VERSIONED_OBJECT_COUNT_PER_TYPE: 2
+  # Test framework configuration  
+  STAGE: "dev"
+  # Test reporting
+  SKOPEO_PATH: "/tmp"
+  HELM_VERSION: "v3.15.4"
+  YQ_VERSION: "v4.44.3"
+  YQ_BINARY: "yq_linux_amd64"
+  KUSTOMIZE_VERSION: "v5.4.3"
+  GO_VERSION: "1.23.0"
+  SKOPEO_VERSION: "v1.16.1"
+  KUBECTL_VERSION: "1.31.0"
+  TILT_VERSION: "0.33.19"
+  KIND_VERSION: "v0.29.0"
+  ZENKO_ENABLE_SOSAPI: false
+  EXPIRE_ONE_DAY_EARLIER: true
+  TRANSITION_ONE_DAY_EARLIER: true
+  TIME_PROGRESSION_FACTOR: 1
+  JUNIT_REPORT_PATH: /reports/ctst-junit.xml
+  # DEBUG WAIT
+  TMATE_SERVER_HOST: ${{ secrets.TMATE_SERVER_HOST }}
+  TMATE_SERVER_PORT: ${{ secrets.TMATE_SERVER_PORT }}
+  TMATE_SERVER_RSA_FINGERPRINT: ${{ secrets.TMATE_SERVER_RSA_FINGERPRINT }}
+  TMATE_SERVER_ED25519_FINGERPRINT: ${{ secrets.TMATE_SERVER_ED25519_FINGERPRINT }}
+  # Mocha reporter configuration
+  MOCHA_FILE: /reports/test-results-[hash].xml
+
+jobs:
+  check-dashboard-versions:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: install jq
+        run: |
+          sudo apt-get update && sudo apt-get install -y \
+          jq
+      - name: Verify monitoring dashboard versions
+        run: bash ./.github/scripts/check_versions.sh
+
+  check-alerts:
+    uses: ./.github/workflows/alerts.yaml
+    secrets: inherit
+
+  build-setup-image:
+    runs-on: ubuntu-24.04
+    outputs:
+      image: ${{ steps.build-image.outputs.image }}
+      digest: ${{ steps.build-image.outputs.digest }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Get token to access private repositories
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.ACTIONS_APP_ID }}
+          private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
+          repositories: |
+            cli-testing
+      - name: Build setup image
+        id: build-image  
+        uses: ./.github/actions/build-setup-image
+        with:
+          registry: ghcr.io
+          git-access-token: ${{ steps.app-token.outputs.token }}
+          image-name: zenko-setup
+          tag: ${{ github.sha }}
+
+  check-workflows:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '16'
+          cache: yarn
+          cache-dependency-path: tests/workflows/yarn.lock
+      - name: Install dependencies
+        run: yarn --cwd tests/workflows install --frozen-lockfile
+      - name: Run workflows tests
+        run: ACT_LOG=true yarn --cwd tests/workflows test
+      - name: Collect logs
+        run: |
+          mkdir -p /tmp/artifacts/data/${{ github.job }}/act-logs/
+          mv tests/workflows/act-*.log /tmp/artifacts/data/check-workflows/act-logs/
+          tar zcvf /tmp/artifacts/${{ github.sha }}-${{ github.job }}-act-logs.tgz /tmp/artifacts/data/${{ github.job }}/act-logs;
+        if: always()
+      - name: Upload artifacts
+        uses: scality/action-artifacts@v4
+        with:
+          method: upload
+          url: https://artifacts.scality.net
+          user: ${{ secrets.ARTIFACTS_USER }}
+          password: ${{ secrets.ARTIFACTS_PASSWORD }}
+          source: /tmp/artifacts
+        if: always()
+    
+  check-mongo-patches:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: fetch mongo charts
+        run: make fetch-mongodb-sharded
+        working-directory: ./solution-base/mongodb
+      - name: apply patches to charts
+        run: make patch
+        working-directory: ./solution-base/mongodb
+      - name: compare with upstream charts and fail if diff exists
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Differences found between committed patches and applied patches:"
+            git diff
+            exit 1
+          else
+            echo "No differences found. All patches match their committed versions."
+          fi
+
+  build-doc:
+    runs-on: ubuntu-22.04
+    env:
+      ARTIFACTS_USER: "${{ secrets.ARTIFACTS_USER }}"
+      ARTIFACTS_PASSWORD: "${{ secrets.ARTIFACTS_PASSWORD }}"
+      DEBIAN_FRONTEND: "noninteractive"
+      ROOT_DOCUMENTATION_BUILDDIR: "docs/docsource/build"
+      DOCUMENTATION_BUILDDIR: "build"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install required dependencies
+        uses: ./.github/actions/install-doc-dependencies
+      - name: Create build directory
+        run: mkdir ./${{ env.DOCUMENTATION_BUILDDIR }}
+        working-directory: ./docs
+      - name: Build docs
+        run: tox --workdir /tmp/tox -e docs -- html BUILDDIR=${{ env.DOCUMENTATION_BUILDDIR }}
+        working-directory: ./docs
+      - name: Create tar file for documentation
+        run: |
+          tar --create --gzip --directory ./${{ env.ROOT_DOCUMENTATION_BUILDDIR }} --file ./${{ env.ROOT_DOCUMENTATION_BUILDDIR }}/zenko-documentation.tar.gz doctrees html
+      - name: Upload documentation
+        uses: scality/action-artifacts@v4
+        with:
+          method: upload
+          url: https://artifacts.scality.net
+          user: ${{ secrets.ARTIFACTS_USER }}
+          password: ${{ secrets.ARTIFACTS_PASSWORD }}
+          source: ${{ env.ROOT_DOCUMENTATION_BUILDDIR }}
+
+  build-iso:
+    runs-on: ubuntu-24.04
+    needs: [build-kafka, check-dashboard-versions]
+    steps:
+      - name: Install dependencies
+        shell: bash
+        run: |-
+          sudo curl --fail -LO https://dl.google.com/go/go${{ env.GO_VERSION }}.linux-amd64.tar.gz
+          sudo tar -C /usr/local -xzf go${{ env.GO_VERSION }}.linux-amd64.tar.gz
+          sudo curl --fail -sSL https://get.helm.sh/helm-${{ env.HELM_VERSION }}-linux-amd64.tar.gz | tar -xvz
+          sudo install linux-amd64/helm /usr/local/bin
+          sudo curl --fail -L https://github.com/mikefarah/yq/releases/download/${{ env.YQ_VERSION }}/${{ env.YQ_BINARY }} -o /usr/bin/yq
+          sudo chmod +x /usr/bin/yq
+          sudo curl -sSL https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${{ env.KUSTOMIZE_VERSION }}/kustomize_${{ env.KUSTOMIZE_VERSION }}_linux_amd64.tar.gz | tar xzvf -
+          sudo mv kustomize /usr/local/bin
+          sudo apt-get update
+          sudo apt-get install libgpgme-dev libassuan-dev libbtrfs-dev libdevmapper-dev pkg-config hardlink mkisofs isomd5sum
+          sudo git clone --depth 1 --branch ${{ env.SKOPEO_VERSION }} https://github.com/containers/skopeo ${{ env.SKOPEO_PATH }}/src/github.com/containers/skopeo
+          cd ${{ env.SKOPEO_PATH }}/src/github.com/containers/skopeo && \
+            sudo PATH="/usr/local/go/bin:$PATH" DISABLE_DOCS=1 make bin/skopeo && \
+            sudo PATH="/usr/local/go/bin:$PATH" DISABLE_DOCS=1 make install
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Login to Registry
+        uses: docker/login-action@v3
+        with:
+          username: "${{ github.repository_owner }}"
+          password: "${{ github.token }}"
+          registry: ghcr.io
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: "${{ secrets.DOCKERHUB_LOGIN }}"
+          password: "${{ secrets.DOCKERHUB_PASSWORD }}"
+      - name: Get token to access ZKOP
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.ACTIONS_APP_ID }}
+          private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: |
+            zenko-operator
+      - name: Configure GIT
+        run: git config --global url."https://git:${{ env.GIT_ACCESS_TOKEN }}@github.com/".insteadOf "https://github.com/"
+        env:
+          GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
+      - name: Build ISO
+        run: PATH="/usr/local/bin:$PATH" bash -x ./build.sh
+        working-directory: ./solution
+      - name: Build base ISO
+        run: PATH="/usr/local/bin:$PATH" bash -x ./build.sh
+        working-directory: ./solution-base
+      - name: Upload ISO
+        uses: scality/action-artifacts@v4
+        with:
+          method: upload
+          url: https://artifacts.scality.net
+          user: ${{ secrets.ARTIFACTS_USER }}
+          password: ${{ secrets.ARTIFACTS_PASSWORD }}
+          source: "solution/_build"
+      - name: Upload base ISO
+        uses: scality/action-artifacts@v4
+        with:
+          method: upload
+          url: https://artifacts.scality.net
+          user: ${{ secrets.ARTIFACTS_USER }}
+          password: ${{ secrets.ARTIFACTS_PASSWORD }}
+          source: "solution-base/_build"
+
+  build-kafka:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Registry
+        uses: docker/login-action@v3
+        with:
+          username: "${{ github.repository_owner }}"
+          password: "${{ github.token }}"
+          registry: ghcr.io
+
+      - name: Extract environment
+        run: |-
+          solution/kafka_build_vars.sh >> $GITHUB_ENV
+
+      - name: Check kafka & kafka-connect versions match
+        run: |-
+          [ "${{ env.KAFKA_TAG }}-${{ env.MONGODB_CONNECTOR_TAG }}" = "${{ env.KAFKA_CONNECT_TAG }}" ]
+
+      - name: Build and push kafka
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          context: ./solution/kafka
+          build-args: |-
+            scala_version=${{ env.scala_version }}
+            kafka_version=${{ env.kafka_version }}
+          tags: "${{ env.KAFKA_IMAGE }}:${{ env.KAFKA_TAG }}-${{ env.BUILD_TREE_HASH }}"
+          cache-from: type=gha,scope=kafka-${{ env.KAFKA_TAG }}
+          cache-to: type=gha,mode=max,scope=kafka-${{ env.KAFKA_TAG }}
+
+      - name: Build and push kafka-connect
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          context: ./solution/kafka-connect
+          build-args: |-
+            JMX_JAVAAGENT_IMAGE=${{ env.JMX_JAVAAGENT_IMAGE }}
+            JMX_JAVAAGENT_TAG=${{ env.JMX_JAVAAGENT_TAG }}
+            KAFKA_IMAGE=${{ env.KAFKA_IMAGE }}
+            KAFKA_TAG=${{ env.KAFKA_TAG }}-${{ env.BUILD_TREE_HASH }}
+            MONGODB_CONNECTOR_TAG=${{ env.MONGODB_CONNECTOR_TAG }}
+          tags: "${{ env.KAFKA_CONNECT_IMAGE }}:${{ env.KAFKA_CONNECT_TAG }}-${{ env.BUILD_TREE_HASH }}"
+          cache-from: type=gha,scope=kafka-connect-${{ env.KAFKA_CONNECT_TAG }}
+          cache-to: type=gha,mode=max,scope=kafka-connect-${{ env.KAFKA_CONNECT_TAG }}
+
+  build-test-image:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Registry
+        uses: docker/login-action@v3
+        with:
+          username: "${{ github.repository_owner }}"
+          password: "${{ github.token }}"
+          registry: ghcr.io
+      - name: Build and push CI image
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          context: ./tests/zenko_tests
+          tags: "${{ env.E2E_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}"
+          cache-from: type=gha,scope=${{ env.ZENKO_NAME }}-test
+          cache-to: type=gha,mode=max,scope=${{ env.ZENKO_NAME }}-test
+
+  lint-and-build-ctst:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false # otherwise, the token is not passed to the next steps
+      - name: Get token to access private repositories
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.ACTIONS_APP_ID }}
+          private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
+          repositories: |
+            cli-testing
+      - name: Configure GIT
+        run: |
+          git config --global url.https://x-access-token:${{ env.GIT_ACCESS_TOKEN }}@github.com/.insteadOf https://github.com/
+          git config --global url.https://x-access-token:${{ env.GIT_ACCESS_TOKEN }}@github.com/.insteadOf github.com:
+          git config --global url.https://x-access-token:${{ env.GIT_ACCESS_TOKEN }}@github.com/.insteadOf ssh://git@github.com/
+        env:
+          GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: yarn
+          cache-dependency-path: tests/ctst/yarn.lock
+      - name: Install ctst test dependencies
+        working-directory: tests/ctst
+        run: yarn install --network-concurrency=1
+      - name: Lint ctst tests
+        working-directory: tests/ctst
+        run: yarn lint
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Registry
+        uses: docker/login-action@v3
+        with:
+          username: "${{ github.repository_owner }}"
+          password: "${{ github.token }}"
+          registry: ghcr.io
+      - name: Get CTST image tag
+        shell: bash
+        run: |-
+          echo "CTST_TAG=$(sed 's/.*"cli-testing": ".*#\(.*\)".*/\1/;t;d' ./tests/ctst/package.json)" >> $GITHUB_ENV
+      - name: Extract environment
+        working-directory: solution
+        run: |-
+          cat <<EOF >> $GITHUB_ENV
+          SORBET_TAG=$(yq eval '.sorbet.tag' deps.yaml)
+          DRCTL_TAG=$(yq eval .drctl.tag deps.yaml)
+          EOF
+      - name: Build and push CI image
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          context: ./tests/ctst
+          build-args: |
+            CTST_TAG=${{ env.CTST_TAG }}
+            SORBET_TAG=${{ env.SORBET_TAG }}
+            DRCTL_TAG=${{ env.DRCTL_TAG}}
+            GIT_ACCESS_TOKEN=${{ steps.app-token.outputs.token }}
+          tags: "${{ env.E2E_CTST_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}"
+          cache-from: type=gha,scope=${{ env.ZENKO_NAME }}-ctst
+          cache-to: type=gha,mode=max,scope=${{ env.ZENKO_NAME }}-ctst
+
+  end2end-pra:
+    needs: [build-kafka, lint-and-build-ctst, build-setup-image]
+    runs-on: ubuntu-24.04-16core
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        uses: ./.github/actions/install-end2end-dependencies
+      - name: Wait for Docker daemon to be ready
+        uses: ./.github/actions/wait-docker-ready
+      - name: Login to Registry
+        uses: docker/login-action@v3
+        with:
+          username: "${{ github.repository_owner }}"
+          password: "${{ github.token }}"
+          registry: ghcr.io
+      - name: Get token to access private repositories
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.ACTIONS_APP_ID }}
+          private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: |
+            metadata
+            zenko-operator
+      - name: Deploy Zenko
+        uses: ./.github/actions/deploy
+        with:
+          git_access_token: ${{ steps.app-token.outputs.token }}
+          zenko_name: ${{ env.ZENKO_NAME }}
+      - name: Prepare PRA environment
+        run: bash prepare-pra.sh
+        working-directory: ./.github/scripts/end2end
+      - name: Deploy second Zenko for PRA
+        run: bash deploy-zenko.sh ${{ env.ZENKO_NAME }}-pra default './configs/zenko.yaml'
+        env:
+          ZENKO_MONGODB_DATABASE: pradb
+        working-directory: ./.github/scripts/end2end
+      - name: Setup PRA test environment
+        env:
+          INSTANCE_ID: "${{ env.ZENKO_NAME }}-pra"
+          SETUP_IMAGE: ${{ needs.build-setup-image.outputs.image }}
+          GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: ./setup-tests.sh --kubeconfig ~/.kube/config
+        working-directory: ./tests/@setup
+      - name: Add Keycloak pra user and assign StorageManager role
+        shell: bash
+        run: bash keycloak-helper.sh add-user default ${{ env.ZENKO_NAME }}-pra
+        env:
+          OIDC_USERNAME: 'zenko-end2end-pra'
+          OIDC_EMAIL: 'e2e-pra@zenko.local'
+        working-directory: ./.github/scripts/end2end
+      - name: Configure hosts file
+        run: bash configure-hosts.sh
+        working-directory: ./.github/scripts/end2end
+      - name: Run CTST end to end tests
+        env:
+          E2E_CTST_IMAGE: ${{ env.E2E_CTST_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}
+          PARALLEL_RUNS: "1"
+        run: ./run-tests.sh --kubeconfig ~/.kube/config --type ctst -- --tags @PRA
+        working-directory: ./tests/@setup
+      - name: Debug wait
+        uses: ./.github/actions/debug-wait
+        timeout-minutes: 60
+        if: failure() && runner.debug == '1'
+      - name: Archive and publish artifacts
+        uses: ./.github/actions/archive-artifacts
+        with:
+          user: ${{ secrets.ARTIFACTS_USER }}
+          password: ${{ secrets.ARTIFACTS_PASSWORD }}
+          trunk_token: ${{ secrets.TRUNK_TOKEN }}
+        if: always()
+      - name: Clean Up
+        run: kind delete cluster
+
+  end2end-2-shards-http:
+    needs: [build-kafka, build-test-image, build-setup-image]
+    runs-on:
+      - ubuntu-24.04-8core
+    env:
+      MONGODB_SHARD_COUNT: 2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        uses: ./.github/actions/install-end2end-dependencies
+      - name: Wait for Docker daemon to be ready
+        uses: ./.github/actions/wait-docker-ready
+      - name: Login to Registry
+        uses: docker/login-action@v3
+        with:
+          username: "${{ github.repository_owner }}"
+          password: "${{ github.token }}"
+          registry: ghcr.io
+      - name: Get token to access private repositories
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.ACTIONS_APP_ID }}
+          private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: |
+            metadata
+            zenko-operator
+      - name: Deploy Zenko
+        uses: ./.github/actions/deploy
+        with:
+          git_access_token: ${{ steps.app-token.outputs.token }}
+      - name: Setup test environment
+        env:
+          SETUP_IMAGE: ${{ needs.build-setup-image.outputs.image }}
+          GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
+          GCP_ACCESS_KEY: ${{ secrets.AWS_GCP_BACKEND_ACCESS_KEY }}
+          GCP_SECRET_KEY: ${{ secrets.AWS_GCP_BACKEND_SECRET_KEY }}
+        run: ./setup-tests.sh --kubeconfig ~/.kube/config
+        working-directory: ./tests/@setup
+      - name: Run init CI test
+        env:
+          E2E_IMAGE: ${{ env.E2E_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}
+        run: ./run-tests.sh --kubeconfig ~/.kube/config --type e2e -- test_operator
+        working-directory: ./tests/@setup
+      - name: Run iam policies tests
+        env:
+          E2E_IMAGE: ${{ env.E2E_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}
+        run: ./run-tests.sh --kubeconfig ~/.kube/config --type e2e -- test_iam_policies
+        working-directory: ./tests/@setup
+      - name: Run cloudserver tests
+        env:
+          E2E_IMAGE: ${{ env.E2E_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}
+        run: ./run-tests.sh --kubeconfig ~/.kube/config --type e2e -- test_object_api
+        working-directory: ./tests/@setup
+      - name: Run smoke tests
+        env:
+          E2E_IMAGE: ${{ env.E2E_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}
+        run: ./run-tests.sh --kubeconfig ~/.kube/config --type smoke
+        working-directory: ./tests/@setup
+      - name: Debug wait
+        uses: ./.github/actions/debug-wait
+        timeout-minutes: 60
+        if: failure() && runner.debug == '1'
+      - name: Archive and publish artifacts
+        uses: ./.github/actions/archive-artifacts
+        with:
+          user: ${{ secrets.ARTIFACTS_USER }}
+          password: ${{ secrets.ARTIFACTS_PASSWORD }}
+          trunk_token: ${{ secrets.TRUNK_TOKEN }}
+        if: always()
+      - name: Clean Up
+        run: kind delete cluster
+
+  end2end-sharded:
+    needs: [build-kafka, build-test-image, build-setup-image]
+    runs-on:
+      - ubuntu-24.04-8core
+    env:
+      ENABLE_RING_TESTS: "true"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        uses: ./.github/actions/install-end2end-dependencies
+      - name: Wait for Docker daemon to be ready
+        uses: ./.github/actions/wait-docker-ready
+      - name: Login to Registry
+        uses: docker/login-action@v3
+        with:
+          username: "${{ github.repository_owner }}"
+          password: "${{ github.token }}"
+          registry: ghcr.io
+      - name: Get token to access private repositories
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.ACTIONS_APP_ID }}
+          private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: |
+            metadata
+            zenko-operator
+      - name: Deploy Zenko
+        uses: ./.github/actions/deploy
+        with:
+          git_access_token: ${{ steps.app-token.outputs.token }}
+      - name: Setup test environment
+        env:
+          SETUP_IMAGE: ${{ needs.build-setup-image.outputs.image }}
+          GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
+          GCP_ACCESS_KEY: ${{ secrets.AWS_GCP_BACKEND_ACCESS_KEY }}
+          GCP_SECRET_KEY: ${{ secrets.AWS_GCP_BACKEND_SECRET_KEY }}
+        run: |
+            ./setup-tests.sh --kubeconfig ~/.kube/config
+        working-directory: ./tests/@setup
+      - name: Run backbeat end to end tests
+        env:
+          E2E_IMAGE: ${{ env.E2E_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}
+        run: ./run-tests.sh --kubeconfig ~/.kube/config --type backbeat
+        working-directory: ./tests/@setup
+      - name: Debug wait
+        uses: ./.github/actions/debug-wait
+        timeout-minutes: 60
+        if: failure() && runner.debug == '1'
+      - name: Archive and publish artifacts
+        uses: ./.github/actions/archive-artifacts
+        with:
+          user: ${{ secrets.ARTIFACTS_USER }}
+          password: ${{ secrets.ARTIFACTS_PASSWORD }}
+          trunk_token: ${{ secrets.TRUNK_TOKEN }}
+        if: always()
+      - name: Clean Up
+        run: kind delete cluster
+
+  ctst-end2end-sharded:
+    needs: [build-kafka, lint-and-build-ctst, build-setup-image]
+    runs-on:
+      - ubuntu-24.04-8core
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        uses: ./.github/actions/install-end2end-dependencies
+      - name: Wait for Docker daemon to be ready
+        uses: ./.github/actions/wait-docker-ready
+      - name: Kubectl tool installer
+        uses: Azure/setup-kubectl@v4
+      - name: Login to Registry
+        uses: docker/login-action@v3
+        with:
+          username: "${{ github.repository_owner }}"
+          password: "${{ github.token }}"
+          registry: ghcr.io
+      - name: Get token to access private repositories
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.ACTIONS_APP_ID }}
+          private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: |
+            metadata
+            zenko-operator
+      - name: Deploy Zenko
+        uses: ./.github/actions/deploy
+        with:
+          git_access_token: ${{ steps.app-token.outputs.token }}
+        env:
+          ZENKO_ENABLE_SOSAPI: true
+          TIME_PROGRESSION_FACTOR: 86400
+          TRANSITION_ONE_DAY_EARLIER: false
+          EXPIRE_ONE_DAY_EARLIER: false
+      - name: Setup test environment
+        env:
+          SETUP_IMAGE: ${{ needs.build-setup-image.outputs.image }}
+          GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
+          GCP_ACCESS_KEY: ${{ secrets.AWS_GCP_BACKEND_ACCESS_KEY }}
+          GCP_SECRET_KEY: ${{ secrets.AWS_GCP_BACKEND_SECRET_KEY }}
+        run: ./setup-tests.sh --kubeconfig ~/.kube/config
+        working-directory: ./tests/@setup
+      - name: Configure hosts file
+        run: bash configure-hosts.sh
+        working-directory: ./.github/scripts/end2end
+      - name: Run CTST end to end tests
+        env:
+          E2E_CTST_IMAGE: ${{ env.E2E_CTST_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}
+        run: ./run-tests.sh --kubeconfig ~/.kube/config --type ctst -- --tags 'not @PRA'
+        working-directory: ./tests/@setup
+      - name: Debug wait
+        uses: ./.github/actions/debug-wait
+        timeout-minutes: 60
+        if: failure() && runner.debug == '1'
+      - name: Archive and publish artifacts
+        uses: ./.github/actions/archive-artifacts
+        with:
+          user: ${{ secrets.ARTIFACTS_USER }}
+          password: ${{ secrets.ARTIFACTS_PASSWORD }}
+          trunk_token: ${{ secrets.TRUNK_TOKEN }}
+        if: always()
+      - name: Clean Up
+        run: kind delete cluster
+
+  write-final-status:
+    runs-on: ubuntu-24.04
+    needs:
+      - check-alerts
+      - check-dashboard-versions
+      - check-workflows
+      - build-doc
+      - build-iso
+      - build-kafka
+      - build-test-image
+      - end2end-2-shards-http
+      - end2end-sharded
+      - end2end-pra
+      - ctst-end2end-sharded
+    steps:
+      - name: Upload final status
+        uses: scality/actions/upload_final_status@1.9.0
+        with:
+          ARTIFACTS_USER: ${{ secrets.ARTIFACTS_USER }}
+          ARTIFACTS_PASSWORD: ${{ secrets.ARTIFACTS_PASSWORD }}
+          JOBS_RESULTS: ${{ join(needs.*.result) }}
+        if: always()
