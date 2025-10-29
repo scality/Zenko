@@ -28,7 +28,7 @@ describe('Replication with AWS backend', function () {
 
     beforeEach(done => series([
         next => scalityUtils.createVersionedBucket(srcBucket, next),
-        next => scalityUtils.putBucketReplicationMultipleBackend(
+        next => scalityUtils.putBucketReplication(
             srcBucket,
             destBucket,
             roleArn,
@@ -984,7 +984,7 @@ describe.skip('Replication with AWS backend: source AWS location', function () {
 
     beforeEach(done => series([
         next => scalityUtils.createVersionedBucketAWS(srcBucket, next),
-        next => scalityUtils.putBucketReplicationMultipleBackend(
+        next => scalityUtils.putBucketReplication(
             srcBucket,
             destBucket,
             roleArn,

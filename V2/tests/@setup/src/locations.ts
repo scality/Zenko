@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { S3Client, CreateBucketCommand, DeleteBucketCommand, BucketLocationConstraint } from '@aws-sdk/client-s3';
+import { IAMClient, CreateUserCommand, CreateAccessKeyCommand, CreateRoleCommand, CreatePolicyCommand, AttachRolePolicyCommand } from '@aws-sdk/client-iam';
 import KubernetesHelper from 'cli-testing/utils/KubernetesHelper';
 import { logger } from './utils/logger';
 import { getInstanceId, getManagementEndpoint, getManagementToken } from './utils/management';
@@ -9,6 +10,17 @@ import { createResourcesForLocations, resolveEnvValues, sanitizeLocationForAPI, 
 import * as k8s from './utils/k8s';
 import { waitForResourceVersionChange } from './utils/k8s';
 import { verifyS3CReadiness } from './metadata';
+
+interface AccountCredentials {
+    AccessKeyId: string;
+    SecretAccessKey: string;
+    SessionToken: string;
+}
+
+interface CRRUserCredentials {
+    accessKey: string;
+    secretKey: string;
+}
 
 export interface LocationsOptions {
     namespace: string;
@@ -21,6 +33,103 @@ function replaceSubdomainPlaceholders(obj: any, subdomain: string): any {
     const jsonString = JSON.stringify(obj);
     const replacedString = jsonString.replace(/{subdomain}/g, subdomain);
     return JSON.parse(replacedString);
+}
+
+/**
+ * Setup IAM resources for CRR location
+ * Creates a user, role, and policy for cross-region replication
+ * @param accountCreds - Account credentials to use for IAM operations
+ * @param subdomain - Subdomain for endpoint construction
+ * @returns User credentials (accessKey and secretKey)
+ */
+async function setupCRRIAMResources(accountCreds: AccountCredentials, subdomain: string): Promise<CRRUserCredentials> {
+    const iamEndpoint = process.env.VAULT_IAM_ENDPOINT || `http://iam.${subdomain}`;
+    const crrRoleName = process.env.CRR_ROLE_NAME || 'crr-role';
+
+    logger.info('Setting up CRR IAM resources', { iamEndpoint, crrRoleName });
+
+    const iamClient = new IAMClient({
+        endpoint: iamEndpoint,
+        region: 'us-east-1',
+        credentials: {
+            accessKeyId: accountCreds.AccessKeyId,
+            secretAccessKey: accountCreds.SecretAccessKey,
+            sessionToken: accountCreds.SessionToken,
+        },
+    });
+
+    try {
+        // Create IAM user
+        const userResponse = await iamClient.send(new CreateUserCommand({
+            UserName: 'crr-user',
+        }));
+        const userArn = userResponse.User?.Arn;
+        logger.info('Created CRR IAM user', { userArn });
+
+        // Create access key for user
+        const credentialsResponse = await iamClient.send(new CreateAccessKeyCommand({
+            UserName: 'crr-user',
+        }));
+        const accessKey = credentialsResponse.AccessKey?.AccessKeyId!;
+        const secretKey = credentialsResponse.AccessKey?.SecretAccessKey!;
+        logger.info('Created access key for CRR user');
+
+        // Create role with assume role policy
+        const assumeRolePolicyDocument = JSON.stringify({
+            Version: '2012-10-17',
+            Statement: [
+                {
+                    Effect: 'Allow',
+                    Principal: {
+                        AWS: userArn,
+                    },
+                    Action: 'sts:AssumeRole',
+                },
+            ],
+        });
+
+        await iamClient.send(new CreateRoleCommand({
+            RoleName: crrRoleName,
+            AssumeRolePolicyDocument: assumeRolePolicyDocument,
+        }));
+        logger.info('Created CRR IAM role', { crrRoleName });
+
+        // Create policy
+        const policyDocument = JSON.stringify({
+            Version: '2012-10-17',
+            Statement: [
+                {
+                    Effect: 'Allow',
+                    Action: 's3:ReplicateObject',
+                    Resource: 'arn:aws:s3:::*/*',
+                },
+            ],
+        });
+
+        const policyResponse = await iamClient.send(new CreatePolicyCommand({
+            PolicyName: 'crr-policy',
+            PolicyDocument: policyDocument,
+        }));
+        const policyArn = policyResponse.Policy?.Arn!;
+        logger.info('Created CRR IAM policy', { policyArn });
+
+        // Attach policy to role
+        await iamClient.send(new AttachRolePolicyCommand({
+            RoleName: crrRoleName,
+            PolicyArn: policyArn,
+        }));
+        logger.info('Attached policy to CRR role');
+
+        return {
+            accessKey,
+            secretKey,
+        };
+    } catch (error: any) {
+        logger.error('Failed to setup CRR IAM resources', {
+            error: error.message,
+        });
+        throw new Error(`Failed to setup CRR site: ${error.message}`);
+    }
 }
 
 /**
@@ -49,6 +158,45 @@ export async function setupLocations(options: LocationsOptions): Promise<void> {
     const managementEndpoint = await getManagementEndpoint();
     const token = await getManagementToken();
 
+    // Load account credentials for CRR setup
+    const accountsCredentials: Record<string, AccountCredentials> = {};
+    const crrSourceAccountName = process.env.CRR_SOURCE_ACCOUNT_NAME;
+    const crrDestinationAccountName = process.env.CRR_DESTINATION_ACCOUNT_NAME;
+
+    if (crrSourceAccountName) {
+        try {
+            const sourceSecret = await KubernetesHelper.getClientCore()!.readNamespacedSecret({
+                name: `end2end-account-${crrSourceAccountName}`,
+                namespace: options.namespace,
+            });
+            accountsCredentials[crrSourceAccountName] = {
+                AccessKeyId: Buffer.from(sourceSecret.data?.AccessKeyId || '', 'base64').toString('utf8'),
+                SecretAccessKey: Buffer.from(sourceSecret.data?.SecretAccessKey || '', 'base64').toString('utf8'),
+                SessionToken: Buffer.from(sourceSecret.data?.SessionToken || '', 'base64').toString('utf8'),
+            };
+            logger.debug('Loaded CRR source account credentials');
+        } catch (error: any) {
+            logger.warn(`Could not load CRR source account credentials: ${error.message}`);
+        }
+    }
+
+    if (crrDestinationAccountName) {
+        try {
+            const destSecret = await KubernetesHelper.getClientCore()!.readNamespacedSecret({
+                name: `end2end-account-${crrDestinationAccountName}`,
+                namespace: options.namespace,
+            });
+            accountsCredentials[crrDestinationAccountName] = {
+                AccessKeyId: Buffer.from(destSecret.data?.AccessKeyId || '', 'base64').toString('utf8'),
+                SecretAccessKey: Buffer.from(destSecret.data?.SecretAccessKey || '', 'base64').toString('utf8'),
+                SessionToken: Buffer.from(destSecret.data?.SessionToken || '', 'base64').toString('utf8'),
+            };
+            logger.debug('Loaded CRR destination account credentials');
+        } catch (error: any) {
+            logger.warn(`Could not load CRR destination account credentials: ${error.message}`);
+        }
+    }
+
     // Capture cloudserver state BEFORE creating locations
     const cloudserverDeployment = `${options.zenkoName}-connector-cloudserver`;
     const initialCloudserverGeneration = await k8s.getDeploymentGeneration(options.namespace, cloudserverDeployment);
@@ -59,10 +207,49 @@ export async function setupLocations(options: LocationsOptions): Promise<void> {
     // Track locations that need ingestion bootstrap
     const locationsToBootstrap: Array<{ locationName: string; sourceBucket: string }> = [];
 
+    // Environment flags
+    const enableRingTests = process.env.ENABLE_RING_TESTS === 'true';
+    const deployCRRLocations = process.env.DEPLOY_CRR_LOCATIONS !== 'false';
+
     // Create all locations via Management API (batched)
     for (const location of locations) {
+        // Skip locations marked to skip
         if (location.createResources?.skipLocationCreation) {
+            logger.info(`Skipping location ${location.name} (skipLocationCreation=true)`);
             continue;
+        }
+
+        // Skip Ring S3C locations if Ring tests are disabled
+        if (!enableRingTests && location.locationType === 'location-scality-ring-s3-v1') {
+            logger.info(`Skipping Ring location ${location.name} (ENABLE_RING_TESTS=false)`);
+            continue;
+        }
+
+        // Handle CRR locations specially
+        if (location.locationType === 'location-scality-crr-v1') {
+            if (!deployCRRLocations) {
+                logger.info(`Skipping CRR location ${location.name} (DEPLOY_CRR_LOCATIONS=false)`);
+                continue;
+            }
+
+            // Determine which account to use based on location name
+            const locationName = resolveEnvValues(location.name);
+            const crrDestLocationName = process.env.CRR_DESTINATION_LOCATION_NAME;
+            const accountName = locationName === crrDestLocationName
+                ? crrDestinationAccountName
+                : crrSourceAccountName;
+
+            if (!accountName || !accountsCredentials[accountName]) {
+                logger.warn(`Skipping CRR location ${location.name}: account credentials not available`);
+                continue;
+            }
+
+            // Setup IAM resources and get user credentials
+            const userCreds = await setupCRRIAMResources(accountsCredentials[accountName], options.subdomain);
+            location.details.accessKey = userCreds.accessKey;
+            location.details.secretKey = userCreds.secretKey;
+
+            logger.info(`Configured CRR location ${location.name} with IAM credentials`);
         }
 
         const sanitizedLocation = sanitizeLocationForAPI(location);
@@ -75,7 +262,7 @@ export async function setupLocations(options: LocationsOptions): Promise<void> {
         }
     }
 
-    logger.info(`Created ${locations.length} storage locations`);
+    logger.info(`Created storage locations`);
 
     // Wait for Zenko operator to reconcile all location changes
     logger.info('Waiting for Zenko operator to reconcile locations...');

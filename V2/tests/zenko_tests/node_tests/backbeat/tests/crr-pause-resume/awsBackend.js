@@ -35,7 +35,7 @@ describe('Replication Pause-Resume with AWS backend', function () {
 
     beforeEach(done => series([
         next => scalityUtils.createVersionedBucket(srcBucket, next),
-        next => scalityUtils.putBucketReplicationMultipleBackend(
+        next => scalityUtils.putBucketReplication(
             srcBucket,
             destBucket,
             roleArn,

@@ -96,7 +96,7 @@
         "bucketName": "env:AZURE_ARCHIVE_BUCKET_NAME",
         "queue": {
           "type": "location-azure-storage-queue-v1",
-          "queueName": "archive-queue",
+          "queueName": "env:AZURE_ARCHIVE_QUEUE_NAME",
           "endpoint": "env:AZURE_BACKEND_QUEUE_ENDPOINT"
         },
         "auth": {
@@ -124,7 +124,7 @@
         "bucketName": "env:AZURE_ARCHIVE_BUCKET_NAME_2",
         "queue": {
           "type": "location-azure-storage-queue-v1",
-          "queueName": "archive-queue",
+          "queueName": "env:AZURE_ARCHIVE_QUEUE_NAME",
           "endpoint": "env:AZURE_BACKEND_QUEUE_ENDPOINT"
         },
         "auth": {
@@ -252,43 +252,27 @@
       }
     },
     {
-      "name": "ctst-azure-archive-target",
-      "locationType": "location-azure-archive-v1",
-      "createResources": {
-        "createContainer": true,
-        "createQueue": true,
-        "skipLocationCreation": true
-      },
+      "name": "env:CRR_SOURCE_LOCATION_NAME",
+      "locationType": "location-scality-crr-v1",
       "details": {
-        "endpoint": "env:AZURE_BACKEND_ENDPOINT",
-        "bucketName": "ci-zenko-azure-archive-target-bucket",
-        "queue": {
-          "type": "location-azure-storage-queue-v1",
-          "queueName": "ci-zenko-azure-archive-target-queue",
-          "endpoint": "env:AZURE_BACKEND_QUEUE_ENDPOINT"
-        },
-        "auth": {
-          "type": "location-azure-shared-key",
-          "accountName": "env:AZURE_ACCOUNT_NAME",
-          "accountKey": "env:AZURE_SECRET_KEY"
-        }
+        "endpoint": "http://s3.{{subdomain}}:80",
+        "stsEndpoint": "http://sts.{{subdomain}}:80",
+        "accessKey": "",
+        "secretKey": "",
+        "bucketMatch": false,
+        "repoId": []
       }
     },
     {
-      "name": "ctst-azure-archive-target-bucket-2",
-      "locationType": "location-azure-archive-v1",
-      "createResources": {
-        "createContainer": true,
-        "skipLocationCreation": true
-      },
+      "name": "env:CRR_DESTINATION_LOCATION_NAME",
+      "locationType": "location-scality-crr-v1",
       "details": {
-        "endpoint": "env:AZURE_BACKEND_ENDPOINT",
-        "bucketName": "ci-zenko-azure-archive-target-bucket-2",
-        "auth": {
-          "type": "location-azure-shared-key",
-          "accountName": "env:AZURE_ACCOUNT_NAME",
-          "accountKey": "env:AZURE_SECRET_KEY"
-        }
+        "endpoint": "http://s3.{{subdomain}}:80",
+        "stsEndpoint": "http://sts.{{subdomain}}:80",
+        "accessKey": "",
+        "secretKey": "",
+        "bucketMatch": false,
+        "repoId": []
       }
     }
   ]

@@ -25,6 +25,20 @@ CLUSTER_ROLE_BINDING_NAME="ctst-cluster-admin-for-${NAMESPACE}"
 # Admin credentials
 ADMIN_ACCESS_KEY_ID=$(kubectl get secret end2end-management-vault-admin-creds.v1 -o jsonpath='{.data.accessKey}' | base64 -d)
 ADMIN_SECRET_ACCESS_KEY=$(kubectl get secret end2end-management-vault-admin-creds.v1  -o jsonpath='{.data.secretKey}' | base64 -d)
+
+# CRR account credentials (if accounts exist)
+SOURCE_ACCESS_KEY=$(kubectl get secret "end2end-account-${CRR_SOURCE_ACCOUNT_NAME:-crr-source-account}" -o jsonpath='{.data.AccessKeyId}' 2>/dev/null | base64 -d || echo "")
+SOURCE_SECRET_KEY=$(kubectl get secret "end2end-account-${CRR_SOURCE_ACCOUNT_NAME:-crr-source-account}" -o jsonpath='{.data.SecretAccessKey}' 2>/dev/null | base64 -d || echo "")
+SOURCE_SESSION_TOKEN=$(kubectl get secret "end2end-account-${CRR_SOURCE_ACCOUNT_NAME:-crr-source-account}" -o jsonpath='{.data.SessionToken}' 2>/dev/null | base64 -d || echo "")
+SOURCE_ACCOUNT_ID=$(kubectl get secret "end2end-account-${CRR_SOURCE_ACCOUNT_NAME:-crr-source-account}" -o jsonpath='{.data.AccountId}' 2>/dev/null | base64 -d || echo "")
+CRR_SOURCE_INFO="{\"AccessKeyId\":\"${SOURCE_ACCESS_KEY}\",\"SecretAccessKey\":\"${SOURCE_SECRET_KEY}\",\"SessionToken\":\"${SOURCE_SESSION_TOKEN}\",\"AccountId\":\"${SOURCE_ACCOUNT_ID}\"}"
+
+DESTINATION_ACCESS_KEY=$(kubectl get secret "end2end-account-${CRR_DESTINATION_ACCOUNT_NAME:-crr-destination-account}" -o jsonpath='{.data.AccessKeyId}' 2>/dev/null | base64 -d || echo "")
+DESTINATION_SECRET_KEY=$(kubectl get secret "end2end-account-${CRR_DESTINATION_ACCOUNT_NAME:-crr-destination-account}" -o jsonpath='{.data.SecretAccessKey}' 2>/dev/null | base64 -d || echo "")
+DESTINATION_SESSION_TOKEN=$(kubectl get secret "end2end-account-${CRR_DESTINATION_ACCOUNT_NAME:-crr-destination-account}" -o jsonpath='{.data.SessionToken}' 2>/dev/null | base64 -d || echo "")
+DESTINATION_ACCOUNT_ID=$(kubectl get secret "end2end-account-${CRR_DESTINATION_ACCOUNT_NAME:-crr-destination-account}" -o jsonpath='{.data.AccountId}' 2>/dev/null | base64 -d || echo "")
+CRR_DESTINATION_INFO="{\"AccessKeyId\":\"${DESTINATION_ACCESS_KEY}\",\"SecretAccessKey\":\"${DESTINATION_SECRET_KEY}\",\"SessionToken\":\"${DESTINATION_SESSION_TOKEN}\",\"AccountId\":\"${DESTINATION_ACCOUNT_ID}\"}"
+
 CLOUDSERVER_SECRET="$(kubectl get secret -l app.kubernetes.io/name=connector-cloudserver-config,app.kubernetes.io/instance=end2end \
    -o jsonpath="{.items[0].data.config\.json}" | base64 -di)"
 MONGO_DATABASE=$(echo "${CLOUDSERVER_SECRET}" | jq -r '.mongodb.database')
@@ -37,7 +51,7 @@ MONGO_AUTH_PASSWORD=$(echo "${CLOUDSERVER_SECRET}" | jq -r '.mongodb.authCredent
 
 # Specific to old test suite
 VAULT_STS_ENDPOINT="http://${INSTANCE_ID}-connector-vault-sts-api:80"
-VAULT_ENDPOINT="http://${INSTANCE_ID}-management-vault-iam-admin-api:80"
+VAULT_IAM_ENDPOINT="http://${INSTANCE_ID}-management-vault-iam-admin-api:80"
 
 usage() {
     cat <<EOF
@@ -275,8 +289,6 @@ cat <<EOT
           value: "${INSTANCE_ID}-connector-s3api.${NAMESPACE}.svc.cluster.local"
         - name: CLOUDSERVER_PORT
           value: "80"
-        - name: VAULT_ENDPOINT
-          value: "http://${INSTANCE_ID}-management-vault-iam-admin-api.${NAMESPACE}.svc.cluster.local:80"
         - name: ZENKO_ACCESS_KEY
           valueFrom:
             secretKeyRef:
@@ -316,6 +328,16 @@ cat <<EOT
           value: "${MONGO_AUTH_USERNAME}"
         - name: MONGO_AUTH_PASSWORD
           value: "${MONGO_AUTH_PASSWORD}"
+        - name: CRR_SOURCE_LOCATION_NAME
+          value: "${CRR_SOURCE_LOCATION_NAME}"
+        - name: CRR_SOURCE_INFO
+          value: "${CRR_SOURCE_INFO}"
+        - name: CRR_DESTINATION_LOCATION_NAME
+          value: "${CRR_DESTINATION_LOCATION_NAME}"
+        - name: CRR_DESTINATION_INFO
+          value: "${CRR_DESTINATION_INFO}"
+        - name: CRR_ROLE_NAME
+          value: "${CRR_ROLE_NAME}"
         - name: AWS_ACCESS_KEY
           value: "${AWS_ACCESS_KEY}"
         - name: AWS_SECRET_KEY
@@ -376,8 +398,8 @@ cat <<EOT
           value: "${OIDC_CLIENT_ID}"
         - name: VAULT_STS_ENDPOINT
           value: "${VAULT_STS_ENDPOINT}"
-        - name: VAULT_ENDPOINT
-          value: "${VAULT_ENDPOINT}"
+        - name: VAULT_IAM_ENDPOINT
+          value: "${VAULT_IAM_ENDPOINT}"
 EOT
 fi)
         volumeMounts:

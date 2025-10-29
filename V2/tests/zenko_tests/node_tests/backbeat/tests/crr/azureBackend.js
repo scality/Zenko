@@ -29,7 +29,7 @@ describe('Replication with Azure backend', function () {
 
     beforeEach(done => series([
         next => utils.createVersionedBucket(srcBucket, next),
-        next => utils.putBucketReplicationMultipleBackend(
+        next => utils.putBucketReplication(
             srcBucket,
             destContainer,
             roleArn,

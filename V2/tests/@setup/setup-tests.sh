@@ -229,6 +229,18 @@ $(for arg in "${setup_args[@]}"; do echo "        - \"${arg}\""; done)
           value: "${NOTIF_ALT_DEST_NAME}"
         - name: NOTIF_ALT_DEST_TOPIC
           value: "${NOTIF_ALT_DEST_TOPIC}"
+        - name: DEPLOY_CRR_LOCATIONS
+          value: "${DEPLOY_CRR_LOCATIONS}"
+        - name: CRR_SOURCE_LOCATION_NAME
+          value: "${CRR_SOURCE_LOCATION_NAME}"
+        - name: CRR_DESTINATION_LOCATION_NAME
+          value: "${CRR_DESTINATION_LOCATION_NAME}"
+        - name: CRR_SOURCE_ACCOUNT_NAME
+          value: "${CRR_SOURCE_ACCOUNT_NAME}"
+        - name: CRR_DESTINATION_ACCOUNT_NAME
+          value: "${CRR_DESTINATION_ACCOUNT_NAME}"
+        - name: CRR_ROLE_NAME
+          value: "${CRR_ROLE_NAME}"
         resources:
           requests:
             memory: "256Mi"

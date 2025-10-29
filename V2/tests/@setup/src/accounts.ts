@@ -11,6 +11,7 @@ import {
     AccountPayload,
     STSCredentials
 } from './utils/management';
+import { resolveEnvValues } from './utils/resource-creation';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
 
@@ -85,12 +86,16 @@ export async function setupAccounts(options: AccountOptions): Promise<void> {
         // Create each account sequentially 
         for (const accountConfig of accountsToCreate) {
             try {
-                logger.info(`Processing account: ${accountConfig.name}`);
+                // Resolve environment variables in account name
+                const accountName = resolveEnvValues(accountConfig.name);
+                const accountEmail = accountConfig.email.replace(accountConfig.name, accountName);
+
+                logger.info(`Processing account: ${accountName}`);
 
                 // Create the account via management API
                 const accountPayload: AccountPayload = {
-                    userName: accountConfig.name,
-                    email: accountConfig.email,
+                    userName: accountName,
+                    email: accountEmail,
                     quota: accountConfig.quota
                 };
 
@@ -101,11 +106,11 @@ export async function setupAccounts(options: AccountOptions): Promise<void> {
 
                 // Create Kubernetes secret with the STS credentials
                 if (accountsConfig.config.createSecrets) {
-                    await createAccountSecret(namespace, accountConfig.name, stsCredentials, accountsConfig.config.secretNamePrefix);
+                    await createAccountSecret(namespace, accountName, stsCredentials, createdAccount.id, accountsConfig.config.secretNamePrefix);
                 }
 
-                logger.info(`Successfully created account: ${accountConfig.name}`, {
-                    secretName: `end2end-account-${accountConfig.name}`,
+                logger.info(`Successfully created account: ${accountName}`, {
+                    secretName: `end2end-account-${accountName}`,
                     namespace
                 });
 
@@ -199,10 +204,17 @@ async function getSTSSessionCredentials(oidcToken: string, accountId: string, ro
  * @param namespace - Namespace
  * @param accountName - Account name
  * @param credentials - STS credentials
+ * @param accountId - Account ID
  * @param secretNamePrefix - Secret name prefix
  * @returns Promise that resolves when the account secret is created
  */
-async function createAccountSecret(namespace: string, accountName: string, credentials: STSCredentials, secretNamePrefix: string = 'end2end-account'): Promise<void> {
+async function createAccountSecret(
+    namespace: string,
+    accountName: string,
+    credentials: STSCredentials,
+    accountId: string,
+    secretNamePrefix: string = 'end2end-account'
+): Promise<void> {
     logger.debug(`Creating Kubernetes secret for account: ${accountName}`);
 
     const secretName = `${secretNamePrefix}-${accountName}`;
@@ -221,7 +233,8 @@ async function createAccountSecret(namespace: string, accountName: string, crede
         stringData: {
             AccessKeyId: credentials.AccessKeyId,
             SecretAccessKey: credentials.SecretAccessKey,
-            SessionToken: credentials.SessionToken
+            SessionToken: credentials.SessionToken,
+            AccountId: accountId
         }
     };
 

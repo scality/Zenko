@@ -59,7 +59,7 @@ describe('Backbeat object monitor CRR metrics', function () {
 
     beforeEach(done => series([
         next => scalityUtils.createVersionedBucket(srcBucket, next),
-        next => scalityUtils.putBucketReplicationMultipleBackend(
+        next => scalityUtils.putBucketReplication(
             srcBucket,
             destBucket,
             roleArn,
