@@ -63,6 +63,12 @@ runs:
         kubectl get zenko -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-zenkos.log
         kubectl get zenkodrsource -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-zenkodrsources.log
         kubectl get zenkodrsink -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-zenkodrsinks.log
+      env:
+        STAGE: ${{ inputs.stage }}
+      continue-on-error: true
+
+    - name: Copy logs to artifacts
+      run: |
         tar zcvf /tmp/artifacts/${{ github.sha }}-${STAGE}-logs-volumes.tgz /tmp/artifacts/data/${STAGE}/kind-logs
       env:
         STAGE: ${{ inputs.stage }}

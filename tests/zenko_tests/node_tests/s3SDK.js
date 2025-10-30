@@ -1,3 +1,5 @@
+const http = require('http');
+const https = require('https');
 const { S3Client } = require('@aws-sdk/client-s3');
 const { IAMClient } = require('@aws-sdk/client-iam');
 const { NodeHttpHandler } = require('@aws-sdk/node-http-handler');
@@ -5,6 +7,12 @@ const { NodeHttpHandler } = require('@aws-sdk/node-http-handler');
 const sharedHttpHandler = new NodeHttpHandler({
     requestTimeout: 0,
     connectionTimeout: 0,
+    httpsAgent: new https.Agent({
+        rejectUnauthorized: false,
+    }),
+    httpAgent: new http.Agent({
+        rejectUnauthorized: false,
+    }),
 });
 
 const scalityS3Client = new S3Client({
@@ -44,15 +52,11 @@ const scalityIAMClient = new IAMClient({
     requestHandler: sharedHttpHandler,
 });
 
-const verifyCerts = process.env.VERIFY_CERTIFICATES
-    ? process.env.VERIFY_CERTIFICATES : false;
-
 const awsS3Client = new S3Client({
     credentials: {
         accessKeyId: process.env.AWS_ACCESS_KEY,
         secretAccessKey: process.env.AWS_SECRET_KEY,
     },
-    tls: verifyCerts,
     endpoint: process.env.AWS_ENDPOINT,
     region: 'us-east-1',
     forcePathStyle: true,

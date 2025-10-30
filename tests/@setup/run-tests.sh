@@ -356,8 +356,6 @@ cat <<EOT
           value: "${AZURE_SECRET_KEY}"
         - name: AZURE_BACKEND_DESTINATION_LOCATION
           value: "${AZURE_BACKEND_DESTINATION_LOCATION}"
-        - name: VERIFY_CERTIFICATES
-          value: "false"
         - name: AZURE_ARCHIVE_BACKEND_DESTINATION_LOCATION
           value: "${AZURE_ARCHIVE_BACKEND_DESTINATION_LOCATION}"
         - name: AZURE_BACKEND_ENDPOINT
