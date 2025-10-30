@@ -68,6 +68,7 @@ runs:
       continue-on-error: true
 
     - name: Copy logs to artifacts
+      shell: bash
       run: |
         tar zcvf /tmp/artifacts/${{ github.sha }}-${STAGE}-logs-volumes.tgz /tmp/artifacts/data/${STAGE}/kind-logs
       env:
