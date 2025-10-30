@@ -33,7 +33,6 @@ export async function setupMocks(options: MocksOptions): Promise<void> {
         INSTANCE_ID: options.instanceId || '',
     };
 
-    // Apply filters based on options
     const filteredFiles = yamlFiles.filter(file => {
         if (options.awsOnly && !file.includes('aws')) {
             return false;
@@ -46,17 +45,14 @@ export async function setupMocks(options: MocksOptions): Promise<void> {
 
     logger.info(`Applying ${filteredFiles.length} mock manifest(s)`, { files: filteredFiles });
 
-    // Process special setup requirements
     await handlePreSetup(filteredFiles, options);
 
-    // Apply all manifests
     for (const file of filteredFiles) {
         const yamlPath = path.join(mocksDir, file);
         logger.info(`Processing mock: ${file}`);
         await applyYamlManifests(yamlPath, substitutions);
     }
 
-    // Wait for pods to be ready
     await handlePostSetup(filteredFiles, options);
 
     logger.info('All mocks setup completed successfully');
@@ -72,12 +68,10 @@ export async function setupMocks(options: MocksOptions): Promise<void> {
 function replaceTemplateVariables(content: string, substitutions: Record<string, string>): string {
     let result = content;
 
-    // Replace ${VAR} syntax
     Object.entries(substitutions).forEach(([key, value]) => {
         result = result.replace(new RegExp(`\\$\\{${key}\\}`, 'g'), value);
     });
 
-    // Also support $VAR syntax (without braces)
     Object.entries(substitutions).forEach(([key, value]) => {
         result = result.replace(new RegExp(`\\$${key}\\b`, 'g'), value);
     });
@@ -94,10 +88,8 @@ function replaceTemplateVariables(content: string, substitutions: Record<string,
 async function applyYamlManifests(yamlPath: string, substitutions: Record<string, string>): Promise<void> {
     const yamlContent = fs.readFileSync(yamlPath, 'utf8');
 
-    // Replace template variables
     const processedContent = replaceTemplateVariables(yamlContent, substitutions);
 
-    // Parse all documents (supports multi-document YAML)
     const documents = parseAllDocuments(processedContent);
 
     logger.debug(`Loading ${documents.length} manifests from ${path.basename(yamlPath)}`);
@@ -141,13 +133,10 @@ async function applyYamlManifests(yamlPath: string, substitutions: Record<string
  * @param options - Mocks options
  */
 async function handlePreSetup(files: string[], options: MocksOptions): Promise<void> {
-    // AWS mock requires a ConfigMap with metadata
     if (files.some(f => f.includes('aws'))) {
         logger.debug('AWS mock detected, creating ConfigMap');
         await createAwsMockConfigMap(options);
     }
-
-    // Add other pre-setup requirements here as needed
 }
 
 /**
@@ -213,7 +202,7 @@ async function waitForServiceEndpoints(
         try {
             const endpoints = await core.readNamespacedEndpoints({ name: serviceName, namespace });
             const addresses = endpoints.subsets?.flatMap(s => s.addresses || []) || [];
-            
+
             if (addresses.length > 0) {
                 logger.info(`Service ${serviceName} endpoints ready`, { addresses: addresses.length });
                 return;
@@ -238,13 +227,12 @@ async function handlePostSetup(files: string[], options: MocksOptions): Promise<
     const podNames = new Set<string>();
     const serviceNames = new Set<string>();
     const mocksDir = path.join(__dirname, '../mocks');
-    
-    // Scan YAML files to find Pod and Service resources
+
     for (const file of files) {
         const yamlPath = path.join(mocksDir, file);
         const yamlContent = fs.readFileSync(yamlPath, 'utf8');
         const documents = parseAllDocuments(yamlContent);
-        
+
         for (const doc of documents) {
             const manifest = doc.toJSON() as any;
             if (manifest?.kind === 'Pod' && manifest?.metadata?.name) {
@@ -255,24 +243,22 @@ async function handlePostSetup(files: string[], options: MocksOptions): Promise<
             }
         }
     }
-    
-    // Wait for all pods to be ready
+
     if (podNames.size > 0) {
         const podList = Array.from(podNames);
         logger.info(`Waiting for ${podList.length} pod(s) to be ready`, { pods: podList });
         await Promise.all(
-            podList.map(podName => 
+            podList.map(podName =>
                 KubernetesHelper.waitForPod(podName, options.namespace)
             )
         );
     }
 
-    // Wait for all service endpoints to be ready
     if (serviceNames.size > 0) {
         const serviceList = Array.from(serviceNames);
         logger.info(`Waiting for ${serviceList.length} service(s) endpoints to be ready`, { services: serviceList });
         await Promise.all(
-            serviceList.map(serviceName => 
+            serviceList.map(serviceName =>
                 waitForServiceEndpoints(serviceName, options.namespace)
             )
         );

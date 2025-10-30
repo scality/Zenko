@@ -38,7 +38,6 @@ Before(async function (this: Zenko, scenario: ITestCaseHookParameter) {
     // Store scenario tags for access in step definitions
     const scenarioTags = scenario.pickle.tags?.map(tag => tag.name) || [];
     this.addToSaved('scenarioTags', scenarioTags);
-    // Use cached parameters which include extracted credentials from K8s secrets
     await Zenko.init(CacheHelper.parameters as ZenkoWorldParameters);
 });
 

@@ -37,14 +37,11 @@ export async function setupNotifications(options: NotificationOptions): Promise<
 
     const namespace = options.namespace || 'default';
 
-    // Check if backbeat config secret exists before proceeding
     await checkBackbeatConfigAvailability(namespace, instanceId, options.zenkoName);
 
-    // Get Kafka connection info
     const kafkaHosts = await getKafkaHosts(namespace, options.zenkoName);
     const [host, port] = kafkaHosts.split(':');
 
-    // Create notification destination CRs
     await applyNotificationDestinations(namespace, options.zenkoName, host, port);
 }
 
@@ -98,7 +95,6 @@ async function applyNotificationDestinations(namespace: string, zenkoName: strin
     const plural = 'zenkonotificationtargets';
 
     try {
-        // Create notification destinations from configuration
         for (const destination of notificationDestinationsConfig.destinations) {
             const destinationName = resolveEnvValues(destination.name);
             const destinationTopic = resolveEnvValues(destination.topic);
@@ -125,8 +121,8 @@ async function applyNotificationDestinations(namespace: string, zenkoName: strin
             await KubernetesHelper.applyCustomResource(notificationTarget, namespace, group, version, plural);
         }
 
-        logger.info('Notification destinations applied successfully', { 
-            count: notificationDestinationsConfig.destinations.length 
+        logger.info('Notification destinations applied successfully', {
+            count: notificationDestinationsConfig.destinations.length
         });
     } catch (error) {
         logger.error('Failed to apply notification destinations', { error });

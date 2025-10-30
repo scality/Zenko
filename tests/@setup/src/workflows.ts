@@ -81,7 +81,7 @@ export async function setupWorkflows(options: WorkflowsOptions): Promise<void> {
                 options.namespace || 'default',
                 instanceId,
                 options.zenkoName || 'end2end',
-                300000 // 5 minutes timeout
+                300000,
             );
             logger.info('Ingestion processor consumer group is ready');
         }

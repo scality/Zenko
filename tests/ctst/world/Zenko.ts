@@ -139,15 +139,11 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         super(options);
         Logger.createLogger(this);
         
-        // Merge CacheHelper parameters (from setup script) into this.parameters
-        // CacheHelper contains credentials extracted from Kubernetes secrets
-        // Object.assign mutates the existing object (allowed despite readonly)
         const cached = CacheHelper.parameters as Partial<ZenkoWorldParameters>;
         Object.assign(this.parameters, cached);
         
         CacheHelper.savedAcrossTests[Zenko.PRA_INSTALL_COUNT_KEY] = 0;
 
-        // Only add account identity if valid credentials exist (not admin credentials)
         if (this.parameters.AccountName && this.parameters.AccountAccessKey && this.parameters.AccountSecretKey && 
             this.parameters.AccountAccessKey !== this.parameters.AdminAccessKey &&
             !Identity.hasIdentity(IdentityEnum.ACCOUNT, this.parameters.AccountName)) {
@@ -162,7 +158,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             Identity.defaultAccountName = this.parameters.AccountName;
         }
 
-        // Store service users credentials from world parameters
         if (this.parameters.ServiceUsersCredentials) {
             const serviceUserCredentials =
                 JSON.parse(this.parameters.ServiceUsersCredentials) as Record<string, ServiceUsersCredentials>;
@@ -176,8 +171,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             }
         }
 
-        // Also check for service user credentials spread directly in parameters
-        // Service users have credentials with accessKey and secretKey properties
         const serviceUserNames = ['backbeat-lifecycle-bp-1', 'backbeat-lifecycle-conductor-1', 
             'backbeat-lifecycle-op-1', 'backbeat-qp-1', 'sorbet-fwd-2'];
         for (const serviceUserName of serviceUserNames) {
@@ -204,7 +197,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * Can be called from both instance constructor and static init method
      */
     private static initializeIdentitiesAndSites(parameters: ZenkoWorldParameters): void {
-        // Setup primary site identity
         if (parameters.AdminAccessKey && parameters.AdminSecretKey &&
             !Identity.hasIdentity(IdentityEnum.ADMIN, Zenko.PRIMARY_SITE_NAME)) {
             Identity.addIdentity(IdentityEnum.ADMIN, Zenko.PRIMARY_SITE_NAME, {
@@ -218,7 +210,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 adminIdentityName: Zenko.PRIMARY_SITE_NAME,
             };
 
-            // Also setup the account identity if valid credentials are provided (not admin credentials)
             if (parameters.AccountAccessKey && parameters.AccountSecretKey && accountName &&
                 parameters.AccountAccessKey !== parameters.AdminAccessKey &&
                 !Identity.hasIdentity(IdentityEnum.ACCOUNT, accountName)) {
@@ -229,7 +220,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             }
         }
 
-        // Setup secondary site identity (for PRA/DR)
         if (parameters.DRAdminAccessKey && parameters.DRAdminSecretKey && parameters.DRSubdomain &&
             !Identity.hasIdentity(IdentityEnum.ADMIN, Zenko.SECONDARY_SITE_NAME)) {
             Identity.addIdentity(IdentityEnum.ADMIN, Zenko.SECONDARY_SITE_NAME, {
@@ -243,7 +233,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 adminIdentityName: Zenko.SECONDARY_SITE_NAME,
             };
 
-            // Also setup the DR account identity if credentials are provided
             if (parameters.DRAccountAccessKey && parameters.DRAccountSecretKey && drAccountName &&
                 !Identity.hasIdentity(IdentityEnum.ACCOUNT, drAccountName)) {
                 Identity.addIdentity(IdentityEnum.ACCOUNT, drAccountName, {
@@ -719,7 +708,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                         timeout: Constants.DEFAULT_TIMEOUT / 2,
                         logger: CacheHelper.logger,
                     },
-                    // Work function: executed exactly once
                     async () => {
                         try {
                             CacheHelper.logger.info('Creating account for Zenko site', {
@@ -746,7 +734,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                     accountName,
                 });
 
-                // Post-processing: executed by all workers
                 // Waiting until the account exists, in case of parallel mode.
                 let remaining = Constants.MAX_ACCOUNT_CHECK_RETRIES;
                 let account = await SuperAdmin.getAccount({ accountName });

@@ -44,14 +44,14 @@ async function retryOperation<T>(
             // Retry on server errors, internal errors, or service not ready (HTML responses, deserialization errors)
             const isServerError = error.$metadata?.httpStatusCode >= 500;
             const isInternalError = error.name === 'InternalError';
-            const isServiceNotReady = error.message?.includes('Deserialization error') || 
-                                      error.message?.includes('Expected closing tag') ||
-                                      error.message?.includes('UnknownError') ||
-                                      error.code === 'ECONNREFUSED' ||
-                                      error.code === 'ECONNRESET' ||
-                                      error.code === 'ETIMEDOUT';
+            const isServiceNotReady = error.message?.includes('Deserialization error') ||
+                error.message?.includes('Expected closing tag') ||
+                error.message?.includes('UnknownError') ||
+                error.code === 'ECONNREFUSED' ||
+                error.code === 'ECONNRESET' ||
+                error.code === 'ETIMEDOUT';
             const isRetryable = isServerError || isInternalError || isServiceNotReady;
-            
+
             if (attempt < maxRetries && isRetryable) {
                 // Exponential backoff with max delay cap of 10 seconds
                 const delayMs = Math.min(1000 * Math.pow(2, attempt - 1), 10000);
@@ -182,7 +182,7 @@ async function createS3Bucket(location: StorageLocation): Promise<void> {
         logger.info(`Created S3 bucket: ${bucketName}`);
     } catch (error: any) {
         // Ignore if bucket already exists
-        if (error.name === 'BucketAlreadyExists' || 
+        if (error.name === 'BucketAlreadyExists' ||
             error.name === 'BucketAlreadyOwnedByYou' ||
             error.Code === 'BucketAlreadyExists' ||
             error.Code === 'BucketAlreadyOwnedByYou') {

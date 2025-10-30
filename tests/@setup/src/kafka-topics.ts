@@ -60,7 +60,7 @@ export async function setupKafkaTopics(options: KafkaTopicsOptions): Promise<voi
 
     const kafkaConfig = await getKafkaConfig(namespace, options.zenkoName);
     const uuid = await getUUIDFromBackbeat(namespace, instanceId, options.zenkoName);
-    
+
     await createAllKafkaTopics(kafkaConfig, uuid, namespace);
 }
 
@@ -148,7 +148,6 @@ async function getKafkaConfig(namespace: string, zenkoName: string): Promise<Kaf
     const kafkaHosts = config.kafka.hosts.replace(/"/g, '');
     const [host, port] = kafkaHosts.split(':');
 
-    // Get Kafka image from environment or use fallback
     const kafkaImage = process.env.KAFKA_IMAGE && process.env.KAFKA_TAG
         ? `${process.env.KAFKA_IMAGE}:${process.env.KAFKA_TAG}`
         : 'ghcr.io/scality/zenko/kafka:2.13-3.1.2';
@@ -205,18 +204,18 @@ async function createAllKafkaTopics(kafkaConfig: KafkaConfig, uuid: string, name
 
     const topics: Array<{ name: string, partitions: number, category: string }> = [];
 
-    // 1. Notification topics (no UUID prefix)
+    // Notification topics (no UUID prefix)
     logger.debug('Adding notification topics');
     for (const notifTopic of kafkaTopicsConfig.notificationTopics) {
         const topicName = resolveEnvValues(notifTopic.name);
-        topics.push({ 
-            name: topicName, 
+        topics.push({
+            name: topicName,
             partitions: notifTopic.partitions,
             category: 'notification'
         });
     }
 
-    // 2. Backbeat topics (replication and data mover) - with UUID prefix
+    // Backbeat topics (replication and data mover) - with UUID prefix
     logger.debug('Adding backbeat topics for replication and transitions');
     if ('backbeatTopics' in kafkaTopicsConfig && Array.isArray(kafkaTopicsConfig.backbeatTopics)) {
         for (const backbeatTopic of kafkaTopicsConfig.backbeatTopics) {
@@ -228,7 +227,7 @@ async function createAllKafkaTopics(kafkaConfig: KafkaConfig, uuid: string, name
         }
     }
 
-    // 3. Lifecycle topics (cold storage / archive) - with UUID prefix
+    // Lifecycle topics (cold storage / archive) - with UUID prefix
     logger.debug('Adding lifecycle topics for cold storage');
     if ('lifecycleTopics' in kafkaTopicsConfig && Array.isArray(kafkaTopicsConfig.lifecycleTopics)) {
         for (const lifecycleTopic of kafkaTopicsConfig.lifecycleTopics) {
@@ -240,12 +239,11 @@ async function createAllKafkaTopics(kafkaConfig: KafkaConfig, uuid: string, name
         }
     }
 
-    // Create topic commands
     const topicCommands = topics.map(topic => {
         return `kafka-topics.sh --create --topic ${topic.name} --partitions ${topic.partitions} --bootstrap-server ${kafkaConfig.hosts} --if-not-exists`;
     }).join(' && ');
 
-    logger.info('Creating Kafka topics', { 
+    logger.info('Creating Kafka topics', {
         totalTopics: topics.length,
         byCategory: {
             notification: topics.filter(t => t.category === 'notification').length,
@@ -289,4 +287,3 @@ async function createAllKafkaTopics(kafkaConfig: KafkaConfig, uuid: string, name
 
     logger.info('All Kafka topics created successfully', { topics: topics.map(t => ({ name: t.name, partitions: t.partitions, category: t.category })) });
 }
-

@@ -48,7 +48,6 @@ export async function setupAccounts(options: AccountOptions): Promise<void> {
     logger.info('Setting up test accounts and credentials');
 
     try {
-        // Using KubernetesHelper static methods;
         const namespace = options.namespace || 'default';
 
         const instanceId = await getInstanceId();
@@ -56,13 +55,10 @@ export async function setupAccounts(options: AccountOptions): Promise<void> {
             throw new Error('instance ID is required for account setup. Ensure UUID environment variable is set or Zenko CR exists');
         }
 
-        // Load accounts configuration
         const accountsConfig = await loadAccountsConfig(options.configFile);
 
-        // Use specific accounts if provided, otherwise use config file accounts
         const accountsToCreate = options.accounts
             ? options.accounts.map(name => {
-                // Try to find existing config for this account, otherwise create default
                 const existingAccount = accountsConfig.accounts.find(acc => acc.name === name);
                 return existingAccount || {
                     name,
@@ -75,24 +71,20 @@ export async function setupAccounts(options: AccountOptions): Promise<void> {
         logger.info('Account setup configuration', {
             accounts: accountsToCreate.map(a => ({ name: a.name, email: a.email })),
             namespace,
-            instanceId: instanceId.substring(0, 8) + '...' // Log partial ID for security
+            instanceId: instanceId.substring(0, 8) + '...', // Log partial ID for security
         });
 
-        // Get management endpoint and token
         logger.info('Connecting to management API...');
         const managementEndpoint = await getManagementEndpoint();
         const authToken = await getManagementToken();
 
-        // Create each account sequentially 
         for (const accountConfig of accountsToCreate) {
             try {
-                // Resolve environment variables in account name
                 const accountName = resolveEnvValues(accountConfig.name);
                 const accountEmail = accountConfig.email.replace(accountConfig.name, accountName);
 
                 logger.info(`Processing account: ${accountName}`);
 
-                // Create the account via management API
                 const accountPayload: AccountPayload = {
                     userName: accountName,
                     email: accountEmail,
@@ -101,10 +93,8 @@ export async function setupAccounts(options: AccountOptions): Promise<void> {
 
                 const createdAccount = await createAccountAPI(managementEndpoint, authToken, instanceId, accountPayload);
 
-                // Get STS session credentials via assume role
                 const stsCredentials = await getSTSSessionCredentials(authToken, createdAccount.id, accountConfig.role || accountsConfig.config.defaultRole);
 
-                // Create Kubernetes secret with the STS credentials
                 if (accountsConfig.config.createSecrets) {
                     await createAccountSecret(namespace, accountName, stsCredentials, createdAccount.id, accountsConfig.config.secretNamePrefix);
                 }

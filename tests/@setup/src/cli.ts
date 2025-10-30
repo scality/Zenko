@@ -15,7 +15,6 @@ import { logger } from './utils/logger';
 import { getInstanceId } from './utils/management';
 import { initKubernetes } from './utils/k8s';
 
-// Track completed setup steps
 const setupFlags = {
     rbac: false,
     dns: false,

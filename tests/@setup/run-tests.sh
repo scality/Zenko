@@ -26,6 +26,8 @@ CLUSTER_ROLE_BINDING_NAME="ctst-cluster-admin-for-${NAMESPACE}"
 ADMIN_ACCESS_KEY_ID=$(kubectl get secret end2end-management-vault-admin-creds.v1 -o jsonpath='{.data.accessKey}' | base64 -d)
 ADMIN_SECRET_ACCESS_KEY=$(kubectl get secret end2end-management-vault-admin-creds.v1  -o jsonpath='{.data.secretKey}' | base64 -d)
 
+# TODO move most of this in CTST setup.ts when Backbeat tests
+# are migrated to CTST.
 # CRR account credentials (if accounts exist)
 SOURCE_ACCESS_KEY=$(kubectl get secret "end2end-account-${CRR_SOURCE_ACCOUNT_NAME:-crr-source-account}" -o jsonpath='{.data.AccessKeyId}' 2>/dev/null | base64 -d || echo "")
 SOURCE_SECRET_KEY=$(kubectl get secret "end2end-account-${CRR_SOURCE_ACCOUNT_NAME:-crr-source-account}" -o jsonpath='{.data.SecretAccessKey}' 2>/dev/null | base64 -d || echo "")
@@ -407,14 +409,10 @@ cat <<'EOT'
           mountPath: /reports
         - name: cold-data
           mountPath: /cold-data
-EOT
-fi)
-$(if [[ "$test_type" == "ctst" ]]; then
-cat <<'EOT'
       volumes:
       - name: reports
         hostPath:
-          path: /tmp/zenko-test-reports
+          path: /data/reports
           type: DirectoryOrCreate
       - name: cold-data
         persistentVolumeClaim:

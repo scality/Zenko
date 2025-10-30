@@ -13,7 +13,6 @@ export interface RBACOptions {
  */
 export async function setupRBAC(options: RBACOptions): Promise<void> {
     k8s.initKubernetes();
-    // try to get the namespace first
     await KubernetesHelper.ensureNamespace(options.namespace);
 
     logger.info('Setting up comprehensive RBAC permissions for all services');
@@ -191,7 +190,6 @@ export async function setupRBAC(options: RBACOptions): Promise<void> {
 
 /**
  * Cleanup bootstrap RBAC
- * @returns Promise that resolves when the bootstrap RBAC is cleaned up
  */
 async function cleanupBootstrapRBAC(): Promise<void> {
     const bootstrapResources = [

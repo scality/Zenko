@@ -29,6 +29,12 @@ export interface LocationsOptions {
     configFile?: string;
 }
 
+/**
+ * Replace subdomain placeholders in an object
+ * @param obj - Object to replace subdomain placeholders in
+ * @param subdomain - Subdomain to replace placeholders with
+ * @returns Object with subdomain placeholders replaced
+ */
 function replaceSubdomainPlaceholders(obj: any, subdomain: string): any {
     const jsonString = JSON.stringify(obj);
     const replacedString = jsonString.replace(/{{subdomain}}/g, subdomain);
@@ -59,14 +65,12 @@ async function setupCRRIAMResources(accountCreds: AccountCredentials, subdomain:
     });
 
     try {
-        // Create IAM user
         const userResponse = await iamClient.send(new CreateUserCommand({
             UserName: 'crr-user',
         }));
         const userArn = userResponse.User?.Arn;
         logger.info('Created CRR IAM user', { userArn });
 
-        // Create access key for user
         const credentialsResponse = await iamClient.send(new CreateAccessKeyCommand({
             UserName: 'crr-user',
         }));
@@ -74,7 +78,6 @@ async function setupCRRIAMResources(accountCreds: AccountCredentials, subdomain:
         const secretKey = credentialsResponse.AccessKey?.SecretAccessKey!;
         logger.info('Created access key for CRR user');
 
-        // Create role with assume role policy
         const assumeRolePolicyDocument = JSON.stringify({
             Version: '2012-10-17',
             Statement: [
@@ -94,7 +97,6 @@ async function setupCRRIAMResources(accountCreds: AccountCredentials, subdomain:
         }));
         logger.info('Created CRR IAM role', { crrRoleName });
 
-        // Create policy
         const policyDocument = JSON.stringify({
             Version: '2012-10-17',
             Statement: [
@@ -113,7 +115,6 @@ async function setupCRRIAMResources(accountCreds: AccountCredentials, subdomain:
         const policyArn = policyResponse.Policy?.Arn!;
         logger.info('Created CRR IAM policy', { policyArn });
 
-        // Attach policy to role
         await iamClient.send(new AttachRolePolicyCommand({
             RoleName: crrRoleName,
             PolicyArn: policyArn,
@@ -147,7 +148,6 @@ export async function setupLocations(options: LocationsOptions): Promise<void> {
 
     logger.debug('Locations:', { locations });
 
-    // Ensure S3C is ready before creating buckets on it
     await verifyS3CReadiness();
 
     await createResourcesForLocations(locations);
@@ -160,7 +160,6 @@ export async function setupLocations(options: LocationsOptions): Promise<void> {
     const managementEndpoint = await getManagementEndpoint();
     const token = await getManagementToken();
 
-    // Load account credentials for CRR setup
     const accountsCredentials: Record<string, AccountCredentials> = {};
     const crrSourceAccountName = process.env.CRR_SOURCE_ACCOUNT_NAME;
     const crrDestinationAccountName = process.env.CRR_DESTINATION_ACCOUNT_NAME;
@@ -199,42 +198,34 @@ export async function setupLocations(options: LocationsOptions): Promise<void> {
         }
     }
 
-    // Capture cloudserver state BEFORE creating locations
     const cloudserverDeployment = `${options.zenkoName}-connector-cloudserver`;
     const initialCloudserverGeneration = await k8s.getDeploymentGeneration(options.namespace, cloudserverDeployment);
     const labelSelector = `app.kubernetes.io/name=connector-cloudserver-config,app.kubernetes.io/instance=${options.zenkoName}`;
     const secrets = await KubernetesHelper.getSecretsByLabels(options.namespace, labelSelector);
     const initialSecretVersion = secrets[0]?.metadata?.resourceVersion;
 
-    // Track locations that need ingestion bootstrap
     const locationsToBootstrap: Array<{ locationName: string; sourceBucket: string }> = [];
 
-    // Environment flags
     const enableRingTests = process.env.ENABLE_RING_TESTS === 'true';
     const deployCRRLocations = process.env.DEPLOY_CRR_LOCATIONS !== 'false';
 
-    // Create all locations via Management API (batched)
     for (const location of locations) {
-        // Skip locations marked to skip
         if (location.createResources?.skipLocationCreation) {
             logger.info(`Skipping location ${location.name} (skipLocationCreation=true)`);
             continue;
         }
 
-        // Skip Ring S3C locations if Ring tests are disabled
         if (!enableRingTests && location.locationType === 'location-scality-ring-s3-v1') {
             logger.info(`Skipping Ring location ${location.name} (ENABLE_RING_TESTS=false)`);
             continue;
         }
 
-        // Handle CRR locations specially
         if (location.locationType === 'location-scality-crr-v1') {
             if (!deployCRRLocations) {
                 logger.info(`Skipping CRR location ${location.name} (DEPLOY_CRR_LOCATIONS=false)`);
                 continue;
             }
 
-            // Determine which account to use based on location name
             const locationName = resolveEnvValues(location.name);
             const crrDestLocationName = process.env.CRR_DESTINATION_LOCATION_NAME;
             const accountName = locationName === crrDestLocationName
@@ -246,7 +237,6 @@ export async function setupLocations(options: LocationsOptions): Promise<void> {
                 continue;
             }
 
-            // Setup IAM resources and get user credentials
             const userCreds = await setupCRRIAMResources(accountsCredentials[accountName], options.subdomain);
             location.details.accessKey = userCreds.accessKey;
             location.details.secretKey = userCreds.secretKey;
@@ -266,7 +256,6 @@ export async function setupLocations(options: LocationsOptions): Promise<void> {
 
     logger.info(`Created storage locations`);
 
-    // Wait for Zenko operator to reconcile all location changes
     logger.info('Waiting for Zenko operator to reconcile locations...');
     await waitForZenkoToStabilize({
         namespace: options.namespace,
@@ -274,7 +263,6 @@ export async function setupLocations(options: LocationsOptions): Promise<void> {
         timeout: 10 * 60 * 1000,
     });
 
-    // Wait for cloudserver config secret to be updated by operator
     await waitForResourceVersionChange(
         options.namespace,
         'secret',
@@ -283,7 +271,6 @@ export async function setupLocations(options: LocationsOptions): Promise<void> {
         5 * 60 * 1000
     );
 
-    // Wait for cloudserver to restart and load new configuration
     await k8s.waitForDeploymentRestart(
         options.namespace,
         cloudserverDeployment,
@@ -291,10 +278,8 @@ export async function setupLocations(options: LocationsOptions): Promise<void> {
         5 * 60 * 1000
     );
 
-    // Ensure all data services are stable
     await k8s.waitForDataServicesToStabilize(options.namespace, 5 * 60 * 1000);
 
-    // Bootstrap ingestion consumer groups
     if (locationsToBootstrap.length > 0) {
         logger.info(`Bootstrapping ${locationsToBootstrap.length} ingestion location(s)`);
 
@@ -368,7 +353,6 @@ async function bootstrapIngestionConsumerGroup(
 ): Promise<void> {
     logger.info(`Bootstrapping ingestion for location: ${locationName}`);
 
-    // Get credentials from account secret
     const secretName = 'end2end-account-zenko';
     const secret = await KubernetesHelper.getClientCore()!.readNamespacedSecret({
         name: secretName,
@@ -394,8 +378,6 @@ async function bootstrapIngestionConsumerGroup(
     });
 
     try {
-        // Create ingestion bucket - this triggers consumer group creation
-        // Retry logic: CloudServer may not have loaded the new location config yet
         const maxAttempts = 30;
         const retryDelay = 2000;
         let lastError: any;
@@ -414,8 +396,7 @@ async function bootstrapIngestionConsumerGroup(
             } catch (error: any) {
                 lastError = error;
                 const errorMsg = error.message || '';
-                
-                // Check if it's the "location not in config" error - this is temporary
+
                 if (errorMsg.includes('not listed in the locationConstraint config')) {
                     if (attempt < maxAttempts) {
                         logger.info(`CloudServer hasn't loaded location ${locationName} yet, attempt ${attempt}/${maxAttempts}, retrying in ${retryDelay}ms...`);
@@ -423,8 +404,7 @@ async function bootstrapIngestionConsumerGroup(
                         continue;
                     }
                 }
-                
-                // For other errors or final attempt, throw
+
                 throw error;
             }
         }
@@ -433,7 +413,6 @@ async function bootstrapIngestionConsumerGroup(
         // The producer periodically lists all buckets and updates its internal state
         await new Promise(resolve => setTimeout(resolve, 10000));
 
-        // Resume ingestion for this location (tells producer to start processing)
         const backbeatApiEndpoint = `http://${zenkoName}-management-backbeat-api.${namespace}.svc.cluster.local:80`;
         try {
             await axios.post(`${backbeatApiEndpoint}/_/backbeat/api/ingestion/resume/${locationName}`);
@@ -442,20 +421,16 @@ async function bootstrapIngestionConsumerGroup(
             logger.warn(`Failed to resume ingestion (may still work): ${err.message}`);
         }
 
-        // Wait for consumer group to become stable
         await k8s.waitForIngestionConsumerGroup(namespace, instanceId, zenkoName, 5 * 60 * 1000);
 
         logger.info(`Ingestion consumer group is stable for location: ${locationName}`);
 
-        // Cleanup bootstrap bucket
         await s3Client.send(new DeleteBucketCommand({ Bucket: destinationBucket }));
-
     } catch (error) {
         logger.error(`Failed to bootstrap ingestion for ${locationName}`, {
             error: error instanceof Error ? error.message : String(error),
         });
 
-        // Attempt cleanup
         try {
             await s3Client.send(new DeleteBucketCommand({ Bucket: destinationBucket }));
         } catch (cleanupError) {
@@ -496,7 +471,6 @@ async function createStorageLocation(
         locationPayload.details.legacyAwsBehavior = location.legacyAwsBehavior;
     }
 
-    // For AWS S3 locations with bucketMatch: false, enable forcePathStyle
     if ((location.locationType === 'location-aws-s3-v1' ||
         location.locationType === 'location-scality-ring-s3-v1') &&
         locationDetails.bucketMatch === false) {
@@ -522,12 +496,10 @@ async function createStorageLocation(
             logger.info(`Created storage location: ${location.name}`);
         }
     } catch (error: any) {
-        // If location already exists (409 Conflict), skip creation
         if (error.response?.status === 409) {
             logger.debug(`Storage location ${location.name} already exists, skipping creation`);
             return;
         }
-        // 404 means instance not found - setup order issue
         if (error.response?.status === 404) {
             logger.error(`Instance not found when creating location ${location.name}`, {
                 status: 404,
@@ -538,7 +510,6 @@ async function createStorageLocation(
             status: error.response?.status,
             message: error.message,
         });
-        // 400/422 are validation errors - let them propagate
         throw error;
     }
 }

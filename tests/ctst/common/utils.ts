@@ -335,7 +335,6 @@ export async function prepareMetricsScenarios(
             timeout: Constants.DEFAULT_TIMEOUT,
             logger: world.logger,
         },
-        // Work function: executed exactly once
         async () => {
             const output: Record<string, AWSCredentials> = {};
             const scenarioIds = new Set<string>();
@@ -360,7 +359,6 @@ export async function prepareMetricsScenarios(
             
             await Utils.sleep(2000);
             
-            // Store output in a temporary file for other workers to read
             fs.writeFileSync(filePath, JSON.stringify({
                 ready: true,
                 ...output,
@@ -368,7 +366,6 @@ export async function prepareMetricsScenarios(
         }
     );
 
-    // Post-processing: all workers read the configuration
     const configuration: Record<string, AWSCredentials> = JSON.parse(fs.readFileSync(filePath, 'utf8'));
     const key = hashStringAndKeepFirst20Characters(`${pickle.astNodeIds[1]}`);
     world.logger.debug('Scenario key', { key, from: `${pickle.astNodeIds[1]}`, configuration });

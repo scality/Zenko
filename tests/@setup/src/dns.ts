@@ -17,7 +17,7 @@ export interface DNSOptions {
 function generateCorefile(options: DNSOptions): string {
     const templatePath = path.join(__dirname, '..', 'configs', 'dns.conf');
     const corefileTemplate = fs.readFileSync(templatePath, 'utf8');
-    
+
     const subdomain = options.subdomain || 'zenko.local';
     const finalCorefile = corefileTemplate
         .replace(/{{subdomain}}/g, subdomain);
@@ -32,9 +32,9 @@ function generateCorefile(options: DNSOptions): string {
 async function restartCoreDNS(): Promise<void> {
     try {
         logger.debug('Attempting to restart CoreDNS deployment...');
-        
+
         await KubernetesHelper.restartDeployment('coredns', 'kube-system');
-        await KubernetesHelper.waitForDeployment('coredns', 'kube-system', 60000); 
+        await KubernetesHelper.waitForDeployment('coredns', 'kube-system', 60000);
         logger.info('CoreDNS deployment is ready.');
     } catch (error: any) {
         const errorBody = error.response ? JSON.stringify(error.response.body) : error.message;
@@ -46,7 +46,7 @@ async function restartCoreDNS(): Promise<void> {
  * Main function to set up DNS by overwriting the CoreDNS ConfigMap.
  * @param options - DNS options
  * @returns Promise that resolves when the DNS is setup
- */ 
+ */
 export async function setupDNS(options: DNSOptions): Promise<void> {
     const configMapName = 'coredns';
     const configMapNamespace = 'kube-system';

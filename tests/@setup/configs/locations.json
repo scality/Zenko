@@ -56,7 +56,7 @@
       "createResources": {
         "createBucket": true,
         "enableVersioning": true,
-        "skipLocationCreation": true
+        "skipLocationCreation": false
       },
       "details": {
         "endpoint": "env:AWS_ENDPOINT",
