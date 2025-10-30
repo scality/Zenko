@@ -3,7 +3,6 @@ import Zenko from 'world/Zenko';
 import ZenkoDrctl from './dr/drctl';
 import {
     createSecret,
-    displayCRStatus,
     getDRSink,
     getDRSource,
     getPVCFromLabel,
@@ -54,7 +53,7 @@ interface DrState {
 async function installPRA(world: Zenko, sinkS3Endpoint = 'http://s3.zenko.local', timeout = '30m') {
     const kafkaExternalIpOption = world.parameters.KafkaExternalIps ?
         { kafkaExternalIps: world.parameters.KafkaExternalIps } :
-        { kafkaExternalIpsDiscovery: true };
+        { kafkaExternalIpsDiscovery: false };
 
     return world.zenkoDrCtl?.install({
         sourceZenkoDrInstance: 'end2end-source',
@@ -70,9 +69,10 @@ async function installPRA(world: Zenko, sinkS3Endpoint = 'http://s3.zenko.local'
         sourceZenkoNamespace: 'default',
         sourceS3Endpoint: 'http://s3.zenko.local',
         sinkS3Endpoint,
-        prometheusService: world.parameters.PrometheusService,
+        prometheusService:
+            `${world.parameters.PrometheusName}-operated.default.svc.cluster.local`,
         prometheusHostname: 'prom.dr.zenko.local',
-        prometheusExternalIpsDiscovery: true,
+        prometheusExternalIpsDiscovery: false,
         forceRotateServiceCredentials: (CacheHelper.savedAcrossTests[Zenko.PRA_INSTALL_COUNT_KEY] as number) > 0,
         ...kafkaExternalIpOption,
         timeout,
@@ -85,7 +85,6 @@ export function preparePRA(world: Zenko) {
 }
 
 export async function displayDebuggingInformation(world: Zenko) {
-    await displayCRStatus(world);
     const drSource = await getDRSource(world);
     const drSink = await getDRSink(world);
 

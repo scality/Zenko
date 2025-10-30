@@ -46,7 +46,6 @@ spec:
     provider: Zenko
   kafka:
     provider: Managed
-    jmxJarPath: /opt/jmx_exporter/jmx_prometheus_javaagent-${JMX_JAVAAGENT_TAG}.jar
     persistence:
       volumeClaimTemplate:
         size: 20Gi

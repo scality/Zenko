@@ -32,8 +32,31 @@ type manifest = {
     'entries': manifestEntry[],
 }
 
-const AZURE_STORAGE_BLOB_URL = process.env.AZURE_BLOB_URL || 'http://127.0.0.1:10000/devstoreaccount1';
-const AZURE_STORAGE_QUEUE_URL = process.env.AZURE_QUEUE_URL || 'http://127.0.0.1:10001/devstoreaccount1';
+/**
+ * Get Azure blob URL based on environment or world parameters
+ * @param {Zenko} world world object
+ * @returns {string} Azure blob URL
+ */
+function getAzureBlobUrl(world: Zenko): string {
+    if (process.env.AZURE_BLOB_URL) {
+        return process.env.AZURE_BLOB_URL;
+    }
+    const subdomain = world.parameters.subdomain || 'zenko.local';
+    return `https://devstoreaccount1.blob.azure-mock.${subdomain}`;
+}
+
+/**
+ * Get Azure queue URL based on environment or world parameters
+ * @param {Zenko} world world object
+ * @returns {string} Azure queue URL
+ */
+function getAzureQueueUrl(world: Zenko): string {
+    if (process.env.AZURE_QUEUE_URL) {
+        return process.env.AZURE_QUEUE_URL;
+    }
+    const subdomain = world.parameters.subdomain || 'zenko.local';
+    return `https://devstoreaccount1.queue.azure-mock.${subdomain}`;
+}
 
 /**
  * Returns an object containing azure credentials
@@ -256,7 +279,7 @@ Then('object {string} should have the same data', async function (this: Zenko, o
     }
     const res = await S3.getObject(this.getCommandParameters());
     assert.ifError(res.err);
-    const objectPath = path.join(__dirname, '../utils/api', Constants.OUTFILE_NAME);
+    const objectPath = path.join(__dirname, '../build/utils/api', Constants.OUTFILE_NAME);
     const objectBuffer = fs.readFileSync(objectPath);
     fs.rmSync(objectPath);
     const expectedContent = Buffer.alloc(Buffer.byteLength(objectBuffer), 'a');
@@ -429,12 +452,12 @@ Given('an azure archive location {string}', { timeout: 15 * 60 * 1000 },
             name: locationName,
             locationType: 'location-azure-archive-v1',
             details: {
-                endpoint: AZURE_STORAGE_BLOB_URL,
+                endpoint: getAzureBlobUrl(this),
                 bucketName: this.parameters.AzureArchiveContainer,
                 queue: {
                     type: 'location-azure-storage-queue-v1',
                     queueName: this.parameters.AzureArchiveQueue,
-                    endpoint: AZURE_STORAGE_QUEUE_URL,
+                    endpoint: getAzureQueueUrl(this),
                 },
                 auth: {
                     type: 'location-azure-shared-key',

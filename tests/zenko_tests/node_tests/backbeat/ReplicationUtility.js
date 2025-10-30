@@ -604,6 +604,12 @@ class ReplicationUtility {
             .catch(cb);
     }
 
+    deleteBucketReplication(bucketName, cb) {
+        this.s3.deleteBucketReplication({
+            Bucket: bucketName,
+        }, cb);
+    }
+
     getHeadObject(bucketName, key, cb) {
         this.s3.send(new HeadObjectCommand({
             Bucket: bucketName,
@@ -1289,6 +1295,94 @@ class ReplicationUtility {
     assertNoObject(bucketName, key, cb) {
         this.getObject(bucketName, key, err => {
             assert.strictEqual(err.name, 'NoSuchKey');
+            return cb();
+        });
+    }
+
+    compareObjectsCRR(srcBucket, destClient, destBucket, key, userMetadataField, cb) {
+        return async.series([
+            next => this.waitUntilReplicated(srcBucket, key, undefined, next),
+            next => this.getObject(srcBucket, key, next),
+            next => destClient.getObject(destBucket, key, next),
+        ], (err, data) => {
+            if (err) {
+                return cb(err);
+            }
+            const srcData = data[1];
+            const destData = data[2];
+            assert.strictEqual(srcData.ReplicationStatus, 'COMPLETED');
+            assert.strictEqual(destData.ReplicationStatus, 'REPLICA');
+            assert.strictEqual(
+                srcData.ContentLength,
+                destData.ContentLength,
+            );
+            this._compareObjectBody(srcData.Body, destData.Body);
+            const srcUserMD = srcData.Metadata;
+            assert.strictEqual(
+                srcData.VersionId,
+                destData.VersionId,
+            );
+            if (userMetadataField) {
+                const destUserMD = destData.Metadata;
+                assert.strictEqual(
+                    srcUserMD[userMetadataField],
+                    destUserMD[userMetadataField],
+                );
+            }
+            return cb();
+        });
+    }
+
+    compareACLsCRR(srcBucket, destClient, destBucket, key, cb) {
+        return async.series([
+            next => this.waitUntilReplicated(srcBucket, key, undefined, next),
+            next => this.getObjectACL(srcBucket, key, next),
+            next => destClient.getObjectACL(destBucket, key, next),
+        ], (err, data) => {
+            if (err) {
+                return cb(err);
+            }
+            assert.strictEqual(
+                data[1].Grants[0].Permission,
+                data[2].Grants[0].Permission,
+            );
+            return cb();
+        });
+    }
+
+    compareObjectTagCRR(
+        srcBucket,
+        destClient,
+        destBucket,
+        key,
+        cb,
+    ) {
+        return async.series([
+            next => this.waitUntilReplicated(
+                srcBucket,
+                key,
+                undefined,
+                next,
+            ),
+            next => this.getObjectTagging(
+                srcBucket,
+                key,
+                undefined,
+                next,
+            ),
+            next => destClient.getObjectTagging(
+                destBucket,
+                key,
+                null,
+                next,
+            ),
+        ], (err, data) => {
+            if (err) {
+                return cb(err);
+            }
+            const srcData = data[1];
+            const destData = data[2];
+            assert.deepStrictEqual(srcData.TagSet, destData.TagSet);
             return cb();
         });
     }

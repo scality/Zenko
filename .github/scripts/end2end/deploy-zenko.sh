@@ -44,7 +44,7 @@ export ZENKO_MONGODB_CONFIG="writeConcern: 'majority'
     enableSharding: true"
 export ZENKO_MONGODB_DATABASE="${ZENKO_MONGODB_DATABASE:-datadb}"
 
-if [ "${TIME_PROGRESSION_FACTOR}" -gt 1 ]; then
+if [ -n "${TIME_PROGRESSION_FACTOR:-}" ] && [ "${TIME_PROGRESSION_FACTOR}" -gt 1 ]; then
     export ZENKO_ANNOTATIONS="$ZENKO_ANNOTATIONS
     zenko.io/time-progression-factor: \"${TIME_PROGRESSION_FACTOR}\""
 fi
@@ -132,6 +132,11 @@ create_encryption_secret
 
 env $(dependencies_env) envsubst < ${ZENKOVERSION_PATH} | kubectl -n ${NAMESPACE} apply -f -
 env $(dependencies_env) envsubst < ${ZENKO_CR_PATH} | kubectl -n ${NAMESPACE} apply -f -
+
+# Fix Zookeeper memory issues on newer Ubuntu GHA runners
+bash ${DIR}/fix-zookeeper.sh "${ZENKO_NAME}" "${NAMESPACE}"
+
+echo "Waiting for Zenko CR (${ZENKO_NAME}) to become Available..."
 
 k_cmd="kubectl -n ${NAMESPACE} get zenko/${ZENKO_NAME}"
 for i in $(seq 1 120); do

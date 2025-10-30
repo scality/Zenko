@@ -1,0 +1,38 @@
+{
+  "accounts": [
+    {
+      "name": "zenko",
+      "email": "zenko@zenko.local",
+      "role": "storage-manager-role",
+      "quota": null,
+      "description": "Default test account for Zenko end-to-end tests"
+    },
+    {
+      "name": "testuser",
+      "email": "testuser@zenko.local",
+      "role": "storage-manager-role",
+      "quota": null,
+      "description": "Additional test user account"
+    },
+    {
+      "name": "env:CRR_SOURCE_ACCOUNT_NAME",
+      "email": "crr-source@zenko.local",
+      "role": "storage-manager-role",
+      "quota": null,
+      "description": "CRR source account for cross-region replication tests"
+    },
+    {
+      "name": "env:CRR_DESTINATION_ACCOUNT_NAME",
+      "email": "crr-destination@zenko.local",
+      "role": "storage-manager-role",
+      "quota": null,
+      "description": "CRR destination account for cross-region replication tests"
+    }
+  ],
+  "config": {
+    "defaultRole": "storage-manager-role",
+    "stsSessionDuration": 43200,
+    "createSecrets": true,
+    "secretNamePrefix": "end2end-account"
+  }
+}

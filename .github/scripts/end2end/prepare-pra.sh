@@ -67,5 +67,5 @@ spec:
           - "${KAFKA_NODE}"
 EOF
 
-KAFKA_EXTERNAL_IP=$(kubectl get node "${KAFKA_NODE}" -o yaml | yq '.status.addresses.[] | select(.type == "InternalIP") | .address')
-echo "KAFKA_EXTERNAL_IP=${KAFKA_EXTERNAL_IP}" >> "$GITHUB_ENV"
+KAFKA_EXTERNAL_IPS=$(kubectl get node "${KAFKA_NODE}" -o yaml | yq '.status.addresses.[] | select(.type == "InternalIP") | .address')
+echo "KAFKA_EXTERNAL_IPS=${KAFKA_EXTERNAL_IPS}" >> "$GITHUB_ENV"

@@ -7,10 +7,13 @@ inputs:
     description: "The tag of the Zenko Operator image to use"
     required: false
     default: ""
-  deploy_metadata:
-    description: "Deploy a metadata cluster alongside Zenko"
+  git_access_token:
+    description: "GitHub access token for accessing private repositories"
+    required: true
+  zenko_name:
+    description: "The name of the Zenko instance to deploy"
     required: false
-    default: "false"
+    default: "end2end"
 runs:
   using: composite
   steps:
@@ -54,17 +57,14 @@ runs:
       run: ./.github/scripts/end2end/deploy-zkop.sh
       env:
         OPERATOR_IMAGE_TAG: ${{ inputs.zkop_tag }}
+        GIT_ACCESS_TOKEN: ${{ inputs.git_access_token }}
     - name: Deploy Zenko Instance
       shell: bash
-      run: bash deploy-zenko.sh end2end default
+      run: bash deploy-zenko.sh ${{ inputs.zenko_name }} default
       working-directory: ./.github/scripts/end2end
     - name: Add Keycloak user and assign StorageManager role
       shell: bash
       run: bash keycloak-helper.sh set-user-instance-ids default
-      working-directory: ./.github/scripts/end2end
-    - name: Start external service mocks
-      shell: bash
-      run: bash install-mocks.sh "default"
       working-directory: ./.github/scripts/end2end
     - name: Start mock sorbet service
       shell: bash
@@ -80,16 +80,7 @@ runs:
       env:
         SORBETD_NAME: mock-miria
       working-directory: ./.github/scripts/end2end/operator
-    - name: Deploy metadata
+    - name: Configure DNS for CTST
       shell: bash
-      run: ./deploy-metadata.sh
-      working-directory: ./.github/scripts/end2end
-      if: ${{ inputs.deploy_metadata == 'true' }}
-    - name: End-to-end configuration
-      shell: bash
-      run: bash configure-e2e.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "default"
-      working-directory: ./.github/scripts/end2end
-    - name: Linting
-      shell: bash
-      run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "lint" "default"
+      run: bash configure-hosts.sh
       working-directory: ./.github/scripts/end2end

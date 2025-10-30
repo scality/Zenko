@@ -18,9 +18,7 @@ const {
 } = require('@aws-sdk/client-s3');
 const ReplicationUtility = require('./ReplicationUtility');
 
-const BUCKET_CHECK_TIMEOUT_S = process.env.BACKBEAT_BUCKET_CHECK_TIMEOUT_S
-    ? parseInt(process.env.BACKBEAT_BUCKET_CHECK_TIMEOUT_S, 10)
-    : 60;
+const BUCKET_CHECK_TIMEOUT_S = 60;
 
 class LifecycleUtility extends ReplicationUtility {
     setBucket(bucket) {

@@ -105,8 +105,8 @@ class VaultClient {
         };
 
         if (endpoint.startsWith('https://')) {
-            const ca = fs.readFileSync(
-                process.env.VAULT_SSL_CA || '/conf/ca.crt',
+            ca = fs.readFileSync(
+                '/conf/ca.crt',
                 'ascii',
             );
             info.requestHandler = new NodeHttpHandler({
@@ -143,15 +143,15 @@ class VaultClient {
             const https = process.env.VAULT_ENDPOINT.startsWith('https://');
             if (https) {
                 ca = fs.readFileSync(
-                    process.env.VAULT_SSL_CA || '/conf/ca.crt',
+                    '/conf/ca.crt',
                     'ascii',
                 );
                 cert = fs.readFileSync(
-                    process.env.VAULT_SSL_CERT || '/conf/test.crt',
+                    '/conf/test.crt',
                     'ascii',
                 );
                 key = fs.readFileSync(
-                    process.env.VAULT_SSL_KEY || '/conf/test.key',
+                    '/conf/test.key',
                     'ascii',
                 );
             }
