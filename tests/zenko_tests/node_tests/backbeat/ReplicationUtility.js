@@ -605,9 +605,11 @@ class ReplicationUtility {
     }
 
     deleteBucketReplication(bucketName, cb) {
-        this.s3.deleteBucketReplication({
+        this.s3.send(new DeleteBucketReplicationCommand({
             Bucket: bucketName,
-        }, cb);
+        }))
+            .then(data => cb(null, data))
+            .catch(cb);
     }
 
     getHeadObject(bucketName, key, cb) {
