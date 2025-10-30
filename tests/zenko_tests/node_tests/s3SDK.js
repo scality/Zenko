@@ -33,7 +33,7 @@ const scalityIAMClient = new IAMClient({
         sessionToken: process.env.ZENKO_SESSION_TOKEN,
     },
     tls: false,
-    endpoint: process.env.VAULT_ENDPOINT,
+    endpoint: process.env.VAULT_IAM_ENDPOINT,
     region: 'us-east-1',
     // disable node sdk retries and timeout to prevent InvalidPart
     // and SocketHangUp errors. If retries are allowed, sdk will send

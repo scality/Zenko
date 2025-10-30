@@ -173,7 +173,7 @@ $ ADMIN_ACCESS_KEY_ID=$ADMIN_ACCESS_KEY ADMIN_SECRET_ACCESS_KEY=$ADMIN_SECRET_KE
 $ export ZENKO_ACCESS_KEY=<access key generated previously>
 $ export ZENKO_SECRET_KEY=<secret key generated previously>
 $ export CLOUDSERVER_ENDPOINT=http://s3.zenko.local:80
-$ export VAULT_ENDPOINT=http://iam.zenko.local:80
+$ export VAULT_IAM_ENDPOINT=http://iam.zenko.local:80
 $ export VAULT_STS_ENDPOINT=http://sts.zenko.local:80
 $ export CLOUDSERVER_HOST=s3.zenko.local #No http and port here
 ```
@@ -296,7 +296,7 @@ CLOUDSERVER_ENDPOINT=http://127.0.0.1:8000 \
 CLOUDSERVER_HOST=127.0.0.1 \
 CLOUDSERVER_PORT=8000 \
 VAULT_STS_ENDPOINT=http://127.0.0.1:8800 \
-VAULT_ENDPOINT=http://127.0.0.1:8600 \
+VAULT_IAM_ENDPOINT=http://127.0.0.1:8600 \
 ZENKO_ACCESS_KEY=<account access key generated previously> \
 ZENKO_SECRET_KEY=<account secret key generated previously> \
 ADMIN_ACCESS_KEY_ID=D4IT2AWSB588GO5J9T00 \

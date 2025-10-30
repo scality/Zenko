@@ -11,16 +11,6 @@ corefile="
         lameduck 5s
     }
     ready
-    rewrite name exact ci-zenko-aws-crr-target-bucket.aws-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
-    rewrite name exact ci-zenko-aws-fail-target-bucket.aws-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
-    rewrite name exact ci-zenko-aws-target-bucket.aws-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
-    rewrite name exact ci-zenko-aws-replication-fail-ctst-bucket.aws-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
-    rewrite name exact aws-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
-    rewrite name exact azure-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
-    rewrite name exact blob.azure-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
-    rewrite name exact devstoreaccount1.blob.azure-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
-    rewrite name exact queue.azure-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
-    rewrite name exact devstoreaccount1.queue.azure-mock.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact keycloak.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact management.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
     rewrite name exact s3.zenko.local ingress-nginx-controller.ingress-nginx.svc.cluster.local

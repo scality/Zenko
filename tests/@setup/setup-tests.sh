@@ -145,6 +145,8 @@ spec:
         args:
 $(for arg in "${setup_args[@]}"; do echo "        - \"${arg}\""; done)
         env:
+        - name: ENABLE_RING_TESTS
+          value: "${ENABLE_RING_TESTS}"
         - name: KAFKA_IMAGE
           value: "${kafka_image}"
         - name: KAFKA_TAG

@@ -91,7 +91,7 @@ class VaultClient {
      * @returns {object} - returns an IAM client
      */
     static getIamClient(accessKey, secretKey, sessionToken) {
-        const endpoint = process.env.VAULT_ENDPOINT
+        const endpoint = process.env.VAULT_IAM_ENDPOINT
         || 'http://localhost:8600';
         const info = {
             endpoint,
@@ -134,13 +134,13 @@ class VaultClient {
         let ca;
         let cert;
         let key;
-        if (process.env.VAULT_ENDPOINT) {
+        if (process.env.VAULT_IAM_ENDPOINT) {
             const res = /^https?:\/\/([^:]*)(:[0-9]+)?\/?$/.exec(
-                process.env.VAULT_ENDPOINT,
+                process.env.VAULT_IAM_ENDPOINT,
             );
             [host, port] = res.slice(1);
             port = port ? parseInt(port.substring(1), 10) : 80;
-            const https = process.env.VAULT_ENDPOINT.startsWith('https://');
+            const https = process.env.VAULT_IAM_ENDPOINT.startsWith('https://');
             if (https) {
                 ca = fs.readFileSync(
                     '/conf/ca.crt',
