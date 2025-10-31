@@ -111,14 +111,14 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "sum(mongodb_up{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"}) by (pod)",
-          "query": "sum(mongodb_up{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"}) by (pod)",
+          "expr": "sum(mongodb_up{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"}) by (cluster_role)",
+          "query": "sum(mongodb_up{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"}) by (cluster_role)",
           "target": "",
           "format": "time_series",
           "hide": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "{{pod}}",
+          "legendFormat": "{{cluster_role}}",
           "metric": "",
           "refId": "",
           "step": 10,
@@ -176,14 +176,14 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "count by (mongodb) (mongodb_version_info{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"}) > 0",
-          "query": "count by (mongodb) (mongodb_version_info{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"}) > 0",
+          "expr": "group by (mongodb) (mongodb_version_info{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"})",
+          "query": "group by (mongodb) (mongodb_version_info{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"})",
           "target": "",
           "format": "table",
           "hide": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "{{mongodb}}",
+          "legendFormat": "",
           "metric": "",
           "refId": "",
           "step": 10,
@@ -202,15 +202,9 @@
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "/^mongodb$/",
-              "values": false
-            }
+            "lastNotNull"
           ],
-          "fields": "",
+          "fields": "/^mongodb$/",
           "values": false
         }
       },
@@ -338,8 +332,8 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "sum(mongodb_dbstats_indexSize{namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"})",
-          "query": "sum(mongodb_dbstats_indexSize{namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"})",
+          "expr": "sum(mongodb_dbstats_indexSize{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"})",
+          "query": "sum(mongodb_dbstats_indexSize{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"})",
           "target": "",
           "format": "time_series",
           "hide": false,
@@ -353,8 +347,8 @@
           "datasource": null
         },
         {
-          "expr": "sum(mongodb_dbstats_fsUsedSize{namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"} - mongodb_dbstats_indexSize{namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"})",
-          "query": "sum(mongodb_dbstats_fsUsedSize{namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"} - mongodb_dbstats_indexSize{namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"})",
+          "expr": "sum(mongodb_dbstats_fsUsedSize{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"} - mongodb_dbstats_indexSize{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"})",
+          "query": "sum(mongodb_dbstats_fsUsedSize{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"} - mongodb_dbstats_indexSize{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"})",
           "target": "",
           "format": "time_series",
           "hide": false,
@@ -368,8 +362,8 @@
           "datasource": null
         },
         {
-          "expr": "sum(mongodb_dbstats_fsTotalSize{namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"} - mongodb_dbstats_fsUsedSize{namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"})",
-          "query": "sum(mongodb_dbstats_fsTotalSize{namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"} - mongodb_dbstats_fsUsedSize{namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"})",
+          "expr": "sum(mongodb_dbstats_fsTotalSize{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"} - mongodb_dbstats_fsUsedSize{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"})",
+          "query": "sum(mongodb_dbstats_fsTotalSize{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"} - mongodb_dbstats_fsUsedSize{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"})",
           "target": "",
           "format": "time_series",
           "hide": false,
@@ -527,8 +521,8 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "sum(mongodb_ss_metrics_cursor_open{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"})",
-          "query": "sum(mongodb_ss_metrics_cursor_open{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"})",
+          "expr": "sum(mongodb_ss_metrics_cursor_open{namespace=\"${namespace}\", rs_state=\"1\", job=~\"${namespace}/${jobs}\"})",
+          "query": "sum(mongodb_ss_metrics_cursor_open{namespace=\"${namespace}\", rs_state=\"1\", job=~\"${namespace}/${jobs}\"})",
           "target": "",
           "format": "time_series",
           "hide": false,
@@ -610,8 +604,8 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "avg(mongodb_dbstats_avgObjSize{namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"})",
-          "query": "avg(mongodb_dbstats_avgObjSize{namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"})",
+          "expr": "avg(mongodb_dbstats_avgObjSize{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"})",
+          "query": "avg(mongodb_dbstats_avgObjSize{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"})",
           "target": "",
           "format": "time_series",
           "hide": false,
@@ -703,8 +697,8 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "avg(mongodb_dbstats_fsUsedSize{namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"}) / avg(mongodb_dbstats_fsTotalSize{namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"})",
-          "query": "avg(mongodb_dbstats_fsUsedSize{namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"}) / avg(mongodb_dbstats_fsTotalSize{namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"})",
+          "expr": "avg(mongodb_dbstats_fsUsedSize{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"}) / avg(mongodb_dbstats_fsTotalSize{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"})",
+          "query": "avg(mongodb_dbstats_fsUsedSize{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"}) / avg(mongodb_dbstats_fsTotalSize{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"})",
           "target": "",
           "format": "time_series",
           "hide": false,
@@ -868,8 +862,8 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "sum(mongodb_mongod_db_collections_total{namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"})",
-          "query": "sum(mongodb_mongod_db_collections_total{namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"})",
+          "expr": "sum(mongodb_mongod_db_collections_total{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"})",
+          "query": "sum(mongodb_mongod_db_collections_total{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"})",
           "target": "",
           "format": "table",
           "hide": false,
@@ -942,8 +936,8 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "mongodb_dbstats_objects{namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"}",
-          "query": "mongodb_dbstats_objects{namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"}",
+          "expr": "mongodb_dbstats_objects{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"}",
+          "query": "mongodb_dbstats_objects{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"}",
           "target": "",
           "format": "time_series",
           "hide": false,
@@ -1024,8 +1018,8 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "sum(mongodb_dbstats_indexes{namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"})",
-          "query": "sum(mongodb_dbstats_indexes{namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"})",
+          "expr": "sum(mongodb_dbstats_indexes{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"})",
+          "query": "sum(mongodb_dbstats_indexes{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"})",
           "target": "",
           "format": "time_series",
           "hide": false,
@@ -1099,8 +1093,8 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "sum(mongodb_dbstats_objects{namespace=\"${namespace}\", database=~\"admin|config|local\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"})",
-          "query": "sum(mongodb_dbstats_objects{namespace=\"${namespace}\", database=~\"admin|config|local\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"})",
+          "expr": "sum(mongodb_dbstats_objects{rs_state=\"1\", namespace=\"${namespace}\", database=~\"admin|config|local\", job=~\"${namespace}/${jobs}\"})",
+          "query": "sum(mongodb_dbstats_objects{rs_state=\"1\", namespace=\"${namespace}\", database=~\"admin|config|local\", job=~\"${namespace}/${jobs}\"})",
           "target": "",
           "format": "time_series",
           "hide": false,
@@ -1174,8 +1168,8 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "sum(mongodb_dbstats_indexSize{namespace=\"${namespace}\", database=~\"admin|config|local\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"})",
-          "query": "sum(mongodb_dbstats_indexSize{namespace=\"${namespace}\", database=~\"admin|config|local\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"})",
+          "expr": "sum(mongodb_dbstats_indexSize{rs_state=\"1\", namespace=\"${namespace}\", database=~\"admin|config|local\", job=~\"${namespace}/${jobs}\"})",
+          "query": "sum(mongodb_dbstats_indexSize{rs_state=\"1\", namespace=\"${namespace}\", database=~\"admin|config|local\", job=~\"${namespace}/${jobs}\"})",
           "target": "",
           "format": "time_series",
           "hide": false,
@@ -1216,16 +1210,43 @@
         "defaults": {
           "thresholds": {
             "mode": "absolute",
-            "steps": ""
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              },
+              {
+                "value": 80,
+                "color": "red"
+              }
+            ]
           },
-          "color": null,
-          "custom": {},
-          "decimals": null,
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "axisPlacement": "auto",
+            "axisLabel": "",
+            "axisColorMode": "text",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "axisCenteredZero": false,
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
+            }
+          },
+          "color": {
+            "mode": "palette-classic",
+            "fixedColor": "none"
+          },
           "mappings": [
             {
               "options": {
                 "0": {
-                  "text": "Shards are not balanced",
+                  "text": "Running",
                   "color": "red"
                 }
               },
@@ -1234,15 +1255,14 @@
             {
               "options": {
                 "1": {
-                  "text": "Shards are balanced",
+                  "text": "Not Running",
                   "color": "green"
                 }
               },
               "type": "value"
             }
           ],
-          "unit": "",
-          "noValue": "none"
+          "max": 1
         },
         "overrides": []
       },
@@ -1258,14 +1278,14 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "max by (job) (mongodb_mongos_sharding_chunks_is_balanced{namespace=\"${namespace}\"})",
-          "query": "max by (job) (mongodb_mongos_sharding_chunks_is_balanced{namespace=\"${namespace}\"})",
+          "expr": "max by (pod) (mongodb_mongos_sharding_chunks_is_balancer_running{namespace=\"${namespace}\"})",
+          "query": "max by (pod) (mongodb_mongos_sharding_chunks_is_balancer_running{namespace=\"${namespace}\"})",
           "target": "",
           "format": "time_series",
           "hide": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "{{ job }}",
+          "legendFormat": "{{ pod }}",
           "metric": "",
           "refId": "",
           "step": 10,
@@ -1273,24 +1293,30 @@
           "datasource": null
         }
       ],
-      "title": "Shard balancing",
+      "title": "MongoDB balancing process",
       "transparent": false,
       "transformations": [],
       "options": {
-        "textMode": "value",
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
         "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
-          "fields": "",
-          "values": false
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 80,
+        "showValue": "auto",
+        "stacking": "none",
+        "groupWidth": 0.7,
+        "barWidth": 0.97,
+        "barRadius": 0.0,
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "legend": {
+          "showLegend": true,
+          "displayMode": "hidden",
+          "placement": "bottom",
+          "calcs": []
         }
       },
-      "type": "stat"
+      "type": "barchart"
     },
     {
       "datasource": "${DS_PROMETHEUS}",
@@ -1324,14 +1350,14 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "sum by (job) (mongodb_dbstats_objects{namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"})",
-          "query": "sum by (job) (mongodb_dbstats_objects{namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"})",
+          "expr": "sum by (pod) (mongodb_dbstats_objects{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"})",
+          "query": "sum by (pod) (mongodb_dbstats_objects{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"})",
           "target": "",
           "format": "time_series",
           "hide": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "{{pod}}",
+          "legendFormat": "{{ pod }}",
           "metric": "",
           "refId": "",
           "step": 10,
@@ -1361,7 +1387,6 @@
         },
         "displayLabels": [
           "value",
-          "name",
           "percent"
         ]
       },
@@ -1399,14 +1424,14 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "sum by (job) (mongodb_dbstats_indexSize{namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"})",
-          "query": "sum by (job) (mongodb_dbstats_indexSize{namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"})",
+          "expr": "sum by (pod) (mongodb_dbstats_indexSize{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"})",
+          "query": "sum by (pod) (mongodb_dbstats_indexSize{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"})",
           "target": "",
           "format": "time_series",
           "hide": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "",
+          "legendFormat": "{{ pod }}",
           "metric": "",
           "refId": "",
           "step": 10,
@@ -1785,14 +1810,14 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "sum by (job) (mongodb_ss_metrics_cursor_open{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"})",
-          "query": "sum by (job) (mongodb_ss_metrics_cursor_open{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"})",
+          "expr": "sum by (pod) (mongodb_ss_metrics_cursor_open{namespace=\"${namespace}\", rs_state=\"1\", job=~\"${namespace}/${jobs}\"})",
+          "query": "sum by (pod) (mongodb_ss_metrics_cursor_open{namespace=\"${namespace}\", rs_state=\"1\", job=~\"${namespace}/${jobs}\"})",
           "target": "",
           "format": "time_series",
           "hide": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "",
+          "legendFormat": "{{ pod }}",
           "metric": "",
           "refId": "",
           "step": 10,
@@ -1913,8 +1938,8 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "sum by(job) (mongodb_ss_connections{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\", conn_type=\"current\"})",
-          "query": "sum by(job) (mongodb_ss_connections{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\", conn_type=\"current\"})",
+          "expr": "sum by(pod) (mongodb_ss_connections{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\", conn_type=\"current\"})",
+          "query": "sum by(pod) (mongodb_ss_connections{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\", conn_type=\"current\"})",
           "target": "",
           "format": "time_series",
           "hide": false,
@@ -2055,8 +2080,8 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "max(mongodb_ss_metrics_cursor_open{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"})",
-          "query": "max(mongodb_ss_metrics_cursor_open{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"})",
+          "expr": "max(mongodb_ss_metrics_cursor_open{namespace=\"${namespace}\", rs_state=\"1\", job=~\"${namespace}/${jobs}\"})",
+          "query": "max(mongodb_ss_metrics_cursor_open{namespace=\"${namespace}\", rs_state=\"1\", job=~\"${namespace}/${jobs}\"})",
           "target": "",
           "format": "time_series",
           "hide": false,
@@ -2168,14 +2193,14 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "sum by (job) (rate(mongodb_ss_opcounters{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\", legacy_op_type=~\"query|getmore\"}[$__rate_interval]))",
-          "query": "sum by (job) (rate(mongodb_ss_opcounters{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\", legacy_op_type=~\"query|getmore\"}[$__rate_interval]))",
+          "expr": "sum by (pod) (rate(mongodb_ss_opcounters{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\", legacy_op_type=~\"query|getmore\"}[$__rate_interval]))",
+          "query": "sum by (pod) (rate(mongodb_ss_opcounters{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\", legacy_op_type=~\"query|getmore\"}[$__rate_interval]))",
           "target": "",
           "format": "time_series",
           "hide": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "Read - {{ job }}",
+          "legendFormat": "Read - {{ pod }}",
           "metric": "",
           "refId": "",
           "step": 10,
@@ -2183,14 +2208,14 @@
           "datasource": null
         },
         {
-          "expr": "sum by (job) (rate(mongodb_ss_opcounters{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\", legacy_op_type=~\"insert|update|delete\"}[$__rate_interval]))",
-          "query": "sum by (job) (rate(mongodb_ss_opcounters{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\", legacy_op_type=~\"insert|update|delete\"}[$__rate_interval]))",
+          "expr": "sum by (pod) (rate(mongodb_ss_opcounters{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\", legacy_op_type=~\"insert|update|delete\"}[$__rate_interval]))",
+          "query": "sum by (pod) (rate(mongodb_ss_opcounters{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\", legacy_op_type=~\"insert|update|delete\"}[$__rate_interval]))",
           "target": "",
           "format": "time_series",
           "hide": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "Write - {{ job }}",
+          "legendFormat": "Write - {{ pod }}",
           "metric": "",
           "refId": "",
           "step": 10,
@@ -2297,8 +2322,8 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "sum by (legacy_op_type) (rate(mongodb_ss_opcountersRepl{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"}[$__rate_interval]))",
-          "query": "sum by (legacy_op_type) (rate(mongodb_ss_opcountersRepl{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"}[$__rate_interval]))",
+          "expr": "sum by (legacy_op_type) (rate(mongodb_ss_opcountersRepl{rs_state=\"1\", namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"}[$__rate_interval]))",
+          "query": "sum by (legacy_op_type) (rate(mongodb_ss_opcountersRepl{rs_state=\"1\", namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"}[$__rate_interval]))",
           "target": "",
           "format": "time_series",
           "hide": false,
@@ -2412,8 +2437,8 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "sum(rate(mongodb_ss_metrics_ttl_deletedDocuments{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"}[$__rate_interval]))",
-          "query": "sum(rate(mongodb_ss_metrics_ttl_deletedDocuments{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"}[$__rate_interval]))",
+          "expr": "sum(rate(mongodb_ss_metrics_ttl_deletedDocuments{rs_state=\"1\", namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"}[$__rate_interval]))",
+          "query": "sum(rate(mongodb_ss_metrics_ttl_deletedDocuments{rs_state=\"1\", namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"}[$__rate_interval]))",
           "target": "",
           "format": "time_series",
           "hide": false,
@@ -2541,8 +2566,8 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "avg by (pod) (increase(mongodb_ss_metrics_cursor_totalOpened{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"}[$__rate_interval]))",
-          "query": "avg by (pod) (increase(mongodb_ss_metrics_cursor_totalOpened{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"}[$__rate_interval]))",
+          "expr": "avg by (pod) (increase(mongodb_ss_metrics_cursor_totalOpened{namespace=\"${namespace}\", rs_state=\"1\", job=~\"${namespace}/${jobs}\"}[$__rate_interval]))",
+          "query": "avg by (pod) (increase(mongodb_ss_metrics_cursor_totalOpened{namespace=\"${namespace}\", rs_state=\"1\", job=~\"${namespace}/${jobs}\"}[$__rate_interval]))",
           "target": "",
           "format": "time_series",
           "hide": false,
@@ -2843,14 +2868,14 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "sum by(pod) (rate(container_fs_reads_total{namespace=\"${namespace}\", pod=~\"${jobs}.*\"}[$__rate_interval]))",
-          "query": "sum by(pod) (rate(container_fs_reads_total{namespace=\"${namespace}\", pod=~\"${jobs}.*\"}[$__rate_interval]))",
+          "expr": "sum by(pod) (rate(container_fs_reads_total{namespace=\"${namespace}\", pod=~\"${job}.*\"}[$__rate_interval]))",
+          "query": "sum by(pod) (rate(container_fs_reads_total{namespace=\"${namespace}\", pod=~\"${job}.*\"}[$__rate_interval]))",
           "target": "",
           "format": "time_series",
           "hide": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "",
+          "legendFormat": "{{ pod }}",
           "metric": "",
           "refId": "",
           "step": 10,
@@ -2956,14 +2981,14 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "sum by(pod) (rate(container_fs_writes_total{namespace=\"${namespace}\", pod=~\"${jobs}.*\"}[$__rate_interval]))",
-          "query": "sum by(pod) (rate(container_fs_writes_total{namespace=\"${namespace}\", pod=~\"${jobs}.*\"}[$__rate_interval]))",
+          "expr": "sum by(pod) (rate(container_fs_writes_total{namespace=\"${namespace}\", pod=~\"${job}.*\"}[$__rate_interval]))",
+          "query": "sum by(pod) (rate(container_fs_writes_total{namespace=\"${namespace}\", pod=~\"${job}.*\"}[$__rate_interval]))",
           "target": "",
           "format": "time_series",
           "hide": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "",
+          "legendFormat": "{{ pod }}",
           "metric": "",
           "refId": "",
           "step": 10,
@@ -3863,8 +3888,8 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "sum by (type) (mongodb_mongod_global_lock_current_queue{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"})",
-          "query": "sum by (type) (mongodb_mongod_global_lock_current_queue{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"})",
+          "expr": "sum by (type) (mongodb_mongod_global_lock_current_queue{rs_state=\"1\", namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"})",
+          "query": "sum by (type) (mongodb_mongod_global_lock_current_queue{rs_state=\"1\", namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"})",
           "target": "",
           "format": "time_series",
           "hide": false,
@@ -3985,7 +4010,7 @@
           "hide": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "",
+          "legendFormat": "{{ pod }}",
           "metric": "",
           "refId": "",
           "step": 10,
@@ -4373,8 +4398,8 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "1 - rate(mongodb_ss_wt_cache_pages_read_into_cache{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"}[$__rate_interval]) / rate(mongodb_ss_wt_cache_pages_requested_from_the_cache{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"}[$__rate_interval])",
-          "query": "1 - rate(mongodb_ss_wt_cache_pages_read_into_cache{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"}[$__rate_interval]) / rate(mongodb_ss_wt_cache_pages_requested_from_the_cache{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"}[$__rate_interval])",
+          "expr": "1 - rate(mongodb_ss_wt_cache_pages_read_into_cache{rs_state=\"1\", namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"}[$__rate_interval]) / rate(mongodb_ss_wt_cache_pages_requested_from_the_cache{rs_state=\"1\", namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"}[$__rate_interval])",
+          "query": "1 - rate(mongodb_ss_wt_cache_pages_read_into_cache{rs_state=\"1\", namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"}[$__rate_interval]) / rate(mongodb_ss_wt_cache_pages_requested_from_the_cache{rs_state=\"1\", namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"}[$__rate_interval])",
           "target": "",
           "format": "time_series",
           "hide": false,
@@ -5029,8 +5054,8 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "sum by(pod) (rate(container_blkio_device_usage_total{namespace=\"${namespace}\", pod=~\"${jobs}.*\", operation=\"Total\"}[$__rate_interval]))",
-          "query": "sum by(pod) (rate(container_blkio_device_usage_total{namespace=\"${namespace}\", pod=~\"${jobs}.*\", operation=\"Total\"}[$__rate_interval]))",
+          "expr": "sum by(pod) (rate(container_blkio_device_usage_total{namespace=\"${namespace}\", pod=~\"${job}.*\", operation=\"Total\"}[$__rate_interval]))",
+          "query": "sum by(pod) (rate(container_blkio_device_usage_total{namespace=\"${namespace}\", pod=~\"${job}.*\", operation=\"Total\"}[$__rate_interval]))",
           "target": "",
           "format": "time_series",
           "hide": false,
@@ -6091,8 +6116,8 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "rate(mongodb_ss_wt_cache_modified_pages_evicted_by_application_threads{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"}[$__rate_interval])",
-          "query": "rate(mongodb_ss_wt_cache_modified_pages_evicted_by_application_threads{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\", rs_state=\"1\"}[$__rate_interval])",
+          "expr": "rate(mongodb_ss_wt_cache_modified_pages_evicted_by_application_threads{rs_state=\"1\", namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"}[$__rate_interval])",
+          "query": "rate(mongodb_ss_wt_cache_modified_pages_evicted_by_application_threads{rs_state=\"1\", namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"}[$__rate_interval])",
           "target": "",
           "format": "time_series",
           "hide": false,
@@ -6340,6 +6365,6 @@
     "hidden": false
   },
   "timezone": "browser",
-  "version": 22,
+  "version": 24,
   "uid": null
 }

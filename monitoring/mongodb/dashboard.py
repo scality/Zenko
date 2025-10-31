@@ -9,6 +9,7 @@ from grafanalib.core import (
     Template,
     Templating,
     Threshold,
+    BarChart,
     YAxis,
 )
 from grafanalib import core
@@ -32,7 +33,7 @@ DATASOURCE = "${DS_PROMETHEUS}"
 RS_STATE_PRIMARY = "1"
 RS_STATE_SECONDARY = "2"
 
-POD_PATTERN = "${jobs}.*"
+POD_PATTERN = "${job}.*"
 JOB_PATTERN = "${namespace}/${jobs}"
 JOB_FILTER = f'job=~"{JOB_PATTERN}"'
 DATABASE_FILTER_USER = 'database!~"admin|config|local"'
@@ -220,7 +221,10 @@ class Metrics:
     ).with_defaults(JOB_FILTER)
 
     SS_METRICS_CURSOR_OPEN = metrics.Metric(
-        "mongodb_ss_metrics_cursor_open", "job", namespace="${namespace}"
+        "mongodb_ss_metrics_cursor_open",
+        "job",
+        namespace="${namespace}",
+        rs_state=RS_STATE_PRIMARY,
     ).with_defaults(JOB_FILTER)
 
     SS_METRICS_TTL_DELETED_DOCUMENTS = metrics.CounterMetric(
@@ -231,7 +235,10 @@ class Metrics:
     ).with_defaults(JOB_FILTER)
 
     SS_METRICS_CURSOR_TOTAL_OPENED = metrics.CounterMetric(
-        "mongodb_ss_metrics_cursor_totalOpened", "job", namespace="${namespace}"
+        "mongodb_ss_metrics_cursor_totalOpened",
+        "job",
+        namespace="${namespace}",
+        rs_state=RS_STATE_PRIMARY,
     ).with_defaults(JOB_FILTER)
 
     SS_GLOBAL_LOCK_ACTIVE_CLIENTS_READERS = metrics.Metric(
@@ -424,7 +431,9 @@ class Metrics:
 
     # Sharding metrics
     MONGOS_SHARDING_CHUNKS_IS_BALANCED = metrics.Metric(
-        "mongodb_mongos_sharding_chunks_is_balanced", "job", namespace="${namespace}"
+        "mongodb_mongos_sharding_chunks_is_balancer_running",
+        "job",
+        namespace="${namespace}",
     )
 
     # Container metrics for disk I/O
@@ -518,8 +527,8 @@ mongodb_services_state = mongodb_stat(
     orientation="horizontal",
     targets=[
         Target(
-            expr="sum(" + Metrics.UP() + ") by (pod)",
-            legendFormat="{{pod}}",
+            expr="sum(" + Metrics.UP() + ") by (cluster_role)",
+            legendFormat="{{cluster_role}}",
         )
     ],
 )
@@ -531,14 +540,16 @@ version_panel = Stat(
     colorMode="none",
     orientation="horizontal",
     textMode="auto",
-    # The version is stored in the "mongodb" field of the metric
-    reduceCalc={"calcs": ["lastNotNull"], "fields": "/^mongodb$/", "values": False},
+    reduceOptions={
+        "calcs": ["lastNotNull"],
+        "fields": "/^mongodb$/",
+        "values": False,
+    },
     targets=[
         Target(
-            expr="count by (mongodb) (" + Metrics.VERSION_INFO() + ") > 0",
+            expr="group by (mongodb) (" + Metrics.VERSION_INFO() + ")",
             format="table",
             instant=True,
-            legendFormat="{{mongodb}}",
         )
     ],
 )
@@ -658,15 +669,15 @@ index_size_configsvr = mongodb_stat(
 docs_distribution_pie = PieChart(
     title="Documents Distribution Across Shards",
     dataSource=DATASOURCE,
-    displayLabels=["value", "name", "percent"],
+    displayLabels=["value", "percent"],
     legendDisplayMode="table",
     legendPlacement="right",
     pieType="pie",
     unit="short",
     targets=[
         Target(
-            expr="sum by (job) (" + Metrics.DBSTATS_OBJECTS() + ")",
-            legendFormat="{{ job }}",
+            expr="sum by (pod) (" + Metrics.DBSTATS_OBJECTS() + ")",
+            legendFormat="{{ pod }}",
         )
     ],
     description="Distribution of user documents across all shards",
@@ -682,8 +693,8 @@ index_size_distribution_pie = PieChart(
     unit=UNITS.BYTES,
     targets=[
         Target(
-            expr="sum by (job) (" + Metrics.DBSTATS_INDEX_SIZE() + ")",
-            legendFormat="{{ job }}",
+            expr="sum by (pod) (" + Metrics.DBSTATS_INDEX_SIZE() + ")",
+            legendFormat="{{ pod }}",
         )
     ],
     description="Distribution of user index sizes across all shards",
@@ -759,19 +770,19 @@ shard_config_states = mongodb_state_timeline(
 )
 
 # Operations Panels
-shard_balancing = Stat(
-    title="Shard balancing",
+shard_balancing = BarChart(
+    title="MongoDB balancing process",
     dataSource=DATASOURCE,
-    format="",
-    colorMode="value",
-    textMode="value",
+    legendDisplayMode="hidden",
+    extraJson={"fieldConfig": {"defaults": {"max": 1}}},
+    xTickLabelSpacing=80,
     mappings=[
         {
-            "options": {"0": {"text": "Shards are not balanced", "color": "red"}},
+            "options": {"0": {"text": "Not Running", "color": "red"}},
             "type": "value",
         },
         {
-            "options": {"1": {"text": "Shards are balanced", "color": "green"}},
+            "options": {"1": {"text": "Running", "color": "green"}},
             "type": "value",
         },
     ],
@@ -788,7 +799,8 @@ mongos_cursors = mongodb_stat(
     decimals=0,
     targets=[
         Target(
-            expr="sum by (job) (" + Metrics.SS_METRICS_CURSOR_OPEN() + ")",
+            expr="sum by (pod) (" + Metrics.SS_METRICS_CURSOR_OPEN() + ")",
+            legendFormat="{{ pod }}",
         )
     ],
 )
@@ -797,7 +809,7 @@ active_connections = mongodb_timeseries(
     "Active connections",
     [
         Target(
-            expr="sum by(job) (" + Metrics.SS_CONNECTIONS(conn_type="current") + ")",
+            expr="sum by(pod) (" + Metrics.SS_CONNECTIONS(conn_type="current") + ")",
             legendFormat="__auto",
         )
     ],
@@ -825,16 +837,16 @@ ops_shard_servers = mongodb_timeseries(
     "Data operations",
     [
         Target(
-            expr="sum by (job) (rate("
+            expr="sum by (pod) (rate("
             + Metrics.SS_OPCOUNTERS(legacy_op_type=["query", "getmore"])
             + "))",
-            legendFormat="Read - {{ job }}",
+            legendFormat="Read - {{ pod }}",
         ),
         Target(
-            expr="sum by (job) (rate("
+            expr="sum by (pod) (rate("
             + Metrics.SS_OPCOUNTERS(legacy_op_type=["insert", "update", "delete"])
             + "))",
-            legendFormat="Write - {{ job }}",
+            legendFormat="Write - {{ pod }}",
         ),
     ],
     legendDisplayMode="table",
@@ -848,9 +860,7 @@ repl_opcounters_list = mongodb_timeseries(
     "Replication Operations",
     [
         Target(
-            expr="sum by (legacy_op_type) (rate("
-            + Metrics.SS_OPCOUNTERS_REPL()
-            + "))",
+            expr="sum by (legacy_op_type) (rate(" + Metrics.SS_OPCOUNTERS_REPL() + "))",
             legendFormat="repl_{{legacy_op_type}}",
         ),
     ],
@@ -951,6 +961,7 @@ disk_writes = mongodb_timeseries(
             expr="sum by(pod) (rate("
             + Metrics.CONTAINER_FS_WRITES_TOTAL(f'pod=~"{POD_PATTERN}"')
             + "))",
+            legendFormat="{{ pod }}",
         )
     ],
     legendDisplayMode="table",
@@ -1069,9 +1080,7 @@ queued_ops = mongodb_timeseries(
     "Queued Operations by Type",
     [
         Target(
-            expr="sum by (type) ("
-            + Metrics.MONGOD_GLOBAL_LOCK_CURRENT_QUEUE()
-            + ")",
+            expr="sum by (type) (" + Metrics.MONGOD_GLOBAL_LOCK_CURRENT_QUEUE() + ")",
             legendFormat="{{type}}",
         )
     ],
@@ -1090,6 +1099,7 @@ op_queue_size = mongodb_timeseries(
             expr="sum by(pod) ("
             + Metrics.SS_GLOBAL_LOCK_CURRENT_QUEUE(count_type=["readers", "writers"])
             + ")",
+            legendFormat="{{ pod }}",
         )
     ],
     unit="none",

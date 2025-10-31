@@ -133,6 +133,10 @@ create_encryption_secret
 env $(dependencies_env) envsubst < ${ZENKOVERSION_PATH} | kubectl -n ${NAMESPACE} apply -f -
 env $(dependencies_env) envsubst < ${ZENKO_CR_PATH} | kubectl -n ${NAMESPACE} apply -f -
 
+# Fix Zookeeper memory issues on newer Ubuntu GHA runners
+# this is a temporary fix.
+bash ${DIR}/fix-zookeeper.sh "${ZENKO_NAME}" "${NAMESPACE}"
+
 k_cmd="kubectl -n ${NAMESPACE} get zenko/${ZENKO_NAME}"
 for i in $(seq 1 120); do
     conditions=$($k_cmd -o "jsonpath={.status.conditions}")
