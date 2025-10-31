@@ -111,14 +111,14 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "sum(mongodb_up{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"}) by (job)",
-          "query": "sum(mongodb_up{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"}) by (job)",
+          "expr": "sum(mongodb_up{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"}) by (cluster_role)",
+          "query": "sum(mongodb_up{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"}) by (cluster_role)",
           "target": "",
           "format": "time_series",
           "hide": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "{{pod}}",
+          "legendFormat": "{{cluster_role}}",
           "metric": "",
           "refId": "",
           "step": 10,
@@ -1210,16 +1210,43 @@
         "defaults": {
           "thresholds": {
             "mode": "absolute",
-            "steps": ""
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              },
+              {
+                "value": 80,
+                "color": "red"
+              }
+            ]
           },
-          "color": null,
-          "custom": {},
-          "decimals": null,
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "axisPlacement": "auto",
+            "axisLabel": "",
+            "axisColorMode": "text",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "axisCenteredZero": false,
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
+            }
+          },
+          "color": {
+            "mode": "palette-classic",
+            "fixedColor": "none"
+          },
           "mappings": [
             {
               "options": {
                 "0": {
-                  "text": "Shards are not balanced",
+                  "text": "Running",
                   "color": "red"
                 }
               },
@@ -1228,15 +1255,14 @@
             {
               "options": {
                 "1": {
-                  "text": "Shards are balanced",
+                  "text": "Not Running",
                   "color": "green"
                 }
               },
               "type": "value"
             }
           ],
-          "unit": "",
-          "noValue": "none"
+          "max": 1
         },
         "overrides": []
       },
@@ -1252,8 +1278,8 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "max by (pod) (mongodb_mongos_sharding_chunks_is_balanced{namespace=\"${namespace}\"})",
-          "query": "max by (pod) (mongodb_mongos_sharding_chunks_is_balanced{namespace=\"${namespace}\"})",
+          "expr": "max by (pod) (mongodb_mongos_sharding_chunks_is_balancer_running{namespace=\"${namespace}\"})",
+          "query": "max by (pod) (mongodb_mongos_sharding_chunks_is_balancer_running{namespace=\"${namespace}\"})",
           "target": "",
           "format": "time_series",
           "hide": false,
@@ -1267,24 +1293,30 @@
           "datasource": null
         }
       ],
-      "title": "Shard balancing",
+      "title": "MongoDB balancing process",
       "transparent": false,
       "transformations": [],
       "options": {
-        "textMode": "value",
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
         "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
-          "fields": "",
-          "values": false
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 80,
+        "showValue": "auto",
+        "stacking": "none",
+        "groupWidth": 0.7,
+        "barWidth": 0.97,
+        "barRadius": 0.0,
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "legend": {
+          "showLegend": true,
+          "displayMode": "hidden",
+          "placement": "bottom",
+          "calcs": []
         }
       },
-      "type": "stat"
+      "type": "barchart"
     },
     {
       "datasource": "${DS_PROMETHEUS}",
@@ -1355,7 +1387,6 @@
         },
         "displayLabels": [
           "value",
-          "name",
           "percent"
         ]
       },
@@ -1786,7 +1817,7 @@
           "hide": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "",
+          "legendFormat": "{{ pod }}",
           "metric": "",
           "refId": "",
           "step": 10,
@@ -2837,8 +2868,8 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "sum by(pod) (rate(container_fs_reads_total{namespace=\"${namespace}\", pod=~\"${jobs}.*\"}[$__rate_interval]))",
-          "query": "sum by(pod) (rate(container_fs_reads_total{namespace=\"${namespace}\", pod=~\"${jobs}.*\"}[$__rate_interval]))",
+          "expr": "sum by(pod) (rate(container_fs_reads_total{namespace=\"${namespace}\", pod=~\"${job}.*\"}[$__rate_interval]))",
+          "query": "sum by(pod) (rate(container_fs_reads_total{namespace=\"${namespace}\", pod=~\"${job}.*\"}[$__rate_interval]))",
           "target": "",
           "format": "time_series",
           "hide": false,
@@ -2950,8 +2981,8 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "sum by(pod) (rate(container_fs_writes_total{namespace=\"${namespace}\", pod=~\"${jobs}.*\"}[$__rate_interval]))",
-          "query": "sum by(pod) (rate(container_fs_writes_total{namespace=\"${namespace}\", pod=~\"${jobs}.*\"}[$__rate_interval]))",
+          "expr": "sum by(pod) (rate(container_fs_writes_total{namespace=\"${namespace}\", pod=~\"${job}.*\"}[$__rate_interval]))",
+          "query": "sum by(pod) (rate(container_fs_writes_total{namespace=\"${namespace}\", pod=~\"${job}.*\"}[$__rate_interval]))",
           "target": "",
           "format": "time_series",
           "hide": false,
@@ -5023,8 +5054,8 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "sum by(pod) (rate(container_blkio_device_usage_total{namespace=\"${namespace}\", pod=~\"${jobs}.*\", operation=\"Total\"}[$__rate_interval]))",
-          "query": "sum by(pod) (rate(container_blkio_device_usage_total{namespace=\"${namespace}\", pod=~\"${jobs}.*\", operation=\"Total\"}[$__rate_interval]))",
+          "expr": "sum by(pod) (rate(container_blkio_device_usage_total{namespace=\"${namespace}\", pod=~\"${job}.*\", operation=\"Total\"}[$__rate_interval]))",
+          "query": "sum by(pod) (rate(container_blkio_device_usage_total{namespace=\"${namespace}\", pod=~\"${job}.*\", operation=\"Total\"}[$__rate_interval]))",
           "target": "",
           "format": "time_series",
           "hide": false,
@@ -6334,6 +6365,6 @@
     "hidden": false
   },
   "timezone": "browser",
-  "version": 23,
+  "version": 24,
   "uid": null
 }
