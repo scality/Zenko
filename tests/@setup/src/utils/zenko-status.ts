@@ -16,6 +16,7 @@ interface ZenkoStatusOptions {
     namespace: string;
     zenkoName: string;
     timeout?: number;
+    waitForReconciliationToStart?: boolean;
 }
 
 /**
@@ -24,10 +25,11 @@ interface ZenkoStatusOptions {
  * @returns Promise that resolves when Zenko is stabilized
  */
 export async function waitForZenkoToStabilize(options: ZenkoStatusOptions): Promise<void> {
-    const { namespace, zenkoName, timeout = 15 * 60 * 1000 } = options;
+    const { namespace, zenkoName, timeout = 15 * 60 * 1000, waitForReconciliationToStart = false } = options;
 
     const startTime = Date.now();
     let status = false;
+    let reconciliationStarted = !waitForReconciliationToStart;
     let deploymentFailure: ZenkoStatusValue = {
         lastTransitionTime: '',
         message: '',
@@ -47,7 +49,11 @@ export async function waitForZenkoToStabilize(options: ZenkoStatusOptions): Prom
         type: 'Available',
     };
 
-    logger.info(`Waiting for Zenko instance '${zenkoName}' to stabilize...`);
+    if (waitForReconciliationToStart) {
+        logger.info(`Waiting for Zenko instance '${zenkoName}' reconciliation to start...`);
+    } else {
+        logger.info(`Waiting for Zenko instance '${zenkoName}' to stabilize...`);
+    }
 
     while (!status && Date.now() - startTime < timeout) {
         KubernetesHelper.init({});
@@ -87,7 +93,15 @@ export async function waitForZenkoToStabilize(options: ZenkoStatusOptions): Prom
             available: `${available.type}=${available.status}`,
         });
 
-        if (deploymentFailure.status === 'False' &&
+        // First wait for reconciliation to start if requested
+        if (!reconciliationStarted && deploymentInProgress.status === 'True') {
+            logger.info('Zenko reconciliation started');
+            reconciliationStarted = true;
+        }
+
+        // Then wait for it to complete
+        if (reconciliationStarted &&
+            deploymentFailure.status === 'False' &&
             deploymentInProgress.status === 'False' &&
             available.status === 'True'
         ) {

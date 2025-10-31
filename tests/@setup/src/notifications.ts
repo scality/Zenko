@@ -43,6 +43,15 @@ export async function setupNotifications(options: NotificationOptions): Promise<
     const [host, port] = kafkaHosts.split(':');
 
     await applyNotificationDestinations(namespace, options.zenkoName, host, port);
+
+    logger.info('Waiting for Zenko operator to reconcile notification destinations...');
+    const { waitForZenkoToStabilize } = await import('./utils/zenko-status');
+    await waitForZenkoToStabilize({
+        namespace,
+        zenkoName: options.zenkoName,
+        timeout: 25 * 60 * 1000,
+        waitForReconciliationToStart: true,
+    });
 }
 
 /**
