@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { logger } from './utils/logger';
 import KubernetesHelper from 'cli-testing/utils/KubernetesHelper';
-import { initKubernetes } from './utils/k8s';
+import { getDeploymentGeneration, initKubernetes, waitForDeploymentRestart } from './utils/k8s';
 
 export interface DNSOptions {
     namespace: string;
@@ -33,8 +33,9 @@ async function restartCoreDNS(): Promise<void> {
     try {
         logger.debug('Attempting to restart CoreDNS deployment...');
 
+        const baseCoreDNSDeploymentGeneration = await getDeploymentGeneration('kube-system', 'coredns');
         await KubernetesHelper.restartDeployment('coredns', 'kube-system');
-        await KubernetesHelper.waitForDeployment('coredns', 'kube-system', 60000);
+        await waitForDeploymentRestart('kube-system', 'coredns', baseCoreDNSDeploymentGeneration, 60000);
         logger.info('CoreDNS deployment is ready.');
     } catch (error: any) {
         const errorBody = error.response ? JSON.stringify(error.response.body) : error.message;

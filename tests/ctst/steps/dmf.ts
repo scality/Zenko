@@ -11,6 +11,8 @@ Then('dmf volume should contain {int} objects',
     { timeout: 2 * 60 * 1000 }, async function (this: Zenko, objectCount: number) {
         let conditionOk = false;
         while (!conditionOk) {
+            const outStrDebug = await execInCluster(this, 'find /cold-data -type f');
+            this.logger.debug('DMF volume contents', { outStrDebug });
             // Getting the number of objects inside the volume used
             // by the mock dmf to store transitioned objects
             const outStr = await execInCluster(this, 'find /cold-data -type f | wc -l');

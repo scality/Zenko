@@ -425,7 +425,6 @@ export async function execCommandWithVolumeAccess(
     command: string,
     options: {
         volumeMountPath?: string;
-        hostPath?: string;
         image?: string;
         namespace?: string;
         timeout?: number;
@@ -435,7 +434,6 @@ export async function execCommandWithVolumeAccess(
     initKubernetes(world);
     const {
         volumeMountPath = '/cold-data',
-        hostPath = '/data/sorbet-data-0',
         image = 'alpine:3.22',
         namespace = 'default',
         timeout = 30000,
@@ -479,15 +477,14 @@ export async function execCommandWithVolumeAccess(
                     }
                 },
                 volumeMounts: [{
-                    name: 'host-volume',
+                    name: 'data-volume',
                     mountPath: volumeMountPath
                 }]
             }],
             volumes: [{
-                name: 'host-volume',
-                hostPath: {
-                    path: hostPath,
-                    type: 'DirectoryOrCreate'
+                name: 'data-volume',
+                persistentVolumeClaim: {
+                    claimName: 'sorbet-data'
                 }
             }]
         }
