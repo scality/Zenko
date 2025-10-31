@@ -498,6 +498,7 @@ export async function execCommandWithVolumeAccess(
 
         const coreClient = KubernetesHelper.getClientCore();
         const logs = await coreClient!.readNamespacedPodLog({ name: podName, namespace });
+        world.logger.debug('Pod logs', { podName, logs });
 
         if (cleanup) {
             try {
