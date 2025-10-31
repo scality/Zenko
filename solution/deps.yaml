@@ -13,7 +13,7 @@ busybox:
   tag: 1.37.0
   envsubst: BUSYBOX_TAG
 cloudserver:
-  sourceRegistry: ghcr.io/scality/playground/wlardier
+  sourceRegistry: ghcr.io/scality/playground/mbenzekri
   dashboard: cloudserver/cloudserver-dashboards
   image: cloudserver
   tag: 9.2.0
