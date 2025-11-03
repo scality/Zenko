@@ -71,9 +71,6 @@ runs:
           sudo rm -rf linux-amd64
           sudo wget https://github.com/mikefarah/yq/releases/download/${{ env.YQ_VERSION }}/${{ env.YQ_BINARY }} -O /usr/local/bin/yq
           sudo chmod +x /usr/local/bin/yq
-          sudo curl -sSL https://github.com/tilt-dev/tilt/releases/download/v${{ env.TILT_VERSION }}/tilt.${{ env.TILT_VERSION }}.linux.x86_64.tar.gz | sudo tar xzvf -
-          sudo mv tilt /usr/local/bin
-          sudo chmod +x /usr/local/bin/tilt
           sudo curl -sSL https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${{ env.KUSTOMIZE_VERSION }}/kustomize_${{ env.KUSTOMIZE_VERSION }}_linux_amd64.tar.gz | sudo tar -xvz
           sudo install kustomize /usr/local/bin
     - name: Kubectl tool installer

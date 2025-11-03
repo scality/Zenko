@@ -66,7 +66,6 @@ _All with their latest version_
 - Docker
 - Kubectl
 - Helm
-- Tilt
 - Kind
 - m4
 - git
