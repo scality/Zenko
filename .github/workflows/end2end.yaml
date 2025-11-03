@@ -501,7 +501,7 @@ jobs:
         working-directory: ./.github/scripts/end2end
       - name: Setup PRA test environment
         env:
-          INSTANCE_ID: "${{ env.ZENKO_NAME }}-pra"
+          ZENKO_NAME: "${{ env.ZENKO_NAME }}-pra"
           SETUP_IMAGE: ${{ needs.build-setup-image.outputs.image }}
           GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
         run: ./setup-tests.sh --kubeconfig ~/.kube/config
