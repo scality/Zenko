@@ -25,24 +25,94 @@
   ],
   "lifecycleTopics": [
     {
+      "suffix": "cold-status-e2e-cold",
+      "partitions": 10,
+      "description": "DMF/Sorbet cold status topic"
+    },
+    {
+      "suffix": "cold-archive-req-e2e-cold",
+      "partitions": 10,
+      "description": "DMF/Sorbet cold archive request topic"
+    },
+    {
+      "suffix": "cold-gc-req-e2e-cold",
+      "partitions": 10,
+      "description": "DMF/Sorbet cold GC request topic"
+    },
+    {
+      "suffix": "cold-restore-req-e2e-cold",
+      "partitions": 10,
+      "description": "DMF/Sorbet cold restore request topic"
+    },
+    {
+      "suffix": "cold-restore-adjust-req-e2e-cold",
+      "partitions": 10,
+      "description": "DMF/Sorbet cold restore adjust request topic"
+    },
+    {
+      "suffix": "cold-dead-letter-e2e-cold",
+      "partitions": 10,
+      "description": "DMF/Sorbet cold dead letter topic"
+    },
+    {
+      "suffix": "cold-status-e2e-miria-archive",
+      "partitions": 10,
+      "description": "Miria cold status topic"
+    },
+    {
+      "suffix": "cold-archive-req-e2e-miria-archive",
+      "partitions": 10,
+      "description": "Miria cold archive request topic"
+    },
+    {
+      "suffix": "cold-gc-req-e2e-miria-archive",
+      "partitions": 10,
+      "description": "Miria cold GC request topic"
+    },
+    {
+      "suffix": "cold-restore-req-e2e-miria-archive",
+      "partitions": 10,
+      "description": "Miria cold restore request topic"
+    },
+    {
+      "suffix": "cold-restore-adjust-req-e2e-miria-archive",
+      "partitions": 10,
+      "description": "Miria cold restore adjust request topic"
+    },
+    {
+      "suffix": "cold-dead-letter-e2e-miria-archive",
+      "partitions": 10,
+      "description": "Miria cold dead letter topic"
+    },
+    {
       "suffix": "cold-status-e2e-azure-archive",
       "partitions": 10,
-      "description": "Main Azure archive cold status topic for lifecycle transitions"
+      "description": "Azure archive cold status topic"
     },
     {
-      "suffix": "cold-status-e2e-azure-archive-2-non-versioned",
+      "suffix": "cold-archive-req-e2e-azure-archive",
       "partitions": 10,
-      "description": "Azure archive cold status topic for non-versioned buckets"
+      "description": "Azure archive cold archive request topic"
     },
     {
-      "suffix": "cold-status-e2e-azure-archive-2-versioned",
+      "suffix": "cold-gc-req-e2e-azure-archive",
       "partitions": 10,
-      "description": "Azure archive cold status topic for versioned buckets"
+      "description": "Azure archive cold GC request topic"
     },
     {
-      "suffix": "cold-status-e2e-azure-archive-2-suspended",
+      "suffix": "cold-restore-req-e2e-azure-archive",
       "partitions": 10,
-      "description": "Azure archive cold status topic for suspended buckets"
+      "description": "Azure archive cold restore request topic"
+    },
+    {
+      "suffix": "cold-restore-adjust-req-e2e-azure-archive",
+      "partitions": 10,
+      "description": "Azure archive cold restore adjust request topic"
+    },
+    {
+      "suffix": "cold-dead-letter-e2e-azure-archive",
+      "partitions": 10,
+      "description": "Azure archive cold dead letter topic"
     }
   ]
 }
