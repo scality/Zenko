@@ -145,8 +145,6 @@ spec:
         args:
 $(for arg in "${setup_args[@]}"; do echo "        - \"${arg}\""; done)
         env:
-        - name: MANAGEMENT_INSTANCE
-          value: "${MANAGEMENT_INSTANCE}"
         - name: ENABLE_RING_TESTS
           value: "${ENABLE_RING_TESTS}"
         - name: KAFKA_IMAGE
