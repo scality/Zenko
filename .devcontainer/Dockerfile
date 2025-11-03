@@ -1,6 +1,6 @@
 FROM mcr.microsoft.com/devcontainers/base:jammy
 ENV YQ_VERSION=v4.27.5
-ENV TILT_VERSION=0.23.4
+ENV TILT_VERSION=0.35.2
 ENV KUSTOMIZE_VERSION=v4.4.1
 
 RUN curl -L "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64" -o /usr/local/bin/yq && \

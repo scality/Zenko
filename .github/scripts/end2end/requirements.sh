@@ -6,7 +6,7 @@ HELM_VERSION=v3.17.0
 KUSTOMIZE_VERSION=v4.4.1
 YQ_VERSION=v4.27.5
 YQ_BINARY=yq_linux_amd64
-TILT_VERSION=0.23.4
+TILT_VERSION=0.35.2
 
 apt-get update && apt-get install -y \
     apt-transport-https \
