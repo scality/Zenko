@@ -46,10 +46,15 @@ export interface AccountResponse {
 
 /**
  * Get management endpoint
+ * For PRA instances, the Management API endpoint is shared (only deployed on primary instance)
  * @param subdomain - Subdomain
  * @returns Management endpoint
  */
 export async function getManagementEndpoint(subdomain: string = 'zenko.local'): Promise<string> {
+    const managementInstance = process.env.MANAGEMENT_INSTANCE;
+    if (managementInstance) {
+        logger.info(`Using Management API from primary instance: ${managementInstance} (target: ${process.env.ZENKO_NAME})`);
+    }
     return `http://management.${subdomain}`;
 }
 
@@ -117,22 +122,29 @@ export async function getManagementToken(subdomain: string = 'zenko.local'): Pro
 }
 
 /**
- * Get instance ID
+ * Get instance ID from the target Zenko CR
+ * NOTE: This returns the TARGET instance's ID (e.g., PRA), which is used when creating locations
+ * @param zenkoName - Optional Zenko CR name to override ZENKO_NAME env var
  * @returns Instance ID
  */
-export async function getInstanceId(): Promise<string | null> {
+export async function getInstanceId(zenkoName?: string): Promise<string | null> {
     if (!KubernetesHelper.customObject) {
         throw new Error('KubernetesHelper not initialized');
     }
+    const targetZenkoName = zenkoName || process.env.ZENKO_NAME || 'end2end';
+    logger.debug(`Getting instanceId from Zenko CR: ${targetZenkoName}`);
+    
     const instanceId = await KubernetesHelper.customObject.getNamespacedCustomObject({
         group: 'zenko.io',
         version: 'v1alpha2',
         namespace: process.env.NAMESPACE || 'default',
         plural: 'zenkos',
-        name: process.env.ZENKO_NAME || 'end2end',
+        name: targetZenkoName,
     });
 
-    return instanceId.status?.instanceID || process.env.INSTANCE_ID;
+    const id = instanceId.status?.instanceID || process.env.INSTANCE_ID;
+    logger.info(`Using instanceId: ${id} from Zenko CR: ${targetZenkoName}`);
+    return id;
 }
 
 /**
