@@ -113,6 +113,21 @@
       "suffix": "cold-dead-letter-e2e-azure-archive",
       "partitions": 10,
       "description": "Azure archive cold dead letter topic"
+    },
+    {
+      "suffix": "cold-status-e2e-azure-archive-2-non-versioned",
+      "partitions": 10,
+      "description": "Azure archive 2 cold status topic for non-versioned buckets"
+    },
+    {
+      "suffix": "cold-status-e2e-azure-archive-2-suspended",
+      "partitions": 10,
+      "description": "Azure archive 2 cold status topic for suspended buckets"
+    },
+    {
+      "suffix": "cold-status-e2e-azure-archive-2-versioned",
+      "partitions": 10,
+      "description": "Azure archive 2 cold status topic for versioned buckets"
     }
   ]
 }

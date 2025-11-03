@@ -512,6 +512,13 @@ jobs:
           OIDC_USERNAME: 'zenko-end2end-pra'
           OIDC_EMAIL: 'e2e-pra@zenko.local'
         working-directory: ./.github/scripts/end2end
+      - name: Setup PRA test environment
+        env:
+          ZENKO_NAME: "${{ env.ZENKO_NAME }}-pra"
+          SETUP_IMAGE: ${{ needs.build-setup-image.outputs.image }}
+          GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: ./setup-tests.sh --kubeconfig ~/.kube/config -- all --no-kafka-topics --no-rbac --no-dns --no-mocks --no-metadata
+        working-directory: ./tests/@setup
       - name: Configure hosts file
         run: bash configure-hosts.sh
         working-directory: ./.github/scripts/end2end
