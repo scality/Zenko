@@ -160,6 +160,14 @@ export async function setupLocations(options: LocationsOptions): Promise<void> {
     const managementEndpoint = await getManagementEndpoint(options.zenkoName, options.namespace);
     const token = await getManagementToken(options.subdomain);
 
+    logger.debug('Management API configuration', {
+        zenkoName: options.zenkoName,
+        namespace: options.namespace,
+        subdomain: options.subdomain,
+        managementEndpoint,
+        instanceId
+    });
+
     const accountsCredentials: Record<string, AccountCredentials> = {};
     const crrSourceAccountName = process.env.CRR_SOURCE_ACCOUNT_NAME;
     const crrDestinationAccountName = process.env.CRR_DESTINATION_ACCOUNT_NAME;
@@ -479,6 +487,13 @@ async function createStorageLocation(
 
     locationPayload.details = resolveEnvValues(locationPayload.details);
 
+    logger.debug('Creating location via Management API', {
+        endpoint,
+        instanceId,
+        locationName: location.name,
+        url: `${endpoint}/api/v1/config/${instanceId}/location`
+    });
+
     try {
         const response = await axios.post(
             `${endpoint}/api/v1/config/${instanceId}/location`,
@@ -504,6 +519,16 @@ async function createStorageLocation(
             logger.error(`Instance not found when creating location ${location.name}`, {
                 status: 404,
                 data: error.response?.data
+            });
+        }
+        if (error.response?.status === 403) {
+            logger.error(`Forbidden when creating location ${location.name}`, {
+                status: 403,
+                endpoint,
+                instanceId,
+                url: `${endpoint}/api/v1/config/${instanceId}/location`,
+                responseData: error.response?.data,
+                message: error.message,
             });
         }
         logger.error(`Failed to create location ${location.name}`, {
