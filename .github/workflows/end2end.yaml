@@ -490,6 +490,19 @@ jobs:
       - name: Configure E2E CTST test environment
         run: bash configure-e2e-ctst.sh
         working-directory: ./.github/scripts/end2end
+      - name: Dump setup state for PRIMARY instance (OLD)
+        run: bash dump-setup-state.sh default end2end > /tmp/old-primary-dump.txt 2>&1
+        working-directory: ./.github/scripts/end2end
+        continue-on-error: true
+      - name: Dump setup state for PRA instance (OLD)
+        run: bash dump-setup-state.sh default end2end-pra > /tmp/old-pra-dump.txt 2>&1
+        working-directory: ./.github/scripts/end2end
+        continue-on-error: true
+      - name: Show diagnostic dumps (OLD)
+        run: |
+          echo "=== PRIMARY INSTANCE DUMP ===" && cat /tmp/old-primary-dump.txt
+          echo "=== PRA INSTANCE DUMP ===" && cat /tmp/old-pra-dump.txt
+        continue-on-error: true
       - name: Run CTST end to end tests
         run: bash run-e2e-ctst.sh "" "" "" "" --tags @PRA
         working-directory: ./.github/scripts/end2end
@@ -662,6 +675,13 @@ jobs:
       - name: Configure E2E test environment
         run: bash configure-e2e-ctst.sh
         working-directory: ./.github/scripts/end2end
+      - name: Dump setup state before tests (OLD)
+        run: bash dump-setup-state.sh default end2end > /tmp/old-ctst-sharded-dump.txt 2>&1
+        working-directory: ./.github/scripts/end2end
+        continue-on-error: true
+      - name: Show diagnostic dump (OLD)
+        run: cat /tmp/old-ctst-sharded-dump.txt
+        continue-on-error: true
       - name: Run CTST end to end tests
         run: bash run-e2e-ctst.sh "" "" "" "" --tags 'not @PRA'
         working-directory: ./.github/scripts/end2end
