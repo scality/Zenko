@@ -42,16 +42,20 @@ export async function setupNotifications(options: NotificationOptions): Promise<
     const kafkaHosts = await getKafkaHosts(namespace, options.zenkoName);
     const [host, port] = kafkaHosts.split(':');
 
-    await applyNotificationDestinations(namespace, options.zenkoName, host, port);
+    const createdCount = await applyNotificationDestinations(namespace, options.zenkoName, host, port);
 
-    logger.info('Waiting for Zenko operator to reconcile notification destinations...');
-    const { waitForZenkoToStabilize } = await import('./utils/zenko-status');
-    await waitForZenkoToStabilize({
-        namespace,
-        zenkoName: options.zenkoName,
-        timeout: 25 * 60 * 1000,
-        waitForReconciliationToStart: true,
-    });
+    if (createdCount > 0) {
+        logger.info('Waiting for Zenko operator to reconcile notification destinations...');
+        const { waitForZenkoToStabilize } = await import('./utils/zenko-status');
+        await waitForZenkoToStabilize({
+            namespace,
+            zenkoName: options.zenkoName,
+            timeout: 25 * 60 * 1000,
+            waitForReconciliationToStart: true,
+        });
+    } else {
+        logger.info('No new notification destinations created, skipping reconciliation wait');
+    }
 }
 
 /**
@@ -95,13 +99,15 @@ async function getKafkaHosts(namespace: string, zenkoName: string): Promise<stri
 
 /**
  * Apply notification destinations configuration
+ * @returns Number of destinations that were actually created (not skipped)
  */
-async function applyNotificationDestinations(namespace: string, zenkoName: string, kafkaHost: string, kafkaPort: string): Promise<void> {
+async function applyNotificationDestinations(namespace: string, zenkoName: string, kafkaHost: string, kafkaPort: string): Promise<number> {
     logger.debug('Applying notification destinations configuration');
 
     const group = 'zenko.io';
     const version = 'v1alpha2';
     const plural = 'zenkonotificationtargets';
+    let createdCount = 0;
 
     try {
         for (const destination of notificationDestinationsConfig.destinations) {
@@ -129,6 +135,7 @@ async function applyNotificationDestinations(namespace: string, zenkoName: strin
             logger.debug('Applying notification destination', { name: destinationName, topic: destinationTopic });
             try {
                 await KubernetesHelper.applyCustomResource(notificationTarget, namespace, group, version, plural);
+                createdCount++;
             } catch (error: any) {
                 if (error.code === 409) {
                     logger.debug(`Notification destination ${destinationName} already exists, skipping`);
@@ -139,8 +146,12 @@ async function applyNotificationDestinations(namespace: string, zenkoName: strin
         }
 
         logger.info('Notification destinations applied successfully', {
-            count: notificationDestinationsConfig.destinations.length
+            total: notificationDestinationsConfig.destinations.length,
+            created: createdCount,
+            skipped: notificationDestinationsConfig.destinations.length - createdCount
         });
+
+        return createdCount;
     } catch (error) {
         logger.error('Failed to apply notification destinations', { error });
         throw error;
