@@ -124,16 +124,15 @@ export async function getManagementToken(subdomain: string = 'zenko.local'): Pro
  * Get instance ID from the Zenko CR
  * @returns Instance ID
  */
-export async function getInstanceId(): Promise<string | null> {
+export async function getInstanceId(zenkoName: string = 'end2end', namespace: string = 'default'): Promise<string | null> {
     if (!KubernetesHelper.customObject) {
         throw new Error('KubernetesHelper not initialized');
     }
-    const zenkoName = process.env.ZENKO_NAME || 'end2end';
     
     const instanceId = await KubernetesHelper.customObject.getNamespacedCustomObject({
         group: 'zenko.io',
         version: 'v1alpha2',
-        namespace: process.env.NAMESPACE || 'default',
+        namespace,
         plural: 'zenkos',
         name: zenkoName,
     });

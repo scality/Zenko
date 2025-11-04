@@ -48,7 +48,7 @@ export async function setupKafkaTopics(options: KafkaTopicsOptions): Promise<voi
     logger.info('Setting up Kafka topics for Backbeat operations');
     k8s.initKubernetes();
 
-    const instanceId = await getInstanceId();
+    const instanceId = await getInstanceId(options.zenkoName, options.namespace);
     if (!instanceId) {
         throw new Error('Instance ID is required for Kafka topics setup. Ensure UUID environment variable is set or Zenko CR exists');
     }
@@ -131,7 +131,7 @@ async function checkBackbeatConfigAvailability(namespace: string, instanceId: st
 async function getKafkaConfig(namespace: string, zenkoName: string): Promise<KafkaConfig> {
     logger.info('Getting Kafka configuration from backbeat config');
 
-    const instanceId = await getInstanceId();
+    const instanceId = await getInstanceId(zenkoName, namespace);
     const secrets = await KubernetesHelper.getSecretsByLabels(
         namespace,
         `app.kubernetes.io/name=backbeat-config,app.kubernetes.io/instance=${zenkoName}`

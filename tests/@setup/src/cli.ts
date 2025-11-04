@@ -155,7 +155,7 @@ program
             throw new Error('Locations setup is required before workflows setup');
         }
         const globalOptions = program.opts();
-        const instanceId = await getInstanceId();
+        const instanceId = await getInstanceId(globalOptions.zenkoName, globalOptions.namespace);
         if (!instanceId) {
             throw new Error('instance ID is required for workflow setup. Ensure UUID environment variable is set or Zenko CR exists');
         }
@@ -348,7 +348,7 @@ async function runSetup(options: any) {
         }
 
         if (options.workflows) {
-            const instanceId = await getInstanceId();
+            const instanceId = await getInstanceId(options.zenkoName, options.namespace);
             if (!instanceId) {
                 throw new Error('instance ID is required for workflow setup. Ensure UUID environment variable is set or Zenko CR exists');
             }
@@ -366,7 +366,7 @@ async function runSetup(options: any) {
         }
 
         if (options.kafkaTopics) {
-            const instanceId = await getInstanceId();
+            const instanceId = await getInstanceId(options.zenkoName, options.namespace);
             if (!instanceId) {
                 throw new Error('instance ID is required for Kafka topics setup. Ensure UUID environment variable is set or Zenko CR exists');
             }
@@ -381,7 +381,7 @@ async function runSetup(options: any) {
         }
 
         if (options.notifications) {
-            const instanceId = await getInstanceId();
+            const instanceId = await getInstanceId(options.zenkoName, options.namespace);
             if (!instanceId) {
                 throw new Error('instance ID is required for notification setup. Ensure UUID environment variable is set or Zenko CR exists');
             }

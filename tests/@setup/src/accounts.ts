@@ -52,7 +52,7 @@ export async function setupAccounts(options: AccountOptions): Promise<void> {
     try {
         const namespace = options.namespace || 'default';
 
-        const instanceId = await getInstanceId();
+        const instanceId = await getInstanceId(options.zenkoName, namespace);
         if (!instanceId) {
             throw new Error('instance ID is required for account setup. Ensure UUID environment variable is set or Zenko CR exists');
         }

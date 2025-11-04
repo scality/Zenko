@@ -152,7 +152,7 @@ export async function setupLocations(options: LocationsOptions): Promise<void> {
 
     await createResourcesForLocations(locations);
 
-    const instanceId = await getInstanceId();
+    const instanceId = await getInstanceId(options.zenkoName, options.namespace);
     if (!instanceId) {
         throw new Error('Instance ID is required for location setup');
     }

@@ -145,10 +145,6 @@ spec:
         args:
 $(for arg in "${setup_args[@]}"; do echo "        - \"${arg}\""; done)
         env:
-        - name: NAMESPACE
-          value: "${NAMESPACE}"
-        - name: ZENKO_NAME
-          value: "${ZENKO_NAME}"
         - name: ENABLE_RING_TESTS
           value: "${ENABLE_RING_TESTS}"
         - name: KAFKA_IMAGE
