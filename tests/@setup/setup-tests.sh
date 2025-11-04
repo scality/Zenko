@@ -153,6 +153,16 @@ $(for arg in "${setup_args[@]}"; do echo "        - \"${arg}\""; done)
           value: "${kafka_tag}"
         - name: GIT_ACCESS_TOKEN
           value: "${GIT_ACCESS_TOKEN}"
+        - name: OIDC_ENDPOINT
+          value: "${OIDC_ENDPOINT}"
+        - name: OIDC_REALM
+          value: "${OIDC_REALM}"
+        - name: OIDC_CLIENT_ID
+          value: "${OIDC_CLIENT_ID}"
+        - name: OIDC_USERNAME
+          value: "${OIDC_USERNAME}"
+        - name: OIDC_PASSWORD
+          value: "${OIDC_PASSWORD}"
         - name: GCP_ACCESS_KEY
           value: "${GCP_ACCESS_KEY}"
         - name: GCP_SECRET_KEY

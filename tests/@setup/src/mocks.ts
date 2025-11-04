@@ -80,6 +80,26 @@ function replaceTemplateVariables(content: string, substitutions: Record<string,
 }
 
 /**
+ * Check if a pod already exists
+ * @param podName - Name of the pod
+ * @param namespace - Namespace of the pod
+ * @returns true if pod exists, false otherwise
+ */
+async function podExists(podName: string, namespace: string): Promise<boolean> {
+    const core = KubernetesHelper.getClientCore();
+    if (!core) {
+        throw new Error('KubernetesHelper not initialized');
+    }
+
+    try {
+        await core.readNamespacedPod({ name: podName, namespace });
+        return true;
+    } catch (error: any) {
+        return false;
+    }
+}
+
+/**
  * Load and apply a multi-document YAML manifest with template substitution
  * @param yamlPath - Path to the YAML file (can contain multiple documents separated by ---)
  * @param substitutions - Key-value pairs for template substitution
@@ -113,7 +133,11 @@ async function applyYamlManifests(yamlPath: string, substitutions: Record<string
                 await KubernetesHelper.applyService(manifest, namespace);
                 break;
             case 'Pod':
-                await KubernetesHelper.applyPod(manifest, namespace);
+                if (await podExists(name, namespace)) {
+                    logger.warn(`Pod ${name} already exists, skipping creation`);
+                } else {
+                    await KubernetesHelper.applyPod(manifest, namespace);
+                }
                 break;
             case 'Ingress':
                 await KubernetesHelper.applyIngress(manifest, namespace);

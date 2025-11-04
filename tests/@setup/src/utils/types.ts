@@ -51,6 +51,7 @@ export interface WorkflowsOptions {
     namespace: string;
     instanceId: string;
     zenkoName?: string;
+    subdomain?: string;
     configFile?: string;
     workflowType?: 'replication' | 'lifecycle' | 'ingestion';
 }

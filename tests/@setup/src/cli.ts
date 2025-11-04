@@ -40,35 +40,25 @@ program
 
 program
     .command('all')
-    .description('Run complete setup (all tasks, use --no-<task> to exclude specific tasks)')
+    .description('Run complete setup (all tasks)')
     .option('--config <path>', 'Path to setup configuration file')
     .option('--workflows-config <path>', 'Path to workflows configuration file')
     .option('--locations-config <path>', 'Path to locations configuration file')
     .option('--git-access-token <token>', 'Git access token for metadata repository')
     .option('--metadata-namespace <namespace>', 'Metadata service namespace', 'metadata')
-    .option('--no-rbac', 'Skip RBAC setup')
-    .option('--no-dns', 'Skip DNS setup')
-    .option('--no-mocks', 'Skip mock services setup')
-    .option('--no-locations', 'Skip storage locations setup')
-    .option('--no-accounts', 'Skip accounts setup')
-    .option('--no-workflows', 'Skip workflows setup')
-    .option('--no-metadata', 'Skip Metadata service setup')
-    .option('--no-kafka-topics', 'Skip Kafka topics setup')
-    .option('--no-notifications', 'Skip notifications setup')
     .action(async (options) => {
         const globalOptions = program.opts();
         await runSetup({
             ...globalOptions,
-            rbac: !options.noRbac,
-            dns: !options.noDns,
-            mocks: !options.noMocks,
-            locations: !options.noLocations,
-            accounts: !options.noAccounts,
-            workflows: !options.noWorkflows,
-            metadata: !options.noMetadata,
-            kafkaTopics: !options.noKafkaTopics,
-            notifications: !options.noNotifications,
-            ctstLocal: !options.noCtstLocal,
+            rbac: true,
+            dns: true,
+            mocks: true,
+            locations: true,
+            accounts: true,
+            workflows: true,
+            metadata: true,
+            kafkaTopics: true,
+            notifications: true,
             configFile: options.config,
             workflowsConfig: options.workflowsConfig,
             locationsConfig: options.locationsConfig,
@@ -175,6 +165,7 @@ program
             workflowType: options.type,
             instanceId,
             zenkoName: globalOptions.zenkoName,
+            subdomain: globalOptions.subdomain,
         });
     });
 
@@ -331,12 +322,11 @@ async function runSetup(options: any) {
         if (options.accounts) {
             tasks.push({
                 name: 'Accounts', fn: async () => {
-                    if (!setupFlags.dns) {
-                        throw new Error('DNS setup is required before accounts setup');
-                    }
                     await setupAccounts({
                         namespace: options.namespace,
-                        accounts: options.accounts === true ? undefined : options.accounts, // Allow array of account names
+                        zenkoName: options.zenkoName,
+                        subdomain: options.subdomain,
+                        accounts: options.accounts === true ? undefined : options.accounts,
                     });
                     setupFlags.accounts = true;
                 }
@@ -346,12 +336,6 @@ async function runSetup(options: any) {
         if (options.locations) {
             tasks.push({
                 name: 'Storage Locations', fn: async () => {
-                    if (!setupFlags.dns) {
-                        throw new Error('DNS setup is required before locations setup');
-                    }
-                    if (!setupFlags.accounts) {
-                        throw new Error('Accounts setup is required before locations setup');
-                    }
                     await setupLocations({
                         namespace: options.namespace,
                         subdomain: options.subdomain,
@@ -370,14 +354,12 @@ async function runSetup(options: any) {
             }
             tasks.push({
                 name: 'Workflows', fn: async () => {
-                    if (!setupFlags.locations) {
-                        throw new Error('Locations setup is required before workflows setup');
-                    }
                     await setupWorkflows({
                         namespace: options.namespace,
                         configFile: options.workflowsConfig,
                         instanceId,
                         zenkoName: options.zenkoName,
+                        subdomain: options.subdomain,
                     });
                 }
             });
@@ -390,9 +372,6 @@ async function runSetup(options: any) {
             }
             tasks.push({
                 name: 'Kafka Topics', fn: async () => {
-                    if (!setupFlags.locations) {
-                        throw new Error('Locations setup is required before Kafka topics setup');
-                    }
                     await setupKafkaTopics({
                         namespace: options.namespace,
                         zenkoName: options.zenkoName,
@@ -408,9 +387,6 @@ async function runSetup(options: any) {
             }
             tasks.push({
                 name: 'Notifications', fn: async () => {
-                    if (!setupFlags.locations) {
-                        throw new Error('Locations setup is required before notifications setup');
-                    }
                     await setupNotifications({
                         namespace: options.namespace,
                         configFile: options.notificationsConfig,

@@ -157,8 +157,8 @@ export async function setupLocations(options: LocationsOptions): Promise<void> {
         throw new Error('Instance ID is required for location setup');
     }
 
-    const managementEndpoint = await getManagementEndpoint();
-    const token = await getManagementToken();
+    const managementEndpoint = await getManagementEndpoint(options.zenkoName, options.namespace);
+    const token = await getManagementToken(options.subdomain);
 
     const accountsCredentials: Record<string, AccountCredentials> = {};
     const crrSourceAccountName = process.env.CRR_SOURCE_ACCOUNT_NAME;

@@ -45,12 +45,16 @@ export interface AccountResponse {
 }
 
 /**
- * Get management endpoint
- * @param subdomain - Subdomain
- * @returns Management endpoint
+ * Get Management API endpoint using internal Kubernetes service name
+ * @param zenkoName - Name of the Zenko instance
+ * @param namespace - Kubernetes namespace
+ * @returns Management endpoint URL
  */
-export async function getManagementEndpoint(subdomain: string = 'zenko.local'): Promise<string> {
-    return `http://management.${subdomain}`;
+export async function getManagementEndpoint(
+    zenkoName: string = 'end2end',
+    namespace: string = 'default'
+): Promise<string> {
+    return `http://${zenkoName}-management-orbit-api.${namespace}.svc.cluster.local:5001`;
 }
 
 /**

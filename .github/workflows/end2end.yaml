@@ -515,13 +515,29 @@ jobs:
       - name: Setup PRA test environment
         env:
           ZENKO_NAME: "${{ env.ZENKO_NAME }}-pra"
+          SUBDOMAIN: "${{ env.DR_SUBDOMAIN }}"
+          OIDC_ENDPOINT: "http://keycloak.${{ env.DR_SUBDOMAIN }}"
+          OIDC_USERNAME: "zenko-end2end-pra"
           SETUP_IMAGE: ${{ needs.build-setup-image.outputs.image }}
           GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
-        run: ./setup-tests.sh --kubeconfig ~/.kube/config -- all --no-kafka-topics --no-rbac --no-dns --no-mocks --no-metadata
+        run: ./setup-tests.sh --kubeconfig ~/.kube/config -- setup --locations --accounts --workflows --notifications
         working-directory: ./tests/@setup
       - name: Configure hosts file
         run: bash configure-hosts.sh
         working-directory: ./.github/scripts/end2end
+      - name: Dump setup state for PRIMARY instance
+        run: bash dump-setup-state.sh default end2end > /tmp/v2-primary-dump.txt 2>&1
+        working-directory: ./.github/scripts/end2end
+        continue-on-error: true
+      - name: Dump setup state for PRA instance
+        run: bash dump-setup-state.sh default end2end-pra > /tmp/v2-pra-dump.txt 2>&1
+        working-directory: ./.github/scripts/end2end
+        continue-on-error: true
+      - name: Show diagnostic dumps
+        run: |
+          echo "=== PRIMARY INSTANCE DUMP ===" && cat /tmp/v2-primary-dump.txt
+          echo "=== PRA INSTANCE DUMP ===" && cat /tmp/v2-pra-dump.txt
+        continue-on-error: true
       - name: Run CTST end to end tests
         env:
           E2E_CTST_IMAGE: ${{ env.E2E_CTST_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}
@@ -727,6 +743,13 @@ jobs:
       - name: Configure hosts file
         run: bash configure-hosts.sh
         working-directory: ./.github/scripts/end2end
+      - name: Dump setup state before tests
+        run: bash dump-setup-state.sh default end2end > /tmp/v2-ctst-sharded-dump.txt 2>&1
+        working-directory: ./.github/scripts/end2end
+        continue-on-error: true
+      - name: Show diagnostic dump
+        run: cat /tmp/v2-ctst-sharded-dump.txt
+        continue-on-error: true
       - name: Run CTST end to end tests
         env:
           E2E_CTST_IMAGE: ${{ env.E2E_CTST_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}

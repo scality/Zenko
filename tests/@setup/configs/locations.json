@@ -38,8 +38,7 @@
       "locationType": "location-aws-s3-v1",
       "createResources": {
         "createBucket": true,
-        "enableVersioning": true,
-        "skipLocationCreation": true
+        "enableVersioning": true
       },
       "details": {
         "endpoint": "env:AWS_ENDPOINT",
@@ -55,8 +54,7 @@
       "locationType": "location-aws-s3-v1",
       "createResources": {
         "createBucket": true,
-        "enableVersioning": true,
-        "skipLocationCreation": false
+        "enableVersioning": true
       },
       "details": {
         "endpoint": "env:AWS_ENDPOINT",

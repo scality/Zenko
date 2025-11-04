@@ -28,8 +28,8 @@ export interface Workflow {
 export async function setupWorkflows(options: WorkflowsOptions): Promise<void> {
     logger.info('Setting up workflows via Management API');
 
-    const managementEndpoint = await getManagementEndpoint();
-    const authToken = await getManagementToken();
+    const managementEndpoint = await getManagementEndpoint(options.zenkoName, options.namespace);
+    const authToken = await getManagementToken(options.subdomain);
 
     const instanceId = options.instanceId;
 

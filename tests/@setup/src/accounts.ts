@@ -17,6 +17,8 @@ import { join } from 'path';
 
 export interface AccountOptions {
     namespace: string;
+    zenkoName?: string;
+    subdomain?: string;
     accounts?: string[];
     configFile?: string;
 }
@@ -75,8 +77,8 @@ export async function setupAccounts(options: AccountOptions): Promise<void> {
         });
 
         logger.info('Connecting to management API...');
-        const managementEndpoint = await getManagementEndpoint();
-        const authToken = await getManagementToken();
+        const managementEndpoint = await getManagementEndpoint(options.zenkoName, namespace);
+        const authToken = await getManagementToken(options.subdomain);
 
         for (const accountConfig of accountsToCreate) {
             try {
