@@ -45,7 +45,7 @@
         "bucketName": "env:AWS_FAIL_BUCKET_NAME",
         "accessKey": "env:AWS_ACCESS_KEY",
         "secretKey": "env:AWS_SECRET_KEY",
-        "bucketMatch": false,
+        "bucketMatch": true,
         "repoId": []
       }
     },
