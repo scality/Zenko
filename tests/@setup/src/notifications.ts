@@ -127,7 +127,15 @@ async function applyNotificationDestinations(namespace: string, zenkoName: strin
             };
 
             logger.debug('Applying notification destination', { name: destinationName, topic: destinationTopic });
-            await KubernetesHelper.applyCustomResource(notificationTarget, namespace, group, version, plural);
+            try {
+                await KubernetesHelper.applyCustomResource(notificationTarget, namespace, group, version, plural);
+            } catch (error: any) {
+                if (error.code === 409) {
+                    logger.debug(`Notification destination ${destinationName} already exists, skipping`);
+                } else {
+                    throw error;
+                }
+            }
         }
 
         logger.info('Notification destinations applied successfully', {
