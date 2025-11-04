@@ -516,8 +516,6 @@ jobs:
         env:
           ZENKO_NAME: "${{ env.ZENKO_NAME }}-pra"
           SUBDOMAIN: "${{ env.DR_SUBDOMAIN }}"
-          OIDC_ENDPOINT: "http://keycloak.${{ env.DR_SUBDOMAIN }}"
-          OIDC_USERNAME: "zenko-end2end-pra"
           SETUP_IMAGE: ${{ needs.build-setup-image.outputs.image }}
           GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
         run: ./setup-tests.sh --kubeconfig ~/.kube/config -- setup --locations --accounts --workflows --notifications
