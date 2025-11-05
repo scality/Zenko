@@ -85,6 +85,7 @@ env:
   RING_S3C_ACCESS_KEY: accessKey1
   RING_S3C_SECRET_KEY: verySecretKey1
   RING_S3C_ENDPOINT: http://s3c.local:8000
+  RING_S3C_REGION: us-east-1
   RING_S3C_BACKEND_SOURCE_LOCATION: rings3cbackendingestion
   RING_S3C_INGESTION_SRC_BUCKET_NAME: ingestion-test-src-bucket
   RING_S3C_BACKEND_SOURCE_NON_VERSIONED_LOCATION: rings3cbackendingestionnonversioned
