@@ -37,103 +37,181 @@ echo "=== Collecting Host Diagnostics ==="
 # CPU information
 {
     echo "=== CPU Information ==="
-    lscpu 2>/dev/null || echo "lscpu not available"
+    if command -v lscpu &> /dev/null; then
+        lscpu 2>/dev/null || echo "lscpu failed"
+    else
+        cat /proc/cpuinfo 2>/dev/null | head -50 || echo "CPU info not available"
+    fi
     echo ""
     echo "=== CPU Usage ==="
-    top -bn1 | head -20
+    if command -v top &> /dev/null; then
+        top -bn1 2>/dev/null | head -20 || echo "top command failed"
+    else
+        echo "top command not available"
+    fi
     echo ""
     echo "=== Load Average ==="
-    cat /proc/loadavg
+    cat /proc/loadavg 2>/dev/null || echo "Load average not available"
     echo ""
-} > "${OUTPUT_DIR}/host/cpu_info.txt"
+} > "${OUTPUT_DIR}/host/cpu_info.txt" 2>&1
 
 # Memory information
 {
     echo "=== Memory Information ==="
-    free -h
+    if command -v free &> /dev/null; then
+        free -h 2>/dev/null || echo "free command failed"
+    else
+        echo "free command not available"
+    fi
     echo ""
     echo "=== Detailed Memory ==="
-    cat /proc/meminfo
+    cat /proc/meminfo 2>/dev/null || echo "meminfo not accessible"
     echo ""
     echo "=== Memory Top Consumers ==="
-    ps aux --sort=-%mem | head -20
+    if command -v ps &> /dev/null; then
+        ps aux --sort=-%mem 2>/dev/null | head -20 || ps aux 2>/dev/null | head -20 || echo "ps command failed"
+    else
+        echo "ps command not available"
+    fi
     echo ""
-} > "${OUTPUT_DIR}/host/memory_info.txt"
+} > "${OUTPUT_DIR}/host/memory_info.txt" 2>&1
 
 # Disk information
 {
     echo "=== Disk Usage ==="
-    df -h
+    df -h 2>/dev/null || echo "df command not available"
     echo ""
     echo "=== Disk I/O Stats ==="
-    iostat -x 1 3 2>/dev/null || echo "iostat not available"
+    if command -v iostat &> /dev/null; then
+        iostat -x 1 3 2>/dev/null || echo "iostat failed"
+    else
+        echo "iostat not available"
+    fi
     echo ""
     echo "=== Mount Points ==="
-    mount | column -t
+    if mount 2>/dev/null | column -t 2>/dev/null; then
+        echo "Mount points captured"
+    else
+        mount 2>/dev/null || echo "mount command not available"
+    fi
     echo ""
     echo "=== Inode Usage ==="
-    df -i
+    df -i 2>/dev/null || echo "df -i not available"
     echo ""
-} > "${OUTPUT_DIR}/host/disk_info.txt"
+} > "${OUTPUT_DIR}/host/disk_info.txt" 2>&1
 
 # Network information
 {
     echo "=== Network Interfaces ==="
-    ip addr show
+    if command -v ip &> /dev/null; then
+        ip addr show 2>/dev/null || echo "ip addr failed"
+    else
+        ifconfig 2>/dev/null || echo "Network interface commands not available"
+    fi
     echo ""
     echo "=== Network Statistics ==="
-    netstat -s 2>/dev/null || ss -s
+    if command -v netstat &> /dev/null; then
+        netstat -s 2>/dev/null || echo "netstat failed"
+    elif command -v ss &> /dev/null; then
+        ss -s 2>/dev/null || echo "ss failed"
+    else
+        echo "Network statistics tools not available"
+    fi
     echo ""
     echo "=== Active Connections ==="
-    netstat -tulpn 2>/dev/null || ss -tulpn
+    if command -v netstat &> /dev/null; then
+        netstat -tulpn 2>/dev/null || netstat -tuln 2>/dev/null || echo "netstat failed"
+    elif command -v ss &> /dev/null; then
+        ss -tulpn 2>/dev/null || ss -tuln 2>/dev/null || echo "ss failed"
+    else
+        echo "Connection listing tools not available"
+    fi
     echo ""
     echo "=== Routing Table ==="
-    ip route show
+    if command -v ip &> /dev/null; then
+        ip route show 2>/dev/null || echo "ip route failed"
+    else
+        route -n 2>/dev/null || echo "Routing table not available"
+    fi
     echo ""
     echo "=== DNS Configuration ==="
-    cat /etc/resolv.conf
+    cat /etc/resolv.conf 2>/dev/null || echo "resolv.conf not accessible"
     echo ""
-} > "${OUTPUT_DIR}/host/network_info.txt"
+} > "${OUTPUT_DIR}/host/network_info.txt" 2>&1
 
 # Process information
 {
     echo "=== Top Processes by CPU ==="
-    ps aux --sort=-%cpu | head -30
+    if command -v ps &> /dev/null; then
+        ps aux --sort=-%cpu 2>/dev/null | head -30 || ps aux 2>/dev/null | head -30 || echo "ps command failed"
+    else
+        echo "ps command not available"
+    fi
     echo ""
     echo "=== Top Processes by Memory ==="
-    ps aux --sort=-%mem | head -30
+    if command -v ps &> /dev/null; then
+        ps aux --sort=-%mem 2>/dev/null | head -30 || ps aux 2>/dev/null | head -30 || echo "ps command failed"
+    else
+        echo "ps command not available"
+    fi
     echo ""
     echo "=== Process Tree ==="
-    pstree -p 2>/dev/null || ps auxf
+    if command -v pstree &> /dev/null; then
+        pstree -p 2>/dev/null || echo "pstree failed"
+    elif command -v ps &> /dev/null; then
+        ps auxf 2>/dev/null || ps aux 2>/dev/null || echo "ps command failed"
+    else
+        echo "Process tree commands not available"
+    fi
     echo ""
-} > "${OUTPUT_DIR}/host/process_info.txt"
+} > "${OUTPUT_DIR}/host/process_info.txt" 2>&1
 
-# Docker/containerd information
+# Docker/containerd information (may require permissions)
 {
     echo "=== Docker Info ==="
-    docker info 2>/dev/null || echo "Docker not available"
+    if command -v docker &> /dev/null; then
+        docker info 2>/dev/null || echo "Docker not accessible (insufficient permissions or not running)"
+    else
+        echo "Docker not available"
+    fi
     echo ""
     echo "=== Docker Stats ==="
-    docker stats --no-stream 2>/dev/null || echo "Docker not available"
+    if command -v docker &> /dev/null; then
+        timeout 5 docker stats --no-stream 2>/dev/null || echo "Docker stats not accessible"
+    else
+        echo "Docker not available"
+    fi
     echo ""
     echo "=== Containerd Info ==="
-    ctr version 2>/dev/null || echo "containerd not available"
+    if command -v ctr &> /dev/null; then
+        ctr version 2>/dev/null || echo "containerd not accessible (insufficient permissions)"
+    else
+        echo "containerd not available"
+    fi
     echo ""
-} > "${OUTPUT_DIR}/host/container_runtime.txt"
+} > "${OUTPUT_DIR}/host/container_runtime.txt" 2>&1
 
-# Kernel and system logs
+# Kernel and system logs (may require elevated permissions)
 {
     echo "=== Recent Kernel Messages (last 200 lines) ==="
-    dmesg | tail -200
+    if dmesg 2>/dev/null | tail -200; then
+        echo "Kernel messages captured"
+    else
+        echo "Unable to read kernel messages (insufficient permissions or not available)"
+    fi
     echo ""
-} > "${OUTPUT_DIR}/host/dmesg.txt"
+} > "${OUTPUT_DIR}/host/dmesg.txt" 2>&1
 
-# Systemd journal for kubelet
+# Systemd journal for kubelet (may not be available in containers)
 {
     echo "=== Kubelet Logs (last 500 lines) ==="
-    journalctl -u kubelet -n 500 --no-pager 2>/dev/null || echo "journalctl not available"
+    if journalctl -u kubelet -n 500 --no-pager 2>/dev/null; then
+        echo "Kubelet logs captured"
+    else
+        echo "Kubelet logs not available (may not be running in systemd environment)"
+    fi
     echo ""
-} > "${OUTPUT_DIR}/host/kubelet_logs.txt"
+} > "${OUTPUT_DIR}/host/kubelet_logs.txt" 2>&1
 
 # ==============================================================================
 # KUBERNETES CLUSTER DIAGNOSTICS
