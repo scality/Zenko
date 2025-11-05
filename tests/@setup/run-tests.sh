@@ -171,11 +171,12 @@ wait_for_job() {
 
     if [[ "${succeeded}" == "1" ]]; then
         echo "Test job '${job_name}' completed successfully."
+        return 0
     else
         echo "Error: Test job '${job_name}' failed." >&2
         echo "--- Final Job Description ---"
         kubectl --kubeconfig "${KUBECONFIG_FILE}" describe "job/${job_name}" -n "${NAMESPACE}"
-        exit 1
+        return 1
     fi
 }
 
@@ -424,6 +425,26 @@ EOF
     wait_for_job "${job_name}"
 }
 
+collect_diagnostics() {
+    local exit_code=$?
+    echo ""
+    echo "=========================================="
+    echo "Collecting Diagnostics (exit code: ${exit_code})"
+    echo "=========================================="
+    
+    local diagnostics_script="../../.github/scripts/end2end/collect-diagnostics.sh"
+    if [[ -f "${diagnostics_script}" ]]; then
+        export NAMESPACE="${NAMESPACE}"
+        export INSTANCE_ID="${INSTANCE_ID}"
+        export KUBECONFIG_FILE="${KUBECONFIG_FILE}"
+        export OUTPUT_DIR="${OUTPUT_DIR:-diagnostics-$(date +%Y%m%d-%H%M%S)}"
+        
+        bash "${diagnostics_script}" || echo "Warning: Diagnostic collection failed"
+    else
+        echo "Warning: Diagnostic script not found at ${diagnostics_script}"
+    fi
+}
+
 main() {
     local test_type=""
     local action="run"
@@ -457,6 +478,9 @@ main() {
         setup_ctst_permissions
     fi
 
+    # Set up trap to collect diagnostics even if tests fail
+    trap collect_diagnostics EXIT
+    
     run_test_job "${test_type}" additional_args
 
     echo "Test run finished."

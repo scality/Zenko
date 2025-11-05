@@ -543,6 +543,14 @@ jobs:
           PARALLEL_RUNS: "1"
         run: ./run-tests.sh --kubeconfig ~/.kube/config --type ctst -- --tags @PRA
         working-directory: ./tests/@setup
+      - name: Collect diagnostics
+        env:
+          NAMESPACE: default
+          INSTANCE_ID: ${{ env.ZENKO_NAME }}
+          KUBECONFIG_FILE: ~/.kube/config
+          OUTPUT_DIR: /tmp/artifacts/data/${{ github.job }}/diagnostics
+        run: bash ./.github/scripts/end2end/collect-diagnostics.sh
+        if: always()
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
@@ -618,6 +626,14 @@ jobs:
           E2E_IMAGE: ${{ env.E2E_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}
         run: ./run-tests.sh --kubeconfig ~/.kube/config --type smoke
         working-directory: ./tests/@setup
+      - name: Collect diagnostics
+        env:
+          NAMESPACE: default
+          INSTANCE_ID: ${{ env.ZENKO_NAME }}
+          KUBECONFIG_FILE: ~/.kube/config
+          OUTPUT_DIR: /tmp/artifacts/data/${{ github.job }}/diagnostics
+        run: bash ./.github/scripts/end2end/collect-diagnostics.sh
+        if: always()
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
@@ -679,6 +695,14 @@ jobs:
           E2E_IMAGE: ${{ env.E2E_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}
         run: ./run-tests.sh --kubeconfig ~/.kube/config --type backbeat
         working-directory: ./tests/@setup
+      - name: Collect diagnostics
+        env:
+          NAMESPACE: default
+          INSTANCE_ID: ${{ env.ZENKO_NAME }}
+          KUBECONFIG_FILE: ~/.kube/config
+          OUTPUT_DIR: /tmp/artifacts/data/${{ github.job }}/diagnostics
+        run: bash ./.github/scripts/end2end/collect-diagnostics.sh
+        if: always()
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
@@ -754,6 +778,14 @@ jobs:
           E2E_CTST_IMAGE: ${{ env.E2E_CTST_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}
         run: ./run-tests.sh --kubeconfig ~/.kube/config --type ctst -- --tags 'not @PRA'
         working-directory: ./tests/@setup
+      - name: Collect diagnostics
+        env:
+          NAMESPACE: default
+          INSTANCE_ID: ${{ env.ZENKO_NAME }}
+          KUBECONFIG_FILE: ~/.kube/config
+          OUTPUT_DIR: /tmp/artifacts/data/${{ github.job }}/diagnostics
+        run: bash ./.github/scripts/end2end/collect-diagnostics.sh
+        if: always()
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
