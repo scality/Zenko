@@ -2,7 +2,18 @@
 # Comprehensive diagnostic collection script for Kubernetes clusters
 # Collects host and cluster information even if tests fail
 
-set -euo pipefail
+# Note: Not using 'set -e' - we want to continue even if individual commands fail
+# This ensures we collect as much diagnostic data as possible
+set -o pipefail
+
+# Safe command wrapper - ensures commands don't crash the script
+safe_run() {
+    "$@" || {
+        local exit_code=$?
+        echo "Command failed with exit code ${exit_code}: $*" >&2
+        return 0  # Always return success to continue script
+    }
+}
 
 # Configuration
 NAMESPACE="${NAMESPACE:-default}"
@@ -14,9 +25,26 @@ echo "=========================================="
 echo "Starting Comprehensive Diagnostic Collection"
 echo "Timestamp: $(date -Iseconds)"
 echo "Output Directory: ${OUTPUT_DIR}"
+echo "Kubeconfig: ${KUBECONFIG_FILE}"
 echo "=========================================="
 
-mkdir -p "${OUTPUT_DIR}"/{host,kubernetes,applications,logs,metrics}
+# Verify kubeconfig exists
+if [ ! -f "${KUBECONFIG_FILE}" ]; then
+    echo "ERROR: Kubeconfig file not found: ${KUBECONFIG_FILE}"
+    echo "Please set KUBECONFIG_FILE environment variable to a valid kubeconfig path"
+    echo "Skipping Kubernetes diagnostics, will only collect host information"
+    SKIP_KUBERNETES=true
+else
+    SKIP_KUBERNETES=false
+    echo "✓ Kubeconfig file found"
+fi
+echo ""
+
+# Create output directories (must succeed or there's no point continuing)
+mkdir -p "${OUTPUT_DIR}"/{host,kubernetes,applications,logs,metrics} || {
+    echo "FATAL: Cannot create output directories in ${OUTPUT_DIR}"
+    exit 1
+}
 
 # ==============================================================================
 # HOST DIAGNOSTICS
@@ -218,6 +246,17 @@ echo "=== Collecting Host Diagnostics ==="
 # ==============================================================================
 echo ""
 echo "=== Collecting Kubernetes Cluster Diagnostics ==="
+
+if [ "${SKIP_KUBERNETES}" = "true" ]; then
+    echo "Skipping Kubernetes diagnostics (kubeconfig not available)"
+    echo "Kubernetes diagnostics skipped: kubeconfig file not found at ${KUBECONFIG_FILE}" > "${OUTPUT_DIR}/kubernetes/SKIPPED.txt"
+    # Skip to the summary section
+else
+    echo "✓ Starting Kubernetes diagnostics collection"
+fi
+
+# Only proceed with Kubernetes diagnostics if kubeconfig is available
+if [ "${SKIP_KUBERNETES}" = "false" ]; then
 
 # Cluster information
 {
@@ -568,6 +607,9 @@ echo "=== Collecting Network Diagnostics ==="
     echo ""
 } > "${OUTPUT_DIR}/kubernetes/timing_info.txt"
 
+# End of Kubernetes diagnostics conditional block
+fi # end of [ "${SKIP_KUBERNETES}" = "false" ]
+
 # ==============================================================================
 # SUMMARY AND TARBALL
 # ==============================================================================
@@ -578,28 +620,38 @@ echo "=== Creating Summary ==="
     echo "Diagnostic Collection Summary"
     echo "=============================="
     echo "Collection Time: $(date -Iseconds)"
-    echo "Hostname: $(hostname)"
+    echo "Hostname: $(hostname 2>/dev/null || echo 'unknown')"
     echo "Namespace: ${NAMESPACE}"
     echo "Instance ID: ${INSTANCE_ID}"
     echo ""
     echo "Files Collected:"
-    find "${OUTPUT_DIR}" -type f -exec echo "  - {}" \; | sort
+    find "${OUTPUT_DIR}" -type f -exec echo "  - {}" \; 2>/dev/null | sort || echo "  (unable to list files)"
     echo ""
     echo "Total Size:"
-    du -sh "${OUTPUT_DIR}"
-} > "${OUTPUT_DIR}/SUMMARY.txt"
+    du -sh "${OUTPUT_DIR}" 2>/dev/null || echo "  (unable to calculate size)"
+} > "${OUTPUT_DIR}/SUMMARY.txt" 2>&1 || echo "Warning: Could not create summary file"
 
-# Create tarball
+# Create tarball (optional - if this fails, we still have the directory)
 TARBALL="${OUTPUT_DIR}.tar.gz"
 echo ""
 echo "Creating tarball: ${TARBALL}"
-tar -czf "${TARBALL}" "${OUTPUT_DIR}"
+if tar -czf "${TARBALL}" "${OUTPUT_DIR}" 2>/dev/null; then
+    TARBALL_SIZE=$(du -sh "${TARBALL}" 2>/dev/null | cut -f1 || echo "unknown")
+    echo "✓ Tarball created successfully"
+else
+    echo "Warning: Tarball creation failed, but diagnostics are available in ${OUTPUT_DIR}"
+    TARBALL="(not created)"
+    TARBALL_SIZE="n/a"
+fi
 
 echo ""
 echo "=========================================="
 echo "Diagnostic Collection Complete"
 echo "Output Directory: ${OUTPUT_DIR}"
 echo "Tarball: ${TARBALL}"
-echo "Total Size: $(du -sh "${TARBALL}" | cut -f1)"
+echo "Total Size: ${TARBALL_SIZE}"
 echo "=========================================="
+
+# Always exit successfully - we want the CI step to continue
+exit 0
 
