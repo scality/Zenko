@@ -1,0 +1,7 @@
+# The rule should be that all dashboard.json files are marked as generated; however we have not yet
+# migrated all of them, so we are adding them one by one for now. Wildcard rule should be used once
+# this is done.
+monitoring/dr/dashboard.json linguist-generated
+monitoring/kafka-connect/dashboard.json linguist-generated
+monitoring/mongodb/dashboard.json linguist-generated
+monitoring/redis/dashboard.json linguist-generated
