@@ -16,7 +16,7 @@ cloudserver:
   sourceRegistry: ghcr.io/scality/playground/wlardier
   dashboard: cloudserver/cloudserver-dashboards
   image: cloudserver
-  tag: 9.2.9013
+  tag: 9.2.9015
   envsubst: CLOUDSERVER_TAG
 drctl:
   sourceRegistry: ghcr.io/scality
