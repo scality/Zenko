@@ -8,7 +8,7 @@ const ReplicationUtility = require('../../ReplicationUtility');
 
 const utils = new ReplicationUtility(scalityS3Client, sharedBlobSvc, gcpStorage);
 const awsUtils = new ReplicationUtility(awsS3Client);
-const srcBucket = `source-bucket-${Date.now()}`;
+const srcBucket = `source-bucket-onetomany-${Date.now()}`;
 const awsDestBucket = process.env.AWS_CRR_BUCKET_NAME;
 const destContainer = process.env.AZURE_CRR_BUCKET_NAME;
 const gcpDestBucket = process.env.GCP_CRR_BUCKET_NAME;
@@ -20,7 +20,7 @@ const hex = crypto.createHash('md5')
     .digest('hex');
 const keyPrefix = `${srcBucket}/${hex}`;
 const destKeyPrefix = `${srcBucket}/${keyPrefix}`;
-const key = `${keyPrefix}/object-to-replicate-${Date.now()}`;
+const key = `${keyPrefix}/object-to-replicate-onetomany-${Date.now()}`;
 const copyKey = `${key}-copy`;
 const copySource = `/${srcBucket}/${key}`;
 const REPLICATION_TIMEOUT = 300000;

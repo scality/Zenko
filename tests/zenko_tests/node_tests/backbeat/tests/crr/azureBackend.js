@@ -9,12 +9,12 @@ const ReplicationUtility = require('../../ReplicationUtility');
 const utils = new ReplicationUtility(scalityS3Client, sharedBlobSvc);
 const destContainer = process.env.AZURE_CRR_BUCKET_NAME;
 const destLocation = process.env.AZURE_BACKEND_DESTINATION_LOCATION;
-const srcBucket = `source-bucket-${Date.now()}`;
+const srcBucket = `source-bucket-azurebackend-${Date.now()}`;
 const hex = crypto.createHash('md5')
     .update(Math.random().toString())
     .digest('hex');
 const keyPrefix = `${srcBucket}/${hex}`;
-const key = `${keyPrefix}/object-to-replicate-${Date.now()}`;
+const key = `${keyPrefix}/object-to-replicate-azurebackend-${Date.now()}`;
 const copyKey = `${key}-copy`;
 const copySource = `/${srcBucket}/${key}`;
 // Blob name with 1024 character Azure blob name limit.

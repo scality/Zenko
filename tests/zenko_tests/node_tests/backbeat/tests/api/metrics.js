@@ -10,7 +10,7 @@ const { makeGETRequest, getResponseBody } = require('../../../utils/request');
 const scalityUtils = new ReplicationUtility(scalityS3Client, sharedBlobSvc);
 const awsUtils = new ReplicationUtility(awsS3Client);
 
-const srcBucket = `source-bucket-${Date.now()}`;
+const srcBucket = `source-bucket-metrics-${Date.now()}`;
 const awsDestBucket = process.env.AWS_CRR_BUCKET_NAME;
 const destContainer = process.env.AZURE_CRR_BUCKET_NAME;
 const destAWSLocation = process.env.AWS_BACKEND_DESTINATION_LOCATION;
@@ -19,7 +19,7 @@ const hex = crypto.createHash('md5')
     .update(Math.random().toString())
     .digest('hex');
 const keyPrefix = `${srcBucket}/${hex}`;
-const key = `${keyPrefix}/object-to-replicate-${Date.now()}`;
+const key = `${keyPrefix}/object-to-replicate-metrics-${Date.now()}`;
 const destKeyPrefix = `${srcBucket}/${keyPrefix}`;
 
 const REPLICATION_TIMEOUT = 300000;

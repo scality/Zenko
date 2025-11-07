@@ -12,7 +12,7 @@ const { makeGETRequest, getResponseBody, makeUpdateRequest } = require('../../..
 const scalityUtils = new ReplicationUtility(scalityS3Client, sharedBlobSvc);
 const awsUtils = new ReplicationUtility(awsS3Client);
 
-const srcBucket = `source-bucket-${Date.now()}`;
+const srcBucket = `source-bucket-pendingmetrics-${Date.now()}`;
 const awsDestBucket = process.env.AWS_CRR_BUCKET_NAME;
 const destAWSLocation = process.env.AWS_BACKEND_DESTINATION_LOCATION;
 const destFailBucket = process.env.AWS_S3_FAIL_BACKBEAT_BUCKET_NAME;
@@ -21,7 +21,7 @@ const hex = crypto.createHash('md5')
     .update(Math.random().toString())
     .digest('hex');
 const keyPrefix = `${srcBucket}/${hex}`;
-const key = `${keyPrefix}/object-to-replicate-${Date.now()}`;
+const key = `${keyPrefix}/object-to-replicate-pendingmetrics-${Date.now()}`;
 const destKeyPrefix = `${srcBucket}/${keyPrefix}`;
 
 const REPLICATION_TIMEOUT = 300000;

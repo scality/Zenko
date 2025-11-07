@@ -10,7 +10,7 @@ const { makeGETRequest, makeUpdateRequest, getResponseBody } = require('../../..
 
 const scalityUtils = new ReplicationUtility(scalityS3Client);
 const awsUtils = new ReplicationUtility(awsS3Client);
-const srcBucket = `source-bucket-${Date.now()}`;
+const srcBucket = `source-bucket-retry-${Date.now()}`;
 const destFailBucket = process.env.AWS_S3_FAIL_BACKBEAT_BUCKET_NAME;
 const destFailLocation = process.env.AWS_S3_FAIL_BACKEND_DESTINATION_LOCATION;
 
@@ -18,7 +18,7 @@ const hex = crypto.createHash('md5')
     .update(Math.random().toString())
     .digest('hex');
 const keyPrefix = `${srcBucket}/${hex}`;
-const key = `object-to-replicate-${Date.now()}`;
+const key = `object-to-replicate-retry-${Date.now()}`;
 const REPLICATION_TIMEOUT = 300000;
 
 function checkMetrics(
