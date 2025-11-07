@@ -394,14 +394,14 @@ jobs:
           git config --global url.https://x-access-token:${{ env.GIT_ACCESS_TOKEN }}@github.com/.insteadOf ssh://git@github.com/
         env:
           GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '22'
           cache: yarn
           cache-dependency-path: tests/ctst/yarn.lock
       - name: Install ctst test dependencies
         working-directory: tests/ctst
-        run: yarn install
+        run: yarn install --frozen-lockfile
       - name: Lint ctst tests
         working-directory: tests/ctst
         run: yarn lint
