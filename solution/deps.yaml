@@ -100,7 +100,7 @@ s3utils:
   sourceRegistry: ghcr.io/scality
   dashboard: s3utils/s3utils-dashboards
   image: s3utils
-  tag: 1.16.1
+  tag: 1.16.2
   envsubst: S3UTILS_TAG
 scuba:
   sourceRegistry: ghcr.io/scality
