@@ -61,8 +61,8 @@ spec:
       image: "${CLOUDSERVER_IMAGE}"
       tag: "${CLOUDSERVER_TAG}"
     backbeat:
-      image: "${BACKBEAT_IMAGE}"
-      tag: "${BACKBEAT_TAG}"
+      image: ghcr.io/scality/playground/fferrand/bb
+      tag: 9.1.2-test13
     drctl:
       image: "${DRCTL_IMAGE}"
       tag: "${DRCTL_TAG}"
