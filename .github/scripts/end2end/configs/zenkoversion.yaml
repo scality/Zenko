@@ -110,8 +110,8 @@ spec:
         image: '${HAPROXY_IMAGE}'
         tag: '${HAPROXY_TAG}'
     vault:
-      image: "${VAULT_IMAGE}"
-      tag: "${VAULT_TAG}"
+      image: ghcr.io/scality/playground/fferrand/vault2
+      tag: 8.11.0
     scuba:
       image: "${SCUBA_IMAGE}"
       tag: "${SCUBA_TAG}"
