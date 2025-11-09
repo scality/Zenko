@@ -69,7 +69,7 @@ describe('getBuildArtifact', () => {
         expect(mockGithub.rest.actions.listWorkflowRuns.calledWith({
             owner: 'scality',
             repo: 'zenko',
-            workflow_id: 'build-iso-and-end2end-test',
+            workflow_id: 'end2end.yaml',
             head_sha: 'abcd1234567890abcdef1234567890abcdefabcd',
             status: 'completed',
             conclusion: 'success'
@@ -98,7 +98,7 @@ describe('getBuildArtifact', () => {
         expect(mockGithub.rest.actions.listWorkflowRuns.calledWith({
             owner: 'scality',
             repo: 'zenko',
-            workflow_id: 'build-iso-and-end2end-test',
+            workflow_id: 'end2end.yaml',
             head_sha: 'abcd1234567890abcdef1234567890abcdefabcd',
             status: 'completed',
             conclusion: 'success'
