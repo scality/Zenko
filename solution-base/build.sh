@@ -126,7 +126,7 @@ function render_mongodb_sharded_yamls()
         --set "shardsvr.dataNode.mongodbExtraFlags={${MONGODB_SHARDSERVER_EXTRA_FLAGS}}" \
         --set shardsvr.dataNode.resources.limits.memory=${MONGODB_SHARDSERVER_RAM_LIMIT} \
         --set shardsvr.dataNode.resources.requests.memory=${MONGODB_SHARDSERVER_RAM_REQUEST} \
-        --set existingSecret=${MONGODB_NAME}-db-creds >> ${OUTPUT_PATH} \
+        --set existingSecret=${MONGODB_NAME}-db-creds \
         --set auth.existingSecret=${MONGODB_NAME}-db-creds \
         --set common.serviceAccount.create=false \
         --set configsvr.serviceAccount.create=false \
@@ -150,7 +150,8 @@ function render_mongodb_sharded_yamls()
         --set 'shardsvr.dataNode.extraEnvVars[1].valueFrom.secretKeyRef.key=mongodb-database' \
         --set 'shardsvr.dataNode.extraEnvVars[2].name=MONGODB_APP_PASSWORD' \
         --set 'shardsvr.dataNode.extraEnvVars[2].valueFrom.secretKeyRef.name=mongodb-db-creds' \
-        --set 'shardsvr.dataNode.extraEnvVars[2].valueFrom.secretKeyRef.key=mongodb-password'
+        --set 'shardsvr.dataNode.extraEnvVars[2].valueFrom.secretKeyRef.key=mongodb-password' \
+        >> ${OUTPUT_PATH}
 }
 
 function mongodb_sharded_yamls()
