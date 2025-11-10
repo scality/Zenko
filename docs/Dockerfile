@@ -31,6 +31,6 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 
 # Override plantuml.jar
 RUN curl -f -Lo /usr/share/plantuml/plantuml.jar \
-    https://sourceforge.net/projects/plantuml/files/plantuml.1.2019.9.jar
+    https://github.com/plantuml/plantuml/releases/download/v1.2025.10/plantuml-1.2025.10.jar
 
 WORKDIR /home/zenko/docs
