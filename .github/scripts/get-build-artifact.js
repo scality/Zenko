@@ -11,7 +11,8 @@
  * @returns {Promise<string>} The constructed artifacts name
  */
 async function getBuildArtifact(github, context, core) {
-  const workflow_id = 'build-iso-and-end2end-test'; // The workflow ID for the build job
+  const workflow_id = 'end2end.yaml'; // The workflow ID for the build job
+  const workflow_name = 'build-iso-and-end2end-test'; // The workflow name
 
   // Get the commit SHA for the tag
   const tagCommit = context.sha;
@@ -38,7 +39,7 @@ async function getBuildArtifact(github, context, core) {
   // Construct artifacts name, like scality/action-artifacts
   const commitHash = tagCommit.substring(0, 10); // use first 10 chars of commit hash
   const buildNumber = run.run_number;
-  const artifactsName = `github:${context.repo.owner}:${context.repo.repo}:staging-${commitHash}.${workflow_id}.${buildNumber}`;
+  const artifactsName = `github:${context.repo.owner}:${context.repo.repo}:staging-${commitHash}.${workflow_name}.${buildNumber}`;
   
   core.info(`Auto-derived artifacts name: ${artifactsName}`);
   return artifactsName;

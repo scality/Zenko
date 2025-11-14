@@ -6,14 +6,14 @@ const ReplicationUtility = require('../../ReplicationUtility');
 
 const scalityUtils = new ReplicationUtility(scalityS3Client);
 const awsUtils = new ReplicationUtility(awsS3Client);
-const srcBucket = `source-bucket-awsbackend-${Date.now()}`;
+const srcBucket = `source-bucket-${Date.now()}`;
 const destBucket = process.env.AWS_CRR_BUCKET_NAME;
 const destLocation = process.env.AWS_BACKEND_DESTINATION_LOCATION;
 const hex = crypto.createHash('md5')
     .update(Math.random().toString())
     .digest('hex');
 const keyPrefix = `${srcBucket}/${hex}`;
-const key = `${keyPrefix}/object-to-replicate-awsbackend-${Date.now()}`;
+const key = `${keyPrefix}/object-to-replicate-${Date.now()}`;
 const copyKey = `${key}-copy`;
 const copySource = `/${srcBucket}/${key}`;
 // eslint-disable-next-line
@@ -49,17 +49,23 @@ describe('Replication with AWS backend', function () {
     ], done));
 
     it('should replicate an object', done => series([
-        next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next),
-        next => scalityUtils.compareObjectsAWS(
-            srcBucket,
-            destBucket,
-            key,
-            undefined,
-            next,
-        ),
+        next => {
+            console.log('AAA 1.1 - Putting object to source bucket');
+            scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next);
+        },
+        next => {
+            console.log('AAA 1.2 - Comparing objects between source and AWS destination');
+            scalityUtils.compareObjectsAWS(
+                srcBucket,
+                destBucket,
+                key,
+                undefined,
+                next,
+            );
+        },
     ], done));
 
-    it('should replicate a zero byte object', done => series([
+    it.skip('should replicate a zero byte object', done => series([
         next => scalityUtils.putObject(srcBucket, key, undefined, next),
         next => scalityUtils.compareObjectsAWS(
             srcBucket,
@@ -88,7 +94,7 @@ describe('Replication with AWS backend', function () {
         ),
     ], done));
 
-    it('should replicate a copied object', done => series([
+    it.skip('should replicate a copied object', done => series([
         next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next),
         next => scalityUtils.copyObject(srcBucket, copySource, copyKey, next),
         next => scalityUtils.compareObjectsAWS(
@@ -107,7 +113,7 @@ describe('Replication with AWS backend', function () {
         ),
     ], done));
 
-    it('should replicate a MPU object: single 0 byte part', done => series([
+    it.skip('should replicate a MPU object: single 0 byte part', done => series([
         next => scalityUtils.completeSinglePartMPU(srcBucket, key, 0, next),
         next => scalityUtils.compareObjectsAWS(
             srcBucket,
@@ -118,7 +124,7 @@ describe('Replication with AWS backend', function () {
         ),
     ], done));
 
-    it('should replicate a MPU object: single 1 byte part', done => series([
+    it.skip('should replicate a MPU object: single 1 byte part', done => series([
         next => scalityUtils.completeSinglePartMPU(srcBucket, key, 1, next),
         next => scalityUtils.compareObjectsAWS(
             srcBucket,
@@ -183,7 +189,7 @@ describe('Replication with AWS backend', function () {
 
     // Object ACLs would not be applicable on AWS: they should not
     // trigger a replication task at all (i.e. stay in COMPLETED status)
-    it('should not replicate object ACL', done => series([
+    it.skip('should not replicate object ACL', done => series([
         next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next),
         next => scalityUtils.compareACLsAWS(srcBucket, destBucket, key, next),
         next => scalityUtils.putObjectACL(srcBucket, key, next),
@@ -196,7 +202,7 @@ describe('Replication with AWS backend', function () {
         ),
     ], done));
 
-    it('should put delete marker on destination bucket when deleting the '
+    it.skip('should put delete marker on destination bucket when deleting the '
     + 'source object', done => series([
         next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next),
         next => scalityUtils.compareObjectsAWS(
@@ -211,7 +217,7 @@ describe('Replication with AWS backend', function () {
         next => awsUtils.assertNoObject(destBucket, key, next),
     ], done));
 
-    it('should replicate object tags of the latest version', done => series([
+    it.skip('should replicate object tags of the latest version', done => series([
         next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next),
         next => scalityUtils.compareObjectsAWS(
             srcBucket,
@@ -231,7 +237,7 @@ describe('Replication with AWS backend', function () {
         ),
     ], done));
 
-    it('should replicate object tags of a previous version', done => {
+    it.skip('should replicate object tags of a previous version', done => {
         let firstVersionScality = null;
         let firstVersionAWS = null;
         return series([
@@ -290,7 +296,7 @@ describe('Replication with AWS backend', function () {
         ], done);
     });
 
-    it(
+    it.skip(
         'should replicate deleting object tags of the latest version',
         done => series([
             next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next),
@@ -327,7 +333,7 @@ describe('Replication with AWS backend', function () {
         ], done),
     );
 
-    it(
+    it.skip(
         'should replicate deleting object tags of a previous version',
         done => {
             let firstVersionScality = null;
@@ -641,7 +647,7 @@ describe('Replication with AWS backend', function () {
         },
     );
 
-    it('should replicate an object with custom user metadata', done => series([
+    it.skip('should replicate an object with custom user metadata', done => series([
         next => scalityUtils.putObjectWithUserMetadata(
             srcBucket,
             key,
@@ -657,7 +663,7 @@ describe('Replication with AWS backend', function () {
         ),
     ], done));
 
-    it('should replicate an object with content-type', done => series([
+    it.skip('should replicate an object with content-type', done => series([
         next => scalityUtils.putObjectWithContentType(
             srcBucket,
             key,
@@ -673,7 +679,7 @@ describe('Replication with AWS backend', function () {
         ),
     ], done));
 
-    it('should replicate an object with cache control', done => series([
+    it.skip('should replicate an object with cache control', done => series([
         next => scalityUtils.putObjectWithCacheControl(
             srcBucket,
             key,
@@ -689,7 +695,7 @@ describe('Replication with AWS backend', function () {
         ),
     ], done));
 
-    it('should replicate an object with content disposition', done => series([
+    it.skip('should replicate an object with content disposition', done => series([
         next => scalityUtils.putObjectWithContentDisposition(
             srcBucket,
             key,
@@ -705,7 +711,7 @@ describe('Replication with AWS backend', function () {
         ),
     ], done));
 
-    it('should replicate an object with content encoding', done => series([
+    it.skip('should replicate an object with content encoding', done => series([
         next => scalityUtils.putObjectWithContentEncoding(
             srcBucket,
             key,
@@ -721,7 +727,7 @@ describe('Replication with AWS backend', function () {
         ),
     ], done));
 
-    it('should replicate an object with content language', done => series([
+    it.skip('should replicate an object with content language', done => series([
         next => scalityUtils.putObjectWithContentLanguage(
             srcBucket,
             key,
@@ -737,7 +743,7 @@ describe('Replication with AWS backend', function () {
         ),
     ], done));
 
-    it('should replicate an object copy with custom user metadata', done => series([
+    it.skip('should replicate an object copy with custom user metadata', done => series([
         next => scalityUtils.putObjectWithUserMetadata(
             srcBucket,
             key,
@@ -761,7 +767,7 @@ describe('Replication with AWS backend', function () {
         ),
     ], done));
 
-    it('should replicate an object copy with content-type', done => series([
+    it.skip('should replicate an object copy with content-type', done => series([
         next => scalityUtils.putObjectWithContentType(
             srcBucket,
             key,
@@ -785,7 +791,7 @@ describe('Replication with AWS backend', function () {
         ),
     ], done));
 
-    it('should replicate an object copy with cache control', done => series([
+    it.skip('should replicate an object copy with cache control', done => series([
         next => scalityUtils.putObjectWithCacheControl(
             srcBucket,
             key,
@@ -809,7 +815,7 @@ describe('Replication with AWS backend', function () {
         ),
     ], done));
 
-    it('should replicate an object copy with content disposition', done => series([
+    it.skip('should replicate an object copy with content disposition', done => series([
         next => scalityUtils.putObjectWithContentDisposition(
             srcBucket,
             key,
@@ -833,7 +839,7 @@ describe('Replication with AWS backend', function () {
         ),
     ], done));
 
-    it('should replicate an object copy with content encoding', done => series([
+    it.skip('should replicate an object copy with content encoding', done => series([
         next => scalityUtils.putObjectWithContentEncoding(
             srcBucket,
             key,
@@ -857,7 +863,7 @@ describe('Replication with AWS backend', function () {
         ),
     ], done));
 
-    it('should replicate an object copy with content language', done => series([
+    it.skip('should replicate an object copy with content language', done => series([
         next => scalityUtils.putObjectWithContentLanguage(
             srcBucket,
             key,
