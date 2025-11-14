@@ -61,7 +61,11 @@ describe('Ingesting existing data from RING S3C bucket', () => {
         (objData, next) => scalityUtils.createIngestionBucket(
             INGESTION_DEST_BUCKET,
             location,
-            err => next(err, objData),
+            err => {
+                console.log('Created ingestion bucket', INGESTION_DEST_BUCKET);
+                console.log('Error:', err);
+                next(err, objData);
+            },
         ),
         // compare object
         (objData, next) => scalityUtils.compareObjectsRINGS3C(

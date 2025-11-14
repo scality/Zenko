@@ -171,6 +171,12 @@ class IngestionUtility extends ReplicationUtility {
             next => this.getSourceObject(srcBucket, key, versionId, next),
             next => this.getDestObject(destBucket, key, versionId, next),
         ], (err, data) => {
+            console.log('Comparing object', key, 'versionId', versionId);
+            console.log('Source bucket:', srcBucket);
+            console.log('Destination bucket:', destBucket);
+            console.log('Optional fields:', optionalFields);
+            console.log('------------------------------------- err', err);
+            console.log('------------------------------------- data', data);
             if (err) {
                 return cb(err);
             }
