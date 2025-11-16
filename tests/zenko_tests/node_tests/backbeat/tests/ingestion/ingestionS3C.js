@@ -62,7 +62,9 @@ describe('Ingesting existing data from RING S3C bucket', () => {
             INGESTION_DEST_BUCKET,
             location,
             err => {
+                // eslint-disable-next-line no-console
                 console.log('Created ingestion bucket', INGESTION_DEST_BUCKET);
+                // eslint-disable-next-line no-console
                 console.log('Error:', err);
                 next(err, objData);
             },

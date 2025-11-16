@@ -171,11 +171,17 @@ class IngestionUtility extends ReplicationUtility {
             next => this.getSourceObject(srcBucket, key, versionId, next),
             next => this.getDestObject(destBucket, key, versionId, next),
         ], (err, data) => {
+            // eslint-disable-next-line no-console
             console.log('Comparing object', key, 'versionId', versionId);
+            // eslint-disable-next-line no-console
             console.log('Source bucket:', srcBucket);
+            // eslint-disable-next-line no-console
             console.log('Destination bucket:', destBucket);
+            // eslint-disable-next-line no-console
             console.log('Optional fields:', optionalFields);
+            // eslint-disable-next-line no-console
             console.log('------------------------------------- err', err);
+            // eslint-disable-next-line no-console
             console.log('------------------------------------- data', data);
             if (err) {
                 return cb(err);
