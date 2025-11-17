@@ -27,6 +27,8 @@ class IngestionUtility extends ReplicationUtility {
             VersionId: versionId,
         }))
             .then(async (data) => {
+                // eslint-disable-next-line no-console
+                console.log('Source getObject data:', data);
                 if (data.Body) {
                     const chunks = [];
                     // eslint-disable-next-line no-restricted-syntax
@@ -35,6 +37,8 @@ class IngestionUtility extends ReplicationUtility {
                     }
                     data.Body = Buffer.concat(chunks);
                 }
+                // eslint-disable-next-line no-console
+                console.log('Source getObject data after body read:', data);
                 cb(null, data);
             })
             .catch(cb);
@@ -47,6 +51,8 @@ class IngestionUtility extends ReplicationUtility {
             VersionId: versionId,
         }))
             .then(async (data) => {
+                // eslint-disable-next-line no-console
+                console.log('Dest getObject data:', data);
                 if (data.Body) {
                     const chunks = [];
                     // eslint-disable-next-line no-restricted-syntax
@@ -55,6 +61,8 @@ class IngestionUtility extends ReplicationUtility {
                     }
                     data.Body = Buffer.concat(chunks);
                 }
+                // eslint-disable-next-line no-console
+                console.log('Dest getObject data after body read:', data);
                 cb(null, data);
             })
             .catch(cb);
@@ -68,7 +76,9 @@ class IngestionUtility extends ReplicationUtility {
                 LocationConstraint: locationNameWithSuffix,
             },
         }))
-            .then(() => {
+            .then((data) => {
+                // eslint-disable-next-line no-console
+                console.log('CreateIngestionBucket data:', data);
                 // When resuming an ingestion-enabled location,
                 // backbeat gets the list of buckets with ingestion-enabled
                 // to check if the location is valid.
@@ -113,7 +123,9 @@ class IngestionUtility extends ReplicationUtility {
                 Key: key,
                 VersionId: versionId,
             }))
-                .then(() => {
+                .then((data) => {
+                    // eslint-disable-next-line no-console
+                    console.log('HeadObject success:', data);
                     status = true;
                     return callback();
                 })
