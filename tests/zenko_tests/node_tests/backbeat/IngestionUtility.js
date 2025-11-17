@@ -28,7 +28,7 @@ class IngestionUtility extends ReplicationUtility {
         }))
             .then(async (data) => {
                 // eslint-disable-next-line no-console
-                console.log('Source getObject data:', data);
+                console.log('Source getObject data ok');
                 if (data.Body) {
                     const chunks = [];
                     // eslint-disable-next-line no-restricted-syntax
@@ -45,6 +45,8 @@ class IngestionUtility extends ReplicationUtility {
     }
 
     getDestObject(bucketName, objName, versionId, cb) {
+        // eslint-disable-next-line no-console
+        console.log('Getting dest object', bucketName, objName, versionId);
         this.s3.send(new GetObjectCommand({
             Bucket: bucketName,
             Key: objName,
@@ -52,7 +54,7 @@ class IngestionUtility extends ReplicationUtility {
         }))
             .then(async (data) => {
                 // eslint-disable-next-line no-console
-                console.log('Dest getObject data:', data);
+                console.log('Dest getObject data ok');
                 if (data.Body) {
                     const chunks = [];
                     // eslint-disable-next-line no-restricted-syntax
@@ -65,7 +67,11 @@ class IngestionUtility extends ReplicationUtility {
                 console.log('Dest getObject data after body read:', data);
                 cb(null, data);
             })
-            .catch(cb);
+            .catch(err=> {
+                // eslint-disable-next-line no-console
+                console.log('Dest getObject error:', err);
+                cb(err);
+            });
     }
 
     createIngestionBucket(bucketName, locationName, cb) {
@@ -125,11 +131,13 @@ class IngestionUtility extends ReplicationUtility {
             }))
                 .then((data) => {
                     // eslint-disable-next-line no-console
-                    console.log('HeadObject success:', data);
+                    console.log('HeadObject success:');
                     status = true;
                     return callback();
                 })
                 .catch(err => {
+                    // eslint-disable-next-line no-console
+                    console.log('HeadObject error:');
                     if (err.name !== 'NotFound') {
                         return callback(err);
                     }
