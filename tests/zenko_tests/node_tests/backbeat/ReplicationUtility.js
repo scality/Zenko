@@ -707,6 +707,10 @@ class ReplicationUtility {
                 .then(data => {
                     const cbOnce = jsutil.once(callback);
                     const status = data.ReplicationStatus;
+                    console.log('BBB waitUntilReplicated 1', bucketName);
+                    console.log('BBB waitUntilReplicated 2', key);
+                    console.log('BBB waitUntilReplicated 3', status);
+                    console.log('BBB waitUntilReplicated 4', JSON.stringify(data.Metadata));
                     assert.notStrictEqual(
                         status,
                         'FAILED',
