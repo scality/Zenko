@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/devcontainers/base:jammy
+FROM mcr.microsoft.com/devcontainers/base:ubuntu-24.04
 ENV YQ_VERSION=v4.27.5
 ENV TILT_VERSION=0.23.4
 ENV KUSTOMIZE_VERSION=v4.4.1

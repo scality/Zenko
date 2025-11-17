@@ -1,5 +1,10 @@
 {
     "name": "Codespace",
+    "hostRequirements": {
+        "cpus": 8,
+        "memory": "32gb",
+        "storage": "128gb"
+    },
     "build": {
         "context": ".",
         "dockerfile": "Dockerfile"
@@ -86,6 +91,11 @@
                     }
                 }
             }
+        },
+        "vscode": {
+            "extensions": [
+                "ms-kubernetes-tools.vscode-kubernetes-tools",
+            ]
         }
     },
     "containerEnv": {

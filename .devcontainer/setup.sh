@@ -23,9 +23,9 @@ for i in $(seq 0 $array_length); do
 
             # Inject variables
             # We use `sed` to replace github variable references and avoid bad substitution error from bash
-            env_variables=$(yq '.runs.steps[$i].env | to_entries | .[] | .key + "=\"" + .value + "\""' .github/actions/deploy/action.yaml \
+            env_variables=$(yq '.runs.steps['$i'].env | to_entries | .[] | .key + "=" + .value' .github/actions/deploy/action.yaml \
                 | sed 's/\${{.*}}//')
-            eval "$env_variables"
+            [ -n "$env_variables" ] && export $env_variables
 
             if [ "$working_dir" != "null" ]; then
                 echo "Changing working dir: $working_dir"
@@ -45,6 +45,10 @@ done
     if [[ "${ENABLE_RING_TESTS}" == "false" ]]; then
         yq -i 'del(.locations[] | select(.locationType == "location-scality-ring-s3-v1"))' e2e-config.yaml
     fi
+
+    # Disable GCP tests as we don't have credentials setup in devcontainer
+    yq -i 'del(.locations[] | select(.locationType == "location-gcp-v1"))' e2e-config.yaml
+
     docker build -t $E2E_IMAGE_NAME:$E2E_IMAGE_TAG .
     kind load docker-image  ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG}
     docker rmi ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG}
@@ -52,6 +56,8 @@ done
 
 (
     cd .github/scripts/end2end
+
+    bash configure-e2e.sh
 
     bash configure-e2e-ctst.sh
 )
