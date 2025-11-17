@@ -67,7 +67,7 @@ class IngestionUtility extends ReplicationUtility {
                 console.log('Dest getObject data after body read:', data);
                 cb(null, data);
             })
-            .catch(err=> {
+            .catch(err => {
                 // eslint-disable-next-line no-console
                 console.log('Dest getObject error:', err);
                 cb(err);
@@ -129,7 +129,7 @@ class IngestionUtility extends ReplicationUtility {
                 Key: key,
                 VersionId: versionId,
             }))
-                .then((data) => {
+                .then(() => {
                     // eslint-disable-next-line no-console
                     console.log('HeadObject success:');
                     status = true;
