@@ -78,6 +78,11 @@ EOF
 }
 
 create_cluster() {
+  if kind get clusters | grep -q "^${CLUSTER_NAME}$"; then
+    echo "Kind cluster ${CLUSTER_NAME} already exists. Skipping creation."
+    return
+  fi
+
   kind create cluster --name=${CLUSTER_NAME} --config=config.yaml
 }
 
