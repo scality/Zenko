@@ -18,9 +18,6 @@ x-inputs:
   - name: remainingDiskSpaceWarningThreshold
     type: config
     value: 0.25
-  - name: replicas
-    type: config
-    value: 3
   - name: replicationLagWarningThreshold
     type: config
     value: 70
@@ -38,29 +35,35 @@ groups:
   - alert: MongoDbDegraded
     expr: |
       label_replace(
-        sum(up{namespace="${namespace}",pod=~"${service}.*"}) by(job) < ${replicas}
-      , "job", "$1", "job", "(?:${namespace}/)?${service}-?(.*)")
+        label_replace(
+          sum(up{namespace="${namespace}",pod=~"${service}.*"}) by(job)
+        , "statefulset", "$1", "job", "(?:${namespace}/)?(${service}-?.*)")
+        < on(statefulset)
+        kube_statefulset_replicas{statefulset=~"${service}.*", namespace="${namespace}"}
+      , "job", "$1", "statefulset", "${service}-?(.*)")
     for: 30s
     labels:
       severity: warning
     annotations:
       description: >-
-        Less than 100% of MongoDb {{ $labels.job }} instances are up and healthy:
-        {{ $value }}/${replicas}.
+        Less than 100% of MongoDb {{ $labels.job }} instances are up and healthy: {{ $value }}.
       summary: MongoDb {{ $labels.job }} service degraded
 
-  - alert: MongoDbCritical
+  - alert: MongoDbDegraded
     expr: |
       label_replace(
-        sum(up{namespace="${namespace}",pod=~"${service}.*"}) by(job) < ${replicas} / 2
-      , "job", "$1", "job", "(?:${namespace}/)?${service}-?(.*)")
+        label_replace(
+          sum(up{namespace="${namespace}",pod=~"${service}.*"}) by(job)
+        , "statefulset", "$1", "job", "(?:${namespace}/)?(${service}-?.*)")
+        < on(statefulset)
+        kube_statefulset_replicas{statefulset=~"${service}.*", namespace="${namespace}"} / 2
+      , "job", "$1", "statefulset", "${service}-?(.*)")
     for: 30s
     labels:
       severity: critical
     annotations:
       description: >-
-        Less than 50% of MongoDb {{ $labels.job }} instances are up and healthy:
-        {{ $value }}/${replicas}.
+        Less than 50% of MongoDb {{ $labels.job }} instances are up and healthy: {{ $value }}.
       summary: MongoDb {{ $labels.job }} service critical
 
   - alert: NoPrimary
@@ -265,11 +268,15 @@ groups:
 
   - alert: MongoDbRSNotSynced
     expr: |
-      count by (rs_nm) (
-          group by (rs_nm, member_idx) (
-              mongodb_rs_members_state{member_state="SECONDARY", namespace="${namespace}", pod=~"${service}.*"}
-          )
-      ) != (${replicas} - 1)
+      count by (rs_nm, statefulset) (
+        group by (rs_nm, statefulset, member_idx) (
+          label_replace(
+            mongodb_rs_members_state{member_state="SECONDARY", namespace="${namespace}", pod=~"${service}.*"}
+          , "statefulset", "$1", "pod", "(${service}-?.*)-\\d+")
+        )
+      )
+        != on(statefulset) group_left
+      kube_statefulset_replicas{namespace="${namespace}", statefulset=~"${service}.*"} - 1
     for: 10m
     labels:
       rs_nm: "{{ $labels.rs_nm }}"

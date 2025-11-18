@@ -33,7 +33,6 @@ jobs:
             namespace=zenko
             service=data-db-mongodb-sharded
             pvc=datadir-mongodb
-            replicas=3
           github_token: ${{ steps.app-token.outputs.token }}
 
       - name: Render and test kafka alerts 
