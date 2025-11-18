@@ -70,7 +70,7 @@ class IngestionUtility extends ReplicationUtility {
                 LocationConstraint: locationNameWithSuffix,
             },
         }))
-            .then((data) => {
+            .then(() => {
                 // When resuming an ingestion-enabled location,
                 // backbeat gets the list of buckets with ingestion-enabled
                 // to check if the location is valid.
