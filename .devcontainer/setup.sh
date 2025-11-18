@@ -8,6 +8,11 @@ export E2E_IMAGE_TAG=latest
 
 GITHUB_ENV=$(mktemp /tmp/github_env.XXXXXX)
 
+for input in $(yq '.inputs | to_entries | .[] | .key + "=" + .value.default' .github/actions/deploy/action.yaml); do
+    inputName=GITHUB_INPUTS_${input%=*}
+    [ -z "${!inputName}" ] && export GITHUB_INPUTS_$input
+done
+
 array_length=$(yq ".runs.steps | length - 1" .github/actions/deploy/action.yaml)
 for i in $(seq 0 $array_length); do
     #step=$(yq ".runs.steps[$i]" .github/actions/deploy/action.yaml)
@@ -24,7 +29,8 @@ for i in $(seq 0 $array_length); do
             # Inject variables
             # We use `sed` to replace github variable references and avoid bad substitution error from bash
             env_variables=$(yq '.runs.steps['$i'].env | to_entries | .[] | .key + "=" + .value' .github/actions/deploy/action.yaml \
-                | sed 's/\${{.*}}//')
+                | sed -e 's/${{ *inputs.\([[:graph:]]*\) *}}/$GITHUB_INPUTS_\1/' -e 's/\${{.*}}//' \
+                | envsubst )
             [ -n "$env_variables" ] && export $env_variables
 
             if [ "$working_dir" != "null" ]; then
