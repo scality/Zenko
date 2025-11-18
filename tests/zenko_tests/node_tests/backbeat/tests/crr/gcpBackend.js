@@ -22,6 +22,10 @@ const fileutf8 = `${filePrefix}/%EA%9D%8B崰㈌㒈保轖䳷䀰⺩ቆ楪僷ꈅꓜ
 const REPLICATION_TIMEOUT = 300000;
 
 describe('Replication with GCP backend', function () {
+    if (!process.env.GCP_BACKEND_DESTINATION_LOCATION) {
+        this.skip();
+    }
+
     this.timeout(REPLICATION_TIMEOUT);
     this.retries(3);
     const roleArn = 'arn:aws:iam::root:role/s3-replication-role';

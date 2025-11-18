@@ -6,6 +6,9 @@ env_variables=$(yq eval '.env | to_entries | .[] | .key + "=" + .value' .github/
 export GIT_ACCESS_TOKEN=${GITHUB_TOKEN}
 export E2E_IMAGE_TAG=latest
 
+# Disable GCP tests as we don't have credentials setup in devcontainer
+export GCP_BACKEND_DESTINATION_LOCATION=
+
 GITHUB_ENV=$(mktemp /tmp/github_env.XXXXXX)
 
 for input in $(yq '.inputs | to_entries | .[] | .key + "=" + .value.default' .github/actions/deploy/action.yaml); do
@@ -52,8 +55,9 @@ done
         yq -i 'del(.locations[] | select(.locationType == "location-scality-ring-s3-v1"))' e2e-config.yaml
     fi
 
-    # Disable GCP tests as we don't have credentials setup in devcontainer
-    yq -i 'del(.locations[] | select(.locationType == "location-gcp-v1"))' e2e-config.yaml
+    if [ -z "$GCP_BACKEND_DESTINATION_LOCATION" ]; then
+        yq -i 'del(.locations[] | select(.locationType == "location-gcp-v1"))' e2e-config.yaml
+    fi
 
     docker build -t $E2E_IMAGE_NAME:$E2E_IMAGE_TAG .
     kind load docker-image  ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG}
