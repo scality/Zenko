@@ -57,12 +57,12 @@ describe('Replication with AWS backend', function () {
             // eslint-disable-next-line no-console
             console.log(`[TEST] Comparing object ${key} in bucket ${destBucket}`);
             scalityUtils.compareObjectsAWS(
-            srcBucket,
-            destBucket,
-            key,
-            undefined,
-            next,
-        );
+                srcBucket,
+                destBucket,
+                key,
+                undefined,
+                next,
+            );
         },
     ], done));
 
