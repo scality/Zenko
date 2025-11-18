@@ -536,8 +536,6 @@ class ReplicationUtility {
                     // eslint-disable-next-line no-console
                     console.log(`[TEST] Created versioned bucket: ${bucketName}`);
                     // eslint-disable-next-line no-console
-                    console.log(`[TEST] Versioning status: ${data.VersioningConfiguration.Status}`);
-                    // eslint-disable-next-line no-console
                     console.log(`[TEST] data: ${data}`);
                     next();
                 })
