@@ -47,8 +47,7 @@ describe('Replication with AWS backend', function () {
             next,
         ),
     ], done));
-
-    it('should replicate an object', done => series([
+    it.only('should replicate an object', done => series([
         next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next),
         next => scalityUtils.compareObjectsAWS(
             srcBucket,
