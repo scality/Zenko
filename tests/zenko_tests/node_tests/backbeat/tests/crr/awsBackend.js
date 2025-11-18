@@ -48,6 +48,14 @@ describe('Replication with AWS backend', function () {
         ),
     ], done));
     it.only('should replicate an object', done => series([
+        // eslint-disable-next-line no-console
+        console.log(`[TEST] Starting replication test for bucket: ${srcBucket}`),
+        // eslint-disable-next-line no-console
+        console.log(`[TEST] Destination bucket: ${destBucket}`),
+        // eslint-disable-next-line no-console
+        console.log(`[TEST] Destination location: ${destLocation}`),
+        // eslint-disable-next-line no-console
+        console.log(`[TEST] Key: ${key}`),
         next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next),
         next => scalityUtils.compareObjectsAWS(
             srcBucket,

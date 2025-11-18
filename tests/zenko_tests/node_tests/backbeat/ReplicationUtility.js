@@ -54,6 +54,9 @@ class ReplicationUtility {
         //     console.error('md5 mismatch: data dumped in ' +
         //                   `${filePrefix}{1,2}.bin`);
         // }
+        // eslint-disable-next-line no-console
+        console.log('Source object MD5:', digest1);
+        console.log('Destination object MD5:', digest2);
         assert.strictEqual(digest1, digest2);
     }
 
@@ -105,7 +108,10 @@ class ReplicationUtility {
                     next => this._deleteVersionList(versions, bucketName, next),
                 ], cb);
             })
-            .catch(cb);
+            .catch(err => {
+                // eslint-disable-next-line no-console
+                console.log('Error deleting all object versions:', err);
+            });
     }
 
     deleteAllBlobs(containerName, keyPrefix, cb) {
@@ -525,7 +531,15 @@ class ReplicationUtility {
                     Status: 'Enabled',
                 },
             }))
-                .then(() => next())
+                .then(data => {
+                    // eslint-disable-next-line no-console
+                    console.log(`[TEST] Created versioned bucket: ${bucketName}`);
+                    // eslint-disable-next-line no-console
+                    console.log(`[TEST] Versioning status: ${data.VersioningConfiguration.Status}`);
+                    // eslint-disable-next-line no-console
+                    console.log(`[TEST] data: ${data}`);
+                    next();
+                })
                 .catch(next),
         ], cb);
     }
@@ -555,7 +569,11 @@ class ReplicationUtility {
         return async.series([
             next => this.deleteAllVersions(bucketName, undefined, next),
             next => this.s3.send(new DeleteBucketCommand({ Bucket: bucketName }))
-                .then(() => next())
+                .then(() => {
+                    // eslint-disable-next-line no-console
+                    console.log(`[TEST] Deleted versioned bucket: ${bucketName}`);
+                    next();
+                })
                 .catch(next),
         ], cb);
     }
@@ -594,7 +612,11 @@ class ReplicationUtility {
                 ],
             },
         }))
-            .then(data => cb(null, data))
+            .then(data => {
+                // eslint-disable-next-line no-console
+                console.log(`[TEST] Created replication ${data}`);
+                cb(null, data);
+            })
             .catch(cb);
     }
 
@@ -825,6 +847,10 @@ class ReplicationUtility {
 
             const srcData = data[1];
             const destData = data[2];
+            // eslint-disable-next-line no-console
+            console.log('Source object data:', srcData);
+            // eslint-disable-next-line no-console
+            console.log('Destination object data:', destData);
             assert.strictEqual(srcData.ReplicationStatus, 'COMPLETED');
             assert.strictEqual(
                 srcData.ContentLength,
