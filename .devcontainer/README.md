@@ -10,6 +10,20 @@ To run the CTST tests in the codespace, simply head to `.github/script/end2end/`
     bash run-e2e-ctst.sh
 ```
 
+## Running e2e tests in the codespace
+
+To run the CTST tests in the codespace, head to `.github/script/end2end/` and run `run-e2e-ctst.sh`
+script. Some variables need to be exported before running the tests.
+
+```bash
+    env_variables=$(yq eval '.env | to_entries | .[] | .key + "=" + .value' .github/workflows/end2end.yaml | sed 's/\${{[^}]*}}//g') && export $env_variables
+    export E2E_IMAGE_TAG=latest
+    export GCP_BACKEND_DESTINATION_LOCATION=
+
+    cd .github/scripts/end2end/
+    bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "backbeat" "default"
+```
+
 ## Accessing s3 service
 
 This devcontainer is a full Zenko development environment.
