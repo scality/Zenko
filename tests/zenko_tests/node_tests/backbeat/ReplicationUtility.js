@@ -140,8 +140,6 @@ class ReplicationUtility {
         }
         this.s3.send(new PutObjectCommand(params))
             .then(data => {
-                // eslint-disable-next-line no-console
-                console.log('PutObject data:', data);
                 cb(null, data);
             })
             .catch(cb);

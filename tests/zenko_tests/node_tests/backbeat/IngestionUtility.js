@@ -27,8 +27,6 @@ class IngestionUtility extends ReplicationUtility {
             VersionId: versionId,
         }))
             .then(async (data) => {
-                // eslint-disable-next-line no-console
-                console.log('Source getObject data ok');
                 if (data.Body) {
                     const chunks = [];
                     // eslint-disable-next-line no-restricted-syntax
@@ -37,24 +35,18 @@ class IngestionUtility extends ReplicationUtility {
                     }
                     data.Body = Buffer.concat(chunks);
                 }
-                // eslint-disable-next-line no-console
-                console.log('Source getObject data after body read:', data);
                 cb(null, data);
             })
             .catch(cb);
     }
 
     getDestObject(bucketName, objName, versionId, cb) {
-        // eslint-disable-next-line no-console
-        console.log('Getting dest object', bucketName, objName, versionId);
         this.s3.send(new GetObjectCommand({
             Bucket: bucketName,
             Key: objName,
             VersionId: versionId,
         }))
             .then(async (data) => {
-                // eslint-disable-next-line no-console
-                console.log('Dest getObject data ok');
                 if (data.Body) {
                     const chunks = [];
                     // eslint-disable-next-line no-restricted-syntax
@@ -63,13 +55,9 @@ class IngestionUtility extends ReplicationUtility {
                     }
                     data.Body = Buffer.concat(chunks);
                 }
-                // eslint-disable-next-line no-console
-                console.log('Dest getObject data after body read:', data);
                 cb(null, data);
             })
             .catch(err => {
-                // eslint-disable-next-line no-console
-                console.log('Dest getObject error:', err);
                 cb(err);
             });
     }
@@ -83,8 +71,6 @@ class IngestionUtility extends ReplicationUtility {
             },
         }))
             .then((data) => {
-                // eslint-disable-next-line no-console
-                console.log('CreateIngestionBucket data:', data);
                 // When resuming an ingestion-enabled location,
                 // backbeat gets the list of buckets with ingestion-enabled
                 // to check if the location is valid.
@@ -130,14 +116,10 @@ class IngestionUtility extends ReplicationUtility {
                 VersionId: versionId,
             }))
                 .then(() => {
-                    // eslint-disable-next-line no-console
-                    console.log('HeadObject success:');
                     status = true;
                     return callback();
                 })
                 .catch(err => {
-                    // eslint-disable-next-line no-console
-                    console.log('HeadObject error:');
                     if (err.name !== 'NotFound') {
                         return callback(err);
                     }
@@ -191,18 +173,6 @@ class IngestionUtility extends ReplicationUtility {
             next => this.getSourceObject(srcBucket, key, versionId, next),
             next => this.getDestObject(destBucket, key, versionId, next),
         ], (err, data) => {
-            // eslint-disable-next-line no-console
-            console.log('Comparing object', key, 'versionId', versionId);
-            // eslint-disable-next-line no-console
-            console.log('Source bucket:', srcBucket);
-            // eslint-disable-next-line no-console
-            console.log('Destination bucket:', destBucket);
-            // eslint-disable-next-line no-console
-            console.log('Optional fields:', optionalFields);
-            // eslint-disable-next-line no-console
-            console.log('------------------------------------- err', err);
-            // eslint-disable-next-line no-console
-            console.log('------------------------------------- data', data);
             if (err) {
                 return cb(err);
             }
