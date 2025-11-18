@@ -56,6 +56,7 @@ class ReplicationUtility {
         // }
         // eslint-disable-next-line no-console
         console.log('Source object MD5:', digest1);
+        // eslint-disable-next-line no-console
         console.log('Destination object MD5:', digest2);
         assert.strictEqual(digest1, digest2);
     }
