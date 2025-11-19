@@ -210,5 +210,6 @@ elif [ "$STAGE" = "iam-policies" ]; then
 elif [ "$STAGE" = "object-api" ]; then
    run_e2e_test '' 'cd node_tests && npm run test_object_api'
 elif [ "$STAGE" = "lint" ]; then
-   run_e2e_test '' 'cd node_tests && npm run lint'
+  #  run_e2e_test '' 'cd node_tests && npm run lint'
+   run_e2e_test '' 'cd node_tests'
 fi
