@@ -2,6 +2,7 @@ const crypto = require('crypto');
 const { series } = require('async');
 const { scalityS3Client, awsS3Client } = require('../../../s3SDK');
 const ReplicationUtility = require('../../ReplicationUtility');
+
 const scalityUtils = new ReplicationUtility(scalityS3Client);
 const awsUtils = new ReplicationUtility(awsS3Client);
 const srcBucket = `source-bucket-${Date.now()}`;
