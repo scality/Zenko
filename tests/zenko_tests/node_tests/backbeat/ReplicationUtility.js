@@ -730,6 +730,10 @@ class ReplicationUtility {
                 .then(data => {
                     const cbOnce = jsutil.once(callback);
                     const status = data.ReplicationStatus;
+                    // eslint-disable-next-line no-console
+                    console.log(`Current replication status: ${status}`);
+                    // eslint-disable-next-line no-console
+                    console.log(`HeadObject data: ${JSON.stringify(data)}`);
                     assert.notStrictEqual(
                         status,
                         'FAILED',
