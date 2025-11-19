@@ -147,6 +147,8 @@ class ReplicationUtility {
         }
         this.s3.send(new PutObjectCommand(params))
             .then(data => {
+                // eslint-disable-next-line no-console
+                console.log(`PutObject data: ${JSON.stringify(data)}`);
                 cb(null, data);
             })
             .catch(cb);
@@ -740,7 +742,7 @@ class ReplicationUtility {
                         `Unexpected CRR failure occurred: ${JSON.stringify(data)}`,
                     );
                     if (status === 'PENDING' || status === 'PROCESSING') {
-                        return setTimeout(() => cbOnce(null, status), 2000);
+                        return setTimeout(() => cbOnce(null, status), 4000);
                     }
                     return cbOnce(null, status);
                 })
