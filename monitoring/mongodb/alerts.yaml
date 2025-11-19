@@ -35,10 +35,12 @@ groups:
   - alert: MongoDbDegraded
     expr: |
       label_replace(
-        label_replace(
-          sum(up{namespace="${namespace}",pod=~"${service}.*"}) by(job)
-        , "statefulset", "$1", "job", "(?:${namespace}/)?(${service}-?.*)")
-        < on(statefulset)
+        sum(
+          label_replace(
+            up{namespace="${namespace}",pod=~"${service}.*"}
+          , "statefulset", "$1", "pod", "(${service}-?.*)-\\d+")
+        ) by(statefulset)
+          < on(statefulset)
         kube_statefulset_replicas{statefulset=~"${service}.*", namespace="${namespace}"}
       , "job", "$1", "statefulset", "${service}-?(.*)")
     for: 30s
@@ -52,10 +54,12 @@ groups:
   - alert: MongoDbDegraded
     expr: |
       label_replace(
-        label_replace(
-          sum(up{namespace="${namespace}",pod=~"${service}.*"}) by(job)
-        , "statefulset", "$1", "job", "(?:${namespace}/)?(${service}-?.*)")
-        < on(statefulset)
+        sum(
+          label_replace(
+            up{namespace="${namespace}",pod=~"${service}.*"}
+          , "statefulset", "$1", "pod", "(${service}-?.*)-\\d+")
+        ) by(statefulset)
+          < on(statefulset)
         kube_statefulset_replicas{statefulset=~"${service}.*", namespace="${namespace}"} / 2
       , "job", "$1", "statefulset", "${service}-?(.*)")
     for: 30s

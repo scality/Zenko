@@ -13,15 +13,21 @@ tests:
   - name: MongoDbDown
     interval: 30s
     input_series:
-      - series: up{namespace="zenko", job="zenko/data-db-mongodb-sharded-mongos", pod="data-db-mongodb-sharded-mongos-0"}
+      - series: up{namespace="zenko", job="zenko/data-db-mongodb-sharded-shard0-data", pod="data-db-mongodb-sharded-shard0-data-0"}
         values: 1 1 0 0 0 0 1 1 1
-      - series: up{namespace="zenko", job="zenko/data-db-mongodb-sharded-mongos", pod="data-db-mongodb-sharded-mongos-1"}
+      - series: up{namespace="zenko", job="zenko/data-db-mongodb-sharded-shard0-data", pod="data-db-mongodb-sharded-shard0-data-1"}
         values: 1 1 1 1 0 0 0 1 1
-      - series: up{namespace="zenko", job="zenko/data-db-mongodb-sharded-mongos", pod="data-db-mongodb-sharded-mongos-2"}
+      - series: up{namespace="zenko", job="zenko/data-db-mongodb-sharded-shard0-data", pod="data-db-mongodb-sharded-shard0-data-2"}
         values: 1 1 1 1 1 0 0 0 1
-      - series: kube_statefulset_replicas{namespace="zenko", statefulset="data-db-mongodb-sharded-mongos", job="kube-state-metrics"}
-        values: 3x9
+      - series: up{namespace="zenko", job="zenko/data-db-mongodb-sharded-shard0-data", pod="data-db-mongodb-sharded-shard1-data-0"}
+        values: 1x9
+      - series: up{namespace="zenko", job="zenko/data-db-mongodb-sharded-shard0-data", pod="data-db-mongodb-sharded-shard1-data-1"}
+        values: 1x9
+      - series: up{namespace="zenko", job="zenko/data-db-mongodb-sharded-shard0-data", pod="data-db-mongodb-sharded-shard1-data-2"}
+        values: 1x9
       - series: kube_statefulset_replicas{namespace="zenko", statefulset="data-db-mongodb-sharded-shard0-data", job="kube-state-metrics"}
+        values: 3x9
+      - series: kube_statefulset_replicas{namespace="zenko", statefulset="data-db-mongodb-sharded-shard1-data", job="kube-state-metrics"}
         values: 3x9
     alert_rule_test:
       - { alertname: MongoDbDegraded, eval_time: 30s, exp_alerts: [] }
@@ -33,58 +39,58 @@ tests:
         exp_alerts:
           - exp_labels:
               severity: warning
-              job: mongos
-              statefulset: data-db-mongodb-sharded-mongos
+              job: shard0-data
+              statefulset: data-db-mongodb-sharded-shard0-data
             exp_annotations:
-              description: "Less than 100% of MongoDb mongos instances are up and healthy: 2."
-              summary: MongoDb mongos service degraded
+              description: "Less than 100% of MongoDb shard0-data instances are up and healthy: 2."
+              summary: MongoDb shard0-data service degraded
 
       - alertname: MongoDbDegraded
         eval_time: 120s
         exp_alerts:
           - exp_labels:
               severity: warning
-              job: mongos
-              statefulset: data-db-mongodb-sharded-mongos
+              job: shard0-data
+              statefulset: data-db-mongodb-sharded-shard0-data
             exp_annotations:
-              description: "Less than 100% of MongoDb mongos instances are up and healthy: 1."
-              summary: MongoDb mongos service degraded
+              description: "Less than 100% of MongoDb shard0-data instances are up and healthy: 1."
+              summary: MongoDb shard0-data service degraded
 
       - alertname: MongoDbDegraded
         eval_time: 150s
         exp_alerts:
           - exp_labels:
               severity: warning
-              job: mongos
-              statefulset: data-db-mongodb-sharded-mongos
+              job: shard0-data
+              statefulset: data-db-mongodb-sharded-shard0-data
             exp_annotations:
-              description: "Less than 100% of MongoDb mongos instances are up and healthy: 0."
-              summary: MongoDb mongos service degraded
+              description: "Less than 100% of MongoDb shard0-data instances are up and healthy: 0."
+              summary: MongoDb shard0-data service degraded
           - exp_labels:
               severity: critical
-              job: mongos
-              statefulset: data-db-mongodb-sharded-mongos
+              job: shard0-data
+              statefulset: data-db-mongodb-sharded-shard0-data
             exp_annotations:
-              description: "Less than 50% of MongoDb mongos instances are up and healthy: 0."
-              summary: MongoDb mongos service critical
+              description: "Less than 50% of MongoDb shard0-data instances are up and healthy: 0."
+              summary: MongoDb shard0-data service critical
       
       - alertname: MongoDbDegraded
         eval_time: 180s
         exp_alerts:
           - exp_labels:
               severity: warning
-              job: mongos
-              statefulset: data-db-mongodb-sharded-mongos
+              job: shard0-data
+              statefulset: data-db-mongodb-sharded-shard0-data
             exp_annotations:
-              description: "Less than 100% of MongoDb mongos instances are up and healthy: 1."
-              summary: MongoDb mongos service degraded
+              description: "Less than 100% of MongoDb shard0-data instances are up and healthy: 1."
+              summary: MongoDb shard0-data service degraded
           - exp_labels:
               severity: critical
-              job: mongos
-              statefulset: data-db-mongodb-sharded-mongos
+              job: shard0-data
+              statefulset: data-db-mongodb-sharded-shard0-data
             exp_annotations:
-              description: "Less than 50% of MongoDb mongos instances are up and healthy: 1."
-              summary: MongoDb mongos service critical
+              description: "Less than 50% of MongoDb shard0-data instances are up and healthy: 1."
+              summary: MongoDb shard0-data service critical
 
   - name: NoPrimary
     interval: 1m
