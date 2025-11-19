@@ -1334,14 +1334,14 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "sum by (pod) (mongodb_dbstats_objects{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"})",
-          "query": "sum by (pod) (mongodb_dbstats_objects{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"})",
+          "expr": "sum by (rs_nm) (mongodb_dbstats_objects{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"})",
+          "query": "sum by (rs_nm) (mongodb_dbstats_objects{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"})",
           "target": "",
           "format": "time_series",
           "hide": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "{{ pod }}",
+          "legendFormat": "{{ rs_nm }}",
           "metric": "",
           "refId": "",
           "step": 10,
@@ -1408,14 +1408,14 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "sum by (pod) (mongodb_dbstats_indexSize{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"})",
-          "query": "sum by (pod) (mongodb_dbstats_indexSize{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"})",
+          "expr": "sum by (rs_nm) (mongodb_dbstats_indexSize{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"})",
+          "query": "sum by (rs_nm) (mongodb_dbstats_indexSize{rs_state=\"1\", namespace=\"${namespace}\", database!~\"admin|config|local\", job=~\"${namespace}/${jobs}\"})",
           "target": "",
           "format": "time_series",
           "hide": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "{{ pod }}",
+          "legendFormat": "{{ rs_nm }}",
           "metric": "",
           "refId": "",
           "step": 10,
@@ -1445,7 +1445,6 @@
         },
         "displayLabels": [
           "value",
-          "name",
           "percent"
         ]
       },
@@ -6349,6 +6348,6 @@
     "hidden": false
   },
   "timezone": "browser",
-  "version": 25,
+  "version": 26,
   "uid": null
 }

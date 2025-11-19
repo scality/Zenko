@@ -152,6 +152,7 @@ class Metrics:
         "mongodb_dbstats_indexSize",
         "database",
         "job",
+        "rs_nm",
         rs_state=RS_STATE_PRIMARY,
         namespace="${namespace}",
     ).with_defaults(DATABASE_FILTER_USER, JOB_FILTER)
@@ -160,6 +161,7 @@ class Metrics:
         "mongodb_dbstats_avgObjSize",
         "database",
         "job",
+        "rs_nm",
         rs_state=RS_STATE_PRIMARY,
         namespace="${namespace}",
     ).with_defaults(DATABASE_FILTER_USER, JOB_FILTER)
@@ -676,8 +678,8 @@ docs_distribution_pie = PieChart(
     unit="short",
     targets=[
         Target(
-            expr="sum by (pod) (" + Metrics.DBSTATS_OBJECTS() + ")",
-            legendFormat="{{ pod }}",
+            expr="sum by (rs_nm) (" + Metrics.DBSTATS_OBJECTS() + ")",
+            legendFormat="{{ rs_nm }}",
         )
     ],
     description="Distribution of user documents across all shards",
@@ -686,15 +688,15 @@ docs_distribution_pie = PieChart(
 index_size_distribution_pie = PieChart(
     title="Index Size Distribution Across Shards",
     dataSource=DATASOURCE,
-    displayLabels=["value", "name", "percent"],
+    displayLabels=["value", "percent"],
     legendDisplayMode="table",
     legendPlacement="right",
     pieType="pie",
     unit=UNITS.BYTES,
     targets=[
         Target(
-            expr="sum by (pod) (" + Metrics.DBSTATS_INDEX_SIZE() + ")",
-            legendFormat="{{ pod }}",
+            expr="sum by (rs_nm) (" + Metrics.DBSTATS_INDEX_SIZE() + ")",
+            legendFormat="{{ rs_nm }}",
         )
     ],
     description="Distribution of user index sizes across all shards",
