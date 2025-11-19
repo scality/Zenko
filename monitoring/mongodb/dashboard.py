@@ -1,16 +1,11 @@
 from grafanalib.core import (
     ConstantInput,
     DataSourceInput,
-    GridPos,
-    Heatmap,
-    HeatmapColor,
-    Repeat,
     RowPanel,
     Template,
     Templating,
     Threshold,
     BarChart,
-    YAxis,
 )
 from grafanalib import core
 from grafanalib import formatunits as UNITS
@@ -18,12 +13,10 @@ from scalgrafanalib import (
     layout,
     metrics,
     Dashboard,
-    GaugePanel,
     PieChart,
     Stat,
     Target,
     TimeSeries,
-    Tooltip,
     StateTimeline,
 )
 
@@ -525,10 +518,15 @@ def mongodb_state_timeline(title, expr, description="", mappings=None, **kwargs)
 mongodb_services_state = mongodb_stat(
     "MongoDB services state",
     orientation="horizontal",
+    reduceCalc="last",
     targets=[
         Target(
-            expr="sum(" + Metrics.UP() + ") by (cluster_role)",
-            legendFormat="{{cluster_role}}",
+            expr=(
+                "sum(label_replace("
+                + Metrics.UP()
+                + ", 'statefulset', '$1', 'pod', '${job}-(.*)-[0-9]+')) by (statefulset)"
+            ),
+            legendFormat="{{statefulset}}",
         )
     ],
 )
@@ -591,6 +589,7 @@ avg_doc_size = mongodb_stat(
     format=UNITS.BYTES,
     decimals=1,
     description="Average size of documents in the database",
+    thresholds=[Threshold("dark-purple", 0, 0.0)],
 )
 
 num_docs_per_shard = mongodb_stat(
@@ -614,6 +613,7 @@ size_collections = mongodb_stat(
             legendFormat="{{collection}}",
         )
     ],
+    thresholds=[Threshold("dark-purple", 0, 0.0)],
 )
 
 index_size = mongodb_stat(
@@ -1466,7 +1466,7 @@ dashboard = (
                     name="jobs",
                     label="MongoDB instance type",
                     query='label_values(mongodb_up{namespace="${namespace}", job=~"${namespace}/${job}.*"}, job)',
-                    regex="/^${namespace}\/(.*)$/",
+                    regex="/^${namespace}\\/(.*)$/",
                     includeAll=True,
                     multi=True,
                     refresh=1,

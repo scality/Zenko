@@ -111,14 +111,14 @@
       "maxDataPoints": 100,
       "targets": [
         {
-          "expr": "sum(mongodb_up{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"}) by (cluster_role)",
-          "query": "sum(mongodb_up{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"}) by (cluster_role)",
+          "expr": "sum(label_replace(mongodb_up{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"}, 'statefulset', '$1', 'pod', '${job}-(.*)-[0-9]+')) by (statefulset)",
+          "query": "sum(label_replace(mongodb_up{namespace=\"${namespace}\", job=~\"${namespace}/${jobs}\"}, 'statefulset', '$1', 'pod', '${job}-(.*)-[0-9]+')) by (statefulset)",
           "target": "",
           "format": "time_series",
           "hide": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "{{cluster_role}}",
+          "legendFormat": "{{statefulset}}",
           "metric": "",
           "refId": "",
           "step": 10,
@@ -137,7 +137,7 @@
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "mean"
+            "last"
           ],
           "fields": "",
           "values": false
@@ -568,18 +568,10 @@
               {
                 "op": "gt",
                 "yaxis": "left",
-                "color": "green",
+                "color": "dark-purple",
                 "line": true,
                 "index": 0,
                 "value": "null"
-              },
-              {
-                "op": "gt",
-                "yaxis": "left",
-                "color": "red",
-                "line": true,
-                "index": 1,
-                "value": 80.0
               }
             ]
           },
@@ -744,18 +736,10 @@
               {
                 "op": "gt",
                 "yaxis": "left",
-                "color": "green",
+                "color": "dark-purple",
                 "line": true,
                 "index": 0,
                 "value": "null"
-              },
-              {
-                "op": "gt",
-                "yaxis": "left",
-                "color": "red",
-                "line": true,
-                "index": 1,
-                "value": 80.0
               }
             ]
           },
@@ -6365,6 +6349,6 @@
     "hidden": false
   },
   "timezone": "browser",
-  "version": 24,
+  "version": 25,
   "uid": null
 }
