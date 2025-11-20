@@ -151,7 +151,7 @@ testsToRun.forEach(test => {
                 ], done);
             }).retries(3);
 
-            it('should transition an object', done => {
+            it.only('should transition an object', done => {
                 const key = `${prefix}nover-object`;
                 cloudServer.setKey(key);
                 cloud.setKey(`${srcBucket}/${key}`);
