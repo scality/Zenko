@@ -68,8 +68,6 @@ function compareTransitionedColdData(sourceClient, versionId, cb) {
             console.log('[DEBUG] - VersionId:', versionId);
             // eslint-disable-next-line no-console
             console.log('[DEBUG] - Destination: DMF (cold storage)');
-
-            const startTime = Date.now();
             sourceClient.waitUntilTransitioned(versionId, (err) => {
                 if (err) {
                     // eslint-disable-next-line no-console
@@ -140,7 +138,6 @@ function checkRestoration(destination, sourceClient, versionId, cb) {
         next => {
             // eslint-disable-next-line no-console
             console.log('[DEBUG] ⏳ Step 3: Waiting for restoration to complete');
-            const startTime = Date.now();
             sourceClient.waitUntilRestored(versionId, (err) => {
                 if (err) {
                     // eslint-disable-next-line no-console
@@ -244,8 +241,10 @@ testsToRun.forEach(test => {
                 },
             ], err => {
                 if (err || (!this.currentTest.isPending() && !this.currentTest.isPassed())) {
-                    const testName = this.currentTest.fullTitle();
-                    const retry = this.currentTest.currentRetry();
+                    // eslint-disable-next-line no-console
+                    console.error('[DEBUG] ❌ Test failed, gathering debug information:', err.message, err.name);
+                    // const testName = this.currentTest.fullTitle();
+                    // const retry = this.currentTest.currentRetry();
                 }
                 done(err);
             });
