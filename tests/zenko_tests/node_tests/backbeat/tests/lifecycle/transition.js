@@ -71,13 +71,12 @@ function compareTransitionedColdData(sourceClient, versionId, cb) {
 
             const startTime = Date.now();
             sourceClient.waitUntilTransitioned(versionId, (err) => {
-                const duration = (Date.now() - startTime) / 1000;
                 if (err) {
                     // eslint-disable-next-line no-console
-                    console.error('[DEBUG] ❌ Transition failed after', duration + 's:', err.message);
+                    console.error('[DEBUG] ❌ Transition failed', err.message);
                 } else {
                     // eslint-disable-next-line no-console
-                    console.log('[DEBUG] ✅ Transition completed successfully after', duration + 's');
+                    console.log('[DEBUG] ✅ Transition completed successfully');
                 }
                 next(err);
             });
@@ -116,7 +115,7 @@ function checkRestoration(destination, sourceClient, versionId, cb) {
                 }
                 if (err) {
                     // eslint-disable-next-line no-console
-                    console.error('[DEBUG] ❌ Unexpected error accessing cold object:', err.message, err.Code);
+                    console.error('[DEBUG] ❌ Unexpected error accessing cold object:', err.message, err.name);
                     return next(err);
                 }
                 // eslint-disable-next-line no-console
@@ -143,13 +142,12 @@ function checkRestoration(destination, sourceClient, versionId, cb) {
             console.log('[DEBUG] ⏳ Step 3: Waiting for restoration to complete');
             const startTime = Date.now();
             sourceClient.waitUntilRestored(versionId, (err) => {
-                const duration = (Date.now() - startTime) / 1000;
                 if (err) {
                     // eslint-disable-next-line no-console
-                    console.error('[DEBUG] ❌ Restoration failed after', duration + 's:', err.message);
+                    console.error('[DEBUG] ❌ Restoration failed after', err.message);
                 } else {
                     // eslint-disable-next-line no-console
-                    console.log('[DEBUG] ✅ Restoration completed successfully after', duration + 's');
+                    console.log('[DEBUG] ✅ Restoration completed successfully');
                 }
                 next(err);
             });
@@ -248,8 +246,6 @@ testsToRun.forEach(test => {
                 if (err || (!this.currentTest.isPending() && !this.currentTest.isPassed())) {
                     const testName = this.currentTest.fullTitle();
                     const retry = this.currentTest.currentRetry();
-                    // eslint-disable-next-line no-console
-                    console.log('   FAILED', testName, '[retry #' + retry + '] :', srcBucket);
                 }
                 done(err);
             });
