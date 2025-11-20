@@ -140,6 +140,8 @@ testsToRun.forEach(test => {
             beforeEach(done => cloudServer.createBucket(srcBucket, done));
 
             it('should transition a 0 byte object', done => {
+                // eslint-disable-next-line no-console
+                console.log(`START ${this.currentTest.fullTitle()} : ${srcBucket}`);
                 const key = `${prefix}nover-0-byte-object`;
 
                 cloudServer.setKey(key);
@@ -152,6 +154,8 @@ testsToRun.forEach(test => {
             }).retries(3);
 
             it.only('should transition an object', done => {
+                // eslint-disable-next-line no-console
+                console.log(`   START ${this.currentTest.fullTitle()} : ${srcBucket}`);
                 const key = `${prefix}nover-object`;
                 cloudServer.setKey(key);
                 cloud.setKey(`${srcBucket}/${key}`);
