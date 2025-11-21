@@ -1,4 +1,4 @@
-// const assert = require('assert');
+const assert = require('assert');
 const uuid = require('uuid/v4');
 const { series } = require('async');
 
@@ -25,140 +25,26 @@ function compareTransitionedData(sourceClient, destinationClient, versionId, cb)
 }
 
 function compareTransitionedColdData(sourceClient, versionId, cb) {
-    // eslint-disable-next-line no-console
-    console.log('[DEBUG] 🧊 Starting cold data transition check for versionId:', versionId);
-
     return series([
-        next => {
-            // eslint-disable-next-line no-console
-            console.log('[DEBUG] 📖 Step 1: Getting original object data');
-            sourceClient.getObject(versionId, (err, data) => {
-                if (err) {
-                    // eslint-disable-next-line no-console
-                    console.error('[DEBUG] ❌ Failed to get original object:', err.message);
-                } else {
-                    // eslint-disable-next-line no-console,max-len
-                    console.log('[DEBUG] ✅ Got original object data, size:', data.Body ? data.Body.length : 'unknown');
-                }
-                next(err, data);
-            });
-        },
-        next => {
-            // eslint-disable-next-line no-console
-            console.log('[DEBUG] 🔄 Step 2: Putting bucket lifecycle configuration');
-            const transitionDate = new Date(new Date().setUTCHours(0, 0, 0, 0));
-            // eslint-disable-next-line no-console
-            console.log('[DEBUG] - Transition date:', transitionDate.toISOString());
-
-            sourceClient.putBucketLifecycleConfiguration(transitionDate, (err) => {
-                if (err) {
-                    // eslint-disable-next-line no-console
-                    console.error('[DEBUG] ❌ Failed to put lifecycle configuration:', err.message);
-                } else {
-                    // eslint-disable-next-line no-console
-                    console.log('[DEBUG] ✅ Lifecycle configuration set successfully');
-                }
-                next(err);
-            });
-        },
-        next => {
-            // eslint-disable-next-line no-console
-            console.log('[DEBUG] ⏳ Step 3: Waiting for transition to complete (this may take several minutes)');
-            // eslint-disable-next-line no-console
-            console.log('[DEBUG] - VersionId:', versionId);
-            // eslint-disable-next-line no-console
-            console.log('[DEBUG] - Destination: DMF (cold storage)');
-            sourceClient.waitUntilTransitioned(versionId, (err) => {
-                if (err) {
-                    // eslint-disable-next-line no-console
-                    console.error('[DEBUG] ❌ Transition failed', err.message);
-                } else {
-                    // eslint-disable-next-line no-console
-                    console.log('[DEBUG] ✅ Transition completed successfully');
-                }
-                next(err);
-            });
-        },
-    ], (err, results) => {
-        if (err) {
-            // eslint-disable-next-line no-console
-            console.error('[DEBUG] ❌ Cold data transition check failed:', err.message);
-        } else {
-            // eslint-disable-next-line no-console
-            console.log('[DEBUG] ✅ Cold data transition check completed successfully');
-        }
-        cb(err, results);
-    });
+        next => sourceClient.getObject(versionId, next),
+        next => sourceClient.putBucketLifecycleConfiguration(new Date(new Date().setUTCHours(0, 0, 0, 0)), next),
+        next => sourceClient.waitUntilTransitioned(versionId, next),
+    ], cb);
 }
 
 function checkRestoration(destination, sourceClient, versionId, cb) {
     if (!destination.supportsRestore) {
-        // eslint-disable-next-line no-console
-        console.log('[DEBUG] ⏭️ Destination doesn\'t support restore, skipping restoration check');
         return process.nextTick(cb);
     }
-
-    // eslint-disable-next-line no-console
-    console.log('[DEBUG] 🔄 Starting restoration process for versionId:', versionId);
-
     return series([
-        next => {
-            // eslint-disable-next-line no-console
-            console.log('[DEBUG] 🧪 Step 1: Verifying object is in cold storage (should be inaccessible)');
-            sourceClient.getObject(versionId, err => {
-                if (err && err.name === 'InvalidObjectState' && err.$metadata?.httpStatusCode === 403) {
-                    // eslint-disable-next-line no-console
-                    console.log('[DEBUG] ✅ Object is properly in cold storage (InvalidObjectState)');
-                    return next();
-                }
-                if (err) {
-                    // eslint-disable-next-line no-console
-                    console.error('[DEBUG] ❌ Unexpected error accessing cold object:', err.message, err.name);
-                    return next(err);
-                }
-                // eslint-disable-next-line no-console
-                console.error('[DEBUG] ❌ Object should be inaccessible but isn\'t - cold storage may have failed');
-                return next(new Error('Object should be in cold storage but is still accessible'));
-            });
-        },
-        next => {
-            // eslint-disable-next-line no-console
-            console.log('[DEBUG] 🔄 Step 2: Initiating object restoration');
-            sourceClient.putRestoreObject(versionId, (err) => {
-                if (err) {
-                    // eslint-disable-next-line no-console
-                    console.error('[DEBUG] ❌ Failed to initiate restoration:', err.message);
-                } else {
-                    // eslint-disable-next-line no-console
-                    console.log('[DEBUG] ✅ Restoration initiated successfully');
-                }
-                next(err);
-            });
-        },
-        next => {
-            // eslint-disable-next-line no-console
-            console.log('[DEBUG] ⏳ Step 3: Waiting for restoration to complete');
-            sourceClient.waitUntilRestored(versionId, (err) => {
-                if (err) {
-                    // eslint-disable-next-line no-console
-                    console.error('[DEBUG] ❌ Restoration failed after', err.message);
-                } else {
-                    // eslint-disable-next-line no-console
-                    console.log('[DEBUG] ✅ Restoration completed successfully');
-                }
-                next(err);
-            });
-        },
-    ], (err) => {
-        if (err) {
-            // eslint-disable-next-line no-console
-            console.error('[DEBUG] ❌ Restoration process failed:', err.message);
-        } else {
-            // eslint-disable-next-line no-console
-            console.log('[DEBUG] ✅ Restoration process completed successfully');
-        }
-        cb(err);
-    });
+        next => sourceClient.getObject(versionId, err => {
+            assert.strictEqual(err.Code, 'InvalidObjectState');
+            assert.strictEqual(err.$metadata?.httpStatusCode, 403);
+            return next();
+        }),
+        next => sourceClient.putRestoreObject(versionId, next),
+        next => sourceClient.waitUntilRestored(versionId, next),
+    ], cb);
 }
 
 function checkTransition(destination, sourceClient, destinationClient, versionId, cb) {
@@ -241,10 +127,10 @@ testsToRun.forEach(test => {
                 },
             ], err => {
                 if (err || (!this.currentTest.isPending() && !this.currentTest.isPassed())) {
+                    const testName = this.currentTest.fullTitle();
+                    const retry = this.currentTest.currentRetry();
                     // eslint-disable-next-line no-console
-                    console.error('[DEBUG] ❌ Test failed, gathering debug information:', err.message, err.name);
-                    // const testName = this.currentTest.fullTitle();
-                    // const retry = this.currentTest.currentRetry();
+                    console.log(`   FAILED ${testName} [retry #${retry}] : ${srcBucket}`);
                 }
                 done(err);
             });
@@ -255,6 +141,7 @@ testsToRun.forEach(test => {
 
             it('should transition a 0 byte object', done => {
                 const key = `${prefix}nover-0-byte-object`;
+
                 cloudServer.setKey(key);
                 cloud.setKey(`${srcBucket}/${key}`);
                 series([
@@ -264,9 +151,7 @@ testsToRun.forEach(test => {
                 ], done);
             }).retries(3);
 
-            it.only('should transition an object', done => {
-                // eslint-disable-next-line no-console
-                console.log('Starting transition');
+            it('should transition an object', done => {
                 const key = `${prefix}nover-object`;
                 cloudServer.setKey(key);
                 cloud.setKey(`${srcBucket}/${key}`);
