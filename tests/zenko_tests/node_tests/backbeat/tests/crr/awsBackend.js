@@ -670,7 +670,7 @@ describe('Replication with AWS backend', function () {
         ),
     ], done));
 
-    it.only('should replicate an object with cache control', done => series([
+    it('should replicate an object with cache control', done => series([
         next => {
             // eslint-disable-next-line no-console
             console.log('Putting object with cache control');
