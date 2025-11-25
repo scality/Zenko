@@ -185,6 +185,7 @@ class ReplicationUtility {
         }))
             .then(data => cb(null, data))
             .catch(err => {
+                // eslint-disable-next-line no-console
                 console.log('Error in putObjectWithCacheControl:', err);
                 cb(err);
             });

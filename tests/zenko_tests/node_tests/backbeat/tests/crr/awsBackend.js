@@ -287,7 +287,8 @@ describe('Replication with AWS backend', function () {
         ], done);
     });
 
-    it('should replicate deleting object tags of the latest version',
+    it(
+        'should replicate deleting object tags of the latest version',
         done => series([
             next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next),
             next => scalityUtils.compareObjectsAWS(
@@ -323,7 +324,8 @@ describe('Replication with AWS backend', function () {
         ], done),
     );
 
-    it('should replicate deleting object tags of a previous version',
+    it(
+        'should replicate deleting object tags of a previous version',
         done => {
             let firstVersionScality = null;
             let firstVersionAWS = null;
