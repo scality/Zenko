@@ -184,7 +184,10 @@ class ReplicationUtility {
             Body: content,
         }))
             .then(data => cb(null, data))
-            .catch(cb);
+            .catch(err => {
+                console.log('Error in putObjectWithCacheControl:', err);
+                cb(err);
+            });
     }
 
     putObjectWithContentDisposition(bucketName, objectName, content, cb) {
