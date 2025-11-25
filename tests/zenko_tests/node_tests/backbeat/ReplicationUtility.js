@@ -177,13 +177,19 @@ class ReplicationUtility {
     }
 
     putObjectWithCacheControl(bucketName, objectName, content, cb) {
+        // eslint-disable-next-line no-console
+        console.log('Putting object with cache control', { bucketName, objectName });
         this.s3.send(new PutObjectCommand({
             Bucket: bucketName,
             Key: objectName,
             CacheControl: 'test-cache-control',
             Body: content,
         }))
-            .then(data => cb(null, data))
+            .then(data => {
+                // eslint-disable-next-line no-console
+                console.log('PutObjectWithCacheControl data:', data);
+                cb(null, data);
+            })
             .catch(err => {
                 // eslint-disable-next-line no-console
                 console.log('Error in putObjectWithCacheControl:', err);

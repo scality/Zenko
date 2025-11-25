@@ -671,12 +671,22 @@ describe('Replication with AWS backend', function () {
     ], done));
 
     it.only('should replicate an object with cache control', done => series([
+        next =>{
+            // eslint-disable-next-line no-console
+            console.log('Putting object with cache control');
+            return next();
+        },
         next => scalityUtils.putObjectWithCacheControl(
             srcBucket,
             key,
             Buffer.alloc(1),
             next,
         ),
+        next => {
+            // eslint-disable-next-line no-console
+            console.log('Comparing object with cache control');
+            return next();
+        },
         next => scalityUtils.compareObjectsAWS(
             srcBucket,
             destBucket,
@@ -684,6 +694,11 @@ describe('Replication with AWS backend', function () {
             'CacheControl',
             next,
         ),
+        next => {
+            // eslint-disable-next-line no-console
+            console.log('Completed comparing object with cache control');
+            return next();
+        },
     ], done));
 
     it('should replicate an object with content disposition', done => series([
