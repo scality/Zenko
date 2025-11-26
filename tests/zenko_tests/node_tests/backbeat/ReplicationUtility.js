@@ -499,11 +499,15 @@ class ReplicationUtility {
     }
 
     getObject(bucketName, objName, cb) {
+        // eslint-disable-next-line no-console
+        console.log('Getting object', { bucketName, objName });
         this.s3.send(new GetObjectCommand({
             Bucket: bucketName,
             Key: objName,
         }))
             .then(async (data) => {
+                // eslint-disable-next-line no-console
+                console.log('Got object', data);
                 if (data.Body) {
                     const chunks = [];
                     // eslint-disable-next-line no-restricted-syntax
@@ -512,6 +516,8 @@ class ReplicationUtility {
                     }
                     data.Body = Buffer.concat(chunks);
                 }
+                // eslint-disable-next-line no-console
+                console.log('Got object successfully', data);
                 cb(null, data);
             })
             .catch(cb);
@@ -880,6 +886,9 @@ class ReplicationUtility {
                 .getObject(destBucket, `${srcBucket}/${key}`, next),
         ], (err, data) => {
             this._setS3Client(scalityS3Client);
+
+            // eslint-disable-next-line no-console
+            console.log('got response', err, data);
             if (err) {
                 return cb(err);
             }
