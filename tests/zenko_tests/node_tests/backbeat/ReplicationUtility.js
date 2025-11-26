@@ -517,7 +517,7 @@ class ReplicationUtility {
                     console.log('Stream state:', {
                         readable: data.Body.readable,
                         readableEnded: data.Body.readableEnded,
-                        readableLength: data.Body.readableLength
+                        readableLength: data.Body.readableLength,
                     });
                     data.Body.on('error', (err) => {
                         // eslint-disable-next-line no-console
@@ -528,6 +528,7 @@ class ReplicationUtility {
                         console.log('Stream end event');
                     });
                     data.Body.on('close', () => {
+                        // eslint-disable-next-line no-console
                         console.log('Stream close event');
                     });
                     const chunks = [];
