@@ -172,8 +172,16 @@ class ReplicationUtility {
             Metadata: { customKey: 'customValue' },
             Body: content,
         }))
-            .then(data => cb(null, data))
-            .catch(cb);
+            .then(data => {
+                // eslint-disable-next-line no-console
+                console.log('PutObjectWithUserMetadata data:', data);
+                cb(null, data);
+            })
+            .catch(err => {
+                // eslint-disable-next-line no-console
+                console.log('Error in putObjectWithUserMetadata:', err);
+                cb(err);
+            });
     }
 
     putObjectWithCacheControl(bucketName, objectName, content, cb) {
@@ -204,8 +212,16 @@ class ReplicationUtility {
             ContentDisposition: 'test-content-disposition',
             Body: content,
         }))
-            .then(data => cb(null, data))
-            .catch(cb);
+            .then(data => {
+                // eslint-disable-next-line no-console
+                console.log('PutObjectWithContentDisposition data:', data);
+                cb(null, data)
+            })
+            .catch(err => {
+                // eslint-disable-next-line no-console
+                console.log('Error in putObjectWithContentDisposition:', err);
+                cb(err);
+            });
     }
 
     putObjectWithContentEncoding(bucketName, objectName, content, cb) {
@@ -226,8 +242,16 @@ class ReplicationUtility {
             ContentLanguage: 'test-content-language',
             Body: content,
         }))
-            .then(data => cb(null, data))
-            .catch(cb);
+            .then(data => {
+                // eslint-disable-next-line no-console
+                console.log('PutObjectWithContentLanguage data:', data);
+                cb(null, data);
+            })
+            .catch(err => {
+                // eslint-disable-next-line no-console
+                console.log('Error in putObjectWithContentLanguage:', err);
+                cb(err);
+            });
     }
 
     putObjectWithProperties(bucketName, objectName, content, cb) {

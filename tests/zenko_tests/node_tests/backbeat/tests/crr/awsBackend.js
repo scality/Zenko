@@ -639,12 +639,22 @@ describe('Replication with AWS backend', function () {
     );
 
     it('should replicate an object with custom user metadata', done => series([
+        next => {
+            // eslint-disable-next-line no-console
+            console.log('Putting object with user metadata');
+            return next();
+        },
         next => scalityUtils.putObjectWithUserMetadata(
             srcBucket,
             key,
             Buffer.alloc(1),
             next,
         ),
+        next => {
+            // eslint-disable-next-line no-console
+            console.log('Comparing object with user metadata');
+            return next();
+        },
         next => scalityUtils.compareObjectsAWS(
             srcBucket,
             destBucket,
@@ -652,6 +662,11 @@ describe('Replication with AWS backend', function () {
             'Metadata',
             next,
         ),
+        next => {
+            // eslint-disable-next-line no-console
+            console.log('Completed comparing object with user metadata');
+            return next();
+        },
     ], done));
 
     it('should replicate an object with content-type', done => series([
@@ -702,12 +717,22 @@ describe('Replication with AWS backend', function () {
     ], done));
 
     it('should replicate an object with content disposition', done => series([
+        next => {
+            // eslint-disable-next-line no-console
+            console.log('Putting object with content disposition');
+            return next();
+        },
         next => scalityUtils.putObjectWithContentDisposition(
             srcBucket,
             key,
             Buffer.alloc(1),
             next,
         ),
+        next => {
+            // eslint-disable-next-line no-console
+            console.log('Comparing object with content disposition');
+            return next();
+        },
         next => scalityUtils.compareObjectsAWS(
             srcBucket,
             destBucket,
@@ -715,6 +740,11 @@ describe('Replication with AWS backend', function () {
             'ContentDisposition',
             next,
         ),
+        next => {
+            // eslint-disable-next-line no-console
+            console.log('Completed comparing object with content disposition');
+            return next();
+        },
     ], done));
 
     it('should replicate an object with content encoding', done => series([
@@ -734,12 +764,22 @@ describe('Replication with AWS backend', function () {
     ], done));
 
     it('should replicate an object with content language', done => series([
+        next => {
+            // eslint-disable-next-line no-console
+            console.log('Putting object with content language');
+            return next();
+        },
         next => scalityUtils.putObjectWithContentLanguage(
             srcBucket,
             key,
             Buffer.alloc(1),
             next,
         ),
+        next => {
+            // eslint-disable-next-line no-console
+            console.log('Comparing object with content language');
+            return next();
+        },
         next => scalityUtils.compareObjectsAWS(
             srcBucket,
             destBucket,
@@ -747,6 +787,11 @@ describe('Replication with AWS backend', function () {
             'ContentLanguage',
             next,
         ),
+        next => {
+            // eslint-disable-next-line no-console
+            console.log('Completed comparing object with content language');
+            return next();
+        },
     ], done));
 
     it('should replicate an object copy with custom user metadata', done => series([
