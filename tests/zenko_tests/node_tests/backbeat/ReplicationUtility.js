@@ -215,7 +215,7 @@ class ReplicationUtility {
             .then(data => {
                 // eslint-disable-next-line no-console
                 console.log('PutObjectWithContentDisposition data:', data);
-                cb(null, data)
+                cb(null, data);
             })
             .catch(err => {
                 // eslint-disable-next-line no-console
