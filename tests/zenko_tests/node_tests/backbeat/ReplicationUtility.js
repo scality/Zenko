@@ -509,6 +509,27 @@ class ReplicationUtility {
                 // eslint-disable-next-line no-console
                 console.log('Got object', data);
                 if (data.Body) {
+                    // eslint-disable-next-line no-console
+                    console.log('Body type:', typeof data.Body);
+                    // eslint-disable-next-line no-console
+                    console.log('Is readable stream:', data.Body.readable);
+                    // eslint-disable-next-line no-console
+                    console.log('Stream state:', {
+                        readable: data.Body.readable,
+                        readableEnded: data.Body.readableEnded,
+                        readableLength: data.Body.readableLength
+                    });
+                    data.Body.on('error', (err) => {
+                        // eslint-disable-next-line no-console
+                        console.error('Stream error event:', err);
+                    });
+                    data.Body.on('end', () => {
+                        // eslint-disable-next-line no-console
+                        console.log('Stream end event');
+                    });
+                    data.Body.on('close', () => {
+                        console.log('Stream close event');
+                    });
                     const chunks = [];
                     // eslint-disable-next-line no-restricted-syntax
                     for await (const chunk of data.Body) {
