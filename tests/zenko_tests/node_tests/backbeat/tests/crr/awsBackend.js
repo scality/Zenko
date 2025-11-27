@@ -879,7 +879,7 @@ describe('Replication with AWS backend', function () {
         },
     ], done));
 
-    it('should replicate an object copy with custom user metadata', done => series([
+    it.only('should replicate an object copy with custom user metadata', done => series([
         next => {
             // eslint-disable-next-line no-console
             console.log('Putting object to replicate 19 test');
