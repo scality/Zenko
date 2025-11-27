@@ -46,6 +46,11 @@ describe('Replication with AWS backend', function () {
     ], done));
 
     it('should replicate an object', done => series([
+        next => {
+            // eslint-disable-next-line no-console
+            console.log('Putting object to replicate first test');
+            return next();
+        },
         next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next),
         next => scalityUtils.compareObjectsAWS(
             srcBucket,
@@ -57,6 +62,11 @@ describe('Replication with AWS backend', function () {
     ], done));
 
     it('should replicate a zero byte object', done => series([
+        next => {
+            // eslint-disable-next-line no-console
+            console.log('Putting object to replicate second test');
+            return next();
+        },
         next => scalityUtils.putObject(srcBucket, key, undefined, next),
         next => scalityUtils.compareObjectsAWS(
             srcBucket,
@@ -86,6 +96,11 @@ describe('Replication with AWS backend', function () {
     ], done));
 
     it('should replicate a copied object', done => series([
+        next => {
+            // eslint-disable-next-line no-console
+            console.log('Putting object to replicate third test');
+            return next();
+        },
         next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next),
         next => scalityUtils.copyObject(srcBucket, copySource, copyKey, next),
         next => scalityUtils.compareObjectsAWS(
@@ -105,6 +120,11 @@ describe('Replication with AWS backend', function () {
     ], done));
 
     it('should replicate a MPU object: single 0 byte part', done => series([
+        next => {
+            // eslint-disable-next-line no-console
+            console.log('Putting object to replicate fourth test');
+            return next();
+        },
         next => scalityUtils.completeSinglePartMPU(srcBucket, key, 0, next),
         next => scalityUtils.compareObjectsAWS(
             srcBucket,
@@ -116,6 +136,11 @@ describe('Replication with AWS backend', function () {
     ], done));
 
     it('should replicate a MPU object: single 1 byte part', done => series([
+        next => {
+            // eslint-disable-next-line no-console
+            console.log('Putting object to replicate fifth test');
+            return next();
+        },
         next => scalityUtils.completeSinglePartMPU(srcBucket, key, 1, next),
         next => scalityUtils.compareObjectsAWS(
             srcBucket,
@@ -181,6 +206,11 @@ describe('Replication with AWS backend', function () {
     // Object ACLs would not be applicable on AWS: they should not
     // trigger a replication task at all (i.e. stay in COMPLETED status)
     it('should not replicate object ACL', done => series([
+        next => {
+            // eslint-disable-next-line no-console
+            console.log('Putting object to replicate seventh test');
+            return next();
+        },
         next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next),
         next => scalityUtils.compareACLsAWS(srcBucket, destBucket, key, next),
         next => scalityUtils.putObjectACL(srcBucket, key, next),
@@ -195,6 +225,11 @@ describe('Replication with AWS backend', function () {
 
     it('should put delete marker on destination bucket when deleting the '
     + 'source object', done => series([
+        next => {
+            // eslint-disable-next-line no-console
+            console.log('Putting object to replicate 8 test');
+            return next();
+        },
         next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next),
         next => scalityUtils.compareObjectsAWS(
             srcBucket,
@@ -209,6 +244,11 @@ describe('Replication with AWS backend', function () {
     ], done));
 
     it('should replicate object tags of the latest version', done => series([
+        next => {
+            // eslint-disable-next-line no-console
+            console.log('Putting object to replicate ninth test');
+            return next();
+        },
         next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next),
         next => scalityUtils.compareObjectsAWS(
             srcBucket,
@@ -232,6 +272,11 @@ describe('Replication with AWS backend', function () {
         let firstVersionScality = null;
         let firstVersionAWS = null;
         return series([
+            next => {
+                // eslint-disable-next-line no-console
+                console.log('Putting object to replicate tenth test');
+                return next();
+            },
             next => scalityUtils.putObject(
                 srcBucket,
                 key,
@@ -290,6 +335,11 @@ describe('Replication with AWS backend', function () {
     it(
         'should replicate deleting object tags of the latest version',
         done => series([
+            next => {
+                // eslint-disable-next-line no-console
+                console.log('Putting object to replicate 11 test');
+                return next();
+            },
             next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next),
             next => scalityUtils.compareObjectsAWS(
                 srcBucket,
@@ -330,6 +380,11 @@ describe('Replication with AWS backend', function () {
             let firstVersionScality = null;
             let firstVersionAWS = null;
             return series([
+                next => {
+                    // eslint-disable-next-line no-console
+                    console.log('Putting object to replicate 12 test');
+                    return next();
+                },
                 next => scalityUtils.putObject(
                     srcBucket,
                     key,
@@ -641,6 +696,11 @@ describe('Replication with AWS backend', function () {
     it('should replicate an object with custom user metadata', done => series([
         next => {
             // eslint-disable-next-line no-console
+            console.log('Putting object to replicate 13 test');
+            return next();
+        },
+        next => {
+            // eslint-disable-next-line no-console
             console.log('Putting object with user metadata');
             return next();
         },
@@ -670,6 +730,11 @@ describe('Replication with AWS backend', function () {
     ], done));
 
     it('should replicate an object with content-type', done => series([
+        next => {
+            // eslint-disable-next-line no-console
+            console.log('Putting object to replicate 14 test');
+            return next();
+        },
         next => scalityUtils.putObjectWithContentType(
             srcBucket,
             key,
@@ -686,6 +751,11 @@ describe('Replication with AWS backend', function () {
     ], done));
 
     it('should replicate an object with cache control', done => series([
+        next => {
+            // eslint-disable-next-line no-console
+            console.log('Putting object to replicate 15 test');
+            return next();
+        },
         next => {
             // eslint-disable-next-line no-console
             console.log('Putting object with cache control');
@@ -719,6 +789,11 @@ describe('Replication with AWS backend', function () {
     it('should replicate an object with content disposition', done => series([
         next => {
             // eslint-disable-next-line no-console
+            console.log('Putting object to replicate 16 test');
+            return next();
+        },
+        next => {
+            // eslint-disable-next-line no-console
             console.log('Putting object with content disposition');
             return next();
         },
@@ -748,6 +823,11 @@ describe('Replication with AWS backend', function () {
     ], done));
 
     it('should replicate an object with content encoding', done => series([
+        next => {
+            // eslint-disable-next-line no-console
+            console.log('Putting object to replicate 17 test');
+            return next();
+        },
         next => scalityUtils.putObjectWithContentEncoding(
             srcBucket,
             key,
@@ -764,6 +844,11 @@ describe('Replication with AWS backend', function () {
     ], done));
 
     it('should replicate an object with content language', done => series([
+        next => {
+            // eslint-disable-next-line no-console
+            console.log('Putting object to replicate 18 test');
+            return next();
+        },
         next => {
             // eslint-disable-next-line no-console
             console.log('Putting object with content language');
@@ -795,6 +880,11 @@ describe('Replication with AWS backend', function () {
     ], done));
 
     it('should replicate an object copy with custom user metadata', done => series([
+        next => {
+            // eslint-disable-next-line no-console
+            console.log('Putting object to replicate 19 test');
+            return next();
+        },
         next => scalityUtils.putObjectWithUserMetadata(
             srcBucket,
             key,
@@ -819,6 +909,11 @@ describe('Replication with AWS backend', function () {
     ], done));
 
     it('should replicate an object copy with content-type', done => series([
+        next => {
+            // eslint-disable-next-line no-console
+            console.log('Putting object to replicate 20 test');
+            return next();
+        },
         next => scalityUtils.putObjectWithContentType(
             srcBucket,
             key,
@@ -843,6 +938,11 @@ describe('Replication with AWS backend', function () {
     ], done));
 
     it('should replicate an object copy with cache control', done => series([
+        next => {
+            // eslint-disable-next-line no-console
+            console.log('Putting object to replicate 21 test');
+            return next();
+        },
         next => scalityUtils.putObjectWithCacheControl(
             srcBucket,
             key,
@@ -867,6 +967,11 @@ describe('Replication with AWS backend', function () {
     ], done));
 
     it('should replicate an object copy with content disposition', done => series([
+        next => {
+            // eslint-disable-next-line no-console
+            console.log('Putting object to replicate 22 test');
+            return next();
+        },
         next => scalityUtils.putObjectWithContentDisposition(
             srcBucket,
             key,
@@ -891,6 +996,11 @@ describe('Replication with AWS backend', function () {
     ], done));
 
     it('should replicate an object copy with content encoding', done => series([
+        next => {
+            // eslint-disable-next-line no-console
+            console.log('Putting object to replicate 23 test');
+            return next();
+        },
         next => scalityUtils.putObjectWithContentEncoding(
             srcBucket,
             key,
@@ -915,6 +1025,11 @@ describe('Replication with AWS backend', function () {
     ], done));
 
     it('should replicate an object copy with content language', done => series([
+        next => {
+            // eslint-disable-next-line no-console
+            console.log('Putting object to replicate 24 test');
+            return next();
+        },
         next => scalityUtils.putObjectWithContentLanguage(
             srcBucket,
             key,
