@@ -85,7 +85,7 @@ describe('Replication with AWS backend', function () {
         ),
     ], done));
 
-    it.only('should replicate a copied object', done => series([
+    it('should replicate a copied object', done => series([
         next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next),
         next => scalityUtils.copyObject(srcBucket, copySource, copyKey, next),
         next => scalityUtils.compareObjectsAWS(
