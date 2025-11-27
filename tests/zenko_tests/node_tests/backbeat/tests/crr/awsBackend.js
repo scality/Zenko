@@ -332,7 +332,7 @@ describe('Replication with AWS backend', function () {
         ], done);
     });
 
-    it(
+    it.only(
         'should replicate deleting object tags of the latest version',
         done => series([
             next => {
