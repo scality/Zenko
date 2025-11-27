@@ -537,6 +537,7 @@ class ReplicationUtility {
                         chunks.push(chunk);
                     }
                     data.Body = Buffer.concat(chunks);
+                    // eslint-disable-next-line no-console
                     console.log('Completed reading stream, total length:', data.Body);
                 }
                 // eslint-disable-next-line no-console
