@@ -80,7 +80,7 @@ mongodb-connector:
 pensieve-api:
   sourceRegistry: ghcr.io/scality
   image: pensieve-api
-  tag: 1.7.1
+  tag: 6dd0113635365d54bf6300d1c7455338a931ba19
   envsubst: PENSIEVE_API_TAG
 rclone:
   sourceRegistry: rclone
