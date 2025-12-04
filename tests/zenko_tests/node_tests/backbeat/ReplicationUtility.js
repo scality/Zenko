@@ -713,7 +713,7 @@ class ReplicationUtility {
                         `Unexpected CRR failure occurred: ${JSON.stringify(data)}`,
                     );
                     if (status === 'PENDING' || status === 'PROCESSING') {
-                        return setTimeout(() => cbOnce(null, status), 2000);
+                        return setTimeout(() => cbOnce(null, status), 4000);
                     }
                     return cbOnce(null, status);
                 })

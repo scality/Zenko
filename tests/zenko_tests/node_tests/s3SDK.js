@@ -67,7 +67,7 @@ const ringS3Client = new S3Client({
     },
     tls: false,
     endpoint: process.env.RING_S3C_ENDPOINT,
-    region: 'us-east-1',
+    region: process.env.RING_S3C_REGION || 'us-east-1',
     forcePathStyle: true,
     maxAttempts: 1,
     requestHandler: sharedHttpHandler,
