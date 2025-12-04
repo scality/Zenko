@@ -216,8 +216,21 @@ test.each([
                     name: "Release " + tag,
                     body: "something changed",
                     prerelease: tag === '2.3.7-rc.1',
+                    draft: true,
                 })
                 .reply({ status: 201, data: {
+                    id: 123,
+                    upload_url: 'http://uploads.github.com/repos/scality/Zenko/releases/456/assets{?name,label}',
+                    html_url: 'http://github.com/repos/scality/Zenko/releases/456',
+                }}),
+            moctokit.rest.repos
+                .updateRelease({
+                    owner: "scality",
+                    repo: "Zenko",
+                    draft: false,
+                    release_id: 123,
+                })
+                .reply({ status: 200, data: {
                     id: 123,
                     upload_url: 'http://uploads.github.com/repos/scality/Zenko/releases/456/assets{?name,label}',
                     html_url: 'http://github.com/repos/scality/Zenko/releases/456',
