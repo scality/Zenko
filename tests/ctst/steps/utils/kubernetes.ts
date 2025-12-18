@@ -193,15 +193,20 @@ export async function createAndRunPod(
 ) {
     const clientCore = createKubeCoreClient(world);
     const watchClient = createKubeWatchClient(world);
+    console.log(`[createAndRunPod 0] Pod manifesr: ${podManifest}`);
 
     try {
         const response = await clientCore.createNamespacedPod('default', podManifest);
         const podName = response.body.metadata?.name;
+        console.log(`[createAndRunPod 1] Pod created metadata: ${response.body.metadata}`);
+        console.log(`[createAndRunPod 2] Pod created: ${podName}`);
         if (waitForCompletion && podName) {
             world.logger.debug('Waiting for pod completion', { podName });
+            console.log(`[createAndRunPod 3] Waiting for pod completion: ${podName}`);
 
             await new Promise<void>((resolve, reject) => {
                 const timeoutId = setTimeout(() => {
+                    console.log(`[createAndRunPod 4] Pod timeout: ${podName} did not complete within ${timeout}ms`);
                     reject(new Error(`Pod ${podName} did not complete within ${timeout}ms`));
                 }, timeout);
 
@@ -212,23 +217,28 @@ export async function createAndRunPod(
                         if (watchObj.object?.metadata?.name === podName) {
                             const phase = watchObj.object?.status?.phase;
                             world.logger.debug('Pod status update', { podName, phase });
+                            console.log(`[createAndRunPod 5] Pod status update: ${podName}, phase: ${phase}`);
                             
                             if (phase === 'Succeeded') {
                                 clearTimeout(timeoutId);
                                 world.logger.debug('Pod completed successfully', { podName });
+                                console.log(`[createAndRunPod 6] Pod completed successfully: ${podName}`);
                                 resolve();
                             } else if (phase === 'Failed') {
                                 clearTimeout(timeoutId);
+                                const status = JSON.stringify(watchObj.object?.status);
                                 world.logger.error('Pod failed', { 
                                     podName, 
                                     status: watchObj.object?.status 
                                 });
+                                console.log(`[createAndRunPod 7] Pod failed: ${podName}, status: ${status}`);
                                 reject(new Error(`Pod ${podName} failed`));
                             }
                         }
                     },
                     err => {
                         world.logger.debug('Watch error callback triggered', { podName, err });
+                        console.log(`[createAndRunPod 8] Watch error callback triggered: ${podName}`, err);
                         clearTimeout(timeoutId);
                         reject(err);
                     }
@@ -239,16 +249,19 @@ export async function createAndRunPod(
         // Cleanup if requested
         if (cleanup && podName) {
             world.logger.debug('Cleaning up pod', { podName });
+            console.log(`[createAndRunPod 9] Cleaning up pod: ${podName}`);
             try {
                 await clientCore.deleteNamespacedPod(podName, 'default');
             } catch (cleanupErr) {
                 world.logger.warn('Failed to cleanup pod', { podName, err: cleanupErr });
+                console.log(`[createAndRunPod 11] Failed to cleanup pod: ${podName}`, cleanupErr);
             }
         }
 
         return response.body;
     } catch (err: unknown) {
         world.logger.error('Failed to create and run pod:', { err });
+        console.log('[createAndRunPod 12] Failed to create and run pod:', err);
         throw new Error(`Failed to create and run pod: ${err}`);
     }
 }
