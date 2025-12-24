@@ -50,7 +50,7 @@ Feature: Bucket notifications
   @PreMerge
   @Flaky
   @BucketNotification
-  Scenario Outline: Recieve notification for configured events
+  Scenario Outline: Receive notification for configured events
     Given a "<versioningConfiguration>" bucket
     And one notification destination
     When i subscribe to "<subscribedNotificationType>" notifications for destination <destination>
@@ -96,6 +96,23 @@ Feature: Bucket notifications
 
   @2.6.0
   @PreMerge
+  @Flaky
+  @BucketNotification
+  Scenario Outline: Receive notification for configured events in authenticated notification destinations
+    Given a "<versioningConfiguration>" bucket
+    And one authenticated notification destination
+    When i subscribe to "<subscribedNotificationType>" notifications for destination <destination>
+    And a "<notificationType>" event is triggered "<enable>" "<filterType>"
+    Then i should "<shouldReceive>" a notification for "<notificationType>" event in destination <destination>
+
+    Examples:
+      | versioningConfiguration |               subscribedNotificationType |                         notificationType |  enable | filterType  | shouldReceive | destination |
+      |           Non versioned |                       s3:ObjectCreated:* |                     s3:ObjectCreated:Put | without |      filter |       receive |           0 |
+      |               Versioned |                       s3:ObjectCreated:* |                    s3:ObjectCreated:Copy | without |      filter |       receive |           0 |
+      |   Versioning suspended  |                       s3:ObjectCreated:* |                     s3:ObjectCreated:Put | without |      filter |       receive |           0 |
+
+  @2.6.0
+  @PreMerge
   @BucketNotification
   Scenario Outline: Not recieving notification for non configured events
     Given a "<versioningConfiguration>" bucket
@@ -130,7 +147,7 @@ Feature: Bucket notifications
   @PreMerge
   @Flaky
   @BucketNotification
-  Scenario Outline: Recieve notification for configured events with correct filter
+  Scenario Outline: Receive notification for configured events with correct filter
     Given a "<versioningConfiguration>" bucket
     And one notification destination
     When i subscribe to "<notificationType>" notifications for destination <destination> with "<filterType>" filter
@@ -168,7 +185,7 @@ Feature: Bucket notifications
   @PreMerge
   @Flaky
   @BucketNotification
-  Scenario Outline: Recieve notification in multiple destinations
+  Scenario Outline: Receive notification in multiple destinations
     Given a "<versioningConfiguration>" bucket
     And two notification destinations
     When i subscribe to "<subscribedNotificationType>" notifications for destination <destination>

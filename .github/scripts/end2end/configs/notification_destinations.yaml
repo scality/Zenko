@@ -23,3 +23,21 @@ spec:
   host: ${NOTIF_KAFKA_HOST}
   port: ${NOTIF_KAFKA_PORT}
   destinationTopic: ${NOTIF_ALT_DEST_TOPIC}
+
+---
+
+apiVersion: zenko.io/v1alpha2
+kind: ZenkoNotificationTarget
+metadata:
+  name: ${NOTIF_AUTH_DEST_NAME}
+  labels:
+    app.kubernetes.io/instance: ${ZENKO_NAME}
+spec:
+  type: kafka
+  host: ${NOTIF_KAFKA_AUTH_HOST}
+  port: ${NOTIF_KAFKA_AUTH_PORT}
+  destinationTopic: ${NOTIF_AUTH_DEST_TOPIC}
+  auth: plain
+  plain:
+    username: ${NOTIF_AUTH_DEST_USERNAME}
+    password: ${NOTIF_AUTH_DEST_PASSWORD}

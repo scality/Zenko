@@ -59,6 +59,10 @@ DR_ADMIN_SECRET_ACCESS_KEY=$(kubectl get secret end2end-pra-management-vault-adm
 KAFKA_HOST_PORT=$(kubectl get secret -l app.kubernetes.io/name=backbeat-config,app.kubernetes.io/instance=end2end \
     -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq .kafka.hosts)
 KAFKA_HOST_PORT=${KAFKA_HOST_PORT:1:-1}
+KAFKA_PORT=${KAFKA_HOST_PORT#*:}
+
+KAFKA_AUTH_HOST="end2end-base-queue-auth-0"
+KAFKA_AUTH_HOST_PORT="$KAFKA_AUTH_HOST:$KAFKA_PORT"
 
 TIME_PROGRESSION_FACTOR=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath="{.metadata.annotations.zenko\.io/time-progression-factor}")
 INSTANCE_ID=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.status.instanceID}')
@@ -93,9 +97,14 @@ WORLD_PARAMETERS="$(jq -c <<EOF
   "NotificationDestinationTopic":"${NOTIF_DEST_TOPIC}",
   "NotificationDestinationAlt":"${NOTIF_ALT_DEST_NAME}",
   "NotificationDestinationTopicAlt":"${NOTIF_ALT_DEST_TOPIC}",
+  "NotificationDestinationAuth":"${NOTIF_AUTH_DEST_NAME}",
+  "NotificationDestinationTopicAuth":"${NOTIF_AUTH_DEST_TOPIC}",
+  "NotificationDestinationAuthUsername":"${NOTIF_AUTH_DEST_USERNAME}",
+  "NotificationDestinationAuthPassword":"${NOTIF_AUTH_DEST_PASSWORD}",
   "KafkaExternalIps": "${KAFKA_EXTERNAL_IP:-}",
   "PrometheusService":"${PROMETHEUS_NAME}-operated.default.svc.cluster.local",
   "KafkaHosts":"${KAFKA_HOST_PORT}",
+  "KafkaAuthHosts":"${KAFKA_AUTH_HOST_PORT}",
   "KeycloakUsername":"${KEYCLOAK_TEST_USER}",
   "KeycloakPassword":"${KEYCLOAK_TEST_PASSWORD}",
   "KeycloakHost":"${KEYCLOAK_TEST_HOST}",

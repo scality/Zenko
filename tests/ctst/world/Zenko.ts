@@ -55,8 +55,13 @@ export interface ZenkoWorldParameters extends ClientOptions {
     NotificationDestinationTopic: string;
     NotificationDestinationAlt: string;
     NotificationDestinationTopicAlt: string;
+    NotificationDestinationAuth: string;
+    NotificationDestinationTopicAuth: string;
+    NotificationDestinationAuthUsername: string;
+    NotificationDestinationAuthPassword: string;
     KafkaExternalIps: string;
     KafkaHosts: string;
+    KafkaAuthHosts: string;
     PrometheusService: string;
     KeycloakUsername: string;
     KeycloakPassword: string;
