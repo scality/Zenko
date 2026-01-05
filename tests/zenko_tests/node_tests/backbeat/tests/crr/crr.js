@@ -27,6 +27,25 @@ const roleName = process.env.CRR_ROLE_NAME;
 const sourceRole = `arn:aws:iam::${sourceInfo.AccountId}:role/${roleName}`;
 const destinationRole = `arn:aws:iam::${destinationInfo.AccountId}:role/${roleName}`;
 
+function sanitizeForS3Name(input) {
+    return String(input || '')
+        .toLowerCase()
+        .replace(/[^a-z0-9-]+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 40) || 'test';
+}
+
+function makeNames(prefix, testTitle) {
+    const testId = sanitizeForS3Name(testTitle);
+    const ts = Date.now();
+    return {
+        key: `${prefix}-key-${testId}-${ts}`,
+        srcBucket: `${prefix}-src-${testId}-${ts}`.slice(0, 63).replace(/-+$/g, ''),
+        destBucket: `${prefix}-dst-${testId}-${ts}`.slice(0, 63).replace(/-+$/g, ''),
+    };
+}
+
 describe('CRR', function () {
     this.timeout(300000);
     this.retries(3);
@@ -35,10 +54,11 @@ describe('CRR', function () {
     let destBucket;
     let key;
 
-    beforeEach(done => {
-        key = `crr-key-${Date.now()}`;
-        srcBucket = `crr-source-bucket-${Date.now()}`;
-        destBucket = `crr-destination-bucket-${Date.now()}`;
+    beforeEach(function (done) {
+        const names = makeNames('crr', this.currentTest && this.currentTest.title);
+        key = names.key;
+        srcBucket = names.srcBucket;
+        destBucket = names.destBucket;
         async.series([
             next => srcUtil.createVersionedBucket(srcBucket, next),
             next => destUtil.createVersionedBucket(destBucket, next),
@@ -52,11 +72,11 @@ describe('CRR', function () {
         ], done);
     });
 
-    afterEach(done => async.series([
-        next => srcUtil.deleteBucketReplication(srcBucket, next),
-        next => srcUtil.deleteVersionedBucket(srcBucket, next),
-        next => destUtil.deleteVersionedBucket(destBucket, next),
-    ], done));
+    // afterEach(done => async.series([
+    //     next => srcUtil.deleteBucketReplication(srcBucket, next),
+    //     next => srcUtil.deleteVersionedBucket(srcBucket, next),
+    //     next => destUtil.deleteVersionedBucket(destBucket, next),
+    // ], done));
 
     it('should replicate an object', done => async.series([
         next => srcUtil.putObjectWithUserMetadata(
@@ -153,7 +173,7 @@ describe('CRR', function () {
     it('should replicate object tags', done => async.series([
         next => srcUtil.putObject(
             srcBucket,
-            key,
+            'akey123test',
             Buffer.alloc(1),
             next,
         ),
@@ -161,13 +181,13 @@ describe('CRR', function () {
             srcBucket,
             destUtil,
             destBucket,
-            key,
+            'akey123test',
             undefined,
             next,
         ),
         next => srcUtil.putObjectTagging(
             srcBucket,
-            key,
+            'akey123test',
             undefined,
             next,
         ),
@@ -175,7 +195,7 @@ describe('CRR', function () {
             srcBucket,
             destUtil,
             destBucket,
-            key,
+            'akey123test',
             next,
         ),
     ], done));
@@ -284,10 +304,11 @@ describe('CRR Active-Active', function () {
     let destBucket;
     let key;
 
-    beforeEach(done => {
-        key = `crr-active-active-key-${Date.now()}`;
-        srcBucket = `crr-active-active-source-bucket-${Date.now()}`;
-        destBucket = `crr-active-active-destination-bucket-${Date.now()}`;
+    beforeEach(function (done) {
+        const names = makeNames('crr-aa', this.currentTest && this.currentTest.title);
+        key = names.key;
+        srcBucket = names.srcBucket;
+        destBucket = names.destBucket;
         async.series([
             next => srcUtil.createVersionedBucket(srcBucket, next),
             next => destUtil.createVersionedBucket(destBucket, next),
