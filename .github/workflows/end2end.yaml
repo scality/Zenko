@@ -396,11 +396,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: yarn
-          cache-dependency-path: tests/ctst/yarn.lock
       - name: Install ctst test dependencies
         working-directory: tests/ctst
-        run: yarn install
+        run: |
+          yarn install --frozen-lockfile || {
+            echo "Yarn install failed, cleaning cache and retrying..."
+            yarn cache clean
+            rm -rf node_modules ~/.cache/yarn
+            yarn install --frozen-lockfile
+          }
       - name: Lint ctst tests
         working-directory: tests/ctst
         run: yarn lint
