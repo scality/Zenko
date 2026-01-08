@@ -141,3 +141,43 @@ spec:
     multipleColdLocations: true
     backbeatGCVaultAuthorized: true
     enableVersionIdV2Format: true
+  capabilities:
+    lifecycleRules:
+      - Expiration
+      - NoncurrentVersionExpiration
+      - AbortIncompleteMultipartUpload
+      - Transition
+      - NoncurrentVersionTransition
+    locationTypeAzure: true
+    locationTypeCephRadosGW: true
+    locationTypeCold: true
+    locationTypeDigitalOcean: true
+    locationTypeGCP: true
+    locationTypeHyperdriveV2: true
+    locationTypeS3Custom: true
+    locationTypeSproxyd: true
+    locationTypes:
+      - location-azure-v1
+      - location-aws-s3-v1
+      - location-gcp-v1
+      - location-b2-v1
+      - location-wasabi-v1
+      - location-do-spaces-v1
+      - location-scality-ring-s3-v1
+      - location-scality-artesca-s3-v1
+      - location-scality-sproxyd-v1
+      - location-scality-hdclient-v1
+      - location-scality-hdclient-v2
+      - location-ceph-radosgw-s3-v1
+      - location-nfs-mount-v1
+      - location-dmf-v1
+      - location-miria-v1
+      - location-azure-archive-v1
+      - location-aws-glacier-v1
+      - location-scality-crr-v1
+    managedLifecycle: true
+    managedLifecycleTransition: true
+    preferredReadLocation: true
+    s3cIngestLocation: true
+    secureChannel: true
+    secureChannelOptimizedPath: true
