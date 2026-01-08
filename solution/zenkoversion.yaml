@@ -3,129 +3,125 @@
 apiVersion: zenko.io/v1alpha1
 kind: ZenkoVersion
 metadata:
-  name: '${VERSION_FULL}'
+  name: ${ZENKO_VERSION_NAME}
 spec:
   dashboards:
     backbeat:
-      image: backbeat-dashboards
-      tag: '${BACKBEAT_TAG}'
+      image: ${BACKBEAT_DASHBOARD}
+      tag: ${BACKBEAT_TAG}
     cloudserver:
-      image: cloudserver-dashboards
-      tag: '${CLOUDSERVER_TAG}'
+      image: ${CLOUDSERVER_DASHBOARD}
+      tag: ${CLOUDSERVER_TAG}
     kafka:
-      image: kafka-dashboard
-      tag: '${VERSION_FULL}'
+      image: ${KAFKA_DASHBOARD}
+      tag: ${ZENKO_VERSION_NAME}
     kafkaCleaner:
-      image: kafka-cleaner-dashboards
-      tag: '${KAFKA_CLEANER_TAG}'
+      image: ${KAFKA_CLEANER_DASHBOARD}
+      tag: ${KAFKA_CLEANER_TAG}
     kafkaConnect:
-      image: kafka-connect-dashboard
-      tag: '${VERSION_FULL}'
+      image: ${KAFKA_CONNECT_DASHBOARD}
+      tag: ${ZENKO_VERSION_NAME}
     mongodb:
-      image: mongodb-dashboard
-      tag: '${VERSION_FULL}'
+      image: ${MONGODB_DASHBOARD}
+      tag: ${ZENKO_VERSION_NAME}
     redis:
-      image: redis-dashboard
-      tag: '${VERSION_FULL}'
+      image: ${REDIS_DASHBOARD}
+      tag: ${ZENKO_VERSION_NAME}
     vault:
-      image: vault-dashboards
-      tag: '${VAULT_TAG}'
+      image: ${VAULT_DASHBOARD}
+      tag: ${VAULT_TAG}
     zookeeper:
-      image: zookeeper-dashboard
-      tag: '${VERSION_FULL}'
+      image: ${ZOOKEEPER_DASHBOARD}
+      tag: ${ZENKO_VERSION_NAME}
     s3utils:
-      image: s3utils-dashboards
-      tag: '${S3UTILS_TAG}'
+      image: ${S3UTILS_DASHBOARD}
+      tag: ${S3UTILS_TAG}
     scuba:
-      image: scuba-dashboards
-      tag: '${SCUBA_TAG}'
+      image: ${SCUBA_DASHBOARD}
+      tag: ${SCUBA_TAG}
     dr:
-      image: dr-dashboard
-      tag: '${VERSION_FULL}'
+      image: ${DR_DASHBOARD}
+      tag: ${ZENKO_VERSION_NAME}
   policies:
     backbeat:
-      image: backbeat-policies
-      tag: '${BACKBEAT_TAG}'
+      image: ${BACKBEAT_POLICY}
+      tag: ${BACKBEAT_TAG}
     sorbet:
-      image: sorbet-policies
-      tag: '${SORBET_TAG}'
+      image: ${SORBET_POLICY}
+      tag: ${SORBET_TAG}
     vault:
-      image: vault-policies
-      tag: '${VAULT_TAG}'
+      image: ${VAULT_POLICY}
+      tag: ${VAULT_TAG}
   versions:
     management:
       api:
-        image: pensieve-api
-        tag: '${PENSIEVE_API_TAG}'
+        image: ${PENSIEVE_API_IMAGE}
+        tag: ${PENSIEVE_API_TAG}
       pushAPI:
-        image: pensieve-api
-        tag: '${PENSIEVE_API_TAG}'
+        image: ${PENSIEVE_API_IMAGE}
+        tag: ${PENSIEVE_API_TAG}
     cloudserver:
-      image: cloudserver
-      tag: '${CLOUDSERVER_TAG}'
+      image: ${CLOUDSERVER_IMAGE}
+      tag: ${CLOUDSERVER_TAG}
     backbeat:
-      image: backbeat
-      tag: '${BACKBEAT_TAG}'
+      image: ${BACKBEAT_IMAGE}
+      tag: ${BACKBEAT_TAG}
     drctl:
-      image: zenko-drctl
+      image: ${DRCTL_IMAGE}
       tag: ${DRCTL_TAG}
-    utapi:
-      image: utapi
-      tag: '${UTAPI_TAG}'
     secureChannelProxy:
-      image: cloudserver
-      tag: '${CLOUDSERVER_TAG}'
+      image: ${CLOUDSERVER_IMAGE}
+      tag: ${CLOUDSERVER_TAG}
     localData:
-      image: cloudserver
-      tag: '${CLOUDSERVER_TAG}'
+      image: ${CLOUDSERVER_IMAGE}
+      tag: ${CLOUDSERVER_TAG}
     metrics:
-      image: cloudserver
-      tag: '${CLOUDSERVER_TAG}'
+      image: ${CLOUDSERVER_IMAGE}
+      tag: ${CLOUDSERVER_TAG}
     s3utils:
-      image: s3utils
-      tag: '${S3UTILS_TAG}'
+      image: ${S3UTILS_IMAGE}
+      tag: ${S3UTILS_TAG}
     scuba:
-      image: scuba
-      tag: '${SCUBA_TAG}'
+      image: ${SCUBA_IMAGE}
+      tag: ${SCUBA_TAG}
     sorbet:
-      image: sorbet
-      tag: '${SORBET_TAG}'
+      image: ${SORBET_IMAGE}
+      tag: ${SORBET_TAG}
     zookeeper:
-      image: zookeeper
-      tag: '${ZOOKEEPER_TAG}'
+      image: ${ZOOKEEPER_IMAGE}
+      tag: ${ZOOKEEPER_TAG}
     kafka:
       cleaner:
-        image: kafka-cleaner
-        tag: '${KAFKA_CLEANER_TAG}'
+        image: ${KAFKA_CLEANER_IMAGE}
+        tag: ${KAFKA_CLEANER_TAG}
       cluster:
-        image: kafka
-        tag: '${KAFKA_TAG}'
+        image: ${KAFKA_IMAGE}
+        tag: ${KAFKA_TAG}
       connect:
-        image: kafka-connect
-        tag: '${KAFKA_CONNECT_TAG}'
+        image: ${KAFKA_CONNECT_IMAGE}
+        tag: ${KAFKA_CONNECT_TAG}
       cruiseControl:
-        image: cruise-control
-        tag: '${KAFKA_CRUISECONTROL_TAG}'
+        image: ${KAFKA_CRUISECONTROL_IMAGE}
+        tag: ${KAFKA_CRUISECONTROL_TAG}
       lagExporter:
-        image: kafka-lag-exporter
-        tag: '${KAFKA_LAGEXPORTER_TAG}'
+        image: ${KAFKA_LAGEXPORTER_IMAGE}
+        tag: ${KAFKA_LAGEXPORTER_TAG}
       monitoring:
-        image: jmx-javaagent
-        tag: '${JMX_JAVAAGENT_TAG}'
+        image: ${JMX_JAVAAGENT_IMAGE}
+        tag: ${JMX_JAVAAGENT_TAG}
       listener:
-        image: haproxy
-        tag: '${HAPROXY_TAG}'
+        image: ${HAPROXY_IMAGE}
+        tag: ${HAPROXY_TAG}
     vault:
-      image: vault2
-      tag: '${VAULT_TAG}'
-    mongodb: '${MONGODB_TAG}'
+      image: ${VAULT_IMAGE}
+      tag: ${VAULT_TAG}
     redis:
       db:
-        image: redis
-        tag: '${REDIS_TAG}'
+        image: ${REDIS_IMAGE}
+        tag: ${REDIS_TAG}
       exporter:
-        image: redis_exporter
-        tag: '${REDIS_EXPORTER_TAG}'
+        image: ${REDIS_EXPORTER_IMAGE}
+        tag: ${REDIS_EXPORTER_TAG}
   defaults:
     backbeatConcurrency:
       lifecycleBucketProcessor: 30

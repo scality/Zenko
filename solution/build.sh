@@ -77,8 +77,15 @@ function zenko_operator_tag()
 
 function dependencies_versions_env()
 {
-    yq eval '.[] | .envsubst + "=" + .tag' deps.yaml
-    echo VERSION_FULL=${VERSION_FULL}
+    yq eval '.[] | select(.image)     | .envsubst + "=" + .image     | sub("_TAG=", "_IMAGE=")' deps.yaml
+    yq eval '.[] | select(.dashboard) | .envsubst + "=" + .dashboard | sub("_TAG=.*/", "_DASHBOARD=")' deps.yaml
+    yq eval '.[] | select(.policy)    | .envsubst + "=" + .policy | sub("_TAG=.*/", "_POLICY=")' deps.yaml
+    find ${REPOSITORY_DIR}/monitoring/ -mindepth 1 -maxdepth 1 -type d -print0 | while IFS= read -r -d '' folder ; do
+        local dashboard="${folder##*/}"
+        echo "$(tr a-z- A-Z_ <<< $dashboard)_DASHBOARD=${dashboard}-dashboard"
+    done
+    yq eval '.[] | select(.tag)       | .envsubst + "=" + .tag' deps.yaml
+    echo ZENKO_VERSION_NAME=${VERSION_FULL}
 }
 
 function copy_yamls()

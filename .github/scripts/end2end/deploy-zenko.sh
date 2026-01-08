@@ -7,7 +7,7 @@ DIR=$(dirname "$0")
 export ZENKO_NAME=${1:-end2end}
 export NAMESPACE=${2:-default}
 export ZENKO_CR_PATH=${3:-'./configs/zenko.yaml'}
-export ZENKOVERSION_PATH=${4:-'./configs/zenkoversion.yaml'}
+export ZENKOVERSION_PATH=${4:-'../../../solution/zenkoversion.yaml'}
 export DEPS_PATH=${5:-'../../../solution/deps.yaml'}
 export ZENKO_VERSION_NAME="${ZENKO_NAME}-version"
 export ZENKO_ANNOTATIONS=""
@@ -88,7 +88,7 @@ function dependencies_env()
     echo $(dependencies_dashboard_env)
     echo $(dependencies_policy_env)
     echo $(dependencies_config_env)
-    echo "ZENKO_VERSION_NAME=${ZENKO_NAME}-version"
+    echo "ZENKO_VERSION_NAME=${ZENKO_VERSION_NAME}"
 }
 
 create_encryption_secret()
@@ -130,7 +130,9 @@ create_encryption_secret()
 
 create_encryption_secret
 
-env $(dependencies_env) envsubst < ${ZENKOVERSION_PATH} | kubectl -n ${NAMESPACE} apply -f -
+env $(dependencies_env) envsubst < ${ZENKOVERSION_PATH} | \
+    yq "del(.spec.dashboards[] | select(.tag == \"${ZENKO_VERSION_NAME}\"))" | \
+    kubectl -n ${NAMESPACE} apply -f -
 env $(dependencies_env) envsubst < ${ZENKO_CR_PATH} | kubectl -n ${NAMESPACE} apply -f -
 
 # Fix Zookeeper memory issues on newer Ubuntu GHA runners
