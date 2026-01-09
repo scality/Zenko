@@ -60,7 +60,7 @@ runs:
             $(lsb_release -cs) \
             stable"
           sudo apt-get update
-          sudo apt-get install -y docker-ce docker-ce-cli containerd.io=2.2.0-2~ubuntu.24.04~noble
+          sudo apt-get install -y docker-ce docker-ce-cli containerd.io
           sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
           sudo echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
           sudo curl -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/${{ env.KIND_VERSION }}/kind-linux-amd64
