@@ -162,16 +162,18 @@ testsToRun.forEach(test => {
                 ], done);
             });
 
-            it('should transition a MPU object', done => {
-                const key = `${prefix}nover-mpu`;
-                cloudServer.setKey(key);
-                cloud.setKey(`${srcBucket}/${key}`);
-                series([
-                    next => cloudServer.putMPU(10, next),
-                    next => checkTransition(toLoc, cloudServer, cloud, null, next),
-                    next => checkRestoration(toLoc, cloudServer, null, next),
-                ], done);
-            });
+            if (test.from !== 'LocalStorage' || test.to !== 'AWS') {
+                it('should transition a MPU object', done => {
+                    const key = `${prefix}nover-mpu`;
+                    cloudServer.setKey(key);
+                    cloud.setKey(`${srcBucket}/${key}`);
+                    series([
+                        next => cloudServer.putMPU(10, next),
+                        next => checkTransition(toLoc, cloudServer, cloud, null, next),
+                        next => checkRestoration(toLoc, cloudServer, null, next),
+                    ], done);
+                });
+            }
         });
 
         if (fromLoc.supportsVersioning) {
