@@ -38,7 +38,7 @@ function checkRestoration(destination, sourceClient, versionId, cb) {
     }
     return series([
         next => sourceClient.getObject(versionId, err => {
-            assert.strictEqual(err.Code, 'InvalidObjectState');
+            assert.strictEqual(err.name, 'InvalidObjectState');
             assert.strictEqual(err.$metadata?.httpStatusCode, 403);
             return next();
         }),
