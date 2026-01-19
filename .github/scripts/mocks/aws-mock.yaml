@@ -57,7 +57,7 @@ metadata:
     component: mock
 spec:
   initContainers:
-  - image: zenko/cloudserver:latest
+  - image: ghcr.io/scality/playground/mbenzekri/cloudserver:9.2.14
     name: setup
     imagePullPolicy: Always
     command: ["tar", "-xvf", "/static-config/mock-metadata.tar.gz", "-C", "/usr/src/app"]
@@ -67,7 +67,7 @@ spec:
     - name: metadata
       mountPath: /usr/src/app/localMetadata
   containers:
-  - image: zenko/cloudserver:latest
+  - image: ghcr.io/scality/playground/mbenzekri/cloudserver:9.2.14
     name: aws-mock
     ports:
       - containerPort: 80
