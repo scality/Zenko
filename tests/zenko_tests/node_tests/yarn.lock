@@ -5307,7 +5307,7 @@ mocha-tags@^1.0.1:
     lodash "~2.4.1"
     minimist "~1.1.0"
 
-mocha@^10.0.0:
+mocha@^10.8.2:
   version "10.8.2"
   resolved "https://registry.yarnpkg.com/mocha/-/mocha-10.8.2.tgz#8d8342d016ed411b12a429eb731b825f961afb96"
   integrity sha512-VZlYo/WE8t1tstuRmqgeyBgCbJc/lEdopaa+axcKzTBJ+UIdlAB9XnmvTCAH4pwR4ElNInaedhEBmZD8iCSVEg==
