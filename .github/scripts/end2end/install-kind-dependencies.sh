@@ -51,11 +51,11 @@ helm repo add --force-update banzaicloud-stable https://kubernetes-charts.banzai
 		echo -n "::notice file=$(basename $0),line=$LINENO,title=Banzaicloud Charts not available::"
 		echo "Failed to add banzaicloud-stable repo, using local checkout"
 
-		kafa_operator="$(mktemp -d)"
+		kafka_operator="$(mktemp -d)"
 		git -c advice.detachedHead=false clone -q --depth 1 -b "v${KAFKA_OPERATOR_VERSION}" \
-            https://github.com/banzaicloud/koperator "${kafa_operator}"
+            https://github.com/banzaicloud/koperator "${kafka_operator}"
 
-		KAFKA_CHART="${kafa_operator}/charts/kafka-operator"
+		KAFKA_CHART="${kafka_operator}/charts/kafka-operator"
 	}
 helm repo update
 

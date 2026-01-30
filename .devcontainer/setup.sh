@@ -3,7 +3,19 @@
 set -e
 
 env_variables=$(yq eval '.env | to_entries | .[] | .key + "=" + .value' .github/workflows/end2end.yaml | sed 's/\${{[^}]*}}//g') && export $env_variables
-export GIT_ACCESS_TOKEN=${GITHUB_TOKEN}
+
+# In CI, GIT_ACCESS_TOKEN comes from a GitHub App token.
+# Locally, we need the user to provide one (usually via GITHUB_TOKEN).
+if [[ -z "${GIT_ACCESS_TOKEN:-}" ]]; then
+    export GIT_ACCESS_TOKEN="${GITHUB_TOKEN:-}"
+fi
+
+if [[ -z "${GIT_ACCESS_TOKEN:-}" ]]; then
+    echo "ERROR: Missing GitHub token. Set GITHUB_TOKEN (or GIT_ACCESS_TOKEN) with access to scality/zenko-operator." >&2
+    echo "Example: export GITHUB_TOKEN=ghp_***" >&2
+    exit 1
+fi
+
 export E2E_IMAGE_TAG=latest
 
 # Disable GCP tests as we don't have credentials setup in devcontainer
@@ -21,11 +33,27 @@ for i in $(seq 0 $array_length); do
     #step=$(yq ".runs.steps[$i]" .github/actions/deploy/action.yaml)
     working_dir=$(yq ".runs.steps[$i].working-directory" .github/actions/deploy/action.yaml)
     run_command=$(yq ".runs.steps[$i].run" .github/actions/deploy/action.yaml)
+    step_if=$(yq ".runs.steps[$i].if" .github/actions/deploy/action.yaml)
 
     # We don't want to run `run-e2e-test.sh` because it is used for linting here, user will run it manually if needed after deployment
     # We can't run `configure-e2e.sh` here because it needs an image that is not yet built and sent to kind, will be run after
     (
-        if [[ "$run_command" != "null" && "$run_command" != *"configure-e2e.sh"* && "$run_command" != *"run-e2e-test.sh"* ]]; then
+        should_run=true
+
+        # Best-effort support for composite action `if:` (CI evaluates these, local runner must emulate).
+        if [[ "$step_if" != "null" ]]; then
+            # Only conditional step in the deploy action today.
+            if [[ "$step_if" == *"inputs.deploy_metadata"* ]]; then
+                if [[ "${GITHUB_INPUTS_deploy_metadata:-false}" != "true" ]]; then
+                    should_run=false
+                fi
+            else
+                echo "Skipping step with unsupported condition: $step_if"
+                should_run=false
+            fi
+        fi
+
+        if [[ "$should_run" == "true" && "$run_command" != "null" && "$run_command" != *"configure-e2e.sh"* && "$run_command" != *"run-e2e-test.sh"* ]]; then
             # Inject env 'generated' from previous steps
             source "$GITHUB_ENV"
 

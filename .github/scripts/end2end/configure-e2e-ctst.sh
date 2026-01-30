@@ -3,6 +3,9 @@ set -exu
 
 # Setup test environment variables
 export ZENKO_NAME=${1:-"end2end"}
+export NAMESPACE=${NAMESPACE:-default}
+echo "=== Running configure-e2e-ctst.sh (ZENKO_NAME=${ZENKO_NAME}, NAMESPACE=${NAMESPACE}) ==="
+
 # Getting kafka host from backbeat's config
 KAFKA_HOST_PORT=$(kubectl get secret -l app.kubernetes.io/name=backbeat-config,app.kubernetes.io/instance=end2end \
     -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq .kafka.hosts)

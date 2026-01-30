@@ -8,6 +8,8 @@ ZENKO_NAME=${1:-end2end}
 E2E_IMAGE=${2:-ghcr.io/scality/zenko/zenko-e2e:latest}
 NAMESPACE=${3:-default}
 
+echo "=== Running configure-e2e.sh (ZENKO_NAME=${ZENKO_NAME}, E2E_IMAGE=${E2E_IMAGE}, NAMESPACE=${NAMESPACE}) ==="
+
 SERVICE_ACCOUNT="${ZENKO_NAME}-config"
 POD_NAME="${ZENKO_NAME}-config"
 MANAGEMENT_ENDPOINT="http://${ZENKO_NAME}-management-orbit-api:5001"
@@ -52,9 +54,32 @@ KAFKA_REGISTRY_NAME=$(yq eval ".kafka.sourceRegistry" ../../../solution/deps.yam
 KAFKA_IMAGE_NAME=$(yq eval ".kafka.image" ../../../solution/deps.yaml)
 KAFKA_IMAGE_TAG=$(yq eval ".kafka.tag" ../../../solution/deps.yaml)
 KAFKA_IMAGE=$KAFKA_REGISTRY_NAME/$KAFKA_IMAGE_NAME:$KAFKA_IMAGE_TAG
-KAFKA_HOST_PORT=$(kubectl get secret -l app.kubernetes.io/name=backbeat-config,app.kubernetes.io/instance=end2end \
-    -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq .kafka.hosts)
+
+BACKBEAT_CONFIG_SELECTOR="app.kubernetes.io/name=backbeat-config,app.kubernetes.io/instance=${ZENKO_NAME}"
+
+# backbeat-config is produced by the operator during reconciliation; wait for it.
+for i in $(seq 1 120); do
+  SECRET_NAME=$(kubectl -n ${NAMESPACE} get secret -l "${BACKBEAT_CONFIG_SELECTOR}" -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || true)
+  if [ -n "${SECRET_NAME}" ]; then
+    break
+  fi
+  sleep 5
+done
+
+if [ -z "${SECRET_NAME:-}" ]; then
+  echo "Timed out waiting for backbeat-config secret (selector: ${BACKBEAT_CONFIG_SELECTOR}) in namespace ${NAMESPACE}" >&2
+  kubectl -n ${NAMESPACE} get secret -l "${BACKBEAT_CONFIG_SELECTOR}" -o yaml || true
+  exit 1
+fi
+
+KAFKA_HOST_PORT=$(kubectl -n ${NAMESPACE} get secret -l "${BACKBEAT_CONFIG_SELECTOR}" \
+  -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq .kafka.hosts)
 KAFKA_HOST_PORT=${KAFKA_HOST_PORT:1:-1}
+
+if [ -z "${KAFKA_HOST_PORT}" ]; then
+  echo "Kafka bootstrap address is empty (from secret ${SECRET_NAME} in namespace ${NAMESPACE})" >&2
+  exit 1
+fi
 
 # Creating replication/transition and notification topics in kafka
 kubectl run kafka-topics \
