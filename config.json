@@ -1,0 +1,15 @@
+{
+    "mongodb": {
+        "rootUsername": "root",
+        "rootPassword": "rootpass",
+        "appUsername": "data",
+        "appPassword": "datapass",
+        "database": "39eda4f0-7fc0-43bb-a495-20fe773e14c1",
+        "replicaSet": null,
+        "replicaSetKey": "0123456789abcdef",
+        "replicaSetHosts": "127.0.0.1:27017",
+        "writeConcern": "majority",
+        "readPreference": "primary",
+        "shardCollection": "true"
+    }
+}

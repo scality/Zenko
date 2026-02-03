@@ -14,6 +14,7 @@ const {
     PutBucketVersioningCommand,
 } = require('@aws-sdk/client-s3');
 const s3 = require('../../../s3SDK').scalityS3Client;
+const { loadMongoCredentialsFromK8s } = require('../../../variables');
 
 const logger = new werelogs.Logger('keyFormatVersion', 'debug', 'debug');
 const { BucketVersioningKeyFormat } = versioning.VersioningConstants;
@@ -135,21 +136,23 @@ describe('Cloudserver : keyFormatVersion : versioning suspended bucket', () => {
     }
 
     before(async () => {
-        const opts = {
-            mongodb: {
-                replicaSetHosts: process.env.MONGO_REPLICA_SET_HOSTS,
-                // TODO: replace with env var
-                replicaSet: 'rs0',
-                writeConcern: process.env.MONGO_WRITE_CONCERN,
-                readPreference: process.env.MONGO_READ_PREFERENCE,
-                shardCollections: process.env.MONGO_SHARD_COLLECTION === 'true',
-                database: process.env.MONGO_DATABASE,
-                authCredentials: {
-                    password: process.env.MONGO_AUTH_PASSWORD,
-                    username: process.env.MONGO_AUTH_USERNAME,
-                },
+        const config = await loadMongoCredentialsFromK8s();
+        const mongoOpts = {
+            replicaSetHosts: config.mongodb.replicaSetHosts,
+            writeConcern: config.mongodb.writeConcern,
+            readPreference: config.mongodb.readPreference,
+            shardCollections: config.mongodb.shardCollection === 'true',
+            database: config.mongodb.database,
+            authCredentials: {
+                password: config.mongodb.authCredentials.password,
+                username: config.mongodb.authCredentials.username,
             },
         };
+        if (config.mongodb.replicaSet) {
+            mongoOpts.replicaSet = config.mongodb.replicaSet;
+        }
+        const opts = { mongodb: mongoOpts };
+
         metadata = new MetadataWrapper(IMPL_NAME, opts, null, logger);
         await new Promise((resolve, reject) => {
             metadata.setup(err => (err ? reject(err) : resolve()));
@@ -167,6 +170,7 @@ describe('Cloudserver : keyFormatVersion : versioning suspended bucket', () => {
         await new Promise((resolve, reject) => {
             metadata.close(err => (err ? reject(err) : resolve()));
         });
+        s3.destroy();
     });
 
     ['v0', 'v1'].forEach(vFormat => {
