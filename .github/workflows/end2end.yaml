@@ -10,6 +10,9 @@ on:
     branches-ignore:
       - 'development/**'
       - 'q/*'
+permissions:
+  contents: read
+  packages: read
 
 env:
   # kind-env
