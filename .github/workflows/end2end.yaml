@@ -12,7 +12,7 @@ on:
       - 'q/*'
 permissions:
   contents: read
-  packages: read
+  packages: write
 
 env:
   # kind-env
