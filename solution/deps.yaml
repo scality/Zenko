@@ -120,18 +120,12 @@ stern: # tail any pod logs with pattern matchin
   envsubst: STERN_VERSION
   toolUrl: https://github.com/stern/stern/releases/download/v${STERN_VERSION}/stern_${STERN_VERSION}_linux_amd64.tar.gz
   toolName: stern
-# To be enabled back when utapi is used in Zenko 2.x
-# utapi:
-#   sourceRegistry: ghcr.io/scality
-#   image: utapi
-#   tag: zenko-1.0.0
-#   envsubst: UTAPI_TAG
 vault:
   sourceRegistry: ghcr.io/scality
   dashboard: vault2/vault-dashboards
   policy: vault2/vault-policies
   image: vault2
-  tag: 8.10.4
+  tag: 8.10.5
   envsubst: VAULT_TAG
 zenko-operator:
   sourceRegistry: ghcr.io/scality
