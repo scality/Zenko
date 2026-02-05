@@ -18,9 +18,10 @@ You may also reinstall it with
 configuration values for a specified version:
 `helm show values --version 9.3.6 bitnami/mongodb-sharded`.
 
-3. Bump mongo version in `solution-base/deps.yaml` files. The current version
-can be found in
-`https://github.com/bitnami/charts/blob/main/bitnami/mongodb-sharded/Chart.yaml`.
+3. Bump the MongoDB image tag in `solution-base/deps.yaml` and keep
+`solution-base/mongodb/charts/mongodb-sharded/values.yaml` in sync. The image
+comes from `ghcr.io/scality/mongodb-sharded` and uses simple semver tags
+(e.g., `8.2.4`) with optional moving minor tags (e.g., `8.2`).
 
 4. Bump mongodb-sharded chart version : `CHART_MONGO_SHARDED_VERSION` in the
 `solution-base/mongodb/Makefile` file (e.g. `CHART_MONGO_SHARDED_VERSION:="9.3.6"`).
