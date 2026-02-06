@@ -23,6 +23,8 @@ cd ./tests/ctst/
 docker build --build-arg CTST_TAG=0.2.0 . -t ghcr.io/scality/playground/<username>/custom-ctst:0.2.0
 
 # Pushing the custom image into a repository
+# no need to push it as its only gonna be used locally for testing :
+# in codespce : build then use directly in codespace
 docker push ghcr.io/scality/playground/<username>/custom-ctst:0.2.0
 ```
 

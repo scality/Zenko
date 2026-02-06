@@ -1,12 +1,16 @@
 {
   "name": "zenko-ctst",
   "version": "1.0.0",
-  "description": "Testing Zenko features with CTST",
-  "main": "index.js",
-  "repository": "git+https://github.com/scality/Zenko.git",
-  "author": "Scality",
-  "license": "ISC",
   "private": true,
+  "description": "Testing Zenko features with CTST Testing Zenko features with CTST",
+  "repository": "git+https://github.com/scality/Zenko.git",
+  "license": "ISC",
+  "author": "Scality",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc --build tsconfig.json",
+    "lint": "eslint ."
+  },
   "dependencies": {
     "@kubernetes/client-node": "^0.21.0",
     "@types/proper-lockfile": "^4.1.4",
@@ -25,13 +29,9 @@
     "@aws-sdk/client-s3": "^3.901.0",
     "@aws-sdk/client-sts": "^3.901.0",
     "@eslint/compat": "^1.1.1",
-    "cli-testing": "github:scality/cli-testing.git#1.2.4",
+    "cli-testing": "https://github.com/scality/cli-testing.git#1.2.4",
     "eslint": "^9.9.1",
     "eslint-config-scality": "scality/Guidelines#8.3.0",
     "typescript-eslint": "^8.4.0"
-  },
-  "scripts": {
-    "build": "tsc --build tsconfig.json",
-    "lint": "eslint ."
   }
 }

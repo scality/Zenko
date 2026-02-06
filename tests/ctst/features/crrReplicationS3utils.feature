@@ -5,6 +5,7 @@ Feature: Replication
     @2.12.0
     @PreMerge
     @ReplicationTest
+    @Yoyoyo
     Scenario Outline: Objects created before setting up replication should not be replicated automatically
         Given an existing bucket "source-bucket-0" "with" versioning, "without" ObjectLock "without" retention mode
         And an object "source-object-1" that "exists"
