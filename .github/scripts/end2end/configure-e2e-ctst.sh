@@ -11,6 +11,37 @@ KAFKA_HOST_PORT=${KAFKA_HOST_PORT:1:-1}
 export NOTIF_KAFKA_HOST=${KAFKA_HOST_PORT%:*}
 export NOTIF_KAFKA_PORT=${KAFKA_HOST_PORT#*:}
 
+export NOTIF_KAFKA_AUTH_HOST="${ZENKO_NAME}-base-queue-auth-0"
+export NOTIF_KAFKA_AUTH_HOST_PORT="$NOTIF_KAFKA_AUTH_HOST:$NOTIF_KAFKA_PORT"
+export NOTIF_KAFKA_AUTH_PORT=9094
+
+# Add an extra SASL_PLAIN Kafka listener, to support testing authenticated Kafka for bucket notifications
+kubectl get zookeepercluster "${ZENKO_NAME}-base-quorum" -o json | jq '.
+| .metadata |= {namespace, name: "\(.name)-auth" }
+| del(.spec.labels)
+| del(.spec.persistence)
+| .spec.storageType |= "ephemeral"
+| del(.spec.pod.affinity)
+| del(.spec.pod.labels)
+| del(.status)
+' | kubectl apply -f -
+kubectl wait --for=jsonpath='{.status.readyReplicas}'=1 --timeout 10m zookeepercluster "${ZENKO_NAME}-base-quorum-auth"
+
+kubectl get kafkacluster "${ZENKO_NAME}-base-queue" -o json | jq '.
+| .metadata |= {namespace, name: "\(.name)-auth" }
+| del(.status)
+| .spec.listenersConfig.internalListeners |= . + [{containerPort: 9094, name: "auth", type: "sasl_plaintext", usedForInnerBrokerCommunication: false}]
+| .spec.readOnlyConfig |= (. + "
+sasl.enabled.mechanisms=PLAIN
+listener.name.auth.plain.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username=\"'"$NOTIF_AUTH_DEST_USERNAME"'\" password=\"'"$NOTIF_AUTH_DEST_PASSWORD"'\" user_'"$NOTIF_AUTH_DEST_USERNAME"'=\"'"$NOTIF_AUTH_DEST_PASSWORD"'\";
+")
+| del(.spec.brokerConfigGroups.default.storageConfigs[].pvcSpec)
+| .spec.brokerConfigGroups.default.storageConfigs[].emptyDir |= {medium: "Memory"}
+| .spec.zkAddresses |= ["'"${ZENKO_NAME}-base-quorum-auth-0.${ZENKO_NAME}-base-quorum-auth-headless:2181"'"]
+| .spec.cruiseControlConfig.capacityConfig |= ({brokerCapacities: [{brokerId: "-1", capacity: {DISK: "1000", CPU: "100", NW_IN: "1000", NW_OUT: "1000"}}]} | tostring)
+' | kubectl apply -f -
+kubectl wait --for=jsonpath='{.status.state}'=ClusterRunning --timeout 10m kafkacluster "${ZENKO_NAME}-base-queue-auth"
+
 UUID=$(kubectl get secret -l app.kubernetes.io/name=backbeat-config,app.kubernetes.io/instance=end2end \
     -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq .extensions.replication.topic)
 UUID=${UUID%.*}
@@ -48,6 +79,7 @@ kubectl run kafka-topics \
     --command -- bash -c \
     "kafka-topics.sh --create --topic $NOTIF_DEST_TOPIC --bootstrap-server $KAFKA_HOST_PORT --if-not-exists ; \
         kafka-topics.sh --create --topic $NOTIF_ALT_DEST_TOPIC --bootstrap-server $KAFKA_HOST_PORT --if-not-exists ; \
+        kafka-topics.sh --create --topic $NOTIF_AUTH_DEST_TOPIC --bootstrap-server $NOTIF_KAFKA_AUTH_HOST_PORT --if-not-exists ; \
         kafka-topics.sh --create --topic $AZURE_ARCHIVE_STATUS_TOPIC --partitions 10 --bootstrap-server $KAFKA_HOST_PORT --if-not-exists ; \
         kafka-topics.sh --create --topic $AZURE_ARCHIVE_STATUS_TOPIC_2_NV --partitions 10 --bootstrap-server $KAFKA_HOST_PORT --if-not-exists ; \
         kafka-topics.sh --create --topic $AZURE_ARCHIVE_STATUS_TOPIC_2_V --partitions 10 --bootstrap-server $KAFKA_HOST_PORT --if-not-exists ; \

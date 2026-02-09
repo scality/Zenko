@@ -67,7 +67,7 @@ kubectl run kafka-topics \
     "kafka-topics.sh --create --topic $UUID.backbeat-replication-replay-0 --partitions 5 --bootstrap-server $KAFKA_HOST_PORT --if-not-exists ; \
     kafka-topics.sh --create --topic $UUID.backbeat-data-mover --partitions 5 --bootstrap-server $KAFKA_HOST_PORT --if-not-exists ; \
     kafka-topics.sh --create --topic $NOTIF_DEST_TOPIC --bootstrap-server $KAFKA_HOST_PORT --if-not-exists ; \
-    kafka-topics.sh --create --topic $NOTIF_ALT_DEST_TOPIC --bootstrap-server $KAFKA_HOST_PORT --if-not-exists "
+    kafka-topics.sh --create --topic $NOTIF_ALT_DEST_TOPIC --bootstrap-server $KAFKA_HOST_PORT --if-not-exists"
 
 kubectl run ${POD_NAME} \
   --image ${E2E_IMAGE} \

@@ -103,14 +103,32 @@ async function putAcl(world: Zenko, objName: string) {
     await S3.putObjectAcl(world.getCommandParameters());
 }
 
-Given('one notification destination', function (this: Zenko) {
+function setNotificationDestination(world: Zenko, destination: string, topic: string, hosts: string) {
     const notificationDestinations = [];
     notificationDestinations.push({
-        destinationName: this.parameters.NotificationDestination,
-        topic: this.parameters.NotificationDestinationTopic,
-        hosts: this.parameters.KafkaHosts,
+        destinationName: destination,
+        topic,
+        hosts,
     });
-    this.addToSaved('notificationDestinations', notificationDestinations);
+    world.addToSaved('notificationDestinations', notificationDestinations);
+}
+
+Given('one notification destination', function (this: Zenko) {
+    setNotificationDestination(
+        this,
+        this.parameters.NotificationDestination,
+        this.parameters.NotificationDestinationTopic,
+        this.parameters.KafkaHosts,
+    );
+});
+
+Given('one authenticated notification destination', function (this: Zenko) {
+    setNotificationDestination(
+        this,
+        this.parameters.NotificationDestinationAuth,
+        this.parameters.NotificationDestinationTopicAuth,
+        this.parameters.KafkaAuthHosts,
+    );
 });
 
 Given('two notification destinations', function (this: Zenko) {
