@@ -28,7 +28,10 @@ describe('Test Configuration', () => {
         assert.strictEqual(listBucketsRes.Buckets.length, 1);
         assert.strictEqual(listBucketsRes.Buckets[0].Name, bucket);
         await s3.send(new PutObjectCommand({
-            Bucket: bucket, Key: key, Body: body,
+            Bucket: bucket,
+            Key: key,
+            Body: body,
+            ContentLength: Buffer.byteLength(body),
         }));
         const getObjectRes = await s3.send(new GetObjectCommand(
             { Bucket: bucket, Key: key },

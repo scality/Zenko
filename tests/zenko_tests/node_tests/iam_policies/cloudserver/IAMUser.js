@@ -59,9 +59,19 @@ testAPIs.forEach(testAPI => {
 
         before(async () => {
             await s3.send(new CreateBucketCommand({ Bucket: bucketName }));
-            await s3.send(new PutObjectCommand({ Bucket: bucketName, Key: objectName }));
+            await s3.send(new PutObjectCommand({
+                Bucket: bucketName,
+                Key: objectName,
+                Body: '',
+                ContentLength: 0,
+            }));
             await s3.send(new CreateBucketCommand({ Bucket: bucketName2 }));
-            await s3.send(new PutObjectCommand({ Bucket: bucketName2, Key: objectName2 }));
+            await s3.send(new PutObjectCommand({
+                Bucket: bucketName2,
+                Key: objectName2,
+                Body: '',
+                ContentLength: 0,
+            }));
             await iam.send(new CreateUserCommand({ UserName: userName }));
             const accessKeyRes = await iam.send(new CreateAccessKeyCommand({ UserName: userName }));
             userCredentials.accessKeyId = accessKeyRes.AccessKey.AccessKeyId;

@@ -15,7 +15,12 @@ const bucket = `list-v2-${uuidV4()}`;
 
 function putObjects(cb) {
     async.times(10, (n, next) => {
-        s3.send(new PutObjectCommand({ Bucket: bucket, Key: `key-${n}` }))
+        s3.send(new PutObjectCommand({
+            Bucket: bucket,
+            Key: `key-${n}`,
+            Body: '',
+            ContentLength: 0,
+        }))
             .then(() => next())
             .catch(next);
     }, cb);

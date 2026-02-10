@@ -7,7 +7,11 @@ const sharedHttpHandler = new NodeHttpHandler({
     connectionTimeout: 0,
 });
 
-const scalityS3Client = new S3Client({
+function createS3Client(config) {
+    return new S3Client(config);
+}
+
+const scalityS3Client = createS3Client({
     credentials: {
         accessKeyId: process.env.ZENKO_ACCESS_KEY,
         secretAccessKey: process.env.ZENKO_SECRET_KEY,
@@ -47,7 +51,7 @@ const scalityIAMClient = new IAMClient({
 const verifyCerts = process.env.VERIFY_CERTIFICATES
     ? process.env.VERIFY_CERTIFICATES : true;
 
-const awsS3Client = new S3Client({
+const awsS3Client = createS3Client({
     credentials: {
         accessKeyId: process.env.AWS_ACCESS_KEY,
         secretAccessKey: process.env.AWS_SECRET_KEY,
@@ -60,7 +64,7 @@ const awsS3Client = new S3Client({
     requestHandler: sharedHttpHandler,
 });
 
-const ringS3Client = new S3Client({
+const ringS3Client = createS3Client({
     credentials: {
         accessKeyId: process.env.RING_S3C_ACCESS_KEY,
         secretAccessKey: process.env.RING_S3C_SECRET_KEY,
@@ -73,7 +77,7 @@ const ringS3Client = new S3Client({
     requestHandler: sharedHttpHandler,
 });
 
-const altScalityS3Client = new S3Client({
+const altScalityS3Client = createS3Client({
     credentials: {
         accessKeyId: process.env.AWS_ACCESS_KEY,
         secretAccessKey: process.env.AWS_SECRET_KEY,
@@ -100,7 +104,7 @@ function getS3Client(accessKey, secretKey, sessionToken) {
     if (sessionToken) {
         config.credentials.sessionToken = sessionToken;
     }
-    return new S3Client(config);
+    return createS3Client(config);
 }
 
 module.exports = {
