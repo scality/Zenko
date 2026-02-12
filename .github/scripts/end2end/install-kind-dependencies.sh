@@ -10,9 +10,11 @@ VERSION_FILE="${REPOSITORY_DIR}/VERSION"
 
 source "${VERSION_FILE}"
 
-ZK_OPERATOR_VERSION=0.2.15
+ZK_OPERATOR_VERSION=0.2.15-adobe-20250923
+ZK_OPERATOR_CHART=oci://ghcr.io/adobe/helm-charts/zookeeper-operator
 CERT_MANAGER_VERSION=v1.13.3
-KAFKA_OPERATOR_VERSION=0.25.1
+KAFKA_OPERATOR_VERSION=0.28.0-adobe-20251203
+KAFKA_OPERATOR_CHART=oci://ghcr.io/adobe/helm-charts/kafka-operator
 INGRESS_NGINX_VERSION=controller-v1.10.3
 PROMETHEUS_VERSION=v0.52.1
 KEYCLOAK_VERSION=${KEYCLOAK_VERSION:-'18.4.4'}
@@ -35,29 +37,13 @@ MONGODB_SHARD_COUNT=${MONGODB_SHARD_COUNT:-1}
 
 ENABLE_KEYCLOAK_HTTPS=${ENABLE_KEYCLOAK_HTTPS:-'false'}
 
-KAFKA_CHART=banzaicloud-stable/kafka-operator
-
 if [ $ENABLE_KEYCLOAK_HTTPS == 'true' ]; then
     KEYCLOAK_INGRESS_OPTIONS="$DIR/configs/keycloak_ingress_https.yaml"
 else
     KEYCLOAK_INGRESS_OPTIONS="$DIR/configs/keycloak_ingress_http.yaml"
 fi
 
-helm repo add --force-update bitnami https://charts.bitnami.com/bitnami
-helm repo add --force-update pravega https://charts.pravega.io
 helm repo add --force-update codecentric https://codecentric.github.io/helm-charts/
-# BanzaiCloud repo may not work, c.f. https://scality.atlassian.net/browse/AN-225
-helm repo add --force-update banzaicloud-stable https://kubernetes-charts.banzaicloud.com || {
-		echo -n "::notice file=$(basename $0),line=$LINENO,title=Banzaicloud Charts not available::"
-		echo "Failed to add banzaicloud-stable repo, using local checkout"
-
-		kafka_operator="$(mktemp -d)"
-		git -c advice.detachedHead=false clone -q --depth 1 -b "v${KAFKA_OPERATOR_VERSION}" \
-            https://github.com/banzaicloud/koperator "${kafka_operator}"
-
-		KAFKA_CHART="${kafka_operator}/charts/kafka-operator"
-	}
-helm repo update
 
 # nginx-controller
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/${INGRESS_NGINX_VERSION}/deploy/static/provider/kind/deploy.yaml
@@ -127,12 +113,16 @@ kubectl wait --for=condition=established --timeout=10m crd/alertmanagers.monitor
 envsubst < configs/prometheus.yaml | kubectl apply -f -
 
 # zookeeper
-helm upgrade --install --version ${ZK_OPERATOR_VERSION} -n default zk-operator pravega/zookeeper-operator --set "watchNamespace=default"
+# Use Adobe's OCI Helm chart from GitHub Container Registry
+helm upgrade --install --version ${ZK_OPERATOR_VERSION} -n default zk-operator ${ZK_OPERATOR_CHART} --set "watchNamespace=default"
 
-# kafka
-kafka_crd_url=https://github.com/banzaicloud/koperator/releases/download/v${KAFKA_OPERATOR_VERSION}/kafka-operator.crds.yaml
-kubectl create -f $kafka_crd_url || kubectl replace -f $kafka_crd_url
-helm upgrade --install --version ${KAFKA_OPERATOR_VERSION} -n default kafka-operator ${KAFKA_CHART}
+# kafka (also requires Contour CRDs)
+kubectl apply -f https://raw.githubusercontent.com/projectcontour/contour/refs/heads/main/examples/contour/01-crds.yaml
+for crd in cruisecontroloperations kafkaclusters kafkatopics kafkausers ; do
+    kafka_crd_url=https://github.com/adobe/koperator/raw/refs/tags/${KAFKA_OPERATOR_VERSION}/config/base/crds/kafka.banzaicloud.io_${crd}.yaml
+    kubectl create -f $kafka_crd_url || kubectl replace -f $kafka_crd_url
+done
+helm upgrade --install --version ${KAFKA_OPERATOR_VERSION} -n default kafka-operator ${KAFKA_OPERATOR_CHART}
 
 # keycloak
 envsubst < $DIR/configs/keycloak_config.json > $DIR/configs/keycloak-realm.json
