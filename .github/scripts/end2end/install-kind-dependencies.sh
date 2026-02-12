@@ -8,9 +8,12 @@ REPOSITORY_DIR=$(dirname "$SCRIPT_FULL_PATH")/../../..
 SOLUTION_BASE_DIR=$REPOSITORY_DIR/solution-base
 source "${REPOSITORY_DIR}/version.sh" || VERSION_FULL=dev
 
-ZK_OPERATOR_VERSION=0.2.15
+ZK_OPERATOR_VERSION=0.2.15-adobe-20250923
+ZK_OPERATOR_CHART=oci://ghcr.io/adobe/helm-charts/zookeeper-operator
 CERT_MANAGER_VERSION=v1.13.3
-KAFKA_OPERATOR_VERSION=0.25.1
+KAFKA_OPERATOR_VERSION=0.28.0-adobe-20251203
+KAFKA_OPERATOR_CHART=oci://ghcr.io/adobe/helm-charts/kafka-operator
+CONTOUR_VERSION=v1.30.2
 INGRESS_NGINX_VERSION=controller-v1.10.3
 PROMETHEUS_VERSION=v0.52.1
 KEYCLOAK_VERSION=${KEYCLOAK_VERSION:-'18.4.4'}
@@ -33,8 +36,6 @@ MONGODB_SHARD_COUNT=${MONGODB_SHARD_COUNT:-1}
 
 ENABLE_KEYCLOAK_HTTPS=${ENABLE_KEYCLOAK_HTTPS:-'false'}
 
-KAFKA_CHART=banzaicloud-stable/kafka-operator
-
 if [ $ENABLE_KEYCLOAK_HTTPS == 'true' ]; then
     KEYCLOAK_INGRESS_OPTIONS="$DIR/configs/keycloak_ingress_https.yaml"
 else
@@ -45,22 +46,7 @@ helm_repo_add() {
     helm repo list -o json 2>/dev/null | jq -e --arg n "$1" '.[] | select(.name == $n)' >/dev/null 2>&1 || helm repo add "$1" "$2"
 }
 
-helm_repo_add bitnami https://charts.bitnami.com/bitnami
-helm_repo_add pravega https://charts.pravega.io
 helm_repo_add codecentric https://codecentric.github.io/helm-charts/
-# BanzaiCloud repo may not work, c.f. https://scality.atlassian.net/browse/AN-225
-helm_repo_add banzaicloud-stable https://kubernetes-charts.banzaicloud.com || {
-		echo -n "::notice file=$(basename $0),line=$LINENO,title=Banzaicloud Charts not available::"
-		echo "Failed to add banzaicloud-stable repo, using local checkout"
-
-		kafka_operator="${DIR}/kafka-operator"
-		if [ ! -d "${kafka_operator}" ]; then
-			git -c advice.detachedHead=false clone -q --depth 1 -b "v${KAFKA_OPERATOR_VERSION}" \
-				https://github.com/banzaicloud/koperator "${kafka_operator}"
-		fi
-
-		KAFKA_CHART="${kafka_operator}/charts/kafka-operator"
-	}
 helm repo update
 
 # fluent-bit log collector — captures container logs before pod deletion
@@ -135,12 +121,16 @@ kubectl wait --for=condition=established --timeout=10m crd/alertmanagers.monitor
 envsubst < configs/prometheus.yaml | kubectl apply -f -
 
 # zookeeper
-helm upgrade --install --version ${ZK_OPERATOR_VERSION} -n default zk-operator pravega/zookeeper-operator --set "watchNamespace=default"
+helm upgrade --install --version ${ZK_OPERATOR_VERSION} -n default zk-operator ${ZK_OPERATOR_CHART} --set "watchNamespace=default"
 
 # kafka
-kafka_crd_url=https://github.com/banzaicloud/koperator/releases/download/v${KAFKA_OPERATOR_VERSION}/kafka-operator.crds.yaml
-kubectl apply --server-side -f $kafka_crd_url
-helm upgrade --install --version ${KAFKA_OPERATOR_VERSION} -n default kafka-operator ${KAFKA_CHART} \
+# koperator watches HTTPProxy and will not start without Contour's CRDs
+kubectl apply --server-side -f https://raw.githubusercontent.com/projectcontour/contour/${CONTOUR_VERSION}/examples/contour/01-crds.yaml
+for crd in cruisecontroloperations kafkaclusters kafkatopics kafkausers ; do
+    kafka_crd_url=https://github.com/adobe/koperator/raw/refs/tags/${KAFKA_OPERATOR_VERSION}/config/base/crds/kafka.banzaicloud.io_${crd}.yaml
+    kubectl apply --server-side -f $kafka_crd_url
+done
+helm upgrade --install --version ${KAFKA_OPERATOR_VERSION} -n default kafka-operator ${KAFKA_OPERATOR_CHART} \
     --set prometheusMetrics.authProxy.image.repository=quay.io/brancz/kube-rbac-proxy \
     --set prometheusMetrics.authProxy.image.tag=v0.21.0
 
