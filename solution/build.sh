@@ -67,7 +67,10 @@ EOF
 
 function flatten_source_images()
 {
-    yq eval '.* | (.sourceRegistry // "docker.io") + "/" + .image + ":" + .tag' deps.yaml
+    source <( ${REPOSITORY_DIR}/solution/kafka_build_vars.sh )
+
+    yq eval '.* | (.sourceRegistry // "docker.io") + "/" + .image + ":" + .tag' deps.yaml |
+        sed '/ghcr.io\/scality\/zenko\/kafka/ s/$/-'"${BUILD_TREE_HASH}"'/'
 }
 
 function zenko_operator_tag()
@@ -86,6 +89,9 @@ function dependencies_versions_env()
     done
     yq eval '.[] | select(.tag)       | .envsubst + "=" + .tag' deps.yaml
     echo ZENKO_VERSION_NAME=${VERSION_FULL}
+
+    source <( "${REPOSITORY_DIR}/solution/kafka_build_vars.sh" )
+    echo "KAFKA_BUILD_TREE_HASH=${BUILD_TREE_HASH}"
 }
 
 function copy_yamls()
@@ -319,31 +325,12 @@ function download_tools()
     done
 }
 
-function retag()
-{
-    local image=$1
-    local tag=$2
-    local suffix=$3
-    ${DOCKER} image inspect "${image}:${tag}-${suffix}" > /dev/null 2>&1 || \
-        ${DOCKER} ${DOCKER_OPTS} pull "${image}:${tag}-${suffix}"
-    ${DOCKER} tag "${image}:${tag}-${suffix}" "${image}:${tag}"
-}
-
-function prepare_kafka_images()
-(
-    source <( ${REPOSITORY_DIR}/solution/kafka_build_vars.sh )
-
-    retag "$KAFKA_IMAGE" "$KAFKA_TAG" "$BUILD_TREE_HASH"
-    retag "$KAFKA_CONNECT_IMAGE" "$KAFKA_CONNECT_TAG" "$BUILD_TREE_HASH"
-)
-
 # run everything in order
 clean
 mkdirs
 download_tools
 gen_manifest_yaml
 copy_yamls
-prepare_kafka_images
 flatten_source_images | while read img ; do
     # only pull if the image isnt already local
     ${DOCKER} image inspect ${img} > /dev/null 2>&1 || ${DOCKER} ${DOCKER_OPTS} pull ${img}

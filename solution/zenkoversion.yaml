@@ -96,10 +96,10 @@ spec:
         tag: ${KAFKA_CLEANER_TAG}
       cluster:
         image: ${KAFKA_IMAGE}
-        tag: ${KAFKA_TAG}
+        tag: ${KAFKA_TAG}-${KAFKA_BUILD_TREE_HASH}
       connect:
         image: ${KAFKA_CONNECT_IMAGE}
-        tag: ${KAFKA_CONNECT_TAG}
+        tag: ${KAFKA_CONNECT_TAG}-${KAFKA_BUILD_TREE_HASH}
       cruiseControl:
         image: ${KAFKA_CRUISECONTROL_IMAGE}
         tag: ${KAFKA_CRUISECONTROL_TAG}

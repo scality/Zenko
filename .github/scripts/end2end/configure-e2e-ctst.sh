@@ -1,11 +1,14 @@
 #!/bin/bash
 set -exu
 
+DIR=$(dirname "$0")
+
 # Get kafka image name and tag
-KAFKA_REGISTRY_NAME=$(yq eval ".kafka.sourceRegistry" ../../../solution/deps.yaml)
-KAFKA_IMAGE_NAME=$(yq eval ".kafka.image" ../../../solution/deps.yaml)
-KAFKA_IMAGE_TAG=$(yq eval ".kafka.tag" ../../../solution/deps.yaml)
-KAFKA_IMAGE=$KAFKA_REGISTRY_NAME/$KAFKA_IMAGE_NAME:$KAFKA_IMAGE_TAG
+kafka_image() {
+    source <( "$DIR"/../../../solution/kafka_build_vars.sh )
+    echo "$KAFKA_IMAGE:$KAFKA_TAG-$BUILD_TREE_HASH"
+}
+KAFKA_IMAGE=$(kafka_image)
 
 # Setup test environment variables
 export ZENKO_NAME=${1:-"end2end"}
