@@ -9,7 +9,7 @@ export NAMESPACE=${2:-default}
 export ZENKO_CR_PATH=${3:-'./configs/zenko.yaml'}
 export ZENKOVERSION_PATH=${4:-'../../../solution/zenkoversion.yaml'}
 export DEPS_PATH=${5:-'../../../solution/deps.yaml'}
-export ZENKO_VERSION_NAME="${ZENKO_NAME}-version"
+export ZENKO_VERSION_NAME="$(git describe --tags)"
 export ZENKO_ANNOTATIONS=""
 export ZENKO_MONGODB_SECRET_NAME=${ZENKO_MONGODB_SECRET_NAME:-'mongodb-db-creds'}
 export ZENKO_IAM_INGRESS=${ZENKO_IAM_INGRESS:-'iam.zenko.local'}
@@ -93,6 +93,11 @@ function dependencies_env()
 
 create_encryption_secret()
 {
+    if kubectl get secret ${ZENKO_NAME}-keypair.v0 --namespace ${NAMESPACE} > /dev/null 2>&1; then
+        echo "Encryption secret ${ZENKO_NAME}-keypair.v0 already exists in namespace ${NAMESPACE}, skipping creation."
+        return
+    fi
+
     PUBLIC=$(mktemp zenko-key.pub.XXXXXX)
     PRIVATE=$(mktemp zenko-key.XXXXXX)
     trap 'rm -f "$PUBLIC" "$PRIVATE"' EXIT INT HUP TERM
@@ -145,6 +150,10 @@ for i in $(seq 1 120); do
     if kubectl wait --for condition=Available --timeout 5s --namespace ${NAMESPACE} zenko/${ZENKO_NAME}; then
         break;
     fi
+
+    # Check for and fix ImagePullBackOff errors
+    bash ${DIR}/fix-image-pull-backoff.sh "${NAMESPACE}"
+
     # Debug log to ease understanding of failures in the CI
     kubectl get pods -A
 done

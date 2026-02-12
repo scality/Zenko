@@ -62,3 +62,38 @@ Now you can use aws cli to interact with the S3 service
 ```bash
     aws s3 ls --endpoint http://localhost:8080
 ```
+
+## Deploying Zenko on MacOS
+
+* When using Orbstack:
+
+  * disable loading images into kind
+  * skip kind cluster creation
+  * create the `standard` storage class:
+
+    ```bash
+    kubectl get storageclass -o json | jq '.items[] | .metadata = { name: "standard" }' | kubectl apply -f -
+    ```
+
+  * mark node as "ingress-ready:
+
+    ```bash
+    kubectl label nodes orbstack ingress-ready=true
+    ```
+
+* Install gnu-sed (from homebrew) and setup alias
+
+    ```bash
+    alias sed=gsed
+    ```
+
+* Explicitely use digests of images (mongo, zenkoversion, zkop)
+  * for ZKOP, just need to rebuild (skip pull)
+  * if an amd64 image is available locally, may conflict --> may need to remove local non-arm64 image
+
+FIXES THAT NEED TO BE DONE
+ - do not deploy kind, do not load image
+ - use AMD64 image if no ARM64 image
+ - fix getting host RAM (probably on any laptop)
+ - fix use of GIT_ACCESS_TOKEN
+ - gsed

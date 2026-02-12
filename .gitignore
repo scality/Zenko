@@ -13,3 +13,7 @@ tests/artifacts
 **/_build
 docs/_templates/page.html_orig
 *.pyc
+
+.github/scripts/end2end/config.yaml
+.github/scripts/end2end/end2end-base-quorum.yaml
+.github/scripts/end2end/configs/keycloak-realm.json

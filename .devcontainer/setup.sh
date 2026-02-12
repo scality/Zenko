@@ -2,6 +2,20 @@
 
 set -e
 
+if  [ "$(uname -s)" = "Darwin" ]; then
+    # Use gnu-sed on macOS
+    if ! command -v gsed &> /dev/null; then
+        echo "Please install gnu-sed. You can do this via 'brew install gnu-sed'"
+        exit 1
+    fi
+    sed() { gsed "$@" ; }
+    export -f sed
+
+    # Orbstack specific setup, to make it similar to `kind`
+    kubectl get storageclass -o json | jq '.items[] | .metadata = { name: "standard" }' | kubectl apply -f -
+    kubectl label nodes orbstack ingress-ready=true
+fi
+
 env_variables=$(yq eval '.env | to_entries | .[] | .key + "=" + .value' .github/workflows/end2end.yaml | sed 's/\${{[^}]*}}//g') && export $env_variables
 export GIT_ACCESS_TOKEN=${GITHUB_TOKEN}
 export E2E_IMAGE_TAG=latest
@@ -60,8 +74,9 @@ done
     fi
 
     docker build -t $E2E_IMAGE_NAME:$E2E_IMAGE_TAG .
-    kind load docker-image  ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG}
-    docker rmi ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG}
+
+    # kind load docker-image  ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG}
+    # docker rmi ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG}
 )
 
 (
@@ -78,4 +93,4 @@ CTST_TAG=$(sed 's/.*"cli-testing": ".*#\(.*\)".*/\1/;t;d' ./tests/ctst/package.j
 SORBET_TAG=$(yq eval '.sorbet.tag' solution/deps.yaml)
 DRCTL_TAG=$(yq eval '.drctl.tag' solution/deps.yaml)
 docker build --build-arg CTST_TAG=$CTST_TAG --build-arg SORBET_TAG=$SORBET_TAG --build-arg DRCTL_TAG=$DRCTL_TAG -t $E2E_CTST_IMAGE_NAME:$E2E_IMAGE_TAG ./tests/ctst
-kind load docker-image  ${E2E_CTST_IMAGE_NAME}:${E2E_IMAGE_TAG}
+# kind load docker-image  ${E2E_CTST_IMAGE_NAME}:${E2E_IMAGE_TAG}

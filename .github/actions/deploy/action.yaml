@@ -17,7 +17,7 @@ runs:
     - name: Bootstrap kind cluster
       shell: bash
       run: |
-        ./bootstrap-kind.sh ${KIND_NODE_IMAGE} ${VOLUME_ROOT} ${WORKER_COUNT}
+        # ./bootstrap-kind.sh ${KIND_NODE_IMAGE} ${VOLUME_ROOT} ${WORKER_COUNT}
       working-directory: ./.github/scripts/end2end
     - name: Ensure cluster is running
       shell: bash

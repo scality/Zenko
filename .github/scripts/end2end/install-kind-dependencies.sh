@@ -43,7 +43,7 @@ else
     KEYCLOAK_INGRESS_OPTIONS="$DIR/configs/keycloak_ingress_http.yaml"
 fi
 
-helm repo add --force-update bitnami https://charts.bitnami.com/bitnami
+# helm repo add --force-update bitnami https://charts.bitnami.com/bitnami
 helm repo add --force-update pravega https://charts.pravega.io
 helm repo add --force-update codecentric https://codecentric.github.io/helm-charts/
 # BanzaiCloud repo may not work, c.f. https://scality.atlassian.net/browse/AN-225
@@ -60,12 +60,16 @@ helm repo add --force-update banzaicloud-stable https://kubernetes-charts.banzai
 helm repo update
 
 # nginx-controller
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/${INGRESS_NGINX_VERSION}/deploy/static/provider/kind/deploy.yaml
-kubectl rollout status -n ingress-nginx deployment/ingress-nginx-controller --timeout=10m
+if ! kubectl get deployment -n ingress-nginx ingress-nginx-controller > /dev/null ; then
+    kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/${INGRESS_NGINX_VERSION}/deploy/static/provider/kind/deploy.yaml
+    kubectl rollout status -n ingress-nginx deployment/ingress-nginx-controller --timeout=10m
+fi
 
 # cert-manager
-kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/${CERT_MANAGER_VERSION}/cert-manager.yaml --wait
-kubectl rollout status -n cert-manager deployment/cert-manager-webhook --timeout=10m
+if ! kubectl get deployment -n cert-manager cert-manager > dev/null ; then
+    kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/${CERT_MANAGER_VERSION}/cert-manager.yaml --wait
+    kubectl rollout status -n cert-manager deployment/cert-manager-webhook --timeout=10m
+fi
 
 # === CERTIFICATE AUTHORITY SETUP ===
 # We need a self-signed root CA certificate for signing certificates for mock services
@@ -113,31 +117,43 @@ kubectl wait --for=condition=Ready --timeout=240s clusterissuer/artesca-root-ca-
 
 # Copy root CA secret to default namespace for applications to use
 echo "Copying root CA certificate to default namespace..."
-kubectl get secret root-ca -n cert-manager -o json | 
-  jq '.metadata.namespace="default" | .metadata.name="zenko-root-ca"' | 
-  kubectl apply -f -
+if ! kubectl get secret zenko-root-ca -n default &>/dev/null; then
+    kubectl get secret root-ca -n cert-manager -o json |
+        jq '.metadata.namespace="default" | .metadata.name="zenko-root-ca"' |
+        kubectl apply -f -
+fi
 
 # prometheus
-# last-applied-configuration can end up larger than 256kB  which is too large for an annotation
-# so if apply fails, replace can work
-prom_url=https://raw.githubusercontent.com/coreos/prometheus-operator/${PROMETHEUS_VERSION}/bundle.yaml
-kubectl create -f $prom_url || kubectl replace -f $prom_url --wait
-# wait for the resource to exist
-kubectl wait --for=condition=established --timeout=10m crd/alertmanagers.monitoring.coreos.com
-envsubst < configs/prometheus.yaml | kubectl apply -f -
+if ! kubectl get deployment prometheus-operator > /dev/null; then
+    # last-applied-configuration can end up larger than 256kB  which is too large for an annotation
+    # so if apply fails, replace can work
+    prom_url=https://raw.githubusercontent.com/coreos/prometheus-operator/${PROMETHEUS_VERSION}/bundle.yaml
+    kubectl create -f $prom_url || kubectl replace -f $prom_url --wait
+    # wait for the resource to exist
+    kubectl wait --for=condition=established --timeout=10m crd/alertmanagers.monitoring.coreos.com
+    envsubst < configs/prometheus.yaml | kubectl apply -f -
+fi
 
 # zookeeper
-helm upgrade --install --version ${ZK_OPERATOR_VERSION} -n default zk-operator pravega/zookeeper-operator --set "watchNamespace=default"
+if ! kubectl get deployment zk-operator-zookeeper-operator > /dev/null; then
+    helm upgrade --install --version ${ZK_OPERATOR_VERSION} -n default zk-operator pravega/zookeeper-operator --set "watchNamespace=default"
+fi
 
 # kafka
-kafka_crd_url=https://github.com/banzaicloud/koperator/releases/download/v${KAFKA_OPERATOR_VERSION}/kafka-operator.crds.yaml
-kubectl create -f $kafka_crd_url || kubectl replace -f $kafka_crd_url
-helm upgrade --install --version ${KAFKA_OPERATOR_VERSION} -n default kafka-operator ${KAFKA_CHART}
+if ! kubectl get deployment kafka-operator-operator > /dev/null; then
+    kafka_crd_url=https://github.com/banzaicloud/koperator/releases/download/v${KAFKA_OPERATOR_VERSION}/kafka-operator.crds.yaml
+    kubectl create -f $kafka_crd_url || kubectl replace -f $kafka_crd_url
+    helm upgrade --install --version ${KAFKA_OPERATOR_VERSION} -n default kafka-operator ${KAFKA_CHART}
+fi
 
 # keycloak
-envsubst < $DIR/configs/keycloak_config.json > $DIR/configs/keycloak-realm.json
-kubectl create configmap keycloak-realm --from-file=$DIR/configs/keycloak-realm.json
-helm upgrade --install --version ${KEYCLOAK_VERSION} keycloak codecentric/keycloak -f "$DIR/configs/keycloak_options.yaml" -f "${KEYCLOAK_INGRESS_OPTIONS}"
+if ! kubectl get configmap keycloak-realm > /dev/null; then
+    envsubst < $DIR/configs/keycloak_config.json > $DIR/configs/keycloak-realm.json
+    kubectl create configmap keycloak-realm --from-file=$DIR/configs/keycloak-realm.json
+fi
+if ! kubectl get sts keycloak > /dev/null; then
+    helm upgrade --install --version ${KEYCLOAK_VERSION} keycloak codecentric/keycloak -f "$DIR/configs/keycloak_options.yaml" -f "${KEYCLOAK_INGRESS_OPTIONS}"
+fi
 
 kubectl rollout status sts/keycloak --timeout=10m
 
@@ -212,8 +228,15 @@ build_solution_base_manifests() {
 
     # Limits and requests for MongoDB are computed based on the current system
     # Detect total system RAM in GiB
-    TOTAL_RAM_GB=$(awk '/MemTotal/ {printf "%.0f", $2/1024/1024}' /proc/meminfo)
-  
+    if [ -f /proc/meminfo ]; then
+        TOTAL_RAM_GB=$(awk '/MemTotal/ {printf "%.0f", $2/1024/1024}' /proc/meminfo)
+    else
+        TOTAL_RAM_GB=$(( $(sysctl -n hw.memsize ) / 1024 / 1024 ))
+    fi
+
+    # Limit to 12GB max for testing purposes, so we _request_ at most 8GB for mongo
+    TOTAL_RAM_GB=$(( TOTAL_RAM_GB > 12 ? 12 : TOTAL_RAM_GB ))
+
     # Compute MongoDB settings based on the total RAM
     MONGODB_WIRETIGER_CACHE_SIZE_GB=$((TOTAL_RAM_GB * 335 / 1000))
     MONGODB_MONGOS_RAM_LIMIT=$((TOTAL_RAM_GB * 165 / 1000))Gi
@@ -231,7 +254,25 @@ build_solution_base_manifests() {
 
 get_image_from_deps() {
     local dep_name=$1
-    yq eval ".$dep_name | (.sourceRegistry // \"docker.io\") + \"/\" + .image + \":\" + .tag" $SOLUTION_BASE_DIR/deps.yaml
+    local image_ref=$(yq eval ".$dep_name | (.sourceRegistry // \"docker.io\") + \"/\" + .image + \":\" + .tag" $SOLUTION_BASE_DIR/deps.yaml)
+
+    # On macOS, resolve to amd64-specific digest if avoid to avoid multi-platform issues
+    if [[ "$(uname -o -m)" == "Darwin arm64" ]]; then
+        # Get amd64 digest only if there's no arm64 support
+        local amd64_digest=$(docker buildx imagetools inspect "$image_ref" --raw | \
+            jq -r 'if any(.manifests[]; .platform.architecture == "arm64" and .platform.os == "linux")
+                   then empty
+                   else (.manifests[] | select(.platform.architecture == "amd64" and .platform.os == "linux") | .digest) end')
+
+        if [ -n "$amd64_digest" ]; then
+            # Replace tag with digest
+            local image_base=$(cut -d: -f1 <<< "$image_ref")
+            echo "${image_base}@${amd64_digest}"
+            return
+        fi
+    fi
+
+    echo "$image_ref"
 }
 
 retry() {
