@@ -42,6 +42,15 @@ async function currentBranch(repo: string = 'zenko') {
     return stdout.trim();
 }
 
+function withBranch(branchName: string, repo: string = 'zenko') {
+    const f = async () => {
+        await exec('git -C ' + github.repo.getPath(repo) + ' checkout -B ' + branchName);
+        act.setEnv('GITHUB_REF', 'refs/heads/' + branchName);
+    };
+    f.toString = () => " and branch " + branchName;
+    return f;
+}
+
 function withVersionFile(versionFile: string, repo: string = 'zenko') {
     const f = async () => {
         const targetVersionFile = github.repo.getPath(repo) + '/VERSION';
@@ -138,13 +147,17 @@ const Fail = { toString: () => "fail", value: () => 1 };
 
 test.each([
     ['Check if tag matches the branch name', Fail, '2.4.1', ''],
+    ['Check if tag matches the branch name', Fail, '2.3.7.1', ''],
     ['Check if tag matches VERSION file', Fail, '2.3.7', ''],
     ['Check if tag matches VERSION file', Fail, '2.3.8', ''],
+    ['Check if tag matches VERSION file', Fail, '2.3.7.1', withBranch("hotfix/2.3.7")],
     ['Check if tag has not already been created', Fail, '2.3.7-rc.1', withGitTag('2.3.7-rc.1')],
+    ['Check if tag has not already been created', Fail, '2.3.7.1', withBranch("hotfix/2.3.7"), withVersionFile("VERSION-2.3.7.1"), withGitTag('2.3.7.1')],
     ['Promote artifacts', Fail, '2.3.7-rc.1', withArtifact('github:scality:Zenko:staging-ac5768a8c6.build-iso-and-end2end-test.3454')],
     ['Promote artifacts', Pass, '2.3.7-rc.1', ''],
     ['Promote artifacts', Pass, '2.3.7', withVersionFile("VERSION-2.3.7")],
     ['Promote artifacts', Pass, '2.3.7-rc.1', withoutArtifact()],
+    ['Promote artifacts', Pass, '2.3.7.1', withBranch("hotfix/2.3.7"), withVersionFile("VERSION-2.3.7.1")],
 ])("%s should %s when version is %s%s", async (stepName, status, tag, ...configs) => {
 
     for(var c of configs.filter(c => !!c)) {
@@ -155,7 +168,9 @@ test.each([
     act.setInput("tag", tag);
 
     const result = await act.runEvent("workflow_dispatch", {
-        logFile: process.env.ACT_LOG ? "act-release-"+expect.getState().currentTestName+".log" : undefined,
+        logFile: process.env.ACT_LOG
+            ? "act-release-" + expect.getState().currentTestName!.replace(/[ /]/g, '_') + ".log"
+            : undefined,
         verbose: process.env.ACT_VERBOSE ? true : false,
         mockApi: [
             // Mock artifact promotion: copy, retrieve workflow run and set index

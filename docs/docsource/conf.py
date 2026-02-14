@@ -39,8 +39,8 @@ VERSION_FILE = (doc_dir / "../../VERSION").resolve()
 
 VERSION_INFO = {
     "VERSION": "",
-    "VERSION_SUFFIX": "",
-    "VERSION_FULL": "",
+    "VERSION_HOTFIX": "",
+    "VERSION_PRERELEASE": "",
 }
 with VERSION_FILE.open("r", encoding="utf-8") as fp:
     for line in fp:
@@ -50,9 +50,9 @@ with VERSION_FILE.open("r", encoding="utf-8") as fp:
             VERSION_INFO[var] = value.strip('"')
 
 
-version = "{VERSION}".format(**VERSION_INFO)
+version = "{VERSION}{VERSION_HOTFIX}".format(**VERSION_INFO)
 # The full version, including alpha/beta/rc tags.
-release = "{VERSION}{VERSION_SUFFIX}".format(**VERSION_INFO)
+release = "{VERSION}{VERSION_HOTFIX}{VERSION_PRERELEASE}".format(**VERSION_INFO)
 
 # -- General configuration ---------------------------------------------------
 
