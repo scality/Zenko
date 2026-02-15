@@ -31,23 +31,21 @@ jobs:
       - name: Check if tag matches the branch name
         shell: bash
         run: |
-          if [[ "${{ github.event.inputs.tag }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(-.*)?$ ]]; then
+          if [[ "${{ github.event.inputs.tag }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+-[0-9]+$ ]]; then
             # Hotfix release: extract base version from tag (e.g., 2.13.5 from 2.13.5.1)
-            [[ "refs/heads/hotfix/${{ github.event.inputs.tag }}" == "${{ github.ref }}."* ]]
-          else
+            [[ "refs/heads/hotfix/${{ github.event.inputs.tag }}" == "${{ github.ref }}-"* ]]
+          elif [[ "${{ github.event.inputs.tag }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-.*)?$ ]]; then
             # Regular release: tag must match branch name
             [[ "refs/heads/development/${{ github.event.inputs.tag }}" == "${{ github.ref }}."* ]]
+          else
+            echo "Error: Tag must be in format X.Y.Z(-<prerelease>) or X.Y.Z-N (hotfix)"
+            exit 1
           fi
 
       - name: Check if tag matches VERSION file
         shell: bash
         run: |
           source VERSION
-
-          # Hotfix release: convert VERSION_FULL from semver format (2.13.5-1 -> 2.13.5.1)
-          if [[ "$VERSION_HOTFIX" =~ ^-([0-9]+)$ ]]; then
-            VERSION_FULL="${VERSION}.${BASH_REMATCH[1]}${VERSION_PRERELEASE}"
-          fi
 
           # Direct match (handles regular releases and hotfix with VERSION_FULL=X.Y.Z.N)
           [[ "${{ github.event.inputs.tag }}" == "$VERSION_FULL" ]]
@@ -96,6 +94,13 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
+
+            // Convert semver-compliant hotfix tags (e.g., 2.13.5-1) to 4-digits format for comparison
+            let tag = context.payload.inputs.tag;
+            const hotfixMatch = tag.match(/^(\d+\.\d+\.\d+)-(\d+)$/);
+            if (hotfixMatch) {
+              tag = `${hotfixMatch[1]}.${hotfixMatch[2]}`;
+            }
 
             // Get the previous release tag
             const { getPreviousTag } = require('./.github/scripts/get-previous-tag');
