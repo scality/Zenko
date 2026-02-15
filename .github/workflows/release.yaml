@@ -31,12 +31,23 @@ jobs:
       - name: Check if tag matches the branch name
         shell: bash
         run: |
-          [[ "refs/heads/development/${{ github.event.inputs.tag }}" == "${{ github.ref }}."* ]]
+          if [[ "${{ github.event.inputs.tag }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+-[0-9]+$ ]]; then
+            # Hotfix release: extract base version from tag (e.g., 2.13.5 from 2.13.5.1)
+            [[ "refs/heads/hotfix/${{ github.event.inputs.tag }}" == "${{ github.ref }}-"* ]]
+          elif [[ "${{ github.event.inputs.tag }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-.*)?$ ]]; then
+            # Regular release: tag must match branch name
+            [[ "refs/heads/development/${{ github.event.inputs.tag }}" == "${{ github.ref }}."* ]]
+          else
+            echo "Error: Tag must be in format X.Y.Z(-<prerelease>) or X.Y.Z-N (hotfix)"
+            exit 1
+          fi
 
       - name: Check if tag matches VERSION file
         shell: bash
         run: |
           source VERSION
+
+          # Direct match (handles regular releases and hotfix with VERSION_FULL=X.Y.Z.N)
           [[ "${{ github.event.inputs.tag }}" == "$VERSION_FULL" ]]
 
       - name: Check if tag has not already been created
@@ -72,7 +83,7 @@ jobs:
         run: |
           source VERSION
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
-          echo "VERSION_SUFFIX=${VERSION_SUFFIX}" >> $GITHUB_ENV
+          echo "VERSION_PRERELEASE=${VERSION_PRERELEASE}" >> $GITHUB_ENV
 
       - name: Generate release notes
         uses: actions/github-script@v7
@@ -83,6 +94,13 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
+
+            // Convert semver-compliant hotfix tags (e.g., 2.13.5-1) to 4-digits format for comparison
+            let tag = context.payload.inputs.tag;
+            const hotfixMatch = tag.match(/^(\d+\.\d+\.\d+)-(\d+)$/);
+            if (hotfixMatch) {
+              tag = `${hotfixMatch[1]}.${hotfixMatch[2]}`;
+            }
 
             // Get the previous release tag
             const { getPreviousTag } = require('./.github/scripts/get-previous-tag');
@@ -112,7 +130,7 @@ jobs:
           generate_release_notes: false
           body: ${{ env.RELEASE_NOTES }}
           target_commitish: ${{ github.sha }}
-          prerelease: ${{ env.VERSION_SUFFIX != '' }}
+          prerelease: ${{ env.VERSION_PRERELEASE != '' }}
 
   promote:
     runs-on: ubuntu-24.04
