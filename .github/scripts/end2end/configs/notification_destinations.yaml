@@ -29,7 +29,7 @@ spec:
 apiVersion: zenko.io/v1alpha2
 kind: ZenkoNotificationTarget
 metadata:
-  name: ${NOTIF_AUTH_DEST_NAME}
+  name: ${NOTIF_PLAIN_DEST_NAME}
   labels:
     app.kubernetes.io/instance: ${ZENKO_NAME}
 spec:
@@ -41,3 +41,22 @@ spec:
   plain:
     username: ${NOTIF_AUTH_DEST_USERNAME}
     password: ${NOTIF_AUTH_DEST_PASSWORD}
+
+---
+
+apiVersion: zenko.io/v1alpha2
+kind: ZenkoNotificationTarget
+metadata:
+  name: ${NOTIF_SCRAM_DEST_NAME}
+  labels:
+    app.kubernetes.io/instance: ${ZENKO_NAME}
+spec:
+  type: kafka
+  host: ${NOTIF_KAFKA_AUTH_HOST}
+  port: ${NOTIF_KAFKA_SCRAM_PORT}
+  destinationTopic: ${NOTIF_SCRAM_DEST_TOPIC}
+  auth: scram
+  scram:
+    username: ${NOTIF_SCRAM_DEST_USERNAME}
+    password: ${NOTIF_SCRAM_DEST_PASSWORD}
+    mechanism: SHA-512

@@ -61,6 +61,11 @@ KAFKA_HOST_PORT=$(kubectl get secret -l app.kubernetes.io/name=backbeat-config,a
 KAFKA_HOST_PORT=${KAFKA_HOST_PORT:1:-1}
 KAFKA_PORT=${KAFKA_HOST_PORT#*:}
 
+# Subtle: we push to the authenticated Kafka through SASL/PLAIN and SASL/SCRAM,
+# as defined in notification_destinations.yaml, but we check the resulting
+# notification in the tests through the unauthenticated listener.
+# This is why we reuse the base Kafka port here, rather than 9094/9095.
+# This variable is used for checking the notifications only.
 KAFKA_AUTH_HOST="end2end-base-queue-auth-0"
 KAFKA_AUTH_HOST_PORT="$KAFKA_AUTH_HOST:$KAFKA_PORT"
 
@@ -97,10 +102,10 @@ WORLD_PARAMETERS="$(jq -c <<EOF
   "NotificationDestinationTopic":"${NOTIF_DEST_TOPIC}",
   "NotificationDestinationAlt":"${NOTIF_ALT_DEST_NAME}",
   "NotificationDestinationTopicAlt":"${NOTIF_ALT_DEST_TOPIC}",
-  "NotificationDestinationAuth":"${NOTIF_AUTH_DEST_NAME}",
-  "NotificationDestinationTopicAuth":"${NOTIF_AUTH_DEST_TOPIC}",
-  "NotificationDestinationAuthUsername":"${NOTIF_AUTH_DEST_USERNAME}",
-  "NotificationDestinationAuthPassword":"${NOTIF_AUTH_DEST_PASSWORD}",
+  "NotificationDestinationPlain":"${NOTIF_PLAIN_DEST_NAME}",
+  "NotificationDestinationTopicPlain":"${NOTIF_AUTH_DEST_TOPIC}",
+  "NotificationDestinationScram":"${NOTIF_SCRAM_DEST_NAME}",
+  "NotificationDestinationTopicScram":"${NOTIF_SCRAM_DEST_TOPIC}",
   "KafkaExternalIps": "${KAFKA_EXTERNAL_IP:-}",
   "PrometheusService":"${PROMETHEUS_NAME}-operated.default.svc.cluster.local",
   "KafkaHosts":"${KAFKA_HOST_PORT}",
