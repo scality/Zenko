@@ -33,7 +33,7 @@ runs:
   using: composite
   steps:
     - name: Publish test report
-      uses: mikepenz/action-junit-report@v4
+      uses: mikepenz/action-junit-report@v6
       with:
         annotate_only: true
         check_name: ${{ inputs.stage}}
@@ -49,6 +49,16 @@ runs:
         junit-paths: ${{ inputs.junit-paths }}
         org-slug: ${{ github.repository_owner }}
         token: ${{ inputs.trunk_token }}
+      continue-on-error: true
+
+    - name: Archive Cucumber test reports to artifacts
+      shell: bash
+      run: |-
+        set -exu
+        mkdir -p /tmp/artifacts/data/${STAGE}/reports
+        cp -r /artifacts/data/reports/* /tmp/artifacts/data/${STAGE}/reports/ 2>/dev/null || echo "No reports found"
+      env:
+        STAGE: ${{ inputs.stage }}
       continue-on-error: true
 
     - name: Archive artifact logs and data
