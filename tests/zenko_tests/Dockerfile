@@ -43,12 +43,7 @@ RUN python3 -m pip install -r /tmp/requirements.txt tox && \
     rm -rf /tmp/npm-* && \
     rm -rf /var/cache/apk/*
 
-COPY ./node_tests/npm_chain.sh ./docker-entrypoint.sh ./wait_for_ceph.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/npm_chain.sh /usr/local/bin/docker-entrypoint.sh /usr/local/bin/wait_for_ceph.sh
-
 # Copy Tests
 COPY . /usr/local/bin/tests/
 
 WORKDIR /usr/local/bin/tests
-
-CMD [ "docker-entrypoint.sh" ]
