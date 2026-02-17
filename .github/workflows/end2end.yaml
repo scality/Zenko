@@ -115,7 +115,6 @@ env:
   EXPIRE_ONE_DAY_EARLIER: true
   TRANSITION_ONE_DAY_EARLIER: true
   TIME_PROGRESSION_FACTOR: 1
-  JUNIT_REPORT_PATH: /reports/ctst-junit.xml
   # DEBUG WAIT
   TMATE_SERVER_HOST: ${{ secrets.TMATE_SERVER_HOST }}
   TMATE_SERVER_PORT: ${{ secrets.TMATE_SERVER_PORT }}
@@ -392,9 +391,11 @@ jobs:
             cli-testing
       - name: Configure GIT
         run: |
-          git config --global url.https://x-access-token:${{ env.GIT_ACCESS_TOKEN }}@github.com/.insteadOf https://github.com/
-          git config --global url.https://x-access-token:${{ env.GIT_ACCESS_TOKEN }}@github.com/.insteadOf github.com:
-          git config --global url.https://x-access-token:${{ env.GIT_ACCESS_TOKEN }}@github.com/.insteadOf ssh://git@github.com/
+          echo "machine github.com login x-access-token password ${GIT_ACCESS_TOKEN}" > ~/.netrc
+          chmod 600 ~/.netrc
+          git config --global url.https://x-access-token:${GIT_ACCESS_TOKEN}@github.com/.insteadOf https://github.com/
+          git config --global url.https://x-access-token:${GIT_ACCESS_TOKEN}@github.com/.insteadOf git@github.com:
+          git config --global url.https://x-access-token:${GIT_ACCESS_TOKEN}@github.com/.insteadOf ssh://git@github.com/
         env:
           GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
       - uses: actions/setup-node@v4
@@ -416,10 +417,6 @@ jobs:
           username: "${{ github.repository_owner }}"
           password: "${{ github.token }}"
           registry: ghcr.io
-      - name: Get CTST image tag
-        shell: bash
-        run: |-
-          echo "CTST_TAG=$(sed 's/.*"cli-testing": ".*#\(.*\)".*/\1/;t;d' ./tests/ctst/package.json)" >> $GITHUB_ENV
       - name: Extract environment
         working-directory: solution
         run: |-
@@ -432,10 +429,12 @@ jobs:
         with:
           push: true
           context: ./tests/ctst
+          file: ./tests/ctst/Dockerfile
+          secrets: |
+            GIT_AUTH_TOKEN=${{ steps.app-token.outputs.token }}
           build-args: |
-            CTST_TAG=${{ env.CTST_TAG }}
             SORBET_TAG=${{ env.SORBET_TAG }}
-            DRCTL_TAG=${{ env.DRCTL_TAG}}
+            DRCTL_TAG=${{ env.DRCTL_TAG }}
           tags: "${{ env.E2E_CTST_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}"
           cache-from: type=gha,scope=end2end-ctst
           cache-to: type=gha,mode=max,scope=end2end-ctst
@@ -495,7 +494,7 @@ jobs:
         run: bash configure-e2e-ctst.sh
         working-directory: ./.github/scripts/end2end
       - name: Run CTST end to end tests
-        run: bash run-e2e-ctst.sh "" "" "" "" --tags @PRA
+        run: bash run-e2e-ctst.sh "@PRA"
         working-directory: ./.github/scripts/end2end
       - name: Debug wait
         uses: ./.github/actions/debug-wait
@@ -667,7 +666,7 @@ jobs:
         run: bash configure-e2e-ctst.sh
         working-directory: ./.github/scripts/end2end
       - name: Run CTST end to end tests
-        run: bash run-e2e-ctst.sh "" "" "" "" --tags 'not @PRA'
+        run: bash run-e2e-ctst.sh "@PreMerge and not @PRA"
         working-directory: ./.github/scripts/end2end
       - name: Debug wait
         uses: ./.github/actions/debug-wait

@@ -1,14 +1,16 @@
 # Zenko Codespaces
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/scality/Zenko)
 
+A [VS Code extension](https://marketplace.visualstudio.com/items?itemName=GitHub.codespaces) is available for Codespaces.
+
 ## Running CTST tests in the codespace
 
-To run the CTST tests in the codespace, simply head to `.github/script/end2end/` and run `run-e2e-ctst.sh` script.
-
 ```bash
-    cd .github/scripts/end2end/
-    bash run-e2e-ctst.sh
+cd tests/ctst
+./run-ctst-locally.sh @yourTag
 ```
+
+See [tests/ctst/README.md](../tests/ctst/README.md) for more details on building custom images and advanced usage.
 
 ## Running e2e tests in the codespace
 
@@ -62,3 +64,13 @@ Now you can use aws cli to interact with the S3 service
 ```bash
     aws s3 ls --endpoint http://localhost:8080
 ```
+
+## Troubleshooting
+
+### Inspecting Codespace creation logs
+
+You can inspect the logs of the Codespace creation this way:
+1. Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on Mac)
+2. Type "Codespaces: Export Logs" and select it
+3. A zip file will be downloaded to your local machine
+4. In the zip, look at the `creation.log` file

@@ -1,14 +1,15 @@
 #!/bin/bash
 set -exu
 
-ZENKO_NAME=${1:-end2end}
-COMMAND=${2:-"premerge"}
+# Usage: run-e2e-ctst.sh <TAGS>
+# Examples:
+#   run-e2e-ctst.sh "@PreMerge"
+#   run-e2e-ctst.sh "@PreMerge and not @PRA"
+#   run-e2e-ctst.sh "@PRA"
+
+TAGS=${1:?'Error: TAGS argument is required (e.g., "@PreMerge", "@PRA")'}
+ZENKO_NAME="end2end"
 PARALLEL_RUNS=${PARALLEL_RUNS:-$(( ( $(nproc) + 1 ) / 2 ))}
-RETRIES=${4:-3}
-
-shift 4
-
-JUNIT_REPORT_PATH=${JUNIT_REPORT_PATH:-"ctst-junit.xml"}
 
 # Zenko Version
 VERSION=$(cat ../../../VERSION | grep -Po 'VERSION="\K[^"]*')
@@ -155,7 +156,7 @@ docker run \
     --rm \
     --network=host \
     "${E2E_IMAGE}" /bin/bash \
-    -c "SUBDOMAIN=${SUBDOMAIN} CONTROL_PLANE_INGRESS_ENDPOINT=${OIDC_ENDPOINT} ACCOUNT=${ZENKO_ACCOUNT_NAME} KEYCLOAK_REALM=${KEYCLOAK_TEST_REALM_NAME} STORAGE_MANAGER=${STORAGE_MANAGER_USER_NAME} STORAGE_ACCOUNT_OWNER=${STORAGE_ACCOUNT_OWNER_USER_NAME} DATA_CONSUMER=${DATA_CONSUMER_USER_NAME} DATA_ACCESSOR=${DATA_ACCESSOR_USER_NAME} /ctst/bin/seedKeycloak.sh"; [[ $? -eq 1 ]] && exit 1 || echo 'Keycloak Configured!'
+    -c "SUBDOMAIN=${SUBDOMAIN} CONTROL_PLANE_INGRESS_ENDPOINT=${OIDC_ENDPOINT} ACCOUNT=${ZENKO_ACCOUNT_NAME} KEYCLOAK_REALM=${KEYCLOAK_TEST_REALM_NAME} STORAGE_MANAGER=${STORAGE_MANAGER_USER_NAME} STORAGE_ACCOUNT_OWNER=${STORAGE_ACCOUNT_OWNER_USER_NAME} DATA_CONSUMER=${DATA_CONSUMER_USER_NAME} DATA_ACCESSOR=${DATA_ACCESSOR_USER_NAME} /ctst/node_modules/cli-testing/bin/seedKeycloak.sh"; [[ $? -eq 1 ]] && exit 1 || echo 'Keycloak Configured!'
 
 # Grant access to Kube API (insecure, only for testing)
 kubectl create clusterrolebinding serviceaccounts-cluster-admin \
@@ -175,6 +176,7 @@ kubectl run $POD_NAME \
         --env=AZURE_BLOB_URL=$AZURE_BACKEND_ENDPOINT  \
         --env=AZURE_QUEUE_URL=$AZURE_BACKEND_QUEUE_ENDPOINT \
         --env=VERBOSE=1 \
+        --env=SDK=true \
         --override-type strategic \
         --overrides='
 {
@@ -212,4 +214,12 @@ kubectl run $POD_NAME \
       }
     ]
   }
-}' -- ./run "$COMMAND" $WORLD_PARAMETERS --parallel $PARALLEL_RUNS --retry $RETRIES --retry-tag-filter @Flaky --format junit:$JUNIT_REPORT_PATH "$@"
+}' -- yarn cucumber-js \
+    --config cucumber.config.cjs \
+    --tags "${TAGS}" \
+    --world-parameters "$WORLD_PARAMETERS" \
+    --parallel $PARALLEL_RUNS \
+    --retry 3 \
+    --retry-tag-filter @Flaky \
+    --format junit:/reports/ctst-junit.xml \
+    --format html:/reports/report.html

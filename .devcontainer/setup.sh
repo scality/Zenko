@@ -74,8 +74,9 @@ done
 
 docker image prune -af
 
-CTST_TAG=$(sed 's/.*"cli-testing": ".*#\(.*\)".*/\1/;t;d' ./tests/ctst/package.json)
+# Build CTST image from current branch 
 SORBET_TAG=$(yq eval '.sorbet.tag' solution/deps.yaml)
 DRCTL_TAG=$(yq eval '.drctl.tag' solution/deps.yaml)
-docker build --build-arg CTST_TAG=$CTST_TAG --build-arg SORBET_TAG=$SORBET_TAG --build-arg DRCTL_TAG=$DRCTL_TAG -t $E2E_CTST_IMAGE_NAME:$E2E_IMAGE_TAG ./tests/ctst
-kind load docker-image  ${E2E_CTST_IMAGE_NAME}:${E2E_IMAGE_TAG}
+TAG_NAME=ctst_codespace_setup
+GIT_AUTH_TOKEN=$GITHUB_TOKEN docker build --secret id=GIT_AUTH_TOKEN --build-arg SORBET_TAG=$SORBET_TAG --build-arg DRCTL_TAG=$DRCTL_TAG -t $E2E_CTST_IMAGE_NAME:$TAG_NAME ./tests/ctst
+kind load docker-image ${E2E_CTST_IMAGE_NAME}:$TAG_NAME

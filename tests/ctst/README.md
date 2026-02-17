@@ -1,63 +1,76 @@
-# CTST tests for Zenko
+# CTST Tests for Zenko
 
-Set of feature tests for Zenko. CTST is a CucumberJS-powered test runner with
-AWS-CLI support. It allows to write API-based feature tests and run them against
-a running Zenko. CTST uses external test files and *worlds* and is modular
-enough to let you use any additional library (e.g., Prometheus SDK to perform
-Prometheus queries).
+Cucumber-based end-to-end tests for Zenko. Tests run inside a Kubernetes pod to access internal resources (Kafka, Vault, etc.).
 
-## Use CTST
+Note : Multiple Cucumber vscode extensions are available to help with development.
 
-Running CTST on a local Zenko can be done by running the script `tests/ctst/run.sh`
+## Quick Start (Github Codespaces)
 
-The script runs the end to end tests in a pod withing the kubernetes cluster,
-this was done to give the tests access to internal resources such as the Kafka cluster.
+> **Prerequisites:** This assumes you're running in a GitHub Codespace with the devcontainer fully set up. See [.devcontainer/README.md](../../.devcontainer/README.md) for setup details.
 
-The `kubectl run` command uses a custom image of CTST containing the required test
-folders. The image can be built and pushed with the following steps:
-
-``` bash
-cd ./tests/ctst/
-
-# Building the image
-docker build --build-arg CTST_TAG=0.2.0 . -t ghcr.io/scality/playground/<username>/custom-ctst:0.2.0
-
-# Pushing the custom image into a repository
-docker push ghcr.io/scality/playground/<username>/custom-ctst:0.2.0
-```
-
-Running the tests can be done with the following steps:
+Run tests with a tag:
 
 ```bash
-cd ./tests/ctst/
-
-ZENKO_ACCOUNT_NAME=<ZENKO_ACCOUNT_NAME> \
-ZENKO_ACCESS_KEY=<ZENKO_ACCESS_KEY> \
-ZENKO_SECRET_KEY=<ZENKO_SECRET_KEY> \
-ZENKO_PORT=<ZENKO_PORT> \
-SUBDOMAIN=<SUBDOMAIN> \
-E2E_IMAGE=<E2E_IMAGE> \
-./run.sh <mode> <parallel_workers>
+cd tests/ctst
+./run-ctst-locally.sh @getObject
+./run-ctst-locally.sh "@PreMerge and not @Flaky"  # Use quotes for complex expressions
 ```
 
-Where `ZENKO_ACCOUNT_NAME`, `ZENKO_ACCESS_KEY` and `ZENKO_SECRET_KEY` are the account credentials.
+This uses the pre-built image `ghcr.io/scality/zenko/zenko-e2e-ctst:ctst_codespace_setup` which is built and loaded into kind when Codespace setup.sh runs.
 
-`SUBDOMAIN` and `ZENKO_PORT` are the subdomain and port used to reach Zenko.
+### Rebuilding the CTST Image
 
-And `E2E_IMAGE` is the custom CTST image that we built in the previous step.
+If you need to test changes to the Dockerfile or dependencies:
 
-`mode` is how we want to run CTST, the value can be one of :
+```bash
+# 1. Build the CTST image
 
-- `dry-run`: invoke formatters without executing steps,
-this can be used to check if CTST is working properly
-- `premerge`: runs all tests tagged with @PreMerge
-- `all`: runs all tests
+SORBET_TAG=$(yq eval '.sorbet.tag' ../../solution/deps.yaml)
+DRCTL_TAG=$(yq eval '.drctl.tag' ../../solution/deps.yaml)
+GIT_AUTH_TOKEN=$GITHUB_TOKEN docker build \
+  --secret id=GIT_AUTH_TOKEN \
+  --build-arg SORBET_TAG=$SORBET_TAG \
+  --build-arg DRCTL_TAG=$DRCTL_TAG \
+  -t ctst-local:dev \
+  .
 
-`parallel_workers` sets the number of tests to run in parallel
+# 2. Load into kind (and reset the pod if it already exists with a different image)
+kind load docker-image ctst-local:dev
+kubectl delete pod ctst-end2end
 
-> **Note:**
->
-> Some tests may require some additional configuration before running the tests.
->
-> Please refer to `.github/scripts/end2end/configure-e2e-ctst.sh` to see the configuration applied
-in the CI for CTST tests.
+# 3. Run tests with custom image
+./run-ctst-locally.sh @getObject ctst-local:dev
+./run-ctst-locally.sh "@PreMerge or @CRR" ctst-local:dev  # Complex expressions need quotes
+```
+
+### Resetting the Test Pod
+
+The test pod persists between runs for faster iteration. If you need to reset it (e.g., after changing the image):
+
+```bash
+kubectl delete pod ctst-end2end
+```
+
+## How It Works
+
+1. **Image is loaded into kind** - The Docker image is loaded into the kind cluster
+2. **Pod runs with `sleep infinity`** - A long-running pod is created for fast test iteration
+3. **Test files are copied** - Local `features/`, `steps/`, `common/`, `world/` are copied into the pod
+4. **Tests run via `yarn cucumber-js`** - Standard Cucumber syntax with tag filtering
+
+## Tag Syntax
+
+Use any valid Cucumber tag expression. Use quotes for expressions with spaces:
+
+```bash
+./run-ctst-locally.sh @getObject
+./run-ctst-locally.sh @PreMerge
+./run-ctst-locally.sh "@PreMerge and not @Flaky"
+./run-ctst-locally.sh "@CRR or @Lifecycle"
+```
+
+## Configuration
+
+The script uses hardcoded world parameters suitable for local Codespace testing. For CI configuration, see `.github/scripts/end2end/run-e2e-ctst.sh`.
+
+> **Important note:** Some tests require additional configuration. See `.github/scripts/end2end/configure-e2e-ctst.sh` for CI setup.

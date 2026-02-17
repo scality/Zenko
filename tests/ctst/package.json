@@ -8,24 +8,28 @@
   "license": "ISC",
   "private": true,
   "dependencies": {
+    "@cucumber/cucumber": "^10.9.0",
     "@kubernetes/client-node": "^0.21.0",
     "@types/proper-lockfile": "^4.1.4",
     "@types/qs": "^6.9.15",
     "assert": "^2.1.0",
     "aws4-axios": "^3.3.8",
+    "cli-testing": "git+https://github.com/scality/cli-testing.git#v1.2.4",
     "kafkajs": "^2.2.4",
     "node-gyp": "^10.2.0",
     "prometheus-query": "^3.4.0",
     "proper-lockfile": "^4.1.2",
     "qs": "^6.13.0",
-    "scubaclient": "git+https://github.com/scality/scubaclient#^1.1.2"
+    "scubaclient": "git+https://github.com/scality/scubaclient.git#1.1.4",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.8.3"
   },
   "devDependencies": {
     "@aws-sdk/client-iam": "^3.901.0",
     "@aws-sdk/client-s3": "^3.901.0",
     "@aws-sdk/client-sts": "^3.901.0",
     "@eslint/compat": "^1.1.1",
-    "cli-testing": "github:scality/cli-testing.git#1.2.4",
     "eslint": "^9.9.1",
     "eslint-config-scality": "scality/Guidelines#8.3.0",
     "typescript-eslint": "^8.4.0"
