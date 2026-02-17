@@ -1,8 +1,27 @@
 # Table of contents
 
+- [How to run node tests in a Codespace](#how-to-run-node-tests-locally-in-a-codespace)
 - [How to write iam policy e2e tests](#how-to-write-iam-policy-e2e-tests)
 - [How to run zenko end2end test locally with zenko-operator](#how-to-run-zenko-end2end-test-locally-with-zenko-operator)
 - [How to run zenko end2end test locally with cloudserver and vault](#how-to-run-zenko-end2end-test-locally-with-cloudserver-and-vault)
+
+# How to run node tests locally in a Codespace
+
+```bash
+cd tests/zenko_tests/node_tests
+
+# Run a specific test with grep
+./run-node-tests-locally.sh "should list objects in V2 format" "cloudserver/bucketGetV2"
+
+# Run all tests in a folder
+./run-node-tests-locally.sh "" "cloudserver"
+
+# Build and use a custom image
+docker build -t my-e2e:local ../
+./run-node-tests-locally.sh "should list objects" "cloudserver" my-e2e:local
+```
+
+To switch images, delete the pod first: `kubectl delete pod node-tests-local`
 
 # How to write iam policy e2e tests
 
