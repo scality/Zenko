@@ -32,22 +32,60 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Download previous merged JUnit report
-      if: ${{ github.run_attempt > 1 }}
-      uses: actions/download-artifact@v4
+    - name: Upload current JUnit reports
+      if: always()
+      uses: actions/upload-artifact@v4
       with:
-        name: junit-merged-${{ github.job }}-attempt-${{ github.run_attempt - 1 }}
-        path: /tmp/junit-previous
-        run-id: ${{ github.run_id }}
-      continue-on-error: true
+        name: junit-reports-${{ github.job }}-attempt-${{ github.run_attempt }}
+        path: ${{ inputs.junit-paths }}
+        if-no-files-found: ignore
+
+    - name: Download previous JUnit reports
+      if: ${{ github.run_attempt > 1 }}
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const { execSync } = require('child_process');
+          const runAttempt = parseInt('${{ github.run_attempt }}');
+          const jobName = '${{ github.job }}';
+          for (let attempt = 1; attempt < runAttempt; attempt++) {
+            const artifactName = `junit-reports-${jobName}-attempt-${attempt}`;
+            try {
+              const resp = await github.rest.actions.listWorkflowRunArtifacts({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: context.runId,
+                per_page: 100,
+              });
+              const artifact = resp.data.artifacts.find(a => a.name === artifactName);
+              if (!artifact) {
+                core.info(`No artifact '${artifactName}' found, skipping.`);
+                continue;
+              }
+              const zip = await github.rest.actions.downloadArtifact({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: artifact.id,
+                archive_format: 'zip',
+              });
+              const dir = `/tmp/junit-previous/attempt-${attempt}`;
+              fs.mkdirSync(dir, { recursive: true });
+              fs.writeFileSync(`${dir}.zip`, Buffer.from(zip.data));
+              execSync(`unzip -o ${dir}.zip -d ${dir}`);
+              core.info(`Extracted attempt ${attempt} reports to ${dir}`);
+            } catch (e) {
+              core.warning(`Failed to download attempt ${attempt}: ${e.message}`);
+            }
+          }
 
     - name: Merge JUnit reports
       shell: bash
       run: |-
-        shopt -s nullglob
+        shopt -s nullglob globstar
         # inputs.junit-paths is a glob pattern; the array assignment expands it
         current_files=(${{ inputs.junit-paths }})
-        prev_files=(/tmp/junit-previous/*.xml)
+        prev_files=(/tmp/junit-previous/**/*.xml)
         all_files=("${current_files[@]}" "${prev_files[@]}")
 
         if [ ${#all_files[@]} -eq 0 ]; then
@@ -55,23 +93,16 @@ runs:
           exit 0
         fi
 
+        mkdir -p /tmp/artifacts/data/${{ inputs.stage }}
         node "$GITHUB_WORKSPACE/.github/scripts/merge-junit-reports.js" \
-          /tmp/junit-merged/merged.xml \
+          /tmp/artifacts/data/${{ inputs.stage }}/junit-merged.xml \
           "${all_files[@]}"
-
-    - name: Upload merged JUnit report
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: junit-merged-${{ github.job }}-attempt-${{ github.run_attempt }}
-        path: /tmp/junit-merged/merged.xml
-        if-no-files-found: ignore
 
     - name: Publish test report
       uses: mikepenz/action-junit-report@v4
       with:
         check_name: ${{ inputs.stage }}
-        report_paths: /tmp/junit-merged/merged.xml
+        report_paths: /tmp/artifacts/data/${{ inputs.stage }}/junit-merged.xml
         job_summary: ${{ job.status != 'success' || github.run_attempt > 1 }}
         detailed_summary: true
         flaky_summary: true
