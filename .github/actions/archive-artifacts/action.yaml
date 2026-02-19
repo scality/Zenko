@@ -172,7 +172,7 @@ runs:
       with:
         check_name: ${{ inputs.stage }}
         report_paths: /tmp/junit-merged/merged.xml
-        job_summary: true
+        job_summary: ${{ job.status != 'success' || github.run_attempt > 1 }}
         detailed_summary: true
         flaky_summary: true
         check_retries: true
