@@ -1,0 +1,131 @@
+---
+name: Merge JUnit Reports
+description: >
+  Download previous run-attempt JUnit reports and merge with the current run.
+  This keeps a full history of test outcomes across re-runs so that flaky tests
+  can be identified later.
+
+inputs:
+  github-token:
+    description: GitHub token used to download artifacts from previous attempts
+    required: true
+  artifact-name:
+    description: >
+      Name of the GitHub Actions artifact used to persist the merged report
+      across re-runs (e.g. "junit-reports-end2end-pra").
+    required: true
+  report-paths:
+    description: >
+      Space-separated glob patterns pointing to the JUnit XML files produced
+      by the current run (on the runner host).
+    default: '/data/reports/*.xml'
+
+outputs:
+  merged-report:
+    description: Absolute path to the merged JUnit XML file
+    value: /tmp/junit-merged/junit-merged.xml
+
+runs:
+  using: composite
+  steps:
+    - name: Copy current-run reports
+      shell: bash
+      run: |
+        shopt -s nullglob
+        mkdir -p /tmp/junit-current
+        for pattern in ${{ inputs.report-paths }}; do
+          for f in $pattern; do
+            [ -f "$f" ] && cp "$f" /tmp/junit-current/ && echo "Copied: $f"
+          done
+        done
+        echo "Current-run reports:"
+        ls /tmp/junit-current/ 2>/dev/null || echo "(none)"
+
+    # Only attempt the download when this is a re-run (attempt > 1).
+    - name: Download previous attempt's merged report
+      if: ${{ github.run_attempt > 1 }}
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const fs   = require('fs');
+          const { execSync } = require('child_process');
+
+          const runId          = context.runId;
+          const currentAttempt = parseInt('${{ github.run_attempt }}');
+          const prevAttempt    = currentAttempt - 1;
+          const artifactName   = '${{ inputs.artifact-name }}';
+
+          core.info(
+            `Searching for artifact '${artifactName}' ` +
+            `from attempt ${prevAttempt} of run ${runId}`
+          );
+
+          const resp = await github.rest.actions.listWorkflowRunArtifacts({
+            owner:    context.repo.owner,
+            repo:     context.repo.repo,
+            run_id:   runId,
+            per_page: 100,
+          });
+
+          // The artifact metadata includes workflow_run.run_attempt so we can
+          // pinpoint exactly the previous attempt's upload.
+          const prev = resp.data.artifacts.find(
+            a =>
+              a.name === artifactName &&
+              a.workflow_run &&
+              a.workflow_run.run_attempt === prevAttempt
+          );
+
+          if (!prev) {
+            core.info(
+              `No artifact '${artifactName}' found for attempt ${prevAttempt}.`
+            );
+            return;
+          }
+
+          core.info(`Found artifact id=${prev.id}; downloading…`);
+
+          const zip = await github.rest.actions.downloadArtifact({
+            owner:           context.repo.owner,
+            repo:            context.repo.repo,
+            artifact_id:     prev.id,
+            archive_format: 'zip',
+          });
+
+          fs.mkdirSync('/tmp/junit-previous', { recursive: true });
+          fs.writeFileSync('/tmp/junit-previous.zip', Buffer.from(zip.data));
+          execSync('unzip -o /tmp/junit-previous.zip -d /tmp/junit-previous/');
+          core.info('Previous-attempt reports extracted to /tmp/junit-previous/');
+
+    - name: Merge reports
+      shell: bash
+      run: |
+        shopt -s nullglob
+        INPUTS=""
+        for dir in /tmp/junit-current /tmp/junit-previous; do
+          if [ -d "$dir" ]; then
+            for f in "$dir"/*.xml; do
+              INPUTS="$INPUTS $f"
+            done
+          fi
+        done
+
+        if [ -z "$INPUTS" ]; then
+          echo "No JUnit XML files found; skipping merge."
+          exit 0
+        fi
+
+        mkdir -p /tmp/junit-merged
+        # shellcheck disable=SC2086
+        python3 "$GITHUB_WORKSPACE/.github/scripts/merge-junit-reports.py" \
+          merge $INPUTS \
+          --output /tmp/junit-merged/junit-merged.xml
+
+    - name: Upload merged report as artifact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: /tmp/junit-merged/junit-merged.xml
+        overwrite: true

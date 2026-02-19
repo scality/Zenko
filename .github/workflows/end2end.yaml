@@ -501,12 +501,19 @@ jobs:
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
         if: failure() && runner.debug == '1'
+      - name: Merge JUnit reports
+        uses: ./.github/actions/merge-reports
+        with:
+          github-token: ${{ github.token }}
+          artifact-name: junit-reports-${{ github.job }}
+        if: always()
       - name: Archive and publish artifacts
         uses: ./.github/actions/archive-artifacts
         with:
           user: ${{ secrets.ARTIFACTS_USER }}
           password: ${{ secrets.ARTIFACTS_PASSWORD }}
           trunk_token: ${{ secrets.TRUNK_TOKEN }}
+          junit-paths: /tmp/junit-merged/*.xml
         if: always()
       - name: Clean Up
         run: kind delete cluster
@@ -565,12 +572,19 @@ jobs:
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
         if: failure() && runner.debug == '1'
+      - name: Merge JUnit reports
+        uses: ./.github/actions/merge-reports
+        with:
+          github-token: ${{ github.token }}
+          artifact-name: junit-reports-${{ github.job }}
+        if: always()
       - name: Archive and publish artifacts
         uses: ./.github/actions/archive-artifacts
         with:
           user: ${{ secrets.ARTIFACTS_USER }}
           password: ${{ secrets.ARTIFACTS_PASSWORD }}
           trunk_token: ${{ secrets.TRUNK_TOKEN }}
+          junit-paths: /tmp/junit-merged/*.xml
         if: always()
       - name: Clean Up
         run: kind delete cluster
@@ -617,12 +631,19 @@ jobs:
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
         if: failure() && runner.debug == '1'
+      - name: Merge JUnit reports
+        uses: ./.github/actions/merge-reports
+        with:
+          github-token: ${{ github.token }}
+          artifact-name: junit-reports-${{ github.job }}
+        if: always()
       - name: Archive and publish artifacts
         uses: ./.github/actions/archive-artifacts
         with:
           user: ${{ secrets.ARTIFACTS_USER }}
           password: ${{ secrets.ARTIFACTS_PASSWORD }}
           trunk_token: ${{ secrets.TRUNK_TOKEN }}
+          junit-paths: /tmp/junit-merged/*.xml
         if: always()
       - name: Clean Up
         run: kind delete cluster
@@ -673,18 +694,26 @@ jobs:
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
         if: failure() && runner.debug == '1'
+      - name: Merge JUnit reports
+        uses: ./.github/actions/merge-reports
+        with:
+          github-token: ${{ github.token }}
+          artifact-name: junit-reports-${{ github.job }}
+        if: always()
       - name: Archive and publish artifacts
         uses: ./.github/actions/archive-artifacts
         with:
           user: ${{ secrets.ARTIFACTS_USER }}
           password: ${{ secrets.ARTIFACTS_PASSWORD }}
           trunk_token: ${{ secrets.TRUNK_TOKEN }}
+          junit-paths: /tmp/junit-merged/*.xml
         if: always()
       - name: Clean Up
         run: kind delete cluster
 
   write-final-status:
     runs-on: ubuntu-24.04
+    if: ${{ always() }}
     needs:
       - check-alerts
       - check-dashboard-versions
@@ -698,6 +727,26 @@ jobs:
       - end2end-pra
       - ctst-end2end-sharded
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Download all merged JUnit reports
+        uses: actions/download-artifact@v4
+        with:
+          pattern: junit-reports-*
+          path: /tmp/junit-all
+          merge-multiple: true
+        continue-on-error: true
+      - name: Report flaky tests
+        run: |
+          shopt -s nullglob
+          files=(/tmp/junit-all/*.xml)
+          if [ ${#files[@]} -gt 0 ]; then
+            python3 .github/scripts/merge-junit-reports.py flaky \
+              "${files[@]}"
+          else
+            echo "No merged JUnit reports found; skipping flaky test detection."
+          fi
+        continue-on-error: true
       - name: Upload final status
         uses: scality/actions/upload_final_status@1.9.0
         with:
