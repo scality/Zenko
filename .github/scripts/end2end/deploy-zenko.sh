@@ -89,6 +89,7 @@ function dependencies_env()
     echo $(dependencies_policy_env)
     echo $(dependencies_config_env)
     echo "ZENKO_VERSION_NAME=${ZENKO_VERSION_NAME}"
+    echo "BUILD_TREE_HASH=$(git rev-parse HEAD:solution/kafka)"
 }
 
 create_encryption_secret()

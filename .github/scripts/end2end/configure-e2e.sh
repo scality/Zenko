@@ -55,10 +55,11 @@ KAFKA_IMAGE=$KAFKA_REGISTRY_NAME/$KAFKA_IMAGE_NAME:$KAFKA_IMAGE_TAG
 KAFKA_HOST_PORT=$(kubectl get secret -l app.kubernetes.io/name=backbeat-config,app.kubernetes.io/instance=end2end \
     -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq .kafka.hosts)
 KAFKA_HOST_PORT=${KAFKA_HOST_PORT:1:-1}
+BUILD_TREE_HASH=$(git rev-parse HEAD:solution/kafka)
 
 # Creating replication/transition and notification topics in kafka
 kubectl run kafka-topics \
-    --image=$KAFKA_IMAGE \
+    --image=$KAFKA_IMAGE-$BUILD_TREE_HASH \
     --pod-running-timeout=5m \
     --rm \
     --restart=Never \

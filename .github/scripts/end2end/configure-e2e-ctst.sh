@@ -6,6 +6,7 @@ KAFKA_REGISTRY_NAME=$(yq eval ".kafka.sourceRegistry" ../../../solution/deps.yam
 KAFKA_IMAGE_NAME=$(yq eval ".kafka.image" ../../../solution/deps.yaml)
 KAFKA_IMAGE_TAG=$(yq eval ".kafka.tag" ../../../solution/deps.yaml)
 KAFKA_IMAGE=$KAFKA_REGISTRY_NAME/$KAFKA_IMAGE_NAME:$KAFKA_IMAGE_TAG
+BUILD_TREE_HASH=$(git rev-parse HEAD:solution/kafka)
 
 # Setup test environment variables
 export ZENKO_NAME=${1:-"end2end"}
@@ -57,7 +58,7 @@ kubectl wait --for=jsonpath='{.status.state}'=ClusterRunning --timeout 10m kafka
 
 # Create SCRAM credentials for the SCRAM listener
 kubectl run kafka-config \
-    --image=$KAFKA_IMAGE \
+    --image=$KAFKA_IMAGE-$BUILD_TREE_HASH \
     --pod-running-timeout=5m \
     --rm \
     --restart=Never \
@@ -91,7 +92,7 @@ AZURE_ARCHIVE_STATUS_TOPIC_2_S="${UUID}.cold-status-e2e-azure-archive-2-suspende
 
 # Creating bucket notification topic in kafka
 kubectl run kafka-topics \
-    --image=$KAFKA_IMAGE \
+    --image=$KAFKA_IMAGE-$BUILD_TREE_HASH \
     --pod-running-timeout=5m \
     --rm \
     --restart=Never \
