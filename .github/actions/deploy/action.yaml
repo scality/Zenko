@@ -14,6 +14,26 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Fix cgroup v2 controller visibility for KinD
+      shell: bash
+      run: |
+        # Docker 29+ / containerd v2 uses private cgroup namespaces by default.
+        # This hides host cgroup controllers (notably cpuset) from KinD node
+        # containers. Kubelet inside KinD fails to initialize QOS cgroups, and
+        # JDK 11's CgroupV2Subsystem.getInstance() NPEs when reading the
+        # incomplete cgroup filesystem, crashing applications like ZooKeeper.
+        #
+        # Fix: use host cgroup namespace so KinD nodes see all host controllers.
+        # KinD containers already run privileged, so this doesn't reduce isolation.
+        echo '{"default-cgroupns-mode": "host"}' | sudo tee /etc/docker/daemon.json
+        sudo systemctl restart docker
+
+        echo "Waiting for Docker to be ready after restart"
+        for i in $(seq 1 30); do
+          docker info &>/dev/null && break
+          sleep 2
+        done
+        docker info > /dev/null
     - name: Bootstrap kind cluster
       shell: bash
       run: |
