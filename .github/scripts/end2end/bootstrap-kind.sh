@@ -77,6 +77,38 @@ $(add_workers)
 EOF
 }
 
+enable_cgroup_controllers() {
+  # containerd v2 (Docker 29+) only exposes cgroup controllers that are
+  # explicitly enabled in the parent's subtree_control. On GitHub Actions
+  # runners, systemd does not enable cpuset by default. KinD uses private
+  # cgroup namespaces, so controllers must be enabled at every level of
+  # the host hierarchy for containers to see them.
+  # Without this, kubelet fails to init QOS cgroups and JDK runtimes NPE
+  # on CgroupV2Subsystem.getInstance().
+  #
+  # Direct writes to subtree_control get reverted by systemd. Instead, we
+  # use systemd's own mechanism: setting AllowedCPUs on docker.service
+  # forces systemd to enable the cpuset controller in the cgroup hierarchy.
+  if [ -f /sys/fs/cgroup/cgroup.controllers ]; then
+    echo "=== cgroup v2 diagnostics (before) ==="
+    echo "Root controllers: $(cat /sys/fs/cgroup/cgroup.controllers)"
+    echo "Root subtree_control: $(cat /sys/fs/cgroup/cgroup.subtree_control)"
+    cat /sys/fs/cgroup/system.slice/cgroup.subtree_control 2>/dev/null \
+      && echo "system.slice subtree_control: $(cat /sys/fs/cgroup/system.slice/cgroup.subtree_control)" \
+      || echo "system.slice subtree_control: not readable"
+
+    NCPUS=$(($(nproc) - 1))
+    echo "Enabling cpuset via systemd: AllowedCPUs=0-${NCPUS}"
+    sudo systemctl set-property docker.service AllowedCPUs="0-${NCPUS}" || true
+
+    echo "=== cgroup v2 diagnostics (after) ==="
+    echo "Root subtree_control: $(cat /sys/fs/cgroup/cgroup.subtree_control)"
+    cat /sys/fs/cgroup/system.slice/cgroup.subtree_control 2>/dev/null \
+      && echo "system.slice subtree_control: $(cat /sys/fs/cgroup/system.slice/cgroup.subtree_control)" \
+      || echo "system.slice subtree_control: not readable"
+  fi
+}
+
 create_cluster() {
   if kind get clusters | grep -q "^${CLUSTER_NAME}$"; then
     echo "Kind cluster ${CLUSTER_NAME} already exists. Skipping creation."
@@ -88,5 +120,6 @@ create_cluster() {
 
 create_registry
 bootstrap_kind
+enable_cgroup_controllers
 create_cluster
 connect_registry
