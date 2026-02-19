@@ -32,71 +32,39 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Upload current JUnit reports
-      if: always()
-      uses: actions/upload-artifact@v4
+    - name: Setup artifacts link
+      id: setup-artifacts
+      uses: scality/action-artifacts@v4
       with:
-        name: junit-reports-${{ github.job }}-attempt-${{ github.run_attempt }}
-        path: ${{ inputs.junit-paths }}
-        if-no-files-found: ignore
+        method: setup
+        url: https://artifacts.scality.net
+        user: ${{ inputs.user }}
+        password: ${{ inputs.password }}
 
-    - name: Download previous JUnit reports
-      if: ${{ github.run_attempt > 1 }}
+    - name: Install XML parser
+      shell: bash
+      run: npm install --prefix /tmp/xmldom-install @xmldom/xmldom
+
+    - name: Download previous reports and merge
       uses: actions/github-script@v7
+      env:
+        NODE_PATH: /tmp/xmldom-install/node_modules
+        ARTIFACTS_LINK: ${{ steps.setup-artifacts.outputs.link }}
+        ARTIFACTS_USER: ${{ inputs.user }}
+        ARTIFACTS_PASSWORD: ${{ inputs.password }}
       with:
         script: |
-          const fs = require('fs');
-          const { execSync } = require('child_process');
-          const runAttempt = parseInt('${{ github.run_attempt }}');
-          const jobName = '${{ github.job }}';
-          for (let attempt = 1; attempt < runAttempt; attempt++) {
-            const artifactName = `junit-reports-${jobName}-attempt-${attempt}`;
-            try {
-              const resp = await github.rest.actions.listWorkflowRunArtifacts({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                run_id: context.runId,
-                per_page: 100,
-              });
-              const artifact = resp.data.artifacts.find(a => a.name === artifactName);
-              if (!artifact) {
-                core.info(`No artifact '${artifactName}' found, skipping.`);
-                continue;
-              }
-              const zip = await github.rest.actions.downloadArtifact({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                artifact_id: artifact.id,
-                archive_format: 'zip',
-              });
-              const dir = `/tmp/junit-previous/attempt-${attempt}`;
-              fs.mkdirSync(dir, { recursive: true });
-              fs.writeFileSync(`${dir}.zip`, Buffer.from(zip.data));
-              execSync(`unzip -o ${dir}.zip -d ${dir}`);
-              core.info(`Extracted attempt ${attempt} reports to ${dir}`);
-            } catch (e) {
-              core.warning(`Failed to download attempt ${attempt}: ${e.message}`);
-            }
-          }
-
-    - name: Merge JUnit reports
-      shell: bash
-      run: |-
-        shopt -s nullglob globstar
-        # inputs.junit-paths is a glob pattern; the array assignment expands it
-        current_files=(${{ inputs.junit-paths }})
-        prev_files=(/tmp/junit-previous/**/*.xml)
-        all_files=("${current_files[@]}" "${prev_files[@]}")
-
-        if [ ${#all_files[@]} -eq 0 ]; then
-          echo "No JUnit XML files found; skipping merge."
-          exit 0
-        fi
-
-        mkdir -p /tmp/artifacts/data/${{ inputs.stage }}
-        node "$GITHUB_WORKSPACE/.github/scripts/merge-junit-reports.js" \
-          /tmp/artifacts/data/${{ inputs.stage }}/junit-merged.xml \
-          "${all_files[@]}"
+          const mergeJUnitReports = require('./.github/scripts/merge-junit-reports.js')
+          await mergeJUnitReports({
+            core, glob,
+            link: process.env.ARTIFACTS_LINK,
+            user: process.env.ARTIFACTS_USER,
+            password: process.env.ARTIFACTS_PASSWORD,
+            jobName: '${{ github.job }}',
+            runAttempt: ${{ github.run_attempt }},
+            junitGlob: '${{ inputs.junit-paths }}',
+            outputDir: '/tmp/artifacts/data/${{ inputs.stage }}',
+          })
 
     - name: Publish test report
       uses: mikepenz/action-junit-report@v4
@@ -111,7 +79,7 @@ runs:
       continue-on-error: true
 
     - name: Upload results
-      if: always() && inputs.trunk_token && job.status != 'cancelled'
+      if: inputs.trunk_token && job.status != 'cancelled'
       uses: trunk-io/analytics-uploader@v1
       with:
         junit-paths: ${{ inputs.junit-paths }}
@@ -202,7 +170,6 @@ runs:
 
     - name: Upload artifacts                               # move into `archive-artifacts` action
       uses: scality/action-artifacts@v4
-      if: always()
       with:
         method: upload
         url: https://artifacts.scality.net

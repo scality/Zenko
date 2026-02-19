@@ -693,7 +693,6 @@ jobs:
 
   write-final-status:
     runs-on: ubuntu-24.04
-    if: ${{ always() }}
     needs:
       - check-alerts
       - check-dashboard-versions
