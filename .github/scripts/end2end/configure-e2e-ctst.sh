@@ -21,6 +21,7 @@ kubectl get zookeepercluster "${ZENKO_NAME}-base-quorum" -o json | jq '.
 | del(.spec.labels)
 | del(.spec.persistence)
 | .spec.storageType |= "ephemeral"
+| .spec.pod.env |= . + [{name: "JMXDISABLE", value: "true"}]
 | del(.spec.pod.affinity)
 | del(.spec.pod.labels)
 | del(.status)

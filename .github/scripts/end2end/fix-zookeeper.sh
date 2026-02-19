@@ -63,6 +63,9 @@ done
 
 # Patch the StatefulSet with JVM flags to disable container support
 # as ubuntu runners now are incompatible with zookeeper.
+# Also disable JMX: zkServer.sh enables it by default, and the JMX
+# local connector triggers CgroupV2Subsystem.getInstance() which NPEs
+# on runners with incomplete cgroup v2 controllers (missing cpuset).
 kubectl -n "${NAMESPACE}" patch statefulset "${ZK_STS_NAME}" --type='strategic' \
   -p '{
     "spec": {
@@ -75,6 +78,10 @@ kubectl -n "${NAMESPACE}" patch statefulset "${ZK_STS_NAME}" --type='strategic' 
                 {
                   "name": "JVMFLAGS",
                   "value": "-Xmx512m -Xms512m -XX:-UseContainerSupport -XX:ActiveProcessorCount=1 -Djava.awt.headless=true -Dzookeeper.log.dir=/data/logs -Dzookeeper.root.logger=INFO,CONSOLE -Dlog4j.configuration=file:/data/conf/log4j.properties"
+                },
+                {
+                  "name": "JMXDISABLE",
+                  "value": "true"
                 }
               ]
             }
