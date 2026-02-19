@@ -32,17 +32,11 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Compute previous run attempt
-      id: prev-attempt
-      if: ${{ github.run_attempt > 1 }}
-      shell: bash
-      run: echo "number=$(( ${{ github.run_attempt }} - 1 ))" >> "$GITHUB_OUTPUT"
-
     - name: Download previous merged JUnit report
       if: ${{ github.run_attempt > 1 }}
       uses: actions/download-artifact@v4
       with:
-        name: junit-merged-${{ github.job }}-attempt-${{ steps.prev-attempt.outputs.number }}
+        name: junit-merged-${{ github.job }}-attempt-${{ github.run_attempt - 1 }}
         path: /tmp/junit-previous
         run-id: ${{ github.run_id }}
       continue-on-error: true
@@ -72,19 +66,6 @@ runs:
         name: junit-merged-${{ github.job }}-attempt-${{ github.run_attempt }}
         path: /tmp/junit-merged/merged.xml
         if-no-files-found: ignore
-
-    - name: Publish test report
-      id: publish-test-report
-      uses: mikepenz/action-junit-report@v4
-      with:
-        check_name: ${{ inputs.stage }}
-        report_paths: /tmp/junit-merged/merged.xml
-        job_summary: true
-        detailed_summary: true
-        flaky_summary: true
-        check_retries: true
-        fail_on_failure: true
-      continue-on-error: true
 
     - name: Upload results
       if: inputs.trunk_token && job.status != 'cancelled'
@@ -185,7 +166,14 @@ runs:
         password: ${{ inputs.password }}
         source: /tmp/artifacts
 
-    - name: Fail if tests have failures
-      if: always() && steps.publish-test-report.outcome == 'failure'
-      shell: bash
-      run: exit 1
+    - name: Publish test report
+      uses: mikepenz/action-junit-report@v4
+      if: always()
+      with:
+        check_name: ${{ inputs.stage }}
+        report_paths: /tmp/junit-merged/merged.xml
+        job_summary: true
+        detailed_summary: true
+        flaky_summary: true
+        check_retries: true
+        fail_on_failure: true
