@@ -17,13 +17,6 @@ inputs:
     description: Stage name
     default: ${{ github.job }}.${{ github.run_attempt }}
     required: true
-  check-name:
-    description: >
-      Name for the GitHub check run created for the test report.
-      Must be stable across re-run attempts so that check_retries can
-      match results from previous attempts.
-    default: ${{ github.job }}
-    required: false
   trunk_token:
     description: Trunk token
     required: false
@@ -39,14 +32,56 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Compute previous run attempt
+      id: prev-attempt
+      if: ${{ github.run_attempt > 1 }}
+      shell: bash
+      run: echo "number=$(( ${{ github.run_attempt }} - 1 ))" >> "$GITHUB_OUTPUT"
+
+    - name: Download previous merged JUnit report
+      if: ${{ github.run_attempt > 1 }}
+      uses: actions/download-artifact@v4
+      with:
+        name: junit-merged-${{ github.job }}-attempt-${{ steps.prev-attempt.outputs.number }}
+        path: /tmp/junit-previous
+        run-id: ${{ github.run_id }}
+      continue-on-error: true
+
+    - name: Merge JUnit reports
+      shell: bash
+      run: |-
+        shopt -s nullglob
+        # inputs.junit-paths is a glob pattern; the array assignment expands it
+        current_files=(${{ inputs.junit-paths }})
+        prev_files=(/tmp/junit-previous/*.xml)
+        all_files=("${current_files[@]}" "${prev_files[@]}")
+
+        if [ ${#all_files[@]} -eq 0 ]; then
+          echo "No JUnit XML files found; skipping merge."
+          exit 0
+        fi
+
+        node "$GITHUB_WORKSPACE/.github/scripts/merge-junit-reports.js" \
+          /tmp/junit-merged/merged.xml \
+          "${all_files[@]}"
+
+    - name: Upload merged JUnit report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: junit-merged-${{ github.job }}-attempt-${{ github.run_attempt }}
+        path: /tmp/junit-merged/merged.xml
+        if-no-files-found: ignore
+
     - name: Publish test report
       id: publish-test-report
       uses: mikepenz/action-junit-report@v4
       with:
-        check_name: ${{ inputs.check-name }}
-        report_paths: ${{ inputs.junit-paths }}
-        job_summary: true  # always show summary so flaky details are visible
+        check_name: ${{ inputs.stage }}
+        report_paths: /tmp/junit-merged/merged.xml
+        job_summary: true
         detailed_summary: true
+        flaky_summary: true
         check_retries: true
         fail_on_failure: true
       continue-on-error: true
