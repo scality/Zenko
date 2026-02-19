@@ -67,8 +67,20 @@ runs:
         path: /tmp/junit-merged/merged.xml
         if-no-files-found: ignore
 
+    - name: Publish test report
+      uses: mikepenz/action-junit-report@v4
+      with:
+        check_name: ${{ inputs.stage }}
+        report_paths: /tmp/junit-merged/merged.xml
+        job_summary: ${{ job.status != 'success' || github.run_attempt > 1 }}
+        detailed_summary: true
+        flaky_summary: true
+        check_retries: true
+        fail_on_failure: true
+      continue-on-error: true
+
     - name: Upload results
-      if: inputs.trunk_token && job.status != 'cancelled'
+      if: always() && inputs.trunk_token && job.status != 'cancelled'
       uses: trunk-io/analytics-uploader@v1
       with:
         junit-paths: ${{ inputs.junit-paths }}
@@ -159,21 +171,10 @@ runs:
 
     - name: Upload artifacts                               # move into `archive-artifacts` action
       uses: scality/action-artifacts@v4
+      if: always()
       with:
         method: upload
         url: https://artifacts.scality.net
         user: ${{ inputs.user }}
         password: ${{ inputs.password }}
         source: /tmp/artifacts
-
-    - name: Publish test report
-      uses: mikepenz/action-junit-report@v4
-      if: always()
-      with:
-        check_name: ${{ inputs.stage }}
-        report_paths: /tmp/junit-merged/merged.xml
-        job_summary: ${{ job.status != 'success' || github.run_attempt > 1 }}
-        detailed_summary: true
-        flaky_summary: true
-        check_retries: true
-        fail_on_failure: true
