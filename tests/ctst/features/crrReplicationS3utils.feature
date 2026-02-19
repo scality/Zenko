@@ -13,6 +13,7 @@ Feature: Replication
 
     @2.12.0
     @PreMerge
+    @yoyo
     @ReplicationTest
     Scenario Outline: Replicate objects created before creating the replication rule
         Given an existing bucket "source-bucket-1" "with" versioning, "without" ObjectLock "without" retention mode

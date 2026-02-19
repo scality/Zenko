@@ -14,10 +14,10 @@
 # If you need to use a different image, delete pod first:
 #   kubectl delete pod node-tests-local
 
-set -e
+set -ex
 
 ZENKO_NAME=${ZENKO_NAME:-end2end}
-IMAGE_NAME="${3:-ghcr.io/scality/zenko/zenko-e2e:latest}"
+IMAGE_NAME="${3:-ghcr.io/scality/zenko/zenko-e2e-ctst:ctst_codespace_setup}"
 POD_NAME="node-tests-local"
 
 TEST_GREP="${1:-should list objects in V2 format}"

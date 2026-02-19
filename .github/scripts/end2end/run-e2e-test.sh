@@ -6,6 +6,9 @@ DIR=$(dirname $0)
 
 . "$DIR/common.sh"
 
+# Load environment configuration
+source "$DIR/load-config.sh" e2e
+
 ZENKO_NAME=${1:-end2end}
 E2E_IMAGE=${2:-ghcr.io/scality/zenko/zenko-e2e:latest}
 STAGE=${3:-end2end}
@@ -66,6 +69,7 @@ run_e2e_test() {
         --attach=True \
         --namespace=${NAMESPACE} \
         --image-pull-policy=Always \
+        $(env_for_kubectl_run) \
         --env=CLOUDSERVER_HOST=${CLOUDSERVER_HOST} \
         --env=CLOUDSERVER_ENDPOINT=${CLOUDSERVER_ENDPOINT} \
         --env=ZENKO_ACCESS_KEY=${ZENKO_ACCESS_KEY} \

@@ -1,0 +1,11 @@
+{
+  "name": "zenko-config-loader",
+  "version": "1.0.0",
+  "description": "K8s configuration loader for Zenko tests",
+  "main": "index.js",
+  "private": true,
+  "dependencies": {
+    "@kubernetes/client-node": "^0.21.0",
+    "js-yaml": "^4.1.1"
+  }
+}

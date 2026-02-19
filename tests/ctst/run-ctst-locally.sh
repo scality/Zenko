@@ -10,21 +10,14 @@ set -exu
 CUCUMBER_TAGS="$1"
 IMAGE_NAME="${2:-ghcr.io/scality/zenko/zenko-e2e-ctst:ctst_codespace_setup}"
 
+# Load unified test configuration
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/../../.github/scripts/end2end/load-config.sh" ctst
+
 # Version is used with a Before Hook (in ctst/common/hooks.ts) to skip 
 # certain tests based on their @version tag.
 VERSION=$(cat ../../VERSION | grep -Po 'VERSION="\K[^"]*')
 POD_NAME="ctst-end2end"
-WORLD_PARAMETERS="$(jq -c <<EOF
-{
-  "subdomain": "zenko.local",
-  "ssl": false,
-  "port": "80",
-  "AccountName": "zenko",
-  "AdminAccessKey": "R6JN4OJ998ZBY99DD56X",
-  "AdminSecretKey": "OEow2DytG0sr7mK3844vb/hKDBWiU+UWc+4+FVfr"
-}
-EOF
-)"
 
 
 # Create the pod if it doesn't exist
@@ -60,8 +53,9 @@ kubectl cp ./cucumber.config.cjs "$POD_NAME":/ctst/cucumber.config.cjs
 # Run tests using standard cucumber-js syntax
 kubectl exec "$POD_NAME" -- env \
     TARGET_VERSION="$VERSION" \
+    $(env_for_kubectl_exec) \
     yarn cucumber-js \
         --config cucumber.config.cjs \
-        --world-parameters "$WORLD_PARAMETERS" \
+        --parallel 1 \
         --tags "$CUCUMBER_TAGS" \
         --exit

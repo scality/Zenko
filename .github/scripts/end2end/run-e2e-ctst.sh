@@ -7,6 +7,10 @@ set -exu
 #   run-e2e-ctst.sh "@PreMerge and not @PRA"
 #   run-e2e-ctst.sh "@PRA"
 
+# Load environment configuration
+DIR=$(dirname "$0")
+source "$DIR/load-config.sh" ctst
+
 TAGS=${1:?'Error: TAGS argument is required (e.g., "@PreMerge", "@PRA")'}
 ZENKO_NAME="end2end"
 PARALLEL_RUNS=${PARALLEL_RUNS:-$(( ( $(nproc) + 1 ) / 2 ))}
@@ -172,6 +176,7 @@ kubectl run $POD_NAME \
         --rm \
         --attach=True \
         --image-pull-policy=IfNotPresent \
+        $(env_for_kubectl_run) \
         --env=TARGET_VERSION=$VERSION  \
         --env=AZURE_BLOB_URL=$AZURE_BACKEND_ENDPOINT  \
         --env=AZURE_QUEUE_URL=$AZURE_BACKEND_QUEUE_ENDPOINT \

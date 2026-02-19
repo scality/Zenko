@@ -134,6 +134,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      */
     constructor(options: IWorldOptions<ZenkoWorldParameters>) {
         super(options);
+        
         Logger.createLogger(this);
         // store service users credentials from world parameters
         if (this.parameters.ServiceUsersCredentials) {
@@ -174,7 +175,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             Identity.addIdentity(IdentityEnum.ADMIN, Zenko.PRIMARY_SITE_NAME, {
                 accessKeyId: this.parameters.AdminAccessKey,
                 secretAccessKey: this.parameters.AdminSecretKey,
-            }, undefined, undefined, undefined, this.parameters.subdomain);
+            }, undefined, undefined, undefined, this.parameters.Subdomain);
 
             Zenko.sites['source'] = {
                 accountName: Identity.defaultAccountName,
@@ -901,7 +902,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         const protocol = this.parameters.ssl === false ? 'http://' : 'https://';
         const axiosConfig: AxiosRequestConfig = {
             method,
-            url: `${protocol}s3.${this.parameters.subdomain
+            url: `${protocol}s3.${this.parameters.Subdomain
                 || Constants.DEFAULT_SUBDOMAIN}${path}`,
             headers,
             data: payload,
@@ -956,7 +957,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         };
         const axiosConfig: AxiosRequestConfig = {
             method,
-            url: `${protocol}management.${this.parameters.subdomain || Constants.DEFAULT_SUBDOMAIN}/api/v1${path}`,
+            url: `${protocol}management.${this.parameters.Subdomain || Constants.DEFAULT_SUBDOMAIN}/api/v1${path}`,
             headers,
             data: payload,
         };
