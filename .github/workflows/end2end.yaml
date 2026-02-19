@@ -497,23 +497,17 @@ jobs:
       - name: Run CTST end to end tests
         run: bash run-e2e-ctst.sh "" "" "" "" --tags @PRA
         working-directory: ./.github/scripts/end2end
+        continue-on-error: true
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
         if: failure() && runner.debug == '1'
-      - name: Merge JUnit reports
-        uses: ./.github/actions/merge-reports
-        with:
-          github-token: ${{ github.token }}
-          artifact-name: junit-reports-${{ github.job }}
-        if: always()
       - name: Archive and publish artifacts
         uses: ./.github/actions/archive-artifacts
         with:
           user: ${{ secrets.ARTIFACTS_USER }}
           password: ${{ secrets.ARTIFACTS_PASSWORD }}
           trunk_token: ${{ secrets.TRUNK_TOKEN }}
-          junit-paths: /tmp/junit-merged/*.xml
         if: always()
       - name: Clean Up
         run: kind delete cluster
@@ -553,38 +547,36 @@ jobs:
       - name: Run init CI test
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "end2end" "default"
         working-directory: ./.github/scripts/end2end
+        continue-on-error: true
       - name: Run iam policies tests
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "iam-policies" "default"
         working-directory: ./.github/scripts/end2end
+        continue-on-error: true
       - name: Run cloudserver tests
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "object-api" "default"
         working-directory: ./.github/scripts/end2end
+        continue-on-error: true
       - name: Run smoke tests
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "smoke" "default"
         working-directory: ./.github/scripts/end2end
+        continue-on-error: true
       - name: Enable HTTPS
         run: bash enable-https.sh
         working-directory: ./.github/scripts/end2end
       - name: Run smoke tests
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "smoke" "default"
         working-directory: ./.github/scripts/end2end
+        continue-on-error: true
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
         if: failure() && runner.debug == '1'
-      - name: Merge JUnit reports
-        uses: ./.github/actions/merge-reports
-        with:
-          github-token: ${{ github.token }}
-          artifact-name: junit-reports-${{ github.job }}
-        if: always()
       - name: Archive and publish artifacts
         uses: ./.github/actions/archive-artifacts
         with:
           user: ${{ secrets.ARTIFACTS_USER }}
           password: ${{ secrets.ARTIFACTS_PASSWORD }}
           trunk_token: ${{ secrets.TRUNK_TOKEN }}
-          junit-paths: /tmp/junit-merged/*.xml
         if: always()
       - name: Clean Up
         run: kind delete cluster
@@ -627,23 +619,17 @@ jobs:
       - name: Run backbeat end to end tests
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "backbeat" "default"
         working-directory: ./.github/scripts/end2end
+        continue-on-error: true
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
         if: failure() && runner.debug == '1'
-      - name: Merge JUnit reports
-        uses: ./.github/actions/merge-reports
-        with:
-          github-token: ${{ github.token }}
-          artifact-name: junit-reports-${{ github.job }}
-        if: always()
       - name: Archive and publish artifacts
         uses: ./.github/actions/archive-artifacts
         with:
           user: ${{ secrets.ARTIFACTS_USER }}
           password: ${{ secrets.ARTIFACTS_PASSWORD }}
           trunk_token: ${{ secrets.TRUNK_TOKEN }}
-          junit-paths: /tmp/junit-merged/*.xml
         if: always()
       - name: Clean Up
         run: kind delete cluster
@@ -690,23 +676,17 @@ jobs:
       - name: Run CTST end to end tests
         run: bash run-e2e-ctst.sh "" "" "" "" --tags 'not @PRA'
         working-directory: ./.github/scripts/end2end
+        continue-on-error: true
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
         if: failure() && runner.debug == '1'
-      - name: Merge JUnit reports
-        uses: ./.github/actions/merge-reports
-        with:
-          github-token: ${{ github.token }}
-          artifact-name: junit-reports-${{ github.job }}
-        if: always()
       - name: Archive and publish artifacts
         uses: ./.github/actions/archive-artifacts
         with:
           user: ${{ secrets.ARTIFACTS_USER }}
           password: ${{ secrets.ARTIFACTS_PASSWORD }}
           trunk_token: ${{ secrets.TRUNK_TOKEN }}
-          junit-paths: /tmp/junit-merged/*.xml
         if: always()
       - name: Clean Up
         run: kind delete cluster
@@ -727,26 +707,6 @@ jobs:
       - end2end-pra
       - ctst-end2end-sharded
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Download all merged JUnit reports
-        uses: actions/download-artifact@v4
-        with:
-          pattern: junit-reports-*
-          path: /tmp/junit-all
-          merge-multiple: true
-        continue-on-error: true
-      - name: Report flaky tests
-        run: |
-          shopt -s nullglob
-          files=(/tmp/junit-all/*.xml)
-          if [ ${#files[@]} -gt 0 ]; then
-            python3 .github/scripts/merge-junit-reports.py flaky \
-              "${files[@]}"
-          else
-            echo "No merged JUnit reports found; skipping flaky test detection."
-          fi
-        continue-on-error: true
       - name: Upload final status
         uses: scality/actions/upload_final_status@1.9.0
         with:

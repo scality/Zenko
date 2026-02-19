@@ -17,6 +17,13 @@ inputs:
     description: Stage name
     default: ${{ github.job }}.${{ github.run_attempt }}
     required: true
+  check-name:
+    description: >
+      Name for the GitHub check run created for the test report.
+      Must be stable across re-run attempts so that check_retries can
+      match results from previous attempts.
+    default: ${{ github.job }}
+    required: false
   trunk_token:
     description: Trunk token
     required: false
@@ -33,13 +40,15 @@ runs:
   using: composite
   steps:
     - name: Publish test report
+      id: publish-test-report
       uses: mikepenz/action-junit-report@v4
       with:
-        annotate_only: true
-        check_name: ${{ inputs.stage}}
+        check_name: ${{ inputs.check-name }}
         report_paths: ${{ inputs.junit-paths }}
-        job_summary: ${{ job.status != 'success' }} # Only show the summary if the job failed
+        job_summary: true  # always show summary so flaky details are visible
         detailed_summary: true
+        check_retries: true
+        fail_on_failure: true
       continue-on-error: true
 
     - name: Upload results
@@ -140,3 +149,8 @@ runs:
         user: ${{ inputs.user }}
         password: ${{ inputs.password }}
         source: /tmp/artifacts
+
+    - name: Fail if tests have failures
+      if: always() && steps.publish-test-report.outcome == 'failure'
+      shell: bash
+      run: exit 1
