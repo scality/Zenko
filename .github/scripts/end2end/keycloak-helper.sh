@@ -39,7 +39,7 @@ case $COMMAND in
         ${KEYCLOAK_EXEC} /opt/jboss/keycloak/bin/kcadm.sh set-password \
             -r ${OIDC_REALM} \
             --username ${OIDC_USERNAME} \
-            --new-password ${OIDC_PASSWORD}
+            --new-password ${KEYCLOAK_TEST_PASSWORD}
 
         # attach StorageManager role to user
         ${KEYCLOAK_EXEC} /opt/jboss/keycloak/bin/kcadm.sh add-roles \

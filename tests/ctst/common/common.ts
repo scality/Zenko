@@ -40,7 +40,7 @@ export async function cleanS3Bucket(
         return;
     }
     Identity.useIdentity(IdentityEnum.ACCOUNT, world.getSaved<string>('accountName') ||
-        world.parameters.AccountName);
+        process.env.ZENKO_ACCOUNT_NAME);
     world.resetCommand();
     world.addCommandParameter({ bucket: bucketName });
     const createdObjects = world.getCreatedObjects();
@@ -125,14 +125,14 @@ async function createBucket(world: Zenko, versioning: string, bucketName: string
 
 Given('a {string} bucket with dot', async function (this: Zenko, versioning: string) {
     const preName = this.getSaved<string>('accountName') ||
-        this.parameters.AccountName || Constants.ACCOUNT_NAME;
+        process.env.ZENKO_ACCOUNT_NAME || Constants.ACCOUNT_NAME;
     await createBucket(this, versioning,
         `${preName}.${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase());
 });
 
 Given('a {string} bucket', async function (this: Zenko, versioning: string) {
     const preName = this.getSaved<string>('accountName') ||
-        this.parameters.AccountName || Constants.ACCOUNT_NAME;
+        process.env.ZENKO_ACCOUNT_NAME || Constants.ACCOUNT_NAME;
     await createBucket(this, versioning,
         `${preName}${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase());
 });

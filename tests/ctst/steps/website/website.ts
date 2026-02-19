@@ -58,7 +58,7 @@ When('the user creates an S3 Bucket policy granting public read access', async f
 
 Then('the user should be able to load the index.html file from the {string} endpoint',
     async function (this: Zenko, endpoint: string) {
-        const baseUrl = this.parameters.ssl === false ? 'http://' : 'https://';
+        const baseUrl = process.env.SSL === 'false' ? 'http://' : 'https://';
         // The ingress may take some time to be ready (<60s)
         const uri = `${baseUrl}${this.getSaved<string>('bucketName')}.${endpoint}`;
         let response;

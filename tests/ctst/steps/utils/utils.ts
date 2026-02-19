@@ -170,7 +170,7 @@ async function createBucketWithConfiguration(
     retentionMode?: string) {
     world.resetCommand();
     const preName = world.getSaved<string>('accountName') ||
-        world.parameters.AccountName || Constants.ACCOUNT_NAME;
+        process.env.ZENKO_ACCOUNT_NAME || Constants.ACCOUNT_NAME;
     const usedBucketName = bucketName
         || `${preName}${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase();
     world.addToSaved('bucketName', usedBucketName);

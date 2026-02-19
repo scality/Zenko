@@ -44,12 +44,12 @@ export enum EntityType {
 }
 
 export interface ZenkoWorldParameters extends ClientOptions {
-    AccountName: string;
-    AccountAccessKey: string;
-    AccountSecretKey: string;
-    DRAdminAccessKey?: string;
-    DRAdminSecretKey?: string;
-    DRSubdomain?: string;
+    // AccountName: string;
+    // AccountAccessKey: string;
+    // AccountSecretKey: string;
+    // DRAdminAccessKey?: string;
+    // DRAdminSecretKey?: string;
+    // DRSubdomain?: string;
     VaultAuthHost: string;
     NotificationDestination: string;
     NotificationDestinationTopic: string;
@@ -70,12 +70,12 @@ export interface ZenkoWorldParameters extends ClientOptions {
     KeycloakRealm: string;
     KeycloakClientId: string;
     KeycloakGrantType: string;
+    // KeycloakTestPassword: string;
     StorageManagerUsername: string;
     StorageAccountOwnerUsername: string;
     DataConsumerUsername: string;
     DataAccessorUsername: string;
     ServiceUsersCredentials: string;
-    KeycloakTestPassword: string;
     AzureAccountName: string;
     AzureAccountKey: string;
     AzureArchiveContainer: string;
@@ -137,45 +137,49 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         
         Logger.createLogger(this);
         // store service users credentials from world parameters
-        if (this.parameters.ServiceUsersCredentials) {
+        if (process.env.SERVICE_USERS_CREDENTIALS) {
             const serviceUserCredentials =
-                JSON.parse(this.parameters.ServiceUsersCredentials) as Record<string, ServiceUsersCredentials>;
+                JSON.parse(process.env.SERVICE_USERS_CREDENTIALS) as Record<string, ServiceUsersCredentials>;
             for (const serviceUserName in serviceUserCredentials) {
-                if (!Identity.hasIdentity(IdentityEnum.SERVICE_USER, serviceUserName, this.parameters.AccountName)) {
+                if (!Identity.hasIdentity(IdentityEnum.SERVICE_USER, serviceUserName, process.env.ZENKO_ACCOUNT_NAME)) {
                     Identity.addIdentity(IdentityEnum.SERVICE_USER, serviceUserName, {
                         accessKeyId: serviceUserCredentials[serviceUserName].accessKey,
                         secretAccessKey: serviceUserCredentials[serviceUserName].secretKey,
-                    }, this.parameters.AccountName);
+                    }, process.env.ZENKO_ACCOUNT_NAME);
                 }
             }
         }
 
         // Workaround to be able to access global parameters in BeforeAll/AfterAll hooks
+        // Only cache specific parameters needed by cli-testing that aren't available as env vars
         CacheHelper.cacheParameters({
-            ...this.parameters,
+            ssl: process.env.SSL === 'true',
+            port: process.env.ZENKO_PORT,
+            subdomain: process.env.SUBDOMAIN,
         });
 
         CacheHelper.savedAcrossTests[Zenko.PRA_INSTALL_COUNT_KEY] = 0;
 
 
-        if (this.parameters.AccountName && !Identity.hasIdentity(IdentityEnum.ACCOUNT, this.parameters.AccountName)) {
-            Identity.addIdentity(IdentityEnum.ACCOUNT, this.parameters.AccountName, {
-                accessKeyId: this.parameters.AccountAccessKey,
-                secretAccessKey: this.parameters.AccountSecretKey,
+        if (process.env.ZENKO_ACCOUNT_NAME && 
+            !Identity.hasIdentity(IdentityEnum.ACCOUNT, process.env.ZENKO_ACCOUNT_NAME)) {
+            Identity.addIdentity(IdentityEnum.ACCOUNT, process.env.ZENKO_ACCOUNT_NAME, {
+                accessKeyId: process.env.ACCOUNT_ACCESS_KEY,
+                secretAccessKey: process.env.ACCOUNT_SECRET_KEY,
             });
         }
 
-        if (this.parameters.AccountName) {
-            Identity.useIdentity(IdentityEnum.ACCOUNT, this.parameters.AccountName);
-            Identity.defaultAccountName = this.parameters.AccountName;
+        if (process.env.ZENKO_ACCOUNT_NAME) {
+            Identity.useIdentity(IdentityEnum.ACCOUNT, process.env.ZENKO_ACCOUNT_NAME);
+            Identity.defaultAccountName = process.env.ZENKO_ACCOUNT_NAME;
         }
 
-        if (this.parameters.AdminAccessKey && this.parameters.AdminSecretKey &&
+        if (process.env.ADMIN_ACCESS_KEY_ID && process.env.ADMIN_SECRET_ACCESS_KEY &&
             !Identity.hasIdentity(IdentityEnum.ADMIN, Zenko.PRIMARY_SITE_NAME)) {
             Identity.addIdentity(IdentityEnum.ADMIN, Zenko.PRIMARY_SITE_NAME, {
-                accessKeyId: this.parameters.AdminAccessKey,
-                secretAccessKey: this.parameters.AdminSecretKey,
-            }, undefined, undefined, undefined, this.parameters.Subdomain);
+                accessKeyId: process.env.ADMIN_ACCESS_KEY_ID,
+                secretAccessKey: process.env.ADMIN_SECRET_ACCESS_KEY,
+            }, undefined, undefined, undefined, process.env.SUBDOMAIN);
 
             Zenko.sites['source'] = {
                 accountName: Identity.defaultAccountName,
@@ -186,13 +190,13 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         if (this.needsSecondarySite()) {
             if (!Identity.hasIdentity(IdentityEnum.ADMIN, Zenko.SECONDARY_SITE_NAME)) {
                 Identity.addIdentity(IdentityEnum.ADMIN, Zenko.SECONDARY_SITE_NAME, {
-                    accessKeyId: this.parameters.DRAdminAccessKey!,
-                    secretAccessKey: this.parameters.DRAdminSecretKey!,
-                }, undefined, undefined, undefined, this.parameters.DRSubdomain);
+                    accessKeyId: process.env.DR_ADMIN_ACCESS_KEY_ID!,
+                    secretAccessKey: process.env.DR_ADMIN_SECRET_ACCESS_KEY!,
+                }, undefined, undefined, undefined, process.env.DR_SUBDOMAIN);
             }
 
             Zenko.sites['sink'] = {
-                accountName: `dr${this.parameters.AccountName}`,
+                accountName: `dr${process.env.ZENKO_ACCOUNT_NAME}`,
                 adminIdentityName: Zenko.SECONDARY_SITE_NAME,
             };
         }
@@ -203,7 +207,9 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     }
 
     private needsSecondarySite() {
-        return this.parameters.DRAdminAccessKey && this.parameters.DRAdminSecretKey && this.parameters.DRSubdomain;
+        return process.env.DR_ADMIN_ACCESS_KEY_ID && 
+            process.env.DR_ADMIN_SECRET_ACCESS_KEY && 
+            process.env.DR_SUBDOMAIN;
     }
 
     /**
@@ -411,7 +417,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         clientId: string,
         grantType: string,
     ): Promise<string> {
-        const baseUrl = this.parameters.ssl === false ? 'http://' : 'https://';
+        const baseUrl = process.env.SSL === 'false' ? 'http://' : 'https://';
         const data = qs.stringify({
             username,
             password,
@@ -713,10 +719,10 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             }
         }
 
-        const accountName = this.sites['source']?.accountName || CacheHelper.parameters.AccountName!;
+        const accountName = this.sites['source']?.accountName || process.env.ZENKO_ACCOUNT_NAME!;
         const accountAccessKeys = Identity.getCredentialsForIdentity(
             IdentityEnum.ACCOUNT, this.sites['source']?.accountName
-        || CacheHelper.parameters.AccountName!) || {
+        || process.env.ZENKO_ACCOUNT_NAME!) || {
             accessKeyId: '',
             secretAccessKey: '',
         };
@@ -899,10 +905,10 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
         const axiosInstance = axios.create();
         axiosInstance.interceptors.request.use(interceptor);
-        const protocol = this.parameters.ssl === false ? 'http://' : 'https://';
+        const protocol = process.env.SSL === 'false' ? 'http://' : 'https://';
         const axiosConfig: AxiosRequestConfig = {
             method,
-            url: `${protocol}s3.${this.parameters.Subdomain
+            url: `${protocol}s3.${process.env.SUBDOMAIN
                 || Constants.DEFAULT_SUBDOMAIN}${path}`,
             headers,
             data: payload,
@@ -941,7 +947,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     ): Promise<{ statusCode: number; data: object } | { statusCode: number; err: unknown }> {
         const token = await this.getWebIdentityToken(
             this.parameters.KeycloakUsername || 'storage_manager',
-            this.parameters.KeycloakPassword || '123',
+            process.env.KEYCLOAK_TEST_PASSWORD,
             this.parameters.KeycloakHost || 'keycloak.zenko.local',
             this.parameters.KeycloakPort || '80',
             `/auth/realms/${this.parameters.KeycloakRealm || 'zenko'}/protocol/openid-connect/token`,
@@ -949,7 +955,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             this.parameters.KeycloakGrantType || 'password',
         );
         const axiosInstance = axios.create();
-        const protocol = this.parameters.ssl === false ? 'http://' : 'https://';
+        const protocol = process.env.SSL === 'false' ? 'http://' : 'https://';
         // eslint-disable-next-line no-param-reassign
         headers = {
             ...headers,
@@ -957,7 +963,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         };
         const axiosConfig: AxiosRequestConfig = {
             method,
-            url: `${protocol}management.${this.parameters.Subdomain || Constants.DEFAULT_SUBDOMAIN}/api/v1${path}`,
+            url: `${protocol}management.${process.env.SUBDOMAIN || Constants.DEFAULT_SUBDOMAIN}/api/v1${path}`,
             headers,
             data: payload,
         };

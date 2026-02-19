@@ -37,18 +37,16 @@ load_common() {
     ENV_VARS=()
 
     # From end2end.yaml
-    ENV_VARS+=("SUBDOMAIN=$(get_env_var SUBDOMAIN)")
     ENV_VARS+=("KEYCLOAK_TEST_REALM_NAME=$(get_env_var OIDC_REALM)")
     ENV_VARS+=("KEYCLOAK_TEST_CLIENT_ID=$(get_env_var OIDC_CLIENT_ID)")
     ENV_VARS+=("KEYCLOAK_TEST_USER=$(get_env_var OIDC_USERNAME)")
-    ENV_VARS+=("KEYCLOAK_TEST_PASSWORD=$(get_env_var OIDC_PASSWORD)")
+    ENV_VARS+=("KEYCLOAK_TEST_PASSWORD=$(get_env_var KEYCLOAK_TEST_PASSWORD)")
     ENV_VARS+=("KEYCLOAK_TEST_HOST=$(get_env_var OIDC_HOST)")
     ENV_VARS+=("KEYCLOAK_TEST_PORT=80")
     ENV_VARS+=("KEYCLOAK_TEST_GRANT_TYPE=password")
     ENV_VARS+=("AZURE_ACCOUNT_NAME=$(get_env_var AZURE_ACCOUNT_NAME)")
     ENV_VARS+=("AZURE_SECRET_KEY=$(get_env_var AZURE_SECRET_KEY)")
-    ENV_VARS+=("CLOUDSERVER_ENDPOINT=http://end2end-connector-s3api.default.svc.cluster.local:80")
-    ENV_VARS+=("VAULT_ENDPOINT=http://end2end-management-vault-iam-admin-api:80")
+    ENV_VARS+=("AZURE_BACKEND_ENDPOINT=$(get_env_var AZURE_BACKEND_ENDPOINT)")
 
     # From k8s: Zenko account credentials
     ENV_VARS+=("ZENKO_ACCESS_KEY=$(kubectl get secret end2end-account-zenko -o jsonpath='{.data.AccessKeyId}' | base64 -d)")
@@ -65,7 +63,11 @@ load_common() {
 load_ctst() {
     load_common
 
+    # From end2end.yaml
+    ENV_VARS+=("SUBDOMAIN=$(get_env_var SUBDOMAIN)")
+
     # Hardcoded CTST values
+    ENV_VARS+=("SSL=false")
     ENV_VARS+=("ZENKO_ACCOUNT_NAME=zenko-ctst")
     ENV_VARS+=("STORAGE_MANAGER_USER_NAME=ctst_storage_manager")
     ENV_VARS+=("STORAGE_ACCOUNT_OWNER_USER_NAME=ctst_storage_account_owner")
@@ -79,7 +81,6 @@ load_ctst() {
     # From end2end.yaml
     ENV_VARS+=("DR_SUBDOMAIN=$(get_env_var DR_SUBDOMAIN)")
     ENV_VARS+=("PROMETHEUS_NAME=$(get_env_var PROMETHEUS_NAME)")
-    ENV_VARS+=("AZURE_BACKEND_ENDPOINT=$(get_env_var AZURE_BACKEND_ENDPOINT)")
     ENV_VARS+=("AZURE_BACKEND_QUEUE_ENDPOINT=$(get_env_var AZURE_BACKEND_QUEUE_ENDPOINT)")
     ENV_VARS+=("AZURE_ARCHIVE_BUCKET_NAME=$(get_env_var AZURE_ARCHIVE_BUCKET_NAME)")
     ENV_VARS+=("AZURE_ARCHIVE_BUCKET_NAME_2=$(get_env_var AZURE_ARCHIVE_BUCKET_NAME_2)")
@@ -127,13 +128,19 @@ load_ctst() {
     ENV_VARS+=("BACKBEAT_API_HOST=$(echo "${cloudserver_config}" | jq -r '.backbeat.host')")
     ENV_VARS+=("BACKBEAT_API_PORT=$(echo "${cloudserver_config}" | jq -r '.backbeat.port')")
 
-    # From k8s: Service users credentials (individual components)
-    ENV_VARS+=("BACKBEAT_LCBP_1_CREDS=$(kubectl get secret -l app.kubernetes.io/name=backbeat-lcbp-user-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.backbeat-lifecycle-bp-1\.json}' | base64 -d)")
-    ENV_VARS+=("BACKBEAT_LCC_1_CREDS=$(kubectl get secret -l app.kubernetes.io/name=backbeat-lcc-user-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.backbeat-lifecycle-conductor-1\.json}' | base64 -d)")
-    ENV_VARS+=("BACKBEAT_LCOP_1_CREDS=$(kubectl get secret -l app.kubernetes.io/name=backbeat-lcop-user-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.backbeat-lifecycle-op-1\.json}' | base64 -d)")
-    ENV_VARS+=("BACKBEAT_QP_1_CREDS=$(kubectl get secret -l app.kubernetes.io/name=backbeat-qp-user-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.backbeat-qp-1\.json}' | base64 -d)")
-    ENV_VARS+=("SORBET_FWD_2_ACCESSKEY=$(kubectl get secret -l app.kubernetes.io/name=sorbet-fwd-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.accessKey}' | base64 -d)")
-    ENV_VARS+=("SORBET_FWD_2_SECRETKEY=$(kubectl get secret -l app.kubernetes.io/name=sorbet-fwd-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.secretKey}' | base64 -d)")
+    # From k8s: Service users credentials
+    local lcbp_creds lcc_creds lcop_creds qp_creds sorbet_ak sorbet_sk
+    lcbp_creds=$(kubectl get secret -l app.kubernetes.io/name=backbeat-lcbp-user-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.backbeat-lifecycle-bp-1\.json}' | base64 -d)
+    lcc_creds=$(kubectl get secret -l app.kubernetes.io/name=backbeat-lcc-user-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.backbeat-lifecycle-conductor-1\.json}' | base64 -d)
+    lcop_creds=$(kubectl get secret -l app.kubernetes.io/name=backbeat-lcop-user-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.backbeat-lifecycle-op-1\.json}' | base64 -d)
+    qp_creds=$(kubectl get secret -l app.kubernetes.io/name=backbeat-qp-user-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.backbeat-qp-1\.json}' | base64 -d)
+    sorbet_ak=$(kubectl get secret -l app.kubernetes.io/name=sorbet-fwd-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.accessKey}' | base64 -d)
+    sorbet_sk=$(kubectl get secret -l app.kubernetes.io/name=sorbet-fwd-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.secretKey}' | base64 -d)
+
+    # Build SERVICE_USERS_CREDENTIALS JSON (same format as run-e2e-ctst.sh)
+    local service_users_creds
+    service_users_creds=$(echo '{"backbeat-lifecycle-bp-1":'"${lcbp_creds}"',"backbeat-lifecycle-conductor-1":'"${lcc_creds}"',"backbeat-lifecycle-op-1":'"${lcop_creds}"',"backbeat-qp-1":'"${qp_creds}"',"sorbet-fwd-2":{"accessKey":"'"${sorbet_ak}"'","secretKey":"'"${sorbet_sk}"'"}}')
+    ENV_VARS+=("SERVICE_USERS_CREDENTIALS=${service_users_creds}")
 }
 
 # =============================================================================
@@ -163,7 +170,6 @@ load_e2e() {
     ENV_VARS+=("GCP_SECRET_KEY=$(get_env_var GCP_SECRET_KEY)")
     ENV_VARS+=("GCP_BACKEND_SERVICE_KEY=$(get_env_var GCP_BACKEND_SERVICE_KEY)")
     ENV_VARS+=("GCP_BACKEND_SERVICE_EMAIL=$(get_env_var GCP_BACKEND_SERVICE_EMAIL)")
-    ENV_VARS+=("AZURE_BACKEND_ENDPOINT=$(get_env_var AZURE_BACKEND_ENDPOINT)")
     ENV_VARS+=("AWS_ENDPOINT=$(get_env_var AWS_ENDPOINT)")
     ENV_VARS+=("AWS_ACCESS_KEY=$(get_env_var AWS_ACCESS_KEY)")
     ENV_VARS+=("AWS_SECRET_KEY=$(get_env_var AWS_SECRET_KEY)")
@@ -185,6 +191,8 @@ load_e2e() {
 
     # Derived endpoints
     ENV_VARS+=("CLOUDSERVER_HOST=end2end-connector-s3api.default.svc.cluster.local")
+    ENV_VARS+=("CLOUDSERVER_ENDPOINT=http://end2end-connector-s3api.default.svc.cluster.local:80")
+    ENV_VARS+=("VAULT_ENDPOINT=http://end2end-management-vault-iam-admin-api:80")
     ENV_VARS+=("VAULT_STS_ENDPOINT=http://end2end-connector-vault-sts-api:80")
     ENV_VARS+=("BACKBEAT_API_ENDPOINT=http://end2end-management-backbeat-api.default.svc.cluster.local:80")
 

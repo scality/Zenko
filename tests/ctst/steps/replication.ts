@@ -26,7 +26,7 @@ When('the job to replicate existing objects with status {string} is executed',
         const s3utilsVersion = zenkoVersion.spec.versions.s3utils;
         const credentials = Identity.getCredentialsForIdentity(
             IdentityEnum.ACCOUNT,
-            this.parameters.AccountName
+            process.env.ZENKO_ACCOUNT_NAME
         );
         const podManifest = {
             apiVersion: 'v1',

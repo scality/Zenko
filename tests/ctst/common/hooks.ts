@@ -62,8 +62,8 @@ Before({ tags: '@UtilizationAPI', timeout: 1200000 }, async function (scenarioOp
 
 After(async function (this: Zenko, results) {
     // Reset any configuration set on the endpoint (ssl, port)
-    CacheHelper.parameters.ssl = this.parameters.ssl;
-    CacheHelper.parameters.port = this.parameters.port;
+    CacheHelper.parameters.ssl = process.env.SSL === 'true';
+    CacheHelper.parameters.port = process.env.ZENKO_PORT;
     if (results.result?.status === 'FAILED') {
         this.logger.warn('bucket was not cleaned for test', {
             bucket: this.getSaved<string>('bucketName'),

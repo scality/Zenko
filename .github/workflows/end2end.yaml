@@ -21,7 +21,7 @@ env:
   OIDC_REALM: "zenko"
   OIDC_CLIENT_ID: "zenko-ui"
   OIDC_USERNAME: 'storage_manager'
-  OIDC_PASSWORD: '123'
+  KEYCLOAK_TEST_PASSWORD: '123'
   OIDC_FIRST_NAME: 'hello'
   OIDC_LAST_NAME: 'world'
   HTTP_PROXY: ""

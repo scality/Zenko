@@ -2,7 +2,6 @@ const querystring = require('querystring');
 const http = require('http');
 const assert = require('assert');
 
-const USER_1_PASSWORD = process.env.KEYCLOAK_TEST_PASSWORD || '123';
 const HOST_1_URL = process.env.KEYCLOAK_TEST_HOST || 'http://keycloak.zenko.local';
 const HOST_1_PORT = parseInt(process.env.KEYCLOAK_TEST_PORT, 10) || 80;
 const REALM_NAME = process.env.KEYCLOAK_TEST_REALM_NAME || 'zenko';
@@ -82,7 +81,7 @@ function getWebIdentityToken(
 function getTokenForIdentity(identity, callback) {
     getWebIdentityToken(
         identity,
-        USER_1_PASSWORD,
+        process.env.KEYCLOAK_TEST_PASSWORD,
         HOST_1_URL,
         HOST_1_PORT,
         KEYCLOAK_PATH,
