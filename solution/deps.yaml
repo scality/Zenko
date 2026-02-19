@@ -6,7 +6,7 @@ backbeat:
   dashboard: backbeat/backbeat-dashboards
   image: backbeat
   policy: backbeat/backbeat-policies
-  tag: 9.1.5
+  tag: 9.1.7
   envsubst: BACKBEAT_TAG
 busybox:
   image: busybox
@@ -130,10 +130,10 @@ vault:
 zenko-operator:
   sourceRegistry: ghcr.io/scality
   image: zenko-operator
-  tag: v1.8.2
+  tag: v1.8.3
   envsubst: ZENKO_OPERATOR_TAG
 zookeeper:
-  sourceRegistry: pravega
+  sourceRegistry: ghcr.io/adobe/zookeeper-operator
   image: zookeeper
-  tag: 0.2.15
+  tag: 3.8.4-0.2.15-adobe-20250923
   envsubst: ZOOKEEPER_TAG

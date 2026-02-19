@@ -122,11 +122,20 @@ Given('one notification destination', function (this: Zenko) {
     );
 });
 
-Given('one authenticated notification destination', function (this: Zenko) {
+Given('one PLAIN authenticated notification destination', function (this: Zenko) {
     setNotificationDestination(
         this,
-        this.parameters.NotificationDestinationAuth,
-        this.parameters.NotificationDestinationTopicAuth,
+        this.parameters.NotificationDestinationPlain,
+        this.parameters.NotificationDestinationTopicPlain,
+        this.parameters.KafkaAuthHosts,
+    );
+});
+
+Given('one SCRAM authenticated notification destination', function (this: Zenko) {
+    setNotificationDestination(
+        this,
+        this.parameters.NotificationDestinationScram,
+        this.parameters.NotificationDestinationTopicScram,
         this.parameters.KafkaAuthHosts,
     );
 });
