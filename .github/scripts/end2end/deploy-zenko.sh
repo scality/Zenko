@@ -2,13 +2,14 @@
 
 set -exu
 
-DIR=$(dirname "$0")
+DIR="$(dirname "$0")"
+REPOSITORY_DIR="${DIR}/../../.."
 
 export ZENKO_NAME=${1:-end2end}
 export NAMESPACE=${2:-default}
 export ZENKO_CR_PATH=${3:-'./configs/zenko.yaml'}
-export ZENKOVERSION_PATH=${4:-'../../../solution/zenkoversion.yaml'}
-export DEPS_PATH=${5:-'../../../solution/deps.yaml'}
+export ZENKOVERSION_PATH=${4:-"${REPOSITORY_DIR}/solution/zenkoversion.yaml"}
+export DEPS_PATH=${5:-"${REPOSITORY_DIR}/solution/deps.yaml"}
 export ZENKO_VERSION_NAME="${ZENKO_NAME}-version"
 export ZENKO_ANNOTATIONS=""
 export ZENKO_MONGODB_SECRET_NAME=${ZENKO_MONGODB_SECRET_NAME:-'mongodb-db-creds'}
@@ -79,6 +80,9 @@ function dependencies_config_env()
 function dependencies_versions_env()
 {
     yq eval '.[] | .envsubst + "=" + .tag' ${DEPS_PATH}
+
+    source <( "${REPOSITORY_DIR}/solution/kafka_build_vars.sh" )
+    echo "KAFKA_BUILD_TREE_HASH=${BUILD_TREE_HASH}"
 }
 
 function dependencies_env()

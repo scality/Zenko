@@ -100,7 +100,24 @@ Feature: Bucket notifications
   @BucketNotification
   Scenario Outline: Receive notification for configured events in authenticated notification destinations
     Given a "<versioningConfiguration>" bucket
-    And one authenticated notification destination
+    And one PLAIN authenticated notification destination
+    When i subscribe to "<subscribedNotificationType>" notifications for destination <destination>
+    And a "<notificationType>" event is triggered "<enable>" "<filterType>"
+    Then i should "<shouldReceive>" a notification for "<notificationType>" event in destination <destination>
+
+    Examples:
+      | versioningConfiguration |               subscribedNotificationType |                         notificationType |  enable | filterType  | shouldReceive | destination |
+      |           Non versioned |                       s3:ObjectCreated:* |                     s3:ObjectCreated:Put | without |      filter |       receive |           0 |
+      |               Versioned |                       s3:ObjectCreated:* |                    s3:ObjectCreated:Copy | without |      filter |       receive |           0 |
+      |   Versioning suspended  |                       s3:ObjectCreated:* |                     s3:ObjectCreated:Put | without |      filter |       receive |           0 |
+
+  @2.6.0
+  @PreMerge
+  @Flaky
+  @BucketNotification
+  Scenario Outline: Receive notification for configured events in SCRAM authenticated notification destinations
+    Given a "<versioningConfiguration>" bucket
+    And one SCRAM authenticated notification destination
     When i subscribe to "<subscribedNotificationType>" notifications for destination <destination>
     And a "<notificationType>" event is triggered "<enable>" "<filterType>"
     Then i should "<shouldReceive>" a notification for "<notificationType>" event in destination <destination>

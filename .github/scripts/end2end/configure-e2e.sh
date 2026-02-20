@@ -2,7 +2,8 @@
 
 set -exu
 
-. "$(dirname $0)/common.sh"
+DIR=$(dirname "${0}")
+. "$DIR"/common.sh
 
 ZENKO_NAME=${1:-end2end}
 E2E_IMAGE=${2:-ghcr.io/scality/zenko/zenko-e2e:latest}
@@ -48,10 +49,12 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 EOF
 
-KAFKA_REGISTRY_NAME=$(yq eval ".kafka.sourceRegistry" ../../../solution/deps.yaml)
-KAFKA_IMAGE_NAME=$(yq eval ".kafka.image" ../../../solution/deps.yaml)
-KAFKA_IMAGE_TAG=$(yq eval ".kafka.tag" ../../../solution/deps.yaml)
-KAFKA_IMAGE=$KAFKA_REGISTRY_NAME/$KAFKA_IMAGE_NAME:$KAFKA_IMAGE_TAG
+kafka_image() {
+    source <( "$DIR"/../../../solution/kafka_build_vars.sh )
+    echo "$KAFKA_IMAGE:$KAFKA_TAG-$BUILD_TREE_HASH"
+}
+
+KAFKA_IMAGE=$(kafka_image)
 KAFKA_HOST_PORT=$(kubectl get secret -l app.kubernetes.io/name=backbeat-config,app.kubernetes.io/instance=end2end \
     -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq .kafka.hosts)
 KAFKA_HOST_PORT=${KAFKA_HOST_PORT:1:-1}
