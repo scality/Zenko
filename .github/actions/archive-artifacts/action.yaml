@@ -32,15 +32,50 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Setup artifacts link
+      id: setup-artifacts
+      uses: scality/action-artifacts@v4
+      with:
+        method: setup
+        url: https://artifacts.scality.net
+        user: ${{ inputs.user }}
+        password: ${{ inputs.password }}
+
+    - name: Download previous JUnit reports
+      shell: bash
+      run: |-
+        # Download previous JUnit reports
+        mkdir -p /tmp/junit-previous
+        for attempt in $(seq 1 $(( ${{ github.run_attempt }} - 1 )) ); do
+          curl -f -s -u "${{ inputs.user }}:${{ inputs.password }}" \
+              "${{ steps.setup-artifacts.outputs.link }}/data/${{ github.job }}.${attempt}/junit-merged.xml" \
+              -o "/tmp/junit-previous/attempt-${attempt}.xml" \
+            || echo "::warning::${{ github.job }}.${attempt} reports not available (skipped)"
+        done
+
+    - name: Merge JUnit reports
+      shell: bash
+      run: |-
+        # Merge JUnit reports
+        STAGE=/tmp/artifacts/data/${{ inputs.stage }}
+        mkdir -p "$STAGE"
+        shopt -s nullglob
+
+        python3 ".github/scripts/merge-junit-reports.py" "$STAGE/junit-merged.xml" \
+            ${{ inputs.junit-paths }} /tmp/junit-previous/*.xml
+      id: merge-junit
+
     - name: Publish test report
       uses: mikepenz/action-junit-report@v6
       with:
         annotate_only: true
-        check_name: ${{ inputs.stage}}
-        report_paths: ${{ inputs.junit-paths }}
-        job_summary: ${{ job.status != 'success' }} # Only show the summary if the job failed
+        check_name: ${{ inputs.stage }}
+        report_paths: /tmp/artifacts/data/${{ inputs.stage }}/junit-merged.xml
+        job_summary: ${{ steps.merge-junit.outputs.failures > 0 || steps.merge-junit.outputs.errors > 0 }}
+        flaky_summary: true
         detailed_summary: true
-      continue-on-error: true
+        check_retries: true
+        fail_on_failure: true
 
     - name: Upload results
       if: inputs.trunk_token && job.status != 'cancelled'
@@ -76,6 +111,7 @@ runs:
         tar zcvf /tmp/artifacts/${{ github.sha }}-${STAGE}-logs-volumes.tgz /tmp/artifacts/data/${STAGE}/kind-logs
       env:
         STAGE: ${{ inputs.stage }}
+      if: always()
       continue-on-error: true
 
     - name: Dump kafka
@@ -111,6 +147,7 @@ runs:
         STAGE: ${{ inputs.stage }}
         NAMESPACE: ${{ inputs.zenko-namespace }}
         ZENKO_NAME: ${{ inputs.zenko-name }}
+      if: always()
       continue-on-error: true
 
     - name: Dump MongoDB
@@ -140,6 +177,7 @@ runs:
         STAGE: ${{ inputs.stage }}
         NAMESPACE: ${{ inputs.zenko-namespace }}
         ZENKO_NAME: ${{ inputs.zenko-name }}
+      if: always()
       continue-on-error: true
 
     - name: Upload artifacts                               # move into `archive-artifacts` action
@@ -150,3 +188,4 @@ runs:
         user: ${{ inputs.user }}
         password: ${{ inputs.password }}
         source: /tmp/artifacts
+      if: always()

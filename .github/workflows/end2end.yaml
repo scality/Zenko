@@ -500,6 +500,7 @@ jobs:
       - name: Run CTST end to end tests
         run: bash run-e2e-ctst.sh "@PRA"
         working-directory: ./.github/scripts/end2end
+        continue-on-error: true
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
@@ -547,21 +548,26 @@ jobs:
       - name: Run init CI test
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "end2end" "default"
         working-directory: ./.github/scripts/end2end
+        continue-on-error: true
       - name: Run iam policies tests
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "iam-policies" "default"
         working-directory: ./.github/scripts/end2end
+        continue-on-error: true
       - name: Run cloudserver tests
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "object-api" "default"
         working-directory: ./.github/scripts/end2end
+        continue-on-error: true
       - name: Run smoke tests
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "smoke" "default"
         working-directory: ./.github/scripts/end2end
+        continue-on-error: true
       - name: Enable HTTPS
         run: bash enable-https.sh
         working-directory: ./.github/scripts/end2end
       - name: Run smoke tests
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "smoke" "default"
         working-directory: ./.github/scripts/end2end
+        continue-on-error: true
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
@@ -612,6 +618,7 @@ jobs:
       - name: Run backbeat end to end tests
         run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "backbeat" "default"
         working-directory: ./.github/scripts/end2end
+        continue-on-error: true
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
@@ -666,6 +673,7 @@ jobs:
       - name: Run CTST end to end tests
         run: bash run-e2e-ctst.sh "@PreMerge and not @PRA"
         working-directory: ./.github/scripts/end2end
+        continue-on-error: true
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
