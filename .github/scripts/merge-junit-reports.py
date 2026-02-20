@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """
 merge-reports.py - Safe JUnit XML merger
-Usage: python3 merge-reports.py output.xml input1.xml input2.xml ...
+Usage: python3 merge-reports.py output.xml input1.xml [input2.xml ...]
+       Glob patterns are supported and expanded automatically.
 """
 
+import glob
 import xml.etree.ElementTree as ET
 import sys
 
-def merge_reports(output_file, input_files):
+def merge_reports(output_file, input_patterns):
     """Safely merge JUnit XML reports"""
 
     # Create root element
@@ -17,6 +19,8 @@ def merge_reports(output_file, input_files):
     total_failures = 0
     total_errors = 0
     total_skipped = 0
+
+    input_files = [f for p in input_patterns for f in sorted(glob.glob(p))]
 
     for file in input_files:
         try:
