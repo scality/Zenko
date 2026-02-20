@@ -267,6 +267,28 @@ function dedupe()
     ${HARDLINK} -c ${IMAGES_ROOT}
 }
 
+function validate_registry()
+{
+    echo "Validating ISO registry completeness against zenkoversion.yaml..."
+    local missing=0
+
+    while IFS= read -r image_ref ; do
+        local image="${image_ref%:*}"
+        local tag="${image_ref##*:}"
+        local manifest="${IMAGES_ROOT}/${image}/${tag}/manifest.json"
+        if [ ! -f "${manifest}" ] ; then
+            echo "::error::Missing image in ISO registry: ${image}:${tag}"
+            missing=$((missing + 1))
+        fi
+    done < <(yq eval '.. | select(.image and .tag) | .image + ":" + .tag' ${ISO_ROOT}/zenkoversion.yaml | sort -u)
+
+    if [ ${missing} -gt 0 ] ; then
+        echo "::error::${missing} image(s) referenced in zenkoversion.yaml are missing from the ISO registry. Aborting."
+        exit 1
+    fi
+    echo "Registry validation passed: all images are present."
+}
+
 function build_registry_config()
 {
     docker run \
@@ -354,6 +376,7 @@ done
 get_dashboards
 copy_iam_policies
 copy_config
+validate_registry
 dedupe
 build_registry_config
 build_iso
