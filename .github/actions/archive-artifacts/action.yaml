@@ -41,10 +41,6 @@ runs:
         user: ${{ inputs.user }}
         password: ${{ inputs.password }}
 
-    - name: Install XML parser
-      shell: bash
-      run: npm install --prefix /tmp/xmldom-install @xmldom/xmldom
-
     - name: Download previous JUnit reports
       shell: bash
       run: |-
@@ -57,18 +53,21 @@ runs:
         done
 
     - name: Merge JUnit reports
-      uses: actions/github-script@v7
-      env:
-        NODE_PATH: /tmp/xmldom-install/node_modules
-      with:
-        script: |
-          const merge = require('./.github/scripts/merge-junit-reports.js')
-          await merge({
-            core, glob,
-            currentGlob: '${{ inputs.junit-paths }}',
-            previousGlob: '/tmp/junit-previous/*.xml',
-            outputDir: '/tmp/artifacts/data/${{ inputs.stage }}',
-          })
+      shell: bash
+      run: |-
+        shopt -s nullglob
+        mkdir -p /tmp/artifacts/data/${{ inputs.stage }}
+        current_files=(${{ inputs.junit-paths }})
+        prev_files=(/tmp/junit-previous/*.xml)
+        # Save current-attempt report for future re-runs to download
+        [ ${#current_files[@]} -gt 0 ] && python3 "$GITHUB_WORKSPACE/.github/scripts/merge-junit-reports.py" \
+          /tmp/artifacts/data/${{ inputs.stage }}/raw-reports.xml \
+          "${current_files[@]}"
+        # Merge current + all previous attempts into a single report
+        all_files=("${current_files[@]}" "${prev_files[@]}")
+        [ ${#all_files[@]} -gt 0 ] && python3 "$GITHUB_WORKSPACE/.github/scripts/merge-junit-reports.py" \
+          /tmp/artifacts/data/${{ inputs.stage }}/junit-merged.xml \
+          "${all_files[@]}"
 
     - name: Publish test report
       uses: mikepenz/action-junit-report@v4
