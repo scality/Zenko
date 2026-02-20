@@ -3,6 +3,21 @@
 set -e
 set -u
 
+if  [ "$(uname -s)" = "Darwin" ]; then
+    for cmd in gsed gstat gtar ; do
+        if ! command -v $cmd &> /dev/null; then
+            echo "Please install $cmd. You can do this via 'brew install $cmd'"
+            exit 1
+        fi
+    done
+
+    sed() { gsed "$@" ; }
+    stat() { gstat "$@" ; }
+    tar() { gtar "$@" ; }
+
+    export -f sed tar stat
+fi
+
 PWD=$(pwd)
 BUILD_ROOT=${PWD}/_build
 ISO_ROOT=${BUILD_ROOT}/root
@@ -22,13 +37,13 @@ source ${VERSION_FILE}
 GIT_REVISION=$(git describe --long --always --tags --dirty)
 ISO=${BUILD_ROOT}/${PRODUCT_LOWERNAME}-${VERSION_FULL}.iso
 
-DOCKER=docker
-DOCKER_OPTS=
 HARDLINK=hardlink
-OPERATOR_SDK=operator-sdk
-OPERATOR_SDK_OPTS=
+command -v $HARDLINK >/dev/null 2>&1 || HARDLINK="$(brew --prefix util-linux)/bin/hardlink"
+
+DOCKER=docker
+DOCKER_OPTS="--platform linux/amd64"
 SKOPEO=skopeo
-SKOPEO_OPTS="--override-os linux --insecure-policy"
+SKOPEO_OPTS="--override-os linux --override-arch amd64 --insecure-policy"
 
 export SOLUTION_REGISTRY=metalk8s-registry-from-config.invalid/${PRODUCT_LOWERNAME}-${VERSION_FULL}
 
@@ -69,7 +84,7 @@ function flatten_source_images()
 {
     source <( ${REPOSITORY_DIR}/solution/kafka_build_vars.sh )
 
-    yq eval '.* | (.sourceRegistry // "docker.io") + "/" + .image + ":" + .tag' deps.yaml |
+    yq eval '.* | select(.image) | (.sourceRegistry // "docker.io") + "/" + .image + ":" + .tag' deps.yaml |
         sed '/ghcr.io\/scality\/zenko\/kafka/ s/$/-'"${BUILD_TREE_HASH}"'/'
 }
 
@@ -107,7 +122,7 @@ function copy_yamls()
         mv $file ${file%.yaml}_crd.yaml
     done
     kustomize build "${zenko_operator_repo}/config/artesca-solution/rbac?ref=$(zenko_operator_tag)" |
-        docker run --rm -i ryane/kfilt:v0.0.5 -k Role,ClusterRole > ${deploy_dir}/role.yaml
+        docker run ${DOCKER_OPTS} --rm -i ryane/kfilt:v0.0.5 -k Role,ClusterRole > ${deploy_dir}/role.yaml
 
     env $(dependencies_versions_env) envsubst < zenkoversion.yaml > ${ISO_ROOT}/zenkoversion.yaml
 
@@ -118,7 +133,7 @@ function copy_yamls()
 function copy_docker_image()
 {
     IMAGE_NAME=${1##*/}
-    IMAGE_TRANSPORT=${2:-docker://}
+    IMAGE_TRANSPORT=${2:-docker-daemon:}
     FULL_PATH=${IMAGES_ROOT}/${IMAGE_NAME/:/\/}
     mkdir -p ${FULL_PATH}
     ${SKOPEO} ${SKOPEO_OPTS} copy \
@@ -208,7 +223,7 @@ function get_local_dashboards()
 
 function get_component_dashboards()
 {
-    components=$(yq eval '.* | select(has("dashboard")) | .sourceRegistry + "/" + .dashboard + ":" + .tag' deps.yaml)
+    components=$(yq eval '.* | select(.dashboard) | .sourceRegistry + "/" + .dashboard + ":" + .tag' deps.yaml)
 
     for dashboard in ${components}
     do
@@ -225,7 +240,7 @@ function get_dashboards()
 
 function copy_iam_policies()
 {
-    components=$(yq eval '.* | select(has("policy")) | .sourceRegistry + "/" + .policy + ":" + .tag' deps.yaml)
+    components=$(yq eval '.* | select(.policy) | .sourceRegistry + "/" + .policy + ":" + .tag' deps.yaml)
 
     for policy in ${components}
     do
@@ -237,7 +252,7 @@ function copy_iam_policies()
 
 function copy_config()
 {
-    components=$(yq eval '.* | select(.config != "") | .sourceRegistry + "/" + .config + ":" + .tag' deps.yaml)
+    components=$(yq eval '.* | select(.config) | .sourceRegistry + "/" + .config + ":" + .tag' deps.yaml)
 
     for config in ${components}
     do
@@ -265,7 +280,7 @@ function build_registry_config()
             --server-root '{{ registry_root }}' \
             --omit-constants \
             /var/lib/images > ${ISO_ROOT}/registry-config.inc.j2
-    rm ${ISO_ROOT}/static-container-registry.conf -f
+    rm -f ${ISO_ROOT}/static-container-registry.conf
 }
 
 function build_iso()
@@ -294,7 +309,7 @@ function build_iso()
 function download_tools()
 {
     # Download every tool
-    yq eval '.[] | select(has("toolUrl")) | .toolUrl + " " + .tag + " " + .toolName + " " + .envsubst' deps.yaml |\
+    yq eval '.[] | select(.toolUrl) | .toolUrl + " " + .tag + " " + .toolName + " " + .envsubst' deps.yaml |\
     while read -r url tag toolName envsubst; do
     (
         url="$(env "$envsubst=$tag" envsubst "\$$envsubst" <<< "$url")"
@@ -316,7 +331,7 @@ function download_tools()
     done
 
     # Extract tools from images
-    yq eval '.[] | select(has("toolName") and (has("toolUrl")|not)) | .sourceRegistry + "/" + .image + ":" + .tag + " " + .toolName' deps.yaml |\
+    yq eval '.[] | select(.toolName and (has("toolUrl")|not)) | .sourceRegistry + "/" + .image + ":" + .tag + " " + .toolName' deps.yaml |\
     while read -r image toolName; do
         local container
         container=$(docker create $image $toolName)
@@ -333,7 +348,7 @@ gen_manifest_yaml
 copy_yamls
 flatten_source_images | while read img ; do
     # only pull if the image isnt already local
-    ${DOCKER} image inspect ${img} > /dev/null 2>&1 || ${DOCKER} ${DOCKER_OPTS} pull ${img}
+    ${DOCKER} image inspect ${img} > /dev/null 2>&1 || ${DOCKER} pull ${DOCKER_OPTS} ${img}
     copy_docker_image ${img}
 done
 get_dashboards
