@@ -45,24 +45,28 @@ runs:
       shell: bash
       run: npm install --prefix /tmp/xmldom-install @xmldom/xmldom
 
-    - name: Download previous reports and merge
+    - name: Download previous JUnit reports
+      shell: bash
+      run: |-
+        mkdir -p /tmp/junit-previous
+        for attempt in $(seq 1 ${{ github.run_attempt - 1 }}); do
+          curl -f -s -u "${{ inputs.user }}:${{ inputs.password }}" \
+            "${{ steps.setup-artifacts.outputs.link }}/data/${{ github.job }}.${attempt}/raw-reports.xml" \
+            -o "/tmp/junit-previous/attempt-${attempt}.xml" \
+            || echo "Attempt ${attempt} reports not available (skipped)"
+        done
+
+    - name: Merge JUnit reports
       uses: actions/github-script@v7
       env:
         NODE_PATH: /tmp/xmldom-install/node_modules
-        ARTIFACTS_LINK: ${{ steps.setup-artifacts.outputs.link }}
-        ARTIFACTS_USER: ${{ inputs.user }}
-        ARTIFACTS_PASSWORD: ${{ inputs.password }}
       with:
         script: |
-          const mergeJUnitReports = require('./.github/scripts/merge-junit-reports.js')
-          await mergeJUnitReports({
+          const merge = require('./.github/scripts/merge-junit-reports.js')
+          await merge({
             core, glob,
-            link: process.env.ARTIFACTS_LINK,
-            user: process.env.ARTIFACTS_USER,
-            password: process.env.ARTIFACTS_PASSWORD,
-            jobName: '${{ github.job }}',
-            runAttempt: ${{ github.run_attempt }},
-            junitGlob: '${{ inputs.junit-paths }}',
+            currentGlob: '${{ inputs.junit-paths }}',
+            previousGlob: '/tmp/junit-previous/*.xml',
             outputDir: '/tmp/artifacts/data/${{ inputs.stage }}',
           })
 
