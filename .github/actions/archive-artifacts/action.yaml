@@ -47,7 +47,7 @@ runs:
         mkdir -p /tmp/junit-previous
         for attempt in $(seq 1 ${{ github.run_attempt - 1 }}); do
           curl -f -s -u "${{ inputs.user }}:${{ inputs.password }}" \
-            "${{ steps.setup-artifacts.outputs.link }}/data/${{ github.job }}.${attempt}/raw-reports.xml" \
+            "${{ steps.setup-artifacts.outputs.link }}/data/${{ github.job }}.${attempt}/junit-merged.xml" \
             -o "/tmp/junit-previous/attempt-${attempt}.xml" \
             || echo "Attempt ${attempt} reports not available (skipped)"
         done
@@ -59,7 +59,6 @@ runs:
         mkdir -p "$STAGE"
         shopt -s nullglob
         SCRIPT="$GITHUB_WORKSPACE/.github/scripts/merge-junit-reports.py"
-        python3 "$SCRIPT" "$STAGE/raw-reports.xml" ${{ inputs.junit-paths }}
         python3 "$SCRIPT" "$STAGE/junit-merged.xml" ${{ inputs.junit-paths }} /tmp/junit-previous/*.xml
 
     - name: Publish test report
