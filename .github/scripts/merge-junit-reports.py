@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 """
 merge-reports.py - Safe JUnit XML merger
-Usage: python3 merge-reports.py output.xml input1.xml [input2.xml ...]
-       Glob patterns are supported and expanded automatically.
+Usage: python3 merge-reports.py <output_dir> <current_glob> [previous_glob]
+
+Writes two files to output_dir:
+  raw-reports.xml  - current attempt only (for future re-runs to download)
+  junit-merged.xml - all attempts merged  (for mikepenz/action-junit-report)
 """
 
 import glob
+import os
 import xml.etree.ElementTree as ET
 import sys
 
@@ -60,9 +64,18 @@ def merge_reports(output_file, input_patterns):
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
-        print(f"Usage: {sys.argv[0]} <output.xml> <input1.xml> [input2.xml ...]", file=sys.stderr)
+        print(f"Usage: {sys.argv[0]} <output_dir> <current_glob> [previous_glob]", file=sys.stderr)
         sys.exit(1)
 
-    output = sys.argv[1]
-    inputs = sys.argv[2:]
-    merge_reports(output, inputs)
+    output_dir = sys.argv[1]
+    current_glob = sys.argv[2]
+    previous_glob = sys.argv[3] if len(sys.argv) > 3 else None
+
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Save current-attempt report for future re-runs to download
+    merge_reports(os.path.join(output_dir, 'raw-reports.xml'), [current_glob])
+
+    # Merge current + all previous attempts into a single report
+    all_patterns = [current_glob] + ([previous_glob] if previous_glob else [])
+    merge_reports(os.path.join(output_dir, 'junit-merged.xml'), all_patterns)
