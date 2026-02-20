@@ -133,7 +133,7 @@ zenko-operator:
   tag: v1.8.3
   envsubst: ZENKO_OPERATOR_TAG
 zookeeper:
-  sourceRegistry: ghcr.io/adobe/zookeeper-operator
+  sourceRegistry: pravega
   image: zookeeper
-  tag: 3.8.4-0.2.15-adobe-20250923
+  tag: 0.2.15
   envsubst: ZOOKEEPER_TAG
