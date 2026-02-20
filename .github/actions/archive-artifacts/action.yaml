@@ -54,9 +54,13 @@ runs:
 
     - name: Merge JUnit reports
       shell: bash
-      run: python3 "$GITHUB_WORKSPACE/.github/scripts/merge-junit-reports.py"
-        /tmp/artifacts/data/${{ inputs.stage }}
-        '${{ inputs.junit-paths }}' '/tmp/junit-previous/*.xml'
+      run: |-
+        STAGE=/tmp/artifacts/data/${{ inputs.stage }}
+        mkdir -p "$STAGE"
+        shopt -s nullglob
+        SCRIPT="$GITHUB_WORKSPACE/.github/scripts/merge-junit-reports.py"
+        python3 "$SCRIPT" "$STAGE/raw-reports.xml" ${{ inputs.junit-paths }}
+        python3 "$SCRIPT" "$STAGE/junit-merged.xml" ${{ inputs.junit-paths }} /tmp/junit-previous/*.xml
 
     - name: Publish test report
       uses: mikepenz/action-junit-report@v4
