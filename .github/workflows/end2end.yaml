@@ -511,8 +511,6 @@ jobs:
           password: ${{ secrets.ARTIFACTS_PASSWORD }}
           trunk_token: ${{ secrets.TRUNK_TOKEN }}
         if: always()
-      - name: Clean Up
-        run: kind delete cluster
 
   end2end-2-shards-http:
     needs: [build-kafka, build-test-image]
@@ -575,8 +573,6 @@ jobs:
           password: ${{ secrets.ARTIFACTS_PASSWORD }}
           trunk_token: ${{ secrets.TRUNK_TOKEN }}
         if: always()
-      - name: Clean Up
-        run: kind delete cluster
 
   end2end-sharded:
     needs: [build-kafka, build-test-image]
@@ -627,8 +623,6 @@ jobs:
           password: ${{ secrets.ARTIFACTS_PASSWORD }}
           trunk_token: ${{ secrets.TRUNK_TOKEN }}
         if: always()
-      - name: Clean Up
-        run: kind delete cluster
 
   ctst-end2end-sharded:
     needs: [build-kafka, lint-and-build-ctst]
@@ -683,8 +677,6 @@ jobs:
           password: ${{ secrets.ARTIFACTS_PASSWORD }}
           trunk_token: ${{ secrets.TRUNK_TOKEN }}
         if: always()
-      - name: Clean Up
-        run: kind delete cluster
 
   write-final-status:
     runs-on: ubuntu-24.04
