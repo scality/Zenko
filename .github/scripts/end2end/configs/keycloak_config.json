@@ -1,5 +1,5 @@
 {
-  "realm" : "${OIDC_REALM}",
+  "realm" : "${KEYCLOAK_TEST_REALM_NAME}",
   "enabled" : true,
   "defaultRoles" : [ "uma_authorization", "offline_access" ],
   "roles": {
@@ -9,7 +9,7 @@
         "name": "StorageManager",
         "composite": false,
         "clientRole": false,
-        "containerId": "${OIDC_REALM}",
+        "containerId": "${KEYCLOAK_TEST_REALM_NAME}",
         "attributes": {}
       },
       {
@@ -17,7 +17,7 @@
         "name": "AccountTest::DataAccessor",
         "composite": false,
         "clientRole": false,
-        "containerId": "${OIDC_REALM}",
+        "containerId": "${KEYCLOAK_TEST_REALM_NAME}",
         "attributes": {}
       },
       {
@@ -25,7 +25,7 @@
         "name": "AccountTest::DataConsumer",
         "composite": false,
         "clientRole": false,
-        "containerId": "${OIDC_REALM}",
+        "containerId": "${KEYCLOAK_TEST_REALM_NAME}",
         "attributes": {}
       },
       {
@@ -33,7 +33,7 @@
         "name": "AccountTest::StorageAccountOwner",
         "composite": false,
         "clientRole": false,
-        "containerId": "${OIDC_REALM}",
+        "containerId": "${KEYCLOAK_TEST_REALM_NAME}",
         "attributes": {}
       }
     ]
@@ -41,7 +41,7 @@
   "requiredCredentials" : [ "password" ],
   "users" : [
     {
-      "username": "${OIDC_USERNAME}-norights",
+      "username": "${KEYCLOAK_TEST_USER}-norights",
       "enabled": true,
       "totp": false,
       "emailVerified": false,
@@ -193,7 +193,7 @@
     }
   ],
   "clients" : [ {
-    "clientId" : "${OIDC_CLIENT_ID}",
+    "clientId" : "${KEYCLOAK_TEST_CLIENT_ID}",
     "rootUrl": "http://keycloack.zenko.local",
     "adminUrl": "/",
     "surrogateAuthRequired" : false,

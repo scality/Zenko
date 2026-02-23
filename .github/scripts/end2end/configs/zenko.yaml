@@ -87,10 +87,10 @@ spec:
   management:
     provider: InCluster
     oidc:
-      provider: '${OIDC_ENDPOINT}/auth/realms/${OIDC_REALM}'
+      provider: '${KEYCLOAK_TEST_ENDPOINT}/auth/realms/${KEYCLOAK_TEST_REALM_NAME}'
       federatedProviders:
-        - '${OIDC_ENDPOINT}/auth/realms/${OIDC_REALM}'
-      vaultClientId: ${OIDC_CLIENT_ID}
+        - '${KEYCLOAK_TEST_ENDPOINT}/auth/realms/${KEYCLOAK_TEST_REALM_NAME}'
+      vaultClientId: ${KEYCLOAK_TEST_CLIENT_ID}
     api:
       ingress:
         hostname: ${ZENKO_MANAGEMENT_INGRESS}

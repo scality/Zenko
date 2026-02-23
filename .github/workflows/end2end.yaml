@@ -18,9 +18,9 @@ env:
   OPERATOR_IMAGE: ""
   KIND_NODE_IMAGE: "kindest/node:v1.32.8@sha256:abd489f042d2b644e2d033f5c2d900bc707798d075e8186cb65e3f1367a9d5a1"
   VOLUME_ROOT: /artifacts
-  OIDC_REALM: "zenko"
-  OIDC_CLIENT_ID: "zenko-ui"
-  OIDC_USERNAME: 'storage_manager'
+  KEYCLOAK_TEST_REALM_NAME: "zenko"
+  KEYCLOAK_TEST_CLIENT_ID: "zenko-ui"
+  KEYCLOAK_TEST_USER: 'storage_manager'
   KEYCLOAK_TEST_PASSWORD: '123'
   OIDC_FIRST_NAME: 'hello'
   OIDC_LAST_NAME: 'world'
@@ -35,8 +35,8 @@ env:
   VAULT_TEST_IMAGE_NAME: ""
   VAULT_TEST_IMAGE_TAG: ""
   # http-env
-  OIDC_ENDPOINT: 'http://keycloak.zenko.local'
-  OIDC_HOST: 'keycloak.zenko.local'
+  KEYCLOAK_TEST_ENDPOINT: 'http://keycloak.zenko.local'
+  KEYCLOAK_TEST_HOST: 'keycloak.zenko.local'
   ENABLE_KEYCLOAK_HTTPS: 'false'
   KEYCLOAK_VERSION: '18.4.4'
   PROMETHEUS_NAME: "prometheus"
@@ -482,14 +482,14 @@ jobs:
         shell: bash
         run: bash keycloak-helper.sh add-user default end2end-pra
         env:
-          OIDC_USERNAME: 'zenko-end2end-pra'
+          KEYCLOAK_TEST_USER: 'zenko-end2end-pra'
           OIDC_EMAIL: 'e2e-pra@zenko.local'
         working-directory: ./.github/scripts/end2end
       - name: Configure E2E PRA test environment
         run: bash configure-e2e.sh end2end-pra ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} default
         working-directory: ./.github/scripts/end2end
         env:
-          OIDC_USERNAME: 'zenko-end2end-pra'
+          KEYCLOAK_TEST_USER: 'zenko-end2end-pra'
       - name: Configure E2E CTST test environment
         run: bash configure-e2e-ctst.sh
         working-directory: ./.github/scripts/end2end

@@ -63,13 +63,13 @@ export interface ZenkoWorldParameters extends ClientOptions {
     KafkaHosts: string;
     KafkaAuthHosts: string;
     PrometheusService: string;
-    KeycloakUsername: string;
-    KeycloakPassword: string;
-    KeycloakHost: string;
-    KeycloakPort: string;
-    KeycloakRealm: string;
-    KeycloakClientId: string;
-    KeycloakGrantType: string;
+    // KeycloakUsername: string;
+    // KeycloakPassword: string;
+    // KeycloakHost: string;
+    // KeycloakPort: string;
+    // KeycloakRealm: string;
+    // KeycloakClientId: string;
+    // KeycloakGrantType: string;
     // KeycloakTestPassword: string;
     StorageManagerUsername: string;
     StorageAccountOwnerUsername: string;
@@ -265,19 +265,19 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             break;
         case EntityType.STORAGE_MANAGER:
             await this.prepareARWWI(this.parameters.StorageManagerUsername || 'storage_manager',
-                'storage-manager-role', this.parameters.KeycloakTestPassword);
+                'storage-manager-role', process.env.KEYCLOAK_TEST_PASSWORD);
             break;
         case EntityType.STORAGE_ACCOUNT_OWNER:
             await this.prepareARWWI(this.parameters.StorageAccountOwnerUsername || 'storage_account_owner',
-                'storage-account-owner-role', this.parameters.KeycloakTestPassword);
+                'storage-account-owner-role', process.env.KEYCLOAK_TEST_PASSWORD);
             break;
         case EntityType.DATA_CONSUMER:
             await this.prepareARWWI(this.parameters.DataConsumerUsername || 'data_consumer',
-                'data-consumer-role', this.parameters.KeycloakTestPassword);
+                'data-consumer-role', process.env.KEYCLOAK_TEST_PASSWORD);
             break;
         case EntityType.DATA_ACCESSOR:
             await this.prepareARWWI(this.parameters.DataAccessorUsername || 'data_accessor',
-                'data-accessor-role', this.parameters.KeycloakTestPassword);
+                'data-accessor-role', process.env.KEYCLOAK_TEST_PASSWORD);
             break;
         case EntityType.ASSUME_ROLE_USER:
             await this.prepareAssumeRole(false);
@@ -314,11 +314,11 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             const webIdentityToken = await this.getWebIdentityToken(
                 ARWWIName,
                 ARWWIPassword || '123',
-                this.parameters.KeycloakHost || 'keycloak.zenko.local',
-                this.parameters.KeycloakPort || '80',
-                `/auth/realms/${this.parameters.KeycloakRealm || 'zenko'}/protocol/openid-connect/token`,
-                this.parameters.KeycloakClientId || Constants.K_CLIENT,
-                this.parameters.KeycloakGrantType || 'password',
+                process.env.KEYCLOAK_TEST_HOST,
+                '80',
+                `/auth/realms/${process.env.KEYCLOAK_TEST_REALM_NAME}/protocol/openid-connect/token`,
+                process.env.KEYCLOAK_TEST_CLIENT_ID || Constants.K_CLIENT,
+                'password',
             );
             if (!webIdentityToken) {
                 throw new Error('Error when trying to get a WebIdentity token.');
@@ -946,13 +946,13 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         payload: object | string = {},
     ): Promise<{ statusCode: number; data: object } | { statusCode: number; err: unknown }> {
         const token = await this.getWebIdentityToken(
-            this.parameters.KeycloakUsername || 'storage_manager',
+            process.env.KEYCLOAK_TEST_USER,
             process.env.KEYCLOAK_TEST_PASSWORD,
-            this.parameters.KeycloakHost || 'keycloak.zenko.local',
-            this.parameters.KeycloakPort || '80',
-            `/auth/realms/${this.parameters.KeycloakRealm || 'zenko'}/protocol/openid-connect/token`,
-            this.parameters.KeycloakClientId || Constants.K_CLIENT,
-            this.parameters.KeycloakGrantType || 'password',
+            process.env.KEYCLOAK_TEST_HOST,
+            '80',
+            `/auth/realms/${process.env.KEYCLOAK_TEST_REALM_NAME || 'zenko'}/protocol/openid-connect/token`,
+            process.env.KEYCLOAK_TEST_CLIENT_ID || Constants.K_CLIENT,
+            'password',
         );
         const axiosInstance = axios.create();
         const protocol = process.env.SSL === 'false' ? 'http://' : 'https://';

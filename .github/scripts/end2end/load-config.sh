@@ -37,13 +37,16 @@ load_common() {
     ENV_VARS=()
 
     # From end2end.yaml
-    ENV_VARS+=("KEYCLOAK_TEST_REALM_NAME=$(get_env_var OIDC_REALM)")
-    ENV_VARS+=("KEYCLOAK_TEST_CLIENT_ID=$(get_env_var OIDC_CLIENT_ID)")
-    ENV_VARS+=("KEYCLOAK_TEST_USER=$(get_env_var OIDC_USERNAME)")
+    ENV_VARS+=("KEYCLOAK_TEST_REALM_NAME=$(get_env_var KEYCLOAK_TEST_REALM_NAME)")
+    ENV_VARS+=("KEYCLOAK_TEST_CLIENT_ID=$(get_env_var KEYCLOAK_TEST_CLIENT_ID)")
+    # CTST uses the base user (storage_manager), E2E uses a restricted user (-norights suffix)
+    if [[ "$SUITE" == "e2e" ]]; then
+        ENV_VARS+=("KEYCLOAK_TEST_USER=$(get_env_var KEYCLOAK_TEST_USER)-norights")
+    else
+        ENV_VARS+=("KEYCLOAK_TEST_USER=$(get_env_var KEYCLOAK_TEST_USER)")
+    fi
     ENV_VARS+=("KEYCLOAK_TEST_PASSWORD=$(get_env_var KEYCLOAK_TEST_PASSWORD)")
-    ENV_VARS+=("KEYCLOAK_TEST_HOST=$(get_env_var OIDC_HOST)")
-    ENV_VARS+=("KEYCLOAK_TEST_PORT=80")
-    ENV_VARS+=("KEYCLOAK_TEST_GRANT_TYPE=password")
+    ENV_VARS+=("KEYCLOAK_TEST_HOST=$(get_env_var KEYCLOAK_TEST_HOST)")
     ENV_VARS+=("AZURE_ACCOUNT_NAME=$(get_env_var AZURE_ACCOUNT_NAME)")
     ENV_VARS+=("AZURE_SECRET_KEY=$(get_env_var AZURE_SECRET_KEY)")
     ENV_VARS+=("AZURE_BACKEND_ENDPOINT=$(get_env_var AZURE_BACKEND_ENDPOINT)")

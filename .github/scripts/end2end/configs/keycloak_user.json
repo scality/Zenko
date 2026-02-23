@@ -1,5 +1,5 @@
 {
-  "username": "${OIDC_USERNAME}",
+  "username": "${KEYCLOAK_TEST_USER}",
   "enabled": true,
   "totp": false,
   "emailVerified": true,

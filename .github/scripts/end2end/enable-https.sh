@@ -60,8 +60,8 @@ kubectl patch zenko/${ZENKO_NAME} --type=merge -p '{
 kubectl wait --for condition=Available --timeout 5m zenko/${ZENKO_NAME}
 
 # Update environment variables to use HTTPS URLs
-echo "OIDC_ENDPOINT=https://keycloak.zenko.local" >> $GITHUB_ENV
-echo "OIDC_HOST=keycloak.zenko.local" >> $GITHUB_ENV
+echo "KEYCLOAK_TEST_ENDPOINT=https://keycloak.zenko.local" >> $GITHUB_ENV
+echo "KEYCLOAK_TEST_HOST=keycloak.zenko.local" >> $GITHUB_ENV
 echo "ENABLE_KEYCLOAK_HTTPS=true" >> $GITHUB_ENV
 
 # Set the HTTPS ingress options for Keycloak

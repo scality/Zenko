@@ -32,13 +32,13 @@ ADMIN_PRA_SECRET_ACCESS_KEY=$(kubectl get secret end2end-pra-management-vault-ad
 
 VAULT_AUTH_HOST="${ZENKO_NAME}-connector-vault-auth-api.default.svc.cluster.local"
 # ZENKO_PORT="80"
-KEYCLOAK_TEST_USER=${OIDC_USERNAME}
+# KEYCLOAK_TEST_USER=${OIDC_USERNAME}
 # KEYCLOAK_TEST_PASSWORD=${OIDC_PASSWORD}
-KEYCLOAK_TEST_HOST=${OIDC_HOST}
-KEYCLOAK_TEST_PORT="80"
-KEYCLOAK_TEST_REALM_NAME=${OIDC_REALM}
-KEYCLOAK_TEST_CLIENT_ID=${OIDC_CLIENT_ID}
-KEYCLOAK_TEST_GRANT_TYPE="password"
+# KEYCLOAK_TEST_HOST=${OIDC_HOST}
+# KEYCLOAK_TEST_PORT="80"
+# KEYCLOAK_TEST_REALM_NAME=${OIDC_REALM}
+# KEYCLOAK_TEST_CLIENT_ID=${OIDC_CLIENT_ID}
+# KEYCLOAK_TEST_GRANT_TYPE="password"
 
 # get Zenko service users credentials
 BACKBEAT_LCBP_1_CREDS=$(kubectl get secret -l app.kubernetes.io/name=backbeat-lcbp-user-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.backbeat-lifecycle-bp-1\.json}' | base64 -d)
@@ -105,12 +105,6 @@ WORLD_PARAMETERS="$(jq -c <<EOF
   "PrometheusService":"${PROMETHEUS_NAME}-operated.default.svc.cluster.local",
   "KafkaHosts":"${KAFKA_HOST_PORT}",
   "KafkaAuthHosts":"${KAFKA_AUTH_HOST_PORT}",
-  "KeycloakUsername":"${KEYCLOAK_TEST_USER}",
-  "KeycloakHost":"${KEYCLOAK_TEST_HOST}",
-  "KeycloakPort":"${KEYCLOAK_TEST_PORT}",
-  "KeycloakRealm":"${KEYCLOAK_TEST_REALM_NAME}",
-  "KeycloakClientId":"${KEYCLOAK_TEST_CLIENT_ID}",
-  "KeycloakGrantType":"${KEYCLOAK_TEST_GRANT_TYPE}",
   "StorageManagerUsername":"ctst_storage_manager",
   "StorageAccountOwnerUsername":"ctst_storage_account_owner",
   "DataConsumerUsername":"ctst_data_consumer",
@@ -151,7 +145,7 @@ docker run \
     --rm \
     --network=host \
     "${E2E_IMAGE}" /bin/bash \
-    -c "SUBDOMAIN=${SUBDOMAIN} CONTROL_PLANE_INGRESS_ENDPOINT=${OIDC_ENDPOINT} ACCOUNT=${ZENKO_ACCOUNT_NAME} KEYCLOAK_REALM=${KEYCLOAK_TEST_REALM_NAME} STORAGE_MANAGER=ctst_storage_manager STORAGE_ACCOUNT_OWNER=ctst_storage_account_owner DATA_CONSUMER=ctst_data_consumer DATA_ACCESSOR=ctst_data_accessor /ctst/node_modules/cli-testing/bin/seedKeycloak.sh"; [[ $? -eq 1 ]] && exit 1 || echo 'Keycloak Configured!'
+    -c "SUBDOMAIN=${SUBDOMAIN} CONTROL_PLANE_INGRESS_ENDPOINT=${KEYCLOAK_TEST_ENDPOINT} ACCOUNT=${ZENKO_ACCOUNT_NAME} KEYCLOAK_REALM=${KEYCLOAK_TEST_REALM_NAME} STORAGE_MANAGER=ctst_storage_manager STORAGE_ACCOUNT_OWNER=ctst_storage_account_owner DATA_CONSUMER=ctst_data_consumer DATA_ACCESSOR=ctst_data_accessor /ctst/node_modules/cli-testing/bin/seedKeycloak.sh"; [[ $? -eq 1 ]] && exit 1 || echo 'Keycloak Configured!'
 
 # Grant access to Kube API (insecure, only for testing)
 kubectl create clusterrolebinding serviceaccounts-cluster-admin \

@@ -34,17 +34,17 @@ case $COMMAND in
         export OIDC_EMAIL=${OIDC_EMAIL:-"e2e@zenko.local"}
 
         envsubst < $DIR/configs/keycloak_user.json | \
-            ${KEYCLOAK_EXEC} /opt/jboss/keycloak/bin/kcadm.sh create users -r ${OIDC_REALM} -f -
+            ${KEYCLOAK_EXEC} /opt/jboss/keycloak/bin/kcadm.sh create users -r ${KEYCLOAK_TEST_REALM_NAME} -f -
 
         ${KEYCLOAK_EXEC} /opt/jboss/keycloak/bin/kcadm.sh set-password \
-            -r ${OIDC_REALM} \
-            --username ${OIDC_USERNAME} \
+            -r ${KEYCLOAK_TEST_REALM_NAME} \
+            --username ${KEYCLOAK_TEST_USER} \
             --new-password ${KEYCLOAK_TEST_PASSWORD}
 
         # attach StorageManager role to user
         ${KEYCLOAK_EXEC} /opt/jboss/keycloak/bin/kcadm.sh add-roles \
-          -r ${OIDC_REALM} \
-          --uusername ${OIDC_USERNAME} \
+          -r ${KEYCLOAK_TEST_REALM_NAME} \
+          --uusername ${KEYCLOAK_TEST_USER} \
           --rolename "StorageManager"
         ;;
     
@@ -54,9 +54,9 @@ case $COMMAND in
         export INSTANCE_ID=`kubectl -n ${NAMESPACE} get zenko -o jsonpath='{.items[0].status.instanceID}'`
 
         # get user id
-        USER_ID=$(${KEYCLOAK_EXEC} /opt/jboss/keycloak/bin/kcadm.sh get users -r ${OIDC_REALM} -q "username=${OIDC_USERNAME}" | jq -r '.[0].id')
+        USER_ID=$(${KEYCLOAK_EXEC} /opt/jboss/keycloak/bin/kcadm.sh get users -r ${KEYCLOAK_TEST_REALM_NAME} -q "username=${KEYCLOAK_TEST_USER}" | jq -r '.[0].id')
         # set instanceIds array attribute for user
-        ${KEYCLOAK_EXEC} /opt/jboss/keycloak/bin/kcadm.sh update users/${USER_ID} -r ${OIDC_REALM} -s 'attributes={"instanceIds":["'"${INSTANCE_ID}"'"],"role":"user"}'
+        ${KEYCLOAK_EXEC} /opt/jboss/keycloak/bin/kcadm.sh update users/${USER_ID} -r ${KEYCLOAK_TEST_REALM_NAME} -s 'attributes={"instanceIds":["'"${INSTANCE_ID}"'"],"role":"user"}'
 
 
         ;;
