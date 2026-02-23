@@ -11,7 +11,7 @@ const { makeGETRequest, makeUpdateRequest, getResponseBody } = require('../../..
 const scalityUtils = new ReplicationUtility(scalityS3Client);
 const awsUtils = new ReplicationUtility(awsS3Client);
 const srcBucket = `source-bucket-${Date.now()}`;
-const destFailBucket = process.env.AWS_S3_FAIL_BACKBEAT_BUCKET_NAME;
+const destFailBucket = process.env.AWS_FAIL_BUCKET_NAME;
 const destFailLocation = process.env.AWS_S3_FAIL_BACKEND_DESTINATION_LOCATION;
 
 const hex = crypto.createHash('md5')

@@ -116,7 +116,7 @@ load_ctst() {
     ENV_VARS+=("KAFKA_GC_REQUEST_TOPIC=$(echo "${sorbet_config}" | jq -r '."kafka-gc-request-topic"')")
 
     # From k8s: Zenko resource values
-    ENV_VARS+=("TIME_PROGRESSION_FACTOR=$(kubectl get zenko end2end -o jsonpath='{.metadata.annotations.zenko\.io/time-progression-factor}')")
+    # ENV_VARS+=("TIME_PROGRESSION_FACTOR=$(kubectl get zenko end2end -o jsonpath='{.metadata.annotations.zenko\.io/time-progression-factor}')")
     ENV_VARS+=("ZENKO_INSTANCE_ID=$(kubectl get zenko end2end -o jsonpath='{.status.instanceID}')")
     ENV_VARS+=("KAFKA_CLEANER_INTERVAL=$(kubectl get zenko end2end -o jsonpath='{.spec.kafkaCleaner.interval}')")
     ENV_VARS+=("SORBETD_RESTORE_TIMEOUT=$(kubectl get zenko end2end -o jsonpath='{.spec.sorbet.server.azure.restoreTimeout}')")
@@ -174,7 +174,7 @@ load_e2e() {
     ENV_VARS+=("AWS_ACCESS_KEY=$(get_env_var AWS_ACCESS_KEY)")
     ENV_VARS+=("AWS_SECRET_KEY=$(get_env_var AWS_SECRET_KEY)")
     ENV_VARS+=("VERIFY_CERTIFICATES=$(get_env_var VERIFY_CERTIFICATES)")
-    ENV_VARS+=("ENABLE_RING_TESTS=$(get_env_var ENABLE_RING_TESTS)")
+    # ENV_VARS+=("ENABLE_RING_TESTS=$(get_env_var ENABLE_RING_TESTS)")
     ENV_VARS+=("RING_S3C_ACCESS_KEY=$(get_env_var RING_S3C_ACCESS_KEY)")
     ENV_VARS+=("RING_S3C_SECRET_KEY=$(get_env_var RING_S3C_SECRET_KEY)")
     ENV_VARS+=("RING_S3C_ENDPOINT=$(get_env_var RING_S3C_ENDPOINT)")

@@ -67,6 +67,7 @@ kubectl run $POD_NAME \
         --image-pull-policy=IfNotPresent \
         $(env_for_kubectl_run) \
         --env=TARGET_VERSION=$VERSION  \
+        --env=TIME_PROGRESSION_FACTOR=$TIME_PROGRESSION_FACTOR \
         --env=VERBOSE=1 \
         --env=SDK=true \
         --override-type strategic \
