@@ -2,20 +2,22 @@ import { When } from '@cucumber/cucumber';
 import { S3 } from 'cli-testing';
 import Zenko from '../../world/Zenko';
 
-When('the user calls GetObjectAttributes for {string} requesting {string}', async function (
-    this: Zenko,
+async function getObjectAttributes(
+    world: Zenko,
     objectName: string,
     attributes: string,
+    versionId?: string,
 ) {
-    this.resetCommand();
-    const bucketName = this.getSaved<string>('bucketName');
+    world.resetCommand();
 
+    const bucketName = world.getSaved<string>('bucketName');
     const attributesList = JSON.stringify(attributes.split(',').map(attr => attr.trim()));
 
     const result = await S3.getObjectAttributes({
         bucket: bucketName,
         key: objectName,
         objectAttributes: attributesList,
+        ...(versionId && { versionId }),
     });
 
     // The AWS SDK may fail to deserialize non-standard responses
@@ -25,6 +27,22 @@ When('the user calls GetObjectAttributes for {string} requesting {string}', asyn
         result.err = null;
     }
 
-    this.setResult(result);
+    world.setResult(result);
+}
+
+When('the user calls GetObjectAttributes for {string} requesting {string}', async function (
+    this: Zenko,
+    objectName: string,
+    attributes: string,
+) {
+    await getObjectAttributes(this, objectName, attributes);
 });
 
+When('the user calls GetObjectAttributes for {string} requesting {string} with the latest version', async function (
+    this: Zenko,
+    objectName: string,
+    attributes: string,
+) {
+    const versionId = this.getLatestObjectVersion(objectName);
+    await getObjectAttributes(this, objectName, attributes, versionId);
+});
