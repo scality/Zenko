@@ -118,7 +118,7 @@ Given('one notification destination', function (this: Zenko) {
         this,
         this.parameters.NotificationDestination,
         this.parameters.NotificationDestinationTopic,
-        this.parameters.KafkaHosts,
+        process.env.KAFKA_HOST_PORT,
     );
 });
 
@@ -127,7 +127,7 @@ Given('one authenticated notification destination', function (this: Zenko) {
         this,
         this.parameters.NotificationDestinationAuth,
         this.parameters.NotificationDestinationTopicAuth,
-        this.parameters.KafkaAuthHosts,
+        process.env.KAFKA_AUTH_HOST_PORT,
     );
 });
 
@@ -136,12 +136,12 @@ Given('two notification destinations', function (this: Zenko) {
     notificationDestinations.push({
         destinationName: this.parameters.NotificationDestination,
         topic: this.parameters.NotificationDestinationTopic,
-        hosts: this.parameters.KafkaHosts,
+        hosts: process.env.KAFKA_HOST_PORT,
     });
     notificationDestinations.push({
         destinationName: this.parameters.NotificationDestinationAlt,
         topic: this.parameters.NotificationDestinationTopicAlt,
-        hosts: this.parameters.KafkaHosts,
+        hosts: process.env.KAFKA_HOST_PORT,
     });
     this.addToSaved('notificationDestinations', notificationDestinations);
 });

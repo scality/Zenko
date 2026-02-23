@@ -298,7 +298,7 @@ Then('i {string} be able to add user metadata to object {string}',
 
 Then('kafka consumed messages should not take too much place on disk', { timeout: -1 },
     async function (this: Zenko) {
-        const kfkcIntervalSeconds = parseInt(this.parameters.KafkaCleanerInterval);
+        const kfkcIntervalSeconds = parseInt(process.env.KAFKA_CLEANER_INTERVAL);
         const checkInterval = kfkcIntervalSeconds * (1000 + 5000);
 
         const timeoutID = setTimeout(() => {
@@ -307,9 +307,9 @@ Then('kafka consumed messages should not take too much place on disk', { timeout
 
         try {
             const ignoredTopics = ['dead-letter'];
-            const kafkaAdmin = new Kafka({ brokers: [this.parameters.KafkaHosts] }).admin();
+            const kafkaAdmin = new Kafka({ brokers: [process.env.KAFKA_HOST_PORT] }).admin();
             const topics: string[] = (await kafkaAdmin.listTopics())
-                .filter(t => (t.includes(this.parameters.InstanceID) &&
+                .filter(t => (t.includes(process.env.ZENKO_INSTANCE_ID) &&
                     !ignoredTopics.some(e => t.includes(e))));
 
             const previousOffsets = await getTopicsOffsets(topics, kafkaAdmin);

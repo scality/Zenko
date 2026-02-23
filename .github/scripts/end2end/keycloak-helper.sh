@@ -51,12 +51,12 @@ case $COMMAND in
     "set-user-instance-ids")
         refresh_creds
 
-        export INSTANCE_ID=`kubectl -n ${NAMESPACE} get zenko -o jsonpath='{.items[0].status.instanceID}'`
+        export ZENKO_INSTANCE_ID=`kubectl -n ${NAMESPACE} get zenko -o jsonpath='{.items[0].status.instanceID}'`
 
         # get user id
         USER_ID=$(${KEYCLOAK_EXEC} /opt/jboss/keycloak/bin/kcadm.sh get users -r ${KEYCLOAK_TEST_REALM_NAME} -q "username=${KEYCLOAK_TEST_USER}" | jq -r '.[0].id')
         # set instanceIds array attribute for user
-        ${KEYCLOAK_EXEC} /opt/jboss/keycloak/bin/kcadm.sh update users/${USER_ID} -r ${KEYCLOAK_TEST_REALM_NAME} -s 'attributes={"instanceIds":["'"${INSTANCE_ID}"'"],"role":"user"}'
+        ${KEYCLOAK_EXEC} /opt/jboss/keycloak/bin/kcadm.sh update users/${USER_ID} -r ${KEYCLOAK_TEST_REALM_NAME} -s 'attributes={"instanceIds":["'"${ZENKO_INSTANCE_ID}"'"],"role":"user"}'
 
 
         ;;

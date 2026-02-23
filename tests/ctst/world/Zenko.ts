@@ -1,4 +1,4 @@
-import { World, IWorldOptions, setWorldConstructor } from '@cucumber/cucumber';
+// import { World, IWorldOptions, setWorldConstructor } from '@cucumber/cucumber';
 import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
 import { AccessKey } from '@aws-sdk/client-iam';
 import { Credentials } from '@aws-sdk/client-sts';
@@ -50,7 +50,7 @@ export interface ZenkoWorldParameters extends ClientOptions {
     // DRAdminAccessKey?: string;
     // DRAdminSecretKey?: string;
     // DRSubdomain?: string;
-    VaultAuthHost: string;
+    // VaultAuthHost: string;
     NotificationDestination: string;
     NotificationDestinationTopic: string;
     NotificationDestinationAlt: string;
@@ -60,8 +60,8 @@ export interface ZenkoWorldParameters extends ClientOptions {
     NotificationDestinationAuthUsername: string;
     NotificationDestinationAuthPassword: string;
     KafkaExternalIps: string;
-    KafkaHosts: string;
-    KafkaAuthHosts: string;
+    // KafkaHosts: string;
+    // KafkaAuthHosts: string;
     PrometheusService: string;
     // KeycloakUsername: string;
     // KeycloakPassword: string;
@@ -82,18 +82,18 @@ export interface ZenkoWorldParameters extends ClientOptions {
     AzureArchiveContainer2: string;
     AzureArchiveAccessTier: string;
     AzureArchiveManifestTier: string;
-    AzureArchiveQueue: string;
-    TimeProgressionFactor: number;
-    KafkaDeadLetterQueueTopic: string;
-    KafkaObjectTaskTopic: string;
-    KafkaGCRequestTopic: string;
-    InstanceID: string;
-    BackbeatApiHost: string;
-    BackbeatApiPort: string;
-    KafkaCleanerInterval: string;
-    SorbetdRestoreTimeout: string;
-    UtilizationServiceHost: string;
-    UtilizationServicePort: string;
+    // AzureArchiveQueue: string;
+    // TimeProgressionFactor: number;
+    // KafkaDeadLetterQueueTopic: string;
+    // KafkaObjectTaskTopic: string;
+    // KafkaGCRequestTopic: string;
+    // InstanceID: string;
+    // BackbeatApiHost: string;
+    // BackbeatApiPort: string;
+    // KafkaCleanerInterval: string;
+    // SorbetdRestoreTimeout: string;
+    // UtilizationServiceHost: string;
+    // UtilizationServicePort: string;
     [key: string]: unknown;
 }
 
@@ -127,6 +127,9 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     static readonly PRIMARY_SITE_NAME = 'admin';
     static readonly SECONDARY_SITE_NAME = 'dradmin';
     static readonly PRA_INSTALL_COUNT_KEY = 'praInstallCount';
+    static readonly AZURE_ARCHIVE_ACCESS_TIER = 'Hot';
+    static readonly AZURE_ARCHIVE_MANIFEST_ACCESS_TIER = 'Hot';
+    static readonly UTILIZATION_SERVICE_PORT = 80;
 
     /**
      * @constructor
@@ -999,7 +1002,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     async addWebsiteEndpoint(this: Zenko, endpoint: string):
         Promise<{ statusCode: number; data: object } | { statusCode: number; err: unknown }> {
         return await this.managementAPIRequest('POST',
-            `/config/${this.parameters.InstanceID}/website/endpoint`,
+            `/config/${process.env.ZENKO_INSTANCE_ID}/website/endpoint`,
             {
                 'Content-Type': 'application/json',
             },
@@ -1009,7 +1012,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     async deleteLocation(this: Zenko, locationName: string):
         Promise<{ statusCode: number; data: object } | { statusCode: number; err: unknown }> {
         return await this.managementAPIRequest('DELETE',
-            `/config/${this.parameters.InstanceID}/location/${locationName}`);
+            `/config/${process.env.ZENKO_INSTANCE_ID}/location/${locationName}`);
     }
 
     saveCreatedObject(objectName: string, versionId: string) {

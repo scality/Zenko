@@ -39,10 +39,9 @@ load_common() {
     # From end2end.yaml
     ENV_VARS+=("KEYCLOAK_TEST_REALM_NAME=$(get_env_var KEYCLOAK_TEST_REALM_NAME)")
     ENV_VARS+=("KEYCLOAK_TEST_CLIENT_ID=$(get_env_var KEYCLOAK_TEST_CLIENT_ID)")
-    # CTST uses the base user (storage_manager), E2E uses a restricted user (-norights suffix)
     if [[ "$SUITE" == "e2e" ]]; then
         ENV_VARS+=("KEYCLOAK_TEST_USER=$(get_env_var KEYCLOAK_TEST_USER)-norights")
-    else
+    elif [[ "$SUITE" == "ctst" ]]; then
         ENV_VARS+=("KEYCLOAK_TEST_USER=$(get_env_var KEYCLOAK_TEST_USER)")
     fi
     ENV_VARS+=("KEYCLOAK_TEST_PASSWORD=$(get_env_var KEYCLOAK_TEST_PASSWORD)")
@@ -77,7 +76,6 @@ load_ctst() {
     ENV_VARS+=("DATA_CONSUMER_USER_NAME=ctst_data_consumer")
     ENV_VARS+=("DATA_ACCESSOR_USER_NAME=ctst_data_accessor")
     ENV_VARS+=("ZENKO_PORT=80")
-    ENV_VARS+=("UTILIZATION_SERVICE_PORT=80")
     ENV_VARS+=("AZURE_ARCHIVE_ACCESS_TIER=Hot")
     ENV_VARS+=("AZURE_ARCHIVE_MANIFEST_ACCESS_TIER=Hot")
 
@@ -119,7 +117,7 @@ load_ctst() {
 
     # From k8s: Zenko resource values
     ENV_VARS+=("TIME_PROGRESSION_FACTOR=$(kubectl get zenko end2end -o jsonpath='{.metadata.annotations.zenko\.io/time-progression-factor}')")
-    ENV_VARS+=("INSTANCE_ID=$(kubectl get zenko end2end -o jsonpath='{.status.instanceID}')")
+    ENV_VARS+=("ZENKO_INSTANCE_ID=$(kubectl get zenko end2end -o jsonpath='{.status.instanceID}')")
     ENV_VARS+=("KAFKA_CLEANER_INTERVAL=$(kubectl get zenko end2end -o jsonpath='{.spec.kafkaCleaner.interval}')")
     ENV_VARS+=("SORBETD_RESTORE_TIMEOUT=$(kubectl get zenko end2end -o jsonpath='{.spec.sorbet.server.azure.restoreTimeout}')")
     ENV_VARS+=("UTILIZATION_SERVICE_HOST=$(kubectl get zenko end2end -o jsonpath='{.spec.scuba.api.ingress.hostname}')")
@@ -140,7 +138,6 @@ load_ctst() {
     sorbet_ak=$(kubectl get secret -l app.kubernetes.io/name=sorbet-fwd-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.accessKey}' | base64 -d)
     sorbet_sk=$(kubectl get secret -l app.kubernetes.io/name=sorbet-fwd-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.secretKey}' | base64 -d)
 
-    # Build SERVICE_USERS_CREDENTIALS JSON (same format as run-e2e-ctst.sh)
     local service_users_creds
     service_users_creds=$(echo '{"backbeat-lifecycle-bp-1":'"${lcbp_creds}"',"backbeat-lifecycle-conductor-1":'"${lcc_creds}"',"backbeat-lifecycle-op-1":'"${lcop_creds}"',"backbeat-qp-1":'"${qp_creds}"',"sorbet-fwd-2":{"accessKey":"'"${sorbet_ak}"'","secretKey":"'"${sorbet_sk}"'"}}')
     ENV_VARS+=("SERVICE_USERS_CREDENTIALS=${service_users_creds}")

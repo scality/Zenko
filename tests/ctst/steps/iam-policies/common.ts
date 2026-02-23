@@ -20,15 +20,11 @@ When('the user tries to perform vault auth {string}', async function (this: Zenk
             + 'Make sure the `IAMSession` and `AssumedSession` world parameter are defined.');
     }
 
-    if (!this.parameters.VaultAuthHost) {
-        throw new Error('Vault auth endpoint is not set. Make sure the `VaultAuthHost` world parameter is defined.');
-    }
-
     const vaultAuthClientOptions: ClientOptions = {
         AccessKey: userCredentials.accessKeyId,
         SecretKey: userCredentials.secretAccessKey,
         SessionToken: userCredentials.sessionToken,
-        ip: this.parameters.VaultAuthHost,
+        ip: "end2end-connector-vault-auth-api.default.svc.cluster.local",
         ssl: CacheHelper.parameters.ssl,
     };
 

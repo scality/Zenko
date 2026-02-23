@@ -22,15 +22,13 @@ VERSION=$(cat ../../../VERSION | grep -Po 'VERSION="\K[^"]*')
 ZENKO_ACCOUNT_NAME="zenko-ctst"
 # ADMIN_ACCESS_KEY_ID=$(kubectl get secret end2end-management-vault-admin-creds.v1 -o jsonpath='{.data.accessKey}' | base64 -d)
 # ADMIN_SECRET_ACCESS_KEY=$(kubectl get secret end2end-management-vault-admin-creds.v1  -o jsonpath='{.data.secretKey}' | base64 -d)
-ADMIN_PRA_ACCESS_KEY_ID=$(kubectl get secret end2end-pra-management-vault-admin-creds.v1 -o jsonpath='{.data.accessKey}' | base64 -d)
-ADMIN_PRA_SECRET_ACCESS_KEY=$(kubectl get secret end2end-pra-management-vault-admin-creds.v1  -o jsonpath='{.data.secretKey}' | base64 -d)
 
 # STORAGE_MANAGER_USER_NAME="ctst_storage_manager"
 # STORAGE_ACCOUNT_OWNER_USER_NAME="ctst_storage_account_owner"
 # DATA_CONSUMER_USER_NAME="ctst_data_consumer"
 # DATA_ACCESSOR_USER_NAME="ctst_data_accessor"
 
-VAULT_AUTH_HOST="${ZENKO_NAME}-connector-vault-auth-api.default.svc.cluster.local"
+# VAULT_AUTH_HOST="${ZENKO_NAME}-connector-vault-auth-api.default.svc.cluster.local"
 # ZENKO_PORT="80"
 # KEYCLOAK_TEST_USER=${OIDC_USERNAME}
 # KEYCLOAK_TEST_PASSWORD=${OIDC_PASSWORD}
@@ -41,58 +39,52 @@ VAULT_AUTH_HOST="${ZENKO_NAME}-connector-vault-auth-api.default.svc.cluster.loca
 # KEYCLOAK_TEST_GRANT_TYPE="password"
 
 # get Zenko service users credentials
-BACKBEAT_LCBP_1_CREDS=$(kubectl get secret -l app.kubernetes.io/name=backbeat-lcbp-user-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.backbeat-lifecycle-bp-1\.json}' | base64 -d)
-BACKBEAT_LCC_1_CREDS=$(kubectl get secret -l app.kubernetes.io/name=backbeat-lcc-user-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.backbeat-lifecycle-conductor-1\.json}' | base64 -d)
-BACKBEAT_LCOP_1_CREDS=$(kubectl get secret -l app.kubernetes.io/name=backbeat-lcop-user-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.backbeat-lifecycle-op-1\.json}' | base64 -d)
-BACKBEAT_QP_1_CREDS=$(kubectl get secret -l app.kubernetes.io/name=backbeat-qp-user-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.backbeat-qp-1\.json}' | base64 -d)
-SORBET_FWD_2_ACCESSKEY=$(kubectl get secret -l app.kubernetes.io/name=sorbet-fwd-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.accessKey}' | base64 -d)
-SORBET_FWD_2_SECRETKEY=$(kubectl get secret -l app.kubernetes.io/name=sorbet-fwd-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.secretKey}' | base64 -d)
+# BACKBEAT_LCBP_1_CREDS=$(kubectl get secret -l app.kubernetes.io/name=backbeat-lcbp-user-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.backbeat-lifecycle-bp-1\.json}' | base64 -d)
+# BACKBEAT_LCC_1_CREDS=$(kubectl get secret -l app.kubernetes.io/name=backbeat-lcc-user-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.backbeat-lifecycle-conductor-1\.json}' | base64 -d)
+# BACKBEAT_LCOP_1_CREDS=$(kubectl get secret -l app.kubernetes.io/name=backbeat-lcop-user-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.backbeat-lifecycle-op-1\.json}' | base64 -d)
+# BACKBEAT_QP_1_CREDS=$(kubectl get secret -l app.kubernetes.io/name=backbeat-qp-user-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.backbeat-qp-1\.json}' | base64 -d)
+# SORBET_FWD_2_ACCESSKEY=$(kubectl get secret -l app.kubernetes.io/name=sorbet-fwd-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.accessKey}' | base64 -d)
+# SORBET_FWD_2_SECRETKEY=$(kubectl get secret -l app.kubernetes.io/name=sorbet-fwd-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.secretKey}' | base64 -d)
 # SERVICE_USERS_CREDENTIALS=$(echo '{"backbeat-lifecycle-bp-1":'${BACKBEAT_LCBP_1_CREDS}',"backbeat-lifecycle-conductor-1":'${BACKBEAT_LCC_1_CREDS}',"backbeat-lifecycle-op-1":'${BACKBEAT_LCOP_1_CREDS}',"backbeat-qp-1":'${BACKBEAT_QP_1_CREDS}',"sorbet-fwd-2":{"accessKey":"'${SORBET_FWD_2_ACCESSKEY}'","secretKey":"'${SORBET_FWD_2_SECRETKEY}'"}}' | jq -R)
 
 # Get KAFKA topics for sorbet
-KAFKA_DEAD_LETTER_TOPIC=$(kubectl get secret -l app.kubernetes.io/name=cold-sorbet-config-e2e-azure-archive,app.kubernetes.io/instance=end2end \
-    -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq '."kafka-dead-letter-topic"' | cut -d "\"" -f 2)
+# KAFKA_DEAD_LETTER_TOPIC=$(kubectl get secret -l app.kubernetes.io/name=cold-sorbet-config-e2e-azure-archive,app.kubernetes.io/instance=end2end \
+    # -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq '."kafka-dead-letter-topic"' | cut -d "\"" -f 2)
 
-KAFKA_OBJECT_TASK_TOPIC=$(kubectl get secret -l app.kubernetes.io/name=cold-sorbet-config-e2e-azure-archive,app.kubernetes.io/instance=end2end \
-    -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq '."kafka-object-task-topic"' | cut -d "\"" -f 2)
+# KAFKA_OBJECT_TASK_TOPIC=$(kubectl get secret -l app.kubernetes.io/name=cold-sorbet-config-e2e-azure-archive,app.kubernetes.io/instance=end2end \
+    # -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq '."kafka-object-task-topic"' | cut -d "\"" -f 2)
   
-KAFKA_GC_REQUEST_TOPIC=$(kubectl get secret -l app.kubernetes.io/name=cold-sorbet-config-e2e-azure-archive,app.kubernetes.io/instance=end2end \
-    -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq '."kafka-gc-request-topic"' | cut -d "\"" -f 2)
-
-# DR_ADMIN_ACCESS_KEY_ID=$(kubectl get secret end2end-pra-management-vault-admin-creds.v1 -o jsonpath='{.data.accessKey}' | base64 -d)
-# DR_ADMIN_SECRET_ACCESS_KEY=$(kubectl get secret end2end-pra-management-vault-admin-creds.v1  -o jsonpath='{.data.secretKey}' | base64 -d)
+# KAFKA_GC_REQUEST_TOPIC=$(kubectl get secret -l app.kubernetes.io/name=cold-sorbet-config-e2e-azure-archive,app.kubernetes.io/instance=end2end \
+    # -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq '."kafka-gc-request-topic"' | cut -d "\"" -f 2)
 
 # Extracting kafka host from bacbeat's config
-KAFKA_HOST_PORT=$(kubectl get secret -l app.kubernetes.io/name=backbeat-config,app.kubernetes.io/instance=end2end \
-    -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq .kafka.hosts)
-KAFKA_HOST_PORT=${KAFKA_HOST_PORT:1:-1}
-KAFKA_PORT=${KAFKA_HOST_PORT#*:}
+# KAFKA_HOST_PORT=$(kubectl get secret -l app.kubernetes.io/name=backbeat-config,app.kubernetes.io/instance=end2end \
+    # -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq -r .kafka.hosts)
+# KAFKA_PORT=${KAFKA_HOST_PORT#*:}
 
-KAFKA_AUTH_HOST="end2end-base-queue-auth-0"
-KAFKA_AUTH_HOST_PORT="$KAFKA_AUTH_HOST:$KAFKA_PORT"
+# KAFKA_AUTH_HOST="end2end-base-queue-auth-0"
+# KAFKA_AUTH_HOST_PORT="$KAFKA_AUTH_HOST:$KAFKA_PORT"
 
-TIME_PROGRESSION_FACTOR=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath="{.metadata.annotations.zenko\.io/time-progression-factor}")
-INSTANCE_ID=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.status.instanceID}')
+# TIME_PROGRESSION_FACTOR=$(kubectl get zenko end2end -o jsonpath="{.metadata.annotations.zenko\.io/time-progression-factor}")
+# ZENKO_INSTANCE_ID=$(kubectl get zenko end2end -o jsonpath='{.status.instanceID}')
 
 # Azure archive tests
-AZURE_ARCHIVE_ACCESS_TIER="Hot"
-AZURE_ARCHIVE_MANIFEST_ACCESS_TIER="Hot"
+# AZURE_ARCHIVE_ACCESS_TIER="Hot"
+# AZURE_ARCHIVE_MANIFEST_ACCESS_TIER="Hot"
 
-BACKBEAT_API_HOST=$(kubectl get secret -l app.kubernetes.io/name=connector-cloudserver-config,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq .backbeat.host)
-BACKBEAT_API_HOST=${BACKBEAT_API_HOST:1:-1}
-BACKBEAT_API_PORT=$(kubectl get secret -l app.kubernetes.io/name=connector-cloudserver-config,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq .backbeat.port)
+# BACKBEAT_API_HOST=$(kubectl get secret -l app.kubernetes.io/name=connector-cloudserver-config,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq -r .backbeat.host)
+# BACKBEAT_API_PORT=$(kubectl get secret -l app.kubernetes.io/name=connector-cloudserver-config,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq -r .backbeat.port)
 
 KAFKA_CLEANER_INTERVAL=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.spec.kafkaCleaner.interval}')
-SORBETD_RESTORE_TIMEOUT=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.spec.sorbet.server.azure.restoreTimeout}')
+# SORBETD_RESTORE_TIMEOUT=$(kubectl get zenko end2end -o jsonpath='{.spec.sorbet.server.azure.restoreTimeout}')
 
 # Utilization service
-UTILIZATION_SERVICE_HOST=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.spec.scuba.api.ingress.hostname}')
-UTILIZATION_SERVICE_PORT="80"
+# UTILIZATION_SERVICE_HOST=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.spec.scuba.api.ingress.hostname}')
+# UTILIZATION_SERVICE_PORT="80"
 
 # Setting CTST world params
 WORLD_PARAMETERS="$(jq -c <<EOF
 {
-  "VaultAuthHost":"${VAULT_AUTH_HOST}",
   "NotificationDestination":"${NOTIF_DEST_NAME}",
   "NotificationDestinationTopic":"${NOTIF_DEST_TOPIC}",
   "NotificationDestinationAlt":"${NOTIF_ALT_DEST_NAME}",
@@ -103,8 +95,6 @@ WORLD_PARAMETERS="$(jq -c <<EOF
   "NotificationDestinationAuthPassword":"${NOTIF_AUTH_DEST_PASSWORD}",
   "KafkaExternalIps": "${KAFKA_EXTERNAL_IP:-}",
   "PrometheusService":"${PROMETHEUS_NAME}-operated.default.svc.cluster.local",
-  "KafkaHosts":"${KAFKA_HOST_PORT}",
-  "KafkaAuthHosts":"${KAFKA_AUTH_HOST_PORT}",
   "StorageManagerUsername":"ctst_storage_manager",
   "StorageAccountOwnerUsername":"ctst_storage_account_owner",
   "DataConsumerUsername":"ctst_data_consumer",
@@ -113,21 +103,6 @@ WORLD_PARAMETERS="$(jq -c <<EOF
   "AzureAccountKey":"${AZURE_SECRET_KEY}",
   "AzureArchiveContainer":"${AZURE_ARCHIVE_BUCKET_NAME}",
   "AzureArchiveContainer2":"${AZURE_ARCHIVE_BUCKET_NAME_2}",
-  "AzureArchiveAccessTier":"${AZURE_ARCHIVE_ACCESS_TIER}",
-  "AzureArchiveManifestTier":"${AZURE_ARCHIVE_MANIFEST_ACCESS_TIER}",
-  "AzureArchiveQueue":"${AZURE_ARCHIVE_QUEUE_NAME}",
-  "TimeProgressionFactor":"${TIME_PROGRESSION_FACTOR}",
-  "KafkaObjectTaskTopic":"${KAFKA_OBJECT_TASK_TOPIC}",
-  "KafkaGCRequestTopic":"${KAFKA_GC_REQUEST_TOPIC}",
-  "KafkaDeadLetterQueueTopic":"${KAFKA_DEAD_LETTER_TOPIC}",
-  "InstanceID":"${INSTANCE_ID}",
-  "BackbeatApiHost":"${BACKBEAT_API_HOST}",
-  "BackbeatApiPort":"${BACKBEAT_API_PORT}",
-  "KafkaCleanerInterval":"${KAFKA_CLEANER_INTERVAL}",
-  "SorbetdRestoreTimeout":"${SORBETD_RESTORE_TIMEOUT}",
-  "TimeProgressionFactor":"${TIME_PROGRESSION_FACTOR}",
-  "UtilizationServiceHost":"${UTILIZATION_SERVICE_HOST}",
-  "UtilizationServicePort":"${UTILIZATION_SERVICE_PORT}"
 }
 EOF
 )"

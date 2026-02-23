@@ -8,7 +8,7 @@
   "email": "${OIDC_EMAIL}",
   "attributes": {
     "instanceIds": [
-        "${INSTANCE_ID}"
+        "${ZENKO_INSTANCE_ID}"
     ],
     "role": [
       "user"

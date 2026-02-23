@@ -48,7 +48,7 @@
       "email": "e2e-norights@zenko.local",
       "attributes": {
         "instanceIds": [
-            "${INSTANCE_ID}"
+            "${ZENKO_INSTANCE_ID}"
         ],
         "role": [
           "user"
@@ -85,7 +85,7 @@
       "email": "storage_manager@zenko.local",
       "attributes": {
         "instanceIds": [
-            "${INSTANCE_ID}"
+            "${ZENKO_INSTANCE_ID}"
         ],
         "role": [
           "user"
@@ -123,7 +123,7 @@
       "email": "data_consumer@zenko.local",
       "attributes": {
         "instanceIds": [
-            "${INSTANCE_ID}"
+            "${ZENKO_INSTANCE_ID}"
         ],
         "role": [
           "user"
@@ -161,7 +161,7 @@
       "email": "storage_account_owner@zenko.local",
       "attributes": {
         "instanceIds": [
-            "${INSTANCE_ID}"
+            "${ZENKO_INSTANCE_ID}"
         ],
         "role": [
           "user"
