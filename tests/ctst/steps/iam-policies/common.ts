@@ -24,7 +24,7 @@ When('the user tries to perform vault auth {string}', async function (this: Zenk
         AccessKey: userCredentials.accessKeyId,
         SecretKey: userCredentials.secretAccessKey,
         SessionToken: userCredentials.sessionToken,
-        ip: "end2end-connector-vault-auth-api.default.svc.cluster.local",
+        ip: 'end2end-connector-vault-auth-api.default.svc.cluster.local',
         ssl: CacheHelper.parameters.ssl,
     };
 

@@ -91,6 +91,11 @@ env:
   RING_S3C_INGESTION_SRC_NON_VERSIONED_BUCKET_NAME: ingestion-test-src-non-versioned-bucket
   RING_S3C_INGESTION_NON_VERSIONED_OBJECT_COUNT_PER_TYPE: 2
   # CTST end2end tests
+  ZENKO_ACCOUNT_NAME: 'zenko-ctst'
+  STORAGE_MANAGER_USER_NAME: "ctst_storage_manager"
+  STORAGE_ACCOUNT_OWNER_USER_NAME: "ctst_storage_account_owner"
+  DATA_CONSUMER_USER_NAME: "ctst_data_consumer"
+  DATA_ACCESSOR_USER_NAME: "ctst_data_accessor"
   NOTIF_DEST_NAME: "destination1"
   NOTIF_DEST_TOPIC: "destination-topic-1"
   NOTIF_ALT_DEST_NAME: "destination2"

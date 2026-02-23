@@ -18,80 +18,12 @@ PARALLEL_RUNS=${PARALLEL_RUNS:-$(( ( $(nproc) + 1 ) / 2 ))}
 # Zenko Version
 VERSION=$(cat ../../../VERSION | grep -Po 'VERSION="\K[^"]*')
 
-# Zenko Environment
-ZENKO_ACCOUNT_NAME="zenko-ctst"
-# ADMIN_ACCESS_KEY_ID=$(kubectl get secret end2end-management-vault-admin-creds.v1 -o jsonpath='{.data.accessKey}' | base64 -d)
-# ADMIN_SECRET_ACCESS_KEY=$(kubectl get secret end2end-management-vault-admin-creds.v1  -o jsonpath='{.data.secretKey}' | base64 -d)
-
-# STORAGE_MANAGER_USER_NAME="ctst_storage_manager"
-# STORAGE_ACCOUNT_OWNER_USER_NAME="ctst_storage_account_owner"
-# DATA_CONSUMER_USER_NAME="ctst_data_consumer"
-# DATA_ACCESSOR_USER_NAME="ctst_data_accessor"
-
-# VAULT_AUTH_HOST="${ZENKO_NAME}-connector-vault-auth-api.default.svc.cluster.local"
-# ZENKO_PORT="80"
-# KEYCLOAK_TEST_USER=${OIDC_USERNAME}
-# KEYCLOAK_TEST_PASSWORD=${OIDC_PASSWORD}
-# KEYCLOAK_TEST_HOST=${OIDC_HOST}
-# KEYCLOAK_TEST_PORT="80"
-# KEYCLOAK_TEST_REALM_NAME=${OIDC_REALM}
-# KEYCLOAK_TEST_CLIENT_ID=${OIDC_CLIENT_ID}
-# KEYCLOAK_TEST_GRANT_TYPE="password"
-
-# get Zenko service users credentials
-# BACKBEAT_LCBP_1_CREDS=$(kubectl get secret -l app.kubernetes.io/name=backbeat-lcbp-user-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.backbeat-lifecycle-bp-1\.json}' | base64 -d)
-# BACKBEAT_LCC_1_CREDS=$(kubectl get secret -l app.kubernetes.io/name=backbeat-lcc-user-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.backbeat-lifecycle-conductor-1\.json}' | base64 -d)
-# BACKBEAT_LCOP_1_CREDS=$(kubectl get secret -l app.kubernetes.io/name=backbeat-lcop-user-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.backbeat-lifecycle-op-1\.json}' | base64 -d)
-# BACKBEAT_QP_1_CREDS=$(kubectl get secret -l app.kubernetes.io/name=backbeat-qp-user-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.backbeat-qp-1\.json}' | base64 -d)
-# SORBET_FWD_2_ACCESSKEY=$(kubectl get secret -l app.kubernetes.io/name=sorbet-fwd-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.accessKey}' | base64 -d)
-# SORBET_FWD_2_SECRETKEY=$(kubectl get secret -l app.kubernetes.io/name=sorbet-fwd-creds,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.secretKey}' | base64 -d)
-# SERVICE_USERS_CREDENTIALS=$(echo '{"backbeat-lifecycle-bp-1":'${BACKBEAT_LCBP_1_CREDS}',"backbeat-lifecycle-conductor-1":'${BACKBEAT_LCC_1_CREDS}',"backbeat-lifecycle-op-1":'${BACKBEAT_LCOP_1_CREDS}',"backbeat-qp-1":'${BACKBEAT_QP_1_CREDS}',"sorbet-fwd-2":{"accessKey":"'${SORBET_FWD_2_ACCESSKEY}'","secretKey":"'${SORBET_FWD_2_SECRETKEY}'"}}' | jq -R)
-
-# Get KAFKA topics for sorbet
-# KAFKA_DEAD_LETTER_TOPIC=$(kubectl get secret -l app.kubernetes.io/name=cold-sorbet-config-e2e-azure-archive,app.kubernetes.io/instance=end2end \
-    # -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq '."kafka-dead-letter-topic"' | cut -d "\"" -f 2)
-
-# KAFKA_OBJECT_TASK_TOPIC=$(kubectl get secret -l app.kubernetes.io/name=cold-sorbet-config-e2e-azure-archive,app.kubernetes.io/instance=end2end \
-    # -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq '."kafka-object-task-topic"' | cut -d "\"" -f 2)
-  
-# KAFKA_GC_REQUEST_TOPIC=$(kubectl get secret -l app.kubernetes.io/name=cold-sorbet-config-e2e-azure-archive,app.kubernetes.io/instance=end2end \
-    # -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq '."kafka-gc-request-topic"' | cut -d "\"" -f 2)
-
-# Extracting kafka host from bacbeat's config
-# KAFKA_HOST_PORT=$(kubectl get secret -l app.kubernetes.io/name=backbeat-config,app.kubernetes.io/instance=end2end \
-    # -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq -r .kafka.hosts)
-# KAFKA_PORT=${KAFKA_HOST_PORT#*:}
-
-# KAFKA_AUTH_HOST="end2end-base-queue-auth-0"
-# KAFKA_AUTH_HOST_PORT="$KAFKA_AUTH_HOST:$KAFKA_PORT"
-
-# TIME_PROGRESSION_FACTOR=$(kubectl get zenko end2end -o jsonpath="{.metadata.annotations.zenko\.io/time-progression-factor}")
-# ZENKO_INSTANCE_ID=$(kubectl get zenko end2end -o jsonpath='{.status.instanceID}')
-
-# Azure archive tests
-# AZURE_ARCHIVE_ACCESS_TIER="Hot"
-# AZURE_ARCHIVE_MANIFEST_ACCESS_TIER="Hot"
-
-# BACKBEAT_API_HOST=$(kubectl get secret -l app.kubernetes.io/name=connector-cloudserver-config,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq -r .backbeat.host)
-# BACKBEAT_API_PORT=$(kubectl get secret -l app.kubernetes.io/name=connector-cloudserver-config,app.kubernetes.io/instance=end2end -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq -r .backbeat.port)
-
-KAFKA_CLEANER_INTERVAL=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.spec.kafkaCleaner.interval}')
-# SORBETD_RESTORE_TIMEOUT=$(kubectl get zenko end2end -o jsonpath='{.spec.sorbet.server.azure.restoreTimeout}')
-
-# Utilization service
-# UTILIZATION_SERVICE_HOST=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.spec.scuba.api.ingress.hostname}')
-# UTILIZATION_SERVICE_PORT="80"
-
 # Setting CTST world params
 WORLD_PARAMETERS="$(jq -c <<EOF
 {
   "NotificationDestinationAuthUsername":"${NOTIF_AUTH_DEST_USERNAME}",
   "NotificationDestinationAuthPassword":"${NOTIF_AUTH_DEST_PASSWORD}",
-  "KafkaExternalIps": "${KAFKA_EXTERNAL_IP:-}",
-  "StorageManagerUsername":"ctst_storage_manager",
-  "StorageAccountOwnerUsername":"ctst_storage_account_owner",
-  "DataConsumerUsername":"ctst_data_consumer",
-  "DataAccessorUsername":"ctst_data_accessor",
+  "KafkaExternalIps": "${KAFKA_EXTERNAL_IP:-}"
 }
 EOF
 )"
@@ -101,15 +33,23 @@ kubectl set env deployment end2end-connector-cloudserver SCUBA_HEALTHCHECK_FREQU
 kubectl rollout status deployment end2end-connector-cloudserver
 
 E2E_IMAGE=$E2E_CTST_IMAGE_NAME:$E2E_IMAGE_TAG
-POD_NAME="${ZENKO_NAME}-ctst-tests"
-CTST_VERSION=$(sed 's/.*"cli-testing": ".*#\(.*\)".*/\1/;t;d' ../../../tests/ctst/package.json)
+POD_NAME="end2end-ctst-tests"
 
 # Configure keycloak
 docker run \
-    --rm \
-    --network=host \
-    "${E2E_IMAGE}" /bin/bash \
-    -c "SUBDOMAIN=${SUBDOMAIN} CONTROL_PLANE_INGRESS_ENDPOINT=${KEYCLOAK_TEST_ENDPOINT} ACCOUNT=${ZENKO_ACCOUNT_NAME} KEYCLOAK_REALM=${KEYCLOAK_TEST_REALM_NAME} STORAGE_MANAGER=ctst_storage_manager STORAGE_ACCOUNT_OWNER=ctst_storage_account_owner DATA_CONSUMER=ctst_data_consumer DATA_ACCESSOR=ctst_data_accessor /ctst/node_modules/cli-testing/bin/seedKeycloak.sh"; [[ $? -eq 1 ]] && exit 1 || echo 'Keycloak Configured!'
+  --rm \
+  --network=host \
+  "${E2E_IMAGE}" /bin/bash \
+  -c "SUBDOMAIN=${SUBDOMAIN} \
+    CONTROL_PLANE_INGRESS_ENDPOINT=${KEYCLOAK_TEST_ENDPOINT} \
+    ACCOUNT=${ZENKO_ACCOUNT_NAME} \
+    KEYCLOAK_REALM=${KEYCLOAK_TEST_REALM_NAME} \
+    STORAGE_MANAGER=${STORAGE_MANAGER_USER_NAME} \
+    STORAGE_ACCOUNT_OWNER=${STORAGE_ACCOUNT_OWNER_USER_NAME} \
+    DATA_CONSUMER=${DATA_CONSUMER_USER_NAME} \
+    DATA_ACCESSOR=${DATA_ACCESSOR_USER_NAME} \
+    /ctst/node_modules/cli-testing/bin/seedKeycloak.sh"
+[[ $? -eq 1 ]] && exit 1 || echo 'Keycloak Configured!'
 
 # Grant access to Kube API (insecure, only for testing)
 kubectl create clusterrolebinding serviceaccounts-cluster-admin \
@@ -127,8 +67,6 @@ kubectl run $POD_NAME \
         --image-pull-policy=IfNotPresent \
         $(env_for_kubectl_run) \
         --env=TARGET_VERSION=$VERSION  \
-        --env=AZURE_BLOB_URL=$AZURE_BACKEND_ENDPOINT  \
-        --env=AZURE_QUEUE_URL=$AZURE_BACKEND_QUEUE_ENDPOINT \
         --env=VERBOSE=1 \
         --env=SDK=true \
         --override-type strategic \

@@ -1,4 +1,4 @@
-// import { World, IWorldOptions, setWorldConstructor } from '@cucumber/cucumber';
+import { World, IWorldOptions, setWorldConstructor } from '@cucumber/cucumber';
 import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
 import { AccessKey } from '@aws-sdk/client-iam';
 import { Credentials } from '@aws-sdk/client-sts';
@@ -71,17 +71,17 @@ export interface ZenkoWorldParameters extends ClientOptions {
     // KeycloakClientId: string;
     // KeycloakGrantType: string;
     // KeycloakTestPassword: string;
-    StorageManagerUsername: string;
-    StorageAccountOwnerUsername: string;
-    DataConsumerUsername: string;
-    DataAccessorUsername: string;
-    ServiceUsersCredentials: string;
+    // StorageManagerUsername: string;
+    // StorageAccountOwnerUsername: string;
+    // DataConsumerUsername: string;
+    // DataAccessorUsername: string;
+    // ServiceUsersCredentials: string;
     // AzureAccountName: string;
     // AzureAccountKey: string;
     // AzureArchiveContainer: string;
     // AzureArchiveContainer2: string;
-    AzureArchiveAccessTier: string;
-    AzureArchiveManifestTier: string;
+    // AzureArchiveAccessTier: string;
+    // AzureArchiveManifestTier: string;
     // AzureArchiveQueue: string;
     // TimeProgressionFactor: number;
     // KafkaDeadLetterQueueTopic: string;
@@ -268,19 +268,19 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             await this.prepareIamUser();
             break;
         case EntityType.STORAGE_MANAGER:
-            await this.prepareARWWI(this.parameters.StorageManagerUsername || 'storage_manager',
+            await this.prepareARWWI(process.env.STORAGE_MANAGER_USER_NAME,
                 'storage-manager-role', process.env.KEYCLOAK_TEST_PASSWORD);
             break;
         case EntityType.STORAGE_ACCOUNT_OWNER:
-            await this.prepareARWWI(this.parameters.StorageAccountOwnerUsername || 'storage_account_owner',
+            await this.prepareARWWI(process.env.STORAGE_ACCOUNT_OWNER_USER_NAME,
                 'storage-account-owner-role', process.env.KEYCLOAK_TEST_PASSWORD);
             break;
         case EntityType.DATA_CONSUMER:
-            await this.prepareARWWI(this.parameters.DataConsumerUsername || 'data_consumer',
+            await this.prepareARWWI(process.env.DATA_CONSUMER_USER_NAME,
                 'data-consumer-role', process.env.KEYCLOAK_TEST_PASSWORD);
             break;
         case EntityType.DATA_ACCESSOR:
-            await this.prepareARWWI(this.parameters.DataAccessorUsername || 'data_accessor',
+            await this.prepareARWWI(process.env.DATA_ACCESSOR_USER_NAME,
                 'data-accessor-role', process.env.KEYCLOAK_TEST_PASSWORD);
             break;
         case EntityType.ASSUME_ROLE_USER:

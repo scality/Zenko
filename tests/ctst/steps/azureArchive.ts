@@ -32,17 +32,11 @@ type manifest = {
     'entries': manifestEntry[],
 }
 
-const AZURE_STORAGE_BLOB_URL = process.env.AZURE_BLOB_URL || 'http://127.0.0.1:10000/devstoreaccount1';
-const AZURE_STORAGE_QUEUE_URL = process.env.AZURE_QUEUE_URL || 'http://127.0.0.1:10001/devstoreaccount1';
-
 /**
  * Returns an object containing azure credentials
- * @param {Zenko} world world object
  * @returns {object} azure creds
  */
-function getAzureCreds(
-    world: Zenko,
-): {accountName: string, accountKey: string } {
+function getAzureCreds(): {accountName: string, accountKey: string } {
     return {
         accountName: process.env.AZURE_ACCOUNT_NAME,
         accountKey: process.env.AZURE_SECRET_KEY,
@@ -69,7 +63,7 @@ async function isObjectRehydrated(zenko: Zenko, objectName: string) {
         found = await AzureHelper.blobExists(
             process.env.AZURE_ARCHIVE_BUCKET_NAME,
             `rehydrate/${tarName}`,
-            getAzureCreds(zenko),
+            getAzureCreds(),
         );
         await Utils.sleep(1000);
 
@@ -97,7 +91,7 @@ async function findObjectPackAndManifest(
     // lisintg all blobs in the container
     const blobs = await AzureHelper.listBlobs(
         process.env.AZURE_ARCHIVE_BUCKET_NAME,
-        getAzureCreds(world),
+        getAzureCreds(),
     );
     // filtering the list of blobs only leaving the manifests
     const manifests = blobs.filter(blob => blob.name.includes('.json.'));
@@ -106,7 +100,7 @@ async function findObjectPackAndManifest(
         const manifestBuffer = await AzureHelper.downloadBlob(
             process.env.AZURE_ARCHIVE_BUCKET_NAME,
             manifests[i].name,
-            getAzureCreds(world),
+            getAzureCreds(),
         );
         const { ok, result } = safeJsonParse(manifestBuffer.toString());
         if (!ok) {
@@ -177,19 +171,19 @@ export async function cleanAzureContainer(
             await AzureHelper.deleteBlob(
                 process.env.AZURE_ARCHIVE_BUCKET_NAME,
                 tarName,
-                getAzureCreds(world),
+                getAzureCreds(),
             );
             await AzureHelper.deleteBlob(
                 process.env.AZURE_ARCHIVE_BUCKET_NAME,
                 `rehydrate/${tarName}`,
-                getAzureCreds(world),
+                getAzureCreds(),
             );
         }
         if (manifestName) {
             await AzureHelper.deleteBlob(
                 process.env.AZURE_ARCHIVE_BUCKET_NAME,
                 manifestName,
-                getAzureCreds(world),
+                getAzureCreds(),
             );
         }
         currentKey = iterator.next();
@@ -209,7 +203,7 @@ Then('manifest access tier should be valid for object {string}', async function 
     const manifestProperties = await AzureHelper.getBlobProperties(
         process.env.AZURE_ARCHIVE_BUCKET_NAME,
         manifestName,
-        getAzureCreds(this),
+        getAzureCreds(),
     );
     assert.strictEqual(manifestProperties.accessTier, Zenko.AZURE_ARCHIVE_MANIFEST_ACCESS_TIER);
 });
@@ -227,7 +221,7 @@ Then('tar access tier should be valid for object {string}', async function (this
     const packProperties = await AzureHelper.getBlobProperties(
         process.env.AZURE_ARCHIVE_BUCKET_NAME,
         tarName,
-        getAzureCreds(this),
+        getAzureCreds(),
     );
     assert.strictEqual(packProperties.accessTier, Zenko.AZURE_ARCHIVE_ACCESS_TIER);
 });
@@ -306,7 +300,7 @@ Then('blob for object {string} must be rehydrated',
             process.env.AZURE_ARCHIVE_QUEUE_NAME,
             process.env.AZURE_ARCHIVE_BUCKET_NAME,
             `rehydrate/${tarName}`,
-            getAzureCreds(this),
+            getAzureCreds(),
         );
     });
 
@@ -377,7 +371,7 @@ When('i run sorbetctl to retry failed restore for {string} location',
         }
     });
 
-When('i wait for {int} days', { timeout: 10 * 60 * 1000 }, async function (this: Zenko, days: number) {
+When('i wait for {int} days', { timeout: 10 * 60 * 1000 }, async (days: number) => {
     const factor = Math.max(1, Number(process.env.TIME_PROGRESSION_FACTOR) || 1);
     const realTimeDay = days * 24 * 60 * 60 * 1000 / factor;
     await Utils.sleep(realTimeDay);
@@ -409,7 +403,7 @@ Then('object {string} should expire in {int} days', async function (this: Zenko,
 });
 
 Given('that lifecycle is {string} for the {string} location',
-    async function (this: Zenko, status: string, location: string) {
+    async (_this: Zenko, status: string, location: string) => {
         let path: string;
         if (status === 'paused') {
             path = `/_/lifecycle/pause/${location}`;
@@ -431,12 +425,12 @@ Given('an azure archive location {string}', { timeout: 15 * 60 * 1000 },
             name: locationName,
             locationType: 'location-azure-archive-v1',
             details: {
-                endpoint: AZURE_STORAGE_BLOB_URL,
+                endpoint: process.env.AZURE_BACKEND_ENDPOINT || 'http://127.0.0.1:10000/devstoreaccount1',
                 bucketName: process.env.AZURE_ARCHIVE_BUCKET_NAME,
                 queue: {
                     type: 'location-azure-storage-queue-v1',
                     queueName: process.env.AZURE_ARCHIVE_QUEUE_NAME,
-                    endpoint: AZURE_STORAGE_QUEUE_URL,
+                    endpoint: process.env.AZURE_BACKEND_QUEUE_ENDPOINT || 'http://127.0.0.1:10001/devstoreaccount1',
                 },
                 auth: {
                     type: 'location-azure-shared-key',
