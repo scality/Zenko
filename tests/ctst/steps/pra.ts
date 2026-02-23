@@ -70,7 +70,7 @@ async function installPRA(world: Zenko, sinkS3Endpoint = 'http://s3.zenko.local'
         sourceZenkoNamespace: 'default',
         sourceS3Endpoint: 'http://s3.zenko.local',
         sinkS3Endpoint,
-        prometheusService: world.parameters.PrometheusService,
+        prometheusService: Zenko.PROMETHEUS_SERVICE,
         prometheusHostname: 'prom.dr.zenko.local',
         prometheusExternalIpsDiscovery: true,
         forceRotateServiceCredentials: (CacheHelper.savedAcrossTests[Zenko.PRA_INSTALL_COUNT_KEY] as number) > 0,
@@ -330,7 +330,7 @@ Then('the kafka DR volume exists', { timeout: volumeTimeout + 2000 }, async func
 
 Then('prometheus should scrap federated metrics from DR sink', { timeout: 180000 }, async function (this: Zenko) {
     const prom = new PrometheusDriver({
-        endpoint: `http://${this.parameters.PrometheusService}:9090`,
+        endpoint: `http://${Zenko.PROMETHEUS_SERVICE}:9090`,
         baseURL: '/api/v1',
     });
 

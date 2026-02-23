@@ -29,7 +29,7 @@ case $COMMAND in
     "add-user")
         refresh_creds
 
-        export INSTANCE_ID=`kubectl -n ${NAMESPACE} get zenko ${ZENKO_NAME} -o jsonpath='{.status.instanceID}'`
+        export ZENKO_INSTANCE_ID=`kubectl -n ${NAMESPACE} get zenko ${ZENKO_NAME} -o jsonpath='{.status.instanceID}'`
         
         export OIDC_EMAIL=${OIDC_EMAIL:-"e2e@zenko.local"}
 

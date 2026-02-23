@@ -44,8 +44,8 @@ function getAzureCreds(
     world: Zenko,
 ): {accountName: string, accountKey: string } {
     return {
-        accountName: world.parameters.AzureAccountName,
-        accountKey: world.parameters.AzureAccountKey,
+        accountName: process.env.AZURE_ACCOUNT_NAME,
+        accountKey: process.env.AZURE_SECRET_KEY,
     };
 }
 /**
@@ -67,7 +67,7 @@ async function isObjectRehydrated(zenko: Zenko, objectName: string) {
     assert(tarName);
     while (!found) {
         found = await AzureHelper.blobExists(
-            zenko.parameters.AzureArchiveContainer,
+            process.env.AZURE_ARCHIVE_BUCKET_NAME,
             `rehydrate/${tarName}`,
             getAzureCreds(zenko),
         );
@@ -96,7 +96,7 @@ async function findObjectPackAndManifest(
 ): Promise<{ manifestName?:string, manifest?:manifest, tarName?:string }> {
     // lisintg all blobs in the container
     const blobs = await AzureHelper.listBlobs(
-        world.parameters.AzureArchiveContainer,
+        process.env.AZURE_ARCHIVE_BUCKET_NAME,
         getAzureCreds(world),
     );
     // filtering the list of blobs only leaving the manifests
@@ -104,7 +104,7 @@ async function findObjectPackAndManifest(
     for (let i = 0; i < manifests.length; i++) {
         // downloading the manifest
         const manifestBuffer = await AzureHelper.downloadBlob(
-            world.parameters.AzureArchiveContainer,
+            process.env.AZURE_ARCHIVE_BUCKET_NAME,
             manifests[i].name,
             getAzureCreds(world),
         );
@@ -175,19 +175,19 @@ export async function cleanAzureContainer(
         );
         if (tarName) {
             await AzureHelper.deleteBlob(
-                world.parameters.AzureArchiveContainer,
+                process.env.AZURE_ARCHIVE_BUCKET_NAME,
                 tarName,
                 getAzureCreds(world),
             );
             await AzureHelper.deleteBlob(
-                world.parameters.AzureArchiveContainer,
+                process.env.AZURE_ARCHIVE_BUCKET_NAME,
                 `rehydrate/${tarName}`,
                 getAzureCreds(world),
             );
         }
         if (manifestName) {
             await AzureHelper.deleteBlob(
-                world.parameters.AzureArchiveContainer,
+                process.env.AZURE_ARCHIVE_BUCKET_NAME,
                 manifestName,
                 getAzureCreds(world),
             );
@@ -207,7 +207,7 @@ Then('manifest access tier should be valid for object {string}', async function 
     assert(manifestName);
     // manifest access tier
     const manifestProperties = await AzureHelper.getBlobProperties(
-        this.parameters.AzureArchiveContainer,
+        process.env.AZURE_ARCHIVE_BUCKET_NAME,
         manifestName,
         getAzureCreds(this),
     );
@@ -225,7 +225,7 @@ Then('tar access tier should be valid for object {string}', async function (this
     assert(tarName);
     // manifest access tier
     const packProperties = await AzureHelper.getBlobProperties(
-        this.parameters.AzureArchiveContainer,
+        process.env.AZURE_ARCHIVE_BUCKET_NAME,
         tarName,
         getAzureCreds(this),
     );
@@ -304,7 +304,7 @@ Then('blob for object {string} must be rehydrated',
         assert(tarName);
         await AzureHelper.sendBlobCreatedEventToQueue(
             process.env.AZURE_ARCHIVE_QUEUE_NAME,
-            this.parameters.AzureArchiveContainer,
+            process.env.AZURE_ARCHIVE_BUCKET_NAME,
             `rehydrate/${tarName}`,
             getAzureCreds(this),
         );
@@ -432,7 +432,7 @@ Given('an azure archive location {string}', { timeout: 15 * 60 * 1000 },
             locationType: 'location-azure-archive-v1',
             details: {
                 endpoint: AZURE_STORAGE_BLOB_URL,
-                bucketName: this.parameters.AzureArchiveContainer,
+                bucketName: process.env.AZURE_ARCHIVE_BUCKET_NAME,
                 queue: {
                     type: 'location-azure-storage-queue-v1',
                     queueName: process.env.AZURE_ARCHIVE_QUEUE_NAME,
@@ -440,8 +440,8 @@ Given('an azure archive location {string}', { timeout: 15 * 60 * 1000 },
                 },
                 auth: {
                     type: 'location-azure-shared-key',
-                    accountName: this.parameters.AzureAccountName,
-                    accountKey: this.parameters.AzureAccountKey,
+                    accountName: process.env.AZURE_ACCOUNT_NAME,
+                    accountKey: process.env.AZURE_SECRET_KEY,
                 },
             },
         };
@@ -464,8 +464,8 @@ When('i change azure archive location {string} container target', { timeout: 15 
             const locationConfig = locations[locationName] as Record<string, unknown>;
             const details = locationConfig.details as { bucketName: string, auth: { accountKey: string } };
             const auth = details.auth;
-            details.bucketName = this.parameters.AzureArchiveContainer2;
-            auth.accountKey = this.parameters.AzureAccountKey;
+            details.bucketName = process.env.AZURE_ARCHIVE_BUCKET_NAME_2;
+            auth.accountKey = process.env.AZURE_SECRET_KEY;
             const putResult = await this.managementAPIRequest('PUT',
                 `/config/${process.env.ZENKO_INSTANCE_ID}/location/${locationName}`,
                 {},
@@ -474,7 +474,7 @@ When('i change azure archive location {string} container target', { timeout: 15 
                 assert.ifError(putResult.err);
             } else {
                 assert.strictEqual((putResult.data as { details: { bucketName: string } }).details.bucketName,
-                    this.parameters.AzureArchiveContainer2);
+                    process.env.AZURE_ARCHIVE_BUCKET_NAME_2);
                 assert.strictEqual(putResult.statusCode, 200);
             }
         }

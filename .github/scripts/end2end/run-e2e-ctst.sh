@@ -85,24 +85,13 @@ KAFKA_CLEANER_INTERVAL=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.spec.kaf
 # Setting CTST world params
 WORLD_PARAMETERS="$(jq -c <<EOF
 {
-  "NotificationDestination":"${NOTIF_DEST_NAME}",
-  "NotificationDestinationTopic":"${NOTIF_DEST_TOPIC}",
-  "NotificationDestinationAlt":"${NOTIF_ALT_DEST_NAME}",
-  "NotificationDestinationTopicAlt":"${NOTIF_ALT_DEST_TOPIC}",
-  "NotificationDestinationAuth":"${NOTIF_AUTH_DEST_NAME}",
-  "NotificationDestinationTopicAuth":"${NOTIF_AUTH_DEST_TOPIC}",
   "NotificationDestinationAuthUsername":"${NOTIF_AUTH_DEST_USERNAME}",
   "NotificationDestinationAuthPassword":"${NOTIF_AUTH_DEST_PASSWORD}",
   "KafkaExternalIps": "${KAFKA_EXTERNAL_IP:-}",
-  "PrometheusService":"${PROMETHEUS_NAME}-operated.default.svc.cluster.local",
   "StorageManagerUsername":"ctst_storage_manager",
   "StorageAccountOwnerUsername":"ctst_storage_account_owner",
   "DataConsumerUsername":"ctst_data_consumer",
   "DataAccessorUsername":"ctst_data_accessor",
-  "AzureAccountName":"${AZURE_ACCOUNT_NAME}",
-  "AzureAccountKey":"${AZURE_SECRET_KEY}",
-  "AzureArchiveContainer":"${AZURE_ARCHIVE_BUCKET_NAME}",
-  "AzureArchiveContainer2":"${AZURE_ARCHIVE_BUCKET_NAME_2}",
 }
 EOF
 )"

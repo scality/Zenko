@@ -51,18 +51,18 @@ export interface ZenkoWorldParameters extends ClientOptions {
     // DRAdminSecretKey?: string;
     // DRSubdomain?: string;
     // VaultAuthHost: string;
-    NotificationDestination: string;
-    NotificationDestinationTopic: string;
-    NotificationDestinationAlt: string;
-    NotificationDestinationTopicAlt: string;
-    NotificationDestinationAuth: string;
-    NotificationDestinationTopicAuth: string;
-    NotificationDestinationAuthUsername: string;
+    // NotificationDestination: string;
+    // NotificationDestinationTopic: string;
+    // NotificationDestinationAlt: string;
+    // NotificationDestinationTopicAlt: string;
+    // NotificationDestinationAuth: string;
+    // NotificationDestinationTopicAuth: string;
+    // NotificationDestinationAuthUsername: string;
     NotificationDestinationAuthPassword: string;
     KafkaExternalIps: string;
     // KafkaHosts: string;
     // KafkaAuthHosts: string;
-    PrometheusService: string;
+    // PrometheusService: string;
     // KeycloakUsername: string;
     // KeycloakPassword: string;
     // KeycloakHost: string;
@@ -76,10 +76,10 @@ export interface ZenkoWorldParameters extends ClientOptions {
     DataConsumerUsername: string;
     DataAccessorUsername: string;
     ServiceUsersCredentials: string;
-    AzureAccountName: string;
-    AzureAccountKey: string;
-    AzureArchiveContainer: string;
-    AzureArchiveContainer2: string;
+    // AzureAccountName: string;
+    // AzureAccountKey: string;
+    // AzureArchiveContainer: string;
+    // AzureArchiveContainer2: string;
     AzureArchiveAccessTier: string;
     AzureArchiveManifestTier: string;
     // AzureArchiveQueue: string;
@@ -130,6 +130,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     static readonly AZURE_ARCHIVE_ACCESS_TIER = 'Hot';
     static readonly AZURE_ARCHIVE_MANIFEST_ACCESS_TIER = 'Hot';
     static readonly UTILIZATION_SERVICE_PORT = 80;
+    static readonly PROMETHEUS_SERVICE = `${process.env.PROMETHEUS_NAME}-operated.default.svc.cluster.local`;
 
     /**
      * @constructor

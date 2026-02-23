@@ -116,8 +116,8 @@ function setNotificationDestination(world: Zenko, destination: string, topic: st
 Given('one notification destination', function (this: Zenko) {
     setNotificationDestination(
         this,
-        this.parameters.NotificationDestination,
-        this.parameters.NotificationDestinationTopic,
+        process.env.NOTIF_DEST_NAME,
+        process.env.NOTIF_DEST_TOPIC,
         process.env.KAFKA_HOST_PORT,
     );
 });
@@ -125,8 +125,8 @@ Given('one notification destination', function (this: Zenko) {
 Given('one authenticated notification destination', function (this: Zenko) {
     setNotificationDestination(
         this,
-        this.parameters.NotificationDestinationAuth,
-        this.parameters.NotificationDestinationTopicAuth,
+        process.env.NOTIF_AUTH_DEST_NAME,
+        process.env.NOTIF_AUTH_DEST_TOPIC,
         process.env.KAFKA_AUTH_HOST_PORT,
     );
 });
@@ -134,13 +134,13 @@ Given('one authenticated notification destination', function (this: Zenko) {
 Given('two notification destinations', function (this: Zenko) {
     const notificationDestinations = [];
     notificationDestinations.push({
-        destinationName: this.parameters.NotificationDestination,
-        topic: this.parameters.NotificationDestinationTopic,
+        destinationName: process.env.NOTIF_DEST_NAME,
+        topic: process.env.NOTIF_DEST_TOPIC,
         hosts: process.env.KAFKA_HOST_PORT,
     });
     notificationDestinations.push({
-        destinationName: this.parameters.NotificationDestinationAlt,
-        topic: this.parameters.NotificationDestinationTopicAlt,
+        destinationName: process.env.NOTIF_ALT_DEST_NAME,
+        topic: process.env.NOTIF_ALT_DEST_TOPIC,
         hosts: process.env.KAFKA_HOST_PORT,
     });
     this.addToSaved('notificationDestinations', notificationDestinations);
