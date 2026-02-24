@@ -13,6 +13,7 @@
         "ghcr.io/devcontainers/features/docker-in-docker": {},
         "ghcr.io/devcontainers/features/github-cli:1": {},
         "ghcr.io/devcontainers/features/node:1": {},
+        "ghcr.io/devcontainers/features/python:1": {},
         "ghcr.io/devcontainers/features/sshd:1": {},
         "ghcr.io/devcontainers-extra/features/kind:1": {},
         "ghcr.io/devcontainers/features/aws-cli:1": {},
