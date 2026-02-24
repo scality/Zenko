@@ -92,6 +92,7 @@ class IngestionUtility extends ReplicationUtility {
     }
 
     putObjectWithProperties(bucketName, objectName, content, cb) {
+        const body = content ?? '';
         this.s3.send(new PutObjectCommand({
             Bucket: bucketName,
             Key: objectName,
@@ -99,7 +100,8 @@ class IngestionUtility extends ReplicationUtility {
             CacheControl: 'test-cache-control',
             ContentDisposition: 'test-content-disposition',
             ContentEncoding: 'ascii',
-            Body: content,
+            Body: body,
+            ContentLength: Buffer.byteLength(body),
         }))
             .then(data => cb(null, data))
             .catch(cb);

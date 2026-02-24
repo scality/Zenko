@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import { promises as fsp } from 'fs';
 import { join } from 'path';
 import {
@@ -47,6 +48,11 @@ export async function uploadSetup(world: Zenko, action: string, body?: string) {
         const objectBody = body || 'a'.repeat(objectSize);
         await saveAsFile(tempFileName, objectBody);
         world.addCommandParameter({ body: world.getSaved<string>('tempFileName') });
+        const contentLength = body ? Buffer.byteLength(objectBody) : objectSize;
+        world.addCommandParameter({ contentLength: `${contentLength}` });
+    } else if (action === 'PutObject') {
+        world.addCommandParameter({ body: '' });
+        world.addCommandParameter({ contentLength: '0' });
     }
 }
 
@@ -58,6 +64,10 @@ export async function uploadTeardown(world: Zenko, action: string) {
     if (objectSize > 0) {
         await deleteFile(world.getSaved<string>('tempFileName'));
         world.deleteKeyFromCommand('body');
+        world.deleteKeyFromCommand('contentLength');
+    } else if (action === 'PutObject') {
+        world.deleteKeyFromCommand('body');
+        world.deleteKeyFromCommand('contentLength');
     }
 }
 

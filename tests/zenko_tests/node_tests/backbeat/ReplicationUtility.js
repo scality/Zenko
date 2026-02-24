@@ -131,85 +131,97 @@ class ReplicationUtility {
     }
 
     putObject(bucketName, objectName, content, cb) {
-        const params = {
+        const body = content ?? '';
+        this.s3.send(new PutObjectCommand({
             Bucket: bucketName,
             Key: objectName,
-        };
-        if (content) {
-            params.Body = content;
-        }
-        this.s3.send(new PutObjectCommand(params))
+            Body: body,
+            ContentLength: Buffer.byteLength(body),
+        }))
             .then(data => cb(null, data))
             .catch(cb);
     }
 
     putObjectWithContentType(bucketName, objectName, content, cb) {
+        const body = content ?? '';
         this.s3.send(new PutObjectCommand({
             Bucket: bucketName,
             Key: objectName,
             ContentType: 'image/png',
-            Body: content,
+            Body: body,
+            ContentLength: Buffer.byteLength(body),
         }))
             .then(data => cb(null, data))
             .catch(cb);
     }
 
     putObjectWithUserMetadata(bucketName, objectName, content, cb) {
+        const body = content ?? '';
         this.s3.send(new PutObjectCommand({
             Bucket: bucketName,
             Key: objectName,
             Metadata: { customKey: 'customValue' },
-            Body: content,
+            Body: body,
+            ContentLength: Buffer.byteLength(body),
         }))
             .then(data => cb(null, data))
             .catch(cb);
     }
 
     putObjectWithCacheControl(bucketName, objectName, content, cb) {
+        const body = content ?? '';
         this.s3.send(new PutObjectCommand({
             Bucket: bucketName,
             Key: objectName,
             CacheControl: 'test-cache-control',
-            Body: content,
+            Body: body,
+            ContentLength: Buffer.byteLength(body),
         }))
             .then(data => cb(null, data))
             .catch(cb);
     }
 
     putObjectWithContentDisposition(bucketName, objectName, content, cb) {
+        const body = content ?? '';
         this.s3.send(new PutObjectCommand({
             Bucket: bucketName,
             Key: objectName,
             ContentDisposition: 'test-content-disposition',
-            Body: content,
+            Body: body,
+            ContentLength: Buffer.byteLength(body),
         }))
             .then(data => cb(null, data))
             .catch(cb);
     }
 
     putObjectWithContentEncoding(bucketName, objectName, content, cb) {
+        const body = content ?? '';
         this.s3.send(new PutObjectCommand({
             Bucket: bucketName,
             Key: objectName,
             ContentEncoding: 'ascii',
-            Body: content,
+            Body: body,
+            ContentLength: Buffer.byteLength(body),
         }))
             .then(data => cb(null, data))
             .catch(cb);
     }
 
     putObjectWithContentLanguage(bucketName, objectName, content, cb) {
+        const body = content ?? '';
         this.s3.send(new PutObjectCommand({
             Bucket: bucketName,
             Key: objectName,
             ContentLanguage: 'test-content-language',
-            Body: content,
+            Body: body,
+            ContentLength: Buffer.byteLength(body),
         }))
             .then(data => cb(null, data))
             .catch(cb);
     }
 
     putObjectWithProperties(bucketName, objectName, content, cb) {
+        const body = content ?? '';
         this.s3.send(new PutObjectCommand({
             Bucket: bucketName,
             Key: objectName,
@@ -219,7 +231,8 @@ class ReplicationUtility {
             ContentDisposition: 'test-content-disposition',
             ContentEncoding: 'ascii',
             ContentLanguage: 'test-content-language',
-            Body: content,
+            Body: body,
+            ContentLength: Buffer.byteLength(body),
         }))
             .then(data => cb(null, data))
             .catch(cb);

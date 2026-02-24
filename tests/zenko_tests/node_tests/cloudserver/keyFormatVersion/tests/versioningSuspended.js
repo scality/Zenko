@@ -38,9 +38,12 @@ const ownerInfo = {};
 async function putObjectVersions(objName, vFormat) {
     for (let i = 0; i < 3; i++) {
         // eslint-disable-next-line no-await-in-loop
-        const result = await s3.send(new PutObjectCommand(
-            { Bucket: BUCKET_NAME[vFormat], Key: objName },
-        ));
+        const result = await s3.send(new PutObjectCommand({
+            Bucket: BUCKET_NAME[vFormat],
+            Key: objName,
+            Body: '',
+            ContentLength: 0,
+        }));
         versionIds[vFormat][objName].push(result.VersionId);
     }
 }
@@ -171,7 +174,12 @@ describe('Cloudserver : keyFormatVersion : versioning suspended bucket', () => {
 
     ['v0', 'v1'].forEach(vFormat => {
         it(`Should create new null version ${vFormat}`, async () => {
-            await s3.send(new PutObjectCommand({ Bucket: BUCKET_NAME[vFormat], Key: 'first-key' }));
+            await s3.send(new PutObjectCommand({
+                Bucket: BUCKET_NAME[vFormat],
+                Key: 'first-key',
+                Body: '',
+                ContentLength: 0,
+            }));
             const data = await s3.send(new GetObjectCommand(
                 { Bucket: BUCKET_NAME[vFormat], Key: 'first-key', VersionId: 'null' },
             ));
@@ -183,7 +191,12 @@ describe('Cloudserver : keyFormatVersion : versioning suspended bucket', () => {
 
         it(`Should not list DeleteMarkers ${vFormat}`, async () => {
             const key = 'first-key-test-delete-marker';
-            await s3.send(new PutObjectCommand({ Bucket: BUCKET_NAME[vFormat], Key: key }));
+            await s3.send(new PutObjectCommand({
+                Bucket: BUCKET_NAME[vFormat],
+                Key: key,
+                Body: '',
+                ContentLength: 0,
+            }));
 
             const listData1 = await s3.send(new ListObjectsV2Command({ Bucket: BUCKET_NAME[vFormat] }));
             const countObjects = listData1.Contents.length;
@@ -240,7 +253,12 @@ describe('Cloudserver : keyFormatVersion : versioning suspended bucket', () => {
         });
 
         it(`Should delete specified version ${vFormat}`, async () => {
-            const res = await s3.send(new PutObjectCommand({ Bucket: BUCKET_NAME[vFormat], Key: 'first-key' }));
+            const res = await s3.send(new PutObjectCommand({
+                Bucket: BUCKET_NAME[vFormat],
+                Key: 'first-key',
+                Body: '',
+                ContentLength: 0,
+            }));
             const tmpVersionId = res.VersionId;
             await s3.send(new DeleteObjectCommand({
                 Bucket: BUCKET_NAME[vFormat],

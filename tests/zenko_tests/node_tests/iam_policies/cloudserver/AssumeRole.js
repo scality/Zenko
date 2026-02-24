@@ -137,9 +137,19 @@ testAPIs.forEach(testAPI => {
 
             s3Account1Client = getS3Client(externalAccessKey1, externalSecretKey1);
             await s3Account1Client.send(new CreateBucketCommand({ Bucket: bucket1 }));
-            await s3Account1Client.send(new PutObjectCommand({ Bucket: bucket1, Key: 'file1' }));
+            await s3Account1Client.send(new PutObjectCommand({
+                Bucket: bucket1,
+                Key: 'file1',
+                Body: '',
+                ContentLength: 0,
+            }));
             await s3Account1Client.send(new CreateBucketCommand({ Bucket: bucket2 }));
-            await s3Account1Client.send(new PutObjectCommand({ Bucket: bucket2, Key: 'file1' }));
+            await s3Account1Client.send(new PutObjectCommand({
+                Bucket: bucket2,
+                Key: 'file1',
+                Body: '',
+                ContentLength: 0,
+            }));
         });
 
         after(async () => {

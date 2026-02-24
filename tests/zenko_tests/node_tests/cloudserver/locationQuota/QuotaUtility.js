@@ -124,10 +124,12 @@ class QuotaUtility {
     }
 
     async putObject(bucketName, objectName, body) {
+        const payload = body ?? '';
         return this.s3.send(new PutObjectCommand({
             Bucket: bucketName,
             Key: objectName,
-            Body: body,
+            Body: payload,
+            ContentLength: Buffer.byteLength(payload),
         }));
     }
 

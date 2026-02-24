@@ -274,7 +274,12 @@ testAPIs.forEach(testAPI => {
                                 .then(() => next(), next);
                         },
                         next => {
-                            s3Client.send(new PutObjectCommand({ Bucket: bucket1, Key: 'file1' }))
+                            s3Client.send(new PutObjectCommand({
+                                Bucket: bucket1,
+                                Key: 'file1',
+                                Body: '',
+                                ContentLength: 0,
+                            }))
                                 .then(() => next(), next);
                         },
                     ], next);
