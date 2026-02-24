@@ -25,7 +25,7 @@ def get_credentials(token, account_id):
         RoleArn="arn:aws:iam::%s:role/scality-internal/storage-manager-role" % (account_id),
         RoleSessionName='end2end',
         WebIdentityToken=token,
-        DurationSeconds=60 * 60 * 12, # 12 hrs
+        DurationSeconds=60 * 60 * 12, # 12 hrs (max allowed by STS for assume role)
     )
 
     return res
