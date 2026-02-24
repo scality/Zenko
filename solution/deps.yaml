@@ -145,7 +145,7 @@ zenko-ui:
   tag: 3.2.7
   envsubst: ZENKO_UI_TAG
 zookeeper:
-  sourceRegistry: pravega
+  sourceRegistry: ghcr.io/adobe/zookeeper-operator
   image: zookeeper
-  tag: 0.2.15
+  tag: 3.8.4-0.2.15-adobe-20250923
   envsubst: ZOOKEEPER_TAG
