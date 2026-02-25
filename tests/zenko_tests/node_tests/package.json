@@ -21,8 +21,6 @@
     "async": "2.1.2",
     "aws4": "^1.11.0",
     "babel-eslint": "^10.1.0",
-    "cypress": "^13.14.0",
-    "cypress-file-upload": "^5.0.2",
     "eslint": "7.32.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-scality": "scality/Guidelines#7.10.1.6",
@@ -37,7 +35,6 @@
     "werelogs": "github:scality/werelogs"
   },
   "scripts": {
-    "test_ui": "cypress run --config baseUrl=${UI_ENDPOINT} --project ./ui",
     "test_aws_crr": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --reporter mocha-multi-reporters --reporter-options configFile=config.json  backbeat/tests/crr/awsBackend.js",
     "test_azure_crr": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --reporter mocha-multi-reporters --reporter-options configFile=config.json  backbeat/tests/crr/azureBackend.js",
     "test_gcp_crr": "mocha --tags ${MOCHA_TAGS} --exit -t 10000 --reporter mocha-multi-reporters --reporter-options configFile=config.json  backbeat/tests/crr/gcpBackend.js",

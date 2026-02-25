@@ -47,7 +47,6 @@ DESTINATION_SECRET_KEY=$(kubectl get secret "end2end-account-${CRR_DESTINATION_A
 DESTINATION_SESSION_TOKEN=$(kubectl get secret "end2end-account-${CRR_DESTINATION_ACCOUNT_NAME}" -o jsonpath='{.data.SessionToken}' | base64 -d)
 DESTINATION_ACCOUNT_ID=$(kubectl get secret "end2end-account-${CRR_DESTINATION_ACCOUNT_NAME}" -o jsonpath='{.data.AccountId}' | base64 -d)
 CRR_DESTINATION_INFO="{\"AccessKeyId\":\"${DESTINATION_ACCESS_KEY}\",\"SecretAccessKey\":\"${DESTINATION_SECRET_KEY}\",\"SessionToken\":\"${DESTINATION_SESSION_TOKEN}\",\"AccountId\":\"${DESTINATION_ACCOUNT_ID}\"}"
-OIDC_FULLNAME="${OIDC_FIRST_NAME} ${OIDC_LAST_NAME}"
 KEYCLOAK_TEST_USER="${OIDC_USERNAME}-norights"
 KEYCLOAK_TEST_PASSWORD=${OIDC_PASSWORD}
 KEYCLOAK_TEST_HOST=${OIDC_ENDPOINT}
@@ -77,12 +76,6 @@ run_e2e_test() {
         --env=VAULT_STS_ENDPOINT=${VAULT_STS_ENDPOINT} \
         --env=TOKEN=${TOKEN} \
         --env=STAGE=${STAGE} \
-        --env=CYPRESS_KEYCLOAK_USER_FULLNAME="${OIDC_FULLNAME}" \
-        --env=CYPRESS_KEYCLOAK_USERNAME=${OIDC_USERNAME} \
-        --env=CYPRESS_KEYCLOAK_PASSWORD=${OIDC_PASSWORD} \
-        --env=CYPRESS_KEYCLOAK_ROOT=${OIDC_ENDPOINT} \
-        --env=CYPRESS_KEYCLOAK_CLIENT_ID=${OIDC_CLIENT_ID} \
-        --env=CYPRESS_KEYCLOAK_REALM=${OIDC_REALM} \
         --env=AWS_BACKEND_SOURCE_LOCATION=${AWS_BACKEND_SOURCE_LOCATION} \
         --env=AWS_BACKEND_DESTINATION_LOCATION=${AWS_BACKEND_DESTINATION_LOCATION} \
         --env=AWS_S3_FAIL_BACKEND_DESTINATION_LOCATION=${AWS_BACKEND_DESTINATION_FAIL_LOCATION} \
@@ -196,19 +189,18 @@ run_e2e_test() {
 
 ## TODO use existing entrypoint
 if [ "$STAGE" = "end2end" ]; then
-   ## TODO: re-add npm  run test_ui after ZENKO-4033
-   run_e2e_test '' 'cd node_tests && npm run test_operator'
+  run_e2e_test '' 'cd node_tests && yarn run test_operator'
 elif [ "$STAGE" = "debug" ]; then
    run_e2e_test '-ti' 'bash'
 elif [ "$STAGE" = "smoke" ]; then
-   run_e2e_test '' 'cd node_tests && npm run test_smoke'
+  run_e2e_test '' 'cd node_tests && yarn run test_smoke'
 elif [ "$STAGE" = "backbeat" ]; then
    ## TODO: use node js to create and remove buckets
-   run_e2e_test '' 'cd node_tests && ./gcp_shim.sh && npm run test_all_extensions && cd .. && python3 cleans3c.py'
+  run_e2e_test '' 'cd node_tests && ./gcp_shim.sh && yarn run test_all_extensions && cd .. && python3 cleans3c.py'
 elif [ "$STAGE" = "iam-policies" ]; then
-   run_e2e_test '' 'cd node_tests && npm run test_iam_policies'
+  run_e2e_test '' 'cd node_tests && yarn run test_iam_policies'
 elif [ "$STAGE" = "object-api" ]; then
-   run_e2e_test '' 'cd node_tests && npm run test_object_api'
+  run_e2e_test '' 'cd node_tests && yarn run test_object_api'
 elif [ "$STAGE" = "lint" ]; then
-   run_e2e_test '' 'cd node_tests && npm run lint'
+  run_e2e_test '' 'cd node_tests && yarn run lint'
 fi

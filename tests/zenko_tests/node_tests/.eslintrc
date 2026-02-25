@@ -21,8 +21,6 @@
     }
   },
   "globals": {
-    "cy": true,
-    "Cypress": true,
     "document": true
   }
 }
