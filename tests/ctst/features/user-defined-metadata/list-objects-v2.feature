@@ -20,6 +20,7 @@ Feature: ListObjectsV2
         And an IAM policy attached to the entity "user" with "Allow" effect to perform "s3" "ListBucket" on "arn:aws:s3:::*"
         When the user calls ListObjectsV2 on the bucket with optional attributes "RestoreStatus"
         Then the operation finished without error
+        And the ListObjectsV2 response should contain "RestoreStatus"
 
     @2.14.0
     @PreMerge
