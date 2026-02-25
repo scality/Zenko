@@ -37,13 +37,14 @@ Feature: GetObjectAttributes
         And an IAM policy attached to the entity "user" with "Allow" effect to perform "s3" "GetObjectAttributes" on "arn:aws:s3:::*"
         When the user calls GetObjectAttributes for "object-no-metadata" requesting "<attributes>"
         Then the operation finished without error
+        And the GetObjectAttributes response should contain "<attributes>"
 
         Examples:
             | attributes      |
             | ObjectSize      |
             | ETag            |
+            | StorageClass    |
             | ObjectSize,ETag |
-
 
     @2.14.0
     @PreMerge
@@ -104,6 +105,7 @@ Feature: GetObjectAttributes
         And an IAM policy attached to the entity "user" with "Allow" effect to perform "s3" "GetObjectVersionAttributes" on "arn:aws:s3:::*"
         When the user calls GetObjectAttributes for "object-no-metadata-versioned" requesting "<attributes>" with the latest version
         Then the operation finished without error
+        And the GetObjectAttributes response should contain "<attributes>"
 
         Examples:
             | attributes      |
