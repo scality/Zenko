@@ -7,6 +7,8 @@ set -exu
 #   run-e2e-ctst.sh "@PreMerge and not @PRA"
 #   run-e2e-ctst.sh "@PRA"
 
+echo "test ci"
+
 TAGS=${1:?'Error: TAGS argument is required (e.g., "@PreMerge", "@PRA")'}
 ZENKO_NAME="end2end"
 PARALLEL_RUNS=${PARALLEL_RUNS:-$(( ( $(nproc) + 1 ) / 2 ))}
