@@ -306,6 +306,10 @@ async function putObject(world: Zenko, objectName?: string, content?: string) {
     }
     const result = await S3.putObject(world.getCommandParameters());
     const versionId = extractPropertyFromResults<string>(result, 'VersionId');
+    const etag = extractPropertyFromResults<string>(result, 'ETag');
+    if (etag) {
+        world.addToSaved('objectETag', etag);
+    }
     world.saveCreatedObject(finalObjectName, versionId || '');
     await uploadTeardown(world, 'PutObject');
     world.setResult(result);
