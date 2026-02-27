@@ -104,7 +104,7 @@ Given('an account quota set to {int} B', async function (this: Zenko, quota: num
     });
 
     // Ensure the quota is set
-    assert(JSON.parse(result.stdout).quota === quota);
+    assert(JSON.parse(result.stdout).quota === String(quota));
 
     if (result.err) {
         throw new Error(result.err);
