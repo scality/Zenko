@@ -130,10 +130,10 @@ vault:
 zenko-operator:
   sourceRegistry: ghcr.io/scality
   image: zenko-operator
-  tag: v1.8.3
+  tag: v1.8.4
   envsubst: ZENKO_OPERATOR_TAG
 zookeeper:
-  sourceRegistry: pravega
+  sourceRegistry: ghcr.io/adobe/zookeeper-operator
   image: zookeeper
-  tag: 0.2.15
+  tag: 3.8.4-0.2.15-adobe-20250923
   envsubst: ZOOKEEPER_TAG
