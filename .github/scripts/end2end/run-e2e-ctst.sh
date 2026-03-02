@@ -161,6 +161,13 @@ kubectl create clusterrolebinding serviceaccounts-cluster-admin \
   --clusterrole=cluster-admin \
   --group=system:serviceaccounts
 
+                # --arg keycloak_host "${OIDC_HOST:-keycloak.zenko.local}" \
+                # --arg keycloak_realm "${OIDC_REALM:-zenko}" \
+                
+                # --arg keycloak_username "${OIDC_USERNAME:-storage_manager}" \
+                # --arg keycloak_password "${OIDC_PASSWORD:-123}" \
+                # --arg keycloak_client_id "${OIDC_CLIENT_ID:-zenko-ui}" \
+
 # Running end2end ctst tests
 # Using overrides as we need to attach a local folder to the pod
 kubectl run $POD_NAME \
@@ -172,6 +179,8 @@ kubectl run $POD_NAME \
         --image-pull-policy=IfNotPresent \
         --env=TARGET_VERSION=$VERSION  \
         --env=SEED_KEYCLOAK_DEFAULT_ROLES=true \
+        --env=KEYCLOAK_HOST=${KEYCLOAK_TEST_HOST} \
+        --env=KEYCLOAK_REALM=${KEYCLOAK_TEST_REALM_NAME} \
         --env=AZURE_BLOB_URL=$AZURE_BACKEND_ENDPOINT  \
         --env=AZURE_QUEUE_URL=$AZURE_BACKEND_QUEUE_ENDPOINT \
         --env=VERBOSE=1 \
