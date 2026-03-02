@@ -10,11 +10,12 @@
   "dependencies": {
     "@cucumber/cucumber": "^10.9.0",
     "@kubernetes/client-node": "^0.21.0",
+    "@platformatic/kafka": "^1.28.0",
     "@types/proper-lockfile": "^4.1.4",
     "@types/qs": "^6.9.15",
     "assert": "^2.1.0",
     "aws4-axios": "^3.3.8",
-    "cli-testing": "git+https://github.com/scality/cli-testing.git#0ef7b6b0bc9e0c24dce6c91427dc345b1087ec4d",
+    "cli-testing": "git+https://github.com/scality/cli-testing.git#1f3680c8d16741b1802c77dfbc19927d011d5947",
     "kafkajs": "^2.2.4",
     "node-gyp": "^10.2.0",
     "prometheus-query": "^3.4.0",
