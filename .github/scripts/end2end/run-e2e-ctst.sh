@@ -220,5 +220,6 @@ kubectl run $POD_NAME \
     --parallel $PARALLEL_RUNS \
     --retry 3 \
     --retry-tag-filter @Flaky \
+    --format pretty \
     --format junit:/reports/ctst-junit.xml \
     --format html:/reports/report.html

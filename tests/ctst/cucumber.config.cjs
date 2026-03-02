@@ -6,7 +6,7 @@ module.exports = {
         paths: ['features/**/*.feature'],
         format: [
             'progress-bar',
-            '@cucumber/pretty-formatter',
+            'pretty',
             'json:reports/cucumber-report.json',
             'html:reports/report.html',
         ],
