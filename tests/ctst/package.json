@@ -8,7 +8,7 @@
   "license": "ISC",
   "private": true,
   "dependencies": {
-    "@cucumber/cucumber": "^10.9.0",
+    "@cucumber/cucumber": "^12.7.0",
     "@kubernetes/client-node": "^0.21.0",
     "@platformatic/kafka": "^1.28.0",
     "@types/proper-lockfile": "^4.1.4",
