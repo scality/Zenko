@@ -9,6 +9,9 @@ import Zenko from '../world/Zenko';
 import { CacheHelper, Identity } from 'cli-testing';
 import { prepareQuotaScenarios, teardownQuotaScenarios } from 'steps/quotas/quotas';
 import { prepareUtilizationScenarios } from 'steps/utilization/utilizationAPI';
+import {
+    prepareStorageUsageReportingScenarios,
+} from 'steps/reporting/storageUsageReporting';
 import { cleanS3Bucket } from './common';
 import { cleanAzureContainer, cleanZenkoLocation } from 'steps/azureArchive';
 import { displayDebuggingInformation, preparePRA } from 'steps/pra';
@@ -60,6 +63,10 @@ Before({ tags: '@UtilizationAPI', timeout: 1200000 }, async function (scenarioOp
     await prepareUtilizationScenarios(this as Zenko, scenarioOptions);
 });
 
+Before({ tags: '@PrepareStorageUsageReportingScenarios', timeout: 1200000 }, async function (scenarioOptions) {
+    await prepareStorageUsageReportingScenarios(this as Zenko, scenarioOptions);
+});
+
 After(async function (this: Zenko, results) {
     // Reset any configuration set on the endpoint (ssl, port)
     CacheHelper.parameters.ssl = this.parameters.ssl;
@@ -95,6 +102,16 @@ After({ tags: '@AzureArchive' }, async function (this: Zenko) {
         this,
         this.getSaved<string>('bucketName'),
     );
+});
+
+After(async function (this: Zenko, results) {
+    const additionalAccountNames = this.getSaved<string[]>('additionalAccountNames');
+    if (results.result?.status === 'FAILED' || !additionalAccountNames) {
+        return;
+    }
+    for (const accountName of additionalAccountNames) {
+        await cleanupAccount(this, accountName);
+    }
 });
 
 After({ tags: '@BP-ASSUME_ROLE_USER_CROSS_ACCOUNT'}, async function (this: Zenko, results) {

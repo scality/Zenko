@@ -70,6 +70,7 @@ export interface ZenkoWorldParameters extends ClientOptions {
     KeycloakRealm: string;
     KeycloakClientId: string;
     KeycloakGrantType: string;
+    KeycloakUsernameNoRights: string;
     StorageManagerUsername: string;
     StorageAccountOwnerUsername: string;
     DataConsumerUsername: string;
@@ -436,13 +437,13 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         }
     }
 
-    async createAccount(name?: string, force?: boolean, adminClientName?: string) {
+    async createAccount(name?: string, force?: boolean, adminClientName?: string): Promise<string> {
         Identity.resetIdentity();
         const accountName = name || this.getSaved<string>('accountName') ||
             `${Constants.ACCOUNT_NAME}${Utils.randomString()}`;
         if (Identity.hasIdentity(IdentityEnum.ACCOUNT, accountName) && !force) {
             Identity.useIdentity(IdentityEnum.ACCOUNT, accountName);
-            return;
+            return accountName;
         }
 
         if (adminClientName && Identity.hasIdentity(IdentityEnum.ADMIN, adminClientName)) {
@@ -455,6 +456,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
         // Save the identity
         this.saveIdentityInformation(accountName, IdentityEnum.ACCOUNT, accountName);
+        return accountName;
     }
 
     async deleteAccount(name: string) {
@@ -937,9 +939,10 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         path: string,
         headers: object = {},
         payload: object | string = {},
+        username?: string,
     ): Promise<{ statusCode: number; data: object } | { statusCode: number; err: unknown }> {
         const token = await this.getWebIdentityToken(
-            this.parameters.KeycloakUsername || 'storage_manager',
+            username || this.parameters.KeycloakUsername || 'storage_manager',
             this.parameters.KeycloakPassword || '123',
             this.parameters.KeycloakHost || 'keycloak.zenko.local',
             this.parameters.KeycloakPort || '80',
