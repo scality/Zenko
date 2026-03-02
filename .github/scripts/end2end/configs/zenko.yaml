@@ -31,6 +31,8 @@ spec:
       triggerTransitionsOneDayEarlierForTesting: ${TRANSITION_ONE_DAY_EARLIER}
     ingestionProcessor:
       concurrency: 2
+    replicationDataProcessor:
+      objectRefreshSizeThresholdMB: 2
     logging:
       logLevel: debug
   mongodb:
