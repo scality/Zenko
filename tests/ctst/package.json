@@ -15,7 +15,7 @@
     "@types/qs": "^6.9.15",
     "assert": "^2.1.0",
     "aws4-axios": "^3.3.8",
-    "cli-testing": "git+https://github.com/scality/cli-testing.git#116f434b1beb0c8da8055b28444405b97706fbc8",
+    "cli-testing": "git+https://github.com/scality/cli-testing.git#e7dddfdbdb7ff9ab22695e542a2051b0c6cbab4f",
     "prometheus-query": "^3.4.0",
     "proper-lockfile": "^4.1.2",
     "qs": "^6.13.0",
