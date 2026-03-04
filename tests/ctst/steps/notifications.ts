@@ -344,29 +344,46 @@ Then('i should {string} a notification for {string} event in destination {int}',
         try {
             const stream = await consumer.consume({
                 topics: [topic],
+                mode: 'earliest',
                 sessionTimeout: 10000,
                 heartbeatInterval: 500,
             });
 
-            for await (const msg of stream) {
-                if (Date.now() - startTime >= KAFKA_TESTS_TIMEOUT) {
-                    break;
-                }
-                try {
-                    const notification = (JSON.parse(msg.value as string
-                        || '{"Records":[]}') as { Records: Notification[] }).Records[0];
-                    const bucketNameMatches =
-                        this.getSaved<string>('bucketName') === notification?.s3.bucket.name;
-                    const objectNameMatches =
-                        this.getSaved<string>('objectName') === notification?.s3.object.key;
-                    const eventTypeMatches = notificationType === notification?.eventName;
-                    if (bucketNameMatches && objectNameMatches && eventTypeMatches) {
-                        receivedNotification = true;
+            // Force-close the stream after timeout to avoid hanging
+            // when no more messages arrive (e.g. "not receive" tests)
+            const timeoutHandle = setTimeout(() => {
+                stream.close().catch(() => {});
+            }, KAFKA_TESTS_TIMEOUT);
+
+            try {
+                for await (const msg of stream) {
+                    if (Date.now() - startTime >= KAFKA_TESTS_TIMEOUT) {
                         break;
                     }
-                } catch (error) {
-                    this.logger.debug('error when parsing notification message', { error });
+                    this.logger.debug('Kafka message received', {
+                        topic: msg.topic,
+                        partition: msg.partition,
+                        offset: msg.offset?.toString(),
+                        value: msg.value,
+                    });
+                    try {
+                        const notification = (JSON.parse(msg.value as string
+                            || '{"Records":[]}') as { Records: Notification[] }).Records[0];
+                        const bucketNameMatches =
+                            this.getSaved<string>('bucketName') === notification?.s3.bucket.name;
+                        const objectNameMatches =
+                            this.getSaved<string>('objectName') === notification?.s3.object.key;
+                        const eventTypeMatches = notificationType === notification?.eventName;
+                        if (bucketNameMatches && objectNameMatches && eventTypeMatches) {
+                            receivedNotification = true;
+                            break;
+                        }
+                    } catch (error) {
+                        this.logger.debug('error when parsing notification message', { error });
+                    }
                 }
+            } finally {
+                clearTimeout(timeoutHandle);
             }
 
             await stream.close();
