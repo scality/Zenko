@@ -10,6 +10,7 @@
   "dependencies": {
     "@cucumber/cucumber": "^10.9.0",
     "@kubernetes/client-node": "^0.21.0",
+    "@platformatic/kafka": "^1.28.0",
     "@types/proper-lockfile": "^4.1.4",
     "@types/qs": "^6.9.15",
     "assert": "^2.1.0",
