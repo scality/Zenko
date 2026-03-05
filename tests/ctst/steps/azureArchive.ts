@@ -56,6 +56,7 @@ function getAzureCreds(
  */
 async function isObjectRehydrated(zenko: Zenko, objectName: string) {
     let found = false;
+    zenko.logger.debug('isObjectRehydrated: calling findObjectPackAndManifest', { objectName });
     const {
         tarName,
     } = await findObjectPackAndManifest(
@@ -63,21 +64,27 @@ async function isObjectRehydrated(zenko: Zenko, objectName: string) {
         zenko.getSaved<string>('bucketName'),
         objectName || zenko.getSaved<string>('objectName'),
     );
+    zenko.logger.debug('isObjectRehydrated: findObjectPackAndManifest returned', { tarName });
     const start = new Date();
     assert(tarName);
+    zenko.logger.debug('isObjectRehydrated: waiting for rehydrate blob', { blobPath: `rehydrate/${tarName}` });
     while (!found) {
         found = await AzureHelper.blobExists(
             zenko.parameters.AzureArchiveContainer,
             `rehydrate/${tarName}`,
             getAzureCreds(zenko),
         );
-        await Utils.sleep(1000);
+        if (!found) {
+            await Utils.sleep(1000);
+        }
 
         //wait for 1 minute max
         if (new Date().getTime() - start.getTime() > 60000) {
+            zenko.logger.debug('isObjectRehydrated: timed out waiting for rehydrate blob');
             return undefined;
         }
     }
+    zenko.logger.debug('isObjectRehydrated: rehydrate blob found');
     return tarName;
 }
 
@@ -95,12 +102,19 @@ async function findObjectPackAndManifest(
     objectName: string,
 ): Promise<{ manifestName?:string, manifest?:manifest, tarName?:string }> {
     // listing all blobs in the container
+    world.logger.debug('findObjectPackAndManifest: listing blobs', {
+        container: world.parameters.AzureArchiveContainer,
+        bucketName,
+        objectName,
+    });
     const blobs = await AzureHelper.listBlobs(
         world.parameters.AzureArchiveContainer,
         getAzureCreds(world),
     );
+    world.logger.debug('findObjectPackAndManifest: listBlobs returned', { blobCount: blobs?.length ?? 0 });
     // filtering the list of blobs only leaving the manifests
     const manifests = blobs.filter(blob => blob.name.includes('.json.'));
+    world.logger.debug('findObjectPackAndManifest: found manifests', { manifestCount: manifests.length });
     for (let i = 0; i < manifests.length; i++) {
         // downloading the manifest
         const manifestBuffer = await AzureHelper.downloadBlob(
@@ -119,6 +133,9 @@ async function findObjectPackAndManifest(
             entry.origin['object-key'] === objectName,
         );
         if (found) {
+            world.logger.debug('findObjectPackAndManifest: found object in manifest', {
+                manifestName: manifests[i].name,
+            });
             return {
                 manifest: manifestJson,
                 manifestName: manifests[i].name,
@@ -126,6 +143,7 @@ async function findObjectPackAndManifest(
             };
         }
     }
+    world.logger.debug('findObjectPackAndManifest: object not found in any manifest');
     return {};
 }
 
@@ -300,14 +318,24 @@ Then('manifest containing object {string} should contain {int} objects',
 
 Then('blob for object {string} must be rehydrated',
     async function (this: Zenko, objectName: string) {
+        this.logger.debug('Starting blob rehydration check', { objectName });
         const tarName = await isObjectRehydrated(this, objectName);
+        this.logger.debug('isObjectRehydrated result', { tarName, found: !!tarName });
         assert(tarName);
+        this.logger.debug('Sending BlobCreatedEvent to queue', {
+            queue: this.parameters.AzureArchiveQueue,
+            container: this.parameters.AzureArchiveContainer,
+            blobName: `rehydrate/${tarName}`,
+        });
         await AzureHelper.sendBlobCreatedEventToQueue(
             this.parameters.AzureArchiveQueue,
             this.parameters.AzureArchiveContainer,
             `rehydrate/${tarName}`,
             getAzureCreds(this),
         );
+        this.logger.debug('BlobCreatedEvent sent successfully, waiting for backend to process');
+        // Give the backend a moment to process the queue message
+        await Utils.sleep(3000);
     });
 
 /**
@@ -321,10 +349,12 @@ Then('blob for object {string} fails to rehydrate',
         const tarName = await isObjectRehydrated(this, objectName);
 
         // wait for restore to fail and end up in dead letter queue
+        // restoreTimeout is configured in .github/scripts/end2end/configs/zenko.yaml
+        // (spec.sorbet.server.azure.restoreTimeout)
         const restoreTimeoutSeconds = parseInt(this.parameters.SorbetdRestoreTimeout);
         await Utils.sleep(restoreTimeoutSeconds * 1000 + 1000);
         assert(tarName);
-        // restoreTimeout is set to 30s in the config
+        // Additional wait for the job to be moved to dead letter queue
         await Utils.sleep(30000);
     });
 

@@ -120,7 +120,7 @@ spec:
         maxDelay: "15s"
       azure:
         archiveTier: "hot"
-        restoreTimeout: "15s"
+        restoreTimeout: "30s"
   ingress:
     workloadPlaneClass: 'nginx'
     controlPlaneClass: 'nginx-control-plane'

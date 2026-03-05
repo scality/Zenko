@@ -488,8 +488,21 @@ async function verifyObjectLocation(this: Zenko, objectName: string,
 
     const startTime = Date.now();
     const timeoutMs = 5 * 60 * 1000;
+    let lastLogTime = 0;
+    this.logger.debug('verifyObjectLocation: starting', {
+        objectName: objName,
+        expectedStatus: objectTransitionStatus,
+        expectedStorageClass: storageClass,
+    });
     while (!conditionOk) {
-        if (Date.now() - startTime > timeoutMs) {
+        const elapsed = Date.now() - startTime;
+        if (elapsed > timeoutMs) {
+            this.logger.error('verifyObjectLocation: TIMEOUT', {
+                objectName: objName,
+                expectedStatus: objectTransitionStatus,
+                expectedStorageClass: storageClass,
+                elapsedMs: elapsed,
+            });
             throw new Error(
                 `verifyObjectLocation timed out after ${timeoutMs / 1000}s ` +
                 `waiting for object "${objName}" to reach status "${objectTransitionStatus}" ` +
@@ -501,6 +514,7 @@ async function verifyObjectLocation(this: Zenko, objectName: string,
             await Utils.sleep(1000);
             continue;
         } else if (res.err) {
+            this.logger.error('verifyObjectLocation: HeadObject error', { error: res.err });
             break;
         }
         assert(res.stdout);
@@ -510,18 +524,39 @@ async function verifyObjectLocation(this: Zenko, objectName: string,
         }>(res.stdout);
         assert(parsed.ok);
         const expectedClass = storageClass !== '' ? storageClass : undefined;
-        if (parsed.result?.StorageClass === expectedClass) {
+        const currentClass = parsed.result?.StorageClass;
+        const currentRestore = parsed.result?.Restore;
+        
+        // Log every 10 seconds to show progress
+        if (elapsed - lastLogTime >= 10000) {
+            this.logger.debug('verifyObjectLocation: polling', {
+                objectName: objName,
+                expectedStatus: objectTransitionStatus,
+                expectedStorageClass: storageClass,
+                currentStorageClass: currentClass,
+                currentRestore,
+                elapsedSec: Math.floor(elapsed / 1000),
+            });
+            lastLogTime = elapsed;
+        }
+        
+        if (currentClass === expectedClass) {
             conditionOk = true;
         }
         if (objectTransitionStatus == 'restored') {
-            const isRestored = !!parsed.result?.Restore &&
-                parsed.result.Restore.includes('ongoing-request="false", expiry-date=');
+            const isRestored = !!currentRestore &&
+                currentRestore.includes('ongoing-request="false", expiry-date=');
             conditionOk = conditionOk && isRestored;
         } else if (objectTransitionStatus == 'cold') {
-            conditionOk = conditionOk && !parsed.result?.Restore;
+            conditionOk = conditionOk && !currentRestore;
         }
         await Utils.sleep(1000);
     }
+    this.logger.debug('verifyObjectLocation: condition met', {
+        objectName: objName,
+        status: objectTransitionStatus,
+        storageClass,
+    });
     assert(conditionOk);
 }
 
