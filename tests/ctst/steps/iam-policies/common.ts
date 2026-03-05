@@ -76,5 +76,10 @@ Then('the user should not be able to perform the {string} action', function (thi
 });
 
 Then('the user should receive {string} error', function (this: Zenko, error : string) {
+    this.logger.debug('AAAAA 6', {
+        err: this.getResult().err,
+        statusCode: this.getResult().statusCode,
+        expectedError: error,
+    });
     assert.strictEqual(this.getResult().err!.includes(error), true);
 });
