@@ -510,6 +510,7 @@ async function verifyObjectLocation(this: Zenko, objectName: string,
             );
         }
         const res = await S3.headObject(this.getCommandParameters());
+        this.logger.debug('AAAAA 5', { err: res.err, statusCode: res.statusCode });
         if (res.err?.includes('NotFound')) {
             await Utils.sleep(1000);
             continue;

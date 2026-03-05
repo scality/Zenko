@@ -496,19 +496,31 @@ Then('the authorization result is correct', function (this: Zenko) {
         // special case: DeleteObjects always returns code 200
         // if the API is allowed but additional checks are denied.
         if (action.subAuthorizationChecks) {
+            this.logger.debug('AAAAA 1', {
+                err: this.getResult().err,
+                statusCode: this.getResult().statusCode,
+                stdout: this.getResult().stdout,
+            });
             assert.strictEqual(this.getResult().stdout?.includes('AccessDenied') ||
                 this.getResult().err?.includes('AccessDenied'), true);
         } else if (action.action === 'HeadObject' || action.action === 'HeadBucket') {
             // SDK return Unknown errors for HeadObject/HeadBucket since HEAD
             // responses have no body to parse an error code from.
+            this.logger.debug('AAAAA 2', { err: this.getResult().err, statusCode: this.getResult().statusCode });
             assert.strictEqual(this.getResult().err?.includes('AccessDenied') ||
                 this.getResult().err?.includes('403') ||
                 this.getResult().statusCode === 403, true);
         } else {
+            this.logger.debug('AAAAA 3', { err: this.getResult().err, statusCode: this.getResult().statusCode });
             assert.strictEqual(this.getResult().err?.includes('AccessDenied'), true);
         }
     } else {
         if (action.expectedResultOnAllowTest) {
+            this.logger.debug('AAAAA 4', { 
+                err: this.getResult().err,
+                statusCode: this.getResult().statusCode,
+                expectedResultOnAllowTest: action.expectedResultOnAllowTest,
+            });
             assert.strictEqual(
                 this.getResult().err?.includes(action.expectedResultOnAllowTest) ||
                 this.getResult().stdout?.includes(action.expectedResultOnAllowTest) ||
