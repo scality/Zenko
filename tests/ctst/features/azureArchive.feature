@@ -256,6 +256,7 @@ Feature: Azure Archive
     @PreMerge
     @Flaky
     @AzureArchive
+    @ColdStorage
     Scenario Outline: Pause and resume archiving to azure (PutObject after pause)
     Given a "<versioningConfiguration>" bucket
     And a transition workflow to "e2e-azure-archive" location
