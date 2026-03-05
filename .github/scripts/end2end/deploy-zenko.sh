@@ -139,12 +139,11 @@ env $(dependencies_env) envsubst < ${ZENKOVERSION_PATH} | \
     kubectl -n ${NAMESPACE} apply -f -
 env $(dependencies_env) envsubst < ${ZENKO_CR_PATH} | kubectl -n ${NAMESPACE} apply -f -
 
-k_cmd="kubectl -n ${NAMESPACE} get zenko/${ZENKO_NAME}"
-for i in $(seq 1 120); do
-    conditions=$($k_cmd -o "jsonpath={.status.conditions}")
-    if kubectl wait --for condition=Available --timeout 5s --namespace ${NAMESPACE} zenko/${ZENKO_NAME}; then
-        break;
-    fi
+retries=120
+while ! kubectl wait --for condition=Available --timeout 5s --namespace ${NAMESPACE} zenko/${ZENKO_NAME} && [ $retries -gt 0 ]; do
+    retries=$(($retries - 1))
     # Debug log to ease understanding of failures in the CI
     kubectl get pods -A
+    kubectl -n ${NAMESPACE} get zenko/${ZENKO_NAME} -o "jsonpath={.status.conditions}" || true
 done
+[ $retries -gt 0 ]
