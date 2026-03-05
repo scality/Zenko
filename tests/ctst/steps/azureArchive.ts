@@ -94,7 +94,7 @@ async function findObjectPackAndManifest(
     bucketName: string,
     objectName: string,
 ): Promise<{ manifestName?:string, manifest?:manifest, tarName?:string }> {
-    // lisintg all blobs in the container
+    // listing all blobs in the container
     const blobs = await AzureHelper.listBlobs(
         world.parameters.AzureArchiveContainer,
         getAzureCreds(world),
@@ -421,7 +421,12 @@ Given('that lifecycle is {string} for the {string} location',
             method: 'POST',
             path,
         };
-        await request(options, undefined);
+        this.logger.debug('Calling lifecycle API', { path, status, location });
+        const result = await request(options, undefined);
+        this.logger.debug('Lifecycle API response', {
+            statusCode: result.response.statusCode,
+            body: result.body,
+        });
     });
 
 Given('an azure archive location {string}', { timeout: 15 * 60 * 1000 },
