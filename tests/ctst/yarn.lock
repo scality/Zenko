@@ -1613,13 +1613,6 @@
   resolved "https://registry.yarnpkg.com/@aws/lambda-invoke-store/-/lambda-invoke-store-0.2.3.tgz#f1137f56209ccc69c15f826242cbf37f828617dd"
   integrity sha512-oLvsaPMTBejkkmHhjf09xTgk71mOqyr/409NKhRIL08If7AhVfUsJhVsx386uJaqNd42v9kWamQ9lFbkoC2dYw==
 
-"@azure/abort-controller@^1.0.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@azure/abort-controller/-/abort-controller-1.1.0.tgz#788ee78457a55af8a1ad342acb182383d2119249"
-  integrity sha512-TrRLIoSQVzfAJX9H1JeFjzAoDGcoK1IYX1UImfceTZpsyYfWr09Ss1aHW1y5TrrR3iq6RZLBwJ3E24uwPhwahw==
-  dependencies:
-    tslib "^2.2.0"
-
 "@azure/abort-controller@^2.0.0", "@azure/abort-controller@^2.1.2":
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/@azure/abort-controller/-/abort-controller-2.1.2.tgz#42fe0ccab23841d9905812c58f1082d27784566d"
@@ -1627,7 +1620,7 @@
   dependencies:
     tslib "^2.6.2"
 
-"@azure/core-auth@^1.10.0":
+"@azure/core-auth@^1.10.0", "@azure/core-auth@^1.9.0":
   version "1.10.1"
   resolved "https://registry.yarnpkg.com/@azure/core-auth/-/core-auth-1.10.1.tgz#68a17fa861ebd14f6fd314055798355ef6bedf1b"
   integrity sha512-ykRMW8PjVAn+RS6ww5cmK9U2CyH9p4Q88YJwvUslfuMmN98w/2rdGRLPqJYObapBCdzBVeDgYWdJnFPFb7qzpg==
@@ -1658,7 +1651,7 @@
     "@azure/logger" "^1.0.0"
     tslib "^2.6.2"
 
-"@azure/core-client@^1.6.2":
+"@azure/core-client@^1.9.3":
   version "1.10.1"
   resolved "https://registry.yarnpkg.com/@azure/core-client/-/core-client-1.10.1.tgz#83d78f97d647ab22e6811a7a68bb4223e7a1d019"
   integrity sha512-Nh5PhEOeY6PrnxNPsEHRr9eimxLwgLlpmguQaHKBinFYA/RU9+kOYVOQqOrTsCL+KSxrLLl1gD8Dk5BFW/7l/w==
@@ -1680,6 +1673,13 @@
     "@azure/core-client" "^1.3.0"
     "@azure/core-rest-pipeline" "^1.20.0"
 
+"@azure/core-http-compat@^2.2.0":
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/@azure/core-http-compat/-/core-http-compat-2.3.2.tgz#bb50e23e8f36ec31b582b2d161925c0d29e75b03"
+  integrity sha512-Tf6ltdKzOJEgxZeWLCjMxrxbodB/ZeCbzzA1A2qHbhzAjzjHoBVSUeSl/baT/oHAxhc4qdqVaDKnc2+iE932gw==
+  dependencies:
+    "@azure/abort-controller" "^2.1.2"
+
 "@azure/core-lro@^2.2.0":
   version "2.7.2"
   resolved "https://registry.yarnpkg.com/@azure/core-lro/-/core-lro-2.7.2.tgz#787105027a20e45c77651a98b01a4d3b01b75a08"
@@ -1690,14 +1690,14 @@
     "@azure/logger" "^1.0.0"
     tslib "^2.6.2"
 
-"@azure/core-paging@^1.1.1":
+"@azure/core-paging@^1.6.2":
   version "1.6.2"
   resolved "https://registry.yarnpkg.com/@azure/core-paging/-/core-paging-1.6.2.tgz#40d3860dc2df7f291d66350b2cfd9171526433e7"
   integrity sha512-YKWi9YuCU04B55h25cnOYZHxXYtEvQEbKST5vqRga7hWY9ydd3FZHdeQF8pyh+acWZvppw13M/LMGx0LABUVMA==
   dependencies:
     tslib "^2.6.2"
 
-"@azure/core-rest-pipeline@^1.10.1", "@azure/core-rest-pipeline@^1.22.0":
+"@azure/core-rest-pipeline@^1.19.1", "@azure/core-rest-pipeline@^1.22.0":
   version "1.22.2"
   resolved "https://registry.yarnpkg.com/@azure/core-rest-pipeline/-/core-rest-pipeline-1.22.2.tgz#7e14f21d25ab627cd07676adb5d9aacd8e2e95cc"
   integrity sha512-MzHym+wOi8CLUlKCQu12de0nwcq9k9Kuv43j4Wa++CsCpJwps2eeBQwD2Bu8snkxTtDKDx4GwjuR9E8yC8LNrg==
@@ -1730,7 +1730,7 @@
   dependencies:
     tslib "^2.6.2"
 
-"@azure/core-tracing@^1.1.2", "@azure/core-tracing@^1.3.0":
+"@azure/core-tracing@^1.2.0", "@azure/core-tracing@^1.3.0":
   version "1.3.1"
   resolved "https://registry.yarnpkg.com/@azure/core-tracing/-/core-tracing-1.3.1.tgz#e971045c901ea9c110616b0e1db272507781d5f6"
   integrity sha512-9MWKevR7Hz8kNzzPLfX4EAtGM2b8mr50HPDBvio96bURP/9C+HjdH3sBlLSNNrvRAr5/k/svoH457gB5IKpmwQ==
@@ -1755,7 +1755,7 @@
     "@typespec/ts-http-runtime" "^0.3.0"
     tslib "^2.6.2"
 
-"@azure/core-xml@^1.3.2":
+"@azure/core-xml@^1.4.3", "@azure/core-xml@^1.4.5":
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/@azure/core-xml/-/core-xml-1.5.0.tgz#cd82d511d7bcc548d206f5627c39724c5d5a4434"
   integrity sha512-D/sdlJBMJfx7gqoj66PKVmhDDaU6TKA49ptcolxdas29X7AfvLTmfAGLjAcIMBK7UZ2o4lygHIqVckOlQU3xWw==
@@ -1763,7 +1763,7 @@
     fast-xml-parser "^5.0.7"
     tslib "^2.8.1"
 
-"@azure/logger@^1.0.0", "@azure/logger@^1.3.0":
+"@azure/logger@^1.0.0", "@azure/logger@^1.1.4", "@azure/logger@^1.3.0":
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/@azure/logger/-/logger-1.3.0.tgz#5501cf85d4f52630602a8cc75df76568c969a827"
   integrity sha512-fCqPIfOcLE+CGqGPd66c8bZpwAji98tZ4JI9i/mlTNTlsIWslCfpg48s/ypyLxZTump5sypjrKn2/kY7q8oAbA==
@@ -1771,41 +1771,58 @@
     "@typespec/ts-http-runtime" "^0.3.0"
     tslib "^2.6.2"
 
-"@azure/storage-blob@12.24.0":
-  version "12.24.0"
-  resolved "https://registry.yarnpkg.com/@azure/storage-blob/-/storage-blob-12.24.0.tgz#d4ae1e29574b4a19d90eaf082cfde95f996d3f9b"
-  integrity sha512-l8cmWM4C7RoNCBOImoFMxhTXe1Lr+8uQ/IgnhRNMpfoA9bAFWoLG4XrWm6O5rKXortreVQuD+fc1hbzWklOZbw==
+"@azure/storage-blob@12.28.0":
+  version "12.28.0"
+  resolved "https://registry.yarnpkg.com/@azure/storage-blob/-/storage-blob-12.28.0.tgz#a64ce49f0fe9fe08f1f7c1b36164033678d38cf6"
+  integrity sha512-VhQHITXXO03SURhDiGuHhvc/k/sD2WvJUS7hqhiVNbErVCuQoLtWql7r97fleBlIRKHJaa9R7DpBjfE0pfLYcA==
   dependencies:
-    "@azure/abort-controller" "^1.0.0"
-    "@azure/core-auth" "^1.4.0"
-    "@azure/core-client" "^1.6.2"
-    "@azure/core-http-compat" "^2.0.0"
+    "@azure/abort-controller" "^2.1.2"
+    "@azure/core-auth" "^1.9.0"
+    "@azure/core-client" "^1.9.3"
+    "@azure/core-http-compat" "^2.2.0"
     "@azure/core-lro" "^2.2.0"
-    "@azure/core-paging" "^1.1.1"
-    "@azure/core-rest-pipeline" "^1.10.1"
-    "@azure/core-tracing" "^1.1.2"
-    "@azure/core-util" "^1.6.1"
-    "@azure/core-xml" "^1.3.2"
-    "@azure/logger" "^1.0.0"
+    "@azure/core-paging" "^1.6.2"
+    "@azure/core-rest-pipeline" "^1.19.1"
+    "@azure/core-tracing" "^1.2.0"
+    "@azure/core-util" "^1.11.0"
+    "@azure/core-xml" "^1.4.5"
+    "@azure/logger" "^1.1.4"
+    "@azure/storage-common" "^12.0.0-beta.2"
     events "^3.0.0"
-    tslib "^2.2.0"
+    tslib "^2.8.1"
 
-"@azure/storage-queue@12.23.0":
-  version "12.23.0"
-  resolved "https://registry.yarnpkg.com/@azure/storage-queue/-/storage-queue-12.23.0.tgz#56d0c40bfb8ada176cd1f898e07b223c61f496d2"
-  integrity sha512-koVDpx/lXl3bx6GiyitIsLZ4rtywpTlfwKXiuTDif+dY6PhgSyN9mrq9AsHXaHQnx2CCpmoIzRSV5n4GoQGcmg==
+"@azure/storage-common@^12.0.0", "@azure/storage-common@^12.0.0-beta.2":
+  version "12.3.0"
+  resolved "https://registry.yarnpkg.com/@azure/storage-common/-/storage-common-12.3.0.tgz#5bf257383836e67a426c91d7e9678479afe802a9"
+  integrity sha512-/OFHhy86aG5Pe8dP5tsp+BuJ25JOAl9yaMU3WZbkeoiFMHFtJ7tu5ili7qEdBXNW9G5lDB19trwyI6V49F/8iQ==
   dependencies:
-    "@azure/abort-controller" "^1.0.0"
-    "@azure/core-auth" "^1.4.0"
-    "@azure/core-client" "^1.6.2"
+    "@azure/abort-controller" "^2.1.2"
+    "@azure/core-auth" "^1.9.0"
+    "@azure/core-http-compat" "^2.2.0"
+    "@azure/core-rest-pipeline" "^1.19.1"
+    "@azure/core-tracing" "^1.2.0"
+    "@azure/core-util" "^1.11.0"
+    "@azure/logger" "^1.1.4"
+    events "^3.3.0"
+    tslib "^2.8.1"
+
+"@azure/storage-queue@12.27.0":
+  version "12.27.0"
+  resolved "https://registry.yarnpkg.com/@azure/storage-queue/-/storage-queue-12.27.0.tgz#cde0c3560b08320ed61e813132d27de716c45973"
+  integrity sha512-GoviVZrJ1BkYCmsam0gOZFqAjH7bKbnbBIEVPkgzCz3RzsB/C05jumQep+3GavZoWw7Yw4iaCNPSyyS1lbN1Gg==
+  dependencies:
+    "@azure/abort-controller" "^2.1.2"
+    "@azure/core-auth" "^1.9.0"
+    "@azure/core-client" "^1.9.3"
     "@azure/core-http-compat" "^2.0.0"
-    "@azure/core-paging" "^1.1.1"
-    "@azure/core-rest-pipeline" "^1.10.1"
-    "@azure/core-tracing" "^1.1.2"
-    "@azure/core-util" "^1.6.1"
-    "@azure/core-xml" "^1.3.2"
-    "@azure/logger" "^1.0.0"
-    tslib "^2.2.0"
+    "@azure/core-paging" "^1.6.2"
+    "@azure/core-rest-pipeline" "^1.19.1"
+    "@azure/core-tracing" "^1.2.0"
+    "@azure/core-util" "^1.11.0"
+    "@azure/core-xml" "^1.4.3"
+    "@azure/logger" "^1.1.4"
+    "@azure/storage-common" "^12.0.0"
+    tslib "^2.8.1"
 
 "@babel/code-frame@^7.26.2":
   version "7.29.0"
@@ -4414,16 +4431,16 @@ cli-table3@0.6.5, cli-table3@^0.6.0:
   optionalDependencies:
     "@colors/colors" "1.5.0"
 
-"cli-testing@git+https://github.com/scality/cli-testing.git#4cb1d59f21df96ac040ba1f19792f29b51d2aa8a":
+"cli-testing@git+https://github.com/scality/cli-testing.git#0fc7cc6ad12fd0f14b5d2c87af5cb8ccef82684d":
   version "1.3.0"
-  resolved "git+https://github.com/scality/cli-testing.git#4cb1d59f21df96ac040ba1f19792f29b51d2aa8a"
+  resolved "git+https://github.com/scality/cli-testing.git#0fc7cc6ad12fd0f14b5d2c87af5cb8ccef82684d"
   dependencies:
     "@aws-crypto/sha256-universal" "^5.2.0"
     "@aws-sdk/client-iam" "^3.879.0"
     "@aws-sdk/client-s3" "^3.879.0"
     "@aws-sdk/client-sts" "^3.879.0"
-    "@azure/storage-blob" "12.24.0"
-    "@azure/storage-queue" "12.23.0"
+    "@azure/storage-blob" "12.28.0"
+    "@azure/storage-queue" "12.27.0"
     "@keycloak/keycloak-admin-client" "^26.3.3"
     "@kubernetes/client-node" "^1.4.0"
     "@smithy/signature-v4" "^5.1.3"
@@ -4719,7 +4736,7 @@ events-universal@^1.0.0:
   dependencies:
     bare-events "^2.7.0"
 
-events@^3.0.0:
+events@^3.0.0, events@^3.3.0:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/events/-/events-3.3.0.tgz#31a95ad0a924e2d2c419a813aeb2c4e878ea7400"
   integrity sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==
@@ -6159,7 +6176,7 @@ tsconfig-paths@^4.2.0:
     minimist "^1.2.6"
     strip-bom "^3.0.0"
 
-tslib@^2.0.3, tslib@^2.2.0, tslib@^2.4.0, tslib@^2.5.0, tslib@^2.6.2, tslib@^2.8.1:
+tslib@^2.0.3, tslib@^2.4.0, tslib@^2.5.0, tslib@^2.6.2, tslib@^2.8.1:
   version "2.8.1"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.8.1.tgz#612efe4ed235d567e8aba5f2a5fab70280ade83f"
   integrity sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==
