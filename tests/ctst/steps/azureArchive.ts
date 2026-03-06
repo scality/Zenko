@@ -327,12 +327,13 @@ Then('blob for object {string} must be rehydrated',
             container: this.parameters.AzureArchiveContainer,
             blobName: `rehydrate/${tarName}`,
         });
-        await AzureHelper.sendBlobCreatedEventToQueue(
+        const sent = await AzureHelper.sendBlobCreatedEventToQueue(
             this.parameters.AzureArchiveQueue,
             this.parameters.AzureArchiveContainer,
             `rehydrate/${tarName}`,
             getAzureCreds(this),
         );
+        assert.strictEqual(sent, true, `Failed to send BlobCreatedEvent for ${tarName}`);
         this.logger.debug('BlobCreatedEvent sent successfully, waiting for backend to process');
         // Give the backend a moment to process the queue message
         await Utils.sleep(3000);
