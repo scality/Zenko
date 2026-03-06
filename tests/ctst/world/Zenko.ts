@@ -1,6 +1,7 @@
 import { World, IWorldOptions, setWorldConstructor } from '@cucumber/cucumber';
 import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
 import { AccessKey } from '@aws-sdk/client-iam';
+import { S3Client, S3ServiceException } from '@aws-sdk/client-s3';
 import { Credentials } from '@aws-sdk/client-sts';
 import { aws4Interceptor } from 'aws4-axios';
 import qs from 'qs';
@@ -924,8 +925,38 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         }
     }
 
+    createS3Client(): S3Client {
+        const credentials = Identity.getCurrentCredentials();
+        const protocol = this.parameters.ssl === false ? 'http' : 'https';
+        const subdomain = this.parameters.subdomain || Constants.DEFAULT_SUBDOMAIN;
+
+        return new S3Client({
+            region: 'us-east-1',
+            endpoint: `${protocol}://s3.${subdomain}`,
+            credentials: {
+                accessKeyId: credentials.accessKeyId,
+                secretAccessKey: credentials.secretAccessKey,
+            },
+            forcePathStyle: true,
+        });
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async sendS3Command(command: any): Promise<void> {
+        try {
+            const client = this.createS3Client();
+            const result = await client.send(command);
+            this.setResult({ stdout: JSON.stringify(result), err: null, statusCode: 200 });
+        } catch (err: unknown) {
+            if (err instanceof S3ServiceException) {
+                this.setResult({ stdout: '', err: err.name, statusCode: err.$metadata.httpStatusCode || 403 });
+            } else {
+                throw err;
+            }
+        }
+    }
+
     /**
-     * 
      * @param {Method} method HTTP Method
      * @param {string} path Path to the API endpoint
      * @param {AxiosRequestHeaders} headers Headers to the request
