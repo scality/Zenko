@@ -155,6 +155,67 @@ Given('two notification destinations', function (this: Zenko) {
     this.addToSaved('notificationDestinations', notificationDestinations);
 });
 
+function getKafkaConnectUrl(kafkaHosts: string): string {
+    const releasePrefix = kafkaHosts.split('-base-queue-')[0];
+    return `http://${releasePrefix}-base-queue-connector:8083/connectors`;
+}
+
+interface ConnectorInfo {
+    info: {
+        name: string;
+        config: {
+            pipeline?: string;
+            [key: string]: unknown;
+        };
+        [key: string]: unknown;
+    };
+}
+
+async function waitForBucketInConnectorPipeline(
+    kafkaHosts: string,
+    bucketName: string,
+    timeoutMs = 60000,
+    intervalMs = 1000,
+): Promise<void> {
+    const url = getKafkaConnectUrl(kafkaHosts);
+    const deadline = Date.now() + timeoutMs;
+    let lastConnectorCount = 0;
+    while (Date.now() < deadline) {
+        try {
+            const response = await fetch(`${url}?expand=info`, {
+                signal: AbortSignal.timeout(5000),
+            });
+            const connectors = await response.json() as Record<string, ConnectorInfo>;
+            lastConnectorCount = Object.keys(connectors).length;
+
+            for (const connector of Object.values(connectors)) {
+                const pipelineStr = connector.info?.config?.pipeline;
+                if (!pipelineStr) {
+                    continue;
+                }
+                try {
+                    const pipeline = JSON.parse(pipelineStr) as Array<Record<string, unknown>>;
+                    const matchStage = pipeline[0]?.$match as Record<string, unknown> | undefined;
+                    const nsColl = matchStage?.['ns.coll'] as Record<string, unknown> | undefined;
+                    const bucketList = nsColl?.$in as string[] | undefined;
+                    if (bucketList?.includes(bucketName)) {
+                        return;
+                    }
+                } catch {
+                    // pipeline not valid JSON, skip
+                }
+            }
+        } catch {
+            // Kafka Connect not reachable, retry
+        }
+        await Utils.sleep(intervalMs);
+    }
+    throw new Error(
+        `Timed out after ${timeoutMs}ms waiting for bucket ` +
+        `"${bucketName}" in connector pipelines (${lastConnectorCount} connectors checked)`,
+    );
+}
+
 When('i subscribe to {string} notifications for destination {int}',
     async function (this: Zenko, notificationType: string, destination: number) {
         const notificationsPerDestination : Record<string, string[]> = {};
@@ -185,8 +246,8 @@ When('i subscribe to {string} notifications for destination {int}',
             this.addCommandParameter({ notificationConfiguration: `'${JSON.stringify(destinationConfig)}'` });
         }
         await S3.putBucketNotificationConfiguration(this.getCommandParameters());
-        // waiting for oplog populator to take the putNotificationConfiguration into account
-        await Utils.sleep(10000);
+        const hosts = this.getSaved<NotificationDestination[]>('notificationDestinations')[destination].hosts;
+        await waitForBucketInConnectorPipeline(hosts, this.getSaved<string>('bucketName'));
     });
 
 When('i subscribe to {string} notifications for destination {int} with {string} filter',
@@ -235,8 +296,8 @@ When('i subscribe to {string} notifications for destination {int} with {string} 
             this.addCommandParameter({ notificationConfiguration: `'${JSON.stringify(destinationConfig)}'` });
         }
         await S3.putBucketNotificationConfiguration(this.getCommandParameters());
-        // waiting for oplog populator to take the putNotificationConfiguration into account
-        await Utils.sleep(10000);
+        const hosts = this.getSaved<NotificationDestination[]>('notificationDestinations')[destination].hosts;
+        await waitForBucketInConnectorPipeline(hosts, this.getSaved<string>('bucketName'));
     });
 
 When('i unsubscribe from {string} notifications for destination {int}',
