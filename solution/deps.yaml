@@ -128,9 +128,9 @@ vault:
   tag: 8.11.3
   envsubst: VAULT_TAG
 zenko-operator:
-  sourceRegistry: ghcr.io/scality
+  sourceRegistry: ghcr.io/scality/playground/sylvainsenechal
   image: zenko-operator
-  tag: v1.8.5
+  tag: v101.0.0
   envsubst: ZENKO_OPERATOR_TAG
 zookeeper:
   sourceRegistry: ghcr.io/adobe/zookeeper-operator
