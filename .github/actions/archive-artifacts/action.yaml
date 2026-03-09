@@ -44,14 +44,36 @@ runs:
     - name: Download previous JUnit reports
       shell: bash
       run: |-
-        # Download previous JUnit reports
-        mkdir -p /tmp/junit-previous
+        # Download previous JUnit reports, one folder per attempt
+        check_names=("${{ inputs.stage }}")
+        report_paths=("${{ inputs.junit-paths }}")
+
         for attempt in $(seq 1 $(( ${{ github.run_attempt }} - 1 )) ); do
-          curl -f -s -u "${{ inputs.user }}:${{ inputs.password }}" \
-              "${{ steps.setup-artifacts.outputs.link }}/data/${{ github.job }}.${attempt}/junit-merged.xml" \
-              -o "/tmp/junit-previous/attempt-${attempt}.xml" \
-            || echo "::warning::${{ github.job }}.${attempt} reports not available (skipped)"
+          name="${{ github.job }}.${attempt}"
+          dir="/tmp/junit-previous/${name}"
+
+          mkdir -p "$dir"
+          FILES=$(curl -f -s -u "${{ inputs.user }}:${{ inputs.password }}" \
+              "${{ steps.setup-artifacts.outputs.link }}/data/${{ github.job }}.${attempt}/reports/?format=txt" \
+            || true)
+
+          while IFS= read -r filename; do
+            [ -z "$filename" ] && continue
+            curl -f -s -u "${{ inputs.user }}:${{ inputs.password }}" \
+                "${{ steps.setup-artifacts.outputs.link }}/data/${{ github.job }}.${attempt}/reports/${filename}" \
+                -o "${dir}/${filename}" \
+              || echo "::warning::Failed to download ${{ github.job }}.${attempt} report: ${filename}"
+          done <<< "$FILES"
+
+          check_names=("${name}" "${check_names[@]}")
+          report_paths=("/tmp/junit-previous/${name}/*.xml" "${report_paths[@]}")
         done
+
+        set_output() { echo "$1<<EOF"; printf '%s\n' "${@:2}"; echo "EOF"; } >> "$GITHUB_OUTPUT"
+
+        set_output "check-names" "${check_names[@]}"
+        set_output "report-paths" "${report_paths[@]}"
+      id: download-previous-reports
 
     - name: Merge JUnit reports
       shell: bash
@@ -59,46 +81,63 @@ runs:
         # Merge JUnit reports
         STAGE=/tmp/artifacts/data/${{ inputs.stage }}
         mkdir -p "$STAGE"
-        shopt -s nullglob
+        shopt -s nullglob globstar
 
         python3 ".github/scripts/merge-junit-reports.py" "$STAGE/junit-merged.xml" \
-            ${{ inputs.junit-paths }} /tmp/junit-previous/*.xml
+            ${{ inputs.junit-paths }} /tmp/junit-previous/**/*.xml
       id: merge-junit
+      continue-on-error: true
 
     - name: Publish test report
       uses: mikepenz/action-junit-report@v6
       with:
         annotate_only: true
-        check_name: ${{ inputs.stage }}
-        report_paths: /tmp/artifacts/data/${{ inputs.stage }}/junit-merged.xml
+        check_name: ${{ steps.download-previous-reports.outputs.check-names }}
+        report_paths: ${{ steps.download-previous-reports.outputs.report-paths }}
         job_summary: ${{ steps.merge-junit.outputs.failures > 0 || steps.merge-junit.outputs.errors > 0 }}
         flaky_summary: true
         detailed_summary: true
+        verbose_summary: false
+        group_reports: false
+        include_time_in_summary: true
+      continue-on-error: true
+
+    - name: Compute build success
+      uses: mikepenz/action-junit-report@v6
+      with:
+        annotate_only: true
+        check_name: ${{ inputs.stage }}
+        skip_annotations: true
+        report_paths: /tmp/artifacts/data/${{ inputs.stage }}/junit-merged.xml
+        job_summary: false
         check_retries: true
         fail_on_failure: true
 
     - name: Upload results
-      if: inputs.trunk_token && job.status != 'cancelled'
       uses: trunk-io/analytics-uploader@v1
       with:
         junit-paths: ${{ inputs.junit-paths }}
         org-slug: ${{ github.repository_owner }}
         token: ${{ inputs.trunk_token }}
+      if: inputs.trunk_token && job.status != 'cancelled'
       continue-on-error: true
 
-    - name: Archive Cucumber test reports to artifacts
+    - name: Archive test reports to artifacts
       shell: bash
       run: |-
+        # Archive test reports to artifacts
         set -exu
         mkdir -p /tmp/artifacts/data/${STAGE}/reports
-        cp -r /artifacts/data/reports/* /tmp/artifacts/data/${STAGE}/reports/ 2>/dev/null || echo "No reports found"
+        cp -r ${{ inputs.junit-paths }} /tmp/artifacts/data/${STAGE}/reports/ 2>/dev/null || echo "No reports found"
       env:
         STAGE: ${{ inputs.stage }}
+      if: always()
       continue-on-error: true
 
     - name: Archive artifact logs and data
       shell: bash
       run: |-
+        # Archive artifact logs and data
         set -exu
 
         mkdir -p /tmp/artifacts/data/${STAGE}/kind-logs
@@ -117,6 +156,7 @@ runs:
     - name: Dump kafka
       shell: bash
       run: |-
+        # Dump kafka topics
         set -exu
 
         KAFKA=$(kubectl get pods -n ${NAMESPACE} -lkafka_cr=${ZENKO_NAME}-base-queue -o jsonpath='{.items[0].metadata.name}')
@@ -153,6 +193,7 @@ runs:
     - name: Dump MongoDB
       shell: bash
       run: |-
+        # Dump MongoDB
         set -exu
 
         ZENKO_MONGODB_DATABASE="${ZENKO_MONGODB_DATABASE:-zenko-database}"
