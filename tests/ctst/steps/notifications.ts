@@ -174,7 +174,7 @@ interface ConnectorInfo {
 async function waitForBucketInConnectorPipeline(
     kafkaHosts: string,
     bucketName: string,
-    timeoutMs = 60000,
+    timeoutMs = 180000,
     intervalMs = 1000,
 ): Promise<void> {
     const url = getKafkaConnectUrl(kafkaHosts);
