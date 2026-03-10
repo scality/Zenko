@@ -149,7 +149,6 @@ spec:
       - Transition
       - NoncurrentVersionTransition
     locationTypeAzure: true
-    locationTypeCephRadosGW: true
     locationTypeCold: true
     locationTypeDigitalOcean: true
     locationTypeGCP: true
@@ -168,7 +167,6 @@ spec:
       - location-scality-sproxyd-v1
       - location-scality-hdclient-v1
       - location-scality-hdclient-v2
-      - location-ceph-radosgw-s3-v1
       - location-nfs-mount-v1
       - location-dmf-v1
       - location-miria-v1
