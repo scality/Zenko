@@ -132,7 +132,9 @@ helm upgrade --install --version ${ZK_OPERATOR_VERSION} -n default zk-operator p
 # kafka
 kafka_crd_url=https://github.com/banzaicloud/koperator/releases/download/v${KAFKA_OPERATOR_VERSION}/kafka-operator.crds.yaml
 kubectl create -f $kafka_crd_url || kubectl replace -f $kafka_crd_url
-helm upgrade --install --version ${KAFKA_OPERATOR_VERSION} -n default kafka-operator ${KAFKA_CHART}
+helm upgrade --install --version ${KAFKA_OPERATOR_VERSION} -n default kafka-operator ${KAFKA_CHART} \
+    --set prometheusMetrics.authProxy.image.repository=quay.io/brancz/kube-rbac-proxy \
+    --set prometheusMetrics.authProxy.image.tag=v0.21.0
 
 # keycloak
 envsubst < $DIR/configs/keycloak_config.json > $DIR/configs/keycloak-realm.json
