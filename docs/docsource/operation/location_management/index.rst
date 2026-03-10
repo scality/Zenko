@@ -39,10 +39,6 @@ notice.
 
    https://wasabi.com/s3-compatible-cloud-storage/
 
--  Red Hat Ceph RADOS Gateway
-
-   https://access.redhat.com/documentation/en-us/red_hat_ceph_storage
-
 See :version-ref:`Zenko Installation
 <https://documentation.scality.com/Zenko/{version}/installation/index.html>` for
 advice on sizing, cluster configuration, and other preparations.
@@ -55,7 +51,7 @@ private cloud storage solution.
 
 Except as noted, you can integrate to S3 Connector exactly as you would
 integrate to any of the other S3-based cloud services, such as AWS, DigitalOcean
-Spaces, Wasabi Hot Cloud, or Ceph RADOS Gateway. See the S3 Connector and RING
+Spaces, or Wasabi Hot Cloud. See the S3 Connector and RING
 documentation at https://documentation.scality.com/ for more details on
 deploying and configuring S3 Connector with the RING.
 

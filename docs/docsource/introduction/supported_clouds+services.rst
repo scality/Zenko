@@ -23,7 +23,6 @@ sources:
 *  Amazon Simple Storage Service
 *  Scality RING with S3 Connector
 *  Wasabi Hot Cloud Storage
-*  Ceph RADOS Gateway
 
 In addition to its compatibility with S3- and Azure Blob-compatible cloud
 frontends, |product| can ingest data and metadata from servers using the following
@@ -72,7 +71,6 @@ private and public clouds:
 *  Amazon-S3-based private clouds:
 
    * Scality RING S3 Connector
-   * Red Hat Ceph RADOS Gateway
 
 *  Other public clouds:
 

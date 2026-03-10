@@ -16,7 +16,6 @@ storage endpoints.
    -  Scality RING with SOFS
    -  Scality RING with S3 Connector
    -  AWS S3
-   -  Ceph RADOS Gateway
    -  Google Cloud Storage (GCS)
    -  NFS 
    -  Microsoft Azure Blob
