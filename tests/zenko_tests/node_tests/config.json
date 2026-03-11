@@ -1,6 +1,7 @@
 {
     "reporterEnabled": "spec, mocha-junit-reporter",
     "mochaJunitReporterReporterOptions": {
-        "mochaFile": "junit-node-[hash].xml"
+        "mochaFile": "junit-node-[hash].xml",
+        "testsuitesTitle": "{id}"
     }
 }
