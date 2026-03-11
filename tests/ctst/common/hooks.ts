@@ -17,6 +17,10 @@ import {
     cleanupAccount,
 } from './utils';
 
+import 'cli-testing/hooks/KeycloakSetup';
+import 'cli-testing/hooks/Logger';
+import 'cli-testing/hooks/versionTags';
+
 // HTTPS should not cause any error for CTST
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
