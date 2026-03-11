@@ -156,13 +156,6 @@ E2E_IMAGE=$E2E_CTST_IMAGE_NAME:$E2E_IMAGE_TAG
 POD_NAME="${ZENKO_NAME}-ctst-tests"
 CTST_VERSION=$(sed 's/.*"cli-testing": ".*#\(.*\)".*/\1/;t;d' ../../../tests/ctst/package.json)
 
-# Configure keycloak
-docker run \
-    --rm \
-    --network=host \
-    "${E2E_IMAGE}" /bin/bash \
-    -c "SUBDOMAIN=${SUBDOMAIN} CONTROL_PLANE_INGRESS_ENDPOINT=${OIDC_ENDPOINT} ACCOUNT=${ZENKO_ACCOUNT_NAME} KEYCLOAK_REALM=${KEYCLOAK_TEST_REALM_NAME} STORAGE_MANAGER=${STORAGE_MANAGER_USER_NAME} STORAGE_ACCOUNT_OWNER=${STORAGE_ACCOUNT_OWNER_USER_NAME} DATA_CONSUMER=${DATA_CONSUMER_USER_NAME} DATA_ACCESSOR=${DATA_ACCESSOR_USER_NAME} /ctst/node_modules/cli-testing/bin/seedKeycloak.sh"; [[ $? -eq 1 ]] && exit 1 || echo 'Keycloak Configured!'
-
 # Grant access to Kube API (insecure, only for testing)
 kubectl create clusterrolebinding serviceaccounts-cluster-admin \
   --clusterrole=cluster-admin \
@@ -178,6 +171,14 @@ kubectl run $POD_NAME \
         --attach=True \
         --image-pull-policy=IfNotPresent \
         --env=TARGET_VERSION=$VERSION  \
+        --env=ACCOUNT=${ZENKO_ACCOUNT_NAME} \
+        --env=STORAGE_MANAGER=${STORAGE_MANAGER_USER_NAME} \
+        --env=STORAGE_ACCOUNT_OWNER=${STORAGE_ACCOUNT_OWNER_USER_NAME} \
+        --env=DATA_CONSUMER=${DATA_CONSUMER_USER_NAME} \
+        --env=DATA_ACCESSOR=${DATA_ACCESSOR_USER_NAME} \
+        --env=SEED_KEYCLOAK_DEFAULT_ROLES=true \
+        --env=KEYCLOAK_HOST=${KEYCLOAK_TEST_HOST} \
+        --env=KEYCLOAK_REALM=${KEYCLOAK_TEST_REALM_NAME} \
         --env=AZURE_BLOB_URL=$AZURE_BACKEND_ENDPOINT  \
         --env=AZURE_QUEUE_URL=$AZURE_BACKEND_QUEUE_ENDPOINT \
         --env=VERBOSE=1 \
