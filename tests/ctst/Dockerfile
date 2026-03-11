@@ -4,7 +4,7 @@ ARG DRCTL_TAG=latest
 FROM ghcr.io/scality/sorbet:$SORBET_TAG AS sorbet
 FROM ghcr.io/scality/zenko-drctl:$DRCTL_TAG AS drctl
 
-FROM node:22.19.0-bookworm-slim
+FROM node:24.14.0-bookworm-slim
 
 ARG AWSCLI_VERSION=2.17.39
 
