@@ -392,18 +392,26 @@ Then('the storage class of object {string} must stay {string} for {int} seconds'
 When('i run sorbetctl to retry failed restore for {string} location',
     { timeout: 10 * 60 * 1000 }, async function (this: Zenko, location: string) {
         const command = `/ctst/sorbetctl forward list failed --trigger-retry --skip-invalid \
+            --limit 10000 \
+            --yes-really-drop=999999 \
             --kafka-dead-letter-topic=${this.parameters.KafkaDeadLetterQueueTopic} \
             --kafka-object-task-topic=${this.parameters.KafkaObjectTaskTopic} \
             --kafka-gc-request-topic=${this.parameters.KafkaGCRequestTopic} \
             --kafka-brokers ${this.parameters.KafkaHosts}`;
         try {
-            this.logger.debug('Running command', { command, location });
+            this.logger.info('Running sorbetctl command', { command, location });
             const result = await util.promisify(exec)(command);
-            this.logger.debug('Sorbetctl command result', {
-                stdout: result.stdout,
-                stderr: result.stderr,
+            this.logger.info('Sorbetctl command stdout', { stdout: result.stdout });
+            if (result.stderr) {
+                this.logger.info('Sorbetctl command stderr', { stderr: result.stderr });
+            }
+        } catch (err: unknown) {
+            const execErr = err as { stdout?: string; stderr?: string; message?: string };
+            this.logger.error('Sorbetctl command failed', {
+                stdout: execErr.stdout,
+                stderr: execErr.stderr,
+                message: execErr.message,
             });
-        } catch (err) {
             assert.ifError(err);
         }
     });
