@@ -42,7 +42,7 @@ interface QueueConfiguration {
 async function copyObject(world: Zenko, sourceObject: string) {
     await putObject(world, sourceObject);
     world.resetCommand();
-    let objName = `object-${Utils.randomString()}`.toLocaleLowerCase();
+    let objName = `notif-s3:objectcreated:copy-target-${Utils.randomString()}`.toLocaleLowerCase();
     if (world.getSaved<string>('filterType')) {
         objName = world.getSaved<string>('filterType') === 'prefix' ?
             `${world.getSaved<string>('objectNamePrefix') }${objName}` :
@@ -276,7 +276,7 @@ When('a {string} event is triggered {string} {string}',
     async function (this: Zenko, notificationType: string, enable: string, filterType: string) {
         this.resetCommand();
         this.addToSaved('notificationEventType', notificationType);
-        let objName = `object-${Utils.randomString()}`.toLocaleLowerCase();
+        let objName = `notif-${notificationType}-${enable}-${filterType}-${Utils.randomString()}`.toLocaleLowerCase();
         if (enable === 'with') {
             this.addToSaved('filterType', filterType);
             objName = filterType === 'prefix' ? `${this.getSaved<string>('objectNamePrefix')}${objName}` :
