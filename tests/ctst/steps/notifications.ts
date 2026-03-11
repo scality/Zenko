@@ -4,6 +4,7 @@ import { S3, Utils, AWSVersionObject, NotificationDestination } from 'cli-testin
 import { Consumer, stringDeserializers } from '@platformatic/kafka';
 import Zenko from 'world/Zenko';
 import { putObject } from './utils/utils';
+import { waitForBucketInConnectorPipeline } from './utils/kafka';
 
 const KAFKA_TESTS_TIMEOUT = Number(process.env.KAFKA_TESTS_TIMEOUT) || 60000;
 
@@ -185,8 +186,8 @@ When('i subscribe to {string} notifications for destination {int}',
             this.addCommandParameter({ notificationConfiguration: `'${JSON.stringify(destinationConfig)}'` });
         }
         await S3.putBucketNotificationConfiguration(this.getCommandParameters());
-        // waiting for oplog populator to take the putNotificationConfiguration into account
-        await Utils.sleep(10000);
+        const hosts = this.getSaved<NotificationDestination[]>('notificationDestinations')[destination].hosts;
+        await waitForBucketInConnectorPipeline(hosts, this.getSaved<string>('bucketName'));
     });
 
 When('i subscribe to {string} notifications for destination {int} with {string} filter',
@@ -235,8 +236,8 @@ When('i subscribe to {string} notifications for destination {int} with {string} 
             this.addCommandParameter({ notificationConfiguration: `'${JSON.stringify(destinationConfig)}'` });
         }
         await S3.putBucketNotificationConfiguration(this.getCommandParameters());
-        // waiting for oplog populator to take the putNotificationConfiguration into account
-        await Utils.sleep(10000);
+        const hosts = this.getSaved<NotificationDestination[]>('notificationDestinations')[destination].hosts;
+        await waitForBucketInConnectorPipeline(hosts, this.getSaved<string>('bucketName'));
     });
 
 When('i unsubscribe from {string} notifications for destination {int}',
