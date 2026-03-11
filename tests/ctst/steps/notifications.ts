@@ -1,7 +1,7 @@
 import { Then, Given, When } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
-import { S3, Utils, KafkaHelper, AWSVersionObject, NotificationDestination } from 'cli-testing';
-import { Message } from 'node-rdkafka';
+import { S3, Utils, AWSVersionObject, NotificationDestination } from 'cli-testing';
+import { Consumer, stringDeserializers } from '@platformatic/kafka';
 import Zenko from 'world/Zenko';
 import { putObject } from './utils/utils';
 
@@ -327,30 +327,69 @@ Then('notifications should be enabled for {string} event in destination {int}',
 
 Then('i should {string} a notification for {string} event in destination {int}',
     async function (this: Zenko, receive: string, notificationType: string, destination: number) {
+        const { topic, hosts } = this.getSaved<NotificationDestination[]>('notificationDestinations')[destination];
+        const groupId = `ctst_kafka_consumer_group_${Utils.randomString()}`;
 
-        const receivedNotification = await KafkaHelper.consumeTopicUntilCondition(
-            this.getSaved<NotificationDestination[]>('notificationDestinations')[destination].topic,
-            this.getSaved<NotificationDestination[]>('notificationDestinations')[destination].hosts,
-            `ctst_kafka_consumer_group_${Utils.randomString()}`,
-            KAFKA_TESTS_TIMEOUT,
-            (msg: Message) => {
-                try {
-                    const notification = (JSON.parse(msg.value?.toString() as string
-                        || '{Records:[]}') as { Records: Notification[] }).Records[0] ;
-                    const bucketNameMatches = this.getSaved<string>('bucketName') === notification?.s3.bucket.name;
-                    const objectNameMatches = this.getSaved<string>('objectName') === notification?.s3.object.key;
-                    const eventTypeMatches = notificationType === notification?.eventName;
-                    if (bucketNameMatches && objectNameMatches && eventTypeMatches) {
-                        return true;
+        const consumer = new Consumer({
+            clientId: groupId,
+            groupId,
+            bootstrapBrokers: [hosts],
+            deserializers: stringDeserializers,
+        });
+
+        let receivedNotification = false;
+        const startTime = Date.now();
+
+        try {
+            const stream = await consumer.consume({
+                topics: [topic],
+                mode: 'earliest',
+                sessionTimeout: 10000,
+                heartbeatInterval: 500,
+            });
+
+            // Force-close the stream after timeout to avoid hanging
+            // when no more messages arrive (e.g. "not receive" tests)
+            const timeoutHandle = setTimeout(() => {
+                stream.close().catch(() => {});
+            }, KAFKA_TESTS_TIMEOUT);
+
+            try {
+                for await (const msg of stream) {
+                    if (Date.now() - startTime >= KAFKA_TESTS_TIMEOUT) {
+                        break;
                     }
-                    return false;
-                } catch (error) {
-                    this.logger.debug('error when parsing notification message', { error });
-                    return false;
+                    this.logger.debug('Kafka message received', {
+                        topic: msg.topic,
+                        partition: msg.partition,
+                        offset: msg.offset?.toString(),
+                        value: msg.value,
+                    });
+                    try {
+                        const notification = (JSON.parse(msg.value as string
+                            || '{"Records":[]}') as { Records: Notification[] }).Records[0];
+                        const bucketNameMatches =
+                            this.getSaved<string>('bucketName') === notification?.s3.bucket.name;
+                        const objectNameMatches =
+                            this.getSaved<string>('objectName') === notification?.s3.object.key;
+                        const eventTypeMatches = notificationType === notification?.eventName;
+                        if (bucketNameMatches && objectNameMatches && eventTypeMatches) {
+                            receivedNotification = true;
+                            break;
+                        }
+                    } catch (error) {
+                        this.logger.debug('error when parsing notification message', { error });
+                    }
                 }
-            },
-        );
+            } finally {
+                clearTimeout(timeoutHandle);
+            }
+
+            await stream.close();
+        } finally {
+            await consumer.close();
+        }
+
         const expected = receive === 'receive';
         assert.strictEqual(receivedNotification, expected);
     });
-
