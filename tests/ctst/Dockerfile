@@ -6,7 +6,7 @@ ARG DRCTL_TAG=latest
 FROM $SORBET_IMAGE:$SORBET_TAG AS sorbet
 FROM $DRCTL_IMAGE:$DRCTL_TAG AS drctl
 
-FROM node:22.19.0-bookworm-slim
+FROM node:24.14.0-bookworm-slim
 
 ARG AWSCLI_VERSION=2.17.39
 
