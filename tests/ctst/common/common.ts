@@ -4,7 +4,7 @@ import { CacheHelper, Constants, Identity, IdentityEnum, S3, Utils } from 'cli-t
 import Zenko from 'world/Zenko';
 import { safeJsonParse } from './utils';
 import assert from 'assert';
-import { Admin, Kafka } from 'kafkajs';
+import { Admin } from '@platformatic/kafka';
 import {
     createBucketWithConfiguration,
     putMpuObject,
@@ -99,8 +99,24 @@ async function addUserMetadataToObject(this: Zenko, objectName: string | undefin
 async function getTopicsOffsets(topics: string[], kafkaAdmin: Admin) {
     const offsets = [];
     for (const topic of topics) {
-        const partitions: ({ high: string; low: string; })[] =
-            await kafkaAdmin.fetchTopicOffsets(topic);
+        const metadata = await kafkaAdmin.metadata({ topics: [topic] });
+        const partitionCount = metadata.topics.get(topic)?.partitionsCount ?? 0;
+        const partitionIndexes = Array.from({ length: partitionCount }, (_, i) => ({
+            partitionIndex: i,
+            timestamp: BigInt(-2),
+        }));
+        const earliestResult = await kafkaAdmin.listOffsets({
+            topics: [{ name: topic, partitions: partitionIndexes }],
+        });
+        const latestResult = await kafkaAdmin.listOffsets({
+            topics: [{ name: topic, partitions: partitionIndexes.map(p => ({ ...p, timestamp: BigInt(-1) })) }],
+        });
+        const partitions = [];
+        for (let i = 0; i < partitionCount; i++) {
+            const low = earliestResult[0]?.partitions.find(p => p.partitionIndex === i)?.offset ?? BigInt(0);
+            const high = latestResult[0]?.partitions.find(p => p.partitionIndex === i)?.offset ?? BigInt(0);
+            partitions.push({ low: String(low), high: String(high) });
+        }
         offsets.push({ topic, partitions });
     }
     return offsets;
@@ -305,10 +321,15 @@ Then('kafka consumed messages should not take too much place on disk', { timeout
             assert.fail('Kafka cleaner did not clean the topics within the expected time');
         }, checkInterval * 10); // Timeout after 10 Kafka cleaner intervals
 
+        const kafkaAdmin = new Admin({
+            clientId: 'ctst-kafka-cleaner-check',
+            bootstrapBrokers: [this.parameters.KafkaHosts],
+        });
+        
         try {
             const ignoredTopics = ['dead-letter'];
-            const kafkaAdmin = new Kafka({ brokers: [this.parameters.KafkaHosts] }).admin();
-            const topics: string[] = (await kafkaAdmin.listTopics())
+            const allTopics = await kafkaAdmin.listTopics();
+            const topics: string[] = allTopics
                 .filter(t => (t.includes(this.parameters.InstanceID) &&
                     !ignoredTopics.some(e => t.includes(e))));
 
@@ -368,6 +389,7 @@ Then('kafka consumed messages should not take too much place on disk', { timeout
             assert(topics.length === 0, `Topics ${topics.join(', ')} still have not been cleaned`);
         } finally {
             clearTimeout(timeoutID);
+            await kafkaAdmin.close();
         }
     });
 
