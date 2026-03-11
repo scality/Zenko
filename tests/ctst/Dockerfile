@@ -20,19 +20,12 @@ WORKDIR /ctst
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     apt-utils \
-    python3 \
-    build-essential \
     ssh \
     git \
     curl \
     unzip \
     jq \
     ca-certificates \
-    librdkafka-dev \
-    zlib1g-dev \
-    libssl-dev \
-    libffi-dev \
-    libzstd-dev \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
