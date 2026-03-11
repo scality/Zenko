@@ -499,10 +499,9 @@ Then('the authorization result is correct', function (this: Zenko) {
             assert.strictEqual(this.getResult().stdout?.includes('AccessDenied') ||
                 this.getResult().err?.includes('AccessDenied'), true);
         } else if (action.action === 'HeadObject' || action.action === 'HeadBucket') {
-            // SDK return Unknown errors for HeadObject, but error code from
-            // S3 is correct.
             assert.strictEqual(this.getResult().err?.includes('AccessDenied') ||
-                this.getResult().err?.includes('403'), true);
+                this.getResult().err?.includes('403')||
+                this.getResult().statusCode === 403, true);
         } else {
             assert.strictEqual(this.getResult().err?.includes('AccessDenied'), true);
         }
