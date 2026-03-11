@@ -302,12 +302,13 @@ Then('blob for object {string} must be rehydrated',
     async function (this: Zenko, objectName: string) {
         const tarName = await isObjectRehydrated(this, objectName);
         assert(tarName);
-        await AzureHelper.sendBlobCreatedEventToQueue(
+        const sent = await AzureHelper.sendBlobCreatedEventToQueue(
             this.parameters.AzureArchiveQueue,
             this.parameters.AzureArchiveContainer,
             `rehydrate/${tarName}`,
             getAzureCreds(this),
         );
+        assert.strictEqual(sent, true, `Failed to send BlobCreatedEvent for ${tarName}, object ${objectName}`);
     });
 
 /**
