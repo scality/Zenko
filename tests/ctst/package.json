@@ -36,5 +36,8 @@
   "scripts": {
     "build": "tsc --build tsconfig.json",
     "lint": "eslint ."
+  },
+  "resolutions": {
+    "@azure/core-client": "1.10.1"
   }
 }
