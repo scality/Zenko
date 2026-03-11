@@ -96,7 +96,17 @@
         "vscode": {
             "extensions": [
                 "ms-kubernetes-tools.vscode-kubernetes-tools",
-            ]
+                "cucumberopen.cucumber-official"
+            ],
+            "settings": {
+                "cucumber.glue": [
+                    "tests/ctst/steps/**/*.ts",
+                    "tests/ctst/common/**/*.ts"
+                ],
+                "cucumber.features": [
+                    "tests/ctst/features/**/*.feature"
+                ]
+            }
         }
     },
     "containerEnv": {
