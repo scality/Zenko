@@ -392,7 +392,7 @@ jobs:
           GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
       - uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '24'
           cache: yarn
           cache-dependency-path: tests/ctst/yarn.lock
       - name: Install ctst test dependencies
