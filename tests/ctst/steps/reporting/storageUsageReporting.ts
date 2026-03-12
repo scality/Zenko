@@ -14,8 +14,7 @@ interface ReportingUsageResponse {
     accounts: Record<string, Record<string, LocationUsage>>;
 }
 
-When('the user retrieves the storage usage report',
-    async function (this: Zenko) {
+When('the user retrieves the storage usage report', async function (this: Zenko) {
         const result = await this.managementAPIRequest(
             'GET',
             `/instance/${this.parameters.InstanceID}/reporting/usage`,
@@ -23,8 +22,7 @@ When('the user retrieves the storage usage report',
         this.addToSaved('reportingResponse', result);
     });
 
-When('the user retrieves the storage usage report as a data consumer user',
-    async function (this: Zenko) {
+When('the user retrieves the storage usage report as a data consumer user', async function (this: Zenko) {
         const result = await this.managementAPIRequest(
             'GET',
             `/instance/${this.parameters.InstanceID}/reporting/usage`,
@@ -35,15 +33,13 @@ When('the user retrieves the storage usage report as a data consumer user',
         this.addToSaved('reportingResponse', result);
     });
 
-Then('the storage usage report http response code is {int}',
-    function (this: Zenko, expectedStatus: number) {
+Then('the storage usage report http response code is {int}', function (this: Zenko, expectedStatus: number) {
         const response = this.getSaved<{ statusCode: number }>('reportingResponse');
         assert.strictEqual(response.statusCode, expectedStatus,
             `Expected status ${expectedStatus} but got ${response.statusCode}`);
     });
 
-Then('the storage usage report response has a valid structure',
-    function (this: Zenko) {
+Then('the storage usage report response has a valid structure', function (this: Zenko) {
         const response = this.getSaved<{ statusCode: number; data: ReportingUsageResponse }>(
             'reportingResponse');
         const data = response.data;
@@ -55,8 +51,7 @@ Then('the storage usage report response has a valid structure',
             'accounts should be an object');
     });
 
-Then('the storage usage report contains the additional accounts',
-    async function (this: Zenko) {
+Then('the storage usage report contains the additional accounts', async function (this: Zenko) {
         const response = this.getSaved<{ statusCode: number; data: ReportingUsageResponse }>(
             'reportingResponse');
         const accountNames = this.getSavedIdentities()
@@ -68,8 +63,7 @@ Then('the storage usage report contains the additional accounts',
         }
     });
 
-Then('the storage usage report contains the test account with location {string}',
-    async function (this: Zenko, locationName: string) {
+Then('the storage usage report contains the test account with location {string}', async function (this: Zenko, locationName: string) {
         const response = this.getSaved<{ statusCode: number; data: ReportingUsageResponse }>(
             'reportingResponse');
         const accountName = this.getSaved<string>('accountName');
@@ -84,8 +78,7 @@ Then('the storage usage report contains the test account with location {string}'
         this.addToSaved('reportedLocationUsage', accountData[locationName]);
     });
 
-Then('the location metrics show {int} objects and {int} bytes',
-    function (this: Zenko, expectedObjects: number, expectedBytes: number) {
+Then('the location metrics show {int} objects and {int} bytes', function (this: Zenko, expectedObjects: number, expectedBytes: number) {
         const usage = this.getSaved<LocationUsage>('reportedLocationUsage');
         assert.strictEqual(usage.objectsTotal, expectedObjects,
             `Expected ${expectedObjects} objects but got ${usage.objectsTotal}`);
