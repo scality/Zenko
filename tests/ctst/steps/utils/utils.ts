@@ -37,11 +37,11 @@ export async function deleteFile(path: string) {
     return fsp.unlink(path);
 }
 
-export async function uploadSetup(world: Zenko, action: string, body?: string) {
+export async function uploadSetup(world: Zenko, action: string, body?: string, size?: number) {
     if (action !== 'PutObject' && action !== 'UploadPart') {
         return;
     }
-    const objectSize = world.getSaved<number>('objectSize') || 0;
+    const objectSize = size ?? world.getSaved<number>('objectSize') || 0;
     if (body || objectSize > 0) {
         const tempFileName = `${Utils.randomString()}_${world.getSaved<string>('objectName')}`;
         world.addToSaved('tempFileName', `/tmp/${tempFileName}`);
@@ -289,7 +289,7 @@ async function copyObject(world: Zenko, srcObjectName?: string, dstObjectName?: 
     return result;
 }
 
-async function putObject(world: Zenko, objectName?: string, content?: string) {
+async function putObject(world: Zenko, objectName?: string, content?: string, objectSize?: number) {
     world.resetCommand();
     let finalObjectName = objectName;
     if (!finalObjectName) {
@@ -297,7 +297,7 @@ async function putObject(world: Zenko, objectName?: string, content?: string) {
     }
     world.addToSaved('objectName', finalObjectName);
     world.logger.debug('Adding object', { objectName: finalObjectName });
-    await uploadSetup(world, 'PutObject', content);
+    await uploadSetup(world, 'PutObject', content, objectSize);
     world.addCommandParameter({ key: finalObjectName });
     world.addCommandParameter({ bucket: world.getSaved<string>('bucketName') });
     const userMetadata = world.getSaved<string>('userMetadata');

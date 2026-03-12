@@ -370,10 +370,7 @@ export async function prepareMetricsScenarios(
             await world.createAccount(scenarioId, true);
             await createBucketWithConfiguration(world, scenarioId, versioning);
             for (let i = 0; i < objectCount; i++) {
-                if (objectSize > 0) {
-                    world.addToSaved('objectSize', objectSize);
-                }
-                await putObject(world);
+                await putObject(world, undefined, undefined, objectSize);
             }
             output[scenarioId] = Identity.getCurrentCredentials()!;
         }
