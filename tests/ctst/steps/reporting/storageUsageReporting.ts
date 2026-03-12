@@ -1,8 +1,7 @@
-import { When, Then, ITestCaseHookParameter } from '@cucumber/cucumber';
+import { When, Then } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
 import Zenko from '../../world/Zenko';
 import { IdentityEnum } from 'cli-testing';
-import { prepareMetricsScenarios } from '../../common/utils';
 
 interface LocationUsage {
     bytesTotal: number;
@@ -13,18 +12,6 @@ interface ReportingUsageResponse {
     isTruncated: boolean;
     marker: string | null;
     accounts: Record<string, Record<string, LocationUsage>>;
-}
-
-export async function prepareStorageUsageReportingScenarios(
-    world: Zenko, scenarioConfiguration: ITestCaseHookParameter,
-) {
-    await prepareMetricsScenarios(world, scenarioConfiguration, {
-        versioning: '',
-        jobNamespace: 'storage-usage-reporting-setup',
-        jobName: 'end2end-ops-count-items',
-        objectSize: 200,
-        objectCount: 3,
-    });
 }
 
 When('the user retrieves the storage usage report',

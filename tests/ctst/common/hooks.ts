@@ -9,9 +9,7 @@ import Zenko from '../world/Zenko';
 import { CacheHelper, Identity } from 'cli-testing';
 import { prepareQuotaScenarios, teardownQuotaScenarios } from 'steps/quotas/quotas';
 import { prepareUtilizationScenarios } from 'steps/utilization/utilizationAPI';
-import {
-    prepareStorageUsageReportingScenarios,
-} from 'steps/reporting/storageUsageReporting';
+import { prepareMetricsScenarios } from './utils';
 import { cleanS3Bucket } from './common';
 import { cleanAzureContainer, cleanZenkoLocation } from 'steps/azureArchive';
 import { displayDebuggingInformation, preparePRA } from 'steps/pra';
@@ -64,7 +62,13 @@ Before({ tags: '@UtilizationAPI', timeout: 1200000 }, async function (scenarioOp
 });
 
 Before({ tags: '@PrepareStorageUsageReportingScenarios', timeout: 1200000 }, async function (scenarioOptions) {
-    await prepareStorageUsageReportingScenarios(this as Zenko, scenarioOptions);
+    await prepareMetricsScenarios(this as Zenko, scenarioOptions, {
+        versioning: '',
+        jobNamespace: 'storage-usage-reporting-setup',
+        jobName: 'end2end-ops-count-items',
+        objectSize: 200,
+        objectCount: 3,
+    });
 });
 
 After(async function (this: Zenko, results) {
