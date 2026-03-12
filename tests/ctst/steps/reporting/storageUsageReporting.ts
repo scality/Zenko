@@ -14,23 +14,13 @@ interface ReportingUsageResponse {
     accounts: Record<string, Record<string, LocationUsage>>;
 }
 
-const roleToWorldParam: Record<string, keyof Zenko['parameters']> = {
-    /* eslint-disable camelcase */
-    storage_manager: 'StorageManagerUsername',
-    data_consumer: 'DataConsumerUsername',
-    storage_account_owner: 'StorageAccountOwnerUsername',
-    /* eslint-enable camelcase */
-};
-
 When('the user retrieves the storage usage report as {string}', async function (this: Zenko, role: string) {
-    const param = roleToWorldParam[role];
-    const username = (param && this.parameters[param]) || role;
     const result = await this.managementAPIRequest(
         'GET',
         `/instance/${this.parameters.InstanceID}/reporting/usage`,
         {},
         {},
-        username as string,
+        role,
     );
     this.addToSaved('reportingResponse', result);
 });
