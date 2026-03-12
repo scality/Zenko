@@ -107,12 +107,9 @@ async function getTopicsOffsets(topics: string[], kafkaAdmin: Admin) {
 }
 
 Given('{int} additional accounts', async function (this: Zenko, count: number) {
-    const accountNames: string[] = [];
     for (let i = 0; i < count; i++) {
-        const name = await this.createAccount();
-        accountNames.push(name);
+        await this.createAccount();
     }
-    this.addToSaved('additionalAccountNames', accountNames);
 });
 
 async function createBucket(world: Zenko, versioning: string, bucketName: string) {

@@ -104,16 +104,6 @@ After({ tags: '@AzureArchive' }, async function (this: Zenko) {
     );
 });
 
-After(async function (this: Zenko, results) {
-    const additionalAccountNames = this.getSaved<string[]>('additionalAccountNames');
-    if (results.result?.status === 'FAILED' || !additionalAccountNames) {
-        return;
-    }
-    for (const accountName of additionalAccountNames) {
-        await cleanupAccount(this, accountName);
-    }
-});
-
 After({ tags: '@BP-ASSUME_ROLE_USER_CROSS_ACCOUNT'}, async function (this: Zenko, results) {
     const crossAccountName = this.getSaved<string>('crossAccountName');
 

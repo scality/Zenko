@@ -1,6 +1,7 @@
 import { When, Then, ITestCaseHookParameter } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
 import Zenko from '../../world/Zenko';
+import { IdentityEnum } from 'cli-testing';
 import { prepareMetricsScenarios } from '../../common/utils';
 
 interface LocationUsage {
@@ -71,7 +72,9 @@ Then('the storage usage report contains the additional accounts',
     async function (this: Zenko) {
         const response = this.getSaved<{ statusCode: number; data: ReportingUsageResponse }>(
             'reportingResponse');
-        const accountNames = this.getSaved<string[]>('additionalAccountNames');
+        const accountNames = this.getSavedIdentities()
+            .filter(id => id.identityType === IdentityEnum.ACCOUNT)
+            .map(id => id.accountName);
         for (const accountName of accountNames) {
             assert.ok(accountName in response.data.accounts,
                 `Account ${accountName} should be present in the report`);

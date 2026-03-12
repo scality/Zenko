@@ -32,6 +32,12 @@ interface ServiceUsersCredentials {
 }
 
 // Zenko entities
+export interface SavedIdentity {
+    identityName: string;
+    identityType: IdentityEnum;
+    accountName: string;
+}
+
 export enum EntityType {
     ACCOUNT = 'ACCOUNT',
     IAM_USER = 'IAM_USER',
@@ -770,17 +776,24 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     }
 
     saveIdentityInformation(name: string, identity: IdentityEnum, accountName: string) {
-        this.addToSaved('identityNameForScenario', name);
-        this.addToSaved('identityTypeForScenario', identity);
-        this.addToSaved('accountNameForScenario', accountName);
+        const identities = this.getSavedIdentities();
+        identities.push({ identityName: name, identityType: identity, accountName });
+        this.addToSaved('savedIdentities', identities);
+    }
+
+    getSavedIdentities(): SavedIdentity[] {
+        return this.getSaved<SavedIdentity[]>('savedIdentities') || [];
+    }
+
+    getSavedIdentity(index = -1): SavedIdentity {
+        const identities = this.getSavedIdentities();
+        const i = index < 0 ? identities.length + index : index;
+        return identities[i];
     }
 
     useSavedIdentity() {
-        Identity.useIdentity(
-            this.getSaved<IdentityEnum>('identityTypeForScenario'),
-            this.getSaved<string>('identityNameForScenario'),
-            this.getSaved<string>('accountNameForScenario'),
-        );
+        const last = this.getSavedIdentity();
+        Identity.useIdentity(last.identityType, last.identityName, last.accountName);
     }
 
     /**
