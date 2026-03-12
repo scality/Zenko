@@ -76,7 +76,6 @@ export interface ZenkoWorldParameters extends ClientOptions {
     KeycloakRealm: string;
     KeycloakClientId: string;
     KeycloakGrantType: string;
-    KeycloakUsernameNoRights: string;
     StorageManagerUsername: string;
     StorageAccountOwnerUsername: string;
     DataConsumerUsername: string;

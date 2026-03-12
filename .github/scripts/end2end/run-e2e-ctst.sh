@@ -112,7 +112,6 @@ WORLD_PARAMETERS="$(jq -c <<EOF
   "KafkaHosts":"${KAFKA_HOST_PORT}",
   "KafkaAuthHosts":"${KAFKA_AUTH_HOST_PORT}",
   "KeycloakUsername":"${KEYCLOAK_TEST_USER}",
-  "KeycloakUsernameNoRights":"${KEYCLOAK_TEST_USER}-norights",
   "KeycloakPassword":"${KEYCLOAK_TEST_PASSWORD}",
   "KeycloakHost":"${KEYCLOAK_TEST_HOST}",
   "KeycloakPort":"${KEYCLOAK_TEST_PORT}",

@@ -36,14 +36,14 @@ When('the user retrieves the storage usage report',
         this.addToSaved('reportingResponse', result);
     });
 
-When('the user retrieves the storage usage report as a no-rights user',
+When('the user retrieves the storage usage report as a data consumer user',
     async function (this: Zenko) {
         const result = await this.managementAPIRequest(
             'GET',
             `/instance/${this.parameters.InstanceID}/reporting/usage`,
             {},
             {},
-            this.parameters.KeycloakUsernameNoRights || 'storage_manager-norights',
+            this.parameters.DataConsumerUsername || 'data_consumer',
         );
         this.addToSaved('reportingResponse', result);
     });

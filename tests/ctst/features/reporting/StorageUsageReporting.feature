@@ -14,8 +14,8 @@ Feature: Storage Usage Reporting API
     @2.14.0
     @PreMerge
     @StorageUsageReporting
-    Scenario: No-rights Keycloak user cannot retrieve the storage usage report
-        When the user retrieves the storage usage report as a no-rights user
+    Scenario: Data consumer user cannot retrieve the storage usage report
+        When the user retrieves the storage usage report as a data consumer user
         Then the storage usage report http response code is 403
 
     @2.14.0
