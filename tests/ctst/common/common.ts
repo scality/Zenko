@@ -202,12 +202,6 @@ Given('{int} objects {string} of size {int} bytes with user metadata {string}',
         assert.ifError(result?.stderr || result?.err);
     });
 
-Given('{int} mpu objects {string} of size {int} bytes with user metadata {string}',
-    async function (this: Zenko, numberObjects: number, objectName: string, sizeBytes: number, userMD: string) {
-        const result = await addMultipleObjects.call(this, numberObjects, objectName, sizeBytes, userMD);
-        assert.ifError(result?.stderr || result?.err);
-    });
-
 Given('a tag on object {string} with key {string} and value {string}',
     async function (this: Zenko, objectName: string, tagKey: string, tagValue: string) {
         this.resetCommand();

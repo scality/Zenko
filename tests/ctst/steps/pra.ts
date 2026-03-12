@@ -182,17 +182,6 @@ Given('a DR installed', { timeout: installTimeout + 2000 }, async function (this
     return;
 });
 
-Given('a DR failing to be installed', { timeout: 130000 }, async function (this: Zenko) {
-    Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
-    const credentials = Identity.getCurrentCredentials();
-    await createSecret(this, 'drctl-s3-creds', {
-        accessKey: Buffer.from(credentials.accessKeyId).toString('base64'),
-        secretAccessKey: Buffer.from(credentials.secretAccessKey).toString('base64'),
-    });
-    await installPRA(this, 'http://s3.dr.zenko.local');
-    return;
-});
-
 Then('the DR sink should be in phase {string}', { timeout: 360000 }, async function (this: Zenko, state: string) {
     let targetPhase;
     switch (state) {
