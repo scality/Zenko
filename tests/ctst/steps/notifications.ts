@@ -5,8 +5,59 @@ import { Consumer, stringDeserializers } from '@platformatic/kafka';
 import Zenko from 'world/Zenko';
 import { putObject } from './utils/utils';
 import { waitForBucketInConnectorPipeline } from './utils/kafka';
+import { createKubeAppsV1Client } from './utils/kubernetes';
 
 const KAFKA_TESTS_TIMEOUT = Number(process.env.KAFKA_TESTS_TIMEOUT) || 60000;
+const BACKBEAT_DEPENDENCY_ANNOTATION = 'operator.zenko.io/dependencies';
+const BACKBEAT_DATA_SERVICES = ['backbeat-config'];
+
+/**
+ * Logs the current status of all backbeat-related deployments without blocking.
+ * Used to confirm whether pods are mid-rollout when notification events are triggered.
+ */
+async function logBackbeatDeploymentStatus(world: Zenko, namespace = 'default'): Promise<void> {
+    try {
+        const appsClient = createKubeAppsV1Client(world);
+        const allDeployments = await appsClient.listNamespacedDeployment({ namespace });
+
+        const backbeatDeployments = allDeployments.items.filter(dep => {
+            const annotations = dep.metadata?.annotations;
+            return annotations &&
+                BACKBEAT_DATA_SERVICES.some(svc => annotations[BACKBEAT_DEPENDENCY_ANNOTATION]?.includes(svc));
+        });
+
+        const statusSummary = backbeatDeployments.map(dep => {
+            const name = dep.metadata?.name;
+            const s = dep.status;
+            const ready = s?.readyReplicas ?? 0;
+            const updated = s?.updatedReplicas ?? 0;
+            const available = s?.availableReplicas ?? 0;
+            const desired = s?.replicas ?? 0;
+            const stable = ready === desired && updated === desired && available === desired;
+            return { name, desired, ready, updated, available, stable };
+        });
+
+        const unstable = statusSummary.filter(s => !s.stable);
+
+        // eslint-disable-next-line no-console
+        console.log('Backbeat deployment status snapshot', {
+            total: statusSummary.length,
+            unstableCount: unstable.length,
+            deployments: statusSummary,
+        });
+
+        if (unstable.length > 0) {
+            // eslint-disable-next-line no-console
+            console.warn('Backbeat deployments NOT stable at event trigger time', {
+                unstable,
+            });
+        }
+    } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error('Failed to check backbeat deployment status', { err });
+    }
+}
+
 
 const allNotificationTypes = [
     's3:ObjectCreated:Put',
@@ -272,6 +323,7 @@ When('i unsubscribe from {string} notifications for destination {int}',
         await Utils.sleep(10000);
     });
 
+
 When('a {string} event is triggered {string} {string}',
     async function (this: Zenko, notificationType: string, enable: string, filterType: string) {
         this.resetCommand();
@@ -283,6 +335,7 @@ When('a {string} event is triggered {string} {string}',
                 `${objName}${this.getSaved<string>('objectNameSufix')}`;
         }
         this.addToSaved('objectName', objName);
+        await logBackbeatDeploymentStatus(this);
         switch (notificationType) {
         case 's3:ObjectCreated:Put':
             await putObject(this, objName);
