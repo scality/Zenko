@@ -15,9 +15,11 @@ interface ReportingUsageResponse {
 }
 
 const roleToWorldParam: Record<string, keyof Zenko['parameters']> = {
+    /* eslint-disable camelcase */
     storage_manager: 'StorageManagerUsername',
     data_consumer: 'DataConsumerUsername',
     storage_account_owner: 'StorageAccountOwnerUsername',
+    /* eslint-enable camelcase */
 };
 
 When('the user retrieves the storage usage report as {string}', async function (this: Zenko, role: string) {
@@ -63,7 +65,7 @@ Then('the storage usage report contains the additional accounts', async function
     }
 });
 
-Then('the storage usage report contains the test account with location {string}', async function (this: Zenko, locationName: string) {
+Then('the report contains the test account with location {string}', async function (this: Zenko, locationName: string) {
     const response = this.getSaved<{ statusCode: number; data: ReportingUsageResponse }>(
         'reportingResponse');
     const accountName = this.getSaved<string>('accountName');
@@ -78,10 +80,10 @@ Then('the storage usage report contains the test account with location {string}'
     this.addToSaved('reportedLocationUsage', accountData[locationName]);
 });
 
-Then('the location metrics show {int} objects and {int} bytes', function (this: Zenko, expectedObjects: number, expectedBytes: number) {
+Then('the report shows {int} objects and {int} bytes', function (this: Zenko, objects: number, bytes: number) {
     const usage = this.getSaved<LocationUsage>('reportedLocationUsage');
-    assert.strictEqual(usage.objectsTotal, expectedObjects,
-        `Expected ${expectedObjects} objects but got ${usage.objectsTotal}`);
-    assert.strictEqual(usage.bytesTotal, expectedBytes,
-        `Expected ${expectedBytes} bytes but got ${usage.bytesTotal}`);
+    assert.strictEqual(usage.objectsTotal, objects,
+        `Expected ${objects} objects but got ${usage.objectsTotal}`);
+    assert.strictEqual(usage.bytesTotal, bytes,
+        `Expected ${bytes} bytes but got ${usage.bytesTotal}`);
 });

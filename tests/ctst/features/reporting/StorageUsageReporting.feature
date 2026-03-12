@@ -41,8 +41,8 @@ Feature: Storage Usage Reporting API
         Given the environment is set up with bucket created, test data uploaded, and count-items ran
         When the user retrieves the storage usage report as "storage_manager"
         Then the storage usage report http response code is 200
-        And the storage usage report contains the test account with location "<locationName>"
-        And the location metrics show 3 objects and 600 bytes
+        And the report contains the test account with location "<locationName>"
+        And the report shows 3 objects and 600 bytes
 
         Examples:
           | locationName |
