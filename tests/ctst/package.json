@@ -37,7 +37,8 @@
   },
   "scripts": {
     "build": "tsc --build tsconfig.json",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "unused-steps": "bash check-unused-steps.sh"
   },
   "resolutions": {
     "@azure/core-client": "1.10.1"
