@@ -38,7 +38,7 @@
   "scripts": {
     "build": "tsc --build tsconfig.json",
     "lint": "eslint .",
-    "unused-steps": "bash check-unused-steps.sh"
+    "unused-steps": "! cucumber-js --config cucumber.config.cjs --dry-run --format usage 2>&1 | grep UNUSED"
   },
   "resolutions": {
     "@azure/core-client": "1.10.1"
