@@ -361,12 +361,28 @@ Then('the storage class of object {string} must stay {string} for {int} seconds'
 
 When('i run sorbetctl to retry failed restore for {string} location',
     { timeout: 10 * 60 * 1000 }, async function (this: Zenko, location: string) {
-        const command = `/ctst/sorbetctl forward list failed --trigger-retry --skip-invalid \
-            --limit 10000 \
-            --kafka-dead-letter-topic=${this.parameters.KafkaDeadLetterQueueTopic} \
+        const kafkaArgs = `--kafka-dead-letter-topic=${this.parameters.KafkaDeadLetterQueueTopic} \
             --kafka-object-task-topic=${this.parameters.KafkaObjectTaskTopic} \
             --kafka-gc-request-topic=${this.parameters.KafkaGCRequestTopic} \
             --kafka-brokers ${this.parameters.KafkaHosts}`;
+
+        // List all DLQ entries for debugging before retrying
+        const listCommand = `/ctst/sorbetctl forward list failed --keep-entries \
+            --limit 10000 ${kafkaArgs}`;
+        try {
+            this.logger.info('Listing DLQ entries before retry', { location });
+            const listResult = await util.promisify(exec)(listCommand);
+            this.logger.info('DLQ entries', {
+                stdout: listResult.stdout,
+                stderr: listResult.stderr,
+            });
+        } catch (err) {
+            this.logger.error('Failed to list DLQ entries', { err });
+        }
+
+        const command = `/ctst/sorbetctl forward list failed --trigger-retry --skip-invalid \
+            --yes-really-drop=10000 \
+            --limit 10000 ${kafkaArgs}`;
         try {
             this.logger.debug('Running command', { command, location });
             const result = await util.promisify(exec)(command);
