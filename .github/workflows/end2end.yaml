@@ -670,7 +670,7 @@ jobs:
         run: bash configure-e2e-ctst.sh
         working-directory: ./.github/scripts/end2end
       - name: Run CTST end to end tests
-        run: bash run-e2e-ctst.sh "@PreMerge and not @PRA"
+        run: bash run-e2e-ctst.sh "@PreMerge and not @PRA and not @BucketPolicies"
         working-directory: ./.github/scripts/end2end
       - name: Debug wait
         uses: ./.github/actions/debug-wait

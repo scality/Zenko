@@ -29,10 +29,6 @@ When('the user puts the bucket website configuration', async function (this: Zen
     });
 });
 
-When('the {string} endpoint is added to the overlay', async function (this: Zenko, endpoint: string) {
-    await this.addWebsiteEndpoint(endpoint);
-});
-
 When('the user creates an S3 Bucket policy granting public read access', async function (this: Zenko) {
     const policy = {
         Version: '2012-10-17',

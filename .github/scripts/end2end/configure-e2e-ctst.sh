@@ -82,6 +82,25 @@ echo "127.0.0.1 iam.zenko.local s3-local-file.zenko.local keycloak.zenko.local \
 # Add bucket notification target
 envsubst < ./configs/notification_destinations.yaml | kubectl apply -f -
 # Wait for service stabilization
+# kubectl wait --for condition=DeploymentInProgress=true --timeout 10m zenko/${ZENKO_NAME}
+# kubectl wait --for condition=DeploymentFailure=false --timeout 10m zenko/${ZENKO_NAME}
+# kubectl wait --for condition=DeploymentInProgress=false --timeout 10m zenko/${ZENKO_NAME}
+
+# # Rule 3: Add bucket website endpoint to the overlay before tests start
+# # This triggers a restart of services, so it must be done here (not during tests)
+# # to avoid impacting other tests running in parallel.
+# INSTANCE_ID=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.status.instanceID}')
+# OIDC_TOKEN=$(curl -sk "http://${OIDC_HOST}:80/auth/realms/${OIDC_REALM}/protocol/openid-connect/token" \
+#     -d "username=${OIDC_USERNAME}" \
+#     -d "password=${OIDC_PASSWORD}" \
+#     -d "client_id=${OIDC_CLIENT_ID}" \
+#     -d "grant_type=password" | jq -r '.access_token')
+# curl -sk -X POST \
+#     "http://management.${SUBDOMAIN}/api/v1/config/${INSTANCE_ID}/website/endpoint" \
+#     -H "Content-Type: application/json" \
+#     -H "X-Authentication-Token: ${OIDC_TOKEN}" \
+#     -d '"mywebsite.com"'
+# # Wait for service stabilization after website endpoint creation
 kubectl wait --for condition=DeploymentInProgress=true --timeout 10m zenko/${ZENKO_NAME}
 kubectl wait --for condition=DeploymentFailure=false --timeout 10m zenko/${ZENKO_NAME}
 kubectl wait --for condition=DeploymentInProgress=false --timeout 10m zenko/${ZENKO_NAME}
