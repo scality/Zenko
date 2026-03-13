@@ -427,6 +427,12 @@ Then('the API should {string} with {string}', function (this: Zenko, result: str
     }
 });
 
+Then('the http response code is {int}', function (this: Zenko, expectedStatus: number) {
+    const response = this.getSaved<{ statusCode: number }>('lastHttpResponse');
+    assert.strictEqual(response.statusCode, expectedStatus,
+        `Expected status ${expectedStatus} but got ${response.statusCode}`);
+});
+
 Then('the operation finished without error', function (this: Zenko) {
     this.useSavedIdentity();
     assert.strictEqual(!!this.getResult().err, false);

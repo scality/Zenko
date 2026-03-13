@@ -1,4 +1,4 @@
-import { When, Then } from '@cucumber/cucumber';
+import { Given, When, Then } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
 import Zenko from '../../world/Zenko';
 import { IdentityEnum } from 'cli-testing';
@@ -14,26 +14,37 @@ interface ReportingUsageResponse {
     accounts: Record<string, Record<string, LocationUsage>>;
 }
 
-When('the user retrieves the storage usage report as {string}', async function (this: Zenko, role: string) {
-    const result = await this.managementAPIRequest(
-        'GET',
-        `/instance/${this.parameters.InstanceID}/reporting/usage`,
-        {},
-        {},
-        role,
-    );
-    this.addToSaved('reportingResponse', result);
+Given('an identity with the {string} keycloak persona', function (this: Zenko, persona: string) {
+    const username = (this.parameters as Record<string, string>)[persona] || persona;
+    this.addToSaved('keycloakPersona', username);
 });
 
-Then('the storage usage report http response code is {int}', function (this: Zenko, expectedStatus: number) {
-    const response = this.getSaved<{ statusCode: number }>('reportingResponse');
-    assert.strictEqual(response.statusCode, expectedStatus,
-        `Expected status ${expectedStatus} but got ${response.statusCode}`);
+async function fetchStorageUsageReport(world: Zenko) {
+    const persona = world.getSaved<string>('keycloakPersona');
+    const result = await world.managementAPIRequest(
+        'GET',
+        `/instance/${world.parameters.InstanceID}/reporting/usage`,
+        {},
+        {},
+        persona,
+    );
+    world.addToSaved('lastHttpResponse', result);
+    return result;
+}
+
+When('the user tries to retrieve the storage usage report', async function (this: Zenko) {
+    await fetchStorageUsageReport(this);
+});
+
+When('the user retrieves the storage usage report', async function (this: Zenko) {
+    const result = await fetchStorageUsageReport(this);
+    assert.strictEqual(result.statusCode, 200,
+        `Expected status 200 but got ${result.statusCode}`);
 });
 
 Then('the storage usage report response has a valid structure', function (this: Zenko) {
     const response = this.getSaved<{ statusCode: number; data: ReportingUsageResponse }>(
-        'reportingResponse');
+        'lastHttpResponse');
     const data = response.data;
     assert.strictEqual(typeof data.isTruncated, 'boolean',
         'isTruncated should be a boolean');
@@ -45,7 +56,7 @@ Then('the storage usage report response has a valid structure', function (this: 
 
 Then('the storage usage report contains the additional accounts', async function (this: Zenko) {
     const response = this.getSaved<{ statusCode: number; data: ReportingUsageResponse }>(
-        'reportingResponse');
+        'lastHttpResponse');
     const accountNames = this.getSavedIdentities()
         .filter(id => id.identityType === IdentityEnum.ACCOUNT)
         .map(id => id.accountName);
@@ -57,7 +68,7 @@ Then('the storage usage report contains the additional accounts', async function
 
 Then('the report contains the test account with location {string}', async function (this: Zenko, locationName: string) {
     const response = this.getSaved<{ statusCode: number; data: ReportingUsageResponse }>(
-        'reportingResponse');
+        'lastHttpResponse');
     const accountName = this.getSaved<string>('accountName');
 
     assert.ok(accountName in response.data.accounts,
