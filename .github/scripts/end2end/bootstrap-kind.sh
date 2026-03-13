@@ -61,6 +61,11 @@ nodes:
     nodeRegistration:
       kubeletExtraArgs:
         node-labels: "ingress-ready=true"
+  - |
+    kind: ClusterConfiguration
+    apiServer:
+      extraArgs:
+        event-ttl: "4h0m0s"
   extraMounts:
   - hostPath: ${VOLUME_ROOT}/data
     containerPath: /data
