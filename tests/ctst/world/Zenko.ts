@@ -792,6 +792,9 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
     useSavedIdentity() {
         const last = this.getSavedIdentity();
+        if (!last) {
+            return;
+        }
         Identity.useIdentity(last.identityType, last.identityName, last.accountName);
     }
 
