@@ -10,7 +10,8 @@ data:
 
     [INPUT]
         Name         tail
-        Tag          kube.*
+        Tag          <basename>
+        Tag_Regex    /var/log/containers/(?<basename>[^/]+)$
         Path         /var/log/containers/*.log
         DB           /var/lib/fluent-bit/flb_kube.db
         Mem_Buf_Limit 16MB
