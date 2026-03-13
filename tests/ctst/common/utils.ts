@@ -100,6 +100,32 @@ export const s3FunctionExtraParams: { [key: string]: Record<string, unknown>[] }
     }],
 };
 
+/**
+ * Parses a duration string in Go's time.ParseDuration format
+ * (https://pkg.go.dev/time#ParseDuration) and returns the equivalent in seconds.
+ * @param {string} duration - the duration string to parse (e.g. "1h30m", "500ms")
+ * @return {number} - the duration in seconds
+ */
+export function parseGoDuration(duration: string): number {
+    const units: Record<string, number> = {
+        ns: 1e-9, us: 1e-6, µs: 1e-6, ms: 1e-3, s: 1, m: 60, h: 3600,
+    };
+    let remaining = duration;
+    if (remaining.length === 0) {
+        throw new Error(`Invalid duration: "${duration}"`);
+    }
+    let totalSeconds = 0;
+    while (remaining.length > 0) {
+        const match = remaining.match(/^(\d+(?:\.\d*)?)(ns|us|µs|ms|s|m|h)/);
+        if (!match) {
+            throw new Error(`Invalid duration: "${duration}" (unparsed: "${remaining}")`);
+        }
+        totalSeconds += parseFloat(match[1]) * units[match[2]];
+        remaining = remaining.slice(match[0].length);
+    }
+    return totalSeconds;
+}
+
 export function safeJsonParse<T>(jsonString: string): { ok: boolean, result: T | null, error?: Error | null } {
     let result: T;
     try {

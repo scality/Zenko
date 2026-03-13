@@ -2,7 +2,7 @@ import { ListObjectVersionsOutput } from '@aws-sdk/client-s3';
 import { Given, setDefaultTimeout, Then, When } from '@cucumber/cucumber';
 import { CacheHelper, Constants, Identity, IdentityEnum, S3, Utils } from 'cli-testing';
 import Zenko from 'world/Zenko';
-import { safeJsonParse } from './utils';
+import { parseGoDuration, safeJsonParse } from './utils';
 import assert from 'assert';
 import { Admin, Kafka } from 'kafkajs';
 import {
@@ -300,7 +300,7 @@ Then('i {string} be able to add user metadata to object {string}',
 
 Then('kafka consumed messages should not take too much place on disk', { timeout: -1 },
     async function (this: Zenko) {
-        const kfkcIntervalSeconds = parseInt(this.parameters.KafkaCleanerInterval);
+        const kfkcIntervalSeconds = parseGoDuration(this.parameters.KafkaCleanerInterval);
         const checkInterval = kfkcIntervalSeconds * (1000 + 5000);
 
         const timeoutID = setTimeout(() => {
