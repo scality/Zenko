@@ -73,6 +73,7 @@ runs:
         kubectl get zenkodrsource -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-zenkodrsources.log || true
         kubectl get zenkodrsink -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-zenkodrsinks.log || true
         kind export logs /tmp/artifacts/data/${STAGE}/kind-logs/kind-export || true
+        cp -r /artifacts/data/fluentbit-logs /tmp/artifacts/data/${STAGE}/kind-logs/fluentbit-logs 2>/dev/null || true
         tar zcvf /tmp/artifacts/${{ github.sha }}-${STAGE}-logs-volumes.tgz /tmp/artifacts/data/${STAGE}/kind-logs
       env:
         STAGE: ${{ inputs.stage }}

@@ -59,6 +59,10 @@ helm repo add --force-update banzaicloud-stable https://kubernetes-charts.banzai
 	}
 helm repo update
 
+# fluent-bit log collector — captures container logs before pod deletion
+kubectl apply -f $DIR/configs/fluentbit.yaml
+kubectl rollout status daemonset/fluent-bit --timeout=5m
+
 # nginx-controller
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/${INGRESS_NGINX_VERSION}/deploy/static/provider/kind/deploy.yaml
 kubectl rollout status -n ingress-nginx deployment/ingress-nginx-controller --timeout=10m
