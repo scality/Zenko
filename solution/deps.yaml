@@ -109,11 +109,11 @@ scuba:
   tag: 1.1.0-preview.9
   envsubst: SCUBA_TAG
 sorbet:
-  sourceRegistry: ghcr.io/scality
+  sourceRegistry: ghcr.io/scality/playground/sylvainsenechal
   policy: sorbet/sorbet-policies
   dashboard: sorbet/sorbet-dashboards
   image: sorbet
-  tag: v1.2.2
+  tag: v100.1.0
   envsubst: SORBET_TAG
 stern: # tail any pod logs with pattern matchin
   tag: 1.33.0

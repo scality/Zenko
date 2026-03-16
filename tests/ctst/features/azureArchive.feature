@@ -5,33 +5,6 @@ Feature: Azure Archive
     @Flaky
     @AzureArchive
     @ColdStorage
-    Scenario Outline: Failed restore objects from tar must be retried and restored
-    Given a "<versioningConfiguration>" bucket
-    And a transition workflow to "e2e-azure-archive" location
-    And <objectCount> objects "retry-obj" of size <objectSize> bytes
-    Then object "retry-obj-1" should be "transitioning" and have the storage class "e2e-azure-archive"
-    And object "retry-obj-2" should be "transitioning" and have the storage class "e2e-azure-archive"
-    And manifest containing object "retry-obj-1" should "contain" object "retry-obj-2"
-    When i restore object "retry-obj-1" for <restoreDays> days
-    Then blob for object "retry-obj-1" fails to rehydrate
-    And blob for object "retry-obj-2" fails to rehydrate
-    Then object "retry-obj-1" should be "transitioning" and have the storage class "e2e-azure-archive"
-    When i run sorbetctl to retry failed restore for "e2e-azure-archive" location
-    Then object "retry-obj-1" should be "restored" and have the storage class "e2e-azure-archive"
-    And object "retry-obj-1" should expire in <restoreDays> days
-    And object "retry-obj-1" should have the same data
-
-    Examples:
-        | versioningConfiguration | objectCount | objectSize | restoreDays |
-        |           Non versioned |           2 |        100 |           5 |
-        |               Versioned |           2 |        100 |           2 |
-        |               Suspended |           2 |        100 |           2 | 
-
-    @2.7.0
-    @PreMerge
-    @Flaky
-    @AzureArchive
-    @ColdStorage
     Scenario Outline: Archive objects when timeout is reached
     Given a "<versioningConfiguration>" bucket
     And a transition workflow to "e2e-azure-archive" location
@@ -250,6 +223,34 @@ Feature: Azure Archive
         |           Non versioned |           2 |        100 |           15 |
         |               Versioned |           2 |        100 |           15 |
         |               Suspended |           2 |        100 |           15 |
+
+
+    @2.7.0
+    @PreMerge
+    @Flaky
+    @AzureArchive
+    @ColdStorage
+    Scenario Outline: Failed restore objects from tar must be retried and restored
+    Given a "<versioningConfiguration>" bucket
+    And a transition workflow to "e2e-azure-archive" location
+    And <objectCount> objects "retry-obj" of size <objectSize> bytes
+    Then object "retry-obj-1" should be "transitioning" and have the storage class "e2e-azure-archive"
+    And object "retry-obj-2" should be "transitioning" and have the storage class "e2e-azure-archive"
+    And manifest containing object "retry-obj-1" should "contain" object "retry-obj-2"
+    When i restore object "retry-obj-1" for <restoreDays> days
+    Then blob for object "retry-obj-1" fails to rehydrate
+    And blob for object "retry-obj-2" fails to rehydrate
+    Then object "retry-obj-1" should be "transitioning" and have the storage class "e2e-azure-archive"
+    When i run sorbetctl to retry failed restore for "e2e-azure-archive" location
+    Then object "retry-obj-1" should be "restored" and have the storage class "e2e-azure-archive"
+    And object "retry-obj-1" should expire in <restoreDays> days
+    And object "retry-obj-1" should have the same data
+
+    Examples:
+        | versioningConfiguration | objectCount | objectSize | restoreDays |
+        |           Non versioned |           2 |        100 |           5 |
+        |               Versioned |           2 |        100 |           2 |
+        |               Suspended |           2 |        100 |           2 | 
 
     @2.7.0
     @PreMerge

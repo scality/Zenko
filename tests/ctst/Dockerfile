@@ -1,7 +1,7 @@
 ARG SORBET_TAG=latest
 ARG DRCTL_TAG=latest
 
-FROM ghcr.io/scality/sorbet:$SORBET_TAG AS sorbet
+FROM ghcr.io/scality/playground/sylvainsenechal/sorbet:$SORBET_TAG AS sorbet
 FROM ghcr.io/scality/zenko-drctl:$DRCTL_TAG AS drctl
 
 FROM node:24.14.0-bookworm-slim
