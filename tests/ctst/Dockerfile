@@ -1,8 +1,10 @@
+ARG SORBET_IMAGE=ghcr.io/scality/sorbet
 ARG SORBET_TAG=latest
+ARG DRCTL_IMAGE=ghcr.io/scality/zenko-drctl
 ARG DRCTL_TAG=latest
 
-FROM ghcr.io/scality/sorbet:$SORBET_TAG AS sorbet
-FROM ghcr.io/scality/zenko-drctl:$DRCTL_TAG AS drctl
+FROM $SORBET_IMAGE:$SORBET_TAG AS sorbet
+FROM $DRCTL_IMAGE:$DRCTL_TAG AS drctl
 
 FROM node:22.19.0-bookworm-slim
 

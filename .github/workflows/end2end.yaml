@@ -425,8 +425,10 @@ jobs:
         working-directory: solution
         run: |-
           cat <<EOF >> $GITHUB_ENV
+          SORBET_IMAGE=$(yq eval '.sorbet | .sourceRegistry + "/" + .image' deps.yaml)
           SORBET_TAG=$(yq eval '.sorbet.tag' deps.yaml)
-          DRCTL_TAG=$(yq eval .drctl.tag deps.yaml)
+          DRCTL_IMAGE=$(yq eval '.drctl | .sourceRegistry + "/" + .image' deps.yaml)
+          DRCTL_TAG=$(yq eval '.drctl.tag' deps.yaml)
           EOF
       - name: Build and push CI image
         uses: docker/build-push-action@v5
@@ -437,7 +439,9 @@ jobs:
           secrets: |
             GIT_AUTH_TOKEN=${{ steps.app-token.outputs.token }}
           build-args: |
+            SORBET_IMAGE=${{ env.SORBET_IMAGE }}
             SORBET_TAG=${{ env.SORBET_TAG }}
+            DRCTL_IMAGE=${{ env.DRCTL_IMAGE }}
             DRCTL_TAG=${{ env.DRCTL_TAG }}
           tags: "${{ env.E2E_CTST_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}"
           cache-from: type=gha,scope=end2end-ctst
