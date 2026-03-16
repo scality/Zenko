@@ -2,6 +2,7 @@
 set -exu
 
 DIR=$(dirname "$0")
+. "$DIR"/common.sh
 
 # Get kafka image name and tag
 kafka_image() {
@@ -78,6 +79,21 @@ UUID=${UUID:1}
 
 echo "127.0.0.1 iam.zenko.local s3-local-file.zenko.local keycloak.zenko.local \
     sts.zenko.local management.zenko.local s3.zenko.local website.mywebsite.com utilization.zenko.local" | sudo tee -a /etc/hosts
+
+# Add website endpoint to the overlay so it doesn't trigger reconciliation during tests
+INSTANCE_ID=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.status.instanceID}')
+MGMT_TOKEN=$(get_token)
+WEBSITE_HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+    -H "Content-Type: application/json" \
+    -H "X-Authentication-Token: ${MGMT_TOKEN}" \
+    "http://management.zenko.local/api/v1/config/${INSTANCE_ID}/website/endpoint" \
+    -d '"mywebsite.com"')
+if [ "$WEBSITE_HTTP_CODE" = "200" ] || [ "$WEBSITE_HTTP_CODE" = "409" ]; then
+    echo "Website endpoint registered successfully (HTTP $WEBSITE_HTTP_CODE)"
+else
+    echo "Failed to register website endpoint (HTTP $WEBSITE_HTTP_CODE)" >&2
+    exit 1
+fi
 
 # Add bucket notification target
 envsubst < ./configs/notification_destinations.yaml | kubectl apply -f -

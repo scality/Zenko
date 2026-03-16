@@ -989,14 +989,18 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         }
     }
 
-    async addWebsiteEndpoint(this: Zenko, endpoint: string):
-        Promise<{ statusCode: number; data: object } | { statusCode: number; err: unknown }> {
-        return await this.managementAPIRequest('POST',
-            `/config/${this.parameters.InstanceID}/website/endpoint`,
-            {
-                'Content-Type': 'application/json',
-            },
-            `"${endpoint}"`);
+    async verifyWebsiteEndpoint(this: Zenko, endpoint: string): Promise<boolean> {
+        const result = await this.managementAPIRequest('GET',
+            `/config/overlay/view/${this.parameters.InstanceID}`);
+        if (result.statusCode !== 200) {
+            this.logger.debug('Error when making management API request for verifyWebsiteEndpoint', {
+                statusCode: result.statusCode,
+                endpoint,
+            });
+            return false;
+        }
+        const { data } = result as { statusCode: number; data: { websiteEndpoints?: string[] } };
+        return (data.websiteEndpoints ?? []).includes(endpoint);
     }
 
     async deleteLocation(this: Zenko, locationName: string):

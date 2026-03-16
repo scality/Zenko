@@ -29,8 +29,10 @@ When('the user puts the bucket website configuration', async function (this: Zen
     });
 });
 
-When('the {string} endpoint is added to the overlay', async function (this: Zenko, endpoint: string) {
-    await this.addWebsiteEndpoint(endpoint);
+When('the {string} endpoint is present in the overlay', async function (this: Zenko, endpoint: string) {
+    const found = await this.verifyWebsiteEndpoint(endpoint);
+    assert.strictEqual(found, true,
+        `Website endpoint '${endpoint}' not found in overlay after 60 retries`);
 });
 
 When('the user creates an S3 Bucket policy granting public read access', async function (this: Zenko) {
