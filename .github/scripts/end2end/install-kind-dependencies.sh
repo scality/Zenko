@@ -124,7 +124,8 @@ for crd in cruisecontroloperations kafkaclusters kafkatopics kafkausers ; do
 done
 helm upgrade --install --version ${KAFKA_OPERATOR_VERSION} -n default kafka-operator ${KAFKA_OPERATOR_CHART} \
     --set prometheusMetrics.authProxy.image.repository=quay.io/brancz/kube-rbac-proxy \
-    --set prometheusMetrics.authProxy.image.tag=v0.21.0
+    --set prometheusMetrics.authProxy.image.tag=v0.21.0 \
+    --set operator.namespaces=
 
 # keycloak
 envsubst < $DIR/configs/keycloak_config.json > $DIR/configs/keycloak-realm.json
