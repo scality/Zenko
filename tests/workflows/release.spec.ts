@@ -207,16 +207,31 @@ test.each([
             // Mock release notes generation
             moctokit.rest.repos
                 .listReleases()
-                .reply({ status: 200, data: [{ tag_name: '2.3.6', id: 123 }]}),
+                // First call from release notes generation, to get the previous release
+                .reply({ status: 200, data: [{ tag_name: '2.3.6', id: 122 }] })
+                // Second call made by action-gh-release@v2.5.2+ (after release creation) to handle
+                // race condition when release is created by multiple jobs in parallel...
+                .reply({
+                    status: 200, data: [{ tag_name: '2.3.6', id: 122 }, {
+                        id: 123,
+                        draft: true,
+                        name: `Release ${tag}`,
+                        prerelease: tag === '2.3.7-rc.1',
+                        tag_name: tag,
+                        target_commitish: await getCommitHash(),
+                        upload_url: 'http://uploads.github.com/repos/scality/Zenko/releases/456/assets{?name,label}',
+                        html_url: 'http://github.com/repos/scality/Zenko/releases/456',
+                    }],
+                }),
             moctokit.rest.repos
                 .generateReleaseNotes({
-                    owner: "scality",
-                    repo: "Zenko",
+                    owner: 'scality',
+                    repo: 'Zenko',
                     previous_tag_name: '2.3.6',
                     tag_name: tag,
                     target_commitish: await getCommitHash(),
                 })
-                .reply({ status: 200, data: { body: "something changed" }}),
+                .reply({ status: 200, data: { body: 'something changed' } }),
 
             // Mock release creation: check existing release and create a new one
             moctokit.rest.repos
@@ -224,13 +239,13 @@ test.each([
                 .reply({ status: 404, data: {} }),
             moctokit.rest.repos
                 .createRelease({
-                    owner: "scality",
-                    repo: "Zenko",
+                    owner: 'scality',
+                    repo: 'Zenko',
                     tag_name: tag,
                     target_commitish: await getCommitHash(),
                     generate_release_notes: false,
-                    name: "Release " + tag,
-                    body: "something changed",
+                    name: `Release ${tag}`,
+                    body: 'something changed',
                     prerelease: tag === '2.3.7-rc.1',
                     draft: true,
                 })
@@ -241,8 +256,8 @@ test.each([
                 }}),
             moctokit.rest.repos
                 .updateRelease({
-                    owner: "scality",
-                    repo: "Zenko",
+                    owner: 'scality',
+                    repo: 'Zenko',
                     draft: false,
                     release_id: 123,
                 })
@@ -267,7 +282,7 @@ test.each([
             }],
             'release': [{
                 // Need to explicitely pass token, the GITHUB_TOKEN does not seem to be set
-                uses: 'softprops/action-gh-release@v2',
+                uses: 'softprops/action-gh-release@v2.5.0',
                 mockWith: {
                     with: {
                         token: "my-token",
