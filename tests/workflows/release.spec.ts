@@ -191,7 +191,22 @@ test.each([
             // Mock release notes generation
             moctokit.rest.repos
                 .listReleases()
-                .reply({ status: 200, data: [{ tag_name: '2.3.6', id: 123 }]}),
+                // First call from release notes generation, to get the previous release
+                .reply({ status: 200, data: [{ tag_name: '2.3.6', id: 122 }] })
+                // Second call made by action-gh-release@v2.5.2+ (after release creation) to handle
+                // race condition when release is created by multiple jobs in parallel...
+                .reply({
+                    status: 200, data: [{ tag_name: '2.3.6', id: 122 }, {
+                        id: 123,
+                        draft: true,
+                        name: "Release " + tag,
+                        prerelease: tag === '2.3.7-rc.1',
+                        tag_name: tag,
+                        target_commitish: await getCommitHash(),
+                        upload_url: 'http://uploads.github.com/repos/scality/Zenko/releases/456/assets{?name,label}',
+                        html_url: 'http://github.com/repos/scality/Zenko/releases/456',
+                    }],
+                }),
             moctokit.rest.repos
                 .generateReleaseNotes({
                     owner: "scality",
