@@ -215,7 +215,7 @@ test.each([
                     status: 200, data: [{ tag_name: '2.3.6', id: 122 }, {
                         id: 123,
                         draft: true,
-                        name: "Release " + tag,
+                        name: `Release ${tag}`,
                         prerelease: tag === '2.3.7-rc.1',
                         tag_name: tag,
                         target_commitish: await getCommitHash(),
@@ -225,13 +225,13 @@ test.each([
                 }),
             moctokit.rest.repos
                 .generateReleaseNotes({
-                    owner: "scality",
-                    repo: "Zenko",
+                    owner: 'scality',
+                    repo: 'Zenko',
                     previous_tag_name: '2.3.6',
                     tag_name: tag,
                     target_commitish: await getCommitHash(),
                 })
-                .reply({ status: 200, data: { body: "something changed" }}),
+                .reply({ status: 200, data: { body: 'something changed' } }),
 
             // Mock release creation: check existing release and create a new one
             moctokit.rest.repos
@@ -239,13 +239,13 @@ test.each([
                 .reply({ status: 404, data: {} }),
             moctokit.rest.repos
                 .createRelease({
-                    owner: "scality",
-                    repo: "Zenko",
+                    owner: 'scality',
+                    repo: 'Zenko',
                     tag_name: tag,
                     target_commitish: await getCommitHash(),
                     generate_release_notes: false,
-                    name: "Release " + tag,
-                    body: "something changed",
+                    name: `Release ${tag}`,
+                    body: 'something changed',
                     prerelease: tag === '2.3.7-rc.1',
                     draft: true,
                 })
@@ -256,8 +256,8 @@ test.each([
                 }}),
             moctokit.rest.repos
                 .updateRelease({
-                    owner: "scality",
-                    repo: "Zenko",
+                    owner: 'scality',
+                    repo: 'Zenko',
                     draft: false,
                     release_id: 123,
                 })
