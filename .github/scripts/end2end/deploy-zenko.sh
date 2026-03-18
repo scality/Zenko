@@ -127,7 +127,8 @@ create_encryption_secret()
     kubectl create secret generic ${ZENKO_NAME}-keypair.v0 \
         --namespace ${NAMESPACE} \
         --from-file=publicKey="$PUBLIC" \
-        --from-file=privateKey="$PRIVATE"
+        --from-file=privateKey="$PRIVATE" \
+        --dry-run=client -o yaml | kubectl apply -f -
 
     export AZURE_SECRET_KEY_ENCRYPTED
 }

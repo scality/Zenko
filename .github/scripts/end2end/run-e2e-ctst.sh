@@ -166,7 +166,8 @@ docker run \
 # Grant access to Kube API (insecure, only for testing)
 kubectl create clusterrolebinding serviceaccounts-cluster-admin \
   --clusterrole=cluster-admin \
-  --group=system:serviceaccounts
+  --group=system:serviceaccounts \
+  --dry-run=client -o yaml | kubectl apply -f -
 
 # Running end2end ctst tests
 # Using overrides as we need to attach a local folder to the pod
