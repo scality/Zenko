@@ -82,13 +82,37 @@ $(add_workers)
 EOF
 }
 
+needs_delegated_scope() {
+  # When running rootless podman from a graphical terminal (e.g. GNOME/VTE),
+  # cgroup controllers may not be delegated to the process's cgroup, causing
+  # kind to fail. Detect this by checking what podman sees.
+  # See https://kind.sigs.k8s.io/docs/user/rootless/#creating-a-kind-cluster-with-rootless-podman
+  if [ "$(docker info --format '{{.Host.Security.Rootless}}' 2>/dev/null)" != "true" ]; then
+    return 1
+  fi
+  controllers=$(docker info --format '{{.Host.CgroupControllers}}' 2>/dev/null) || return 1
+  for c in cpu memory pids; do
+    case "$controllers" in
+      *"$c"*) ;;
+      *) return 0 ;;
+    esac
+  done
+  return 1
+}
+
 create_cluster() {
   if kind get clusters | grep -q "^${CLUSTER_NAME}$"; then
     echo "Kind cluster ${CLUSTER_NAME} already exists. Skipping creation."
     return
   fi
 
-  kind create cluster --name=${CLUSTER_NAME} --config=config.yaml
+  DELEGATE=""
+  if needs_delegated_scope; then
+    echo "cgroup controllers not fully available, running kind under a delegated systemd scope"
+    DELEGATE="systemd-run --user --scope --property=Delegate=yes"
+  fi
+
+  $DELEGATE kind create cluster --name=${CLUSTER_NAME} --config=config.yaml
 }
 
 create_registry
