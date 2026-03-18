@@ -31,30 +31,32 @@ for i in $(seq 0 $array_length); do
     working_dir=$(yq ".runs.steps[$i].working-directory" .github/actions/deploy/action.yaml)
     run_command=$(yq ".runs.steps[$i].run" .github/actions/deploy/action.yaml)
 
-    # We can't run `configure-e2e.sh` here because it needs services to be ready first, will be run after
-    # User will run tests manually after deployment
     (
-        if [[ "$run_command" != "null" && "$run_command" != *"configure-e2e.sh"* ]]; then
-            # Inject env 'generated' from previous steps
-            source "$GITHUB_ENV"
+        [[ "$run_command" == "null" ]] && exit 0
+        # We can't run `configure-e2e.sh` here because it needs services to be ready first, will be run after
+        [[ "$run_command" == *"configure-e2e.sh"* ]] && exit 0
+        # We don't want to run `run-e2e-test.sh` because it is used for linting here, user will run it manually if needed after deployment
+        [[ "$run_command" == *"run-e2e-test.sh"* ]] && exit 0
+        [[ "$run_command" == *"deploy-metadata.sh"* && "${ENABLE_RING_TESTS}" == "false" ]] && exit 0
 
-            # Inject variables
-            # We use `sed` to replace github variable references and avoid bad substitution error from bash
-            env_variables=$(yq '.runs.steps['$i'].env | to_entries | .[] | .key + "=" + .value' .github/actions/deploy/action.yaml \
-                | sed -e 's/${{ *inputs.\([[:graph:]]*\) *}}/$GITHUB_INPUTS_\1/' -e 's/\${{.*}}//' \
-                | envsubst )
-            [ -n "$env_variables" ] && export $env_variables
+        # Inject env 'generated' from previous steps
+        source "$GITHUB_ENV"
 
-            if [ "$working_dir" != "null" ]; then
-                echo "Changing working dir: $working_dir"
-                cd $working_dir
-            fi
+        # Inject variables
+        # We use `sed` to replace github variable references and avoid bad substitution error from bash
+        env_variables=$(yq '.runs.steps['$i'].env | to_entries | .[] | .key + "=" + .value' .github/actions/deploy/action.yaml \
+            | sed -e 's/${{ *inputs.\([[:graph:]]*\) *}}/$GITHUB_INPUTS_\1/' -e 's/\${{.*}}//' \
+            | envsubst )
+        [ -n "$env_variables" ] && export $env_variables
 
-            echo "Run command: $run_command"
-            eval "$run_command";
+        if [ "$working_dir" != "null" ]; then
+            echo "Changing working dir: $working_dir"
+            cd $working_dir
         fi
+
+        echo "Run command: $run_command"
+        eval "$run_command";
     )
-    exit
 done
 
 (
