@@ -6,29 +6,6 @@ NODE_IMAGE=${1:-kindest/node:kindest/node:v1.32.8@sha256:abd489f042d2b644e2d033f
 VOLUME_ROOT=${2:-/artifacts}
 WORKER_NODE_COUNT=${3:-0}
 CLUSTER_NAME=${CLUSTER_NAME:-kind}
-REG_NAME='kind-registry'
-REG_PORT='5000'
-
-create_registry() {
-    echo "Creating local image registry on localhost:${REG_PORT}"
-
-    if [ "$(docker inspect -f '{{.State.Running}}' "${REG_NAME}" 2>/dev/null)" != 'true' ]; then
-        docker run \
-            -d --restart=always -p "${REG_PORT}:5000" --name "${REG_NAME}" \
-            registry:2
-    fi
-}
-
-connect_registry() {
-    local inspect_filter="{{range .Containers}}{{if eq .Name \"${REG_NAME}\"}}true{{end}}{{end}}"
-    if [ "$(docker network inspect -f "${inspect_filter}" kind 2>/dev/null)" != 'true' ]; then
-      docker network connect kind "${REG_NAME}"
-    fi
-
-    for node in $(kind get nodes --name ${CLUSTER_NAME}); do
-      kubectl annotate --overwrite node "${node}" "kind.x-k8s.io/registry=localhost:${REG_PORT}";
-    done
-}
 
 add_workers() {
     local count=0
@@ -48,10 +25,6 @@ bootstrap_kind() {
     cat > config.yaml << EOF
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
-containerdConfigPatches: 
-- |-
-  [plugins."io.containerd.grpc.v1.cri".registry.mirrors."localhost:${REG_PORT}"]
-    endpoint = ["http://${REG_NAME}:${REG_PORT}"]
 nodes:
 - role: control-plane
   image: ${NODE_IMAGE}
@@ -115,7 +88,5 @@ create_cluster() {
   $DELEGATE kind create cluster --name=${CLUSTER_NAME} --config=config.yaml
 }
 
-create_registry
 bootstrap_kind
 create_cluster
-connect_registry
