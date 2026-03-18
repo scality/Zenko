@@ -6,6 +6,11 @@ env_variables=$(yq eval '.env | to_entries | .[] | .key + "=" + .value' .github/
 export GIT_ACCESS_TOKEN=${GITHUB_TOKEN}
 export E2E_IMAGE_TAG=latest
 
+export VOLUME_ROOT=$PWD/artifacts
+export ZENKO_MONGODB_DATABASE=${ZENKO_MONGODB_DATABASE:-zenko-database}
+export HOST_DNS=$(awk '/^nameserver/{print $2; exit}' /etc/resolv.conf)
+mkdir -p "${VOLUME_ROOT}/data"
+
 # Disable GCP tests as we don't have credentials setup in devcontainer
 export GCP_BACKEND_DESTINATION_LOCATION=
 

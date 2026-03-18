@@ -40,7 +40,9 @@ runs:
           ${{ runner.os }}-helm-
     - name: Generate MongoDB database name
       shell: bash
-      run: echo "ZENKO_MONGODB_DATABASE=$(cat /proc/sys/kernel/random/uuid)" >> "$GITHUB_ENV"
+      run: |
+        [ -z "$ZENKO_MONGODB_DATABASE" ] && ZENKO_MONGODB_DATABASE=$(cat /proc/sys/kernel/random/uuid)
+        echo "ZENKO_MONGODB_DATABASE=$ZENKO_MONGODB_DATABASE" >> "$GITHUB_ENV"
     - name: Install kind cluster dependencies
       shell: bash
       run: bash install-kind-dependencies.sh
