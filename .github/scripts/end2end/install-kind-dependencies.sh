@@ -125,15 +125,13 @@ kubectl wait --for=condition=Ready --timeout=240s clusterissuer/artesca-root-ca-
 
 # Copy root CA secret to default namespace for applications to use
 echo "Copying root CA certificate to default namespace..."
-kubectl get secret root-ca -n cert-manager -o json | 
-  jq '.metadata.namespace="default" | .metadata.name="zenko-root-ca"' | 
+kubectl get secret root-ca -n cert-manager -o json |
+  jq '.metadata = {namespace: "default", name: "zenko-root-ca"}' |
   kubectl apply -f -
 
 # prometheus
-# last-applied-configuration can end up larger than 256kB  which is too large for an annotation
-# so if apply fails, replace can work
 prom_url=https://raw.githubusercontent.com/coreos/prometheus-operator/${PROMETHEUS_VERSION}/bundle.yaml
-kubectl create -f $prom_url || kubectl replace -f $prom_url --wait
+kubectl apply --server-side -f $prom_url
 # wait for the resource to exist
 kubectl wait --for=condition=established --timeout=10m crd/alertmanagers.monitoring.coreos.com
 envsubst < configs/prometheus.yaml | kubectl apply -f -
@@ -143,7 +141,7 @@ helm upgrade --install --version ${ZK_OPERATOR_VERSION} -n default zk-operator p
 
 # kafka
 kafka_crd_url=https://github.com/banzaicloud/koperator/releases/download/v${KAFKA_OPERATOR_VERSION}/kafka-operator.crds.yaml
-kubectl create -f $kafka_crd_url || kubectl replace -f $kafka_crd_url
+kubectl apply --server-side -f $kafka_crd_url
 helm upgrade --install --version ${KAFKA_OPERATOR_VERSION} -n default kafka-operator ${KAFKA_CHART} \
     --set prometheusMetrics.authProxy.image.repository=quay.io/brancz/kube-rbac-proxy \
     --set prometheusMetrics.authProxy.image.tag=v0.21.0
