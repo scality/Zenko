@@ -1,11 +1,16 @@
 get_token() {
+    if [[ "${ENABLE_KEYCLOAK_HTTPS}" == "true" ]]; then
+        local scheme=https
+    else
+        local scheme=http
+    fi
     curl -k -H "Host: keycloak.zenko.local" \
         -d "client_id=${OIDC_CLIENT_ID}" \
         -d "username=${OIDC_USERNAME}" \
         -d "password=${OIDC_PASSWORD}" \
         -d "grant_type=password" \
         -d "scope=openid" \
-        https://localhost/auth/realms/${OIDC_REALM}/protocol/openid-connect/token | \
+        ${scheme}://127.0.0.1/auth/realms/${OIDC_REALM}/protocol/openid-connect/token | \
         jq -cr '.id_token'
 }
 
