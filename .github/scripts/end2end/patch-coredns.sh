@@ -4,6 +4,12 @@ set -exu
 
 export ZENKO_NAME=${1:-end2end}
 
+if [ -n "${HOST_DNS:-}" ]; then
+    COREDNS_FORWARD_TARGET="$HOST_DNS"
+else
+    COREDNS_FORWARD_TARGET="/etc/resolv.conf"
+fi
+
 corefile="
 .:53 {
     errors
@@ -41,7 +47,7 @@ corefile="
         ttl 30
     }
     prometheus :9153
-    forward . /etc/resolv.conf
+    forward . ${COREDNS_FORWARD_TARGET}
     cache 30
     loop
     reload
