@@ -2,11 +2,7 @@
 
 set -ex
 
-[ -z "${OPERATOR_IMAGE_NAME}" ] && OPERATOR_IMAGE_NAME="$(yq eval '."zenko-operator" | .sourceRegistry + "/" + .image' solution/deps.yaml)"
 [ -z "${OPERATOR_IMAGE_TAG}" ] && OPERATOR_IMAGE_TAG="$(yq eval '."zenko-operator".tag' solution/deps.yaml)"
-
-docker pull "${OPERATOR_IMAGE_NAME}:${OPERATOR_IMAGE_TAG}"
-kind load docker-image "${OPERATOR_IMAGE_NAME}:${OPERATOR_IMAGE_TAG}"
 
 OPERATOR_PATH=./.github/scripts/end2end/operator
 git init $OPERATOR_PATH
