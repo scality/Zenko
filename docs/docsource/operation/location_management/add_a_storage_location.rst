@@ -57,7 +57,6 @@ To add a storage location:
       You can choose:
 
       * Amazon S3
-      * Ceph RADOS Gateway
       * DigitalOcean Spaces
       * Google Cloud Storage
       * Microsoft Azure Blob Storage
@@ -130,9 +129,6 @@ system.
    +===============+==========+========+============+=========+
    | Amazon S3     | \-       | \-     | Yes        | \-      |
    +---------------+----------+--------+------------+---------+
-   | Ceph RADOS    | Yes      | \-     | \-         | \-      |
-   | Gateway       |          |        |            |         |
-   +---------------+----------+--------+------------+---------+
    | DigitalOcean  | Yes      | Yes    | \-         | \-      |
    | Spaces [#f2]_ |          |        |            |         |
    +---------------+----------+--------+------------+---------+
@@ -164,14 +160,10 @@ to name endpoints. Services for which |product| requests endpoint names may have
 additional naming requirements. For these requirements, review your cloud
 storage service provider's documentation.
 
-For Ceph RADOS Gateway endpoints, you can nominate a secure port. 
-If you do not nominate a secure port, the default is port 80. 
-Whichever port you assign, make sure it is accessible to |product| (firewall open, etc.).
-
 Bucket Match
 ~~~~~~~~~~~~
 
-|product| provides a "Bucket Match" option for Ceph RADOS Gateway. If this
+|product| provides a "Bucket Match" option for S3-compatible endpoints. If this
 option is left unchecked, |product| prepends a bucket identifier to every object
 in the target backend's namespace. This enables a "bucket of buckets"
 architecture in which the target backend sees and manages only one large bucket
