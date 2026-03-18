@@ -7,6 +7,11 @@ ZENKO_ENV_FILE="$HOME/.zenko.env"
 yq eval '.env | to_entries | .[] | "export " + .key + "=" + (.value | tostring | @sh)' .github/workflows/end2end.yaml \
     | sed 's/\${{[^}]*}}//g' > "$ZENKO_ENV_FILE"
 echo 'export GIT_ACCESS_TOKEN="${GITHUB_TOKEN}"' >> "$ZENKO_ENV_FILE"
+
+echo 'export VOLUME_ROOT=$PWD/artifacts' >> "$ZENKO_ENV_FILE"
+echo 'export ZENKO_MONGODB_DATABASE=${ZENKO_MONGODB_DATABASE:-zenko-database}' >> "$ZENKO_ENV_FILE"
+echo "export HOST_DNS=$(awk '/^nameserver/{print \$2; exit}' /etc/resolv.conf)" >> "$ZENKO_ENV_FILE"
+mkdir -p "$PWD/artifacts/data"
 # Disable GCP tests as we don't have credentials setup in devcontainer
 echo 'export GCP_BACKEND_DESTINATION_LOCATION=' >> "$ZENKO_ENV_FILE"
 
