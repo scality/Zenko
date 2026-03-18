@@ -43,17 +43,23 @@ else
     KEYCLOAK_INGRESS_OPTIONS="$DIR/configs/keycloak_ingress_http.yaml"
 fi
 
-helm repo add --force-update bitnami https://charts.bitnami.com/bitnami
-helm repo add --force-update pravega https://charts.pravega.io
-helm repo add --force-update codecentric https://codecentric.github.io/helm-charts/
+helm_repo_add() {
+    helm repo list -o json 2>/dev/null | jq -e --arg n "$1" '.[] | select(.name == $n)' >/dev/null 2>&1 || helm repo add "$1" "$2"
+}
+
+helm_repo_add bitnami https://charts.bitnami.com/bitnami
+helm_repo_add pravega https://charts.pravega.io
+helm_repo_add codecentric https://codecentric.github.io/helm-charts/
 # BanzaiCloud repo may not work, c.f. https://scality.atlassian.net/browse/AN-225
-helm repo add --force-update banzaicloud-stable https://kubernetes-charts.banzaicloud.com || {
+helm_repo_add banzaicloud-stable https://kubernetes-charts.banzaicloud.com || {
 		echo -n "::notice file=$(basename $0),line=$LINENO,title=Banzaicloud Charts not available::"
 		echo "Failed to add banzaicloud-stable repo, using local checkout"
 
-		kafka_operator="$(mktemp -d)"
-		git -c advice.detachedHead=false clone -q --depth 1 -b "v${KAFKA_OPERATOR_VERSION}" \
-            https://github.com/banzaicloud/koperator "${kafka_operator}"
+		kafka_operator="${DIR}/kafka-operator"
+		if [ ! -d "${kafka_operator}" ]; then
+			git -c advice.detachedHead=false clone -q --depth 1 -b "v${KAFKA_OPERATOR_VERSION}" \
+				https://github.com/banzaicloud/koperator "${kafka_operator}"
+		fi
 
 		KAFKA_CHART="${kafka_operator}/charts/kafka-operator"
 	}
