@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -ex
 
 env_variables=$(yq eval '.env | to_entries | .[] | .key + "=" + .value' .github/workflows/end2end.yaml | sed 's/\${{[^}]*}}//g') && export $env_variables
 export GIT_ACCESS_TOKEN=${GITHUB_TOKEN}
@@ -45,6 +45,7 @@ for i in $(seq 0 $array_length); do
             eval "$run_command";
         fi
     )
+    exit
 done
 
 (
@@ -72,11 +73,10 @@ done
     bash configure-e2e-ctst.sh
 )
 
-docker image prune -af
-
-# Build CTST image from current branch 
+# Build CTST image from current branch
 SORBET_TAG=$(yq eval '.sorbet.tag' solution/deps.yaml)
 DRCTL_TAG=$(yq eval '.drctl.tag' solution/deps.yaml)
 TAG_NAME=ctst_codespace_setup
 GIT_AUTH_TOKEN=$GITHUB_TOKEN docker build --secret id=GIT_AUTH_TOKEN --build-arg SORBET_TAG=$SORBET_TAG --build-arg DRCTL_TAG=$DRCTL_TAG -t $E2E_CTST_IMAGE_NAME:$TAG_NAME ./tests/ctst
 kind load docker-image ${E2E_CTST_IMAGE_NAME}:$TAG_NAME
+docker rmi ${E2E_CTST_IMAGE_NAME}:$TAG_NAME
