@@ -1,60 +1,29 @@
 import assert from 'assert';
 import { Then, When } from '@cucumber/cucumber';
-import { parseStringPromise } from 'xml2js';
-import { Identity } from 'cli-testing';
+import { ListObjectsV2ExtendedCommand } from '@scality/cloudserverclient';
 import Zenko from '../../world/Zenko';
 import { safeJsonParse } from '../../common/utils';
+
+async function listObjectsV2WithOptionalAttributes(
+    world: Zenko,
+    optionalAttributes: string,
+) {
+    world.resetCommand();
+
+    const bucketName = world.getSaved<string>('bucketName');
+    const optionalAttrsList = optionalAttributes.split(',').map(attr => attr.trim());
+
+    await world.sendS3Command(new ListObjectsV2ExtendedCommand({
+        Bucket: bucketName,
+        ObjectAttributes: optionalAttrsList,
+    }));
+}
 
 When('the user calls ListObjectsV2 on the bucket with optional attributes {string}', async function (
     this: Zenko,
     optionalAttributes: string,
 ) {
-    this.resetCommand();
-
-    const bucketName = this.getSaved<string>('bucketName');
-    const attributesList = optionalAttributes.split(',').map(attr => attr.trim());
-    const credentials = Identity.getCurrentCredentials();
-
-    const path = `/${bucketName}?list-type=2`;
-
-    const result = await this.awsS3Request(
-        'GET',
-        path,
-        { accessKeyId: credentials.accessKeyId, secretAccessKey: credentials.secretAccessKey },
-        { 'x-amz-optional-object-attributes': attributesList.join(',') },
-    );
-
-    if (result.err) {
-        this.setResult({
-            stdout: '',
-            err: result.err,
-            statusCode: result.statusCode,
-        });
-        return;
-    }
-
-    const rawXml = result.data as string;
-    const contents: Record<string, unknown>[] = [];
-
-    if (rawXml) {
-        const parsedXml = await parseStringPromise(rawXml) as Record<string, unknown>;
-        const listResult = parsedXml?.ListBucketResult as Record<string, unknown> | undefined;
-        if (listResult?.Contents) {
-            for (const item of listResult.Contents as Record<string, unknown[]>[]) {
-                const obj: Record<string, unknown> = {};
-                for (const k of Object.keys(item)) {
-                    obj[k] = item[k][0];
-                }
-                contents.push(obj);
-            }
-        }
-    }
-
-    this.setResult({
-        stdout: JSON.stringify({ Contents: contents }),
-        err: null,
-        statusCode: result.statusCode,
-    });
+    await listObjectsV2WithOptionalAttributes(this, optionalAttributes);
 });
 
 Then('the ListObjectsV2 response should contain {string}', function (

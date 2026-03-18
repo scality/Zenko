@@ -1,7 +1,6 @@
 import assert from 'assert';
 import { Then, When } from '@cucumber/cucumber';
-import { parseStringPromise } from 'xml2js';
-import { Identity } from 'cli-testing';
+import { GetObjectAttributesExtendedCommand } from '@scality/cloudserverclient';
 import Zenko from '../../world/Zenko';
 import { safeJsonParse } from '../../common/utils';
 
@@ -15,47 +14,13 @@ async function getObjectAttributes(
 
     const bucketName = world.getSaved<string>('bucketName');
     const attributesList = attributes.split(',').map(attr => attr.trim());
-    const credentials = Identity.getCurrentCredentials();
 
-    let path = `/${bucketName}/${objectName}?attributes`;
-    if (versionId) {
-        path += `&versionId=${versionId}`;
-    }
-
-    const result = await world.awsS3Request(
-        'GET',
-        path,
-        { accessKeyId: credentials.accessKeyId, secretAccessKey: credentials.secretAccessKey },
-        { 'x-amz-object-attributes': attributesList.join(',') },
-    );
-
-    if (result.err) {
-        world.setResult({
-            stdout: '',
-            err: result.err,
-            statusCode: result.statusCode,
-        });
-        return;
-    }
-
-    const rawXml = result.data as string;
-    const parsed: Record<string, unknown> = {};
-
-    if (rawXml) {
-        const parsedXml = await parseStringPromise(rawXml) as Record<string, unknown>;
-        const parsedData = parsedXml?.GetObjectAttributesResponse;
-        if (parsedData && typeof parsedData === 'object') {
-            for (const k of Object.keys(parsedData)) {
-                parsed[k] = (parsedData as Record<string, string[]>)[k][0];
-            }
-        }
-    }
-
-    world.setResult({
-        stdout: JSON.stringify(parsed),
-        err: null,
-        statusCode: result.statusCode,
-    });
+    await world.sendS3Command(new GetObjectAttributesExtendedCommand({
+        Bucket: bucketName,
+        Key: objectName,
+        VersionId: versionId,
+        ObjectAttributes: attributesList,
+    }));
 }
 
 When('the user calls GetObjectAttributes for {string} requesting {string}', async function (
