@@ -304,10 +304,12 @@ export async function cleanupAccount(world: Zenko, accountName: string) {
     }
 }
 
-interface PrepareScenarioOptions {
+export interface PrepareScenarioOptions {
     versioning?: string;
     jobNamespace?: string;
     jobName?: string;
+    objectSize?: number;
+    objectCount?: number;
 }
 
 /**
@@ -330,7 +332,9 @@ export async function prepareMetricsScenarios(
     const {
         versioning = '',
         jobName = 'end2end-ops-count-items',
-        jobNamespace = `${featureName}-setup`
+        jobNamespace = `${featureName}-setup`,
+        objectSize = 0,
+        objectCount = 1,
     } = options;
 
     if (!fs.existsSync(filePath)) {
@@ -365,7 +369,9 @@ export async function prepareMetricsScenarios(
         for (const scenarioId of scenarioIds) {
             await world.createAccount(scenarioId, true);
             await createBucketWithConfiguration(world, scenarioId, versioning);
-            await putObject(world);
+            for (let i = 0; i < objectCount; i++) {
+                await putObject(world, undefined, undefined, objectSize);
+            }
             output[scenarioId] = Identity.getCurrentCredentials()!;
         }
 

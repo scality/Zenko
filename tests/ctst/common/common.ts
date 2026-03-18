@@ -106,8 +106,10 @@ async function getTopicsOffsets(topics: string[], kafkaAdmin: Admin) {
     return offsets;
 }
 
-Given('an account', async function (this: Zenko) {
-    await this.createAccount();
+Given('{int} additional accounts', async function (this: Zenko, count: number) {
+    for (let i = 0; i < count; i++) {
+        await this.createAccount();
+    }
 });
 
 async function createBucket(world: Zenko, versioning: string, bucketName: string) {
@@ -423,6 +425,12 @@ Then('the API should {string} with {string}', function (this: Zenko, result: str
     default:
         throw new Error('The API should have a correct expected result defined');
     }
+});
+
+Then('the http response code is {int}', function (this: Zenko, expectedStatus: number) {
+    const response = this.getSaved<{ statusCode: number }>('lastHttpResponse');
+    assert.strictEqual(response.statusCode, expectedStatus,
+        `Expected status ${expectedStatus} but got ${response.statusCode}`);
 });
 
 Then('the operation finished without error', function (this: Zenko) {

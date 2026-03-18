@@ -33,6 +33,12 @@ interface ServiceUsersCredentials {
 }
 
 // Zenko entities
+export interface SavedIdentity {
+    identityName: string;
+    identityType: IdentityEnum;
+    accountName: string;
+}
+
 export enum EntityType {
     ACCOUNT = 'ACCOUNT',
     IAM_USER = 'IAM_USER',
@@ -437,13 +443,13 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         }
     }
 
-    async createAccount(name?: string, force?: boolean, adminClientName?: string) {
+    async createAccount(name?: string, force?: boolean, adminClientName?: string): Promise<string> {
         Identity.resetIdentity();
         const accountName = name || this.getSaved<string>('accountName') ||
             `${Constants.ACCOUNT_NAME}${Utils.randomString()}`;
         if (Identity.hasIdentity(IdentityEnum.ACCOUNT, accountName) && !force) {
             Identity.useIdentity(IdentityEnum.ACCOUNT, accountName);
-            return;
+            return accountName;
         }
 
         if (adminClientName && Identity.hasIdentity(IdentityEnum.ADMIN, adminClientName)) {
@@ -456,6 +462,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
         // Save the identity
         this.saveIdentityInformation(accountName, IdentityEnum.ACCOUNT, accountName);
+        return accountName;
     }
 
     async deleteAccount(name: string) {
@@ -769,17 +776,27 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     }
 
     saveIdentityInformation(name: string, identity: IdentityEnum, accountName: string) {
-        this.addToSaved('identityNameForScenario', name);
-        this.addToSaved('identityTypeForScenario', identity);
-        this.addToSaved('accountNameForScenario', accountName);
+        const identities = this.getSavedIdentities();
+        identities.push({ identityName: name, identityType: identity, accountName });
+        this.addToSaved('savedIdentities', identities);
+    }
+
+    getSavedIdentities(): SavedIdentity[] {
+        return this.getSaved<SavedIdentity[]>('savedIdentities') || [];
+    }
+
+    getSavedIdentity(index = -1): SavedIdentity {
+        const identities = this.getSavedIdentities();
+        const i = index < 0 ? identities.length + index : index;
+        return identities[i];
     }
 
     useSavedIdentity() {
-        Identity.useIdentity(
-            this.getSaved<IdentityEnum>('identityTypeForScenario'),
-            this.getSaved<string>('identityNameForScenario'),
-            this.getSaved<string>('accountNameForScenario'),
-        );
+        const last = this.getSavedIdentity();
+        if (!last) {
+            return;
+        }
+        Identity.useIdentity(last.identityType, last.identityName, last.accountName);
     }
 
     /**
@@ -968,9 +985,10 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         path: string,
         headers: object = {},
         payload: object | string = {},
+        username?: string,
     ): Promise<{ statusCode: number; data: object } | { statusCode: number; err: unknown }> {
         const token = await this.getWebIdentityToken(
-            this.parameters.KeycloakUsername || 'storage_manager',
+            username || this.parameters.KeycloakUsername || 'storage_manager',
             this.parameters.KeycloakPassword || '123',
             this.parameters.KeycloakHost || 'keycloak.zenko.local',
             this.parameters.KeycloakPort || '80',

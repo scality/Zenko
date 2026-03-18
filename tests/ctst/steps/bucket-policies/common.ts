@@ -152,14 +152,14 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
         || identityType === EntityType.DATA_CONSUMER) {
         const result = await IAM.attachRolePolicy({
             policyArn,
-            roleName: this.getSaved<string>('identityNameForScenario'),
+            roleName: this.getSavedIdentity().identityName,
         });
         assert.ifError(result.stderr || result.err);
     }
     if (identityType === EntityType.IAM_USER) {
         const result = await IAM.attachUserPolicy({
             policyArn,
-            userName: this.getSaved<string>('identityNameForScenario'),
+            userName: this.getSavedIdentity().identityName,
         });
         assert.ifError(result.stderr || result.err);
     }
@@ -361,13 +361,13 @@ Given('an environment setup for the API', async function (this: Zenko) {
         || identityType === EntityType.DATA_CONSUMER) {
         const result = await IAM.attachRolePolicy({
             policyArn,
-            roleName: this.getSaved<string>('identityNameForScenario'),
+            roleName: this.getSavedIdentity().identityName,
         });
         assert.ifError(result.stderr || result.err);
     } else if (identityType === EntityType.IAM_USER) { // accounts do not have any policy
         const result = await IAM.attachUserPolicy({
             policyArn,
-            userName: this.getSaved<string>('identityNameForScenario'),
+            userName: this.getSavedIdentity().identityName,
         });
         assert.ifError(result.stderr || result.err);
     }
@@ -434,13 +434,13 @@ Given('an environment setup for the API', async function (this: Zenko) {
         || identityType === EntityType.DATA_CONSUMER) {
         const result = await IAM.detachRolePolicy({
             policyArn,
-            roleName: this.getSaved<string>('identityNameForScenario'),
+            roleName: this.getSavedIdentity().identityName,
         });
         assert.ifError(result.stderr || result.err);
     } else if (identityType === EntityType.IAM_USER) { // accounts do not have any policy
         const detachResult = await IAM.detachUserPolicy({
             policyArn,
-            userName: this.getSaved<string>('identityNameForScenario'),
+            userName: this.getSavedIdentity().identityName,
         });
         assert.ifError(detachResult.stderr || detachResult.err);
     }
