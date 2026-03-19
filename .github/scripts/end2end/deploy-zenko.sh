@@ -101,18 +101,31 @@ create_encryption_secret()
     PRIVATE=$(mktemp zenko-key.XXXXXX)
     trap 'rm -f "$PUBLIC" "$PRIVATE"' EXIT INT HUP TERM
 
-    # Get the OpenSSL version
-    OPENSSL_VERSION=$(openssl version | awk '{print $2}')
-
-    # Check if OpenSSL 3.x is being used
-    if [[ $OPENSSL_VERSION =~ ^3\..* ]]; then
-        # Use the "-traditional" flag for OpenSSL 3.x
-        openssl genrsa -out "$PRIVATE" -traditional
+    if kubectl get secret ${ZENKO_NAME}-keypair.v0 --namespace ${NAMESPACE} >/dev/null 2>/dev/null; then
+        kubectl get secret ${ZENKO_NAME}-keypair.v0 --namespace ${NAMESPACE} \
+            -o jsonpath='{.data.publicKey}' | base64 -d > "$PUBLIC"
     else
-        openssl genrsa -out "$PRIVATE"
-    fi
+        # Get the OpenSSL version
+        OPENSSL_VERSION=$(openssl version | awk '{print $2}')
 
-    openssl rsa -in "$PRIVATE" -pubout -out "$PUBLIC"
+        # Check if OpenSSL 3.x is being used
+        if [[ $OPENSSL_VERSION =~ ^3\..* ]]; then
+            # Use the "-traditional" flag for OpenSSL 3.x
+            openssl genrsa -out "$PRIVATE" -traditional
+        else
+            openssl genrsa -out "$PRIVATE"
+        fi
+
+        openssl rsa -in "$PRIVATE" -pubout -out "$PUBLIC"
+
+        # Zkop expects PKCS#1 format, but with a type of 'PRIVATE KEY' as generated with older openssl
+        sed -i 's/RSA PRIVATE KEY/PRIVATE KEY/' "$PRIVATE"
+
+        kubectl create secret generic ${ZENKO_NAME}-keypair.v0 \
+            --namespace ${NAMESPACE} \
+            --from-file=publicKey="$PUBLIC" \
+            --from-file=privateKey="$PRIVATE"
+    fi
 
     AZURE_SECRET_KEY_ENCRYPTED="$(
         printf '%s' "${AZURE_SECRET_KEY}" \
@@ -120,15 +133,6 @@ create_encryption_secret()
                   -pkeyopt rsa_padding_mode:oaep -pkeyopt rsa_oaep_md:sha256 -pkeyopt rsa_mgf1_md:sha256 \
         | base64 -w 0
     )"
-
-    # Zkop expects PKCS#1 format, but with a type of 'PRIVATE KEY' as generated with older openssl
-    sed -i 's/RSA PRIVATE KEY/PRIVATE KEY/' "$PRIVATE"
-    
-    kubectl create secret generic ${ZENKO_NAME}-keypair.v0 \
-        --namespace ${NAMESPACE} \
-        --from-file=publicKey="$PUBLIC" \
-        --from-file=privateKey="$PRIVATE" \
-        --dry-run=client -o yaml | kubectl apply -f -
 
     export AZURE_SECRET_KEY_ENCRYPTED
 }
