@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluent-bit-config
+data:
+  fluent-bit.conf: |
+    [SERVICE]
+        Flush        5
+        Log_Level    warn
+
+    [INPUT]
+        Name         tail
+        Tag          <basename>
+        Tag_Regex    /var/log/containers/(?<basename>[^/]+)$
+        Path         /var/log/containers/*.log
+        DB           /var/lib/fluent-bit/flb_kube.db
+        Mem_Buf_Limit 16MB
+        Skip_Long_Lines On
+
+    [OUTPUT]
+        Name         file
+        Match        *
+        Path         /data/fluentbit-logs/
+        Mkdir        true
+        Format       template
+        Template     {log}
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluent-bit
+  labels:
+    app: fluent-bit
+spec:
+  selector:
+    matchLabels:
+      app: fluent-bit
+  template:
+    metadata:
+      labels:
+        app: fluent-bit
+    spec:
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          effect: NoSchedule
+      containers:
+        - name: fluent-bit
+          image: cr.fluentbit.io/fluent/fluent-bit:4.0
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          volumeMounts:
+            - name: varlog
+              mountPath: /var/log
+              readOnly: true
+            - name: fluentbit-output
+              mountPath: /data/fluentbit-logs
+            - name: fluentbit-db
+              mountPath: /var/lib/fluent-bit
+            - name: config
+              mountPath: /fluent-bit/etc
+      volumes:
+        - name: varlog
+          hostPath:
+            path: /var/log
+        - name: fluentbit-output
+          hostPath:
+            path: /data/fluentbit-logs
+            type: DirectoryOrCreate
+        - name: fluentbit-db
+          emptyDir: {}
+        - name: config
+          configMap:
+            name: fluent-bit-config
