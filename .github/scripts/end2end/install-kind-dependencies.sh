@@ -285,8 +285,22 @@ mongodb_sharded() {
 
     kubectl apply -f "$base_yaml_path"
 
-    kubectl rollout status statefulset data-db-mongodb-sharded-mongos --timeout=5m
+    # Hold mongos back until configsvr is ready to avoid a race where mongos
+    # tries to auth against configsvr before its replica set is initialized,
+    # causing mongosh to hang indefinitely (no timeout in the entrypoint).
+    local mongos_replicas=$(kubectl get statefulset \
+        -l app.kubernetes.io/name=mongodb-sharded,app.kubernetes.io/component=mongos \
+        -o jsonpath='{.items[0].spec.replicas}')
+    kubectl scale statefulset \
+        -l app.kubernetes.io/name=mongodb-sharded,app.kubernetes.io/component=mongos \
+        --replicas=0
+
     kubectl rollout status statefulset data-db-mongodb-sharded-configsvr --timeout=5m
+
+    kubectl scale statefulset \
+        -l app.kubernetes.io/name=mongodb-sharded,app.kubernetes.io/component=mongos \
+        --replicas=$mongos_replicas
+    kubectl rollout status statefulset data-db-mongodb-sharded-mongos --timeout=5m
 
     for ((i=0; i<MONGODB_SHARD_COUNT; i++)); do
         kubectl rollout status statefulset "data-db-mongodb-sharded-shard${i}-data" --timeout=5m
