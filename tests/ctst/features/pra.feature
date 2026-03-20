@@ -5,6 +5,7 @@ Feature: PRA operations
     @Dmf
     @PRA
     @ColdStorage
+    @Exclusive
     Scenario Outline: PRA (nominal case)
     # Prepare objects in the primary site
     Given a "<versioningConfiguration>" bucket

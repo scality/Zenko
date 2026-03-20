@@ -36,13 +36,16 @@ restart of multiple services, must be created before the test starts, or in a
 dedicated set of tests, that is, a set of test executed before all tests having
 a specific tag used for identifying the feature(s).
 
-Note: Testing the reconfiguration of the environment is recommended, but it
-should be done carefully to not affect other tests.
+When a scenario *must* reconfigure the environment (e.g., create or modify
+locations, add overlay endpoints), tag it with `@Exclusive`. This ensures no
+other scenario runs in parallel while the exclusive scenario executes, and the
+exclusive scenario only starts once all running scenarios have finished. See
+the implementation in `common/hooks.ts`.
 
-## 4. Do not use `atMostOnePicklePerTag`.
+## 4. Avoid unnecessary parallel restrictions.
 
-If a set of scenario requires the use of `atMostOnePicklePerTag`, they won't
-be executed in parallel, which is:
+Adding `atMostOnePicklePerTag` for a set of scenarios means they won't be
+executed in parallel, which is:
 
 - Not realistic for the production environment.
 - Not efficient for the test execution: the duration of tests will suffer.
@@ -58,6 +61,11 @@ possible. Solutions exist:
   for unit or functional testing, but in integration tests, prefer using
   relative checks.
 - As a last resort, we might have a dedicated test suite.
+
+Note: `@Exclusive` (see **Rule #3**) is an exception — it is reserved for
+scenarios that mutate cluster-wide state (location creation, overlay changes)
+and cannot be made idempotent because the operator reconciliation affects all
+running pods. Use it sparingly.
 
 ## 5. Focus on validating features.
 

@@ -3,6 +3,7 @@ Feature: Bucket Websites
     @2.6.0
     @PreMerge
     @BucketWebsite
+    @Exclusive
     Scenario Outline: Bucket Website CRUD
         # The scenario should test that we can put a bucket website configuration on a bucket
         # send an index.html

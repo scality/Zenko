@@ -32,7 +32,21 @@ const noParallelRun = atMostOnePicklePerTag([
     ...replicationLockTags
 ]);
 
-setParallelCanAssign(noParallelRun);
+const EXCLUSIVE_TAG = '@Exclusive';
+
+function hasTag(pickle: { tags: readonly { name: string }[] }, tagName: string): boolean {
+    return pickle.tags.some(t => t.name === tagName);
+}
+
+setParallelCanAssign((pickle, runningPickles) => {
+    if (runningPickles.some(p => hasTag(p, EXCLUSIVE_TAG))) {
+        return false;
+    }
+    if (hasTag(pickle, EXCLUSIVE_TAG)) {
+        return runningPickles.length === 0;
+    }
+    return noParallelRun(pickle, runningPickles);
+});
 
 Before(async function (this: Zenko, scenario: ITestCaseHookParameter) {
     this.resetSaved();
