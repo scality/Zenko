@@ -3,6 +3,16 @@
 
 A [VS Code extension](https://marketplace.visualstudio.com/items?itemName=GitHub.codespaces) is available for Codespaces.
 
+## Pre-setup: /etc/hosts (local environments only)
+
+When running locally (not in a Codespace/devcontainer where you are root),
+the CTST configuration script needs Zenko hostnames to resolve to localhost.
+Add them before running setup to avoid a `sudo` prompt mid-run:
+
+```bash
+echo "127.0.0.1 iam.zenko.local s3-local-file.zenko.local keycloak.zenko.local sts.zenko.local management.zenko.local s3.zenko.local website.mywebsite.com utilization.zenko.local aws-mock.zenko.local azure-mock.zenko.local blob.azure-mock.zenko.local queue.azure-mock.zenko.local devstoreaccount1.blob.azure-mock.zenko.local devstoreaccount1.queue.azure-mock.zenko.local dr.zenko.local" | sudo tee -a /etc/hosts
+```
+
 ## Running CTST tests in the codespace
 
 ```bash
