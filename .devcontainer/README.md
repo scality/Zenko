@@ -14,16 +14,23 @@ See [tests/ctst/README.md](../tests/ctst/README.md) for more details on building
 
 ## Running e2e tests in the codespace
 
-To run the CTST tests in the codespace, head to `.github/script/end2end/` and run `run-e2e-ctst.sh`
-script. Some variables need to be exported before running the tests.
+### Node tests (mocha)
 
 ```bash
-    env_variables=$(yq eval '.env | to_entries | .[] | .key + "=" + .value' .github/workflows/end2end.yaml | sed 's/\${{[^}]*}}//g') && export $env_variables
-    export E2E_IMAGE_TAG=latest
-    export GCP_BACKEND_DESTINATION_LOCATION=
+# Set up the test environment (endpoints, credentials, mongo, TLS)
+source .github/scripts/end2end/setup-e2e-env.sh
 
-    cd .github/scripts/end2end/
-    bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "backbeat" "default"
+# Run mocha directly (setup-e2e-env.sh already cd's to node_tests/)
+yarn mocha --exit -t 10000 --recursive smoke_tests
+yarn mocha --exit -t 10000 --recursive cloudserver/bucketGetV2
+yarn mocha --exit -t 10000 --grep "should list objects" --recursive cloudserver/bucketGetV2
+```
+
+### CTST tests (cucumber)
+
+```bash
+cd tests/ctst
+./run-ctst-locally.sh @yourTag
 ```
 
 ## Accessing s3 service

@@ -12,3 +12,6 @@ RUN curl -L "https://github.com/tilt-dev/tilt/releases/download/v${TILT_VERSION}
 
 RUN curl -L "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz" | tar -xvz && \
     install kustomize /usr/local/bin
+
+# Auto-source Zenko env vars in all future terminals
+RUN echo '[ -f "$HOME/.zenko.env" ] && source "$HOME/.zenko.env"' >> /etc/bash.bashrc

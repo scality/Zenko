@@ -8,20 +8,14 @@
 # How to run node tests locally in a Codespace
 
 ```bash
-cd tests/zenko_tests/node_tests
+# Set up the test environment (endpoints, credentials, mongo port-forward, TLS)
+source .github/scripts/end2end/setup-e2e-env.sh
 
-# Run a specific test with grep
-./run-node-tests-locally.sh "should list objects in V2 format" "cloudserver/bucketGetV2"
-
-# Run all tests in a folder
-./run-node-tests-locally.sh "" "cloudserver"
-
-# Build and use a custom image
-docker build -t my-e2e:local ../
-./run-node-tests-locally.sh "should list objects" "cloudserver" my-e2e:local
+# Run mocha directly (setup-e2e-env.sh already cd's to node_tests/)
+yarn mocha --exit -t 10000 --recursive smoke_tests
+yarn mocha --exit -t 10000 --grep "should list objects" --recursive cloudserver/bucketGetV2
+yarn mocha --exit -t 10000 --recursive cloudserver
 ```
-
-To switch images, delete the pod first: `kubectl delete pod node-tests-local`
 
 # How to write iam policy e2e tests
 
