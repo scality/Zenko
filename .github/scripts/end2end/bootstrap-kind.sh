@@ -25,6 +25,8 @@ bootstrap_kind() {
     cat > config.yaml << EOF
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
+networking:
+  dnsSearch: []
 nodes:
 - role: control-plane
   image: ${NODE_IMAGE}
