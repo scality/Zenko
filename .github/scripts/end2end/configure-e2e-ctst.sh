@@ -3,6 +3,9 @@ set -exu
 
 DIR=$(dirname "$0")
 
+# Set up ingress endpoints and /etc/hosts for out-of-cluster access
+source "$DIR/configure-e2e-endpoints.sh"
+
 # Get kafka image name and tag
 kafka_image() {
     source <( "$DIR"/../../../solution/kafka_build_vars.sh )
@@ -75,9 +78,6 @@ UUID=$(kubectl get secret -l app.kubernetes.io/name=backbeat-config,app.kubernet
     -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq .extensions.replication.topic)
 UUID=${UUID%.*}
 UUID=${UUID:1}
-
-echo "127.0.0.1 iam.zenko.local s3-local-file.zenko.local keycloak.zenko.local \
-    sts.zenko.local management.zenko.local s3.zenko.local website.mywebsite.com utilization.zenko.local" | sudo tee -a /etc/hosts
 
 # Add bucket notification target
 envsubst < ./configs/notification_destinations.yaml | kubectl apply -f -
