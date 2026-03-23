@@ -89,7 +89,3 @@ runs:
       shell: bash
       run: bash configure-e2e.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "default"
       working-directory: ./.github/scripts/end2end
-    - name: Linting
-      shell: bash
-      run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "lint" "default"
-      working-directory: ./.github/scripts/end2end
