@@ -32,8 +32,6 @@ export NOTIF_KAFKA_SCRAM_PORT=9095
 kubectl get zookeepercluster "${ZENKO_NAME}-base-quorum" -o json | jq '.
 | .metadata |= {namespace, name: "\(.name)-auth" }
 | del(.spec.labels)
-| del(.spec.persistence)
-| .spec.storageType |= "ephemeral"
 | del(.spec.pod.affinity)
 | del(.spec.pod.labels)
 | del(.status)
