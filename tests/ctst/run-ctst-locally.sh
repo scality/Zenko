@@ -14,14 +14,17 @@ IMAGE_NAME="${2:-ghcr.io/scality/zenko/zenko-e2e-ctst:ctst_codespace_setup}"
 # certain tests based on their @version tag.
 VERSION=$(cat ../../VERSION | grep -Po 'VERSION="\K[^"]*')
 POD_NAME="ctst-end2end"
+ZENKO_NAME="${ZENKO_NAME:-end2end}"
+ADMIN_ACCESS_KEY=$(kubectl get secret "${ZENKO_NAME}-management-vault-admin-creds.v1" -o jsonpath='{.data.accessKey}' | base64 -d)
+ADMIN_SECRET_KEY=$(kubectl get secret "${ZENKO_NAME}-management-vault-admin-creds.v1" -o jsonpath='{.data.secretKey}' | base64 -d)
 WORLD_PARAMETERS="$(jq -c <<EOF
 {
   "subdomain": "zenko.local",
   "ssl": false,
   "port": "80",
-  "AccountName": "zenko",
-  "AdminAccessKey": "R6JN4OJ998ZBY99DD56X",
-  "AdminSecretKey": "OEow2DytG0sr7mK3844vb/hKDBWiU+UWc+4+FVfr"
+  "AccountName": "zenko-ctst",
+  "AdminAccessKey": "$ADMIN_ACCESS_KEY",
+  "AdminSecretKey": "$ADMIN_SECRET_KEY"
 }
 EOF
 )"
