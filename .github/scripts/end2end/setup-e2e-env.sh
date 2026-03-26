@@ -44,7 +44,8 @@ if ! ss -tlnp 2>/dev/null | grep -q ":${MONGO_PORT}" && \
         trap "kill ${_MONGO_PF_PID} 2>/dev/null || true" EXIT
         export _SETUP_E2E_CLEANUP_SET=1
     fi
-    sleep 2
+    # Wait until the port is actually listening (poll every 200ms, fail after 10s)
+    timeout 10 bash -c "until ss -tlnp 2>/dev/null | grep -q ':${MONGO_PORT}'; do sleep 0.2; done"
 fi
 export MONGO_REPLICA_SET_HOSTS="localhost:${MONGO_PORT}"
 
