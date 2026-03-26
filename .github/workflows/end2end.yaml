@@ -535,33 +535,30 @@ jobs:
         uses: ./.github/actions/deploy
         env:
           GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
+      - name: Set up e2e environment
+        run: source .github/scripts/end2end/setup-e2e-env.sh
       - name: Run init CI test
-        run: |
-          source .github/scripts/end2end/setup-e2e-env.sh
-          yarn run test_operator
+        working-directory: tests/zenko_tests/node_tests
+        run: yarn run test_operator
         continue-on-error: true
       - name: Run iam policies tests
-        run: |
-          source .github/scripts/end2end/setup-e2e-env.sh
-          yarn run test_iam_policies
+        working-directory: tests/zenko_tests/node_tests
+        run: yarn run test_iam_policies
         continue-on-error: true
       - name: Run cloudserver tests
-        run: |
-          source .github/scripts/end2end/setup-e2e-env.sh
-          yarn run test_object_api
+        working-directory: tests/zenko_tests/node_tests
+        run: yarn run test_object_api
         continue-on-error: true
       - name: Run smoke tests
-        run: |
-          source .github/scripts/end2end/setup-e2e-env.sh
-          yarn run test_smoke
+        working-directory: tests/zenko_tests/node_tests
+        run: yarn run test_smoke
         continue-on-error: true
       - name: Enable HTTPS
         run: bash enable-https.sh
         working-directory: ./.github/scripts/end2end
-      - name: Run smoke tests
-        run: |
-          source .github/scripts/end2end/setup-e2e-env.sh
-          yarn run test_smoke
+      - name: Run smoke tests (HTTPS)
+        working-directory: tests/zenko_tests/node_tests
+        run: yarn run test_smoke
         continue-on-error: true
       - name: Debug wait
         uses: ./.github/actions/debug-wait
@@ -610,9 +607,11 @@ jobs:
           GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
         with:
           deploy_metadata: ${{ env.ENABLE_RING_TESTS }}
+      - name: Set up e2e environment
+        run: source .github/scripts/end2end/setup-e2e-env.sh
       - name: Run backbeat end to end tests
+        working-directory: tests/zenko_tests/node_tests
         run: |
-          source .github/scripts/end2end/setup-e2e-env.sh
           ./gcp_shim.sh
           yarn run test_all_extensions
         continue-on-error: true
