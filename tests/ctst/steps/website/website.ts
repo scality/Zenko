@@ -2,6 +2,7 @@ import assert from 'assert';
 import { Given, When, Then } from '@cucumber/cucumber';
 import Zenko from '../../world/Zenko';
 import { putObject } from '../utils/utils';
+import { waitForZenkoToStabilize, waitForDataServicesToStabilize } from '../utils/kubernetes';
 import { S3, Utils } from 'cli-testing';
 
 const pageMessage = Utils.randomString();
@@ -29,9 +30,12 @@ When('the user puts the bucket website configuration', async function (this: Zen
     });
 });
 
-When('the {string} endpoint is added to the overlay', async function (this: Zenko, endpoint: string) {
-    await this.addWebsiteEndpoint(endpoint);
-});
+When('the {string} endpoint is added to the overlay', { timeout: 15 * 60 * 1000 },
+    async function (this: Zenko, endpoint: string) {
+        await this.addWebsiteEndpoint(endpoint);
+        await waitForZenkoToStabilize(this, true);
+        await waitForDataServicesToStabilize(this);
+    });
 
 When('the user creates an S3 Bucket policy granting public read access', async function (this: Zenko) {
     const policy = {
@@ -82,5 +86,5 @@ Then('the user should be able to load the index.html file from the {string} endp
                 await Utils.sleep(1000);
             }
         }
-        assert.fail('Failed to fetch the bucket website after 20 tries');
+        assert.fail('Failed to fetch the bucket website after 60 tries');
     });
