@@ -29,7 +29,6 @@ env:
   BACKBEAT_BUCKET_CHECK_TIMEOUT_S: ""
   BACKBEAT_LCC_CRON_RULE: ""
   # e2e-env
-  E2E_IMAGE_NAME: ghcr.io/scality/zenko/zenko-e2e
   E2E_CTST_IMAGE_NAME: ghcr.io/scality/zenko/zenko-e2e-ctst
   E2E_IMAGE_TAG: ${{ github.sha }}
   VAULT_TEST_IMAGE_NAME: ""
@@ -350,33 +349,22 @@ jobs:
           cache-from: type=gha,scope=kafka-connect-${{ env.KAFKA_CONNECT_TAG }}
           cache-to: type=gha,mode=max,scope=kafka-connect-${{ env.KAFKA_CONNECT_TAG }}
 
-  build-test-image:
+  lint-e2e-zenko-tests:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-      - name: Login to Registry
-        uses: docker/login-action@v4
+      - uses: actions/setup-node@v6
         with:
-          username: "${{ github.repository_owner }}"
-          password: "${{ github.token }}"
-          registry: ghcr.io
-      - name: Generate end2end config yaml
-        run: |-
-          cd tests/zenko_tests
-          envsubst < 'e2e-config.yaml.template' > 'e2e-config.yaml'
-          cat e2e-config.yaml
-          echo 'Generated e2e-config.yaml file'
-      - name: Build and push CI image
-        uses: docker/build-push-action@v7
-        with:
-          push: true
-          context: ./tests/zenko_tests
-          tags: "${{ env.E2E_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}"
-          cache-from: type=gha,scope=end2end-test
-          cache-to: type=gha,mode=max,scope=end2end-test
+          node-version: '22'
+          cache: yarn
+          cache-dependency-path: tests/zenko_tests/node_tests/yarn.lock
+      - name: Install dependencies
+        working-directory: tests/zenko_tests/node_tests
+        run: yarn install --frozen-lockfile
+      - name: Lint e2e tests
+        working-directory: tests/zenko_tests/node_tests
+        run: yarn lint
 
   lint-and-build-ctst:
     runs-on: ubuntu-24.04
@@ -483,8 +471,6 @@ jobs:
         working-directory: ./.github/scripts/end2end
       - name: Deploy second Zenko for PRA
         run: bash deploy-zenko.sh end2end-pra default './configs/zenko.yaml'
-        env:
-          ZENKO_MONGODB_DATABASE: pradb
         working-directory: ./.github/scripts/end2end
       - name: Add Keycloak pra user and assign StorageManager role
         shell: bash
@@ -494,7 +480,7 @@ jobs:
           OIDC_EMAIL: 'e2e-pra@zenko.local'
         working-directory: ./.github/scripts/end2end
       - name: Configure E2E PRA test environment
-        run: bash configure-e2e.sh end2end-pra ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} default
+        run: bash configure-e2e.sh end2end-pra default
         working-directory: ./.github/scripts/end2end
         env:
           OIDC_USERNAME: 'zenko-end2end-pra'
@@ -518,7 +504,7 @@ jobs:
         if: always()
 
   end2end-2-shards-http:
-    needs: [build-kafka, build-test-image]
+    needs: [build-kafka]
     runs-on:
       - ubuntu-24.04-8core
     env:
@@ -549,28 +535,30 @@ jobs:
         uses: ./.github/actions/deploy
         env:
           GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
+      - name: Set up e2e environment
+        run: source .github/scripts/end2end/setup-e2e-env.sh
       - name: Run init CI test
-        run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "end2end" "default"
-        working-directory: ./.github/scripts/end2end
+        working-directory: tests/zenko_tests/node_tests
+        run: yarn run test_operator
         continue-on-error: true
       - name: Run iam policies tests
-        run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "iam-policies" "default"
-        working-directory: ./.github/scripts/end2end
+        working-directory: tests/zenko_tests/node_tests
+        run: yarn run test_iam_policies
         continue-on-error: true
       - name: Run cloudserver tests
-        run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "object-api" "default"
-        working-directory: ./.github/scripts/end2end
+        working-directory: tests/zenko_tests/node_tests
+        run: yarn run test_object_api
         continue-on-error: true
       - name: Run smoke tests
-        run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "smoke" "default"
-        working-directory: ./.github/scripts/end2end
+        working-directory: tests/zenko_tests/node_tests
+        run: yarn run test_smoke
         continue-on-error: true
       - name: Enable HTTPS
         run: bash enable-https.sh
         working-directory: ./.github/scripts/end2end
-      - name: Run smoke tests
-        run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "smoke" "default"
-        working-directory: ./.github/scripts/end2end
+      - name: Run smoke tests (HTTPS)
+        working-directory: tests/zenko_tests/node_tests
+        run: yarn run test_smoke
         continue-on-error: true
       - name: Debug wait
         uses: ./.github/actions/debug-wait
@@ -585,7 +573,7 @@ jobs:
         if: always()
 
   end2end-sharded:
-    needs: [build-kafka, build-test-image]
+    needs: [build-kafka]
     runs-on:
       - ubuntu-24.04-8core
     env:
@@ -619,9 +607,13 @@ jobs:
           GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
         with:
           deploy_metadata: ${{ env.ENABLE_RING_TESTS }}
+      - name: Set up e2e environment
+        run: source .github/scripts/end2end/setup-e2e-env.sh
       - name: Run backbeat end to end tests
-        run: bash run-e2e-test.sh "end2end" ${E2E_IMAGE_NAME}:${E2E_IMAGE_TAG} "backbeat" "default"
-        working-directory: ./.github/scripts/end2end
+        working-directory: tests/zenko_tests/node_tests
+        run: |
+          ./gcp_shim.sh
+          yarn run test_all_extensions
         continue-on-error: true
       - name: Debug wait
         uses: ./.github/actions/debug-wait
@@ -699,7 +691,7 @@ jobs:
       - build-doc
       - build-iso
       - build-kafka
-      - build-test-image
+      - lint-e2e-zenko-tests
       - end2end-2-shards-http
       - end2end-sharded
       - end2end-pra
