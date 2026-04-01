@@ -85,6 +85,15 @@ After(async function (this: Zenko, results) {
         });
         return;
     }
+    const tags = this.getSaved<string[]>('scenarioTags') || [];
+    if (tags.includes('@ColdStorage')) {
+        // Skip S3 object deletion for cold storage scenarios to avoid
+        // polluting the Kafka dead letter queue with unimplemented
+        // "delete from tar" operations, which block sorbetctl retries.
+        // Note : This may be removed once https://scality.atlassian.net/browse/SOR-190 is released
+        // Also my opinion is good idempotent tests should work without cleanups
+        return;
+    }
     await cleanS3Bucket(
         this,
         this.getSaved<string>('bucketName'),
