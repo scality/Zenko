@@ -80,6 +80,8 @@ export KEYCLOAK_TEST_PORT="80"
 export KEYCLOAK_TEST_REALM_NAME=${OIDC_REALM}
 export KEYCLOAK_TEST_CLIENT_ID=${OIDC_CLIENT_ID}
 export KEYCLOAK_TEST_GRANT_TYPE="password"
+# cli-testing KeycloakSetup hook reads KEYCLOAK_REALM from env
+export KEYCLOAK_REALM=${OIDC_REALM}
 
 # --- 7. Test backend env vars ---
 export AWS_BACKEND_SOURCE_LOCATION AWS_BACKEND_DESTINATION_LOCATION
@@ -119,12 +121,211 @@ if kubectl get namespace metadata &>/dev/null; then
     export RING_S3C_ENDPOINT="http://s3c.local"
 fi
 
-# --- 10. Install node dependencies ---
-NODE_TESTS_DIR="$(cd "$_SETUP_DIR/../../../tests/zenko_tests/node_tests" && pwd)"
+# =====================================================================
+# --- 10. CTST-specific setup (Kafka, service users, Zenko CR data) ---
+# =====================================================================
+# This block is skipped for non-CTST runs (e.g., mocha-only jobs).
+# Detection: CTST infra is present if configure-e2e-ctst.sh has run,
+# which creates notification destination secrets. We also accept an
+# explicit SETUP_CTST=1 flag.
+
+ZENKO_ROOT="$(cd "$_SETUP_DIR/../../.." && pwd)"
+export TARGET_VERSION=$(sed -n 's/^VERSION="\([^"]*\)"/\1/p' "${ZENKO_ROOT}/VERSION")
+
+_CTST_AVAILABLE=false
+echo "Checking for CTST infra (zenkonotificationtarget)..."
+if kubectl get zenkonotificationtarget -o name 2>/dev/null | grep -q .; then
+    _CTST_AVAILABLE=true
+    echo "CTST infra detected (notification targets found)"
+else
+    echo "CTST infra not found, skipping CTST-specific setup"
+fi
+
+if [ "$_CTST_AVAILABLE" = "true" ]; then
+
+# CTST account & user names
+export ZENKO_ACCOUNT_NAME="zenko-ctst"
+export STORAGE_MANAGER_USER_NAME="ctst_storage_manager"
+export STORAGE_ACCOUNT_OWNER_USER_NAME="ctst_storage_account_owner"
+export DATA_CONSUMER_USER_NAME="ctst_data_consumer"
+export DATA_ACCESSOR_USER_NAME="ctst_data_accessor"
+export SEED_KEYCLOAK_DEFAULT_ROLES=true
+export ZENKO_PORT="80"
+
+# PRA admin credentials (may not exist for non-PRA runs; ignore errors)
+export ADMIN_PRA_ACCESS_KEY_ID=$(kubectl get secret ${ZENKO_NAME}-pra-management-vault-admin-creds.v1 -o jsonpath='{.data.accessKey}' 2>/dev/null | base64 -d 2>/dev/null || echo "")
+export ADMIN_PRA_SECRET_ACCESS_KEY=$(kubectl get secret ${ZENKO_NAME}-pra-management-vault-admin-creds.v1 -o jsonpath='{.data.secretKey}' 2>/dev/null | base64 -d 2>/dev/null || echo "")
+
+# --- 11. Service user credentials ---
+BACKBEAT_LCBP_1_CREDS=$(kubectl get secret -l app.kubernetes.io/name=backbeat-lcbp-user-creds,app.kubernetes.io/instance=${ZENKO_NAME} -o jsonpath='{.items[0].data.backbeat-lifecycle-bp-1\.json}' | base64 -d)
+BACKBEAT_LCC_1_CREDS=$(kubectl get secret -l app.kubernetes.io/name=backbeat-lcc-user-creds,app.kubernetes.io/instance=${ZENKO_NAME} -o jsonpath='{.items[0].data.backbeat-lifecycle-conductor-1\.json}' | base64 -d)
+BACKBEAT_LCOP_1_CREDS=$(kubectl get secret -l app.kubernetes.io/name=backbeat-lcop-user-creds,app.kubernetes.io/instance=${ZENKO_NAME} -o jsonpath='{.items[0].data.backbeat-lifecycle-op-1\.json}' | base64 -d)
+BACKBEAT_QP_1_CREDS=$(kubectl get secret -l app.kubernetes.io/name=backbeat-qp-user-creds,app.kubernetes.io/instance=${ZENKO_NAME} -o jsonpath='{.items[0].data.backbeat-qp-1\.json}' | base64 -d)
+SORBET_FWD_2_ACCESSKEY=$(kubectl get secret -l app.kubernetes.io/name=sorbet-fwd-creds,app.kubernetes.io/instance=${ZENKO_NAME} -o jsonpath='{.items[0].data.accessKey}' | base64 -d)
+SORBET_FWD_2_SECRETKEY=$(kubectl get secret -l app.kubernetes.io/name=sorbet-fwd-creds,app.kubernetes.io/instance=${ZENKO_NAME} -o jsonpath='{.items[0].data.secretKey}' | base64 -d)
+export SERVICE_USERS_CREDENTIALS=$(echo '{"backbeat-lifecycle-bp-1":'"${BACKBEAT_LCBP_1_CREDS}"',"backbeat-lifecycle-conductor-1":'"${BACKBEAT_LCC_1_CREDS}"',"backbeat-lifecycle-op-1":'"${BACKBEAT_LCOP_1_CREDS}"',"backbeat-qp-1":'"${BACKBEAT_QP_1_CREDS}"',"sorbet-fwd-2":{"accessKey":"'"${SORBET_FWD_2_ACCESSKEY}"'","secretKey":"'"${SORBET_FWD_2_SECRETKEY}"'"}}' | jq -R)
+
+# --- 12. Kafka topics for sorbet ---
+SORBET_CONFIG=$(kubectl get secret -l app.kubernetes.io/name=cold-sorbet-config-e2e-azure-archive,app.kubernetes.io/instance=${ZENKO_NAME} \
+    -o jsonpath='{.items[0].data.config\.json}' | base64 -di)
+export KAFKA_DEAD_LETTER_TOPIC=$(echo "${SORBET_CONFIG}" | jq -r '."kafka-dead-letter-topic"')
+export KAFKA_OBJECT_TASK_TOPIC=$(echo "${SORBET_CONFIG}" | jq -r '."kafka-object-task-topic"')
+export KAFKA_GC_REQUEST_TOPIC=$(echo "${SORBET_CONFIG}" | jq -r '."kafka-gc-request-topic"')
+
+# --- 13. Kafka host from backbeat config + port-forward ---
+KAFKA_HOST_PORT_ORIG=$(kubectl get secret -l app.kubernetes.io/name=backbeat-config,app.kubernetes.io/instance=${ZENKO_NAME} \
+    -o jsonpath='{.items[0].data.config\.json}' | base64 -di | jq -r .kafka.hosts)
+KAFKA_SVC=${KAFKA_HOST_PORT_ORIG%:*}
+KAFKA_PORT=${KAFKA_HOST_PORT_ORIG#*:}
+
+# Port-forward for Kafka broker (TCP — no ingress possible)
+if ! ss -tlnp 2>/dev/null | grep -q ":${KAFKA_PORT}" && \
+   ! lsof -i ":${KAFKA_PORT}" &>/dev/null; then
+    kubectl port-forward "svc/${KAFKA_SVC}" "${KAFKA_PORT}:${KAFKA_PORT}" &
+    _KAFKA_PF_PID=$!
+    timeout 10 bash -c "until ss -tlnp 2>/dev/null | grep -q ':${KAFKA_PORT}'; do sleep 0.2; done"
+fi
+export KAFKA_HOST_PORT="localhost:${KAFKA_PORT}"
+
+# Kafka auth broker — for bucket notification tests with SASL
+KAFKA_AUTH_HOST="${ZENKO_NAME}-base-queue-auth-0"
+KAFKA_AUTH_PORT=${KAFKA_PORT}
+# Auth Kafka runs on a different pod; port-forward on a different local port to avoid conflicts
+KAFKA_AUTH_LOCAL_PORT=$((KAFKA_PORT + 10))
+if ! ss -tlnp 2>/dev/null | grep -q ":${KAFKA_AUTH_LOCAL_PORT}" && \
+   ! lsof -i ":${KAFKA_AUTH_LOCAL_PORT}" &>/dev/null; then
+    echo "Waiting for auth Kafka cluster to be running..."
+    kubectl wait --for=jsonpath='{.status.state}'=ClusterRunning --timeout=5m \
+        kafkacluster "${ZENKO_NAME}-base-queue-auth"
+    # Port-forward via the service (pod names have random suffixes)
+    kubectl port-forward "svc/${KAFKA_AUTH_HOST}" "${KAFKA_AUTH_LOCAL_PORT}:${KAFKA_AUTH_PORT}" &
+    _KAFKA_AUTH_PF_PID=$!
+    timeout 10 bash -c "until ss -tlnp 2>/dev/null | grep -q ':${KAFKA_AUTH_LOCAL_PORT}'; do sleep 0.2; done"
+fi
+export KAFKA_AUTH_HOST_PORT="localhost:${KAFKA_AUTH_LOCAL_PORT}"
+
+# Prometheus — port-forward for CTST PRA tests
+PROMETHEUS_SVC="${PROMETHEUS_NAME:-prometheus}-operated"
+PROMETHEUS_PORT=9090
+if ! ss -tlnp 2>/dev/null | grep -q ":${PROMETHEUS_PORT}" && \
+   ! lsof -i ":${PROMETHEUS_PORT}" &>/dev/null; then
+    kubectl port-forward "svc/${PROMETHEUS_SVC}" "${PROMETHEUS_PORT}:${PROMETHEUS_PORT}" &
+    _PROM_PF_PID=$!
+    timeout 10 bash -c "until ss -tlnp 2>/dev/null | grep -q ':${PROMETHEUS_PORT}'; do sleep 0.2; done"
+fi
+export PROMETHEUS_SERVICE="localhost"
+
+# --- 14. Zenko CR metadata ---
+export TIME_PROGRESSION_FACTOR=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath="{.metadata.annotations.zenko\.io/time-progression-factor}")
+export INSTANCE_ID=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.status.instanceID}')
+export KAFKA_CLEANER_INTERVAL=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.spec.kafkaCleaner.interval}')
+export SORBETD_RESTORE_TIMEOUT=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.spec.sorbet.server.azure.restoreTimeout}')
+
+# Backbeat API (use ingress — already exported as BACKBEAT_API_ENDPOINT)
+export BACKBEAT_API_HOST="backbeat-api.zenko.local"
+export BACKBEAT_API_PORT="80"
+
+# Utilization service
+export UTILIZATION_SERVICE_HOST=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.spec.scuba.api.ingress.hostname}')
+export UTILIZATION_SERVICE_PORT="80"
+
+# Azure archive settings
+export AZURE_ARCHIVE_ACCESS_TIER="Hot"
+export AZURE_ARCHIVE_MANIFEST_ACCESS_TIER="Hot"
+
+# --- 15. Grant Kube API access (needed by CTST for CronJob/Pod operations) ---
+kubectl create clusterrolebinding serviceaccounts-cluster-admin \
+    --clusterrole=cluster-admin \
+    --group=system:serviceaccounts 2>/dev/null || true
+
+# --- 15b. Install sorbet & drctl binaries for CTST ---
+CTST_DIR="$(cd "${ZENKO_ROOT}/tests/ctst" && pwd)"
+SORBET_IMAGE=$(yq eval '.sorbet | .sourceRegistry + "/" + .image' "${ZENKO_ROOT}/solution/deps.yaml")
+SORBET_TAG=$(yq eval '.sorbet.tag' "${ZENKO_ROOT}/solution/deps.yaml")
+DRCTL_IMAGE=$(yq eval '.drctl | .sourceRegistry + "/" + .image' "${ZENKO_ROOT}/solution/deps.yaml")
+DRCTL_TAG=$(yq eval '.drctl.tag' "${ZENKO_ROOT}/solution/deps.yaml")
+
+if [ ! -f "${CTST_DIR}/sorbetctl" ]; then
+    _cid=$(docker create "${SORBET_IMAGE}:${SORBET_TAG}" true)
+    docker cp "${_cid}:/sorbetctl" "${CTST_DIR}/sorbetctl"
+    docker rm "${_cid}" >/dev/null
+    chmod +x "${CTST_DIR}/sorbetctl"
+fi
+if [ ! -f "${CTST_DIR}/zenko-drctl" ]; then
+    _cid=$(docker create "${DRCTL_IMAGE}:${DRCTL_TAG}" true)
+    docker cp "${_cid}:/zenko-drctl" "${CTST_DIR}/zenko-drctl"
+    docker rm "${_cid}" >/dev/null
+    chmod +x "${CTST_DIR}/zenko-drctl"
+fi
+
+# --- 16. Build CTST world parameters JSON ---
+export CTST_WORLD_PARAMETERS="$(jq -c <<EOF
+{
+  "subdomain":"${SUBDOMAIN}",
+  "DRSubdomain":"${DR_SUBDOMAIN:-}",
+  "ssl":false,
+  "port":"${ZENKO_PORT}",
+  "AccountName":"${ZENKO_ACCOUNT_NAME}",
+  "AdminAccessKey":"${ADMIN_ACCESS_KEY_ID}",
+  "AdminSecretKey":"${ADMIN_SECRET_ACCESS_KEY}",
+  "VaultAuthHost":"${VAULT_AUTH_HOST}",
+  "NotificationDestination":"${NOTIF_DEST_NAME}",
+  "NotificationDestinationTopic":"${NOTIF_DEST_TOPIC}",
+  "NotificationDestinationAlt":"${NOTIF_ALT_DEST_NAME}",
+  "NotificationDestinationTopicAlt":"${NOTIF_ALT_DEST_TOPIC}",
+  "NotificationDestinationPlain":"${NOTIF_PLAIN_DEST_NAME}",
+  "NotificationDestinationTopicPlain":"${NOTIF_AUTH_DEST_TOPIC}",
+  "NotificationDestinationScram":"${NOTIF_SCRAM_DEST_NAME}",
+  "NotificationDestinationTopicScram":"${NOTIF_SCRAM_DEST_TOPIC}",
+  "KafkaExternalIps": "",
+  "PrometheusService":"${PROMETHEUS_SERVICE}",
+  "KafkaHosts":"${KAFKA_HOST_PORT}",
+  "KafkaAuthHosts":"${KAFKA_AUTH_HOST_PORT}",
+  "KafkaConnectUrl":"${KAFKA_CONNECT_URL}",
+  "KeycloakUsername":"${OIDC_USERNAME}",
+  "KeycloakPassword":"${OIDC_PASSWORD}",
+  "KeycloakHost":"${OIDC_HOST}",
+  "KeycloakPort":"${KEYCLOAK_TEST_PORT}",
+  "KeycloakRealm":"${KEYCLOAK_TEST_REALM_NAME}",
+  "KeycloakClientId":"${KEYCLOAK_TEST_CLIENT_ID}",
+  "KeycloakGrantType":"${KEYCLOAK_TEST_GRANT_TYPE}",
+  "StorageManagerUsername":"${STORAGE_MANAGER_USER_NAME}",
+  "StorageAccountOwnerUsername":"${STORAGE_ACCOUNT_OWNER_USER_NAME}",
+  "DataConsumerUsername":"${DATA_CONSUMER_USER_NAME}",
+  "DataAccessorUsername":"${DATA_ACCESSOR_USER_NAME}",
+  "ServiceUsersCredentials":${SERVICE_USERS_CREDENTIALS},
+  "AzureAccountName":"${AZURE_ACCOUNT_NAME}",
+  "AzureAccountKey":"${AZURE_SECRET_KEY}",
+  "AzureArchiveContainer":"${AZURE_ARCHIVE_BUCKET_NAME}",
+  "AzureArchiveContainer2":"${AZURE_ARCHIVE_BUCKET_NAME_2:-}",
+  "AzureArchiveAccessTier":"${AZURE_ARCHIVE_ACCESS_TIER}",
+  "AzureArchiveManifestTier":"${AZURE_ARCHIVE_MANIFEST_ACCESS_TIER}",
+  "AzureArchiveQueue":"${AZURE_ARCHIVE_QUEUE_NAME:-}",
+  "TimeProgressionFactor":"${TIME_PROGRESSION_FACTOR}",
+  "KafkaObjectTaskTopic":"${KAFKA_OBJECT_TASK_TOPIC}",
+  "KafkaGCRequestTopic":"${KAFKA_GC_REQUEST_TOPIC}",
+  "KafkaDeadLetterQueueTopic":"${KAFKA_DEAD_LETTER_TOPIC}",
+  "InstanceID":"${INSTANCE_ID}",
+  "BackbeatApiHost":"${BACKBEAT_API_HOST}",
+  "BackbeatApiPort":"${BACKBEAT_API_PORT}",
+  "KafkaCleanerInterval":"${KAFKA_CLEANER_INTERVAL}",
+  "SorbetdRestoreTimeout":"${SORBETD_RESTORE_TIMEOUT}",
+  "DRAdminAccessKey":"${ADMIN_PRA_ACCESS_KEY_ID}",
+  "DRAdminSecretKey":"${ADMIN_PRA_SECRET_ACCESS_KEY}",
+  "UtilizationServiceHost":"${UTILIZATION_SERVICE_HOST}",
+  "UtilizationServicePort":"${UTILIZATION_SERVICE_PORT}"
+}
+EOF
+)"
+
+fi # _CTST_AVAILABLE
+
+# --- 17. Install node dependencies ---
+NODE_TESTS_DIR="$(cd "${ZENKO_ROOT}/tests/zenko_tests/node_tests" && pwd)"
 cd "$NODE_TESTS_DIR"
 yarn install --frozen-lockfile
 
-# --- 11. Persist exports for subsequent CI steps ---
+# --- 18. Persist exports for subsequent CI steps ---
 if [ -n "${GITHUB_ENV:-}" ]; then # Don't do it for Codespace
     echo "TOKEN=$TOKEN" >> "$GITHUB_ENV"
     echo "BACKBEAT_BUCKET_CHECK_TIMEOUT_S=$BACKBEAT_BUCKET_CHECK_TIMEOUT_S" >> "$GITHUB_ENV"
@@ -145,6 +346,7 @@ if [ -n "${GITHUB_ENV:-}" ]; then # Don't do it for Codespace
     echo "KEYCLOAK_TEST_HOST=$KEYCLOAK_TEST_HOST" >> "$GITHUB_ENV"
     echo "KEYCLOAK_TEST_PORT=$KEYCLOAK_TEST_PORT" >> "$GITHUB_ENV"
     echo "KEYCLOAK_TEST_REALM_NAME=$KEYCLOAK_TEST_REALM_NAME" >> "$GITHUB_ENV"
+    echo "KEYCLOAK_REALM=$KEYCLOAK_REALM" >> "$GITHUB_ENV"
     echo "KEYCLOAK_TEST_CLIENT_ID=$KEYCLOAK_TEST_CLIENT_ID" >> "$GITHUB_ENV"
     echo "KEYCLOAK_TEST_GRANT_TYPE=$KEYCLOAK_TEST_GRANT_TYPE" >> "$GITHUB_ENV"
     echo "CLOUDSERVER_HOST=$CLOUDSERVER_HOST" >> "$GITHUB_ENV"
@@ -153,6 +355,7 @@ if [ -n "${GITHUB_ENV:-}" ]; then # Don't do it for Codespace
     echo "VAULT_ENDPOINT=$VAULT_ENDPOINT" >> "$GITHUB_ENV"
     echo "VAULT_STS_ENDPOINT=$VAULT_STS_ENDPOINT" >> "$GITHUB_ENV"
     echo "VAULT_AUTH_HOST=$VAULT_AUTH_HOST" >> "$GITHUB_ENV"
+    echo "KAFKA_CONNECT_URL=$KAFKA_CONNECT_URL" >> "$GITHUB_ENV"
     echo "NODE_EXTRA_CA_CERTS=$NODE_EXTRA_CA_CERTS" >> "$GITHUB_ENV"
     echo "MOCHA_FILE=$MOCHA_FILE" >> "$GITHUB_ENV"
     echo "VERIFY_CERTIFICATES=$VERIFY_CERTIFICATES" >> "$GITHUB_ENV"
@@ -175,4 +378,28 @@ if [ -n "${GITHUB_ENV:-}" ]; then # Don't do it for Codespace
     # JSON vars need the heredoc delimiter syntax (values contain '=')
     printf 'CRR_SOURCE_INFO<<EOF\n%s\nEOF\n' "$CRR_SOURCE_INFO" >> "$GITHUB_ENV"
     printf 'CRR_DESTINATION_INFO<<EOF\n%s\nEOF\n' "$CRR_DESTINATION_INFO" >> "$GITHUB_ENV"
+    # CTST-specific vars (only if CTST setup ran)
+    if [ "${_CTST_AVAILABLE}" = "true" ]; then
+        echo "TARGET_VERSION=$TARGET_VERSION" >> "$GITHUB_ENV"
+        echo "SEED_KEYCLOAK_DEFAULT_ROLES=$SEED_KEYCLOAK_DEFAULT_ROLES" >> "$GITHUB_ENV"
+        echo "ZENKO_ACCOUNT_NAME=$ZENKO_ACCOUNT_NAME" >> "$GITHUB_ENV"
+        echo "KAFKA_HOST_PORT=$KAFKA_HOST_PORT" >> "$GITHUB_ENV"
+        echo "KAFKA_AUTH_HOST_PORT=$KAFKA_AUTH_HOST_PORT" >> "$GITHUB_ENV"
+        echo "INSTANCE_ID=$INSTANCE_ID" >> "$GITHUB_ENV"
+        echo "TIME_PROGRESSION_FACTOR=$TIME_PROGRESSION_FACTOR" >> "$GITHUB_ENV"
+        echo "KAFKA_CLEANER_INTERVAL=$KAFKA_CLEANER_INTERVAL" >> "$GITHUB_ENV"
+        echo "SORBETD_RESTORE_TIMEOUT=$SORBETD_RESTORE_TIMEOUT" >> "$GITHUB_ENV"
+        echo "BACKBEAT_API_HOST=$BACKBEAT_API_HOST" >> "$GITHUB_ENV"
+        echo "BACKBEAT_API_PORT=$BACKBEAT_API_PORT" >> "$GITHUB_ENV"
+        echo "UTILIZATION_SERVICE_HOST=$UTILIZATION_SERVICE_HOST" >> "$GITHUB_ENV"
+        echo "UTILIZATION_SERVICE_PORT=$UTILIZATION_SERVICE_PORT" >> "$GITHUB_ENV"
+        echo "KAFKA_DEAD_LETTER_TOPIC=$KAFKA_DEAD_LETTER_TOPIC" >> "$GITHUB_ENV"
+        echo "KAFKA_OBJECT_TASK_TOPIC=$KAFKA_OBJECT_TASK_TOPIC" >> "$GITHUB_ENV"
+        echo "KAFKA_GC_REQUEST_TOPIC=$KAFKA_GC_REQUEST_TOPIC" >> "$GITHUB_ENV"
+        echo "AZURE_ARCHIVE_ACCESS_TIER=$AZURE_ARCHIVE_ACCESS_TIER" >> "$GITHUB_ENV"
+        echo "AZURE_ARCHIVE_MANIFEST_ACCESS_TIER=$AZURE_ARCHIVE_MANIFEST_ACCESS_TIER" >> "$GITHUB_ENV"
+        echo "PROMETHEUS_SERVICE=$PROMETHEUS_SERVICE" >> "$GITHUB_ENV"
+        printf 'CTST_WORLD_PARAMETERS<<EOF\n%s\nEOF\n' "$CTST_WORLD_PARAMETERS" >> "$GITHUB_ENV"
+        printf 'SERVICE_USERS_CREDENTIALS<<EOF\n%s\nEOF\n' "$SERVICE_USERS_CREDENTIALS" >> "$GITHUB_ENV"
+    fi
 fi

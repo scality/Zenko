@@ -186,7 +186,7 @@ export default class ZenkoDrctl {
     }
 
     private async runCommand(action: string, params: string, throwOnError = false) {
-        const command = `/ctst/zenko-drctl ${action} ${params}`;
+        const command = `./zenko-drctl ${action} ${params}`;
         try {
             this.world.logger.debug('running zenko-drctl command', { command });
             const result = await util.promisify(exec)(command);

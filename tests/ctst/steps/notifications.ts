@@ -186,8 +186,8 @@ When('i subscribe to {string} notifications for destination {int}',
             this.addCommandParameter({ notificationConfiguration: `'${JSON.stringify(destinationConfig)}'` });
         }
         await S3.putBucketNotificationConfiguration(this.getCommandParameters());
-        const hosts = this.getSaved<NotificationDestination[]>('notificationDestinations')[destination].hosts;
-        await waitForBucketInConnectorPipeline(hosts, this.getSaved<string>('bucketName'));
+        await waitForBucketInConnectorPipeline(
+            this.parameters.KafkaConnectUrl, this.getSaved<string>('bucketName'));
     });
 
 When('i subscribe to {string} notifications for destination {int} with {string} filter',
@@ -236,8 +236,8 @@ When('i subscribe to {string} notifications for destination {int} with {string} 
             this.addCommandParameter({ notificationConfiguration: `'${JSON.stringify(destinationConfig)}'` });
         }
         await S3.putBucketNotificationConfiguration(this.getCommandParameters());
-        const hosts = this.getSaved<NotificationDestination[]>('notificationDestinations')[destination].hosts;
-        await waitForBucketInConnectorPipeline(hosts, this.getSaved<string>('bucketName'));
+        await waitForBucketInConnectorPipeline(
+            this.parameters.KafkaConnectUrl, this.getSaved<string>('bucketName'));
     });
 
 When('i unsubscribe from {string} notifications for destination {int}',

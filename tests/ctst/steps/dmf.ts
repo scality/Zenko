@@ -3,8 +3,10 @@ import assert from 'assert';
 import { execShellCommand } from 'common/utils';
 import Zenko from 'world/Zenko';
 
+const MOCK_SORBET_POD = 'deploy/mock-sorbet';
+
 async function cleanDmfVolume() {
-    await execShellCommand('rm -rf /cold-data/*');
+    await execShellCommand(`kubectl exec ${MOCK_SORBET_POD} -- rm -rf /cold-data/*`);
 }
 
 Then('dmf volume should contain {int} objects',
@@ -13,7 +15,8 @@ Then('dmf volume should contain {int} objects',
         while (!conditionOk) {
             // Getting the number of objects inside the volume used
             // by the mock dmf to store transitioned objects
-            const outStr = await execShellCommand('find /cold-data -type f | wc -l');
+            const outStr = await execShellCommand(
+                `kubectl exec ${MOCK_SORBET_POD} -- find /cold-data -type f | wc -l`);
             // we store two files per object (content and manifest.json)
             conditionOk = Number(outStr) === objectCount * 2;
         }
