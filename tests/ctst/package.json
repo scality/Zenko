@@ -39,6 +39,7 @@
     "lint": "eslint ."
   },
   "resolutions": {
-    "@azure/core-client": "1.10.1"
+    "@azure/core-client": "1.10.1",
+    "@types/node": "^24.0.0"
   }
 }
