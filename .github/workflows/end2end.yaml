@@ -398,7 +398,7 @@ jobs:
           cache-dependency-path: tests/ctst/yarn.lock
       - name: Install ctst test dependencies
         working-directory: tests/ctst
-        run: >
+        run: >-
           yarn install --frozen-lock-file --network-concurrency 1 || (
             yarn cache clean && yarn install --frozen-lock-file --network-concurrency 1
           )
