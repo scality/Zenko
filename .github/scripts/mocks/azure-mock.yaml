@@ -33,6 +33,7 @@ spec:
       "--blobPort", "80",
       "--queueHost", "0.0.0.0",
       "--queuePort", "81",
+      "--skipApiVersionCheck",
     ]
     name: azurite
     ports:
