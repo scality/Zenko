@@ -17,6 +17,12 @@ inputs:
     description: Path to deps.yaml
     required: false
     default: solution/deps.yaml
+  target-branch:
+    description: >-
+      Target branch to diff deps against (when set, deployments are created only for
+      changed componentsets)
+    required: false
+    default: ''
   environment:
     description: Deployment environment name (e.g. zenko/development/2.11)
     required: true
@@ -42,6 +48,22 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Filter to changed dependencies
+      if: inputs.target-branch != ''
+      id: filter
+      shell: bash
+      run: |
+        git fetch origin "${{ inputs.target-branch }}" --depth=1
+        git show "origin/${{ inputs.target-branch }}:${{ inputs.deps-file }}" > /tmp/base-deps.yaml 2>/dev/null || echo '{}' > /tmp/base-deps.yaml
+
+        yq eval-all '
+          select(fi == 0) as $curr | select(fi == 1) as $base |
+          $curr | with_entries(select(.value.tag != ($base[.key].tag // "")))
+        ' '${{ inputs.deps-file }}' /tmp/base-deps.yaml > /tmp/changed-deps.yaml
+
+        cat /tmp/changed-deps.yaml
+        echo "deps-file=/tmp/changed-deps.yaml" >> "$GITHUB_OUTPUT"
+
     - name: Parse component repos from deps.yaml
       id: parse
       uses: actions/github-script@v7
@@ -50,7 +72,7 @@ runs:
         script: |
           const { parseDeps } = require('${{ github.action_path }}/parse-deps.js');
           const selfRepo = process.env.GITHUB_REPOSITORY || 'scality/zenko';
-          const { components, repos } = parseDeps('${{ inputs.deps-file }}', selfRepo);
+          const { components, repos } = parseDeps('${{ steps.filter.outputs.deps-file || inputs.deps-file }}', selfRepo);
 
           if (components.length === 0) {
             core.info('No component repos found in deps.yaml');
