@@ -1,6 +1,12 @@
 ---
 name: Test Create Component Deployments
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      target-branch:
+        description: Target branch to diff deps against
+        required: false
+        default: ''
 jobs:
   test-deployments:
     runs-on: ubuntu-latest
@@ -17,6 +23,7 @@ jobs:
           app-id: 12345
           app-private-key: ${{ secrets.APP_PRIVATE_KEY }}
           deps-file: solution/deps.yaml
+          target-branch: ${{ inputs.target-branch }}
           environment: zenko/development/2.11
           status: in_progress
           transient: "true"

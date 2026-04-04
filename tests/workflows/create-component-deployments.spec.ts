@@ -57,17 +57,19 @@ const commonDeploymentParams = {
 };
 
 beforeEach(async () => {
+    // Base deps on main/development/2.11: sorbet v1.2.1, backbeat 9.3.0
+    // Feature branch bumps sorbet to v1.2.2 (only changed component)
     github = new MockGithub({
         repo: {
             zenko: {
-                currentBranch: "improvement/ZENKO-5210",
+                pushedBranches: ["development/2.11"],
                 files: [
                     {
                         src: path.resolve(__dirname, "../..", ".github"),
                         dest: ".github",
                     },
                     {
-                        src: path.resolve(__dirname, "test-deps.yaml"),
+                        src: path.resolve(__dirname, "test-deps-base.yaml"),
                         dest: "solution/deps.yaml",
                     },
                     {
@@ -79,6 +81,14 @@ beforeEach(async () => {
         },
     });
     await github.setup();
+
+    // Create feature branch with updated deps (sorbet v1.2.1 -> v1.2.2)
+    const repoPath = github.repo.getPath("zenko");
+    const depsUpdate = path.resolve(__dirname, "test-deps.yaml");
+    await exec(`git -C ${repoPath} checkout -b improvement/ZENKO-5210`);
+    await exec(`cp ${depsUpdate} ${repoPath}/solution/deps.yaml`);
+    await exec(`git -C ${repoPath} add solution/deps.yaml && git -C ${repoPath} commit -m "bump sorbet"`);
+    await exec(`git -C ${repoPath} push origin improvement/ZENKO-5210`);
 
     moctokit = new Moctokit("http://api.github.com");
 
@@ -170,5 +180,84 @@ describe("create-component-deployments action", () => {
         const deployStep = result.find(r => r.name?.includes("Create or update deployments"));
         expect(deployStep).toBeDefined();
         expect(deployStep?.status).toBe(0);
+    });
+
+    it("should only deploy changed components when target-branch is set", async () => {
+        nock("http://api.github.com").delete("/installation/token").reply(204).persist();
+        act.setInput("target-branch", "development/2.11");
+
+        const result = await act.runEvent("workflow_dispatch", {
+            logFile: process.env.ACT_LOG ? path.join(__dirname, "act-delta.log") : undefined,
+            mockApi: [
+                moctokit.rest.apps.getRepoInstallation().reply({
+                    status: 200,
+                    data: { id: 1, app_id: 12345, app_slug: "test-app" },
+                    repeat: 5,
+                }),
+                moctokit.rest.apps.createInstallationAccessToken().reply({
+                    status: 201,
+                    data: { token: "ghs_fake_token" },
+                    repeat: 5,
+                }),
+
+                // Only sorbet should be deployed (tag changed v1.2.1 -> v1.2.2)
+                moctokit.rest.repos.createDeployment({
+                    owner: "scality",
+                    repo: "sorbet",
+                    ref: "v1.2.2",
+                    ...commonDeploymentParams,
+                }).reply({ status: 201, data: { id: 101 } }),
+
+                moctokit.rest.repos.createDeploymentStatus({
+                    owner: "scality",
+                    repo: "sorbet",
+                    deployment_id: 101,
+                    state: "in_progress",
+                    log_url: "https://github.com/scality/zenko/actions/runs/1",
+                    description: "Zenko CI running",
+                }).reply({ status: 201, data: { id: 1 } }),
+
+                // No backbeat mocks — it should NOT be called
+            ],
+            bind: true,
+        });
+
+        const filterStep = result.find(r => r.name?.includes("Filter to changed dependencies"));
+        expect(filterStep).toBeDefined();
+        expect(filterStep?.status).toBe(0);
+
+        const parseStep = result.find(r => r.name?.includes("Parse component repos"));
+        expect(parseStep).toBeDefined();
+        expect(parseStep?.status).toBe(0);
+
+        const deployStep = result.find(r => r.name?.includes("Create or update deployments"));
+        expect(deployStep).toBeDefined();
+        expect(deployStep?.status).toBe(0);
+    });
+
+    it("should skip deployments when no deps changed", async () => {
+        // Point to the same branch — no diff, so no components
+        act.setInput("target-branch", "improvement/ZENKO-5210");
+
+        const result = await act.runEvent("workflow_dispatch", {
+            logFile: process.env.ACT_LOG ? path.join(__dirname, "act-delta-noop.log") : undefined,
+            mockApi: [],
+            bind: true,
+        });
+
+        const filterStep = result.find(r => r.name?.includes("Filter to changed dependencies"));
+        expect(filterStep).toBeDefined();
+        expect(filterStep?.status).toBe(0);
+
+        const parseStep = result.find(r => r.name?.includes("Parse component repos"));
+        expect(parseStep).toBeDefined();
+        expect(parseStep?.status).toBe(0);
+
+        // No deployments should be created — token and deploy steps should be skipped
+        const tokenStep = result.find(r => r.name?.includes("Generate scoped token"));
+        expect(tokenStep).toBeUndefined();
+
+        const deployStep = result.find(r => r.name?.includes("Create or update deployments"));
+        expect(deployStep).toBeUndefined();
     });
 });
