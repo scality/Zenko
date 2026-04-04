@@ -1,0 +1,19 @@
+sorbet:
+  sourceRegistry: ghcr.io/scality
+  image: sorbet
+  tag: v1.2.1
+backbeat:
+  sourceRegistry: ghcr.io/scality
+  image: backbeat
+  tag: 9.3.0
+kafka:
+  sourceRegistry: ghcr.io/scality/zenko
+  image: kafka
+  tag: 2.13-3.1.2
+playground-sandbox:
+  sourceRegistry: ghcr.io/scality/playground
+  image: my-sandbox
+  tag: feat-branch-abc123
+redis:
+  image: redis
+  tag: 7.2.11

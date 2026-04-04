@@ -687,6 +687,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       environment: ${{ steps.env.outputs.environment }}
+      target-branch: ${{ steps.env.outputs.target_branch }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -700,6 +701,7 @@ jobs:
             --json baseRefName --jq '.[0].baseRefName // empty')
           if [[ -n "$base_ref" && "$base_ref" == development/* ]]; then
             echo "environment=zenko/$base_ref" >> "$GITHUB_OUTPUT"
+            echo "target_branch=$base_ref" >> "$GITHUB_OUTPUT"
             echo "Target environment: zenko/$base_ref"
           else
             echo "No open PR targeting a development branch found, skipping deployments"
@@ -710,6 +712,7 @@ jobs:
         with:
           app-id: ${{ vars.ACTIONS_APP_ID }}
           app-private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
+          target-branch: ${{ steps.env.outputs.target_branch }}
           environment: ${{ steps.env.outputs.environment }}
           status: in_progress
           transient: 'true'
@@ -754,6 +757,7 @@ jobs:
         with:
           app-id: ${{ vars.ACTIONS_APP_ID }}
           app-private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
+          target-branch: ${{ needs.create-deployments.outputs.target-branch }}
           environment: ${{ needs.create-deployments.outputs.environment }}
           status: ${{ steps.result.outputs.status }}
           transient: 'true'
