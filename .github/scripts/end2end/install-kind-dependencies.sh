@@ -43,17 +43,23 @@ else
     KEYCLOAK_INGRESS_OPTIONS="$DIR/configs/keycloak_ingress_http.yaml"
 fi
 
-helm repo add --force-update bitnami https://charts.bitnami.com/bitnami
-helm repo add --force-update pravega https://charts.pravega.io
-helm repo add --force-update codecentric https://codecentric.github.io/helm-charts/
+helm_repo_add() {
+    helm repo list -o json 2>/dev/null | jq -e --arg n "$1" '.[] | select(.name == $n)' >/dev/null 2>&1 || helm repo add "$1" "$2"
+}
+
+helm_repo_add bitnami https://charts.bitnami.com/bitnami
+helm_repo_add pravega https://charts.pravega.io
+helm_repo_add codecentric https://codecentric.github.io/helm-charts/
 # BanzaiCloud repo may not work, c.f. https://scality.atlassian.net/browse/AN-225
-helm repo add --force-update banzaicloud-stable https://kubernetes-charts.banzaicloud.com || {
+helm_repo_add banzaicloud-stable https://kubernetes-charts.banzaicloud.com || {
 		echo -n "::notice file=$(basename $0),line=$LINENO,title=Banzaicloud Charts not available::"
 		echo "Failed to add banzaicloud-stable repo, using local checkout"
 
-		kafka_operator="$(mktemp -d)"
-		git -c advice.detachedHead=false clone -q --depth 1 -b "v${KAFKA_OPERATOR_VERSION}" \
-            https://github.com/banzaicloud/koperator "${kafka_operator}"
+		kafka_operator="${DIR}/kafka-operator"
+		if [ ! -d "${kafka_operator}" ]; then
+			git -c advice.detachedHead=false clone -q --depth 1 -b "v${KAFKA_OPERATOR_VERSION}" \
+				https://github.com/banzaicloud/koperator "${kafka_operator}"
+		fi
 
 		KAFKA_CHART="${kafka_operator}/charts/kafka-operator"
 	}
@@ -119,15 +125,13 @@ kubectl wait --for=condition=Ready --timeout=240s clusterissuer/artesca-root-ca-
 
 # Copy root CA secret to default namespace for applications to use
 echo "Copying root CA certificate to default namespace..."
-kubectl get secret root-ca -n cert-manager -o json | 
-  jq '.metadata.namespace="default" | .metadata.name="zenko-root-ca"' | 
+kubectl get secret root-ca -n cert-manager -o json |
+  jq '.metadata = {namespace: "default", name: "zenko-root-ca"}' |
   kubectl apply -f -
 
 # prometheus
-# last-applied-configuration can end up larger than 256kB  which is too large for an annotation
-# so if apply fails, replace can work
 prom_url=https://raw.githubusercontent.com/coreos/prometheus-operator/${PROMETHEUS_VERSION}/bundle.yaml
-kubectl create -f $prom_url || kubectl replace -f $prom_url --wait
+kubectl apply --server-side -f $prom_url
 # wait for the resource to exist
 kubectl wait --for=condition=established --timeout=10m crd/alertmanagers.monitoring.coreos.com
 envsubst < configs/prometheus.yaml | kubectl apply -f -
@@ -137,14 +141,14 @@ helm upgrade --install --version ${ZK_OPERATOR_VERSION} -n default zk-operator p
 
 # kafka
 kafka_crd_url=https://github.com/banzaicloud/koperator/releases/download/v${KAFKA_OPERATOR_VERSION}/kafka-operator.crds.yaml
-kubectl create -f $kafka_crd_url || kubectl replace -f $kafka_crd_url
+kubectl apply --server-side -f $kafka_crd_url
 helm upgrade --install --version ${KAFKA_OPERATOR_VERSION} -n default kafka-operator ${KAFKA_CHART} \
     --set prometheusMetrics.authProxy.image.repository=quay.io/brancz/kube-rbac-proxy \
     --set prometheusMetrics.authProxy.image.tag=v0.21.0
 
 # keycloak
 envsubst < $DIR/configs/keycloak_config.json > $DIR/configs/keycloak-realm.json
-kubectl create configmap keycloak-realm --from-file=$DIR/configs/keycloak-realm.json
+kubectl create configmap keycloak-realm --from-file=$DIR/configs/keycloak-realm.json --dry-run=client -o yaml | kubectl apply -f -
 helm upgrade --install --version ${KEYCLOAK_VERSION} keycloak codecentric/keycloak -f "$DIR/configs/keycloak_options.yaml" -f "${KEYCLOAK_INGRESS_OPTIONS}"
 
 kubectl rollout status sts/keycloak --timeout=10m

@@ -7,9 +7,10 @@ NAMESPACE=${1:-default}
 kubectl create \
     configmap aws-mock \
     --from-file=../mocks/aws/mock-metadata.tar.gz \
-    --namespace ${NAMESPACE}
+    --namespace ${NAMESPACE} \
+    --dry-run=client -o yaml | kubectl apply -f -
 
-kubectl create \
+kubectl apply \
     -f ../mocks/azure-mock.yaml \
     -f ../mocks/aws-mock.yaml \
     --namespace ${NAMESPACE} && \

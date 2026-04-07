@@ -5,7 +5,7 @@ set -exu
 . "$(dirname $0)/common.sh"
 
 # create a separate namespace for metadata
-kubectl create namespace metadata
+kubectl create namespace metadata --dry-run=client -o yaml | kubectl apply -f -
 
 # clone the metadata repository
 git init metadata
