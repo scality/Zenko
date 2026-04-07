@@ -37,7 +37,8 @@
   },
   "scripts": {
     "build": "tsc --build tsconfig.json",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "unused-steps": "! cucumber-js --config cucumber.config.cjs --dry-run --format usage 2>&1 | grep UNUSED"
   },
   "resolutions": {
     "@azure/core-client": "1.10.1"

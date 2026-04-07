@@ -482,14 +482,3 @@ When('i change azure archive location {string} container target', { timeout: 15 
         await waitForZenkoToStabilize(this, true);
         await waitForDataServicesToStabilize(this);
     });
-
-Then('i can get the {string} location details', async function (this: Zenko, locationName: string) {
-    const result = await this.managementAPIRequest('GET', `/config/overlay/view/${this.parameters.InstanceID}`);
-    if ('err' in result) {
-        assert.ifError(result.err);
-    }
-    if ('data' in result) {
-        const { locations } = result.data as { locations: Record<string, unknown> };
-        assert(locations[locationName]);
-    }
-});

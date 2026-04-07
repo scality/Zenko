@@ -404,6 +404,9 @@ jobs:
       - name: Lint ctst tests
         working-directory: tests/ctst
         run: yarn lint
+      - name: Check for unused step definitions
+        working-directory: tests/ctst
+        run: yarn unused-steps
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
       - name: Login to Registry
