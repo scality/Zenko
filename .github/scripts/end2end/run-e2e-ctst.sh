@@ -184,6 +184,7 @@ kubectl run $POD_NAME \
         --env=AZURE_QUEUE_URL=$AZURE_BACKEND_QUEUE_ENDPOINT \
         --env=VERBOSE=1 \
         --env=SDK=true \
+        --env=CI_PASS_ON_TEST_FAILURE=${CI_PASS_ON_TEST_FAILURE:-} \
         --override-type strategic \
         --overrides='
 {

@@ -111,6 +111,7 @@ runs:
         report_paths: /tmp/artifacts/data/${{ inputs.stage }}/junit-merged.xml
         job_summary: false
         check_retries: true
+        require_tests: true
         fail_on_failure: true
 
     - name: Upload results
