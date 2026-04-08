@@ -132,10 +132,27 @@ jobs:
           target_commitish: ${{ github.sha }}
           prerelease: ${{ env.VERSION_PRERELEASE != '' }}
 
+  create-deployments:
+    runs-on: ubuntu-24.04
+    needs: release
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Create release deployments
+        uses: ./.github/actions/create-component-deployments
+        with:
+          app-id: ${{ vars.ACTIONS_APP_ID }}
+          app-private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
+          environment: "zenko/${{ github.event.inputs.tag }}"
+          status: success
+          log-url: ${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ github.event.inputs.tag }}
+          description: "Released in zenko ${{ github.event.inputs.tag }}"
+
   promote:
     runs-on: ubuntu-24.04
     needs:
       - verify-release
+      - create-deployments
       - release
     steps:
     - name: Checkout
