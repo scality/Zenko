@@ -7,6 +7,10 @@ on:
         description: Target branch to diff deps against
         required: false
         default: ''
+      production:
+        description: Whether deployments target a production environment
+        required: false
+        default: 'false'
 jobs:
   test-deployments:
     runs-on: ubuntu-latest
@@ -27,5 +31,6 @@ jobs:
           environment: zenko/development/2.11
           status: in_progress
           transient: "true"
+          production: ${{ inputs.production }}
           log-url: https://github.com/scality/zenko/actions/runs/1
           description: Zenko CI running

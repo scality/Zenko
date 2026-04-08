@@ -33,6 +33,10 @@ inputs:
     description: Whether deployments are transient (auto-inactivated on newer success)
     required: false
     default: 'false'
+  production:
+    description: Whether deployments target a production environment
+    required: false
+    default: 'false'
   log-url:
     description: URL to link from the deployment status
     required: true
@@ -110,6 +114,7 @@ runs:
             environment: `${{ inputs.environment }}`,
             status: `${{ inputs.status }}`,
             transient: ${{ inputs.transient }},
+            production: ${{ inputs.production }},
             logUrl: `${{ inputs.log-url }}`,
             description: `${{ inputs.description }}`,
             token: `${{ steps.app-token.outputs.token }}`,

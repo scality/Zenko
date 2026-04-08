@@ -80,6 +80,10 @@ beforeEach(async () => {
                         src: path.resolve(__dirname, "VERSION-2.3.7-rc.1"),
                         dest: "VERSION",
                     },
+                    {
+                        src: path.resolve(__dirname, "test-deps-base.yaml"),
+                        dest: "solution/deps.yaml",
+                    },
                 ],
             },
         },
@@ -295,6 +299,20 @@ test.each([
                     with: {
                         'github-token': "my-token",
                     }
+                }
+            }],
+            'create-deployments': [{
+                name: 'Create release deployments',
+                mockWith: {
+                    uses: 'actions/github-script@v7',
+                    with: {
+                        'github-token': "my-token",
+                        script: [
+                            "const assert = require('assert');",
+                            `assert.strictEqual(core.getInput('environment'), 'zenko/${tag}');`,
+                            "assert.strictEqual(core.getInput('status'), 'success');",
+                        ].join('\n'),
+                    },
                 }
             }],
             'promote': [{

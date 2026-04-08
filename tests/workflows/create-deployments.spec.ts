@@ -30,11 +30,13 @@ const deploymentParams = {
     environment: 'zenko/development/2.11',
     description: 'Zenko CI running',
     transient: true,
+    production: false,
 };
 
 const baseParams = {
     environment: 'zenko/development/2.11',
     transient: true,
+    production: false,
     logUrl: 'https://github.com/scality/zenko/actions/runs/123',
     description: 'Zenko CI running',
     token: 'fake-token',
@@ -46,6 +48,7 @@ describe('resolveDeployment', () => {
       environment: 'zenko/dev',
       description: 'test',
       transient: true,
+      production: false,
       createOnly: true,
     };
     const component = { repo: 'scality/sorbet', ref: 'v1.0.0', image: 'scality/sorbet' };
@@ -187,6 +190,18 @@ describe('resolveDeployment', () => {
           await findOrCreateDeployment(github, { ...deploymentParams, transient: false, createOnly: true });
 
           const call = github.rest.repos.createDeployment.firstCall.args[0];
+          expect(call.transient_environment).toBe(false);
+      });
+
+      it('passes production_environment: true for production deployments', async () => {
+          const github = makeMockGithub();
+
+          await findOrCreateDeployment(github, {
+              ...deploymentParams, transient: false, production: true, createOnly: true,
+          });
+
+          const call = github.rest.repos.createDeployment.firstCall.args[0];
+          expect(call.production_environment).toBe(true);
           expect(call.transient_environment).toBe(false);
       });
 });
