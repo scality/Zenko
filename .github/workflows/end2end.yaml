@@ -13,6 +13,7 @@ on:
 
 env:
   # kind-env
+  CI_PASS_ON_TEST_FAILURE: 'true'
   WORKER_COUNT: '2'
   OPERATOR_REPO: git@github.com:scality/zenko-operator.git
   OPERATOR_IMAGE: ""
@@ -496,7 +497,6 @@ jobs:
       - name: Run CTST end to end tests
         run: bash run-e2e-ctst.sh "@PRA"
         working-directory: ./.github/scripts/end2end
-        continue-on-error: true
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
@@ -546,26 +546,21 @@ jobs:
       - name: Run init CI test
         working-directory: tests/zenko_tests/node_tests
         run: yarn run test_operator
-        continue-on-error: true
       - name: Run iam policies tests
         working-directory: tests/zenko_tests/node_tests
         run: yarn run test_iam_policies
-        continue-on-error: true
       - name: Run cloudserver tests
         working-directory: tests/zenko_tests/node_tests
         run: yarn run test_object_api
-        continue-on-error: true
       - name: Run smoke tests
         working-directory: tests/zenko_tests/node_tests
         run: yarn run test_smoke
-        continue-on-error: true
       - name: Enable HTTPS
         run: bash enable-https.sh
         working-directory: ./.github/scripts/end2end
       - name: Run smoke tests (HTTPS)
         working-directory: tests/zenko_tests/node_tests
         run: yarn run test_smoke
-        continue-on-error: true
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
@@ -620,7 +615,6 @@ jobs:
         run: |
           ./gcp_shim.sh
           yarn run test_all_extensions
-        continue-on-error: true
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
@@ -675,7 +669,6 @@ jobs:
       - name: Run CTST end to end tests
         run: bash run-e2e-ctst.sh "@PreMerge and not @PRA"
         working-directory: ./.github/scripts/end2end
-        continue-on-error: true
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
