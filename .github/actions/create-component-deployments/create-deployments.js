@@ -4,7 +4,7 @@
  * @typedef {import('@octokit/rest').Octokit} Octokit
  * @typedef {{ info: (msg: string) => void, warning: (msg: string) => void, startGroup: (name: string) => void, endGroup: () => void }} Core
  * @typedef {{ repo: string, ref: string, image: string }} Component
- * @typedef {{ token: string, environment: string, description: string, transient: boolean, createOnly: boolean }} DeploymentParams
+ * @typedef {{ token: string, environment: string, description: string, transient: boolean, production: boolean, createOnly: boolean }} DeploymentParams
  */
 
 const GHCR_REGISTRY = 'https://ghcr.io';
@@ -88,10 +88,11 @@ async function resolveFromManifest(image, tag, token) {
  * @param {string} params.environment
  * @param {string} params.description
  * @param {boolean} params.transient
+ * @param {boolean} params.production
  * @param {boolean} params.createOnly - Skip lookup, always create
  * @returns {Promise<number>} deployment id
  */
-async function findOrCreateDeployment(github, { owner, repo, ref, environment, description, transient, createOnly }) {
+async function findOrCreateDeployment(github, { owner, repo, ref, environment, description, transient, production, createOnly }) {
     if (!createOnly) {
         const { data: existing } = await github.rest.repos.listDeployments({
             owner, repo, environment, ref, per_page: 1,
@@ -108,7 +109,7 @@ async function findOrCreateDeployment(github, { owner, repo, ref, environment, d
         auto_merge: false,
         required_contexts: [],
         transient_environment: transient,
-        production_environment: false,
+        production_environment: production,
     });
 
     return data.id;
@@ -127,7 +128,8 @@ async function findOrCreateDeployment(github, { owner, repo, ref, environment, d
  * @returns {Promise<{component: Component, deploymentId: number}>}
  */
 async function resolveDeployment(github, core, resolve, { repo, ref, image }, deployParams) {
-    const { token, environment, description, transient, createOnly } = deployParams;
+    const { token, environment, description, transient, production, createOnly } = deployParams;
+    const canRetry = !!repo;
 
     // Resolve repo/ref from manifest if not provided
     if (!repo) {
@@ -143,7 +145,7 @@ async function resolveDeployment(github, core, resolve, { repo, ref, image }, de
     const [owner, repoName] = repo.split('/');
     try {
         const deploymentId = await findOrCreateDeployment(github, {
-            owner, repo: repoName, ref, environment, description, transient, createOnly,
+            owner, repo: repoName, ref, environment, description, transient, production, createOnly,
         });
 
         return { component: { repo, ref, image }, deploymentId };
@@ -167,12 +169,13 @@ async function resolveDeployment(github, core, resolve, { repo, ref, image }, de
  * @param {string} params.environment - Deployment environment name
  * @param {string} params.status - Deployment status (in_progress, success, failure)
  * @param {boolean} params.transient - Whether deployments are transient
+ * @param {boolean} params.production - Whether deployments target a production environment
  * @param {string} params.logUrl - URL to link from the deployment status
  * @param {string} params.description - Human-readable description
  * @param {string} params.token - GitHub token with packages:read for manifest lookups
  */
-async function createDeployments({ github, core, components, environment, status, transient, logUrl, description, token }) {
-    const deployParams = { token, environment, description, transient, createOnly: status === 'in_progress' };
+async function createDeployments({ github, core, components, environment, status, transient, production, logUrl, description, token }) {
+    const deployParams = { token, environment, description, transient, production, createOnly: status === 'in_progress' };
     let errors = 0;
 
     for (const component of components) {
