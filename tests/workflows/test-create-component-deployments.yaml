@@ -1,0 +1,24 @@
+---
+name: Test Create Component Deployments
+on: workflow_dispatch
+jobs:
+  test-deployments:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install js-yaml globally
+        run: |
+          npm install -g js-yaml
+          echo "NODE_PATH=$(npm root -g)" >> "$GITHUB_ENV"
+
+      - name: Create component deployments
+        uses: ./.github/actions/create-component-deployments
+        with:
+          github-token: ${{ env.GITHUB_TOKEN }}
+          app-id: 12345
+          app-private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          deps-file: solution/deps.yaml
+          environment: zenko/development/2.11
+          status: in_progress
+          transient: "true"
+          log-url: https://github.com/scality/zenko/actions/runs/1
+          description: Zenko CI running

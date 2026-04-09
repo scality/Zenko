@@ -7,6 +7,7 @@ const jestConfig: Config.InitialOptions = {
   },
   clearMocks: true,
   resetMocks: true,
+  moduleDirectories: ['node_modules', '<rootDir>/node_modules'],
   maxWorkers: 1,
   testTimeout: 120000,
 };
