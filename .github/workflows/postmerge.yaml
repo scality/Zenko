@@ -1,0 +1,24 @@
+name: Post Merge
+
+on:
+  push:
+    branches:
+      - development/**
+
+jobs:
+  create-deployments:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Create permanent deployments
+        uses: ./.github/actions/create-component-deployments
+        with:
+          app-id: ${{ vars.ACTIONS_APP_ID }}
+          app-private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
+          environment: "zenko/${{ github.ref_name }}"
+          status: success
+          transient: 'false'
+          log-url: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
+          description: "Integrated in zenko ${{ github.ref_name }}"

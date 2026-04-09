@@ -1,0 +1,89 @@
+name: Manage Component Deployments
+description: >
+  Create or update GitHub Deployments on scality component repos
+  referenced in deps.yaml, providing integration visibility.
+  Generates a minimally-scoped token (deployments:write only,
+  limited to the exact repos found in deps.yaml).
+
+inputs:
+  app-id:
+    description: GitHub App ID for token generation
+    required: true
+  app-private-key:
+    description: GitHub App private key for token generation
+    required: true
+  deps-file:
+    description: Path to deps.yaml
+    required: false
+    default: solution/deps.yaml
+  environment:
+    description: Deployment environment name (e.g. zenko/development/2.11)
+    required: true
+  status:
+    description: Deployment status (in_progress, success, failure)
+    required: true
+  transient:
+    description: Whether deployments are transient (auto-inactivated on newer success)
+    required: false
+    default: 'false'
+  log-url:
+    description: URL to link from the deployment status
+    required: true
+  description:
+    description: Human-readable deployment status description
+    required: false
+    default: ''
+  github-token:
+    description: GitHub token for github-script (only needed for act.js tests)
+    required: false
+    default: ${{ github.token }}
+
+runs:
+  using: composite
+  steps:
+    - name: Parse component repos from deps.yaml
+      id: parse
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const { parseDeps } = require('${{ github.action_path }}/parse-deps.js');
+          const selfRepo = process.env.GITHUB_REPOSITORY || 'scality/zenko';
+          const { components, repos } = parseDeps('${{ inputs.deps-file }}', selfRepo);
+
+          if (components.length === 0) {
+            core.info('No component repos found in deps.yaml');
+            core.setOutput('components', '');
+            return;
+          }
+
+          core.setOutput('components', JSON.stringify(components));
+          core.setOutput('repos', repos.join('\n'));
+
+    - name: Generate scoped deployments token
+      if: steps.parse.outputs.components != ''
+      id: app-token
+      uses: actions/create-github-app-token@v2
+      with:
+        app-id: ${{ inputs.app-id }}
+        private-key: ${{ inputs.app-private-key }}
+        owner: ${{ github.repository_owner }}
+        repositories: ${{ steps.parse.outputs.repos }}
+        permission-deployments: write
+
+    - name: Create or update deployments
+      if: steps.parse.outputs.components != ''
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ steps.app-token.outputs.token }}
+        script: |
+          const { createDeployments } = require('${{ github.action_path }}/create-deployments.js');
+          await createDeployments({
+            github, core,
+            components: JSON.parse('${{ steps.parse.outputs.components }}'),
+            environment: `${{ inputs.environment }}`,
+            status: `${{ inputs.status }}`,
+            transient: ${{ inputs.transient }},
+            logUrl: `${{ inputs.log-url }}`,
+            description: `${{ inputs.description }}`,
+          });
