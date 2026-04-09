@@ -39,11 +39,6 @@ MONGO_NS=$(echo "${MONGO_FQDN}" | cut -d. -f2)
 if ! ss -tlnp 2>/dev/null | grep -q ":${MONGO_PORT}" && \
    ! lsof -i ":${MONGO_PORT}" &>/dev/null; then
     kubectl port-forward -n "${MONGO_NS}" "svc/${MONGO_SVC}" "${MONGO_PORT}:${MONGO_PORT}" &
-    _MONGO_PF_PID=$!
-    if [ -z "${_SETUP_E2E_CLEANUP_SET:-}" ]; then
-        trap "kill ${_MONGO_PF_PID} 2>/dev/null || true" EXIT
-        export _SETUP_E2E_CLEANUP_SET=1
-    fi
     # Wait until the port is actually listening (poll every 200ms, fail after 10s)
     timeout 10 bash -c "until ss -tlnp 2>/dev/null | grep -q ':${MONGO_PORT}'; do sleep 0.2; done"
 fi
