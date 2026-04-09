@@ -683,6 +683,87 @@ jobs:
           junit-paths: /artifacts/data/reports/*.xml
         if: always()
 
+  create-deployments:
+    runs-on: ubuntu-24.04
+    outputs:
+      environment: ${{ steps.env.outputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Determine target environment
+        id: env
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          base_ref=$(gh pr list --head "$REF_NAME" --state open \
+            --json baseRefName --jq '.[0].baseRefName // empty')
+          if [[ -n "$base_ref" && "$base_ref" == development/* ]]; then
+            echo "environment=zenko/$base_ref" >> "$GITHUB_OUTPUT"
+            echo "Target environment: zenko/$base_ref"
+          else
+            echo "No open PR targeting a development branch found, skipping deployments"
+          fi
+      - name: Create transient deployments
+        if: steps.env.outputs.environment != ''
+        uses: ./.github/actions/create-component-deployments
+        with:
+          app-id: ${{ vars.ACTIONS_APP_ID }}
+          app-private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
+          environment: ${{ steps.env.outputs.environment }}
+          status: in_progress
+          transient: 'true'
+          log-url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          description: Zenko CI running
+
+  update-deployments:
+    runs-on: ubuntu-24.04
+    needs:
+      - create-deployments
+      - build-iso
+      - build-kafka
+      - lint-and-build-ctst
+      - end2end-2-shards-http
+      - end2end-sharded
+      - end2end-pra
+      - ctst-end2end-sharded
+    if: always() && needs.create-deployments.outputs.environment != ''
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Determine CI result
+        id: result
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
+        run: |
+          status=$(jq -r '
+            del(.["create-deployments"]) |
+            to_entries |
+            if any(select(.key | test("build")) | .value.result | IN("failure","cancelled")) then
+              "error"
+            elif any(.value.result | IN("failure","cancelled")) then
+              "failure"
+            else
+              "success"
+            end
+          ' <<<"$NEEDS_JSON")
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          echo "CI result: $status"
+      - name: Update deployment statuses
+        uses: ./.github/actions/create-component-deployments
+        with:
+          app-id: ${{ vars.ACTIONS_APP_ID }}
+          app-private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
+          environment: ${{ needs.create-deployments.outputs.environment }}
+          status: ${{ steps.result.outputs.status }}
+          transient: 'true'
+          log-url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          description: >-
+            Zenko CI ${{
+              steps.result.outputs.status == 'success' && 'passed' ||
+              steps.result.outputs.status == 'error' && 'build failed' ||
+              'tests failed' }}
+
   write-final-status:
     runs-on: ubuntu-24.04
     needs:
