@@ -107,7 +107,10 @@ export RING_S3C_BACKEND_SOURCE_NON_VERSIONED_LOCATION
 export RING_S3C_INGESTION_SRC_NON_VERSIONED_BUCKET_NAME
 export RING_S3C_INGESTION_NON_VERSIONED_OBJECT_COUNT_PER_TYPE
 export CRR_SOURCE_LOCATION_NAME CRR_DESTINATION_LOCATION_NAME CRR_ROLE_NAME
-export MOCHA_FILE=${MOCHA_FILE:-}
+export MOCHA_FILE=${MOCHA_FILE:-_reports/test-results-[hash].xml}
+
+# Ensure test results dir exists for Mocha JUnit reporter
+mkdir -p "$(dirname "$MOCHA_FILE")"
 
 # --- 8. TLS CA cert for ingress endpoints ---
 ZENKO_CA_CERT_FILE="$(mktemp /tmp/zenko-ca-cert-XXXXXX.pem)"

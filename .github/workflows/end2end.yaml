@@ -125,7 +125,7 @@ env:
   TMATE_SERVER_RSA_FINGERPRINT: ${{ secrets.TMATE_SERVER_RSA_FINGERPRINT }}
   TMATE_SERVER_ED25519_FINGERPRINT: ${{ secrets.TMATE_SERVER_ED25519_FINGERPRINT }}
   # Mocha reporter configuration
-  MOCHA_FILE: /reports/test-results-[hash].xml
+  MOCHA_FILE: ${{ github.workspace }}/_reports/test-results-[hash].xml
 
 jobs:
   check-dashboard-versions:
@@ -507,6 +507,7 @@ jobs:
           user: ${{ secrets.ARTIFACTS_USER }}
           password: ${{ secrets.ARTIFACTS_PASSWORD }}
           trunk_token: ${{ secrets.TRUNK_TOKEN }}
+          junit-paths: /artifacts/data/reports/*.xml
         if: always()
 
   end2end-2-shards-http:
@@ -679,6 +680,7 @@ jobs:
           user: ${{ secrets.ARTIFACTS_USER }}
           password: ${{ secrets.ARTIFACTS_PASSWORD }}
           trunk_token: ${{ secrets.TRUNK_TOKEN }}
+          junit-paths: /artifacts/data/reports/*.xml
         if: always()
 
   write-final-status:

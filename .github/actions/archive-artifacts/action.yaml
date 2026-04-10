@@ -11,7 +11,7 @@ inputs:
     required: true
   junit-paths:
     description: Path to junit reports
-    default: /artifacts/data/reports/*.xml
+    default: ${{ github.workspace }}/_reports/*.xml
     required: true
   stage:
     description: Stage name

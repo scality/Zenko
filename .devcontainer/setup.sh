@@ -5,7 +5,7 @@ set -ex
 # Persist workflow env vars so they survive across terminal sessions
 ZENKO_ENV_FILE="$HOME/.zenko.env"
 yq eval '.env | to_entries | .[] | "export " + .key + "=" + (.value | tostring | @sh)' .github/workflows/end2end.yaml \
-    | sed 's/\${{[^}]*}}//g' > "$ZENKO_ENV_FILE"
+    | sed -e "s|\${{ *github.workspace *}}|$(pwd)|g" -e 's/\${{[^}]*}}//g' > "$ZENKO_ENV_FILE"
 echo 'export GIT_ACCESS_TOKEN="${GITHUB_TOKEN}"' >> "$ZENKO_ENV_FILE"
 
 echo 'export VOLUME_ROOT=$PWD/artifacts' >> "$ZENKO_ENV_FILE"
