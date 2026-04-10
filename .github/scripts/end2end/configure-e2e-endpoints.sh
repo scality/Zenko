@@ -14,6 +14,7 @@ apply_ingress() {
     local name="$1"
     local host="$2"
     local service="$3"
+    local port="${4:-80}"
 
     # Skip if an ingress already serves this host (e.g., from a prior Zenko instance in PRA)
     if kubectl get ingress -A -o jsonpath='{.items[*].spec.rules[*].host}' | grep -qw "${host}"; then
@@ -39,7 +40,7 @@ spec:
           service:
             name: ${service}
             port:
-              name: http
+              number: ${port}
         path: /
         pathType: Prefix
 EOF
@@ -56,6 +57,13 @@ apply_ingress \
     "${ZENKO_NAME}-vault-auth-api-ingress" \
     "vault-auth.zenko.local" \
     "${ZENKO_NAME}-connector-vault-auth-api"
+
+# Kafka Connect REST API — used by CTST notification tests
+apply_ingress \
+    "${ZENKO_NAME}-kafka-connect-ingress" \
+    "kafka-connect.zenko.local" \
+    "${ZENKO_NAME}-base-queue-connector" \
+    8083
 
 # S3C (Ring) — only when metadata namespace exists (ENABLE_RING_TESTS=true)
 if kubectl get namespace metadata &>/dev/null; then
@@ -89,6 +97,7 @@ if kubectl get ingress "${ZENKO_NAME}-backbeat-api-ingress" &>/dev/null; then
     kubectl wait --for=jsonpath='{.status.loadBalancer.ingress}' \
         ingress/${ZENKO_NAME}-backbeat-api-ingress \
         ingress/${ZENKO_NAME}-vault-auth-api-ingress \
+        ingress/${ZENKO_NAME}-kafka-connect-ingress \
         --timeout=60s 2>/dev/null || true
 fi
 
@@ -109,6 +118,7 @@ ZENKO_HOSTS="\
     utilization.zenko.local \
     backbeat-api.zenko.local \
     vault-auth.zenko.local \
+    kafka-connect.zenko.local \
     aws-mock.zenko.local \
     azure-mock.zenko.local \
     devstoreaccount1.blob.azure-mock.zenko.local \
@@ -130,10 +140,12 @@ export BACKBEAT_API_ENDPOINT="http://backbeat-api.zenko.local"
 export VAULT_ENDPOINT="http://iam.zenko.local"
 export VAULT_STS_ENDPOINT="http://sts.zenko.local"
 export VAULT_AUTH_HOST="vault-auth.zenko.local"
+export KAFKA_CONNECT_URL="http://kafka-connect.zenko.local/connectors"
 
 echo "=== Endpoints configured for out-of-cluster access ==="
-echo "  S3:           ${CLOUDSERVER_ENDPOINT}"
-echo "  Backbeat API: ${BACKBEAT_API_ENDPOINT}"
-echo "  Vault IAM:    ${VAULT_ENDPOINT}"
-echo "  Vault STS:    ${VAULT_STS_ENDPOINT}"
-echo "  Vault Auth:   http://${VAULT_AUTH_HOST}"
+echo "  S3:             ${CLOUDSERVER_ENDPOINT}"
+echo "  Backbeat API:   ${BACKBEAT_API_ENDPOINT}"
+echo "  Vault IAM:      ${VAULT_ENDPOINT}"
+echo "  Vault STS:      ${VAULT_STS_ENDPOINT}"
+echo "  Vault Auth:     http://${VAULT_AUTH_HOST}"
+echo "  Kafka Connect:  ${KAFKA_CONNECT_URL}"

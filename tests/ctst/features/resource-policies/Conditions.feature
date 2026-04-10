@@ -27,9 +27,6 @@ Feature: S3 Bucket Policies Conditions
             | IpAddress     | aws:SourceIp  | 192.0.0.1,10.0.2.0 | Deny   |
             | NotIpAddress  | aws:SourceIp  | 0.0.0.0/0,10.0.2.0 | Deny   |
             | NotIpAddress  | aws:SourceIp  | 192.0.0.1,10.0.2.0 | Allow  |
-            # kubernetes pods, including CTST, have an IP in this range
-            | IpAddress     | aws:SourceIp  | 10.0.0.0/8         | Allow  |
-            | NotIpAddress  | aws:SourceIp  | 10.0.0.0/8         | Deny   |
 
     @2.11.0
     @PreMerge

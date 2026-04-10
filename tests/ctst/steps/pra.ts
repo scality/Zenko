@@ -319,7 +319,7 @@ Then('the kafka DR volume exists', { timeout: volumeTimeout + 2000 }, async func
 
 Then('prometheus should scrap federated metrics from DR sink', { timeout: 180000 }, async function (this: Zenko) {
     const prom = new PrometheusDriver({
-        endpoint: `http://${this.parameters.PrometheusService}:9090`,
+        endpoint: this.parameters.PrometheusEndpoint,
         baseURL: '/api/v1',
     });
 
