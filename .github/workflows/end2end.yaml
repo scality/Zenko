@@ -125,7 +125,7 @@ env:
   TMATE_SERVER_RSA_FINGERPRINT: ${{ secrets.TMATE_SERVER_RSA_FINGERPRINT }}
   TMATE_SERVER_ED25519_FINGERPRINT: ${{ secrets.TMATE_SERVER_ED25519_FINGERPRINT }}
   # Mocha reporter configuration
-  MOCHA_FILE: /reports/test-results-[hash].xml
+  MOCHA_FILE: /artifacts/data/reports/test-results-[hash].xml
 
 jobs:
   check-dashboard-versions:
