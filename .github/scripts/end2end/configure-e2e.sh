@@ -20,8 +20,11 @@ MANAGEMENT_ENDPOINT="http://${MANAGEMENT_HOST}"
 IAM_ENDPOINT="http://${IAM_HOST}"
 STS_ENDPOINT="http://${STS_HOST}"
 
+# Collect all ingress hosts for this Zenko instance and add to /etc/hosts
+ALL_INGRESS_HOSTS=$(kubectl get ingress -n "${NAMESPACE}" -l "app.kubernetes.io/instance=${ZENKO_NAME}" \
+    -o jsonpath='{.items[*].spec.rules[*].host}' | tr ' ' '\n' | sort -u | tr '\n' ' ')
 if ! grep -q "${MANAGEMENT_HOST}" /etc/hosts 2>/dev/null; then
-    echo "127.0.0.1 ${MANAGEMENT_HOST} ${IAM_HOST} ${STS_HOST}" | sudo tee -a /etc/hosts
+    echo "127.0.0.1 ${ALL_INGRESS_HOSTS}" | sudo tee -a /etc/hosts
 fi
 UUID=$(kubectl get zenko ${ZENKO_NAME} --namespace ${NAMESPACE} -o jsonpath='{.status.instanceID}')
 TOKEN=$(get_token)

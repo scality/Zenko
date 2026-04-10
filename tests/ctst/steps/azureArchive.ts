@@ -32,9 +32,6 @@ type manifest = {
     'entries': manifestEntry[],
 }
 
-const AZURE_STORAGE_BLOB_URL = process.env.AZURE_BLOB_URL || 'http://127.0.0.1:10000/devstoreaccount1';
-const AZURE_STORAGE_QUEUE_URL = process.env.AZURE_QUEUE_URL || 'http://127.0.0.1:10001/devstoreaccount1';
-
 /**
  * Returns an object containing azure credentials
  * @param {Zenko} world world object
@@ -361,7 +358,7 @@ Then('the storage class of object {string} must stay {string} for {int} seconds'
 
 When('i run sorbetctl to retry failed restore for {string} location',
     { timeout: 10 * 60 * 1000 }, async function (this: Zenko, location: string) {
-        const command = `/ctst/sorbetctl forward list failed --trigger-retry --skip-invalid \
+        const command = `./sorbetctl forward list failed --trigger-retry --skip-invalid \
             --limit 300 \
             --kafka-dead-letter-topic=${this.parameters.KafkaDeadLetterQueueTopic} \
             --kafka-object-task-topic=${this.parameters.KafkaObjectTaskTopic} \
@@ -432,12 +429,12 @@ Given('an azure archive location {string}', { timeout: 15 * 60 * 1000 },
             name: locationName,
             locationType: 'location-azure-archive-v1',
             details: {
-                endpoint: AZURE_STORAGE_BLOB_URL,
+                endpoint: process.env.AZURE_BACKEND_ENDPOINT,
                 bucketName: this.parameters.AzureArchiveContainer,
                 queue: {
                     type: 'location-azure-storage-queue-v1',
                     queueName: this.parameters.AzureArchiveQueue,
-                    endpoint: AZURE_STORAGE_QUEUE_URL,
+                    endpoint: process.env.AZURE_BACKEND_QUEUE_ENDPOINT,
                 },
                 auth: {
                     type: 'location-azure-shared-key',

@@ -94,8 +94,8 @@ type BootstrapLoadConfig = {
 };
 
 type VolumeGetConfig = {
-    targetZenkoKubeconfigPath?: string;
-    targetZenkoKubeconfigData?: string;
+    kubeconfigPath?: string;
+    kubeconfigData?: string;
     targetZenkoInstance?: string;
     targetZenkoNamespace?: string;
     volumeName?: string;
@@ -185,8 +185,47 @@ export default class ZenkoDrctl {
         this.world = world;
     }
 
+    private getKubeconfigPath(): string | undefined {
+        const kp = this.world.parameters.KubeconfigPath as string | undefined;
+        return kp || process.env.KUBECONFIG;
+    }
+
+    private withSourceSinkKubeconfig<T extends Record<string, unknown>>(config: T): T {
+        const kp = this.getKubeconfigPath();
+        if (!kp) {
+            return config;
+        }
+        return {
+            ...config,
+            sourceKubeconfigPath: (config as Record<string, unknown>).sourceKubeconfigPath || kp,
+            sinkKubeconfigPath: (config as Record<string, unknown>).sinkKubeconfigPath || kp,
+        };
+    }
+
+    private withSinkKubeconfig<T extends Record<string, unknown>>(config: T): T {
+        const kp = this.getKubeconfigPath();
+        if (!kp) {
+            return config;
+        }
+        return {
+            ...config,
+            sinkKubeconfigPath: (config as Record<string, unknown>).sinkKubeconfigPath || kp,
+        };
+    }
+
+    private withTargetKubeconfig<T extends Record<string, unknown>>(config: T): T {
+        const kp = this.getKubeconfigPath();
+        if (!kp) {
+            return config;
+        }
+        return {
+            ...config,
+            kubeconfigPath: (config as Record<string, unknown>).kubeconfigPath || kp,
+        };
+    }
+
     private async runCommand(action: string, params: string, throwOnError = false) {
-        const command = `/ctst/zenko-drctl ${action} ${params}`;
+        const command = `./zenko-drctl ${action} ${params}`;
         try {
             this.world.logger.debug('running zenko-drctl command', { command });
             const result = await util.promisify(exec)(command);
@@ -202,11 +241,11 @@ export default class ZenkoDrctl {
     }
 
     async install(config: InstallConfig) {
-        return this.runCommand('install', this.paramToCli(config), true);
+        return this.runCommand('install', this.paramToCli(this.withSourceSinkKubeconfig(config)), true);
     }
 
     async uninstall(config: UninstallConfig) {
-        return this.runCommand('uninstall', this.paramToCli(config), true);
+        return this.runCommand('uninstall', this.paramToCli(this.withSourceSinkKubeconfig(config)), true);
     }
 
     async bootstrapDump(config: BootstrapDumpConfig) {
@@ -218,27 +257,27 @@ export default class ZenkoDrctl {
     }
 
     async failover(config: FailoverConfig) {
-        return this.runCommand('failover', this.paramToCli(config));
+        return this.runCommand('failover', this.paramToCli(this.withSinkKubeconfig(config)));
     }
 
     async failback(config: FailbackConfig) {
-        return this.runCommand('failback', this.paramToCli(config));
+        return this.runCommand('failback', this.paramToCli(this.withSinkKubeconfig(config)));
     }
 
     async status(config: StatusConfig) {
-        return this.runCommand('status', this.paramToCli(config));
+        return this.runCommand('status', this.paramToCli(this.withSourceSinkKubeconfig(config)));
     }
 
     async volumeGet(config: VolumeGetConfig) {
-        return this.runCommand('volume get', this.paramToCli(config));
+        return this.runCommand('volume get', this.paramToCli(this.withTargetKubeconfig(config)));
     }
 
     async replicationPause(config: ReplicationPauseConfig) {
-        return this.runCommand('replication pause', this.paramToCli(config));
+        return this.runCommand('replication pause', this.paramToCli(this.withSourceSinkKubeconfig(config)));
     }
 
     async replicationResume(config: ReplicationResumeConfig) {
-        return this.runCommand('replication resume', this.paramToCli(config));
+        return this.runCommand('replication resume', this.paramToCli(this.withSourceSinkKubeconfig(config)));
     }
 
     paramToCli(params: Record<string, unknown>): string {

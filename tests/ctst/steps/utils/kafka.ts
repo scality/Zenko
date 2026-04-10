@@ -1,10 +1,5 @@
 import { Utils } from 'cli-testing';
 
-function getKafkaConnectUrl(kafkaHosts: string): string {
-    const releasePrefix = kafkaHosts.split('-base-queue-')[0];
-    return `http://${releasePrefix}-base-queue-connector:8083/connectors`;
-}
-
 interface ConnectorInfo {
     info: {
         name: string;
@@ -25,17 +20,16 @@ interface ConnectorInfo {
  * test proceeds to trigger events.
  */ 
 export async function waitForBucketInConnectorPipeline(
-    kafkaHosts: string,
+    kafkaConnectUrl: string,
     bucketName: string,
     timeoutMs = 120000,
     intervalMs = 1000,
 ): Promise<void> {
-    const url = getKafkaConnectUrl(kafkaHosts);
     const deadline = Date.now() + timeoutMs;
     let lastConnectorCount = 0;
     while (Date.now() < deadline) {
         try {
-            const response = await fetch(`${url}?expand=info`, {
+            const response = await fetch(`${kafkaConnectUrl}?expand=info`, {
                 signal: AbortSignal.timeout(5000),
             });
             const connectors = await response.json() as Record<string, ConnectorInfo>;

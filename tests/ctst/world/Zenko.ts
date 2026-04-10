@@ -69,6 +69,7 @@ export interface ZenkoWorldParameters extends ClientOptions {
     KafkaExternalIps: string;
     KafkaHosts: string;
     KafkaAuthHosts: string;
+    KafkaConnectUrl: string;
     PrometheusService: string;
     KeycloakUsername: string;
     KeycloakPassword: string;

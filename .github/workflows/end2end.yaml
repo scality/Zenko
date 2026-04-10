@@ -29,8 +29,6 @@ env:
   BACKBEAT_BUCKET_CHECK_TIMEOUT_S: ""
   BACKBEAT_LCC_CRON_RULE: ""
   # e2e-env
-  E2E_CTST_IMAGE_NAME: ghcr.io/scality/zenko/zenko-e2e-ctst
-  E2E_IMAGE_TAG: ${{ github.sha }}
   VAULT_TEST_IMAGE_NAME: ""
   VAULT_TEST_IMAGE_TAG: ""
   # http-env
@@ -124,7 +122,7 @@ env:
   TMATE_SERVER_RSA_FINGERPRINT: ${{ secrets.TMATE_SERVER_RSA_FINGERPRINT }}
   TMATE_SERVER_ED25519_FINGERPRINT: ${{ secrets.TMATE_SERVER_ED25519_FINGERPRINT }}
   # Mocha reporter configuration
-  MOCHA_FILE: /reports/test-results-[hash].xml
+  MOCHA_FILE: reports/test-results-[hash].xml
 
 jobs:
   check-dashboard-versions:
@@ -366,7 +364,7 @@ jobs:
         working-directory: tests/zenko_tests/node_tests
         run: yarn lint
 
-  lint-and-build-ctst:
+  lint-ctst:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -407,42 +405,9 @@ jobs:
       - name: Check for unused step definitions
         working-directory: tests/ctst
         run: yarn unused-steps
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-      - name: Login to Registry
-        uses: docker/login-action@v4
-        with:
-          username: "${{ github.repository_owner }}"
-          password: "${{ github.token }}"
-          registry: ghcr.io
-      - name: Extract environment
-        working-directory: solution
-        run: |-
-          cat <<EOF >> $GITHUB_ENV
-          SORBET_IMAGE=$(yq eval '.sorbet | .sourceRegistry + "/" + .image' deps.yaml)
-          SORBET_TAG=$(yq eval '.sorbet.tag' deps.yaml)
-          DRCTL_IMAGE=$(yq eval '.drctl | .sourceRegistry + "/" + .image' deps.yaml)
-          DRCTL_TAG=$(yq eval '.drctl.tag' deps.yaml)
-          EOF
-      - name: Build and push CI image
-        uses: docker/build-push-action@v7
-        with:
-          push: true
-          context: ./tests/ctst
-          file: ./tests/ctst/Dockerfile
-          secrets: |
-            GIT_AUTH_TOKEN=${{ steps.app-token.outputs.token }}
-          build-args: |
-            SORBET_IMAGE=${{ env.SORBET_IMAGE }}
-            SORBET_TAG=${{ env.SORBET_TAG }}
-            DRCTL_IMAGE=${{ env.DRCTL_IMAGE }}
-            DRCTL_TAG=${{ env.DRCTL_TAG }}
-          tags: "${{ env.E2E_CTST_IMAGE_NAME }}:${{ env.E2E_IMAGE_TAG }}"
-          cache-from: type=gha,scope=end2end-ctst
-          cache-to: type=gha,mode=max,scope=end2end-ctst
 
   end2end-pra:
-    needs: [build-kafka, lint-and-build-ctst]
+    needs: [build-kafka]
     runs-on: ubuntu-24.04-16core
     env:
       DEPLOY_CRR_LOCATIONS: "false"
@@ -468,6 +433,10 @@ jobs:
           owner: ${{ github.repository_owner }}
           repositories: |
             zenko-operator
+            cli-testing
+      - name: Configure GIT
+        run: |
+          git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "https://github.com/"
       - name: Deploy Zenko
         uses: ./.github/actions/deploy
         env:
@@ -493,9 +462,16 @@ jobs:
       - name: Configure E2E CTST test environment
         run: bash configure-e2e-ctst.sh
         working-directory: ./.github/scripts/end2end
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: yarn
+          cache-dependency-path: tests/ctst/yarn.lock
+      - name: Install ctst test dependencies
+        working-directory: tests/ctst
+        run: yarn install --network-concurrency 1 || (yarn cache clean && yarn install --network-concurrency 1)
       - name: Run CTST end to end tests
-        run: bash run-e2e-ctst.sh "@PRA"
-        working-directory: ./.github/scripts/end2end
+        run: bash .github/scripts/end2end/run-e2e-ctst.sh "@PRA"
         continue-on-error: true
       - name: Debug wait
         uses: ./.github/actions/debug-wait
@@ -507,6 +483,7 @@ jobs:
           user: ${{ secrets.ARTIFACTS_USER }}
           password: ${{ secrets.ARTIFACTS_PASSWORD }}
           trunk_token: ${{ secrets.TRUNK_TOKEN }}
+          junit-paths: ${{ github.workspace }}/tests/ctst/reports/*.xml
         if: always()
 
   end2end-2-shards-http:
@@ -543,6 +520,8 @@ jobs:
           GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
       - name: Set up e2e environment
         run: source .github/scripts/end2end/setup-e2e-env.sh
+        env:
+          SKIP_CTST: '1'
       - name: Run init CI test
         working-directory: tests/zenko_tests/node_tests
         run: yarn run test_operator
@@ -576,6 +555,7 @@ jobs:
           user: ${{ secrets.ARTIFACTS_USER }}
           password: ${{ secrets.ARTIFACTS_PASSWORD }}
           trunk_token: ${{ secrets.TRUNK_TOKEN }}
+          junit-paths: ${{ github.workspace }}/tests/zenko_tests/node_tests/reports/*.xml
         if: always()
 
   end2end-sharded:
@@ -615,6 +595,8 @@ jobs:
           deploy_metadata: ${{ env.ENABLE_RING_TESTS }}
       - name: Set up e2e environment
         run: source .github/scripts/end2end/setup-e2e-env.sh
+        env:
+          SKIP_CTST: '1'
       - name: Run backbeat end to end tests
         working-directory: tests/zenko_tests/node_tests
         run: |
@@ -631,10 +613,11 @@ jobs:
           user: ${{ secrets.ARTIFACTS_USER }}
           password: ${{ secrets.ARTIFACTS_PASSWORD }}
           trunk_token: ${{ secrets.TRUNK_TOKEN }}
+          junit-paths: ${{ github.workspace }}/tests/zenko_tests/node_tests/reports/*.xml
         if: always()
 
   ctst-end2end-sharded:
-    needs: [build-kafka, lint-and-build-ctst]
+    needs: [build-kafka]
     runs-on:
       - ubuntu-24.04-8core
     steps:
@@ -661,6 +644,10 @@ jobs:
           owner: ${{ github.repository_owner }}
           repositories: |
             zenko-operator
+            cli-testing
+      - name: Configure GIT
+        run: |
+          git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "https://github.com/"
       - name: Deploy Zenko
         uses: ./.github/actions/deploy
         env:
@@ -669,12 +656,19 @@ jobs:
           TIME_PROGRESSION_FACTOR: 86400
           TRANSITION_ONE_DAY_EARLIER: false
           EXPIRE_ONE_DAY_EARLIER: false
-      - name: Configure E2E test environment
+      - name: Configure E2E CTST test environment
         run: bash configure-e2e-ctst.sh
         working-directory: ./.github/scripts/end2end
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: yarn
+          cache-dependency-path: tests/ctst/yarn.lock
+      - name: Install ctst test dependencies
+        working-directory: tests/ctst
+        run: yarn install --network-concurrency 1 || (yarn cache clean && yarn install --network-concurrency 1)
       - name: Run CTST end to end tests
-        run: bash run-e2e-ctst.sh "@PreMerge and not @PRA"
-        working-directory: ./.github/scripts/end2end
+        run: bash .github/scripts/end2end/run-e2e-ctst.sh "@PreMerge and not @PRA"
         continue-on-error: true
       - name: Debug wait
         uses: ./.github/actions/debug-wait
@@ -686,6 +680,7 @@ jobs:
           user: ${{ secrets.ARTIFACTS_USER }}
           password: ${{ secrets.ARTIFACTS_PASSWORD }}
           trunk_token: ${{ secrets.TRUNK_TOKEN }}
+          junit-paths: ${{ github.workspace }}/tests/ctst/reports/*.xml
         if: always()
 
   write-final-status:
@@ -698,6 +693,7 @@ jobs:
       - build-iso
       - build-kafka
       - lint-e2e-zenko-tests
+      - lint-ctst
       - end2end-2-shards-http
       - end2end-sharded
       - end2end-pra

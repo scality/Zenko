@@ -8,6 +8,7 @@ module.exports = {
             'pretty',
             'json:reports/cucumber-report.json',
             'html:reports/report.html',
+            'junit:reports/report.xml',
         ],
         parallel: 4,
     },
