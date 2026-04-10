@@ -10,6 +10,10 @@ kafka:
   sourceRegistry: ghcr.io/scality/zenko
   image: kafka
   tag: 2.13-3.1.2
+playground-sandbox:
+  sourceRegistry: ghcr.io/scality/playground
+  image: my-sandbox
+  tag: feat-branch-abc123
 redis:
   image: redis
   tag: 7.2.11
