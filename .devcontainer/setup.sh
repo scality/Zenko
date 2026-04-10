@@ -67,10 +67,23 @@ done
     bash configure-e2e-ctst.sh
 )
 
-# Build CTST image from current branch
+
+# Extract sorbet & drctl binaries for out-of-cluster test execution
+CTST_DIR="./tests/ctst"
+SORBET_IMAGE=$(yq eval '.sorbet | .sourceRegistry + "/" + .image' solution/deps.yaml)
 SORBET_TAG=$(yq eval '.sorbet.tag' solution/deps.yaml)
+DRCTL_IMAGE=$(yq eval '.drctl | .sourceRegistry + "/" + .image' solution/deps.yaml)
 DRCTL_TAG=$(yq eval '.drctl.tag' solution/deps.yaml)
-TAG_NAME=ctst_codespace_setup
-GIT_AUTH_TOKEN=$GITHUB_TOKEN docker build --secret id=GIT_AUTH_TOKEN --build-arg SORBET_TAG=$SORBET_TAG --build-arg DRCTL_TAG=$DRCTL_TAG -t $E2E_CTST_IMAGE_NAME:$TAG_NAME ./tests/ctst
-kind load docker-image ${E2E_CTST_IMAGE_NAME}:$TAG_NAME
-docker rmi ${E2E_CTST_IMAGE_NAME}:$TAG_NAME
+
+_cid=$(docker create "${SORBET_IMAGE}:${SORBET_TAG}" true)
+docker cp "${_cid}:/sorbetctl" "${CTST_DIR}/sorbetctl"
+docker rm "${_cid}" >/dev/null
+chmod +x "${CTST_DIR}/sorbetctl"
+
+_cid=$(docker create "${DRCTL_IMAGE}:${DRCTL_TAG}" true)
+docker cp "${_cid}:/zenko-drctl" "${CTST_DIR}/zenko-drctl"
+docker rm "${_cid}" >/dev/null
+chmod +x "${CTST_DIR}/zenko-drctl"
+
+# Install CTST test dependencies
+(cd "${CTST_DIR}" && yarn install --frozen-lockfile)
