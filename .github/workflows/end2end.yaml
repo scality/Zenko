@@ -264,7 +264,7 @@ jobs:
           username: "${{ secrets.DOCKERHUB_LOGIN }}"
           password: "${{ secrets.DOCKERHUB_PASSWORD }}"
       - name: Get token to access ZKOP
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@v3
         id: app-token
         with:
           app-id: ${{ vars.ACTIONS_APP_ID }}
@@ -375,7 +375,7 @@ jobs:
         with:
           persist-credentials: false # otherwise, the token is not passed to the next steps
       - name: Get token to access private repositories
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@v3
         id: app-token
         with:
           app-id: ${{ vars.ACTIONS_APP_ID }}
@@ -461,7 +461,7 @@ jobs:
           password: "${{ github.token }}"
           registry: ghcr.io
       - name: Get token to access private repositories
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@v3
         id: app-token
         with:
           app-id: ${{ vars.ACTIONS_APP_ID }}
@@ -530,7 +530,7 @@ jobs:
           password: "${{ github.token }}"
           registry: ghcr.io
       - name: Get token to access private repositories
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@v3
         id: app-token
         with:
           app-id: ${{ vars.ACTIONS_APP_ID }}
@@ -594,7 +594,7 @@ jobs:
           password: "${{ github.token }}"
           registry: ghcr.io
       - name: Get token to access private repositories
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@v3
         id: app-token
         with:
           app-id: ${{ vars.ACTIONS_APP_ID }}
@@ -648,7 +648,7 @@ jobs:
           password: "${{ github.token }}"
           registry: ghcr.io
       - name: Get token to access private repositories
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@v3
         id: app-token
         with:
           app-id: ${{ vars.ACTIONS_APP_ID }}
