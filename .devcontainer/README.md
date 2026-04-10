@@ -16,11 +16,10 @@ echo "127.0.0.1 iam.zenko.local s3-local-file.zenko.local keycloak.zenko.local s
 ## Running CTST tests in the codespace
 
 ```bash
-cd tests/ctst
-./run-ctst-locally.sh @yourTag
+bash .github/scripts/end2end/run-e2e-ctst.sh @yourTag
 ```
 
-See [tests/ctst/README.md](../tests/ctst/README.md) for more details on building custom images and advanced usage.
+See [tests/ctst/README.md](../tests/ctst/README.md) for more details.
 
 ## Running e2e tests in the codespace
 
@@ -28,7 +27,8 @@ See [tests/ctst/README.md](../tests/ctst/README.md) for more details on building
 
 ```bash
 # Set up the test environment (endpoints, credentials, mongo, TLS)
-source .github/scripts/end2end/setup-e2e-env.sh
+# SKIP_CTST=1 skips Kafka/notification/CTST-specific setup (not needed for mocha tests)
+SKIP_CTST=1 source .github/scripts/end2end/setup-e2e-env.sh
 
 # Run mocha directly (setup-e2e-env.sh already cd's to node_tests/)
 yarn mocha --exit -t 10000 --recursive smoke_tests
@@ -39,8 +39,7 @@ yarn mocha --exit -t 10000 --grep "should list objects" --recursive cloudserver/
 ### CTST tests (cucumber)
 
 ```bash
-cd tests/ctst
-./run-ctst-locally.sh @yourTag
+bash .github/scripts/end2end/run-e2e-ctst.sh @yourTag
 ```
 
 ## Accessing s3 service
@@ -48,38 +47,29 @@ cd tests/ctst
 This devcontainer is a full Zenko development environment.
 Once you start a new Codespace, you will have a full Zenko stack running in Kubernetes after a few minutes.
 
-After deployment is done, which you can follow by opening another terminal, you will be able to access S3 service through a port-forward.
-First find a cloudserver connector using the following command:
+After deployment is done, the devcontainer setup configures ingress endpoints and `/etc/hosts` entries
+for out-of-cluster access. You can access the S3 service at `http://s3.zenko.local`.
+
+Get credentials:
 
 ```bash
-    kubectl get pods
+export ACCESS_KEY=$(kubectl get secret end2end-management-vault-admin-creds.v1 -o jsonpath='{.data.accessKey}' | base64 -d)
+export SECRET_KEY=$(kubectl get secret end2end-management-vault-admin-creds.v1  -o jsonpath='{.data.secretKey}' | base64 -d)
 ```
 
-Then port-forward the connector
+Configure the AWS CLI:
 
 ```bash
-    kubectl port-forward pod/end2end-connector-cloudserver-XXXXXXX 8080
+aws configure set aws_access_key_id $ACCESS_KEY
+aws configure set aws_secret_access_key $SECRET_KEY
+aws configure set region us-east-1
+aws configure set endpoint_url http://s3.zenko.local
 ```
 
-After that you will need Access Key and Secret Key which you can find with the following commands
+Use it:
 
 ```bash
-    export ACCESS_KEY=$(kubectl get secret end2end-management-vault-admin-creds.v1 -o jsonpath='{.data.accessKey}' | base64 -d)
-    export SECRET_KEY=$(kubectl get secret end2end-management-vault-admin-creds.v1  -o jsonpath='{.data.secretKey}' | base64 -d)
-```
-
-Then configure aws cli with the following command
-
-```bash
-    aws configure set aws_access_key_id $ACCESS_KEY
-    aws configure set aws_secret_access_key $SECRET_KEY
-    aws configure set region us-east-1
-```
-
-Now you can use aws cli to interact with the S3 service
-
-```bash
-    aws s3 ls --endpoint http://localhost:8080
+aws s3 ls
 ```
 
 ## Troubleshooting

@@ -9,7 +9,8 @@
 
 ```bash
 # Set up the test environment (endpoints, credentials, mongo port-forward, TLS)
-source .github/scripts/end2end/setup-e2e-env.sh
+# SKIP_CTST=1 skips Kafka/notification/CTST-specific setup (not needed for mocha tests)
+SKIP_CTST=1 source .github/scripts/end2end/setup-e2e-env.sh
 
 # Run mocha directly (setup-e2e-env.sh already cd's to node_tests/)
 yarn mocha --exit -t 10000 --recursive smoke_tests
