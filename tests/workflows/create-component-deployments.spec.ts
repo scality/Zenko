@@ -124,6 +124,7 @@ describe("create-component-deployments action", () => {
 
                 // test-deps.yaml has 2 scality components (sorbet + backbeat)
                 // kafka is scality/zenko (filtered as self-repo), redis has no scality registry
+                // playground-sandbox has empty repo, manifest resolution will fail (non-fatal)
 
                 // Sorbet: createDeployment + createDeploymentStatus
                 moctokit.rest.repos.createDeployment({

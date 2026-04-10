@@ -3,11 +3,20 @@ const fs = require('fs');
 const yaml = require('js-yaml');
 
 /**
- * Parse deps.yaml and extract unique {repo, ref} pairs for ghcr.io/scality/* images.
+ * Strip @sha256:... digest suffix from a tag.
+ * @param {string} tag
+ * @returns {string}
+ */
+function stripDigest(tag) {
+    return tag.replace(/@sha256:[0-9a-f]+$/i, '');
+}
+
+/**
+ * Parse deps.yaml and extract component info for ghcr.io/scality/* images.
  *
  * @param {string} depsFile - Path to deps.yaml
  * @param {string} selfRepo - The current repo (org/name) to exclude from results
- * @returns {{ components: Array<{repo: string, ref: string}>, repos: string[] }}
+ * @returns {{ components: Array<{repo: string, ref: string, image: string}>, repos: string[] }}
  */
 function parseDeps(depsFile, selfRepo) {
     const deps = yaml.load(fs.readFileSync(depsFile, 'utf8'));
@@ -30,19 +39,27 @@ function parseDeps(depsFile, selfRepo) {
             continue;
         }
 
-        const key = `${repo} ${entry.tag}`;
+        const tag = stripDigest(entry.tag);
+        const key = `${fullPath} ${tag}`;
         if (seen.has(key)) {
             continue;
         }
 
         seen.add(key);
-        components.push({ repo, ref: entry.tag });
+
+        components.push({
+            repo: repo === 'scality/playground' ? '' : repo,
+            ref: tag,
+            image: fullPath,
+        });
     }
 
     // Unique repo short names (without org/) for token scoping
-    const repos = [...new Set(components.map(c => c.repo.split('/')[1]))];
+    const repos = [...new Set(
+        components.map(c => c.repo.split('/')[1]).filter(Boolean),
+    )];
 
     return { components, repos };
 }
 
-module.exports = { parseDeps };
+module.exports = { parseDeps, stripDigest };
