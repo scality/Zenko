@@ -69,8 +69,6 @@ spec:
   containers:
   - image: ghcr.io/scality/cloudserver:8.8.59
     name: aws-mock
-    ports:
-      - containerPort: 80
     env:
     - name: LOG_LEVEL
       value: trace
