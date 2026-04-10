@@ -76,6 +76,13 @@ def create_location(client, uuid, location, accounts_creds):
     :param account_credentials: credentials of the accounts created
     """
     
+    # Some location env vars (e.g. GCP_BACKEND_DESTINATION_LOCATION) may be empty
+    # when credentials are not available in the environment (e.g. codespaces).
+    # Skip these to avoid API validation errors on empty names.
+    if not location.get("name"):
+        _log.warning("Skipping location with empty name (type: %s)", location.get("locationType"))
+        return
+
     ENABLE_RING_TESTS = os.environ['ENABLE_RING_TESTS']
     if ENABLE_RING_TESTS == "false" and location["locationType"] == "location-scality-ring-s3-v1":
         return
