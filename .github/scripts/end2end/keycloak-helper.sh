@@ -53,11 +53,11 @@ case $COMMAND in
 
         export INSTANCE_ID=`kubectl -n ${NAMESPACE} get zenko -o jsonpath='{.items[0].status.instanceID}'`
 
-        # get user id
-        USER_ID=$(${KEYCLOAK_EXEC} /opt/jboss/keycloak/bin/kcadm.sh get users -r ${OIDC_REALM} -q "username=${OIDC_USERNAME}" | jq -r '.[0].id')
-        # set instanceIds array attribute for user
-        ${KEYCLOAK_EXEC} /opt/jboss/keycloak/bin/kcadm.sh update users/${USER_ID} -r ${OIDC_REALM} -s 'attributes={"instanceIds":["'"${INSTANCE_ID}"'"],"role":"user"}'
-
+        # set instanceIds for all users in the realm
+        USER_IDS=$(${KEYCLOAK_EXEC} /opt/jboss/keycloak/bin/kcadm.sh get users -r ${OIDC_REALM} | jq -r '.[].id')
+        for USER_ID in ${USER_IDS}; do
+            ${KEYCLOAK_EXEC} /opt/jboss/keycloak/bin/kcadm.sh update users/${USER_ID} -r ${OIDC_REALM} -s 'attributes={"instanceIds":["'"${INSTANCE_ID}"'"],"role":"user"}'
+        done
 
         ;;
     *)

@@ -35,6 +35,14 @@
         "clientRole": false,
         "containerId": "${OIDC_REALM}",
         "attributes": {}
+      },
+      {
+        "id": "a1b2c3d4-5e6f-7a8b-9c0d-e1f2a3b4c5d6",
+        "name": "StorageUsageReporter",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "${OIDC_REALM}",
+        "attributes": {}
       }
     ]
   },
@@ -181,6 +189,44 @@
         "uma_authorization",
         "offline_access",
         "AccountTest::StorageAccountOwner"
+      ],
+      "clientRoles": {
+        "account": [
+          "view-profile",
+          "manage-account"
+        ]
+      },
+      "notBefore": 0,
+      "groups": []
+    },
+    {
+      "username": "storage_usage_reporter",
+      "enabled": true,
+      "totp": false,
+      "emailVerified": false,
+      "email": "storage_usage_reporter@zenko.local",
+      "attributes": {
+        "instanceIds": [
+            "${INSTANCE_ID}"
+        ],
+        "role": [
+          "user"
+        ]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "createdDate": 1636387191985,
+          "secretData": "{\"value\":\"01QgDEQ47XueKXybwHAwspMlIQ6mu0aW/gmEQTOJb7bL4Jwp2T/AHkr2GObmnEkDBgFcr+zfwJRLiNf/g1K8Ug==\",\"salt\":\"s0RiY3/xmlDVyPB1mkG/kg==\"}",
+          "credentialData": "{\"hashIterations\":27500,\"algorithm\":\"pbkdf2-sha256\"}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": [
+        "uma_authorization",
+        "StorageUsageReporter",
+        "offline_access"
       ],
       "clientRoles": {
         "account": [

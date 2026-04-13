@@ -12,8 +12,9 @@ Feature: Storage Usage Reporting API
 
         Examples:
           | persona          | expectedStatus |
-          | storage_manager  | 200            |
-          | data_consumer    | 403            |
+          | storage_manager          | 200            |
+          | storage_usage_reporter   | 200            |
+          | data_consumer            | 403            |
 
     @2.14.0
     @PreMerge
