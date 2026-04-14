@@ -1,25 +1,25 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 set -exu
 
 . "$(dirname $0)/common.sh"
 
+METADATA_CHART_VERSION="${METADATA_CHART_VERSION:-9.11.1-dev.ed12a26}"
+METADATA_CHART_REPO="${METADATA_CHART_REPO:-oci://ghcr.io/scality/metadata/charts}"
+
 # create a separate namespace for metadata
 kubectl create namespace metadata --dry-run=client -o yaml | kubectl apply -f -
 
-# clone the metadata repository
-git init metadata
-cd metadata
-git fetch --depth 1 --no-tags "https://git:${GIT_ACCESS_TOKEN}@github.com/scality/metadata.git" refs/tags/9.9.0
-git checkout FETCH_HEAD
+# create pull image secret in the metadata namespace (reuse docker config from CI login)
+kubectl create secret generic docker -n metadata --dry-run=client -o yaml \
+    --from-file=.dockerconfigjson="$HOME/.docker/config.json" \
+    --type=kubernetes.io/dockerconfigjson | kubectl apply -f -
 
-# install metadata chart in a separate namespace
-cd helm
-helm dependency update cloudserver/
+# install metadata chart from GHCR OCI registry
 helm install -n metadata \
     --set metadata.persistentVolume.storageClass='' \
     --set metadata.sproxyd.persistentVolume.storageClass='' \
-    s3c cloudserver/
+    s3c "${METADATA_CHART_REPO}/cloudserver" --version "${METADATA_CHART_VERSION}"
 
 # wait for the repds to be created
 kubectl -n metadata rollout status --watch --timeout=300s statefulset/s3c-metadata-repd

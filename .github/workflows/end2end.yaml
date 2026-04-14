@@ -516,9 +516,7 @@ jobs:
           app-id: ${{ vars.ACTIONS_APP_ID }}
           private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
           repositories: |
-            cli-testing
             zenko-operator
-            metadata
       - name: Deploy Zenko
         uses: ./.github/actions/deploy
         env:

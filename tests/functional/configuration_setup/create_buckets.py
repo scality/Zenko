@@ -36,7 +36,7 @@ def put_file(bucket, object_name, body):
         obj = bucket.Object(object_name)
         obj.put(Body=body)
     except Exception as exp:
-        _log.info('Error putting object %s - %s' % (bucket.name, object_name, str(exp)))
+        _log.info('Error putting object %s/%s - %s' % (bucket.name, object_name, str(exp)))
         raise exp
     
 def put_singlepart_mpu(bucket, object_name, body):

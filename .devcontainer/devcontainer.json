@@ -81,11 +81,6 @@
                         "contents": "read"
                     }
                 },
-                "scality/metadata": {
-                    "permissions": {
-                        "contents": "read"
-                    }
-                },
                 "scality/metadata-operator": {
                     "permissions": {
                         "contents": "read"
