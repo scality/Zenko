@@ -12,7 +12,7 @@ const {
     paginateListRoles,
     paginateListPolicies,
 } = require('@aws-sdk/client-iam');
-const { NodeHttpHandler } = require('@aws-sdk/node-http-handler');
+const { NodeHttpHandler } = require('@smithy/node-http-handler');
 const vaultclient = require('vaultclient');
 const https = require('https');
 

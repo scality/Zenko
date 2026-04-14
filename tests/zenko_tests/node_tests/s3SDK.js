@@ -1,6 +1,6 @@
 const { S3Client } = require('@aws-sdk/client-s3');
 const { IAMClient } = require('@aws-sdk/client-iam');
-const { NodeHttpHandler } = require('@aws-sdk/node-http-handler');
+const { NodeHttpHandler } = require('@smithy/node-http-handler');
 
 const sharedHttpHandler = new NodeHttpHandler({
     requestTimeout: 0,
