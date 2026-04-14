@@ -41,7 +41,7 @@ export async function uploadSetup(world: Zenko, action: string, body?: string, s
     if (action !== 'PutObject' && action !== 'UploadPart') {
         return;
     }
-    const objectSize = size ?? world.getSaved<number>('objectSize') || 0;
+    const objectSize = (size ?? world.getSaved<number>('objectSize')) || 0;
     if (body || objectSize > 0) {
         const tempFileName = `${Utils.randomString()}_${world.getSaved<string>('objectName')}`;
         world.addToSaved('tempFileName', `/tmp/${tempFileName}`);

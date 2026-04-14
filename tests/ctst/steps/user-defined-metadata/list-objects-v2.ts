@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { Then, When } from '@cucumber/cucumber';
-import { ListObjectsV2ExtendedCommand } from '@scality/cloudserverclient';
+import { ListObjectsV2ExtendedCommand, ListObjectsV2ExtendedInput } from '@scality/cloudserverclient';
 import Zenko from '../../world/Zenko';
 import { safeJsonParse } from '../../common/utils';
 
@@ -11,7 +11,8 @@ async function listObjectsV2WithOptionalAttributes(
     world.resetCommand();
 
     const bucketName = world.getSaved<string>('bucketName');
-    const optionalAttrsList = optionalAttributes.split(',').map(attr => attr.trim());
+    const optionalAttrsList = optionalAttributes.split(',').map(attr => attr.trim()) as
+        ListObjectsV2ExtendedInput['ObjectAttributes'];
 
     await world.sendS3Command(new ListObjectsV2ExtendedCommand({
         Bucket: bucketName,

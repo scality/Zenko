@@ -399,6 +399,9 @@ jobs:
           yarn install --frozen-lock-file --network-concurrency 1 || (
             yarn cache clean && yarn install --frozen-lock-file --network-concurrency 1
           )
+      - name: Build ctst typescript
+        working-directory: tests/ctst
+        run: yarn build
       - name: Lint ctst tests
         working-directory: tests/ctst
         run: yarn lint

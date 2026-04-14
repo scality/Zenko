@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { Then, When } from '@cucumber/cucumber';
-import { GetObjectAttributesExtendedCommand } from '@scality/cloudserverclient';
+import { GetObjectAttributesExtendedCommand, GetObjectAttributesExtendedInput } from '@scality/cloudserverclient';
 import Zenko from '../../world/Zenko';
 import { safeJsonParse } from '../../common/utils';
 
@@ -13,7 +13,8 @@ async function getObjectAttributes(
     world.resetCommand();
 
     const bucketName = world.getSaved<string>('bucketName');
-    const attributesList = attributes.split(',').map(attr => attr.trim());
+    const attributesList = attributes.split(',').map(attr => attr.trim()) as
+        GetObjectAttributesExtendedInput['ObjectAttributes'];
 
     await world.sendS3Command(new GetObjectAttributesExtendedCommand({
         Bucket: bucketName,
