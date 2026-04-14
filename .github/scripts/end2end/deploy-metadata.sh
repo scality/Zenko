@@ -10,7 +10,7 @@ kubectl create namespace metadata --dry-run=client -o yaml | kubectl apply -f -
 # clone the metadata repository
 git init metadata
 cd metadata
-git fetch --depth 1 --no-tags https://git:${GIT_ACCESS_TOKEN}@github.com/scality/metadata.git
+git fetch --depth 1 --no-tags "https://git:${GIT_ACCESS_TOKEN}@github.com/scality/metadata.git" refs/tags/9.9.0
 git checkout FETCH_HEAD
 
 # install metadata chart in a separate namespace
