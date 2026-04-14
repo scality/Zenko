@@ -4,8 +4,39 @@ import path from "path";
 import { exec as execCb } from "node:child_process";
 import { promisify } from "node:util";
 import assert from "assert";
+import nock from "nock";
 
 const exec = promisify(execCb);
+
+// Test-only RSA key (not used anywhere else, generated for act.js mock)
+const TEST_PRIVATE_KEY = `-----BEGIN PRIVATE KEY-----
+MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDSSu4ghRVAKyjX
+c25FKdE+sARk3Jai8k8DCjJU/DMNskgNvGh7JPLDww98Ts9E3ddMNt06oBt5p8qc
+YfaInUR0poPcJG6JbPWVEefNC00dTiHlXEGU8Ih8Dc2Ezf/zb45my9DmmGXeVScf
+LNYtSSqxfqdjFIOvr8XJ8kuB7L3jyFTBN9xjfdTnmsJ0ilSatV50o6RdVjiZvf2r
+z8uhlIw/b0xw8ZZ5rRXNr1VgDW7kcK952OYIDo9qvGMxOASjx9cpUJBkE/nrWF8I
+HAGACAqUZJaF4p/CQFjd/7cmUpA+Shh31UdD/rSXzC1bTEB5vaJN8LyVEBYw+n19
+iv6QO/K1AgMBAAECggEAaRNksd4dlK8cHK+CQU/YTGzx/R3VrPzLKxcsuBc+QVE8
+PJTQVfvLy7JLKg9M9LmuStg9KX53zA1hqUsvvupqGqlbSKPxkXxep4pHW0aS1RpF
+yI+U+2FGqUnST9II2q/6pPWhX591gybkQekK6ZzeFstUwyaseBwphbMqNHTBGy+F
+9A52Zg42QBQbQoIsOiqpJTKxhDpdEx+AZqrG1EawQkygVeNyRnOaJgCgVTIxqk+m
+lENCchKeZmo6aul/4LwH9GPDF+1ftMIlAwFXwQgp/IuzFmNf564NSIEZbWgYC8aN
+gl3ZU5K6mrwbKpGg2HXPDb6AA0U4WN1Bmw8wLyWhjwKBgQDsgNSi4+kfjLJM9oHQ
+PkNTfZ7rmrSdPf8gAodGsrABKz9IhfoCQJ0jNtegaGq3JB+YVJUUWtw4cnyBGOcE
+f1F9JIRMcq885p9zwX0jDLLe1vR8305tmYJFweqAViwWQ2riy2IqupsWEhgKev1S
+8QgSsaDcP1wksDWokykui85TzwKBgQDjoPOc1zs1teMG5zpSQVm3QT2C3ryRSBRo
++1jyszl8Rrm7x9IcmiyBL5XQOpHoNHH24wUDte+t08V/34mhEwaa3tl1MUmJLsBG
++LkTVXdRcFnHoqCbqFqYeV8eXQgY+Narq245VGGa1CfkhHvqQvuKVlIDLgPPrutg
+czA0MpW+OwKBgQDU4ImFLTwzR8Nd/yyNst2LEzGuxIv6VUmFGIGHI2PFSZYmw2Fs
+EZjfj4e7PQGBY6SEyu19auN6c6KZ2T5oD+nbiLkEzt3pJXU1Dl6C4/VFG5rpo17G
+zDw0af2YEviP+ZMGHSd5aooZ7aNyG45Vz9sCaJxwYx+fbnR+DigtW24WhQKBgQCf
+sPXXTWO7jYvk9ukCddhT6NAXdN2Darbu446GTdgBaLi6lTfBWyPnyZNnjv93kPt2
+wdNtxACOyWfgCtnKB8f1dGvIfLhjJko8QBfPCYF4v8IsfNoB+bz9BQEHEyswIbqw
+msbsL1d+QGJwPcWVFkLTzTUiB/EijUuR0Z26sNY+qwKBgQDWDEEBjZ+63kttpp4c
+EAyXAIwDT+KhVppmXvIAjVkqP6+I8yqUSCFjXMTT1Bubovqk6wAnpYdA559LgRjc
+gfkN+TRRaIeVB9jxzFHszenX6CVswwBtwSj331N/87GnI7fF7/ZDmMKRSiRjIQyL
+6c4hJmUD3bnLspBgcbLD33c7Dw==
+-----END PRIVATE KEY-----`;
 
 let github: MockGithub;
 let mockapi: Mockapi;
@@ -130,6 +161,10 @@ beforeEach(async () => {
     // Set secrets
     act.setSecret('ARTIFACTS_USER', 'foo');
     act.setSecret('ARTIFACTS_PASSWORD', 'bar');
+    act.setSecret('ACTIONS_APP_PRIVATE_KEY', TEST_PRIVATE_KEY);
+
+    // Set variables (repository variables)
+    act.setVar('ACTIONS_APP_ID', '123456');
 
      // For some reason, the GITHUB_REF is not set to the current branch where `act` is executed: so
      // we need to explicitely set it to the current branch
@@ -144,6 +179,7 @@ beforeEach(async () => {
 
 afterEach(async () => {
     await github.teardown();
+    nock.cleanAll();
 });
 
 const Pass = { toString: () => "pass", value: () => 0 };
@@ -171,6 +207,10 @@ test.each([
     }
 
     act.setInput("tag", tag);
+
+    // Post-step: create-github-app-token revokes token via DELETE /installation/token,
+    // which cannot be matched by moctokit.rest.apps.revokeInstallationAccessToken()
+    nock('http://api.github.com').delete('/installation/token').reply(204).persist();
 
     const result = await act.runEvent("workflow_dispatch", {
         logFile: process.env.ACT_LOG
@@ -213,7 +253,9 @@ test.each([
                 .listReleases()
                 // First call from release notes generation, to get the previous release
                 .reply({ status: 200, data: [{ tag_name: '2.3.6', id: 122 }] })
-                // Second call made by action-gh-release@v2.5.2+ (after release creation) to handle
+                // Second call from release notes generation, to get the previous release
+                .reply({ status: 200, data: [{ tag_name: '2.3.6', id: 122 }] })
+                // Third call made by action-gh-release@v2.5.2+ (after release creation) to handle
                 // race condition when release is created by multiple jobs in parallel...
                 .reply({
                     status: 200, data: [{ tag_name: '2.3.6', id: 122 }, {
@@ -270,6 +312,43 @@ test.each([
                     upload_url: 'http://uploads.github.com/repos/scality/Zenko/releases/456/assets{?name,label}',
                     html_url: 'http://github.com/repos/scality/Zenko/releases/456',
                 }}),
+
+            // Mock create-github-app-token
+            moctokit.rest.apps
+                .listInstallations()
+                .reply({ status: 200, data: [] }),
+            moctokit.rest.apps
+                .getRepoInstallation({ owner: 'scality', repo: 'sorbet' })
+                .reply({ status: 200, data: { id: 4242, app_slug: 'scality-test-app' } }),
+            moctokit.rest.apps
+                .createInstallationAccessToken({ installation_id: 4242 })
+                .reply({ status: 201, data: { token: 'my-app-token' } }),
+
+            // Mock deployment creation for sorbet
+            moctokit.rest.repos
+                .listDeployments({
+                    owner: 'scality', repo: 'sorbet', environment: `zenko/${tag}`, ref: 'v1.2.1', per_page: 1,
+                } as any)
+                .reply({ status: 200, data: [] }),
+            moctokit.rest.repos
+                .createDeployment({ owner: 'scality', repo: 'sorbet' })
+                .reply({ status: 201, data: { id: 1001 } }),
+            moctokit.rest.repos
+                .createDeploymentStatus({ owner: 'scality', repo: 'sorbet', deployment_id: 1001 })
+                .reply({ status: 201, data: {} }),
+
+            // Mock deployment creation for backbeat
+            moctokit.rest.repos
+                .listDeployments({
+                    owner: 'scality', repo: 'backbeat', environment: `zenko/${tag}`, ref: '9.3.0', per_page: 1,
+                } as any)
+                .reply({ status: 200, data: [] }),
+            moctokit.rest.repos
+                .createDeployment({ owner: 'scality', repo: 'backbeat' })
+                .reply({ status: 201, data: { id: 1002 } }),
+            moctokit.rest.repos
+                .createDeploymentStatus({ owner: 'scality', repo: 'backbeat', deployment_id: 1002 })
+                .reply({ status: 201, data: {} }),
         ],
         mockSteps: {
             'verify-release': [{
@@ -302,16 +381,16 @@ test.each([
                 }
             }],
             'create-deployments': [{
+                before: 'Checkout',
+                mockWith: {
+                    name: 'Install js-yaml globally',
+                    run: 'npm install -g js-yaml ; echo "NODE_PATH=$(npm root -g)" >> "$GITHUB_ENV"'
+                },
+            }, {
                 name: 'Create release deployments',
                 mockWith: {
-                    uses: 'actions/github-script@v7',
                     with: {
                         'github-token': "my-token",
-                        script: [
-                            "const assert = require('assert');",
-                            `assert.strictEqual(core.getInput('environment'), 'zenko/${tag}');`,
-                            "assert.strictEqual(core.getInput('status'), 'success');",
-                        ].join('\n'),
                     },
                 }
             }],
