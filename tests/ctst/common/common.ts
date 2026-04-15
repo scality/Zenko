@@ -133,6 +133,19 @@ async function createBucket(world: Zenko, versioning: string, bucketName: string
     world.addToSaved('bucketName', bucketName);
     world.addCommandParameter({ bucket: bucketName });
     await S3.createBucket(world.getCommandParameters());
+    // Add default SSE-AES256 encryption on every bucket (encryption-everywhere test branch)
+    world.resetCommand();
+    world.addCommandParameter({ bucket: bucketName });
+    world.addCommandParameter({
+        serverSideEncryptionConfiguration: JSON.stringify({
+            Rules: [{
+                ApplyServerSideEncryptionByDefault: { SSEAlgorithm: 'AES256' },
+            }],
+        }),
+    });
+    await S3.putBucketEncryption(world.getCommandParameters());
+    world.resetCommand();
+    world.addCommandParameter({ bucket: bucketName });
     world.addToSaved('bucketVersioning', versioning);
     if (versioning !== 'Non versioned') {
         const versioningConfiguration = versioning === 'Versioned' ? 'Enabled' : 'Suspended';

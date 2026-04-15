@@ -192,6 +192,20 @@ async function createBucketWithConfiguration(
     world.logger.debug('Creating bucket',
         { bucket: usedBucketName, withObjectLock, retentionMode, withVersioning });
     await S3.createBucket(world.getCommandParameters());
+    // Add default SSE-AES256 encryption to 
+    // every bucket so complex scenarios (transitions, replication, etc.) run encrypted
+    world.resetCommand();
+    world.addCommandParameter({ bucket: usedBucketName });
+    world.addCommandParameter({
+        serverSideEncryptionConfiguration: JSON.stringify({
+            Rules: [{
+                ApplyServerSideEncryptionByDefault: { SSEAlgorithm: 'AES256' },
+            }],
+        }),
+    });
+    await S3.putBucketEncryption(world.getCommandParameters());
+    world.resetCommand();
+    world.addCommandParameter({ bucket: usedBucketName });
     if (withVersioning === 'with') {
         world.addCommandParameter({ versioningConfiguration: 'Status=Enabled' });
         await S3.putBucketVersioning(world.getCommandParameters());
