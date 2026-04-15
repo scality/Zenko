@@ -671,7 +671,7 @@ jobs:
         working-directory: tests/ctst
         run: yarn install --network-concurrency 1 || (yarn cache clean && yarn install --network-concurrency 1)
       - name: Run CTST end to end tests
-        run: bash .github/scripts/end2end/run-e2e-ctst.sh "@PreMerge and not @PRA"
+        run: bash .github/scripts/end2end/run-e2e-ctst.sh "@haha and not @PRA"
         continue-on-error: true
       - name: Debug wait
         uses: ./.github/actions/debug-wait

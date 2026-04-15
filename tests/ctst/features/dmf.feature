@@ -4,6 +4,17 @@ Feature: DMF
     @PreMerge
     @Dmf
     @ColdStorage
+    @haha
+    Scenario: Cold transition with whitespace in object name
+    Given a "Non versioned" bucket
+    And a transition workflow to "e2e-cold" location
+    And 1 objects "obj with space" of size 100 bytes
+    Then object "obj with space-1" should be "transitioned" and have the storage class "e2e-cold"
+
+    @2.7.0
+    @PreMerge
+    @Dmf
+    @ColdStorage
     Scenario Outline: Deletion of an archived object
     Given a "<versioningConfiguration>" bucket
     And a transition workflow to "e2e-cold" location
