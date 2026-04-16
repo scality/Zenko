@@ -46,6 +46,17 @@ async function getCommitHash(repo: string = "zenko") {
     return stdout.trim();
 }
 
+// act >=0.2.81 appends a timing suffix to success/failure lines ("Main foo [40ms]"), which
+// act-js's OutputParser splits into a named "Run" entry followed by an unnamed status entry.
+// So the real status of result[i] lives on result[i + 1]; unnamed entries have status set.
+function findStep(result: { name: string; status: number }[], nameFragment: string) {
+    const idx = result.findIndex(r => r.name?.includes(nameFragment));
+    if (idx < 0) {
+        return undefined;
+    }
+    return { name: result[idx].name, status: result[idx + 1]?.status };
+}
+
 // Common deployment parameters expected for all components
 const commonDeploymentParams = {
     environment: "zenko/development/2.11",
@@ -173,11 +184,11 @@ describe("create-component-deployments action", () => {
             bind: true,
         });
 
-        const parseStep = result.find(r => r.name?.includes("Parse component repos"));
+        const parseStep = findStep(result, "Parse component repos");
         expect(parseStep).toBeDefined();
         expect(parseStep?.status).toBe(0);
 
-        const deployStep = result.find(r => r.name?.includes("Create or update deployments"));
+        const deployStep = findStep(result, "Create or update deployments");
         expect(deployStep).toBeDefined();
         expect(deployStep?.status).toBe(0);
     });
@@ -222,15 +233,15 @@ describe("create-component-deployments action", () => {
             bind: true,
         });
 
-        const filterStep = result.find(r => r.name?.includes("Filter to changed dependencies"));
+        const filterStep = findStep(result, "Filter to changed dependencies");
         expect(filterStep).toBeDefined();
         expect(filterStep?.status).toBe(0);
 
-        const parseStep = result.find(r => r.name?.includes("Parse component repos"));
+        const parseStep = findStep(result, "Parse component repos");
         expect(parseStep).toBeDefined();
         expect(parseStep?.status).toBe(0);
 
-        const deployStep = result.find(r => r.name?.includes("Create or update deployments"));
+        const deployStep = findStep(result, "Create or update deployments");
         expect(deployStep).toBeDefined();
         expect(deployStep?.status).toBe(0);
     });
@@ -245,19 +256,19 @@ describe("create-component-deployments action", () => {
             bind: true,
         });
 
-        const filterStep = result.find(r => r.name?.includes("Filter to changed dependencies"));
+        const filterStep = findStep(result, "Filter to changed dependencies");
         expect(filterStep).toBeDefined();
         expect(filterStep?.status).toBe(0);
 
-        const parseStep = result.find(r => r.name?.includes("Parse component repos"));
+        const parseStep = findStep(result, "Parse component repos");
         expect(parseStep).toBeDefined();
         expect(parseStep?.status).toBe(0);
 
         // No deployments should be created — token and deploy steps should be skipped
-        const tokenStep = result.find(r => r.name?.includes("Generate scoped token"));
+        const tokenStep = findStep(result, "Generate scoped token");
         expect(tokenStep).toBeUndefined();
 
-        const deployStep = result.find(r => r.name?.includes("Create or update deployments"));
+        const deployStep = findStep(result, "Create or update deployments");
         expect(deployStep).toBeUndefined();
     });
 });

@@ -248,19 +248,43 @@ test.each([
                     }
                 }),
 
+            // Mock release lookup by tag used by action-gh-release@v3.
+            // IMPORTANT: register these BEFORE listReleases — moctokit translates the
+            // unparameterized `listReleases()` path to the regex `/repos/.+/.+/releases`
+            // (unanchored), which also matches getReleaseByTag URLs and would hijack them.
+            // v3 calls getReleaseByTag twice: once upfront (findTagFromReleases → 404)
+            // and once after creation (canonicalizeCreatedRelease).
+            moctokit.rest.repos
+                .getReleaseByTag({ tag, owner: 'scality', repo: 'Zenko' })
+                .reply({ status: 404, data: {} })
+                .reply({
+                    status: 200, data: {
+                        id: 123,
+                        draft: true,
+                        assets: [],
+                        name: `Release ${tag}`,
+                        prerelease: tag === '2.3.7-rc.1',
+                        tag_name: tag,
+                        target_commitish: await getCommitHash(),
+                        upload_url: 'http://uploads.github.com/repos/scality/Zenko/releases/456/assets{?name,label}',
+                        html_url: 'http://github.com/repos/scality/Zenko/releases/456',
+                    },
+                }),
+
             // Mock release notes generation
             moctokit.rest.repos
-                .listReleases()
+                .listReleases({ owner: 'scality', repo: 'Zenko' } as any)
                 // First call from release notes generation, to get the previous release
                 .reply({ status: 200, data: [{ tag_name: '2.3.6', id: 122 }] })
                 // Second call from release notes generation, to get the previous release
                 .reply({ status: 200, data: [{ tag_name: '2.3.6', id: 122 }] })
-                // Third call made by action-gh-release@v2.5.2+ (after release creation) to handle
-                // race condition when release is created by multiple jobs in parallel...
+                // Third call made by action-gh-release@v3's canonicalizeCreatedRelease
+                // (recentReleasesByTag scans allReleases to reconcile duplicate drafts).
                 .reply({
                     status: 200, data: [{ tag_name: '2.3.6', id: 122 }, {
                         id: 123,
                         draft: true,
+                        assets: [],
                         name: `Release ${tag}`,
                         prerelease: tag === '2.3.7-rc.1',
                         tag_name: tag,
@@ -278,11 +302,6 @@ test.each([
                     target_commitish: await getCommitHash(),
                 })
                 .reply({ status: 200, data: { body: 'something changed' } }),
-
-            // Mock release creation: check existing release and create a new one
-            moctokit.rest.repos
-                .getReleaseByTag()
-                .reply({ status: 404, data: {} }),
             moctokit.rest.repos
                 .createRelease({
                     owner: 'scality',
@@ -293,7 +312,7 @@ test.each([
                     name: `Release ${tag}`,
                     body: 'something changed',
                     prerelease: tag === '2.3.7-rc.1',
-                    draft: true,
+                    draft: tag !== '2.3.7-rc.1',  // v3 only set drafts for non-prereleases
                 })
                 .reply({ status: 201, data: {
                     id: 123,
@@ -365,7 +384,7 @@ test.each([
             }],
             'release': [{
                 // Need to explicitely pass token, the GITHUB_TOKEN does not seem to be set
-                uses: 'softprops/action-gh-release@v2.5.0',
+                uses: 'softprops/action-gh-release@v3',
                 mockWith: {
                     with: {
                         token: "my-token",
@@ -400,19 +419,25 @@ test.each([
         }
     });
 
-    var lastResult = result[result.length - 1];
-    var postSteps = [];
+    // act >=0.2.81 appends a timing suffix to success/failure lines ("Main foo [40ms]"), which
+    // act-js's OutputParser splits into a named "Run" entry followed by an unnamed status entry.
+    // So the real status of result[i] lives on result[i + 1]; unnamed entries have status set.
+    var lastResult = result.length - 2;
+    var postSteps: number[] = [];
 
     // action-artifacts keep executing Post step, need to skip it...
     for (let i = result.length - 1; i >= 0; i--) {
-        if (result[i].name.startsWith('Main ')) {
-            lastResult = result[i];
+        if (!result[i].name) {
+            postSteps.push(result[i].status);
+        } else if (result[i].name.startsWith('Main ')) {
+            lastResult = i;
             break;
         }
-        postSteps.push(result[i]);
     }
 
-    expect(lastResult.name).toStrictEqual('Main ' + stepName);
-    expect(lastResult.status).toStrictEqual(status.value());
-    postSteps.forEach(r => expect(r.status).toStrictEqual(Pass.value()));
+    postSteps.pop(); // last pushed entry is the matched step's own status, not a post-step
+
+    expect(result[lastResult].name.startsWith('Main ' + stepName)).toBe(true);
+    expect(result[lastResult + 1].status).toStrictEqual(status.value());
+    postSteps.forEach(s => expect(s).toStrictEqual(Pass.value()));
 })
