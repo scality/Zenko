@@ -11,11 +11,6 @@ jobs:
   test-deployments:
     runs-on: ubuntu-latest
     steps:
-      - name: Install js-yaml globally
-        run: |
-          npm install -g js-yaml
-          echo "NODE_PATH=$(npm root -g)" >> "$GITHUB_ENV"
-
       - name: Create component deployments
         uses: ./.github/actions/create-component-deployments
         with:

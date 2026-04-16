@@ -1,6 +1,5 @@
 // @ts-check
 const fs = require('fs');
-const yaml = require('js-yaml');
 
 /**
  * Strip @sha256:... digest suffix from a tag.
@@ -14,12 +13,12 @@ function stripDigest(tag) {
 /**
  * Parse deps.yaml and extract component info for ghcr.io/scality/* images.
  *
- * @param {string} depsFile - Path to deps.yaml
+ * @param {string} depsFile - Path to deps JSON file (converted from deps.yaml)
  * @param {string} selfRepo - The current repo (org/name) to exclude from results
  * @returns {{ components: Array<{repo: string, ref: string, image: string}>, repos: string[] }}
  */
 function parseDeps(depsFile, selfRepo) {
-    const deps = yaml.load(fs.readFileSync(depsFile, 'utf8'));
+    const deps = JSON.parse(fs.readFileSync(depsFile, 'utf8'));
     const seen = new Set();
     const components = [];
     const normalizedSelfRepo = (selfRepo || '').toLowerCase();
