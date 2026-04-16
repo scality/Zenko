@@ -381,12 +381,6 @@ test.each([
                 }
             }],
             'create-deployments': [{
-                before: 'Checkout',
-                mockWith: {
-                    name: 'Install js-yaml globally',
-                    run: 'npm install -g js-yaml ; echo "NODE_PATH=$(npm root -g)" >> "$GITHUB_ENV"'
-                },
-            }, {
                 name: 'Create release deployments',
                 mockWith: {
                     with: {

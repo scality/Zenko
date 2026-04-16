@@ -1,8 +1,17 @@
 import path from 'path';
+import fs from 'fs';
+import yaml from 'js-yaml';
 
 const { parseDeps, stripDigest } = require('../../.github/actions/create-component-deployments/parse-deps');
 
-const depsFile = path.join(__dirname, '../../solution/deps.yaml');
+/** Convert a YAML file to a temporary JSON file (mirrors the yq step in action.yaml). */
+function yamlToJson(yamlPath: string): string {
+    const jsonPath = fs.mkdtempSync(path.join(require('os').tmpdir(), 'deps-')) + '/deps.json';
+    fs.writeFileSync(jsonPath, JSON.stringify(yaml.load(fs.readFileSync(yamlPath, 'utf8'))));
+    return jsonPath;
+}
+
+const depsFile = yamlToJson(path.join(__dirname, '../../solution/deps.yaml'));
 
 describe('parseDeps', () => {
     it('extracts scality components from deps.yaml', () => {
@@ -71,7 +80,7 @@ describe('parseDeps', () => {
     });
 
     it('sets empty repo for playground images', () => {
-        const testDeps = path.join(__dirname, 'test-deps.yaml');
+        const testDeps = yamlToJson(path.join(__dirname, 'test-deps.yaml'));
         const { components } = parseDeps(testDeps, 'scality/zenko');
         const playground = components.find((c: { image: string }) => c.image.includes('playground'));
 

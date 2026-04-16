@@ -68,6 +68,13 @@ runs:
         cat /tmp/changed-deps.yaml
         echo "deps-file=/tmp/changed-deps.yaml" >> "$GITHUB_OUTPUT"
 
+    - name: Convert deps.yaml to JSON
+      id: json
+      shell: bash
+      run: |
+        yq -o=json '${{ steps.filter.outputs.deps-file || inputs.deps-file }}' > /tmp/changed-deps.json
+        echo "deps-file=/tmp/changed-deps.json" >> "$GITHUB_OUTPUT"
+
     - name: Parse component repos from deps.yaml
       id: parse
       uses: actions/github-script@v7
@@ -76,7 +83,7 @@ runs:
         script: |
           const { parseDeps } = require('${{ github.action_path }}/parse-deps.js');
           const selfRepo = process.env.GITHUB_REPOSITORY || 'scality/zenko';
-          const { components, repos } = parseDeps('${{ steps.filter.outputs.deps-file || inputs.deps-file }}', selfRepo);
+          const { components, repos } = parseDeps('${{ steps.json.outputs.deps-file }}', selfRepo);
 
           if (components.length === 0) {
             core.info('No component repos found in deps.yaml');
