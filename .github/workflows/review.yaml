@@ -1,0 +1,25 @@
+name: Code Review
+run-name: 'Code Review for #${{ github.event.pull_request.number || inputs.pr_number }}${{ github.event.pull_request.title && format('' : {0}'', github.event.pull_request.title) }}'
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Pull Request number to review
+        required: true
+
+jobs:
+  review:
+    uses: scality/workflows/.github/workflows/claude-code-review.yml@v2
+    with:
+      plugin_marketplaces: scality/agent-hub
+      allowed-tools: >-
+        ${{ github.event_name == 'workflow_dispatch' && '"Bash(gh api repos/*/content)"' || '' }}
+    secrets:
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+      GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+      ANTHROPIC_VERTEX_PROJECT_ID: ${{ secrets.ANTHROPIC_VERTEX_PROJECT_ID }}
+      CLOUD_ML_REGION: ${{ secrets.CLOUD_ML_REGION }}
+      ACTIONS_APP_PRIVATE_KEY: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
