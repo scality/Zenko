@@ -1,0 +1,14 @@
+---
+name: Test Archive Artifacts
+on: workflow_dispatch
+jobs:
+  test-archive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Archive artifacts
+        uses: ./.github/actions/archive-artifacts
+        with:
+          user: testuser
+          password: testpass
+          junit-paths: ${{ github.workspace }}/artifacts/data/reports/*.xml
+          github_token: fake-token

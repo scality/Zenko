@@ -20,6 +20,10 @@ inputs:
   trunk_token:
     description: Trunk token
     required: false
+  github_token:
+    description: GitHub token used for publishing test report annotations
+    default: ${{ github.token }}
+    required: false
   zenko-name:
     description: Zenko name
     default: end2end
@@ -91,6 +95,7 @@ runs:
     - name: Publish test report
       uses: mikepenz/action-junit-report@v6
       with:
+        token: ${{ inputs.github_token }}
         annotate_only: true
         check_name: ${{ steps.download-previous-reports.outputs.check-names }}
         report_paths: ${{ steps.download-previous-reports.outputs.report-paths }}
@@ -105,6 +110,7 @@ runs:
     - name: Compute build success
       uses: mikepenz/action-junit-report@v6
       with:
+        token: ${{ inputs.github_token }}
         annotate_only: true
         check_name: ${{ inputs.stage }}
         skip_annotations: true
