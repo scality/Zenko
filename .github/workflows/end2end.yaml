@@ -146,6 +146,16 @@ jobs:
     uses: ./.github/workflows/alerts.yaml
     secrets: inherit
 
+  check-scripts:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Install pytest
+        run: pip install pytest
+      - name: Run scripts tests
+        run: pytest tests/scripts/
+
   check-workflows:
     runs-on: ubuntu-24.04
     steps:
@@ -770,6 +780,7 @@ jobs:
     needs:
       - check-alerts
       - check-dashboard-versions
+      - check-scripts
       - check-workflows
       - build-doc
       - build-iso
