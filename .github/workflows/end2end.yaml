@@ -691,20 +691,23 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          filter: blob:none
       - name: Determine target environment
         id: env
         env:
-          GH_TOKEN: ${{ github.token }}
           REF_NAME: ${{ github.ref_name }}
         run: |
-          base_ref=$(gh pr list --head "$REF_NAME" --state open \
-            --json baseRefName --jq '.[0].baseRefName // empty')
-          if [[ -n "$base_ref" && "$base_ref" == development/* ]]; then
-            echo "environment=zenko/$base_ref" >> "$GITHUB_OUTPUT"
+          base_ref=$(./.github/scripts/resolve-base-branch.sh)
+
+          if [[ -n "$base_ref" ]]; then
+            environment="zenko/$REF_NAME@${base_ref#development/}"
+            echo "environment=$environment" >> "$GITHUB_OUTPUT"
             echo "target_branch=$base_ref" >> "$GITHUB_OUTPUT"
-            echo "Target environment: zenko/$base_ref"
+            echo "Target environment: $environment"
           else
-            echo "No open PR targeting a development branch found, skipping deployments"
+            echo "No development branch ancestor found, skipping deployments"
           fi
       - name: Create transient deployments
         if: steps.env.outputs.environment != ''
