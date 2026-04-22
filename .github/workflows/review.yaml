@@ -16,7 +16,7 @@ jobs:
     with:
       plugin_marketplaces: scality/agent-hub
       allowed-tools: >-
-        ${{ github.event_name == 'workflow_dispatch' && '"Bash(gh api repos/*/content)"' || '' }}
+        ${{ github.event_name == 'workflow_dispatch' && '"Bash(gh api repos/*/contents)"' || '' }}
     secrets:
       GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
       GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
