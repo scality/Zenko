@@ -17,24 +17,13 @@ jobs:
     if: github.event_name != 'pull_request_target' && github.actor != 'dependabot[bot]'
     uses: scality/workflows/.github/workflows/claude-code-review.yml@v2
     with:
-      plugin_marketplaces: scality/agent-hub
       allowed-tools: >-
         ${{ github.event_name == 'workflow_dispatch' && '"Bash(gh api repos/*/contents)"' || '' }}
-    secrets:
-      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-      GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-      ANTHROPIC_VERTEX_PROJECT_ID: ${{ secrets.ANTHROPIC_VERTEX_PROJECT_ID }}
-      CLOUD_ML_REGION: ${{ secrets.CLOUD_ML_REGION }}
-      ACTIONS_APP_PRIVATE_KEY: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
+    secrets: inherit
 
   review-dependency-bump:
     if: github.event_name == 'pull_request_target' && github.actor == 'dependabot[bot]'
     uses: scality/workflows/.github/workflows/claude-code-dependency-review.yml@v2
     with:
       ACTIONS_APP_ID: ${{ vars.ACTIONS_APP_ID }}
-    secrets:
-      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-      GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-      ANTHROPIC_VERTEX_PROJECT_ID: ${{ secrets.ANTHROPIC_VERTEX_PROJECT_ID }}
-      CLOUD_ML_REGION: ${{ secrets.CLOUD_ML_REGION }}
-      ACTIONS_APP_PRIVATE_KEY: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
+    secrets: inherit
