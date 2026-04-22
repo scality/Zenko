@@ -730,6 +730,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          filter: blob:none
       - name: Determine CI result
         id: result
         env:

@@ -57,8 +57,14 @@ runs:
       id: filter
       shell: bash
       run: |
-        git fetch origin "${{ inputs.target-branch }}" --depth=1
-        git show "origin/${{ inputs.target-branch }}:${{ inputs.deps-file }}" > /tmp/base-deps.yaml 2>/dev/null || echo '{}' > /tmp/base-deps.yaml
+        # Diff against the merge-base (common ancestor with target branch) rather
+        # than the target branch tip, so deps where the PR branch is merely
+        # behind on target don't show up as "changed". Requires fetch-depth: 0
+        # on the caller checkout.
+        git fetch origin "${{ inputs.target-branch }}"
+        base_ref=$(git merge-base HEAD "origin/${{ inputs.target-branch }}")
+        echo "Diffing against merge-base $base_ref"
+        git show "$base_ref:${{ inputs.deps-file }}" > /tmp/base-deps.yaml 2>/dev/null || echo '{}' > /tmp/base-deps.yaml
 
         yq eval-all '
           select(fi == 0) as $curr | select(fi == 1) as $base |
