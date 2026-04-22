@@ -1,0 +1,83 @@
+---
+name: Cleanup Transient Deployments
+
+# Inactivate transient component-repo deployments left behind by prior Zenko
+# pushes on this branch. Fires on every push, including branch deletion (which
+# GitHub surfaces as a push with `deleted: true` and `after = 0000...`).
+#
+# Skipped on branch creation (`created: true`, nothing to clean).
+#
+# Runs in its own workflow with no concurrency group so cancel-in-progress on
+# end2end never strands a cleanup.
+
+on:
+  push:
+    branches-ignore:
+      - 'development/**'
+      - 'q/*'
+
+permissions:
+  contents: read
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-24.04
+    if: ${{ !github.event.created }}
+    steps:
+      - name: Checkout before SHA
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.before }}
+          filter: blob:none
+
+      - name: Convert deps.yaml to JSON
+        id: json
+        run: |
+          yq -o=json solution/deps.yaml > /tmp/deps.json
+          echo "deps-file=/tmp/deps.json" >> "$GITHUB_OUTPUT"
+
+      - name: Parse component repos from deps.yaml
+        id: parse
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { parseDeps } = require('${{ github.workspace }}/.github/actions/create-component-deployments/parse-deps.js');
+            const { components, repos } = parseDeps('${{ steps.json.outputs.deps-file }}', process.env.GITHUB_REPOSITORY);
+
+            if (components.length === 0) {
+              core.info('No components in deps.yaml');
+              core.setOutput('components', '');
+              return;
+            }
+
+            core.setOutput('components', JSON.stringify(components));
+            core.setOutput('repos', repos.join('\n'));
+
+      - name: Generate scoped deployments token
+        if: steps.parse.outputs.components != ''
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.ACTIONS_APP_ID }}
+          private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ steps.parse.outputs.repos }}
+          permission-deployments: write
+          permission-packages: read
+
+      - name: Inactivate prior deployments
+        if: steps.parse.outputs.components != ''
+        uses: actions/github-script@v7
+        env:
+          COMPONENTS: ${{ steps.parse.outputs.components }}
+          ENV_PREFIX: zenko/${{ github.ref_name }}@
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            const { cleanupDeployments } = require('${{ github.workspace }}/.github/actions/create-component-deployments/cleanup-deployments.js');
+            await cleanupDeployments({
+              github, core,
+              components: JSON.parse(process.env.COMPONENTS),
+              environmentPrefix: process.env.ENV_PREFIX,
+              token: `${{ steps.app-token.outputs.token }}`,
+            });
