@@ -5,38 +5,9 @@ import { exec as execCb } from "node:child_process";
 import { promisify } from "node:util";
 import assert from "assert";
 import nock from "nock";
+import { TEST_PRIVATE_KEY } from "./fixtures/test-private-key";
 
 const exec = promisify(execCb);
-
-// Test-only RSA key (not used anywhere else, generated for act.js mock)
-const TEST_PRIVATE_KEY = `-----BEGIN PRIVATE KEY-----
-MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDSSu4ghRVAKyjX
-c25FKdE+sARk3Jai8k8DCjJU/DMNskgNvGh7JPLDww98Ts9E3ddMNt06oBt5p8qc
-YfaInUR0poPcJG6JbPWVEefNC00dTiHlXEGU8Ih8Dc2Ezf/zb45my9DmmGXeVScf
-LNYtSSqxfqdjFIOvr8XJ8kuB7L3jyFTBN9xjfdTnmsJ0ilSatV50o6RdVjiZvf2r
-z8uhlIw/b0xw8ZZ5rRXNr1VgDW7kcK952OYIDo9qvGMxOASjx9cpUJBkE/nrWF8I
-HAGACAqUZJaF4p/CQFjd/7cmUpA+Shh31UdD/rSXzC1bTEB5vaJN8LyVEBYw+n19
-iv6QO/K1AgMBAAECggEAaRNksd4dlK8cHK+CQU/YTGzx/R3VrPzLKxcsuBc+QVE8
-PJTQVfvLy7JLKg9M9LmuStg9KX53zA1hqUsvvupqGqlbSKPxkXxep4pHW0aS1RpF
-yI+U+2FGqUnST9II2q/6pPWhX591gybkQekK6ZzeFstUwyaseBwphbMqNHTBGy+F
-9A52Zg42QBQbQoIsOiqpJTKxhDpdEx+AZqrG1EawQkygVeNyRnOaJgCgVTIxqk+m
-lENCchKeZmo6aul/4LwH9GPDF+1ftMIlAwFXwQgp/IuzFmNf564NSIEZbWgYC8aN
-gl3ZU5K6mrwbKpGg2HXPDb6AA0U4WN1Bmw8wLyWhjwKBgQDsgNSi4+kfjLJM9oHQ
-PkNTfZ7rmrSdPf8gAodGsrABKz9IhfoCQJ0jNtegaGq3JB+YVJUUWtw4cnyBGOcE
-f1F9JIRMcq885p9zwX0jDLLe1vR8305tmYJFweqAViwWQ2riy2IqupsWEhgKev1S
-8QgSsaDcP1wksDWokykui85TzwKBgQDjoPOc1zs1teMG5zpSQVm3QT2C3ryRSBRo
-+1jyszl8Rrm7x9IcmiyBL5XQOpHoNHH24wUDte+t08V/34mhEwaa3tl1MUmJLsBG
-+LkTVXdRcFnHoqCbqFqYeV8eXQgY+Narq245VGGa1CfkhHvqQvuKVlIDLgPPrutg
-czA0MpW+OwKBgQDU4ImFLTwzR8Nd/yyNst2LEzGuxIv6VUmFGIGHI2PFSZYmw2Fs
-EZjfj4e7PQGBY6SEyu19auN6c6KZ2T5oD+nbiLkEzt3pJXU1Dl6C4/VFG5rpo17G
-zDw0af2YEviP+ZMGHSd5aooZ7aNyG45Vz9sCaJxwYx+fbnR+DigtW24WhQKBgQCf
-sPXXTWO7jYvk9ukCddhT6NAXdN2Darbu446GTdgBaLi6lTfBWyPnyZNnjv93kPt2
-wdNtxACOyWfgCtnKB8f1dGvIfLhjJko8QBfPCYF4v8IsfNoB+bz9BQEHEyswIbqw
-msbsL1d+QGJwPcWVFkLTzTUiB/EijUuR0Z26sNY+qwKBgQDWDEEBjZ+63kttpp4c
-EAyXAIwDT+KhVppmXvIAjVkqP6+I8yqUSCFjXMTT1Bubovqk6wAnpYdA559LgRjc
-gfkN+TRRaIeVB9jxzFHszenX6CVswwBtwSj331N/87GnI7fF7/ZDmMKRSiRjIQyL
-6c4hJmUD3bnLspBgcbLD33c7Dw==
------END PRIVATE KEY-----`;
 
 let github: MockGithub;
 let mockapi: Mockapi;
@@ -87,7 +58,7 @@ function withVersionFile(versionFile: string, repo: string = 'zenko') {
         const targetVersionFile = github.repo.getPath(repo) + '/VERSION';
 
         // Commit the new VERSION file
-        await exec('cp ' + path.resolve(__dirname, versionFile) + ' ' + targetVersionFile);
+        await exec('cp ' + path.resolve(__dirname, 'fixtures', versionFile) + ' ' + targetVersionFile);
         await exec('git -C ' + github.repo.getPath(repo) + ' commit --no-sign -m "bump version" -- ' + targetVersionFile);
 
         // Update artifact name to match the new version
@@ -108,11 +79,11 @@ beforeEach(async () => {
                         dest: ".github",
                     },
                     {
-                        src: path.resolve(__dirname, "VERSION-2.3.7-rc.1"),
+                        src: path.resolve(__dirname, "fixtures/VERSION-2.3.7-rc.1"),
                         dest: "VERSION",
                     },
                     {
-                        src: path.resolve(__dirname, "test-deps-base.yaml"),
+                        src: path.resolve(__dirname, "fixtures/test-deps-base.yaml"),
                         dest: "solution/deps.yaml",
                     },
                 ],
