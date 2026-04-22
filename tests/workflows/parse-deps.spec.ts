@@ -80,7 +80,7 @@ describe('parseDeps', () => {
     });
 
     it('sets empty repo for playground images', () => {
-        const testDeps = yamlToJson(path.join(__dirname, 'test-deps.yaml'));
+        const testDeps = yamlToJson(path.join(__dirname, 'fixtures/test-deps.yaml'));
         const { components } = parseDeps(testDeps, 'scality/zenko');
         const playground = components.find((c: { image: string }) => c.image.includes('playground'));
 

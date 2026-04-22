@@ -54,7 +54,7 @@ beforeEach(async () => {
                         dest: ".github",
                     },
                     {
-                        src: path.resolve(__dirname, "test-archive-artifacts.yaml"),
+                        src: path.resolve(__dirname, "fixtures/test-archive-artifacts.yaml"),
                         dest: ".github/workflows/test-archive-artifacts.yaml",
                     },
                 ],
