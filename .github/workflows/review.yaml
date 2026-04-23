@@ -4,8 +4,12 @@ run-name: 'Code Review for #${{ github.event.pull_request.number || inputs.pr_nu
 on:
   pull_request:
     types: [opened, synchronize]
+    branches-ignore:
+      - dependabot/**
   pull_request_target:
     types: [opened, synchronize]
+    branches:
+      - dependabot/**
   workflow_dispatch:
     inputs:
       pr_number:
