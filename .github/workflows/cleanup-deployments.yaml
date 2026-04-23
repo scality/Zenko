@@ -24,11 +24,20 @@ jobs:
     runs-on: ubuntu-24.04
     if: ${{ !github.event.created }}
     steps:
-      - name: Checkout before SHA
+      # Scripts come from the current ref (where the workflow YAML lives); on
+      # branch deletion `after` is all zeros, so fall back to `before`.
+      - name: Checkout scripts
         uses: actions/checkout@v6
         with:
-          ref: ${{ github.event.before }}
+          ref: ${{ github.event.deleted && github.event.before || github.event.after }}
           filter: blob:none
+          fetch-depth: 0
+
+      # deps.yaml must be read from the "before" SHA — that's the state whose
+      # deployments we're cleaning up.
+      - name: Checkout before deps.yaml
+        run: |
+          git checkout ${{ github.event.before }} -- solution/deps.yaml
 
       - name: Convert deps.yaml to JSON
         id: json
