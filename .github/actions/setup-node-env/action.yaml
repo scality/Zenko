@@ -1,0 +1,54 @@
+---
+name: Setup Node environment
+description: >
+  Create a GitHub App token for private repo access, configure git,
+  set up Node.js with yarn cache, and install test dependencies.
+
+inputs:
+  app-id:
+    description: GitHub App ID
+    required: true
+  private-key:
+    description: GitHub App private key
+    required: true
+  repositories:
+    description: Newline-separated list of private repositories to grant access to
+    required: true
+
+outputs:
+  token:
+    description: The generated GitHub App token
+    value: ${{ steps.app-token.outputs.token }}
+
+runs:
+  using: composite
+  steps:
+    - name: Get token to access private repositories
+      uses: actions/create-github-app-token@v3
+      id: app-token
+      with:
+        app-id: ${{ inputs.app-id }}
+        private-key: ${{ inputs.private-key }}
+        owner: ${{ github.repository_owner }}
+        repositories: ${{ inputs.repositories }}
+    - name: Configure GIT
+      shell: bash
+      run: |
+        git config --global url."https://x-access-token:${GIT_ACCESS_TOKEN}@github.com/".insteadOf "https://github.com/"
+        git config --global --add url."https://x-access-token:${GIT_ACCESS_TOKEN}@github.com/".insteadOf "git@github.com:"
+        git config --global --add url."https://x-access-token:${GIT_ACCESS_TOKEN}@github.com/".insteadOf "ssh://git@github.com/"
+      env:
+        GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
+    - name: Setup Node.js
+      uses: actions/setup-node@v6
+      with:
+        node-version: '24'
+        cache: yarn
+        cache-dependency-path: tests/functional/yarn.lock
+    - name: Install test dependencies
+      shell: bash
+      working-directory: tests/functional
+      run: >-
+        yarn install --frozen-lockfile --network-concurrency 1 || (
+          yarn cache clean && yarn install --frozen-lockfile --network-concurrency 1
+        )

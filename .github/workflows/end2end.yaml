@@ -369,34 +369,12 @@ jobs:
         uses: actions/checkout@v6
         with:
           persist-credentials: false # otherwise, the token is not passed to the next steps
-      - name: Get token to access private repositories
-        uses: actions/create-github-app-token@v3
-        id: app-token
+      - name: Setup Node environment
+        uses: ./.github/actions/setup-node-env
         with:
           app-id: ${{ vars.ACTIONS_APP_ID }}
           private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
-          repositories: |
-            cli-testing
-      - name: Configure GIT
-        run: |
-          echo "machine github.com login x-access-token password ${GIT_ACCESS_TOKEN}" > ~/.netrc
-          chmod 600 ~/.netrc
-          git config --global url.https://x-access-token:${GIT_ACCESS_TOKEN}@github.com/.insteadOf https://github.com/
-          git config --global url.https://x-access-token:${GIT_ACCESS_TOKEN}@github.com/.insteadOf git@github.com:
-          git config --global url.https://x-access-token:${GIT_ACCESS_TOKEN}@github.com/.insteadOf ssh://git@github.com/
-        env:
-          GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
-      - uses: actions/setup-node@v6
-        with:
-          node-version: '24'
-          cache: yarn
-          cache-dependency-path: tests/functional/yarn.lock
-      - name: Install test dependencies
-        working-directory: tests/functional
-        run: >-
-          yarn install --frozen-lock-file --network-concurrency 1 || (
-            yarn cache clean && yarn install --frozen-lock-file --network-concurrency 1
-          )
+          repositories: cli-testing
       - name: Build cucumber typescript
         working-directory: tests/functional
         run: yarn build:cucumber
@@ -425,23 +403,19 @@ jobs:
           username: "${{ github.repository_owner }}"
           password: "${{ github.token }}"
           registry: ghcr.io
-      - name: Get token to access private repositories
-        uses: actions/create-github-app-token@v3
-        id: app-token
+      - name: Setup Node environment
+        id: setup-access
+        uses: ./.github/actions/setup-node-env
         with:
           app-id: ${{ vars.ACTIONS_APP_ID }}
           private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
           repositories: |
-            zenko-operator
             cli-testing
-      - name: Configure GIT
-        run: |
-          git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "https://github.com/"
+            zenko-operator
       - name: Deploy Zenko
         uses: ./.github/actions/deploy
         env:
-          GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
+          GIT_ACCESS_TOKEN: ${{ steps.setup-access.outputs.token }}
       - name: Prepare PRA environment
         run: bash prepare-pra.sh
         working-directory: ./.github/scripts/end2end
@@ -463,14 +437,6 @@ jobs:
       - name: Configure E2E CTST test environment
         run: bash configure-e2e-ctst.sh
         working-directory: ./.github/scripts/end2end
-      - uses: actions/setup-node@v6
-        with:
-          node-version: '24'
-          cache: yarn
-          cache-dependency-path: tests/functional/yarn.lock
-      - name: Install ctst test dependencies
-        working-directory: tests/functional
-        run: yarn install --network-concurrency 1 || (yarn cache clean && yarn install --network-concurrency 1)
       - name: Run CTST end to end tests
         run: bash .github/scripts/end2end/run-e2e-ctst.sh "@PRA"
       - name: Debug wait
@@ -505,19 +471,19 @@ jobs:
           username: "${{ github.repository_owner }}"
           password: "${{ github.token }}"
           registry: ghcr.io
-      - name: Get token to access private repositories
-        uses: actions/create-github-app-token@v3
-        id: app-token
+      - name: Setup Node environment
+        id: setup-access
+        uses: ./.github/actions/setup-node-env
         with:
           app-id: ${{ vars.ACTIONS_APP_ID }}
           private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
           repositories: |
+            cli-testing
             zenko-operator
       - name: Deploy Zenko
         uses: ./.github/actions/deploy
         env:
-          GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
+          GIT_ACCESS_TOKEN: ${{ steps.setup-access.outputs.token }}
       - name: Set up e2e environment
         run: source .github/scripts/end2end/setup-e2e-env.sh
         env:
@@ -571,20 +537,20 @@ jobs:
           username: "${{ github.repository_owner }}"
           password: "${{ github.token }}"
           registry: ghcr.io
-      - name: Get token to access private repositories
-        uses: actions/create-github-app-token@v3
-        id: app-token
+      - name: Setup Node environment
+        id: setup-access
+        uses: ./.github/actions/setup-node-env
         with:
           app-id: ${{ vars.ACTIONS_APP_ID }}
           private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
           repositories: |
-            metadata
+            cli-testing
             zenko-operator
+            metadata
       - name: Deploy Zenko
         uses: ./.github/actions/deploy
         env:
-          GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
+          GIT_ACCESS_TOKEN: ${{ steps.setup-access.outputs.token }}
         with:
           deploy_metadata: ${{ env.ENABLE_RING_TESTS }}
       - name: Set up e2e environment
@@ -627,23 +593,19 @@ jobs:
           username: "${{ github.repository_owner }}"
           password: "${{ github.token }}"
           registry: ghcr.io
-      - name: Get token to access private repositories
-        uses: actions/create-github-app-token@v3
-        id: app-token
+      - name: Setup Node environment
+        id: setup-access
+        uses: ./.github/actions/setup-node-env
         with:
           app-id: ${{ vars.ACTIONS_APP_ID }}
           private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
           repositories: |
-            zenko-operator
             cli-testing
-      - name: Configure GIT
-        run: |
-          git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "https://github.com/"
+            zenko-operator
       - name: Deploy Zenko
         uses: ./.github/actions/deploy
         env:
-          GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
+          GIT_ACCESS_TOKEN: ${{ steps.setup-access.outputs.token }}
           ZENKO_ENABLE_SOSAPI: true
           TIME_PROGRESSION_FACTOR: 86400
           TRANSITION_ONE_DAY_EARLIER: false
@@ -651,14 +613,6 @@ jobs:
       - name: Configure E2E CTST test environment
         run: bash configure-e2e-ctst.sh
         working-directory: ./.github/scripts/end2end
-      - uses: actions/setup-node@v6
-        with:
-          node-version: '24'
-          cache: yarn
-          cache-dependency-path: tests/functional/yarn.lock
-      - name: Install ctst test dependencies
-        working-directory: tests/functional
-        run: yarn install --network-concurrency 1 || (yarn cache clean && yarn install --network-concurrency 1)
       - name: Run CTST end to end tests
         run: bash .github/scripts/end2end/run-e2e-ctst.sh "@PreMerge and not @PRA"
       - name: Debug wait
