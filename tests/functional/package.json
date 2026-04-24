@@ -34,7 +34,7 @@
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.8.3",
     "uuid": "^3.0.1",
-    "vaultclient": "scality/vaultclient#b9452a526daf5627ecae9528c941375a208e79f3",
+    "vaultclient": "scality/vaultclient#8.5.6",
     "werelogs": "github:scality/werelogs"
   },
   "devDependencies": {
