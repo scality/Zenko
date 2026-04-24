@@ -18,13 +18,13 @@ if (process.env.CI_PASS_ON_TEST_FAILURE === 'true') {
 module.exports = {
     default: {
         requireModule: ['ts-node/register', 'tsconfig-paths/register'],
-        require: ['steps/**/*.ts', 'common/**/*.ts', 'world/**/*.ts'],
-        paths: ['features/**/*.feature'],
+        require: ['ctst/steps/**/*.ts', 'ctst/common/**/*.ts', 'ctst/world/**/*.ts'],
+        paths: ['ctst/features/**/*.feature'],
         format: [
             'pretty',
-            'json:reports/cucumber-report.json',
-            'html:reports/report.html',
-            'junit:reports/report.xml',
+            'json:ctst/reports/cucumber-report.json',
+            'html:ctst/reports/report.html',
+            'junit:ctst/reports/report.xml',
         ],
         parallel: 4,
     },

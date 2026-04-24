@@ -96,11 +96,11 @@
         "vscode": {
             "settings": {
                 "cucumber.features": [
-                    "tests/ctst/features/**/*.feature"
+                    "tests/functional/ctst/features/**/*.feature"
                 ],
                 "cucumber.glue": [
-                    "tests/ctst/common/*.ts",
-                    "tests/ctst/steps/**/*.ts"
+                    "tests/functional/ctst/common/*.ts",
+                    "tests/functional/ctst/steps/**/*.ts"
                 ]
             },
             "extensions": [

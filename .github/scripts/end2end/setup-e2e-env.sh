@@ -261,7 +261,7 @@ else
         --group=system:serviceaccounts 2>/dev/null || true
 
     # --- 15b. Install sorbet & drctl binaries for CTST ---
-    CTST_DIR="$(cd "${ZENKO_ROOT}/tests/ctst" && pwd)"
+    CTST_DIR="$(cd "${ZENKO_ROOT}/tests/functional/ctst" && pwd)"
     SORBET_IMAGE=$(yq eval '.sorbet | .sourceRegistry + "/" + .image' "${ZENKO_ROOT}/solution/deps.yaml")
     SORBET_TAG=$(yq eval '.sorbet.tag' "${ZENKO_ROOT}/solution/deps.yaml")
     DRCTL_IMAGE=$(yq eval '.drctl | .sourceRegistry + "/" + .image' "${ZENKO_ROOT}/solution/deps.yaml")
@@ -346,8 +346,8 @@ EOF
 fi # SKIP_CTST
 
 # --- 17. Install node dependencies ---
-NODE_TESTS_DIR="$(cd "${ZENKO_ROOT}/tests/zenko_tests/node_tests" && pwd)"
-cd "$NODE_TESTS_DIR"
+FUNCTIONAL_DIR="$(cd "${ZENKO_ROOT}/tests/functional" && pwd)"
+cd "$FUNCTIONAL_DIR"
 yarn install --frozen-lockfile
 
 # --- 18. Persist exports for subsequent CI steps ---

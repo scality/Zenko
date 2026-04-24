@@ -53,10 +53,10 @@ kubectl run kafka-topics \
     kafka-topics.sh --create --topic $NOTIF_ALT_DEST_TOPIC --bootstrap-server $KAFKA_HOST_PORT --if-not-exists"
 
 # Run configuration.py directly
-ZENKO_TESTS_DIR="$DIR/../../../tests/zenko_tests"
-pip3 install --break-system-packages -r "$ZENKO_TESTS_DIR/requirements.txt"
+CONFIGURATION_TESTS_DIR="$DIR/../../../tests/functional/configuration_setup"
+pip3 install --break-system-packages -r "$CONFIGURATION_TESTS_DIR/requirements.txt"
 
-cd "$ZENKO_TESTS_DIR"
+cd "$CONFIGURATION_TESTS_DIR"
 
 envsubst < e2e-config.yaml.template > e2e-config.yaml
 

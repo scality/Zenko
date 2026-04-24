@@ -18,18 +18,18 @@ DIR=$(cd "$(dirname "$0")" && pwd)
 
 source "$DIR/setup-e2e-env.sh"
 
-CTST_DIR="$(cd "$DIR/../../../tests/ctst" && pwd)"
-cd "$CTST_DIR"
-mkdir -p reports
+FUNCTIONAL_TESTS_DIR="$(cd "$DIR/../../../tests/functional" && pwd)"
+cd "$FUNCTIONAL_TESTS_DIR"
+mkdir -p ctst/reports
 
 export SDK=true # Cli-testing also has a cli mode, not really used in practice
 yarn cucumber-js \
-    --config cucumber.config.cjs \
+    --config ctst/cucumber.config.cjs \
     --tags "${TAGS}" \
     --world-parameters "${CTST_WORLD_PARAMETERS}" \
     --parallel "${PARALLEL_RUNS}" \
     --retry 3 \
     --retry-tag-filter @Flaky \
     --format pretty \
-    --format html:reports/report.html \
-    --format junit:reports/report.xml
+    --format html:ctst/reports/report.html \
+    --format junit:ctst/reports/report.xml
