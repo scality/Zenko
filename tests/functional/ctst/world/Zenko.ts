@@ -4,7 +4,6 @@ import { AccessKey } from '@aws-sdk/client-iam';
 import { S3Client, S3ServiceException } from '@aws-sdk/client-s3';
 import { Credentials } from '@aws-sdk/client-sts';
 import { aws4Interceptor } from 'aws4-axios';
-import qs from 'qs';
 import fs from 'fs';
 import lockFile from 'proper-lockfile';
 import Werelogs from 'werelogs';
@@ -420,14 +419,14 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         grantType: string,
     ): Promise<string> {
         const baseUrl = this.parameters.ssl === false ? 'http://' : 'https://';
-        const data = qs.stringify({
+        const data = new URLSearchParams({
             username,
             password,
             // eslint-disable-next-line camelcase
             client_id: clientId,
             // eslint-disable-next-line camelcase
             grant_type: grantType,
-        });
+        }).toString();
         const config: AxiosRequestConfig = {
             method: 'post',
             url: `${baseUrl}${host}:${port}${path}`,
