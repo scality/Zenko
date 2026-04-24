@@ -1,0 +1,34 @@
+{
+    "compilerOptions": {
+        "target": "ES2019",
+        "module": "commonjs",
+        "allowJs": false,
+        "sourceMap": true,
+        "noEmit": true,
+        "strict": true,
+        "noImplicitAny": true,
+        "noImplicitThis": true,
+        "skipLibCheck": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
+        "resolveJsonModule": true,
+        "baseUrl": "./",
+        "paths": {
+            "cli-testing": ["./node_modules/cli-testing"],
+            "common/*": ["./ctst/common/*"],
+            "steps/*": ["./ctst/steps/*"],
+            "world/*": ["./ctst/world/*"]
+        },
+        "esModuleInterop": true
+    },
+    "ts-node": {
+        "transpileOnly": true,
+        "compilerOptions": {
+            "module": "commonjs"
+        },
+        "ignore": ["(?:^|/)node_modules/(?!cli-testing)"]
+    },
+    "exclude": [
+        "node_modules"
+    ]
+}
