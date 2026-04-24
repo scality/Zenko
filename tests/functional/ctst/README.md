@@ -25,7 +25,7 @@ bash .github/scripts/end2end/run-e2e-ctst.sh "@PreMerge and not @Flaky"
 3. **Tests run via `yarn cucumber-js`** - Standard Cucumber syntax with tag filtering, executed
    directly on the host machine.
 4. **Binaries** - `sorbetctl` and `zenko-drctl` are extracted from their Docker images into
-   `tests/ctst/` during environment setup.
+   `tests/functional/ctst/` during environment setup.
 
 ## Tag Syntax
 

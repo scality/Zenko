@@ -19,7 +19,7 @@ echo "127.0.0.1 iam.zenko.local s3-local-file.zenko.local keycloak.zenko.local s
 bash .github/scripts/end2end/run-e2e-ctst.sh @yourTag
 ```
 
-See [tests/ctst/README.md](../tests/ctst/README.md) for more details.
+See [tests/functional/ctst/README.md](../tests/functional/ctst/README.md) for more details.
 
 ## Running e2e tests in the codespace
 

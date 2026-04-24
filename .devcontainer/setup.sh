@@ -69,7 +69,7 @@ done
 
 
 # Extract sorbet & drctl binaries for out-of-cluster test execution
-CTST_DIR="./tests/ctst"
+CTST_DIR="./tests/functional/ctst"
 SORBET_IMAGE=$(yq eval '.sorbet | .sourceRegistry + "/" + .image' solution/deps.yaml)
 SORBET_TAG=$(yq eval '.sorbet.tag' solution/deps.yaml)
 DRCTL_IMAGE=$(yq eval '.drctl | .sourceRegistry + "/" + .image' solution/deps.yaml)

@@ -358,7 +358,7 @@ Then('the storage class of object {string} must stay {string} for {int} seconds'
 
 When('i run sorbetctl to retry failed restore for {string} location',
     { timeout: 10 * 60 * 1000 }, async function (this: Zenko, location: string) {
-        const command = `./sorbetctl forward list failed --trigger-retry --skip-invalid \
+        const command = `./ctst/sorbetctl forward list failed --trigger-retry --skip-invalid \
             --limit 300 \
             --kafka-dead-letter-topic=${this.parameters.KafkaDeadLetterQueueTopic} \
             --kafka-object-task-topic=${this.parameters.KafkaObjectTaskTopic} \

@@ -4,7 +4,7 @@ import Zenko from 'world/Zenko';
 
 // This step is a generic placeholder to check that the environment is set up
 // while allowing to write specific steps for each feature.
-// The associated setup logic is called in the tests/ctst/common/hooks.ts file
+// The associated setup logic is called in the tests/functional/ctst/common/hooks.ts file
 // for the matching feature tags.
 Given(/^.*environment is set up.*$/, function (this: Zenko) {
     const isSetup = this.getSaved<boolean>('metricsEnvironmentSetup');

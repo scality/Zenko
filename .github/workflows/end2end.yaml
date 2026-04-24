@@ -362,24 +362,7 @@ jobs:
           cache-from: type=gha,scope=kafka-connect-${{ env.KAFKA_CONNECT_TAG }}
           cache-to: type=gha,mode=max,scope=kafka-connect-${{ env.KAFKA_CONNECT_TAG }}
 
-  lint-e2e-zenko-tests:
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version: '22'
-          cache: yarn
-          cache-dependency-path: tests/zenko_tests/node_tests/yarn.lock
-      - name: Install dependencies
-        working-directory: tests/zenko_tests/node_tests
-        run: yarn install --frozen-lockfile
-      - name: Lint e2e tests
-        working-directory: tests/zenko_tests/node_tests
-        run: yarn lint
-
-  lint-ctst:
+  lint-functional-tests:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -407,21 +390,21 @@ jobs:
         with:
           node-version: '24'
           cache: yarn
-          cache-dependency-path: tests/ctst/yarn.lock
-      - name: Install ctst test dependencies
-        working-directory: tests/ctst
+          cache-dependency-path: tests/functional/yarn.lock
+      - name: Install test dependencies
+        working-directory: tests/functional
         run: >-
           yarn install --frozen-lock-file --network-concurrency 1 || (
             yarn cache clean && yarn install --frozen-lock-file --network-concurrency 1
           )
-      - name: Build ctst typescript
-        working-directory: tests/ctst
-        run: yarn build
-      - name: Lint ctst tests
-        working-directory: tests/ctst
+      - name: Build cucumber typescript
+        working-directory: tests/functional
+        run: yarn build:cucumber
+      - name: Lint all tests
+        working-directory: tests/functional
         run: yarn lint
       - name: Check for unused step definitions
-        working-directory: tests/ctst
+        working-directory: tests/functional
         run: yarn unused-steps
 
   end2end-pra:
@@ -484,9 +467,9 @@ jobs:
         with:
           node-version: '24'
           cache: yarn
-          cache-dependency-path: tests/ctst/yarn.lock
+          cache-dependency-path: tests/functional/yarn.lock
       - name: Install ctst test dependencies
-        working-directory: tests/ctst
+        working-directory: tests/functional
         run: yarn install --network-concurrency 1 || (yarn cache clean && yarn install --network-concurrency 1)
       - name: Run CTST end to end tests
         run: bash .github/scripts/end2end/run-e2e-ctst.sh "@PRA"
@@ -500,7 +483,7 @@ jobs:
           user: ${{ secrets.ARTIFACTS_USER }}
           password: ${{ secrets.ARTIFACTS_PASSWORD }}
           trunk_token: ${{ secrets.TRUNK_TOKEN }}
-          junit-paths: ${{ github.workspace }}/tests/ctst/reports/*.xml
+          junit-paths: ${{ github.workspace }}/tests/functional/ctst/reports/*.xml
         if: always()
 
   end2end-2-shards-http:
@@ -540,23 +523,23 @@ jobs:
         env:
           SKIP_CTST: '1'
       - name: Run init CI test
-        working-directory: tests/zenko_tests/node_tests
-        run: yarn run test_operator
+        working-directory: tests/functional
+        run: yarn run test:operator
       - name: Run iam policies tests
-        working-directory: tests/zenko_tests/node_tests
-        run: yarn run test_iam_policies
+        working-directory: tests/functional
+        run: yarn run test:iam_policies
       - name: Run cloudserver tests
-        working-directory: tests/zenko_tests/node_tests
-        run: yarn run test_object_api
+        working-directory: tests/functional
+        run: yarn run test:object_api
       - name: Run smoke tests
-        working-directory: tests/zenko_tests/node_tests
-        run: yarn run test_smoke
+        working-directory: tests/functional
+        run: yarn run test:smoke
       - name: Enable HTTPS
         run: bash enable-https.sh
         working-directory: ./.github/scripts/end2end
       - name: Run smoke tests (HTTPS)
-        working-directory: tests/zenko_tests/node_tests
-        run: yarn run test_smoke
+        working-directory: tests/functional
+        run: yarn run test:smoke
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
@@ -609,10 +592,10 @@ jobs:
         env:
           SKIP_CTST: '1'
       - name: Run backbeat end to end tests
-        working-directory: tests/zenko_tests/node_tests
+        working-directory: tests/functional
         run: |
-          ./gcp_shim.sh
-          yarn run test_all_extensions
+          bash mocha/gcp_shim.sh
+          yarn run test:all_extensions
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
@@ -672,9 +655,9 @@ jobs:
         with:
           node-version: '24'
           cache: yarn
-          cache-dependency-path: tests/ctst/yarn.lock
+          cache-dependency-path: tests/functional/yarn.lock
       - name: Install ctst test dependencies
-        working-directory: tests/ctst
+        working-directory: tests/functional
         run: yarn install --network-concurrency 1 || (yarn cache clean && yarn install --network-concurrency 1)
       - name: Run CTST end to end tests
         run: bash .github/scripts/end2end/run-e2e-ctst.sh "@PreMerge and not @PRA"
@@ -688,7 +671,7 @@ jobs:
           user: ${{ secrets.ARTIFACTS_USER }}
           password: ${{ secrets.ARTIFACTS_PASSWORD }}
           trunk_token: ${{ secrets.TRUNK_TOKEN }}
-          junit-paths: ${{ github.workspace }}/tests/ctst/reports/*.xml
+          junit-paths: ${{ github.workspace }}/tests/functional/ctst/reports/*.xml
         if: always()
 
   create-deployments:
@@ -791,8 +774,7 @@ jobs:
       - build-doc
       - build-iso
       - build-kafka
-      - lint-e2e-zenko-tests
-      - lint-ctst
+      - lint-functional-tests
       - end2end-2-shards-http
       - end2end-sharded
       - end2end-pra

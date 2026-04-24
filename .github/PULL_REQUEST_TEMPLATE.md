@@ -8,5 +8,5 @@ Fixes ZENKO-XXXX.
 
 <!--
 When adding new behavior tests, please follow the
-`tests/ctst/HOW_TO_WRITE_TESTS.md` guidelines.
+`tests/functional/ctst/HOW_TO_WRITE_TESTS.md` guidelines.
 -->

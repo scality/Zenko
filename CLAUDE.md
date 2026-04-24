@@ -8,7 +8,7 @@
 - `solution/zenkoversion.yaml` — `ZenkoVersion` CR template (dashboards, policies, feature flags, capabilities, location types)
 - `solution/kafka/Dockerfile`, `solution/kafka-connect/Dockerfile` — Scality-built Kafka + Kafka Connect images
 - `solution-base/mongodb/` — MongoDB Helm charts and patches
-- `tests/ctst/` — TypeScript Cucumber end-to-end tests
+- `tests/functional/ctst/` — TypeScript Cucumber end-to-end tests
 - `tests/workflows/` — TypeScript Jest tests for CI tooling
 - `tests/zenko_tests/` — Python + Node.js integration tests
 - `monitoring/` — Prometheus rules, Grafana dashboards
