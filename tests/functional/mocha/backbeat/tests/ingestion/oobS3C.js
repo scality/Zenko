@@ -1,5 +1,5 @@
 const async = require('async');
-const uuid = require('uuid/v4');
+const { v4: uuid } = require('uuid');
 
 const { ListObjectVersionsCommand } = require('@aws-sdk/client-s3');
 const { scalityS3Client, ringS3Client } = require('../../../s3SDK');

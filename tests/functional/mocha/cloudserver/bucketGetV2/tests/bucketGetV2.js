@@ -1,6 +1,6 @@
 const assert = require('assert');
 const async = require('async');
-const uuidV4 = require('uuid/v4');
+const { v4: uuidV4 } = require('uuid');
 const {
     CreateBucketCommand,
     PutObjectCommand,

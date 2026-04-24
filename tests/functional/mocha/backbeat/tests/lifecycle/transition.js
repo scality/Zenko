@@ -1,5 +1,5 @@
 const assert = require('assert');
-const uuid = require('uuid/v4');
+const { v4: uuid } = require('uuid');
 const { series } = require('async');
 
 const { scalityS3Client, awsS3Client } = require('../../../s3SDK');
