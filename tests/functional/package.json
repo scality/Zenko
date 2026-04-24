@@ -28,7 +28,6 @@
     "prometheus-query": "^3.4.0",
     "proper-lockfile": "^4.1.2",
     "qs": "^6.13.0",
-    "request": "^2.87.0",
     "scubaclient": "git+https://github.com/scality/scubaclient.git#1.1.4",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
