@@ -1,7 +1,7 @@
 const assert = require('assert');
 const crypto = require('crypto');
 const async = require('async');
-const uuidV4 = require('uuid/v4');
+const { v4: uuidV4 } = require('uuid');
 
 const { scalityS3Client } = require('../../../s3SDK');
 const QuotaUtility = require('../QuotaUtility');

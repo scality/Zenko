@@ -33,7 +33,7 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.8.3",
-    "uuid": "^3.0.1",
+    "uuid": "^14.0.0",
     "vaultclient": "scality/vaultclient#8.5.6",
     "werelogs": "github:scality/werelogs"
   },
