@@ -345,11 +345,6 @@ EOF
 
 fi # SKIP_CTST
 
-# --- 17. Install node dependencies ---
-FUNCTIONAL_DIR="$(cd "${ZENKO_ROOT}/tests/functional" && pwd)"
-cd "$FUNCTIONAL_DIR"
-yarn install --frozen-lockfile
-
 # --- 18. Persist exports for subsequent CI steps ---
 if [ -n "${GITHUB_ENV:-}" ]; then # Don't do it for Codespace
     echo "TOKEN=$TOKEN" >> "$GITHUB_ENV"
