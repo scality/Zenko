@@ -8,7 +8,8 @@ const {
     ListObjectVersionsCommand,
     PutObjectCommand,
 } = require('@aws-sdk/client-s3');
-const { scalityS3Client, ringS3Client } = require('../s3SDK');
+const { ringS3Client } = require('../s3SDK');
+const { config } = require('tests_common/configuration');
 const ReplicationUtility = require('./ReplicationUtility');
 const BackbeatAPIUtility = require('./BackbeatAPIUtility');
 
@@ -213,7 +214,7 @@ class IngestionUtility extends ReplicationUtility {
                 versionId,
                 next,
             ),
-            next => this._setS3Client(scalityS3Client).getObjectTagging(
+            next => this._setS3Client(config.ZenkoAccount.s3Client).getObjectTagging(
                 destBucket,
                 key,
                 versionId,

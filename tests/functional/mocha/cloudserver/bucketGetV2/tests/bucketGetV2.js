@@ -9,7 +9,8 @@ const {
     ListObjectsV2Command,
 } = require('@aws-sdk/client-s3');
 
-const s3 = require('../../../s3SDK').scalityS3Client;
+const { config } = require('tests_common/configuration');
+let s3;
 
 const bucket = `list-v2-${uuidV4()}`;
 
@@ -44,6 +45,7 @@ function expectedKeyList(startKey, endKey) {
 
 describe('Bucket GET V2 api', () => {
     before(done => {
+        s3 = config.ZenkoAccount.s3Client;
         async.series([
             next => {
                 s3.send(new CreateBucketCommand({ Bucket: bucket }))

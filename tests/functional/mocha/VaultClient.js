@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { config, VAULT_ENDPOINT } = require('tests_common/configuration');
 const {
     IAMClient,
     DetachUserPolicyCommand,
@@ -91,8 +92,7 @@ class VaultClient {
      * @returns {object} - returns an IAM client
      */
     static getIamClient(accessKey, secretKey, sessionToken) {
-        const endpoint = process.env.VAULT_ENDPOINT
-        || 'http://localhost:8600';
+        const endpoint = VAULT_ENDPOINT;
         const info = {
             endpoint,
             region: 'us-east-1',
@@ -129,32 +129,16 @@ class VaultClient {
      * @returns {object} Vault endpoint information
      */
     static getEndpointInformation() {
-        let host = '127.0.0.1';
-        let port = 8600;
+        const res = /^https?:\/\/([^:]*)(:[0-9]+)?\/?$/.exec(VAULT_ENDPOINT);
+        let [host, port] = res.slice(1);
+        port = port ? parseInt(port.substring(1), 10) : 80;
         let ca;
         let cert;
         let key;
-        if (process.env.VAULT_ENDPOINT) {
-            const res = /^https?:\/\/([^:]*)(:[0-9]+)?\/?$/.exec(
-                process.env.VAULT_ENDPOINT,
-            );
-            [host, port] = res.slice(1);
-            port = port ? parseInt(port.substring(1), 10) : 80;
-            const https = process.env.VAULT_ENDPOINT.startsWith('https://');
-            if (https) {
-                ca = fs.readFileSync(
-                    process.env.VAULT_SSL_CA || '/conf/ca.crt',
-                    'ascii',
-                );
-                cert = fs.readFileSync(
-                    process.env.VAULT_SSL_CERT || '/conf/test.crt',
-                    'ascii',
-                );
-                key = fs.readFileSync(
-                    process.env.VAULT_SSL_KEY || '/conf/test.key',
-                    'ascii',
-                );
-            }
+        if (VAULT_ENDPOINT.startsWith('https://')) {
+            ca = fs.readFileSync(process.env.VAULT_SSL_CA || '/conf/ca.crt', 'ascii');
+            cert = fs.readFileSync(process.env.VAULT_SSL_CERT || '/conf/test.crt', 'ascii');
+            key = fs.readFileSync(process.env.VAULT_SSL_KEY || '/conf/test.key', 'ascii');
         }
         return {
             host,
@@ -172,8 +156,8 @@ class VaultClient {
      */
     static getAdminClient() {
         const adminCredentials = {
-            accessKey: process.env.ADMIN_ACCESS_KEY_ID,
-            secretKeyValue: process.env.ADMIN_SECRET_ACCESS_KEY,
+            accessKey: config.AdminCredentials.accessKey,
+            secretKeyValue: config.AdminCredentials.secretKey,
         };
         const info = this.getEndpointInformation();
         return new vaultclient.Client(

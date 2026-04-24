@@ -131,21 +131,4 @@ if ! grep -q "backbeat-api.zenko.local" /etc/hosts 2>/dev/null; then
     echo "127.0.0.1 ${ZENKO_HOSTS}" | sudo tee -a /etc/hosts
 fi
 
-# --- Export endpoint variables ---
-# These use the ingress hostnames, reachable from outside the cluster.
-
-export CLOUDSERVER_HOST="s3.zenko.local"
-export CLOUDSERVER_ENDPOINT="http://s3.zenko.local"
-export BACKBEAT_API_ENDPOINT="http://backbeat-api.zenko.local"
-export VAULT_ENDPOINT="http://iam.zenko.local"
-export VAULT_STS_ENDPOINT="http://sts.zenko.local"
-export VAULT_AUTH_HOST="vault-auth.zenko.local"
-export KAFKA_CONNECT_URL="http://kafka-connect.zenko.local/connectors"
-
 echo "=== Endpoints configured for out-of-cluster access ==="
-echo "  S3:             ${CLOUDSERVER_ENDPOINT}"
-echo "  Backbeat API:   ${BACKBEAT_API_ENDPOINT}"
-echo "  Vault IAM:      ${VAULT_ENDPOINT}"
-echo "  Vault STS:      ${VAULT_STS_ENDPOINT}"
-echo "  Vault Auth:     http://${VAULT_AUTH_HOST}"
-echo "  Kafka Connect:  ${KAFKA_CONNECT_URL}"

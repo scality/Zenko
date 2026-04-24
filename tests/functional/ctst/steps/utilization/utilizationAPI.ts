@@ -1,6 +1,7 @@
 import { When, Then, ITestCaseHookParameter } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
 import Zenko from '../../world/Zenko';
+import { config } from 'tests_common/configuration';
 import { Command } from 'cli-testing';
 import { Identity } from 'cli-testing';
 import ScubaClient, { ScubaMetrics } from 'scubaclient';
@@ -27,8 +28,8 @@ When('the user retrieves utilization metrics using scubaclient for metric type {
         this.addToSaved('metricType', metricType);
 
         const client = new ScubaClient({
-            port: parseInt(this.parameters.UtilizationServicePort),
-            host: this.parameters.UtilizationServiceHost,
+            port: 80,
+            host: config.ZenkoCR.UtilizationServiceHost,
             useHttps: false,
             auth: {
                 awsV4: {

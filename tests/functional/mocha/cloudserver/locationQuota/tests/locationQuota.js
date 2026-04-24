@@ -3,15 +3,16 @@ const crypto = require('crypto');
 const async = require('async');
 const { v4: uuidV4 } = require('uuid');
 
-const { scalityS3Client } = require('../../../s3SDK');
+const { config } = require('tests_common/configuration');
 const QuotaUtility = require('../QuotaUtility');
 
 const TEN_MB_BYTES = 10485760;
 const bucket = `quota-${uuidV4()}`;
 
-const scalityS3 = new QuotaUtility(scalityS3Client);
+let scalityS3;
 
 describe('Location storage quota', () => {
+    before(() => { scalityS3 = new QuotaUtility(config.ZenkoAccount.s3Client); });
     beforeEach(function beFn(done) {
         this.timeout(50000);
         async.series([

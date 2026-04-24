@@ -11,7 +11,8 @@ const {
     GetObjectCommand,
     ListObjectsV2Command,
 } = require('@aws-sdk/client-s3');
-const s3 = require('../../../s3SDK').scalityS3Client;
+const { config } = require('tests_common/configuration');
+let s3;
 
 const logger = new werelogs.Logger('keyFormatVersion', 'debug', 'debug');
 const { BucketVersioningKeyFormat } = versioning.VersioningConstants;
@@ -98,6 +99,7 @@ describe('Cloudserver : keyFormatVersion : non versioned bucket', () => {
     }
 
     before(async () => {
+        s3 = config.ZenkoAccount.s3Client;
         const opts = {
             mongodb: {
                 replicaSetHosts: process.env.MONGO_REPLICA_SET_HOSTS,

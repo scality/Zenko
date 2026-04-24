@@ -1,9 +1,7 @@
 const aws4 = require('aws4');
 const http = require('http');
 const { makeGETRequest, getResponseBody, makeUpdateRequest } = require('../../utils/request');
-
-const DEFAULT_HOST = process.env.CLOUDSERVER_HOST;
-const DEFAULT_PORT = process.env.CLOUDSERVER_PORT || '80';
+const { CLOUDSERVER_HOST } = require('tests_common/configuration');
 
 // eslint-disable-next-line default-param-last
 function makeApiCallGeneric(mode = 'GET', body, userCredentials, query, cb) {
@@ -59,8 +57,8 @@ function putObjectResponseCode(userCredentials, bucketName, cb, fileName) {
 
 function putObjectVersionResponseCode(userCredentials, bucketName, cb, fileName) {
     const signOptions = {
-        host: DEFAULT_HOST,
-        port: DEFAULT_PORT,
+        host: CLOUDSERVER_HOST,
+        port: 80,
         service: 's3',
         method: 'PUT',
         path: `/${bucketName}/${fileName}`,

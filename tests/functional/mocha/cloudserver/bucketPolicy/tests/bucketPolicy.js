@@ -13,7 +13,9 @@ const {
     GetBucketLocationCommand,
 } = require('@aws-sdk/client-s3');
 
-const { scalityS3Client, altScalityS3Client } = require('../../../s3SDK');
+const { altScalityS3Client } = require('../../../s3SDK');
+const { config } = require('tests_common/configuration');
+let scalityS3Client;
 const testUtils = require('../../../utils/testUtils');
 
 const bucket = `bpolicy-${uuidV4()}`;
@@ -99,6 +101,7 @@ function getPolicyParams(paramsToChange) {
 
 describe('Bucket policies', () => {
     beforeEach(async () => {
+        scalityS3Client = config.ZenkoAccount.s3Client;
         await scalityS3Client.send(new CreateBucketCommand({
             Bucket: bucket,
             CreateBucketConfiguration: { LocationConstraint: 'us-east-1' },
@@ -585,6 +588,7 @@ describe('Bucket policies', () => {
 
 describe('Bucket policies with basic policies', () => {
     before(done => {
+        scalityS3Client = config.ZenkoAccount.s3Client;
         scalityS3Client.createBucket(
             {
                 Bucket: bucket,

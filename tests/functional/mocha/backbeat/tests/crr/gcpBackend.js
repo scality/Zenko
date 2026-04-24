@@ -2,11 +2,10 @@ const assert = require('assert');
 const crypto = require('crypto');
 const { series } = require('async');
 
-const { scalityS3Client } = require('../../../s3SDK');
+const { config } = require('tests_common/configuration');
 const gcpStorage = require('../../gcpStorage');
 const ReplicationUtility = require('../../ReplicationUtility');
 
-const utils = new ReplicationUtility(scalityS3Client, undefined, gcpStorage);
 const destBucket = process.env.GCP_CRR_BUCKET_NAME;
 const destGCPLocation = process.env.GCP_BACKEND_DESTINATION_LOCATION;
 const srcBucket = `source-bucket-${Date.now()}`;
@@ -22,6 +21,7 @@ const fileutf8 = `${filePrefix}/%EA%9D%8B崰㈌㒈保轖䳷䀰⺩ቆ楪僷ꈅꓜ
 const REPLICATION_TIMEOUT = 300000;
 
 describe('Replication with GCP backend', function () {
+    let utils;
     if (!process.env.GCP_BACKEND_DESTINATION_LOCATION) {
         this.skip();
     }
@@ -29,6 +29,8 @@ describe('Replication with GCP backend', function () {
     this.timeout(REPLICATION_TIMEOUT);
     this.retries(3);
     const roleArn = 'arn:aws:iam::root:role/s3-replication-role';
+
+    before(() => { utils = new ReplicationUtility(config.ZenkoAccount.s3Client, undefined, gcpStorage); });
 
     beforeEach(done => series([
         next => utils.createVersionedBucket(srcBucket, next),

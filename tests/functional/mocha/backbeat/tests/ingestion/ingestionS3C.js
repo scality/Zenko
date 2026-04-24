@@ -3,10 +3,10 @@ const async = require('async');
 const { v4: uuid } = require('uuid');
 
 const { ListObjectVersionsCommand } = require('@aws-sdk/client-s3');
-const { scalityS3Client, ringS3Client } = require('../../../s3SDK');
+const { ringS3Client } = require('../../../s3SDK');
+const { config } = require('tests_common/configuration');
 const IngestionUtility = require('../../IngestionUtility');
 
-const scalityUtils = new IngestionUtility(scalityS3Client, ringS3Client);
 const ringS3CUtils = new IngestionUtility(ringS3Client);
 const ingestionSrcBucket = process.env.RING_S3C_INGESTION_SRC_BUCKET_NAME;
 const srcLocation = process.env.RING_S3C_BACKEND_SOURCE_LOCATION;
@@ -20,6 +20,9 @@ let KEY_PREFIX;
 let OBJ_KEY;
 
 describe('Ingesting existing data from RING S3C bucket', () => {
+    let scalityUtils;
+    before(() => { scalityUtils = new IngestionUtility(config.ZenkoAccount.s3Client, ringS3Client); });
+
     beforeEach(function () {
         INGESTION_DEST_BUCKET = `ingestion-${uuid()}`;
         KEY_PREFIX = `${ingestionSrcBucket}-${uuid()}`;

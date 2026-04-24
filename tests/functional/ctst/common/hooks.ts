@@ -9,6 +9,7 @@ import {
 } from '@cucumber/cucumber';
 import Zenko from '../world/Zenko';
 import { CacheHelper, Identity, WorkCoordination } from 'cli-testing';
+import { config, initConfig } from 'tests_common/configuration';
 import { prepareQuotaScenarios, teardownQuotaScenarios } from 'steps/quotas/quotas';
 import { prepareUtilizationScenarios } from 'steps/utilization/utilizationAPI';
 import { prepareMetricsScenarios } from './utils';
@@ -20,6 +21,12 @@ import {
 } from './utils';
 import { createKubeCustomObjectClient, waitForZenkoToStabilize } from 'steps/utils/kubernetes';
 import { startDLQConsumer, stopDLQConsumer } from 'steps/utils/kafka';
+
+BeforeAll(async function () {
+    // Some hooks are defined in cli-testing and use the configuration,
+    // we need to have this run before anything else
+    await initConfig();
+});
 
 import 'cli-testing/hooks/KeycloakSetup';
 import 'cli-testing/hooks/Logger';
@@ -45,7 +52,7 @@ setParallelCanAssign(noParallelRun);
 
 BeforeAll(async function () {
     const kafkaHosts = process.env['KAFKA_HOST_PORT'];
-    const dlqTopic = process.env['KAFKA_DEAD_LETTER_TOPIC'];
+    const dlqTopic = config.KafkaTopics.DeadLetterQueue;
     if (kafkaHosts && dlqTopic) {
         await startDLQConsumer(kafkaHosts, dlqTopic, Zenko.addToDLQBuffer);
     }

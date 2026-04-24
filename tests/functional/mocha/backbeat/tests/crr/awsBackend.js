@@ -1,10 +1,10 @@
 const crypto = require('crypto');
 const { series } = require('async');
 
-const { scalityS3Client, awsS3Client } = require('../../../s3SDK');
+const { awsS3Client } = require('../../../s3SDK');
+const { config } = require('tests_common/configuration');
 const ReplicationUtility = require('../../ReplicationUtility');
 
-const scalityUtils = new ReplicationUtility(scalityS3Client);
 const awsUtils = new ReplicationUtility(awsS3Client);
 const srcBucket = `source-bucket-${Date.now()}`;
 const destBucket = process.env.AWS_CRR_BUCKET_NAME;
@@ -21,10 +21,12 @@ const keyutf8 = `${keyPrefix}/%EA%9D%8崰㈌㒈保轖䳷䀰⺩ቆ楪僷ꈅꓜ퇬
 const REPLICATION_TIMEOUT = 300000;
 
 describe('Replication with AWS backend', function () {
-    // eslint-disable-next-line
+    let scalityUtils;
     this.timeout(REPLICATION_TIMEOUT);
     this.retries(3);
     const roleArn = 'arn:aws:iam::root:role/s3-replication-role';
+
+    before(() => { scalityUtils = new ReplicationUtility(config.ZenkoAccount.s3Client); });
 
     beforeEach(done => series([
         next => scalityUtils.createVersionedBucket(srcBucket, next),
@@ -979,8 +981,11 @@ describe('Replication with AWS backend', function () {
 });
 
 describe.skip('Replication with AWS backend: source AWS location', function () {
+    let scalityUtils;
     this.timeout(REPLICATION_TIMEOUT);
     const roleArn = 'arn:aws:iam::root:role/s3-replication-role';
+
+    before(() => { scalityUtils = new ReplicationUtility(config.ZenkoAccount.s3Client); });
 
     beforeEach(done => series([
         next => scalityUtils.createVersionedBucketAWS(srcBucket, next),

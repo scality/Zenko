@@ -12,6 +12,7 @@ import {
 } from 'cli-testing';
 import { extractPropertyFromResults, s3FunctionExtraParams, safeJsonParse } from 'common/utils';
 import Zenko from 'world/Zenko';
+import { ZENKO_ACCOUNT_NAME } from 'tests_common/configuration';
 import assert from 'assert';
 import constants from 'common/constants';
 import { getLocationConfigs } from './kubernetes';
@@ -181,7 +182,7 @@ async function createBucketWithConfiguration(
     retentionMode?: string) {
     world.resetCommand();
     const preName = world.getSaved<string>('accountName') ||
-        world.parameters.AccountName || Constants.ACCOUNT_NAME;
+        ZENKO_ACCOUNT_NAME;
     const usedBucketName = bucketName
         || `${preName}${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase();
     world.addToSaved('bucketName', usedBucketName);

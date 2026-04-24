@@ -1,5 +1,6 @@
 import { Utils } from 'cli-testing';
 import { Consumer, stringDeserializers } from '@platformatic/kafka';
+import { KAFKA_CONNECT_URL } from 'tests_common/configuration';
 
 export interface DLQMessage {
     op: string;
@@ -116,7 +117,6 @@ interface ConnectorInfo {
  * test proceeds to trigger events.
  */ 
 export async function waitForBucketInConnectorPipeline(
-    kafkaConnectUrl: string,
     bucketName: string,
     timeoutMs = 120000,
     intervalMs = 1000,
@@ -125,7 +125,7 @@ export async function waitForBucketInConnectorPipeline(
     let lastConnectorCount = 0;
     while (Date.now() < deadline) {
         try {
-            const response = await fetch(`${kafkaConnectUrl}?expand=info`, {
+            const response = await fetch(`${KAFKA_CONNECT_URL}?expand=info`, {
                 signal: AbortSignal.timeout(5000),
             });
             const connectors = await response.json() as Record<string, ConnectorInfo>;

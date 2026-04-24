@@ -23,8 +23,6 @@ const { getS3Client } = require('../../s3SDK');
 const { getSTSClient } = require('../../stsSDK');
 const { metadataSearchResponseCode, restoreObjectResponseCode, putObjectVersionResponseCode } = require('./utils');
 
-const clientAdmin = VaultClient.getAdminClient();
-
 const trustPolicy = JSON.stringify({
     Version: '2012-10-17',
     Statement: {
@@ -64,6 +62,7 @@ const testAPIs = [
 ];
 
 testAPIs.forEach(testAPI => {
+    let clientAdmin;
 
     const account1Name = `iam-policies-assume-role-test-account1-${testAPI.API.toLowerCase()}`;
     const account1Info = {
@@ -95,6 +94,7 @@ testAPIs.forEach(testAPI => {
     describe(`iam policies - cloudserver - AssumeRole - ${testAPI.API}`, () => {
 
         before(async () => {
+            clientAdmin = VaultClient.getAdminClient();
             const res = await new Promise((resolve, reject) => {
                 clientAdmin.createAccount(account1Name, account1Info, (err, res) => (err ? reject(err) : resolve(res)));
             });

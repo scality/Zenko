@@ -17,7 +17,8 @@
             "cli-testing": ["./node_modules/cli-testing"],
             "common/*": ["./ctst/common/*"],
             "steps/*": ["./ctst/steps/*"],
-            "world/*": ["./ctst/world/*"]
+            "world/*": ["./ctst/world/*"],
+            "tests_common/*": ["./tests_common/*"]
         },
         "esModuleInterop": true
     },
@@ -29,7 +30,9 @@
         "ignore": ["(?:^|/)node_modules/(?!cli-testing)"]
     },
     "include": [
-        "ctst/**/*"
+        "ctst/**/*",
+        "tests_common/**/*",
+        "mocha/**/*.ts"
     ],
     "exclude": [
         "node_modules"
