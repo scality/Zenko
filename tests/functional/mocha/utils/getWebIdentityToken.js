@@ -4,11 +4,11 @@ const assert = require('assert');
 
 const USER_1_PASSWORD = process.env.KEYCLOAK_TEST_PASSWORD || '123';
 const HOST_1_URL = process.env.KEYCLOAK_TEST_HOST || 'http://keycloak.zenko.local';
-const HOST_1_PORT = parseInt(process.env.KEYCLOAK_TEST_PORT, 10) || 80;
+const HOST_1_PORT = 80;
 const REALM_NAME = process.env.KEYCLOAK_TEST_REALM_NAME || 'zenko';
 const KEYCLOAK_PATH = `/auth/realms/${REALM_NAME}/protocol/openid-connect/token`;
-const CLIENT_ID = process.env.KEYCLOAK_TEST_CLIENT_ID || 'zenko-ui';
-const GRANT_TYPE = process.env.KEYCLOAK_TEST_GRANT_TYPE || 'password';
+const CLIENT_ID = 'zenko-ui';
+const GRANT_TYPE = 'password';
 
 
 /**

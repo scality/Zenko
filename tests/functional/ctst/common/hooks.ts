@@ -1,5 +1,6 @@
 import {
     Before,
+    BeforeAll,
     After,
     setParallelCanAssign,
     parallelCanAssignHelpers,
@@ -7,6 +8,7 @@ import {
 } from '@cucumber/cucumber';
 import Zenko from '../world/Zenko';
 import { CacheHelper, Identity } from 'cli-testing';
+import { populateParameters } from 'tests_common/configuration';
 import { prepareQuotaScenarios, teardownQuotaScenarios } from 'steps/quotas/quotas';
 import { prepareUtilizationScenarios } from 'steps/utilization/utilizationAPI';
 import { prepareMetricsScenarios } from './utils';
@@ -17,7 +19,14 @@ import {
     cleanupAccount,
 } from './utils';
 
-import 'cli-testing/hooks/KeycloakSetup';
+BeforeAll(async function () {
+    // Some hooks are defined in cli-testing and use the configuration,
+    // we need to have this run before anything else
+    Zenko.testsConfig = await populateParameters();
+    console.log("before all ", Zenko.testsConfig);
+});
+
+// import 'cli-testing/hooks/KeycloakSetup';
 import 'cli-testing/hooks/Logger';
 import 'cli-testing/hooks/versionTags';
 

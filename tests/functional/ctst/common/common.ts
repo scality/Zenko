@@ -1,6 +1,7 @@
 import { ListObjectVersionsOutput } from '@aws-sdk/client-s3';
 import { Given, setDefaultTimeout, Then, When } from '@cucumber/cucumber';
 import { CacheHelper, Constants, Identity, IdentityEnum, S3, Utils } from 'cli-testing';
+import { ZENKO_ACCOUNT_NAME } from 'tests_common/configuration';
 import Zenko from 'world/Zenko';
 import { parseGoDuration, safeJsonParse } from './utils';
 import assert from 'assert';
@@ -39,8 +40,7 @@ export async function cleanS3Bucket(
         // Do not try to clean a bucket with compliance retention
         return;
     }
-    Identity.useIdentity(IdentityEnum.ACCOUNT, world.getSaved<string>('accountName') ||
-        world.parameters.AccountName);
+    Identity.useIdentity(IdentityEnum.ACCOUNT, world.getSaved<string>('accountName') || ZENKO_ACCOUNT_NAME);
     world.resetCommand();
     world.addCommandParameter({ bucket: bucketName });
     const createdObjects = world.getCreatedObjects();
@@ -143,14 +143,14 @@ async function createBucket(world: Zenko, versioning: string, bucketName: string
 
 Given('a {string} bucket with dot', async function (this: Zenko, versioning: string) {
     const preName = this.getSaved<string>('accountName') ||
-        this.parameters.AccountName || Constants.ACCOUNT_NAME;
+        ZENKO_ACCOUNT_NAME;
     await createBucket(this, versioning,
         `${preName}.${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase());
 });
 
 Given('a {string} bucket', async function (this: Zenko, versioning: string) {
     const preName = this.getSaved<string>('accountName') ||
-        this.parameters.AccountName || Constants.ACCOUNT_NAME;
+        ZENKO_ACCOUNT_NAME;
     await createBucket(this, versioning,
         `${preName}${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase());
 });
@@ -310,7 +310,7 @@ Then('i {string} be able to add user metadata to object {string}',
 
 Then('kafka consumed messages should not take too much place on disk', { timeout: -1 },
     async function (this: Zenko) {
-        const kfkcIntervalSeconds = parseGoDuration(this.parameters.KafkaCleanerInterval);
+        const kfkcIntervalSeconds = parseGoDuration(Zenko.testsConfig.ZenkoCR.KafkaCleanerInterval);
         const checkInterval = kfkcIntervalSeconds * (1000 + 5000);
 
         const timeoutID = setTimeout(() => {
@@ -326,7 +326,7 @@ Then('kafka consumed messages should not take too much place on disk', { timeout
             const ignoredTopics = ['dead-letter'];
             const allTopics = await kafkaAdmin.listTopics();
             const topics: string[] = allTopics
-                .filter(t => (t.includes(this.parameters.InstanceID) &&
+                .filter(t => (t.includes(Zenko.testsConfig.ZenkoCR.InstanceID) &&
                     !ignoredTopics.some(e => t.includes(e))));
 
             const previousOffsets = await getTopicsOffsets(topics, kafkaAdmin);

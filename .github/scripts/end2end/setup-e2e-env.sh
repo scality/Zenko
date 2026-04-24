@@ -48,9 +48,6 @@ export MONGO_REPLICA_SET_HOSTS="localhost:${MONGO_PORT}"
 # --- 5. Credentials from K8s secrets ---
 export ADMIN_ACCESS_KEY_ID=$(kubectl get secret ${ZENKO_NAME}-management-vault-admin-creds.v1 -o jsonpath='{.data.accessKey}' | base64 -d)
 export ADMIN_SECRET_ACCESS_KEY=$(kubectl get secret ${ZENKO_NAME}-management-vault-admin-creds.v1 -o jsonpath='{.data.secretKey}' | base64 -d)
-export ZENKO_ACCESS_KEY=$(kubectl get secret ${ZENKO_NAME}-account-zenko -o jsonpath='{.data.AccessKeyId}' | base64 -d)
-export ZENKO_SECRET_KEY=$(kubectl get secret ${ZENKO_NAME}-account-zenko -o jsonpath='{.data.SecretAccessKey}' | base64 -d)
-export ZENKO_SESSION_TOKEN=$(kubectl get secret ${ZENKO_NAME}-account-zenko -o jsonpath='{.data.SessionToken}' | base64 -d)
 
 # CRR account credentials
 _src_secret="${ZENKO_NAME}-account-${CRR_SOURCE_ACCOUNT_NAME:-crr-source-account}"
@@ -72,11 +69,8 @@ export CRR_DESTINATION_INFO="{\"AccessKeyId\":\"${DESTINATION_ACCESS_KEY}\",\"Se
 export KEYCLOAK_TEST_USER="${OIDC_USERNAME}-norights"
 export KEYCLOAK_TEST_PASSWORD=${OIDC_PASSWORD}
 export KEYCLOAK_TEST_HOST=${OIDC_ENDPOINT}
-export KEYCLOAK_TEST_PORT="80"
 export KEYCLOAK_TEST_REALM_NAME=${OIDC_REALM}
 export KEYCLOAK_REALM=${OIDC_REALM} # cli-testing KeycloakSetup hook reads KEYCLOAK_REALM from env
-export KEYCLOAK_TEST_CLIENT_ID=${OIDC_CLIENT_ID}
-export KEYCLOAK_TEST_GRANT_TYPE="password"
 
 # --- 7. Test backend env vars ---
 export AWS_BACKEND_SOURCE_LOCATION AWS_BACKEND_DESTINATION_LOCATION
@@ -131,40 +125,8 @@ export TARGET_VERSION=$(sed -n 's/^VERSION="\([^"]*\)"/\1/p' "${ZENKO_ROOT}/VERS
 if [ "${SKIP_CTST:-}" = "1" ]; then
     echo "SKIP_CTST=1 set, skipping CTST-specific setup"
 else
-    # CTST account & user names
-    export ZENKO_ACCOUNT_NAME="zenko-ctst"
-    export STORAGE_MANAGER_USER_NAME="storage_manager"
-    export STORAGE_ACCOUNT_OWNER_USER_NAME="storage_account_owner"
-    export DATA_CONSUMER_USER_NAME="data_consumer"
-    export DATA_ACCESSOR_USER_NAME="data_accessor"
-    # env vars used by cli-testing's Keycloak.ts seeder
-    export ACCOUNT="${ZENKO_ACCOUNT_NAME}"
-    export STORAGE_MANAGER="${STORAGE_MANAGER_USER_NAME}"
-    export STORAGE_ACCOUNT_OWNER="${STORAGE_ACCOUNT_OWNER_USER_NAME}"
-    export DATA_CONSUMER="${DATA_CONSUMER_USER_NAME}"
-    export DATA_ACCESSOR="${DATA_ACCESSOR_USER_NAME}"
+    export ACCOUNT="zenko-ctst"  # cli-testing Keycloak seeder (fallback would be wrong 'AccountTest')
     export SEED_KEYCLOAK_DEFAULT_ROLES=true
-    export ZENKO_PORT="80"
-
-    # PRA admin credentials (may not exist for non-PRA runs; ignore errors)
-    export ADMIN_PRA_ACCESS_KEY_ID=$(kubectl get secret ${ZENKO_NAME}-pra-management-vault-admin-creds.v1 -o jsonpath='{.data.accessKey}' 2>/dev/null | base64 -d 2>/dev/null || echo "")
-    export ADMIN_PRA_SECRET_ACCESS_KEY=$(kubectl get secret ${ZENKO_NAME}-pra-management-vault-admin-creds.v1 -o jsonpath='{.data.secretKey}' 2>/dev/null | base64 -d 2>/dev/null || echo "")
-
-    # --- 11. Service user credentials ---
-    BACKBEAT_LCBP_1_CREDS=$(kubectl get secret -l app.kubernetes.io/name=backbeat-lcbp-user-creds,app.kubernetes.io/instance=${ZENKO_NAME} -o jsonpath='{.items[0].data.backbeat-lifecycle-bp-1\.json}' | base64 -d)
-    BACKBEAT_LCC_1_CREDS=$(kubectl get secret -l app.kubernetes.io/name=backbeat-lcc-user-creds,app.kubernetes.io/instance=${ZENKO_NAME} -o jsonpath='{.items[0].data.backbeat-lifecycle-conductor-1\.json}' | base64 -d)
-    BACKBEAT_LCOP_1_CREDS=$(kubectl get secret -l app.kubernetes.io/name=backbeat-lcop-user-creds,app.kubernetes.io/instance=${ZENKO_NAME} -o jsonpath='{.items[0].data.backbeat-lifecycle-op-1\.json}' | base64 -d)
-    BACKBEAT_QP_1_CREDS=$(kubectl get secret -l app.kubernetes.io/name=backbeat-qp-user-creds,app.kubernetes.io/instance=${ZENKO_NAME} -o jsonpath='{.items[0].data.backbeat-qp-1\.json}' | base64 -d)
-    SORBET_FWD_2_ACCESSKEY=$(kubectl get secret -l app.kubernetes.io/name=sorbet-fwd-creds,app.kubernetes.io/instance=${ZENKO_NAME} -o jsonpath='{.items[0].data.accessKey}' | base64 -d)
-    SORBET_FWD_2_SECRETKEY=$(kubectl get secret -l app.kubernetes.io/name=sorbet-fwd-creds,app.kubernetes.io/instance=${ZENKO_NAME} -o jsonpath='{.items[0].data.secretKey}' | base64 -d)
-    export SERVICE_USERS_CREDENTIALS=$(echo '{"backbeat-lifecycle-bp-1":'"${BACKBEAT_LCBP_1_CREDS}"',"backbeat-lifecycle-conductor-1":'"${BACKBEAT_LCC_1_CREDS}"',"backbeat-lifecycle-op-1":'"${BACKBEAT_LCOP_1_CREDS}"',"backbeat-qp-1":'"${BACKBEAT_QP_1_CREDS}"',"sorbet-fwd-2":{"accessKey":"'"${SORBET_FWD_2_ACCESSKEY}"'","secretKey":"'"${SORBET_FWD_2_SECRETKEY}"'"}}' | jq -R)
-
-    # --- 12. Kafka topics for sorbet ---
-    SORBET_CONFIG=$(kubectl get secret -l app.kubernetes.io/name=cold-sorbet-config-e2e-azure-archive,app.kubernetes.io/instance=${ZENKO_NAME} \
-        -o jsonpath='{.items[0].data.config\.json}' | base64 -di)
-    export KAFKA_DEAD_LETTER_TOPIC=$(echo "${SORBET_CONFIG}" | jq -r '."kafka-dead-letter-topic"')
-    export KAFKA_OBJECT_TASK_TOPIC=$(echo "${SORBET_CONFIG}" | jq -r '."kafka-object-task-topic"')
-    export KAFKA_GC_REQUEST_TOPIC=$(echo "${SORBET_CONFIG}" | jq -r '."kafka-gc-request-topic"')
 
     # --- 13. Kafka host from backbeat config + port-forward ---
     KAFKA_HOST_PORT_ORIG=$(kubectl get secret -l app.kubernetes.io/name=backbeat-config,app.kubernetes.io/instance=${ZENKO_NAME} \
@@ -235,19 +197,9 @@ else
     fi
     export PROMETHEUS_SERVICE="${PROMETHEUS_SVC}.${NAMESPACE}.svc.cluster.local"
 
-    # --- 14. Zenko CR metadata ---
-    export TIME_PROGRESSION_FACTOR=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath="{.metadata.annotations.zenko\.io/time-progression-factor}")
-    export INSTANCE_ID=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.status.instanceID}')
-    export KAFKA_CLEANER_INTERVAL=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.spec.kafkaCleaner.interval}')
-    export SORBETD_RESTORE_TIMEOUT=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.spec.sorbet.server.azure.restoreTimeout}')
-
-    # Backbeat API (use ingress — already exported as BACKBEAT_API_ENDPOINT)
-    export BACKBEAT_API_HOST="backbeat-api.zenko.local"
-    export BACKBEAT_API_PORT="80"
+    # --- 14. Zenko CR metadata (now fetched by tests_common/configuration.ts via k8s API) ---
 
     # Utilization service
-    export UTILIZATION_SERVICE_HOST=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.spec.scuba.api.ingress.hostname}')
-    export UTILIZATION_SERVICE_PORT="80"
 
     # Azure archive settings
     export AZURE_ARCHIVE_ACCESS_TIER="Hot"
@@ -286,11 +238,7 @@ else
       "subdomain":"${SUBDOMAIN}",
       "DRSubdomain":"${DR_SUBDOMAIN:-}",
       "ssl":false,
-      "port":"${ZENKO_PORT}",
-      "AccountName":"${ZENKO_ACCOUNT_NAME}",
-      "AdminAccessKey":"${ADMIN_ACCESS_KEY_ID}",
-      "AdminSecretKey":"${ADMIN_SECRET_ACCESS_KEY}",
-      "VaultAuthHost":"${VAULT_AUTH_HOST}",
+      "port":"80",
       "NotificationDestination":"${NOTIF_DEST_NAME}",
       "NotificationDestinationTopic":"${NOTIF_DEST_TOPIC}",
       "NotificationDestinationAlt":"${NOTIF_ALT_DEST_NAME}",
@@ -304,20 +252,11 @@ else
       "PrometheusEndpoint":"http://localhost:${PROMETHEUS_PORT}",
       "KafkaHosts":"${KAFKA_HOST_PORT}",
       "KafkaAuthHosts":"${KAFKA_AUTH_HOST_PORT}",
-      "KafkaConnectUrl":"${KAFKA_CONNECT_URL}",
       "KeycloakUsername":"${OIDC_USERNAME}",
       "KeycloakPassword":"${OIDC_PASSWORD}",
       "KeycloakTestPassword":"${KEYCLOAK_TEST_PASSWORD}",
       "KeycloakHost":"${OIDC_HOST}",
-      "KeycloakPort":"${KEYCLOAK_TEST_PORT}",
       "KeycloakRealm":"${KEYCLOAK_TEST_REALM_NAME}",
-      "KeycloakClientId":"${KEYCLOAK_TEST_CLIENT_ID}",
-      "KeycloakGrantType":"${KEYCLOAK_TEST_GRANT_TYPE}",
-      "StorageManagerUsername":"${STORAGE_MANAGER_USER_NAME}",
-      "StorageAccountOwnerUsername":"${STORAGE_ACCOUNT_OWNER_USER_NAME}",
-      "DataConsumerUsername":"${DATA_CONSUMER_USER_NAME}",
-      "DataAccessorUsername":"${DATA_ACCESSOR_USER_NAME}",
-      "ServiceUsersCredentials":${SERVICE_USERS_CREDENTIALS},
       "AzureAccountName":"${AZURE_ACCOUNT_NAME}",
       "AzureAccountKey":"${AZURE_SECRET_KEY}",
       "AzureArchiveContainer":"${AZURE_ARCHIVE_BUCKET_NAME}",
@@ -325,19 +264,6 @@ else
       "AzureArchiveAccessTier":"${AZURE_ARCHIVE_ACCESS_TIER}",
       "AzureArchiveManifestTier":"${AZURE_ARCHIVE_MANIFEST_ACCESS_TIER}",
       "AzureArchiveQueue":"${AZURE_ARCHIVE_QUEUE_NAME:-}",
-      "TimeProgressionFactor":"${TIME_PROGRESSION_FACTOR}",
-      "KafkaObjectTaskTopic":"${KAFKA_OBJECT_TASK_TOPIC}",
-      "KafkaGCRequestTopic":"${KAFKA_GC_REQUEST_TOPIC}",
-      "KafkaDeadLetterQueueTopic":"${KAFKA_DEAD_LETTER_TOPIC}",
-      "InstanceID":"${INSTANCE_ID}",
-      "BackbeatApiHost":"${BACKBEAT_API_HOST}",
-      "BackbeatApiPort":"${BACKBEAT_API_PORT}",
-      "KafkaCleanerInterval":"${KAFKA_CLEANER_INTERVAL}",
-      "SorbetdRestoreTimeout":"${SORBETD_RESTORE_TIMEOUT}",
-      "DRAdminAccessKey":"${ADMIN_PRA_ACCESS_KEY_ID}",
-      "DRAdminSecretKey":"${ADMIN_PRA_SECRET_ACCESS_KEY}",
-      "UtilizationServiceHost":"${UTILIZATION_SERVICE_HOST}",
-      "UtilizationServicePort":"${UTILIZATION_SERVICE_PORT}",
       "KubeconfigPath":"${KUBECONFIG:-${HOME}/.kube/config}"
     }
 EOF
@@ -358,24 +284,11 @@ if [ -n "${GITHUB_ENV:-}" ]; then # Don't do it for Codespace
     echo "MONGO_AUTH_PASSWORD=$MONGO_AUTH_PASSWORD" >> "$GITHUB_ENV"
     echo "ADMIN_ACCESS_KEY_ID=$ADMIN_ACCESS_KEY_ID" >> "$GITHUB_ENV"
     echo "ADMIN_SECRET_ACCESS_KEY=$ADMIN_SECRET_ACCESS_KEY" >> "$GITHUB_ENV"
-    echo "ZENKO_ACCESS_KEY=$ZENKO_ACCESS_KEY" >> "$GITHUB_ENV"
-    echo "ZENKO_SECRET_KEY=$ZENKO_SECRET_KEY" >> "$GITHUB_ENV"
-    echo "ZENKO_SESSION_TOKEN=$ZENKO_SESSION_TOKEN" >> "$GITHUB_ENV"
     echo "KEYCLOAK_TEST_USER=$KEYCLOAK_TEST_USER" >> "$GITHUB_ENV"
     echo "KEYCLOAK_TEST_PASSWORD=$KEYCLOAK_TEST_PASSWORD" >> "$GITHUB_ENV"
     echo "KEYCLOAK_TEST_HOST=$KEYCLOAK_TEST_HOST" >> "$GITHUB_ENV"
-    echo "KEYCLOAK_TEST_PORT=$KEYCLOAK_TEST_PORT" >> "$GITHUB_ENV"
     echo "KEYCLOAK_TEST_REALM_NAME=$KEYCLOAK_TEST_REALM_NAME" >> "$GITHUB_ENV"
     echo "KEYCLOAK_REALM=$KEYCLOAK_REALM" >> "$GITHUB_ENV"
-    echo "KEYCLOAK_TEST_CLIENT_ID=$KEYCLOAK_TEST_CLIENT_ID" >> "$GITHUB_ENV"
-    echo "KEYCLOAK_TEST_GRANT_TYPE=$KEYCLOAK_TEST_GRANT_TYPE" >> "$GITHUB_ENV"
-    echo "CLOUDSERVER_HOST=$CLOUDSERVER_HOST" >> "$GITHUB_ENV"
-    echo "CLOUDSERVER_ENDPOINT=$CLOUDSERVER_ENDPOINT" >> "$GITHUB_ENV"
-    echo "BACKBEAT_API_ENDPOINT=$BACKBEAT_API_ENDPOINT" >> "$GITHUB_ENV"
-    echo "VAULT_ENDPOINT=$VAULT_ENDPOINT" >> "$GITHUB_ENV"
-    echo "VAULT_STS_ENDPOINT=$VAULT_STS_ENDPOINT" >> "$GITHUB_ENV"
-    echo "VAULT_AUTH_HOST=$VAULT_AUTH_HOST" >> "$GITHUB_ENV"
-    echo "KAFKA_CONNECT_URL=$KAFKA_CONNECT_URL" >> "$GITHUB_ENV"
     echo "NODE_EXTRA_CA_CERTS=$NODE_EXTRA_CA_CERTS" >> "$GITHUB_ENV"
     echo "MOCHA_FILE=$MOCHA_FILE" >> "$GITHUB_ENV"
     echo "VERIFY_CERTIFICATES=$VERIFY_CERTIFICATES" >> "$GITHUB_ENV"

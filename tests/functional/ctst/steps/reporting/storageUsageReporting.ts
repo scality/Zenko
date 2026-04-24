@@ -22,7 +22,7 @@ async function fetchStorageUsageReport(world: Zenko) {
     const persona = world.getSaved<string>('keycloakPersona');
     const result = await world.managementAPIRequest(
         'GET',
-        `/instance/${world.parameters.InstanceID}/reporting/usage`,
+        `/instance/${Zenko.testsConfig.ZenkoCR.InstanceID}/reporting/usage`,
         {},
         {},
         persona,

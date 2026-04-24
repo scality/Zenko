@@ -27,8 +27,8 @@ When('the user retrieves utilization metrics using scubaclient for metric type {
         this.addToSaved('metricType', metricType);
 
         const client = new ScubaClient({
-            port: parseInt(this.parameters.UtilizationServicePort),
-            host: this.parameters.UtilizationServiceHost,
+            port: 80,
+            host: Zenko.testsConfig.ZenkoCR.UtilizationServiceHost,
             useHttps: false,
             auth: {
                 awsV4: {

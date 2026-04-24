@@ -25,11 +25,7 @@ import {
 import { extractPropertyFromResults } from '../common/utils';
 import ZenkoDrctl from 'steps/dr/drctl';
 import assert from 'assert';
-
-interface ServiceUsersCredentials {
-    accessKey: string;
-    secretKey: string;
-}
+import { TestsConfiguration, ServiceUserCredentials, ZENKO_ACCOUNT_NAME } from 'tests_common/configuration';
 
 // Zenko entities
 export interface SavedIdentity {
@@ -50,13 +46,7 @@ export enum EntityType {
 }
 
 export interface ZenkoWorldParameters extends ClientOptions {
-    AccountName: string;
-    AccountAccessKey: string;
-    AccountSecretKey: string;
-    DRAdminAccessKey?: string;
-    DRAdminSecretKey?: string;
     DRSubdomain?: string;
-    VaultAuthHost: string;
     NotificationDestination: string;
     NotificationDestinationTopic: string;
     NotificationDestinationAlt: string;
@@ -68,21 +58,12 @@ export interface ZenkoWorldParameters extends ClientOptions {
     KafkaExternalIps: string;
     KafkaHosts: string;
     KafkaAuthHosts: string;
-    KafkaConnectUrl: string;
     PrometheusService: string;
     PrometheusEndpoint: string;
     KeycloakUsername: string;
     KeycloakPassword: string;
     KeycloakHost: string;
-    KeycloakPort: string;
     KeycloakRealm: string;
-    KeycloakClientId: string;
-    KeycloakGrantType: string;
-    StorageManagerUsername: string;
-    StorageAccountOwnerUsername: string;
-    DataConsumerUsername: string;
-    DataAccessorUsername: string;
-    ServiceUsersCredentials: string;
     KeycloakTestPassword: string;
     AzureAccountName: string;
     AzureAccountKey: string;
@@ -91,18 +72,7 @@ export interface ZenkoWorldParameters extends ClientOptions {
     AzureArchiveAccessTier: string;
     AzureArchiveManifestTier: string;
     AzureArchiveQueue: string;
-    TimeProgressionFactor: number;
-    KafkaDeadLetterQueueTopic: string;
-    KafkaObjectTaskTopic: string;
-    KafkaGCRequestTopic: string;
-    InstanceID: string;
-    BackbeatApiHost: string;
-    BackbeatApiPort: string;
-    KafkaCleanerInterval: string;
-    SorbetdRestoreTimeout: string;
-    UtilizationServiceHost: string;
-    UtilizationServicePort: string;
-    [key: string]: unknown;
+    KubeconfigPath?: string;
 }
 
 /**
@@ -116,6 +86,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         stdout: '',
         stderr: '',
     };
+
+    static testsConfig: TestsConfiguration;
 
     private commandParameters: Record<string, unknown> = {};
 
@@ -142,17 +114,23 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      */
     constructor(options: IWorldOptions<ZenkoWorldParameters>) {
         super(options);
+
         Logger.createLogger(this);
-        // store service users credentials from world parameters
-        if (this.parameters.ServiceUsersCredentials) {
-            const serviceUserCredentials =
-                JSON.parse(this.parameters.ServiceUsersCredentials) as Record<string, ServiceUsersCredentials>;
-            for (const serviceUserName in serviceUserCredentials) {
-                if (!Identity.hasIdentity(IdentityEnum.SERVICE_USER, serviceUserName, this.parameters.AccountName)) {
-                    Identity.addIdentity(IdentityEnum.SERVICE_USER, serviceUserName, {
-                        accessKeyId: serviceUserCredentials[serviceUserName].accessKey,
-                        secretAccessKey: serviceUserCredentials[serviceUserName].secretKey,
-                    }, this.parameters.AccountName);
+        if (Zenko.testsConfig?.ServiceUsers) {
+            const serviceUsers = Zenko.testsConfig.ServiceUsers;
+            const entries: [string, ServiceUserCredentials][] = [
+                ['backbeat-lifecycle-bp-1', serviceUsers.BackbeatLifecycleBp1],
+                ['backbeat-lifecycle-conductor-1', serviceUsers.BackbeatLifecycleConductor1],
+                ['backbeat-lifecycle-op-1', serviceUsers.BackbeatLifecycleOp1],
+                ['backbeat-qp-1', serviceUsers.BackbeatQp1],
+                ['sorbet-fwd-2', serviceUsers.SorbetFwd2],
+            ];
+            for (const [name, creds] of entries) {
+                if (creds && !Identity.hasIdentity(IdentityEnum.SERVICE_USER, name, ZENKO_ACCOUNT_NAME)) {
+                    Identity.addIdentity(IdentityEnum.SERVICE_USER, name, {
+                        accessKeyId: creds.accessKey,
+                        secretAccessKey: creds.secretKey,
+                    }, ZENKO_ACCOUNT_NAME);
                 }
             }
         }
@@ -164,24 +142,22 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
         CacheHelper.savedAcrossTests[Zenko.PRA_INSTALL_COUNT_KEY] = 0;
 
-
-        if (this.parameters.AccountName && !Identity.hasIdentity(IdentityEnum.ACCOUNT, this.parameters.AccountName)) {
-            Identity.addIdentity(IdentityEnum.ACCOUNT, this.parameters.AccountName, {
-                accessKeyId: this.parameters.AccountAccessKey,
-                secretAccessKey: this.parameters.AccountSecretKey,
+        if (!Identity.hasIdentity(IdentityEnum.ACCOUNT, ZENKO_ACCOUNT_NAME)) {
+            const { credentials } = Zenko.testsConfig.ZenkoAccount;
+            Identity.addIdentity(IdentityEnum.ACCOUNT, ZENKO_ACCOUNT_NAME, {
+                accessKeyId: credentials.accessKeyId,
+                secretAccessKey: credentials.secretAccessKey,
+                sessionToken: credentials.sessionToken,
             });
         }
 
-        if (this.parameters.AccountName) {
-            Identity.useIdentity(IdentityEnum.ACCOUNT, this.parameters.AccountName);
-            Identity.defaultAccountName = this.parameters.AccountName;
-        }
+        Identity.useIdentity(IdentityEnum.ACCOUNT, ZENKO_ACCOUNT_NAME);
+        Identity.defaultAccountName = ZENKO_ACCOUNT_NAME;
 
-        if (this.parameters.AdminAccessKey && this.parameters.AdminSecretKey &&
-            !Identity.hasIdentity(IdentityEnum.ADMIN, Zenko.PRIMARY_SITE_NAME)) {
+        if (!Identity.hasIdentity(IdentityEnum.ADMIN, Zenko.PRIMARY_SITE_NAME)) {
             Identity.addIdentity(IdentityEnum.ADMIN, Zenko.PRIMARY_SITE_NAME, {
-                accessKeyId: this.parameters.AdminAccessKey,
-                secretAccessKey: this.parameters.AdminSecretKey,
+                accessKeyId: Zenko.testsConfig.AdminCredentials.accessKey,
+                secretAccessKey: Zenko.testsConfig.AdminCredentials.secretKey,
             }, undefined, undefined, undefined, this.parameters.subdomain);
 
             Zenko.sites['source'] = {
@@ -193,13 +169,13 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         if (this.needsSecondarySite()) {
             if (!Identity.hasIdentity(IdentityEnum.ADMIN, Zenko.SECONDARY_SITE_NAME)) {
                 Identity.addIdentity(IdentityEnum.ADMIN, Zenko.SECONDARY_SITE_NAME, {
-                    accessKeyId: this.parameters.DRAdminAccessKey!,
-                    secretAccessKey: this.parameters.DRAdminSecretKey!,
+                    accessKeyId: Zenko.testsConfig.PRAAdmin!.accessKey,
+                    secretAccessKey: Zenko.testsConfig.PRAAdmin!.secretKey,
                 }, undefined, undefined, undefined, this.parameters.DRSubdomain);
             }
 
             Zenko.sites['sink'] = {
-                accountName: `dr${this.parameters.AccountName}`,
+                accountName: `dr${ZENKO_ACCOUNT_NAME}`,
                 adminIdentityName: Zenko.SECONDARY_SITE_NAME,
             };
         }
@@ -210,7 +186,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     }
 
     private needsSecondarySite() {
-        return this.parameters.DRAdminAccessKey && this.parameters.DRAdminSecretKey && this.parameters.DRSubdomain;
+        return Zenko.testsConfig.PRAAdmin && this.parameters.DRSubdomain;
     }
 
     /**
@@ -265,19 +241,19 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             await this.prepareIamUser();
             break;
         case EntityType.STORAGE_MANAGER:
-            await this.prepareARWWI(this.parameters.StorageManagerUsername || 'storage_manager',
+            await this.prepareARWWI('storage_manager',
                 'storage-manager-role', this.parameters.KeycloakTestPassword);
             break;
         case EntityType.STORAGE_ACCOUNT_OWNER:
-            await this.prepareARWWI(this.parameters.StorageAccountOwnerUsername || 'storage_account_owner',
+            await this.prepareARWWI('storage_account_owner',
                 'storage-account-owner-role', this.parameters.KeycloakTestPassword);
             break;
         case EntityType.DATA_CONSUMER:
-            await this.prepareARWWI(this.parameters.DataConsumerUsername || 'data_consumer',
+            await this.prepareARWWI('data_consumer',
                 'data-consumer-role', this.parameters.KeycloakTestPassword);
             break;
         case EntityType.DATA_ACCESSOR:
-            await this.prepareARWWI(this.parameters.DataAccessorUsername || 'data_accessor',
+            await this.prepareARWWI('data_accessor',
                 'data-accessor-role', this.parameters.KeycloakTestPassword);
             break;
         case EntityType.ASSUME_ROLE_USER:
@@ -316,10 +292,10 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 ARWWIName,
                 ARWWIPassword || '123',
                 this.parameters.KeycloakHost || 'keycloak.zenko.local',
-                this.parameters.KeycloakPort || '80',
-                `/auth/realms/${this.parameters.KeycloakRealm || 'zenko'}/protocol/openid-connect/token`,
-                this.parameters.KeycloakClientId || Constants.K_CLIENT,
-                this.parameters.KeycloakGrantType || 'password',
+                '80',
+                `/auth/realms/${this.parameters.KeycloakRealm}/protocol/openid-connect/token`,
+                Constants.K_CLIENT,
+                'password',
             );
             if (!webIdentityToken) {
                 throw new Error('Error when trying to get a WebIdentity token.');
@@ -721,10 +697,10 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             }
         }
 
-        const accountName = this.sites['source']?.accountName || CacheHelper.parameters.AccountName!;
+        const accountName = this.sites['source']?.accountName || ZENKO_ACCOUNT_NAME;
         const accountAccessKeys = Identity.getCredentialsForIdentity(
             IdentityEnum.ACCOUNT, this.sites['source']?.accountName
-        || CacheHelper.parameters.AccountName!) || {
+        || ZENKO_ACCOUNT_NAME) || {
             accessKeyId: '',
             secretAccessKey: '',
         };
@@ -989,13 +965,13 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         username?: string,
     ): Promise<{ statusCode: number; data: object } | { statusCode: number; err: unknown }> {
         const token = await this.getWebIdentityToken(
-            username || this.parameters.KeycloakUsername || 'storage_manager',
-            this.parameters.KeycloakPassword || '123',
-            this.parameters.KeycloakHost || 'keycloak.zenko.local',
-            this.parameters.KeycloakPort || '80',
-            `/auth/realms/${this.parameters.KeycloakRealm || 'zenko'}/protocol/openid-connect/token`,
-            this.parameters.KeycloakClientId || Constants.K_CLIENT,
-            this.parameters.KeycloakGrantType || 'password',
+            username || this.parameters.KeycloakUsername,
+            this.parameters.KeycloakPassword,
+            this.parameters.KeycloakHost,
+            '80',
+            `/auth/realms/${this.parameters.KeycloakRealm}/protocol/openid-connect/token`,
+            Constants.K_CLIENT,
+            'password',
         );
         const axiosInstance = axios.create();
         const protocol = this.parameters.ssl === false ? 'http://' : 'https://';
@@ -1042,7 +1018,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     async addWebsiteEndpoint(this: Zenko, endpoint: string):
         Promise<{ statusCode: number; data: object } | { statusCode: number; err: unknown }> {
         return await this.managementAPIRequest('POST',
-            `/config/${this.parameters.InstanceID}/website/endpoint`,
+            `/config/${Zenko.testsConfig.ZenkoCR.InstanceID}/website/endpoint`,
             {
                 'Content-Type': 'application/json',
             },
@@ -1052,7 +1028,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     async deleteLocation(this: Zenko, locationName: string):
         Promise<{ statusCode: number; data: object } | { statusCode: number; err: unknown }> {
         return await this.managementAPIRequest('DELETE',
-            `/config/${this.parameters.InstanceID}/location/${locationName}`);
+            `/config/${Zenko.testsConfig.ZenkoCR.InstanceID}/location/${locationName}`);
     }
 
     saveCreatedObject(objectName: string, versionId: string) {

@@ -1,19 +1,21 @@
 const http = require('http');
 const aws4 = require('aws4');
-
-const DEFAULT_HOST = process.env.CLOUDSERVER_HOST;
-const DEFAULT_PORT = process.env.CLOUDSERVER_PORT || '80';
-
-const accessKeyId = process.env.ZENKO_ACCESS_KEY;
-const secretAccessKey = process.env.ZENKO_SECRET_KEY;
-const sessionToken = process.env.ZENKO_SESSION_TOKEN;
+const { getConfig, CLOUDSERVER_HOST } = require('tests_common/configuration');
 
 const defaultOptions = {
-    host: DEFAULT_HOST,
-    port: DEFAULT_PORT,
+    host: CLOUDSERVER_HOST,
+    port: 80,
     service: 's3',
 };
-const credentials = { accessKeyId, secretAccessKey, sessionToken };
+
+const getCredentials = () => {
+    const { ZenkoAccount } = getConfig();
+    return {
+        accessKeyId: ZenkoAccount.credentials.accessKeyId,
+        secretAccessKey: ZenkoAccount.credentials.secretAccessKey,
+        sessionToken: ZenkoAccount.credentials.sessionToken,
+    };
+};
 
 function getResponseBody(res, cb, isXml = false) {
     res.setEncoding('utf8');
@@ -43,7 +45,7 @@ function makeGETRequest(path, cb, userCredentials) {
         method: 'GET',
         path,
     };
-    options = aws4.sign(options, userCredentials || credentials);
+    options = aws4.sign(options, userCredentials || getCredentials());
 
     const req = http.request(options, res => cb(null, res));
     req.on('error', err => cb(err));
@@ -65,7 +67,7 @@ function makeUpdateRequest(path, cb, userCredentials, body, mode = 'POST') {
         method: mode || 'POST',
         path,
     };
-    options = aws4.sign(options, userCredentials || credentials);
+    options = aws4.sign(options, userCredentials || getCredentials());
 
     const req = http.request(options, res => cb(null, res));
     req.on('error', err => cb(err));
