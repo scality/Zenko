@@ -15,8 +15,7 @@ interface ReportingUsageResponse {
 }
 
 Given('an identity with the {string} keycloak persona', function (this: Zenko, persona: string) {
-    const username = (this.parameters as Record<string, string>)[persona] || persona;
-    this.addToSaved('keycloakPersona', username);
+    this.addToSaved('keycloakPersona', persona);
 });
 
 async function fetchStorageUsageReport(world: Zenko) {
