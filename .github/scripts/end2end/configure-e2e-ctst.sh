@@ -106,3 +106,8 @@ kubectl run kafka-topics \
         kafka-topics.sh --create --topic $AZURE_ARCHIVE_STATUS_TOPIC_2_NV --partitions 10 --bootstrap-server $KAFKA_HOST_PORT --if-not-exists ; \
         kafka-topics.sh --create --topic $AZURE_ARCHIVE_STATUS_TOPIC_2_V --partitions 10 --bootstrap-server $KAFKA_HOST_PORT --if-not-exists ; \
         kafka-topics.sh --create --topic $AZURE_ARCHIVE_STATUS_TOPIC_2_S --partitions 10 --bootstrap-server $KAFKA_HOST_PORT --if-not-exists"
+
+# KMIP mock setup
+# Deploy PyKMIP server (infra only, does NOT patch the CR).
+# The CR is patched later, after file-backend SSE tests have run.
+bash "$(dirname "$0")/../mocks/setup-kmip.sh"

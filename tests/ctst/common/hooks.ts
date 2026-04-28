@@ -6,7 +6,7 @@ import {
     ITestCaseHookParameter,
 } from '@cucumber/cucumber';
 import Zenko from '../world/Zenko';
-import { CacheHelper, Identity } from 'cli-testing';
+import { CacheHelper, Identity, WorkCoordination } from 'cli-testing';
 import { prepareQuotaScenarios, teardownQuotaScenarios } from 'steps/quotas/quotas';
 import { prepareUtilizationScenarios } from 'steps/utilization/utilizationAPI';
 import { prepareMetricsScenarios } from './utils';
@@ -16,6 +16,7 @@ import { displayDebuggingInformation, preparePRA } from 'steps/pra';
 import {
     cleanupAccount,
 } from './utils';
+import { createKubeCustomObjectClient, waitForZenkoToStabilize } from 'steps/utils/kubernetes';
 
 import 'cli-testing/hooks/KeycloakSetup';
 import 'cli-testing/hooks/Logger';
@@ -33,6 +34,7 @@ const noParallelRun = atMostOnePicklePerTag([
     '@AfterAll',
     '@PRA',
     '@ColdStorage',
+    '@ServerSideEncryption',
     ...replicationLockTags
 ]);
 
@@ -74,6 +76,65 @@ Before({ tags: '@PrepareStorageUsageReportingScenarios', timeout: 1200000 }, asy
         objectCount: 3,
     });
 });
+
+Before({ tags: '@ServerSideEncryptionKmip', timeout: 15 * 60 * 1000 },
+    // Patch the Zenko CR with KMIP configuration before running any KMIP-related tests
+    async function (this: Zenko) {
+        const lockName = `kmip-cr-patch-${process.ppid}`;
+        await WorkCoordination.runOnceAcrossWorkers(
+            { lockName, logger: this.logger },
+            async () => {
+                const namespace = 'default';
+                const zenkoName = 'end2end';
+                const client = createKubeCustomObjectClient(this);
+                const cr = await client.getNamespacedCustomObject({
+                    group: 'zenko.io',
+                    version: 'v1alpha2',
+                    namespace,
+                    plural: 'zenkos',
+                    name: zenkoName,
+                }) as {
+                    spec?: {
+                        kms?: {
+                            kmip?: {
+                                providerName?: string;
+                                tlsAuth?: { tlsSecretName?: string };
+                                endpoints?: { host?: string; port?: number }[];
+                            };
+                        };
+                    };
+                };
+                const alreadyConfigured =
+                    cr?.spec?.kms?.kmip?.providerName === 'pykmip'
+                    && cr?.spec?.kms?.kmip?.endpoints?.some(
+                        ep => ep.host === `pykmip.${namespace}.svc.cluster.local` && ep.port === 5696,
+                    );
+                if (alreadyConfigured) {
+                    return;
+                }
+
+                const kmipValue = {
+                    providerName: 'pykmip',
+                    tlsAuth: { tlsSecretName: `${zenkoName}-kmip-certs` },
+                    endpoints: [{
+                        host: `pykmip.${namespace}.svc.cluster.local`,
+                        port: 5696,
+                    }],
+                };
+
+                await client.patchNamespacedCustomObject({
+                    group: 'zenko.io',
+                    version: 'v1alpha2',
+                    namespace,
+                    plural: 'zenkos',
+                    name: zenkoName,
+                    body: [{ op: 'add', path: '/spec/kms', value: { kmip: kmipValue } }],
+                });
+                await waitForZenkoToStabilize(this, true);
+            },
+        );
+    },
+);
 
 After(async function (this: Zenko, results) {
     // Reset any configuration set on the endpoint (ssl, port)

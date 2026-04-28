@@ -1,7 +1,6 @@
 import { When, Then } from '@cucumber/cucumber';
-import { CacheHelper, Identity, S3 } from 'cli-testing';
+import { S3 } from 'cli-testing';
 import {
-    S3Client,
     GetObjectCommand,
     PutObjectCommand,
     type ServerSideEncryption,
@@ -16,28 +15,6 @@ import assert from 'assert';
 // - cli-testing's S3.getObject writes the body to a shared file (out.loc)
 //   which races under parallel execution.
 // Long term solution : consider dropping cli-testing sdk wrapper : https://scality.atlassian.net/browse/ZENKO-5247
-function buildS3Client(): S3Client {
-    const credentials = Identity.getCurrentCredentials();
-    const ssl = CacheHelper.parameters?.ssl === false
-        ? 'http://' : 'https://';
-    const host = CacheHelper.parameters?.ip
-        || `s3.${CacheHelper.parameters?.subdomain}`;
-    const port = CacheHelper.parameters?.port || '80';
-    return new S3Client({
-        region: 'us-east-1',
-        endpoint: `${ssl}${host}:${port}`,
-        forcePathStyle: true,
-        credentials: {
-            accessKeyId: credentials.accessKeyId,
-            secretAccessKey: credentials.secretAccessKey,
-            ...(credentials.sessionToken
-                ? { sessionToken: credentials.sessionToken }
-                : {}),
-        },
-        tls: CacheHelper.parameters?.ssl !== false,
-        maxAttempts: 1,
-    });
-}
 
 When('bucket encryption is set to {string} with key {string}',
     async function (this: Zenko, algo: string, keyId: string) {
@@ -114,7 +91,7 @@ When('an object {string} is uploaded with SSE algorithm {string} and key {string
         this.addToSaved('objectName', objectName);
         this.addToSaved('objectBody', SSE_TEST_BODY);
         const bucket = this.getSaved<string>('bucketName');
-        const client = buildS3Client();
+        const client = this.createS3Client();
         try {
             const resp = await client.send(new PutObjectCommand({
                 Bucket: bucket,
@@ -158,6 +135,10 @@ Then('the PutObject response should have SSE algorithm {string} and KMS key {str
         if (expectedKey === 'absent') {
             assert.strictEqual(result.sseKmsKeyId, undefined,
                 `PutObject: SSEKMSKeyId should be absent, got "${result.sseKmsKeyId}"`);
+        } else if (expectedKey === 'generated') {
+            assert.ok(result.sseKmsKeyId, 'PutObject: SSEKMSKeyId should be present');
+            assert.ok(isValidSseKmsKeyId(result.sseKmsKeyId),
+                `PutObject: expected a generated key (hex or KMIP), got "${result.sseKmsKeyId}"`);
         } else {
             assert.ok(result.sseKmsKeyId, 'PutObject: SSEKMSKeyId should be present');
         }
@@ -169,7 +150,7 @@ Then('the GetObject should return the uploaded body with SSE algorithm {string} 
         const bucket = this.getSaved<string>('bucketName');
         const objectName = this.getSaved<string>('objectName');
         const expectedBody = this.getSaved<string>('objectBody');
-        const client = buildS3Client();
+        const client = this.createS3Client();
         try {
             const resp = await client.send(
                 new GetObjectCommand({ Bucket: bucket, Key: objectName }),
@@ -189,8 +170,8 @@ Then('the GetObject should return the uploaded body with SSE algorithm {string} 
                     `GetObject: SSEKMSKeyId should be absent, got "${resp.SSEKMSKeyId}"`);
             } else if (expectedKey === 'generated') {
                 assert.ok(resp.SSEKMSKeyId, 'GetObject: SSEKMSKeyId should be present');
-                assert.match(resp.SSEKMSKeyId, /^[a-f0-9]{64}$/,
-                    `GetObject: expected a generated hex key, got "${resp.SSEKMSKeyId}"`);
+                assert.ok(isValidSseKmsKeyId(resp.SSEKMSKeyId),
+                    `GetObject: expected a generated key (hex or KMIP), got "${resp.SSEKMSKeyId}"`);
             } else {
                 assert.strictEqual(resp.SSEKMSKeyId, expectedKey,
                     `GetObject: expected key "${expectedKey}", got "${resp.SSEKMSKeyId}"`);
@@ -208,3 +189,42 @@ Then('it should fail with error {string}',
             `Expected error "${expectedError}" but got: ${result.err}`);
     },
 );
+
+Then('objects {string} and {string} share the same KMS key',
+    async function (this: Zenko, objA: string, objB: string) {
+        const bucket = this.getSaved<string>('bucketName');
+        const client = this.createS3Client();
+        try {
+            const [respA, respB] = await Promise.all([
+                client.send(new GetObjectCommand({ Bucket: bucket, Key: objA })),
+                client.send(new GetObjectCommand({ Bucket: bucket, Key: objB })),
+            ]);
+            const keyA = respA.SSEKMSKeyId;
+            const keyB = respB.SSEKMSKeyId;
+            assert.ok(keyA, `Object "${objA}" has no SSEKMSKeyId`);
+            assert.ok(keyB, `Object "${objB}" has no SSEKMSKeyId`);
+            assert.strictEqual(keyA, keyB,
+                `Objects in same bucket should share the same KMIP key; got "${keyA}" vs "${keyB}"`);
+        } finally {
+            client.destroy();
+        }
+    },
+);
+
+/**
+ * Validates if the provided SSE KMS Key ID matches supported backend formats:
+ * 1. File Backend: A 64-character hex string.
+ * 2. KMIP Backend: A numeric string OR a specific Scality KMIP ARN.
+ * @param sseKmsKeyId - The key ID string to validate
+ * @returns boolean
+ */
+function isValidSseKmsKeyId(sseKmsKeyId: string | undefined): boolean {
+    if (!sseKmsKeyId) {
+        return false;
+    }
+
+    const isFileBackendKey = /^[a-f0-9]{64}$/.test(sseKmsKeyId);
+    const isKmipKey = /^(\d+|arn:scality:kms:external:kmip:[a-z0-9]+:key\/\d+)$/.test(sseKmsKeyId);
+
+    return isFileBackendKey || isKmipKey;
+}

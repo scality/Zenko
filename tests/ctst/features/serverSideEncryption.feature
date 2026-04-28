@@ -85,3 +85,80 @@ Feature: Server Side Encryption
         Given a "Non versioned" bucket
         When the user gets bucket encryption
         Then it should fail with error "ServerSideEncryptionConfigurationNotFoundError"
+
+    # KMIP backend tests
+    # These scenarios require a PyKMIP server to be deployed and Zenko to be
+    # reconfigured with spec.kms.kmip before running. The previous @ServerSideEncryptionFileBackend
+    # tests will not work once KMIP is configured on the ZENKO custom resource.
+    
+    @2.14.0
+    @PreMerge
+    @ServerSideEncryption
+    @ServerSideEncryptionKmip
+    Scenario Outline: KMIP: should encrypt object when bucket encryption is <bucketAlgo> and object encryption is <objectAlgo>
+        Given a "Non versioned" bucket
+        And bucket encryption is set to "<bucketAlgo>" with key "<bucketKeyId>"
+        Then the bucket encryption is verified for algorithm "<bucketAlgo>" and key "<bucketKeyId>"
+        When an object "<objectName>" is uploaded with SSE algorithm "<objectAlgo>" and key "<objectKeyId>"
+        Then the PutObject response should have SSE algorithm "<expectedAlgo>" and KMS key "<expectedKeyId>"
+        Then the GetObject should return the uploaded body with SSE algorithm "<expectedAlgo>" and KMS key "<expectedKeyId>"
+
+        Examples: No bucket encryption
+            | objectName        | bucketAlgo | bucketKeyId | objectAlgo | objectKeyId | expectedAlgo | expectedKeyId |
+            | kmip-none-none    |            |             |            |             |              | absent        |
+            | kmip-none-aes     |            |             | AES256     |             | AES256       | absent        |
+
+        Examples: No bucket encryption, aws:kms
+            | objectName        | bucketAlgo | bucketKeyId | objectAlgo | objectKeyId | expectedAlgo | expectedKeyId |
+            | kmip-none-kms     |            |             | aws:kms    |             | aws:kms      | generated     |
+
+        Examples: Bucket AES256
+            | objectName        | bucketAlgo | bucketKeyId | objectAlgo | objectKeyId | expectedAlgo | expectedKeyId |
+            | kmip-aes-none     | AES256     |             |            |             | AES256       | absent        |
+            | kmip-aes-aes      | AES256     |             | AES256     |             | AES256       | absent        |
+            | kmip-aes-kms      | AES256     |             | aws:kms    |             | aws:kms      | generated     |
+
+        Examples: Bucket aws:kms (default key)
+            | objectName        | bucketAlgo | bucketKeyId | objectAlgo | objectKeyId | expectedAlgo | expectedKeyId |
+            | kmip-kms-none     | aws:kms    |             |            |             | aws:kms      | generated     |
+            | kmip-kms-aes      | aws:kms    |             | AES256     |             | AES256       | absent        |
+            | kmip-kms-kms      | aws:kms    |             | aws:kms    |             | aws:kms      | generated     |
+
+    @2.14.0
+    @PreMerge
+    @ServerSideEncryption
+    @ServerSideEncryptionKmip
+    Scenario: KMIP: DeleteBucketEncryption removes default encryption
+        Given a "Non versioned" bucket
+        And bucket encryption is set to "AES256" with key ""
+        When an object "kmip-enc-obj" is uploaded with SSE algorithm "" and key ""
+        Then the GetObject should return the uploaded body with SSE algorithm "AES256" and KMS key "absent"
+        When the user deletes bucket encryption
+        Then the GetObject should return the uploaded body with SSE algorithm "AES256" and KMS key "absent"
+        When an object "kmip-plain-obj" is uploaded with SSE algorithm "" and key ""
+        Then the GetObject should return the uploaded body with SSE algorithm "" and KMS key "absent"
+
+    @2.14.0
+    @PreMerge
+    @ServerSideEncryption
+    @ServerSideEncryptionKmip
+    Scenario Outline: KMIP: PutObject with invalid SSE parameters returns an error: <objectName>
+        Given a "Non versioned" bucket
+        When an object "<objectName>" is uploaded with SSE algorithm "<algo>" and key "<keyId>"
+        Then it should fail with error "InvalidArgument"
+
+        Examples:
+            | objectName            | algo         | keyId    |
+            | kmip-invalid-algo     | INVALID_ALGO |          |
+            | kmip-aes-kms-err      | AES256       | some-key |
+
+    @2.14.0
+    @PreMerge
+    @ServerSideEncryption
+    @ServerSideEncryptionKmip
+    Scenario: KMIP: objects in same bucket share the same KMIP master key
+        Given a "Non versioned" bucket
+        And bucket encryption is set to "aws:kms" with key ""
+        When an object "kmip-shared-key-obj-a" is uploaded with SSE algorithm "" and key ""
+        And an object "kmip-shared-key-obj-b" is uploaded with SSE algorithm "" and key ""
+        Then objects "kmip-shared-key-obj-a" and "kmip-shared-key-obj-b" share the same KMS key
