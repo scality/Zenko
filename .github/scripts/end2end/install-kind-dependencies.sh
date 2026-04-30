@@ -162,9 +162,9 @@ metadata:
   name: mongodb-db-creds
 stringData:
   mongodb-root-username: $MONGODB_ROOT_USERNAME
-  mongodb-root-password: $MONGODB_ROOT_PASSWORD 
+  mongodb-root-password: $MONGODB_ROOT_PASSWORD
   mongodb-username: $MONGODB_APP_USERNAME
-  mongodb-password: $MONGODB_APP_PASSWORD 
+  mongodb-password: $MONGODB_APP_PASSWORD
   mongodb-database: $MONGODB_APP_DATABASE
   mongodb-replica-set-key: $MONGODB_RS_KEY
 EOF
@@ -206,10 +206,10 @@ patch_mongodb_selector() {
 
     # Remove volume selectors from mongos StatefulSet
     yq eval 'select(.kind == "StatefulSet" and .metadata.name == "data-db-mongodb-sharded-mongos") |= del(.spec.volumeClaimTemplates[].spec.selector)' -i "$base_yaml_path"
-    
-    # Remove volume selectors from configsvr StatefulSet  
+
+    # Remove volume selectors from configsvr StatefulSet
     yq eval 'select(.kind == "StatefulSet" and .metadata.name == "data-db-mongodb-sharded-configsvr") |= del(.spec.volumeClaimTemplates[].spec.selector)' -i "$base_yaml_path"
-    
+
     # Remove volume selectors from shard StatefulSets
     for ((i=0; i<shard_count; i++)); do
         yq eval "select(.kind == \"StatefulSet\" and .metadata.name == \"data-db-mongodb-sharded-shard${i}-data\") |= del(.spec.volumeClaimTemplates[].spec.selector)" -i "$base_yaml_path"
@@ -225,7 +225,7 @@ build_solution_base_manifests() {
     # Limits and requests for MongoDB are computed based on the current system
     # Detect total system RAM in GiB
     TOTAL_RAM_GB=$(awk '/MemTotal/ {printf "%.0f", $2/1024/1024}' /proc/meminfo)
-  
+
     # Compute MongoDB settings based on the total RAM
     MONGODB_WIRETIGER_CACHE_SIZE_GB=$((TOTAL_RAM_GB * 335 / 1000))
     MONGODB_MONGOS_RAM_LIMIT=$((TOTAL_RAM_GB * 165 / 1000))Gi
@@ -243,7 +243,11 @@ build_solution_base_manifests() {
 
 get_image_from_deps() {
     local dep_name=$1
-    yq eval ".$dep_name | (.sourceRegistry // \"docker.io\") + \"/\" + .image + \":\" + .tag" $SOLUTION_BASE_DIR/deps.yaml
+
+    source <( "$SOLUTION_BASE_DIR/mongodb_build_vars.sh" )
+
+    yq eval ".$dep_name | (.sourceRegistry // \"docker.io\") + \"/\" + .image + \":\" + .tag" $SOLUTION_BASE_DIR/deps.yaml |
+        sed '/ghcr.io\/scality\/zenko\// s/$/-'"${MONGODB_BUILD_TREE_HASH}"'/'
 }
 
 retry() {

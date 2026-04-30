@@ -29,6 +29,8 @@ SKOPEO=skopeo
 SKOPEO_OPTS="--override-os linux --insecure-policy"
 SOLUTION_REGISTRY=metalk8s-registry-from-config.invalid/${PRODUCT_LOWERNAME}-${VERSION_FULL}
 
+source <( "${SOLUTION_BASE_DIR}/mongodb_build_vars.sh" )
+
 MONGODB_SHARDED_SINGLE_NODE_PATH=${ISO_ROOT}/deploy/mongodb-sharded-1-node.yaml
 MONGODB_SHARDED_SINGLE_NODE_TWO_SHARDS_PATH=${ISO_ROOT}/deploy/mongodb-sharded-1-node-2-shards.yaml
 MONGODB_SHARDED_THREE_NODE_PATH=${ISO_ROOT}/deploy/mongodb-sharded-3-nodes.yaml
@@ -50,11 +52,11 @@ MONGODB_SHARDED_NAME="data-db"
 MONGODB_NAMESPACE=${SOLUTION_ENV}
 MONGODB_REGISTRY=${SOLUTION_REGISTRY}
 MONGODB_SHARDED_IMAGE_NAME="mongodb-sharded"
-MONGODB_SHARDED_IMAGE_TAG=$(yq eval ".mongodb-sharded.tag" $SOLUTION_BASE_DIR/deps.yaml)
+MONGODB_SHARDED_IMAGE_TAG="${MONGODB_SHARDED_TAG}-${MONGODB_BUILD_TREE_HASH}"
 MONGODB_SHARDED_EXPORTER_IMAGE_NAME="mongodb-exporter"
-MONGODB_SHARDED_EXPORTER_IMAGE_TAG=$(yq eval ".mongodb-sharded-exporter.tag" $SOLUTION_BASE_DIR/deps.yaml)
+MONGODB_SHARDED_EXPORTER_IMAGE_TAG="${MONGODB_SHARDED_EXPORTER_TAG}-${MONGODB_BUILD_TREE_HASH}"
 MONGODB_SHARDED_SHELL_IMAGE_NAME=$(yq eval ".mongodb-shell.image" $SOLUTION_BASE_DIR/deps.yaml | awk -F'/' '{print $NF}')
-MONGODB_SHARDED_SHELL_IMAGE_TAG=$(yq eval ".mongodb-shell.tag" $SOLUTION_BASE_DIR/deps.yaml)
+MONGODB_SHARDED_SHELL_IMAGE_TAG="${MONGODB_SHARDED_SHELL_TAG}-${MONGODB_BUILD_TREE_HASH}"
 MONGODB_STORAGE_CLASS="MONGODB_STORAGE_CLASS"
 MONGODB_MONGOS_RAM_LIMIT="MONGODB_MONGOS_RAM_LIMIT"
 MONGODB_SHARDSERVER_RAM_LIMIT="MONGODB_SHARDSERVER_RAM_LIMIT"
@@ -64,7 +66,8 @@ MONGODB_MONGOS_RAM_REQUEST="MONGODB_MONGOS_RAM_REQUEST"
 
 function flatten_source_images()
 {
-    yq eval '.* | (.sourceRegistry // "docker.io") + "/" + .image + ":" + .tag' ${SOLUTION_BASE_DIR}/deps.yaml
+    yq eval '.* | (.sourceRegistry // "docker.io") + "/" + .image + ":" + .tag' ${SOLUTION_BASE_DIR}/deps.yaml |
+        sed '/ghcr.io\/scality\/zenko\// s/$/-'"${MONGODB_BUILD_TREE_HASH}"'/'
 }
 
 function clean()
