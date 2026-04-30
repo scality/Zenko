@@ -6,6 +6,9 @@ FROM docker.io/bitnami/minideb:bookworm@sha256:5b4e544f5d0c4669d3dbe4f4de8d3ca22
 ARG DOWNLOADS_URL="downloads.bitnami.com/files/stacksmith"
 ARG TARGETARCH
 ARG MONGODB_VERSION
+ARG MONGODB_DATABASE_TOOLS_VERSION="100.13.0"
+ARG MONGODB_DATABASE_TOOLS_AMD64_SHA256="1c77ab3d8b177410af6e313164e459243bca70794e76c5ca1ad3fa324ae16f14"
+ARG MONGODB_DATABASE_TOOLS_ARM64_SHA256="bd404104d7239cc5e88d5ed326870bd851b2012eef92797bfad5c9aa254a364e"
 
 LABEL org.opencontainers.image.base.name="docker.io/bitnami/minideb:bookworm" \
       org.opencontainers.image.created="2025-09-07T01:52:10Z" \
@@ -48,15 +51,23 @@ RUN --mount=type=secret,id=downloads_url,env=SECRET_DOWNLOADS_URL \
     # arm64 debian12 tarballs are not published, so use ubuntu2204 for arm64.
     if [ "${OS_ARCH}" = "arm64" ]; then \
       MONGODB_TARBALL="mongodb-linux-aarch64-ubuntu2204-${MONGODB_VERSION}.tgz" ; \
+      MONGODB_DATABASE_TOOLS_TARBALL="mongodb-database-tools-ubuntu2204-arm64-${MONGODB_DATABASE_TOOLS_VERSION}.tgz" ; \
+      MONGODB_DATABASE_TOOLS_SHA256="${MONGODB_DATABASE_TOOLS_ARM64_SHA256}" ; \
     else \
       MONGODB_TARBALL="mongodb-linux-x86_64-debian12-${MONGODB_VERSION}.tgz" ; \
+      MONGODB_DATABASE_TOOLS_TARBALL="mongodb-database-tools-debian12-x86_64-${MONGODB_DATABASE_TOOLS_VERSION}.tgz" ; \
+      MONGODB_DATABASE_TOOLS_SHA256="${MONGODB_DATABASE_TOOLS_AMD64_SHA256}" ; \
     fi ; \
     curl -SsLf "https://fastdl.mongodb.org/linux/${MONGODB_TARBALL}" -O ; \
     curl -SsLf "https://fastdl.mongodb.org/linux/${MONGODB_TARBALL}.sha256" -O ; \
     sha256sum -c "${MONGODB_TARBALL}.sha256" ; \
     mkdir -p /opt/bitnami/mongodb ; \
     tar -zxf "${MONGODB_TARBALL}" -C /opt/bitnami/mongodb --strip-components=1 --no-same-owner ; \
-    rm -rf "${MONGODB_TARBALL}"{,.sha256}
+    rm -rf "${MONGODB_TARBALL}"{,.sha256} ; \
+    curl -SsLf "https://fastdl.mongodb.org/tools/db/${MONGODB_DATABASE_TOOLS_TARBALL}" -O ; \
+    echo "${MONGODB_DATABASE_TOOLS_SHA256}  ${MONGODB_DATABASE_TOOLS_TARBALL}" | sha256sum -c - ; \
+    tar -zxf "${MONGODB_DATABASE_TOOLS_TARBALL}" -C /opt/bitnami/mongodb --strip-components=1 --no-same-owner ; \
+    rm -rf "${MONGODB_DATABASE_TOOLS_TARBALL}"
 RUN apt-get update && apt-get upgrade -y && \
     apt-get clean && rm -rf /var/lib/apt/lists /var/cache/apt/archives
 RUN chmod g+rwX /opt/bitnami
