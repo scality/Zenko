@@ -7,7 +7,26 @@ to the new version. Below is a structured guide to follow for a successful
 upgrade (note that all along we will be taking as an example the upgrade from
 MongoDB 8.0.10 to 9.3.6):
 
-## Upgrade steps
+## Image Build
+
+Zenko now builds its own MongoDB Sharded images from vendored Bitnami scripts.
+Image sources live under `solution-base/images/`.
+
+### Bumping the MongoDB version in the image
+
+- Upstream images are vendored, so local code must be synced with upstream changes.
+- If a new MongoDB baseline (8.2, 9.0...) is available upstream, switch to that baseline.
+- Base images are pinned to specific image digests and must be reviewed/updated.
+See `solution-base/images/README.md` for details.
+
+### Re-vendoring upstream Bitnami scripts
+
+When upstream Bitnami script changes need to be pulled in,
+compare `bitnami/containers` and merge upstream changes to `prebuildfs/` /
+`rootfs/` directories into the corresponding image directories. See
+`solution-base/images/README.md` for the detailed steps to upgrade the images.
+
+## Helm Chart Upgrade Steps
 
 1. Update your local view of the helm charts: `helm repo update bitnami`.
 You may also reinstall it with
@@ -44,7 +63,12 @@ directly handled by the charts or patches. Please carefully review the new
 logic added by the new chart version, and ensure they remain compatible with
 our use case.
 
-9. Passing CI tests is not enough, you must also perform an upgrade check with
+9. When bumping the Helm chart, also check whether the image Dockerfile or
+Bitnami scripts changed for that chart version. If so, re-vendor the scripts
+from `bitnami/containers` and rebuild the images before deploying the
+new chart (see `solution-base/images/README.md`).
+
+10. Passing CI tests is not enough, you must also perform an upgrade check with
 the product(s) using this Zenko version, before merging the upgrade PR. Some
 changes may be required at upper-levels (e.g., update mongosh commands, or add
 new logic in the upgrade).
