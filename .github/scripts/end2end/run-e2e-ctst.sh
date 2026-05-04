@@ -32,4 +32,5 @@ yarn cucumber-js \
     --retry-tag-filter @Flaky \
     --format pretty \
     --format html:ctst/reports/report.html \
-    --format junit:ctst/reports/report.xml
+    --format junit:ctst/reports/report.xml \
+    --format message:ctst/reports/report.ndjson

@@ -1,5 +1,6 @@
 node_modules
 *.log
-reports/
+reports/*
+!reports/ctst-dashboard.html
 sorbetctl
 zenko-drctl
